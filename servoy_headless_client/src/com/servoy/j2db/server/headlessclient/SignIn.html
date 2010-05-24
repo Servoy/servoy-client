@@ -1,0 +1,85 @@
+<html xmlns:servoy>
+    <head>
+        <title>Servoy - SignIn</title>
+        <script type="text/javascript">
+			function setDefaultFocus()
+			{
+				document.getElementById("username").focus()
+			}
+		</script>
+    </head>
+	<body bgcolor="#7b8fb4" onload="setDefaultFocus()">
+	<img src="/images/spacer.gif" width="150" height="150" border="0" alt="">
+    <table align="center" border="0" cellpadding="0" cellspacing="0">
+	  <tr bgcolor="#FFFFFF">
+	   <td>&nbsp;</td>
+	   <td colspan=2><img src="/images/c1.gif" width="363" height="55" border="0" alt=""></td>
+	   <td><img src="/images/c2.gif" width="31" height="55" border="0" alt=""></td>
+	  </tr>
+	  <tr bgcolor="#FFFFFF">														     
+	   <td>&nbsp;</td>
+	   <td><img src="/images/spacer.gif" width="5" height="5" border="0" alt=""></td>
+	   <td>&nbsp;</td>
+	   <td>&nbsp;</td>
+	  </tr>
+	  <tr bgcolor="#FFFFFF">														     
+	   <td>&nbsp;</td>
+	   <td colspan=2 align="center"><font face="Verdana,Arial" size=2><b>Login</b></font></td>
+	   <td>&nbsp;</td>
+	  </tr>
+	  <tr bgcolor="#FFFFFF">
+	   <td>&nbsp;</td>
+	   <td><img src="/images/spacer.gif" width="10" height="10" border="0" alt=""></td>
+	   <td>&nbsp;</td>
+	   <td>&nbsp;</td>
+	  </tr><form servoy:id="signInForm">
+	  <tr bgcolor="#FFFFFF">
+	    <td><img src="/images/spacer.gif" width="10" height="25" border="0" alt=""></td>
+		<td align="right">Username:&nbsp;</td>
+		<td><input servoy:id="username" id="username" type="text" value="" size="30"/></td>
+		<td>&nbsp;</td>
+	  </tr>
+	  <tr bgcolor="#FFFFFF">
+	    <td><img src="/images/spacer.gif" width="10" height="25" border="0" alt=""></td>
+		<td align="right">Password:&nbsp;</td>
+		<td><input servoy:id="password" type="password" value="" size="30"/></td>
+		<td>&nbsp;</td>
+	  </tr>
+	  <tr bgcolor="#FFFFFF" servoy:id="rememberMeRow">
+	    <td><img src="/images/spacer.gif" width="10" height="25" border="0" alt=""></td>
+		<td>&nbsp;</td>
+		<td><input servoy:id="rememberMe" type="checkbox" />Remember Me</td>
+		<td>&nbsp;</td>
+	  </tr>
+ 	  <tr bgcolor="#FFFFFF">
+	    <td><img src="/images/spacer.gif" width="10" height="25" border="0" alt=""></td>
+		<td>&nbsp;</td>
+		<td align="right"><input type="submit" name="submit" value="Sign In"/>&nbsp;<input type="reset" value="Reset"/><img src="/images/spacer.gif" width="40" height="20" border="0" alt=""></td>
+		<td>&nbsp;</td>
+	  </tr></form>
+	  <tr bgcolor="#FFFFFF">
+	   <td>&nbsp;</td>
+	   <td><img src="/images/spacer.gif" width="10" height="10" border="0" alt=""></td>
+	   <td>&nbsp;</td>
+	   <td>&nbsp;</td>
+	  </tr>
+	  <tr bgcolor="#FFFFFF">														     
+	   <td>&nbsp;</td>
+	   <td colspan=2><font face="Verdana,Arial" size=2 color="red"><span servoy:id="feedback"/></font></td>
+	   <td>&nbsp;</td>
+	  </tr>
+	  <tr bgcolor="#FFFFFF">														     
+	   <td>&nbsp;</td>
+	   <td><img src="/images/spacer.gif" width="5" height="5" border="0" alt=""></td>
+	   <td>&nbsp;</td>
+	   <td>&nbsp;</td>
+	  </tr>
+	  <tr bgcolor="#FFFFFF">
+	   <td><img src="/images/c3.gif" width="18" height="24" border="0" alt=""></td>
+	   <td>&nbsp;</td>
+	   <td>&nbsp;</td>
+	   <td><img src="/images/c4.gif" width="31" height="24" border="0" alt=""></td>
+	  </tr>
+	</table>
+</body>
+</html>
