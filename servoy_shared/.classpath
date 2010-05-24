@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry exported="true" kind="lib" path="lib/antlr.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-pool.jar" sourcepath="libsrc/commons-pool-1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/annotations-1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/BrowserLauncher2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-codec.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-collections.jar" sourcepath="libsrc/commons-collections.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-dbcp.jar" sourcepath="libsrc/commons-dbcp.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-httpclient.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-io-1.4.jar" sourcepath="libsrc/commons-io-1.4-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-logging.jar" sourcepath="libsrc/commons-logging.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/compat141.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/dom4j.jar" sourcepath="libsrc/dom4j-src.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/help.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jabsorb.jar" sourcepath="libsrc/jabsorb-src.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jdbc2_0-stdext.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jmx.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jndi.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/joda-time.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jug.jar" sourcepath="libsrc/jug-src.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/log4j.jar" sourcepath="libsrc/log4j-src.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/MRJAdapter.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/ohj-jewt.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/oracle_ice.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/servlet-api.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/slf4j-api.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/slf4j-log4j.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/terracotta-api.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/wicket-calendar.jar" sourcepath="libsrc/wicket-calendar-src.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/wicket-extentions.jar" sourcepath="libsrc/wicket-extentions-src.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/wicket.jar" sourcepath="libsrc/wicket-src.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/activation.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mail.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

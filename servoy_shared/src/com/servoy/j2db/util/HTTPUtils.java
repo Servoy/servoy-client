@@ -1,0 +1,57 @@
+/*
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+
+ This program is free software; you can redistribute it and/or modify it under
+ the terms of the GNU Affero General Public License as published by the Free
+ Software Foundation; either version 3 of the License, or (at your option) any
+ later version.
+
+ This program is distributed in the hope that it will be useful, but WITHOUT
+ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+ You should have received a copy of the GNU Affero General Public License along
+ with this program; if not, see http://www.gnu.org/licenses or write to the Free
+ Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
+*/
+package com.servoy.j2db.util;
+
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ * Class that provides static utility methods related to HTTP.
+ * @author Andrei Costescu
+ */
+public class HTTPUtils
+{
+
+	/**
+	 * This method tries to make peace between different browsers, versions and browser bugs for no-caching response headers.<br>
+	 * It will set response headers to prevent the response from being cached.
+	 * @param response the HTTP response on which header fields will be set.
+	 */
+	public static void setNoCacheHeaders(HttpServletResponse response)
+	{
+		response.setHeader("Cache-Control", "max-age=0, must-revalidate, proxy-revalidate"); //HTTP 1.1
+		response.setHeader("Expires", "0");//$NON-NLS-1$ // mentioned as an invalid (but used anyway in HTTP 1.0) value which MUST be interpreted correctly in HTTP 1.1 specs. (this means interpreted as no-cache); we can use this to avoid incorrectly synced clocks that would cause problems if expires clause would be used as described in specs.
+
+//		if (request.isSecure())
+//		{
+//			response.setDateHeader("Expires", System.currentTimeMillis() + 5000);//$NON-NLS-1$
+//		}
+//		else
+//		{
+//		    ... do normal headers
+//		}
+//		//prevents save to disk in https, Expires should be enough
+//		response.setHeader("Proxy", "no-cache"); //$NON-NLS-1$//$NON-NLS-2$
+//		response.setHeader("Pragma", "no-cache"); //HTTP 1.0 //$NON-NLS-1$ //$NON-NLS-2$ // Pragma: no-cache is meant to be used in requests, not responses; in responses it's only taken into consideration by some browsers, such as IE in https, but this also results in a bug for IE 6
+//		//seems not to work in IE
+//		response.setHeader("Cache-Control","no-cache"); //HTTP 1.1
+//		response.setHeader("Cache-Control","no-store"); //HTTP 1.1
+//
+		//let cache for 5 seconds in browser, workarround for IE browser (which has a known bug with https and expires); see http://support.microsoft.com/kb/323308
+//		response.setDateHeader("Expires", System.currentTimeMillis() + 5000);//$NON-NLS-1$ // works except for when system clocks are out of sync or when you do the operation in less then 5 secs.
+	}
+
+}
