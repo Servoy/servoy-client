@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<editmodel:ClassDiagramEditModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:editmodel="editmodel.xmi" size="2035,1326" id="bloks4JanBlokj2db7106" metadata="nsuml-1.4" initialized="true" showWireOptions="3" scrolledX="1008" scrolledY="701">
+  <children xsi:type="editmodel:ClassEditModel" location="54,1022" size="133,85" targetConnections="//@children.9/@sourceConnections.3" id="bloks4JanBlokj2db13558" runTimeClassModel="bloks4JanBlokj2db13562;bloks4JanBlokj2db13566;bloks4JanBlokj2db13559">
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <children xsi:type="editmodel:CompartmentEditModel" size="110,36">
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13562"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13566"/>
+    </children>
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <sourceConnections xsi:type="editmodel:AssociationEditModel" id="bloks4JanBlokj2db13559" connectionRouterKind="Manhattan" source="//@children.0" target="//@children.11" targetEnd="//@children.0/@sourceConnections.0/@children.0" sourceEnd="//@children.0/@sourceConnections.0/@children.1">
+      <children xsi:type="editmodel:AssociationEndEditModel" id="bloks4JanBlokj2db13559" navigable="true" flags="2" multiplicityLabel="//@children.0/@sourceConnections.0/@children.0/@children.1" roleLabel="//@children.0/@sourceConnections.0/@children.0/@children.0">
+        <children xsi:type="editmodel:LabelEditModel" size="50,14" fontInfo="Arial-8-0" anchorKind="LastPart"/>
+        <children xsi:type="editmodel:LabelEditModel" size="19,14" fontInfo="Arial-8-0" anchorKind="LastPart"/>
+      </children>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="-1,0" attachSource="true"/>
+    </sourceConnections>
+    <classifierPreferences xsi:type="editmodel:UMLClassDiagramClassifierPreference" showStereotype="true" attributeSorter="Natural" methodSorter="Natural" innerClassSorter="Natural" showPublicAttributes="true" showPackageAttributes="true" showPublicMethods="true" showPackageMethods="true" showPublicInnerClasses="true" showPackageInnerClasses="true"/>
+  </children>
+  <children xsi:type="editmodel:ClassEditModel" location="1369,1004" size="180,121" id="bloks4JanBlokj2db13533" runTimeClassModel="bloks4JanBlokj2db13535;bloks4JanBlokj2db13537;bloks4JanBlokj2db13534;bloks4JanBlokj2db13542;bloks4JanBlokj2db13536;bloks4JanBlokj2db13544;bloks4JanBlokj2db13540">
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <children xsi:type="editmodel:CompartmentEditModel" size="133,72">
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13537"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13544"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13542"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13540"/>
+    </children>
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <sourceConnections xsi:type="editmodel:AssociationEditModel" id="bloks4JanBlokj2db13536" connectionRouterKind="Manhattan" source="//@children.1" target="//@children.9" targetEnd="//@children.1/@sourceConnections.0/@children.0" sourceEnd="//@children.1/@sourceConnections.0/@children.1">
+      <children xsi:type="editmodel:AssociationEndEditModel" id="bloks4JanBlokj2db13536" navigable="true" flags="4" multiplicityLabel="//@children.1/@sourceConnections.0/@children.0/@children.1" roleLabel="//@children.1/@sourceConnections.0/@children.0/@children.0">
+        <children xsi:type="editmodel:LabelEditModel" size="78,14" fontInfo="Arial-8-0" anchorKind="LastPart"/>
+        <children xsi:type="editmodel:LabelEditModel" size="19,14" fontInfo="Arial-8-0" anchorKind="LastPart"/>
+      </children>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="-1,0" attachSource="true"/>
+    </sourceConnections>
+    <classifierPreferences xsi:type="editmodel:UMLClassDiagramClassifierPreference" showStereotype="true" attributeSorter="Natural" methodSorter="Natural" innerClassSorter="Natural" showPublicAttributes="true" showPackageAttributes="true" showPublicMethods="true" showPackageMethods="true" showPublicInnerClasses="true" showPackageInnerClasses="true"/>
+  </children>
+  <children xsi:type="editmodel:ClassEditModel" location="760,136" size="133,85" targetConnections="//@children.9/@sourceConnections.2" id="bloks4JanBlokj2db13586" runTimeClassModel="bloks4JanBlokj2db13720;bloks4JanBlokj2db13715;bloks4JanBlokj2db13716">
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <children xsi:type="editmodel:CompartmentEditModel" size="110,36">
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13716"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13720"/>
+    </children>
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <sourceConnections xsi:type="editmodel:AssociationEditModel" id="bloks4JanBlokj2db13715" connectionRouterKind="Manhattan" source="//@children.2" target="//@children.11" targetEnd="//@children.2/@sourceConnections.0/@children.0" sourceEnd="//@children.2/@sourceConnections.0/@children.1">
+      <children xsi:type="editmodel:AssociationEndEditModel" id="bloks4JanBlokj2db13715" navigable="true" flags="2" multiplicityLabel="//@children.2/@sourceConnections.0/@children.0/@children.1" roleLabel="//@children.2/@sourceConnections.0/@children.0/@children.0">
+        <children xsi:type="editmodel:LabelEditModel" size="50,14" fontInfo="Arial-8-0" anchorKind="LastPart"/>
+        <children xsi:type="editmodel:LabelEditModel" size="19,14" fontInfo="Arial-8-0" anchorKind="LastPart"/>
+      </children>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="-1,0" attachSource="true"/>
+    </sourceConnections>
+    <classifierPreferences xsi:type="editmodel:UMLClassDiagramClassifierPreference" showStereotype="true" attributeSorter="Natural" methodSorter="Natural" innerClassSorter="Natural" showPublicAttributes="true" showPackageAttributes="true" showPublicMethods="true" showPackageMethods="true" showPublicInnerClasses="true" showPackageInnerClasses="true"/>
+  </children>
+  <children xsi:type="editmodel:ClassEditModel" location="1922,1220" size="93,85" id="bloks4JanBlokj2db8820" runTimeClassModel="bloks4JanBlokj2db13890;bloks4JanBlokj2db13887">
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <children xsi:type="editmodel:CompartmentEditModel" size="68,36">
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13887"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13890"/>
+    </children>
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <sourceConnections xsi:type="editmodel:GeneralizationEditModel" id="bloks4JanBlokj2db8821" connectionRouterKind="Manual" source="//@children.3" target="//@children.5/@sourceConnections.0" targetEnd="//@children.3/@sourceConnections.0/@children.1" sourceEnd="//@children.3/@sourceConnections.0/@children.0">
+      <children xsi:type="editmodel:AssociationEndEditModel" location="46,0" anchorKind="FixedAtEdge" attachSource="true"/>
+      <children xsi:type="editmodel:AssociationEndEditModel"/>
+    </sourceConnections>
+    <classifierPreferences xsi:type="editmodel:UMLClassDiagramClassifierPreference" showStereotype="true" attributeSorter="Natural" methodSorter="Natural" innerClassSorter="Natural" showPublicAttributes="true" showPackageAttributes="true" showPublicMethods="true" showPackageMethods="true" showPublicInnerClasses="true" showPackageInnerClasses="true"/>
+  </children>
+  <children xsi:type="editmodel:ClassEditModel" location="1788,1220" size="104,85" id="bloks4JanBlokj2db8636" runTimeClassModel="bloks4JanBlokj2db13872;bloks4JanBlokj2db13875">
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <children xsi:type="editmodel:CompartmentEditModel" size="77,36">
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13872"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13875"/>
+    </children>
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <sourceConnections xsi:type="editmodel:GeneralizationEditModel" id="bloks4JanBlokj2db8637" connectionRouterKind="Manual" source="//@children.4" target="//@children.5/@sourceConnections.0" targetEnd="//@children.4/@sourceConnections.0/@children.1" sourceEnd="//@children.4/@sourceConnections.0/@children.0">
+      <children xsi:type="editmodel:AssociationEndEditModel" location="52,0" anchorKind="FixedAtEdge" attachSource="true"/>
+      <children xsi:type="editmodel:AssociationEndEditModel"/>
+    </sourceConnections>
+    <classifierPreferences xsi:type="editmodel:UMLClassDiagramClassifierPreference" showStereotype="true" attributeSorter="Natural" methodSorter="Natural" innerClassSorter="Natural" showPublicAttributes="true" showPackageAttributes="true" showPublicMethods="true" showPackageMethods="true" showPublicInnerClasses="true" showPackageInnerClasses="true"/>
+  </children>
+  <children xsi:type="editmodel:ClassEditModel" location="1512,1221" size="109,85" id="bloks4JanBlokj2db8864" runTimeClassModel="bloks4JanBlokj2db13857;bloks4JanBlokj2db13860">
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <children xsi:type="editmodel:CompartmentEditModel" size="81,36">
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13857"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13860"/>
+    </children>
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <sourceConnections xsi:type="editmodel:GeneralizationEditModel" targetConnections="//@children.7/@sourceConnections.0 //@children.4/@sourceConnections.0 //@children.3/@sourceConnections.0" id="bloks4JanBlokj2db8865" connectionRouterKind="GeneralizationManhattan" source="//@children.5" target="//@children.6" targetEnd="//@children.5/@sourceConnections.0/@children.1" sourceEnd="//@children.5/@sourceConnections.0/@children.0">
+      <children xsi:type="editmodel:AssociationEndEditModel" location="54,0" anchorKind="FixedAtEdge" attachSource="true"/>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="68,319" anchorKind="FixedAtEdge"/>
+    </sourceConnections>
+    <classifierPreferences xsi:type="editmodel:UMLClassDiagramClassifierPreference" showStereotype="true" attributeSorter="Natural" methodSorter="Natural" innerClassSorter="Natural" showPublicAttributes="true" showPackageAttributes="true" showPublicMethods="true" showPackageMethods="true" showPublicInnerClasses="true" showPackageInnerClasses="true"/>
+  </children>
+  <children xsi:type="editmodel:ClassEditModel" location="1701,851" size="137,319" targetConnections="//@children.5/@sourceConnections.0" id="bloks4JanBlokj2db8552" runTimeClassModel="bloks4JanBlokj2db13794;bloks4JanBlokj2db13771;bloks4JanBlokj2db13747;bloks4JanBlokj2db13808;bloks4JanBlokj2db13741;bloks4JanBlokj2db13777;bloks4JanBlokj2db13812;bloks4JanBlokj2db13744;bloks4JanBlokj2db13823;bloks4JanBlokj2db13792;bloks4JanBlokj2db13801;bloks4JanBlokj2db13796;bloks4JanBlokj2db13758;bloks4JanBlokj2db13790;bloks4JanBlokj2db13817;bloks4JanBlokj2db13742;bloks4JanBlokj2db13798;bloks4JanBlokj2db13764;bloks4JanBlokj2db13753;bloks4JanBlokj2db13815;bloks4JanBlokj2db13740;bloks4JanBlokj2db13804;bloks4JanBlokj2db13820;bloks4JanBlokj2db13825;bloks4JanBlokj2db13750;bloks4JanBlokj2db13783">
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <children xsi:type="editmodel:CompartmentEditModel" size="114,270">
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13777"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13783"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13753"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13764"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13758"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13771"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13815"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13817"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13820"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13823"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13796"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13808"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13798"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13794"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13792"/>
+    </children>
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <sourceConnections xsi:type="editmodel:GeneralizationEditModel" connectionRouterKind="Manual" source="//@children.6" target="//@children.8" targetEnd="//@children.6/@sourceConnections.0/@children.1" sourceEnd="//@children.6/@sourceConnections.0/@children.0">
+      <children xsi:type="editmodel:AssociationEndEditModel" location="0,-1" attachSource="true"/>
+      <children xsi:type="editmodel:AssociationEndEditModel"/>
+    </sourceConnections>
+    <classifierPreferences xsi:type="editmodel:UMLClassDiagramClassifierPreference" showStereotype="true" attributeSorter="Natural" methodSorter="Natural" innerClassSorter="Natural" showPublicAttributes="true" showPackageAttributes="true" showPublicMethods="true" showPackageMethods="true" showPublicInnerClasses="true" showPackageInnerClasses="true"/>
+  </children>
+  <children xsi:type="editmodel:ClassEditModel" location="1651,1220" size="107,85" id="bloks4JanBlokj2db8759" runTimeClassModel="bloks4JanBlokj2db13905;bloks4JanBlokj2db13902">
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <children xsi:type="editmodel:CompartmentEditModel" size="79,36">
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13902"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13905"/>
+    </children>
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <sourceConnections xsi:type="editmodel:GeneralizationEditModel" id="bloks4JanBlokj2db8760" connectionRouterKind="Manual" source="//@children.7" target="//@children.5/@sourceConnections.0" targetEnd="//@children.7/@sourceConnections.0/@children.1" sourceEnd="//@children.7/@sourceConnections.0/@children.0">
+      <children xsi:type="editmodel:AssociationEndEditModel" location="53,0" anchorKind="FixedAtEdge" attachSource="true"/>
+      <children xsi:type="editmodel:AssociationEndEditModel"/>
+    </sourceConnections>
+    <classifierPreferences xsi:type="editmodel:UMLClassDiagramClassifierPreference" showStereotype="true" attributeSorter="Natural" methodSorter="Natural" innerClassSorter="Natural" showPublicAttributes="true" showPackageAttributes="true" showPublicMethods="true" showPackageMethods="true" showPublicInnerClasses="true" showPackageInnerClasses="true"/>
+  </children>
+  <children xsi:type="editmodel:InterfaceEditModel" location="1730,720" size="79,81" stereotype="interface" targetConnections="//@children.6/@sourceConnections.0 //@children.9/@sourceConnections.4" id="bloks4JanBlokj2db11592" runTimeClassModel="bloks4JanBlokj2db13732">
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <children xsi:type="editmodel:CompartmentEditModel" size="48,18">
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13732"/>
+    </children>
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <classifierPreferences xsi:type="editmodel:UMLClassDiagramClassifierPreference" showStereotype="true" attributeSorter="Natural" methodSorter="Natural" innerClassSorter="Natural" showPublicAttributes="true" showPackageAttributes="true" showPublicMethods="true" showPackageMethods="true" showPublicInnerClasses="true" showPackageInnerClasses="true"/>
+  </children>
+  <children xsi:type="editmodel:ClassEditModel" location="735,869" size="182,391" targetConnections="//@children.1/@sourceConnections.0" id="bloks4JanBlokj2db8213" runTimeClassModel="bloks4JanBlokj2db13593;bloks4JanBlokj2db13588;bloks4JanBlokj2db13632;bloks4JanBlokj2db13643;bloks4JanBlokj2db13654;bloks4JanBlokj2db13585;bloks4JanBlokj2db13610;bloks4JanBlokj2db13656;bloks4JanBlokj2db13584;bloks4JanBlokj2db13597;bloks4JanBlokj2db13649;bloks4JanBlokj2db13583;bloks4JanBlokj2db13658;bloks4JanBlokj2db13603;bloks4JanBlokj2db13647;bloks4JanBlokj2db13590;bloks4JanBlokj2db13625;bloks4JanBlokj2db13613;bloks4JanBlokj2db13652;bloks4JanBlokj2db13587;bloks4JanBlokj2db13606;bloks4JanBlokj2db13591;bloks4JanBlokj2db13596;bloks4JanBlokj2db13635;bloks4JanBlokj2db13641;bloks4JanBlokj2db13628;bloks4JanBlokj2db13645;bloks4JanBlokj2db13616;bloks4JanBlokj2db13595;bloks4JanBlokj2db13638;bloks4JanBlokj2db13622;bloks4JanBlokj2db13600;bloks4JanBlokj2db13619">
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <children xsi:type="editmodel:CompartmentEditModel" size="159,342">
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13597"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13649"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13628"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13635"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13652"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13656"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13643"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13610"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13641"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13654"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13613"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13647"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13606"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13603"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13600"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13638"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13658"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13632"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13645"/>
+    </children>
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <sourceConnections xsi:type="editmodel:GeneralizationEditModel" connectionRouterKind="Manual" source="//@children.9" target="//@children.11" targetEnd="//@children.9/@sourceConnections.0/@children.1" sourceEnd="//@children.9/@sourceConnections.0/@children.0">
+      <children xsi:type="editmodel:AssociationEndEditModel" location="0,-1" attachSource="true"/>
+      <children xsi:type="editmodel:AssociationEndEditModel"/>
+    </sourceConnections>
+    <sourceConnections xsi:type="editmodel:GeneralizationEditModel" id="bloks4JanBlokj2db14504" connectionRouterKind="Manual" source="//@children.9" target="//@children.10" targetEnd="//@children.9/@sourceConnections.1/@children.1" sourceEnd="//@children.9/@sourceConnections.1/@children.0">
+      <children xsi:type="editmodel:AssociationEndEditModel" location="0,-1" attachSource="true"/>
+      <children xsi:type="editmodel:AssociationEndEditModel"/>
+    </sourceConnections>
+    <sourceConnections xsi:type="editmodel:AssociationEditModel" id="bloks4JanBlokj2db13585" connectionRouterKind="Manhattan" source="//@children.9" target="//@children.2" targetEnd="//@children.9/@sourceConnections.2/@children.0" sourceEnd="//@children.9/@sourceConnections.2/@children.1">
+      <children xsi:type="editmodel:AssociationEndEditModel" id="bloks4JanBlokj2db13585" navigable="true" flags="2" multiplicityLabel="//@children.9/@sourceConnections.2/@children.0/@children.1" roleLabel="//@children.9/@sourceConnections.2/@children.0/@children.0">
+        <children xsi:type="editmodel:LabelEditModel" size="63,14" fontInfo="Arial-8-0" anchorKind="LastPart"/>
+        <children xsi:type="editmodel:LabelEditModel" size="19,14" fontInfo="Arial-8-0" anchorKind="LastPart"/>
+      </children>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="0,-1" attachSource="true"/>
+    </sourceConnections>
+    <sourceConnections xsi:type="editmodel:AssociationEditModel" id="bloks4JanBlokj2db13587" connectionRouterKind="Manhattan" source="//@children.9" target="//@children.0" targetEnd="//@children.9/@sourceConnections.3/@children.0" sourceEnd="//@children.9/@sourceConnections.3/@children.1">
+      <children xsi:type="editmodel:AssociationEndEditModel" id="bloks4JanBlokj2db13587" navigable="true" flags="2" multiplicityLabel="//@children.9/@sourceConnections.3/@children.0/@children.1" roleLabel="//@children.9/@sourceConnections.3/@children.0/@children.0">
+        <children xsi:type="editmodel:LabelEditModel" size="61,14" fontInfo="Arial-8-0" anchorKind="LastPart"/>
+        <children xsi:type="editmodel:LabelEditModel" size="19,14" fontInfo="Arial-8-0" anchorKind="LastPart"/>
+      </children>
+      <children xsi:type="editmodel:AssociationEndEditModel" location="0,-1" attachSource="true"/>
+    </sourceConnections>
+    <sourceConnections xsi:type="editmodel:DependencyEditModel" id="bloks4JanBlokj2db13696" connectionRouterKind="Manhattan" source="//@children.9" target="//@children.8" targetEnd="//@children.9/@sourceConnections.4/@children.1" sourceEnd="//@children.9/@sourceConnections.4/@children.0">
+      <children xsi:type="editmodel:AssociationEndEditModel" location="182,82" attachSource="true"/>
+      <children xsi:type="editmodel:AssociationEndEditModel"/>
+    </sourceConnections>
+    <classifierPreferences xsi:type="editmodel:UMLClassDiagramClassifierPreference" showStereotype="true" attributeSorter="Natural" methodSorter="Natural" innerClassSorter="Natural" showPublicAttributes="true" showPackageAttributes="true" showPublicMethods="true" showPackageMethods="true" showPublicInnerClasses="true" showPackageInnerClasses="true"/>
+  </children>
+  <children xsi:type="editmodel:InterfaceEditModel" location="1010,588" size="181,153" stereotype="interface" targetConnections="//@children.9/@sourceConnections.1" id="bloks4JanBlokj2db7107" runTimeClassModel="bloks4JanBlokj2db11584;bloks4JanBlokj2db11591;bloks4JanBlokj2db11588;bloks4JanBlokj2db11598;bloks4JanBlokj2db11581">
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <children xsi:type="editmodel:CompartmentEditModel" size="158,90">
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db11591"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db11581"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db11588"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db11584"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db11598"/>
+    </children>
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <classifierPreferences xsi:type="editmodel:UMLClassDiagramClassifierPreference" showStereotype="true" attributeSorter="Natural" methodSorter="Natural" innerClassSorter="Natural" showPublicAttributes="true" showPackageAttributes="true" showPublicMethods="true" showPackageMethods="true" showPublicInnerClasses="true" showPackageInnerClasses="true"/>
+  </children>
+  <children xsi:type="editmodel:InterfaceEditModel" location="376,558" size="158,99" stereotype="interface" targetConnections="//@children.0/@sourceConnections.0 //@children.9/@sourceConnections.0 //@children.2/@sourceConnections.0" id="bloks4JanBlokj2db13560" runTimeClassModel="bloks4JanBlokj2db13578;bloks4JanBlokj2db13580">
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <children xsi:type="editmodel:CompartmentEditModel" size="55,36">
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13580"/>
+      <children xsi:type="editmodel:MethodEditModel" id="bloks4JanBlokj2db13578"/>
+    </children>
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <classifierPreferences xsi:type="editmodel:UMLClassDiagramClassifierPreference" showStereotype="true" attributeSorter="Natural" methodSorter="Natural" innerClassSorter="Natural" showPublicAttributes="true" showPackageAttributes="true" showPublicMethods="true" showPackageMethods="true" showPublicInnerClasses="true" showPackageInnerClasses="true"/>
+  </children>
+  <classDiagramPreferences xsi:type="editmodel:UMLClassDiagramPreference" attributeSorter="Natural" methodSorter="Natural" innerClassSorter="Natural" showPublicAttributes="true" showPackageAttributes="true" showPublicMethods="true" showPackageMethods="true" showPublicInnerClasses="true" showPackageInnerClasses="true" showInterfaceStereotype="true" showClassStereotype="true" showPackageStereotype="true"/>
+</editmodel:ClassDiagramEditModel>
