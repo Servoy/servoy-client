@@ -1,0 +1,358 @@
+/*
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+
+ This program is free software; you can redistribute it and/or modify it under
+ the terms of the GNU Affero General Public License as published by the Free
+ Software Foundation; either version 3 of the License, or (at your option) any
+ later version.
+
+ This program is distributed in the hope that it will be useful, but WITHOUT
+ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+ You should have received a copy of the GNU Affero General Public License along
+ with this program; if not, see http://www.gnu.org/licenses or write to the Free
+ Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
+ */
+package com.servoy.j2db;
+
+
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.awt.Window;
+import java.awt.print.PageFormat;
+import java.net.URLStreamHandler;
+import java.rmi.Remote;
+import java.util.Locale;
+import java.util.ResourceBundle;
+
+import javax.swing.JMenu;
+
+import com.servoy.j2db.cmd.ICmdManager;
+import com.servoy.j2db.dataprocessing.ClientInfo;
+import com.servoy.j2db.dataprocessing.DataServerProxy;
+import com.servoy.j2db.dataprocessing.IDisplay;
+import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.plugins.IPluginAccess;
+import com.servoy.j2db.plugins.IPluginManager;
+import com.servoy.j2db.server.IUserManager;
+import com.servoy.j2db.ui.ItemFactory;
+import com.servoy.j2db.util.ILogLevel;
+import com.servoy.j2db.util.toolbar.IToolbarPanel;
+
+/**
+ * Main interface for the client application.
+ * 
+ * @author jblok
+ */
+public interface IApplication extends IBasicApplication, IServiceProvider, IEventDelegator, ILogLevel
+{
+	public static final int SERVER = 1;
+	public static final int CLIENT = 2; //smart, rich
+	public static final int HEADLESS_CLIENT = 4;
+	public static final int WEB_CLIENT = 5;
+	public static final int RUNTIME = 6;
+	public static final int OFFLINE = 7;
+	public static final int TYPES_COUNT = 8;
+
+	// UI properties defined/used by Servoy
+	/**
+	 * If Boolean.TRUE type-ahead fields will show the popup even when the value is empty.
+	 */
+	public static final String TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY = "TypeAhead.showPopupWhenEmpty"; //$NON-NLS-1$
+	/**
+	 * If Boolean.TRUE type-ahead fields will show the popup when they gain focus.
+	 */
+	public static final String TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN = "TypeAhead.showPopupOnFocusGain"; //$NON-NLS-1$
+	/**
+	 * When Boolean.TRUE, only selected part of the date formatted field will be affected when using up/down keys to cycle through values. (for example, pressing up when cursor is on minutes and minutes shows 59 will not result in hour change)
+	 */
+	public static final String DATE_FORMATTERS_ROLL_INSTEAD_OF_ADD = "DateLNF.rollInsteadOfAdd"; //$NON-NLS-1$
+	/**
+	 * When Boolean.FALSE, date formatted fields will not allow input of out-of-bounds values (like 62 minutes means 2 minutes and +1 hour).
+	 */
+	public static final String DATE_FORMATTERS_LENIENT = "DateLNF.lenient"; //$NON-NLS-1$
+	/**
+	 * Value that indicates that a dialog/window should completely fill the screen.
+	 */
+	public static final int FULL_SCREEN = -42;
+
+	/**
+	 * Get the type of the application, will return one of the client constants like {@link #CLIENT} for the smart client.
+	 * 
+	 * @return the type of app
+	 */
+	public int getApplicationType();
+
+	/**
+	 * Get the platform of the client, local platform for smart client, browser platform for web client.
+	 */
+	public int getClientPlatform();
+
+	/**
+	 * Show progress in status progress bar. <br>
+	 * <b>Note:</b>if blockGUI(...) is called this info is lost
+	 * 
+	 * @param progress the progress between (0-100)
+	 */
+	public void setStatusProgress(int progress);
+
+	/**
+	 * Show a status, better to use blockGUI(...). <br>
+	 * <b>Note:</b>if blockGUI(...) is called this info is lost
+	 * 
+	 * @param text the text to show
+	 */
+	public void setStatusText(String text, String tooltip);
+
+	/**
+	 * Get the form manager (used to control the forms, show etc).
+	 * 
+	 * @return IFormManager
+	 */
+	public IFormManager getFormManager();
+
+	/**
+	 * Get the cmd manager (used to execute undoable cmd).
+	 * 
+	 * @return ICmdManager
+	 */
+	public ICmdManager getCmdManager();
+
+	/**
+	 * Get the bean manager (used to control beans).
+	 * 
+	 * @return IBeanManager
+	 */
+	public IBeanManager getBeanManager();
+
+	/**
+	 * Get the plugin manager (used to control plugins).
+	 * 
+	 * @return IPluginManager
+	 */
+	public IPluginManager getPluginManager();
+
+	/**
+	 * Get the mode manager (used to control the form modes).
+	 * 
+	 * @return IModeManager
+	 */
+	public IModeManager getModeManager();
+
+	/**
+	 * Get the user manager (used to do authentication and security)
+	 * 
+	 * @return
+	 */
+	public IUserManager getUserManager();
+
+	/**
+	 * Get the application name.
+	 * 
+	 * @return String
+	 */
+	public String getApplicationName();
+
+	/**
+	 * Set a UI property.
+	 * 
+	 * @param name of property
+	 * @see javax.swing.UIDefaults (for swing side)
+	 */
+	public boolean setUIProperty(Object name, Object val);
+
+	public Object getUIProperty(Object key);
+
+	/**
+	 * Set the window title.
+	 * 
+	 * @param title to show
+	 */
+	public void setTitle(String title);
+
+	/**
+	 * Get the toolbar panel (used to control toolbars).
+	 * 
+	 * @return IToolbarPanel
+	 */
+	public IToolbarPanel getToolbarPanel();
+
+	/**
+	 * Get the Look and Feel manager (used to set the laf on the application).
+	 * 
+	 * @return ILAFManager
+	 */
+	public ILAFManager getLAFManager();
+
+	/**
+	 * Output something on the out stream. (if running in debugger view output tab)
+	 * 
+	 * @param msg
+	 */
+
+	public void output(Object msg, int level);
+
+
+	/**
+	 * Call authenticator module
+	 * 
+	 * @param authenticator_solution authenticator solution name, null for built-in Servoy authentication
+	 * @param method 
+	 * @param credentials 
+	 * 
+	 * @return result from authenticator solution
+	 */
+	public Object authenticate(String authenticator_solution, String method, Object[] credentials) throws RepositoryException;
+
+	/**
+	 * Perform user logout
+	 * 
+	 * @param solution_to_open_args
+	 */
+	public void logout(Object[] solution_to_open_args);
+
+	/**
+	 * Close the solution, you may pass info to open a new solution
+	 * 
+	 * @param force, close a solution with force
+	 * @param args, pass solutionName,solutionStartupMethod,methodArgument as array
+	 * @return true if successful
+	 */
+	public boolean closeSolution(boolean force, Object[] args);
+
+	/**
+	 * Register a URLStreamHandler for a protocol
+	 * 
+	 * @param protocolName
+	 * @param handler
+	 */
+	public void addURLStreamHandler(String protocolName, URLStreamHandler handler);
+
+	public ClientInfo getClientInfo();
+
+	/**
+	 * Creates new ui components
+	 */
+	public ItemFactory getItemFactory();
+
+	/**
+	 * @return
+	 */
+	public IDataRendererFactory getDataRenderFactory();
+
+	/**
+	 * Get the plugin access for an application type
+	 */
+	public IPluginAccess getPluginAccess();
+
+	//__________________________________________________________________________________
+	//TODO:should these methods be moved to ISwingApplication?
+
+	/**
+	 * A parent to render with
+	 */
+	public Container getPrintingRendererParent();
+
+	/**
+	 * Add a window to the cache (makes dialogs and windows faster popup if called second time). <br>
+	 * <b>Note:</b> the cache will be cleared on solution close and .dispose() will be called on all
+	 * 
+	 * @param name
+	 * @param the dialog or window
+	 */
+	public void registerWindow(String name, Window d);
+
+	/**
+	 * Get a cached window.
+	 * 
+	 * @param name
+	 * @return Window the window requested or null if not found
+	 */
+	public Window getWindow(String name);
+
+	/**
+	 * Get the name of the current dialog (null for the main window)
+	 */
+	public String getCurrentWindowName();
+
+	/**
+	 * Set the name of the current dialog (null for the main window)
+	 */
+	public void setCurrentWindowName(String name);
+
+	/**
+	 * Get the current page format.
+	 * 
+	 * @return PageFormat the page format
+	 */
+	public PageFormat getPageFormat();
+
+	public void setPageFormat(PageFormat currentPageFormat);
+
+	/**
+	 * Get the import menu, used by plugins to add import menu items (actions).
+	 * 
+	 * @return JMenu
+	 */
+	public JMenu getImportMenu();
+
+	/**
+	 * Get the export menu, used by plugins to add export menu items (actions).
+	 * 
+	 * @return JMenu
+	 */
+	public JMenu getExportMenu();
+
+	/**
+	 * Get clear of the login form, since this call indicated a succesfull login was done on security scripting object.
+	 */
+	public void clearLoginForm();
+
+	/**
+	 * gets an user property for the current session/user. Implementations should store this for the current session.
+	 * 
+	 * @param name The name of the property to get.
+	 * @return The property value if found.
+	 */
+	public String getUserProperty(String name);
+
+	/**
+	 * sets an user property for the current session/user. Implementations should store this for the current session.
+	 * 
+	 * @param name The name of the property to be set.
+	 * @param value The value to set (null is remove).
+	 */
+	public void setUserProperty(String name, String value);
+
+	/**
+	 * get all the user property names for the current session/user.
+	 */
+	public String[] getUserPropertyNames();
+
+	/**
+	 * User uid changed (usually user logged in or out)
+	 * @param userUidBefore
+	 * @param userUidAfter
+	 */
+	public void handleClientUserUidChanged(String userUidBefore, String userUidAfter);
+
+	public Remote getServerService(String name);
+
+	public void setI18NMessagesFilter(String columnname, String value);
+
+	public ResourceBundle getResourceBundle(Locale locale);
+
+	public void updateInsertMode(IDisplay display);
+
+	public Dimension getScreenSize();
+
+	public Rectangle getWindowBounds(String windowName);
+
+	public boolean showURL(String url, String target, String target_options, int timeout_ms);
+
+	public boolean isInDeveloper();
+
+	public DataServerProxy proxyDataServer();
+}

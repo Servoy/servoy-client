@@ -1,0 +1,22 @@
+<html xmlns:servoy>
+    <head>
+        <title servoy:id='title'>Container for holding a form and navigator</title>
+        <link servoy:id='main_form_style' rel='stylesheet' type='text/css' />
+	</head>
+    <body servoy:id='servoy_page' id='servoy_page' topmargin=0 leftmargin=0 bottommargin=0 rightmargin=0 bgcolor='#FFFFFF'>
+   	  <div id='mktipmsg' class='mktipmsg'></div>
+	  <span style="display:none;position:absolute;right:0px;top:0px;z-index:99999;background:#ff0000;color:#000000;" id="indicator">Loading...</span>
+	  <span servoy:id='contribution'></span> 
+      <div servoy:id="modalwindow"></div>
+      <div servoy:id="fileuploadwindow"></div>
+	  <form id='servoy_dataform' servoy:id='servoy_dataform' method='post'>
+	  	<input servoy:id='defaultsubmitbutton' type="submit" style="top: 0px;left: 100px;width: 0px;height: 0px;position: absolute;z-index: -2" value="">
+		<div servoy:id='dialog'>
+			<div servoy:id='forms'>
+        		<div servoy:id="webform"></div>
+			</div>
+        </div>
+      </form>
+    </body>
+</html>
+

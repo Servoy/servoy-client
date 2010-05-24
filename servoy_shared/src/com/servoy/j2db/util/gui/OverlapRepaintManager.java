@@ -1,0 +1,205 @@
+/*
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+
+ This program is free software; you can redistribute it and/or modify it under
+ the terms of the GNU Affero General Public License as published by the Free
+ Software Foundation; either version 3 of the License, or (at your option) any
+ later version.
+
+ This program is distributed in the hope that it will be useful, but WITHOUT
+ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+ You should have received a copy of the GNU Affero General Public License along
+ with this program; if not, see http://www.gnu.org/licenses or write to the Free
+ Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
+*/
+package com.servoy.j2db.util.gui;
+
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Image;
+import java.awt.Rectangle;
+
+import javax.swing.JComponent;
+import javax.swing.RepaintManager;
+import javax.swing.SwingUtilities;
+
+import com.servoy.j2db.util.AnchorLayout;
+
+/**
+ * This repaint manager makes sure that overlapping components inside a container are repainted properly.<BR>
+ * 
+ * More precisely, it makes sure that, if you have component A on top of component B, and B is repainted then
+ * A will be repainted afterwards in order not to be hidden by B's repaint.
+ * @author Andrei Costescu
+ */
+public class OverlapRepaintManager extends RepaintManager
+{
+
+	private final RepaintManager delegate;
+
+	/**
+	 * Creates a new OverlapRepaintManager that uses a default RepaintManager instance to handle unaltered operations.
+	 */
+	public OverlapRepaintManager()
+	{
+		this(new RepaintManager());
+	}
+
+	/**
+	 * Creates a new OverlapRepaintManager that only alters the behavior of the given RepaintManager in order to support
+	 * overlapping, but keeps using it for unaltered repaint operations.
+	 * @param repaintManager the delegate repaint manager who's behavior will be altered.
+	 * @throws IllegalArgumentException if the given RepaintManager is null or an OverlapRepaintManager.
+	 */
+	public OverlapRepaintManager(RepaintManager repaintManager)
+	{
+		if (repaintManager == null || repaintManager instanceof OverlapRepaintManager)
+		{
+			throw new IllegalArgumentException("Delegate repaint manager cannot be null or of the same kind.");
+		}
+		delegate = repaintManager;
+	}
+
+	@Override
+	public void addDirtyRegion(final JComponent c, final int x, final int y, final int w, final int h)
+	{
+		// must see if somewhere in the component hierarchy, on some level that uses AnchorLayout,
+		// this area paints over an overlapped component that should be on top of the current repainting one...
+		if (SwingUtilities.isEventDispatchThread())
+		{
+			delegate.addDirtyRegion(c, x, y, w, h); // add the dirty region
+			searchOverlappingRegionsInHierarchy(c.getParent(), c, new Rectangle(x, y, w, h));
+		}
+		else
+		{
+			// the parent.getComponents(); call needs the AWT lock, and this is not legal
+			// deadlocks can occur when the AWT thread is waiting for this repaint to finish (for example when loading an image with another thread)
+			Runnable run = new Runnable()
+			{
+				public void run()
+				{
+					delegate.addDirtyRegion(c, x, y, w, h); // add the dirty region
+					searchOverlappingRegionsInHierarchy(c.getParent(), c, new Rectangle(x, y, w, h));
+				}
+			};
+
+			SwingUtilities.invokeLater(run);
+		}
+	}
+
+	private void searchOverlappingRegionsInHierarchy(Container parent, JComponent c, Rectangle repaintedArea)
+	{
+		if (parent instanceof JComponent) // this means it is not null also
+		{
+			Rectangle parentRepaintedArea = SwingUtilities.convertRectangle(c, repaintedArea, parent);
+
+			if (parent.getLayout() instanceof AnchorLayout) // can have overlapped components
+			{
+				Rectangle intersection;
+				Component child[] = parent.getComponents();
+				for (int i = 0; i < child.length; i++)
+				{
+					if (child[i] == c) break; // only components that have lower index then the repainted component
+					if (!child[i].isVisible()) continue;
+					// and that overlap with this component need to be repainted (as they should be shown on top)
+					intersection = child[i].getBounds().intersection(parentRepaintedArea);
+					if (!intersection.isEmpty())
+					{
+						delegate.addDirtyRegion((JComponent)parent, intersection.x, intersection.y, intersection.width, intersection.height);
+					}
+				}
+			}
+
+			// see if parents overlap on some level
+			searchOverlappingRegionsInHierarchy(parent.getParent(), (JComponent)parent, parentRepaintedArea);
+		}
+	}
+
+	@Override
+	public Rectangle getDirtyRegion(JComponent component)
+	{
+		return delegate.getDirtyRegion(component);
+	}
+
+	@Override
+	public synchronized void addInvalidComponent(JComponent invalidComponent)
+	{
+		delegate.addInvalidComponent(invalidComponent);
+	}
+
+	@Override
+	public Dimension getDoubleBufferMaximumSize()
+	{
+		return delegate.getDoubleBufferMaximumSize();
+	}
+
+	@Override
+	public Image getOffscreenBuffer(Component c, int proposedWidth, int proposedHeight)
+	{
+		return delegate.getOffscreenBuffer(c, proposedWidth, proposedHeight);
+	}
+
+	@Override
+	public Image getVolatileOffscreenBuffer(Component c, int proposedWidth, int proposedHeight)
+	{
+		return delegate.getVolatileOffscreenBuffer(c, proposedWidth, proposedHeight);
+	}
+
+	@Override
+	public boolean isCompletelyDirty(JComponent component)
+	{
+		return delegate.isCompletelyDirty(component);
+	}
+
+	@Override
+	public boolean isDoubleBufferingEnabled()
+	{
+		return delegate.isDoubleBufferingEnabled();
+	}
+
+	@Override
+	public void markCompletelyClean(JComponent component)
+	{
+		delegate.markCompletelyClean(component);
+	}
+
+	@Override
+	public void markCompletelyDirty(JComponent component)
+	{
+		delegate.markCompletelyDirty(component);
+	}
+
+	@Override
+	public void paintDirtyRegions()
+	{
+		delegate.paintDirtyRegions();
+	}
+
+	@Override
+	public synchronized void removeInvalidComponent(JComponent component)
+	{
+		delegate.removeInvalidComponent(component);
+	}
+
+	@Override
+	public void setDoubleBufferingEnabled(boolean flag)
+	{
+		delegate.setDoubleBufferingEnabled(flag);
+	}
+
+	@Override
+	public void setDoubleBufferMaximumSize(Dimension d)
+	{
+		delegate.setDoubleBufferMaximumSize(d);
+	}
+
+	@Override
+	public void validateInvalidComponents()
+	{
+		delegate.validateInvalidComponents();
+	}
+
+}

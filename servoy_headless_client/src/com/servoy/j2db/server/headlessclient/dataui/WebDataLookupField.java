@@ -1,0 +1,398 @@
+/*
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+
+ This program is free software; you can redistribute it and/or modify it under
+ the terms of the GNU Affero General Public License as published by the Free
+ Software Foundation; either version 3 of the License, or (at your option) any
+ later version.
+
+ This program is distributed in the hope that it will be useful, but WITHOUT
+ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+ You should have received a copy of the GNU Affero General Public License along
+ with this program; if not, see http://www.gnu.org/licenses or write to the Free
+ Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
+*/
+package com.servoy.j2db.server.headlessclient.dataui;
+
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.wicket.Component;
+import org.apache.wicket.Session;
+import org.apache.wicket.behavior.HeaderContributor;
+import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AbstractAutoCompleteTextRenderer;
+import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteBehavior;
+import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteSettings;
+import org.apache.wicket.markup.html.IHeaderContributor;
+import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.html.resources.CompressedResourceReference;
+import org.apache.wicket.protocol.http.ClientProperties;
+import org.apache.wicket.protocol.http.request.WebClientInfo;
+
+import com.servoy.j2db.IApplication;
+import com.servoy.j2db.dataprocessing.CustomValueList;
+import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
+import com.servoy.j2db.dataprocessing.IRecordInternal;
+import com.servoy.j2db.dataprocessing.IValueList;
+import com.servoy.j2db.dataprocessing.LookupListModel;
+import com.servoy.j2db.dataprocessing.LookupValueList;
+import com.servoy.j2db.dataprocessing.SortColumn;
+import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.UIUtils;
+import com.servoy.j2db.util.Utils;
+
+/**
+ * @author jcompagner
+ * 
+ */
+public class WebDataLookupField extends WebDataField implements IDisplayRelatedData
+{
+
+	private static final long serialVersionUID = 1L;
+	IRecordInternal parentState;
+	private LookupListModel dlm;
+
+	/**
+	 * @param application
+	 * @param id
+	 * @param list
+	 */
+	public WebDataLookupField(IApplication application, String id, LookupValueList list)
+	{
+		super(application, id, list);
+		dlm = new LookupListModel(application, list);
+		init();
+	}
+
+	/**
+	 * @param application
+	 * @param id
+	 * @param list
+	 */
+	public WebDataLookupField(IApplication application, String id, final String serverName, String tableName, String dataProviderID)
+	{
+		super(application, id);
+		dlm = new LookupListModel(application, serverName, tableName, dataProviderID);
+		init();
+	}
+
+	/**
+	 * @param application
+	 * @param name
+	 * @param list
+	 */
+	public WebDataLookupField(IApplication application, String id, CustomValueList list)
+	{
+		super(application, id, list);
+		dlm = new LookupListModel(application, list);
+		init();
+	}
+
+	/**
+	 * @see com.servoy.j2db.server.headlessclient.dataui.WebDataField#js_getElementType()
+	 */
+	@Override
+	public String js_getElementType()
+	{
+		return "TYPE_AHEAD"; //$NON-NLS-1$
+	}
+
+	/**
+	 * @see com.servoy.j2db.server.headlessclient.dataui.WebDataField#setValidationEnabled(boolean)
+	 */
+	@Override
+	public void setValidationEnabled(boolean validation)
+	{
+		if (list != null && list.getFallbackValueList() != null)
+		{
+			IValueList vlist = list;
+			if (!validation)
+			{
+				vlist = list.getFallbackValueList();
+			}
+			if (vlist instanceof CustomValueList)
+			{
+				dlm = new LookupListModel(application, ((CustomValueList)vlist));
+			}
+			else
+			{
+				dlm = new LookupListModel(application, ((LookupValueList)vlist));
+			}
+		}
+		super.setValidationEnabled(validation);
+	}
+
+	private void init()
+	{
+		add(new HeaderContributor(new IHeaderContributor()
+		{
+			private static final long serialVersionUID = 1L;
+
+			public void renderHead(IHeaderResponse response)
+			{
+				response.renderCSSReference(new CompressedResourceReference(WebDataLookupField.class, "servoy_lookupfield.css")); //$NON-NLS-1$
+			}
+		})
+		{
+			@Override
+			public boolean isEnabled(Component component)
+			{
+				return !js_isReadOnly() && js_isEnabled();
+			}
+		});
+
+		setOutputMarkupPlaceholderTag(true);
+
+		AutoCompleteSettings behSettings = new AutoCompleteSettings();
+		behSettings.setMaxHeightInPx(200);
+		behSettings.setPreselect(true);
+		behSettings.setShowCompleteListOnFocusGain(true);
+		behSettings.setAdjustInputWidth(false);
+
+		ClientProperties clp = (application.getApplicationType() != IApplication.HEADLESS_CLIENT
+			? ((WebClientInfo)Session.get().getClientInfo()).getProperties() : null); // in case of batch processors/jsp, we can't get browser info because UI is not given by web client components
+		if (clp != null && (!clp.isBrowserInternetExplorer() || clp.getBrowserVersionMajor() >= 8))
+		{
+			// smart positioning doesn't work on IE < 8 (probably because of unreliable clientWidth/clientHeight browser element js properties)
+			behSettings.setUseSmartPositioning(true);
+			behSettings.setUseHideShowCoveredIEFix(false); // don't know if the problem this setting is for can still be reproduced (I couldn't reproduce it)... this is true by default and makes fields in IE and Opera appear/dissapear if they would be covered by type-ahead popup
+		}
+		else
+		{
+			behSettings.setUseSmartPositioning(false);
+			behSettings.setUseHideShowCoveredIEFix(true);
+		}
+		behSettings.setThrottleDelay(500);
+		AbstractAutoCompleteTextRenderer<Object> renderer = new AbstractAutoCompleteTextRenderer<Object>()
+		{
+			@Override
+			protected String getTextValue(Object object)
+			{
+				String str = (object == null ? "" : object.toString()); //$NON-NLS-1$
+				if (str.trim().equals("")) str = "&nbsp;"; //$NON-NLS-1$//$NON-NLS-2$
+				return str;
+			}
+		};
+		AutoCompleteBehavior<Object> beh = new AutoCompleteBehavior<Object>(renderer, behSettings)
+		{
+			private static final long serialVersionUID = 1L;
+
+			/**
+			 * @see org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteBehavior#getChoices(java.lang.String)
+			 */
+			@Override
+			protected Iterator<Object> getChoices(String input)
+			{
+				try
+				{
+					dlm.fill(parentState, getDataProviderID(), input, false);
+					return dlm.iterator();
+				}
+				catch (Exception ex)
+				{
+					Debug.error(ex);
+				}
+				return Collections.emptyList().iterator();
+			}
+
+			/**
+			 * @see org.apache.wicket.ajax.AbstractDefaultAjaxBehavior#getFailureScript()
+			 */
+			@Override
+			protected CharSequence getFailureScript()
+			{
+				return "onAjaxError();"; //$NON-NLS-1$
+			}
+
+			/**
+			 * @see org.apache.wicket.ajax.AbstractDefaultAjaxBehavior#getPreconditionScript()
+			 */
+			@Override
+			protected CharSequence getPreconditionScript()
+			{
+				return "onAjaxCall();" + super.getPreconditionScript(); //$NON-NLS-1$
+			}
+
+			// need to set this behavior to true (enterHidesWithNoSelection) because otherwise the onKeyDown events
+			// or other events for the component with type ahead would be null in Firefox, and would not execute as
+			// expected on the other browsers...
+			@Override
+			public void renderHead(IHeaderResponse response)
+			{
+				settings.setShowListOnEmptyInput(Boolean.TRUE.equals(UIUtils.getUIProperty(WebDataLookupField.this, application,
+					IApplication.TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY, Boolean.TRUE)));
+				settings.setShowListOnFocusGain(Boolean.TRUE.equals(UIUtils.getUIProperty(WebDataLookupField.this, application,
+					IApplication.TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN, Boolean.TRUE)));
+				if (!js_isReadOnly() && js_isEnabled())
+				{
+					super.renderHead(response);
+					response.renderJavascript("Wicket.AutoCompleteSettings.enterHidesWithNoSelection = true;", "AutocompleteSettingsID"); //$NON-NLS-1$ //$NON-NLS-2$
+				}
+			}
+
+			/**
+			 * @see org.apache.wicket.behavior.AbstractBehavior#isEnabled(org.apache.wicket.Component)
+			 */
+			@Override
+			public boolean isEnabled(Component component)
+			{
+				// TODO Auto-generated method stub
+				return super.isEnabled(component);
+			}
+
+		};
+		add(beh);
+	}
+
+	@Override
+	public void js_putClientProperty(Object key, Object value)
+	{
+		if ((IApplication.TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN.equals(key) || IApplication.TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY.equals(key)) &&
+			!Utils.equalObjects(js_getClientProperty(key), value))
+		{
+			getStylePropertyChanges().setChanged();
+		}
+		super.js_putClientProperty(key, value);
+	}
+
+	@Override
+	public void js_setValueListItems(Object value)
+	{
+		super.js_setValueListItems(value);
+		if (list instanceof CustomValueList)
+		{
+			dlm = new LookupListModel(application, (CustomValueList)list);
+		}
+	}
+
+	/**
+	 * Maps a trimmed value entered by the user to a value stored in the value list. The value stored in the value list may contain some trailing spaces, while
+	 * the value entered by the user is trimmed.
+	 * 
+	 * @param value
+	 * @return
+	 */
+	public String mapTrimmedToNotTrimmed(String value)
+	{
+		// Although the value entered by the user should be trimmed, make sure it is so.
+		String trimmed = value.trim();
+		try
+		{
+			// this is the &nbsp character we set for empty value
+			if ("\u00A0".equals(trimmed)) trimmed = ""; //$NON-NLS-1$//$NON-NLS-2$
+			// Grab all values that start with the value entered by the user.
+			String result = matchValueListValue(trimmed);
+			if (result == null)
+			{
+				dlm.fill(parentState, getDataProviderID(), trimmed, false);
+				result = matchValueListValue(trimmed);
+				if (result == null)
+				{
+					dlm.fill(parentState, getDataProviderID(), null, false);
+					result = matchValueListValue(trimmed);
+				}
+			}
+			// If no match was found then return back the value, otherwise return the found match.
+			return result == null ? trimmed : result;
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+			return trimmed;
+		}
+	}
+
+	/**
+	 * @param trimmed
+	 * @return
+	 */
+	private String matchValueListValue(String trimmed)
+	{
+		int size = dlm.getSize();
+		// Find a match in the value list.
+		String result = null;
+		for (int i = 0; i < size; i++)
+		{
+			String currentValue = dlm.getElementAt(i).toString();
+			if (currentValue.trim().equals(trimmed))
+			{
+				result = currentValue;
+				break;
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * @see wicket.Component#getMarkupId()
+	 */
+	@Override
+	public String getMarkupId()
+	{
+		return WebComponentSpecialIdMaker.getSpecialIdIfAppropriate(this);
+	}
+
+	/**
+	 * @see com.servoy.j2db.dataprocessing.IDisplayRelatedData#setFoundSet(com.servoy.j2db.dataprocessing.IRecordInternal,
+	 *      com.servoy.j2db.dataprocessing.IFoundSetInternal, boolean)
+	 */
+	public void setRecord(IRecordInternal parentState, boolean stopEditing)
+	{
+		if (this.parentState == parentState) return;
+		this.parentState = parentState;
+		if (list instanceof LookupValueList)
+		{
+			((LookupValueList)list).fill(parentState);
+		}
+	}
+
+	public String getSelectedRelationName()
+	{
+		if (relationName == null && list != null)
+		{
+			relationName = list.getRelationName();
+		}
+		return relationName;
+	}
+
+	private String relationName = null;
+
+	public String[] getAllRelationNames()
+	{
+		String selectedRelationName = getSelectedRelationName();
+		if (selectedRelationName == null)
+		{
+			return new String[0];
+		}
+		else
+		{
+			return new String[] { selectedRelationName };
+		}
+	}
+
+	/**
+	 * @see com.servoy.j2db.dataprocessing.IDisplayRelatedData#getDefaultSort()
+	 */
+	public List<SortColumn> getDefaultSort()
+	{
+		return dlm.getDefaultSort();
+	}
+
+	public void notifyVisible(boolean b, List<Runnable> invokeLaterRunnables)
+	{
+		//ignore
+	}
+
+	/**
+	 * @see com.servoy.j2db.dataprocessing.IDisplayRelatedData#destroy()
+	 */
+	public void destroy()
+	{
+		parentState = null;
+		detachModel();
+	}
+
+}
