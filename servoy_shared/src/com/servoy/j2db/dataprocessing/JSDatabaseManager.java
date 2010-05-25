@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 
@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -65,6 +66,7 @@ import com.servoy.j2db.scripting.info.COLUMNTYPE;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -473,7 +475,7 @@ public class JSDatabaseManager
 					}
 					lst.add(new Object[] { o });
 				}
-				else if (o instanceof String)
+				else if (o instanceof String || o instanceof UUID || o instanceof Date)
 				{
 					lst.add(new Object[] { o });
 				}
