@@ -32,7 +32,7 @@ public interface ITypedColumnConverter extends IColumnConverter
 	/**
 	 * returns the type the converter converts to, should be one of the {@link IColumnTypes}
 	 * 
-	 * this should return {@link Integer#MAX_VALUE} if the type is unknown, or it should use the default column type.
+	 * this should return {@link Integer#MAX_VALUE} if the type is unknown, or when the default column type should be used.
 	 * 
 	 */
 	public int getToObjectType(Map<String, String> props);
