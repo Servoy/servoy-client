@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 import java.util.Map;
@@ -32,7 +32,7 @@ public interface ITypedColumnConverter extends IColumnConverter
 	/**
 	 * returns the type the converter converts to, should be one of the {@link IColumnTypes}
 	 * 
-	 * this should return {@link Integer#MAX_VALUE} if the type is unknown.
+	 * this should return {@link Integer#MAX_VALUE} if the type is unknown, or it should use the default column type.
 	 * 
 	 */
 	public int getToObjectType(Map<String, String> props);
