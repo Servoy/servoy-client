@@ -66,11 +66,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Stack;
 import java.util.TimeZone;
-import java.util.Map.Entry;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.security.auth.Subject;
@@ -94,6 +94,8 @@ import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JFormattedTextField.AbstractFormatter;
+import javax.swing.JFormattedTextField.AbstractFormatterFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
@@ -114,10 +116,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
-import javax.swing.WindowConstants;
-import javax.swing.JFormattedTextField.AbstractFormatter;
-import javax.swing.JFormattedTextField.AbstractFormatterFactory;
 import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.WindowConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.plaf.FontUIResource;
@@ -1933,12 +1933,6 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 					transactionLabel.setIcon(empty);
 					lockLabel.setIcon(empty);
 					dataChangeLabel.setIcon(empty);
-					// only show the open solution dialog on this point if there is 
-					// not already again a solution opened.
-					if (getSolution() == null)
-					{
-						handleClientUserUidChanged(null, null); // TODO: pass in real uid?
-					}
 				}
 			});
 

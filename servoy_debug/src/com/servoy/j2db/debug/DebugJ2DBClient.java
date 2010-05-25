@@ -553,7 +553,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	protected LoginDialog createLoginDialog()
 	{
 		// Override login dialog, add a 'use dummy login' checkbox
-		return new LoginDialog(frame, this, Messages.getString("servoy.logindialog.title"), false, true) //$NON-NLS-1$
+		return new LoginDialog(frame, this, Messages.getString("servoy.logindialog.title"), false, false /* do not show remember-me/dummy login check */) //$NON-NLS-1$
 		{
 			@Override
 			protected JCheckBox createRememberMeCheckbox()
@@ -564,6 +564,10 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 			@Override
 			public Object[] showDialog(String name)
 			{
+				if (current != null && current.getMustAuthenticate())
+				{
+					return super.showDialog(name);
+				}
 				DeveloperPreferences developerPreferences = new DeveloperPreferences(Settings.getInstance());
 				boolean dummyAuth = developerPreferences.getUseDummyAuth();
 				if (!dummyAuth)

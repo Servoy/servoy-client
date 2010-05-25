@@ -31,7 +31,7 @@ public class DeveloperPreferences
 	public static final String DUMMY_AUTHENTICATION_SETTING = "developer.useDummyAuth"; //$NON-NLS-1$
 
 	public static final boolean ENHANCED_SECURITY_DEFAULT = true;
-	public static final boolean DUMMY_AUTHENTICATION_DEFAULT = false;
+	public static final boolean DUMMY_AUTHENTICATION_DEFAULT = true; // note that the pref is hidden now
 
 	private final Settings settings;
 
