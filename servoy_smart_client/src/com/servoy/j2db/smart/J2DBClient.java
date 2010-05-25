@@ -2861,9 +2861,9 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		{
 			public void run()
 			{
+				LoginDialog loginDialog = null;
 				try
 				{
-					LoginDialog loginDialog = null;
 					while (getClientInfo().getUserUid() == null)
 					{
 						URL serverURL = getServerURL();
@@ -2880,7 +2880,8 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 
 						if (name_password == null || name_password.length < 2 || name_password[0] == null || name_password[1] == null)
 						{
-							break;
+							// user hit cancel
+							return;
 						}
 
 						authenticate(null, null, new Object[] { name_password[0].toString(), name_password[1].toString() });
@@ -2890,13 +2891,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 							JOptionPane.showMessageDialog(frame, Messages.getString("servoy.client.message.loginfailed"), //$NON-NLS-1$ 
 								Messages.getString("servoy.client.message.loginfailed.title"), //$NON-NLS-1$ 
 								JOptionPane.ERROR_MESSAGE);
-							continue;
 						}
-					}
-
-					if (loginDialog != null)
-					{
-						loginDialog.dispose();
 					}
 
 					handleClientUserUidChanged(null, getClientInfo().getUserUid());
@@ -2904,6 +2899,13 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 				catch (Exception e)
 				{
 					reportError(Messages.getString("servoy.client.message.loginfailed"), e); //$NON-NLS-1$ 
+				}
+				finally
+				{
+					if (loginDialog != null)
+					{
+						loginDialog.dispose();
+					}
 				}
 			}
 		};
