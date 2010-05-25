@@ -589,6 +589,8 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 				{
 					Debug.error(e);
 				}
+				// return null means user hit cancel, in case of dummy login, user id has changed
+				handleClientUserUidChanged(null, getClientInfo().getUserUid());
 				return null;
 			}
 		};
