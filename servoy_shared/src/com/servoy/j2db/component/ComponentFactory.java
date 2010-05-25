@@ -1249,6 +1249,10 @@ public class ComponentFactory
 										OpenProperties props = new OpenProperties();
 										if (ci.getConverterProperties() != null) props.load(new StringReader(ci.getConverterProperties()));
 										type = ((ITypedColumnConverter)converter).getToObjectType(props);
+										if (type == Integer.MAX_VALUE)
+										{
+											type = c.getDataProviderType();
+										}
 									}
 									catch (IOException e)
 									{
