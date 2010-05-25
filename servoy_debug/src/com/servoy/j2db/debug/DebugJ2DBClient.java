@@ -536,7 +536,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 				closeSolution(true, null);
 			}
 			this.current = current;
-			handleClientUserUidChanged(null, getClientInfo().getUserUid());
+			logout(null); // login (possibly dummy) from previous solution may not be valid for new one
 		}
 	}
 
