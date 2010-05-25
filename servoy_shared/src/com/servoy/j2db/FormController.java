@@ -1533,6 +1533,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 	public boolean recreateUI()
 	{
+		if (isFormExecutingFunction()) return false;
 		getFormUI().setDesignMode(null);
 		Form f = application.getFlattenedSolution().getForm(form.getName());
 		try
@@ -2917,8 +2918,14 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		return isFormVisible;
 	}
 
+	public boolean isFormExecutingFunction()
+	{
+		return isFormExecutingFunction;
+	}
+
 	private boolean isFormVisible = false;
 	private int lastSelectedIndex = -1;
+	private boolean isFormExecutingFunction = false;
 
 	//this method first overloaded setVisible but setVisible is not always called and had differences between jdks
 	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables)
@@ -3825,10 +3832,12 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 						}
 					}
 
+					isFormExecutingFunction = true;
 					return application.getScriptEngine().executeFunction(f, scope, thisObject, newArgs, focusEvent, false);
 				}
 				finally
 				{
+					isFormExecutingFunction = false;
 					if (formAndComponent != null)
 					{
 						IExecutingEnviroment scriptEngine = application.getScriptEngine();

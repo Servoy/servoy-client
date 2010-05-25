@@ -982,6 +982,11 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 			return false;
 		}
 
+		if (fp.isFormExecutingFunction())
+		{
+			return false;
+		}
+
 		// the cached currentcontroller may not be destroyed
 		SolutionScope ss = application.getScriptEngine().getSolutionScope();
 		return ss == null || fp.initForJSUsage() != ss.get("currentcontroller", ss); //$NON-NLS-1$
