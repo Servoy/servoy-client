@@ -1533,7 +1533,13 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 	public boolean recreateUI()
 	{
-		if (isFormExecutingFunction()) return false;
+		// should return false if executing from the form's execute function but
+		// can happen if it is a none component thing
+		// so no onfocus/ondatachange/onaction
+		// of a component on the form but
+		// onshow/onload that should be allowed
+		//if (isFormExecutingFunction()) return false;
+
 		getFormUI().setDesignMode(null);
 		Form f = application.getFlattenedSolution().getForm(form.getName());
 		try
