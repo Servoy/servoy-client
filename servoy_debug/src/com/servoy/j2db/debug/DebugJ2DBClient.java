@@ -431,15 +431,6 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		return true;
 	}
 
-	@Override
-	public void showDefaultLogin()
-	{
-		if (getMainApplicationFrame().isVisible())
-		{
-			super.showDefaultLogin();
-		}
-	}
-
 	/**
 	 * @see com.servoy.j2db.smart.J2DBClient#setFrameVisible(boolean)
 	 */
@@ -566,7 +557,11 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 			{
 				if (current != null && current.getMustAuthenticate())
 				{
-					return super.showDialog(name);
+					if (getMainApplicationFrame().isVisible())
+					{
+						return super.showDialog(name);
+					}
+					return null;
 				}
 				DeveloperPreferences developerPreferences = new DeveloperPreferences(Settings.getInstance());
 				boolean dummyAuth = developerPreferences.getUseDummyAuth();
@@ -589,6 +584,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 				{
 					Debug.error(e);
 				}
+
 				// return null means user hit cancel, in case of dummy login, user id has changed
 				handleClientUserUidChanged(null, getClientInfo().getUserUid());
 				return null;
