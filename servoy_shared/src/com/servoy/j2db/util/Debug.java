@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util;
 
 import org.apache.commons.logging.Log;
@@ -158,19 +158,13 @@ public class Debug
 
 	public static void error(String message, Throwable s)
 	{
-		if (log == null)
-		{
-			init();
-		}
+		initIfFirstTime();
 		log.error(message, s);
 	}
 
 	public static void error(Object s)
 	{
-		if (log == null)
-		{
-			init();
-		}
+		initIfFirstTime();
 		if (s instanceof Throwable)
 		{
 			log.error("Throwable", (Throwable)s);
@@ -214,16 +208,27 @@ public class Debug
 
 	public static void warn(Object s)
 	{
+		initIfFirstTime();
 		log.warn(s);
 	}
 
 	public static void fatal(Object s)
 	{
+		initIfFirstTime();
 		log.fatal(s);
 	}
 
 	public static void debug(Object s)
 	{
+		initIfFirstTime();
 		log.debug(s);
+	}
+
+	private static void initIfFirstTime()
+	{
+		if (log == null)
+		{
+			init();
+		}
 	}
 }
