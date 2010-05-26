@@ -2926,12 +2926,12 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 	public boolean isFormExecutingFunction()
 	{
-		return isFormExecutingFunction;
+		return currentFormExecutingFunctionCount > 0;
 	}
 
 	private boolean isFormVisible = false;
 	private int lastSelectedIndex = -1;
-	private boolean isFormExecutingFunction = false;
+	private int currentFormExecutingFunctionCount = 0;
 
 	//this method first overloaded setVisible but setVisible is not always called and had differences between jdks
 	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables)
@@ -3838,12 +3838,12 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 						}
 					}
 
-					isFormExecutingFunction = true;
+					currentFormExecutingFunctionCount++;
 					return application.getScriptEngine().executeFunction(f, scope, thisObject, newArgs, focusEvent, false);
 				}
 				finally
 				{
-					isFormExecutingFunction = false;
+					currentFormExecutingFunctionCount--;
 					if (formAndComponent != null)
 					{
 						IExecutingEnviroment scriptEngine = application.getScriptEngine();
