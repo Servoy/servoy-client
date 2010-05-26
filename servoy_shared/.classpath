@@ -13,7 +13,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/compat141.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/dom4j.jar" sourcepath="libsrc/dom4j-src.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/help.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jabsorb.jar" sourcepath="libsrc/jabsorb-src.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jabsorb.jar" sourcepath="libsrc/jabsorb-1.3.1-src.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jdbc2_0-stdext.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jmx.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jndi.jar"/>
