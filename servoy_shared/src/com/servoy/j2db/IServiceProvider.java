@@ -30,6 +30,7 @@ import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.server.IApplicationServer;
 import com.servoy.j2db.util.ITaskExecuter;
 
 /**

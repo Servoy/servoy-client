@@ -27,6 +27,7 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 
 import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.server.IApplicationServerMessagesLoader;
 import com.servoy.j2db.util.Debug;
 
 public class MessagesResourceBundle extends ResourceBundle implements Externalizable

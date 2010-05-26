@@ -54,6 +54,8 @@ import com.servoy.j2db.plugins.IPluginManagerInternal;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.StartupArgumentsScope;
+import com.servoy.j2db.server.IApplicationServer;
+import com.servoy.j2db.server.IApplicationServerAccess;
 import com.servoy.j2db.server.IUserManager;
 import com.servoy.j2db.shared.IClientManager;
 import com.servoy.j2db.util.Debug;

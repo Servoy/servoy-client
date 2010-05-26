@@ -14,10 +14,12 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
-package com.servoy.j2db;
+package com.servoy.j2db.server;
 
 import java.util.Locale;
 import java.util.Properties;
+
+import com.servoy.j2db.MessagesResourceBundle;
 
 /**
  * Callback interface for messages loading specific for a client, loaded in the server, see {@link MessagesResourceBundle}.

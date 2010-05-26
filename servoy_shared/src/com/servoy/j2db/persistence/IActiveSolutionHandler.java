@@ -19,7 +19,7 @@ package com.servoy.j2db.persistence;
 import java.io.IOException;
 import java.rmi.RemoteException;
 
-import com.servoy.j2db.IApplicationServer;
+import com.servoy.j2db.server.IApplicationServer;
 
 /**
  * @author Jan Blok
