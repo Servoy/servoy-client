@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 
@@ -26,6 +26,7 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
@@ -524,6 +525,14 @@ public class BufferedDataSet implements IDataSet
 		return columnNames;
 	}
 
+	/*
+	 * Setter for json deserialisation
+	 */
+	public void setColumnNames(String[] columnNames)
+	{
+		this.columnNames = columnNames;
+	}
+
 	public int[] getColumnTypes()
 	{
 		if (columnTypes == null)
@@ -531,6 +540,30 @@ public class BufferedDataSet implements IDataSet
 			return null;
 		}
 		return columnTypes.clone();
+	}
+
+	/*
+	 * Setter for json deserialisation
+	 */
+	public void setColumnTypes(int[] columnTypes)
+	{
+		this.columnTypes = columnTypes;
+	}
+
+	/*
+	 * Getter for json serialisation
+	 */
+	public List<Object[]> getRows()
+	{
+		return new ArrayList<Object[]>(rows);
+	}
+
+	/*
+	 * Setter for json deserialisation
+	 */
+	public void setRows(List<Object[]> rows)
+	{
+		this.rows = new SafeArrayList<Object[]>(rows);
 	}
 
 	public void sort(int column, boolean ascending)

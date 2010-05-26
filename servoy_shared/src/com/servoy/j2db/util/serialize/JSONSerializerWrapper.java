@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util.serialize;
 
 import java.util.ArrayList;
@@ -78,11 +78,10 @@ public class JSONSerializerWrapper
 						// default serializer when there is no class hint
 						clazz = defaultSerializer.getSerializableClasses()[0];
 					}
-					if (clazz == null && defaultSerializer != null && defaultSerializer.getSerializableClasses() != null &&
-						defaultSerializer.getSerializableClasses().length > 1 && json instanceof JSONArray)
+					if (clazz == null && json instanceof JSONArray)
 					{
-						// default serializer when there is no class hint
-						clazz = defaultSerializer.getSerializableClasses()[1];
+						// default object array when there is no class hint
+						clazz = Object[].class;
 					}
 					return super.unmarshall(state, clazz, json);
 				}

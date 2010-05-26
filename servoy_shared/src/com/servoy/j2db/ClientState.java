@@ -384,8 +384,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		catch (RepositoryException e)
 		{
 			Debug.error("Could not load solution " + (solutionMetaData == null ? "<none>" : solutionMetaData.getName()), e);
-			reportError(Messages.getString("servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>"
-				: solutionMetaData.getName() }), e);
+			reportError(
+				Messages.getString("servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>" : solutionMetaData.getName() }), e);
 		}
 	}
 
@@ -438,19 +438,21 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		return SolutionMetaData.SOLUTION | SolutionMetaData.LOGIN_SOLUTION | SolutionMetaData.AUTHENTICATOR;
 	}
 
-	public String authenticate(String authenticator_solution, String method, Object[] credentials) throws RepositoryException
+	public Object authenticate(String authenticator_solution, String method, Object[] credentials)
 	{
 		String jscredentials;
 		try
 		{
-			jscredentials = new JSONConverter().convertToJSON(credentials);
+			JSONConverter jsonConverter = new JSONConverter();
+			jscredentials = jsonConverter.convertToJSON(credentials);
+			String jsReturn = authenticate(new Credentials(clientInfo.getClientId(), authenticator_solution, method, jscredentials));
+			return jsonConverter.convertFromJSON(jsReturn);
 		}
 		catch (Exception e)
 		{
 			Debug.error("Could not convert credentials object to json", e); //$NON-NLS-1$
 			return null;
 		}
-		return authenticate(new Credentials(clientInfo.getClientId(), authenticator_solution, method, jscredentials));
 	}
 
 	public String authenticate(Credentials credentials) throws RepositoryException
@@ -1162,8 +1164,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 						function,
 						gscope,
 						gscope,
-						Utils.arrayMerge((new Object[] { new Boolean(force) }), Utils.parseJSExpressions(getSolution().getInstanceMethodArguments(
-							"onCloseMethodID"))), false, false)); //$NON-NLS-1$
+						Utils.arrayMerge((new Object[] { new Boolean(force) }),
+							Utils.parseJSExpressions(getSolution().getInstanceMethodArguments("onCloseMethodID"))), false, false)); //$NON-NLS-1$
 				}
 				catch (Exception e1)
 				{
