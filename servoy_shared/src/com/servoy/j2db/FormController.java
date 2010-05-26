@@ -3795,6 +3795,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				FormAndComponent formAndComponent = getJSApplicationNames(src, f, useFormAsEventSourceEventually);
 				try
 				{
+					currentFormExecutingFunctionCount++;
 					Object[] newArgs = args;
 					if (formAndComponent != null)
 					{
@@ -3838,7 +3839,6 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 						}
 					}
 
-					currentFormExecutingFunctionCount++;
 					return application.getScriptEngine().executeFunction(f, scope, thisObject, newArgs, focusEvent, false);
 				}
 				finally
