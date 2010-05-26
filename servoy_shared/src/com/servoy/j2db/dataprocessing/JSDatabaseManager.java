@@ -23,7 +23,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -66,7 +65,6 @@ import com.servoy.j2db.scripting.info.COLUMNTYPE;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
-import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -447,6 +445,7 @@ public class JSDatabaseManager
 		}
 		else
 		{
+			boolean hasColumnNames = false;
 			// 2 possibilities: args is the list of values or args[0] is the list of values and args[1] is the list of dpnames
 			Object[] array;
 			if (args.length > 1 && (args[0] instanceof Object[]) && (args[1] instanceof Object[]))
@@ -457,6 +456,7 @@ public class JSDatabaseManager
 				{
 					dpnames[i] = String.valueOf(((Object[])args[1])[i]);
 				}
+				hasColumnNames = true;
 			}
 			else
 			{
@@ -467,16 +467,12 @@ public class JSDatabaseManager
 
 			for (Object o : array)
 			{
-				if (o instanceof Number)
+				if (!hasColumnNames || dpnames == null || dpnames.length == 0)
 				{
 					if (o instanceof Double && ((Double)o).doubleValue() == ((Double)o).intValue())
 					{
 						o = new Integer(((Double)o).intValue());
 					}
-					lst.add(new Object[] { o });
-				}
-				else if (o instanceof String || o instanceof UUID || o instanceof Date)
-				{
 					lst.add(new Object[] { o });
 				}
 				else if (o instanceof Scriptable)
