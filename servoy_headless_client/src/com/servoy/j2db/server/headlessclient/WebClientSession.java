@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient;
 
 
@@ -112,9 +112,9 @@ public class WebClientSession extends WebSession
 		}
 		else
 		{
-			webClient.handleArguments(new String[] { null, method, firstArgument }, argumentsScope);
-
+			webClient.handleArguments(new String[] { sd.getName(), method, firstArgument }, argumentsScope);
 		}
+
 		webClient.handleClientUserUidChanged(null, null);
 		if (method != null && existingClient)
 		{
