@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.persistence;
 
+import com.servoy.j2db.server.ApplicationServerSingleton;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
@@ -51,7 +52,7 @@ public class SolutionMetaData extends RootObjectMetaData
 	{
 		super(rootObjectId, rootObjectUuid, name, objectTypeId, activeRelease, latestRelease);
 		solutionType = SolutionMetaData.SOLUTION;
-		protectionPassword = calculateProtectionPasswordHash(null);
+		protectionPassword = ApplicationServerSingleton.get().calculateProtectionPasswordHash(getName(), getRootObjectUuid().toString(), null);
 	}
 
 	public boolean getMustAuthenticate()
@@ -76,14 +77,10 @@ public class SolutionMetaData extends RootObjectMetaData
 		this.protectionPassword = protectionPassword;
 	}
 
-	public String calculateProtectionPasswordHash(String password)
-	{
-		return calculateProtectionPasswordHash(getName(), getRootObjectUuid().toString(), password);
-	}
-
 	public boolean isProtected()
 	{
-		return protectionPassword == null || protectionPassword.equals(calculateProtectionPasswordHash(null));
+		return protectionPassword == null ||
+			protectionPassword.equals(ApplicationServerSingleton.get().calculateProtectionPasswordHash(getName(), getRootObjectUuid().toString(), null));
 	}
 
 	public int getSolutionType()
@@ -95,17 +92,6 @@ public class SolutionMetaData extends RootObjectMetaData
 	{
 		checkForChange(solutionType, arg);
 		solutionType = arg;
-	}
-
-	public static String calculateProtectionPasswordHash(String name, String uuid, String password)
-	{
-		String hash1 = Utils.calculateMD5HashBase64(name + (password != null ? password : ""));
-		return calculateProtectionPasswordHash2(name, uuid, hash1);
-	}
-
-	public static String calculateProtectionPasswordHash2(String name, String uuid, String hash1)
-	{
-		return Utils.calculateMD5HashBase64(name + "|" + uuid + "-" + (hash1 != null ? hash1 : Utils.calculateMD5HashBase64(name)));
 	}
 
 	public int getFileVersion()

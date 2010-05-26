@@ -119,4 +119,8 @@ public interface IApplicationServerSingleton
 	boolean checkSolutionPassword(RootObjectImportInfo rootObjectImportInfo, String protectionPassword);
 
 	void doNativeShutdown();
+
+	String calculateProtectionPasswordHash(String name, String uuid, String password);
+
+	String calculateProtectionPasswordHash2(String name, String uuid, String hash1);
 }
