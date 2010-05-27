@@ -14,7 +14,7 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
-package com.servoy.j2db.scripting;
+package com.servoy.j2db.documentation;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,7 +29,6 @@ import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 
-import com.servoy.j2db.documentation.IAggregatedDocumentation;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Ident;
 import com.servoy.j2db.util.RhinoKeywords;
