@@ -29,6 +29,7 @@ import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 
+import com.servoy.j2db.documentation.IAggregatedDocumentation;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Ident;
 import com.servoy.j2db.util.RhinoKeywords;
