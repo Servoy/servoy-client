@@ -117,7 +117,7 @@ public interface IApplicationServerSingleton
 
 	boolean checkSolutionProtection(RootObjectImportInfo rootObjectImportInfo) throws RepositoryException;
 
-	boolean checkSolutionPassword(RootObjectImportInfo rootObjectImportInfo, String protectionPassword);
+	boolean checkSolutionPassword(RootObjectImportInfo rootObjectImportInfo, String protectionPassword) throws RepositoryException;
 
 	void doNativeShutdown();
 
