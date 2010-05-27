@@ -52,7 +52,7 @@ public class SolutionMetaData extends RootObjectMetaData
 	{
 		super(rootObjectId, rootObjectUuid, name, objectTypeId, activeRelease, latestRelease);
 		solutionType = SolutionMetaData.SOLUTION;
-		protectionPassword = ApplicationServerSingleton.get().calculateProtectionPasswordHash(getName(), getRootObjectUuid().toString(), null);
+		protectionPassword = ApplicationServerSingleton.get().calculateProtectionPassword(this, null);
 	}
 
 	public boolean getMustAuthenticate()
@@ -79,8 +79,7 @@ public class SolutionMetaData extends RootObjectMetaData
 
 	public boolean isProtected()
 	{
-		return protectionPassword == null ||
-			protectionPassword.equals(ApplicationServerSingleton.get().calculateProtectionPasswordHash(getName(), getRootObjectUuid().toString(), null));
+		return ApplicationServerSingleton.get().isSolutionProtected(this);
 	}
 
 	public int getSolutionType()

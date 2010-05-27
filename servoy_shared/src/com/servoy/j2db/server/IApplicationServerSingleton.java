@@ -30,6 +30,7 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IServerManagerInternal;
 import com.servoy.j2db.persistence.IXMLExportI18NHelper;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.plugins.IPluginManagerInternal;
 import com.servoy.j2db.shared.IBatchManager;
 import com.servoy.j2db.util.Settings;
@@ -120,7 +121,9 @@ public interface IApplicationServerSingleton
 
 	void doNativeShutdown();
 
-	String calculateProtectionPasswordHash(String name, String uuid, String password);
+	String calculateProtectionPassword(SolutionMetaData metadata, String password);
 
-	String calculateProtectionPasswordHash2(String name, String uuid, String hash1);
+	String calculateProtectionPasswordOld(SolutionMetaData metadata, String hash1);
+
+	boolean isSolutionProtected(SolutionMetaData metadata);
 }
