@@ -17,7 +17,7 @@
 package com.servoy.j2db.scripting.solutionmodel;
 
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.annotations.ServoyDocumented;
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.util.ImageLoader;

@@ -18,7 +18,7 @@ package com.servoy.j2db.dataprocessing;
 
 import java.sql.SQLException;
 
-import com.servoy.j2db.annotations.ServoyDocumented;
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.ServoyException;
 
 /**

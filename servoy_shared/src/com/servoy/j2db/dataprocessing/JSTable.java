@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.mozilla.javascript.Wrapper;
 
-import com.servoy.j2db.annotations.ServoyDocumented;
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;

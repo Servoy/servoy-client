@@ -16,7 +16,7 @@
 */
 package com.servoy.j2db.dataprocessing;
 
-import com.servoy.j2db.annotations.ServoyDocumented;
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.DummyValidator;
 import com.servoy.j2db.persistence.IServer;

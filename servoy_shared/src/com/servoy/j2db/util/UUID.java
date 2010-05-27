@@ -19,7 +19,7 @@ package com.servoy.j2db.util;
 import java.io.Serializable;
 import java.security.SecureRandom;
 
-import com.servoy.j2db.annotations.ServoyDocumented;
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IJavaScriptType;
 
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)

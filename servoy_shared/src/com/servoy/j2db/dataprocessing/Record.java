@@ -37,8 +37,8 @@ import org.mozilla.javascript.WrappedException;
 import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.ApplicationException;
-import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;

@@ -20,7 +20,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.annotations.ServoyDocumented;
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.DummyValidator;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Media;

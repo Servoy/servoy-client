@@ -47,12 +47,12 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.Scriptable;
 
-import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.cmd.ICmdManagerInternal;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.RelatedFoundSet;
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.RepositoryException;

@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.servoy.j2db.J2DBGlobals;
-import com.servoy.j2db.annotations.ServoyDocumented;
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;

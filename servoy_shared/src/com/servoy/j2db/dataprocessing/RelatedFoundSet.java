@@ -32,8 +32,8 @@ import javax.swing.event.TableModelEvent;
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
 
-import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;

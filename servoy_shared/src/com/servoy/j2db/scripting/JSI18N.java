@@ -29,10 +29,10 @@ import java.util.Map.Entry;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.Messages;
-import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.TagResolver;
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.StringComparator;
 
 /**

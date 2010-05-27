@@ -16,7 +16,7 @@
 */
 package com.servoy.j2db.scripting.solutionmodel;
 
-import com.servoy.j2db.annotations.ServoyDocumented;
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.ISupportScrollbars;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 

@@ -18,7 +18,7 @@ package com.servoy.j2db.scripting.solutionmodel;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IForm;
-import com.servoy.j2db.annotations.ServoyDocumented;
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IDeprecated;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 

@@ -21,8 +21,8 @@ import java.awt.Point;
 import java.util.Arrays;
 import java.util.Date;
 
-import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.component.ComponentFactory;
+import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
  * JSEvent, used as first argument to user-event callbacks.

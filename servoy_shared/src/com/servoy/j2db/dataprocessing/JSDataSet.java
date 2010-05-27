@@ -40,7 +40,7 @@ import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
-import com.servoy.j2db.annotations.ServoyDocumented;
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Table;

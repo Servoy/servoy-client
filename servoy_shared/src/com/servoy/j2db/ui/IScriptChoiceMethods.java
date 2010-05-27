@@ -16,7 +16,7 @@
 */
 package com.servoy.j2db.ui;
 
-import com.servoy.j2db.annotations.ServoyDocumented;
+import com.servoy.j2db.documentation.ServoyDocumented;
 
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RadioButton")
 public interface IScriptChoiceMethods extends IScriptBaseMethods, IScriptReadOnlyMethods, IScriptScrollableMethods, IScriptFocusMethods,

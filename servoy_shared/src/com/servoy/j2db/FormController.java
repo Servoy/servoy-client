@@ -48,7 +48,6 @@ import org.mozilla.javascript.JavaMembers;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 
-import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.cmd.ICmdManagerInternal;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
@@ -69,6 +68,7 @@ import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.dataprocessing.TagResolver;
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IRepository;

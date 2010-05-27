@@ -19,7 +19,7 @@ package com.servoy.j2db.scripting.solutionmodel;
 import java.awt.Dimension;
 import java.awt.Point;
 
-import com.servoy.j2db.annotations.ServoyDocumented;
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.util.IAnchorConstants;

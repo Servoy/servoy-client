@@ -24,7 +24,7 @@ import java.util.List;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.annotations.ServoyDocumented;
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IServer;

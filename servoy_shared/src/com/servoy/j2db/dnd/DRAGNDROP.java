@@ -18,7 +18,7 @@ package com.servoy.j2db.dnd;
 
 import java.awt.dnd.DnDConstants;
 
-import com.servoy.j2db.annotations.ServoyDocumented;
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 

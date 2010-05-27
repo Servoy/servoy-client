@@ -19,7 +19,7 @@ package com.servoy.j2db.persistence;
 
 import java.util.Iterator;
 
-import com.servoy.j2db.annotations.ServoyDocumented;
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.UUID;
 
 /**

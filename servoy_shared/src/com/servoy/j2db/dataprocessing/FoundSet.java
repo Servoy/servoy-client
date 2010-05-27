@@ -43,7 +43,7 @@ import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.annotations.ServoyDocumented;
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.AggregateVariable;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;

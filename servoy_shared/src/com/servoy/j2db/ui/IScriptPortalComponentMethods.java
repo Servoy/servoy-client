@@ -16,7 +16,7 @@
  */
 package com.servoy.j2db.ui;
 
-import com.servoy.j2db.annotations.ServoyDocumented;
+import com.servoy.j2db.documentation.ServoyDocumented;
 
 
 /**
