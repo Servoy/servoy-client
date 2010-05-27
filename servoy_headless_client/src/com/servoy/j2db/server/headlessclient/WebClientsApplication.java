@@ -345,15 +345,23 @@ public class WebClientsApplication extends WebApplication
 		return SelectSolution.class;
 	}
 
+	@SuppressWarnings("nls")
 	@Override
-	public Session newSession(Request request, Response response)
+	public synchronized Session newSession(Request request, Response response)
 	{
-		IWebClientSessionFactory webClientSessionFactory = ApplicationServerSingleton.get().getWebClientSessionFactory();
-		if (webClientSessionFactory == null)
+		ISessionStore sessionStore = getSessionStore();
+		Session session = sessionStore.lookup(request);
+		if (session == null)
 		{
-			throw new IllegalStateException("Server was not started for web client usage");
+			IWebClientSessionFactory webClientSessionFactory = ApplicationServerSingleton.get().getWebClientSessionFactory();
+			if (webClientSessionFactory == null)
+			{
+				throw new IllegalStateException("Server was not started for web client usage");
+			}
+			session = webClientSessionFactory.newSession(request, response);
+			session.bind();
 		}
-		return webClientSessionFactory.newSession(request, response);
+		return session;
 	}
 
 	@Override
