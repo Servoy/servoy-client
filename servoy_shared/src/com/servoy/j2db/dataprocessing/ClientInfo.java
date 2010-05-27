@@ -26,10 +26,10 @@ import java.util.List;
 import java.util.TimeZone;
 
 import com.servoy.j2db.ClientState;
-import com.servoy.j2db.terracotta.annotations.TerracottaAutolockRead;
-import com.servoy.j2db.terracotta.annotations.TerracottaAutolockWrite;
-import com.servoy.j2db.terracotta.annotations.TerracottaInstrumentedClass;
-import com.servoy.j2db.terracotta.annotations.TerracottaTransient;
+import com.servoy.j2db.server.annotations.TerracottaAutolockRead;
+import com.servoy.j2db.server.annotations.TerracottaAutolockWrite;
+import com.servoy.j2db.server.annotations.TerracottaInstrumentedClass;
+import com.servoy.j2db.server.annotations.TerracottaTransient;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SerializableObject;
 

@@ -14,13 +14,13 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
-package com.servoy.j2db.terracotta.annotations;
+package com.servoy.j2db.server.annotations;
 
 /**
- * Marks a field to be a terracotta root. Using this annotation will automatically make the field a terracotta root
- * at runtime (config file is made to match this annotation.).
+ * Marks a method to use terracotta DMI (Disributed Method Invocation). Using this annotation will automatically apply this behavior to the
+ * methods at runtime (config file is made to match this annotation).
  * @author Andrei Costescu
  */
-public @interface TerracottaRoot
+public @interface TerracottaDistributedMethod
 {
 }

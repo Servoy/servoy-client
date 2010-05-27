@@ -22,7 +22,7 @@ import java.lang.ref.SoftReference;
 import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.scripting.ReferenceOnlyInJS;
-import com.servoy.j2db.terracotta.annotations.TerracottaInstrumentedClass;
+import com.servoy.j2db.server.annotations.TerracottaInstrumentedClass;
 import com.servoy.j2db.util.IntHashMap;
 
 /**

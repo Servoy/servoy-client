@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.RandomAccess;
 
-import com.servoy.j2db.terracotta.annotations.TerracottaInstrumentedClass;
+import com.servoy.j2db.server.annotations.TerracottaInstrumentedClass;
 
 /**
  * This class is resistent to inserts, adds and gets on positions not defined, and it uses the Utils.equalsObject(...) to perform equals on objects (which is

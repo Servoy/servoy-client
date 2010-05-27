@@ -18,7 +18,7 @@ package com.servoy.j2db.util;
 
 import java.io.Serializable;
 
-import com.servoy.j2db.terracotta.annotations.TerracottaInstrumentedClass;
+import com.servoy.j2db.server.annotations.TerracottaInstrumentedClass;
 
 /**
  * @author sebster

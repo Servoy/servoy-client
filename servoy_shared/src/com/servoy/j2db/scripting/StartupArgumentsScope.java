@@ -26,7 +26,7 @@ import java.util.Map;
 
 import org.mozilla.javascript.Scriptable;
 
-import com.servoy.j2db.terracotta.annotations.TerracottaInstrumentedClass;
+import com.servoy.j2db.server.annotations.TerracottaInstrumentedClass;
 
 @TerracottaInstrumentedClass
 public class StartupArgumentsScope extends DefaultScope implements Externalizable

@@ -14,7 +14,7 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
-package com.servoy.j2db.terracotta.annotations;
+package com.servoy.j2db.server.annotations;
 
 /**
  * This annotation is currently only used for information purpose. It can't be used effectively in the terracotta config file until AspectWerkz expressions are supported for transient fields. 
