@@ -19,10 +19,10 @@ package com.servoy.j2db.scripting.solutionmodel;
 import org.mozilla.javascript.Function;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.ScriptMethod;
-import com.servoy.j2db.scripting.ServoyDocumented;
 import com.servoy.j2db.util.PersistHelper;
 
 /**

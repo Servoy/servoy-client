@@ -16,7 +16,7 @@
 */
 package com.servoy.j2db.ui;
 
-import com.servoy.j2db.scripting.ServoyDocumented;
+import com.servoy.j2db.annotations.ServoyDocumented;
 
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RTF Area, HTML Area")
 public interface IScriptTextEditorMethods extends IScriptReadOnlyMethods, IScriptScrollableMethods, IScriptTextInputMethods

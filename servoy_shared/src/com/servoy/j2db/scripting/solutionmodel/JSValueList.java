@@ -21,6 +21,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptNameValidator;
@@ -28,7 +29,6 @@ import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.scripting.IConstantsObject;
-import com.servoy.j2db.scripting.ServoyDocumented;
 import com.servoy.j2db.util.Debug;
 
 /**

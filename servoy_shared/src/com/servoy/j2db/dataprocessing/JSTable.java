@@ -22,13 +22,13 @@ import java.util.List;
 
 import org.mozilla.javascript.Wrapper;
 
+import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
-import com.servoy.j2db.scripting.ServoyDocumented;
 import com.servoy.j2db.util.Debug;
 
 /**

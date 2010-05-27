@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import com.servoy.j2db.scripting.ServoyDocumented;
+import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.UUID;

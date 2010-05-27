@@ -26,7 +26,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
-import com.servoy.j2db.scripting.ServoyDocumented;
+import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.JSONWrapperMap;

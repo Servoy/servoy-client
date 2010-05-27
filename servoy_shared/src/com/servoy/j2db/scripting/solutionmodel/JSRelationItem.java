@@ -16,11 +16,11 @@
 */
 package com.servoy.j2db.scripting.solutionmodel;
 
+import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.persistence.RelationItem;
 import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
-import com.servoy.j2db.scripting.ServoyDocumented;
 
 /**
  * @author jcompagner

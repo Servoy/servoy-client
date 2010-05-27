@@ -16,10 +16,10 @@
 */
 package com.servoy.j2db.scripting.info;
 
+import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.scripting.IDeprecated;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
-import com.servoy.j2db.scripting.ServoyDocumented;
 
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 @Deprecated

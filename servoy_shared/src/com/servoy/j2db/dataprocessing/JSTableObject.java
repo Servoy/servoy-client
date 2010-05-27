@@ -16,13 +16,13 @@
 */
 package com.servoy.j2db.dataprocessing;
 
+import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.DummyValidator;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
-import com.servoy.j2db.scripting.ServoyDocumented;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 

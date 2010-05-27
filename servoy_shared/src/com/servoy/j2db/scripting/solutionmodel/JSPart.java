@@ -16,9 +16,9 @@
 */
 package com.servoy.j2db.scripting.solutionmodel;
 
+import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.scripting.IConstantsObject;
-import com.servoy.j2db.scripting.ServoyDocumented;
 import com.servoy.j2db.util.PersistHelper;
 
 /**

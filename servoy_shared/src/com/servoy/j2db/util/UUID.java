@@ -19,8 +19,8 @@ package com.servoy.j2db.util;
 import java.io.Serializable;
 import java.security.SecureRandom;
 
+import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.scripting.IJavaScriptType;
-import com.servoy.j2db.scripting.ServoyDocumented;
 
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptType

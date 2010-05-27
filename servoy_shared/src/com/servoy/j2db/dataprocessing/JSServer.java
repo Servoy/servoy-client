@@ -19,11 +19,11 @@ package com.servoy.j2db.dataprocessing;
 import java.rmi.RemoteException;
 import java.util.List;
 
+import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.IServerInternal;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Table;
-import com.servoy.j2db.scripting.ServoyDocumented;
 import com.servoy.j2db.util.Debug;
 
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)

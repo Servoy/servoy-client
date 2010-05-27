@@ -32,6 +32,7 @@ import javax.swing.event.TableModelEvent;
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
 
+import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.Relation;
@@ -45,7 +46,6 @@ import com.servoy.j2db.query.Placeholder;
 import com.servoy.j2db.query.PlaceholderKey;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QuerySelect;
-import com.servoy.j2db.scripting.ServoyDocumented;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.PackVisitor;
 import com.servoy.j2db.util.SafeArrayList;

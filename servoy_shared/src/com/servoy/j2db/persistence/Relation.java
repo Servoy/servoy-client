@@ -23,10 +23,10 @@ import java.util.List;
 
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
+import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.ISQLJoin;
-import com.servoy.j2db.scripting.ServoyDocumented;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;

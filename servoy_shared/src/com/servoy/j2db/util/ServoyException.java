@@ -17,10 +17,10 @@
 package com.servoy.j2db.util;
 
 import com.servoy.j2db.Messages;
+import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.dataprocessing.DataException;
 import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
-import com.servoy.j2db.scripting.ServoyDocumented;
 
 /**
  * @author Jan Blok IMPORTANT: The names are exposed to javascripting do not refactor names!

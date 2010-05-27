@@ -23,6 +23,7 @@ import java.util.Iterator;
 import org.mozilla.javascript.Function;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportChilds;
@@ -30,7 +31,6 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.Tab;
 import com.servoy.j2db.persistence.TabPanel;
-import com.servoy.j2db.scripting.ServoyDocumented;
 
 /**
  * @author jcompagner

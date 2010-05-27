@@ -18,8 +18,8 @@ package com.servoy.j2db.scripting.solutionmodel;
 
 import javax.swing.SwingConstants;
 
+import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
-import com.servoy.j2db.scripting.ServoyDocumented;
 
 /**
  * @author jcompagner

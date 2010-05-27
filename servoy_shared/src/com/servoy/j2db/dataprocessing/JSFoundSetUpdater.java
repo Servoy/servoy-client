@@ -21,6 +21,7 @@ import java.util.List;
 
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Table;
@@ -29,7 +30,6 @@ import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryUpdate;
 import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
-import com.servoy.j2db.scripting.ServoyDocumented;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
 

@@ -16,6 +16,8 @@
 */
 package com.servoy.j2db.scripting;
 
+import com.servoy.j2db.annotations.ServoyDocumented;
+
 /**
  * This class is only used to provide code completion and jsunit node in developer's javascript editor/solution explorer.
  * 

@@ -31,6 +31,7 @@ import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IForm;
+import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Field;
@@ -47,7 +48,6 @@ import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.scripting.IConstantsObject;
-import com.servoy.j2db.scripting.ServoyDocumented;
 
 /**
  * @author jcompagner

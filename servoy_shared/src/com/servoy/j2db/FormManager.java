@@ -47,6 +47,7 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.Scriptable;
 
+import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.cmd.ICmdManagerInternal;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
@@ -61,7 +62,6 @@ import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
-import com.servoy.j2db.scripting.ServoyDocumented;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SafeArrayList;

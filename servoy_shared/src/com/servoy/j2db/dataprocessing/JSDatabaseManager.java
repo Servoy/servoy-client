@@ -34,6 +34,7 @@ import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ColumnInfo;
@@ -60,7 +61,6 @@ import com.servoy.j2db.query.QueryUpdate;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.IScriptObject;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
-import com.servoy.j2db.scripting.ServoyDocumented;
 import com.servoy.j2db.scripting.info.COLUMNTYPE;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;

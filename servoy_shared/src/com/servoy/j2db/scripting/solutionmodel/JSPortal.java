@@ -23,6 +23,7 @@ import java.util.Iterator;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.GraphicalComponent;
@@ -31,7 +32,6 @@ import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.scripting.IJavaScriptType;
-import com.servoy.j2db.scripting.ServoyDocumented;
 import com.servoy.j2db.util.Utils;
 
 

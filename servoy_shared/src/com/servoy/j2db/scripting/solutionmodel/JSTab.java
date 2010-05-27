@@ -20,13 +20,13 @@ import java.awt.Dimension;
 import java.awt.Point;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.persistence.DummyValidator;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Tab;
 import com.servoy.j2db.scripting.IJavaScriptType;
-import com.servoy.j2db.scripting.ServoyDocumented;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;

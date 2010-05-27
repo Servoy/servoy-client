@@ -27,11 +27,11 @@ import org.mozilla.javascript.Parser;
 import org.mozilla.javascript.ScriptOrFnNode;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptNameValidator;
 import com.servoy.j2db.scripting.IJavaScriptType;
-import com.servoy.j2db.scripting.ServoyDocumented;
 
 /**
  * @author jcompagner

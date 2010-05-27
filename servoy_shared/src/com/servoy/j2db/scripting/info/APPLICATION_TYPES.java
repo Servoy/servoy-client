@@ -19,9 +19,9 @@ package com.servoy.j2db.scripting.info;
 import java.lang.reflect.Field;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
-import com.servoy.j2db.scripting.ServoyDocumented;
 import com.servoy.j2db.util.Debug;
 
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)

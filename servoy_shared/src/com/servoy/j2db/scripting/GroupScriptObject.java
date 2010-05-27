@@ -22,6 +22,8 @@ import java.util.List;
 
 import org.mozilla.javascript.Scriptable;
 
+import com.servoy.j2db.annotations.ServoyDocumented;
+
 /**
  * Script object for a group of scriptables, delegates a fixed list of properties to all the enclosed scriptables.
  * 

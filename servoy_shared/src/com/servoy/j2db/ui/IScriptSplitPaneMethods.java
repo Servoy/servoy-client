@@ -16,8 +16,8 @@
 */
 package com.servoy.j2db.ui;
 
+import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.scripting.FormScope;
-import com.servoy.j2db.scripting.ServoyDocumented;
 
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "SplitPane")
 public interface IScriptSplitPaneMethods extends IScriptTransparentMethods, IScriptReadOnlyMethods

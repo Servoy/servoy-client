@@ -43,6 +43,7 @@ import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.persistence.AggregateVariable;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
@@ -77,7 +78,6 @@ import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.SetCondition;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
-import com.servoy.j2db.scripting.ServoyDocumented;
 import com.servoy.j2db.scripting.TableScope;
 import com.servoy.j2db.scripting.UsedDataProviderTracker;
 import com.servoy.j2db.util.Debug;

@@ -48,6 +48,7 @@ import org.mozilla.javascript.JavaMembers;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 
+import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.cmd.ICmdManagerInternal;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
@@ -89,7 +90,6 @@ import com.servoy.j2db.scripting.InstanceJavaMembers;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.scripting.SelectedRecordScope;
-import com.servoy.j2db.scripting.ServoyDocumented;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
 import com.servoy.j2db.ui.IAccessible;

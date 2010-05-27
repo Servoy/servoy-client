@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.SQLSheet;
 import com.servoy.j2db.persistence.Column;
@@ -38,7 +39,6 @@ import com.servoy.j2db.query.ISQLJoin;
 import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
-import com.servoy.j2db.scripting.ServoyDocumented;
 
 /**
  * @author jcompagner

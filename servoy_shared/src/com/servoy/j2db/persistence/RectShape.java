@@ -16,7 +16,7 @@
 */
 package com.servoy.j2db.persistence;
 
-import com.servoy.j2db.scripting.ServoyDocumented;
+import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.util.UUID;
 
 

@@ -23,7 +23,7 @@ import java.util.StringTokenizer;
 import org.mozilla.javascript.NativeDate;
 import org.mozilla.javascript.Wrapper;
 
-import com.servoy.j2db.scripting.ServoyDocumented;
+import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;

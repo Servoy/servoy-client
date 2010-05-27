@@ -17,13 +17,13 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import com.servoy.j2db.annotations.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ColumnInfo;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
-import com.servoy.j2db.scripting.ServoyDocumented;
 import com.servoy.j2db.util.Debug;
 
 /**
