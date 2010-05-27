@@ -20,8 +20,8 @@ import javax.servlet.ServletRequest;
 
 import com.servoy.j2db.ISessionClient;
 import com.servoy.j2db.persistence.InfoChannel;
-import com.servoy.j2db.server.ApplicationServerSingleton;
-import com.servoy.j2db.server.IApplicationServerSingleton;
+import com.servoy.j2db.server.shared.ApplicationServerSingleton;
+import com.servoy.j2db.server.shared.IApplicationServerSingleton;
 
 public class HeadlessClientFactoryInternal
 {

@@ -48,12 +48,12 @@ import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.GlobalScope;
-import com.servoy.j2db.server.ApplicationServerSingleton;
-import com.servoy.j2db.server.IFlattenedSolutionDebugListener;
 import com.servoy.j2db.server.headlessclient.EmptyRequest;
 import com.servoy.j2db.server.headlessclient.SessionClient;
 import com.servoy.j2db.server.headlessclient.WebClient;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
+import com.servoy.j2db.server.shared.ApplicationServerSingleton;
+import com.servoy.j2db.server.shared.IFlattenedSolutionDebugListener;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 

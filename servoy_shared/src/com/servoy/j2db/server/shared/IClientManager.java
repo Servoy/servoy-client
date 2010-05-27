@@ -13,18 +13,20 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
- */
-
-package com.servoy.j2db.server;
-
-import com.servoy.j2db.dataprocessing.IDataServer;
+*/
+package com.servoy.j2db.server.shared;
 
 /**
- * Factory for user manager.
+ * Cient manager interface with constants
+ * @author rob
+ *
  */
-public interface IUserManagerFactory
+public interface IClientManager
 {
 
-	IUserManager createUserManager(IDataServer dataServer);
+	public static final int REGISTER_OK = 0;
+	public static final int REGISTER_FAILED_NO_MORE_LICENCES = 1;
+	public static final int REGISTER_FAILED_MAINTENANCE_MODE = 2;
+	public static final int REGISTER_FAILED_SELF_UNREGISTER = 3;
 
 }

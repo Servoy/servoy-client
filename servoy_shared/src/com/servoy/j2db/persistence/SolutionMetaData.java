@@ -16,7 +16,7 @@
  */
 package com.servoy.j2db.persistence;
 
-import com.servoy.j2db.server.ApplicationServerSingleton;
+import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 

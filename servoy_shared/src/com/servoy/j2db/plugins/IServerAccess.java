@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServlet;
 
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.persistence.IServer;
-import com.servoy.j2db.server.IClientInformation;
+import com.servoy.j2db.server.shared.IClientInformation;
 
 /**
  * Api to use by server plugins.

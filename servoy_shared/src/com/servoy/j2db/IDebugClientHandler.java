@@ -27,7 +27,7 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.Solution;
-import com.servoy.j2db.server.IDebugHeadlessClient;
+import com.servoy.j2db.server.shared.IDebugHeadlessClient;
 
 /**
  * Handler for debug clients 

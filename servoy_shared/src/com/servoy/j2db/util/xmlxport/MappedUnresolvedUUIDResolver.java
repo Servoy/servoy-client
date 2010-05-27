@@ -21,7 +21,7 @@ import java.util.Map;
 
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.server.IUnresolvedUUIDResolver;
+import com.servoy.j2db.server.shared.IUnresolvedUUIDResolver;
 import com.servoy.j2db.util.IntArrayKey;
 import com.servoy.j2db.util.UUID;
 

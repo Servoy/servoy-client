@@ -19,7 +19,7 @@ package com.servoy.j2db.persistence;
 import java.util.Iterator;
 import java.util.List;
 
-import com.servoy.j2db.server.IUnresolvedUUIDResolver;
+import com.servoy.j2db.server.shared.IUnresolvedUUIDResolver;
 import com.servoy.j2db.util.UUID;
 
 /**

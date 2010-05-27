@@ -41,8 +41,8 @@ import com.servoy.j2db.Messages;
 import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.StartupArgumentsScope;
-import com.servoy.j2db.server.ApplicationServerSingleton;
-import com.servoy.j2db.server.IApplicationServerSingleton;
+import com.servoy.j2db.server.shared.ApplicationServerSingleton;
+import com.servoy.j2db.server.shared.IApplicationServerSingleton;
 
 /**
  * A session which holds the actual started client inside

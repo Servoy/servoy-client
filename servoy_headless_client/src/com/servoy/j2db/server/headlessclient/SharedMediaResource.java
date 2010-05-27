@@ -28,8 +28,8 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.SolutionMetaData;
-import com.servoy.j2db.server.ApplicationServerSingleton;
 import com.servoy.j2db.server.headlessclient.dataui.MediaResource;
+import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ImageLoader;
 

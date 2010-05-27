@@ -14,15 +14,17 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
-package com.servoy.j2db.server;
+package com.servoy.j2db.server.shared;
 
-import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.util.UUID;
+import java.util.List;
 
-/**
- * @author sebster
- */
-public interface IUnresolvedUUIDResolver
+import com.servoy.j2db.persistence.InfoChannel;
+
+public interface IBatchManager
 {
-	public UUID resolve(int elementId, int revision, int contentId) throws RepositoryException;
+	List<IBatchClient> getBatchClientProcesses();
+
+	Thread startBatchClientProcess(final IBatchClient bc, InfoChannel channel);
+
+	IBatchClient createBatchClientProcess(String solutionName, String userName, String password, String args, boolean disabled) throws Exception;
 }

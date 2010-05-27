@@ -14,30 +14,25 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
-package com.servoy.j2db.shared;
+package com.servoy.j2db.server.shared;
 
-import com.servoy.j2db.server.headlessclient.IHeadlessClient;
+import java.rmi.Remote;
+import java.rmi.RemoteException;
 
+import com.servoy.j2db.dataprocessing.IDataServer;
+import com.servoy.j2db.persistence.IRemoteRepository;
+import com.servoy.j2db.persistence.ITeamRepository;
+import com.servoy.j2db.persistence.RepositoryException;
 
-public interface IBatchClient extends IHeadlessClient
+public interface IApplicationServerAccess extends Remote
 {
-	/**
-	 * @deprecated use getPluginAccess().getSolutionName()
-	 */
-	@Deprecated
-	public String getSolutionName();
+	public IRemoteRepository getRepository() throws RemoteException;
 
-	public String getStartArguments();
+	public IDataServer getDataServer() throws RemoteException;
 
-	/**
-	 * @deprecated use getPluginAccess().getUserUID()
-	 */
-	@Deprecated
-	public String getUserName();
+	public void logout(String clientId) throws RemoteException, RepositoryException;
 
-	public boolean isDisabled();
+	public ITeamRepository getTeamRepository() throws RemoteException;
 
-	public void setDisabled(boolean disabled);
-
-	public Exception getStartupException();
+	public IUserManager getUserManager() throws RemoteException;
 }

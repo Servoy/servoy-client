@@ -14,11 +14,18 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
-package com.servoy.j2db.server;
+package com.servoy.j2db.server.shared;
 
-import java.util.Set;
+import org.apache.wicket.Request;
+import org.apache.wicket.Response;
+import org.apache.wicket.Session;
 
-public interface IFlattenedSolutionDebugListener
+/**
+ * Factory for web client session
+ * @author rob
+ *
+ */
+public interface IWebClientSessionFactory
 {
-	void addDebugInfo(Set<Object> infos);
+	Session newSession(Request request, Response response);
 }

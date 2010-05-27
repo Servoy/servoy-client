@@ -13,20 +13,18 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
-package com.servoy.j2db.server;
+ */
 
-import java.util.Locale;
-import java.util.Properties;
+package com.servoy.j2db.server.shared;
 
-import com.servoy.j2db.MessagesResourceBundle;
+import com.servoy.j2db.dataprocessing.IDataServer;
 
 /**
- * Callback interface for messages loading specific for a client, loaded in the server, see {@link MessagesResourceBundle}.
- * @author rob
- *
+ * Factory for user manager.
  */
-public interface IApplicationServerMessagesLoader
+public interface IUserManagerFactory
 {
-	void loadMessages(Properties messages, Locale locale, int solutionId, String i18nColumnName, String i18nColunmValue);
+
+	IUserManager createUserManager(IDataServer dataServer);
+
 }

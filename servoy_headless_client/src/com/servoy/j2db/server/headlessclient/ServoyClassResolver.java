@@ -26,7 +26,7 @@ import java.util.Set;
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.application.IClassResolver;
 
-import com.servoy.j2db.server.ApplicationServerSingleton;
+import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 
 /**
  * @author jcompagner

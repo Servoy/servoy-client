@@ -14,16 +14,15 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
-package com.servoy.j2db.server;
+package com.servoy.j2db.server.shared;
 
-import com.servoy.j2db.ISessionClient;
+import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.util.UUID;
 
 /**
- * Session client extended with debug features
- * @author rob
- *
+ * @author sebster
  */
-public interface IDebugHeadlessClient extends ISessionClient
+public interface IUnresolvedUUIDResolver
 {
-
+	public UUID resolve(int elementId, int revision, int contentId) throws RepositoryException;
 }

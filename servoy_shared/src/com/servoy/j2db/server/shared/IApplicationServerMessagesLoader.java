@@ -14,19 +14,19 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
-package com.servoy.j2db.shared;
+package com.servoy.j2db.server.shared;
+
+import java.util.Locale;
+import java.util.Properties;
+
+import com.servoy.j2db.MessagesResourceBundle;
 
 /**
- * Cient manager interface with constants
+ * Callback interface for messages loading specific for a client, loaded in the server, see {@link MessagesResourceBundle}.
  * @author rob
  *
  */
-public interface IClientManager
+public interface IApplicationServerMessagesLoader
 {
-
-	public static final int REGISTER_OK = 0;
-	public static final int REGISTER_FAILED_NO_MORE_LICENCES = 1;
-	public static final int REGISTER_FAILED_MAINTENANCE_MODE = 2;
-	public static final int REGISTER_FAILED_SELF_UNREGISTER = 3;
-
+	void loadMessages(Properties messages, Locale locale, int solutionId, String i18nColumnName, String i18nColunmValue);
 }

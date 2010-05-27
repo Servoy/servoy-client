@@ -14,17 +14,16 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
-package com.servoy.j2db.shared;
+package com.servoy.j2db.server.shared;
 
-import java.util.List;
+import com.servoy.j2db.ISessionClient;
 
-import com.servoy.j2db.persistence.InfoChannel;
-
-public interface IBatchManager
+/**
+ * Session client extended with debug features
+ * @author rob
+ *
+ */
+public interface IDebugHeadlessClient extends ISessionClient
 {
-	List<IBatchClient> getBatchClientProcesses();
 
-	Thread startBatchClientProcess(final IBatchClient bc, InfoChannel channel);
-
-	IBatchClient createBatchClientProcess(String solutionName, String userName, String password, String args, boolean disabled) throws Exception;
 }

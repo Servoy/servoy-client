@@ -16,7 +16,7 @@
 */
 package com.servoy.j2db.persistence;
 
-import com.servoy.j2db.server.IUnresolvedUUIDResolver;
+import com.servoy.j2db.server.shared.IUnresolvedUUIDResolver;
 import com.servoy.j2db.util.UUID;
 
 /**

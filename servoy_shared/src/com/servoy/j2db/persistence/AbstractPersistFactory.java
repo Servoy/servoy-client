@@ -25,7 +25,7 @@ import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.Map;
 
-import com.servoy.j2db.server.IUnresolvedUUIDResolver;
+import com.servoy.j2db.server.shared.IUnresolvedUUIDResolver;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Internalize;
 import com.servoy.j2db.util.PersistHelper;

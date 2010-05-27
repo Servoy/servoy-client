@@ -44,10 +44,10 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
-import com.servoy.j2db.server.IDebugHeadlessClient;
 import com.servoy.j2db.server.headlessclient.DummyMainContainer;
 import com.servoy.j2db.server.headlessclient.SessionClient;
 import com.servoy.j2db.server.headlessclient.WebFormManager;
+import com.servoy.j2db.server.shared.IDebugHeadlessClient;
 import com.servoy.j2db.util.Debug;
 
 public class DebugHeadlessClient extends SessionClient implements IDebugHeadlessClient

@@ -36,7 +36,7 @@ import com.servoy.j2db.dataprocessing.IDisplay;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.plugins.IPluginAccess;
 import com.servoy.j2db.plugins.IPluginManager;
-import com.servoy.j2db.server.IUserManager;
+import com.servoy.j2db.server.shared.IUserManager;
 import com.servoy.j2db.ui.ItemFactory;
 import com.servoy.j2db.util.ILogLevel;
 import com.servoy.j2db.util.toolbar.IToolbarPanel;

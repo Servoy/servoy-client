@@ -14,7 +14,7 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
-package com.servoy.j2db.server;
+package com.servoy.j2db.server.shared;
 
 import java.io.File;
 import java.util.Properties;
@@ -32,7 +32,6 @@ import com.servoy.j2db.persistence.IXMLExportI18NHelper;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.plugins.IPluginManagerInternal;
-import com.servoy.j2db.shared.IBatchManager;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.xmlxport.IXMLExportUserChannel;
 import com.servoy.j2db.util.xmlxport.IXMLExporter;
