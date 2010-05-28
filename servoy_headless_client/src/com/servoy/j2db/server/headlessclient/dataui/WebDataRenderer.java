@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import java.awt.Color;
@@ -200,7 +200,10 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 		if (getRequestCycle() != null)
 		{
 			removeAll();
-			remove();
+			if (getParent() != null)
+			{
+				remove();
+			}
 		}
 	}
 
@@ -416,8 +419,8 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 					if (rec.getRawData().containsCalculation(rowBGColorCalculation))
 					{
 						// data renderer is always on the selected index.
-						bg_color = parentFoundSet.getCalculationValue(rec, rowBGColorCalculation, Utils.arrayMerge(new Object[] { new Integer(
-							parentFoundSet.getSelectedIndex()), new Boolean(isSelected), null, null, Boolean.FALSE },
+						bg_color = parentFoundSet.getCalculationValue(rec, rowBGColorCalculation, Utils.arrayMerge(
+							new Object[] { new Integer(parentFoundSet.getSelectedIndex()), new Boolean(isSelected), null, null, Boolean.FALSE },
 							Utils.parseJSExpressions(parentView.getRowBGColorArgs())), null);
 					}
 					else
@@ -425,9 +428,11 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 						try
 						{
 							FormController currentForm = dataAdapterList.getFormController();
-							bg_color = currentForm.executeFunction(rowBGColorCalculation, Utils.arrayMerge(new Object[] { new Integer(
-								parentFoundSet.getSelectedIndex()), new Boolean(isSelected), null, null, currentForm.getName(), rec, Boolean.FALSE },
-								Utils.parseJSExpressions(parentView.getRowBGColorArgs())), true, null, true, null);
+							bg_color = currentForm.executeFunction(
+								rowBGColorCalculation,
+								Utils.arrayMerge(
+									new Object[] { new Integer(parentFoundSet.getSelectedIndex()), new Boolean(isSelected), null, null, currentForm.getName(), rec, Boolean.FALSE },
+									Utils.parseJSExpressions(parentView.getRowBGColorArgs())), true, null, true, null);
 						}
 						catch (Exception ex)
 						{
