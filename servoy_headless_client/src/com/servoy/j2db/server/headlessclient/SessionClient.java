@@ -232,7 +232,6 @@ public class SessionClient extends ClientState implements ISessionClient
 		try
 		{
 			loadSolutionsAndModules(solutionMeta);
-			solutionLoaded(getSolution());
 			setAjaxUsage(solutionMeta.getName());
 			getScriptEngine();
 		}
