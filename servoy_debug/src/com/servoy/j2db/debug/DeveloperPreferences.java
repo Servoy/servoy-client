@@ -42,7 +42,7 @@ public class DeveloperPreferences
 
 	public boolean getEnhancedSecurity()
 	{
-		return Utils.getAsBoolean(settings.getProperty(ENHANCED_SECURITY_SETTING, String.valueOf(ENHANCED_SECURITY_SETTING)));
+		return Utils.getAsBoolean(settings.getProperty(ENHANCED_SECURITY_SETTING, String.valueOf(ENHANCED_SECURITY_DEFAULT)));
 	}
 
 	public void setEnhancedSecurity(boolean enhancedSecurity)
