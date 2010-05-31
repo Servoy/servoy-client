@@ -137,7 +137,7 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 						}
 						else if (label.getIcon() != arrowUp) label.setIcon(arrowUp);
 					}
-					label.setPreferredSize(preferredSize);
+					if (!"".equals(value)) label.setPreferredSize(preferredSize);
 					if (label.getHorizontalTextPosition() != SwingConstants.LEADING) label.setHorizontalTextPosition(SwingConstants.LEADING);
 					// If the text consists only of spaces, trim it down.
 					// It seems that when we set a label to have no text, the text that arrives is " ", not "",
