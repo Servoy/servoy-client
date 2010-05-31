@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.print.attribute.Size2DSyntax;
 import javax.swing.JComponent;
@@ -2926,12 +2927,12 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 	public boolean isFormExecutingFunction()
 	{
-		return currentFormExecutingFunctionCount > 0;
+		return currentFormExecutingFunctionCount.get() > 0;
 	}
 
 	private boolean isFormVisible = false;
 	private int lastSelectedIndex = -1;
-	private int currentFormExecutingFunctionCount = 0;
+	private final AtomicInteger currentFormExecutingFunctionCount = new AtomicInteger();
 
 	//this method first overloaded setVisible but setVisible is not always called and had differences between jdks
 	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables)
@@ -3795,7 +3796,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				FormAndComponent formAndComponent = getJSApplicationNames(src, f, useFormAsEventSourceEventually);
 				try
 				{
-					currentFormExecutingFunctionCount++;
+					currentFormExecutingFunctionCount.incrementAndGet();
 					Object[] newArgs = args;
 					if (formAndComponent != null)
 					{
@@ -3843,7 +3844,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				}
 				finally
 				{
-					currentFormExecutingFunctionCount--;
+					currentFormExecutingFunctionCount.decrementAndGet();
 					if (formAndComponent != null)
 					{
 						IExecutingEnviroment scriptEngine = application.getScriptEngine();
