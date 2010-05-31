@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.shared;
 
 import java.io.BufferedInputStream;
@@ -75,9 +75,12 @@ public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 				//do full load
 				s = loadSolution(solutionDefs[i]);
 			}
-			if (s != null && s.getRepository() == null)
+			if (s != null)
 			{
-				s.setRepository(getRepository()); // transient
+				if (s.getRepository() == null)
+				{
+					s.setRepository(getRepository()); // transient
+				}
 				loadedActiveSolutionUpdateSequences.put(new Integer(s.getSolutionID()), new Long(asus[i]));
 			}
 
@@ -110,15 +113,18 @@ public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 		Solution[] solutions = new Solution[loginSolutionDefinitions.length];
 		for (int i = 0; i < loginSolutionDefinitions.length; i++)
 		{
-			Solution s = loadCachedSolution(loginSolutionDefinitions[i], sol_ids[i], null);
+			Solution s = loadCachedSolution(loginSolutionDefinitions[i], asus[i], null);
 			if (s == null)
 			{
 				//do full load
 				s = getApplicationServer().getLoginSolution(mainSolutionDef, loginSolutionDefinitions[i]);
 			}
-			if (s != null && s.getRepository() == null)
+			if (s != null)
 			{
-				s.setRepository(getRepository()); // transient
+				if (s.getRepository() == null)
+				{
+					s.setRepository(getRepository()); // transient
+				}
 				loadedActiveSolutionUpdateSequences.put(new Integer(s.getSolutionID()), new Long(asus[i]));
 			}
 
