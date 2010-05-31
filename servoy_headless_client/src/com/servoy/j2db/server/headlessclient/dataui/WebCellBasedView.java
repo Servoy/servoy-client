@@ -1885,11 +1885,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		if (bodyHeightHint != -1)
 		{
-			if (isCurrentDataChanged)
-			{
-				isCurrentDataChanged = false;
-				bodyHeightHint = sizeHint;
-			}
 			int oldRowsPerPage = table.getRowsPerPage();
 
 			Pair<Boolean, Pair<Integer, Integer>> rowsCalculation = needsMoreThanOnePage(bodyHeightHint);
