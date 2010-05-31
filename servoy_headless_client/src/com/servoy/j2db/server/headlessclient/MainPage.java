@@ -44,6 +44,7 @@ import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.Response;
 import org.apache.wicket.RestartResponseException;
+import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AbstractAjaxTimerBehavior;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -76,10 +77,10 @@ import org.apache.wicket.version.undo.Change;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
+import com.servoy.j2db.FormManager.History;
 import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.Messages;
-import com.servoy.j2db.FormManager.History;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.persistence.Solution;
@@ -93,10 +94,10 @@ import com.servoy.j2db.server.headlessclient.dataui.IFormLayoutProvider;
 import com.servoy.j2db.server.headlessclient.dataui.ISupportWebTabSeq;
 import com.servoy.j2db.server.headlessclient.dataui.StartEditOnFocusGainedEventBehavior;
 import com.servoy.j2db.server.headlessclient.dataui.StyleAppendingModifier;
+import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor;
 import com.servoy.j2db.server.headlessclient.dataui.WebSplitPane;
 import com.servoy.j2db.server.headlessclient.dataui.WebTabPanel;
-import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.server.headlessclient.yui.YUILoader;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IEventExecutor;
@@ -131,7 +132,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 	private WebForm main;
 	private String mainFormBgColor;
 
-	private ModalWindow modalWindow;
+	private ServoyModalWindow modalWindow;
 	private Point modalWindowLocation = null;
 
 	private boolean closeAllInModalWindow;
@@ -293,7 +294,6 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 					response.renderJavascript("function restartTimer() {" + jsTimerScript + "}", "restartTimer"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				}
 
-
 				@Override
 				protected CharSequence getPreconditionScript()
 				{
@@ -333,7 +333,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				public boolean isEnabled(Component component)
 				{
 					// data notify is disabled when in design mode
-					return !client.getFlattenedSolution().isInDesign(null);
+					return !client.getFlattenedSolution().isInDesign(null) && getController() != null && getController().isFormVisible();
 				}
 			});
 		}
@@ -412,7 +412,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 		if (useAJAX)
 		{
-			modalWindow = new ModalWindow("modalwindow") //$NON-NLS-1$
+			modalWindow = new ServoyModalWindow("modalwindow") //$NON-NLS-1$
 			{
 				@Override
 				public void show(AjaxRequestTarget target)
@@ -1123,6 +1123,8 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 	private boolean mediaUploadMultiSelect;
 
+	private boolean showModalWindow;
+
 	public void setShowURLCMD(String url, String target, String target_options, int timeout)
 	{
 		showUrlInfo = new ShowUrlInfo(url, target, target_options, timeout);
@@ -1401,6 +1403,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		}
 		else if (modalWindow != null)
 		{
+			showModalWindow = true;
 			modalWindow.setPageMapName(dialogContainer.getPageMap().getName());
 			modalWindow.setCookieName(null);
 			modalWindow.setResizable(resizeable);
@@ -1440,8 +1443,9 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 	private void closePopup(String popupName)
 	{
+		// first touch this page so that it is locked.
+		Session.get().getPage(getPageMapName(), getPath(), LATEST_VERSION);
 		closePopup = true;
-		modalWindow.setPageMapName(null);
 		((FormManager)client.getFormManager()).setCurrentContainer(this, getPageMap().getName());
 		if (isNonModalWindowShown())
 		{
@@ -1457,6 +1461,8 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 	public void close()
 	{
+		// first touch this page so that it is locked.
+		Session.get().getPage(getPageMapName(), getPath(), LATEST_VERSION);
 		client.setWindowBounds(getPageMapName(), null);
 		setShowPageInDialogDelayed(false);
 		pageContributor.showNoDialog();
@@ -1557,19 +1563,35 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		}
 		if (modalWindow != null)
 		{
+
 			if (closePopup)
 			{
 				closePopup = false;
 				if (modalWindow.isShown())
 				{
 					modalWindow.close(target);
-					modalWindow.setPageMapName(null);
+				}
+				else
+				{
+					modalWindow.get(modalWindow.getContentId()).setVisible(false);
+					target.appendJavascript(modalWindow.getCloseJavacriptOverride());
 				}
 			}
-			else if (modalWindow.getPageMapName() != null && !modalWindow.isShown())
+			else if (showModalWindow)
 			{
-				modalWindow.show(target);
+				showModalWindow = false;
+				if (modalWindow.isShown())
+				{
+					modalWindow.get(modalWindow.getContentId()).setVisible(true);
+					target.addComponent(modalWindow);
+					target.appendJavascript(modalWindow.getWindowOpenJavascriptOverride());
+				}
+				else
+				{
+					modalWindow.show(target);
+				}
 			}
+
 		}
 
 		if (fileUploadWindow != null)
@@ -1762,5 +1784,24 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 	public void setMainPageSwitched()
 	{
 		mainFormSwitched = true;
+	}
+
+	private class ServoyModalWindow extends ModalWindow
+	{
+
+		public ServoyModalWindow(String id)
+		{
+			super(id);
+		}
+
+		public String getCloseJavacriptOverride()
+		{
+			return getCloseJavacript();
+		}
+
+		public String getWindowOpenJavascriptOverride()
+		{
+			return getWindowOpenJavascript();
+		}
 	}
 }
