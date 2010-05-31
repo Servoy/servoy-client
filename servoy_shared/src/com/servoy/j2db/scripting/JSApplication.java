@@ -201,11 +201,19 @@ public class JSApplication implements IReturnedTypesProvider
 	}
 
 	/**
-	 * Get the parameters as array which are provided by startup.
+	 * Get the parameters which are provided by startup.
 	 *
-	 * @sample var args_array = application.getStartupArguments();
+	 * @sample
+	 * var args_array = application.getStartupArguments();
+	 * // the first element in the array is the 'argument' value from the startup
+	 * var argument = args_array[0];
+	 * // the second element is an object containing all the startup arguments
+	 * var startupArgumentObj = args_array[1];
+	 * var arg1 = startupArgumentObj.arg1_name;
+	 * var arg2 = startupArgumentObj.arg2_name;
 	 * 
-	 * @return Array with startup arguments
+	 * @return Array with 2 elements, the startup argument and an object containing all startup arguments, or
+	 * null if there is no argument passed
 	 */
 	public Object[] js_getStartupArguments()
 	{
