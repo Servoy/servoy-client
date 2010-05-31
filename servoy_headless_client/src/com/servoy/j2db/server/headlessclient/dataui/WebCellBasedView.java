@@ -1877,7 +1877,13 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			bodyHeightHint -= getOtherFormPartsHeight();
 		}
 
-		if (bodyHeightHint != -1 || isCurrentDataChanged)
+		if (isCurrentDataChanged)
+		{
+			if (bodyHeightHint == -1) bodyHeightHint = sizeHint;
+			isCurrentDataChanged = false;
+		}
+
+		if (bodyHeightHint != -1)
 		{
 			if (isCurrentDataChanged)
 			{
