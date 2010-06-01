@@ -480,7 +480,6 @@ public class SessionClient extends ClientState implements ISessionClient
 		{
 			throw new ApplicationException(ServoyException.INCORRECT_LOGIN);
 		}
-		handleClientUserUidChanged(null, getClientInfo().getUserUid());
 	}
 
 	//overridden ssl-rmi seems not to work localy
