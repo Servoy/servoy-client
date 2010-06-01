@@ -172,7 +172,7 @@ public class WebClientSession extends WebSession
 
 	public boolean authenticate(String u, String p)
 	{
-		if (ApplicationServerSingleton.get().checkDefaultServoyAuthorisation(u, p))
+		if (ApplicationServerSingleton.get().checkDefaultServoyAuthorisation(u, p) != null)
 		{
 			userName = u;
 			password = p;
