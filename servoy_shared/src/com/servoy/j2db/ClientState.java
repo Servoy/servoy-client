@@ -392,8 +392,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		catch (RepositoryException e)
 		{
 			Debug.error("Could not load solution " + (solutionMetaData == null ? "<none>" : solutionMetaData.getName()), e);
-			reportError(Messages.getString("servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>"
-				: solutionMetaData.getName() }), e);
+			reportError(
+				Messages.getString("servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>" : solutionMetaData.getName() }), e);
 		}
 	}
 
@@ -1172,8 +1172,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 						function,
 						gscope,
 						gscope,
-						Utils.arrayMerge((new Object[] { new Boolean(force) }), Utils.parseJSExpressions(getSolution().getInstanceMethodArguments(
-							"onCloseMethodID"))), false, false)); //$NON-NLS-1$
+						Utils.arrayMerge((new Object[] { new Boolean(force) }),
+							Utils.parseJSExpressions(getSolution().getInstanceMethodArguments("onCloseMethodID"))), false, false)); //$NON-NLS-1$
 				}
 				catch (Exception e1)
 				{
@@ -1290,17 +1290,22 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 						{
 							// must login the old fashioned way
 							showDefaultLogin();
+							if (clientInfo.getUserUid() == null)
+							{
+								return false;
+							}
 						}
 					}
 					else
 					{
 						// no login solution, use default servoy login
 						showDefaultLogin();
+						if (clientInfo.getUserUid() == null)
+						{
+							return false;
+						}
 					}
-					if (clientInfo.getUserUid() == null)
-					{
-						return false;
-					}
+
 				}
 
 				if (solutionRoot.getSolution() == null)
