@@ -3459,7 +3459,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		if (newRecord instanceof FindState)
 		{
-			if ((fsm.getEditRecordList().stopEditing(false) & (ISaveConstants.VALIDATION_FAILED + ISaveConstants.SAVE_FAILED)) != 0)
+			if ((fsm.getEditRecordList().stopIfEditing(this) & (ISaveConstants.VALIDATION_FAILED + ISaveConstants.SAVE_FAILED)) != 0)
 			{
 				//we cannot allow finds when there are editting records...it possible to start (related!)find on table which whould possible not include editing records
 				if (Debug.tracing())
