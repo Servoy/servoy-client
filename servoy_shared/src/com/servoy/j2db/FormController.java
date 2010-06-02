@@ -2655,7 +2655,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			JComponent sf = (JComponent)containerImpl; // swingForm, TODO: remove dependency on smart client
 			sf.requestFocus();
 		}
-		else
+		else if(view != null)
 		{
 			view.requestFocus();
 		}
