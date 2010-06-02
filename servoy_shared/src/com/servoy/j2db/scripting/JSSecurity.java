@@ -1083,7 +1083,8 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	 * ok = security.authenticate(null, null, [globals.userName, globals.passWord])
 	 *
 	 * @param authenticator_solution authenticator solution installed on the Servoy Server, null for servoy built-in authentication
-	 * @param credentials Object with input for the selected authenticator
+	 * @param method authenticator method, null for servoy built-in authentication
+	 * @param credentials optional Object with input for the selected authenticator
 	 * 
 	 * @return authentication result from authenticator solution
 	 */
