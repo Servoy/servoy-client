@@ -101,6 +101,7 @@ import com.servoy.j2db.server.headlessclient.yui.YUILoader;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
+import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HTTPUtils;
 import com.servoy.j2db.util.IDelegate;
@@ -248,6 +249,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		return getPageMap().getName();
 	}
 
+	@SuppressWarnings("nls")
 	private void init(WebClient sc)
 	{
 		setStatelessHint(false);
@@ -887,6 +889,37 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		super.onBeforeRender();
 	}
 
+	@Override
+	protected void onAfterRender()
+	{
+		super.onAfterRender();
+
+		// make sure that all IProviderStylePropertyChanges are set to rendered on a full page render.
+		visitChildren(IProviderStylePropertyChanges.class, new IVisitor<Component>()
+		{
+			@SuppressWarnings("nls")
+			public Object component(Component component)
+			{
+				if (((IProviderStylePropertyChanges)component).getStylePropertyChanges().isChanged())
+				{
+					if (Debug.tracing())
+					{
+						if (component.isVisible())
+						{
+							Debug.trace("Component " + component + " is changed but is not rendered, deleted from template?");
+						}
+						else
+						{
+							Debug.trace("Component " + component + " is changed but is not rendered because it is not visible");
+						}
+					}
+					((IProviderStylePropertyChanges)component).getStylePropertyChanges().setRendered();
+				}
+				return component.isVisible() ? IVisitor.CONTINUE_TRAVERSAL : IVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
+			}
+		});
+	}
+
 	/**
 	 * @see wicket.markup.html.WebPage#onDetach()
 	 */
@@ -1347,28 +1380,29 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		setResponsePage(page);
 	}
 
+	@SuppressWarnings("nls")
 	public void showPopupPage(MainPage dialogContainer, String titleString, Rectangle r2, boolean resizeable, boolean closeAll, boolean modal)
 	{
 		if (!modal)
 		{
 			StringBuilder sb = new StringBuilder(100);
 			sb.append(dialogContainer.getPageMapName());
-			sb.append("=window.open('"); //$NON-NLS-1$
+			sb.append("=window.open('");
 			sb.append(RequestCycle.get().urlFor(dialogContainer));
-			sb.append("','"); //$NON-NLS-1$
+			sb.append("','");
 			sb.append(dialogContainer.getPageMap().getName());
-			sb.append("','scrollbars=yes,menubar=no"); //$NON-NLS-1$
+			sb.append("','scrollbars=yes,menubar=no");
 			if (r2 == FormManager.FULL_SCREEN)
 			{
-				sb.append(",fullscreen=yes"); // IE //$NON-NLS-1$
-				sb.append(",height='+(screen.height-30)+'"); // FF //$NON-NLS-1$
-				sb.append(",width='+(screen.width-5)+'"); // FF //$NON-NLS-1$
-				sb.append(",top=0,left=0"); //$NON-NLS-1$
+				sb.append(",fullscreen=yes"); // IE
+				sb.append(",height='+(screen.height-30)+'"); // FF
+				sb.append(",width='+(screen.width-5)+'"); // FF
+				sb.append(",top=0,left=0");
 			}
 			else
 			{
-				sb.append(",height=").append(r2.height); //$NON-NLS-1$
-				sb.append(",width=").append(r2.width); //$NON-NLS-1$
+				sb.append(",height=").append(r2.height);
+				sb.append(",width=").append(r2.width);
 				sb.append(",top='+");
 				sb.append("((window.screenTop | window.screenY)+");
 				if (r2.y == -1) sb.append("((document.documentElement.clientHeight | document.body.clientHeight)-" + r2.height + ")/2");
@@ -1378,10 +1412,10 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				sb.append("((window.screenLeft | window.screenX)+");
 				if (r2.x == -1) sb.append("((document.documentElement.clientWidth | document.body.clientWidth)-" + r2.width + ")/2)");
 				else sb.append(r2.x + ")");
-				sb.append("+'"); //$NON-NLS-1$
+				sb.append("+'");
 			}
-			sb.append(",resizable=").append(resizeable ? "yes" : "no"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			sb.append(",toolbar=no,location=no,status=no');"); //$NON-NLS-1$
+			sb.append(",resizable=").append(resizeable ? "yes" : "no");
+			sb.append(",toolbar=no,location=no,status=no');");
 			if (((WebClientInfo)getSession().getClientInfo()).getProperties().isBrowserSafari())
 			{
 				// safari doesn't tell you that a popup was blocked
