@@ -224,12 +224,16 @@ public class WebEventExecutor extends BaseEventExecutor
 					@Override
 					public boolean isEnabled(Component comp)
 					{
-						if (comp instanceof IScriptBaseMethods)
+						if (super.isEnabled(comp))
 						{
-							Object oe = ((IScriptBaseMethods)comp).js_getClientProperty("ajax.enabled");
-							if (oe != null) return Utils.getAsBoolean(oe);
+							if (comp instanceof IScriptBaseMethods)
+							{
+								Object oe = ((IScriptBaseMethods)comp).js_getClientProperty("ajax.enabled");
+								if (oe != null) return Utils.getAsBoolean(oe);
+							}
+							return true;
 						}
-						return true;
+						return false;
 					}
 
 					@Override
@@ -268,12 +272,16 @@ public class WebEventExecutor extends BaseEventExecutor
 					@Override
 					public boolean isEnabled(Component comp)
 					{
-						if (comp instanceof IScriptBaseMethods)
+						if (super.isEnabled(comp))
 						{
-							Object oe = ((IScriptBaseMethods)comp).js_getClientProperty("ajax.enabled"); //$NON-NLS-1$
-							if (oe != null) return Utils.getAsBoolean(oe);
+							if (comp instanceof IScriptBaseMethods)
+							{
+								Object oe = ((IScriptBaseMethods)comp).js_getClientProperty("ajax.enabled"); //$NON-NLS-1$
+								if (oe != null) return Utils.getAsBoolean(oe);
+							}
+							return true;
 						}
-						return true;
+						return false;
 					}
 
 					// We need to return false, otherwise the context menu of the browser is displayed.

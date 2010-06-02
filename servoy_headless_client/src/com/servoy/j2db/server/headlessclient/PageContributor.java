@@ -31,7 +31,6 @@ import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Page;
 import org.apache.wicket.ResourceReference;
-import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.AjaxRequestTarget.IJavascriptResponse;
 import org.apache.wicket.behavior.IBehavior;
@@ -135,7 +134,7 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 			@Override
 			public boolean isEnabled(Component component)
 			{
-				return tablesToRender.size() > 0;
+				return tablesToRender.size() > 0 && super.isEnabled(component);
 			}
 		});
 		add(new AbstractServoyDefaultAjaxBehavior()
@@ -165,16 +164,19 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 			@Override
 			public boolean isEnabled(Component component)
 			{
-				if (delayedDialog != null)
+				if (super.isEnabled(component))
 				{
-					localCopy = delayedDialog.duplicate();
-					delayedDialog = null;
+					if (delayedDialog != null)
+					{
+						localCopy = delayedDialog.duplicate();
+						delayedDialog = null;
+					}
+					return localCopy != null;
 				}
-				return localCopy != null;
+				return false;
 			}
 		});
 		add(eventCallbackBehavior = new EventCallbackBehavior());
-		add(new TriggerResizeAjaxBehavior());
 		add(new TriggerResizeAjaxBehavior()
 		{
 			@Override
@@ -188,24 +190,28 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 			@Override
 			public boolean isEnabled(Component component)
 			{
-				final boolean[] returnValue = { false };
-				MainPage page = (MainPage)findPage();
-				if (page != null && !page.isModalWindowShown())
+				if (super.isEnabled(component))
 				{
-					page.visitChildren(WebForm.class, new Component.IVisitor<WebForm>()
+					final boolean[] returnValue = { false };
+					MainPage page = (MainPage)findPage();
+					if (page != null && !page.isModalWindowShown())
 					{
-						public Object component(WebForm form)
+						page.visitChildren(WebForm.class, new Component.IVisitor<WebForm>()
 						{
-							if (form.getFormWidth() == 0)
+							public Object component(WebForm form)
 							{
-								returnValue[0] = true;
-								return IVisitor.STOP_TRAVERSAL;
+								if (form.getFormWidth() == 0)
+								{
+									returnValue[0] = true;
+									return IVisitor.STOP_TRAVERSAL;
+								}
+								return IVisitor.CONTINUE_TRAVERSAL;
 							}
-							return IVisitor.CONTINUE_TRAVERSAL;
-						}
-					});
+						});
+					}
+					return returnValue[0];
 				}
-				return returnValue[0];
+				return false;
 			}
 		});
 	}
@@ -604,7 +610,7 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		}
 	}
 
-	private class EventCallbackBehavior extends AbstractDefaultAjaxBehavior
+	private class EventCallbackBehavior extends AbstractServoyDefaultAjaxBehavior
 	{
 		private static final long serialVersionUID = 1L;
 

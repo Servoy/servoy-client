@@ -46,10 +46,9 @@ import org.apache.wicket.Response;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AbstractAjaxTimerBehavior;
-import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
-import org.apache.wicket.behavior.AbstractAjaxBehavior;
+import org.apache.wicket.behavior.AbstractBehavior;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.ComponentTag;
@@ -77,10 +76,10 @@ import org.apache.wicket.version.undo.Change;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
-import com.servoy.j2db.FormManager.History;
 import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.Messages;
+import com.servoy.j2db.FormManager.History;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.persistence.Solution;
@@ -94,10 +93,10 @@ import com.servoy.j2db.server.headlessclient.dataui.IFormLayoutProvider;
 import com.servoy.j2db.server.headlessclient.dataui.ISupportWebTabSeq;
 import com.servoy.j2db.server.headlessclient.dataui.StartEditOnFocusGainedEventBehavior;
 import com.servoy.j2db.server.headlessclient.dataui.StyleAppendingModifier;
-import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor;
 import com.servoy.j2db.server.headlessclient.dataui.WebSplitPane;
 import com.servoy.j2db.server.headlessclient.dataui.WebTabPanel;
+import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.server.headlessclient.yui.YUILoader;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IEventExecutor;
@@ -164,17 +163,13 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 	private ModalWindow fileUploadWindow;
 	private IMediaUploadCallback mediaUploadCallback;
 
-	private class SetStatusBehavior extends AbstractAjaxBehavior
+	private class SetStatusBehavior extends AbstractBehavior
 	{
 		private String text;
 
 		public void setStatusText(String text)
 		{
 			this.text = text;
-		}
-
-		public void onRequest()
-		{
 		}
 
 		@Override
@@ -184,7 +179,6 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			String jsCall = "setStatusText('" + text + "');"; //$NON-NLS-1$ //$NON-NLS-2$
 			response.renderOnLoadJavascript(jsCall);
 		}
-
 	}
 
 	private class TriggerUpdateAjaxBehavior extends AbstractServoyDefaultAjaxBehavior
@@ -333,12 +327,12 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				public boolean isEnabled(Component component)
 				{
 					// data notify is disabled when in design mode
-					return !client.getFlattenedSolution().isInDesign(null) && getController() != null && getController().isFormVisible();
+					return !client.getFlattenedSolution().isInDesign(null) && getController() != null && getController().isFormVisible() && useAJAX;
 				}
 			});
 		}
 
-		add(new AbstractDefaultAjaxBehavior()
+		add(new AbstractServoyDefaultAjaxBehavior()
 		{
 			@Override
 			protected void respond(AjaxRequestTarget target)
@@ -356,7 +350,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			@Override
 			public boolean isEnabled(Component component)
 			{
-				return modalWindow != null && modalWindow.getPageMapName() != null;
+				return modalWindow != null && modalWindow.getPageMapName() != null && super.isEnabled(component);
 			}
 		});
 

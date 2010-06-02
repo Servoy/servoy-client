@@ -43,6 +43,7 @@ import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.StartupArgumentsScope;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.server.shared.IApplicationServerSingleton;
+import com.servoy.j2db.util.Utils;
 
 /**
  * A session which holds the actual started client inside
@@ -163,11 +164,6 @@ public class WebClientSession extends WebSession
 	public WebClient getWebClient()
 	{
 		return (WebClient)getAttribute("servoy_webclient"); //$NON-NLS-1$
-	}
-
-	public void clearWebClient()
-	{
-		setAttribute("servoy_webclient", null); //$NON-NLS-1$
 	}
 
 	public boolean authenticate(String u, String p)
@@ -338,5 +334,10 @@ public class WebClientSession extends WebSession
 	public Object getDragData()
 	{
 		return dragData;
+	}
+
+	public boolean useAjax()
+	{
+		return Utils.getAsBoolean(getWebClient().getRuntimeProperties().get("useAJAX"));
 	}
 }

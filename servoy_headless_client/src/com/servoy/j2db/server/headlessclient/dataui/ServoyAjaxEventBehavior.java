@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient.dataui;
 
 
@@ -21,6 +21,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 
 import com.servoy.j2db.server.headlessclient.IDesignModeListener;
+import com.servoy.j2db.server.headlessclient.WebClientSession;
 
 /**
  * @author jcompagner
@@ -63,7 +64,7 @@ public abstract class ServoyAjaxEventBehavior extends AjaxEventBehavior implemen
 	@Override
 	public boolean isEnabled(Component component)
 	{
-		return super.isEnabled(component) && !designMode;
+		return WebClientSession.get().useAjax() && super.isEnabled(component) && !designMode;
 	}
 
 	/**

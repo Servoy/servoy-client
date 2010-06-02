@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient;
 
 import java.awt.Insets;
@@ -25,7 +25,6 @@ import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Request;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.Component.IVisitor;
-import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.IHeaderResponse;
 
@@ -33,6 +32,7 @@ import com.servoy.j2db.DesignModeCallbacks;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.JSEvent.EventType;
+import com.servoy.j2db.server.headlessclient.dataui.AbstractServoyDefaultAjaxBehavior;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataCalendar;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataRenderer;
 import com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor;
@@ -50,7 +50,7 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  * 
  */
-public class DesignModeBehavior extends AbstractDefaultAjaxBehavior
+public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 {
 	public static final String ACTION_RESIZE = "aResize"; //$NON-NLS-1$
 

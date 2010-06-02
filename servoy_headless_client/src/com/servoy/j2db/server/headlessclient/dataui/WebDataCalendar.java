@@ -35,7 +35,6 @@ import javax.swing.text.Document;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.Response;
-import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.IHeaderResponse;
@@ -998,7 +997,7 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 	 * 
 	 * @author Andrei Costescu
 	 */
-	private class FeedSimpleDateFormatToChooserBehavior extends AbstractDefaultAjaxBehavior
+	private class FeedSimpleDateFormatToChooserBehavior extends AbstractServoyDefaultAjaxBehavior
 	{
 
 		private static final String simpleFormatAsSeenBySmartClient = "dd/MM/yyyy HH:mm";
@@ -1114,7 +1113,7 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 		@Override
 		public boolean isEnabled(Component component)
 		{
-			return isChooserEnabled();
+			return isChooserEnabled() && super.isEnabled(component);
 		}
 
 		@Override
@@ -1122,7 +1121,5 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 		{
 			return super.getCallbackUrl(true);
 		}
-
 	}
-
 }
