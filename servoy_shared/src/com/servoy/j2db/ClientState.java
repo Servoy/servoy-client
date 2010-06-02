@@ -345,7 +345,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	@SuppressWarnings("nls")
 	public void handleClientUserUidChanged(String userUidBefore, String userUidAfter)
 	{
-		if (shutdown)
+		if (isShutDown())
 		{
 			return;
 		}
@@ -392,8 +392,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		catch (RepositoryException e)
 		{
 			Debug.error("Could not load solution " + (solutionMetaData == null ? "<none>" : solutionMetaData.getName()), e);
-			reportError(
-				Messages.getString("servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>" : solutionMetaData.getName() }), e);
+			reportError(Messages.getString("servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>"
+				: solutionMetaData.getName() }), e);
 		}
 	}
 
@@ -932,6 +932,11 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		}
 	}
 
+	public boolean isShutDown()
+	{
+		return shutdown;
+	}
+
 	public void shutDown(boolean force)
 	{
 		Debug.trace("shutDown"); //$NON-NLS-1$		
@@ -1172,8 +1177,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 						function,
 						gscope,
 						gscope,
-						Utils.arrayMerge((new Object[] { new Boolean(force) }),
-							Utils.parseJSExpressions(getSolution().getInstanceMethodArguments("onCloseMethodID"))), false, false)); //$NON-NLS-1$
+						Utils.arrayMerge((new Object[] { new Boolean(force) }), Utils.parseJSExpressions(getSolution().getInstanceMethodArguments(
+							"onCloseMethodID"))), false, false)); //$NON-NLS-1$
 				}
 				catch (Exception e1)
 				{

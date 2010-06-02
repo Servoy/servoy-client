@@ -967,7 +967,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 					// client is closing so foundset is cleared
 					return null;
 				}
-				if (getController().getApplication() instanceof SessionClient && ((SessionClient)getController().getApplication()).isShuttingDown())
+				if (getController().getApplication() instanceof SessionClient && ((SessionClient)getController().getApplication()).isShutDown())
 				{
 					// this is for batch processing
 					return null;

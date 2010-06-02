@@ -312,7 +312,8 @@ public class SessionClient extends ClientState implements ISessionClient
 		}
 	}
 
-	public boolean isShuttingDown()
+	@Override
+	public boolean isShutDown()
 	{
 		return shuttingDown;
 	}
@@ -1109,7 +1110,7 @@ public class SessionClient extends ClientState implements ISessionClient
 
 	public boolean isValid()
 	{
-		return !isShuttingDown() && getClientInfo() != null;
+		return !isShutDown() && getClientInfo() != null;
 	}
 
 	/*

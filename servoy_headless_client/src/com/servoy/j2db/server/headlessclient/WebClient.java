@@ -595,13 +595,13 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	@Override
 	public void setTitle(String title)
 	{
-		if (!isShuttingDown()) getMainPage().setTitle(title);
+		if (!isShutDown()) getMainPage().setTitle(title);
 	}
 
 	@Override
-	public boolean isShuttingDown()
+	public boolean isShutDown()
 	{
-		return shuttingDown || super.isShuttingDown();
+		return shuttingDown || super.isShutDown();
 	}
 
 	@Override
