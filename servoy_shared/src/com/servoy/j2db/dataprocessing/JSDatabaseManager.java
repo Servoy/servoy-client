@@ -887,21 +887,24 @@ public class JSDatabaseManager
 
 	/**
 	 * Returns the internal SQL which defines the specified (related)foundset.
+	 * Optionally, the foundset and table filter params can be excluded in the sql (includeFilters=false).
+	 * Make sure to set the applicable filters when the sql is used in a loadRecords() call.
 	 *
 	 * @sample var sql = databaseManager.getSQL(foundset)
 	 *
 	 * @param foundset The JSFoundset to get the sql for.
+	 * @param includeFilters optional, include the foundset and table filters, default true.
 	 * 
 	 * @return String representing the sql of the JSFoundset.
 	 */
-	public String js_getSQL(Object foundset) throws ServoyException
+	public String js_getSQL(Object foundset, boolean includeFilters) throws ServoyException
 	{
 		checkAuthorized();
 		if (foundset instanceof FoundSet)
 		{
 			try
 			{
-				QuerySet querySet = getQuerySet((FoundSet)foundset);
+				QuerySet querySet = getQuerySet((FoundSet)foundset, includeFilters);
 				StringBuffer sql = new StringBuffer();
 				QueryString[] updates = querySet.getUpdates();
 				for (int i = 0; updates != null && i < updates.length; i++)
@@ -928,16 +931,22 @@ public class JSDatabaseManager
 		return null;
 	}
 
+	public String js_getSQL(Object foundset) throws ServoyException
+	{
+		return js_getSQL(foundset, true);
+	}
+
 	/**
 	 * Returns the internal SQL parameters, as an array, that are used to define the specified (related)foundset.
 	 *
 	 * @sample var sqlParameterArray = databaseManager.getSQLParameters(foundset)
 	 *
 	 * @param foundset The JSFoundset to get the sql parameters for.
+	 * @param includeFilters optional, include the parameters for the filters, default true.
 	 * 
 	 * @return An Array with the sql parameter values.
 	 */
-	public Object[] js_getSQLParameters(Object foundset) throws ServoyException
+	public Object[] js_getSQLParameters(Object foundset, boolean includeFilters) throws ServoyException
 	{
 		checkAuthorized();
 		if (foundset instanceof FoundSet)
@@ -945,7 +954,7 @@ public class JSDatabaseManager
 			try
 			{
 				// TODO parameters from updates and cleanups
-				QuerySet querySet = getQuerySet((FoundSet)foundset);
+				QuerySet querySet = getQuerySet((FoundSet)foundset, includeFilters);
 				Object[][] qsParams = querySet.getSelect().getParameters();
 				if (qsParams == null || qsParams.length == 0)
 				{
@@ -961,12 +970,28 @@ public class JSDatabaseManager
 		return null;
 	}
 
-	private QuerySet getQuerySet(FoundSet fs) throws RepositoryException, RemoteException
+	public Object[] js_getSQLParameters(Object foundset) throws ServoyException
+	{
+		return js_getSQLParameters(foundset, true);
+	}
+
+	private QuerySet getQuerySet(FoundSet fs, boolean includeFilters) throws RepositoryException, RemoteException
 	{
 		String serverName = fs.getSQLSheet().getServerName();
 		QuerySelect sqlSelect = fs.getPksAndRecords().getQuerySelectForReading();
-		return application.getDataServer().getSQLQuerySet(serverName, sqlSelect,
-			((FoundSetManager)application.getFoundSetManager()).getTableFilterParams(serverName, sqlSelect), 0, -1, true);
+		ArrayList<TableFilter> tableFilterParams;
+		if (includeFilters)
+		{
+			tableFilterParams = ((FoundSetManager)application.getFoundSetManager()).getTableFilterParams(serverName, sqlSelect);
+		}
+		else
+		{
+			// get the sql without any filters
+			sqlSelect = AbstractBaseQuery.deepClone(sqlSelect);
+			sqlSelect.clearCondition(SQLGenerator.CONDITION_FILTER);
+			tableFilterParams = null;
+		}
+		return application.getDataServer().getSQLQuerySet(serverName, sqlSelect, tableFilterParams, 0, -1, true);
 	}
 
 	/**
