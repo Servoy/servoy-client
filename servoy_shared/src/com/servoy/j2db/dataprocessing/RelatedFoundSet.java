@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 
@@ -171,8 +171,8 @@ public abstract class RelatedFoundSet extends FoundSet
 		cleanSelect.setColumns(AbstractBaseQuery.relinkTable(relationSelect.getTable(), cleanSelect.getTable(), relationSelect.getColumnsClone()));
 
 		//copy the where (is foreign where)
-		cleanSelect.setCondition(SQLGenerator.CONDITION_RELATION, AbstractBaseQuery.relinkTable(relationSelect.getTable(), cleanSelect.getTable(),
-			relationSelect.getConditionClone(SQLGenerator.CONDITION_RELATION)));
+		cleanSelect.setCondition(SQLGenerator.CONDITION_RELATION,
+			AbstractBaseQuery.relinkTable(relationSelect.getTable(), cleanSelect.getTable(), relationSelect.getConditionClone(SQLGenerator.CONDITION_RELATION)));
 
 		PlaceholderKey placeHolderKey = SQLGenerator.createRelationKeyPlaceholderKey(cleanSelect.getTable(), relation.getName());
 
@@ -892,7 +892,7 @@ public abstract class RelatedFoundSet extends FoundSet
 				String transaction_id = fsm.getTransactionID(sheet);
 				QuerySelect sqlSelect = getPksAndRecords().getQuerySelectForReading();
 				IDataSet pks = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, sqlSelect,
-					fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), !sqlSelect.isUnique(), 0, fsm.chunkSize * 2);
+					fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), !sqlSelect.isUnique(), 0, fsm.chunkSize * 2, IDataServer.FOUNDSET_LOAD_QUERY);
 				if (Debug.tracing())
 				{
 					Debug.trace(Thread.currentThread().getName() +

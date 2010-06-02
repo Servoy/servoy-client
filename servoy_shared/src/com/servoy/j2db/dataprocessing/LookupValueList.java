@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 import java.rmi.RemoteException;
@@ -349,7 +349,7 @@ public class LookupValueList implements IValueList
 				DBValueList.NAME_COLUMN, ISQLCondition.EQUALS_OPERATOR, valueList.getName()));
 		}
 		IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, select, tableFilterParams,
-			!select.isUnique(), 0, ((FoundSetManager)application.getFoundSetManager()).pkChunkSize * 4);
+			!select.isUnique(), 0, ((FoundSetManager)application.getFoundSetManager()).pkChunkSize * 4, IDataServer.VALUELIST_QUERY);
 		for (int i = 0; i < set.getRowCount(); i++)
 		{
 			Object[] row = CustomValueList.processRow(set.getRow(i), showValues, returnValues);

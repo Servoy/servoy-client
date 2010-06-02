@@ -323,7 +323,8 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 		// perform the query
 		String serverName = relations[0].getForeignServerName();
 		IDataSet dataSet = application.getDataServer().performQuery(application.getClientID(), serverName, foundSetManager.getTransactionID(serverName),
-			select, foundSetManager.getTableFilterParams(serverName, select), !select.isUnique(), 0, DBValueList.MAX_VALUELIST_ROWS);
+			select, foundSetManager.getTableFilterParams(serverName, select), !select.isUnique(), 0, DBValueList.MAX_VALUELIST_ROWS,
+			IDataServer.VALUELIST_QUERY);
 		try
 		{
 			startBundlingEvents();

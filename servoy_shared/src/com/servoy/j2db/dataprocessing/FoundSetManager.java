@@ -1477,7 +1477,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 				QuerySelect selectCountSQLString = sqlString.getSelectCount("n", true); //$NON-NLS-1$
 				IDataSet set = ds.performQuery(application.getClientID(), t.getServerName(), transaction_id, selectCountSQLString,
-					getTableFilterParams(t.getServerName(), selectCountSQLString), false, 0, 10);
+					getTableFilterParams(t.getServerName(), selectCountSQLString), false, 0, 10, IDataServer.FOUNDSET_LOAD_QUERY);
 				if (set.getRowCount() > 0)
 				{
 					Object[] row = set.getRow(0);
@@ -1509,7 +1509,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				countSelect.addColumn(new QueryAggregate(QueryAggregate.COUNT, new QueryColumnValue(new Integer(1), "n"), null)); //$NON-NLS-1$
 
 				IDataSet set = ds.performQuery(application.getClientID(), table.getServerName(), transaction_id, countSelect,
-					getTableFilterParams(table.getServerName(), countSelect), false, 0, 10);
+					getTableFilterParams(table.getServerName(), countSelect), false, 0, 10, IDataServer.FOUNDSET_LOAD_QUERY);
 				if (set.getRowCount() > 0)
 				{
 					Object[] row = set.getRow(0);
@@ -1977,7 +1977,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				QuerySelect testSelect = new QuerySelect(new QueryTable(tempTable.getSQLName(), tempTable.getCatalog(), tempTable.getSchema()));
 				testSelect.addColumn(new QueryColumnValue(new Integer(1), "tst")); //$NON-NLS-1$
 				testSelect.addCondition("test", BooleanCondition.FALSE_CONDITION); //$NON-NLS-1$
-				ds.performQuery(application.getClientID(), tempTable.getServerName(), null, testSelect, null, false, 0, 1);
+				ds.performQuery(application.getClientID(), tempTable.getServerName(), null, testSelect, null, false, 0, 1, IDataServer.FIND_BROWSER_QUERY);
 			}
 		}
 		catch (Exception e)

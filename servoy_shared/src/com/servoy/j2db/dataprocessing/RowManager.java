@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 
@@ -27,9 +27,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.WeakHashMap;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.event.TableModelEvent;
@@ -438,7 +438,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			try
 			{
 				formdata = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, select,
-					fsm.getTableFilterParams(sheet.getServerName(), select), false, 0, nvals);
+					fsm.getTableFilterParams(sheet.getServerName(), select), false, 0, nvals, IDataServer.FOUNDSET_LOAD_QUERY);
 				if (Debug.tracing())
 				{
 					Debug.trace(Thread.currentThread().getName() + ": getting RowData time: " + (System.currentTimeMillis() - time) + ", SQL: " + //$NON-NLS-1$ //$NON-NLS-2$
@@ -597,8 +597,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 							}
 							Object robj = c.getAsRightType(newdata[i]);
 							if (robj == null) robj = ValueFactory.createNullValue(c.getType());
-							((QueryUpdate)sqlUpdate).addValue(new QueryColumn(((QueryUpdate)sqlUpdate).getTable(), c.getID(), c.getSQLName(), c.getType(),
-								c.getLength(), c.getScale()), robj);
+							((QueryUpdate)sqlUpdate).addValue(
+								new QueryColumn(((QueryUpdate)sqlUpdate).getTable(), c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale()), robj);
 							if (changedColumns == null)
 							{
 								changedColumns = new ArrayList<String>(olddata.length - i);

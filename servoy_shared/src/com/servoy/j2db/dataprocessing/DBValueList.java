@@ -253,7 +253,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 					}
 					String transaction_id = foundSetManager.getTransactionID(table.getServerName());
 					IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, creationSQLParts,
-						tableFilterParams, !creationSQLParts.isUnique(), 0, MAX_VALUELIST_ROWS);
+						tableFilterParams, !creationSQLParts.isUnique(), 0, MAX_VALUELIST_ROWS, IDataServer.VALUELIST_QUERY);
 					for (int i = 0; i < set.getRowCount(); i++)
 					{
 						Object[] row = CustomValueList.processRow(set.getRow(i), showValues, returnValues);

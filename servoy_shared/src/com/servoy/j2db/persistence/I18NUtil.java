@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 import java.sql.Types;
@@ -219,7 +219,7 @@ public class I18NUtil
 				sql.addSort(new QuerySort(msgLang, true));
 				sql.addSort(new QuerySort(msgKey, true));
 
-				IDataSet set = dataServer.performQuery(clientID, i18NServerName, null, sql, null, false, 0, Integer.MAX_VALUE);
+				IDataSet set = dataServer.performQuery(clientID, i18NServerName, null, sql, null, false, 0, Integer.MAX_VALUE, IDataServer.MESSAGES_QUERY);
 				int rowCount = set.getRowCount();
 				if (rowCount > 0)
 				{

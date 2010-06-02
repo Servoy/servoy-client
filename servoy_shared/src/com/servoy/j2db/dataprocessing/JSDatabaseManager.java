@@ -1062,7 +1062,7 @@ public class JSDatabaseManager
 					try
 					{
 						dataSet = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), fsm.getTransactionID(sheet),
-							sqlSelect, fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), false, 0, -1);
+							sqlSelect, fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), false, 0, -1, IDataServer.FOUNDSET_LOAD_QUERY);
 					}
 					catch (RemoteException e)
 					{

@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 import java.rmi.RemoteException;
@@ -386,7 +386,7 @@ public class LookupListModel extends AbstractListModel
 			}
 
 			IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, select,
-				tableFilterParams, true, 0, 100);
+				tableFilterParams, true, 0, 100, IDataServer.VALUELIST_QUERY);
 			for (int i = 0; i < set.getRowCount(); i++)
 			{
 				Object[] row = CustomValueList.processRow(set.getRow(i), showValues, returnValues);
@@ -515,7 +515,7 @@ public class LookupListModel extends AbstractListModel
 			}
 
 			IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, sqlParts,
-				tableFilterParams, !sqlParts.isUnique(), 0, 100);
+				tableFilterParams, !sqlParts.isUnique(), 0, 100, IDataServer.VALUELIST_QUERY);
 			for (int i = 0; i < set.getRowCount(); i++)
 			{
 				Object[] row = CustomValueList.processRow(set.getRow(i), showValues, returnValues);
@@ -547,8 +547,8 @@ public class LookupListModel extends AbstractListModel
 		sqlParts.clearCondition(SQLGenerator.CONDITION_SEARCH);
 		if (!"".equals(txt)) //$NON-NLS-1$
 		{
-			sqlParts.setCondition(SQLGenerator.CONDITION_SEARCH, (new CompareCondition(ISQLCondition.LIKE_OPERATOR, new QueryFunction(QueryFunction.UPPER,
-				DBValueList.getQuerySelectValue(table, sqlParts.getTable(), dataProviderID), dataProviderID), txt.toUpperCase() + '%')));
+			sqlParts.setCondition(SQLGenerator.CONDITION_SEARCH, new CompareCondition(ISQLCondition.LIKE_OPERATOR, new QueryFunction(QueryFunction.UPPER,
+				DBValueList.getQuerySelectValue(table, sqlParts.getTable(), dataProviderID), dataProviderID), txt.toUpperCase() + '%'));
 		}
 		else
 		{
@@ -570,7 +570,7 @@ public class LookupListModel extends AbstractListModel
 			}
 
 			IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, sqlParts,
-				tableFilterParams, !sqlParts.isUnique(), 0, 100);
+				tableFilterParams, !sqlParts.isUnique(), 0, 100, IDataServer.VALUELIST_QUERY);
 			for (int i = 0; i < set.getRowCount(); i++)
 			{
 				Object[] row = set.getRow(i);

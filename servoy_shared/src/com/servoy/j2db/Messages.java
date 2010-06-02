@@ -419,7 +419,7 @@ public class Messages
 						sql.addCondition(condMessages, new SetCondition(ISQLCondition.EQUALS_OPERATOR, new QueryColumn[] { msgKey }, subselect, true));
 					}
 					if (Debug.tracing()) Debug.trace("Loading messages from DB: SQL: " + sql); //$NON-NLS-1$
-					IDataSet set = dataServer.performQuery(clientId, serverName, null, sql, null, false, 0, Integer.MAX_VALUE);
+					IDataSet set = dataServer.performQuery(clientId, serverName, null, sql, null, false, 0, Integer.MAX_VALUE, IDataServer.MESSAGES_QUERY);
 					for (int i = 0; i < set.getRowCount(); i++)
 					{
 						Object[] row = set.getRow(i);
@@ -506,7 +506,7 @@ public class Messages
 		}
 
 		if (Debug.tracing()) Debug.trace("Loading messages from DB: SQL: " + sql); //$NON-NLS-1$
-		IDataSet set = dataServer.performQuery(clientId, serverName, null, sql, null, false, 0, Integer.MAX_VALUE);
+		IDataSet set = dataServer.performQuery(clientId, serverName, null, sql, null, false, 0, Integer.MAX_VALUE, IDataServer.MESSAGES_QUERY);
 		for (int i = 0; i < set.getRowCount(); i++)
 		{
 			Object[] row = set.getRow(i);

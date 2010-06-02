@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.property;
 
 import java.awt.BorderLayout;
@@ -36,9 +36,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
@@ -781,7 +781,7 @@ public class I18NPanel extends JPanel implements DocumentListener
 			SQLStatement statement2 = null;
 
 			selectSQL.setPlaceholderValue(langPlaceholderKey, ValueFactory.createNullValue(Types.VARCHAR));
-			IDataSet set = dataServer.performQuery(application.getClientID(), serverName, null, selectSQL, null, false, 0, 25);
+			IDataSet set = dataServer.performQuery(application.getClientID(), serverName, null, selectSQL, null, false, 0, 25, IDataServer.MESSAGES_QUERY);
 			if (set.getRowCount() == 0)
 			{
 				QueryInsert insert = new QueryInsert(messagesTable);
@@ -864,7 +864,7 @@ public class I18NPanel extends JPanel implements DocumentListener
 				if (localeValue != null && !"".equals(localeValue))
 				{
 					selectSQL.setPlaceholderValue(langPlaceholderKey, language);
-					set = dataServer.performQuery(application.getClientID(), serverName, null, selectSQL, null, false, 0, 25);
+					set = dataServer.performQuery(application.getClientID(), serverName, null, selectSQL, null, false, 0, 25, IDataServer.MESSAGES_QUERY);
 					if (set.getRowCount() == 0)
 					{
 						QueryInsert insert = new QueryInsert(messagesTable);

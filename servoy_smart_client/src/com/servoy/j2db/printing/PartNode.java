@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.printing;
 
 
@@ -240,8 +240,8 @@ public class PartNode
 
 			FoundSetManager foundSetManager = ((FoundSetManager)app.getFoundSetManager());
 			String transaction_id = foundSetManager.getTransactionID(table.getServerName());
-			IDataSet data = server.performQuery(app.getClientID(), table.getServerName(), transaction_id, newSQLString, foundSetManager.getTableFilterParams(
-				table.getServerName(), newSQLString), false, 0, foundSetManager.pkChunkSize * 4);
+			IDataSet data = server.performQuery(app.getClientID(), table.getServerName(), transaction_id, newSQLString,
+				foundSetManager.getTableFilterParams(table.getServerName(), newSQLString), false, 0, foundSetManager.pkChunkSize * 4, IDataServer.PRINT_QUERY);
 			SubSummaryFoundSet newSet = new SubSummaryFoundSet(app.getFoundSetManager(), rootSet, sortColumns, allAggregates, data, table);//create a new FoundSet with 'data' and with right 'table', 'where','whereArgs'
 
 			newSQLString.setSorts(oldSort);//restore the sort for child body parts

@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 
@@ -45,7 +45,13 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 	public static final int RAW_QUERY = 8;
 	public static final int AGGREGATE_QUERY = 9;
 	public static final int REPOSITORY_QUERY = 10;
-	public static final int FOUNDSET_LOAD = 11;
+	public static final int FOUNDSET_LOAD_QUERY = 11;
+	public static final int LOCKS_QUERY = 12;
+	public static final int MESSAGES_QUERY = 13;
+	public static final int VALUELIST_QUERY = 14;
+	public static final int PRINT_QUERY = 15;
+	public static final int USERMANAGEMENT_QUERY = 16;
+
 
 	public static final String BLOB_MARKER_COLUMN_ALIAS = "SV_BLOB_M"; //$NON-NLS-1$
 
