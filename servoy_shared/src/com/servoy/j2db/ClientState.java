@@ -24,7 +24,6 @@ import java.net.URL;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
@@ -60,7 +59,6 @@ import com.servoy.j2db.server.shared.IClientManager;
 import com.servoy.j2db.server.shared.IUserManager;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ITaskExecuter;
-import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.serialize.JSONConverter;
@@ -220,26 +218,15 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	protected void applicationSetup()
 	{
-		//HACK: this sets the locale for all clients in this jvm! 
-		String str = getSettings().getProperty("locale.default"); //$NON-NLS-1$
-		if (str != null)
-		{
-			Locale loc = PersistHelper.createLocale(str);
-			if (loc != null)
-			{
-				Locale.setDefault(loc);
-			}
-		}
 		refreshI18NMessages();
 
 		TimeZone defaultTimeZone = TimeZone.getDefault();
 		if (defaultTimeZone != null) //can this happen?
 		{
-			str = getSettings().getProperty("timezone.default", defaultTimeZone.getID()); //$NON-NLS-1$
+			String str = getSettings().getProperty("timezone.default", defaultTimeZone.getID()); //$NON-NLS-1$
 			TimeZone tz = TimeZone.getTimeZone(str);
 			if (tz != null)
 			{
-				TimeZone.setDefault(tz);
 				getClientInfo().setTimeZone(tz);
 			}
 		}
@@ -392,8 +379,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		catch (RepositoryException e)
 		{
 			Debug.error("Could not load solution " + (solutionMetaData == null ? "<none>" : solutionMetaData.getName()), e);
-			reportError(Messages.getString("servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>"
-				: solutionMetaData.getName() }), e);
+			reportError(
+				Messages.getString("servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>" : solutionMetaData.getName() }), e);
 		}
 	}
 
@@ -1177,8 +1164,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 						function,
 						gscope,
 						gscope,
-						Utils.arrayMerge((new Object[] { new Boolean(force) }), Utils.parseJSExpressions(getSolution().getInstanceMethodArguments(
-							"onCloseMethodID"))), false, false)); //$NON-NLS-1$
+						Utils.arrayMerge((new Object[] { new Boolean(force) }),
+							Utils.parseJSExpressions(getSolution().getInstanceMethodArguments("onCloseMethodID"))), false, false)); //$NON-NLS-1$
 				}
 				catch (Exception e1)
 				{

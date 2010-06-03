@@ -112,6 +112,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ITaskExecuter;
 import com.servoy.j2db.util.LocalhostRMIRegistry;
 import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.ServoyScheduledExecutor;
 import com.servoy.j2db.util.Settings;
@@ -169,16 +170,25 @@ public class SessionClient extends ClientState implements ISessionClient
 
 			this.preferedSolutionMethodNameToCall = method;
 			this.preferedSolutionMethodArguments = methodArgs;
+			setAjaxUsage(solution);
+
 			if (req == null)
 			{
-				locale = Locale.getDefault();
+				String str = getSettings().getProperty("locale.default"); //$NON-NLS-1$
+				Locale loc = PersistHelper.createLocale(str);
+				if (loc != null)
+				{
+					locale = loc;
+				}
+				else
+				{
+					locale = Locale.getDefault();
+				}
 			}
 			else
 			{
 				locale = req.getLocale();
 			}
-
-			setAjaxUsage(solution);
 
 			applicationSetup();
 			applicationInit();

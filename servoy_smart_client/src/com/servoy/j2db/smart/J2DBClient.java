@@ -922,7 +922,21 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		// create status
 		mainPanel.add(createStatusPanel(), BorderLayout.SOUTH);
 
+		// first set the default locale if set.
+		String str = getSettings().getProperty("locale.default"); //$NON-NLS-1$
+		Locale loc = PersistHelper.createLocale(str);
+		if (loc != null)
+		{
+			Locale.setDefault(loc);
+		}
 		super.applicationSetup();
+
+		// set the timezone of the client info as default.
+		TimeZone tz = getClientInfo().getTimeZone();
+		if (tz != null)
+		{
+			TimeZone.setDefault(tz);
+		}
 
 		cmdManager = createCmdManager();
 
