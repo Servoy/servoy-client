@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.ui;
 
 import java.awt.Dimension;
@@ -25,3 +25,6 @@ public interface ISupportCachedLocationAndSize
 
 	public Dimension getCachedSize();
 }
+//TODO maybe this interface & it's use can be simplified/removed
+//this interface might only be useful in current implementation to keep initial design Y location of components for smart-client TableView - as the X and width
+//should not get altered on cell renderer/editor repositioning/painting; and the Y is used for ordering columns when a column changes location from script

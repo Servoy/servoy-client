@@ -61,7 +61,11 @@ import javax.swing.TransferHandler;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.LineBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableColumnModelEvent;
+import javax.swing.event.TableColumnModelListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
@@ -162,6 +166,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 	private TableColumn draggingColumn;
 	private List<TableColumn> tableColumnsBeforeDrag;
 	private final TableTabSequenceHandler tableTabSequenceHandler;
+	private boolean layoutChangingByJavascript = false;
 
 	public TableView(IApplication app, final FormController fc, Form formForStyles, final AbstractBase cellview, IScriptExecuter scriptExecuter,
 		IDataRenderer headerComp, IDataRenderer leadingGrandSummaryComp, boolean printing)
@@ -689,37 +694,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 						for (int i = 0; i < nrColumns; i++)
 						{
 							CellAdapter column = (CellAdapter)TableView.this.getColumnModel().getColumn(i);
-							if (!(column instanceof IScriptBaseMethods)) continue;
-							IScriptBaseMethods editor = ((IScriptBaseMethods)column.getEditor());
-							IScriptBaseMethods renderer = ((IScriptBaseMethods)column.getRenderer());
-
-							if (editor instanceof ISupportCachedLocationAndSize)
-							{
-								if (resizingColumn != null)
-								{
-									Dimension size = ((ISupportCachedLocationAndSize)editor).getCachedSize();
-									editor.js_setSize(column.getWidth(), size != null ? size.height : 0);
-								}
-								else if (draggingColumn != null)
-								{
-									Point loc = ((ISupportCachedLocationAndSize)editor).getCachedLocation();
-									editor.js_setLocation(i, loc != null ? loc.y : 0);
-								}
-							}
-
-							if (renderer instanceof ISupportCachedLocationAndSize)
-							{
-								if (resizingColumn != null)
-								{
-									Dimension size = ((ISupportCachedLocationAndSize)renderer).getCachedSize();
-									renderer.js_setSize(column.getWidth(), size != null ? size.height : 0);
-								}
-								else if (draggingColumn != null)
-								{
-									Point loc = ((ISupportCachedLocationAndSize)renderer).getCachedLocation();
-									renderer.js_setLocation(i, loc != null ? loc.y : 0);
-								}
-							}
+							updateCellAdapterComponentBounds(column, i, resizingColumn != null, draggingColumn != null || resizingColumn != null);
 						}
 					}
 					resizingColumn = null;
@@ -746,6 +721,50 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 				}
 			});
 		}
+
+		// add a column model listener so that the editor/renderer components have their X and width updated when columns
+		// change those because of window resizes; needed especially when there is no row in the table (so the renderer/editor are not repositioned), but the
+		// js_get... methods are called (and execute on the renderer/editor component) and correct results are expected
+		getColumnModel().addColumnModelListener(new TableColumnModelListener()
+		{
+			public void columnMoved(TableColumnModelEvent e)
+			{
+				updateAllWidthsAndXs();
+			}
+
+			public void columnMarginChanged(ChangeEvent e)
+			{
+				updateAllWidthsAndXs();
+			}
+
+			private void updateAllWidthsAndXs()
+			{
+				if (isLayoutChangingViaJavascript() || isLayoutChangingViaUserHeaderAction()) return;
+				int nrColumns = TableView.this.getColumnCount();
+
+				for (int i = 0; i < nrColumns; i++)
+				{
+					CellAdapter column = (CellAdapter)TableView.this.getColumnModel().getColumn(i);
+					updateCellAdapterComponentBounds(column, i, true, true);
+				}
+			}
+
+			public void columnSelectionChanged(ListSelectionEvent e)
+			{
+				// not used
+			}
+
+			public void columnRemoved(TableColumnModelEvent e)
+			{
+				// not used				
+			}
+
+			public void columnAdded(TableColumnModelEvent e)
+			{
+				// not used
+			}
+		});
+
 		addMouseListener(new MouseAdapter()
 		{
 			// see comment Container -> processMouseEvent; jdk 1.6_13
@@ -799,6 +818,29 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 				}
 			}
 		});
+	}
+
+	/**
+	 * Will return true when columns are being moved/resized by user using header drag operations.
+	 * @return true when columns are being moved/resized by user using header drag operations.
+	 */
+	public boolean isLayoutChangingViaUserHeaderAction()
+	{
+		return tableColumnsBeforeDrag != null;
+	}
+
+	/**
+	 * Will return true when columns are being moved/resized because of a JS call.
+	 * @return true when columns are being moved/resized because of a JS call.
+	 */
+	public boolean isLayoutChangingViaJavascript()
+	{
+		return layoutChangingByJavascript;
+	}
+
+	public void setLayoutChangingViaJavascript(boolean b)
+	{
+		layoutChangingByJavascript = b;
 	}
 
 	private void keepGroupOrder(TableColumn column)
@@ -903,6 +945,67 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 
 		// moved
 		return true;
+	}
+
+	protected void updateCellAdapterComponentBounds(CellAdapter column, int columnIndex, boolean sizeChanged, boolean locationChanged)
+	{
+		Rectangle cellRect = TableView.this.getCellRect(-1, columnIndex, true); // the cell's x and height will be 0 as we are not interested in them
+		int cm = getColumnModel().getColumnMargin();
+		cellRect.x += cm / 2;
+		cellRect.width -= cm;
+
+		// in some cases the js_getLocationX, js_getWidth when called from javascript will return outdated values. For example, table has no row and user
+		// resizes/moves columns using table header (and renderer/editor will not be relocated/repainted), or user resizes window and because of anchors
+		// this results in a resize of the columns; the following calls will update the editor/renderer location in such cases
+		updateComponentBounds(column.getEditor(), cellRect, sizeChanged, locationChanged);
+		updateComponentBounds(column.getRenderer(), cellRect, sizeChanged, locationChanged);
+
+		// the change of bounds performed by the two updateComponentBounds(...) calls will add component resize/move events for the editor component on the AWT queue (that we are on now);
+		// in order for those resizes to be ignored by component listener registered in CellAdapter on editor, we call the update methods (that listener should only handle change bounds events that are comming from js_set... calls);
+		// these updateEditor calls will be executed before the actual resize/move events reach the listener, even though the editor has already changed bounds
+		if (locationChanged) column.updateEditorX();
+		if (sizeChanged) column.updateEditorWidth();
+	}
+
+	protected void updateComponentBounds(Component component, Rectangle cellRect, boolean sizeChanged, boolean locationChanged)
+	{
+		int height;
+		int y;
+		if (component instanceof ISupportCachedLocationAndSize)
+		{
+			Dimension cachedSize = ((ISupportCachedLocationAndSize)component).getCachedSize();
+			height = ((cachedSize != null) ? cachedSize.height : 0);
+			Point cachedLocation = ((ISupportCachedLocationAndSize)component).getCachedLocation();
+			y = ((cachedLocation != null) ? cachedLocation.y : 0);
+		}
+		else
+		{
+			height = component.getHeight();
+			y = component.getY();
+		}
+
+		if (sizeChanged)
+		{
+			if (component instanceof IScriptBaseMethods)
+			{
+				((IScriptBaseMethods)component).js_setSize(cellRect.width, height);
+			}
+			else
+			{
+				component.setSize(cellRect.width, height);
+			}
+		}
+		if (locationChanged)
+		{
+			if (component instanceof IScriptBaseMethods)
+			{
+				((IScriptBaseMethods)component).js_setLocation(cellRect.x, y);
+			}
+			else
+			{
+				component.setLocation(cellRect.x, y);
+			}
+		}
 	}
 
 	protected int indexOfColumn(TableColumn column)

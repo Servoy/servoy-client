@@ -21,6 +21,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -90,6 +91,7 @@ import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.smart.J2DBClient;
 import com.servoy.j2db.smart.ListView;
+import com.servoy.j2db.smart.TableView;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.util.Debug;
@@ -124,7 +126,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 	private final String dataProviderID;
 	private IRecordInternal currentEditingState;
 	private DataAdapterList dal;
-	private final JTable table;
+	private final TableView table;
 	private boolean opaque = true;
 
 	private Border noFocusBorder = new EmptyBorder(1, 1, 1, 1);
@@ -143,8 +145,8 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 	private boolean adjusting = false;
 	private Object lastInvalidValue = NONE;
 
-	public CellAdapter(IApplication app, final JTable table, final int index, int width, String name, String title, String dataProviderID, Component renderer,
-		Component editor)
+	public CellAdapter(IApplication app, final TableView table, final int index, int width, String name, String title, String dataProviderID,
+		Component renderer, Component editor)
 	{
 		super(index, width);
 		this.application = app;
@@ -209,10 +211,10 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			}
 		}
 		this.editor = editor;
-		if (editor != null && editor instanceof ISupportCachedLocationAndSize)
+		if (editor != null)
 		{
-			this.editorX = ((ISupportCachedLocationAndSize)editor).getCachedLocation().x;
-			this.editorWidth = ((ISupportCachedLocationAndSize)editor).getCachedSize().width;
+			updateEditorX();
+			updateEditorWidth();
 
 			editor.addComponentListener(new ComponentListener()
 			{
@@ -222,21 +224,23 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 
 				public void componentMoved(ComponentEvent e)
 				{
-					int sourceX = ((ISupportCachedLocationAndSize)e.getComponent()).getCachedLocation().x;
-					if (editorX != sourceX)
+					int sourceX = (e.getComponent() instanceof ISupportCachedLocationAndSize)
+						? ((ISupportCachedLocationAndSize)e.getComponent()).getCachedLocation().x : e.getComponent().getLocation().x;
+					if (editorX != sourceX) // see also updateEditorX and updateEditorWidth call hierarchy to understand this better
 					{
 						onEditorChanged();
-						editorX = sourceX;
+						editorX = sourceX; // just to make sure
 					}
 				}
 
 				public void componentResized(ComponentEvent e)
 				{
-					int sourceWidth = ((ISupportCachedLocationAndSize)e.getComponent()).getCachedSize().width;
-					if (editorWidth != sourceWidth)
+					int sourceWidth = (e.getComponent() instanceof ISupportCachedLocationAndSize)
+						? ((ISupportCachedLocationAndSize)e.getComponent()).getCachedSize().width : e.getComponent().getSize().width;
+					if (editorWidth != sourceWidth) // see also updateEditorX and updateEditorWidth call hierarchy to understand this better
 					{
 						onEditorChanged();
-						editorWidth = sourceWidth;
+						editorWidth = sourceWidth; // just to make sure
 					}
 				}
 
@@ -1266,52 +1270,73 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 
 	private void onEditorChanged()
 	{
-		ArrayList<CellAdapter> cellAdaptersList = new ArrayList<CellAdapter>();
-		Enumeration<TableColumn> columnsEnum = table.getColumnModel().getColumns();
-		TableColumn column;
-		while (columnsEnum.hasMoreElements())
+		try
 		{
-			column = columnsEnum.nextElement();
-			cellAdaptersList.add((CellAdapter)column);
-		}
-		for (CellAdapter ca : cellAdaptersList)
-			table.getColumnModel().removeColumn(ca);
-
-		Collections.sort(cellAdaptersList, new Comparator<CellAdapter>()
-		{
-			public int compare(CellAdapter o1, CellAdapter o2)
+			table.setLayoutChangingViaJavascript(true);
+			ArrayList<CellAdapter> cellAdaptersList = new ArrayList<CellAdapter>();
+			Enumeration<TableColumn> columnsEnum = table.getColumnModel().getColumns();
+			TableColumn column;
+			while (columnsEnum.hasMoreElements())
 			{
-				Component editor1 = o1.getEditor();
-				Component editor2 = o2.getEditor();
+				column = columnsEnum.nextElement();
+				cellAdaptersList.add((CellAdapter)column);
+			}
+			for (CellAdapter ca : cellAdaptersList)
+				table.getColumnModel().removeColumn(ca);
 
-				if (editor1 instanceof ISupportCachedLocationAndSize && editor2 instanceof ISupportCachedLocationAndSize)
+			Collections.sort(cellAdaptersList, new Comparator<CellAdapter>()
+			{
+				public int compare(CellAdapter o1, CellAdapter o2)
 				{
-					return PositionComparator.comparePoint(true, ((ISupportCachedLocationAndSize)editor1).getCachedLocation(),
-						((ISupportCachedLocationAndSize)editor2).getCachedLocation());
-				}
-				else return 0;
-			}
-		});
+					Component editor1 = o1.getEditor();
+					Component editor2 = o2.getEditor();
 
-		for (CellAdapter cellAdapter : cellAdaptersList)
-		{
-			if (cellAdapter.editor instanceof ISupportCachedLocationAndSize)
+					Point p1 = ((editor1 instanceof ISupportCachedLocationAndSize) ? ((ISupportCachedLocationAndSize)editor1).getCachedLocation()
+						: editor1.getLocation());
+					Point p2 = ((editor2 instanceof ISupportCachedLocationAndSize) ? ((ISupportCachedLocationAndSize)editor2).getCachedLocation()
+						: editor2.getLocation());
+					return PositionComparator.comparePoint(true, p1, p2);
+				}
+			});
+
+			for (CellAdapter cellAdapter : cellAdaptersList)
 			{
-				cellAdapter.editorX = ((ISupportCachedLocationAndSize)cellAdapter.editor).getCachedLocation().x;
-				cellAdapter.editorWidth = ((ISupportCachedLocationAndSize)cellAdapter.editor).getCachedSize().width;
+				cellAdapter.updateEditorX();
+				cellAdapter.updateEditorWidth();
+				cellAdapter.resetEditorSize();
+				table.getColumnModel().addColumn(cellAdapter);
 			}
-			cellAdapter.resetEditorSize();
-			table.getColumnModel().addColumn(cellAdapter);
 		}
+		finally
+		{
+			table.setLayoutChangingViaJavascript(false);
+		}
+	}
+
+	public void updateEditorX()
+	{
+		this.editorX = (editor instanceof ISupportCachedLocationAndSize) ? ((ISupportCachedLocationAndSize)editor).getCachedLocation().x
+			: editor.getLocation().x;
+	}
+
+	public void updateEditorWidth()
+	{
+		this.editorWidth = (editor instanceof ISupportCachedLocationAndSize) ? ((ISupportCachedLocationAndSize)editor).getCachedSize().width
+			: editor.getSize().width;
 	}
 
 	private void resetEditorSize()
 	{
+		Dimension size;
 		if (editor instanceof ISupportCachedLocationAndSize)
 		{
-			Dimension size = ((ISupportCachedLocationAndSize)editor).getCachedSize();
-			CellAdapter.this.setPreferredWidth(size != null ? size.width : 0);
+			size = ((ISupportCachedLocationAndSize)editor).getCachedSize();
 		}
+		else
+		{
+			size = editor.getSize();
+		}
+		CellAdapter.this.setPreferredWidth(size != null ? size.width + table.getColumnModel().getColumnMargin() : 0);
 	}
 
 	public void itemStateChanged(ItemEvent e)

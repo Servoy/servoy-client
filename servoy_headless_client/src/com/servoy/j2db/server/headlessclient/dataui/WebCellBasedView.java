@@ -1385,6 +1385,11 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		List<Component> orderedHeaderCopy = new ArrayList<Component>(orderedHeaders);
 		orderedHeaderCopy.add(newIndex, orderedHeaderCopy.remove(columnIndex));
 
+		updateXLocationForColumns(orderedHeaderCopy);
+	}
+
+	private void updateXLocationForColumns(List<Component> orderedHeaderCopy)
+	{
 		int startX = 0;
 		for (Component c : orderedHeaderCopy)
 		{
@@ -1398,7 +1403,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					{
 						oldLocation = ((ISupportBounds)p).getLocation();
 					}
-					((IComponent)columnIdentifierComponent).setLocation(new Point(startX++, (int)oldLocation.getY()));
+					((IComponent)columnIdentifierComponent).setLocation(new Point(startX, (int)oldLocation.getY()));
+					startX += ((IComponent)columnIdentifierComponent).getSize().width;
 				}
 			}
 		}
@@ -1697,6 +1703,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		final IScriptExecuter el, final int viewStartY, final int endY, final ItemAdd output)
 	{
 		List<IPersist> elements = ComponentFactory.sortElementsOnPositionAndGroup(view.getAllObjectsAsList());
+		int startX = 0;
 		for (int i = 0; i < elements.size(); i++)
 		{
 			IPersist element = elements.get(i);
@@ -1726,8 +1733,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					Point loc = c.getLocation();
 					if (loc != null)
 					{
-						c.setLocation(new Point(i, loc.y));
+						c.setLocation(new Point(startX, loc.y));
 					}
+					Dimension csize = c.getSize();
+					startX += (csize != null) ? csize.width : ((IFormElement)element).getSize().width;
 				}
 			}
 		}
@@ -3304,6 +3313,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			lastStretched.js_setSize(lastStretched.js_getWidth() + delta - consumedDelta, lastStretched.js_getHeight());
 		}
+
+		updateXLocationForColumns(getOrderedHeaders());
 	}
 
 	private int getOtherFormPartsHeight()
