@@ -21,6 +21,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -543,6 +544,18 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 					else if (noFocusBorder instanceof SpecialMatteBorder)
 					{
 						adjustedBorder = new CompoundBorder(adjustedBorder, noFocusBorder);
+					}
+					else
+					{
+						// keep the renderer content at the same position,
+						// create a focus border with the same border insets
+						Insets noFocusBorderInsets = noFocusBorder.getBorderInsets(borderOwner);
+						Insets adjustedBorderInsets = adjustedBorder.getBorderInsets(borderOwner);
+						EmptyBorder emptyInsideBorder = new EmptyBorder(Math.max(0, noFocusBorderInsets.top - adjustedBorderInsets.top), Math.max(0,
+							noFocusBorderInsets.left - adjustedBorderInsets.left), Math.max(0, noFocusBorderInsets.bottom - adjustedBorderInsets.bottom),
+							Math.max(0, noFocusBorderInsets.right - adjustedBorderInsets.right));
+
+						adjustedBorder = new CompoundBorder(adjustedBorder, emptyInsideBorder);
 					}
 				}
 			}
