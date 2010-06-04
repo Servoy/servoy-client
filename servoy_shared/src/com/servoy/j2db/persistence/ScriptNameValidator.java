@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 
@@ -176,7 +176,7 @@ public class ScriptNameValidator implements IValidateName
 				}
 			}
 		}
-		if (searchContext.getObject() instanceof Form && searchContext.getType() != IRepository.ELEMENTS)
+		if (searchContext.getObject() instanceof Form && searchContext.getType() != IRepository.ELEMENTS && searchContext.getType() != IRepository.FORMS)
 		{
 			Object obj = testRelations(nameToCheck, skip_element_id);
 			if (obj != null) return obj;
