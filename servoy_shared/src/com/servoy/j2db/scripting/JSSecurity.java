@@ -1084,9 +1084,9 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	 *
 	 * @param authenticator_solution authenticator solution installed on the Servoy Server, null for servoy built-in authentication
 	 * @param method authenticator method, null for servoy built-in authentication
-	 * @param credentials optional Object with input for the selected authenticator
+	 * @param credentials optional array whose elements are passed as arguments to the authenticator method, in case of servoy built-in authentication this should be [username, password]
 	 * 
-	 * @return authentication result from authenticator solution
+	 * @return authentication result from authenticator solution or boolean in case of servoy built-in authentication
 	 */
 	public Object js_authenticate(String authenticator_solution, String method, Object[] credentials)
 	{
