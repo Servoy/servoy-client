@@ -972,7 +972,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 					// this is for batch processing
 					return null;
 				}
-				Debug.error("No foundset in form found!"); //$NON-NLS-1$
+				Debug.log("No foundset in form found!", new RuntimeException()); //$NON-NLS-1$
 				return null;
 			}
 		}
