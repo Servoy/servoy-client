@@ -13,9 +13,11 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient.dataui.drag;
 
+import org.apache.wicket.Page;
+import org.apache.wicket.Request;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.IHeaderResponse;
 
@@ -91,29 +93,31 @@ public abstract class DraggableBehavior extends AbstractServoyDefaultAjaxBehavio
 	@Override
 	protected void respond(AjaxRequestTarget ajaxRequestTarget)
 	{
-		String action = getComponent().getRequest().getParameter(PARAM_ACTION);
-		String id = getComponent().getRequest().getParameter(PARAM_DRAGGABLE_ID);
+		Page componentPage = getComponent().getPage();
+		Request componentRequest = getComponent().getRequest();
+		String action = componentRequest.getParameter(PARAM_ACTION);
+		String id = componentRequest.getParameter(PARAM_DRAGGABLE_ID);
+
 		if (ACTION_DRAG_START.equals(action))
 		{
-			onDragStart(id, Integer.parseInt(getComponent().getRequest().getParameter(PARAM_X)), Integer.parseInt(getComponent().getRequest().getParameter(
-				PARAM_Y)), ajaxRequestTarget);
+			onDragStart(id, Integer.parseInt(componentRequest.getParameter(PARAM_X)), Integer.parseInt(componentRequest.getParameter(PARAM_Y)),
+				ajaxRequestTarget);
 		}
 		else if (ACTION_DRAG_END.equals(action))
 		{
-			onDragEnd(id, Integer.parseInt(getComponent().getRequest().getParameter(PARAM_X)), Integer.parseInt(getComponent().getRequest().getParameter(
-				PARAM_Y)), ajaxRequestTarget);
+			onDragEnd(id, Integer.parseInt(componentRequest.getParameter(PARAM_X)), Integer.parseInt(componentRequest.getParameter(PARAM_Y)), ajaxRequestTarget);
 		}
 		else if (ACTION_DROP_HOVER.equals(action))
 		{
-			onDropHover(id, getComponent().getRequest().getParameter(PARAM_TARGET_ID), ajaxRequestTarget);
+			onDropHover(id, componentRequest.getParameter(PARAM_TARGET_ID), ajaxRequestTarget);
 		}
 		else if (ACTION_DROP.equals(action))
 		{
-			onDrop(id, getComponent().getRequest().getParameter(PARAM_TARGET_ID), Integer.parseInt(getComponent().getRequest().getParameter(PARAM_X)),
-				Integer.parseInt(getComponent().getRequest().getParameter(PARAM_Y)), ajaxRequestTarget);
+			onDrop(id, componentRequest.getParameter(PARAM_TARGET_ID), Integer.parseInt(componentRequest.getParameter(PARAM_X)),
+				Integer.parseInt(componentRequest.getParameter(PARAM_Y)), ajaxRequestTarget);
 		}
 
-		WebEventExecutor.generateResponse(ajaxRequestTarget, getComponent().getPage());
+		WebEventExecutor.generateResponse(ajaxRequestTarget, componentPage);
 	}
 
 
