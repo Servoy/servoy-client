@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting;
 
 
@@ -63,7 +63,7 @@ public class TableScope extends LazyCompilationScope
 	}
 
 	ThreadLocal<Object[]> values = new ThreadLocal<Object[]>();
-	private UsedDataProviderTracker usedDataProviderTracker;
+	private final ThreadLocal<UsedDataProviderTracker> usedDataProviderTracker = new ThreadLocal<UsedDataProviderTracker>();
 
 	public void setArguments(Object[] vargs)
 	{
@@ -73,7 +73,7 @@ public class TableScope extends LazyCompilationScope
 
 	public void setUsedDataProviderTracker(UsedDataProviderTracker usedDataProviderTracker)
 	{
-		this.usedDataProviderTracker = usedDataProviderTracker;
+		this.usedDataProviderTracker.set(usedDataProviderTracker);
 	}
 
 	private Object[] getThreadLocalArray()
@@ -166,7 +166,7 @@ public class TableScope extends LazyCompilationScope
 			record = (Record)proto;
 			callStackName = callStackName + '_' + record.getRawData().getPKHashKey();
 		}
-		boolean pushedRecordingTracker = false;
+		UsedDataProviderTracker tracker = null;
 		try
 		{
 			boolean contains = callStack.contains(callStackName);
@@ -181,11 +181,11 @@ public class TableScope extends LazyCompilationScope
 				}
 				throw new RuntimeException(Messages.getString("servoy.error.cycleDetected", new Object[] { name, table.getName(), callStack })); //$NON-NLS-1$
 			}
-			if (usedDataProviderTracker != null)
+			tracker = usedDataProviderTracker.get();
+			if (tracker != null)
 			{
-				((RecordingScriptable)getFunctionParentScriptable()).pushRecordingTracker(usedDataProviderTracker);
-				usedDataProviderTracker = null;
-				pushedRecordingTracker = true;
+				((RecordingScriptable)getFunctionParentScriptable()).pushRecordingTracker(tracker);
+				usedDataProviderTracker.set(null);
 			}
 
 			Object o = scriptEngine.executeFunction(calculation, this, calculation, (Object[])array[1], false, false);
@@ -198,7 +198,7 @@ public class TableScope extends LazyCompilationScope
 		}
 		finally
 		{
-			if (pushedRecordingTracker)
+			if (tracker != null)
 			{
 				((RecordingScriptable)getFunctionParentScriptable()).popRecordingTracker();
 			}

@@ -1114,26 +1114,29 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 						Entry<String, SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>> entry = it.next();
 						String pkHash = entry.getKey();
 						SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>> sr = entry.getValue();
-						Row row = sr.get();
-						if (row != null)
+						synchronized (sr)
 						{
-							Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData> data = sr.getData();
-							if (data != null)
+							Row row = sr.get();
+							if (row != null)
 							{
-								CalculationDependencyData calcRowrefs = data.getRight();
-								if (calcRowrefs != null)
+								Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData> data = sr.getData();
+								if (data != null)
 								{
-									for (String calc : calcs)
+									CalculationDependencyData calcRowrefs = data.getRight();
+									if (calcRowrefs != null)
 									{
-										List<RelationDependency> deps = calcRowrefs.getRelationDependencies(calc);
-										if (deps != null)
+										for (String calc : calcs)
 										{
-											for (RelationDependency dep : deps)
+											List<RelationDependency> deps = calcRowrefs.getRelationDependencies(calc);
+											if (deps != null)
 											{
-												if (relationName.equals(dep.relationName) && whereArgsHash.equals(dep.whereArgsHash))
+												for (RelationDependency dep : deps)
 												{
-													// the calc depends on this related foundset
-													calculationDependencies.add(new CalculationDependency(sheet.getTable().getDataSource(), pkHash, calc));
+													if (relationName.equals(dep.relationName) && whereArgsHash.equals(dep.whereArgsHash))
+													{
+														// the calc depends on this related foundset
+														calculationDependencies.add(new CalculationDependency(sheet.getTable().getDataSource(), pkHash, calc));
+													}
 												}
 											}
 										}
