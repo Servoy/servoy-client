@@ -119,7 +119,8 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 		Map emptyDataRenderers = new LinkedHashMap();
 		DataRenderer dr = null;
 		int height = objToRender.getRowHeight();
-		if (height == 0) height = 20;//for savety
+		boolean calculateHeight = (height == 0);
+		if (height == 0) height = 100;//for safety
 
 //		int leftBorder = 0;
 //		int bottomBorder = 0;
@@ -151,6 +152,7 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 			-ins.top, printing, true, undoManager, true, null);
 
 		int biggest_width = 10;
+		int biggest_height = calculateHeight ? 0 : height;
 		Component[] comps = dr.getComponents();
 		boolean hasRowBGColorCalc = objToRender.getRowBGColorCalculation() != null;
 		for (Component element : comps)
@@ -159,10 +161,14 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 			if (w > biggest_width) biggest_width = w;
 
 			if (hasRowBGColorCalc && element instanceof JComponent) ((JComponent)element).setOpaque(false);
-			element.setLocation(element.getX(), 0);
+			if (calculateHeight)
+			{
+				int h = element.getLocation().y + element.getSize().height;
+				if (h > biggest_height) biggest_height = h;
+			}
 		}
-		dr.setSize(new Dimension(biggest_width, height));
-		dr.setPreferredSize(new Dimension(biggest_width, height));
+		dr.setSize(new Dimension(biggest_width, biggest_height));
+		dr.setPreferredSize(new Dimension(biggest_width, biggest_height));
 
 		if (printing)
 		{
