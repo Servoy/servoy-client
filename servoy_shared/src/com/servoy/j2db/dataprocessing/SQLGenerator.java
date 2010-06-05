@@ -1,0 +1,1626 @@
+/*
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+
+ This program is free software; you can redistribute it and/or modify it under
+ the terms of the GNU Affero General Public License as published by the Free
+ Software Foundation; either version 3 of the License, or (at your option) any
+ later version.
+
+ This program is distributed in the hope that it will be useful, but WITHOUT
+ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+ You should have received a copy of the GNU Affero General Public License along
+ with this program; if not, see http://www.gnu.org/licenses or write to the Free
+ Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
+*/
+package com.servoy.j2db.dataprocessing;
+
+
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import com.servoy.j2db.ApplicationException;
+import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.dataprocessing.FindState.RelatedFindState;
+import com.servoy.j2db.persistence.AggregateVariable;
+import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.ColumnInfo;
+import com.servoy.j2db.persistence.IColumn;
+import com.servoy.j2db.persistence.IColumnTypes;
+import com.servoy.j2db.persistence.IDataProvider;
+import com.servoy.j2db.persistence.IRelationProvider;
+import com.servoy.j2db.persistence.Relation;
+import com.servoy.j2db.persistence.RelationItem;
+import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.ScriptCalculation;
+import com.servoy.j2db.persistence.Table;
+import com.servoy.j2db.query.AbstractBaseQuery;
+import com.servoy.j2db.query.AndCondition;
+import com.servoy.j2db.query.CompareCondition;
+import com.servoy.j2db.query.ExistsCondition;
+import com.servoy.j2db.query.IQuerySelectValue;
+import com.servoy.j2db.query.IQuerySort;
+import com.servoy.j2db.query.ISQLCondition;
+import com.servoy.j2db.query.ISQLSelect;
+import com.servoy.j2db.query.OrCondition;
+import com.servoy.j2db.query.Placeholder;
+import com.servoy.j2db.query.PlaceholderKey;
+import com.servoy.j2db.query.QueryAggregate;
+import com.servoy.j2db.query.QueryColumn;
+import com.servoy.j2db.query.QueryColumnValue;
+import com.servoy.j2db.query.QueryCustomSelect;
+import com.servoy.j2db.query.QueryDelete;
+import com.servoy.j2db.query.QueryInsert;
+import com.servoy.j2db.query.QueryJoin;
+import com.servoy.j2db.query.QuerySelect;
+import com.servoy.j2db.query.QuerySort;
+import com.servoy.j2db.query.QueryTable;
+import com.servoy.j2db.query.QueryUpdate;
+import com.servoy.j2db.query.SetCondition;
+import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.Utils;
+
+/**
+ * This class is used to generate the (in repository stored?) SQL(Prepared)Statements and to generate te sql for the user find
+ * 
+ * @author jblok
+ */
+public class SQLGenerator
+{
+	public static final String STRING_SELECT = "select "; //$NON-NLS-1$
+	public static final String STRING_EMPTY = ""; //$NON-NLS-1$
+
+	public static final String PLACEHOLDER_PRIMARY_KEY = "PK"; //$NON-NLS-1$
+	public static final String PLACEHOLDER_RELATION_KEY = "RK"; //$NON-NLS-1$
+	public static final String PLACEHOLDER_INSERT_KEY = "INSERT"; //$NON-NLS-1$
+
+	public static final String CONDITION_FILTER = "FILTER"; //$NON-NLS-1$
+	public static final String CONDITION_OMIT = "OMIT"; //$NON-NLS-1$
+	public static final String CONDITION_RELATION = "RELATION"; //$NON-NLS-1$
+	public static final String CONDITION_SEARCH = "SEARCH"; //$NON-NLS-1$
+	public static final String CONDITION_LOCK = "LOCK"; //$NON-NLS-1$
+
+/*
+ * _____________________________________________________________ Declaration of attributes
+ */
+	private final IServiceProvider application;
+	private final Map<String, SQLSheet> cachedDataSourceSQLSheets = new HashMap<String, SQLSheet>(64); // dataSource -> sqlSheet
+	private final IRelationProvider relProvider;
+
+/*
+ * _____________________________________________________________ Declaration and definition of constructors
+ */
+	public SQLGenerator(IServiceProvider app, IRelationProvider r)
+	{
+		application = app;
+		relProvider = r;
+	}
+
+/*
+ * _____________________________________________________________ The methods below belong to this class
+ */
+
+	//SQL pk(s) select for foundset,concatenating those strings will always deliver a executable SQL
+	// Note: removeUnusedJoins must be false when the resulting query is changed afterwards (like adding columns)
+	QuerySelect getPKSelectSqlSelect(IGlobalValueEntry provider, Table table, QuerySelect oldSQLQuery, List<IRecordInternal> findStates, boolean reduce,
+		IDataSet omitPKs, List<SortColumn> orderByFields, boolean removeUnusedJoins) throws ServoyException
+	{
+		if (table == null)
+		{
+			throw new RepositoryException(ServoyException.InternalCodes.TABLE_NOT_FOUND);
+		}
+
+		QuerySelect retval;
+		if (oldSQLQuery != null)
+		{
+			retval = new QuerySelect(oldSQLQuery.getTable());
+			retval.setCondition(CONDITION_FILTER, oldSQLQuery.getConditionClone(CONDITION_FILTER));
+			retval.setCondition(CONDITION_SEARCH, oldSQLQuery.getConditionClone(CONDITION_SEARCH));
+			retval.setCondition(CONDITION_RELATION, oldSQLQuery.getConditionClone(CONDITION_RELATION));
+			retval.setJoins(oldSQLQuery.getJoinsClone());
+		}
+		else
+		{
+			retval = new QuerySelect(new QueryTable(table.getSQLName(), table.getCatalog(), table.getSchema()));
+		}
+
+		//Example:-select pk1,pk2 from tablename1 where ((fieldname1 like '%abcd%') or ((fieldname2 like '%xyz%')) (retrieve max 200 rows)
+
+		ArrayList<IQuerySelectValue> pkQueryColumns = new ArrayList<IQuerySelectValue>(3);
+		ArrayList<Column> pkColumns = new ArrayList<Column>(3);
+		//getPrimaryKeys from table
+		Iterator<Column> pks = table.getRowIdentColumns().iterator();
+
+		//make select
+		if (!pks.hasNext())
+		{
+			throw new RepositoryException(ServoyException.InternalCodes.PRIMARY_KEY_NOT_FOUND, new Object[] { table.getName() });
+		}
+		while (pks.hasNext())
+		{
+			Column column = pks.next();
+			pkColumns.add(column);
+			pkQueryColumns.add(new QueryColumn(retval.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength()));
+		}
+		retval.setColumns(pkQueryColumns);
+
+		if (omitPKs != null && omitPKs.getRowCount() != 0)
+		{
+			//omit is rebuild each time
+			retval.setCondition(CONDITION_OMIT, createSetConditionFromPKs(ISQLCondition.NOT_OPERATOR,
+				pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), pkColumns, omitPKs));
+		}
+		else if (oldSQLQuery != null)
+		{
+			retval.setCondition(CONDITION_OMIT, oldSQLQuery.getConditionClone(CONDITION_OMIT));
+		}
+
+		if (findStates != null && findStates.size() != 0) //new
+		{
+			OrCondition moreWhere = null;
+			for (int i = 0; i < findStates.size(); i++)
+			{
+				Object obj = findStates.get(i);
+				if (obj instanceof FindState)
+				{
+					FindState state = (FindState)obj;
+					ISQLCondition condition = createConditionFromFindState(state, retval, provider);
+					if (condition == null)
+					{
+						continue; //empty foundrecordreq
+					}
+					if (moreWhere == null)
+					{
+						moreWhere = new OrCondition();
+					}
+					moreWhere.addCondition(condition);
+				}
+			}
+
+			if (moreWhere != null)
+			{
+				if (reduce)
+				{
+					retval.addCondition(CONDITION_SEARCH, moreWhere);
+				}
+				else
+				{
+					retval.addConditionOr(CONDITION_SEARCH, moreWhere);
+				}
+			}
+		}
+
+		//make orderby
+		List<SortColumn> orderBy;
+		if (orderByFields == null)
+		{
+			orderBy = new ArrayList<SortColumn>();
+		}
+		else
+		{
+			orderBy = orderByFields;
+		}
+		if (orderBy.size() == 0)
+		{
+			for (int i = 0; i < pkColumns.size(); i++)
+			{
+				orderBy.add(new SortColumn(pkColumns.get(i)));
+			}
+		}
+
+		addSorts(application, retval, retval.getTable(), provider, table, orderBy, true);
+
+		if (removeUnusedJoins)
+		{
+			// remove unneeded joins, some may have been added because of a previous sort and are no longer needed.
+			retval.removeUnusedJoins(false);
+		}
+
+		//1 do not remove sort or groupby test, will cause invalid queries
+		//1 this one causes error and can not be fixed,
+		//1 if (joinswherepart.length() != 0 && !sortIsRelated && groupbyKeyword == STRING_EMPTY && table.getPrimaryKeyCount() == 1) 
+		//1 sql select distinct(s_contacts.contactsid) from s_contacts,s_companies where s_contacts.company_id = s_companies.company_id order by s_contacts.surname  ERROR:  For SELECT DISTINCT, ORDER BY expressions must appear in target list
+
+		if (retval.getJoins() != null && retval.getColumns().size() == 1 && isDistinctAllowed(retval.getColumns(), retval.getSorts()))//if joined pks comes back multiple times
+		{
+			retval.setDistinct(true);
+		}
+		else if (retval.getJoins() == null && retval.getColumns().size() == pkColumns.size())//plain pk select
+		{
+			retval.setPlainPKSelect(true);
+		}
+		return retval;
+	}
+
+	public static void addSorts(IServiceProvider app, QuerySelect sqlSelect, QueryTable selectTable, IGlobalValueEntry provider, Table table,
+		List<SortColumn> orderByFields, boolean includeRelated) throws RepositoryException
+	{
+		for (int i = 0; orderByFields != null && i < orderByFields.size(); i++)
+		{
+			SortColumn sc = orderByFields.get(i);
+			IColumn column = sc.getColumn(); // can be column or aggregate
+			if (column.getDataProviderType() == IColumnTypes.MEDIA && (column.getFlags() & (Column.IDENT_COLUMNS | Column.UUID_COLUMN)) == 0) continue;//skip cannot sort blob columns
+
+			Relation[] relations = sc.getRelations();
+			// compare on server objects, relation.foreignServerName may be different in case of duplicates
+			try
+			{
+				boolean doRelatedJoin = (includeRelated && relations != null);
+				if (doRelatedJoin)
+				{
+					for (Relation relation : relations)
+					{
+						if (relation.isMultiServer() && !relation.getForeignServer().getName().equals(table.getServerName()))
+						{
+							doRelatedJoin = false;
+							break;
+						}
+					}
+				}
+				if (doRelatedJoin)
+				// related sort, cannot join across multiple servers
+				{
+					QueryTable primaryQtable = selectTable;
+					QueryTable foreignQtable = null;
+					for (Relation relation : relations)
+					{
+						// join must be re-created as it is possible to have globals involved;
+						// first remove, then create it
+						QueryJoin join = (QueryJoin)sqlSelect.getJoin(primaryQtable, relation.getName());
+						if (join != null) sqlSelect.getJoins().remove(join);
+
+						if (join == null)
+						{
+							Table foreignTable = relation.getForeignTable();
+							foreignQtable = new QueryTable(foreignTable.getSQLName(), foreignTable.getCatalog(), foreignTable.getSchema());
+						}
+						else
+						{
+							foreignQtable = join.getForeignTable();
+						}
+
+						sqlSelect.addJoin(createJoin(app, relation, primaryQtable, foreignQtable, provider));
+						primaryQtable = foreignQtable;
+					}
+					IQuerySelectValue queryColumn;
+					if (column instanceof Column)
+					{
+						queryColumn = new QueryColumn(foreignQtable, ((Column)column).getID(), ((Column)column).getSQLName(), ((Column)column).getType(),
+							column.getLength());
+					}
+					else if (column instanceof AggregateVariable)
+					{
+						AggregateVariable aggregate = (AggregateVariable)column;
+						queryColumn = new QueryAggregate(aggregate.getType(), new QueryColumn(foreignQtable, -1, aggregate.getColumnNameToAggregate(),
+							aggregate.getDataProviderType(), aggregate.getLength()), aggregate.getName());
+
+						// there has to be a group-by clause for all selected fields
+						List<IQuerySelectValue> columns = sqlSelect.getColumns();
+						for (IQuerySelectValue selectVal : columns)
+						{
+							List<QueryColumn> groupBy = sqlSelect.getGroupBy();
+							if (selectVal instanceof QueryColumn && (groupBy == null || !groupBy.contains(selectVal)))
+							{
+								sqlSelect.addGroupBy((QueryColumn)selectVal);
+							}
+						}
+					}
+					else
+					{
+						Debug.log("Skipping sort on unexpected related column type " + column.getClass()); //$NON-NLS-1$
+						return;
+					}
+					sqlSelect.addSort(new QuerySort(queryColumn, sc.getSortOrder() == SortColumn.ASCENDING));
+				}
+				else
+				{
+					// make sure an invalid sort is not possible
+					if (column instanceof Column && column.getTable().getName().equals(table.getName()))
+					{
+						sqlSelect.addSort(new QuerySort(new QueryColumn(selectTable, ((Column)column).getID(), ((Column)column).getSQLName(),
+							((Column)column).getType(), column.getLength()), sc.getSortOrder() == SortColumn.ASCENDING));
+					}
+					else
+					{
+						Debug.log("Skipping sort on unrelated column " + column.getName() + '.' + column.getTable().getName() + " for table " + table.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+					}
+				}
+			}
+			catch (RemoteException e)
+			{
+				throw new RepositoryException(e);
+			}
+		}
+	}
+
+	/**
+	 * Join clause for this relation.
+	 */
+	public static QueryJoin createJoin(IServiceProvider app, Relation relation, QueryTable primaryTable, QueryTable foreignTable, IGlobalValueEntry provider)
+		throws RepositoryException
+	{
+		IDataProvider[] primary = relation.getPrimaryDataProviders(app.getFlattenedSolution());
+		Column[] foreign = relation.getForeignColumns();
+		int[] operators = relation.getOperators();
+
+		AndCondition joinCondition = new AndCondition();
+
+		for (int x = 0; x < primary.length; x++)
+		{
+			Column primaryColumn = null;
+
+			//check if stored script calc or table column
+			if (primary[x] instanceof ScriptCalculation)
+			{
+				ScriptCalculation sc = ((ScriptCalculation)primary[x]);
+				primaryColumn = sc.getTable().getColumn(sc.getName()); // null when not stored
+			}
+			else if (primary[x] instanceof Column)
+			{
+				primaryColumn = (Column)primary[x];
+			}
+
+			QueryColumn foreignColumn = new QueryColumn(foreignTable, foreign[x].getID(), foreign[x].getSQLName(), foreign[x].getType(), foreign[x].getLength());
+			Object value;
+			if (primaryColumn == null)
+			{
+				value = provider.getDataProviderValue(primary[x].getDataProviderID());
+				if (value == null)
+				{
+					value = ValueFactory.createNullValue(primary[x].getDataProviderType());
+				}
+				else
+				{
+					value = Column.getAsRightType(primary[x].getDataProviderType(), primary[x].getFlags(), value, Integer.MAX_VALUE, false);
+				}
+			}
+			else
+			// table type, can be stored calc
+			{
+				value = new QueryColumn(primaryTable, primaryColumn.getID(), primaryColumn.getSQLName(), primaryColumn.getType(), primaryColumn.getLength());
+			}
+
+			// all operators are swappable because only relation operators in RelationItem.RELATION_OPERATORS can be defined.
+			// NOTE: elements in joinCondition MUST be CompareConditions (expected in QueryGenerator and SQLGenerator.createConditionFromFindState)
+			joinCondition.addCondition(new CompareCondition(RelationItem.swapOperator(operators[x]), foreignColumn, value));
+		}
+		if (joinCondition.getConditions().size() == 0)
+		{
+			throw new RepositoryException("Missing join condition in relation " + relation.getName()); //$NON-NLS-1$
+		}
+		return new QueryJoin(relation.getName(), primaryTable, foreignTable, joinCondition, relation.getJoinType());
+	}
+
+
+	static SetCondition createSetConditionFromPKs(int operator, QueryColumn[] pkQuerycolumns, List<Column> pkColumns, IDataSet pks)
+	{
+		if (pkQuerycolumns.length != pkColumns.size())
+		{
+			throw new RuntimeException("Inconsistent pk list"); //$NON-NLS-1$
+		}
+		if (pkQuerycolumns.length != pks.getColumnCount())
+		{
+			throw new RuntimeException("Inconsistent pk values"); //$NON-NLS-1$
+		}
+
+		if (pks.getRowCount() == 0)
+		{
+			return null;
+		}
+
+		Object[][] pkValues = new Object[pks.getColumnCount()][];
+
+		for (int k = 0; k < pks.getColumnCount(); k++)
+		{
+			pkValues[k] = new Object[pks.getRowCount()];
+		}
+
+		for (int r = 0; r < pks.getRowCount(); r++)
+		{
+			Object[] row = pks.getRow(r);
+			for (int k = 0; k < row.length; k++)
+			{
+				Column c = pkColumns.get(k);
+				pkValues[k][r] = c.getAsRightType(row[k]);
+			}
+
+		}
+		return new SetCondition(operator, pkQuerycolumns, pkValues, (operator & ISQLCondition.OPERATOR_MASK) == ISQLCondition.EQUALS_OPERATOR);
+	}
+
+
+	/**
+	 * Distinct is allowed if order by clause is a subset of the selected columns.
+	 * 
+	 * @param sqlSelect
+	 * @return
+	 */
+	public static boolean isDistinctAllowed(List<IQuerySelectValue> columns, List<IQuerySort> orderByFields)
+	{
+		for (int i = 0; orderByFields != null && i < orderByFields.size(); i++)
+		{
+			IQuerySort sort = orderByFields.get(i);
+			if (!(sort instanceof QuerySort && columns.contains(((QuerySort)sort).getColumn())))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public static String getFindToolTip(IServiceProvider application)
+	{
+		List<Object[]> data = new ArrayList<Object[]>();
+		data.add(new Object[] { "c1||c2", application.getI18NMessage("servoy.client.findModeHelp.orGeneralCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
+		data.add(new Object[] { application.getI18NMessage("servoy.client.findModeHelp.formatDateCol1"), application.getI18NMessage("servoy.client.findModeHelp.formatDateCol2") }); //$NON-NLS-1$ //$NON-NLS-2$
+		data.add(new Object[] { "!c", application.getI18NMessage("servoy.client.findModeHelp.notGeneralCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
+		data.add(new Object[] { "#c", application.getI18NMessage("servoy.client.findModeHelp.modifiedCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
+		data.add(new Object[] { "^", application.getI18NMessage("servoy.client.findModeHelp.nullGeneralCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
+		data.add(new Object[] { "^=", application.getI18NMessage("servoy.client.findModeHelp.nullTextCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
+		data.add(new Object[] { "&lt;x", application.getI18NMessage("servoy.client.findModeHelp.ltGeneralCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
+		data.add(new Object[] { "&gt;x", application.getI18NMessage("servoy.client.findModeHelp.gtGeneralCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
+		data.add(new Object[] { "&lt;=x", application.getI18NMessage("servoy.client.findModeHelp.lteGeneralCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
+		data.add(new Object[] { "&gt;=x", application.getI18NMessage("servoy.client.findModeHelp.gteGeneralCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
+		data.add(new Object[] { "x...y", application.getI18NMessage("servoy.client.findModeHelp.betweenGeneralCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
+		data.add(new Object[] { "x", application.getI18NMessage("servoy.client.findModeHelp.equalsGeneralCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
+
+		data.add(new Object[] { "<b>" + application.getI18NMessage("servoy.client.findModeHelp.numberFields") + "</b>", "&nbsp;" }); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		data.add(new Object[] { "=x", application.getI18NMessage("servoy.client.findModeHelp.equalsNumberCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
+		data.add(new Object[] { "^=", application.getI18NMessage("servoy.client.findModeHelp.nullZeroCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
+
+		data.add(new Object[] { "<b>" + application.getI18NMessage("servoy.client.findModeHelp.dateFields") + "</b>", "&nbsp;" }); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		data.add(new Object[] { "#c", application.getI18NMessage("servoy.client.findModeHelp.equalsDateCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
+		data.add(new Object[] { "now", application.getI18NMessage("servoy.client.findModeHelp.nowDateCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
+		data.add(new Object[] { "//", application.getI18NMessage("servoy.client.findModeHelp.todayCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
+		data.add(new Object[] { "today", application.getI18NMessage("servoy.client.findModeHelp.todayCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
+
+		data.add(new Object[] { "<b>" + application.getI18NMessage("servoy.client.findModeHelp.textFieldsCol1") + "</b>", "&nbsp;" }); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		data.add(new Object[] { "#c", application.getI18NMessage("servoy.client.findModeHelp.caseInsensitiveCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
+		data.add(new Object[] { "= x", application.getI18NMessage("servoy.client.findModeHelp.equalsSpaceXCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
+		data.add(new Object[] { "^=", application.getI18NMessage("servoy.client.findModeHelp.nullTextCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
+		data.add(new Object[] { "%x%", application.getI18NMessage("servoy.client.findModeHelp.containsTextCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
+		data.add(new Object[] { "%x_y%", application.getI18NMessage("servoy.client.findModeHelp.containsXCharYCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
+		data.add(new Object[] { "\\%", application.getI18NMessage("servoy.client.findModeHelp.containsPercentCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
+		data.add(new Object[] { "\\_", application.getI18NMessage("servoy.client.findModeHelp.containsUnderscoreCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
+
+		BufferedDataSet set = new BufferedDataSet(
+			new String[] { application.getI18NMessage("servoy.client.findModeHelp.generalCol1"), application.getI18NMessage("servoy.client.findModeHelp.generalCol2") }, //$NON-NLS-1$ //$NON-NLS-2$
+			data);
+		JSDataSet ds = new JSDataSet(application, set);
+		return "<html><body>" + ds.js_getAsHTML(new Object[] { Boolean.FALSE, Boolean.TRUE, Boolean.TRUE, Boolean.TRUE, Boolean.TRUE }) + "</body></html>"; //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	private static final int NULLCHECK_NONE = 0;
+	private static final int NULLCHECK_NULL = 1;
+	private static final int NULLCHECK_NULL_EMPTY = 2;
+
+	private ISQLCondition createConditionFromFindState(FindState s, QuerySelect sqlSelect, IGlobalValueEntry provider) throws ApplicationException,
+		RepositoryException
+	{
+		ISQLCondition and = null;
+
+		List<RelatedFindState> relatedFindStates = s.createFindStateJoins(sqlSelect, Collections.<Relation> emptyList(), sqlSelect.getTable(), provider);
+		for (int i = 0; relatedFindStates != null && i < relatedFindStates.size(); i++)
+		{
+			RelatedFindState rfs = relatedFindStates.get(i);
+			FindState state = rfs.getFindState();
+			QueryTable columnTable = rfs.getPrimaryTable();
+
+			SQLSheet sheet = state.getParentFoundSet().getSQLSheet();
+			Table table = sheet.getTable();
+
+			Iterator<Map.Entry<String, Object>> it = state.getColumnData().entrySet().iterator();
+			while (it.hasNext())
+			{
+				Map.Entry<String, Object> elem = it.next();
+				String dataProviderID = elem.getKey();
+				Object raw = elem.getValue();
+				if (raw == null) continue;
+
+				IQuerySelectValue qCol = null;
+				IColumn c = table.getColumn(dataProviderID);
+				if (c != null)
+				{
+					// a column
+					qCol = new QueryColumn(columnTable, ((Column)c).getID(), ((Column)c).getSQLName(), ((Column)c).getDataProviderType(),
+						((Column)c).getLength());
+				}
+				else
+				{
+					// not a column, check for aggregates
+					Iterator<AggregateVariable> aggregateVariables = application.getFlattenedSolution().getAggregateVariables(sheet.getTable(), false);
+					while (c == null && aggregateVariables.hasNext())
+					{
+						AggregateVariable agg = aggregateVariables.next();
+						if (dataProviderID.equals(agg.getDataProviderID()))
+						{
+							// found aggregate
+							c = agg;
+						}
+					}
+
+					if (c != null)
+					{
+						Map<String, QuerySelect> aggregates = sheet.getAggregates();
+						if (aggregates != null)
+						{
+							QuerySelect aggregateSelect = aggregates.get(dataProviderID);
+							if (aggregateSelect != null)
+							{
+								qCol = ((List<IQuerySelectValue>)AbstractBaseQuery.relinkTable(aggregateSelect.getTable(), columnTable,
+									aggregateSelect.getColumnsClone())).get(0);
+							}
+						}
+					}
+				}
+
+				if (qCol == null)
+				{
+					// not a column and not an aggregate
+					continue;
+				}
+
+				//filter on the || (=or)
+				ISQLCondition or = null;
+				for (String element : raw.toString().split("\\|\\|")) //$NON-NLS-1$
+				{
+					String data = element.trim();
+					if (data.length() == 0) //filter out the zero length strings
+					{
+						continue;
+					}
+
+					try
+					{
+						String format = state.getFormat(dataProviderID);
+						if (Utils.stringIsEmpty(format))
+						{
+							format = TagResolver.getDefaultFormatForType(application.getSettings(), c.getDataProviderType());
+						}
+						// find the format (only applicable for date columns)
+						if (c.getDataProviderType() == IColumnTypes.DATETIME)
+						{
+							int pipe_index = data.indexOf('|');
+							if (pipe_index != -1)//the format is speced from within javascript '1-1-2003...30-1-2003|dd-MM-yyyy'
+							{
+								format = data.substring(pipe_index + 1);
+								data = data.substring(0, pipe_index);
+							}
+						}
+
+						// find the operators and the modifiers
+						boolean isNot = false;
+						boolean hash = false;
+						int nullCheck = NULLCHECK_NONE;
+						int operator = ISQLCondition.EQUALS_OPERATOR;
+						String data2 = null; // for between
+
+						boolean parsing = true;
+						while (parsing && data.length() > 0)
+						{
+							char first = data.charAt(0);
+							switch (first)
+							{
+								case '!' : // ! negation
+									if (data.startsWith("!!")) //$NON-NLS-1$ 
+									{
+										parsing = false;
+									}
+									else
+									{
+										isNot = true;
+									}
+									data = data.substring(1);
+
+									break;
+
+								case '#' : // # case insensitive (Text) or day search (Date)
+									if (data.startsWith("##")) //$NON-NLS-1$ 
+									{
+										parsing = false;
+									}
+									else
+									{
+										hash = true;
+									}
+									data = data.substring(1);
+									break;
+
+								case '^' : // ^ or ^= nullchecks
+									if (data.startsWith("^^")) //$NON-NLS-1$ 
+									{
+										data = data.substring(1);
+									}
+									else
+									{
+										if (data.startsWith("^=")) //$NON-NLS-1$
+										{
+											nullCheck = NULLCHECK_NULL_EMPTY;
+										}
+										else
+										{
+											nullCheck = NULLCHECK_NULL;
+										}
+									}
+									parsing = false;
+									break;
+
+								default :
+
+									// unary operators
+									if (data.startsWith("<=") || data.startsWith("=<")) //$NON-NLS-1$ //$NON-NLS-2$ 
+									{
+										operator = ISQLCondition.LTE_OPERATOR;
+										data = data.substring(2);
+									}
+									else if (data.startsWith(">=") || data.startsWith("=>")) //$NON-NLS-1$ //$NON-NLS-2$ 
+									{
+										operator = ISQLCondition.GTE_OPERATOR;
+										data = data.substring(2);
+									}
+									else if (data.startsWith("==")) //$NON-NLS-1$ 
+									{
+										operator = ISQLCondition.EQUALS_OPERATOR;
+										data = data.substring(2);
+									}
+									else if (data.startsWith("<")) //$NON-NLS-1$ 
+									{
+										operator = ISQLCondition.LT_OPERATOR;
+										data = data.substring(1);
+									}
+									else if (data.startsWith(">")) //$NON-NLS-1$ 
+									{
+										operator = ISQLCondition.GT_OPERATOR;
+										data = data.substring(1);
+									}
+									else if (data.startsWith("=")) //$NON-NLS-1$ 
+									{
+										operator = ISQLCondition.EQUALS_OPERATOR;
+										data = data.substring(1);
+									}
+									else
+									{
+										// between ?
+										int index = data.indexOf("..."); //$NON-NLS-1$
+										if (index != -1)
+										{
+											data2 = data.substring(index + 3);
+											data = data.substring(0, index);
+											operator = ISQLCondition.BETWEEN_OPERATOR;
+										}
+
+										// regular data
+										parsing = false;
+									}
+							}
+						}
+
+						ISQLCondition condition = null;
+
+						if (nullCheck != NULLCHECK_NONE)
+						{
+							// nullchecks
+							CompareCondition compareEmpty = null;
+							if (nullCheck == NULLCHECK_NULL_EMPTY)
+							{
+								switch (c.getDataProviderType())
+								{
+									case IColumnTypes.INTEGER :
+									case IColumnTypes.NUMBER :
+										compareEmpty = new CompareCondition(ISQLCondition.EQUALS_OPERATOR, qCol, new Integer(0));
+										break;
+
+									case IColumnTypes.TEXT :
+										compareEmpty = new CompareCondition(ISQLCondition.EQUALS_OPERATOR, qCol, ""); //$NON-NLS-1$
+										break;
+								}
+							}
+
+							CompareCondition compareNull = new CompareCondition(ISQLCondition.EQUALS_OPERATOR, qCol, null);
+							if (compareEmpty == null)
+							{
+								condition = compareNull;
+							}
+							else
+							{
+								OrCondition orCondition = new OrCondition();
+								orCondition.addCondition(compareNull);
+								orCondition.addCondition(compareEmpty);
+								condition = orCondition;
+							}
+						}
+
+						else if (data.length() > 0)
+						{
+							// get the operators
+							Object value = null;
+							Object value2 = null; // for between
+							int modifier = 0;
+
+							switch (c.getDataProviderType())
+							{
+								case IColumnTypes.INTEGER :
+								case IColumnTypes.NUMBER :
+									Object initialObj = raw instanceof String ? data : raw;
+									Object objRightType = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), initialObj, format, c.getLength(), null,
+										false);
+									// Now get asRightType with RAW and not with the string. 
+									// Because if it is already a Number then it shouldn't be converted to String and then back
+									if (initialObj != null && objRightType == null)
+									{
+										Debug.log("Cannot convert " + initialObj + " to a number/int."); //$NON-NLS-1$ //$NON-NLS-2$
+										value = null;
+									}
+									else
+									{
+										value = objRightType;
+									}
+
+									// parse data2 (between)
+									if (data2 != null)
+									{
+										value2 = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), data2, format, c.getLength(), null, false);
+										if (value2 == null)
+										{
+											Debug.log("Cannot convert " + data2 + " to a number/int."); //$NON-NLS-1$ //$NON-NLS-2$
+										}
+									}
+									break;
+
+								case IColumnTypes.DATETIME :
+									// special date parsing
+									boolean dateSearch = hash;
+									Date date;
+									Date tmp = null;
+									if (data.equalsIgnoreCase("now")) //$NON-NLS-1$ 
+									{
+										date = (Date)Column.getAsRightType(c.getDataProviderType(), c.getFlags(), tmp = new Date(), c.getLength(), false);
+									}
+									else if (data.startsWith("//") || data.equalsIgnoreCase("today")) //$NON-NLS-1$ //$NON-NLS-2$
+									{
+										date = (Date)Column.getAsRightType(c.getDataProviderType(), c.getFlags(), tmp = new Date(), c.getLength(), false);
+										dateSearch = true;
+									}
+									else
+									{
+										// Now get asRightType with RAW and not with the string. 
+										// Because if it is already a Date then it shouldn't be converted to String and then back
+										Object initialObj1 = ((raw instanceof String) ? data : raw);
+										Object tst = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), initialObj1, format, c.getLength(), null,
+											false);
+										if (tst == null && initialObj1 != null)
+										{
+											// Format failed.. Reporting that to the user
+											Debug.log("Cannot parse " + initialObj1 + " using format " + format + '.'); //$NON-NLS-1$ //$NON-NLS-2$
+											date = null;
+										}
+										else
+										{
+											date = (Date)tst;
+										}
+									}
+
+									if (dateSearch && date != null)
+									{
+										if (operator == ISQLCondition.EQUALS_OPERATOR)
+										{
+											value = getStartOfDay(date, c);
+											value2 = getEndOfDay(date, c);
+											operator = ISQLCondition.BETWEEN_OPERATOR;
+										}
+										else if (operator == ISQLCondition.BETWEEN_OPERATOR || operator == ISQLCondition.LT_OPERATOR ||
+											operator == ISQLCondition.GTE_OPERATOR)
+										{
+											value = getStartOfDay(date, c);
+										}
+										else
+										{
+											value = getEndOfDay(date, c);
+										}
+									}
+									else
+									{
+										value = date;
+									}
+
+									// parse data2 (between)
+									if (data2 != null)
+									{
+										dateSearch = hash;
+										if (data2.equalsIgnoreCase("now")) //$NON-NLS-1$ 
+										{
+											date = (Date)Column.getAsRightType(c.getDataProviderType(), c.getFlags(), (tmp != null ? tmp : new Date()),
+												c.getLength(), false);
+										}
+										else if (data2.startsWith("//") || data2.equalsIgnoreCase("today")) //$NON-NLS-1$ //$NON-NLS-2$
+										{
+											date = (Date)Column.getAsRightType(c.getDataProviderType(), c.getFlags(), (tmp != null ? tmp : new Date()),
+												c.getLength(), false);
+											dateSearch = true;
+										}
+										else
+										{
+											Object dt = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), data2, format, c.getLength(), null, false);
+											if (dt instanceof Date)
+											{
+												date = (Date)dt;
+											}
+											else
+											{
+												Debug.log("Cannot parse '" + data2 + "' using format " + format + '.'); //$NON-NLS-1$ //$NON-NLS-2$
+												date = null;
+											}
+										}
+
+										if (dateSearch && date != null)
+										{
+											value2 = getEndOfDay(date, c);
+										}
+										else
+										{
+											value2 = date;
+										}
+									}
+									break;
+
+
+								case IColumnTypes.TEXT :
+									if (hash)
+									{
+										modifier |= ISQLCondition.CASEINSENTITIVE_MODIFIER;
+									}
+
+									if (operator == ISQLCondition.EQUALS_OPERATOR)
+									{
+										//count the amount of percents based upon the amount we decide what to do
+										int percentCount = 0;
+										char[] chars = data.toCharArray();
+										StringBuffer dataBuf = new StringBuffer();
+										boolean escapeNext = false;
+										for (char d : chars)
+										{
+											if (!escapeNext && d == '\\')
+											{
+												escapeNext = true;
+											}
+											else
+											{
+												if (!escapeNext && d == '%') percentCount++;
+												dataBuf.append(d);
+												escapeNext = false;
+											}
+										}
+										data = dataBuf.toString();
+
+										if (percentCount > 0)
+										{
+											operator = ISQLCondition.LIKE_OPERATOR;
+										}
+									}
+									value = data;
+									value2 = data2;
+									break;
+
+								default :
+									operator = ISQLCondition.LIKE_OPERATOR;
+									value = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), data, format, c.getLength() + 2, null, false);//+2 for %...%
+							}
+
+							// create the condition
+							if (value != null)
+							{
+								if (operator == ISQLCondition.BETWEEN_OPERATOR)
+								{
+									if (value2 != null)
+									{
+										condition = new CompareCondition(operator | modifier, qCol, new Object[] { value, value2 });
+									}
+								}
+								else
+								{
+									condition = new CompareCondition(operator | modifier, qCol, value);
+								}
+							}
+						}
+
+						if (condition != null)
+						{
+							if (isNot)
+							{
+								condition = condition.negate();
+							}
+
+							if (or == null)
+							{
+								or = condition;
+							}
+							else if (or instanceof OrCondition)
+							{
+								((OrCondition)or).addCondition(condition);
+							}
+							else
+							{
+								OrCondition orCondition = new OrCondition();
+								orCondition.addCondition(or);
+								orCondition.addCondition(condition);
+								or = orCondition;
+							}
+						}
+					}
+					catch (Exception ex)
+					{
+						if (ex instanceof ApplicationException)
+						{
+							throw (ApplicationException)ex;
+						}
+						else
+						{
+							Debug.error(ex);
+						}
+					}
+				}
+
+				if (or != null)
+				{
+					ISQLCondition condition;
+					if (c instanceof AggregateVariable)
+					{
+						// search on aggregate, change to exists-condition:
+						// exists (select 1 from related1 join relatedn where related1.condition having aggregate(relatedn))
+						List<Relation> relations = rfs.getRelations();
+						if (relations.size() == 0)
+						{
+							// searching for aggregate in main table, does no make sense.. ignore in search
+							condition = null;
+						}
+						else
+						{
+							QuerySelect existsSelect = null;
+
+							QueryTable prevTable = sqlSelect.getTable();
+							for (int r = 0; r < relations.size(); r++)
+							{
+								Relation relation = relations.get(r);
+								Table foreignTable = relation.getForeignTable();
+								QueryTable foreignQtable = new QueryTable(foreignTable.getSQLName(), foreignTable.getCatalog(), foreignTable.getSchema());
+								QueryJoin join = createJoin(application, relation, prevTable, foreignQtable, provider);
+
+								if (r == 0)
+								{
+									// link to main select
+									existsSelect = new QuerySelect(foreignQtable);
+									AndCondition joinCondition = join.getCondition();
+									existsSelect.addCondition("AGGREGATE-SEARCH", joinCondition); //$NON-NLS-1$
+
+									// hsqldb wants a group-by, see HibernateTest.testHaving, group-by on FK of first relation table
+									for (ISQLCondition cond : joinCondition.getConditions())
+									{
+										if (cond instanceof CompareCondition)
+										{
+											IQuerySelectValue operand1 = ((CompareCondition)cond).getOperand1();
+											if (operand1 instanceof QueryColumn)
+											{
+												existsSelect.addGroupBy((QueryColumn)operand1);
+											}
+										}
+										else
+										{
+											// should never happen
+											Debug.error("Unexpected condition type in generated join condition " + cond.getClass()); //$NON-NLS-1$
+										}
+									}
+								}
+								else
+								{
+									existsSelect.addJoin(join);
+								}
+
+
+								prevTable = foreignQtable;
+							}
+							existsSelect.addColumn(new QueryColumnValue(new Integer(1), null));
+							existsSelect.addHaving("AGGREGATE-CONDITION", AbstractBaseQuery.relinkTable(columnTable, prevTable, or)); //$NON-NLS-1$
+
+							condition = new ExistsCondition(existsSelect, true);
+						}
+					}
+					else
+					{
+						condition = or;
+					}
+
+					if (condition != null)
+					{
+						if (and == null)
+						{
+							and = condition;
+						}
+						else if (and instanceof AndCondition)
+						{
+							((AndCondition)and).addCondition(condition);
+						}
+						else
+						{
+							AndCondition andCondition = new AndCondition();
+							andCondition.addCondition(and);
+							andCondition.addCondition(condition);
+							and = andCondition;
+						}
+					}
+				}
+			}
+		}
+
+		return and;
+	}
+
+	private Object getEndOfDay(Date date, IColumn c)
+	{
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		Utils.applyMaxTime(cal);
+		return Column.getAsRightType(c.getDataProviderType(), c.getFlags(), cal.getTime(), c.getLength(), false);
+	}
+
+	private Object getStartOfDay(Date date, IColumn c)
+	{
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		Utils.applyMinTime(cal);
+		return Column.getAsRightType(c.getDataProviderType(), c.getFlags(), cal.getTime(), c.getLength(), false);
+	}
+
+	ISQLCondition createPKConditionFromDataset(SQLSheet sheet, QueryTable queryTable, IDataSet pkSet)
+	{
+		Table table = sheet.getTable();
+
+		List<Column> pkcolumns = new ArrayList<Column>();
+		List<QueryColumn> pkQueryColumns = new ArrayList<QueryColumn>();
+		//getPrimaryKeys from table
+		Iterator<Column> pks = table.getRowIdentColumns().iterator();
+		while (pks.hasNext())
+		{
+			Column column = pks.next();
+			pkcolumns.add(column);
+			pkQueryColumns.add(new QueryColumn(queryTable, column.getID(), column.getSQLName(), column.getType(), column.getLength()));
+		}
+		return createSetConditionFromPKs(ISQLCondition.EQUALS_OPERATOR, pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), pkcolumns, pkSet);
+	}
+
+
+	private void createAggregates(SQLSheet sheet, QueryTable queryTable) throws RepositoryException
+	{
+		Table table = sheet.getTable();
+		Iterator<AggregateVariable> it = application.getFlattenedSolution().getAggregateVariables(table, false);
+		while (it.hasNext())
+		{
+			AggregateVariable aggregate = it.next();
+			QuerySelect sql = new QuerySelect(queryTable);
+			sql.addColumn(new QueryAggregate(aggregate.getType(), new QueryColumn(queryTable, -1, aggregate.getColumnNameToAggregate(),
+				aggregate.getDataProviderType(), aggregate.getLength()), aggregate.getName()));
+			sheet.addAggregate(aggregate.getDataProviderID(), aggregate.getDataProviderIDToAggregate(), sql);
+		}
+	}
+
+	//return all sql as sqlsheet with related sheets
+	public synchronized SQLSheet getCachedTableSQLSheet(String dataSource) throws ServoyException
+	{
+		SQLSheet sheet = cachedDataSourceSQLSheets.get(dataSource);
+		if (sheet == null)
+		{
+			long t1 = System.currentTimeMillis();
+			sheet = createTableSQL(dataSource, true);
+			if (Debug.tracing())
+			{
+				long t2 = System.currentTimeMillis();
+				Debug.trace("Creating the sql sheet took ms: " + (t2 - t1) + " for table: " + dataSource); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+		}
+		return sheet;
+	}
+
+	//explicitly ask for new, any related is still be a cached one!! (only used by subsumaryFS)
+	public synchronized SQLSheet getNewTableSQLSheet(String dataSource) throws ServoyException
+	{
+		return createTableSQL(dataSource, false);
+	}
+
+	private SQLSheet createNoTableSQL(boolean cache)
+	{
+		SQLSheet sheet = new SQLSheet(application, null, null);
+		if (cache) cachedDataSourceSQLSheets.put(null, sheet);//never remove this line, due to recursive behaviour, register a state when immediately!
+		return sheet;
+	}
+
+	private SQLSheet createTableSQL(String dataSource, boolean cache) throws ServoyException
+	{
+		if (dataSource == null)
+		{
+			return createNoTableSQL(cache);
+		}
+		Table table = (Table)application.getFoundSetManager().getTable(dataSource);
+		if (table == null)
+		{
+			throw new RepositoryException("Cannot create sql: table not found for data source '" + dataSource + '\''); //$NON-NLS-1$ 
+		}
+		SQLSheet retval = new SQLSheet(application, table.getServerName(), table);
+
+		if (cache) cachedDataSourceSQLSheets.put(dataSource, retval);//never remove this line, due to recursive behaviour, register a state when immediately!
+
+		QueryTable queryTable = new QueryTable(table.getSQLName(), table.getCatalog(), table.getSchema());
+
+		QuerySelect select = new QuerySelect(queryTable);
+		QueryDelete delete = new QueryDelete(queryTable);
+		QueryInsert insert = new QueryInsert(queryTable);
+		QueryUpdate update = new QueryUpdate(queryTable);
+
+		List<Column> columns = new ArrayList<Column>();
+		Iterator<Column> it1 = table.getColumns().iterator();
+		while (it1.hasNext())
+		{
+			Column c = it1.next();
+			ColumnInfo ci = c.getColumnInfo();
+			if (ci != null && ci.isExcluded())
+			{
+				continue;
+			}
+			columns.add(c);
+		}
+
+		List<String> requiredDataProviderIDs = new ArrayList<String>();
+		Iterator<Column> pks = table.getRowIdentColumns().iterator();
+		if (!pks.hasNext())
+		{
+			throw new RepositoryException(ServoyException.InternalCodes.PRIMARY_KEY_NOT_FOUND, new Object[] { table.getName() });
+		}
+		List<QueryColumn> pkQueryColumns = new ArrayList<QueryColumn>();
+		while (pks.hasNext())
+		{
+			Column column = pks.next();
+			if (!columns.contains(column)) columns.add(column);
+			requiredDataProviderIDs.add(column.getDataProviderID());
+			pkQueryColumns.add(new QueryColumn(queryTable, column.getID(), column.getSQLName(), column.getType(), column.getLength()));
+		}
+
+		Iterator<Column> it2 = columns.iterator();
+		select.setColumns(makeQueryColumns(it2, queryTable, insert));
+		SetCondition pkSelect = new SetCondition(ISQLCondition.EQUALS_OPERATOR, pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]),
+			new Placeholder(new PlaceholderKey(queryTable, PLACEHOLDER_PRIMARY_KEY)), true);
+
+		select.setCondition(CONDITION_SEARCH, pkSelect);
+		delete.setCondition(AbstractBaseQuery.deepClone(pkSelect));
+		update.setCondition(AbstractBaseQuery.deepClone(pkSelect));
+
+		//fill dataprovider map
+		List<String> dataProviderIDsDilivery = new ArrayList<String>();
+		for (int c = 0; c < columns.size(); c++)
+		{
+			Column col = columns.get(c);
+			dataProviderIDsDilivery.add(col.getDataProviderID());
+		}
+
+		retval.addSelect(select, dataProviderIDsDilivery, requiredDataProviderIDs, null);
+		retval.addDelete(delete, requiredDataProviderIDs);
+		retval.addInsert(insert, dataProviderIDsDilivery);
+		retval.addUpdate(update, dataProviderIDsDilivery, requiredDataProviderIDs);
+
+		//related stuff
+		//makeRelatedSQL(retval, relProvider.getRelations(table, true, false));
+		createAggregates(retval, queryTable);
+
+		return retval;
+	}
+
+
+	/**
+	 * Create place holder name for PR (Relation Key)
+	 */
+	public static PlaceholderKey createRelationKeyPlaceholderKey(QueryTable foreignTable, String relationName)
+	{
+		return new PlaceholderKey(foreignTable, PLACEHOLDER_RELATION_KEY + ':' + relationName);
+	}
+
+//	/*
+//	 * only used in developer to regenerate the relations.
+//	 */
+//	void makeRelatedSQL(SQLSheet retval) throws ServoyException
+//	{
+//		makeRelatedSQL(retval, relProvider.getRelations(retval.getTable(), true, false));
+//	}
+//
+//	private void makeRelatedSQL(SQLSheet retval, Iterator<Relation> relations) throws ServoyException
+//	{
+//		//make related selects
+//		//relatedselect (=data for portal and related fields)
+//		//3)select relatedfield1,relatedfield2 from relatedtablename1 where relationfield1 = relationfield1data  (sub statement, assign in repository to Portal,Tabs)
+//		while (relations.hasNext())
+//		{
+//			//skip on errors or invalid data otherwise all sql generation fails
+//			Relation r = relations.next();
+//			Table ft = r.getForeignTable();
+//			if (ft == null)
+//			{
+//				continue;
+//			}
+//
+//			SQLSheet relatedSheet = null;
+//			if (r.isGlobal()) //no need to have global relations in each sheet
+//			{
+//				relatedSheet = getCachedTableSQLSheet(ft);
+//			}
+//			else
+//			{
+//				relatedSheet = retval.getRelatedSQLSheet(r, this);
+//			}
+//			makeRelatedSQL(retval, r);
+//		}
+//	}
+
+	synchronized void makeRelatedSQL(SQLSheet relatedSheet, Relation r)
+	{
+		if (relatedSheet.getRelatedSQLDescription(r.getName()) != null) return;
+
+		try
+		{
+			if (!r.isValid() || r.isParentRef())
+			{
+				return;
+			}
+			Table ft = r.getForeignTable();
+			if (ft == null)
+			{
+				return;
+			}
+
+			//add primary keys if missing			
+			QueryTable foreignQTable = new QueryTable(ft.getSQLName(), ft.getCatalog(), ft.getSchema());
+			QuerySelect relatedSelect = new QuerySelect(foreignQTable);
+
+			List<String> parentRequiredDataProviderIDs = new ArrayList<String>();
+			Column[] relcols = r.getForeignColumns();
+			for (Column column : relcols)
+			{
+				parentRequiredDataProviderIDs.add(column.getDataProviderID());
+			}
+
+			relatedSelect.setCondition(CONDITION_RELATION, createRelatedCondition(application, r, foreignQTable));
+
+			Collection<Column> rcolumns = ft.getColumns();
+			relatedSelect.setColumns(makeQueryColumns(rcolumns.iterator(), foreignQTable, null));
+
+			//fill dataprovider map
+			List<String> dataProviderIDsDilivery = new ArrayList<String>();
+			Iterator<Column> it = rcolumns.iterator();
+			while (it.hasNext())
+			{
+				Column col = it.next();
+				dataProviderIDsDilivery.add(col.getDataProviderID());
+			}
+
+			relatedSheet.addRelatedSelect(r.getName(), relatedSelect, dataProviderIDsDilivery, parentRequiredDataProviderIDs, null);
+
+			createAggregates(relatedSheet, foreignQTable);
+		}
+		catch (RepositoryException e)
+		{
+			Debug.error(e);
+		}
+	}
+
+
+	public static ISQLCondition createRelatedCondition(IServiceProvider app, Relation relation, QueryTable foreignTable) throws RepositoryException
+	{
+		IDataProvider[] primary = relation.getPrimaryDataProviders(app.getFlattenedSolution());
+		Column[] foreign = relation.getForeignColumns();
+		int[] operators = relation.getOperators();
+
+		QueryColumn[] keys = new QueryColumn[primary.length];
+		int swapped[] = new int[primary.length];
+
+		for (int x = 0; x < primary.length; x++)
+		{
+			// need all keys as columns on the left side......
+			swapped[x] = RelationItem.swapOperator(operators[x]);
+			if (swapped[x] == -1)
+			{
+				throw new RepositoryException("Cannot swap relation operator for relation " + relation.getName()); //$NON-NLS-1$ 
+			}
+			//column = ? construct
+			keys[x] = new QueryColumn(foreignTable, foreign[x].getID(), foreign[x].getSQLName(), foreign[x].getType(), foreign[x].getLength());
+		}
+		return new SetCondition(swapped, keys, new Placeholder(createRelationKeyPlaceholderKey(foreignTable, relation.getName())), true);
+	}
+
+	/**
+	 * Create a condition if the filter is applicable to the table.
+	 * 
+	 * @param qTable
+	 * @param table
+	 * @param filter
+	 * @return
+	 */
+	public static ISQLCondition createTableFilterCondition(QueryTable qTable, Table table, TableFilter filter)
+	{
+
+		if (!table.getSQLName().equals(qTable.getName()))
+		{
+			// not for this table
+			return null;
+		}
+
+		Column c = table.getColumn(filter.getDataprovider());
+		if (c == null)
+		{
+			Debug.error("Could not apply filter " + filter + " on table " + table + " : column not found:" + filter.getDataprovider()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			return null;
+		}
+		int op = filter.getOperator();
+		int maskedOp = op & ISQLCondition.OPERATOR_MASK;
+		Object value = filter.getValue();
+
+		QueryColumn qColumn = new QueryColumn(qTable, c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale());
+		ISQLCondition filterWhere;
+		if (maskedOp == ISQLCondition.IN_OPERATOR || maskedOp == ISQLCondition.NOT_IN_OPERATOR)
+		{
+			Object inValues;
+			if (value instanceof List< ? >)
+			{
+				inValues = new Object[][] { ((List< ? >)value).toArray() };
+			}
+			else if (value != null && value.getClass().isArray())
+			{
+				inValues = new Object[][] { (Object[])value };
+			}
+			else
+			{
+				if (value != null && value.toString().trim().toLowerCase().startsWith(STRING_SELECT))
+				{
+					// add as subquery
+					inValues = new QueryCustomSelect(value.toString(), null);
+				}
+				else
+				{
+					inValues = new Object[][] { new Object[] { value } };
+				}
+			}
+			// replace values with column type value
+			if (inValues instanceof Object[][])
+			{
+				Object[][] array = (Object[][])inValues;
+				for (int i = 0; i < array.length; i++)
+				{
+					for (int j = 0; array[i] != null && j < array[i].length; j++)
+					{
+						Object v = c.getAsRightType(array[i][j]);
+						if (v == null) v = ValueFactory.createNullValue(c.getType());
+						array[i][j] = v;
+					}
+				}
+			}
+			int setOperator = maskedOp == ISQLCondition.IN_OPERATOR ? ISQLCondition.EQUALS_OPERATOR : ISQLCondition.NOT_OPERATOR;
+			filterWhere = new SetCondition(setOperator | (op & ~ISQLCondition.OPERATOR_MASK), new IQuerySelectValue[] { qColumn }, inValues, true);
+		}
+		else if (maskedOp == ISQLCondition.BETWEEN_OPERATOR || maskedOp == ISQLCondition.NOT_BETWEEN_OPERATOR)
+		{
+			Object op1 = null;
+			Object op2 = null;
+			if (value instanceof List< ? > && ((List< ? >)value).size() > 1)
+			{
+				op1 = ((List< ? >)value).get(0);
+				op2 = ((List< ? >)value).get(1);
+			}
+			else if (value != null && value.getClass().isArray() && ((Object[])value).length > 1)
+			{
+				op1 = ((Object[])value)[0];
+				op2 = ((Object[])value)[1];
+			}
+
+			op1 = c.getAsRightType(op1);
+			if (op1 == null) op1 = ValueFactory.createNullValue(c.getType());
+			op2 = c.getAsRightType(op2);
+			if (op2 == null) op2 = ValueFactory.createNullValue(c.getType());
+			filterWhere = new CompareCondition(op, qColumn, new Object[] { op1, op2 });
+		}
+		else
+		{
+			Object operand;
+			if (maskedOp == ISQLCondition.LIKE_OPERATOR || maskedOp == ISQLCondition.NOT_LIKE_OPERATOR)
+			{
+				operand = value;
+			}
+			else
+			{
+				operand = c.getAsRightType(value);
+				if (operand == null) operand = ValueFactory.createNullValue(c.getType());
+			}
+			filterWhere = new CompareCondition(op, qColumn, operand);
+		}
+
+		return filterWhere;
+	}
+
+	public static QuerySelect createUpdateLockSelect(Table table, Object[][] pkValues, boolean lockInDb)
+	{
+		QuerySelect lockSelect = new QuerySelect(new QueryTable(table.getSQLName(), table.getCatalog(), table.getSchema()));
+		if (lockInDb) lockSelect.setLockMode(ISQLSelect.LOCK_MODE_UPDATE);
+
+		Iterator<Column> columns = table.getColumns().iterator();
+		ArrayList<QueryColumn> pkQueryColumns = new ArrayList<QueryColumn>();
+		ArrayList<IQuerySelectValue> allQueryColumns = new ArrayList<IQuerySelectValue>();
+		while (columns.hasNext())
+		{
+			Column column = columns.next();
+			QueryColumn queryColumn = new QueryColumn(lockSelect.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength());
+			if (table.getRowIdentColumns().contains(column)) pkQueryColumns.add(queryColumn);
+			allQueryColumns.add(queryColumn);
+		}
+
+		lockSelect.setColumns(allQueryColumns);
+
+		// values is an array as wide as the columns, each element consists of the values for that column
+		Object[][] values = new Object[pkQueryColumns.size()][];
+		for (int k = 0; k < pkQueryColumns.size(); k++)
+		{
+			values[k] = new Object[pkValues.length];
+			for (int r = 0; r < pkValues.length; r++)
+			{
+				values[k][r] = pkValues[r][k];
+			}
+		}
+		lockSelect.setCondition(CONDITION_LOCK, new SetCondition(ISQLCondition.EQUALS_OPERATOR, pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]),
+			values, true));
+
+		return lockSelect;
+	}
+
+	private static ArrayList<IQuerySelectValue> makeQueryColumns(Iterator<Column> it, QueryTable queryTable, QueryInsert insert)
+	{
+		ArrayList<IQuerySelectValue> queryColumns = new ArrayList<IQuerySelectValue>();
+		List<QueryColumn> insertColumns = new ArrayList<QueryColumn>();
+		while (it.hasNext())
+		{
+			Column column = it.next();
+			ColumnInfo ci = column.getColumnInfo();
+			if (ci != null && ci.isExcluded())
+			{
+				continue;
+			}
+			QueryColumn queryColumn = new QueryColumn(queryTable, column.getID(), column.getSQLName(), column.getType(), column.getLength(), column.getScale(),
+				ci != null && ci.isDBIdentity());
+
+			if (Column.mapToDefaultType(column.getType()) == IColumnTypes.MEDIA && !column.hasFlag(Column.UUID_COLUMN | Column.IDENT_COLUMNS))
+			{
+				String alias = column.getDataProviderID().substring(0,
+					Math.min(Column.MAX_SQL_OBJECT_NAME_LENGTH - (IDataServer.BLOB_MARKER_COLUMN_ALIAS.length() + 1), column.getDataProviderID().length())) +
+					'_' + IDataServer.BLOB_MARKER_COLUMN_ALIAS;
+				// make sure the alias is unique (2 media columns starting with the same name may clash here)
+				char c = 'a';
+				for (int i = 0; i < queryColumns.size(); i++)
+				{
+					IQuerySelectValue sv = queryColumns.get(i);
+					if (alias.equals(sv.getAlias()))
+					{
+						// alias not unique, replace first char to make it unique
+						alias = (c++) + alias.substring(1);
+						// search again
+						i = 0;
+					}
+				}
+				queryColumns.add(new QueryColumnValue(new Integer(1), alias));
+			}
+			else
+			{
+				queryColumns.add(queryColumn);
+			}
+
+			if (insert != null && (ci == null || !ci.isDBManaged()))
+			{
+				insertColumns.add(queryColumn);
+			}
+		}
+
+		if (insert != null)
+		{
+			insert.setColumnValues(insertColumns.toArray(new QueryColumn[insertColumns.size()]), new Placeholder(new PlaceholderKey(queryTable,
+				PLACEHOLDER_INSERT_KEY)));
+		}
+		return queryColumns;
+	}
+
+	/**
+	 * Returns the relProvider.
+	 * 
+	 * @return IRelationProvider
+	 */
+	public IRelationProvider getRelationProvider()
+	{
+		return relProvider;
+	}
+
+	/**
+	 * Create the sql for a single aggregate on a column.
+	 * 
+	 * @param aggregee
+	 * @return
+	 */
+
+	public static QuerySelect createAggregateSelect(int aggregateType, Table table, Object aggregee)
+	{
+		Column column = null;
+		if (aggregee instanceof Column)
+		{
+			column = (Column)aggregee;
+		}
+
+		QuerySelect select = new QuerySelect(new QueryTable(table.getSQLName(), table.getCatalog(), table.getSchema()));
+		select.addColumn(new QueryAggregate(aggregateType, (column == null) ? (IQuerySelectValue)new QueryColumnValue(aggregee, "n") //$NON-NLS-1$
+			: new QueryColumn(select.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength()), "maxval")); //$NON-NLS-1$ 
+		return select;
+
+	}
+
+	public static QuerySelect createAggregateSelect(QuerySelect sqlSelect, Collection<QuerySelect> aggregates, List<Column> pkColumns)
+	{
+		QuerySelect selectClone = AbstractBaseQuery.deepClone(sqlSelect);
+		selectClone.clearSorts();
+		selectClone.setDistinct(false);
+		selectClone.setColumns(null);
+		selectClone.removeUnusedJoins(true);
+
+		QuerySelect aggregateSqlSelect;
+
+		if (selectClone.getJoins() == null)
+		{
+			// simple case, no joins
+			// Select count(pk) from main where <condition>
+			aggregateSqlSelect = selectClone;
+		}
+		else
+		{
+			// we have joins, change to an exists-query to make the aggregates correct, otherwise duplicate records
+			// in the main table cause incorrect aggregate values
+			// Select count(pk) from main main1 where exists (select 1 from main main2 join detail on detail.FK = main2.FK where main1.PK = main2.PK and <condition>)
+
+			QuerySelect innerSelect = selectClone;
+
+			ArrayList<IQuerySelectValue> innerColumns = new ArrayList<IQuerySelectValue>();
+			innerColumns.add(new QueryColumnValue(new Integer(1), null));
+			innerSelect.setColumns(innerColumns);
+
+			QueryTable innerTable = innerSelect.getTable();
+			QueryTable outerTable = new QueryTable(innerTable.getName(), innerTable.getCatalogName(), innerTable.getSchemaName());
+
+			aggregateSqlSelect = new QuerySelect(outerTable);
+			for (Column column : pkColumns)
+			{
+				QueryColumn innerColumn = new QueryColumn(innerTable, column.getID(), column.getSQLName(), column.getType(), column.getLength(),
+					column.getScale(), false);
+				QueryColumn outerColumn = new QueryColumn(outerTable, column.getID(), column.getSQLName(), column.getType(), column.getLength(),
+					column.getScale(), false);
+				innerSelect.addCondition("EXISTS", new CompareCondition(ISQLCondition.EQUALS_OPERATOR, innerColumn, outerColumn)); //$NON-NLS-1$ 
+			}
+			aggregateSqlSelect.addCondition("EXISTS", new ExistsCondition(innerSelect, true)); //$NON-NLS-1$ 
+		}
+
+		ArrayList<IQuerySelectValue> columns = new ArrayList<IQuerySelectValue>();
+		for (QuerySelect aggregate : aggregates)
+		{
+			columns.addAll(AbstractBaseQuery.relinkTable(aggregate.getTable(), aggregateSqlSelect.getTable(), aggregate.getColumnsClone()));
+		}
+		aggregateSqlSelect.setColumns(columns);
+
+		return aggregateSqlSelect;
+	}
+
+
+}

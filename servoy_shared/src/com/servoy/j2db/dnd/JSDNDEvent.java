@@ -1,0 +1,129 @@
+/*
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+
+ This program is free software; you can redistribute it and/or modify it under
+ the terms of the GNU Affero General Public License as published by the Free
+ Software Foundation; either version 3 of the License, or (at your option) any
+ later version.
+
+ This program is distributed in the hope that it will be useful, but WITHOUT
+ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+ You should have received a copy of the GNU Affero General Public License along
+ with this program; if not, see http://www.gnu.org/licenses or write to the Free
+ Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
+*/
+package com.servoy.j2db.dnd;
+
+import java.util.Arrays;
+
+import org.mozilla.javascript.Function;
+
+import com.servoy.j2db.dataprocessing.Record;
+import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.scripting.JSEvent;
+
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
+public class JSDNDEvent extends JSEvent
+{
+	private Function onDragEndCallback;
+	private int dragResult;
+	private Record record;
+
+	/**
+	 * Set call back method for drag end event.
+	 * This can be set on the even object that comes on drag start.
+	 *
+	 * @sample 
+	 * function onDragStart(event)
+	 * {
+	 * 		event.onDragEndCallback(onDragEnd);
+	 * }
+	 * 
+	 */
+	public void js_onDragEndCallback(Function f)
+	{
+		this.onDragEndCallback = f;
+	}
+
+	public Function getOnDragEndCallaback()
+	{
+		return onDragEndCallback;
+	}
+
+	public void setDragResult(int dragResult)
+	{
+		this.dragResult = dragResult;
+	}
+
+	/**
+	 * Returns the result of the drag action. 
+	 *
+	 * @sample
+	 * function onDragEnd(event)
+	 * {
+	 * 		var dragResult = event.getDragResult();
+	 * 		if(dragResult == DRAGNDROP.NONE)
+	 * 		{
+	 * 			// the drag was canceled
+	 * 		}
+	 * 		else if(dragResult == DRAGNDROP.COPY)
+	 * 		{
+	 * 			// the drag ended with a copy action
+	 * 		}
+	 * 		else if(dragResult == DRAGNDROP.MOVE)
+	 * 		{
+	 * 			// the drag ended with a move action
+	 * 		}
+	 * @return a DRAGNDROP constant, representing the result of the drag action
+	 */
+	public int js_getDragResult()
+	{
+		return this.dragResult;
+	}
+
+	public void setRecord(Record record)
+	{
+		this.record = record;
+	}
+
+	/**
+	 * Returns the record of the event.
+	 *
+	 * @sample event.Record();
+	 * 
+	 * @return Record of the event 
+	 */
+	public Record js_getRecord()
+	{
+		return this.record;
+	}
+
+	@Override
+	public String toString()
+	{
+		Object dataToString = data;
+		if (dataToString == this) dataToString = "this"; //$NON-NLS-1$
+		if (data != null && data.getClass().isArray() && !data.getClass().getComponentType().isPrimitive())
+		{
+			dataToString = Arrays.toString((Object[])data);
+		}
+		String eName = elementName;
+		if (eName == null && source != null)
+		{
+			eName = "<no name>"; //$NON-NLS-1$
+		}
+		return "JSDNDEvent(type = " + type + ", source = " + source + ", formName = " + formName + ", elementName = " + eName + ", timestamp = " + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+			timestamp + ",modifiers = " + modifiers + ",x =" + x + ",y = " + y + ",data = " + dataToString + ",dragResult = " + dragResult + ')'; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+	}
+
+	/**
+	 * @see com.servoy.j2db.scripting.IPrefixedConstantsObject#getPrefix()
+	 */
+	@Override
+	public String getPrefix()
+	{
+		return "JSDNDEvent"; //$NON-NLS-1$
+	}
+}
