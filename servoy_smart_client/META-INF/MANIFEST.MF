@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Servoy Smart Client Plug-in
+Bundle-SymbolicName: servoy_smart_client
+Bundle-Version: 6.0.0.1200
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-Vendor: Servoy
+Require-Bundle: servoy_shared,org.eclipse.dltk.javascript.rhino
+Export-Package: com.servoy.j2db.gui,
+ com.servoy.j2db.plugins,
+ com.servoy.j2db.printing,
+ com.servoy.j2db.property,
+ com.servoy.j2db.smart,
+ com.servoy.j2db.smart.cmd,
+ com.servoy.j2db.smart.dataui,
+ com.servoy.j2db.smart.preference,
+ com.servoy.j2db.smart.scripting,
+ com.servoy.j2db.util.wizard

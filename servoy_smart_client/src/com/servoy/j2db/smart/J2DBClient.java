@@ -1,0 +1,4091 @@
+/*
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+
+ This program is free software; you can redistribute it and/or modify it under
+ the terms of the GNU Affero General Public License as published by the Free
+ Software Foundation; either version 3 of the License, or (at your option) any
+ later version.
+
+ This program is distributed in the hope that it will be useful, but WITHOUT
+ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+ You should have received a copy of the GNU Affero General Public License along
+ with this program; if not, see http://www.gnu.org/licenses or write to the Free
+ Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
+ */
+package com.servoy.j2db.smart;
+
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.KeyboardFocusManager;
+import java.awt.Toolkit;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseMotionAdapter;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.awt.print.PageFormat;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLStreamHandler;
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
+import java.security.PrivilegedExceptionAction;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.ResourceBundle;
+import java.util.Stack;
+import java.util.TimeZone;
+import java.util.concurrent.ScheduledExecutorService;
+
+import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.TextOutputCallback;
+import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.ActionMap;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.InputMap;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFormattedTextField.AbstractFormatter;
+import javax.swing.JFormattedTextField.AbstractFormatterFactory;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JRootPane;
+import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
+import javax.swing.LookAndFeel;
+import javax.swing.RepaintManager;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
+import javax.swing.UIDefaults;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.WindowConstants;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
+import javax.swing.plaf.FontUIResource;
+import javax.swing.plaf.metal.MetalLookAndFeel;
+import javax.swing.plaf.metal.MetalTheme;
+import javax.swing.text.DefaultFormatter;
+import javax.swing.text.DefaultFormatterFactory;
+import javax.swing.text.MaskFormatter;
+
+import com.servoy.j2db.AboutDialog;
+import com.servoy.j2db.ApplicationException;
+import com.servoy.j2db.BeanManager;
+import com.servoy.j2db.ClientRepository;
+import com.servoy.j2db.ClientState;
+import com.servoy.j2db.Credentials;
+import com.servoy.j2db.FormController;
+import com.servoy.j2db.FormManager;
+import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IBeanManager;
+import com.servoy.j2db.IDataRendererFactory;
+import com.servoy.j2db.IFormManager;
+import com.servoy.j2db.IFormManagerInternal;
+import com.servoy.j2db.ILAFManager;
+import com.servoy.j2db.IMessagesCallback;
+import com.servoy.j2db.IModeManager;
+import com.servoy.j2db.ISmartClientApplication;
+import com.servoy.j2db.J2DBGlobals;
+import com.servoy.j2db.JSWindowManager;
+import com.servoy.j2db.LAFManager;
+import com.servoy.j2db.MediaURLStreamHandler;
+import com.servoy.j2db.Messages;
+import com.servoy.j2db.MessagesResourceBundle;
+import com.servoy.j2db.ModeManager;
+import com.servoy.j2db.cmd.ICmdManager;
+import com.servoy.j2db.component.ComponentFactory;
+import com.servoy.j2db.dataprocessing.FoundSetManager;
+import com.servoy.j2db.dataprocessing.GlobalEditEvent;
+import com.servoy.j2db.dataprocessing.IDisplay;
+import com.servoy.j2db.dataprocessing.IGlobalEditListener;
+import com.servoy.j2db.dataprocessing.IInfoListener;
+import com.servoy.j2db.dataprocessing.IUserClient;
+import com.servoy.j2db.dataprocessing.PrototypeState;
+import com.servoy.j2db.dataprocessing.SwingFoundSetFactory;
+import com.servoy.j2db.dataprocessing.TagResolver;
+import com.servoy.j2db.gui.CustomColorChooserDialog;
+import com.servoy.j2db.gui.GlobalAutoScrollerFocusListener;
+import com.servoy.j2db.gui.JDateChooser;
+import com.servoy.j2db.gui.JFontChooser;
+import com.servoy.j2db.gui.LoginDialog;
+import com.servoy.j2db.persistence.IActiveSolutionHandler;
+import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.Media;
+import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.persistence.SolutionMetaData;
+import com.servoy.j2db.persistence.Style;
+import com.servoy.j2db.plugins.ClientPluginAccessProvider;
+import com.servoy.j2db.plugins.ClientPluginManager;
+import com.servoy.j2db.plugins.IClientPluginAccess;
+import com.servoy.j2db.plugins.PluginManager;
+import com.servoy.j2db.preference.PreferencePanel;
+import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.scripting.ScriptEngine;
+import com.servoy.j2db.scripting.StartupArgumentsScope;
+import com.servoy.j2db.server.IApplicationServer;
+import com.servoy.j2db.server.IApplicationServerAccess;
+import com.servoy.j2db.server.shared.RemoteActiveSolutionHandler;
+import com.servoy.j2db.smart.cmd.CmdAbout;
+import com.servoy.j2db.smart.cmd.CmdBrowseMode;
+import com.servoy.j2db.smart.cmd.CmdClose;
+import com.servoy.j2db.smart.cmd.CmdCopy;
+import com.servoy.j2db.smart.cmd.CmdCut;
+import com.servoy.j2db.smart.cmd.CmdDeleteAllRecord;
+import com.servoy.j2db.smart.cmd.CmdDeleteRecord;
+import com.servoy.j2db.smart.cmd.CmdDuplicateRecord;
+import com.servoy.j2db.smart.cmd.CmdExit;
+import com.servoy.j2db.smart.cmd.CmdExtendFind;
+import com.servoy.j2db.smart.cmd.CmdFindAll;
+import com.servoy.j2db.smart.cmd.CmdFindMode;
+import com.servoy.j2db.smart.cmd.CmdHelp;
+import com.servoy.j2db.smart.cmd.CmdHistoryBack;
+import com.servoy.j2db.smart.cmd.CmdHistoryForward;
+import com.servoy.j2db.smart.cmd.CmdInvertRecords;
+import com.servoy.j2db.smart.cmd.CmdLogout;
+import com.servoy.j2db.smart.cmd.CmdManager;
+import com.servoy.j2db.smart.cmd.CmdNewRecord;
+import com.servoy.j2db.smart.cmd.CmdNextRecord;
+import com.servoy.j2db.smart.cmd.CmdOmitRecord;
+import com.servoy.j2db.smart.cmd.CmdOpenSolution;
+import com.servoy.j2db.smart.cmd.CmdPageSetup;
+import com.servoy.j2db.smart.cmd.CmdPaste;
+import com.servoy.j2db.smart.cmd.CmdPerformFind;
+import com.servoy.j2db.smart.cmd.CmdPrevRecord;
+import com.servoy.j2db.smart.cmd.CmdPreviewMode;
+import com.servoy.j2db.smart.cmd.CmdReCopyValues;
+import com.servoy.j2db.smart.cmd.CmdReduceFind;
+import com.servoy.j2db.smart.cmd.CmdSaveData;
+import com.servoy.j2db.smart.cmd.CmdSelectAll;
+import com.servoy.j2db.smart.cmd.CmdShowOmitRecords;
+import com.servoy.j2db.smart.cmd.CmdShowPreferences;
+import com.servoy.j2db.smart.cmd.CmdSort;
+import com.servoy.j2db.smart.cmd.CmdStopSearchFindAll;
+import com.servoy.j2db.smart.cmd.CmdViewAsForm;
+import com.servoy.j2db.smart.cmd.CmdViewAsList;
+import com.servoy.j2db.smart.cmd.MenuEditAction;
+import com.servoy.j2db.smart.cmd.MenuExportAction;
+import com.servoy.j2db.smart.cmd.MenuFileAction;
+import com.servoy.j2db.smart.cmd.MenuHelpAction;
+import com.servoy.j2db.smart.cmd.MenuImportAction;
+import com.servoy.j2db.smart.cmd.MenuSelectAction;
+import com.servoy.j2db.smart.cmd.MenuViewAction;
+import com.servoy.j2db.smart.dataui.DataField;
+import com.servoy.j2db.smart.dataui.DataRendererFactory;
+import com.servoy.j2db.smart.dataui.DataTextArea;
+import com.servoy.j2db.smart.dataui.SolutionSkin;
+import com.servoy.j2db.smart.dataui.SwingItemFactory;
+import com.servoy.j2db.smart.preference.ApplicationPreferences;
+import com.servoy.j2db.smart.preference.GeneralPanel;
+import com.servoy.j2db.smart.preference.LFPreferencePanel;
+import com.servoy.j2db.smart.preference.LocalePreferences;
+import com.servoy.j2db.smart.preference.ServicePanel;
+import com.servoy.j2db.ui.ItemFactory;
+import com.servoy.j2db.util.ActionCheckBoxMenuItem;
+import com.servoy.j2db.util.ActionMenuItem;
+import com.servoy.j2db.util.ActionRadioMenuItem;
+import com.servoy.j2db.util.BrowserLauncher;
+import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ExtendableURLStreamHandlerFactory;
+import com.servoy.j2db.util.ITaskExecuter;
+import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.ServoyScheduledExecutor;
+import com.servoy.j2db.util.Settings;
+import com.servoy.j2db.util.SortedList;
+import com.servoy.j2db.util.SwingHelper;
+import com.servoy.j2db.util.TaskThreadPool;
+import com.servoy.j2db.util.Text;
+import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.gui.IPropertyEditorDialog;
+import com.servoy.j2db.util.gui.JDK131ProgressBar;
+import com.servoy.j2db.util.gui.JMenuAlwaysEnabled;
+import com.servoy.j2db.util.gui.NumpadEnterFocusTraversalManager;
+import com.servoy.j2db.util.gui.OrientationApplier;
+import com.servoy.j2db.util.gui.OverlapRepaintManager;
+import com.servoy.j2db.util.rmi.IRMIClientSocketFactoryFactory;
+import com.servoy.j2db.util.rmi.IReconnectListener;
+import com.servoy.j2db.util.toolbar.IToolbarPanel;
+import com.servoy.j2db.util.toolbar.Toolbar;
+import com.servoy.j2db.util.toolbar.ToolbarButton;
+import com.servoy.j2db.util.toolbar.ToolbarPanel;
+
+/**
+ * This class is the main entry point and makes the actual swing client applicaion
+ * 
+ * @author jblok
+ */
+public class J2DBClient extends ClientState implements ISmartClientApplication, IGlobalEditListener, IInfoListener, IReconnectListener, IMessagesCallback
+{
+	protected JFrame frame;
+	protected JRootPane rootPane; // root pane from applet or frame(above)
+
+	public static final int BUTTON_SPACING = 5;
+	public static final int COMPONENT_SPACING = 10;
+
+	public static final int menuShortcutKeyMask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+
+	private ItemFactory itemFactory;
+	/**
+	 * Some font settings
+	 */
+	public static final Font smallFont = new Font("SansSerif", Font.PLAIN, 10); // SansSerif //$NON-NLS-1$
+	public static final Font defaultFont = new Font("SansSerif", Font.PLAIN, 11); // SansSerif //$NON-NLS-1$
+	// public Font boldFont = new Font("Dialog", Font.BOLD, 12);
+	public static final Font bigFont = new Font("SansSerif", Font.PLAIN, 12); // SansSerif //$NON-NLS-1$
+
+	/**
+	 * Managers
+	 */
+	protected CmdManager cmdManager;
+	protected IBeanManager beanManager;
+	protected ILAFManager lafManager;
+	private JSWindowManager jsWindowManager;
+
+	protected Icon empty;
+	private Icon overwrite;
+	private Icon insert;
+	private Icon editing;
+	private Icon transaction;
+	private Icon locking;
+	private Icon data_change;
+	protected JLabel statusLabel;
+	private JLabel editLabel;
+	private JLabel insertModeLabel;
+	private JLabel transactionLabel;
+	private JLabel lockLabel;
+	private JLabel dataChangeLabel;
+	private JLabel sslLabel;
+
+	private JDK131ProgressBar statusProgessBar;
+	private JMenuBar menuBar;
+
+	private JMenu import_Menu;
+	private JMenu export_Menu;
+
+	private final FlashDataChange flashDataChange = new FlashDataChange();
+
+	private TaskThreadPool taskThreadPool;
+
+	private volatile ScheduledExecutorService scheduledExecutorService;
+
+	/**
+	 * Toolbars
+	 */
+	protected ToolbarPanel toolbarsPanel;
+
+	/**
+	 * Declaration of the Dialogs
+	 */
+	private ApplicationPreferences ap = null;
+	private SelectSolutionDialog selectSolutionDialog = null;
+	private IRMIClientSocketFactoryFactory rmiFactoryFactory;
+
+	/**
+	 * Decl. of the application name
+	 */
+	protected static String splashImage = "images/splashclient.gif"; //$NON-NLS-1$
+
+	public JMenu getImportMenu()
+	{
+		return import_Menu;
+	}
+
+	public JMenu getExportMenu()
+	{
+		return export_Menu;
+	}
+
+	public JFrame getMainApplicationFrame()
+	{
+		return frame;
+	}
+
+	public String getApplicationName()
+	{
+		return "Servoy Client"; //$NON-NLS-1$
+	}
+
+	public String getDisplayApplicationName()
+	{
+		String appName = getApplicationName();
+		if (!appName.endsWith("Developer")) //$NON-NLS-1$
+		{
+			boolean branding = Utils.getAsBoolean(settings.getProperty("servoy.branding", "false")); //$NON-NLS-1$ //$NON-NLS-2$
+			String appTitle = settings.getProperty("servoy.branding.windowtitle"); //$NON-NLS-1$
+			if (branding && appTitle != null)
+			{
+				appName = appTitle;
+			}
+		}
+		return appName;
+	}
+
+	public int getApplicationType()
+	{
+		return CLIENT;
+	}
+
+	public int getClientPlatform()
+	{
+		return Utils.getPlatform();
+	}
+
+	@Override
+	@Deprecated
+	public ITaskExecuter getThreadPool()
+	{
+		if (taskThreadPool == null)
+		{
+			synchronized (J2DBGlobals.class)
+			{
+				if (taskThreadPool == null)
+				{
+					taskThreadPool = new TaskThreadPool(new Runnable()
+					{
+						public void run()
+						{
+							J2DBGlobals.setServiceProvider(J2DBClient.this);
+						}
+					}, 4);
+				}
+			}
+		}
+		return taskThreadPool;
+	}
+
+	@Override
+	protected IActiveSolutionHandler createActiveSolutionHandler()
+	{
+		return new RemoteActiveSolutionHandler(this);
+	}
+
+	@Override
+	public IRepository getRepository()
+	{
+		ClientRepository repo = (ClientRepository)super.getRepository(); // always a non-null ClientRepository, see createRepository()
+		if (repo.getDelegate() == null)
+		{
+			// try connect underlying repository
+			IApplicationServerAccess asa = getApplicationServerAccess();
+			if (asa != null)
+			{
+				try
+				{
+					repo.setDelegate(asa.getRepository());
+				}
+				catch (RemoteException e)
+				{
+					Debug.error(e);
+				}
+			}
+		}
+		return repo;
+	}
+
+	/**
+	 * Wrap the repository with a client-side repository wrapper that sets the repository in root objects transmitted over RMI.
+	 */
+	@Override
+	protected IRepository createRepository() throws RemoteException
+	{
+		IRepository repo = super.createRepository();
+		if (repo instanceof ClientRepository)
+		{
+			return repo;
+		}
+
+		// when super createRepo returns null the delegate repository will be updated in getRepository
+		return new ClientRepository(repo);
+	}
+
+	@Override
+	public boolean haveRepositoryAccess()
+	{
+		// always a non-null ClientRepository, see createRepository()
+		return ((ClientRepository)getRepository()).getDelegate() != null;
+	}
+
+	@Override
+	public ScheduledExecutorService getScheduledExecutor()
+	{
+		if (scheduledExecutorService == null)
+		{
+			synchronized (J2DBGlobals.class)
+			{
+				if (scheduledExecutorService == null)
+				{
+					scheduledExecutorService = new ServoyScheduledExecutor(2, 7, 4)
+					{
+						@Override
+						protected void beforeExecute(Thread t, Runnable r)
+						{
+							super.beforeExecute(t, r);
+							J2DBGlobals.setServiceProvider(J2DBClient.this);
+						}
+
+						@Override
+						protected void afterExecute(Runnable r, Throwable t)
+						{
+							super.afterExecute(r, t);
+							J2DBGlobals.setServiceProvider(null);
+						}
+					};
+				}
+			}
+		}
+		return scheduledExecutorService;
+	}
+
+	/**
+	 * Starting point
+	 */
+	@SuppressWarnings("nls")
+	public static void main(final String[] args)
+	{
+		StartupArgumentsScope arguments = new StartupArgumentsScope(args);
+		Iterator<Entry<String, Object>> iterator = arguments.getArguments().entrySet().iterator();
+		while (iterator.hasNext())
+		{
+			Entry<String, Object> arg = iterator.next();
+			if (arg.getKey().startsWith("system.property."))
+			{
+				System.setProperty(arg.getKey().substring(16), (String)arg.getValue());
+			}
+		}
+		if (Boolean.getBoolean("servoy.usejaas"))
+		{
+			final boolean[] loginShown = new boolean[1];
+			System.setProperty("javax.security.auth.useSubjectCredsOnly", "true");
+			try
+			{
+				Debug.log("creating context");
+				LoginContext lc = new LoginContext("ServoyClient", new CallbackHandler()
+				{
+					public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException
+					{
+						Debug.log("handle call back");
+						String loginName = null;
+						String passwordString = null;
+						for (Callback callback : callbacks)
+						{
+							if (callback instanceof TextOutputCallback)
+							{
+								final TextOutputCallback textOutputCallback = (TextOutputCallback)callback;
+								switch (textOutputCallback.getMessageType())
+								{
+									case TextOutputCallback.INFORMATION :
+										Debug.log(textOutputCallback.getMessage());
+										break;
+									case TextOutputCallback.WARNING :
+										Debug.warn(textOutputCallback.getMessage());
+										break;
+									case TextOutputCallback.ERROR :
+										Debug.error(textOutputCallback.getMessage());
+										break;
+									default :
+										throw new IOException("Unsupported message type: " + textOutputCallback.getMessageType());
+								}
+							}
+							else if (callback instanceof NameCallback)
+							{
+								final NameCallback nameCallback = (NameCallback)callback;
+								if (loginName == null)
+								{
+									LoginDialog ld = new LoginDialog((Frame)null, null, "Sign on", false, true);
+									Object[] credentials = ld.showDialog(null);
+									if (credentials != null && credentials.length == 2)
+									{
+										loginName = (String)credentials[0];
+										passwordString = (String)credentials[1];
+									}
+									if (loginName == null)
+									{
+										loginName = "";
+										passwordString = "";
+									}
+									loginShown[0] = true;
+								}
+								nameCallback.setName(loginName);
+							}
+							else if (callback instanceof PasswordCallback)
+							{
+								final PasswordCallback passwordCallback = (PasswordCallback)callback;
+								if (passwordString == null)
+								{
+									LoginDialog ld = new LoginDialog((Frame)null, null, "Sign on", false, true);
+									Object[] credentials = ld.showDialog(null);
+									if (credentials != null && credentials.length == 2)
+									{
+										loginName = (String)credentials[0];
+										passwordString = (String)credentials[1];
+									}
+									if (passwordString == null)
+									{
+										loginName = "";
+										passwordString = "";
+									}
+									loginShown[0] = true;
+								}
+								passwordCallback.setPassword(passwordString.toCharArray());
+							}
+							else
+							{
+								throw new UnsupportedCallbackException(callback, "Unrecognized Callback");
+							}
+						}
+					}
+				});
+				Debug.log("context created");
+				boolean loggedIn = true;
+				try
+				{
+					lc.login();
+				}
+				catch (LoginException e)
+				{
+					Debug.log("login failed", e);
+					loggedIn = false;
+				}
+
+				if (loggedIn)
+				{
+					Subject.doAsPrivileged(lc.getSubject(), new PrivilegedExceptionAction<Void>()
+					{
+
+						public Void run() throws Exception
+						{
+							mainImpl(args);
+							return null;
+						}
+					}, null);
+				}
+				else
+				{
+					mainImpl(args);
+				}
+
+			}
+			catch (Exception e)
+			{
+				Debug.log("context creation failed", e);
+				if (loginShown[0])
+				{
+					JOptionPane.showMessageDialog(null, "Couldnt login", "Login failed", JOptionPane.ERROR_MESSAGE);
+				}
+				mainImpl(args);
+			}
+		}
+		else
+		{
+			mainImpl(args);
+		}
+	}
+
+	private static void mainImpl(final String[] args)
+	{
+		Runnable main = new Runnable()
+		{
+			public void run()
+			{
+				// init application
+				J2DBClient base = new J2DBClient();
+				base.startupApplication(args);
+			}
+		};
+
+		//Special flag on request of customers/plugin makers to start a SWT bridge especially for macOSX if class is present
+		boolean useDJNativeSwing = Utils.getAsBoolean(System.getProperty("javaws.useDJNativeSwing", "false")); //$NON-NLS-1$ //$NON-NLS-2$
+		Class< ? > djNativeSwingClazz = null;
+		if (useDJNativeSwing)
+		{
+			try
+			{
+				djNativeSwingClazz = Class.forName("chrriis.dj.nativeswing.swtimpl.NativeInterface"); //$NON-NLS-1$
+				djNativeSwingClazz.getMethod("initialize").invoke(null); //$NON-NLS-1$
+				SwingUtilities.invokeLater(main); // workarround for mac to prevent dead locks with system property -XstartOnFirstThread
+				djNativeSwingClazz.getMethod("runEventPump").invoke(null); //$NON-NLS-1$
+			}
+			catch (Throwable ex)
+			{
+				Debug.error(ex);
+				main.run();
+			}
+		}
+		else
+		{
+			main.run();
+		}
+	}
+
+	/**
+	 * Main application constructor
+	 */
+	protected J2DBClient()
+	{
+		super();
+		//security check: when run as this class instance it must run under webstart for security!
+		if (getClass() == J2DBClient.class && !(WebStart.isRunningWebStart() && WebStart.getWebStartURL() != null))
+		{
+			throw new IllegalStateException();
+		}
+		getClientInfo().setApplicationType(getApplicationType());
+		J2DBGlobals.setSingletonServiceProvider(this);
+	}
+
+	protected boolean getAppleScreenMenuBar()
+	{
+		return true;
+	}
+
+	protected void startupApplication(String[] args)
+	{
+		try
+		{
+			logStartUp();
+			handleArguments(args);
+
+			// set some props 
+			// ie. for full gc timing 6 mins (1 minutes == default)
+			System.setProperty("sun.rmi.dgc.client.gcInterval", "360000"); //$NON-NLS-1$ //$NON-NLS-2$
+			// System.setProperty("java.rmi.server.codebase", "");//disable any rmi classloading
+			System.setProperty("apple.laf.useScreenMenuBar", Boolean.toString(getAppleScreenMenuBar())); //$NON-NLS-1$ 
+
+			UIManager.put("TabbedPane.contentOpaque", Boolean.FALSE); //$NON-NLS-1$
+			// The "TabbedPane.tabsOpaque" should not be set. If we set it, then the tabs (the little handles
+			// that are used for switching between forms) become transparent in some L&F (for example Windows Classic)
+			// which is not desired. Also, settting this property does not help with the gray stripe that appears
+			// behind the tabs on Windows. That stripe only goes away if the tabpanel is made transparent.
+			//UIManager.put("TabbedPane.tabsOpaque", Boolean.FALSE);
+			Object originalHighlight = UIManager.get("TabbedPane.highlight"); //$NON-NLS-1$
+			if (originalHighlight instanceof Color) UIManager.put("TabbedPane.highlight", ((Color)originalHighlight).darker()); //offset from white a bit since white is most used background //$NON-NLS-1$
+
+			initSecurityManager();
+
+			initSettings();
+
+			initRMISocketFactory();
+			setLookAndFeel();
+			createMainPanel();
+
+			applicationSetup();
+			applicationInit();
+			if (applicationServerInit())
+			{
+				serverInit();
+				handleClientUserUidChanged(null, null);
+			}
+		}
+		catch (Exception ex)
+		{
+			Debug.error("Fatal Exception"); //$NON-NLS-1$
+			Debug.error(ex);
+		}
+	}
+
+	protected void initSettings() throws Exception
+	{
+		// overload settings from disk 
+		boolean uses_client_installer = (System.getProperty("servoy.server_url") != null); //$NON-NLS-1$
+		settings = Settings.getInstance();
+		if (!uses_client_installer)
+		{
+			((Settings)settings).loadFromServer(getServerURL()); // no disk loading needed for client, rely on webstart 
+		}
+		else
+		{
+			//is special case for cytrix users, using a shared disk, to prevent webstarts installs 
+			File file = new File(System.getProperty("user.dir"), Settings.FILE_NAME); //$NON-NLS-1$
+			((Settings)settings).loadFromFile(file);
+		}
+	}
+
+	protected void initSecurityManager() throws SecurityException
+	{
+		System.setSecurityManager(null);// seems still needed for javaws(http://forum.java.sun.com/thread.jsp?thread=71233&forum=38&message=507926)
+	}
+
+	protected void initStreamHandlerFactory()
+	{
+		extendableURLStreamHandlerFactory = new ExtendableURLStreamHandlerFactory();
+		extendableURLStreamHandlerFactory.addStreamHandler("media", new MediaURLStreamHandler()); //$NON-NLS-1$
+		try
+		{
+			URL.setURLStreamHandlerFactory(extendableURLStreamHandlerFactory);
+		}
+		catch (Throwable ex)
+		{
+			Debug.error(ex);
+		}
+	}
+
+	protected void initRMISocketFactory()
+	{
+		URL webstartbase = getServerURL();
+		String rmiFactory = settings.getProperty("SocketFactory.rmiClientFactory", "com.servoy.j2db.rmi.DefaultClientSocketFactoryFactory"); //$NON-NLS-1$ //$NON-NLS-2$
+		try
+		{
+			Class< ? > cls = Class.forName(rmiFactory.trim());
+			Constructor< ? > constructor = cls.getConstructor(new Class[] { URL.class, IApplication.class, Properties.class, IReconnectListener.class });
+			rmiFactoryFactory = (IRMIClientSocketFactoryFactory)constructor.newInstance(new Object[] { webstartbase, this, getSettings(), this });
+			Debug.trace("IRMISocketFactoryFactory instantiated: " + cls); //$NON-NLS-1$
+		}
+		catch (Exception e)
+		{
+			Debug.error("couldn't instantiate the rmi socketfactory", e); //$NON-NLS-1$
+		}
+	}
+
+	protected ExtendableURLStreamHandlerFactory extendableURLStreamHandlerFactory;
+
+	protected MainPanel mainPanel;
+
+	protected void createMainPanel()
+	{
+		// init the frame
+		frame = new JFrame();
+		frame.addWindowFocusListener(new WindowAdapter()
+		{
+			@Override
+			public void windowGainedFocus(WindowEvent e)
+			{
+				if (getFormManager() != null) ((FormManager)getFormManager()).setCurrentContainer(null, null);
+			}
+		});
+		rootPane = frame.getRootPane();
+		InputMap im = rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_T, InputEvent.SHIFT_DOWN_MASK + InputEvent.CTRL_DOWN_MASK + InputEvent.ALT_DOWN_MASK), "enabletracing"); //$NON-NLS-1$
+		ActionMap am = rootPane.getActionMap();
+		am.put("enabletracing", new AbstractAction() //$NON-NLS-1$
+			{
+				private static final long serialVersionUID = 1L;
+
+				public void actionPerformed(ActionEvent e)
+				{
+					Debug.toggleTracing();
+				}
+			});
+
+		frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		frame.setName(IApplication.APP_WINDOW_NAME);
+
+		frame.getContentPane().setLayout(new BorderLayout());
+		frame.setTitle(getDisplayApplicationName());
+
+		String branding = getSettings().getProperty("servoy.branding", "false"); //$NON-NLS-1$ //$NON-NLS-2$
+		String windowicon = getSettings().getProperty("servoy.branding.windowicon"); //$NON-NLS-1$
+		if (branding.equals("true") && windowicon != null && getApplicationType() == IApplication.CLIENT) //$NON-NLS-1$
+		{
+			URL webstartUrl = WebStart.getWebStartURL();
+			try
+			{
+				URL url = new URL(webstartUrl.getProtocol(), webstartUrl.getHost(), webstartUrl.getPort(), windowicon);
+				frame.setIconImage(new ImageIcon(url).getImage());
+			}
+			catch (MalformedURLException ex)
+			{
+				Debug.error("Error loading the window icon image", ex); //$NON-NLS-1$
+				frame.setIconImage(loadImage("windowicon.gif").getImage()); //$NON-NLS-1$
+			}
+		}
+		else
+		{
+			frame.setIconImage(loadImage("windowicon.gif").getImage()); //$NON-NLS-1$
+		}
+
+		mainPanel = new MainPanel(this, null);
+		mainPanel.setPreferredSize(new Dimension(Settings.INITIAL_CLIENT_WIDTH, Settings.INITIAL_CLIENT_HEIGHT));
+		frame.getContentPane().add(mainPanel, BorderLayout.CENTER);
+
+		// show the frame
+		frame.pack();
+
+		if (!Settings.getInstance().loadBounds(frame))
+		{
+			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+			frame.setLocation(screenSize.width / 2 - Settings.INITIAL_CLIENT_WIDTH / 2, screenSize.height / 2 - Settings.INITIAL_CLIENT_HEIGHT / 2);
+		}
+
+		Debug.trace("Showing"); //$NON-NLS-1$
+		// block when visible
+		Component glassPane = rootPane.getGlassPane();
+		glassPane.addMouseListener(new MouseAdapter()
+		{
+		});
+		glassPane.addMouseMotionListener(new MouseMotionAdapter()
+		{
+		});
+		glassPane.addKeyListener(new KeyAdapter()
+		{
+		});
+	}
+
+	public void addURLStreamHandler(String protocolName, URLStreamHandler handler)
+	{
+		if (protocolName != null && !"http".equals(protocolName) && !"media".equals(protocolName)) //$NON-NLS-1$ //$NON-NLS-2$
+		{
+			extendableURLStreamHandlerFactory.addStreamHandler(protocolName, handler);
+		}
+	}
+
+	protected void installShutdownHook()
+	{
+		Runtime.getRuntime().addShutdownHook(new Thread()
+		{
+			@Override
+			public void run()
+			{
+				if (connected && frame != null)
+				{
+					Debug.error("Client closes abnormally, trying to unbind the client from the server'"); //$NON-NLS-1$
+
+					//de register myself
+					try
+					{
+						unRegisterClient(getClientID());
+						unBindUserClient();
+					}
+					catch (Exception e)
+					{
+						Debug.error(e);// incase server is dead
+					}
+				}
+			}
+		});
+	}
+
+	@Override
+	protected void applicationSetup()
+	{
+		installShutdownHook();
+
+		KeyboardFocusManager.getCurrentKeyboardFocusManager().addPropertyChangeListener(new GlobalAutoScrollerFocusListener());
+
+		// create status
+		mainPanel.add(createStatusPanel(), BorderLayout.SOUTH);
+
+		// first set the default locale if set.
+		String str = getSettings().getProperty("locale.default"); //$NON-NLS-1$
+		Locale loc = PersistHelper.createLocale(str);
+		if (loc != null)
+		{
+			Locale.setDefault(loc);
+		}
+		super.applicationSetup();
+
+		// set the timezone of the client info as default.
+		TimeZone tz = getClientInfo().getTimeZone();
+		if (tz != null)
+		{
+			TimeZone.setDefault(tz);
+		}
+
+		jsWindowManager = createJSWindowManager();
+
+		cmdManager = createCmdManager();
+
+		// load all the actions
+		Map<String, Action> actions = getActions();
+
+		// load the toolbars
+		toolbarsPanel = new ToolbarPanel(Settings.INITIAL_CLIENT_WIDTH - 200);
+		mainPanel.add(toolbarsPanel, BorderLayout.NORTH);
+		fillToolbar(actions);
+
+		// load menu
+		JMenuBar menu = createMenuBar(actions);
+		frame.setJMenuBar(menu);
+		if (Utils.isAppleMacOS())
+		{
+			attachAppleMenu(actions);
+		}
+
+		setFrameVisible(true);
+	}
+
+	/**
+	 * @param actions
+	 */
+	protected void fillToolbar(Map<String, Action> actions)
+	{
+		toolbarsPanel.clear();
+
+		SortedList<Toolbar.ToolbarKey> sortedList = new SortedList<Toolbar.ToolbarKey>();
+		createToolBars(sortedList, actions);
+
+		int offsetRow = 0;
+		if (sortedList.size() > 0)
+		{
+			offsetRow = sortedList.get(0).getRow();
+			if (offsetRow == -1) offsetRow = 0;
+		}
+
+		for (int i = 0; i < sortedList.size(); i++)
+		{
+			Toolbar.ToolbarKey key = sortedList.get(i);
+
+			if (toolbarsPanel.getToolBar(key.getToolbar().getName()) == null)
+			{
+				if ("edit".equals(key.getToolbar().getName())) //$NON-NLS-1$
+				{
+					fillBrowseToolbar(key.getToolbar(), actions);
+				}
+				toolbarsPanel.addToolbar(key.getToolbar(), key.getRow() - offsetRow);
+				toolbarsPanel.setToolbarVisible(key.getToolbar().getName(), key.isVisible());
+			}
+		}
+	}
+
+	protected void setFrameVisible(boolean b)
+	{
+		frame.setVisible(b);
+	}
+
+	@Override
+	protected boolean applicationInit()
+	{
+		try
+		{
+			blockGUI(Messages.getString("servoy.client.status.application.setup")); //$NON-NLS-1$
+
+			initStreamHandlerFactory();
+
+			super.applicationInit();
+			beanManager = createBeanManager();
+
+			// repaint manager that handles repaint for overlapping components properly (if a component
+			// below other components is repainted, the components on top of it will be repainted too)
+			RepaintManager current = RepaintManager.currentManager(frame);
+			if (!(current instanceof OverlapRepaintManager))
+			{
+				if (current != null)
+				{
+					RepaintManager.setCurrentManager(new OverlapRepaintManager(current));
+				}
+				else
+				{
+					RepaintManager.setCurrentManager(new OverlapRepaintManager());
+				}
+			}
+
+			// Add the windows listener
+			WindowListener l = new WindowAdapter()
+			{
+				@Override
+				public void windowClosing(WindowEvent e)
+				{
+					shutDown(false);
+				}
+			};
+			frame.addWindowListener(l);
+
+			// register top level keystrokes
+			registerKeyStrokes(rootPane);
+
+			return true;
+		}
+		finally
+		{
+			releaseGUI();
+		}
+	}
+
+	protected ILAFManager createLAFManager()
+	{
+		return new LAFManager();
+	}
+
+	@Override
+	protected void createPluginManager()
+	{
+		pluginManager = new ClientPluginManager(this);
+		pluginAccess = new ClientPluginAccessProvider(this);
+
+		getScheduledExecutor().execute(new Runnable()
+		{
+			public void run()
+			{
+				getPluginManager().init();
+				((PluginManager)getPluginManager()).initClientPlugins(J2DBClient.this, (IClientPluginAccess)getPluginAccess());
+				((FoundSetManager)getFoundSetManager()).setColumnManangers(getPluginManager().getColumnValidatorManager(),
+					getPluginManager().getColumnConverterManager());
+			}
+		});
+	}
+
+	protected IBeanManager createBeanManager()
+	{
+		return new BeanManager();
+	}
+
+	protected CmdManager createCmdManager()
+	{
+		return new CmdManager(this);
+	}
+
+	@Override
+	protected IModeManager createModeManager()
+	{
+		return new ModeManager(this);
+	}
+
+	@Override
+	protected IFormManager createFormManager()
+	{
+		return new SwingFormManager(this, mainPanel);
+	}
+
+	protected void createToolBars(SortedList<Toolbar.ToolbarKey> list, Map<String, Action> actions)
+	{
+		int editPlace = Integer.parseInt(settings.getProperty("toolbar.edit.row", "0")); //$NON-NLS-1$ //$NON-NLS-2$
+		int editIndex = Integer.parseInt(settings.getProperty("toolbar.edit.row.index", "0")); //$NON-NLS-1$ //$NON-NLS-2$
+		boolean editVisible = settings.getProperty("toolbar.edit", "true").equals("true"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		int textPlace = Integer.parseInt(settings.getProperty("toolbar.text.row", "0")); //$NON-NLS-1$ //$NON-NLS-2$
+		int textIndex = Integer.parseInt(settings.getProperty("toolbar.text.row.index", "1")); //$NON-NLS-1$ //$NON-NLS-2$
+		boolean textVisible = settings.getProperty("toolbar.text", "true").equals("true"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+		Toolbar browseToolbar = new Toolbar("edit", Messages.getString("servoy.edittoolbar.label"), true); //$NON-NLS-1$//$NON-NLS-2$
+
+		list.add(new Toolbar.ToolbarKey(editPlace, editIndex, editVisible, browseToolbar));
+		list.add(new Toolbar.ToolbarKey(textPlace, textIndex, textVisible, new TextToolbar(this, actions)));
+	}
+
+	public IToolbarPanel getToolbarPanel()
+	{
+		return toolbarsPanel;
+	}
+
+	public JComponent getEditLabel()// used for rendering by printing
+	{
+		return editLabel;
+	}
+
+	/**
+	 * updates the insert mode icon for the given display
+	 * 
+	 * @param display
+	 */
+	public void updateInsertMode(IDisplay display)
+	{
+		Icon icon = empty;
+		if (display instanceof DataField)
+		{
+			DataField field = (DataField)display;
+			AbstractFormatterFactory formatterFactory = field.getFormatterFactory();
+			if (formatterFactory instanceof DefaultFormatterFactory)
+			{
+				DefaultFormatterFactory factory = ((DefaultFormatterFactory)formatterFactory);
+				AbstractFormatter editFormatter = factory.getEditFormatter();
+				if (editFormatter == null) editFormatter = factory.getDefaultFormatter();
+				if (editFormatter instanceof DefaultFormatter && !(editFormatter instanceof MaskFormatter))
+				{
+					if (((DefaultFormatter)editFormatter).getOverwriteMode())
+					{
+						icon = overwrite;
+					}
+					else
+					{
+						icon = insert;
+					}
+				}
+			}
+		}
+		else if (display instanceof DataTextArea)
+		{
+			if (((DataTextArea)display).getOverwriteMode())
+			{
+				icon = overwrite;
+			}
+			else
+			{
+				icon = insert;
+			}
+		}
+		insertModeLabel.setIcon(icon);
+	}
+
+
+	protected JPanel createStatusPanel()
+	{
+		Color darkShadow = UIManager.getColor("controlShadow"); //$NON-NLS-1$
+		Color lightShadow = UIManager.getColor("controlLtHighlight"); //$NON-NLS-1$
+
+		JPanel status = new JPanel();
+		status.setName("statusbar"); //$NON-NLS-1$
+		Border border = BorderFactory.createBevelBorder(BevelBorder.LOWERED, lightShadow, status.getBackground(), darkShadow, status.getBackground());
+
+		// set the status
+		statusLabel = new JLabel();
+		// statusLabel.setFont(smallFont);
+		statusLabel.setText(Messages.getString("servoy.general.status.ready")); //$NON-NLS-1$
+		statusLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+		statusLabel.setAlignmentY(Component.BOTTOM_ALIGNMENT);
+		statusLabel.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(0, 2, 0, 0)));// BorderFactory.createEtchedBorder());
+		statusLabel.setMinimumSize(new Dimension(100, 18));
+		statusLabel.setPreferredSize(new Dimension(4000, 18));
+
+		empty = loadImage("empty.gif"); //$NON-NLS-1$
+		editing = loadImage("editing.gif"); //$NON-NLS-1$
+		overwrite = loadImage("overwrite.png"); //$NON-NLS-1$
+		insert = loadImage("insert.png"); //$NON-NLS-1$
+		transaction = loadImage("transaction.gif"); //$NON-NLS-1$
+		locking = loadImage("lock.gif"); //$NON-NLS-1$
+		data_change = loadImage("data_change.gif"); //$NON-NLS-1$
+
+		sslLabel = new JLabel(empty, SwingConstants.TRAILING);
+		// sslLabel.setFont(smallFont);
+		sslLabel.setToolTipText(Messages.getString("servoy.client.ssllabel.tooltip")); //$NON-NLS-1$
+		sslLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+		sslLabel.setAlignmentY(Component.BOTTOM_ALIGNMENT);
+		if (rmiFactoryFactory != null && rmiFactoryFactory.usingSSL())
+		{
+			sslLabel.setText("SSL"); //$NON-NLS-1$
+			sslLabel.setIcon(null);
+			sslLabel.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(0, 2, 0, 0)));// BorderFactory.createEtchedBorder());
+		}
+		else
+		{
+			sslLabel.setMinimumSize(new Dimension(18, 18));
+			sslLabel.setPreferredSize(new Dimension(18, 18));
+			sslLabel.setBorder(border);// BorderFactory.createEtchedBorder());
+		}
+
+		insertModeLabel = new JLabel(empty, SwingConstants.TRAILING);
+		insertModeLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+		insertModeLabel.setAlignmentY(Component.BOTTOM_ALIGNMENT);
+		insertModeLabel.setBorder(border);// BorderFactory.createEtchedBorder());
+		insertModeLabel.setMinimumSize(new Dimension(18, 18));
+		insertModeLabel.setPreferredSize(new Dimension(18, 18));
+		editLabel = new JLabel(empty, SwingConstants.TRAILING);
+		editLabel.setToolTipText(Messages.getString("servoy.client.editlabel.tooltip")); //$NON-NLS-1$
+		editLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+		editLabel.setAlignmentY(Component.BOTTOM_ALIGNMENT);
+		editLabel.setBorder(border);// BorderFactory.createEtchedBorder());
+		editLabel.setMinimumSize(new Dimension(18, 18));
+		editLabel.setPreferredSize(new Dimension(18, 18));
+		transactionLabel = new JLabel(empty, SwingConstants.TRAILING);
+		transactionLabel.setToolTipText(Messages.getString("servoy.client.transactionlabel.tooltip")); //$NON-NLS-1$
+		transactionLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+		transactionLabel.setAlignmentY(Component.BOTTOM_ALIGNMENT);
+		transactionLabel.setBorder(border);// BorderFactory.createEtchedBorder());
+		transactionLabel.setMinimumSize(new Dimension(18, 18));
+		transactionLabel.setPreferredSize(new Dimension(18, 18));
+		lockLabel = new JLabel(empty, SwingConstants.TRAILING);
+		lockLabel.setToolTipText(Messages.getString("servoy.client.locklabel.tooltip")); //$NON-NLS-1$
+		lockLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+		lockLabel.setAlignmentY(Component.BOTTOM_ALIGNMENT);
+		lockLabel.setBorder(border);// BorderFactory.createEtchedBorder());
+		lockLabel.setMinimumSize(new Dimension(18, 18));
+		lockLabel.setPreferredSize(new Dimension(18, 18));
+		dataChangeLabel = new JLabel(empty, SwingConstants.TRAILING);
+		dataChangeLabel.setToolTipText(Messages.getString("servoy.client.datachangelabel.tooltip")); //$NON-NLS-1$
+		dataChangeLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+		dataChangeLabel.setAlignmentY(Component.BOTTOM_ALIGNMENT);
+		dataChangeLabel.setBorder(border);// BorderFactory.createEtchedBorder());
+		dataChangeLabel.setMinimumSize(new Dimension(18, 18));
+		dataChangeLabel.setPreferredSize(new Dimension(18, 18));
+
+		statusProgessBar = new JDK131ProgressBar();
+		statusProgessBar.setMaximumSize(new Dimension(100, 18));
+		statusProgessBar.setPreferredSize(new Dimension(100, 18));
+		statusProgessBar.setMinimumSize(new Dimension(100, 18));
+
+		statusProgessBar.setBorder(border);// BorderFactory.createEtchedBorder());
+		statusProgessBar.setStringPainted(false);
+		statusProgessBar.setAlignmentX(Component.RIGHT_ALIGNMENT);
+		statusProgessBar.setAlignmentY(Component.BOTTOM_ALIGNMENT);
+
+		status.setLayout(new BoxLayout(status, BoxLayout.X_AXIS));
+		status.add(statusLabel);
+
+		status.add(editLabel);
+		status.add(insertModeLabel);
+		status.add(transactionLabel);
+		status.add(lockLabel);
+		status.add(dataChangeLabel);
+		status.add(sslLabel);
+
+		status.add(statusProgessBar);
+		status.setBorder(BorderFactory.createEmptyBorder(1, 0, 0, 0));
+		return status;
+	}
+
+	private void registerKeyStrokes(JRootPane rp)
+	{
+
+		ActionListener actionListener2 = new ActionListener()
+		{
+			public void actionPerformed(ActionEvent actionEvent)
+			{
+				// Debug.showConsole();
+			}
+		};
+		KeyStroke stroke2 = KeyStroke.getKeyStroke(KeyEvent.VK_4, InputEvent.SHIFT_MASK | InputEvent.CTRL_MASK);
+		rp.registerKeyboardAction(actionListener2, stroke2, JComponent.WHEN_IN_FOCUSED_WINDOW);
+	}
+
+	@Override
+	public void shutDown(boolean force)
+	{
+		// hide
+		try
+		{
+			if (getSolution() != null)
+			{
+				if (!closeSolution(force, null) && !force) return;
+//				getFlattenedSolution().setSolution(null);
+			}
+		}
+		catch (Exception ex)
+		{
+			Debug.error(ex);
+		}
+
+		if (toolbarsPanel.getToolBar("edit") != null) //$NON-NLS-1$
+		{
+			settings.setProperty("toolbar.edit", toolbarsPanel.getToolBar("edit").isVisible() ? "true" : "false"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			settings.setProperty("toolbar.edit.row", Integer.toString(toolbarsPanel.getToolBarRow("edit"))); //$NON-NLS-1$ //$NON-NLS-2$
+			settings.setProperty("toolbar.edit.row.index", Integer.toString(toolbarsPanel.getToolbarRowIndex("edit"))); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		if (toolbarsPanel.getToolBar("text") != null) //$NON-NLS-1$
+		{
+			settings.setProperty("toolbar.text", toolbarsPanel.getToolBar("text").isVisible() ? "true" : "false"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			settings.setProperty("toolbar.text.row", Integer.toString(toolbarsPanel.getToolBarRow("text"))); //$NON-NLS-1$ //$NON-NLS-2$
+			settings.setProperty("toolbar.text.row.index", Integer.toString(toolbarsPanel.getToolbarRowIndex("text"))); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+
+		if (frame != null)
+		{
+			frame.setVisible(false);
+		}
+
+		super.shutDown(force);
+
+		if (taskThreadPool != null)
+		{
+			taskThreadPool.stop();
+			taskThreadPool = null;
+		}
+
+		if (scheduledExecutorService != null)
+		{
+			scheduledExecutorService.shutdownNow();
+			scheduledExecutorService = null;
+		}
+
+		if (rmiFactoryFactory != null)
+		{
+			rmiFactoryFactory.close();
+		}
+
+		//clear the frame
+		if (frame != null)
+		{
+			frame.dispose();
+			frame = null;
+		}
+		invokeLater(new Runnable()
+		{
+			public void run()
+			{
+				// Exit really hard here!!
+				exitHard();
+			}
+		});
+	}
+
+	protected void exitHard()
+	{
+		System.exit(0);
+	}
+
+	@Override
+	protected void saveSettings()
+	{
+		try
+		{
+			Settings.getInstance().saveBounds(frame);
+			((Settings)settings).save();
+		}
+		catch (Exception ex)
+		{
+			Debug.error(ex);
+		}
+	}
+
+	public ImageIcon loadImage(String name)
+	{
+		java.net.URL iconUrl = ClientState.class.getResource("images/" + name); //$NON-NLS-1$
+		if (iconUrl != null)
+		{
+			return new ImageIcon(iconUrl, iconUrl.toExternalForm().intern());
+		}
+		else
+		{
+			java.net.URL iconUrl2 = J2DBClient.class.getResource("images/error.gif"); //$NON-NLS-1$
+			if (iconUrl2 != null)
+			{
+				return new ImageIcon(iconUrl2, iconUrl2.toExternalForm().intern());
+			}
+			else
+			{
+				return null;
+			}
+		}
+	}
+
+	public ILAFManager getLAFManager()
+	{
+		return lafManager;
+	}
+
+	/**
+	 * Set the look and feel (platform dep. or indep.)
+	 */
+	protected void setLookAndFeel()
+	{
+		try
+		{
+			// incase we use alloy
+			System.setProperty("alloy.isLookAndFeelFrameDecoration", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+
+			String defaultLAFClassName = UIManager.getSystemLookAndFeelClassName();
+			String lnf = settings.getProperty("selectedlnf", defaultLAFClassName); //$NON-NLS-1$
+
+			if (WebStart.isRunningWebStart())
+			{
+				URL webstartbase = getServerURL();
+				lnf = settings.getProperty(webstartbase.getHost() + webstartbase.getPort() + "_selectedlnf", lnf); //$NON-NLS-1$
+			}
+
+			// Users may have set the lnf to spaces in the properties file
+			if (lnf.trim().length() == 0)
+			{
+				lnf = defaultLAFClassName;
+			}
+
+			Font dfltFont = PersistHelper.createFont(settings.getProperty("font")); //$NON-NLS-1$
+			if (dfltFont == null)
+			{
+				dfltFont = new Font("Tahoma", Font.PLAIN, 11); //$NON-NLS-1$
+				settings.setProperty("font", PersistHelper.createFontString(dfltFont)); //$NON-NLS-1$
+			}
+
+			lafManager = createLAFManager();
+
+			lafManager.init();
+
+			// test if selected lnf is loaded through the lafManager
+			List<LookAndFeelInfo> lst = lafManager.getLAFInfos(this);
+			boolean found = false;
+			for (int i = 0; i < lst.size(); i++)
+			{
+				UIManager.LookAndFeelInfo info = lst.get(i);
+				if (info.getClassName().equals(lnf))
+				{
+					found = true;
+					break;
+				}
+			}
+			if (!found)
+			{
+				lnf = defaultLAFClassName;
+			}
+
+			setUIProperty(LookAndFeelInfo.class.getName(), lnf);
+			setUIProperty(Font.class.getName(), dfltFont);
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+		}
+	}
+
+	public String getUserProperty(String name)
+	{
+		if (name == null) return null;
+		return getSettings().getProperty("user." + (name.length() > 255 ? name.substring(0, 255) : name)); //$NON-NLS-1$
+	}
+
+	public String[] getUserPropertyNames()
+	{
+		List<String> retval = new ArrayList<String>();
+		Iterator<Object> it = getSettings().keySet().iterator();
+		while (it.hasNext())
+		{
+			String key = (String)it.next();
+			if (key.startsWith("user.")) //$NON-NLS-1$
+			{
+				retval.add(key.substring("user.".length())); //$NON-NLS-1$
+			}
+		}
+		return retval.toArray(new String[retval.size()]);
+	}
+
+	public void setUserProperty(String name, String value)
+	{
+		if (name == null) return;
+		if (value == null)
+		{
+			getSettings().remove("user." + (name.length() > 255 ? name.substring(0, 255) : name)); //$NON-NLS-1$
+		}
+		else
+		{
+			getSettings().setProperty("user." + (name.length() > 255 ? name.substring(0, 255) : name), (value.length() > 255 ? value.substring(0, 255) : value)); //$NON-NLS-1$
+		}
+	}
+
+	public Object getUIProperty(Object name)
+	{
+		if (name == null) return null;
+		if (LookAndFeelInfo.class.getName().equals(name))
+		{
+			LookAndFeel lnf = UIManager.getLookAndFeel();
+			return lnf == null ? null : lnf.getClass().getName();
+		}
+		else
+		{
+			UIDefaults uiDefaults = UIManager.getDefaults();
+			if (Font.class.getName().equals(name))
+			{
+				Object f = uiDefaults.get("MenuItem.font"); //$NON-NLS-1$
+				if (f == null) return null;
+				if (f != uiDefaults.get("Menu.font")) return null; //$NON-NLS-1$
+				if (f != uiDefaults.get("RadioButtonMenuItem.font")) return null; //$NON-NLS-1$
+				if (f != uiDefaults.get("CheckBoxMenuItem.font")) return null; //$NON-NLS-1$
+				if (f != uiDefaults.get("ComboBox.font")) return null; //$NON-NLS-1$
+				if (f != uiDefaults.get("RadioButton.font")) return null; //$NON-NLS-1$
+				if (f != uiDefaults.get("CheckBox.font")) return null; //$NON-NLS-1$
+				if (f != uiDefaults.get("Button.font")) return null; //$NON-NLS-1$
+				if (f != uiDefaults.get("Label.font")) return null; //$NON-NLS-1$
+				if (f != uiDefaults.get("TabbedPane.font")) return null; //$NON-NLS-1$
+				if (f != uiDefaults.get("Panel.font")) return null; //$NON-NLS-1$
+				if (f != uiDefaults.get("TitledBorder.font")) return null; //$NON-NLS-1$
+				if (f != uiDefaults.get("List.font")) return null; //$NON-NLS-1$
+				if (f != uiDefaults.get("Table.font")) return null; //$NON-NLS-1$
+				if (f != uiDefaults.get("TableHeader.font")) return null; //$NON-NLS-1$
+				if (f != uiDefaults.get("Tree.font")) return null; //$NON-NLS-1$
+				if (f != uiDefaults.get("TextArea.font")) return null; //$NON-NLS-1$
+				if (f != uiDefaults.get("PasswordField.font")) return null; //$NON-NLS-1$
+				if (f != uiDefaults.get("TextField.font")) return null; //$NON-NLS-1$
+				return f;
+			}
+			else
+			{
+				uiDefaults.get(name.toString());
+			}
+		}
+		return null;
+	}
+
+	public boolean setUIProperty(Object name, Object value)
+	{
+		if (name == null) return false;
+		try
+		{
+			boolean mustSetFont = true;
+			if (LookAndFeelInfo.class.getName().equals(name))
+			{
+				LookAndFeel laf = lafManager.createInstance(value.toString());
+				if (laf != null)
+				{
+					if (laf instanceof MetalLookAndFeel)
+					{
+						UIManager.setLookAndFeel(laf);
+						String themeName = getSettings().getProperty("lnf.theme", "com.servoy.j2db.util.gui.DefaultTheme"); //$NON-NLS-1$ //$NON-NLS-2$
+						if (WebStart.isRunningWebStart())
+						{
+							URL webstartbase = getServerURL();
+							themeName = settings.getProperty(webstartbase.getHost() + webstartbase.getPort() + "_lnf.theme", themeName); //$NON-NLS-1$
+						}
+
+						if (themeName != null && themeName.length() != 0)
+						{
+							MetalTheme theme = lafManager.createThemeInstance(themeName);
+							if (theme != null)
+							{
+								MetalLookAndFeel.setCurrentTheme(theme);
+								mustSetFont = false;
+							}
+						}
+					}
+					UIManager.setLookAndFeel(laf);// yes, this is the second time if there is a methalTHeme but this is only it works
+				}
+			}
+
+			UIDefaults uiDefaults = UIManager.getDefaults();
+			if (Font.class.getName().equals(name) && mustSetFont)
+			{
+				Font font = (Font)value;
+				if (!(font instanceof FontUIResource))
+				{
+					font = new FontUIResource(font);
+				}
+
+				uiDefaults.put("MenuItem.font", font); //$NON-NLS-1$
+				uiDefaults.put("Menu.font", font); //$NON-NLS-1$
+				uiDefaults.put("RadioButtonMenuItem.font", font); //$NON-NLS-1$
+				uiDefaults.put("CheckBoxMenuItem.font", font); //$NON-NLS-1$
+				uiDefaults.put("ComboBox.font", font); //$NON-NLS-1$
+				uiDefaults.put("RadioButton.font", font); //$NON-NLS-1$
+				uiDefaults.put("CheckBox.font", font); //$NON-NLS-1$
+				uiDefaults.put("Button.font", font); //$NON-NLS-1$
+				uiDefaults.put("Label.font", font); // Was BIG_FONT //$NON-NLS-1$
+				uiDefaults.put("TabbedPane.font", font); //$NON-NLS-1$
+				uiDefaults.put("Panel.font", font); //$NON-NLS-1$
+				uiDefaults.put("TitledBorder.font", font); //$NON-NLS-1$
+				uiDefaults.put("List.font", font); //$NON-NLS-1$
+				uiDefaults.put("Table.font", font); //$NON-NLS-1$
+				uiDefaults.put("TableHeader.font", font); //$NON-NLS-1$
+				uiDefaults.put("Tree.font", font); //$NON-NLS-1$
+				uiDefaults.put("TextArea.font", font); //$NON-NLS-1$
+				uiDefaults.put("PasswordField.font", font); //$NON-NLS-1$
+				uiDefaults.put("TextField.font", font); //$NON-NLS-1$
+			}
+			else if (LookAndFeelInfo.class.getName().equals(name) && frame != null)
+			{
+				uiDefaults.put("ToolTip.hideAccelerator", Boolean.TRUE); //$NON-NLS-1$
+				ToolTipManager.sharedInstance().setDismissDelay(8000);
+				SwingUtilities.updateComponentTreeUI(frame);
+				if (ap != null)
+				{
+					SwingUtilities.updateComponentTreeUI(ap);
+				}
+
+				Iterator<Window> windows = dialogs.values().iterator();
+				while (windows.hasNext())
+				{
+					Window window = windows.next();
+					SwingUtilities.updateComponentTreeUI(window);
+				}
+			}
+			else if (USE_SYSTEM_PRINT_DIALOG.equals(name))
+			{
+				getSettings().put(USE_SYSTEM_PRINT_DIALOG, value.toString());
+			}
+			else
+			{
+				uiDefaults.put(name.toString(), value);
+			}
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+			return false;
+		}
+		return true;
+	}
+
+	protected JSWindowManager createJSWindowManager()
+	{
+		return new SwingJSWindowManager(this);
+	}
+
+	public JSWindowManager getJSWindowManager()
+	{
+		return jsWindowManager;
+	}
+
+	/**
+	 * Show the help private void showAppHelp() { // try // { // if (hb == null) // { // URL hsURL = new //
+	 * URL(WebStart.getWebStartURL(),"docs/help/client.hs");//developer/server.hs? // HelpSet hs = new HelpSet(null, hsURL); // hb = hs.createHelpBroker(); // }
+	 * // hb.setDisplayed(true); // } // catch (Exception ex) // { // Debug.error("Help not found\n" + ex); // return; // } }
+	 */
+
+	public IBeanManager getBeanManager()
+	{
+		return beanManager;
+	}
+
+	public ICmdManager getCmdManager()
+	{
+		return cmdManager;
+	}
+
+	@Override
+	protected void registerListeners()
+	{
+		// Note:add order is important
+
+		// 1
+		J2DBGlobals.addPropertyChangeListener(this, cmdManager); // register
+		J2DBGlobals.addPropertyChangeListener(modeManager, cmdManager); // register
+
+		// 2
+		super.registerListeners();
+	}
+
+	@Override
+	protected boolean startApplicationServer()
+	{
+		try
+		{
+			applicationServer = connectApplicationServer();
+		}
+		catch (Exception ex)
+		{
+			reportError(Messages.getString("servoy.client.error.finding.dataservice"), ex); //$NON-NLS-1$
+		}
+		return applicationServer != null;
+	}
+
+	protected IApplicationServer connectApplicationServer() throws Exception
+	{
+		String name = IApplicationServer.NAME;
+
+		String host = getServerURL().getHost();
+		int port = Utils.getAsInteger(settings.getProperty("usedRMIRegistryPort")); //$NON-NLS-1$
+		try
+		{
+			if (register == null)
+			{
+				register = LocateRegistry.getRegistry(host, port, rmiFactoryFactory.getRemoteClientSocketFactory());
+			}
+			return (IApplicationServer)register.lookup(name);
+		}
+		catch (Exception e)
+		{
+			Debug.error("Error getting the service " + name + " from host " + host + ':' + port, e); //$NON-NLS-1$ //$NON-NLS-2$
+			throw e;
+		}
+	}
+
+
+	private Registry register;
+
+	// solution loading monitor
+	protected boolean solutionLoading;
+	protected Object solutionLoadingMutex = new Object();
+
+	@Override
+	protected SolutionMetaData selectSolutionToLoad() throws RepositoryException
+	{
+		if (getSolution() != null)
+		{
+			int x = JOptionPane.showConfirmDialog(frame, Messages.getString("servoy.client.message.closeopensolution"), //$NON-NLS-1$
+				Messages.getString("servoy.general.confirm"), //$NON-NLS-1$
+				JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
+			if (x != JOptionPane.OK_OPTION)
+			{
+				return null;
+			}
+			closeSolution(false, null);
+			// always return, because openSolutionDialog method is called in closeSolution
+			return null;
+		}
+
+		SwingHelper.dispatchEvents(100);// hide menu
+
+		return super.selectSolutionToLoad();
+	}
+
+
+	@Override
+	protected void loadSolution(final SolutionMetaData solutionMeta) throws RepositoryException
+	{
+		// regular solution
+		getFormManager().showSolutionLoading(true);
+		invokeLater(new Runnable()
+		{
+			public void run()
+			{
+				try
+				{
+					blockGUI(Messages.getString("servoy.client.status.loadingsolution", new Object[] { solutionMeta.getName() })); //$NON-NLS-1$
+					loadSolutionsAndModules(solutionMeta);
+				}
+				catch (final Exception ex)
+				{
+					invokeLater(new Runnable()
+					{
+						public void run()
+						{
+							reportError(Messages.getString("servoy.client.error.opensolution"), ex); //$NON-NLS-1$
+						}
+					});
+				}
+				finally
+				{
+					getScriptEngine();
+					releaseGUI();
+				}
+			}
+		});
+
+	}
+
+	@Override
+	protected SolutionMetaData showSolutionSelection(SolutionMetaData[] solutions)
+	{
+		if (selectSolutionDialog == null)
+		{
+			selectSolutionDialog = new SelectSolutionDialog(this);
+		}
+		return selectSolutionDialog.showDialog(solutions);
+	}
+
+	@Override
+	protected int getSolutionTypeFilter()
+	{
+		return super.getSolutionTypeFilter() | SolutionMetaData.SMART_CLIENT_ONLY;
+	}
+
+	@Override
+	public boolean loadSolutionsAndModules(SolutionMetaData s)
+	{
+		boolean value = super.loadSolutionsAndModules(s);
+		if (getSolution() != null)
+		{
+			OrientationApplier.setOrientationToAWTComponent(frame, getLocale(), getSolution().getTextOrientation());
+		}
+		return value;
+	}
+
+	@Override
+	protected void solutionLoaded(final Solution solution)
+	{
+		invokeLater(new Runnable()
+		{
+			/**
+			 * @see java.lang.Runnable#run()
+			 */
+			public void run()
+			{
+				try
+				{
+					blockGUI(Messages.getString("servoy.client.status.initializing.solution")); //$NON-NLS-1$
+					frame.setTitle(getApplicationName() + " - " + solution.getName()); //$NON-NLS-1$
+					J2DBGlobals.firePropertyChange(J2DBClient.this, "solution", null, solution); //$NON-NLS-1$
+				}
+				finally
+				{
+					releaseGUI();
+				}
+			}
+		});
+	}
+
+	@Override
+	public boolean saveSolution()
+	{
+		// not impleneted in this class
+		return true;
+	}
+
+	public void setTitle(String name)
+	{
+		String title = ""; //$NON-NLS-1$
+		String solutionTitle = getSolution().getTitleText();
+
+		if (solutionTitle == null)
+		{
+			title = getSolution().getName();
+		}
+		else if (!solutionTitle.equals("<empty>")) //$NON-NLS-1$
+		{
+			title = solutionTitle;
+		}
+
+		title = getI18NMessageIfPrefixed(title);
+
+		if (name != null && !name.trim().equals("") && !"<empty>".equals(name)) //$NON-NLS-1$ //$NON-NLS-2$
+		{
+			String i18nName = getI18NMessageIfPrefixed(name);
+
+			FormController formController = (FormController)getFormManager().getCurrentForm();
+			if (formController != null)
+			{
+				String name2 = Text.processTags(i18nName, formController.getTagResolver());
+				if (name2 != null) i18nName = name2;
+
+			}
+			else
+			{
+				String name2 = Text.processTags(i18nName, TagResolver.createResolver(new PrototypeState(null)));
+				if (name2 != null) i18nName = name2;
+			}
+			if (!i18nName.trim().equals("")) //$NON-NLS-1$
+			{
+				if ("".equals(title)) //$NON-NLS-1$
+				{
+					title += i18nName;
+				}
+				else
+				{
+					title += " - " + i18nName; //$NON-NLS-1$
+				}
+			}
+		}
+		String appName = getDisplayApplicationName();
+		if (appName.endsWith("Developer")) //$NON-NLS-1$
+		{
+			title = appName + " - " + title; //$NON-NLS-1$
+		}
+		else
+		{
+			if (title.equals("")) //$NON-NLS-1$
+			{
+				title = appName;
+			}
+			else
+			{
+				title += " - " + appName; //$NON-NLS-1$
+			}
+		}
+		frame.setTitle(title);
+	}
+
+	@Override
+	protected void checkForActiveTransactions(boolean force)
+	{
+		if (foundSetManager != null)
+		{
+			if (foundSetManager.hasTransaction())
+			{
+				int but = JOptionPane.CANCEL_OPTION;
+				if (!force)
+				{
+					but = JOptionPane.showConfirmDialog(
+						frame,
+						Messages.getString("servoy.client.message.activetransaction"), Messages.getString("servoy.client.message.activetransaction.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE); //$NON-NLS-1$ //$NON-NLS-2$
+				}
+				if (but == JOptionPane.OK_OPTION)
+				{
+					foundSetManager.commitTransaction();
+				}
+				else
+				{
+					foundSetManager.rollbackTransaction(false);
+				}
+			}
+		}
+	}
+
+	@Override
+	public boolean closeSolution(boolean force, Object[] args)
+	{
+		if (getSolution() == null || closing) return true;
+
+		blockGUI(Messages.getString("servoy.client.status.closingsolution")); //$NON-NLS-1$
+		try
+		{
+			if (!super.closeSolution(force, args)) return false;
+
+			if (frame != null) frame.setTitle(getDisplayApplicationName());
+
+			loadedSkin = false;
+			skinLaf = null;
+
+			// delete all dialogs
+			Iterator<Window> it = dialogs.values().iterator();
+			while (it.hasNext())
+			{
+				Window element = it.next();
+				element.dispose();
+			}
+			dialogs = new HashMap<String, Window>();
+
+			Collection<Style> userStyles = getFlattenedSolution().flushUserStyles();
+			if (userStyles != null)
+			{
+				for (Style style : userStyles)
+				{
+					ComponentFactory.flushStyle(style);
+				}
+			}
+
+			setStatusText("", null); //$NON-NLS-1$
+			ComponentFactory.flushCachedItems();
+			invokeLater(new Runnable()// make some stuff later null so its not created again
+			{
+				public void run()
+				{
+					editLabel.setIcon(empty);
+					insertModeLabel.setIcon(empty);
+					transactionLabel.setIcon(empty);
+					lockLabel.setIcon(empty);
+					dataChangeLabel.setIcon(empty);
+				}
+			});
+
+			return true;
+		}
+		catch (Exception ex)
+		{
+			Debug.error(ex);
+			return false;
+		}
+		finally
+		{
+			releaseGUI();
+		}
+	}
+
+	protected int blockCounter = 0;
+	protected Stack<Pair<Color, String>> msgStack = new Stack<Pair<Color, String>>();
+	protected Pair<Color, String> lastOne;
+
+	@Override
+	public void blockGUI(final String reason)
+	{
+		synchronized (msgStack)
+		{
+			blockCounter++;
+			if (msgStack.size() == 0) lastOne = new Pair<Color, String>(statusLabel.getForeground(), statusLabel.getText());
+
+			Runnable update = new Runnable()
+			{
+				public void run()
+				{
+					msgStack.push(new Pair<Color, String>(Color.BLACK, reason));
+					statusLabel.setForeground(Color.BLACK);
+					statusLabel.setText(reason);
+					if (blockCounter == 1)
+					{
+						frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+						statusProgessBar.setIndeterminate(true);
+						rootPane.getGlassPane().setVisible(true);
+						rootPane.getGlassPane().setEnabled(true);
+					}
+				}
+			};
+
+			if (isEventDispatchThread())
+			{
+				update.run();
+			}
+			else
+			{
+				invokeLater(update);
+			}
+		}
+	}
+
+	// Releases GUI interaction
+	@Override
+	public void releaseGUI()
+	{
+		synchronized (msgStack)
+		{
+			blockCounter--;
+			if (blockCounter < 0)
+			{
+				Debug.error("releaseGUI to many times called"); //$NON-NLS-1$
+				blockCounter = 0;
+			}
+			else if (blockCounter >= 0)
+			{
+				Runnable update = new Runnable()
+				{
+					public void run()
+					{
+						msgStack.pop();// remove myown msg, to be able to show previous
+						Pair<Color, String> p = null;
+						if (msgStack.size() == 0)
+						{
+							p = lastOne;
+						}
+						else
+						{
+							p = msgStack.peek();
+						}
+						statusLabel.setForeground(p.getLeft());
+						statusLabel.setText(p.getRight());
+						if (blockCounter == 0)
+						{
+							if (frame != null) frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+							rootPane.getGlassPane().setEnabled(false);
+							rootPane.getGlassPane().setVisible(false);
+							statusProgessBar.setIndeterminate(false);
+						}
+					}
+				};
+
+				if (isEventDispatchThread())
+				{
+					update.run();
+				}
+				else
+				{
+					invokeLater(update);
+				}
+			}
+		}
+	}
+
+	@Override
+	public void reportWarning(String s)
+	{
+		reportWarningInStatus(s);
+	}
+
+	public void reportWarningInStatus(final String s)
+	{
+		if (s == null) return;
+		mainPanel.getToolkit().beep();
+
+		synchronized (msgStack)
+		{
+			if (msgStack.size() == 0) lastOne = new Pair<Color, String>(statusLabel.getForeground(), statusLabel.getText());
+
+			Runnable update = new Runnable()
+			{
+				public void run()
+				{
+					msgStack.push(new Pair<Color, String>(Color.RED, s));
+					statusLabel.setForeground(Color.RED);
+					statusLabel.setText(s);
+				}
+			};
+
+			if (isEventDispatchThread())
+			{
+				update.run();
+			}
+			else
+			{
+				invokeLater(update);
+			}
+		}
+		getScheduledExecutor().execute(new HideStatusText(3000 + (s.length() * 100)));
+	}
+
+	class HideStatusText implements Runnable
+	{
+		private final int sleepTime;
+
+		HideStatusText(int slt)
+		{
+			sleepTime = slt;
+		}
+
+		public void run()
+		{
+			try
+			{
+				Thread.sleep(sleepTime);
+			}
+			catch (InterruptedException e)
+			{
+				Debug.error(e);
+			}
+
+			synchronized (msgStack)
+			{
+				Runnable update = new Runnable()
+				{
+					public void run()
+					{
+						msgStack.pop();// remove myown msg, to be able to show previous
+						Pair<Color, String> p = null;
+						if (msgStack.size() == 0)
+						{
+							p = lastOne;
+						}
+						else
+						{
+							p = msgStack.peek();
+						}
+						statusLabel.setForeground(p.getLeft());
+						statusLabel.setText(p.getRight());
+					}
+				};
+
+				invokeLater(update);
+			}
+		}
+	}
+
+	private void fillBrowseToolbar(JToolBar toolBar, Map<String, Action> actions)
+	{
+		JButton mi = null;
+		Action action = null;
+
+		action = actions.get("cmdopensolution"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ToolbarButton(action);
+			toolBar.add(mi);
+		}
+
+		action = actions.get("cmdprint"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ToolbarButton(action);
+			toolBar.add(mi);
+		}
+
+		/*
+		 * action = (Action) actions.get("cmdspell"); if (action != null) { mi = new ToolbarButton(action); toolBar.add(mi); }
+		 */
+		toolBar.addSeparator();
+
+		action = actions.get("cmdhistoryback"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ToolbarButton(action);
+			toolBar.add(mi);
+		}
+
+		action = actions.get("cmdhistoryforward"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ToolbarButton(action);
+			toolBar.add(mi);
+		}
+
+		toolBar.addSeparator();
+
+		action = actions.get("cmdnewrecord"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ToolbarButton(action);
+			toolBar.add(mi);
+		}
+
+		action = actions.get("cmddeleterecord"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ToolbarButton(action);
+			toolBar.add(mi);
+		}
+
+		toolBar.addSeparator();
+
+		action = actions.get("cmdsort"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ToolbarButton(action);
+			toolBar.add(mi);
+		}
+	}
+
+	protected Map<String, Action> getActions()
+	{
+		HashMap<String, Action> table = new HashMap<String, Action>();
+		table.put("cmdopensolution", new CmdOpenSolution(this)); //$NON-NLS-1$ 
+		// table.put("cmdspell", new CmdSpell(this)); //$NON-NLS-1$
+		table.put("cmdnewrecord", new CmdNewRecord(this)); //$NON-NLS-1$
+		table.put("cmdduplicaterecord", new CmdDuplicateRecord(this)); //$NON-NLS-1$
+		table.put("cmddeleterecord", new CmdDeleteRecord(this)); //$NON-NLS-1$
+		table.put("cmddeleteallrecord", new CmdDeleteAllRecord(this)); //$NON-NLS-1$
+		table.put("cmdsort", new CmdSort(this)); //$NON-NLS-1$
+		table.put("cmdclose", new CmdClose(this)); //$NON-NLS-1$
+		table.put("cmdpagesetup", new CmdPageSetup(this)); //$NON-NLS-1$
+		// table.put("cmdprint", new CmdPrint(this)); //$NON-NLS-1$
+		table.put("cmdundo", cmdManager.getUndoAction()); //$NON-NLS-1$
+		table.put("cmdredo", cmdManager.getRedoAction()); //$NON-NLS-1$
+		table.put("cmdcut", new CmdCut(this)); //$NON-NLS-1$
+		table.put("cmdcopy", new CmdCopy(this)); //$NON-NLS-1$
+		table.put("cmdpaste", new CmdPaste(this)); //$NON-NLS-1$
+		table.put("cmdselectall", new CmdSelectAll(this)); //$NON-NLS-1$
+		table.put("cmdshowpreferences", new CmdShowPreferences(this)); //$NON-NLS-1$
+		table.put("cmdbrowsemode", new CmdBrowseMode(this)); //$NON-NLS-1$
+		table.put("cmdfindmode", new CmdFindMode(this)); //$NON-NLS-1$
+		table.put("cmdperformfind", new CmdPerformFind(this)); //$NON-NLS-1$
+		table.put("cmdreducefind", new CmdReduceFind(this)); //$NON-NLS-1$
+		table.put("cmdextendfind", new CmdExtendFind(this)); //$NON-NLS-1$
+		table.put("cmdpreviewmode", new CmdPreviewMode(this)); //$NON-NLS-1$
+		table.put("cmdfindall", new CmdFindAll(this)); //$NON-NLS-1$
+		table.put("cmdstopsearchfindall", new CmdStopSearchFindAll(this)); //$NON-NLS-1$
+		table.put("cmdsavedata", new CmdSaveData(this)); //$NON-NLS-1$
+		// table.put("cmdreplace", new CmdReplace(this)); //$NON-NLS-1$
+		table.put("cmdhelp", new CmdHelp(this)); //$NON-NLS-1$
+		// table.put("cmdhelpcontents", new CmdHelpContents(this)); //$NON-NLS-1$
+		table.put("cmdabout", new CmdAbout(this)); //$NON-NLS-1$
+		table.put("cmdexit", new CmdExit(this)); //$NON-NLS-1$
+		table.put("cmdviewasform", new CmdViewAsForm(this)); //$NON-NLS-1$
+		table.put("cmdviewaslist", new CmdViewAsList(this)); //$NON-NLS-1$
+		// table.put("cmdviewastable", new CmdViewAsTable(this)); //$NON-NLS-1$
+		table.put("cmdomitrecord", new CmdOmitRecord(this)); //$NON-NLS-1$
+		table.put("cmdrevertrecords", new CmdInvertRecords(this)); //$NON-NLS-1$
+		table.put("cmdshowomitrecords", new CmdShowOmitRecords(this)); //$NON-NLS-1$
+		table.put("cmdrecopyvalues", new CmdReCopyValues(this)); //$NON-NLS-1$
+
+		Action action = new CmdHistoryBack(this);
+		rootPane.registerKeyboardAction(action, (KeyStroke)action.getValue(Action.ACCELERATOR_KEY), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+		table.put("cmdhistoryback", action); //$NON-NLS-1$
+		action = new CmdHistoryForward(this);
+		rootPane.registerKeyboardAction(action, (KeyStroke)action.getValue(Action.ACCELERATOR_KEY), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+		table.put("cmdhistoryforward", action); //$NON-NLS-1$
+
+		table.put("cmdnextrecord", new CmdNextRecord(this)); //$NON-NLS-1$
+		table.put("cmdprevrecord", new CmdPrevRecord(this)); //$NON-NLS-1$
+
+		table.put("cmdlogout", new CmdLogout(this)); //$NON-NLS-1$
+
+		table.put("menuimportaction", new MenuImportAction(this)); //$NON-NLS-1$
+		table.put("menuexportaction", new MenuExportAction(this)); //$NON-NLS-1$
+
+		return table;
+	}
+
+	/**
+	 * create the menu bar
+	 */
+	protected JMenuBar createMenuBar(Map<String, Action> actions)
+	{
+		JPopupMenu.setDefaultLightWeightPopupEnabled(false); //make sure menu are aways visibile
+
+		// MenuBar
+		// menuBar = new JMenuBar();
+		if (menuBar == null)
+		{
+			menuBar = new JMenuBar();
+		}
+		else
+		{
+			menuBar.removeAll();
+		}
+		// menuBar.setBorder(BorderFactory.createEmptyBorder());
+		// menuBar.setMargin(new Insets(10,10,10,10));
+		// menuBar.getAccessibleContext().setAccessibleName("Swing menus");
+
+		// menuBar.add(Box.createRigidArea(new Dimension(10,10)));
+		// File Menu
+		JMenu file = menuBar.add(new JMenuAlwaysEnabled(new MenuFileAction(this)));
+		//file.setOpaque(false);
+		// file.setEnabled(!runsInApplet);
+		JMenuItem mi = null;
+
+		Action action = null;
+
+		action = actions.get("releaseformpanels"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			file.add(mi);
+		}
+
+		action = actions.get("cmdopensolution"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			file.add(mi);
+		}
+
+		action = actions.get("cmdclose"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			file.add(mi);
+
+			file.addSeparator();
+		}
+
+		action = actions.get("cmdsolutionsettings"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			file.add(mi);
+
+			file.addSeparator();
+		}
+
+		action = actions.get("cmdpagesetup"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			file.add(mi);
+		}
+
+		// action = (Action) actions.get("cmdprint");
+		// if (action != null)
+		// {
+		// mi = new ActionMenuItem(action);
+		// file.add(mi);
+		// }
+
+		file.add(((ModeManager)modeManager).getPreviewModeMenuItem(actions));
+
+		file.addSeparator();
+
+		action = actions.get("menuimportaction"); //$NON-NLS-1$
+		if (action != null)
+		{
+			if (import_Menu == null)
+			{
+				import_Menu = new JMenuAlwaysEnabled(action);
+			}
+			file.add(import_Menu);
+		}
+		//		import_Menu = new JMenu(Messages.getString("servoy.menuitem.import")); //$NON-NLS-1$
+		//		import_Menu.setIcon(loadImage("import_wiz.gif")); //$NON-NLS-1$
+		//		import_Menu.setEnabled(false);
+		//		file.add(import_Menu);
+
+		action = actions.get("menuexportaction"); //$NON-NLS-1$
+		if (action != null)
+		{
+			if (export_Menu == null)
+			{
+				export_Menu = new JMenuAlwaysEnabled(action);
+			}
+			file.add(export_Menu);
+		}
+		//		export_Menu = new JMenu(Messages.getString("servoy.menuitem.export")); //$NON-NLS-1$
+		//		export_Menu.setIcon(loadImage("export_wiz.gif")); //$NON-NLS-1$
+		//		export_Menu.setEnabled(false);
+		//		file.add(export_Menu);
+
+		file.addSeparator();
+
+		action = actions.get("cmdlogout"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			file.add(mi);
+		}
+
+		action = actions.get("cmdexit"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			file.add(mi);
+		}
+
+		// Edit Menu
+		JMenu edit = menuBar.add(new JMenuAlwaysEnabled(new MenuEditAction(this)));
+		//		edit.setOpaque(false);
+
+		action = actions.get("cmdundo"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			edit.add(mi);
+		}
+		action = actions.get("cmdredo"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			edit.add(mi);
+		}
+
+		edit.addSeparator();
+
+		action = actions.get("cmdcopy"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			edit.add(mi);
+		}
+
+		action = actions.get("cmdcut"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			edit.add(mi);
+		}
+
+		action = actions.get("cmdpaste"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			edit.add(mi);
+		}
+
+		edit.addSeparator();
+
+		action = actions.get("cmdselectall"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			edit.add(mi);
+		}
+
+		edit.addSeparator();
+
+		action = actions.get("cmdshowpreferences"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			edit.add(mi);
+		}
+
+		// Mode Menu
+		JMenu mode = menuBar.add(new JMenuAlwaysEnabled(new MenuViewAction(this)));
+		//		mode.setOpaque(false);
+
+		// mode.add(modeManager.getBrowseModeMenuItem(actions));
+		ButtonGroup bg = new ButtonGroup();
+		JRadioButtonMenuItem mi1 = null;
+		JRadioButtonMenuItem mi2 = null;
+		JRadioButtonMenuItem mi3 = null;
+		action = actions.get("cmdviewasform"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi1 = new ActionRadioMenuItem(action);
+			mode.add(mi1);
+			bg.add(mi1);
+		}
+		action = actions.get("cmdviewaslist"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi2 = new ActionRadioMenuItem(action);
+			mode.add(mi2);
+			bg.add(mi2);
+		}
+		action = actions.get("cmdviewastable"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi3 = new ActionRadioMenuItem(action);
+			mode.add(mi3);
+			bg.add(mi3);
+		}
+
+		((SwingFormManager)formManager).setViews(new JRadioButtonMenuItem[] { mi1, mi2, mi3 });
+
+		ButtonGroup bg1 = new ButtonGroup();
+		action = actions.get("cmdbasicfilter"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mode.addSeparator();
+			mi = new ActionRadioMenuItem(action);
+			mode.add(mi);
+			bg1.add(mi);
+		}
+		action = actions.get("cmdadvancedfilter"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionRadioMenuItem(action);
+			mode.add(mi);
+			bg1.add(mi);
+		}
+		action = actions.get("cmdwebfilter"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionCheckBoxMenuItem(action);
+			mode.add(mi);
+		}
+
+		action = actions.get("cmdshowrulers"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mode.addSeparator();
+			mi = new ActionCheckBoxMenuItem(action);
+			mode.add(mi);
+		}
+
+		action = actions.get("cmdshowgrid"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionCheckBoxMenuItem(action);
+			mode.add(mi);
+		}
+
+		action = actions.get("cmdsnaptogrid"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionCheckBoxMenuItem(action);
+			mode.add(mi);
+		}
+
+		mode.addSeparator();
+
+		JMenu toolbars = toolbarsPanel.getMenu();
+
+		mode.add(toolbars);
+
+		// Select Menu
+		JMenu select = menuBar.add(new JMenuAlwaysEnabled(new MenuSelectAction(this)));
+		//		select.setOpaque(false);
+
+		select.add(((ModeManager)modeManager).getFindModeMenuItem(actions));
+
+		action = actions.get("cmdperformfind"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			select.add(mi);
+		}
+		action = actions.get("cmdreducefind"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			select.add(mi);
+		}
+		action = actions.get("cmdextendfind"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			select.add(mi);
+		}
+
+		action = actions.get("cmdfindall"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			select.add(mi);
+		}
+
+		select.addSeparator();
+
+		action = actions.get("cmdsavedata"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			select.add(mi);
+		}
+
+		select.addSeparator();
+
+		action = actions.get("cmdnewrecord"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			select.add(mi);
+		}
+
+		action = actions.get("cmdduplicaterecord"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			select.add(mi);
+		}
+
+		action = actions.get("cmddeleterecord"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			select.add(mi);
+		}
+
+		action = actions.get("cmddeleteallrecord"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			select.add(mi);
+		}
+
+		select.addSeparator();
+
+		action = actions.get("cmdomitrecord"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			select.add(mi);
+		}
+		action = actions.get("cmdshowomitrecords"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			select.add(mi);
+		}
+		action = actions.get("cmdrevertrecords"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			select.add(mi);
+		}
+		select.addSeparator();
+
+		action = actions.get("cmdprevrecord"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			select.add(mi);
+		}
+		action = actions.get("cmdnextrecord"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			select.add(mi);
+		}
+
+		select.addSeparator();
+
+		action = actions.get("cmdsort"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			select.add(mi);
+		}
+
+		action = actions.get("cmdrecopyvalues"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			select.add(mi);
+		}
+
+		action = actions.get("cmdreplace"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			select.add(mi);
+		}
+
+		// Script Menu
+		menuBar.add(((SwingFormManager)formManager).getScriptMenu()); // Script
+
+		// Window Menu
+		menuBar.add(((SwingFormManager)formManager).getWindowMenu());
+
+		// Help Menu
+		JMenu help = menuBar.add(new JMenuAlwaysEnabled(new MenuHelpAction(this)));
+		//		help.setOpaque(false);
+
+		action = actions.get("cmdhelp"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			help.add(mi);
+		}
+
+		action = actions.get("cmdhelpcontents"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			help.add(mi);
+		}
+
+		help.addSeparator();
+
+		action = actions.get("cmdsupport"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			help.add(mi);
+		}
+
+		action = actions.get("cmdforum"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			help.add(mi);
+		}
+
+		action = actions.get("cmdnewversioncheck"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			help.add(mi);
+
+			help.addSeparator();
+		}
+
+		action = actions.get("cmdabout"); //$NON-NLS-1$
+		if (action != null)
+		{
+			mi = new ActionMenuItem(action);
+			help.add(mi);
+		}
+
+		return menuBar;
+	}
+
+	protected void attachAppleMenu(Map<String, Action> actions)
+	{
+		Object appleObject;
+		try
+		{
+			Class< ? > clazz = Class.forName("net.roydesign.app.Application"); //$NON-NLS-1$
+			Method mi = clazz.getMethod("getInstance", (Class[])null); //$NON-NLS-1$
+			appleObject = mi.invoke(null, (Object[])null);
+
+			Action action = actions.get("cmdabout"); //$NON-NLS-1$
+			if (action != null)
+			{
+				Method m = clazz.getMethod("getAboutJMenuItem", (Class[])null); //$NON-NLS-1$
+				JMenuItem a_about = (JMenuItem)m.invoke(appleObject, (Object[])null);
+				a_about.addActionListener(action);
+			}
+
+			action = actions.get("cmdexit"); //$NON-NLS-1$
+			if (action != null)
+			{
+				Method m = clazz.getMethod("getQuitJMenuItem", (Class[])null); //$NON-NLS-1$
+				JMenuItem a_about = (JMenuItem)m.invoke(appleObject, (Object[])null);
+				a_about.addActionListener(action);
+			}
+
+			action = actions.get("cmdshowpreferences"); //$NON-NLS-1$
+			if (action != null)
+			{
+				Method m = clazz.getMethod("getPreferencesJMenuItem", (Class[])null); //$NON-NLS-1$
+				JMenuItem a_about = (JMenuItem)m.invoke(appleObject, (Object[])null);
+				a_about.addActionListener(action);
+			}
+		}
+		catch (Throwable e)
+		{
+			Debug.error(e);
+		}
+	}
+
+	/**
+	 * Show the application dialog
+	 */
+	public void showAppPrefs()
+	{
+		if (ap == null)
+		{
+			blockGUI(Messages.getString("servoy.client.status.loading.preferencepanels")); //$NON-NLS-1$
+			SwingHelper.dispatchEvents(300);// show cursor / hide menu
+			try
+			{
+				ap = new ApplicationPreferences(this);
+				// Load all default tabs
+
+				loadPreferecesPanels(ap);
+
+				// Load plugins tabs
+				((ClientPluginManager)pluginManager).addPreferenceTabs(ap);
+
+				ap.pack();
+				ap.setLocationRelativeTo(mainPanel);
+
+			}
+			finally
+			{
+				releaseGUI();
+			}
+		}
+		ap.setVisible(true);
+	}
+
+	protected PreferencePanel createGeneralPanel()
+	{
+		return new GeneralPanel(this);
+	}
+
+	protected void loadPreferecesPanels(ApplicationPreferences appPrefs)
+	{
+		appPrefs.addPreferenceTab(createGeneralPanel());
+		appPrefs.addPreferenceTab(new LFPreferencePanel(this));
+		appPrefs.addPreferenceTab(new LocalePreferences(this));
+		addServicePreferencesTab(appPrefs);
+	}
+
+	protected void addServicePreferencesTab(ApplicationPreferences appPrefs)
+	{
+		appPrefs.addPreferenceTab(new ServicePanel(this));
+	}
+
+	@Override
+	public void logout(final Object[] solution_to_open_args)
+	{
+		if (getClientInfo().getUserUid() != null)
+		{
+			if (getSolution() == null)
+			{
+				super.logout(solution_to_open_args);
+			}
+			else
+			{
+				// close solution first
+				invokeLater(new Runnable()
+				{
+					public void run()
+					{
+						boolean doLogOut = true;
+						if (getSolution() != null)
+						{
+							doLogOut = closeSolution(false, solution_to_open_args);
+						}
+						if (doLogOut)
+						{
+							Action action = getCmdManager().getRegisteredAction("cmdlogout"); //$NON-NLS-1$
+							if (action != null)
+							{
+								action.setEnabled(false);
+							}
+
+							if (getSolution() == null)
+							{
+								// calls super.logout()
+								logout(solution_to_open_args);
+							}
+						}
+					}
+				});
+			}
+		}
+	}
+
+	@Override
+	public String authenticate(Credentials credentials) throws RepositoryException
+	{
+		String jsreturn = super.authenticate(credentials);
+
+		if (getClientInfo().getUserUid() != null)
+		{
+			// successfully logged in
+
+			// store name
+			URL serverURL = getServerURL();
+			getSettings().setProperty(serverURL.getHost() + serverURL.getPort() + "lastLoggedinUserName", getClientInfo().getUserName()); //$NON-NLS-1$
+
+			Action action = getCmdManager().getRegisteredAction("cmdlogout"); //$NON-NLS-1$
+			if (action != null)
+			{
+				action.setEnabled(true);
+			}
+		}
+
+		return jsreturn;
+	}
+
+	@Override
+	public void showDefaultLogin()
+	{
+		Runnable r = new Runnable()
+		{
+			public void run()
+			{
+				LoginDialog loginDialog = null;
+				try
+				{
+					while (getClientInfo().getUserUid() == null)
+					{
+						URL serverURL = getServerURL();
+						String name = getSettings().getProperty(
+							serverURL.getHost() + serverURL.getPort() + "lastLoggedinUserName", System.getProperty("user.name")); //$NON-NLS-1$ //$NON-NLS-2$
+
+						if (loginDialog == null)
+						{
+							loginDialog = createLoginDialog();
+						}
+						Object[] name_password = loginDialog.showDialog(name);
+
+						SwingHelper.dispatchEvents(250); // hide dialog
+
+						if (name_password == null || name_password.length < 2 || name_password[0] == null || name_password[1] == null)
+						{
+							// user hit cancel
+							return;
+						}
+
+						authenticate(null, null, new Object[] { name_password[0].toString(), name_password[1].toString() });
+
+						if (getClientInfo().getUserUid() == null)
+						{
+							JOptionPane.showMessageDialog(frame, Messages.getString("servoy.client.message.loginfailed"), //$NON-NLS-1$ 
+								Messages.getString("servoy.client.message.loginfailed.title"), //$NON-NLS-1$ 
+								JOptionPane.ERROR_MESSAGE);
+						}
+					}
+
+					handleClientUserUidChanged(null, getClientInfo().getUserUid());
+				}
+				catch (Exception e)
+				{
+					reportError(Messages.getString("servoy.client.message.loginfailed"), e); //$NON-NLS-1$ 
+				}
+				finally
+				{
+					if (loginDialog != null)
+					{
+						loginDialog.dispose();
+					}
+				}
+			}
+		};
+		invokeLater(r);
+	}
+
+	@Override
+	public void clearLoginForm()
+	{
+		Action action = getCmdManager().getRegisteredAction("cmdlogout"); //$NON-NLS-1$
+		if (action != null)
+		{
+			action.setEnabled(true);
+		}
+		super.clearLoginForm();
+	}
+
+	public void setStatusProgress(int progress)
+	{
+		statusProgessBar.setValue(progress);
+	}
+
+	public void setStatusText(String statusText, String toolTip)
+	{
+		String text = (statusText.trim().length() == 0) ? READY : statusText;
+		statusLabel.setForeground(Color.BLACK);
+		statusLabel.setText(text);
+		statusLabel.setToolTipText(toolTip);
+		lastOne = new Pair<Color, String>(Color.BLACK, text);
+	}
+
+	private AboutDialog ad;
+
+	public void showAboutDialog()
+	{
+		if (ad == null)
+		{
+			ad = new AboutDialog(this);
+			ad.addWindowListener(new WindowAdapter()
+			{
+				@Override
+				public void windowClosing(WindowEvent e)
+				{
+					ad = null;
+				}
+
+				@Override
+				public void windowClosed(WindowEvent e)
+				{
+					ad = null;
+				}
+			});
+			ad.setLocationRelativeTo(frame);
+			ad.setVisible(true);
+		}
+		else
+		{
+			ad.toFront();
+		}
+	}
+
+	@Override
+	public void reportJSError(String msg, Object detail)
+	{
+		// getScriptEngine().reportError(ApplicationException.JS_SCRIPT_ERROR);
+		System.err.println(msg);// shows in webstart console
+		// reportWarningInStatus(msg); by to many errors is annoing
+	}
+
+	public void reportInfo(String message)
+	{
+		reportInfo(frame, message, Messages.getString("servoy.general.info")); //$NON-NLS-1$
+	}
+
+	public void reportInfo(Component parentComponent, String message, String title)
+	{
+		JOptionPane.showMessageDialog(parentComponent, message, title, JOptionPane.INFORMATION_MESSAGE);
+	}
+
+	@Override
+	public void reportError(String message, Object detail)
+	{
+		Window window = (Window)getJSWindowManager().getCurrentWindowWrappedObject();
+		if (window == null || !window.isVisible())
+		{
+			window = getMainApplicationFrame();
+		}
+		reportError(window, message, detail);
+	}
+
+	public void reportError(Component parentComponent, String message, Object detail)
+	{
+		// test if it is a Repository Exception with Client not register status code.
+		if (!testClientRegistered(detail))
+		{
+			if (Debug.tracing())
+			{
+				if (detail instanceof Throwable)
+				{
+					Debug.trace("client is not registered, waiting for a reconnect", (Throwable)detail); //$NON-NLS-1$
+				}
+				else
+				{
+					Debug.trace("client is not registered, waiting for a reconnect"); //$NON-NLS-1$
+				}
+			}
+			return;
+		}
+		if (detail instanceof Throwable)
+		{
+			Debug.error(message, (Throwable)detail);
+		}
+		else
+		{
+			Debug.error(detail);
+		}
+		mainPanel.getToolkit().beep();
+		String dialogMessage = message;
+		if (dialogMessage == null) dialogMessage = ""; //$NON-NLS-1$
+		else if (dialogMessage.length() > 100)
+		{
+			dialogMessage = dialogMessage.substring(0, 100) + "..."; //$NON-NLS-1$
+		}
+		JOptionPane.showMessageDialog(parentComponent, dialogMessage, Messages.getString("servoy.general.error"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
+		SwingHelper.dispatchEvents(100);// hide the dialog
+	}
+
+	public void setPageFormat(PageFormat pf)
+	{
+		pageFormat = pf;
+		settings.setProperty("pageformat", PersistHelper.createPageFormatString(pf)); //$NON-NLS-1$
+	}
+
+	private PageFormat pageFormat = null;
+
+	public PageFormat getPageFormat()
+	{
+		if (pageFormat == null)
+		{
+			pageFormat = PersistHelper.createPageFormat(settings.getProperty("pageformat")); //$NON-NLS-1$
+			if (pageFormat == null)
+			{
+				pageFormat = new PageFormat();
+			}
+		}
+		return pageFormat;
+	}
+
+	private HashMap<String, Window> dialogs = new HashMap<String, Window>();
+
+	public void registerWindow(String name, Window d)
+	{
+		Window removed = null;
+		if (d != null)
+		{
+			removed = dialogs.put(name, d);
+		}
+		else
+		{
+			removed = dialogs.remove(name);
+		}
+		if (removed != null && d != removed)
+		{
+			removed.dispose();
+		}
+	}
+
+	public Window getWindow(String name)
+	{
+		return dialogs.get(name);
+	}
+
+	@Override
+	protected IExecutingEnviroment createScriptEngine()
+	{
+		return new ScriptEngine(this);
+	}
+
+	@Override
+	protected void createFoundSetManager()
+	{
+		foundSetManager = new FoundSetManager(this, null, new SwingFoundSetFactory());
+		((FoundSetManager)foundSetManager).setInfoListener(this);
+		foundSetManager.init();
+		((FoundSetManager)foundSetManager).getEditRecordList().addEditListener(this);
+	}
+
+	private int getRmiExportPort() throws Exception
+	{
+		URL base = getServerURL();
+		URL url = new URL(base, "servoy-rmi-portserver"); //$NON-NLS-1$
+		DataInputStream is = new DataInputStream((InputStream)url.getContent());
+		int port = is.readInt();
+		is.close();
+		return port;
+	}
+
+	@Override
+	protected void bindUserClient()
+	{
+		try
+		{
+			int port = exportObject(userClient);
+			Debug.trace("RMI export succeeded on port: " + port);
+			getClientInfo().setHostPort(port);
+		}
+		catch (RemoteException e)
+		{
+			Debug.error(e);
+		}
+	}
+
+	private int rmiExportPort = -1;
+
+	/**
+	 * @return
+	 * @throws RemoteException
+	 */
+	public synchronized int exportObject(Remote object) throws RemoteException
+	{
+		int counter = 0;
+		while (counter++ < 100)
+		{
+			try
+			{
+				if (rmiExportPort == -1)
+				{
+					rmiExportPort = getRmiExportPort();
+				}
+
+				UnicastRemoteObject.exportObject(object, rmiExportPort, rmiFactoryFactory.getClientSocketFactory(), rmiFactoryFactory.getServerSocketFactory());
+				counter = -1;
+				break;
+			}
+			catch (Exception e)
+			{
+				// set the port on -1 and try again.
+				rmiExportPort = -1;
+			}
+		}
+		if (counter != -1)
+		{
+			Debug.error("Couldnt export object with port from server, trying to do on anonym port");
+			rmiExportPort = 0;
+			UnicastRemoteObject.exportObject(object, rmiExportPort, rmiFactoryFactory.getClientSocketFactory(), rmiFactoryFactory.getServerSocketFactory());
+		}
+		return rmiExportPort;
+	}
+
+	@Override
+	protected void unBindUserClient() throws Exception
+	{
+		if (userClient != null)
+		{
+			try
+			{
+				Debug.trace("Unexporting userclient");
+				int counter = 1;
+				while (!UnicastRemoteObject.unexportObject(userClient, false))
+				{
+					Debug.trace("Unexporting userclient not yet successful for " + counter + " time");
+					if (isRunningRemote() && counter < 5)
+					{
+						counter++;
+						// Let the server be able to clean it up.
+						synchronized (this)
+						{
+							this.wait(1000);
+						}
+					}
+					else
+					{
+						UnicastRemoteObject.unexportObject(userClient, true);
+						break;
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				Debug.error(e);
+			}
+		}
+	}
+
+	public void output(Object msg, int level)
+	{
+		if (level == ERROR || level == FATAL)
+		{
+			System.err.println(msg);
+		}
+		else
+		{
+			System.out.println(msg);
+		}
+	}
+
+	protected void showAd()
+	{
+		getScheduledExecutor().execute(new Runnable()
+		{
+			public void run()
+			{
+				final Object[] adsInfo = J2DBClient.this.getAdInfo();
+				final int w = Utils.getAsInteger(adsInfo[1]);
+				final int h = Utils.getAsInteger(adsInfo[2]);
+				if (w > 50 && h > 50)
+				{
+					J2DBClient.this.invokeLater(new Runnable()
+					{
+						public void run()
+						{
+							URL url = (URL)adsInfo[0];
+							int t = Utils.getAsInteger(adsInfo[3]);
+							JPanel comp = new InfoPanel(J2DBClient.this, url, t);
+							comp.setSize(w, h);
+							comp.setLocation((frame.getWidth() - comp.getWidth()) - 30, 60);
+							frame.getRootPane().getLayeredPane().add(comp, JLayeredPane.MODAL_LAYER);
+						}
+					});
+				}
+			}
+		});
+	}
+
+	@Override
+	protected boolean registerClient(IUserClient uc) throws Exception
+	{
+		boolean registered = false;
+		try
+		{
+			registered = super.registerClient(uc);
+			if (!registered)
+			{
+				showAd();
+			}
+		}
+		catch (final ApplicationException e)
+		{
+			invokeLater(new Runnable()
+			{
+				public void run()
+				{
+					if (e.getErrorCode() == ServoyException.NO_LICENSE)
+					{
+						JOptionPane.showMessageDialog(frame, Messages.getString("servoy.license.notrialleft"), Messages.getString("servoy.license.label"),
+							JOptionPane.ERROR_MESSAGE);
+						System.exit(1);
+					}
+					else if (e.getErrorCode() == ServoyException.MAINTENANCE_MODE)
+					{
+						JOptionPane.showMessageDialog(frame, Messages.getString("servoy.maintenance.clientRegisterForbidden"), //$NON-NLS-1$
+							Messages.getString("servoy.maintenance.label"), JOptionPane.ERROR_MESSAGE);
+						System.exit(1);
+					}
+				}
+			});
+		}
+		return registered;
+	}
+
+	/**
+	 * @see com.servoy.j2db.dataprocessing.IGlobalEditListener#editChange(com.servoy.j2db.dataprocessing.GlobalEditEvent)
+	 */
+	public void editChange(final GlobalEditEvent e)
+	{
+		if (SwingUtilities.isEventDispatchThread())
+		{
+			if (e.isEditing())
+			{
+				editLabel.setIcon(editing);
+			}
+			else
+			{
+				editLabel.setIcon(empty);
+			}
+		}
+		else
+		{
+			SwingUtilities.invokeLater(new Runnable()
+			{
+				public void run()
+				{
+					if (e.isEditing())
+					{
+						editLabel.setIcon(editing);
+					}
+					else
+					{
+						editLabel.setIcon(empty);
+					}
+				}
+			});
+		}
+	}
+
+	public void showTransactionStatus(boolean b)
+	{
+		if (b)
+		{
+			transactionLabel.setIcon(transaction);
+		}
+		else
+		{
+			transactionLabel.setIcon(empty);
+		}
+	}
+
+	public void showLocksStatus(boolean b)
+	{
+		if (b)
+		{
+			lockLabel.setIcon(locking);
+		}
+		else
+		{
+			lockLabel.setIcon(empty);
+		}
+	}
+
+	public void showDataChange()// blink for 1 seconds
+	{
+		synchronized (flashDataChange)
+		{
+			flashDataChange.setHideTime(System.currentTimeMillis() + 1000);
+			if (!flashDataChange.isRunning())
+			{
+				flashDataChange.setRunning(true);
+				getScheduledExecutor().execute(flashDataChange);
+			}
+		}
+	}
+
+	class FlashDataChange implements Runnable
+	{
+		private static final long flashTime = 400;
+
+		private long hideTime;
+		private boolean visible;
+		private boolean running;
+
+		void setHideTime(long hideTime)
+		{
+			this.hideTime = hideTime;
+		}
+
+		void setRunning(boolean running)
+		{
+			this.running = running;
+		}
+
+		boolean isRunning()
+		{
+			return running;
+		}
+
+		public void run()
+		{
+			visible = true;
+			dataChangeLabel.setIcon(data_change);
+			while (true)
+			{
+				synchronized (this)
+				{
+					if (System.currentTimeMillis() > hideTime)
+					{
+						running = false;
+						dataChangeLabel.setIcon(empty);
+						visible = false;
+						break;
+					}
+				}
+				try
+				{
+					Thread.sleep(visible ? flashTime : flashTime / 2);
+				}
+				catch (InterruptedException e)
+				{
+					// Ignore (this is really not worth logging).
+				}
+				if (visible)
+				{
+					dataChangeLabel.setIcon(empty);
+				}
+				else
+				{
+					dataChangeLabel.setIcon(data_change);
+				}
+				visible = !visible;
+			}
+		}
+	}
+
+	/*
+	 * @see com.servoy.j2db.IMessagesCallback#refresh()
+	 */
+	public void messagesLoaded()
+	{
+		for (String jre_key : Messages.JRE_DEFAULT_KEYS)
+		{
+			String message = Messages.getString(jre_key);
+			if (!Messages.JRE_DEFAULT_KEY_VALUE.equals(message)) UIManager.put(jre_key, message);
+		}
+
+		if (getCmdManager() != null)
+		{
+			((CmdManager)getCmdManager()).i18nRefresh();
+		}
+		ClientState.READY = Messages.getString("servoy.general.status.ready");
+	}
+
+	/*
+	 * @see IServiceProvider#setLocale(Locale)
+	 */
+	public void setLocale(Locale locale)
+	{
+		Locale old = Locale.getDefault();
+		if (!old.equals(locale))
+		{
+			Locale.setDefault(locale);
+			Messages.load(this);
+			J2DBGlobals.firePropertyChange(this, "locale", old, locale);
+		}
+	}
+
+	public Locale getLocale()
+	{
+		return Locale.getDefault();
+	}
+
+	public TimeZone getTimeZone()
+	{
+		return TimeZone.getDefault();
+	}
+
+	/*
+	 * @see IServiceProvider#getI18NMessage(String,Object[])
+	 */
+	public String getI18NMessage(String i18nKey, Object[] array)
+	{
+		if (array != null && array.length != 0)
+		{
+			return Messages.getString(i18nKey, array);
+		}
+		return Messages.getString(i18nKey);
+	}
+
+	public String getI18NMessage(String i18nKey)
+	{
+		return Messages.getString(i18nKey);
+	}
+
+	public void setI18NMessage(String key, String value)
+	{
+		Messages.setI18nScriptingMessage(key, value);
+
+	}
+
+	/*
+	 * @see IServiceProvider#getI18NMessageIfPrefixed(String,Object[])
+	 */
+	public String getI18NMessageIfPrefixed(String i18nKey)
+	{
+		return Messages.getStringIfPrefix(i18nKey);
+	}
+
+	private String i18nColumnName;
+	private String i18nColunmValue;
+
+	public void setI18NMessagesFilter(String columnname, String value)
+	{
+		this.i18nColumnName = columnname;
+		this.i18nColunmValue = value;
+		refreshI18NMessages();
+	}
+
+	public String getI18NColumnNameFilter()
+	{
+		return i18nColumnName;
+	}
+
+	public String getI18NColumnValueFilter()
+	{
+		return i18nColunmValue;
+	}
+
+	public ResourceBundle getResourceBundle(Locale locale)
+	{
+		return new MessagesResourceBundle(this, locale == null ? getLocale() : locale, i18nColumnName, i18nColunmValue, getSolution().getSolutionID());
+	}
+
+	/*
+	 * @see com.servoy.j2db.ClientState#refreshI18NMessages()
+	 */
+	@Override
+	protected void refreshI18NMessages()
+	{
+		Messages.load(this);
+	}
+
+	@Override
+	public boolean isRunningRemote()
+	{
+		return WebStart.isRunningWebStart();
+	}
+
+	@Override
+	public URL getServerURL()
+	{
+		String server_url = System.getProperty("servoy.server_url"); //$NON-NLS-1$
+		if (server_url != null)
+		{
+			try
+			{
+				return new URL(server_url);
+			}
+			catch (MalformedURLException e)
+			{
+				Debug.error(e);
+			}
+		}
+		return WebStart.getWebStartURL();
+	}
+
+	private JDialog disconnectDialog;
+	public volatile static boolean connected = true;
+	private IDataRendererFactory< ? > dataRenderFactory;
+
+
+	/*
+	 * @see disconnectFromServer()
+	 */
+	private void closeDisconnectDialog()
+	{
+		if (!connected)
+		{
+			int option = JOptionPane.showConfirmDialog(disconnectDialog, Messages.getString("servoy.client.serverdisconnect.optionpane.question"), //$NON-NLS-1$
+				Messages.getString("servoy.client.serverdisconnect.optionpane.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE); //$NON-NLS-1$
+			if (option == JOptionPane.YES_OPTION)
+			{
+				saveSettings();
+				System.exit(1);
+			}
+		}
+	}
+
+	/**
+	 * @see com.servoy.j2db.ClientState#testClientRegistered(Object)
+	 */
+	@Override
+	protected boolean testClientRegistered(Object exception)
+	{
+		Object ex = exception;
+		while (ex instanceof Exception && !(ex instanceof ServoyException))
+		{
+			ex = ((Exception)ex).getCause();
+		}
+		if (connected && ex instanceof ServoyException && ((ServoyException)ex).getErrorCode() == ServoyException.InternalCodes.CLIENT_NOT_REGISTERED)
+		{
+			reconnectedToServer();
+			disconnectedFromServer();
+			return false;
+		}
+
+		return connected;
+	}
+
+	/*
+	 * @see com.servoy.j2db.util.rmi.IReconnectListener#disconnected()
+	 */
+	public void disconnectedFromServer()
+	{
+		connected = false;
+		if (disconnectDialog == null)
+		{
+			disconnectDialog = new JDialog(this.getMainApplicationFrame(), Messages.getString("servoy.client.serverdisconnect.dialog.title"), true);
+			disconnectDialog.setPreferredSize(new Dimension(400, 80));
+			disconnectDialog.setLayout(new GridBagLayout());
+
+			GridBagConstraints gbc = new GridBagConstraints();
+			gbc.gridx = 0;
+			gbc.gridy = 0;
+			gbc.anchor = GridBagConstraints.NORTH;
+			disconnectDialog.getContentPane().add(new JLabel(Messages.getString("servoy.client.serverdisconnect.dialog.label")), gbc);
+
+			// for Linux, a button is also added so that the user can close the disconnect dialog; the action is the same as for window close
+			gbc.gridx = 0;
+			gbc.gridy = 1;
+			gbc.anchor = GridBagConstraints.SOUTH;
+			JButton cancelButton = new JButton(Messages.getString("servoy.button.close")); //$NON-NLS-1$
+			cancelButton.setFont(new Font("arial", Font.PLAIN, 11));
+			cancelButton.setPreferredSize(new Dimension(100, 20));
+			cancelButton.addActionListener(new ActionListener()
+			{
+				public void actionPerformed(ActionEvent event)
+				{
+					closeDisconnectDialog();
+				}
+			});
+			disconnectDialog.add(cancelButton, gbc);
+			disconnectDialog.addWindowListener(new WindowAdapter()
+			{
+				@Override
+				public void windowClosing(WindowEvent e)
+				{
+					closeDisconnectDialog();
+				}
+			});
+			disconnectDialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+			disconnectDialog.pack();
+		}
+		Runnable dialogShower = new Runnable()
+		{
+			public void run()
+			{
+				if (!connected)
+				{
+					if (Debug.tracing())
+					{
+						Debug.trace("Setting disconnect dialog to true.");
+					}
+					disconnectDialog.setLocationRelativeTo(getMainApplicationFrame());
+					disconnectDialog.setVisible(true);
+				}
+			}
+		};
+		if (isEventDispatchThread())
+		{
+			dialogShower.run();
+		}
+		else
+		{
+			invokeLater(dialogShower);
+		}
+	}
+
+	/*
+	 * @see com.servoy.j2db.util.rmi.IReconnectListener#reconnect()
+	 */
+	public void reconnectedToServer()
+	{
+		getScheduledExecutor().execute(new Runnable()
+		{
+			public void run()
+			{
+				if (Debug.tracing())
+				{
+					Debug.trace(Thread.currentThread().getName() + ", Reconnecting to the server, unexporting the current client");
+				}
+				try
+				{
+					// Try to force unexport the object.
+					UnicastRemoteObject.unexportObject(userClient, true);
+				}
+				catch (Exception e1)
+				{
+					// ignore if not
+				}
+
+				// Create new clientinfo object. So that it can have different
+				// addresses..
+				getClientInfo().initHostInfo();
+
+				// recreate the UserClient
+				String prevClientId = getClientInfo().getClientId();
+
+				createUserClient();
+				bindUserClient();
+				try
+				{
+					registerClient(userClient);
+				}
+				catch (Exception e)
+				{
+					// Remote client object no longer exists on app server, must have been restarted
+					Debug.error("Error reregistering client", e); //$NON-NLS-1$
+					JOptionPane.showMessageDialog(getMainApplicationFrame(), Messages.getString("servoy.client.message.error.registerclient"),
+						Messages.getString("servoy.client.message.clientregister"), JOptionPane.ERROR_MESSAGE);
+					System.exit(1);
+				}
+
+				if (prevClientId == null || !prevClientId.equals(getClientInfo().getClientId()))
+				{
+					if (((FoundSetManager)getFoundSetManager()).hasLocks(null) || ((FoundSetManager)getFoundSetManager()).hasTransaction() ||
+						!((FoundSetManager)getFoundSetManager()).testClientDataSources())
+					{
+						JOptionPane.showMessageDialog(disconnectDialog, Messages.getString("servoy.client.serverdisconnect.restarting.solution"), //$NON-NLS-1$
+							Messages.getString("servoy.client.serverdisconnect.restarting.solution.title"), JOptionPane.INFORMATION_MESSAGE);
+						connected = true;
+						if (Debug.tracing())
+						{
+							Debug.trace("Client reconnected with id " + getClientID() + " from id " + prevClientId);
+						}
+						invokeLater(new Runnable()
+						{
+							public void run()
+							{
+								if (Debug.tracing())
+								{
+									Debug.trace("Setting disconnect dialog to false.");
+								}
+								disconnectDialog.setVisible(false);
+								closeSolution(true, null);
+							}
+						});
+						return;
+					}
+					try
+					{
+						((FoundSetManager)getFoundSetManager()).registerClientTables();
+					}
+					catch (Exception e)
+					{
+						// Remote client object no longer exists on app server, must have been restarted
+						Debug.error("Error reregistering client", e); //$NON-NLS-1$
+						JOptionPane.showMessageDialog(getMainApplicationFrame(), Messages.getString("servoy.client.message.error.registerclient"),
+							Messages.getString("servoy.client.message.clientregister"), JOptionPane.ERROR_MESSAGE);
+						System.exit(1);
+					}
+					((FoundSetManager)getFoundSetManager()).flushCachedDatabaseData(null);
+				}
+				connected = true;
+				if (Debug.tracing())
+				{
+					Debug.trace("Client reconnected with id " + getClientID() + " from id " + prevClientId);
+				}
+				invokeLater(new Runnable()
+				{
+					public void run()
+					{
+						if (Debug.tracing())
+						{
+							Debug.trace("Setting disconnect dialog to false.");
+						}
+						disconnectDialog.setVisible(false);
+					}
+				});
+			}
+		});
+	}
+
+	public boolean isEventDispatchThread()
+	{
+		return SwingUtilities.isEventDispatchThread();
+	}
+
+	public void invokeLater(Runnable r)
+	{
+		SwingUtilities.invokeLater(r);
+	}
+
+	public void invokeAndWait(Runnable r)
+	{
+		if (isEventDispatchThread())
+		{
+			r.run();
+		}
+		else
+		{
+			try
+			{
+				SwingUtilities.invokeAndWait(r);
+			}
+			catch (Exception e)
+			{
+				Debug.error("Error calling invoke an wait for a runnable", e);
+			}
+		}
+	}
+
+	@Override
+	public void activateSolutionMethod(String globalMethodName, StartupArgumentsScope argumentsScope)
+	{
+		try
+		{
+			((IClientPluginAccess)getPluginAccess()).executeMethod(null, globalMethodName, new Object[] { argumentsScope.getFirstArgument(), argumentsScope },
+				true);
+			getMainApplicationFrame().toFront();
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+		}
+	}
+
+	/**
+	 * @see com.servoy.j2db.IApplication#getItemFactory()
+	 */
+	public ItemFactory getItemFactory()
+	{
+		if (itemFactory == null)
+		{
+			itemFactory = new SwingItemFactory(this);
+		}
+		return itemFactory;
+	}
+
+	public IDataRendererFactory< ? > getDataRenderFactory()
+	{
+		if (dataRenderFactory == null)
+		{
+			dataRenderFactory = new DataRendererFactory();
+		}
+		return dataRenderFactory;
+	}
+
+	/**
+	 * @see com.servoy.j2db.IApplication#isHeadless()
+	 */
+	public boolean isHeadless()
+	{
+		return false;
+	}
+
+	public Container getPrintingRendererParent()
+	{
+		return getEditLabel();
+	}
+
+
+	public boolean showURL(String url, String target, String target_options, int timeout_ms)
+	{
+		// mail to doesn't work in showUrl through webstart
+		if (WebStart.isRunningWebStart() && url.toLowerCase().startsWith("http"))
+		{
+			try
+			{
+				return WebStart.showURL(new URL(url));
+			}
+			catch (Exception ex)
+			{
+				Debug.error(ex);
+				// Service is not supported?
+			}
+		}
+
+		try
+		{
+			BrowserLauncher.openURL(url);
+			return true;
+		}
+		catch (Throwable e)//catch all for apple mac
+		{
+			Debug.error(e);
+			WebStart.setClipboardContent(url);
+			reportWarningInStatus("If running in client this url is shown in browser: " + url + " ,the url is pasted on your clipboard");
+			return false;
+		}
+	}
+
+	public Dimension getScreenSize()
+	{
+		try
+		{
+			int height = Toolkit.getDefaultToolkit().getScreenSize().height;
+			int width = Toolkit.getDefaultToolkit().getScreenSize().width;
+			return new Dimension(width, height);
+		}
+		catch (Exception e)
+		{
+			Debug.trace("Ignore, assume headless exc: " + e.getMessage());
+		}
+		return new Dimension(0, 0);
+	}
+
+	protected LoginDialog createLoginDialog()
+	{
+		return new LoginDialog(frame, this);
+	}
+
+	public String showI18NDialog(String preselect_key, String preselect_language)
+	{
+		I18NDialog sfd = (I18NDialog)getWindow("I18NDialog_main"); //$NON-NLS-1$
+		JFrame window = getMainApplicationFrame();
+		if (sfd == null || sfd.getOwner() != window)
+		{
+			if (sfd != null) sfd.setVisible(false);
+
+			sfd = new I18NDialog(this, window, true);
+			registerWindow("I18NDialog_main", sfd);
+		}
+		else
+		{
+			sfd.setEndUser(true);
+		}
+
+		sfd.setModal(true);
+		String i18nkey = sfd.showDialog(preselect_key, preselect_language);
+		sfd.setModal(false);
+
+		if (i18nkey != null && i18nkey.length() != 0)
+		{
+			return i18nkey;
+		}
+		return null;
+	}
+
+	public Date showCalendar(String pattern, Date date)
+	{
+		JDateChooser chooser = (JDateChooser)getWindow("JDateChooser"); //$NON-NLS-1$
+		Window windowParent = getMainApplicationFrame();
+		if (chooser == null || SwingUtilities.getWindowAncestor(chooser) != windowParent)
+		{
+			if (chooser != null)
+			{
+				chooser.dispose();
+				chooser = null;
+				registerWindow("JDateChooser", chooser);
+			}
+			String dateFormat = TagResolver.getFormatString(Date.class, getSettings());
+			chooser = new JDateChooser((JFrame)windowParent, getI18NMessage("servoy.dateChooser.selectDate"), //$NON-NLS-1$
+				dateFormat);
+			registerWindow("JDateChooser", chooser);
+		}
+
+
+		if (date != null)
+		{
+			Calendar cal = chooser.getSelectedDate();
+			cal.setTime(date);
+			chooser.updateCalendar(cal);
+
+		}
+		if (chooser.showDialog(pattern) == JDateChooser.ACCEPT_OPTION)
+		{
+			Calendar selectedDate = chooser.getSelectedDate();
+			return selectedDate.getTime();
+		}
+
+		return null;
+	}
+
+	private Window getUserWindow(String windowName)
+	{
+		Window w = null;
+		if (windowName == null)
+		{
+			// no name specified; use default dialog if it is showing, or else the main application window
+			w = getWindow(IFormManagerInternal.USER_WINDOW_PREFIX + FormManager.DEFAULT_DIALOG_NAME);
+			if (w == null || (!w.isShowing()))
+			{
+				w = getMainApplicationFrame();
+			}
+		}
+		else
+		{
+			// we use the window with the given name, if found
+			w = getWindow(IFormManagerInternal.USER_WINDOW_PREFIX + windowName);
+		}
+
+		return w;
+	}
+
+
+	public void beep()
+	{
+		Toolkit.getDefaultToolkit().beep();
+	}
+
+	public void setClipboardContent(String string)
+	{
+		WebStart.setClipboardContent(string);
+	}
+
+	public String getClipboardString()
+	{
+		return WebStart.getClipboardString();
+	}
+
+	public void setNumpadEnterAsFocusNextEnabled(boolean enabled)
+	{
+		KeyboardFocusManager.setCurrentKeyboardFocusManager((enabled ? new NumpadEnterFocusTraversalManager() : null));
+		KeyboardFocusManager.getCurrentKeyboardFocusManager().addPropertyChangeListener(new GlobalAutoScrollerFocusListener());
+	}
+
+
+	// special hack for FixedJTable
+	private int paintTableImmediately = 0;
+
+	public void setPaintTableImmediately(boolean b)
+	{
+		if (b) paintTableImmediately--;
+		else paintTableImmediately++;
+
+	}
+
+	public int getPaintTableImmediately()
+	{
+		return paintTableImmediately;
+	}
+
+	public String showColorChooser(String originalColor)
+	{
+		Color org = PersistHelper.createColor(originalColor);
+		CustomColorChooserDialog ccd = (CustomColorChooserDialog)getWindow("CustomColorChooserDialog"); //$NON-NLS-1$
+		if (ccd == null || ccd.getOwner() != getMainApplicationFrame())
+		{
+			ccd = new CustomColorChooserDialog(getMainApplicationFrame(), this);
+			registerWindow("CustomColorChooserDialog", ccd);
+		}
+		Color c = ccd.showDialog(org);
+		if (c != null)
+		{
+			return PersistHelper.createColorString(c);
+		}
+		return null;
+	}
+
+	public String showFontChooser(String fontString)
+	{
+		Font font = PersistHelper.createFont(fontString);
+		JFontChooser chooser = new JFontChooser(getMainApplicationFrame(), font);
+		int but = chooser.showDialog(getMainApplicationFrame(), getI18NMessage("servoy.fontchooser.title"), false); //$NON-NLS-1$
+		if (but == IPropertyEditorDialog.OK_OPTION)
+		{
+			Font f = chooser.getSelectedFont();
+			if (f != null)
+			{
+				return PersistHelper.createFontString(f);
+			}
+		}
+		return null;
+	}
+
+	private boolean loadedSkin = false;
+
+	public void loadSkin()
+	{
+		try
+		{
+			Media m = getFlattenedSolution().getMedia("skin.zip"); //$NON-NLS-1$
+			if (m != null)
+			{
+				skinLaf = SolutionSkin.load(this, m.getMediaData());
+			}
+		}
+		catch (Exception ex)
+		{
+			Debug.error(ex);
+			reportError(getI18NMessage("servoy.formManager.error.LoadingSkin"), ex);
+		}
+		loadedSkin = true;
+	}
+
+	private UIDefaults skinLaf;
+
+
+	public UIDefaults getSkinLookAndFeelDefaults()
+	{
+		if (!loadedSkin) loadSkin();
+		return skinLaf;
+	}
+}
