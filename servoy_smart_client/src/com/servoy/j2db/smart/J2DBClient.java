@@ -1010,7 +1010,6 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			initStreamHandlerFactory();
 
 			super.applicationInit();
-			beanManager = createBeanManager();
 
 			// repaint manager that handles repaint for overlapping components properly (if a component
 			// below other components is repainted, the components on top of it will be repainted too)
@@ -1048,6 +1047,15 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			releaseGUI();
 		}
 	}
+
+	@Override
+	protected boolean applicationServerInit() throws Exception
+	{
+		boolean b = super.applicationServerInit();
+		beanManager = createBeanManager();
+		return b;
+	}
+
 
 	protected ILAFManager createLAFManager()
 	{
