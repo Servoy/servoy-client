@@ -824,7 +824,8 @@ public class JSDatabaseManager
 	 * Returns an array of edited records with outstanding (unsaved) data. 
 	 * 
 	 * NOTE: To return a dataset of outstanding (unsaved) edited data for each record, see JSRecord.getChangedData();
-	 *
+	 * NOTE2: The fields focus may be lost in user interface in order to determine the edits. 
+	 * 
 	 * @sample
 	 * //This method can be used to loop through all outstanding changes,
 	 * //the application.output line contains all the changed data, their tablename and primary key
@@ -1529,7 +1530,9 @@ public class JSDatabaseManager
 	/**
 	 * Saves all outstanding (unsaved) data and exits the current record. 
 	 * Optionally, by specifying a record, can save a single record instead of all the data.
-	 *
+	 * 
+	 * NOTE: The fields focus may be lost in user interface in order to determine the edits.
+	 * 
 	 * @sample
 	 * databaseManager.saveData();
 	 * //databaseManager.saveData(foundset.getRecord(1));//save specific record
@@ -2014,6 +2017,8 @@ public class JSDatabaseManager
 	/**
 	 * Returns true if the specified foundset, on a specific index or in any of its records, or the specified record has changes.
 	 *
+	 * NOTE: The fields focus may be lost in user interface in order to determine the edits.
+	 * 
 	 * @sample
 	 * if (databaseManager.hasRecordChanges(foundset,2))
 	 * {
