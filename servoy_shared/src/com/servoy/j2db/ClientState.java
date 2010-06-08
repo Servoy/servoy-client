@@ -254,7 +254,6 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 		//Loading plugins
 		//setStatusText(Messages.getString("servoy.client.status.load.plugins")); //$NON-NLS-1$
-		createPluginManager();
 
 		return true;
 	}
@@ -264,6 +263,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		boolean b = startApplicationServer();
 		bindUserClient();
 		registerClient(userClient);
+
+		createPluginManager();
 		return b;
 	}
 
