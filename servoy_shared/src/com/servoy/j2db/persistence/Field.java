@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 
@@ -212,6 +212,7 @@ public class Field extends BaseComponent implements ISupportPopupEditing, ISuppo
 
 	/**
 	 * The method that is executed when the component gains focus.
+	 * NOTE: Do not call methods that will influence the focus itself.
 	 * 
 	 * @templatedescription Handle focus element gaining focus
 	 * @templatename onFocusGained
