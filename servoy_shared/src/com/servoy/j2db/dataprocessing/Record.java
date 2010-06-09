@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 
@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.MemberBox;
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.NativeJavaObject;
@@ -415,11 +416,15 @@ public class Record implements Scriptable, IRecordInternal
 		Object o = getValue(name);
 		if (o instanceof Date)
 		{
-			o = new Date(((Date)o).getTime());//make copy so changes are seen (date is mutable and whould bypass equals)
+			return new Date(((Date)o).getTime());//make copy so changes are seen (date is mutable and would bypass equals)
 		}
-		else if (o instanceof DbIdentValue || o instanceof UUID)
+		if (o instanceof DbIdentValue || o instanceof UUID)
 		{
-			o = new NativeJavaObject(this, o, ScriptObjectRegistry.getJavaMembers(o.getClass(), null));
+			return new NativeJavaObject(this, o, ScriptObjectRegistry.getJavaMembers(o.getClass(), null));
+		}
+		if (o != null && Context.getCurrentContext() != null && o != Scriptable.NOT_FOUND)
+		{
+			return Context.getCurrentContext().getWrapFactory().wrap(Context.getCurrentContext(), start, o, o.getClass());
 		}
 		return o;
 	}
@@ -1005,7 +1010,7 @@ public class Record implements Scriptable, IRecordInternal
 		return row.getLastException();
 	}
 
-	public void js_setException(Exception ex)
+	public void js_setException(@SuppressWarnings("unused") Exception ex)
 	{
 		//ignore
 	}
@@ -1023,7 +1028,7 @@ public class Record implements Scriptable, IRecordInternal
 		return parent;
 	}
 
-	public void js_setFoundset(IFoundSetInternal foundset)
+	public void js_setFoundset(@SuppressWarnings("unused") IFoundSetInternal foundset)
 	{
 		//ignore
 	}

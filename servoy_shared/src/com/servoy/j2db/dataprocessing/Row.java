@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 
@@ -121,7 +121,16 @@ public class Row
 	//if something is defined as calc it will return the calc value
 	public Object getValue(String id)
 	{
-		Object obj = getValueInternal(id);
+		Object obj;
+		int columnIndex = parent.getSQLSheet().getColumnIndex(id);
+		if (columnIndex != -1)
+		{
+			obj = getValue(columnIndex);
+		}
+		else
+		{
+			obj = unstoredCalcCache.get(id);
+		}
 		if (obj == UNINITIALIZED)
 		{
 			obj = null;
@@ -129,12 +138,15 @@ public class Row
 		return obj;
 	}
 
-	private Object getValueInternal(String id)
+	/*
+	 * Get value unconverted
+	 */
+	private Object getRawValue(String id)
 	{
 		int columnIndex = parent.getSQLSheet().getColumnIndex(id);
 		if (columnIndex != -1)
 		{
-			return getValue(columnIndex);
+			return getValue(columnIndex, false);
 		}
 		return unstoredCalcCache.get(id);
 	}
@@ -309,7 +321,7 @@ public class Row
 	//returns the oldvalue, or value if no change
 	public Object setValue(IRowChangeListener src, String dataProviderID, Object value)
 	{
-		Object o = getValueInternal(dataProviderID);
+		Object o = getRawValue(dataProviderID);
 		if (o instanceof DbIdentValue) return o; // this column is controlled by the database - so do not allow sets until the database chose a value
 		Object convertedValue = value;
 

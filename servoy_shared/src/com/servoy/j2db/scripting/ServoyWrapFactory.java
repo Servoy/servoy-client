@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting;
 
 import java.util.Date;
@@ -33,7 +33,7 @@ import com.servoy.j2db.util.Debug;
  * @author jcompagner
  *
  */
-public class ServoyWrapFactory extends WrapFactory
+public final class ServoyWrapFactory extends WrapFactory
 {
 	public ServoyWrapFactory()
 	{
@@ -46,11 +46,11 @@ public class ServoyWrapFactory extends WrapFactory
 	@Override
 	public Object wrap(Context cx, Scriptable scope, Object obj, Class staticType)
 	{
-		if (obj == null || obj == Undefined.instance || obj instanceof Scriptable)
+		if (obj == null || obj == Undefined.instance || obj instanceof Scriptable || obj instanceof Date || obj instanceof String || obj instanceof Number ||
+			obj instanceof Boolean)
 		{
 			return obj;
 		}
-		if (obj instanceof Date) return obj;
 		if (obj instanceof JSConvertedMap< ? , ? > && cx != null)
 		{
 			Scriptable newObject = null;
