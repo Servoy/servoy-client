@@ -331,6 +331,8 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	@Override
 	public boolean isEventDispatchThread()
 	{
+		// just execute everything immediately if client is shutting down
+		if (isShutDown()) return true;
 		// We test here for printing, WebForm.processFppInAWTEventQueue(..) will call SwingUtilities.invokeAndWait() to print in awt thread.
 		return RequestCycle.get() != null || SwingUtilities.isEventDispatchThread();
 	}
