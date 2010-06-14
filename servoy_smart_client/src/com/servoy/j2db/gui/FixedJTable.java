@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.gui;
 
 
@@ -279,6 +279,13 @@ public class FixedJTable extends JTable
 		{
 			// selected index not actually changed, probably due to validation failed
 			return false;
+		}
+
+		// if we are in multiselect we only edit when we click in single selected row; otherwise we just select (no edit)
+		if (e instanceof MouseEvent && ((MouseEvent)e).getID() == MouseEvent.MOUSE_PRESSED &&
+			getSelectionModel().getSelectionMode() == ListSelectionModel.MULTIPLE_INTERVAL_SELECTION)
+		{
+			if (getSelectedRows().length != 1 || getSelectedRows()[0] != row) return false;
 		}
 
 		return super.editCellAt(row, column, e);
