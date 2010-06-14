@@ -614,7 +614,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	public void flushCachedItems()
 	{
 		//just to make sure
-		rollbackTransaction(true);
+		rollbackTransaction(true, true);
 		releaseAllLocks(null);
 
 		createEmptyFoundsets = false;
@@ -1529,8 +1529,13 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	public boolean commitTransaction()
 	{
+		return commitTransaction(true);
+	}
+
+	public boolean commitTransaction(boolean saveFirst)
+	{
 		// first stop all edits, 'force' stop the edit by saying that it is a javascript stop
-		if (globalTransaction != null && getEditRecordList().stopEditing(true) == ISaveConstants.STOPPED)
+		if (globalTransaction != null && (!saveFirst || getEditRecordList().stopEditing(true) == ISaveConstants.STOPPED))
 		{
 			GlobalTransaction gt = globalTransaction;
 			globalTransaction = null;
@@ -1557,17 +1562,20 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	public void rollbackTransaction()
 	{
-		rollbackTransaction(true);
+		rollbackTransaction(true, true);
 	}
 
-	public void rollbackTransaction(boolean queryForNewData)
+	public void rollbackTransaction(boolean rollbackEdited, boolean queryForNewData)
 	{
 		if (globalTransaction != null)
 		{
 			// first delete all edits, don't bother saving them they will be rolled back anyway.
 			// Note that rows that have never been saved in the db will not be seen in GlobalTransaction.rollback()
 			// because they never went through GlobalTransaction.addRow(), EditRecordList.rollbackRecords() will rollback in-memory.
-			getEditRecordList().rollbackRecords();
+			if (rollbackEdited)
+			{
+				getEditRecordList().rollbackRecords();
+			}
 
 			GlobalTransaction gt = globalTransaction;
 			globalTransaction = null;
