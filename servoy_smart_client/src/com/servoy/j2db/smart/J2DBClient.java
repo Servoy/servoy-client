@@ -1901,11 +1901,11 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 				}
 				if (but == JOptionPane.OK_OPTION)
 				{
-					foundSetManager.commitTransaction(true);
+					foundSetManager.commitTransaction();
 				}
 				else
 				{
-					foundSetManager.rollbackTransaction(true, false);
+					foundSetManager.rollbackTransaction(false);
 				}
 			}
 		}

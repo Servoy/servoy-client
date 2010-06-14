@@ -393,7 +393,7 @@ public class SessionClient extends ClientState implements ISessionClient
 	{
 		if (foundSetManager != null)
 		{
-			foundSetManager.rollbackTransaction(true, false);
+			foundSetManager.rollbackTransaction(false);
 		}
 	}
 

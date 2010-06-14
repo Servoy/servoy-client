@@ -714,7 +714,7 @@ public class JSDatabaseManager
 		checkAuthorized();
 		if (foundset instanceof IFoundSetInternal)
 		{
-			return application.getFoundSetManager().getFoundSetCount((IFoundSetInternal)foundset);
+			return ((FoundSetManager)application.getFoundSetManager()).getFoundSetCount((IFoundSetInternal)foundset);
 		}
 		return 0;
 	}
@@ -817,7 +817,7 @@ public class JSDatabaseManager
 	 */
 	public IRecordInternal[] js_getFailedRecords()
 	{
-		return application.getFoundSetManager().getEditRecordList().getFailedRecords();
+		return ((FoundSetManager)application.getFoundSetManager()).getEditRecordList().getFailedRecords();
 	}
 
 	/**
@@ -855,7 +855,7 @@ public class JSDatabaseManager
 	 */
 	public IRecordInternal[] js_getEditedRecords()
 	{
-		return application.getFoundSetManager().getEditRecordList().getEditedRecords();
+		return ((FoundSetManager)application.getFoundSetManager()).getEditRecordList().getEditedRecords();
 	}
 
 	/**
@@ -950,7 +950,6 @@ public class JSDatabaseManager
 
 	public String js_getSQL(Object foundset) throws ServoyException
 	{
-		checkAuthorized();
 		return js_getSQL(foundset, true);
 	}
 
@@ -990,7 +989,6 @@ public class JSDatabaseManager
 
 	public Object[] js_getSQLParameters(Object foundset) throws ServoyException
 	{
-		checkAuthorized();
 		return js_getSQLParameters(foundset, true);
 	}
 
@@ -1787,42 +1785,29 @@ public class JSDatabaseManager
 
 	/**
 	 * Returns true if a transaction is committed; rollback if commit fails. 
-	 * 
-	 * @param saveFirst optional save edited records to the database first (default true)
-	 * 
+	 *
 	 * @sampleas js_startTransaction()
 	 * 
 	 * @return if the transaction could be committed.
 	 */
-	public boolean js_commitTransaction(boolean saveFirst) throws ServoyException
+	public boolean js_commitTransaction()
 	{
-		checkAuthorized();
-		IFoundSetManagerInternal fsm = application.getFoundSetManager();
-		return fsm.commitTransaction(saveFirst);
-	}
-
-	public boolean js_commitTransaction() throws ServoyException
-	{
-		return js_commitTransaction(true);
+		FoundSetManager fsm = ((FoundSetManager)application.getFoundSetManager());
+		return fsm.commitTransaction();
 	}
 
 	/**
 	 * Rollback a transaction started by databaseManager.startTransaction().
-	 * 
-	 * @param rollbackEdited optional also rollback deletes that are done between start and a rollback call that are not handled by autosave false and rollbackEditedRecords()  (default true)
-	 * 
+	 * Will also rollback deletes that are done between start and a rollback call that are not handled by autosave false and rollbackEditedRecords()  
+	 *
 	 * @sampleas js_startTransaction() 
 	 */
-	public void js_rollbackTransaction(boolean rollbackEdited) throws ServoyException
+	public void js_rollbackTransaction()
 	{
-		checkAuthorized();
-		IFoundSetManagerInternal fsm = application.getFoundSetManager();
-		fsm.rollbackTransaction(rollbackEdited, true);
-	}
-
-	public void js_rollbackTransaction() throws ServoyException
-	{
-		js_rollbackTransaction(true);
+		FoundSetManager fsm = ((FoundSetManager)application.getFoundSetManager());
+		fsm.rollbackTransaction(true);
+		// now done in the fsm itself
+		//fsm.refreshFoundSetsFromDB();
 	}
 
 	/**
@@ -1846,7 +1831,7 @@ public class JSDatabaseManager
 	public void js_startTransaction() throws ServoyException
 	{
 		checkAuthorized();
-		application.getFoundSetManager().startTransaction();
+		((FoundSetManager)application.getFoundSetManager()).startTransaction();
 	}
 
 	/**
@@ -1915,7 +1900,7 @@ public class JSDatabaseManager
 	 */
 	public boolean js_getAutoSave()
 	{
-		return application.getFoundSetManager().getEditRecordList().getAutoSave();
+		return ((FoundSetManager)application.getFoundSetManager()).getEditRecordList().getAutoSave();
 	}
 
 	/**
@@ -1948,10 +1933,9 @@ public class JSDatabaseManager
 	 * if (cancel) databaseManager.rollbackEditedRecords()
 	 * databaseManager.setAutoSave(true)
 	 */
-	public void js_rollbackEditedRecords() throws ServoyException
+	public void js_rollbackEditedRecords()
 	{
-		checkAuthorized();
-		application.getFoundSetManager().getEditRecordList().rollbackRecords();
+		((FoundSetManager)application.getFoundSetManager()).getEditRecordList().rollbackRecords();
 	}
 
 	/**
@@ -1963,7 +1947,7 @@ public class JSDatabaseManager
 	 */
 	public boolean js_hasTransaction()
 	{
-		return application.getFoundSetManager().hasTransaction();
+		return ((FoundSetManager)application.getFoundSetManager()).hasTransaction();
 	}
 
 	/*
@@ -2060,7 +2044,7 @@ public class JSDatabaseManager
 			}
 			else
 			{
-				EditRecordList el = application.getFoundSetManager().getEditRecordList();
+				EditRecordList el = ((FoundSetManager)application.getFoundSetManager()).getEditRecordList();
 				el.removeUnChangedRecords(true, false);
 				return el.hasEditedRecords((IFoundSetInternal)values[0]);
 			}
@@ -2115,7 +2099,7 @@ public class JSDatabaseManager
 			{
 				FoundSet foundset = (FoundSet)values[0];
 				String ds = foundset.getDataSource();
-				EditRecordList el = application.getFoundSetManager().getEditRecordList();
+				EditRecordList el = ((FoundSetManager)application.getFoundSetManager()).getEditRecordList();
 				IRecordInternal[] editedRecords = el.getEditedRecords();
 				for (IRecordInternal editedRecord : editedRecords)
 				{
