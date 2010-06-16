@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 import java.util.ArrayList;
@@ -30,6 +30,7 @@ import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryUpdate;
 import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
 
@@ -192,8 +193,9 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 				sqlUpdate.setCondition(sqlParts.getWhereClone());
 
 				FoundSetManager fsm = (FoundSetManager)application.getFoundSetManager();
-				IDataSet pks = null;
-				if (currentPKs == null || (currentPKs.getRowCount() <= fsm.pkChunkSize && !currentPKs.hadMoreRows()))
+				IDataSet pks;
+				boolean allFoundsetRecordsLoaded = currentPKs != null && currentPKs.getRowCount() <= fsm.pkChunkSize && !currentPKs.hadMoreRows();
+				if (allFoundsetRecordsLoaded)
 				{
 					pks = currentPKs;
 				}
@@ -204,61 +206,72 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 				}
 
 				String transaction_id = fsm.getTransactionID(foundset.getSQLSheet());
-				SQLStatement statement = new SQLStatement(ISQLStatement.UPDATE_ACTION, table.getServerName(), table.getName(), pks, transaction_id, sqlUpdate,
-					fsm.getTableFilterParams(table.getServerName(), sqlUpdate));
-				Object[] results = fsm.getDataServer().performUpdates(fsm.getApplication().getClientID(), new ISQLStatement[] { statement });
-
-				fsm.flushCachedDatabaseData(fsm.getDataSource(table));
-				for (int i = 0; results != null && i < results.length; i++)
+				try
 				{
-					if (results[i] instanceof ServoyException)
-					{
-						throw (ServoyException)results[i];
-					}
-				}
-//				fsm.getRowManager(table).flushAllCachedRows();
-//				foundset.refreshFromDB();
-			}
-			else
-			{
-				//update via loop
-				int arrayIndex = 0;
-				int i = foundset.getSelectedIndex();
-				int size = 0;
-				while (i < (size = foundset.getSize()))
-				{
-					if (arrayIndex == rowsToUpdate) break;
+					SQLStatement statement = new SQLStatement(ISQLStatement.UPDATE_ACTION, table.getServerName(), table.getName(), pks, transaction_id,
+						sqlUpdate, fsm.getTableFilterParams(table.getServerName(), sqlUpdate));
+					Object[] results = fsm.getDataServer().performUpdates(fsm.getApplication().getClientID(), new ISQLStatement[] { statement });
 
-					IRecordInternal r = foundset.getRecord(i);
-					boolean wasEditing = r.isEditing();
-					if (r.startEditing())
+					fsm.flushCachedDatabaseData(fsm.getDataSource(table));
+					for (int i = 0; results != null && i < results.length; i++)
 					{
-
-						//update the fields
-						for (int j = 0; j < list.size(); j++)
+						if (results[i] instanceof ServoyException)
 						{
-							Pair<String, Object> p = list.get(j);
-							String name = p.getLeft();
-							Object val = p.getRight();
-							if (val instanceof Object[])
-							{
-								int indx = arrayIndex;
-								if (arrayIndex >= ((Object[])val).length) indx = ((Object[])val).length - 1;//incase there is a length difference between arrays, repeat last value
-								val = ((Object[])val)[indx];
-							}
-							r.setValue(name, val);
+							throw (ServoyException)results[i];
 						}
 					}
-					if (!wasEditing)
-					{
-						r.stopEditing();
-					}
-					i++;
-					arrayIndex++;
 
-					//check if record did fall out of foundset, due to update relation field incase of related foundset or search field
-					if (foundset.getSize() < size) i--;
+					clear();
+					return true;
 				}
+				catch (ApplicationException aex)
+				{
+					if (allFoundsetRecordsLoaded || aex.getErrorCode() != ServoyException.RECORD_LOCKED)
+					{
+						throw aex;
+					}
+					// a record was locked by another client, try per-record
+					Debug.log("foundsetUpdater could not update all records in 1 statement (a record may be locked), trying per-record");
+				}
+			}
+
+			//update via loop
+			int arrayIndex = 0;
+			int i = foundset.getSelectedIndex();
+			int size = 0;
+			while (i < (size = foundset.getSize()))
+			{
+				if (arrayIndex == rowsToUpdate) break;
+
+				IRecordInternal r = foundset.getRecord(i);
+				boolean wasEditing = r.isEditing();
+				if (r.startEditing())
+				{
+
+					//update the fields
+					for (int j = 0; j < list.size(); j++)
+					{
+						Pair<String, Object> p = list.get(j);
+						String name = p.getLeft();
+						Object val = p.getRight();
+						if (val instanceof Object[])
+						{
+							int indx = arrayIndex;
+							if (arrayIndex >= ((Object[])val).length) indx = ((Object[])val).length - 1;//incase there is a length difference between arrays, repeat last value
+							val = ((Object[])val)[indx];
+						}
+						r.setValue(name, val);
+					}
+				}
+				if (!wasEditing)
+				{
+					r.stopEditing();
+				}
+				i++;
+				arrayIndex++;
+
+				//check if record did fall out of foundset, due to update relation field incase of related foundset or search field
+				if (foundset.getSize() < size) i--;
 			}
 		}
 		catch (Exception ex)

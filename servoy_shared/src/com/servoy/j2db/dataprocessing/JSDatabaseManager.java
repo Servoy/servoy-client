@@ -1338,6 +1338,9 @@ public class JSDatabaseManager
 
 				List<SQLStatement> updates = new ArrayList<SQLStatement>();
 
+				IDataSet pks = new BufferedDataSet();
+				pks.addRow(new Object[] { sourceRecordPK });
+
 				IServer server = application.getSolution().getServer(mainTable.getServerName());
 				if (server != null)
 				{
@@ -1367,9 +1370,6 @@ public class JSDatabaseManager
 									ISQLCondition condition = new CompareCondition(ISQLCondition.EQUALS_OPERATOR, qc, sourceRecordPK);
 									qUpdate.setCondition(condition);
 
-									IDataSet pks = new BufferedDataSet();
-									pks.addRow(new Object[] { ValueFactory.createTableFlushValue() });//unknown number of records changed
-
 									SQLStatement statement = new SQLStatement(ISQLStatement.UPDATE_ACTION, table.getServerName(), table.getName(), pks,
 										transaction_id, qUpdate, fsm.getTableFilterParams(table.getServerName(), qUpdate));
 
@@ -1380,8 +1380,6 @@ public class JSDatabaseManager
 					}
 				}
 
-				IDataSet pks = new BufferedDataSet();
-				pks.addRow(new Object[] { sourceRecordPK });
 				QueryTable qTable = new QueryTable(mainTable.getName(), mainTable.getCatalog(), mainTable.getSchema());
 				QueryDelete qDelete = new QueryDelete(qTable);
 				QueryColumn qc = new QueryColumn(qTable, pkc.getID(), pkc.getSQLName(), pkc.getType(), pkc.getLength(), pkc.getScale());
