@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 import java.beans.IntrospectionException;
@@ -569,6 +569,8 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 	}
 
 	public abstract IRootObject createNewRootObject(String name, int objectTypeId, int newElementID, UUID uuid) throws RepositoryException;
+
+	public abstract void restoreObjectToCurrentRelease(IPersist persist) throws RepositoryException;
 
 	/*
 	 * _____________________________________________________________ Server methods, note servers are not in version control!
