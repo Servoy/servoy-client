@@ -103,8 +103,8 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 
 	public Iterator<Form> getForms(Table basedOnTable, boolean sort)
 	{
-		return getForms(getAllObjectsAsList(),
-			basedOnTable == null ? null : DataSourceUtils.createDBTableDataSource(basedOnTable.getServerName(), basedOnTable.getName()), sort);
+		return getForms(getAllObjectsAsList(), basedOnTable == null ? null : DataSourceUtils.createDBTableDataSource(basedOnTable.getServerName(),
+			basedOnTable.getName()), sort);
 	}
 
 	public static Iterator<Form> getForms(List<IPersist> childs, String datasource, boolean sort)
@@ -841,6 +841,43 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * Add the login solution as module by first removing exiting login solutions from the modules list
+	 * @throws RepositoryException 
+	 */
+	public void setLoginSolutionName(String loginSolutionName) throws RepositoryException
+	{
+		List<RootObjectReference> referencedModules = getReferencedModules(null);
+		ArrayList<String> newModules = new ArrayList<String>();
+		for (RootObjectReference moduleReference : referencedModules)
+		{
+			RootObjectMetaData metaData = moduleReference.getMetaData();
+			if (metaData instanceof SolutionMetaData && ((SolutionMetaData)metaData).getSolutionType() != SolutionMetaData.LOGIN_SOLUTION)
+			{
+				newModules.add(((SolutionMetaData)metaData).getName());
+			}
+		}
+
+		if (loginSolutionName != null) newModules.add(loginSolutionName);
+		String newModulesNames = null;
+
+		if (newModules.size() > 0)
+		{
+			StringBuffer sb = new StringBuffer();
+			String modulesDelim = ","; //$NON-NLS-1$
+			for (String module : newModules)
+			{
+				if (sb.length() > 0)
+				{
+					sb.append(modulesDelim);
+				}
+				sb.append(module);
+			}
+			newModulesNames = sb.toString();
+		}
+		setModulesNames(newModulesNames);
 	}
 
 	/**
