@@ -2084,8 +2084,17 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	{
 		if (formModel != null)
 		{
-			int selected[] = formModel.getSelectedIndexes();
-			if (selected.length > 0)
+			int selected[] = null;
+			if (getView() == RECORD_VIEW || getView() == LOCKED_RECORD_VIEW)
+			{
+				int selIdx = formModel.getSelectedIndex();
+				if (selIdx != -1) selected = new int[] { selIdx };
+			}
+			else
+			{
+				selected = formModel.getSelectedIndexes();
+			}
+			if (selected != null && selected.length > 0)
 			{
 				IRecordInternal[] row = new IRecordInternal[selected.length];
 				for (int i = 0; i < selected.length; i++)
@@ -2190,9 +2199,19 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			else
 			{
 				lastAdjusting = -1;
-				int[] index = formModel.getSelectedIndexes();
+				int[] index = null;
+				if (getView() == RECORD_VIEW || getView() == LOCKED_RECORD_VIEW)
+				{
+					int selIdx = formModel.getSelectedIndex();
+					if (selIdx != -1) index = new int[] { selIdx };
+				}
+				else
+				{
+					index = formModel.getSelectedIndexes();
+				}
+
 				IRecordInternal[] state = null;
-				if (index.length > 0)
+				if (index != null && index.length > 0)
 				{
 					state = new IRecordInternal[index.length];
 					for (int i = 0; i < index.length; i++)
@@ -2655,7 +2674,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			JComponent sf = (JComponent)containerImpl; // swingForm, TODO: remove dependency on smart client
 			sf.requestFocus();
 		}
-		else if(view != null)
+		else if (view != null)
 		{
 			view.requestFocus();
 		}
@@ -3545,8 +3564,17 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				}
 
 				//this was former a call to aggregateChange, but now does now unwanted parent traverse...
-				int[] idx = formModel.getSelectedIndexes();
-				if (idx.length == 0) idx = new int[] { 0 };
+				int[] idx = null;
+				if (getView() == RECORD_VIEW || getView() == LOCKED_RECORD_VIEW)
+				{
+					int selIdx = formModel.getSelectedIndex();
+					if (selIdx != -1) idx = new int[] { selIdx };
+				}
+				else
+				{
+					idx = formModel.getSelectedIndexes();
+				}
+				if (idx == null || idx.length == 0) idx = new int[] { 0 };
 				IRecordInternal[] row = new IRecordInternal[idx.length];
 
 				for (int i = 0; i < idx.length; i++)
