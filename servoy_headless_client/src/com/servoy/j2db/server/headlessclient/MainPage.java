@@ -77,10 +77,10 @@ import org.apache.wicket.version.undo.Change;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
-import com.servoy.j2db.FormManager.History;
 import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.Messages;
+import com.servoy.j2db.FormManager.History;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.persistence.Solution;
@@ -94,10 +94,10 @@ import com.servoy.j2db.server.headlessclient.dataui.IFormLayoutProvider;
 import com.servoy.j2db.server.headlessclient.dataui.ISupportWebTabSeq;
 import com.servoy.j2db.server.headlessclient.dataui.StartEditOnFocusGainedEventBehavior;
 import com.servoy.j2db.server.headlessclient.dataui.StyleAppendingModifier;
-import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor;
 import com.servoy.j2db.server.headlessclient.dataui.WebSplitPane;
 import com.servoy.j2db.server.headlessclient.dataui.WebTabPanel;
+import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.server.headlessclient.yui.YUILoader;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IEventExecutor;
@@ -564,17 +564,11 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		// if versioning is disabled then table views can go wrong (don't rollback on a submit)
 		//listview.setVersioned(false);
 
-		// Surround the listView with a dialog div (markup id is not generated for ListView)
-		WebMarkupContainer dialog = new WebMarkupContainer("dialog"); //$NON-NLS-1$
-		dialog.setOutputMarkupId(true);
-		dialog.setMarkupId("dialog_" + (getPageMapName() == null ? "" : getPageMapName())); //$NON-NLS-1$ //$NON-NLS-2$
-		dialog.add(listview);
-
 		Form form = new ServoyForm("servoy_dataform"); //$NON-NLS-1$
 
 		form.add(new SimpleAttributeModifier("autocomplete", "off")); //$NON-NLS-1$ //$NON-NLS-2$
 
-		form.add(dialog);
+		form.add(listview);
 		WebMarkupContainer defaultButton = new WebMarkupContainer("defaultsubmitbutton", new Model()); //$NON-NLS-1$
 		defaultButton.setVisible(!useAJAX);
 		form.add(defaultButton);
