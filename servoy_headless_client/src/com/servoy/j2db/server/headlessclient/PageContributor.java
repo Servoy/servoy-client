@@ -507,47 +507,35 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 				while (it.hasNext())
 				{
 					final String key = it.next();
-					if (key.startsWith("dialog_")) //$NON-NLS-1$
+					if (key.equals("sfw_window")) //$NON-NLS-1$
 					{
 						try
 						{
-							final String[] size = params.get(key);
-							page.visitChildren(WebMarkupContainer.class, new Component.IVisitor<WebMarkupContainer>()
-							{
-								public Object component(WebMarkupContainer dialog)
-								{
-									if (key.equals(dialog.getMarkupId()))
-									{
-										String[] dialogSize = size[0].split(","); //$NON-NLS-1$
-										MainPage parentPage = dialog.findParent(MainPage.class);
-										((WebClient)parentPage.getController().getApplication()).setWindowBounds(//
-											parentPage.getPageMapName() /* null for initial main page */, new Rectangle(Utils.getAsInteger(dialogSize[0]),
-												Utils.getAsInteger(dialogSize[1])));
-										return IVisitor.STOP_TRAVERSAL;
-									}
-									return IVisitor.CONTINUE_TRAVERSAL;
-								}
-							});
+							final String width = params.get(key)[0];
+							final String height = params.get("sfh_window")[0]; //$NON-NLS-1$
+							((WebClient)page.getController().getApplication()).setWindowBounds(page.getPageMapName() /* null for initial main page */,
+								new Rectangle(Utils.getAsInteger(width), Utils.getAsInteger(height)));
 						}
 						catch (Exception ex)
 						{
 							Debug.error(ex);
 						}
 					}
-					else if (key.startsWith("form_")) //$NON-NLS-1$
+					else if (key.startsWith("sfw_form_")) //$NON-NLS-1$
 					{
 						try
 						{
-							final String[] size = params.get(key);
+							final String width = params.get(key)[0];
+							final String height = params.get("sfh_form_" + key.substring("sfw_form_".length()))[0]; //$NON-NLS-1$//$NON-NLS-2$
+							final String containerMarkupId = key.substring("sfh_".length());
 							page.visitChildren(WebForm.class, new Component.IVisitor<WebForm>()
 							{
 								public Object component(WebForm form)
 								{
-									if (key.equals(form.getContainerMarkupId()))
+									if (containerMarkupId.equals(form.getContainerMarkupId()))
 									{
-										String[] formSize = size[0].split(","); //$NON-NLS-1$
-										form.setFormWidth(Utils.getAsInteger(formSize[0]));
-										form.storeFormHeight(Utils.getAsInteger(formSize[1]));
+										form.setFormWidth(Utils.getAsInteger(width));
+										form.storeFormHeight(Utils.getAsInteger(height));
 										return IVisitor.STOP_TRAVERSAL;
 									}
 									return IVisitor.CONTINUE_TRAVERSAL;

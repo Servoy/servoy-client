@@ -127,7 +127,6 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 	private PageContributor pageContributor;
 	private WebMarkupContainer body;
 	private ListView<IFormUIInternal< ? >> listview;
-	private WebMarkupContainer dialog;
 	private List<IFormUIInternal< ? >> webForms;
 	private WebForm main;
 	private String mainFormBgColor;
@@ -630,17 +629,10 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		// if versioning is disabled then table views can go wrong (don't rollback on a submit)
 		//listview.setVersioned(false);
 
-		// Surround the listView with a dialog div (markup id is not generated for ListView)
-		dialog = new WebMarkupContainer("dialog"); //$NON-NLS-1$
-		dialog.setOutputMarkupId(true);
-		dialog.setMarkupId("dialog_" + (getPageMapName() == null ? "" : getPageMapName())); //$NON-NLS-1$ //$NON-NLS-2$
-		dialog.add(listview);
-
 		Form form = new ServoyForm("servoy_dataform"); //$NON-NLS-1$
 
 		form.add(new SimpleAttributeModifier("autocomplete", "off")); //$NON-NLS-1$ //$NON-NLS-2$
-
-		form.add(dialog);
+		form.add(listview);
 		WebMarkupContainer defaultButton = new WebMarkupContainer("defaultsubmitbutton", new Model()); //$NON-NLS-1$
 		defaultButton.setVisible(!useAJAX);
 		form.add(defaultButton);

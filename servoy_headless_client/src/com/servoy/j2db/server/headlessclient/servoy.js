@@ -1095,9 +1095,16 @@ if (typeof(Servoy.Resize) == "undefined")
 			var divs = document.getElementsByTagName("div");
 			for (var i=0;i<divs.length;i++)
 			{
-				if (divs[i].id && (divs[i].id.match("^form_") == "form_" || divs[i].id.match("^dialog_") == "dialog_"))
+				if (divs[i].id)
 				{
-					ajaxCall = ajaxCall + "&" + divs[i].id + "="+divs[i].offsetWidth+","+divs[i].offsetHeight
+					if (divs[i].id.match("^sfh_") == "sfh_")
+					{
+						ajaxCall = ajaxCall + "&" + divs[i].id + "="+divs[i].offsetHeight
+					}
+					else if (divs[i].id.match("^sfw_") == "sfw_")
+					{
+						ajaxCall = ajaxCall + "&" + divs[i].id + "="+divs[i].offsetWidth
+					}
 				} 
 			}
 			ajaxCall = "wicketAjaxGet('" + ajaxCall + "')";
