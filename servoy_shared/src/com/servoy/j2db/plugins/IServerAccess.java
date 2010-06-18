@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.plugins;
 
 
@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServlet;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.server.shared.IClientInformation;
+import com.servoy.j2db.util.ServoyException;
 
 /**
  * Api to use by server plugins.
@@ -233,4 +234,24 @@ public interface IServerAccess extends IPluginAccess
 	 * @since 5.2
 	 */
 	public boolean isAuthenticated(String clientId);
+
+	/**
+	 * Check the password for a username using Servoy built-in user management.
+	 * 
+	 * @return user-UID or null if not valid user/password combination
+	 * @throws ServoyException 
+	 * 
+	 * @since 5.2
+	 */
+	public String checkPasswordForUserName(String user, String password) throws ServoyException;
+
+	/**
+	 * Returns an array of user groups the user with userUid is memeber of (using Servoy built-in user management).
+	 * 
+	 * @return String array
+	 * @throws ServoyException 
+	 * 
+	 * @since 5.2
+	 */
+	public String[] getUserGroups(String userUid) throws ServoyException;
 }
