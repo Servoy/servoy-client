@@ -52,15 +52,13 @@ import com.servoy.j2db.util.Debug;
 @SuppressWarnings("nls")
 public class DebugWebClient extends WebClient implements IDebugWebClient
 {
-
 	private final HttpSession session;
 	private SolutionMetaData solution;
 	private final List<Thread> dispatchThreads = new ArrayList<Thread>(3);
 
-	public DebugWebClient(WebClientSession session, HttpServletRequest req, String name, String pass, String method, Object[] methodArgs,
-		SolutionMetaData solution) throws Exception
+	public DebugWebClient(HttpServletRequest req, String name, String pass, String method, Object[] methodArgs, SolutionMetaData solution) throws Exception
 	{
-		super(session, req, name, pass, method, methodArgs, solution != null ? solution.getName() : "");
+		super(req, name, pass, method, methodArgs, solution != null ? solution.getName() : "");
 		this.solution = solution;
 		this.session = req.getSession();
 	}

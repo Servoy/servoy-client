@@ -65,15 +65,12 @@ import com.servoy.j2db.util.Utils;
 public class WebClient extends SessionClient implements IWebClientApplication
 {
 	private static final String COOKIE_BASE64_PREFIX = "B64p_";
-	private final WebClientSession session;
 	private Map<Object, Object> uiProperties;
 	private final Map<String, Rectangle> windowBounds = new HashMap<String, Rectangle>();
 
-	protected WebClient(WebClientSession session, HttpServletRequest req, String name, String pass, String method, Object[] methodArgs, String solution)
-		throws Exception
+	protected WebClient(HttpServletRequest req, String name, String pass, String method, Object[] methodArgs, String solution) throws Exception
 	{
 		super(req, name, pass, method, methodArgs, solution);
-		this.session = session;
 
 		//set the remote info, since localhost from server is useless
 		ClientInfo ci = getClientInfo();
@@ -260,7 +257,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	{
 		if (WEBCONSTANTS.WEBCLIENT_TEMPLATES_DIR.equals(name))
 		{
-			session.setTemplateDirectoryName((val == null ? null : val.toString()));
+			WebClientSession.get().setTemplateDirectoryName((val == null ? null : val.toString()));
 			return true;
 		}
 		else
@@ -279,7 +276,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	{
 		if (WEBCONSTANTS.WEBCLIENT_TEMPLATES_DIR.equals(name))
 		{
-			return session.getTemplateDirectoryName();
+			return WebClientSession.get().getTemplateDirectoryName();
 		}
 		else
 		{
@@ -287,7 +284,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		}
 	}
 
-	private Object[] adsInfo = null;//chache to expensive to get each time
+	private transient Object[] adsInfo = null;//chache to expensive to get each time
 
 	@Override
 	protected boolean registerClient(IUserClient uc) throws Exception
@@ -466,10 +463,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 			executeEvents();
 
 			super.shutDown(force);
-			if (session != null)//session can be null if super class does not allow a webclient to start 
-			{
-				session.logout(); //valueUnbound will do real shutdown
-			}
+			if (WebClientSession.get() != null) WebClientSession.get().logout(); //valueUnbound will do real shutdown
 		}
 		finally
 		{
@@ -640,8 +634,8 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	@Override
 	public Dimension getScreenSize()
 	{
-		int width = ((WebClientInfo)session.getClientInfo()).getProperties().getScreenWidth();
-		int height = ((WebClientInfo)session.getClientInfo()).getProperties().getScreenHeight();
+		int width = ((WebClientInfo)WebClientSession.get().getClientInfo()).getProperties().getScreenWidth();
+		int height = ((WebClientInfo)WebClientSession.get().getClientInfo()).getProperties().getScreenHeight();
 		return new Dimension(width, height);
 	}
 
@@ -651,7 +645,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		{
 			if (bounds != null)
 			{
-				ClientProperties properties = ((WebClientInfo)session.getClientInfo()).getProperties();
+				ClientProperties properties = ((WebClientInfo)WebClientSession.get().getClientInfo()).getProperties();
 				properties.setBrowserWidth(bounds.width);
 				properties.setBrowserHeight(bounds.height);
 			}
@@ -676,7 +670,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		if (bounds == null)
 		{
 			// fall back to the browser window size
-			ClientProperties properties = ((WebClientInfo)session.getClientInfo()).getProperties();
+			ClientProperties properties = ((WebClientInfo)WebClientSession.get().getClientInfo()).getProperties();
 			bounds = new Rectangle(properties.getBrowserWidth(), properties.getBrowserHeight());
 		}
 		return bounds;

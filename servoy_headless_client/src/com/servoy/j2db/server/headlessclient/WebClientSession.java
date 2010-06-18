@@ -158,7 +158,7 @@ public class WebClientSession extends WebSession
 	protected IWebClientApplication createWebClient(HttpServletRequest req, String name, String pass, String method, Object[] methodArgs, String solution)
 		throws Exception
 	{
-		return new WebClient(this, req, name, pass, method, methodArgs, solution);
+		return new WebClient(req, name, pass, method, methodArgs, solution);
 	}
 
 	public WebClient getWebClient()
