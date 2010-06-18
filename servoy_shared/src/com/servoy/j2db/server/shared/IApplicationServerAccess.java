@@ -13,20 +13,26 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
-package com.servoy.j2db.server;
-
-import java.util.Locale;
-import java.util.Properties;
-
-import com.servoy.j2db.MessagesResourceBundle;
-
-/**
- * Callback interface for messages loading specific for a client, loaded in the server, see {@link MessagesResourceBundle}.
- * @author rob
- *
  */
-public interface IApplicationServerMessagesLoader
+package com.servoy.j2db.server.shared;
+
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+
+import com.servoy.j2db.dataprocessing.IDataServer;
+import com.servoy.j2db.persistence.IRemoteRepository;
+import com.servoy.j2db.persistence.ITeamRepository;
+import com.servoy.j2db.persistence.RepositoryException;
+
+public interface IApplicationServerAccess extends Remote
 {
-	void loadMessages(Properties messages, Locale locale, int solutionId, String i18nColumnName, String i18nColunmValue);
+	public IRemoteRepository getRepository() throws RemoteException;
+
+	public IDataServer getDataServer() throws RemoteException;
+
+	public void logout(String clientId) throws RemoteException, RepositoryException;
+
+	public ITeamRepository getTeamRepository() throws RemoteException;
+
+	public IUserManager getUserManager(String clientId) throws RemoteException;
 }

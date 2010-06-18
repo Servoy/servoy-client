@@ -39,7 +39,6 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
-import com.servoy.j2db.server.IApplicationServer;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
