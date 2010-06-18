@@ -429,8 +429,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		{
 			debugListener = debugWebClient.getFlattenedSolution().getDebugListener();
 		}
-		debugWebClient = new DebugWebClient((WebClientSession)webClientSession, req, userName, password, method, objects, (currentSolution == null) ? null
-			: currentSolution.getSolutionMetaData());
+		debugWebClient = new DebugWebClient(req, userName, password, method, objects, (currentSolution == null) ? null : currentSolution.getSolutionMetaData());
 		if (debugListener != null && debugWebClient.getFlattenedSolution() != null) debugWebClient.getFlattenedSolution().registerDebugListener(debugListener);
 		return debugWebClient;
 	}

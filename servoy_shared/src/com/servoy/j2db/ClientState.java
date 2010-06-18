@@ -20,6 +20,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.URL;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -68,38 +71,59 @@ import com.servoy.j2db.util.serialize.JSONConverter;
  * 
  * @author Jan Blok
  */
-public abstract class ClientState extends ClientVersion implements IServiceProvider
+public abstract class ClientState extends ClientVersion implements IServiceProvider, Serializable
 {
 	public static String READY = Messages.getString("servoy.general.status.ready"); //$NON-NLS-1$
 
 	/**
 	 * Fields
 	 */
-	protected IRepository repository = null;
-	protected final FlattenedSolution solutionRoot = new FlattenedSolution();
+	//provides basic server interaction
+	protected transient IApplicationServer applicationServer;
+
+	//provides extended server access after authentication
+	private transient IApplicationServerAccess applicationServerAccess;
+
+	//local reference to repository
+	protected transient IRepository repository = null;
+
+	//local reference to dataserver
+	private transient IDataServer dataServer;
+
+	//local reference to client host
+	private transient IClientHost clientHost;
+
+	//the script engine
 	private volatile IExecutingEnviroment scriptEngine;
-	protected IApplicationServer applicationServer;
-	private IApplicationServerAccess applicationServerAccess;
-	private IDataServer dataServer;
-	private IClientHost clientHost;
+
+	//holding the application setting
+	protected Properties settings;
+
+	//preferred solution (args) 
+	protected String preferredSolutionNameToLoadOnInit = null;
+	protected String preferredSolutionMethodNameToCall = null;
+	protected Object[] preferredSolutionMethodArguments = null;
+
+	//the main solution, also called root
+	protected final FlattenedSolution solutionRoot = new FlattenedSolution();
 
 	/**
 	 * Managers
 	 */
+	//form manager handling the forms
 	protected IFormManager formManager;
-	protected IModeManager modeManager;
-	protected volatile IFoundSetManagerInternal foundSetManager;
-	protected IPluginManagerInternal pluginManager;
-	private volatile IUserManager userManager;
 
-	/**
-	 * Declaration of the props
-	 */
-	protected Properties settings;
+	//mode manager handling the application mode
+	protected transient IModeManager modeManager;
 
-	protected String preferedSolutionNameToLoadOnInit = null;
-	protected String preferedSolutionMethodNameToCall = null;
-	protected Object[] preferedSolutionMethodArguments = null;
+	//foundset manager handling the foundsets
+	protected transient volatile IFoundSetManagerInternal foundSetManager;
+
+	//plugin manager handling the (scriptable plugins)
+	protected transient IPluginManagerInternal pluginManager;
+
+	//user manager, giving access to (other)user info 
+	private transient volatile IUserManager userManager;
 
 	protected ClientState()
 	{
@@ -123,12 +147,12 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	private void appendArgumentsScopeToPreferedSolutionMethodArguments(StartupArgumentsScope argumentsScope)
 	{
-		if (preferedSolutionMethodArguments != null && preferedSolutionMethodArguments.length > 0)
+		if (preferredSolutionMethodArguments != null && preferredSolutionMethodArguments.length > 0)
 		{
-			Object[] new_preferedSolutionMethodArguments = new Object[preferedSolutionMethodArguments.length + 1];
-			System.arraycopy(preferedSolutionMethodArguments, 0, new_preferedSolutionMethodArguments, 0, preferedSolutionMethodArguments.length);
-			new_preferedSolutionMethodArguments[preferedSolutionMethodArguments.length] = argumentsScope;
-			preferedSolutionMethodArguments = new_preferedSolutionMethodArguments;
+			Object[] new_preferedSolutionMethodArguments = new Object[preferredSolutionMethodArguments.length + 1];
+			System.arraycopy(preferredSolutionMethodArguments, 0, new_preferedSolutionMethodArguments, 0, preferredSolutionMethodArguments.length);
+			new_preferedSolutionMethodArguments[preferredSolutionMethodArguments.length] = argumentsScope;
+			preferredSolutionMethodArguments = new_preferedSolutionMethodArguments;
 		}
 	}
 
@@ -145,8 +169,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		if (args == null || args.length == 0)
 		{
 			//clear, do not clear preferedSolutionMethodArguments we want to access the argument during the app livespan
-			preferedSolutionNameToLoadOnInit = null;
-			preferedSolutionMethodNameToCall = null;
+			preferredSolutionNameToLoadOnInit = null;
+			preferredSolutionMethodNameToCall = null;
 		}
 		else
 		{
@@ -155,7 +179,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			if (argumentsScope.getSolutionName() == null && argumentsScope.getMethodName() == null && argumentsScope.getFirstArgument() == null &&
 				argumentsScope.getClientIdentifier() == null)
 			{
-				preferedSolutionNameToLoadOnInit = args[0];
+				preferredSolutionNameToLoadOnInit = args[0];
 				if (args.length >= 2)
 				{
 					if (args[1] != null && args[1].startsWith("CI:")) //$NON-NLS-1$
@@ -164,9 +188,9 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 					}
 					else
 					{
-						preferedSolutionMethodNameToCall = args[1];
+						preferredSolutionMethodNameToCall = args[1];
 					}
-					preferedSolutionMethodArguments = null;
+					preferredSolutionMethodArguments = null;
 					if (args.length >= 3)
 					{
 						if (args[2] != null && args[2].startsWith("CI:")) //$NON-NLS-1$
@@ -175,7 +199,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 						}
 						else
 						{
-							preferedSolutionMethodArguments = new Object[] { args[2] };
+							preferredSolutionMethodArguments = new Object[] { args[2] };
 						}
 						if (args.length >= 4 && args[3] != null && args[3].startsWith("CI:")) //$NON-NLS-1$
 						{
@@ -186,9 +210,9 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			}
 			else
 			{
-				preferedSolutionNameToLoadOnInit = argumentsScope.getSolutionName();
-				preferedSolutionMethodNameToCall = argumentsScope.getMethodName();
-				preferedSolutionMethodArguments = argumentsScope.getFirstArgument() != null ? new Object[] { argumentsScope.getFirstArgument() } : null;
+				preferredSolutionNameToLoadOnInit = argumentsScope.getSolutionName();
+				preferredSolutionMethodNameToCall = argumentsScope.getMethodName();
+				preferredSolutionMethodArguments = argumentsScope.getFirstArgument() != null ? new Object[] { argumentsScope.getFirstArgument() } : null;
 				if (argumentsScope.getClientIdentifier() != null) clientInfo.setSpecialClientIndentifier(argumentsScope.getClientIdentifier());
 
 				appendArgumentsScopeToPreferedSolutionMethodArguments(argumentsScope);
@@ -198,22 +222,22 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	public Object[] getPreferedSolutionMethodArguments()
 	{
-		return preferedSolutionMethodArguments;
+		return preferredSolutionMethodArguments;
 	}
 
 	public String getPreferedSolutionMethodNameToCall()
 	{
-		return preferedSolutionMethodNameToCall;
+		return preferredSolutionMethodNameToCall;
 	}
 
 	public String getPreferedSolutionNameToLoadOnInit()
 	{
-		return preferedSolutionNameToLoadOnInit;
+		return preferredSolutionNameToLoadOnInit;
 	}
 
 	public void resetPreferedSolutionMethodNameToCall()
 	{
-		preferedSolutionMethodNameToCall = null;
+		preferredSolutionMethodNameToCall = null;
 	}
 
 	protected void applicationSetup()
@@ -381,8 +405,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		catch (RepositoryException e)
 		{
 			Debug.error("Could not load solution " + (solutionMetaData == null ? "<none>" : solutionMetaData.getName()), e);
-			reportError(
-				Messages.getString("servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>" : solutionMetaData.getName() }), e);
+			reportError(Messages.getString("servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>"
+				: solutionMetaData.getName() }), e);
 		}
 	}
 
@@ -863,7 +887,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	public abstract URL getServerURL();
 
-	protected IUserClient userClient;
+	protected transient IUserClient userClient;
 
 	protected void createUserClient()
 	{
@@ -872,7 +896,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	private ClientInfo clientInfo;
 
-	private boolean shutdown;
+	private transient boolean isShutdown;
 
 	public ClientInfo getClientInfo()
 	{
@@ -909,7 +933,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	public boolean isShutDown()
 	{
-		return shutdown;
+		return isShutdown;
 	}
 
 	public void shutDown(boolean force)
@@ -928,7 +952,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			Debug.error(ex);
 		}
 
-		shutdown = true;
+		isShutdown = true;
 
 		unRegisterListeners();
 
@@ -989,14 +1013,14 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	protected abstract void saveSettings();
 
-	protected boolean closing = false;
+	protected transient boolean isClosing = false;
 
 	public boolean closeSolution(boolean force, Object[] args)
 	{
-		if (solutionRoot.getSolution() == null || closing) return true;
+		if (solutionRoot.getSolution() == null || isClosing) return true;
 		try
 		{
-			closing = true;
+			isClosing = true;
 			String[] s_args = null;
 			// we dont want to open anything again if this was a force close
 			if (!force && args != null)
@@ -1115,7 +1139,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		}
 		finally
 		{
-			closing = false;
+			isClosing = false;
 			if (dataServer instanceof DataServerProxy) dataServer = ((DataServerProxy)dataServer).getEnclosingDataServer();
 		}
 		return true;
@@ -1152,8 +1176,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 						function,
 						gscope,
 						gscope,
-						Utils.arrayMerge((new Object[] { new Boolean(force) }),
-							Utils.parseJSExpressions(getSolution().getInstanceMethodArguments("onCloseMethodID"))), false, false)); //$NON-NLS-1$
+						Utils.arrayMerge((new Object[] { new Boolean(force) }), Utils.parseJSExpressions(getSolution().getInstanceMethodArguments(
+							"onCloseMethodID"))), false, false)); //$NON-NLS-1$
 				}
 				catch (Exception e1)
 				{
@@ -1175,7 +1199,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	protected abstract void createPluginManager();
 
-	protected IPluginAccess pluginAccess;
+	protected transient IPluginAccess pluginAccess;
 
 	public IPluginAccess getPluginAccess()
 	{
@@ -1196,18 +1220,17 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		J2DBGlobals.removeAllPropertyChangeListeners(modeManager);
 	}
 
-	// these methods are added because this class extends JPanel which is serializable
-	private void writeObject(@SuppressWarnings("unused") java.io.ObjectOutputStream out) throws IOException
+	private void writeObject(ObjectOutputStream stream) throws IOException
 	{
-		throw new IOException("A Servoy client is not serializable"); //$NON-NLS-1$
+		//serialize is not implemented
 	}
 
-	private void readObject(@SuppressWarnings("unused") java.io.ObjectInputStream in) throws IOException
+	private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException
 	{
-		throw new IOException("A Servoy client is not serializable"); //$NON-NLS-1$
+		//serialize is not implemented
 	}
 
-	protected volatile IActiveSolutionHandler activeSolutionHandler;
+	protected transient volatile IActiveSolutionHandler activeSolutionHandler;
 
 	public IActiveSolutionHandler getActiveSolutionHandler()
 	{
@@ -1377,7 +1400,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		return (DataServerProxy)ds;
 	}
 
-	private boolean isHandlingError = false;
+	private transient boolean isHandlingError = false;
 
 	public void handleException(String servoyMsg, final Exception e)
 	{

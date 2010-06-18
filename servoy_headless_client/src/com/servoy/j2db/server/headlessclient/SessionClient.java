@@ -136,22 +136,22 @@ public class SessionClient extends ClientState implements ISessionClient
 	protected String password;
 	protected Locale locale;
 
-	protected ItemFactory itemFactory;
-	protected IDataRendererFactory<org.apache.wicket.Component> dataRendererFactory;
+	protected transient IDataRendererFactory<org.apache.wicket.Component> dataRendererFactory;
+	protected transient ItemFactory itemFactory;
 
-	private TaskThreadPool taskThreadPool;
+	private transient TaskThreadPool taskThreadPool;
 
 	//just for the cases there is no org.apache.wicket running
 	private static WebClientsApplication wicket_app = new WebClientsApplication();
 	private static Session wicket_session = null;
 
 	private ResourceBundle localeJarMessages;
-	private HttpSession session;
+	private transient HttpSession session;
 
-	private InfoChannel outputChannel;
+	private transient InfoChannel outputChannel;
 	private JSWindowManager jsWindowManager;
 
-	protected SessionClient(ServletRequest req, String name, String pass, String method, Object[] methodArgs, String solution) throws Exception
+	protected SessionClient(ServletRequest req, String uname, String pass, String method, Object[] methodArgs, String solution) throws Exception
 	{
 		super();
 		if (req instanceof HttpServletRequest)
@@ -166,11 +166,11 @@ public class SessionClient extends ClientState implements ISessionClient
 		{
 			settings = Settings.getInstance();
 
-			username = name;
+			username = uname;
 			password = pass;
 
-			this.preferedSolutionMethodNameToCall = method;
-			this.preferedSolutionMethodArguments = methodArgs;
+			this.preferredSolutionMethodNameToCall = method;
+			this.preferredSolutionMethodArguments = methodArgs;
 
 			setAjaxUsage(solution);
 
@@ -477,7 +477,7 @@ public class SessionClient extends ClientState implements ISessionClient
 
 	protected TimeZone timeZone;
 
-	private ScheduledExecutorService scheduledExecutorService;
+	private transient ScheduledExecutorService scheduledExecutorService;
 
 	@Override
 	protected IExecutingEnviroment createScriptEngine()
@@ -1264,7 +1264,7 @@ public class SessionClient extends ClientState implements ISessionClient
 		return scheduledExecutorService;
 	}
 
-	private IBeanManager beanManager;
+	private transient IBeanManager beanManager;
 
 	public IBeanManager getBeanManager()
 	{
@@ -1275,7 +1275,7 @@ public class SessionClient extends ClientState implements ISessionClient
 		return beanManager;
 	}
 
-	private ICmdManager cmdManager;
+	private transient ICmdManager cmdManager;
 
 	public ICmdManager getCmdManager()
 	{
@@ -1327,7 +1327,7 @@ public class SessionClient extends ClientState implements ISessionClient
 		return null;
 	}
 
-	private IToolbarPanel toolbarPanel;
+	private transient IToolbarPanel toolbarPanel;
 
 	public IToolbarPanel getToolbarPanel()
 	{
@@ -1381,7 +1381,7 @@ public class SessionClient extends ClientState implements ISessionClient
 		{
 			if (getSolution() != null && getSolution().getMustAuthenticate())
 			{
-				if (closeSolution(false, solution_to_open_args) && !closing) // don't shutdown if already closing; wait for the first closeSolution to finish
+				if (closeSolution(false, solution_to_open_args) && !isClosing) // don't shutdown if already closing; wait for the first closeSolution to finish
 				{
 					shutDown(false);//no way to enter username password so shutdown
 				}
@@ -1613,7 +1613,7 @@ public class SessionClient extends ClientState implements ISessionClient
 		return dataRendererFactory;
 	}
 
-	private Container printingRendererParent;
+	private transient Container printingRendererParent;
 
 	public Container getPrintingRendererParent()
 	{
@@ -1633,7 +1633,7 @@ public class SessionClient extends ClientState implements ISessionClient
 		pageFormat = pf;
 	}
 
-	private PageFormat pageFormat = new PageFormat();
+	private transient PageFormat pageFormat = new PageFormat();
 
 	public PageFormat getPageFormat()
 	{
