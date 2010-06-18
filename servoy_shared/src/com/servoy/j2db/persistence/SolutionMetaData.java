@@ -116,6 +116,6 @@ public class SolutionMetaData extends RootObjectMetaData
 
 	public static boolean isImportHook(String name)
 	{
-		return isPreImportHook(name) || isPostImportHook(name);
+		return name != null && (isPreImportHook(name) || isPostImportHook(name));
 	}
 }
