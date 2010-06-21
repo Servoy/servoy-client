@@ -29,6 +29,7 @@ import java.util.StringTokenizer;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.DataSourceUtils;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -103,8 +104,8 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 
 	public Iterator<Form> getForms(Table basedOnTable, boolean sort)
 	{
-		return getForms(getAllObjectsAsList(), basedOnTable == null ? null : DataSourceUtils.createDBTableDataSource(basedOnTable.getServerName(),
-			basedOnTable.getName()), sort);
+		return getForms(getAllObjectsAsList(),
+			basedOnTable == null ? null : DataSourceUtils.createDBTableDataSource(basedOnTable.getServerName(), basedOnTable.getName()), sort);
 	}
 
 	public static Iterator<Form> getForms(List<IPersist> childs, String datasource, boolean sort)
@@ -897,6 +898,22 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 		}
 
 		return null;
+	}
+
+	/**
+	 * Require authentication if mustAuthenticate flag is set or a loginSolution is defined.
+	 */
+	public boolean requireAuthentication()
+	{
+		try
+		{
+			return getMustAuthenticate() || getLoginSolutionName() != null;
+		}
+		catch (RepositoryException e)
+		{
+			Debug.error(e);
+			return true; // on the safe side
+		}
 	}
 
 	/**

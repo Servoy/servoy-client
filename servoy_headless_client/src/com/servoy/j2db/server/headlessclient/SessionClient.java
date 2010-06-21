@@ -250,10 +250,7 @@ public class SessionClient extends ClientState implements ISessionClient
 			if (reset) unsetThreadLocals();
 		}
 
-		if (getSolution() == null)
-		{
-			throw new IllegalArgumentException(Messages.getString("servoy.exception.solutionNotFound", new Object[] { solutionMeta.getName() })); //$NON-NLS-1$
-		}
+		// Note that getSolution() may return null at this point if the security.closeSolution() or security.logout() was called in onSolutionOpen
 	}
 
 
@@ -325,7 +322,7 @@ public class SessionClient extends ClientState implements ISessionClient
 	@Override
 	public boolean isShutDown()
 	{
-		return shuttingDown;
+		return shuttingDown || super.isShutDown();
 	}
 
 	/**
@@ -1349,7 +1346,7 @@ public class SessionClient extends ClientState implements ISessionClient
 	{
 		if (getClientInfo().getUserUid() != null)
 		{
-			if (getSolution() != null && getSolution().getMustAuthenticate())
+			if (getSolution() != null && getSolution().requireAuthentication())
 			{
 				if (closeSolution(false, solution_to_open_args) && !isClosing) // don't shutdown if already closing; wait for the first closeSolution to finish
 				{

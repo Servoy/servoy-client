@@ -354,5 +354,7 @@ public interface IApplication extends IBasicApplication, IServiceProvider, IEven
 
 	public boolean isInDeveloper();
 
+	public boolean isShutDown();
+
 	public DataServerProxy proxyDataServer();
 }
