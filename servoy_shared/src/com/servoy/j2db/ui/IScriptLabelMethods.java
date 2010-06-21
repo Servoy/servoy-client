@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.ui;
 
 
@@ -74,7 +74,8 @@ public interface IScriptLabelMethods extends IScriptDataProviderMethods
 	 * 8 ALT(Windows, Unix); OPTION (Macintosh) 
 	 * 
 	 * NOTE: A mnemonic is usually a single key used with/without the CTRL, CMD, SHIFT, ALT, or OPTION key(s) to activate a menu item or command - depending, in part on whether the menmonic applies in a command line or graphic interface. For one description, you can refer to this web page: http://msdn.microsoft.com/en-us/library/bb158536.aspx or perform a search in a web browser search engine using the criteria "mnemonic".
-	 *
+	 * NOTE2: Mnemonic is only supported in Smart Client.
+	 * 
 	 * @sample
 	 * //gets the mnemonic of the element
 	 * var my_mnemoic = %%prefix%%%%elementName%%.mnemonic;
