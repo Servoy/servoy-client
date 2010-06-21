@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient;
 
 import java.rmi.RemoteException;
@@ -35,6 +35,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.RootObjectMetaData;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.server.shared.IApplicationServerSingleton;
@@ -59,13 +60,13 @@ public class SelectSolution extends WebPage
 	 */
 	public SelectSolution() throws RepositoryException
 	{
-		List data = new ArrayList();
+		List<Solution> data = new ArrayList<Solution>();
 		try
 		{
 			IApplicationServerSingleton as = ApplicationServerSingleton.get();
 			if (as.isDeveloperStartup())
 			{
-				data.add(as.getDebugClientHandler().getDebugSmartClient().getCurrent().getRootObjectMetaData());
+				data.add(as.getDebugClientHandler().getDebugSmartClient().getCurrent());
 			}
 			else
 			{
@@ -78,7 +79,11 @@ public class SelectSolution extends WebPage
 						solutionType = ((SolutionMetaData)element).getSolutionType();
 						if ((solutionType & (SolutionMetaData.SOLUTION + SolutionMetaData.WEB_CLIENT_ONLY)) > 0)
 						{
-							data.add(element);
+							Solution solution = (Solution)as.getLocalRepository().getActiveRootObject(element.getRootObjectId());
+							if (solution != null)
+							{
+								data.add(solution);
+							}
 						}
 					}
 				}
@@ -89,7 +94,7 @@ public class SelectSolution extends WebPage
 			Debug.error(e);
 		}
 
-		add(new ListView("solutions", data)
+		add(new ListView<Solution>("solutions", data)
 		{
 			private static final long serialVersionUID = 1L;
 
@@ -97,22 +102,16 @@ public class SelectSolution extends WebPage
 			 * Populate the table with Wicket elements
 			 */
 			@Override
-			protected void populateItem(final ListItem listItem)
+			protected void populateItem(final ListItem<Solution> listItem)
 			{
-				SolutionMetaData sd = (SolutionMetaData)listItem.getModelObject();
+				Solution sol = listItem.getModelObject();
 				PageParameters parameters = new PageParameters();
-				parameters.put("solution", sd.getName());
+				parameters.put("solution", sol.getName());
 				Link l = new BookmarkablePageLink("solution_link", SolutionLoader.class, parameters);
 				listItem.add(l);
-				l.add(new Label("solution_name", sd.getName()));
-				if (sd.getMustAuthenticate())
-				{
-					listItem.add(new Image("login_req", new ResourceReference(IApplication.class, "images/lock.gif")));
-				}
-				else
-				{
-					listItem.add(new Image("login_req", new ResourceReference(IApplication.class, "images/empty.gif")));
-				}
+				l.add(new Label("solution_name", sol.getName()));
+				listItem.add(new Image("login_req", new ResourceReference(IApplication.class, sol.requireAuthentication() ? "images/lock.gif"
+					: "images/empty.gif")));
 //				listItem.add(new Label("release", ""+sd.getActiveRelease()));
 			}
 		});

@@ -736,7 +736,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	protected boolean callCloseSolutionMethod(boolean force)
 	{
 		// do not call method if user not logged in and solution requires authentication
-		if (getSolution() != null && getSolution().getMustAuthenticate() && getUserUID() == null) return true;
+		if (getSolution() != null && getSolution().requireAuthentication() && getUserUID() == null) return true;
 		return super.callCloseSolutionMethod(force);
 	}
 

@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting;
 
 
@@ -37,9 +37,9 @@ import org.mozilla.javascript.Wrapper;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.ExitScriptException;
 import com.servoy.j2db.FormController;
+import com.servoy.j2db.FormManager.HistoryProvider;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ISmartClientApplication;
-import com.servoy.j2db.FormManager.HistoryProvider;
 import com.servoy.j2db.dataprocessing.DataException;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
@@ -482,7 +482,7 @@ public class ScriptEngine implements IScriptSupport
 				}
 				Context.exit();
 			}
-			if (Context.getCurrentContext() == null)
+			if (Context.getCurrentContext() == null && !application.isShutDown())
 			{
 				application.getFlattenedSolution().checkStateForms(application);
 				String userUidAfter = application.getClientInfo().getUserUid();

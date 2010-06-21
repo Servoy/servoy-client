@@ -95,7 +95,7 @@ public class WebClientSession extends WebSession
 			}
 			existingClient = true;
 		}
-		if (webClient == null)
+		if (webClient == null || webClient.isShutDown())
 		{
 			HttpServletRequest req = ((WebRequest)RequestCycle.get().getRequest()).getHttpServletRequest();
 			httpSession = req.getSession();
@@ -338,6 +338,7 @@ public class WebClientSession extends WebSession
 
 	public boolean useAjax()
 	{
-		return Utils.getAsBoolean(getWebClient().getRuntimeProperties().get("useAJAX"));
+		WebClient webClient = getWebClient();
+		return webClient != null && Utils.getAsBoolean(webClient.getRuntimeProperties().get("useAJAX"));
 	}
 }
