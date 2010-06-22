@@ -23,7 +23,6 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Image;
 import java.awt.Insets;
 import java.beans.XMLEncoder;
 import java.io.ByteArrayOutputStream;
@@ -2168,28 +2167,21 @@ public class ComponentFactory
 				if (ih.counter == 0)
 				{
 					lstIcons.remove(image);
+					final Object img = image;
 					SwingUtilities.invokeLater(new Runnable()
 					{
 						public void run()
 						{
-							Image img = null;
 							if (icon instanceof ImageIcon)
 							{
 								ImageIcon imageIcon = (ImageIcon)icon;
-								img = imageIcon.getImage();
 								if (!lstIcons.containsKey(img))
 								{
-									img.flush();
 									imageIcon.setImageObserver(null);
 								}
 							}
 							else if (icon instanceof MyImageIcon)
 							{
-								ImageIcon myIcon = ((MyImageIcon)icon).getOriginal();
-								if (myIcon != null)
-								{
-									img = myIcon.getImage();
-								}
 								if (img == null || !lstIcons.containsKey(img))
 								{
 									((MyImageIcon)icon).flush();

@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util.editlist;
 
 
@@ -413,7 +413,8 @@ public class EditListUI extends BasicListUI
 						}
 						if (isFormElement(dispatchComponent))
 						{
-							MouseEvent e2 = new MouseEvent(dispatchComponent, e.getID(), e.getWhen(), e.getModifiers(), p.x, p.y, e.getClickCount(),
+							Point p3 = SwingUtilities.convertPoint(comp, p2, dispatchComponent);
+							MouseEvent e2 = new MouseEvent(dispatchComponent, e.getID(), e.getWhen(), e.getModifiers(), p3.x, p3.y, e.getClickCount(),
 								e.isPopupTrigger());
 							dispatchComponent.dispatchEvent(e2);
 						}

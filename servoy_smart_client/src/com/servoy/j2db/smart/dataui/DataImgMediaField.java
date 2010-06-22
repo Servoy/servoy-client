@@ -189,7 +189,6 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 		}
 	}
 
-
 	@Override
 	public void setHorizontalScrollBarPolicy(int policy)
 	{
@@ -330,20 +329,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 				{
 					public void run()
 					{
-						byte[] array;
-						if (tmp instanceof String)
-						{
-							array = Utils.getURLContent((String)tmp);
-							if (array == null)
-							{
-								Debug.error("Cannot get media for field with dataprovider '" + getDataProviderID() + "' on form " + //$NON-NLS-1$ //$NON-NLS-2$
-									(application.getFormManager().getCurrentForm() == null ? null : application.getFormManager().getCurrentForm().getName()));
-							}
-						}
-						else
-						{
-							array = (byte[])tmp;
-						}
+						byte[] array = getByteArrayContents(tmp);
 
 						Icon icon = ImageLoader.getIcon(array, -1, -1, true);
 						if (icon == null)
@@ -380,6 +366,25 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 		{
 			if (editProvider != null) editProvider.setAdjusting(false);
 		}
+	}
+
+	private byte[] getByteArrayContents(Object tmp)
+	{
+		byte[] array = null;
+		if (tmp instanceof String)
+		{
+			array = Utils.getURLContent((String)tmp);
+			if (array == null)
+			{
+				Debug.error("Cannot get media for field with dataprovider '" + getDataProviderID() + "' on form " + //$NON-NLS-1$ //$NON-NLS-2$
+					(application.getFormManager().getCurrentForm() == null ? null : application.getFormManager().getCurrentForm().getName()));
+			}
+		}
+		else if (tmp instanceof byte[])
+		{
+			array = (byte[])tmp;
+		}
+		return array;
 	}
 
 	public String getDataProviderID()
@@ -590,13 +595,129 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 		}
 	}
 
+	private static DataFlavor getByteArrayDataFlavor()
+	{
+		return new DataFlavor(byte[].class, "Byte Array");
+	}
+
+	private static DataFlavor getStringArrayDataFlavor()
+	{
+		return new DataFlavor(String[].class, "String Array");
+	}
+
+	protected void copyToClipboard()
+	{
+		try
+		{
+			// we copy to clipboard as byte array and filename/mimetype array used when pasting into another media field and as image icon for external pastes or if byte array is not available (and for external types)
+			final Icon icon = enclosedComponent.getIcon();
+			final byte[] bytes = getByteArrayContents(value);
+			final String[] fileNameAndMime = new String[2];
+			if (resolver instanceof DataAdapterList)
+			{
+				DataAdapterList dal = ((DataAdapterList)resolver);
+				Object tmp = dal.getValueObject(dal.getState(), dataProviderID + IMediaFieldConstants.FILENAME);
+				fileNameAndMime[0] = (tmp instanceof String) ? (String)tmp : null;
+				tmp = dal.getValueObject(dal.getState(), dataProviderID + IMediaFieldConstants.MIMETYPE);
+				fileNameAndMime[1] = (tmp instanceof String) ? (String)tmp : null;
+			}
+
+			if (icon instanceof ImageIcon || icon instanceof MyImageIcon)
+			{
+				Transferable tr = new Transferable()
+				{
+					public DataFlavor[] getTransferDataFlavors()
+					{
+						List<DataFlavor> list = new ArrayList<DataFlavor>(3);
+						if (bytes != null) list.add(getByteArrayDataFlavor());
+						list.add(DataFlavor.imageFlavor);
+						if (fileNameAndMime[0] != null || fileNameAndMime[1] != null)
+						{
+							list.add(getStringArrayDataFlavor());
+							list.add(DataFlavor.stringFlavor);
+						}
+						return list.toArray(new DataFlavor[list.size()]);
+					}
+
+					public boolean isDataFlavorSupported(DataFlavor flavor)
+					{
+						return DataFlavor.imageFlavor.equals(flavor) ||
+							(bytes != null && getByteArrayDataFlavor().equals(flavor)) ||
+							((fileNameAndMime[0] != null || fileNameAndMime[1] != null) && (getStringArrayDataFlavor().equals(flavor) || DataFlavor.stringFlavor.equals(flavor)));
+					}
+
+					public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException
+					{
+						if (!isDataFlavorSupported(flavor))
+						{
+							throw new UnsupportedFlavorException(flavor);
+						}
+
+						if (DataFlavor.imageFlavor.equals(flavor))
+						{
+							if (icon instanceof ImageIcon)
+							{
+								return ((ImageIcon)icon).getImage();
+							}
+							else if (icon instanceof MyImageIcon)
+							{
+								return ((MyImageIcon)icon).getOriginal().getImage();
+							}
+						}
+						else if (getByteArrayDataFlavor().equals(flavor))
+						{
+							return bytes;
+						}
+						else if (getStringArrayDataFlavor().equals(flavor))
+						{
+							return fileNameAndMime;
+						}
+						else if (DataFlavor.stringFlavor.equals(flavor))
+						{
+							return (fileNameAndMime[0] != null ? "Filename: '" + fileNameAndMime[0] + "' " : "") +
+								(fileNameAndMime[1] != null ? "Type: '" + fileNameAndMime[1] + "'" : "");
+						}
+						return null;
+					}
+				};
+
+				Toolkit.getDefaultToolkit().getSystemClipboard().setContents(tr, null);
+			}
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+		}
+	}
+
 	protected void pasteFromClipboard()
 	{
 		try
 		{
 			Transferable tr = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
-			Image img = (Image)tr.getTransferData(DataFlavor.imageFlavor);
-			byte[] data = SnapShot.createJPGImage(application.getMainApplicationFrame(), img, -1, -1);
+
+			byte[] data;
+			if (tr.isDataFlavorSupported(getByteArrayDataFlavor()))
+			{
+				data = (byte[])tr.getTransferData(getByteArrayDataFlavor());
+			}
+			else
+			{
+				Image img = (Image)tr.getTransferData(DataFlavor.imageFlavor);
+				data = SnapShot.createJPGImage(application.getMainApplicationFrame(), img, -1, -1);
+			}
+
+			String[] fileNameAndMimeType;
+			if (tr.isDataFlavorSupported(getStringArrayDataFlavor()))
+			{
+				fileNameAndMimeType = (String[])tr.getTransferData(getStringArrayDataFlavor());
+				if (fileNameAndMimeType == null || fileNameAndMimeType.length != 2) fileNameAndMimeType = new String[2]; // use null values as this is unknown clipboard data
+			}
+			else
+			{
+				fileNameAndMimeType = new String[2]; // null values
+			}
+
 			if (data != null && data.length != 0)
 			{
 				if (editProvider != null) editProvider.startEdit();
@@ -605,8 +726,8 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 				// dataprovider_filename and dataprovider_mimetype fields will be set like in the web TODO maybe refactor to avoid cast below and existence of method setValueObject in DataAdapterList 
 				if (resolver instanceof DataAdapterList)
 				{
-					((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.FILENAME, null);
-					((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.MIMETYPE, null);
+					((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.FILENAME, fileNameAndMimeType[0]);
+					((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.MIMETYPE, fileNameAndMimeType[1]);
 				}
 			}
 		}
@@ -628,53 +749,6 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 			{
 				((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.FILENAME, null);
 				((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.MIMETYPE, null);
-			}
-		}
-		catch (Exception e)
-		{
-			Debug.error(e);
-		}
-	}
-
-	protected void copyToClipboard()
-	{
-		try
-		{
-			final Icon icon = enclosedComponent.getIcon();
-			if (icon instanceof ImageIcon || icon instanceof MyImageIcon)
-			{
-				Transferable tr = new Transferable()
-				{
-					public DataFlavor[] getTransferDataFlavors()
-					{
-						return new DataFlavor[] { DataFlavor.imageFlavor };
-					}
-
-					public boolean isDataFlavorSupported(DataFlavor flavor)
-					{
-						return DataFlavor.imageFlavor.equals(flavor);
-					}
-
-					public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException
-					{
-						if (!isDataFlavorSupported(flavor))
-						{
-							throw new UnsupportedFlavorException(flavor);
-						}
-
-						if (icon instanceof ImageIcon)
-						{
-							return ((ImageIcon)icon).getImage();
-						}
-						else if (icon instanceof MyImageIcon)
-						{
-							return ((MyImageIcon)icon).getOriginal().getImage();
-						}
-						return null;
-					}
-				};
-
-				Toolkit.getDefaultToolkit().getSystemClipboard().setContents(tr, null);
 			}
 		}
 		catch (Exception e)
