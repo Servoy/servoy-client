@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.smart.dataui;
 
 
@@ -435,7 +435,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 			}
 			else
 			{
-				editorComponent.setText(value.toString());
+				editorComponent.setText(resolver != null ? Text.processTags(value.toString(), resolver) : value.toString());
 			}
 			return editorComponent;
 		}
@@ -460,7 +460,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 			}
 			else
 			{
-				rendererComponent.setText(value.toString());
+				rendererComponent.setText(resolver != null ? Text.processTags(value.toString(), resolver) : value.toString());
 			}
 			return rendererComponent;
 		}
@@ -536,7 +536,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 			}
 			else
 			{
-				editorComponent.setText(value.toString());
+				editorComponent.setText(resolver != null ? Text.processTags(value.toString(), resolver) : value.toString());
 			}
 			return editorComponent;
 		}
@@ -560,7 +560,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 			}
 			else
 			{
-				rendererComponent.setText(value.toString());
+				rendererComponent.setText(resolver != null ? Text.processTags(value.toString(), resolver) : value.toString());
 			}
 			return rendererComponent;
 		}
