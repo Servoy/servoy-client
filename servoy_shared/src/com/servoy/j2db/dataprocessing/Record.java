@@ -468,6 +468,10 @@ public class Record implements Scriptable, IRecordInternal
 
 	public Scriptable getParentScope()
 	{
+		if (parentScope == null)
+		{
+			return parent.getFoundSetManager().getApplication().getScriptEngine().getSolutionScope().getParentScope();
+		}
 		return parentScope;
 	}
 
