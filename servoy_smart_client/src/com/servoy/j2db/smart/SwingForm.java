@@ -55,8 +55,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -123,8 +123,8 @@ import com.servoy.j2db.printing.PrintPreview;
 import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.GroupScriptObject;
 import com.servoy.j2db.scripting.JSEvent;
-import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
+import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.smart.dataui.CellAdapter;
 import com.servoy.j2db.smart.dataui.DataComboBox;
 import com.servoy.j2db.smart.dataui.DataRenderer;
@@ -141,6 +141,8 @@ import com.servoy.j2db.smart.scripting.TwoNativeJavaObject;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IScriptReadOnlyMethods;
+import com.servoy.j2db.ui.ISplitPane;
+import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.util.AutoTransferFocusListener;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IFocusCycleRoot;
@@ -1075,8 +1077,8 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			Messages.getString("servoy.button.cancel"), //$NON-NLS-1$
 			Messages.getString("servoy.formPanel.printCurrentRecord") //$NON-NLS-1$
 			};
-			return JOptionPane.showOptionDialog(formController.getApplication().getMainApplicationFrame(),
-				Messages.getString("servoy.formPanel.message.largeResultset", new Object[] { new Integer(formModel.getSize()) }), //$NON-NLS-1$
+			return JOptionPane.showOptionDialog(formController.getApplication().getMainApplicationFrame(), Messages.getString(
+				"servoy.formPanel.message.largeResultset", new Object[] { new Integer(formModel.getSize()) }), //$NON-NLS-1$
 				Messages.getString("servoy.general.warning"), //$NON-NLS-1$
 				JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[2]);
 		}
@@ -1797,6 +1799,21 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			boolean changed = false;
 			lastMousePosition = e.getPoint();
 			JComponent selectedComponent = (JComponent)SwingUtilities.getDeepestComponentAt(realViewPort, e.getX(), e.getY());
+			Container panel = SwingUtilities.getAncestorOfClass(ITabPanel.class, selectedComponent);
+			if (panel == null) panel = SwingUtilities.getAncestorOfClass(ISplitPane.class, selectedComponent);
+			while (panel != null)
+			{
+				if (SwingUtilities.isDescendingFrom(panel, realViewPort))
+				{
+					selectedComponent = (JComponent)panel;
+					panel = SwingUtilities.getAncestorOfClass(ITabPanel.class, selectedComponent);
+					if (panel == null) panel = SwingUtilities.getAncestorOfClass(ISplitPane.class, selectedComponent);
+				}
+				else
+				{
+					panel = null;
+				}
+			}
 			if (selectedComponent == realViewPort || selectedComponent instanceof DataRenderer)
 			{
 				changed = selectedComponents.size() > 0;
