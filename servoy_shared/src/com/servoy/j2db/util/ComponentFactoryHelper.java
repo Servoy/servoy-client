@@ -38,7 +38,7 @@ import com.servoy.j2db.util.gui.SpecialMatteBorder;
 /**
  * Helper class.
  * 
- * @author Jan Blok
+ * @author jblok
  */
 public class ComponentFactoryHelper
 {

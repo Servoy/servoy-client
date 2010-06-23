@@ -34,7 +34,7 @@ import javax.swing.text.html.StyleSheet;
 import com.servoy.j2db.util.gui.SpecialMatteBorder;
 
 /**
- * @author Jan Blok
+ * @author jblok
  *
  * To change this generated comment go to 
  * Window>Preferences>Java>Code Generation>Code Template

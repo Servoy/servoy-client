@@ -40,7 +40,7 @@ import com.servoy.j2db.util.Utils;
 /**
  * Class to handle the media:///<name> or media:///blob_loader?x=y urls
  * 
- * @author Jan Blok
+ * @author jblok
  */
 public class MediaURLStreamHandler extends URLStreamHandler
 {

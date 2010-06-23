@@ -35,7 +35,7 @@ import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
- * A j2db solution also root object for meta data
+ * A solution also root object for meta data
  * 
  * @author jblok
  */
@@ -104,8 +104,8 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 
 	public Iterator<Form> getForms(Table basedOnTable, boolean sort)
 	{
-		return getForms(getAllObjectsAsList(),
-			basedOnTable == null ? null : DataSourceUtils.createDBTableDataSource(basedOnTable.getServerName(), basedOnTable.getName()), sort);
+		return getForms(getAllObjectsAsList(), basedOnTable == null ? null : DataSourceUtils.createDBTableDataSource(basedOnTable.getServerName(),
+			basedOnTable.getName()), sort);
 	}
 
 	public static Iterator<Form> getForms(List<IPersist> childs, String datasource, boolean sort)

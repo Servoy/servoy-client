@@ -26,7 +26,7 @@ import com.servoy.j2db.util.Utils;
 /**
  * Default plugin api
  * 
- * @author Jan Blok
+ * @author jblok
  */
 public interface IPluginAccess
 {

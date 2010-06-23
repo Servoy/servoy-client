@@ -13,14 +13,12 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 /**
- * @author Jan Blok
- *
- * To change this generated comment go to 
- * Window>Preferences>Java>Code Generation>Code Template
+ * Client Status info interface
+ * @author jblok
  */
 public interface IInfoListener
 {

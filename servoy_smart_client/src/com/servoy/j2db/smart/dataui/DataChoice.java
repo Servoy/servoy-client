@@ -85,9 +85,9 @@ import com.servoy.j2db.util.editlist.IEditListEditor;
 import com.servoy.j2db.util.editlist.JEditList;
 
 /**
+ * Runtime swing radio/check box choice component
  * @author jblok, jcompagner
  */
-
 public class DataChoice extends EnableScrollPanel implements IDisplayData, IFieldComponent, IScrollPane, IDisplayRelatedData, ListDataListener,
 	IScriptChoiceMethods, ISupplyFocusChildren<Component>, ISupportCachedLocationAndSize
 {

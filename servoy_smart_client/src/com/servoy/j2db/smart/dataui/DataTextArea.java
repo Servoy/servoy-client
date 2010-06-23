@@ -80,9 +80,9 @@ import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.ValidatingDocument;
 
 /**
+ * Runtime swing component which makes a text area
  * @author jblok
  */
-
 public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFieldComponent, IScrollPane, IScriptTextAreaMethods, IFixedPreferredWidth,
 	ISupplyFocusChildren<Component>, ISupportCachedLocationAndSize
 {

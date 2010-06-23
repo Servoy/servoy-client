@@ -26,7 +26,7 @@ import javax.swing.JLabel;
 import com.servoy.j2db.ui.IComponent;
 
 /**
- * @author Jan Blok
+ * @author jblok
  */
 public class VisibleBean extends JLabel implements IComponent
 {

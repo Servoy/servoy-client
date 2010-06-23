@@ -143,7 +143,7 @@ import com.servoy.j2db.util.Utils;
 /**
  * This class is normally used to show a portal or tableview
  * 
- * @author Jan Blok
+ * @author jblok
  */
 public class WebCellBasedView extends WebMarkupContainer implements IView, IPortalComponent, IScriptPortalComponentMethods, IDataRenderer,
 	IProviderStylePropertyChanges, TableModelListener, ListSelectionListener, ISupportWebBounds, ISupportWebTabSeq

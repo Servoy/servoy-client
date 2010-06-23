@@ -22,7 +22,7 @@ import java.util.Properties;
 /**
  * Interface for all plugin interfaces.
  * 
- * @author Jan Blok
+ * @author jblok
  */
 public interface IPlugin
 {

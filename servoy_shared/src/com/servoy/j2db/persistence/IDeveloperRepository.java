@@ -23,6 +23,7 @@ import java.util.Map;
 import com.servoy.j2db.util.UUID;
 
 /**
+ * Developer side of repository
  * @author jblok
  */
 public interface IDeveloperRepository extends IRepository, IPersistFactory

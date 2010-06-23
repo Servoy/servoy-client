@@ -22,7 +22,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.ServoyException;
 
 /**
- * @author Jan Blok
+ * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class DataException extends ServoyException

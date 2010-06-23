@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util;
 
 import java.io.BufferedReader;
@@ -31,7 +31,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * 
+ * java.util.Properties class copy with more access possibilities.
  * @author jblok
  */
 public class OpenProperties extends HashMap<String, String>

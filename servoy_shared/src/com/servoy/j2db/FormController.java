@@ -76,11 +76,11 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportScriptProviders;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.MethodArgument;
-import com.servoy.j2db.persistence.MethodArgument.ArgumentType;
 import com.servoy.j2db.persistence.MethodTemplate;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptVariable;
+import com.servoy.j2db.persistence.MethodArgument.ArgumentType;
 import com.servoy.j2db.scripting.CreationalPrototype;
 import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.FormScope;
@@ -88,11 +88,11 @@ import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.IScriptSupport;
 import com.servoy.j2db.scripting.InstanceJavaMembers;
-import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.scripting.SelectedRecordScope;
 import com.servoy.j2db.scripting.SolutionScope;
+import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
 import com.servoy.j2db.ui.IAccessible;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
@@ -106,7 +106,7 @@ import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
- * Representation of a form
+ * Runtime representation of a form
  * 
  * @author jblok, jcompagner
  */

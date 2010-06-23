@@ -19,7 +19,7 @@ package com.servoy.j2db.util;
 import java.io.OutputStream;
 
 /**
- * @author Jan Blok
+ * @author jblok
  */
 public class XMLEncoder extends java.beans.XMLEncoder
 {

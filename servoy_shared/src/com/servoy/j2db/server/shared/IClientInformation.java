@@ -13,11 +13,15 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.shared;
 
-
-public interface IClientInformation
+/**
+ * Interface to receive some client information at the server side
+ * 
+ * @author gerze
+ */
+public interface IClientInformation extends com.servoy.j2db.server.IClientInformation
 {
 	/**
 	 * Gets the clientId of this client.

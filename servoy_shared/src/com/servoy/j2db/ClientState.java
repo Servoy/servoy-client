@@ -67,9 +67,9 @@ import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.serialize.JSONConverter;
 
 /**
- * Bare bone state of a client process instance
+ * Bare bone state and abstract base class for all client process instance
  * 
- * @author Jan Blok
+ * @author jblok
  */
 public abstract class ClientState extends ClientVersion implements IServiceProvider, Serializable
 {
@@ -406,8 +406,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		catch (RepositoryException e)
 		{
 			Debug.error("Could not load solution " + (solutionMetaData == null ? "<none>" : solutionMetaData.getName()), e);
-			reportError(
-				Messages.getString("servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>" : solutionMetaData.getName() }), e);
+			reportError(Messages.getString("servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>"
+				: solutionMetaData.getName() }), e);
 		}
 	}
 
@@ -1191,8 +1191,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 						function,
 						gscope,
 						gscope,
-						Utils.arrayMerge((new Object[] { new Boolean(force) }),
-							Utils.parseJSExpressions(getSolution().getInstanceMethodArguments("onCloseMethodID"))), false, false)); //$NON-NLS-1$
+						Utils.arrayMerge((new Object[] { new Boolean(force) }), Utils.parseJSExpressions(getSolution().getInstanceMethodArguments(
+							"onCloseMethodID"))), false, false)); //$NON-NLS-1$
 				}
 				catch (Exception e1)
 				{

@@ -22,7 +22,7 @@ import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.util.ServoyException;
 
 /**
- * @author Jan Blok
+ * @author jblok
  */
 public interface IFoundSetFactory
 {

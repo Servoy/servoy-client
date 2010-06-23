@@ -17,7 +17,7 @@
 package com.servoy.j2db.util;
 
 /**
- * @author Jan Blok
+ * @author jblok
  */
 public interface IUIBlocker
 {

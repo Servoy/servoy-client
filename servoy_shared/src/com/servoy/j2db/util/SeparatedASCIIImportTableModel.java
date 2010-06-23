@@ -13,9 +13,8 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util;
-
 
 
 import java.util.ArrayList;
@@ -25,14 +24,15 @@ import java.util.StringTokenizer;
 import javax.swing.table.AbstractTableModel;
 
 /**
- * @author Jan Blok
+ * Ascii import model
+ * @author jblok
  */
 public class SeparatedASCIIImportTableModel extends AbstractTableModel
 {
 	public static final String NONE_QUALIFIER = "<none>"; //$NON-NLS-1$
 	public static final String SINGLE_QUOTE_QUALIFIER = "'"; //$NON-NLS-1$
 	public static final String DUBBLE_QUOTE_QUALIFIER = "\""; //$NON-NLS-1$
-	
+
 	private String separator = ""; //$NON-NLS-1$
 	private String qualifier = ""; //$NON-NLS-1$
 	private boolean headerRow = false;
@@ -48,58 +48,57 @@ public class SeparatedASCIIImportTableModel extends AbstractTableModel
 	{
 		super();
 	}
-	
+
 	public String setList(List items, boolean headerRowIncluded)
 	{
-		fireTableRowsDeleted(0, getRowCount()-1);
+		fireTableRowsDeleted(0, getRowCount() - 1);
 		this.items = items;
 		lineCacheN = null;
 		cacheForLine = -1;
 		headerRow = headerRowIncluded;
 		lastLineNotComplete = false;
 		String str = parseLines();
-		fireTableRowsInserted(0, getRowCount()-1);
+		fireTableRowsInserted(0, getRowCount() - 1);
 		return str;
 	}
-	
+
 	public String parseLines()
 	{
 		for (int i = 0; i < getRowCount(); i++)
 		{
 			getValueAt(i, 0);
-			if(lineCacheN == null)
+			if (lineCacheN == null)
 			{
-				if(lastLineNotComplete)
+				if (lastLineNotComplete)
 				{
-					return (String) items.remove(items.size()-1);
+					return (String)items.remove(items.size() - 1);
 				}
 				return null;
 			}
-			if(headerRow)
-				items.set(i+1, lineCacheN);
-			else
-				items.set(i, lineCacheN);
+			if (headerRow) items.set(i + 1, lineCacheN);
+			else items.set(i, lineCacheN);
 		}
 		return null;
 	}
 
+	@Override
 	public String getColumnName(int col)
 	{
 		if (separator.equals("")) //$NON-NLS-1$
 		{
-			String line = (String) items.get(0);
-			lineCache0 = new String[]{line};
-			return line; 
-		} 
-		
+			String line = (String)items.get(0);
+			lineCache0 = new String[] { line };
+			return line;
+		}
+
 		if (lineCache0 == null)
 		{
-			lineCache0 = parseLine(0,items,separator,qualifier);
+			lineCache0 = parseLine(0, items, separator, qualifier);
 			for (int i = 0; i < lineCache0.length; i++)
 			{
 				if (lineCache0[i] == null || lineCache0[i].trim().length() == 0)
 				{
-					lineCache0[i] = "("+(i+1)+")"; //$NON-NLS-1$ //$NON-NLS-2$
+					lineCache0[i] = "(" + (i + 1) + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
 		}
@@ -107,7 +106,7 @@ public class SeparatedASCIIImportTableModel extends AbstractTableModel
 		if (col < lineCache0.length)
 		{
 			String str = lineCache0[col];
-			return str;	
+			return str;
 		}
 
 		return ""; //$NON-NLS-1$
@@ -118,21 +117,21 @@ public class SeparatedASCIIImportTableModel extends AbstractTableModel
 		if (headerRow) row++;
 		if (row >= items.size()) return null;
 		Object o = items.get(row);
-		if(o instanceof String)
+		if (o instanceof String)
 		{
-			String line = (String) o;
+			String line = (String)o;
 			if (separator.equals("")) return line; //$NON-NLS-1$
 		}
-	
+
 		if (cacheForLine != row)
 		{
 			cacheForLine = row;
-			lineCacheN = parseLine(row,items,separator,qualifier);
-			if(lineCacheN == null) return null;
+			lineCacheN = parseLine(row, items, separator, qualifier);
+			if (lineCacheN == null) return null;
 		}
 		if (col < lineCacheN.length)
 		{
-			return lineCacheN[col];	
+			return lineCacheN[col];
 		}
 		else
 		{
@@ -142,7 +141,7 @@ public class SeparatedASCIIImportTableModel extends AbstractTableModel
 
 	public int getRowCount()
 	{
-		if(items == null) return 0;
+		if (items == null) return 0;
 		if (headerRow)
 		{
 			return items.size() - 1;
@@ -196,19 +195,21 @@ public class SeparatedASCIIImportTableModel extends AbstractTableModel
 		fireTableStructureChanged();
 	}
 
+	@Override
 	public boolean isCellEditable(int row, int col)
 	{
 		return false;
 	}
 
+	@Override
 	public void setValueAt(Object value, int row, int col)
 	{
 	}
 
-	private static List tokenizeLine(int start_row,List lines,String separator,String qualifier)
+	private static List tokenizeLine(int start_row, List lines, String separator, String qualifier)
 	{
 		if (start_row >= lines.size()) return null;
-		String line = (String) lines.get(start_row);
+		String line = (String)lines.get(start_row);
 		if (line == null) return null;
 		if (line.equals("")) //$NON-NLS-1$
 		{
@@ -216,7 +217,7 @@ public class SeparatedASCIIImportTableModel extends AbstractTableModel
 			al.add(""); //$NON-NLS-1$
 			return al;
 		}
-		
+
 		ArrayList list = new ArrayList();
 		StringTokenizer tk = new StringTokenizer(line, qualifier + separator, true);
 		while (tk.hasMoreTokens())
@@ -225,36 +226,36 @@ public class SeparatedASCIIImportTableModel extends AbstractTableModel
 		}
 		return list;
 	}
-		
-	public static String[] parseLine(int start_row,List lines,String separator,String qualifier)
+
+	public static String[] parseLine(int start_row, List lines, String separator, String qualifier)
 	{
 		Object line = lines.get(start_row);
-		if(line instanceof String[])
+		if (line instanceof String[])
 		{
 			return (String[])line;
 		}
-		List list = tokenizeLine(start_row,lines,separator, qualifier);
+		List list = tokenizeLine(start_row, lines, separator, qualifier);
 		if (list == null) return new String[0];
-		
+
 		List retval = new ArrayList();
 		for (int i = 0; i < list.size(); i++)
 		{
 			String element = (String)list.get(i);
-			if (element.equals(qualifier)) 
+			if (element.equals(qualifier))
 			{
-				i = handleQualifiedString(start_row,lines,i,list,retval,separator,qualifier);
-				if(i == -1) return  null;
+				i = handleQualifiedString(start_row, lines, i, list, retval, separator, qualifier);
+				if (i == -1) return null;
 			}
-			else if(element.equals(separator))
+			else if (element.equals(separator))
 			{
-				if(i == 0)
+				if (i == 0)
 				{
 					retval.add(null);
 				}
-				else if (i+1 < list.size()) 
+				else if (i + 1 < list.size())
 				{
-					String nextElement = (String)list.get(i+1);
-					if (separator.equals(nextElement)) 
+					String nextElement = (String)list.get(i + 1);
+					if (separator.equals(nextElement))
 					{
 						retval.add(null);
 					}
@@ -263,42 +264,43 @@ public class SeparatedASCIIImportTableModel extends AbstractTableModel
 				{
 					retval.add(null);
 				}
-			} 
+			}
 			else
 			{
 				retval.add(element);
-			} 
+			}
 		}
 		String[] array = new String[retval.size()];
 		retval.toArray(array);
 		return array;
 	}
-	private static int handleQualifiedString(int start_row,List lines,int start_pos,List list,List retval,String separator,String qualifier)
+
+	private static int handleQualifiedString(int start_row, List lines, int start_pos, List list, List retval, String separator, String qualifier)
 	{
 		StringBuffer sb = new StringBuffer();
 		int i = start_pos + 1;
 		boolean inString = true;
 		// it is a start string but the next line starts with an /r or /n
-		if(i == list.size())
+		if (i == list.size())
 		{
 			list.add(""); //$NON-NLS-1$
 		}
 		for (; i < list.size(); i++)
 		{
 			String element = (String)list.get(i);
-			if (qualifier.equals(element)) 
+			if (qualifier.equals(element))
 			{
-				if (i+1 < list.size()) 
+				if (i + 1 < list.size())
 				{
-					String nextElement = (String)list.get(i+1);
-					if (nextElement.equals(qualifier)) 
+					String nextElement = (String)list.get(i + 1);
+					if (nextElement.equals(qualifier))
 					{
 						sb.append(qualifier);//add single qualifier
 						i++;//skip nextElement in element
-						if(i+1 >= list.size() && inString)
+						if (i + 1 >= list.size() && inString)
 						{
 							//concat next line
-							List newlist = tokenizeLine(start_row+1,lines,separator, qualifier);
+							List newlist = tokenizeLine(start_row + 1, lines, separator, qualifier);
 							if (newlist == null)
 							{
 								// there should be a next line!
@@ -306,20 +308,22 @@ public class SeparatedASCIIImportTableModel extends AbstractTableModel
 								return -1;
 							}
 							list.addAll(newlist);
-							
-							String line1 = (String) lines.get(start_row);
-							String line2 = (String) lines.get(start_row+1);
-							lines.set(start_row, line1+"\n"+line2); //$NON-NLS-1$
-							lines.remove(start_row+1);
+
+							String line1 = (String)lines.get(start_row);
+							String line2 = (String)lines.get(start_row + 1);
+							lines.set(start_row, line1 + "\n" + line2); //$NON-NLS-1$
+							lines.remove(start_row + 1);
 						}
 					}
-					else //end of string found
+					else
+					//end of string found
 					{
 						inString = !inString;
 						break;
 					}
 				}
-				else //end of line found
+				else
+				//end of line found
 				{
 					//do nothing
 				}
@@ -327,10 +331,10 @@ public class SeparatedASCIIImportTableModel extends AbstractTableModel
 			else
 			{
 				sb.append(element);
-				if (i+1 == list.size() && inString)
+				if (i + 1 == list.size() && inString)
 				{
 					//concat next line
-					List newlist = tokenizeLine(start_row+1,lines,separator, qualifier);
+					List newlist = tokenizeLine(start_row + 1, lines, separator, qualifier);
 					if (newlist == null)
 					{
 						// there should be a next line!
@@ -338,11 +342,11 @@ public class SeparatedASCIIImportTableModel extends AbstractTableModel
 						return -1;
 					}
 					list.addAll(newlist);
-					
-					String line1 = (String) lines.get(start_row);
-					String line2 = (String) lines.get(start_row+1);
-					lines.set(start_row, line1+"\n"+line2); //$NON-NLS-1$
-					lines.remove(start_row+1);
+
+					String line1 = (String)lines.get(start_row);
+					String line2 = (String)lines.get(start_row + 1);
+					lines.set(start_row, line1 + "\n" + line2); //$NON-NLS-1$
+					lines.remove(start_row + 1);
 				}
 			}
 		}
@@ -351,6 +355,8 @@ public class SeparatedASCIIImportTableModel extends AbstractTableModel
 		retval.add(retString);
 		return i;
 	}
+
+	@Override
 	public String toString()
 	{
 		StringBuffer sb = new StringBuffer();
@@ -389,7 +395,7 @@ public class SeparatedASCIIImportTableModel extends AbstractTableModel
 	{
 		super();
 		String lastLine = setList(items, false);
-		if(lastLine != null)
+		if (lastLine != null)
 		{
 			Debug.error("WARNING the last line of the file is not terminated correctly: " + lastLine); //$NON-NLS-1$
 		}

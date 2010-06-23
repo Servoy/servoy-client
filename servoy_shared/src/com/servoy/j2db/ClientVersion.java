@@ -16,9 +16,14 @@
  */
 package com.servoy.j2db;
 
+/**
+ * Servoy version info class
+ * 
+ * @author jblok
+ */
 public abstract class ClientVersion
 {
-	//these fields are private to prevent final class member copy in other classes! 
+	//these fields are private intentionally, to prevent final class member copy in other classes! 
 	private static final int majorVersion = 5;
 	private static final int middleVersion = 2;
 	private static final int minorVersion = 0;

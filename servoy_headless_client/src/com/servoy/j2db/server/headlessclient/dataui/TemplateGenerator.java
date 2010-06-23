@@ -94,7 +94,7 @@ import com.servoy.j2db.util.Utils;
 /**
  * HTML generator used by the web framework
  * 
- * @author Jan Blok
+ * @author jblok
  */
 public class TemplateGenerator
 {

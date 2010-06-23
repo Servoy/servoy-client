@@ -19,7 +19,7 @@ package com.servoy.j2db.util;
 import java.io.StringBufferInputStream;
 
 /**
- * @author Jan Blok
+ * @author jblok
  */
 public class XMLDecoder extends java.beans.XMLDecoder
 {	

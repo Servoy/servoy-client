@@ -36,7 +36,7 @@ import com.servoy.j2db.util.MemoryMonitor;
 import com.servoy.j2db.util.Utils;
 
 /**
- * Shows about
+ * Shows about info
  * 
  * @author jblok
  */

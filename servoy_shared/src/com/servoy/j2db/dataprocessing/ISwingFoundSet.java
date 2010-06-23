@@ -23,7 +23,7 @@ import com.servoy.j2db.util.editlist.IEditListModel;
 import com.servoy.j2db.util.gui.AlwaysFirstRowSelectedSelectionModel;
 
 /**
- * @author Jan Blok
+ * @author jblok
  */
 public interface ISwingFoundSet extends IFoundSetInternal, TableModel, IEditListModel
 {

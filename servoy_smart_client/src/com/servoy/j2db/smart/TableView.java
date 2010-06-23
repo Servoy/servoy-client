@@ -139,7 +139,7 @@ import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SortedList;
 
 /**
- * The tableview, controller from mvc architecture
+ * The tableview display controller
  * 
  * @author jblok
  */

@@ -62,6 +62,11 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
+/**
+ * A client which uses the org.apache.wicket framework to render a GUI in a web browser
+ * 
+ * @author jcompagner
+ */
 public class WebClient extends SessionClient implements IWebClientApplication
 {
 	private static final String COOKIE_BASE64_PREFIX = "B64p_";

@@ -21,7 +21,7 @@ package com.servoy.j2db.dataprocessing;
  * Interface for components that have some additional functionality.<br>
  * It is meant for components that are linked to dataProviders.
  * 
- * @author Jan Blok
+ * @author jblok
  */
 public interface IDisplay
 {

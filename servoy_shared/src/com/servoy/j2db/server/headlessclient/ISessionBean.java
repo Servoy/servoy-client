@@ -41,7 +41,7 @@ import com.servoy.j2db.dataprocessing.IDataSet;
  * 1) null, main form foundset<br>
  * 2) "forms.&lt;xxxxx&gt;", for tabpanel relationless form foundset<br>
  * 
- * @author Jan Blok
+ * @author jblok
  * @see HeadlessClientFactory
  */
 public interface ISessionBean extends IHeadlessClient, HttpSessionBindingListener

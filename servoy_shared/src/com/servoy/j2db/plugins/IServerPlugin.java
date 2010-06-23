@@ -20,7 +20,7 @@ package com.servoy.j2db.plugins;
 import java.util.Map;
 
 /**
- * @author Jan Blok
+ * @author jblok
  */
 public interface IServerPlugin extends IPlugin
 {

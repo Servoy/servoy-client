@@ -31,7 +31,7 @@ import com.servoy.j2db.util.ServoyException;
 /**
  * Api to use by server plugins.
  * 
- * @author Jan Blok
+ * @author jblok
  */
 public interface IServerAccess extends IPluginAccess
 {

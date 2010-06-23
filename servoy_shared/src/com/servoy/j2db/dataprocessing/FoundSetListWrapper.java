@@ -27,7 +27,7 @@ import com.servoy.j2db.util.ServoyException;
 
 /**
  * Class to make foundset look like a List
- * @author Jan Blok
+ * @author jblok
  */
 public class FoundSetListWrapper implements List<IRecordInternal>, Serializable
 {

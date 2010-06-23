@@ -37,7 +37,7 @@ import javax.swing.JPanel;
  * 
  * see main method as example
  * 
- * Author Jan Blok
+ * Author jblok
  */
 public class AnchorLayout implements LayoutManager2, IAnchorConstants
 {

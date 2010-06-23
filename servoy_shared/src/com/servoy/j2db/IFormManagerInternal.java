@@ -19,7 +19,7 @@ package com.servoy.j2db;
 import java.beans.PropertyChangeListener;
 
 /**
- * @author Jan Blok
+ * @author jblok
  */
 public interface IFormManagerInternal extends IManager, PropertyChangeListener
 {

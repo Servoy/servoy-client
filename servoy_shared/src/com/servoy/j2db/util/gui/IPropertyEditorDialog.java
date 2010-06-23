@@ -17,7 +17,7 @@
 package com.servoy.j2db.util.gui;
 
 /**
- * @author Jan Blok
+ * @author jblok
  */
 public interface IPropertyEditorDialog
 {

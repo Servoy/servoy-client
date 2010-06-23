@@ -272,7 +272,7 @@ import com.servoy.j2db.util.toolbar.ToolbarButton;
 import com.servoy.j2db.util.toolbar.ToolbarPanel;
 
 /**
- * This class is the main entry point and makes the actual swing client applicaion
+ * This class is the main entry point and makes the actual swing client application
  * 
  * @author jblok
  */

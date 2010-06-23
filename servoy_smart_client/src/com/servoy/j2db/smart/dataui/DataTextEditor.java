@@ -107,7 +107,6 @@ import com.servoy.j2db.util.rtf.FixedRTFEditorKit;
  * 
  * @author jblok
  */
-
 public class DataTextEditor extends EnableScrollPanel implements IDisplayData, IFieldComponent, IScrollPane, ISupportAsyncLoading, IScriptTextEditorMethods,
 	IFixedPreferredWidth, ISupportCachedLocationAndSize, ISupplyFocusChildren
 {

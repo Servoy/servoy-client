@@ -18,7 +18,7 @@ package com.servoy.j2db.persistence;
 
 /**
  * Even if the repository element_id is different the content definition might be the same.
- * @author Jan Blok
+ * @author jblok
  */
 public interface ISupportContentEquals
 {

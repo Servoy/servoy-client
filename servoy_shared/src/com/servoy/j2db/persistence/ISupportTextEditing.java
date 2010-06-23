@@ -19,7 +19,7 @@ package com.servoy.j2db.persistence;
 
 
 /**
- * @author Jan Blok
+ * @author jblok
  * 
  * Extends ISupportBounds becouse the text editors need the bounds
  */

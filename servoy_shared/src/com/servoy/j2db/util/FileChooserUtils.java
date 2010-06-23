@@ -35,7 +35,7 @@ import com.servoy.j2db.util.gui.FileNameSuggestionFileChooser;
  * Normal Use: static methods <br>
  * <br>
  * 
- * @author Jan Blok
+ * @author jblok
  */
 public class FileChooserUtils
 {

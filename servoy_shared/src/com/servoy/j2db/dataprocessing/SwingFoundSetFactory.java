@@ -23,7 +23,7 @@ import com.servoy.j2db.util.ServoyException;
 
 /**
  * SwingFoundSetFactory
- * @author Jan Blok
+ * @author jblok
  */
 public class SwingFoundSetFactory implements IFoundSetFactory
 {

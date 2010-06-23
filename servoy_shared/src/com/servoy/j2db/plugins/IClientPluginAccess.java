@@ -42,7 +42,7 @@ import com.servoy.j2db.util.toolbar.IToolbarPanel;
 /**
  * Default client plugin api
  * 
- * @author Jan Blok
+ * @author jblok
  */
 public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLevel
 {

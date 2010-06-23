@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db;
 
 import java.awt.Container;
@@ -21,9 +21,9 @@ import java.awt.Container;
 import javax.swing.JComponent;
 
 /**
- * @author Jan Blok
- *
- * Swing version
+ * Swing formmanager version
+ * 
+ * @author jblok
  */
 public interface ISwingFormManager extends IFormManager
 {
@@ -34,5 +34,5 @@ public interface ISwingFormManager extends IFormManager
 	 * @return the formpanel component or null if not found
 	 * @since Servoy 2.2b3
 	 */
-	public JComponent getFormPanel(String name,Container parentForFormPanel);
+	public JComponent getFormPanel(String name, Container parentForFormPanel);
 }

@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.smart.cmd;
 
 
@@ -22,6 +22,7 @@ import javax.swing.Action;
 import com.servoy.j2db.IApplication;
 
 /**
+ * General menu action
  * @author jblok
  */
 public class MenuWindowAction extends MnemonicCheckAction
@@ -37,5 +38,4 @@ public class MenuWindowAction extends MnemonicCheckAction
 	public void actionPerformed(java.awt.event.ActionEvent e)
 	{
 	}
-
 }

@@ -34,7 +34,7 @@ import java.util.Vector;
 /**
  * Wanted extend Cardlayout, but to much is protected...
  * 
- * @author Jan Blok
+ * @author jblok
  */
 public class FixedCardLayout implements LayoutManager2, Serializable
 {
