@@ -27,10 +27,7 @@ import com.servoy.j2db.util.Utils;
  */
 public class DeveloperPreferences
 {
-	public static final String ENHANCED_SECURITY_SETTING = "servoy.application_server.enhancedSecurity"; //$NON-NLS-1$
 	public static final String DUMMY_AUTHENTICATION_SETTING = "developer.useDummyAuth"; //$NON-NLS-1$
-
-	public static final boolean ENHANCED_SECURITY_DEFAULT = true;
 	public static final boolean DUMMY_AUTHENTICATION_DEFAULT = true; // note that the pref is hidden now
 
 	private final Settings settings;
@@ -42,12 +39,12 @@ public class DeveloperPreferences
 
 	public boolean getEnhancedSecurity()
 	{
-		return Utils.getAsBoolean(settings.getProperty(ENHANCED_SECURITY_SETTING, String.valueOf(ENHANCED_SECURITY_DEFAULT)));
+		return Utils.getAsBoolean(settings.getProperty(Settings.ENHANCED_SECURITY_SETTING, String.valueOf(Settings.ENHANCED_SECURITY_DEFAULT)));
 	}
 
 	public void setEnhancedSecurity(boolean enhancedSecurity)
 	{
-		settings.setProperty(ENHANCED_SECURITY_SETTING, String.valueOf(enhancedSecurity));
+		settings.setProperty(Settings.ENHANCED_SECURITY_SETTING, String.valueOf(enhancedSecurity));
 	}
 
 	public boolean getUseDummyAuth()

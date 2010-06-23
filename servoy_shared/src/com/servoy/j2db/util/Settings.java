@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util;
 
 
@@ -48,12 +48,18 @@ import com.servoy.j2db.LAFManager;
 public class Settings extends SortedProperties
 {
 	public static final long serialVersionUID = 8213681985670137977L;
+
 	public static final String FILE_NAME;
 	private static final int MAXIMIZED_INVIZIBLE_BORDER_PIXELS = 4;
 	private static final String CLIENT_LOCAL_FILE_NAME = "servoy_client.properties"; //$NON-NLS-1$
 
 	public static final int INITIAL_CLIENT_WIDTH = 800;
 	public static final int INITIAL_CLIENT_HEIGHT = 600;
+
+	public static final String ENHANCED_SECURITY_SETTING = "servoy.application_server.enhancedSecurity";
+	public static final boolean ENHANCED_SECURITY_DEFAULT = true;
+	public static final String START_AS_TEAMPROVIDER_SETTING = "servoy.application_server.startRepositoryAsTeamProvider";
+	public static final boolean START_AS_TEAMPROVIDER_DEFAULT = true;
 
 	private boolean loadedFromServer = false;
 	private File file;
