@@ -32,9 +32,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -556,14 +556,18 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 			@Override
 			public Object[] showDialog(String name)
 			{
-				if (current != null && current.getMustAuthenticate())
+				if (current == null)
 				{
-					if (getMainApplicationFrame().isVisible())
-					{
-						return super.showDialog(name);
-					}
 					return null;
 				}
+				if (current.getMustAuthenticate())
+				{
+					return super.showDialog(name);
+				}
+
+				// will only get here when enhanced security is turned on and solution.mustAuthenticate = false
+				// Use the dummy auth to access the appserver, in real server access a login dialog would be shown
+
 				DeveloperPreferences developerPreferences = new DeveloperPreferences(Settings.getInstance());
 				boolean dummyAuth = developerPreferences.getUseDummyAuth();
 				if (!dummyAuth)
