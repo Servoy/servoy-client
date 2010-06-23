@@ -25,6 +25,7 @@ import com.servoy.j2db.IForm;
 import com.servoy.j2db.util.FixedToggleButtonModel;
 
 /**
+ * Menu view as list action
  * @author jblok
  */
 public class CmdViewAsList extends AbstractCmd

@@ -106,9 +106,9 @@ import com.servoy.j2db.util.ValidatingDocument;
 import com.servoy.j2db.util.gui.FixedMaskFormatter;
 
 /**
- * @author jblok,jcompagner
+ * Runtime swing field
+ * @author jblok, jcompagner
  */
-
 public class DataField extends JFormattedTextField implements IDisplayData, IFieldComponent, ISkinnable, IScriptFieldMethods, ISupportCachedLocationAndSize
 {
 	private static final long serialVersionUID = 1L;

@@ -35,6 +35,7 @@ import javax.swing.UIManager;
 import com.servoy.j2db.util.Debug;
 
 /**
+ * Webstart helper class
  * @author jblok
  */
 public class WebStart

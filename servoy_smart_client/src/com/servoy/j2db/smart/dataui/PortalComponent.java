@@ -92,9 +92,9 @@ import com.servoy.j2db.util.editlist.AbstractEditListModel;
 import com.servoy.j2db.util.editlist.JEditList;
 
 /**
+ * Runtime swing portal component
  * @author jblok
  */
-
 public class PortalComponent extends EnableScrollPanel implements ListSelectionListener, ISkinnable, IScrollPane, TableModelListener, ISupportXMLOutput,
 	IPortalComponent, IFocusCycleRoot<Component>, ISupportFocusTransfer
 {

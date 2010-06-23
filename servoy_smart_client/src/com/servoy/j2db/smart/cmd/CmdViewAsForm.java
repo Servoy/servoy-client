@@ -25,6 +25,7 @@ import com.servoy.j2db.IForm;
 import com.servoy.j2db.util.FixedToggleButtonModel;
 
 /**
+ * Menu view as recordview form action
  * @author jblok
  */
 public class CmdViewAsForm extends AbstractCmd

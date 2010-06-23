@@ -28,7 +28,7 @@ import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.util.Utils;
 
 /**
- * @author Jan Blok
+ * @author jblok
  * 
  *         To change this generated comment go to Window>Preferences>Java>Code Generation>Code Template
  */

@@ -26,6 +26,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.smart.J2DBClient;
 
 /**
+ * Undo action
  * @author jblok
  */
 public class CmdUndo extends AbstractCmd

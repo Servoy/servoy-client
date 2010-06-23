@@ -105,6 +105,7 @@ import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.SpecialMatteBorder;
 
 /**
+ * Tableview renderer/editor wrapper (for use in swing)
  * @author jblok
  */
 public class CellAdapter extends TableColumn implements TableCellEditor, TableCellRenderer, IDataAdapter, ItemListener, ActionListener, IEditListener

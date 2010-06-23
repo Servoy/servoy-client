@@ -20,7 +20,7 @@ import java.awt.print.PageFormat;
 import com.servoy.j2db.IApplication;
 
 /**
- * @author Jan Blok
+ * @author jblok
  */
 public interface IPrintInfo
 {

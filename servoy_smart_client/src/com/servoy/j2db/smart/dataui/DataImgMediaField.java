@@ -92,7 +92,6 @@ import com.servoy.j2db.util.gui.MyImageIcon;
  * 
  * @author jblok
  */
-
 public class DataImgMediaField extends EnableScrollPanel implements IDisplayData, IFieldComponent, IScrollPane, DropTargetListener, ISupportAsyncLoading,
 	IScriptMediaInputFieldMethods, ISupportCachedLocationAndSize
 {

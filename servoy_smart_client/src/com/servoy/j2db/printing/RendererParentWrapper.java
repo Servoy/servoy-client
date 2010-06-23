@@ -22,7 +22,7 @@ import java.util.Set;
 import javax.swing.JComponent;
 
 /**
- * @author Jan Blok
+ * @author jblok
  */
 public class RendererParentWrapper
 {

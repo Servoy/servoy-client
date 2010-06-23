@@ -22,6 +22,7 @@ import javax.swing.Action;
 import com.servoy.j2db.IApplication;
 
 /**
+ * View menu action
  * @author jblok
  */
 public class MenuViewAction extends MnemonicCheckAction

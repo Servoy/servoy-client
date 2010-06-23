@@ -24,6 +24,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IForm;
 
 /**
+ * return to show all menu action
  * @author jblok
  */
 public class CmdStopSearchFindAll extends AbstractCmd

@@ -35,7 +35,7 @@ import com.servoy.j2db.util.JEscapeDialog;
 
 /**
  * Shows a msg dialog with one option (checkbox) for use like "never show this dialog again"
- * @author Jan Blok
+ * @author jblok
  */
 public class SingleOptionMessageDialog extends JEscapeDialog implements ActionListener
 {

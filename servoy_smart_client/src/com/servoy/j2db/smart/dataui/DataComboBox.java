@@ -102,9 +102,9 @@ import com.servoy.j2db.util.UIUtils;
 import com.servoy.j2db.util.Utils;
 
 /**
+ * Runtime swing combo box component
  * @author jblok
  */
-
 public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRelatedData, IFieldComponent, ISkinnable, ItemListener,
 	IScriptDataComboboxMethods, ISupportCachedLocationAndSize
 {

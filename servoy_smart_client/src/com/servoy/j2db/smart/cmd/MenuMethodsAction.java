@@ -22,6 +22,7 @@ import javax.swing.Action;
 import com.servoy.j2db.IApplication;
 
 /**
+ * Methods menu action
  * @author jblok
  */
 public class MenuMethodsAction extends MnemonicCheckAction
@@ -38,6 +39,4 @@ public class MenuMethodsAction extends MnemonicCheckAction
 	public void actionPerformed(java.awt.event.ActionEvent e)
 	{
 	}
-
-
 }
