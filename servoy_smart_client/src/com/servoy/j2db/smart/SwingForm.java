@@ -141,6 +141,8 @@ import com.servoy.j2db.smart.scripting.TwoNativeJavaObject;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IScriptReadOnlyMethods;
+import com.servoy.j2db.ui.ISplitPane;
+import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.util.AutoTransferFocusListener;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IFocusCycleRoot;
@@ -1782,6 +1784,21 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			boolean changed = false;
 			lastMousePosition = e.getPoint();
 			JComponent selectedComponent = (JComponent)SwingUtilities.getDeepestComponentAt(realViewPort, e.getX(), e.getY());
+			Container panel = SwingUtilities.getAncestorOfClass(ITabPanel.class, selectedComponent);
+			if (panel == null) panel = SwingUtilities.getAncestorOfClass(ISplitPane.class, selectedComponent);
+			while (panel != null)
+			{
+				if (SwingUtilities.isDescendingFrom(panel, realViewPort))
+				{
+					selectedComponent = (JComponent)panel;
+					panel = SwingUtilities.getAncestorOfClass(ITabPanel.class, selectedComponent);
+					if (panel == null) panel = SwingUtilities.getAncestorOfClass(ISplitPane.class, selectedComponent);
+				}
+				else
+				{
+					panel = null;
+				}
+			}
 			if (selectedComponent == realViewPort || selectedComponent instanceof DataRenderer)
 			{
 				changed = selectedComponents.size() > 0;
