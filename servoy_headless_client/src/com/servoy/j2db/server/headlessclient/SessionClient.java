@@ -124,7 +124,7 @@ import com.servoy.j2db.util.toolbar.Toolbar;
 /**
  * A client which can be used in a jsp page or inside the org.apache.wicket framework as webclient
  * 
- * @author Jan Blok
+ * @author jblok
  */
 public class SessionClient extends ClientState implements ISessionClient
 {
