@@ -40,6 +40,7 @@ import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.FormComponent;
+import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.PageableListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.protocol.http.ClientProperties;
@@ -130,7 +131,8 @@ public class WebEventExecutor extends BaseEventExecutor
 	{
 		if (id != null && useAJAX)
 		{
-			if (!(component instanceof ILabel) && component instanceof FormComponent< ? >)
+			if (!(component instanceof TextField< ? > && component instanceof IDisplay && ((IDisplay)component).isReadOnly()) &&
+				!(component instanceof ILabel) && component instanceof FormComponent< ? >)
 			{
 				component.add(new ServoyActionEventBehavior("onKeyDown", component, this)); // please keep the case in the event name //$NON-NLS-1$
 			}
