@@ -17,7 +17,7 @@
 package com.servoy.j2db.persistence;
 
 /**
- * @author Jan Blok
+ * @author jblok
  */
 public interface ISupportHTMLToolTipText
 {

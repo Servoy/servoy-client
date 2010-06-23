@@ -26,7 +26,7 @@ import java.util.Map;
  * When a plugin is loaded in the developer/runtime (via plugin classloader) and does Naming.lookup it cannot find the stub,
  * if that is located in the same jar. (this never happens in the client because of the plugins are loaded in the same classloader (system))
  * 
- * @author Jan Blok
+ * @author jblok
  */
 public class LocalhostRMIRegistry
 {

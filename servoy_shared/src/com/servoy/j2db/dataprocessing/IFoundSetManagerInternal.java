@@ -25,7 +25,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.util.ServoyException;
 
 /**
- * This class manages all the foundsets
+ * Internal interface to extend the foundset manager
  * 
  * @author jblok
  */

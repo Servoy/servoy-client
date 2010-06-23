@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.component;
 
 
@@ -24,7 +24,8 @@ import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.util.IDelegate;
 
 /**
- * @author Jan Blok
+ * Dummy class placeholder when a bean is missing or existing bean has no GUI
+ * @author jblok
  */
 public class InvisibleBean extends JLabel implements IDelegate, IComponent
 {

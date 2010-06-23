@@ -45,7 +45,7 @@ import com.servoy.j2db.util.Utils;
 /**
  * Load solutions from local client cache if the active update seq matches
  * 
- * @author Jan Blok
+ * @author jblok
  */
 public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 {

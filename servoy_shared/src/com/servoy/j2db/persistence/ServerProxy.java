@@ -30,7 +30,7 @@ import com.servoy.j2db.util.Utils;
 /**
  * Class for client side cache to prevent recurring network calls
  * 
- * @author Jan Blok
+ * @author jblok
  */
 public class ServerProxy implements IServer, Serializable
 {

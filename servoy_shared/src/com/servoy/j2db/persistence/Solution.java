@@ -35,7 +35,7 @@ import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
- * A j2db solution also root object for meta data
+ * A solution also root object for meta data
  * 
  * @author jblok
  */

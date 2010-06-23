@@ -31,6 +31,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
 
 /**
+ * Abstract repository to be sub-classed, contains some generic functions
  * @author jblok
  */
 public abstract class AbstractRepository extends AbstractPersistFactory implements IDeveloperRepository

@@ -39,7 +39,7 @@ import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
 /**
- * @author Jan Blok
+ * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Utils", scriptingName = "utils")
 public class JSUtils

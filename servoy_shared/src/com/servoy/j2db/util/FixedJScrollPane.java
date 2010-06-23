@@ -29,7 +29,7 @@ import javax.swing.Scrollable;
 import javax.swing.ViewportLayout;
 
 /**
- * @author Jan Blok
+ * @author jblok
  * 
  * Fix for bad calling if no scrollbars used ever
  */

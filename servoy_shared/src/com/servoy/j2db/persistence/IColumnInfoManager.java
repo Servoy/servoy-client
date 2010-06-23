@@ -19,7 +19,7 @@ package com.servoy.j2db.persistence;
 /**
  * Interface for repository component that manages the column info.
  * 
- * @author Jan Blok
+ * @author jblok
  * 
  */
 public interface IColumnInfoManager extends IColumnInfoProvider

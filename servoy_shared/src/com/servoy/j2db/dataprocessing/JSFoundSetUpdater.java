@@ -35,7 +35,8 @@ import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
 
 /**
- * @author Jan Blok
+ * Scriptable Foundsetupdater object
+ * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptType

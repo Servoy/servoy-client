@@ -13,9 +13,8 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util;
-
 
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -85,14 +84,11 @@ import sun.misc.BASE64Encoder;
 import com.servoy.j2db.IEventDelegator;
 import com.servoy.j2db.persistence.ISupportBounds;
 
-//This class is a copy of the nl.profdata.syne.util.Utils when more classes are used bundle lib instead of copy
 /**
- * <br>
- * <br>
+ * Utility methods
  * Normal Use: static methods <br>
- * <br>
  * 
- * @author Jan Blok
+ * @author jblok
  */
 public class Utils
 {

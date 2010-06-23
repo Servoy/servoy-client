@@ -70,7 +70,8 @@ import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
- * @author Jan Blok
+ * Scriptable database manager object
+ * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Database Manager", scriptingName = "databaseManager")
 public class JSDatabaseManager

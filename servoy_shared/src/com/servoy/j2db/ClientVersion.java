@@ -13,13 +13,18 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db;
 
+/**
+ * Servoy version info class
+ * 
+ * @author jblok
+ */
 @SuppressWarnings("nls")
 public abstract class ClientVersion
 {
-	//these fields are private to prevent final class member copy in other classes! 
+	//these fields are private intentionally, to prevent final class member copy in other classes! 
 	private static final int majorVersion = 6;
 	private static final int middleVersion = 0;
 	private static final int minorVersion = 0;

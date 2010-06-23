@@ -19,7 +19,7 @@ package com.servoy.j2db.component;
 
 
 /**
- * @author Jan Blok
+ * @author jblok
  */
 public interface ISupportAsyncLoading
 {

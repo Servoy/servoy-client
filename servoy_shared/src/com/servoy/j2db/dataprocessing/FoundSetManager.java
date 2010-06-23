@@ -74,6 +74,7 @@ import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.WeakHashSet;
 
 /**
+ * Manager for foundsets
  * @author jblok
  */
 public class FoundSetManager implements IFoundSetManagerInternal
@@ -1476,8 +1477,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				QuerySelect sqlString = foundset.getSqlSelect();
 
 				QuerySelect selectCountSQLString = sqlString.getSelectCount("n", true); //$NON-NLS-1$
-				IDataSet set = ds.performQuery(application.getClientID(), t.getServerName(), transaction_id, selectCountSQLString,
-					getTableFilterParams(t.getServerName(), selectCountSQLString), false, 0, 10, IDataServer.FOUNDSET_LOAD_QUERY);
+				IDataSet set = ds.performQuery(application.getClientID(), t.getServerName(), transaction_id, selectCountSQLString, getTableFilterParams(
+					t.getServerName(), selectCountSQLString), false, 0, 10, IDataServer.FOUNDSET_LOAD_QUERY);
 				if (set.getRowCount() > 0)
 				{
 					Object[] row = set.getRow(0);
@@ -1508,8 +1509,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				QuerySelect countSelect = new QuerySelect(new QueryTable(table.getSQLName(), table.getCatalog(), table.getSchema()));
 				countSelect.addColumn(new QueryAggregate(QueryAggregate.COUNT, new QueryColumnValue(new Integer(1), "n"), null)); //$NON-NLS-1$
 
-				IDataSet set = ds.performQuery(application.getClientID(), table.getServerName(), transaction_id, countSelect,
-					getTableFilterParams(table.getServerName(), countSelect), false, 0, 10, IDataServer.FOUNDSET_LOAD_QUERY);
+				IDataSet set = ds.performQuery(application.getClientID(), table.getServerName(), transaction_id, countSelect, getTableFilterParams(
+					table.getServerName(), countSelect), false, 0, 10, IDataServer.FOUNDSET_LOAD_QUERY);
 				if (set.getRowCount() > 0)
 				{
 					Object[] row = set.getRow(0);
@@ -1702,8 +1703,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 							}
 							catch (Exception e1)
 							{
-								application.reportError(
-									Messages.getString("servoy.foundsetManager.error.ExecutingDataBroadcastMethod", new Object[] { sm.getName() }), e1);
+								application.reportError(Messages.getString("servoy.foundsetManager.error.ExecutingDataBroadcastMethod",
+									new Object[] { sm.getName() }), e1);
 							}
 						}
 					}

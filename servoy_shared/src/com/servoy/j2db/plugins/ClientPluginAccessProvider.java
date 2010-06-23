@@ -62,7 +62,7 @@ import com.servoy.j2db.util.toolbar.IToolbarPanel;
 /**
  * Interface Impl.
  * 
- * @author Jan Blok
+ * @author jblok
  */
 public class ClientPluginAccessProvider implements IClientPluginAccess
 {

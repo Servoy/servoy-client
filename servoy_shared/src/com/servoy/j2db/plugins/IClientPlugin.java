@@ -28,7 +28,7 @@ import com.servoy.j2db.scripting.IScriptObject;
 /**
  * Base interface for all client plugins.
  * 
- * @author Jan Blok
+ * @author jblok
  */
 public interface IClientPlugin extends IPlugin, PropertyChangeListener, ISupportName
 {

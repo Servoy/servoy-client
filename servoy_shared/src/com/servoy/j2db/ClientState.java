@@ -67,9 +67,9 @@ import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.serialize.JSONConverter;
 
 /**
- * Bare bone state of a client process instance
+ * Bare bone state and abstract base class for all client process instance
  * 
- * @author Jan Blok
+ * @author jblok
  */
 public abstract class ClientState extends ClientVersion implements IServiceProvider, Serializable
 {

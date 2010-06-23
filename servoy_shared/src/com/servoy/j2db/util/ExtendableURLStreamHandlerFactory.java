@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author Jan Blok
+ * @author jblok
  */
 public class ExtendableURLStreamHandlerFactory implements URLStreamHandlerFactory
 {

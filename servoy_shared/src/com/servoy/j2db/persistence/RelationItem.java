@@ -22,7 +22,7 @@ import com.servoy.j2db.util.UUID;
 
 
 /**
- * @author Jan Blok
+ * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
 public class RelationItem extends AbstractBase implements ISupportContentEquals, IPersistCloneable, ICloneable

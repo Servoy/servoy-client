@@ -29,7 +29,7 @@ import java.util.TreeSet;
  * Normal Use: static methods <br>
  * <br>
  * 
- * @author Jan Blok
+ * @author jblok
  */
 public class DataSourceUtils
 {

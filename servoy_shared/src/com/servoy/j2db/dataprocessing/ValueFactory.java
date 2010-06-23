@@ -28,7 +28,7 @@ import com.servoy.j2db.util.IntHashMap;
 /**
  * Special wrapper values factory
  * 
- * @author Jan Blok
+ * @author jblok
  */
 @TerracottaInstrumentedClass
 public class ValueFactory // terracotta instrumented class because for example NullValue can reach shared object graph
