@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.ui;
 
 
@@ -47,7 +47,7 @@ public abstract class BaseEventExecutor implements IEventExecutor
 	private boolean selectOnEnter;
 
 	private boolean validationEnabled = true;
-
+	protected String formName;
 
 	public void setScriptExecuter(IScriptExecuter el)
 	{
@@ -256,6 +256,11 @@ public abstract class BaseEventExecutor implements IEventExecutor
 		event.setModifiers(modifiers == MODIFIERS_UNSPECIFIED ? 0 : modifiers);
 		return actionListener.executeFunction(cmd, Utils.arrayMerge(Utils.arrayJoin(args, new Object[] { event }), persistArgs), saveData, display, focusEvent,
 			null, executeWhenFieldValidationFailed);
+	}
+
+	public void setFormName(String formName)
+	{
+		this.formName = formName;
 	}
 
 	protected abstract String getFormName(IComponent display);
