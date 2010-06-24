@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util.editlist;
 
 
@@ -36,8 +36,12 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputListener;
 import javax.swing.plaf.basic.BasicListUI;
 
+import com.servoy.j2db.ui.BaseEventExecutor;
+import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
+import com.servoy.j2db.ui.IFormUI;
 import com.servoy.j2db.ui.ILabel;
+import com.servoy.j2db.ui.ISupportEventExecutor;
 
 public class EditListUI extends BasicListUI
 {
@@ -366,6 +370,14 @@ public class EditListUI extends BasicListUI
 			{
 				dispatchComponent = SwingUtilities.getDeepestComponentAt(editorComponent, p2.x, p2.y);
 			}
+			if (dispatchComponent instanceof ISupportEventExecutor)
+			{
+				IEventExecutor executor = ((ISupportEventExecutor)dispatchComponent).getEventExecutor();
+				if (executor instanceof BaseEventExecutor)
+				{
+					((BaseEventExecutor)executor).setFormName(getFormName(dispatchComponent));
+				}
+			}
 //Disabled: this breaks editing stopped !!! (if clicked besides a field)
 //			//try to focus a component if panel or label
 //			if (/*dispatchComponent == null || disabled, becouse cannot just focus one... */
@@ -454,6 +466,18 @@ public class EditListUI extends BasicListUI
 				parent = parent.getParent();
 			}
 			return false;
+		}
+
+		private String getFormName(Component component)
+		{
+			for (Component container = component; container != null; container = container.getParent())
+			{
+				if (container instanceof IFormUI)
+				{
+					return ((IFormUI)container).getController().getName();
+				}
+			}
+			return null;
 		}
 
 		public void mouseReleased(MouseEvent e)
