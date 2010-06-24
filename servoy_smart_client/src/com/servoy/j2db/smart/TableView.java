@@ -1478,6 +1478,20 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 		repaint();
 	}
 
+	@Override
+	public void removeEditor()
+	{
+		if (editorComp instanceof ISupportEventExecutor)
+		{
+			// focus lost event comes after editor is removed from hierarchy
+			IEventExecutor executor = ((ISupportEventExecutor)editorComp).getEventExecutor();
+			if (executor instanceof BaseEventExecutor)
+			{
+				((BaseEventExecutor)executor).setFormName(fc.getName());
+			}
+		}
+		super.removeEditor();
+	}
 
 	int sortHeadersClickedColumnIndex = -1;
 	boolean sortHeadersClickedAsc;
