@@ -18,11 +18,13 @@ package com.servoy.j2db.scripting.solutionmodel;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 import org.mozilla.javascript.Function;
 
@@ -34,6 +36,7 @@ import com.servoy.j2db.IForm;
 import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.AbstractBase;
+import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
@@ -3014,8 +3017,25 @@ public class JSForm implements IJSParent, IConstantsObject
 		return (JSForm)form;
 	}
 
-	static JSMethod getMethod(IApplication application, IJSParent parent, int methodid, boolean isCommand)
+	protected JSMethod getEventHandler(String methodKey)
 	{
+		return getEventHandler(application, form, methodKey, this);
+	}
+
+	static <T extends AbstractBase> JSMethod getEventHandler(IApplication application, T persist, String methodKey, IJSParent parent)
+	{
+		int methodid;
+		try
+		{
+			Method getter = persist.getClass().getMethod("get" + Character.toUpperCase(methodKey.charAt(0)) + methodKey.substring(1)); //$NON-NLS-1$
+			methodid = ((Integer)getter.invoke(persist)).intValue();
+		}
+		catch (Exception e)
+		{
+			// should not happen
+			throw new RuntimeException(e);
+		}
+
 		if (methodid > 0)
 		{
 			ScriptMethod scriptMethod = null;
@@ -3038,19 +3058,50 @@ public class JSForm implements IJSParent, IConstantsObject
 			}
 			if (scriptMethod != null)
 			{
-				if (scriptMethod.getParent() instanceof Solution)
+				JSForm form = scriptMethod.getParent() instanceof Solution ? null : getJSFormParent(parent);
+				List<Object> arguments = persist.getInstanceMethodArguments(methodKey);
+				if (arguments == null || arguments.size() == 0)
 				{
-					return new JSMethod(application, null, scriptMethod, false);
+					return new JSMethod(application, form, scriptMethod, false);
 				}
 				else
 				{
-					return new JSMethod(application, getJSFormParent(parent), scriptMethod, false);
+					return new JSMethodWithArguments(application, form, scriptMethod, false, arguments.toArray());
 				}
 			}
 		}
-		else if (isCommand && methodid == 0) return DEFAULTS.COMMAND_DEFAULT;
+		else if (methodid == 0 && BaseComponent.isCommandProperty(methodKey))
+		{
+			return DEFAULTS.COMMAND_DEFAULT;
+		}
 		return null;
 	}
+
+	static <T extends AbstractBase> void setEventHandler(IApplication application, T persist, String methodKey, JSMethod method)
+	{
+		try
+		{
+			Method setter = persist.getClass().getMethod("set" + Character.toUpperCase(methodKey.charAt(0)) + methodKey.substring(1), int.class); //$NON-NLS-1$
+			setter.invoke(persist, new Integer(getMethodId(application, persist, method)));
+		}
+		catch (Exception e)
+		{
+			// should not happen
+			throw new RuntimeException(e);
+		}
+		persist.putInstanceMethodArguments(methodKey, method instanceof JSMethodWithArguments ? Arrays.asList(((JSMethodWithArguments)method).getArguments())
+			: null);
+	}
+
+	/**
+	 * Set the event handler for the method key, JSMethod may contain arguments.
+	 */
+	protected void setEventHandler(String methodKey, JSMethod method)
+	{
+		checkModification();
+		setEventHandler(application, form, methodKey, method);
+	}
+
 
 	static int getMethodId(IApplication application, AbstractBase base, JSMethod method)
 	{
@@ -3092,7 +3143,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnDeleteAllRecordsCmd()
 	{
-		return getMethod(application, this, form.getOnDeleteAllRecordsCmdMethodID(), true);
+		return getEventHandler("onDeleteAllRecordsCmdMethodID");
 	}
 
 	/**
@@ -3102,7 +3153,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnDeleteRecordCmd()
 	{
-		return getMethod(application, this, form.getOnDeleteRecordCmdMethodID(), true);
+		return getEventHandler("onDeleteRecordCmdMethodID");
 	}
 
 	/**
@@ -3115,7 +3166,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnDrag()
 	{
-		return getMethod(application, this, form.getOnDragMethodID(), true);
+		return getEventHandler("onDragMethodID");
 	}
 
 	/**
@@ -3125,7 +3176,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnDragOver()
 	{
-		return getMethod(application, this, form.getOnDragOverMethodID(), true);
+		return getEventHandler("onDragOverMethodID");
 	}
 
 	/**
@@ -3135,7 +3186,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnDrop()
 	{
-		return getMethod(application, this, form.getOnDropMethodID(), true);
+		return getEventHandler("onDropMethodID");
 	}
 
 	/**
@@ -3147,7 +3198,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnElementFocusGained()
 	{
-		return getMethod(application, this, form.getOnElementFocusGainedMethodID(), true);
+		return getEventHandler("onElementFocusGainedMethodID");
 	}
 
 	/**
@@ -3157,7 +3208,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnElementFocusLost()
 	{
-		return getMethod(application, this, form.getOnElementFocusLostMethodID(), true);
+		return getEventHandler("onElementFocusLostMethodID");
 	}
 
 	/**
@@ -3167,7 +3218,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnDuplicateRecordCmd()
 	{
-		return getMethod(application, this, form.getOnDuplicateRecordCmdMethodID(), true);
+		return getEventHandler("onDuplicateRecordCmdMethodID");
 	}
 
 	/**
@@ -3180,7 +3231,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnFindCmd()
 	{
-		return getMethod(application, this, form.getOnFindCmdMethodID(), true);
+		return getEventHandler("onFindCmdMethodID");
 	}
 
 	/**
@@ -3190,7 +3241,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnHide()
 	{
-		return getMethod(application, this, form.getOnHideMethodID(), false);
+		return getEventHandler("onHideMethodID");
 	}
 
 	/**
@@ -3200,7 +3251,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnInvertRecordsCmd()
 	{
-		return getMethod(application, this, form.getOnInvertRecordsCmdMethodID(), true);
+		return getEventHandler("onInvertRecordsCmdMethodID");
 	}
 
 	/**
@@ -3212,7 +3263,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnLoad()
 	{
-		return getMethod(application, this, form.getOnLoadMethodID(), false);
+		return getEventHandler("onLoadMethodID");
 	}
 
 	/**
@@ -3226,7 +3277,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnNewRecordCmd()
 	{
-		return getMethod(application, this, form.getOnNewRecordCmdMethodID(), true);
+		return getEventHandler("onNewRecordCmdMethodID");
 	}
 
 	/**
@@ -3236,7 +3287,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnNextRecordCmd()
 	{
-		return getMethod(application, this, form.getOnNextRecordCmdMethodID(), true);
+		return getEventHandler("onNextRecordCmdMethodID");
 	}
 
 	/**
@@ -3249,7 +3300,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnOmitRecordCmd()
 	{
-		return getMethod(application, this, form.getOnOmitRecordCmdMethodID(), true);
+		return getEventHandler("onOmitRecordCmdMethodID");
 	}
 
 	/**
@@ -3261,7 +3312,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnPreviousRecordCmd()
 	{
-		return getMethod(application, this, form.getOnPreviousRecordCmdMethodID(), true);
+		return getEventHandler("onPreviousRecordCmdMethodID");
 	}
 
 	/**
@@ -3272,7 +3323,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnPrintPreviewCmd()
 	{
-		return getMethod(application, this, form.getOnPrintPreviewCmdMethodID(), true);
+		return getEventHandler("onPrintPreviewCmdMethodID");
 	}
 
 	/**
@@ -3285,7 +3336,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnRecordEditStart()
 	{
-		return getMethod(application, this, form.getOnRecordEditStartMethodID(), false);
+		return getEventHandler("onRecordEditStartMethodID");
 	}
 
 	/**
@@ -3295,7 +3346,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnRecordEditStop()
 	{
-		return getMethod(application, this, form.getOnRecordEditStopMethodID(), false);
+		return getEventHandler("onRecordEditStopMethodID");
 	}
 
 	/**
@@ -3305,7 +3356,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnRecordSelection()
 	{
-		return getMethod(application, this, form.getOnRecordSelectionMethodID(), false);
+		return getEventHandler("onRecordSelectionMethodID");
 	}
 
 	/**
@@ -3315,7 +3366,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnSearchCmd()
 	{
-		return getMethod(application, this, form.getOnSearchCmdMethodID(), true);
+		return getEventHandler("onSearchCmdMethodID");
 	}
 
 	/**
@@ -3325,7 +3376,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnShowAllRecordsCmd()
 	{
-		return getMethod(application, this, form.getOnShowAllRecordsCmdMethodID(), true);
+		return getEventHandler("onShowAllRecordsCmdMethodID");
 	}
 
 	/**
@@ -3337,7 +3388,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnShow()
 	{
-		return getMethod(application, this, form.getOnShowMethodID(), false);
+		return getEventHandler("onShowMethodID");
 	}
 
 	/**
@@ -3347,7 +3398,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnShowOmittedRecordsCmd()
 	{
-		return getMethod(application, this, form.getOnShowOmittedRecordsCmdMethodID(), true);
+		return getEventHandler("onShowOmittedRecordsCmdMethodID");
 	}
 
 	/**
@@ -3358,7 +3409,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnSortCmd()
 	{
-		return getMethod(application, this, form.getOnSortCmdMethodID(), true);
+		return getEventHandler("onSortCmdMethodID");
 	}
 
 	/**
@@ -3368,7 +3419,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnUnLoad()
 	{
-		return getMethod(application, this, form.getOnUnLoadMethodID(), false);
+		return getEventHandler("onUnLoadMethodID");
 	}
 
 	/**
@@ -3379,169 +3430,142 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnResize()
 	{
-		return getMethod(application, this, form.getOnResizeMethodID(), false);
+		return getEventHandler("onResizeMethodID");
 	}
 
 	public void js_setOnDeleteAllRecordsCmd(JSMethod method)
 	{
-		checkModification();
-		form.setOnDeleteAllRecordsCmdMethodID(getMethodId(application, form, method));
+		setEventHandler("onDeleteAllRecordsCmdMethodID", method);
 	}
 
 	public void js_setOnDeleteRecordCmd(JSMethod method)
 	{
-		checkModification();
-		form.setOnDeleteRecordCmdMethodID(getMethodId(application, form, method));
+		setEventHandler("onDeleteRecordCmdMethodID", method);
 	}
 
 	public void js_setOnDrag(JSMethod method)
 	{
-		checkModification();
-		form.setOnDragMethodID(getMethodId(application, form, method));
+		setEventHandler("onDragMethodID", method);
 	}
 
 	public void js_setOnDragOver(JSMethod method)
 	{
-		checkModification();
-		form.setOnDragOverMethodID(getMethodId(application, form, method));
+		setEventHandler("onDragOverMethodID", method);
 	}
 
 	public void js_setOnDrop(JSMethod method)
 	{
-		checkModification();
-		form.setOnDropMethodID(getMethodId(application, form, method));
+		setEventHandler("onDropMethodID", method);
 	}
 
 	public void js_setOnElementFocusGained(JSMethod method)
 	{
-		checkModification();
-		form.setOnElementFocusGainedMethodID(getMethodId(application, form, method));
+		setEventHandler("onElementFocusGainedMethodID", method);
 	}
 
 	public void js_setOnElementFocusLost(JSMethod method)
 	{
-		checkModification();
-		form.setOnElementFocusLostMethodID(getMethodId(application, form, method));
+		setEventHandler("onElementFocusLostMethodID", method);
 	}
 
 	public void js_setOnDuplicateRecordCmd(JSMethod method)
 	{
-		checkModification();
-		form.setOnDuplicateRecordCmdMethodID(getMethodId(application, form, method));
+		setEventHandler("onDuplicateRecordCmdMethodID", method);
 	}
 
 	public void js_setOnFindCmd(JSMethod method)
 	{
-		checkModification();
-		form.setOnFindCmdMethodID(getMethodId(application, form, method));
+		setEventHandler("onFindCmdMethodID", method);
 	}
 
 	public void js_setOnHide(JSMethod method)
 	{
-		checkModification();
-		form.setOnHideMethodID(getMethodId(application, form, method));
+		setEventHandler("onHideMethodID", method);
 	}
 
 	public void js_setOnInvertRecordsCmd(JSMethod method)
 	{
-		checkModification();
-		form.setOnInvertRecordsCmdMethodID(getMethodId(application, form, method));
+		setEventHandler("onInvertRecordsCmdMethodID", method);
 	}
 
 	public void js_setOnLoad(JSMethod method)
 	{
-		checkModification();
-		form.setOnLoadMethodID(getMethodId(application, form, method));
+		setEventHandler("onLoadMethodID", method);
 	}
 
 	public void js_setOnNewRecordCmd(JSMethod method)
 	{
-		checkModification();
-		form.setOnNewRecordCmdMethodID(getMethodId(application, form, method));
+		setEventHandler("onNewRecordCmdMethodID", method);
 	}
 
 	public void js_setOnNextRecordCmd(JSMethod method)
 	{
-		checkModification();
-		form.setOnNextRecordCmdMethodID(getMethodId(application, form, method));
+		setEventHandler("onNextRecordCmdMethodID", method);
 	}
 
 	public void js_setOnOmitRecordCmd(JSMethod method)
 	{
-		checkModification();
-		form.setOnOmitRecordCmdMethodID(getMethodId(application, form, method));
+		setEventHandler("onOmitRecordCmdMethodID", method);
 	}
 
 	public void js_setOnPreviousRecordCmd(JSMethod method)
 	{
-		checkModification();
-		form.setOnPreviousRecordCmdMethodID(getMethodId(application, form, method));
+		setEventHandler("onPreviousRecordCmdMethodID", method);
 	}
 
 	public void js_setOnPrintPreviewCmd(JSMethod method)
 	{
-		checkModification();
-		form.setOnPrintPreviewCmdMethodID(getMethodId(application, form, method));
+		setEventHandler("onPrintPreviewCmdMethodID", method);
 	}
 
 	public void js_setOnRecordEditStart(JSMethod method)
 	{
-		checkModification();
-		form.setOnRecordEditStartMethodID(getMethodId(application, form, method));
+		setEventHandler("onRecordEditStartMethodID", method);
 	}
 
 	public void js_setOnRecordEditStop(JSMethod method)
 	{
-		checkModification();
-		form.setOnRecordEditStopMethodID(getMethodId(application, form, method));
+		setEventHandler("onRecordEditStopMethodID", method);
 	}
 
 	public void js_setOnRecordSelection(JSMethod method)
 	{
-		checkModification();
-		form.setOnRecordSelectionMethodID(getMethodId(application, form, method));
+		setEventHandler("onRecordSelectionMethodID", method);
 	}
 
 	public void js_setOnSearchCmd(JSMethod method)
 	{
-		checkModification();
-		form.setOnSearchCmdMethodID(getMethodId(application, form, method));
+		setEventHandler("onSearchCmdMethodID", method);
 	}
 
 	public void js_setOnShowAllRecordsCmd(JSMethod method)
 	{
-		checkModification();
-		form.setOnShowAllRecordsCmdMethodID(getMethodId(application, form, method));
+		setEventHandler("onShowAllRecordsCmdMethodID", method);
 	}
 
 	public void js_setOnShow(JSMethod method)
 	{
-		checkModification();
-		form.setOnShowMethodID(getMethodId(application, form, method));
+		setEventHandler("onShowMethodID", method);
 	}
 
 	public void js_setOnShowOmittedRecordsCmd(JSMethod method)
 	{
-		checkModification();
-		form.setOnShowOmittedRecordsCmdMethodID(getMethodId(application, form, method));
+		setEventHandler("onShowOmittedRecordsCmdMethodID", method);
 	}
 
 	public void js_setOnSortCmd(JSMethod method)
 	{
-		checkModification();
-		form.setOnSortCmdMethodID(getMethodId(application, form, method));
+		setEventHandler("onSortCmdMethodID", method);
 	}
 
 	public void js_setOnUnLoad(JSMethod method)
 	{
-		checkModification();
-		form.setOnUnLoadMethodID(getMethodId(application, form, method));
+		setEventHandler("onUnLoadMethodID", method);
 	}
 
 	public void js_setOnResize(JSMethod method)
 	{
-		checkModification();
-		form.setOnResizeMethodID(getMethodId(application, form, method));
+		setEventHandler("onResizeMethodID", method);
 	}
 
 	/**

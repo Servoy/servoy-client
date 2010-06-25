@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting.solutionmodel;
 
 import java.io.CharArrayReader;
@@ -39,10 +39,10 @@ import com.servoy.j2db.scripting.IJavaScriptType;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class JSMethod implements IJavaScriptType
 {
-	private final IApplication application;
-	private final JSForm form;
-	private ScriptMethod sm;
-	private boolean isCopy;
+	protected final IApplication application;
+	protected final JSForm form;
+	protected ScriptMethod sm;
+	protected boolean isCopy;
 
 	/**
 	 * 

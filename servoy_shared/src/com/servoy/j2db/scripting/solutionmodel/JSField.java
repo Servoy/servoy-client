@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting.solutionmodel;
 
 import org.mozilla.javascript.Function;
@@ -489,7 +489,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 
 	public void js_setOnAction(JSMethod method)
 	{
-		getBaseComponent(true).setOnActionMethodID(JSForm.getMethodId(application, getBaseComponent(false), method));
+		setEventHandler(application, "onActionMethodID", method);
 	}
 
 	/**
@@ -497,12 +497,12 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 */
 	public JSMethod js_getOnAction()
 	{
-		return JSForm.getMethod(application, getJSParent(), getBaseComponent(false).getOnActionMethodID(), false);
+		return getEventHandler(application, "onActionMethodID");
 	}
 
 	public void js_setOnDataChange(JSMethod method)
 	{
-		getBaseComponent(true).setOnDataChangeMethodID(JSForm.getMethodId(application, getBaseComponent(false), method));
+		setEventHandler(application, "onDataChangeMethodID", method);
 	}
 
 	/**
@@ -517,12 +517,12 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 */
 	public JSMethod js_getOnDataChange()
 	{
-		return JSForm.getMethod(application, getJSParent(), getBaseComponent(false).getOnDataChangeMethodID(), false);
+		return getEventHandler(application, "onDataChangeMethodID");
 	}
 
 	public void js_setOnRightClick(JSMethod method)
 	{
-		getBaseComponent(true).setOnRightClickMethodID(JSForm.getMethodId(application, getBaseComponent(false), method));
+		setEventHandler(application, "onRightClickMethodID", method);
 	}
 
 	/**
@@ -530,12 +530,12 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 */
 	public JSMethod js_getOnRightClick()
 	{
-		return JSForm.getMethod(application, getJSParent(), getBaseComponent(false).getOnRightClickMethodID(), false);
+		return getEventHandler(application, "onRightClickMethodID");
 	}
 
 	public void js_setOnFocusGained(JSMethod method)
 	{
-		getBaseComponent(true).setOnFocusGainedMethodID(JSForm.getMethodId(application, getBaseComponent(false), method));
+		setEventHandler(application, "onFocusGainedMethodID", method);
 	}
 
 	/**
@@ -552,12 +552,12 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 */
 	public JSMethod js_getOnFocusGained()
 	{
-		return JSForm.getMethod(application, getJSParent(), getBaseComponent(false).getOnFocusGainedMethodID(), false);
+		return getEventHandler(application, "onFocusGainedMethodID");
 	}
 
 	public void js_setOnFocusLost(JSMethod method)
 	{
-		getBaseComponent(true).setOnFocusLostMethodID(JSForm.getMethodId(application, getBaseComponent(false), method));
+		setEventHandler(application, "onFocusLostMethodID", method);
 	}
 
 	/**
@@ -567,7 +567,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 */
 	public JSMethod js_getOnFocusLost()
 	{
-		return JSForm.getMethod(application, getJSParent(), getBaseComponent(false).getOnFocusLostMethodID(), false);
+		return getEventHandler(application, "onFocusLostMethodID");
 	}
 
 

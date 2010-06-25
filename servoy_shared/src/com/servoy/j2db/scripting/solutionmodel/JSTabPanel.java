@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting.solutionmodel;
 
 import java.awt.Color;
@@ -259,10 +259,9 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent
 		}
 	}
 
-
 	public void js_setOnTabChange(JSMethod method)
 	{
-		getBaseComponent(true).setOnTabChangeMethodID(JSForm.getMethodId(application, getBaseComponent(false), method));
+		setEventHandler(application, "onTabChangeMethodID", method);
 	}
 
 	/**
@@ -277,7 +276,7 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent
 	 */
 	public JSMethod js_getOnTabChange()
 	{
-		return JSForm.getMethod(application, getJSParent(), getBaseComponent(false).getOnTabChangeMethodID(), false);
+		return getEventHandler(application, "onTabChangeMethodID");
 	}
 
 	public void js_setScrollTabs(boolean arg)

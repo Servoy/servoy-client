@@ -761,6 +761,34 @@ public class JSSolutionModel
 	}
 
 	/**
+	 * Get a JSMethod instance with arguments to be assigned to an event.
+	 *
+	 * @sample 
+	 * var str = "John's Bookstore"
+	 * var form = solutionModel.getForm('orders')
+	 * var button = form.getButton('abutton')
+	 * var method = form.getFormMethod('doit') // has 4 arguments: event (fixed), boolean, number and string
+	 * // string arguments have to be quoted, they are interpreted before the method is called
+	 * var quotedString = "'"+utils.stringReplace(str, "'", "\\'")+"'"
+	 * // list all arguments the method has, use nulls for fixed arguments (like event)
+	 * button.onAction = solutionModel.newMethodWithArguments(method, null, true, 42, quotedString)
+	 * 
+	 * @param method JSMethod to be assigned to an event
+	 * 
+	 * @param args positional arguments
+	 * 
+	 * @return a JSMethod
+	 */
+	public JSMethod js_newMethodWithArguments(JSMethod method, Object... args)
+	{
+		if (method == null || args == null || args.length == 0)
+		{
+			return method;
+		}
+		return new JSMethodWithArguments(method, args);
+	}
+
+	/**
 	 * The list of all global methods.
 	 * 
 	 * @sample

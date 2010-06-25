@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting.solutionmodel;
 
 import org.mozilla.javascript.Function;
@@ -492,10 +492,9 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 		getBaseComponent(true).setVerticalAlignment(arg);
 	}
 
-
 	public void js_setOnAction(JSMethod method)
 	{
-		getBaseComponent(true).setOnActionMethodID(JSForm.getMethodId(application, getBaseComponent(false), method));
+		setEventHandler(application, "onActionMethodID", method);
 	}
 
 	/**
@@ -514,12 +513,12 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 */
 	public JSMethod js_getOnAction()
 	{
-		return JSForm.getMethod(application, getJSParent(), getBaseComponent(false).getOnActionMethodID(), false);
+		return getEventHandler(application, "onActionMethodID");
 	}
 
 	public void js_setOnDoubleClick(JSMethod method)
 	{
-		getBaseComponent(true).setOnDoubleClickMethodID(JSForm.getMethodId(application, getBaseComponent(false), method));
+		setEventHandler(application, "onDoubleClickMethodID", method); //$NON-NLS-1$
 	}
 
 	/**
@@ -529,12 +528,12 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 */
 	public JSMethod js_getOnDoubleClick()
 	{
-		return JSForm.getMethod(application, getJSParent(), getBaseComponent(false).getOnDoubleClickMethodID(), false);
+		return getEventHandler(application, "onDoubleClickMethodID");
 	}
 
 	public void js_setOnRightClick(JSMethod method)
 	{
-		getBaseComponent(true).setOnRightClickMethodID(JSForm.getMethodId(application, getBaseComponent(false), method));
+		setEventHandler(application, "onRightClickMethodID", method); //$NON-NLS-1$
 	}
 
 	/**
@@ -544,7 +543,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 */
 	public JSMethod js_getOnRightClick()
 	{
-		return JSForm.getMethod(application, getJSParent(), getBaseComponent(false).getOnRightClickMethodID(), false);
+		return getEventHandler(application, "onRightClickMethodID");
 	}
 
 }

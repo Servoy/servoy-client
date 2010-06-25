@@ -13,12 +13,13 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting.solutionmodel;
 
 import java.awt.Dimension;
 import java.awt.Point;
 
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.scripting.IJavaScriptType;
@@ -37,6 +38,21 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 		super(parent, baseComponent, isNew);
 	}
 
+	/**
+	 * Set the event handler for the method key, JSMethod may contain arguments.
+	 */
+	protected void setEventHandler(IApplication application, String methodKey, JSMethod method)
+	{
+		JSForm.setEventHandler(application, getBaseComponent(true), methodKey, method);
+	}
+
+	/**
+	 * Get the event handler for the method key, JSMethod may contain arguments.
+	 */
+	protected JSMethod getEventHandler(IApplication application, String methodKey)
+	{
+		return JSForm.getEventHandler(application, getBaseComponent(false), methodKey, getJSParent());
+	}
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getAnchors()

@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 import java.awt.Dimension;
@@ -415,5 +415,15 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 		if (location != null) baseComponentClone.setLocation(new Point(location));
 
 		return baseComponentClone;
+	}
+
+	public static boolean isCommandProperty(String propertyName)
+	{
+		return propertyName != null && propertyName.endsWith("CmdMethodID"); //$NON-NLS-1$
+	}
+
+	public static boolean isEventProperty(String propertyName)
+	{
+		return propertyName != null && propertyName.endsWith("MethodID") && !isCommandProperty(propertyName); //$NON-NLS-1$
 	}
 }
