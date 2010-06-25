@@ -650,7 +650,7 @@ public abstract class AbstractBase implements IPersist
 		return null;
 	}
 
-	public List<Object> putInstancMethodArguments(String methodKey, List<Object> args)
+	public List<Object> putInstanceMethodArguments(String methodKey, List<Object> args)
 	{
 		if (methodKey != null)
 		{
