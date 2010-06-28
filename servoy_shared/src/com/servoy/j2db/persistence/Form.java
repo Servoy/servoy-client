@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 
@@ -2012,8 +2012,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 
 	/**
 	 * Property that tells the form to use a named foundset instead of the default foundset.
-	 * Currently only "separate" can be specified as value, meaning that the form will
-	 * use a separate foundset.
+	 * When "separate" as special value is specified the form will always create a copy of assigned foundset and therefor become separated from other foundsets
 	 */
 	public String getNamedFoundSet()
 	{
