@@ -395,6 +395,8 @@ function addListeners(strEvent, callbackUrl, ids, post)
 					var modifiers;
 					if(strEvent == "focus")
 					{
+						// skip onFocus callback if the component has been re-focused after a response					
+						if(Wicket.Focus.refocusLastFocusedComponentAfterResponse && !Wicket.Focus.focusSetFromServer) return true;
 						modifiers = onFocusModifiers;
 						onFocusModifiers = 0;
 					}
@@ -433,6 +435,8 @@ function addListeners(strEvent, callbackUrl, ids, post)
 					var modifiers;
 					if(strEvent == "focus")
 					{
+						// skip onFocus callback if the component has been re-focused after a response
+						if(Wicket.Focus.refocusLastFocusedComponentAfterResponse && !Wicket.Focus.focusSetFromServer) return true;
 						modifiers = onFocusModifiers;
 						onFocusModifiers = 0;
 					}
