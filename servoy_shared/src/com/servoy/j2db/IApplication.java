@@ -45,7 +45,7 @@ import com.servoy.j2db.util.toolbar.IToolbarPanel;
  * 
  * @author jblok
  */
-public interface IApplication extends IBasicApplication, IServiceProvider, IEventDelegator, ILogLevel
+public interface IApplication extends IBasicApplication, IServiceProvider, ILogLevel
 {
 	public static final int SERVER = ClientInfo.SERVER;
 	public static final int CLIENT = ClientInfo.CLIENT; //smart, rich
