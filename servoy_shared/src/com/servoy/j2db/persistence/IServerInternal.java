@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.persistence;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +71,7 @@ public interface IServerInternal
 
 	void fireStateChanged(int oldState, int state);
 
-	boolean checkIfTableExistsInDatabase(String adjustedTableName) throws SQLException;
+	boolean checkIfTableExistsInDatabase(Connection connection, String tableName);
 
 	void duplicateColumnInfo(ColumnInfo sourceColumnInfo, ColumnInfo targetColumnInfo);
 
@@ -116,14 +117,14 @@ public interface IServerInternal
 
 	boolean isValid();
 
-	ITransactionConnection getConnection() throws SQLException;
+	ITransactionConnection getConnection() throws SQLException, RepositoryException;
 
-	ITransactionConnection getUnmanagedConnection() throws SQLException;
+	ITransactionConnection getUnmanagedConnection() throws SQLException, RepositoryException;
 
 	QuerySet getSQLQuerySet(ISQLQuery sqlQuery, ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve, boolean forceQualifyColumns)
 		throws RepositoryException;
 
-	boolean hasMissingDBSequences(Table table) throws SQLException;
+	boolean hasMissingDBSequences(Table table) throws SQLException, RepositoryException;
 
 	String[] createMissingDBSequences(Table table) throws SQLException, RepositoryException;
 }

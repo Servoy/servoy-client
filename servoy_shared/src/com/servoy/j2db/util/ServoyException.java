@@ -172,6 +172,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 		public static final int ELEMENT_CHANGED_TYPE = 219; // an element (fixed uuid) changed object type between revisions
 		public static final int INVALID_PROPERTY_VALUE = 220;
 		public static final int INVALID_EXPORT = 226;
+		public static final int CONNECTION_POOL_EXHAUSTED = 227;
 
 		// --------------------------------------------
 		//unknown set 4xx
@@ -281,6 +282,9 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 
 			case InternalCodes.INVALID_EXPORT :
 				return "Invalid export"; //$NON-NLS-1$
+
+			case InternalCodes.CONNECTION_POOL_EXHAUSTED :
+				return "Connection pool for server " + tagValues[0] + " exhausted"; //$NON-NLS-1$ //$NON-NLS-2$
 
 			case InternalCodes.ERROR_IN_TRANSACTION :
 				return "Error in transaction"; //$NON-NLS-1$
