@@ -2947,6 +2947,12 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 					}
 
 					handleClientUserUidChanged(null, getClientInfo().getUserUid());
+					if (!isShutDown() && solutionRoot.isMainSolutionLoaded() &&
+						(getClientInfo().getUserUid() != null || !solutionRoot.getSolution().requireAuthentication()))
+
+					{
+						solutionLoaded(getSolution());
+					}
 				}
 				catch (Exception e)
 				{

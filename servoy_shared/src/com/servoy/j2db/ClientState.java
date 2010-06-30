@@ -366,7 +366,6 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 		{
 			// no need to load main solution, user already logged in or does not have to log-in
-			solutionLoaded(getSolution());
 			return;
 		}
 
