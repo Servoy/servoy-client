@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 
@@ -28,6 +28,7 @@ import java.util.Map;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 
+import com.servoy.j2db.persistence.IRelation;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptVariable;
@@ -627,7 +628,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 	 * @return
 	 * @throws RepositoryException
 	 */
-	public List<RelatedFindState> createFindStateJoins(QuerySelect sqlSelect, List<Relation> relations, QueryTable selectTable, IGlobalValueEntry provider)
+	public List<RelatedFindState> createFindStateJoins(QuerySelect sqlSelect, List<IRelation> relations, QueryTable selectTable, IGlobalValueEntry provider)
 		throws RepositoryException
 	{
 		List<RelatedFindState> relatedFindStates = null;
@@ -655,7 +656,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 					}
 
 					FindState fs = (FindState)set.getRecord(0);
-					List<Relation> nextRelations = new ArrayList<Relation>(relations);
+					List<IRelation> nextRelations = new ArrayList<IRelation>(relations);
 					nextRelations.add(relation);
 					List<RelatedFindState> rfs = fs.createFindStateJoins(sqlSelect, nextRelations, foreignQTable, provider);
 					if (rfs != null && rfs.size() > 0)
@@ -671,8 +672,8 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 						}
 						if (existingJoin == null)
 						{
-							QueryJoin join = SQLGenerator.createJoin(parent.getFoundSetManager().getApplication(), relation, selectTable, foreignQTable,
-								provider);
+							QueryJoin join = SQLGenerator.createJoin(parent.getFoundSetManager().getApplication().getFlattenedSolution(), relation,
+								selectTable, foreignQTable, provider);
 							// override join type to left outer join, a related OR-search should not make the result set smaller
 							join.setJoinType(ISQLJoin.LEFT_OUTER_JOIN);
 							sqlSelect.addJoin(join);
@@ -735,13 +736,13 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 	{
 		private final FindState findState;
 		private final QueryTable primaryTable;
-		private final List<Relation> relations;
+		private final List<IRelation> relations;
 
 		/**
 		 * @param findState
 		 * @param relation
 		 */
-		public RelatedFindState(FindState findState, List<Relation> relations, QueryTable primaryTable)
+		public RelatedFindState(FindState findState, List<IRelation> relations, QueryTable primaryTable)
 		{
 			this.findState = findState;
 			this.relations = relations;
@@ -753,7 +754,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 			return findState;
 		}
 
-		public List<Relation> getRelations()
+		public List<IRelation> getRelations()
 		{
 			return relations;
 		}

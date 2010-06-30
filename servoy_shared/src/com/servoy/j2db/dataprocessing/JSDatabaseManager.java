@@ -328,7 +328,8 @@ public class JSDatabaseManager
 						QueryJoin join = (QueryJoin)sql.getJoin(oldTable, r.getName());
 						if (join == null)
 						{
-							join = SQLGenerator.createJoin(application, r, oldTable, new QueryTable(ft.getSQLName(), ft.getCatalog(), ft.getSchema()), fs_old);
+							join = SQLGenerator.createJoin(application.getFlattenedSolution(), r, oldTable,
+								new QueryTable(ft.getSQLName(), ft.getCatalog(), ft.getSchema()), fs_old);
 							sql.addJoin(join);
 						}
 
