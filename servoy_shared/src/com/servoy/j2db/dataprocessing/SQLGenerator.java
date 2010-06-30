@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 
@@ -37,6 +37,8 @@ import com.servoy.j2db.persistence.ColumnInfo;
 import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IDataProvider;
+import com.servoy.j2db.persistence.IDataProviderHandler;
+import com.servoy.j2db.persistence.IRelation;
 import com.servoy.j2db.persistence.IRelationProvider;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RelationItem;
@@ -157,8 +159,8 @@ public class SQLGenerator
 		if (omitPKs != null && omitPKs.getRowCount() != 0)
 		{
 			//omit is rebuild each time
-			retval.setCondition(CONDITION_OMIT, createSetConditionFromPKs(ISQLCondition.NOT_OPERATOR,
-				pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), pkColumns, omitPKs));
+			retval.setCondition(CONDITION_OMIT,
+				createSetConditionFromPKs(ISQLCondition.NOT_OPERATOR, pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), pkColumns, omitPKs));
 		}
 		else if (oldSQLQuery != null)
 		{
@@ -174,7 +176,7 @@ public class SQLGenerator
 				if (obj instanceof FindState)
 				{
 					FindState state = (FindState)obj;
-					ISQLCondition condition = createConditionFromFindState(state, retval, provider);
+					ISQLCondition condition = createConditionFromFindState(state, retval, provider, pkQueryColumns);
 					if (condition == null)
 					{
 						continue; //empty foundrecordreq
@@ -289,7 +291,7 @@ public class SQLGenerator
 							foreignQtable = join.getForeignTable();
 						}
 
-						sqlSelect.addJoin(createJoin(app, relation, primaryQtable, foreignQtable, provider));
+						sqlSelect.addJoin(createJoin(app.getFlattenedSolution(), relation, primaryQtable, foreignQtable, provider));
 						primaryQtable = foreignQtable;
 					}
 					IQuerySelectValue queryColumn;
@@ -346,10 +348,10 @@ public class SQLGenerator
 	/**
 	 * Join clause for this relation.
 	 */
-	public static QueryJoin createJoin(IServiceProvider app, Relation relation, QueryTable primaryTable, QueryTable foreignTable, IGlobalValueEntry provider)
-		throws RepositoryException
+	public static QueryJoin createJoin(IDataProviderHandler flattenedSolution, IRelation relation, QueryTable primaryTable, QueryTable foreignTable,
+		IGlobalValueEntry provider) throws RepositoryException
 	{
-		IDataProvider[] primary = relation.getPrimaryDataProviders(app.getFlattenedSolution());
+		IDataProvider[] primary = relation.getPrimaryDataProviders(flattenedSolution);
 		Column[] foreign = relation.getForeignColumns();
 		int[] operators = relation.getOperators();
 
@@ -504,12 +506,12 @@ public class SQLGenerator
 	private static final int NULLCHECK_NULL = 1;
 	private static final int NULLCHECK_NULL_EMPTY = 2;
 
-	private ISQLCondition createConditionFromFindState(FindState s, QuerySelect sqlSelect, IGlobalValueEntry provider) throws ApplicationException,
-		RepositoryException
+	private ISQLCondition createConditionFromFindState(FindState s, QuerySelect sqlSelect, IGlobalValueEntry provider, List<IQuerySelectValue> pkQueryColumns)
+		throws ApplicationException, RepositoryException
 	{
 		ISQLCondition and = null;
 
-		List<RelatedFindState> relatedFindStates = s.createFindStateJoins(sqlSelect, Collections.<Relation> emptyList(), sqlSelect.getTable(), provider);
+		List<RelatedFindState> relatedFindStates = s.createFindStateJoins(sqlSelect, Collections.<IRelation> emptyList(), sqlSelect.getTable(), provider);
 		for (int i = 0; relatedFindStates != null && i < relatedFindStates.size(); i++)
 		{
 			RelatedFindState rfs = relatedFindStates.get(i);
@@ -975,64 +977,8 @@ public class SQLGenerator
 					ISQLCondition condition;
 					if (c instanceof AggregateVariable)
 					{
-						// search on aggregate, change to exists-condition:
-						// exists (select 1 from related1 join relatedn where related1.condition having aggregate(relatedn))
-						List<Relation> relations = rfs.getRelations();
-						if (relations.size() == 0)
-						{
-							// searching for aggregate in main table, does no make sense.. ignore in search
-							condition = null;
-						}
-						else
-						{
-							QuerySelect existsSelect = null;
-
-							QueryTable prevTable = sqlSelect.getTable();
-							for (int r = 0; r < relations.size(); r++)
-							{
-								Relation relation = relations.get(r);
-								Table foreignTable = relation.getForeignTable();
-								QueryTable foreignQtable = new QueryTable(foreignTable.getSQLName(), foreignTable.getCatalog(), foreignTable.getSchema());
-								QueryJoin join = createJoin(application, relation, prevTable, foreignQtable, provider);
-
-								if (r == 0)
-								{
-									// link to main select
-									existsSelect = new QuerySelect(foreignQtable);
-									AndCondition joinCondition = join.getCondition();
-									existsSelect.addCondition("AGGREGATE-SEARCH", joinCondition); //$NON-NLS-1$
-
-									// hsqldb wants a group-by, see HibernateTest.testHaving, group-by on FK of first relation table
-									for (ISQLCondition cond : joinCondition.getConditions())
-									{
-										if (cond instanceof CompareCondition)
-										{
-											IQuerySelectValue operand1 = ((CompareCondition)cond).getOperand1();
-											if (operand1 instanceof QueryColumn)
-											{
-												existsSelect.addGroupBy((QueryColumn)operand1);
-											}
-										}
-										else
-										{
-											// should never happen
-											Debug.error("Unexpected condition type in generated join condition " + cond.getClass()); //$NON-NLS-1$
-										}
-									}
-								}
-								else
-								{
-									existsSelect.addJoin(join);
-								}
-
-
-								prevTable = foreignQtable;
-							}
-							existsSelect.addColumn(new QueryColumnValue(new Integer(1), null));
-							existsSelect.addHaving("AGGREGATE-CONDITION", AbstractBaseQuery.relinkTable(columnTable, prevTable, or)); //$NON-NLS-1$
-
-							condition = new ExistsCondition(existsSelect, true);
-						}
+						condition = createExistsCondition(application.getFlattenedSolution(), sqlSelect, or, rfs.getRelations(), columnTable, provider,
+							pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]));
 					}
 					else
 					{
@@ -1062,6 +1008,49 @@ public class SQLGenerator
 		}
 
 		return and;
+	}
+
+
+	public static ISQLCondition createExistsCondition(IDataProviderHandler flattenedSolution, QuerySelect sqlSelect, ISQLCondition condition,
+		List<IRelation> relations, QueryTable columnTable, IGlobalValueEntry provider, QueryColumn[] pkQueryColumns) throws RepositoryException
+	{
+		// search on aggregate, change to exists-condition:
+		// exists (select 1 from innermain join related1 ... join relatedn where innermain.pk = main.pk having aggregate(relatedn))
+		if (relations.size() == 0)
+		{
+			// searching for aggregate in main table, does no make sense.. ignore in search
+			return null;
+		}
+
+		QuerySelect existsSelect = new QuerySelect(new QueryTable(sqlSelect.getTable().getName(), sqlSelect.getTable().getCatalogName(),
+			sqlSelect.getTable().getSchemaName()));
+		existsSelect.addColumn(new QueryColumnValue(new Integer(1), null));
+
+		// innermain.pk = main.pk
+		IQuerySelectValue[] innerPkColumns = new QueryColumn[pkQueryColumns.length];
+		for (int p = 0; p < pkQueryColumns.length; p++)
+		{
+			QueryColumn pk = pkQueryColumns[p];
+			innerPkColumns[p] = new QueryColumn(existsSelect.getTable(), pk.getId(), pk.getName(), pk.getColumnType().getSqlType(),
+				pk.getColumnType().getLength(), pk.getColumnType().getScale(), pk.isIdentity());
+		}
+		existsSelect.addCondition("AGGREGATE-SEARCH", new SetCondition(new int[] { ISQLCondition.EQUALS_OPERATOR }, innerPkColumns, //$NON-NLS-1$
+			pkQueryColumns, true));
+
+		// add the joins
+		QueryTable prevTable = existsSelect.getTable();
+		for (IRelation relation : relations)
+		{
+			Table foreignTable = relation.getForeignTable();
+			QueryTable foreignQtable = new QueryTable(foreignTable.getSQLName(), foreignTable.getCatalog(), foreignTable.getSchema());
+			QueryJoin join = createJoin(flattenedSolution, relation, prevTable, foreignQtable, provider);
+			existsSelect.addJoin(join);
+
+			prevTable = foreignQtable;
+		}
+		existsSelect.addHaving("AGGREGATE-CONDITION", AbstractBaseQuery.relinkTable(columnTable, prevTable, condition)); //$NON-NLS-1$
+
+		return new ExistsCondition(existsSelect, true);
 	}
 
 	private Object getEndOfDay(Date date, IColumn c)
