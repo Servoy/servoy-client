@@ -1155,14 +1155,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					{
 						// If there will be a horizontal scrollbar, then there are chances that we also get
 						// the vertical scrollbar, because the client height decreases.
-						// In two cases we can decrease the needed client size:
-						// - when the paging navigator is displayed
-						// - when no paging navigator is displayed, but the last row of the table is
-						// too close to the bottom edge.
 						Pair<Boolean, Pair<Integer, Integer>> rowsCalculation = needsMoreThanOnePage(bodyHeightHint);
-						boolean moreThanOnePage = rowsCalculation.getLeft().booleanValue();
 						int totalHeight = rowsCalculation.getRight().getRight().intValue();
-						if (moreThanOnePage || (bodyHeightHint - totalHeight < SCROLLBAR_SIZE))
+						if (bodyHeightHint - totalHeight < SCROLLBAR_SIZE)
 						{
 							bodyHeightHint -= 20; // Scrollbar width.
 						}
