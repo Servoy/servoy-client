@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting;
 
 import java.util.ArrayList;
@@ -41,6 +41,17 @@ import com.servoy.j2db.util.StringComparator;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "i18n", scriptingName = "i18n")
 public class JSI18N
 {
+	static
+	{
+		ScriptObjectRegistry.registerReturnedTypesProviderForClass(JSI18N.class, new IReturnedTypesProvider()
+		{
+			public Class< ? >[] getAllReturnedTypes()
+			{
+				return null;
+			}
+		});
+	}
+
 	private volatile IApplication application;
 
 	public JSI18N(IApplication application)
