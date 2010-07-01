@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util.gui;
 
 
@@ -119,13 +119,10 @@ public class AlwaysFirstRowSelectedSelectionModel extends DefaultListSelectionMo
 
 	public boolean setSelectedRow(int row)
 	{
-		if (row != getSelectedRow())
-		{
-			if (!canChangeSelection()) return false;
+		if (getSelectionMode() == SINGLE_SELECTION && row == getSelectedRow()) return true;
+		if (!canChangeSelection()) return false;
 
-			return setSelectedRow(row, false, true);
-		}
-		return true;
+		return setSelectedRow(row, false, true);
 	}
 
 	public boolean canChangeSelection()
