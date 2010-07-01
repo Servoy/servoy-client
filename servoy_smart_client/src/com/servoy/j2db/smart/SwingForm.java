@@ -1228,6 +1228,11 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 
 	public boolean isTraversalPolicyEnabled()
 	{
+		if (view instanceof ListView)
+		{
+			Component editor = ((ListView)view).getEditorComponent();
+			if (editor instanceof DataRenderer) return ((DataRenderer)editor).isTraversalPolicyEnabled();
+		}
 		return true;
 	}
 
