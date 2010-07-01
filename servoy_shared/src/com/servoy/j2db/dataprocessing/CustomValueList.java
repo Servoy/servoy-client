@@ -201,7 +201,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 	@SuppressWarnings("nls")
 	private void firstFill(String values, boolean displayValuesOnly)
 	{
-		if (values != null && super.getSize() == 0 && "-".equals(values.toString())) //$NON-NLS-1$
+		if (values != null && super.getSize() == 0 && SEPARATOR_DESIGN_VALUE.equals(values.toString())) //$NON-NLS-1$
 		{
 			values = null;
 		}
@@ -227,7 +227,10 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 					String line = tk.nextToken();
 					String[] str = Utils.stringSplit(line, '|', '\\');
 
-					if (("-".equals(str[0]) || str[1] != null) && !displayValuesOnly) //$NON-NLS-1$
+					// in case we are dealing with a valuelist with display & real values, consider \- display value not to be a separator (normally you could use \\- but it's hard to figure out)
+					if (SEPARATOR_DESIGN_VALUE.equals(str[0])) str[0] = Utils.stringSplit(line, "|")[0];
+
+					if ((SEPARATOR_DESIGN_VALUE.equals(str[0]) || str[1] != null) && !displayValuesOnly) //$NON-NLS-1$
 					{
 						super.addElement(application.getI18NMessageIfPrefixed(str[0]));
 						if (realValues == null)
@@ -327,7 +330,8 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 
 	private void fillWithArrayValuesImpl(Object[] display_val_array, List<Object> newRealValues)
 	{
-		if (display_val_array != null && display_val_array.length == 1 && display_val_array[0] != null && "-".equals(display_val_array[0].toString().trim()))
+		if (display_val_array != null && display_val_array.length == 1 && display_val_array[0] != null &&
+			SEPARATOR_DESIGN_VALUE.equals(display_val_array[0].toString().trim()))
 		{
 			//do not show "-" as only value in valuelist, makes no sense
 			display_val_array = new Object[0];

@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util;
 
 
@@ -50,7 +50,7 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 
 	public ComboModelListModelWrapper(IValueList listModel, boolean shouldHideEmptyValueIfPresent)
 	{
-		this.listModel = listModel;
+		this.listModel = new SeparatorProcessingValueList(listModel);
 		this.shouldHideEmptyValueIfPresent = shouldHideEmptyValueIfPresent;
 		listener = new ListModelListener();
 		listModel.addListDataListener(listener);
@@ -509,4 +509,117 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 	{
 		throw new UnsupportedOperationException("toArray not supported on valuelist wrapper"); //$NON-NLS-1$
 	}
+
+	/**
+	 * A wrapper for valuelists that helps combos deal with situations where "-" should be a valid value in the valuelist (not just a separator) and should also reach the dataprovider this way (and not as \-).
+	 * It converts the "-" that is interpreted as separator into a separator Object and the "\-" that is supposed to be interpreted as a real "-" to "-".
+	 * 
+	 * "-" is only considered a separator if present as display value in the valuelist.
+	 */
+	private class SeparatorProcessingValueList implements IValueList
+	{
+
+		private final IValueList listModel;
+
+		public SeparatorProcessingValueList(IValueList listModel)
+		{
+			this.listModel = listModel;
+		}
+
+		private Object convertToRuntimeSeparator(Object o)
+		{
+			if (SEPARATOR_DESIGN_VALUE.equals(o)) return SEPARATOR;
+			if (ESCAPED_SEPARATOR_DESIGN_VALUE.equals(o)) return SEPARATOR_DESIGN_VALUE;
+			return o;
+		}
+
+		private Object convertFromRuntimeSeparator(Object o)
+		{
+			if (SEPARATOR.equals(o)) return SEPARATOR_DESIGN_VALUE;
+			if (SEPARATOR_DESIGN_VALUE.equals(o)) return ESCAPED_SEPARATOR_DESIGN_VALUE;
+			return o;
+		}
+
+		public Object getRealElementAt(int row)
+		{
+			// if list does not have real values, then the real values will be display values... so separator affects those
+			return listModel.hasRealValues() ? listModel.getRealElementAt(row) : convertToRuntimeSeparator(listModel.getRealElementAt(row));
+		}
+
+		public int realValueIndexOf(Object o)
+		{
+			// if list does not have real values, then the real values will be display values... so separator affects those
+			return listModel.hasRealValues() ? listModel.realValueIndexOf(o) : listModel.realValueIndexOf(convertFromRuntimeSeparator(o));
+		}
+
+		public int indexOf(Object o)
+		{
+			return listModel.indexOf(convertFromRuntimeSeparator(o));
+		}
+
+		public Object getElementAt(int index)
+		{
+			return convertToRuntimeSeparator(listModel.getElementAt(index));
+		}
+
+		// the rest of the methods are forwarded to listModel
+		// --------------------------------------------------
+
+		public void setFallbackValueList(IValueList list)
+		{
+			listModel.setFallbackValueList(list);
+		}
+
+		public void addListDataListener(ListDataListener l)
+		{
+			listModel.addListDataListener(l);
+		}
+
+		public String getRelationName()
+		{
+			return listModel.getRelationName();
+		}
+
+		public boolean hasRealValues()
+		{
+			return listModel.hasRealValues();
+		}
+
+		public int getSize()
+		{
+			return listModel.getSize();
+		}
+
+		public void removeListDataListener(ListDataListener l)
+		{
+			listModel.getSize();
+		}
+
+		public void deregister()
+		{
+			listModel.deregister();
+		}
+
+		public void fill(IRecordInternal parentState)
+		{
+			listModel.fill(parentState);
+		}
+
+		public boolean getAllowEmptySelection()
+		{
+			return listModel.getAllowEmptySelection();
+		}
+
+		public IValueList getFallbackValueList()
+		{
+			return listModel.getFallbackValueList();
+		}
+
+		public String getName()
+		{
+			return listModel.getName();
+		}
+
+	}
+
 }

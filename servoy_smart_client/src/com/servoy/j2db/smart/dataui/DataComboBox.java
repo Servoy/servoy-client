@@ -506,18 +506,14 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 
 		public Component getListCellRendererComponent(JList jlist, Object listValue, int index, boolean isSelected, boolean cellHasFocus)
 		{
-			if (IValueList.SEPARATOR_VALUE.equals(listValue))
+			if (IValueList.SEPARATOR.equals(listValue))
 			{
 				return new VariableSizeJSeparator(SwingConstants.HORIZONTAL, 15);
 			}
 			else
 			{
 				Object formattedValue = listValue;
-				if ("\\-".equals(formattedValue)) //$NON-NLS-1$
-				{
-					formattedValue = "-"; //$NON-NLS-1$
-				}
-				else if (!"".equals(formattedValue) && format != null && formattedValue != null && !(formattedValue instanceof String)) //$NON-NLS-1$
+				if (!"".equals(formattedValue) && format != null && formattedValue != null && !(formattedValue instanceof String)) //$NON-NLS-1$
 				{
 					try
 					{
@@ -1062,19 +1058,19 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		else
 		{
 			Object value = dataModel.getElementAt(anIndex);
-			if (IValueList.SEPARATOR_VALUE.equals(value))
+			if (IValueList.SEPARATOR.equals(value))
 			{
 				// separators should not be selectable - so hijack this one and choose the nearest non-separator value
 				boolean found = false;
 				int i = 1;
 				while (!found && (anIndex + i < size || anIndex - i >= 0))
 				{
-					if (anIndex + i < size && !IValueList.SEPARATOR_VALUE.equals(dataModel.getElementAt(anIndex + i)))
+					if (anIndex + i < size && !IValueList.SEPARATOR.equals(dataModel.getElementAt(anIndex + i)))
 					{
 						found = true;
 						setSelectedIndex(anIndex + i);
 					}
-					else if (anIndex - i >= 0 && !IValueList.SEPARATOR_VALUE.equals(dataModel.getElementAt(anIndex - i)))
+					else if (anIndex - i >= 0 && !IValueList.SEPARATOR.equals(dataModel.getElementAt(anIndex - i)))
 					{
 						found = true;
 						setSelectedIndex(anIndex - i);

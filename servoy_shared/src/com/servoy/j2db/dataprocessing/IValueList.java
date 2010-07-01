@@ -22,9 +22,19 @@ import javax.swing.ListModel;
 public interface IValueList extends ListModel
 {
 	/**
-	 * Constant for the value that should be interpreted as a separator when possible by fields that display the valuelist.
+	 * Constant for the design-time value that should be interpreted as a separator.
 	 */
-	public static final Object SEPARATOR_VALUE = "-";
+	public static final Object SEPARATOR_DESIGN_VALUE = "-";
+
+	/**
+	 * As ppl. might want to use "-" as a real value in a valuelist, not just as separator, they can specify this at designtime by using this constant's value (that is unlikely to be needed as a real valuelist value).
+	 */
+	public static final String ESCAPED_SEPARATOR_DESIGN_VALUE = "\\-";
+
+	/**
+	 * Constant for the runtime value returned by valuelists to components that should be interpreted as a separator when possible by fields that display the valuelist.
+	 */
+	public static final Object SEPARATOR = new Object();
 
 	public Object getRealElementAt(int row);//real value, getElementAt is display value
 

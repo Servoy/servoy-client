@@ -360,7 +360,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	protected void appendOptionHtml(AppendingStringBuffer buffer, Object choice, int index, String selected)
 	{
 		Object displayValue = getChoiceRenderer().getDisplayValue(choice);
-		if (IValueList.SEPARATOR_VALUE.equals(displayValue))
+		if (IValueList.SEPARATOR.equals(displayValue))
 		{
 			// create a separator
 			buffer.append("\n<optgroup label=\" \" style=\"border-top: 1px solid gray; margin-top: 7px; margin-bottom: 7px;\"></optgroup>");
