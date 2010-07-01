@@ -243,21 +243,21 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 			{
 				jsChangeRecorder.setChanged();
 				Object obj = list.getSelectedItem();
-				if (obj != null) list.setSelectedItem(obj);
+				list.setSelectedItem(obj);
 			}
 
 			public void intervalAdded(ListDataEvent e)
 			{
 				jsChangeRecorder.setChanged();
 				Object obj = list.getSelectedItem();
-				if (obj != null) list.setSelectedItem(obj);
+				list.setSelectedItem(obj);
 			}
 
 			public void contentsChanged(ListDataEvent e)
 			{
 				jsChangeRecorder.setChanged();
 				Object obj = list.getSelectedItem();
-				if (obj != null) list.setSelectedItem(obj);
+				list.setSelectedItem(obj);
 			}
 		});
 		setChoices(list);
@@ -307,6 +307,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	@Override
 	protected boolean isSelected(Object object, int index, String selected)
 	{
+		if (object == null && "".equals(selected)) return true;
 		// WebChoiceRenderer.getRealValue == selected does a toString from the real so object must also do just to string
 		return Utils.equalObjects(object != null ? object.toString() : null, selected);
 	}
@@ -338,6 +339,21 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 			return buffer;
 		}
 		return ""; //$NON-NLS-1$
+	}
+
+	@Override
+	public String getModelValue()
+	{
+		Object value = getModelObject();
+		if (value != null)
+		{
+			return super.getModelValue();
+		}
+		else
+		{
+			int index = getChoices().indexOf(null);
+			return getChoiceRenderer().getIdValue(null, index);
+		}
 	}
 
 	@Override
