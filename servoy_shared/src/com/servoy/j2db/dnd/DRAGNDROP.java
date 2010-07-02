@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dnd;
 
 import java.awt.dnd.DnDConstants;
@@ -22,6 +22,11 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 
+/**
+ * Class defining drag and drop constants
+ *  
+ * @author gboros
+ */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class DRAGNDROP implements IPrefixedConstantsObject, IReturnedTypesProvider
 {

@@ -20,14 +20,14 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
 import com.servoy.j2db.util.editlist.IEditListModel;
-import com.servoy.j2db.util.gui.AlwaysFirstRowSelectedSelectionModel;
+import com.servoy.j2db.util.gui.AlwaysRowSelectedSelectionModel;
 
 /**
  * @author jblok
  */
 public interface ISwingFoundSet extends IFoundSetInternal, TableModel, IEditListModel
 {
-	public AlwaysFirstRowSelectedSelectionModel getSelectionModel();
+	public AlwaysRowSelectedSelectionModel getSelectionModel();
 
 	public void addTableModelListener(TableModelListener l);
 	public void removeTableModelListener(TableModelListener l);

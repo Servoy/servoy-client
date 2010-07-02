@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.smart.dataui;
 
 import java.awt.Color;
@@ -32,6 +32,11 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.util.EnablePanel;
 
+/**
+ * This class represents a split pane in the smart client
+ * 
+ * @author gboros
+ */
 public class SplitPane extends JSplitPane
 {
 	private final IApplication application;

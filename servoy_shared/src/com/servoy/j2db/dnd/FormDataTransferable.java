@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dnd;
 
 import java.awt.datatransfer.DataFlavor;
@@ -23,6 +23,11 @@ import java.io.IOException;
 
 import com.servoy.j2db.scripting.JSEvent;
 
+/**
+ * Class used to define transfer data for drag and drop operations in smart client
+ * 
+ * @author gboros
+ */
 public class FormDataTransferable implements Transferable
 {
 	public static final DataFlavor formDataFlavor = new DataFlavor(JSEvent.class, "application/x-servoy-formData-object"); //$NON-NLS-1$

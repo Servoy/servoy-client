@@ -25,7 +25,7 @@ import javax.swing.event.TableModelListener;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.util.ServoyException;
-import com.servoy.j2db.util.gui.AlwaysFirstRowSelectedSelectionModel;
+import com.servoy.j2db.util.gui.AlwaysRowSelectedSelectionModel;
 
 /**
  * The foundset to be used in swing apps
@@ -34,7 +34,7 @@ import com.servoy.j2db.util.gui.AlwaysFirstRowSelectedSelectionModel;
  */
 public class SwingFoundSet extends FoundSet implements ISwingFoundSet, Cloneable
 {
-	protected transient AlwaysFirstRowSelectedSelectionModel selectionModel;
+	protected transient AlwaysRowSelectedSelectionModel selectionModel;
 	private transient TableAndListEventDelegate tableAndListEventDelegate;
 
 	SwingFoundSet(IFoundSetManagerInternal app, SQLSheet sheet, List defaultSortColumns) throws ServoyException
@@ -53,7 +53,7 @@ public class SwingFoundSet extends FoundSet implements ISwingFoundSet, Cloneable
 	{
 		if (selectionModel == null)
 		{
-			selectionModel = new AlwaysFirstRowSelectedSelectionModel(this);
+			selectionModel = new AlwaysRowSelectedSelectionModel(this);
 			addListDataListener(selectionModel);
 		}
 	}
@@ -77,7 +77,7 @@ public class SwingFoundSet extends FoundSet implements ISwingFoundSet, Cloneable
 		SwingFoundSet sfs = (SwingFoundSet)super.copyCurrentRecordFoundSet();
 		if (sfs != null)
 		{
-			sfs.selectionModel = new AlwaysFirstRowSelectedSelectionModel(this);
+			sfs.selectionModel = new AlwaysRowSelectedSelectionModel(this);
 			sfs.addListDataListener(sfs.selectionModel);
 		}
 		return sfs;
@@ -268,7 +268,7 @@ public class SwingFoundSet extends FoundSet implements ISwingFoundSet, Cloneable
 	 * _____________________________________________________________ Methods from this class
 	 */
 
-	public AlwaysFirstRowSelectedSelectionModel getSelectionModel()
+	public AlwaysRowSelectedSelectionModel getSelectionModel()
 	{
 		return selectionModel;
 	}

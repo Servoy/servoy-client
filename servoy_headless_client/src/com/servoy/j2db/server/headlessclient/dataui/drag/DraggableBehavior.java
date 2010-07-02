@@ -25,6 +25,11 @@ import com.servoy.j2db.dnd.DRAGNDROP;
 import com.servoy.j2db.server.headlessclient.dataui.AbstractServoyDefaultAjaxBehavior;
 import com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor;
 
+/**
+ * Class used to add drag and drop support for web components 
+ * 
+ * @author gboros
+ */
 public abstract class DraggableBehavior extends AbstractServoyDefaultAjaxBehavior
 {
 	private static final long serialVersionUID = 1L;

@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util.gui;
 
 
@@ -31,9 +31,11 @@ import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.util.Debug;
 
 /**
+ * Selection model that will always keep at least one row selected 
+ * 
  * @author gboros
  */
-public class AlwaysFirstRowSelectedSelectionModel extends DefaultListSelectionModel implements ListDataListener
+public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel implements ListDataListener
 {
 	private final List<FormController> formControllers;
 	private final ISwingFoundSet foundset;
@@ -43,7 +45,7 @@ public class AlwaysFirstRowSelectedSelectionModel extends DefaultListSelectionMo
 	private boolean foundsetIsFiringSizeChange = false;
 	private boolean selectionAlreadyAdjustedBySizeChangeListeners = false;
 
-	public AlwaysFirstRowSelectedSelectionModel(ISwingFoundSet foundset)
+	public AlwaysRowSelectedSelectionModel(ISwingFoundSet foundset)
 	{
 		this.foundset = foundset;
 		formControllers = Collections.synchronizedList(new ArrayList<FormController>(3));
