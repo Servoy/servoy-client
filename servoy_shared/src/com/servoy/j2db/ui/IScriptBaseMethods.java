@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.ui;
 
 /**
@@ -278,7 +278,7 @@ public interface IScriptBaseMethods
 	 * 
 	 * The border attributes:
 	 * 
-	 * borderType - Empty, Etched, Bevel, Line, Title, Matte, SpecialMatte.
+	 * borderType - EmptyBorder, EtchedBorder, BevelBorder, LineBorder, TitleBorder, MatteBorder, SpecialMatteBorder.
 	 * size - (numeric value) for: bottom, left, right, top.
 	 * color - (hexadecimal value) for: bottom, left, right, top.
 	 * dash pattern - (numeric value) for selected side(s).
@@ -287,10 +287,10 @@ public interface IScriptBaseMethods
 	 * NOTE: Use the same value(s) and order of attribute(s) from the element design time property "borderType".
 	 *
 	 * @sample
-	 * //sets the border type to "Line"
+	 * //sets the border type to "LineBorder"
 	 * //sets a 1 px line width for the bottom and left side of the border
 	 * //sets the hexadecimal color of the border to "#ccffcc"
-	 * var b = %%prefix%%%%elementName%%.setBorder('Line,1,1,#ccffcc');
+	 * var b = %%prefix%%%%elementName%%.setBorder('LineBorder,1,#ccffcc');
 	 *
 	 * @param spec the border attributes
 	 */
