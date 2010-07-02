@@ -38,6 +38,11 @@ import com.servoy.j2db.query.QuerySort;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.QueryUpdate;
 
+/**
+ * Utility class for loading/saving i18n texts in the repository
+ * 
+ * @author gboros
+ */
 public class I18NUtil
 {
 

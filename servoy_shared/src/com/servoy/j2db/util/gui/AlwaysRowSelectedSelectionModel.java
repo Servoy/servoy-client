@@ -31,9 +31,11 @@ import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.util.Debug;
 
 /**
+ * Selection model that will always keep at least one row selected 
+ * 
  * @author gboros
  */
-public class AlwaysFirstRowSelectedSelectionModel extends DefaultListSelectionModel implements ListDataListener
+public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel implements ListDataListener
 {
 	private final List<FormController> formControllers;
 	private final ISwingFoundSet foundset;
@@ -43,7 +45,7 @@ public class AlwaysFirstRowSelectedSelectionModel extends DefaultListSelectionMo
 	private boolean foundsetIsFiringSizeChange = false;
 	private boolean selectionAlreadyAdjustedBySizeChangeListeners = false;
 
-	public AlwaysFirstRowSelectedSelectionModel(ISwingFoundSet foundset)
+	public AlwaysRowSelectedSelectionModel(ISwingFoundSet foundset)
 	{
 		this.foundset = foundset;
 		formControllers = Collections.synchronizedList(new ArrayList<FormController>(3));
@@ -119,10 +121,13 @@ public class AlwaysFirstRowSelectedSelectionModel extends DefaultListSelectionMo
 
 	public boolean setSelectedRow(int row)
 	{
-		if (getSelectionMode() == SINGLE_SELECTION && row == getSelectedRow()) return true;
-		if (!canChangeSelection()) return false;
+		if (row != getSelectedRow())
+		{
+			if (!canChangeSelection()) return false;
 
-		return setSelectedRow(row, false, true);
+			return setSelectedRow(row, false, true);
+		}
+		return true;
 	}
 
 	public boolean canChangeSelection()

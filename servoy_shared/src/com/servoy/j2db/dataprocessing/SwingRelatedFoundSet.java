@@ -26,7 +26,7 @@ import javax.swing.event.TableModelListener;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.util.ServoyException;
-import com.servoy.j2db.util.gui.AlwaysFirstRowSelectedSelectionModel;
+import com.servoy.j2db.util.gui.AlwaysRowSelectedSelectionModel;
 
 /**
  * This class is normally found as related state from another state and therefore holds related data
@@ -35,7 +35,7 @@ import com.servoy.j2db.util.gui.AlwaysFirstRowSelectedSelectionModel;
  */
 public class SwingRelatedFoundSet extends RelatedFoundSet implements ISwingFoundSet, Cloneable
 {
-	protected transient AlwaysFirstRowSelectedSelectionModel selectionModel;
+	protected transient AlwaysRowSelectedSelectionModel selectionModel;
 	private transient TableAndListEventDelegate tableAndListEventDelegate;
 
 	public SwingRelatedFoundSet(IDataSet data, QuerySelect querySelect, IFoundSetManagerInternal app, IRecordInternal parent, String relationName,
@@ -49,7 +49,7 @@ public class SwingRelatedFoundSet extends RelatedFoundSet implements ISwingFound
 	{
 		if (selectionModel == null)
 		{
-			selectionModel = new AlwaysFirstRowSelectedSelectionModel(this);
+			selectionModel = new AlwaysRowSelectedSelectionModel(this);
 			addListDataListener(selectionModel);
 		}
 	}
@@ -80,7 +80,7 @@ public class SwingRelatedFoundSet extends RelatedFoundSet implements ISwingFound
 		SwingRelatedFoundSet sfs = (SwingRelatedFoundSet)super.copyCurrentRecordFoundSet();
 		if (sfs != null)
 		{
-			sfs.selectionModel = new AlwaysFirstRowSelectedSelectionModel(this);
+			sfs.selectionModel = new AlwaysRowSelectedSelectionModel(this);
 			sfs.addListDataListener(sfs.selectionModel);
 		}
 		return sfs;
@@ -267,7 +267,7 @@ public class SwingRelatedFoundSet extends RelatedFoundSet implements ISwingFound
 		}
 	}
 
-	public AlwaysFirstRowSelectedSelectionModel getSelectionModel()
+	public AlwaysRowSelectedSelectionModel getSelectionModel()
 	{
 		return selectionModel;
 	}

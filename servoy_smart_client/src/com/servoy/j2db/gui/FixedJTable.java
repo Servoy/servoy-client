@@ -42,7 +42,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.smart.dataui.CellAdapter;
-import com.servoy.j2db.util.gui.AlwaysFirstRowSelectedSelectionModel;
+import com.servoy.j2db.util.gui.AlwaysRowSelectedSelectionModel;
 
 /**
  * @author jcompagner
@@ -121,7 +121,7 @@ public class FixedJTable extends JTable
 			if (row != -1 && getSelectedRow() != row)
 			{
 				ListSelectionModel rsm = getSelectionModel();
-				if (rsm instanceof AlwaysFirstRowSelectedSelectionModel && !((AlwaysFirstRowSelectedSelectionModel)rsm).canChangeSelection()) return;
+				if (rsm instanceof AlwaysRowSelectedSelectionModel && !((AlwaysRowSelectedSelectionModel)rsm).canChangeSelection()) return;
 				if (!isEditing() || getCellEditor().stopCellEditing())
 				{
 					rsm.setSelectionInterval(row, row);
@@ -144,7 +144,7 @@ public class FixedJTable extends JTable
 		}
 
 		ListSelectionModel rsm = getSelectionModel();
-		if (rsm instanceof AlwaysFirstRowSelectedSelectionModel && !((AlwaysFirstRowSelectedSelectionModel)rsm).canChangeSelection()) return;
+		if (rsm instanceof AlwaysRowSelectedSelectionModel && !((AlwaysRowSelectedSelectionModel)rsm).canChangeSelection()) return;
 		ListSelectionModel csm = getColumnModel().getSelectionModel();
 
 		// get the value so it will be loaded first.
@@ -295,9 +295,9 @@ public class FixedJTable extends JTable
 	private boolean setSelectedRow(int row, EventObject event)
 	{
 		ListSelectionModel sm = getSelectionModel();
-		if (sm instanceof AlwaysFirstRowSelectedSelectionModel && sm.getSelectionMode() == ListSelectionModel.SINGLE_SELECTION)
+		if (sm instanceof AlwaysRowSelectedSelectionModel && sm.getSelectionMode() == ListSelectionModel.SINGLE_SELECTION)
 		{
-			AlwaysFirstRowSelectedSelectionModel fsm = (AlwaysFirstRowSelectedSelectionModel)sm;
+			AlwaysRowSelectedSelectionModel fsm = (AlwaysRowSelectedSelectionModel)sm;
 			return fsm.setSelectedRow(row);
 		}
 		return true;

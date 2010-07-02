@@ -13,10 +13,14 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.ui;
 
-
+/**
+ * Interface to which split pane components need to conform, to be handled in the same way for swing(rich client) or wicket(webclient) UI
+ * 
+ * @author gboros
+ */
 public interface ISplitPane extends IComponent, IScriptSplitPaneMethods
 {
 	IFormLookupPanel createFormLookupPanel(String name, String relationName, String formName);

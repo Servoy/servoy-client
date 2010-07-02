@@ -70,7 +70,11 @@ import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 
-
+/**
+ * This class represents a split pane in the web client
+ * 
+ * @author gboros
+ */
 public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDisplayRelatedData, IProviderStylePropertyChanges, IAccessible, ISupportWebBounds,
 	ISupportWebTabSeq, ListSelectionListener
 {
