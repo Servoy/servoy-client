@@ -59,6 +59,10 @@ public class ImageLoader
 
 	public static String getContentType(byte[] imageData, String name)
 	{
+		if (imageData == null)
+		{
+			return null;
+		}
 		byte[] header = new byte[11];
 		System.arraycopy(imageData, 0, header, 0, Math.min(imageData.length, header.length));
 		int c1 = header[0] & 0xff;
