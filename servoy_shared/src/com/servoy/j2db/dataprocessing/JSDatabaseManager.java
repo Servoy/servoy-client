@@ -924,9 +924,9 @@ public class JSDatabaseManager
 			try
 			{
 				QuerySet querySet = getQuerySet((FoundSet)foundset, includeFilters);
-				StringBuffer sql = new StringBuffer();
-				QueryString[] updates = querySet.getUpdates();
-				for (int i = 0; updates != null && i < updates.length; i++)
+				StringBuilder sql = new StringBuilder();
+				QueryString[] prepares = querySet.getPrepares();
+				for (int i = 0; prepares != null && i < prepares.length; i++)
 				{
 					// TODO parameters from updates and cleanups
 					// sql.append(updates[i].getSql());
@@ -1391,6 +1391,7 @@ public class JSDatabaseManager
 				qDelete.setCondition(condition);
 				SQLStatement statement = new SQLStatement(ISQLStatement.DELETE_ACTION, mainTable.getServerName(), mainTable.getName(), pks, transaction_id,
 					qDelete, fsm.getTableFilterParams(mainTable.getServerName(), qDelete));
+				statement.setExpectedUpdateCount(1); // check that the row is really deleted
 				updates.add(statement);
 
 				IFoundSetInternal sfs = sourceRecord.getParentFoundSet();

@@ -13,9 +13,8 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
-
 
 
 import java.io.Serializable;
@@ -41,6 +40,7 @@ public interface ISQLStatement extends Serializable
 	 * @return String
 	 */
 	public String getServerName();
+
 	public void setServerName(String name);
 
 	/**
@@ -48,7 +48,7 @@ public interface ISQLStatement extends Serializable
 	 * @return String
 	 */
 	public String getTableName();
-	
+
 	/**
 	 * Get the pk columns.
 	 * @return the pks
@@ -60,7 +60,7 @@ public interface ISQLStatement extends Serializable
 	 * @return ISQLUpdate update
 	 */
 	public ISQLUpdate getUpdate();
-	
+
 	/**
 	 * Get the transactionID.
 	 * @return String the id ,null if none
@@ -73,4 +73,9 @@ public interface ISQLStatement extends Serializable
 	public boolean usedIdentity();
 
 	public boolean isOracleFixTrackingData();
+
+	/**
+	 * Set the update count for checking
+	 */
+	public void setExpectedUpdateCount(int expectedUpdateCount);
 }

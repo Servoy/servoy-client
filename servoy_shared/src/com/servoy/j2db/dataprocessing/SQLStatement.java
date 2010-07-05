@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 
@@ -45,8 +45,9 @@ public class SQLStatement implements ITrackingSQLStatement
 	private String[] column_names;
 	private Object[] oldTrackingData;
 	private Object[] newTrackingData;
-	private String user_uid;
+	private int expectedUpdateCount = -1;
 
+	private String user_uid;
 
 	private boolean oracleFix;
 
@@ -240,6 +241,19 @@ public class SQLStatement implements ITrackingSQLStatement
 	public boolean usedIdentity()
 	{
 		return identityColumn != null;
+	}
+
+	public int getExpectedUpdateCount()
+	{
+		return expectedUpdateCount;
+	}
+
+	/**
+	 * Set the update count for checking
+	 */
+	public void setExpectedUpdateCount(int expectedUpdateCount)
+	{
+		this.expectedUpdateCount = expectedUpdateCount;
 	}
 
 	@Override

@@ -27,9 +27,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.WeakHashMap;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.event.TableModelEvent;
@@ -609,8 +609,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 							}
 							Object robj = c.getAsRightType(newdata[i]);
 							if (robj == null) robj = ValueFactory.createNullValue(c.getType());
-							((QueryUpdate)sqlUpdate).addValue(new QueryColumn(((QueryUpdate)sqlUpdate).getTable(), c.getID(), c.getSQLName(), c.getType(),
-								c.getLength(), c.getScale()), robj);
+							((QueryUpdate)sqlUpdate).addValue(
+								new QueryColumn(((QueryUpdate)sqlUpdate).getTable(), c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale()), robj);
 							if (changedColumns == null)
 							{
 								changedColumns = new ArrayList<String>(olddata.length - i);
@@ -657,7 +657,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				sqlDesc = sheet.getSQLDescription(SQLSheet.INSERT);
 				sqlUpdate = (ISQLUpdate)AbstractBaseQuery.deepClone(sqlDesc.getSQLQuery());
 				List<String> req = sqlDesc.getRequiredDataProviderIDs();
-				Debug.trace(sqlUpdate.toString());
+				if (Debug.tracing()) Debug.trace(sqlUpdate.toString());
 				for (int i = 0; i < req.size(); i++)
 				{
 					String dataProviderID = req.get(i);
@@ -725,6 +725,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			}
 			SQLStatement statement = new SQLStatement(statement_action, sheet.getServerName(), table.getName(), pks, tid, sqlUpdate, fsm.getTableFilterParams(
 				sheet.getServerName(), sqlUpdate));
+			statement.setExpectedUpdateCount(1); // check that the row is updated
 			if (changedColumns != null)
 			{
 				statement.setChangedColumns(changedColumns.toArray(new String[changedColumns.size()]));
@@ -867,6 +868,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 
 			SQLStatement statement = new SQLStatement(ISQLStatement.DELETE_ACTION, sheet.getServerName(), sheet.getTable().getName(), pks, tid, sqlDelete,
 				fsm.getTableFilterParams(sheet.getServerName(), sqlDelete));
+			statement.setExpectedUpdateCount(1); // check that 1 record is deleted
 			stats_a[0] = statement;
 			if (tracking)
 			{

@@ -66,6 +66,10 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * Exception code for INVALID_RESULTSET_ACCESS.
 	 */
 	public static final int INVALID_RESULTSET_ACCESS = 107;
+	/**
+	 * Exception code for UNEXPECTED_UPDATE_COUNT.
+	 */
+	public static final int UNEXPECTED_UPDATE_COUNT = 108;
 
 
 	// --------------------------------------------
@@ -338,9 +342,11 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 				return Messages.getString("servoy.client.notAuthorized"); //$NON-NLS-1$
 
 			case InternalCodes.CLIENT_NOT_REGISTERED :
-			{
 				return Messages.getString("servoy.sqlengine.error.notRegistered"); //$NON-NLS-1$
-			}
+
+			case UNEXPECTED_UPDATE_COUNT :
+				return "Update/insert failed, unexpected nr of records affected: expected " + tagValues[0] + ", actual " + tagValues[1]; //$NON-NLS-1$ //$NON-NLS-2$
+
 			default :
 			{
 				if (errorCode == 0 && getCause() != null)

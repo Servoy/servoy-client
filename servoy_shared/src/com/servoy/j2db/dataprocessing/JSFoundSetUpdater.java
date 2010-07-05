@@ -211,6 +211,10 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 				{
 					SQLStatement statement = new SQLStatement(ISQLStatement.UPDATE_ACTION, table.getServerName(), table.getName(), pks, transaction_id,
 						sqlUpdate, fsm.getTableFilterParams(table.getServerName(), sqlUpdate));
+					if (allFoundsetRecordsLoaded)
+					{
+						statement.setExpectedUpdateCount(pks.getRowCount());
+					}
 					Object[] results = fsm.getDataServer().performUpdates(fsm.getApplication().getClientID(), new ISQLStatement[] { statement });
 
 					fsm.flushCachedDatabaseData(fsm.getDataSource(table));

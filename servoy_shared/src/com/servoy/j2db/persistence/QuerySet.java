@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 import java.io.Serializable;
@@ -26,8 +26,8 @@ import com.servoy.j2db.query.AbstractBaseQuery;
 /**
  * Container for all parts that may be needed for running a query, all parts are optional.
  * <ul>
- * <li> list of updates, may be create temp table, insert into, etc
- * <li> select
+ * <li> list of prepares, may be create temp table, insert into, etc
+ * <li> select/update
  * <li> list of cleanups, for dropping temp tables
  * </ul>
  * 
@@ -36,34 +36,61 @@ import com.servoy.j2db.query.AbstractBaseQuery;
  */
 public class QuerySet implements Serializable
 {
-	private List updates = null;
+	private List<QueryString> prepares = null;
 	private QueryString select = null;
-	private List cleanups = null;
-
+	private QueryString update = null;
+	private List<QueryString> cleanups = null;
 
 	public void setSelect(QueryString select)
 	{
-		if (this.select != null && select != null)
-		{
-			throw new IllegalArgumentException("Multiple select queries in query set"); //$NON-NLS-1$
-		}
-		this.select = select;
+		setSelectOrUpdate(select, true);
 	}
 
-	public void addUpdate(QueryString update)
+	public void setUpdate(QueryString update)
 	{
-		if (updates == null)
+		setSelectOrUpdate(update, false);
+	}
+
+	private void setSelectOrUpdate(QueryString selectOrUpdate, boolean isSelect)
+	{
+		if ((this.select != null || this.update != null) && selectOrUpdate != null)
 		{
-			updates = new ArrayList();
+			throw new IllegalArgumentException("Multiple select/update queries in query set"); //$NON-NLS-1$
 		}
-		updates.add(update);
+		if (isSelect)
+		{
+			this.select = selectOrUpdate;
+		}
+		else
+		{
+			this.update = selectOrUpdate;
+		}
+	}
+
+	public QueryString getSelect()
+	{
+		return select;
+	}
+
+	public QueryString getUpdate()
+	{
+		return update;
+	}
+
+	public void addPrepare(QueryString prepare)
+	{
+		if (prepares == null)
+		{
+			prepares = new ArrayList<QueryString>();
+		}
+		prepares.add(prepare);
 	}
 
 	public void addCleanup(QueryString cleanup)
 	{
 		if (cleanups == null)
 		{
-			cleanups = new ArrayList();
+			cleanups = new ArrayList<QueryString>();
 		}
 		cleanups.add(cleanup);
 	}
@@ -73,18 +100,14 @@ public class QuerySet implements Serializable
 		return cleanups == null ? null : (QueryString[])cleanups.toArray(new QueryString[cleanups.size()]);
 	}
 
-	public QueryString getSelect()
+	public QueryString[] getPrepares()
 	{
-		return select;
-	}
-
-	public QueryString[] getUpdates()
-	{
-		return updates == null ? null : (QueryString[])updates.toArray(new QueryString[updates.size()]);
+		return prepares == null ? null : (QueryString[])prepares.toArray(new QueryString[prepares.size()]);
 	}
 
 	/**
 	 * Join the queries from another set with this one.
+	 * The set parameter's update will be added as a prepare statement.
 	 * 
 	 * @param set
 	 */
@@ -96,14 +119,18 @@ public class QuerySet implements Serializable
 		}
 		setSelect(set.getSelect());
 
-		QueryString[] newUpdates = set.getUpdates();
-		if (newUpdates != null)
+		QueryString[] newPrepares = set.getPrepares();
+		if (newPrepares != null)
 		{
-			if (updates == null)
+			if (prepares == null)
 			{
-				updates = new ArrayList();
+				prepares = new ArrayList<QueryString>();
 			}
-			updates.addAll(Arrays.asList(newUpdates));
+			prepares.addAll(Arrays.asList(newPrepares));
+		}
+		if (set.getUpdate() != null)
+		{
+			addPrepare(set.getUpdate());
 		}
 
 		QueryString[] newCleanups = set.getCleanups();
@@ -111,7 +138,7 @@ public class QuerySet implements Serializable
 		{
 			if (cleanups == null)
 			{
-				cleanups = new ArrayList();
+				cleanups = new ArrayList<QueryString>();
 			}
 			cleanups.addAll(Arrays.asList(newCleanups));
 		}
@@ -129,10 +156,18 @@ public class QuerySet implements Serializable
 	public String toString()
 	{
 		StringBuffer sb = new StringBuffer();
-		sb.append("QuerySet { updates = "); //$NON-NLS-1$
-		sb.append(AbstractBaseQuery.toString(updates));
-		sb.append(", select = "); //$NON-NLS-1$
-		sb.append(AbstractBaseQuery.toString(select));
+		sb.append("QuerySet { prepares = "); //$NON-NLS-1$
+		sb.append(AbstractBaseQuery.toString(prepares));
+		if (select != null)
+		{
+			sb.append(", select = "); //$NON-NLS-1$
+			sb.append(AbstractBaseQuery.toString(select));
+		}
+		if (update != null)
+		{
+			sb.append(", update = "); //$NON-NLS-1$
+			sb.append(AbstractBaseQuery.toString(update));
+		}
 		sb.append(", cleanups = "); //$NON-NLS-1$
 		sb.append(AbstractBaseQuery.toString(cleanups));
 		sb.append(" }"); //$NON-NLS-1$
