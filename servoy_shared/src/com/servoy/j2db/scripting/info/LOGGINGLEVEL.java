@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting.info;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -21,6 +21,12 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.util.ILogLevel;
 
+/***
+ * Script constants class for application.output logging levels
+ * 
+ *  @author lvostinar
+ *  @see ILogLevel
+ */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class LOGGINGLEVEL implements IPrefixedConstantsObject, IReturnedTypesProvider, ILogLevel
 {

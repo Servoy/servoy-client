@@ -37,6 +37,11 @@ import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.Utils;
 
+/***
+ * Header renderer for table component(tableview or portal); used for normal header and labelfor header
+ * 
+ *  @author lvostinar
+ */
 public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer implements IComponent, UIResource
 {
 	private final TableView parentTable;
