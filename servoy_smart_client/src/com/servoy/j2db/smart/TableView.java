@@ -811,6 +811,8 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 					Component editor = cellAdapter.getEditor();
 					if (editor instanceof ISupportEventExecutor)
 					{
+						int row = rowAtPoint(p);
+						editor.setLocation(editor.getX(), row * editor.getHeight());
 						IEventExecutor ee = ((ISupportEventExecutor)editor).getEventExecutor();
 						if (ee instanceof BaseEventExecutor && ee.hasRightClickCmd()) ((BaseEventExecutor)ee).fireRightclickCommand(true, editor,
 							e.getModifiers(), fc.getName());

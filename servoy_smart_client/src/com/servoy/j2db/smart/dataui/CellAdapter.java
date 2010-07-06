@@ -265,7 +265,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			setHeaderValue(title);
 		}
 
-		setIdentifier(name);
+		setIdentifier(editor != null ? editor.getName() : name);
 
 		if (editor instanceof DataCheckBox)
 		{
