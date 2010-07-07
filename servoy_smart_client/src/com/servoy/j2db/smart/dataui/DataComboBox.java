@@ -438,6 +438,10 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 			else
 			{
 				addMouseListener(rightclickMouseAdapter);
+				// as this is a composite control, also add listener to its parts
+				int nrComboParts = getComponentCount();
+				for (int i = 0; i < nrComboParts; i++)
+					getComponent(i).addMouseListener(rightclickMouseAdapter);
 				addKeyListener(eventExecutor);
 			}
 		}
