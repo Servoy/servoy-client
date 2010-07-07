@@ -223,14 +223,22 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 		// if it has a clone persist property then it was cloned (and there is an original)
 		// or revert was called on an original object then just ignore it.
-		boolean exists = persist.getRuntimeProperty(CLONE_PROPERTY) != null || getAllObjectsAsList().indexOf(persist) != -1;
+		AbstractBase realPersist = persist.getRuntimeProperty(CLONE_PROPERTY);
+		boolean exists = realPersist != null || getAllObjectsAsList().indexOf(persist) != -1;
 		if (!exists && revertToOriginal)
 		{
 			throw new RuntimeException("Cant revert " + persist + " to original, because there is no original"); //$NON-NLS-1$//$NON-NLS-2$
 		}
 		else if (exists && !revertToOriginal)
 		{
-			removedPersist.add(persist);
+			if (realPersist != null)
+			{
+				removedPersist.add(realPersist);
+			}
+			else
+			{
+				removedPersist.add(persist);
+			}
 		}
 	}
 
@@ -1529,8 +1537,8 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	public Iterator<Form> getForms(ITable basedOnTable, boolean sort)
 	{
-		return Solution.getForms(getAllObjectsAsList(), basedOnTable == null ? null : DataSourceUtils.createDBTableDataSource(basedOnTable.getServerName(),
-			basedOnTable.getName()), sort);
+		return Solution.getForms(getAllObjectsAsList(),
+			basedOnTable == null ? null : DataSourceUtils.createDBTableDataSource(basedOnTable.getServerName(), basedOnTable.getName()), sort);
 	}
 
 	public Iterator<Form> getForms(String datasource, boolean sort)
