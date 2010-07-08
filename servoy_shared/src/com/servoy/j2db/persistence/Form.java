@@ -1875,8 +1875,8 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * @templatetype Color
 	 * @templateparam Number index row index
 	 * @templateparam Boolean selected is the row selected
-	 * @templateparam String elementType element type
-	 * @templateparam String dataProviderID element data provider
+	 * @templateparam String elementType element type (not supported in webclient)
+	 * @templateparam String dataProviderID element data provider (not supported in webclient)
 	 * @templateparam String formName form name
 	 * @templateparam JSRecord record selected record
 	 * @templateparam Boolean edited is the record edited
