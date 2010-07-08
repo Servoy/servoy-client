@@ -229,11 +229,11 @@ public class JSRelation implements IJSParent, IConstantsObject
 		return relation.getDeleteRelatedRecords();
 	}
 
-	@Deprecated
-	public boolean js_getDuplicateRelatedRecords()
-	{
-		return relation.getDuplicateRelatedRecords();
-	}
+//	@Deprecated
+//	public boolean js_getDuplicateRelatedRecords()
+//	{
+//		return relation.getDuplicateRelatedRecords();
+//	}
 
 	/**
 	 * The name of the server where the foreign table is located.
@@ -386,12 +386,12 @@ public class JSRelation implements IJSParent, IConstantsObject
 		relation.setDeleteRelatedRecords(arg);
 	}
 
-	@Deprecated
-	public void js_setDuplicateRelatedRecords(boolean b)
-	{
-		checkModification();
-		relation.setDuplicateRelatedRecords(b);
-	}
+//	@Deprecated
+//	public void js_setDuplicateRelatedRecords(boolean b)
+//	{
+//		checkModification();
+//		relation.setDuplicateRelatedRecords(b);
+//	}
 
 	@Deprecated
 	public void js_setForeignServerName(String name)
