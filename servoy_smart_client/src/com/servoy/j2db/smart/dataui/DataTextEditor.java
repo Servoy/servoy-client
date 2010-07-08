@@ -129,6 +129,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 		enclosedComponent = (FixedJEditorPane)getViewport().getView();
 		eventExecutor = new EventExecutor(this, enclosedComponent);
 		enclosedComponent.addKeyListener(eventExecutor);
+		enclosedComponent.addMouseListener(eventExecutor);
 
 		plainEditorKit = enclosedComponent.getEditorKit();
 		plainEditorDocument = getDocument();
