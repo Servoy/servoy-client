@@ -571,7 +571,7 @@ public class PersistHelper
 	{
 		if (f == null) return null;
 		StringBuffer sb = new StringBuffer();
-		sb.append(f.getName());
+		sb.append(f.getFontName());
 		sb.append(","); //$NON-NLS-1$
 		sb.append(f.getStyle());
 		sb.append(","); //$NON-NLS-1$
