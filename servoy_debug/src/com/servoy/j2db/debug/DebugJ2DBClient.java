@@ -18,8 +18,10 @@ package com.servoy.j2db.debug;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.KeyboardFocusManager;
+import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -465,7 +467,11 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	@Override
 	protected void setFrameVisible(boolean b)
 	{
-		// don't do anything, controlled by eclipse (show method)
+		if (!Settings.getInstance().loadBounds(frame))
+		{
+			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+			frame.setLocation(screenSize.width / 2 - Settings.INITIAL_CLIENT_WIDTH / 2, screenSize.height / 2 - Settings.INITIAL_CLIENT_HEIGHT / 2);
+		}
 	}
 
 	private Map<String, Action> actions;
@@ -699,6 +705,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 			Debug.error(ex);
 		}
 		getMainApplicationFrame().setVisible(false);
+		saveSettings();
 	}
 
 	/**

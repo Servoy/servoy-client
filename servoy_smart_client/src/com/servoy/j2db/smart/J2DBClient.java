@@ -861,12 +861,6 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		// show the frame
 		frame.pack();
 
-		if (!Settings.getInstance().loadBounds(frame))
-		{
-			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-			frame.setLocation(screenSize.width / 2 - Settings.INITIAL_CLIENT_WIDTH / 2, screenSize.height / 2 - Settings.INITIAL_CLIENT_HEIGHT / 2);
-		}
-
 		Debug.trace("Showing"); //$NON-NLS-1$
 		// block when visible
 		Component glassPane = rootPane.getGlassPane();
@@ -997,9 +991,20 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		}
 	}
 
-	protected void setFrameVisible(boolean b)
+	protected void setFrameVisible(final boolean b)
 	{
-		frame.setVisible(b);
+		SwingUtilities.invokeLater(new Runnable()
+		{
+			public void run()
+			{
+				if (!Settings.getInstance().loadBounds(frame))
+				{
+					Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+					frame.setLocation(screenSize.width / 2 - Settings.INITIAL_CLIENT_WIDTH / 2, screenSize.height / 2 - Settings.INITIAL_CLIENT_HEIGHT / 2);
+				}
+				frame.setVisible(b);
+			}
+		});
 	}
 
 	@Override

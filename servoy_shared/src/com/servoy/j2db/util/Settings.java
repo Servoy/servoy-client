@@ -394,15 +394,7 @@ public class Settings extends SortedProperties
 							r.y + MAXIMIZED_INVIZIBLE_BORDER_PIXELS); // the window on the correct display (if there is more than 1 monitor)
 						component.setSize(INITIAL_CLIENT_WIDTH, INITIAL_CLIENT_HEIGHT);
 					}
-					try
-					{
-						Method method = component.getClass().getMethod("setExtendedState", new Class[] { int.class }); //$NON-NLS-1$
-						method.invoke(component, new Object[] { new Integer(state) });
-					}
-					catch (Exception e)
-					{
-						Debug.log("Cannot restore JFrame state", e);
-					}
+					((JFrame)component).setExtendedState(state);
 					if (maximized)
 					{
 						return true;
