@@ -51,6 +51,10 @@ import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.Utils;
 
 /**
+ * This scope holds the variables of the specific servoy elements (form/global).
+ * It remembers the type of the variable and will convert to that type when a value is set.
+ * Media types {@link IColumnTypes#MEDIA} will not be converted but will go into this scope as is.
+ * 
  * @author jblok
  */
 public class ScriptVariableScope extends LazyCompilationScope
@@ -447,10 +451,12 @@ public class ScriptVariableScope extends LazyCompilationScope
 			if (tmp != null && (tmp instanceof Object[]))
 			{
 				Object[] array = (Object[])tmp;
+				Object[] newArray = new Object[array.length];
 				for (int i = 0; i < array.length; i++)
 				{
-					array[i] = unwrap(array[i]);
+					newArray[i] = unwrap(array[i]);
 				}
+				tmp = newArray;
 			}
 			o = tmp;
 		}
