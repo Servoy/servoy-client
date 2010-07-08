@@ -102,6 +102,7 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 		enclosedComponent = (JTextArea)getViewport().getView();
 		eventExecutor = new EventExecutor(this, enclosedComponent);
 		enclosedComponent.addKeyListener(eventExecutor);
+		enclosedComponent.addMouseListener(eventExecutor);
 
 		plainDocument = editorDocument = enclosedComponent.getDocument();
 		enclosedComponent.setBorder(BorderFactory.createEmptyBorder());
