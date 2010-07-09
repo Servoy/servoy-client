@@ -234,7 +234,7 @@ public class SessionClient extends ClientState implements ISessionClient
 			SolutionMetaData solutionMetaData = getApplicationServer().getSolutionDefinition(solutionName, getSolutionTypeFilter());
 			if (solutionMetaData == null)
 			{
-				throw new IllegalArgumentException(Messages.getString("servoy.exception.solutionNotFound", new Object[] { solutionName }));
+				throw new IllegalArgumentException(Messages.getString("servoy.exception.solutionNotFound", new Object[] { solutionName })); //$NON-NLS-1$
 			}
 			loadSolution(solutionMetaData);
 		}
@@ -285,19 +285,17 @@ public class SessionClient extends ClientState implements ISessionClient
 		boolean registered = false;
 		try
 		{
-			registered = super.registerClient(uc);
-			if (!registered)
-			{
-				//TODO: trail mode
-			}
+			registered = super.registerClient(uc); // when registered is false, client is registered but with a trial license
+			// access the server directly to mark the client as local
+			ApplicationServerSingleton.get().setServerProcess(getClientID());
 		}
 		catch (final ApplicationException e)
 		{
 			if ((e.getErrorCode() == ServoyException.NO_LICENSE) || (e.getErrorCode() == ServoyException.MAINTENANCE_MODE))
 			{
 				shutDown(true);
-				throw e;
 			}
+			throw e;
 		}
 		return registered;
 	}
@@ -373,10 +371,10 @@ public class SessionClient extends ClientState implements ISessionClient
 		boolean ajaxEnabledOnServer = Utils.getAsBoolean(settings.getProperty("servoy.webclient.useAjax", "true")); //$NON-NLS-1$ //$NON-NLS-2$
 		if (ajaxEnabledOnServer)
 		{
-			ajaxEnabledOnServer = Utils.getAsBoolean(settings.getProperty("servoy.webclient.useAjax." + solutionName, "true"));
+			ajaxEnabledOnServer = Utils.getAsBoolean(settings.getProperty("servoy.webclient.useAjax." + solutionName, "true")); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		boolean supportsAjax = true;//TODO: disable when simple (pda) broser is detected
-		getRuntimeProperties().put("useAJAX", Boolean.toString(ajaxEnabledOnServer && supportsAjax));
+		getRuntimeProperties().put("useAJAX", Boolean.toString(ajaxEnabledOnServer && supportsAjax)); //$NON-NLS-1$
 	}
 
 	/*
@@ -440,7 +438,7 @@ public class SessionClient extends ClientState implements ISessionClient
 	{
 		try
 		{
-			return new URL("http://localhost:" + ApplicationServerSingleton.get().getWebServerPort());
+			return new URL("http://localhost:" + ApplicationServerSingleton.get().getWebServerPort()); //$NON-NLS-1$
 		}
 		catch (MalformedURLException e)
 		{
@@ -469,7 +467,7 @@ public class SessionClient extends ClientState implements ISessionClient
 	@Override
 	protected void solutionLoaded(Solution s)
 	{
-		J2DBGlobals.firePropertyChange(this, "solution", null, getSolution());
+		J2DBGlobals.firePropertyChange(this, "solution", null, getSolution()); //$NON-NLS-1$
 	}
 
 	protected TimeZone timeZone;
@@ -520,7 +518,7 @@ public class SessionClient extends ClientState implements ISessionClient
 		}
 		catch (Exception ex)
 		{
-			reportError(Messages.getString("servoy.client.error.finding.dataservice"), ex);
+			reportError(Messages.getString("servoy.client.error.finding.dataservice"), ex); //$NON-NLS-1$
 			return false;
 		}
 	}
@@ -581,12 +579,12 @@ public class SessionClient extends ClientState implements ISessionClient
 				}
 				else
 				{
-					throw new IllegalStateException("Cannot call method on non visible form " + formName);
+					throw new IllegalStateException("Cannot call method on non visible form " + formName); //$NON-NLS-1$
 				}
 			}
 			else
 			{
-				throw new IllegalArgumentException("Form " + formName + " not found");
+				throw new IllegalArgumentException("Form " + formName + " not found"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 		catch (IllegalStateException e1)
@@ -683,7 +681,7 @@ public class SessionClient extends ClientState implements ISessionClient
 					{
 						value = record.getValue(dataProviderID);
 					}
-					if (value == Scriptable.NOT_FOUND) value = "";
+					if (value == Scriptable.NOT_FOUND) value = ""; //$NON-NLS-1$
 				}
 			}
 			return value;
@@ -718,12 +716,12 @@ public class SessionClient extends ClientState implements ISessionClient
 			{
 				StringTokenizer tk = new StringTokenizer(contextName, "."); //$NON-NLS-1$
 				String token = tk.nextToken();
-				if (token.equals("forms") && tk.hasMoreTokens())
+				if (token.equals("forms") && tk.hasMoreTokens()) //$NON-NLS-1$
 				{
 					visibleFormName = tk.nextToken();
 					if (tk.hasMoreTokens()) token = tk.nextToken();
 				}
-				if (!token.equals("foundset"))
+				if (!token.equals("foundset")) //$NON-NLS-1$
 				{
 					dataContext = token;
 				}
@@ -869,7 +867,7 @@ public class SessionClient extends ClientState implements ISessionClient
 			else
 			{
 				Debug.trace("Form panel " + fp + " is (still) current main form"); //$NON-NLS-1$ //$NON-NLS-2$
-				throw new IllegalArgumentException("Form " + formName + " not found");
+				throw new IllegalArgumentException("Form " + formName + " not found"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 		catch (IllegalArgumentException e1)
@@ -985,7 +983,7 @@ public class SessionClient extends ClientState implements ISessionClient
 	private static String getI18NMessage(String key, Object[] args, Properties msg, ResourceBundle jar, Locale loc)
 	{
 		String realKey = key;
-		if (realKey.startsWith("i18n:"))
+		if (realKey.startsWith("i18n:")) //$NON-NLS-1$
 		{
 			realKey = realKey.substring(5);
 		}
@@ -1008,7 +1006,7 @@ public class SessionClient extends ClientState implements ISessionClient
 			}
 			message = msg.getProperty(realKey);
 			if (message == null) return '!' + realKey + '!';
-			message = Utils.stringReplace(message, "'", "''");
+			message = Utils.stringReplace(message, "'", "''"); //$NON-NLS-1$ //$NON-NLS-2$
 			MessageFormat mf = new MessageFormat(message);
 			mf.setLocale(loc);
 			return mf.format(args);
@@ -1019,7 +1017,7 @@ public class SessionClient extends ClientState implements ISessionClient
 		}
 		catch (Exception e)
 		{
-			return '!' + realKey + "!,txt:" + message + ", error:" + e.getMessage();
+			return '!' + realKey + "!,txt:" + message + ", error:" + e.getMessage(); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
@@ -1056,7 +1054,7 @@ public class SessionClient extends ClientState implements ISessionClient
 	 */
 	public String getI18NMessageIfPrefixed(String key)
 	{
-		if (key != null && key.startsWith("i18n:"))
+		if (key != null && key.startsWith("i18n:")) //$NON-NLS-1$
 		{
 			return getI18NMessage(key.substring(5), null);
 		}
@@ -1069,7 +1067,7 @@ public class SessionClient extends ClientState implements ISessionClient
 		Locale old = locale;
 		locale = l;
 		localeJarMessages = null;
-		J2DBGlobals.firePropertyChange(this, "locale", old, locale);
+		J2DBGlobals.firePropertyChange(this, "locale", old, locale); //$NON-NLS-1$
 	}
 
 	public Locale getLocale()
@@ -1126,12 +1124,12 @@ public class SessionClient extends ClientState implements ISessionClient
 					{
 						rows.add(new Object[] { valuelist.getElementAt(i), valuelist.getRealElementAt(i) });
 					}
-					return new BufferedDataSet(new String[] { "displayValue", "realValue" }, rows);
+					return new BufferedDataSet(new String[] { "displayValue", "realValue" }, rows); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
 			else
 			{
-				throw new IllegalArgumentException("Valuelist with name " + valuelistName + " not found");
+				throw new IllegalArgumentException("Valuelist with name " + valuelistName + " not found"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 		catch (Exception e)
@@ -1194,7 +1192,7 @@ public class SessionClient extends ClientState implements ISessionClient
 
 	public String getApplicationName()
 	{
-		return "Servoy Headless Client";
+		return "Servoy Headless Client"; //$NON-NLS-1$
 	}
 
 	public int getApplicationType()
@@ -1412,7 +1410,7 @@ public class SessionClient extends ClientState implements ISessionClient
 		{
 			Debug.log(msg);
 		}
-		if (outputChannel != null) outputChannel.info(msg != null ? msg.toString() : "NULL", level);
+		if (outputChannel != null) outputChannel.info(msg != null ? msg.toString() : "NULL", level); //$NON-NLS-1$
 	}
 
 	public void registerWindow(String name, Window d)
@@ -1466,7 +1464,7 @@ public class SessionClient extends ClientState implements ISessionClient
 			}
 			return retval.toArray(new String[retval.size()]);
 		}
-		Debug.error("User properties not possible for non http Headless client!");
+		Debug.error("User properties not possible for non http Headless client!"); //$NON-NLS-1$
 		return new String[0];
 	}
 
@@ -1549,14 +1547,14 @@ public class SessionClient extends ClientState implements ISessionClient
 		{
 			if (session != null)
 			{
-				Debug.log("Client was not registered, invalidating the http session");
+				Debug.log("Client was not registered, invalidating the http session"); //$NON-NLS-1$
 				try
 				{
 					shutDown(true);
 				}
 				catch (Exception e)
 				{
-					Debug.trace("error calling shutdown in a client is not registered call", e);
+					Debug.trace("error calling shutdown in a client is not registered call", e); //$NON-NLS-1$
 				}
 				try
 				{
@@ -1564,7 +1562,7 @@ public class SessionClient extends ClientState implements ISessionClient
 				}
 				catch (Exception e)
 				{
-					Debug.trace("error calling session invalidate in a client is not registered call", e);
+					Debug.trace("error calling session invalidate in a client is not registered call", e); //$NON-NLS-1$
 				}
 			}
 			return false;
@@ -1586,7 +1584,7 @@ public class SessionClient extends ClientState implements ISessionClient
 
 	public ItemFactory getItemFactory()
 	{
-		if (Utils.getAsBoolean(getRuntimeProperties().get("isPrinting")))
+		if (Utils.getAsBoolean(getRuntimeProperties().get("isPrinting"))) //$NON-NLS-1$
 		{
 			return new SwingItemFactory(this);//needed to be able to print
 		}
@@ -1599,7 +1597,7 @@ public class SessionClient extends ClientState implements ISessionClient
 
 	public IDataRendererFactory< ? > getDataRenderFactory()
 	{
-		if (Utils.getAsBoolean(getRuntimeProperties().get("isPrinting")))
+		if (Utils.getAsBoolean(getRuntimeProperties().get("isPrinting"))) //$NON-NLS-1$
 		{
 			return new DataRendererFactory();//needed to be able to print
 		}

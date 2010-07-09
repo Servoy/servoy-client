@@ -57,7 +57,7 @@ public interface IServerAccess extends IPluginAccess
 	 * 
 	 * @param server_name
 	 * @param transaction_id null if not present/used
-	 * @return the connection, null if server or transction not present.
+	 * @return the connection, null if server or transaction not present.
 	 * @since 3.1
 	 */
 	public Connection getDBServerConnection(String server_name, String transaction_id);
@@ -98,7 +98,7 @@ public interface IServerAccess extends IPluginAccess
 	 * 
 	 * @param server_name
 	 * @param table_name
-	 * @param transaction_id The transaction id to use, null if there isnt one or shouldnt be used.
+	 * @param transaction_id The transaction id to use, null if there isn't one or shouldn't be used.
 	 * @since 3.5
 	 */
 	public boolean flushAllClientsCache(String server_name, String table_name, String transaction_id);
@@ -227,6 +227,15 @@ public interface IServerAccess extends IPluginAccess
 	public String[] getDBServerNames(boolean mustBeEnabled, boolean mustBeValid, boolean sort, boolean includeDuplicates);
 
 	/**
+	 * Check if the client runs inside the server (Web Client, Headless Client, ...) as opposed to Smart Client which runs in a jvm on the client.
+	 * 
+	 * @return true if the client runs inside the server.
+	 * 
+	 * @since 5.2
+	 */
+	public boolean isServerProcess(String clientId);
+
+	/**
 	 * Check if the client exists and is authenticated with the server.
 	 * 
 	 * @return true if authenticated
@@ -234,6 +243,7 @@ public interface IServerAccess extends IPluginAccess
 	 * @since 5.2
 	 */
 	public boolean isAuthenticated(String clientId);
+
 
 	/**
 	 * Check the password for a username using Servoy built-in user management.
@@ -246,7 +256,7 @@ public interface IServerAccess extends IPluginAccess
 	public String checkPasswordForUserName(String user, String password) throws ServoyException;
 
 	/**
-	 * Returns an array of user groups the user with userUid is memeber of (using Servoy built-in user management).
+	 * Returns an array of user groups the user with userUid is member of (using Servoy built-in user management).
 	 * 
 	 * @return String array
 	 * @throws ServoyException 

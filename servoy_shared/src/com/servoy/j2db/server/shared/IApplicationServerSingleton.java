@@ -126,4 +126,6 @@ public interface IApplicationServerSingleton
 	String calculateProtectionPasswordOld(SolutionMetaData metadata, String hash1);
 
 	boolean isSolutionProtected(SolutionMetaData metadata);
+
+	void setServerProcess(String clientID);
 }
