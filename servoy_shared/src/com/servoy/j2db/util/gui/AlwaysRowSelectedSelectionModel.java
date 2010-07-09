@@ -121,13 +121,10 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 
 	public boolean setSelectedRow(int row)
 	{
-		if (row != getSelectedRow())
-		{
-			if (!canChangeSelection()) return false;
+		if (getSelectionMode() == SINGLE_SELECTION && row == getSelectedRow()) return true;
+		if (!canChangeSelection()) return false;
 
-			return setSelectedRow(row, false, true);
-		}
-		return true;
+		return setSelectedRow(row, false, true);
 	}
 
 	public boolean canChangeSelection()
