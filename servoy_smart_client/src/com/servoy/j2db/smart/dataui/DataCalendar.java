@@ -213,7 +213,7 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 				{
 					if (isEnabled())
 					{
-						((BaseEventExecutor)enclosedComponent.getEventExecutor()).fireRightclickCommand(true, enclosedComponent, e.getModifiers());
+						((BaseEventExecutor)enclosedComponent.getEventExecutor()).fireRightclickCommand(true, enclosedComponent, e.getModifiers(), e.getPoint());
 					}
 				}
 			};

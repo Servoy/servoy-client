@@ -1832,7 +1832,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 				{
 					if (isEnabled())
 					{
-						eventExecutor.fireRightclickCommand(true, DataField.this, e.getModifiers());
+						eventExecutor.fireRightclickCommand(true, DataField.this, e.getModifiers(), e.getPoint());
 					}
 				}
 			};

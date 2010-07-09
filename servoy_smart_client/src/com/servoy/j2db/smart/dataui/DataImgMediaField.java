@@ -157,7 +157,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 				}
 				else if (popup == null || !popup.isVisible())
 				{
-					eventExecutor.fireActionCommand(false, DataImgMediaField.this);
+					eventExecutor.fireActionCommand(false, DataImgMediaField.this, e.getModifiers(), e.getPoint());
 				}
 			}
 
@@ -489,7 +489,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 				{
 					if (isEnabled())
 					{
-						eventExecutor.fireRightclickCommand(true, DataImgMediaField.this, e.getModifiers());
+						eventExecutor.fireRightclickCommand(true, DataImgMediaField.this, e.getModifiers(), e.getPoint());
 					}
 				}
 			};

@@ -17,6 +17,7 @@
 package com.servoy.j2db.smart.dataui;
 
 import java.awt.Component;
+import java.awt.Point;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
@@ -69,7 +70,7 @@ public class EventExecutor extends BaseEventExecutor implements MouseListener, F
 	{
 		if (enclosedComponent instanceof JTextComponent && !((JTextComponent)enclosedComponent).isEditable() && SwingUtilities.isLeftMouseButton(e))
 		{
-			actionPerformed(e.getModifiers());
+			actionPerformed(e.getModifiers(), e.getPoint());
 		}
 	}
 
@@ -98,7 +99,7 @@ public class EventExecutor extends BaseEventExecutor implements MouseListener, F
 					fieldComponent = fieldComponent.getParent().getParent();
 				}
 			}
-			fireRightclickCommand(true, fieldComponent, e.getModifiers());
+			fireRightclickCommand(true, fieldComponent, e.getModifiers(), null);
 			e.consume();
 		}
 	}
@@ -162,10 +163,15 @@ public class EventExecutor extends BaseEventExecutor implements MouseListener, F
 	 */
 	public void actionPerformed(int modifiers)
 	{
+		actionPerformed(modifiers, null);
+	}
+
+	public void actionPerformed(int modifiers, Point mouseLocation)
+	{
 		if (hasActionCmd())
 		{
 			actionListener.setLastKeyModifiers(modifiers);
-			fireActionCommand(true, enclosedComponent, modifiers);
+			fireActionCommand(true, enclosedComponent, modifiers, mouseLocation);
 		}
 	}
 

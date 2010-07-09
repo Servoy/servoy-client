@@ -17,6 +17,8 @@
 package com.servoy.j2db.ui;
 
 
+import java.awt.Point;
+
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.scripting.JSEvent;
@@ -204,22 +206,29 @@ public abstract class BaseEventExecutor implements IEventExecutor
 
 	public Object fireActionCommand(boolean saveData, Object display, int modifiers)
 	{
-		return fireEventCommand(JSEvent.EventType.action, actionCommand, null, actionArgs, saveData, display, false, modifiers, false);
+		return fireActionCommand(saveData, display, modifiers, null);
 	}
 
-	public Object fireDoubleclickCommand(boolean saveData, Object display, int modifiers)
+	public Object fireActionCommand(boolean saveData, Object display, int modifiers, Point mouseLocation)
 	{
-		return fireEventCommand(JSEvent.EventType.doubleClick, doubleClickCommand, null, doubleClickArgs, saveData, display, false, modifiers, false);
+		return fireEventCommand(JSEvent.EventType.action, actionCommand, null, actionArgs, saveData, display, false, modifiers, null, false, mouseLocation);
 	}
 
-	public Object fireRightclickCommand(boolean saveData, Object display, int modifiers)
+	public Object fireDoubleclickCommand(boolean saveData, Object display, int modifiers, Point mouseLocation)
 	{
-		return fireRightclickCommand(saveData, display, modifiers, null);
+		return fireEventCommand(JSEvent.EventType.doubleClick, doubleClickCommand, null, doubleClickArgs, saveData, display, false, modifiers, null, false,
+			mouseLocation);
 	}
 
-	public Object fireRightclickCommand(boolean saveData, Object display, int modifiers, String formName)
+	public Object fireRightclickCommand(boolean saveData, Object display, int modifiers, Point mouseLocation)
 	{
-		return fireEventCommand(JSEvent.EventType.rightClick, rightClickCommand, null, rightClickArgs, saveData, display, false, modifiers, formName, false);
+		return fireRightclickCommand(saveData, display, modifiers, null, mouseLocation);
+	}
+
+	public Object fireRightclickCommand(boolean saveData, Object display, int modifiers, String formName, Point mouseLocation)
+	{
+		return fireEventCommand(JSEvent.EventType.rightClick, rightClickCommand, null, rightClickArgs, saveData, display, false, modifiers, formName, false,
+			mouseLocation);
 	}
 
 	/* ----------------------------------------- */
@@ -227,11 +236,11 @@ public abstract class BaseEventExecutor implements IEventExecutor
 	public Object fireEventCommand(EventType type, String cmd, Object[] args, Object[] persistArgs, boolean saveData, Object display, boolean focusEvent,
 		int modifiers, boolean executeWhenFieldValidationFailed)
 	{
-		return fireEventCommand(type, cmd, args, persistArgs, saveData, display, focusEvent, modifiers, null, executeWhenFieldValidationFailed);
+		return fireEventCommand(type, cmd, args, persistArgs, saveData, display, focusEvent, modifiers, null, executeWhenFieldValidationFailed, null);
 	}
 
 	public Object fireEventCommand(EventType type, String cmd, Object[] args, Object[] persistArgs, boolean saveData, Object display, boolean focusEvent,
-		int modifiers, String formName, boolean executeWhenFieldValidationFailed)
+		int modifiers, String formName, boolean executeWhenFieldValidationFailed, Point mouseLocation)
 	{
 		if (actionListener == null)
 		{
@@ -254,6 +263,7 @@ public abstract class BaseEventExecutor implements IEventExecutor
 		event.setFormName(fName);
 		event.setElementName(name);
 		event.setModifiers(modifiers == MODIFIERS_UNSPECIFIED ? 0 : modifiers);
+		if (mouseLocation != null) event.setLocation(mouseLocation);
 		return actionListener.executeFunction(cmd, Utils.arrayMerge(Utils.arrayJoin(args, new Object[] { event }), persistArgs), saveData, display, focusEvent,
 			null, executeWhenFieldValidationFailed);
 	}

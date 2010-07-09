@@ -17,6 +17,7 @@
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import java.awt.Event;
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -146,14 +147,18 @@ public class WebEventExecutor extends BaseEventExecutor
 					protected void onEvent(AjaxRequestTarget target)
 					{
 						WebEventExecutor.this.onEvent(JSEvent.EventType.action, target, component,
-							Utils.getAsInteger(RequestCycle.get().getRequest().getParameter(IEventExecutor.MODIFIERS_PARAMETER)));
+							Utils.getAsInteger(RequestCycle.get().getRequest().getParameter(IEventExecutor.MODIFIERS_PARAMETER)), new Point(
+								Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("mx")), //$NON-NLS-1$
+								Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("my")))); //$NON-NLS-1$
+
 						target.appendJavascript("clearDoubleClickId('" + component.getMarkupId() + "')"); //$NON-NLS-1$ //$NON-NLS-2$
 					}
 
 					@Override
 					protected CharSequence generateCallbackScript(final CharSequence partialCall)
 					{
-						return super.generateCallbackScript(partialCall + "+'&modifiers='+getModifiers(event)"); //$NON-NLS-1$
+						return super.generateCallbackScript(partialCall +
+							"+'&modifiers='+getModifiers(event)+'&mx=' + ((event.pageX ? event.pageX : event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft) - getXY(this)[0]) + '&my=' + ((event.pageY ? event.pageY : event.clientY + document.body.scrollLeft + document.documentElement.scrollLeft) - getXY(this)[1])"); //$NON-NLS-1$
 					}
 
 					@Override
@@ -212,14 +217,17 @@ public class WebEventExecutor extends BaseEventExecutor
 					protected void onEvent(AjaxRequestTarget target)
 					{
 						WebEventExecutor.this.onEvent(JSEvent.EventType.doubleClick, target, component,
-							Utils.getAsInteger(RequestCycle.get().getRequest().getParameter(IEventExecutor.MODIFIERS_PARAMETER)));
+							Utils.getAsInteger(RequestCycle.get().getRequest().getParameter(IEventExecutor.MODIFIERS_PARAMETER)), new Point(
+								Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("mx")), //$NON-NLS-1$
+								Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("my")))); //$NON-NLS-1$
 					}
 
 					@SuppressWarnings("nls")
 					@Override
 					protected CharSequence generateCallbackScript(final CharSequence partialCall)
 					{
-						return super.generateCallbackScript(partialCall + "+'&modifiers='+getModifiers(event)");
+						return super.generateCallbackScript(partialCall +
+							"+'&modifiers='+getModifiers(event)+'&mx=' + ((event.pageX ? event.pageX : event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft) - getXY(this)[0]) + '&my=' + ((event.pageY ? event.pageY : event.clientY + document.body.scrollLeft + document.documentElement.scrollLeft) - getXY(this)[1])"); //$NON-NLS-1$
 					}
 
 					@SuppressWarnings("nls")
@@ -262,13 +270,16 @@ public class WebEventExecutor extends BaseEventExecutor
 					protected void onEvent(AjaxRequestTarget target)
 					{
 						WebEventExecutor.this.onEvent(JSEvent.EventType.rightClick, target, component,
-							Utils.getAsInteger(RequestCycle.get().getRequest().getParameter(IEventExecutor.MODIFIERS_PARAMETER)));
+							Utils.getAsInteger(RequestCycle.get().getRequest().getParameter(IEventExecutor.MODIFIERS_PARAMETER)), new Point(
+								Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("mx")), //$NON-NLS-1$
+								Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("my")))); //$NON-NLS-1$
 					}
 
 					@Override
 					protected CharSequence generateCallbackScript(final CharSequence partialCall)
 					{
-						return super.generateCallbackScript(partialCall + "+'&modifiers='+getModifiers(event)"); //$NON-NLS-1$
+						return super.generateCallbackScript(partialCall +
+							"+'&modifiers='+getModifiers(event)+'&mx=' + ((event.pageX ? event.pageX : event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft) - getXY(this)[0]) + '&my=' + ((event.pageY ? event.pageY : event.clientY + document.body.scrollLeft + document.documentElement.scrollLeft) - getXY(this)[1])"); //$NON-NLS-1$
 					}
 
 					@Override
@@ -307,6 +318,11 @@ public class WebEventExecutor extends BaseEventExecutor
 
 	public void onEvent(EventType type, AjaxRequestTarget target, Component comp, int webModifiers)
 	{
+		onEvent(type, target, comp, webModifiers, null);
+	}
+
+	public void onEvent(EventType type, AjaxRequestTarget target, Component comp, int webModifiers, Point mouseLocation)
+	{
 		ServoyForm form = comp.findParent(ServoyForm.class);
 		if (form == null)
 		{
@@ -326,7 +342,7 @@ public class WebEventExecutor extends BaseEventExecutor
 				switch (type)
 				{
 					case action :
-						fireActionCommand(false, comp, convertModifiers(webModifiers));
+						fireActionCommand(false, comp, convertModifiers(webModifiers), mouseLocation);
 						break;
 					case focusGained :
 						fireEnterCommands(false, comp, convertModifiers(webModifiers));
@@ -335,10 +351,10 @@ public class WebEventExecutor extends BaseEventExecutor
 						fireLeaveCommands(comp, false, convertModifiers(webModifiers));
 						break;
 					case doubleClick :
-						fireDoubleclickCommand(false, comp, convertModifiers(webModifiers));
+						fireDoubleclickCommand(false, comp, convertModifiers(webModifiers), mouseLocation);
 						break;
 					case rightClick :
-						fireRightclickCommand(false, comp, convertModifiers(webModifiers));
+						fireRightclickCommand(false, comp, convertModifiers(webModifiers), mouseLocation);
 						break;
 					case none :
 					case dataChange :
