@@ -324,7 +324,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 				{
 					if (isEnabled())
 					{
-						eventExecutor.fireRightclickCommand(true, DataTextEditor.this, e.getModifiers(), e.getX(), e.getY());
+						eventExecutor.fireRightclickCommand(true, DataTextEditor.this, e.getModifiers(), e.getPoint());
 					}
 				}
 			};

@@ -239,7 +239,7 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 				{
 					if (isEnabled())
 					{
-						eventExecutor.fireRightclickCommand(true, DataTextArea.this, e.getModifiers(), e.getX(), e.getY());
+						eventExecutor.fireRightclickCommand(true, DataTextArea.this, e.getModifiers(), e.getPoint());
 					}
 				}
 			};

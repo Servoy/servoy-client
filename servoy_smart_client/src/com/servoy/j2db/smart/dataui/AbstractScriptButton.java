@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.smart.dataui;
 
 
@@ -948,7 +948,7 @@ public class AbstractScriptButton extends JButton implements ISkinnable, IButton
 					// Don't allow double click with other buttons except left button.
 					if ((e.getClickCount() == 2) && SwingUtilities.isLeftMouseButton(e) && isEnabled())
 					{
-						eventExecutor.fireDoubleclickCommand(true, AbstractScriptButton.this, e.getModifiers());
+						eventExecutor.fireDoubleclickCommand(true, AbstractScriptButton.this, e.getModifiers(), e.getPoint());
 					}
 				}
 			};
@@ -979,7 +979,7 @@ public class AbstractScriptButton extends JButton implements ISkinnable, IButton
 				{
 					if (isEnabled())
 					{
-						eventExecutor.fireRightclickCommand(true, AbstractScriptButton.this, e.getModifiers(), e.getX(), e.getY());
+						eventExecutor.fireRightclickCommand(true, AbstractScriptButton.this, e.getModifiers(), e.getPoint());
 					}
 				}
 			};

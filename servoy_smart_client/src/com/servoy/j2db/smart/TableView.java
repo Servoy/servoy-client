@@ -836,7 +836,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 						editor.setLocation(editor.getX(), row * editor.getHeight());
 						IEventExecutor ee = ((ISupportEventExecutor)editor).getEventExecutor();
 						if (ee instanceof BaseEventExecutor && ee.hasRightClickCmd()) ((BaseEventExecutor)ee).fireRightclickCommand(true, editor,
-							e.getModifiers(), fc.getName(), e.getX(), e.getY());
+							e.getModifiers(), fc.getName(), new Point(e.getPoint().x - editor.getX(), e.getPoint().y - editor.getY()));
 					}
 				}
 			}

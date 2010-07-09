@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.smart.dataui;
 
 
@@ -1069,7 +1069,7 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 				{
 					if (SwingUtilities.isLeftMouseButton(e) && isEnabled())
 					{
-						eventExecutor.fireActionCommand(true, AbstractScriptLabel.this, e.getModifiers());
+						eventExecutor.fireActionCommand(true, AbstractScriptLabel.this, e.getModifiers(), e.getPoint());
 					}
 				}
 			};
@@ -1090,7 +1090,7 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 					// Don't allow double click with other buttons except left button.
 					if ((e.getClickCount() == 2) && SwingUtilities.isLeftMouseButton(e) && isEnabled())
 					{
-						eventExecutor.fireDoubleclickCommand(true, AbstractScriptLabel.this, e.getModifiers());
+						eventExecutor.fireDoubleclickCommand(true, AbstractScriptLabel.this, e.getModifiers(), e.getPoint());
 					}
 				}
 			};
@@ -1121,7 +1121,7 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 				{
 					if (isEnabled())
 					{
-						eventExecutor.fireRightclickCommand(true, AbstractScriptLabel.this, e.getModifiers(), e.getX(), e.getY());
+						eventExecutor.fireRightclickCommand(true, AbstractScriptLabel.this, e.getModifiers(), e.getPoint());
 					}
 				}
 			};

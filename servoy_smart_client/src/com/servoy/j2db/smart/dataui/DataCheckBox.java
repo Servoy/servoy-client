@@ -243,7 +243,7 @@ public class DataCheckBox extends JCheckBox implements IFieldComponent, IDisplay
 				{
 					if (js_isEnabled())
 					{
-						eventExecutor.fireRightclickCommand(true, DataCheckBox.this, e.getModifiers(), e.getX(), e.getY());
+						eventExecutor.fireRightclickCommand(true, DataCheckBox.this, e.getModifiers(), e.getPoint());
 					}
 				}
 			};

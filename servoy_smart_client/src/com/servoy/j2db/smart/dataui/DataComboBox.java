@@ -425,7 +425,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 				{
 					if (isEnabled())
 					{
-						eventExecutor.fireRightclickCommand(true, DataComboBox.this, e.getModifiers(), e.getX(), e.getY());
+						eventExecutor.fireRightclickCommand(true, DataComboBox.this, e.getModifiers(), e.getPoint());
 					}
 				}
 			};

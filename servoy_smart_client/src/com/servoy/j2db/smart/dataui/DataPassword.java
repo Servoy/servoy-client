@@ -167,7 +167,7 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 				{
 					if (isEnabled())
 					{
-						eventExecutor.fireRightclickCommand(true, DataPassword.this, e.getModifiers(), e.getX(), e.getY());
+						eventExecutor.fireRightclickCommand(true, DataPassword.this, e.getModifiers(), e.getPoint());
 					}
 				}
 			};

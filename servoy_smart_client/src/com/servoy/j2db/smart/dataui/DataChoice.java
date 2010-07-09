@@ -243,7 +243,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 				{
 					if (isEnabled())
 					{
-						eventExecutor.fireRightclickCommand(true, DataChoice.this, e.getModifiers(), e.getX(), e.getY());
+						eventExecutor.fireRightclickCommand(true, DataChoice.this, e.getModifiers(), e.getPoint());
 					}
 				}
 			};
