@@ -266,19 +266,17 @@ public class SessionClient extends ClientState implements ISessionClient
 		boolean registered = false;
 		try
 		{
-			registered = super.registerClient(uc);
-			if (!registered)
-			{
-				//TODO: trail mode
-			}
+			registered = super.registerClient(uc); // when registered is false, client is registered but with a trial license
+			// access the server directly to mark the client as local
+			ApplicationServerSingleton.get().setServerProcess(getClientID());
 		}
 		catch (final ApplicationException e)
 		{
 			if ((e.getErrorCode() == ServoyException.NO_LICENSE) || (e.getErrorCode() == ServoyException.MAINTENANCE_MODE))
 			{
 				shutDown(true);
-				throw e;
 			}
+			throw e;
 		}
 		return registered;
 	}
