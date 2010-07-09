@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import java.awt.Color;
@@ -36,6 +36,7 @@ import org.apache.wicket.IResourceListener;
 import org.apache.wicket.Page;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ResourceReference;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
@@ -91,11 +92,15 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	protected MediaResource icon;
 	private AttributeModifier imageStyle;
 	private Media media;
+	private Media rolloverMedia;
 	private String iconUrl;
 	private ResourceReference iconReference;
+	private ResourceReference rolloverIconReference;
 	protected IApplication application;
 	protected ChangesRecorder jsChangeRecorder = new ChangesRecorder(null, null);
 	private String text_url;
+	private String rolloverUrl;
+	private ServoyAjaxEventBehavior rolloverBehavior;
 	private char mnemonic;
 	private final WebEventExecutor eventExecutor;
 
@@ -367,8 +372,11 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	 */
 	public void setRolloverIcon(int rollOverId)
 	{
-		// TODO Auto-generated method stub
-
+		if ((rolloverMedia = application.getFlattenedSolution().getMedia(rollOverId)) != null)
+		{
+			addRolloverBehaviors();
+			rolloverIconReference = new ResourceReference("media"); //$NON-NLS-1$ 
+		}
 	}
 
 	/**
@@ -389,6 +397,118 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		}
 	}
 
+	private void addRolloverBehaviors()
+	{
+		if (rolloverBehavior != null) return;
+
+		rolloverBehavior = new ServoyAjaxEventBehavior("onmouseover")
+		{
+			@Override
+			protected CharSequence generateCallbackScript(CharSequence partialCall)
+			{
+				String solutionName = J2DBGlobals.getServiceProvider().getSolution().getName();
+				String url = "";
+				if (rolloverIconReference != null && rolloverMedia != null)
+				{
+					if (mediaOptions != 0 && mediaOptions != 1)
+					{
+						url = urlFor(rolloverIconReference) + "?id=" + rolloverMedia.getName() + "&s=" + solutionName + "&option=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+							mediaOptions + "&w=" + getSize().width + "&h=" + getSize().height + "&l=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+							(rolloverMedia.getMediaData() != null ? +rolloverMedia.getMediaData().hashCode() : 0);
+					}
+					else
+					{
+						url = urlFor(rolloverIconReference) + "?id=" + rolloverMedia.getName() + "&s=" + solutionName + "&l=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+							(rolloverMedia.getMediaData() != null ? +rolloverMedia.getMediaData().hashCode() : 0);
+					}
+				}
+				else if (rolloverUrl != null)
+				{
+					if (rolloverUrl.startsWith(MediaURLStreamHandler.MEDIA_URL_DEF))
+					{
+						String mediaName = rolloverUrl.substring(MediaURLStreamHandler.MEDIA_URL_DEF.length());
+						if (mediaName.startsWith(MediaURLStreamHandler.MEDIA_URL_BLOBLOADER))
+						{
+							url = RequestCycle.get().urlFor(WebBaseButton.this, IResourceListener.INTERFACE) +
+								"&" + MediaURLStreamHandler.MEDIA_URL_BLOBLOADER + "=true&" + //$NON-NLS-1$ 
+								mediaName.substring((MediaURLStreamHandler.MEDIA_URL_BLOBLOADER + "?").length()); //$NON-NLS-1$ 
+						}
+					}
+					else url = rolloverUrl;
+				}
+				url = "url(" + url + ")";
+				return "Servoy.Rollover.onMouseOver('" + WebBaseButton.this.getMarkupId() + "','" + url + "','" + getBackgroundPosition() + "','" +
+					getBackgroundRepeat() + "')";
+			}
+
+			@Override
+			protected void onEvent(AjaxRequestTarget target)
+			{
+				// not used, client side implementation
+			}
+		};
+		add(rolloverBehavior);
+		ServoyAjaxEventBehavior mouseoutBehavior = new ServoyAjaxEventBehavior("onmouseout")
+		{
+			@Override
+			protected CharSequence generateCallbackScript(CharSequence partialCall)
+			{
+				return "Servoy.Rollover.onMouseOut('" + WebBaseButton.this.getMarkupId() + "')";
+			}
+
+			@Override
+			protected void onEvent(AjaxRequestTarget target)
+			{
+				// not used, client side implementation
+			}
+		};
+		add(mouseoutBehavior);
+	}
+
+	private String getBackgroundRepeat()
+	{
+		return "no-repeat";
+	}
+
+	private String getBackgroundPosition()
+	{
+		String position = "center center"; //$NON-NLS-1$ 
+		String text = WebBaseButton.this.getDefaultModelObjectAsString();
+		if (text != null && text.length() != 0)
+		{
+			position = "center left"; //$NON-NLS-1$ 
+		}
+		else
+		{
+			if (valign == SwingConstants.TOP)
+			{
+				position = "top "; //$NON-NLS-1$
+			}
+			else if (valign == SwingConstants.BOTTOM)
+			{
+				position = "bottom "; //$NON-NLS-1$ 
+			}
+			else
+			{
+				position = "center "; //$NON-NLS-1$ 
+			}
+
+			if (halign == SwingConstants.LEFT)
+			{
+				position += "left"; //$NON-NLS-1$ 
+			}
+			else if (halign == SwingConstants.RIGHT)
+			{
+				position += "right"; //$NON-NLS-1$ 
+			}
+			else
+			{
+				position += "center"; //$NON-NLS-1$ 
+			}
+		}
+		return position;
+	}
+
 	private void addImageStyleAttributeModifier()
 	{
 		if (imageStyle != null) return;
@@ -400,51 +520,15 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			@Override
 			public String getObject()
 			{
-				String position = "center center"; //$NON-NLS-1$
-				String text = WebBaseButton.this.getDefaultModelObjectAsString();
-				if (text != null && text.length() != 0)
-				{
-					position = "center left"; //$NON-NLS-1$
-				}
-				else
-				{
-					if (valign == SwingConstants.TOP)
-					{
-						position = "top "; //$NON-NLS-1$
-					}
-					else if (valign == SwingConstants.BOTTOM)
-					{
-						position = "bottom "; //$NON-NLS-1$
-					}
-					else
-					{
-						position = "center "; //$NON-NLS-1$
-					}
+				String position = getBackgroundPosition();
+				String repeat = getBackgroundRepeat();
 
-					if (halign == SwingConstants.LEFT)
-					{
-						position += "left"; //$NON-NLS-1$
-					}
-					else if (halign == SwingConstants.RIGHT)
-					{
-						position += "right"; //$NON-NLS-1$
-					}
-					else
-					{
-						position += "center"; //$NON-NLS-1$
-					}
-				}
 				String styleAttribute = null;
 				if (icon != null)
 				{
 					CharSequence url = urlFor(IResourceListener.INTERFACE) + "&r=" + Math.random(); //$NON-NLS-1$
 					url = Strings.replaceAll(getResponse().encodeURL(url), "&", "&amp;"); //$NON-NLS-1$ //$NON-NLS-2$
-					styleAttribute = "background-image: url(" + url + "); background-repeat: no-repeat; background-position: " + position; //$NON-NLS-1$ //$NON-NLS-2$
-					if (!js_isEnabled())
-					{
-						styleAttribute += "; filter:alpha(opacity=50);-moz-opacity:.50;opacity:.50"; //$NON-NLS-1$
-					}
-					return styleAttribute;
+					styleAttribute = "background-image: url(" + url + "); background-repeat: " + repeat + "; background-position: " + position; //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				else if (iconReference != null && media != null)
 				{
@@ -453,47 +537,36 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 					{
 						styleAttribute = "background-image: url(" + urlFor(iconReference) + "?id=" + media.getName() + "&s=" + solutionName + "&option=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 							mediaOptions +
-							"&w=" + getSize().width + "&h=" + getSize().height + "&l=" + (media.getMediaData() != null ? +media.getMediaData().hashCode() : 0) + "); background-repeat: no-repeat; background-position: " + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+							"&w=" + getSize().width + "&h=" + getSize().height + "&l=" + (media.getMediaData() != null ? +media.getMediaData().hashCode() : 0) + "); background-repeat: " + repeat + "; background-position: " + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 							position;
 					}
 					else
 					{
 						styleAttribute = "background-image: url(" + urlFor(iconReference) + "?id=" + media.getName() + "&s=" + solutionName + //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
 							"&l=" + (media.getMediaData() != null ? +media.getMediaData().hashCode() : 0) + //$NON-NLS-1$
-							"); background-repeat: no-repeat; background-position: " + position; //$NON-NLS-1$
+							"); background-repeat: " + repeat + "; background-position: " + position; //$NON-NLS-1$
 					}
-					if (!js_isEnabled())
-					{
-						styleAttribute += "; filter:alpha(opacity=50);-moz-opacity:.50;opacity:.50"; //$NON-NLS-1$
-					}
-					return styleAttribute;
 				}
 				else if (iconUrl != null)
 				{
-					styleAttribute = "background-image: url(" + iconUrl + "); background-repeat: no-repeat; background-position: " + position; //$NON-NLS-1$ //$NON-NLS-2$
-					if (!js_isEnabled())
-					{
-						styleAttribute += "; filter:alpha(opacity=50);-moz-opacity:.50;opacity:.50"; //$NON-NLS-1$
-					}
-					return styleAttribute;
-
+					styleAttribute = "background-image: url(" + iconUrl + "); background-repeat: " + repeat + "; background-position: " + position; //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				else if (text_url != null)
 				{
 					String mediaName = text_url.substring(MediaURLStreamHandler.MEDIA_URL_DEF.length());
-					if (mediaName.startsWith("servoy_blobloader")) //$NON-NLS-1$
+					if (mediaName.startsWith(MediaURLStreamHandler.MEDIA_URL_BLOBLOADER))
 					{
-						String url = RequestCycle.get().urlFor(WebBaseButton.this, IResourceListener.INTERFACE) + "&servoy_blobloader=true&" + //$NON-NLS-1$
-							mediaName.substring("servoy_blobloader?".length()); //$NON-NLS-1$
-						styleAttribute = "background-image: url(" + url + "); background-repeat: no-repeat; background-position: " + position; //$NON-NLS-1$ //$NON-NLS-2$
-						if (!js_isEnabled())
-						{
-							styleAttribute += "; filter:alpha(opacity=50);-moz-opacity:.50;opacity:.50"; //$NON-NLS-1$
-						}
-						return styleAttribute;
+						String url = RequestCycle.get().urlFor(WebBaseButton.this, IResourceListener.INTERFACE) +
+							"&" + MediaURLStreamHandler.MEDIA_URL_BLOBLOADER + "=true&" + //$NON-NLS-1$
+							mediaName.substring((MediaURLStreamHandler.MEDIA_URL_BLOBLOADER + "?").length()); //$NON-NLS-1$
+						styleAttribute = "background-image: url(" + url + "); background-repeat: " + repeat + "; background-position: " + position; //$NON-NLS-1$ //$NON-NLS-2$
 					}
 				}
-				return null;
+				if (!js_isEnabled())
+				{
+					styleAttribute += "; filter:alpha(opacity=50);-moz-opacity:.50;opacity:.50"; //$NON-NLS-1$
+				}
+				return styleAttribute;
 			}
 		});
 		add(imageStyle);
@@ -652,6 +725,8 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			int index = textUrl.indexOf(MediaURLStreamHandler.MEDIA_URL_DEF);
 			if (index == -1)
 			{
+				icon = null;
+				iconReference = null;
 				iconUrl = textUrl;
 				addImageStyleAttributeModifier();
 			}
@@ -691,12 +766,28 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	public String getRolloverImageURL()
 	{
-		return null;
+		return rolloverUrl;
 	}
 
 	public void js_setRolloverImageURL(String imageUrl)
 	{
-		// TODO Auto-generated method stub
+		this.rolloverUrl = imageUrl;
+		rolloverIconReference = null;
+		if (rolloverUrl != null)
+		{
+			int index = imageUrl.indexOf(MediaURLStreamHandler.MEDIA_URL_DEF);
+			if (index != -1)
+			{
+				String nm = rolloverUrl.substring(index + MediaURLStreamHandler.MEDIA_URL_DEF.length());
+				Media m = application.getFlattenedSolution().getMedia(nm);
+				if (m != null)
+				{
+					setRolloverIcon(m.getID());
+				}
+			}
+		}
+		addRolloverBehaviors();
+		jsChangeRecorder.setChanged();
 	}
 
 	public byte[] js_getThumbnailJPGImage(Object[] args)

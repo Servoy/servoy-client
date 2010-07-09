@@ -1198,3 +1198,31 @@ if (typeof(Servoy.Resize) == "undefined")
 		}
 	}
 }
+if (typeof(Servoy.Rollover) == "undefined")
+{
+	Servoy.Rollover=
+	{
+		bgUrl : null,
+		bgPosition : null,
+		bgRepeat : null,
+		
+		onMouseOver: function (elementId,imageUrl,position,repeat)
+		{
+			var el = document.getElementById(elementId);
+			bgUrl = el.style.backgroundImage;
+			bgPosition = el.style.backgroundPosition;
+			bgRepeat = el.style.backgroundRepeat;
+			el.style.backgroundImage = imageUrl;
+			el.style.backgroundPosition = position;
+			el.style.backgroundRepeat = repeat;
+		},
+		
+		onMouseOut: function (elementId)
+		{
+			var el = document.getElementById(elementId);
+			el.style.backgroundImage = bgUrl;
+			el.style.backgroundPosition = bgPosition;
+			el.style.backgroundRepeat = bgRepeat;
+		}
+	}
+}
