@@ -116,7 +116,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	private Map<Bean, Object> beanDesignInstances;
 
 	private final Map<String, Set<String>> liveForms = new HashMap<String, Set<String>>();
-	private final Map<String, Set<Object>> changedForms = new HashMap<String, Set<Object>>();
+	private final Map<String, ChangedFormData> changedForms = new HashMap<String, ChangedFormData>();
 
 	private HashMap<String, Style> all_styles; // concurrent modification exceptions can happen; see comments from Solution->PRE_LOADED_STYLES.
 	private HashMap<String, Style> user_created_styles; // concurrent modification exceptions shouldn't happen with current implementation for this map; no need to sync
@@ -1704,11 +1704,14 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			}
 
 			// Test forms if they now are ok. (form they build on when they where changed is now destroyed)
-			Iterator<String> it = changedForms.keySet().iterator();
-			while (it.hasNext())
+			ChangedFormData changedFormData = changedForms.get(form.getName());
+			if (changedFormData != null)
 			{
-				String fName = it.next();
-				if (!liveForms.containsKey(fName)) it.remove();
+				changedFormData.instances.remove(namedInstance);
+				if (changedFormData.instances.size() == 0)
+				{
+					changedForms.remove(form.getName());
+				}
 			}
 		}
 
@@ -1749,14 +1752,25 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	{
 		synchronized (liveForms)
 		{
-			if (liveForms.containsKey(form.getName()) && !isInDesign(form) && !changedForms.containsKey(form.getName()))
+			if (liveForms.containsKey(form.getName()) && !isInDesign(form))
 			{
-				// if liveForms does contain the form then remember it.
-				Set<Object> infos = new HashSet<Object>();
-				changedForms.put(form.getName(), infos);
+				ChangedFormData changedFormData = changedForms.get(form.getName());
+				if (changedFormData == null)
+				{
+					// if liveForms does contain the form then remember it.
+					changedFormData = new ChangedFormData(liveForms.get(form.getName()));
+					changedForms.put(form.getName(), changedFormData);
+				}
+				else
+				{
+					// only interested in the last line that altered the form.
+					changedFormData.infos.clear();
+					// the the forms that are currently live.
+					changedFormData.instances.addAll(liveForms.get(form.getName()));
+				}
 				if (debugListener != null)
 				{
-					debugListener.addDebugInfo(infos);
+					debugListener.addDebugInfo(changedFormData.infos);
 				}
 			}
 		}
@@ -1775,6 +1789,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	/**
 	 * 
 	 */
+	@SuppressWarnings("nls")
 	public void checkStateForms(IServiceProvider provider)
 	{
 		synchronized (liveForms)
@@ -1782,29 +1797,30 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			if (changedForms.size() > 0)
 			{
 				StringBuilder sb = new StringBuilder();
-				sb.append("The form(s) that are stale (can also be a parent form if form inheritance is used) are: "); //$NON-NLS-1$
+				sb.append("The form(s) that are stale (can also be a parent form if form inheritance is used) are:\n\t"); //$NON-NLS-1$
 				for (String fName : changedForms.keySet())
 				{
-					Set<String> set = liveForms.get(fName);
+					Set<String> set = changedForms.get(fName).instances;
+					sb.append("Form name:'");
 					sb.append(fName);
-					sb.append("["); //$NON-NLS-1$
+					sb.append("' with instances: [");
 					for (String instanceName : set)
 					{
 						sb.append(instanceName);
 						sb.append(',');
 					}
 					sb.setLength(sb.length() - 1);
-					sb.append("]"); //$NON-NLS-1$
-					Set<Object> infos = changedForms.get(fName);
+					sb.append("]");
+					Set<Object> infos = changedForms.get(fName).infos;
 					if (infos != null && infos.size() == 2)
 					{
-						sb.append("("); //$NON-NLS-1$
+						sb.append("\n\t\tat ");
 						sb.append(infos.toArray()[0] instanceof Integer ? infos.toArray()[1] : infos.toArray()[0]);
 						sb.append(":"); //$NON-NLS-1$
 						sb.append(infos.toArray()[0] instanceof Integer ? infos.toArray()[0] : infos.toArray()[1]);
-						sb.append(")"); //$NON-NLS-1$
+						sb.append("\n"); //$NON-NLS-1$
 					}
-					sb.append(","); //$NON-NLS-1$
+					sb.append("\n\t"); //$NON-NLS-1$
 				}
 				sb.setLength(sb.length() - 1);
 				changedForms.clear();
@@ -1844,6 +1860,18 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		else
 		{
 			designFormName = form.getName();
+		}
+	}
+
+	private static class ChangedFormData
+	{
+		private final Set<Object> infos = new HashSet<Object>();
+		private final Set<String> instances;
+
+		private ChangedFormData(Set<String> instances)
+		{
+			// make copy, so that this set is stable from this moment
+			this.instances = new HashSet<String>(instances);
 		}
 	}
 }
