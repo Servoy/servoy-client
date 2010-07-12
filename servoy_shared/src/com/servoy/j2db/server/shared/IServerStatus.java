@@ -37,4 +37,6 @@ public interface IServerStatus
 	TransactionInfo[] getTransactions();
 
 	String[] getDataSourcesForClient(String clientId);
+
+	int getNumberOfConnectedClients();
 }
