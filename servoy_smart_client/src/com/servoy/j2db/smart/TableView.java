@@ -869,7 +869,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 				Point p = e.getPoint();
 				final int newcolumn = columnAtPoint(p);
 				final int newrow = rowAtPoint(p);
-				if ((newcolumn != column || newrow != row) && (column >= 0) && (row >= 0))
+				if ((newcolumn != column || newrow != row) && (column >= 0) && (row >= 0) && (column < getColumnCount()))
 				{
 					CellAdapter cellAdapter = (CellAdapter)getColumnModel().getColumn(column);
 					if (cellAdapter != null && (cellAdapter.getRenderer() instanceof ILabel))
