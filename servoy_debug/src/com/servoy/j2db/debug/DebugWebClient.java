@@ -102,9 +102,10 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 	@Override
 	public void shutDown(boolean force)
 	{
-		Session.unset(); // avoid session invalidating in super.shutDown - as the current session might be needed when DebugWC is restarted (by next DWC)
+		boolean sessionExists = Session.exists();
+		if (sessionExists) Session.unset(); // avoid session invalidating in super.shutDown - as the current session might be needed when DebugWC is restarted (by next DWC)
 		super.shutDown(force);
-		Session.get();
+		if (sessionExists) Session.get();
 
 		// null pointers fix when switching between browsers in developer.
 		if (force && session != null)
