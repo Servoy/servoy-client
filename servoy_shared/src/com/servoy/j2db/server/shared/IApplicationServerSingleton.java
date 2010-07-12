@@ -127,4 +127,6 @@ public interface IApplicationServerSingleton
 	boolean isSolutionProtected(SolutionMetaData metadata);
 
 	void setServerProcess(String clientID);
+
+	IServerStatus getServerStatus();
 }
