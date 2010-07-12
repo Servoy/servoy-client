@@ -26,6 +26,7 @@ import javax.servlet.http.HttpSession;
 import javax.swing.SwingUtilities;
 
 import org.apache.wicket.RestartResponseException;
+import org.apache.wicket.Session;
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
 import org.mozilla.javascript.RhinoException;
 
@@ -101,7 +102,10 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 	@Override
 	public void shutDown(boolean force)
 	{
+		Session.unset(); // avoid session invalidating in super.shutDown - as the current session might be needed when DebugWC is restarted (by next DWC)
 		super.shutDown(force);
+		Session.get();
+
 		// null pointers fix when switching between browsers in developer.
 		if (force && session != null)
 		{

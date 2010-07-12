@@ -133,6 +133,13 @@ public class WebClientsApplication extends WebApplication
 			}
 		}
 
+		@Override
+		protected CharSequence encodeURL(CharSequence url)
+		{
+			if (Session.get() != null && !Session.get().isSessionInvalidated()) return super.encodeURL(url);
+			return url;
+		}
+
 		/**
 		 * @see org.apache.wicket.protocol.http.request.CryptedUrlWebRequestCodingStrategy#encode(org.apache.wicket.RequestCycle,
 		 *      org.apache.wicket.IRequestTarget)
