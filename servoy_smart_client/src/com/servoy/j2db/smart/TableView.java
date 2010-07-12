@@ -130,6 +130,7 @@ import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
+import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptReadOnlyMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
@@ -837,6 +838,64 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 						IEventExecutor ee = ((ISupportEventExecutor)editor).getEventExecutor();
 						if (ee instanceof BaseEventExecutor && ee.hasRightClickCmd()) ((BaseEventExecutor)ee).fireRightclickCommand(true, editor,
 							e.getModifiers(), fc.getName(), new Point(e.getPoint().x - editor.getX(), e.getPoint().y - editor.getY()));
+					}
+				}
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e)
+			{
+				for (int i = 0; i < getColumnCount(); i++)
+				{
+					CellAdapter cellAdapter = (CellAdapter)getColumnModel().getColumn(i);
+					if (cellAdapter != null && (cellAdapter.getRenderer() instanceof ILabel))
+					{
+						cellAdapter.getRenderer().dispatchEvent(
+							new MouseEvent(cellAdapter.getRenderer(), MouseEvent.MOUSE_EXITED, e.getWhen(), e.getModifiers(), e.getX(), e.getY(), 0, false));
+					}
+				}
+				TableView.this.repaint();
+			}
+		});
+
+		addMouseMotionListener(new MouseMotionAdapter()
+		{
+			private int column = -1;
+			private int row = -1;
+
+			@Override
+			public void mouseMoved(final MouseEvent e)
+			{
+				Point p = e.getPoint();
+				final int newcolumn = columnAtPoint(p);
+				final int newrow = rowAtPoint(p);
+				if ((newcolumn != column || newrow != row) && (column >= 0) && (row >= 0))
+				{
+					CellAdapter cellAdapter = (CellAdapter)getColumnModel().getColumn(column);
+					if (cellAdapter != null && (cellAdapter.getRenderer() instanceof ILabel))
+					{
+						cellAdapter.getRenderer().dispatchEvent(
+							new MouseEvent(cellAdapter.getRenderer(), MouseEvent.MOUSE_EXITED, e.getWhen(), e.getModifiers(), e.getX(), e.getY(), 0, false));
+						TableView.this.repaint(getCellRect(row, column, false));
+					}
+				}
+				column = newcolumn;
+				row = newrow;
+				if (newcolumn >= 0 && newrow >= 0)
+				{
+					final CellAdapter cellAdapter = (CellAdapter)getColumnModel().getColumn(newcolumn);
+					if (cellAdapter != null && (cellAdapter.getRenderer() instanceof ILabel))
+					{
+						SwingUtilities.invokeLater(new Runnable()
+						{
+							public void run()
+							{
+								cellAdapter.getRenderer().dispatchEvent(
+									new MouseEvent(cellAdapter.getRenderer(), MouseEvent.MOUSE_ENTERED, e.getWhen(), e.getModifiers(), e.getX(), e.getY(), 0,
+										false));
+								TableView.this.repaint(getCellRect(newrow, newcolumn, false));
+							}
+						});
 					}
 				}
 			}
