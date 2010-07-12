@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.gui;
 
 
@@ -282,7 +282,7 @@ public class JDateChooser extends JEscapeDialog implements ActionListener, DaySe
 		}
 		else
 		{
-			days = new JPanel(new GridLayout(7, 7));
+			days = new JPanel(new GridLayout(7, 8));
 			panel.add(days, BorderLayout.CENTER);
 			days.setBorder(BorderFactory.createTitledBorder(Messages.getString("servoy.datechooser.label.monthoverview"))); //$NON-NLS-1$
 		}
@@ -291,6 +291,7 @@ public class JDateChooser extends JEscapeDialog implements ActionListener, DaySe
 		currentMonth = calendar.get(Calendar.MONTH);
 		Calendar setup = (Calendar)calendar.clone();
 		setup.set(Calendar.DAY_OF_WEEK, setup.getFirstDayOfWeek());
+		days.add(new JLabel(Messages.getString("servoy.datechooser.label.week"), SwingConstants.CENTER));
 		int lastLayoutPosition = 0;
 		for (int i = 0; i < 7; i++)
 		{
@@ -307,6 +308,7 @@ public class JDateChooser extends JEscapeDialog implements ActionListener, DaySe
 		}
 		setup = (Calendar)calendar.clone();
 		setup.set(Calendar.DAY_OF_MONTH, 1);
+		days.add(new JLabel(String.valueOf(setup.get(Calendar.WEEK_OF_YEAR)), SwingConstants.CENTER));
 		int first = setup.get(Calendar.DAY_OF_WEEK) + Calendar.SUNDAY - setup.getFirstDayOfWeek();
 		if (first <= 0) first += 7;
 		for (int i = 0; i < (first - 1); i++)
@@ -338,6 +340,7 @@ public class JDateChooser extends JEscapeDialog implements ActionListener, DaySe
 			{
 				break;
 			}
+			if ((first + i) % 7 == 0) days.add(new JLabel(String.valueOf(setup.get(Calendar.WEEK_OF_YEAR)), SwingConstants.CENTER));
 		}
 		for (int i = lastLayoutPosition; i < 49; i++)
 			days.add(new JLabel("")); //$NON-NLS-1$
