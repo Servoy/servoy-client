@@ -4114,7 +4114,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			try
 			{
 				Object[] args = new Object[] { getJSEvent(formScope) };
-				executeFormMethod(form.getOnLoadMethodID(), args, "onLoadMethodID", true, true); //$NON-NLS-1$
+				executeFormMethod(form.getOnLoadMethodID(), args, "onLoadMethodID", false, true); //$NON-NLS-1$
 			}
 			finally
 			{
