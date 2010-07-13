@@ -17,8 +17,11 @@
 package com.servoy.j2db.server.shared;
 
 import java.io.File;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ScheduledExecutorService;
+
+import javax.servlet.http.HttpServlet;
 
 import com.servoy.j2db.IBeanManager;
 import com.servoy.j2db.IDebugClientHandler;
@@ -74,6 +77,10 @@ public interface IApplicationServerSingleton
 	boolean isDeveloperStartup();
 
 	IWebClientSessionFactory getWebClientSessionFactory();
+
+	int getUsedRMIRegistryPort();
+
+	Map<String, HttpServlet> getWebServices();
 
 	int getWebServerPort();
 

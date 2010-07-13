@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.shared;
 
+import java.util.Map;
+
 import com.servoy.j2db.dataprocessing.IClient;
 
 /**
@@ -39,4 +41,6 @@ public interface IServerStatus
 	String[] getDataSourcesForClient(String clientId);
 
 	int getNumberOfConnectedClients();
+
+	Map<String, IClient> getClients();
 }
