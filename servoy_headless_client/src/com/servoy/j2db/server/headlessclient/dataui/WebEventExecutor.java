@@ -331,7 +331,7 @@ public class WebEventExecutor extends BaseEventExecutor
 		Page page = form.getPage(); // JS might change the page this form belongs to... so remember it now
 		form.processDelayedActions();
 
-		if (type == EventType.focusLost || setSelectedIndex(comp, target, convertModifiers(webModifiers)))
+		if (type == EventType.focusLost || setSelectedIndex(comp, target, convertModifiers(webModifiers), type == EventType.focusGained))
 		{
 			if (skipFireFocusGainedCommand && type.equals(JSEvent.EventType.focusGained))
 			{
@@ -406,11 +406,17 @@ public class WebEventExecutor extends BaseEventExecutor
 		generateResponse(target, form.getPage());
 	}
 
+	@SuppressWarnings("nls")
+	public static boolean setSelectedIndex(Component component, AjaxRequestTarget target, int modifiers)
+	{
+		return setSelectedIndex(component, target, modifiers, false);
+	}
+
 	/**
 	 * @param component
 	 */
 	@SuppressWarnings("nls")
-	public static boolean setSelectedIndex(Component component, AjaxRequestTarget target, int modifiers)
+	public static boolean setSelectedIndex(Component component, AjaxRequestTarget target, int modifiers, boolean bHandleMultiselect)
 	{
 		//search for recordItem model
 		Component recordItemModelComponent = component;
@@ -449,34 +455,37 @@ public class WebEventExecutor extends BaseEventExecutor
 				boolean extend = (modifiers != MODIFIERS_UNSPECIFIED) && ((modifiers & Event.SHIFT_MASK) != 0);
 				if ((toggle || extend) && fs instanceof FoundSet && ((FoundSet)fs).isMultiSelect())
 				{
-					if (toggle)
+					if (bHandleMultiselect)
 					{
-						int[] selectedIndexes = ((FoundSet)fs).getSelectedIndexes();
-						ArrayList<Integer> selectedIndexesA = new ArrayList<Integer>();
-						Integer selectedIndex = new Integer(index);
-
-						for (int selected : selectedIndexes)
-							selectedIndexesA.add(new Integer(selected));
-						if (selectedIndexesA.indexOf(selectedIndex) != -1)
+						if (toggle)
 						{
-							if (selectedIndexesA.size() > 1) selectedIndexesA.remove(selectedIndex);
-						}
-						else selectedIndexesA.add(selectedIndex);
-						selectedIndexes = new int[selectedIndexesA.size()];
-						for (int i = 0; i < selectedIndexesA.size(); i++)
-							selectedIndexes[i] = selectedIndexesA.get(i).intValue();
-						((FoundSet)fs).setSelectedIndexes(selectedIndexes);
-					}
-					else if (extend)
-					{
-						int anchor = ((FoundSet)fs).getSelectedIndex();
-						int min = Math.min(anchor, index);
-						int max = Math.max(anchor, index);
+							int[] selectedIndexes = ((FoundSet)fs).getSelectedIndexes();
+							ArrayList<Integer> selectedIndexesA = new ArrayList<Integer>();
+							Integer selectedIndex = new Integer(index);
 
-						int[] newSelectedIndexes = new int[max - min + 1];
-						for (int i = min; i <= max; i++)
-							newSelectedIndexes[i - min] = i;
-						((FoundSet)fs).setSelectedIndexes(newSelectedIndexes);
+							for (int selected : selectedIndexes)
+								selectedIndexesA.add(new Integer(selected));
+							if (selectedIndexesA.indexOf(selectedIndex) != -1)
+							{
+								if (selectedIndexesA.size() > 1) selectedIndexesA.remove(selectedIndex);
+							}
+							else selectedIndexesA.add(selectedIndex);
+							selectedIndexes = new int[selectedIndexesA.size()];
+							for (int i = 0; i < selectedIndexesA.size(); i++)
+								selectedIndexes[i] = selectedIndexesA.get(i).intValue();
+							((FoundSet)fs).setSelectedIndexes(selectedIndexes);
+						}
+						else if (extend)
+						{
+							int anchor = ((FoundSet)fs).getSelectedIndex();
+							int min = Math.min(anchor, index);
+							int max = Math.max(anchor, index);
+
+							int[] newSelectedIndexes = new int[max - min + 1];
+							for (int i = min; i <= max; i++)
+								newSelectedIndexes[i - min] = i;
+							((FoundSet)fs).setSelectedIndexes(newSelectedIndexes);
+						}
 					}
 				}
 				else if (fs.getSelectedIndex() != index) fs.setSelectedIndex(index);
