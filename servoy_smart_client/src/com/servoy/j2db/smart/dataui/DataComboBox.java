@@ -45,6 +45,7 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.ComboBoxEditor;
+import javax.swing.ComboBoxModel;
 import javax.swing.InputMap;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -716,7 +717,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 			{
 				if (formattedComboEditor == null)
 				{
-					formattedComboEditor = new FormattedComboBoxEditor(application, getEditor());
+					formattedComboEditor = new FormattedComboBoxEditor(application, getEditor(), getModel());
 					formattedComboEditor.editor.setDataProviderID(getDataProviderID());
 					formattedComboEditor.getEditorComponent().setName(getName());
 					formattedComboEditor.editor.setOpaque(isOpaque());
@@ -1429,6 +1430,8 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 			FormattedComboBoxEditor cbe = (FormattedComboBoxEditor)getEditor();
 			DataField editorComponent = (DataField)cbe.getEditorComponent();
 			boolean isEditing = editorComponent.hasFocus();
+			// we really want to check here an invalid state from datafield
+			if (!editorComponent.isValueValid() && !Utils.equalObjects(editorComponent.getValue(), getValueObject())) editorComponent.setValueValid(true, null);
 			boolean stopAllowed = cbe.stopEditing(looseFocus);
 			if (stopAllowed && isEditing)
 			{
@@ -1439,7 +1442,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 				// is triggered after the selected row is changed in this scenario - and because of this the new value is not applied.
 				getModel().setSelectedItem(editorComponent.getValue());
 			}
-			return stopAllowed;
+			return stopAllowed && isValueValid();
 		}
 		if (!isValueValid())
 		{
@@ -1869,7 +1872,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		protected DataField editor;//use datafield here because the processfocus is fixed and validation can be disabled
 		private final ComboBoxEditor defaultEditor;
 
-		public FormattedComboBoxEditor(IApplication app, ComboBoxEditor oldEditor)
+		public FormattedComboBoxEditor(IApplication app, ComboBoxEditor oldEditor, final ComboBoxModel model)
 		{
 			this.defaultEditor = oldEditor;
 			editor = new DataField(app)
@@ -1879,6 +1882,13 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 				public boolean isOpaque()
 				{
 					return isEditable() ? super.isOpaque() : true;
+				}
+
+				@Override
+				public void restorePreviousValidValue()
+				{
+					super.restorePreviousValidValue();
+					model.setSelectedItem(getValue());
 				}
 			};
 			// workaround for MAC OS X default L&F - combobox behavior declared in the editor component was lost when using our
