@@ -49,7 +49,7 @@ public class JSONSerializerWrapper
 
 	public Object toJSON(Object obj) throws Exception
 	{
-		if (obj instanceof String) return "\"" + obj.toString().replace("\"", "\\\"") + "\"";
+		if (obj instanceof String) return JSONObject.quote((String)obj);
 		SerializerState state = new SerializerState();
 		return getSerializer().marshall(state, null, wrapToJSON(obj), "result");
 	}
