@@ -201,7 +201,7 @@ public class Row
 					{
 						Debug.error(e);
 						throw new IllegalArgumentException(Messages.getString(
-							"servoy.record.error.gettingDataprovider", new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type) })); //$NON-NLS-1$
+							"servoy.record.error.gettingDataprovider", new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type) }), e); //$NON-NLS-1$
 					}
 				}
 				else
