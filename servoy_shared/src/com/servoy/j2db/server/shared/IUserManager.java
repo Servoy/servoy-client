@@ -29,7 +29,7 @@ import com.servoy.j2db.util.UUID;
  * This is a security manager that not only allows solutions the use of security/user functionality, but also to modify users/groups & security rights.<BR>
  * Inspired by UserManager.
  * 
- * @author Andrei Costescu
+ * @author acostescu
  */
 public interface IUserManager extends ISolutionSecurityManager, Remote
 {

@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import org.apache.wicket.Component;
@@ -26,7 +26,7 @@ import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView.CellContain
  * <p>
  * Called by overriden methods of {@link Component#getMarkupId()}
  * </p>
- * @author Andrei Costescu
+ * @author acostescu
  * @since 5.0
  */
 public class WebComponentSpecialIdMaker

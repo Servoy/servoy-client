@@ -13,12 +13,12 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.annotations;
 
 /**
  * This annotation is currently only used for information purpose. It can't be used effectively in the terracotta config file until AspectWerkz expressions are supported for transient fields. 
- * @author Andrei Costescu
+ * @author acostescu
  */
 public @interface TerracottaTransient
 {

@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.printing;
 
 
@@ -23,19 +23,19 @@ package com.servoy.j2db.printing;
  * Normally, classes that implement this interface will also need to overwrite the
  * {@link java.awt.Component#getPreferredSize()} method to return the fixed preferred width if set and the
  * according preferred height.
- * @author Andrei Costescu
+ * @author acostescu
  */
 public interface IFixedPreferredWidth
 {
 
-    /**
-     * Sets a fixed preferred width for this component. This means that the component's getPreferredSize() will
-     * return (after fixed width is set) a Dimension with the fixed with and the height that it would want to
-     * have for the specified fixed width.<BR>
-     * If preferredWidth == -1, the default getPreferredSize() behavior is restored.
-     * @param preferredWidth the preferred width that the Component will report and use to compute a
-     * preferred height. If -1, the default getPreferredSize() behavior is restored to the component.
-     */
-    void setPreferredWidth(int preferredWidth);
+	/**
+	 * Sets a fixed preferred width for this component. This means that the component's getPreferredSize() will
+	 * return (after fixed width is set) a Dimension with the fixed with and the height that it would want to
+	 * have for the specified fixed width.<BR>
+	 * If preferredWidth == -1, the default getPreferredSize() behavior is restored.
+	 * @param preferredWidth the preferred width that the Component will report and use to compute a
+	 * preferred height. If -1, the default getPreferredSize() behavior is restored to the component.
+	 */
+	void setPreferredWidth(int preferredWidth);
 
 }

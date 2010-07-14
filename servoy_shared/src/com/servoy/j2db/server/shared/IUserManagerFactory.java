@@ -21,6 +21,7 @@ import com.servoy.j2db.dataprocessing.IDataServer;
 
 /**
  * Factory for user manager.
+ * @author acostescu
  */
 public interface IUserManagerFactory
 {

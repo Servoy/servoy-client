@@ -27,7 +27,7 @@ import com.servoy.j2db.persistence.Solution;
 /**
  * Utility class that is able to set the orientation of all kinds of components to one of the constants
  * defined in {@link Solution}.
- * @author Andrei Costescu
+ * @author acostescu
  */
 public class OrientationApplier
 {
