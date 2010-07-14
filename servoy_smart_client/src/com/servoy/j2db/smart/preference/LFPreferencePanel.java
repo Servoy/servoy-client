@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.smart.preference;
 
 import java.awt.BorderLayout;
@@ -55,9 +55,9 @@ import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.IPropertyEditorDialog;
 
 /**
- * Panel to show Look and Feel preferences
+ * Panel to show Look and Feel preferences in the SmartClient
  * 
- * @author Johan Compagner
+ * @author jcompagner
  */
 public class LFPreferencePanel extends PreferencePanel implements ItemListener, ActionListener
 {
