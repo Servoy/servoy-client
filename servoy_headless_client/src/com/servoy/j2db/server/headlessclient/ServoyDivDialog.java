@@ -21,7 +21,7 @@ import org.apache.wicket.model.IModel;
 
 /**
  * Web-client DIV window customised to Servoy needs.
- * @author Andrei Costescu
+ * @author acostescu
  */
 public class ServoyDivDialog extends DivWindow
 {

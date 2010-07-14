@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import org.apache.wicket.Component;
@@ -24,19 +24,19 @@ import com.servoy.j2db.persistence.IPersist;
  * Classes that are able to manipulate header components associated to elements
  * will implement this interface.
  * 
- * @author Andrei Costescu
+ * @author acostescu
  */
 public interface IHeaders
 {
 
-    /**
-     * Registers the given header component with it's matching IPersist element.
-     * 
-     * @param matchingElement
-     *            the element who's header component is to be registered.
-     * @param headerComponent
-     *            the header component to be registered.
-     */
-    void registerHeader(IPersist matchingElement, Component headerComponent);
+	/**
+	 * Registers the given header component with it's matching IPersist element.
+	 * 
+	 * @param matchingElement
+	 *            the element who's header component is to be registered.
+	 * @param headerComponent
+	 *            the header component to be registered.
+	 */
+	void registerHeader(IPersist matchingElement, Component headerComponent);
 
 }

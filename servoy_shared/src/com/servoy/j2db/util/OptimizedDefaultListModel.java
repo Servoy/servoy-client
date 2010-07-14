@@ -30,7 +30,7 @@ import javax.swing.DefaultListModel;
  * This could be implemented to generate cached events instead of throwing IllegalStateException for these cases above, but then operations need to be
  * intercepted before the underlying vector is changed.
  * 
- * @author Andrei Costescu
+ * @author acostescu
  */
 public class OptimizedDefaultListModel extends DefaultListModel
 {

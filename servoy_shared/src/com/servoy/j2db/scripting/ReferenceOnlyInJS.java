@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting;
 
 
@@ -21,7 +21,7 @@ package com.servoy.j2db.scripting;
  * Interface that marks a java object for being a 0 method, 0 field object when used in java-script. Such objects are only useful with pure references, and no
  * java method/field should be available in JS.
  * 
- * @author Andrei Costescu
+ * @author acostescu
  */
 public interface ReferenceOnlyInJS
 {

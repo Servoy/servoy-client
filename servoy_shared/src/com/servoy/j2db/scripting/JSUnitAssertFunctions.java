@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -21,7 +21,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 /**
  * This class is only used to provide code completion and jsunit node in developer's javascript editor/solution explorer.
  * 
- * @author Andrei Costescu
+ * @author acostescu
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSUnit", scriptingName = "jsunit")
 public class JSUnitAssertFunctions implements IReturnedTypesProvider

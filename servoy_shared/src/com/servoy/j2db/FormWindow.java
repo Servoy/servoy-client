@@ -20,7 +20,7 @@ import java.awt.Rectangle;
 
 /**
  * Behaviour common to all types of AWT Window classes that can work with Servoy Forms.
- * @author Andrei Costescu
+ * @author acostescu
  */
 public interface FormWindow
 {

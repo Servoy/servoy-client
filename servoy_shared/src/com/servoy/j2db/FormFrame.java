@@ -42,7 +42,7 @@ import com.servoy.j2db.util.Text;
 
 /**
  * Class to show a Servoy form inside a JFrame.
- * @author Andrei Costescu
+ * @author acostescu
  */
 public class FormFrame extends JFrame implements FormWindow
 {

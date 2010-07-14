@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import org.apache.wicket.Component;
@@ -30,7 +30,7 @@ import com.servoy.j2db.util.Utils;
  * forms, ENTER in text field that do not block ENTER events will lead to onClick on a button from that form (if there is such a button) - unwanted behavior
  * (different from SmartClient).
  * 
- * @author Andrei Costescu
+ * @author acostescu
  */
 public class ConsumeEnterAttributeModifier extends ServoyActionEventBehavior
 {

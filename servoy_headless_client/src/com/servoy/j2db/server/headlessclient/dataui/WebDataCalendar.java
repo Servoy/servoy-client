@@ -995,7 +995,7 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 	 * it to something simple, sends it back to the browser and opens the calendar using it, user chooses a date in the calendar field, a request comes back to this behavior with the chosen date
 	 * (encoded with the same simple format), then we translate this to the calendar field's format (that may be complicated) and send it back to populate the text field in the browser as the widget would.
 	 * 
-	 * @author Andrei Costescu
+	 * @author acostescu
 	 */
 	private class FeedSimpleDateFormatToChooserBehavior extends AbstractServoyDefaultAjaxBehavior
 	{

@@ -29,7 +29,7 @@ import org.apache.wicket.util.string.AppendingStringBuffer;
 /**
  * A div window that can be modal or non-modal. Based on wicket ModalWindow.
  * You should not use both DivWindow and ModalWindow at the same time in the same page as the mask will not behave correctly.
- * @author Andrei Costescu
+ * @author acostescu
  */
 public class DivWindow extends ModalWindow
 {

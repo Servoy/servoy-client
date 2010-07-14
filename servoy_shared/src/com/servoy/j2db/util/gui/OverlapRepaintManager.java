@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util.gui;
 
 import java.awt.Component;
@@ -33,7 +33,7 @@ import com.servoy.j2db.util.AnchorLayout;
  * 
  * More precisely, it makes sure that, if you have component A on top of component B, and B is repainted then
  * A will be repainted afterwards in order not to be hidden by B's repaint.
- * @author Andrei Costescu
+ * @author acostescu
  */
 public class OverlapRepaintManager extends RepaintManager
 {

@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import org.apache.wicket.AttributeModifier;
@@ -27,7 +27,7 @@ import com.servoy.j2db.dataprocessing.IDisplayData;
 /**
  * This modifier will make sure that invalid components will grab focus.
  * 
- * @author Andrei Costescu
+ * @author acostescu
  */
 public class FocusIfInvalidAttributeModifier extends AttributeModifier
 {
