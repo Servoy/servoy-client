@@ -171,8 +171,8 @@ public abstract class RelatedFoundSet extends FoundSet
 		cleanSelect.setColumns(AbstractBaseQuery.relinkTable(relationSelect.getTable(), cleanSelect.getTable(), relationSelect.getColumnsClone()));
 
 		//copy the where (is foreign where)
-		cleanSelect.setCondition(SQLGenerator.CONDITION_RELATION,
-			AbstractBaseQuery.relinkTable(relationSelect.getTable(), cleanSelect.getTable(), relationSelect.getConditionClone(SQLGenerator.CONDITION_RELATION)));
+		cleanSelect.setCondition(SQLGenerator.CONDITION_RELATION, AbstractBaseQuery.relinkTable(relationSelect.getTable(), cleanSelect.getTable(),
+			relationSelect.getConditionClone(SQLGenerator.CONDITION_RELATION)));
 
 		PlaceholderKey placeHolderKey = SQLGenerator.createRelationKeyPlaceholderKey(cleanSelect.getTable(), relation.getName());
 
@@ -904,7 +904,7 @@ public abstract class RelatedFoundSet extends FoundSet
 				{
 					if (sqlSelect != getPksAndRecords().getQuerySelectForReading())
 					{
-						Debug.log("checkQueryForUpdates: query was changed during refresh, not resetting old query"); //$NON-NLS-1$
+						Debug.trace("checkQueryForUpdates: query was changed during refresh, not resetting old query"); //$NON-NLS-1$
 						mustQueryForUpdates = false;
 						return;
 					}
@@ -929,7 +929,7 @@ public abstract class RelatedFoundSet extends FoundSet
 		}
 		else if (mustQueryForUpdates)
 		{
-			Debug.log("checkQueryForUpdates: skipping because there were edited records"); //$NON-NLS-1$
+			Debug.trace("checkQueryForUpdates: skipping because there were edited records"); //$NON-NLS-1$
 		}
 	}
 }
