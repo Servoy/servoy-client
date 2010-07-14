@@ -34,7 +34,7 @@ import com.servoy.j2db.util.Debug;
 /**
  * Keep track of used data when calculating a calculation value.
  * 
- * @author rob
+ * @author rgansevles
  *
  */
 public class UsedDataProviderTracker

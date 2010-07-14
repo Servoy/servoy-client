@@ -23,7 +23,7 @@ import com.servoy.j2db.util.ComboModelListModelWrapper;
  * ComboModelListModelWrapper to be used in WebClient (ComboModelListModelWrapper is implements List based on display values, web components expects List based
  * on real values)
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public class WebComboModelListModelWrapper extends ComboModelListModelWrapper

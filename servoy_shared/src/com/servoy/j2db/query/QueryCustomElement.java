@@ -25,7 +25,7 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
 /**
  * Base class for query elements that are based on a user defined string and arguments.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public class QueryCustomElement implements IQueryElement

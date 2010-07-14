@@ -1963,7 +1963,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 
 		/**
 		 * Container for what a calculation depends on: which dataproviders in which row (RowReference) and which relations with which whereargs (RelationDependency).
-		 * @author rob
+		 * @author rgansevles
 		 *
 		 */
 		public static class CalculationDependencyData

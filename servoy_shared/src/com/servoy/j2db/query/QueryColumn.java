@@ -23,7 +23,7 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
 /**
  * Class for a column referring to a table in a query structure.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public final class QueryColumn implements IQuerySelectValue

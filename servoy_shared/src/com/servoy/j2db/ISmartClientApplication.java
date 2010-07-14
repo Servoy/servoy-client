@@ -23,7 +23,7 @@ import java.util.Date;
 
 /**
  * Client with smart-client specific features.
- * @author rob
+ * @author rgansevles
  *
  */
 public interface ISmartClientApplication extends IApplication

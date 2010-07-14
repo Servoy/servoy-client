@@ -27,7 +27,7 @@ import org.json.JSONObject;
 /**
  * Map interface wrapper on JSONObject.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public class JSONWrapperMap extends AbstractMap<String, Object>

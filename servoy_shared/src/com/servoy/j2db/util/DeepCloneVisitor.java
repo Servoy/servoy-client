@@ -26,7 +26,7 @@ import com.servoy.j2db.query.IQueryElement;
  * Visitor class to for performing a deep clone that maintains tree structure.
  * 
  * @see IVisitable
- * @author rob
+ * @author rgansevles
  * 
  */
 public class DeepCloneVisitor implements IVisitor
@@ -135,7 +135,7 @@ public class DeepCloneVisitor implements IVisitor
 	/**
 	 * Wrapper around object that uses pointer equality on wrapped object for equals.
 	 * 
-	 * @author rob
+	 * @author rgansevles
 	 * 
 	 */
 	static class EqualityWrapper

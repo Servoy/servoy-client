@@ -21,7 +21,7 @@ import com.servoy.j2db.scripting.FunctionDefinition;
 /**
  * Enumeration of property editors supported by Servoy Developer to be used for bean properties.
  * 
- * @author rob
+ * @author rgansevles
  *
  * @since 5.0
  */

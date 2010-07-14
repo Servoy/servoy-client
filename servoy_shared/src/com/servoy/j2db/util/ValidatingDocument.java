@@ -171,7 +171,7 @@ public class ValidatingDocument extends PlainDocument
 	/**
 	 * Interface for validating the input.
 	 * 
-	 * @author rob
+	 * @author rgansevles
 	 * 
 	 */
 	public interface IDocumentValidator

@@ -23,7 +23,7 @@ import java.rmi.server.RMIServerSocketFactory;
  * Factory interface for ClientSocketFactories.
  * Is required to have a constructor (URL serverUrl, IApplication app, Properties settings, IReconnectListener reconnectListener)
  * 
- * @author rob
+ * @author rgansevles
  *
  */
 public interface IRMIClientSocketFactoryFactory

@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- * @author rob
+ * @author rgansevles
  *
  */
 public class ReplacedObject implements Serializable

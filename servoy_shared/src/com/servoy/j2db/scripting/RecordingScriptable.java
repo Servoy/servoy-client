@@ -33,7 +33,7 @@ import com.servoy.j2db.util.IDelegate;
 /**
  * Scriptable for recording access to delegate scriptable. Used to determine dependencies for calculations.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public class RecordingScriptable implements Scriptable, IDelegate<Scriptable>, Wrapper

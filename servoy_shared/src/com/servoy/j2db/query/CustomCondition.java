@@ -22,7 +22,7 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
 /**
  * Query condition class that uses a user-defined string and arguments.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public final class CustomCondition extends QueryCustomElement implements ISQLCondition

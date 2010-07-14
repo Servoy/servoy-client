@@ -20,7 +20,7 @@ import com.servoy.j2db.persistence.Solution;
 
 /**
  * Smart client extended with debug features
- * @author rob
+ * @author rgansevles
  *
  */
 public interface IDebugJ2DBClient extends ISmartClientApplication

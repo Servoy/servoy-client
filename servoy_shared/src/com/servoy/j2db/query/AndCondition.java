@@ -24,7 +24,7 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
 /**
  * Query condition consisting of conditions to be AND-ed.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public final class AndCondition extends AndOrCondition

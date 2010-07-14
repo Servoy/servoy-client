@@ -22,7 +22,7 @@ import com.servoy.j2db.scripting.GlobalScope;
 /**
  * Helper class to handle dataprovider with the "globals." prefix
  * 
- * @author rob
+ * @author rgansevles
  */
 class GlobalScopeProvider implements IGlobalValueEntry
 {

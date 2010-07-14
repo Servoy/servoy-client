@@ -30,7 +30,7 @@ import com.servoy.j2db.util.LocalhostRMIRegistry;
 
 /**
  * Base active solution handler.
- * @author rob
+ * @author rgansevles
  *
  */
 public abstract class AbstractActiveSolutionHandler implements IActiveSolutionHandler

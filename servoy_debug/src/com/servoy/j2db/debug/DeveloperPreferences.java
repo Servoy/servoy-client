@@ -22,7 +22,7 @@ import com.servoy.j2db.util.Utils;
 /**
  * Preferences holder for developer settings.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public class DeveloperPreferences

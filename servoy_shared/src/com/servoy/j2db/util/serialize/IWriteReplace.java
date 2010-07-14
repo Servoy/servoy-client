@@ -19,7 +19,7 @@ package com.servoy.j2db.util.serialize;
 import java.io.ObjectStreamException;
 
 /**
- * @author rob
+ * @author rgansevles
  *
  */
 public interface IWriteReplace

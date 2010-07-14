@@ -29,7 +29,7 @@ import com.servoy.j2db.persistence.SolutionMetaData;
 /**
  * Only entry point to access the application server from a client.
  * 
- * @author rob
+ * @author rgansevles
  *
  */
 public interface IApplicationServer extends Remote

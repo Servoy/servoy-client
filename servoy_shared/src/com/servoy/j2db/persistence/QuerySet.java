@@ -31,7 +31,7 @@ import com.servoy.j2db.query.AbstractBaseQuery;
  * <li> list of cleanups, for dropping temp tables
  * </ul>
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public class QuerySet implements Serializable

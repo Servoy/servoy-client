@@ -23,7 +23,7 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
 /**
  * Aggregates in queries.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public final class QueryAggregate implements IQuerySelectValue

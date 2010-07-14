@@ -19,7 +19,7 @@ package com.servoy.j2db.query;
 /**
  * Common interface for all queries: select, update, delete and insert.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public interface ISQLQuery extends IQueryElement

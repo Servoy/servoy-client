@@ -19,7 +19,7 @@ package com.servoy.j2db.util;
 /**
  * General interface for objects that need some cleanup.
  * 
- * @author rob
+ * @author rgansevles
  */
 public interface IDestroyable
 {

@@ -18,7 +18,7 @@ package com.servoy.j2db.server.shared;
 
 /**
  * Cient manager interface with constants
- * @author rob
+ * @author rgansevles
  *
  */
 public interface IClientManager

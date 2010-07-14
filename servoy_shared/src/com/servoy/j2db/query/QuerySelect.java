@@ -30,7 +30,7 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
 /**
  * Query select statement.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect

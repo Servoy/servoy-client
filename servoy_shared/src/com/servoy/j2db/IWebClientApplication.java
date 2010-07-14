@@ -23,7 +23,7 @@ import com.servoy.j2db.scripting.StartupArgumentsScope;
 
 /**
  * Client with web-client specific features.
- * @author rob
+ * @author rgansevles
  *
  */
 public interface IWebClientApplication extends ISessionClient

@@ -46,7 +46,7 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
  * 
  * When the boolean andCondition is set to false (by the negate method), AND and OR are used the other way around.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public class SetCondition implements ISQLCondition

@@ -22,7 +22,7 @@ import java.io.Serializable;
  * Credentials data used for authorisation of a client.
  * The jscredentials parameter is expected to be a json-serialized object.
  * 
- * @author rob
+ * @author rgansevles
  *
  */
 public class Credentials implements Serializable

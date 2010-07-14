@@ -21,7 +21,7 @@ import java.lang.ref.SoftReference;
 /**
  * SoftReference with hard-referenced data.
  * 
- * @author rob
+ * @author rgansevles
  * 
  * @param <R>
  * @param <D>

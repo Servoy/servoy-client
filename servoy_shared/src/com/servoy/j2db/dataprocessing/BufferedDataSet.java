@@ -698,7 +698,7 @@ public class BufferedDataSet implements IDataSet
 	/**
 	 * Container class for row data. Used for uniqueness check.
 	 * 
-	 * @author rob
+	 * @author rgansevles
 	 * 
 	 */
 	private static class RowData

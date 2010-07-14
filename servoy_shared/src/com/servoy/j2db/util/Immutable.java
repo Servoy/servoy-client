@@ -19,7 +19,7 @@ package com.servoy.j2db.util;
 /**
  * Empty interface for classes whose instances do not need to be copied in cloning. Note: use only on final classes.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public interface Immutable

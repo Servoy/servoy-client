@@ -25,7 +25,7 @@ import com.servoy.j2db.util.Utils;
 /**
  * Container for 1 sql string with parameters.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public class QueryString implements Serializable

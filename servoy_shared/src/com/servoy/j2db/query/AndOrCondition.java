@@ -25,7 +25,7 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
 /**
  * Base condition class for AndCondition and OrCondition.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public abstract class AndOrCondition implements ISQLCondition

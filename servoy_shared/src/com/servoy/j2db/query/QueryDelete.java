@@ -24,7 +24,7 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
 /**
  * Query delete statement.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public class QueryDelete extends AbstractBaseQuery implements ISQLUpdate

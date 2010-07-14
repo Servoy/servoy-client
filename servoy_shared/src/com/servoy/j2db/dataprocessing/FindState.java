@@ -729,7 +729,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 	}
 
 	/**
-	 * @author rob
+	 * @author rgansevles
 	 * 
 	 */
 	public static class RelatedFindState

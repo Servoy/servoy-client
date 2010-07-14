@@ -20,7 +20,7 @@ import com.servoy.j2db.ISessionClient;
 
 /**
  * Session client extended with debug features
- * @author rob
+ * @author rgansevles
  *
  */
 public interface IDebugHeadlessClient extends ISessionClient

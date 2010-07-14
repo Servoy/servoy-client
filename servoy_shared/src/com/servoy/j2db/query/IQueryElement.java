@@ -24,7 +24,7 @@ import com.servoy.j2db.util.serialize.IWriteReplace;
 /**
  * Common interface for all elements in the query structure.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public interface IQueryElement extends Serializable, IWriteReplace, IVisitable, Cloneable

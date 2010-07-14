@@ -33,7 +33,7 @@ import com.servoy.j2db.util.Debug;
 /**
  * Wrapper for JSONSerializer, handles a few exceptions to the default JSONSerializer and adds a defaultSerializer for cases when no class hint is given.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 @SuppressWarnings("nls")

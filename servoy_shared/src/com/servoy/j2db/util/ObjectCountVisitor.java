@@ -18,7 +18,7 @@ package com.servoy.j2db.util;
 
 
 /** Visitor class to for counting the number of references to an object in a IVisitable object.
- * @author rob
+ * @author rgansevles
  *
  */
 public class ObjectCountVisitor implements IVisitor

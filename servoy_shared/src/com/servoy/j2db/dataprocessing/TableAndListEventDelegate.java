@@ -31,7 +31,7 @@ import com.servoy.j2db.IEventDelegator;
  * Event delegator for TableModelEvent and ListDataEvent.
  * Also handles always-first-selection rule.
  * 
- * @author rob
+ * @author rgansevles
  *
  */
 public class TableAndListEventDelegate

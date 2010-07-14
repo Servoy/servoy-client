@@ -19,7 +19,7 @@ package com.servoy.j2db.util;
 
 /** 
  * Interface for treelike structures that accept a visitor recursively.
- * @author rob
+ * @author rgansevles
  */
 public interface IVisitable
 {

@@ -17,7 +17,7 @@
 package com.servoy.j2db.query;
 
 /** Interface for sort-elements in a query.
- * @author rob
+ * @author rgansevles
  *
  */
 public interface IQuerySort extends IQueryElement

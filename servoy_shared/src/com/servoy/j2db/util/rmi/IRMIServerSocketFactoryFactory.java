@@ -26,7 +26,7 @@ import com.servoy.j2db.util.Pair;
  * Factory interface for ServerSocketFactories.
  * Is required to have a constructor (SSLContext context, boolean compress, int rmiPort, String mode)
  * 
- * @author rob
+ * @author rgansevles
  *
  */
 public interface IRMIServerSocketFactoryFactory

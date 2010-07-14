@@ -17,7 +17,7 @@
 package com.servoy.j2db.query;
 
 /** Interface for joins in queries.
- * @author rob
+ * @author rgansevles
  *
  */
 public interface ISQLJoin extends IQueryElement

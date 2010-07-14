@@ -27,14 +27,14 @@ import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.util.ITagResolver;
 
 /**
- * @author rob
+ * @author rgansevles
  * 
  */
 public class TagResolver
 {
 
 	/**
-	 * @author rob
+	 * @author rgansevles
 	 * 
 	 */
 	private static class RecordTagResolver implements ITagResolver
