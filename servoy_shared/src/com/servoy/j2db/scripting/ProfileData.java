@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting;
 
 import java.util.ArrayList;
@@ -39,6 +39,8 @@ public final class ProfileData
 
 	private final boolean isCalculation;
 	private final String parentSourceCall;
+	private final boolean innerFunction;
+	private final int[] lineNumbers;
 
 	/**
 	 * @param functionName
@@ -46,10 +48,18 @@ public final class ProfileData
 	 * @param args
 	 * @param sourceName
 	 * @param parentSourceCall 
+	 * @param innerFunction 
+	 * @param lineNumbers 
 	 */
-	public ProfileData(String functionName, long time, Object[] args, String sourceName, String parentSourceCall)
+	public ProfileData(String functionName, long time, Object[] args, String sourceName, String parentSourceCall, boolean innerFunction, int[] lineNumbers)
 	{
 		this.parentSourceCall = parentSourceCall;
+		this.innerFunction = innerFunction;
+		this.lineNumbers = lineNumbers;
+		if (this.lineNumbers != null)
+		{
+			Arrays.sort(this.lineNumbers);
+		}
 		// calcs always end with _ and are always in a source file that ends with _calculations)
 		if (functionName.endsWith("_") && sourceName.endsWith("_calculations.js")) //$NON-NLS-1$ //$NON-NLS-2$
 		{
@@ -132,6 +142,16 @@ public final class ProfileData
 	{
 		profileData.setParent(this);
 		childs.add(profileData);
+	}
+
+	public boolean isInnerFunction()
+	{
+		return innerFunction;
+	}
+
+	public int[] getLineNumbers()
+	{
+		return lineNumbers;
 	}
 
 	/**
@@ -223,6 +243,8 @@ public final class ProfileData
 		sb.append("<profiledata "); //$NON-NLS-1$
 		sb.append("methodname=\""); //$NON-NLS-1$
 		sb.append(functionName);
+		sb.append("\" innerfuction=\""); //$NON-NLS-1$
+		sb.append(innerFunction);
 		sb.append("\" owntime=\""); //$NON-NLS-1$
 		sb.append(getOwnTime());
 		sb.append("\" totaltime=\""); //$NON-NLS-1$

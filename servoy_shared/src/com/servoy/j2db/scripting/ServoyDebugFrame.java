@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting;
 
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugFrame;
@@ -63,6 +63,7 @@ public class ServoyDebugFrame extends DBGPDebugFrame
 			parentSource = parent.node.getSourceName() + '#' + (parent.getLineNumber());
 		}
 		super.onEnter(cx, activation, thisObj, args);
+		debugger.onenter(this);
 	}
 
 	/**
@@ -79,6 +80,15 @@ public class ServoyDebugFrame extends DBGPDebugFrame
 
 	public ProfileData getProfileData()
 	{
-		return new ProfileData(node.getFunctionName(), (endTime - startTime), args, node.getSourceName(), parentSource);
+		int[] lineNumbers = null;
+		boolean innerFunction = false;
+		String name = node.getFunctionName();
+		while ((name == null || name.equals("")) && node.getParent() != null) //$NON-NLS-1$
+		{
+			name = node.getParent().getFunctionName();
+			lineNumbers = node.getLineNumbers();
+			innerFunction = true;
+		}
+		return new ProfileData(name, (endTime - startTime), args, node.getSourceName(), parentSource, innerFunction, lineNumbers);
 	}
 }
