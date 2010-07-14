@@ -25,6 +25,8 @@ import com.servoy.j2db.dataprocessing.IClient;
  * Access to the status of the server.
  * 
  * @author rgansevles
+ * 
+ * @since 5.2
  */
 public interface IServerStatus
 {
