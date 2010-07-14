@@ -250,6 +250,7 @@ public class TemplateGenerator
 	public static final int NO_LABELFOR_DEFAULT_BORDER_WIDTH = 1;
 
 	public static final Color DEFAULT_FORM_BG_COLOR = Color.WHITE;
+	public static final String TABLE_VIEW_CELL_CLASS = "tableviewcell"; // this value is also used in servoy.js; if you change/remove it please update servoy.js //$NON-NLS-1$
 
 	private static FormCache globalCache = new FormCache(true);
 
@@ -804,7 +805,7 @@ public class TemplateGenerator
 						}
 						//					columns.append("valign='middle' ");
 						columns.append('>');
-						columns.append("<div class='tableviewcell'>");
+						columns.append("<div class='" + TABLE_VIEW_CELL_CLASS + "'>");
 						createComponentHTML(element, form, columns, css, bgColor, startY, endY, false, sp);
 						TextualStyle idBasedStyle = css.addStyle('#' + ComponentFactory.getWebID(form, element));
 						TextualStyle classBasedStyle = css.addStyle('.' + ComponentFactory.getWebID(form, element));
