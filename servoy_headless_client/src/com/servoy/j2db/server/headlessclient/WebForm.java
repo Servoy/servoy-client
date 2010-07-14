@@ -96,6 +96,7 @@ import com.servoy.j2db.server.headlessclient.dataui.IFormLayoutProvider;
 import com.servoy.j2db.server.headlessclient.dataui.ISupportWebTabSeq;
 import com.servoy.j2db.server.headlessclient.dataui.RecordItemModel;
 import com.servoy.j2db.server.headlessclient.dataui.StyleAppendingModifier;
+import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.server.headlessclient.dataui.WebBeanHolder;
 import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataRenderer;
@@ -104,7 +105,6 @@ import com.servoy.j2db.server.headlessclient.dataui.WebImageBeanHolder;
 import com.servoy.j2db.server.headlessclient.dataui.WebRecordView;
 import com.servoy.j2db.server.headlessclient.dataui.WebSplitPane;
 import com.servoy.j2db.server.headlessclient.dataui.WebTabPanel;
-import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.smart.dataui.DataRenderer;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
@@ -598,16 +598,25 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 					break;
 				}
 			}
-			int startY = fp.getForm().getPartStartYPos(body.getID());
-			int endY = body.getHeight();
-			int sizeHint = endY;
-			if ((sizeHint - startY) <= 40 && fp.getForm().getSize().height == sizeHint) // small body and body is last
+			if (body == null)
 			{
-				sizeHint += Math.max(endY, 200 - sizeHint);
+				// Special case, form in tableview with no body. just create a default view object.
+				view = new WebRecordView("View"); //$NON-NLS-1$
+				return view;
 			}
-			view = new WebCellBasedView("View", app, f, f, app.getFlattenedSolution().getDataproviderLookup(app.getFoundSetManager(), f),
-				fp.getScriptExecuter(), addHeaders, startY, endY, sizeHint);
-			dataRenderers[FormController.FORM_EDITOR] = (WebCellBasedView)view;
+			else
+			{
+				int startY = fp.getForm().getPartStartYPos(body.getID());
+				int endY = body.getHeight();
+				int sizeHint = endY;
+				if ((sizeHint - startY) <= 40 && fp.getForm().getSize().height == sizeHint) // small body and body is last
+				{
+					sizeHint += Math.max(endY, 200 - sizeHint);
+				}
+				view = new WebCellBasedView("View", app, f, f, app.getFlattenedSolution().getDataproviderLookup(app.getFoundSetManager(), f),
+					fp.getScriptExecuter(), addHeaders, startY, endY, sizeHint);
+				dataRenderers[FormController.FORM_EDITOR] = (WebCellBasedView)view;
+			}
 		}
 
 		if (container.get("View") != null)
