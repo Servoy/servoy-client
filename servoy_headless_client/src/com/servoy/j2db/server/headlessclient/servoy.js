@@ -501,7 +501,7 @@ if (typeof(Servoy.TableView) == "undefined")
 {
 	Servoy.TableView = 
 	{
-		setRowBgColorEl: function(el, bgcolor)
+		setRowBgColorEl: function(el, bgcolor, inDepth)
 		{
 			var elChildren = el.childNodes;
 			var elChildrenLen = elChildren.length;
@@ -512,11 +512,14 @@ if (typeof(Servoy.TableView) == "undefined")
 				if(el.attributes['id'])
 					el.style.backgroundColor = bgcolor;
 			}
-				
-			for(var i = 0; i < elChildrenLen; i++)
+			if (inDepth)
 			{
-				if(elChildren[i].tagName)			
-					Servoy.TableView.setRowBgColorEl(elChildren[i], bgcolor);
+				var continueInDepth = (el.className != 'tableviewcell');
+				for(var i = 0; i < elChildrenLen; i++)
+				{
+					if(elChildren[i].tagName)			
+						Servoy.TableView.setRowBgColorEl(elChildren[i], bgcolor, continueInDepth);
+				}
 			}
 		},
 
@@ -524,7 +527,7 @@ if (typeof(Servoy.TableView) == "undefined")
 		{
 			var rowEl = document.getElementById(rowId);
 			if(rowEl)
-				Servoy.TableView.setRowBgColorEl(rowEl, bgcolor);
+				Servoy.TableView.setRowBgColorEl(rowEl, bgcolor, true);
 		},
 
 		setTableColumnWidthEl: function(tableElement, columnid, width)

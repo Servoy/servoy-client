@@ -250,6 +250,8 @@ public class TemplateGenerator
 	public static final int SORTABLE_HEADER_PADDING = 2;
 	public static final int NO_LABELFOR_DEFAULT_BORDER_WIDTH = 1;
 
+	public static final String TABLE_VIEW_CELL_CLASS = "tableviewcell"; // this value is also used in servoy.js; if you change/remove it please update servoy.js //$NON-NLS-1$
+
 	private static FormCache globalCache = new FormCache(true);
 
 	private static Map<IServiceProvider, FormCache> serviceProviderCache = Collections.synchronizedMap(new WeakHashMap<IServiceProvider, FormCache>());
@@ -802,7 +804,7 @@ public class TemplateGenerator
 						}
 						//					columns.append("valign='middle' ");
 						columns.append('>');
-						columns.append("<div class='tableviewcell'>"); //$NON-NLS-1$ 
+						columns.append("<div class='" + TABLE_VIEW_CELL_CLASS + "'>"); //$NON-NLS-1$ //$NON-NLS-2$ 
 						createComponentHTML(element, form, columns, css, bgColor, startY, endY, false, sp);
 						TextualStyle idBasedStyle = css.addStyle('#' + ComponentFactory.getWebID(element));
 						TextualStyle classBasedStyle = css.addStyle('.' + ComponentFactory.getWebID(element));
