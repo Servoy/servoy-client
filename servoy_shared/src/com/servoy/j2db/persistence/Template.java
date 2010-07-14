@@ -22,7 +22,7 @@ import java.io.Serializable;
 /**
  * Represents a template
  * 
- * @author rob
+ * @author rgansevles
  */
 public class Template extends StringResource implements Serializable
 {

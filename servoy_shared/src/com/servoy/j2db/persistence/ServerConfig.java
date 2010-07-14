@@ -29,7 +29,7 @@ import com.servoy.j2db.util.Utils;
 /**
  * Immutable server configuration data.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 @Immutable

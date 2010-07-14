@@ -34,7 +34,7 @@ import com.servoy.j2db.util.UUID;
 /**
  * Delegate repository responsible for replacing the repository in serialized root objects with a local repository.
  * 
- * @author rob
+ * @author rgansevles
  *
  */
 public class ClientRepository implements IRepository, IDelegate<IRepository>

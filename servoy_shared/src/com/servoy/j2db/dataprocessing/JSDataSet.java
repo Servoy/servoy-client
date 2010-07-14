@@ -1729,7 +1729,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 	/**
 	 * Wrapper class for a foundset to implement IDataSet methods.
 	 * 
-	 * @author rob
+	 * @author rgansevles
 	 * 
 	 */
 	static class FoundsetDataSet implements IDataSet, IFoundSetEventListener

@@ -51,7 +51,7 @@ import java.util.Map;
  *  }
  *  </pre>
  * 
- * @author rob
+ * @author rgansevles
  * 
  * @since 5.0
  */

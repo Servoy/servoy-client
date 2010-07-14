@@ -21,7 +21,7 @@ import java.util.Map;
 
 /** Visitor class to for replacing duplicate objects with the same instance in a IVisitable object.
  * @see IVisitable
- * @author rob
+ * @author rgansevles
  *
  */
 public class PackVisitor implements IVisitor

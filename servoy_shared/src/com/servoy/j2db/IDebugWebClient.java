@@ -18,7 +18,7 @@ package com.servoy.j2db;
 
 /**
  * Webclient client extended with debug features
- * @author rob
+ * @author rgansevles
  *
  */
 public interface IDebugWebClient extends IWebClientApplication

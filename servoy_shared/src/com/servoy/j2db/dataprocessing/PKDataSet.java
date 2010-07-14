@@ -24,7 +24,7 @@ import com.servoy.j2db.util.SortedList;
 /**
  * Data set optimized for PKs.
  * 
- * @author rob
+ * @author rgansevles
  *
  */
 public class PKDataSet implements IDataSet, IDelegate<IDataSet>

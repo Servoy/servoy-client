@@ -30,7 +30,7 @@ import com.servoy.j2db.util.Utils;
  * Wrapper element for group of IFormElements with the same groupID property. Note that a FormElementGroup is not an entity by itself and has no properties of
  * itself.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public class FormElementGroup implements ISupportBounds, ISupportUpdateableName

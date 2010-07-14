@@ -23,7 +23,7 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
 /**
  * Key class for named value in a query structure.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 

@@ -2830,7 +2830,7 @@ public class JSApplication implements IReturnedTypesProvider
 
 	/** Container for element that triggers current event method
 	 * 
-	 * @author rob
+	 * @author rgansevles
 	 *
 	 */
 	public static class FormAndComponent

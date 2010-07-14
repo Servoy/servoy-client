@@ -19,7 +19,7 @@ package com.servoy.j2db.dataui;
 /**
  * Options for {@link PropertyEditorHint} hints.
  * 
- * @author rob
+ * @author rgansevles
  *
  * @since 5.0
  */

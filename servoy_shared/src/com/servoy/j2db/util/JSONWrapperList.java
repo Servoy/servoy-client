@@ -24,7 +24,7 @@ import org.json.JSONException;
 /**
  * List interface wrapper on JSONObject.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public class JSONWrapperList extends AbstractList<Object>

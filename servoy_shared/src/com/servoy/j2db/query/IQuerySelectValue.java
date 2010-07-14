@@ -17,7 +17,7 @@
 package com.servoy.j2db.query;
 
 /** Interface for selectable values in a select statement.
- * @author rob
+ * @author rgansevles
  *
  */
 public interface IQuerySelectValue extends IQueryElement

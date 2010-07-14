@@ -22,7 +22,7 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
 /**
  * Condition for 'where exists (sql)'.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public class ExistsCondition implements ISQLCondition

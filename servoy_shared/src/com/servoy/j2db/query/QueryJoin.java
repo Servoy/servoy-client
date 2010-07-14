@@ -24,7 +24,7 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
 /**
  * Join element in a query structure.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public final class QueryJoin implements ISQLJoin

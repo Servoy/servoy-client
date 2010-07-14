@@ -29,7 +29,7 @@ import com.servoy.j2db.util.ITransactionConnection;
 
 /**
  * IServer with internal features (only accessible from application server).
- * @author rob
+ * @author rgansevles
  *
  */
 public interface IServerInternal

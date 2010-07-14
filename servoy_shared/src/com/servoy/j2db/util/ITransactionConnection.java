@@ -21,7 +21,7 @@ import java.sql.SQLException;
 
 /**
  * Interface for connections that support transactions. 
- * @author rob
+ * @author rgansevles
  *
  */
 public interface ITransactionConnection extends Connection

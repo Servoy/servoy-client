@@ -32,7 +32,7 @@ import com.servoy.j2db.util.Utils;
 /**
  * Method templates, used for defining arguments in form designer (properties) and for creating new methods.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 @SuppressWarnings("nls")

@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 /**
  * This class represents the result from a login call to the application server.
- * @author rob
+ * @author rgansevles
  *
  */
 public class ClientLogin implements Serializable

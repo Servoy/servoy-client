@@ -23,7 +23,7 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
 /**
  * Container for a fixed value in a query structure (for instance, "select 1 from tab".
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public final class QueryColumnValue implements IQuerySelectValue

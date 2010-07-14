@@ -18,7 +18,7 @@ package com.servoy.j2db.persistence;
 
 /**
  * Interface for server manager.
- * @author rob
+ * @author rgansevles
  *
  */
 public interface IServerManager

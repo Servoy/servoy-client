@@ -22,7 +22,7 @@ import com.servoy.j2db.scripting.IDeprecated;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
- * @author rob
+ * @author rgansevles
  * 
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)

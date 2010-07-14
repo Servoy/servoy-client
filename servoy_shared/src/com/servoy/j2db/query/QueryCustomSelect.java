@@ -23,7 +23,7 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
 /**
  * Select statement based on user-defined string and arguments.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public final class QueryCustomSelect extends QueryCustomElement implements ISQLSelect, Immutable

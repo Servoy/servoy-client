@@ -28,7 +28,7 @@ import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 
 /**
  * WebClientSession for running in developer.
- * @author rob
+ * @author rgansevles
  *
  */
 public class DebugWebClientSession extends WebClientSession

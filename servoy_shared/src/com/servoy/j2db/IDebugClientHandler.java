@@ -31,7 +31,7 @@ import com.servoy.j2db.server.shared.IDebugHeadlessClient;
 
 /**
  * Handler for debug clients 
- * @author rob
+ * @author rgansevles
  *
  */
 public interface IDebugClientHandler

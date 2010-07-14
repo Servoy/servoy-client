@@ -22,7 +22,7 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
 /**
  * Sort class in a query structure that refers to a column.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public final class QuerySort implements IQuerySort

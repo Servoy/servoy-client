@@ -21,7 +21,7 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
 
 
 /** Simple version of set-condition: 1 operator, 1 key, 1 value
- * @author rob
+ * @author rgansevles
  *
  */
 public final class CompareCondition extends SetCondition

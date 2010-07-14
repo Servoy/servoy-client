@@ -23,7 +23,7 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
 /**
  * Query sort class that uses a user-defined string.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public final class QueryCustomSort implements IQuerySort, Immutable

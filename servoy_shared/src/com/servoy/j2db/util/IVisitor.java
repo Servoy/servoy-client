@@ -20,7 +20,7 @@ package com.servoy.j2db.util;
  * Interface for objects that can visit IVisitable structures.
  * 
  * @see IVisitable
- * @author rob
+ * @author rgansevles
  */
 public interface IVisitor
 {

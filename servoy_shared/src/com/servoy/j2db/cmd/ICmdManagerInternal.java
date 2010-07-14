@@ -22,7 +22,7 @@ import com.servoy.j2db.ControllerUndoManager;
 
 /**
  * Internal interface for command manager.
- * @author rob
+ * @author rgansevles
  *
  */
 public interface ICmdManagerInternal extends ICmdManager

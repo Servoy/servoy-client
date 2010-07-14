@@ -23,7 +23,7 @@ import com.servoy.j2db.MessagesResourceBundle;
 
 /**
  * Callback interface for messages loading specific for a client, loaded in the server, see {@link MessagesResourceBundle}.
- * @author rob
+ * @author rgansevles
  *
  */
 public interface IApplicationServerMessagesLoader

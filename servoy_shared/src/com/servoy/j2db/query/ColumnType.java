@@ -22,7 +22,7 @@ import java.util.Map;
 
 
 /** Container for column types describing type, length and scale (for numerical columns).
- * @author rob
+ * @author rgansevles
  *
  */
 public class ColumnType implements Serializable

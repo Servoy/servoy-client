@@ -19,7 +19,7 @@ package com.servoy.j2db.util;
 
 /** Visitor class to for replacing all occurrences of one object with another one in a IVisitable object.
  * @see IVisitable
- * @author rob
+ * @author rgansevles
  *
  */public class ReplaceVisitor implements IVisitor
 {

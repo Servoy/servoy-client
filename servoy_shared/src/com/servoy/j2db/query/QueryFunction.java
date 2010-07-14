@@ -24,7 +24,7 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
 /**
  * Functions in queries.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public final class QueryFunction implements IQuerySelectValue

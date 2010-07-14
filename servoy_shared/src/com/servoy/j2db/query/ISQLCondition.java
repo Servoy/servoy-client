@@ -19,7 +19,7 @@ package com.servoy.j2db.query;
 /**
  * Common interface for conditions in queries.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public interface ISQLCondition extends IQueryElement

@@ -816,7 +816,7 @@ public class SQLSheet
 	/**
 	 * Struct class for variable info
 	 * 
-	 * @author rob
+	 * @author rgansevles
 	 * 
 	 */
 	public class VariableInfo

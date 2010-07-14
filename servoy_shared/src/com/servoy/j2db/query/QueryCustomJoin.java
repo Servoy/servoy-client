@@ -24,7 +24,7 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
  * Query join based on user-defined string. The foreign tables (comma-separated string) are used as one string, the join condition is not part of this join and
  * must be applied separately to the select query.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public final class QueryCustomJoin implements ISQLJoin

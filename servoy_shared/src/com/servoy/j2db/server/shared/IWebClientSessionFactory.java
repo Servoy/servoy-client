@@ -22,7 +22,7 @@ import org.apache.wicket.Session;
 
 /**
  * Factory for web client session
- * @author rob
+ * @author rgansevles
  *
  */
 public interface IWebClientSessionFactory

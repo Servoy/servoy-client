@@ -25,7 +25,7 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
 /**
  * Container class for table filters.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public class TableFilter implements Serializable

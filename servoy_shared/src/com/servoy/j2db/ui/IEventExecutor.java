@@ -19,7 +19,7 @@ package com.servoy.j2db.ui;
 /**
  * EventExecutor interface. Only the get-methods are exposed, set-methods should be called via the components.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public interface IEventExecutor

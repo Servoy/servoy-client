@@ -33,7 +33,7 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
 /**
  * Base class for all DML classes.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public abstract class AbstractBaseQuery implements ISQLQuery
@@ -383,7 +383,7 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 	/**
 	 * Visitor class for finding tables by name regardless of alias.
 	 * 
-	 * @author rob
+	 * @author rgansevles
 	 * 
 	 */
 	public static class TableFinder implements IVisitor
@@ -421,7 +421,7 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 	/**
 	 * Visitor class for finding place holders by key.
 	 * 
-	 * @author rob
+	 * @author rgansevles
 	 * 
 	 */
 	public static class PlaceHolderFinder implements IVisitor
@@ -487,7 +487,7 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 	/**
 	 * Visitor class for setting place holder value.
 	 * 
-	 * @author rob
+	 * @author rgansevles
 	 * 
 	 */
 	public static class PlaceHolderSetter implements IVisitor

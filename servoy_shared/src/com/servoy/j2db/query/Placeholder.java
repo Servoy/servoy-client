@@ -23,7 +23,7 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
 /**
  * Placeholder class, container for named value in a query structure.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public class Placeholder implements IQueryElement

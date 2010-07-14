@@ -27,7 +27,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 /**
  * Script object for a group of scriptables, delegates a fixed list of properties to all the enclosed scriptables.
  * 
- * @author rob
+ * @author rgansevles
  * 
  * @since 5.0
  */

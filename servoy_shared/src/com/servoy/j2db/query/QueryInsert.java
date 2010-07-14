@@ -25,7 +25,7 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
 /**
  * Query insert statement.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public class QueryInsert extends AbstractBaseQuery implements ISQLUpdate

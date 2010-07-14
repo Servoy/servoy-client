@@ -27,7 +27,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 /**
  * JSEvent, used as first argument to user-event callbacks.
  * 
- * @author rob
+ * @author rgansevles
  * 
  * @since 5.0
  */

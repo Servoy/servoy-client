@@ -21,7 +21,7 @@ import com.servoy.j2db.persistence.IRepository;
 /**
  * Active solution handler (loader) for access from within the Application Server.
  * 
- * @author rob
+ * @author rgansevles
  *
  */
 public class LocalActiveSolutionHandler extends AbstractActiveSolutionHandler

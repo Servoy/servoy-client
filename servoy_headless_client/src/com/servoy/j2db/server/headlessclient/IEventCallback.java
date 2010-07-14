@@ -21,7 +21,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 /**
  * Interface for callback to respond to events in webclient. See {@link PageContributor.setEventListeners}
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public interface IEventCallback

@@ -19,7 +19,7 @@ package com.servoy.j2db.util;
 /**
  * General Filter class.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public interface IFilter<T>

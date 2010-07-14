@@ -22,7 +22,7 @@ import com.servoy.j2db.server.headlessclient.ISessionBean;
 
 /**
  * Session client interface
- * @author rob
+ * @author rgansevles
  *
  */
 public interface ISessionClient extends ISessionBean, IApplication

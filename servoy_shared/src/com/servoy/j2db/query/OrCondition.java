@@ -23,7 +23,7 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
 
 /**
  * Query condition consisting of conditions to be OR-ed.
- * @author rob
+ * @author rgansevles
  *
  */
 

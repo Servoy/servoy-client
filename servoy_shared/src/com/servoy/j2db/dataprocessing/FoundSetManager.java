@@ -1788,7 +1788,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	/**
 	 * Manager for listeners interested in foundst events on any foundset.
 	 * They will also be informed of newly created foundsets.
-	 * @author rob
+	 * @author rgansevles
 	 *
 	 */
 	public static class GlobalFoundSetEventListener implements IFoundSetEventListener
@@ -1850,7 +1850,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	/**
 	 * Container class for related foundset arguments and the hash
 	 * 
-	 * @author rob
+	 * @author rgansevles
 	 * 
 	 */
 	private static class RelatedHashedArguments

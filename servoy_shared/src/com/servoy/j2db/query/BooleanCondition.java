@@ -24,7 +24,7 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
 /**
  * Query Condition class for boolean values.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public final class BooleanCondition implements ISQLCondition, Immutable

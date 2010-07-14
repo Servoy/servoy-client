@@ -22,7 +22,7 @@ import com.servoy.j2db.util.Debug;
 
 /**
  * This class holds a reference to the single application server instance in this jvm.
- * @author rob
+ * @author rgansevles
  *
  */
 public class ApplicationServerSingleton

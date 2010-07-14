@@ -24,7 +24,7 @@ import org.mozilla.javascript.Scriptable;
  * Function delegate that wraps objects returned from function calls when needed.
  * Used to determine dependencies for calculations.
  * 
- * @author rob
+ * @author rgansevles
  *
  */
 public class RecordingFunction extends RecordingScriptable implements Function

@@ -23,7 +23,7 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
 /**
  * Statement (update/insert/delete) based on user-defined string and arguments.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public final class QueryCustomUpdate extends QueryCustomElement implements ISQLUpdate, Immutable

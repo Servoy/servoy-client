@@ -24,7 +24,7 @@ import com.servoy.j2db.server.headlessclient.DummyMainContainer;
 
 /**
  * Authenticator client for use in developer.
- * @author rob
+ * @author rgansevles
  *
  */
 public class DebugAuthenticator extends DebugHeadlessClient

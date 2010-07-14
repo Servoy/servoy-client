@@ -19,7 +19,7 @@ package com.servoy.j2db.query;
 /**
  * Common interface for all selects.
  * 
- * @author rob
+ * @author rgansevles
  * 
  */
 public interface ISQLSelect extends ISQLQuery

@@ -24,7 +24,7 @@ import java.util.Iterator;
  * 
  * The filter must make sure that only objects of type T are returned.
  * 
- * @author rob
+ * @author rgansevles
  * 
  * @param <T>
  */

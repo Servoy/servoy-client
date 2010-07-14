@@ -20,7 +20,7 @@ import java.rmi.RemoteException;
 
 /**
  * Interface for server maintenance.
- * @author rob
+ * @author rgansevles
  *
  */
 public interface IMaintenanceServer

@@ -48,7 +48,7 @@ import com.servoy.j2db.util.xmlxport.VersionInfo;
 
 /**
  * public application server methods 
- * @author rob
+ * @author rgansevles
  *
  */
 public interface IApplicationServerSingleton
