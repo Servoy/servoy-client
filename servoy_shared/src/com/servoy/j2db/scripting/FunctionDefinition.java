@@ -13,12 +13,16 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting;
 
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 
+import com.servoy.j2db.FormController;
+import com.servoy.j2db.FormManager;
+import com.servoy.j2db.IApplication;
+import com.servoy.j2db.plugins.ClientPluginAccessProvider;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 
 /**
@@ -117,6 +121,51 @@ public class FunctionDefinition
 		return formName + '.' + methodName;
 	}
 
+	enum Exist
+	{
+		NO_SOLUTION, METHOD_NOT_FOUND, METHOD_FOUND, FORM_NOT_FOUND;
+	}
+
+	/**
+	 * Test if the given methodName or formName do exist. Will return one of the {@link Exist} enums.
+	 */
+	public Exist exists(IClientPluginAccess access)
+	{
+		if (access instanceof ClientPluginAccessProvider)
+		{
+			IApplication application = ((ClientPluginAccessProvider)access).getApplication();
+			if (application.getSolution() != null)
+			{
+				if (formName == null)
+				{
+					GlobalScope gs = application.getScriptEngine().getSolutionScope().getGlobalScope();
+					if (gs.get(methodName) instanceof Function)
+					{
+						return Exist.METHOD_FOUND;
+					}
+				}
+				else
+				{
+					FormController fp = ((FormManager)application.getFormManager()).leaseFormPanel(formName);
+					if (fp == null)
+					{
+						return Exist.FORM_NOT_FOUND;
+					}
+					if (fp.getFormScope().get(methodName, fp.getFormScope()) instanceof Function)
+					{
+						return Exist.METHOD_FOUND;
+					}
+				}
+			}
+			else
+			{
+				return Exist.NO_SOLUTION;
+			}
+		}
+		return Exist.METHOD_NOT_FOUND;
+	}
+
+
 	/**
 	 * Helper method that calls the {@link IClientPluginAccess#executeMethod(String, String, Object[], boolean)} for you with the right formname/context and
 	 * method name.
@@ -137,8 +186,8 @@ public class FunctionDefinition
 		}
 		catch (Exception e)
 		{
-			access.handleException("Failed to execute the method of context " + formName + " and name " + methodName + " on the solution " +
-				access.getSolutionName(), e);
+			access.handleException(
+				"Failed to execute the method of context " + formName + " and name " + methodName + " on the solution " + access.getSolutionName(), e);
 		}
 		return null;
 	}
