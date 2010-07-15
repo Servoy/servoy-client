@@ -75,6 +75,8 @@ import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
 /**
+ * Base class for buttons in the webbrowser.
+ * 
  * @author jcompagner
  * 
  */

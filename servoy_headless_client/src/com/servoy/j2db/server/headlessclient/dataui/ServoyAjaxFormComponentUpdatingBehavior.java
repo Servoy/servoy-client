@@ -24,6 +24,10 @@ import com.servoy.j2db.server.headlessclient.IDesignModeListener;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 
 /**
+ * Base class for all the form component updating behaviors.
+ * This one makes sure that onAjaxError() is called in the browser if there is an error.
+ * It will disable it self if the webclient is not in ajax mode or if the component is in design mode. 
+ * 
  * @author jcompagner
  * 
  */

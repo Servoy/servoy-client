@@ -65,6 +65,11 @@ import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
+/**
+ * Represents the component of a colunm header in a {@link WebCellBasedView}
+ * 
+ * @author jblok
+ */
 public class SortableCellViewHeader extends WebMarkupContainer implements IProviderStylePropertyChanges, ISupportWebTabSeq
 {
 	private static final long serialVersionUID = 1L;

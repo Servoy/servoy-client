@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import javax.swing.text.Document;
@@ -34,8 +34,10 @@ import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Text;
 
 /**
- * @author jcompagner
- */
+* Represents a label in the browser that displays data (has a dataprovider)
+* 
+* @author jcompagner
+*/
 public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplayTagText, IScriptDataLabelMethods
 {
 	private static final long serialVersionUID = 1L;

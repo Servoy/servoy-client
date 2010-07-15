@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import org.apache.wicket.Component;
@@ -28,6 +28,8 @@ import com.servoy.j2db.ui.IScriptReadOnlyMethods;
 import com.servoy.j2db.util.Utils;
 
 /**
+ * The ajax behavior for handling the onAction or enter in a TextField.
+ * 
  * @author jcompagner
  * 
  */
@@ -61,8 +63,8 @@ public class ServoyActionEventBehavior extends ServoyAjaxFormComponentUpdatingBe
 	@Override
 	protected void onUpdate(AjaxRequestTarget target)
 	{
-		eventExecutor.onEvent(EventType.action, target, getComponent(), Utils.getAsInteger(RequestCycle.get().getRequest().getParameter(
-			IEventExecutor.MODIFIERS_PARAMETER)));
+		eventExecutor.onEvent(EventType.action, target, getComponent(),
+			Utils.getAsInteger(RequestCycle.get().getRequest().getParameter(IEventExecutor.MODIFIERS_PARAMETER)));
 	}
 
 	/**

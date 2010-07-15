@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient;
 
 import java.text.MessageFormat;
@@ -26,6 +26,11 @@ import org.apache.wicket.markup.html.basic.Label;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.util.Utils;
 
+/**
+ * A special {@link WebPage} that is thrown when a unsupported browser is encountered.
+ * 
+ * @author jcompagner
+ */
 public class UnsupportedBrowserPage extends WebPage
 {
 	@SuppressWarnings("nls")

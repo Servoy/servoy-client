@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import java.util.ArrayList;
@@ -50,6 +50,11 @@ import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
+/**
+ * A model sorts a {@link WebCellBasedView} and keeps the sort state. 
+ * 
+ * @author jblok
+ */
 public class SortableCellViewHeaderGroup extends Model implements IComponentAssignedModel
 {
 	private static final long serialVersionUID = 1L;
@@ -142,8 +147,9 @@ public class SortableCellViewHeaderGroup extends Model implements IComponentAssi
 								{
 									JSEvent event = view.createScriptEvent(JSEvent.EventType.action, null, null);
 									event.setElementName(gc.getName());
-									fc.executeFunction(String.valueOf(labelForOnActionMethodId), Utils.arrayMerge((new Object[] { event }),
-										Utils.parseJSExpressions(gc.getInstanceMethodArguments("onActionMethodID"))), true, null, false, "onActionMethodID"); //$NON-NLS-1$ //$NON-NLS-2$
+									fc.executeFunction(
+										String.valueOf(labelForOnActionMethodId),
+										Utils.arrayMerge((new Object[] { event }), Utils.parseJSExpressions(gc.getInstanceMethodArguments("onActionMethodID"))), true, null, false, "onActionMethodID"); //$NON-NLS-1$ //$NON-NLS-2$
 								}
 								else if (cellview instanceof Portal || (fc == null || fc.getForm().getOnSortCmdMethodID() == 0))
 								{

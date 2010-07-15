@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import org.apache.wicket.Component;
@@ -28,8 +28,9 @@ import org.apache.wicket.util.string.PrependingStringBuffer;
 import com.servoy.j2db.server.headlessclient.ServoyForm;
 
 /**
+ * The none ajax paging link (1,2,3) of a {@link WebCellBasedView}
+ * 
  * @author jcompagner
- *
  */
 public class ServoySubmitPagingNavigationLink extends PagingNavigationLink implements IFormSubmittingComponent
 {
@@ -65,7 +66,7 @@ public class ServoySubmitPagingNavigationLink extends PagingNavigationLink imple
 		}
 		else
 		{
-			return (Form)findParent(ServoyForm.class);
+			return findParent(ServoyForm.class);
 		}
 	}
 
@@ -105,6 +106,7 @@ public class ServoySubmitPagingNavigationLink extends PagingNavigationLink imple
 	 * @inheritDoc
 	 * @see org.apache.wicket.Component#onComponentTag(org.apache.wicket.markup.ComponentTag)
 	 */
+	@Override
 	protected void onComponentTag(ComponentTag tag)
 	{
 		super.onComponentTag(tag);
@@ -122,7 +124,7 @@ public class ServoySubmitPagingNavigationLink extends PagingNavigationLink imple
 			tag.put("onclick", getTriggerJavaScript());
 		}
 	}
-	
+
 	/**
 	 * The javascript which trigges this link.
 	 * 
@@ -132,15 +134,16 @@ public class ServoySubmitPagingNavigationLink extends PagingNavigationLink imple
 	 */
 	protected final String getTriggerJavaScript()
 	{
-		if (getForm() != null) {
+		if (getForm() != null)
+		{
 			// find the root form - the one we are really going to submit
-			ServoyForm root = (ServoyForm) getForm().getRootForm();
+			ServoyForm root = (ServoyForm)getForm().getRootForm();
 			StringBuffer sb = new StringBuffer(100);
 			sb.append("var e=document.getElementById('");
 			sb.append(root.getHiddenField());
 			sb.append("'); e.name=\'");
 			sb.append(getInputName());
-			sb.append("'; e.value='x';");			
+			sb.append("'; e.value='x';");
 			sb.append("var f=document.getElementById('");
 			sb.append(root.getMarkupId());
 			sb.append("');");
@@ -160,8 +163,10 @@ public class ServoySubmitPagingNavigationLink extends PagingNavigationLink imple
 			}
 			sb.append("f.submit();e.value='';e.name='';return false;");
 			return sb.toString();
-		} else {
+		}
+		else
+		{
 			return null;
 		}
-	}	
+	}
 }

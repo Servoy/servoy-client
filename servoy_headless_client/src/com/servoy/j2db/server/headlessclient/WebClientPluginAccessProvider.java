@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient;
 
 import org.apache.wicket.Page;
@@ -21,9 +21,15 @@ import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 
 import com.servoy.j2db.plugins.ClientPluginAccessProvider;
+import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.plugins.IMediaUploadCallback;
 import com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor;
 
+/**
+ * A special {@link IClientPluginAccess} that also implements {@link IWebClientPluginAccess} to override behavior that is specific for the webclient.
+ * 
+ * @author jcompagner
+ */
 public class WebClientPluginAccessProvider extends ClientPluginAccessProvider implements IWebClientPluginAccess
 {
 	private final WebClient client;

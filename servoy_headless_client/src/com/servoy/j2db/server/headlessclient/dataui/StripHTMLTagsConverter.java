@@ -43,6 +43,12 @@ import com.servoy.j2db.server.headlessclient.ServoyForm;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
+/**
+ * Converts full html text, to html that can be inlined in the main html.
+ * Has support for tranfering styles,javascripts and javascript urls to the head tag of the main html in the browser. 
+ * 
+ * @author jcompagner
+ */
 public class StripHTMLTagsConverter implements IConverter
 {
 	/**

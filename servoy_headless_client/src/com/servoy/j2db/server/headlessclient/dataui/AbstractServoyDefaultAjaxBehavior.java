@@ -24,6 +24,9 @@ import com.servoy.j2db.server.headlessclient.IDesignModeListener;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 
 /**
+ * A base {@link AbstractDefaultAjaxBehavior} that calls onAjaxError() in the browser when a failure happens.
+ * It is only enabled when the webclient is in ajax mode and the design mode boolean is false.
+ * 
  * @author jcompagner
  * 
  */

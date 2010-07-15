@@ -37,6 +37,11 @@ import com.servoy.j2db.scripting.JSWindowImpl.JSWindow;
 import com.servoy.j2db.smart.SwingForm;
 import com.servoy.j2db.util.Utils;
 
+/**
+ * A {@link FormManager} implementation that is used in the webclient. 
+ * 
+ * @author jcompagner
+ */
 public class WebFormManager extends FormManager
 {
 	public WebFormManager(IApplication app, IMainContainer mainp)

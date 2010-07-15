@@ -76,6 +76,8 @@ import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
 /**
+ * Base class for simples labels.
+ * 
  * @author jcompagner,jblok
  */
 public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabelsMethods, IResourceListener, IProviderStylePropertyChanges, ILabelForMethods,

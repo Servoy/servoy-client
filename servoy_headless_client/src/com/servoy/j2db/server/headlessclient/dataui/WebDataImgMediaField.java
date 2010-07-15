@@ -89,6 +89,8 @@ import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
 /**
+ * Component to display media inside the browser has support for up and download of media. Can display the image if it is an image.
+ * 
  * @author jcompagner,jblok
  */
 public class WebDataImgMediaField extends WebMarkupContainer implements IDisplayData, IFieldComponent, IScrollPane, IScriptMediaInputFieldMethods,

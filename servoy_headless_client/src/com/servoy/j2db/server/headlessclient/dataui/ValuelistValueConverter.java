@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import java.util.Locale;
@@ -22,6 +22,11 @@ import org.apache.wicket.util.convert.IConverter;
 
 import com.servoy.j2db.dataprocessing.IValueList;
 
+/**
+ * A {@link IConverter} implementation for {@link IValueList} instances.
+ * 
+ * @author jcompagner
+ */
 final class ValuelistValueConverter implements IConverter
 {
 	private static final long serialVersionUID = 1L;

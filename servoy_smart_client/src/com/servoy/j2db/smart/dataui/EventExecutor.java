@@ -36,6 +36,11 @@ import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IFormUI;
 
+/**
+ * The event executor for the swing (smart) client.
+ * 
+ * @author jcompagner
+ */
 public class EventExecutor extends BaseEventExecutor implements MouseListener, FocusListener, Serializable, KeyListener
 {
 	public static final int PREVENT_MULTIPLE_GAIN = 1;

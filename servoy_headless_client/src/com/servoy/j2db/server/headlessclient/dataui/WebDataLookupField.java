@@ -46,8 +46,9 @@ import com.servoy.j2db.util.UIUtils;
 import com.servoy.j2db.util.Utils;
 
 /**
- * @author jcompagner
+ * Represents the typeahead/lookup field in the browser.
  * 
+ * @author jcompagner
  */
 public class WebDataLookupField extends WebDataField implements IDisplayRelatedData
 {

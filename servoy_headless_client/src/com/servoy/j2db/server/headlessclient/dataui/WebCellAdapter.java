@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import java.util.ArrayList;
@@ -33,6 +33,11 @@ import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView.CellContain
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.util.Utils;
 
+/**
+ * A {@link IDataAdapter} used in {@link WebCellBasedView} for there columns to handle valuechanged events to make sure that the right cells are set to changed.
+ * 
+ * @author jcompagner
+ */
 public class WebCellAdapter implements IDataAdapter
 {
 	private final ArrayList listners = new ArrayList();

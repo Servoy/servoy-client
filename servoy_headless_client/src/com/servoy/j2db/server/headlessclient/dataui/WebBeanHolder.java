@@ -13,29 +13,30 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.util.IDelegate;
-import com.servoy.j2db.util.Utils;
 
 /**
+ * A web label that holds a invisible bean.  
+ * 
  * @author jcompagner
  *
  */
 public class WebBeanHolder extends WebBaseLabel implements IDelegate
 {
 
-	private Object bean;
+	private final Object bean;
 
 	/**
 	 * @param id
 	 * @param label
 	 */
-	public WebBeanHolder(IApplication application,String id, Object bean)
+	public WebBeanHolder(IApplication application, String id, Object bean)
 	{
-		super(application,id, "");
+		super(application, id, "");
 		this.bean = bean;
 		setOutputMarkupPlaceholderTag(true);
 	}

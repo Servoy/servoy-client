@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import java.util.ArrayList;
@@ -33,6 +33,11 @@ import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptTextEditorMethods;
 import com.servoy.j2db.util.Utils;
 
+/**
+ * Represents the HTML Field in the webbrowser. Has support for call backs of scripts through javascript:methodname links or other tags.
+ * 
+ * @author jcompagner
+ */
 public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponent, IScriptTextEditorMethods, ISupportScriptCallback
 {
 	private static final long serialVersionUID = 1L;

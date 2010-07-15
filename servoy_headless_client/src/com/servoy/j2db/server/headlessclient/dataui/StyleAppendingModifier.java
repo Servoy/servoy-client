@@ -27,6 +27,8 @@ import org.apache.wicket.model.Model;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 
 /**
+ * Simple {@link AttributeModifier} that can creates a style attribute for a tag.
+ * 
  * @author jcompagner
  * 
  */

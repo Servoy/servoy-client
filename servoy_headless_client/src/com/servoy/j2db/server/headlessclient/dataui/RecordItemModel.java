@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import java.util.HashMap;
@@ -49,6 +49,8 @@ import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
 /**
+ * A model that holds 1 {@link IRecord}.
+ * 
  * @author jcompagner
  */
 public abstract class RecordItemModel extends LoadableDetachableModel implements IComponentInheritedModel

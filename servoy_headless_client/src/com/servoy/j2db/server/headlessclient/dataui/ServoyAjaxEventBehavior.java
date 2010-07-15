@@ -24,8 +24,11 @@ import com.servoy.j2db.server.headlessclient.IDesignModeListener;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 
 /**
- * @author jcompagner
+ * Base class for all the ajax behaviors.
+ * This one makes sure that onAjaxError() is called in the browser if there is an error.
+ * It will disable it self if the webclient is not in ajax mode or if the component is in design mode. 
  * 
+ * @author jcompagner
  */
 public abstract class ServoyAjaxEventBehavior extends AjaxEventBehavior implements IDesignModeListener
 {

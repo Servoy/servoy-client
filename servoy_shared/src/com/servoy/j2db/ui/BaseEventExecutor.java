@@ -26,6 +26,9 @@ import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.util.Utils;
 
 /**
+ * Base event executor that handles all events from the elements that are on the form.
+ * Subclasses implement specific code for the specific gui implementations (Swing or Wicket/Web)
+ * 
  * @author jcompagner
  * 
  */

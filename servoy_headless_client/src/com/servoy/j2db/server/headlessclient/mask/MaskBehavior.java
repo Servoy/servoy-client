@@ -23,9 +23,13 @@ import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
 
+import com.servoy.j2db.server.headlessclient.dataui.WebDataField;
 import com.servoy.j2db.ui.ISupportEventExecutor;
 
 /**
+ * Behavior used in {@link WebDataField} when a masked format is used.
+ * It is build on jquery and jquery maskedinput.
+ * 
  * @author jcompagner
  *
  */
