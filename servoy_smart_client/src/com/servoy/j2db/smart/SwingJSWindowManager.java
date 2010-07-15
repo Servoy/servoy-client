@@ -31,6 +31,10 @@ import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.JSWindowManager;
 import com.servoy.j2db.scripting.JSWindowImpl;
 
+/**
+ * Swing implementation of the JSWindowManager. It works with SwingJSWindowImpl windows.
+ * @author acostescu
+ */
 public class SwingJSWindowManager extends JSWindowManager
 {
 

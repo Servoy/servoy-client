@@ -32,6 +32,10 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.scripting.JSWindowImpl;
 import com.servoy.j2db.server.headlessclient.dataui.WebDefaultRecordNavigator;
 
+/**
+ * Swing implementation of the JSWindow. It is based on a wrapped awt Window instance.
+ * @author acostescu
+ */
 public class WebJSWindowImpl extends JSWindowImpl
 {
 

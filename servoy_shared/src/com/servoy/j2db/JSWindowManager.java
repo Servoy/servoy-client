@@ -25,6 +25,11 @@ import com.servoy.j2db.scripting.JSWindowImpl;
 import com.servoy.j2db.scripting.JSWindowImpl.JSWindow;
 import com.servoy.j2db.util.Utils;
 
+/**
+ * An abstract manager of JSWindows. Creates windows, keeps track of current window and windows that are in use.
+ * It is meant to be extended for each type of user interface.
+ * @author acostescu
+ */
 public abstract class JSWindowManager
 {
 
@@ -108,6 +113,11 @@ public abstract class JSWindowManager
 		return w != null ? w.getWrappedObject() : null;
 	}
 
+	/**
+	 * Returns a list of window names that represents the order in which these windows should be closed so as to avoid unexpected results.<br>
+	 * When windows sit on top of other windows, the top-most windows should probably be closed first. (for example if you have many modal windows on top of each-other and
+	 * you need to close all the windows, you might want to keep closing the top-most window until all are closed)
+	 */
 	protected List<String> getOrderedContainers()
 	{
 		return ((FormManager)application.getFormManager()).getCreatedMainContainerKeys();

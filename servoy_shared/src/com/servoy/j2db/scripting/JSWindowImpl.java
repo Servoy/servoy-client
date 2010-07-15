@@ -23,11 +23,16 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.Utils;
 
 /**
- * Some of the functionality might not be available in web client.
+ * Abstract class that gathers the basic functionality that windows should have.
+ * Some of this functionality might not be currently available in web client.
+ * @author acostescu
  */
 public abstract class JSWindowImpl
 {
 
+	/**
+	 * This is the wrapper class exposed to javascript access.
+	 */
 	@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 	public static class JSWindow implements IConstantsObject
 	{
