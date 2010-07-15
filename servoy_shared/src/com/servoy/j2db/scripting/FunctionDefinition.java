@@ -121,7 +121,7 @@ public class FunctionDefinition
 		return formName + '.' + methodName;
 	}
 
-	enum Exist
+	public enum Exist
 	{
 		NO_SOLUTION, METHOD_NOT_FOUND, METHOD_FOUND, FORM_NOT_FOUND;
 	}
