@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.preference;
 
 
@@ -24,7 +24,9 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeListener;
 
 /**
- * @author Johan Compagner
+ * The base class for preference panels that are shown in the smart client.
+ * 
+ * @author jcompagner
  */
 public abstract class PreferencePanel extends JPanel
 {

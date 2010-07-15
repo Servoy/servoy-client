@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataui;
 
 import com.servoy.j2db.IServoyBeanFactory;
@@ -30,7 +30,7 @@ import com.servoy.j2db.plugins.IClientPluginAccess;
  * more often. And the given record doesnt have to be the selected record of the foundset but is then
  * the record where the bean should render it self with.
  * 
- * @author Johan Compagner
+ * @author jcompagner
  * 
  * @since 4.0
  * 
