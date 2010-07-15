@@ -13,13 +13,16 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 import java.util.List;
 
-
-
+/**
+ * None public api interface for an {@link IRecord} object.
+ * 
+ * @author jblok
+ */
 public interface IRecordInternal extends IRecord, IRowChangeListener
 {
 	public Row getRawData();

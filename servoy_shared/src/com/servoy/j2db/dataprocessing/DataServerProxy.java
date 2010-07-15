@@ -31,6 +31,11 @@ import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.util.ServoyException;
 
+/**
+ * Proxy class around a {@link IDataServer} instance for switchServer support.
+ *  
+ * @author jblok, rgansevles
+ */
 public class DataServerProxy implements IDataServer
 {
 	private final IDataServer ds;

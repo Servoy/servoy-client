@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 
@@ -21,15 +21,21 @@ import java.rmi.RemoteException;
 
 import com.servoy.j2db.scripting.StartupArgumentsScope;
 
+/**
+ * Communication interface of client objects on the server.
+ * 
+ * @author jblok
+ * 
+ */
 public interface IClient
 {
-	public void alert(String msg) throws RemoteException;
+	public void alert(String msg);
 
-	public boolean isAlive() throws RemoteException;
+	public boolean isAlive();
 
-	public void shutDown() throws RemoteException;
+	public void shutDown();
 
-	public void closeSolution() throws RemoteException;
+	public void closeSolution();
 
 	/**
 	 * called when the databases are modified outside servoy, when server_name and table_name are null all is flushed
@@ -38,12 +44,12 @@ public interface IClient
 	 * @param table_name
 	 * @throws RemoteException
 	 */
-	public void flushCachedDatabaseData(String dataSource) throws RemoteException;
+	public void flushCachedDatabaseData(String dataSource);
 
 	//rowData is not null when insert
-	public void notifyDataChange(String server_name, String table_name, IDataSet pks, int action, Object[] insertColumnData) throws RemoteException;
+	public void notifyDataChange(String server_name, String table_name, IDataSet pks, int action, Object[] insertColumnData);
 
-	public void activateSolutionMethod(String globalMethodName, StartupArgumentsScope argumentsScope) throws RemoteException;
+	public void activateSolutionMethod(String globalMethodName, StartupArgumentsScope argumentsScope);
 
-	public ClientInfo getClientInfo() throws RemoteException;
+	public ClientInfo getClientInfo();
 }
