@@ -36,6 +36,7 @@ import com.servoy.j2db.util.Debug;
  * @author rgansevles
  * 
  */
+@SuppressWarnings("nls")
 public class JSONSerializerWrapper
 {
 	private JSONSerializer serializer;
@@ -48,6 +49,7 @@ public class JSONSerializerWrapper
 
 	public Object toJSON(Object obj) throws Exception
 	{
+		if (obj instanceof String) return JSONObject.quote((String)obj);
 		SerializerState state = new SerializerState();
 		return getSerializer().marshall(state, null, wrapToJSON(obj), "result");
 	}
