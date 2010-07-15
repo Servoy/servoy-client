@@ -22,20 +22,19 @@ import java.rmi.RemoteException;
 import com.servoy.j2db.scripting.StartupArgumentsScope;
 
 /**
- * Communication interface of client objects on the server.
+ * The Client call back interface which are registered on the server.
  * 
  * @author jblok
- * 
  */
 public interface IClient
 {
-	public void alert(String msg);
+	public void alert(String msg) throws RemoteException;
 
-	public boolean isAlive();
+	public boolean isAlive() throws RemoteException;
 
-	public void shutDown();
+	public void shutDown() throws RemoteException;
 
-	public void closeSolution();
+	public void closeSolution() throws RemoteException;
 
 	/**
 	 * called when the databases are modified outside servoy, when server_name and table_name are null all is flushed
@@ -44,12 +43,12 @@ public interface IClient
 	 * @param table_name
 	 * @throws RemoteException
 	 */
-	public void flushCachedDatabaseData(String dataSource);
+	public void flushCachedDatabaseData(String dataSource) throws RemoteException;
 
 	//rowData is not null when insert
-	public void notifyDataChange(String server_name, String table_name, IDataSet pks, int action, Object[] insertColumnData);
+	public void notifyDataChange(String server_name, String table_name, IDataSet pks, int action, Object[] insertColumnData) throws RemoteException;
 
-	public void activateSolutionMethod(String globalMethodName, StartupArgumentsScope argumentsScope);
+	public void activateSolutionMethod(String globalMethodName, StartupArgumentsScope argumentsScope) throws RemoteException;
 
-	public ClientInfo getClientInfo();
+	public ClientInfo getClientInfo() throws RemoteException;
 }
