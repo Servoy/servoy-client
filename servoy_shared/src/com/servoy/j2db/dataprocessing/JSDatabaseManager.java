@@ -194,7 +194,7 @@ public class JSDatabaseManager
 				if (tableName == null)
 				{
 					boolean retval = false;
-					Iterator<String> it = server.getTableAndViewNames().iterator();
+					Iterator<String> it = server.getTableAndViewNames(false).iterator();
 					while (it.hasNext())
 					{
 						String tname = it.next();
@@ -328,8 +328,8 @@ public class JSDatabaseManager
 						QueryJoin join = (QueryJoin)sql.getJoin(oldTable, r.getName());
 						if (join == null)
 						{
-							join = SQLGenerator.createJoin(application.getFlattenedSolution(), r, oldTable,
-								new QueryTable(ft.getSQLName(), ft.getCatalog(), ft.getSchema()), fs_old);
+							join = SQLGenerator.createJoin(application.getFlattenedSolution(), r, oldTable, new QueryTable(ft.getSQLName(), ft.getCatalog(),
+								ft.getSchema()), fs_old);
 							sql.addJoin(join);
 						}
 
@@ -1343,7 +1343,7 @@ public class JSDatabaseManager
 				IServer server = application.getSolution().getServer(mainTable.getServerName());
 				if (server != null)
 				{
-					Iterator<String> it = server.getTableNames().iterator();
+					Iterator<String> it = server.getTableNames(false).iterator();
 					while (it.hasNext())
 					{
 						String tableName = it.next();

@@ -233,7 +233,7 @@ public class LocalePreferences extends PreferencePanel implements ItemListener, 
 		{
 			List al = new ArrayList();
 			al.add(SELECTION_NONE);
-			List lst = server.getTableAndViewNames();
+			List lst = server.getTableAndViewNames(true);
 			for (int i = 0; i < lst.size(); i++)
 			{
 				String tableName = (String)lst.get(i);

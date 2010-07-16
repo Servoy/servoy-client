@@ -246,7 +246,7 @@ public class JSServer
 	{
 		try
 		{
-			List<String> tableNames = ((IServerInternal)server).getTableNames();
+			List<String> tableNames = ((IServerInternal)server).getTableNames(false);
 			String[] arr = new String[tableNames.size()];
 			tableNames.toArray(arr);
 			return arr;

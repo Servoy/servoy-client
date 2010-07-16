@@ -1429,7 +1429,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			IServer server = application.getSolution().getServer(serverName);
 			if (server != null)
 			{
-				List<String> list = server.getTableNames();
+				List<String> list = server.getTableNames(false);
 				return list.toArray(new String[list.size()]);
 			}
 		}
@@ -1447,7 +1447,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			IServer server = application.getSolution().getServer(serverName);
 			if (server != null)
 			{
-				List<String> list = server.getViewNames();
+				List<String> list = server.getViewNames(false);
 				return list.toArray(new String[list.size()]);
 			}
 		}

@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 
@@ -34,13 +34,13 @@ public interface IServer extends Remote
 
 	public ITable getTable(String tableName) throws RepositoryException, RemoteException;
 
-	public List<String> getTableAndViewNames() throws RepositoryException, RemoteException;
+	public List<String> getTableAndViewNames(boolean hideTemporary) throws RepositoryException, RemoteException;
+
+	public List<String> getTableNames(boolean hideTempTables) throws RepositoryException, RemoteException;
+
+	public List<String> getViewNames(boolean hideTempViews) throws RepositoryException, RemoteException;
 
 	public int getTableType(String tableName) throws RepositoryException, RemoteException;
-
-	public List<String> getTableNames() throws RepositoryException, RemoteException;
-
-	public List<String> getViewNames() throws RepositoryException, RemoteException;
 
 	public String getName() throws RemoteException;
 

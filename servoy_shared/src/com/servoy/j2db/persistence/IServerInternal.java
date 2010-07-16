@@ -95,11 +95,11 @@ public interface IServerInternal
 
 	String getName();
 
-	List<String> getViewNames() throws RepositoryException;
+	List<String> getViewNames(boolean hideTempViews) throws RepositoryException;
 
-	List<String> getTableNames() throws RepositoryException;
+	List<String> getTableNames(boolean hideTempTables) throws RepositoryException;
 
-	List<String> getTableAndViewNames() throws RepositoryException;
+	List<String> getTableAndViewNames(boolean hideTemporary) throws RepositoryException;
 
 	Table getTable(String tableName) throws RepositoryException;
 
