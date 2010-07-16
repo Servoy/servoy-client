@@ -937,6 +937,11 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 	{
 		for (int i = 0; i < allTabs.size(); i++)
 		{
+			if (currentForm == null)
+			{
+				// no current form set yet, default to first tab
+				return new Integer(1);
+			}
 			WebTabHolder holder = allTabs.get(i);
 			if (holder.getPanel() == currentForm)
 			{
