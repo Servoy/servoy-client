@@ -45,6 +45,7 @@ import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.Response;
 import org.apache.wicket.RestartResponseException;
+import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AbstractAjaxTimerBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
@@ -77,10 +78,10 @@ import org.apache.wicket.version.undo.Change;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
+import com.servoy.j2db.FormManager.History;
 import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.Messages;
-import com.servoy.j2db.FormManager.History;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.persistence.Solution;
@@ -94,10 +95,10 @@ import com.servoy.j2db.server.headlessclient.dataui.IFormLayoutProvider;
 import com.servoy.j2db.server.headlessclient.dataui.ISupportWebTabSeq;
 import com.servoy.j2db.server.headlessclient.dataui.StartEditOnFocusGainedEventBehavior;
 import com.servoy.j2db.server.headlessclient.dataui.StyleAppendingModifier;
+import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor;
 import com.servoy.j2db.server.headlessclient.dataui.WebSplitPane;
 import com.servoy.j2db.server.headlessclient.dataui.WebTabPanel;
-import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.server.headlessclient.yui.YUILoader;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IEventExecutor;
@@ -340,7 +341,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				public boolean isEnabled(Component component)
 				{
 					// data notify is disabled when in design mode
-					return !client.getFlattenedSolution().isInDesign(null) && useAJAX;
+					return !client.getFlattenedSolution().isInDesign(null) && getController() != null && getController().isFormVisible();
 				}
 			});
 		}
@@ -1384,26 +1385,27 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		setResponsePage(page);
 	}
 
+	@SuppressWarnings("nls")
 	public void showPopupWindow(MainPage windowContainer, String titleString, Rectangle r2, boolean resizeable, boolean closeAll)
 	{
 		StringBuilder sb = new StringBuilder(100);
 		sb.append(windowContainer.getPageMapName());
-		sb.append("=window.open('"); //$NON-NLS-1$
+		sb.append("=window.open('");
 		sb.append(RequestCycle.get().urlFor(windowContainer));
-		sb.append("','"); //$NON-NLS-1$
+		sb.append("','");
 		sb.append(windowContainer.getPageMap().getName());
-		sb.append("','scrollbars=yes,menubar=no"); //$NON-NLS-1$
+		sb.append("','scrollbars=yes,menubar=no");
 		if (FormManager.FULL_SCREEN.equals(r2))
 		{
-			sb.append(",fullscreen=yes"); // IE //$NON-NLS-1$
-			sb.append(",height='+(screen.height-30)+'"); // FF //$NON-NLS-1$
-			sb.append(",width='+(screen.width-5)+'"); // FF //$NON-NLS-1$
-			sb.append(",top=0,left=0"); //$NON-NLS-1$
+			sb.append(",fullscreen=yes"); // IE
+			sb.append(",height='+(screen.height-30)+'"); // FF
+			sb.append(",width='+(screen.width-5)+'"); // FF
+			sb.append(",top=0,left=0");
 		}
 		else
 		{
-			sb.append(",height=").append(r2.height); //$NON-NLS-1$
-			sb.append(",width=").append(r2.width); //$NON-NLS-1$
+			sb.append(",height=").append(r2.height);
+			sb.append(",width=").append(r2.width);
 			sb.append(",top='+");
 			sb.append("((window.screenTop | window.screenY)+");
 			if (r2.y == -1) sb.append("((document.documentElement.clientHeight | document.body.clientHeight)-" + r2.height + ")/2");
@@ -1413,10 +1415,10 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			sb.append("((window.screenLeft | window.screenX)+");
 			if (r2.x == -1) sb.append("((document.documentElement.clientWidth | document.body.clientWidth)-" + r2.width + ")/2)");
 			else sb.append(r2.x + ")");
-			sb.append("+'"); //$NON-NLS-1$
+			sb.append("+'");
 		}
-		sb.append(",resizable=").append(resizeable ? "yes" : "no"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		sb.append(",toolbar=no,location=no,status=no');"); //$NON-NLS-1$
+		sb.append(",resizable=").append(resizeable ? "yes" : "no");
+		sb.append(",toolbar=no,location=no,status=no');");
 		if (((WebClientInfo)getSession().getClientInfo()).getProperties().isBrowserSafari())
 		{
 			// safari doesn't tell you that a popup was blocked
@@ -1494,10 +1496,13 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 	private void closePopup(String popupName)
 	{
+		// first touch this page so that it is locked.
+		Session.get().getPage(getPageMapName(), getPath(), LATEST_VERSION);
+
 		ServoyDivDialog divDialog = divDialogs.remove(popupName);
 		if (divDialog != null)
 		{
-			divDialog.setPageMapName(null);
+			//divDialog.setPageMapName(null);
 			divDialogActionBuffer.close(divDialog);
 			if (divDialogs.size() == 0) divDialogsParent.setVisible(false);
 		}
@@ -1546,6 +1551,8 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 	public void close()
 	{
+		// first touch this page so that it is locked.
+		Session.get().getPage(getPageMapName(), getPath(), LATEST_VERSION);
 		client.setWindowBounds(getPageMapName(), null);
 		setShowPageInDialogDelayed(false);
 		pageContributor.showNoDialog();
