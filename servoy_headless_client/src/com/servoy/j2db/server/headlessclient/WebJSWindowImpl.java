@@ -35,6 +35,7 @@ import com.servoy.j2db.server.headlessclient.dataui.WebDefaultRecordNavigator;
 /**
  * Swing implementation of the JSWindow. It is based on a wrapped awt Window instance.
  * @author acostescu
+ * @since 6.0
  */
 public class WebJSWindowImpl extends JSWindowImpl
 {

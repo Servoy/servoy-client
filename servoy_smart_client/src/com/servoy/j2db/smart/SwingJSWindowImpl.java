@@ -44,6 +44,7 @@ import com.servoy.j2db.util.UIUtils;
 /**
  * Swing implementation of the JSWindow. It is based on a wrapped awt Window instance.
  * @author acostescu
+ * @since 6.0
  */
 public class SwingJSWindowImpl extends JSWindowImpl
 {

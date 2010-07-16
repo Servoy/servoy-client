@@ -29,6 +29,7 @@ import com.servoy.j2db.util.Utils;
  * An abstract manager of JSWindows. Creates windows, keeps track of current window and windows that are in use.
  * It is meant to be extended for each type of user interface.
  * @author acostescu
+ * @since 6.0
  */
 public abstract class JSWindowManager
 {

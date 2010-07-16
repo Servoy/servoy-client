@@ -26,6 +26,7 @@ import com.servoy.j2db.util.Utils;
  * Abstract class that gathers the basic functionality that windows should have.
  * Some of this functionality might not be currently available in web client.
  * @author acostescu
+ * @since 6.0
  */
 public abstract class JSWindowImpl
 {
