@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
 import java.util.Map.Entry;
+import java.util.SortedSet;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
@@ -61,6 +61,11 @@ import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.OrientationApplier;
 
+/**
+ * Implementation of {@link IPageContributorInternal} that is a wicket component that is added to the page for adding all kinds of behaviors and scripts to the main page.
+ * 
+ * @author jcompagner
+ */
 public class PageContributor extends WebMarkupContainer implements IPageContributorInternal
 {
 	private static final long serialVersionUID = 1L;

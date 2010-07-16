@@ -73,6 +73,8 @@ import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
 /**
+ * Base class from labels with an action event. 
+ * 
  * @author jcompagner, jblok
  */
 public class WebBaseSubmitLink extends SubmitLink implements ILabel, IScriptHtmlSubmitLabelsMethods, IResourceListener, IProviderStylePropertyChanges,

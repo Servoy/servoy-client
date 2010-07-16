@@ -84,6 +84,11 @@ import com.servoy.j2db.util.StateFullSimpleDateFormat;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
+/**
+ * Represents a drop down field in the webbrowser.
+ * 
+ * @author jcompagner
+ */
 public class WebDataComboBox extends DropDownChoice implements IFieldComponent, IDisplayData, IScriptDataComboboxMethods, IDisplayRelatedData,
 	IProviderStylePropertyChanges, ISupportWebBounds, IRightClickListener
 {

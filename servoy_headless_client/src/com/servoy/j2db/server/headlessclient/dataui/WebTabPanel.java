@@ -83,6 +83,8 @@ import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
 /**
+ * Represents a tabpanel in the webbrowser.
+ * 
  * @author jcompagner
  */
 public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDisplayRelatedData, IProviderStylePropertyChanges, IAccessible, ISupportWebBounds,

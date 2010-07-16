@@ -13,43 +13,54 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient;
 
 import org.apache.wicket.Session;
 import org.apache.wicket.markup.html.DynamicWebResource;
+import org.apache.wicket.markup.html.WebResource;
 import org.apache.wicket.protocol.http.WebResponse;
 
+/**
+ * A {@link WebResource} that serves a resource that is get from {@link WebClientSession#getResourceState()}
+ * which is set for example by printing at form.
+ * 
+ * @author jcompagner
+ */
 public class ServeResources extends DynamicWebResource
 {
-   private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
+	@Override
 	protected ResourceState getResourceState()
 	{
-		WebClientSession session = (WebClientSession) Session.get();
+		WebClientSession session = (WebClientSession)Session.get();
 		if (session != null)
 		{
 			return session.getResourceState();
 		}
 		return new ResourceState()
 		{
-		
+
+			@Override
 			public byte[] getData()
 			{
 				return new byte[0];
 			}
-		
+
+			@Override
 			public String getContentType()
 			{
 				return null;
 			}
 		};
 	}
-	
+
+	@Override
 	protected void setHeaders(WebResponse response)
 	{
-	    super.setHeaders(response);
-        response.setHeader("Cache-Control", "cache, must-revalidate");
-        response.setHeader("Pragma", "private");
+		super.setHeaders(response);
+		response.setHeader("Cache-Control", "cache, must-revalidate");
+		response.setHeader("Pragma", "private");
 	}
 }

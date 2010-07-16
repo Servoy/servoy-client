@@ -19,6 +19,18 @@ package com.servoy.j2db.dataprocessing;
 
 import javax.swing.ListModel;
 
+import com.servoy.j2db.persistence.ValueList;
+
+/**
+ * Runtime Valuelist interface that extends {@link ListModel} for attaching a {@link ValueList} to a UI Element.
+ * 
+ * @author jcompagner, jblok
+ * 
+ * @see CustomValueList
+ * @see DBValueList
+ * @see RelatedValueList
+ * @see GlobalMethodValueList
+ */
 public interface IValueList extends ListModel
 {
 	public Object getRealElementAt(int row);//real value, getElementAt is display value

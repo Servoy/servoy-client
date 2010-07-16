@@ -43,6 +43,12 @@ import com.servoy.j2db.server.headlessclient.ServoyForm;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
+/**
+ * Converts full html text, to html that can be inlined in the main html.
+ * Has support for tranfering styles,javascripts and javascript urls to the head tag of the main html in the browser. 
+ * 
+ * @author jcompagner
+ */
 public class StripHTMLTagsConverter implements IConverter
 {
 	/**
@@ -53,8 +59,9 @@ public class StripHTMLTagsConverter implements IConverter
 	{
 		private CharSequence bodyTxt;
 
-		private List<CharSequence> javascriptUrls;
-		private List<CharSequence> javascriptScripts;
+		private final List<CharSequence> javascriptUrls;
+		private final List<CharSequence> javascriptScripts;
+//		private final List<CharSequence> linkTags;
 
 		private IValueMap bodyAttributes;
 
@@ -65,6 +72,7 @@ public class StripHTMLTagsConverter implements IConverter
 			javascriptUrls = new ArrayList<CharSequence>();
 			javascriptScripts = new ArrayList<CharSequence>();
 			styles = new ArrayList<CharSequence>();
+//			linkTags = new ArrayList<CharSequence>();
 		}
 
 		public final CharSequence getBodyTxt()
@@ -82,19 +90,14 @@ public class StripHTMLTagsConverter implements IConverter
 			return javascriptUrls;
 		}
 
-		public final void setJavascriptUrls(List<CharSequence> javascriptUrls)
-		{
-			this.javascriptUrls = javascriptUrls;
-		}
+//		public final List<CharSequence> getLinkTags()
+//		{
+//			return linkTags;
+//		}
 
 		public final List<CharSequence> getJavascriptScripts()
 		{
 			return javascriptScripts;
-		}
-
-		public final void setJavascriptScripts(List<CharSequence> javascriptScripts)
-		{
-			this.javascriptScripts = javascriptScripts;
 		}
 
 		/**
@@ -219,6 +222,18 @@ public class StripHTMLTagsConverter implements IConverter
 					}
 					continue;
 				}
+//				else if (currentTagName.equals("link"))
+//				{
+//					if (me.isOpen() || me.isOpenClose())
+//					{
+//						st.getLinkTags().add(me.toXmlString(null));
+//					}
+//					else
+//					{
+//						me = (XmlTag)parser.nextTag();
+//					}
+//					continue;
+//				}
 				if (ignoreTags.contains(currentTagName))
 				{
 					if (currentTagName.equals("body") && (me.isOpen() || me.isOpenClose()))

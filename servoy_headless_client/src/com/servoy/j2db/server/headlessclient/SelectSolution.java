@@ -44,6 +44,11 @@ import com.servoy.j2db.util.HTTPUtils;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
+/**
+ * A special wicket {@link WebPage} that displays the solution that can be loaded if the property servoy.allowSolutionBrowsing is not set to false.
+ * 
+ * @author jcompagner,jblok
+ */
 public class SelectSolution extends WebPage
 {
 	private static final long serialVersionUID = 1L;

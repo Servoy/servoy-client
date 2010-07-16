@@ -69,8 +69,9 @@ import com.servoy.j2db.util.StateFullSimpleDateFormat;
 import com.servoy.j2db.util.Utils;
 
 /**
- * @author jcompagner
+ * Represents a Calendar component in the webbrowser.
  * 
+ * @author jcompagner
  */
 public class WebDataCalendar extends WebMarkupContainer implements IFieldComponent, IDisplayData, IScriptDataCalendarMethods, IDelegate, ISupportWebBounds,
 	IRightClickListener, IProviderStylePropertyChanges, ISupplyFocusChildren<Component>

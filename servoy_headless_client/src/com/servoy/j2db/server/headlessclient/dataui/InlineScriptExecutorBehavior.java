@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import org.apache.wicket.Component;
@@ -26,8 +26,12 @@ import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.util.Debug;
 
 /**
+ * The behavior used by components that want to eval a specific scriptname on the current form.
+ * 
  * @author jcompagner
  * 
+ * @see ISupportScriptCallback
+ * @see WebDataHtmlView
  */
 public final class InlineScriptExecutorBehavior extends AbstractServoyDefaultAjaxBehavior
 {

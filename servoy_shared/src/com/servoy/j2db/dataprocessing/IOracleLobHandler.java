@@ -19,12 +19,19 @@ package com.servoy.j2db.dataprocessing;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 
+/**
+ * A special interface for Oracle to update binary or character large fields in the database.
+ * This is needed because {@link PreparedStatement#setBytes(int, byte[])} doesn't work correctly for data larger then 2K
+ * 
+ * @author jcompagner
+ */
 public interface IOracleLobHandler
 {
 	public void updateOracleClob(IServer server, Connection connection, Table table, String column, Object[] pk, String clob) throws RepositoryException,

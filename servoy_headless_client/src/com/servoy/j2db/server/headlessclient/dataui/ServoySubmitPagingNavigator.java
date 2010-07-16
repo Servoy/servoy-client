@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import org.apache.wicket.markup.html.link.Link;
@@ -25,6 +25,8 @@ import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
 import com.servoy.j2db.server.headlessclient.TabIndexHelper;
 
 /**
+ * The none ajax paging navigator for a {@link WebCellBasedView}
+ * 
  * @author jcompagner
  *
  */

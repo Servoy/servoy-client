@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import java.awt.Insets;
@@ -25,6 +25,10 @@ import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IScriptTextEditorMethods;
 
 /**
+ * 
+ * Dummy class that just extends {@link WebDataLabel} so that RTF fields map on this class.
+ * Doesnt have an implementation.
+ * 
  * @author jcompagner
  * 
  */
@@ -88,6 +92,7 @@ public class WebDataRtfField extends WebDataLabel implements IFieldComponent, IS
 		return new String[0];
 	}
 
+	@Override
 	public IEventExecutor getEventExecutor()
 	{
 		return null;

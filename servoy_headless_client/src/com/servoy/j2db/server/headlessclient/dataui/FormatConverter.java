@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import java.text.Format;
@@ -33,6 +33,11 @@ import com.servoy.j2db.util.FormatParser;
 import com.servoy.j2db.util.StateFullSimpleDateFormat;
 import com.servoy.j2db.util.Utils;
 
+/**
+ * A {@link IConverter} that uses {@link Format} to convert value to string or string to value.
+ * 
+ * @author jcompagner
+ */
 final class FormatConverter implements IConverter
 {
 	private static final long serialVersionUID = 1L;

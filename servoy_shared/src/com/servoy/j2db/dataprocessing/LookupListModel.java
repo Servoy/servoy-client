@@ -45,6 +45,11 @@ import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
+/**
+ * {@link AbstractListModel} implementation for Lookup/Typeahead fields.
+ * 
+ * @author jcompagner
+ */
 public class LookupListModel extends AbstractListModel
 {
 	private IValueList lookup;

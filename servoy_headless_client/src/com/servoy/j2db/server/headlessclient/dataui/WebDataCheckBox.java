@@ -84,6 +84,11 @@ import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
+/**
+ * Represents a checkbox field in the webbrowser.
+ * 
+ * @author jcompagner
+ */
 public class WebDataCheckBox extends MarkupContainer implements IFieldComponent, IDisplayData, IProviderStylePropertyChanges, IScriptCheckBoxMethods,
 	INullableAware, ISupportWebBounds, IRightClickListener, ISupplyFocusChildren<Component>
 {

@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import org.apache.wicket.Component;
@@ -28,8 +28,12 @@ import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IScriptReadOnlyMethods;
 
 /**
+ * A behavior that handles ajax value updates of Choice components
+ * 
  * @author jcompagner
  * 
+ * @see WebDataCheckBoxChoice
+ * @see WebDataRadioChoice
  */
 public class ServoyChoiceComponentUpdatingBehavior extends AbstractServoyDefaultAjaxBehavior
 {

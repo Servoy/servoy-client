@@ -63,6 +63,8 @@ import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 
 /**
+ * The web implementation of the {@link IDataRenderer}
+ * 
  * @author jcompagner
  */
 public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer, IProviderStylePropertyChanges
