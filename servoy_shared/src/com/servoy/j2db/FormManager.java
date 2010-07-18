@@ -345,7 +345,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 
 		currentContainer.setComponentVisible(true);
 
-		if (preferedSolutionMethodName != null)
+		if (preferedSolutionMethodName != null && application.getFlattenedSolution().isMainSolutionLoaded())
 		{
 			try
 			{
