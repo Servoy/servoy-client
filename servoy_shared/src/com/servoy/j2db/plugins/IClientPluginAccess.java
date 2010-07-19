@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.plugins;
 
 
@@ -296,6 +296,17 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 	 * @param dialogTitle The dialog title.
 	 */
 	public void showFileOpenDialog(IMediaUploadCallback callback, String fileNameHint, boolean multiSelect, String[] filter, int selection, String dialogTitle);
+
+
+	/**
+	 * Returns a URLStreamHandler for handling servoy urls ('media' protocol).
+	 * Use this when you construct urls to those by using one of the URL constructors:
+	 * {@link URL#URL(URL, String, URLStreamHandler)} or {@link URL#URL(String, String, int, String, URLStreamHandler)}
+	 *
+	 * @return The URLStreamHandler for the protocol 'media'
+	 * @since 5.2
+	 */
+	public URLStreamHandler getMediaURLStreamHandler();
 
 	/**
 	 * exports a remote object on the client that can be transfered to the server (with a remote server call) that can have call backs.
