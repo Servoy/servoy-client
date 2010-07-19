@@ -61,7 +61,7 @@ public class StripHTMLTagsConverter implements IConverter
 
 		private final List<CharSequence> javascriptUrls;
 		private final List<CharSequence> javascriptScripts;
-//		private final List<CharSequence> linkTags;
+		private final List<CharSequence> linkTags;
 
 		private IValueMap bodyAttributes;
 
@@ -72,7 +72,7 @@ public class StripHTMLTagsConverter implements IConverter
 			javascriptUrls = new ArrayList<CharSequence>();
 			javascriptScripts = new ArrayList<CharSequence>();
 			styles = new ArrayList<CharSequence>();
-//			linkTags = new ArrayList<CharSequence>();
+			linkTags = new ArrayList<CharSequence>();
 		}
 
 		public final CharSequence getBodyTxt()
@@ -90,14 +90,14 @@ public class StripHTMLTagsConverter implements IConverter
 			return javascriptUrls;
 		}
 
-//		public final List<CharSequence> getLinkTags()
-//		{
-//			return linkTags;
-//		}
-
 		public final List<CharSequence> getJavascriptScripts()
 		{
 			return javascriptScripts;
+		}
+
+		public final List<CharSequence> getLinkTags()
+		{
+			return linkTags;
 		}
 
 		/**
@@ -222,18 +222,17 @@ public class StripHTMLTagsConverter implements IConverter
 					}
 					continue;
 				}
-//				else if (currentTagName.equals("link"))
-//				{
-//					if (me.isOpen() || me.isOpenClose())
-//					{
-//						st.getLinkTags().add(me.toXmlString(null));
-//					}
-//					else
-//					{
-//						me = (XmlTag)parser.nextTag();
-//					}
-//					continue;
-//				}
+				else if (currentTagName.equals("link"))
+				{
+					if (me.isOpen() || me.isOpenClose())
+					{
+						String end = "\n";
+						if (me.isOpen()) end = "</link>\n";
+						st.getLinkTags().add(me.toXmlString(null) + end);
+					}
+					me = (XmlTag)parser.nextTag();
+					continue;
+				}
 				if (ignoreTags.contains(currentTagName))
 				{
 					if (currentTagName.equals("body") && (me.isOpen() || me.isOpenClose()))

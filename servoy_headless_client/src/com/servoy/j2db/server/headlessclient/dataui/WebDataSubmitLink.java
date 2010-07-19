@@ -209,6 +209,11 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 		{
 			response.renderJavascript(lst.get(i), getDataProviderID());
 		}
+		lst = strippedText.getLinkTags();
+		for (int i = 0; i < lst.size(); i++)
+		{
+			response.renderString(lst.get(i));
+		}
 
 		lst = strippedText.getStyles();
 		for (CharSequence style : lst)
