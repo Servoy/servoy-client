@@ -59,8 +59,9 @@ public class StripHTMLTagsConverter implements IConverter
 	{
 		private CharSequence bodyTxt;
 
-		private List<CharSequence> javascriptUrls;
-		private List<CharSequence> javascriptScripts;
+		private final List<CharSequence> javascriptUrls;
+		private final List<CharSequence> javascriptScripts;
+		private final List<CharSequence> linkTags;
 
 		private IValueMap bodyAttributes;
 
@@ -71,6 +72,7 @@ public class StripHTMLTagsConverter implements IConverter
 			javascriptUrls = new ArrayList<CharSequence>();
 			javascriptScripts = new ArrayList<CharSequence>();
 			styles = new ArrayList<CharSequence>();
+			linkTags = new ArrayList<CharSequence>();
 		}
 
 		public final CharSequence getBodyTxt()
@@ -88,19 +90,14 @@ public class StripHTMLTagsConverter implements IConverter
 			return javascriptUrls;
 		}
 
-		public final void setJavascriptUrls(List<CharSequence> javascriptUrls)
-		{
-			this.javascriptUrls = javascriptUrls;
-		}
-
 		public final List<CharSequence> getJavascriptScripts()
 		{
 			return javascriptScripts;
 		}
 
-		public final void setJavascriptScripts(List<CharSequence> javascriptScripts)
+		public final List<CharSequence> getLinkTags()
 		{
-			this.javascriptScripts = javascriptScripts;
+			return linkTags;
 		}
 
 		/**
@@ -223,6 +220,17 @@ public class StripHTMLTagsConverter implements IConverter
 					{
 						me = (XmlTag)parser.nextTag();
 					}
+					continue;
+				}
+				else if (currentTagName.equals("link"))
+				{
+					if (me.isOpen() || me.isOpenClose())
+					{
+						String end = "\n";
+						if (me.isOpen()) end = "</link>\n";
+						st.getLinkTags().add(me.toXmlString(null) + end);
+					}
+					me = (XmlTag)parser.nextTag();
 					continue;
 				}
 				if (ignoreTags.contains(currentTagName))
