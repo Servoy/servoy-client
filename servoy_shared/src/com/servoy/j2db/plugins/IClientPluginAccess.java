@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.plugins;
 
 
@@ -263,6 +263,8 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 	 * {@link URL#URL(URL, String, URLStreamHandler)} or {@link URL#URL(String, String, int, String, URLStreamHandler)} 
 	 *
 	 * @return The URLStreamHandler for the protocol 'media'
+	 * 
+	 * @since 5.2
 	 */
 	public URLStreamHandler getMediaURLStreamHandler();
 
