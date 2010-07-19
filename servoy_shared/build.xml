@@ -244,8 +244,6 @@
 				<include name="lib/activation.jar"/>
 				<include name="lib/mail.jar"/>
 				<include name="lib/antlr.jar"/>
-				<include name="lib/jmx.jar"/>
-				<include name="lib/jndi.jar"/>
 				<include name="lib/joda-time.jar"/>
 				<include name="lib/jug.jar"/>
 			</fileset>
