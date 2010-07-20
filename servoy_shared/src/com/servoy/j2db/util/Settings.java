@@ -339,12 +339,15 @@ public class Settings extends SortedProperties
 		}
 
 		//no need to store those
-		remove(J2DBGlobals.SERVOY_APPLICATION_SERVER_DIRECTORY_KEY);
-		remove(J2DBGlobals.SERVOY_DIRECTORY_KEY);
+		Object appServerDir = remove(J2DBGlobals.SERVOY_APPLICATION_SERVER_DIRECTORY_KEY);
+		Object servoyDir = remove(J2DBGlobals.SERVOY_DIRECTORY_KEY);
 
 		FileOutputStream fis = new FileOutputStream(file);
 		store(fis, "servoy"); //$NON-NLS-1$
 		fis.close();
+
+		if (appServerDir != null) put(J2DBGlobals.SERVOY_APPLICATION_SERVER_DIRECTORY_KEY, appServerDir);
+		if (servoyDir != null) put(J2DBGlobals.SERVOY_DIRECTORY_KEY, servoyDir);
 	}
 
 	/**
