@@ -129,7 +129,6 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 		enclosedComponent = (FixedJEditorPane)getViewport().getView();
 		eventExecutor = new EventExecutor(this, enclosedComponent);
 		enclosedComponent.addKeyListener(eventExecutor);
-		enclosedComponent.addMouseListener(eventExecutor);
 
 		plainEditorKit = enclosedComponent.getEditorKit();
 		plainEditorDocument = getDocument();
@@ -708,17 +707,13 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 		}
 		if (editProvider != null) editProvider.setEditable(b);
 
-		// only for rtf due to links in html
-		if (editorKit instanceof FixedRTFEditorKit)
+		if (b)
 		{
-			if (b)
-			{
-				enclosedComponent.removeMouseListener(eventExecutor);
-			}
-			else
-			{
-				enclosedComponent.addMouseListener(eventExecutor);//listen when not editable
-			}
+			enclosedComponent.removeMouseListener(eventExecutor);
+		}
+		else
+		{
+			enclosedComponent.addMouseListener(eventExecutor);//listen when not editable
 		}
 	}
 

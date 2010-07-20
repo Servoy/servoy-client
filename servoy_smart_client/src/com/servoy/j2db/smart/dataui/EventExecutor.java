@@ -176,7 +176,7 @@ public class EventExecutor extends BaseEventExecutor implements MouseListener, F
 		if (hasActionCmd())
 		{
 			actionListener.setLastKeyModifiers(modifiers);
-			fireActionCommand(true, enclosedComponent, modifiers, mouseLocation);
+			fireActionCommand(true, component, modifiers, mouseLocation);
 		}
 	}
 
