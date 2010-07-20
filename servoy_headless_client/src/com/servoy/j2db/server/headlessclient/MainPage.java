@@ -590,14 +590,17 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 					if (navigator != null) customNavWidth = navigator.getForm().getSize().width;
 					styleToReturn = layoutProvider.getLayoutForForm(customNavWidth, false, false);
 				}
-				form.add(new StyleAppendingModifier(styleToReturn)
+				if (styleToReturn != null)
 				{
-					@Override
-					public boolean isEnabled(Component component)
+					form.add(new StyleAppendingModifier(styleToReturn)
 					{
-						return (component.findParent(WebTabPanel.class) == null) && (component.findParent(WebSplitPane.class) == null);
-					}
-				});
+						@Override
+						public boolean isEnabled(Component component)
+						{
+							return (component.findParent(WebTabPanel.class) == null) && (component.findParent(WebSplitPane.class) == null);
+						}
+					});
+				}
 				TabIndexHelper.setUpTabIndexAttributeModifier(item, ISupportWebTabSeq.SKIP);
 			}
 
