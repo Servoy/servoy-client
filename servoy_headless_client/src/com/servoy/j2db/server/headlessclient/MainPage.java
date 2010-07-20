@@ -78,10 +78,10 @@ import org.apache.wicket.version.undo.Change;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
-import com.servoy.j2db.FormManager.History;
 import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.Messages;
+import com.servoy.j2db.FormManager.History;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.persistence.Solution;
@@ -95,10 +95,10 @@ import com.servoy.j2db.server.headlessclient.dataui.IFormLayoutProvider;
 import com.servoy.j2db.server.headlessclient.dataui.ISupportWebTabSeq;
 import com.servoy.j2db.server.headlessclient.dataui.StartEditOnFocusGainedEventBehavior;
 import com.servoy.j2db.server.headlessclient.dataui.StyleAppendingModifier;
-import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor;
 import com.servoy.j2db.server.headlessclient.dataui.WebSplitPane;
 import com.servoy.j2db.server.headlessclient.dataui.WebTabPanel;
+import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.server.headlessclient.yui.YUILoader;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IEventExecutor;
@@ -526,14 +526,17 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 					if (navigator != null) customNavWidth = navigator.getForm().getSize().width;
 					styleToReturn = layoutProvider.getLayoutForForm(customNavWidth, false, false);
 				}
-				form.add(new StyleAppendingModifier(styleToReturn)
+				if (styleToReturn != null)
 				{
-					@Override
-					public boolean isEnabled(Component component)
+					form.add(new StyleAppendingModifier(styleToReturn)
 					{
-						return (component.findParent(WebTabPanel.class) == null) && (component.findParent(WebSplitPane.class) == null);
-					}
-				});
+						@Override
+						public boolean isEnabled(Component component)
+						{
+							return (component.findParent(WebTabPanel.class) == null) && (component.findParent(WebSplitPane.class) == null);
+						}
+					});
+				}
 				TabIndexHelper.setUpTabIndexAttributeModifier(item, ISupportWebTabSeq.SKIP);
 			}
 
