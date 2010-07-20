@@ -35,6 +35,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.TreeSet;
@@ -102,7 +103,6 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 		enclosedComponent = (JTextArea)getViewport().getView();
 		eventExecutor = new EventExecutor(this, enclosedComponent);
 		enclosedComponent.addKeyListener(eventExecutor);
-		enclosedComponent.addMouseListener(eventExecutor);
 
 		plainDocument = editorDocument = enclosedComponent.getDocument();
 		enclosedComponent.setBorder(BorderFactory.createEmptyBorder());
