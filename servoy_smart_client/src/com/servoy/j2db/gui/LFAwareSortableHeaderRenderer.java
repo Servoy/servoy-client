@@ -84,7 +84,7 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 				text = app.getI18NMessageIfPrefixed(text);
 				parentTable.getColumnModel().getColumn(columnIndex).setHeaderValue(text);
 			}
-			setToolTipText(gc.getToolTipText());
+			setToolTipText(app.getI18NMessageIfPrefixed(gc.getToolTipText()));
 		}
 	}
 

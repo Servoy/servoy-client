@@ -389,7 +389,7 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 					}
 					else if (gc != null && gc.getToolTipText() != null)
 					{
-						tooltip = gc.getToolTipText();
+						tooltip = application.getI18NMessageIfPrefixed(gc.getToolTipText());
 						add(TooltipAttributeModifier.INSTANCE);
 					}
 					if (gc != null && gc.getOnRightClickMethodID() > 0)
