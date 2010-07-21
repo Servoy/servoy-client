@@ -133,38 +133,47 @@ public class FunctionDefinition
 	{
 		if (access instanceof ClientPluginAccessProvider)
 		{
-			IApplication application = ((ClientPluginAccessProvider)access).getApplication();
-			if (application.getSolution() != null)
+			final Exist[] retVal = new Exist[] { Exist.METHOD_NOT_FOUND };
+			final IApplication application = ((ClientPluginAccessProvider)access).getApplication();
+			Runnable run = new Runnable()
 			{
-				if (formName == null)
+				public void run()
 				{
-					GlobalScope gs = application.getScriptEngine().getSolutionScope().getGlobalScope();
-					if (gs.get(methodName) instanceof Function)
+					if (application.getSolution() != null)
 					{
-						return Exist.METHOD_FOUND;
+						if (formName == null)
+						{
+							GlobalScope gs = application.getScriptEngine().getSolutionScope().getGlobalScope();
+							if (gs.get(methodName) instanceof Function)
+							{
+								retVal[0] = Exist.METHOD_FOUND;
+							}
+						}
+						else
+						{
+							FormController fp = ((FormManager)application.getFormManager()).leaseFormPanel(formName);
+							if (fp == null)
+							{
+								retVal[0] = Exist.FORM_NOT_FOUND;
+							}
+							if (fp.getFormScope().get(methodName, fp.getFormScope()) instanceof Function)
+							{
+								retVal[0] = Exist.METHOD_FOUND;
+							}
+						}
+					}
+					else
+					{
+						retVal[0] = Exist.NO_SOLUTION;
 					}
 				}
-				else
-				{
-					FormController fp = ((FormManager)application.getFormManager()).leaseFormPanel(formName);
-					if (fp == null)
-					{
-						return Exist.FORM_NOT_FOUND;
-					}
-					if (fp.getFormScope().get(methodName, fp.getFormScope()) instanceof Function)
-					{
-						return Exist.METHOD_FOUND;
-					}
-				}
-			}
-			else
-			{
-				return Exist.NO_SOLUTION;
-			}
+			};
+
+			application.invokeAndWait(run);
+			return retVal[0];
 		}
 		return Exist.METHOD_NOT_FOUND;
 	}
-
 
 	/**
 	 * @deprecated see {@link #executeAsync(IClientPluginAccess, Object[])}and {@link #executeSync(IClientPluginAccess, Object[])
