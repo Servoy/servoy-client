@@ -43,6 +43,8 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.SolutionMetaData;
+import com.servoy.j2db.plugins.ClientPluginAccessProvider;
+import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.server.headlessclient.DummyMainContainer;
 import com.servoy.j2db.server.headlessclient.SessionClient;
@@ -127,6 +129,21 @@ public class DebugHeadlessClient extends SessionClient implements IDebugHeadless
 	{
 		super(req, name, pass, method, methodArgs, solution == null ? null : solution.getName());
 		this.solution = solution;
+	}
+
+
+	@Override
+	public IClientPluginAccess createClientPluginAccess()
+	{
+		return new ClientPluginAccessProvider(this)
+		{
+			@Override
+			public Object executeMethod(String context, String methodname, Object[] arguments, boolean async) throws Exception
+			{
+				checkForChanges();
+				return super.executeMethod(context, methodname, arguments, async);
+			}
+		};
 	}
 
 	@Override
