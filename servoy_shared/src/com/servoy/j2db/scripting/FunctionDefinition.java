@@ -186,7 +186,8 @@ public class FunctionDefinition
 
 	/**
 	 * Helper method that calls the {@link IClientPluginAccess#executeMethod(String, String, Object[], boolean)} for you with the right formname/context and
-	 * method name.
+	 * method name. And exception that {@link IClientPluginAccess#executeMethod(String, String, Object[], boolean)} will throw will be catched and {@link IClientPluginAccess#handleException(String, Exception)}
+	 * will be called with the Exception object. If you want the exception object call {@link IClientPluginAccess#executeMethod(String, String, Object[], boolean)} directly.
 	 * <b>The method is called asynchronously in the user-interface thread.
 	 * 
 	 * @param access The IClientPluginAccess object to call
