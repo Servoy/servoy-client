@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting.solutionmodel;
 
 import java.awt.Dimension;
@@ -57,7 +57,7 @@ public class JSTab extends JSBase<Tab> implements IJavaScriptType
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Tab#getContainsForm()
+	 * @clonedesc com.servoy.j2db.persistence.Tab#getContainsFormID()
 	 * 
 	 * @sample
 	 * var childForm = solutionModel.newForm('childForm', 'example_data', 'child_table', 'null', false, 400, 300);

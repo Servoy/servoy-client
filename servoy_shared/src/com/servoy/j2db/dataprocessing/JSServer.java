@@ -127,7 +127,7 @@ public class JSServer
 	/**
 	 * Synchronizes a JSTable instance with the database. If columns were added to or removed from the JSTable instance, all these changes will now be persisted to the database.
 	 *
-	 * @sampleas js_createNewTable()
+	 * @sampleas js_createNewTable(String)
 	 *
 	 * @param table A JSTableObject instance that should be synchronized.
 	 * 
