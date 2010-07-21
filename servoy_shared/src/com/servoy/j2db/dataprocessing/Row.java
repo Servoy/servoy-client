@@ -349,7 +349,7 @@ public class Row
 						{
 							throw new IllegalArgumentException(
 								Messages.getString(
-									"servoy.record.error.settingDataprovider", new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type), convertedValue }) + "\n(due to converter defined on column)"); //$NON-NLS-1$
+									"servoy.record.error.settingDataprovider", new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type), convertedValue }), e); //$NON-NLS-1$
 						}
 					}
 					else
