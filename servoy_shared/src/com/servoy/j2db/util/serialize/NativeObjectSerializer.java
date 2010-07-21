@@ -13,17 +13,22 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util.serialize;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Vector;
 
 import org.jabsorb.serializer.AbstractSerializer;
 import org.jabsorb.serializer.MarshallException;
 import org.jabsorb.serializer.ObjectMatch;
 import org.jabsorb.serializer.SerializerState;
 import org.jabsorb.serializer.UnmarshallException;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.mozilla.javascript.IdScriptableObject;
@@ -45,39 +50,81 @@ public class NativeObjectSerializer extends AbstractSerializer
 
 	private static final String PROPERTY_MARK = "_"; //$NON-NLS-1$
 
-	private static Class[] _serializableClasses = new Class[] { NativeObject.class, NativeObject[].class, NativeArray.class };
+	private static Class[] _serializableClassesStandard = new Class[] { NativeObject.class, NativeObject[].class, NativeArray.class };
+	private static Class[] _serializableClassesWithArrays = new Class[] { NativeObject.class, NativeObject[].class, NativeArray.class, List.class, ArrayList.class, LinkedList.class, Vector.class };
 
-	private static Class[] _JSONClasses = new Class[] { JSONObject.class };
+	private static Class[] _JSONClassesStandard = new Class[] { JSONObject.class };
+	private static Class[] _JSONClassesWithArrays = new Class[] { JSONObject.class, JSONArray.class };
 
 	private final boolean prefixKeys;
 
 	private final boolean addJavaClassHint;
 
+	private final boolean handleArrays;
+
 	public NativeObjectSerializer(boolean prefixKeys, boolean addJavaClassHint)
+	{
+		this(prefixKeys, addJavaClassHint, false);
+	}
+
+	public NativeObjectSerializer(boolean prefixKeys, boolean addJavaClassHint, boolean handleArrays)
 	{
 		this.prefixKeys = prefixKeys;
 		this.addJavaClassHint = addJavaClassHint;
+		this.handleArrays = handleArrays;
 	}
 
 	public Class[] getJSONClasses()
 	{
-		return _JSONClasses;
+		return handleArrays ? _JSONClassesWithArrays : _JSONClassesStandard;
 	}
 
 	public Class[] getSerializableClasses()
 	{
-		return _serializableClasses;
+		return handleArrays ? _serializableClassesWithArrays : _serializableClassesStandard;
 	}
 
 	public Object marshall(SerializerState state, Object parent, Object o) throws MarshallException
 	{
-		if (!(o instanceof NativeObject || o instanceof NativeArray))
+		if (!(o instanceof NativeObject || o instanceof NativeArray || o instanceof List< ? >))
 		{
 			throw new MarshallException("cannot marshall NativeObject using class " + o.getClass()); //$NON-NLS-1$
 		}
 
-		IdScriptableObject no = (IdScriptableObject)o;
+		if (handleArrays)
+		{
+			if (o instanceof NativeArray)
+			{
+				NativeArray nativeArray = (NativeArray)o;
+				JSONArray jsonArray = new JSONArray();
+				long length = nativeArray.getLength();
 
+				for (int i = 0; i < length; i++)
+				{
+					Object elem = nativeArray.get(i, nativeArray);
+					jsonArray.put(ser.marshall(state, o, elem, new Integer(i)));
+				}
+				return jsonArray;
+			}
+
+			if (o instanceof List< ? >)
+			{
+				List< ? > list = (List< ? >)o;
+				JSONArray jsonArray = new JSONArray();
+				long length = list.size();
+
+				for (int i = 0; i < length; i++)
+				{
+					Object elem = list.get(i);
+					jsonArray.put(ser.marshall(state, o, elem, new Integer(i)));
+				}
+				return jsonArray;
+			}
+		}
+
+		// else NativeObject
+
+		IdScriptableObject no = (IdScriptableObject)o;
 		JSONObject obj = new JSONObject();
 		try
 		{
@@ -131,6 +178,13 @@ public class NativeObjectSerializer extends AbstractSerializer
 	@SuppressWarnings("nls")
 	public ObjectMatch tryUnmarshall(SerializerState state, Class clazz, Object json) throws UnmarshallException
 	{
+		if (handleArrays && json instanceof JSONArray)
+		{
+			return ObjectMatch.OKAY;
+		}
+
+		// else JSONObject
+
 		JSONObject jso = (JSONObject)json;
 		try
 		{
@@ -151,7 +205,19 @@ public class NativeObjectSerializer extends AbstractSerializer
 	@SuppressWarnings("nls")
 	public Object unmarshall(SerializerState state, Class clazz, Object json) throws UnmarshallException
 	{
-		JSONObject jso = (JSONObject)json;
+		if (handleArrays && json instanceof JSONArray)
+		{
+			return unmarshallJSONArray(state, clazz, (JSONArray)json);
+		}
+
+		// else JSONObject
+
+		return unmarshallJSONObject(state, clazz, (JSONObject)json);
+
+	}
+
+	public Object unmarshallJSONObject(SerializerState state, Class clazz, JSONObject jso) throws UnmarshallException
+	{
 
 		if (jso.has("javaClass")) //$NON-NLS-1$
 		{
@@ -203,37 +269,10 @@ public class NativeObjectSerializer extends AbstractSerializer
 					throw new UnmarshallException("JSONException: " + e.getMessage(), e); //$NON-NLS-1$
 				}
 
-				if (jsonValue instanceof JSONObject)
-				{
-					JSONObject jsonObjectValue = (JSONObject)jsonValue;
-					if (jsonObjectValue.has("javaClass")) //$NON-NLS-1$
-					{
-						String classHint;
-						try
-						{
-							classHint = jsonObjectValue.getString("javaClass"); //$NON-NLS-1$
-						}
-						catch (JSONException e)
-						{
-							throw new UnmarshallException("JSONException: " + e.getMessage(), e); //$NON-NLS-1$
-						}
-						try
-						{
-							jsonValue = ser.unmarshall(state, Class.forName(classHint), jsonValue);
-						}
-						catch (ClassNotFoundException ex)
-						{
-							throw new UnmarshallException("cannot find class for " + classHint); //$NON-NLS-1$
-						}
-
-					}
-				}
-
-				jsonValue = JSONSerializerWrapper.unwrapFromJSON(jsonValue);
+				jsonValue = getUnmarshalled(state, jsonValue);
 				try
 				{
 					int jsonIntKey = Integer.parseInt(jsonProperty);
-
 					no.put(new Integer(jsonIntKey), jsonValue);
 				}
 				catch (NumberFormatException ex)
@@ -245,6 +284,65 @@ public class NativeObjectSerializer extends AbstractSerializer
 		}
 
 		return no;
+	}
+
+
+	public Object unmarshallJSONArray(SerializerState state, Class clazz, JSONArray jso) throws UnmarshallException
+	{
+		JSMap no = new JSMap("Array");
+
+		int length = jso.length();
+		for (int i = 0; i < length; i++)
+		{
+			Object jsonValue;
+			try
+			{
+				jsonValue = jso.get(i);
+			}
+			catch (JSONException e)
+			{
+				throw new UnmarshallException("JSONException: " + e.getMessage(), e); //$NON-NLS-1$
+			}
+
+			jsonValue = getUnmarshalled(state, jsonValue);
+
+			no.put(new Integer(i), jsonValue);
+		}
+
+		return no;
+	}
+
+	private Object getUnmarshalled(SerializerState state, Object jsonValue) throws UnmarshallException
+	{
+		if (jsonValue instanceof JSONObject)
+		{
+			JSONObject jsonObjectValue = (JSONObject)jsonValue;
+			if (jsonObjectValue.has("javaClass")) //$NON-NLS-1$
+			{
+				String classHint;
+				try
+				{
+					classHint = jsonObjectValue.getString("javaClass"); //$NON-NLS-1$
+				}
+				catch (JSONException e)
+				{
+					throw new UnmarshallException("JSONException: " + e.getMessage(), e); //$NON-NLS-1$
+				}
+				try
+				{
+					jsonValue = ser.unmarshall(state, Class.forName(classHint), jsonValue);
+				}
+				catch (ClassNotFoundException ex)
+				{
+					throw new UnmarshallException("cannot find class for " + classHint); //$NON-NLS-1$
+				}
+			}
+		}
+		else if (handleArrays && jsonValue instanceof JSONArray)
+		{
+			jsonValue = ser.unmarshall(state, NativeArray.class, jsonValue);
+		}
+		return JSONSerializerWrapper.unwrapFromJSON(jsonValue);
 	}
 
 	private boolean hasPropertyMark(JSONObject jso)
