@@ -738,11 +738,11 @@ function adjustTooltip(x,targetParentWidth,wWidth,y,targetParentHeight,wHeight)
 {
 	m = document.getElementById('mktipmsg');
 	var tooltipOffsetWidth = x + 20 + m.offsetWidth; 
-	if(targetParentWidth < tooltipOffsetWidth || wWidth < tooltipOffsetWidth)
+	if((targetParentWidth < tooltipOffsetWidth || wWidth < tooltipOffsetWidth)&&(x - 20 -m.offsetWidth>=0))
 		m.style.left = x - 20 -m.offsetWidth  + "px";
 
 	var tooltipOffsetHeight = y - 4 + m.offsetHeight
-	if(targetParentHeight < tooltipOffsetHeight || wHeight < tooltipOffsetHeight)
+	if((targetParentHeight < tooltipOffsetHeight || wHeight < tooltipOffsetHeight)&&(y - 4 - m.offsetHeight>=0))
 	{
 		m.style.top = y - 4 - m.offsetHeight  + "px";
 	}
