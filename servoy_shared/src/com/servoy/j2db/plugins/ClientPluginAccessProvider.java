@@ -532,7 +532,7 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 								fp.initForJSUsage();
 								fp.setView(fp.getView());
 								fp.executeOnLoadMethod();
-								retval = fp.executeFunction(methodname, arguments, false, null, true, null);
+								retval = fp.executeFunction(methodname, arguments, false, null, true, null, false, true);
 							}
 						}
 						catch (Exception e)

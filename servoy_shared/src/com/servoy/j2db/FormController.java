@@ -3805,12 +3805,45 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	//also handles the scopes
 	public Object executeFunction(Function f, Object[] args, boolean saveData) throws Exception
 	{
-		return executeFunction(f, args, formScope, formScope, saveData, null, true, false, null, false, false);
+		return executeFunction(f, args, formScope, formScope, saveData, null, true, false, null, false, false, false);
 	}
 
 	public Object executeFunction(String cmd, Object[] args, boolean saveData, Object src, boolean focusEvent, String methodKey)
 	{
 		return executeFunction(cmd, args, saveData, src, focusEvent, methodKey, false);
+	}
+
+	public Object executeFunction(String cmd, Object[] args, boolean saveData, Object src, boolean focusEvent, String methodKey,
+		boolean executeWhenFieldValidationFailed)
+	{
+		try
+		{
+			return executeFunction(cmd, args, saveData, src, focusEvent, methodKey, executeWhenFieldValidationFailed, false);
+		}
+		catch (ApplicationException ex)
+		{
+			application.reportError(ex.getMessage(), null);
+		}
+		catch (Exception ex)
+		{
+			this.requestFocus();
+			String name = cmd;
+			int id = Utils.getAsInteger(cmd);
+			if (id > 0)
+			{
+				name = formScope.getFunctionName(new Integer(id));
+			}
+
+			if (id <= 0 && name != null && name.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+			{
+				application.reportError(application.getI18NMessage("servoy.formPanel.error.executingMethod", new Object[] { name }), ex); //$NON-NLS-1$ 
+			}
+			else
+			{
+				application.reportError(application.getI18NMessage("servoy.formPanel.error.executingMethod", new Object[] { getName() + "." + name }), ex); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -3820,7 +3853,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	 * @param methodKey 
 	 */
 	public Object executeFunction(String cmd, Object[] args, boolean saveData, Object src, boolean focusEvent, String methodKey,
-		boolean executeWhenFieldValidationFailed)
+		boolean executeWhenFieldValidationFailed, boolean throwException) throws Exception
 	{
 		Function f = null;
 		Scriptable scope = formScope;
@@ -3854,10 +3887,17 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			f = globalScope.getFunctionByName(name);
 		}
 
+		if (throwException)
+		{
+			return executeFunction(f, args, scope, thisObject, saveData, src, f == null || !Utils.getAsBoolean(f.get("_hasSearchORloadAllRecords_", f)), //$NON-NLS-1$
+				focusEvent, methodKey, executeWhenFieldValidationFailed, false, true);
+		}
+		else
+		{
 		try
 		{
 			return executeFunction(f, args, scope, thisObject, saveData, src, f == null || !Utils.getAsBoolean(f.get("_hasSearchORloadAllRecords_", f)), //$NON-NLS-1$
-				focusEvent, methodKey, executeWhenFieldValidationFailed, false);
+					focusEvent, methodKey, executeWhenFieldValidationFailed, false, false);
 		}
 		catch (ApplicationException ex)
 		{
@@ -3868,12 +3908,14 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			this.requestFocus();
 			application.reportError(application.getI18NMessage("servoy.formPanel.error.executingMethod", new Object[] { getName() + "." + name }), ex); //$NON-NLS-1$ //$NON-NLS-2$				
 		}
+		}
 		return null;
 	}
 
 
 	private Object executeFunction(Function f, Object[] args, Scriptable scope, Scriptable thisObject, boolean saveData, Object src, boolean testFindMode,
-		boolean focusEvent, String methodKey, boolean executeWhenFieldValidationFailed, boolean useFormAsEventSourceEventually) throws Exception
+		boolean focusEvent, String methodKey, boolean executeWhenFieldValidationFailed, boolean useFormAsEventSourceEventually, boolean throwException)
+		throws Exception
 	{
 		if (!(testFindMode && isInFindMode())) //only run certain methods in find
 		{
@@ -3941,7 +3983,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 						}
 					}
 
-					return application.getScriptEngine().executeFunction(f, scope, thisObject, newArgs, focusEvent, false);
+					return application.getScriptEngine().executeFunction(f, scope, thisObject, newArgs, focusEvent, throwException);
 				}
 				finally
 				{
@@ -4256,7 +4298,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				if (f != null)
 				{
 					ret = executeFunction(f, Utils.arrayMerge(args, Utils.parseJSExpressions(form.getInstanceMethodArguments(methodKey))), scope, thisObject,
-						saveData, null, testFindMode, false, methodKey, false, true);
+						saveData, null, testFindMode, false, methodKey, false, true, false);
 				}
 			}
 			catch (Exception ex)
