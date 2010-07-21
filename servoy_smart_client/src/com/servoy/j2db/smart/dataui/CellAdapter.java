@@ -575,7 +575,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 					if (!printing && !state.isRelatedFoundSetLoaded(relationName, null))
 					{
 						IApplication app = dal.getApplication();
-						((IDisplayData)renderer).setValueObject(null);
+						if (renderer instanceof IDisplayData) ((IDisplayData)renderer).setValueObject(null);
 						String key = row + "_" + relationName + "_" + null; //$NON-NLS-1$ //$NON-NLS-2$
 						if (!rowAndDataprovider.containsKey(key))
 						{
