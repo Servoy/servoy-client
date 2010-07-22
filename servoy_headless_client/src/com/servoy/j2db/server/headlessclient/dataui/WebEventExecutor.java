@@ -25,11 +25,11 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.Component.IVisitor;
 import org.apache.wicket.Page;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.Response;
 import org.apache.wicket.Session;
+import org.apache.wicket.Component.IVisitor;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.calldecorator.AjaxCallDecorator;
@@ -41,6 +41,7 @@ import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.FormComponent;
+import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.PageableListView;
 import org.apache.wicket.model.IModel;
@@ -132,7 +133,7 @@ public class WebEventExecutor extends BaseEventExecutor
 	{
 		if (id != null && useAJAX)
 		{
-			if (!(component instanceof TextField< ? > && component instanceof IDisplay && ((IDisplay)component).isReadOnly()) &&
+			if (!((component instanceof TextField< ? > || component instanceof TextArea< ? >) && component instanceof IDisplay && ((IDisplay)component).isReadOnly()) &&
 				!(component instanceof ILabel) && component instanceof FormComponent< ? >)
 			{
 				component.add(new ServoyActionEventBehavior("onKeyDown", component, this)); // please keep the case in the event name //$NON-NLS-1$
@@ -147,8 +148,8 @@ public class WebEventExecutor extends BaseEventExecutor
 					protected void onEvent(AjaxRequestTarget target)
 					{
 						WebEventExecutor.this.onEvent(JSEvent.EventType.action, target, component,
-							Utils.getAsInteger(RequestCycle.get().getRequest().getParameter(IEventExecutor.MODIFIERS_PARAMETER)),
-							new Point(Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("mx")), //$NON-NLS-1$
+							Utils.getAsInteger(RequestCycle.get().getRequest().getParameter(IEventExecutor.MODIFIERS_PARAMETER)), new Point(
+								Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("mx")), //$NON-NLS-1$
 								Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("my")))); //$NON-NLS-1$
 
 						target.appendJavascript("clearDoubleClickId('" + component.getMarkupId() + "')"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -217,8 +218,8 @@ public class WebEventExecutor extends BaseEventExecutor
 					protected void onEvent(AjaxRequestTarget target)
 					{
 						WebEventExecutor.this.onEvent(JSEvent.EventType.doubleClick, target, component,
-							Utils.getAsInteger(RequestCycle.get().getRequest().getParameter(IEventExecutor.MODIFIERS_PARAMETER)),
-							new Point(Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("mx")), //$NON-NLS-1$
+							Utils.getAsInteger(RequestCycle.get().getRequest().getParameter(IEventExecutor.MODIFIERS_PARAMETER)), new Point(
+								Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("mx")), //$NON-NLS-1$
 								Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("my")))); //$NON-NLS-1$
 					}
 
@@ -268,8 +269,8 @@ public class WebEventExecutor extends BaseEventExecutor
 				protected void onEvent(AjaxRequestTarget target)
 				{
 					WebEventExecutor.this.onEvent(JSEvent.EventType.rightClick, target, component,
-						Utils.getAsInteger(RequestCycle.get().getRequest().getParameter(IEventExecutor.MODIFIERS_PARAMETER)),
-						new Point(Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("mx")), //$NON-NLS-1$
+							Utils.getAsInteger(RequestCycle.get().getRequest().getParameter(IEventExecutor.MODIFIERS_PARAMETER)), new Point(
+								Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("mx")), //$NON-NLS-1$
 							Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("my")))); //$NON-NLS-1$
 				}
 
