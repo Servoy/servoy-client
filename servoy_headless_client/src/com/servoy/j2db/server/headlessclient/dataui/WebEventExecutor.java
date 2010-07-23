@@ -451,7 +451,8 @@ public class WebEventExecutor extends BaseEventExecutor
 
 				//set the selected record
 				ClientProperties clp = ((WebClientInfo)Session.get().getClientInfo()).getProperties();
-				int controlMask = clp.isBrowserSafari() ? Event.META_MASK : Event.CTRL_MASK;
+				String navPlatform = clp.getNavigatorPlatform();
+				int controlMask = (navPlatform != null && navPlatform.toLowerCase().indexOf("mac") != -1) ? Event.META_MASK : Event.CTRL_MASK;
 
 				boolean toggle = (modifiers != MODIFIERS_UNSPECIFIED) && ((modifiers & controlMask) != 0);
 				boolean extend = (modifiers != MODIFIERS_UNSPECIFIED) && ((modifiers & Event.SHIFT_MASK) != 0);
