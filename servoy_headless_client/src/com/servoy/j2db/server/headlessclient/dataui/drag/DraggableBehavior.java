@@ -16,14 +16,20 @@
  */
 package com.servoy.j2db.server.headlessclient.dataui.drag;
 
+import org.apache.wicket.Component;
+import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Page;
 import org.apache.wicket.Request;
+import org.apache.wicket.Session;
+import org.apache.wicket.Component.IVisitor;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.IHeaderResponse;
 
 import com.servoy.j2db.dnd.DRAGNDROP;
+import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.dataui.AbstractServoyDefaultAjaxBehavior;
 import com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor;
+import com.servoy.j2db.ui.IComponent;
 
 /**
  * Class used to add drag and drop support for web components 
@@ -50,8 +56,6 @@ public abstract class DraggableBehavior extends AbstractServoyDefaultAjaxBehavio
 	private boolean bYConstraint;
 
 	private boolean isRenderOnHead = true;
-
-	protected static int currentDragOperation = DRAGNDROP.NONE;
 
 	public void setRenderOnHead(boolean isRenderOnHead)
 	{
@@ -86,6 +90,48 @@ public abstract class DraggableBehavior extends AbstractServoyDefaultAjaxBehavio
 	public boolean isYConstraint()
 	{
 		return this.bYConstraint;
+	}
+
+	public void setDragData(Object dragData)
+	{
+		((WebClientSession)Session.get()).setDragData(dragData);
+	}
+
+	public Object getDragData()
+	{
+		return ((WebClientSession)Session.get()).getDragData();
+	}
+
+	public void setCurrentDragOperation(int currentDragOperation)
+	{
+		((WebClientSession)Session.get()).setCurrentDragOperation(currentDragOperation);
+	}
+
+	public int getCurrentDragOperation()
+	{
+		return ((WebClientSession)Session.get()).getCurrentDragOperation();
+	}
+
+	public IComponent getBindedComponentChild(final String childId)
+	{
+		IComponent bindedComponentChild = null;
+		Component bindedComponent = getComponent();
+		if (bindedComponent instanceof MarkupContainer)
+		{
+			bindedComponentChild = (IComponent)((MarkupContainer)bindedComponent).visitChildren(IComponent.class, new IVisitor<Component>()
+			{
+				public Object component(Component component)
+				{
+					if (component.getMarkupId().equals(childId))
+					{
+						return component;
+					}
+					return IVisitor.CONTINUE_TRAVERSAL;
+				}
+			});
+		}
+
+		return bindedComponentChild;
 	}
 
 	@Override
@@ -138,7 +184,11 @@ public abstract class DraggableBehavior extends AbstractServoyDefaultAjaxBehavio
 
 	protected abstract void onDragStart(String id, int x, int y, AjaxRequestTarget ajaxRequestTarget);
 
-	protected abstract void onDragEnd(String id, int x, int y, AjaxRequestTarget ajaxRequestTarget);
+	protected void onDragEnd(String id, int x, int y, AjaxRequestTarget ajaxRequestTarget)
+	{
+		setDragData(null);
+		setCurrentDragOperation(DRAGNDROP.NONE);
+	}
 
 	protected abstract void onDropHover(String id, String targeid, AjaxRequestTarget ajaxRequestTarget);
 

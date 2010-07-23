@@ -117,7 +117,6 @@ import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.TabIndexHelper;
-import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.server.headlessclient.dataui.drag.DraggableBehavior;
 import com.servoy.j2db.ui.IComponent;
@@ -3005,78 +3004,40 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		DraggableBehavior compDragBehavior = new DraggableBehavior()
 		{
 			@Override
-			protected void onDragEnd(String id, int x, int y, AjaxRequestTarget ajaxRequestTarget)
-			{
-				((WebClientSession)Session.get()).setDragData(null);
-				DraggableBehavior.currentDragOperation = DRAGNDROP.NONE;
-			}
-
-			@Override
 			protected void onDragStart(final String id, int x, int y, AjaxRequestTarget ajaxRequestTarget)
 			{
-				IComponent comp = (IComponent)visitChildren(IComponent.class, new IVisitor<Component>()
-				{
-					public Object component(Component component)
-					{
-						if (component.getMarkupId().equals(id))
-						{
-							return component;
-						}
-						return IVisitor.CONTINUE_TRAVERSAL;
-					}
-				});
+				IComponent comp = getBindedComponentChild(id);
 				JSEvent event = WebCellBasedView.this.createScriptEvent(EventType.onDrag, comp, new Point(x, y));
-				DraggableBehavior.currentDragOperation = WebCellBasedView.this.onDrag(event);
-				((WebClientSession)Session.get()).setDragData(event.getData());
+				setCurrentDragOperation(WebCellBasedView.this.onDrag(event));
+				setDragData(event.getData());
 			}
 
 			@Override
 			protected void onDrop(String id, final String targetid, int x, int y, AjaxRequestTarget ajaxRequestTarget)
 			{
-				if (DraggableBehavior.currentDragOperation != DRAGNDROP.NONE)
+				if (getCurrentDragOperation() != DRAGNDROP.NONE)
 				{
-					IComponent comp = (IComponent)visitChildren(IComponent.class, new IVisitor<Component>()
-					{
-						public Object component(Component component)
-						{
-							if (component.getMarkupId().equals(targetid))
-							{
-								return component;
-							}
-							return IVisitor.CONTINUE_TRAVERSAL;
-						}
-					});
+					IComponent comp = getBindedComponentChild(targetid);
 					if (comp == null) comp = WebCellBasedView.this;
 					JSEvent event = WebCellBasedView.this.createScriptEvent(EventType.onDrop, comp, new Point(x, y));
-					event.setData(((WebClientSession)Session.get()).getDragData());
+					event.setData(getDragData());
 					WebCellBasedView.this.onDrop(event);
-					((WebClientSession)Session.get()).setDragData(null);
+					setDragData(null);
 				}
 			}
 
 			@Override
 			protected void onDropHover(String id, final String targetid, AjaxRequestTarget ajaxRequestTarget)
 			{
-				if (DraggableBehavior.currentDragOperation != DRAGNDROP.NONE)
+				if (getCurrentDragOperation() != DRAGNDROP.NONE)
 				{
-					IComponent comp = (IComponent)visitChildren(IComponent.class, new IVisitor<Component>()
-					{
-						public Object component(Component component)
-						{
-							if (component.getMarkupId().equals(targetid))
-							{
-								return component;
-							}
-							return IVisitor.CONTINUE_TRAVERSAL;
-						}
-					});
+					IComponent comp = getBindedComponentChild(targetid);
 					if (comp == null) comp = WebCellBasedView.this;
 					JSEvent event = WebCellBasedView.this.createScriptEvent(EventType.onDragOver, comp, null);
-					event.setData(((WebClientSession)Session.get()).getDragData());
+					event.setData(getDragData());
 					WebCellBasedView.this.onDragOver(event);
 				}
 			}
-
 		};
 		compDragBehavior.setUseProxy(true);
 		add(compDragBehavior);

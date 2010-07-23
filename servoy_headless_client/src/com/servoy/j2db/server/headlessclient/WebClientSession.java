@@ -38,6 +38,7 @@ import org.mozilla.javascript.Function;
 import com.servoy.j2db.IWebClientApplication;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
+import com.servoy.j2db.dnd.DRAGNDROP;
 import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.StartupArgumentsScope;
@@ -66,6 +67,7 @@ public class WebClientSession extends WebSession
 	private byte[] serveData;
 
 	private Object dragData;
+	private int currentDragOperation = DRAGNDROP.NONE;
 
 	public static WebClientSession get()
 	{
@@ -334,6 +336,16 @@ public class WebClientSession extends WebSession
 	public Object getDragData()
 	{
 		return dragData;
+	}
+
+	public void setCurrentDragOperation(int currentDragOperation)
+	{
+		this.currentDragOperation = currentDragOperation;
+	}
+
+	public int getCurrentDragOperation()
+	{
+		return currentDragOperation;
 	}
 
 	public boolean useAjax()
