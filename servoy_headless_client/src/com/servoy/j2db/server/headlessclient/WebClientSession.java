@@ -41,6 +41,7 @@ import com.servoy.j2db.Messages;
 import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.StartupArgumentsScope;
+import com.servoy.j2db.server.headlessclient.dataui.drag.DNDSessionInfo;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.server.shared.IApplicationServerSingleton;
 import com.servoy.j2db.util.Utils;
@@ -65,7 +66,7 @@ public class WebClientSession extends WebSession
 	private String serveMime;
 	private byte[] serveData;
 
-	private Object dragData;
+	private final DNDSessionInfo dndSessionInfo = new DNDSessionInfo();
 
 	public static WebClientSession get()
 	{
@@ -320,20 +321,9 @@ public class WebClientSession extends WebSession
 		return resourceState;
 	}
 
-	/**
-	 * @param dragData
-	 */
-	public void setDragData(Object dragData)
+	public DNDSessionInfo getDNDSessionInfo()
 	{
-		this.dragData = dragData;
-	}
-
-	/**
-	 * @return the dragData
-	 */
-	public Object getDragData()
-	{
-		return dragData;
+		return dndSessionInfo;
 	}
 
 	public boolean useAjax()

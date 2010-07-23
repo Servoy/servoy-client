@@ -21,7 +21,6 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -29,8 +28,6 @@ import java.util.Map;
 
 import javax.swing.border.Border;
 
-import org.apache.wicket.Component;
-import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -55,7 +52,6 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.scripting.JSEvent.EventType;
-import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.dataui.drag.DraggableBehavior;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
@@ -424,8 +420,8 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 					if (rec.getRawData().containsCalculation(rowBGColorCalculation))
 					{
 						// data renderer is always on the selected index.
-						bg_color = parentFoundSet.getCalculationValue(rec, rowBGColorCalculation, Utils.arrayMerge(
-							new Object[] { new Integer(parentFoundSet.getSelectedIndex()), new Boolean(isSelected), null, null, Boolean.FALSE },
+						bg_color = parentFoundSet.getCalculationValue(rec, rowBGColorCalculation, Utils.arrayMerge(new Object[] { new Integer(
+							parentFoundSet.getSelectedIndex()), new Boolean(isSelected), null, null, Boolean.FALSE },
 							Utils.parseJSExpressions(parentView.getRowBGColorArgs())), null);
 					}
 					else
@@ -433,11 +429,9 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 						try
 						{
 							FormController currentForm = dataAdapterList.getFormController();
-							bg_color = currentForm.executeFunction(
-								rowBGColorCalculation,
-								Utils.arrayMerge(
-									new Object[] { new Integer(parentFoundSet.getSelectedIndex()), new Boolean(isSelected), null, null, currentForm.getName(), rec, Boolean.FALSE },
-									Utils.parseJSExpressions(parentView.getRowBGColorArgs())), true, null, true, null);
+							bg_color = currentForm.executeFunction(rowBGColorCalculation, Utils.arrayMerge(new Object[] { new Integer(
+								parentFoundSet.getSelectedIndex()), new Boolean(isSelected), null, null, currentForm.getName(), rec, Boolean.FALSE },
+								Utils.parseJSExpressions(parentView.getRowBGColorArgs())), true, null, true, null);
 						}
 						catch (Exception ex)
 						{
@@ -565,58 +559,37 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 			@Override
 			protected void onDragEnd(String id, int x, int y, AjaxRequestTarget ajaxRequestTarget)
 			{
-				((WebClientSession)Session.get()).setDragData(null);
-				DraggableBehavior.onDragEvent.setType(EventType.onDragEnd);
-				DraggableBehavior.onDragEvent.setTimestamp(new Date());
-				int dragResult = DraggableBehavior.dropResult ? DraggableBehavior.currentDragOperation : DRAGNDROP.NONE;
-				DraggableBehavior.onDragEvent.setDragResult(dragResult);
-				WebDataRenderer.this.onDragEnd(DraggableBehavior.onDragEvent);
-				DraggableBehavior.currentDragOperation = DRAGNDROP.NONE;
+				JSDNDEvent event = WebDataRenderer.this.createScriptEvent(EventType.onDragEnd, getDragComponent(), null);
+				event.setData(getDragData());
+				event.setDragResult(getDropResult() ? getCurrentDragOperation() : DRAGNDROP.NONE);
+				WebDataRenderer.this.onDragEnd(event);
+
+				super.onDragEnd(id, x, y, ajaxRequestTarget);
 			}
 
 			@Override
 			protected void onDragStart(final String id, int x, int y, AjaxRequestTarget ajaxRequestTarget)
 			{
-				IComponent comp = (IComponent)visitChildren(IComponent.class, new IVisitor<Component>()
-				{
-					public Object component(Component component)
-					{
-						if (component.getId().equals(id))
-						{
-							return component;
-						}
-						return IVisitor.CONTINUE_TRAVERSAL;
-					}
-				});
-				DraggableBehavior.onDragEvent = WebDataRenderer.this.createScriptEvent(EventType.onDrag, comp, new Point(x, y));
-				DraggableBehavior.dropResult = false;
-				DraggableBehavior.currentDragOperation = WebDataRenderer.this.onDrag(DraggableBehavior.onDragEvent);
-				((WebClientSession)Session.get()).setDragData(DraggableBehavior.onDragEvent.getData());
+				IComponent comp = getBindedComponentChild(id);
+				JSDNDEvent event = WebDataRenderer.this.createScriptEvent(EventType.onDrag, comp, new Point(x, y));
+				setDropResult(false);
+				setCurrentDragOperation(WebDataRenderer.this.onDrag(event));
+				setDragComponent(comp);
+				setDragData(event.getData());
 			}
 
 			@Override
 			protected void onDrop(String id, final String targetid, int x, int y, AjaxRequestTarget ajaxRequestTarget)
 			{
-				if (DraggableBehavior.currentDragOperation != DRAGNDROP.NONE)
+				if (getCurrentDragOperation() != DRAGNDROP.NONE)
 				{
-					IComponent comp = (IComponent)visitChildren(IComponent.class, new IVisitor<Component>()
-					{
-						public Object component(Component component)
-						{
-							if (component.getId().equals(targetid))
-							{
-								return component;
-							}
-							return IVisitor.CONTINUE_TRAVERSAL;
-						}
-					});
-
+					IComponent comp = getBindedComponentChild(targetid);
 					if (comp == null) comp = WebDataRenderer.this;
 					WebDataRenderer renderer = WebDataRenderer.this;
 					JSDNDEvent event = renderer.createScriptEvent(EventType.onDrop, comp, new Point(x, y));
-					event.setData(((WebClientSession)Session.get()).getDragData());
-					DraggableBehavior.dropResult = renderer.onDrop(event);
-					((WebClientSession)Session.get()).setDragData(null);
+					event.setData(getDragData());
+					setDropResult(renderer.onDrop(event));
+					setDragData(null);
 				}
 			}
 
@@ -641,22 +614,12 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 			@Override
 			protected void onDropHover(String id, final String targetid, AjaxRequestTarget ajaxRequestTarget)
 			{
-				if (DraggableBehavior.currentDragOperation != DRAGNDROP.NONE)
+				if (getCurrentDragOperation() != DRAGNDROP.NONE)
 				{
-					IComponent comp = (IComponent)visitChildren(IComponent.class, new IVisitor<Component>()
-					{
-						public Object component(Component component)
-						{
-							if (component.getId().equals(targetid))
-							{
-								return component;
-							}
-							return IVisitor.CONTINUE_TRAVERSAL;
-						}
-					});
+					IComponent comp = getBindedComponentChild(targetid);
 					if (comp == null) comp = WebDataRenderer.this;
 					JSDNDEvent event = WebDataRenderer.this.createScriptEvent(EventType.onDragOver, comp, null);
-					event.setData(((WebClientSession)Session.get()).getDragData());
+					event.setData(getDragData());
 					WebDataRenderer.this.onDragOver(event);
 				}
 			}
