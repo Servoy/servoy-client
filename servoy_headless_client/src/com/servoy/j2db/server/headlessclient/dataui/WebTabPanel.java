@@ -300,9 +300,9 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 				{
 					super.renderHead(response);
 					boolean dontRearrangeHere = false;
+
 					if (!(getRequestCycle().getRequestTarget() instanceof AjaxRequestTarget) &&
-						Utils.getAsBoolean(((MainPage)getPage()).getController().getApplication().getSettings().getProperty("servoy.webclient.enableAnchors", //$NON-NLS-1$
-							Boolean.TRUE.toString())))
+						Utils.getAsBoolean(((MainPage)getPage()).getController().getApplication().getRuntimeProperties().get("enableAnchors"))) //$NON-NLS-1$
 					{
 						Component parentForm = getParent();
 						while ((parentForm != null) && !(parentForm instanceof WebForm))

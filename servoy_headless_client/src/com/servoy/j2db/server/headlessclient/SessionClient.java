@@ -173,6 +173,7 @@ public class SessionClient extends ClientState implements ISessionClient
 			this.preferredSolutionMethodArguments = methodArgs;
 
 			setAjaxUsage(solution);
+			enableAnchors(solution);
 
 			if (req == null)
 			{
@@ -262,6 +263,7 @@ public class SessionClient extends ClientState implements ISessionClient
 		{
 			loadSolutionsAndModules(solutionMeta);
 			setAjaxUsage(solutionMeta.getName());
+			enableAnchors(solutionMeta.getName());
 			getScriptEngine();
 		}
 		finally
@@ -375,6 +377,16 @@ public class SessionClient extends ClientState implements ISessionClient
 		}
 		boolean supportsAjax = true;//TODO: disable when simple (pda) broser is detected
 		getRuntimeProperties().put("useAJAX", Boolean.toString(ajaxEnabledOnServer && supportsAjax)); //$NON-NLS-1$
+	}
+
+	private void enableAnchors(String solutionName)
+	{
+		boolean anchorsEnabledOnServer = Utils.getAsBoolean(settings.getProperty("servoy.webclient.enableAnchors", "true")); //$NON-NLS-1$ //$NON-NLS-2$
+		if (anchorsEnabledOnServer)
+		{
+			anchorsEnabledOnServer = Utils.getAsBoolean(settings.getProperty("servoy.webclient.enableAnchors." + solutionName, "true")); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		getRuntimeProperties().put("enableAnchors", Boolean.toString(anchorsEnabledOnServer)); //$NON-NLS-1$
 	}
 
 	/*

@@ -24,6 +24,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Request;
 import org.apache.wicket.RequestCycle;
+import org.apache.wicket.Session;
 import org.apache.wicket.Component.IVisitor;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.IHeaderResponse;
@@ -43,7 +44,6 @@ import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.ITabPanel;
-import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -132,7 +132,10 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 
 		if (markupIds.size() > 0)
 		{
-			boolean webAnchorsEnabled = Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.webclient.enableAnchors", Boolean.TRUE.toString())); //$NON-NLS-1$ 
+			boolean webAnchorsEnabled = Utils.getAsBoolean(((WebClientSession)Session.get()).getWebClient().getRuntimeProperties().get("enableAnchors")); //$NON-NLS-1$
+
+			//WebClientSession webClientSession = (WebClientSession)getSession();
+			//WebClient webClient = webClientSession.getWebClient();
 
 			sb = new StringBuilder(markupIds.size() * 10);
 			sb.append("attachdesign(["); //$NON-NLS-1$

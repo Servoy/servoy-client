@@ -137,8 +137,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 				Page page = findPage();
 				if (page instanceof MainPage && ((MainPage)page).getController() != null)
 				{
-					if (Utils.getAsBoolean(((MainPage)page).getController().getApplication().getSettings().getProperty("servoy.webclient.enableAnchors", //$NON-NLS-1$
-						Boolean.TRUE.toString())))
+					if (Utils.getAsBoolean(((MainPage)page).getController().getApplication().getRuntimeProperties().get("enableAnchors")))
 					{
 						target.appendJavascript("layoutEntirePage();");
 					}
@@ -600,7 +599,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		resizeScript.append("wicketAjaxGet('").append(dividerUpdater.getCallbackUrl()).append("&anchor=true").append("&changed=true").append("&location=' + (newLeftSize - ").append(dividerSize).append("));"); //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		resizeScript.append("});"); //$NON-NLS-1$
 
-		boolean useAnchors = Utils.getAsBoolean((application.getSettings().getProperty("servoy.webclient.enableAnchors", Boolean.TRUE.toString()))); //$NON-NLS-1$
+		boolean useAnchors = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")); //$NON-NLS-1$
 		if (useAnchors)
 		{
 			String splitId = getMarkupId();

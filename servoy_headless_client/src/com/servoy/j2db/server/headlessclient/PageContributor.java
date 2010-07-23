@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.SortedSet;
+import java.util.Map.Entry;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
@@ -242,11 +242,9 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 			}
 		}
 
-		if (formAnchorInfos != null &&
-			formAnchorInfos.size() != 0 &&
-			anchorInfoChanged &&
-			Utils.getAsBoolean(((MainPage)page).getController().getApplication().getSettings().getProperty(
-				"servoy.webclient.enableAnchors", Boolean.TRUE.toString()))) //$NON-NLS-1$ 
+
+		if (formAnchorInfos != null && formAnchorInfos.size() != 0 && anchorInfoChanged &&
+			Utils.getAsBoolean(((MainPage)page).getController().getApplication().getRuntimeProperties().get("enableAnchors"))) //$NON-NLS-1$ 
 		{
 			response.renderJavascriptReference(anchorlayout);
 			response.renderOnLoadJavascript("setTimeout(\"layoutEntirePage();\", 10);"); // setTimeout is important here, to let the browser apply CSS styles during Ajax calls //$NON-NLS-1$
@@ -584,8 +582,7 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 			Page page = findPage();
 			if (page instanceof MainPage && ((MainPage)page).getController() != null)
 			{
-				if (Utils.getAsBoolean(((MainPage)page).getController().getApplication().getSettings().getProperty("servoy.webclient.enableAnchors", //$NON-NLS-1$
-					Boolean.TRUE.toString())))
+				if (Utils.getAsBoolean(((MainPage)page).getController().getApplication().getRuntimeProperties().get("enableAnchors"))) //$NON-NLS-1$
 				{
 					jsCall += "layoutEntirePage();"; //$NON-NLS-1$
 				}

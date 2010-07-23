@@ -658,8 +658,8 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 	{
 		if (getController() != null)
 		{
-			boolean webAnchorsEnabled = Utils.getAsBoolean(getController().getApplication().getSettings().getProperty(
-				"servoy.webclient.enableAnchors", Boolean.TRUE.toString())); //$NON-NLS-1$ 
+
+			boolean webAnchorsEnabled = Utils.getAsBoolean(getController().getApplication().getRuntimeProperties().get("enableAnchors")); //$NON-NLS-1$ 
 			if (webAnchorsEnabled)
 			{
 				// test if there is a form in design

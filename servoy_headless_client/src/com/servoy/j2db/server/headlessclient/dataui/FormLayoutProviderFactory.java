@@ -19,19 +19,13 @@ package com.servoy.j2db.server.headlessclient.dataui;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Solution;
-import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 public class FormLayoutProviderFactory
 {
 	public static IFormLayoutProvider getFormLayoutProvider(IServiceProvider sp, Solution solution, Form f)
 	{
-		if (isAnchoringEnabled()) return new AnchoredFormLayoutProvider(sp, solution, f);
+		if (Utils.getAsBoolean(sp.getRuntimeProperties().get("enableAnchors"))) return new AnchoredFormLayoutProvider(sp, solution, f); //$NON-NLS-1$
 		else return new UnanchoredFormLayoutProvider(sp, solution, f);
-	}
-
-	private static boolean isAnchoringEnabled()
-	{
-		return Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.webclient.enableAnchors", Boolean.TRUE.toString())); //$NON-NLS-1$
 	}
 }

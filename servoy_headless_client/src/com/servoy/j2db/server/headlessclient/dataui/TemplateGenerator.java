@@ -86,7 +86,6 @@ import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
-import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -275,7 +274,8 @@ public class TemplateGenerator
 	{
 		if (f == null) return null;
 		final IRepository repository = ApplicationServerSingleton.get().getLocalRepository();
-		boolean enableAnchoring = Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.webclient.enableAnchors", Boolean.TRUE.toString()));
+
+		boolean enableAnchoring = Utils.getAsBoolean(sp.getRuntimeProperties().get("enableAnchors"));
 
 		String overriddenStyleName = null;
 		FormCache formCache = null;

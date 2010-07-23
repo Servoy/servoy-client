@@ -802,7 +802,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		this.sizeHint = sizeHint;
 
 		useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
-		useAnchors = Utils.getAsBoolean((application.getSettings().getProperty("servoy.webclient.enableAnchors", Boolean.TRUE.toString()))); //$NON-NLS-1$
+		useAnchors = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")); //$NON-NLS-1$
 		setOutputMarkupPlaceholderTag(true);
 
 		if (!useAJAX) bodyHeightHint = sizeHint;

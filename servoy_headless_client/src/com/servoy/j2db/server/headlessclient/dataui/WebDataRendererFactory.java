@@ -127,7 +127,7 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 		String orientation = OrientationApplier.getHTMLContainerOrientation(app.getLocale(), app.getSolution().getTextOrientation());
 		boolean leftToRight = !"rtl".equalsIgnoreCase(orientation); //$NON-NLS-1$
 
-		boolean isAnchoringEnabled = Utils.getAsBoolean(app.getSettings().getProperty("servoy.webclient.enableAnchors", Boolean.TRUE.toString())); //$NON-NLS-1$ 
+		boolean isAnchoringEnabled = Utils.getAsBoolean(app.getRuntimeProperties().get("enableAnchors")); //$NON-NLS-1$
 
 //		Insets insets = new Insets(0, 0, 0, 0);
 		while (e1.hasNext())
