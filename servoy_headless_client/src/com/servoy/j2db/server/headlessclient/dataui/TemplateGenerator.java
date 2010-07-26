@@ -1422,6 +1422,10 @@ public class TemplateGenerator
 		styleObj = css.addStyle("div:focus");
 		styleObj.setProperty("outline", "none");
 
+		// disable text area resizing
+		styleObj = css.addStyle("textarea"); //$NON-NLS-1$
+		styleObj.setProperty("resize", "none"); //$NON-NLS-1$ //$NON-NLS-2$
+
 		return css.toString();
 	}
 
