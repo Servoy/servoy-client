@@ -1152,13 +1152,17 @@ public class JSDatabaseManager
 					return retval;
 				}
 			}
-
 			// cannot het the data via a dataset, use the records (could be slow)
 			List<Object> lst = new ArrayList<Object>();
 			for (int i = 0; i < fs.getSize(); i++)
 			{
 				IRecordInternal r = fs.getRecord(i);
-				lst.add(r.getValue(dataprovider));
+				Object value = r.getValue(dataprovider);
+				if (value instanceof Date)
+				{
+					value = new Date(((Date)value).getTime());
+				}
+				lst.add(value);
 			}
 			return lst.toArray();
 		}
