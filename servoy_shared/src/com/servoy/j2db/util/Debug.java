@@ -28,6 +28,19 @@ public class Debug
 
 	private volatile static boolean traceClient = false;
 
+	static
+	{
+		try
+		{
+			// touch the LogFactory class in the init. (to avoid the webstart bug)
+			Class< ? > cls = LogFactory.class;
+			System.out.println("Debug class loaded with " + cls); //$NON-NLS-1$
+		}
+		catch (Throwable t)
+		{
+		}
+	}
+
 	@SuppressWarnings("nls")
 	public static void init()
 	{
