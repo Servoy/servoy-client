@@ -28,45 +28,55 @@ public class Debug
 
 	private volatile static boolean traceClient = false;
 
+	@SuppressWarnings("nls")
 	public static void init()
 	{
-		System.setProperty("org.apache.commons.logging.simplelog.showdatetime", "true");
-		System.setProperty("org.apache.commons.logging.simplelog.dateTimeFormat", "yyyy-MM-dd HH:mm");
-		System.setProperty("org.apache.commons.logging.simplelog.defaultlog", "warn");
-
-		boolean st = false;
 		try
 		{
-			st = Boolean.getBoolean("STACKTRACE"); //$NON-NLS-1$
-		}
-		catch (Exception ex)
-		{
-			//ignore
-		}
-		boolean STACKTRACE = st;
-		if (STACKTRACE) System.setProperty("org.apache.commons.logging.simplelog.defaultlog", "info");
+			System.setProperty("org.apache.commons.logging.simplelog.showdatetime", "true");
+			System.setProperty("org.apache.commons.logging.simplelog.dateTimeFormat", "yyyy-MM-dd HH:mm");
+			System.setProperty("org.apache.commons.logging.simplelog.defaultlog", "warn");
 
-		boolean t = false;
-		try
-		{
-			if (STACKTRACE)
+			boolean st = false;
+			try
 			{
-				t = true;
+				st = Boolean.getBoolean("STACKTRACE"); //$NON-NLS-1$
 			}
-			else
+			catch (Exception ex)
 			{
-				t = Boolean.getBoolean("TRACE"); //$NON-NLS-1$
+				//ignore
 			}
-		}
-		catch (Exception ex)
-		{
-			//ignore
-		}
-		boolean TRACE = t;
-		if (TRACE) System.setProperty("org.apache.commons.logging.simplelog.defaultlog", "trace");
+			boolean STACKTRACE = st;
+			if (STACKTRACE) System.setProperty("org.apache.commons.logging.simplelog.defaultlog", "info");
 
-		log = LogFactory.getLog(Debug.class);
-		trace = log.isTraceEnabled();
+			boolean t = false;
+			try
+			{
+				if (STACKTRACE)
+				{
+					t = true;
+				}
+				else
+				{
+					t = Boolean.getBoolean("TRACE"); //$NON-NLS-1$
+				}
+			}
+			catch (Exception ex)
+			{
+				//ignore
+			}
+			boolean TRACE = t;
+			if (TRACE) System.setProperty("org.apache.commons.logging.simplelog.defaultlog", "trace");
+
+			log = LogFactory.getLog(Debug.class);
+			trace = log.isTraceEnabled();
+			System.err.println("Debug log initialized");
+		}
+		catch (Throwable t)
+		{
+			System.err.println("Error initializing Debug log class");
+			t.printStackTrace();
+		}
 	}
 
 	public static void toggleTracing()
@@ -159,12 +169,14 @@ public class Debug
 	public static void error(String message, Throwable s)
 	{
 		initIfFirstTime();
+		if (log == null) return;
 		log.error(message, s);
 	}
 
 	public static void error(Object s)
 	{
 		initIfFirstTime();
+		if (log == null) return;
 		if (s instanceof Throwable)
 		{
 			log.error("Throwable", (Throwable)s);
@@ -209,18 +221,21 @@ public class Debug
 	public static void warn(Object s)
 	{
 		initIfFirstTime();
+		if (log == null) return;
 		log.warn(s);
 	}
 
 	public static void fatal(Object s)
 	{
 		initIfFirstTime();
+		if (log == null) return;
 		log.fatal(s);
 	}
 
 	public static void debug(Object s)
 	{
 		initIfFirstTime();
+		if (log == null) return;
 		log.debug(s);
 	}
 
