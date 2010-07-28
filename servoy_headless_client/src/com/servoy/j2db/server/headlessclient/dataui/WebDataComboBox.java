@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import java.awt.Color;
@@ -163,7 +163,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 					{
 						if (hasRealValues())
 						{
-							return ""; //$NON-NLS-1$
+							return null;
 						}
 						return getRealSelectedItem();
 					}
@@ -245,6 +245,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 		{
 			public void intervalRemoved(ListDataEvent e)
 			{
+				if (ignoreChanges) return;
 				jsChangeRecorder.setChanged();
 				Object obj = list.getSelectedItem();
 				if (obj != null) list.setSelectedItem(obj);
@@ -252,6 +253,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 
 			public void intervalAdded(ListDataEvent e)
 			{
+				if (ignoreChanges) return;
 				jsChangeRecorder.setChanged();
 				Object obj = list.getSelectedItem();
 				if (obj != null) list.setSelectedItem(obj);
@@ -259,6 +261,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 
 			public void contentsChanged(ListDataEvent e)
 			{
+				if (ignoreChanges) return;
 				jsChangeRecorder.setChanged();
 				Object obj = list.getSelectedItem();
 				if (obj != null) list.setSelectedItem(obj);
@@ -311,6 +314,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	@Override
 	protected boolean isSelected(Object object, int index, String selected)
 	{
+		if (object == null && selected == getNoSelectionValue()) return true;
 		// WebChoiceRenderer.getRealValue == selected does a toString from the real so object must also do just to string
 		return Utils.equalObjects(object != null ? object.toString() : null, selected);
 	}
@@ -651,9 +655,19 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	/*
 	 * _____________________________________________________________ Methods for IDisplayRelatedData
 	 */
+	private boolean ignoreChanges;
+
 	public void setRecord(IRecordInternal state, boolean stopEditing)
 	{
-		list.fill(state);
+		try
+		{
+			ignoreChanges = true;
+			list.fill(state);
+		}
+		finally
+		{
+			ignoreChanges = false;
+		}
 	}
 
 	public String getSelectedRelationName()
