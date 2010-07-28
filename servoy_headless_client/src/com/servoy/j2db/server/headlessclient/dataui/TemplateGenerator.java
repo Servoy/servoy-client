@@ -1938,6 +1938,7 @@ public class TemplateGenerator
 			(field.getDisplayType() == Field.TYPE_AHEAD) || (field.getDisplayType() == Field.TEXT_FIELD);
 	}
 
+	@SuppressWarnings("nls")
 	private static void createFieldHTML(Field field, Form form, StringBuffer html, TextualCSS css, int startY, int endY, boolean enableAnchoring,
 		IServiceProvider sp)
 	{
@@ -2221,16 +2222,21 @@ public class TemplateGenerator
 				inline.setProperty("top", "0px"); //$NON-NLS-1$ //$NON-NLS-2$
 				inline.setProperty("left", "0px"); //$NON-NLS-1$ //$NON-NLS-2$
 				inline.setProperty("position", "absolute"); //$NON-NLS-1$ //$NON-NLS-2$
+				if (field.getOnActionMethodID() < 1)
+				{
+					inline.setProperty("cursor", "default;");
+				}
 
 				html.append("<input "); //$NON-NLS-1$ 
 				html.append(inline.toString());
 				html.append(getWicketIDParameter(field));
 				html.append(getJavaScriptIDParameter(field));
 				html.append("value='"); //$NON-NLS-1$ 
-				html.append(field.getName());
+				if (field.getName() != null) html.append(field.getName());
 				html.append("' "); //$NON-NLS-1$ 
 				html.append("type='image' "); //$NON-NLS-1$ 
 				html.append(" src='#' alt='' "); //$NON-NLS-1$ 
+				html.append(" onclick='return false;' "); //$NON-NLS-1$
 				html.append("/>"); //$NON-NLS-1$ 
 
 //					html.append("<img ");

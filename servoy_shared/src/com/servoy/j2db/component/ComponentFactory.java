@@ -255,8 +255,8 @@ public class ComponentFactory
 						// Designer all always real components!!
 						retval = (JComponent)application.getItemFactory().createLabel(null, "Tabless panel, for JavaScript use");
 						((IStandardLabel)retval).setHorizontalAlignment(SwingConstants.CENTER);
-						applyBasicComponentProperties(application, (IComponent)retval, (BaseComponent)meta, getStyleForBasicComponent(application,
-							(BaseComponent)meta, form));
+						applyBasicComponentProperties(application, (IComponent)retval, (BaseComponent)meta,
+							getStyleForBasicComponent(application, (BaseComponent)meta, form));
 					}
 					else
 					{
@@ -1256,8 +1256,9 @@ public class ComponentFactory
 									}
 									catch (IOException e)
 									{
-										Debug.error("Exception loading properties for converter " + converter.getName() + ", properties: " +
-											ci.getConverterProperties(), e);
+										Debug.error(
+											"Exception loading properties for converter " + converter.getName() + ", properties: " +
+												ci.getConverterProperties(), e);
 									}
 								}
 							}
@@ -1475,9 +1476,9 @@ public class ComponentFactory
 			cmds = combineMethodsToCommands(form, form.getOnElementFocusLostMethodID(), "onElementFocusLostMethodID", field, field.getOnFocusLostMethodID(), //$NON-NLS-1$
 				"onFocusLostMethodID");
 			if (cmds != null) fl.setLeaveCmds((String[])cmds[0], (Object[][])cmds[1]);
-			if (field.getOnActionMethodID() != 0) fl.setActionCmd(Integer.toString(field.getOnActionMethodID()),
+			if (field.getOnActionMethodID() > 0) fl.setActionCmd(Integer.toString(field.getOnActionMethodID()),
 				Utils.parseJSExpressions(field.getInstanceMethodArguments("onActionMethodID")));
-			if (field.getOnDataChangeMethodID() != 0) fl.setChangeCmd(Integer.toString(field.getOnDataChangeMethodID()),
+			if (field.getOnDataChangeMethodID() > 0) fl.setChangeCmd(Integer.toString(field.getOnDataChangeMethodID()),
 				Utils.parseJSExpressions(field.getInstanceMethodArguments("onDataChangeMethodID")));
 			if (field.getOnRightClickMethodID() > 0) fl.setRightClickCommand(Integer.toString(field.getOnRightClickMethodID()),
 				Utils.parseJSExpressions(field.getInstanceMethodArguments("onRightClickMethodID")));
