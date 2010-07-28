@@ -659,6 +659,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 
 	public void setRecord(IRecordInternal state, boolean stopEditing)
 	{
+		Object selectedItem = list.getSelectedItem();
 		try
 		{
 			ignoreChanges = true;
@@ -667,6 +668,10 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 		finally
 		{
 			ignoreChanges = false;
+		}
+		if (!Utils.equalObjects(list.getSelectedItem(), selectedItem))
+		{
+			getStylePropertyChanges().setChanged();
 		}
 	}
 
