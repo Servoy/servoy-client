@@ -357,7 +357,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	@SuppressWarnings("nls")
 	public void handleClientUserUidChanged(String userUidBefore, String userUidAfter)
 	{
-		if (isShutDown())
+		if (isShutDown() || isClosing)
 		{
 			return;
 		}

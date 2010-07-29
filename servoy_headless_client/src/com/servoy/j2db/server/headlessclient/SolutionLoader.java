@@ -50,10 +50,10 @@ public class SolutionLoader extends WebPage
 {
 	private static final long serialVersionUID = 1L;
 
-	private SolutionMetaData theReq = null;
-
 	public SolutionLoader(PageParameters pp)
 	{
+		SolutionMetaData theReq = null;
+
 		try
 		{
 			if (ApplicationServerSingleton.get().getDataServer().isInGlobalMaintenanceMode() ||

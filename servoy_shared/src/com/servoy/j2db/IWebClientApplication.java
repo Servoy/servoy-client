@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db;
 
 import org.apache.wicket.Page;
@@ -39,5 +39,7 @@ public interface IWebClientApplication extends ISessionClient
 	void handleArguments(String args[], StartupArgumentsScope argumentsScope);
 
 	void handleArguments(String[] args);
+
+	public void setCredentials(String username, String password);
 
 }

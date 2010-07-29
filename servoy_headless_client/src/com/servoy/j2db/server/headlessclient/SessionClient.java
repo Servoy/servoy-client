@@ -475,6 +475,12 @@ public class SessionClient extends ClientState implements ISessionClient
 		return fm;
 	}
 
+	public void setCredentials(String username, String password)
+	{
+		this.username = username;
+		this.password = password;
+	}
+
 	@Override
 	public void showDefaultLogin() throws ServoyException
 	{
@@ -1346,13 +1352,24 @@ public class SessionClient extends ClientState implements ISessionClient
 		{
 			if (getSolution() != null && getSolution().requireAuthentication())
 			{
-				if (closeSolution(false, solution_to_open_args) && !isClosing) // don't shutdown if already closing; wait for the first closeSolution to finish
+				if (closeSolution(false, solution_to_open_args)) // don't shutdown if already closing; wait for the first closeSolution to finish
 				{
-					shutDown(false);//no way to enter username password so shutdown
+					if (!isClosing)
+					{
+						shutDown(false);//no way to enter username password so shutdown
+					}
+					else
+					{
+						username = null;
+						password = null;
+						getClientInfo().clearUserInfo();
+					}
 				}
 			}
 			else
 			{
+				username = null;
+				password = null;
 				getClientInfo().clearUserInfo();
 			}
 		}

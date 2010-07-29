@@ -480,6 +480,13 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		}
 	}
 
+	@Override
+	public void logout(Object[] solution_to_open_args)
+	{
+		super.logout(solution_to_open_args);
+		if (WebClientSession.get() != null) WebClientSession.get().clearCredentials();
+	}
+
 	//behaviour in webclient is different, we do shutdown the webclient instance ,since we cannot switch solution
 	private boolean closing = false;
 

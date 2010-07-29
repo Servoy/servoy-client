@@ -26,6 +26,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.Request;
 import org.apache.wicket.RequestCycle;
+import org.apache.wicket.RestartResponseAtInterceptPageException;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.Session;
 import org.apache.wicket.markup.html.DynamicWebResource;
@@ -39,7 +40,10 @@ import com.servoy.j2db.IWebClientApplication;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dnd.DRAGNDROP;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.RootObjectMetaData;
+import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.StartupArgumentsScope;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
@@ -96,9 +100,21 @@ public class WebClientSession extends WebSession
 				return webClient; // not allowed to close solution?
 			}
 			existingClient = true;
+			if (!isSignedIn())
+			{
+				SolutionMetaData smd = (SolutionMetaData)sd;
+				IRepository repository = ApplicationServerSingleton.get().getLocalRepository();
+				Solution sol = (Solution)repository.getActiveRootObject(smd.getName(), IRepository.SOLUTIONS);
+				if (sol.getLoginSolutionName() == null && sol.getLoginFormID() <= 0 && smd.getMustAuthenticate())
+				{
+					//signin first
+					throw new RestartResponseAtInterceptPageException(SignIn.class);
+				}
+			}
 		}
 		if (webClient == null || webClient.isShutDown())
 		{
+			existingClient = false;
 			HttpServletRequest req = ((WebRequest)RequestCycle.get().getRequest()).getHttpServletRequest();
 			httpSession = req.getSession();
 			IApplicationServerSingleton as = ApplicationServerSingleton.get();
@@ -115,6 +131,7 @@ public class WebClientSession extends WebSession
 		}
 		else
 		{
+			webClient.setCredentials(userName, password);
 			webClient.handleArguments(new String[] { sd.getName(), method, firstArgument }, argumentsScope);
 		}
 
@@ -196,8 +213,7 @@ public class WebClientSession extends WebSession
 	 */
 	public void logout()
 	{
-		userName = null;
-		password = null;
+		clearCredentials();
 
 		RequestCycle rc = RequestCycle.get();
 		if (rc != null)
@@ -217,6 +233,12 @@ public class WebClientSession extends WebSession
 			}
 		}
 		httpSession = null;
+	}
+
+	public void clearCredentials()
+	{
+		userName = null;
+		password = null;
 	}
 
 	public boolean isSignedIn()
