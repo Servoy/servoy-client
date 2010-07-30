@@ -13,12 +13,10 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dnd;
 
 import java.util.Arrays;
-
-import org.mozilla.javascript.Function;
 
 import com.servoy.j2db.dataprocessing.Record;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -27,30 +25,9 @@ import com.servoy.j2db.scripting.JSEvent;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class JSDNDEvent extends JSEvent
 {
-	private Function onDragEndCallback;
 	private int dragResult;
 	private Record record;
-
-	/**
-	 * Set call back method for drag end event.
-	 * This can be set on the even object that comes on drag start.
-	 *
-	 * @sample 
-	 * function onDragStart(event)
-	 * {
-	 * 		event.onDragEndCallback(onDragEnd);
-	 * }
-	 * 
-	 */
-	public void js_onDragEndCallback(Function f)
-	{
-		this.onDragEndCallback = f;
-	}
-
-	public Function getOnDragEndCallaback()
-	{
-		return onDragEndCallback;
-	}
+	private String dataMimeType;
 
 	public void setDragResult(int dragResult)
 	{
@@ -100,6 +77,29 @@ public class JSDNDEvent extends JSEvent
 		return this.record;
 	}
 
+	/**
+	 * The event data mime type
+	 */
+	public String js_getDataMimeType()
+	{
+		return dataMimeType;
+	}
+
+	public void js_setDataMimeType(String mimeType)
+	{
+		dataMimeType = mimeType;
+	}
+
+	public String getDataMimeType()
+	{
+		return dataMimeType;
+	}
+
+	public void setDataMimeType(String mimeType)
+	{
+		dataMimeType = mimeType;
+	}
+
 	@Override
 	public String toString()
 	{
@@ -115,7 +115,8 @@ public class JSDNDEvent extends JSEvent
 			eName = "<no name>"; //$NON-NLS-1$
 		}
 		return "JSDNDEvent(type = " + type + ", source = " + source + ", formName = " + formName + ", elementName = " + eName + ", timestamp = " + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-			timestamp + ",modifiers = " + modifiers + ",x =" + x + ",y = " + y + ",data = " + dataToString + ",dragResult = " + dragResult + ')'; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+			timestamp +
+			",modifiers = " + modifiers + ",x =" + x + ",y = " + y + ",data = " + dataToString + ",dataMimeType = " + dataMimeType + ",dragResult = " + dragResult + ')'; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
 	}
 
 	/**

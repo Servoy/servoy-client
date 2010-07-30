@@ -26,7 +26,11 @@ import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
-import java.util.Date;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.Reader;
+import java.io.StringWriter;
 
 import javax.swing.JComponent;
 import javax.swing.JViewport;
@@ -40,6 +44,7 @@ import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Class used for handling drag and drop operations in smart client
@@ -55,10 +60,7 @@ public class FormDataTransferHandler extends TransferHandler implements DropTarg
 	InputEvent inputEvent;
 
 	private boolean canImport;
-
-	private Object eventData;
-	private JSDNDEvent onDragEvent;
-
+	private FormDataTransferable formDataTransferable;
 
 	public static TransferHandler getInstance()
 	{
@@ -75,9 +77,17 @@ public class FormDataTransferHandler extends TransferHandler implements DropTarg
 		if (inputEvent == null) return TransferHandler.COPY_OR_MOVE;
 		ISupportDragNDrop ddComp = (ISupportDragNDrop)c;
 
-		onDragEvent = createScriptEvent(EventType.onDrag, (ISupportDragNDrop)c, inputEvent);
+		JSDNDEvent onDragEvent = createScriptEvent(EventType.onDrag, (ISupportDragNDrop)c, inputEvent);
 		int dragReturn = ddComp.onDrag(onDragEvent);
-		eventData = onDragEvent.getData();
+		try
+		{
+			formDataTransferable = new FormDataTransferable(onDragEvent.getData(), onDragEvent.getDataMimeType());
+		}
+		catch (ClassNotFoundException ex)
+		{
+			Debug.error(ex);
+			return TransferHandler.NONE;
+		}
 
 		return dragReturn == DRAGNDROP.NONE ? TransferHandler.NONE : dragReturn == DRAGNDROP.COPY ? TransferHandler.COPY : dragReturn == DRAGNDROP.MOVE
 			? TransferHandler.MOVE : dragReturn == DRAGNDROP.COPY + DRAGNDROP.MOVE ? TransferHandler.COPY_OR_MOVE : TransferHandler.NONE;
@@ -89,7 +99,6 @@ public class FormDataTransferHandler extends TransferHandler implements DropTarg
 	@Override
 	protected Transferable createTransferable(JComponent c)
 	{
-		Transferable formDataTransferable = new FormDataTransferable(eventData);
 		return formDataTransferable;
 	}
 
@@ -97,9 +106,7 @@ public class FormDataTransferHandler extends TransferHandler implements DropTarg
 	public void exportAsDrag(JComponent comp, InputEvent e, int action)
 	{
 		inputEvent = e;
-		eventData = null;
 		super.exportAsDrag(comp, e, action);
-		inputEvent = null;
 	}
 
 	/**
@@ -109,25 +116,57 @@ public class FormDataTransferHandler extends TransferHandler implements DropTarg
 	protected void exportDone(JComponent source, Transferable data, int action)
 	{
 		super.exportDone(source, data, action);
-		eventData = null;
-		onDragEvent.setType(EventType.onDragEnd);
-		onDragEvent.setTimestamp(new Date());
-		int dragResult = action == COPY ? DRAGNDROP.COPY : action == MOVE ? DRAGNDROP.MOVE : DRAGNDROP.NONE;
-		onDragEvent.setDragResult(dragResult);
-		((ISupportDragNDrop)source).onDragEnd(onDragEvent);
+		JComponent cmp = getDragComponent(source);
+		if (cmp instanceof ISupportDragNDrop)
+		{
+			ISupportDragNDrop ddComp = (ISupportDragNDrop)cmp;
+
+			JSDNDEvent onDragEndEvent = createScriptEvent(EventType.onDragEnd, ddComp, inputEvent);
+			int dragResult = action == COPY ? DRAGNDROP.COPY : action == MOVE ? DRAGNDROP.MOVE : DRAGNDROP.NONE;
+			onDragEndEvent.setDragResult(dragResult);
+			try
+			{
+				DataFlavor[] transferableFlavors = data.getTransferDataFlavors();
+				if (transferableFlavors.length > 0)
+				{
+					onDragEndEvent.setDataMimeType(transferableFlavors[0].getMimeType());
+					if (transferableFlavors[0].isRepresentationClassInputStream() || transferableFlavors[0].isRepresentationClassReader()) onDragEndEvent.setData(null);
+					else onDragEndEvent.setData(data.getTransferData(transferableFlavors[0]));
+				}
+			}
+			catch (Exception ex)
+			{
+				Debug.error(ex);
+			}
+			((ISupportDragNDrop)source).onDragEnd(onDragEndEvent);
+		}
+		formDataTransferable = null;
+		inputEvent = null;
 	}
 
-	@Override
-	public boolean canImport(JComponent comp, DataFlavor[] transferFlavors)
+	public boolean canImport(JComponent comp, DataFlavor[] transferFlavors, Transferable transferable)
 	{
 		JComponent cmp = getDragComponent(comp);
-		if (isDataFlavorSupported(transferFlavors) && cmp instanceof ISupportDragNDrop)
+		if (cmp instanceof ISupportDragNDrop)
 		{
 			ISupportDragNDrop ddComp = (ISupportDragNDrop)cmp;
 
 			JSDNDEvent event = createScriptEvent(EventType.onDragOver, ddComp, dropTargetDragEvent);
 //			ddComp = testTarget(ddComp, event);
-			event.setData(eventData);
+			try
+			{
+				DataFlavor[] transferableFlavors = transferable.getTransferDataFlavors();
+				if (transferableFlavors.length > 0)
+				{
+					event.setDataMimeType(transferableFlavors[0].getMimeType());
+					if (transferableFlavors[0].isRepresentationClassInputStream() || transferableFlavors[0].isRepresentationClassReader()) event.setData(null);
+					else event.setData(transferable.getTransferData(transferableFlavors[0]));
+				}
+			}
+			catch (Exception ex)
+			{
+				Debug.error(ex);
+			}
 			return ddComp.onDragOver(event);
 		}
 		return false;
@@ -172,30 +211,59 @@ public class FormDataTransferHandler extends TransferHandler implements DropTarg
 		if (cmp instanceof ISupportDragNDrop)
 		{
 			ISupportDragNDrop ddComp = (ISupportDragNDrop)cmp;
+			JSDNDEvent event = createScriptEvent(EventType.onDrop, ddComp, dropTargetDropEvent);
+//				ddComp = testTarget(ddComp, event);
+
 			try
 			{
-				JSDNDEvent event = createScriptEvent(EventType.onDrop, ddComp, dropTargetDropEvent);
-//				ddComp = testTarget(ddComp, event);
-				event.setData(eventData);
-				eventData = null;
-				return ddComp.onDrop(event);
+				DataFlavor[] transferableFlavors = t.getTransferDataFlavors();
+				if (transferableFlavors.length > 0)
+				{
+					event.setDataMimeType(transferableFlavors[0].getMimeType());
+					if (transferableFlavors[0].isRepresentationClassInputStream())
+					{
+						BufferedInputStream contents = null;
+						ByteArrayOutputStream bos = new ByteArrayOutputStream();
+						byte[] buffer = new byte[4096];
+						int len;
+						try
+						{
+							contents = new BufferedInputStream((InputStream)t.getTransferData(transferableFlavors[0]));
+							while ((len = contents.read(buffer)) != -1)
+								bos.write(buffer, 0, len);
+							event.setData(bos.toByteArray());
+						}
+						finally
+						{
+							Utils.closeOutputStream(bos);
+							Utils.closeInputStream(contents);
+						}
+					}
+					else if (transferableFlavors[0].isRepresentationClassReader())
+					{
+						Reader contents = (Reader)t.getTransferData(transferableFlavors[0]);
+						StringWriter stringWriter = new StringWriter();
+						try
+						{
+							Utils.readerWriterCopy(contents, stringWriter);
+							event.setData(stringWriter.toString());
+						}
+						finally
+						{
+							Utils.closeWriter(stringWriter);
+							Utils.closeReader(contents);
+						}
+					}
+					else event.setData(t.getTransferData(transferableFlavors[0]));
+				}
 			}
 			catch (Exception ex)
 			{
 				Debug.error(ex);
 			}
-		}
-		eventData = null;
-		return false;
-	}
+			return ddComp.onDrop(event);
 
-	private boolean isDataFlavorSupported(DataFlavor[] dataFlavors)
-	{
-		for (DataFlavor flavor : dataFlavors)
-		{
-			if (flavor.equals(FormDataTransferable.formDataFlavor)) return true;
 		}
-
 		return false;
 	}
 
@@ -300,7 +368,7 @@ public class FormDataTransferHandler extends TransferHandler implements DropTarg
 		}
 		TransferHandler importer = c.getTransferHandler();
 
-		if (importer != null && importer.canImport(c, flavors))
+		if (importer instanceof FormDataTransferHandler && ((FormDataTransferHandler)importer).canImport(c, flavors, e.getTransferable()))
 		{
 			canImport = true;
 		}

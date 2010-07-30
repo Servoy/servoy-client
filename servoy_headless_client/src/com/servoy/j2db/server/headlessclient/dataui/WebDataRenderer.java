@@ -32,7 +32,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.IModel;
-import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Undefined;
 
 import com.servoy.j2db.ControllerUndoManager;
@@ -498,17 +497,12 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 
 	public void onDragEnd(JSDNDEvent event)
 	{
-		Function dragEndCallback = event.getOnDragEndCallaback();
-		if (dragEndCallback != null)
+		Form form = dragNdropController.getForm();
+		int onDragEndID = form.getOnDragEndMethodID();
+
+		if (onDragEndID > 0)
 		{
-			try
-			{
-				dragNdropController.executeFunction(dragEndCallback, new Object[] { event }, false);
-			}
-			catch (Exception ex)
-			{
-				Debug.error(ex);
-			}
+			dragNdropController.executeFunction(Integer.toString(onDragEndID), new Object[] { event }, false, null, false, "onDragEndMethodID"); //$NON-NLS-1$
 		}
 	}
 
@@ -539,7 +533,7 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 	{
 		this.yOffset = clientDesignYOffset;
 		Form form = formController.getForm();
-		if (form.getOnDragMethodID() > 0 || form.getOnDragOverMethodID() > 0 || form.getOnDropMethodID() > 0)
+		if (form.getOnDragMethodID() > 0 || form.getOnDragEndMethodID() > 0 || form.getOnDragOverMethodID() > 0 || form.getOnDropMethodID() > 0)
 		{
 			this.dragNdropController = formController;
 			if (dragNdropController != null) addDragNDropBehavior();
@@ -561,6 +555,7 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 			{
 				JSDNDEvent event = WebDataRenderer.this.createScriptEvent(EventType.onDragEnd, getDragComponent(), null);
 				event.setData(getDragData());
+				event.setDataMimeType(getDragDataMimeType());
 				event.setDragResult(getDropResult() ? getCurrentDragOperation() : DRAGNDROP.NONE);
 				WebDataRenderer.this.onDragEnd(event);
 
@@ -575,7 +570,7 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 				setDropResult(false);
 				setCurrentDragOperation(WebDataRenderer.this.onDrag(event));
 				setDragComponent(comp);
-				setDragData(event.getData());
+				setDragData(event.getData(), event.getDataMimeType());
 			}
 
 			@Override
@@ -588,8 +583,8 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 					WebDataRenderer renderer = WebDataRenderer.this;
 					JSDNDEvent event = renderer.createScriptEvent(EventType.onDrop, comp, new Point(x, y));
 					event.setData(getDragData());
+					event.setDataMimeType(getDragDataMimeType());
 					setDropResult(renderer.onDrop(event));
-					setDragData(null);
 				}
 			}
 
@@ -620,6 +615,7 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 					if (comp == null) comp = WebDataRenderer.this;
 					JSDNDEvent event = WebDataRenderer.this.createScriptEvent(EventType.onDragOver, comp, null);
 					event.setData(getDragData());
+					event.setDataMimeType(getDragDataMimeType());
 					WebDataRenderer.this.onDragOver(event);
 				}
 			}

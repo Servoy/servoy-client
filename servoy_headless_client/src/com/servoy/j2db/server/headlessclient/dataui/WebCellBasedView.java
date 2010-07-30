@@ -65,7 +65,6 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
 import org.apache.wicket.request.ClientInfo;
 import org.apache.wicket.util.string.AppendingStringBuffer;
-import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 
@@ -2998,17 +2997,20 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	public void onDragEnd(JSDNDEvent event)
 	{
-		Function dragEndCallback = event.getOnDragEndCallaback();
-		if (dragEndCallback != null)
+		int onDragEndID = 0;
+		if (cellview instanceof Portal)
 		{
-			try
-			{
-				fc.executeFunction(dragEndCallback, new Object[] { event }, false);
-			}
-			catch (Exception ex)
-			{
-				Debug.error(ex);
-			}
+			Portal cellviewPortal = (Portal)cellview;
+			onDragEndID = cellviewPortal.getOnDragEndMethodID();
+		}
+		else
+		{
+			onDragEndID = fc.getForm().getOnDragEndMethodID();
+		}
+
+		if (onDragEndID > 0)
+		{
+			fc.executeFunction(Integer.toString(onDragEndID), new Object[] { event }, false, null, false, "onDragEndMethodID"); //$NON-NLS-1$
 		}
 	}
 
@@ -3044,12 +3046,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		if (cellview instanceof Portal)
 		{
 			Portal cellviewPortal = (Portal)cellview;
-			enableDragDrop = (cellviewPortal.getOnDragMethodID() > 0 || cellviewPortal.getOnDragOverMethodID() > 0 || cellviewPortal.getOnDropMethodID() > 0);
+			enableDragDrop = (cellviewPortal.getOnDragMethodID() > 0 || cellviewPortal.getOnDragEndMethodID() > 0 || cellviewPortal.getOnDragOverMethodID() > 0 || cellviewPortal.getOnDropMethodID() > 0);
 		}
 		else
 		{
 			Form form = formController.getForm();
-			enableDragDrop = (form.getOnDragMethodID() > 0 || form.getOnDragOverMethodID() > 0 || form.getOnDropMethodID() > 0);
+			enableDragDrop = (form.getOnDragMethodID() > 0 || form.getOnDragEndMethodID() > 0 || form.getOnDragOverMethodID() > 0 || form.getOnDropMethodID() > 0);
 		}
 
 		if (enableDragDrop)
@@ -3073,6 +3075,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			{
 				JSDNDEvent event = WebCellBasedView.this.createScriptEvent(EventType.onDragEnd, getDragComponent(), null);
 				event.setData(getDragData());
+				event.setDataMimeType(getDragDataMimeType());
 				event.setDragResult(getDropResult() ? getCurrentDragOperation() : DRAGNDROP.NONE);
 				WebCellBasedView.this.onDragEnd(event);
 
@@ -3085,7 +3088,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				IComponent comp = getBindedComponentChild(id);
 				JSDNDEvent event = WebCellBasedView.this.createScriptEvent(EventType.onDrag, comp, new Point(x, y));
 				setCurrentDragOperation(WebCellBasedView.this.onDrag(event));
-				setDragData(event.getData());
+				setDragData(event.getData(), event.getDataMimeType());
 				setDragComponent(comp);
 				setDropResult(false);
 			}
@@ -3099,8 +3102,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					if (comp == null) comp = WebCellBasedView.this;
 					JSDNDEvent event = WebCellBasedView.this.createScriptEvent(EventType.onDrop, comp, new Point(x, y));
 					event.setData(getDragData());
+					event.setDataMimeType(getDragDataMimeType());
 					setDropResult(WebCellBasedView.this.onDrop(event));
-					setDragData(null);
 				}
 			}
 
@@ -3113,6 +3116,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					if (comp == null) comp = WebCellBasedView.this;
 					JSDNDEvent event = WebCellBasedView.this.createScriptEvent(EventType.onDragOver, comp, null);
 					event.setData(getDragData());
+					event.setDataMimeType(getDragDataMimeType());
 					WebCellBasedView.this.onDragOver(event);
 				}
 			}

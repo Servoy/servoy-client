@@ -94,14 +94,19 @@ public abstract class DraggableBehavior extends AbstractServoyDefaultAjaxBehavio
 		return this.bYConstraint;
 	}
 
-	public void setDragData(Object dragData)
+	public void setDragData(Object dragData, String mimeType)
 	{
-		((WebClientSession)Session.get()).getDNDSessionInfo().setData(dragData);
+		((WebClientSession)Session.get()).getDNDSessionInfo().setData(dragData, mimeType);
 	}
 
 	public Object getDragData()
 	{
 		return ((WebClientSession)Session.get()).getDNDSessionInfo().getData();
+	}
+
+	public String getDragDataMimeType()
+	{
+		return ((WebClientSession)Session.get()).getDNDSessionInfo().getMimeType();
 	}
 
 	public void setCurrentDragOperation(int currentDragOperation)
@@ -208,7 +213,7 @@ public abstract class DraggableBehavior extends AbstractServoyDefaultAjaxBehavio
 
 	protected void onDragEnd(String id, int x, int y, AjaxRequestTarget ajaxRequestTarget)
 	{
-		setDragData(null);
+		setDragData(null, null);
 		setCurrentDragOperation(DRAGNDROP.NONE);
 	}
 

@@ -60,6 +60,12 @@ public class DRAGNDROP implements IPrefixedConstantsObject, IReturnedTypesProvid
 	 */
 	public static final int MOVE = DnDConstants.ACTION_MOVE;
 
+
+	public static final String MIME_TYPE_SERVOY = "application/x-servoy-object; class=java.lang.Object";
+
+	public static final String MIME_TYPE_SERVOY_RECORD = "application/x-servoy-record-object; class=com.servoy.j2db.dataprocessing.Record";
+
+
 	public String getPrefix()
 	{
 		return "DRAGNDROP"; //$NON-NLS-1$

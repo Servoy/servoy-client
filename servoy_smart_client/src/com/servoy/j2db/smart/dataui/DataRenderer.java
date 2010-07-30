@@ -44,7 +44,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import javax.swing.plaf.ColorUIResource;
 
-import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Undefined;
 
 import com.servoy.j2db.ControllerUndoManager;
@@ -152,7 +151,7 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 	{
 		this.yOffset = clientDesignYOffset;
 		Form form = formController.getForm();
-		if (form.getOnDragMethodID() > 0 || form.getOnDragOverMethodID() > 0 || form.getOnDropMethodID() > 0)
+		if (form.getOnDragMethodID() > 0 || form.getOnDragEndMethodID() > 0 || form.getOnDragOverMethodID() > 0 || form.getOnDropMethodID() > 0)
 		{
 			this.dragNdropController = formController;
 			// remove drag&drop from children as it is handled by the data renderer
@@ -689,17 +688,12 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 
 	public void onDragEnd(JSDNDEvent event)
 	{
-		Function dragEndCallback = event.getOnDragEndCallaback();
-		if (dragEndCallback != null)
+		Form form = dragNdropController.getForm();
+		int onDragEndID = form.getOnDragEndMethodID();
+
+		if (onDragEndID > 0)
 		{
-			try
-			{
-				dragNdropController.executeFunction(dragEndCallback, new Object[] { event }, false);
-			}
-			catch (Exception ex)
-			{
-				Debug.error(ex);
-			}
+			dragNdropController.executeFunction(Integer.toString(onDragEndID), new Object[] { event }, false, null, false, "onDragEndMethodID"); //$NON-NLS-1$
 		}
 	}
 

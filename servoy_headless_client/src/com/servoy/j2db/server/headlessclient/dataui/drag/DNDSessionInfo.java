@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.server.headlessclient.dataui.drag;
 
+import com.servoy.j2db.dataprocessing.Record;
 import com.servoy.j2db.dnd.DRAGNDROP;
 import com.servoy.j2db.ui.IComponent;
 
@@ -28,6 +29,7 @@ import com.servoy.j2db.ui.IComponent;
 public class DNDSessionInfo
 {
 	private Object data;
+	private String mimeType;
 	private int currentOperation = DRAGNDROP.NONE;
 	private IComponent component;
 	private boolean dropResult;
@@ -37,9 +39,33 @@ public class DNDSessionInfo
 		return data;
 	}
 
-	public void setData(Object data)
+	public void setData(Object data, String mimeType)
 	{
 		this.data = data;
+		if (mimeType == null)
+		{
+			if (data instanceof String)
+			{
+				this.mimeType = "application/x-java-serialized-object";
+			}
+			else if (data instanceof Record)
+			{
+				this.mimeType = DRAGNDROP.MIME_TYPE_SERVOY_RECORD;
+			}
+			else
+			{
+				this.mimeType = DRAGNDROP.MIME_TYPE_SERVOY;
+			}
+		}
+		else
+		{
+			this.mimeType = mimeType;
+		}
+	}
+
+	public String getMimeType()
+	{
+		return mimeType;
 	}
 
 	public IComponent getComponent()

@@ -3161,12 +3161,23 @@ public class JSForm implements IJSParent, IConstantsObject
 	 * 
 	 * @sample
 	 * form.onDrag = form.newFormMethod('function onDrag(event) { application.output("onDrag intercepted from " + event.getSource()); }');
+	 * form.onDragEnd = form.newFormMethod('function onDragEnd(event) { application.output("onDragEnd intercepted from " + event.getSource()); }');
 	 * form.onDragOver = form.newFormMethod('function onDragOver(event) { application.output("onDragOver intercepted from " + event.getSource()); }');
 	 * form.onDrop = form.newFormMethod('function onDrop(event) { application.output("onDrop intercepted from " + event.getSource()); }');
 	 */
 	public JSMethod js_getOnDrag()
 	{
 		return getEventHandler("onDragMethodID");
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Form#getOnDragEndMethodID()
+	 * 
+	 * @sampleas js_getOnDrag()
+	 */
+	public JSMethod js_getOnDragEnd()
+	{
+		return getEventHandler("onDragEndMethodID");
 	}
 
 	/**
@@ -3446,6 +3457,11 @@ public class JSForm implements IJSParent, IConstantsObject
 	public void js_setOnDrag(JSMethod method)
 	{
 		setEventHandler("onDragMethodID", method);
+	}
+
+	public void js_setOnDragEnd(JSMethod method)
+	{
+		setEventHandler("onDragEndMethodID", method);
 	}
 
 	public void js_setOnDragOver(JSMethod method)

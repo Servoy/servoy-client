@@ -21,7 +21,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 
-import com.servoy.j2db.scripting.JSEvent;
+import com.servoy.j2db.dataprocessing.Record;
 
 /**
  * Class used to define transfer data for drag and drop operations in smart client
@@ -30,17 +30,31 @@ import com.servoy.j2db.scripting.JSEvent;
  */
 public class FormDataTransferable implements Transferable
 {
-	public static final DataFlavor formDataFlavor = new DataFlavor(JSEvent.class, "application/x-servoy-formData-object"); //$NON-NLS-1$
 	private final Object data;
+	private final DataFlavor dataFlavor;
 
-	public FormDataTransferable()
+	public FormDataTransferable(Object o, String mimeType) throws ClassNotFoundException
 	{
-		this.data = null;
-	}
-
-	public FormDataTransferable(Object data)
-	{
-		this.data = data;
+		this.data = o;
+		if (mimeType == null)
+		{
+			if (o instanceof String)
+			{
+				this.dataFlavor = DataFlavor.stringFlavor;
+			}
+			else if (o instanceof Record)
+			{
+				this.dataFlavor = new DataFlavor(DRAGNDROP.MIME_TYPE_SERVOY_RECORD);
+			}
+			else
+			{
+				this.dataFlavor = new DataFlavor(DRAGNDROP.MIME_TYPE_SERVOY);
+			}
+		}
+		else
+		{
+			this.dataFlavor = new DataFlavor(mimeType);
+		}
 	}
 
 	/**
@@ -48,7 +62,7 @@ public class FormDataTransferable implements Transferable
 	 */
 	public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException
 	{
-		if (flavor == FormDataTransferable.formDataFlavor)
+		if (dataFlavor == flavor)
 		{
 			return data;
 		}
@@ -60,7 +74,7 @@ public class FormDataTransferable implements Transferable
 	 */
 	public DataFlavor[] getTransferDataFlavors()
 	{
-		return new DataFlavor[] { FormDataTransferable.formDataFlavor };
+		return new DataFlavor[] { dataFlavor };
 	}
 
 	/**
@@ -68,7 +82,7 @@ public class FormDataTransferable implements Transferable
 	 */
 	public boolean isDataFlavorSupported(DataFlavor flavor)
 	{
-		return flavor == FormDataTransferable.formDataFlavor;
+		return dataFlavor == flavor;
 	}
 
 

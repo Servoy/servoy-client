@@ -153,6 +153,8 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 
 	private int onDragOverMethodID;
 
+	private int onDragEndMethodID;
+
 	private int onDropMethodID;
 
 	private int onElementFocusGainedMethodID;
@@ -2065,6 +2067,33 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	{
 		checkForChange(onDragMethodID, arg);
 		onDragMethodID = arg;
+	}
+
+
+	/**
+	 * The method that is triggered when (non Design Mode) dragging end occurs.
+	 * 
+	 * @templatedescription 
+	 * Handle end of a drag
+	 * 
+	 * @templatename onDragEnd
+	 * @templatetype Number
+	 * @templateparam JSDNDEvent event the event that triggered the action
+	 */
+	public int getOnDragEndMethodID()
+	{
+		return onDragEndMethodID;
+	}
+
+	/**
+	 * Set the method that gets triggered when (non Design Mode) dragging end occurs. 
+	 * 
+	 * @param arg the method that is triggered
+	 */
+	public void setOnDragEndMethodID(int arg)
+	{
+		checkForChange(onDragEndMethodID, arg);
+		onDragEndMethodID = arg;
 	}
 
 	/**

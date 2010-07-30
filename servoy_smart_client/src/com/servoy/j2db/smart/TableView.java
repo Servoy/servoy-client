@@ -74,8 +74,6 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.text.JTextComponent;
 
-import org.mozilla.javascript.Function;
-
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IScriptExecuter;
@@ -1680,17 +1678,20 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 
 	public void onDragEnd(JSDNDEvent event)
 	{
-		Function dragEndCallback = event.getOnDragEndCallaback();
-		if (dragEndCallback != null)
+		int onDragEndID = 0;
+		if (cellview instanceof Portal)
 		{
-			try
-			{
-				fc.executeFunction(dragEndCallback, new Object[] { event }, false);
-			}
-			catch (Exception ex)
-			{
-				Debug.error(ex);
-			}
+			Portal cellviewPortal = (Portal)cellview;
+			onDragEndID = cellviewPortal.getOnDragEndMethodID();
+		}
+		else
+		{
+			onDragEndID = fc.getForm().getOnDragEndMethodID();
+		}
+
+		if (onDragEndID > 0)
+		{
+			fc.executeFunction(Integer.toString(onDragEndID), new Object[] { event }, false, null, false, "onDragEndMethodID"); //$NON-NLS-1$
 		}
 	}
 
@@ -1735,12 +1736,12 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 		if (cellview instanceof Portal)
 		{
 			Portal cellviewPortal = (Portal)cellview;
-			enableDragDrop = (cellviewPortal.getOnDragMethodID() > 0 || cellviewPortal.getOnDragOverMethodID() > 0 || cellviewPortal.getOnDropMethodID() > 0);
+			enableDragDrop = (cellviewPortal.getOnDragMethodID() > 0 || cellviewPortal.getOnDragEndMethodID() > 0 || cellviewPortal.getOnDragOverMethodID() > 0 || cellviewPortal.getOnDropMethodID() > 0);
 		}
 		else
 		{
 			Form form = fc.getForm();
-			enableDragDrop = (form.getOnDragMethodID() > 0 || form.getOnDragOverMethodID() > 0 || form.getOnDropMethodID() > 0);
+			enableDragDrop = (form.getOnDragMethodID() > 0 || form.getOnDragEndMethodID() > 0 || form.getOnDragOverMethodID() > 0 || form.getOnDropMethodID() > 0);
 		}
 
 		if (enableDragDrop)

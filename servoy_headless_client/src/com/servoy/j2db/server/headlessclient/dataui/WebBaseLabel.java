@@ -121,23 +121,6 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 		add(TooltipAttributeModifier.INSTANCE);
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		eventExecutor = new WebEventExecutor(this, useAJAX);
-
-		add(new ServoyAjaxEventBehavior("onmouseover")
-		{
-			@Override
-			protected void onEvent(AjaxRequestTarget target)
-			{
-				System.out.println("onmouseover " + getMarkupId());
-			}
-		});
-		add(new ServoyAjaxEventBehavior("onmouseout")
-		{
-			@Override
-			protected void onEvent(AjaxRequestTarget target)
-			{
-				System.out.println("onmouseout " + getMarkupId());
-			}
-		});
 	}
 
 	/**

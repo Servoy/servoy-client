@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 import java.util.HashMap;
@@ -490,6 +490,12 @@ public class StaticContentSpecLoader
 			cs.new Element(351, IRepository.TEMPLATES, "resourceType", IRepository.INTEGER);
 			cs.new Element(352, IRepository.TEMPLATES, "content", IRepository.STRING);
 			cs.new Element(353, IRepository.TEMPLATES, "customProperties", IRepository.STRING);
+		}
+
+		if (old_repository_version < 38)
+		{
+			cs.new Element(354, IRepository.FORMS, "onDragEndMethodID", IRepository.ELEMENTS);
+			cs.new Element(355, IRepository.PORTALS, "onDragEndMethodID", IRepository.ELEMENTS);
 		}
 
 		//##add property adds here

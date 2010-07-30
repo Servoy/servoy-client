@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 
@@ -49,6 +49,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	private String rowBGColorCalculation;
 	private int tabSeq = ISupportTabSeq.DEFAULT;
 	private int onDragMethodID;
+	private int onDragEndMethodID;
 	private int onDragOverMethodID;
 	private int onDropMethodID;
 
@@ -461,6 +462,20 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	{
 		checkForChange(onDragMethodID, arg);
 		onDragMethodID = arg;
+	}
+
+	/**
+	 * The method that is triggered when (non Design Mode) dragging end occurs.
+	 */
+	public int getOnDragEndMethodID()
+	{
+		return onDragEndMethodID;
+	}
+
+	public void setOnDragEndMethodID(int arg)
+	{
+		checkForChange(onDragEndMethodID, arg);
+		onDragEndMethodID = arg;
 	}
 
 	/**
