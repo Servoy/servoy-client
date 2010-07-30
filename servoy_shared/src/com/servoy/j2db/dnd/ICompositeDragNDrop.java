@@ -14,24 +14,13 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
+
 package com.servoy.j2db.dnd;
 
 import java.awt.Point;
 
-import com.servoy.j2db.FormController;
-import com.servoy.j2db.dataprocessing.IRecordInternal;
-import com.servoy.j2db.ui.IComponent;
-
-/**
- * Interface to which all form data renderer that supports drag and drop need to conform
- * 
- * @author gboros
- */
-
-public interface ISupportDragNDrop
+public interface ICompositeDragNDrop
 {
-	public void initDragNDrop(FormController formController, int clientDesignYOffset);
-
 	public int onDrag(JSDNDEvent event);
 
 	public boolean onDragOver(JSDNDEvent event);
@@ -40,9 +29,5 @@ public interface ISupportDragNDrop
 
 	public void onDragEnd(JSDNDEvent event);
 
-	public String getDragFormName();
-
-	public IComponent getDragSource(Point xy);
-
-	public IRecordInternal getDragRecord(Point xy);
+	public Object getDragSource(Point xy);
 }

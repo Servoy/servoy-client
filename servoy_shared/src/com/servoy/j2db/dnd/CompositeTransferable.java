@@ -28,12 +28,12 @@ import com.servoy.j2db.dataprocessing.Record;
  * 
  * @author gboros
  */
-public class FormDataTransferable implements Transferable
+public class CompositeTransferable implements Transferable
 {
 	private final Object data;
 	private final DataFlavor dataFlavor;
 
-	public FormDataTransferable(Object o, String mimeType) throws ClassNotFoundException
+	public CompositeTransferable(Object o, String mimeType) throws ClassNotFoundException
 	{
 		this.data = o;
 		if (mimeType == null)

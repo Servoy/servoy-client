@@ -24,7 +24,7 @@ import java.util.List;
 import com.servoy.j2db.dataprocessing.DataAdapterList;
 import com.servoy.j2db.dataprocessing.IDisplay;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
-import com.servoy.j2db.dnd.ISupportDragNDrop;
+import com.servoy.j2db.dnd.IFormDataDragNDrop;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.util.IDestroyable;
 
@@ -33,7 +33,7 @@ import com.servoy.j2db.util.IDestroyable;
  * 
  * @author jblok
  */
-public interface IDataRenderer extends IContainer, ISupportDragNDrop, IDestroyable
+public interface IDataRenderer extends IContainer, IFormDataDragNDrop, IDestroyable
 {
 	public void notifyVisible(boolean b, List<Runnable> invokeLaterRunnables);
 
