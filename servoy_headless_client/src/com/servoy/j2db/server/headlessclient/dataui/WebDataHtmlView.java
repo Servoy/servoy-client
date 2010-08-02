@@ -48,6 +48,7 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 	{
 		super(application, id);
 		setEscapeModelStrings(false);
+		jsChangeRecorder = new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE, TemplateGenerator.DEFAULT_FIELD_PADDING);
 	}
 
 	/**
