@@ -16,8 +16,6 @@
  */
 package com.servoy.j2db.server.headlessclient;
 
-import java.util.WeakHashMap;
-
 import org.apache.wicket.Application;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.markup.Markup;
@@ -30,7 +28,7 @@ import org.apache.wicket.markup.MarkupCache;
 public class ServoyMarkupCache extends MarkupCache
 {
 
-	private final WeakHashMap<MarkupContainer, Markup> cache = new WeakHashMap<MarkupContainer, Markup>();
+//	private final WeakHashMap<MarkupContainer, Markup> cache = new WeakHashMap<MarkupContainer, Markup>();
 
 	/**
 	 * @param application
@@ -42,10 +40,10 @@ public class ServoyMarkupCache extends MarkupCache
 
 	public void removeFromCache(WebForm form)
 	{
-		synchronized (this)
-		{
-			cache.remove(form);
-		}
+//		synchronized (this)
+//		{
+//			cache.remove(form);
+//		}
 	}
 
 	/**
@@ -56,10 +54,10 @@ public class ServoyMarkupCache extends MarkupCache
 	{
 		if (container instanceof WebForm)
 		{
-			synchronized (this)
-			{
-				cache.put(container, markup);
-			}
+//			synchronized (this)
+//			{
+//				cache.put(container, markup);
+//			}
 			return markup;
 		}
 		else
@@ -76,10 +74,11 @@ public class ServoyMarkupCache extends MarkupCache
 	{
 		if (container instanceof WebForm)
 		{
-			synchronized (this)
-			{
-				return cache.get(container);
-			}
+//			synchronized (this)
+//			{
+//				return cache.get(container);
+//			}
+			return null;
 		}
 		else
 		{

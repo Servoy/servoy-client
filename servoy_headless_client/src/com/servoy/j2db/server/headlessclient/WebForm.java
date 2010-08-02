@@ -43,12 +43,12 @@ import javax.print.attribute.PrintRequestAttributeSet;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
-import org.apache.wicket.Application;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Page;
 import org.apache.wicket.Session;
 import org.apache.wicket.markup.IMarkupCacheKeyProvider;
+import org.apache.wicket.markup.Markup;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -334,13 +334,19 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		return variation;
 	}
 
+	private transient Markup markup = null;
+
 	/**
 	 * @see org.apache.wicket.MarkupContainer#getAssociatedMarkupStream(boolean)
 	 */
 	@Override
 	public MarkupStream getAssociatedMarkupStream(boolean throwException)
 	{
-		return super.getAssociatedMarkupStream(throwException);
+		if (markup == null)
+		{
+			markup = getApplication().getMarkupSettings().getMarkupCache().getMarkup(this, getClass(), false);
+		}
+		return new MarkupStream(markup);
 	}
 
 	public void setTabSeqComponents(List<Component> tabSequence)
@@ -1643,7 +1649,8 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		// touch the form when recreated so that template generator will flush its css/html cache
 		formController.getForm().setLastModified(System.currentTimeMillis());
 		// remove the markup from the cache for this webform.
-		((ServoyMarkupCache)Application.get().getMarkupSettings().getMarkupCache()).removeFromCache(this);
+		//((ServoyMarkupCache)Application.get().getMarkupSettings().getMarkupCache()).removeFromCache(this);
+		markup = null;
 		uiRecreated = true;
 	}
 

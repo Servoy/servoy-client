@@ -230,7 +230,8 @@ public class WebClientsApplication extends WebApplication
 	@Override
 	protected void init()
 	{
-		getResourceSettings().setResourcePollFrequency(Duration.seconds(5));
+		getResourceSettings().setResourceWatcher(new ServoyModificationWatcher(Duration.seconds(5)));
+//		getResourceSettings().setResourcePollFrequency(Duration.seconds(5));
 		getResourceSettings().setAddLastModifiedTimeToResourceReferenceUrl(true);
 		getMarkupSettings().setCompressWhitespace(true);
 		getMarkupSettings().setMarkupCache(new ServoyMarkupCache(this));
