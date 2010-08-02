@@ -80,6 +80,7 @@ import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.scripting.IScriptSupport;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.server.shared.IApplicationServerAccess;
@@ -623,6 +624,19 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	@Override
 	protected void bindUserClient()
 	{
+	}
+
+	@Override
+	public void invokeAndWait(Runnable r)
+	{
+		if (getScriptEngine() instanceof IScriptSupport && ((IScriptSupport)getScriptEngine()).isAlreadyExecutingFunctionInDebug())
+		{
+			r.run();
+		}
+		else
+		{
+			super.invokeAndWait(r);
+		}
 	}
 
 	@Override

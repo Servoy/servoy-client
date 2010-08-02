@@ -864,26 +864,19 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 			{
 				setText(null);
 			}
-			if (SwingUtilities.isEventDispatchThread())
+			try
 			{
-				super.setIcon(normalIcon);
-			}
-			else
-			{
-				try
+				application.invokeAndWait(new Runnable()
 				{
-					SwingUtilities.invokeAndWait(new Runnable()
+					public void run()
 					{
-						public void run()
-						{
-							AbstractScriptLabel.super.setIcon(normalIcon);
-						}
-					});
-				}
-				catch (Exception e)
-				{
-					Debug.error(e);
-				}
+						AbstractScriptLabel.super.setIcon(normalIcon);
+					}
+				});
+			}
+			catch (Exception e)
+			{
+				Debug.error(e);
 			}
 		}
 	}
