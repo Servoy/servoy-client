@@ -48,6 +48,7 @@ import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.GlobalScope;
+import com.servoy.j2db.server.headlessclient.Credentials;
 import com.servoy.j2db.server.headlessclient.EmptyRequest;
 import com.servoy.j2db.server.headlessclient.SessionClient;
 import com.servoy.j2db.server.headlessclient.WebClient;
@@ -421,7 +422,8 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		{
 			debugListener = debugWebClient.getFlattenedSolution().getDebugListener();
 		}
-		debugWebClient = new DebugWebClient(req, userName, password, method, objects, (currentSolution == null) ? null : currentSolution.getSolutionMetaData());
+		debugWebClient = new DebugWebClient(req, new Credentials(userName, password), method, objects, (currentSolution == null) ? null
+			: currentSolution.getSolutionMetaData());
 		if (debugListener != null && debugWebClient.getFlattenedSolution() != null) debugWebClient.getFlattenedSolution().registerDebugListener(debugListener);
 		return debugWebClient;
 	}

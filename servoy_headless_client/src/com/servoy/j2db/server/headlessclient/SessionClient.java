@@ -132,8 +132,8 @@ public class SessionClient extends ClientState implements ISessionClient
 
 	private final HashMap<Locale, Properties> messages = new HashMap<Locale, Properties>();
 
-	protected String username;
-	protected String password;
+	protected final Credentials credentials;
+
 	protected Locale locale;
 
 	protected transient IDataRendererFactory<org.apache.wicket.Component> dataRendererFactory;
@@ -152,6 +152,11 @@ public class SessionClient extends ClientState implements ISessionClient
 
 	protected SessionClient(ServletRequest req, String uname, String pass, String method, Object[] methodArgs, String solution) throws Exception
 	{
+		this(req, new Credentials(uname, pass), method, methodArgs, solution);
+	}
+
+	protected SessionClient(ServletRequest req, Credentials credentials, String method, Object[] methodArgs, String solution) throws Exception
+	{
 		super();
 		if (req instanceof HttpServletRequest)
 		{
@@ -165,8 +170,7 @@ public class SessionClient extends ClientState implements ISessionClient
 		{
 			settings = Settings.getInstance();
 
-			username = uname;
-			password = pass;
+			this.credentials = credentials;
 
 			this.preferredSolutionMethodNameToCall = method;
 			this.preferredSolutionMethodArguments = methodArgs;
@@ -206,6 +210,14 @@ public class SessionClient extends ClientState implements ISessionClient
 		{
 			if (reset) unsetThreadLocals();
 		}
+	}
+
+	@Override
+	public void clearLoginForm()
+	{
+		super.clearLoginForm();
+		credentials.setPassword(""); //$NON-NLS-1$
+		credentials.setUserName(getClientInfo().getUserUid());
 	}
 
 	public void loadSolution(String solutionName) throws RepositoryException
@@ -475,18 +487,12 @@ public class SessionClient extends ClientState implements ISessionClient
 		return fm;
 	}
 
-	public void setCredentials(String username, String password)
-	{
-		this.username = username;
-		this.password = password;
-	}
-
 	@Override
 	public void showDefaultLogin() throws ServoyException
 	{
-		if (username != null && password != null)
+		if (credentials.getUserName() != null && credentials.getPassword() != null)
 		{
-			authenticate(null, null, new Object[] { username, password });
+			authenticate(null, null, new Object[] { credentials.getUserName(), credentials.getPassword() });
 		}
 		if (getClientInfo().getUserUid() == null)
 		{
@@ -1360,16 +1366,14 @@ public class SessionClient extends ClientState implements ISessionClient
 					}
 					else
 					{
-						username = null;
-						password = null;
+						credentials.clear();
 						getClientInfo().clearUserInfo();
 					}
 				}
 			}
 			else
 			{
-				username = null;
-				password = null;
+				credentials.clear();
 				getClientInfo().clearUserInfo();
 			}
 		}

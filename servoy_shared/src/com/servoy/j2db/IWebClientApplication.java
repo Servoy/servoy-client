@@ -40,6 +40,4 @@ public interface IWebClientApplication extends ISessionClient
 
 	void handleArguments(String[] args);
 
-	public void setCredentials(String username, String password);
-
 }

@@ -64,6 +64,7 @@ import com.servoy.j2db.scripting.IScriptSupport;
 import com.servoy.j2db.scripting.info.WEBCONSTANTS;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -77,9 +78,9 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	private Map<Object, Object> uiProperties;
 	private final Map<String, Rectangle> windowBounds = new HashMap<String, Rectangle>();
 
-	protected WebClient(HttpServletRequest req, String name, String pass, String method, Object[] methodArgs, String solution) throws Exception
+	protected WebClient(HttpServletRequest req, Credentials credentials, String method, Object[] methodArgs, String solution) throws Exception
 	{
-		super(req, name, pass, method, methodArgs, solution);
+		super(req, credentials, method, methodArgs, solution);
 
 		//set the remote info, since localhost from server is useless
 		ClientInfo ci = getClientInfo();
@@ -480,11 +481,56 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		}
 	}
 
+	@SuppressWarnings("nls")
+	@Override
+	public void showDefaultLogin() throws ServoyException
+	{
+		// if no credentials are set then redirect to the solution loader page.
+		if (credentials.getUserName() == null || credentials.getPassword() == null)
+		{
+			try
+			{
+				// close the solution, webclient can't handle a "half" open solution.
+				solutionRoot.close(getActiveSolutionHandler());
+			}
+			catch (IOException e)
+			{
+				Debug.error(e);
+			}
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("s", getPreferedSolutionNameToLoadOnInit());
+			if (getPreferedSolutionMethodNameToCall() != null) map.put("m", getPreferedSolutionMethodNameToCall());
+			if (getPreferedSolutionMethodArguments() != null && getPreferedSolutionMethodArguments().length > 0 &&
+				getPreferedSolutionMethodArguments()[0] != null)
+			{
+				map.put("a", getPreferedSolutionMethodArguments()[0]);
+			}
+			getMainPage().setResponsePage(SolutionLoader.class, new PageParameters(map));
+			return;
+		}
+		super.showDefaultLogin();
+	}
+
 	@Override
 	public void logout(Object[] solution_to_open_args)
 	{
-		super.logout(solution_to_open_args);
-		if (WebClientSession.get() != null) WebClientSession.get().clearCredentials();
+		if (getClientInfo().getUserUid() != null)
+		{
+			if (getSolution() != null && getSolution().requireAuthentication())
+			{
+				if (closeSolution(false, solution_to_open_args)) // don't shutdown if already closing; wait for the first closeSolution to finish
+				{
+					credentials.clear();
+					getClientInfo().clearUserInfo();
+				}
+			}
+			else
+			{
+				credentials.clear();
+				getClientInfo().clearUserInfo();
+			}
+		}
+
 	}
 
 	//behaviour in webclient is different, we do shutdown the webclient instance ,since we cannot switch solution
@@ -495,6 +541,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		return closing;
 	}
 
+	@SuppressWarnings("nls")
 	@Override
 	public boolean closeSolution(boolean force, Object[] args)
 	{
@@ -523,7 +570,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 				{
 					if (showUrlInfo != null)
 					{
-						String url = "/"; //$NON-NLS-1$
+						String url = "/";
 						if (showUrlInfo.getUrl() != null)
 						{
 							url = showUrlInfo.getUrl();
@@ -551,12 +598,17 @@ public class WebClient extends SessionClient implements IWebClientApplication
 							}
 							else
 							{
+								// if solution browsing is false, make sure that the credentials are kept
+								if (!Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.allowSolutionBrowsing", "true")))
+								{
+									WebClientSession.get().keepCredentials(getPreferedSolutionNameToLoadOnInit());
+								}
 								Map<String, Object> map = new HashMap<String, Object>();
-								map.put("s", getPreferedSolutionNameToLoadOnInit()); //$NON-NLS-1$
-								map.put("m", getPreferedSolutionMethodNameToCall()); //$NON-NLS-1$
+								map.put("s", getPreferedSolutionNameToLoadOnInit());
+								map.put("m", getPreferedSolutionMethodNameToCall());
 								if (getPreferedSolutionMethodArguments() != null && getPreferedSolutionMethodArguments().length > 0)
 								{
-									map.put("a", getPreferedSolutionMethodArguments()[0]); //$NON-NLS-1$
+									map.put("a", getPreferedSolutionMethodArguments()[0]);
 								}
 								getMainPage().setResponsePage(SolutionLoader.class, new PageParameters(map));
 							}
