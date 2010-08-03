@@ -2174,24 +2174,31 @@ public class JSApplication implements IReturnedTypesProvider
 			if (time < 100) time = 100;
 		}
 		long endTime = System.currentTimeMillis() + time;
-		do
+		try
 		{
-			SwingHelper.dispatchEvents(time);
-			if (System.currentTimeMillis() > endTime)
+			do
 			{
-				break;
+				SwingHelper.dispatchEvents(time);
+				if (System.currentTimeMillis() > endTime)
+				{
+					break;
+				}
+				try
+				{
+					Thread.sleep(100);
+					time = (int)(endTime - System.currentTimeMillis());
+				}
+				catch (InterruptedException e)
+				{
+					// ignore
+				}
 			}
-			try
-			{
-				Thread.sleep(100);
-				time = (int)(endTime - System.currentTimeMillis());
-			}
-			catch (InterruptedException e)
-			{
-				// ignore
-			}
+			while (time > 0);
 		}
-		while (time > 0);
+		catch (Exception ex)
+		{
+			Debug.error(ex);
+		}
 
 	}
 
