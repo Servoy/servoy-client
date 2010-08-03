@@ -2178,16 +2178,21 @@ public class TemplateGenerator
 				inline.setProperty("top", "0px");
 				inline.setProperty("left", "0px");
 				inline.setProperty("position", "absolute");
+				if (field.getOnActionMethodID() < 1)
+				{
+					inline.setProperty("cursor", "default");
+				}
 
 				html.append("<input ");
 				html.append(inline.toString());
 				html.append(getWicketIDParameter(form, field));
 				html.append(getJavaScriptIDParameter(form, field));
 				html.append("value='");
-				html.append(field.getName());
+				if (field.getName() != null) html.append(field.getName());
 				html.append("' ");
 				html.append("type='image' ");
 				html.append(" src='#' alt='' ");
+				html.append(" onclick='return false;' ");
 				html.append("/>");
 
 //					html.append("<img ");
