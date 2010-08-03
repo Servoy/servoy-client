@@ -300,6 +300,8 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 							comp.setLocation((l.x /* +insets.left */) + XCorrection, (l.y - start) + YCorrection);
 
 							int index = 0;
+							// for multiline portal, components should be added in right order because tab sequence is not supported
+							if (!printing && isPortal) index = -1;
 							if (!printing && obj instanceof ISupportAnchors)
 							{
 								panel.add(comp, new Integer(((ISupportAnchors)obj).getAnchors()), index);
