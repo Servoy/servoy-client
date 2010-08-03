@@ -488,6 +488,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		// if no credentials are set then redirect to the solution loader page.
 		if (credentials.getUserName() == null || credentials.getPassword() == null)
 		{
+			String solutionName = solutionRoot.getSolution() != null ? solutionRoot.getSolution().getName() : null;
 			try
 			{
 				// close the solution, webclient can't handle a "half" open solution.
@@ -498,12 +499,19 @@ public class WebClient extends SessionClient implements IWebClientApplication
 				Debug.error(e);
 			}
 			Map<String, Object> map = new HashMap<String, Object>();
-			map.put("s", getPreferedSolutionNameToLoadOnInit());
-			if (getPreferedSolutionMethodNameToCall() != null) map.put("m", getPreferedSolutionMethodNameToCall());
-			if (getPreferedSolutionMethodArguments() != null && getPreferedSolutionMethodArguments().length > 0 &&
-				getPreferedSolutionMethodArguments()[0] != null)
+			if (getPreferedSolutionNameToLoadOnInit() != null)
 			{
-				map.put("a", getPreferedSolutionMethodArguments()[0]);
+				map.put("s", getPreferedSolutionNameToLoadOnInit());
+				if (getPreferedSolutionMethodNameToCall() != null) map.put("m", getPreferedSolutionMethodNameToCall());
+				if (getPreferedSolutionMethodArguments() != null && getPreferedSolutionMethodArguments().length > 0 &&
+					getPreferedSolutionMethodArguments()[0] != null)
+				{
+					map.put("a", getPreferedSolutionMethodArguments()[0]);
+				}
+			}
+			else
+			{
+				map.put("s", solutionName);
 			}
 			getMainPage().setResponsePage(SolutionLoader.class, new PageParameters(map));
 			return;
