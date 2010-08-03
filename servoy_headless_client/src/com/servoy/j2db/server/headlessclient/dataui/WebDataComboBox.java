@@ -164,7 +164,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 					{
 						if (hasRealValues())
 						{
-							return ""; //$NON-NLS-1$
+							return null;
 						}
 						return getRealSelectedItem();
 					}
@@ -246,6 +246,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 		{
 			public void intervalRemoved(ListDataEvent e)
 			{
+				if (ignoreChanges) return;
 				jsChangeRecorder.setChanged();
 				Object obj = list.getSelectedItem();
 				list.setSelectedItem(obj);
@@ -253,6 +254,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 
 			public void intervalAdded(ListDataEvent e)
 			{
+				if (ignoreChanges) return;
 				jsChangeRecorder.setChanged();
 				Object obj = list.getSelectedItem();
 				list.setSelectedItem(obj);
@@ -260,6 +262,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 
 			public void contentsChanged(ListDataEvent e)
 			{
+				if (ignoreChanges) return;
 				jsChangeRecorder.setChanged();
 				Object obj = list.getSelectedItem();
 				list.setSelectedItem(obj);
@@ -312,7 +315,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	@Override
 	protected boolean isSelected(Object object, int index, String selected)
 	{
-		if (object == null && "".equals(selected)) return true;
+		if (object == null && ("".equals(selected) || selected == getNoSelectionValue())) return true;
 		// WebChoiceRenderer.getRealValue == selected does a toString from the real so object must also do just to string
 		return Utils.equalObjects(object != null ? object.toString() : null, selected);
 	}
@@ -683,9 +686,24 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	/*
 	 * _____________________________________________________________ Methods for IDisplayRelatedData
 	 */
+	private boolean ignoreChanges;
+
 	public void setRecord(IRecordInternal state, boolean stopEditing)
 	{
-		list.fill(state);
+		Object selectedItem = list.getSelectedItem();
+		try
+		{
+			ignoreChanges = true;
+			list.fill(state);
+		}
+		finally
+		{
+			ignoreChanges = false;
+		}
+		if (!Utils.equalObjects(list.getSelectedItem(), selectedItem))
+		{
+			getStylePropertyChanges().setChanged();
+		}
 	}
 
 	public String getSelectedRelationName()
