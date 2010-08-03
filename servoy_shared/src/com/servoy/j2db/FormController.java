@@ -2714,7 +2714,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 	public void checkInitialized()
 	{
-		if (!isShowingData())
+		if (!isInFindMode() && !isShowingData())
 		{
 			throw new RuntimeException(application.getI18NMessage("servoy.formPanel.error.formNotInitialized")); //$NON-NLS-1$
 		}
