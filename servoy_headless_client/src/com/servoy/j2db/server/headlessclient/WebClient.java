@@ -36,12 +36,15 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.swing.SwingUtilities;
 
+import org.apache.wicket.AbortException;
+import org.apache.wicket.Application;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.protocol.http.ClientProperties;
+import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebRequestCycle;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
 import org.apache.wicket.request.target.basic.RedirectRequestTarget;
@@ -54,6 +57,7 @@ import com.servoy.j2db.IWebClientApplication;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.dataprocessing.IUserClient;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.Style;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.scripting.IScriptSupport;
@@ -740,14 +744,20 @@ public class WebClient extends SessionClient implements IWebClientApplication
 
 	public void onBeginRequest(WebClientSession webClientSession)
 	{
-		if (getSolution() != null)
+		Solution solution = getSolution();
+		if (solution != null)
 		{
 			synchronized (webClientSession)
 			{
 				long solutionLastModifiedTime = webClientSession.getSolutionLastModifiedTime();
-				if (solutionLastModifiedTime != -1 && solutionLastModifiedTime != getSolution().getLastModifiedTime())
+				if (solutionLastModifiedTime != -1 && solutionLastModifiedTime != solution.getLastModifiedTime())
 				{
-					webClientSession.setSolutionLastModifiedTime(getSolution().getLastModifiedTime());
+					if (isClosing() || isShutDown())
+					{
+						if (((WebRequest)RequestCycle.get().getRequest()).isAjax()) throw new AbortException();
+						else throw new RestartResponseException(Application.get().getHomePage());
+					}
+					webClientSession.setSolutionLastModifiedTime(solution.getLastModifiedTime());
 					refreshI18NMessages();
 					((IScriptSupport)getScriptEngine()).reload();
 					((WebFormManager)getFormManager()).reload();
