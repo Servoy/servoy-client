@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.debug;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,6 +22,7 @@ import org.apache.wicket.Request;
 import org.apache.wicket.RestartResponseException;
 
 import com.servoy.j2db.IWebClientApplication;
+import com.servoy.j2db.server.headlessclient.Credentials;
 import com.servoy.j2db.server.headlessclient.DebuggerNotConnectedErrorPage;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
@@ -40,12 +41,13 @@ public class DebugWebClientSession extends WebClientSession
 	}
 
 	@Override
-	protected IWebClientApplication createWebClient(HttpServletRequest req, String name, String pass, String method, Object[] methodArgs, String solution)
+	protected IWebClientApplication createWebClient(HttpServletRequest req, Credentials credentials, String method, Object[] methodArgs, String solution)
 		throws Exception
 	{
 		if (RemoteDebugScriptEngine.isConnected())
 		{
-			return ApplicationServerSingleton.get().getDebugClientHandler().createDebugWebClient(this, req, name, pass, method, methodArgs);
+			return ApplicationServerSingleton.get().getDebugClientHandler().createDebugWebClient(this, req, credentials.getUserName(),
+				credentials.getPassword(), method, methodArgs);
 		}
 		throw new RestartResponseException(DebuggerNotConnectedErrorPage.class);
 	}

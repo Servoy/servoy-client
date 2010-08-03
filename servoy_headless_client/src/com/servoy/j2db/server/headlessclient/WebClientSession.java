@@ -26,6 +26,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.Request;
 import org.apache.wicket.RequestCycle;
+import org.apache.wicket.RestartResponseAtInterceptPageException;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.Session;
 import org.apache.wicket.markup.html.DynamicWebResource;
@@ -38,12 +39,15 @@ import org.mozilla.javascript.Function;
 import com.servoy.j2db.IWebClientApplication;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.RootObjectMetaData;
+import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.StartupArgumentsScope;
 import com.servoy.j2db.server.headlessclient.dataui.drag.DNDSessionInfo;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
-import com.servoy.j2db.server.shared.IApplicationServerSingleton;
+import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -57,16 +61,17 @@ public class WebClientSession extends WebSession
 
 	private long solutionLastModifiedTime = -1;
 
-	private String userName = null;
-	private String password = null;
-
 	private HttpSession httpSession;
+
+	private final Credentials credentials = new Credentials();
 
 	private String serveName;
 	private String serveMime;
 	private byte[] serveData;
 
 	private final DNDSessionInfo dndSessionInfo = new DNDSessionInfo();
+
+	private String keepCredentialsSolutionName;
 
 	public static WebClientSession get()
 	{
@@ -83,6 +88,7 @@ public class WebClientSession extends WebSession
 		setTemplateDirectoryName("default"); //$NON-NLS-1$
 	}
 
+	@SuppressWarnings("nls")
 	public IWebClientApplication startSessionClient(RootObjectMetaData sd, String method, StartupArgumentsScope argumentsScope) throws Exception
 	{
 		String firstArgument = argumentsScope.getFirstArgument();
@@ -90,19 +96,37 @@ public class WebClientSession extends WebSession
 		IWebClientApplication webClient = getWebClient();
 		if (webClient != null)
 		{
-			if (webClient.getSolution() != null && !webClient.closeSolution(false, null))
+			boolean solutionLoaded = webClient.getSolution() != null;
+			if (solutionLoaded && !webClient.closeSolution(false, null))
 			{
 				return webClient; // not allowed to close solution?
 			}
 			existingClient = true;
+
+			if (solutionLoaded && isSignedIn() && !Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.allowSolutionBrowsing", "true")) &&
+				!sd.getName().equals(keepCredentialsSolutionName))
+			{
+				webClient.logout(null);
+			}
+			if (!isSignedIn())
+			{
+				SolutionMetaData smd = (SolutionMetaData)sd;
+				IRepository repository = ApplicationServerSingleton.get().getLocalRepository();
+				Solution sol = (Solution)repository.getActiveRootObject(smd.getName(), IRepository.SOLUTIONS);
+				if (sol.getLoginSolutionName() == null && sol.getLoginFormID() <= 0 && smd.getMustAuthenticate())
+				{
+					//signin first
+					throw new RestartResponseAtInterceptPageException(SignIn.class);
+				}
+			}
+			keepCredentialsSolutionName = null;
 		}
 		if (webClient == null || webClient.isShutDown())
 		{
+			existingClient = false;
 			HttpServletRequest req = ((WebRequest)RequestCycle.get().getRequest()).getHttpServletRequest();
 			httpSession = req.getSession();
-			IApplicationServerSingleton as = ApplicationServerSingleton.get();
-			webClient = createWebClient(req, userName, password, method, firstArgument == null ? null : new Object[] { firstArgument, argumentsScope },
-				sd.getName());
+			webClient = createWebClient(req, credentials, method, firstArgument == null ? null : new Object[] { firstArgument, argumentsScope }, sd.getName());
 			webClient.handleArguments(new String[] { sd.getName() }, argumentsScope);
 			if (RequestCycle.get() != null)
 			{
@@ -110,7 +134,7 @@ public class WebClientSession extends WebSession
 				// will be reset by the detach of the RequestCycle.
 				J2DBGlobals.setServiceProvider(webClient);
 			}
-			setAttribute("servoy_webclient", webClient); //$NON-NLS-1$
+			setAttribute("servoy_webclient", webClient);
 		}
 		else
 		{
@@ -144,11 +168,11 @@ public class WebClientSession extends WebSession
 			if (webClient.getPreferedSolutionNameToLoadOnInit() != null)
 			{
 				Map<String, Object> map = new HashMap<String, Object>();
-				map.put("s", webClient.getPreferedSolutionNameToLoadOnInit()); //$NON-NLS-1$
-				map.put("m", webClient.getPreferedSolutionMethodNameToCall()); //$NON-NLS-1$
+				map.put("s", webClient.getPreferedSolutionNameToLoadOnInit());
+				map.put("m", webClient.getPreferedSolutionMethodNameToCall());
 				if (webClient.getPreferedSolutionMethodArguments() != null && webClient.getPreferedSolutionMethodArguments().length > 0)
 				{
-					map.put("a", webClient.getPreferedSolutionMethodArguments()[0]); //$NON-NLS-1$
+					map.put("a", webClient.getPreferedSolutionMethodArguments()[0]);
 				}
 				throw new RestartResponseException(SolutionLoader.class, new PageParameters(map));
 			}
@@ -156,10 +180,10 @@ public class WebClientSession extends WebSession
 		return webClient;
 	}
 
-	protected IWebClientApplication createWebClient(HttpServletRequest req, String name, String pass, String method, Object[] methodArgs, String solution)
+	protected IWebClientApplication createWebClient(HttpServletRequest req, Credentials credentials, String method, Object[] methodArgs, String solution)
 		throws Exception
 	{
-		return new WebClient(req, name, pass, method, methodArgs, solution);
+		return new WebClient(req, credentials, method, methodArgs, solution);
 	}
 
 	public WebClient getWebClient()
@@ -171,8 +195,8 @@ public class WebClientSession extends WebSession
 	{
 		if (ApplicationServerSingleton.get().checkDefaultServoyAuthorisation(u, p) != null)
 		{
-			userName = u;
-			password = p;
+			credentials.setUserName(u);
+			credentials.setPassword(p);
 			return true;
 		}
 		return false;
@@ -195,8 +219,7 @@ public class WebClientSession extends WebSession
 	 */
 	public void logout()
 	{
-		userName = null;
-		password = null;
+		credentials.clear();
 
 		RequestCycle rc = RequestCycle.get();
 		if (rc != null)
@@ -220,7 +243,7 @@ public class WebClientSession extends WebSession
 
 	public boolean isSignedIn()
 	{
-		return (userName != null && password != null);
+		return credentials.getUserName() != null && credentials.getPassword() != null;
 	}
 
 	public void setTemplateDirectoryName(String dirName)
@@ -330,5 +353,10 @@ public class WebClientSession extends WebSession
 	{
 		WebClient webClient = getWebClient();
 		return webClient != null && Utils.getAsBoolean(webClient.getRuntimeProperties().get("useAJAX"));
+	}
+
+	public void keepCredentials(String solutionName)
+	{
+		this.keepCredentialsSolutionName = solutionName;
 	}
 }

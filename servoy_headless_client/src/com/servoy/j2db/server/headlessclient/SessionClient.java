@@ -132,8 +132,8 @@ public class SessionClient extends ClientState implements ISessionClient
 
 	private final HashMap<Locale, Properties> messages = new HashMap<Locale, Properties>();
 
-	protected String username;
-	protected String password;
+	protected final Credentials credentials;
+
 	protected Locale locale;
 
 	protected transient IDataRendererFactory<org.apache.wicket.Component> dataRendererFactory;
@@ -153,6 +153,11 @@ public class SessionClient extends ClientState implements ISessionClient
 
 	protected SessionClient(ServletRequest req, String uname, String pass, String method, Object[] methodArgs, String solution) throws Exception
 	{
+		this(req, new Credentials(uname, pass), method, methodArgs, solution);
+	}
+
+	protected SessionClient(ServletRequest req, Credentials credentials, String method, Object[] methodArgs, String solution) throws Exception
+	{
 		super();
 		if (req instanceof HttpServletRequest)
 		{
@@ -166,8 +171,7 @@ public class SessionClient extends ClientState implements ISessionClient
 		{
 			settings = Settings.getInstance();
 
-			username = uname;
-			password = pass;
+			this.credentials = credentials;
 
 			this.preferredSolutionMethodNameToCall = method;
 			this.preferredSolutionMethodArguments = methodArgs;
@@ -209,6 +213,14 @@ public class SessionClient extends ClientState implements ISessionClient
 		{
 			if (reset) unsetThreadLocals();
 		}
+	}
+
+	@Override
+	public void clearLoginForm()
+	{
+		super.clearLoginForm();
+		credentials.setPassword(""); //$NON-NLS-1$
+		credentials.setUserName(getClientInfo().getUserUid());
 	}
 
 	@Override
@@ -509,9 +521,9 @@ public class SessionClient extends ClientState implements ISessionClient
 	@Override
 	public void showDefaultLogin() throws ServoyException
 	{
-		if (username != null && password != null)
+		if (credentials.getUserName() != null && credentials.getPassword() != null)
 		{
-			authenticate(null, null, new Object[] { username, password });
+			authenticate(null, null, new Object[] { credentials.getUserName(), credentials.getPassword() });
 		}
 		if (getClientInfo().getUserUid() == null)
 		{
@@ -1388,13 +1400,22 @@ public class SessionClient extends ClientState implements ISessionClient
 		{
 			if (getSolution() != null && getSolution().requireAuthentication())
 			{
-				if (closeSolution(false, solution_to_open_args) && !isClosing) // don't shutdown if already closing; wait for the first closeSolution to finish
+				if (closeSolution(false, solution_to_open_args)) // don't shutdown if already closing; wait for the first closeSolution to finish
 				{
-					shutDown(false);//no way to enter username password so shutdown
+					if (!isClosing)
+					{
+						shutDown(false);//no way to enter username password so shutdown
+					}
+					else
+					{
+						credentials.clear();
+						getClientInfo().clearUserInfo();
+					}
 				}
 			}
 			else
 			{
+				credentials.clear();
 				getClientInfo().clearUserInfo();
 			}
 		}
