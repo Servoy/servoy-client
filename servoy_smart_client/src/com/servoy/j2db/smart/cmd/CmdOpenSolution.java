@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.smart.cmd;
 
 
@@ -28,30 +28,34 @@ import com.servoy.j2db.smart.J2DBClient;
 /**
  * @author jblok
  */
+@SuppressWarnings("nls")
 public class CmdOpenSolution extends AbstractCmd
 {
 	public CmdOpenSolution(IApplication app)
 	{
-		super(
-			app,
-			"CmdOpenSolution", app.getI18NMessage("servoy.menuitem.openSolution"), "servoy.menuitem.openSolution", app.getI18NMessage("servoy.menuitem.openSolution.mnemonic").charAt(0), app.loadImage("open_project.gif")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-		setActionCommand("open"); //$NON-NLS-1$
+		super(app, "CmdOpenSolution", app.getI18NMessage("servoy.menuitem.openSolution"), "servoy.menuitem.openSolution", app.getI18NMessage(
+			"servoy.menuitem.openSolution.mnemonic").charAt(0), app.loadImage("open_project.gif"));
+		setActionCommand("open");
 		setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, J2DBClient.menuShortcutKeyMask));
 	}
 
 	@Override
 	public UndoableEdit doIt(java.util.EventObject ae)
 	{
-		application.blockGUI(application.getI18NMessage("servoy.menuitem.openSolution.status.text")); //$NON-NLS-1$
+		application.blockGUI(application.getI18NMessage("servoy.menuitem.openSolution.status.text"));
 		try
 		{
-			if (application.closeSolution(false, null))
+			if (application.getSolution() != null)
+			{
+				application.closeSolution(false, null);
+			}
+			else
 			{
 				application.invokeAndWait(new Runnable()
 				{
 					public void run()
 					{
-						((J2DBClient)application).handleClientUserUidChanged(null, null);
+						((J2DBClient)application).handleClientUserUidChanged(null, ""); // fake uuid so that select solution will be shown.
 					}
 				});
 			}

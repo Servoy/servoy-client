@@ -357,6 +357,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	@SuppressWarnings("nls")
 	public void handleClientUserUidChanged(String userUidBefore, String userUidAfter)
 	{
+		if (userUidBefore == null && userUidAfter == null) return;
 		if (isShutDown() || isClosing)
 		{
 			return;
@@ -639,6 +640,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		return applicationServer;
 	}
 
+	@SuppressWarnings("nls")
 	public IRepository getRepository()
 	{
 		if (repository == null)
@@ -646,10 +648,11 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			try
 			{
 				repository = createRepository();
+				if (repository != null) J2DBGlobals.firePropertyChange(this, "repository", null, repository);
 			}
 			catch (Exception ex)
 			{
-				reportError("Cannot find repository, it may not be running on server", ex); //$NON-NLS-1$ 
+				reportError("Cannot find repository, it may not be running on server", ex);
 			}
 		}
 		return repository;

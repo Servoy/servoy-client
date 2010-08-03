@@ -698,6 +698,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		return true;
 	}
 
+	@SuppressWarnings("nls")
 	protected void startupApplication(String[] args)
 	{
 		try
@@ -707,18 +708,18 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 
 			// set some props 
 			// ie. for full gc timing 6 mins (1 minutes == default)
-			System.setProperty("sun.rmi.dgc.client.gcInterval", "360000"); //$NON-NLS-1$ //$NON-NLS-2$
+			System.setProperty("sun.rmi.dgc.client.gcInterval", "360000");
 			// System.setProperty("java.rmi.server.codebase", "");//disable any rmi classloading
-			System.setProperty("apple.laf.useScreenMenuBar", Boolean.toString(getAppleScreenMenuBar())); //$NON-NLS-1$ 
+			System.setProperty("apple.laf.useScreenMenuBar", Boolean.toString(getAppleScreenMenuBar()));
 
-			UIManager.put("TabbedPane.contentOpaque", Boolean.FALSE); //$NON-NLS-1$
+			UIManager.put("TabbedPane.contentOpaque", Boolean.FALSE);
 			// The "TabbedPane.tabsOpaque" should not be set. If we set it, then the tabs (the little handles
 			// that are used for switching between forms) become transparent in some L&F (for example Windows Classic)
 			// which is not desired. Also, settting this property does not help with the gray stripe that appears
 			// behind the tabs on Windows. That stripe only goes away if the tabpanel is made transparent.
 			//UIManager.put("TabbedPane.tabsOpaque", Boolean.FALSE);
-			Object originalHighlight = UIManager.get("TabbedPane.highlight"); //$NON-NLS-1$
-			if (originalHighlight instanceof Color) UIManager.put("TabbedPane.highlight", ((Color)originalHighlight).darker()); //offset from white a bit since white is most used background //$NON-NLS-1$
+			Object originalHighlight = UIManager.get("TabbedPane.highlight");
+			if (originalHighlight instanceof Color) UIManager.put("TabbedPane.highlight", ((Color)originalHighlight).darker()); //offset from white a bit since white is most used background
 
 			initSecurityManager();
 
@@ -733,12 +734,12 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			if (applicationServerInit())
 			{
 				serverInit();
-				handleClientUserUidChanged(null, null);
+				handleClientUserUidChanged(null, ""); // fake id so that the select dialog is shown.
 			}
 		}
 		catch (Exception ex)
 		{
-			Debug.error("Fatal Exception"); //$NON-NLS-1$
+			Debug.error("Fatal Exception");
 			Debug.error(ex);
 		}
 	}
@@ -1819,6 +1820,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 					blockGUI(Messages.getString("servoy.client.status.initializing.solution")); //$NON-NLS-1$
 					frame.setTitle(getApplicationName() + " - " + solution.getName()); //$NON-NLS-1$
 					J2DBGlobals.firePropertyChange(J2DBClient.this, "solution", null, solution); //$NON-NLS-1$
+					handleArguments(null); // clear the loaded solution names.
 				}
 				finally
 				{
@@ -2852,7 +2854,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 				{
 					public void run()
 					{
-						boolean doLogOut = true;
+						boolean doLogOut = getClientInfo().getUserUid() != null;
 						if (getSolution() != null)
 						{
 							doLogOut = closeSolution(false, solution_to_open_args);
