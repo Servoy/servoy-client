@@ -133,6 +133,9 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 		}
 		if (solution != null)
 		{
+			// reset the preferred solution always to this solution.
+			// debug client can't load another.
+			preferredSolutionNameToLoadOnInit = solution.getName();
 			super.loadSolution(solution);
 		}
 	}

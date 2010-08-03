@@ -46,8 +46,7 @@ public class DebugWebClientSession extends WebClientSession
 	{
 		if (RemoteDebugScriptEngine.isConnected())
 		{
-			return ApplicationServerSingleton.get().getDebugClientHandler().createDebugWebClient(this, req, credentials.getUserName(),
-				credentials.getPassword(), method, methodArgs);
+			return ApplicationServerSingleton.get().getDebugClientHandler().createDebugWebClient(this, req, credentials, method, methodArgs);
 		}
 		throw new RestartResponseException(DebuggerNotConnectedErrorPage.class);
 	}

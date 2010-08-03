@@ -414,7 +414,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	 * @return
 	 * @throws Exception
 	 */
-	public synchronized WebClient createDebugWebClient(WebSession webClientSession, HttpServletRequest req, String userName, String password, String method,
+	public synchronized WebClient createDebugWebClient(WebSession webClientSession, HttpServletRequest req, Credentials credentials, String method,
 		Object[] objects) throws Exception
 	{
 		if (!(webClientSession instanceof WebClientSession))
@@ -430,8 +430,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		{
 			debugListener = debugWebClient.getFlattenedSolution().getDebugListener();
 		}
-		debugWebClient = new DebugWebClient(req, new Credentials(userName, password), method, objects, (currentSolution == null) ? null
-			: currentSolution.getSolutionMetaData());
+		debugWebClient = new DebugWebClient(req, credentials, method, objects, (currentSolution == null) ? null : currentSolution.getSolutionMetaData());
 		if (debugListener != null && debugWebClient.getFlattenedSolution() != null) debugWebClient.getFlattenedSolution().registerDebugListener(debugListener);
 		return debugWebClient;
 	}

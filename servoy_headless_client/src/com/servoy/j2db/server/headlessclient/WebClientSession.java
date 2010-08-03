@@ -141,7 +141,8 @@ public class WebClientSession extends WebSession
 			webClient.handleArguments(new String[] { sd.getName(), method, firstArgument }, argumentsScope);
 
 		}
-		webClient.handleClientUserUidChanged(null, null);
+		
+		webClient.handleClientUserUidChanged(null, ""); // fake first load
 		if (method != null && existingClient)
 		{
 			try

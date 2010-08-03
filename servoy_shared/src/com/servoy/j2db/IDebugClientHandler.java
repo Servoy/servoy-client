@@ -27,6 +27,7 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.server.headlessclient.Credentials;
 import com.servoy.j2db.server.shared.IDebugHeadlessClient;
 
 /**
@@ -41,8 +42,8 @@ public interface IDebugClientHandler
 
 	ISessionClient createDebugAuthenticator(String authenticatorName, String method, Object[] objects) throws Exception;
 
-	IWebClientApplication createDebugWebClient(WebSession webClientSession, HttpServletRequest req, String userName, String password, String method,
-		Object[] objects) throws Exception;
+	IWebClientApplication createDebugWebClient(WebSession webClientSession, HttpServletRequest req, Credentials credentials, String method, Object[] objects)
+		throws Exception;
 
 	IDebugJ2DBClient getDebugSmartClient();
 
