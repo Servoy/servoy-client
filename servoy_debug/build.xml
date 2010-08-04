@@ -16,7 +16,6 @@
 	<property name="javacVerbose" value="false"/>
 	<property name="logExtension" value=".log"/>
 	<property name="compilerArg" value=""/>
-	<property name="compilation.prereq.log" value="${buildDirectory}/prereqErrors.log"/>
 	<condition property="dir_bootclasspath" value="${java.home}/../Classes">
 		<os family="mac"/>
 	</condition>
@@ -146,8 +145,8 @@
 			<compilerarg line="${compilerArg}" compiler="${build.compiler}"/>
 			<classpath refid="@dot.classpath" />
 			<src path="src/"			/>
-			<compilerarg value="@${basedir}/javaCompiler...args" compiler="org.eclipse.jdt.core.JDTCompilerAdapter"			/>
-			<compilerarg line="-log &apos;${build.result.folder}/@dot${logExtension}&apos;" compiler="org.eclipse.jdt.core.JDTCompilerAdapter"			/>
+			<compilerarg value="@${basedir}/javaCompiler...args" compiler="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+			<compilerarg line="-log '${build.result.folder}/@dot${logExtension}'" compiler="org.eclipse.jdt.core.JDTCompilerAdapter"/>
 		</javac>
 		<antcall target="checkCompilationResults"/>
 		<!-- Copy necessary resources -->
@@ -185,17 +184,7 @@
 	</target>
 
 	<target name="checkCompilationResults" if="compilation.error.occured">
-		<echo file="${compilation.problem.marker}" message="servoy_debug_6.0.0.1200${line.separator}compilation.error.occured=${compilation.error.occured}"/>
-		<eclipse.logCompileError bundle="servoy_debug_6.0.0.1200" log="${compilation.prereq.log}">
-			<include name="C:/workspace_trunk/servoy_headless_client/compilation.problem"/>
-			<include name="${pluginTemp}/servoy_headless_client_6.0.0.1200/compilation.problem"/>
-			<include name="C:/workspace_trunk/org.eclipse.dltk.javascript.rhino/compilation.problem"/>
-			<include name="${pluginTemp}/org.eclipse.dltk.javascript.rhino_6.0.0.1200/compilation.problem"/>
-			<include name="C:/workspace_trunk/servoy_smart_client/compilation.problem"/>
-			<include name="${pluginTemp}/servoy_smart_client_6.0.0.1200/compilation.problem"/>
-			<include name="C:/workspace_trunk/servoy_shared/compilation.problem"/>
-			<include name="${pluginTemp}/servoy_shared_6.0.0.1200/compilation.problem"/>
-		</eclipse.logCompileError>
+		<echo file="${compilation.problem.marker}" message="servoy_debug : compilation.error.occured=${compilation.error.occured}"/>
 	</target>
 
 	<target name="build.sources" depends="init">
@@ -290,7 +279,7 @@
 	</target>
 
 	<target name="refresh" depends="init" if="eclipse.running" description="Refresh this folder.">
-		<eclipse.convertPath fileSystemPath="C:/workspace_trunk/servoy_debug" property="resourcePath"/>
+		<eclipse.convertPath fileSystemPath="C:/Users/Jan Blok/dev/servoy_debug" property="resourcePath"/>
 		<eclipse.refreshLocal resource="${resourcePath}" depth="infinite"/>
 	</target>
 
@@ -315,7 +304,7 @@
 	</target>
 
 	<target name="apitools.generation" if="generateAPIDescription">
-		<apitooling.apigeneration  projectName="${projectName}" project="${projectLocation}" binary="${binary.folders}" target="${target.folder}" extramanifests="${extraManifests}"		/>
+		<apitooling.apigeneration  projectName="${projectName}" project="${projectLocation}" binary="${binary.folders}" target="${target.folder}"		/>
 	</target>
 
 </project>
