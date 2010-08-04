@@ -45,18 +45,22 @@ import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.text.DefaultFormatter;
+import javax.swing.text.DefaultFormatterFactory;
+import javax.swing.text.MaskFormatter;
 
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.smart.cmd.MnemonicCheckAction;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.JEscapeDialog;
 
 
@@ -118,7 +122,7 @@ public class JDateChooser extends JEscapeDialog implements ActionListener, DaySe
 	private SimpleDateFormat sdf;
 
 	private String defaultPattern;
-	private JTextField timeField;
+	private JFormattedTextField timeField;
 
 	/**
 	 * This constructor creates a new instance of JDateChooser initialized to the current date.
@@ -199,7 +203,7 @@ public class JDateChooser extends JEscapeDialog implements ActionListener, DaySe
 		labelTime.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 		dateText = new JLabel("", SwingConstants.CENTER); //$NON-NLS-1$
 //		dateText.setBorder(BorderFactory.createEmptyBorder(0, 12,0, 12));
-		timeField = new JTextField();
+		timeField = new JFormattedTextField();
 		labelTime.add(dateText, BorderLayout.CENTER);
 		labelTime.add(timeField, BorderLayout.EAST);
 
@@ -425,8 +429,36 @@ public class JDateChooser extends JEscapeDialog implements ActionListener, DaySe
 			pat = pat.substring(0, tmp) + pat.substring(space);
 
 			sdf.applyPattern(timePattern);
+
+			StringBuilder sb = new StringBuilder(timePattern.length());
+			for (int i = 0; i < timePattern.length(); i++)
+			{
+				char ch = timePattern.charAt(i);
+				if (Character.isLetter(ch))
+				{
+					sb.append('#');
+				}
+				else
+				{
+					sb.append(ch);
+				}
+
+			}
+			DefaultFormatter defaultFormatter = new DefaultFormatter();
+			DefaultFormatter maskFormatter;
+			try
+			{
+				maskFormatter = new MaskFormatter(sb.toString());
+				maskFormatter.setOverwriteMode(true);
+			}
+			catch (ParseException e)
+			{
+				Debug.error(e);
+				maskFormatter = defaultFormatter;
+			}
+			timeField.setFormatterFactory(new DefaultFormatterFactory(defaultFormatter, defaultFormatter, maskFormatter));
 			timeField.setVisible(true);
-			timeField.setText(sdf.format(calendar.getTime()));
+			timeField.setValue(sdf.format(calendar.getTime()));
 		}
 		else
 		{
