@@ -3913,6 +3913,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	}
 
 
+	@SuppressWarnings("nls")
 	private Object executeFunction(Function f, Object[] args, Scriptable scope, Scriptable thisObject, boolean saveData, Object src, boolean testFindMode,
 		boolean focusEvent, String methodKey, boolean executeWhenFieldValidationFailed, boolean useFormAsEventSourceEventually, boolean throwException)
 		throws Exception
@@ -3931,7 +3932,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				{
 					if (Debug.tracing())
 					{
-						Debug.trace("Function not executed because a field is marked invalid"); //$NON-NLS-1$
+						Debug.trace("Function not executed because a field is marked invalid");
 					}
 					return null;
 				}
@@ -3982,6 +3983,30 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 							}
 						}
 					}
+					if (newArgs != null && newArgs.length > 0)
+					{
+						for (Object newArg : newArgs)
+						{
+							if (newArg instanceof JSEvent)
+							{
+								JSEvent event = (JSEvent)newArg;
+								if (event.js_getSource() instanceof IComponent && ((IComponent)event.js_getSource()).getName() != null)
+								{
+									Object elementScope = formScope.get("elements");
+									if (elementScope instanceof Scriptable)
+									{
+										Object elementSrc = ((Scriptable)elementScope).get(((IComponent)event.js_getSource()).getName(),
+											(Scriptable)elementScope);
+										if (elementSrc != null)
+										{
+											event.setSource(elementSrc);
+										}
+									}
+								}
+								break;
+							}
+						}
+					}
 
 					return application.getScriptEngine().executeFunction(f, scope, thisObject, newArgs, focusEvent, throwException);
 				}
@@ -3997,7 +4022,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 						}
 					}
 					// after a script clear the unchanged records so that no records keep hanging around.
-					if (!focusEvent && !"onRecordEditStopMethodID".equals(methodKey)) //$NON-NLS-1$
+					if (!focusEvent && !"onRecordEditStopMethodID".equals(methodKey))
 					{
 						application.getFoundSetManager().getEditRecordList().removeUnChangedRecords(false, false);
 					}
