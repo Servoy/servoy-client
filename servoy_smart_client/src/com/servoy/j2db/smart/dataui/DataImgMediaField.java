@@ -342,7 +342,12 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 								enclosedComponent.setText(null);
 							}
 						}
-						enclosedComponent.setIconDirect(icon, seq);
+						if (!useAsync || (application.getModeManager().getMode() != IModeManager.EDIT_MODE) || Utils.equalObjects(tmp, getValueObject())) enclosedComponent.setIconDirect(
+							icon, seq);
+						else if (application.getI18NMessage("servoy.imageMedia.loadingImage").equals(enclosedComponent.getText())) //$NON-NLS-1$
+						{
+							enclosedComponent.setText(null);
+						}
 					}
 				};
 
