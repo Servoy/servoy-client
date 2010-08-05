@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient;
 
 import org.apache.wicket.IClusterable;
@@ -110,6 +110,7 @@ public class ServoyBrowserInfoPage extends WebPage
 			add(new TextField("utcDSTOffset"));
 			add(new TextField("browserWidth"));
 			add(new TextField("browserHeight"));
+			add(new TextField("hostname"));
 		}
 
 		/**
@@ -154,6 +155,7 @@ public class ServoyBrowserInfoPage extends WebPage
 		private String utcDSTOffset;
 		private String browserWidth;
 		private String browserHeight;
+		private String hostname;
 
 		/**
 		 * Gets browserHeight.
@@ -317,6 +319,7 @@ public class ServoyBrowserInfoPage extends WebPage
 			properties.setScreenColorDepth(getInt(screenColorDepth));
 			properties.setUtcOffset(utcOffset);
 			properties.setUtcDSTOffset(utcDSTOffset);
+			properties.setHostname(hostname);
 		}
 
 		/**
@@ -477,6 +480,23 @@ public class ServoyBrowserInfoPage extends WebPage
 		public String getUtcDSTOffset()
 		{
 			return utcDSTOffset;
+		}
+
+		/**
+		 * @param hostname
+		 *            the hostname shown in the browser.
+		 */
+		public void setHostname(String hostname)
+		{
+			this.hostname = hostname;
+		}
+
+		/**
+		 * @return The clients hostname shown in the browser
+		 */
+		public String getHostname()
+		{
+			return hostname;
 		}
 
 		private int getInt(String value)

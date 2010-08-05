@@ -513,7 +513,8 @@ public class WebClientsApplication extends WebApplication
 				// We will always do a redirect here. The servoy browser info has to make one.
 				WebClientInfo webClientInfo = new WebClientInfo(this);
 				ClientProperties cp = webClientInfo.getProperties();
-				if (cp.isBrowserInternetExplorer() || cp.isBrowserMozilla() || cp.isBrowserKonqueror() || cp.isBrowserOpera() || cp.isBrowserSafari())
+				if (cp.isBrowserInternetExplorer() || cp.isBrowserMozilla() || cp.isBrowserKonqueror() || cp.isBrowserOpera() || cp.isBrowserSafari() ||
+					cp.isBrowserChrome())
 				{
 					if (cp.isBrowserInternetExplorer() && cp.getBrowserVersionMajor() != -1 && cp.getBrowserVersionMajor() < 7)
 					{

@@ -40,4 +40,6 @@ public interface IWebClientApplication extends ISessionClient
 
 	void handleArguments(String[] args);
 
+	String getOSName();
+
 }

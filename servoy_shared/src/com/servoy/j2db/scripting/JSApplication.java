@@ -53,6 +53,7 @@ import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ISmartClientApplication;
+import com.servoy.j2db.IWebClientApplication;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.ClientInfo;
@@ -2232,8 +2233,13 @@ public class JSApplication implements IReturnedTypesProvider
 	 * 
 	 * @return Name of the operating system
 	 */
+	@SuppressWarnings("nls")
 	public String js_getOSName()
 	{
+		if (application instanceof IWebClientApplication)
+		{
+			return ((IWebClientApplication)application).getOSName();
+		}
 		return System.getProperty("os.name"); //$NON-NLS-1$
 	}
 
