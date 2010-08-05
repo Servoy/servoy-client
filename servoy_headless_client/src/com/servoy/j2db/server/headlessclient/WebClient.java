@@ -23,6 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -100,6 +101,75 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	public int getApplicationType()
 	{
 		return WEB_CLIENT;
+	}
+
+	@SuppressWarnings("nls")
+	@Override
+	public URL getServerURL()
+	{
+		if (Session.exists())
+		{
+			Session webClientSession = Session.get();
+			if (webClientSession != null)
+			{
+				WebClientInfo clientInfo = (WebClientInfo)webClientSession.getClientInfo();
+				if (clientInfo != null && clientInfo.getProperties() != null && clientInfo.getProperties().getHostname() != null)
+				{
+					String hostname = clientInfo.getProperties().getHostname();
+					try
+					{
+						if (hostname.startsWith("http://"))
+						{
+							int index = hostname.indexOf('/', "http:// ".length());
+							if (index == -1)
+							{
+								return new URL(hostname);
+							}
+							else
+							{
+								return new URL(hostname.substring(0, index));
+							}
+						}
+						else
+						{
+							return new URL("http", hostname, "");
+						}
+					}
+					catch (MalformedURLException e)
+					{
+						Debug.error(e);
+					}
+				}
+			}
+		}
+		return super.getServerURL();
+	}
+
+	@SuppressWarnings("nls")
+	public String getOSName()
+	{
+		if (Session.exists())
+		{
+			Session webClientSession = Session.get();
+			if (webClientSession != null)
+			{
+				WebClientInfo clientInfo = (WebClientInfo)webClientSession.getClientInfo();
+				if (clientInfo != null && clientInfo.getProperties() != null)
+				{
+					String userAgent = clientInfo.getUserAgent();
+					if (userAgent != null)
+					{
+						if (userAgent.indexOf("NT 6.1") != -1) return "Windows 7";
+						if (userAgent.indexOf("NT 6.0") != -1) return "Windows Vista";
+						if (userAgent.indexOf("NT 5.1") != -1 || userAgent.indexOf("Windows XP") != -1) return "Windows XP";
+						if (userAgent.indexOf("Linux") != -1) return "Linux";
+						if (userAgent.indexOf("Mac") != -1) return "Mac OS";
+					}
+					return clientInfo.getProperties().getNavigatorPlatform();
+				}
+			}
+		}
+		return System.getProperty("os.name");
 	}
 
 	@Override

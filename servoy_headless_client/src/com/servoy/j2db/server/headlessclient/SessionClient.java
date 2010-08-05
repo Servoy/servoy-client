@@ -670,7 +670,7 @@ public class SessionClient extends ClientState implements ISessionClient
 		{
 			Application.unset();
 		}
-		if (Session.get() == wicket_session)
+		if (Session.exists() && Session.get() == wicket_session)
 		{
 			Session.unset();
 		}
