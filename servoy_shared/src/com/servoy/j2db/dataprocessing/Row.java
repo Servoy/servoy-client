@@ -174,7 +174,7 @@ public class Row
 		// check if column uses a converter
 		if (columnIndex >= 0)
 		{
-			SQLSheet sheet = getRowManager().getSQLSheet();
+			SQLSheet sheet = parent.getSQLSheet();
 
 			String dataProviderID = sheet.getColumnNames()[columnIndex];
 			VariableInfo variableInfo = sheet.getCalculationOrColumnVariableInfo(dataProviderID, columnIndex);
@@ -325,8 +325,8 @@ public class Row
 		if (o instanceof DbIdentValue) return o; // this column is controlled by the database - so do not allow sets until the database chose a value
 		Object convertedValue = value;
 
-		int columnIndex = parent.getSQLSheet().getColumnIndex(dataProviderID);
-		SQLSheet sheet = getRowManager().getSQLSheet();
+		SQLSheet sheet = parent.getSQLSheet();
+		int columnIndex = sheet.getColumnIndex(dataProviderID);
 		VariableInfo variableInfo = sheet.getCalculationOrColumnVariableInfo(dataProviderID, columnIndex);
 
 		if (convertedValue != null && !("".equals(convertedValue) && Column.mapToDefaultType(variableInfo.type) == IColumnTypes.TEXT))//do not convert null to 0 incase of numbers, this means the calcs the value whould change each time //$NON-NLS-1$
@@ -478,21 +478,7 @@ public class Row
 			}
 			lastException = null;
 
-			Column column = sheet.getTable().getColumn(dataProviderID);
-			if (column != null && (column.getFlags() & Column.IDENT_COLUMNS) != 0)
-			{
-				// PK update, recalc hash, update calculation dependencies and fire depending calcs
-				List<Runnable> runnables = new ArrayList<Runnable>(1);
-				getRowManager().pkUpdated(this, getPKHashKey(), runnables);
-				for (Runnable runnable : runnables)
-				{
-					runnable.run();
-				}
-			}
-			else
-			{
-				getRowManager().fireDependingCalcs(getPKHashKey(), dataProviderID, null);
-			}
+			handleCalculationDependencies(sheet.getTable().getColumn(dataProviderID), dataProviderID);
 
 			FireCollector collector = new FireCollector();
 			fireNotifyChange(dataProviderID, convertedValue, collector);
@@ -512,6 +498,24 @@ public class Row
 			return o;
 		}
 		return convertedValue;//is same so return
+	}
+
+	protected void handleCalculationDependencies(Column column, String dataProviderID)
+	{
+		if (column != null && (column.getFlags() & Column.IDENT_COLUMNS) != 0)
+		{
+			// PK update, recalc hash, update calculation dependencies and fire depending calcs
+			List<Runnable> runnables = new ArrayList<Runnable>(1);
+			getRowManager().pkUpdated(this, getPKHashKey(), runnables);
+			for (Runnable runnable : runnables)
+			{
+				runnable.run();
+			}
+		}
+		else
+		{
+			getRowManager().fireDependingCalcs(getPKHashKey(), dataProviderID, null);
+		}
 	}
 
 	public Object getOldRequiredValue(String dataProviderID)// incase a primary key is changed
