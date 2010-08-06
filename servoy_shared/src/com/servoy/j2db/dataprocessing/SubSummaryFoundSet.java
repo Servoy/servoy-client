@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 
@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.servoy.j2db.persistence.AggregateVariable;
+import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.scripting.UsedDataProviderTracker;
@@ -44,7 +45,7 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 	protected RowManager rowManager;
 	private final IFoundSetManagerInternal fsm;
 
-	public SubSummaryFoundSet(IFoundSetManagerInternal fsm, IFoundSetInternal set, SortColumn[] summaryFields, List<AggregateVariable> aggregates,
+	public SubSummaryFoundSet(IFoundSetManagerInternal fsm, IFoundSetInternal set, SortColumn[] groupByFields, List<AggregateVariable> aggregates,
 		IDataSet data, Table table) throws ServoyException
 	{
 		this.fsm = fsm;
@@ -57,15 +58,15 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 
 		sheet = ((FoundSetManager)fsm).getSQLGenerator().getNewTableSQLSheet(fsm.getDataSource(table));
 		HashMap<String, Integer> columnIndexes = new HashMap<String, Integer>();
-		for (int i = 0; i < summaryFields.length; i++)
+		for (int i = 0; i < groupByFields.length; i++)
 		{
-			SortColumn s = summaryFields[i];
+			SortColumn s = groupByFields[i];
 			columnIndexes.put(s.getName(), new Integer(i));
 		}
 		for (int i = 0; i < aggregates.size(); i++)
 		{
 			AggregateVariable ag = aggregates.get(i);
-			columnIndexes.put(ag.getName(), new Integer(i + summaryFields.length));
+			columnIndexes.put(ag.getName(), new Integer(i + groupByFields.length));
 		}
 		sheet.setDataProviderIDsColumnMap(columnIndexes);
 	}
@@ -105,7 +106,15 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 	 */
 	public IRecordInternal getRecord(int row)
 	{
-		return new PrintState(this, rowManager.createNotYetExistInDBRowObject(data.getRow(row), false));
+		return new PrintState(this, new Row(rowManager, data.getRow(row), sheet.getAllUnstoredCalculationNamesWithNoValue(), false)
+		{
+			@Override
+			protected void handleCalculationDependencies(Column column, String dataProviderID)
+			{
+				// do nothing - as this requires a pk hashkey and doesn't make sense for a subsummary record; it would also produce ArrayIndexOutOfBoundsException
+				// because column data & sheet column indexes used in this row are not in sync
+			}
+		});
 	}
 
 	public IRecordInternal[] getRecords(int startrow, int count)
@@ -403,6 +412,13 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 			return null;//ignore
 		}
 
+		//prevent any value to be set causes index out of bounds (sets occurs if calc value not up-to-date)
+		@Override
+		public Object setValue(String dataProviderID, Object value, boolean checkIsEditing)
+		{
+			return null;
+		}
+
 		private final Map<String, Object> dataproviderValueCache = new HashMap<String, Object>();//especially to cache aggregate results!
 
 		@Override
@@ -421,9 +437,9 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 				}
 				else
 				{
-					retval = super.getValue(dataProviderID);
+					retval = super.getValue(dataProviderID); // I think this could be directly replaced same as below - delegate.getRecord(0).getValue(dataProviderID); - except for hardcoded dataprovider strings as seen in Record.getValue() and then we can get rid of all the method overrides that want to avoid ArrayIndexOutOfBounds exceptions
 				}
-				if (retval == null) retval = parent.getDataProviderValue(dataProviderID);
+				if (retval == null) retval = delegate.getRecord(0).getValue(dataProviderID);
 				dataproviderValueCache.put(dataProviderID, retval);
 			}
 			return retval;
