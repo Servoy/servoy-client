@@ -1770,7 +1770,7 @@ public class TemplateGenerator
 				{
 					html.append("</div>"); //$NON-NLS-1$ 
 				}
-				styleObj.setProperty("cursor", "pointer"); //$NON-NLS-1$ //$NON-NLS-2$
+				if (label.getShowClick() || label.getOnActionMethodID() > 0) styleObj.setProperty("cursor", "pointer"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 
 			// disabled this for 124675, previously it where almost always <input type=submit or buttons> also when show click as off, now there are spans
