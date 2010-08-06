@@ -1796,7 +1796,7 @@ public class TemplateGenerator
 			{
 				html.append("</div>");
 			}
-			if (label.getOnActionMethodID() != 0) styleObj.setProperty("cursor", "pointer");
+			if (label.getOnActionMethodID() > 0) styleObj.setProperty("cursor", "pointer");
 		}
 
 		if (isButton)
