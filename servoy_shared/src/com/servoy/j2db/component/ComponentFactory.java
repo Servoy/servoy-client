@@ -1258,7 +1258,7 @@ public class ComponentFactory
 									{
 										Debug.error(
 											"Exception loading properties for converter " + converter.getName() + ", properties: " +
-												ci.getConverterProperties(), e);
+											ci.getConverterProperties(), e);
 									}
 								}
 							}
@@ -1676,11 +1676,11 @@ public class ComponentFactory
 		{
 			if (label.getDataProviderID() == null && !label.getDisplaysTags())
 			{
-				l = application.getItemFactory().createScriptLabel(getWebID(label), (label.getOnActionMethodID() != 0));
+				l = application.getItemFactory().createScriptLabel(getWebID(label), (label.getOnActionMethodID() > 0));
 			}
 			else
 			{
-				l = application.getItemFactory().createDataLabel(getWebID(label), (label.getOnActionMethodID() != 0));
+				l = application.getItemFactory().createDataLabel(getWebID(label), (label.getOnActionMethodID() > 0));
 				IDataProvider dp = null;
 				try
 				{
