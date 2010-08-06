@@ -29,7 +29,9 @@ import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JEditorPane;
 import javax.swing.JLabel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
@@ -42,6 +44,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.smart.dataui.CellAdapter;
+import com.servoy.j2db.util.FixedHTMLEditorKit;
 import com.servoy.j2db.util.gui.AlwaysRowSelectedSelectionModel;
 
 /**
@@ -237,7 +240,11 @@ public class FixedJTable extends JTable
 		if (o instanceof CellAdapter)
 		{
 			Component comp = ((CellAdapter)o).getEditor();
-			if ((comp instanceof JButton || comp instanceof JLabel) && comp.isEnabled())
+			boolean isReadOnlyHtmlField = (comp instanceof JScrollPane) && ((JScrollPane)comp).getViewport() != null &&
+				(((JScrollPane)comp).getViewport().getView() instanceof JEditorPane) &&
+				!(((JEditorPane)((JScrollPane)comp).getViewport().getView())).isEditable() &&
+				((((JEditorPane)((JScrollPane)comp).getViewport().getView())).getEditorKit() instanceof FixedHTMLEditorKit);
+			if ((comp instanceof JButton || comp instanceof JLabel || isReadOnlyHtmlField) && comp.isEnabled())
 			{
 				return true;
 			}
