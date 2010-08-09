@@ -5,7 +5,9 @@ Bundle-SymbolicName: servoy_smart_client
 Bundle-Version: 5.2.0.997
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-Vendor: Servoy
-Require-Bundle: servoy_shared,org.eclipse.dltk.javascript.rhino
+Require-Bundle: servoy_shared,
+ org.eclipse.dltk.javascript.rhino,
+ org.eclipse.swt;visibility:=reexport
 Export-Package: com.servoy.j2db.gui,
  com.servoy.j2db.plugins,
  com.servoy.j2db.printing,
