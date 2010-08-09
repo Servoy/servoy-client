@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.gui;
 
 
@@ -29,6 +29,7 @@ import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
@@ -42,6 +43,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.smart.dataui.CellAdapter;
+import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.gui.AlwaysRowSelectedSelectionModel;
 
 /**
@@ -237,7 +239,9 @@ public class FixedJTable extends JTable
 		if (o instanceof CellAdapter)
 		{
 			Component comp = ((CellAdapter)o).getEditor();
-			if ((comp instanceof JButton || comp instanceof JLabel) && comp.isEnabled())
+			boolean isReadOnlyEditor = (comp instanceof IDelegate) && (((IDelegate)comp).getDelegate() instanceof JEditorPane) &&
+				!((JEditorPane)((IDelegate)comp).getDelegate()).isEditable();
+			if ((comp instanceof JButton || comp instanceof JLabel || isReadOnlyEditor) && comp.isEnabled())
 			{
 				return true;
 			}
