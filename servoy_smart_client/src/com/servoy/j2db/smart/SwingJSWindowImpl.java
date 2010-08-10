@@ -429,6 +429,13 @@ public class SwingJSWindowImpl extends JSWindowImpl
 				// after the new dialog is opened by java script. (because that execution continues as the next event on the EventThread)
 				sfd.setPreviousMainContainer(previousModalContainer, currentMainContainer);
 			}
+			else
+			{
+				// If it is a none modal dialog, make sure the current container is reset to the currentMainContainer (== previous his parent)
+				// else it is switched a bit to early (if a developer shows 2 dialogs at once from a main container)
+				// the focus event of the FormDialog will set it correctly.
+				fm.setCurrentContainer(currentMainContainer, currentMainContainer.getName());
+			}
 		}
 
 		finalizeShowWindow(fp, formName, container, true, legacyV3Behavior, bringToFrontNeeded);
