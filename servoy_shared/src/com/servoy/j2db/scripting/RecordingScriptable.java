@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting;
 
 import java.util.ArrayList;
@@ -103,12 +103,12 @@ public class RecordingScriptable implements Scriptable, IDelegate<Scriptable>, W
 
 	public Object get(int index, Scriptable start)
 	{
-		return scriptable.get(index, start);
+		return scriptable.get(index, getStart(start));
 	}
 
 	public Object get(String name, Scriptable start)
 	{
-		Object o = scriptable.get(name, start);
+		Object o = scriptable.get(name, getStart(start));
 		if (o != Scriptable.NOT_FOUND)
 		{
 			UsedDataProviderTracker tracker = peekRecordingTracker();
@@ -228,14 +228,26 @@ public class RecordingScriptable implements Scriptable, IDelegate<Scriptable>, W
 		return prototype == null ? scriptable instanceof ImporterTopLevel ? scriptable : null : new RecordingScriptable(null, prototype);
 	}
 
+	/**
+	 * When start is yourself use scriptable as start for put/get
+	 */
+	protected Scriptable getStart(Scriptable start)
+	{
+		if (start == this)
+		{
+			return scriptable;
+		}
+		return start;
+	}
+
 	public boolean has(int index, Scriptable start)
 	{
-		return scriptable.has(index, start);
+		return scriptable.has(index, getStart(start));
 	}
 
 	public boolean has(String name, Scriptable start)
 	{
-		return scriptable.has(name, start);
+		return scriptable.has(name, getStart(start));
 	}
 
 	public boolean hasInstance(Scriptable instance)
@@ -245,12 +257,12 @@ public class RecordingScriptable implements Scriptable, IDelegate<Scriptable>, W
 
 	public void put(int index, Scriptable start, Object value)
 	{
-		scriptable.put(index, start, value);
+		scriptable.put(index, getStart(start), value);
 	}
 
 	public void put(String name, Scriptable start, Object value)
 	{
-		scriptable.put(name, start, value);
+		scriptable.put(name, getStart(start), value);
 	}
 
 	public void setParentScope(Scriptable parent)
