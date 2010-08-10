@@ -166,6 +166,29 @@ public class JSMethod implements IJavaScriptType
 		}
 	}
 
+	/**
+	 * gets the argument array for this method if that is set for the specific action this method is taken from.
+	 * Will return null by default. This is only for reading, you can't alter the arguments through this array, 
+	 * for that you need to create a new object through solutionModel.newMethodWithArguments(..) and assign it again.
+	 * 
+	 * @sample 
+	 * 	var frm = solutionModel.getForm("myForm");
+	 * 	var button = frm.getButton("button");
+	 *  // get the arguments from the button.
+	 * 	var arguments = button.onAction.getArguments();
+	 *  if (arguments && arguments.length > 1 && arguments[1] == 10) { 
+	 *    // change the value and assign it back to the onAction.
+	 *    arguments[1] = 50;
+	 *    button.onAction = solutionModel.newMethodWithArguments(button.onAction,arguments);
+	 *  }
+	 * 
+	 * @return Array of the arguments, null if not specified.
+	 */
+	public Object[] js_getArguments()
+	{
+		return null;
+	}
+
 //	public void js_setName(String arg)
 //	{
 //		if (sm == null) return; // if a default constant

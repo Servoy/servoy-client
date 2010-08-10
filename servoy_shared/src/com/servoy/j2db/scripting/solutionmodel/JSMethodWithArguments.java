@@ -47,4 +47,10 @@ public class JSMethodWithArguments extends JSMethod
 	{
 		return arguments;
 	}
+
+	@Override
+	public Object[] js_getArguments()
+	{
+		return getArguments();
+	}
 }
