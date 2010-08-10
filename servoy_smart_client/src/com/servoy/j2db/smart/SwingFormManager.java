@@ -758,6 +758,13 @@ public class SwingFormManager extends FormManager implements ISwingFormManager, 
 				// after the new dialog is opened by java script. (because that execution continues as the next event on the EventThread)
 				sfd.setPreviousMainContainer(previousMainContainer, currentMainContainer);
 			}
+			else
+			{
+				// If it is a none modal dialog, make sure the current container is reset to the currentMainContainer (== previous his parent)
+				// else it is switched a bit to early (if a developer shows 2 dialogs at once from a main container)
+				// the focus event of the FormDialog will set it correctly.
+				currentContainer = currentMainContainer;
+			}
 
 			// blocks in case of modal dialogs
 			if (bounds == FormManager.FULL_SCREEN)
