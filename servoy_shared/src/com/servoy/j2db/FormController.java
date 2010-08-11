@@ -91,10 +91,10 @@ import com.servoy.j2db.scripting.InstanceJavaMembers;
 import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.JSWindowImpl;
+import com.servoy.j2db.scripting.JSWindowImpl.JSWindow;
 import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.scripting.SelectedRecordScope;
 import com.servoy.j2db.scripting.SolutionScope;
-import com.servoy.j2db.scripting.JSWindowImpl.JSWindow;
 import com.servoy.j2db.ui.IAccessible;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
@@ -192,7 +192,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(Object[])
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(Object[])
 		 *
-		 * @param window the window in which this form should be shown. If it is unspecified the current window will be used.
+		 * @param window optional the window in which this form should be shown. If it is unspecified the current window will be used.
 		 */
 		// Deprecated implementation:
 		// Shows the form (makes the form visible), optionally shown in the specified (modal or not) dialog.
@@ -3894,20 +3894,20 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 		else
 		{
-		try
-		{
-			return executeFunction(f, args, scope, thisObject, saveData, src, f == null || !Utils.getAsBoolean(f.get("_hasSearchORloadAllRecords_", f)), //$NON-NLS-1$
+			try
+			{
+				return executeFunction(f, args, scope, thisObject, saveData, src, f == null || !Utils.getAsBoolean(f.get("_hasSearchORloadAllRecords_", f)), //$NON-NLS-1$
 					focusEvent, methodKey, executeWhenFieldValidationFailed, false, false);
-		}
-		catch (ApplicationException ex)
-		{
-			application.reportError(ex.getMessage(), null);
-		}
-		catch (Exception ex)
-		{
-			this.requestFocus();
-			application.reportError(application.getI18NMessage("servoy.formPanel.error.executingMethod", new Object[] { getName() + "." + name }), ex); //$NON-NLS-1$ //$NON-NLS-2$				
-		}
+			}
+			catch (ApplicationException ex)
+			{
+				application.reportError(ex.getMessage(), null);
+			}
+			catch (Exception ex)
+			{
+				this.requestFocus();
+				application.reportError(application.getI18NMessage("servoy.formPanel.error.executingMethod", new Object[] { getName() + "." + name }), ex); //$NON-NLS-1$ //$NON-NLS-2$				
+			}
 		}
 		return null;
 	}
