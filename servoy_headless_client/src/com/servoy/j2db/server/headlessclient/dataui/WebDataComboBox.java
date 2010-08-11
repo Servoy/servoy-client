@@ -43,6 +43,7 @@ import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.util.convert.IConverter;
+import org.apache.wicket.util.string.AppendingStringBuffer;
 import org.apache.wicket.validation.IValidationError;
 
 import com.servoy.j2db.FormManager;
@@ -346,6 +347,21 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 			return buffer;
 		}
 		return ""; //$NON-NLS-1$
+	}
+
+	@Override
+	protected void appendOptionHtml(AppendingStringBuffer buffer, Object choice, int index, String selected)
+	{
+		Object displayValue = getChoiceRenderer().getDisplayValue(choice);
+		if (IValueList.SEPARATOR_VALUE.equals(displayValue))
+		{
+			// create a separator
+			buffer.append("\n<optgroup label=\" \" style=\"border-top: 1px solid gray; margin-top: 7px; margin-bottom: 7px;\"></optgroup>");
+		}
+		else
+		{
+			super.appendOptionHtml(buffer, choice, index, selected);
+		}
 	}
 
 	/*

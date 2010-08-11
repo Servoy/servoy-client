@@ -22,6 +22,8 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FocusTraversalPolicy;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.ItemSelectable;
 import java.awt.Point;
@@ -48,6 +50,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
@@ -503,9 +506,9 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 
 		public Component getListCellRendererComponent(JList jlist, Object listValue, int index, boolean isSelected, boolean cellHasFocus)
 		{
-			if ("-".equals(listValue)) //$NON-NLS-1$
+			if (IValueList.SEPARATOR_VALUE.equals(listValue))
 			{
-				return new JSeparator(SwingConstants.HORIZONTAL);
+				return new VariableSizeJSeparator(SwingConstants.HORIZONTAL, 15);
 			}
 			else
 			{
@@ -544,6 +547,88 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 				return comp;
 			}
 		}
+	}
+
+	/**
+	 * A JSeparator substitute that is able to take up more then two pixels of space and draw the separator graphics in the middle of the occupied space.
+	 */
+	class VariableSizeJSeparator extends JPanel
+	{
+
+		private final int space;
+		private final int orientation;
+
+		public VariableSizeJSeparator(int orientation, int space)
+		{
+			super(new GridBagLayout());
+			this.space = space;
+			this.orientation = orientation;
+
+			setOpaque(false);
+			GridBagConstraints c = new GridBagConstraints();
+			int row = 0, col = 0;
+
+			JLabel l = new JLabel();
+			c.gridy = row;
+			c.gridx = col;
+			if (orientation == SwingConstants.HORIZONTAL)
+			{
+				c.weighty = 1;
+				row++;
+			}
+			else
+			{
+				c.weightx = 1;
+				col++;
+			}
+			add(l, c);
+
+			c = new GridBagConstraints();
+			JSeparator separator = new JSeparator(orientation);
+			c.gridy = row;
+			c.gridx = col;
+			if (orientation == SwingConstants.HORIZONTAL)
+			{
+				c.fill = GridBagConstraints.HORIZONTAL;
+				c.weightx = 1;
+				row++;
+			}
+			else
+			{
+				c.fill = GridBagConstraints.VERTICAL;
+				c.weighty = 1;
+				col++;
+			}
+			add(separator, c);
+
+			c = new GridBagConstraints();
+			l = new JLabel();
+			c.gridy = row;
+			c.gridx = col;
+			if (orientation == SwingConstants.HORIZONTAL)
+			{
+				c.weighty = 1;
+			}
+			else
+			{
+				c.weightx = 1;
+			}
+			add(l, c);
+		}
+
+		@Override
+		public Dimension getPreferredSize()
+		{
+			if (orientation == SwingConstants.HORIZONTAL)
+			{
+				return new Dimension(0, space);
+			}
+			else
+			{
+				return new Dimension(space, 0);
+			}
+		}
+
 	}
 
 	@Override
@@ -977,23 +1062,50 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		else
 		{
 			Object value = dataModel.getElementAt(anIndex);
-			Object oldValue = getValueObject();
-			if (oldValue instanceof Date && value instanceof Date && format instanceof StateFullSimpleDateFormat)
+			if (IValueList.SEPARATOR_VALUE.equals(value))
 			{
-				StateFullSimpleDateFormat sfsd = (StateFullSimpleDateFormat)format;
-				sfsd.setOriginal((Date)oldValue);
-				String stringRep = sfsd.format(value);
-				try
+				// separators should not be selectable - so hijack this one and choose the nearest non-separator value
+				boolean found = false;
+				int i = 1;
+				while (!found && (anIndex + i < size || anIndex - i >= 0))
 				{
-					sfsd.parse(stringRep);
-					value = sfsd.getMergedDate();
+					if (anIndex + i < size && !IValueList.SEPARATOR_VALUE.equals(dataModel.getElementAt(anIndex + i)))
+					{
+						found = true;
+						setSelectedIndex(anIndex + i);
+					}
+					else if (anIndex - i >= 0 && !IValueList.SEPARATOR_VALUE.equals(dataModel.getElementAt(anIndex - i)))
+					{
+						found = true;
+						setSelectedIndex(anIndex - i);
+					}
+					i++;
 				}
-				catch (ParseException e)
+				if (!found)
 				{
-					Debug.error(e);
+					setSelectedItem(-1);
 				}
 			}
-			setSelectedItem(value);
+			else
+			{
+				Object oldValue = getValueObject();
+				if (oldValue instanceof Date && value instanceof Date && format instanceof StateFullSimpleDateFormat)
+				{
+					StateFullSimpleDateFormat sfsd = (StateFullSimpleDateFormat)format;
+					sfsd.setOriginal((Date)oldValue);
+					String stringRep = sfsd.format(value);
+					try
+					{
+						sfsd.parse(stringRep);
+						value = sfsd.getMergedDate();
+					}
+					catch (ParseException e)
+					{
+						Debug.error(e);
+					}
+				}
+				setSelectedItem(value);
+			}
 		}
 	}
 
