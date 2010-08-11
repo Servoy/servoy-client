@@ -48,6 +48,10 @@ public interface IScriptProvider extends IPersist, ISupportName
 		private static final long serialVersionUID = 1L;
 	};
 
+	public static final RuntimeProperty<Object> INITIALIZER = new RuntimeProperty<Object>()
+	{
+		private static final long serialVersionUID = 1L;
+	};
 
 	public String getDisplayName();
 
