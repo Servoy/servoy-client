@@ -1535,7 +1535,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 * application.output('my very important msg',LOGGINGLEVEL.LOGLEVEL_ERROR);// log level: error
 	 *
 	 * @param msg Object to send to output stream
-	 * @param loggingLevel optional the log level where it should log to.
+	 * @param level optional the log level where it should log to.
 	 */
 	public void js_output(Object msg, int level)
 	{
