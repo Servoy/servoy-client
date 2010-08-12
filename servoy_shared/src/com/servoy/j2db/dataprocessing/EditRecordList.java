@@ -501,6 +501,10 @@ public class EditRecordList
 						markRecordAsFailed(record);
 						continue;
 					}
+					else if (retValue instanceof Object[])
+					{
+						row.setRollbackData((Object[])retValue, false);
+					}
 					else if (!Boolean.TRUE.equals(retValue))
 					{
 						// is db ident, can only be one column
@@ -519,7 +523,7 @@ public class EditRecordList
 				}
 				try
 				{
-					row.getRowManager().rowUpdated(row, oldKey, rowUpdateInfo.getMustRequeryRow(), foundSet, fires);
+					row.getRowManager().rowUpdated(row, oldKey, foundSet, fires);
 				}
 				catch (Exception e)
 				{

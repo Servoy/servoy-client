@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.ISQLUpdate;
 import com.servoy.j2db.util.Utils;
 
@@ -50,7 +51,7 @@ public class SQLStatement implements ITrackingSQLStatement
 	private String user_uid;
 
 	private boolean oracleFix;
-
+	private final ISQLSelect requerySelect;
 
 	/**
 	 * create a SQLStatement
@@ -67,6 +68,12 @@ public class SQLStatement implements ITrackingSQLStatement
 
 	public SQLStatement(int action, String connection_name, String tableName, IDataSet pks, String tid, ISQLUpdate sqlUpdate, ArrayList<TableFilter> filters)
 	{
+		this(action, connection_name, tableName, pks, tid, sqlUpdate, filters, null);
+	}
+
+	public SQLStatement(int action, String connection_name, String tableName, IDataSet pks, String tid, ISQLUpdate sqlUpdate, ArrayList<TableFilter> filters,
+		ISQLSelect requerySelect)
+	{
 		this.action = action;
 		this.server_name = connection_name;
 		this.table_name = tableName;
@@ -74,6 +81,7 @@ public class SQLStatement implements ITrackingSQLStatement
 		this.sqlUpdate = sqlUpdate;
 		this.filters = filters;
 		this.transactionID = tid;
+		this.requerySelect = requerySelect;
 	}
 
 	public void setOracleFixTrackingData(boolean oracleFix)
@@ -265,5 +273,10 @@ public class SQLStatement implements ITrackingSQLStatement
 	public void setChangedColumns(String[] changedColumns)
 	{
 		this.changedColumns = changedColumns;
+	}
+
+	public ISQLSelect getRequerySelect()
+	{
+		return requerySelect;
 	}
 }

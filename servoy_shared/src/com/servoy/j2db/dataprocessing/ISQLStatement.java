@@ -19,6 +19,7 @@ package com.servoy.j2db.dataprocessing;
 
 import java.io.Serializable;
 
+import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.ISQLUpdate;
 
 /**
@@ -78,4 +79,6 @@ public interface ISQLStatement extends Serializable
 	 * Set the update count for checking
 	 */
 	public void setExpectedUpdateCount(int expectedUpdateCount);
+
+	public ISQLSelect getRequerySelect();
 }
