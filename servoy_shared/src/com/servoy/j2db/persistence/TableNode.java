@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 
@@ -59,7 +59,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 		return SortedTypeIterator.createFilteredList(getAllObjectsAsList(), IRepository.SCRIPTCALCULATIONS);
 	}
 
-	ScriptCalculation createNewScriptCalculation(IValidateName validator, String name) throws RemoteException, RepositoryException
+	public ScriptCalculation createNewScriptCalculation(IValidateName validator, String name) throws RemoteException, RepositoryException
 	{
 		if (name == null) name = "untitled"; //$NON-NLS-1$
 
@@ -324,5 +324,17 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	{
 		return (!getAllObjects().hasNext() && getOnInsertMethodID() == 0 && getOnUpdateMethodID() == 0 && getOnDeleteMethodID() == 0 &&
 			getOnAfterInsertMethodID() == 0 && getOnAfterUpdateMethodID() == 0 && getOnAfterDeleteMethodID() == 0);
+	}
+
+	public ScriptCalculation getScriptCalculation(String name)
+	{
+		if (name == null) return null;
+		List<ScriptCalculation> scriptCalculations = getScriptCalculations();
+		for (ScriptCalculation scriptCalculation : scriptCalculations)
+		{
+			if (name.equals(scriptCalculation.getName())) return scriptCalculation;
+		}
+		return null;
+
 	}
 }

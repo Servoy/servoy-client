@@ -444,10 +444,10 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 	 */
 	public Iterator<ScriptCalculation> getScriptCalculations(Table basedOnTable, boolean sort) throws RepositoryException
 	{
-		return getScriptCalculations(getTableNodes(basedOnTable), sort);
+		return getScriptCalculations(getTableNodes(basedOnTable), sort).iterator();
 	}
 
-	public static Iterator<ScriptCalculation> getScriptCalculations(Iterator<TableNode> tablenodes, boolean sort)
+	public static List<ScriptCalculation> getScriptCalculations(Iterator<TableNode> tablenodes, boolean sort)
 	{
 		List<ScriptCalculation> retval = null;
 		if (sort)
@@ -463,7 +463,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 			TableNode tableNode = tablenodes.next();
 			retval.addAll(tableNode.getScriptCalculations());
 		}
-		return retval.iterator();
+		return retval;
 	}
 
 	public ScriptCalculation createNewScriptCalculation(IValidateName validator, Table table, String name) throws RepositoryException, RemoteException
@@ -524,7 +524,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 	}
 
 	//normally there is only one returned, but if using modules there can be multiple
-	public Iterator<TableNode> getTableNodes(Table table) throws RepositoryException
+	public Iterator<TableNode> getTableNodes(ITable table) throws RepositoryException
 	{
 		return getTableNodes(getRepository(), getAllObjectsAsList(), table);
 	}

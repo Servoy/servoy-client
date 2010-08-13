@@ -267,6 +267,23 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		return copySolution;
 	}
 
+	public TableNode getSolutionCopyTableNode(ITable table)
+	{
+		try
+		{
+			Solution solutionCopy = getSolutionCopy();
+			Iterator<TableNode> tableNodes = solutionCopy.getTableNodes(table);
+			if (tableNodes.hasNext()) return tableNodes.next();
+			return solutionCopy.createNewTableNode(table.getServerName(), table.getName());
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+		}
+		return null;
+	}
+
+
 	protected int getMaxID()
 	{
 		final int[] maxId = new int[1];
@@ -1642,7 +1659,30 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	public Iterator<ScriptCalculation> getScriptCalculations(ITable basedOnTable, boolean sort) throws RepositoryException
 	{
-		return Solution.getScriptCalculations(getTableNodes(basedOnTable), sort);
+		List<ScriptCalculation> scriptCalculations = Solution.getScriptCalculations(getTableNodes(basedOnTable), sort);
+		if (copySolution != null)
+		{
+			Iterator<TableNode> tableNodes = copySolution.getTableNodes(basedOnTable);
+			// if there is a copy solution with a tablenode on that table
+			if (tableNodes.hasNext())
+			{
+				//  remove all script calcs with the same name as the calc which isnt the copy calc itself.
+				List<ScriptCalculation> copyCalcs = tableNodes.next().getScriptCalculations();
+				for (ScriptCalculation copyCalc : copyCalcs)
+				{
+					for (int i = scriptCalculations.size(); i-- != 0;)
+					{
+						ScriptCalculation scriptCalculation = scriptCalculations.get(i);
+						if (copyCalc.getName().equals(scriptCalculation.getName()) && copyCalc != scriptCalculation)
+						{
+							scriptCalculations.remove(i);
+							break;
+						}
+					}
+				}
+			}
+		}
+		return scriptCalculations.iterator();
 	}
 
 	public Iterator<Media> getMedias(boolean sort)
@@ -1884,4 +1924,5 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			this.instances = new HashSet<String>(instances);
 		}
 	}
+
 }

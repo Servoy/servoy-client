@@ -24,22 +24,28 @@ import java.util.List;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IServer;
+import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptNameValidator;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Style;
 import com.servoy.j2db.persistence.Table;
+import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
+import com.servoy.j2db.scripting.TableScope;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.Utils;
@@ -47,6 +53,7 @@ import com.servoy.j2db.util.Utils;
 /**
  * @author jcompagner
  */
+@SuppressWarnings("nls")
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "SolutionModel", scriptingName = "solutionModel")
 public class JSSolutionModel
 {
@@ -57,7 +64,7 @@ public class JSSolutionModel
 			@SuppressWarnings("deprecation")
 			public Class< ? >[] getAllReturnedTypes()
 			{
-				return new Class< ? >[] { ALIGNMENT.class, ANCHOR.class, CURSOR.class, DEFAULTS.class, DISPLAYTYPE.class, JOINTYPE.class, MEDIAOPTION.class, PARTS.class, PRINTSLIDING.class, SCROLLBAR.class, VALUELIST.class, VARIABLETYPE.class, VIEW.class, JSForm.class, JSField.class, JSButton.class, JSComponent.class, JSLabel.class, JSMethod.class, JSPortal.class, JSPart.class, JSRelation.class, JSRelationItem.class, JSStyle.class, JSTabPanel.class, JSTab.class, JSMedia.class, JSValueList.class, JSVariable.class };
+				return new Class< ? >[] { ALIGNMENT.class, ANCHOR.class, CURSOR.class, DEFAULTS.class, DISPLAYTYPE.class, JOINTYPE.class, MEDIAOPTION.class, PARTS.class, PRINTSLIDING.class, SCROLLBAR.class, VALUELIST.class, VARIABLETYPE.class, VIEW.class, JSForm.class, JSField.class, JSButton.class, JSCalculation.class, JSComponent.class, JSLabel.class, JSMethod.class, JSPortal.class, JSPart.class, JSRelation.class, JSRelationItem.class, JSStyle.class, JSTabPanel.class, JSTab.class, JSMedia.class, JSValueList.class, JSVariable.class };
 			}
 		});
 	}
@@ -168,7 +175,7 @@ public class JSSolutionModel
 		}
 
 		String styleName = String.valueOf(args[a++]);
-		if ("null".equals(styleName)) styleName = null; //$NON-NLS-1$
+		if ("null".equals(styleName)) styleName = null;
 		boolean show_in_menu = Utils.getAsBoolean(args[a++]);
 		int width = Utils.getAsInteger(args[a++]);
 		int height = Utils.getAsInteger(args[a++]);
@@ -304,7 +311,7 @@ public class JSSolutionModel
 	{
 		if (!(component.getBaseComponent(false).getParent() instanceof Form))
 		{
-			throw new RuntimeException("only components of a form can be cloned"); //$NON-NLS-1$
+			throw new RuntimeException("only components of a form can be cloned");
 		}
 		JSForm parent = newParentForm;
 		if (parent == null)
@@ -410,7 +417,7 @@ public class JSSolutionModel
 
 	public JSForm[] js_getForms(String datasource)
 	{
-		if (datasource == null) throw new IllegalArgumentException("SolutionModel.getForms() param datasource (server/table) is null"); //$NON-NLS-1$
+		if (datasource == null) throw new IllegalArgumentException("SolutionModel.getForms() param datasource (server/table) is null");
 		return getForms(datasource);
 	}
 
@@ -507,15 +514,11 @@ public class JSSolutionModel
 			Media media = fs.getSolutionCopy().createNewMedia(new ScriptNameValidator(fs), name);
 			media.setPermMediaData(bytes);
 			media.setMimeType(ImageLoader.getContentType(bytes));
-			if (media != null)
-			{
-				return new JSMedia(media, application.getFlattenedSolution(), true);
-			}
-			return null;
+			return new JSMedia(media, application.getFlattenedSolution(), true);
 		}
 		catch (RepositoryException e)
 		{
-			throw new RuntimeException("error createing new media with name " + name, e); //$NON-NLS-1$
+			throw new RuntimeException("error createing new media with name " + name, e);
 		}
 	}
 
@@ -861,8 +864,8 @@ public class JSSolutionModel
 					// not an uri, server/table combi
 					String primaryTableName = args[a++].toString();
 					IServer primaryServer = fs.getSolution().getServer(primary);
-					if (primaryServer == null) throw new RuntimeException("cant create relation, primary server not found: " + primary); //$NON-NLS-1$
-					if (primaryServer.getTable(primaryTableName) == null) throw new RuntimeException("cant create relation, primary table not found: " + //$NON-NLS-1$
+					if (primaryServer == null) throw new RuntimeException("cant create relation, primary server not found: " + primary);
+					if (primaryServer.getTable(primaryTableName) == null) throw new RuntimeException("cant create relation, primary table not found: " +
 						primaryTableName);
 
 					primaryDataSource = DataSourceUtils.createDBTableDataSource(primary, primaryTableName);
@@ -882,8 +885,8 @@ public class JSSolutionModel
 					// not an uri, server/table combi
 					String foreignTableName = args[a++].toString();
 					IServer foreignServer = fs.getSolution().getServer(foreign);
-					if (foreignServer == null) throw new RuntimeException("cant create relation, foreign server not found: " + foreign); //$NON-NLS-1$
-					if (foreignServer.getTable(foreignTableName) == null) throw new RuntimeException("cant create relation, foreign table not found: " + //$NON-NLS-1$
+					if (foreignServer == null) throw new RuntimeException("cant create relation, foreign server not found: " + foreign);
+					if (foreignServer.getTable(foreignTableName) == null) throw new RuntimeException("cant create relation, foreign table not found: " +
 						foreignTableName);
 
 					foreignDataSource = DataSourceUtils.createDBTableDataSource(foreign, foreignTableName);
@@ -974,9 +977,9 @@ public class JSSolutionModel
 			if (servername != null && tablename != null)
 			{
 				IServer primaryServer = fs.getSolution().getServer(servername);
-				if (primaryServer == null) throw new RuntimeException("cant create relation, primary server not found: " + servername); //$NON-NLS-1$
+				if (primaryServer == null) throw new RuntimeException("cant create relation, primary server not found: " + servername);
 				primaryTable = (Table)primaryServer.getTable(tablename);
-				if (primaryTable == null) throw new RuntimeException("cant create relation, primary table not found: " + tablename); //$NON-NLS-1$
+				if (primaryTable == null) throw new RuntimeException("cant create relation, primary table not found: " + tablename);
 			}
 
 			List<JSRelation> relations = new ArrayList<JSRelation>();
@@ -997,6 +1000,109 @@ public class JSSolutionModel
 		}
 	}
 
+	/**
+	 * Gets all the calculations for the given datasource.
+	 * 
+	 * @param datasource The datasource the calculations belong to.
+	 */
+	public JSCalculation[] js_getCalculations(String datasource)
+	{
+		try
+		{
+			ITable table = application.getFoundSetManager().getTable(datasource);
+			if (table == null) throw new RuntimeException("No table found for datasource: " + datasource);
+
+			List<JSCalculation> calculations = new ArrayList<JSCalculation>();
+			FlattenedSolution fs = application.getFlattenedSolution();
+			Iterator<ScriptCalculation> scriptCalculations = fs.getScriptCalculations(table, true);
+			while (scriptCalculations.hasNext())
+			{
+				calculations.add(new JSCalculation(scriptCalculations.next(), false, application));
+			}
+			return calculations.toArray(new JSCalculation[calculations.size()]);
+		}
+		catch (RepositoryException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+
+	/**
+	 * Get an existing calculation for the given name and datasource.
+	 * 
+	 * @param name The name of the calculation
+	 * @param datasource The datasource the calculation belongs to.
+	 */
+	public JSCalculation js_getCalculation(String name, String datasource)
+	{
+		try
+		{
+			ITable table = application.getFoundSetManager().getTable(datasource);
+
+			ScriptCalculation scriptCalculation = application.getFlattenedSolution().getScriptCalculation(name, table);
+			if (scriptCalculation != null)
+			{
+				return new JSCalculation(scriptCalculation, false, application);
+			}
+			return null;
+		}
+		catch (RepositoryException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+
+	/**
+	 * Creates a new calculation for the given code, the type will be the column where it could be build on (if name is a column name),
+	 * else it will default to JSVariable.TEXT;
+	 * 
+	 * @param code The code of the calculation, this must be a full function declaration.
+	 * @param datasource The datasource this calculation belongs to. 
+	 */
+	public JSCalculation js_newCalculation(String code, String datasource)
+	{
+		return js_newCalculation(code, IColumnTypes.TEXT, datasource);
+	}
+
+	/**
+	 * Creates a new calculation for the given code and the type, if it builds on a column (name is a column name) then type will be ignored.
+	 * 
+	 * @param code The code of the calculation, this must be a full function declaration.
+	 * @param type The type of the calculation, one of the JSVariable types.
+	 * @param datasource The datasource this calculation belongs to. 
+	 */
+	public JSCalculation js_newCalculation(String code, int type, String datasource)
+	{
+		try
+		{
+			ITable table = application.getFoundSetManager().getTable(datasource);
+			if (table == null) throw new RuntimeException("No table found for datasource: " + datasource);
+
+			FlattenedSolution fs = application.getFlattenedSolution();
+			TableNode tablenode = fs.getSolutionCopyTableNode(table);
+			if (tablenode == null) throw new RuntimeException("Couldnt create calculation for datasource: " + datasource);
+
+			String name = JSMethod.parseName(code);
+			ScriptCalculation scriptCalculation = tablenode.createNewScriptCalculation(new ScriptNameValidator(fs), name);
+			scriptCalculation.setDeclaration(code);
+			scriptCalculation.setTypeAndCheck(type);
+			TableScope tableScope = (TableScope)application.getScriptEngine().getTableScope(scriptCalculation.getTable());
+			if (tableScope != null)
+			{
+				tableScope.put(scriptCalculation, scriptCalculation);
+				((FoundSetManager)application.getFoundSetManager()).flushSQLSheet(datasource);
+			}
+
+			return new JSCalculation(scriptCalculation, true, application);
+		}
+		catch (Exception e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
 
 	/**
 	 * @see java.lang.Object#toString()
@@ -1004,7 +1110,7 @@ public class JSSolutionModel
 	@Override
 	public String toString()
 	{
-		return "SolutionModel"; //$NON-NLS-1$
+		return "SolutionModel";
 	}
 
 	public void destroy()
