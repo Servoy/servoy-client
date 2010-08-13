@@ -82,34 +82,27 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 			{
 				addHeaders = false;
 			}
-			else if (p.getPartType() == Part.BODY)
-			{
-				bgColor = p.getBackground();
-			}
 		}
 
-		// If at least one of border/background is null, look into styles.
-		if (border == null || bgColor == null)
+		// Look into styles.
+		FixedStyleSheet ss = ComponentFactory.getCSSStyleForForm(sp, f);
+		if (ss != null)
 		{
-			FixedStyleSheet ss = ComponentFactory.getCSSStyleForForm(sp, f);
-			if (ss != null)
+			String lookupname = "form"; //$NON-NLS-1$
+			if (f.getStyleClass() != null && !"".equals(f.getStyleClass())) //$NON-NLS-1$
 			{
-				String lookupname = "form"; //$NON-NLS-1$
-				if (f.getStyleClass() != null && !"".equals(f.getStyleClass())) //$NON-NLS-1$
+				lookupname += "." + f.getStyleClass(); //$NON-NLS-1$
+			}
+			javax.swing.text.Style style = ss.getStyle(lookupname);
+			if (style != null)
+			{
+				if (border == null)
 				{
-					lookupname += "." + f.getStyleClass(); //$NON-NLS-1$
+					border = ss.getBorder(style);
 				}
-				javax.swing.text.Style style = ss.getStyle(lookupname);
-				if (style != null)
+				if (bgColor == null)
 				{
-					if (border == null)
-					{
-						border = ss.getBorder(style);
-					}
-					if (bgColor == null)
-					{
-						bgColor = ss.getBackground(style);
-					}
+					bgColor = ss.getBackground(style);
 				}
 			}
 		}
