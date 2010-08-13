@@ -17,7 +17,9 @@
 
 package com.servoy.j2db.server.headlessclient;
 
-public class Credentials
+import java.io.Serializable;
+
+public class Credentials implements Serializable
 {
 	private String userName;
 	private String password;
