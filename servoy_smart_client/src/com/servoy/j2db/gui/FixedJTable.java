@@ -146,7 +146,10 @@ public class FixedJTable extends JTable
 		}
 
 		ListSelectionModel rsm = getSelectionModel();
-		if (rsm instanceof AlwaysRowSelectedSelectionModel && !((AlwaysRowSelectedSelectionModel)rsm).canChangeSelection()) return;
+		boolean isSelected = false;
+		for (int index : getSelectedRows())
+			if (index == rowIndex) isSelected = true;
+		if (!isSelected && rsm instanceof AlwaysRowSelectedSelectionModel && !((AlwaysRowSelectedSelectionModel)rsm).canChangeSelection()) return;
 		ListSelectionModel csm = getColumnModel().getSelectionModel();
 
 		// get the value so it will be loaded first.
