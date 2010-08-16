@@ -21,6 +21,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 
 import com.servoy.j2db.scripting.JSEvent;
+import com.servoy.j2db.server.headlessclient.dataui.WebDataCalendar.DateField;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IScriptReadOnlyMethods;
 
@@ -90,7 +91,7 @@ public class ServoyFormComponentUpdatingBehavior extends ServoyAjaxFormComponent
 	{
 		if (super.isEnabled(comp))
 		{
-			if (!eventExecutor.hasLeaveCmds())
+			if (!eventExecutor.hasLeaveCmds() || component instanceof DateField)
 			{
 				if (comp instanceof IScriptReadOnlyMethods)
 				{
