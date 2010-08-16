@@ -268,9 +268,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		// do get the sql select with the omitted pks, else a find that didn't get anything will not 
 		// just display the records without the omitted pks (when clear omit is false)
-		refreshFromDBInternal(
-			fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), creationSqlSelect, null, true, omittedPKs, lastSortColumns, true),
-			flushRelatedFS, false, fsm.pkChunkSize, false);
+		refreshFromDBInternal(fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), creationSqlSelect, null, true, omittedPKs, lastSortColumns,
+			true), flushRelatedFS, false, fsm.pkChunkSize, false);
 	}
 
 	protected void clearOmit(QuerySelect sqlSelect)
@@ -634,34 +633,38 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *       !c        (not condition)
 	 *       #c        (modify condition, depends on column type)
 	 *       ^         (is null)
-	 *       ^=        (is null or empty/zero)
-	 *       &lt;x &gt;x &lt;=x &gt;=x  (comparison)
+	 *       ^=        (is null or empty)
+	 *       &lt;x     (less than value x)
+	 *       &gt;x     (greater than value x)
+	 *       &lt;=x    (less than or equals value x)
+	 *       &gt;=x    (greater than or equals value x)
 	 *       x...y     (between values x and y, including values)
 	 *       x         (equals value x)
-	 *       
+	 *
 	 *  Number fields:
 	 *       =x       (equals value x)
 	 *       ^=       (is null or zero)
-	 *       
-	 *  Date fields
-	 *       #c       (modify condition, match on entire day)
+	 *
+	 *  Date fields:
+	 *       #c       (equals value x, entire day)
 	 *       now      (equals now, date and or time)
 	 *       //       (equals today)
 	 *       today    (equals today)
-	 *       
+	 *
 	 *  Text fields:
-	 *       #c       (modify condition, case insensitive search)
+	 *       #c	        (case insensitive condition)
+	 *       = x      (equals a space and 'x')
 	 *       ^=       (is null or empty)
-	 *       %x%      (contains x)
-	 *       %x_y%    (contains x followed by any char and y)
-	 *       \\%      (contains char '%')
-	 *       \\_      (contains char '_')
+	 *       %x%      (contains 'x')
+	 *       %x_y%    (contains 'x' followed by any char and 'y')
+	 *       \%      (contains char '%')
+	 *       \_      (contains char '_')
 	 *
 	 * Related columns can be assigned, they will result in related searches.
 	 * For example, "employees_to_department.location_id = headoffice" finds all employees in the specified location).
 	 * 
 	 * Searching on related aggregates is supported.
-	 * For example, "orders_to_details.total_amount = '>1000'" finds all orders with total order details amount more than 1000.
+	 * For example, "orders_to_details.total_amount = '&gt;1000'" finds all orders with total order details amount more than 1000.
 	 *  
 	 * @sample
 	 * if (%%prefix%%foundset.find()) //find will fail if autosave is disabled and there are unsaved records
@@ -1287,9 +1290,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				customQuery = query.substring(0, order_by_index) + ((level > 0) ? "" : query.substring(i - 1)); //$NON-NLS-1$
 				order_by_index = customQuery.toLowerCase().lastIndexOf("order by"); //$NON-NLS-1$
 			}
-			sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH,
-				new SetCondition(ISQLCondition.EQUALS_OPERATOR, pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), new QueryCustomSelect(
-					customQuery, whereArgs), true));
+			sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH, new SetCondition(ISQLCondition.EQUALS_OPERATOR,
+				pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), new QueryCustomSelect(customQuery, whereArgs), true));
 
 			// set the previous sort, add all joins that are needed for this sort
 			List<IQuerySort> origSorts = originalQuery.getSorts();
@@ -3096,11 +3098,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					{
 						try
 						{
-							Object retval = scriptEngine.executeFunction(
-								((Function)function),
-								gscope,
-								gscope,
-								Utils.arrayMerge((new Object[] { record }), Utils.parseJSExpressions(tn.getInstanceMethodArguments("onDeleteMethodID"))), false, true); //$NON-NLS-1$
+							Object retval = scriptEngine.executeFunction(((Function)function), gscope, gscope, Utils.arrayMerge((new Object[] { record }),
+								Utils.parseJSExpressions(tn.getInstanceMethodArguments("onDeleteMethodID"))), false, true); //$NON-NLS-1$
 							if (Boolean.FALSE.equals(retval))
 							{
 								// delete method returned false. should block the delete.
@@ -3144,11 +3143,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					{
 						try
 						{
-							scriptEngine.executeFunction(
-								((Function)function),
-								gscope,
-								gscope,
-								Utils.arrayMerge((new Object[] { record }), Utils.parseJSExpressions(tn.getInstanceMethodArguments("onAfterDeleteMethodID"))), false, false); //$NON-NLS-1$
+							scriptEngine.executeFunction(((Function)function), gscope, gscope, Utils.arrayMerge((new Object[] { record }),
+								Utils.parseJSExpressions(tn.getInstanceMethodArguments("onAfterDeleteMethodID"))), false, false); //$NON-NLS-1$
 						}
 						catch (Exception e)
 						{
@@ -4866,8 +4862,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			{
 				for (TableFilter tf : foundSetFilters)
 				{
-					creationSqlSelect.addCondition(SQLGenerator.CONDITION_FILTER,
-						SQLGenerator.createTableFilterCondition(creationSqlSelect.getTable(), sheet.getTable(), tf));
+					creationSqlSelect.addCondition(SQLGenerator.CONDITION_FILTER, SQLGenerator.createTableFilterCondition(creationSqlSelect.getTable(),
+						sheet.getTable(), tf));
 				}
 			}
 		}

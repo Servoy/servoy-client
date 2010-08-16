@@ -328,8 +328,8 @@ public class JSDatabaseManager
 						QueryJoin join = (QueryJoin)sql.getJoin(oldTable, r.getName());
 						if (join == null)
 						{
-							join = SQLGenerator.createJoin(application.getFlattenedSolution(), r, oldTable,
-								new QueryTable(ft.getSQLName(), ft.getCatalog(), ft.getSchema()), fs_old);
+							join = SQLGenerator.createJoin(application.getFlattenedSolution(), r, oldTable, new QueryTable(ft.getSQLName(), ft.getCatalog(),
+								ft.getSchema()), fs_old);
 							sql.addJoin(join);
 						}
 
@@ -1291,12 +1291,19 @@ public class JSDatabaseManager
 	//strongly recommended to use a transaction
 	//currently does not support compound pks
 	/**
-	 * Merge records from the same foundset, updates entire datamodel (via foreign type on columns) with destination record pk, deletes source record. 
-	 * Do use a transaction!
-	 * returns true if successful.
+	 * Merge records from the same foundset, updates entire datamodel (via foreign type on columns) with destination 
+	 * record pk, deletes source record. Do use a transaction!
 	 * 
-	 * NOTE: For more information on foreign types, see Properties options: Details in the Dataproviders chapter of the Servoy Developer User's Guid
-	 *
+	 * This function is very handy in situations where duplicate data exists. It allows you to merge the two records 
+	 * and move all related records in one go. Say the source_record is "Ikea" and the combined_destination_record is "IKEA", the 
+	 * "Ikea" record is deleted and all records related to it (think of contacts and orders, for instance) will be related 
+	 * to the "IKEA" record. 
+	 * 
+	 * The function takes an optional array of column names. If provided, the data in the named columns will be copied 
+	 * from source_record to combined_destination_record. 
+	 * 
+	 * Note that it is essential for both records to originate from the same foundset, as shown in the sample code. 
+	 * 
 	 * @sample databaseManager.mergeRecords(foundset.getRecord(1),foundset.getRecord(2));
 	 *
 	 * @param source_record The source JSRecord to copy from.
