@@ -132,7 +132,7 @@ public class SessionClient extends ClientState implements ISessionClient
 
 	private final HashMap<Locale, Properties> messages = new HashMap<Locale, Properties>();
 
-	protected final Credentials credentials;
+	protected final WebCredentials credentials;
 
 	protected Locale locale;
 
@@ -152,10 +152,10 @@ public class SessionClient extends ClientState implements ISessionClient
 
 	protected SessionClient(ServletRequest req, String uname, String pass, String method, Object[] methodArgs, String solution) throws Exception
 	{
-		this(req, new Credentials(uname, pass), method, methodArgs, solution);
+		this(req, new WebCredentials(uname, pass), method, methodArgs, solution);
 	}
 
-	protected SessionClient(ServletRequest req, Credentials credentials, String method, Object[] methodArgs, String solution) throws Exception
+	protected SessionClient(ServletRequest req, WebCredentials credentials, String method, Object[] methodArgs, String solution) throws Exception
 	{
 		super();
 		if (req instanceof HttpServletRequest)

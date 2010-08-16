@@ -22,7 +22,7 @@ import org.apache.wicket.Request;
 import org.apache.wicket.RestartResponseException;
 
 import com.servoy.j2db.IWebClientApplication;
-import com.servoy.j2db.server.headlessclient.Credentials;
+import com.servoy.j2db.server.headlessclient.WebCredentials;
 import com.servoy.j2db.server.headlessclient.DebuggerNotConnectedErrorPage;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
@@ -41,7 +41,7 @@ public class DebugWebClientSession extends WebClientSession
 	}
 
 	@Override
-	protected IWebClientApplication createWebClient(HttpServletRequest req, Credentials credentials, String method, Object[] methodArgs, String solution)
+	protected IWebClientApplication createWebClient(HttpServletRequest req, WebCredentials credentials, String method, Object[] methodArgs, String solution)
 		throws Exception
 	{
 		if (RemoteDebugScriptEngine.isConnected())

@@ -79,7 +79,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	private Map<Object, Object> uiProperties;
 	private final Map<String, Rectangle> windowBounds = new HashMap<String, Rectangle>();
 
-	protected WebClient(HttpServletRequest req, Credentials credentials, String method, Object[] methodArgs, String solution) throws Exception
+	protected WebClient(HttpServletRequest req, WebCredentials credentials, String method, Object[] methodArgs, String solution) throws Exception
 	{
 		super(req, credentials, method, methodArgs, solution);
 
