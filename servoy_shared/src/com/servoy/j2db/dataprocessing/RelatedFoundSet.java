@@ -171,8 +171,8 @@ public abstract class RelatedFoundSet extends FoundSet
 		cleanSelect.setColumns(AbstractBaseQuery.relinkTable(relationSelect.getTable(), cleanSelect.getTable(), relationSelect.getColumnsClone()));
 
 		//copy the where (is foreign where)
-		cleanSelect.setCondition(SQLGenerator.CONDITION_RELATION, AbstractBaseQuery.relinkTable(relationSelect.getTable(), cleanSelect.getTable(),
-			relationSelect.getConditionClone(SQLGenerator.CONDITION_RELATION)));
+		cleanSelect.setCondition(SQLGenerator.CONDITION_RELATION,
+			AbstractBaseQuery.relinkTable(relationSelect.getTable(), cleanSelect.getTable(), relationSelect.getConditionClone(SQLGenerator.CONDITION_RELATION)));
 
 		PlaceholderKey placeHolderKey = SQLGenerator.createRelationKeyPlaceholderKey(cleanSelect.getTable(), relation.getName());
 
@@ -431,7 +431,7 @@ public abstract class RelatedFoundSet extends FoundSet
 	}
 
 	@Override
-	public boolean js_addFoundSetFilterParam(String dataprovider, String operator, Object value)
+	public boolean addFilterParam(String filterName, String dataprovider, String operator, Object value)
 	{
 		// don't do anything, can't add parameters to related foundset
 		fsm.getApplication().reportJSError("Cannot addFoundSetFilterParam to related foundset", null); //$NON-NLS-1$
