@@ -328,8 +328,8 @@ public class JSDatabaseManager
 						QueryJoin join = (QueryJoin)sql.getJoin(oldTable, r.getName());
 						if (join == null)
 						{
-							join = SQLGenerator.createJoin(application.getFlattenedSolution(), r, oldTable, new QueryTable(ft.getSQLName(), ft.getCatalog(),
-								ft.getSchema()), fs_old);
+							join = SQLGenerator.createJoin(application.getFlattenedSolution(), r, oldTable,
+								new QueryTable(ft.getSQLName(), ft.getCatalog(), ft.getSchema()), fs_old);
 							sql.addJoin(join);
 						}
 
@@ -2065,23 +2065,23 @@ public class JSDatabaseManager
 				{
 					return true;
 				}
-				// if not found then look if other foundsets had record(s) that are changed that also are in this foundset.
-				String ds = foundset.getDataSource();
-				IRecordInternal[] editedRecords = el.getEditedRecords();
-				for (IRecordInternal editedRecord : editedRecords)
-				{
-					IRecordInternal record = editedRecord;
-					if (record.getRawData() != null && !record.existInDataSource())
-					{
-						if (record.getParentFoundSet().getDataSource().equals(ds))
-						{
-							if (foundset.getRecord(record.getPK()) != null)
-							{
-								return true;
-							}
-						}
-					}
-				}
+//				// if not found then look if other foundsets had record(s) that are changed that also are in this foundset.
+//				String ds = foundset.getDataSource();
+//				IRecordInternal[] editedRecords = el.getEditedRecords();
+//				for (IRecordInternal editedRecord : editedRecords)
+//				{
+//					IRecordInternal record = editedRecord;
+//					if (record.getRawData() != null && !record.existInDataSource())
+//					{
+//						if (record.getParentFoundSet().getDataSource().equals(ds))
+//						{
+//							if (foundset.getRecord(record.getPK()) != null)
+//							{
+//								return true;
+//							}
+//						}
+//					}
+//				}
 			}
 
 		}
