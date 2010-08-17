@@ -63,7 +63,7 @@ public class WebClientSession extends WebSession
 
 	private HttpSession httpSession;
 
-	private final Credentials credentials = new Credentials();
+	private final WebCredentials credentials = new WebCredentials();
 
 	private String serveName;
 	private String serveMime;
@@ -181,7 +181,7 @@ public class WebClientSession extends WebSession
 		return webClient;
 	}
 
-	protected IWebClientApplication createWebClient(HttpServletRequest req, Credentials credentials, String method, Object[] methodArgs, String solution)
+	protected IWebClientApplication createWebClient(HttpServletRequest req, WebCredentials credentials, String method, Object[] methodArgs, String solution)
 		throws Exception
 	{
 		return new WebClient(req, credentials, method, methodArgs, solution);

@@ -47,7 +47,7 @@ import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.GlobalScope;
-import com.servoy.j2db.server.headlessclient.Credentials;
+import com.servoy.j2db.server.headlessclient.WebCredentials;
 import com.servoy.j2db.server.headlessclient.EmptyRequest;
 import com.servoy.j2db.server.headlessclient.SessionClient;
 import com.servoy.j2db.server.headlessclient.WebClient;
@@ -414,7 +414,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	 * @return
 	 * @throws Exception
 	 */
-	public synchronized WebClient createDebugWebClient(WebSession webClientSession, HttpServletRequest req, Credentials credentials, String method,
+	public synchronized WebClient createDebugWebClient(WebSession webClientSession, HttpServletRequest req, WebCredentials credentials, String method,
 		Object[] objects) throws Exception
 	{
 		if (!(webClientSession instanceof WebClientSession))

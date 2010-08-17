@@ -40,7 +40,7 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
-import com.servoy.j2db.server.headlessclient.Credentials;
+import com.servoy.j2db.server.headlessclient.WebCredentials;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.WebClient;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
@@ -58,7 +58,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 	private SolutionMetaData solution;
 	private final List<Thread> dispatchThreads = new ArrayList<Thread>(3);
 
-	public DebugWebClient(HttpServletRequest req, Credentials credentials, String method, Object[] methodArgs, SolutionMetaData solution) throws Exception
+	public DebugWebClient(HttpServletRequest req, WebCredentials credentials, String method, Object[] methodArgs, SolutionMetaData solution) throws Exception
 	{
 		super(req, credentials, method, methodArgs, solution != null ? solution.getName() : "");
 		this.solution = solution;

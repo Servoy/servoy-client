@@ -17,17 +17,24 @@
 
 package com.servoy.j2db.server.headlessclient;
 
-public class Credentials
+import java.io.Serializable;
+
+/**
+ * Class that holds the username/password for the webclient.
+ * 
+ * @author jcompagner
+ */
+public class WebCredentials implements Serializable
 {
 	private String userName;
 	private String password;
 
-	public Credentials()
+	public WebCredentials()
 	{
 
 	}
 
-	public Credentials(String userName, String password)
+	public WebCredentials(String userName, String password)
 	{
 		this.userName = userName;
 		this.password = password;
