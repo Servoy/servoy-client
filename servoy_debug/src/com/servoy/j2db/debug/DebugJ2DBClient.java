@@ -514,7 +514,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 				}
 				if (form == null)
 				{
-					handleClientUserUidChanged(null, "");// fake first load //$NON-NLS-1$
+					selectAndOpenSolution();// fake first load 
 				}
 				else
 				{

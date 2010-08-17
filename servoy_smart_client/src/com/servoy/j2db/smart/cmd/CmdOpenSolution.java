@@ -55,7 +55,10 @@ public class CmdOpenSolution extends AbstractCmd
 				{
 					public void run()
 					{
-						((J2DBClient)application).handleClientUserUidChanged(null, ""); // fake uuid so that select solution will be shown.
+						if (application.getSolution() == null)
+						{
+							((J2DBClient)application).selectAndOpenSolution(); // select solution will be shown.
+						}
 					}
 				});
 			}
