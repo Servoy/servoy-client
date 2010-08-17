@@ -18,8 +18,13 @@ package com.servoy.j2db.scripting;
 
 import java.awt.Rectangle;
 
+import com.servoy.j2db.ApplicationException;
+import com.servoy.j2db.FormController;
+import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -144,6 +149,20 @@ public abstract class JSWindowImpl
 		}
 
 		/**
+		 * Shows the given form in this window.
+		 * 
+		 * @sample
+		 * win.show(forms.myForm);
+		 * // win.show("myForm");
+		 * 
+		 * @param form the form that will be shown inside this window. It can be a form name or a form object (actual form or JSFrom).
+		 */
+		public void js_show(Object form) throws ServoyException
+		{
+			impl.showObject(form);
+		}
+
+		/**
 		 * Sets the initial window bounds.
 		 * The initial bounds are only used the first time this window is shown.
 		 * 
@@ -262,7 +281,7 @@ public abstract class JSWindowImpl
 		}
 
 		/**
-		 * Closes (hides) the window. It can be shown again using controller.show() or controller.showRecords().
+		 * Closes (hides) the window. It can be shown again using window.show(), controller.show() or controller.showRecords().
 		 * The main application window cannot be closed.
 		 * @return Boolean true if the window was successfully closed and false otherwise.
 		 */
@@ -573,6 +592,43 @@ public abstract class JSWindowImpl
 		doOldShow(formName, closeAll, legacyV3Behavior);
 	}
 
+	public void showObject(Object form) throws ServoyException
+	{
+		String f = null;
+		if (form instanceof FormController)
+		{
+			f = ((FormController)form).getName();
+		}
+		else if (form instanceof FormScope)
+		{
+			f = ((FormScope)form).getFormController().getName();
+		}
+		else if (form instanceof FormController.JSForm)
+		{
+			f = ((FormController.JSForm)form).getFormPanel().getName();
+		}
+		else if (form instanceof String)
+		{
+			f = (String)form;
+		}
+		if (f != null)
+		{
+			Form frm = application.getFlattenedSolution().getForm(f);
+			FormManager fm = (FormManager)application.getFormManager();
+			if (frm == null && fm.isPossibleForm(f)) frm = fm.getPossibleForm(f);
+			if (!application.getFlattenedSolution().formCanBeInstantiated(frm))
+			{
+				// abstract form
+				throw new ApplicationException(ServoyException.ABSTRACT_FORM);
+			}
+
+			show(f);
+		}
+	}
+
+	/**
+	 * @param formName the correct name of an existing form or a form that can be instantiated.
+	 */
 	public void show(String formName)
 	{
 		if (destroyed)
