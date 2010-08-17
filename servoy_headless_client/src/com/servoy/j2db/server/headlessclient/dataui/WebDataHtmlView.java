@@ -136,6 +136,8 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 
 	public void setActionCmd(String actionCmd, Object[] args)
 	{
+		IEventExecutor eventExecutor = super.getEventExecutor();
+		if (eventExecutor instanceof WebEventExecutor) ((WebEventExecutor)eventExecutor).setActionCmd(actionCmd, args);
 	}
 
 	public void setChangeCmd(String changeCmd, Object[] args)
