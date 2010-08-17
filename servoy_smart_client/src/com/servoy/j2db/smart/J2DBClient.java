@@ -735,7 +735,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			if (applicationServerInit())
 			{
 				serverInit();
-				handleClientUserUidChanged(null, ""); // fake id so that the select dialog is shown.
+				selectAndOpenSolution(); // the select dialog is shown.
 			}
 		}
 		catch (Exception ex)

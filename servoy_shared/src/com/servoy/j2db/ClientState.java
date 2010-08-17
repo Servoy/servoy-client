@@ -388,6 +388,17 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			}
 		}
 
+		// open the solution previously selected or show solution selection
+		selectAndOpenSolution();
+	}
+
+	public void selectAndOpenSolution()
+	{
+		if (isShutDown() || isClosing)
+		{
+			return;
+		}
+
 		SolutionMetaData solutionMetaData = null;
 		try
 		{
