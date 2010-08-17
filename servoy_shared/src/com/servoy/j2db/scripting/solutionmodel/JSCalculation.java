@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.scripting.solutionmodel;
 
+import java.util.Arrays;
+
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -26,6 +28,7 @@ import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.scripting.TableScope;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ServoyException;
 
 @SuppressWarnings("nls")
 public class JSCalculation implements IJavaScriptType
@@ -141,10 +144,13 @@ public class JSCalculation implements IJavaScriptType
 			if (tableScope != null)
 			{
 				tableScope.put(scriptCalculation, scriptCalculation);
-				((FoundSetManager)application.getFoundSetManager()).flushSQLSheet(scriptCalculation.getTable().getDataSource());
+				String dataSource = scriptCalculation.getTable().getDataSource();
+				FoundSetManager fsm = (FoundSetManager)application.getFoundSetManager();
+				fsm.flushSQLSheet(dataSource);
+				fsm.getRowManager(dataSource).clearCalcs(null, Arrays.asList(scriptCalculation.getName()));
 			}
 		}
-		catch (RepositoryException e)
+		catch (ServoyException e)
 		{
 			Debug.error(e);
 		}
