@@ -127,6 +127,11 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 		return retval.toArray(new IRecordInternal[retval.size()]);
 	}
 
+	public Object getRecord(Object[] pk)
+	{
+		return null;
+	}
+
 	/**
 	 * @see com.servoy.j2db.dataprocessing.IFoundSetInternal#getParentState()
 	 */

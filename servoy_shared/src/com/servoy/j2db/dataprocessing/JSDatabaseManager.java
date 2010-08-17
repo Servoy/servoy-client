@@ -2076,7 +2076,29 @@ public class JSDatabaseManager
 			{
 				EditRecordList el = application.getFoundSetManager().getEditRecordList();
 				el.removeUnChangedRecords(true, false);
-				return el.hasEditedRecords((IFoundSetInternal)values[0]);
+				IFoundSetInternal foundset = (IFoundSetInternal)values[0];
+				// first the quick way of testing the foundset itself.
+				if (el.hasEditedRecords(foundset))
+				{
+					return true;
+				}
+				// if not found then look if other foundsets had record(s) that are changed that also are in this foundset.
+				String ds = foundset.getDataSource();
+				IRecordInternal[] editedRecords = el.getEditedRecords();
+				for (IRecordInternal editedRecord : editedRecords)
+				{
+					IRecordInternal record = editedRecord;
+					if (record.getRawData() != null && !record.existInDataSource())
+					{
+						if (record.getParentFoundSet().getDataSource().equals(ds))
+						{
+							if (foundset.getRecord(record.getPK()) != null)
+							{
+								return true;
+							}
+						}
+					}
+				}
 			}
 
 		}
@@ -2127,10 +2149,21 @@ public class JSDatabaseManager
 			}
 			else
 			{
-				FoundSet foundset = (FoundSet)values[0];
-				String ds = foundset.getDataSource();
+				IFoundSetInternal foundset = (IFoundSetInternal)values[0];
 				EditRecordList el = application.getFoundSetManager().getEditRecordList();
-				IRecordInternal[] editedRecords = el.getEditedRecords();
+				// fist test quickly for this foundset only.
+				IRecordInternal[] editedRecords = el.getEditedRecords(foundset);
+				for (IRecordInternal editedRecord : editedRecords)
+				{
+					IRecordInternal record = editedRecord;
+					if (record.getRawData() != null && !record.existInDataSource())
+					{
+						return true;
+					}
+				}
+				// if not found then look if other foundsets had record(s) that are new that also are in this foundset.
+				String ds = foundset.getDataSource();
+				editedRecords = el.getEditedRecords();
 				for (IRecordInternal editedRecord : editedRecords)
 				{
 					IRecordInternal record = editedRecord;
@@ -2145,6 +2178,7 @@ public class JSDatabaseManager
 						}
 					}
 				}
+
 			}
 
 		}
