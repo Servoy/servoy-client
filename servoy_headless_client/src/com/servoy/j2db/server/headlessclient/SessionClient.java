@@ -164,7 +164,7 @@ public class SessionClient extends ClientState implements ISessionClient
 			session = ((HttpServletRequest)req).getSession();
 		}
 		getClientInfo().setApplicationType(getApplicationType());
-		getClientInfo().setDontBlockDuringMaintenance(SolutionMetaData.isImportHook(solution));
+		getClientInfo().setSolutionIntendedToBeLoaded(solution);
 
 		boolean reset = testThreadLocals();
 		try
@@ -264,7 +264,8 @@ public class SessionClient extends ClientState implements ISessionClient
 	@Override
 	protected int getSolutionTypeFilter()
 	{
-		return super.getSolutionTypeFilter() | SolutionMetaData.MODULE | SolutionMetaData.SMART_CLIENT_ONLY | SolutionMetaData.WEB_CLIENT_ONLY;
+		return super.getSolutionTypeFilter() | SolutionMetaData.MODULE | SolutionMetaData.SMART_CLIENT_ONLY | SolutionMetaData.WEB_CLIENT_ONLY |
+			SolutionMetaData.PRE_IMPORT_HOOK | SolutionMetaData.POST_IMPORT_HOOK;
 	}
 
 	@Override

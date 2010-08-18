@@ -78,7 +78,7 @@ public final class ClientInfo implements Serializable
 	private int openSolutionId = -1;
 	private List<String> infos = new ArrayList<String>();//to make it possible for developer to give a client a meaning full name/description in the admin page
 
-	private boolean dontBlockDuringMaintenance;
+	private String solutionIntendedToBeLoaded;
 
 	/**
 	 * A private lock to synchronize read/write to the long valued properties. Since this lock is PRIVATE, all deadlock related issues are local to this class.
@@ -290,20 +290,30 @@ public final class ClientInfo implements Serializable
 	}
 
 	@TerracottaAutolockRead
-	public boolean isDontBlockDuringMaintenance()
+	public String getSolutionIntendedToBeLoaded()
 	{
 		synchronized (lock)
 		{
-			return dontBlockDuringMaintenance;
+			return solutionIntendedToBeLoaded;
 		}
 	}
 
+	/**
+	 * This property is used only in the specific situation when pre-import and post-import
+	 * hooks are being executed during solution import. In a common scenario by the time the
+	 * post-import hook is executed the server will be in maintenance mode, so normally no
+	 * client could connect. By setting this property, the server can check if the solution
+	 * that is intended to be loaded is a pre/post-import hook and still let the client 
+	 * connect.
+	 * 
+	 * @param solutionIntendedToBeLoaded The name of the solution to be loaded.
+	 */
 	@TerracottaAutolockWrite
-	public void setDontBlockDuringMaintenance(boolean dontBlockDuringMaintenance)
+	public void setSolutionIntendedToBeLoaded(String solutionIntendedToBeLoaded)
 	{
 		synchronized (lock)
 		{
-			this.dontBlockDuringMaintenance = dontBlockDuringMaintenance;
+			this.solutionIntendedToBeLoaded = solutionIntendedToBeLoaded;
 		}
 	}
 
