@@ -170,4 +170,19 @@ public class Form
 	public void js_setController(JSForm controller)
 	{
 	}
+
+	/**
+	 * Provides access to the methods of the parent of this form.
+	 * 
+	 * @sample
+	 * %%prefix%%_super.some_method();
+	 */
+	public JSForm js_get_super()
+	{
+		return null;
+	}
+
+	public void js_set_super(JSForm superform)
+	{
+	}
 }
