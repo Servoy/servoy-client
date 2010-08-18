@@ -23,6 +23,11 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.util.gui.OrientationApplier;
 
+/**
+ * Layout provider for web client that does not allow anchoring of components.
+ * 
+ * @author gerzse
+ */
 public class UnanchoredFormLayoutProvider extends AbstractFormLayoutProvider
 {
 	public UnanchoredFormLayoutProvider(IServiceProvider sp, Solution solution, Form f)

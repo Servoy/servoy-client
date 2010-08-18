@@ -38,6 +38,12 @@ import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.OrientationApplier;
 
+/**
+ * Generic superclass of available layout providers for web client. Holds the common
+ * functionality.
+ * 
+ * @author gerzse
+ */
 public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 {
 	private final Solution solution;

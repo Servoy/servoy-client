@@ -13,11 +13,19 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util;
 
+/**
+ * Some components are not supposed to hold the focus in smart client, rather
+ * they should just automatically transfer the focus to another component when
+ * they receive it.
+ * 
+ * @author gerzse
+ */
 public interface ISupportFocusTransfer
 {
 	boolean isTransferFocusBackwards();
+
 	void setTransferFocusBackwards(boolean transferBackwards);
 }

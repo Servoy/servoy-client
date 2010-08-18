@@ -18,7 +18,13 @@ package com.servoy.j2db.documentation;
 
 import org.dom4j.Element;
 
-
+/**
+ * Generic documentation source that provides an XML element with some
+ * documentation. The XML element may be later aggregated together with
+ * other elements into a larger XML document.
+ * 
+ * @author gerzse
+ */
 public interface IAggregatedDocumentation
 {
 	Element getAggregatedElement(boolean pretty);

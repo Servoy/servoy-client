@@ -34,6 +34,12 @@ import com.servoy.j2db.util.Ident;
 import com.servoy.j2db.util.RhinoKeywords;
 import com.servoy.j2db.util.SQLKeywords;
 
+/**
+ * Takes care of the reserved keywords part of the documentation. Manages 
+ * several lists of reserved keywords for different categories.
+ * 
+ * @author gerzse
+ */
 public class ReservedKeywordsManager implements IAggregatedDocumentation
 {
 	public static final String CATEGORY_RHINO = "rhino"; //$NON-NLS-1$

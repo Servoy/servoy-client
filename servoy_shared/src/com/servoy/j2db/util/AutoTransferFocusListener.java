@@ -13,17 +13,25 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util;
 
 import java.awt.Component;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 
+/**
+ * Helper class for handling tab sequences in smart client. Certain components
+ * should not hold the focus for our tab sequences, while they do hold the focus
+ * in Java. This class automatically transfer the focus from these components to
+ * the correct ones.
+ * 
+ * @author gerzse
+ */
 public class AutoTransferFocusListener implements FocusListener
 {
-	private Component owner;
-	private ISupportFocusTransfer directionProvider;
+	private final Component owner;
+	private final ISupportFocusTransfer directionProvider;
 
 	public AutoTransferFocusListener(Component owner, ISupportFocusTransfer directionProvider)
 	{

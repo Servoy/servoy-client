@@ -21,6 +21,12 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.util.Utils;
 
+/**
+ * Factory for obtaining a layout provider for web client. Takes into account the 
+ * settings related to anchoring in web client.
+ * 
+ * @author gerzse
+ */
 public class FormLayoutProviderFactory
 {
 	public static IFormLayoutProvider getFormLayoutProvider(IServiceProvider sp, Solution solution, Form f)

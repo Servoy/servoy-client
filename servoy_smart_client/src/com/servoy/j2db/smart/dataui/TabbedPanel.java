@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.smart.dataui;
 
 import java.awt.Component;
@@ -26,6 +26,10 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ITabPaneAlike;
 import com.servoy.j2db.util.Utils;
 
+/**
+ * Regular tab panel with several child forms and a visible tab selection 
+ * control.
+ */
 public class TabbedPanel extends EnableTabPanel implements ITabPaneAlike
 {
 	private final IApplication application;

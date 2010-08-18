@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.gui;
 
 import java.awt.Component;
@@ -35,6 +35,12 @@ import com.servoy.j2db.smart.dataui.DataTextArea;
 import com.servoy.j2db.smart.dataui.DataTextEditor;
 import com.servoy.j2db.smart.dataui.SpecialTabPanel;
 
+/**
+ * Listens to focus change in smart client and makes sure that the focused
+ * component is always visible on the screen.
+ * 
+ * @author gerzse
+ */
 public class GlobalAutoScrollerFocusListener implements PropertyChangeListener
 {
 

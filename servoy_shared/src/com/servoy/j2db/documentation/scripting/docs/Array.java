@@ -20,6 +20,12 @@ import org.mozilla.javascript.Function;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 
+/**
+ * Dummy class for listing methods for JavaScript types in a manner that
+ * suits our documentation generator.
+ * 
+ * @author gerzse
+ */
 @ServoyDocumented(category = ServoyDocumented.JSLIB, publicName = "Array", scriptingName = "Array")
 public class Array
 {

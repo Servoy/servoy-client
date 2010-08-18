@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db;
 
 import java.util.ArrayList;
@@ -35,6 +35,11 @@ import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 
+/**
+ * Helper class for management of tab sequence. Used both for smart and web clients.
+ * 
+ * @author gerzse
+ */
 public class TabSequence<T>
 {
 

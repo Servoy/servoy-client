@@ -22,6 +22,14 @@ import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualCSS;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 
+/**
+ * Generic interface for a layout provider used for forms in web client. A layout
+ * provider provides HTML for begin/end of HTML page, begin/end of form part,
+ * begin/end of table view, plus some additional information like CSS styles or 
+ * the background color of the form.
+ * 
+ * @author gerzse
+ */
 public interface IFormLayoutProvider
 {
 	void renderOpenFormHTML(StringBuffer html, TextualCSS css);
