@@ -460,6 +460,7 @@ public class SessionClient extends ClientState implements ISessionClient
 	@Override
 	protected void solutionLoaded(Solution s)
 	{
+		super.solutionLoaded(s);
 		J2DBGlobals.firePropertyChange(this, "solution", null, getSolution()); //$NON-NLS-1$
 	}
 
