@@ -20,6 +20,11 @@ import com.servoy.j2db.FormController.JSForm;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
+/**
+ * Helper class for easier documentation of our JavaScript API for forms.
+ * 
+ * @author gerzse
+ */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Form", scriptingName = "Form")
 public class Form
 {

@@ -17,6 +17,11 @@
 
 package com.servoy.j2db.documentation;
 
+/**
+ * Utility class for documentation management.
+ * 
+ * @author gerzse
+ */
 public class DocumentationUtil
 {
 

@@ -24,6 +24,14 @@ import java.util.regex.Pattern;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
+/**
+ * Models a link from any text of a documentation to a documented element.
+ * The target of the link can be either a class, or a method. If the target
+ * is a method, then the signature of the method is relevant, so that overloading
+ * is supported.
+ * 
+ * @author gerzse
+ */
 public class QualifiedDocumentationName implements Comparable<QualifiedDocumentationName>
 {
 	public static final String JS_PREFIX = "js_"; //$NON-NLS-1$

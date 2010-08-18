@@ -13,11 +13,18 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util;
 
 import java.util.List;
 
+/**
+ * A focus cycle root is a component that has its own tab sequence. Needed
+ * especially for smart client, where Swing allows several levels of focus
+ * cycle roots. It is also used for web client.
+ * 
+ * @author gerzse
+ */
 public interface IFocusCycleRoot<T>
 {
 	public void setTabSeqComponents(List<T> tabSequence);

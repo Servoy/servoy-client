@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient;
 
 import java.awt.Dimension;
@@ -33,6 +33,12 @@ import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 
+/**
+ * Holds the anchoring informations for one form. These informations are sent to web clients
+ * and then used on client side.
+ * 
+ * @author acostache, gerzse
+ */
 public final class FormAnchorInfo implements Comparable<FormAnchorInfo>
 {
 	public String formName;
