@@ -19,6 +19,7 @@ package com.servoy.j2db.server.headlessclient;
 import java.awt.Rectangle;
 import java.awt.print.PrinterJob;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.wicket.Component;
@@ -153,7 +154,7 @@ public class WebFormManager extends FormManager
 					WebForm parentWF = wfParent.findParent(WebForm.class);
 					if (parentWF != null)
 					{
-						parentWF.getController().destroy();
+						if (!Arrays.asList(fcontrollers).contains(parentWF.getController())) parentWF.getController().destroy();
 					}
 					else
 					{

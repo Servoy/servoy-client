@@ -1853,7 +1853,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 			((FoundSetManager)application.getFoundSetManager()).removeFoundSetListener(this);
 
-			fm.removeFormPanel(this);
+			if (fm != null) fm.removeFormPanel(this);
 			fm = null;
 
 			if (formModel != null)
@@ -1904,7 +1904,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 		catch (Exception e)
 		{
-			Debug.error("Destroy error " + e); //$NON-NLS-1$
+			Debug.error("Destroy error", e); //$NON-NLS-1$
 		}
 		finally
 		{

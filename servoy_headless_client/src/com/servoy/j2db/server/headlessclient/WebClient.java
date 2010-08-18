@@ -827,7 +827,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		{
 			synchronized (webClientSession)
 			{
-				long solutionLastModifiedTime = webClientSession.getSolutionLastModifiedTime();
+				long solutionLastModifiedTime = webClientSession.getSolutionLastModifiedTime(solution);
 				if (solutionLastModifiedTime != -1 && solutionLastModifiedTime != solution.getLastModifiedTime())
 				{
 					if (isClosing() || isShutDown())
@@ -835,7 +835,6 @@ public class WebClient extends SessionClient implements IWebClientApplication
 						if (((WebRequest)RequestCycle.get().getRequest()).isAjax()) throw new AbortException();
 						else throw new RestartResponseException(Application.get().getHomePage());
 					}
-					webClientSession.setSolutionLastModifiedTime(solution.getLastModifiedTime());
 					refreshI18NMessages();
 					((IScriptSupport)getScriptEngine()).reload();
 					((WebFormManager)getFormManager()).reload();
