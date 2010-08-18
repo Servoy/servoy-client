@@ -60,6 +60,7 @@ public class WebClientSession extends WebSession
 	private static final long serialVersionUID = 1L;
 
 	private long solutionLastModifiedTime = -1;
+	private Solution previousSolution = null;
 
 	private HttpSession httpSession;
 
@@ -163,7 +164,7 @@ public class WebClientSession extends WebSession
 				webClient.reportError(Messages.getString("servoy.formManager.error.ExecutingOpenSolutionMethod", new Object[] { method }), e1); //$NON-NLS-1$
 			}
 		}
-		if (webClient.getSolution() != null) solutionLastModifiedTime = webClient.getSolution().getLastModifiedTime();
+		if (webClient.getSolution() != null) getSolutionLastModifiedTime(webClient.getSolution());
 		else
 		{
 			if (webClient.getPreferedSolutionNameToLoadOnInit() != null)
@@ -270,14 +271,14 @@ public class WebClientSession extends WebSession
 	/**
 	 * @return
 	 */
-	public long getSolutionLastModifiedTime()
+	public long getSolutionLastModifiedTime(Solution solution)
 	{
+		if (previousSolution == null || !solution.equals(previousSolution))
+		{
+			solutionLastModifiedTime = solution.getLastModifiedTime();
+			previousSolution = solution;
+		}
 		return solutionLastModifiedTime;
-	}
-
-	public void setSolutionLastModifiedTime(long s)
-	{
-		solutionLastModifiedTime = s;
 	}
 
 	public void serveResource(String fname, byte[] bs, String mimetype)
