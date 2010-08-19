@@ -459,8 +459,8 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 	public void setMargin(Insets m)
 	{
 //		enclosedComponent.setMargin(i); seems to have no effect
-		enclosedComponent.setBorder(BorderFactory.createCompoundBorder(enclosedComponent.getBorder(),
-			BorderFactory.createEmptyBorder(m.top, m.left, m.bottom, m.right)));
+		enclosedComponent.setBorder(BorderFactory.createCompoundBorder(enclosedComponent.getBorder(), BorderFactory.createEmptyBorder(m.top, m.left, m.bottom,
+			m.right)));
 	}
 
 	public Document getDocument()
@@ -707,11 +707,8 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 		}
 		if (editProvider != null) editProvider.setEditable(b);
 
-		if (b)
-		{
-			enclosedComponent.removeMouseListener(eventExecutor);
-		}
-		else
+		enclosedComponent.removeMouseListener(eventExecutor);
+		if (!b)
 		{
 			enclosedComponent.addMouseListener(eventExecutor);//listen when not editable
 		}
