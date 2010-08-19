@@ -1335,12 +1335,6 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 				refreshI18NMessages();
 
-				// These lines must be before solutionLoaded call, because a long running process 
-				// (solution startup method will never update the status.
-				clientInfo.setOpenSolutionId(solutionMetaData.getRootObjectId());
-				clientInfo.setOpenSolutionTimestamp(System.currentTimeMillis());
-				getClientHost().pushClientInfo(clientInfo.getClientId(), clientInfo);
-
 				getScriptEngine().getGlobalScope().reloadVariablesAndScripts(); // add variables for new solution
 
 				solutionLoaded(getSolution());
@@ -1398,7 +1392,21 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		}
 	}
 
-	protected abstract void solutionLoaded(Solution s);
+	protected void solutionLoaded(Solution s)
+	{
+		// These lines must be before other solutionLoaded call implementations, because a long running process 
+		// (solution startup method) will never update the status.
+		try
+		{
+			getClientInfo().setOpenSolutionId(s.getSolutionMetaData().getRootObjectId());
+			getClientInfo().setOpenSolutionTimestamp(System.currentTimeMillis());
+			getClientHost().pushClientInfo(getClientInfo().getClientId(), getClientInfo());
+		}
+		catch (RemoteException e)
+		{
+			e.printStackTrace();
+		}
+	}
 
 	//server-to-desktop activation
 	public abstract void activateSolutionMethod(String globalMethodName, StartupArgumentsScope argumentsScope);

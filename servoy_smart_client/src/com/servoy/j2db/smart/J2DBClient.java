@@ -1819,6 +1819,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	@Override
 	protected void solutionLoaded(final Solution solution)
 	{
+		super.solutionLoaded(solution);
 		invokeLater(new Runnable()
 		{
 			/**
