@@ -245,4 +245,10 @@ public interface IXMLImportUserChannel extends InfoChannel
 	public int getAllowDataModelChange();
 
 	public boolean getDisplayDataModelChange();
+
+	/**
+	 * Asks if the sequences should be updated for the servers involved in the import.
+	 * If OK_ACTION is returned then the sequences will be updated, otherwise they wont be touched.
+	 */
+	public int askUpdateSequences();
 }
