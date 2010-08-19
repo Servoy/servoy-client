@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 import java.util.Map;
@@ -30,6 +30,10 @@ import com.servoy.j2db.persistence.IColumnTypes;
  */
 public interface IColumnConverter extends IColumnTypes
 {
+	public final String TO_OBJECT_NAME_PROPERTY = "globalConverterToObjectMethodName"; //$NON-NLS-1$
+	public final String FROM_OBJECT_NAME_PROPERTY = "globalConverterFromObjectMethodName"; //$NON-NLS-1$
+	public final String TYPE_NAME_PROPERTY = "type"; //$NON-NLS-1$
+
 	/**
 	 * Convert from column type to an Object.
 	 * 

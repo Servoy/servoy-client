@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 import java.util.ArrayList;
@@ -26,6 +26,8 @@ import java.util.TreeMap;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
+import com.servoy.j2db.dataprocessing.IColumnConverter;
+import com.servoy.j2db.dataprocessing.IColumnValidator;
 import com.servoy.j2db.persistence.MethodArgument.ArgumentType;
 import com.servoy.j2db.util.Utils;
 
@@ -94,6 +96,31 @@ public class MethodTemplate
 					+ "var args = [realValue];\n"
 					+ "return databaseManager.getDataSetByQuery(\"example_data\",\"select firstname + ' ' + lastname, employeeid from employees where employeeid = ?\",args,1);\n"
 					+ "}\n", false));
+
+		// column global converters
+		COMMON_TEMPLATES.put(IColumnConverter.FROM_OBJECT_NAME_PROPERTY, new MethodTemplate(
+			"Called for performing a conversion between a displayed value and a database value.", new MethodArgument("globalConverterObj2DB",
+				ArgumentType.Object, "the database value."), new MethodArgument[] { new MethodArgument("displayedValue", ArgumentType.Object,
+				"The displayed value."), new MethodArgument("dbType", ArgumentType.String, "The type of the database column. Can be one of \"" +
+				Column.getDisplayTypeString(IColumnTypes.TEXT) + "\", \"" + Column.getDisplayTypeString(IColumnTypes.INTEGER) + "\", \"" +
+				Column.getDisplayTypeString(IColumnTypes.NUMBER) + "\", \"" + Column.getDisplayTypeString(IColumnTypes.DATETIME) + "\" or \"" +
+				Column.getDisplayTypeString(IColumnTypes.MEDIA) + "\".") }, "// return the original value without conversion\n" + "return displayedValue;",
+			true));
+
+		COMMON_TEMPLATES.put(IColumnConverter.TO_OBJECT_NAME_PROPERTY,
+			new MethodTemplate("Called for performing a conversion between a database value and a displayed value.", new MethodArgument(
+				"globalConverterDB2Obj", ArgumentType.Object, "the displayed value."), new MethodArgument[] { new MethodArgument("databaseValue",
+				ArgumentType.Object, "The database value."), new MethodArgument("dbType", ArgumentType.String,
+				"The type of the database column. Can be one of \"" + Column.getDisplayTypeString(IColumnTypes.TEXT) + "\", \"" +
+					Column.getDisplayTypeString(IColumnTypes.INTEGER) + "\", \"" + Column.getDisplayTypeString(IColumnTypes.NUMBER) + "\", \"" +
+					Column.getDisplayTypeString(IColumnTypes.DATETIME) + "\" or \"" + Column.getDisplayTypeString(IColumnTypes.MEDIA) + "\".") },
+				"// return the original value without conversion\n" + "return databaseValue;", true));
+
+		// column global validator
+		COMMON_TEMPLATES.put(IColumnValidator.GLOBAL_METHOD_NAME_PROPERTY, new MethodTemplate(
+			"Called for performing validation on a value before storing it into the database.", new MethodArgument("globalValidator", ArgumentType.Boolean,
+				"the result of the validation."), new MethodArgument[] { new MethodArgument("value", ArgumentType.Object, "The value to be validated.") },
+			"return true;", true));
 	}
 
 	private final MethodArgument signature;

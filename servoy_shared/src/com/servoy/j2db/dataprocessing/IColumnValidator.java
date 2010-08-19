@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 import java.util.Map;
@@ -27,8 +27,10 @@ import com.servoy.j2db.persistence.IColumnTypes;
  */
 public interface IColumnValidator extends IColumnTypes
 {
+	public static final String GLOBAL_METHOD_NAME_PROPERTY = "globalMethodValidatorName"; //$NON-NLS-1$
+
 	/**
-	 * Validate an arguemnt, throws an IllegalArgumentException if validation fails
+	 * Validate an argument, throws an IllegalArgumentException if validation fails
 	 * 
 	 * @param props
 	 * @param arg
