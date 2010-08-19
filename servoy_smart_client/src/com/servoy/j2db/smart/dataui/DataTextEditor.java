@@ -742,11 +742,8 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 		}
 		if (editProvider != null) editProvider.setEditable(b);
 
-		if (b)
-		{
-			enclosedComponent.removeMouseListener(eventExecutor);
-		}
-		else
+		enclosedComponent.removeMouseListener(eventExecutor);
+		if (!b)
 		{
 			enclosedComponent.addMouseListener(eventExecutor);//listen when not editable
 		}
