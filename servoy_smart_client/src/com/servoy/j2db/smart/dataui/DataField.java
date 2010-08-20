@@ -75,8 +75,8 @@ import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.JSDataSet;
-import com.servoy.j2db.dataprocessing.ValueListFactory;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
+import com.servoy.j2db.dataprocessing.ValueListFactory;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.ScriptVariable;
@@ -1072,6 +1072,18 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 	@Override
 	protected void processFocusEvent(FocusEvent e)
 	{
+		if (e.getID() == FocusEvent.FOCUS_LOST)
+		{
+			try
+			{
+				commitEdit();
+			}
+			catch (ParseException ex)
+			{
+				Debug.error(ex);
+			}
+		}
+
 		boolean enableEdits = false;
 		if (getUndoManager() != null)
 		{
