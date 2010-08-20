@@ -26,9 +26,6 @@ import java.util.TreeMap;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
-import com.servoy.j2db.dataprocessing.IColumnConverter;
-import com.servoy.j2db.dataprocessing.IColumnValidator;
-import com.servoy.j2db.persistence.MethodArgument.ArgumentType;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -38,7 +35,7 @@ import com.servoy.j2db.util.Utils;
  * 
  */
 @SuppressWarnings("nls")
-public class MethodTemplate
+public class MethodTemplate implements IMethodTemplate
 {
 	private static final String TAG_METHODTEMPLATE = "methodtemplate";
 	private static final String ATTR_NAME = "name";
@@ -96,31 +93,6 @@ public class MethodTemplate
 					+ "var args = [realValue];\n"
 					+ "return databaseManager.getDataSetByQuery(\"example_data\",\"select firstname + ' ' + lastname, employeeid from employees where employeeid = ?\",args,1);\n"
 					+ "}\n", false));
-
-		// column global converters
-		COMMON_TEMPLATES.put(IColumnConverter.FROM_OBJECT_NAME_PROPERTY, new MethodTemplate(
-			"Called for performing a conversion between a displayed value and a database value.", new MethodArgument("globalConverterObj2DB",
-				ArgumentType.Object, "the database value."), new MethodArgument[] { new MethodArgument("displayedValue", ArgumentType.Object,
-				"The displayed value."), new MethodArgument("dbType", ArgumentType.String, "The type of the database column. Can be one of \"" +
-				Column.getDisplayTypeString(IColumnTypes.TEXT) + "\", \"" + Column.getDisplayTypeString(IColumnTypes.INTEGER) + "\", \"" +
-				Column.getDisplayTypeString(IColumnTypes.NUMBER) + "\", \"" + Column.getDisplayTypeString(IColumnTypes.DATETIME) + "\" or \"" +
-				Column.getDisplayTypeString(IColumnTypes.MEDIA) + "\".") }, "// return the original value without conversion\n" + "return displayedValue;",
-			true));
-
-		COMMON_TEMPLATES.put(IColumnConverter.TO_OBJECT_NAME_PROPERTY,
-			new MethodTemplate("Called for performing a conversion between a database value and a displayed value.", new MethodArgument(
-				"globalConverterDB2Obj", ArgumentType.Object, "the displayed value."), new MethodArgument[] { new MethodArgument("databaseValue",
-				ArgumentType.Object, "The database value."), new MethodArgument("dbType", ArgumentType.String,
-				"The type of the database column. Can be one of \"" + Column.getDisplayTypeString(IColumnTypes.TEXT) + "\", \"" +
-					Column.getDisplayTypeString(IColumnTypes.INTEGER) + "\", \"" + Column.getDisplayTypeString(IColumnTypes.NUMBER) + "\", \"" +
-					Column.getDisplayTypeString(IColumnTypes.DATETIME) + "\" or \"" + Column.getDisplayTypeString(IColumnTypes.MEDIA) + "\".") },
-				"// return the original value without conversion\n" + "return databaseValue;", true));
-
-		// column global validator
-		COMMON_TEMPLATES.put(IColumnValidator.GLOBAL_METHOD_NAME_PROPERTY, new MethodTemplate(
-			"Called for performing validation on a value before storing it into the database.", new MethodArgument("globalValidator", ArgumentType.Boolean,
-				"the result of the validation."), new MethodArgument[] { new MethodArgument("value", ArgumentType.Object, "The value to be validated.") },
-			"return true;", true));
 	}
 
 	private final MethodArgument signature;
@@ -139,6 +111,17 @@ public class MethodTemplate
 		this.addTodoBlock = addTodoBlock;
 	}
 
+	public MethodTemplate(IMethodTemplate templ)
+	{
+		this.signature = new MethodArgument(templ.getName(), templ.getReturnType(), templ.getReturnTypeDescription());
+		this.args = new MethodArgument[templ.getArguments().length];
+		for (int i = 0; i < templ.getArguments().length; i++)
+			args[i] = new MethodArgument(templ.getArguments()[i]);
+		this.description = templ.getDescription();
+		this.defaultMethodCode = templ.getDefaultMethodCode();
+		this.addTodoBlock = templ.addTodoBlock();
+	}
+
 	public MethodArgument[] getArguments()
 	{
 		return args;
@@ -147,6 +130,26 @@ public class MethodTemplate
 	public MethodArgument getSignature()
 	{
 		return signature;
+	}
+
+	public String getName()
+	{
+		return signature.getName();
+	}
+
+	public ArgumentType getReturnType()
+	{
+		return signature.getType();
+	}
+
+	public String getReturnTypeDescription()
+	{
+		return signature.getDescription();
+	}
+
+	public boolean addTodoBlock()
+	{
+		return addTodoBlock;
 	}
 
 	public String getMethodDeclaration(CharSequence name, CharSequence methodCode)
@@ -168,7 +171,7 @@ public class MethodTemplate
 			for (MethodArgument element : args)
 			{
 				sb.append(" * @param "); //$NON-NLS-1$
-				if (element.getType() != null && element.getType() != MethodArgument.ArgumentType.Object)
+				if (element.getType() != null && element.getType() != ArgumentType.Object)
 				{
 					sb.append('{').append(element.getType()).append("} "); //$NON-NLS-1$
 				}

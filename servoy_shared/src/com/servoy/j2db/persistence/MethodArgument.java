@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 import org.dom4j.DocumentHelper;
@@ -24,67 +24,11 @@ import org.dom4j.Element;
  * 
  */
 @SuppressWarnings("nls")
-public class MethodArgument
+public class MethodArgument implements IMethodArgument
 {
 	private static final String TAG_METHODARGUMENT = "methodargument";
 	private static final String ATTR_NAME = "name";
 	private static final String ATTR_TYPE = "type";
-
-	public static class ArgumentType
-	{
-		public static final ArgumentType String = new ArgumentType("String");
-		public static final ArgumentType Number = new ArgumentType("Number");
-		public static final ArgumentType Boolean = new ArgumentType("Boolean");
-		public static final ArgumentType Color = new ArgumentType("Color");
-		public static final ArgumentType Exception = new ArgumentType("Exception");
-		public static final ArgumentType JSRecord = new ArgumentType("JSRecord");
-		public static final ArgumentType JSEvent = new ArgumentType("JSEvent");
-		public static final ArgumentType JSDataSet = new ArgumentType("JSDataSet");
-		public static final ArgumentType Object = new ArgumentType("Object");
-
-		private final String name;
-
-		/**
-		 * @param string2
-		 */
-		private ArgumentType(String name)
-		{
-			this.name = name;
-		}
-
-		/**
-		 * @return the name
-		 */
-		public String getName()
-		{
-			return name;
-		}
-
-		@Override
-		public String toString()
-		{
-			return getName();
-		}
-
-		/**
-		 * @param typeStr
-		 * @return
-		 */
-		public static ArgumentType valueOf(String type)
-		{
-			if (type == null || Object.getName().equals(type)) return Object;
-			if (String.getName().equals(type)) return String;
-			if (Number.equals(type)) return Number;
-			if (Boolean.getName().equals(type)) return Boolean;
-			if (Color.getName().equals(type)) return Color;
-			if (Exception.getName().equals(type)) return Exception;
-			if (JSRecord.getName().equals(type)) return JSRecord;
-			if (JSEvent.getName().equals(type)) return JSEvent;
-			if (JSDataSet.getName().equals(type)) return JSDataSet;
-			return new ArgumentType(type);
-		}
-
-	}
 
 	private final String name;
 	private final String description;
@@ -95,6 +39,11 @@ public class MethodArgument
 		this.name = name;
 		this.type = type;
 		this.description = description;
+	}
+
+	public MethodArgument(IMethodArgument arg)
+	{
+		this(arg.getName(), arg.getType(), arg.getDescription());
 	}
 
 	public String getName()

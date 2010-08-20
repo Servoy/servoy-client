@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 import java.io.InputStream;
@@ -66,9 +66,9 @@ public class ClientMethodTemplatesLoader
 							MethodArgument[] args = new MethodArgument[argIndex + 1];
 							for (int i = 0; i < argIndex; i++)
 							{
-								args[i] = new MethodArgument(null, MethodArgument.ArgumentType.Object, null);
+								args[i] = new MethodArgument(null, ArgumentType.Object, null);
 							}
-							args[argIndex] = new MethodArgument(null, MethodArgument.ArgumentType.JSEvent, null);
+							args[argIndex] = new MethodArgument(null, ArgumentType.JSEvent, null);
 
 							MethodTemplate mt = new MethodTemplate(null, null, args, null, false);
 							MethodTemplate.COMMON_TEMPLATES.put(name, mt);

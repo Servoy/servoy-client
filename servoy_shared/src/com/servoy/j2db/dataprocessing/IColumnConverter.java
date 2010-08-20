@@ -30,10 +30,6 @@ import com.servoy.j2db.persistence.IColumnTypes;
  */
 public interface IColumnConverter extends IColumnTypes
 {
-	public final String TO_OBJECT_NAME_PROPERTY = "toObjectMethodName"; //$NON-NLS-1$
-	public final String FROM_OBJECT_NAME_PROPERTY = "fromObjectMethodName"; //$NON-NLS-1$
-	public final String TYPE_NAME_PROPERTY = "type"; //$NON-NLS-1$
-
 	/**
 	 * Convert from column type to an Object.
 	 * 
