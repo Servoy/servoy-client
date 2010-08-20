@@ -645,7 +645,26 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		super();// new InternationalFormatter()); //why is InternationalFormatter
 		// needed, causes trouble on date objects??
 		this.application = application;
-		eventExecutor = new EventExecutor(this);
+		eventExecutor = new EventExecutor(this)
+		{
+			@Override
+			public void fireLeaveCommands(Object display, boolean focusEvent, int modifiers)
+			{
+				if (hasLeaveCmds())
+				{
+					try
+					{
+						commitEdit();
+					}
+					catch (ParseException ex)
+					{
+						Debug.error(ex);
+					}
+				}
+
+				super.fireLeaveCommands(display, focusEvent, modifiers);
+			}
+		};
 		plainDocument = getDocument();
 		setDocument(editorDocument = new ValidatingDocument());
 
@@ -1072,18 +1091,6 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 	@Override
 	protected void processFocusEvent(FocusEvent e)
 	{
-		if (e.getID() == FocusEvent.FOCUS_LOST)
-		{
-			try
-			{
-				commitEdit();
-			}
-			catch (ParseException ex)
-			{
-				Debug.error(ex);
-			}
-		}
-
 		boolean enableEdits = false;
 		if (getUndoManager() != null)
 		{
