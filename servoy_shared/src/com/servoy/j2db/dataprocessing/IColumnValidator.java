@@ -27,7 +27,7 @@ import com.servoy.j2db.persistence.IColumnTypes;
  */
 public interface IColumnValidator extends IColumnTypes
 {
-	public static final String GLOBAL_METHOD_NAME_PROPERTY = "globalMethodValidatorName"; //$NON-NLS-1$
+	public static final String GLOBAL_METHOD_NAME_PROPERTY = "globalMethodName"; //$NON-NLS-1$
 
 	/**
 	 * Validate an argument, throws an IllegalArgumentException if validation fails
