@@ -16,10 +16,7 @@
  */
 package com.servoy.j2db.debug;
 
-import com.servoy.j2db.FormController;
-import com.servoy.j2db.IFormManager;
 import com.servoy.j2db.persistence.SolutionMetaData;
-import com.servoy.j2db.server.headlessclient.DummyMainContainer;
 
 
 /**
@@ -33,5 +30,11 @@ public class DebugAuthenticator extends DebugHeadlessClient
 	public DebugAuthenticator(String method, Object[] methodArgs, SolutionMetaData solution) throws Exception
 	{
 		super(null, null, null, method, methodArgs, solution);
+	}
+
+	@Override
+	protected int getSolutionTypeFilter()
+	{
+		return SolutionMetaData.AUTHENTICATOR;
 	}
 }

@@ -417,8 +417,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		catch (RepositoryException e)
 		{
 			Debug.error("Could not load solution " + (solutionMetaData == null ? "<none>" : solutionMetaData.getName()), e);
-			reportError(Messages.getString("servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>"
-				: solutionMetaData.getName() }), e);
+			reportError(
+				Messages.getString("servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>" : solutionMetaData.getName() }), e);
 		}
 	}
 
@@ -468,7 +468,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	protected int getSolutionTypeFilter()
 	{
-		return SolutionMetaData.SOLUTION | SolutionMetaData.LOGIN_SOLUTION | SolutionMetaData.AUTHENTICATOR;
+		return SolutionMetaData.SOLUTION;
 	}
 
 	public Object authenticate(String authenticator_solution, String method, Object[] credentials)
@@ -1204,8 +1204,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 						function,
 						gscope,
 						gscope,
-						Utils.arrayMerge((new Object[] { new Boolean(force) }), Utils.parseJSExpressions(getSolution().getInstanceMethodArguments(
-							"onCloseMethodID"))), false, false)); //$NON-NLS-1$
+						Utils.arrayMerge((new Object[] { new Boolean(force) }),
+							Utils.parseJSExpressions(getSolution().getInstanceMethodArguments("onCloseMethodID"))), false, false)); //$NON-NLS-1$
 				}
 				catch (Exception e1)
 				{
