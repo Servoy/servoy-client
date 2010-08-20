@@ -434,6 +434,13 @@ public class RepositoryHelper
 		{
 			return name.equals("loginSolutionName");
 		}
+		else if (persistClass.equals(ColumnInfo.class))
+		{
+			return name.equals("autoEnterSubType") || name.equals("autoEnterType") || name.equals("converterName") || name.equals("converterProperties") ||
+				name.equals("databaseDefaultValue") || name.equals("databaseSequenceName") || name.equals("defaultFormat") || name.equals("defaultValue") ||
+				name.equals("description") || name.equals("foreignType") || name.equals("lookupValue") || name.equals("titleText") ||
+				name.equals("validatorName") || name.equals("validatorProperties");
+		}
 		return false;
 	}
 

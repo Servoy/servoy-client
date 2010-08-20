@@ -20,6 +20,7 @@ package com.servoy.j2db.persistence;
 import java.rmi.RemoteException;
 import java.util.List;
 
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
@@ -29,6 +30,7 @@ import com.servoy.j2db.util.UUID;
  * 
  * @author jblok
  */
+@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Table")
 public class TableNode extends AbstractBase implements ISupportChilds
 {
 	/*
@@ -116,6 +118,9 @@ public class TableNode extends AbstractBase implements ISupportChilds
 		dataSource = (arg == null) ? null : arg.intern();
 	}
 
+	/**
+	 * The datasource of this table.
+	 */
 	public String getDataSource()
 	{
 		return dataSource;
@@ -180,6 +185,8 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	}
 
 	/**
+	 * A method that is executed before an insert operation. The method can block the insert operation by returning false.
+	 * 
 	 * @templatedescription 
 	 * Record pre-insert trigger
 	 * Validate the record to be inserted.
@@ -210,6 +217,8 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	}
 
 	/**
+	 * A method that is executed before an update operation. A method can block the update by returning false.
+	 * 
 	 * @templatedescription 
 	 * Record pre-update trigger
 	 * Validate the record to be updated.
@@ -240,6 +249,8 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	}
 
 	/**
+	 * A method that is executed before a delete operation. The method can block the delete operation by returning false.
+	 * 
 	 * @templatedescription 
 	 * Record pre-delete trigger
 	 * Validate the record to be deleted.
@@ -270,6 +281,8 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	}
 
 	/**
+	 * A method that is executed after an insert operation.
+	 * 
 	 * @templatedescription Record after-insert trigger
 	 * @templatename afterInsertRecord
 	 * @templateparam JSRecord record record that is inserted
@@ -287,6 +300,8 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	}
 
 	/**
+	 * A method that is executed after an update operation.
+	 * 
 	 * @templatedescription Record after-update trigger
 	 * @templatename afterUpdateRecord
 	 * @templateparam JSRecord record record that is updated
@@ -304,6 +319,8 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	}
 
 	/**
+	 * A method that is executed after a delete operation.
+	 * 
 	 * @templatedescription Record after-delete trigger
 	 * @templatename afterDeleteRecord
 	 * @templateparam JSRecord record record that is deleted

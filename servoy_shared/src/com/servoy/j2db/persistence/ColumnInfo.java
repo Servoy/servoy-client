@@ -19,6 +19,7 @@ package com.servoy.j2db.persistence;
 
 import java.io.Serializable;
 
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -26,6 +27,7 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jblok
  */
+@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Column")
 public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 {
 	public static final long serialVersionUID = -6167880772070620512L;
@@ -108,6 +110,10 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 		storedPersistently = true;
 	}
 
+	/**
+	 * Flag that shows if the column is excluded. Excluded columns are ignored by Servoy and are not
+	 * visible as data providers.
+	 */
 	public boolean isExcluded()
 	{
 		return hasFlag(Column.EXCLUDED_COLUMN);
@@ -133,11 +139,14 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	 */
 	private String databaseDefaultValue = null;
 
-	void setDatabaseDefaultValue(String value)
+	public void setDatabaseDefaultValue(String value)
 	{
 		databaseDefaultValue = value;
 	}
 
+	/**
+	 * The database default value that is used when autoenter is set to database default.
+	 */
 	public String getDatabaseDefaultValue()
 	{
 		return databaseDefaultValue;
@@ -145,6 +154,12 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 
 	/*
 	 * _____________________________________________________________ Property methods
+	 */
+
+	/**
+	 * The type of autoenter configured for the column. Can be one of: none,
+	 * system value, sequence, custom value or lookup value.
+	 * 
 	 */
 	public int getAutoEnterType()
 	{
@@ -158,6 +173,17 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 		autoEnterType = t;
 	}
 
+	/**
+	 * The subtype of autoenter configured for the column. The available options depend
+	 * on the type of autoenter. 
+	 * 
+	 * If autoenter is set to system value, then the subtype can be one of: none, creation datetime,
+	 * creation username, modification datetime, modification username, database managed,
+	 * creation user uid, modification user uid, creation server datetime or modification server datetime.
+	 * 
+	 * If autoenter is set to sequence, then the subtype can be one of: none, Servoy sequence,
+	 * database sequence, database identity or universally unique identifier.
+	 */
 	public int getAutoEnterSubType()
 	{
 		return autoEnterSubType;
@@ -170,6 +196,10 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 		autoEnterSubType = t;
 	}
 
+	/**
+	 * The database sequence name that is used when autoenter is set to sequence and autoenter subtype
+	 * is set to database sequence.
+	 */
 	public String getDatabaseSequenceName()
 	{
 		return databaseSequenceName;
@@ -245,6 +275,9 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 		sequenceStepSize = s;
 	}
 
+	/**
+	 * The value that is used when autoenter is set to custom value.
+	 */
 	public String getDefaultValue()
 	{
 		return defaultValue;
@@ -257,6 +290,9 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 		defaultValue = getNonEmptyValue(s);
 	}
 
+	/**
+	 * The lookup value that is used when autotype is set to lookup.
+	 */
 	public String getLookupValue()
 	{
 		return lookupValue;
@@ -269,6 +305,9 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 		lookupValue = getNonEmptyValue(s);
 	}
 
+	/**
+	 * The title of the column.
+	 */
 	public String getTitleText()
 	{
 		return titleText;
@@ -281,6 +320,9 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 		titleText = getNonEmptyValue(s);
 	}
 
+	/**
+	 * The description of the column.
+	 */
 	public String getDescription()
 	{
 		return description;
@@ -293,6 +335,9 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 		description = getNonEmptyValue(s);
 	}
 
+	/**
+	 * The properties of the converter used for this column.
+	 */
 	public String getConverterProperties()
 	{
 		return converterProperties;
@@ -305,6 +350,9 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 		converterProperties = getNonEmptyValue(s);
 	}
 
+	/**
+	 * The name of the converter used for this column.
+	 */
 	public String getConverterName()
 	{
 		return converterName;
@@ -317,6 +365,9 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 		converterName = getNonEmptyValue(s);
 	}
 
+	/**
+	 * The foreign type of the column. It is used for foreign key columns, to hold the foreign table they point to.
+	 */
 	public String getForeignType()
 	{
 		return foreignType;
@@ -329,6 +380,9 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 		foreignType = getNonEmptyValue(s);
 	}
 
+	/**
+	 * The properties of the validator used for the column.
+	 */
 	public String getValidatorProperties()
 	{
 		return validatorProperties;
@@ -341,6 +395,9 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 		validatorProperties = getNonEmptyValue(s);
 	}
 
+	/**
+	 * The name of the validator used for the column.
+	 */
 	public String getValidatorName()
 	{
 		return validatorName;
@@ -353,6 +410,9 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 		validatorName = getNonEmptyValue(s);
 	}
 
+	/**
+	 * The default format of the column.
+	 */
 	public String getDefaultFormat()
 	{
 		return this.defaultFormat;
