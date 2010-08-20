@@ -33,6 +33,7 @@ public class ArgumentType
 	public static final ArgumentType JSEvent = new ArgumentType("JSEvent"); //$NON-NLS-1$
 	public static final ArgumentType JSDataSet = new ArgumentType("JSDataSet"); //$NON-NLS-1$
 	public static final ArgumentType Object = new ArgumentType("Object"); //$NON-NLS-1$
+	public static final ArgumentType Date = new ArgumentType("Date"); //$NON-NLS-1$
 
 	private final String name;
 
@@ -76,4 +77,11 @@ public class ArgumentType
 		return new ArgumentType(type);
 	}
 
+	public static ArgumentType convertFromColumnType(int columnType)
+	{
+		if (columnType == IColumnTypes.DATETIME) return Date;
+		else if (columnType == IColumnTypes.INTEGER || columnType == IColumnTypes.NUMBER) return Number;
+		else if (columnType == IColumnTypes.TEXT) return String;
+		else return Object;
+	}
 }
