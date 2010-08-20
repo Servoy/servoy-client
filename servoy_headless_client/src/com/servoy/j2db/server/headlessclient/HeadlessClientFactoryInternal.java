@@ -20,6 +20,7 @@ import javax.servlet.ServletRequest;
 
 import com.servoy.j2db.ISessionClient;
 import com.servoy.j2db.persistence.InfoChannel;
+import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.server.shared.IApplicationServerSingleton;
 
@@ -59,7 +60,14 @@ public class HeadlessClientFactoryInternal
 		}
 		else
 		{
-			sc = new SessionClient(null, null, null, method, solutionOpenMethodArgs, authenticatorName);
+			sc = new SessionClient(null, null, null, method, solutionOpenMethodArgs, authenticatorName)
+			{
+				@Override
+				protected int getSolutionTypeFilter()
+				{
+					return SolutionMetaData.AUTHENTICATOR;
+				}
+			};
 		}
 		sc.loadSolution(authenticatorName);
 		return sc;
