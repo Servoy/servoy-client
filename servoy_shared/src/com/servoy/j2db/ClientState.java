@@ -417,8 +417,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		catch (RepositoryException e)
 		{
 			Debug.error("Could not load solution " + (solutionMetaData == null ? "<none>" : solutionMetaData.getName()), e);
-			reportError(
-				Messages.getString("servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>" : solutionMetaData.getName() }), e);
+			reportError(Messages.getString("servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>"
+				: solutionMetaData.getName() }), e);
 		}
 	}
 
@@ -1418,7 +1418,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		}
 		catch (RemoteException e)
 		{
-			e.printStackTrace();
+			Debug.error(e);
 		}
 	}
 
