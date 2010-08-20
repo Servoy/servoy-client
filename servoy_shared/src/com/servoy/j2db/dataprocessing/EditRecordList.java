@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -504,30 +504,22 @@ public class EditRecordList
 					}
 					else if (retValue instanceof Object[])
 					{
-						List<Integer> blobIndexes = new ArrayList<Integer>();
 						Object[] rowData = (Object[])retValue;
 						for (int j = 0; j < rowData.length; j++)
 						{
 							if (rowData[j] instanceof BlobMarkerValue)
 							{
-								blobIndexes.add(j);
-							}
-						}
-						if (blobIndexes.size() > 0)
-						{
-							Object[] oldRowData = row.getRawColumnData();
-							if (oldRowData != null)
-							{
-								if (oldRowData.length == rowData.length)
+								Object[] oldRowData = row.getRawColumnData();
+								if (oldRowData != null)
 								{
-									for (int j : blobIndexes)
+									if (oldRowData.length == rowData.length)
 									{
 										rowData[j] = oldRowData[j];
 									}
-								}
-								else
-								{
-									Debug.error("Requery data has different length from row data.");
+									else
+									{
+										Debug.error("Requery data has different length from row data.");
+									}
 								}
 							}
 						}
@@ -711,8 +703,8 @@ public class EditRecordList
 						Object[] methodArgs = new Object[] { record };
 						try
 						{
-							scriptEngine.executeFunction(((Function)function), gscope, gscope, Utils.arrayMerge(methodArgs,
-								Utils.parseJSExpressions(tn.getInstanceMethodArguments(methodKey))), false, false);
+							scriptEngine.executeFunction(((Function)function), gscope, gscope,
+								Utils.arrayMerge(methodArgs, Utils.parseJSExpressions(tn.getInstanceMethodArguments(methodKey))), false, false);
 						}
 						catch (Exception e)
 						{
@@ -785,8 +777,8 @@ public class EditRecordList
 						Object[] methodArgs = new Object[] { record };
 						try
 						{
-							Object retval = scriptEngine.executeFunction(((Function)function), gscope, gscope, Utils.arrayMerge(methodArgs,
-								Utils.parseJSExpressions(tn.getInstanceMethodArguments(methodKey))), false, true);
+							Object retval = scriptEngine.executeFunction(((Function)function), gscope, gscope,
+								Utils.arrayMerge(methodArgs, Utils.parseJSExpressions(tn.getInstanceMethodArguments(methodKey))), false, true);
 							if (Boolean.FALSE.equals(retval))
 							{
 								// update or insert method returned false. should block the save.
