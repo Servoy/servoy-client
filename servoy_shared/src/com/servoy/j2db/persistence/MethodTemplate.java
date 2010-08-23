@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 import java.util.ArrayList;
@@ -249,7 +249,7 @@ public class MethodTemplate
 					sb.append("return _super.").append(name);//$NON-NLS-1$
 					if (getArguments() == null || getArguments().length == 0)
 					{
-						sb.append(".apply(this, arguments)"); //$NON-NLS-1$
+						sb.append(".apply(this, arguments); // try to pass the arguments as a normal method call: _super." + name + "(arg1,arg2)"); //$NON-NLS-1$
 					}
 					else
 					{
