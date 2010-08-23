@@ -357,4 +357,6 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	public boolean isShutDown();
 
 	public DataServerProxy proxyDataServer();
+
+	public String getSolutionName();
 }
