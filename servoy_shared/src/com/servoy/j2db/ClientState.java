@@ -638,6 +638,12 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		return solutionRoot.getSolution();
 	}
 
+	public String getSolutionName()
+	{
+		// return name of main solution, also when user is in login solution
+		return solutionRoot.getMainSolutionMetaData().getName();
+	}
+
 	/**
 	 * @see com.servoy.j2db.IServiceProvider#getFlattenedSolution()
 	 */

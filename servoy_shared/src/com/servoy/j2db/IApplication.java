@@ -352,4 +352,6 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	public DataServerProxy proxyDataServer();
 
 	public JSWindowManager getJSWindowManager();
+
+	public String getSolutionName();
 }

@@ -364,7 +364,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 */
 	public String js_getSolutionName()
 	{
-		return application.getSolution().getName();
+		return application.getSolutionName();
 	}
 
 	/**
