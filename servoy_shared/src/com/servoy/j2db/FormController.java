@@ -88,13 +88,13 @@ import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.IScriptSupport;
 import com.servoy.j2db.scripting.InstanceJavaMembers;
+import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.JSWindowImpl;
+import com.servoy.j2db.scripting.JSWindowImpl.JSWindow;
 import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.scripting.SelectedRecordScope;
 import com.servoy.j2db.scripting.SolutionScope;
-import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
-import com.servoy.j2db.scripting.JSWindowImpl.JSWindow;
 import com.servoy.j2db.ui.IAccessible;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
@@ -970,27 +970,45 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * //Set the current form out of designmode (to normal browse)
 		 * %%prefix%%controller.setDesignMode(false);
 		 *
-		 * @param ondrag optional boolean to indicate the designmode state or onDrag method reference 
-		 * @param ondrop optional onDrop method reference 
-		 * @param onselect optional onSelect method reference
-		 * @param onresize optional onResize method reference
+		 * @param ondrag optional function onDrag method reference 
+		 * @param ondrop optional function onDrop method reference 
+		 * @param onselect optional function onSelect method reference
+		 * @param onresize optional function onResize method reference
 		 */
-		public void js_setDesignMode(Object[] args)
+		public void jsFunction_setDesignMode(Object[] args)
 		{
 			checkDestroyed();
 			if (args == null)
 			{
-				formController.setDesignMode(null);
+				jsFunction_setDesignMode(false);
 			}
 			else if (args.length == 1 && args[0] instanceof Boolean)
 			{
 				boolean b = ((Boolean)args[0]).booleanValue();
-				formController.setDesignMode(b ? new DesignModeCallbacks(new Object[0], formController.application) : null);
+				jsFunction_setDesignMode(b);
 			}
 			else
 			{
 				formController.setDesignMode(new DesignModeCallbacks(args, formController.application));
 			}
+		}
+
+		/**
+		 * Sets this form in designmode with param true, return to normal editmode with first parameter false.
+		 *
+		 * @sample
+		 * //Set the current form in designmode with no callbacks
+		 * %%prefix%%controller.setDesignMode(true);
+		 * 
+		 * //Set the current form out of designmode (to normal browse)
+		 * %%prefix%%controller.setDesignMode(false);
+		 *
+		 * @param designMode boolean sets form in design mode if true, false ends design mode.  
+		 */
+		public void jsFunction_setDesignMode(boolean design)
+		{
+			checkDestroyed();
+			formController.setDesignMode(design ? new DesignModeCallbacks(new Object[0], formController.application) : null);
 		}
 
 		/**
@@ -1001,7 +1019,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * 
 		 * @return the design mode state (true/fase)
 		 */
-		public boolean js_getDesignMode()
+		public boolean jsFunction_getDesignMode()
 		{
 			checkDestroyed();
 			return formController.getDesignMode();
