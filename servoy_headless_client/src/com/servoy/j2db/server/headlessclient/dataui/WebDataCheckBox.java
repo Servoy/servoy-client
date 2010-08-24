@@ -274,6 +274,7 @@ public class WebDataCheckBox extends MarkupContainer implements IFieldComponent,
 	}
 
 	private boolean wasEditable;
+	private boolean oldEditState;
 
 	public void setValidationEnabled(boolean b)
 	{
@@ -281,11 +282,13 @@ public class WebDataCheckBox extends MarkupContainer implements IFieldComponent,
 
 		if (b)
 		{
-			setEditable(wasEditable);
+			editable = wasEditable;
+			editState = oldEditState;
 		}
 		else
 		{
 			wasEditable = editable;
+			oldEditState = editState;
 			setEditable(true);
 		}
 		eventExecutor.setValidationEnabled(b);
