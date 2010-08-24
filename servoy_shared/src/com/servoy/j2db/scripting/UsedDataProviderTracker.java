@@ -125,7 +125,16 @@ public class UsedDataProviderTracker
 						{ // column
 							if (currentRecord != null)
 							{
-								usedColumn(currentRecord.getParentFoundSet().getDataSource(), currentRecord.getRawData().getPKHashKey(), primdp);
+								if (currentRecord.getRawData() == null)
+								{
+									// should not happen
+									Debug.error("Unexpected state: calculation depends on column '" + part + "' from record without pk: " + currentRecord,
+										new IllegalStateException());
+								}
+								else
+								{
+									usedColumn(currentRecord.getParentFoundSet().getDataSource(), currentRecord.getRawData().getPKHashKey(), primdp);
+								}
 							}
 						}
 					}
@@ -154,7 +163,16 @@ public class UsedDataProviderTracker
 							// field or calc
 							if (currentRecord.has(part))
 							{
-								usedColumn(foundSet.getDataSource(), currentRecord.getRawData().getPKHashKey(), part);
+								if (currentRecord.getRawData() == null)
+								{
+									// should not happen
+									Debug.error("Unexpected state: calculation depends on field '" + part + "' from record without pk: " + currentRecord,
+										new IllegalStateException());
+								}
+								else
+								{
+									usedColumn(foundSet.getDataSource(), currentRecord.getRawData().getPKHashKey(), part);
+								}
 							}
 						}
 					}
