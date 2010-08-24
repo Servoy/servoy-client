@@ -279,7 +279,7 @@ public class MethodTemplate implements IMethodTemplate
 					sb.append("return _super.").append(name);//$NON-NLS-1$
 					if (getArguments() == null || getArguments().length == 0)
 					{
-						sb.append(".apply(this, arguments)"); //$NON-NLS-1$
+						sb.append(".apply(this, arguments); // try to pass the arguments as a normal method call: _super." + name + "(arg1,arg2)"); //$NON-NLS-1$
 					}
 					else
 					{
