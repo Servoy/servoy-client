@@ -842,7 +842,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IScriptHtml
 	 */
 	public String js_getElementType()
 	{
-		return "BUTTON"; //$NON-NLS-1$
+		return "LABEL"; //$NON-NLS-1$
 	}
 
 	public String js_getDataProviderID()
