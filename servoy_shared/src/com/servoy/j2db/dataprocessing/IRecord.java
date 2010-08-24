@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 
@@ -28,7 +28,7 @@ public interface IRecord extends IRecordDeprecated
 	/**
 	 * Start the edit of a record, must be called before any setValue.
 	 * 
-	 * @return true if successfull start of edit, since the record can be locked
+	 * @return true if successful start of edit, since the record can be locked
 	 */
 	public boolean startEditing();
 

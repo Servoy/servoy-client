@@ -1490,8 +1490,8 @@ public class JSDatabaseManager
 	}
 
 	/**
-	 * Switches a named server to another named server with the same datamodel (Recommended to be used in an onLoad method for a solution).
-	 * return true if successfull.
+	 * Switches a named server to another named server with the same datamodel (recommended to be used in an onOpen method for a solution).
+	 * return true if successful.
 	 *
 	 * @sample
 	 * //dynamically changes a server for the entire solution, destination database server must contain the same tables/columns!

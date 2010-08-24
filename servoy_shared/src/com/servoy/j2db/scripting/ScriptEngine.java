@@ -183,7 +183,7 @@ public class ScriptEngine implements IScriptSupport
 		}
 		catch (Exception ex)
 		{
-			Debug.error("ScriptEngine init not completly successfull ", ex); //$NON-NLS-1$
+			Debug.error("ScriptEngine init not completly successfully ", ex); //$NON-NLS-1$
 		}
 		finally
 		{
