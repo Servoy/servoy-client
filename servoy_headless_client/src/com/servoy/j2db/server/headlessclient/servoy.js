@@ -630,12 +630,34 @@ if (typeof(Servoy.DD) == "undefined")
 				{
 					if(Servoy.DD.currentElement.length > 0)
 					{
-						Servoy.DD.currentElement.length = Math.max(0, Servoy.DD.currentElement.length - targetid.length);
-					}
-					if(Servoy.DD.currentElement.length > 0)
-					{						
-						targetid = Servoy.DD.currentElement[Servoy.DD.currentElement.length - 1];
-						wicketAjaxGet(Servoy.DD.dropCallback[targetid] + '&a=aHover&draggableID=' + this.id + '&targetID=' + targetid);
+						var hoverTarget = null;
+						var newCurrentElement = new Array();
+						var currentIdx = 0;
+						for(var i in Servoy.DD.currentElement)
+						{
+							var shouldRemove = false;
+							for(var j in targetid)
+							{
+								if(Servoy.DD.currentElement[i] == targetid[j].id)
+								{
+									shouldRemove = true;
+									if(hoverTarget == null && currentIdx > 0 )
+									{
+										hoverTarget = Servoy.DD.currentElement[currentIdx - 1];
+									}
+								}
+							}
+							if(!shouldRemove)
+							{
+								newCurrentElement[newCurrentElement.length] = Servoy.DD.currentElement[i];
+							}
+							currentIdx++;
+						}
+						Servoy.DD.currentElement = newCurrentElement;
+						if(hoverTarget != null && Servoy.DD.currentElement.length > 0 && hoverTarget == Servoy.DD.currentElement[Servoy.DD.currentElement.length-1])
+						{
+							wicketAjaxGet(Servoy.DD.dropCallback[hoverTarget] + '&a=aHover&draggableID=' + this.id + '&targetID=' + hoverTarget);
+						}
 					}
 				};
 
