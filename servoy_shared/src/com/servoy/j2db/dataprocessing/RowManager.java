@@ -1085,7 +1085,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		if (e.getType() == FoundSetEvent.NEW_FOUNDSET ||
 			(e.getType() == FoundSetEvent.CONTENTS_CHANGED && (e.getChangeType() == FoundSetEvent.CHANGE_INSERT || e.getChangeType() == FoundSetEvent.CHANGE_DELETE)))
 		{
-			if (sourceFoundset instanceof RelatedFoundSet)
+			if (sourceFoundset instanceof RelatedFoundSet && !sourceFoundset.isInFindMode())
 			{
 				String relationName = sourceFoundset.getRelationName();
 				// related foundset changed
