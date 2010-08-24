@@ -30,6 +30,7 @@ import org.apache.wicket.protocol.http.WebRequestCycle;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.protocol.http.WebSession;
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
@@ -47,12 +48,14 @@ import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.GlobalScope;
-import com.servoy.j2db.server.headlessclient.WebCredentials;
+import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.server.headlessclient.EmptyRequest;
 import com.servoy.j2db.server.headlessclient.SessionClient;
 import com.servoy.j2db.server.headlessclient.WebClient;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.WebClientsApplication;
+import com.servoy.j2db.server.headlessclient.WebCredentials;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.server.shared.IFlattenedSolutionDebugListener;
 import com.servoy.j2db.util.Debug;
@@ -75,6 +78,22 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	public void setDesignerCallback(IDesignerCallback designerCallback)
 	{
 		this.designerCallback = designerCallback;
+		if (debugJ2DBClient != null && debugJ2DBClient.getSolution() != null)
+		{
+			SolutionScope solutionScope = debugJ2DBClient.getScriptEngine().getSolutionScope();
+			designerCallback.addScriptObjects(solutionScope);
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.IDesignerCallback#addScriptObjects(org.mozilla.javascript.Scriptable)
+	 */
+	public void addScriptObjects(Scriptable scope)
+	{
+		if (designerCallback != null) designerCallback.addScriptObjects(scope);
+
 	}
 
 	public void refreshDebugClientsI18N()
@@ -377,7 +396,20 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 									Debug.log(e);
 								}
 
-								client[0] = new DebugJ2DBClient(DebugClientHandler.this);
+								client[0] = new DebugJ2DBClient(DebugClientHandler.this)
+								{
+									@Override
+									protected com.servoy.j2db.scripting.IExecutingEnviroment createScriptEngine()
+									{
+										IExecutingEnviroment sc = super.createScriptEngine();
+										if (designerCallback != null)
+										{
+											designerCallback.addScriptObjects(sc.getSolutionScope());
+										}
+
+										return sc;
+									}
+								};
 								client[0].setCurrent(currentSolution);
 							}
 						}

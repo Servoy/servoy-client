@@ -13,12 +13,16 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db;
+
+import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.persistence.Form;
 
 public interface IDesignerCallback
 {
 	public void showFormInDesigner(Form form);
+
+	public void addScriptObjects(Scriptable scope);
 }
