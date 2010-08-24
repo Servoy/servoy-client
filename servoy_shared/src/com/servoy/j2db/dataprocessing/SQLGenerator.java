@@ -569,6 +569,7 @@ public class SQLGenerator
 				if (qCol == null)
 				{
 					// not a column and not an aggregate
+					Debug.log("Ignoring search on unknown/unsupported data provider '" + dataProviderID + "'"); //$NON-NLS-1$ //$NON-NLS-2$ 
 					continue;
 				}
 
