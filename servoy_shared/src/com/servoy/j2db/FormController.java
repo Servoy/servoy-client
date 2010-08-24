@@ -1510,7 +1510,6 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	 */
 	private final TabSequence< ? > tabSequence;
 	private DesignModeCallbacks designMode;
-	private boolean designTableView = false;
 
 	public FormController(IApplication app, Form form, String namedInstance)
 	{
@@ -1534,6 +1533,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		return designMode != null;
 	}
 
+	private int previousType = -1;
+
 	/**
 	 * @param mode
 	 * @param controllerForm
@@ -1544,9 +1545,9 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		if (callback != null)
 		{
 			application.getFlattenedSolution().setInDesign(form);
-			if (currentViewType == LOCKED_TABLE_VIEW)
+			if (currentViewType == LOCKED_TABLE_VIEW || currentViewType == LIST_VIEW || currentViewType == LOCKED_LIST_VIEW)
 			{
-				designTableView = true;
+				previousType = currentViewType;
 				currentViewType = RECORD_VIEW;
 				recreateUI();
 			}
@@ -1558,11 +1559,11 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		else
 		{
 			application.getFlattenedSolution().setInDesign(null);
-			if (designTableView)
+			if (previousType != -1)
 			{
-				currentViewType = LOCKED_TABLE_VIEW;
+				currentViewType = previousType;
 				recreateUI();
-				designTableView = false;
+				previousType = -1;
 			}
 			else
 			{
