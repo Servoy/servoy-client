@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -44,7 +44,7 @@ public interface IWebClientPluginAccess extends IClientPluginAccess
 	 * @param url the url
 	 * @param target (_blank,_self, framename)
 	 * @param target_options usefull option for new window ('height=200,width=400,status=yes,toolbar=no,menubar=no,location=no')
-	 * @return true if successfull
+	 * @return true if successful
 	 */
 	public boolean showURL(String url, String target, String target_options);
 
@@ -55,7 +55,7 @@ public interface IWebClientPluginAccess extends IClientPluginAccess
 	 * @param target (_blank,_self, framename)
 	 * @param target_options usefull option for new window ('height=200,width=400,status=yes,toolbar=no,menubar=no,location=no')
 	 * @param timeout_ms time to act in milliseconds
-	 * @return true if successfull
+	 * @return true if successful
 	 */
 	public boolean showURL(String url, String target, String target_options, int timeout_ms);
 
