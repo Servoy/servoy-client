@@ -723,6 +723,16 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 				frame.getJMenuBar().setVisible(true);
 				((JPanel)super.getToolbarPanel()).setVisible(true);
 			}
+			invokeLater(new Runnable()
+			{
+				public void run()
+				{
+					if (getSolution() == null)
+					{
+						selectAndOpenSolution(); // automatically re-open solution in developer
+					}
+				}
+			});
 		}
 		return b;
 	}
