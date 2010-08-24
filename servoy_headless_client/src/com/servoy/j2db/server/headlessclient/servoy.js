@@ -602,7 +602,7 @@ if (typeof(Servoy.DD) == "undefined")
 					
 				dd.onMouseDown = function(e) {
 					requestFocus(this.id);
-				};
+				};					
 					
 				dd.startDrag = function(x, y) { 
 					wicketAjaxGet(callback + '&a=aStart&xc=' + x + '&yc=' + y + '&draggableID=' + this.id);
@@ -616,19 +616,51 @@ if (typeof(Servoy.DD) == "undefined")
 				};
 					
 				dd.onDragEnter = function(ev, targetid) {
-					targetid = targetid[targetid.length-1].id
-					Servoy.DD.currentElement[Servoy.DD.currentElement.length] = targetid;
-					wicketAjaxGet(Servoy.DD.dropCallback[targetid] + '&a=aHover&draggableID=' + this.id + '&targetID=' + targetid);
+					var target;					
+					for(var i in targetid)
+					{						
+						target = targetid[i].id;
+						Servoy.DD.currentElement[Servoy.DD.currentElement.length] = target;
+					}
+ 
+					wicketAjaxGet(Servoy.DD.dropCallback[target] + '&a=aHover&draggableID=' + this.id + '&targetID=' + target);
 				};
-				
+
 				dd.onDragOut = function(ev, targetid)
 				{
-					targetid = targetid[targetid.length-1].id
 					if(Servoy.DD.currentElement.length > 0)
-						Servoy.DD.currentElement.length = Servoy.DD.currentElement.length-1;
+					{
+						var hoverTarget = null;
+						var newCurrentElement = new Array();
+						var currentIdx = 0;
+						for(var i in Servoy.DD.currentElement)
+						{
+							var shouldRemove = false;
+							for(var j in targetid)
+							{
+								if(Servoy.DD.currentElement[i] == targetid[j].id)
+								{
+									shouldRemove = true;
+									if(hoverTarget == null && currentIdx > 0 )
+									{
+										hoverTarget = Servoy.DD.currentElement[currentIdx - 1];
+									}
+								}
+							}
+							if(!shouldRemove)
+							{
+								newCurrentElement[newCurrentElement.length] = Servoy.DD.currentElement[i];
+							}
+							currentIdx++;
+						}
+						Servoy.DD.currentElement = newCurrentElement;
+						if(hoverTarget != null && Servoy.DD.currentElement.length > 0 && hoverTarget == Servoy.DD.currentElement[Servoy.DD.currentElement.length-1])
+						{
+							wicketAjaxGet(Servoy.DD.dropCallback[hoverTarget] + '&a=aHover&draggableID=' + this.id + '&targetID=' + hoverTarget);
+						}
+					}
 				};
-				
-							
+
 				dd.onDragDrop = function(ev, targetid) {
 					if (Servoy.DD.isDragStarted)
 					{
