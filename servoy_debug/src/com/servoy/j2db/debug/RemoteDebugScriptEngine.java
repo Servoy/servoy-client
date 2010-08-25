@@ -140,7 +140,7 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 
 			public void contextReleased(Context cx)
 			{
-				if (manager.get() != null && application.isEventDispatchThread())
+				if (manager.get() != null && application.isEventDispatchThread() && !(Thread.currentThread() instanceof ServoyDebugger))
 				{
 					if (debugger != null) debugger.setStackManager(manager.get());
 					manager.remove();
@@ -163,7 +163,7 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 					}
 					// executing can be done multiply in a thread (calc)
 					// only allow the event threads (AWT and web client request thread) to debug.
-					boolean isDispatchThread = application.isEventDispatchThread();
+					boolean isDispatchThread = application.isEventDispatchThread() && !(Thread.currentThread() instanceof ServoyDebugger);
 					if (isDispatchThread && application instanceof IWebClientApplication)
 					{
 						isDispatchThread = RequestCycle.get() != null; // for web client test extra if this is a Request thread.

@@ -86,6 +86,7 @@ import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.IScriptSupport;
 import com.servoy.j2db.scripting.JSWindowImpl;
+import com.servoy.j2db.scripting.ServoyDebugger;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.server.shared.IApplicationServerAccess;
@@ -445,6 +446,12 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 				}
 			});
 		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_L, menuShortcutKeyMask), "CTRL+L");
+	}
+
+	@Override
+	public boolean isEventDispatchThread()
+	{
+		return super.isEventDispatchThread() || Thread.currentThread() instanceof ServoyDebugger;
 	}
 
 	/**
