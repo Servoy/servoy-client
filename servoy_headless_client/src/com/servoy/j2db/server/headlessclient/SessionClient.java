@@ -1183,6 +1183,16 @@ public class SessionClient extends ClientState implements ISessionClient
 		return HEADLESS_CLIENT;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.IApplication#getOSName()
+	 */
+	public String getOSName()
+	{
+		return System.getProperty("os.name"); //$NON-NLS-1$
+	}
+
 	public int getClientPlatform()
 	{
 		// unknown client platform, overridden in WebClient

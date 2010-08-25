@@ -86,6 +86,14 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	public int getApplicationType();
 
 	/**
+	 * Get the Operation System name where the client runs in like "Windows 7"
+	 * 
+	 * @return the Operation System name where the client runs in.
+	 */
+	String getOSName();
+
+
+	/**
 	 * Get the platform of the client, local platform for smart client, browser platform for web client.
 	 */
 	public int getClientPlatform();
