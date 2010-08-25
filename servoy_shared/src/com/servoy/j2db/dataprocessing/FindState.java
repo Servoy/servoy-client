@@ -206,6 +206,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 			}
 		}
 
+		Debug.log("Ignoring unknown data provider '" + dataProviderID + "' in find mode"); //$NON-NLS-1$ //$NON-NLS-2$ 
 		return null;
 	}
 
