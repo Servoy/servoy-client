@@ -773,10 +773,35 @@ public class SwingFormManager extends FormManager implements ISwingFormManager, 
 			}
 			else
 			{
-				sfd.setVisible(true);
-				if (bringToFrontNeeded)
+				if (Utils.getPlatform() == Utils.PLATFORM_LINUX)
 				{
-					sfd.toFront();
+					final boolean finalBringToFrontNeeded = bringToFrontNeeded;
+					getApplication().invokeLater(new Runnable()
+					{
+						public void run()
+						{
+							getApplication().invokeLater(new Runnable()
+							{
+								public void run()
+								{
+									fd.getRootPane().requestFocus();
+								}
+							});
+							fd.setVisible(true);
+							if (finalBringToFrontNeeded)
+							{
+								fd.toFront();
+							}
+						}
+					});
+				}
+				else
+				{
+					sfd.setVisible(true);
+					if (bringToFrontNeeded)
+					{
+						sfd.toFront();
+					}
 				}
 			}
 
