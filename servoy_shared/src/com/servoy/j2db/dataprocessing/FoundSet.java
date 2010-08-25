@@ -44,6 +44,7 @@ import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.AggregateVariable;
 import com.servoy.j2db.persistence.Column;
@@ -269,8 +270,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		// do get the sql select with the omitted pks, else a find that didn't get anything will not 
 		// just display the records without the omitted pks (when clear omit is false)
-		refreshFromDBInternal(fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), creationSqlSelect, null, true, omittedPKs, lastSortColumns,
-			true), flushRelatedFS, false, fsm.pkChunkSize, false);
+		refreshFromDBInternal(
+			fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), creationSqlSelect, null, true, omittedPKs, lastSortColumns, true),
+			flushRelatedFS, false, fsm.pkChunkSize, false);
 	}
 
 	protected void clearOmit(QuerySelect sqlSelect)
@@ -1291,8 +1293,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				customQuery = query.substring(0, order_by_index) + ((level > 0) ? "" : query.substring(i - 1)); //$NON-NLS-1$
 				order_by_index = customQuery.toLowerCase().lastIndexOf("order by"); //$NON-NLS-1$
 			}
-			sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH, new SetCondition(ISQLCondition.EQUALS_OPERATOR,
-				pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), new QueryCustomSelect(customQuery, whereArgs), true));
+			sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH,
+				new SetCondition(ISQLCondition.EQUALS_OPERATOR, pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), new QueryCustomSelect(
+					customQuery, whereArgs), true));
 
 			// set the previous sort, add all joins that are needed for this sort
 			List<IQuerySort> origSorts = originalQuery.getSorts();
@@ -3136,8 +3139,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					{
 						try
 						{
-							Object retval = scriptEngine.executeFunction(((Function)function), gscope, gscope, Utils.arrayMerge((new Object[] { record }),
-								Utils.parseJSExpressions(tn.getInstanceMethodArguments("onDeleteMethodID"))), false, true); //$NON-NLS-1$
+							Object retval = scriptEngine.executeFunction(
+								((Function)function),
+								gscope,
+								gscope,
+								Utils.arrayMerge((new Object[] { record }), Utils.parseJSExpressions(tn.getInstanceMethodArguments("onDeleteMethodID"))), false, true); //$NON-NLS-1$
 							if (Boolean.FALSE.equals(retval))
 							{
 								// delete method returned false. should block the delete.
@@ -3181,8 +3187,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					{
 						try
 						{
-							scriptEngine.executeFunction(((Function)function), gscope, gscope, Utils.arrayMerge((new Object[] { record }),
-								Utils.parseJSExpressions(tn.getInstanceMethodArguments("onAfterDeleteMethodID"))), false, false); //$NON-NLS-1$
+							scriptEngine.executeFunction(
+								((Function)function),
+								gscope,
+								gscope,
+								Utils.arrayMerge((new Object[] { record }), Utils.parseJSExpressions(tn.getInstanceMethodArguments("onAfterDeleteMethodID"))), false, false); //$NON-NLS-1$
 						}
 						catch (Exception e)
 						{
@@ -4086,10 +4095,29 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 						{
 							for (int i = 0; i < pks.getRowCount(); i++)
 							{
-								if (Utils.equalObjects(pk, pks.getRow(i)))
+								Object[] pksRow = pks.getRow(i);
+								if (pk != null && pksRow != null && pk.length == pksRow.length)
 								{
-									newRec = i;
-									break;
+									boolean equal = true;
+									for (int p = 0; equal && p < pk.length; p++)
+									{
+										Object pkval = pksRow[p];
+										if (pkval instanceof DbIdentValue)
+										{
+											pkval = ((DbIdentValue)pkval).getPkValue();
+											if (pkval != null)
+											{
+												// update ident value in pksAndRecords
+												pksRow[p] = pkval;
+											}
+										}
+										equal = Utils.equalObjects(pk[p], pkval);
+									}
+									if (equal)
+									{
+										newRec = i;
+										break;
+									}
 								}
 							}
 							if (newRec != -1 && cachedRecords != null)
@@ -4958,8 +4986,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			{
 				for (TableFilter tf : foundSetFilters)
 				{
-					creationSqlSelect.addCondition(SQLGenerator.CONDITION_FILTER, SQLGenerator.createTableFilterCondition(creationSqlSelect.getTable(),
-						sheet.getTable(), tf));
+					creationSqlSelect.addCondition(SQLGenerator.CONDITION_FILTER,
+						SQLGenerator.createTableFilterCondition(creationSqlSelect.getTable(), sheet.getTable(), tf));
 				}
 			}
 		}
