@@ -417,8 +417,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		catch (RepositoryException e)
 		{
 			Debug.error("Could not load solution " + (solutionMetaData == null ? "<none>" : solutionMetaData.getName()), e);
-			reportError(
-				Messages.getString("servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>" : solutionMetaData.getName() }), e);
+			reportError(Messages.getString("servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>"
+				: solutionMetaData.getName() }), e);
 		}
 	}
 
@@ -511,6 +511,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			{
 				// keep last successful authentication result for reconnect
 				clientInfo.setLastAuthentication(credentials.getAuthenticatorType(), credentials.getMethod(), credentials.getJscredentials());
+				loggedIn();
 			}
 
 			return login.getJsReturn();
@@ -519,6 +520,11 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		{
 			throw new RepositoryException(e);
 		}
+	}
+
+	protected void loggedIn()
+	{
+		// do nothing here
 	}
 
 	public void logout(@SuppressWarnings("unused") Object[] solution_to_open_args)
@@ -1196,8 +1202,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 						function,
 						gscope,
 						gscope,
-						Utils.arrayMerge((new Object[] { new Boolean(force) }),
-							Utils.parseJSExpressions(getSolution().getInstanceMethodArguments("onCloseMethodID"))), false, false)); //$NON-NLS-1$
+						Utils.arrayMerge((new Object[] { new Boolean(force) }), Utils.parseJSExpressions(getSolution().getInstanceMethodArguments(
+							"onCloseMethodID"))), false, false)); //$NON-NLS-1$
 				}
 				catch (Exception e1)
 				{

@@ -219,6 +219,12 @@ public class SessionClient extends ClientState implements ISessionClient
 	public void clearLoginForm()
 	{
 		super.clearLoginForm();
+		loggedIn();
+	}
+
+	@Override
+	protected void loggedIn()
+	{
 		credentials.setPassword(""); //$NON-NLS-1$
 		credentials.setUserName(getClientInfo().getUserUid());
 	}
