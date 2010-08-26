@@ -381,6 +381,11 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 			else
 			{
 				setIcon(null);
+				if (application.getI18NMessage("servoy.imageMedia.loadingImage").equals(enclosedComponent.getText())) //$NON-NLS-1$
+				{
+					enclosedComponent.setText(null);
+				}
+
 			}
 		}
 		finally
