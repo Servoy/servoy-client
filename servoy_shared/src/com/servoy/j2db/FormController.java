@@ -1005,10 +1005,10 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 *
 		 * @param designMode boolean sets form in design mode if true, false ends design mode.  
 		 */
-		public void jsFunction_setDesignMode(boolean design)
+		public void jsFunction_setDesignMode(boolean designMode)
 		{
 			checkDestroyed();
-			formController.setDesignMode(design ? new DesignModeCallbacks(new Object[0], formController.application) : null);
+			formController.setDesignMode(designMode ? new DesignModeCallbacks(new Object[0], formController.application) : null);
 		}
 
 		/**
