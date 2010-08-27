@@ -2239,7 +2239,7 @@ public class Utils
 
 	public static boolean writeTXTFile(File f, String content, Charset charset)
 	{
-		if (f != null && f.exists())
+		if (f != null)
 		{
 			FileOutputStream fos = null;
 			try
@@ -2253,7 +2253,7 @@ public class Utils
 			}
 			catch (Exception e)
 			{
-				Debug.error("Error reading txt file: " + f, e); //$NON-NLS-1$
+				Debug.error("Error writing txt file: " + f, e); //$NON-NLS-1$
 			}
 			finally
 			{
