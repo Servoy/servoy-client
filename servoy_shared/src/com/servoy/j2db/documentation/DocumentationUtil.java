@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.documentation;
 
+import com.servoy.j2db.documentation.scripting.docs.Function;
+
 /**
  * Utility class for documentation management.
  * 
@@ -39,8 +41,13 @@ public class DocumentationUtil
 		else if (Boolean.TYPE.getName().equals(type)) return Boolean.TYPE;
 		else
 		{
-			Class< ? > c = Class.forName(type);
-			return c;
+			// special case for "function"
+			if (type.toLowerCase().trim().equals("function")) return Function.class; //$NON-NLS-1$
+			else
+			{
+				Class< ? > c = Class.forName(type);
+				return c;
+			}
 		}
 	}
 

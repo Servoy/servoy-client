@@ -270,9 +270,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		// do get the sql select with the omitted pks, else a find that didn't get anything will not 
 		// just display the records without the omitted pks (when clear omit is false)
-		refreshFromDBInternal(
-			fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), creationSqlSelect, null, true, omittedPKs, lastSortColumns, true),
-			flushRelatedFS, false, fsm.pkChunkSize, false);
+		refreshFromDBInternal(fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), creationSqlSelect, null, true, omittedPKs, lastSortColumns,
+			true), flushRelatedFS, false, fsm.pkChunkSize, false);
 	}
 
 	protected void clearOmit(QuerySelect sqlSelect)
@@ -1293,9 +1292,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				customQuery = query.substring(0, order_by_index) + ((level > 0) ? "" : query.substring(i - 1)); //$NON-NLS-1$
 				order_by_index = customQuery.toLowerCase().lastIndexOf("order by"); //$NON-NLS-1$
 			}
-			sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH,
-				new SetCondition(ISQLCondition.EQUALS_OPERATOR, pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), new QueryCustomSelect(
-					customQuery, whereArgs), true));
+			sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH, new SetCondition(ISQLCondition.EQUALS_OPERATOR,
+				pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), new QueryCustomSelect(customQuery, whereArgs), true));
 
 			// set the previous sort, add all joins that are needed for this sort
 			List<IQuerySort> origSorts = originalQuery.getSorts();
@@ -2035,7 +2033,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * %%prefix%%foundset.duplicateRecord(3,true,true);
 	 * 
 	 * @param index optional index of record to duplicate; defaults to currently selected index. Ignored if first given parameter is a boolean value.
-	 * @param location optional boolean or number when true the new record is added as the topmost record, when a number, the new record is added at specified index ; defaults to 1.
+	 * @param location optional a boolean or number when true the new record is added as the topmost record, when a number, the new record is added at specified index ; defaults to 1.
 	 * @param changeSelection optional boolean when true the selection is changed to the duplicated record; defaults to true.
 	 *  
 	 * @return true if succesful
@@ -2123,7 +2121,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * %%prefix%%foundset.newRecord();
 	 * //%%prefix%%foundset.newRecord(2); //adds as second record
 	 *
-	 * @param location optional boolean or number when true the new record is added as the topmost record, when a number, the new record is added at specified index ; defaults to 1.
+	 * @param location optional a boolean or number when true the new record is added as the topmost record, when a number, the new record is added at specified index ; defaults to 1.
 	 * @param changeSelection optional boolean when true the selection is changed to the new record; defaults to true.
 	 * 
 	 * @return int index of new record.
@@ -3139,11 +3137,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					{
 						try
 						{
-							Object retval = scriptEngine.executeFunction(
-								((Function)function),
-								gscope,
-								gscope,
-								Utils.arrayMerge((new Object[] { record }), Utils.parseJSExpressions(tn.getInstanceMethodArguments("onDeleteMethodID"))), false, true); //$NON-NLS-1$
+							Object retval = scriptEngine.executeFunction(((Function)function), gscope, gscope, Utils.arrayMerge((new Object[] { record }),
+								Utils.parseJSExpressions(tn.getInstanceMethodArguments("onDeleteMethodID"))), false, true); //$NON-NLS-1$
 							if (Boolean.FALSE.equals(retval))
 							{
 								// delete method returned false. should block the delete.
@@ -3187,11 +3182,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					{
 						try
 						{
-							scriptEngine.executeFunction(
-								((Function)function),
-								gscope,
-								gscope,
-								Utils.arrayMerge((new Object[] { record }), Utils.parseJSExpressions(tn.getInstanceMethodArguments("onAfterDeleteMethodID"))), false, false); //$NON-NLS-1$
+							scriptEngine.executeFunction(((Function)function), gscope, gscope, Utils.arrayMerge((new Object[] { record }),
+								Utils.parseJSExpressions(tn.getInstanceMethodArguments("onAfterDeleteMethodID"))), false, false); //$NON-NLS-1$
 						}
 						catch (Exception e)
 						{
@@ -4986,8 +4978,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			{
 				for (TableFilter tf : foundSetFilters)
 				{
-					creationSqlSelect.addCondition(SQLGenerator.CONDITION_FILTER,
-						SQLGenerator.createTableFilterCondition(creationSqlSelect.getTable(), sheet.getTable(), tf));
+					creationSqlSelect.addCondition(SQLGenerator.CONDITION_FILTER, SQLGenerator.createTableFilterCondition(creationSqlSelect.getTable(),
+						sheet.getTable(), tf));
 				}
 			}
 		}
