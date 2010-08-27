@@ -1164,7 +1164,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 	 * @templatedescription Callback method for data broadcast
 	 * @templatename onDataBroadcast
 	 * @templateparam String dataSource table data source
-	 * @templateparam Number action see ACTION constants
+	 * @templateparam Number action see SQL_ACTION_TYPES constants
 	 * @templateparam JSDataSet pks affected primary keys
 	 * @templateparam Boolean cached data was cached
 	 * @templateaddtodo

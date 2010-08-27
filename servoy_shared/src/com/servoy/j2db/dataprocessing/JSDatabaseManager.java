@@ -63,6 +63,7 @@ import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.IScriptObject;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.scripting.info.COLUMNTYPE;
+import com.servoy.j2db.scripting.info.SQL_ACTION_TYPES;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
@@ -82,7 +83,7 @@ public class JSDatabaseManager
 		{
 			public Class< ? >[] getAllReturnedTypes()
 			{
-				return new Class< ? >[] { COLUMNTYPE.class, JSColumn.class, JSDataSet.class, JSFoundSetUpdater.class, JSTable.class };
+				return new Class< ? >[] { COLUMNTYPE.class, SQL_ACTION_TYPES.class, JSColumn.class, JSDataSet.class, JSFoundSetUpdater.class, JSTable.class };
 			}
 		});
 	}
@@ -328,8 +329,8 @@ public class JSDatabaseManager
 						QueryJoin join = (QueryJoin)sql.getJoin(oldTable, r.getName());
 						if (join == null)
 						{
-							join = SQLGenerator.createJoin(application.getFlattenedSolution(), r, oldTable,
-								new QueryTable(ft.getSQLName(), ft.getCatalog(), ft.getSchema()), fs_old);
+							join = SQLGenerator.createJoin(application.getFlattenedSolution(), r, oldTable, new QueryTable(ft.getSQLName(), ft.getCatalog(),
+								ft.getSchema()), fs_old);
 							sql.addJoin(join);
 						}
 
@@ -1381,7 +1382,7 @@ public class JSDatabaseManager
 									IDataSet pks = new BufferedDataSet();
 									pks.addRow(new Object[] { ValueFactory.createTableFlushValue() });//unknown number of records changed
 
-									SQLStatement statement = new SQLStatement(ISQLStatement.UPDATE_ACTION, table.getServerName(), table.getName(), pks,
+									SQLStatement statement = new SQLStatement(ISQLActionTypes.UPDATE_ACTION, table.getServerName(), table.getName(), pks,
 										transaction_id, qUpdate, fsm.getTableFilterParams(table.getServerName(), qUpdate));
 
 									updates.add(statement);
@@ -1398,7 +1399,7 @@ public class JSDatabaseManager
 				QueryColumn qc = new QueryColumn(qTable, pkc.getID(), pkc.getSQLName(), pkc.getType(), pkc.getLength(), pkc.getScale());
 				ISQLCondition condition = new CompareCondition(ISQLCondition.EQUALS_OPERATOR, qc, sourceRecordPK);
 				qDelete.setCondition(condition);
-				SQLStatement statement = new SQLStatement(ISQLStatement.DELETE_ACTION, mainTable.getServerName(), mainTable.getName(), pks, transaction_id,
+				SQLStatement statement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, mainTable.getServerName(), mainTable.getName(), pks, transaction_id,
 					qDelete, fsm.getTableFilterParams(mainTable.getServerName(), qDelete));
 				updates.add(statement);
 

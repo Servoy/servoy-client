@@ -13,9 +13,8 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
-
 
 
 import java.io.Serializable;
@@ -26,14 +25,8 @@ import com.servoy.j2db.query.ISQLUpdate;
  * Object that must be Serializable and contains the insert or update info.
  * @author		jblok
  */
-public interface ISQLStatement extends Serializable
+public interface ISQLStatement extends Serializable, ISQLActionTypes
 {
-	public static final int NO_ACTION = 0;
-	public static final int DELETE_ACTION = 1;
-	public static final int INSERT_ACTION = 2;
-	public static final int UPDATE_ACTION = 3;
-	public static final int SELECT_ACTION = 4;
-
 	public int getAction();
 
 	/**
@@ -41,6 +34,7 @@ public interface ISQLStatement extends Serializable
 	 * @return String
 	 */
 	public String getServerName();
+
 	public void setServerName(String name);
 
 	/**
@@ -48,7 +42,7 @@ public interface ISQLStatement extends Serializable
 	 * @return String
 	 */
 	public String getTableName();
-	
+
 	/**
 	 * Get the pk columns.
 	 * @return the pks
@@ -60,7 +54,7 @@ public interface ISQLStatement extends Serializable
 	 * @return ISQLUpdate update
 	 */
 	public ISQLUpdate getUpdate();
-	
+
 	/**
 	 * Get the transactionID.
 	 * @return String the id ,null if none

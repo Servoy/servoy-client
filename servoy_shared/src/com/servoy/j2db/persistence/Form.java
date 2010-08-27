@@ -2059,9 +2059,12 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	/**
 	 * The method that is triggered when (non Design Mode) dragging over a component occurs.
 	 * 
-	 * @templatedescription Handle a drag over. Determines of a drop is allowed in this location
+	 * @templatedescription 
+	 * Handle a drag over. Determines of a drop is allowed in this location.
+	 * 
+	 * Return true is drop is allowed, otherwise false.
 	 * @templatename onDragOver
-	 * @templatetype Boolean  return true is drop is allowed, otherwise false
+	 * @templatetype Boolean
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 * @templatecode
