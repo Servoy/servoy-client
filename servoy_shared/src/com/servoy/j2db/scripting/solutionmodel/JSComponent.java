@@ -303,6 +303,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * components have the same group ID then they belong to the same
 	 * group of components. Using the group itself, all components can
 	 * be disabled/enabled or made invisible/visible.
+	 * The group id should be a javascript compatible identifier to allow access of the group in scripting.
 	 *
 	 * @sample 
 	 * var form = solutionModel.newForm('someForm', 'example_data', 'parent_table', 'null', false, 400, 300);
