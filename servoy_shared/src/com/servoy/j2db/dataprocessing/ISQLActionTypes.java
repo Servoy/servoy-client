@@ -28,8 +28,6 @@ public interface ISQLActionTypes
 	 * Constant expressing that no SQL action took place.
 	 * 
 	 * @sample
-	 * // solution onDataBroadcast event handler 
-	 * function onDataBroadcast(dataSource, action, pks, cached) {
 	 * 	if (action == SQL_ACTION_TYPES.INSERT_ACTION)
 	 * 		application.output("it was an insert");
 	 * 	else if (action == SQL_ACTION_TYPES.DELETE_ACTION)
@@ -42,27 +40,34 @@ public interface ISQLActionTypes
 	 * 		application.output("it was nothing");
 	 * 	else
 	 * 		application.output("what was this?");
-	 * }
 	 */
 	public static final int NO_ACTION = 0;
 
 	/**
 	 * Constant for the "delete" SQL action.
+	 * 
+	 * @sampleas NO_ACTION
 	 */
 	public static final int DELETE_ACTION = 1;
 
 	/**
 	 * Constant for the "insert" SQL action.
+	 * 
+	 * @sampleas NO_ACTION
 	 */
 	public static final int INSERT_ACTION = 2;
 
 	/**
 	 * Constant for the "update" SQL action.
+	 * 
+	 * @sampleas NO_ACTION
 	 */
 	public static final int UPDATE_ACTION = 3;
 
 	/**
 	 * Constant for the "select" SQL action.
+	 * 
+	 * @sampleas NO_ACTION
 	 */
 	public static final int SELECT_ACTION = 4;
 }
