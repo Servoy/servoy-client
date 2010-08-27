@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting.solutionmodel;
 
 import java.awt.Dimension;
@@ -287,6 +287,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * components have the same group ID then they belong to the same
 	 * group of components. Using the group itself, all components can
 	 * be disabled/enabled or made invisible/visible.
+	 * The group id should be a javascript compatible identifier to allow access of the group in scripting.
 	 *
 	 * @sample 
 	 * var form = solutionModel.newForm('someForm', 'example_data', 'parent_table', 'null', false, 400, 300);
