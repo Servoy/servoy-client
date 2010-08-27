@@ -1214,8 +1214,11 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	}
 
 	/**
-	 * The method that is triggered when a form is loaded/reloaded from the repository; used to alter elements, set globals, hide toolbars, etc; onShow method can also be assigned.
+	 * The method that is triggered when a form is loaded/reloaded from the repository; used to alter elements, set globals, hide toolbars, 
+	 * etc; onShow method can also be assigned.
 	 * NOTE: onShow should be used to access current foundset dataproviders; onLoad cannot be used because the foundset data is not loaded until after the form is loaded. 
+	 * Also calls to loadRecords() should be done in the onShow method and not in the onLoad method
+	 * If you call loadRecords() in the onShow method, you may want to set the namedFoundSet property of the form to 'empty' to prevent the first default form query.
 	 * NOTE: the onLoad event bubbles down, meaning that the onLoad is first fired on the parent then on a tab in a tabpanel (and in tab of that tab panels if you are 3 deep)
 	 * 
 	 * @templatedescription Callback method when form is (re)loaded
