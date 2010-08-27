@@ -26,14 +26,8 @@ import com.servoy.j2db.query.ISQLUpdate;
  * Object that must be Serializable and contains the insert or update info.
  * @author		jblok
  */
-public interface ISQLStatement extends Serializable
+public interface ISQLStatement extends Serializable, ISQLActionTypes
 {
-	public static final int NO_ACTION = 0;
-	public static final int DELETE_ACTION = 1;
-	public static final int INSERT_ACTION = 2;
-	public static final int UPDATE_ACTION = 3;
-	public static final int SELECT_ACTION = 4;
-
 	public int getAction();
 
 	/**
