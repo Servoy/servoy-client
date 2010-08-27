@@ -74,6 +74,7 @@ public class ArgumentType
 		if (JSRecord.getName().equals(type)) return JSRecord;
 		if (JSEvent.getName().equals(type)) return JSEvent;
 		if (JSDataSet.getName().equals(type)) return JSDataSet;
+		if (Date.getName().equals(type)) return Date;
 		return new ArgumentType(type);
 	}
 
