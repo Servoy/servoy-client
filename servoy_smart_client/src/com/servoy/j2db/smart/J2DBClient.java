@@ -387,6 +387,16 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		return CLIENT;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.IApplication#getOSName()
+	 */
+	public String getOSName()
+	{
+		return System.getProperty("os.name"); //$NON-NLS-1$
+	}
+
 	public int getClientPlatform()
 	{
 		return Utils.getPlatform();

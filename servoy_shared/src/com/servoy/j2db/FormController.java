@@ -957,17 +957,13 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * Sets this form in designmode with param true or one or more methods. 
-		 * return to normal editmode with first parameter false.
+		 * Sets this form in designmode with one or more callback methods. 
 		 *
 		 * @sample
-		 * //Set the current form in designmode with no callbacks
-		 * %%prefix%%controller.setDesignMode(true);
-		 * 
 		 * //Set the current form in designmode with callbacks
 		 * %%prefix%%controller.setDesignMode(onDragMethod,onDropMethod,onSelectMethod,onResizeMethod);
 		 * 
-		 * //Set the current form out of designmode (to normal browse)
+		 * //Set the current form out of designmode (to normal browse mode)
 		 * %%prefix%%controller.setDesignMode(false);
 		 *
 		 * @param ondrag optional function onDrag method reference 
@@ -994,7 +990,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * Sets this form in designmode with param true, return to normal editmode with first parameter false.
+		 * Sets this form in designmode with param true, false will return to normal browse/edit mode.
 		 *
 		 * @sample
 		 * //Set the current form in designmode with no callbacks

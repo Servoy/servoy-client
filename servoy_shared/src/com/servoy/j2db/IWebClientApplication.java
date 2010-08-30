@@ -39,7 +39,4 @@ public interface IWebClientApplication extends ISessionClient
 	void handleArguments(String args[], StartupArgumentsScope argumentsScope);
 
 	void handleArguments(String[] args);
-
-	String getOSName();
-
 }
