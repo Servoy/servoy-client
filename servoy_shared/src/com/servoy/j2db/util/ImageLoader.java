@@ -26,6 +26,7 @@ import java.awt.image.PixelGrabber;
 import java.awt.image.RenderedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -457,6 +458,59 @@ public class ImageLoader
 	 * @param iconArray
 	 * @return the dimensions of the image, (0,0) if the byte array is null
 	 */
+	public static Dimension getSize(File icon)
+	{
+		if (icon == null) return new Dimension(0, 0);
+		ImageInputStream iis = null;
+		ImageReader ir = null;
+		try
+		{
+			iis = ImageIO.createImageInputStream(icon);
+			Iterator<ImageReader> it = ImageIO.getImageReaders(iis);
+			if (it.hasNext())
+			{
+
+				ir = it.next();
+				ir.setInput(iis, true, true);
+				return new Dimension(ir.getWidth(0), ir.getHeight(0));
+			}
+		}
+		catch (Exception e)
+		{
+			try
+			{
+				ImageIcon image = new ImageIcon(Utils.readFile(icon, -1));
+				return new Dimension(image.getIconWidth(), image.getIconHeight());
+			}
+			catch (Exception ex)
+			{
+				// ignore
+			}
+
+			Debug.error(e);
+		}
+		finally
+		{
+			if (ir != null)
+			{
+				ir.dispose();
+			}
+			try
+			{
+				if (iis != null) iis.close();
+			}
+			catch (Exception e1)
+			{
+				Debug.error(e1);
+			}
+		}
+		return new Dimension(0, 0);
+	}
+
+	/**
+	 * @param iconArray
+	 * @return the dimensions of the image, (0,0) if the byte array is null
+	 */
 	public static Dimension getSize(byte[] iconArray)
 	{
 		if (iconArray == null) return new Dimension(0, 0);
@@ -466,11 +520,11 @@ public class ImageLoader
 		try
 		{
 			iis = ImageIO.createImageInputStream(bais);
-			Iterator it = ImageIO.getImageReaders(iis);
+			Iterator<ImageReader> it = ImageIO.getImageReaders(iis);
 			if (it.hasNext())
 			{
 
-				ir = (ImageReader)it.next();
+				ir = it.next();
 				ir.setInput(iis, true, true);
 				return new Dimension(ir.getWidth(0), ir.getHeight(0));
 			}
