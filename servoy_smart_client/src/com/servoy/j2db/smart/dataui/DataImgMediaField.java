@@ -116,7 +116,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 
 	private final AbstractScriptLabel enclosedComponent;
 	private String dataProviderID;
-	private Object value;
+	private volatile Object value;
 	private final IApplication application;
 	private final EventExecutor eventExecutor;
 	private MouseAdapter rightclickMouseAdapter = null;
@@ -313,6 +313,8 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 			if (previousValue != null && previousValue.equals(obj)) return;
 			previousValue = obj;
 
+			value = obj;
+
 			if (obj instanceof byte[] || (obj instanceof String && !editState))
 			{
 				if (useAsync && application.getModeManager().getMode() == IModeManager.EDIT_MODE)
@@ -365,8 +367,12 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 			else
 			{
 				setIcon(null);
+				if (application.getI18NMessage("servoy.imageMedia.loadingImage").equals(enclosedComponent.getText())) //$NON-NLS-1$
+				{
+					enclosedComponent.setText(null);
+				}
+
 			}
-			value = obj;
 		}
 		finally
 		{
@@ -914,8 +920,8 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 						if (resolver instanceof DataAdapterList)
 						{
 							((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.FILENAME, file.getName());
-							((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.MIMETYPE, ImageLoader.getContentType(content,
-								file.getName()));
+							((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.MIMETYPE,
+								ImageLoader.getContentType(content, file.getName()));
 						}
 					}
 					catch (Exception e)
