@@ -25,6 +25,7 @@ import java.awt.Frame;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
@@ -42,7 +43,13 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.text.MutableAttributeSet;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledEditorKit;
+import javax.swing.text.StyledEditorKit.StyledTextAction;
+import javax.swing.text.html.CSS;
+import javax.swing.text.html.HTML;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.Messages;
@@ -358,7 +365,7 @@ public class TextToolbar extends Toolbar implements ActionListener
 			Color c = ccd.showDialog(Color.black);
 			if (c != null)
 			{
-				a = new StyledEditorKit.ForegroundAction("set-foreground", c); //$NON-NLS-1$
+				a = new ForegroundSetWithAttributeFilteringAction("set-foreground", c);//$NON-NLS-1$
 			}
 		}
 		else if (source == moreCmds)
@@ -539,6 +546,90 @@ public class TextToolbar extends Toolbar implements ActionListener
 		if (isEnabled() && setupable != null)
 		{
 			setSetupableEx(setupable);
+		}
+	}
+
+
+	/**
+	 * The modified version of the StyledEditorKit.ForegroundAction class from the swing text package.
+	 * This is our private way of setting the foreground action. 
+	 * We filter out the old foreground attributes in order to overwrite them and not have two 
+	 * settings (HTML.Tag and CSS.Attribute) for the same purpose (HTML.Tag would overwrite CSS.Attribute
+	 * which causes text no to change color after first setting of color).
+	 * 
+	 * @author acostache
+	 *
+	 */
+	private class ForegroundSetWithAttributeFilteringAction extends StyledTextAction
+	{
+		private final Color fg;
+
+		/**
+		 * Creates a new MyForegroundAction.
+		 *
+		 * @param nm the action name
+		 * @param fg the foreground color
+		 */
+		public ForegroundSetWithAttributeFilteringAction(String nm, Color fg)
+		{
+			super(nm);
+			this.fg = fg;
+		}
+
+		/**
+		 * Sets the foreground color. 
+		 * The main difference from StyledEditorKit.ForegroundAction is the filtering of attributes 
+		 * before the setCharacterAttributes.
+		 *
+		 * @param e the action event
+		 */
+		public void actionPerformed(ActionEvent e)
+		{
+			JEditorPane editor = getEditor(e);
+			if (editor != null)
+			{
+				Color fg = this.fg;
+				if ((e != null) && (e.getSource() == editor))
+				{
+					String s = e.getActionCommand();
+					try
+					{
+						fg = Color.decode(s);
+					}
+					catch (NumberFormatException nfe)
+					{
+					}
+				}
+				if (fg != null)
+				{
+					// remove the (old) foreground attributes, but, at the same time, 
+					// do not lose the other (old) formatting settings.
+					MutableAttributeSet oldInputAttributes = getStyledEditorKit(editor).getInputAttributes();
+					for (Enumeration eold = oldInputAttributes.getAttributeNames(); eold.hasMoreElements();)
+					{
+						Object key = eold.nextElement();
+						if (key instanceof HTML.Tag && key.toString().equalsIgnoreCase("font"))
+						{
+							oldInputAttributes.removeAttribute(key);
+						}
+						if (key instanceof CSS.Attribute && key.toString().equalsIgnoreCase("color"))
+						{
+							oldInputAttributes.removeAttribute(key);
+						}
+					}
+
+					// adding the old attributes without any foreground settings to new 
+					// foreground attributes and replacing the old attributes with the new set.
+					MutableAttributeSet attr = new SimpleAttributeSet();
+					StyleConstants.setForeground(attr, fg);
+					attr.addAttributes(oldInputAttributes);
+					setCharacterAttributes(editor, attr, true);
+				}
+				else
+				{
+					UIManager.getLookAndFeel().provideErrorFeedback(editor);
+				}
+			}
 		}
 	}
 }
