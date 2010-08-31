@@ -565,7 +565,7 @@ public class TextToolbar extends Toolbar implements ActionListener
 		private final Color fg;
 
 		/**
-		 * Creates a new MyForegroundAction.
+		 * Creates a new ForegroundSetWithAttributeFilteringAction.
 		 *
 		 * @param nm the action name
 		 * @param fg the foreground color
