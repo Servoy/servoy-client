@@ -967,6 +967,7 @@ public class Record implements Scriptable, IRecordInternal
 
 	/**
 	 * Returns a JSDataSet with outstanding (not saved) changed data of this record.
+	 * column1 is the column name, colum2 is the old data and column3 is the new data.
 	 * 
 	 * NOTE: To return an array of records with outstanding changed data, see the function databaseManager.getEditedRecords(). 
 	 *
