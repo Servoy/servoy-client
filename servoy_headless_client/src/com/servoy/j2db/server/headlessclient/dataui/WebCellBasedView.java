@@ -104,7 +104,6 @@ import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportAnchors;
 import com.servoy.j2db.persistence.ISupportBounds;
-import com.servoy.j2db.persistence.ISupportDataProviderID;
 import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.ISupportScrollbars;
 import com.servoy.j2db.persistence.ISupportTabSeq;
@@ -1194,38 +1193,17 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			if (cellview instanceof Portal)
 			{
-				Relation r = null;
-				String relName = null;
+				relationName = ((Portal)cellview).getRelationName();
+				Relation[] rels = application.getFlattenedSolution().getRelationSequence(((Portal)cellview).getRelationName());
 
-				Iterator<IPersist> it = cellview.getAllObjects();
-				while (it.hasNext())
+				if (rels != null)
 				{
-					IPersist persist = it.next();
-					if (persist instanceof ISupportDataProviderID)
+					Relation r = rels[rels.length - 1];
+					if (r != null)
 					{
-						String dataproviderID = ((ISupportDataProviderID)persist).getDataProviderID();
-						if (dataproviderID != null)
-						{
-							int idx = dataproviderID.lastIndexOf('.');
-							if (idx > 0)
-							{
-								relName = dataproviderID.substring(0, idx);
-								Relation[] rels = application.getFlattenedSolution().getRelationSequence(relName);
-								if (rels != null)
-								{
-									r = rels[rels.length - 1];
-									break;
-								}
-							}
-						}
+						defaultSort = ((FoundSetManager)application.getFoundSetManager()).getSortColumns(
+							application.getFoundSetManager().getTable(r.getForeignDataSource()), ((Portal)cellview).getInitialSort());
 					}
-				}
-
-				relationName = relName;
-				if (r != null)
-				{
-					defaultSort = ((FoundSetManager)application.getFoundSetManager()).getSortColumns(
-						application.getFoundSetManager().getTable(r.getForeignDataSource()), ((Portal)cellview).getInitialSort());
 				}
 			}
 			else
