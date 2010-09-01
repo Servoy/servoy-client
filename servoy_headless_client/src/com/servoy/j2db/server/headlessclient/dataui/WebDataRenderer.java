@@ -25,9 +25,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import javax.swing.border.Border;
 
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -56,6 +58,7 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 
@@ -334,10 +337,57 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 		setEnabled(enabled);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("nls")
 	public Iterator< ? extends IComponent> getComponentIterator()
 	{
-		return (Iterator< ? extends IComponent>)iterator();
+		final Iterator< ? extends Component> wicketIterator = iterator();
+		Iterator< ? extends IComponent> iterator = new Iterator<IComponent>()
+		{
+			private IComponent next;
+
+			public boolean hasNext()
+			{
+				if (next != null) return true;
+				while (wicketIterator.hasNext())
+				{
+					Object comp = wicketIterator.next();
+					Object delegate = comp;
+					while (delegate instanceof IDelegate< ? > && !(delegate instanceof IComponent))
+					{
+						delegate = ((IDelegate< ? >)delegate).getDelegate();
+					}
+					if (delegate instanceof IComponent)
+					{
+						next = (IComponent)delegate;
+						return true;
+					}
+					Debug.error("Component found which is not an IComponent " + comp + " for a datarenderer " + this, new RuntimeException(
+						comp.getClass().toString()));
+				}
+				return false;
+			}
+
+			public IComponent next()
+			{
+				if (next == null)
+				{
+					hasNext();
+				}
+				if (next == null)
+				{
+					throw new NoSuchElementException("Component iterator of " + this + " has no more elements");
+				}
+				IComponent returnValue = next;
+				next = null;
+				return returnValue;
+			}
+
+			public void remove()
+			{
+				wicketIterator.remove();
+			}
+		};
+		return iterator;
 	}
 
 	public void add(IComponent c, String name)
@@ -418,8 +468,8 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 					if (rec.getRawData().containsCalculation(rowBGColorCalculation))
 					{
 						// data renderer is always on the selected index.
-						bg_color = parentFoundSet.getCalculationValue(rec, rowBGColorCalculation, Utils.arrayMerge(new Object[] { new Integer(
-							parentFoundSet.getSelectedIndex()), new Boolean(isSelected), null, null, Boolean.FALSE },
+						bg_color = parentFoundSet.getCalculationValue(rec, rowBGColorCalculation, Utils.arrayMerge(
+							new Object[] { new Integer(parentFoundSet.getSelectedIndex()), new Boolean(isSelected), null, null, Boolean.FALSE },
 							Utils.parseJSExpressions(parentView.getRowBGColorArgs())), null);
 					}
 					else
@@ -427,9 +477,11 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 						try
 						{
 							FormController currentForm = dataAdapterList.getFormController();
-							bg_color = currentForm.executeFunction(rowBGColorCalculation, Utils.arrayMerge(new Object[] { new Integer(
-								parentFoundSet.getSelectedIndex()), new Boolean(isSelected), null, null, currentForm.getName(), rec, Boolean.FALSE },
-								Utils.parseJSExpressions(parentView.getRowBGColorArgs())), true, null, true, null);
+							bg_color = currentForm.executeFunction(
+								rowBGColorCalculation,
+								Utils.arrayMerge(
+									new Object[] { new Integer(parentFoundSet.getSelectedIndex()), new Boolean(isSelected), null, null, currentForm.getName(), rec, Boolean.FALSE },
+									Utils.parseJSExpressions(parentView.getRowBGColorArgs())), true, null, true, null);
 						}
 						catch (Exception ex)
 						{
