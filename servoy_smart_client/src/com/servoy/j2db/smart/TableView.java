@@ -555,11 +555,11 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 						}
 						if (cellview instanceof Portal && dataProviderID != null && !dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
 						{
-							int idx = dataProviderID.lastIndexOf('.');
-							if (idx > 0)
+							if (dataProviderID.startsWith(((Portal)cellview).getRelationName() + '.'))
 							{
-								dataProviderID = dataProviderID.substring(idx + 1);
+								dataProviderID = dataProviderID.substring(((Portal)cellview).getRelationName().length() + 1);
 							}
+
 							if (renderer instanceof IFieldComponent)
 							{
 								((IFieldComponent)renderer).setDataProviderID(dataProviderID);
