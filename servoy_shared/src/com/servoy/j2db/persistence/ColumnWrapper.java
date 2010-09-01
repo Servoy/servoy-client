@@ -76,7 +76,7 @@ public class ColumnWrapper implements IDataProvider, Serializable
 
 	public Relation[] getRelations()
 	{
-		if (relatonList != null) relatonList.getRelations();
+		if (relatonList != null) return relatonList.getRelations();
 		return relations;
 	}
 
