@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataui;
 
 /**
@@ -65,6 +65,10 @@ public enum PropertyEditorOption
 	 * Boolean option to include nested relations or nested related dataproviders. (e.g. a_to_b.b_to_c.c_field) in the available values, default: Boolean.TRUE
 	 */
 	includeNestedRelations,
+	/**
+	 * Boolean option to include global relations, default: includeGlobal
+	 */
+	includeGlobalRelations,
 	/**
 	 * String setting for lookupName in {@link PropertyEditorClass#styleclass} property selection.
 	 */
