@@ -224,14 +224,11 @@ public class ComponentFactory
 	public static Object getBeanDesignInstance(IApplication application, FlattenedSolution flattenedSolution, Bean bean, Form form)
 	{
 		Object beanDesignComponent = null;
-		synchronized (flattenedSolution)
+		beanDesignComponent = flattenedSolution.getBeanDesignInstance(bean);
+		if (beanDesignComponent == null)
 		{
+			createDesignComponent(application, flattenedSolution, bean, form);
 			beanDesignComponent = flattenedSolution.getBeanDesignInstance(bean);
-			if (beanDesignComponent == null)
-			{
-				createDesignComponent(application, flattenedSolution, bean, form);
-				beanDesignComponent = flattenedSolution.getBeanDesignInstance(bean);
-			}
 		}
 
 		return beanDesignComponent;
@@ -836,7 +833,7 @@ public class ComponentFactory
 
 			if (flattenedSolution != null && obj != null)
 			{
-				flattenedSolution.setBeanDesignInstance(bean, obj);
+				obj = flattenedSolution.setBeanDesignInstance(bean, obj);
 			}
 
 			if (obj instanceof Component)
@@ -1284,7 +1281,7 @@ public class ComponentFactory
 									{
 										Debug.error(
 											"Exception loading properties for converter " + converter.getName() + ", properties: " +
-											ci.getConverterProperties(), e);
+												ci.getConverterProperties(), e);
 									}
 								}
 							}

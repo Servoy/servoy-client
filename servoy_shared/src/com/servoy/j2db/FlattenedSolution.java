@@ -1447,14 +1447,40 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		return null;
 	}
 
-	public synchronized void setBeanDesignInstance(Bean b, Object arg)
+	public synchronized void flushBeanDesignInstance(Bean b)
 	{
-		if (beanDesignInstances == null) beanDesignInstances = new HashMap<Bean, Object>();
-
-		beanDesignInstances.put(b, arg);
+		if (beanDesignInstances != null)
+		{
+			beanDesignInstances.remove(b);
+		}
 	}
 
-	public Object getBeanDesignInstance(Bean b)
+	/**
+	 * set bean design instance if not set yet.
+	 * @param b
+	 * @param arg
+	 * @return new value or old value if instance was already set
+	 */
+	public synchronized Object setBeanDesignInstance(Bean b, Object arg)
+	{
+		if (beanDesignInstances == null)
+		{
+			beanDesignInstances = new HashMap<Bean, Object>();
+		}
+		else
+		{
+			Object object = beanDesignInstances.get(b);
+			if (object != null)
+			{
+				return object;
+			}
+		}
+
+		beanDesignInstances.put(b, arg);
+		return arg;
+	}
+
+	public synchronized Object getBeanDesignInstance(Bean b)
 	{
 		return beanDesignInstances == null ? null : beanDesignInstances.get(b);
 	}
