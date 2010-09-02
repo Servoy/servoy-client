@@ -14,28 +14,14 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
+
 package com.servoy.j2db;
 
-import com.servoy.j2db.persistence.Solution;
-
 /**
- * Smart client extended with debug features
- * @author rgansevles
+ * @author gabi
  *
  */
-public interface IDebugJ2DBClient extends ISmartClientApplication
+public interface IBrowserLauncher
 {
-
-	Solution getCurrent();
-
-	void show();
-
-	boolean isShutDown();
-
-	boolean isDoneLoading();
-
-	void shutDown(boolean b);
-
-	void setBrowserLauncher(IBrowserLauncher browserLauncher);
-
+	boolean showURL(String url);
 }
