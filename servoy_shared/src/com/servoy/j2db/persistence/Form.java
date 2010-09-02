@@ -1781,7 +1781,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * @templatedescription Perform sort
 	 * @templatename onSort
 	 * @templateparam String dataProviderID element data provider
-	 * @templateparam Boolean asc sort acscending [true] or descending [false]
+	 * @templateparam Boolean asc sort ascending [true] or descending [false]
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 * @templatecode
