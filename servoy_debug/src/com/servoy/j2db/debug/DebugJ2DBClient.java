@@ -60,6 +60,7 @@ import com.servoy.j2db.FormManager;
 import com.servoy.j2db.FormWindow;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IBeanManager;
+import com.servoy.j2db.IBrowserLauncher;
 import com.servoy.j2db.IDebugJ2DBClient;
 import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.IFormManager;
@@ -381,6 +382,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	private boolean unitTestsRunning = false;
 	private final IDesignerCallback designerCallback;
 	private final RefreshPersistsSequencer refreshPersistsSequencer;
+	private IBrowserLauncher browserLauncher;
 
 	@Override
 	public boolean isShutDown()
@@ -1116,5 +1118,16 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	protected void installShutdownHook()
 	{
 		//don't install the shutdownhook;
+	}
+
+	public void setBrowserLauncher(IBrowserLauncher browserLauncher)
+	{
+		this.browserLauncher = browserLauncher;
+	}
+
+	@Override
+	public boolean showURL(String url, String target, String target_options, int timeout_ms)
+	{
+		return browserLauncher != null ? browserLauncher.showURL(url) : super.showURL(url, target, target_options, timeout_ms);
 	}
 }
