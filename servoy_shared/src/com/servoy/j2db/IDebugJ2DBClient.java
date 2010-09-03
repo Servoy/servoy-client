@@ -38,4 +38,6 @@ public interface IDebugJ2DBClient extends ISmartClientApplication
 
 	void setBrowserLauncher(IBrowserLauncher browserLauncher);
 
+	IBrowserLauncher getBrowserLauncher();
+
 }
