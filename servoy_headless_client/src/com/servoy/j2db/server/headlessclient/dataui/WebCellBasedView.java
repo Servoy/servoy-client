@@ -31,9 +31,9 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.StringTokenizer;
-import java.util.Map.Entry;
 
 import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
@@ -800,6 +800,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		this.formDesignHeight = form.getSize().height;
 		this.sizeHint = sizeHint;
 
+		this.bodyWidthHint = form.getWidth();
+
 		useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		useAnchors = Utils.getAsBoolean((application.getSettings().getProperty("servoy.webclient.enableAnchors", Boolean.TRUE.toString()))); //$NON-NLS-1$
 		setOutputMarkupPlaceholderTag(true);
@@ -877,8 +879,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}));
 		if (cellview instanceof BaseComponent)
 		{
-			ComponentFactory.applyBasicComponentProperties(application, this, (BaseComponent)cellview, ComponentFactory.getStyleForBasicComponent(application,
-				(BaseComponent)cellview, form));
+			ComponentFactory.applyBasicComponentProperties(application, this, (BaseComponent)cellview,
+				ComponentFactory.getStyleForBasicComponent(application, (BaseComponent)cellview, form));
 		}
 
 		boolean sortable = true;
@@ -1210,8 +1212,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				relationName = relName;
 				if (r != null)
 				{
-					defaultSort = ((FoundSetManager)application.getFoundSetManager()).getSortColumns(application.getFoundSetManager().getTable(
-						r.getForeignDataSource()), ((Portal)cellview).getInitialSort());
+					defaultSort = ((FoundSetManager)application.getFoundSetManager()).getSortColumns(
+						application.getFoundSetManager().getTable(r.getForeignDataSource()), ((Portal)cellview).getInitialSort());
 				}
 			}
 			else
