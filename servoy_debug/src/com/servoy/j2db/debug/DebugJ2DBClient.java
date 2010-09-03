@@ -1125,6 +1125,11 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		this.browserLauncher = browserLauncher;
 	}
 
+	public IBrowserLauncher getBrowserLauncher()
+	{
+		return browserLauncher;
+	}
+
 	@Override
 	public boolean showURL(String url, String target, String target_options, int timeout_ms)
 	{
