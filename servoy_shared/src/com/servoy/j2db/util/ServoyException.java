@@ -16,6 +16,10 @@
  */
 package com.servoy.j2db.util;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
+
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.DataException;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -399,6 +403,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * {
 	 * 	application.output("is a ServoyException")
 	 * 	application.output("Errorcode: "+e.getErrorCode())
+	 *	application.output(e.getStackTrace())
 	 * 	if (e.getErrorCode() == ServoyException.SAVE_FAILED)
 	 * 	{
 	 * 		plugins.dialogs.showErrorDialog( "Error",  "It seems you did not fill in a required field", 'OK');
@@ -437,6 +442,19 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	public String js_getMessage()
 	{
 		return getMessage();
+	}
+
+	/**
+	 * Returns the stack trace for this ServoyException. 
+	 *
+	 * @sampleas js_getErrorCode()
+	 * @return the string stack trace for this ServoyException. 
+	 */
+	public String js_getStackTrace()
+	{
+		Writer result = new StringWriter();
+		this.printStackTrace(new PrintWriter(result));
+		return result.toString();
 	}
 
 	/**
