@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 
@@ -32,6 +32,7 @@ public class ColumnWrapper implements IDataProvider, Serializable
  */
 	private final Relation[] relations;
 	private final IColumn column;
+	private final RelationList relatonList;
 
 /*
  * _____________________________________________________________ Declaration and definition of constructors
@@ -50,6 +51,14 @@ public class ColumnWrapper implements IDataProvider, Serializable
 	{
 		this.column = column;
 		this.relations = (relations == null || relations.length == 0 || relations[0] == null) ? null : relations;
+		this.relatonList = null;
+	}
+
+	public ColumnWrapper(IColumn column, RelationList relationList)
+	{
+		this.column = column;
+		this.relations = null;
+		this.relatonList = relationList;
 	}
 
 /*
@@ -67,7 +76,23 @@ public class ColumnWrapper implements IDataProvider, Serializable
 
 	public Relation[] getRelations()
 	{
+		if (relatonList != null) return relatonList.getRelations();
 		return relations;
+	}
+
+	public RelationList getRelationList()
+	{
+		if (relatonList != null) return relatonList;
+		if (relations != null)
+		{
+			RelationList list = new RelationList(relations[0]);
+			for (int i = 1; i < relations.length; i++)
+			{
+				list = new RelationList(list, relations[i]);
+			}
+			return list;
+		}
+		return null;
 	}
 
 	public IColumn getColumn()
@@ -96,7 +121,8 @@ public class ColumnWrapper implements IDataProvider, Serializable
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((column == null) ? 0 : column.hashCode());
-		result = prime * result + Arrays.hashCode(relations);
+		if (relatonList != null) result = prime * result + relatonList.hashCode();
+		else result = prime * result + Arrays.hashCode(relations);
 		return result;
 	}
 
@@ -112,6 +138,20 @@ public class ColumnWrapper implements IDataProvider, Serializable
 			if (other.column != null) return false;
 		}
 		else if (!column.equals(other.column)) return false;
+		if (relatonList != null && other.relatonList != null)
+		{
+			if (!relatonList.equals(other.relatonList)) return false;
+		}
+
+		if (relatonList != null)
+		{
+			if (!Arrays.equals(relatonList.getRelations(), other.relations)) return false;
+		}
+		else if (other.relatonList != null)
+		{
+			if (!Arrays.equals(relations, other.relatonList.getRelations())) return false;
+		}
+
 		if (!Arrays.equals(relations, other.relations)) return false;
 		return true;
 	}
@@ -123,13 +163,16 @@ public class ColumnWrapper implements IDataProvider, Serializable
 
 	protected String prefixRelation(String s)//get the id
 	{
-		if (relations == null)
+		if (relations == null && relatonList == null)
 		{
 			return s;
 		}
 
-		StringBuilder sb = new StringBuilder(relations.length * 45);
-		for (Relation relation : relations)
+		Relation[] rels = this.relations;
+		if (relatonList != null) rels = relatonList.getRelations();
+
+		StringBuilder sb = new StringBuilder(rels.length * 45);
+		for (Relation relation : rels)
 		{
 			sb.append(relation.getName());
 			sb.append('.');
