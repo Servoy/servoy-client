@@ -120,12 +120,15 @@ function clearDoubleClickId(elementId)
 
 var focusedValue = null;
 var focusedElement = null;
+var ignoreFocusGained = null;
 function storeValueBeforeUpdate()
 {
+
 	focusedElement = Wicket.Focus.getFocusedElement();
 	if (typeof(focusedElement) != "undefined" && focusedElement != null
 	 && focusedElement.type != "button" && focusedElement.type != "submit")
 	{
+		ignoreFocusGained = focusedElement.id;
 		var valueChangedId = null;
 		for (var i=0;i<arguments.length;i++)
 		{
@@ -391,12 +394,12 @@ function addListeners(strEvent, callbackUrl, ids, post)
 			{
 				callback = function(e)
 				{
+					if(Wicket.Focus.refocusLastFocusedComponentAfterResponse && !Wicket.Focus.focusSetFromServer) return true;
 					if(!e) e = window.event;
 					var modifiers;
 					if(strEvent == "focus")
 					{
 						// skip onFocus callback if the component has been re-focused after a response					
-						if(Wicket.Focus.refocusLastFocusedComponentAfterResponse && !Wicket.Focus.focusSetFromServer) return true;
 						modifiers = onFocusModifiers;
 						onFocusModifiers = 0;
 					}
@@ -431,12 +434,17 @@ function addListeners(strEvent, callbackUrl, ids, post)
 			{
 				callback = function(e)
 				{
+					if(Wicket.Focus.refocusLastFocusedComponentAfterResponse && !Wicket.Focus.focusSetFromServer) return true;
+					if (ignoreFocusGained && ignoreFocusGained == this.id)
+					{
+						ignoreFocusGained = null;
+						return true;
+					}
 					if(!e) e = window.event;
 					var modifiers;
 					if(strEvent == "focus")
 					{
 						// skip onFocus callback if the component has been re-focused after a response
-						if(Wicket.Focus.refocusLastFocusedComponentAfterResponse && !Wicket.Focus.focusSetFromServer) return true;
 						modifiers = onFocusModifiers;
 						onFocusModifiers = 0;
 					}
