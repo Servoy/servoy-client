@@ -13,8 +13,10 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
+
+import java.util.Iterator;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.UUID;
@@ -390,4 +392,18 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 		return (partType == Part.LEADING_SUBSUMMARY || partType == Part.TRAILING_SUBSUMMARY);
 	}
 
+	public Part getPreviousPart() throws RepositoryException
+	{
+		Part prevPart = null;
+		Iterator<Part> parts = getParent().getObjects(IRepository.PARTS);
+		while (parts.hasNext())
+		{
+			Part part = parts.next();
+			if (part.height < height && (prevPart == null || part.height > prevPart.height))
+			{
+				prevPart = part;
+			}
+		}
+		return prevPart;
+	}
 }
