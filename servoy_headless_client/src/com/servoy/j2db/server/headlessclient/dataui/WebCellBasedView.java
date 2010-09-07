@@ -799,6 +799,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		this.formDesignHeight = form.getSize().height;
 		this.sizeHint = sizeHint;
 
+		this.bodyWidthHint = form.getWidth();
+
 		useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		useAnchors = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")); //$NON-NLS-1$
 		setOutputMarkupPlaceholderTag(true);
