@@ -113,9 +113,6 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 			}
 		}
 
-		// If still no background color, default to white.
-		if (bgColor == null) bgColor = Color.WHITE;
-
 		orientation = OrientationApplier.getHTMLContainerOrientation(sp != null ? sp.getLocale() : Locale.getDefault(), solution.getTextOrientation());
 	}
 
@@ -176,7 +173,7 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 
 		// Put CSS properties for background color and border (if any).
 		TextualStyle formStyle = css.addStyle("#" + buildFormID()); //$NON-NLS-1$ 
-		formStyle.setProperty("background-color", PersistHelper.createColorString(bgColor)); //$NON-NLS-1$
+		if (bgColor != null) formStyle.setProperty("background-color", PersistHelper.createColorString(bgColor)); //$NON-NLS-1$
 		if (border != null)
 		{
 			String type = ComponentFactoryHelper.createBorderString(border);
