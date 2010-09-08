@@ -235,7 +235,14 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 			if (row == -1 || (row > 0 && row <= set.getRowCount()))
 			{
 				set.removeRow(row == -1 ? -1 : (row - 1));
-				if (row == -1) htmlAttributes = null;
+				if (row == -1)
+				{
+					htmlAttributes = null;
+				}
+				else
+				{
+					correctAttributeIndex(true, false, row - 1);
+				}
 				if (tableModelWrapper != null) tableModelWrapper.fireTableStructureChanged();
 			}
 		}
@@ -270,6 +277,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 				row = tmp;
 			}
 			set.addRow(index - 1, row);
+			correctAttributeIndex(true, true, index - 1);
 			if (tableModelWrapper != null) tableModelWrapper.fireTableStructureChanged();
 		}
 	}
@@ -306,7 +314,11 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 		}
 
 		boolean result = set.addColumn(columnIndex, columnName, columnType);
-		if (result) makeColumnMap();
+		if (result)
+		{
+			makeColumnMap();
+			correctAttributeIndex(false, true, columnIndex);
+		}
 		return result;
 	}
 
@@ -324,8 +336,40 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 	public boolean js_removeColumn(int index)
 	{
 		boolean result = set.removeColumn(index - 1);//all Javascript calls are 1 based
-		if (result) makeColumnMap();
+		if (result)
+		{
+			makeColumnMap();
+			correctAttributeIndex(false, false, index - 1);
+		}
 		return result;
+	}
+
+	private void correctAttributeIndex(boolean row_col, boolean add_del, int index)
+	{
+		if (htmlAttributes != null)
+		{
+			int plus_minus = (add_del ? +1 : -1);
+			Map<Pair<Integer, Integer>, Map<String, String>> newhtmlAttributes = new HashMap<Pair<Integer, Integer>, Map<String, String>>();
+			//replace the row ref
+			Iterator<Pair<Integer, Integer>> it = htmlAttributes.keySet().iterator();
+			while (it.hasNext())
+			{
+				Pair<Integer, Integer> pair = it.next();
+				Map<String, String> value = htmlAttributes.get(pair);
+				if (row_col)
+				{
+					//row
+					if (pair.getLeft() > index) pair.setLeft(pair.getLeft().intValue() + plus_minus);
+				}
+				else
+				{
+					//col
+					if (pair.getRight() > index) pair.setRight(pair.getRight().intValue() + plus_minus);
+				}
+				newhtmlAttributes.put(pair, value);//rehash
+			}
+			htmlAttributes = newhtmlAttributes;
+		}
 	}
 
 	/**
@@ -619,24 +663,24 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 				Object[] row = set.getRow(j);
 				if (prettyIndent) out.append("\n\t"); //$NON-NLS-1$
 				out.append("<TR"); //$NON-NLS-1$
-				if (!Utils.stringIsEmpty(getHTMLProperties(new Integer(-1), -1)) || !Utils.stringIsEmpty(getHTMLProperties(row, -1)))
+				if (!Utils.stringIsEmpty(getHTMLProperties(new Integer(-1), -1)) || !Utils.stringIsEmpty(getHTMLProperties(j, -1)))
 				{
 					out.append(' ');
 				}
 				out.append(getHTMLProperties(new Integer(-1), -1));//any row
-				out.append(getHTMLProperties(row, -1));//specific row
+				out.append(getHTMLProperties(j, -1));//specific row
 				out.append('>');
 
 				for (int x = 0; x < numberOfColumns; x++)
 				{
 					if (prettyIndent) out.append("\n\t\t"); //$NON-NLS-1$
 					out.append("<TD"); //$NON-NLS-1$
-					if (!Utils.stringIsEmpty(getHTMLProperties(new Integer(-1), x)) || !Utils.stringIsEmpty(getHTMLProperties(row, x)))
+					if (!Utils.stringIsEmpty(getHTMLProperties(new Integer(-1), x)) || !Utils.stringIsEmpty(getHTMLProperties(j, x)))
 					{
 						out.append(' ');
 					}
 					out.append(getHTMLProperties(new Integer(-1), x));//specific column
-					out.append(getHTMLProperties(row, x));//specific cell
+					out.append(getHTMLProperties(j, x));//specific cell
 					out.append('>');
 
 					if (escapeValues)
@@ -780,7 +824,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 		return null;
 	}
 
-	private Map<Pair<Object, Integer>, Map<String, String>> htmlAttributes = null;
+	private Map<Pair<Integer, Integer>, Map<String, String>> htmlAttributes = null;
 
 	/**
 	 * Add an HTML property to an HTML tag produced in getAsHTML().
@@ -822,18 +866,18 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 		addHTMLProperty(new Integer(row - 1), col - 1, name, value);
 	}
 
-	public void addHTMLProperty(Object rowIdent, int c, String pname, String pvalue)
+	public void addHTMLProperty(int rowIdent, int c, String pname, String pvalue)
 	{
-		if (htmlAttributes == null) htmlAttributes = new HashMap<Pair<Object, Integer>, Map<String, String>>();
-		if (rowIdent instanceof Integer)
-		{
-			int r = Utils.getAsInteger(rowIdent);
-			if (r >= 0 && r < set.getRowCount())
-			{
-				rowIdent = set.getRow(r);
-			}
-		}
-		Pair<Object, Integer> key = new Pair<Object, Integer>(rowIdent, new Integer(c));
+		if (htmlAttributes == null) htmlAttributes = new HashMap<Pair<Integer, Integer>, Map<String, String>>();
+//		if (rowIdent instanceof Integer)
+//		{
+//			int r = Utils.getAsInteger(rowIdent);
+//			if (r >= 0 && r < set.getRowCount())
+//			{
+//				rowIdent = set.getRow(r);
+//			}
+//		}
+		Pair<Integer, Integer> key = new Pair<Integer, Integer>(rowIdent, new Integer(c));
 		Map<String, String> value = htmlAttributes.get(key);
 		if (value == null)
 		{
@@ -843,10 +887,10 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 		value.put(pname, pvalue);
 	}
 
-	private String getHTMLProperties(Object rowIdent, int c)
+	private String getHTMLProperties(int rowIdent, int c)
 	{
 		StringBuilder sb = new StringBuilder();
-		Pair<Object, Integer> key = new Pair<Object, Integer>(rowIdent, new Integer(c));
+		Pair<Integer, Integer> key = new Pair<Integer, Integer>(rowIdent, new Integer(c));
 		Map<String, String> value = htmlAttributes.get(key);
 		if (value != null)
 		{
