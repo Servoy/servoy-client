@@ -1481,6 +1481,8 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			if (Utils.isAppleMacOS() && System.getProperty("java.runtime.version").startsWith("1.6.0_20-b02-279"))
 			{
 				UIManager.put("FormattedTextFieldUI", UIManager.get("TextFieldUI"));
+				// create a temp data field here so that the cached ui defaults are based on it.
+				new DataField(this);
 			}
 		}
 		catch (Exception e)
