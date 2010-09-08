@@ -30,9 +30,9 @@ import com.servoy.j2db.util.gui.OrientationApplier;
  */
 public class AnchoredFormLayoutProvider extends AbstractFormLayoutProvider
 {
-	public AnchoredFormLayoutProvider(IServiceProvider sp, Solution solution, Form f)
+	public AnchoredFormLayoutProvider(IServiceProvider sp, Solution solution, Form f, String formInstanceName)
 	{
-		super(sp, solution, f);
+		super(sp, solution, f, formInstanceName);
 	}
 
 	@Override

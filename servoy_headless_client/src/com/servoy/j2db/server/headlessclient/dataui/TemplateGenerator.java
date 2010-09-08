@@ -41,11 +41,15 @@ import javax.swing.border.Border;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.html.CSS;
 
+import org.apache.wicket.Component.IVisitor;
 import org.apache.wicket.ResourceReference;
 
 import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormController;
+import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IForm;
+import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.IValueList;
@@ -77,6 +81,7 @@ import com.servoy.j2db.persistence.Tab;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
+import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.ui.ISupportRowBGColorScript;
 import com.servoy.j2db.util.ComponentFactoryHelper;
@@ -86,6 +91,7 @@ import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -150,7 +156,7 @@ public class TemplateGenerator
 			long lastmodified;
 			long lasttouched = System.currentTimeMillis();
 
-			Pair<String, String> content;
+			Pair<String, ArrayList<Pair<String, String>>> content;
 		}
 
 		private final ConcurrentHashMap<String, CacheItem> cache = new ConcurrentHashMap<String, CacheItem>();
@@ -161,9 +167,9 @@ public class TemplateGenerator
 		 * @param overriddenStyleName
 		 * @return
 		 */
-		public Pair<String, String> getFormAndCssPair(Form f, String overriddenStyleName, IRepository repository)
+		public Pair<String, ArrayList<Pair<String, String>>> getFormAndCssPair(Form f, String overriddenStyleName, IRepository repository)
 		{
-			Pair<String, String> retval = null;
+			Pair<String, ArrayList<Pair<String, String>>> retval = null;
 
 			long t = getLastModifiedTime(f.getSolution(), f, overriddenStyleName, repository);
 
@@ -191,7 +197,7 @@ public class TemplateGenerator
 		 * @param repository
 		 * @param retval
 		 */
-		public void putFormAndCssPair(Form f, String overriddenStyleName, IRepository repository, Pair<String, String> formAndCss)
+		public void putFormAndCssPair(Form f, String overriddenStyleName, IRepository repository, Pair<String, ArrayList<Pair<String, String>>> formAndCss)
 		{
 			long t = getLastModifiedTime(f.getSolution(), f, overriddenStyleName, repository);
 			CacheItem cacheItem = new CacheItem();
@@ -251,9 +257,40 @@ public class TemplateGenerator
 	public static final Color DEFAULT_FORM_BG_COLOR = Color.WHITE;
 	public static final String TABLE_VIEW_CELL_CLASS = "tableviewcell"; // this value is also used in servoy.js; if you change/remove it please update servoy.js //$NON-NLS-1$
 
-	private static FormCache globalCache = new FormCache(true);
+	private static FormCache formCache = new FormCache(true);
 
-	private static Map<IServiceProvider, FormCache> serviceProviderCache = Collections.synchronizedMap(new WeakHashMap<IServiceProvider, FormCache>());
+	private static Map<IServiceProvider, Map<WebForm, Map<String, String>>> serviceProviderWebFormIDToMarkupIDCache = Collections.synchronizedMap(new WeakHashMap<IServiceProvider, Map<WebForm, Map<String, String>>>()); // map of type : <service_provider, <web_form, <component_id, component_markup_id>>>
+
+
+	private static HashMap<String, String> getWebFormIDToMarkupIDMap(WebForm wf, final ArrayList<String> ids)
+	{
+		final HashMap<String, String> webFormIDToMarkupIDMap = new HashMap<String, String>();
+		wf.visitChildren(new IVisitor<org.apache.wicket.Component>()
+		{
+			public Object component(org.apache.wicket.Component c)
+			{
+				String id = "#" + c.getId(); //$NON-NLS-1$
+				if (ids.indexOf(id) != -1) webFormIDToMarkupIDMap.put(id, "#" + c.getMarkupId()); //$NON-NLS-1$
+				return IVisitor.CONTINUE_TRAVERSAL;
+			}
+		});
+
+		return webFormIDToMarkupIDMap;
+	}
+
+	private static String getWebFormCSS(ArrayList<Pair<String, String>> formCSS, Map<String, String> IDToMarkupIDMap)
+	{
+		StringBuffer webFormCSS = new StringBuffer();
+
+		String selector;
+		for (Pair<String, String> cssItem : formCSS)
+		{
+			selector = (IDToMarkupIDMap != null && IDToMarkupIDMap.containsKey(cssItem.getLeft())) ? IDToMarkupIDMap.get(cssItem.getLeft()) : cssItem.getLeft();
+			webFormCSS.append(selector).append(cssItem.getRight());
+		}
+
+		return webFormCSS.toString();
+	}
 
 
 	public static Pair<String, String> getFormHTMLAndCSS(int solution_id, int form_id) throws RepositoryException, RemoteException
@@ -267,134 +304,139 @@ public class TemplateGenerator
 		{
 			sp = WebClientSession.get().getWebClient();
 		}
-		return getFormHTMLAndCSS(solution, form, sp);
+		return getFormHTMLAndCSS(solution, form, sp, form.getName());
 	}
 
-	public static Pair<String, String> getFormHTMLAndCSS(Solution solution, Form f, IServiceProvider sp) throws RepositoryException, RemoteException
+	public static Pair<String, String> getFormHTMLAndCSS(Solution solution, Form f, IServiceProvider sp, String formInstanceName) throws RepositoryException,
+		RemoteException
 	{
 		if (f == null) return null;
 		final IRepository repository = ApplicationServerSingleton.get().getLocalRepository();
-
-		boolean enableAnchoring = Utils.getAsBoolean(sp.getRuntimeProperties().get("enableAnchors"));
+		boolean enableAnchoring = sp != null
+			? Utils.getAsBoolean(sp.getRuntimeProperties().get("enableAnchors")) : Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.webclient.enableAnchors", Boolean.TRUE.toString())); //$NON-NLS-1$ 
 
 		String overriddenStyleName = null;
-		FormCache formCache = null;
-		if (sp == null)
-		{
-			if (Debug.tracing())
-			{
-				Debug.trace("IService Provider is null in template generator, is ok if it was a webdav request", new RuntimeException());
-			}
-			formCache = globalCache;
-		}
-		else
-		{
-			boolean isDesign = sp != null && sp.getFlattenedSolution().isInDesign(f) && f.getView() == FormController.LOCKED_TABLE_VIEW;
-			boolean isFormCopy = sp.getFlattenedSolution().hasCopy(f);
-			overriddenStyleName = ComponentFactory.getOverriddenStyleName(sp, f);
+		Map<String, String> formIDToMarkupIDMap = null;
 
-			if (isFormCopy || overriddenStyleName != null || isDesign)
+		Pair<String, ArrayList<Pair<String, String>>> retval = formCache.getFormAndCssPair(f, overriddenStyleName, repository);
+
+		if (retval == null)
+		{
+			if (f.getExtendsFormID() > 0)
 			{
-				formCache = serviceProviderCache.get(sp);
-				if (formCache == null)
+				FlattenedSolution fs = sp == null ? null : sp.getFlattenedSolution();
+				if (fs == null)
 				{
-					formCache = new FormCache(false);
-					serviceProviderCache.put(sp, formCache);
-				}
-			}
-			else
-			{
-				formCache = globalCache;
-			}
-		}
-
-		Pair<String, String> retval = formCache.getFormAndCssPair(f, overriddenStyleName, repository);
-		if (retval != null)
-		{
-			return retval;
-		}
-
-		if (f.getExtendsFormID() > 0)
-		{
-			FlattenedSolution fs = sp == null ? null : sp.getFlattenedSolution();
-			if (fs == null)
-			{
-				try
-				{
-					fs = new FlattenedSolution(solution.getSolutionMetaData(), new AbstractActiveSolutionHandler()
+					try
 					{
-						@Override
-						public IRepository getRepository()
+						fs = new FlattenedSolution(solution.getSolutionMetaData(), new AbstractActiveSolutionHandler()
 						{
-							return repository;
-						}
-					});
-				}
-				catch (RepositoryException e)
-				{
-					Debug.error("Couldn't create flattened form for the template generator", e);
-				}
-				finally
-				{
-					if (fs != null)
+							@Override
+							public IRepository getRepository()
+							{
+								return repository;
+							}
+						});
+					}
+					catch (RepositoryException e)
 					{
-						try
+						Debug.error("Couldn't create flattened form for the template generator", e); //$NON-NLS-1$ 
+					}
+					finally
+					{
+						if (fs != null)
 						{
-							fs.close(null);
-						}
-						catch (IOException e)
-						{
+							try
+							{
+								fs.close(null);
+							}
+							catch (IOException e)
+							{
+							}
 						}
 					}
 				}
+				f = fs.getFlattenedForm(f);
 			}
-			f = fs.getFlattenedForm(f);
-		}
 
-		StringBuffer html = new StringBuffer();
-		TextualCSS css = new TextualCSS();
+			StringBuffer html = new StringBuffer();
+			TextualCSS css = new TextualCSS();
 
-		IFormLayoutProvider layoutProvider = FormLayoutProviderFactory.getFormLayoutProvider(sp, solution, f);
+			IFormLayoutProvider layoutProvider = FormLayoutProviderFactory.getFormLayoutProvider(sp, solution, f, formInstanceName);
 
-		int viewType = layoutProvider.getViewType();
-		Color bgColor = layoutProvider.getBackgroundColor();
+			int viewType = layoutProvider.getViewType();
+			Color bgColor = layoutProvider.getBackgroundColor();
 
-		layoutProvider.renderOpenFormHTML(html, css);
+			layoutProvider.renderOpenFormHTML(html, css);
 
-		int startY = 0;
-		Iterator<Part> parts = f.getParts();
-		while (parts.hasNext())
-		{
-			Part part = parts.next();
-			int endY = part.getHeight();
-
-			if (Part.rendersOnlyInPrint(part.getPartType()))
+			int startY = 0;
+			Iterator<Part> parts = f.getParts();
+			while (parts.hasNext())
 			{
+				Part part = parts.next();
+				int endY = part.getHeight();
+
+				if (Part.rendersOnlyInPrint(part.getPartType()))
+				{
+					startY = part.getHeight();
+					continue;//is never shown (=printing only)
+				}
+
+				if (part.getPartType() == Part.BODY && (viewType == FormController.TABLE_VIEW || viewType == FormController.LOCKED_TABLE_VIEW))
+				{
+					layoutProvider.renderOpenTableViewHTML(html, css, part);
+					createCellBasedView(f, f, html, css, layoutProvider.needsHeaders(), startY, endY, bgColor, sp);//tableview == bodypart
+					layoutProvider.renderCloseTableViewHTML(html);
+				}
+				else
+				{
+					layoutProvider.renderOpenPartHTML(html, css, part);
+					placePartElements(f, startY, endY, html, css, bgColor, enableAnchoring, sp);
+					layoutProvider.renderClosePartHTML(html, part);
+				}
 				startY = part.getHeight();
-				continue;//is never shown (=printing only)
 			}
 
-			if (part.getPartType() == Part.BODY && (viewType == FormController.TABLE_VIEW || viewType == FormController.LOCKED_TABLE_VIEW))
-			{
-				layoutProvider.renderOpenTableViewHTML(html, css, part);
-				createCellBasedView(f, f, html, css, layoutProvider.needsHeaders(), startY, endY, bgColor, sp);//tableview == bodypart
-				layoutProvider.renderCloseTableViewHTML(html);
-			}
-			else
-			{
-				layoutProvider.renderOpenPartHTML(html, css, part);
-				placePartElements(f, startY, endY, html, css, bgColor, enableAnchoring, sp);
-				layoutProvider.renderClosePartHTML(html, part);
-			}
-			startY = part.getHeight();
+			layoutProvider.renderCloseFormHTML(html);
+
+			retval = new Pair<String, ArrayList<Pair<String, String>>>(html.toString(), css.getAsSelectorValuePairs());
+			formCache.putFormAndCssPair(f, overriddenStyleName, repository, retval);
 		}
 
-		layoutProvider.renderCloseFormHTML(html);
+		if (sp instanceof IApplication)
+		{
+			Map<WebForm, Map<String, String>> clientFormsIDToMarkupIDMap = serviceProviderWebFormIDToMarkupIDCache.get(sp);
+			if (clientFormsIDToMarkupIDMap == null)
+			{
+				clientFormsIDToMarkupIDMap = new WeakHashMap<WebForm, Map<String, String>>();
+				serviceProviderWebFormIDToMarkupIDCache.put(sp, clientFormsIDToMarkupIDMap);
+			}
 
-		retval = new Pair<String, String>(html.toString(), StripHTMLTagsConverter.convertMediaReferences(css.toString(), solution.getName(),
-			new ResourceReference("media"), "../../").toString()); // string the formcss/solutionname/ out of the url.
-		formCache.putFormAndCssPair(f, overriddenStyleName, repository, retval);
-		return retval;
+			IForm wfc = ((IApplication)sp).getFormManager().getForm(formInstanceName);
+			if (wfc instanceof FormController)
+			{
+				IFormUIInternal wf = ((FormController)wfc).getFormUI();
+
+				if (wf instanceof WebForm)
+				{
+					formIDToMarkupIDMap = clientFormsIDToMarkupIDMap.get(wf);
+					if (formIDToMarkupIDMap == null)
+					{
+						ArrayList<Pair<String, String>> formCSS = retval.getRight();
+						ArrayList<String> selectors = new ArrayList<String>(formCSS.size());
+						for (Pair<String, String> formCSSEntry : formCSS)
+							selectors.add(formCSSEntry.getLeft());
+						formIDToMarkupIDMap = getWebFormIDToMarkupIDMap((WebForm)wf, selectors);
+						clientFormsIDToMarkupIDMap.put((WebForm)wf, formIDToMarkupIDMap);
+					}
+				}
+			}
+		}
+
+
+		String webFormCSS = getWebFormCSS(retval.getRight(), formIDToMarkupIDMap);
+		webFormCSS = StripHTMLTagsConverter.convertMediaReferences(webFormCSS, solution.getName(), new ResourceReference("media"), "../../").toString(); //$NON-NLS-1$ //$NON-NLS-2$ // string the formcss/solutionname/ out of the url.		
+		return new Pair<String, String>(retval.getLeft(), webFormCSS);
 	}
 
 	private static void placePartElements(Form f, int startY, int endY, StringBuffer html, TextualCSS css, Color formPartBgColor, boolean enableAnchoring,
@@ -915,6 +957,20 @@ public class TemplateGenerator
 			handlers.push(DefaultCSSBoundsHandler.INSTANCE);
 		}
 
+		public ArrayList<Pair<String, String>> getAsSelectorValuePairs()
+		{
+			ArrayList<Pair<String, String>> selectorValuePairs = new ArrayList<Pair<String, String>>();
+
+			Iterator<Map.Entry<String, TextualStyle>> iter = entrySet().iterator();
+			while (iter.hasNext())
+			{
+				Map.Entry<String, TextualStyle> selectorTextualStyle = iter.next();
+				selectorValuePairs.add(new Pair<String, String>(selectorTextualStyle.getKey(), selectorTextualStyle.getValue().toString(""))); //$NON-NLS-1$
+			}
+
+			return selectorValuePairs;
+		}
+
 		@Override
 		public String toString()
 		{
@@ -1019,35 +1075,40 @@ public class TemplateGenerator
 		@Override
 		public String toString()
 		{
+			return toString(selector);
+		}
+
+		public String toString(String pSelector)
+		{
 			StringBuffer retval = new StringBuffer();
-			if (selector == null)
+			if (pSelector == null)
 			{
-				retval.append("style='");
+				retval.append("style='"); //$NON-NLS-1$ 
 			}
 			else
 			{
-				retval.append(selector);
-				retval.append("\n{\n");
+				retval.append(pSelector);
+				retval.append("\n{\n"); //$NON-NLS-1$ 
 			}
 			Iterator<String> it = order.iterator();
 			while (it.hasNext())
 			{
 				String name = it.next();
 				String val = getProperty(name);
-				if (selector != null) retval.append('\t');
+				if (pSelector != null) retval.append('\t');
 				retval.append(name);
-				retval.append(": ");
+				retval.append(": "); //$NON-NLS-1$ 
 				retval.append(val);
 				if (it.hasNext()) retval.append(';');
-				if (selector != null) retval.append('\n');
+				if (pSelector != null) retval.append('\n');
 			}
-			if (selector == null)
+			if (pSelector == null)
 			{
-				retval.append("' ");
+				retval.append("' "); //$NON-NLS-1$ 
 			}
 			else
 			{
-				retval.append("}\n\n");
+				retval.append("}\n\n"); //$NON-NLS-1$ 
 			}
 			return retval.toString();
 		}

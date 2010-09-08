@@ -32,6 +32,8 @@ import org.apache.wicket.util.resource.locator.ResourceStreamLocator;
 import org.apache.wicket.util.time.Time;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.FormController;
+import com.servoy.j2db.IForm;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IRepository;
@@ -119,8 +121,12 @@ public final class ServoyResourceStreamLocator implements IResourceStreamLocator
 										sp = ((WebClientSession)Session.get()).getWebClient();
 										if (sp != null)
 										{
-											FlattenedSolution clientSolution = sp.getFlattenedSolution();
-											form = clientSolution.getForm(names[1]);
+											IForm fc = ((WebClient)sp).getFormManager().getForm(names[1]);
+											if (fc instanceof FormController)
+											{
+												FlattenedSolution clientSolution = sp.getFlattenedSolution();
+												form = clientSolution.getForm(((FormController)fc).getForm().getName());
+											}
 										}
 									}
 
@@ -132,7 +138,7 @@ public final class ServoyResourceStreamLocator implements IResourceStreamLocator
 
 									if (form != null)
 									{
-										Pair<String, String> pair = TemplateGenerator.getFormHTMLAndCSS(sol, form, sp);
+										Pair<String, String> pair = TemplateGenerator.getFormHTMLAndCSS(sol, form, sp, names[1]);
 										String html = pair.getLeft();
 										return new TemplateResourceStream(html, sd.getRootObjectId(), fullpath);
 									}

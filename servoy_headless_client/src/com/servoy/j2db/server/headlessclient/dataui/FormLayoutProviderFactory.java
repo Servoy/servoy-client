@@ -29,9 +29,9 @@ import com.servoy.j2db.util.Utils;
  */
 public class FormLayoutProviderFactory
 {
-	public static IFormLayoutProvider getFormLayoutProvider(IServiceProvider sp, Solution solution, Form f)
+	public static IFormLayoutProvider getFormLayoutProvider(IServiceProvider sp, Solution solution, Form f, String formInstanceName)
 	{
-		if (Utils.getAsBoolean(sp.getRuntimeProperties().get("enableAnchors"))) return new AnchoredFormLayoutProvider(sp, solution, f); //$NON-NLS-1$
-		else return new UnanchoredFormLayoutProvider(sp, solution, f);
+		if (Utils.getAsBoolean(sp.getRuntimeProperties().get("enableAnchors"))) return new AnchoredFormLayoutProvider(sp, solution, f, formInstanceName); //$NON-NLS-1$
+		else return new UnanchoredFormLayoutProvider(sp, solution, f, formInstanceName);
 	}
 }

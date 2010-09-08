@@ -216,7 +216,7 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 							// For field components, if anchoring is enabled, we need to add a wrapper <div> for anchoring to work.
 							if (isAnchoringEnabled && (obj instanceof Field) && TemplateGenerator.needsWrapperDivForAnchoring((Field)obj))
 							{
-								MarkupContainer compWrapper = new WrapperContainer(comp.getMarkupId() + "_wrapper", comp); //$NON-NLS-1$
+								MarkupContainer compWrapper = new WrapperContainer(ComponentFactory.getWebID(null, obj) + "_wrapper", comp); //$NON-NLS-1$
 								Dimension s = ((IFormElement)obj).getSize();
 								int anchors = 0;
 								if (obj instanceof ISupportAnchors) anchors = ((ISupportAnchors)obj).getAnchors();

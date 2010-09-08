@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient;
 
 import java.net.URL;
@@ -32,6 +32,8 @@ import org.apache.wicket.util.time.Time;
 import org.apache.wicket.util.value.ValueMap;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.FormController;
+import com.servoy.j2db.IForm;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IRepository;
@@ -76,11 +78,10 @@ public class FormCssResource extends WebResource
 				Map.Entry entry = (Entry)iterator.next();
 				String solutionName = (String)entry.getKey();
 				Pair<String, Long> filterTime = filterTime((String)entry.getValue());
-				String formName = filterTime.getLeft();
+				String formInstanceName = filterTime.getLeft();
 				time = filterTime.getRight();
 
-
-				String solutionAndForm = solutionName + "/" + formName; //$NON-NLS-1$
+				String solutionAndForm = solutionName + "/" + formInstanceName; //$NON-NLS-1$
 				String templateDir = "default"; //$NON-NLS-1$
 				IServiceProvider sp = null;
 				Solution solution = null;
@@ -90,8 +91,12 @@ public class FormCssResource extends WebResource
 					sp = WebClientSession.get().getWebClient();
 					if (sp != null)
 					{
-						FlattenedSolution clientSolution = sp.getFlattenedSolution();
-						form = clientSolution.getForm(formName);
+						IForm fc = ((WebClient)sp).getFormManager().getForm(formInstanceName);
+						if (fc instanceof FormController)
+						{
+							FlattenedSolution clientSolution = sp.getFlattenedSolution();
+							form = clientSolution.getForm(((FormController)fc).getForm().getName());
+						}
 					}
 					templateDir = WebClientSession.get().getTemplateDirectoryName();
 				}
@@ -120,10 +125,10 @@ public class FormCssResource extends WebResource
 						solution = (Solution)as.getLocalRepository().getActiveRootObject(sd.getRootObjectId());
 						if (form == null)
 						{
-							form = solution.getForm(formName);
+							form = solution.getForm(formInstanceName);
 						}
 					}
-					Pair<String, String> formHTMLAndCSS = TemplateGenerator.getFormHTMLAndCSS(solution, form, sp);
+					Pair<String, String> formHTMLAndCSS = TemplateGenerator.getFormHTMLAndCSS(solution, form, sp, formInstanceName);
 					css = formHTMLAndCSS.getRight();
 				}
 				catch (Exception e)

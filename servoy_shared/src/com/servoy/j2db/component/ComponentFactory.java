@@ -167,19 +167,8 @@ public class ComponentFactory
 	private static Boolean element_name_as_uid_prefix;
 	private static Boolean element_id_as_uid;
 
-	public static String getWebID(Form form, IPersist persist)
-	{
-		String partId = getWebIDInternal(persist);
-		if (form != null)
-		{
-			IPersist persistForm = persist.getAncestor(IRepository.FORMS);
-			if (persistForm != null && form.getID() != persistForm.getID()) partId = new StringBuffer(partId).append("_").append(getWebIDInternal(form)).toString();
-		}
 
-		return partId;
-	}
-
-	private static String getWebIDInternal(IPersist meta)
+	public static String getWebID(Form form, IPersist meta)
 	{
 		String prefix = WEB_ID_PREFIX; //to stay javascript id ref compatible 
 

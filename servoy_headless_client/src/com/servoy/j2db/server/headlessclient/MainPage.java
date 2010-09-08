@@ -512,7 +512,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				item.add(form);
 
 				IFormLayoutProvider layoutProvider = FormLayoutProviderFactory.getFormLayoutProvider(client, client.getSolution(),
-					form.getController().getForm());
+					form.getController().getForm(), form.getController().getName());
 
 				TextualStyle styleToReturn = null;
 

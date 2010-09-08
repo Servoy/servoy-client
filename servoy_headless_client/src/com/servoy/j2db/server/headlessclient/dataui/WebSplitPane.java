@@ -167,8 +167,11 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		add(dividerUpdater);
 
 		splitter = new WebMarkupContainer("splitter"); //$NON-NLS-1$
+		splitter.setOutputMarkupId(true);
 		splitComponents[0] = new WebMarkupContainer("websplit_left"); //$NON-NLS-1$
+		splitComponents[0].setOutputMarkupId(true);
 		splitComponents[1] = new WebMarkupContainer("websplit_right"); //$NON-NLS-1$
+		splitComponents[1].setOutputMarkupId(true);
 		splitComponents[0].add(new Label("webform", new Model<String>(""))); //$NON-NLS-1$ //$NON-NLS-2$
 		splitComponents[1].add(new Label("webform", new Model<String>(""))); //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -550,10 +553,10 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 			pos = "top"; //$NON-NLS-1$
 		}
 
-		StringBuffer resizeScript = new StringBuffer("var splitter = YAHOO.util.Dom.get('splitter_").append(getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("var left = YAHOO.util.Dom.get('websplit_left_").append(getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
+		StringBuffer resizeScript = new StringBuffer("var splitter = YAHOO.util.Dom.get('").append(splitter.getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
+		resizeScript.append("var left = YAHOO.util.Dom.get('").append(splitComponents[0].getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
 		resizeScript.append("YAHOO.util.Dom.setStyle(left, 'background-color', '#FFFFFF');"); //$NON-NLS-1$
-		resizeScript.append("var right = YAHOO.util.Dom.get('websplit_right_").append(getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
+		resizeScript.append("var right = YAHOO.util.Dom.get('").append(splitComponents[1].getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
 		resizeScript.append("var resize = new YAHOO.util.Resize(splitter, { min").append(dim).append(": ").append(dividerSize + leftFormMinSize).append(", max").append(dim).append(": splitter.offsetParent.offset").append(dim).append(" - ").append(rightFormMinSize).append(", ").append(continuousLayout ? "" : "proxy: true, "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ 
 		resizeScript.append("handles: ['").append(orient == TabPanel.SPLIT_HORIZONTAL ? "r" : "b").append("']});"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		resizeScript.append("YAHOO.util.Dom.setStyle(splitter, '").append(dim_o).append("', '');"); //$NON-NLS-1$ //$NON-NLS-2$

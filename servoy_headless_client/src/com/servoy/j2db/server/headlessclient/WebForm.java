@@ -182,10 +182,10 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		super("webform"); //$NON-NLS-1$
 		markedComponents = new ArrayList<Component>();
 		TabIndexHelper.setUpTabIndexAttributeModifier(this, ISupportWebTabSeq.SKIP);
-		this.variation = "form::" + controller.getForm().getSolution().getName() + ":" + controller.getForm().getName() + "::form"; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+		this.variation = "form::" + controller.getForm().getSolution().getName() + ":" + controller.getName() + "::form"; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 		this.formController = controller;
 		final IFormLayoutProvider layoutProvider = FormLayoutProviderFactory.getFormLayoutProvider(formController.getApplication(),
-			formController.getApplication().getSolution(), formController.getForm());
+			formController.getApplication().getSolution(), formController.getForm(), formController.getName());
 		TextualStyle panelStyle = layoutProvider.getLayoutForForm(0, false, true); // custom navigator is dropped inside tab panel.
 		add(new StyleAppendingModifier(panelStyle)
 		{

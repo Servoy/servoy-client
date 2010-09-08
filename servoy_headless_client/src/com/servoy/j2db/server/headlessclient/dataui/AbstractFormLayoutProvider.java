@@ -48,6 +48,7 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 {
 	private final Solution solution;
 	protected final Form f;
+	private final String formInstanceName;
 
 	private boolean addHeaders;
 	protected int defaultNavigatorShift;
@@ -56,10 +57,11 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 	protected String orientation;
 	int viewType;
 
-	public AbstractFormLayoutProvider(IServiceProvider sp, Solution solution, Form f)
+	public AbstractFormLayoutProvider(IServiceProvider sp, Solution solution, Form f, String formInstanceName)
 	{
 		this.solution = solution;
 		this.f = f;
+		this.formInstanceName = formInstanceName;
 
 		addHeaders = true;
 		defaultNavigatorShift = 0;
@@ -119,6 +121,11 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 		orientation = OrientationApplier.getHTMLContainerOrientation(sp != null ? sp.getLocale() : Locale.getDefault(), solution.getTextOrientation());
 	}
 
+	public String getFormInstanceName()
+	{
+		return this.formInstanceName;
+	}
+
 	public int getViewType()
 	{
 		return viewType;
@@ -143,14 +150,14 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 		html.append("<html xmlns:servoy>\n"); //$NON-NLS-1$ 
 		html.append("<head>\n"); //$NON-NLS-1$ 
 		html.append("<title>"); //$NON-NLS-1$ 
-		html.append((f.getTitleText() != null ? TemplateGenerator.getSafeText(f.getTitleText()) : f.getName()));
+		html.append((f.getTitleText() != null ? TemplateGenerator.getSafeText(f.getTitleText()) : getFormInstanceName()));
 		html.append(" - Servoy"); //$NON-NLS-1$ 
 		html.append("</title>\n"); //$NON-NLS-1$ 
 		html.append("<servoy:head>\n"); //$NON-NLS-1$ 
 		html.append("\t<link rel='stylesheet' type='text/css' href='/servoy-webclient/formcss/"); //$NON-NLS-1$ 
 		html.append(solution.getName());
 		html.append('/');
-		html.append(f.getName());
+		html.append(getFormInstanceName());
 		html.append("_t"); //$NON-NLS-1$ 
 		html.append(System.currentTimeMillis());
 		html.append("t.css'/>\n"); //$NON-NLS-1$ 
@@ -303,7 +310,7 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 
 	private String buildFormID()
 	{
-		return "form_" + ComponentFactory.stripIllegalCSSChars(f.getName()); //$NON-NLS-1$
+		return "form_" + ComponentFactory.stripIllegalCSSChars(getFormInstanceName()); //$NON-NLS-1$
 	}
 
 	protected abstract void fillFormLayoutCSS(TextualStyle formStyle);
