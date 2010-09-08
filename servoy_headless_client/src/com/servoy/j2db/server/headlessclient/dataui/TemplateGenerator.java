@@ -1281,6 +1281,7 @@ public class TemplateGenerator
 		{
 			styleObj = css.addStyle("body");//$NON-NLS-1$ 
 			styleObj.setProperty("margin", "0px 0px 0px 0px");//$NON-NLS-1$ //$NON-NLS-2$
+			styleObj.setProperty("background-color", "#FFFFFF");//$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		int h1 = 0;
