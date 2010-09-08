@@ -56,12 +56,14 @@ public class MethodTemplate implements IMethodTemplate
 		Map<String, MethodTemplate> calculationTemplates = new HashMap<String, MethodTemplate>();
 		CLASS_TEMPLATES.put(ScriptCalculation.class, calculationTemplates);
 		calculationTemplates.put("rowBGColorCalculation", //$NON-NLS-1$
-			new MethodTemplate("Calculate the row background color", new MethodArgument("rowBGColorCalc", ArgumentType.Color, "row background color"), //
+			new MethodTemplate("Calculate the row background color",
+				new MethodArgument("rowBGColorCalc", ArgumentType.Color, "row background color"), //
 				new MethodArgument[] { new MethodArgument("index", ArgumentType.Number, "row index"), //
 				new MethodArgument("selected", ArgumentType.Boolean, "is the row selected"), //
 				new MethodArgument("elementType", ArgumentType.String, "element type"), //
 				new MethodArgument("dataProviderID", ArgumentType.String, "element data provider"), //
-				new MethodArgument("edited", ArgumentType.Boolean, "is the record edited") }, "var color = null;\n\treturn color;", true)); //
+				new MethodArgument("edited", ArgumentType.Boolean, "is the record edited") },
+				"\tif (selected)\n\t\treturn '#c4ffff';\n\telse if (index % 2)\n\t\treturn '#f4ffff';\n\telse\n\t\treturn '#FFFFFF';", true));
 
 		// Common method templates
 
