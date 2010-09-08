@@ -899,6 +899,17 @@ function getModifiers(e)
      return modifiers;
 }
 
+function getActionParams(e)
+{
+	var src = e.target;	// get the target element
+	
+	// for IE
+	if(!src)
+		src = e.srcElement;
+
+	return '&modifiers='+getModifiers(e)+'&mx=' + ((e.pageX ? e.pageX : e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft) - getXY(src)[0]) + '&my=' + ((e.pageY ? e.pageY : e.clientY + document.body.scrollLeft + document.documentElement.scrollLeft) - getXY(src)[1]);
+}
+
 function getPreferredTableSize(startElementId)
 {
 	var iReturnValue = new Array();

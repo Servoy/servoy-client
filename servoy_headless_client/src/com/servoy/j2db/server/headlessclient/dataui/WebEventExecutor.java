@@ -159,8 +159,7 @@ public class WebEventExecutor extends BaseEventExecutor
 					@Override
 					protected CharSequence generateCallbackScript(final CharSequence partialCall)
 					{
-						return super.generateCallbackScript(partialCall +
-							"+'&modifiers='+getModifiers(event)+'&mx=' + ((event.pageX ? event.pageX : event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft) - getXY(this)[0]) + '&my=' + ((event.pageY ? event.pageY : event.clientY + document.body.scrollLeft + document.documentElement.scrollLeft) - getXY(this)[1])"); //$NON-NLS-1$
+						return super.generateCallbackScript(partialCall + "+getActionParams(event)"); //$NON-NLS-1$
 					}
 
 					@Override
@@ -228,8 +227,7 @@ public class WebEventExecutor extends BaseEventExecutor
 					@Override
 					protected CharSequence generateCallbackScript(final CharSequence partialCall)
 					{
-						return super.generateCallbackScript(partialCall +
-							"+'&modifiers='+getModifiers(event)+'&mx=' + ((event.pageX ? event.pageX : event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft) - getXY(this)[0]) + '&my=' + ((event.pageY ? event.pageY : event.clientY + document.body.scrollLeft + document.documentElement.scrollLeft) - getXY(this)[1])"); //$NON-NLS-1$
+						return super.generateCallbackScript(partialCall + "+getActionParams(event)"); //$NON-NLS-1$
 					}
 
 					@SuppressWarnings("nls")
@@ -270,16 +268,15 @@ public class WebEventExecutor extends BaseEventExecutor
 				protected void onEvent(AjaxRequestTarget target)
 				{
 					WebEventExecutor.this.onEvent(JSEvent.EventType.rightClick, target, component,
-							Utils.getAsInteger(RequestCycle.get().getRequest().getParameter(IEventExecutor.MODIFIERS_PARAMETER)),
-							new Point(Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("mx")), //$NON-NLS-1$
+						Utils.getAsInteger(RequestCycle.get().getRequest().getParameter(IEventExecutor.MODIFIERS_PARAMETER)),
+						new Point(Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("mx")), //$NON-NLS-1$
 							Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("my")))); //$NON-NLS-1$
 				}
 
 				@Override
 				protected CharSequence generateCallbackScript(final CharSequence partialCall)
 				{
-					return super.generateCallbackScript(partialCall +
-						"+'&modifiers='+getModifiers(event)+'&mx=' + ((event.pageX ? event.pageX : event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft) - getXY(this)[0]) + '&my=' + ((event.pageY ? event.pageY : event.clientY + document.body.scrollLeft + document.documentElement.scrollLeft) - getXY(this)[1])"); //$NON-NLS-1$
+					return super.generateCallbackScript(partialCall + "+getActionParams(event)"); //$NON-NLS-1$
 				}
 
 				@Override
