@@ -16,7 +16,6 @@
  */
 package com.servoy.j2db;
 
-
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -88,13 +87,13 @@ import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.IScriptSupport;
 import com.servoy.j2db.scripting.InstanceJavaMembers;
-import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.JSWindowImpl;
-import com.servoy.j2db.scripting.JSWindowImpl.JSWindow;
 import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.scripting.SelectedRecordScope;
 import com.servoy.j2db.scripting.SolutionScope;
+import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
+import com.servoy.j2db.scripting.JSWindowImpl.JSWindow;
 import com.servoy.j2db.ui.IAccessible;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
@@ -191,6 +190,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(Object[])
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(Object[])
+		 * //show the form in the main window
+		 * //%%prefix%%controller.show(null);
 		 *
 		 * @param window optional the window in which this form should be shown. If it is unspecified the current window will be used.
 		 */
