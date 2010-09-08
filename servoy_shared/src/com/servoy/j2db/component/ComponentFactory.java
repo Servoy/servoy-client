@@ -255,8 +255,8 @@ public class ComponentFactory
 						// Designer all always real components!!
 						retval = (JComponent)application.getItemFactory().createLabel(null, "Tabless panel, for JavaScript use");
 						((IStandardLabel)retval).setHorizontalAlignment(SwingConstants.CENTER);
-						applyBasicComponentProperties(application, (IComponent)retval, (BaseComponent)meta,
-							getStyleForBasicComponent(application, (BaseComponent)meta, form));
+						applyBasicComponentProperties(application, (IComponent)retval, (BaseComponent)meta, getStyleForBasicComponent(application,
+							(BaseComponent)meta, form));
 					}
 					else
 					{
@@ -1268,8 +1268,7 @@ public class ComponentFactory
 									}
 									catch (IOException e)
 									{
-										Debug.error(
-											"Exception loading properties for converter " + converter.getName() + ", properties: " +
+										Debug.error("Exception loading properties for converter " + converter.getName() + ", properties: " +
 												ci.getConverterProperties(), e);
 									}
 								}
@@ -1478,7 +1477,14 @@ public class ComponentFactory
 			}
 		}
 //		fl.setOpaque(!field.getTransparent());
-		fl.setNeedEntireState(field.getDisplaysTags());
+		if (field.getDisplaysTags())
+		{
+			fl.setNeedEntireState(true);
+			if (field.getDataProviderID() == null && field.getText() != null && fl instanceof IDisplayTagText)
+			{
+				((IDisplayTagText)fl).setTagText(field.getText());
+			}
+		}
 		if (el != null) // el is an ActionListener
 		{
 			fl.addScriptExecuter(el);
