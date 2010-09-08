@@ -1531,7 +1531,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 * @sample
 	 * // log level is used to determine how/if to log in servoy_log.txt; for smart client java out and err streams are used
 	 * application.output('my very important trace msg');// default log level: info
-	 * application.output('my very important msg',LOGGINGLEVEL.LOGLEVEL_ERROR);// log level: error
+	 * application.output('my very important msg',LOGGINGLEVEL.ERROR);// log level: error
 	 *
 	 * @param msg Object to send to output stream
 	 * @param level optional the log level where it should log to.
