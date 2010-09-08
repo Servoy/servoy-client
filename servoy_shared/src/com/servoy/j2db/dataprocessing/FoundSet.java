@@ -2118,8 +2118,16 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * @sample
 	 * // foreign key data is only filled in for equals (=) relation items 
-	 * %%prefix%%foundset.newRecord();
-	 * //%%prefix%%foundset.newRecord(2); //adds as second record
+	 * var idx = %%prefix%%foundset.newRecord(false); // add as last record
+	 * // %%prefix%%foundset.newRecord(); // adds as first record
+	 * // %%prefix%%foundset.newRecord(2); //adds as second record
+	 * if (idx >= 0) // returned index is -1 in case of failure 
+	 * {
+	 * 	%%prefix%%foundset.some_column = "some text";
+	 * 	application.output("added on position " + idx);
+	 * 	// when adding at the end of the foundset, the returned index
+	 * 	// corresponds with the size of the foundset
+	 * }
 	 *
 	 * @param location optional a boolean or number when true the new record is added as the topmost record, when a number, the new record is added at specified index ; defaults to 1.
 	 * @param changeSelection optional boolean when true the selection is changed to the new record; defaults to true.
@@ -2932,7 +2940,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					deletePKs.addRow(new Object[] { ValueFactory.createTableFlushValue() });
 				}
 				String tid = fsm.getTransactionID(table.getServerName());
-				SQLStatement statement = new SQLStatement(ISQLStatement.DELETE_ACTION, table.getServerName(), table.getName(), deletePKs, tid, delete_sql,
+				SQLStatement statement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, table.getServerName(), table.getName(), deletePKs, tid, delete_sql,
 					fsm.getTableFilterParams(table.getServerName(), delete_sql));
 				try
 				{
