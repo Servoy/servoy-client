@@ -782,16 +782,31 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 		return getValueObject(record, getFormScope(), dataProviderId);
 	}
 
-	public static Object getValueObject(IRecord record, FormScope fs, String dataProviderId)
+	public static Object getValueObject(IRecord record, FormScope fs, String dataProviderID)
 	{
+		if (dataProviderID == null) return null;
+
 		Object value = null;
-		if (record != null)
+		if (dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
 		{
-			value = record.getValue(dataProviderId);
+			try
+			{
+				String restName = dataProviderID.substring(ScriptVariable.GLOBAL_DOT_PREFIX.length());
+				GlobalScope gs = fs.getFormController().getApplication().getScriptEngine().getSolutionScope().getGlobalScope();
+				value = gs.get(restName, gs);
+			}
+			catch (Exception e)
+			{
+				Debug.error(e);
+			}
 		}
-		if (value == Scriptable.NOT_FOUND && fs.has(dataProviderId, fs))
+		else if (record != null)
 		{
-			value = fs.get(dataProviderId);
+			value = record.getValue(dataProviderID);
+		}
+		if (value == Scriptable.NOT_FOUND && fs.has(dataProviderID, fs))
+		{
+			value = fs.get(dataProviderID);
 		}
 		return value;
 	}
