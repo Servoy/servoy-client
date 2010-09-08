@@ -17,6 +17,9 @@
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.markup.html.list.ListItem;
+
+import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView.CellContainer;
 
 /**
  * Utility class for determining the markup ID of a given component. Uses the servoy id of that component and adds indexes in case of table/list view.
@@ -37,25 +40,24 @@ public class WebComponentSpecialIdMaker
 	 */
 	public static String getSpecialIdIfAppropriate(Component component)
 	{
-//		if (component.getParent() instanceof ListItem)
-//		{
-//			return component.getParent().getId() + Component.PATH_SEPARATOR + component.getId();
-//		}
-//		else if (component.getParent() instanceof CellContainer)
-//		{
-//			ListItem li = (ListItem)component.getParent().getParent();
-//			if (li != null)
-//			{
-//				return li.getId() + Component.PATH_SEPARATOR + component.getId();
-//			}
-//		}
-//		return component.getId();
+		if (component.getParent() instanceof ListItem)
+		{
+			return component.getParent().getId() + Component.PATH_SEPARATOR + component.getId();
+		}
+		else if (component.getParent() instanceof CellContainer)
+		{
+			ListItem li = (ListItem)component.getParent().getParent();
+			if (li != null)
+			{
+				return li.getId() + Component.PATH_SEPARATOR + component.getId();
+			}
+		}
+
 		return component.getMarkupId(true);
 	}
 
 	public static String getSpecialId(int selectedIndex, Component component)
 	{
-//		return (new Integer(selectedIndex).toString() + Component.PATH_SEPARATOR + component.getId());
-		return component.getMarkupId(true);
+		return (new Integer(selectedIndex).toString() + Component.PATH_SEPARATOR + component.getId());
 	}
 }
