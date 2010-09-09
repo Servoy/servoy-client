@@ -290,7 +290,6 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			}
 			else if (parent instanceof WebForm)
 			{
-				current = (WebForm)parent;
 				if (currentTabPanel != null)
 				{
 					int index = -1;
@@ -306,6 +305,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 				{
 					set.addRow(0, new Object[] { null, current.formController.getName(), currentBeanName, null, null });
 				}
+				current = (WebForm)parent;
 				currentTabPanel = null;
 				currentBeanName = null;
 			}
@@ -323,7 +323,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			}
 			parent = parent.getParent();
 		}
-		return new JSDataSet(formController.getApplication());
+		return new JSDataSet(formController.getApplication(), set);
 	}
 
 	/**
