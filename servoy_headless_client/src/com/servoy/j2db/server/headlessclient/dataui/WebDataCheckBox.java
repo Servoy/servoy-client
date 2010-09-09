@@ -155,16 +155,6 @@ public class WebDataCheckBox extends MarkupContainer implements IFieldComponent,
 		return jsChangeRecorder;
 	}
 
-
-	/**
-	 * @see wicket.Component#getMarkupId()
-	 */
-	@Override
-	public String getMarkupId()
-	{
-		return WebComponentSpecialIdMaker.getSpecialIdIfAppropriate(this);
-	}
-
 	/*
 	 * _____________________________________________________________ Methods for event handling
 	 */

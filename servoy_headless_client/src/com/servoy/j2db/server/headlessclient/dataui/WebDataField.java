@@ -487,15 +487,6 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		return inputId;
 	}
 
-	/**
-	 * @see wicket.Component#getMarkupId()
-	 */
-	@Override
-	public String getMarkupId()
-	{
-		return WebComponentSpecialIdMaker.getSpecialIdIfAppropriate(this);
-	}
-
 	public IStylePropertyChanges getStylePropertyChanges()
 	{
 		return jsChangeRecorder;

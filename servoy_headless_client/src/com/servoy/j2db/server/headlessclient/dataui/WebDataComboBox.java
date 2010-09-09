@@ -326,12 +326,6 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	}
 
 	@Override
-	public String getMarkupId()
-	{
-		return WebComponentSpecialIdMaker.getSpecialIdIfAppropriate(this);
-	}
-
-	@Override
 	protected CharSequence getDefaultChoice(Object selected)
 	{
 		int index = list.realValueIndexOf(selected);

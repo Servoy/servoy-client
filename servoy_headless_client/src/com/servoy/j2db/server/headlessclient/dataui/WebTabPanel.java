@@ -1545,15 +1545,6 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 	}
 
 	/**
-	 * @see wicket.Component#getMarkupId()
-	 */
-	@Override
-	public String getMarkupId()
-	{
-		return WebComponentSpecialIdMaker.getSpecialIdIfAppropriate(this);
-	}
-
-	/**
 	 * @param current
 	 * @return
 	 */

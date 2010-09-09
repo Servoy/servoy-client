@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient;
 
 import java.util.Properties;
@@ -21,7 +21,6 @@ import java.util.Properties;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 
-import com.servoy.j2db.server.headlessclient.dataui.WebComponentSpecialIdMaker;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.util.IDelegate;
@@ -46,15 +45,6 @@ public class WrapperContainer extends WebMarkupContainer implements IDelegate<Co
 		this.wrappedComponent = wrappedComponent;
 		add(wrappedComponent);
 		setOutputMarkupPlaceholderTag(true);
-	}
-
-	/**
-	 * @see org.apache.wicket.Component#getMarkupId()
-	 */
-	@Override
-	public String getMarkupId()
-	{
-		return WebComponentSpecialIdMaker.getSpecialIdIfAppropriate(this);
 	}
 
 	/**

@@ -380,15 +380,6 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 	}
 
 	/**
-	 * @see wicket.Component#getMarkupId()
-	 */
-	@Override
-	public String getMarkupId()
-	{
-		return WebComponentSpecialIdMaker.getSpecialIdIfAppropriate(this);
-	}
-
-	/**
 	 * @see wicket.markup.html.link.ILinkListener#onLinkClicked()
 	 */
 	public void onLinkClicked()

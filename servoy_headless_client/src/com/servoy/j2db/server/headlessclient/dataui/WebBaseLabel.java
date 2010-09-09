@@ -153,15 +153,6 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 	}
 
 	/**
-	 * @see wicket.Component#getMarkupId()
-	 */
-	@Override
-	public String getMarkupId()
-	{
-		return WebComponentSpecialIdMaker.getSpecialIdIfAppropriate(this);
-	}
-
-	/**
 	 * @see wicket.markup.html.WebComponent#onRender(wicket.markup.MarkupStream)
 	 */
 	@Override

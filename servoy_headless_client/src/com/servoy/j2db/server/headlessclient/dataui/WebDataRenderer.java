@@ -111,12 +111,6 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 		this.parentView = parentView;
 	}
 
-	@Override
-	public String getMarkupId()
-	{
-		return WebComponentSpecialIdMaker.getSpecialIdIfAppropriate(this);
-	}
-
 	/**
 	 * @see com.servoy.j2db.ui.IDataRenderer#getDataAdapterList()
 	 */

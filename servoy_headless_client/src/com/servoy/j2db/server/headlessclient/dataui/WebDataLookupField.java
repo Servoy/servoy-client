@@ -327,15 +327,6 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 	}
 
 	/**
-	 * @see wicket.Component#getMarkupId()
-	 */
-	@Override
-	public String getMarkupId()
-	{
-		return WebComponentSpecialIdMaker.getSpecialIdIfAppropriate(this);
-	}
-
-	/**
 	 * @see com.servoy.j2db.dataprocessing.IDisplayRelatedData#setFoundSet(com.servoy.j2db.dataprocessing.IRecordInternal,
 	 *      com.servoy.j2db.dataprocessing.IFoundSetInternal, boolean)
 	 */

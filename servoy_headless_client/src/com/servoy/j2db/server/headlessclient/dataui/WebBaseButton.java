@@ -139,15 +139,6 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	}
 
 	/**
-	 * @see wicket.Component#getMarkupId()
-	 */
-	@Override
-	public String getMarkupId()
-	{
-		return WebComponentSpecialIdMaker.getSpecialIdIfAppropriate(this);
-	}
-
-	/**
 	 * @see org.apache.wicket.ajax.IAjaxIndicatorAware#getAjaxIndicatorMarkupId()
 	 */
 	public String getAjaxIndicatorMarkupId()

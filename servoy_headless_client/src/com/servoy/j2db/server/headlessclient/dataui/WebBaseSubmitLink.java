@@ -152,12 +152,6 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IScriptHtml
 		return application.getLocale();
 	}
 
-	@Override
-	public String getMarkupId()
-	{
-		return WebComponentSpecialIdMaker.getSpecialIdIfAppropriate(this);
-	}
-
 	/**
 	 * @see org.apache.wicket.ajax.IAjaxIndicatorAware#getAjaxIndicatorMarkupId()
 	 */

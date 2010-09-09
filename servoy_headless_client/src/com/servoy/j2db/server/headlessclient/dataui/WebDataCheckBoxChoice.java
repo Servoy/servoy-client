@@ -166,15 +166,6 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 	}
 
 	/**
-	 * @see wicket.Component#getMarkupId()
-	 */
-	@Override
-	public String getMarkupId()
-	{
-		return WebComponentSpecialIdMaker.getSpecialIdIfAppropriate(this);
-	}
-
-	/**
 	 * @see wicket.Component#onModelChanged()
 	 */
 	@Override

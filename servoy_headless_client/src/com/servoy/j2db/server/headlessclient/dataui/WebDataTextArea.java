@@ -148,15 +148,6 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	}
 
 	/**
-	 * @see wicket.Component#getMarkupId()
-	 */
-	@Override
-	public String getMarkupId()
-	{
-		return WebComponentSpecialIdMaker.getSpecialIdIfAppropriate(this);
-	}
-
-	/**
 	 * @see wicket.Component#getComparator()
 	 */
 	@Override

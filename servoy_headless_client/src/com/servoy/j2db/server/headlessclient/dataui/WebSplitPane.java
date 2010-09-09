@@ -628,12 +628,6 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		else headerResponse.renderOnDomReadyJavascript(resizeScript.toString());
 	}
 
-	@Override
-	public String getMarkupId()
-	{
-		return WebComponentSpecialIdMaker.getSpecialIdIfAppropriate(this);
-	}
-
 	public String js_getToolTipText()
 	{
 		return tooltip;

@@ -1230,16 +1230,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 	}
 
-	@Override
-	public String getMarkupId()
-	{
-		if (cellview instanceof Portal)
-		{
-			return WebComponentSpecialIdMaker.getSpecialIdIfAppropriate(this);
-		}
-		return super.getMarkupId();
-	}
-
 	public void setTabIndex(int tabIndex)
 	{
 		this.tabIndex = tabIndex;
@@ -1663,16 +1653,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			}
 			else
 			{
-				final int index = selectedIndex;
 				// the desired component is not created yet, however for requestFocus we only need the correct id
-				cell = new WebComponent(columnIdentifierComponent.getId())
-				{
-					@Override
-					public String getMarkupId(boolean createIfDoesNotExist)
-					{
-						return WebComponentSpecialIdMaker.getSpecialId(index, columnIdentifierComponent);
-					}
-				};
+				cell = new WebComponent(columnIdentifierComponent.getId());
 				cell.setOutputMarkupId(true);
 			}
 
@@ -1787,39 +1769,11 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			@Override
 			public String getObject()
 			{
-				return c.getMarkupId();
+				return c.getId();
 			}
 		};
-		// Add the class explicitly, don't rely on class based on id (starting with #)
-		// because the id of components is changed in table view.
-		c.add(new AttributeModifier("class", true, componentClassModel) //$NON-NLS-1$
-		{
-			@Override
-			protected String newValue(final String currentValue, String replacementValue)
-			{
-				String currentClass = currentValue == null ? "" : currentValue; //$NON-NLS-1$
-				String replacementClass = ""; //$NON-NLS-1$
-				if (replacementValue != null)
-				{
-					int idx = replacementValue.lastIndexOf(":"); //$NON-NLS-1$
-					replacementClass = replacementValue.substring(idx + 1);
 
-					if (currentClass.equals(replacementClass)) return currentClass.trim();
-
-					// check if already added
-					int replacementClassIdx = currentClass.indexOf(replacementClass);
-					if ((replacementClassIdx != -1) && (replacementClassIdx == 0 || currentClass.charAt(replacementClassIdx - 1) == ' ') &&
-						(replacementClassIdx == currentClass.length() - replacementClass.length() - 1 || currentClass.charAt(replacementClass.length()) == ' '))
-					{
-						return currentClass.trim();
-					}
-
-				}
-
-				String result = replacementClass + " " + currentClass; //$NON-NLS-1$
-				return result.trim();
-			}
-		});
+		c.add(new AttributeModifier("class", true, componentClassModel)); //$NON-NLS-1$
 	}
 
 	/**

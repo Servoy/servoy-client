@@ -241,16 +241,6 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 		return jsChangeRecorder;
 	}
 
-	/**
-	 * @see wicket.Component#getMarkupId()
-	 */
-	@Override
-	public String getMarkupId()
-	{
-		return WebComponentSpecialIdMaker.getSpecialIdIfAppropriate(this);
-	}
-
-
 	public Object getDelegate()
 	{
 		return field;
