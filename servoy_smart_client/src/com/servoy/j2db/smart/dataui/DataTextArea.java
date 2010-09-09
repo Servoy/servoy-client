@@ -35,7 +35,6 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.TreeSet;
@@ -254,7 +253,7 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 	public void setValidationEnabled(boolean b)
 	{
 		if (eventExecutor.getValidationEnabled() == b) return;
-		if (dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX)) return;
+		if (dataProviderID != null && dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX)) return;
 
 		eventExecutor.setValidationEnabled(b);
 
@@ -314,8 +313,8 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 	public void setMargin(Insets m)
 	{
 //		enclosedComponent.setMargin(i); seems to have no effect
-		enclosedComponent.setBorder(BorderFactory.createCompoundBorder(enclosedComponent.getBorder(), BorderFactory.createEmptyBorder(m.top, m.left, m.bottom,
-			m.right)));
+		enclosedComponent.setBorder(BorderFactory.createCompoundBorder(enclosedComponent.getBorder(),
+			BorderFactory.createEmptyBorder(m.top, m.left, m.bottom, m.right)));
 	}
 
 	@Override
