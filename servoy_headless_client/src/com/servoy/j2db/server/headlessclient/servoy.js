@@ -405,7 +405,7 @@ function addListeners(strEvent, callbackUrl, ids, post)
 					}
 					else
 					{
-						modifiers = getModifiers(e);
+						modifiers = Servoy.Utils.getModifiers(e);
 					}
 					// if it has display/editvalues then test if the current value is the displayValue. if so only a get instead of a post. 
 					if (Wicket.$(this.id).displayValue && Wicket.$(this.id).value == Wicket.$(this.id).displayValue)
@@ -450,7 +450,7 @@ function addListeners(strEvent, callbackUrl, ids, post)
 					}
 					else
 					{
-						modifiers = getModifiers(e);
+						modifiers = Servoy.Utils.getModifiers(e);
 					}					
 					var wcall=wicketAjaxGet
 					(					
@@ -468,7 +468,7 @@ function addListeners(strEvent, callbackUrl, ids, post)
 				var mousedownCallback = function(e)
 				{
 					if(!e) e = window.event;
-					onFocusModifiers = getModifiers(e);					
+					onFocusModifiers = Servoy.Utils.getModifiers(e);
 				}
 				Wicket.Event.add(el, "mousedown", mousedownCallback);
 			}
@@ -722,7 +722,7 @@ function showtip(e,message)
 		
 	if(src.parentNode)
 	{
-		var positionXY = getXY(src.parentNode);
+		var positionXY = Servoy.Utils.getXY(src.parentNode);
 		var sizeWH = getRootElementSize(src.parentNode);
 		targetParentWidth = positionXY[0] + sizeWH[0];
 		targetParentHeight = positionXY[1] + sizeWH[1];
@@ -794,20 +794,6 @@ function hidetip()
 	var m;
 	m = document.getElementById('mktipmsg');
 	m.style.display = "none";
-}
-
-function getXY(oElement)
-{
-	var iReturnValue = new Array();
-	iReturnValue[0] = 0;
-	iReturnValue[1] = 0;
-	while( oElement != null )
-	{
-		iReturnValue[0] += oElement.offsetLeft;
-		iReturnValue[1] += oElement.offsetTop;
-		oElement = oElement.offsetParent;
-	}
-	return iReturnValue;
 }
 
 function getRootElementSize(oElement)
@@ -882,32 +868,6 @@ function showurl(url,timeout)
 		}
 	}
 	mywindow.setTimeout(mywindow.document.location.href=url,timeout)
-}
-
-
-function getModifiers(e) 
-{
-     if (!e) e = window.event;
-     if (!e) return 0;
-
-     var modifiers = 0;
-     if(e.ctrlKey)	modifiers += 1
-     if(e.shiftKey)	modifiers += 2
-     if(e.altKey)	modifiers += 4
-     if(e.metaKey)	modifiers += 8
-
-     return modifiers;
-}
-
-function getActionParams(e)
-{
-	var src = e.target;	// get the target element
-	
-	// for IE
-	if(!src)
-		src = e.srcElement;
-
-	return '&modifiers='+getModifiers(e)+'&mx=' + ((e.pageX ? e.pageX : e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft) - getXY(src)[0]) + '&my=' + ((e.pageY ? e.pageY : e.clientY + document.body.scrollLeft + document.documentElement.scrollLeft) - getXY(src)[1]);
 }
 
 function getPreferredTableSize(startElementId)
@@ -1103,6 +1063,43 @@ if (typeof(Servoy.Utils) == "undefined")
 				if ((element.parentNode.childNodes > 1) && (imageHeight + 34 < height)) element.style.left ='51px';
 			}
 		}
+	  },
+	  
+	  getXY: function(oElement)
+	  {
+		var iReturnValue = new Array();
+		iReturnValue[0] = 0;
+		iReturnValue[1] = 0;
+		while( oElement != null )
+		{
+			iReturnValue[0] += oElement.offsetLeft;
+			iReturnValue[1] += oElement.offsetTop;
+			oElement = oElement.offsetParent;
+		}
+		return iReturnValue;
+	  },
+	  
+	  getModifiers: function(e) 
+	  {
+		if (!e) e = window.event;
+		if (!e) return 0;
+
+		var modifiers = 0;
+		if(e.ctrlKey)	modifiers += 1
+		if(e.shiftKey)	modifiers += 2
+		if(e.altKey)	modifiers += 4
+		if(e.metaKey)	modifiers += 8
+
+		return modifiers;
+	  },  
+	  
+	  getActionParams: function(e)
+	  {
+		var src = e.target;	// get the target element
+		// for IE
+		if(!src)
+			src = e.srcElement;
+		return '&modifiers='+Servoy.Utils.getModifiers(e)+'&mx=' + ((e.pageX ? e.pageX : e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft) - Servoy.Utils.getXY(src)[0]) + '&my=' + ((e.pageY ? e.pageY : e.clientY + document.body.scrollLeft + document.documentElement.scrollLeft) - Servoy.Utils.getXY(src)[1]);
 	  }
 	}
 }

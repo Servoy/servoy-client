@@ -159,7 +159,7 @@ public class WebEventExecutor extends BaseEventExecutor
 					@Override
 					protected CharSequence generateCallbackScript(final CharSequence partialCall)
 					{
-						return super.generateCallbackScript(partialCall + "+getActionParams(event)"); //$NON-NLS-1$
+						return super.generateCallbackScript(partialCall + "+Servoy.Utils.getActionParams(event)"); //$NON-NLS-1$
 					}
 
 					@Override
@@ -227,7 +227,7 @@ public class WebEventExecutor extends BaseEventExecutor
 					@Override
 					protected CharSequence generateCallbackScript(final CharSequence partialCall)
 					{
-						return super.generateCallbackScript(partialCall + "+getActionParams(event)"); //$NON-NLS-1$
+						return super.generateCallbackScript(partialCall + "+Servoy.Utils.getActionParams(event)"); //$NON-NLS-1$
 					}
 
 					@SuppressWarnings("nls")
@@ -276,7 +276,7 @@ public class WebEventExecutor extends BaseEventExecutor
 				@Override
 				protected CharSequence generateCallbackScript(final CharSequence partialCall)
 				{
-					return super.generateCallbackScript(partialCall + "+getActionParams(event)"); //$NON-NLS-1$
+					return super.generateCallbackScript(partialCall + "+Servoy.Utils.getActionParams(event)"); //$NON-NLS-1$
 				}
 
 				@Override
@@ -378,7 +378,7 @@ public class WebEventExecutor extends BaseEventExecutor
 	{
 		if (webModifiers == IEventExecutor.MODIFIERS_UNSPECIFIED) return IEventExecutor.MODIFIERS_UNSPECIFIED;
 
-		// see function getModifiers() in servoy.js
+		// see function Servoy.Utils.getModifiers() in servoy.js
 		int awtModifiers = 0;
 		if ((webModifiers & 1) != 0) awtModifiers |= Event.CTRL_MASK;
 		if ((webModifiers & 2) != 0) awtModifiers |= Event.SHIFT_MASK;
