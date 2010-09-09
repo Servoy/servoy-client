@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting;
 
 import java.awt.Event;
@@ -320,7 +320,7 @@ public class JSEvent implements IPrefixedConstantsObject
 	}
 
 	/**
-	 * Returns the x position of the event if applicable.
+	 * Returns the x position of the event, relative to the component that fired it, if applicable.
 	 * For example drag'n'drop events will set the x,y positions.
 	 * 
 	 * @sample
@@ -336,7 +336,7 @@ public class JSEvent implements IPrefixedConstantsObject
 	}
 
 	/**
-	 * Returns the x position of the event if applicable.
+	 * Returns the y position of the event, relative to the component that fired it, if applicable.
 	 * For example drag'n'drop events will set the x,y positions.
 	 * 
 	 * @sample
