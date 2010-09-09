@@ -1546,15 +1546,16 @@ public class JSDatabaseManager
 
 	/**
 	 * Saves all outstanding (unsaved) data and exits the current record. 
-	 * Optionally, by specifying a record, can save a single record instead of all the data.
+	 * Optionally, by specifying a record or foundset, can save a single record or all reacords from foundset instead of all the data.
 	 * 
 	 * NOTE: The fields focus may be lost in user interface in order to determine the edits. 
 	 * 
 	 * @sample
 	 * databaseManager.saveData();
 	 * //databaseManager.saveData(foundset.getRecord(1));//save specific record
+	 * //databaseManager.saveData(foundset);//save all records from foundset
 	 *
-	 * @param record optional The JSRecord to save.
+	 * @param record/foundset optional The JSRecord to save.
 	 * 
 	 * @return true if the save was done without an error.
 	 */
@@ -1564,6 +1565,11 @@ public class JSDatabaseManager
 		if (vargs.length >= 1 && vargs[0] instanceof IRecordInternal)
 		{
 			return application.getFoundSetManager().getEditRecordList().stopEditing(true, (IRecordInternal)vargs[0]) == ISaveConstants.STOPPED;
+		}
+		if (vargs.length >= 1 && vargs[0] instanceof IFoundSetInternal)
+		{
+			return application.getFoundSetManager().getEditRecordList().stopEditing(true,
+				Arrays.asList(((IFoundSetInternal)vargs[0]).getRecords(0, ((IFoundSetInternal)vargs[0]).getSize()))) == ISaveConstants.STOPPED;
 		}
 		return application.getFoundSetManager().getEditRecordList().stopEditing(true) == ISaveConstants.STOPPED;
 	}
@@ -1949,7 +1955,8 @@ public class JSDatabaseManager
 	}
 
 	/**
-	 * Rolls back in memory edited records that are outstanding (not saved).
+	 * Rolls back in memory edited records that are outstanding (not saved). 
+	 * Can specify a record or foundset as parameter to rollback.
 	 * Best used in combination with the function databaseManager.setAutoSave()
 	 * This does not include deletes, they do not honor the autosafe false flag so they cant be rollbacked by this call.
 	 *
@@ -1961,12 +1968,32 @@ public class JSDatabaseManager
 	 * 
 	 * //On save or cancel, when data has been entered:
 	 * if (cancel) databaseManager.rollbackEditedRecords()
+	 * //databaseManager.rollbackEditedRecords(foundset); // rollback all records from foundset
+	 * //databaseManager.rollbackEditedRecords(foundset.getSelectedRecord()); // rollback only one record
 	 * databaseManager.setAutoSave(true)
+	 * 
+	 * @param foundset/record optional A JSFoundset or a JSRecord to rollback
 	 */
-	public void js_rollbackEditedRecords() throws ServoyException
+	public void js_rollbackEditedRecords(Object[] values) throws ServoyException
 	{
 		checkAuthorized();
-		application.getFoundSetManager().getEditRecordList().rollbackRecords();
+		if (values.length == 0)
+		{
+			application.getFoundSetManager().getEditRecordList().rollbackRecords();
+		}
+		else
+		{
+			List<IRecordInternal> records = new ArrayList<IRecordInternal>();
+			if (values[0] instanceof IRecordInternal)
+			{
+				records.add((IRecordInternal)values[0]);
+			}
+			if (values[0] instanceof IFoundSetInternal)
+			{
+				records.addAll(Arrays.asList(((IFoundSetInternal)values[0]).getRecords(0, ((IFoundSetInternal)values[0]).getSize())));
+			}
+			if (records.size() > 0) application.getFoundSetManager().getEditRecordList().rollbackRecords(records);
+		}
 	}
 
 	/**

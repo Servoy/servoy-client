@@ -163,7 +163,7 @@ public class EditRecordList
 
 	public int stopEditing(boolean javascripStop)
 	{
-		return stopEditing(javascripStop, null);
+		return stopEditing(javascripStop, (List<IRecordInternal>)null);
 	}
 
 	/**
@@ -175,15 +175,36 @@ public class EditRecordList
 	 */
 	public int stopEditing(final boolean javascripStop, final IRecordInternal recordToSave)
 	{
+		return stopEditing(javascripStop, Arrays.asList(new IRecordInternal[] { recordToSave }));
+	}
+
+	/**
+	 * stop/save
+	 * 
+	 * @param javascripStop
+	 * @param recordsToSave null means all records
+	 * @return IRowChangeListener static final
+	 */
+	public int stopEditing(final boolean javascripStop, final List<IRecordInternal> recordsToSave)
+	{
 		//prevent recursive calls
 		if (isSaving)
 		{
 			return ISaveConstants.STOPPED;
 		}
 
-		if (recordToSave != null && !editedRecords.contains(recordToSave))
+		if (recordsToSave != null)
 		{
-			return ISaveConstants.STOPPED;
+			boolean hasEditedRecords = false;
+			for (IRecordInternal record : recordsToSave)
+			{
+				if (editedRecords.contains(record))
+				{
+					hasEditedRecords = true;
+					break;
+				}
+			}
+			if (!hasEditedRecords) return ISaveConstants.STOPPED;
 		}
 
 		// here we can't have a test if editedRecords is empty (and return stop)
@@ -204,11 +225,11 @@ public class EditRecordList
 					boolean stop;
 					synchronized (editedRecords)
 					{
-						stop = editedRecords.size() == 1 && editedRecords.get(0) == recordToSave;
+						stop = editedRecords.size() == 1 && recordsToSave != null && recordsToSave.size() == 1 && editedRecords.get(0) == recordsToSave.get(0);
 					}
 					if (stop)
 					{
-						stopEditing(javascripStop, recordToSave);
+						stopEditing(javascripStop, recordsToSave);
 					}
 					else
 					{
@@ -288,7 +309,7 @@ public class EditRecordList
 					{
 						Record record = (Record)tmp;
 
-						if (recordToSave != null && recordToSave != record) continue;
+						if (recordsToSave != null && !recordsToSave.contains(record)) continue;
 
 						//prevent multiple update for the same row (from multiple records)
 						for (int j = 0; j < rowUpdates.size(); j++)
@@ -598,7 +619,7 @@ public class EditRecordList
 			{
 				try
 				{
-					executeAfterUpdateOrInsertTrigger(rowUpdateInfo.getRecord(), rowUpdateInfo.getISQLStatement().getAction() == ISQLStatement.INSERT_ACTION);
+					executeAfterUpdateOrInsertTrigger(rowUpdateInfo.getRecord(), rowUpdateInfo.getISQLStatement().getAction() == ISQLActionTypes.INSERT_ACTION);
 				}
 				catch (ServoyException e)
 				{
@@ -1140,11 +1161,23 @@ public class EditRecordList
 		synchronized (editedRecords)
 		{
 			recordTested.clear();
-
 			array.addAll(failedRecords);
-			failedRecords.clear();
-
 			array.addAll(editedRecords);
+		}
+		rollbackRecords(array);
+	}
+
+	public void rollbackRecords(List<IRecordInternal> records)
+	{
+		ArrayList<IRecordInternal> array = new ArrayList<IRecordInternal>();
+		synchronized (editedRecords)
+		{
+			for (IRecordInternal record : records)
+			{
+				recordTested.remove(record);
+				if (failedRecords.remove(record)) array.add(record);
+				if (editedRecords.contains(record)) array.add(record);
+			}
 		}
 		if (array.size() > 0)
 		{
