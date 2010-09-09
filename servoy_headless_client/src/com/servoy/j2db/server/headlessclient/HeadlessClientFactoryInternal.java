@@ -18,6 +18,8 @@ package com.servoy.j2db.server.headlessclient;
 
 import javax.servlet.ServletRequest;
 
+import org.mozilla.javascript.Context;
+
 import com.servoy.j2db.ISessionClient;
 import com.servoy.j2db.persistence.InfoChannel;
 import com.servoy.j2db.persistence.SolutionMetaData;
@@ -32,22 +34,55 @@ public class HeadlessClientFactoryInternal
 		return createSessionBean(null, solutionname, username, password, solutionOpenMethodArgs, channel);
 	}
 
-	public static ISessionClient createSessionBean(ServletRequest req, String solutionname, String username, String password, Object[] solutionOpenMethodArgs,
-		InfoChannel channel) throws Exception
+	public static ISessionClient createSessionBean(final ServletRequest req, final String solutionname, final String username, final String password,
+		final Object[] solutionOpenMethodArgs, final InfoChannel channel) throws Exception
 	{
-		ISessionClient sc;
-		IApplicationServerSingleton as = ApplicationServerSingleton.get();
-		if (as.isDeveloperStartup())
+		final ISessionClient[] sc = { null };
+		final Exception[] exception = { null };
+		Runnable createSessionBeanRunner = new Runnable()
 		{
-			sc = as.getDebugClientHandler().createDebugHeadlessClient(req, username, password, null, solutionOpenMethodArgs);
+			public void run()
+			{
+				try
+				{
+					IApplicationServerSingleton as = ApplicationServerSingleton.get();
+					if (as.isDeveloperStartup())
+					{
+						sc[0] = as.getDebugClientHandler().createDebugHeadlessClient(req, username, password, null, solutionOpenMethodArgs);
+					}
+					else
+					{
+						sc[0] = new SessionClient(req, username, password, null, solutionOpenMethodArgs, solutionname);
+					}
+					sc[0].setOutputChannel(channel);
+					sc[0].loadSolution(solutionname);
+
+				}
+				catch (Exception e)
+				{
+					exception[0] = e;
+				}
+			}
+		};
+
+		if (Context.getCurrentContext() == null)
+		{
+			createSessionBeanRunner.run();
 		}
 		else
 		{
-			sc = new SessionClient(req, username, password, null, solutionOpenMethodArgs, solutionname);
+			// we are running from a javascript thread, probably developer or webclient, create the bean in a
+			// separate thread so that a new context will be created
+			Thread createSessionBeanThread = new Thread(createSessionBeanRunner, "createSessionBean"); //$NON-NLS-1$
+			createSessionBeanThread.start();
+			createSessionBeanThread.join();
 		}
-		sc.setOutputChannel(channel);
-		sc.loadSolution(solutionname);
-		return sc;
+
+		if (exception[0] != null)
+		{
+			throw exception[0];
+		}
+		return sc[0];
 	}
 
 	public static ISessionClient createAuthenticator(String authenticatorName, String method, Object[] solutionOpenMethodArgs) throws Exception
