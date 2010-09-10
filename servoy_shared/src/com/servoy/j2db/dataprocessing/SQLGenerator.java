@@ -1414,7 +1414,8 @@ public class SQLGenerator
 				}
 			}
 			int setOperator = maskedOp == ISQLCondition.IN_OPERATOR ? ISQLCondition.EQUALS_OPERATOR : ISQLCondition.NOT_OPERATOR;
-			filterWhere = new SetCondition(setOperator | (op & ~ISQLCondition.OPERATOR_MASK), new IQuerySelectValue[] { qColumn }, inValues, true);
+			filterWhere = new SetCondition(setOperator | (op & ~ISQLCondition.OPERATOR_MASK), new IQuerySelectValue[] { qColumn }, inValues,
+				maskedOp == ISQLCondition.IN_OPERATOR);
 		}
 		else if (maskedOp == ISQLCondition.BETWEEN_OPERATOR || maskedOp == ISQLCondition.NOT_BETWEEN_OPERATOR)
 		{
