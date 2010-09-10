@@ -34,6 +34,7 @@ import com.servoy.j2db.DesignModeCallbacks;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.JSEvent.EventType;
+import com.servoy.j2db.scripting.info.CLIENTDESIGN;
 import com.servoy.j2db.server.headlessclient.dataui.AbstractServoyDefaultAjaxBehavior;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataCalendar;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataRenderer;
@@ -147,8 +148,8 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 					IScriptBaseMethods sbmc = (IScriptBaseMethods)component;
 					if (sbmc.js_getName() == null) continue; //skip, elements with no name are not usable in CD
 
-					clientdesign_handles = sbmc.js_getClientProperty("clientdesign_handles");
-					Object clientdesign_selectable = sbmc.js_getClientProperty("clientdesign_selectable");
+					clientdesign_handles = sbmc.js_getClientProperty(CLIENTDESIGN.HANDLES);
+					Object clientdesign_selectable = sbmc.js_getClientProperty(CLIENTDESIGN.SELECTABLE);
 					if (clientdesign_selectable != null && !Utils.getAsBoolean(clientdesign_selectable)) continue; //skip
 				}
 
