@@ -178,7 +178,19 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 			}
 		}
 
-		// not found via the path, fall back on complete search on uuid
+		// not found via the path, check if the persist's (grand)parent is the parent, in that case the persist was deleted
+		p = persist;
+		while (p != null)
+		{
+			if (p == parent)
+			{
+				// persist was deleted, no need to do a complete search
+				return null;
+			}
+			p = p.getParent();
+		}
+
+		// not found via the path and in different parent, fall back on complete search on uuid
 		return searchPersist(parent, persist.getUUID());
 	}
 
