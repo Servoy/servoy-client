@@ -13,19 +13,15 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting.info;
-
-import java.lang.reflect.Field;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
-import com.servoy.j2db.scripting.IReturnedTypesProvider;
-import com.servoy.j2db.util.Debug;
 
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class APPLICATION_TYPES implements IPrefixedConstantsObject, IReturnedTypesProvider
+public class APPLICATION_TYPES implements IPrefixedConstantsObject
 {
 	/**
 	 * Constant for application type smart_client.
@@ -80,50 +76,5 @@ public class APPLICATION_TYPES implements IPrefixedConstantsObject, IReturnedTyp
 	public String toString()
 	{
 		return "Names of the application types";
-	}
-
-	public Class[] getAllReturnedTypes()
-	{
-		return null;
-	}
-
-	public String[] getParameterNames(String methodName)
-	{
-		return null;
-	}
-
-	public String getSample(String name)
-	{
-		try
-		{
-			Field f = getClass().getField(name);
-			if (f != null)
-			{
-				StringBuffer retval = new StringBuffer();
-				retval.append("//"); //$NON-NLS-1$
-				retval.append(getToolTip(name));
-				retval.append("\n"); //$NON-NLS-1$
-				retval.append("if (application.getApplicationType() == APPLICATION_TYPES." + name + ")\n"); //$NON-NLS-1$
-				retval.append("{\n"); //$NON-NLS-1$
-				retval.append("\t//we are in " + name.toLowerCase() + "\n"); //$NON-NLS-1$
-				retval.append("}\n"); //$NON-NLS-1$
-				return retval.toString();
-			}
-		}
-		catch (Exception e)
-		{
-			Debug.trace(e);
-		}
-		return null;
-	}
-
-	public String getToolTip(String name)
-	{
-		return "Constant for application type " + name.toLowerCase();
-	}
-
-	public boolean isDeprecated(String name)
-	{
-		return false;
 	}
 }
