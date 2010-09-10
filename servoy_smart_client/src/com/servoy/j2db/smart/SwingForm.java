@@ -55,8 +55,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -124,8 +124,8 @@ import com.servoy.j2db.printing.PrintPreview;
 import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.GroupScriptObject;
 import com.servoy.j2db.scripting.JSEvent;
-import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
+import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.smart.dataui.CellAdapter;
 import com.servoy.j2db.smart.dataui.DataComboBox;
 import com.servoy.j2db.smart.dataui.DataRenderer;
@@ -140,6 +140,7 @@ import com.servoy.j2db.smart.dataui.SplitPane;
 import com.servoy.j2db.smart.scripting.TwoNativeJavaObject;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
+import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptReadOnlyMethods;
 import com.servoy.j2db.ui.ISplitPane;
 import com.servoy.j2db.ui.ITabPanel;
@@ -148,6 +149,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IFocusCycleRoot;
 import com.servoy.j2db.util.ISupportFocusTransfer;
 import com.servoy.j2db.util.ITabPaneAlike;
+import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.OrientationApplier;
 import com.servoy.j2db.util.gui.PartsScrollPane;
 
@@ -1065,8 +1067,8 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			Messages.getString("servoy.button.cancel"), //$NON-NLS-1$
 			Messages.getString("servoy.formPanel.printCurrentRecord") //$NON-NLS-1$
 			};
-			return JOptionPane.showOptionDialog(formController.getApplication().getMainApplicationFrame(),
-				Messages.getString("servoy.formPanel.message.largeResultset", new Object[] { new Integer(formModel.getSize()) }), //$NON-NLS-1$
+			return JOptionPane.showOptionDialog(formController.getApplication().getMainApplicationFrame(), Messages.getString(
+				"servoy.formPanel.message.largeResultset", new Object[] { new Integer(formModel.getSize()) }), //$NON-NLS-1$
 				Messages.getString("servoy.general.warning"), //$NON-NLS-1$
 				JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[2]);
 		}
@@ -2102,25 +2104,70 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 
 		private boolean addSelectedComponent(Component component, Rectangle bounds)
 		{
+			Object clientdesign_handles = null;
+			if (component instanceof IScriptBaseMethods)
+			{
+				IScriptBaseMethods sbmc = (IScriptBaseMethods)component;
+				if (sbmc.js_getName() == null) return false; //skip, elements with no name are not usable in CD
+
+				clientdesign_handles = sbmc.js_getClientProperty("clientdesign_handles");
+				Object clientdesign_selectable = sbmc.js_getClientProperty("clientdesign_selectable");
+				if (clientdesign_selectable != null && !Utils.getAsBoolean(clientdesign_selectable)) return false; //skip
+			}
+			Set<String> handles = null;
+			if (clientdesign_handles instanceof Object[])
+			{
+				handles = new HashSet<String>();
+				for (int i = 0; i < ((Object[])clientdesign_handles).length; i++)
+				{
+					String val = ((Object[])clientdesign_handles)[i].toString();
+					handles.add(Utils.stringReplace(val, "'", ""));
+				}
+			}
+
 			component.setBounds(bounds);
 
 			int[][] positions = new int[8][2];
-			positions[0][0] = bounds.x - 2;
-			positions[0][1] = bounds.y - 2;
-			positions[1][0] = bounds.x - 2;
-			positions[1][1] = bounds.y + bounds.height / 2 - 3;
-			positions[2][0] = bounds.x - 2;
-			positions[2][1] = bounds.y + bounds.height - 3;
-			positions[3][0] = bounds.x + bounds.width / 2 - 3;
-			positions[3][1] = bounds.y - 3;
-			positions[4][0] = bounds.x + bounds.width / 2 - 3;
-			positions[4][1] = bounds.y + bounds.height - 3;
-			positions[5][0] = bounds.x + bounds.width - 3;
-			positions[5][1] = bounds.y - 2;
-			positions[6][0] = bounds.x + bounds.width - 3;
-			positions[6][1] = bounds.y + bounds.height / 2 - 3;
-			positions[7][0] = bounds.x + bounds.width - 3;
-			positions[7][1] = bounds.y + bounds.height - 3;
+			if (handles == null || handles.contains("tl"))
+			{
+				positions[0][0] = bounds.x - 2;
+				positions[0][1] = bounds.y - 2;
+			}
+			if (handles == null || handles.contains("l"))
+			{
+				positions[1][0] = bounds.x - 2;
+				positions[1][1] = bounds.y + bounds.height / 2 - 3;
+			}
+			if (handles == null || handles.contains("bl"))
+			{
+				positions[2][0] = bounds.x - 2;
+				positions[2][1] = bounds.y + bounds.height - 3;
+			}
+			if (handles == null || handles.contains("t"))
+			{
+				positions[3][0] = bounds.x + bounds.width / 2 - 3;
+				positions[3][1] = bounds.y - 3;
+			}
+			if (handles == null || handles.contains("b"))
+			{
+				positions[4][0] = bounds.x + bounds.width / 2 - 3;
+				positions[4][1] = bounds.y + bounds.height - 3;
+			}
+			if (handles == null || handles.contains("tr"))
+			{
+				positions[5][0] = bounds.x + bounds.width - 3;
+				positions[5][1] = bounds.y - 2;
+			}
+			if (handles == null || handles.contains("r"))
+			{
+				positions[6][0] = bounds.x + bounds.width - 3;
+				positions[6][1] = bounds.y + bounds.height / 2 - 3;
+			}
+			if (handles == null || handles.contains("br"))
+			{
+				positions[7][0] = bounds.x + bounds.width - 3;
+				positions[7][1] = bounds.y + bounds.height - 3;
+			}
 
 			Map<JComponent, int[][]> selectedComponents = selectionHandler.getSelectionForChange(this);
 			return selectedComponents.put((JComponent)component, positions) == null;
