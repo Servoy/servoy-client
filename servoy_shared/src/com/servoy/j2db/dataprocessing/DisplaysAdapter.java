@@ -33,6 +33,7 @@ import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.component.INullableAware;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
+import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.ScriptVariable;
@@ -215,7 +216,7 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 			// and we use the explicitly set "record" to commit the changed value;
 			// similar code exists for web client check boxes
 			if (!findMode && value == null && display instanceof IFieldComponent && display instanceof INullableAware &&
-				!((INullableAware)display).getAllowNull() && ((IFieldComponent)display).getDataType() == IColumnTypes.INTEGER &&
+				!((INullableAware)display).getAllowNull() && Column.mapToDefaultType(((IFieldComponent)display).getDataType()) == IColumnTypes.INTEGER &&
 				display.getDataProviderID() != null && record != null && record.startEditing() &&
 				!(record instanceof PrototypeState && !display.getDataProviderID().startsWith(ScriptVariable.GLOBAL_PREFIX))) // ignore PrototypeState if not global
 			{

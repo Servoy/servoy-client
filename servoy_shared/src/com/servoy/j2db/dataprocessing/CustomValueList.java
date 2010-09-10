@@ -167,7 +167,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 		this.type = type;
 		allowEmptySelection = addEmpty;
 		// always use default format for numbers
-		if (type != IColumnTypes.NUMBER && type != IColumnTypes.INTEGER) this.format = format;
+		if (Column.mapToDefaultType(type) != IColumnTypes.NUMBER && Column.mapToDefaultType(type) != IColumnTypes.INTEGER) this.format = format;
 		else this.format = null;
 		firstFill(values, false);
 	}

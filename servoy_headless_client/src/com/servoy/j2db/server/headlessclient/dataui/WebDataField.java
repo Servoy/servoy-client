@@ -66,6 +66,7 @@ import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.ValueListFactory;
+import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.scripting.JSEvent;
@@ -416,7 +417,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 					Debug.error(e);
 				}
 			}
-			else if (dataType == IColumnTypes.DATETIME && !parsedFormat.isMask())
+			else if (Column.mapToDefaultType(dataType) == IColumnTypes.DATETIME && !parsedFormat.isMask())
 			{
 				Object value = getDefaultModelObject();
 				if (value == null)
@@ -530,7 +531,8 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	{
 		if (converter != null) return converter;
 
-		if (list == null && dataType == IColumnTypes.TEXT)
+		int mappedType = Column.mapToDefaultType(dataType);
+		if (list == null && mappedType == IColumnTypes.TEXT)
 		{
 			if (parsedFormat.isAllUpperCase())
 			{
@@ -629,7 +631,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		{
 			converter = super.getConverter(cls);
 		}
-		else if (dataType == IColumnTypes.DATETIME)
+		else if (mappedType == IColumnTypes.DATETIME)
 		{
 			boolean lenient = Boolean.TRUE.equals(UIUtils.getUIProperty(this, application, IApplication.DATE_FORMATTERS_LENIENT, Boolean.TRUE));
 			StateFullSimpleDateFormat displayFormatter = new StateFullSimpleDateFormat(parsedFormat.getDisplayFormat(), null, application.getLocale(), lenient);
@@ -644,7 +646,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 				converter = new FormatConverter(this, eventExecutor, displayFormatter, parsedFormat);
 			}
 		}
-		else if (dataType == IColumnTypes.INTEGER || dataType == IColumnTypes.NUMBER)
+		else if (mappedType == IColumnTypes.INTEGER || mappedType == IColumnTypes.NUMBER)
 		{
 			RoundHalfUpDecimalFormat displayFormatter = new RoundHalfUpDecimalFormat(parsedFormat.getDisplayFormat(), application.getLocale());
 			if (parsedFormat.getEditFormat() != null)
@@ -671,35 +673,36 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	@Override
 	protected boolean shouldTrimInput()
 	{
-		if (parsedFormat.getDisplayFormat() != null && dataType == IColumnTypes.TEXT) return false;
+		if (parsedFormat.getDisplayFormat() != null && Column.mapToDefaultType(dataType) == IColumnTypes.TEXT) return false;
 		return parsedFormat.getEditFormat() == null || !parsedFormat.isMask();
 	}
 
 	@SuppressWarnings("nls")
 	public void setFormat(int type, String format)
 	{
+		int mappedType = Column.mapToDefaultType(type);
 		// only add type validators the first time (not when format is set through script)
 		if (this.dataType == 0)
 		{
-			if (type == IColumnTypes.DATETIME)
+			if (mappedType == IColumnTypes.DATETIME)
 			{
 				setType(Date.class);
 			}
-			else if (type == IColumnTypes.NUMBER)
+			else if (mappedType == IColumnTypes.NUMBER)
 			{
 				setType(Double.class);
 				DecimalFormatSymbols dfs = RoundHalfUpDecimalFormat.getDecimalFormatSymbols(application.getLocale());
 				add(new FindModeDisabledSimpleAttributeModifier(getEventExecutor(), "onkeypress", "return Servoy.Validation.numbersonly(event, true, '" +
 					dfs.getDecimalSeparator() + "','" + dfs.getGroupingSeparator() + "','" + dfs.getCurrencySymbol() + "','" + dfs.getPercent() + "');"));
 			}
-			else if (type == IColumnTypes.INTEGER)
+			else if (mappedType == IColumnTypes.INTEGER)
 			{
 				setType(Integer.class);
 				DecimalFormatSymbols dfs = RoundHalfUpDecimalFormat.getDecimalFormatSymbols(application.getLocale());
 				add(new FindModeDisabledSimpleAttributeModifier(getEventExecutor(), "onkeypress", "return Servoy.Validation.numbersonly(event, false, '" +
 					dfs.getDecimalSeparator() + "','" + dfs.getGroupingSeparator() + "','" + dfs.getCurrencySymbol() + "','" + dfs.getPercent() + "');"));
 			}
-			else if (type == IColumnTypes.TEXT && list != null)
+			else if (mappedType == IColumnTypes.TEXT && list != null)
 			{
 				setType(String.class);
 			}
@@ -720,7 +723,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 			{
 				formatAttributeModifier = new ReadOnlyAndEnableTestAttributeModifier("onkeypress", "return Servoy.Validation.changeCase(this,event,false);");
 			}
-			else if (dataType == IColumnTypes.DATETIME && parsedFormat.isMask()) //$NON-NLS-1$
+			else if (mappedType == IColumnTypes.DATETIME && parsedFormat.isMask()) //$NON-NLS-1$
 			{
 				String maskPattern = parsedFormat.getDateMask();
 				setType(Date.class);
@@ -729,7 +732,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 				else if (parsedFormat.getPlaceHolderCharacter() != 0) placeHolder = Character.toString(parsedFormat.getPlaceHolderCharacter());
 				formatAttributeModifier = new MaskBehavior(maskPattern.toString(), placeHolder, this);
 			}
-			else if (dataType == IColumnTypes.TEXT && parsedFormat.isNumberValidator())
+			else if (mappedType == IColumnTypes.TEXT && parsedFormat.isNumberValidator())
 			{
 				setType(String.class);
 				DecimalFormatSymbols dfs = RoundHalfUpDecimalFormat.getDecimalFormatSymbols(application.getLocale());
@@ -737,7 +740,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 					"return Servoy.Validation.numbersonly(event, true, '" + dfs.getDecimalSeparator() + "','" + dfs.getGroupingSeparator() + "','" +
 						dfs.getCurrencySymbol() + "','" + dfs.getPercent() + "');");
 			}
-			else if (dataType == IColumnTypes.TEXT)
+			else if (mappedType == IColumnTypes.TEXT)
 			{
 				setType(String.class);
 				String placeHolder = null;

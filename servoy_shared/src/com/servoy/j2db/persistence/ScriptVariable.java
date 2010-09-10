@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 import java.util.ArrayList;
@@ -220,14 +220,14 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 	@SuppressWarnings("nls")
 	public Object getInitValue()
 	{
-		switch (variableType)
+		switch (Column.mapToDefaultType(variableType))
 		{
 			case IColumnTypes.DATETIME :
 				if ("now".equalsIgnoreCase(defaultValue))
 				{
 					return new java.util.Date();
 				}
-				else if (defaultValue != null)
+				if (defaultValue != null)
 				{
 					return parseDate(defaultValue);
 				}
@@ -254,6 +254,7 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 					return null;
 				}
 				return defaultValue;
+
 			default :
 				return null;
 		}
@@ -266,7 +267,7 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 		sb.append("<b>"); //$NON-NLS-1$
 		sb.append(getName());
 		sb.append("</b> "); //$NON-NLS-1$
-		sb.append(Column.getDisplayTypeString(Column.mapToDefaultType(getVariableType())));
+		sb.append(Column.getDisplayTypeString(getVariableType()));
 		sb.append(" defaultvalue: "); //$NON-NLS-1$
 		sb.append(getDefaultValue());
 		sb.append("</html>"); //$NON-NLS-1$

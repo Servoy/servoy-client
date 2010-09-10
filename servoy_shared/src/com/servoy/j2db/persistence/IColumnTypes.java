@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 import java.sql.Types;
@@ -27,7 +27,7 @@ public interface IColumnTypes
 {
 	public int DATETIME = Types.TIMESTAMP;
 	public int TEXT = Types.VARCHAR;
-	public int NUMBER = Types.FLOAT;
+	public int NUMBER = Types.DOUBLE;
 	public int INTEGER = Types.INTEGER;
 	public int MEDIA = Types.LONGVARBINARY;
 }

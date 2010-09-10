@@ -61,6 +61,7 @@ import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.dataprocessing.ValueListFactory;
+import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.ValueList;
@@ -815,13 +816,14 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	{
 		if (converter != null) return converter;
 
-		if (dataType == IColumnTypes.DATETIME)
+		int mappedDataType = Column.mapToDefaultType(dataType);
+		if (mappedDataType == IColumnTypes.DATETIME)
 		{
 			StateFullSimpleDateFormat displayFormatter = new StateFullSimpleDateFormat(parsedFormat.getDisplayFormat(), /* getClientTimeZone() */null,
 				application.getLocale(), true);
 			converter = new FormatConverter(this, eventExecutor, displayFormatter, parsedFormat);
 		}
-		else if (dataType == IColumnTypes.INTEGER || dataType == IColumnTypes.NUMBER)
+		else if (mappedDataType == IColumnTypes.INTEGER || mappedDataType == IColumnTypes.NUMBER)
 		{
 			RoundHalfUpDecimalFormat displayFormatter = new RoundHalfUpDecimalFormat(parsedFormat.getDisplayFormat(), application.getLocale());
 			converter = new FormatConverter(this, eventExecutor, displayFormatter, parsedFormat);
