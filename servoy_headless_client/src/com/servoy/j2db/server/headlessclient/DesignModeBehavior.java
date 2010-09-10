@@ -144,8 +144,8 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 					IScriptBaseMethods sbmc = (IScriptBaseMethods)component;
 					if (sbmc.js_getName() == null) continue; //skip, elements with no name are not usable in CD
 
-					clientdesign_handles = sbmc.js_getClientProperty("clientdesign_handles");
-					Object clientdesign_selectable = sbmc.js_getClientProperty("clientdesign_selectable");
+					clientdesign_handles = sbmc.js_getClientProperty("clientdesign.handles");
+					Object clientdesign_selectable = sbmc.js_getClientProperty("clientdesign.selectable");
 					if (clientdesign_selectable != null && !Utils.getAsBoolean(clientdesign_selectable)) continue; //skip
 				}
 
