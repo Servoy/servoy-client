@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient;
 
 import java.util.Properties;
@@ -111,21 +111,21 @@ public class WrapperContainer extends WebMarkupContainer implements IDelegate<Co
 				((IProviderStylePropertyChanges)wrappedComponent).getStylePropertyChanges().isChanged())
 			{
 				Properties componentChanges = ((IProviderStylePropertyChanges)wrappedComponent).getStylePropertyChanges().getChanges();
-				// remove the positions from the real component (should always stay 0,0)
+				// remove the positions and sizes from the real component (should always stay 0,0)
 				Object left = componentChanges.remove("left"); //$NON-NLS-1$
 				if (left != null) changes.put("left", left); //$NON-NLS-1$ 
 				Object top = componentChanges.remove("top"); //$NON-NLS-1$
 				if (top != null) changes.put("top", top); //$NON-NLS-1$ 
 
 				// copy over the widths and heights
-				Object offsetWidth = componentChanges.get("offsetWidth"); //$NON-NLS-1$
+				Object offsetWidth = componentChanges.remove("offsetWidth"); //$NON-NLS-1$
 				if (offsetWidth != null) changes.put("offsetWidth", offsetWidth); //$NON-NLS-1$ 
-				Object offsetHeight = componentChanges.get("offsetHeight"); //$NON-NLS-1$
+				Object offsetHeight = componentChanges.remove("offsetHeight"); //$NON-NLS-1$
 				if (offsetHeight != null) changes.put("offsetHeight", offsetHeight); //$NON-NLS-1$ 
 
-				Object width = componentChanges.get("width"); //$NON-NLS-1$
+				Object width = componentChanges.remove("width"); //$NON-NLS-1$
 				if (width != null) changes.put("width", width); //$NON-NLS-1$ 
-				Object height = componentChanges.get("height"); //$NON-NLS-1$
+				Object height = componentChanges.remove("height"); //$NON-NLS-1$
 				if (height != null) changes.put("height", height); //$NON-NLS-1$ 
 
 				changed = changes.size() > 0;
