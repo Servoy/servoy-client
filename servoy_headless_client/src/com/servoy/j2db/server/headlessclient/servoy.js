@@ -1164,7 +1164,7 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 {
 	Servoy.ClientDesign = 
 	{
-		selectedElement : null,
+		selectedResizeElement : null,
 		designableElementsArray : null,
 		callbackurl : null,
 		
@@ -1196,11 +1196,11 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 				elem = elem.parentNode;
 			}
 			
-			if (Servoy.ClientDesign.selectedElement != null)
+			if (Servoy.ClientDesign.selectedResizeElement != null)
 			{
 				//deselect old yui elements
-				Servoy.ClientDesign.selectedElement.element = null;
-				Servoy.ClientDesign.selectedElement.destroy()
+				Servoy.ClientDesign.selectedResizeElement.destroy()
+				Servoy.ClientDesign.selectedResizeElement = null;
 			}
 			
 			if (elem.id)
@@ -1209,13 +1209,13 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 				if (elementDescription)
 				{
 					//apply YUI resize on elem
-					var resize = new YAHOO.util.Resize(elem.id,
+					var resize = new YAHOO.util.Resize(elem,
 					{
 						handles: (elementDescription[1] ? elementDescription[1] : 'all'),
 						knobHandles: true,
 						wrapPadding: elementDescription[0],
 						proxy: true,
-						wrap: false,
+						wrap: true,
 						draggable: true,
 						animate: false
 					});
@@ -1251,7 +1251,7 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 						wicketAjaxGet(Servoy.ClientDesign.callbackurl+'&a=aResize&draggableID=' + this._wrap.id + '&resizeHeight=' + args.height + '&resizeWidth=' + args.width + '&xc=' + this._wrap.style.left + '&yc=' + this._wrap.style.top);
 					});
 	
-					Servoy.ClientDesign.selectedElement = resize;
+					Servoy.ClientDesign.selectedResizeElement = resize;
 				}
 			}
 		},

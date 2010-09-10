@@ -49,7 +49,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * @author jcompagner
- * 
+ * @author jblok
  */
 public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 {
@@ -141,8 +141,11 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 				Object clientdesign_handles = null;
 				if (component instanceof IScriptBaseMethods)
 				{
-					clientdesign_handles = ((IScriptBaseMethods)component).js_getClientProperty("clientdesign_handles");
-					Object clientdesign_selectable = ((IScriptBaseMethods)component).js_getClientProperty("clientdesign_selectable");
+					IScriptBaseMethods sbmc = (IScriptBaseMethods)component;
+					if (sbmc.js_getName() == null) continue; //skip, elements with no name are not usable in CD
+
+					clientdesign_handles = sbmc.js_getClientProperty("clientdesign_handles");
+					Object clientdesign_selectable = sbmc.js_getClientProperty("clientdesign_selectable");
 					if (clientdesign_selectable != null && !Utils.getAsBoolean(clientdesign_selectable)) continue; //skip
 				}
 
@@ -199,7 +202,6 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 //				response.renderOnDomReadyJavascript(attachDrop.toString());
 //			}
 		}
-
 	}
 
 	private boolean needsWrapperDivForAnchoring(String type)
