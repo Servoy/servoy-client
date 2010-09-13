@@ -164,11 +164,31 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 
 	Row getRowBasedonPKFromEntireColumnArray(Object[] columndata)
 	{
-		return getRowBasedonPKFromEntireColumnArray(columndata, false);
+		return getRowBasedonPKFromEntireColumnArrayEx(columndata, null /* row notifies are fired immediately */);
+	}
+
+	/*
+	 * Called from RelatedFoundSet constructor, do not fire the row notify changes, but leave them to caller
+	 */
+	Row getRowBasedonPKFromEntireColumnArray(Object[] columndata, List<Runnable> fireRunnables)
+	{
+		final List<RowFireNotifyChange> fires = new ArrayList<RowFireNotifyChange>();
+		Row row = getRowBasedonPKFromEntireColumnArrayEx(columndata, fires);
+		if (fires.size() > 0)
+		{
+			fireRunnables.add(new Runnable()
+			{
+				public void run()
+				{
+					fireRowNotifyChanges(fires);
+				}
+			});
+		}
+		return row;
 	}
 
 	//creates if not existent
-	Row getRowBasedonPKFromEntireColumnArray(Object[] columndata, boolean fireDelayed)
+	private Row getRowBasedonPKFromEntireColumnArrayEx(Object[] columndata, List<RowFireNotifyChange> fires)
 	{
 		int[] pkpos = sheet.getPKIndexes();
 		Object[] pk = new Object[pkpos.length];
@@ -202,24 +222,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		}
 		if (fireCalcs)
 		{
-			final List<RowFireNotifyChange> fires = new ArrayList<RowFireNotifyChange>();
 			fireDependingCalcs(pkHashKey, null, fires);
-			Runnable run = new Runnable()
-			{
-				public void run()
-				{
-					fireRowNotifyChanges(fires);
-				}
-			};
-			if (fireDelayed)
-			{
-				fsm.getApplication().invokeLater(run);
-			}
-			else
-			{
-				run.run();
-			}
-
 		}
 		return rowData;
 	}
@@ -303,7 +306,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		{
 			if (rowData.hasListeners())
 			{
-				if (action == ISQLStatement.DELETE_ACTION)
+				if (action == ISQLActionTypes.DELETE_ACTION)
 				{
 					fireNotifyChange(null, rowData, null, TableModelEvent.DELETE);
 				}
@@ -332,7 +335,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			return false;
 		}
 
-		if (action == ISQLStatement.INSERT_ACTION && insertColumnDataOrChangedColumns != null &&
+		if (action == ISQLActionTypes.INSERT_ACTION && insertColumnDataOrChangedColumns != null &&
 			insertColumnDataOrChangedColumns.length == sheet.getColumnNames().length)//last test is just to make sure
 		{
 			rowData = createExistInDBRowObject(insertColumnDataOrChangedColumns);
@@ -359,7 +362,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			}
 		}
 
-		else if (action == ISQLStatement.UPDATE_ACTION && insertColumnDataOrChangedColumns != null)
+		else if (action == ISQLActionTypes.UPDATE_ACTION && insertColumnDataOrChangedColumns != null)
 		{
 			// update of row that is not cached by this client
 			fireNotifyChange(null, null, insertColumnDataOrChangedColumns, TableModelEvent.UPDATE);
@@ -555,7 +558,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			List<String> changedColumns = null;
 			if (doesExistInDB)
 			{
-				statement_action = ISQLStatement.UPDATE_ACTION;
+				statement_action = ISQLActionTypes.UPDATE_ACTION;
 				sqlDesc = sheet.getSQLDescription(SQLSheet.UPDATE);
 				sqlUpdate = (QueryUpdate)AbstractBaseQuery.deepClone(sqlDesc.getSQLQuery());
 				List<String> req = sqlDesc.getRequiredDataProviderIDs();
@@ -641,7 +644,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			else
 			{
 				List<Object> argsArray = new ArrayList<Object>();
-				statement_action = ISQLStatement.INSERT_ACTION;
+				statement_action = ISQLActionTypes.INSERT_ACTION;
 				sqlDesc = sheet.getSQLDescription(SQLSheet.INSERT);
 				sqlUpdate = (ISQLUpdate)AbstractBaseQuery.deepClone(sqlDesc.getSQLQuery());
 				List<String> req = sqlDesc.getRequiredDataProviderIDs();
@@ -853,7 +856,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				tid = gt.addRow(sheet.getServerName(), r);
 			}
 
-			SQLStatement statement = new SQLStatement(ISQLStatement.DELETE_ACTION, sheet.getServerName(), sheet.getTable().getName(), pks, tid, sqlDelete,
+			SQLStatement statement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, sheet.getServerName(), sheet.getTable().getName(), pks, tid, sqlDelete,
 				fsm.getTableFilterParams(sheet.getServerName(), sqlDelete));
 			stats_a[0] = statement;
 			if (tracking)

@@ -91,7 +91,9 @@ public abstract class RelatedFoundSet extends FoundSet
 			{
 				Object[] rowArray = data.getRow(row);
 				// fire delayed so that this constructor will end before fires will touch this relatedfoundset again.
-				Row rowData = rowManager.getRowBasedonPKFromEntireColumnArray(rowArray, true);
+				List<Runnable> fireRunnables = new ArrayList<Runnable>(1);
+				Row rowData = rowManager.getRowBasedonPKFromEntireColumnArray(rowArray, fireRunnables);
+				fsm.registerFireRunnables(fireRunnables);
 				Record state = new Record(this, rowData);
 				cachedRecords.set(row, state);
 			}
