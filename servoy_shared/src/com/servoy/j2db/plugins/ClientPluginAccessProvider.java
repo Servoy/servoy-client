@@ -44,6 +44,7 @@ import com.servoy.j2db.IBeanManager;
 import com.servoy.j2db.IFormManager;
 import com.servoy.j2db.IFormManagerInternal;
 import com.servoy.j2db.ISmartClientApplication;
+import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.cmd.ICmdManager;
 import com.servoy.j2db.dataprocessing.IDataServer;
@@ -397,7 +398,7 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 			// happens in the request method.
 			synchronized (method)
 			{
-				if (application.isEventDispatchThread() && !async)
+				if (application.isEventDispatchThread() && !async && application == J2DBGlobals.getServiceProvider())
 				{
 					application.invokeAndWait(method);
 					Object retval = method.getRetval();
@@ -504,8 +505,9 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 							catch (Exception e)
 							{
 								retval = e;
-								if (async) application.handleException("Exception calling global method '" + methodname + "' with arguments " +
-									Arrays.toString(arguments) + " in async mode on solution " + getSolutionName(), e);
+								if (async) application.handleException(
+									"Exception calling global method '" + methodname + "' with arguments " + Arrays.toString(arguments) +
+										" in async mode on solution " + getSolutionName(), e);
 
 							}
 						}
@@ -531,8 +533,9 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 						catch (Exception e)
 						{
 							retval = e;
-							if (async) application.handleException("Exception calling form method '" + methodname + "' with arguments " +
-								Arrays.toString(arguments) + " on form '" + context + "'in async mode on solution " + getSolutionName(), e);
+							if (async) application.handleException(
+								"Exception calling form method '" + methodname + "' with arguments " + Arrays.toString(arguments) + " on form '" + context +
+									"'in async mode on solution " + getSolutionName(), e);
 
 						}
 					}
