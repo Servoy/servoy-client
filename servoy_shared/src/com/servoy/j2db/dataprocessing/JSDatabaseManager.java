@@ -1569,7 +1569,7 @@ public class JSDatabaseManager
 		if (vargs.length >= 1 && vargs[0] instanceof IFoundSetInternal)
 		{
 			return application.getFoundSetManager().getEditRecordList().stopEditing(true,
-				Arrays.asList(((IFoundSetInternal)vargs[0]).getRecords(0, ((IFoundSetInternal)vargs[0]).getSize()))) == ISaveConstants.STOPPED;
+				Arrays.asList(application.getFoundSetManager().getEditRecordList().getEditedRecords((IFoundSetInternal)vargs[0]))) == ISaveConstants.STOPPED;
 		}
 		return application.getFoundSetManager().getEditRecordList().stopEditing(true) == ISaveConstants.STOPPED;
 	}
@@ -1990,7 +1990,8 @@ public class JSDatabaseManager
 			}
 			if (values[0] instanceof IFoundSetInternal)
 			{
-				records.addAll(Arrays.asList(((IFoundSetInternal)values[0]).getRecords(0, ((IFoundSetInternal)values[0]).getSize())));
+				records.addAll(Arrays.asList(application.getFoundSetManager().getEditRecordList().getEditedRecords((IFoundSetInternal)values[0])));
+				records.addAll(Arrays.asList(application.getFoundSetManager().getEditRecordList().getFailedRecords((IFoundSetInternal)values[0])));
 			}
 			if (records.size() > 0) application.getFoundSetManager().getEditRecordList().rollbackRecords(records);
 		}

@@ -128,6 +128,23 @@ public class EditRecordList
 		return al.toArray(new IRecordInternal[al.size()]);
 	}
 
+	public IRecordInternal[] getFailedRecords(IFoundSetInternal set)
+	{
+		List<IRecordInternal> al = new ArrayList<IRecordInternal>();
+		synchronized (editedRecords)
+		{
+			for (int i = failedRecords.size(); --i >= 0;)
+			{
+				IRecordInternal record = failedRecords.get(i);
+				if (record.getParentFoundSet() == set)
+				{
+					al.add(record);
+				}
+			}
+		}
+		return al.toArray(new IRecordInternal[al.size()]);
+	}
+
 	public boolean hasEditedRecords(IFoundSetInternal foundset)
 	{
 		removeUnChangedRecords(false, false);
