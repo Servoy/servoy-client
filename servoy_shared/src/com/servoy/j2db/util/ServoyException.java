@@ -396,15 +396,13 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 *
 	 * @sample
 	 * //this sample script should be attached to onError method handler in the solution settings
-	 * var e = arguments[0];
-	 * application.output("Exception Object: "+e)
-	 * application.output("MSG: "+e.getMessage())
-	 * if (e instanceof ServoyException)
+	 * application.output("Exception Object: "+ex)
+	 * application.output("MSG: "+ex.getMessage())
+	 * if (ex instanceof ServoyException)
 	 * {
 	 * 	application.output("is a ServoyException")
-	 * 	application.output("Errorcode: "+e.getErrorCode())
-	 *	application.output(e.getStackTrace())
-	 * 	if (e.getErrorCode() == ServoyException.SAVE_FAILED)
+	 * 	application.output("Errorcode: "+ex.getErrorCode())
+	 * 	if (ex.getErrorCode() == ServoyException.SAVE_FAILED)
 	 * 	{
 	 * 		plugins.dialogs.showErrorDialog( "Error",  "It seems you did not fill in a required field", 'OK');
 	 * 		//Get the failed records after a save
