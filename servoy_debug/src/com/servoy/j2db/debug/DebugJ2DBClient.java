@@ -830,7 +830,13 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	@Override
 	protected IExecutingEnviroment createScriptEngine()
 	{
-		return new RemoteDebugScriptEngine(this);
+		RemoteDebugScriptEngine engine = new RemoteDebugScriptEngine(this);
+
+		if (designerCallback != null)
+		{
+			designerCallback.addScriptObjects(engine.getSolutionScope());
+		}
+		return engine;
 	}
 
 	@Override

@@ -48,7 +48,6 @@ import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.GlobalScope;
-import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.server.headlessclient.EmptyRequest;
 import com.servoy.j2db.server.headlessclient.SessionClient;
@@ -396,20 +395,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 									Debug.log(e);
 								}
 
-								client[0] = new DebugJ2DBClient(DebugClientHandler.this)
-								{
-									@Override
-									protected com.servoy.j2db.scripting.IExecutingEnviroment createScriptEngine()
-									{
-										IExecutingEnviroment sc = super.createScriptEngine();
-										if (designerCallback != null)
-										{
-											designerCallback.addScriptObjects(sc.getSolutionScope());
-										}
-
-										return sc;
-									}
-								};
+								client[0] = new DebugJ2DBClient(DebugClientHandler.this);
 								client[0].setCurrent(currentSolution);
 							}
 						}
