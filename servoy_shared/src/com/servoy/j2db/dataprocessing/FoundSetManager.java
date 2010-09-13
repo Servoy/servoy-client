@@ -107,6 +107,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	public final int chunkSize;
 	public final int initialRelatedChunkSize;
 
+	private final List<Runnable> fireRunabbles = new ArrayList<Runnable>();
+
 	public FoundSetManager(IServiceProvider app, IRelationProvider r, IFoundSetFactory factory)
 	{
 		application = app;
@@ -556,6 +558,21 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 				// inform global foundset event listeners that a new foundset has been created
 				globalFoundSetEventListener.foundSetsCreated(retvals);
+
+				// run runnables for firing events after foundsets have been created
+				if (fireRunabbles.size() > 0)
+				{
+					Runnable[] runnables;
+					synchronized (fireRunabbles)
+					{
+						runnables = new ArrayList<Runnable>(fireRunabbles).toArray(new Runnable[fireRunabbles.size()]);
+						fireRunabbles.clear();
+					}
+					for (Runnable runnable : runnables)
+					{
+						runnable.run();
+					}
+				}
 			}
 		}
 		return retval;
@@ -1477,8 +1494,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				QuerySelect sqlString = foundset.getSqlSelect();
 
 				QuerySelect selectCountSQLString = sqlString.getSelectCount("n", true); //$NON-NLS-1$
-				IDataSet set = ds.performQuery(application.getClientID(), t.getServerName(), transaction_id, selectCountSQLString, getTableFilterParams(
-					t.getServerName(), selectCountSQLString), false, 0, 10, IDataServer.FOUNDSET_LOAD_QUERY);
+				IDataSet set = ds.performQuery(application.getClientID(), t.getServerName(), transaction_id, selectCountSQLString,
+					getTableFilterParams(t.getServerName(), selectCountSQLString), false, 0, 10, IDataServer.FOUNDSET_LOAD_QUERY);
 				if (set.getRowCount() > 0)
 				{
 					Object[] row = set.getRow(0);
@@ -1509,8 +1526,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				QuerySelect countSelect = new QuerySelect(new QueryTable(table.getSQLName(), table.getCatalog(), table.getSchema()));
 				countSelect.addColumn(new QueryAggregate(QueryAggregate.COUNT, new QueryColumnValue(new Integer(1), "n"), null)); //$NON-NLS-1$
 
-				IDataSet set = ds.performQuery(application.getClientID(), table.getServerName(), transaction_id, countSelect, getTableFilterParams(
-					table.getServerName(), countSelect), false, 0, 10, IDataServer.FOUNDSET_LOAD_QUERY);
+				IDataSet set = ds.performQuery(application.getClientID(), table.getServerName(), transaction_id, countSelect,
+					getTableFilterParams(table.getServerName(), countSelect), false, 0, 10, IDataServer.FOUNDSET_LOAD_QUERY);
 				if (set.getRowCount() > 0)
 				{
 					Object[] row = set.getRow(0);
@@ -1659,7 +1676,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		if (rm != null)
 		{
 			List<Row> insertedRows = null;
-			if (action == ISQLStatement.INSERT_ACTION && insertColumnData == null)
+			if (action == ISQLActionTypes.INSERT_ACTION && insertColumnData == null)
 			{
 				// in this case the insert notification is probably triggered by rawSQL; so we need to read the new rows from DB to get correct newly inserted content
 				try
@@ -1674,8 +1691,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			boolean didHaveRowAndIsUpdated = false;
 			for (int i = 0; i < pks.getRowCount(); i++)
 			{
-				boolean b = rm.changeByOther(RowManager.createPKHashKey(pks.getRow(i)), action, insertColumnData, insertedRows == null ? null
-					: insertedRows.get(i));
+				boolean b = rm.changeByOther(RowManager.createPKHashKey(pks.getRow(i)), action, insertColumnData,
+					insertedRows == null ? null : insertedRows.get(i));
 				didHaveRowAndIsUpdated = (didHaveRowAndIsUpdated || b);
 			}
 			final boolean didHaveDataCached = didHaveRowAndIsUpdated;
@@ -1703,8 +1720,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 							}
 							catch (Exception e1)
 							{
-								application.reportError(Messages.getString("servoy.foundsetManager.error.ExecutingDataBroadcastMethod",
-									new Object[] { sm.getName() }), e1);
+								application.reportError(
+									Messages.getString("servoy.foundsetManager.error.ExecutingDataBroadcastMethod", new Object[] { sm.getName() }), e1);
 							}
 						}
 					}
@@ -2038,5 +2055,16 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	public int saveData()
 	{
 		return editRecordList.stopEditing(false);
+	}
+
+	/** register runnables that contain fire calls, should be done after foundsets are created.
+	 * @param runnable
+	 */
+	public void registerFireRunnables(List<Runnable> runnables)
+	{
+		synchronized (fireRunabbles)
+		{
+			fireRunabbles.addAll(runnables);
+		}
 	}
 }
