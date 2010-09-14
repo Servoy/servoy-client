@@ -299,10 +299,12 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 					{
 						tabName = currentTabPanel.js_getTabNameAt(index + 1); // js method so +1
 					}
+					current = (WebForm)parent;
 					set.addRow(0, new Object[] { null, current.formController.getName(), currentTabPanel.getName(), tabName, new Integer(index) });
 				}
 				else if (currentBeanName != null)
 				{
+					current = (WebForm)parent;
 					set.addRow(0, new Object[] { null, current.formController.getName(), currentBeanName, null, null });
 				}
 				current = (WebForm)parent;
