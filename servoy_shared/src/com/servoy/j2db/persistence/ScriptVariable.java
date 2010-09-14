@@ -117,6 +117,7 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 
 	public void setComment(String arg)
 	{
+		checkForChange(comment, arg);
 		this.comment = arg;
 	}
 
