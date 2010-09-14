@@ -751,7 +751,7 @@ public class WebEventExecutor extends BaseEventExecutor
 							if (sb != null)
 							{
 								sb.append('\'');
-								sb.append(((IComponent)dataRendererChild).getId());
+								sb.append(((Component)dataRendererChild).getMarkupId());
 								sb.append("',");
 							}
 						}
