@@ -19,7 +19,11 @@ package com.servoy.j2db.plugins;
 
 import java.awt.Component;
 import java.awt.Window;
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLStreamHandler;
 import java.rmi.Remote;
@@ -680,6 +684,16 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 			{
 				throw new RuntimeException(e);
 			}
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see com.servoy.j2db.plugins.IUploadData#getInputStream()
+		 */
+		public InputStream getInputStream() throws IOException
+		{
+			return new BufferedInputStream(new FileInputStream(f));
 		}
 	}
 

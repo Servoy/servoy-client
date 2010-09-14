@@ -13,10 +13,12 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -104,7 +106,7 @@ public class MediaUploadPage extends WebPage
 		add(panel);
 	}
 
-	@SuppressWarnings( { "nls", "unchecked" })
+	@SuppressWarnings({ "nls", "unchecked" })
 	public MediaUploadPage(IPageMap pageMap, final IMediaUploadCallback callback, boolean multiSelect)
 	{
 		super(pageMap);
@@ -206,6 +208,18 @@ public class MediaUploadPage extends WebPage
 			// does not represent a real file object.
 			return null;
 		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see com.servoy.j2db.plugins.IUploadData#getInputStream()
+		 */
+		public InputStream getInputStream() throws IOException
+		{
+			return fu.getInputStream();
+		}
+
+
 	}
 
 
