@@ -255,8 +255,8 @@ public class ComponentFactory
 						// Designer all always real components!!
 						retval = (JComponent)application.getItemFactory().createLabel(null, "Tabless panel, for JavaScript use");
 						((IStandardLabel)retval).setHorizontalAlignment(SwingConstants.CENTER);
-						applyBasicComponentProperties(application, (IComponent)retval, (BaseComponent)meta,
-							getStyleForBasicComponent(application, (BaseComponent)meta, form));
+						applyBasicComponentProperties(application, (IComponent)retval, (BaseComponent)meta, getStyleForBasicComponent(application,
+							(BaseComponent)meta, form));
 					}
 					else
 					{
@@ -511,24 +511,44 @@ public class ComponentFactory
 		return getCSSStyle(getStyleForForm(sp, form));
 	}
 
-	public static String getOverriddenStyleName(IServiceProvider sp, Form form)
+//	/**
+//	 * Get the overridden stylesheet name
+//	 * @return the overridden name or provided form name if not overrridden
+//	 */
+//	public static String getOverriddenStyleName(IServiceProvider sp, Form form)
+//	{
+//		if (sp == null) return null;
+//
+//		Style style = sp.getFlattenedSolution().getStyleForForm(form);
+//		if (style == null) return null;
+//
+//		if (sp.getFlattenedSolution().isUserStyle(style))
+//		{
+//			return style.getName();
+//		}
+//		else
+//		{
+//			return getOverriddenStyleName(sp, style.getName());
+//		}
+//	}
+
+	/**
+	 * Get the overridden stylesheet name
+	 * @return the overridden name or provided name if not overrridden
+	 */
+	public static String getOverriddenStyleName(IServiceProvider sp, String name)
 	{
-		if (sp != null)
+		if (sp == null || name == null) return null;
+
+		@SuppressWarnings("unchecked")
+		Map<String, String> overridenStyles = (Map<String, String>)sp.getRuntimeProperties().get(IServiceProvider.RT_OVERRIDESTYLE_CACHE);
+
+		String overridden = null;
+		if (overridenStyles != null && (overridden = overridenStyles.get(name)) != null)
 		{
-			@SuppressWarnings("unchecked")
-			Map<String, String> overridenStyles = (Map<String, String>)sp.getRuntimeProperties().get(IServiceProvider.RT_OVERRIDESTYLE_CACHE);
-			Style repos_style = sp.getFlattenedSolution().getStyleForForm(form);
-			if (repos_style != null && sp.getFlattenedSolution().isUserStyle(repos_style))
-			{
-				return repos_style.getName();
-			}
-			String overridden = null;
-			if (repos_style != null && overridenStyles != null && (overridden = overridenStyles.get(repos_style.getName())) != null)
-			{
-				return overridden;
-			}
+			return overridden;
 		}
-		return null;
+		return name;
 	}
 
 	private static Style getStyleForForm(IServiceProvider sp, Form form)
@@ -1272,8 +1292,7 @@ public class ComponentFactory
 									}
 									catch (IOException e)
 									{
-										Debug.error(
-											"Exception loading properties for converter " + converter.getName() + ", properties: " +
+										Debug.error("Exception loading properties for converter " + converter.getName() + ", properties: " +
 											ci.getConverterProperties(), e);
 									}
 								}
@@ -2252,5 +2271,4 @@ public class ComponentFactory
 		}
 		return lst;
 	}
-
 }
