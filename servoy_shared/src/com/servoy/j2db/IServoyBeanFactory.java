@@ -39,7 +39,7 @@ public interface IServoyBeanFactory extends ISupportName
 	 * 
 	 * @param servoyApplicationType The client's application type.
 	 * @param access The {@link IClientPluginAccess} 
-	 * @param cargs Arguments for this bean, the first argument is the bean (wicket)id, the second is the form name, the 3th is the form style name
+	 * @param cargs Arguments for this bean, the first argument is the bean (wicket)id, the second is the form name, the 3th is the form stylesheet name
 	 * 
 	 * @return The actual bean component
 	 */
