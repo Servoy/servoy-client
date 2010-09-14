@@ -139,7 +139,7 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 	private void exportDrag(MouseEvent e)
 	{
 		// controller is set when dragNdrop is enabled.
-		if (dragNdropController != null)
+		if (dragNdropController != null && getDragSource(e.getPoint()) != this)
 		{
 			boolean isCTRLDown = (e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0;
 			TransferHandler handler = getTransferHandler();
@@ -452,8 +452,11 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 
 						if (isRowBGColorCalculation)
 						{
-							bg_color = parent.getCalculationValue(val, strRowBGColorProvider, Utils.arrayMerge((new Object[] { new Integer(index), new Boolean(
-								isSelected), null, null, Boolean.FALSE }), Utils.parseJSExpressions(rowBGColorArgs)), null);
+							bg_color = parent.getCalculationValue(
+								val,
+								strRowBGColorProvider,
+								Utils.arrayMerge((new Object[] { new Integer(index), new Boolean(isSelected), null, null, Boolean.FALSE }),
+									Utils.parseJSExpressions(rowBGColorArgs)), null);
 						}
 						else
 						{
