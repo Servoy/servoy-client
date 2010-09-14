@@ -599,7 +599,7 @@ if (typeof(Servoy.DD) == "undefined")
 			{
 				var dd;
 				if(bUseProxy)
-					dd = new YAHOO.util.DDProxy(array[i]);
+					dd = new YAHOO.util.DDProxy(array[i], null, {resizeFrame : false, centerFrame : true});
 				else
 					dd = new YAHOO.util.DD(array[i]);
 		
