@@ -18,6 +18,7 @@ package com.servoy.j2db.scripting;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -263,6 +264,38 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 			Debug.error(e);
 		}
 		return null;
+	}
+
+	/*
+	 * not a real javadoc yet since js doc produces fails on this
+	 * 
+	 * @sameas com.servoy.j2db.scripting.JSSecurity#js_isUserMemberOfGroup(String, Object[])
+	 */
+	public boolean js_isUserMemberOfGroup(String groupName) throws ServoyException
+	{
+		return application.getUserUID() != null ? js_isUserMemberOfGroup(groupName, application.getUserUID()) : false;
+	}
+
+
+	/**
+	 * Check whatever the current user, or the user specified as parameter is part of the specified group
+	 *
+	 * @sample
+	 * //check whatever user is part of the Administrators group
+	 * if(security.isUserMemberOfGroup('Administrators'))
+	 * {
+	 * 		// do administration stuff
+	 * }
+	 * 
+	 * @param groupName name of the group to check
+	 * @param userUID optional UID of the user to check
+	 * 
+	 * @return dataset with groupnames
+	 */
+	public boolean js_isUserMemberOfGroup(String groupName, Object userUID) throws ServoyException
+	{
+		JSDataSet userGroups = js_getUserGroups(userUID);
+		return Arrays.asList(userGroups.js_getColumnAsArray(2)).indexOf(groupName) > -1;
 	}
 
 	/*
