@@ -841,6 +841,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 	 * 
 	 * //adds a container property (to TABLE tag)
 	 * dataset.addHTMLProperty(-1,-1,'cellspacing','3');
+	 * dataset.addHTMLProperty(-1,-1,'style','border-collapse:collapse;'); //to have a single line border
 	 * 
 	 * //adds a row property to all rows (to TR tag)
 	 * dataset.addHTMLProperty(0,0,'class','text');
