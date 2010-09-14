@@ -41,6 +41,7 @@ import com.servoy.j2db.persistence.ColumnWrapper;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IActiveSolutionHandler;
+import com.servoy.j2db.persistence.ICloneable;
 import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderHandler;
@@ -245,6 +246,74 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	public boolean hasCopy(IPersist persist)
 	{
 		return copySolution != null && copySolution.getChild(persist.getUUID()) != null;
+	}
+
+	public void updatePersistInSolutionCopy(final IPersist persist)
+	{
+		if (copySolution == null || persist instanceof Form) return;
+
+		IPersist copyPersist = (IPersist)copySolution.acceptVisitor(new IPersistVisitor()
+		{
+			public Object visit(IPersist o)
+			{
+				if (o.getUUID() == persist.getUUID())
+				{
+					return o;
+				}
+				return IPersistVisitor.CONTINUE_TRAVERSAL;
+			}
+		});
+
+		if (copyPersist != null)
+		{
+			ISupportChilds parent = copyPersist.getParent();
+			parent.removeChild(copyPersist);
+			if (persist instanceof ICloneable)
+			{
+				parent.addChild(((ICloneable)persist).clonePersist());
+			}
+			else
+			{
+				parent.addChild(persist);
+			}
+			flush(persist);
+			if (parent instanceof Form)
+			{
+				((Form)parent).setLastModified(System.currentTimeMillis());
+			}
+		}
+		else if (persist.getParent() != null)
+		{
+			ISupportChilds copyParent = (ISupportChilds)copySolution.acceptVisitor(new IPersistVisitor()
+			{
+				public Object visit(IPersist o)
+				{
+					if (o.getUUID() == persist.getParent().getUUID())
+					{
+						return o;
+					}
+					return IPersistVisitor.CONTINUE_TRAVERSAL;
+				}
+			});
+
+			if (copyParent != null)
+			{
+				if (persist instanceof ICloneable)
+				{
+					copyParent.addChild(((ICloneable)persist).clonePersist());
+				}
+				else
+				{
+					copyParent.addChild(persist);
+				}
+				flush(persist);
+				if (copyParent instanceof Form)
+				{
+					((Form)copyParent).setLastModified(System.currentTimeMillis());
+				}
+
+			}
+		}
 	}
 
 
