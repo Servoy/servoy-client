@@ -269,11 +269,11 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	/*
 	 * not a real javadoc yet since js doc produces fails on this
 	 * 
-	 * @sameas com.servoy.j2db.scripting.JSSecurity#js_isUserMemberOfGroup(String, Object[])
+	 * @sameas com.servoy.j2db.scripting.JSSecurity#js_isMemberOfGroup(String, Object[])
 	 */
-	public boolean js_isUserMemberOfGroup(String groupName) throws ServoyException
+	public boolean js_isMemberOfGroup(String groupName) throws ServoyException
 	{
-		return application.getUserUID() != null ? js_isUserMemberOfGroup(groupName, application.getUserUID()) : false;
+		return application.getUserUID() != null ? js_isMemberOfGroup(groupName, application.getUserUID()) : false;
 	}
 
 
@@ -282,7 +282,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	 *
 	 * @sample
 	 * //check whatever user is part of the Administrators group
-	 * if(security.isUserMemberOfGroup('Administrators'))
+	 * if(security.isMemberOfGroup('Administrators'))
 	 * {
 	 * 		// do administration stuff
 	 * }
@@ -292,7 +292,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	 * 
 	 * @return dataset with groupnames
 	 */
-	public boolean js_isUserMemberOfGroup(String groupName, Object userUID) throws ServoyException
+	public boolean js_isMemberOfGroup(String groupName, Object userUID) throws ServoyException
 	{
 		JSDataSet userGroups = js_getUserGroups(userUID);
 		return Arrays.asList(userGroups.js_getColumnAsArray(2)).indexOf(groupName) > -1;
