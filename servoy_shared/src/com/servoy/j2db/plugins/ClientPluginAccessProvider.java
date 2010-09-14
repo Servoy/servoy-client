@@ -46,15 +46,18 @@ import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.cmd.ICmdManager;
+import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IDatabaseManager;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.Style;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IScriptSupport;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FileChooserUtils;
 import com.servoy.j2db.util.ILogLevel;
+import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.ITaskExecuter;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.ServoyException;
@@ -682,4 +685,14 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.plugins.IClientPluginAccess#getStyleSheet(java.lang.String)
+	 */
+	public IStyleSheet getStyleSheet(String name)
+	{
+		Style s = application.getFlattenedSolution().getStyle(name);
+		return ComponentFactory.getCSSStyle(s);
+	}
 }

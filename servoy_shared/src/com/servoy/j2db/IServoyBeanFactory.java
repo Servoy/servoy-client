@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db;
 
 import com.servoy.j2db.dataui.IServoyAwareBean;
@@ -39,7 +39,7 @@ public interface IServoyBeanFactory extends ISupportName
 	 * 
 	 * @param servoyApplicationType The client's application type.
 	 * @param access The {@link IClientPluginAccess} 
-	 * @param cargs Argumetns for this bean, the first argument is the wicket:id
+	 * @param cargs Arguments for this bean, the first argument is the bean (wicket)id, the second is the form name, the 3th is the form style name
 	 * 
 	 * @return The actual bean component
 	 */

@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util;
 
 import java.awt.Color;
@@ -36,10 +36,9 @@ import com.servoy.j2db.util.gui.SpecialMatteBorder;
 /**
  * @author jblok
  *
- * To change this generated comment go to 
- * Window>Preferences>Java>Code Generation>Code Template
+ * Enhanced/fixed subclass for proper behaviour.
  */
-public class FixedStyleSheet extends StyleSheet
+public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 {
 	public FixedStyleSheet()
 	{
@@ -235,7 +234,7 @@ public class FixedStyleSheet extends StyleSheet
 	 * is not inherited), or it will default to the color attribute
 	 * (which is inherited).
 	 */
-	Color[] getBorderColor(AttributeSet a)
+	private Color[] getBorderColor(AttributeSet a)
 	{
 		Object obj = a.getAttribute(CSS.Attribute.BORDER_COLOR);
 		if (obj != null)

@@ -842,7 +842,7 @@ public class ComponentFactory
 			if (obj instanceof IServoyBeanFactory)
 			{
 				obj = ((IServoyBeanFactory)obj).getBeanInstance(application.getApplicationType(), (IClientPluginAccess)application.getPluginAccess(),
-					new Object[] { ComponentFactory.getWebID(form, bean) });
+					new Object[] { ComponentFactory.getWebID(form, bean), form.getName(), form.getStyleName() });
 			}
 
 			if (obj instanceof Applet)
@@ -1274,7 +1274,7 @@ public class ComponentFactory
 									{
 										Debug.error(
 											"Exception loading properties for converter " + converter.getName() + ", properties: " +
-												ci.getConverterProperties(), e);
+											ci.getConverterProperties(), e);
 									}
 								}
 							}

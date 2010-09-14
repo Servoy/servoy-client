@@ -36,6 +36,7 @@ import com.servoy.j2db.IFormManager;
 import com.servoy.j2db.cmd.ICmdManager;
 import com.servoy.j2db.dataprocessing.IDatabaseManager;
 import com.servoy.j2db.util.ILogLevel;
+import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.IUIBlocker;
 import com.servoy.j2db.util.toolbar.IToolbarPanel;
 
@@ -377,4 +378,13 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 	 */
 	@Deprecated
 	public Object getUserID();
+
+
+	/**
+	 * Get a style sheet
+	 * @since 6.0
+	 * @param name the name of the style
+	 * @return the stylesheet
+	 */
+	public IStyleSheet getStyleSheet(String name);
 }

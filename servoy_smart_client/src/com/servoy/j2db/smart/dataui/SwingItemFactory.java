@@ -454,9 +454,10 @@ public class SwingItemFactory implements ItemFactory
 					beanClass = bcl.loadClass(beanClassName);
 					if (IServoyBeanFactory.class.isAssignableFrom(beanClass))
 					{
+						Form form = (Form)bean.getParent();
 						IServoyBeanFactory beanFactory = (IServoyBeanFactory)beanClass.newInstance();
 						Object beanInstance = beanFactory.getBeanInstance(application.getApplicationType(), (IClientPluginAccess)application.getPluginAccess(),
-							new Object[] { ComponentFactory.getWebID(null, bean) });
+							new Object[] { ComponentFactory.getWebID(null, bean), form.getName(), form.getStyleName() });
 						beanClass = beanInstance.getClass();
 						if (beanInstance instanceof IScriptObject)
 						{
