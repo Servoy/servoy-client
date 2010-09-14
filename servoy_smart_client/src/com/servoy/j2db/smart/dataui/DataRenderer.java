@@ -111,18 +111,7 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 			{
 				application.getFoundSetManager().getEditRecordList().stopEditing(false);
 			}
-
-
-			/**
-			 * @see java.awt.event.MouseAdapter#mousePressed(java.awt.event.MouseEvent)
-			 */
-			@Override
-			public void mousePressed(MouseEvent e)
-			{
-				exportDrag(e);
-			}
 		});
-
 	}
 
 	public int getYOffset()
@@ -139,7 +128,7 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 	private void exportDrag(MouseEvent e)
 	{
 		// controller is set when dragNdrop is enabled.
-		if (dragNdropController != null && getDragSource(e.getPoint()) != this)
+		if (dragNdropController != null)
 		{
 			boolean isCTRLDown = (e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0;
 			TransferHandler handler = getTransferHandler();
@@ -156,10 +145,11 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 			this.dragNdropController = formController;
 			// remove drag&drop from children as it is handled by the data renderer
 
+			final DragStartTester dragTester = new DragStartTester();
+			addMouseMotionListener(dragTester);
+			addMouseListener(dragTester);
 			addContainerListener(new ContainerListener()
 			{
-				DragStartTester dragTester = new DragStartTester();
-
 				public void componentAdded(ContainerEvent e)
 				{
 					Component child = e.getChild();

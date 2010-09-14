@@ -3032,7 +3032,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				if (getCurrentDragOperation() != DRAGNDROP.NONE)
 				{
 					IComponent comp = getBindedComponentChild(targetid);
-					if (comp == null) comp = WebCellBasedView.this;
 					JSDNDEvent event = WebCellBasedView.this.createScriptEvent(EventType.onDrop, comp, new Point(x, y));
 					event.setData(getDragData());
 					event.setDataMimeType(getDragDataMimeType());
@@ -3046,12 +3045,19 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				if (getCurrentDragOperation() != DRAGNDROP.NONE)
 				{
 					IComponent comp = getBindedComponentChild(targetid);
-					if (comp == null) comp = WebCellBasedView.this;
 					JSDNDEvent event = WebCellBasedView.this.createScriptEvent(EventType.onDragOver, comp, null);
 					event.setData(getDragData());
 					event.setDataMimeType(getDragDataMimeType());
 					WebCellBasedView.this.onDragOver(event);
 				}
+			}
+
+			@Override
+			public IComponent getBindedComponentChild(final String childId)
+			{
+				IComponent comp = super.getBindedComponentChild(childId);
+				if (comp == null) comp = WebCellBasedView.this;
+				return comp;
 			}
 		};
 		compDragBehavior.setUseProxy(true);

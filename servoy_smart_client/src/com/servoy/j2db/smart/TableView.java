@@ -1777,12 +1777,9 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 	 */
 	private void exportDrag(MouseEvent e)
 	{
-		if (getDragSource(e.getPoint()) != this)
-		{
-			boolean isCTRLDown = (e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0;
-			TransferHandler handler = getTransferHandler();
-			handler.exportAsDrag(TableView.this, e, isCTRLDown ? TransferHandler.COPY : TransferHandler.MOVE);
-		}
+		boolean isCTRLDown = (e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0;
+		TransferHandler handler = getTransferHandler();
+		handler.exportAsDrag(TableView.this, e, isCTRLDown ? TransferHandler.COPY : TransferHandler.MOVE);
 	}
 
 

@@ -734,6 +734,7 @@ public class WebEventExecutor extends BaseEventExecutor
 
 				if (component instanceof WebDataRenderer)
 				{
+					if (hasDragEvent) sbAttachDrag.append('\'').append(component.getMarkupId()).append("',");
 					if (hasDropEvent) sbAttachDrop.append('\'').append(component.getMarkupId()).append("',");
 
 					Iterator< ? extends Component> dataRendererIte = ((WebDataRenderer)component).iterator();
@@ -779,6 +780,7 @@ public class WebEventExecutor extends BaseEventExecutor
 
 				if (component instanceof WebCellBasedView)
 				{
+					if (hasDragEvent) sbAttachDrag.append('\'').append(component.getMarkupId()).append("',");
 					if (hasDropEvent) sbAttachDrop.append('\'').append(component.getMarkupId()).append("',");
 
 					PageableListView<IRecordInternal> table = ((WebCellBasedView)component).getTable();

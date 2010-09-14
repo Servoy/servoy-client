@@ -625,7 +625,6 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 				if (getCurrentDragOperation() != DRAGNDROP.NONE)
 				{
 					IComponent comp = getBindedComponentChild(targetid);
-					if (comp == null) comp = WebDataRenderer.this;
 					WebDataRenderer renderer = WebDataRenderer.this;
 					JSDNDEvent event = renderer.createScriptEvent(EventType.onDrop, comp, new Point(x, y));
 					event.setData(getDragData());
@@ -658,12 +657,19 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 				if (getCurrentDragOperation() != DRAGNDROP.NONE)
 				{
 					IComponent comp = getBindedComponentChild(targetid);
-					if (comp == null) comp = WebDataRenderer.this;
 					JSDNDEvent event = WebDataRenderer.this.createScriptEvent(EventType.onDragOver, comp, null);
 					event.setData(getDragData());
 					event.setDataMimeType(getDragDataMimeType());
 					WebDataRenderer.this.onDragOver(event);
 				}
+			}
+
+			@Override
+			public IComponent getBindedComponentChild(final String childId)
+			{
+				IComponent comp = super.getBindedComponentChild(childId);
+				if (comp == null) comp = WebDataRenderer.this;
+				return comp;
 			}
 
 		};
