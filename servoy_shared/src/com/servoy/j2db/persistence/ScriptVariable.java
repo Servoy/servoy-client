@@ -46,8 +46,6 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 	private String defaultValue = null;
 	private int variableType;
 
-	// tmp storage
-	private transient Object value = null;
 	private String comment;
 
 	public static final String GLOBAL_PREFIX = "globals"; //$NON-NLS-1$
@@ -59,17 +57,6 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 	ScriptVariable(ISupportChilds parent, int element_id, UUID uuid)
 	{
 		super(IRepository.SCRIPTVARIABLES, parent, element_id, uuid);
-	}
-
-	/**
-	 * do not use unless you have deep inside knowledge about the working
-	 */
-	public ScriptVariable(String name, int variableType, Object value)
-	{
-		super(IRepository.SCRIPTVARIABLES, null, 0, null);
-		this.name = name;
-		this.variableType = variableType;
-		this.value = value;
 	}
 
 	/*
@@ -119,27 +106,6 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 	{
 		checkForChange(comment, arg);
 		this.comment = arg;
-	}
-
-	/**
-	 * Set the value
-	 * 
-	 * @param arg the value
-	 */
-	public void setValue(Object arg)
-	{
-		value = arg;
-
-	}
-
-	/**
-	 * Get the value
-	 * 
-	 * @return the value
-	 */
-	public Object getValue()
-	{
-		return value;
 	}
 
 	/**

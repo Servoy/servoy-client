@@ -559,13 +559,6 @@ public class ScriptEngine implements IScriptSupport
 
 	public void flushCachedScopes()
 	{
-		Iterator<ScriptVariable> it = application.getFlattenedSolution().getScriptVariables(false);
-		while (it.hasNext())
-		{
-			ScriptVariable global = it.next();
-			global.setValue(globalScope.get(global.getDataProviderID().substring(ScriptVariable.GLOBAL_DOT_PREFIX.length())));
-		}
-
 		reload();
 	}
 
