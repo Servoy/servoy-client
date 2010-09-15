@@ -375,7 +375,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 		{
 			Debug.error(e);
 		}
-		return JSDataSet.EMPTY_DATASET;
+		return new JSDataSet();
 	}
 
 	/**
@@ -720,7 +720,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 		try
 		{
 			IDataSet users = application.getUserManager().getUsers(application.getClientID());
-			return users == null ? JSDataSet.EMPTY_DATASET : new JSDataSet(application, users);
+			return users == null ? new JSDataSet() : new JSDataSet(application, users);
 		}
 		catch (Exception e)
 		{
@@ -742,7 +742,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 		try
 		{
 			IDataSet groups = application.getUserManager().getGroups(application.getClientID());
-			return groups == null ? JSDataSet.EMPTY_DATASET : new JSDataSet(application, groups);
+			return groups == null ? new JSDataSet() : new JSDataSet(application, groups);
 		}
 		catch (Exception e)
 		{

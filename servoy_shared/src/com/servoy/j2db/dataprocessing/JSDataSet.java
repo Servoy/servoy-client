@@ -24,8 +24,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
@@ -64,7 +64,6 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 	private static final long serialVersionUID = 1L;
 
 	private static JSDataSet prototype;
-	public static JSDataSet EMPTY_DATASET = new JSDataSet();
 
 	private static final int /* Id_constructor = 1, */Id_toString = 2, Id_getAsHTML = 3, Id_getColumnAsArray = 4, Id_getColumnName = 5, Id_getExceptionMsg = 6,
 		Id_getMaxColumnIndex = 7, Id_getMaxRowIndex = 8, Id_getRowIndex = 9, Id_getValue = 10, Id_hadMoreData = 11, Id_setRowIndex = 12, Id_sort = 13,
