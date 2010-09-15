@@ -1408,6 +1408,12 @@ public class TemplateGenerator
 		styleObj.setProperty("background-color", "#fff");
 		styleObj.setProperty("border-bottom", "1px solid #fff");
 
+		styleObj = css.addStyle(".tabcontainer");
+		styleObj.setProperty("border-width", "0px 1px 1px 1px");
+		styleObj.setProperty("border-color", "#99AACC");
+		styleObj.setProperty("border-style", "solid");
+
+
 		//default font stuff
 		styleObj = css.addStyle("body, input, button, select, td, th, textarea");
 		styleObj.setProperty("font-family", "Tahoma, Arial, Helvetica, sans-serif");
@@ -1644,14 +1650,12 @@ public class TemplateGenerator
 		style.setProperty("position", "relative");
 //		style.setProperty("width",t_width+"px");
 //		style.setProperty("height",t_height+"px");
+		boolean bAddTabContainerClass = false;
 		if (tabPanel.getBorderType() == null)
 		{
 			if (!tabPanel.hasOneTab() && tabPanel.getTabOrientation() != TabPanel.HIDE)
 			{
-				//default
-				style.setProperty("border-width", "0px 1px 1px 1px");
-				style.setProperty("border-color", "#99AACC");
-				style.setProperty("border-style", "solid");
+				bAddTabContainerClass = true;
 			}
 		}
 		else
@@ -1683,7 +1687,10 @@ public class TemplateGenerator
 		}
 		else
 		{
-			html.append("\t<div servoy:id='webform' " + style.toString() + "></div>");
+			html.append("\t<div servoy:id='webform' ").append(style.toString());
+			if (bAddTabContainerClass) html.append(getCSSClassParameter("tabcontainer"));
+			html.append("></div>");
+
 		}
 
 		html.append("</div>");
