@@ -20,7 +20,6 @@ package com.servoy.j2db.scripting.info;
 import com.servoy.j2db.dataprocessing.ISQLActionTypes;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
-import com.servoy.j2db.scripting.IReturnedTypesProvider;
 
 /**
  * Script constants for SQL data manipulation actions.
@@ -28,16 +27,11 @@ import com.servoy.j2db.scripting.IReturnedTypesProvider;
  * @author gerzse
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class SQL_ACTION_TYPES implements IPrefixedConstantsObject, IReturnedTypesProvider, ISQLActionTypes
+public class SQL_ACTION_TYPES implements IPrefixedConstantsObject, ISQLActionTypes
 {
 	public String getPrefix()
 	{
 		return "SQL_ACTION_TYPES"; //$NON-NLS-1$
-	}
-
-	public Class< ? >[] getAllReturnedTypes()
-	{
-		return null;
 	}
 
 	@Override

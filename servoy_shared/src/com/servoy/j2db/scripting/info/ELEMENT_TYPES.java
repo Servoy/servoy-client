@@ -13,15 +13,14 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting.info;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
-import com.servoy.j2db.scripting.IReturnedTypesProvider;
 
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class ELEMENT_TYPES implements IPrefixedConstantsObject, IReturnedTypesProvider
+public class ELEMENT_TYPES implements IPrefixedConstantsObject
 {
 	/**
 	 * Constant representing an element of the Button type.
@@ -182,10 +181,5 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject, IReturnedTypesPr
 	public String getPrefix()
 	{
 		return "ELEMENT_TYPES"; //$NON-NLS-1$
-	}
-
-	public Class< ? >[] getAllReturnedTypes()
-	{
-		return null;
 	}
 }

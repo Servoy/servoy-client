@@ -18,7 +18,6 @@ package com.servoy.j2db.scripting.info;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
-import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.util.ILogLevel;
 
 /***
@@ -28,7 +27,7 @@ import com.servoy.j2db.util.ILogLevel;
  *  @see ILogLevel
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class LOGGINGLEVEL implements IPrefixedConstantsObject, IReturnedTypesProvider, ILogLevel
+public class LOGGINGLEVEL implements IPrefixedConstantsObject, ILogLevel
 {
 	public String getPrefix()
 	{
@@ -39,10 +38,5 @@ public class LOGGINGLEVEL implements IPrefixedConstantsObject, IReturnedTypesPro
 	public String toString()
 	{
 		return "Logging levels";
-	}
-
-	public Class< ? >[] getAllReturnedTypes()
-	{
-		return null;
 	}
 }
