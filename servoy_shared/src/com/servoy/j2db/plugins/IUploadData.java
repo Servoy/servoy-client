@@ -13,10 +13,12 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.plugins;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Container object holding the data of the uploaded files.
@@ -54,4 +56,10 @@ public interface IUploadData
 	 * @return
 	 */
 	String getContentType();
+
+	/**
+	 * An inputStream on the data
+	 * @return
+	 */
+	InputStream getInputStream() throws IOException;
 }
