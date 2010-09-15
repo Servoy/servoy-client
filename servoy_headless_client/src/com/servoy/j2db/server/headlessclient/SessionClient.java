@@ -1020,6 +1020,7 @@ public class SessionClient extends ClientState implements ISessionClient
 			if (properties == null)
 			{
 				properties = new Properties();
+				Messages.invalidConnection = false;
 				Messages.loadMessagesFromDatabase(null, getClientInfo().getClientId(), getSettings(), getDataServer(), getRepository(), properties, loc);
 				if (getSolution() != null) //must be sure that solution is loaded, app might retrieve system messages, before solution loaded!
 				{

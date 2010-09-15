@@ -32,6 +32,7 @@ import java.util.ResourceBundle;
 
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IDataSet;
+import com.servoy.j2db.dataprocessing.ISQLActionTypes;
 import com.servoy.j2db.dataprocessing.ISQLStatement;
 import com.servoy.j2db.dataprocessing.SQLStatement;
 import com.servoy.j2db.persistence.Column;
@@ -75,9 +76,9 @@ public class Messages
 	private static Properties localeServerMessages = null;
 	private static Properties localeSolutionMessages = null;
 
-	public static boolean invalidConnection;
-	public static boolean noConnection;
-	public static long changedTime = System.currentTimeMillis();
+	public static volatile boolean invalidConnection;
+	public static volatile boolean noConnection;
+	public static volatile long changedTime = System.currentTimeMillis();
 
 	/**
 	 * CURRENTLY FOR INTERNAL USE ONLY, DO NOT USE.
@@ -636,7 +637,7 @@ public class Messages
 				QueryDelete delete = new QueryDelete(messagesTable);
 				delete.addCondition(new CompareCondition(ISQLCondition.EQUALS_OPERATOR, msgKey, key));
 
-				ISQLStatement sqlStatement = new SQLStatement(ISQLStatement.DELETE_ACTION, serverName, tableName, null, delete);
+				ISQLStatement sqlStatement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, serverName, tableName, null, delete);
 
 				dataServer.performUpdates(clientId, new ISQLStatement[] { sqlStatement });
 			}
