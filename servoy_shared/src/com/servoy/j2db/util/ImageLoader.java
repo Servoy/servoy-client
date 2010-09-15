@@ -85,6 +85,12 @@ public class ImageLoader
 
 		if (c1 == 0xD0 && c2 == 0xCF && c3 == 0x11 && c4 == 0xE0 && c5 == 0xA1 && c6 == 0xB1 && c7 == 0x1A && c8 == 0xE1)
 		{
+			// if the name is set then check if it can be validated by name, because it could be a xls or powerpoint
+			String contentType = contentTypeByName(name);
+			if (contentType != null)
+			{
+				return contentType;
+			}
 			return "application/msword";
 		}
 		if (c1 == 0x25 && c2 == 0x50 && c3 == 0x44 && c4 == 0x46 && c5 == 0x2d && c6 == 0x31 && c7 == 0x2e)
