@@ -514,6 +514,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	@SuppressWarnings("nls")
 	public static void main(final String[] args)
 	{
+		boolean toggleTracing = false;
 		StartupArgumentsScope arguments = new StartupArgumentsScope(args);
 		Iterator<Entry<String, Object>> iterator = arguments.getArguments().entrySet().iterator();
 		while (iterator.hasNext())
@@ -523,7 +524,12 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			{
 				System.setProperty(arg.getKey().substring(16), (String)arg.getValue());
 			}
+			if (arg.getKey().equals("tracing") && arg.getValue().equals("true"))
+			{
+				toggleTracing = true;
+			}
 		}
+		if (toggleTracing) Debug.toggleTracing();
 		if (Boolean.getBoolean("servoy.usejaas"))
 		{
 			final boolean[] loginShown = new boolean[1];
