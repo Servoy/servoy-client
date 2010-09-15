@@ -683,7 +683,7 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 	public void setValidationEnabled(boolean b)
 	{
 		if (eventExecutor.getValidationEnabled() == b) return;
-		if (dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX)) return;
+		if (dataProviderID != null && dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX)) return;
 
 		if (list != null && list.getFallbackValueList() != null)
 		{
