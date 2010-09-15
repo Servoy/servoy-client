@@ -34,7 +34,7 @@ public class Debug
 		{
 			// touch the LogFactory class in the init. (to avoid the webstart bug)
 			Class< ? > cls = LogFactory.class;
-			System.out.println("Debug class loaded with " + cls); //$NON-NLS-1$
+			if (cls != null) cls.getName();
 		}
 		catch (Throwable t)
 		{
