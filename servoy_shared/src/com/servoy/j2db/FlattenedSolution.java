@@ -1315,12 +1315,6 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		return style;
 	}
 
-	@Deprecated
-	public Style getStyleForForm(Form f)
-	{
-		return getStyleForForm(f, null);
-	}
-
 	public Style getStyleForForm(Form f, Map<String, String> overridenStyles)
 	{
 		if (loginFlattenedSolution != null)
