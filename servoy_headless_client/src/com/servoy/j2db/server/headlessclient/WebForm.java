@@ -298,7 +298,6 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			}
 			else if (parent instanceof WebForm)
 			{
-				current = (WebForm)parent;
 				if (currentTabPanel != null)
 				{
 					int index = -1;
@@ -308,17 +307,22 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 					{
 						tabName = currentTabPanel.js_getTabNameAt(index + 1); // js method so +1
 					}
+					current = (WebForm)parent;
 					set.addRow(0, new Object[] { null, current.formController.getName(), currentTabPanel.getName(), tabName, new Integer(index) });
 				}
 				else if (currentBeanName != null)
 				{
+					current = (WebForm)parent;
 					set.addRow(0, new Object[] { null, current.formController.getName(), currentBeanName, null, null });
 				}
 				else if (currentSplitPane != null)
 				{
-					boolean isLeftForm = currentSplitPane.getLeftForm() != null && this.equals(((WebTabFormLookup)currentSplitPane.getLeftForm()).getWebForm());
+					boolean isLeftForm = currentSplitPane.getLeftForm() != null &&
+						current.equals(((WebTabFormLookup)currentSplitPane.getLeftForm()).getWebForm());
+					current = (WebForm)parent;
 					set.addRow(0, new Object[] { null, current.formController.getName(), currentSplitPane.getName(), null, new Integer(isLeftForm ? 1 : 2) });
 				}
+				current = (WebForm)parent;
 				currentTabPanel = null;
 				currentBeanName = null;
 				currentSplitPane = null;
@@ -337,7 +341,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			}
 			parent = parent.getParent();
 		}
-		return new JSDataSet(formController.getApplication());
+		return new JSDataSet(formController.getApplication(), set);
 	}
 
 	/**
