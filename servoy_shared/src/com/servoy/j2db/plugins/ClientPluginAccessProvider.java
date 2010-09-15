@@ -408,6 +408,10 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 			// happens in the request method.
 			synchronized (method)
 			{
+				// When application != J2DBGlobals.getServiceProvider() the method is called from client a to another (headless) client b.
+				// Method execution has to be done in a separate thread to prevent mixing thread locals from client a and b.
+				// This happens when the weblient uses the headless client plugin to call a method in the HC in the server-side of the plugin,
+				// since this is all server-side code the HC call is executed in the same thread.
 				if (application.isEventDispatchThread() && !async && application == J2DBGlobals.getServiceProvider())
 				{
 					application.invokeAndWait(method);
