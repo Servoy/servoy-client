@@ -76,12 +76,68 @@ public class JSSolutionModel
 		this.application = application;
 	}
 
+	/**
+	 * Creates a new JSForm Object.
+	 * 
+	 * NOTE: See the JSForm node for more information about form objects that can be added to the new form. 
+	 *
+	 * @sample
+	 * var myForm = solutionModel.newForm('newForm', 'myServer', 'myTable', 'myStyleName', false, 800, 600)
+	 * //now you can add stuff to the form (under JSForm node)
+	 * //add a label
+	 * myForm.newLabel('Name', 20, 20, 120, 30)
+	 * //add a "normal" text entry field
+	 * myForm.newTextField('dataProviderNameHere', 140, 20, 140,20)
+	 *
+	 * @param name the specified name of the form
+	 *
+	 * @param serverName the specified name of the server for the specified table
+	 *
+	 * @param tableName the specified name of the table
+	 *
+	 * @param styleName the specified style  
+	 *
+	 * @param show_in_menu if true show the name of the new form in the menu; or false for not showing
+	 *
+	 * @param width the width of the form in pixels
+	 *
+	 * @param height the height of the form in pixels
+	 * 
+	 * @return a new JSForm object
+	 */
 	public JSForm js_newForm(String name, String serverName, String tableName, String styleName, boolean show_in_menu, int width, int height)
 	{
 		String dataSource = DataSourceUtils.createDBTableDataSource(serverName, tableName);
 		return js_newForm(name, dataSource, styleName, show_in_menu, width, height);
 	}
 
+	/**
+	 * Creates a new JSForm Object.
+	 * 
+	 * NOTE: See the JSForm node for more information about form objects that can be added to the new form. 
+	 *
+	 * @sample
+	 * var myForm = solutionModel.newForm('newForm', 'myServer', 'myTable', 'myStyleName', false, 800, 600)
+	 * //now you can add stuff to the form (under JSForm node)
+	 * //add a label
+	 * myForm.newLabel('Name', 20, 20, 120, 30)
+	 * //add a "normal" text entry field
+	 * myForm.newTextField('dataProviderNameHere', 140, 20, 140,20)
+	 *
+	 * @param name the specified name of the form
+	 *
+	 * @param dataSource the specified name of the datasource for the specified table
+	 *
+	 * @param styleName the specified style  
+	 *
+	 * @param show_in_menu if true show the name of the new form in the menu; or false for not showing
+	 *
+	 * @param width the width of the form in pixels
+	 *
+	 * @param height the height of the form in pixels
+	 * 
+	 * @return a new JSForm object
+	 */
 	public JSForm js_newForm(String name, String dataSource, String styleName, boolean show_in_menu, int width, int height)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
@@ -136,7 +192,6 @@ public class JSSolutionModel
 	 * @param height the height of the form in pixels
 	 * 
 	 * @return a new JSForm object
-	 */
 	public JSForm js_newForm(Object[] args)
 	{
 		if (args == null)
@@ -199,6 +254,7 @@ public class JSSolutionModel
 		}
 
 	}
+	 */
 
 	/**
 	 * Gets the style specified by the given name.
