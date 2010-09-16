@@ -41,8 +41,8 @@ import javax.swing.border.Border;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.html.CSS;
 
-import org.apache.wicket.Component.IVisitor;
 import org.apache.wicket.ResourceReference;
+import org.apache.wicket.Component.IVisitor;
 
 import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
@@ -2643,8 +2643,7 @@ public class TemplateGenerator
 				}
 				if (insetsBorder == null)
 				{
-					if (s.getAttribute(CSS.Attribute.BORDER) != null || s.getAttribute(CSS.Attribute.BORDER_STYLE) != null ||
-						s.getAttribute(CSS.Attribute.BORDER_TOP) != null || s.getAttribute(CSS.Attribute.BORDER_TOP_WIDTH) != null)
+					if (FixedStyleSheet.hasBorder(s))
 					{
 						Border b = ss.getBorder(s);
 						if (b != null)
@@ -2663,7 +2662,7 @@ public class TemplateGenerator
 				}
 				if (insetsMargin == null)
 				{
-					if (s.getAttribute(CSS.Attribute.MARGIN) != null || s.getAttribute(CSS.Attribute.MARGIN_TOP) != null)
+					if (FixedStyleSheet.hasMargin(s))
 					{
 						insetsMargin = ss.getMargin(s);
 					}

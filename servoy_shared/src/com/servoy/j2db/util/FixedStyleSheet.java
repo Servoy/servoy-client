@@ -20,6 +20,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Insets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.StringTokenizer;
 
 import javax.swing.BorderFactory;
@@ -30,6 +31,7 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.html.CSS;
 import javax.swing.text.html.StyleSheet;
+import javax.swing.text.html.CSS.Attribute;
 
 import com.servoy.j2db.util.gui.SpecialMatteBorder;
 
@@ -40,6 +42,16 @@ import com.servoy.j2db.util.gui.SpecialMatteBorder;
  */
 public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 {
+	private static final String BORDER_COLOR_TRANSPARENT = "transparent"; //$NON-NLS-1$
+	private static final String BORDER_STYLE_DASHED = "dashed"; //$NON-NLS-1$
+	private static final String BORDER_STYLE_DOTTED = "dotted"; //$NON-NLS-1$
+	private static final String BORDER_STYLE_GROOVE = "groove"; //$NON-NLS-1$
+	private static final String BORDER_STYLE_INSET = "inset"; //$NON-NLS-1$
+	private static final String BORDER_STYLE_NONE = "none"; //$NON-NLS-1$
+	private static final String BORDER_STYLE_OUTSET = "outset"; //$NON-NLS-1$
+	private static final String BORDER_STYLE_SOLID = "solid"; //$NON-NLS-1$
+	private static final String[] BORDER_STYLES = new String[] { BORDER_STYLE_DASHED, BORDER_STYLE_DOTTED, BORDER_STYLE_GROOVE, BORDER_STYLE_INSET, BORDER_STYLE_NONE, BORDER_STYLE_OUTSET, BORDER_STYLE_SOLID };
+
 	public FixedStyleSheet()
 	{
 		super();
@@ -68,12 +80,12 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 
 	public Insets getMargin(AttributeSet a)
 	{
-		if (a.getAttribute(CSS.Attribute.MARGIN) != null || a.getAttribute(CSS.Attribute.MARGIN_TOP) != null)
+		if (hasMargin(a))
 		{
-			float top = getLength(CSS.Attribute.MARGIN_TOP, a);
-			float bottom = getLength(CSS.Attribute.MARGIN_BOTTOM, a);
-			float left = getLength(CSS.Attribute.MARGIN_LEFT, a);
-			float right = getLength(CSS.Attribute.MARGIN_RIGHT, a);
+			float top = getLength(a.getAttribute(CSS.Attribute.MARGIN_TOP));
+			float bottom = getLength(a.getAttribute(CSS.Attribute.MARGIN_BOTTOM));
+			float left = getLength(a.getAttribute(CSS.Attribute.MARGIN_LEFT));
+			float right = getLength(a.getAttribute(CSS.Attribute.MARGIN_RIGHT));
 
 			top = makeSizeSave(top);
 			right = makeSizeSave(right);
@@ -88,18 +100,66 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 	public Border getBorder(AttributeSet a)
 	{
 		Border b = null;
-		Object unexpandedBorder = a.getAttribute(CSS.Attribute.BORDER);
-		//TODO: how should we handle unexpandedBorder... is flaw in cssparser 
 
-		Object o = a.getAttribute(CSS.Attribute.BORDER_STYLE);
-		if (o != null)
+		// Initial values.
+		Object borderStyle = null;
+		Object borderColor = null;
+		float top = getLength(null);
+		float right = getLength(null);
+		float bottom = getLength(null);
+		float left = getLength(null);
+
+		// Try to use the unexpanded "border" attribute, if any.
+		Object unexpandedBorder = a.getAttribute(CSS.Attribute.BORDER);
+		if (unexpandedBorder != null)
 		{
-			Color[] colors = getBorderColor(a);
-			String bstyle = o.toString();
-			if (bstyle.equals("inset") || bstyle.equals("outset")) //$NON-NLS-1$
+			StringTokenizer st = new StringTokenizer(unexpandedBorder.toString());
+			// Some heuristics here. May be too permissive, but should work in the
+			// general case.
+			while (st.hasMoreTokens())
+			{
+				String tok = st.nextToken();
+				// If we got digits in the token, then it refers to border size.
+				if (tok.matches("^[0-9]+.*")) //$NON-NLS-1$
+				{
+					top = right = bottom = left = getLength(tok);
+				}
+				// If it is a border style keyword, use it accordingly. 
+				else if (Arrays.asList(BORDER_STYLES).contains(tok))
+				{
+					borderStyle = tok;
+				}
+				// If "transparent" then transparent.
+				else if (tok.equals(BORDER_COLOR_TRANSPARENT))
+				{
+					borderColor = BORDER_COLOR_TRANSPARENT;
+				}
+				// Otherwise assume it is a color.
+				else
+				{
+					Color c = PersistHelper.createColor(tok);
+					if (c != null) borderColor = tok;
+				}
+			}
+		}
+
+		// If any specific properties are set, they will just override what was
+		// extracted from the unexpanded "border" attribute.
+		if (a.isDefined(CSS.Attribute.BORDER_STYLE)) borderStyle = a.getAttribute(CSS.Attribute.BORDER_STYLE);
+		if (a.isDefined(CSS.Attribute.BORDER_COLOR)) borderColor = a.getAttribute(CSS.Attribute.BORDER_COLOR);
+		if (a.isDefined(CSS.Attribute.BORDER_TOP_WIDTH)) top = getLength(a.getAttribute(CSS.Attribute.BORDER_TOP_WIDTH));
+		if (a.isDefined(CSS.Attribute.BORDER_RIGHT_WIDTH)) right = getLength(a.getAttribute(CSS.Attribute.BORDER_RIGHT_WIDTH));
+		if (a.isDefined(CSS.Attribute.BORDER_BOTTOM_WIDTH)) bottom = getLength(a.getAttribute(CSS.Attribute.BORDER_BOTTOM_WIDTH));
+		if (a.isDefined(CSS.Attribute.BORDER_LEFT_WIDTH)) left = getLength(a.getAttribute(CSS.Attribute.BORDER_LEFT_WIDTH));
+
+		if (borderStyle != null)
+		{
+			Color[] colors = getBorderColor(borderColor);
+			String bstyle = borderStyle.toString();
+			if (bstyle.equals(BORDER_STYLE_INSET) || bstyle.equals(BORDER_STYLE_OUTSET))
 			{
 				int style = BevelBorder.LOWERED;
-				if (bstyle.equals("outset")) style = BevelBorder.RAISED;
+				if (bstyle.equals(BORDER_STYLE_OUTSET)) style = BevelBorder.RAISED;
 				if (colors != null && colors.length > 0)
 				{
 					if (colors.length == 1)
@@ -121,29 +181,24 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 					b = BorderFactory.createBevelBorder(style);
 				}
 			}
-			else if (bstyle.equals("none")) //$NON-NLS-1$
+			else if (bstyle.equals(BORDER_STYLE_NONE))
 			{
 				b = BorderFactory.createEmptyBorder();
 			}
-			else if (bstyle.equals("groove")) //$NON-NLS-1$
+			else if (bstyle.equals(BORDER_STYLE_GROOVE))
 			{
 				b = BorderFactory.createEtchedBorder();
 			}
-			else if (bstyle.equals("solid") || bstyle.equals("dotted") || bstyle.equals("dashed")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			else if (bstyle.equals(BORDER_STYLE_SOLID) || bstyle.equals(BORDER_STYLE_DOTTED) || bstyle.equals(BORDER_STYLE_DASHED))
 			{
 //				int bw = (int) getLength(CSS.Attribute.BORDER_WIDTH, a);
-				float top = getLength(CSS.Attribute.BORDER_TOP_WIDTH, a);
-				float right = getLength(CSS.Attribute.BORDER_RIGHT_WIDTH, a);
-				float bottom = getLength(CSS.Attribute.BORDER_BOTTOM_WIDTH, a);
-				float left = getLength(CSS.Attribute.BORDER_LEFT_WIDTH, a);
 
-				int colorCount = (colors == null ? 0 : colors.length);
+//				int colorCount = (colors == null ? 0 : colors.length);
 				colors = expandColors(colors);
 //				Object obj = a.getAttribute(CSS.Attribute.BORDER_WIDTH);
-				if (bstyle.equals("solid")) //$NON-NLS-1$
+				if (bstyle.equals(BORDER_STYLE_SOLID))
 				{
-					Object sborder_color = a.getAttribute(CSS.Attribute.BORDER_COLOR);
-					if (sborder_color != null && "transparent".equals(sborder_color.toString())) //$NON-NLS-1$
+					if (borderColor != null && BORDER_COLOR_TRANSPARENT.equals(borderColor.toString()))
 					{
 						top = makeSizeSave(top);
 						right = makeSizeSave(right);
@@ -171,7 +226,7 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 						}
 					}
 				}
-				else if (bstyle.equals("dashed")) //$NON-NLS-1$
+				else if (bstyle.equals(BORDER_STYLE_DASHED))
 				{
 					if (top <= 0 && left <= 0 && bottom <= 0 && right <= 0)
 					{
@@ -180,7 +235,7 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 					b = new SpecialMatteBorder(top, left, bottom, right, colors[0], colors[3], colors[2], colors[1]);
 					((SpecialMatteBorder)b).setDashPattern(new float[] { 3, 3 });
 				}
-				else if (bstyle.equals("dotted")) //$NON-NLS-1$
+				else if (bstyle.equals(BORDER_STYLE_DOTTED))
 				{
 					if (top <= 0 && left <= 0 && bottom <= 0 && right <= 0)
 					{
@@ -234,9 +289,8 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 	 * is not inherited), or it will default to the color attribute
 	 * (which is inherited).
 	 */
-	private Color[] getBorderColor(AttributeSet a)
+	private Color[] getBorderColor(Object obj)
 	{
-		Object obj = a.getAttribute(CSS.Attribute.BORDER_COLOR);
 		if (obj != null)
 		{
 			ArrayList colors = new ArrayList();
@@ -258,9 +312,8 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 	 * @param a
 	 * @return -1 if undefined
 	 */
-	public float getLength(CSS.Attribute key, AttributeSet a)
+	public float getLength(Object obj)
 	{
-		Object obj = a.getAttribute(key);
 		if (obj != null)
 		{
 			String val = obj.toString();
@@ -344,7 +397,29 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 	@Override
 	public void addCSSAttribute(MutableAttributeSet attr, CSS.Attribute key, String value)
 	{
-		if (key == CSS.Attribute.BACKGROUND_COLOR && "transparent".equalsIgnoreCase(value)) attr.addAttribute(key, value);
+		if (key == CSS.Attribute.BACKGROUND_COLOR && BORDER_COLOR_TRANSPARENT.equalsIgnoreCase(value)) attr.addAttribute(key, value);
 		else super.addCSSAttribute(attr, key, value);
+	}
+
+	private static Attribute[] borderAttributes = new Attribute[] { CSS.Attribute.BORDER, CSS.Attribute.BORDER_BOTTOM, CSS.Attribute.BORDER_BOTTOM_WIDTH, CSS.Attribute.BORDER_COLOR, CSS.Attribute.BORDER_LEFT, CSS.Attribute.BORDER_LEFT_WIDTH, CSS.Attribute.BORDER_RIGHT, CSS.Attribute.BORDER_RIGHT_WIDTH, CSS.Attribute.BORDER_STYLE, CSS.Attribute.BORDER_TOP, CSS.Attribute.BORDER_TOP_WIDTH, CSS.Attribute.BORDER_WIDTH };
+	private static Attribute[] marginAttributes = new Attribute[] { CSS.Attribute.MARGIN, CSS.Attribute.MARGIN_BOTTOM, CSS.Attribute.MARGIN_LEFT, CSS.Attribute.MARGIN_RIGHT, CSS.Attribute.MARGIN_TOP };
+
+	public static boolean hasBorder(AttributeSet s)
+	{
+		return hasAttributes(s, borderAttributes);
+	}
+
+	public static boolean hasMargin(AttributeSet s)
+	{
+		return hasAttributes(s, marginAttributes);
+	}
+
+	private static boolean hasAttributes(AttributeSet s, Attribute[] attrs)
+	{
+		for (Attribute a : attrs)
+		{
+			if (s.getAttribute(a) != null) return true;
+		}
+		return false;
 	}
 }

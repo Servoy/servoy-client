@@ -763,8 +763,7 @@ public class ComponentFactory
 					Font f = ss.getFont(s);
 					if (f != null) c.setFont(f);
 				}
-				if (s.getAttribute(CSS.Attribute.BORDER) != null || s.getAttribute(CSS.Attribute.BORDER_STYLE) != null ||
-					s.getAttribute(CSS.Attribute.BORDER_TOP) != null || s.getAttribute(CSS.Attribute.BORDER_TOP_WIDTH) != null)
+				if (FixedStyleSheet.hasBorder(s))
 				{
 					Border b = ss.getBorder(s);
 					if (b != null)
@@ -773,7 +772,7 @@ public class ComponentFactory
 						isBorderStyle = true;
 					}
 				}
-				if (s.getAttribute(CSS.Attribute.MARGIN) != null || s.getAttribute(CSS.Attribute.MARGIN_TOP) != null)
+				if (FixedStyleSheet.hasMargin(s))
 				{
 					Insets i = ss.getMargin(s);
 					if (i != null && c instanceof IButton) ((IButton)c).setMargin(i);
@@ -1850,13 +1849,11 @@ public class ComponentFactory
 			javax.swing.text.Style s = styleInfo.getRight();
 			if (ss != null && s != null)
 			{
-				if (border == null &&
-					(s.getAttribute(CSS.Attribute.BORDER) != null || s.getAttribute(CSS.Attribute.BORDER_STYLE) != null ||
-						s.getAttribute(CSS.Attribute.BORDER_TOP) != null || s.getAttribute(CSS.Attribute.BORDER_TOP_WIDTH) != null))
+				if (border == null && FixedStyleSheet.hasBorder(s))
 				{
 					border = ss.getBorder(s);
 				}
-				if (insets == null && (s.getAttribute(CSS.Attribute.MARGIN) != null || s.getAttribute(CSS.Attribute.MARGIN_TOP) != null))
+				if (insets == null && FixedStyleSheet.hasMargin(s))
 				{
 					insets = ss.getMargin(s);
 				}
