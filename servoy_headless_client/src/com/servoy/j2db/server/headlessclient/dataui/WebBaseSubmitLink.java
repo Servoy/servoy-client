@@ -958,7 +958,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IScriptHtml
 	public void js_setSize(int width, int height)
 	{
 		size = new Dimension(width, height);
-		jsChangeRecorder.setSize(width, height, border, margin, getFontSize(), valign);
+		jsChangeRecorder.setSize(width, height, border, border != null ? null : margin, getFontSize(), valign); // border already have the margin
 	}
 
 	protected int getFontSize()
@@ -975,7 +975,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IScriptHtml
 
 	public Rectangle getWebBounds()
 	{
-		Dimension d = jsChangeRecorder.calculateWebSize(size.width, size.height, border, margin, getFontSize(), null, valign);
+		Dimension d = jsChangeRecorder.calculateWebSize(size.width, size.height, border, border != null ? null : margin, getFontSize(), null, valign); // border already have the margin
 		return new Rectangle(location, d);
 	}
 
@@ -984,7 +984,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IScriptHtml
 	 */
 	public Insets getPaddingAndBorder()
 	{
-		return jsChangeRecorder.getPaddingAndBorder(size.height, border, margin, getFontSize(), null, valign);
+		return jsChangeRecorder.getPaddingAndBorder(size.height, border, border != null ? null : margin, getFontSize(), null, valign); // border already have the margin
 	}
 
 
