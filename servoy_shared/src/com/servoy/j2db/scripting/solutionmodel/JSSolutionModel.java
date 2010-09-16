@@ -159,12 +159,12 @@ public class JSSolutionModel
 		}
 	}
 
+	/**
 	public JSForm js_newForm(String name, JSForm toclonefrom)
 	{
 		return js_cloneForm(name, toclonefrom);
 	}
 
-	/**
 	 * Creates a new JSForm Object.
 	 * 
 	 * NOTE: See the JSForm node for more information about form objects that can be added to the new form. 
