@@ -31,10 +31,14 @@ import javax.swing.table.TableCellRenderer;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.component.ComponentFactory;
+import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.smart.TableView;
 import com.servoy.j2db.ui.IComponent;
+import com.servoy.j2db.util.FixedStyleSheet;
 import com.servoy.j2db.util.ImageLoader;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Utils;
 
 /***
@@ -67,11 +71,39 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 
 		if (gc != null)
 		{
+			int style_halign = -1;
+			int style_valign = -1;
+			Pair<FixedStyleSheet, javax.swing.text.Style> styleInfo = ComponentFactory.getStyleForBasicComponent(app, gc,
+				(Form)gc.getAncestor(IRepository.FORMS));
+			if (styleInfo != null)
+			{
+				FixedStyleSheet ss = styleInfo.getLeft();
+				javax.swing.text.Style s = styleInfo.getRight();
+				if (ss != null && s != null)
+				{
+					style_valign = ss.getVAlign(s);
+					style_halign = ss.getHAlign(s);
+				}
+			}
 			int halign = gc.getHorizontalAlignment();
 			if (halign != -1)
 			{
 				setHorizontalAlignment(halign);
 			}
+			else if (style_halign != -1)
+			{
+				setHorizontalAlignment(style_halign);
+			}
+			int valign = gc.getVerticalAlignment();
+			if (valign != -1)
+			{
+				setVerticalAlignment(valign);
+			}
+			else if (style_valign != -1)
+			{
+				setVerticalAlignment(style_valign);
+			}
+
 			int mediaId = gc.getImageMediaID();
 			if (mediaId > 0)
 			{
@@ -172,6 +204,7 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 					if (!Utils.equalObjects(getToolTipText(), label.getToolTipText())) label.setToolTipText(getToolTipText());
 					if (label.getHorizontalTextPosition() != SwingConstants.LEADING) label.setHorizontalTextPosition(SwingConstants.LEADING);
 					label.setHorizontalAlignment(getHorizontalAlignment());
+					label.setVerticalAlignment(getVerticalAlignment());
 				}
 				lfComponent.setPreferredSize(new Dimension(lfComponent.getPreferredSize().width, (int)gc.getSize().getHeight()));
 			}
