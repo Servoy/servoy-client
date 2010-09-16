@@ -31,10 +31,13 @@ import javax.swing.table.TableCellRenderer;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.component.ComponentFactory;
+import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.smart.TableView;
 import com.servoy.j2db.ui.IComponent;
+import com.servoy.j2db.util.FixedStyleSheet;
 import com.servoy.j2db.util.ImageLoader;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Utils;
 
 /***
@@ -52,7 +55,8 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 	private final int defaultHorizontalTextPosition;
 	protected final GraphicalComponent gc;
 
-	public LFAwareSortableHeaderRenderer(IApplication app, TableView parentTable, int columnIndex, ImageIcon arrowUp, ImageIcon arrowDown, GraphicalComponent gc)
+	public LFAwareSortableHeaderRenderer(IApplication app, TableView parentTable, int columnIndex, ImageIcon arrowUp, ImageIcon arrowDown,
+		GraphicalComponent gc, Form formForStyles)
 	{
 		super();
 		setBorder(null);
@@ -67,11 +71,27 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 
 		if (gc != null)
 		{
+			int style_halign = -1;
+			Pair<FixedStyleSheet, javax.swing.text.Style> styleInfo = ComponentFactory.getStyleForBasicComponent(app, gc, formForStyles);
+			if (styleInfo != null)
+			{
+				FixedStyleSheet ss = styleInfo.getLeft();
+				javax.swing.text.Style s = styleInfo.getRight();
+				if (ss != null && s != null)
+				{
+					style_halign = ss.getHAlign(s);
+				}
+			}
 			int halign = gc.getHorizontalAlignment();
 			if (halign != -1)
 			{
 				setHorizontalAlignment(halign);
 			}
+			else if (style_halign != -1)
+			{
+				setHorizontalAlignment(style_halign);
+			}
+
 			int mediaId = gc.getImageMediaID();
 			if (mediaId > 0)
 			{

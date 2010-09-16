@@ -658,8 +658,8 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 				ca.setDataAdapterList(dal);
 				String name = String.valueOf(ca.getIdentifier());
 				GraphicalComponent gc = (GraphicalComponent)labelsFor.get(name);
-				LFAwareSortableHeaderRenderer tcr = new LFAwareSortableHeaderRenderer(app, this, ca.getModelIndex(), arrowUp, arrowDown, gc);
-				if (gc != null) ComponentFactory.applyBasicComponentProperties(app, tcr, gc, ComponentFactory.getStyleForBasicComponent(app, gc, fc.getForm()));
+				LFAwareSortableHeaderRenderer tcr = new LFAwareSortableHeaderRenderer(app, this, ca.getModelIndex(), arrowUp, arrowDown, gc, formForStyles);
+				if (gc != null) ComponentFactory.applyBasicComponentProperties(app, tcr, gc, ComponentFactory.getStyleForBasicComponent(app, gc, formForStyles));
 				ca.setHeaderRenderer(tcr);
 			}
 		}
