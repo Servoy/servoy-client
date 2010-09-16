@@ -33,7 +33,6 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
-import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.smart.TableView;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.util.FixedStyleSheet;
@@ -56,7 +55,8 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 	private final int defaultHorizontalTextPosition;
 	protected final GraphicalComponent gc;
 
-	public LFAwareSortableHeaderRenderer(IApplication app, TableView parentTable, int columnIndex, ImageIcon arrowUp, ImageIcon arrowDown, GraphicalComponent gc)
+	public LFAwareSortableHeaderRenderer(IApplication app, TableView parentTable, int columnIndex, ImageIcon arrowUp, ImageIcon arrowDown,
+		GraphicalComponent gc, Form formForStyles)
 	{
 		super();
 		setBorder(null);
@@ -73,8 +73,7 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 		{
 			int style_halign = -1;
 			int style_valign = -1;
-			Pair<FixedStyleSheet, javax.swing.text.Style> styleInfo = ComponentFactory.getStyleForBasicComponent(app, gc,
-				(Form)gc.getAncestor(IRepository.FORMS));
+			Pair<FixedStyleSheet, javax.swing.text.Style> styleInfo = ComponentFactory.getStyleForBasicComponent(app, gc, formForStyles);
 			if (styleInfo != null)
 			{
 				FixedStyleSheet ss = styleInfo.getLeft();
