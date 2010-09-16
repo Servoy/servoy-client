@@ -463,7 +463,6 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 		return null;
 	}
 
-	@Deprecated
 	public String js_getParameterValue(String param)
 	{
 		// TODO catch the submit of a html that is displayed. 
