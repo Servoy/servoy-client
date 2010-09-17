@@ -168,9 +168,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		clientInfo.setSpecialClientIndentifier(null);
 		if (args == null || args.length == 0)
 		{
-			//clear, do not clear preferedSolutionMethodArguments we want to access the argument during the app livespan
+			//clear, do not clear method and arguments (clear method when it is called, we want to access the arguments during the app livespan)
 			preferredSolutionNameToLoadOnInit = null;
-			preferredSolutionMethodNameToCall = null;
 		}
 		else
 		{
