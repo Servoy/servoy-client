@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
@@ -146,6 +147,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		return super.getServerURL();
 	}
 
+	@Override
 	@SuppressWarnings("nls")
 	public String getOSName()
 	{
@@ -213,6 +215,9 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	public String getUserProperty(String name)
 	{
 		if (name == null) return null;
+		String userPropertyFromServer = getSettings().getProperty("user." + name); //$NON-NLS-1$
+		if (userPropertyFromServer != null) return userPropertyFromServer; // return user property pushed from server
+
 		WebRequestCycle wrc = ((WebRequestCycle)RequestCycle.get());
 		if (wrc != null && wrc.getWebRequest() != null)
 		{
@@ -228,11 +233,13 @@ public class WebClient extends SessionClient implements IWebClientApplication
 				}
 			}
 		}
+
 		if (name.startsWith("user.")) //not found, see if present in system properties (as pushed user property) //$NON-NLS-1$
 		{
 			return getSettings().getProperty(name);
 		}
-		return getSettings().getProperty("user." + name); //$NON-NLS-1$
+
+		return null;
 	}
 
 	@Override
@@ -248,6 +255,19 @@ public class WebClient extends SessionClient implements IWebClientApplication
 				retval.add(element.getName());
 			}
 		}
+
+		Iterator<Object> it = getSettings().keySet().iterator();
+		String userPropertyKey;
+		while (it.hasNext())
+		{
+			String key = (String)it.next();
+			if (key.startsWith("user.")) //$NON-NLS-1$
+			{
+				userPropertyKey = key.substring("user.".length()); //$NON-NLS-1$
+				if (retval.indexOf(userPropertyKey) == -1) retval.add(userPropertyKey);
+			}
+		}
+
 		return retval.toArray(new String[retval.size()]);
 	}
 
@@ -278,9 +298,12 @@ public class WebClient extends SessionClient implements IWebClientApplication
 				}
 			}
 		}
-		if (value != null)
+
+		String userPropertyFromServer = getSettings().getProperty("user." + name); //$NON-NLS-1$
+		String clientValue = userPropertyFromServer != null ? userPropertyFromServer : value; // if there is value pushed from server, save that one (to have the same behavior like in smart client)
+		if (clientValue != null)
 		{
-			Cookie cookie = new Cookie(name, encodeCookieValue(value));
+			Cookie cookie = new Cookie(name, encodeCookieValue(clientValue));
 			cookie.setMaxAge(Integer.MAX_VALUE);
 			// Add the cookie
 			((WebRequestCycle)RequestCycle.get()).getWebResponse().addCookie(cookie);
