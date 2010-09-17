@@ -758,7 +758,7 @@ public class ComponentFactory
 					}
 				}
 				//else c.setOpaque(false); // no background-color means transparent
-				if (s.getAttribute(CSS.Attribute.FONT_FAMILY) != null || s.getAttribute(CSS.Attribute.FONT) != null)
+				if (FixedStyleSheet.hasFont(s))
 				{
 					Font f = ss.getFont(s);
 					if (f != null) c.setFont(f);
