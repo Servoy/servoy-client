@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.EventObject;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
@@ -1490,21 +1491,22 @@ public class SessionClient extends ClientState implements ISessionClient
 	{
 		if (a_name == null) return null;
 		CharSequence name = Utils.stringLimitLenght(a_name, 255);
+		String userPropertyFromServer = settings.getProperty(USER + name);
+		if (userPropertyFromServer != null) return userPropertyFromServer;
+
 		if (session != null)
 		{
 			return (String)session.getAttribute(USER + name);
 		}
-		else
-		{
-			return settings.getProperty(USER + name);
-		}
+
+		return null;
 	}
 
 	public String[] getUserPropertyNames()
 	{
+		List<String> retval = new ArrayList<String>();
 		if (session != null)
 		{
-			List<String> retval = new ArrayList<String>();
 			Enumeration< ? > it = session.getAttributeNames();
 			while (it.hasMoreElements())
 			{
@@ -1514,10 +1516,21 @@ public class SessionClient extends ClientState implements ISessionClient
 					retval.add(key);
 				}
 			}
-			return retval.toArray(new String[retval.size()]);
 		}
-		Debug.error("User properties not possible for non http Headless client!"); //$NON-NLS-1$
-		return new String[0];
+
+		Iterator<Object> it = settings.keySet().iterator();
+		String userPropertyKey;
+		while (it.hasNext())
+		{
+			String key = (String)it.next();
+			if (key.startsWith("user.")) //$NON-NLS-1$
+			{
+				userPropertyKey = key.substring("user.".length()); //$NON-NLS-1$
+				if (retval.indexOf(userPropertyKey) == -1) retval.add(userPropertyKey);
+			}
+		}
+
+		return retval.toArray(new String[retval.size()]);
 	}
 
 	public void setUserProperty(String a_name, String value)
