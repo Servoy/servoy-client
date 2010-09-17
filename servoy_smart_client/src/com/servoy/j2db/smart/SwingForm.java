@@ -55,8 +55,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -124,8 +124,8 @@ import com.servoy.j2db.printing.PrintPreview;
 import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.GroupScriptObject;
 import com.servoy.j2db.scripting.JSEvent;
-import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.scripting.JSEvent.EventType;
+import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.smart.dataui.CellAdapter;
 import com.servoy.j2db.smart.dataui.DataComboBox;
 import com.servoy.j2db.smart.dataui.DataRenderer;
@@ -135,6 +135,7 @@ import com.servoy.j2db.smart.dataui.PortalComponent;
 import com.servoy.j2db.smart.dataui.ScriptButton;
 import com.servoy.j2db.smart.dataui.ScriptLabel;
 import com.servoy.j2db.smart.dataui.SolutionSkin;
+import com.servoy.j2db.smart.dataui.SpecialSplitPane;
 import com.servoy.j2db.smart.dataui.SpecialTabPanel;
 import com.servoy.j2db.smart.dataui.SplitPane;
 import com.servoy.j2db.smart.scripting.TwoNativeJavaObject;
@@ -440,7 +441,9 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		FormLookupPanel currentLookupPanel = null;
 		SpecialTabPanel currentTabPanel = null;
 		String currentBeanName = null;
-		IDataSet set = new BufferedDataSet(new String[] { "containername", "formname", "tabpanel/beanname", "tabname", "tabindex" }, new ArrayList<Object[]>()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+		SpecialSplitPane currentSplitPane = null;
+		IDataSet set = new BufferedDataSet(
+			new String[] { "containername", "formname", "tabpanel/splitpane/beanname", "tabname", "tabindex" }, new ArrayList<Object[]>()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		set.addRow(new Object[] { null, current.formController.getName(), null, null, null });
 		Container parent = getParent();
 		while (parent != null)
@@ -448,6 +451,10 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			if (parent instanceof SpecialTabPanel)
 			{
 				currentTabPanel = (SpecialTabPanel)parent;
+			}
+			else if (parent instanceof SpecialSplitPane)
+			{
+				currentSplitPane = (SpecialSplitPane)parent;
 			}
 			else if (parent instanceof FormLookupPanel)
 			{
@@ -479,6 +486,11 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 				{
 					set.addRow(0, new Object[] { null, current.formController.getName(), currentBeanName, null, null });
 				}
+				else if (currentSplitPane != null)
+				{
+					boolean isLeftForm = currentLookupPanel != null && currentLookupPanel.equals(currentSplitPane.getLeftForm());
+					set.addRow(0, new Object[] { null, current.formController.getName(), currentSplitPane.getName(), null, new Integer(isLeftForm ? 1 : 2) });
+				}
 				else
 				{
 					set.addRow(0, new Object[] { null, current.formController.getName(), null, null, null });
@@ -486,6 +498,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 				currentBeanName = null;
 				currentTabPanel = null;
 				currentLookupPanel = null;
+				currentSplitPane = null;
 			}
 			else if (parent instanceof MainPanel)
 			{
@@ -1067,8 +1080,8 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			Messages.getString("servoy.button.cancel"), //$NON-NLS-1$
 			Messages.getString("servoy.formPanel.printCurrentRecord") //$NON-NLS-1$
 			};
-			return JOptionPane.showOptionDialog(formController.getApplication().getMainApplicationFrame(), Messages.getString(
-				"servoy.formPanel.message.largeResultset", new Object[] { new Integer(formModel.getSize()) }), //$NON-NLS-1$
+			return JOptionPane.showOptionDialog(formController.getApplication().getMainApplicationFrame(),
+				Messages.getString("servoy.formPanel.message.largeResultset", new Object[] { new Integer(formModel.getSize()) }), //$NON-NLS-1$
 				Messages.getString("servoy.general.warning"), //$NON-NLS-1$
 				JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[2]);
 		}

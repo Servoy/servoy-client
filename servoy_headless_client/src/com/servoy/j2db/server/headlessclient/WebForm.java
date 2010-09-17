@@ -104,6 +104,7 @@ import com.servoy.j2db.server.headlessclient.dataui.WebDefaultRecordNavigator;
 import com.servoy.j2db.server.headlessclient.dataui.WebImageBeanHolder;
 import com.servoy.j2db.server.headlessclient.dataui.WebRecordView;
 import com.servoy.j2db.server.headlessclient.dataui.WebSplitPane;
+import com.servoy.j2db.server.headlessclient.dataui.WebTabFormLookup;
 import com.servoy.j2db.server.headlessclient.dataui.WebTabPanel;
 import com.servoy.j2db.smart.dataui.DataRenderer;
 import com.servoy.j2db.ui.IComponent;
@@ -275,7 +276,9 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		WebForm current = this;
 		WebTabPanel currentTabPanel = null;
 		String currentBeanName = null;
-		IDataSet set = new BufferedDataSet(new String[] { "containername", "formname", "tabpanel/beanname", "tabname", "tabindex" }, new ArrayList<Object[]>()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+		WebSplitPane currentSplitPane = null;
+		IDataSet set = new BufferedDataSet(
+			new String[] { "containername", "formname", "tabpanel/splitpane/beanname", "tabname", "tabindex" }, new ArrayList<Object[]>()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		set.addRow(new Object[] { null, current.formController.getName(), null, null, null });
 		MarkupContainer parent = getParent();
 		while (parent != null)
@@ -283,6 +286,10 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			if (parent instanceof WebTabPanel)
 			{
 				currentTabPanel = (WebTabPanel)parent;
+			}
+			else if (parent instanceof WebSplitPane)
+			{
+				currentSplitPane = (WebSplitPane)parent;
 			}
 			else if (parent instanceof IServoyAwareBean && parent instanceof IComponent)
 			{
@@ -307,9 +314,17 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 					current = (WebForm)parent;
 					set.addRow(0, new Object[] { null, current.formController.getName(), currentBeanName, null, null });
 				}
+				else if (currentSplitPane != null)
+				{
+					boolean isLeftForm = currentSplitPane.getLeftForm() != null &&
+						current.equals(((WebTabFormLookup)currentSplitPane.getLeftForm()).getWebForm());
+					current = (WebForm)parent;
+					set.addRow(0, new Object[] { null, current.formController.getName(), currentSplitPane.getName(), null, new Integer(isLeftForm ? 1 : 2) });
+				}
 				current = (WebForm)parent;
 				currentTabPanel = null;
 				currentBeanName = null;
+				currentSplitPane = null;
 			}
 			else if (parent instanceof MainPage)
 			{
