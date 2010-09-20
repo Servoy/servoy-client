@@ -213,8 +213,8 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	public String getUserProperty(String name)
 	{
 		if (name == null) return null;
-		String userProperty = super.getUserProperty(name);
-		if (userProperty != null) return userProperty;
+		String defaultUserProperty = getDefaultUserProperties().get(name);
+		if (defaultUserProperty != null) return defaultUserProperty;
 		WebRequestCycle wrc = ((WebRequestCycle)RequestCycle.get());
 		if (wrc != null && wrc.getWebRequest() != null)
 		{
@@ -248,9 +248,12 @@ public class WebClient extends SessionClient implements IWebClientApplication
 			}
 		}
 
-		for (String sessionUserProperty : super.getUserPropertyNames())
+		for (String defaultUserPropertyKey : getDefaultUserProperties().keySet())
 		{
-			if (retval.indexOf(sessionUserProperty) == -1) retval.add(sessionUserProperty);
+			if (retval.indexOf(defaultUserPropertyKey) == -1)
+			{
+				retval.add(defaultUserPropertyKey);
+			}
 		}
 
 		return retval.toArray(new String[retval.size()]);
@@ -270,7 +273,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 				" not saved");
 			return;
 		}
-
+		getDefaultUserProperties().remove(name);
 		Cookie[] cookies = ((WebRequestCycle)RequestCycle.get()).getWebRequest().getCookies();
 		if (cookies != null)
 		{
@@ -285,7 +288,6 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		}
 		if (value != null)
 		{
-			super.setUserProperty(name, null); // clear user property loaded from the settings file
 			Cookie cookie = new Cookie(name, encodeCookieValue(value));
 			cookie.setMaxAge(Integer.MAX_VALUE);
 			// Add the cookie
