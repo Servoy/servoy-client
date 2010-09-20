@@ -170,7 +170,7 @@ public class SessionClient extends ClientState implements ISessionClient
 		try
 		{
 			settings = Settings.getInstance();
-
+			loadUserPropertiesFromServerToSession();
 			this.credentials = credentials;
 
 			this.preferredSolutionMethodNameToCall = method;
@@ -1448,22 +1448,21 @@ public class SessionClient extends ClientState implements ISessionClient
 	{
 		if (a_name == null) return null;
 		CharSequence name = Utils.stringLimitLenght(a_name, 255);
-		String userPropertyFromServer = settings.getProperty(USER + name);
-		if (userPropertyFromServer != null) return userPropertyFromServer;
-
 		if (session != null)
 		{
 			return (String)session.getAttribute(USER + name);
 		}
-
-		return null;
+		else
+		{
+			return settings.getProperty(USER + name);
+		}
 	}
 
 	public String[] getUserPropertyNames()
 	{
-		List<String> retval = new ArrayList<String>();
 		if (session != null)
 		{
+			List<String> retval = new ArrayList<String>();
 			Enumeration< ? > it = session.getAttributeNames();
 			while (it.hasMoreElements())
 			{
@@ -1473,21 +1472,10 @@ public class SessionClient extends ClientState implements ISessionClient
 					retval.add(key);
 				}
 			}
+			return retval.toArray(new String[retval.size()]);
 		}
-
-		Iterator<Object> it = settings.keySet().iterator();
-		String userPropertyKey;
-		while (it.hasNext())
-		{
-			String key = (String)it.next();
-			if (key.startsWith("user.")) //$NON-NLS-1$
-			{
-				userPropertyKey = key.substring("user.".length()); //$NON-NLS-1$
-				if (retval.indexOf(userPropertyKey) == -1) retval.add(userPropertyKey);
-			}
-		}
-
-		return retval.toArray(new String[retval.size()]);
+		Debug.error("User properties not possible for non http Headless client!"); //$NON-NLS-1$
+		return new String[0];
 	}
 
 	public void setUserProperty(String a_name, String value)
@@ -1514,6 +1502,22 @@ public class SessionClient extends ClientState implements ISessionClient
 			else
 			{
 				settings.setProperty(USER + name, Utils.stringLimitLenght(value, 255).toString());
+			}
+		}
+	}
+
+	private void loadUserPropertiesFromServerToSession()
+	{
+		if (session != null)
+		{
+			Iterator<Object> it = getSettings().keySet().iterator();
+			while (it.hasNext())
+			{
+				String key = (String)it.next();
+				if (key.startsWith("user.")) //$NON-NLS-1$
+				{
+					session.setAttribute(Utils.stringLimitLenght(key, 260).toString(), getSettings().getProperty(key));
+				}
 			}
 		}
 	}
