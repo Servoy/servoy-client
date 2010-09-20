@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -151,6 +152,8 @@ public class SessionClient extends ClientState implements ISessionClient
 
 	private transient InfoChannel outputChannel;
 
+	private final HashMap<String, String> defaultUserProperties = new HashMap<String, String>();
+
 	protected SessionClient(ServletRequest req, String uname, String pass, String method, Object[] methodArgs, String solution) throws Exception
 	{
 		this(req, new WebCredentials(uname, pass), method, methodArgs, solution);
@@ -170,7 +173,7 @@ public class SessionClient extends ClientState implements ISessionClient
 		try
 		{
 			settings = Settings.getInstance();
-			loadUserPropertiesFromServerToSession();
+			loadDefaultUserProperties();
 			this.credentials = credentials;
 
 			this.preferredSolutionMethodNameToCall = method;
@@ -1447,6 +1450,8 @@ public class SessionClient extends ClientState implements ISessionClient
 	public String getUserProperty(String a_name)
 	{
 		if (a_name == null) return null;
+		String defaultUserProperty = getDefaultUserProperties().get(a_name);
+		if (defaultUserProperty != null) return defaultUserProperty;
 		CharSequence name = Utils.stringLimitLenght(a_name, 255);
 		if (session != null)
 		{
@@ -1460,9 +1465,9 @@ public class SessionClient extends ClientState implements ISessionClient
 
 	public String[] getUserPropertyNames()
 	{
+		List<String> retval = new ArrayList<String>();
 		if (session != null)
 		{
-			List<String> retval = new ArrayList<String>();
 			Enumeration< ? > it = session.getAttributeNames();
 			while (it.hasMoreElements())
 			{
@@ -1472,15 +1477,23 @@ public class SessionClient extends ClientState implements ISessionClient
 					retval.add(key);
 				}
 			}
-			return retval.toArray(new String[retval.size()]);
+
 		}
-		Debug.error("User properties not possible for non http Headless client!"); //$NON-NLS-1$
-		return new String[0];
+		for (String defaultUserPropertyKey : getDefaultUserProperties().keySet())
+		{
+			if (retval.indexOf(defaultUserPropertyKey) == -1)
+			{
+				retval.add(defaultUserPropertyKey);
+			}
+		}
+
+		return retval.toArray(new String[retval.size()]);
 	}
 
 	public void setUserProperty(String a_name, String value)
 	{
 		if (a_name == null) return;
+		getDefaultUserProperties().remove(a_name); // clear
 		CharSequence name = Utils.stringLimitLenght(a_name, 255);
 		if (session != null)
 		{
@@ -1506,20 +1519,22 @@ public class SessionClient extends ClientState implements ISessionClient
 		}
 	}
 
-	private void loadUserPropertiesFromServerToSession()
+	private void loadDefaultUserProperties()
 	{
-		if (session != null)
+		Iterator<Object> it = getSettings().keySet().iterator();
+		while (it.hasNext())
 		{
-			Iterator<Object> it = getSettings().keySet().iterator();
-			while (it.hasNext())
+			String key = (String)it.next();
+			if (key.startsWith(USER))
 			{
-				String key = (String)it.next();
-				if (key.startsWith("user.")) //$NON-NLS-1$
-				{
-					session.setAttribute(Utils.stringLimitLenght(key, 260).toString(), getSettings().getProperty(key));
-				}
+				defaultUserProperties.put(key.substring(USER.length()), getSettings().getProperty(key));
 			}
 		}
+	}
+
+	public Map<String, String> getDefaultUserProperties()
+	{
+		return defaultUserProperties;
 	}
 
 	public boolean setUIProperty(Object name, Object val)
