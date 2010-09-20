@@ -593,6 +593,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IScriptHtml
 	}
 
 
+	@Deprecated
 	public String js_getParameterValue(String param)
 	{
 		RequestCycle cycle = RequestCycle.get();
