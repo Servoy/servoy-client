@@ -21,6 +21,7 @@ import org.apache.wicket.behavior.IBehavior;
 
 import com.servoy.j2db.server.headlessclient.dataui.IOwnTabSequenceHandler;
 import com.servoy.j2db.server.headlessclient.dataui.ISupportWebTabSeq;
+import com.servoy.j2db.server.headlessclient.dataui.WebRect;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 
@@ -71,7 +72,7 @@ public class TabIndexHelper
 		}
 		if (modifier == null)
 		{
-			if (newTabIndex != ISupportWebTabSeq.DEFAULT) component.add(new TabIndexAttributeModifier(newTabIndex));
+			if (newTabIndex != ISupportWebTabSeq.DEFAULT && isTabIndexSupported(component)) component.add(new TabIndexAttributeModifier(newTabIndex));
 		}
 		else if (newTabIndex != ISupportWebTabSeq.DEFAULT)
 		{
@@ -87,6 +88,11 @@ public class TabIndexHelper
 			IProviderStylePropertyChanges changeable = (IProviderStylePropertyChanges)component;
 			changeable.getStylePropertyChanges().setChanged();
 		}
+	}
+
+	private static boolean isTabIndexSupported(Component component)
+	{
+		return !(component instanceof WebRect);
 	}
 
 }
