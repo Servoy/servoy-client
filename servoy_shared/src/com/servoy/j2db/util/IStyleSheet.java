@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.util;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Insets;
 
@@ -77,4 +78,40 @@ public interface IStyleSheet
 	 * @return the align or -1 if not defined
 	 */
 	public int getVAlign(AttributeSet a);
+
+	/**
+	 * Helper method, get the foreground color from supplied attributes.
+	 * @param a the attributes
+	 * @return the foreground color
+	 */
+	public Color getForeground(AttributeSet a);
+
+	/**
+	 * Helper method, get the background color from supplied attributes.
+	 * @param a the attributes
+	 * @return the background color
+	 */
+	public Color getBackground(AttributeSet a);
+
+
+	/**
+	 * Check whatever the supplied attributes have border attribute
+	 * @param a the attributes
+	 * @return true if the attributes have border attribute, false otherwise
+	 */
+	public boolean hasBorder(AttributeSet s);
+
+	/**
+	 * Check whatever the supplied attributes have margin attribute
+	 * @param a the attributes
+	 * @return true if the attributes have margin attribute, false otherwise
+	 */
+	public boolean hasMargin(AttributeSet s);
+
+	/**
+	 * Check whatever the supplied attributes have font attribute
+	 * @param a the attributes
+	 * @return true if the attributes have font attribute, false otherwise
+	 */
+	public boolean hasFont(AttributeSet s);
 }

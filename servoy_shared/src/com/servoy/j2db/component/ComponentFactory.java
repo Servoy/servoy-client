@@ -255,8 +255,8 @@ public class ComponentFactory
 						// Designer all always real components!!
 						retval = (JComponent)application.getItemFactory().createLabel(null, "Tabless panel, for JavaScript use");
 						((IStandardLabel)retval).setHorizontalAlignment(SwingConstants.CENTER);
-						applyBasicComponentProperties(application, (IComponent)retval, (BaseComponent)meta, getStyleForBasicComponent(application,
-							(BaseComponent)meta, form));
+						applyBasicComponentProperties(application, (IComponent)retval, (BaseComponent)meta,
+							getStyleForBasicComponent(application, (BaseComponent)meta, form));
 					}
 					else
 					{
@@ -758,12 +758,12 @@ public class ComponentFactory
 					}
 				}
 				//else c.setOpaque(false); // no background-color means transparent
-				if (FixedStyleSheet.hasFont(s))
+				if (ss.hasFont(s))
 				{
 					Font f = ss.getFont(s);
 					if (f != null) c.setFont(f);
 				}
-				if (FixedStyleSheet.hasBorder(s))
+				if (ss.hasBorder(s))
 				{
 					Border b = ss.getBorder(s);
 					if (b != null)
@@ -772,7 +772,7 @@ public class ComponentFactory
 						isBorderStyle = true;
 					}
 				}
-				if (FixedStyleSheet.hasMargin(s))
+				if (ss.hasMargin(s))
 				{
 					Insets i = ss.getMargin(s);
 					if (i != null && c instanceof IButton) ((IButton)c).setMargin(i);
@@ -1291,8 +1291,9 @@ public class ComponentFactory
 									}
 									catch (IOException e)
 									{
-										Debug.error("Exception loading properties for converter " + converter.getName() + ", properties: " +
-											ci.getConverterProperties(), e);
+										Debug.error(
+											"Exception loading properties for converter " + converter.getName() + ", properties: " +
+												ci.getConverterProperties(), e);
 									}
 								}
 							}
@@ -1849,11 +1850,11 @@ public class ComponentFactory
 			javax.swing.text.Style s = styleInfo.getRight();
 			if (ss != null && s != null)
 			{
-				if (border == null && FixedStyleSheet.hasBorder(s))
+				if (border == null && ss.hasBorder(s))
 				{
 					border = ss.getBorder(s);
 				}
-				if (insets == null && FixedStyleSheet.hasMargin(s))
+				if (insets == null && ss.hasMargin(s))
 				{
 					insets = ss.getMargin(s);
 				}

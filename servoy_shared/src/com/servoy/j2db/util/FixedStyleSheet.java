@@ -30,8 +30,8 @@ import javax.swing.border.Border;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.html.CSS;
-import javax.swing.text.html.StyleSheet;
 import javax.swing.text.html.CSS.Attribute;
+import javax.swing.text.html.StyleSheet;
 
 import com.servoy.j2db.util.gui.SpecialMatteBorder;
 
@@ -405,22 +405,22 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 	private static Attribute[] marginAttributes = new Attribute[] { CSS.Attribute.MARGIN, CSS.Attribute.MARGIN_BOTTOM, CSS.Attribute.MARGIN_LEFT, CSS.Attribute.MARGIN_RIGHT, CSS.Attribute.MARGIN_TOP };
 	private static Attribute[] fontAttributes = new Attribute[] { CSS.Attribute.FONT, CSS.Attribute.FONT_FAMILY, CSS.Attribute.FONT_SIZE, CSS.Attribute.FONT_STYLE, CSS.Attribute.FONT_VARIANT, CSS.Attribute.FONT_WEIGHT };
 
-	public static boolean hasBorder(AttributeSet s)
+	public boolean hasBorder(AttributeSet s)
 	{
 		return hasAttributes(s, borderAttributes);
 	}
 
-	public static boolean hasMargin(AttributeSet s)
+	public boolean hasMargin(AttributeSet s)
 	{
 		return hasAttributes(s, marginAttributes);
 	}
 
-	public static boolean hasFont(AttributeSet s)
+	public boolean hasFont(AttributeSet s)
 	{
 		return hasAttributes(s, fontAttributes);
 	}
 
-	private static boolean hasAttributes(AttributeSet s, Attribute[] attrs)
+	private boolean hasAttributes(AttributeSet s, Attribute[] attrs)
 	{
 		for (Attribute a : attrs)
 		{
