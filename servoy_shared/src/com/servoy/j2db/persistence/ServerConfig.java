@@ -369,7 +369,7 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		map.put("Oracle", new ServerConfig("new_oracle", "scott", "tiger", "jdbc:oracle:thin:@localhost:1521:<orcl_sid>", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ 
 			"oracle.jdbc.driver.OracleDriver", null, null, true, false)); //$NON-NLS-1$ 
 
-		map.put("Postgresql", new ServerConfig("new_postgresql", "pgsql", "", "jdbc:postgresql://localhost/<database_name>", "org.postgresql.Driver", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ 
+		map.put("Postgresql", new ServerConfig("new_postgresql", "DBA", "", "jdbc:postgresql://localhost:5432/<database_name>", "org.postgresql.Driver", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ 
 			null, null, true, false));
 
 		map.put(SYBASE_TEMPLATE_NAME, new ServerConfig("new_sybase", "dba", "", "jdbc:sybase:Tds:localhost:2638?ServiceName=<database_name>&CHARSET=utf8", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
