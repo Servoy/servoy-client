@@ -1200,7 +1200,6 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 			if (Servoy.ClientDesign.selectedResizeElement != null)
 			{
 				//deselect old yui elements
-				Wicket.Log.info("destroy resize element: "  + Servoy.ClientDesign.selectedResizeElement);
 				Servoy.ClientDesign.selectedResizeElement.destroy()
 				Servoy.ClientDesign.selectedResizeElement = null;
 			}
@@ -1213,7 +1212,6 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 		
 		attachElement: function(elem)
 		{
-		Wicket.Log.info("attachElement: "  + elem);
 			var elementDescription = Servoy.ClientDesign.designableElementsArray[elem.id];
 			if (elementDescription)
 			{

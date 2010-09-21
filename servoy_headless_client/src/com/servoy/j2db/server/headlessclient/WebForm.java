@@ -47,6 +47,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Page;
 import org.apache.wicket.Session;
+import org.apache.wicket.behavior.IBehavior;
 import org.apache.wicket.markup.IMarkupCacheKeyProvider;
 import org.apache.wicket.markup.Markup;
 import org.apache.wicket.markup.MarkupStream;
@@ -1603,11 +1604,15 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 	 */
 	public void setDesignMode(final DesignModeCallbacks callback)
 	{
-		visitChildren(IComponent.class, new IVisitor()
+		visitChildren(IComponent.class, new IVisitor<Component>()
 		{
 			public Object component(Component component)
 			{
-				List behaviors = component.getBehaviors();
+				if (component instanceof IDesignModeListener)
+				{
+					((IDesignModeListener)component).setDesignMode(callback != null);
+				}
+				List<IBehavior> behaviors = component.getBehaviors();
 				for (int i = 0; i < behaviors.size(); i++)
 				{
 					Object element = behaviors.get(i);
