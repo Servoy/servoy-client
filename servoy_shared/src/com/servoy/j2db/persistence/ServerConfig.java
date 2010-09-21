@@ -40,9 +40,9 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 
 	public static final int MAX_PREPSTATEMENT_IDLE_DEFAULT = 100;
 
-	public static final int MAX_IDLE_DEFAULT = 5;
+	public static final int MAX_IDLE_DEFAULT = 10;
 
-	public static final int MAX_ACTIVE_DEFAULT = 10;
+	public static final int MAX_ACTIVE_DEFAULT = 30;
 
 	public static final Map<String, ServerConfig> TEMPLATES = createTemplates();
 
