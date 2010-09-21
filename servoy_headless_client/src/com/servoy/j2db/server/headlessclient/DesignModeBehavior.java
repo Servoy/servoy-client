@@ -21,16 +21,17 @@ import java.awt.Point;
 import java.util.ArrayList;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.Component.IVisitor;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Request;
 import org.apache.wicket.RequestCycle;
-import org.apache.wicket.Component.IVisitor;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.mozilla.javascript.ScriptRuntime;
 
 import com.servoy.j2db.DesignModeCallbacks;
 import com.servoy.j2db.FormController;
+import com.servoy.j2db.dnd.DRAGNDROP;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.server.headlessclient.dataui.AbstractServoyDefaultAjaxBehavior;
@@ -238,10 +239,14 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 			});
 			if (child != null && action != null)
 			{
+				int height = stripUnitPart(request.getParameter(PARAM_RESIZE_HEIGHT));
+				int width = stripUnitPart(request.getParameter(PARAM_RESIZE_WIDTH));
+				int x = stripUnitPart(request.getParameter(DraggableBehavior.PARAM_X));
+				int y = stripUnitPart(request.getParameter(DraggableBehavior.PARAM_Y));
 				if (child != onSelectComponent)
 				{
 					onSelectComponent = (IComponent)child;
-					Object ret = callback.executeOnSelect(getJSEvent(EventType.rightClick, 0, new Point(-1, -1), new IComponent[] { (IComponent)child }));
+					Object ret = callback.executeOnSelect(getJSEvent(EventType.rightClick, 0, new Point(x, y), new IComponent[] { (IComponent)child }));
 					if (ret instanceof Boolean && !((Boolean)ret).booleanValue())
 					{
 						onSelectComponent = null;
@@ -249,10 +254,6 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 					}
 
 				}
-				int height = stripUnitPart(request.getParameter(PARAM_RESIZE_HEIGHT));
-				int width = stripUnitPart(request.getParameter(PARAM_RESIZE_WIDTH));
-				int x = stripUnitPart(request.getParameter(DraggableBehavior.PARAM_X));
-				int y = stripUnitPart(request.getParameter(DraggableBehavior.PARAM_Y));
 				if (action.equals(ACTION_RESIZE))
 				{
 					if (width != -1 && height != -1)
@@ -269,18 +270,19 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 						child.js_setSize(width, height);
 						if (child instanceof IProviderStylePropertyChanges) ((IProviderStylePropertyChanges)child).getStylePropertyChanges().setRendered();
 					}
-					callback.executeOnResize(getJSEvent(EventType.onDrop, 0, new Point(-1, -1), new IComponent[] { (IComponent)child }));
+					callback.executeOnResize(getJSEvent(EventType.onDrop, 0, new Point(x, y), new IComponent[] { (IComponent)child }));
 				}
 				else if (action.equals(DraggableBehavior.ACTION_DRAG_START))
 				{
-					Object onDragAllowed = callback.executeOnDrag(getJSEvent(EventType.onDrag, 0, new Point(-1, -1), new IComponent[] { (IComponent)child }));
-					if (onDragAllowed == null || (onDragAllowed instanceof Boolean) && ((Boolean)onDragAllowed).booleanValue())
+					Object onDragAllowed = callback.executeOnDrag(getJSEvent(EventType.onDrag, 0, new Point(x, y), new IComponent[] { (IComponent)child }));
+					if ((onDragAllowed instanceof Boolean && !((Boolean)onDragAllowed).booleanValue()) ||
+						(onDragAllowed instanceof Number && ((Number)onDragAllowed).intValue() == DRAGNDROP.NONE))
 					{
-						onDragComponent = (IComponent)child;
+						onDragComponent = null;
 					}
 					else
 					{
-						onDragComponent = null;
+						onDragComponent = (IComponent)child;
 					}
 				}
 				else
@@ -304,12 +306,13 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 								((IProviderStylePropertyChanges)child).getStylePropertyChanges().setRendered();
 							}
 						}
-						callback.executeOnDrop(getJSEvent(EventType.onDrop, 0, new Point(-1, -1), new IComponent[] { (IComponent)child }));
+						callback.executeOnDrop(getJSEvent(EventType.onDrop, 0, new Point(x, y), new IComponent[] { (IComponent)child }));
 					}
 				}
 			}
 		}
 		WebEventExecutor.generateResponse(target, getComponent().getPage());
+		target.prependJavascript("Servoy.ClientDesign.reattach();"); //$NON-NLS-1$
 	}
 
 	/**

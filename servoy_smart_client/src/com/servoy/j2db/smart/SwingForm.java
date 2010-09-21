@@ -115,6 +115,7 @@ import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.dataui.IServoyAwareBean;
+import com.servoy.j2db.dnd.DRAGNDROP;
 import com.servoy.j2db.persistence.FormElementGroup;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.Table;
@@ -1964,6 +1965,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 
 					for (int[] position : positions)
 					{
+						if (position[0] == -1) continue;
 						g.setColor(Color.black);
 						g.fillRect(position[0] + 1, position[1] + 1, 4, 4);
 						g.setColor(Color.white);
@@ -2003,7 +2005,9 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 					{
 						canResize = callback.executeOnDrag(getJSEvent(e, EventType.onDrag));
 					}
-					if (canResize instanceof Boolean && !((Boolean)canResize).booleanValue()) return; //drag stopped
+					if ((canResize instanceof Boolean && !((Boolean)canResize).booleanValue()) ||
+						(canResize instanceof Number && ((Number)canResize).intValue() == DRAGNDROP.NONE)) return; //drag stopped
+
 				}
 
 				JComponent selectedComponent = selectedComponents.keySet().iterator().next();
@@ -2146,40 +2150,80 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 				positions[0][0] = bounds.x - 2;
 				positions[0][1] = bounds.y - 2;
 			}
+			else
+			{
+				positions[0][0] = -1;
+				positions[0][1] = -1;
+			}
 			if (handles == null || handles.contains("l"))
 			{
 				positions[1][0] = bounds.x - 2;
 				positions[1][1] = bounds.y + bounds.height / 2 - 3;
+			}
+			else
+			{
+				positions[1][0] = -1;
+				positions[1][1] = -1;
 			}
 			if (handles == null || handles.contains("bl"))
 			{
 				positions[2][0] = bounds.x - 2;
 				positions[2][1] = bounds.y + bounds.height - 3;
 			}
+			else
+			{
+				positions[2][0] = -1;
+				positions[2][1] = -1;
+			}
 			if (handles == null || handles.contains("t"))
 			{
 				positions[3][0] = bounds.x + bounds.width / 2 - 3;
 				positions[3][1] = bounds.y - 3;
+			}
+			else
+			{
+				positions[3][0] = -1;
+				positions[3][1] = -1;
 			}
 			if (handles == null || handles.contains("b"))
 			{
 				positions[4][0] = bounds.x + bounds.width / 2 - 3;
 				positions[4][1] = bounds.y + bounds.height - 3;
 			}
+			else
+			{
+				positions[4][0] = -1;
+				positions[4][1] = -1;
+			}
 			if (handles == null || handles.contains("tr"))
 			{
 				positions[5][0] = bounds.x + bounds.width - 3;
 				positions[5][1] = bounds.y - 2;
+			}
+			else
+			{
+				positions[5][0] = -1;
+				positions[5][1] = -1;
 			}
 			if (handles == null || handles.contains("r"))
 			{
 				positions[6][0] = bounds.x + bounds.width - 3;
 				positions[6][1] = bounds.y + bounds.height / 2 - 3;
 			}
+			else
+			{
+				positions[6][0] = -1;
+				positions[6][1] = -1;
+			}
 			if (handles == null || handles.contains("br"))
 			{
 				positions[7][0] = bounds.x + bounds.width - 3;
 				positions[7][1] = bounds.y + bounds.height - 3;
+			}
+			else
+			{
+				positions[7][0] = -1;
+				positions[7][1] = -1;
 			}
 
 			Map<JComponent, int[][]> selectedComponents = selectionHandler.getSelectionForChange(this);
