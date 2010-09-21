@@ -117,7 +117,14 @@ public class WebClientsApplication extends WebApplication
 				WebClient webClient = webClientSession.getWebClient();
 				if (webClient != null)
 				{
-					throw new RestartResponseException(webClient.getMainPage());
+					if (webClient.isInDeveloper())
+					{
+						throw new RestartResponseException(getApplicationSettings().getPageExpiredErrorPage());
+					}
+					else
+					{
+						throw new RestartResponseException(webClient.getMainPage());
+					}
 				}
 				else
 				{
