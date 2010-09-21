@@ -467,6 +467,18 @@ public class Settings extends SortedProperties
 		}
 	}
 
+
+	@Override
+	public synchronized Object remove(Object key)
+	{
+		Object oldValue = super.remove(key);
+		if (oldValue != null)
+		{
+			J2DBGlobals.firePropertyChange(this, key.toString(), oldValue, null);
+		}
+		return oldValue;
+	}
+
 	/*
 	 * @see Properties#setProperty(String, String)
 	 */
