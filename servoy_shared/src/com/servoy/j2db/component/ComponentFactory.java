@@ -131,7 +131,6 @@ import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FixedStyleSheet;
-import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.OpenProperties;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
@@ -1978,21 +1977,9 @@ public class ComponentFactory
 				if (f != null)
 				{
 					IFormLookupPanel flp = tabs.createFormLookupPanel(tab.getName(), tab.getRelationName(), f.getName());
-					Icon icon = null;
-					if (tab.getImageMediaID() > 0)
-					{
-						try
-						{
-							icon = ImageLoader.getIcon(loadIcon(application.getFlattenedSolution(), new Integer(tab.getImageMediaID())), -1, -1, true);
-//							((IGraphicalComponent)l).setIcon(c);
-						}
-						catch (Exception ex)
-						{
-							Debug.error(ex);
-						}
-					}
 
-					tabs.addTab(application.getI18NMessageIfPrefixed(tab.getText()), icon, flp, application.getI18NMessageIfPrefixed(tab.getToolTipText()));
+					tabs.addTab(application.getI18NMessageIfPrefixed(tab.getText()), tab.getImageMediaID(), flp,
+						application.getI18NMessageIfPrefixed(tab.getToolTipText()));
 
 					Color fg = tab.getForeground();
 					Color bg = tab.getBackground();

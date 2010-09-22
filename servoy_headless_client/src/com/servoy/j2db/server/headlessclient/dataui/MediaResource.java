@@ -58,7 +58,7 @@ public final class MediaResource extends DynamicWebResource
 	public MediaResource(byte[] bs, int mediaOptions)
 	{
 		this.bs = bs == null ? new byte[0] : bs;
-		this.succededScaledDimension = ImageLoader.getSize(this.bs);
+		this.succededScaledDimension = this.resizedSize = ImageLoader.getSize(this.bs);
 		this.iconWidth = succededScaledDimension.getWidth();
 		this.iconHeight = succededScaledDimension.getHeight();
 		this.reduce = (mediaOptions & 2) == 2;

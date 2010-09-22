@@ -63,6 +63,7 @@ import com.servoy.j2db.util.IFocusCycleRoot;
 import com.servoy.j2db.util.ISupportFocusTransfer;
 import com.servoy.j2db.util.ITabPaneAlike;
 import com.servoy.j2db.util.ITagResolver;
+import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
@@ -1022,6 +1023,23 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 	public Color getBackgroundAt(int index)
 	{
 		return enclosingComponent.getBackgroundAt(index);
+	}
+
+	public void addTab(String text, int iconMediaId, IFormLookupPanel flp, String tip)
+	{
+		Icon icon = null;
+		if (iconMediaId > 0)
+		{
+			try
+			{
+				icon = ImageLoader.getIcon(ComponentFactory.loadIcon(application.getFlattenedSolution(), new Integer(iconMediaId)), -1, -1, true);
+			}
+			catch (Exception ex)
+			{
+				Debug.error(ex);
+			}
+		}
+		addTab(text, icon, flp, tip);
 	}
 
 	public void addTab(String text, Icon icon, IFormLookupPanel flp, String tip)

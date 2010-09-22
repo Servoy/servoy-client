@@ -16,8 +16,6 @@
  */
 package com.servoy.j2db.server.headlessclient.dataui;
 
-import javax.swing.Icon;
-
 import com.servoy.j2db.ui.IFormLookupPanel;
 import com.servoy.j2db.util.Utils;
 
@@ -29,15 +27,20 @@ import com.servoy.j2db.util.Utils;
 public class WebTabHolder
 {
 	private final WebTabFormLookup panel;
-	private final Icon icon;
+	private final byte[] iconData;
+	private MediaResource icon;
 	private final String tooltip;
 	private String text;
 	private String tagText;
 	private boolean enabled;
 
-	WebTabHolder(String t, IFormLookupPanel panel, Icon icon, String tooltip)
+	WebTabHolder(String t, IFormLookupPanel panel, byte[] iconData, String tooltip)
 	{
-		this.icon = icon;
+		this.iconData = iconData;
+		if (iconData != null)
+		{
+			icon = new MediaResource(iconData, 0);
+		}
 		this.panel = (WebTabFormLookup)panel;
 		this.tooltip = tooltip;
 		if (t != null && t.indexOf("%%") != -1) //$NON-NLS-1$
@@ -80,5 +83,10 @@ public class WebTabHolder
 	String getTagText()
 	{
 		return tagText;
+	}
+
+	public MediaResource getIcon()
+	{
+		return icon;
 	}
 }

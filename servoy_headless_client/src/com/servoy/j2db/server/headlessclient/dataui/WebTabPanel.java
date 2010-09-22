@@ -28,13 +28,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.Icon;
 import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
+import org.apache.wicket.IResourceListener;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Page;
 import org.apache.wicket.Session;
@@ -44,6 +44,7 @@ import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.list.Loop;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
@@ -221,6 +222,10 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 
 					if (item.getIteration() == 0) link.add(new AttributeModifier("firsttab", true, new Model<Boolean>(Boolean.TRUE))); //$NON-NLS-1$
 					link.setEnabled(holder.isEnabled() && WebTabPanel.this.isEnabled());
+
+//					ServoyTabIcon tabIcon = new ServoyTabIcon("icon", holder); //$NON-NLS-1$
+//					link.add(tabIcon);
+
 					Label label = new Label("linktext", new Model<String>(holder.getText())); //$NON-NLS-1$
 					label.setEscapeModelStrings(false);
 					link.add(label);
@@ -758,14 +763,20 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 	/*
 	 * tab support----------------------------------------------------------------------------
 	 */
-	public void addTab(String text, Icon icon, IFormLookupPanel flp, String tip)
+	public void addTab(String text, int iconMediaId, IFormLookupPanel flp, String tip)
 	{
-		insertTab(text, icon, flp, tip, allTabs.size());
+		byte[] iconData = ComponentFactory.loadIcon(application.getFlattenedSolution(), new Integer(iconMediaId));
+		insertTab(text, iconData, flp, tip, allTabs.size());
 	}
 
-	public void insertTab(String text, Icon icon, IFormLookupPanel flp, String tip, int index)
+	public void addTab(String text, byte[] iconData, IFormLookupPanel flp, String tip)
 	{
-		allTabs.add(index, new WebTabHolder(text, flp, icon, tip));
+		insertTab(text, iconData, flp, tip, allTabs.size());
+	}
+
+	public void insertTab(String text, byte[] iconData, IFormLookupPanel flp, String tip, int index)
+	{
+		allTabs.add(index, new WebTabHolder(text, flp, iconData, tip));
 		allRelationNames.add(index, flp.getRelationName());
 		jsChangeRecorder.setChanged();
 	}
@@ -871,18 +882,18 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 			}
 			WebTabFormLookup flp = (WebTabFormLookup)createFormLookupPanel(tabName, relationName, fName);
 			if (f != null) flp.setReadOnly(readOnly);
-			Icon icon = null;
+			byte[] iconData = null;
 			//TODO handle icon
 
 			int count = allTabs.size();
 			if (tabIndex == -1 || tabIndex >= count)
 			{
 				tabIndex = count;
-				addTab(application.getI18NMessageIfPrefixed(tabText), icon, flp, application.getI18NMessageIfPrefixed(tabTooltip));
+				addTab(application.getI18NMessageIfPrefixed(tabText), iconData, flp, application.getI18NMessageIfPrefixed(tabTooltip));
 			}
 			else
 			{
-				insertTab(application.getI18NMessageIfPrefixed(tabText), icon, flp, application.getI18NMessageIfPrefixed(tabTooltip), tabIndex);
+				insertTab(application.getI18NMessageIfPrefixed(tabText), iconData, flp, application.getI18NMessageIfPrefixed(tabTooltip), tabIndex);
 			}
 			if (fg != null) setTabForegroundAt(tabIndex, PersistHelper.createColor(fg));
 			if (bg != null) setTabBackgroundAt(tabIndex, PersistHelper.createColor(bg));
@@ -1596,6 +1607,64 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 	{
 		if (currentForm != null) return currentForm.getFormName();
 		return null;
+	}
+
+
+	private class ServoyTabIcon extends Image implements IResourceListener
+	{
+		private final WebTabHolder holder;
+
+		public ServoyTabIcon(String id, final WebTabHolder holder)
+		{
+			super(id);
+			this.holder = holder;
+			if (holder.getIcon() != null) setImageResource(holder.getIcon());
+			else setImageResource(new MediaResource(WebDataImgMediaField.emptyImage, 0));
+			add(new StyleAppendingModifier(new Model<String>()
+			{
+				@Override
+				public String getObject()
+				{
+					String result = ""; //$NON-NLS-1$
+					if (holder.getIcon() != null)
+					{
+						result += "width: " + holder.getIcon().getWidth() + "px; height: " + holder.getIcon().getHeight() + "px";
+						if (!js_isEnabled())
+						{
+							result += "; filter:alpha(opacity=50);-moz-opacity:.50;opacity:.50"; //$NON-NLS-1$
+						}
+					}
+					else
+					{
+						result += "width: 0px; height: 0px";
+					}
+					return result;
+				}
+			}));
+			add(new AttributeModifier("src", new Model<String>()
+			{
+				@Override
+				public String getObject()
+				{
+					String styleAttribute = "";
+					if (holder.getIcon() != null)
+					{
+						CharSequence url = urlFor(IResourceListener.INTERFACE) + "&r=" + Math.random(); //$NON-NLS-1$
+						styleAttribute += getResponse().encodeURL(url);
+					}
+					return styleAttribute;
+				}
+			}));
+		}
+
+		@Override
+		public void onResourceRequested()
+		{
+			if (holder.getIcon() != null)
+			{
+				holder.getIcon().onResourceRequested();
+			}
+		}
 	}
 
 }

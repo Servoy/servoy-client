@@ -41,8 +41,8 @@ import javax.swing.border.Border;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.html.CSS;
 
-import org.apache.wicket.Component.IVisitor;
 import org.apache.wicket.ResourceReference;
+import org.apache.wicket.Component.IVisitor;
 
 import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
@@ -1380,6 +1380,7 @@ public class TemplateGenerator
 
 		styleObj = css.addStyle("div.tabs div a");
 		styleObj.setProperty("text-decoration", "none");
+//		styleObj.setProperty("padding", (h2 - 1) + "px 10px " + (h1 + 1) + "px 1px");//space inside tab arround the text   
 		styleObj.setProperty("padding", (h2 - 2) + "px 10px " + (h1) + "px 10px");//space inside tab arround the text   
 		styleObj.setProperty("margin-top", "0.2em");//space betweens tabs  
 		styleObj.setProperty("margin-left", "0.2em");//space betweens tabs  
@@ -1389,6 +1390,11 @@ public class TemplateGenerator
 		styleObj.setProperty("float", "left");
 		styleObj.setProperty("position", "relative");
 		styleObj.setProperty("top", "1px");
+
+//		styleObj = css.addStyle("div.tabs div a img");
+//		styleObj.setProperty("padding-right", "10px");
+//		styleObj.setProperty("margin", "0px");
+//		styleObj.setProperty("border", "none");
 
 		styleObj = css.addStyle("div.tabs div a:hover");
 		styleObj.setProperty("color", "#fff");
@@ -1627,6 +1633,7 @@ public class TemplateGenerator
 				Tab tab = (Tab)it.next();
 				//				applyTextProperties(tab, styleObj);
 				html.append("\t\t<div servoy:id='tablinks'");
+//				html.append("><a servoy:id='tablink' href='tab1'><img servoy:id='icon'></img><span style=\"white-space: nowrap;\" servoy:id='linktext'>");
 				html.append("><a servoy:id='tablink' href='tab1'><span style=\"white-space: nowrap;\" servoy:id='linktext'>");
 				html.append(getSafeText(tab.getText()));
 				html.append("</span></a></div>\n");

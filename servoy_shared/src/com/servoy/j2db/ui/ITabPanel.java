@@ -13,12 +13,10 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.ui;
 
 import java.awt.Color;
-
-import javax.swing.Icon;
 
 import com.servoy.j2db.IScriptExecuter;
 
@@ -32,7 +30,7 @@ public interface ITabPanel extends IComponent, IDepricatedScriptTabPanelMethods
 
 	IFormLookupPanel createFormLookupPanel(String name, String relationName, String formName);
 
-	void addTab(String text, Icon icon, IFormLookupPanel flp, String tooltip);
+	void addTab(String text, int iconMediaId, IFormLookupPanel flp, String tooltip);
 
 	void setTabForegroundAt(int index, Color fg);
 
