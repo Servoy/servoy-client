@@ -1372,6 +1372,9 @@ public class TemplateGenerator
 		styleObj.setProperty("right", "0px");
 		styleObj.setProperty("position", "absolute");
 
+		styleObj = css.addStyle("div.webform");//$NON-NLS-1$ 
+		styleObj.setProperty("background-color", PersistHelper.createColorString(DEFAULT_FORM_BG_COLOR)); //$NON-NLS-1$ //$NON-NLS-2$
+
 		//default tab stuff
 		styleObj = css.addStyle("div.tabs div");
 		styleObj.setProperty("display", "inline");
@@ -1688,14 +1691,15 @@ public class TemplateGenerator
 
 			html.append("\t<div id='splitter_").append(tabPanelMarkupId).append("' servoy:id='splitter' style='").append(leftPanelStyle).append(
 				"'><div id='websplit_left_").append(tabPanelMarkupId).append("' servoy:id='websplit_left' style='overflow: auto; ").append(leftPanelStyle).append(
-				"' ><div servoy:id='webform'></div></div></div>");
+				"' ><div servoy:id='webform' " + getCSSClassParameter("webform") + "></div></div></div>");
 			html.append("<div id='websplit_right_").append(tabPanelMarkupId).append("' servoy:id='websplit_right' style='").append(rightPanelStyle).append(
-				"'><div servoy:id='webform'></div></div>");
+				"'><div servoy:id='webform' " + getCSSClassParameter("webform") + "></div></div>");
 		}
 		else
 		{
 			html.append("\t<div servoy:id='webform' ").append(style.toString());
-			if (bAddTabContainerClass) html.append(getCSSClassParameter("tabcontainer"));
+			if (bAddTabContainerClass) html.append(getCSSClassParameter("tabcontainer webform"));
+			else html.append(getCSSClassParameter("webform"));
 			html.append("></div>");
 
 		}
