@@ -37,6 +37,7 @@ import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.BaseComponent;
+import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
@@ -1710,6 +1711,121 @@ public class JSForm implements IJSParent, IConstantsObject
 			}
 		}
 		return buttons.toArray(new JSButton[buttons.size()]);
+	}
+
+	/**
+	 * Creates a new JSBean object on the form - including the name of the JSBean object; the classname the JSBean object is based on, the "x" and "y" position of the JSBean object in pixels, as well as the width and height of the JSBean object in pixels.
+	 * 
+	 * @sample
+	 *  var form = solutionModel.newForm('newForm1', 'server1', 'table1', null, true, 800, 600);
+	 * 	var bean = form.newBean('bean','myclass',200,200,300,300);
+	 *	forms['newForm1'].controller.show();
+	 * 
+	 * @param name the specified name of the JSBean object
+	 * @param className the class name of the JSBean object
+	 * @param x the horizontal "x" position of the JSBean object in pixels
+	 * @param y the vertical "y" position of the JSBean object in pixels
+	 * @param width the width of the JSBean object in pixels
+	 * @param height the height of the JSBean object in pixels
+	 * 
+	 * @return a JSBean object 
+	 */
+	public JSBean js_newBean(String name, String className, int x, int y, int width, int height)
+	{
+		checkModification();
+		try
+		{
+			Bean bean = form.createNewBean(name, className);
+			bean.setSize(new Dimension(width, height));
+			bean.setLocation(new Point(x, y));
+			return new JSBean(this, bean, true);
+		}
+		catch (RepositoryException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * Returns a JSBean that has the given name.
+	 *
+	 * @sample 
+	 * var btn = myForm.getBean("mybean");
+	 * application.output(mybean.className);
+	 *
+	 * @param name the specified name of the bean
+	 * 
+	 * @return a JSBean object 
+	 */
+	public JSBean js_getBean(String name)
+	{
+		if (name == null) return null;
+
+		Iterator<Bean> beans = form.getBeans();
+		while (beans.hasNext())
+		{
+			Bean bean = beans.next();
+			if (name.equals(bean.getName()))
+			{
+				return new JSBean(this, bean, false);
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Removes a JSBean that has the specified name. Returns true if removal was successful, false otherwise. 
+	 *
+	 * @sample 
+	 *  var form = solutionModel.getForm('myform');
+	 *  form.removeBean('mybean')
+	 *  
+	 * @param name the specified name of the JSBean to be removed 
+	 * 
+	 * @return true if the JSBean has been removed; false otherwise
+	 */
+	public boolean js_removeBean(String name)
+	{
+		if (name == null) return false;
+		checkModification();
+		Iterator<Bean> beans = form.getBeans();
+		while (beans.hasNext())
+		{
+			Bean bean = beans.next();
+			if (name.equals(bean.getName()))
+			{
+				form.removeChild(bean);
+				return true;
+
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Returns all JSBeans of this form.
+	 *
+	 * @sample 
+	 * var beans = myForm.getBeans();
+	 * for (var b in beans)
+	 * {
+	 * 		if (beans[b].name != null) 
+	 * 			application.output(beans[b].name);
+	 * }
+	 * 
+	 * @return the list of all JSbuttons on this forms
+	 *
+	 */
+	public JSBean[] js_getBeans()
+	{
+		ArrayList<JSBean> beans = new ArrayList<JSBean>();
+		Iterator<Bean> iterator = form.getBeans();
+		while (iterator.hasNext())
+		{
+			Bean bean = iterator.next();
+			beans.add(new JSBean(this, bean, false));
+		}
+		return beans.toArray(new JSBean[beans.size()]);
 	}
 
 	/**

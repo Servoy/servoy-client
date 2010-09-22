@@ -64,7 +64,7 @@ public class JSSolutionModel
 			@SuppressWarnings("deprecation")
 			public Class< ? >[] getAllReturnedTypes()
 			{
-				return new Class< ? >[] { ALIGNMENT.class, ANCHOR.class, CURSOR.class, DEFAULTS.class, DISPLAYTYPE.class, JOINTYPE.class, MEDIAOPTION.class, PARTS.class, PRINTSLIDING.class, SCROLLBAR.class, VALUELIST.class, VARIABLETYPE.class, VIEW.class, JSForm.class, JSField.class, JSButton.class, JSCalculation.class, JSComponent.class, JSLabel.class, JSMethod.class, JSPortal.class, JSPart.class, JSRelation.class, JSRelationItem.class, JSStyle.class, JSTabPanel.class, JSTab.class, JSMedia.class, JSValueList.class, JSVariable.class };
+				return new Class< ? >[] { ALIGNMENT.class, ANCHOR.class, CURSOR.class, DEFAULTS.class, DISPLAYTYPE.class, JOINTYPE.class, MEDIAOPTION.class, PARTS.class, PRINTSLIDING.class, SCROLLBAR.class, VALUELIST.class, VARIABLETYPE.class, VIEW.class, JSForm.class, JSField.class, JSBean.class, JSButton.class, JSCalculation.class, JSComponent.class, JSLabel.class, JSMethod.class, JSPortal.class, JSPart.class, JSRelation.class, JSRelationItem.class, JSStyle.class, JSTabPanel.class, JSTab.class, JSMedia.class, JSValueList.class, JSVariable.class };
 			}
 		});
 	}
