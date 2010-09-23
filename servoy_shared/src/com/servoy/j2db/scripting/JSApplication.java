@@ -1562,6 +1562,15 @@ public class JSApplication implements IReturnedTypesProvider
 		return null;
 	}
 
+	/**
+	 * Output something on the out stream. (if running in debugger view output console tab)
+	 *
+	 * @sample
+	 * // log level is used to determine how/if to log in servoy_log.txt; for smart client java out and err streams are used
+	 * application.output('my very important trace msg');// default log level: info
+	 *
+	 * @param msg Object to send to output stream
+	 */
 	public void js_output(Object msg)
 	{
 		if (msg != null && msg instanceof Object[])
@@ -1579,11 +1588,10 @@ public class JSApplication implements IReturnedTypesProvider
 	 *
 	 * @sample
 	 * // log level is used to determine how/if to log in servoy_log.txt; for smart client java out and err streams are used
-	 * application.output('my very important trace msg');// default log level: info
 	 * application.output('my very important msg',LOGGINGLEVEL.ERROR);// log level: error
 	 *
 	 * @param msg Object to send to output stream
-	 * @param level optional the log level where it should log to.
+	 * @param level the log level where it should log to.
 	 */
 	public void js_output(Object msg, int level)
 	{
