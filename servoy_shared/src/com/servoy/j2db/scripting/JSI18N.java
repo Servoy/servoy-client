@@ -22,10 +22,10 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.Messages;
@@ -283,7 +283,9 @@ public class JSI18N
 
 	/**
 	 * Call this if you want to add a filter for a column (created by you) in the i18n table.
-	 * So that you can have multiple default values and multiple values per locale for one key.  
+	 * So that you can have multiple default values and multiple values per locale for one key.
+	 * You can use filter fall back by setting the filter value as a string with filters values
+	 * separated by "_" (underscore)
 	 *
 	 * @sample
 	 * // Puts i18n in filter mode - this allows you to have multiple default/per locale
@@ -293,6 +295,10 @@ public class JSI18N
 	 * // For example you have 2 rows in you table for key X, language EN, different values and different "message_variant" (let's say 1 and 2)
 	 * // If you want the solution to use the first variant, you will have to call:
 	 * i18n.setI18NMessagesFilter('message_variant', '1')
+	 * 
+	 * // Using filter fall back : if there is no key for 'message_variant' with value '1', it will
+	 * // search for value '2'
+	 * i18n.setI18NMessagesFilter('message_variant', '1_2')
 	 * 
 	 * // ATTENTION: if you use setI18NMessagesFilter(...) it is not recommended to use the i18n Dialog (especially before the filter is applied through JS).
 	 *

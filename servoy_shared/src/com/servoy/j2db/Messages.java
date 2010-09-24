@@ -24,11 +24,13 @@ import java.net.URL;
 import java.rmi.RemoteException;
 import java.sql.Types;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.ResourceBundle;
+import java.util.StringTokenizer;
 
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IDataSet;
@@ -70,6 +72,8 @@ public class Messages
 
 	private static final String FILE_NAME = "servoy_messages"; //$NON-NLS-1$
 	private static final String CLIENT_LOCAL_FILE_NAME = "servoy_messages"; //$NON-NLS-1$
+
+	private static final String FILTER_VALUE_SEPARATOR = "_"; //$NON-NLS-1$
 
 	public static final String BUNDLE_NAME = "com.servoy.j2db.messages";//$NON-NLS-1$
 
@@ -278,6 +282,14 @@ public class Messages
 	public static void loadMessagesFromDatabase(String i18nDatasource, String clientId, Properties settings, IDataServer dataServer, IRepository repository,
 		Properties properties, Locale language, int loadingType, String searchKey, String searchText, String columnNameFilter, String columnValueFilter)
 	{
+		loadMessagesFromDatabase(i18nDatasource, clientId, settings, dataServer, repository, properties, language, loadingType, searchKey, searchText,
+			columnNameFilter, columnValueFilter, true);
+	}
+
+	private static void loadMessagesFromDatabase(String i18nDatasource, String clientId, Properties settings, IDataServer dataServer, IRepository repository,
+		Properties properties, Locale language, int loadingType, String searchKey, String searchText, String columnNameFilter, String columnValueFilter,
+		boolean useColumnValueFilterFallback)
+	{
 		if (Messages.customMessageLoader != null)
 		{
 			Messages.customMessageLoader.loadMessages(i18nDatasource, properties, language, loadingType, searchKey);
@@ -285,13 +297,13 @@ public class Messages
 		else if (dataServer != null)
 		{
 			loadMessagesFromDatabaseRepository(i18nDatasource, clientId, settings, dataServer, repository, properties, language, ALL_LOCALES, searchKey,
-				searchText, columnNameFilter, columnValueFilter);
+				searchText, columnNameFilter, columnValueFilter, useColumnValueFilterFallback);
 		}
 		else if (ApplicationServerSingleton.get() != null)
 		{
 			loadMessagesFromDatabaseRepository(i18nDatasource, clientId, settings, ApplicationServerSingleton.get().getDataServer(),
 				ApplicationServerSingleton.get().getLocalRepository(), properties, language, ALL_LOCALES, searchKey, searchText, columnNameFilter,
-				columnValueFilter);
+				columnValueFilter, useColumnValueFilterFallback);
 		}
 	}
 
@@ -325,6 +337,15 @@ public class Messages
 		IRepository repository, Properties properties, Locale language, int loadingType, String searchKey, String searchText, String columnNameFilter,
 		String columnValueFilter)
 	{
+		loadMessagesFromDatabaseRepository(i18nDatasource, clientId, settings, dataServer, repository, properties, language, loadingType, searchKey,
+			searchText, columnNameFilter, columnValueFilter, true);
+	}
+
+
+	private static void loadMessagesFromDatabaseRepository(String i18nDatasource, String clientId, Properties settings, IDataServer dataServer,
+		IRepository repository, Properties properties, Locale language, int loadingType, String searchKey, String searchText, String columnNameFilter,
+		String columnValueFilter, boolean useColumnValueFilterFallback)
+	{
 		noConnection = false;
 		String[] names = getServerTableNames(i18nDatasource, settings);
 		String serverName = names[0];
@@ -340,11 +361,22 @@ public class Messages
 			boolean loadDefaultsFirst = columnNameFilter != null && columnValueFilter != null && columnNameFilter.length() > 0 &&
 				columnValueFilter.length() > 0;
 
-			if (loadDefaultsFirst)
+			if (loadDefaultsFirst && useColumnValueFilterFallback)
 			{
-				// first load the defaults
-				loadMessagesFromDatabase(i18nDatasource, clientId, settings, dataServer, repository, properties, language, loadingType, searchKey, searchText,
-					columnNameFilter, null);
+				ArrayList<String> filterValues = new ArrayList<String>();
+				StringTokenizer columnValueFilterTokenizer = new StringTokenizer(columnValueFilter, FILTER_VALUE_SEPARATOR);
+				if (columnValueFilterTokenizer.countTokens() > 1)
+				{
+					while (columnValueFilterTokenizer.hasMoreElements())
+						filterValues.add(0, columnValueFilterTokenizer.nextToken());
+				}
+				filterValues.add(0, null);
+
+				for (String filterValue : filterValues)
+				{
+					loadMessagesFromDatabase(i18nDatasource, clientId, settings, dataServer, repository, properties, language, loadingType, searchKey,
+						searchText, columnNameFilter, filterValue, false);
+				}
 			}
 			Debug.trace("Loading messages from DB: Server: " + serverName + " Table: " + tableName + " Language: " + language); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 			try
