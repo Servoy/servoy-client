@@ -149,6 +149,13 @@ public class ServoyFocusTraversalPolicy extends DefaultFocusTraversalPolicy
 				}
 			}
 		}
+		else
+		{
+			if (c != null && (!c.isEnabled() || !c.isVisible()))
+			{
+				return getNeighborComponent(c.getFocusCycleRootAncestor(), c, moveBackwards);
+			}
+		}
 		return c;
 	}
 }
