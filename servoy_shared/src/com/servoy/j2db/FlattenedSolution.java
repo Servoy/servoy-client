@@ -1476,12 +1476,12 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 					style_name = extendedForm.getStyleName();
 					extended_form_id = extendedForm.getExtendsFormID();
 				}
-
-				if (style_name == null) return null;
-
-				Style s = (Style)f.getSolution().getRepository().getActiveRootObject(style_name, IRepository.STYLES);//preload the style at the server
-				return s;
 			}
+
+			if (style_name == null) return null;
+
+			Style s = (Style)f.getSolution().getRepository().getActiveRootObject(style_name, IRepository.STYLES);//preload the style at the server
+			return s;
 		}
 		catch (Exception e)
 		{
