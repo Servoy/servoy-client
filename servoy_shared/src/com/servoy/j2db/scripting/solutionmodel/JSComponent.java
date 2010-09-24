@@ -73,7 +73,7 @@ public class JSComponent<T extends BaseComponent> extends JSBaseComponent<T> imp
 	 * @sample
 	 * //HINT: To know exactly the notation of this property set it in the designer and then read it once out through the solution model.
 	 * var field = form.newField('my_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
-	 * field.borderType = 'LineBorder,2,#FF0000';
+	 * field.borderType = solutionModel.createBorder(1,'#ff0000');;
 	 */
 	public String js_getBorderType()
 	{
@@ -84,9 +84,8 @@ public class JSComponent<T extends BaseComponent> extends JSBaseComponent<T> imp
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getFontType()
 	 * 
 	 * @sample
-	 * //HINT: To know exactly the notation of this property set it in the designer and then read it once out through the solution model.
 	 * var label = form.newLabel('Text here', 10, 50, 100, 20);
-	 * label.fontType = 'Times New Roman,1,14';
+	 * label.fontType = solutionModel.createFont('Times New Roman',1,14);
 	 */
 	public String js_getFontType()
 	{

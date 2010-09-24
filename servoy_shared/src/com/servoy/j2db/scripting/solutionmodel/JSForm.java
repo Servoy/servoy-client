@@ -2031,10 +2031,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
 	 * application.output(form.defaultPageFormat);
-	 * //HINT: To know exactly the notation of this property set it in the designer and then read it once out through the solution model.
-	 * //It follows this convention: 
-	 * //Orientation (0-Landscape,1-Portrait, 2-Reverse Landscape); Width; Height; ImageableX; ImageableY; ImageableWidth; ImageableHeight
-	 * form.defaultPageFormat = 1;612.0;792.0;72.0;72.0;468.0;648.0 
+	 * form.defaultPageFormat = solutionModel.createPageFormat(612,792,72,72,72,72,SM_ORIENTATION.PORTRAIT,SM_UNITS.PIXELS) 
 	 */
 	public String js_getDefaultPageFormat()
 	{

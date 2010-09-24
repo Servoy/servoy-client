@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util;
 
 import java.awt.Color;
@@ -42,6 +42,15 @@ import com.servoy.j2db.util.gui.SpecialMatteBorder;
  */
 public class ComponentFactoryHelper
 {
+	public static final String LINE_BORDER = "LineBorder"; //$NON-NLS-1$
+	public static final String COMPOUND_BORDER = "CompoundBorder"; //$NON-NLS-1$
+	public static final String BEVEL_BORDER = "BevelBorder"; //$NON-NLS-1$
+	public static final String ETCHED_BORDER = "EtchedBorder"; //$NON-NLS-1$
+	public static final String TITLED_BORDER = "TitledBorder"; //$NON-NLS-1$
+	public static final String MATTE_BORDER = "MatteBorder"; //$NON-NLS-1$
+	public static final String SPECIAL_MATTE_BORDER = "SpecialMatteBorder"; //$NON-NLS-1$
+	public static final String EMPTY_BORDER = "EmptyBorder"; //$NON-NLS-1$
+
 	public static String createBorderString(Object currentBorder)
 	{
 		String retval = null;
@@ -51,7 +60,7 @@ public class ComponentFactoryHelper
 			{
 				Border oborder = ((CompoundBorder)currentBorder).getOutsideBorder();
 				Border iborder = ((CompoundBorder)currentBorder).getInsideBorder();
-				retval = "CompoundBorder,"; //$NON-NLS-1$
+				retval = COMPOUND_BORDER + ","; //$NON-NLS-1$
 				retval += ";" + createBorderString(oborder); //$NON-NLS-1$
 				retval += ";" + createBorderString(iborder) + ";"; //$NON-NLS-1$ //$NON-NLS-2$
 			}
@@ -59,7 +68,7 @@ public class ComponentFactoryHelper
 			{
 				BevelBorder border = (BevelBorder)currentBorder;
 				int type = border.getBevelType();
-				retval = "BevelBorder," + type; //$NON-NLS-1$
+				retval = BEVEL_BORDER + "," + type; //$NON-NLS-1$
 				if (border.getHighlightInnerColor() != null || border.getHighlightOuterColor() != null || border.getShadowInnerColor() != null ||
 					border.getShadowOuterColor() != null)
 				{
@@ -75,14 +84,14 @@ public class ComponentFactoryHelper
 				int type = border.getEtchType();
 				Color hi = border.getHighlightColor();
 				Color sh = border.getShadowColor();
-				retval = "EtchedBorder," + type + "," + PersistHelper.createColorString(hi) + "," + PersistHelper.createColorString(sh); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				retval = ETCHED_BORDER + "," + type + "," + PersistHelper.createColorString(hi) + "," + PersistHelper.createColorString(sh); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			}
 			else if (currentBorder instanceof LineBorder)
 			{
 				LineBorder border = (LineBorder)currentBorder;
 				int thick = border.getThickness();
 				Color lineColor = border.getLineColor();
-				retval = "LineBorder," + thick + "," + PersistHelper.createColorString(lineColor); //$NON-NLS-1$ //$NON-NLS-2$
+				retval = LINE_BORDER + "," + thick + "," + PersistHelper.createColorString(lineColor); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			else if (currentBorder instanceof TitledBorder)
 			{
@@ -91,7 +100,7 @@ public class ComponentFactoryHelper
 				s = Utils.stringReplace(s, ",", "|"); //escape //$NON-NLS-1$ //$NON-NLS-2$
 				Font f = border.getTitleFont();
 				Color c = border.getTitleColor();
-				retval = "TitledBorder," + s; //$NON-NLS-1$
+				retval = TITLED_BORDER + "," + s; //$NON-NLS-1$
 
 				int justification = border.getTitleJustification();
 				int position = border.getTitlePosition();
@@ -111,7 +120,7 @@ public class ComponentFactoryHelper
 			else if (currentBorder instanceof SpecialMatteBorder)
 			{
 				SpecialMatteBorder border = (SpecialMatteBorder)currentBorder;
-				retval = "SpecialMatteBorder," + border.getTop() + "," + border.getRight() + "," + border.getBottom() + "," + border.getLeft(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				retval = SPECIAL_MATTE_BORDER + "," + border.getTop() + "," + border.getRight() + "," + border.getBottom() + "," + border.getLeft(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 				retval += "," + PersistHelper.createColorString(border.getTopColor()); //$NON-NLS-1$
 				retval += "," + PersistHelper.createColorString(border.getRightColor()); //$NON-NLS-1$
 				retval += "," + PersistHelper.createColorString(border.getBottomColor()); //$NON-NLS-1$
@@ -124,13 +133,13 @@ public class ComponentFactoryHelper
 				MatteBorder border = (MatteBorder)currentBorder;
 				Insets i = border.getBorderInsets(null);
 				Color lineColor = border.getMatteColor();
-				retval = "MatteBorder," + i.top + "," + i.right + "," + i.bottom + "," + i.left + "," + PersistHelper.createColorString(lineColor); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+				retval = MATTE_BORDER + "," + i.top + "," + i.right + "," + i.bottom + "," + i.left + "," + PersistHelper.createColorString(lineColor); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 			}
 			else if (currentBorder instanceof EmptyBorder)
 			{
 				EmptyBorder border = (EmptyBorder)currentBorder;
 				Insets i = border.getBorderInsets(null);
-				retval = "EmptyBorder," + i.top + "," + i.right + "," + i.bottom + "," + i.left; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				retval = EMPTY_BORDER + "," + i.top + "," + i.right + "," + i.bottom + "," + i.left; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			}
 			else
 			{
@@ -156,7 +165,7 @@ public class ComponentFactoryHelper
 				try
 				{
 					String type = tk.nextToken();
-					if (type.equals("CompoundBorder")) //$NON-NLS-1$
+					if (type.equals(COMPOUND_BORDER))
 					{
 						StringTokenizer tk2 = new StringTokenizer(s, ";"); //$NON-NLS-1$
 						tk2.nextToken();//skip 'CompoundBorder,' token
@@ -166,7 +175,7 @@ public class ComponentFactoryHelper
 						Border iborder = createBorder(s_iborder);
 						currentBorder = BorderFactory.createCompoundBorder(oborder, iborder);
 					}
-					else if (type.equals("EmptyBorder")) //$NON-NLS-1$
+					else if (type.equals(EMPTY_BORDER))
 					{
 						int top = Utils.getAsInteger(tk.nextToken());
 						int right = Utils.getAsInteger(tk.nextToken());
@@ -174,7 +183,7 @@ public class ComponentFactoryHelper
 						int left = Utils.getAsInteger(tk.nextToken());
 						currentBorder = BorderFactory.createEmptyBorder(top, left, bottom, right);
 					}
-					else if (type.equals("BevelBorder")) //$NON-NLS-1$
+					else if (type.equals(BEVEL_BORDER))
 					{
 						int beveltype = Utils.getAsInteger(tk.nextToken());
 						if (tk.hasMoreTokens())
@@ -191,19 +200,19 @@ public class ComponentFactoryHelper
 							currentBorder = BorderFactory.createBevelBorder(beveltype);
 						}
 					}
-					else if (type.equals("EtchedBorder")) //$NON-NLS-1$
+					else if (type.equals(ETCHED_BORDER))
 					{
 						int beveltype = Utils.getAsInteger(tk.nextToken());
 						Color highlight = PersistHelper.createColor(tk.nextToken());
 						Color shadow = PersistHelper.createColor(tk.nextToken());
 						currentBorder = BorderFactory.createEtchedBorder(beveltype, highlight, shadow);
 					}
-					else if (type.equals("LineBorder")) //$NON-NLS-1$
+					else if (type.equals(LINE_BORDER))
 					{
 						int thick = Utils.getAsInteger(tk.nextToken());
 						currentBorder = BorderFactory.createLineBorder(PersistHelper.createColor(tk.nextToken()), thick);
 					}
-					else if (type.equals("TitledBorder")) //$NON-NLS-1$
+					else if (type.equals(TITLED_BORDER))
 					{
 						String title = tk.nextToken();
 						title = Utils.stringReplace(title, "|", ",");//unescape //$NON-NLS-1$ //$NON-NLS-2$
@@ -254,7 +263,7 @@ public class ComponentFactoryHelper
 //							}
 //						}
 					}
-					else if (type.equals("MatteBorder")) //$NON-NLS-1$
+					else if (type.equals(MATTE_BORDER))
 					{
 						int top = Utils.getAsInteger(tk.nextToken());
 						int right = Utils.getAsInteger(tk.nextToken());
@@ -264,7 +273,7 @@ public class ComponentFactoryHelper
 						if (tk.hasMoreElements()) color = PersistHelper.createColor(tk.nextToken());
 						currentBorder = BorderFactory.createMatteBorder(top, left, bottom, right, color);
 					}
-					else if (type.equals("SpecialMatteBorder")) //$NON-NLS-1$
+					else if (type.equals(SPECIAL_MATTE_BORDER))
 					{
 						float top = Utils.getAsFloat(tk.nextToken());
 						float right = Utils.getAsFloat(tk.nextToken());
@@ -318,14 +327,14 @@ public class ComponentFactoryHelper
 				try
 				{
 					String type = tk.nextToken();
-					if (type.equals("CompoundBorder")) //$NON-NLS-1$
+					if (type.equals(COMPOUND_BORDER))
 					{
 						StringTokenizer tk2 = new StringTokenizer(s, ";"); //$NON-NLS-1$
 						tk2.nextToken();//skip 'CompoundBorder,' token
 						String s_oborder = tk2.nextToken();
 						return createBorderCSSProperties(s_oborder, style);
 					}
-					else if (type.equals("EmptyBorder")) //$NON-NLS-1$
+					else if (type.equals(EMPTY_BORDER))
 					{
 						int top = Utils.getAsInteger(tk.nextToken());
 						int right = Utils.getAsInteger(tk.nextToken());
@@ -347,7 +356,7 @@ public class ComponentFactoryHelper
 						style.setProperty("border-style", "none"); //$NON-NLS-1$ //$NON-NLS-2$
 						return new Insets(top, left, bottom, right);
 					}
-					else if (type.equals("BevelBorder") || type.equals("EtchedBorder")) //$NON-NLS-1$ //$NON-NLS-2$
+					else if (type.equals(BEVEL_BORDER) || type.equals(ETCHED_BORDER))
 					{
 						int beveltype = Utils.getAsInteger(tk.nextToken());
 						if (tk.hasMoreTokens())
@@ -356,7 +365,7 @@ public class ComponentFactoryHelper
 							Color highlightI = null;
 							Color shadowO = null;
 							Color shadowI = null;
-							if (type.equals("BevelBorder")) //$NON-NLS-1$
+							if (type.equals(BEVEL_BORDER))
 							{
 								highlightO = PersistHelper.createColor(tk.nextToken());
 								highlightI = PersistHelper.createColor(tk.nextToken());
@@ -384,7 +393,7 @@ public class ComponentFactoryHelper
 									pad.append(PersistHelper.createColorString(shadowI));
 									style.setProperty("border-color", pad.toString()); //$NON-NLS-1$
 								}
-								if (type.equals("BevelBorder")) //$NON-NLS-1$
+								if (type.equals(BEVEL_BORDER))
 								{
 									style.setProperty("border-style", "inset"); //$NON-NLS-1$ //$NON-NLS-2$
 								}
@@ -407,7 +416,7 @@ public class ComponentFactoryHelper
 									pad.append(PersistHelper.createColorString(highlightI));
 									style.setProperty("border-color", pad.toString()); //$NON-NLS-1$
 								}
-								if (type.equals("BevelBorder")) //$NON-NLS-1$
+								if (type.equals(BEVEL_BORDER))
 								{
 									style.setProperty("border-style", "outset"); //$NON-NLS-1$ //$NON-NLS-2$
 								}
@@ -424,7 +433,7 @@ public class ComponentFactoryHelper
 							return null;//TODO waht are the insets?
 						}
 					}
-					else if (type.equals("LineBorder")) //$NON-NLS-1$
+					else if (type.equals(LINE_BORDER))
 					{
 						int thick = Utils.getAsInteger(tk.nextToken());
 						style.setProperty("border-style", "solid"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -432,12 +441,12 @@ public class ComponentFactoryHelper
 						style.setProperty("border-color", tk.nextToken()); //$NON-NLS-1$
 						return new Insets(thick, thick, thick, thick);
 					}
-					else if (type.equals("TitledBorder")) //$NON-NLS-1$
+					else if (type.equals(TITLED_BORDER))
 					{
 						style.setProperty("border-style", "grooved"); //$NON-NLS-1$ //$NON-NLS-2$
 						return null;//TODO waht are the insets?
 					}
-					else if (type.equals("MatteBorder")) //$NON-NLS-1$
+					else if (type.equals(MATTE_BORDER))
 					{
 						int top = Utils.getAsInteger(tk.nextToken());
 						int right = Utils.getAsInteger(tk.nextToken());
@@ -459,7 +468,7 @@ public class ComponentFactoryHelper
 						style.setProperty("border-color", PersistHelper.createColorString(c)); //$NON-NLS-1$
 						return new Insets(top, left, bottom, right);
 					}
-					else if (type.equals("SpecialMatteBorder")) //$NON-NLS-1$
+					else if (type.equals(SPECIAL_MATTE_BORDER))
 					{
 						float top = Utils.getAsFloat(tk.nextToken());
 						float right = Utils.getAsFloat(tk.nextToken());

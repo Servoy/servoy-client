@@ -17,9 +17,15 @@
 package com.servoy.j2db.scripting.solutionmodel;
 
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.print.PageFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormManager;
@@ -46,9 +52,12 @@ import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.scripting.TableScope;
+import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.ImageLoader;
+import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.gui.SpecialMatteBorder;
 
 /**
  * @author jcompagner
@@ -64,7 +73,7 @@ public class JSSolutionModel
 			@SuppressWarnings("deprecation")
 			public Class< ? >[] getAllReturnedTypes()
 			{
-				return new Class< ? >[] { ALIGNMENT.class, ANCHOR.class, CURSOR.class, DEFAULTS.class, DISPLAYTYPE.class, JOINTYPE.class, MEDIAOPTION.class, PARTS.class, PRINTSLIDING.class, SCROLLBAR.class, VALUELIST.class, VARIABLETYPE.class, VIEW.class, JSForm.class, JSField.class, JSBean.class, JSButton.class, JSCalculation.class, JSComponent.class, JSLabel.class, JSMethod.class, JSPortal.class, JSPart.class, JSRelation.class, JSRelationItem.class, JSStyle.class, JSTabPanel.class, JSTab.class, JSMedia.class, JSValueList.class, JSVariable.class };
+				return new Class< ? >[] { ALIGNMENT.class, ANCHOR.class, BEVELTYPE.class, CURSOR.class, DEFAULTS.class, DISPLAYTYPE.class, FONTSTYLE.class, JOINTYPE.class, MEDIAOPTION.class, PAGEORIENTATION.class, PARTS.class, PRINTSLIDING.class, SCROLLBAR.class, TITLEJUSTIFICATION.class, TITLEPOSITION.class, UNITS.class, VALUELIST.class, VARIABLETYPE.class, VIEW.class, JSForm.class, JSField.class, JSBean.class, JSButton.class, JSCalculation.class, JSComponent.class, JSLabel.class, JSMethod.class, JSPortal.class, JSPart.class, JSRelation.class, JSRelationItem.class, JSStyle.class, JSTabPanel.class, JSTab.class, JSMedia.class, JSValueList.class, JSVariable.class };
 			}
 		});
 	}
@@ -1159,6 +1168,222 @@ public class JSSolutionModel
 		}
 	}
 
+	/**
+	 * Create a page format string.
+	 *
+	 * Note: The unit specified for width, height and all margins MUST be the same.
+	 * @sample
+	 * var form = solutionModel.getForm("someForm");
+	 * form.defaultPageFormat = solutionModel.createPageFormat(612,792,72,72,72,72,SM_ORIENTATION.PORTRAIT,SM_UNITS.PIXELS);
+	 * 
+	 * @param width the specified width of the page to be printed.
+	 * @param height the specified height of the page to be printed.
+	 * @param leftmargin the specified left margin of the page to be printed.
+	 * @param rightmargin the specified right margin of the page to be printed.
+	 * @param topmargin the specified top margin of the page to be printed.
+	 * @param bottommargin the specified bottom margin of the page to be printed.
+	 * @param orientation optional the specified orientation of the page to be printed; the default is Portrait mode
+	 * @param units optional the specified units for the width and height of the page to be printed; the default is pixels
+	 */
+	public String js_createPageFormat(Object[] vargs)
+	{
+		double width = vargs.length <= 0 ? 0 : Utils.getAsDouble(vargs[0]);
+		double height = vargs.length <= 1 ? 0 : Utils.getAsDouble(vargs[1]);
+		double lm = vargs.length <= 2 ? 0 : Utils.getAsDouble(vargs[2]);
+		double rm = vargs.length <= 3 ? 0 : Utils.getAsDouble(vargs[3]);
+		double tm = vargs.length <= 4 ? 0 : Utils.getAsDouble(vargs[4]);
+		double bm = vargs.length <= 5 ? 0 : Utils.getAsDouble(vargs[5]);
+		int orientation = vargs.length <= 6 ? PageFormat.PORTRAIT : Utils.getAsInteger(vargs[6]);
+		int units = vargs.length <= 7 ? UNITS.PIXELS : Utils.getAsInteger(vargs[7]);
+		PageFormat pf = Utils.createPageFormat(width, height, lm, rm, tm, bm, orientation, units);
+		return PersistHelper.createPageFormatString(pf);
+	}
+
+	/**
+	 * Create a font string.
+	 * 
+	 * @sample
+	 * var form = solutionModel.getForm("someForm");
+	 * var component = form.getComponent("someComponent")
+	 * component.fontType = solutionModel.createFont('Arial',SM_FONTSTYLE.BOLD,14);
+	 * 
+	 * @param name the name of the font
+	 * @param style the style of the font (PLAIN, BOLD, ITALIC or BOLD+ITALIC)
+	 * @param size the font size
+	 * 
+	 */
+	public String js_createFont(String name, int style, int size)
+	{
+		Font font = PersistHelper.createFont(name, style, size);
+		return PersistHelper.createFontString(font);
+	}
+
+	/**
+	 * Create an empty border string.
+	 * 
+	 * @sample
+	 * var form = solutionModel.getForm("someForm");
+	 * form.borderType = solutionModel.createBorder(1,1,1,1);
+	 *  
+	 * @param top_width top width of empty border in pixels
+	 * @param right_width right width of empty border in pixels
+	 * @param bottom_width bottom width of empty border in pixels
+	 * @param left_width left width of empty border in pixels
+	 * 
+	 */
+	public String js_createBorder(int top_width, int right_width, int bottom_width, int left_width)
+	{
+		Border border = BorderFactory.createEmptyBorder(top_width, left_width, bottom_width, right_width);
+		return ComponentFactoryHelper.createBorderString(border);
+	}
+
+	/**
+	 * Create an etched border string.
+	 * 
+	 * @sample
+	 * var form = solutionModel.getForm("someForm");
+	 * form.borderType = solutionModel.createBorder(SM_BEVELTYPE.RAISED,'#ff0000','#00ff00');
+	 * 
+	 * @param bevel_type bevel border type
+	 * @param highlight_color bevel border highlight color
+	 * @param shadow_color bevel border shadow color
+	 * 
+	 */
+	public String js_createBorder(int bevel_type, String highlight_color, String shadow_color)
+	{
+		Border border = null;
+		if (highlight_color != null && shadow_color != null)
+		{
+			border = BorderFactory.createEtchedBorder(bevel_type, PersistHelper.createColor(highlight_color), PersistHelper.createColor(shadow_color));
+		}
+		else
+		{
+			border = BorderFactory.createEtchedBorder(bevel_type);
+		}
+		return ComponentFactoryHelper.createBorderString(border);
+	}
+
+	/**
+	 * Create a bevel border string.
+	 * 
+	 * @sample
+	 * var form = solutionModel.getForm("someForm");
+	 * form.borderType = solutionModel.createBorder(SM_BEVELTYPE.RAISED,'#ff0000','#00ff00','#ff0000','#00ff00');
+	 * 
+	 * @param bevel_type bevel border type (SM_BEVELTYPE.RAISED or SM_BEVELTYPE.LOWERED)
+	 * @param highlight_outer_color bevel border highlight outer color
+	 * @param highlight_inner_color bevel border highlight inner color
+	 * @param shadow_outer_color bevel border shadow outer color
+	 * @param shadow_inner_color bevel border shadow outer color
+	 */
+	public String js_createBorder(int bevel_type, String highlight_outer_color, String highlight_inner_color, String shadow_outer_color,
+		String shadow_inner_color)
+	{
+		Border border = null;
+		if (highlight_outer_color != null && highlight_inner_color != null && shadow_outer_color != null && shadow_inner_color != null)
+		{
+			border = BorderFactory.createBevelBorder(bevel_type, PersistHelper.createColor(highlight_outer_color),
+				PersistHelper.createColor(highlight_inner_color), PersistHelper.createColor(shadow_outer_color), PersistHelper.createColor(shadow_inner_color));
+
+		}
+		else
+		{
+			border = BorderFactory.createBevelBorder(bevel_type);
+		}
+		return ComponentFactoryHelper.createBorderString(border);
+	}
+
+	/**
+	 * Create a line border string.
+	 * 
+	 * @sample
+	 * var form = solutionModel.getForm("someForm");
+	 * form.borderType = solutionModel.createBorder(1,'#ff0000');
+	 *  
+	 * @param thick border thickness in pixels
+	 * @param color color of the line border
+	 * 
+	 */
+	public String js_createBorder(int thick, String color)
+	{
+		Border border = BorderFactory.createLineBorder(PersistHelper.createColor(color), thick);
+		return ComponentFactoryHelper.createBorderString(border);
+	}
+
+	/**
+	 * Create a titled border string.
+	 * 
+	 * @sample
+	 * var form = solutionModel.getForm("someForm");
+	 * form.borderType = solutionModel.createBorder('Test',solutionModel.createFont('Arial',SM_FONTSTYLE.PLAIN,10),'#ff0000',SM_TITLEJUSTIFICATION.CENTER,SM_TITLEPOSITION.TOP);
+	 * 
+	 * @param title_text the text from border
+	 * @param font title text font string
+	 * @param color border color
+	 * @param title_justification title text justification
+	 * @param title_position bevel title text position
+	 * 
+	 */
+	public String js_createBorder(String title_text, String font, String color, int title_justification, int title_position)
+	{
+		TitledBorder border = BorderFactory.createTitledBorder(title_text);
+		border.setTitleJustification(title_justification);
+		border.setTitlePosition(title_position);
+		if (font != null) border.setTitleFont(PersistHelper.createFont(font));
+		if (color != null) border.setTitleColor(PersistHelper.createColor(color));
+		return ComponentFactoryHelper.createBorderString(border);
+	}
+
+	/**
+	 * Create a matte border string.
+	 * 
+	 * @sample
+	 * var form = solutionModel.getForm("someForm");
+	 * form.borderType = solutionModel.createBorder(1,1,1,1,"#00ff00");
+	 *  
+	 * @param top_width top width of matte border in pixels
+	 * @param right_width right width of matte border in pixels
+	 * @param bottom_width bottom width of matte border in pixels
+	 * @param left_width left width of matte border in pixels
+	 * @param color border color
+	 * 
+	 */
+	public String js_createBorder(int top_width, int right_width, int bottom_width, int left_width, String color)
+	{
+		Border border = BorderFactory.createMatteBorder(top_width, left_width, bottom_width, right_width, PersistHelper.createColor(color));
+		return ComponentFactoryHelper.createBorderString(border);
+	}
+
+	/**
+	 * Create a special matte border string.
+	 * 
+	 * @sample
+	 * var form = solutionModel.getForm("someForm");
+	 * // create a rectangle border (no rounded corners) and continous line
+	 * form.borderType = solutionModel.createBorder(1,1,1,1,"#00ff00","#00ff00","#00ff00","#00ff00",0,null);
+	 * // create a border with rounded corners and dashed line (25 pixels drawn, then 25 pixels skipped)
+	 * // form.borderType = solutionModel.createBorder(1,1,1,1,"#00ff00","#00ff00","#00ff00","#00ff00",10,new Array(25,25));
+	 * 
+	 * @param top_width top width of matte border in pixels
+	 * @param right_width right width of matte border in pixels
+	 * @param bottom_width bottom width of matte border in pixels
+	 * @param left_width left width of matte border in pixels
+	 * @param top_color top border color
+	 * @param right_color right border color
+	 * @param bottom_color bottom border color
+	 * @param left_color left border color
+	 * @param rounding_radius width of the arc to round the corners
+	 * @param dash_pattern the dash pattern of border stroke
+	 */
+	public String js_createBorder(int top_width, int right_width, int bottom_width, int left_width, String top_color, String right_color, String bottom_color,
+		String left_color, float rounding_radius, float[] dash_pattern)
+	{
+		SpecialMatteBorder border = new SpecialMatteBorder(top_width, left_width, bottom_width, right_width, PersistHelper.createColor(top_color),
+			PersistHelper.createColor(right_color), PersistHelper.createColor(bottom_color), PersistHelper.createColor(left_color));
+		border.setRoundingRadius(rounding_radius);
+		if (dash_pattern != null) border.setDashPattern(dash_pattern);
+		return ComponentFactoryHelper.createBorderString(border);
+	}
 
 	/**
 	 * @see java.lang.Object#toString()

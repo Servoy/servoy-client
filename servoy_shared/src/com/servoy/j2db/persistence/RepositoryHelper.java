@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import com.servoy.j2db.persistence.ContentSpec.Element;
+import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -888,7 +889,7 @@ public class RepositoryHelper
 				try
 				{
 					String type = tk.nextToken();
-					if (type.equals("EmptyBorder")) //$NON-NLS-1$
+					if (type.equals(ComponentFactoryHelper.EMPTY_BORDER))
 					{
 						int top = Utils.getAsInteger(tk.nextToken());
 						int right = Utils.getAsInteger(tk.nextToken());
@@ -920,7 +921,7 @@ public class RepositoryHelper
 						retval.append(";"); //$NON-NLS-1$
 						retval.append("\n"); //$NON-NLS-1$
 					}
-					else if (type.equals("BevelBorder")) //$NON-NLS-1$
+					else if (type.equals(ComponentFactoryHelper.BEVEL_BORDER))
 					{
 						int beveltype = Utils.getAsInteger(tk.nextToken());
 						retval.append("\t"); //$NON-NLS-1$
@@ -956,7 +957,7 @@ public class RepositoryHelper
 							}
 						}
 					}
-					else if (type.equals("EtchedBorder")) //$NON-NLS-1$
+					else if (type.equals(ComponentFactoryHelper.ETCHED_BORDER))
 					{
 						/* int beveltype = */Utils.getAsInteger(tk.nextToken());
 						/* String highlight = */tk.nextToken();
@@ -967,7 +968,7 @@ public class RepositoryHelper
 						retval.append(";"); //$NON-NLS-1$
 						retval.append("\n"); //$NON-NLS-1$
 					}
-					else if (type.equals("LineBorder")) //$NON-NLS-1$
+					else if (type.equals(ComponentFactoryHelper.LINE_BORDER))
 					{
 						int thick = Utils.getAsInteger(tk.nextToken());
 						String color = tk.nextToken();
@@ -994,7 +995,7 @@ public class RepositoryHelper
 						retval.append(";"); //$NON-NLS-1$
 						retval.append("\n"); //$NON-NLS-1$
 					}
-					else if (type.equals("MatteBorder")) //$NON-NLS-1$
+					else if (type.equals(ComponentFactoryHelper.MATTE_BORDER))
 					{
 						int top = Utils.getAsInteger(tk.nextToken());
 						int right = Utils.getAsInteger(tk.nextToken());
@@ -1024,7 +1025,7 @@ public class RepositoryHelper
 						retval.append(";"); //$NON-NLS-1$
 						retval.append("\n"); //$NON-NLS-1$
 					}
-					else if (type.equals("SpecialMatteBorder")) //$NON-NLS-1$
+					else if (type.equals(ComponentFactoryHelper.SPECIAL_MATTE_BORDER))
 					{
 						int top = (int)Utils.getAsFloat(tk.nextToken());
 						int right = (int)Utils.getAsFloat(tk.nextToken());
