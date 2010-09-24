@@ -1532,6 +1532,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		if (fsm.getTableFilterParams(sheet.getServerName(), sqlSelect) != null && set != null && set.getRowCount() > 0)
 		{
+			fireDifference(sizeBefore, sizeAfter);
 			refreshFromDBInternal(null, false, true, set.getRowCount(), true); // some PKs in the set may not be valid for the current filters
 		}
 		else
