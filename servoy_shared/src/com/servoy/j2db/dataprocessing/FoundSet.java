@@ -2893,7 +2893,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			return;
 		}
 
-		getFoundSetManager().getEditRecordList().removeEditedRecords(this);
 		fireSelectionAdjusting();
 
 		boolean partOfBiggerDelete = false;
@@ -2927,6 +2926,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 			if (!hasRelationsWithDelete)
 			{
+				getFoundSetManager().getEditRecordList().removeEditedRecords(this);
+
 				//do sql delete all at once
 				QueryDelete delete_sql = new QueryDelete(sqlSelect.getTable());
 				delete_sql.setCondition(sqlSelect.getWhereClone());
