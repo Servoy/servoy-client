@@ -2917,8 +2917,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			while (it.hasNext())
 			{
 				Relation element = it.next();
-				if (element.getDeleteRelatedRecords() && !element.isGlobal())
+				if ((element.getDeleteRelatedRecords() || !element.getAllowParentDeleteWhenHavingRelatedRecords()) && !element.isGlobal())
 				{
+					Debug.trace("Foundset deleted per-record because relation '" + element.getName() + "' requires some checks"); //$NON-NLS-1$ //$NON-NLS-2$ 
 					hasRelationsWithDelete = true;
 					break;
 				}
