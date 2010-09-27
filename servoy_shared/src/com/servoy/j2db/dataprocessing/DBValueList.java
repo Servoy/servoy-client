@@ -192,6 +192,10 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 			FoundSetManager foundSetManager = ((FoundSetManager)application.getFoundSetManager());
 			List<SortColumn> sortColumns = foundSetManager.getSortColumns(table, valueList.getSortOptions());
 			FoundSet fs = (FoundSet)foundSetManager.getNewFoundSet(table, sortColumns);
+			if (fs == null)
+			{
+				return;
+			}
 
 			if (valueList.getUseTableFilter())//apply name as filter on column valuelist_name
 			{
