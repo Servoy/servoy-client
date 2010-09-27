@@ -419,7 +419,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 			else if (dataType == IColumnTypes.DATETIME && !parsedFormat.isMask())
 			{
 				Object value = getDefaultModelObject();
-				if (value == null)
+				if (value == null && editable)
 				{
 					callback.differentEditAndDisplay("", parsedFormat.getDisplayFormat());
 				}
