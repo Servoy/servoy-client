@@ -2639,6 +2639,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			if (dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
 			{
+				if (fsm.getScriptEngine() == null)
+				{
+					// called from developer
+					return null;
+				}
 				String global = dataProviderID.substring(ScriptVariable.GLOBAL_DOT_PREFIX.length());
 				GlobalScope g_scope = fsm.getScriptEngine().getSolutionScope().getGlobalScope();
 				if (g_scope.has(global, g_scope))
