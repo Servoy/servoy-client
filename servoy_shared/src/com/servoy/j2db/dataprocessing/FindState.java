@@ -485,7 +485,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 		IFoundSetInternal rfs = relatedStates.get(partName);
 		if (rfs == null)
 		{
-			Relation r = parent.getSQLSheet().getRelation(partName, ((FoundSetManager)parent.getFoundSetManager()).getSQLGenerator());
+			Relation r = parent.getFoundSetManager().getApplication().getFlattenedSolution().getRelation(partName);
 			if (r == null) return null; //safety
 			try
 			{
@@ -500,7 +500,9 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 					{
 						return null;
 					}
-					SQLSheet sheet = parent.getSQLSheet().getRelatedSheet(partName, ((FoundSetManager)parent.getFoundSetManager()).getSQLGenerator());
+					SQLSheet sheet = parent.getSQLSheet().getRelatedSheet(
+						((FoundSetManager)parent.getFoundSetManager()).getApplication().getFlattenedSolution().getRelation(partName),
+						((FoundSetManager)parent.getFoundSetManager()).getSQLGenerator());
 					rfs = ((FoundSetManager)parent.getFoundSetManager()).createRelatedFindFoundSet(this, partName, sheet);
 					((FoundSet)rfs).addParent(this);
 					((FoundSet)rfs).setFindMode();

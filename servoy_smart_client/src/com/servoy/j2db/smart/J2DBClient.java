@@ -3169,7 +3169,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	@Override
 	protected void createFoundSetManager()
 	{
-		foundSetManager = new FoundSetManager(this, null, new SwingFoundSetFactory());
+		foundSetManager = new FoundSetManager(this, new SwingFoundSetFactory());
 		((FoundSetManager)foundSetManager).setInfoListener(this);
 		foundSetManager.init();
 		((FoundSetManager)foundSetManager).getEditRecordList().addEditListener(this);

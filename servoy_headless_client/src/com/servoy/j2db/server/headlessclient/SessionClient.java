@@ -519,7 +519,7 @@ public class SessionClient extends ClientState implements ISessionClient
 	@Override
 	protected void createFoundSetManager()
 	{
-		foundSetManager = new FoundSetManager(this, null, new SwingFoundSetFactory());
+		foundSetManager = new FoundSetManager(this, new SwingFoundSetFactory());
 		foundSetManager.init();
 	}
 

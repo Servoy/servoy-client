@@ -647,7 +647,7 @@ public class Record implements Scriptable, IRecordInternal
 			if (relationName.indexOf('.') < 0)
 			{
 				// one level deep relation name
-				Relation relation = parent.getSQLSheet().getRelation(relationName, ((FoundSetManager)parent.getFoundSetManager()).getSQLGenerator());
+				Relation relation = parent.getFoundSetManager().getApplication().getFlattenedSolution().getRelation(relationName);
 				if (relation != null && relation.isGlobal())//only do handle global relations
 				{
 					return parent.getFoundSetManager().getGlobalRelatedFoundSet(relationName);

@@ -2463,7 +2463,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			if (retval == null)
 			{
 				// make empty row so that it wont be an infinite loop of record lookups!!
-				Row data = rowManager.createNotYetExistInDBRowObject(sheet.getNewRecordData(fsm.getApplication(), fsm.getSQLGenerator(), this), false);
+				Row data = rowManager.createNotYetExistInDBRowObject(sheet.getNewRecordData(fsm.getApplication(), this), false);
 				data.flagExistInDB();
 				retval = new Record(this, data);
 				cachedRecords.set(row, retval);
@@ -2769,7 +2769,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				}
 
 				//try to create a record if allowed
-				Relation r = sheet.getRelation(relationName, fsm.getSQLGenerator());
+				Relation r = fsm.getApplication().getFlattenedSolution().getRelation(relationName);
 				if (r != null && r.getAllowCreationRelatedRecords())
 				{
 					try
@@ -2841,7 +2841,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	public boolean isValidRelation(String name)
 	{
-		return sheet.isValidRelation(name, fsm.getSQLGenerator());
+		return fsm.getApplication().getFlattenedSolution().getRelationSequence(name) != null;
 	}
 
 	public int getSize()
@@ -3592,7 +3592,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		if (relationName != null)
 		{
-			Relation relation = sheet.getRelation(relationName, fsm.getSQLGenerator());
+			Relation relation = fsm.getApplication().getFlattenedSolution().getRelation(relationName);
 			if (relation != null)
 			{
 				Placeholder ph = creationSqlSelect.getPlaceholder(SQLGenerator.createRelationKeyPlaceholderKey(creationSqlSelect.getTable(), relation.getName()));
@@ -3608,7 +3608,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 		}
 
-		Object[] data = sheet.getNewRecordData(fsm.getApplication(), fsm.getSQLGenerator(), this);
+		Object[] data = sheet.getNewRecordData(fsm.getApplication(), this);
 		IRecordInternal newRecord = new Record(this, rowManager.createNotYetExistInDBRowObject(data, true));
 		sheet.processCopyValues(newRecord);
 		return newRecord;
@@ -4718,7 +4718,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		String[] parts = fullRelationName.split("\\."); //$NON-NLS-1$
 		for (int i = 0; i < parts.length; i++)
 		{
-			SQLSheet relatedSheet = sheet.getRelatedSheet(parts[i], fsm.getSQLGenerator());
+			SQLSheet relatedSheet = sheet.getRelatedSheet(fsm.getApplication().getFlattenedSolution().getRelation(parts[i]), fsm.getSQLGenerator());
 			if (relatedSheet == null)
 			{
 				retval = fsm.getGlobalRelatedFoundSet(parts[i]);
@@ -4730,7 +4730,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				{
 					if (retval.getSize() == 0 && !currentRecord.existInDataSource())
 					{
-						Relation r = sheet.getRelation(parts[i], fsm.getSQLGenerator());
+						Relation r = fsm.getApplication().getFlattenedSolution().getRelation(parts[i]);
 						if (r != null && r.isExactPKRef(fsm.getApplication().getFlattenedSolution()))//TODO add unique column test instead of pk requirement 
 						{
 							((FoundSet)retval).newRecord(record.getRawData(), 0, true);

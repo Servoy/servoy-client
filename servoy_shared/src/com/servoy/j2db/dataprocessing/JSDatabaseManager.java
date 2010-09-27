@@ -321,16 +321,15 @@ public class JSDatabaseManager
 					FoundSet fs_new = (FoundSet)application.getFoundSetManager().getNewFoundSet(ft, null);
 
 					QuerySelect sql = fs_old.getPksAndRecords().getQuerySelectForModification();
-					SQLSheet sheet_new = fs_old.getSQLSheet().getRelatedSheet(r.getName(),
-						((FoundSetManager)application.getFoundSetManager()).getSQLGenerator());
+					SQLSheet sheet_new = fs_old.getSQLSheet().getRelatedSheet(r, ((FoundSetManager)application.getFoundSetManager()).getSQLGenerator());
 					if (sheet_new != null)
 					{
 						QueryTable oldTable = sql.getTable();
 						QueryJoin join = (QueryJoin)sql.getJoin(oldTable, r.getName());
 						if (join == null)
 						{
-							join = SQLGenerator.createJoin(application.getFlattenedSolution(), r, oldTable, new QueryTable(ft.getSQLName(), ft.getCatalog(),
-								ft.getSchema()), fs_old);
+							join = SQLGenerator.createJoin(application.getFlattenedSolution(), r, oldTable,
+								new QueryTable(ft.getSQLName(), ft.getCatalog(), ft.getSchema()), fs_old);
 							sql.addJoin(join);
 						}
 

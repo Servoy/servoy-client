@@ -45,7 +45,6 @@ import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.IDataProvider;
-import com.servoy.j2db.persistence.IRelationProvider;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Relation;
@@ -88,7 +87,6 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	private Map<String, RowManager> rowManagers; //dataSource -> RowManager... 1 per table
 	private Map<ITable, CopyOnWriteArrayList<ITableChangeListener>> tableListeners; //table -> ArrayList(tableListeners)
 	protected SQLGenerator sqlGenerator;
-	private final IRelationProvider relProvider;
 	private GlobalTransaction globalTransaction;
 	private IInfoListener infoListener;//we allow only one
 	private final IFoundSetFactory foundsetfactory;
@@ -109,13 +107,12 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	private final List<Runnable> fireRunabbles = new ArrayList<Runnable>();
 
-	public FoundSetManager(IServiceProvider app, IRelationProvider r, IFoundSetFactory factory)
+	public FoundSetManager(IServiceProvider app, IFoundSetFactory factory)
 	{
 		application = app;
 		initMembers();
 		editRecordList = new EditRecordList(this);
 
-		relProvider = r;
 		foundsetfactory = factory;
 
 		pkChunkSize = Utils.getAsInteger(app.getSettings().getProperty("servoy.foundset.pkChunkSize", Integer.toString(200)));//primarykeys to be get in one roundtrip //$NON-NLS-1$
@@ -362,7 +359,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	public IFoundSetInternal getGlobalRelatedFoundSet(String name) throws RepositoryException, ServoyException
 	{
-		Relation relation = getSQLGenerator().getRelationProvider().getRelation(name);
+		Relation relation = application.getFlattenedSolution().getRelation(name);
 		if (relation != null && relation.isGlobal())
 		{
 			SQLSheet childSheet = getSQLGenerator().getCachedTableSQLSheet(relation.getForeignDataSource());
@@ -377,7 +374,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	{
 		try
 		{
-			Relation r = getRelationProvider().getRelation(relationName);
+			Relation r = application.getFlattenedSolution().getRelation(relationName);
 			if (r == null || !r.isValid())
 			{
 				return false;
@@ -414,7 +411,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		throws ServoyException
 	{
 		IFoundSetInternal retval = null;
-		Relation relation = getRelationProvider().getRelation(relationName);
+		Relation relation = application.getFlattenedSolution().getRelation(relationName);
 		if (relation == null || !relation.isValid())
 		{
 			return null;
@@ -704,14 +701,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	{
 		if (sqlGenerator == null)
 		{
-			sqlGenerator = new SQLGenerator(application, getRelationProvider());
+			sqlGenerator = new SQLGenerator(application);
 		}
 		return sqlGenerator;
-	}
-
-	private IRelationProvider getRelationProvider()
-	{
-		return (relProvider != null ? relProvider : application.getFlattenedSolution());
 	}
 
 	public IDataServer getDataServer()

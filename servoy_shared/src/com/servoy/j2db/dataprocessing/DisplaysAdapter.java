@@ -258,8 +258,7 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 					{
 						break;
 					}
-					Relation r = currState.getParentFoundSet().getSQLSheet().getRelation(parts[i],
-						((FoundSetManager)application.getFoundSetManager()).getSQLGenerator());
+					Relation r = application.getFoundSetManager().getApplication().getFlattenedSolution().getRelation(parts[i]);
 					currState = foundset.getRecord(foundset.getSelectedIndex());
 					if (currState == null)
 					{

@@ -222,7 +222,7 @@ public class SQLSheet
 		return array;
 	}
 
-	Object[] getNewRecordData(IServiceProvider app, SQLGenerator generator, FoundSet fs)
+	Object[] getNewRecordData(IServiceProvider app, FoundSet fs)
 	{
 		Object[][] creationArgs = null;
 
@@ -235,7 +235,7 @@ public class SQLSheet
 		{
 			try
 			{
-				relation = generator.getRelationProvider().getRelation(relationName);
+				relation = app.getFlattenedSolution().getRelation(relationName);
 				if (relation != null)
 				{
 					fcols = relation.getForeignColumns();
@@ -407,39 +407,20 @@ public class SQLSheet
 		return defaultSort;
 	}
 
-	public SQLSheet getRelatedSheet(String relationName, SQLGenerator generator)
+	public SQLSheet getRelatedSheet(Relation relation, SQLGenerator generator)
 	{
-		Relation rel = generator.getRelationProvider().getRelation(relationName);
 		try
 		{
-			if (rel != null && !rel.isGlobal())
+			if (relation != null && !relation.isGlobal())
 			{
-				return getRelatedSQLSheet(rel, generator);
+				return getRelatedSQLSheet(relation, generator);
 			}
 		}
 		catch (ServoyException e)
 		{
-			Debug.error("cant get related sheet " + rel, e); //$NON-NLS-1$
+			Debug.error("cant get related sheet " + relation, e); //$NON-NLS-1$
 		}
 		return null;
-	}
-
-	public Relation getRelation(String relationName, SQLGenerator generator)
-	{
-		try
-		{
-			return generator.getRelationProvider().getRelation(relationName);
-		}
-		catch (Exception ex)
-		{
-			Debug.error(ex);
-		}
-		return null;
-	}
-
-	public boolean isValidRelation(String name, SQLGenerator generator)
-	{
-		return generator.getRelationProvider().getRelationSequence(name) != null;
 	}
 
 	public ISQLQuery getSQL(int type)

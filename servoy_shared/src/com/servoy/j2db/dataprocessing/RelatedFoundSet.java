@@ -586,7 +586,7 @@ public abstract class RelatedFoundSet extends FoundSet
 	{
 		if (changedColumnNames != null)
 		{
-			Relation relation = sheet.getRelation(relationName, fsm.getSQLGenerator());
+			Relation relation = fsm.getApplication().getFlattenedSolution().getRelation(relationName);
 			if (relation == null)
 			{
 				throw new IllegalStateException("Relation not found for related foundset: " + relationName); //$NON-NLS-1$
@@ -623,7 +623,7 @@ public abstract class RelatedFoundSet extends FoundSet
 		}
 		boolean retval = true;
 		String pkHash = r.getPKHashKey();
-		Relation relation = sheet.getRelation(relationName, fsm.getSQLGenerator());
+		Relation relation = fsm.getApplication().getFlattenedSolution().getRelation(relationName);
 		if (relation == null)
 		{
 			throw new IllegalStateException("Relation not found for related foundset: " + relationName); //$NON-NLS-1$
@@ -822,7 +822,7 @@ public abstract class RelatedFoundSet extends FoundSet
 			{
 				boolean doCheck = true;
 
-				Relation relation = sheet.getRelation(relationName, fsm.getSQLGenerator());
+				Relation relation = fsm.getApplication().getFlattenedSolution().getRelation(relationName);
 				//check the foreign key if they match, if so it will fall in this foundset
 				Placeholder ph = creationSqlSelect.getPlaceholder(SQLGenerator.createRelationKeyPlaceholderKey(creationSqlSelect.getTable(), relation.getName()));
 				if (ph == null || !ph.isSet())

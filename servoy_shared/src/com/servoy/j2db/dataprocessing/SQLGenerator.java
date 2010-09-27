@@ -39,7 +39,6 @@ import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderHandler;
 import com.servoy.j2db.persistence.IRelation;
-import com.servoy.j2db.persistence.IRelationProvider;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RelationItem;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -97,15 +96,13 @@ public class SQLGenerator
  */
 	private final IServiceProvider application;
 	private final Map<String, SQLSheet> cachedDataSourceSQLSheets = new HashMap<String, SQLSheet>(64); // dataSource -> sqlSheet
-	private final IRelationProvider relProvider;
 
 /*
  * _____________________________________________________________ Declaration and definition of constructors
  */
-	public SQLGenerator(IServiceProvider app, IRelationProvider r)
+	public SQLGenerator(IServiceProvider app)
 	{
 		application = app;
-		relProvider = r;
 	}
 
 /*
@@ -1526,16 +1523,6 @@ public class SQLGenerator
 				PLACEHOLDER_INSERT_KEY)));
 		}
 		return queryColumns;
-	}
-
-	/**
-	 * Returns the relProvider.
-	 * 
-	 * @return IRelationProvider
-	 */
-	public IRelationProvider getRelationProvider()
-	{
-		return relProvider;
 	}
 
 	/**

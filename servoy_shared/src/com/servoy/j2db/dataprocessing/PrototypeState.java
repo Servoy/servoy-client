@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 
@@ -70,7 +70,7 @@ public class PrototypeState extends Record
 			{
 				int dot = relationName.indexOf('.');
 				String firstRelation = (dot > 0) ? relationName.substring(0, dot) : relationName;
-				Relation relation = parent.getSQLSheet().getRelation(firstRelation, ((FoundSetManager)parent.getFoundSetManager()).getSQLGenerator());
+				Relation relation = parent.getFoundSetManager().getApplication().getFlattenedSolution().getRelation(firstRelation);
 				if (relation != null && (relation.isGlobal() || relation.isParentRef()))//only do handle global relations or pass the same foundset
 				{
 					return super.getRelatedFoundSet(relationName, defaultSortColumns);
