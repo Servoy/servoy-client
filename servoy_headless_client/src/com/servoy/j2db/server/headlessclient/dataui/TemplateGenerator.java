@@ -1302,7 +1302,7 @@ public class TemplateGenerator
 		styleObj.setProperty("float", "left");//$NON-NLS-1$ //$NON-NLS-2$
 		styleObj.setProperty("clear", "none");//$NON-NLS-1$ //$NON-NLS-2$
 
-		styleObj = css.addStyle("div.webform");//$NON-NLS-1$ 
+		styleObj = css.addStyle("div.opaquewebform");//$NON-NLS-1$ 
 		styleObj.setProperty("background-color", "#ffffff"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		styleObj = css.addStyle("div.tabs div a");//$NON-NLS-1$ 
@@ -1605,13 +1605,13 @@ public class TemplateGenerator
 
 			html.append("\t<div id='splitter_").append(tabPanelMarkupId).append("' servoy:id='splitter' style='").append(leftPanelStyle).append( //$NON-NLS-1$  //$NON-NLS-2$
 				"'><div id='websplit_left_").append(tabPanelMarkupId).append("' servoy:id='websplit_left' style='overflow: auto; ").append(leftPanelStyle).append( //$NON-NLS-1$  //$NON-NLS-2$
-				"' ><div servoy:id='webform' " + getCSSClassParameter("webform") + "></div></div></div>"); //$NON-NLS-1$ 
+				"' ><div servoy:id='webform' " + getCSSClassParameter("opaquewebform") + "></div></div></div>"); //$NON-NLS-1$ 
 			html.append("<div id='websplit_right_").append(tabPanelMarkupId).append("' servoy:id='websplit_right' style='").append(rightPanelStyle).append( //$NON-NLS-1$  //$NON-NLS-2$ 
-				"'><div servoy:id='webform' " + getCSSClassParameter("webform") + "></div></div>"); //$NON-NLS-1$ 
+				"'><div servoy:id='webform' " + getCSSClassParameter("opaquewebform") + "></div></div>"); //$NON-NLS-1$ 
 		}
 		else
 		{
-			html.append("\t<div servoy:id='webform' " + getCSSClassParameter("webform") + style.toString() + "></div>"); //$NON-NLS-1$ //$NON-NLS-2$
+			html.append("\t<div servoy:id='webform' " + getCSSClassParameter("opaquewebform") + style.toString() + "></div>"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		html.append("</div>"); //$NON-NLS-1$ 		

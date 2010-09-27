@@ -48,6 +48,7 @@ import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Page;
 import org.apache.wicket.Session;
 import org.apache.wicket.behavior.IBehavior;
+import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.IMarkupCacheKeyProvider;
 import org.apache.wicket.markup.Markup;
 import org.apache.wicket.markup.MarkupStream;
@@ -97,7 +98,6 @@ import com.servoy.j2db.server.headlessclient.dataui.IFormLayoutProvider;
 import com.servoy.j2db.server.headlessclient.dataui.ISupportWebTabSeq;
 import com.servoy.j2db.server.headlessclient.dataui.RecordItemModel;
 import com.servoy.j2db.server.headlessclient.dataui.StyleAppendingModifier;
-import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.server.headlessclient.dataui.WebBeanHolder;
 import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataRenderer;
@@ -107,6 +107,7 @@ import com.servoy.j2db.server.headlessclient.dataui.WebRecordView;
 import com.servoy.j2db.server.headlessclient.dataui.WebSplitPane;
 import com.servoy.j2db.server.headlessclient.dataui.WebTabFormLookup;
 import com.servoy.j2db.server.headlessclient.dataui.WebTabPanel;
+import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.smart.dataui.DataRenderer;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
@@ -256,6 +257,11 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 				return null;
 			}
 		}));
+		if (controller.getForm().getTransparent())
+		{
+			// remove the default background color
+			add(new SimpleAttributeModifier("class", "")); //$NON-NLS-1$//$NON-NLS-2$
+		}
 		// set fixed markup id so that element can always be found by markup id
 		container.setOutputMarkupId(true);
 		container.setMarkupId("form_" + ComponentFactory.stripIllegalCSSChars(formController.getName())); // same as in template generator //$NON-NLS-1$
