@@ -651,7 +651,14 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 		@Override
 		public void paint(Graphics g)
 		{
-			super.paint(g);
+			try
+			{
+				super.paint(g);
+			}
+			catch (RuntimeException re)
+			{
+				Debug.error("Error in painting HTML/RTF Area, check your html: " + getText(), re); //$NON-NLS-1$
+			}
 
 			//if you want to see all the view enable the following code DO NOT DELETE		
 			if (false)
