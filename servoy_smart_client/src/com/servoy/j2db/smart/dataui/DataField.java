@@ -440,7 +440,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		{
 			if (value == null)
 			{
-				if (editFormatter)
+				if (editFormatter && getFormattedTextField().isEditable())
 				{
 					SwingUtilities.invokeLater(new Runnable()
 					{
