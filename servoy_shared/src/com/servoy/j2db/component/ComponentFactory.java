@@ -116,6 +116,8 @@ import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.plugins.IClientPluginAccess;
+import com.servoy.j2db.scripting.IReturnedTypesProvider;
+import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.ui.IAccessible;
 import com.servoy.j2db.ui.IButton;
 import com.servoy.j2db.ui.IComponent;
@@ -859,10 +861,11 @@ public class ComponentFactory
 
 			if (obj instanceof IServoyBeanFactory)
 			{
+				testReturnTypesForBean(application, obj);
 				obj = ((IServoyBeanFactory)obj).getBeanInstance(application.getApplicationType(), (IClientPluginAccess)application.getPluginAccess(),
 					new Object[] { ComponentFactory.getWebID(form, bean), form.getName(), form.getStyleName() });
 			}
-
+			testReturnTypesForBean(application, obj);
 			if (obj instanceof Applet)
 			{
 				((FormManager)application.getFormManager()).initializeApplet((Applet)obj, bean.getSize());
@@ -902,6 +905,18 @@ public class ComponentFactory
 		}
 
 		return c;
+	}
+
+	private static void testReturnTypesForBean(IApplication application, Object beanInstance)
+	{
+		if (beanInstance instanceof IReturnedTypesProvider && ((IReturnedTypesProvider)beanInstance).getAllReturnedTypes() != null &&
+			application.getScriptEngine() != null)
+		{
+			for (Class< ? > clz : ((IReturnedTypesProvider)beanInstance).getAllReturnedTypes())
+			{
+				ScriptObjectRegistry.getJavaMembers(clz, application.getScriptEngine().getGlobalScope());
+			}
+		}
 	}
 
 	/**
