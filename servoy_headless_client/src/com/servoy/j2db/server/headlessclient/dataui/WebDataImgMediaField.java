@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -43,6 +44,7 @@ import org.apache.wicket.PageMap;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.behavior.IBehavior;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
@@ -68,6 +70,7 @@ import com.servoy.j2db.plugins.IMediaUploadCallback;
 import com.servoy.j2db.plugins.IUploadData;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.JSEvent.EventType;
+import com.servoy.j2db.server.headlessclient.IDesignModeListener;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.MediaUploadPage;
 import com.servoy.j2db.server.headlessclient.ServoyForm;
@@ -95,7 +98,7 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner,jblok
  */
 public class WebDataImgMediaField extends WebMarkupContainer implements IDisplayData, IFieldComponent, IScrollPane, IScriptMediaInputFieldMethods,
-	ILinkListener, IProviderStylePropertyChanges, ISupportWebBounds, IRightClickListener
+	ILinkListener, IProviderStylePropertyChanges, ISupportWebBounds, IRightClickListener, IDesignModeListener
 {
 	private static final long serialVersionUID = 1L;
 
@@ -150,6 +153,8 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 	private final ChangesRecorder jsChangeRecorder = new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE, TemplateGenerator.DEFAULT_FIELD_PADDING);
 
 	private final IApplication application;
+
+	private boolean designMode;
 
 	/**
 	 * @param id
@@ -272,7 +277,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 			@Override
 			public boolean isEnabled(Component component)
 			{
-				return getDefaultModelObject() != null;
+				return getDefaultModelObject() != null && !designMode;
 			}
 		});
 		remove = new Image("remove_icon", new ResourceReference(IApplication.class, "images/delete.gif")) //$NON-NLS-1$ //$NON-NLS-2$
@@ -322,6 +327,35 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 		add(TooltipAttributeModifier.INSTANCE);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.IDesignModeListener#setDesignMode(boolean)
+	 */
+	public void setDesignMode(boolean mode)
+	{
+		designMode = mode;
+		if (mode)
+		{
+			setDesignMode(remove.getBehaviors(), mode);
+			setDesignMode(upload.getBehaviors(), mode);
+			setDesignMode(download.getBehaviors(), mode);
+		}
+	}
+
+	/**
+	 * @param behaviors
+	 */
+	private void setDesignMode(List<IBehavior> behaviors, boolean mode)
+	{
+		for (IBehavior behavior : behaviors)
+		{
+			if (behavior instanceof IDesignModeListener)
+			{
+				((IDesignModeListener)behavior).setDesignMode(mode);
+			}
+		}
+	}
 
 	/**
 	 * @see org.apache.wicket.Component#getLocale()

@@ -53,11 +53,12 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  * @author jblok
  */
+@SuppressWarnings("nls")
 public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 {
-	public static final String ACTION_RESIZE = "aResize"; //$NON-NLS-1$
-	public static final String PARAM_RESIZE_HEIGHT = "resizeHeight"; //$NON-NLS-1$
-	public static final String PARAM_RESIZE_WIDTH = "resizeWidth"; //$NON-NLS-1$
+	public static final String ACTION_RESIZE = "aResize";
+	public static final String PARAM_RESIZE_HEIGHT = "resizeHeight";
+	public static final String PARAM_RESIZE_WIDTH = "resizeWidth";
 
 	private DesignModeCallbacks callback;
 	private FormController controller;
@@ -75,42 +76,9 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 
 		YUILoader.renderResize(response);
 
-//		StringBuilder sb = new StringBuilder(50);
-//		sb.append("function attachdesign(array) {\n"); //$NON-NLS-1$
-//		sb.append("for(var i=0;i<array.length;i++) {\n"); //$NON-NLS-1$
-//		sb.append("var Dom = YAHOO.util.Dom,Event = YAHOO.util.Event;\n"); //$NON-NLS-1$
-//		sb.append("var resize = new YAHOO.util.Resize(array[i][0],\n{"); //$NON-NLS-1$
-//		sb.append("handles: 'all',"); //$NON-NLS-1$
-//		sb.append("knobHandles: true,"); //$NON-NLS-1$
-////		sb.append("autoRatio: true,");
-////		sb.append("hover: true,"); //$NON-NLS-1$
-//		sb.append("wrapPadding: array[i][1],"); //$NON-NLS-1$
-////		sb.append("wrapHeight: array[i][2],");
-//		sb.append("proxy: true,"); //$NON-NLS-1$
-//		sb.append("wrap: true,"); //$NON-NLS-1$
-//		sb.append("draggable: true,"); //$NON-NLS-1$
-//		sb.append("animate: false"); //$NON-NLS-1$
-//		sb.append("});\n"); //$NON-NLS-1$
-//		sb.append("resize.dd.endDrag = function(args){\nServoy.DD.dragStopped();return true;};\n"); //$NON-NLS-1$
-//		sb.append("resize.dd.startDrag = function(x,y){\nvar element = document.getElementById(this.id);\nthis.setYConstraint(element.offsetTop,element.offsetParent.offsetHeight-element.offsetTop-element.offsetHeight);this.setXConstraint(element.offsetLeft,element.offsetParent.offsetWidth-element.offsetLeft-element.offsetWidth);\nwicketAjaxGet('"); //$NON-NLS-1$
-//		sb.append(getCallbackUrl());
-//		sb.append("&a=aStart&xc=' + element.style.left + '&yc=' + element.style.top + '&draggableID=' + this.id);\nServoy.DD.dragStarted();};\n"); //$NON-NLS-1$
-//
-//		sb.append("resize.dd.on('mouseUpEvent', function(ev, targetid) {\nvar element = document.getElementById(this.id);\nvar parentLeft = \nwicketAjaxGet('"); //$NON-NLS-1$
-//		sb.append(getCallbackUrl());
-//		sb.append("&a=aDrop&xc=' + Servoy.addPositions(element.offsetParent.style.left, element.style.left) + '&yc=' + Servoy.addPositions(element.offsetParent.style.top,element.style.top) + '&draggableID=' + this.id  + '&targetID=' + targetid);});\n"); //$NON-NLS-1$
-//
-//		sb.append("resize.on('beforeResize', function(args){return true;});\n"); //$NON-NLS-1$
-//		sb.append("resize.on('endResize', function(args){\nwicketAjaxGet('"); //$NON-NLS-1$
-//		sb.append(getCallbackUrl());
-//		sb.append("&a=aResize&draggableID=' + this._wrap.id + '&resizeHeight=' + args.height + '&resizeWidth=' + args.width + '&xc=' + this._wrap.style.left + '&yc=' + this._wrap.style.top);});\n"); //$NON-NLS-1$
-//		sb.append("}}\n"); //$NON-NLS-1$
-//
-//		response.renderJavascript(sb.toString(), "attachdesign"); //$NON-NLS-1$
-
 		final ArrayList<Component> markupIds = new ArrayList<Component>();
 		final ArrayList<Component> dropMarkupIds = new ArrayList<Component>();
-		((MarkupContainer)getComponent()).visitChildren(IComponent.class, new IVisitor()
+		((MarkupContainer)getComponent()).visitChildren(IComponent.class, new IVisitor<Component>()
 		{
 			public Object component(Component component)
 			{
@@ -132,13 +100,13 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 
 		if (markupIds.size() > 0)
 		{
-			boolean webAnchorsEnabled = Utils.getAsBoolean(((WebClientSession)Session.get()).getWebClient().getRuntimeProperties().get("enableAnchors")); //$NON-NLS-1$
+			boolean webAnchorsEnabled = Utils.getAsBoolean(((WebClientSession)Session.get()).getWebClient().getRuntimeProperties().get("enableAnchors"));
 
 			//WebClientSession webClientSession = (WebClientSession)getSession();
 			//WebClient webClient = webClientSession.getWebClient();
 
 			StringBuilder sb = new StringBuilder(markupIds.size() * 10);
-			sb.append("Servoy.ClientDesign.attach({"); //$NON-NLS-1$
+			sb.append("Servoy.ClientDesign.attach({");
 			for (int i = 0; i < markupIds.size(); i++)
 			{
 				Component component = markupIds.get(i);
@@ -158,37 +126,37 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 				if (component instanceof ISupportWebBounds)
 				{
 					Insets p = ((ISupportWebBounds)component).getPaddingAndBorder();
-					if (p != null) padding = "0px " + (p.left + p.right) + "px " + (p.bottom + p.top) + "px 0px"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					if (p != null) padding = "0px " + (p.left + p.right) + "px " + (p.bottom + p.top) + "px 0px";
 				}
 				if (webAnchorsEnabled && component instanceof IScriptBaseMethods &&
 					needsWrapperDivForAnchoring(((IScriptBaseMethods)component).js_getElementType()))
 				{
-					sb.append(component.getMarkupId() + "_wrapper"); //$NON-NLS-1$
+					sb.append(component.getMarkupId() + "_wrapper");
 				}
 				else
 				{
 					sb.append(component.getMarkupId());
 				}
-				sb.append(":['"); //$NON-NLS-1$
+				sb.append(":['");
 				sb.append(padding);
-				sb.append("'"); //$NON-NLS-1$
+				sb.append("'");
 				if (clientdesign_handles instanceof Object[])
 				{
-					sb.append(",["); //$NON-NLS-1$
+					sb.append(",[");
 					Object[] array = (Object[])clientdesign_handles;
 					for (Object element : array)
 					{
-						sb.append("'");
+						sb.append('\'');
 						sb.append(ScriptRuntime.escapeString(element.toString()));
 						sb.append("',");
 					}
 					sb.setLength(sb.length() - 1); //rollback last comma
-					sb.append("]"); //$NON-NLS-1$
+					sb.append("]");
 				}
-				sb.append("],"); //$NON-NLS-1$
+				sb.append("],");
 			}
 			sb.setLength(sb.length() - 1); //rollback last comma
-			sb.append("},'" + getCallbackUrl() + "')"); //$NON-NLS-1$
+			sb.append("},'" + getCallbackUrl() + "')");
 			response.renderOnDomReadyJavascript(sb.toString());
 
 //			if (dropMarkupIds.size() > 0)
@@ -212,7 +180,7 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 	private boolean needsWrapperDivForAnchoring(String type)
 	{
 		// this needs to be in sync with TemplateGenerator.needsWrapperDivForAnchoring(Field field)
-		return "PASSWORD".equals(type) || "TEXT_AREA".equals(type) || "COMBOBOX".equals(type) || "TYPE_AHEAD".equals(type) || "TEXT_FIELD".equals(type); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+		return "PASSWORD".equals(type) || "TEXT_AREA".equals(type) || "COMBOBOX".equals(type) || "TYPE_AHEAD".equals(type) || "TEXT_FIELD".equals(type);
 	}
 
 	/**
@@ -226,13 +194,13 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 		String id = extractId(request.getParameter(DraggableBehavior.PARAM_DRAGGABLE_ID));
 		if (id != null)
 		{
-			if (id.endsWith("_wrapper")) //$NON-NLS-1$
+			if (id.endsWith("_wrapper"))
 			{
 				id = id.substring(0, id.length() - 8);
 			}
 			final String finalId = id;
 			MarkupContainer comp = (MarkupContainer)getComponent();
-			IScriptBaseMethods child = (IScriptBaseMethods)comp.visitChildren(IScriptBaseMethods.class, new IVisitor()
+			IScriptBaseMethods child = (IScriptBaseMethods)comp.visitChildren(IScriptBaseMethods.class, new IVisitor<Component>()
 			{
 				public Object component(Component component)
 				{
@@ -316,7 +284,7 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 			}
 		}
 		WebEventExecutor.generateResponse(target, getComponent().getPage());
-		target.prependJavascript("Servoy.ClientDesign.reattach();"); //$NON-NLS-1$
+		target.prependJavascript("Servoy.ClientDesign.reattach();");
 	}
 
 	/**
@@ -325,7 +293,7 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 	 */
 	private String extractId(String id)
 	{
-		if (id != null && id.endsWith("_wrap")) //$NON-NLS-1$
+		if (id != null && id.endsWith("_wrap"))
 		{
 			return id.substring(0, id.length() - 5);
 		}
@@ -334,8 +302,8 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 
 	private int stripUnitPart(String str)
 	{
-		if (str == null || str.trim().equals("") || "auto".equals(str)) return -1; //$NON-NLS-1$ //$NON-NLS-2$
-		if (str.endsWith("px")) //$NON-NLS-1$
+		if (str == null || str.trim().equals("") || "auto".equals(str)) return -1;
+		if (str.endsWith("px"))
 		{
 			return Integer.parseInt(str.substring(0, str.length() - 2));
 		}
