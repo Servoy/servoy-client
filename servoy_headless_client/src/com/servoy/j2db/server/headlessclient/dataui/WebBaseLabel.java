@@ -715,6 +715,7 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 		return jpegedRawData;
 	}
 
+	@Deprecated
 	public String js_getParameterValue(String param)
 	{
 		RequestCycle cycle = RequestCycle.get();
