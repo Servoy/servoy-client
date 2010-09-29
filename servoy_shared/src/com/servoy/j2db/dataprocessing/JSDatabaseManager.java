@@ -329,8 +329,8 @@ public class JSDatabaseManager
 						QueryJoin join = (QueryJoin)sql.getJoin(oldTable, r.getName());
 						if (join == null)
 						{
-							join = SQLGenerator.createJoin(application.getFlattenedSolution(), r, oldTable, new QueryTable(ft.getSQLName(), ft.getCatalog(),
-								ft.getSchema()), fs_old);
+							join = SQLGenerator.createJoin(application.getFlattenedSolution(), r, oldTable,
+								new QueryTable(ft.getSQLName(), ft.getCatalog(), ft.getSchema()), fs_old);
 							sql.addJoin(join);
 						}
 
@@ -740,30 +740,34 @@ public class JSDatabaseManager
 		checkAuthorized();
 		if (foundsetOrRecord instanceof IRecordInternal)
 		{
-			recalculateRecord((IRecordInternal)foundsetOrRecord);
-			((FoundSet)((IRecordInternal)foundsetOrRecord).getParentFoundSet()).fireFoundSetChanged();
+			IRecordInternal record = (IRecordInternal)foundsetOrRecord;
+			SQLSheet sheet = record.getParentFoundSet().getSQLSheet();
+			recalculateRecord(record, sheet.getCalculationNames());
+			((FoundSet)record.getParentFoundSet()).fireFoundSetChanged();
 		}
 		else if (foundsetOrRecord instanceof FoundSet)
 		{
 			FoundSet fs = (FoundSet)foundsetOrRecord;
-			for (int i = 0; i < fs.getSize(); i++)
+			SQLSheet sheet = fs.getSQLSheet();
+			String[] calculationNames = sheet.getCalculationNames();
+			if (calculationNames.length > 0)
 			{
-				recalculateRecord(fs.getRecord(i));
+				for (int i = 0; i < fs.getSize(); i++)
+				{
+					recalculateRecord(fs.getRecord(i), calculationNames);
+				}
+				fs.fireFoundSetChanged();
 			}
-			fs.fireFoundSetChanged();
 		}
 	}
 
-	private void recalculateRecord(IRecordInternal record)
+	private void recalculateRecord(IRecordInternal record, String[] calcnames)
 	{
 		record.startEditing();
 		record.getRawData().getRowManager().flagAllRowCalcsForRecalculation(record.getPKHashKey());
-		SQLSheet sheet = record.getParentFoundSet().getSQLSheet();
 		//recalc all stored calcs (required due to use of plugin methods in calc)
-		Iterator<String> it = sheet.getAllCalculationNames();
-		while (it.hasNext())
+		for (String calc : calcnames)
 		{
-			String calc = it.next();
 			record.getValue(calc);
 		}
 		try
