@@ -907,7 +907,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			@Override
 			public void run()
 			{
-				if (connected && frame != null)
+				if (isConnected() && frame != null)
 				{
 					Debug.error("Client closes abnormally, trying to unbind the client from the server'"); //$NON-NLS-1$
 
@@ -3612,7 +3612,6 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	}
 
 	private JDialog disconnectDialog;
-	public volatile static boolean connected = true;
 	private IDataRendererFactory< ? > dataRenderFactory;
 
 
@@ -3621,7 +3620,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	 */
 	private void closeDisconnectDialog()
 	{
-		if (!connected)
+		if (!isConnected())
 		{
 			int option = JOptionPane.showConfirmDialog(disconnectDialog, Messages.getString("servoy.client.serverdisconnect.optionpane.question"), //$NON-NLS-1$
 				Messages.getString("servoy.client.serverdisconnect.optionpane.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE); //$NON-NLS-1$
@@ -3631,6 +3630,11 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 				System.exit(1);
 			}
 		}
+	}
+
+	public boolean isConnected()
+	{
+		return rmiFactoryFactory == null || rmiFactoryFactory.isConnected();
 	}
 
 	/**
@@ -3644,14 +3648,18 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		{
 			ex = ((Exception)ex).getCause();
 		}
-		if (connected && ex instanceof ServoyException && ((ServoyException)ex).getErrorCode() == ServoyException.InternalCodes.CLIENT_NOT_REGISTERED)
+		if (isConnected() && ex instanceof ServoyException && ((ServoyException)ex).getErrorCode() == ServoyException.InternalCodes.CLIENT_NOT_REGISTERED)
 		{
+			if (rmiFactoryFactory != null)
+			{
+				rmiFactoryFactory.disconnect();
+			}
 			reconnectedToServer();
 			disconnectedFromServer();
 			return false;
 		}
 
-		return connected;
+		return isConnected();
 	}
 
 	/*
@@ -3659,7 +3667,6 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	 */
 	public void disconnectedFromServer()
 	{
-		connected = false;
 		if (disconnectDialog == null)
 		{
 			disconnectDialog = new JDialog(this.getMainApplicationFrame(), Messages.getString("servoy.client.serverdisconnect.dialog.title"), true);
@@ -3702,7 +3709,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		{
 			public void run()
 			{
-				if (!connected)
+				if (!isConnected())
 				{
 					if (Debug.tracing())
 					{
@@ -3761,11 +3768,20 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 				}
 				catch (Exception e)
 				{
-					// Remote client object no longer exists on app server, must have been restarted
-					Debug.error("Error reregistering client", e); //$NON-NLS-1$
-					JOptionPane.showMessageDialog(getMainApplicationFrame(), Messages.getString("servoy.client.message.error.registerclient"),
-						Messages.getString("servoy.client.message.clientregister"), JOptionPane.ERROR_MESSAGE);
-					System.exit(1);
+					if (isConnected())
+					{
+						// Remote client object no longer exists on app server, must have been restarted
+						Debug.error("Error reregistering client", e); //$NON-NLS-1$
+						JOptionPane.showMessageDialog(getMainApplicationFrame(), Messages.getString("servoy.client.message.error.registerclient"),
+							Messages.getString("servoy.client.message.clientregister"), JOptionPane.ERROR_MESSAGE);
+						System.exit(1);
+					}
+					else
+					{
+						disconnectedFromServer();
+						reconnectedToServer();
+						return;
+					}
 				}
 
 				if (prevClientId == null || !prevClientId.equals(getClientInfo().getClientId()))
@@ -3775,7 +3791,6 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 					{
 						JOptionPane.showMessageDialog(disconnectDialog, Messages.getString("servoy.client.serverdisconnect.restarting.solution"), //$NON-NLS-1$
 							Messages.getString("servoy.client.serverdisconnect.restarting.solution.title"), JOptionPane.INFORMATION_MESSAGE);
-						connected = true;
 						if (Debug.tracing())
 						{
 							Debug.trace("Client reconnected with id " + getClientID() + " from id " + prevClientId);
@@ -3800,15 +3815,23 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 					}
 					catch (Exception e)
 					{
-						// Remote client object no longer exists on app server, must have been restarted
-						Debug.error("Error reregistering client", e); //$NON-NLS-1$
-						JOptionPane.showMessageDialog(getMainApplicationFrame(), Messages.getString("servoy.client.message.error.registerclient"),
-							Messages.getString("servoy.client.message.clientregister"), JOptionPane.ERROR_MESSAGE);
-						System.exit(1);
+						if (isConnected())
+						{
+							// Remote client object no longer exists on app server, must have been restarted
+							Debug.error("Error reregistering client", e); //$NON-NLS-1$
+							JOptionPane.showMessageDialog(getMainApplicationFrame(), Messages.getString("servoy.client.message.error.registerclient"),
+								Messages.getString("servoy.client.message.clientregister"), JOptionPane.ERROR_MESSAGE);
+							System.exit(1);
+						}
+						else
+						{
+							disconnectedFromServer();
+							reconnectedToServer();
+							return;
+						}
 					}
 					((FoundSetManager)getFoundSetManager()).flushCachedDatabaseData(null);
 				}
-				connected = true;
 				if (Debug.tracing())
 				{
 					Debug.trace("Client reconnected with id " + getClientID() + " from id " + prevClientId);
