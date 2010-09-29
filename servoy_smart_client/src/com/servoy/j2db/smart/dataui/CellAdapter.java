@@ -703,8 +703,11 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 					String name = (editor instanceof IDisplayData) ? ((IDisplayData)editor).getDataProviderID() : null;
 					if (isRowBGColorCalculation)
 					{
-						bg_color = foundset.getCalculationValue(state, strRowBGColorProvider, Utils.arrayMerge((new Object[] { new Integer(row), new Boolean(
-							isSelected), type, name, new Boolean(isEdited) }), Utils.parseJSExpressions(rowBGColorArgs)), null);
+						bg_color = foundset.getCalculationValue(
+							state,
+							strRowBGColorProvider,
+							Utils.arrayMerge((new Object[] { new Integer(row), new Boolean(isSelected), type, name, new Boolean(isEdited) }),
+								Utils.parseJSExpressions(rowBGColorArgs)), null);
 					}
 					else
 					{
@@ -819,7 +822,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				if (state != null)
 				{
 					// only retrieve
-					if (!J2DBClient.connected)
+					if (!((J2DBClient)app).isConnected())
 					{
 						if (Debug.tracing())
 						{
@@ -833,7 +836,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 						// this triggers an update of related foundset if mustQueryForUpdates is true
 						// needed when foundset is not touched but still needs to be up to date
 						if (fs != null) fs.getSize();
-						if (fs == null && !J2DBClient.connected)
+						if (fs == null && !((J2DBClient)app).isConnected())
 						{
 							if (Debug.tracing())
 							{
