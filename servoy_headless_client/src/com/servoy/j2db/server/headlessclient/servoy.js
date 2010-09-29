@@ -1272,7 +1272,8 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 {
 	Servoy.ClientDesign = 
 	{
-		selectedElement : null,
+		selectedResizeElement : null,
+		selectedElementId : null,
 		designableElementsArray : null,
 		callbackurl : null,
 		
@@ -1304,63 +1305,74 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 				elem = elem.parentNode;
 			}
 			
-			if (Servoy.ClientDesign.selectedElement != null)
+			if (Servoy.ClientDesign.selectedResizeElement != null)
 			{
 				//deselect old yui elements
-				Servoy.ClientDesign.selectedElement.element = null;
-				Servoy.ClientDesign.selectedElement.destroy()
+				Servoy.ClientDesign.selectedResizeElement.destroy()
+				Servoy.ClientDesign.selectedResizeElement = null;
 			}
 			
 			if (elem.id)
 			{
-				var elementDescription = Servoy.ClientDesign.designableElementsArray[elem.id];
-				if (elementDescription)
+				Servoy.ClientDesign.attachElement(elem);
+			}
+		},
+		
+		attachElement: function(elem)
+		{
+			var elementDescription = Servoy.ClientDesign.designableElementsArray[elem.id];
+			if (elementDescription)
+			{
+				//apply YUI resize on elem
+				var resize = new YAHOO.util.Resize(elem,
 				{
-					//apply YUI resize on elem
-					var resize = new YAHOO.util.Resize(elem.id,
-					{
-						handles: (elementDescription[1] ? elementDescription[1] : 'all'),
-						knobHandles: true,
-						wrapPadding: elementDescription[0],
-						proxy: true,
-						wrap: false,
-						draggable: true,
-						animate: false
-					});
-	
-					resize.dd.endDrag = function(args) 
-					{ 
-						Servoy.DD.dragStopped(); 
-						return true; 
-					};
-					
-					resize.dd.startDrag = function(x,y)	
-					{
-						var element = document.getElementById(this.id);
-						this.setYConstraint(element.offsetTop,element.offsetParent.offsetHeight-element.offsetTop-element.offsetHeight);
-						this.setXConstraint(element.offsetLeft,element.offsetParent.offsetWidth-element.offsetLeft-element.offsetWidth);
-						wicketAjaxGet(Servoy.ClientDesign.callbackurl+'&a=aStart&xc=' + element.style.left + '&yc=' + element.style.top + '&draggableID=' + this.id);
-						Servoy.DD.dragStarted();
-					};
-	
-					resize.dd.on('mouseUpEvent', function(ev, targetid)	
-					{
-						var element = document.getElementById(this.id);
-						var parentLeft = wicketAjaxGet(Servoy.ClientDesign.callbackurl+'&a=aDrop&xc=' + Servoy.addPositions(element.offsetParent.style.left, element.style.left) + '&yc=' + Servoy.addPositions(element.offsetParent.style.top,element.style.top) + '&draggableID=' + this.id  + '&targetID=' + targetid);
-					});
-	
-					resize.on('beforeResize', function(args) 
-					{
-						return true;
-					});
-					
-					resize.on('endResize', function(args) 
-					{
-						wicketAjaxGet(Servoy.ClientDesign.callbackurl+'&a=aResize&draggableID=' + this._wrap.id + '&resizeHeight=' + args.height + '&resizeWidth=' + args.width + '&xc=' + this._wrap.style.left + '&yc=' + this._wrap.style.top);
-					});
-	
-					Servoy.ClientDesign.selectedElement = resize;
-				}
+					handles: (elementDescription[1] ? elementDescription[1] : 'all'),
+					knobHandles: true,
+					wrapPadding: elementDescription[0],
+					proxy: true,
+					wrap: true,
+					draggable: true,
+					animate: false
+				});
+
+				resize.dd.endDrag = function(args) 
+				{ 
+					Servoy.DD.dragStopped(); 
+					return true; 
+				};
+				
+				resize.dd.startDrag = function(x,y)	
+				{
+					var element = document.getElementById(this.id);
+					this.setYConstraint(element.offsetTop,element.offsetParent.offsetHeight-element.offsetTop-element.offsetHeight);
+					this.setXConstraint(element.offsetLeft,element.offsetParent.offsetWidth-element.offsetLeft-element.offsetWidth);
+					wicketAjaxGet(Servoy.ClientDesign.callbackurl+'&a=aStart&xc=' + element.style.left + '&yc=' + element.style.top + '&draggableID=' + this.id);
+					Servoy.DD.dragStarted();
+				};
+
+				resize.dd.on('mouseUpEvent', function(ev, targetid)	
+				{
+					var element = document.getElementById(this.id);
+					var url = Servoy.ClientDesign.callbackurl+'&a=aDrop&xc=' + Servoy.addPositions(element.offsetParent.style.left, element.style.left) + '&yc=' + Servoy.addPositions(element.offsetParent.style.top,element.style.top) + '&draggableID=' + this.id  + '&targetID=' + targetid
+					Servoy.ClientDesign.selectedResizeElement.destroy()
+					Servoy.ClientDesign.selectedResizeElement = null;
+					var parentLeft = wicketAjaxGet(url);
+				});
+
+				resize.on('beforeResize', function(args) 
+				{
+					return true;
+				});
+				
+				resize.on('endResize', function(args) 
+				{
+					var url = Servoy.ClientDesign.callbackurl+'&a=aResize&draggableID=' + this._wrap.id + '&resizeHeight=' + args.height + '&resizeWidth=' + args.width + '&xc=' + this._wrap.style.left + '&yc=' + this._wrap.style.top;
+					Servoy.ClientDesign.selectedResizeElement.destroy()
+					Servoy.ClientDesign.selectedResizeElement = null;
+					wicketAjaxGet(url);
+				});
+				Servoy.ClientDesign.selectedElementId = elem.id;
+				Servoy.ClientDesign.selectedResizeElement = resize;
 			}
 		},
 		
@@ -1370,6 +1382,18 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 			Servoy.ClientDesign.callbackurl = url;
 			Wicket.Event.add(document.body, "mousedown", Servoy.ClientDesign.selectElement);
 			var Dom = YAHOO.util.Dom,Event = YAHOO.util.Event; //to load stuff?
-		}	
+		},
+		
+		reattach: function()
+		{
+			window.setTimeout(function()
+			{
+			   if (Servoy.ClientDesign.selectedElementId && Servoy.ClientDesign.selectedResizeElement == null)
+			   {
+			   		Servoy.ClientDesign.attachElement(document.getElementById(Servoy.ClientDesign.selectedElementId));
+			   }
+			}
+			,0);
+		}
 	};
 }
