@@ -1106,22 +1106,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 							setHeadersWidth();
 						}
 					}
-					else if (totalDefaultWidth > bodyWidthHint)
-					{
-						// If there will be a horizontal scrollbar, then there are chances that we also get
-						// the vertical scrollbar, because the client height decreases.
-						// In two cases we can decrease the needed client size:
-						// - when the paging navigator is displayed
-						// - when no paging navigator is displayed, but the last row of the table is
-						// too close to the bottom edge.
-						Pair<Boolean, Pair<Integer, Integer>> rowsCalculation = needsMoreThanOnePage(bodyHeightHint);
-						boolean moreThanOnePage = rowsCalculation.getLeft().booleanValue();
-						int totalHeight = rowsCalculation.getRight().getRight().intValue();
-						if (moreThanOnePage || (bodyHeightHint - totalHeight < SCROLLBAR_SIZE))
-						{
-							bodyHeightHint -= 20; // Scrollbar width.
-						}
-					}
 
 					WebTabPanel tabPanel = findParent(WebTabPanel.class);
 					if (tabPanel != null)
@@ -3151,12 +3135,18 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		int totalRealHeight = reservedHeight + getOtherFormPartsHeight();
 
 		int maxRows = Math.max((height - reservedHeight) / maxHeight, 1);
+		// if only 1px is missing for another row, increase the maxRows;
+		// windows web clients does not return accurately the clientHeight property
+		if (maxHeight - ((height - reservedHeight) % maxHeight) < 2) maxRows++;
 
 		boolean moreThanOnePage = currentData != null && currentData.getSize() > maxRows;
 		if (moreThanOnePage)
 		{
 			reservedHeight += 20; // the page navigator
 			maxRows = Math.max((height - reservedHeight) / maxHeight, 1);
+			// if only 1px is missing for another row, increase the maxRows;
+			// windows web clients does not return accurately the clientHeight property			
+			if (maxHeight - ((height - reservedHeight) % maxHeight) < 2) maxRows++;
 		}
 
 		if (currentData != null) totalRealHeight += Math.min(currentData.getSize(), maxRows) * maxHeight;
