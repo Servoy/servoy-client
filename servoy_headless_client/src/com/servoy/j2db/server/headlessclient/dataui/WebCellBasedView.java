@@ -383,33 +383,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 			}
 
-			Object color = null;
 			final IRecordInternal rec = listItem.getModelObject();
-
-			if (rec != null && getRowBGColorScript() != null)
-			{
-				IFoundSetInternal parentFoundSet = rec.getParentFoundSet();
-				int recordIndex = parentFoundSet.getRecordIndex(rec);
-				boolean isSelected = false;
-				if (parentFoundSet instanceof FoundSet)
-				{
-					int[] selectedIndexes = ((FoundSet)parentFoundSet).getSelectedIndexes();
-					if (selectedIndexes != null && selectedIndexes.length > 0)
-					{
-						for (int element : selectedIndexes)
-						{
-							if (recordIndex == element)
-							{
-								isSelected = true;
-								break;
-							}
-						}
-					}
-				}
-				else isSelected = recordIndex == parentFoundSet.getSelectedIndex();
-				color = WebCellBasedView.this.getListItemBgColor(listItem, isSelected);
-			}
-
+			Object color = WebCellBasedView.this.getListItemBgColor(listItem, false);
 			final Object compColor;
 			if (color != null && !(color instanceof Undefined))
 			{
