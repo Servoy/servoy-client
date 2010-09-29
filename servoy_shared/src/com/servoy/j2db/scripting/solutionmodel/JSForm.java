@@ -1829,7 +1829,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	}
 
 	/**
-	 * Returns a JSComponent that has the given name; if found it will be a JSField, JSLabel, JSButton, JSPortal or JSTabPanel.
+	 * Returns a JSComponent that has the given name; if found it will be a JSField, JSLabel, JSButton, JSPortal, JSBean or JSTabPanel.
 	 *
 	 * @sample 
 	 * 	var frm = solutionModel.getForm("myForm");
@@ -1838,7 +1838,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 *
 	 * @param name the specified name of the component 
 	 * 
-	 * @return a JSComponent object (might be a JSField, JSLabel, JSButton, JSPortal or JSTabPanel)
+	 * @return a JSComponent object (might be a JSField, JSLabel, JSButton, JSPortal, JSBean or JSTabPanel)
 	 */
 	public JSComponent< ? > js_getComponent(String name)
 	{
@@ -1852,11 +1852,13 @@ public class JSForm implements IJSParent, IConstantsObject
 		if (comp != null) return comp;
 		comp = js_getTabPanel(name);
 		if (comp != null) return comp;
+		comp = js_getBean(name);
+		if (comp != null) return comp;
 		return null;
 	}
 
 	/**
-	 * Removes a component (JSLabel, JSButton, JSField, JSPortal, JSTabpanel) that has the given name. It is the same as calling "if(!removeLabel(name) && !removeButton(name) ....)".
+	 * Removes a component (JSLabel, JSButton, JSField, JSPortal, JSBean, JSTabpanel) that has the given name. It is the same as calling "if(!removeLabel(name) && !removeButton(name) ....)".
 	 * Returns true if removal was successful, false otherwise.  
 	 *
 	 * @sample
@@ -1897,11 +1899,12 @@ public class JSForm implements IJSParent, IConstantsObject
 		if (js_removeField(name)) return true;
 		if (js_removePortal(name)) return true;
 		if (js_removeTabPanel(name)) return true;
+		if (js_removeBean(name)) return true;
 		return false;
 	}
 
 	/**
-	 * Returns a array of all the JSComponents that a form has; they are of type JSField,JSLabel,JSButton,JSPortal or JSTabPanel.
+	 * Returns a array of all the JSComponents that a form has; they are of type JSField,JSLabel,JSButton,JSPortal,JSBean or JSTabPanel.
 	 *
 	 * @sample
 	 * 	var form = solutionModel.getForm("myForm");
@@ -1918,6 +1921,7 @@ public class JSForm implements IJSParent, IConstantsObject
 		lst.addAll(Arrays.asList(js_getButtons()));
 		lst.addAll(Arrays.asList(js_getFields()));
 		lst.addAll(Arrays.asList(js_getPortals()));
+		lst.addAll(Arrays.asList(js_getBeans()));
 		lst.addAll(Arrays.asList(js_getTabPanels()));
 		return lst.toArray(new JSComponent[lst.size()]);
 	}

@@ -16,17 +16,21 @@
  */
 package com.servoy.j2db.scripting.solutionmodel;
 
+import java.awt.Dimension;
+import java.awt.Point;
+
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.scripting.IJavaScriptType;
+import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.PersistHelper;
 
 /**
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class JSComponent<T extends BaseComponent> extends JSBaseComponent<T> implements IJavaScriptType
+public class JSComponent<T extends BaseComponent> extends JSBase<T> implements IJavaScriptType
 {
 
 	protected JSComponent(IJSParent parent, T baseComponent, boolean isNew)
@@ -160,6 +164,161 @@ public class JSComponent<T extends BaseComponent> extends JSBaseComponent<T> imp
 		return getBaseComponent(false).getTransparent();
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getAnchors()
+	 * 
+	 * @sample
+	 * var form = solutionModel.newForm('mediaForm', 'example_data', 'parent_table', 'null', false, 400, 300);
+	 * var strechAllDirectionsLabel = form.newLabel('Strech all directions', 10, 10, 380, 280);
+	 * strechAllDirectionsLabel.background = 'red';
+	 * strechAllDirectionsLabel.anchors = SM_ANCHOR.ALL;	
+	 * var strechVerticallyLabel = form.newLabel('Strech vertically', 10, 10, 190, 280);
+	 * strechVerticallyLabel.background = 'green';
+	 * strechVerticallyLabel.anchors = SM_ANCHOR.WEST | SM_ANCHOR.NORTH | SM_ANCHOR.SOUTH;
+	 * var strechHorizontallyLabel = form.newLabel('Strech horizontally', 10, 10, 380, 140);
+	 * strechHorizontallyLabel.background = 'blue';
+	 * strechHorizontallyLabel.anchors = SM_ANCHOR.NORTH | SM_ANCHOR.WEST | SM_ANCHOR.EAST;
+	 * var stickToTopLeftCornerLabel = form.newLabel('Stick to top-left corner', 10, 10, 200, 100);
+	 * stickToTopLeftCornerLabel.background = 'orange';
+	 * stickToTopLeftCornerLabel.anchors = SM_ANCHOR.NORTH | SM_ANCHOR.WEST; // This is equivalent to SM_ANCHOR.DEFAULT 
+	 * var stickToBottomRightCornerLabel = form.newLabel('Stick to bottom-right corner', 190, 190, 200, 100);
+	 * stickToBottomRightCornerLabel.background = 'pink';
+	 * stickToBottomRightCornerLabel.anchors = SM_ANCHOR.SOUTH | SM_ANCHOR.EAST;
+	 */
+	public int js_getAnchors()
+	{
+		int anchors = getBaseComponent(false).getAnchors();
+		if (anchors <= 0) return IAnchorConstants.DEFAULT;
+		return anchors;
+	}
+
+	/**
+	 * The Z index of this component. If two components overlap,
+	 * then the component with higher Z index is displayed above
+	 * the component with lower Z index.
+	 *
+	 * @sample
+	 * var labelBelow = form.newLabel('Green', 10, 10, 100, 50);
+	 * labelBelow.background = 'green';	
+	 * labelBelow.formIndex = 10;
+	 * var fieldAbove = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 10, 100, 30);
+	 * fieldAbove.background = '#FF0000';
+	 * fieldAbove.formIndex = 20;
+	 */
+	public int js_getFormIndex()
+	{
+		return getBaseComponent(false).getFormIndex();
+	}
+
+
+	public void js_setFormIndex(int arg)
+	{
+		getBaseComponent(true).setFormIndex(arg);
+	}
+
+	/**
+	 * The x coordinate of the component on the form.
+	 * 
+	 * @sample
+	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
+	 * application.output('original location: ' + field.x + ', ' + field.y);
+	 * field.x = 90;
+	 * field.y = 90;
+	 * application.output('changed location: ' + field.x + ', ' + field.y);
+	 */
+	public int js_getX()
+	{
+		return getBaseComponent(false).getLocation().x;
+	}
+
+	/**
+	 * The y coordinate of the component on the form.
+	 * 
+	 * @sampleas js_getX()
+	 */
+	public int js_getY()
+	{
+		return getBaseComponent(false).getLocation().y;
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getName()
+	 * 
+	 * @sample
+	 * var form = solutionModel.newForm('someForm', 'example_data', 'parent_table', 'null', false, 620, 300);
+	 * var label = form.newLabel('Label', 10, 10, 150, 150);
+	 * label.name = 'myLabel'; // Give a name to the component.
+	 * forms['someForm'].controller.show()
+	 * // Now use the name to access the component.
+	 * forms['someForm'].elements['myLabel'].text = 'Updated text';
+	 */
+	public String js_getName()
+	{
+		return getBaseComponent(false).getName();
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getPrintable()
+	 * 
+	 * @sample
+	 * var form = solutionModel.newForm('printForm', 'example_data', 'parent_table', 'null', false, 400, 300);
+	 * var printedField = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
+	 * var notPrintedField = form.newField('parent_table_id', JSField.TEXT_FIELD, 10, 40, 100, 20);
+	 * notPrintedField.printable = false; // This field won't show up in print preview and won't be printed.
+	 * forms['printForm'].controller.showPrintPreview()
+	 */
+	public boolean js_getPrintable()
+	{
+		return getBaseComponent(false).getPrintable();
+	}
+
+	/**
+	 * The width in pixels of the component.
+	 * 
+	 * @sample
+	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
+	 * application.output('original width: ' + field.width);
+	 * application.output('original height: ' + field.height);
+	 * field.width = 200;
+	 * field.height = 100;
+	 * application.output('modified width: ' + field.width);
+	 * application.output('modified height: ' + field.height);
+	 */
+	public int js_getWidth()
+	{
+		return getBaseComponent(false).getSize().width;
+	}
+
+	/**
+	 * The height in pixels of the component.
+	 * 
+	 * @sampleas js_getWidth()
+	 */
+	public int js_getHeight()
+	{
+		return getBaseComponent(false).getSize().height;
+	}
+
+	/**
+	 * A String representing a group ID for this component. If several
+	 * components have the same group ID then they belong to the same
+	 * group of components. Using the group itself, all components can
+	 * be disabled/enabled or made invisible/visible.
+	 * The group id should be a javascript compatible identifier to allow access of the group in scripting.
+	 *
+	 * @sample 
+	 * var form = solutionModel.newForm('someForm', 'example_data', 'parent_table', 'null', false, 400, 300);
+	 * var label = form.newLabel('Green', 10, 10, 100, 20);
+	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 40, 100, 20);
+	 * label.groupID = 'someGroup';
+	 * field.groupID = 'someGroup';	
+	 * forms['someForm'].elements.someGroup.enabled = false;
+	 */
+	public String js_getGroupID()
+	{
+		return getBaseComponent(false).getGroupID();
+	}
+
 	public void js_setBackground(String arg)
 	{
 		getBaseComponent(true).setBackground(PersistHelper.createColor(arg));
@@ -194,6 +353,53 @@ public class JSComponent<T extends BaseComponent> extends JSBaseComponent<T> imp
 	public void js_setTransparent(boolean arg)
 	{
 		getBaseComponent(true).setTransparent(arg);
+	}
+
+
+	public void js_setAnchors(int arg)
+	{
+		int anchors = arg;
+		// if default is set just reset it really back to 0 so that default is always used.
+		if (arg == IAnchorConstants.DEFAULT)
+		{
+			anchors = 0;
+		}
+		getBaseComponent(true).setAnchors(anchors);
+	}
+
+	public void js_setX(int x)
+	{
+		getBaseComponent(true).setLocation(new Point(x, getBaseComponent(true).getLocation().y));
+	}
+
+	public void js_setY(int y)
+	{
+		getBaseComponent(true).setLocation(new Point(getBaseComponent(true).getLocation().x, y));
+	}
+
+	public void js_setName(String arg)
+	{
+		getBaseComponent(true).setName(arg);
+	}
+
+	public void js_setPrintable(boolean arg)
+	{
+		getBaseComponent(true).setPrintable(arg);
+	}
+
+	public void js_setWidth(int width)
+	{
+		getBaseComponent(true).setSize(new Dimension(width, getBaseComponent(true).getSize().height));
+	}
+
+	public void js_setHeight(int height)
+	{
+		getBaseComponent(true).setSize(new Dimension(getBaseComponent(true).getSize().width, height));
+	}
+
+	public void js_setGroupID(String arg)
+	{
+		getBaseComponent(true).setGroupID(arg);
 	}
 
 	/**

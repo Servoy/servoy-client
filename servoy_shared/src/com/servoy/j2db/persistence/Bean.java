@@ -13,10 +13,11 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 
@@ -30,7 +31,7 @@ import com.servoy.j2db.util.Utils;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
-public class Bean extends AbstractBase implements IFormElement, IPersistCloneable, ISupportPrinting, ISupportBounds, ISupportAnchors, ISupportTabSeq
+public class Bean extends BaseComponent implements ISupportTabSeq
 {
 	/*
 	 * Attributes, do not change default values do to repository default_textual_classvalue
@@ -67,6 +68,7 @@ public class Bean extends AbstractBase implements IFormElement, IPersistCloneabl
 	 * 
 	 * @param arg the name
 	 */
+	@Override
 	public void setName(String arg)
 	{
 		if (name != null) throw new UnsupportedOperationException("Can't set name 2x, use updateName"); //$NON-NLS-1$
@@ -78,6 +80,7 @@ public class Bean extends AbstractBase implements IFormElement, IPersistCloneabl
 	 * 
 	 * @param arg the name
 	 */
+	@Override
 	public void updateName(IValidateName validator, String arg) throws RepositoryException
 	{
 		if (arg != null)
@@ -88,6 +91,7 @@ public class Bean extends AbstractBase implements IFormElement, IPersistCloneabl
 		name = arg;
 	}
 
+	@Override
 	public String getName()
 	{
 		return name;
@@ -98,12 +102,14 @@ public class Bean extends AbstractBase implements IFormElement, IPersistCloneabl
 	 * 
 	 * @param arg the anchors
 	 */
+	@Override
 	public void setAnchors(int arg)
 	{
 		checkForChange(anchors, arg);
 		anchors = arg;
 	}
 
+	@Override
 	public int getAnchors()
 	{
 		return anchors;
@@ -228,12 +234,14 @@ public class Bean extends AbstractBase implements IFormElement, IPersistCloneabl
 	 * 
 	 * @param arg the size
 	 */
+	@Override
 	public void setSize(java.awt.Dimension arg)
 	{
 		checkForChange(size, arg);
 		size = arg;
 	}
 
+	@Override
 	public java.awt.Dimension getSize()
 	{
 		if (size == null) return new Dimension(80, 80);
@@ -245,12 +253,14 @@ public class Bean extends AbstractBase implements IFormElement, IPersistCloneabl
 	 * 
 	 * @param arg the location
 	 */
+	@Override
 	public void setLocation(java.awt.Point arg)
 	{
 		checkForChange(location, arg);
 		location = arg;
 	}
 
+	@Override
 	public java.awt.Point getLocation()
 	{
 		if (location == null) return new Point(0, 0);
@@ -262,12 +272,14 @@ public class Bean extends AbstractBase implements IFormElement, IPersistCloneabl
 	 * 
 	 * @param arg the printable
 	 */
+	@Override
 	public void setPrintable(boolean arg)
 	{
 		checkForChange(printable, arg);
 		printable = arg;
 	}
 
+	@Override
 	public boolean getPrintable()
 	{
 		return printable;
@@ -279,6 +291,7 @@ public class Bean extends AbstractBase implements IFormElement, IPersistCloneabl
 	 * 
 	 * @param arg the formIndex
 	 */
+	@Override
 	public void setFormIndex(int arg)
 	{
 		checkForChange(formIndex, arg);
@@ -290,6 +303,7 @@ public class Bean extends AbstractBase implements IFormElement, IPersistCloneabl
 	 * 
 	 * @return the formIndex
 	 */
+	@Override
 	public int getFormIndex()
 	{
 		return formIndex;
@@ -300,6 +314,7 @@ public class Bean extends AbstractBase implements IFormElement, IPersistCloneabl
 	 * 
 	 * @return int
 	 */
+	@Override
 	public String getGroupID()
 	{
 		return groupID;
@@ -310,6 +325,7 @@ public class Bean extends AbstractBase implements IFormElement, IPersistCloneabl
 	 * 
 	 * @return boolean
 	 */
+	@Override
 	public boolean getLocked()
 	{
 		return locked;
@@ -320,6 +336,7 @@ public class Bean extends AbstractBase implements IFormElement, IPersistCloneabl
 	 * 
 	 * @param groupID The groupID to set
 	 */
+	@Override
 	public void setGroupID(String arg)
 	{
 		checkForChange(groupID, arg);
@@ -331,6 +348,7 @@ public class Bean extends AbstractBase implements IFormElement, IPersistCloneabl
 	 * 
 	 * @param locked The locked to set
 	 */
+	@Override
 	public void setLocked(boolean arg)
 	{
 		checkForChange(locked, arg);
@@ -352,6 +370,90 @@ public class Bean extends AbstractBase implements IFormElement, IPersistCloneabl
 	public int getTabSeq()
 	{
 		return tabSeq;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.persistence.BaseComponent#getBackground()
+	 */
+	@Deprecated
+	@Override
+	public Color getBackground()
+	{
+		return super.getBackground();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.persistence.BaseComponent#getBorderType()
+	 */
+	@Deprecated
+	@Override
+	public String getBorderType()
+	{
+		return super.getBorderType();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.persistence.BaseComponent#getFontType()
+	 */
+	@Deprecated
+	@Override
+	public String getFontType()
+	{
+		return super.getFontType();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.persistence.BaseComponent#getForeground()
+	 */
+	@Override
+	@Deprecated
+	public Color getForeground()
+	{
+		return super.getForeground();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.persistence.BaseComponent#getPrintSliding()
+	 */
+	@Deprecated
+	@Override
+	public int getPrintSliding()
+	{
+		return super.getPrintSliding();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.persistence.BaseComponent#getStyleClass()
+	 */
+	@Deprecated
+	@Override
+	public String getStyleClass()
+	{
+		return super.getStyleClass();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.persistence.BaseComponent#getTransparent()
+	 */
+	@Override
+	@Deprecated
+	public boolean getTransparent()
+	{
+		return super.getTransparent();
 	}
 
 	@Override

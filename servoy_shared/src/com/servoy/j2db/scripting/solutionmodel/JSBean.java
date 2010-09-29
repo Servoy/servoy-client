@@ -26,7 +26,7 @@ import com.servoy.j2db.scripting.IJavaScriptType;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class JSBean extends JSBaseComponent<Bean> implements IJavaScriptType
+public class JSBean extends JSComponent<Bean> implements IJavaScriptType
 {
 
 	/**
@@ -54,5 +54,76 @@ public class JSBean extends JSBaseComponent<Bean> implements IJavaScriptType
 	public void js_setClassName(String className)
 	{
 		getBaseComponent(true).setBeanClassName(className);
+	}
+
+	/**
+	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#js_getBackground()
+	 */
+	@Override
+	@Deprecated
+	public String js_getBackground()
+	{
+		return super.js_getBackground();
+	}
+
+	/**
+	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#js_getBorderType()
+	 */
+	@Override
+	@Deprecated
+	public String js_getBorderType()
+	{
+		return super.js_getBorderType();
+	}
+
+	/**
+	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#js_getFontType()
+	 */
+	@Override
+	@Deprecated
+	public String js_getFontType()
+	{
+		return super.js_getFontType();
+	}
+
+	/**
+	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#js_getForeground()
+	 */
+	@Override
+	@Deprecated
+	public String js_getForeground()
+	{
+		// TODO Auto-generated method stub
+		return super.js_getForeground();
+	}
+
+	/**
+	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#js_getPrintSliding()
+	 */
+	@Override
+	@Deprecated
+	public int js_getPrintSliding()
+	{
+		return super.js_getPrintSliding();
+	}
+
+	/**
+	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#js_getStyleClass()
+	 */
+	@Override
+	@Deprecated
+	public String js_getStyleClass()
+	{
+		return super.js_getStyleClass();
+	}
+
+	/**
+	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#js_getTransparent()
+	 */
+	@Override
+	@Deprecated
+	public boolean js_getTransparent()
+	{
+		return super.js_getTransparent();
 	}
 }
