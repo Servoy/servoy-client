@@ -83,7 +83,6 @@ public class Debug
 
 			log = LogFactory.getLog(Debug.class);
 			trace = log.isTraceEnabled();
-			System.err.println("Debug log initialized");
 		}
 		catch (Throwable t)
 		{
