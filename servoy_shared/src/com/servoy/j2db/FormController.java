@@ -3059,11 +3059,11 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables)
 	{
 		if (isFormVisible == visible || executingOnLoad) return true;
-		isFormVisible = visible;
 		if (formModel == null) return true;
 
 		if (visible)
 		{
+			isFormVisible = true;
 			application.getFoundSetManager().getEditRecordList().addPrepareForSave(this);
 			int index = formModel.getSelectedIndex();
 			((ISwingFoundSet)formModel).getSelectionModel().addListSelectionListener(this);
@@ -3127,6 +3127,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			// TODO should we just call stopEdit here? Now every form switch tab or what ever will cause a global stop edit.
 			// TODO Can we just use allowHide? What should stop edit return when autosave is off??? if false Then we can't switch forms now....
 			int stopped = application.getFoundSetManager().getEditRecordList().stopEditing(false);
+			isFormVisible = false;
 			boolean allowHide = stopped == ISaveConstants.STOPPED || stopped == ISaveConstants.AUTO_SAVE_BLOCKED;
 			if (allowHide)
 			{
