@@ -52,6 +52,9 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 	public static final int CONNECTION_QUERY_VALIDATION = 2;
 	public static final int VALIDATION_TYPE_DEFAULT = CONNECTION_EXCEPTION_VALIDATION;
 
+	public static final String NONE = "<none>"; //$NON-NLS-1$
+	public static final String EMPTY = "<empty>"; //$NON-NLS-1$
+
 	private final String serverName;
 	private final String userName;
 	private final String password;
@@ -92,12 +95,12 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 			throw new IllegalArgumentException("server URL or driver name not specified"); //$NON-NLS-1$
 		}
 
-		if ("<none>".equals(catalog)) this.catalog = null; //$NON-NLS-1$
-		else if ("<empty>".equals(catalog)) this.catalog = ""; //$NON-NLS-1$ //$NON-NLS-2$
+		if (NONE.equals(catalog)) this.catalog = null;
+		else if (EMPTY.equals(catalog)) this.catalog = ""; //$NON-NLS-1$ 
 		else this.catalog = catalog;
 
-		if ("<none>".equals(schema)) this.schema = null; //$NON-NLS-1$
-		else if ("<empty>".equals(schema)) this.schema = ""; //$NON-NLS-1$ //$NON-NLS-2$
+		if (NONE.equals(schema)) this.schema = null;
+		else if (EMPTY.equals(schema)) this.schema = ""; //$NON-NLS-1$ 
 		else this.schema = schema;
 	}
 
