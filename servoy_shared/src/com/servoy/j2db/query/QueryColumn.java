@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.query;
 
 import com.servoy.j2db.util.IVisitor;
@@ -34,7 +34,7 @@ public final class QueryColumn implements IQuerySelectValue
 	private transient boolean identity;
 	private final int id; // id of this column, known on the server, may be used to lookup name and columnType
 
-	public QueryColumn(QueryTable table, int id, String name, int sqlType, int length, int scale, boolean identity)
+	public QueryColumn(QueryTable table, int id, String name, ColumnType columnType, boolean identity)
 	{
 		if (table == null || (id == -1 && name == null))
 		{
@@ -47,23 +47,28 @@ public final class QueryColumn implements IQuerySelectValue
 		this.table = table;
 		this.id = id;
 		this.name = name;
-		this.columnType = ColumnType.getInstance(sqlType, length, scale);
+		this.columnType = columnType;
 		this.identity = identity;
+	}
+
+	public QueryColumn(QueryTable table, int id, String name, int sqlType, int length, int scale, boolean identity)
+	{
+		this(table, id, name, ColumnType.getInstance(sqlType, length, scale), identity);
 	}
 
 	public QueryColumn(QueryTable table, int id, String name, int sqlType, int length, int scale)
 	{
-		this(table, id, name, sqlType, length, scale, false);
+		this(table, id, name, ColumnType.getInstance(sqlType, length, scale), false);
 	}
 
 	public QueryColumn(QueryTable table, int id, String name, int sqlType, int length)
 	{
-		this(table, id, name, sqlType, length, 0, false);
+		this(table, id, name, ColumnType.getInstance(sqlType, length, 0), false);
 	}
 
 	public QueryColumn(QueryTable table, String name)
 	{
-		this(table, -1, name, -1, -1, 0, false);
+		this(table, -1, name, ColumnType.DUMMY, false);
 	}
 
 	public boolean isComplete()

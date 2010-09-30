@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.query;
 
 import java.io.Serializable;
@@ -27,19 +27,27 @@ import java.util.Map;
  */
 public class ColumnType implements Serializable
 {
-	private int sqlType;
-	private int length;
-	private int scale;
-	
-	private static Map instances = new HashMap();
-	
+	private static final Map<ColumnType, ColumnType> instances;
+	public static final ColumnType DUMMY;
+
+	static
+	{
+		instances = new HashMap<ColumnType, ColumnType>();
+		DUMMY = getInstance(-1, -1, 0);
+	}
+
+	private final int sqlType;
+	private final int length;
+	private final int scale;
+
+
 	private ColumnType(int sqlType, int length, int scale)
 	{
 		this.sqlType = sqlType;
 		this.length = length;
 		this.scale = scale;
 	}
-	
+
 	public int getLength()
 	{
 		return length;
@@ -54,14 +62,14 @@ public class ColumnType implements Serializable
 	{
 		return sqlType;
 	}
-	
+
 	static ColumnType getInstance(int sqlType, int length, int scale)
 	{
 		ColumnType instance;
 		synchronized (instances)
 		{
 			ColumnType ct = new ColumnType(sqlType, length, scale);
-			instance = (ColumnType)instances.get(ct);
+			instance = instances.get(ct);
 			if (instance == null)
 			{
 				instances.put(ct, ct);
@@ -70,12 +78,14 @@ public class ColumnType implements Serializable
 		}
 		return instance;
 	}
-	
+
+	@Override
 	public String toString()
 	{
-		return "<"+sqlType+','+length+','+scale+'>'; //$NON-NLS-1$
+		return "<" + sqlType + ',' + length + ',' + scale + '>'; //$NON-NLS-1$
 	}
 
+	@Override
 	public int hashCode()
 	{
 		final int prime = 31;
@@ -86,12 +96,13 @@ public class ColumnType implements Serializable
 		return result;
 	}
 
+	@Override
 	public boolean equals(Object obj)
 	{
 		if (this == obj) return true;
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
-		final ColumnType other = (ColumnType) obj;
+		final ColumnType other = (ColumnType)obj;
 		if (this.length != other.length) return false;
 		if (this.scale != other.scale) return false;
 		if (this.sqlType != other.sqlType) return false;
