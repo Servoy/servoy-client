@@ -403,10 +403,11 @@ public class Utils
 		{
 			return ((Number)o).longValue();
 		}
-		else
+		if (o instanceof Boolean)
 		{
-			return getAsLong(o.toString(), throwOnException);
+			return ((Boolean)o).booleanValue() ? 1 : 0;
 		}
+		return getAsLong(o.toString(), throwOnException);
 	}
 
 	/**
@@ -1355,10 +1356,11 @@ public class Utils
 		{
 			return ((Number)o).intValue();
 		}
-		else
+		if (o instanceof Boolean)
 		{
-			return getAsInteger(o.toString(), false);
+			return ((Boolean)o).booleanValue() ? 1 : 0;
 		}
+		return getAsInteger(o.toString(), false);
 	}
 
 	/**
@@ -1375,10 +1377,11 @@ public class Utils
 		{
 			return ((Number)o).intValue();
 		}
-		else
+		if (o instanceof Boolean)
 		{
-			return getAsInteger(o.toString(), throwOnException);
+			return ((Boolean)o).booleanValue() ? 1 : 0;
 		}
+		return getAsInteger(o.toString(), throwOnException);
 	}
 
 	public static byte[] getURLContent(String url)
