@@ -2988,7 +2988,11 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables)
 	{
 		if (isFormVisible == visible || executingOnLoad) return true;
-		if (formModel == null) return true;
+		if (formModel == null)
+		{
+			isFormVisible = visible;
+			return true;
+		}
 
 		if (visible)
 		{
