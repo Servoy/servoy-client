@@ -18,14 +18,10 @@ package com.servoy.j2db.server.headlessclient;
 
 import org.apache.wicket.Component;
 import org.mozilla.javascript.BaseFunction;
-import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.JavaMembers;
-import org.mozilla.javascript.JavaScriptException;
-import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.Undefined;
 
 import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView;
 
@@ -40,42 +36,42 @@ import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView;
 public class CellNativeJavaObject extends NativeJavaObject
 {
 
-    private WebCellBasedView view;
-    private Component jsComponent;
+	private final WebCellBasedView view;
+	private final Component jsComponent;
 
-    /**
-     * Creates a new NativeJavaObject for the given object with the corresponding java members in order to
-     * intercept the requestFocus() calls on that object. It then tells the WebCellBasedView which column wants
-     * focus, so the real cell in the current record of that view can request focus.
-     * @param fs ...
-     * @param obj the object that represents a column in the table/list cell view.
-     * @param jm the members this object exposes to java-script.
-     * @param view the WebCellBasedView that knows about it's cells.
-     */
-    public CellNativeJavaObject(Scriptable fs, Object obj, JavaMembers jm,
-            WebCellBasedView view)
-    {
-        super(fs, obj, jm);
-        this.view = view;
-        this.jsComponent = (Component) obj;
-    }
-    
-    public Object get(String name, Scriptable start)
-    {
-        Object val = super.get(name, start);
-        
-        if (val instanceof Function)
-        {
-            if ("requestFocus".equals(name))
-            {
-                // must remember to request focus for the according cell in the cell view...
-                // when that cell's component is created
-                view.setColumnThatRequestsFocus(jsComponent);
-                val = new BaseFunction();
-            }
-        }
-        
-        return val;
-    }
-    
+	/**
+	 * Creates a new NativeJavaObject for the given object with the corresponding java members in order to
+	 * intercept the requestFocus() calls on that object. It then tells the WebCellBasedView which column wants
+	 * focus, so the real cell in the current record of that view can request focus.
+	 * @param fs ...
+	 * @param obj the object that represents a column in the table/list cell view.
+	 * @param jm the members this object exposes to java-script.
+	 * @param view the WebCellBasedView that knows about it's cells.
+	 */
+	public CellNativeJavaObject(Scriptable fs, Object obj, JavaMembers jm, WebCellBasedView view)
+	{
+		super(fs, obj, jm);
+		this.view = view;
+		this.jsComponent = (Component)obj;
+	}
+
+	@Override
+	public Object get(String name, Scriptable start)
+	{
+		Object val = super.get(name, start);
+
+		if (val instanceof Function)
+		{
+			if ("requestFocus".equals(name))
+			{
+				// must remember to request focus for the according cell in the cell view...
+				// when that cell's component is created
+				view.setColumnThatRequestsFocus(jsComponent);
+				val = new BaseFunction();
+			}
+		}
+
+		return val;
+	}
+
 }
