@@ -78,6 +78,8 @@ public class AboutDialog extends JEscapeDialog implements ActionListener
 		ta.setText(dialogText);
 		ta.setOpaque(false);
 		ta.setEditable(false);
+		ta.setFocusable(false);
+
 		JScrollPane scroller = new JScrollPane(ta);
 		borderPane.add(scroller, BorderLayout.CENTER);
 		borderPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
