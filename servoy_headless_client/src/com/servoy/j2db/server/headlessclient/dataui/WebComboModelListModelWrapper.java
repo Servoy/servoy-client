@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import com.servoy.j2db.dataprocessing.IValueList;
@@ -54,4 +54,37 @@ public class WebComboModelListModelWrapper extends ComboModelListModelWrapper
 		return listModel.realValueIndexOf(o) != -1;
 	}
 
+	@Override
+	public Object[] toArray()
+	{
+		int s = size();
+		Object[] a = new Object[s];
+		for (int i = 0; i < s; i++)
+			a[i] = get(i);
+
+		return a;
+	}
+
+	public boolean compareTo(Object[] list)
+	{
+		int currentListSize = size();
+		if (list != null && currentListSize == list.length)
+		{
+			for (int i = 0; i < currentListSize; i++)
+			{
+				if (get(i) == null)
+				{
+					if (list[i] != null) return false;
+				}
+				else
+				{
+					if (list[i] == null || !get(i).equals(list[i])) return false;
+				}
+			}
+
+			return true;
+		}
+
+		return false;
+	}
 }
