@@ -3672,7 +3672,10 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			{
 				rmiFactoryFactory.disconnect();
 			}
-			reconnectedToServer();
+			else
+			{
+				reconnectedToServer();
+			}
 			disconnectedFromServer();
 			return false;
 		}
