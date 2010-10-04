@@ -686,16 +686,19 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	public void setRecord(IRecordInternal state, boolean stopEditing)
 	{
 		Object selectedItem = list.getSelectedItem();
+		boolean listContentChanged = false;
 		try
 		{
 			ignoreChanges = true;
+			Object[] oldListValue = list.toArray();
 			list.fill(state);
+			listContentChanged = !list.compareTo(oldListValue);
 		}
 		finally
 		{
 			ignoreChanges = false;
 		}
-		if (!Utils.equalObjects(list.getSelectedItem(), selectedItem))
+		if (listContentChanged || !Utils.equalObjects(list.getSelectedItem(), selectedItem))
 		{
 			getStylePropertyChanges().setChanged();
 		}
