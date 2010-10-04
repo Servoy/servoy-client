@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 import java.util.HashMap;
@@ -32,6 +32,7 @@ public class StaticContentSpecLoader
 		return getContentSpecChanges(0);
 	}
 
+	@SuppressWarnings("nls")
 	public static ContentSpec getContentSpecChanges(int old_repository_version)
 	{
 		ContentSpec cs = csMap.get(old_repository_version);
@@ -218,7 +219,7 @@ public class StaticContentSpecLoader
 			cs.new Element(166, IRepository.VALUELISTS, "separator", IRepository.STRING);
 			cs.new Element(167, IRepository.VALUELISTS, "sortOptions", IRepository.STRING);
 			cs.new Element(168, IRepository.SCRIPTVARIABLES, "name", IRepository.STRING);
-			cs.new Element(169, IRepository.SCRIPTVARIABLES, "variableType", IRepository.INTEGER, String.valueOf(Column.TEXT));
+			cs.new Element(169, IRepository.SCRIPTVARIABLES, "variableType", IRepository.INTEGER, String.valueOf(IColumnTypes.TEXT));
 			cs.new Element(170, IRepository.AGGREGATEVARIABLES, "name", IRepository.STRING);
 			cs.new Element(171, IRepository.AGGREGATEVARIABLES, "type", IRepository.INTEGER);
 			cs.new Element(172, IRepository.AGGREGATEVARIABLES, "dataProviderIDToAggregate", IRepository.STRING);
