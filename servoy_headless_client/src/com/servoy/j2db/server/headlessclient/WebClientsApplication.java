@@ -46,6 +46,7 @@ import org.apache.wicket.protocol.http.WebRequestCycle;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.protocol.http.WicketFilter;
 import org.apache.wicket.protocol.http.request.CryptedUrlWebRequestCodingStrategy;
+import org.apache.wicket.protocol.http.request.InvalidUrlException;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
 import org.apache.wicket.protocol.http.request.urlcompressing.UrlCompressingWebCodingStrategy;
 import org.apache.wicket.protocol.http.request.urlcompressing.UrlCompressingWebRequestProcessor;
@@ -546,23 +547,21 @@ public class WebClientsApplication extends WebApplication
 			@Override
 			public Page onRuntimeException(Page page, RuntimeException e)
 			{
-				if (!(e instanceof PageExpiredException))
-				{
-					if (page instanceof MainPage && ((MainPage)page).getController() != null)
-					{
-						Debug.error("Error rendering the page " + ((MainPage)page).getController().getName(), e); //$NON-NLS-1$
-					}
-					else
-					{
-						Debug.error("Error rendering the page " + page, e); //$NON-NLS-1$
-					}
-				}
-				else
+				if (e instanceof PageExpiredException || e instanceof InvalidUrlException)
 				{
 					if (((WebRequest)RequestCycle.get().getRequest()).isAjax())
 					{
+						Debug.log("ajax request with exception aborted ",e); //$NON-NLS-1$
 						throw new AbortException();
 					}
+				}
+				if (page instanceof MainPage && ((MainPage)page).getController() != null)
+				{
+					Debug.error("Error rendering the page " + ((MainPage)page).getController().getName(), e); //$NON-NLS-1$
+				}
+				else
+				{
+					Debug.error("Error rendering the page " + page, e); //$NON-NLS-1$
 				}
 				return super.onRuntimeException(page, e);
 			}
