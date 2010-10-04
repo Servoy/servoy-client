@@ -130,7 +130,11 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 
 			public void actionPerformed(ActionEvent e)
 			{
-				((JTextArea)e.getSource()).setText(previousValue);
+				JTextArea ta = (JTextArea)e.getSource();
+				if (ta.hasFocus() && ta.isEditable() && ta.isEnabled())
+				{
+					ta.setText(previousValue);
+				}
 			}
 		});
 	}
@@ -314,7 +318,7 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 	{
 //		enclosedComponent.setMargin(i); seems to have no effect
 		enclosedComponent.setBorder(BorderFactory.createCompoundBorder(enclosedComponent.getBorder(),
-			BorderFactory.createEmptyBorder(m.top, m.left, m.bottom, m.right)));
+		BorderFactory.createEmptyBorder(m.top, m.left, m.bottom, m.right)));
 	}
 
 	@Override
