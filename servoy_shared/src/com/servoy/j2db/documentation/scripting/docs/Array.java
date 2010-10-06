@@ -30,20 +30,6 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 public class Array
 {
 	/**
-	 * Get an element by name.
-	 *
-	 * @sample array['name']
-	 */
-	public String js_getIndex_name()
-	{
-		return null;
-	}
-
-	public void js_setIndex_name(String indexName)
-	{
-	}
-
-	/**
 	 * Get an element by index.
 	 *
 	 * @sample array[0]
