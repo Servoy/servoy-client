@@ -25,6 +25,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -71,6 +72,7 @@ import com.servoy.j2db.util.AnchorLayout;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.EnableScrollPanel;
 import com.servoy.j2db.util.ISupplyFocusChildren;
+import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.gui.FixedSpringLayout;
 import com.servoy.j2db.util.gui.Spring;
 
@@ -115,7 +117,20 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 	public IDataRenderer createPortalRenderer(IApplication app, Portal objToRender, Form dataProviderLookup, IScriptExecuter listner, boolean printing,
 		ControllerUndoManager undoManager) throws Exception
 	{
-		Iterator e1 = objToRender.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
+		List<IPersist> children = new SortedList<IPersist>(new Comparator<IPersist>()
+		{
+			public int compare(IPersist o1, IPersist o2)
+			{
+				// reverse order, right order for tab sequence
+				int result = -PositionComparator.XY_PERSIST_COMPARATOR.compare(o1, o2);
+				if (result == 0 && o1 instanceof IFormElement && o2 instanceof IFormElement)
+				{
+					return (((IFormElement)o1).getFormIndex() - ((IFormElement)o2).getFormIndex());
+				}
+				return result;
+			}
+		}, objToRender.getAllObjectsAsList());
+		Iterator<IPersist> e1 = children.iterator();
 		Map emptyDataRenderers = new LinkedHashMap();
 		DataRenderer dr = null;
 		int height = objToRender.getRowHeight();
@@ -300,8 +315,6 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 							comp.setLocation((l.x /* +insets.left */) + XCorrection, (l.y - start) + YCorrection);
 
 							int index = 0;
-							// for multiline portal, components should be added in right order because tab sequence is not supported
-							if (!printing && isPortal) index = -1;
 							if (!printing && obj instanceof ISupportAnchors)
 							{
 								panel.add(comp, new Integer(((ISupportAnchors)obj).getAnchors()), index);
