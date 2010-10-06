@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.smart.dataui;
 
 import java.awt.BorderLayout;
@@ -502,10 +502,18 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 		return null;
 	}
 
-	public void js_setDividerLocation(double location)
+	public void js_setDividerLocation(final double location)
 	{
-		if (location < 1) splitPane.setDividerLocation(location);
-		else splitPane.setDividerLocation((int)location);
+		ArrayList<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
+		invokeLaterRunnables.add(new Runnable()
+		{
+			public void run()
+			{
+				if (location < 1) splitPane.setDividerLocation(location);
+				else splitPane.setDividerLocation((int)location);
+			}
+		});
+		Utils.invokeLater(application, invokeLaterRunnables);
 	}
 
 	public double js_getDividerLocation()
