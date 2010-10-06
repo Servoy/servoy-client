@@ -504,8 +504,7 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 
 	public void js_setDividerLocation(final double location)
 	{
-		ArrayList<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-		invokeLaterRunnables.add(new Runnable()
+		application.invokeLater(new Runnable()
 		{
 			public void run()
 			{
@@ -513,7 +512,6 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 				else splitPane.setDividerLocation((int)location);
 			}
 		});
-		Utils.invokeLater(application, invokeLaterRunnables);
 	}
 
 	public double js_getDividerLocation()
