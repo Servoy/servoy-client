@@ -667,39 +667,42 @@ public abstract class RelatedFoundSet extends FoundSet
 
 		IDataSet pks = getPksAndRecords().getPks();
 
-		int[] operators = relation.getOperators();
-		for (int i = 0; i < req.size(); i++)
+		if (pks != null)
 		{
-			String foreignKeyName = req.get(i);
-			// createWhereArgs is a matrix as wide as the relation keys and 1 deep
-			boolean remove = !checkForeignKeyValue(r.getValue(foreignKeyName), createWhereArgs[i][0], operators[i]);
-
-			if (remove)
+			int[] operators = relation.getOperators();
+			for (int i = 0; i < req.size(); i++)
 			{
-				retval = false;
-				//row is not longer part of this related foundset, so remove in myself
+				String foreignKeyName = req.get(i);
+				// createWhereArgs is a matrix as wide as the relation keys and 1 deep
+				boolean remove = !checkForeignKeyValue(r.getValue(foreignKeyName), createWhereArgs[i][0], operators[i]);
+
+				if (remove)
+				{
+					retval = false;
+					//row is not longer part of this related foundset, so remove in myself
+					for (int ii = pks.getRowCount() - 1; ii >= 0; ii--)
+					{
+						Object[] pk = pks.getRow(ii);
+						if (RowManager.createPKHashKey(pk).equals(pkHash))
+						{
+							removeRecordInternal(ii);//does fireIntervalRemoved(this,ii,ii);
+							break;
+						}
+					}
+					break;
+				}
+			}
+			if (retval && updateTest)
+			{
 				for (int ii = pks.getRowCount() - 1; ii >= 0; ii--)
 				{
 					Object[] pk = pks.getRow(ii);
 					if (RowManager.createPKHashKey(pk).equals(pkHash))
 					{
-						removeRecordInternal(ii);//does fireIntervalRemoved(this,ii,ii);
+						fireAggregateChangeWithEvents(getRecord(ii));
+						retval = false;
 						break;
 					}
-				}
-				break;
-			}
-		}
-		if (retval && updateTest)
-		{
-			for (int ii = pks.getRowCount() - 1; ii >= 0; ii--)
-			{
-				Object[] pk = pks.getRow(ii);
-				if (RowManager.createPKHashKey(pk).equals(pkHash))
-				{
-					fireAggregateChangeWithEvents(getRecord(ii));
-					retval = false;
-					break;
 				}
 			}
 		}
