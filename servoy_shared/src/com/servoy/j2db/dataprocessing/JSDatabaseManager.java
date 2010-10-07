@@ -1128,7 +1128,7 @@ public class JSDatabaseManager
 					if (pks.size() == 1 && pks.get(0).equals(column)) //if is pk optimize
 					{
 						PksAndRecordsHolder pksAndRecordsCopy = fs.getPksAndRecords().shallowCopy();
-						if (pksAndRecordsCopy.getPks().hadMoreRows())
+						if (pksAndRecordsCopy.getPks() == null || pksAndRecordsCopy.getPks().hadMoreRows())
 						{
 							fs.queryForMorePKs(pksAndRecordsCopy, -1, true);
 						}

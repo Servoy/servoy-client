@@ -1561,7 +1561,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	protected boolean queryForMorePKs(boolean fireChanges)
 	{
 		PksAndRecordsHolder pksAndRecordsCopy = pksAndRecords.shallowCopy();
-		return queryForMorePKs(pksAndRecordsCopy, pksAndRecordsCopy.getPks().getRowCount() + fsm.pkChunkSize, fireChanges);
+		return queryForMorePKs(pksAndRecordsCopy, (pksAndRecordsCopy.getPks() == null ? 0 : pksAndRecordsCopy.getPks().getRowCount()) + fsm.pkChunkSize,
+			fireChanges);
 	}
 
 	public boolean queryForAllPKs(int estimateCount)
@@ -1580,7 +1581,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			int startRow;
 			String lastPkHash;
 			int correctedMaxResult; // corrected against added or removed PKs in db since first chunk select
-			if (dbIndexLastPk > 0 && pks.getRowCount() > 0)
+			if (pks != null && dbIndexLastPk > 0 && pks.getRowCount() > 0)
 			{
 				correctedMaxResult = maxResult > 0 ? (maxResult + dbIndexLastPk - pks.getRowCount()) : maxResult;
 				lastPkHash = RowManager.createPKHashKey(pks.getRow(pks.getRowCount() - 1));
@@ -1590,7 +1591,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			else
 			{
 				correctedMaxResult = maxResult;
-				startRow = pks.getRowCount();
+				startRow = pks == null ? 0 : pks.getRowCount();
 				lastPkHash = null;
 			}
 			int size = getCorrectedSizeForFires();
@@ -1636,20 +1637,23 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					}
 				}
 			}
-			for (int i = offset; i < newpks.getRowCount(); i++)
+			if (pks != null)
 			{
-				// check for duplicates
-				Object[] newpk = newpks.getRow(i);
-				if (!pks.hasPKCache() /* only check for duplicates if foundset could not be connected */|| !pks.containsPk(newpk))
+				for (int i = offset; i < newpks.getRowCount(); i++)
 				{
-					pks.addRow(newpk);
-					dbIndexLastPk = startRow + 1 + i; // keep index in db of last added pk to correct maxresult in next chunk
+					// check for duplicates
+					Object[] newpk = newpks.getRow(i);
+					if (!pks.hasPKCache() /* only check for duplicates if foundset could not be connected */|| !pks.containsPk(newpk))
+					{
+						pks.addRow(newpk);
+						dbIndexLastPk = startRow + 1 + i; // keep index in db of last added pk to correct maxresult in next chunk
+					}
 				}
-			}
 
-			if (!newpks.hadMoreRows())
-			{
-				pks.clearHadMoreRows();
+				if (!newpks.hadMoreRows())
+				{
+					pks.clearHadMoreRows();
+				}
 			}
 			pksAndRecordsCopy.setDbIndexLastPk(dbIndexLastPk);
 
@@ -3285,7 +3289,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			if (!findMode)
 			{
 				IDataSet pks = pksAndRecords.getPks();
-				if (pks.getRowCount() > row)
+				if (pks != null && pks.getRowCount() > row)
 				{
 					pks.removeRow(row);
 					int dbIndexLastPk = pksAndRecords.getDbIndexLastPk();
@@ -5024,11 +5028,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			return pks.hadMoreRows();
 		}
 		return false;
-	}
-
-	public IDataSet getCurrentPKs()
-	{
-		return pksAndRecords.getPks();
 	}
 
 	@Deprecated
