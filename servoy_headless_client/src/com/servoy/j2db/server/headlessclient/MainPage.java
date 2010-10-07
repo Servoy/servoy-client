@@ -459,8 +459,19 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 				public boolean onCloseButtonClicked(AjaxRequestTarget target)
 				{
+					if (!modalWindow.isShown())
+					{
+						Debug.trace("MODALDIALOG: modal window already closed in onclosebutton click (double click?): " + modalWindow.getPageMapName(),
+							new RuntimeException("MODALDIALOG of " + currentForm.getName()));
+						return true; // double clicked?
+					}
 					FormManager fm = ((FormManager)client.getFormManager());
 					IMainContainer mainDialogContainer = fm.getMainContainer(modalWindow.getPageMapName());
+					// get a lock on the dialog container
+					if (mainDialogContainer instanceof MainPage && RequestCycle.get() != null)
+					{
+						Session.get().getPage(modalWindow.getPageMapName(), ((MainPage)mainDialogContainer).getPath(), LATEST_VERSION);
+					}
 					IMainContainer mainContainer = fm.getCurrentContainer();
 
 					// temporary set the dialog container as the current container (the close event is processed by the main container, not the dialog)
