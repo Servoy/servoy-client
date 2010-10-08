@@ -535,6 +535,16 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 								fp.initForJSUsage();
 								fp.setView(fp.getView());
 								fp.executeOnLoadMethod();
+								try
+								{
+									// make sure the foundset of this form is in an initialized state.
+									if (!fp.isShowingData()) fp.loadAllRecordsImpl(true);
+								}
+								catch (Exception ex)
+								{
+									Debug.error(ex);
+									application.handleException(application.getI18NMessage("servoy.formPanel.error.formData"), ex); //$NON-NLS-1$
+								}
 								retval = fp.executeFunction(methodname, arguments, false, null, true, null, false, true);
 							}
 						}
