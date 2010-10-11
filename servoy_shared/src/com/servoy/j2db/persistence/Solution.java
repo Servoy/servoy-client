@@ -104,8 +104,8 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 
 	public Iterator<Form> getForms(Table basedOnTable, boolean sort)
 	{
-		return getForms(getAllObjectsAsList(), basedOnTable == null ? null : DataSourceUtils.createDBTableDataSource(basedOnTable.getServerName(),
-			basedOnTable.getName()), sort);
+		return getForms(getAllObjectsAsList(),
+			basedOnTable == null ? null : DataSourceUtils.createDBTableDataSource(basedOnTable.getServerName(), basedOnTable.getName()), sort);
 	}
 
 	public static Iterator<Form> getForms(List<IPersist> childs, String datasource, boolean sort)
@@ -305,13 +305,14 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 		return null;
 	}
 
-	public Relation createNewRelation(IValidateName validator, String name) throws RepositoryException
+	public Relation createNewRelation(IValidateName validator, String name, int joinType) throws RepositoryException
 	{
 		if (name == null) name = "untitled"; //$NON-NLS-1$
 		name = Utils.toEnglishLocaleLowerCase(name);
 		//check if name is in use
 		validator.checkName(name, 0, new ValidatorSearchContext(IRepository.RELATIONS), true);
 		Relation obj = (Relation)getChangeHandler().createNewObject(this, IRepository.RELATIONS);
+		obj.setJoinType(joinType);
 		//set all the required properties
 
 		obj.setName(name);
@@ -322,10 +323,9 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 	public Relation createNewRelation(IValidateName validator, String name, String primaryDataSource, String foreignDataSource, int joinType)
 		throws RepositoryException
 	{
-		Relation obj = createNewRelation(validator, name);
+		Relation obj = createNewRelation(validator, name, joinType);
 		obj.setPrimaryDataSource(primaryDataSource);
 		obj.setForeignDataSource(foreignDataSource);
-		obj.setJoinType(joinType);
 		return obj;
 	}
 
