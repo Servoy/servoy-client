@@ -63,6 +63,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	private int onDataChangeMethodID;
 	private int onActionMethodID;
 	private int onRightClickMethodID;
+	private int onRenderMethodID;
 
 	private int displayType;
 	private int scrollbars;
@@ -196,6 +197,20 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	public int getOnRightClickMethodID()
 	{
 		return onRightClickMethodID;
+	}
+
+	public void setOnRenderMethodID(int arg)
+	{
+		checkForChange(onRenderMethodID, arg);
+		onRenderMethodID = arg;
+	}
+
+	/**
+	 * The method that is executed when the component is rendered.
+	 */
+	public int getOnRenderMethodID()
+	{
+		return onRenderMethodID;
 	}
 
 	/**

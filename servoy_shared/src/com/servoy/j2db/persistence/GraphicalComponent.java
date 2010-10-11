@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 
@@ -66,6 +66,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	private int onActionMethodID;
 	private int onDoubleClickMethodID;
 	private int onRightClickMethodID;
+	private int onRenderMethodID;
 	private String toolTipText = null;
 	private String dataProviderID = null;
 	private Insets margin = null;
@@ -320,6 +321,20 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	public int getOnRightClickMethodID()
 	{
 		return onRightClickMethodID;
+	}
+
+	public void setOnRenderMethodID(int arg)
+	{
+		checkForChange(onRenderMethodID, arg);
+		onRenderMethodID = arg;
+	}
+
+	/**
+	 * The method that is executed when the component is rendered.
+	 */
+	public int getOnRenderMethodID()
+	{
+		return onRenderMethodID;
 	}
 
 	@Deprecated

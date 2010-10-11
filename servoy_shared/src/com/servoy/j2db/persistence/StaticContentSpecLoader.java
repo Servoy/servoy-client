@@ -497,6 +497,14 @@ public class StaticContentSpecLoader
 		{
 			cs.new Element(354, IRepository.FORMS, "onDragEndMethodID", IRepository.ELEMENTS);
 			cs.new Element(355, IRepository.PORTALS, "onDragEndMethodID", IRepository.ELEMENTS);
+			cs.new Element(356, IRepository.FORMS, "access", IRepository.INTEGER);
+			cs.new Element(357, IRepository.SCRIPTVARIABLES, "access", IRepository.INTEGER);
+			cs.new Element(358, IRepository.METHODS, "access", IRepository.INTEGER);
+			cs.new Element(359, IRepository.SCRIPTVARIABLES, "comment", IRepository.STRING);
+			cs.new Element(360, IRepository.FORMS, "onRenderMethodID", IRepository.ELEMENTS);
+			cs.new Element(361, IRepository.PORTALS, "onRenderMethodID", IRepository.ELEMENTS);
+			cs.new Element(362, IRepository.FIELDS, "onRenderMethodID", IRepository.ELEMENTS);
+			cs.new Element(363, IRepository.GRAPHICALCOMPONENTS, "onRenderMethodID", IRepository.ELEMENTS);
 		}
 
 		//##add property adds here

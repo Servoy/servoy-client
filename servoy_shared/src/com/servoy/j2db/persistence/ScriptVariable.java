@@ -47,6 +47,7 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 	private int variableType;
 
 	private String comment;
+	private int access;
 
 	public static final String GLOBAL_PREFIX = "globals"; //$NON-NLS-1$
 	public static final String GLOBAL_DOT_PREFIX = GLOBAL_PREFIX + '.';
@@ -106,6 +107,17 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 	{
 		checkForChange(comment, arg);
 		this.comment = arg;
+	}
+
+	public void setAccess(int arg)
+	{
+		checkForChange(access, arg);
+		access = arg;
+	}
+
+	public int getAccess()
+	{
+		return access;
 	}
 
 	/**

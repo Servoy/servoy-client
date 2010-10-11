@@ -72,108 +72,65 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 
 	private String titleText = null;
-
 	private String dataSource = null; // url db:/serverName/tableName
 
 	/**
 	 * Constant which indicates the name of this form.
 	 */
 	private String formName = null;
-
 	private java.awt.Dimension size = null;
-
 	private boolean showInMenu = false;
-
 	private String styleName;
-
 	private java.awt.Color background = null;
-
 	private int view;
 
-
 	private int paperPrintScale;
-
 	private int navigatorID;//zero is default slider
-
 	private int extendsFormID;//zero is none
-
 	private String rowBGColorCalculation;
-
 	private int onLoadMethodID;
-
 	private int onUnLoadMethodID;
-
 	private int onShowMethodID;
-
 	private int onHideMethodID;
-
 	private int onRecordEditStartMethodID;
-
 	private int onRecordSelectionMethodID;
-
 	private int onRecordEditStopMethodID;
-
 	private String initialSort;
-
 	private String aliases;
 
 	private int onNewRecordCmdMethodID;
-
 	private int onDuplicateRecordCmdMethodID;
-
 	private int onDeleteRecordCmdMethodID;
-
 	private int onFindCmdMethodID;
-
 	private int onSearchCmdMethodID;
-
 	private int onShowAllRecordsCmdMethodID;
-
 	private int onOmitRecordCmdMethodID;
-
-
 	private int onShowOmittedRecordsCmdMethodID;
-
-
 	private int onInvertRecordsCmdMethodID;
 
-
 	private int onSortCmdMethodID;
-
 	private int onDeleteAllRecordsCmdMethodID;
-
 	private int onPrintPreviewCmdMethodID;
-
 	private int onNextRecordCmdMethodID;
-
 	private int onPreviousRecordCmdMethodID;
 
 
 	private int onDragMethodID;
-
 	private int onDragOverMethodID;
-
 	private int onDragEndMethodID;
-
 	private int onDropMethodID;
-
 	private int onElementFocusGainedMethodID;
-
 	private int onElementFocusLostMethodID;
-
 	private int onResizeMethodID;
-
+	private int onRenderMethodID;
 
 	private int scrollbars;
-
 	private String defaultPageFormat; //orientation;width;height;ImageableX;ImageableY,ImageableWidth;ImageableHeight
-
 	private String borderType = null;
-
 	private String styleClass;
 
-
 	private String namedFoundSet;
+	private int access;
 
 	/**
 	 * Constructor I
@@ -2235,6 +2192,31 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	{
 		checkForChange(onResizeMethodID, arg);
 		onResizeMethodID = arg;
+	}
+
+	public void setOnRenderMethodID(int arg)
+	{
+		checkForChange(onRenderMethodID, arg);
+		onRenderMethodID = arg;
+	}
+
+	public void setAccess(int arg)
+	{
+		checkForChange(access, arg);
+		access = arg;
+	}
+
+	public int getAccess()
+	{
+		return access;
+	}
+
+	/**
+	 * The method that is executed when the component is rendered.
+	 */
+	public int getOnRenderMethodID()
+	{
+		return onRenderMethodID;
 	}
 
 	public long getLastModified()

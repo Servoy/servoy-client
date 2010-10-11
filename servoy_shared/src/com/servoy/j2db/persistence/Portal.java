@@ -52,6 +52,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	private int onDragEndMethodID;
 	private int onDragOverMethodID;
 	private int onDropMethodID;
+	private int onRenderMethodID;
 
 	/**
 	 * Constructor I
@@ -504,5 +505,19 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	{
 		checkForChange(onDropMethodID, arg);
 		onDropMethodID = arg;
+	}
+
+	public void setOnRenderMethodID(int arg)
+	{
+		checkForChange(onRenderMethodID, arg);
+		onRenderMethodID = arg;
+	}
+
+	/**
+	 * The method that is executed when the component is rendered.
+	 */
+	public int getOnRenderMethodID()
+	{
+		return onRenderMethodID;
 	}
 }
