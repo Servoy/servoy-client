@@ -62,6 +62,7 @@ import com.servoy.j2db.server.shared.IClientManager;
 import com.servoy.j2db.server.shared.IUserManager;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ITaskExecuter;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.serialize.JSONConverter;
@@ -124,6 +125,9 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	//user manager, giving access to (other)user info 
 	private transient volatile IUserManager userManager;
+
+	// tracking info used for logging
+	private Pair<String, String> trackingInfo;
 
 	protected ClientState()
 	{
@@ -416,8 +420,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		catch (RepositoryException e)
 		{
 			Debug.error("Could not load solution " + (solutionMetaData == null ? "<none>" : solutionMetaData.getName()), e);
-			reportError(Messages.getString("servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>"
-				: solutionMetaData.getName() }), e);
+			reportError(
+				Messages.getString("servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>" : solutionMetaData.getName() }), e);
 		}
 	}
 
@@ -1201,8 +1205,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 						function,
 						gscope,
 						gscope,
-						Utils.arrayMerge((new Object[] { new Boolean(force) }), Utils.parseJSExpressions(getSolution().getInstanceMethodArguments(
-							"onCloseMethodID"))), false, false)); //$NON-NLS-1$
+						Utils.arrayMerge((new Object[] { new Boolean(force) }),
+							Utils.parseJSExpressions(getSolution().getInstanceMethodArguments("onCloseMethodID"))), false, false)); //$NON-NLS-1$
 				}
 				catch (Exception e1)
 				{
@@ -1579,4 +1583,20 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		invokeLater(r);
 	}
 
+
+	/**
+	 * @see com.servoy.j2db.IServiceProvider#setTrackingInfo(com.servoy.j2db.util.Pair)
+	 */
+	public void setTrackingInfo(Pair<String, String> trackingInfo)
+	{
+		this.trackingInfo = trackingInfo;
+	}
+
+	/**
+	 * @see com.servoy.j2db.IServiceProvider#getTrackingInfo()
+	 */
+	public Pair<String, String> getTrackingInfo()
+	{
+		return trackingInfo;
+	}
 }

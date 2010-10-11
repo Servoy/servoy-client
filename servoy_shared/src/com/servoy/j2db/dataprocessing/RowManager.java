@@ -34,6 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.event.TableModelEvent;
 
+import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.dataprocessing.RowManager.RowFireNotifyChange.CalculationDependencyData;
 import com.servoy.j2db.dataprocessing.ValueFactory.BlobMarkerValue;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
@@ -748,7 +749,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			statement.setIdentityColumn(dbPKReturnValues.size() == 0 ? null : dbPKReturnValues.get(0));
 			if (tracking || usesLobs)
 			{
-				statement.setTrackingData(sheet.getColumnNames(), row.getRawOldColumnData(), row.getRawColumnData(), fsm.getApplication().getUserUID());
+				IServiceProvider sp = fsm.getApplication();
+				statement.setTrackingData(sheet.getColumnNames(), row.getRawOldColumnData(), row.getRawColumnData(), sp.getUserUID(), sp.getTrackingInfo());
 			}
 			return new RowUpdateInfo(row, statement, dbPKReturnValues, aggregatesToRemove);
 		}
@@ -881,7 +883,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			stats_a[0] = statement;
 			if (tracking)
 			{
-				statement.setTrackingData(sheet.getColumnNames(), r.getRawColumnData(), null, fsm.getApplication().getUserUID());
+				IServiceProvider sp = fsm.getApplication();
+				statement.setTrackingData(sheet.getColumnNames(), r.getRawColumnData(), null, sp.getUserUID(), sp.getTrackingInfo());
 			}
 
 			try
