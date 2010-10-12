@@ -16,6 +16,7 @@
 	<property name="javacVerbose" value="false"/>
 	<property name="logExtension" value=".log"/>
 	<property name="compilerArg" value=""/>
+	<property name="compilation.prereq.log" value="${buildDirectory}/prereqErrors.log"/>
 	<condition property="dir_bootclasspath" value="${java.home}/../Classes">
 		<os family="mac"/>
 	</condition>
@@ -54,7 +55,7 @@
 		<condition property="compilation.problem.marker.exists" value="true"		>
 			<and>
 			<available file="${compilation.problem.marker}"/>
-			<isfalse value="p2.publishonerror"/>
+			<isfalse value="${p2.publishonerror}"/>
 			</and>
 		</condition>
 	</target>
@@ -131,8 +132,8 @@
 			<compilerarg line="${compilerArg}" compiler="${build.compiler}"/>
 			<classpath refid="@dot.classpath" />
 			<src path="src/"			/>
-			<compilerarg value="@${basedir}/javaCompiler...args" compiler="org.eclipse.jdt.core.JDTCompilerAdapter"/>
-			<compilerarg line="-log '${build.result.folder}/@dot${logExtension}'" compiler="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+			<compilerarg value="@${basedir}/javaCompiler...args" compiler="org.eclipse.jdt.core.JDTCompilerAdapter"			/>
+			<compilerarg line="-log &apos;${build.result.folder}/@dot${logExtension}&apos;" compiler="org.eclipse.jdt.core.JDTCompilerAdapter"			/>
 		</javac>
 		<antcall target="checkCompilationResults"/>
 		<!-- Copy necessary resources -->
@@ -170,7 +171,11 @@
 	</target>
 
 	<target name="checkCompilationResults" if="compilation.error.occured">
-		<echo file="${compilation.problem.marker}" message="servoy_shared : compilation.error.occured=${compilation.error.occured}"/>
+		<echo file="${compilation.problem.marker}" message="servoy_shared_6.0.0.1200${line.separator}compilation.error.occured=${compilation.error.occured}"/>
+		<eclipse.logCompileError bundle="servoy_shared_6.0.0.1200" log="${compilation.prereq.log}">
+			<include name="C:/workspace_trunk/org.eclipse.dltk.javascript.rhino/compilation.problem"/>
+			<include name="${pluginTemp}/org.eclipse.dltk.javascript.rhino_6.0.0.1200/compilation.problem"/>
+		</eclipse.logCompileError>
 	</target>
 
 	<target name="build.sources" depends="init">
@@ -190,7 +195,7 @@
 		<antcall target="apitools.generation">
 			<param name="target.folder" value="${build.result.folder}"/>
 			<param name="projectLocation" value="${basedir}"/>
-			<param name="binary.folders" value="${build.result.folder}/@dot;D:\_dev\trunk\servoy_shared/lib/mail.jar;D:\_dev\trunk\servoy_shared/lib/slf4j-log4j.jar;D:\_dev\trunk\servoy_shared/lib/terracotta-api.jar;D:\_dev\trunk\servoy_shared/lib/log4j.jar;D:\_dev\trunk\servoy_shared/lib/dom4j.jar;D:\_dev\trunk\servoy_shared/lib/commons-dbcp.jar;D:\_dev\trunk\servoy_shared/lib/wicket-extentions.jar;D:\_dev\trunk\servoy_shared/lib/commons-io.jar;D:\_dev\trunk\servoy_shared/lib/BrowserLauncher2.jar;D:\_dev\trunk\servoy_shared/lib/jabsorb.jar;D:\_dev\trunk\servoy_shared/lib/wicket-calendar.jar;D:\_dev\trunk\servoy_shared/lib/commons-httpclient.jar;D:\_dev\trunk\servoy_shared/lib/wicket.jar;D:\_dev\trunk\servoy_shared/lib/commons-logging.jar;D:\_dev\trunk\servoy_shared/lib/servlet-api.jar;D:\_dev\trunk\servoy_shared/lib/activation.jar;D:\_dev\trunk\servoy_shared/lib/commons-codec.jar;D:\_dev\trunk\servoy_shared/lib/commons-collections.jar;D:\_dev\trunk\servoy_shared/lib/commons-pool.jar;D:\_dev\trunk\servoy_shared/lib/annotations-1.0.jar;D:\_dev\trunk\servoy_shared/lib/slf4j-api.jar"/>
+			<param name="binary.folders" value="${build.result.folder}/@dot;C:\workspace_trunk\servoy_shared/lib/mail.jar;C:\workspace_trunk\servoy_shared/lib/slf4j-log4j.jar;C:\workspace_trunk\servoy_shared/lib/terracotta-api.jar;C:\workspace_trunk\servoy_shared/lib/log4j.jar;C:\workspace_trunk\servoy_shared/lib/dom4j.jar;C:\workspace_trunk\servoy_shared/lib/commons-dbcp.jar;C:\workspace_trunk\servoy_shared/lib/wicket-extentions.jar;C:\workspace_trunk\servoy_shared/lib/commons-io.jar;C:\workspace_trunk\servoy_shared/lib/BrowserLauncher2.jar;C:\workspace_trunk\servoy_shared/lib/jabsorb.jar;C:\workspace_trunk\servoy_shared/lib/wicket-calendar.jar;C:\workspace_trunk\servoy_shared/lib/commons-httpclient.jar;C:\workspace_trunk\servoy_shared/lib/wicket.jar;C:\workspace_trunk\servoy_shared/lib/commons-logging.jar;C:\workspace_trunk\servoy_shared/lib/servlet-api.jar;C:\workspace_trunk\servoy_shared/lib/activation.jar;C:\workspace_trunk\servoy_shared/lib/commons-codec.jar;C:\workspace_trunk\servoy_shared/lib/commons-collections.jar;C:\workspace_trunk\servoy_shared/lib/commons-pool.jar;C:\workspace_trunk\servoy_shared/lib/annotations-1.0.jar;C:\workspace_trunk\servoy_shared/lib/slf4j-api.jar"/>
 			<param name="projectName" value="${bundleId}_${bundleVersion}"/>
 		</antcall>
 		<eclipse.gatherBundle 
@@ -246,7 +251,7 @@
 		<antcall target="apitools.generation">
 			<param name="target.folder" value="${destination.temp.folder}/servoy_shared_6.0.0.1200"/>
 			<param name="projectLocation" value="${basedir}"/>
-			<param name="binary.folders" value="${build.result.folder}/@dot;D:\_dev\trunk\servoy_shared/lib/mail.jar;D:\_dev\trunk\servoy_shared/lib/slf4j-log4j.jar;D:\_dev\trunk\servoy_shared/lib/terracotta-api.jar;D:\_dev\trunk\servoy_shared/lib/log4j.jar;D:\_dev\trunk\servoy_shared/lib/dom4j.jar;D:\_dev\trunk\servoy_shared/lib/commons-dbcp.jar;D:\_dev\trunk\servoy_shared/lib/wicket-extentions.jar;D:\_dev\trunk\servoy_shared/lib/commons-io.jar;D:\_dev\trunk\servoy_shared/lib/BrowserLauncher2.jar;D:\_dev\trunk\servoy_shared/lib/jabsorb.jar;D:\_dev\trunk\servoy_shared/lib/wicket-calendar.jar;D:\_dev\trunk\servoy_shared/lib/commons-httpclient.jar;D:\_dev\trunk\servoy_shared/lib/wicket.jar;D:\_dev\trunk\servoy_shared/lib/commons-logging.jar;D:\_dev\trunk\servoy_shared/lib/servlet-api.jar;D:\_dev\trunk\servoy_shared/lib/activation.jar;D:\_dev\trunk\servoy_shared/lib/commons-codec.jar;D:\_dev\trunk\servoy_shared/lib/commons-collections.jar;D:\_dev\trunk\servoy_shared/lib/commons-pool.jar;D:\_dev\trunk\servoy_shared/lib/annotations-1.0.jar;D:\_dev\trunk\servoy_shared/lib/slf4j-api.jar"/>
+			<param name="binary.folders" value="${build.result.folder}/@dot;C:\workspace_trunk\servoy_shared/lib/mail.jar;C:\workspace_trunk\servoy_shared/lib/slf4j-log4j.jar;C:\workspace_trunk\servoy_shared/lib/terracotta-api.jar;C:\workspace_trunk\servoy_shared/lib/log4j.jar;C:\workspace_trunk\servoy_shared/lib/dom4j.jar;C:\workspace_trunk\servoy_shared/lib/commons-dbcp.jar;C:\workspace_trunk\servoy_shared/lib/wicket-extentions.jar;C:\workspace_trunk\servoy_shared/lib/commons-io.jar;C:\workspace_trunk\servoy_shared/lib/BrowserLauncher2.jar;C:\workspace_trunk\servoy_shared/lib/jabsorb.jar;C:\workspace_trunk\servoy_shared/lib/wicket-calendar.jar;C:\workspace_trunk\servoy_shared/lib/commons-httpclient.jar;C:\workspace_trunk\servoy_shared/lib/wicket.jar;C:\workspace_trunk\servoy_shared/lib/commons-logging.jar;C:\workspace_trunk\servoy_shared/lib/servlet-api.jar;C:\workspace_trunk\servoy_shared/lib/activation.jar;C:\workspace_trunk\servoy_shared/lib/commons-codec.jar;C:\workspace_trunk\servoy_shared/lib/commons-collections.jar;C:\workspace_trunk\servoy_shared/lib/commons-pool.jar;C:\workspace_trunk\servoy_shared/lib/annotations-1.0.jar;C:\workspace_trunk\servoy_shared/lib/slf4j-api.jar"/>
 			<param name="projectName" value="${bundleId}_${bundleVersion}"/>
 		</antcall>
 	</target>
@@ -293,7 +298,7 @@
 	</target>
 
 	<target name="refresh" depends="init" if="eclipse.running" description="Refresh this folder.">
-		<eclipse.convertPath fileSystemPath="D:/_dev/trunk/servoy_shared" property="resourcePath"/>
+		<eclipse.convertPath fileSystemPath="C:/workspace_trunk/servoy_shared" property="resourcePath"/>
 		<eclipse.refreshLocal resource="${resourcePath}" depth="infinite"/>
 	</target>
 
@@ -318,7 +323,7 @@
 	</target>
 
 	<target name="apitools.generation" if="generateAPIDescription">
-		<apitooling.apigeneration  projectName="${projectName}" project="${projectLocation}" binary="${binary.folders}" target="${target.folder}"		/>
+		<apitooling.apigeneration  projectName="${projectName}" project="${projectLocation}" binary="${binary.folders}" target="${target.folder}" extramanifests="${extraManifests}"		/>
 	</target>
 
 </project>
