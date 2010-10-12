@@ -166,7 +166,7 @@ public class SQLGenerator
 
 		if (findStates != null && findStates.size() != 0) //new
 		{
-			OrCondition moreWhere = null;
+			ISQLCondition moreWhere = null;
 			for (int i = 0; i < findStates.size(); i++)
 			{
 				Object obj = findStates.get(i);
@@ -178,11 +178,7 @@ public class SQLGenerator
 					{
 						continue; //empty foundrecordreq
 					}
-					if (moreWhere == null)
-					{
-						moreWhere = new OrCondition();
-					}
-					moreWhere.addCondition(condition);
+					moreWhere = OrCondition.or(moreWhere, condition);
 				}
 			}
 
@@ -726,18 +722,7 @@ public class SQLGenerator
 								}
 							}
 
-							CompareCondition compareNull = new CompareCondition(ISQLCondition.EQUALS_OPERATOR, qCol, null);
-							if (compareEmpty == null)
-							{
-								condition = compareNull;
-							}
-							else
-							{
-								OrCondition orCondition = new OrCondition();
-								orCondition.addCondition(compareNull);
-								orCondition.addCondition(compareEmpty);
-								condition = orCondition;
-							}
+							condition = OrCondition.or(compareEmpty, new CompareCondition(ISQLCondition.EQUALS_OPERATOR, qCol, null));
 						}
 
 						else if (data.length() > 0)
@@ -939,22 +924,22 @@ public class SQLGenerator
 							{
 								condition = condition.negate();
 							}
-
-							if (or == null)
-							{
-								or = condition;
-							}
-							else if (or instanceof OrCondition)
-							{
-								((OrCondition)or).addCondition(condition);
-							}
 							else
 							{
-								OrCondition orCondition = new OrCondition();
-								orCondition.addCondition(or);
-								orCondition.addCondition(condition);
-								or = orCondition;
+								// When a search on a related null-value is performed, we have to add a not-null check to the related pk to make sure
+								// the left outer join does not cause a match with the null value.
+								if (nullCheck != NULLCHECK_NONE && rfs.getRelations().size() > 0)
+								{
+									// in case of composite pk, checking only the first pk column is enough
+									Column firstForeignPKColumn = table.getRowIdentColumns().get(0);
+									condition = AndCondition.and(condition,
+										new CompareCondition(ISQLCondition.NOT_OPERATOR, new QueryColumn(columnTable, firstForeignPKColumn.getID(),
+											firstForeignPKColumn.getSQLName(), firstForeignPKColumn.getType(), firstForeignPKColumn.getLength(),
+											firstForeignPKColumn.getScale()), null));
+								}
 							}
+
+							or = OrCondition.or(or, condition);
 						}
 					}
 					catch (Exception ex)
@@ -963,10 +948,7 @@ public class SQLGenerator
 						{
 							throw (ApplicationException)ex;
 						}
-						else
-						{
-							Debug.error(ex);
-						}
+						Debug.error(ex);
 					}
 				}
 
@@ -983,31 +965,13 @@ public class SQLGenerator
 						condition = or;
 					}
 
-					if (condition != null)
-					{
-						if (and == null)
-						{
-							and = condition;
-						}
-						else if (and instanceof AndCondition)
-						{
-							((AndCondition)and).addCondition(condition);
-						}
-						else
-						{
-							AndCondition andCondition = new AndCondition();
-							andCondition.addCondition(and);
-							andCondition.addCondition(condition);
-							and = andCondition;
-						}
-					}
+					and = AndCondition.and(and, condition);
 				}
 			}
 		}
 
 		return and;
 	}
-
 
 	public static ISQLCondition createExistsCondition(IDataProviderHandler flattenedSolution, QuerySelect sqlSelect, ISQLCondition condition,
 		List<IRelation> relations, QueryTable columnTable, IGlobalValueEntry provider, QueryColumn[] pkQueryColumns) throws RepositoryException
