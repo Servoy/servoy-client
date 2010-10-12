@@ -1517,8 +1517,11 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 	private void closePopup(String popupName)
 	{
-		// first touch this page so that it is locked.
-		Session.get().getPage(getPageMapName(), getPath(), LATEST_VERSION);
+		// first touch this page so that it is locked if this is a normal request
+		if (RequestCycle.get() != null)
+		{
+			Session.get().getPage(getPageMapName(), getPath(), LATEST_VERSION);
+		}
 
 		ServoyDivDialog divDialog = divDialogs.remove(popupName);
 		if (divDialog != null)
@@ -1572,8 +1575,11 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 	public void close()
 	{
-		// first touch this page so that it is locked.
-		Session.get().getPage(getPageMapName(), getPath(), LATEST_VERSION);
+		// first touch this page so that it is locked if this is a normal request
+		if (RequestCycle.get() != null)
+		{
+			Session.get().getPage(getPageMapName(), getPath(), LATEST_VERSION);
+		}
 		client.setWindowBounds(getPageMapName(), null);
 		setShowPageInDialogDelayed(false);
 		pageContributor.showNoDialog();
