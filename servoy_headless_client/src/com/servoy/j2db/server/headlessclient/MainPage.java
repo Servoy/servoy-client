@@ -1049,6 +1049,11 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			navigator = null;
 			return null;
 		}
+		else if (navigator != null)
+		{
+			webForms.remove(navigator.getFormUI());
+			listview.removeAll();
+		}
 
 		FormController retval = navigator;
 		navigator = c;
