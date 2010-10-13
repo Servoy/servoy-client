@@ -62,7 +62,6 @@ import com.servoy.j2db.server.shared.IClientManager;
 import com.servoy.j2db.server.shared.IUserManager;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ITaskExecuter;
-import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.serialize.JSONConverter;
@@ -125,9 +124,6 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	//user manager, giving access to (other)user info 
 	private transient volatile IUserManager userManager;
-
-	// tracking info used for logging
-	private Pair<String, String> trackingInfo;
 
 	protected ClientState()
 	{
@@ -1581,22 +1577,5 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	public void invokeLater(Runnable r, boolean immediate)
 	{
 		invokeLater(r);
-	}
-
-
-	/**
-	 * @see com.servoy.j2db.IServiceProvider#setTrackingInfo(com.servoy.j2db.util.Pair)
-	 */
-	public void setTrackingInfo(Pair<String, String> trackingInfo)
-	{
-		this.trackingInfo = trackingInfo;
-	}
-
-	/**
-	 * @see com.servoy.j2db.IServiceProvider#getTrackingInfo()
-	 */
-	public Pair<String, String> getTrackingInfo()
-	{
-		return trackingInfo;
 	}
 }

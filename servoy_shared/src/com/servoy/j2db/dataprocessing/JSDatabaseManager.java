@@ -2321,6 +2321,21 @@ public class JSDatabaseManager
 		return false;
 	}
 
+	/**
+	 * Add tracking info used in the log table.
+	 * When tracking is enabled and a new row is inserted in the log table,
+	 * if it has a column named 'columnName', its value will be set with 'value'
+	 *
+	 * @sample databaseManager.addTrackingInfo('log_column_name', 'trackingInfo')
+	 *
+	 * @param columnName The name of the column in the log table, used for tracking info
+	 * @param value The value to be set when inserting a new row in the log table, for the 'columnName' column
+	 */
+	public void js_addTrackingInfo(String columnName, String value)
+	{
+		application.getFoundSetManager().addTrackingInfo(columnName, value);
+	}
+
 
 	/**
 	 * @see com.servoy.j2db.dataprocessing.JSDataSet#js_createDataSource(String, Object)

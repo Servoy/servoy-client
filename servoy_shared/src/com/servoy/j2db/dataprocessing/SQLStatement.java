@@ -19,11 +19,11 @@ package com.servoy.j2db.dataprocessing;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.ISQLUpdate;
-import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -50,7 +50,7 @@ public class SQLStatement implements ITrackingSQLStatement
 	private int expectedUpdateCount = -1;
 
 	private String user_uid;
-	private Pair<String, String> trackingInfo;
+	private HashMap<String, String> trackingInfo;
 
 	private boolean oracleFix;
 	private final ISQLSelect requerySelect;
@@ -96,7 +96,7 @@ public class SQLStatement implements ITrackingSQLStatement
 		return this.oracleFix;
 	}
 
-	public void setTrackingData(String[] column_names, Object[] oldData, Object[] newData, String user_uid, Pair<String, String> trackingInfo)
+	public void setTrackingData(String[] column_names, Object[] oldData, Object[] newData, String user_uid, HashMap<String, String> trackingInfo)
 	{
 		// TODO filter all data that is not changed out of the 3 arrays.
 		if (oldData == null && newData == null) return;
@@ -223,7 +223,7 @@ public class SQLStatement implements ITrackingSQLStatement
 		return user_uid;
 	}
 
-	public Pair<String, String> getTrackingInfo()
+	public HashMap<String, String> getTrackingInfo()
 	{
 		return trackingInfo;
 	}

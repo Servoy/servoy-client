@@ -32,7 +32,6 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.ITaskExecuter;
-import com.servoy.j2db.util.Pair;
 
 /**
  * Interface for minimal service provider.
@@ -269,20 +268,4 @@ public interface IServiceProvider extends IEventDelegator
 	 * @param value
 	 */
 	void setI18NMessage(String i18nKey, String value);
-
-
-	/**
-	 * set tracking info used for logging
-	 * 
-	 * @param trackingInfo pair of tracking info column name and value  
-	 */
-	public void setTrackingInfo(Pair<String, String> trackingInfo);
-
-
-	/**
-	 * get tracking info used for logging
-	 * 
-	 * @return pair of tracking info column name and value  
-	 */
-	public Pair<String, String> getTrackingInfo();
 }

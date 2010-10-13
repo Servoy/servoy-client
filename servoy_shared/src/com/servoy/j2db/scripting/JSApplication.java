@@ -78,7 +78,6 @@ import com.servoy.j2db.scripting.info.WEBCONSTANTS;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ILogLevel;
-import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.SnapShot;
 import com.servoy.j2db.util.SwingHelper;
@@ -2866,20 +2865,5 @@ public class JSApplication implements IReturnedTypesProvider
 	public void destroy()
 	{
 		this.application = null;
-	}
-
-	/**
-	 * Sets tracking info used in the log table.
-	 * When tracking is enabled and a new row is inserted in the log table,
-	 * if it has a column named 'key', its value will be set with 'info'
-	 *
-	 * @sample application.setTrackingInfo('log_column_name', 'trackingInfo')
-	 *
-	 * @param key The name of the column in the log table, used for tracking info
-	 * @param info The value to be set when inserting a new row in the log table, for the 'key' column
-	 */
-	public void js_setTrackingInfo(String key, String info)
-	{
-		application.setTrackingInfo(new Pair<String, String>(key, info));
 	}
 }

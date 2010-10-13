@@ -107,6 +107,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	private final List<Runnable> fireRunabbles = new ArrayList<Runnable>();
 
+	// tracking info used for logging
+	private final HashMap<String, String> trackingInfoMap = new HashMap<String, String>();
+
 	public FoundSetManager(IServiceProvider app, IFoundSetFactory factory)
 	{
 		application = app;
@@ -628,6 +631,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	public void flushCachedItems()
 	{
+		trackingInfoMap.clear();
 		//just to make sure
 		rollbackTransaction(true, true);
 		releaseAllLocks(null);
@@ -2058,5 +2062,25 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		{
 			fireRunabbles.addAll(runnables);
 		}
+	}
+
+	/**
+	 * @see com.servoy.j2db.IServiceProvider#setTrackingInfo(com.servoy.j2db.util.Pair)
+	 */
+	public void addTrackingInfo(String columnName, String value)
+	{
+		if (columnName != null)
+		{
+			if (value == null) trackingInfoMap.remove(columnName);
+			else trackingInfoMap.put(columnName, value);
+		}
+	}
+
+	/**
+	 * @see com.servoy.j2db.IServiceProvider#getTrackingInfo()
+	 */
+	public HashMap<String, String> getTrackingInfo()
+	{
+		return trackingInfoMap;
 	}
 }

@@ -17,6 +17,7 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import java.util.HashMap;
 import java.util.List;
 
 import com.servoy.j2db.IServiceProvider;
@@ -94,4 +95,17 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	public void rollbackTransaction(boolean rollbackEdited, boolean queryForNewData);
 
 	public IGlobalValueEntry getGlobalScopeProvider();
+
+	/**
+	 * add tracking info used for logging  
+	 */
+	public void addTrackingInfo(String columnName, String value);
+
+
+	/**
+	 * get all tracking info as a map, used for logging
+	 * 
+	 * @return map of tracking info  
+	 */
+	public HashMap<String, String> getTrackingInfo();
 }
