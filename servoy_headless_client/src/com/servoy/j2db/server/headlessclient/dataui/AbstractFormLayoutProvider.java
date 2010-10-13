@@ -163,20 +163,21 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 		html.append("<body id='servoy_page'>\n"); //$NON-NLS-1$ 
 		html.append("<form id='servoy_dataform'>\n"); //$NON-NLS-1$ 
 		html.append("<servoy:panel>\n"); //$NON-NLS-1$
-		String buildFormID = buildFormID();
 
-		// following two divs are here only because a bug in IE7 made divs that were anchored on all sides break iframe behavior (so dialogs)
-		html.append("<div id='sfw_");
-		html.append(buildFormID);
-		html.append("' style='position: absolute; height: 0px; right: 0px; left: 0px;'/>"); //$NON-NLS-1$ 
-		html.append("<div id='sfh_");
-		html.append(buildFormID);
-		html.append("' style='position: absolute; bottom: 0px; top: 0px; width: 0px;'/>"); //$NON-NLS-1$ 
-		// the 2 divs above are used to keep track of the form's size when browser resizes
+		String buildFormID = buildFormID();
 
 		html.append("<div servoy:id='servoywebform' id='"); //$NON-NLS-1$ 
 		html.append(buildFormID);
 		html.append("'>\n"); //$NON-NLS-1$ 		
+
+		// following two divs are here only because a bug in IE7 made divs that were anchored on all sides break iframe behavior (so dialogs)
+		html.append("<div id='sfw_"); //$NON-NLS-1$
+		html.append(buildFormID);
+		html.append("' style='position: absolute; height: 0px; right: 0px; left: 0px;'/>"); //$NON-NLS-1$ 
+		html.append("<div id='sfh_"); //$NON-NLS-1$
+		html.append(buildFormID);
+		html.append("' style='position: absolute; bottom: 0px; top: 0px; width: 0px;'/>"); //$NON-NLS-1$ 
+		// the 2 divs above are used to keep track of the form's size when browser resizes		
 
 		// Put CSS properties for background color and border (if any).
 		TextualStyle formStyle = css.addStyle("#" + buildFormID()); //$NON-NLS-1$ 
