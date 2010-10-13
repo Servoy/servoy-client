@@ -505,6 +505,22 @@ public class StaticContentSpecLoader
 			cs.new Element(361, IRepository.PORTALS, "onRenderMethodID", IRepository.ELEMENTS);
 			cs.new Element(362, IRepository.FIELDS, "onRenderMethodID", IRepository.ELEMENTS);
 			cs.new Element(363, IRepository.GRAPHICALCOMPONENTS, "onRenderMethodID", IRepository.ELEMENTS);
+
+			cs.new Element(364, IRepository.BEANS, "visible", IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(365, IRepository.PORTALS, "visible", IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(366, IRepository.TABPANELS, "visible", IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(367, IRepository.GRAPHICALCOMPONENTS, "visible", IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(368, IRepository.SHAPES, "visible", IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(369, IRepository.RECTSHAPES, "visible", IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(370, IRepository.FIELDS, "visible", IRepository.BOOLEAN, Boolean.TRUE);
+
+			cs.new Element(371, IRepository.BEANS, "enabled", IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(372, IRepository.PORTALS, "enabled", IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(373, IRepository.TABPANELS, "enabled", IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(374, IRepository.GRAPHICALCOMPONENTS, "enabled", IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(375, IRepository.SHAPES, "enabled", IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(376, IRepository.RECTSHAPES, "enabled", IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(377, IRepository.FIELDS, "enabled", IRepository.BOOLEAN, Boolean.TRUE);
 		}
 
 		//##add property adds here

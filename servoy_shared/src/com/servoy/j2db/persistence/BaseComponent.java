@@ -45,6 +45,8 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	private java.awt.Point location = null;
 	private String fontType = null;
 	private boolean printable = true;//remark not default!
+	private boolean visible = true;//remark not default!
+	private boolean enabled = true;//remark not default!
 	private String name = null;
 	private String groupID;
 	private boolean locked;
@@ -249,6 +251,27 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 		return printable;
 	}
 
+	public void setVisible(boolean arg)
+	{
+		checkForChange(visible, arg);
+		visible = arg;
+	}
+
+	public boolean getVisible()
+	{
+		return visible;
+	}
+
+	public void setEnabled(boolean arg)
+	{
+		checkForChange(enabled, arg);
+		enabled = arg;
+	}
+
+	public boolean getEnabled()
+	{
+		return enabled;
+	}
 
 	public void setFormIndex(int arg)
 	{
