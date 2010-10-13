@@ -29,6 +29,7 @@ import org.apache.wicket.IPageMap;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.PageMap;
 import org.apache.wicket.RequestCycle;
+import org.apache.wicket.Session;
 import org.apache.wicket.protocol.http.WebRequestCycle;
 
 import com.servoy.j2db.FormController;
@@ -314,6 +315,18 @@ public class WebFormManager extends FormManager
 			((MainPage)container).close();
 		}
 		super.destroyContainer(container);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.FormManager#destroySolutionSettings()
+	 */
+	@Override
+	protected void destroySolutionSettings()
+	{
+		super.destroySolutionSettings();
+		Session.get().setMetaData(Session.PAGEMAP_ACCESS_MDK, null); // reset all pagemap accesses. 
 	}
 
 	/**
