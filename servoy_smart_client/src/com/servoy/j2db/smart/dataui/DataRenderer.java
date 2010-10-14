@@ -380,7 +380,14 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 			g.setColor(Color.BLACK);
 			g.fillRect(0, 0, 3, getHeight());
 		}
-		super.paintChildren(g);
+		try
+		{
+			super.paintChildren(g);
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+		}
 	}
 
 	private String strRowBGColorProvider = null;
@@ -452,8 +459,11 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 
 						if (isRowBGColorCalculation)
 						{
-							bg_color = parent.getCalculationValue(val, strRowBGColorProvider, Utils.arrayMerge((new Object[] { new Integer(index), new Boolean(
-								isSelected), null, null, Boolean.FALSE }), Utils.parseJSExpressions(rowBGColorArgs)), null);
+							bg_color = parent.getCalculationValue(
+								val,
+								strRowBGColorProvider,
+								Utils.arrayMerge((new Object[] { new Integer(index), new Boolean(isSelected), null, null, Boolean.FALSE }),
+									Utils.parseJSExpressions(rowBGColorArgs)), null);
 						}
 						else
 						{
