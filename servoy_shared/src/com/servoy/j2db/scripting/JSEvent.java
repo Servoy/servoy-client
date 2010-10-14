@@ -32,7 +32,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @since 5.0
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class JSEvent implements IPrefixedConstantsObject
+public class JSEvent implements IConstantsObject
 {
 	public enum EventType
 	{

@@ -22,7 +22,7 @@ import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ColumnInfo;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IServer;
-import com.servoy.j2db.scripting.IPrefixedConstantsObject;
+import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.util.Debug;
 
@@ -31,7 +31,7 @@ import com.servoy.j2db.util.Debug;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class JSColumn implements IReturnedTypesProvider, IPrefixedConstantsObject, IColumnTypes
+public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColumnTypes
 {
 	/**
 	 * Constant used when setting or getting the type of columns.
