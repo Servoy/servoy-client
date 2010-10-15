@@ -67,6 +67,7 @@ import java.util.StringTokenizer;
 import javax.print.attribute.Size2DSyntax;
 import javax.print.attribute.standard.MediaSize;
 
+import org.apache.commons.codec.binary.Base64;
 import org.mozilla.javascript.CharSequenceBuffer;
 import org.mozilla.javascript.CompilerEnvirons;
 import org.mozilla.javascript.Context;
@@ -77,9 +78,6 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Token;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.Wrapper;
-
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
 
 import com.servoy.j2db.IEventDelegator;
 import com.servoy.j2db.persistence.ISupportBounds;
@@ -1584,7 +1582,7 @@ public class Utils
 		String result = null;
 		try
 		{
-			result = new BASE64Encoder().encodeBuffer(data).trim();
+			result = Base64.encodeBase64String(data).trim();
 		}
 		catch (Exception e)
 		{
@@ -1598,7 +1596,7 @@ public class Utils
 		byte[] result = null;
 		try
 		{
-			result = new BASE64Decoder().decodeBuffer(data);
+			result = Base64.decodeBase64(data);
 		}
 		catch (Exception e)
 		{
