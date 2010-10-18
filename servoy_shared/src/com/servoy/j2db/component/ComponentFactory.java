@@ -256,8 +256,8 @@ public class ComponentFactory
 						// Designer all always real components!!
 						retval = (JComponent)application.getItemFactory().createLabel(null, "Tabless panel, for JavaScript use");
 						((IStandardLabel)retval).setHorizontalAlignment(SwingConstants.CENTER);
-						applyBasicComponentProperties(application, (IComponent)retval, (BaseComponent)meta,
-							getStyleForBasicComponent(application, (BaseComponent)meta, form));
+						applyBasicComponentProperties(application, (IComponent)retval, (BaseComponent)meta, getStyleForBasicComponent(application,
+							(BaseComponent)meta, form));
 					}
 					else
 					{
@@ -781,18 +781,16 @@ public class ComponentFactory
 			}
 		}
 
-//		java.awt.Point loc = bc.getLocation();
-//		if (loc != null) c.setLocation(loc);
+		//We intentionally leave the location setting to DataRenderers, since thats the context and might substract part heights from location!
 		java.awt.Dimension dim = bc.getSize();
 		if (dim != null) c.setSize(bc.getSize());
-		javax.swing.border.Border border = ComponentFactoryHelper.createBorder(bc.getBorderType());
 
+		javax.swing.border.Border border = ComponentFactoryHelper.createBorder(bc.getBorderType());
 		if (c instanceof JCheckBox/* DataCheckBox */&& (border != null || isBorderStyle))
 		{
 			((JCheckBox)c).setBorderPainted(true);
 			((JCheckBox)c).setBorderPaintedFlat(false);
 		}
-
 		if (border != null)
 		{
 			if (border instanceof TitledBorder)
@@ -831,6 +829,8 @@ public class ComponentFactory
 		String name = bc.getName();
 		if (name != null) c.setName(name);
 		if (bc.getTransparent()) c.setOpaque(false); // only use component property value if it is "checked" to be transparent
+		c.setComponentEnabled(bc.getEnabled());
+		c.setComponentVisible(bc.getVisible());
 	}
 
 	private static IComponent createBean(IApplication application, Form form, Bean bean, FlattenedSolution flattenedSolution)
@@ -888,18 +888,12 @@ public class ComponentFactory
 				c = (IComponent)obj;
 			}
 
-			if (c != null) c.setName(bean.getName());
-			java.awt.Point loc = bean.getLocation();
-			if (loc != null && c != null) c.setLocation(loc);
-			java.awt.Dimension dim = bean.getSize();
-			if (dim != null && c != null) c.setSize(dim);
+			applyBasicComponentProperties(application, c, bean, null);
 		}
 		catch (Throwable e)//sometimes setting size or location throws exception or even error...create label instead
 		{
 			Debug.error(e);
 			c = application.getItemFactory().createLabel(bean.getName(), "error acessing bean" + bean.getBeanClassName());
-			java.awt.Point loc = bean.getLocation();
-			if (loc != null) c.setLocation(loc);
 			java.awt.Dimension dim = bean.getSize();
 			if (dim != null) c.setSize(bean.getSize());
 		}
@@ -1305,9 +1299,8 @@ public class ComponentFactory
 									}
 									catch (IOException e)
 									{
-										Debug.error(
-											"Exception loading properties for converter " + converter.getName() + ", properties: " +
-												ci.getConverterProperties(), e);
+										Debug.error("Exception loading properties for converter " + converter.getName() + ", properties: " +
+											ci.getConverterProperties(), e);
 									}
 								}
 							}
