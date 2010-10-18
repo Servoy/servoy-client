@@ -131,6 +131,14 @@
 			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1200/lib/activation.jar"/>
 			<pathelement path="../servoy_shared/lib/mail.jar"/>
 			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1200/lib/mail.jar"/>
+			<pathelement path="../servoy_shared/lib/httpclient.jar"/>
+			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1200/lib/httpclient.jar"/>
+			<pathelement path="../servoy_shared/lib/httpcore.jar"/>
+			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1200/lib/httpcore.jar"/>
+			<pathelement path="../servoy_shared/lib/jcifs.jar"/>
+			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1200/lib/jcifs.jar"/>
+			<pathelement path="../servoy_shared/lib/slf4j-jdk14.jar"/>
+			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1200/lib/slf4j-jdk14.jar"/>
 			<pathelement path="../servoy_smart_client/bin/"/>
 			<pathelement path="${build.result.folder}/../servoy_smart_client_6.0.0.1200/bin/"/>
 			<pathelement path="${build.result.folder}/../servoy_smart_client/@dot"/>
