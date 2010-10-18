@@ -8,7 +8,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/commons-codec.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-collections.jar" sourcepath="libsrc/commons-collections.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-dbcp.jar" sourcepath="libsrc/commons-dbcp.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-httpclient.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-io.jar" sourcepath="libsrc/commons-io-1.4-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-logging.jar" sourcepath="libsrc/commons-logging.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/dom4j.jar" sourcepath="libsrc/dom4j-src.jar"/>
@@ -27,6 +26,11 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry exported="true" kind="lib" path="lib/apache-mime4j.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/httpclient.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/httpcore.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/httpmime.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jcifs.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/slf4j-jdk14.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
-
