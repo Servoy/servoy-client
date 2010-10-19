@@ -461,9 +461,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				{
 					if (!modalWindow.isShown())
 					{
-						Debug.trace("MODALDIALOG: modal window already closed in onclosebutton click (double click?): " + modalWindow.getPageMapName(),
-							new RuntimeException("MODALDIALOG of " + currentForm.getName()));
-						return true; // double clicked?
+						return false; // double clicked?
 					}
 					FormManager fm = ((FormManager)client.getFormManager());
 					IMainContainer mainDialogContainer = fm.getMainContainer(modalWindow.getPageMapName());
@@ -1632,6 +1630,15 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 			if (closePopup)
 			{
+				try
+				{
+					Thread.sleep(1000);
+				}
+				catch (InterruptedException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				closePopup = false;
 				if (modalWindow.isShown())
 				{
