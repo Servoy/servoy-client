@@ -13,11 +13,13 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
+import org.apache.wicket.ResourceReference;
+import org.apache.wicket.Session;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IComponentAssignedModel;
@@ -25,6 +27,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.IWrapModel;
 import org.apache.wicket.model.Model;
 
+import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.ui.IComponent;
 
 /**
@@ -129,6 +132,11 @@ public class TooltipAttributeModifier extends AttributeModifier
 					}
 					if (tooltip != null)
 					{
+						if (Session.exists())
+						{
+							tooltip = StripHTMLTagsConverter.convertMediaReferences(tooltip,
+								((WebClientSession)Session.get()).getWebClient().getSolutionName(), new ResourceReference("media"), "").toString();
+						}
 						tooltip = tooltip.replace("\r\n", " ");
 						tooltip = tooltip.replace('\n', ' ');
 						tooltip = tooltip.replace("\\", "\\\\");
