@@ -1832,8 +1832,9 @@ public class JSDatabaseManager
 
 	/**
 	 * Rollback a transaction started by databaseManager.startTransaction().
+	 * Note that when autosave is false, rollbackEditedRecords() will not handle deleted records, while rollbackTransaction() does.
 	 * 
-	 * @param rollbackEdited optional also rollback deletes that are done between start and a rollback call that are not handled by autosave false and rollbackEditedRecords()  (default true)
+	 * @param rollbackEdited optional call rollbackEditedRecords() before rolling back the transaction (default true)
 	 * 
 	 * @sampleas js_startTransaction() 
 	 */
