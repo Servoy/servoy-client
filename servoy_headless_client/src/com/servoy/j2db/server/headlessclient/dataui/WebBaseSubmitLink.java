@@ -62,6 +62,7 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.ILabelForMethods;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
+import com.servoy.j2db.ui.IRenderEventExecutor;
 import com.servoy.j2db.ui.IScriptHtmlSubmitLabelsMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportWebBounds;
@@ -862,6 +863,11 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IScriptHtml
 		jsChangeRecorder.setFont(spec);
 	}
 
+	public String js_getFont()
+	{
+		return PersistHelper.createFontString(font);
+	}
+
 	public Font getFont()
 	{
 		return font;
@@ -925,6 +931,11 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IScriptHtml
 	{
 		setBorder(ComponentFactoryHelper.createBorder(spec));
 		jsChangeRecorder.setBorder(spec);
+	}
+
+	public String js_getBorder()
+	{
+		return ComponentFactoryHelper.createBorderString(getBorder());
 	}
 
 	/*
@@ -1193,5 +1204,30 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IScriptHtml
 	protected void instrumentAndReplaceBody(MarkupStream markupStream, ComponentTag openTag, CharSequence bodyText)
 	{
 		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign));
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderEventExecutor()
+	 */
+	public IRenderEventExecutor getRenderEventExecutor()
+	{
+		return eventExecutor;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_setFormat(java.lang.String)
+	 */
+	public void js_setFormat(String textFormat)
+	{
+		// ignore
+
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getFormat()
+	 */
+	public String js_getFormat()
+	{
+		return null;
 	}
 }

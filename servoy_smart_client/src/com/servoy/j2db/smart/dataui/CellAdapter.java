@@ -93,8 +93,10 @@ import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.smart.J2DBClient;
 import com.servoy.j2db.smart.ListView;
 import com.servoy.j2db.smart.TableView;
+import com.servoy.j2db.ui.IRenderEventExecutor;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
+import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.ITagResolver;
@@ -370,6 +372,20 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 	 */
 	public Component getTableCellEditorComponent(JTable jtable, Object value, boolean isSelected, int row, int column)
 	{
+		Component cellEditorComp = getTableCellEditorComponentEx(jtable, value, isSelected, row, column);
+		if (cellEditorComp instanceof ISupportOnRenderCallback)
+		{
+			ISwingFoundSet foundset = (ISwingFoundSet)jtable.getModel();
+			IRecordInternal record = foundset != null ? foundset.getRecord(row) : null;
+
+			IRenderEventExecutor renderEventExecutor = ((ISupportOnRenderCallback)cellEditorComp).getRenderEventExecutor();
+			if (renderEventExecutor != null) renderEventExecutor.setRenderState(record, row, isSelected);
+		}
+		return cellEditorComp;
+	}
+
+	private Component getTableCellEditorComponentEx(JTable jtable, Object value, boolean isSelected, int row, int column)
+	{
 		if (editor == null || !editor.isVisible() || !(jtable.getModel() instanceof IFoundSetInternal))
 		{
 			return empty;
@@ -448,7 +464,22 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 	/*
 	 * @see TableCellRenderer#getTableCellRendererComponent(JTable, Object, boolean, boolean, int, int)
 	 */
+
 	public Component getTableCellRendererComponent(JTable jtable, Object value, boolean isSelected, boolean hasFocus, final int row, final int column)
+	{
+		Component cellRendererComp = getTableCellRendererComponentEx(jtable, value, isSelected, hasFocus, row, column);
+		if (cellRendererComp instanceof ISupportOnRenderCallback)
+		{
+			ISwingFoundSet foundset = (ISwingFoundSet)jtable.getModel();
+			IRecordInternal record = foundset != null ? foundset.getRecord(row) : null;
+
+			IRenderEventExecutor renderEventExecutor = ((ISupportOnRenderCallback)cellRendererComp).getRenderEventExecutor();
+			if (renderEventExecutor != null) renderEventExecutor.setRenderState(record, row, isSelected);
+		}
+		return cellRendererComp;
+	}
+
+	private Component getTableCellRendererComponentEx(JTable jtable, Object value, boolean isSelected, boolean hasFocus, final int row, final int column)
 	{
 		if (renderer == null || !renderer.isVisible() || !(jtable.getModel() instanceof IFoundSetInternal))
 		{

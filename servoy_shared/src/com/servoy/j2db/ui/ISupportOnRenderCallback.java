@@ -14,42 +14,14 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
-package com.servoy.j2db.smart.dataui;
 
-import com.servoy.j2db.IApplication;
-import com.servoy.j2db.ui.IScriptScriptLabelMethods;
-
+package com.servoy.j2db.ui;
 
 /**
- * @author jcompagner
+ * @author gboros
+ *
  */
-
-public class ScriptLabel extends AbstractScriptLabel implements IScriptScriptLabelMethods
+public interface ISupportOnRenderCallback extends IScriptRenderMethods
 {
-	private String i18n;
-
-	public ScriptLabel(IApplication app)
-	{
-		super(app);
-	}
-
-	public String js_getText()
-	{
-		if (i18n != null) return i18n;
-		return getText();
-	}
-
-	public void js_setText(String txt)
-	{
-		if (txt != null && txt.startsWith("i18n:")) //$NON-NLS-1$
-		{
-			i18n = txt;
-			txt = application.getI18NMessage(txt);
-		}
-		else
-		{
-			i18n = null;
-		}
-		setText(txt);
-	}
+	public IRenderEventExecutor getRenderEventExecutor();
 }

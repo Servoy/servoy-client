@@ -63,6 +63,7 @@ import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IButton;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
+import com.servoy.j2db.ui.IRenderEventExecutor;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.util.ComponentFactoryHelper;
@@ -949,6 +950,11 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		jsChangeRecorder.setFont(spec);
 	}
 
+	public String js_getFont()
+	{
+		return PersistHelper.createFontString(font);
+	}
+
 	public Font getFont()
 	{
 		return font;
@@ -1013,6 +1019,11 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	{
 		setBorder(ComponentFactoryHelper.createBorder(spec));
 		jsChangeRecorder.setBorder(spec);
+	}
+
+	public String js_getBorder()
+	{
+		return ComponentFactoryHelper.createBorderString(getBorder());
 	}
 
 	/*
@@ -1238,5 +1249,13 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		if (bodyText != null) instrumentedBodyText.append(bodyText);
 		instrumentedBodyText.append("</span>"); //$NON-NLS-1$
 		return instrumentedBodyText.toString();
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderEventExecutor()
+	 */
+	public IRenderEventExecutor getRenderEventExecutor()
+	{
+		return eventExecutor;
 	}
 }

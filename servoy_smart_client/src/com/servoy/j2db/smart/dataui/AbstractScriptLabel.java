@@ -61,6 +61,7 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
+import com.servoy.j2db.ui.IRenderEventExecutor;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
@@ -129,6 +130,7 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 	@Override
 	protected void paintComponent(Graphics g)
 	{
+		if (eventExecutor != null) eventExecutor.fireOnRender(this, hasFocus());
 		boolean isPrinting = Utils.getAsBoolean(application.getRuntimeProperties().get("isPrinting")); //$NON-NLS-1$
 		if (isPrinting && getText() != null && !HtmlUtils.startsWithHtml(getText()) && isEnabled() && getIcon() == null && !isOpaque() &&
 			isEmptyBorder(getBorder()))
@@ -481,6 +483,11 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 		setFont(PersistHelper.createFont(spec));
 	}
 
+	public String js_getFont()
+	{
+		return PersistHelper.createFontString(getFont());
+	}
+
 	public byte[] js_getThumbnailJPGImage(Object[] args)
 	{
 		int width = -1;
@@ -556,6 +563,11 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 		{
 			setBorder(border);
 		}
+	}
+
+	public String js_getBorder()
+	{
+		return ComponentFactoryHelper.createBorderString(getBorder());
 	}
 
 	/*
@@ -1180,5 +1192,29 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 	public IEventExecutor getEventExecutor()
 	{
 		return eventExecutor;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderEventExecutor()
+	 */
+	public IRenderEventExecutor getRenderEventExecutor()
+	{
+		return eventExecutor;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_setFormat(java.lang.String)
+	 */
+	public void js_setFormat(String textFormat)
+	{
+		// ignore
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getFormat()
+	 */
+	public String js_getFormat()
+	{
+		return null;
 	}
 }

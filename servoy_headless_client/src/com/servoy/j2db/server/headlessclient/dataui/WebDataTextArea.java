@@ -62,6 +62,7 @@ import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
+import com.servoy.j2db.ui.IRenderEventExecutor;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptTextAreaMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
@@ -755,6 +756,11 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 		jsChangeRecorder.setFont(spec);
 	}
 
+	public String js_getFont()
+	{
+		return PersistHelper.createFontString(font);
+	}
+
 	public Font getFont()
 	{
 		return font;
@@ -820,6 +826,11 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	{
 		setBorder(ComponentFactoryHelper.createBorder(spec));
 		jsChangeRecorder.setBorder(spec);
+	}
+
+	public String js_getBorder()
+	{
+		return ComponentFactoryHelper.createBorderString(getBorder());
 	}
 
 	/*
@@ -1058,5 +1069,31 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	{
 		return js_getElementType() + "(web)[name:" + js_getName() + ",x:" + js_getLocationX() + ",y:" + js_getLocationY() + ",width:" + js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
 			",height:" + js_getHeight() + ",value:" + getDefaultModelObjectAsString() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderEventExecutor()
+	 */
+	public IRenderEventExecutor getRenderEventExecutor()
+	{
+		return eventExecutor;
+	}
+
+
+	/*
+	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_setFormat(java.lang.String)
+	 */
+	public void js_setFormat(String textFormat)
+	{
+		// ignore
+	}
+
+
+	/*
+	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getFormat()
+	 */
+	public String js_getFormat()
+	{
+		return null;
 	}
 }

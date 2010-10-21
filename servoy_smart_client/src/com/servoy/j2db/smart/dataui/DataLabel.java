@@ -262,5 +262,4 @@ public class DataLabel extends AbstractScriptLabel implements IDisplayData, IDis
 	{
 		return true;
 	}
-
 }

@@ -75,8 +75,8 @@ import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.JSDataSet;
-import com.servoy.j2db.dataprocessing.ValueListFactory;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
+import com.servoy.j2db.dataprocessing.ValueListFactory;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.ScriptVariable;
@@ -85,6 +85,7 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
+import com.servoy.j2db.ui.IRenderEventExecutor;
 import com.servoy.j2db.ui.IScriptFieldMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.util.ComponentFactoryHelper;
@@ -1392,6 +1393,11 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		}
 	}
 
+	public String js_getBorder()
+	{
+		return ComponentFactoryHelper.createBorderString(getBorder());
+	}
+
 	/*
 	 * visible---------------------------------------------------
 	 */
@@ -1968,6 +1974,11 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		setFont(PersistHelper.createFont(spec));
 	}
 
+	public String js_getFont()
+	{
+		return PersistHelper.createFontString(getFont());
+	}
+
 	public String js_getDataProviderID()
 	{
 		return getDataProviderID();
@@ -2258,5 +2269,20 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		{
 			opaqueBackground = color;
 		}
+	}
+
+	@Override
+	protected void paintComponent(Graphics g)
+	{
+		if (eventExecutor != null) eventExecutor.fireOnRender(this, hasFocus());
+		super.paintComponent(g);
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderEventExecutor()
+	 */
+	public IRenderEventExecutor getRenderEventExecutor()
+	{
+		return eventExecutor;
 	}
 }

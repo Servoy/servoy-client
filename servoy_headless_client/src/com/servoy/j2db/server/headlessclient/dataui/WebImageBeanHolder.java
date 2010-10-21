@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import java.awt.BorderLayout;
@@ -269,5 +269,21 @@ public class WebImageBeanHolder extends WebBaseButton implements IComponent, IDe
 			Debug.log("Error checking if bean in web client was changed: " + bean, e);
 			return false;
 		}
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_setFormat(java.lang.String)
+	 */
+	public void js_setFormat(String textFormat)
+	{
+		// ignore
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getFormat()
+	 */
+	public String js_getFormat()
+	{
+		return null;
 	}
 }

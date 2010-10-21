@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.ui;
 
 import com.servoy.j2db.IScriptExecuter;
@@ -21,7 +21,7 @@ import com.servoy.j2db.IScriptExecuter;
 /**
  * @author jcompagner,jblok
  */
-public interface ILabel extends IStandardLabel, IAccessible, ISupportEventExecutor
+public interface ILabel extends IStandardLabel, IAccessible, ISupportEventExecutor, ISupportOnRenderCallback
 {
 	public static int NONE = 0;
 	public static int CAPITALIZE = 1;

@@ -71,6 +71,7 @@ import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
+import com.servoy.j2db.ui.IRenderEventExecutor;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptChoiceMethods;
 import com.servoy.j2db.ui.IScrollPane;
@@ -929,6 +930,11 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 		jsChangeRecorder.setFont(spec);
 	}
 
+	public String js_getFont()
+	{
+		return PersistHelper.createFontString(font);
+	}
+
 	public Font getFont()
 	{
 		return font;
@@ -995,6 +1001,11 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 	{
 		setBorder(ComponentFactoryHelper.createBorder(spec));
 		jsChangeRecorder.setBorder(spec);
+	}
+
+	public String js_getBorder()
+	{
+		return ComponentFactoryHelper.createBorderString(getBorder());
 	}
 
 	/*
@@ -1230,5 +1241,13 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 	{
 		this.tabIndex = newTabIndex;
 		updatePrefix();
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderEventExecutor()
+	 */
+	public IRenderEventExecutor getRenderEventExecutor()
+	{
+		return eventExecutor;
 	}
 }

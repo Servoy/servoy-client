@@ -22,6 +22,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FocusTraversalPolicy;
+import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -87,6 +88,7 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
+import com.servoy.j2db.ui.IRenderEventExecutor;
 import com.servoy.j2db.ui.IScriptDataComboboxMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.util.ComboModelListModelWrapper;
@@ -1532,6 +1534,11 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		setFont(PersistHelper.createFont(spec));
 	}
 
+	public String js_getFont()
+	{
+		return PersistHelper.createFontString(getFont());
+	}
+
 	public String js_getDataProviderID()
 	{
 		return getDataProviderID();
@@ -1606,6 +1613,11 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 	public void js_setBorder(String spec)
 	{
 		setBorder(ComponentFactoryHelper.createBorder(spec));
+	}
+
+	public String js_getBorder()
+	{
+		return ComponentFactoryHelper.createBorderString(getBorder());
 	}
 
 	/*
@@ -2101,4 +2113,18 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		void setLabelsEnabled(boolean labelsEnabled);
 	}
 
+	@Override
+	protected void paintComponent(Graphics g)
+	{
+		if (eventExecutor != null) eventExecutor.fireOnRender(this, hasFocus());
+		super.paintComponent(g);
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderEventExecutor()
+	 */
+	public IRenderEventExecutor getRenderEventExecutor()
+	{
+		return eventExecutor;
+	}
 }

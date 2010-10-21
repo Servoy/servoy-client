@@ -23,6 +23,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Window;
@@ -58,6 +59,7 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
+import com.servoy.j2db.ui.IRenderEventExecutor;
 import com.servoy.j2db.ui.IScriptDataCalendarMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.util.ComponentFactoryHelper;
@@ -448,6 +450,11 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 		setBorder(ComponentFactoryHelper.createBorder(spec));
 	}
 
+	public String js_getBorder()
+	{
+		return ComponentFactoryHelper.createBorderString(getBorder());
+	}
+
 	/*
 	 * visible---------------------------------------------------
 	 */
@@ -756,6 +763,11 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 		setFont(PersistHelper.createFont(spec));
 	}
 
+	public String js_getFont()
+	{
+		return PersistHelper.createFontString(getFont());
+	}
+
 	public void js_requestFocus(Object[] vargs)
 	{
 		if (isDisplayable())
@@ -835,5 +847,20 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 	public String getId()
 	{
 		return (String)getClientProperty("Id");
+	}
+
+	@Override
+	protected void paintComponent(Graphics g)
+	{
+		if (enclosedComponent.eventExecutor != null) enclosedComponent.eventExecutor.fireOnRender(this, enclosedComponent.hasFocus());
+		super.paintComponent(g);
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderEventExecutor()
+	 */
+	public IRenderEventExecutor getRenderEventExecutor()
+	{
+		return enclosedComponent != null ? enclosedComponent.eventExecutor : null;
 	}
 }

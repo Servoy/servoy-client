@@ -19,6 +19,7 @@ package com.servoy.j2db.smart.dataui;
 
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.KeyAdapter;
@@ -43,6 +44,7 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
+import com.servoy.j2db.ui.IRenderEventExecutor;
 import com.servoy.j2db.ui.IScriptDataPasswordMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.util.ComponentFactoryHelper;
@@ -421,6 +423,11 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 		}
 	}
 
+	public String js_getBorder()
+	{
+		return ComponentFactoryHelper.createBorderString(getBorder());
+	}
+
 	/*
 	 * visible---------------------------------------------------
 	 */
@@ -722,6 +729,11 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 		setFont(PersistHelper.createFont(spec));
 	}
 
+	public String js_getFont()
+	{
+		return PersistHelper.createFontString(getFont());
+	}
+
 	public String js_getElementType()
 	{
 		return "PASSWORD"; //$NON-NLS-1$
@@ -823,5 +835,36 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 	public String getId()
 	{
 		return (String)getClientProperty("Id"); //$NON-NLS-1$
+	}
+
+	@Override
+	protected void paintComponent(Graphics g)
+	{
+		if (eventExecutor != null) eventExecutor.fireOnRender(this, hasFocus());
+		super.paintComponent(g);
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderEventExecutor()
+	 */
+	public IRenderEventExecutor getRenderEventExecutor()
+	{
+		return eventExecutor;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_setFormat(java.lang.String)
+	 */
+	public void js_setFormat(String textFormat)
+	{
+		// ignore
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getFormat()
+	 */
+	public String js_getFormat()
+	{
+		return null;
 	}
 }

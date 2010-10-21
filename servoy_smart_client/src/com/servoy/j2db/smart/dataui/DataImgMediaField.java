@@ -20,6 +20,7 @@ package com.servoy.j2db.smart.dataui;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Point;
@@ -70,6 +71,7 @@ import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IMediaFieldConstants;
+import com.servoy.j2db.ui.IRenderEventExecutor;
 import com.servoy.j2db.ui.IScriptMediaInputFieldMethods;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
@@ -994,6 +996,10 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 		setFont(PersistHelper.createFont(spec));
 	}
 
+	public String js_getFont()
+	{
+		return PersistHelper.createFontString(getFont());
+	}
 
 	/*
 	 * bgcolor---------------------------------------------------
@@ -1059,6 +1065,11 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 	public void js_setBorder(String spec)
 	{
 		setBorder(ComponentFactoryHelper.createBorder(spec));
+	}
+
+	public String js_getBorder()
+	{
+		return ComponentFactoryHelper.createBorderString(getBorder());
 	}
 
 	private Point cachedLocation;
@@ -1367,5 +1378,36 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 	public String getId()
 	{
 		return (String)getClientProperty("Id"); //$NON-NLS-1$
+	}
+
+	@Override
+	protected void paintComponent(Graphics g)
+	{
+		if (eventExecutor != null) eventExecutor.fireOnRender(this, hasFocus());
+		super.paintComponent(g);
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderEventExecutor()
+	 */
+	public IRenderEventExecutor getRenderEventExecutor()
+	{
+		return eventExecutor;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_setFormat(java.lang.String)
+	 */
+	public void js_setFormat(String textFormat)
+	{
+		// ignore
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getFormat()
+	 */
+	public String js_getFormat()
+	{
+		return null;
 	}
 }

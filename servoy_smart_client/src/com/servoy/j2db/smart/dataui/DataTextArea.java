@@ -63,6 +63,7 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
+import com.servoy.j2db.ui.IRenderEventExecutor;
 import com.servoy.j2db.ui.IScriptTextAreaMethods;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
@@ -795,6 +796,11 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 		setBorder(ComponentFactoryHelper.createBorder(spec));
 	}
 
+	public String js_getBorder()
+	{
+		return ComponentFactoryHelper.createBorderString(getBorder());
+	}
+
 	/*
 	 * scroll---------------------------------------------------
 	 */
@@ -1182,6 +1188,11 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 		setFont(PersistHelper.createFont(spec));
 	}
 
+	public String js_getFont()
+	{
+		return PersistHelper.createFontString(getFont());
+	}
+
 
 	// If component not shown or not added yet 
 	// and request focus is called it should wait for the component
@@ -1332,5 +1343,36 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 	public Component[] getFocusChildren()
 	{
 		return new Component[] { enclosedComponent };
+	}
+
+	@Override
+	protected void paintComponent(Graphics g)
+	{
+		if (eventExecutor != null) eventExecutor.fireOnRender(this, hasFocus());
+		super.paintComponent(g);
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderEventExecutor()
+	 */
+	public IRenderEventExecutor getRenderEventExecutor()
+	{
+		return eventExecutor;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_setFormat(java.lang.String)
+	 */
+	public void js_setFormat(String textFormat)
+	{
+		// ignore
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getFormat()
+	 */
+	public String js_getFormat()
+	{
+		return null;
 	}
 }

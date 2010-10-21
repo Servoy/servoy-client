@@ -79,6 +79,7 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IMediaFieldConstants;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
+import com.servoy.j2db.ui.IRenderEventExecutor;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptMediaInputFieldMethods;
 import com.servoy.j2db.ui.IScrollPane;
@@ -806,6 +807,50 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 			CharSequence url = urlFor(IResourceListener.INTERFACE) + "&r=" + Math.random(); //$NON-NLS-1$
 			tag.put("src", Strings.replaceAll(getResponse().encodeURL(url), "&", "&amp;")); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#setOnRenderMethodID(int)
+		 */
+		public void setOnRenderMethodID(int onRenderMethodID)
+		{
+			// TODO Auto-generated method stub
+
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getOnRenderMethodID()
+		 */
+		public int getOnRenderMethodID()
+		{
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_setFormat(java.lang.String)
+		 */
+		public void js_setFormat(String textFormat)
+		{
+			// TODO Auto-generated method stub
+
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getFormat()
+		 */
+		public String js_getFormat()
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 
 	/*
@@ -1062,6 +1107,11 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 		jsChangeRecorder.setFont(spec);
 	}
 
+	public String js_getFont()
+	{
+		return PersistHelper.createFontString(font);
+	}
+
 	public Font getFont()
 	{
 		return font;
@@ -1128,6 +1178,11 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 	{
 		setBorder(ComponentFactoryHelper.createBorder(spec));
 		jsChangeRecorder.setBorder(spec);
+	}
+
+	public String js_getBorder()
+	{
+		return ComponentFactoryHelper.createBorderString(getBorder());
 	}
 
 	/*
@@ -1356,5 +1411,29 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 	{
 		return js_getElementType() + "(web)[name:" + js_getName() + ",x:" + js_getLocationX() + ",y:" + js_getLocationY() + ",width:" + js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
 			",height:" + js_getHeight() + ",value:" + getDefaultModelObjectAsString() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderEventExecutor()
+	 */
+	public IRenderEventExecutor getRenderEventExecutor()
+	{
+		return eventExecutor;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_setFormat(java.lang.String)
+	 */
+	public void js_setFormat(String textFormat)
+	{
+		// ignore
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getFormat()
+	 */
+	public String js_getFormat()
+	{
+		return null;
 	}
 }

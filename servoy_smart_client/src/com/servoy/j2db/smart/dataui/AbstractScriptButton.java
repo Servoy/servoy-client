@@ -35,7 +35,6 @@ import java.io.ByteArrayOutputStream;
 import java.net.URL;
 import java.util.StringTokenizer;
 
-import javax.swing.BorderFactory;
 import javax.swing.GrayFilter;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -53,6 +52,7 @@ import com.servoy.j2db.ui.IButton;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.ILabel;
+import com.servoy.j2db.ui.IRenderEventExecutor;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
@@ -412,12 +412,17 @@ public class AbstractScriptButton extends JButton implements ISkinnable, IButton
 		if (oldBorder instanceof CompoundBorder && ((CompoundBorder)oldBorder).getInsideBorder() != null)
 		{
 			Insets insets = ((CompoundBorder)oldBorder).getInsideBorder().getBorderInsets(this);
-			setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(insets.top, insets.left, insets.bottom, insets.right)));
+//			setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(insets.top, insets.left, insets.bottom, insets.right)));
 		}
 		else
 		{
 			setBorder(border);
 		}
+	}
+
+	public String js_getBorder()
+	{
+		return ComponentFactoryHelper.createBorderString(getBorder());
 	}
 
 	/**
@@ -737,6 +742,11 @@ public class AbstractScriptButton extends JButton implements ISkinnable, IButton
 		setFont(PersistHelper.createFont(spec));
 	}
 
+	public String js_getFont()
+	{
+		return PersistHelper.createFontString(getFont());
+	}
+
 	/**
 	 * @see com.servoy.j2db.ui.IScriptLabelMethods#js_getWidth()
 	 */
@@ -990,5 +1000,36 @@ public class AbstractScriptButton extends JButton implements ISkinnable, IButton
 	public IEventExecutor getEventExecutor()
 	{
 		return eventExecutor;
+	}
+
+	@Override
+	protected void paintComponent(Graphics g)
+	{
+		if (eventExecutor != null) eventExecutor.fireOnRender(this, hasFocus());
+		super.paintComponent(g);
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderEventExecutor()
+	 */
+	public IRenderEventExecutor getRenderEventExecutor()
+	{
+		return eventExecutor;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_setFormat(java.lang.String)
+	 */
+	public void js_setFormat(String textFormat)
+	{
+		// ignore
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getFormat()
+	 */
+	public String js_getFormat()
+	{
+		return null;
 	}
 }

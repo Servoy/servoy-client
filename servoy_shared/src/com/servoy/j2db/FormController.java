@@ -4071,7 +4071,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 						}
 					}
 					// after a script clear the unchanged records so that no records keep hanging around.
-					if (!focusEvent && !"onRecordEditStopMethodID".equals(methodKey))
+					if (!focusEvent && !"onRecordEditStopMethodID".equals(methodKey) && !"onRenderMethodID".equals(methodKey))
 					{
 						application.getFoundSetManager().getEditRecordList().removeUnChangedRecords(false, false);
 					}

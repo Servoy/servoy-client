@@ -83,6 +83,7 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
+import com.servoy.j2db.ui.IRenderEventExecutor;
 import com.servoy.j2db.ui.IScriptTextEditorMethods;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
@@ -1081,6 +1082,11 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 		setBorder(ComponentFactoryHelper.createBorder(spec));
 	}
 
+	public String js_getBorder()
+	{
+		return ComponentFactoryHelper.createBorderString(getBorder());
+	}
+
 	/*
 	 * url---------------------------------------------------
 	 */
@@ -1587,6 +1593,11 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 		setFont(PersistHelper.createFont(spec));
 	}
 
+	public String js_getFont()
+	{
+		return PersistHelper.createFontString(getFont());
+	}
+
 	public String js_getDataProviderID()
 	{
 		return getDataProviderID();
@@ -1699,5 +1710,36 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 
 			return preferredSize;
 		}
+	}
+
+	@Override
+	protected void paintComponent(Graphics g)
+	{
+		if (eventExecutor != null) eventExecutor.fireOnRender(this, hasFocus());
+		super.paintComponent(g);
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderEventExecutor()
+	 */
+	public IRenderEventExecutor getRenderEventExecutor()
+	{
+		return eventExecutor;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_setFormat(java.lang.String)
+	 */
+	public void js_setFormat(String textFormat)
+	{
+		// ignore
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getFormat()
+	 */
+	public String js_getFormat()
+	{
+		return null;
 	}
 }

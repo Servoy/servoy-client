@@ -97,6 +97,7 @@ import com.servoy.j2db.dnd.JSDNDEvent;
 import com.servoy.j2db.gui.FixedJTable;
 import com.servoy.j2db.gui.LFAwareSortableHeaderRenderer;
 import com.servoy.j2db.persistence.AbstractBase;
+import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IDataProviderLookup;
@@ -129,10 +130,12 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
+import com.servoy.j2db.ui.IRenderEventExecutor;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptReadOnlyMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.ISupportEventExecutor;
+import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnablePanel;
 import com.servoy.j2db.util.IAnchorConstants;
@@ -407,6 +410,9 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 					if (l.y >= start && l.y < start + height)
 					{
 						Component editor = (Component)ComponentFactory.createComponent(app, formForStyles, obj, dpl, scriptExecuter, false);
+						if (editor instanceof ISupportOnRenderCallback && cellview instanceof Portal &&
+							((ISupportOnRenderCallback)editor).getRenderEventExecutor() != null) addPortalOnRenderCallback((Portal)cellview,
+							((ISupportOnRenderCallback)editor).getRenderEventExecutor(), obj);
 
 						if (dragMouseListener != null && editor instanceof JComponent)
 						{
@@ -465,6 +471,9 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 						}
 
 						Component renderer = (Component)ComponentFactory.createComponent(app, formForStyles, obj, dpl, null, false);
+						if (renderer instanceof ISupportOnRenderCallback && cellview instanceof Portal &&
+							((ISupportOnRenderCallback)renderer).getRenderEventExecutor() != null) addPortalOnRenderCallback((Portal)cellview,
+							((ISupportOnRenderCallback)renderer).getRenderEventExecutor(), obj);
 
 						if (dragMouseListener != null && renderer instanceof JComponent)
 						{
@@ -1782,6 +1791,24 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 		handler.exportAsDrag(TableView.this, e, isCTRLDown ? TransferHandler.COPY : TransferHandler.MOVE);
 	}
 
+
+	private void addPortalOnRenderCallback(Portal portal, IRenderEventExecutor renderEventExecutor, IPersist obj)
+	{
+		int onRenderMethodID = 0;
+		if (obj instanceof Field)
+		{
+			onRenderMethodID = ((Field)obj).getOnRenderMethodID();
+		}
+		else if (obj instanceof GraphicalComponent)
+		{
+			onRenderMethodID = ((GraphicalComponent)obj).getOnRenderMethodID();
+		}
+		if (onRenderMethodID <= 0) onRenderMethodID = portal.getOnRenderMethodID();
+		if (onRenderMethodID > 0) renderEventExecutor.setRenderCallback(Integer.toString(onRenderMethodID));
+		else renderEventExecutor.setRenderCallback(null);
+
+		renderEventExecutor.setRenderScriptExecuter(fc.getScriptExecuter());
+	}
 
 	private class DragStartTester extends MouseAdapter implements MouseMotionListener
 	{

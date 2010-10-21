@@ -117,7 +117,7 @@ public class JSApplication implements IReturnedTypesProvider
 
 	private static Class< ? >[] getAllReturnedTypesInternal()
 	{
-		return new Class< ? >[] { APPLICATION_TYPES.class, DRAGNDROP.class, ELEMENT_TYPES.class, JSEvent.class, LOGGINGLEVEL.class, UICONSTANTS.class, UUID.class, WEBCONSTANTS.class, CLIENTDESIGN.class, JSDNDEvent.class, JSWindow.class };
+		return new Class< ? >[] { APPLICATION_TYPES.class, DRAGNDROP.class, ELEMENT_TYPES.class, JSEvent.class, LOGGINGLEVEL.class, UICONSTANTS.class, UUID.class, WEBCONSTANTS.class, CLIENTDESIGN.class, JSDNDEvent.class, JSWindow.class, JSRenderEvent.class };
 	}
 
 	private final Stack<FormAndComponent> selectedFormAndComponent = new Stack<FormAndComponent>();

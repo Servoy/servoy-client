@@ -62,8 +62,10 @@ import javax.swing.text.html.CSS;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IForm;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.IServoyBeanFactory;
@@ -126,6 +128,7 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IFormLookupPanel;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IRect;
+import com.servoy.j2db.ui.IRenderEventExecutor;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISplitPane;
 import com.servoy.j2db.ui.IStandardLabel;
@@ -256,8 +259,8 @@ public class ComponentFactory
 						// Designer all always real components!!
 						retval = (JComponent)application.getItemFactory().createLabel(null, "Tabless panel, for JavaScript use");
 						((IStandardLabel)retval).setHorizontalAlignment(SwingConstants.CENTER);
-						applyBasicComponentProperties(application, (IComponent)retval, (BaseComponent)meta, getStyleForBasicComponent(application,
-							(BaseComponent)meta, form));
+						applyBasicComponentProperties(application, (IComponent)retval, (BaseComponent)meta,
+							getStyleForBasicComponent(application, (BaseComponent)meta, form));
 					}
 					else
 					{
@@ -1299,8 +1302,9 @@ public class ComponentFactory
 									}
 									catch (IOException e)
 									{
-										Debug.error("Exception loading properties for converter " + converter.getName() + ", properties: " +
-											ci.getConverterProperties(), e);
+										Debug.error(
+											"Exception loading properties for converter " + converter.getName() + ", properties: " +
+												ci.getConverterProperties(), e);
 									}
 								}
 							}
@@ -1533,6 +1537,22 @@ public class ComponentFactory
 				Utils.parseJSExpressions(field.getInstanceMethodArguments("onRightClickMethodID")));
 		}
 
+		int onRenderMethodID = field.getOnRenderMethodID();
+		if (onRenderMethodID <= 0) onRenderMethodID = form.getOnRenderMethodID();
+		if (onRenderMethodID > 0)
+		{
+			IRenderEventExecutor renderEventExecutor = fl.getRenderEventExecutor();
+			if (renderEventExecutor != null)
+			{
+				renderEventExecutor.setRenderCallback(Integer.toString(onRenderMethodID));
+
+				IForm rendererForm = application.getFormManager().getForm(form.getName());
+				IScriptExecuter rendererScriptExecuter = rendererForm instanceof FormController ? ((FormController)rendererForm).getScriptExecuter() : null;
+				renderEventExecutor.setRenderScriptExecuter(rendererScriptExecuter);
+			}
+		}
+
+
 		applyBasicComponentProperties(application, fl, field, styleInfo);
 
 		if (fl instanceof INullableAware)
@@ -1568,6 +1588,7 @@ public class ComponentFactory
 		{
 			fl.setMargin(style_margin);
 		}
+
 		return fl;
 	}
 
@@ -1772,6 +1793,24 @@ public class ComponentFactory
 			if (label.getOnRightClickMethodID() > 0) ((ILabel)l).setRightClickCommand(Integer.toString(label.getOnRightClickMethodID()),
 				Utils.parseJSExpressions(label.getInstanceMethodArguments("onRightClickMethodID")));
 		}
+
+		int onRenderMethodID = label.getOnRenderMethodID();
+		if (onRenderMethodID <= 0) onRenderMethodID = form.getOnRenderMethodID();
+		if (onRenderMethodID > 0)
+		{
+			IRenderEventExecutor renderEventExecutor = ((ILabel)l).getRenderEventExecutor();
+
+			if (renderEventExecutor != null)
+			{
+				renderEventExecutor.setRenderCallback(Integer.toString(onRenderMethodID));
+
+				IForm rendererForm = application.getFormManager().getForm(form.getName());
+				IScriptExecuter rendererScriptExecuter = rendererForm instanceof FormController ? ((FormController)rendererForm).getScriptExecuter() : null;
+				renderEventExecutor.setRenderScriptExecuter(rendererScriptExecuter);
+			}
+		}
+
+
 		((ILabel)l).setRotation(label.getRotation());
 		((ILabel)l).setFocusPainted(label.getShowFocus());
 		l.setCursor(Cursor.getPredefinedCursor(label.getRolloverCursor()));
@@ -1885,6 +1924,7 @@ public class ComponentFactory
 		}
 
 //		l.setOpaque(!label.getTransparent());
+
 		return l;
 	}
 
