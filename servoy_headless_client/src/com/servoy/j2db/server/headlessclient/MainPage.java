@@ -1630,26 +1630,13 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 			if (closePopup)
 			{
-				try
-				{
-					Thread.sleep(1000);
-				}
-				catch (InterruptedException e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 				closePopup = false;
 				if (modalWindow.isShown())
 				{
-					Debug.trace("MODALDIALOG: Closing popup that was shown: " + modalWindow.getPageMapName(), new RuntimeException("MODALDIALOG of " +
-						currentForm.getName()));
 					modalWindow.close(target);
 				}
 				else
 				{
-					Debug.trace("MODALDIALOG: Closing popup that was not shown anymore: " + modalWindow.getPageMapName() +
-						", appending manually the close script", new RuntimeException("MODALDIALOG of " + currentForm.getName()));
 					modalWindow.get(modalWindow.getContentId()).setVisible(false);
 					target.appendJavascript(modalWindow.getCloseJavacriptOverride());
 				}
@@ -1659,17 +1646,12 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				showModalWindow = false;
 				if (modalWindow.isShown())
 				{
-					Debug.trace(
-						"MODALDIALOG: calling show on an already shown modaldialog (didnt close previously normally?): " + modalWindow.getPageMapName(),
-						new RuntimeException("MODALDIALOG of " + currentForm.getName()));
 					modalWindow.get(modalWindow.getContentId()).setVisible(true);
 					target.addComponent(modalWindow);
 					target.appendJavascript(modalWindow.getWindowOpenJavascriptOverride());
 				}
 				else
 				{
-					Debug.trace("MODALDIALOG: calling show on a modaldialog: " + modalWindow.getPageMapName(), new RuntimeException("MODALDIALOG of " +
-						currentForm.getName()));
 					modalWindow.show(target);
 				}
 			}
