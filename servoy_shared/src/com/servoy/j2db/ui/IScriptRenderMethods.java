@@ -26,6 +26,8 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "Renderable")
 public interface IScriptRenderMethods
 {
+	public static final String JS_RENDERABLE = "Renderable";//$NON-NLS-1$
+
 	/**
 	 * @sameas com.servoy.j2db.ui.IScriptBaseMethods#js_getBgcolor()
 	 */
