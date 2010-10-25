@@ -66,8 +66,6 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
-import com.servoy.j2db.ui.IRenderEventExecutor;
-import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowBGColorScript;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnablePanel;
@@ -503,22 +501,6 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 
 		//System.out.println(this);
 
-		if (value instanceof IRecordInternal)
-		{
-			@SuppressWarnings("rawtypes")
-			Iterator compIte = getComponentIterator();
-			Object comp;
-			while (compIte.hasNext())
-			{
-				comp = compIte.next();
-				if (comp instanceof ISupportOnRenderCallback)
-				{
-					IRenderEventExecutor rendererEventExecutor = ((ISupportOnRenderCallback)comp).getRenderEventExecutor();
-					if (rendererEventExecutor != null) rendererEventExecutor.setRenderState((IRecordInternal)value, index, isSelected);
-				}
-			}
-		}
-
 		return this;
 	}
 
@@ -598,6 +580,7 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 		{
 			dataAdapterList.setRecord(record, true);
 		}
+		DataAdapterList.setDataRendererComponentsRenderState(this, record);
 	}
 
 	public String getId()

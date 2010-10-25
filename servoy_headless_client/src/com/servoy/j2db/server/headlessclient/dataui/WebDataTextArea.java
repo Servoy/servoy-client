@@ -1071,6 +1071,22 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 			",height:" + js_getHeight() + ",value:" + getDefaultModelObjectAsString() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
+	@Override
+	protected void onBeforeRender()
+	{
+		super.onBeforeRender();
+		if (eventExecutor != null)
+		{
+			boolean isFocused = false;
+			IMainContainer currentContainer = ((FormManager)application.getFormManager()).getCurrentContainer();
+			if (currentContainer instanceof MainPage)
+			{
+				isFocused = this.equals(((MainPage)currentContainer).getFocusedComponent());
+			}
+			eventExecutor.fireOnRender(this, isFocused);
+		}
+	}
+
 	/*
 	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderEventExecutor()
 	 */

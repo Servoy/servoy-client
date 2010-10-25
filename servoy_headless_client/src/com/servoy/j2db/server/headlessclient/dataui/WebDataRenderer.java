@@ -300,6 +300,8 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 		{
 			dataAdapterList.setRecord(record, true);
 		}
+
+		DataAdapterList.setDataRendererComponentsRenderState(this, record);
 	}
 
 	public Color getBackground()

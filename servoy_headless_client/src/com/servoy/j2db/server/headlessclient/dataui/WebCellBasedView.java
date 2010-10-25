@@ -120,13 +120,16 @@ import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.server.headlessclient.dataui.drag.DraggableBehavior;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
+import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IPortalComponent;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
+import com.servoy.j2db.ui.IRenderEventExecutor;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptInputMethods;
 import com.servoy.j2db.ui.IScriptPortalComponentMethods;
 import com.servoy.j2db.ui.IScriptReadOnlyMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
+import com.servoy.j2db.ui.ISupportEventExecutor;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.PropertyCopy;
 import com.servoy.j2db.util.ComponentFactoryHelper;
@@ -538,6 +541,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		@Override
 		protected void onBeforeRender()
 		{
+			updateComponentsRenderState(null, Arrays.binarySearch(getSelectedIndexes(), getIndex()) >= 0);
 			super.onBeforeRender();
 			Iterator< ? extends Component> it = iterator();
 			while (it.hasNext())
@@ -553,7 +557,36 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					}
 				}
 			}
+		}
 
+		public void updateComponentsRenderState(AjaxRequestTarget target, boolean isSelected)
+		{
+			Iterator< ? extends Component> it = iterator();
+			while (it.hasNext())
+			{
+				Component component = it.next();
+				if (component instanceof CellContainer)
+				{
+					Object c = ((CellContainer)component).iterator().next();
+					if (updateComponentRenderState(c, isSelected) && target != null && c instanceof Component) target.addComponent((Component)c);
+				}
+			}
+		}
+
+		private boolean updateComponentRenderState(Object component, boolean isSelected)
+		{
+			if (component instanceof ISupportEventExecutor && component instanceof IProviderStylePropertyChanges)
+			{
+				IEventExecutor ee = ((ISupportEventExecutor)component).getEventExecutor();
+				if (ee != null && ee.hasRenderCallback())
+				{
+					((IRenderEventExecutor)ee).setRenderState(getModelObject(), getIndex(), isSelected);
+					((IProviderStylePropertyChanges)component).getStylePropertyChanges().setChanged();
+					return true;
+				}
+			}
+
+			return false;
 		}
 	}
 
@@ -3091,11 +3124,36 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 			}
 
-			selectedIndexes = newSelectedIndexes;
 			String rowSelectionScript = sab.toString();
 			if (rowSelectionScript.length() > 0) return rowSelectionScript;
 		}
 		return null;
+	}
+
+	public void updateRowComponentsRenderState(AjaxRequestTarget target)
+	{
+		if (currentData == null) return;
+		List<Integer> indexToUpdate;
+		if ((indexToUpdate = getIndexToUpdate()) != null)
+		{
+			int firstRow = table.getCurrentPage() * table.getRowsPerPage();
+			int lastRow = firstRow + table.getViewSize() - 1;
+			int[] newSelectedIndexes = getSelectedIndexes();
+
+			for (int rowIdx : indexToUpdate)
+			{
+				if (rowIdx >= firstRow && rowIdx <= lastRow)
+				{
+					ListItem<IRecordInternal> selectedListItem = (ListItem<IRecordInternal>)table.get(Integer.toString(rowIdx));
+					if (selectedListItem instanceof WebCellBasedViewListItem)
+					{
+						((WebCellBasedViewListItem)selectedListItem).updateComponentsRenderState(target, Arrays.binarySearch(newSelectedIndexes, rowIdx) >= 0);
+					}
+				}
+			}
+
+			selectedIndexes = newSelectedIndexes;
+		}
 	}
 
 	@SuppressWarnings("nls")

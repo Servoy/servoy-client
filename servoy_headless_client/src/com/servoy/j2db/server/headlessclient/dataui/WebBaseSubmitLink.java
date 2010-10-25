@@ -46,7 +46,9 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.util.convert.IConverter;
 import org.apache.wicket.util.string.Strings;
 
+import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.MediaURLStreamHandler;
@@ -1204,6 +1206,22 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IScriptHtml
 	protected void instrumentAndReplaceBody(MarkupStream markupStream, ComponentTag openTag, CharSequence bodyText)
 	{
 		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign));
+	}
+
+	@Override
+	protected void onBeforeRender()
+	{
+		super.onBeforeRender();
+		if (eventExecutor != null)
+		{
+			boolean isFocused = false;
+			IMainContainer currentContainer = ((FormManager)application.getFormManager()).getCurrentContainer();
+			if (currentContainer instanceof MainPage)
+			{
+				isFocused = this.equals(((MainPage)currentContainer).getFocusedComponent());
+			}
+			eventExecutor.fireOnRender(this, isFocused);
+		}
 	}
 
 	/*

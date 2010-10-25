@@ -51,13 +51,16 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.convert.IConverter;
 
+import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.ByteArrayResource;
+import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
@@ -1261,6 +1264,22 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 	protected void instrumentAndReplaceBody(MarkupStream markupStream, ComponentTag openTag, CharSequence bodyText)
 	{
 		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign));
+	}
+
+	@Override
+	protected void onBeforeRender()
+	{
+		super.onBeforeRender();
+		if (eventExecutor != null)
+		{
+			boolean isFocused = false;
+			IMainContainer currentContainer = ((FormManager)application.getFormManager()).getCurrentContainer();
+			if (currentContainer instanceof MainPage)
+			{
+				isFocused = this.equals(((MainPage)currentContainer).getFocusedComponent());
+			}
+			eventExecutor.fireOnRender(this, isFocused);
+		}
 	}
 
 	/*

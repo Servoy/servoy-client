@@ -153,6 +153,8 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 	private Component componentToFocus;
 
+	private Component focusedComponent;
+
 	private boolean mustFocusNull;
 
 	private transient boolean mainFormSwitched;
@@ -1596,6 +1598,16 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		}
 	}
 
+
+	public void setFocusedComponent(Component component)
+	{
+		focusedComponent = component;
+	}
+
+	public Component getFocusedComponent()
+	{
+		return focusedComponent;
+	}
 
 	/**
 	 * @param webDataField

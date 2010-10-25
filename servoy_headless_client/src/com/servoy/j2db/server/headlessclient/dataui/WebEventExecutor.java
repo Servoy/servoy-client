@@ -68,6 +68,7 @@ import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IScriptBaseMethods;
+import com.servoy.j2db.ui.ISupportEventExecutor;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
@@ -328,6 +329,28 @@ public class WebEventExecutor extends BaseEventExecutor
 		Page page = form.getPage(); // JS might change the page this form belongs to... so remember it now
 		form.processDelayedActions();
 
+		boolean compHasOnRender = false;
+		if (comp instanceof ISupportEventExecutor)
+		{
+			IEventExecutor ee = ((ISupportEventExecutor)comp).getEventExecutor();
+			compHasOnRender = ee != null && ee.hasRenderCallback();
+		}
+
+		if (compHasOnRender && comp instanceof IProviderStylePropertyChanges)
+		{
+			if (type == EventType.focusGained && page instanceof MainPage)
+			{
+				((MainPage)page).setFocusedComponent(comp);
+				((IProviderStylePropertyChanges)comp).getStylePropertyChanges().setChanged();
+			}
+			else if (type == EventType.focusLost)
+			{
+				((MainPage)page).setFocusedComponent(null);
+				((IProviderStylePropertyChanges)comp).getStylePropertyChanges().setChanged();
+			}
+		}
+
+
 		if (type == EventType.focusLost || setSelectedIndex(comp, target, convertModifiers(webModifiers), type == EventType.focusGained))
 		{
 			if (skipFireFocusGainedCommand && type.equals(JSEvent.EventType.focusGained))
@@ -587,10 +610,10 @@ public class WebEventExecutor extends BaseEventExecutor
 				for (WebCellBasedView wcbv : tableViewsToRender)
 				{
 					rowSelectionScript = wcbv.getRowSelectionScript();
+					wcbv.updateRowComponentsRenderState(target);
 					if (rowSelectionScript != null) target.appendJavascript(rowSelectionScript);
 					columnResizeScript = wcbv.getColumnResizeScript();
 					if (columnResizeScript != null) target.appendJavascript(columnResizeScript);
-
 				}
 
 				// double check if the page contributor is changed, because the above IStylePropertyChanges ischanged could have altered it.
@@ -886,5 +909,12 @@ public class WebEventExecutor extends BaseEventExecutor
 			name = ((SortableCellViewHeader)display).getName();
 		}
 		return name;
+	}
+
+	@Override
+	public void setRenderState(IRecordInternal record, int index, boolean isSelected)
+	{
+		super.setRenderState(record, index, isSelected);
+		if (component instanceof IProviderStylePropertyChanges) ((IProviderStylePropertyChanges)component).getStylePropertyChanges().setChanged();
 	}
 }

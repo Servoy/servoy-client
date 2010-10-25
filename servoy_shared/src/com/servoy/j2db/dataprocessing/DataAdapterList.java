@@ -18,6 +18,7 @@ package com.servoy.j2db.dataprocessing;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -50,6 +51,9 @@ import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.SolutionScope;
+import com.servoy.j2db.ui.IDataRenderer;
+import com.servoy.j2db.ui.IRenderEventExecutor;
+import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDestroyable;
 import com.servoy.j2db.util.ITagResolver;
@@ -853,4 +857,37 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 		}
 		return null;
 	}
+
+	public static void setDataRendererComponentsRenderState(IDataRenderer dataRenderer, IRecordInternal rec)
+	{
+		if (rec != null)
+		{
+			IFoundSetInternal parentFoundSet = rec.getParentFoundSet();
+			int index = parentFoundSet.getRecordIndex(rec);
+			boolean isSelected;
+			if (parentFoundSet instanceof FoundSet)
+			{
+				int[] selectedIdxs = ((FoundSet)parentFoundSet).getSelectedIndexes();
+				isSelected = Arrays.binarySearch(selectedIdxs, index) >= 0;
+			}
+			else
+			{
+				isSelected = parentFoundSet.getSelectedIndex() == index;
+			}
+
+			@SuppressWarnings("rawtypes")
+			Iterator compIte = dataRenderer.getComponentIterator();
+			Object comp;
+			while (compIte.hasNext())
+			{
+				comp = compIte.next();
+				if (comp instanceof ISupportOnRenderCallback)
+				{
+					IRenderEventExecutor rendererEventExecutor = ((ISupportOnRenderCallback)comp).getRenderEventExecutor();
+					if (rendererEventExecutor != null) rendererEventExecutor.setRenderState(rec, index, isSelected);
+				}
+			}
+		}
+	}
+
 }

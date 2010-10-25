@@ -45,7 +45,9 @@ import org.apache.wicket.util.convert.IConverter;
 import org.apache.wicket.util.string.Strings;
 import org.wicketstuff.calendar.markup.html.form.DatePicker;
 
+import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.IDisplayData;
@@ -1122,6 +1124,23 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 		public CharSequence getCallbackUrl(boolean onlyTargetActivePage)
 		{
 			return super.getCallbackUrl(true);
+		}
+	}
+
+	@Override
+	protected void onBeforeRender()
+	{
+		super.onBeforeRender();
+		IRenderEventExecutor eventExecutor = getRenderEventExecutor();
+		if (eventExecutor != null)
+		{
+			boolean isFocused = false;
+			IMainContainer currentContainer = ((FormManager)application.getFormManager()).getCurrentContainer();
+			if (currentContainer instanceof MainPage)
+			{
+				isFocused = this.equals(((MainPage)currentContainer).getFocusedComponent());
+			}
+			eventExecutor.fireOnRender(this, isFocused);
 		}
 	}
 

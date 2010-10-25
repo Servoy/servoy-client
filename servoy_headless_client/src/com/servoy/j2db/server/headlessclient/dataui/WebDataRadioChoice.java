@@ -1174,6 +1174,22 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 		updatePrefix();
 	}
 
+	@Override
+	protected void onBeforeRender()
+	{
+		super.onBeforeRender();
+		if (eventExecutor != null)
+		{
+			boolean isFocused = false;
+			IMainContainer currentContainer = ((FormManager)application.getFormManager()).getCurrentContainer();
+			if (currentContainer instanceof MainPage)
+			{
+				isFocused = this.equals(((MainPage)currentContainer).getFocusedComponent());
+			}
+			eventExecutor.fireOnRender(this, isFocused);
+		}
+	}
+
 	/*
 	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderEventExecutor()
 	 */

@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
 import java.util.Map.Entry;
+import java.util.SortedSet;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
@@ -472,7 +472,8 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 			if (!(c instanceof WebDataRadioChoice || c instanceof WebDataCheckBoxChoice))
 			{
 				// always install a focus handler when in a table view to detect change of selectedIndex and test for record validation
-				if (((IFieldComponent)c).getEventExecutor().hasEnterCmds() || c.findParent(WebCellBasedView.class) != null)
+				if (((IFieldComponent)c).getEventExecutor().hasEnterCmds() || c.findParent(WebCellBasedView.class) != null ||
+					((IFieldComponent)c).getEventExecutor().hasRenderCallback())
 				{
 					focusGainedFields.add(c.getMarkupId());
 				}
