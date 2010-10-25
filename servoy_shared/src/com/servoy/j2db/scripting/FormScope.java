@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting;
 
 
@@ -269,6 +269,9 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 	public boolean has(String name, Scriptable start)
 	{
 		if ("allnames".equals(name) || "alldataproviders".equals(name) || "allrelations".equals(name) || "allmethods".equals(name) | "allvariables".equals(name)) return true; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+
+		// let the record handle it
+		if ("length".equals(name) && getPrototype().has(name, getPrototype())) return false; //$NON-NLS-1$
 
 		return super.has(name, start);
 	}
