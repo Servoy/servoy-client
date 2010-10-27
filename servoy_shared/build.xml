@@ -225,12 +225,12 @@
 				<include name="lib/commons-codec.jar"/>
 				<include name="lib/commons-collections.jar"/>
 				<include name="lib/commons-dbcp.jar"/>
-				<include name="lib/commons-httpclient.jar"/>
 				<include name="lib/commons-io.jar"/>
 				<include name="lib/commons-logging.jar"/>
 				<include name="lib/dom4j.jar"/>
-				<include name="lib/client/httpclient.jar"/>
-				<include name="lib/client/httpcore.jar"/>
+				<include name="lib/httpmime.jar"/>
+				<include name="lib/httpclient.jar"/>
+				<include name="lib/httpcore.jar"/>
 				<include name="lib/jabsorb.jar"/>
 				<include name="lib/client/jcifs.jar"/>
 				<include name="lib/log4j.jar"/>
@@ -249,6 +249,9 @@
 				<include name="lib/antlr.jar"/>
 				<include name="lib/joda-time.jar"/>
 				<include name="lib/jug.jar"/>
+				<include name="lib/apache-mime4j.jar"/>
+				<include name="lib/jcifs.jar"/>
+				<include name="lib/slf4j-jdk14.jar"/>
 			</fileset>
 		</copy>
 		<antcall target="apitools.generation">
