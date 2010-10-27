@@ -69,6 +69,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
+import org.apache.wicket.util.string.AppendingStringBuffer;
 import org.apache.wicket.util.time.Duration;
 import org.apache.wicket.util.value.IValueMap;
 import org.apache.wicket.util.value.ValueMap;
@@ -1867,6 +1868,17 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		public String getWindowOpenJavascriptOverride()
 		{
 			return getWindowOpenJavascript();
+		}
+
+		@Override
+		@SuppressWarnings("nls")
+		protected AppendingStringBuffer postProcessSettings(AppendingStringBuffer settings)
+		{
+			AppendingStringBuffer buffer = super.postProcessSettings(settings);
+			buffer.append("var userOnCloseButton = settings.onCloseButton;\n");
+			buffer.append("settings.onCloseButton = function() { var cb=this.caption.getElementsByTagName('a')[0];Wicket.Event.add(cb, 'blur', function() { setTimeout(userOnCloseButton, 500); });cb.focus();cb.blur();};\n");
+
+			return buffer;
 		}
 	}
 }
