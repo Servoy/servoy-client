@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util;
 
 
@@ -76,8 +76,11 @@ import javax.swing.text.TextAction;
 import javax.swing.text.View;
 import javax.swing.text.ViewFactory;
 import javax.swing.text.html.HTML;
+import javax.swing.text.html.HTML.Tag;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.HTMLEditorKit.HTMLFactory;
+import javax.swing.text.html.HTMLEditorKit.ParserCallback;
 import javax.swing.text.html.HTMLFrameHyperlinkEvent;
 import javax.swing.text.html.HTMLWriter;
 import javax.swing.text.html.ImageView;
@@ -85,9 +88,6 @@ import javax.swing.text.html.InlineView;
 import javax.swing.text.html.MinimalHTMLWriter;
 import javax.swing.text.html.ObjectView;
 import javax.swing.text.html.StyleSheet;
-import javax.swing.text.html.HTML.Tag;
-import javax.swing.text.html.HTMLEditorKit.HTMLFactory;
-import javax.swing.text.html.HTMLEditorKit.ParserCallback;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.MediaURLStreamHandler;
@@ -497,9 +497,10 @@ public class FixedHTMLEditorKit extends StyledEditorKit implements ISupportAsync
 			JEditorPane editor = (JEditorPane)e.getSource();
 			FixedHTMLEditorKit kit = (FixedHTMLEditorKit)editor.getEditorKit();
 			boolean adjustCursor = true;
-			Cursor newCursor = kit.getDefaultCursor();
+			Cursor newCursor;
 			if (!editor.isEditable())
 			{
+				newCursor = kit.getDefaultCursor();
 				Point pt = new Point(e.getX(), e.getY());
 				int pos = editor.getUI().viewToModel(editor, pt, bias);
 				if (bias[0] == Position.Bias.Backward && pos > 0)
@@ -560,6 +561,7 @@ public class FixedHTMLEditorKit extends StyledEditorKit implements ISupportAsync
 					curOffset = pos;
 				}
 			}
+			else newCursor = kit.getEditCursor();
 			if (adjustCursor && editor.getCursor() != newCursor)
 			{
 				editor.setCursor(newCursor);
@@ -1751,6 +1753,16 @@ public class FixedHTMLEditorKit extends StyledEditorKit implements ISupportAsync
 		return defaultCursor;
 	}
 
+	public void setEditCursor(Cursor cursor)
+	{
+		editCursor = cursor;
+	}
+
+	public Cursor getEditCursor()
+	{
+		return editCursor;
+	}
+
 	/**
 	 * Sets the cursor to use over links.
 	 * 
@@ -1810,6 +1822,7 @@ public class FixedHTMLEditorKit extends StyledEditorKit implements ISupportAsync
 
 	private static final Cursor MoveCursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
 	private static final Cursor DefaultCursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
+	private static final Cursor EditCursor = Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR);
 
 	/** Shared factory for creating HTML Views. */
 	private static final ViewFactory defaultFactory = new HTMLFactory();
@@ -1820,6 +1833,7 @@ public class FixedHTMLEditorKit extends StyledEditorKit implements ISupportAsync
 	private static StyleSheet defaultStyles = null;
 	private static HTMLEditorKit.Parser defaultParser = null;
 	private Cursor defaultCursor = DefaultCursor;
+	private Cursor editCursor = EditCursor;
 	private Cursor linkCursor = MoveCursor;
 	// --- Action implementations ------------------------------
 
