@@ -126,6 +126,20 @@ public class WebEventExecutor extends BaseEventExecutor
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.BaseEventExecutor#setValidationEnabled(boolean)
+	 */
+	@Override
+	public void setValidationEnabled(boolean b)
+	{
+		super.setValidationEnabled(b);
+		if (component instanceof IProviderStylePropertyChanges)
+		{
+			((IProviderStylePropertyChanges)component).getStylePropertyChanges().setChanged();
+		}
+	}
 
 	/**
 	 * @see com.servoy.j2db.ui.BaseEventExecutor#setActionCmd(java.lang.String, Object[])
