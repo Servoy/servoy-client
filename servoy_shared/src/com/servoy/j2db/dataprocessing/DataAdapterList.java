@@ -52,8 +52,8 @@ import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.ui.IDataRenderer;
-import com.servoy.j2db.ui.IRenderEventExecutor;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
+import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDestroyable;
 import com.servoy.j2db.util.ITagResolver;
@@ -862,18 +862,15 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 	{
 		if (rec != null)
 		{
-			IFoundSetInternal parentFoundSet = rec.getParentFoundSet();
-			int index = parentFoundSet.getRecordIndex(rec);
-			boolean isSelected;
-			if (parentFoundSet instanceof FoundSet)
+			Object[] recordStatus = null;
+
+			if (dataRenderer.getOnRenderComponent().getRenderEventExecutor().hasRenderCallback())
 			{
-				int[] selectedIdxs = ((FoundSet)parentFoundSet).getSelectedIndexes();
-				isSelected = Arrays.binarySearch(selectedIdxs, index) >= 0;
+				recordStatus = getRecordIndexAndSelectStatus(rec);
+				dataRenderer.getOnRenderComponent().getRenderEventExecutor().setRenderState(rec, ((Integer)recordStatus[0]).intValue(),
+					((Boolean)recordStatus[1]).booleanValue());
 			}
-			else
-			{
-				isSelected = parentFoundSet.getSelectedIndex() == index;
-			}
+
 
 			@SuppressWarnings("rawtypes")
 			Iterator compIte = dataRenderer.getComponentIterator();
@@ -883,11 +880,32 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 				comp = compIte.next();
 				if (comp instanceof ISupportOnRenderCallback)
 				{
-					IRenderEventExecutor rendererEventExecutor = ((ISupportOnRenderCallback)comp).getRenderEventExecutor();
-					if (rendererEventExecutor != null) rendererEventExecutor.setRenderState(rec, index, isSelected);
+					RenderEventExecutor rendererEventExecutor = ((ISupportOnRenderCallback)comp).getRenderEventExecutor();
+					if (rendererEventExecutor != null && rendererEventExecutor.hasRenderCallback())
+					{
+						if (recordStatus == null) recordStatus = getRecordIndexAndSelectStatus(rec);
+						rendererEventExecutor.setRenderState(rec, ((Integer)recordStatus[0]).intValue(), ((Boolean)recordStatus[1]).booleanValue());
+					}
 				}
 			}
 		}
 	}
 
+	private static Object[] getRecordIndexAndSelectStatus(IRecordInternal rec)
+	{
+		IFoundSetInternal parentFoundSet = rec.getParentFoundSet();
+		int index = parentFoundSet.getRecordIndex(rec);
+		boolean isSelected;
+		if (parentFoundSet instanceof FoundSet)
+		{
+			int[] selectedIdxs = ((FoundSet)parentFoundSet).getSelectedIndexes();
+			isSelected = Arrays.binarySearch(selectedIdxs, index) >= 0;
+		}
+		else
+		{
+			isSelected = parentFoundSet.getSelectedIndex() == index;
+		}
+
+		return new Object[] { new Integer(index), new Boolean(isSelected) };
+	}
 }

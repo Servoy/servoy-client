@@ -71,7 +71,7 @@ import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
-import com.servoy.j2db.ui.IRenderEventExecutor;
+import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptChoiceMethods;
 import com.servoy.j2db.ui.IScrollPane;
@@ -1262,7 +1262,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 	/*
 	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderEventExecutor()
 	 */
-	public IRenderEventExecutor getRenderEventExecutor()
+	public RenderEventExecutor getRenderEventExecutor()
 	{
 		return eventExecutor;
 	}

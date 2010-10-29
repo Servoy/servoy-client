@@ -14,32 +14,27 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
+
 package com.servoy.j2db.ui;
 
+import java.awt.Color;
+
 /**
- * EventExecutor interface. Only the get-methods are exposed, set-methods should be called via the components.
+ * Interface for components that needs to provider a wrapper for on render callback.
  * 
- * @author rgansevles
- * 
+ * @author gabi
+ *
  */
-public interface IEventExecutor extends IRenderEventExecutor
+public interface ISupportOnRenderWrapper
 {
-	public static final int MODIFIERS_UNSPECIFIED = -1;
-	public static final String MODIFIERS_PARAMETER = "modifiers";
 
-	boolean hasChangeCmd();
+	public void setBackground(Color bgColor);
 
-	boolean hasActionCmd();
+	public Color getBackground();
 
-	boolean hasDoubleClickCmd();
+	public ISupportOnRenderCallback getOnRenderComponent();
 
-	boolean hasRightClickCmd();
+	public String getOnRenderElementType();
 
-	boolean hasEnterCmds();
-
-	boolean hasLeaveCmds();
-
-	boolean getValidationEnabled();
-
-	boolean getSelectOnEnter();
+	public String getOnRenderToString();
 }

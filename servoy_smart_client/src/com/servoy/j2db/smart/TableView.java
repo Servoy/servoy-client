@@ -21,6 +21,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.dnd.DropTarget;
@@ -124,18 +125,19 @@ import com.servoy.j2db.smart.dataui.ColumnSortListener;
 import com.servoy.j2db.smart.dataui.DataCheckBox;
 import com.servoy.j2db.smart.dataui.TableTabSequenceHandler;
 import com.servoy.j2db.ui.BaseEventExecutor;
+import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IAccessible;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
-import com.servoy.j2db.ui.IRenderEventExecutor;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptReadOnlyMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.ISupportEventExecutor;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
+import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnablePanel;
 import com.servoy.j2db.util.IAnchorConstants;
@@ -173,10 +175,13 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 	private final TableTabSequenceHandler tableTabSequenceHandler;
 	private boolean layoutChangingByJavascript = false;
 
+	private final ISupportOnRenderCallback dataRendererOnRenderWrapper;
+
 	public TableView(IApplication app, final FormController fc, Form formForStyles, final AbstractBase cellview, final IScriptExecuter scriptExecuter,
 		IDataRenderer headerComp, IDataRenderer leadingGrandSummaryComp, boolean printing)
 	{
 		super(app);
+		dataRendererOnRenderWrapper = new DataRendererOnRenderWrapper(this);
 		this.fc = fc;
 		if (cellview instanceof ISupportSize)
 		{
@@ -218,6 +223,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 		headerCache = headerComp;
 		leadingGrandSummaryCache = leadingGrandSummaryComp;
 		this.cellview = cellview;
+		int onRenderMethodID = 0;
 		if (cellview instanceof Portal)
 		{
 			Portal meta = (Portal)cellview;
@@ -240,6 +246,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 					setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 				}
 			}
+			onRenderMethodID = meta.getOnRenderMethodID();
 		}
 		else
 		{
@@ -262,6 +269,13 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 					setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 				}
 			}
+
+			onRenderMethodID = fc.getForm().getOnRenderMethodID();
+		}
+		if (onRenderMethodID > 0)
+		{
+			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderCallback(Integer.toString(onRenderMethodID));
+			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderScriptExecuter(fc.getScriptExecuter());
 		}
 		initDragNDrop(fc, 0);
 
@@ -1792,7 +1806,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 	}
 
 
-	private void addPortalOnRenderCallback(Portal portal, IRenderEventExecutor renderEventExecutor, IPersist obj)
+	private void addPortalOnRenderCallback(Portal portal, RenderEventExecutor renderEventExecutor, IPersist obj)
 	{
 		int onRenderMethodID = 0;
 		if (obj instanceof Field)
@@ -1834,4 +1848,38 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 		}
 	}
 
+	@Override
+	public void paintComponent(Graphics g)
+	{
+		if (dataRendererOnRenderWrapper.getRenderEventExecutor().hasRenderCallback())
+		{
+			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderState(null, -1, false);
+			dataRendererOnRenderWrapper.getRenderEventExecutor().fireOnRender(dataRendererOnRenderWrapper, false);
+		}
+		super.paintComponent(g);
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOnRenderWrapper#getOnRenderComponent()
+	 */
+	public ISupportOnRenderCallback getOnRenderComponent()
+	{
+		return dataRendererOnRenderWrapper;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOnRenderWrapper#getOnRenderElementType()
+	 */
+	public String getOnRenderElementType()
+	{
+		return cellview instanceof Portal ? "PORTAL" : "FORM"; //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOnRenderWrapper#getOnRenderToString()
+	 */
+	public String getOnRenderToString()
+	{
+		return cellview.toString();
+	}
 }

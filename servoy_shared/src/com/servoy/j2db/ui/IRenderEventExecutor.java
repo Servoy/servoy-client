@@ -17,20 +17,11 @@
 
 package com.servoy.j2db.ui;
 
-import com.servoy.j2db.IScriptExecuter;
-import com.servoy.j2db.dataprocessing.IRecordInternal;
-
 /**
- * @author gboros
+ * @author gabi
  *
  */
 public interface IRenderEventExecutor
 {
-	public void setRenderCallback(String id);
-
-	public void setRenderScriptExecuter(IScriptExecuter scriptExecuter);
-
-	public void setRenderState(IRecordInternal record, int index, boolean isSelected);
-
-	public void fireOnRender(ISupportOnRenderCallback display, boolean hasFocus);
+	boolean hasRenderCallback();
 }

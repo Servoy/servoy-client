@@ -1718,9 +1718,15 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			dr.setName(part.toString());
 			part_panels.put(part, dr);
 
-			//apply bgcolor to renderer
 			if (part.getPartType() == Part.BODY)
 			{
+				int onRenderMethodID = form.getOnRenderMethodID();
+				if (onRenderMethodID > 0)
+				{
+					dr.getOnRenderComponent().getRenderEventExecutor().setRenderCallback(Integer.toString(onRenderMethodID));
+					dr.getOnRenderComponent().getRenderEventExecutor().setRenderScriptExecuter(getScriptExecuter());
+				}
+				//apply bgcolor to renderer				
 				if (bgColor != null)
 				{
 					dr.setBackground(bgColor);

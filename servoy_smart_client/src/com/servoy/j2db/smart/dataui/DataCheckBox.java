@@ -54,9 +54,9 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
-import com.servoy.j2db.ui.IRenderEventExecutor;
 import com.servoy.j2db.ui.IScriptCheckBoxMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
+import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ISkinnable;
@@ -985,7 +985,7 @@ public class DataCheckBox extends JCheckBox implements IFieldComponent, IDisplay
 	/*
 	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderEventExecutor()
 	 */
-	public IRenderEventExecutor getRenderEventExecutor()
+	public RenderEventExecutor getRenderEventExecutor()
 	{
 		return eventExecutor;
 	}

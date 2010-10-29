@@ -64,8 +64,10 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ScriptVariable;
+import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
+import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowBGColorScript;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnablePanel;
@@ -91,6 +93,7 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 	private boolean isRenderer = false;
 	private boolean showSelection = false;
 	private FormController dragNdropController;
+	private final ISupportOnRenderCallback dataRendererOnRenderWrapper;
 
 
 /*
@@ -112,6 +115,7 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 				application.getFoundSetManager().getEditRecordList().stopEditing(false);
 			}
 		});
+		dataRendererOnRenderWrapper = new DataRendererOnRenderWrapper(this);
 	}
 
 	public int getYOffset()
@@ -370,6 +374,7 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 			g.setColor(Color.BLACK);
 			g.fillRect(0, 0, 3, getHeight());
 		}
+		dataRendererOnRenderWrapper.getRenderEventExecutor().fireOnRender(dataRendererOnRenderWrapper, hasFocus());
 		super.paintChildren(g);
 	}
 
@@ -580,7 +585,9 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 		{
 			dataAdapterList.setRecord(record, true);
 		}
+
 		DataAdapterList.setDataRendererComponentsRenderState(this, record);
+		repaint();
 	}
 
 	public String getId()
@@ -732,5 +739,29 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 		{
 			startDrag = true;
 		}
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOnRenderWrapper#getOnRenderComponent()
+	 */
+	public ISupportOnRenderCallback getOnRenderComponent()
+	{
+		return dataRendererOnRenderWrapper;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOnRenderWrapper#getOnRenderElementType()
+	 */
+	public String getOnRenderElementType()
+	{
+		return "FORM"; //$NON-NLS-1$
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOnRenderWrapper#getOnRenderToString()
+	 */
+	public String getOnRenderToString()
+	{
+		return dataAdapterList != null ? dataAdapterList.getFormController().getForm().toString() : super.toString();
 	}
 }

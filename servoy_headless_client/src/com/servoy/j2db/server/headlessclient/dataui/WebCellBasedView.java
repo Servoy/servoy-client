@@ -118,20 +118,22 @@ import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.TabIndexHelper;
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.server.headlessclient.dataui.drag.DraggableBehavior;
+import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IPortalComponent;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
-import com.servoy.j2db.ui.IRenderEventExecutor;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptInputMethods;
 import com.servoy.j2db.ui.IScriptPortalComponentMethods;
 import com.servoy.j2db.ui.IScriptReadOnlyMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportEventExecutor;
+import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.PropertyCopy;
+import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IAnchorConstants;
@@ -187,6 +189,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	private final boolean useAJAX, useAnchors;
 	private Component resizedComponent; // the component that has been resized because of a column resize
+
+	private final ISupportOnRenderCallback dataRendererOnRenderWrapper;
 
 	public static class CellContainer extends WebMarkupContainer
 	{
@@ -580,7 +584,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				IEventExecutor ee = ((ISupportEventExecutor)component).getEventExecutor();
 				if (ee != null && ee.hasRenderCallback())
 				{
-					((IRenderEventExecutor)ee).setRenderState(getModelObject(), getIndex(), isSelected);
+					((RenderEventExecutor)ee).setRenderState(getModelObject(), getIndex(), isSelected);
 					((IProviderStylePropertyChanges)component).getStylePropertyChanges().setChanged();
 					return true;
 				}
@@ -812,6 +816,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		useAnchors = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")); //$NON-NLS-1$
 		setOutputMarkupPlaceholderTag(true);
+
+		dataRendererOnRenderWrapper = new DataRendererOnRenderWrapper(this);
 
 		if (!useAJAX) bodyHeightHint = sizeHint;
 
@@ -1896,6 +1902,11 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				? 0 : firstSelectedIndex / maxRows);
 		}
 		pagingNavigator.setVisible(showPageNavigator && table.getPageCount() > 1);
+		if (dataRendererOnRenderWrapper.getRenderEventExecutor().hasRenderCallback())
+		{
+			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderState(null, -1, false);
+			dataRendererOnRenderWrapper.getRenderEventExecutor().fireOnRender(dataRendererOnRenderWrapper, false);
+		}
 		super.onBeforeRender();
 	}
 
@@ -3349,6 +3360,30 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		int bodyDesignHeight = endY - startY;
 		int otherPartsHeight = (cellview instanceof Portal) ? 0 : formDesignHeight - bodyDesignHeight;
 		return otherPartsHeight;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOnRenderWrapper#getOnRenderComponent()
+	 */
+	public ISupportOnRenderCallback getOnRenderComponent()
+	{
+		return dataRendererOnRenderWrapper;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOnRenderWrapper#getOnRenderElementType()
+	 */
+	public String getOnRenderElementType()
+	{
+		return cellview instanceof Portal ? "PORTAL" : "FORM"; //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOnRenderWrapper#getOnRenderToString()
+	 */
+	public String getOnRenderToString()
+	{
+		return cellview.toString();
 	}
 }
 

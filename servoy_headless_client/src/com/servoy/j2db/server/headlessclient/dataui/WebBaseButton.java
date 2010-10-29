@@ -63,7 +63,7 @@ import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IButton;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
-import com.servoy.j2db.ui.IRenderEventExecutor;
+import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.util.ComponentFactoryHelper;
@@ -1254,7 +1254,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	/*
 	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderEventExecutor()
 	 */
-	public IRenderEventExecutor getRenderEventExecutor()
+	public RenderEventExecutor getRenderEventExecutor()
 	{
 		return eventExecutor;
 	}

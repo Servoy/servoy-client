@@ -93,10 +93,10 @@ import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.smart.J2DBClient;
 import com.servoy.j2db.smart.ListView;
 import com.servoy.j2db.smart.TableView;
-import com.servoy.j2db.ui.IRenderEventExecutor;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
+import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.ITagResolver;
@@ -375,11 +375,13 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		Component cellEditorComp = getTableCellEditorComponentEx(jtable, value, isSelected, row, column);
 		if (cellEditorComp instanceof ISupportOnRenderCallback)
 		{
-			ISwingFoundSet foundset = (ISwingFoundSet)jtable.getModel();
-			IRecordInternal record = foundset != null ? foundset.getRecord(row) : null;
-
-			IRenderEventExecutor renderEventExecutor = ((ISupportOnRenderCallback)cellEditorComp).getRenderEventExecutor();
-			if (renderEventExecutor != null) renderEventExecutor.setRenderState(record, row, isSelected);
+			RenderEventExecutor renderEventExecutor = ((ISupportOnRenderCallback)cellEditorComp).getRenderEventExecutor();
+			if (renderEventExecutor != null && renderEventExecutor.hasRenderCallback())
+			{
+				ISwingFoundSet foundset = (ISwingFoundSet)jtable.getModel();
+				IRecordInternal record = foundset != null ? foundset.getRecord(row) : null;
+				renderEventExecutor.setRenderState(record, row, isSelected);
+			}
 		}
 		return cellEditorComp;
 	}
@@ -470,11 +472,13 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		Component cellRendererComp = getTableCellRendererComponentEx(jtable, value, isSelected, hasFocus, row, column);
 		if (cellRendererComp instanceof ISupportOnRenderCallback)
 		{
-			ISwingFoundSet foundset = (ISwingFoundSet)jtable.getModel();
-			IRecordInternal record = foundset != null ? foundset.getRecord(row) : null;
-
-			IRenderEventExecutor renderEventExecutor = ((ISupportOnRenderCallback)cellRendererComp).getRenderEventExecutor();
-			if (renderEventExecutor != null) renderEventExecutor.setRenderState(record, row, isSelected);
+			RenderEventExecutor renderEventExecutor = ((ISupportOnRenderCallback)cellRendererComp).getRenderEventExecutor();
+			if (renderEventExecutor != null && renderEventExecutor.hasRenderCallback())
+			{
+				ISwingFoundSet foundset = (ISwingFoundSet)jtable.getModel();
+				IRecordInternal record = foundset != null ? foundset.getRecord(row) : null;
+				renderEventExecutor.setRenderState(record, row, isSelected);
+			}
 		}
 		return cellRendererComp;
 	}

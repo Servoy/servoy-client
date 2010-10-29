@@ -23,5 +23,5 @@ package com.servoy.j2db.ui;
  */
 public interface ISupportOnRenderCallback extends IScriptRenderMethods
 {
-	public IRenderEventExecutor getRenderEventExecutor();
+	public RenderEventExecutor getRenderEventExecutor();
 }

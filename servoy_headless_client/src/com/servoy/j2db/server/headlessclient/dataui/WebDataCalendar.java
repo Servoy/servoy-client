@@ -57,7 +57,7 @@ import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
-import com.servoy.j2db.ui.IRenderEventExecutor;
+import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptDataCalendarMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
@@ -1131,7 +1131,7 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 	protected void onBeforeRender()
 	{
 		super.onBeforeRender();
-		IRenderEventExecutor eventExecutor = getRenderEventExecutor();
+		RenderEventExecutor eventExecutor = getRenderEventExecutor();
 		if (eventExecutor != null)
 		{
 			boolean isFocused = false;
@@ -1147,10 +1147,10 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 	/*
 	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderEventExecutor()
 	 */
-	public IRenderEventExecutor getRenderEventExecutor()
+	public RenderEventExecutor getRenderEventExecutor()
 	{
 		IEventExecutor eventExecutor = getEventExecutor();
-		return eventExecutor instanceof IRenderEventExecutor ? (IRenderEventExecutor)eventExecutor : null;
+		return eventExecutor instanceof RenderEventExecutor ? (RenderEventExecutor)eventExecutor : null;
 	}
 
 }

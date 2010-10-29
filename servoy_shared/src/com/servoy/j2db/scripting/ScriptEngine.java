@@ -54,6 +54,7 @@ import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.scripting.solutionmodel.JSSolutionModel;
+import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
@@ -170,6 +171,8 @@ public class ScriptEngine implements IScriptSupport
 			ScriptObjectRegistry.getJavaMembers(DataException.class, toplevelScope);
 			toplevelScope.put(IExecutingEnviroment.TOPLEVEL_SERVOY_EXCEPTION, toplevelScope, new NativeJavaClass(toplevelScope, ServoyException.class));
 			registerScriptObjectClass(ServoyException.class);
+
+			ScriptObjectRegistry.getJavaMembers(DataRendererOnRenderWrapper.class, toplevelScope);
 
 			creator = new CreationalPrototype(tmpSolutionScope, application);
 			creator.setPrototype(null);

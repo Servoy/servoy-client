@@ -128,11 +128,11 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IFormLookupPanel;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IRect;
-import com.servoy.j2db.ui.IRenderEventExecutor;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISplitPane;
 import com.servoy.j2db.ui.IStandardLabel;
 import com.servoy.j2db.ui.ITabPanel;
+import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FixedStyleSheet;
@@ -1541,7 +1541,7 @@ public class ComponentFactory
 		if (onRenderMethodID <= 0) onRenderMethodID = form.getOnRenderMethodID();
 		if (onRenderMethodID > 0)
 		{
-			IRenderEventExecutor renderEventExecutor = fl.getRenderEventExecutor();
+			RenderEventExecutor renderEventExecutor = fl.getRenderEventExecutor();
 			if (renderEventExecutor != null)
 			{
 				renderEventExecutor.setRenderCallback(Integer.toString(onRenderMethodID));
@@ -1798,7 +1798,7 @@ public class ComponentFactory
 		if (onRenderMethodID <= 0) onRenderMethodID = form.getOnRenderMethodID();
 		if (onRenderMethodID > 0)
 		{
-			IRenderEventExecutor renderEventExecutor = ((ILabel)l).getRenderEventExecutor();
+			RenderEventExecutor renderEventExecutor = ((ILabel)l).getRenderEventExecutor();
 
 			if (renderEventExecutor != null)
 			{

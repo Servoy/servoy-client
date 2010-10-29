@@ -54,10 +54,12 @@ import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.server.headlessclient.dataui.drag.DraggableBehavior;
+import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
+import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.PersistHelper;
@@ -92,6 +94,7 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 	private final String formPartName;
 
 	private FormController dragNdropController;
+	private final ISupportOnRenderCallback dataRendererOnRenderWrapper;
 
 	/**
 	 * @param id
@@ -104,6 +107,7 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 		add(TooltipAttributeModifier.INSTANCE);
 		setOutputMarkupPlaceholderTag(true);
 		this.formPartName = formPartName;
+		dataRendererOnRenderWrapper = new DataRendererOnRenderWrapper(this);
 	}
 
 	public void setParentView(IView parentView)
@@ -227,6 +231,7 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 	public void setBackground(Color background)
 	{
 		this.background = background;
+		jsChangeRecorder.setBgcolor(PersistHelper.createColorString(background));
 	}
 
 	public void setFont(Font font)
@@ -302,6 +307,7 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 		}
 
 		DataAdapterList.setDataRendererComponentsRenderState(this, record);
+		jsChangeRecorder.setChanged();
 	}
 
 	public Color getBackground()
@@ -411,6 +417,7 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 				setBgcolor(parentViewBGColor);
 			}
 		}
+		dataRendererOnRenderWrapper.getRenderEventExecutor().fireOnRender(dataRendererOnRenderWrapper, false);
 	}
 
 	@Override
@@ -706,5 +713,29 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 		if (xy != null) jsEvent.setLocation(xy);
 
 		return jsEvent;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOnRenderWrapper#getOnRenderComponent()
+	 */
+	public ISupportOnRenderCallback getOnRenderComponent()
+	{
+		return dataRendererOnRenderWrapper;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOnRenderWrapper#getOnRenderElementType()
+	 */
+	public String getOnRenderElementType()
+	{
+		return "FORM"; //$NON-NLS-1$
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOnRenderWrapper#getOnRenderToString()
+	 */
+	public String getOnRenderToString()
+	{
+		return dataAdapterList != null ? dataAdapterList.getFormController().getForm().toString() : super.toString();
 	}
 }

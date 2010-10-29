@@ -21,10 +21,8 @@ import java.awt.Point;
 
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.dataprocessing.IDisplayData;
-import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.JSEvent.EventType;
-import com.servoy.j2db.scripting.JSRenderEvent;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -34,7 +32,7 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  * 
  */
-public abstract class BaseEventExecutor implements IEventExecutor, IRenderEventExecutor
+public abstract class BaseEventExecutor extends RenderEventExecutor implements IEventExecutor
 {
 	protected IScriptExecuter actionListener;
 
@@ -50,12 +48,6 @@ public abstract class BaseEventExecutor implements IEventExecutor, IRenderEventE
 	private Object[][] leaveArgs;
 	private String changeCommand;
 	private Object[] changeArgs;
-
-	protected String renderCallback;
-	private IScriptExecuter renderScriptExecuter;
-	private IRecordInternal renderRecord;
-	private int renderIndex;
-	private boolean renderIsSelected;
 
 	private boolean selectOnEnter;
 
@@ -109,21 +101,6 @@ public abstract class BaseEventExecutor implements IEventExecutor, IRenderEventE
 	{
 		rightClickCommand = id;
 		rightClickArgs = args;
-	}
-
-	public void setRenderCallback(String id)
-	{
-		renderCallback = id;
-	}
-
-	public void setRenderScriptExecuter(IScriptExecuter scriptExecuter)
-	{
-		renderScriptExecuter = scriptExecuter;
-	}
-
-	public boolean hasRenderCallback()
-	{
-		return renderCallback != null;
 	}
 
 	public void setEnterCmds(String[] ids, Object[][] args)
@@ -305,27 +282,5 @@ public abstract class BaseEventExecutor implements IEventExecutor, IRenderEventE
 			return ((IComponent)display).getName();
 		}
 		return null;
-	}
-
-	public void setRenderState(IRecordInternal record, int index, boolean isSelected)
-	{
-		renderRecord = record;
-		renderIndex = index;
-		renderIsSelected = isSelected;
-	}
-
-	public void fireOnRender(ISupportOnRenderCallback display, boolean hasFocus)
-	{
-		if (renderScriptExecuter != null && renderCallback != null)
-		{
-			JSRenderEvent event = new JSRenderEvent();
-			event.setElement(display);
-			event.setHasFocus(hasFocus);
-			event.setRecord(renderRecord);
-			event.setIndex(renderIndex);
-			event.setSelected(renderIsSelected);
-
-			renderScriptExecuter.executeFunction(renderCallback, new Object[] { event }, false, display, false, "onRenderMethodID", true); //$NON-NLS-1$
-		}
 	}
 }

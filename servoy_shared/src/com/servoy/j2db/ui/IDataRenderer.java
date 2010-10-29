@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.ui;
 
 
@@ -33,7 +33,7 @@ import com.servoy.j2db.util.IDestroyable;
  * 
  * @author jblok
  */
-public interface IDataRenderer extends IContainer, IFormDataDragNDrop, IDestroyable
+public interface IDataRenderer extends IContainer, IFormDataDragNDrop, IDestroyable, ISupportOnRenderWrapper
 {
 	public void notifyVisible(boolean b, List<Runnable> invokeLaterRunnables);
 
