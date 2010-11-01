@@ -189,7 +189,15 @@ public class LFPreferencePanel extends PreferencePanel implements ItemListener, 
 		String msg = _application.getI18NMessage("servoy.preference.lookandfeel.msg.undefined"); //$NON-NLS-1$
 		if (_selectedFont != null)
 		{
-			msg = _selectedFont.getFontName() + _application.getI18NMessage("servoy.preference.lookandfeel.fontsize") + _selectedFont.getSize(); //$NON-NLS-1$
+			String style = null;
+			if (_selectedFont.isItalic()) style = "Italic";
+			if (_selectedFont.isBold())
+			{
+				if (style != null) style = "Italic&Bold";
+				else style = "Bold";
+			}
+			if (style == null) style = "Regular";
+			msg = _selectedFont.getFontName() + " (" + style + "," + _selectedFont.getSize() + ")"; //$NON-NLS-1$
 		}
 		fontButton.setText(msg);
 		if (_current != null) lnfBox.setSelectedItem(_current);

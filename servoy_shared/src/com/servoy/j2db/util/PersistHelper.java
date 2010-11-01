@@ -27,6 +27,7 @@ import java.awt.Rectangle;
 import java.awt.print.PageFormat;
 import java.awt.print.Paper;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -400,6 +401,7 @@ public class PersistHelper
 	}
 
 	private static Map allCreatedFonts = new HashMap();
+	private static Object getCompositeFontMethod;
 
 	public static Font createFont(String name, int style, int size)
 	{
@@ -426,6 +428,30 @@ public class PersistHelper
 			else
 			{
 				retval = null;
+			}
+		}
+		if (retval != null)
+		{
+			try
+			{
+				if (getCompositeFontMethod == null)
+				{
+					Class< ? > fontManager = Class.forName("sun.font.FontManager"); //$NON-NLS-1$
+					getCompositeFontMethod = fontManager.getMethod("getCompositeFontUIResource", new Class[] { Font.class }); //$NON-NLS-1$
+				}
+				if (getCompositeFontMethod instanceof Method)
+				{
+					Object compositeFont = ((Method)getCompositeFontMethod).invoke(null, retval);
+					if (compositeFont instanceof Font)
+					{
+						retval = (Font)compositeFont;
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				Debug.trace("Couldn't create composite font for " + retval, e); //$NON-NLS-1$
+				getCompositeFontMethod = Boolean.FALSE;
 			}
 		}
 		return retval;
