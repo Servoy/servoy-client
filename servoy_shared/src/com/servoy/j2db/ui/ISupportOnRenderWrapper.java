@@ -19,6 +19,8 @@ package com.servoy.j2db.ui;
 
 import java.awt.Color;
 
+import javax.swing.border.Border;
+
 /**
  * Interface for components that needs to provider a wrapper for on render callback.
  * 
@@ -31,6 +33,10 @@ public interface ISupportOnRenderWrapper
 	public void setBackground(Color bgColor);
 
 	public Color getBackground();
+
+	public void setBorder(Border border);
+
+	public Border getBorder();
 
 	public ISupportOnRenderCallback getOnRenderComponent();
 

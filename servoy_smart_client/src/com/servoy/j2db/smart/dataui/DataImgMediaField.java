@@ -71,10 +71,10 @@ import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IMediaFieldConstants;
-import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.ui.IScriptMediaInputFieldMethods;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
+import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnableScrollPanel;
@@ -1393,21 +1393,5 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 	public RenderEventExecutor getRenderEventExecutor()
 	{
 		return eventExecutor;
-	}
-
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_setFormat(java.lang.String)
-	 */
-	public void js_setFormat(String textFormat)
-	{
-		// ignore
-	}
-
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getFormat()
-	 */
-	public String js_getFormat()
-	{
-		return null;
 	}
 }

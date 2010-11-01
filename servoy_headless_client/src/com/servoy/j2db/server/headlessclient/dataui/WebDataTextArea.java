@@ -62,11 +62,11 @@ import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
-import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptTextAreaMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportWebBounds;
+import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.PersistHelper;
@@ -1093,23 +1093,5 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	public RenderEventExecutor getRenderEventExecutor()
 	{
 		return eventExecutor;
-	}
-
-
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_setFormat(java.lang.String)
-	 */
-	public void js_setFormat(String textFormat)
-	{
-		// ignore
-	}
-
-
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getFormat()
-	 */
-	public String js_getFormat()
-	{
-		return null;
 	}
 }

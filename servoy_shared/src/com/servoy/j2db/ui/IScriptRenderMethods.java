@@ -154,13 +154,6 @@ public interface IScriptRenderMethods
 
 
 	/**
-	 * @sameas com.servoy.j2db.ui.IScriptFormattedFieldMethods#js_getFormat()
-	 */
-	public String js_getFormat();
-
-	public void js_setFormat(String textFormat);
-
-	/**
 	 * @sameas com.servoy.j2db.ui.IScriptDataProviderMethods#js_getDataProviderID()
 	 */
 	public String js_getDataProviderID();

@@ -42,11 +42,11 @@ public class JSRenderEvent implements IJavaScriptType
 	}
 
 	/**
-	 * Returns the rendering element.
+	 * Returns the element that is being rendered.
 	 *
 	 * @sample event.getElement();
 	 * 
-	 * @return Renderable the rendering element 
+	 * @return Renderable the element that is being rendered 
 	 */
 	public IScriptRenderMethods js_getElement()
 	{
@@ -59,11 +59,11 @@ public class JSRenderEvent implements IJavaScriptType
 	}
 
 	/**
-	 * Returns the record of the rendering element.
+	 * Returns the record of the element that is being rendered.
 	 *
 	 * @sample event.getRecord();
 	 * 
-	 * @return Record of the rendering element
+	 * @return Record of the element that is being rendered
 	 */
 	public Record js_getRecord()
 	{
@@ -76,11 +76,11 @@ public class JSRenderEvent implements IJavaScriptType
 	}
 
 	/**
-	 * Returns whatever the rendering element has the focus.
+	 * Returns whether or not the element that is being rendered has focus.
 	 *
 	 * @sample event.hasFocus();
 	 * 
-	 * @return true if the rendering element has the focus, false otherwise
+	 * @return true if the element that is being rendered has the focus, false otherwise
 	 */
 	public boolean js_hasFocus()
 	{
@@ -93,13 +93,13 @@ public class JSRenderEvent implements IJavaScriptType
 	}
 
 	/**
-	 * Returns the rendering element's record index.
+	 * Returns the record index of the element that is being rendered.
 	 *
-	 * @sample event.getIndex()
+	 * @sample event.getRecordIndex()
 	 * 
-	 * @return rendering element's record index
+	 * @return record index of the element that is being rendered
 	 */
-	public int js_getIndex()
+	public int js_getRecordIndex()
 	{
 		return index;
 	}
@@ -110,13 +110,13 @@ public class JSRenderEvent implements IJavaScriptType
 	}
 
 	/**
-	 * Returns whatever the rendering element is selected.
+	 * Returns whatever or not the record of the element that is being rendered is selected.
 	 *
-	 * @sample event.isSelected()
+	 * @sample event.isRecordSelected()
 	 * 
-	 * @return true if the rendering element is selected, false otherwise
+	 * @return true if the record of the element that is being rendered is selected
 	 */
-	public boolean js_isSelected()
+	public boolean js_isRecordSelected()
 	{
 		return isSelected;
 	}

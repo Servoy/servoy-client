@@ -52,8 +52,8 @@ import com.servoy.j2db.ui.IButton;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.ILabel;
-import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
+import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
@@ -1015,21 +1015,5 @@ public class AbstractScriptButton extends JButton implements ISkinnable, IButton
 	public RenderEventExecutor getRenderEventExecutor()
 	{
 		return eventExecutor;
-	}
-
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_setFormat(java.lang.String)
-	 */
-	public void js_setFormat(String textFormat)
-	{
-		// ignore
-	}
-
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getFormat()
-	 */
-	public String js_getFormat()
-	{
-		return null;
 	}
 }

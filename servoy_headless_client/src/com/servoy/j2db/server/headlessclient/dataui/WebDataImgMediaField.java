@@ -58,9 +58,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.resource.ByteArrayResource;
 import org.apache.wicket.util.string.Strings;
 
-import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.MediaURLStreamHandler;
@@ -81,12 +79,12 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IMediaFieldConstants;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
-import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptMediaInputFieldMethods;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportWebBounds;
+import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ITagResolver;
@@ -831,28 +829,6 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 			// TODO Auto-generated method stub
 			return 0;
 		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_setFormat(java.lang.String)
-		 */
-		public void js_setFormat(String textFormat)
-		{
-			// TODO Auto-generated method stub
-
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getFormat()
-		 */
-		public String js_getFormat()
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
 	}
 
 	/*
@@ -1419,16 +1395,6 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 	protected void onBeforeRender()
 	{
 		super.onBeforeRender();
-		if (eventExecutor != null)
-		{
-			boolean isFocused = false;
-			IMainContainer currentContainer = ((FormManager)application.getFormManager()).getCurrentContainer();
-			if (currentContainer instanceof MainPage)
-			{
-				isFocused = this.equals(((MainPage)currentContainer).getFocusedComponent());
-			}
-			eventExecutor.fireOnRender(this, isFocused);
-		}
 	}
 
 	/*
@@ -1437,21 +1403,5 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 	public RenderEventExecutor getRenderEventExecutor()
 	{
 		return eventExecutor;
-	}
-
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_setFormat(java.lang.String)
-	 */
-	public void js_setFormat(String textFormat)
-	{
-		// ignore
-	}
-
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getFormat()
-	 */
-	public String js_getFormat()
-	{
-		return null;
 	}
 }

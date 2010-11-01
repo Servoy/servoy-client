@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.ui;
 
+import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.PersistHelper;
 
 
@@ -188,7 +189,7 @@ public class DataRendererOnRenderWrapper implements ISupportOnRenderCallback
 	 */
 	public String js_getBorder()
 	{
-		return null;
+		return ComponentFactoryHelper.createBorderString(onRenderComponent.getBorder());
 	}
 
 	/*
@@ -196,7 +197,7 @@ public class DataRendererOnRenderWrapper implements ISupportOnRenderCallback
 	 */
 	public void js_setBorder(String spec)
 	{
-		// ignore
+		onRenderComponent.setBorder(ComponentFactoryHelper.createBorder(spec));
 	}
 
 	/*
@@ -246,22 +247,6 @@ public class DataRendererOnRenderWrapper implements ISupportOnRenderCallback
 	{
 		// ignore
 
-	}
-
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getFormat()
-	 */
-	public String js_getFormat()
-	{
-		return null;
-	}
-
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_setFormat(java.lang.String)
-	 */
-	public void js_setFormat(String textFormat)
-	{
-		// ignore
 	}
 
 	/*
