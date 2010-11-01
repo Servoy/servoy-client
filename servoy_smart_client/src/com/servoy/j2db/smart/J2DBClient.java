@@ -1433,33 +1433,27 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	/**
 	 * Set the look and feel (platform dep. or indep.)
 	 */
+	@SuppressWarnings("nls")
 	protected void setLookAndFeel()
 	{
 		try
 		{
 			// incase we use alloy
-			System.setProperty("alloy.isLookAndFeelFrameDecoration", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+			System.setProperty("alloy.isLookAndFeelFrameDecoration", "true");
 
 			String defaultLAFClassName = UIManager.getSystemLookAndFeelClassName();
-			String lnf = settings.getProperty("selectedlnf", defaultLAFClassName); //$NON-NLS-1$
+			String lnf = settings.getProperty("selectedlnf", defaultLAFClassName);
 
 			if (WebStart.isRunningWebStart())
 			{
 				URL webstartbase = getServerURL();
-				lnf = settings.getProperty(webstartbase.getHost() + webstartbase.getPort() + "_selectedlnf", lnf); //$NON-NLS-1$
+				lnf = settings.getProperty(webstartbase.getHost() + webstartbase.getPort() + "_selectedlnf", lnf);
 			}
 
 			// Users may have set the lnf to spaces in the properties file
 			if (lnf.trim().length() == 0)
 			{
 				lnf = defaultLAFClassName;
-			}
-
-			Font dfltFont = PersistHelper.createFont(settings.getProperty("font")); //$NON-NLS-1$
-			if (dfltFont == null)
-			{
-				dfltFont = new Font("Tahoma", Font.PLAIN, 11); //$NON-NLS-1$
-				settings.setProperty("font", PersistHelper.createFontString(dfltFont)); //$NON-NLS-1$
 			}
 
 			lafManager = createLAFManager();
@@ -1484,7 +1478,28 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			}
 
 			setUIProperty(LookAndFeelInfo.class.getName(), lnf);
-			setUIProperty(Font.class.getName(), dfltFont);
+			
+			
+			Font dfltFont = PersistHelper.createFont(settings.getProperty("font"));
+			if (dfltFont == null)
+			{
+				if (!Utils.isAppleMacOS())
+				{
+					Font fnt = (Font)UIManager.getDefaults().get("MenuItem.font");
+					if (fnt != null)
+					{
+						dfltFont = fnt;
+						if (dfltFont.isBold()) dfltFont = dfltFont.deriveFont(Font.PLAIN);
+					}
+					else
+					{
+						dfltFont = PersistHelper.createFont("Tahoma", Font.PLAIN, 11);
+					}
+				}
+			}
+
+			if (dfltFont != null) setUIProperty(Font.class.getName(), dfltFont);
+			
 		}
 		catch (Exception e)
 		{
