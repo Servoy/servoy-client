@@ -187,7 +187,10 @@ public class MediaUploadPage extends WebPage
 
 		public String getName()
 		{
-			return fu.getClientFileName();
+			String name = fu.getClientFileName();
+			name = name.replace('\\', '/');
+			String[] tokenized = name.split("/"); //$NON-NLS-1$
+			return tokenized[tokenized.length - 1];
 		}
 
 		public String getContentType()
