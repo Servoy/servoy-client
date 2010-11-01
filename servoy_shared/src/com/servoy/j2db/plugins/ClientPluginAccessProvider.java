@@ -673,7 +673,7 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 
 		public String getName()
 		{
-			return f.getAbsolutePath();
+			return f.getName();
 		}
 
 		public String getContentType()
