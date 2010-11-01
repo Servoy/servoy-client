@@ -286,9 +286,16 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 				return; //stop and recall this method from security.login(...)!
 			}
 		}
-		if (solution.getLoginFormID() > 0 && solution.getMustAuthenticate() && application.getUserUID() != null)
+		if (solution.getLoginFormID() > 0 && solution.getMustAuthenticate() && application.getUserUID() != null && loginForm != null)
 		{
-			currentContainer.setFormController(null);
+			if (currentContainer.getController() != null && currentContainer.getController().getForm() == loginForm)
+			{
+				currentContainer.setFormController(null);
+			}
+			if (mainContainer.getController() != null && mainContainer.getController().getForm() == loginForm)
+			{
+				mainContainer.setFormController(null);
+			}
 			loginForm = null;//clear and continue
 		}
 
@@ -335,11 +342,22 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		IMainContainer modalContainer = getModalDialogContainer(); // onOpen event might have opened a modal popup with another form
 		if (first != null && mainContainer.getController() == null)
 		{
-			showFormInMainPanel(first.getName()); //we only set if the solution startup did not yet show a form already
 			if (modalContainer != mainContainer)
 			{
 				currentContainer.setComponentVisible(true);
 				setCurrentContainer(modalContainer, null); // if we had a modal dialog displayed, it must remain the current container
+				if (currentContainer.getController() == null)
+				{
+					showFormInCurrentContainer(first.getName());
+				}
+				else
+				{
+					showFormInMainPanel(first.getName()); //we only set if the solution startup did not yet show a form already
+				}
+			}
+			else
+			{
+				showFormInMainPanel(first.getName()); //we only set if the solution startup did not yet show a form already
 			}
 		}
 

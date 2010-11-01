@@ -696,7 +696,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 								{
 									map.put("a", getPreferedSolutionMethodArguments()[0]);
 								}
-								getMainPage().setResponsePage(SolutionLoader.class, new PageParameters(map));
+								rc.setResponsePage(SolutionLoader.class, new PageParameters(map), null);
 							}
 						}
 					}
