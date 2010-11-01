@@ -766,10 +766,16 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 			{
 				public void run()
 				{
-					if (getSolution() == null)
+					invokeLater(new Runnable()
 					{
-						selectAndOpenSolution(); // automatically re-open solution in developer
-					}
+						public void run()
+						{
+							if (solutionRoot.getMainSolutionMetaData() == null)
+							{
+								selectAndOpenSolution(); // automatically re-open solution in developer
+							}
+						}
+					});
 				}
 			});
 		}
