@@ -13,11 +13,14 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient.dataui;
 
 
 import java.util.List;
+
+import javax.swing.text.Style;
+import javax.swing.text.html.StyleSheet;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -39,6 +42,8 @@ public class WebRecordView extends WebMarkupContainer implements IView
 	private IApplication application;
 	private String bgColorScript;
 	private List<Object> bgColorArgs;
+	private StyleSheet styleSheet;
+	private Style oddStyle, evenStyle;
 
 	/**
 	 * @param id
@@ -181,5 +186,41 @@ public class WebRecordView extends WebMarkupContainer implements IView
 
 	public void setEditable(boolean findMode)
 	{
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getOddStyle()
+	 */
+	public Style getOddStyle()
+	{
+		return oddStyle;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getEvenStyle()
+	 */
+	public Style getEvenStyle()
+	{
+		return evenStyle;
+	}
+
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#setStyles(javax.swing.text.html.StyleSheet, javax.swing.text.Style, javax.swing.text.Style)
+	 */
+	public void setStyles(StyleSheet styleSheet, Style oddStyle, Style evenStyle)
+	{
+		this.styleSheet = styleSheet;
+		this.oddStyle = oddStyle;
+		this.evenStyle = evenStyle;
+	}
+
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getStyleSheet()
+	 */
+	public StyleSheet getStyleSheet()
+	{
+		return styleSheet;
 	}
 }

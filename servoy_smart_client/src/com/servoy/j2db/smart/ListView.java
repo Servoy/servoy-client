@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.smart;
 
 
@@ -29,6 +29,8 @@ import javax.swing.JButton;
 import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
+import javax.swing.text.Style;
+import javax.swing.text.html.StyleSheet;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IView;
@@ -52,6 +54,8 @@ public class ListView extends JEditList implements IView
 	private String rowBGColorScript;
 	private List<Object> rowBGColorArgs;
 	private int keyReleaseToBeIgnored;
+	private StyleSheet styleSheet;
+	private Style oddStyle, evenStyle;
 
 	public ListView()
 	{
@@ -254,6 +258,40 @@ public class ListView extends JEditList implements IView
 	protected boolean shouldDispatchClickToButton(JButton button)
 	{
 		return !((button.getParent() != null) && (button.getParent() instanceof DataCalendar));
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#setStyles(javax.swing.text.html.StyleSheet, javax.swing.text.Style, javax.swing.text.Style)
+	 */
+	public void setStyles(StyleSheet styleSheet, Style oddStyle, Style evenStyle)
+	{
+		this.styleSheet = styleSheet;
+		this.oddStyle = oddStyle;
+		this.evenStyle = evenStyle;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getOddStyle()
+	 */
+	public Style getOddStyle()
+	{
+		return oddStyle;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getEvenStyle()
+	 */
+	public Style getEvenStyle()
+	{
+		return evenStyle;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getStyleSheet()
+	 */
+	public StyleSheet getStyleSheet()
+	{
+		return styleSheet;
 	}
 
 }

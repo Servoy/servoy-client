@@ -40,6 +40,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.text.Style;
+import javax.swing.text.html.StyleSheet;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
@@ -191,6 +193,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	private Component resizedComponent; // the component that has been resized because of a column resize
 
 	private final ISupportOnRenderCallback dataRendererOnRenderWrapper;
+	private StyleSheet styleSheet;
+	private Style oddStyle, evenStyle;
 
 	public static class CellContainer extends WebMarkupContainer
 	{
@@ -2828,44 +2832,54 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		Object color = null;
 		final IRecordInternal rec = listItem.getModelObject();
 		String rowBGColorProvider = getRowBGColorScript();
-		if (rec != null && rowBGColorProvider != null)
+		Row rawData = null;
+		if (rec != null && (rawData = rec.getRawData()) != null)
 		{
-			// TODO type and name should be get somehow if this is possible, we have to know the specific cell/column for that.
-			String type = null;//(renderer instanceof IScriptBaseMethods) ? ((IScriptBaseMethods)renderer).js_getElementType() : null;
-			String cellName = null;//(renderer instanceof IScriptBaseMethods) ? ((IScriptBaseMethods)renderer).js_getName() : null;
-
-			Row rawdata = rec.getRawData();
-			if (rawdata != null && rawdata.containsCalculation(rowBGColorProvider))
+			if (rowBGColorProvider != null)
 			{
-				// TODO this should be done better....
-				// isEdited is always false
-				Record.VALIDATE_CALCS.set(Boolean.FALSE);
-				try
+				// TODO type and name should be get somehow if this is possible, we have to know the specific cell/column for that.
+				String type = null;//(renderer instanceof IScriptBaseMethods) ? ((IScriptBaseMethods)renderer).js_getElementType() : null;
+				String cellName = null;//(renderer instanceof IScriptBaseMethods) ? ((IScriptBaseMethods)renderer).js_getName() : null;
+
+				if (rawData.containsCalculation(rowBGColorProvider))
 				{
-					color = rec.getParentFoundSet().getCalculationValue(
-						rec,
-						rowBGColorProvider,
-						Utils.arrayMerge(new Object[] { new Integer(listItem.getIndex()), new Boolean(isSelected), type, cellName, Boolean.FALSE },
-							Utils.parseJSExpressions(getRowBGColorArgs())), null);
+					// TODO this should be done better....
+					// isEdited is always false
+					Record.VALIDATE_CALCS.set(Boolean.FALSE);
+					try
+					{
+						color = rec.getParentFoundSet().getCalculationValue(
+							rec,
+							rowBGColorProvider,
+							Utils.arrayMerge(new Object[] { new Integer(listItem.getIndex()), new Boolean(isSelected), type, cellName, Boolean.FALSE },
+								Utils.parseJSExpressions(getRowBGColorArgs())), null);
+					}
+					finally
+					{
+						Record.VALIDATE_CALCS.set(null);
+					}
 				}
-				finally
+				else
 				{
-					Record.VALIDATE_CALCS.set(null);
+					try
+					{
+						FormController currentForm = dal.getFormController();
+						color = currentForm.executeFunction(rowBGColorProvider, Utils.arrayMerge(new Object[] { new Integer(listItem.getIndex()), new Boolean(
+							isSelected), type, cellName, currentForm.getName(), rec, Boolean.FALSE }, Utils.parseJSExpressions(getRowBGColorArgs())), false,
+							null, true, null);
+					}
+					catch (Exception ex)
+					{
+						Debug.error(ex);
+					}
 				}
 			}
-			else
+
+			StyleSheet ss = getStyleSheet();
+			Style style = (listItem.getIndex() % 2 == 0) ? getOddStyle() : getEvenStyle(); // because index = 0 means record = 1
+			if (ss != null && style != null)
 			{
-				try
-				{
-					FormController currentForm = dal.getFormController();
-					color = currentForm.executeFunction(rowBGColorProvider, Utils.arrayMerge(new Object[] { new Integer(listItem.getIndex()), new Boolean(
-						isSelected), type, cellName, currentForm.getName(), rec, Boolean.FALSE }, Utils.parseJSExpressions(getRowBGColorArgs())), false, null,
-						true, null);
-				}
-				catch (Exception ex)
-				{
-					Debug.error(ex);
-				}
+				color = PersistHelper.createColorString(ss.getBackground(style));
 			}
 		}
 
@@ -3384,6 +3398,40 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	public String getOnRenderToString()
 	{
 		return cellview.toString();
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getOddStyle()
+	 */
+	public Style getOddStyle()
+	{
+		return oddStyle;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getEvenStyle()
+	 */
+	public Style getEvenStyle()
+	{
+		return evenStyle;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#setStyles(javax.swing.text.html.StyleSheet, javax.swing.text.Style, javax.swing.text.Style)
+	 */
+	public void setStyles(StyleSheet styleSheet, Style oddStyle, Style evenStyle)
+	{
+		this.styleSheet = styleSheet;
+		this.oddStyle = oddStyle;
+		this.evenStyle = evenStyle;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getStyleSheet()
+	 */
+	public StyleSheet getStyleSheet()
+	{
+		return styleSheet;
 	}
 }
 

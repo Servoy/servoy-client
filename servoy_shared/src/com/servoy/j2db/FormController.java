@@ -1570,7 +1570,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	}
 
 	private FixedStyleSheet ss = null;
-	private javax.swing.text.Style s = null;
+	private javax.swing.text.Style s = null, styleOdd = null, styleEven = null;
 
 	void init()
 	{
@@ -1599,11 +1599,20 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		if (ss != null)
 		{
 			String lookupname = "form"; //$NON-NLS-1$
+			String lookupnameOdd = "form-odd"; //$NON-NLS-1$
+			String lookupnameEven = "form-even"; //$NON-NLS-1$
+
 			if (form.getStyleClass() != null && !"".equals(form.getStyleClass())) //$NON-NLS-1$
 			{
-				lookupname += '.' + form.getStyleClass();
+				String formStyleClass = form.getStyleClass();
+				lookupname += '.' + formStyleClass;
+				lookupnameOdd += '.' + formStyleClass;
+				lookupnameEven += '.' + formStyleClass;
+
 			}
 			s = ss.getRule(lookupname);
+			styleOdd = ss.getRule(lookupnameOdd);
+			styleEven = ss.getRule(lookupnameEven);
 			if (s != null)
 			{
 				if (border == null)
@@ -3498,6 +3507,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			view.setModel(formModel);
 		}
 		view.setRowBGColorScript(form.getRowBGColorCalculation(), form.getInstanceMethodArguments("rowBGColorCalculation")); //$NON-NLS-1$
+		view.setStyles(ss, styleOdd, styleEven);
 
 		if (formReadOnly)
 		{

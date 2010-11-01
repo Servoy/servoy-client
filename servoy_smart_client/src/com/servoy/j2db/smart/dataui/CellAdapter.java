@@ -59,6 +59,8 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
+import javax.swing.text.Style;
+import javax.swing.text.html.StyleSheet;
 
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
@@ -95,6 +97,7 @@ import com.servoy.j2db.smart.ListView;
 import com.servoy.j2db.smart.TableView;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
+import com.servoy.j2db.ui.ISupportOddEvenStyling;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.Debug;
@@ -767,6 +770,17 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				if (bg_color != null && !(bg_color.toString().trim().length() == 0) && !(bg_color instanceof Undefined))
 				{
 					bgColor = PersistHelper.createColor(bg_color.toString());
+				}
+			}
+
+			if (jtable instanceof ISupportOddEvenStyling)
+			{
+				ISupportOddEvenStyling oddEvenStyling = (ISupportOddEvenStyling)jtable;
+				StyleSheet ss = oddEvenStyling.getStyleSheet();
+				Style style = (row % 2 == 0) ? oddEvenStyling.getOddStyle() : oddEvenStyling.getEvenStyle(); // because index = 0 means record = 1
+				if (ss != null && style != null)
+				{
+					bgColor = ss.getBackground(style);
 				}
 			}
 		}

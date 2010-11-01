@@ -43,6 +43,8 @@ import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import javax.swing.plaf.ColorUIResource;
+import javax.swing.text.Style;
+import javax.swing.text.html.StyleSheet;
 
 import org.mozilla.javascript.Undefined;
 
@@ -67,6 +69,7 @@ import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
+import com.servoy.j2db.ui.ISupportOddEvenStyling;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowBGColorScript;
 import com.servoy.j2db.util.Debug;
@@ -480,6 +483,17 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 					else
 					{
 						setBackground(defaultColor);
+					}
+				}
+
+				if (rendererParentCanBeNull instanceof ISupportOddEvenStyling && !specialStateCase)
+				{
+					ISupportOddEvenStyling oddEvenStyling = (ISupportOddEvenStyling)rendererParentCanBeNull;
+					StyleSheet ss = oddEvenStyling.getStyleSheet();
+					Style style = (index % 2 == 0) ? oddEvenStyling.getOddStyle() : oddEvenStyling.getEvenStyle(); // because index = 0 means record = 1
+					if (ss != null && style != null)
+					{
+						setBackground(ss.getBackground(style));
 					}
 				}
 			}

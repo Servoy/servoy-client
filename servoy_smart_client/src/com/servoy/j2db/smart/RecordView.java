@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.smart;
 
 
@@ -31,6 +31,8 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.text.Style;
+import javax.swing.text.html.StyleSheet;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IView;
@@ -54,6 +56,8 @@ public class RecordView extends EnablePanel implements ChangeListener, ListDataL
 	private DataRenderer renderer;
 	private final IApplication application;
 	private boolean isAdjusting;
+	private StyleSheet styleSheet;
+	private Style oddStyle, evenStyle;
 
 	public RecordView(IApplication app)
 	{
@@ -376,5 +380,39 @@ public class RecordView extends EnablePanel implements ChangeListener, ListDataL
 	public void setEditable(boolean findMode)
 	{
 		//TODO: done elsewhere?
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#setStyles(javax.swing.text.html.StyleSheet, javax.swing.text.Style, javax.swing.text.Style)
+	 */
+	public void setStyles(StyleSheet styleSheet, Style oddStyle, Style evenStyle)
+	{
+		this.styleSheet = styleSheet;
+		this.oddStyle = oddStyle;
+		this.evenStyle = evenStyle;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getOddStyle()
+	 */
+	public Style getOddStyle()
+	{
+		return oddStyle;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getEvenStyle()
+	 */
+	public Style getEvenStyle()
+	{
+		return evenStyle;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getStyleSheet()
+	 */
+	public StyleSheet getStyleSheet()
+	{
+		return styleSheet;
 	}
 }

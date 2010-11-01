@@ -14,38 +14,23 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
-package com.servoy.j2db;
 
+package com.servoy.j2db.ui;
 
-import com.servoy.j2db.dataprocessing.IFoundSetInternal;
-import com.servoy.j2db.ui.ISupportOddEvenStyling;
-import com.servoy.j2db.ui.ISupportRowBGColorScript;
-import com.servoy.j2db.util.IDestroyable;
+import javax.swing.text.Style;
+import javax.swing.text.html.StyleSheet;
 
 /**
- * Helper interface which defines a view
- * 
- * @author jblok
+ * @author gabi
+ *
  */
-public interface IView extends ISupportRowBGColorScript, IDestroyable, ISupportOddEvenStyling
+public interface ISupportOddEvenStyling
 {
-	public void setModel(IFoundSetInternal fs);
+	public void setStyles(StyleSheet styleSheet, Style oddStyle, Style evenStyle);
 
-	public void start(IApplication app);
+	public StyleSheet getStyleSheet();
 
-	public void stop();
+	public Style getOddStyle();
 
-	public boolean editCellAt(int row);//used for focusing on first field
-
-	public boolean stopUIEditing(boolean looseFocus);
-
-	public boolean isEditing();
-
-	public void requestFocus();
-
-	public void ensureIndexIsVisible(int index);
-
-	public void setEditable(boolean findMode);
-
-	public boolean isDisplayingMoreThanOneRecord();
+	public Style getEvenStyle();
 }

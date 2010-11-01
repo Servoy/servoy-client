@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import javax.swing.border.Border;
+import javax.swing.text.Style;
+import javax.swing.text.html.StyleSheet;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -460,21 +462,24 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 		if (parentView != null)
 		{
 			String rowBGColorCalculation = parentView.getRowBGColorScript();
-			if (rowBGColorCalculation != null)
+			IRecordInternal rec = (IRecordInternal)getDefaultModelObject();
+			if (rec != null && rec.getRawData() != null)
 			{
-				IRecordInternal rec = (IRecordInternal)getDefaultModelObject();
-
-				if (rec != null && rec.getRawData() != null)
+				IFoundSetInternal parentFoundSet = rec.getParentFoundSet();
+				int recIndex = parentFoundSet.getSelectedIndex();
+				if (rowBGColorCalculation != null)
 				{
-					IFoundSetInternal parentFoundSet = rec.getParentFoundSet();
-					boolean isSelected = parentFoundSet.getSelectedIndex() == parentFoundSet.getRecordIndex(rec);
+
+					boolean isSelected = recIndex == parentFoundSet.getRecordIndex(rec);
 					Object bg_color = null;
 					if (rec.getRawData().containsCalculation(rowBGColorCalculation))
 					{
 						// data renderer is always on the selected index.
-						bg_color = parentFoundSet.getCalculationValue(rec, rowBGColorCalculation, Utils.arrayMerge(
-							new Object[] { new Integer(parentFoundSet.getSelectedIndex()), new Boolean(isSelected), null, null, Boolean.FALSE },
-							Utils.parseJSExpressions(parentView.getRowBGColorArgs())), null);
+						bg_color = parentFoundSet.getCalculationValue(
+							rec,
+							rowBGColorCalculation,
+							Utils.arrayMerge(new Object[] { new Integer(recIndex), new Boolean(isSelected), null, null, Boolean.FALSE },
+								Utils.parseJSExpressions(parentView.getRowBGColorArgs())), null);
 					}
 					else
 					{
@@ -496,6 +501,13 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 					{
 						return bg_color.toString();
 					}
+				}
+
+				StyleSheet ss = parentView.getStyleSheet();
+				Style style = (recIndex % 2 == 0) ? parentView.getEvenStyle() : parentView.getOddStyle();
+				if (ss != null && style != null)
+				{
+					return PersistHelper.createColorString(ss.getBackground(style));
 				}
 			}
 		}

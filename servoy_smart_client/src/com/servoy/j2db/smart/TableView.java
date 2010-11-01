@@ -74,6 +74,8 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.text.JTextComponent;
+import javax.swing.text.Style;
+import javax.swing.text.html.StyleSheet;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
@@ -176,6 +178,8 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 	private boolean layoutChangingByJavascript = false;
 
 	private final ISupportOnRenderCallback dataRendererOnRenderWrapper;
+	private StyleSheet styleSheet;
+	private Style oddStyle, evenStyle;
 
 	public TableView(IApplication app, final FormController fc, Form formForStyles, final AbstractBase cellview, final IScriptExecuter scriptExecuter,
 		IDataRenderer headerComp, IDataRenderer leadingGrandSummaryComp, boolean printing)
@@ -1881,5 +1885,40 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 	public String getOnRenderToString()
 	{
 		return cellview.toString();
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#setStyles(javax.swing.text.html.StyleSheet, javax.swing.text.Style, javax.swing.text.Style)
+	 */
+	public void setStyles(StyleSheet styleSheet, Style oddStyle, Style evenStyle)
+	{
+		this.styleSheet = styleSheet;
+		this.oddStyle = oddStyle;
+		this.evenStyle = evenStyle;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getOddStyle()
+	 */
+	public Style getOddStyle()
+	{
+		return oddStyle;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getEvenStyle()
+	 */
+	public Style getEvenStyle()
+	{
+		return evenStyle;
+	}
+
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getStyleSheet()
+	 */
+	public StyleSheet getStyleSheet()
+	{
+		return styleSheet;
 	}
 }
