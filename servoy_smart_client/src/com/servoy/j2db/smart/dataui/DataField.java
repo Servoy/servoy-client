@@ -2115,7 +2115,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 					formatter = (DefaultFormatter)editFormatter;
 				}
 			}
-			if (Column.mapToDefaultType(dataType) == IColumnTypes.DATETIME && formatter != null && formatter.getOverwriteMode())
+			if (Column.mapToDefaultType(dataType) == IColumnTypes.DATETIME && formatter != null && formatter.getOverwriteMode() && isEditable())
 			{
 				String selected = getSelectedText();
 				if (selected == null || !getText().equals(selected))
