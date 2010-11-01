@@ -378,7 +378,14 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 			g.fillRect(0, 0, 3, getHeight());
 		}
 		dataRendererOnRenderWrapper.getRenderEventExecutor().fireOnRender(dataRendererOnRenderWrapper, hasFocus());
-		super.paintChildren(g);
+		try
+		{
+			super.paintChildren(g);
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+		}
 	}
 
 	private String strRowBGColorProvider = null;
