@@ -618,7 +618,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			{
 				if (!divDialog.isShown())
 				{
-					return true; // double clicked?
+					return false; // double clicked?
 				}
 
 				FormManager fm = ((FormManager)client.getFormManager());
