@@ -266,6 +266,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 		{
 			dlm = new LookupListModel(application, (CustomValueList)list);
 		}
+		converter = null; // clear old converter, so a new one is created  for the new list
 	}
 
 	/**
