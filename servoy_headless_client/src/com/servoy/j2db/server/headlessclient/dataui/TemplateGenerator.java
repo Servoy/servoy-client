@@ -41,8 +41,8 @@ import javax.swing.border.Border;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.html.CSS;
 
-import org.apache.wicket.ResourceReference;
 import org.apache.wicket.Component.IVisitor;
+import org.apache.wicket.ResourceReference;
 
 import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
@@ -736,7 +736,8 @@ public class TemplateGenerator
 
 							TextualStyle sortLinkStyle = new TextualStyle();
 							sortLinkStyle.setProperty("position", "relative");
-							sortLinkStyle.setProperty("width", (headerW - SortableCellViewHeader.ARROW_WIDTH) + "px");
+							int cellWidth = (headerW - SortableCellViewHeader.ARROW_WIDTH);
+							sortLinkStyle.setProperty("width", cellWidth + "px");
 							if (sortable)
 							{
 								sortLinkStyle.setProperty("text-align", styleObj.getProperty("text-align"));
@@ -749,6 +750,8 @@ public class TemplateGenerator
 								html.append('>');
 								html.append("<div servoy:id='headertext' ");
 								styleObj.setProperty("cursor", "pointer");
+								styleObj.setProperty("height", cellHeight + "px"); //$NON-NLS-1$ //$NON-NLS-2$
+								styleObj.setProperty("width", cellWidth + "px"); //$NON-NLS-1$ //$NON-NLS-2$
 								html.append(styleObj.toString());
 								html.append("></div>");
 								html.append("</a>");
