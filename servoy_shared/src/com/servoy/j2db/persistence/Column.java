@@ -53,6 +53,8 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 	public static final long serialVersionUID = -2730015162348120893L;
 	public static final int MAX_SQL_OBJECT_NAME_LENGTH = 30; // max length of table names, column names, etc; 30 seen by oracle, 31 seen by firebird
 
+	public static final String RESERVED_NAME_PREFIX = "_"; //$NON-NLS-1$
+
 /*
  * _____________________________________________________________ Declaration of attributes
  */
@@ -689,6 +691,10 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 		if (dataprovider_id == null)
 		{
 			dataprovider_id = Utils.generateNormalizedName(plainSQLName);
+			if (Ident.checkIfKeyword(dataprovider_id))
+			{
+				dataprovider_id = RESERVED_NAME_PREFIX + dataprovider_id;
+			}
 		}
 		return dataprovider_id;
 	}
