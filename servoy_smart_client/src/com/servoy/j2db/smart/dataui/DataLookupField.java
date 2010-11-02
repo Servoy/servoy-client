@@ -171,6 +171,7 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 				jlist.setModel(dlm);
 			}
 		}
+		setValue(getValue()); // force update the display value
 	}
 
 	/*
