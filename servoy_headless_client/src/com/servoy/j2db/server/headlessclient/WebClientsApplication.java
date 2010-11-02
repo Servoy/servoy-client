@@ -170,6 +170,7 @@ public class WebClientsApplication extends WebApplication
 	 */
 	public WebClientsApplication()
 	{
+		super();
 	}
 
 	public WebClientsApplication fakeInit()
@@ -558,7 +559,7 @@ public class WebClientsApplication extends WebApplication
 				{
 					if (((WebRequest)RequestCycle.get().getRequest()).isAjax())
 					{
-						Debug.log("ajax request with exception aborted ",e); //$NON-NLS-1$
+						Debug.log("ajax request with exception aborted ", e); //$NON-NLS-1$
 						throw new AbortException();
 					}
 				}
