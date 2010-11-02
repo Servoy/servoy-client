@@ -318,7 +318,7 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 	{
 //		enclosedComponent.setMargin(i); seems to have no effect
 		enclosedComponent.setBorder(BorderFactory.createCompoundBorder(enclosedComponent.getBorder(),
-		BorderFactory.createEmptyBorder(m.top, m.left, m.bottom, m.right)));
+			BorderFactory.createEmptyBorder(m.top, m.left, m.bottom, m.right)));
 	}
 
 	@Override
@@ -1046,6 +1046,22 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 		{
 			enclosedComponent.setToolTipText(null);
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.swing.JComponent#getToolTipText(java.awt.event.MouseEvent)
+	 */
+	@Override
+	public String getToolTipText(MouseEvent event)
+	{
+		String txt = super.getToolTipText(event);
+		if (txt == null || txt.length() == 0)
+		{
+			return enclosedComponent.getToolTipText(event);
+		}
+		return null;
 	}
 
 
