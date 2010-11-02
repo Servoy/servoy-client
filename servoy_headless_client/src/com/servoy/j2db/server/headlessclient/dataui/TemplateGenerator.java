@@ -693,7 +693,8 @@ public class TemplateGenerator
 
 							TextualStyle sortLinkStyle = new TextualStyle();
 							sortLinkStyle.setProperty("position", "relative"); //$NON-NLS-1$ //$NON-NLS-2$
-							sortLinkStyle.setProperty("width", (headerW - SortableCellViewHeader.ARROW_WIDTH) + "px"); //$NON-NLS-1$ //$NON-NLS-2$
+							int cellWidth = (headerW - SortableCellViewHeader.ARROW_WIDTH);
+							sortLinkStyle.setProperty("width", cellWidth + "px"); //$NON-NLS-1$ //$NON-NLS-2$
 							if (sortable)
 							{
 								sortLinkStyle.setProperty("text-align", styleObj.getProperty("text-align")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -706,6 +707,8 @@ public class TemplateGenerator
 								html.append('>');
 								html.append("<div servoy:id='headertext' "); //$NON-NLS-1$ 
 								styleObj.setProperty("cursor", "pointer"); //$NON-NLS-1$ //$NON-NLS-2$
+								styleObj.setProperty("height", cellHeight + "px"); //$NON-NLS-1$ //$NON-NLS-2$
+								styleObj.setProperty("width", cellWidth + "px"); //$NON-NLS-1$ //$NON-NLS-2$
 								html.append(styleObj.toString());
 								html.append("></div>"); //$NON-NLS-1$ 
 								html.append("</a>"); //$NON-NLS-1$ 
