@@ -1074,6 +1074,8 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 					sb.append("'); calendarTextField.value = '");
 					sb.append(dateValue);
 					sb.append("'; calendarTextField.onchange();");
+					// make sure the the validation variables are set to blank (edit/display formats)
+					sb.append("calendarTextField.editValue  = ''; calendarTextField.displayValue  = '';");
 					target.appendJavascript(sb.toString());
 				}
 				catch (ConversionException e)

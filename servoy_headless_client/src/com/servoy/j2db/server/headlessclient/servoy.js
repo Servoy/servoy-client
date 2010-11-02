@@ -1080,13 +1080,16 @@ if (typeof(Servoy.Validation) == "undefined")
 			
 			var focusCallback = function(e)
 			{
-				var caret = Servoy.Utils.doGetCaretPosition(this);
-				this.value = this.editValue;
-				Servoy.Utils.doSetCaretPosition(this,caret);
+				if (this.editValue != '')
+				{
+					var caret = Servoy.Utils.doGetCaretPosition(this);
+					this.value = this.editValue;
+					Servoy.Utils.doSetCaretPosition(this,caret);
+				}
 			};
 			var blurCallback = function(e)
 			{
-				if (this.value == this.editValue)
+				if (this.editValue != '' && this.value == this.editValue)
 				{
 					this.value = this.displayValue;
 				}
