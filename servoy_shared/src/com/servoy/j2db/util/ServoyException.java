@@ -402,6 +402,10 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * {
 	 * 	application.output("is a ServoyException")
 	 * 	application.output("Errorcode: "+ex.getErrorCode())
+	 *  var trace = "";
+	 *  if (ex.getScriptStackTrace) trace = ex.getScriptStackTrace();
+	 *  else if (ex.getStackTrace)  trace = ex.getStackTrace();
+	 *  application.output("Exception stacktrace: "+trace);
 	 * 	if (ex.getErrorCode() == ServoyException.SAVE_FAILED)
 	 * 	{
 	 * 		plugins.dialogs.showErrorDialog( "Error",  "It seems you did not fill in a required field", 'OK');
