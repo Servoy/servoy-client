@@ -127,6 +127,7 @@ import com.servoy.j2db.ui.IDisplayTagText;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IFormLookupPanel;
 import com.servoy.j2db.ui.ILabel;
+import com.servoy.j2db.ui.IPortalComponent;
 import com.servoy.j2db.ui.IRect;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISplitPane;
@@ -1941,7 +1942,23 @@ public class ComponentFactory
 	private static IComponent createPortal(IApplication application, Form form, Portal meta, IDataProviderLookup dataProviderLookup, IScriptExecuter el,
 		boolean printing)
 	{
-		return application.getItemFactory().createPortalComponent(meta, form, dataProviderLookup, el, printing);
+		IPortalComponent portalComponent = application.getItemFactory().createPortalComponent(meta, form, dataProviderLookup, el, printing);
+		FixedStyleSheet ss = ComponentFactory.getCSSStyleForForm(application, form);
+		if (ss != null)
+		{
+			String lookupnameOdd = "portal-odd"; //$NON-NLS-1$
+			String lookupnameEven = "portal-even"; //$NON-NLS-1$
+
+			if (meta.getStyleClass() != null && !"".equals(meta.getStyleClass())) //$NON-NLS-1$
+			{
+				String portalStyleClass = meta.getStyleClass();
+				lookupnameOdd += '.' + portalStyleClass;
+				lookupnameEven += '.' + portalStyleClass;
+
+			}
+			portalComponent.setStyles(ss, ss.getRule(lookupnameOdd), ss.getRule(lookupnameEven));
+		}
+		return portalComponent;
 	}
 
 	private static IComponent createPart(IApplication application, Part meta)

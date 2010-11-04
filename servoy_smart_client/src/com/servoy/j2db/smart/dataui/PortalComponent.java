@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -54,6 +55,8 @@ import javax.swing.plaf.ComponentUI;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
+import javax.swing.text.Style;
+import javax.swing.text.html.StyleSheet;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IScriptExecuter;
@@ -63,21 +66,30 @@ import com.servoy.j2db.component.ISupportXMLOutput;
 import com.servoy.j2db.dataprocessing.DataAdapterList;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
+import com.servoy.j2db.dataprocessing.IDisplay;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.dataprocessing.SortColumn;
+import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IDataProviderLookup;
+import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.printing.XMLPrintHelper;
 import com.servoy.j2db.smart.TableView;
+import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IPortalComponent;
 import com.servoy.j2db.ui.IScrollPane;
+import com.servoy.j2db.ui.ISupportOddEvenStyling;
+import com.servoy.j2db.ui.ISupportOnRenderCallback;
+import com.servoy.j2db.ui.ISupportOnRenderWrapper;
+import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.AutoTransferFocusListener;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
@@ -110,7 +122,7 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 	private Component[] editorComponents;
 	private Component[] rendererComponents;
 
-	private JEditList list;
+	private PortalMultilineList list;
 	private DataRenderer renderer;
 	private DataRenderer editor;
 
@@ -126,10 +138,10 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 		application = app;
 		setCorner(ScrollPaneConstants.UPPER_RIGHT_CORNER, new JPanel());
 		ComponentFactory.applyScrollBarsProperty(this, meta);
+
 		if (meta.getMultiLine())
 		{
-			//use JEditList
-			list = new JEditList();
+			list = new PortalMultilineList(meta, el);
 			try
 			{
 				renderer = (DataRenderer)application.getDataRenderFactory().createPortalRenderer(app, meta, (Form)meta.getParent(), el, printing, null);
@@ -149,6 +161,24 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 					{
 						//in list it is impossible to get lazy loaded images displaying correctly, due to needed repaintfire, which we cannot initiate
 						((ISupportAsyncLoading)element).setAsyncLoadingEnabled(false);
+					}
+				}
+
+				Iterator<IPersist> portalObjectsIte = meta.getAllObjects();
+				IPersist portalObj;
+				IDisplay portalComponent;
+				while (portalObjectsIte.hasNext())
+				{
+					portalObj = portalObjectsIte.next();
+					portalComponent = renderer.getFieldComponents().get(portalObj);
+					if (portalComponent instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)portalComponent).getRenderEventExecutor() != null)
+					{
+						addPortalOnRenderCallback(meta, ((ISupportOnRenderCallback)portalComponent).getRenderEventExecutor(), portalObj, el);
+					}
+					portalComponent = editor.getFieldComponents().get(portalObj);
+					if (portalComponent instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)portalComponent).getRenderEventExecutor() != null)
+					{
+						addPortalOnRenderCallback(meta, ((ISupportOnRenderCallback)portalComponent).getRenderEventExecutor(), portalObj, el);
 					}
 				}
 			}
@@ -1219,6 +1249,24 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 		this.transferFocusBackwards = transferBackwards;
 	}
 
+	private void addPortalOnRenderCallback(Portal portal, RenderEventExecutor renderEventExecutor, IPersist obj, IScriptExecuter se)
+	{
+		int onRenderMethodID = 0;
+		if (obj instanceof Field)
+		{
+			onRenderMethodID = ((Field)obj).getOnRenderMethodID();
+		}
+		else if (obj instanceof GraphicalComponent)
+		{
+			onRenderMethodID = ((GraphicalComponent)obj).getOnRenderMethodID();
+		}
+		if (onRenderMethodID <= 0) onRenderMethodID = portal.getOnRenderMethodID();
+		if (onRenderMethodID > 0) renderEventExecutor.setRenderCallback(Integer.toString(onRenderMethodID));
+		else renderEventExecutor.setRenderCallback(null);
+
+		renderEventExecutor.setRenderScriptExecuter(se);
+	}
+
 	private class GoOutOfPortalComponentAction extends AbstractAction
 	{
 		private final boolean moveBackward;
@@ -1233,5 +1281,156 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 			PortalComponent.this.setTransferFocusBackwards(moveBackward);
 			KeyboardFocusManager.getCurrentKeyboardFocusManager().upFocusCycle();
 		}
+	}
+
+	private StyleSheet styleSheet;
+	private Style oddStyle;
+	private Style evenStyle;
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#setStyles(javax.swing.text.html.StyleSheet, javax.swing.text.Style, javax.swing.text.Style)
+	 */
+	public void setStyles(StyleSheet styleSheet, Style oddStyle, Style evenStyle)
+	{
+		this.styleSheet = styleSheet;
+		this.oddStyle = oddStyle;
+		this.evenStyle = evenStyle;
+
+		if (table != null)
+		{
+			table.setStyles(styleSheet, oddStyle, evenStyle);
+		}
+		else if (list != null)
+		{
+			list.setStyles(styleSheet, oddStyle, evenStyle);
+			if (oddStyle != null || evenStyle != null)
+			{
+				for (Component c : renderer.getComponents())
+				{
+					if (c instanceof JComponent) ((JComponent)c).setOpaque(false);
+				}
+				for (Component c : editor.getComponents())
+				{
+					if (c instanceof JComponent) ((JComponent)c).setOpaque(false);
+				}
+			}
+		}
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getStyleSheet()
+	 */
+	public StyleSheet getStyleSheet()
+	{
+		return styleSheet;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getOddStyle()
+	 */
+	public Style getOddStyle()
+	{
+		return oddStyle;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getEvenStyle()
+	 */
+	public Style getEvenStyle()
+	{
+		return evenStyle;
+	}
+
+	private class PortalMultilineList extends JEditList implements ISupportOddEvenStyling, ISupportOnRenderWrapper
+	{
+
+		private final ISupportOnRenderCallback dataRendererOnRenderWrapper;
+		private final Portal portal;
+
+		private StyleSheet ss;
+		private Style oStyle;
+		private Style eStyle;
+
+		PortalMultilineList(Portal portal, IScriptExecuter se)
+		{
+			this.portal = portal;
+			dataRendererOnRenderWrapper = new DataRendererOnRenderWrapper(this);
+			int onRenderMethodID = portal.getOnRenderMethodID();
+			if (onRenderMethodID > 0)
+			{
+				dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderCallback(Integer.toString(onRenderMethodID));
+				dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderScriptExecuter(se);
+			}
+		}
+
+		/*
+		 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#setStyles(javax.swing.text.html.StyleSheet, javax.swing.text.Style, javax.swing.text.Style)
+		 */
+		public void setStyles(StyleSheet styleSheet, Style oddStyle, Style evenStyle)
+		{
+			this.ss = styleSheet;
+			this.oStyle = oddStyle;
+			this.eStyle = evenStyle;
+		}
+
+		/*
+		 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getStyleSheet()
+		 */
+		public StyleSheet getStyleSheet()
+		{
+			return ss;
+		}
+
+		@Override
+		public void paintComponent(Graphics g)
+		{
+			if (dataRendererOnRenderWrapper.getRenderEventExecutor().hasRenderCallback())
+			{
+				dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderState(null, -1, false);
+				dataRendererOnRenderWrapper.getRenderEventExecutor().fireOnRender(dataRendererOnRenderWrapper, false);
+			}
+			super.paintComponent(g);
+		}
+
+		/*
+		 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getOddStyle()
+		 */
+		public Style getOddStyle()
+		{
+			return oStyle;
+		}
+
+		/*
+		 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getEvenStyle()
+		 */
+		public Style getEvenStyle()
+		{
+			return eStyle;
+		}
+
+		/*
+		 * @see com.servoy.j2db.ui.ISupportOnRenderWrapper#getOnRenderComponent()
+		 */
+		public ISupportOnRenderCallback getOnRenderComponent()
+		{
+			return dataRendererOnRenderWrapper;
+		}
+
+		/*
+		 * @see com.servoy.j2db.ui.ISupportOnRenderWrapper#getOnRenderElementType()
+		 */
+		public String getOnRenderElementType()
+		{
+			return "PORTAL"; //$NON-NLS-1$
+		}
+
+		/*
+		 * @see com.servoy.j2db.ui.ISupportOnRenderWrapper#getOnRenderToString()
+		 */
+		public String getOnRenderToString()
+		{
+			return portal.toString();
+		}
+
 	}
 }

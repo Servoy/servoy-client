@@ -500,10 +500,16 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 					Style style = (index % 2 == 0) ? oddEvenStyling.getOddStyle() : oddEvenStyling.getEvenStyle(); // because index = 0 means record = 1
 					if (ss != null && style != null)
 					{
-						setBackground(ss.getBackground(style));
+						Color bgColor = ss.getBackground(style);
+						if (bgColor != null)
+						{
+							bgRowColorSet = true;
+							setBackground(bgColor);
+						}
 					}
 				}
 			}
+			DataAdapterList.setDataRendererComponentsRenderState(this, (IRecordInternal)value);
 		}
 
 		if (rendererParentCanBeNull != null)
@@ -606,9 +612,6 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 		{
 			dataAdapterList.setRecord(record, true);
 		}
-
-		DataAdapterList.setDataRendererComponentsRenderState(this, record);
-		repaint();
 	}
 
 	public String getId()

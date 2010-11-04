@@ -279,7 +279,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 		if (onRenderMethodID > 0)
 		{
 			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderCallback(Integer.toString(onRenderMethodID));
-			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderScriptExecuter(fc.getScriptExecuter());
+			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderScriptExecuter(fc != null ? fc.getScriptExecuter() : null);
 		}
 		initDragNDrop(fc, 0);
 
@@ -1825,7 +1825,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 		if (onRenderMethodID > 0) renderEventExecutor.setRenderCallback(Integer.toString(onRenderMethodID));
 		else renderEventExecutor.setRenderCallback(null);
 
-		renderEventExecutor.setRenderScriptExecuter(fc.getScriptExecuter());
+		renderEventExecutor.setRenderScriptExecuter(fc != null ? fc.getScriptExecuter() : null);
 	}
 
 	private class DragStartTester extends MouseAdapter implements MouseMotionListener

@@ -893,17 +893,21 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 
 	private static Object[] getRecordIndexAndSelectStatus(IRecordInternal rec)
 	{
+		int index = -1;
+		boolean isSelected = false;
 		IFoundSetInternal parentFoundSet = rec.getParentFoundSet();
-		int index = parentFoundSet.getRecordIndex(rec);
-		boolean isSelected;
-		if (parentFoundSet instanceof FoundSet)
+		if (parentFoundSet != null)
 		{
-			int[] selectedIdxs = ((FoundSet)parentFoundSet).getSelectedIndexes();
-			isSelected = Arrays.binarySearch(selectedIdxs, index) >= 0;
-		}
-		else
-		{
-			isSelected = parentFoundSet.getSelectedIndex() == index;
+			index = parentFoundSet.getRecordIndex(rec);
+			if (parentFoundSet instanceof FoundSet)
+			{
+				int[] selectedIdxs = ((FoundSet)parentFoundSet).getSelectedIndexes();
+				isSelected = Arrays.binarySearch(selectedIdxs, index) >= 0;
+			}
+			else
+			{
+				isSelected = parentFoundSet.getSelectedIndex() == index;
+			}
 		}
 
 		return new Object[] { new Integer(index), new Boolean(isSelected) };

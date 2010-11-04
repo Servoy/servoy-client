@@ -902,17 +902,27 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		boolean sortable = true;
 		String initialSortString = null;
+		int onRenderMethodID = 0;
 		if (cellview instanceof Portal)
 		{
 			Portal p = (Portal)cellview;
 			setRowBGColorScript(p.getRowBGColorCalculation(), p.getInstanceMethodArguments("rowBGColorCalculation")); //$NON-NLS-1$
 			sortable = p.getSortable();
 			initialSortString = p.getInitialSort();
+			onRenderMethodID = p.getOnRenderMethodID();
 		}
 		else if (cellview instanceof Form)
 		{
 			initialSortString = form.getInitialSort();
+			onRenderMethodID = form.getOnRenderMethodID();
 		}
+
+		if (onRenderMethodID > 0)
+		{
+			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderCallback(Integer.toString(onRenderMethodID));
+			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderScriptExecuter(fc != null ? fc.getScriptExecuter() : null);
+		}
+
 		initDragNDrop(fc, startY);
 
 		if (sortable)
@@ -2526,12 +2536,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	{
 		if (accessible)
 		{
-			pagingNavigator.setEnabled(b);
-			table.setEnabled(b);
-			if (headers != null)
-			{
-				headers.setEnabled(b);
-			}
+			if (pagingNavigator != null) pagingNavigator.setEnabled(b);
+			if (table != null) table.setEnabled(b);
+			if (headers != null) headers.setEnabled(b);
 			super.setEnabled(b);
 			getStylePropertyChanges().setChanged();
 		}
