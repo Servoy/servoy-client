@@ -98,7 +98,6 @@ import com.servoy.j2db.server.headlessclient.dataui.IFormLayoutProvider;
 import com.servoy.j2db.server.headlessclient.dataui.ISupportWebTabSeq;
 import com.servoy.j2db.server.headlessclient.dataui.RecordItemModel;
 import com.servoy.j2db.server.headlessclient.dataui.StyleAppendingModifier;
-import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.server.headlessclient.dataui.WebBeanHolder;
 import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataRenderer;
@@ -108,6 +107,7 @@ import com.servoy.j2db.server.headlessclient.dataui.WebRecordView;
 import com.servoy.j2db.server.headlessclient.dataui.WebSplitPane;
 import com.servoy.j2db.server.headlessclient.dataui.WebTabFormLookup;
 import com.servoy.j2db.server.headlessclient.dataui.WebTabPanel;
+import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.smart.dataui.DataRenderer;
 import com.servoy.j2db.ui.IButton;
 import com.servoy.j2db.ui.IComponent;
@@ -1492,7 +1492,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 										vAlign = alignedObj.getVerticalAlignment();
 									}
 
-									part.addAnchoredElement(id, anchors, r, hAlign, vAlign, comp.getClass());
+									part.addAnchoredElement(comp.getMarkupId(), anchors, r, hAlign, vAlign, comp.getClass());
 								}
 
 							}

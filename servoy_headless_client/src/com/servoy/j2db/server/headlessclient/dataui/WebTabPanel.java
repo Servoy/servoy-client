@@ -44,7 +44,6 @@ import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.list.Loop;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
@@ -223,8 +222,8 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 					if (item.getIteration() == 0) link.add(new AttributeModifier("firsttab", true, new Model<Boolean>(Boolean.TRUE))); //$NON-NLS-1$
 					link.setEnabled(holder.isEnabled() && WebTabPanel.this.isEnabled());
 
-//					ServoyTabIcon tabIcon = new ServoyTabIcon("icon", holder); //$NON-NLS-1$
-//					link.add(tabIcon);
+					ServoyTabIcon tabIcon = new ServoyTabIcon("icon", holder); //$NON-NLS-1$
+					link.add(tabIcon);
 
 					Label label = new Label("linktext", new Model<String>(holder.getText())); //$NON-NLS-1$
 					label.setEscapeModelStrings(false);
@@ -267,6 +266,10 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 							if (foreground != null)
 							{
 								style += " color:" + PersistHelper.createColorString(foreground); //$NON-NLS-1$
+							}
+							if (holder.getIcon() != null)
+							{
+								style += "; padding-left: 3px";
 							}
 							return style;
 						}
@@ -1610,7 +1613,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 	}
 
 
-	private class ServoyTabIcon extends Image implements IResourceListener
+	private class ServoyTabIcon extends Label implements IResourceListener
 	{
 		private final WebTabHolder holder;
 
@@ -1618,8 +1621,6 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		{
 			super(id);
 			this.holder = holder;
-			if (holder.getIcon() != null) setImageResource(holder.getIcon());
-			else setImageResource(new MediaResource(WebDataImgMediaField.emptyImage, 0));
 			add(new StyleAppendingModifier(new Model<String>()
 			{
 				@Override
@@ -1629,6 +1630,10 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 					if (holder.getIcon() != null)
 					{
 						result += "width: " + holder.getIcon().getWidth() + "px; height: " + holder.getIcon().getHeight() + "px";
+						result += "; background-image: url(";
+						CharSequence url = urlFor(IResourceListener.INTERFACE) + "&r=" + Math.random(); //$NON-NLS-1$
+						result += getResponse().encodeURL(url);
+						result += ")";
 						if (!js_isEnabled())
 						{
 							result += "; filter:alpha(opacity=50);-moz-opacity:.50;opacity:.50"; //$NON-NLS-1$
@@ -1641,23 +1646,8 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 					return result;
 				}
 			}));
-			add(new AttributeModifier("src", new Model<String>()
-			{
-				@Override
-				public String getObject()
-				{
-					String styleAttribute = "";
-					if (holder.getIcon() != null)
-					{
-						CharSequence url = urlFor(IResourceListener.INTERFACE) + "&r=" + Math.random(); //$NON-NLS-1$
-						styleAttribute += getResponse().encodeURL(url);
-					}
-					return styleAttribute;
-				}
-			}));
 		}
 
-		@Override
 		public void onResourceRequested()
 		{
 			if (holder.getIcon() != null)

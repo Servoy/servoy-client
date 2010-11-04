@@ -246,14 +246,15 @@ function rearrageTabsInTabPanel(tabPanelId)
 	   			{
 					if (!rowMargin) rowMargin = getStyleNumeric(tabHolder, 'paddingLeft') + getStyleNumeric(tabHolder, 'paddingRight');
 					originalTabHolders.push(tabHolder);
-					var tabs = tabHolder.getElementsByTagName("div");
-					for (var j=tabs.length-1; j>=0; j--)
+					for (var j=tabHolder.childNodes.length-1; j>=0; j--)
 					{
-						var tab = tabs[j];
-						var thisAnch = tab.getElementsByTagName("a")[0];
-						if (thisAnch.getAttribute("firsttab") == "true")
-							markedFirstTab = tab;
-						allTabsTogether.unshift(tab);
+						var tab = tabHolder.childNodes[j];
+						if (tab.nodeName.toLowerCase() == "div") {
+							var thisAnch = tab.getElementsByTagName("a")[0];
+							if (thisAnch.getAttribute("firsttab") == "true")
+								markedFirstTab = tab;
+							allTabsTogether.unshift(tab);
+						}
 					}
 				}
 				else
