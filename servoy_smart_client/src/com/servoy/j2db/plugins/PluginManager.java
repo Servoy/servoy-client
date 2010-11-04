@@ -113,7 +113,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 				}
 				catch (Throwable th)
 				{
-					Debug.error("Error occured unloading client plugin: " + plugin.getName() + "  error: " + th.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
+					Debug.error("Error occured unloading client plugin: " + plugin.getName(), th); //$NON-NLS-1$ 
 				}
 			}
 			loadedClientPlugins = null;
@@ -130,7 +130,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 				}
 				catch (Throwable th)
 				{
-					Debug.error("Error ocured unloading server plugin: " + plugin.getClass().getName() + "  error: " + th.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
+					Debug.error("Error ocured unloading server plugin: " + plugin.getClass().getName(), th); //$NON-NLS-1$ 
 				}
 			}
 			loadedServerPlugins = null;
@@ -187,7 +187,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 		}
 		catch (Throwable th)
 		{
-			Debug.error("Error occured retrieving server plugins, error: " + th.getMessage()); //$NON-NLS-1$
+			Debug.error("Error occured retrieving server plugins", th); //$NON-NLS-1$
 			return null;
 		}
 	}
@@ -222,7 +222,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 					}
 					catch (Throwable th)
 					{
-						Debug.error("Error occured loading server plugin class " + element.getName() + ", error: " + th.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
+						Debug.error("Error occured loading server plugin class " + element.getName(), th); //$NON-NLS-1$ 
 					}
 				}
 
@@ -266,14 +266,14 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 							}
 							catch (Throwable th)
 							{
-								Debug.error("Error occured loading client plugin class " + element.instanceClass.getName() + ", error: " + th); //$NON-NLS-1$ //$NON-NLS-2$
+								Debug.error("Error occured loading client plugin class " + element.instanceClass.getName(), th); //$NON-NLS-1$ 
 							}
 						}
 					}
 				}
 				catch (IOException th)
 				{
-					Debug.error("Error occured loading client plugin classes, error: " + th); //$NON-NLS-1$
+					Debug.error("Error occured loading client plugin classes", th); //$NON-NLS-1$
 				}
 			}
 			else
@@ -299,8 +299,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 						}
 						catch (Throwable th)
 						{
-							Debug.error("Error occured loading client plugin class " + clazzName + ", error: " + th); //$NON-NLS-1$ //$NON-NLS-2$
-							Debug.error(th);
+							Debug.error("Error occured loading client plugin class " + clazzName, th); //$NON-NLS-1$ 
 						}
 					}
 				}
@@ -394,8 +393,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 				}
 				catch (Throwable th)
 				{
-					Debug.error("Error ocured initializing plugin: " + plugin.getName() + " , error: " + th.getMessage()); //$NON-NLS-1$//$NON-NLS-2$
-					Debug.error(th);
+					Debug.error("Error ocured initializing plugin: " + plugin.getName(), th); //$NON-NLS-1$
 				}
 			}
 
@@ -443,8 +441,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 				}
 				catch (Throwable th)
 				{
-					Debug.error("Error ocured checking plugin: " + plugin.getName() + " , error: " + th.getMessage()); //$NON-NLS-1$//$NON-NLS-2$
-					Debug.error(th);
+					Debug.error("Error ocured checking plugin: " + plugin.getName(), th); //$NON-NLS-1$
 				}
 			}
 		}
@@ -491,7 +488,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 		}
 		catch (Throwable th)
 		{
-			Debug.error("Error occured loading server class " + pluginClass.getName() + " from plugin, error: " + th); //$NON-NLS-1$ //$NON-NLS-2$
+			Debug.error("Error occured loading server class " + pluginClass.getName() + " from plugin", th); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return null;
 	}
@@ -567,7 +564,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 						}
 						catch (Throwable e)//incase method is missing in old plugin or the plugin designer did something stupid
 						{
-							Debug.error("Error occured informing client plugin " + plugin.getName() + ", error: " + e); //$NON-NLS-1$ //$NON-NLS-2$
+							Debug.error("Error occured informing client plugin " + plugin.getName(), e); //$NON-NLS-1$ 
 						}
 					}
 				}
@@ -610,7 +607,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 			}
 			catch (Throwable th)
 			{
-				Debug.error("Error occured retrieving plugins. No plugins have been loaded, error: " + th.getMessage()); //$NON-NLS-1$
+				Debug.error("Error occured retrieving plugins. No plugins have been loaded", th); //$NON-NLS-1$
 				return null;
 			}
 		}
