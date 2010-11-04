@@ -587,7 +587,7 @@ public class ScriptEngine implements IScriptSupport
 		globalScope.createVars();
 	}
 
-	public boolean isAlreadyExecutingFunctionInDebug()
+	public boolean isAWTSuspendedRunningScript()
 	{
 		return false;
 	}

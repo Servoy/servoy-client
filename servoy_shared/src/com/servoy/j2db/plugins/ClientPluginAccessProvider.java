@@ -427,7 +427,7 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 								// if not async and not event dispatch thread 
 								// and the debugger is enabled, execute this directly. 
 								if (application.getScriptEngine() instanceof IScriptSupport &&
-									((IScriptSupport)application.getScriptEngine()).isAlreadyExecutingFunctionInDebug())
+									((IScriptSupport)application.getScriptEngine()).isAWTSuspendedRunningScript())
 								{
 									method.run();
 									return;

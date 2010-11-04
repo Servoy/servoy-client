@@ -30,5 +30,5 @@ public interface IScriptSupport extends IExecutingEnviroment
 
 	public void flushCachedScopes();
 
-	public boolean isAlreadyExecutingFunctionInDebug();
+	public boolean isAWTSuspendedRunningScript();
 }

@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 import java.text.DecimalFormat;
@@ -59,7 +59,7 @@ public class TagResolver
 		{
 			if (record == null) return null;
 			Object value = record.getValue(dataProviderID);
-			return formatObject(value, record.getParentFoundSet().getFoundSetManager().getApplication().getSettings());
+			return formatObject(value, (value == null) ? null : record.getParentFoundSet().getFoundSetManager().getApplication().getSettings());
 		}
 
 
