@@ -1827,7 +1827,8 @@ public class JSApplication implements IReturnedTypesProvider
 	 */
 	public JSWindow js_createWindow(Object[] args)
 	{
-		if (args != null && (args.length == 2 || (args.length == 3 && args[2] instanceof JSWindow)) && args[0] instanceof String && args[1] instanceof Number)
+		if (args != null && (args.length == 2 || (args.length == 3 && (args[2] instanceof JSWindow || args[2] == null))) && args[0] instanceof String &&
+			args[1] instanceof Number)
 		{
 			JSWindow parent = null;
 			if (args.length == 3) parent = (JSWindow)args[2];

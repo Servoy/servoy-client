@@ -26,8 +26,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.wicket.RequestCycle;
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
-import org.eclipse.dltk.rhino.dbgp.DBGPDebugger.ITerminationListener;
 import org.eclipse.dltk.rhino.dbgp.DBGPStackManager;
+import org.eclipse.dltk.rhino.dbgp.DBGPDebugger.ITerminationListener;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.EcmaError;
@@ -448,9 +448,15 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 	}
 
 	@Override
-	public boolean isAlreadyExecutingFunctionInDebug()
+	public boolean isAWTSuspendedRunningScript()
 	{
-		return executingFunction.get() > 0;
+		// actually this returns true if the AWT thread is suspended in debugger (not any thread)
+		if (executingFunction.get() > 0 && debugger != null)
+		{
+			DBGPStackManager sm = debugger.getStackManager();
+			return sm != null && sm.isSuspended();
+		}
+		return false;
 	}
 
 	/**

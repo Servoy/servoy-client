@@ -37,9 +37,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -352,7 +352,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 			public void run()
 			{
 				IExecutingEnviroment se = getScriptEngine();
-				if (se instanceof RemoteDebugScriptEngine && ((RemoteDebugScriptEngine)se).isAlreadyExecutingFunctionInDebug() &&
+				if (se instanceof RemoteDebugScriptEngine && ((RemoteDebugScriptEngine)se).isAWTSuspendedRunningScript() &&
 					(System.currentTimeMillis() - creationTimestamp < MAX_TIME_TO_WAIT_FOR_SCRIPTS_TO_FINISH))
 				{
 					// try to avoid refresh (postpone it) while inside a script application.updateUI or application.sleep, if possible with MAX_TIME_TO_WAIT_FOR_SCRIPTS_TO_FINISH ms tolerance
@@ -667,7 +667,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	@Override
 	public void invokeAndWait(Runnable r)
 	{
-		if (getScriptEngine() instanceof IScriptSupport && ((IScriptSupport)getScriptEngine()).isAlreadyExecutingFunctionInDebug())
+		if (getScriptEngine() instanceof IScriptSupport && ((IScriptSupport)getScriptEngine()).isAWTSuspendedRunningScript())
 		{
 			r.run();
 		}
