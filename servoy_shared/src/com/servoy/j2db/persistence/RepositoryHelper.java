@@ -159,8 +159,8 @@ public class RepositoryHelper
 
 				Method method = methods.get(propertyName);
 				Object propertyObjectValue = method.invoke(obj, (Object[])null);
-				Object propertyObjectValueCopy = developerRepository.convertArgumentStringToObject(typeID, developerRepository.convertObjectToArgumentString(
-					typeID, propertyObjectValue));
+				Object propertyObjectValueCopy = developerRepository.convertArgumentStringToObject(typeID,
+					developerRepository.convertObjectToArgumentString(typeID, propertyObjectValue));
 				values.put(propertyName, propertyObjectValueCopy);
 			}
 			return values;
@@ -446,7 +446,7 @@ public class RepositoryHelper
 	}
 
 	// Some properties should be created(for undo/redo) but not visible in the properties view
-	public static boolean hideForProperties(String name, Class< ? > persistClass)
+	public static boolean hideForProperties(String name, Class< ? > persistClass, IPersist persist)
 	{
 		if (name.equals("groupbyDataProviderIDs") && Part.class.isAssignableFrom(persistClass)) //$NON-NLS-1$
 		{
@@ -475,6 +475,19 @@ public class RepositoryHelper
 		if (name.equals("location") && Tab.class.isAssignableFrom(persistClass)) // set in ChangeBoundsCommand //$NON-NLS-1$
 		{
 			return true;
+		}
+		if (name.equals("rowBGColorCalculation") && persist != null) //$NON-NLS-1$
+		{
+			String rowBGColorCalculation = null;
+			if (persist.getTypeID() == IRepository.FORMS)
+			{
+				rowBGColorCalculation = ((Form)persist).getRowBGColorCalculation();
+			}
+			else if (persist.getTypeID() == IRepository.PORTALS)
+			{
+				rowBGColorCalculation = ((Portal)persist).getRowBGColorCalculation();
+			}
+			return rowBGColorCalculation == null;
 		}
 		return false;
 	}

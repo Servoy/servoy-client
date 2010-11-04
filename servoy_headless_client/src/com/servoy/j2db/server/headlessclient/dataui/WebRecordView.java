@@ -43,7 +43,7 @@ public class WebRecordView extends WebMarkupContainer implements IView
 	private String bgColorScript;
 	private List<Object> bgColorArgs;
 	private StyleSheet styleSheet;
-	private Style oddStyle, evenStyle;
+	private Style oddStyle, evenStyle, selectedStyle;
 
 	/**
 	 * @param id
@@ -191,7 +191,7 @@ public class WebRecordView extends WebMarkupContainer implements IView
 	/*
 	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getOddStyle()
 	 */
-	public Style getOddStyle()
+	public Style getRowOddStyle()
 	{
 		return oddStyle;
 	}
@@ -199,7 +199,7 @@ public class WebRecordView extends WebMarkupContainer implements IView
 	/*
 	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getEvenStyle()
 	 */
-	public Style getEvenStyle()
+	public Style getRowEvenStyle()
 	{
 		return evenStyle;
 	}
@@ -208,19 +208,29 @@ public class WebRecordView extends WebMarkupContainer implements IView
 	/*
 	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#setStyles(javax.swing.text.html.StyleSheet, javax.swing.text.Style, javax.swing.text.Style)
 	 */
-	public void setStyles(StyleSheet styleSheet, Style oddStyle, Style evenStyle)
+	public void setRowStyles(StyleSheet styleSheet, Style oddStyle, Style evenStyle, Style selectedStyle)
 	{
 		this.styleSheet = styleSheet;
 		this.oddStyle = oddStyle;
 		this.evenStyle = evenStyle;
+		this.selectedStyle = selectedStyle;
 	}
 
 
 	/*
 	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getStyleSheet()
 	 */
-	public StyleSheet getStyleSheet()
+	public StyleSheet getRowStyleSheet()
 	{
 		return styleSheet;
+	}
+
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportRowStyling#getSelectedStyle()
+	 */
+	public Style getRowSelectedStyle()
+	{
+		return selectedStyle;
 	}
 }

@@ -97,8 +97,8 @@ import com.servoy.j2db.smart.ListView;
 import com.servoy.j2db.smart.TableView;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
-import com.servoy.j2db.ui.ISupportOddEvenStyling;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
+import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDelegate;
@@ -773,11 +773,16 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				}
 			}
 
-			if (jtable instanceof ISupportOddEvenStyling)
+			if (jtable instanceof ISupportRowStyling)
 			{
-				ISupportOddEvenStyling oddEvenStyling = (ISupportOddEvenStyling)jtable;
-				StyleSheet ss = oddEvenStyling.getStyleSheet();
-				Style style = (row % 2 == 0) ? oddEvenStyling.getOddStyle() : oddEvenStyling.getEvenStyle(); // because index = 0 means record = 1
+				ISupportRowStyling oddEvenStyling = (ISupportRowStyling)jtable;
+				StyleSheet ss = oddEvenStyling.getRowStyleSheet();
+				Style style = isSelected ? oddEvenStyling.getRowSelectedStyle() : null;
+				if (style == null)
+				{
+					style = (row % 2 == 0) ? oddEvenStyling.getRowOddStyle() : oddEvenStyling.getRowEvenStyle(); // because index = 0 means record = 1	
+				}
+
 				if (ss != null && style != null)
 				{
 					bgColor = ss.getBackground(style);

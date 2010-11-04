@@ -194,7 +194,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	private final ISupportOnRenderCallback dataRendererOnRenderWrapper;
 	private StyleSheet styleSheet;
-	private Style oddStyle, evenStyle;
+	private Style oddStyle, evenStyle, selectedStyle;
 
 	public static class CellContainer extends WebMarkupContainer
 	{
@@ -2882,8 +2882,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 			}
 
-			StyleSheet ss = getStyleSheet();
-			Style style = (listItem.getIndex() % 2 == 0) ? getOddStyle() : getEvenStyle(); // because index = 0 means record = 1
+			StyleSheet ss = getRowStyleSheet();
+			Style style = isSelected ? getRowSelectedStyle() : null;
+			if (style == null)
+			{
+				style = (listItem.getIndex() % 2 == 0) ? getRowOddStyle() : getRowEvenStyle(); // because index = 0 means record = 1
+			}
 			if (ss != null && style != null)
 			{
 				color = PersistHelper.createColorString(ss.getBackground(style));
@@ -3134,7 +3138,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	{
 		if (currentData == null) return null;
 		List<Integer> indexToUpdate;
-		if (bgColorScript != null && (indexToUpdate = getIndexToUpdate()) != null)
+		if ((bgColorScript != null || getRowSelectedStyle() != null) && (indexToUpdate = getIndexToUpdate()) != null)
 		{
 			int firstRow = table.getCurrentPage() * table.getRowsPerPage();
 			int lastRow = firstRow + table.getViewSize() - 1;
@@ -3410,7 +3414,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	/*
 	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getOddStyle()
 	 */
-	public Style getOddStyle()
+	public Style getRowOddStyle()
 	{
 		return oddStyle;
 	}
@@ -3418,7 +3422,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	/*
 	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getEvenStyle()
 	 */
-	public Style getEvenStyle()
+	public Style getRowEvenStyle()
 	{
 		return evenStyle;
 	}
@@ -3426,19 +3430,28 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	/*
 	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#setStyles(javax.swing.text.html.StyleSheet, javax.swing.text.Style, javax.swing.text.Style)
 	 */
-	public void setStyles(StyleSheet styleSheet, Style oddStyle, Style evenStyle)
+	public void setRowStyles(StyleSheet styleSheet, Style oddStyle, Style evenStyle, Style selectedStyle)
 	{
 		this.styleSheet = styleSheet;
 		this.oddStyle = oddStyle;
 		this.evenStyle = evenStyle;
+		this.selectedStyle = selectedStyle;
 	}
 
 	/*
 	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getStyleSheet()
 	 */
-	public StyleSheet getStyleSheet()
+	public StyleSheet getRowStyleSheet()
 	{
 		return styleSheet;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportRowStyling#getSelectedStyle()
+	 */
+	public Style getRowSelectedStyle()
+	{
+		return selectedStyle;
 	}
 }
 

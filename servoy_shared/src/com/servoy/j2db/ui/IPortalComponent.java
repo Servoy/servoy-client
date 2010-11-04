@@ -23,6 +23,6 @@ import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
  * @author jcompagner
  */
 public interface IPortalComponent extends IComponent, IDisplayRelatedData, IAccessible, ISupportRowBGColorScript, IScriptPortalComponentMethods,
-	ISupportOddEvenStyling
+	ISupportRowStyling
 {
 }

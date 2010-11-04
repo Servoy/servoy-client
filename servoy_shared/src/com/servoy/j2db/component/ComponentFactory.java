@@ -1946,17 +1946,12 @@ public class ComponentFactory
 		FixedStyleSheet ss = ComponentFactory.getCSSStyleForForm(application, form);
 		if (ss != null)
 		{
-			String lookupnameOdd = "portal-odd"; //$NON-NLS-1$
-			String lookupnameEven = "portal-even"; //$NON-NLS-1$
-
-			if (meta.getStyleClass() != null && !"".equals(meta.getStyleClass())) //$NON-NLS-1$
+			String lookupname = "portal";
+			if (meta.getStyleClass() != null && !"".equals(meta.getStyleClass()))
 			{
-				String portalStyleClass = meta.getStyleClass();
-				lookupnameOdd += '.' + portalStyleClass;
-				lookupnameEven += '.' + portalStyleClass;
-
+				lookupname += '.' + meta.getStyleClass();
 			}
-			portalComponent.setStyles(ss, ss.getRule(lookupnameOdd), ss.getRule(lookupnameEven));
+			portalComponent.setRowStyles(ss, ss.getRule(lookupname + " odd"), ss.getRule(lookupname + " even"), ss.getRule(lookupname + " selected"));
 		}
 		return portalComponent;
 	}

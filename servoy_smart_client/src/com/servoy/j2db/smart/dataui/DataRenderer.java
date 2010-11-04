@@ -69,9 +69,9 @@ import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
-import com.servoy.j2db.ui.ISupportOddEvenStyling;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowBGColorScript;
+import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnablePanel;
 import com.servoy.j2db.util.PersistHelper;
@@ -493,11 +493,15 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 					}
 				}
 
-				if (rendererParentCanBeNull instanceof ISupportOddEvenStyling && !specialStateCase)
+				if (rendererParentCanBeNull instanceof ISupportRowStyling && !specialStateCase)
 				{
-					ISupportOddEvenStyling oddEvenStyling = (ISupportOddEvenStyling)rendererParentCanBeNull;
-					StyleSheet ss = oddEvenStyling.getStyleSheet();
-					Style style = (index % 2 == 0) ? oddEvenStyling.getOddStyle() : oddEvenStyling.getEvenStyle(); // because index = 0 means record = 1
+					ISupportRowStyling oddEvenStyling = (ISupportRowStyling)rendererParentCanBeNull;
+					StyleSheet ss = oddEvenStyling.getRowStyleSheet();
+					Style style = isSelected ? oddEvenStyling.getRowSelectedStyle() : null;
+					if (style == null)
+					{
+						style = (index % 2 == 0) ? oddEvenStyling.getRowOddStyle() : oddEvenStyling.getRowEvenStyle(); // because index = 0 means record = 1
+					}
 					if (ss != null && style != null)
 					{
 						Color bgColor = ss.getBackground(style);

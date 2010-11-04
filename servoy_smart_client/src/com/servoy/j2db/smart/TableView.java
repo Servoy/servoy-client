@@ -179,7 +179,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 
 	private final ISupportOnRenderCallback dataRendererOnRenderWrapper;
 	private StyleSheet styleSheet;
-	private Style oddStyle, evenStyle;
+	private Style oddStyle, evenStyle, selectedStyle;
 
 	public TableView(IApplication app, final FormController fc, Form formForStyles, final AbstractBase cellview, final IScriptExecuter scriptExecuter,
 		IDataRenderer headerComp, IDataRenderer leadingGrandSummaryComp, boolean printing)
@@ -1890,17 +1890,18 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 	/*
 	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#setStyles(javax.swing.text.html.StyleSheet, javax.swing.text.Style, javax.swing.text.Style)
 	 */
-	public void setStyles(StyleSheet styleSheet, Style oddStyle, Style evenStyle)
+	public void setRowStyles(StyleSheet styleSheet, Style oddStyle, Style evenStyle, Style selectedStyle)
 	{
 		this.styleSheet = styleSheet;
 		this.oddStyle = oddStyle;
 		this.evenStyle = evenStyle;
+		this.selectedStyle = selectedStyle;
 	}
 
 	/*
 	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getOddStyle()
 	 */
-	public Style getOddStyle()
+	public Style getRowOddStyle()
 	{
 		return oddStyle;
 	}
@@ -1908,7 +1909,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 	/*
 	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getEvenStyle()
 	 */
-	public Style getEvenStyle()
+	public Style getRowEvenStyle()
 	{
 		return evenStyle;
 	}
@@ -1917,8 +1918,16 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 	/*
 	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getStyleSheet()
 	 */
-	public StyleSheet getStyleSheet()
+	public StyleSheet getRowStyleSheet()
 	{
 		return styleSheet;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportRowStyling#getSelectedStyle()
+	 */
+	public Style getRowSelectedStyle()
+	{
+		return selectedStyle;
 	}
 }

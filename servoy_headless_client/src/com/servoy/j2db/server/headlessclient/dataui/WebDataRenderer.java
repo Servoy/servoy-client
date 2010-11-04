@@ -467,10 +467,9 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 			{
 				IFoundSetInternal parentFoundSet = rec.getParentFoundSet();
 				int recIndex = parentFoundSet.getSelectedIndex();
+				boolean isSelected = recIndex == parentFoundSet.getRecordIndex(rec);
 				if (rowBGColorCalculation != null)
 				{
-
-					boolean isSelected = recIndex == parentFoundSet.getRecordIndex(rec);
 					Object bg_color = null;
 					if (rec.getRawData().containsCalculation(rowBGColorCalculation))
 					{
@@ -503,8 +502,12 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 					}
 				}
 
-				StyleSheet ss = parentView.getStyleSheet();
-				Style style = (recIndex % 2 == 0) ? parentView.getEvenStyle() : parentView.getOddStyle();
+				StyleSheet ss = parentView.getRowStyleSheet();
+				Style style = isSelected ? parentView.getRowSelectedStyle() : null;
+				if (style == null)
+				{
+					style = (recIndex % 2 == 0) ? parentView.getRowEvenStyle() : parentView.getRowOddStyle();
+				}
 				if (ss != null && style != null)
 				{
 					return PersistHelper.createColorString(ss.getBackground(style));

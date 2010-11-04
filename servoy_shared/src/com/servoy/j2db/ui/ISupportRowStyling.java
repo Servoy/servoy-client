@@ -24,13 +24,15 @@ import javax.swing.text.html.StyleSheet;
  * @author gabi
  *
  */
-public interface ISupportOddEvenStyling
+public interface ISupportRowStyling
 {
-	public void setStyles(StyleSheet styleSheet, Style oddStyle, Style evenStyle);
+	public void setRowStyles(StyleSheet styleSheet, Style oddStyle, Style evenStyle, Style selectedStyle);
 
-	public StyleSheet getStyleSheet();
+	public StyleSheet getRowStyleSheet();
 
-	public Style getOddStyle();
+	public Style getRowOddStyle();
 
-	public Style getEvenStyle();
+	public Style getRowEvenStyle();
+
+	public Style getRowSelectedStyle();
 }

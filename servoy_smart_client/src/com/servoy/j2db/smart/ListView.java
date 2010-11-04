@@ -55,7 +55,7 @@ public class ListView extends JEditList implements IView
 	private List<Object> rowBGColorArgs;
 	private int keyReleaseToBeIgnored;
 	private StyleSheet styleSheet;
-	private Style oddStyle, evenStyle;
+	private Style oddStyle, evenStyle, selectedStyle;
 
 	public ListView()
 	{
@@ -261,19 +261,9 @@ public class ListView extends JEditList implements IView
 	}
 
 	/*
-	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#setStyles(javax.swing.text.html.StyleSheet, javax.swing.text.Style, javax.swing.text.Style)
-	 */
-	public void setStyles(StyleSheet styleSheet, Style oddStyle, Style evenStyle)
-	{
-		this.styleSheet = styleSheet;
-		this.oddStyle = oddStyle;
-		this.evenStyle = evenStyle;
-	}
-
-	/*
 	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getOddStyle()
 	 */
-	public Style getOddStyle()
+	public Style getRowOddStyle()
 	{
 		return oddStyle;
 	}
@@ -281,7 +271,7 @@ public class ListView extends JEditList implements IView
 	/*
 	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getEvenStyle()
 	 */
-	public Style getEvenStyle()
+	public Style getRowEvenStyle()
 	{
 		return evenStyle;
 	}
@@ -289,9 +279,28 @@ public class ListView extends JEditList implements IView
 	/*
 	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getStyleSheet()
 	 */
-	public StyleSheet getStyleSheet()
+	public StyleSheet getRowStyleSheet()
 	{
 		return styleSheet;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportRowStyling#setStyles(javax.swing.text.html.StyleSheet, javax.swing.text.Style, javax.swing.text.Style,
+	 * javax.swing.text.Style)
+	 */
+	public void setRowStyles(StyleSheet styleSheet, Style oddStyle, Style evenStyle, Style selectedStyle)
+	{
+		this.styleSheet = styleSheet;
+		this.oddStyle = oddStyle;
+		this.evenStyle = evenStyle;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportRowStyling#getSelectedStyle()
+	 */
+	public Style getRowSelectedStyle()
+	{
+		return selectedStyle;
 	}
 
 }

@@ -18,7 +18,7 @@ package com.servoy.j2db;
 
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
-import com.servoy.j2db.ui.ISupportOddEvenStyling;
+import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.ISupportRowBGColorScript;
 import com.servoy.j2db.util.IDestroyable;
 
@@ -27,7 +27,7 @@ import com.servoy.j2db.util.IDestroyable;
  * 
  * @author jblok
  */
-public interface IView extends ISupportRowBGColorScript, IDestroyable, ISupportOddEvenStyling
+public interface IView extends ISupportRowBGColorScript, IDestroyable, ISupportRowStyling
 {
 	public void setModel(IFoundSetInternal fs);
 
