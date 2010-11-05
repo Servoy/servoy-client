@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.swing.SwingUtilities;
 
+import org.apache.wicket.RequestCycle;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.Session;
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
@@ -40,10 +41,10 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
-import com.servoy.j2db.server.headlessclient.WebCredentials;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.WebClient;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
+import com.servoy.j2db.server.headlessclient.WebCredentials;
 import com.servoy.j2db.server.headlessclient.WebFormManager;
 import com.servoy.j2db.util.Debug;
 
@@ -103,7 +104,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 	@Override
 	public void shutDown(boolean force)
 	{
-		boolean sessionExists = Session.exists();
+		boolean sessionExists = Session.exists() && (RequestCycle.get() != null);
 		if (sessionExists) Session.unset(); // avoid session invalidating in super.shutDown - as the current session might be needed when DebugWC is restarted (by next DWC)
 		super.shutDown(force);
 		if (sessionExists) Session.get();
