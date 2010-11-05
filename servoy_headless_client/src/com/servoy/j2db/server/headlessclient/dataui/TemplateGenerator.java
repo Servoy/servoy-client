@@ -1594,7 +1594,7 @@ public class TemplateGenerator
 			String tabPanelMarkupId = ComponentFactory.getWebID(tabPanel);
 
 			StringBuffer leftPanelStyle = new StringBuffer("position: absolute; "); //$NON-NLS-1$
-			StringBuffer rightPanelStyle = new StringBuffer("position: absolute; overflow: auto; "); //$NON-NLS-1$
+			StringBuffer rightPanelStyle = new StringBuffer("position: absolute; "); //$NON-NLS-1$
 			if (tabPanel.getTabOrientation() == TabPanel.SPLIT_HORIZONTAL)
 			{
 				leftPanelStyle.append("top: 0px; left: 0px; bottom: 0px;"); //$NON-NLS-1$
@@ -1607,10 +1607,10 @@ public class TemplateGenerator
 			}
 
 			html.append("\t<div id='splitter_").append(tabPanelMarkupId).append("' servoy:id='splitter' style='").append(leftPanelStyle).append( //$NON-NLS-1$  //$NON-NLS-2$
-				"'><div id='websplit_left_").append(tabPanelMarkupId).append("' servoy:id='websplit_left' style='overflow: auto; ").append(leftPanelStyle).append( //$NON-NLS-1$  //$NON-NLS-2$
-				"' ><div servoy:id='webform' " + getCSSClassParameter("opaquewebform") + "></div></div></div>"); //$NON-NLS-1$ 
+				"'><div id='websplit_left_").append(tabPanelMarkupId).append("' servoy:id='websplit_left' style='").append(leftPanelStyle).append( //$NON-NLS-1$  //$NON-NLS-2$
+				"' ><div servoy:id='webform' " + getCSSClassParameter("opaquewebform") + "></div></div></div>"); //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$
 			html.append("<div id='websplit_right_").append(tabPanelMarkupId).append("' servoy:id='websplit_right' style='").append(rightPanelStyle).append( //$NON-NLS-1$  //$NON-NLS-2$ 
-				"'><div servoy:id='webform' " + getCSSClassParameter("opaquewebform") + "></div></div>"); //$NON-NLS-1$ 
+				"'><div servoy:id='webform' " + getCSSClassParameter("opaquewebform") + "></div></div>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		else
 		{

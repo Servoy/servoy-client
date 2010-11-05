@@ -47,6 +47,7 @@ import org.apache.wicket.protocol.http.request.WebClientInfo;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IFormManager;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
@@ -54,6 +55,7 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.dataprocessing.SortColumn;
+import com.servoy.j2db.persistence.ISupportScrollbars;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.server.headlessclient.MainPage;
@@ -546,10 +548,17 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 			pos = "top"; //$NON-NLS-1$
 		}
 
+		Map<String, String> leftPanelOverflow = getFormOverflowStyle(getLeftForm());
+		Map<String, String> rightPanelOverflow = getFormOverflowStyle(getRightForm());
+
 		StringBuffer resizeScript = new StringBuffer("var splitter = YAHOO.util.Dom.get('splitter_").append(getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
 		resizeScript.append("var left = YAHOO.util.Dom.get('websplit_left_").append(getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
 		resizeScript.append("YAHOO.util.Dom.setStyle(left, 'background-color', '#FFFFFF');"); //$NON-NLS-1$
+		resizeScript.append("YAHOO.util.Dom.setStyle(left, 'overflow-x', '").append(leftPanelOverflow.get("overflow-x")).append("');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+		resizeScript.append("YAHOO.util.Dom.setStyle(left, 'overflow-y', '").append(leftPanelOverflow.get("overflow-y")).append("');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		resizeScript.append("var right = YAHOO.util.Dom.get('websplit_right_").append(getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
+		resizeScript.append("YAHOO.util.Dom.setStyle(right, 'overflow-x', '").append(rightPanelOverflow.get("overflow-x")).append("');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+		resizeScript.append("YAHOO.util.Dom.setStyle(right, 'overflow-y', '").append(rightPanelOverflow.get("overflow-y")).append("');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		resizeScript.append("var resize = new YAHOO.util.Resize(splitter, { min").append(dim).append(": ").append(dividerSize + leftFormMinSize).append(", max").append(dim).append(": splitter.offsetParent.offset").append(dim).append(" - ").append(rightFormMinSize).append(", ").append(continuousLayout ? "" : "proxy: true, "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ 
 		resizeScript.append("handles: ['").append(orient == TabPanel.SPLIT_HORIZONTAL ? "r" : "b").append("']});"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		resizeScript.append("YAHOO.util.Dom.setStyle(splitter, '").append(dim_o).append("', '');"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -619,6 +628,44 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		ClientProperties clp = ((WebClientInfo)Session.get().getClientInfo()).getProperties();
 		if (clp.isBrowserKonqueror() || clp.isBrowserSafari()) headerResponse.renderOnLoadJavascript(resizeScript.toString());
 		else headerResponse.renderOnDomReadyJavascript(resizeScript.toString());
+	}
+
+	private Map<String, String> getFormOverflowStyle(IFormLookupPanel formLookup)
+	{
+		Map<String, String> formOverflowStyle = new HashMap<String, String>();
+
+		IFormManager fm = application.getFormManager();
+		int scrollbars = (formLookup != null) ? ((FormController)fm.getForm(formLookup.getFormName())).getForm().getScrollbars()
+			: ISupportScrollbars.SCROLLBARS_WHEN_NEEDED;
+
+
+		if ((scrollbars & ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER)
+		{
+			formOverflowStyle.put("overflow-x", "hidden"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		else if ((scrollbars & ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS)
+		{
+			formOverflowStyle.put("overflow-x", "scroll"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		else
+		{
+			formOverflowStyle.put("overflow-x", "auto"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+
+		if ((scrollbars & ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER) == ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER)
+		{
+			formOverflowStyle.put("overflow-y", "hidden"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		else if ((scrollbars & ISupportScrollbars.VERTICAL_SCROLLBAR_ALWAYS) == ISupportScrollbars.VERTICAL_SCROLLBAR_ALWAYS)
+		{
+			formOverflowStyle.put("overflow-y", "scroll"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		else
+		{
+			formOverflowStyle.put("overflow-y", "auto"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+
+		return formOverflowStyle;
 	}
 
 	@Override
