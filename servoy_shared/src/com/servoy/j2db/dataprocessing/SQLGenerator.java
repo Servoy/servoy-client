@@ -1450,7 +1450,7 @@ public class SQLGenerator
 			QueryColumn queryColumn = new QueryColumn(queryTable, column.getID(), column.getSQLName(), column.getType(), column.getLength(), column.getScale(),
 				ci != null && ci.isDBIdentity());
 
-			if (Column.mapToDefaultType(column.getType()) == IColumnTypes.MEDIA && !column.hasFlag(Column.UUID_COLUMN | Column.IDENT_COLUMNS))
+			if (isBlobColumn(column))
 			{
 				String alias = column.getDataProviderID().substring(0,
 					Math.min(Column.MAX_SQL_OBJECT_NAME_LENGTH - (IDataServer.BLOB_MARKER_COLUMN_ALIAS.length() + 1), column.getDataProviderID().length())) +
@@ -1487,6 +1487,15 @@ public class SQLGenerator
 				PLACEHOLDER_INSERT_KEY)));
 		}
 		return queryColumns;
+	}
+
+	/**
+	 * @param column
+	 * @return
+	 */
+	static boolean isBlobColumn(Column column)
+	{
+		return Column.mapToDefaultType(column.getType()) == IColumnTypes.MEDIA && !column.hasFlag(Column.UUID_COLUMN | Column.IDENT_COLUMNS);
 	}
 
 	/**

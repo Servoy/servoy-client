@@ -161,58 +161,11 @@ public class Row
 		return parent.getSQLSheet().containsCalculation(id);
 	}
 
-/*
- * private Object setCalculationValue(IRowChangeListener src,String id,Object value) { Object o = unstoredCalcCache.put(id,value); if (!equalObjects(o,value)) {
- * fireNotifyChange(src, id, value); return o; } return null; }
- */
-
 	Object getValue(int columnIndex)
 	{
 		// call this with false, else things like using a dbident in javascript or creating related records are going wrong.
 		Object value = getValue(columnIndex, false);
-
-		// check if column uses a converter
-		if (columnIndex >= 0)
-		{
-			SQLSheet sheet = parent.getSQLSheet();
-
-			String dataProviderID = sheet.getColumnNames()[columnIndex];
-			VariableInfo variableInfo = sheet.getCalculationOrColumnVariableInfo(dataProviderID, columnIndex);
-
-			if ((variableInfo.flags & Column.UUID_COLUMN) != 0)
-			{
-				// this is a UUID column, first convert to UUID (could be string or byte array (media)) - so we can get/use it as a valid uuid string
-				value = Utils.getAsUUID(value, false);
-			}
-
-			Pair<String, String> converterInfo = sheet.getColumnConverterInfo(columnIndex);
-			if (converterInfo != null)
-			{
-				IColumnConverter conv = parent.getFoundsetManager().getColumnConverterManager().getConverter(converterInfo.getLeft());
-				if (conv != null)
-				{
-					try
-					{
-						OpenProperties props = new OpenProperties();
-						if (converterInfo.getRight() != null) props.load(new StringReader(converterInfo.getRight()));
-						value = conv.convertToObject(props, variableInfo.type, value);
-					}
-					catch (Exception e)
-					{
-						Debug.error(e);
-						throw new IllegalArgumentException(Messages.getString(
-							"servoy.record.error.gettingDataprovider", new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type) }), e); //$NON-NLS-1$
-					}
-				}
-				else
-				{
-					throw new IllegalArgumentException(Messages.getString(
-						"servoy.record.error.gettingDataprovider", new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type) })); //$NON-NLS-1$
-				}
-			}
-		}
-
-		return value;
+		return parent.getSQLSheet().convertValueToObject(value, columnIndex, parent.getFoundsetManager().getColumnConverterManager());
 	}
 
 	Object getValue(int columnIndex, boolean unwrapDbIdent)

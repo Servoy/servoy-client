@@ -415,22 +415,104 @@ public class JSDatabaseManager
 				{
 					dpnames = fs.getSQLSheet().getPKColumnDataProvidersAsArray();
 				}
+
+				FoundSetManager fsm = (FoundSetManager)application.getFoundSetManager();
+				boolean getInOneQuery = !fs.isInFindMode() && (fs.hadMoreRows() || fs.getSize() > fsm.pkChunkSize) &&
+					!fsm.getEditRecordList().hasEditedRecords(fs);
+
 				dptypes = new int[dpnames.length];
 				Table table = fs.getSQLSheet().getTable();
+				Map<String, Column> columnMap = new HashMap<String, Column>();
 				for (int i = 0; i < dpnames.length; i++)
 				{
 					IDataProvider dp = application.getFlattenedSolution().getDataProviderForTable(table, dpnames[i]);
 					dptypes[i] = dp == null ? 0 : dp.getDataProviderType();
-				}
-				for (int i = 0; i < fs.getSize(); i++)
-				{
-					IRecordInternal record = fs.getRecord(i);
-					Object[] pk = new Object[dpnames.length];
-					for (int j = 0; j < dpnames.length; j++)
+					if (getInOneQuery)
 					{
-						pk[j] = record.getValue(dpnames[j]);
+						// only columns and data we can get from the foundset (calculations only when stored)
+						if (dp instanceof Column)
+						{
+							columnMap.put(dpnames[i], (Column)dp);
+							// Blobs require special resultset handling
+							getInOneQuery = !SQLGenerator.isBlobColumn((Column)dp);
+						}
+						else
+						{
+							// aggregates, globals
+							getInOneQuery = fs.containsDataProvider(dpnames[i]);
+						}
 					}
-					lst.add(pk);
+				}
+
+				if (getInOneQuery && columnMap.size() > 0)
+				{
+					// large foundset, query the columns in 1 go
+					QuerySelect sqlSelect = AbstractBaseQuery.deepClone(fs.getSqlSelect());
+					ArrayList<IQuerySelectValue> cols = new ArrayList<IQuerySelectValue>(columnMap.size());
+					for (String dpname : dpnames)
+					{
+						Column column = columnMap.get(dpname);
+						if (column != null)
+						{
+							cols.add(new QueryColumn(sqlSelect.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength()));
+						}
+					}
+					sqlSelect.setColumns(cols);
+					try
+					{
+						SQLSheet sheet = fs.getSQLSheet();
+						IColumnConverterManager columnConverterManager = ((FoundSetManager)fs.getFoundSetManager()).getColumnConverterManager();
+
+						IDataSet dataSet = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(),
+							fsm.getTransactionID(sheet), sqlSelect, fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), false, 0, -1,
+							IDataServer.FOUNDSET_LOAD_QUERY);
+
+						lst = new ArrayList<Object[]>(dataSet.getRowCount());
+						for (int i = 0; i < dataSet.getRowCount(); i++)
+						{
+							Object[] row = new Object[dpnames.length];
+							Object[] dataseRow = dataSet.getRow(i);
+							int dr = 0;
+							for (int j = 0; j < dpnames.length; j++)
+							{
+								Column column = columnMap.get(dpnames[j]);
+								if (column == null)
+								{
+									// fs.containsDataProvider returned true for this dpname
+									row[j] = fs.getDataProviderValue(dpnames[j]);
+								}
+								else
+								{
+									row[j] = sheet.convertValueToObject(dataseRow[dr], sheet.getColumnIndex(dpnames[j]), columnConverterManager);
+									dr++;
+								}
+							}
+							lst.add(row);
+						}
+					}
+					catch (RepositoryException e)
+					{
+						throw e;
+					}
+					catch (Exception e)
+					{
+						Debug.error(e);
+						throw new RepositoryException(e.getMessage());
+					}
+				}
+				else
+				{
+					// loop over the records
+					for (int i = 0; i < fs.getSize(); i++)
+					{
+						IRecordInternal record = fs.getRecord(i);
+						Object[] pk = new Object[dpnames.length];
+						for (int j = 0; j < dpnames.length; j++)
+						{
+							pk[j] = record.getValue(dpnames[j]);
+						}
+						lst.add(pk);
+					}
 				}
 			}
 		}
