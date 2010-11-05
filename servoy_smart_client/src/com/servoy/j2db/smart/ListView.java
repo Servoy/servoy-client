@@ -293,6 +293,7 @@ public class ListView extends JEditList implements IView
 		this.styleSheet = styleSheet;
 		this.oddStyle = oddStyle;
 		this.evenStyle = evenStyle;
+		this.selectedStyle = selectedStyle;
 	}
 
 	/*
