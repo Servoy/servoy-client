@@ -403,6 +403,7 @@ public class JSDatabaseManager
 			FoundSet fs = (FoundSet)object;
 			if (fs.getTable() != null)
 			{
+				String[] pknames = fs.getSQLSheet().getPKColumnDataProvidersAsArray();
 				if (args.length > 1 && args[1] != null && args[1].getClass().isArray())
 				{
 					Object[] odp = (Object[])args[1];
@@ -414,7 +415,7 @@ public class JSDatabaseManager
 				}
 				else
 				{
-					dpnames = fs.getSQLSheet().getPKColumnDataProvidersAsArray();
+					dpnames = pknames;
 				}
 
 				FoundSetManager fsm = (FoundSetManager)application.getFoundSetManager();
@@ -448,7 +449,8 @@ public class JSDatabaseManager
 				if (getInOneQuery && columnMap.size() > 0)
 				{
 					// large foundset, query the columns in 1 go
-					QuerySelect sqlSelect = AbstractBaseQuery.deepClone(fs.getSqlSelect());
+					QuerySelect originalFsSelect = fs.getSqlSelect();
+					QuerySelect sqlSelect = AbstractBaseQuery.deepClone(originalFsSelect);
 					ArrayList<IQuerySelectValue> cols = new ArrayList<IQuerySelectValue>(columnMap.size());
 					for (String dpname : dpnames)
 					{
@@ -456,6 +458,20 @@ public class JSDatabaseManager
 						if (column != null)
 						{
 							cols.add(new QueryColumn(sqlSelect.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength()));
+						}
+					}
+					boolean pushpks = Utils.getAsBoolean(application.getSettings().getProperty("servoy.databasemanager.convertdataset.pushpks", "true")); //$NON-NLS-1$ //$NON-NLS-2$
+					if (pushpks)
+					{
+						// add pks in select
+						for (String pkName : pknames)
+						{
+							Column column = columnMap.get(pkName);
+							if (column == null)
+							{
+								column = (Column)application.getFlattenedSolution().getDataProviderForTable(table, pkName);
+								cols.add(new QueryColumn(sqlSelect.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength()));
+							}
 						}
 					}
 					sqlSelect.setColumns(cols);
@@ -469,9 +485,11 @@ public class JSDatabaseManager
 							IDataServer.FOUNDSET_LOAD_QUERY);
 
 						lst = new ArrayList<Object[]>(dataSet.getRowCount());
+						List<Object[]> pks = pushpks ? new ArrayList<Object[]>(dataSet.getRowCount()) : null;
 						for (int i = 0; i < dataSet.getRowCount(); i++)
 						{
 							Object[] row = new Object[dpnames.length];
+							Object[] pk = pushpks ? new Object[pknames.length] : null;
 							Object[] dataseRow = dataSet.getRow(i);
 							int dr = 0;
 							for (int j = 0; j < dpnames.length; j++)
@@ -486,9 +504,47 @@ public class JSDatabaseManager
 								{
 									row[j] = sheet.convertValueToObject(dataseRow[dr], sheet.getColumnIndex(dpnames[j]), columnConverterManager);
 									dr++;
+									// also copy to pk row
+									for (int p = 0; pushpks & p < pknames.length; p++)
+									{
+										if (pknames[p].equals(dpnames[j]))
+										{
+											pk[p] = row[j];
+										}
+									}
 								}
 							}
+							for (int p = 0; pushpks && p < pknames.length; p++)
+							{
+								Column column = columnMap.get(pknames[p]);
+								if (column == null)
+								{
+									// pk column was added in select
+									// have to convert, at least for uuid pks
+									pk[p] = sheet.convertValueToObject(dataseRow[dr], sheet.getColumnIndex(pknames[p]), columnConverterManager);
+									dr++;
+								}
+							}
+
 							lst.add(row);
+							if (pushpks)
+							{
+								pks.add(pk);
+							}
+						}
+
+						if (pushpks)
+						{
+							// push the pks back in the foundset
+							synchronized (fs.getPksAndRecords())
+							{
+								if (originalFsSelect == fs.getSqlSelect())
+								{
+									// foundset has not changed in the mean time
+									fs.getPksAndRecords().setPksAndQuery(new BufferedDataSet(null, fs.getPksAndRecords().getPks().getColumnTypes(), pks),
+										pks.size(), originalFsSelect, true);
+								}
+							}
 						}
 					}
 					catch (RepositoryException e)
