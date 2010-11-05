@@ -514,12 +514,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 		{
 			super(exe);
 			setDragEnabledEx(true);
-//			getDocument().putProperty("IgnoreCharsetDirective", Boolean.valueOf(true));
-			/*
-			 * Key for a client property used to indicate whether the default font and foreground color from the component are used if a font or foreground
-			 * color is not specified in the styled text
-			 */
-			putClientProperty("JEditorPane.honorDisplayProperties", Boolean.TRUE); //$NON-NLS-1$			
+//			getDocument().putProperty("IgnoreCharsetDirective", Boolean.valueOf(true));			
 		}
 
 		private void setDragEnabledEx(boolean b)
