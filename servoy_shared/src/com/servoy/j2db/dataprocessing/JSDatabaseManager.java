@@ -1161,17 +1161,19 @@ public class JSDatabaseManager
 	}
 
 	/**
-	 * Returns a foundset dataprovider (normally a column) as JavaScript array.
+	 * This method is deprecated, use databaseManager.convertToDataSet(foundset, pkNames) instead.
 	 *
 	 * @sample
-	 * // returns an array with all order_id values of the specified foundset. 
-	 * var array = databaseManager.getFoundSetDataProviderAsArray(foundset,'order_id');
+	 * var dataSet = databaseManager.convertToDataSet(foundset,['order_id']);
+	 * 
+	 * @deprecated use com.servoy.j2db.dataprocessing.JSDatabaseManager#js_convertToDataSet(Object[])
 	 *
 	 * @param foundset The foundset
 	 * @param dataprovider The dataprovider for the values of the array. 
 	 * 
 	 * @return An Array with the column values.
 	 */
+	@Deprecated
 	public Object[] js_getFoundSetDataProviderAsArray(Object foundset, String dataprovider) throws ServoyException
 	{
 		checkAuthorized();
