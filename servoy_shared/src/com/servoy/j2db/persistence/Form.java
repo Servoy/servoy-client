@@ -403,7 +403,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 			try
 			{
 				IServer s = getSolution().getServer(getServerName());
-				if (s != null)
+				if (s != null && s.isValid())
 				{
 					table = (Table)s.getTable(getTableName());
 				}
