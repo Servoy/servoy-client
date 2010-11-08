@@ -797,7 +797,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 			{
 				String restName = dataProviderID.substring(ScriptVariable.GLOBAL_DOT_PREFIX.length());
 				GlobalScope gs = fs.getFormController().getApplication().getScriptEngine().getSolutionScope().getGlobalScope();
-				value = gs.get(restName, gs);
+				value = gs.get(restName);
 			}
 			catch (Exception e)
 			{
