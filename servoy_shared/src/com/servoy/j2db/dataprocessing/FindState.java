@@ -176,6 +176,16 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 
 	public Object setValue(String dataProviderID, Object value, boolean checkIsEditing)
 	{
+		Object oldValue = setValueImpl(dataProviderID, value);
+		if (oldValue != value)//did change?
+		{
+			fireJSModificationEvent(dataProviderID, value);
+		}
+		return oldValue;
+	}
+
+	private Object setValueImpl(String dataProviderID, Object value)
+	{
 		if (storeDataProvider(dataProviderID))
 		{
 			return columndata.put(dataProviderID, Utils.mapToNullIfUnmanageble(value));
@@ -444,12 +454,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 			}
 			value = tmp;
 		}
-
-		Object oldVal = setValue(name, value);
-		if (oldVal != value)//did change?
-		{
-			fireJSModificationEvent(name, value);
-		}
+		setValue(name, value);
 	}
 
 	public void setParentScope(Scriptable parent)
