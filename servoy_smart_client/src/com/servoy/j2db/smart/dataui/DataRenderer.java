@@ -507,6 +507,7 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 						Color bgColor = ss.getBackground(style);
 						if (bgColor != null)
 						{
+							showSelection = false;
 							bgRowColorSet = true;
 							setBackground(bgColor);
 						}
