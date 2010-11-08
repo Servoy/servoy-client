@@ -1675,8 +1675,8 @@ public class TemplateGenerator
 		{
 			String tabPanelMarkupId = ComponentFactory.getWebID(form, tabPanel);
 
-			StringBuffer leftPanelStyle = new StringBuffer("position: absolute; ");
-			StringBuffer rightPanelStyle = new StringBuffer("position: absolute; overflow: auto; ");
+			StringBuffer leftPanelStyle = new StringBuffer("position: absolute; "); //$NON-NLS-1$
+			StringBuffer rightPanelStyle = new StringBuffer("position: absolute; "); //$NON-NLS-1$
 			if (tabPanel.getTabOrientation() == TabPanel.SPLIT_HORIZONTAL)
 			{
 				leftPanelStyle.append("top: 0px; left: 0px; bottom: 0px;");
@@ -1688,11 +1688,12 @@ public class TemplateGenerator
 				rightPanelStyle.append("left: 0px; bottom: 0px; right: 0px;");
 			}
 
-			html.append("\t<div id='splitter_").append(tabPanelMarkupId).append("' servoy:id='splitter' style='").append(leftPanelStyle).append(
-				"'><div id='websplit_left_").append(tabPanelMarkupId).append("' servoy:id='websplit_left' style='overflow: auto; ").append(leftPanelStyle).append(
-				"' ><div servoy:id='webform' " + getCSSClassParameter("webform") + "></div></div></div>");
-			html.append("<div id='websplit_right_").append(tabPanelMarkupId).append("' servoy:id='websplit_right' style='").append(rightPanelStyle).append(
-				"'><div servoy:id='webform' " + getCSSClassParameter("webform") + "></div></div>");
+
+			html.append("\t<div id='splitter_").append(tabPanelMarkupId).append("' servoy:id='splitter' style='").append(leftPanelStyle).append( //$NON-NLS-1$  //$NON-NLS-2$
+				"'><div id='websplit_left_").append(tabPanelMarkupId).append("' servoy:id='websplit_left' style='").append(leftPanelStyle).append( //$NON-NLS-1$  //$NON-NLS-2$
+				"' ><div servoy:id='webform' " + getCSSClassParameter("webform") + "></div></div></div>"); //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$
+			html.append("<div id='websplit_right_").append(tabPanelMarkupId).append("' servoy:id='websplit_right' style='").append(rightPanelStyle).append( //$NON-NLS-1$  //$NON-NLS-2$ 
+				"'><div servoy:id='webform' " + getCSSClassParameter("webform") + "></div></div>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		else
 		{
