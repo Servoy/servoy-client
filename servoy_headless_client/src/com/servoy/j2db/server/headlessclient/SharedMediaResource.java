@@ -13,13 +13,14 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient;
 
 import java.awt.Dimension;
 
 import org.apache.wicket.Session;
 import org.apache.wicket.markup.html.DynamicWebResource;
+import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.util.string.StringValueConversionException;
 import org.apache.wicket.util.time.Time;
 
@@ -37,6 +38,7 @@ import com.servoy.j2db.util.ImageLoader;
  * @author jcompagner
  * 
  */
+@SuppressWarnings("nls")
 public final class SharedMediaResource extends DynamicWebResource
 {
 	private static final long serialVersionUID = 1L;
@@ -48,19 +50,31 @@ public final class SharedMediaResource extends DynamicWebResource
 		setCacheable(true);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.wicket.markup.html.DynamicWebResource#setHeaders(org.apache.wicket.protocol.http.WebResponse)
+	 */
+	@Override
+	protected void setHeaders(WebResponse response)
+	{
+		super.setHeaders(response);
+		response.setHeader("Cache-Control", "public, max-age=" + getCacheDuration());
+	}
+
 	@Override
 	protected ResourceState getResourceState()
 	{
-		final String iconId = getParameters().getString("id"); //$NON-NLS-1$
-		final String solutionName = getParameters().getString("s"); //$NON-NLS-1$
+		final String iconId = getParameters().getString("id");
+		final String solutionName = getParameters().getString("s");
 		int mediaOptions = 0;
 		int width = 0;
 		int height = 0;
 		try
 		{
-			mediaOptions = getParameters().getInt("option", 0); //$NON-NLS-1$
-			width = getParameters().getInt("w", 0); //$NON-NLS-1$
-			height = getParameters().getInt("h", 0); //$NON-NLS-1$
+			mediaOptions = getParameters().getInt("option", 0);
+			width = getParameters().getInt("w", 0);
+			height = getParameters().getInt("h", 0);
 		}
 		catch (StringValueConversionException ex)
 		{
@@ -134,7 +148,7 @@ public final class SharedMediaResource extends DynamicWebResource
 								}
 								catch (NumberFormatException ex)
 								{
-									Debug.error("no media found for: " + iconId); //$NON-NLS-1$
+									Debug.error("no media found for: " + iconId);
 								}
 							}
 							if (m != null)
