@@ -1224,7 +1224,9 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 				{
 					editorDocument.setValidator("NumberDocumentValidator", new NumberDocumentValidator()); //$NON-NLS-1$
 				}
-				setFormatterFactory(new DefaultFormatterFactory(new TextFormatter()));
+				TextFormatter display = new TextFormatter();
+				TextFormatter edit = new TextFormatter();
+				setFormatterFactory(new DefaultFormatterFactory(display, display, edit, edit));
 			}
 			else
 			{
@@ -1323,7 +1325,9 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		else
 		//for text fields
 		{
-			setFormatterFactory(new DefaultFormatterFactory(new TextFormatter()));
+			TextFormatter display = new TextFormatter();
+			TextFormatter edit = new TextFormatter();
+			setFormatterFactory(new DefaultFormatterFactory(display, display, edit, edit));
 		}
 	}
 
