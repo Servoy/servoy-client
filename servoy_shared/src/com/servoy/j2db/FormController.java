@@ -3950,14 +3950,14 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 		if (throwException)
 		{
-			return executeFunction(f, args, scope, thisObject, saveData, src, f == null || !Utils.getAsBoolean(f.get("_hasSearchORloadAllRecords_", f)), //$NON-NLS-1$
+			return executeFunction(f, args, scope, thisObject, saveData, src, f == null || !Utils.getAsBoolean(f.get("_AllowToRunInFind_", f)), //$NON-NLS-1$
 				focusEvent, methodKey, executeWhenFieldValidationFailed, false, true);
 		}
 		else
 		{
 			try
 			{
-				return executeFunction(f, args, scope, thisObject, saveData, src, f == null || !Utils.getAsBoolean(f.get("_hasSearchORloadAllRecords_", f)), //$NON-NLS-1$
+				return executeFunction(f, args, scope, thisObject, saveData, src, f == null || !Utils.getAsBoolean(f.get("_AllowToRunInFind_", f)), //$NON-NLS-1$
 					focusEvent, methodKey, executeWhenFieldValidationFailed, false, false);
 			}
 			catch (ApplicationException ex)

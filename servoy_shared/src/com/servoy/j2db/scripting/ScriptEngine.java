@@ -394,6 +394,7 @@ public class ScriptEngine implements IScriptSupport
 	 * @param cx
 	 * @return
 	 */
+	@SuppressWarnings("nls")
 	protected Function compileScriptProvider(IScriptProvider sp, Scriptable scope, Context cx, String sourceName)
 	{
 		String declaration = sp.getDeclaration();
@@ -401,11 +402,11 @@ public class ScriptEngine implements IScriptSupport
 		// dont return the calc function itself but still the value.
 		if (sp instanceof ScriptCalculation)
 		{
-			declaration = docStripper.matcher(declaration).replaceFirst("function $1_"); //$NON-NLS-1$
+			declaration = docStripper.matcher(declaration).replaceFirst("function $1_");
 		}
 		else
 		{
-			declaration = docStripper.matcher(declaration).replaceFirst("function $1"); //$NON-NLS-1$
+			declaration = docStripper.matcher(declaration).replaceFirst("function $1");
 		}
 
 		Function f = cx.compileFunction(scope, declaration, sourceName, sp.getLineNumberOffset(), null);
@@ -413,7 +414,7 @@ public class ScriptEngine implements IScriptSupport
 		{
 			f.put("_methodname_", f, sp.getDataProviderID()); //$NON-NLS-1$
 			f.put(
-				"_hasSearchORloadAllRecords_", f, Boolean.valueOf(declaration.indexOf(".search") != -1 || declaration.indexOf("controller.loadAllRecords") != -1)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				"_AllowToRunInFind_", f, Boolean.valueOf(sp.getDeclaration().indexOf("@AllowToRunInFind") != -1 || declaration.indexOf(".search") != -1 || declaration.indexOf("controller.loadAllRecords") != -1)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		return f;
 	}
