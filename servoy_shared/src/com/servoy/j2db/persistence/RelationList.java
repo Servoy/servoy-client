@@ -109,10 +109,10 @@ public final class RelationList
 		return size;
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Note: RelationList(a, RelationList(b, RelationList(c)))hashCode() MUST return the same as Arrays.hashCode([a, b, c]);
 	 * 
-	 * @see java.lang.Object#hashCode()
+	 * This is used in ColumnWrapper.
 	 */
 	@Override
 	public int hashCode()
