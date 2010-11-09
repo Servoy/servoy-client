@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.printing;
 
 
@@ -93,6 +93,7 @@ public class DataRendererDefinition implements Cloneable //cloneable for page bo
 	{
 		application = pi.getApplication();
 		renderer = r;
+		bounds = new HashMap();
 		if (renderer != null)//renderer can be null if no body
 		{
 			List invokeLaterRunnables = new ArrayList();
@@ -100,7 +101,6 @@ public class DataRendererDefinition implements Cloneable //cloneable for page bo
 			Utils.invokeLater(application, invokeLaterRunnables);
 		}
 		startYOrgin = 0;
-		bounds = new HashMap();
 		init(renderParent);
 	}
 
@@ -110,6 +110,7 @@ public class DataRendererDefinition implements Cloneable //cloneable for page bo
 		application = pi.getApplication();
 		part = p;
 		renderer = r;
+		bounds = new HashMap();
 		if (renderer != null)//renderer can be null if no body
 		{
 			List invokeLaterRunnables = new ArrayList();
@@ -117,7 +118,6 @@ public class DataRendererDefinition implements Cloneable //cloneable for page bo
 			Utils.invokeLater(pi.getApplication(), invokeLaterRunnables);
 		}
 		startYOrgin = 0;
-		bounds = new HashMap();
 	}
 
 	private void init(RendererParentWrapper renderParent)
@@ -211,8 +211,9 @@ public class DataRendererDefinition implements Cloneable //cloneable for page bo
 					// set max border width, so fields right hand side do not grow out of page
 					if ((slide & ISupportPrintSliding.GROW_WIDTH) == ISupportPrintSliding.GROW_WIDTH)
 					{
-						Rectangle r = new Rectangle((Rectangle)bounds.get(component));
+						Rectangle r = (Rectangle)bounds.get(component);
 						if (r == null) return fullSize; // cannot do needed work, so return current width
+						r = new Rectangle(r);
 						// check if the "right hand border" of fields allowed to grow in width are still within page margin
 						int spaceToMargin = renderer.getSpaceToRightMargin();
 						if (xLocation + r.x + r.width + spaceToMargin > maxPageWidth)
