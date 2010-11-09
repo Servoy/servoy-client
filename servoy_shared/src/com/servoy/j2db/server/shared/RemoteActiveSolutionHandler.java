@@ -49,6 +49,8 @@ import com.servoy.j2db.util.Utils;
  */
 public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 {
+	public static final String SMARTCLIENT_SHARED_SOLUTION_DIR_PROPERTY_NAME = "servoy.smartclient.shared_solution_dir"; //$NON-NLS-1$
+
 	private final Map<Integer, Long> loadedActiveSolutionUpdateSequences = new HashMap<Integer, Long>(); //solution_id -> asus
 
 	public RemoteActiveSolutionHandler(IServiceProvider sp)
@@ -150,7 +152,9 @@ public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 		{
 			URL url = getServiceProvider().getServerURL();
 			String name = (url.getHost() + '_' + url.getPort()) + '_' + solutionDef.getName();
-			file = new File(System.getProperty("user.home"), J2DBGlobals.CLIENT_LOCAL_DIR + name + ".solution"); //$NON-NLS-1$ //$NON-NLS-2$
+
+			file = new File(
+				getServiceProvider().getSettings().getProperty(SMARTCLIENT_SHARED_SOLUTION_DIR_PROPERTY_NAME, System.getProperty("user.home")), J2DBGlobals.CLIENT_LOCAL_DIR + name + ".solution"); //$NON-NLS-1$ //$NON-NLS-2$
 			if (file.exists())
 			{
 				fis = new FileInputStream(file);
@@ -205,7 +209,8 @@ public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 		URL url = getServiceProvider().getServerURL();
 		String name = (url.getHost() + '_' + url.getPort()) + '_' + solution.getName();
 
-		File hiddendir = new File(System.getProperty("user.home"), J2DBGlobals.CLIENT_LOCAL_DIR); //$NON-NLS-1$
+		File hiddendir = new File(
+			getServiceProvider().getSettings().getProperty(SMARTCLIENT_SHARED_SOLUTION_DIR_PROPERTY_NAME, System.getProperty("user.home")), J2DBGlobals.CLIENT_LOCAL_DIR); //$NON-NLS-1$
 		if (!hiddendir.exists()) hiddendir.mkdirs();
 
 		Long asus = loadedActiveSolutionUpdateSequences.get(new Integer(solution.getSolutionID()));
