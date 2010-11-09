@@ -692,16 +692,22 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 			else if (mappedType == IColumnTypes.NUMBER)
 			{
 				setType(Double.class);
-				DecimalFormatSymbols dfs = RoundHalfUpDecimalFormat.getDecimalFormatSymbols(application.getLocale());
-				add(new FindModeDisabledSimpleAttributeModifier(getEventExecutor(), "onkeypress", "return Servoy.Validation.numbersonly(event, true, '" +
-					dfs.getDecimalSeparator() + "','" + dfs.getGroupingSeparator() + "','" + dfs.getCurrencySymbol() + "','" + dfs.getPercent() + "');"));
+				if (list == null)
+				{
+					DecimalFormatSymbols dfs = RoundHalfUpDecimalFormat.getDecimalFormatSymbols(application.getLocale());
+					add(new FindModeDisabledSimpleAttributeModifier(getEventExecutor(), "onkeypress", "return Servoy.Validation.numbersonly(event, true, '" +
+						dfs.getDecimalSeparator() + "','" + dfs.getGroupingSeparator() + "','" + dfs.getCurrencySymbol() + "','" + dfs.getPercent() + "');"));
+				}
 			}
 			else if (mappedType == IColumnTypes.INTEGER)
 			{
 				setType(Integer.class);
-				DecimalFormatSymbols dfs = RoundHalfUpDecimalFormat.getDecimalFormatSymbols(application.getLocale());
-				add(new FindModeDisabledSimpleAttributeModifier(getEventExecutor(), "onkeypress", "return Servoy.Validation.numbersonly(event, false, '" +
-					dfs.getDecimalSeparator() + "','" + dfs.getGroupingSeparator() + "','" + dfs.getCurrencySymbol() + "','" + dfs.getPercent() + "');"));
+				if (list == null)
+				{
+					DecimalFormatSymbols dfs = RoundHalfUpDecimalFormat.getDecimalFormatSymbols(application.getLocale());
+					add(new FindModeDisabledSimpleAttributeModifier(getEventExecutor(), "onkeypress", "return Servoy.Validation.numbersonly(event, false, '" +
+						dfs.getDecimalSeparator() + "','" + dfs.getGroupingSeparator() + "','" + dfs.getCurrencySymbol() + "','" + dfs.getPercent() + "');"));
+				}
 			}
 			else if (mappedType == IColumnTypes.TEXT && list != null)
 			{
