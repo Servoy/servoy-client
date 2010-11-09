@@ -13,14 +13,17 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.util.Collections;
 import java.util.Iterator;
 
+import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FilteredIterator;
 import com.servoy.j2db.util.IFilter;
 import com.servoy.j2db.util.UUID;
@@ -36,17 +39,29 @@ import com.servoy.j2db.util.Utils;
 public class FormElementGroup implements ISupportBounds, ISupportUpdateableName
 {
 	private String groupID;
-	private final ISupportChilds parent;
+	private final Form form;
+	private final FlattenedSolution flattenedSolution;
 
-	public FormElementGroup(String groupID, ISupportChilds parent)
+	public FormElementGroup(String groupID, FlattenedSolution flattenedSolution, Form form)
 	{
 		this.groupID = groupID;
-		this.parent = parent;
+		this.flattenedSolution = flattenedSolution;
+		this.form = form;
 	}
 
 	public Iterator<IFormElement> getElements()
 	{
-		return new FilteredIterator<IFormElement>(parent.getAllObjects(), new IFilter<IFormElement>()
+		Form flattenedForm;
+		try
+		{
+			flattenedForm = flattenedSolution.getFlattenedForm(form);
+		}
+		catch (RepositoryException e)
+		{
+			Debug.error(e);
+			return Collections.<IFormElement> emptyList().iterator();
+		}
+		return new FilteredIterator<IFormElement>(flattenedForm.getAllObjects(), new IFilter<IFormElement>()
 		{
 			public boolean match(Object o)
 			{
@@ -55,9 +70,9 @@ public class FormElementGroup implements ISupportBounds, ISupportUpdateableName
 		});
 	}
 
-	public ISupportChilds getParent()
+	public Form getParent()
 	{
-		return parent;
+		return form;
 	}
 
 	public String getGroupID()
@@ -105,7 +120,7 @@ public class FormElementGroup implements ISupportBounds, ISupportUpdateableName
 		{
 			if (!name.equals(getName()))
 			{
-				validator.checkName(name, -1, new ValidatorSearchContext(parent, IRepository.ELEMENTS), false);
+				validator.checkName(name, -1, new ValidatorSearchContext(form, IRepository.ELEMENTS), false);
 			}
 			newGroupId = name;
 		}
@@ -224,7 +239,7 @@ public class FormElementGroup implements ISupportBounds, ISupportUpdateableName
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((groupID == null) ? 0 : groupID.hashCode());
-		result = prime * result + ((parent == null) ? 0 : parent.hashCode());
+		result = prime * result + ((form == null) ? 0 : form.hashCode());
 		return result;
 	}
 
@@ -240,11 +255,11 @@ public class FormElementGroup implements ISupportBounds, ISupportUpdateableName
 			if (other.groupID != null) return false;
 		}
 		else if (!groupID.equals(other.groupID)) return false;
-		if (parent == null)
+		if (form == null)
 		{
-			if (other.parent != null) return false;
+			if (other.form != null) return false;
 		}
-		else if (!parent.equals(other.parent)) return false;
+		else if (!form.equals(other.form)) return false;
 		return true;
 	}
 
