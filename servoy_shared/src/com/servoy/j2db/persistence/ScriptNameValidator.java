@@ -264,7 +264,7 @@ public class ScriptNameValidator implements IValidateName
 					}
 					if (nameToCheck.equalsIgnoreCase(((IFormElement)persist).getGroupID()))
 					{
-						return new FormElementGroup(((IFormElement)persist).getGroupID(), persist.getParent());
+						return new FormElementGroup(((IFormElement)persist).getGroupID(), solutionRoot, (Form)persist.getParent());
 					}
 				}
 			}
