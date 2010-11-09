@@ -395,6 +395,7 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 				// findstate doesn't inform others...
 				if (!Utils.equalObjects(prevValue, obj))
 				{
+					// do call notifyLastNewValue changed so that the onChangeEvent will be fired and called when attached.
 					display.notifyLastNewValueWasChange(prevValue, obj);//to trigger onChangeMethod (not all displays have own property change impl)
 				}
 				prevValue = obj;

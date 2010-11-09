@@ -435,7 +435,7 @@ public class TemplateGenerator
 
 
 		String webFormCSS = getWebFormCSS(retval.getRight(), formIDToMarkupIDMap);
-		webFormCSS = StripHTMLTagsConverter.convertMediaReferences(webFormCSS, solution.getName(), new ResourceReference("media"), "../../").toString(); //$NON-NLS-1$ //$NON-NLS-2$ // string the formcss/solutionname/ out of the url.		
+		webFormCSS = StripHTMLTagsConverter.convertMediaReferences(webFormCSS, solution.getName(), new ResourceReference("media"), "").toString(); //$NON-NLS-1$ //$NON-NLS-2$ // string the formcss/solutionname/ out of the url.		
 		return new Pair<String, String>(retval.getLeft(), webFormCSS);
 	}
 
