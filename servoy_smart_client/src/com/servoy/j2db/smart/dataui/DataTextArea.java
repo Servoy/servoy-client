@@ -1053,6 +1053,22 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.swing.JComponent#getToolTipText(java.awt.event.MouseEvent)
+	 */
+	@Override
+	public String getToolTipText(MouseEvent event)
+	{
+		String txt = super.getToolTipText(event);
+		if (txt == null || txt.length() == 0)
+		{
+			return enclosedComponent.getToolTipText(event);
+		}
+		return null;
+	}
+
 
 	/*
 	 * location---------------------------------------------------

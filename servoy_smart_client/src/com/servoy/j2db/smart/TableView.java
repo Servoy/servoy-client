@@ -1326,6 +1326,9 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 			// same view so the scroll bar position should stick.
 			prevRowCount = getModel().getRowCount();
 			removeEditor();//safety
+			// first make sure that the selection model is not adjusting anymore. 
+			// (TableUI will set it to true in onpress of mouse and this will happen before onrelease that would reset it)
+			getSelectionModel().setValueIsAdjusting(false);
 			setSelectionModel(EMPTY_SELECTION);
 			super.setModel(EMPTY_DATA);
 		}
