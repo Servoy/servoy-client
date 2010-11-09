@@ -393,6 +393,10 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 			{
 				((FindState)record).setFormat(dataProviderID, display.getFormat());
 				// findstate doesn't inform others...
+				if (!Utils.equalObjects(prevValue, obj))
+				{
+					display.notifyLastNewValueWasChange(prevValue, obj);//to trigger onChangeMethod (not all displays have own property change impl)
+				}
 				prevValue = obj;
 			}
 		}
