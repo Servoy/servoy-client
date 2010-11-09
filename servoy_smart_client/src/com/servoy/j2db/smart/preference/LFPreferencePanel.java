@@ -104,11 +104,8 @@ public class LFPreferencePanel extends PreferencePanel implements ItemListener, 
 
 		_selectedFont = PersistHelper.createFont(_application.getSettings().getProperty("font")); //$NON-NLS-1$
 		lnfBox = new JComboBox(_dcbm);
-		String msg = _application.getI18NMessage("servoy.preference.lookandfeel.msg.undefined"); //$NON-NLS-1$
-		if (_selectedFont != null)
-		{
-			msg = _selectedFont.getFontName() + _application.getI18NMessage("servoy.preference.lookandfeel.fontsize") + _selectedFont.getSize(); //$NON-NLS-1$
-		}
+		String msg = getFontButtonText();
+		if (msg == null) msg = _application.getI18NMessage("servoy.preference.lookandfeel.msg.undefined"); //$NON-NLS-1$
 		fontButton = new JButton(msg);
 		fontButton.addActionListener(this);
 		fontButton.setActionCommand("font");
@@ -186,7 +183,20 @@ public class LFPreferencePanel extends PreferencePanel implements ItemListener, 
 	@Override
 	public boolean handleCancel()
 	{
-		String msg = _application.getI18NMessage("servoy.preference.lookandfeel.msg.undefined"); //$NON-NLS-1$
+		String msg = getFontButtonText();
+		if (msg == null) msg = _application.getI18NMessage("servoy.preference.lookandfeel.msg.undefined"); //$NON-NLS-1$
+		fontButton.setText(msg);
+		if (_current != null) lnfBox.setSelectedItem(_current);
+		String n = _application.getSettings().getProperty("lnf.theme", ""); //$NON-NLS-1$//$NON-NLS-2$
+		int indx = n.lastIndexOf('.');
+		if (indx != -1) n = n.substring(indx + 1);
+		themesBox.setSelectedItem(n);
+		return true;
+	}
+
+	protected String getFontButtonText()
+	{
+		String msg = null;
 		if (_selectedFont != null)
 		{
 			String style = null;
@@ -199,13 +209,7 @@ public class LFPreferencePanel extends PreferencePanel implements ItemListener, 
 			if (style == null) style = "Regular";
 			msg = _selectedFont.getFontName() + " (" + style + "," + _selectedFont.getSize() + ")"; //$NON-NLS-1$
 		}
-		fontButton.setText(msg);
-		if (_current != null) lnfBox.setSelectedItem(_current);
-		String n = _application.getSettings().getProperty("lnf.theme", ""); //$NON-NLS-1$//$NON-NLS-2$
-		int indx = n.lastIndexOf('.');
-		if (indx != -1) n = n.substring(indx + 1);
-		themesBox.setSelectedItem(n);
-		return true;
+		return msg;
 	}
 
 	@Override
