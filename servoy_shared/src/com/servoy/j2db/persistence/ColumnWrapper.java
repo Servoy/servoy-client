@@ -138,22 +138,13 @@ public class ColumnWrapper implements IDataProvider, Serializable
 			if (other.column != null) return false;
 		}
 		else if (!column.equals(other.column)) return false;
+		// relation data is either stored in relations or in relationList
 		if (relatonList != null && other.relatonList != null)
 		{
-			if (!relatonList.equals(other.relatonList)) return false;
-		}
+			return relatonList.equals(other.relatonList);
 
-		if (relatonList != null)
-		{
-			if (!Arrays.equals(relatonList.getRelations(), other.relations)) return false;
 		}
-		else if (other.relatonList != null)
-		{
-			if (!Arrays.equals(relations, other.relatonList.getRelations())) return false;
-		}
-
-		if (!Arrays.equals(relations, other.relations)) return false;
-		return true;
+		return Arrays.equals(getRelations(), other.getRelations());
 	}
 
 	public String getDataProviderID()//get the id
