@@ -17,8 +17,6 @@
 
 package com.servoy.j2db.persistence;
 
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -68,19 +66,13 @@ public final class RelationList
 	 */
 	public Relation[] getRelations()
 	{
-		List<Relation> lst = new ArrayList<Relation>(5);
-		lst.add(relation);
+		Relation[] relations = new Relation[size];
 		RelationList parentWalker = parent;
-		while (parentWalker != null)
+		relations[size - 1] = relation;
+		for (int i = size - 2; parentWalker != null; i--)
 		{
-			lst.add(parentWalker.relation);
+			relations[i] = parentWalker.relation;
 			parentWalker = parentWalker.parent;
-		}
-		int counter = 0;
-		Relation[] relations = new Relation[lst.size()];
-		for (int i = lst.size(); --i >= 0;)
-		{
-			relations[counter++] = lst.get(i);
 		}
 		return relations;
 	}
