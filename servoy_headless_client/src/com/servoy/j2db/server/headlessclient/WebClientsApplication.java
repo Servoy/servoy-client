@@ -242,6 +242,7 @@ public class WebClientsApplication extends WebApplication
 		getResourceSettings().setResourceWatcher(new ServoyModificationWatcher(Duration.seconds(5)));
 //		getResourceSettings().setResourcePollFrequency(Duration.seconds(5));
 		getResourceSettings().setAddLastModifiedTimeToResourceReferenceUrl(true);
+		getResourceSettings().setDefaultCacheDuration((int)Duration.days(365).seconds());
 		getMarkupSettings().setCompressWhitespace(true);
 		getMarkupSettings().setMarkupCache(new ServoyMarkupCache(this));
 		// getMarkupSettings().setStripWicketTags(true);
