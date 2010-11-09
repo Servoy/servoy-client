@@ -204,6 +204,10 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 			{
 				relatedFoundSet = application.getFoundSetManager().getGlobalRelatedFoundSet(relations[0].getName());
 			}
+			else if (parentState instanceof FindState)
+			{
+				relatedFoundSet = parentState.getParentFoundSet().getRelatedFoundSet(parentState, relations[0].getName(), null);
+			}
 			else
 			{
 				relatedFoundSet = parentState.getRelatedFoundSet(relations[0].getName(), null);
