@@ -7,8 +7,7 @@ Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-Vendor: Servoy
 Require-Bundle: servoy_shared,
  org.eclipse.dltk.javascript.rhino,
- org.eclipse.swt;visibility:=reexport,
- org.eclipse.jdt.ui;bundle-version="3.6.1"
+ org.eclipse.swt;visibility:=reexport
 Export-Package: com.servoy.j2db.gui,
  com.servoy.j2db.plugins,
  com.servoy.j2db.printing,
