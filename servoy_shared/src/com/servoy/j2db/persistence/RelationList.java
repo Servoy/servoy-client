@@ -127,10 +127,13 @@ public final class RelationList
 	{
 		if (hashcode == -1)
 		{
-			hashcode = relation.hashCode();
 			if (parent != null)
 			{
-				hashcode = 31 * hashcode + parent.hashCode();
+				hashcode = 31 * parent.hashCode() + relation.hashCode();
+			}
+			else
+			{
+				hashcode = 31 + relation.hashCode();
 			}
 		}
 		return hashcode;
