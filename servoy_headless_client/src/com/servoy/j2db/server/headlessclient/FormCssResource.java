@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient;
 
 import java.net.URL;
@@ -25,6 +25,7 @@ import javax.servlet.ServletContext;
 
 import org.apache.wicket.Session;
 import org.apache.wicket.markup.html.WebResource;
+import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.apache.wicket.util.resource.StringResourceStream;
 import org.apache.wicket.util.resource.UrlResourceStream;
@@ -47,6 +48,7 @@ import com.servoy.j2db.util.Pair;
  * @author jcompagner
  * 
  */
+@SuppressWarnings("nls")
 public class FormCssResource extends WebResource
 {
 	private final ServletContext context;
@@ -59,13 +61,25 @@ public class FormCssResource extends WebResource
 		this.context = application.getWicketFilter().getFilterConfig().getServletContext();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.wicket.markup.html.WebResource#setHeaders(org.apache.wicket.protocol.http.WebResponse)
+	 */
+	@Override
+	protected void setHeaders(WebResponse response)
+	{
+		super.setHeaders(response);
+		response.setHeader("Cache-Control", "public, max-age=" + getCacheDuration());
+	}
+
 	/**
 	 * @see org.apache.wicket.Resource#getResourceStream()
 	 */
 	@Override
 	public IResourceStream getResourceStream()
 	{
-		String css = ""; //$NON-NLS-1$
+		String css = "";
 		ValueMap params = getParameters();
 		Long time = null;
 		if (params.size() == 1)
@@ -80,8 +94,8 @@ public class FormCssResource extends WebResource
 				time = filterTime.getRight();
 
 
-				String solutionAndForm = solutionName + "/" + formName; //$NON-NLS-1$
-				String templateDir = "default"; //$NON-NLS-1$
+				String solutionAndForm = solutionName + "/" + formName;
+				String templateDir = "default";
 				IServiceProvider sp = null;
 				Solution solution = null;
 				Form form = null;
@@ -96,7 +110,7 @@ public class FormCssResource extends WebResource
 					templateDir = WebClientSession.get().getTemplateDirectoryName();
 				}
 
-				final String fullpath = "/servoy-webclient/templates/" + templateDir + "/" + solutionAndForm + ".css"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				final String fullpath = "/servoy-webclient/templates/" + templateDir + "/" + solutionAndForm + ".css";
 				try
 				{
 					URL url = context.getResource(fullpath);

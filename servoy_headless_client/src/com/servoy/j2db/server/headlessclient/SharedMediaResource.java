@@ -27,6 +27,7 @@ import org.apache.wicket.util.time.Time;
 import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.IRootObject;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.server.headlessclient.dataui.MediaResource;
@@ -83,7 +84,7 @@ public final class SharedMediaResource extends DynamicWebResource
 		ResourceState rs = getResource(iconId, solutionName);
 		if (rs != null && rs.getData() != null && rs.getData().length > 0 && mediaOptions != 0 && mediaOptions != 1 && width != 0 && height != 0)
 		{
-			MediaResource mr = new MediaResource(rs.getData(), mediaOptions);
+			MediaResource mr = new MediaResource(rs.getData(), mediaOptions, rs.lastModifiedTime());
 
 			mr.checkResize(new Dimension(width, height));
 			return mr.getResourceState();
@@ -102,7 +103,15 @@ public final class SharedMediaResource extends DynamicWebResource
 			@Override
 			public Time lastModifiedTime()
 			{
-				// TODO check the solutions update time??
+				try
+				{
+					IRootObject solution = ApplicationServerSingleton.get().getLocalRepository().getActiveRootObject(solutionName, IRepository.SOLUTIONS);
+					if (solution != null) return Time.valueOf(solution.getLastModifiedTime());
+				}
+				catch (Exception e)
+				{
+					Debug.trace(e);
+				}
 				return time;
 			}
 

@@ -20,6 +20,7 @@ import java.awt.Dimension;
 
 import org.apache.wicket.markup.html.DynamicWebResource;
 import org.apache.wicket.protocol.http.WebResponse;
+import org.apache.wicket.util.time.Time;
 
 import com.servoy.j2db.util.HTTPUtils;
 import com.servoy.j2db.util.ImageLoader;
@@ -31,6 +32,48 @@ import com.servoy.j2db.util.ImageLoader;
  */
 public final class MediaResource extends DynamicWebResource
 {
+	/**
+	 * @author jcompagner
+	 *
+	 */
+	private final class MediaResourceState extends ResourceState
+	{
+		/**
+		 * @param lastModifiedTime
+		 */
+		public MediaResourceState(Time lastModifiedTime)
+		{
+			this.lastModifiedTime = lastModifiedTime;
+		}
+
+		/**
+		 * @see wicket.resource.DynamicByteArrayResource.ResourceState#getData()
+		 */
+		@Override
+		public byte[] getData()
+		{
+			return resized == null ? bs : resized;
+		}
+
+		/**
+		 * @see wicket.resource.DynamicByteArrayResource.ResourceState#getContentType()
+		 */
+		@Override
+		public String getContentType()
+		{
+			return contentType;
+		}
+
+		/**
+		 * @see wicket.resource.DynamicByteArrayResource.ResourceState#getLength()
+		 */
+		@Override
+		public int getLength()
+		{
+			return getData().length;
+		}
+	}
+
 	private static final long serialVersionUID = 1L;
 
 	private boolean reduce;
@@ -50,13 +93,22 @@ public final class MediaResource extends DynamicWebResource
 
 	private double iconHeight;
 
+	private final Time lastModifiedTime;
+
 	MediaResource()
 	{
 		bs = new byte[0];
+		lastModifiedTime = null;
 	}
 
 	public MediaResource(byte[] bs, int mediaOptions)
 	{
+		this(bs, mediaOptions, null);
+	}
+
+	public MediaResource(byte[] bs, int mediaOptions, Time lastModifiedTime)
+	{
+		this.lastModifiedTime = lastModifiedTime;
 		this.bs = bs == null ? new byte[0] : bs;
 		this.succededScaledDimension = ImageLoader.getSize(this.bs);
 		this.iconWidth = succededScaledDimension.getWidth();
@@ -71,35 +123,7 @@ public final class MediaResource extends DynamicWebResource
 	@Override
 	public ResourceState getResourceState()
 	{
-		return new ResourceState()
-		{
-			/**
-			 * @see wicket.resource.DynamicByteArrayResource.ResourceState#getData()
-			 */
-			@Override
-			public byte[] getData()
-			{
-				return resized == null ? bs : resized;
-			}
-
-			/**
-			 * @see wicket.resource.DynamicByteArrayResource.ResourceState#getContentType()
-			 */
-			@Override
-			public String getContentType()
-			{
-				return contentType;
-			}
-
-			/**
-			 * @see wicket.resource.DynamicByteArrayResource.ResourceState#getLength()
-			 */
-			@Override
-			public int getLength()
-			{
-				return getData().length;
-			}
-		};
+		return new MediaResourceState(lastModifiedTime);
 	}
 
 
