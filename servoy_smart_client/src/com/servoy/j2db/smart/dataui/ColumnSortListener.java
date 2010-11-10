@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.smart.dataui;
 
 
@@ -30,7 +30,6 @@ import javax.swing.table.TableColumnModel;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.ISaveConstants;
@@ -117,9 +116,9 @@ public class ColumnSortListener extends MouseAdapter
 			lastSortAsc = columnModelIndex == lastColumnIndex ? !lastSortAsc : true;
 			lastColumnIndex = columnModelIndex;
 
-			if ((fc != null) && (column instanceof CellAdapter) && e.getClickCount() <= 1)
+			if ((fc != null) && (column instanceof CellAdapter) && e.getClickCount() <= 1 && table.getModel() instanceof IFoundSetInternal)
 			{
-				List<SortColumn> sortCols = ((FoundSet)table.getModel()).getSortColumns();
+				List<SortColumn> sortCols = ((IFoundSetInternal)table.getModel()).getSortColumns();
 				if (sortCols != null && sortCols.size() > 0)
 				{
 					SortColumn sc = sortCols.get(0);
@@ -130,7 +129,7 @@ public class ColumnSortListener extends MouseAdapter
 
 			table.sortHeadersClicked(columnModelIndex, lastSortAsc);
 
-			if (column instanceof CellAdapter && table.getModel() instanceof FoundSet)
+			if (column instanceof CellAdapter && table.getModel() instanceof IFoundSetInternal)
 			{
 				try
 				{
@@ -170,7 +169,7 @@ public class ColumnSortListener extends MouseAdapter
 								{
 									try
 									{
-										FoundSet model = (FoundSet)table.getModel();
+										IFoundSetInternal model = (IFoundSetInternal)table.getModel();
 										SortColumn sc = ((FoundSetManager)model.getFoundSetManager()).getSortColumn(model.getTable(), dataProviderID);
 										if (sc != null && sc.getColumn().getDataProviderType() != IColumnTypes.MEDIA)
 										{
