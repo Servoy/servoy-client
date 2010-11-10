@@ -16,12 +16,20 @@
  */
 package com.servoy.j2db.server.headlessclient;
 
+import java.rmi.RemoteException;
+
 import javax.servlet.ServletRequest;
 
 import org.mozilla.javascript.Context;
 
 import com.servoy.j2db.ISessionClient;
+import com.servoy.j2db.LocalActiveSolutionHandler;
+import com.servoy.j2db.persistence.IActiveSolutionHandler;
+import com.servoy.j2db.persistence.IDeveloperRepository;
 import com.servoy.j2db.persistence.InfoChannel;
+import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.RootObjectMetaData;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.server.shared.IApplicationServerSingleton;
@@ -105,6 +113,30 @@ public class HeadlessClientFactoryInternal
 			};
 		}
 		sc.loadSolution(authenticatorName);
+		return sc;
+	}
+
+	public static ISessionClient createImportHookClient(final String hookName, final InfoChannel channel) throws Exception
+	{
+		// assuming no login and no method args for import hooks
+		SessionClient sc = new SessionClient(null, null, null, null, null, hookName)
+		{
+			@Override
+			protected IActiveSolutionHandler createActiveSolutionHandler()
+			{
+				return new LocalActiveSolutionHandler(this)
+				{
+					@Override
+					protected Solution loadSolution(RootObjectMetaData solutionDef) throws RemoteException, RepositoryException
+					{
+						// grab the latest version (-1) not the active one, because the hook was not yet activated.
+						return (Solution)((IDeveloperRepository)getRepository()).getRootObject(solutionDef.getRootObjectId(), -1);
+					}
+				};
+			}
+		};
+		sc.setOutputChannel(channel);
+		sc.loadSolution(hookName);
 		return sc;
 	}
 }
