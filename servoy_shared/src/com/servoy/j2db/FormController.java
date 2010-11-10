@@ -1751,6 +1751,19 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		{
 			IDataRenderer dr = application.getDataRenderFactory().getEmptyDataRenderer(ComponentFactory.getWebID(form, bodyPart), bodyPart.toString(),
 				application, true);
+
+			int onRenderMethodID = form.getOnRenderMethodID();
+			if (onRenderMethodID > 0)
+			{
+				dr.getOnRenderComponent().getRenderEventExecutor().setRenderCallback(Integer.toString(onRenderMethodID));
+				dr.getOnRenderComponent().getRenderEventExecutor().setRenderScriptExecuter(getScriptExecuter());
+			}
+			//apply bgcolor to renderer				
+			if (bgColor != null)
+			{
+				dr.setBackground(bgColor);
+			}
+
 			dataRenderers[FORM_RENDERER] = dr;
 			dr.setName(bodyPart.toString());
 			part_panels = new LinkedHashMap<Part, IDataRenderer>();
