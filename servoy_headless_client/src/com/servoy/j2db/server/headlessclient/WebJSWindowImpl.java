@@ -33,7 +33,7 @@ import com.servoy.j2db.scripting.JSWindowImpl;
 import com.servoy.j2db.server.headlessclient.dataui.WebDefaultRecordNavigator;
 
 /**
- * Swing implementation of the JSWindow. It is based on a wrapped awt Window instance.
+ * Web implementation of the JSWindow.
  * @author acostescu
  * @since 6.0
  */
@@ -98,6 +98,7 @@ public class WebJSWindowImpl extends JSWindowImpl
 			// Now we need to disable the delayed show, otherwise the modal child would be continuously postponed.
 			((MainPage)currContainer).setShowPageInDialogDelayed(false);
 		}
+		if (getTitle() != null) setTitle(getTitle());
 	}
 
 	private IMainContainer getParentContainerForShow(FormManager fm)
@@ -168,6 +169,7 @@ public class WebJSWindowImpl extends JSWindowImpl
 	{
 		MainPage mp = getMainPage();
 		if (mp != null) mp.setTitle(title);
+		super.setTitle(title);
 	}
 
 	@Override

@@ -74,9 +74,9 @@ public class ServoyDivDialogActionBuffer
 		buffer.add(new Action(divDialog, Action.OP_DIALOG_ADDED_OR_REMOVED, new Object[] { parentToUpdate }));
 	}
 
-	public void show(ServoyDivDialog divDialog)
+	public void show(ServoyDivDialog divDialog, String pageMapName)
 	{
-		buffer.add(new Action(divDialog, Action.OP_SHOW, null));
+		buffer.add(new Action(divDialog, Action.OP_SHOW, new Object[] { pageMapName }));
 	}
 
 	public void close(ServoyDivDialog divDialog)
@@ -102,13 +102,14 @@ public class ServoyDivDialogActionBuffer
 			switch (a.getOperation())
 			{
 				case Action.OP_SHOW :
-					if (divDialog.getPageMapName() != null && !divDialog.isShown())
+					if (!divDialog.isShown())
 					{
+						divDialog.setPageMapName((String)a.getParameters()[0]);
 						divDialog.show(target);
 					}
 					break;
 				case Action.OP_CLOSE :
-					if (divDialog.getPageMapName() == null && divDialog.isShown())
+					if (divDialog.isShown())
 					{
 						divDialog.close(target);
 						divDialog.setPageMapName(null);
