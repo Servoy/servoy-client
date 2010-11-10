@@ -636,6 +636,20 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 		return totalHeight;
 	}
 
+	public Part getPartAt(int y)
+	{
+		Iterator<Part> it = getParts();
+		while (it.hasNext())
+		{
+			Part part = it.next();
+			if (part.getHeight() >= y)
+			{
+				return part;
+			}
+		}
+		return null;
+	}
+
 	/*
 	 * _____________________________________________________________ Methods for Field handling
 	 */
