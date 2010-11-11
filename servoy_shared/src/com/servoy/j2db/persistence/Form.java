@@ -2216,8 +2216,15 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 
 	public void setAccess(int arg)
 	{
-		checkForChange(access, arg);
-		access = arg;
+		int newAccess = arg;
+		if ((newAccess & FormEncapsulation.MODULE_PRIVATE) == FormEncapsulation.MODULE_PRIVATE &&
+			(newAccess & FormEncapsulation.PRIVATE) == FormEncapsulation.PRIVATE)
+		{
+			if ((access & FormEncapsulation.MODULE_PRIVATE) == FormEncapsulation.MODULE_PRIVATE) newAccess = newAccess ^ FormEncapsulation.MODULE_PRIVATE;
+			else newAccess = newAccess ^ FormEncapsulation.PRIVATE;
+		}
+		checkForChange(access, newAccess);
+		access = newAccess;
 	}
 
 	public int getAccess()
