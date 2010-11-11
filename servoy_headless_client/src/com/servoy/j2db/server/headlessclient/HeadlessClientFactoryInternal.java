@@ -25,6 +25,7 @@ import org.mozilla.javascript.Context;
 import com.servoy.j2db.ISessionClient;
 import com.servoy.j2db.LocalActiveSolutionHandler;
 import com.servoy.j2db.persistence.IActiveSolutionHandler;
+import com.servoy.j2db.persistence.IDeveloperRepository;
 import com.servoy.j2db.persistence.InfoChannel;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.RootObjectMetaData;
@@ -126,7 +127,8 @@ public class HeadlessClientFactoryInternal
 					@Override
 					protected Solution loadSolution(RootObjectMetaData solutionDef) throws RemoteException, RepositoryException
 					{
-						return importHookModule;
+						// grab the latest version (-1) not the active one, because the hook was not yet activated.
+						return (Solution)((IDeveloperRepository)getRepository()).getRootObject(solutionDef.getRootObjectId(), -1);
 					}
 				};
 			}
