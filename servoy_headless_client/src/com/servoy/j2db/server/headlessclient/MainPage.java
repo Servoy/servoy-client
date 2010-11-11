@@ -1460,7 +1460,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			mustFocusNullIfNoComponentToFocus();
 			nonModalWindowShown = true;
 		}
-		else if (modalWindow != null)
+		else if (modalWindow != null && !modalWindow.isShown())
 		{
 			showModalWindow = true;
 			modalWindow.setPageMapName(dialogContainer.getPageMap().getName());
