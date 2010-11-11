@@ -42,7 +42,7 @@ public class HeadlessClientFactory
 	public static ISessionBean createSessionBean(ServletRequest req, String solutionname, String username, String password, Object[] solutionOpenMethodArgs)
 		throws Exception
 	{
-		return HeadlessClientFactoryInternal.createSessionBean(req, solutionname, username, password, solutionOpenMethodArgs, null);
+		return HeadlessClientFactoryInternal.createSessionBean(req, solutionname, username, password, solutionOpenMethodArgs);
 	}
 
 	public static IHeadlessClient createHeadlessClient(String solutionname) throws Exception
@@ -62,6 +62,6 @@ public class HeadlessClientFactory
 
 	public static IHeadlessClient createHeadlessClient(String solutionname, String username, String password, Object[] solutionOpenMethodArgs) throws Exception
 	{
-		return HeadlessClientFactoryInternal.createHeadlessClient(solutionname, username, password, solutionOpenMethodArgs, null);
+		return HeadlessClientFactoryInternal.createHeadlessClient(solutionname, username, password, solutionOpenMethodArgs);
 	}
 }

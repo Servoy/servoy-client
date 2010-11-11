@@ -13,18 +13,16 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.shared;
 
 import java.util.List;
-
-import com.servoy.j2db.persistence.InfoChannel;
 
 public interface IBatchManager
 {
 	List<IBatchClient> getBatchClientProcesses();
 
-	Thread startBatchClientProcess(final IBatchClient bc, InfoChannel channel);
+	Thread startBatchClientProcess(final IBatchClient bc);
 
 	IBatchClient createBatchClientProcess(String solutionName, String userName, String password, String args, boolean disabled) throws Exception;
 }

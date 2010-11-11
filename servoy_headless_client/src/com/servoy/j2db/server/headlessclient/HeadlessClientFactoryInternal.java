@@ -16,26 +16,32 @@
  */
 package com.servoy.j2db.server.headlessclient;
 
+import java.rmi.RemoteException;
+
 import javax.servlet.ServletRequest;
 
 import org.mozilla.javascript.Context;
 
 import com.servoy.j2db.ISessionClient;
+import com.servoy.j2db.LocalActiveSolutionHandler;
+import com.servoy.j2db.persistence.IActiveSolutionHandler;
 import com.servoy.j2db.persistence.InfoChannel;
+import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.RootObjectMetaData;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.server.shared.IApplicationServerSingleton;
 
 public class HeadlessClientFactoryInternal
 {
-	public static IHeadlessClient createHeadlessClient(String solutionname, String username, String password, Object[] solutionOpenMethodArgs,
-		InfoChannel channel) throws Exception
+	public static IHeadlessClient createHeadlessClient(String solutionname, String username, String password, Object[] solutionOpenMethodArgs) throws Exception
 	{
-		return createSessionBean(null, solutionname, username, password, solutionOpenMethodArgs, channel);
+		return createSessionBean(null, solutionname, username, password, solutionOpenMethodArgs);
 	}
 
 	public static ISessionClient createSessionBean(final ServletRequest req, final String solutionname, final String username, final String password,
-		final Object[] solutionOpenMethodArgs, final InfoChannel channel) throws Exception
+		final Object[] solutionOpenMethodArgs) throws Exception
 	{
 		final ISessionClient[] sc = { null };
 		final Exception[] exception = { null };
@@ -54,7 +60,6 @@ public class HeadlessClientFactoryInternal
 					{
 						sc[0] = new SessionClient(req, username, password, null, solutionOpenMethodArgs, solutionname);
 					}
-					sc[0].setOutputChannel(channel);
 					sc[0].loadSolution(solutionname);
 
 				}
@@ -105,6 +110,29 @@ public class HeadlessClientFactoryInternal
 			};
 		}
 		sc.loadSolution(authenticatorName);
+		return sc;
+	}
+
+	public static ISessionClient createImportHookClient(final Solution importHookModule, final InfoChannel channel) throws Exception
+	{
+		// assuming no login and no method args for import hooks
+		SessionClient sc = new SessionClient(null, null, null, null, null, importHookModule.getName())
+		{
+			@Override
+			protected IActiveSolutionHandler createActiveSolutionHandler()
+			{
+				return new LocalActiveSolutionHandler(this)
+				{
+					@Override
+					protected Solution loadSolution(RootObjectMetaData solutionDef) throws RemoteException, RepositoryException
+					{
+						return importHookModule;
+					}
+				};
+			}
+		};
+		sc.setOutputChannel(channel);
+		sc.loadSolution(importHookModule.getName());
 		return sc;
 	}
 }
