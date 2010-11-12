@@ -112,49 +112,37 @@ public class WebJSWindowImpl extends JSWindowImpl
 	@Override
 	public int getHeight()
 	{
-		if (application instanceof WebClient)
-		{
-			WebClient app = (WebClient)application;
-			return app.getWindowBounds(windowName).height;
-
-		}
-		return 0;
+		MainPage mp = getMainPage();
+		if (mp == null) mp = (MainPage)((FormManager)application.getFormManager()).getMainContainer(null);
+		if (mp != null) return mp.getHeight(); // can never be null normally...
+		else return 0;
 	}
 
 	@Override
 	public int getWidth()
 	{
-		if (application instanceof WebClient)
-		{
-			WebClient app = (WebClient)application;
-			return app.getWindowBounds(windowName).width;
-
-		}
-		return 0;
+		MainPage mp = getMainPage();
+		if (mp == null) mp = (MainPage)((FormManager)application.getFormManager()).getMainContainer(null);
+		if (mp != null) return mp.getWidth(); // can never be null normally...
+		else return 0;
 	}
 
 	@Override
 	public int getX()
 	{
-		if (application instanceof WebClient)
-		{
-			WebClient app = (WebClient)application;
-			return app.getWindowBounds(windowName).x;
-
-		}
-		return 0;
+		MainPage mp = getMainPage();
+		if (mp == null) mp = (MainPage)((FormManager)application.getFormManager()).getMainContainer(null);
+		if (mp != null) return mp.getX(); // can never be null normally...
+		else return 0;
 	}
 
 	@Override
 	public int getY()
 	{
-		if (application instanceof WebClient)
-		{
-			WebClient app = (WebClient)application;
-			return app.getWindowBounds(windowName).y;
-
-		}
-		return 0;
+		MainPage mp = getMainPage();
+		if (mp == null) mp = (MainPage)((FormManager)application.getFormManager()).getMainContainer(null);
+		if (mp != null) return mp.getY(); // can never be null normally...
+		else return 0;
 	}
 
 	@Override

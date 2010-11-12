@@ -30,16 +30,56 @@ Wicket.DivWindow = Wicket.Class.create();
 
 Wicket.Object.extendClass(Wicket.DivWindow, Wicket.Window, {
 
-	parentModalWindow : null,
-	closed : false,
+	parentModalWindow: null,
+	closed: false,
+	onResizeTimer: null,
+	onMoveTimer: null,
 
 	// override
-	initialize : function(settings, windowId) {
+	initialize: function(settings, windowId) {
 		this._super.initialize.call(this, settings);
 		this.windowId = windowId;
 		this.settings = Wicket.Object.extend({
 			modal: true, /* false for non-modal window */
+			onMove: function() { }, /* called when window is moved */
+			onResize: function() { }, /* called when window is resized */
+			boundEventsDelay: 300 /* if <= 0, then all drag operations on window bounds will update imediately; if > 0 bound events will be sent after this timeout in ms  */
 		}, this.settings);
+	},
+	
+	moving: function() {
+		this._super.moving.call(this);
+		// update server side location
+		if (this.onMoveTimer) clearTimeout(this.onMoveTimer);
+		if (this.settings.boundEventsDelay > 0) this.onMoveTimer = setTimeout(this.settings.onMove, this.settings.boundEventsDelay, this.left_, this.top_);
+		else {
+			this.onMoveTimer = null;
+			this.settings.onMove(this.left_, this.top_);
+		}
+	},
+	
+	resizing: function() {	
+		this._super.resizing.call(this);
+		// update server side size
+		if (this.onResizeTimer) clearTimeout(this.onResizeTimer);
+		if (this.settings.boundEventsDelay > 0) this.onResizeTimer = setTimeout(this.settings.onResize, this.settings.boundEventsDelay, this.width, this.height);
+		else {
+			this.onResizeTimer = null;
+			this.settings.onResize(this.width, this.height);
+		}
+	},
+	
+	show: function() {
+		this._super.show.call(this);
+		
+		// initialize bounds
+		this.width = parseInt(this.window.style.width, 10);
+		this.height = parseInt(this.content.style.height, 10);
+		this.left_ = parseInt(this.window.style.left, 10);
+		this.top_ =  parseInt(this.window.style.top, 10);
+		
+		this.settings.onMove(this.left_, this.top_, true);
+		this.settings.onResize(this.width, this.height, true);
 	},
 	
 	createDOM: function() {
@@ -54,7 +94,7 @@ Wicket.Object.extendClass(Wicket.DivWindow, Wicket.Window, {
 	},
 	
 	// override
-	createMask : function() {
+	createMask: function() {
 		if (this.settings.modal) {
 			if (this.settings.mask == "transparent")
 				this.mask = new Wicket.DivWindow.Mask(true);
@@ -68,7 +108,7 @@ Wicket.Object.extendClass(Wicket.DivWindow, Wicket.Window, {
 	},
 
 	// override
-	destroyMask : function() {
+	destroyMask: function() {
 		if (this.settings.modal) {
 			this.mask.hide();	
 			this.mask = null;

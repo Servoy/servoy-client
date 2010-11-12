@@ -69,6 +69,7 @@ import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.protocol.http.ClientProperties;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
 import org.apache.wicket.util.time.Duration;
@@ -178,6 +179,8 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 	private boolean useAJAX;
 
 	private boolean mediaUploadMultiSelect;
+
+	private Dimension size = null; // keeps the size in case of browser windows (non-modal windows); not used for dialogs;
 
 	private class SetStatusBehavior extends AbstractBehavior
 	{
@@ -1501,8 +1504,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				{
 					firstShow = true; // always apply initial bounds if full-screen (to keep it the same as in SC)
 					// get the size of the browser window (that will contain the div window)
-					Rectangle windowBounds = ((WebClient)getController().getApplication()).getWindowBounds(this.getContainerName());
-					bounds = new Rectangle(windowBounds.x, windowBounds.y, windowBounds.width, windowBounds.height - 45); // it is a bit too high, why? Because windowBounds is size of what the div should occupy, while modalWindow.setInitialHeight() is only applied to the contents (without frame)  
+					bounds = new Rectangle(0, 0, getWidth(), getHeight() - 45); // it is a bit too high, why? Because windowBounds is size of what the div should occupy, while modalWindow.setInitialHeight() is only applied to the contents (without frame)  
 				}
 				else
 				{
@@ -1533,6 +1535,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				triggerBrowserRequestIfNeeded();
 			}
 
+			dialogContainer.setWindowSize(null); // not used for dialogs
 			dialogContainer.callingContainer = this;
 		}
 	}
@@ -1588,7 +1591,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		{
 			Session.get().getPage(getPageMapName(), getPath(), LATEST_VERSION);
 		}
-		client.setWindowBounds(getPageMapName(), null);
+		setWindowSize(null);
 		setShowPageInDialogDelayed(false);
 		pageContributor.showNoDialog();
 
@@ -1987,4 +1990,71 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			}
 		}
 	}
+
+
+	public int getX()
+	{
+		if (isShowingInDialog() && callingContainer != null)
+		{
+			// it's showing in a div dialog 
+			ServoyDivDialog divDialog = callingContainer.divDialogs.get(getContainerName());
+			return divDialog != null ? divDialog.getX() : 0;
+		}
+		else return 0; // closed windows & non-modal browser windows are currently not aware of location
+	}
+
+	public int getY()
+	{
+		if (isShowingInDialog() && callingContainer != null)
+		{
+			// it's showing in a div dialog 
+			ServoyDivDialog divDialog = callingContainer.divDialogs.get(getContainerName());
+			return divDialog != null ? divDialog.getY() : 0;
+		}
+		else return 0; // closed windows & non-modal browser windows are currently not aware of location
+	}
+
+	public int getWidth()
+	{
+		if (isShowingInDialog() && callingContainer != null)
+		{
+			// it's showing in a div dialog 
+			ServoyDivDialog divDialog = callingContainer.divDialogs.get(getContainerName());
+			if (divDialog != null) return divDialog.getWidth();
+		}
+		if (isShowingInWindow() && size != null) return size.width;
+
+		// keep backwards compatibility (if size cannot be found use main window width as stored in session properties)
+		return ((WebClientInfo)WebClientSession.get().getClientInfo()).getProperties().getBrowserWidth();
+	}
+
+	public int getHeight()
+	{
+		if (isShowingInDialog() && callingContainer != null)
+		{
+			// it's showing in a div dialog 
+			ServoyDivDialog divDialog = callingContainer.divDialogs.get(getContainerName());
+			if (divDialog != null) return divDialog.getHeight();
+		}
+		if (isShowingInWindow() && size != null) return size.height;
+
+		// main page or closed page; keep backwards compatibility (if size cannot be found use main window width as stored in session properties)
+		return ((WebClientInfo)WebClientSession.get().getClientInfo()).getProperties().getBrowserHeight();
+	}
+
+	public void setWindowSize(Dimension d)
+	{
+		if (getPageMapName() != null)
+		{
+			size = d;
+		}
+		else if (d != null)
+		{
+			// main page
+			ClientProperties properties = ((WebClientInfo)WebClientSession.get().getClientInfo()).getProperties();
+			properties.setBrowserWidth(d.width);
+			properties.setBrowserHeight(d.height);
+		}
+	}
+
 }

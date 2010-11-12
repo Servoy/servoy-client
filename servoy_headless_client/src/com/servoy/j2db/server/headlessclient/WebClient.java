@@ -17,7 +17,6 @@
 package com.servoy.j2db.server.headlessclient;
 
 import java.awt.Dimension;
-import java.awt.Rectangle;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -77,7 +76,6 @@ public class WebClient extends SessionClient implements IWebClientApplication
 {
 	private static final String COOKIE_BASE64_PREFIX = "B64p_";
 	private Map<Object, Object> uiProperties;
-	private final Map<String, Rectangle> windowBounds = new HashMap<String, Rectangle>();
 
 	protected WebClient(HttpServletRequest req, WebCredentials credentials, String method, Object[] methodArgs, String solution) throws Exception
 	{
@@ -791,42 +789,6 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		int width = ((WebClientInfo)WebClientSession.get().getClientInfo()).getProperties().getScreenWidth();
 		int height = ((WebClientInfo)WebClientSession.get().getClientInfo()).getProperties().getScreenHeight();
 		return new Dimension(width, height);
-	}
-
-	public void setWindowBounds(String windowName, Rectangle bounds)
-	{
-		if (windowName == null)
-		{
-			if (bounds != null)
-			{
-				ClientProperties properties = ((WebClientInfo)WebClientSession.get().getClientInfo()).getProperties();
-				properties.setBrowserWidth(bounds.width);
-				properties.setBrowserHeight(bounds.height);
-			}
-		}
-		else
-		{
-			if (bounds == null)
-			{
-				windowBounds.remove(windowName);
-			}
-			else
-			{
-				windowBounds.put(windowName, bounds);
-			}
-		}
-	}
-
-	public Rectangle getWindowBounds(String windowName)
-	{
-		Rectangle bounds = windowName == null ? null : windowBounds.get(windowName);
-		if (bounds == null)
-		{
-			// fall back to the browser window size
-			ClientProperties properties = ((WebClientInfo)WebClientSession.get().getClientInfo()).getProperties();
-			bounds = new Rectangle(properties.getBrowserWidth(), properties.getBrowserHeight());
-		}
-		return bounds;
 	}
 
 	public void onBeginRequest(WebClientSession webClientSession)

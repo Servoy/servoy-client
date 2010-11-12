@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.server.headlessclient;
 
+import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -23,8 +24,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.SortedSet;
+import java.util.Map.Entry;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
@@ -509,8 +510,7 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 						{
 							final String width = params.get(key)[0];
 							final String height = params.get("sfh_window")[0]; //$NON-NLS-1$
-							((WebClient)page.getController().getApplication()).setWindowBounds(page.getPageMapName() /* null for initial main page */,
-								new Rectangle(Utils.getAsInteger(width), Utils.getAsInteger(height)));
+							page.setWindowSize(new Dimension(Utils.getAsInteger(width), Utils.getAsInteger(height)));
 						}
 						catch (Exception ex)
 						{
