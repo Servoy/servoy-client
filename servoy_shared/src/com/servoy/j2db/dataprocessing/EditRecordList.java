@@ -23,10 +23,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.mozilla.javascript.EcmaError;
 import org.mozilla.javascript.Function;
@@ -61,14 +62,16 @@ public class EditRecordList
 	private final List<IPrepareForSave> prepareForSaveListeners = new ArrayList<IPrepareForSave>(2);
 	private final List<IGlobalEditListener> editListeners = new ArrayList<IGlobalEditListener>();
 
-	private Map<Table, Integer> accessMap = Collections.synchronizedMap(new HashMap<Table, Integer>());//per table (could be per column in future)
+	private final Map<Table, Integer> accessMap = Collections.synchronizedMap(new HashMap<Table, Integer>());//per table (could be per column in future)
 	private boolean autoSave = true;
 
 	private ConcurrentMap<FoundSet, int[]> fsEventMap;
 
-	private List<IRecordInternal> editedRecords = new ArrayList<IRecordInternal>(32);
-	private List<IRecordInternal> failedRecords = new ArrayList<IRecordInternal>(2);
-	private List<IRecordInternal> recordTested = new ArrayList<IRecordInternal>(2); //tested for OnRecordSave event
+	private final ReentrantLock editRecordsLock = new ReentrantLock();
+
+	private final List<IRecordInternal> editedRecords = Collections.synchronizedList(new ArrayList<IRecordInternal>(32));
+	private final List<IRecordInternal> failedRecords = Collections.synchronizedList(new ArrayList<IRecordInternal>(2));
+	private final List<IRecordInternal> recordTested = Collections.synchronizedList(new ArrayList<IRecordInternal>(2)); //tested for OnRecordSave event
 	private boolean preparingForSave;
 
 	private final boolean disableInsertsReorder;
@@ -81,7 +84,15 @@ public class EditRecordList
 
 	public IRecordInternal[] getFailedRecords()
 	{
-		return failedRecords.toArray(new IRecordInternal[failedRecords.size()]);
+		editRecordsLock.lock();
+		try
+		{
+			return failedRecords.toArray(new IRecordInternal[failedRecords.size()]);
+		}
+		finally
+		{
+			editRecordsLock.unlock();
+		}
 	}
 
 	/**
@@ -90,9 +101,14 @@ public class EditRecordList
 	 */
 	public boolean isEditing(IRecordInternal record)
 	{
-		synchronized (editedRecords)
+		editRecordsLock.lock();
+		try
 		{
 			return editedRecords.contains(record);
+		}
+		finally
+		{
+			editRecordsLock.unlock();
 		}
 	}
 
@@ -101,9 +117,14 @@ public class EditRecordList
 	 */
 	public boolean isEditing()
 	{
-		synchronized (editedRecords)
+		editRecordsLock.lock();
+		try
 		{
 			return editedRecords.size() > 0;
+		}
+		finally
+		{
+			editRecordsLock.unlock();
 		}
 	}
 
@@ -114,7 +135,8 @@ public class EditRecordList
 	public IRecordInternal[] getEditedRecords(IFoundSetInternal set)
 	{
 		List<IRecordInternal> al = new ArrayList<IRecordInternal>();
-		synchronized (editedRecords)
+		editRecordsLock.lock();
+		try
 		{
 			for (int i = editedRecords.size(); --i >= 0;)
 			{
@@ -125,13 +147,18 @@ public class EditRecordList
 				}
 			}
 		}
+		finally
+		{
+			editRecordsLock.unlock();
+		}
 		return al.toArray(new IRecordInternal[al.size()]);
 	}
 
 	public IRecordInternal[] getFailedRecords(IFoundSetInternal set)
 	{
 		List<IRecordInternal> al = new ArrayList<IRecordInternal>();
-		synchronized (editedRecords)
+		editRecordsLock.lock();
+		try
 		{
 			for (int i = failedRecords.size(); --i >= 0;)
 			{
@@ -142,13 +169,18 @@ public class EditRecordList
 				}
 			}
 		}
+		finally
+		{
+			editRecordsLock.unlock();
+		}
 		return al.toArray(new IRecordInternal[al.size()]);
 	}
 
 	public boolean hasEditedRecords(IFoundSetInternal foundset)
 	{
 		removeUnChangedRecords(false, false);
-		synchronized (editedRecords)
+		editRecordsLock.lock();
+		try
 		{
 			List<IRecordInternal> allEditing = new ArrayList<IRecordInternal>();
 			allEditing.addAll(editedRecords);
@@ -161,6 +193,10 @@ public class EditRecordList
 					return true;
 				}
 			}
+		}
+		finally
+		{
+			editRecordsLock.unlock();
 		}
 		return false;
 	}
@@ -213,13 +249,21 @@ public class EditRecordList
 		if (recordsToSave != null)
 		{
 			boolean hasEditedRecords = false;
-			for (IRecordInternal record : recordsToSave)
+			editRecordsLock.lock();
+			try
 			{
-				if (editedRecords.contains(record))
+				for (IRecordInternal record : recordsToSave)
 				{
-					hasEditedRecords = true;
-					break;
+					if (editedRecords.contains(record))
+					{
+						hasEditedRecords = true;
+						break;
+					}
 				}
+			}
+			finally
+			{
+				editRecordsLock.unlock();
 			}
 			if (!hasEditedRecords) return ISaveConstants.STOPPED;
 		}
@@ -240,9 +284,14 @@ public class EditRecordList
 				{
 					// do not stop if the user is editing something else.
 					boolean stop;
-					synchronized (editedRecords)
+					editRecordsLock.lock();
+					try
 					{
 						stop = editedRecords.size() == 1 && recordsToSave != null && recordsToSave.size() == 1 && editedRecords.get(0) == recordsToSave.get(0);
+					}
+					finally
+					{
+						editRecordsLock.unlock();
 					}
 					if (stop)
 					{
@@ -269,7 +318,8 @@ public class EditRecordList
 
 			//remove any non referenced failed records
 			boolean fireChange = false;
-			synchronized (editedRecords)
+			editRecordsLock.lock();
+			try
 			{
 				if (failedRecords.size() != 0)
 				{
@@ -295,15 +345,26 @@ public class EditRecordList
 					}
 				}
 			}
+			finally
+			{
+				editRecordsLock.unlock();
+			}
 			if (fireChange) fireEditChange();
 
 			// remove the unchanged, really calculate when it is a real stop (autosave = true or it is a javascript stop)
 			removeUnChangedRecords(autoSave || javascripStop, true);
 
 			//check if anything left
-			synchronized (editedRecords)
+			int editRecordListSize;
+			editRecordsLock.lock();
+			try
 			{
-				if (editedRecords.size() == 0) return ISaveConstants.STOPPED;
+				editRecordListSize = editedRecords.size();
+				if (editRecordListSize == 0) return ISaveConstants.STOPPED;
+			}
+			finally
+			{
+				editRecordsLock.unlock();
 			}
 
 			//cannot stop, its blocked
@@ -314,8 +375,9 @@ public class EditRecordList
 
 			int failedCount = 0;
 			lastStopEditingException = null;
-			List<RowUpdateInfo> rowUpdates = new ArrayList<RowUpdateInfo>(editedRecords.size());
-			synchronized (editedRecords)
+			List<RowUpdateInfo> rowUpdates = new ArrayList<RowUpdateInfo>(editRecordListSize);
+			editRecordsLock.lock();
+			try
 			{
 				Iterator<IRecordInternal> it = new AllowListModificationIterator<IRecordInternal>(editedRecords);
 				outer : while (it.hasNext())
@@ -350,10 +412,18 @@ public class EditRecordList
 							//   this is needed because the trigger may be used as validation to keep the user in the record when autosave=true.
 							// when the trigger throws an exception, the record must move from editedRecords to failedRecords so that in 
 							//    scripting the failed records can be examined (the thrown value is retrieved via record.exception.getValue())
-							if (!testTableEvents(record)) // throws ServoyException when trigger method throws exception
+							editRecordsLock.unlock();
+							try
 							{
-								// just directly return if one returns false.
-								return ISaveConstants.VALIDATION_FAILED;
+								if (!testTableEvents(record)) // throws ServoyException when trigger method throws exception
+								{
+									// just directly return if one returns false.
+									return ISaveConstants.VALIDATION_FAILED;
+								}
+							}
+							finally
+							{
+								editRecordsLock.lock();
 							}
 
 							RowUpdateInfo rowUpdateInfo = getRecordUpdateInfo(record);
@@ -395,6 +465,10 @@ public class EditRecordList
 						it.remove();
 					}
 				}
+			}
+			finally
+			{
+				editRecordsLock.unlock();
 			}
 
 			if (failedCount > 0)
@@ -569,10 +643,15 @@ public class EditRecordList
 						row.setDbIdentValue(retValue);
 					}
 				}
-				synchronized (editedRecords)
+				editRecordsLock.lock();
+				try
 				{
 					editedRecords.remove(record);
 					recordTested.remove(record);
+				}
+				finally
+				{
+					editRecordsLock.unlock();
 				}
 
 				if (!row.existInDB())
@@ -588,12 +667,17 @@ public class EditRecordList
 					lastStopEditingException = e;
 					failedCount++;
 					row.setLastException(e);
-					synchronized (editedRecords)
+					editRecordsLock.lock();
+					try
 					{
 						if (!failedRecords.contains(record))
 						{
 							failedRecords.add(record);
 						}
+					}
+					finally
+					{
+						editRecordsLock.unlock();
 					}
 				}
 
@@ -651,7 +735,17 @@ public class EditRecordList
 				FoundSet fs = entry.getKey();
 				fs.recordsUpdated(entry.getValue(), foundsetToAggregateDeletes.get(fs));
 			}
-			if (editedRecords.size() == 0)
+			boolean shouldFireEditChange;
+			editRecordsLock.lock();
+			try
+			{
+				shouldFireEditChange = editedRecords.size() == 0;
+			}
+			finally
+			{
+				editRecordsLock.unlock();
+			}
+			if (shouldFireEditChange)
 			{
 				fireEditChange();
 			}
@@ -697,7 +791,8 @@ public class EditRecordList
 	 */
 	void markRecordAsFailed(IRecordInternal record)
 	{
-		synchronized (editedRecords)
+		editRecordsLock.lock();
+		try
 		{
 			editedRecords.remove(record);
 			if (!failedRecords.contains(record))
@@ -705,6 +800,10 @@ public class EditRecordList
 				failedRecords.add(record);
 			}
 			recordTested.remove(record);
+		}
+		finally
+		{
+			editRecordsLock.unlock();
 		}
 	}
 
@@ -741,8 +840,8 @@ public class EditRecordList
 						Object[] methodArgs = new Object[] { record };
 						try
 						{
-							scriptEngine.executeFunction(((Function)function), gscope, gscope, Utils.arrayMerge(methodArgs,
-								Utils.parseJSExpressions(tn.getInstanceMethodArguments(methodKey))), false, false);
+							scriptEngine.executeFunction(((Function)function), gscope, gscope,
+								Utils.arrayMerge(methodArgs, Utils.parseJSExpressions(tn.getInstanceMethodArguments(methodKey))), false, false);
 						}
 						catch (Exception e)
 						{
@@ -815,8 +914,8 @@ public class EditRecordList
 						Object[] methodArgs = new Object[] { record };
 						try
 						{
-							Object retval = scriptEngine.executeFunction(((Function)function), gscope, gscope, Utils.arrayMerge(methodArgs,
-								Utils.parseJSExpressions(tn.getInstanceMethodArguments(methodKey))), false, true);
+							Object retval = scriptEngine.executeFunction(((Function)function), gscope, gscope,
+								Utils.arrayMerge(methodArgs, Utils.parseJSExpressions(tn.getInstanceMethodArguments(methodKey))), false, true);
 							if (Boolean.FALSE.equals(retval))
 							{
 								// update or insert method returned false. should block the save.
@@ -881,9 +980,14 @@ public class EditRecordList
 		if (preparingForSave) return;
 		// Test the edited records if they are changed or not.
 		Object[] editedRecordsArray = null;
-		synchronized (editedRecords)
+		editRecordsLock.lock();
+		try
 		{
 			editedRecordsArray = editedRecords.toArray();
+		}
+		finally
+		{
+			editRecordsLock.unlock();
 		}
 		for (Object element : editedRecordsArray)
 		{
@@ -904,13 +1008,20 @@ public class EditRecordList
 
 	public void removeEditedRecord(IRecordInternal r)
 	{
-		synchronized (editedRecords)
+		int size;
+		editRecordsLock.lock();
+		try
 		{
 			editedRecords.remove(r);
 			recordTested.remove(r);
 			failedRecords.remove(r);
+			size = editedRecords.size();
 		}
-		if (editedRecords.size() == 0)
+		finally
+		{
+			editRecordsLock.unlock();
+		}
+		if (size == 0)
 		{
 			fireEditChange();
 		}
@@ -919,9 +1030,14 @@ public class EditRecordList
 	void removeEditedRecords(FoundSet set)
 	{
 		Object[] editedRecordsArray = null;
-		synchronized (editedRecords)
+		editRecordsLock.lock();
+		try
 		{
 			editedRecordsArray = editedRecords.toArray();
+		}
+		finally
+		{
+			editRecordsLock.unlock();
 		}
 		for (Object element : editedRecordsArray)
 		{
@@ -944,7 +1060,15 @@ public class EditRecordList
 
 		if (isEditing(record))
 		{
-			recordTested.remove(record);
+			editRecordsLock.lock();
+			try
+			{
+				recordTested.remove(record);
+			}
+			finally
+			{
+				editRecordsLock.unlock();
+			}
 			return true;
 		}
 
@@ -983,7 +1107,8 @@ public class EditRecordList
 			if (isEditing)
 			{
 				int editRecordsSize = 0;
-				synchronized (editedRecords)
+				editRecordsLock.lock();
+				try
 				{
 					// editRecordStop should be called for this record to match the editRecordStop call
 					recordTested.remove(record);
@@ -997,6 +1122,10 @@ public class EditRecordList
 					failedRecords.remove(record);
 					// reset the exception so that it is tried again.
 					record.getRawData().setLastException(null);
+				}
+				finally
+				{
+					editRecordsLock.unlock();
 				}
 				if (editRecordsSize == 1)
 				{
@@ -1070,7 +1199,20 @@ public class EditRecordList
 
 	protected void fireEditChange()
 	{
-		GlobalEditEvent e = new GlobalEditEvent(this, editedRecords.size() > 0 || failedRecords.size() > 0);
+		int editRecordsSize = 0;
+		int failedRecordsSize = 0;
+		editRecordsLock.lock();
+		try
+		{
+			editRecordsSize = editedRecords.size();
+			failedRecordsSize = failedRecords.size();
+		}
+		finally
+		{
+			editRecordsLock.unlock();
+		}
+
+		GlobalEditEvent e = new GlobalEditEvent(this, editRecordsSize > 0 || failedRecordsSize > 0);
 		Object[] array = editListeners.toArray();
 		for (Object element : array)
 		{
@@ -1078,7 +1220,7 @@ public class EditRecordList
 			listner.editChange(e);
 		}
 
-		if (editedRecords.size() == 0)
+		if (editRecordsSize == 0)
 		{
 			fsm.performActionIfRequired();
 		}
@@ -1175,11 +1317,16 @@ public class EditRecordList
 	public void rollbackRecords()
 	{
 		ArrayList<IRecordInternal> array = new ArrayList<IRecordInternal>();
-		synchronized (editedRecords)
+		editRecordsLock.lock();
+		try
 		{
 			recordTested.clear();
 			array.addAll(failedRecords);
 			array.addAll(editedRecords);
+		}
+		finally
+		{
+			editRecordsLock.unlock();
 		}
 		rollbackRecords(array);
 	}
@@ -1187,7 +1334,8 @@ public class EditRecordList
 	public void rollbackRecords(List<IRecordInternal> records)
 	{
 		ArrayList<IRecordInternal> array = new ArrayList<IRecordInternal>();
-		synchronized (editedRecords)
+		editRecordsLock.lock();
+		try
 		{
 			for (IRecordInternal record : records)
 			{
@@ -1195,6 +1343,10 @@ public class EditRecordList
 				if (failedRecords.remove(record)) array.add(record);
 				if (editedRecords.contains(record)) array.add(record);
 			}
+		}
+		finally
+		{
+			editRecordsLock.unlock();
 		}
 		if (array.size() > 0)
 		{
@@ -1231,12 +1383,17 @@ public class EditRecordList
 					}
 				}
 			}
-			synchronized (editedRecords)
+			editRecordsLock.lock();
+			try
 			{
 				if (editedRecords.size() > 0)
 				{
 					editedRecords.removeAll(array);
 				}
+			}
+			finally
+			{
+				editRecordsLock.unlock();
 			}
 			fireEditChange();
 		}
@@ -1245,7 +1402,15 @@ public class EditRecordList
 	public IRecordInternal[] getEditedRecords()
 	{
 		removeUnChangedRecords(true, false);
-		return editedRecords.toArray(new IRecordInternal[editedRecords.size()]);
+		editRecordsLock.lock();
+		try
+		{
+			return editedRecords.toArray(new IRecordInternal[editedRecords.size()]);
+		}
+		finally
+		{
+			editRecordsLock.unlock();
+		}
 	}
 
 	/**
@@ -1255,7 +1420,8 @@ public class EditRecordList
 	public IRecordInternal[] getUnmarkedEditedRecords(FoundSet set)
 	{
 		List<IRecordInternal> al = new ArrayList<IRecordInternal>();
-		synchronized (editedRecords)
+		editRecordsLock.lock();
+		try
 		{
 			for (int i = editedRecords.size(); --i >= 0;)
 			{
@@ -1266,6 +1432,10 @@ public class EditRecordList
 				}
 			}
 		}
+		finally
+		{
+			editRecordsLock.unlock();
+		}
 		return al.toArray(new IRecordInternal[al.size()]);
 	}
 
@@ -1275,22 +1445,38 @@ public class EditRecordList
 	 */
 	public void markRecordTested(IRecordInternal record)
 	{
-		if (!recordTested.contains(record))
+		editRecordsLock.lock();
+		try
 		{
-			recordTested.add(record);
+			if (!recordTested.contains(record))
+			{
+				recordTested.add(record);
+			}
+		}
+		finally
+		{
+			editRecordsLock.unlock();
 		}
 	}
 
 	public void init()
 	{
-		accessMap = Collections.synchronizedMap(new HashMap<Table, Integer>());//per table (could be per column in future)
-		autoSave = true;
-		preparingForSave = false;
-		isSaving = false;
+		editRecordsLock.lock();
+		try
+		{
+			accessMap.clear();//per table (could be per column in future)
+			autoSave = true;
+			preparingForSave = false;
+			isSaving = false;
 
-		editedRecords = new ArrayList<IRecordInternal>(32);
-		failedRecords = new ArrayList<IRecordInternal>(2);
-		recordTested = new ArrayList<IRecordInternal>(2);
+			editedRecords.clear();
+			failedRecords.clear();
+			recordTested.clear();
+		}
+		finally
+		{
+			editRecordsLock.unlock();
+		}
 		fireEditChange();
 	}
 
