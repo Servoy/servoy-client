@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 
@@ -31,6 +31,7 @@ public class Template extends StringResource implements Serializable
 	public static final String PROP_FORM = "form"; //$NON-NLS-1$
 	public static final String PROP_ELEMENTS = "elements"; //$NON-NLS-1$
 	public static final String PROP_LOCATION = "location"; //$NON-NLS-1$
+	public static final String PROP_SIZE = "size"; //$NON-NLS-1$
 
 	Template(IRepository repository, RootObjectMetaData metaData)
 	{
