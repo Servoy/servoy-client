@@ -778,7 +778,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IScriptHtml
 	 * titleText---------------------------------------------------
 	 */
 
-	private String titleText = null;
+	protected String titleText = null;
 
 	public void setTitleText(String title)
 	{
