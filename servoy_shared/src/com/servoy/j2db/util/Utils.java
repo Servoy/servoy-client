@@ -63,6 +63,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.SimpleTimeZone;
 import java.util.StringTokenizer;
+import java.util.regex.Pattern;
 
 import javax.print.attribute.Size2DSyntax;
 import javax.print.attribute.standard.MediaSize;
@@ -2267,6 +2268,11 @@ public class Utils
 	public static boolean isAppleMacOS()
 	{
 		return getPlatform() == PLATFORM_MAC;
+	}
+
+	public static boolean isValidEmailAdress(String email)
+	{
+		return (Pattern.compile("^[_a-z0-9-+]+(\\.[_a-z0-9-+]+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*(\\.[a-z]{2,3})$", Pattern.CASE_INSENSITIVE).matcher(email).matches());
 	}
 
 	public static int getPlatform()
