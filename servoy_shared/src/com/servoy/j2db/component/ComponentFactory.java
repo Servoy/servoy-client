@@ -49,7 +49,6 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JTabbedPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
@@ -58,8 +57,6 @@ import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.html.CSS;
-
-import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormController;
@@ -75,8 +72,6 @@ import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.IColumnConverter;
 import com.servoy.j2db.dataprocessing.IDisplayData;
-import com.servoy.j2db.dataprocessing.IFoundSet;
-import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.dataprocessing.ITypedColumnConverter;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.LookupValueList;
@@ -110,7 +105,6 @@ import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.RectShape;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Shape;
 import com.servoy.j2db.persistence.Style;
 import com.servoy.j2db.persistence.Tab;
@@ -215,144 +209,6 @@ public class ComponentFactory
 		return Utils.stringReplace(Utils.stringReplace(id, "-", "_"), "$", "__");
 	}
 
-	public static Object getBeanDesignInstance(IApplication application, FlattenedSolution flattenedSolution, Bean bean, Form form)
-	{
-		Object beanDesignComponent = null;
-		beanDesignComponent = flattenedSolution.getBeanDesignInstance(bean);
-		if (beanDesignComponent == null)
-		{
-			createDesignComponent(application, flattenedSolution, bean, form);
-			beanDesignComponent = flattenedSolution.getBeanDesignInstance(bean);
-		}
-
-		return beanDesignComponent;
-	}
-
-	public static Component createDesignComponent(IApplication application, FlattenedSolution flattenedSolution, IPersist meta, Form form)
-	{
-		Component c = null;
-		if (meta.getTypeID() == IRepository.BEANS)
-		{
-			// can cast, design should always be a swing
-			IComponent comp = createBean(application, form, (Bean)meta, flattenedSolution);
-			if (comp instanceof InvisibleBean)
-			{
-				c = (InvisibleBean)comp;
-			}
-			else if (comp instanceof VisibleBean)
-			{
-				c = ((VisibleBean)comp).getDelegate();
-			}
-			else if (comp instanceof Component)
-			{
-				c = (Component)comp;
-			}
-		}
-		else
-		{
-			switch (meta.getTypeID())
-			{
-				case IRepository.TABPANELS :
-					JComponent retval = null;
-					int orient = ((TabPanel)meta).getTabOrientation();
-					if (orient == -1)
-					{
-						// Designer all always real components!!
-						retval = (JComponent)application.getItemFactory().createLabel(null, "Tabless panel, for JavaScript use");
-						((IStandardLabel)retval).setHorizontalAlignment(SwingConstants.CENTER);
-						applyBasicComponentProperties(application, (IComponent)retval, (BaseComponent)meta,
-							getStyleForBasicComponent(application, (BaseComponent)meta, form));
-					}
-					else
-					{
-						ComponentJTabbedPane tabs = new ComponentJTabbedPane();
-						applyBasicComponentProperties(application, tabs, (BaseComponent)meta, getStyleForBasicComponent(application, (BaseComponent)meta, form));
-						tabs.addTab("position example", new JLabel("form will appear here", SwingConstants.CENTER)); //$NON-NLS-2$
-						tabs.addTab("position 2", new JLabel("another form showup here", SwingConstants.CENTER));
-						if (orient == SwingConstants.TOP || orient == SwingConstants.LEFT || orient == SwingConstants.BOTTOM || orient == SwingConstants.RIGHT)
-						{
-							tabs.setTabPlacement(orient);
-						}
-						retval = tabs;
-					}
-					OrientationApplier.setOrientationToAWTComponent(retval, application.getLocale(), application.getSolution().getTextOrientation());
-					return retval;
-
-				default :
-					IDataProviderLookup dataProviderLookup = application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), form);
-					c = (Component)createComponentEx(application, form, meta, dataProviderLookup, null, false);
-			}
-		}
-		if (c instanceof JComponent)
-		{
-			((JComponent)c).setDoubleBuffered(false);
-		}
-		if (c instanceof IDisplayData && paintSampleData)
-		{
-			if (form != null)
-			{
-				try
-				{
-					IFoundSet fs = application.getFoundSetManager().getSharedFoundSet(form.getDataSource());
-					if (fs != null && fs.getSize() == 0) fs.loadAllRecords();
-					if (fs != null && fs.getSize() > 0)
-					{
-						IRecord record = fs.getRecord(0);
-						IDisplayData data = (IDisplayData)c;
-						Object value = record.getValue(data.getDataProviderID());
-						if (value == Scriptable.NOT_FOUND)
-						{
-							ScriptVariable variable = form.getScriptVariable(data.getDataProviderID());
-							if (variable != null) value = variable.getDefaultValue();
-						}
-						data.setValueObject(value);
-					}
-				}
-				catch (Exception e)
-				{
-					Debug.error(e);
-				}
-			}
-		}
-		else if (meta instanceof GraphicalComponent && ((GraphicalComponent)meta).getDisplaysTags() && c instanceof ILabel)
-		{
-			((ILabel)c).setText(((GraphicalComponent)meta).getText());
-		}
-		OrientationApplier.setOrientationToAWTComponent(c, application.getLocale(), application.getSolution().getTextOrientation());
-		return c;//removeTransparencyAndScrolling(c);
-	}
-
-//	private static Component removeTransparencyAndScrolling(Component c)
-//	{
-//		//remove any transparency of scrollpanes
-//		if (c instanceof Container)
-//		{
-//			Component[] all = ((Container)c).getComponents();
-//			for(int i = 0 ; i < all.length ; i++)
-//			{
-//				Component cold = all[i];
-//				Component cnew = removeTransparencyAndScrolling(cold);
-//				if (!cold.equals(cnew))
-//				{
-//					((Container)c).remove(cold);
-//					((Container)c).add(cnew);
-//				}
-//			}
-//		}
-//		if (c instanceof JScrollPane)
-//		{
-//			c = removeTransparencyAndScrolling(((JScrollPane)c).getViewport().getView());
-//		}
-//		if (c instanceof JViewport)
-//		{
-//			c = removeTransparencyAndScrolling(((JViewport)c).getView());
-//		}
-//		if (c instanceof JComponent)
-//		{
-//			((JComponent)c).setOpaque(true);
-//		}
-//		return c;
-//	}
 
 	/**
 	 * Create a component
@@ -433,8 +289,8 @@ public class ComponentFactory
 	}
 
 
-	private static IComponent createComponentEx(IApplication application, Form form, IPersist meta, IDataProviderLookup dataProviderLookup, IScriptExecuter el,
-		boolean printing)
+	protected static IComponent createComponentEx(IApplication application, Form form, IPersist meta, IDataProviderLookup dataProviderLookup,
+		IScriptExecuter el, boolean printing)
 	{
 		IComponent comp = null;
 		switch (meta.getTypeID())
@@ -837,86 +693,6 @@ public class ComponentFactory
 		c.setComponentVisible(bc.getVisible());
 	}
 
-	private static IComponent createBean(IApplication application, Form form, Bean bean, FlattenedSolution flattenedSolution)
-	{
-		IComponent c = null;
-		try
-		{
-			Object obj = getBeanInstanceFromXML(application, bean);
-
-			if (flattenedSolution != null && obj != null)
-			{
-				obj = flattenedSolution.setBeanDesignInstance(bean, obj);
-			}
-
-			if (obj instanceof Component)
-			{
-				((Component)obj).setName(bean.getName());
-			}
-			else if (obj instanceof IComponent)
-			{
-				((IComponent)obj).setName(bean.getName());
-			}
-
-			if (obj instanceof IServoyAwareBean)
-			{
-				((IServoyAwareBean)obj).initialize((IClientPluginAccess)application.getPluginAccess());
-			}
-
-			if (obj instanceof IServoyBeanFactory)
-			{
-				testReturnTypesForBean(application, obj);
-				obj = ((IServoyBeanFactory)obj).getBeanInstance(application.getApplicationType(), (IClientPluginAccess)application.getPluginAccess(),
-					new Object[] { ComponentFactory.getWebID(form, bean), form.getName(), form.getStyleName() });
-			}
-			testReturnTypesForBean(application, obj);
-			if (obj instanceof Applet)
-			{
-				((FormManager)application.getFormManager()).initializeApplet((Applet)obj, bean.getSize());
-			}
-
-			if (obj == null)
-			{
-				c = application.getItemFactory().createLabel(ComponentFactory.getWebID(form, bean), "bean missing " + bean.getBeanClassName());
-			}
-			else if (!(obj instanceof java.awt.Component) && !(obj instanceof IComponent))
-			{
-				c = application.getItemFactory().createInvisibleBean(ComponentFactory.getWebID(form, bean), obj);
-			}
-			else if (!(obj instanceof IComponent))
-			{
-				c = application.getItemFactory().createBeanHolder(ComponentFactory.getWebID(form, bean), (Component)obj);
-			}
-			else
-			{
-				c = (IComponent)obj;
-			}
-
-			applyBasicComponentProperties(application, c, bean, null);
-		}
-		catch (Throwable e)//sometimes setting size or location throws exception or even error...create label instead
-		{
-			Debug.error(e);
-			c = application.getItemFactory().createLabel(bean.getName(), "error acessing bean" + bean.getBeanClassName());
-			java.awt.Dimension dim = bean.getSize();
-			if (dim != null) c.setSize(bean.getSize());
-		}
-
-		return c;
-	}
-
-	private static void testReturnTypesForBean(IApplication application, Object beanInstance)
-	{
-		if (beanInstance instanceof IReturnedTypesProvider && ((IReturnedTypesProvider)beanInstance).getAllReturnedTypes() != null &&
-			application.getScriptEngine() != null)
-		{
-			for (Class< ? > clz : ((IReturnedTypesProvider)beanInstance).getAllReturnedTypes())
-			{
-				ScriptObjectRegistry.getJavaMembers(clz, application.getScriptEngine().getGlobalScope());
-			}
-		}
-	}
-
 	/**
 	 * Returns the bean Instance.
 	 * 
@@ -1303,9 +1079,8 @@ public class ComponentFactory
 									}
 									catch (IOException e)
 									{
-										Debug.error(
-											"Exception loading properties for converter " + converter.getName() + ", properties: " +
-												ci.getConverterProperties(), e);
+										Debug.error("Exception loading properties for converter " + converter.getName() + ", properties: " +
+											ci.getConverterProperties(), e);
 									}
 								}
 							}
@@ -2315,5 +2090,85 @@ public class ComponentFactory
 			}
 		}
 		return lst;
+	}
+
+	protected static IComponent createBean(IApplication application, Form form, Bean bean, FlattenedSolution flattenedSolution)
+	{
+		IComponent c = null;
+		try
+		{
+			Object obj = getBeanInstanceFromXML(application, bean);
+
+			if (flattenedSolution != null && obj != null)
+			{
+				obj = flattenedSolution.setBeanDesignInstance(bean, obj);
+			}
+
+			if (obj instanceof Component)
+			{
+				((Component)obj).setName(bean.getName());
+			}
+			else if (obj instanceof IComponent)
+			{
+				((IComponent)obj).setName(bean.getName());
+			}
+
+			if (obj instanceof IServoyAwareBean)
+			{
+				((IServoyAwareBean)obj).initialize((IClientPluginAccess)application.getPluginAccess());
+			}
+
+			if (obj instanceof IServoyBeanFactory)
+			{
+				testReturnTypesForBean(application, obj);
+				obj = ((IServoyBeanFactory)obj).getBeanInstance(application.getApplicationType(), (IClientPluginAccess)application.getPluginAccess(),
+					new Object[] { ComponentFactory.getWebID(form, bean), form.getName(), form.getStyleName() });
+			}
+			testReturnTypesForBean(application, obj);
+			if (obj instanceof Applet)
+			{
+				((FormManager)application.getFormManager()).initializeApplet((Applet)obj, bean.getSize());
+			}
+
+			if (obj == null)
+			{
+				c = application.getItemFactory().createLabel(ComponentFactory.getWebID(form, bean), "bean missing " + bean.getBeanClassName());
+			}
+			else if (!(obj instanceof java.awt.Component) && !(obj instanceof IComponent))
+			{
+				c = application.getItemFactory().createInvisibleBean(ComponentFactory.getWebID(form, bean), obj);
+			}
+			else if (!(obj instanceof IComponent))
+			{
+				c = application.getItemFactory().createBeanHolder(ComponentFactory.getWebID(form, bean), (Component)obj);
+			}
+			else
+			{
+				c = (IComponent)obj;
+			}
+
+			applyBasicComponentProperties(application, c, bean, null);
+		}
+		catch (Throwable e)//sometimes setting size or location throws exception or even error...create label instead
+		{
+			Debug.error(e);
+			c = application.getItemFactory().createLabel(bean.getName(), "error acessing bean" + bean.getBeanClassName());
+			java.awt.Dimension dim = bean.getSize();
+			if (dim != null) c.setSize(bean.getSize());
+		}
+
+		return c;
+	}
+
+	private static void testReturnTypesForBean(IApplication application, Object beanInstance)
+	{
+		if (beanInstance instanceof IReturnedTypesProvider && ((IReturnedTypesProvider)beanInstance).getAllReturnedTypes() != null &&
+			application.getScriptEngine() != null)
+		{
+			for (Class< ? > clz : ((IReturnedTypesProvider)beanInstance).getAllReturnedTypes())
+			{
+				ScriptObjectRegistry.getJavaMembers(clz, application.getScriptEngine().getGlobalScope());
+			}
+		}
 	}
 }
