@@ -635,8 +635,11 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		public void renderHead(IHeaderResponse response)
 		{
 			super.renderHead(response);
-			response.renderOnDomReadyJavascript(getAddListsenersScript(eventMarkupIds));
-			eventMarkupIds.clear();
+			if (!eventMarkupIds.isEmpty())
+			{
+				response.renderOnDomReadyJavascript(getAddListsenersScript(eventMarkupIds));
+				eventMarkupIds.clear();
+			}
 		}
 
 		@Override
@@ -648,7 +651,7 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		@Override
 		public boolean isEnabled(Component component)
 		{
-			return !eventMarkupIds.isEmpty() && super.isEnabled(component);
+			return super.isEnabled(component);
 		}
 
 		public String getAddListsenersScript(Map<String, Pair<List<String>, Boolean>> markupIdMap)
