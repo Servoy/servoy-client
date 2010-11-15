@@ -67,6 +67,7 @@ public class LookupValueList implements IValueList
 	private boolean concatReturnValues;
 	private boolean concatShowValues;
 	private IRecordInternal parentState;
+	private IFoundSetInternal relatedFoundset;
 	private LookupValueList secondLookup;
 
 	public LookupValueList(ValueList list, IServiceProvider application) throws Exception
@@ -212,8 +213,48 @@ public class LookupValueList implements IValueList
 	{
 		if (valueList.getDatabaseValuesType() != ValueList.TABLE_VALUES)
 		{
-			clear();
 			this.parentState = ps;
+			if (parentState != null)
+			{
+				IFoundSetInternal relation = parentState.getRelatedFoundSet(getRelationName());
+				if (relatedFoundset != relation)
+				{
+					clear();
+					if (relation != null && relation.getSize() > 0)
+					{
+						// try to load what is already in memory
+						int count = relation.getSize();
+						// don't trigger an extra load.
+						if (relation.hadMoreRows()) count--;
+						// max the number of rows.
+						if (count > ((FoundSetManager)application.getFoundSetManager()).pkChunkSize * 4)
+						{
+							count = ((FoundSetManager)application.getFoundSetManager()).pkChunkSize * 4;
+						}
+						IRecordInternal[] records = relation.getRecords(0, count);
+						Object[][] data = new Object[records.length][];
+						for (int i = 0; i < records.length; i++)
+						{
+							data[i] = new Object[3];
+							if (valueList.getDataProviderID1() != null) data[i][0] = records[i].getValue(valueList.getDataProviderID1());
+							if (valueList.getDataProviderID2() != null) data[i][1] = records[i].getValue(valueList.getDataProviderID2());
+							if (valueList.getDataProviderID3() != null) data[i][2] = records[i].getValue(valueList.getDataProviderID3());
+						}
+
+						for (Object[] element : data)
+						{
+							DisplayString obj = CustomValueList.handleDisplayData(valueList, concatShowValues, showValues, element, application);
+							if (obj != null && !obj.equals("")) //$NON-NLS-1$
+							{
+								alDisplay.add(obj);
+								alReal.add(CustomValueList.handleRowData(valueList, concatReturnValues, returnValues, element, application));
+							}
+						}
+					}
+				}
+				relatedFoundset = relation;
+			}
+			else clear();
 		}
 	}
 
@@ -497,6 +538,7 @@ public class LookupValueList implements IValueList
 	{
 		alReal.clear();
 		alDisplay.clear();
+		relatedFoundset = null;
 	}
 
 	public boolean getAllowEmptySelection()
