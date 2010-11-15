@@ -82,6 +82,11 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 				{
 					eventExecutor.actionPerformed(e.getModifiers());
 				}
+				if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
+				{
+					JPasswordField field = (JPasswordField)e.getSource();
+					field.setText((String)previousValue);
+				}
 			}
 		});
 		addMouseListener(eventExecutor);

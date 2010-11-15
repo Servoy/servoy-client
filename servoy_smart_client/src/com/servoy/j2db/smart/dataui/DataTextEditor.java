@@ -33,6 +33,8 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
@@ -151,6 +153,27 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 		editorDocument = getDocument();
 
 		prepareForTextToolbarHandling();
+
+		enclosedComponent.addKeyListener(new KeyAdapter()
+		{
+			@Override
+			public void keyReleased(KeyEvent e)
+			{
+				if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
+				{
+					StringReader sr = new StringReader((String)previousValue);
+					try
+					{
+						enclosedComponent.getDocument().remove(0, enclosedComponent.getDocument().getLength());
+						editorKit.read(sr, enclosedComponent.getDocument(), 0);
+					}
+					catch (Exception ex)
+					{
+						Debug.error(ex);
+					}
+				}
+			}
+		});
 //		Action[] actions = enclosedComponent.getActions();
 //		for (int i = 0; i < actions.length; i++)
 //		{
