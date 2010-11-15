@@ -32,6 +32,7 @@ import java.awt.dnd.DropTarget;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.InputEvent;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -124,16 +125,18 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 				((JTextArea)e.getSource()).replaceSelection("\t"); //$NON-NLS-1$
 			}
 		});
-		keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), new AbstractAction()
+		enclosedComponent.addKeyListener(new KeyAdapter()
 		{
-			private static final long serialVersionUID = 1L;
-
-			public void actionPerformed(ActionEvent e)
+			@Override
+			public void keyReleased(KeyEvent e)
 			{
-				JTextArea ta = (JTextArea)e.getSource();
-				if (ta.hasFocus() && ta.isEditable() && ta.isEnabled())
+				if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
 				{
-					ta.setText(previousValue);
+					JTextArea ta = (JTextArea)e.getSource();
+					if (ta.hasFocus() && ta.isEditable() && ta.isEnabled())
+					{
+						ta.setText(previousValue);
+					}
 				}
 			}
 		});
@@ -317,8 +320,8 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 	public void setMargin(Insets m)
 	{
 //		enclosedComponent.setMargin(i); seems to have no effect
-		enclosedComponent.setBorder(BorderFactory.createCompoundBorder(enclosedComponent.getBorder(),
-			BorderFactory.createEmptyBorder(m.top, m.left, m.bottom, m.right)));
+		enclosedComponent.setBorder(BorderFactory.createCompoundBorder(enclosedComponent.getBorder(), BorderFactory.createEmptyBorder(m.top, m.left, m.bottom,
+			m.right)));
 	}
 
 	@Override
