@@ -429,7 +429,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 	 */
 	public void valueChanged(ModificationEvent e)
 	{
-		if (visible && currentRecord != null)
+		FormScope formScope = getFormScope();
+		if (visible  && (currentRecord != null || (formScope != null && formScope.has(e.getName(), formScope))))
 		{
 			for (IDataAdapter da : dataAdapters.values())
 			{

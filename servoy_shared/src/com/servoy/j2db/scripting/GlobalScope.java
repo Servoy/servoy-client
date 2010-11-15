@@ -144,6 +144,17 @@ public class GlobalScope extends ScriptVariableScope
 		return o;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.scripting.ScriptVariableScope#getDataproviderEventName(java.lang.String)
+	 */
+	@Override
+	protected String getDataproviderEventName(String name)
+	{
+		return ScriptVariable.GLOBAL_DOT_PREFIX + name; // TODO Auto-generated method stub
+	}
+
 	@Override
 	public String getClassName()
 	{

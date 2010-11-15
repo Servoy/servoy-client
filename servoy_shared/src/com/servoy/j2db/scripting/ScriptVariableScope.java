@@ -425,11 +425,16 @@ public class ScriptVariableScope extends LazyCompilationScope
 		{
 			if (e == null)
 			{
-				e = new ModificationEvent(ScriptVariable.GLOBAL_DOT_PREFIX + name, unwrap(value), this);
+				e = new ModificationEvent(getDataproviderEventName(name), unwrap(value), this);
 			}
 			IModificationListener listener = (IModificationListener)element;
 			listener.valueChanged(e);
 		}
+	}
+
+	protected String getDataproviderEventName(String name)
+	{
+		return name;
 	}
 
 	/**
