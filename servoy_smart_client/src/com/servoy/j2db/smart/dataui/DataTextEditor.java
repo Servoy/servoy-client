@@ -206,7 +206,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 		TextToolbar textToolbar = parentWindow != null ? parentWindow.getTextToolbar() : null;
 		if (textToolbar != null)
 		{
-			if (comp instanceof JEditorPane)
+			if (comp instanceof JEditorPane && comp.isEnabled())
 			{
 				textToolbar.setTextComponent((JEditorPane)comp);
 				textToolbar.setEnabled(true);
@@ -460,8 +460,8 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 	public void setMargin(Insets m)
 	{
 //		enclosedComponent.setMargin(i); seems to have no effect
-		enclosedComponent.setBorder(BorderFactory.createCompoundBorder(enclosedComponent.getBorder(),
-			BorderFactory.createEmptyBorder(m.top, m.left, m.bottom, m.right)));
+		enclosedComponent.setBorder(BorderFactory.createCompoundBorder(enclosedComponent.getBorder(), BorderFactory.createEmptyBorder(m.top, m.left, m.bottom,
+			m.right)));
 	}
 
 	public Document getDocument()
