@@ -535,7 +535,16 @@ if (typeof(Servoy.TableView) == "undefined")
 		{
 			var rowEl = document.getElementById(rowId);
 			if(rowEl)
-				Servoy.TableView.setRowBgColorEl(rowEl, bgcolor, true);
+			{
+				var rowChildren = rowEl.childNodes;
+				var rowChildrenLen = rowChildren.length;
+				
+				for(var i = 0; i < rowChildrenLen; i++)
+				{
+					if(rowChildren[i].tagName)			
+						Servoy.TableView.setRowBgColorEl(rowChildren[i], bgcolor, true);
+				}
+			}
 		},
 
 		setTableColumnWidthEl: function(tableElement, columnid, width)

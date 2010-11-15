@@ -388,7 +388,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			final Object compColor;
 			if (color != null && !(color instanceof Undefined))
 			{
-				listItem.add(new StyleAppendingModifier(new Model<String>("background-color: " + color.toString()))); //$NON-NLS-1$
 				compColor = color;
 			}
 			else
@@ -479,6 +478,11 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			if (compColor != null)
 			{
+				MarkupContainer cellContainer = comp.getParent();
+				if (cellContainer instanceof CellContainer)
+				{
+					cellContainer.add(new StyleAppendingModifier(new Model<String>("background-color: " + compColor.toString()))); //$NON-NLS-1$
+				}
 				comp.add(new StyleAppendingModifier(new Model<String>("background-color: " + compColor.toString()))); //$NON-NLS-1$
 			}
 			if (js_isReadOnly() && validationEnabled && comp instanceof IScriptReadOnlyMethods) // if in find mode, the field should not be readonly
