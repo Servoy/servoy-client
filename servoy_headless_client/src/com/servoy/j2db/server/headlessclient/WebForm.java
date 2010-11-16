@@ -108,7 +108,6 @@ import com.servoy.j2db.server.headlessclient.dataui.WebSplitPane;
 import com.servoy.j2db.server.headlessclient.dataui.WebTabFormLookup;
 import com.servoy.j2db.server.headlessclient.dataui.WebTabPanel;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
-import com.servoy.j2db.smart.dataui.DataRenderer;
 import com.servoy.j2db.ui.IButton;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
@@ -1033,11 +1032,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			if (dr == null) continue;
 
 			Object[] comps = null;
-			if (dr instanceof DataRenderer)
-			{
-				comps = ((DataRenderer)dr).getComponents();
-			}
-			else if (dr instanceof WebMarkupContainer)
+			if (dr instanceof WebMarkupContainer)
 			{
 				comps = new Object[((WebMarkupContainer)dr).size()];
 				Iterator it = ((WebMarkupContainer)dr).iterator();
