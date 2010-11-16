@@ -1038,6 +1038,15 @@ public class JSSolutionModel
 				servername = (String)args[0];
 				tablename = (String)args[1];
 			}
+			else if (args.length == 1)
+			{
+				String[] names = DataSourceUtils.getDBServernameTablename((String)args[0]);
+				if (names != null && names.length == 2)
+				{
+					servername = names[0];
+					tablename = names[1];
+				}
+			}
 			Table primaryTable = null;
 			if (servername != null && tablename != null)
 			{
