@@ -126,8 +126,6 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 		tag.put("id", getMarkupId());
 	}
 
-	//TODO Needed to be like field
-
 	@Override
 	public IEventExecutor getEventExecutor()
 	{
@@ -268,19 +266,26 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 
 	public String js_getAsPlainText()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return null; //not supported
 	}
 
 	public String js_getURL()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return null; //not supported
 	}
 
 	public void js_setURL(String url)
 	{
-		// TODO Auto-generated method stub
+	}
+
+	public void js_setTitleText(String title)
+	{
+		this.titleText = title;
+		if (getDataProviderID() == null)
+		{
+			setTagText(titleText);
+		}
+		jsChangeRecorder.setChanged();
 	}
 
 
@@ -296,19 +301,16 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 	 */
 	public int js_getScrollX()
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		return 0; //not supported
 	}
 
 	public int js_getScrollY()
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		return 0; //not supported
 	}
 
 	public void js_setScroll(int x, int y)
 	{
-		// TODO Auto-generated method stub
 	}
 
 
@@ -339,8 +341,7 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 	 */
 	public int js_getCaretPosition()
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		return 0; //not supported
 	}
 
 	public void js_requestFocus(Object[] vargs)
@@ -362,35 +363,28 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 
 	public String js_getSelectedText()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return null; //not supported
 	}
 
 	public void js_replaceSelectedText(String s)
 	{
-		// TODO Auto-generated method stub
 	}
 
 	public void js_selectAll()
 	{
-		// TODO Auto-generated method stub
 	}
 
 	public void js_setCaretPosition(int pos)
 	{
-		// TODO Auto-generated method stub
 	}
 
 	public String js_getBaseURL()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return null; //not supported
 	}
 
 	public void js_setBaseURL(String url)
 	{
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
