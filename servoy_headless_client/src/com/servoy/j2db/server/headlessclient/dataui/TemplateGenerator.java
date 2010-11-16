@@ -113,7 +113,7 @@ public class TemplateGenerator
 		{
 			if (monitorCache)
 			{
-				new Thread(new Runnable()
+				Runnable r = new Runnable()
 				{
 
 					public void run()
@@ -147,7 +147,15 @@ public class TemplateGenerator
 							}
 						}
 					}
-				}, "FormCache Monitor").start();
+				};
+				try
+				{
+					new Thread(r, "FormCache Monitor").start();
+				}
+				catch (Exception e)
+				{
+					Debug.error(e);
+				}
 			}
 		}
 
