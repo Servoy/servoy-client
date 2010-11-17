@@ -96,6 +96,7 @@ public class TwoNativeJavaObject extends NativeJavaObject
 					if (listView instanceof TableView)
 					{
 						final TableView tv = (TableView)listView;
+						tv.requestFocus();
 						SwingUtilities.invokeLater(new Runnable()
 						{
 							public void run()
@@ -107,17 +108,7 @@ public class TwoNativeJavaObject extends NativeJavaObject
 									{
 										final int currentColumn = i;
 										tv.setColumnSelectionInterval(currentColumn, currentColumn);
-										SwingUtilities.invokeLater(new Runnable()
-										{
-											public void run()
-											{
-												// see 219382: requestFocus in SC works inconsistently
-												// if field1 from table1 has focus and field1.requestFocus is called from onRecordSelect of table2
-												// focus lost event (which cancels edit mode) would come after cell going in edit mode
-												tv.editCellAt(selectedRow, currentColumn);
-											}
-										});
-
+										tv.editCellAt(selectedRow, currentColumn);
 										break;
 									}
 								}
