@@ -628,6 +628,10 @@ public class EditRecordList
 									{
 										rowData[j] = oldRowData[j];
 									}
+									if (oldRowData[j] instanceof DbIdentValue)
+									{
+										row.setDbIdentValue(rowData[j]);
+									}
 								}
 							}
 							else
