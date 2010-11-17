@@ -2302,14 +2302,21 @@ public class JSForm implements IJSParent, IConstantsObject
 	 * @clonedesc com.servoy.j2db.persistence.Form#getNamedFoundSet()
 	 * 
 	 * @sample
-	 * 	var firstForm = solutionModel.newForm('newForm1', 'myServer', 'myTable', null, true, 800, 600);
-	 * 	var secondForm = solutionModel.newForm('newForm2', 'myServer', 'myTable', null, true, 800, 600);
-	 * 	forms['newForm2'].controller.find()
-	 * 	forms['newForm2'].columnTextDataProvider = '=aSearchValue';
-	 * 	forms['newForm2'].controller.search()
-	 * 	var myFoundSet = forms['newForm2'].foundset
-	 * 	firstForm.namedFoundSet = myFoundSet;
-	 * 
+	 *	// form with separate foundset
+	 *	var frmSeparate = solutionModel.newForm('products_separate', 'example_data', 'products', null, true, 640, 480);
+	 *	frmSeparate.newLabel("Separate FoundSet",10,10,200,20);
+	 *	frmSeparate.newField('categoryid',JSField.TEXT_FIELD,10,40,200,20);
+	 *	frmSeparate.newField('productname',JSField.TEXT_FIELD,10,70,200,20);
+	 *	frmSeparate.namedFoundSet = 'separate';
+	 *	forms['products_separate'].controller.find();
+	 *	forms['products_separate'].categoryid = '=2';
+	 *	forms['products_separate'].controller.search();
+	 *	// form with empty foundset
+	 *	var frmEmpty = solutionModel.newForm('products_empty', 'example_data', 'products', null, true, 640, 480);
+	 *	frmEmpty.newLabel("Empty FoundSet",10,10,200,20);
+	 *	frmEmpty.newField('categoryid',JSField.TEXT_FIELD,10,40,200,20);
+	 *	frmEmpty.newField('productname',JSField.TEXT_FIELD,10,70,200,20);
+	 *	frmEmpty.namedFoundSet = 'empty';
 	 */
 	public String js_getNamedFoundSet()
 	{
