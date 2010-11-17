@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 import java.util.List;
@@ -26,7 +26,6 @@ public class RowUpdateInfo
 {
 
 	private final SQLStatement statement;
-	private final boolean mustRequeryRow;
 	private final List dbPKReturnValues;
 	private final List aggregatesToRemove;
 	private final Row row;
@@ -40,11 +39,10 @@ public class RowUpdateInfo
 	 * @param dbPKReturnValues
 	 * @param aggregatesToRemove
 	 */
-	public RowUpdateInfo(Row row, SQLStatement statement, boolean mustRequeryRow, List dbPKReturnValues, List aggregatesToRemove)
+	public RowUpdateInfo(Row row, SQLStatement statement, List dbPKReturnValues, List aggregatesToRemove)
 	{
 		this.row = row;
 		this.statement = statement;
-		this.mustRequeryRow = mustRequeryRow;
 		this.dbPKReturnValues = dbPKReturnValues;
 		this.aggregatesToRemove = aggregatesToRemove;
 	}
@@ -72,7 +70,7 @@ public class RowUpdateInfo
 	{
 		return this.aggregatesToRemove;
 	}
-	
+
 	/**
 	 * @return
 	 */
@@ -84,19 +82,11 @@ public class RowUpdateInfo
 	/**
 	 * @return
 	 */
-	public boolean getMustRequeryRow()
-	{
-		return mustRequeryRow;
-	}
-
-	/**
-	 * @return
-	 */
 	public Record getRecord()
 	{
 		return record;
 	}
-	
+
 	public void setRecord(Record record)
 	{
 		this.record = record;
@@ -107,11 +97,12 @@ public class RowUpdateInfo
 	 */
 	public FoundSet getFoundSet()
 	{
-		return (FoundSet) record.getParentFoundSet();
+		return (FoundSet)record.getParentFoundSet();
 	}
 
+	@Override
 	public String toString()
 	{
-		return "RowUpdateInfo for row [[" + row + "]],  Requery: " + mustRequeryRow + ", pkreturnvalues: " + dbPKReturnValues + ", aggregates: " + aggregatesToRemove; 
+		return "RowUpdateInfo for row [[" + row + "]], " + ", pkreturnvalues: " + dbPKReturnValues + ", aggregates: " + aggregatesToRemove;
 	}
 }

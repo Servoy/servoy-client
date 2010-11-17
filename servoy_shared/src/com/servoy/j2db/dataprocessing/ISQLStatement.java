@@ -19,6 +19,7 @@ package com.servoy.j2db.dataprocessing;
 
 import java.io.Serializable;
 
+import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.ISQLUpdate;
 
 /**
@@ -67,4 +68,6 @@ public interface ISQLStatement extends Serializable, ISQLActionTypes
 	public boolean usedIdentity();
 
 	public boolean isOracleFixTrackingData();
+
+	public ISQLSelect getRequerySelect();
 }

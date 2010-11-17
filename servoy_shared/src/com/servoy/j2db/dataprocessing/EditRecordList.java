@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -35,6 +35,7 @@ import org.mozilla.javascript.JavaScriptException;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IPrepareForSave;
+import com.servoy.j2db.dataprocessing.ValueFactory.BlobMarkerValue;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IRepository;
@@ -501,6 +502,26 @@ public class EditRecordList
 						markRecordAsFailed(record);
 						continue;
 					}
+					else if (retValue instanceof Object[])
+					{
+						Object[] values = row.getRawColumnData();
+						if (values != null && values.length == ((Object[])retValue).length)
+						{
+							for (int j = 0; j < values.length; j++)
+							{
+								if (values[j] instanceof DbIdentValue)
+								{
+									row.setDbIdentValue(((Object[])retValue)[j]);
+								}
+								if (((Object[])retValue)[j] instanceof BlobMarkerValue)
+								{
+									// ignore media from the requery
+									((Object[])retValue)[j] = values[j];
+								}
+							}
+						}
+						row.setRollbackData((Object[])retValue, false);
+					}
 					else if (!Boolean.TRUE.equals(retValue))
 					{
 						// is db ident, can only be one column
@@ -519,7 +540,7 @@ public class EditRecordList
 				}
 				try
 				{
-					row.getRowManager().rowUpdated(row, oldKey, rowUpdateInfo.getMustRequeryRow(), foundSet, fires);
+					row.getRowManager().rowUpdated(row, oldKey, foundSet, fires);
 				}
 				catch (Exception e)
 				{
@@ -574,7 +595,7 @@ public class EditRecordList
 			{
 				try
 				{
-					executeAfterUpdateOrInsertTrigger(rowUpdateInfo.getRecord(), rowUpdateInfo.getISQLStatement().getAction() == ISQLStatement.INSERT_ACTION);
+					executeAfterUpdateOrInsertTrigger(rowUpdateInfo.getRecord(), rowUpdateInfo.getISQLStatement().getAction() == ISQLActionTypes.INSERT_ACTION);
 				}
 				catch (ServoyException e)
 				{
@@ -679,8 +700,8 @@ public class EditRecordList
 						Object[] methodArgs = new Object[] { record };
 						try
 						{
-							scriptEngine.executeFunction(((Function)function), gscope, gscope,
-								Utils.arrayMerge(methodArgs, Utils.parseJSExpressions(tn.getInstanceMethodArguments(methodKey))), false, false);
+							scriptEngine.executeFunction(((Function)function), gscope, gscope, Utils.arrayMerge(methodArgs,
+								Utils.parseJSExpressions(tn.getInstanceMethodArguments(methodKey))), false, false);
 						}
 						catch (Exception e)
 						{
@@ -753,8 +774,8 @@ public class EditRecordList
 						Object[] methodArgs = new Object[] { record };
 						try
 						{
-							Object retval = scriptEngine.executeFunction(((Function)function), gscope, gscope,
-								Utils.arrayMerge(methodArgs, Utils.parseJSExpressions(tn.getInstanceMethodArguments(methodKey))), false, true);
+							Object retval = scriptEngine.executeFunction(((Function)function), gscope, gscope, Utils.arrayMerge(methodArgs,
+								Utils.parseJSExpressions(tn.getInstanceMethodArguments(methodKey))), false, true);
 							if (Boolean.FALSE.equals(retval))
 							{
 								// update or insert method returned false. should block the save.

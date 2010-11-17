@@ -27,9 +27,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.event.TableModelEvent;
@@ -600,8 +600,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 							}
 							Object robj = c.getAsRightType(newdata[i]);
 							if (robj == null) robj = ValueFactory.createNullValue(c.getType());
-							((QueryUpdate)sqlUpdate).addValue(
-								new QueryColumn(((QueryUpdate)sqlUpdate).getTable(), c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale()), robj);
+							((QueryUpdate)sqlUpdate).addValue(new QueryColumn(((QueryUpdate)sqlUpdate).getTable(), c.getID(), c.getSQLName(), c.getType(),
+								c.getLength(), c.getScale()), robj);
 							if (changedColumns == null)
 							{
 								changedColumns = new ArrayList<String>(olddata.length - i);
@@ -714,8 +714,19 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			{
 				tid = gt.addRow(sheet.getServerName(), row);
 			}
+			QuerySelect requerySelect = null;
+			if (mustRequeryRow)
+			{
+				requerySelect = (QuerySelect)AbstractBaseQuery.deepClone(sheet.getSQL(SQLSheet.SELECT));
+				if (!requerySelect.setPlaceholderValue(new PlaceholderKey(requerySelect.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pk))
+				{
+					Debug.error(new RuntimeException(
+						"Could not set placeholder " + new PlaceholderKey(requerySelect.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + //$NON-NLS-1$
+							" in query " + requerySelect + "-- continuing")); //$NON-NLS-1$//$NON-NLS-2$
+				}
+			}
 			SQLStatement statement = new SQLStatement(statement_action, sheet.getServerName(), table.getName(), pks, tid, sqlUpdate, fsm.getTableFilterParams(
-				sheet.getServerName(), sqlUpdate));
+				sheet.getServerName(), sqlUpdate), requerySelect);
 			if (changedColumns != null)
 			{
 				statement.setChangedColumns(changedColumns.toArray(new String[changedColumns.size()]));
@@ -726,7 +737,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			{
 				statement.setTrackingData(sheet.getColumnNames(), row.getRawOldColumnData(), row.getRawColumnData(), fsm.getApplication().getUserUID());
 			}
-			return new RowUpdateInfo(row, statement, mustRequeryRow, dbPKReturnValues, aggregatesToRemove);
+			return new RowUpdateInfo(row, statement, dbPKReturnValues, aggregatesToRemove);
 		}
 		catch (RemoteException e)
 		{
@@ -734,7 +745,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		}
 	}
 
-	void rowUpdated(final Row row, String oldKey, boolean mustRequeryRow, final IRowListener src, List<Runnable> runnables) throws ServoyException
+	void rowUpdated(final Row row, String oldKey, final IRowListener src, List<Runnable> runnables) throws ServoyException
 	{
 		final boolean doesExistInDB = row.existInDB();
 		row.flagExistInDB();//always needed flushes stuff
@@ -751,11 +762,6 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		// may add fires for depending calcs
 		pkUpdated(row, oldKey, runnables);
 
-		if (mustRequeryRow)
-		{
-			//query for the columns filled-in by database (other than pk)
-			rollbackFromDB(row, false, false);
-		}
 	}
 
 	/**
