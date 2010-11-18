@@ -151,7 +151,6 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 		updatePrefix();
 	}
 
-
 	/**
 	 * @see org.apache.wicket.Component#getLocale()
 	 */
@@ -520,12 +519,20 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 	@Override
 	public void updateModel()
 	{
-		boolean b = jsChangeRecorder.isChanged();
-		setModelObject(getConvertedInput());
-		// if before updating the model the changed flag was false make sure it stays that way.
-		if (!b)
+		Object ci = getConvertedInput();
+		if (ci instanceof List && ((List)ci).size() == 0 && vl != null && !vl.getAllowEmptySelection())
 		{
-			jsChangeRecorder.setRendered();
+			jsChangeRecorder.setChanged(); // if valuelist doesn't allow null, don't change the model's value and mark for re-render
+		}
+		else
+		{
+			boolean b = jsChangeRecorder.isChanged();
+			setModelObject(ci);
+			// if before updating the model the changed flag was false make sure it stays that way.
+			if (!b)
+			{
+				jsChangeRecorder.setRendered();
+			}
 		}
 	}
 
