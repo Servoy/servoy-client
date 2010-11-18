@@ -150,6 +150,18 @@ public class SplitPane extends JSplitPane
 	}
 
 	@Override
+	public void setOpaque(boolean isOpaque)
+	{
+		super.setOpaque(isOpaque);
+		if (!isOpaque)
+		{
+			SplitPaneUI invisibleUI = new InvisibleSplitPaneUI();
+			setUI(invisibleUI);
+			revalidate();
+		}
+	}
+
+	@Override
 	public void setBackground(Color bgColor)
 	{
 		super.setBackground(bgColor);

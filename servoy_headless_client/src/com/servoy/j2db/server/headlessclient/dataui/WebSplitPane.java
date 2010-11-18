@@ -553,7 +553,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 		StringBuffer resizeScript = new StringBuffer("var splitter = YAHOO.util.Dom.get('splitter_").append(getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
 		resizeScript.append("var left = YAHOO.util.Dom.get('websplit_left_").append(getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("YAHOO.util.Dom.setStyle(left, 'background-color', '#FFFFFF');"); //$NON-NLS-1$
+		resizeScript.append("YAHOO.util.Dom.setStyle(left, 'background-color', '").append(isOpaque() ? "#FFFFFF" : "transparent").append("');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		resizeScript.append("YAHOO.util.Dom.setStyle(left, 'overflow-x', '").append(leftPanelOverflow.get("overflow-x")).append("');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 		resizeScript.append("YAHOO.util.Dom.setStyle(left, 'overflow-y', '").append(leftPanelOverflow.get("overflow-y")).append("');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		resizeScript.append("var right = YAHOO.util.Dom.get('websplit_right_").append(getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -564,11 +564,16 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		resizeScript.append("YAHOO.util.Dom.setStyle(splitter, '").append(dim_o).append("', '');"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		String dividerBg = null;
-		if (background != null)
+		if (!isOpaque())
+		{
+			dividerBg = "transparent"; //$NON-NLS-1$
+		}
+		else if (background != null)
 		{
 			dividerBg = Integer.toHexString(background.getRGB());
 			dividerBg = "#" + dividerBg.substring(2, dividerBg.length()); //$NON-NLS-1$
 		}
+
 
 		dim = dim.toLowerCase();
 		resizeScript.append("var splitterDivs = splitter.getElementsByTagName('div');"); //$NON-NLS-1$ 

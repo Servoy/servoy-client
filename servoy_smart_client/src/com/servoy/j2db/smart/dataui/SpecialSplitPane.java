@@ -242,6 +242,13 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 		splitPane.setToolTipText(tooltip);
 	}
 
+	@Override
+	public void setOpaque(boolean isOpaque)
+	{
+		if (splitPane != null) splitPane.setOpaque(isOpaque);
+		super.setOpaque(isOpaque);
+	}
+
 	public void js_setTransparent(boolean b)
 	{
 		setOpaque(!b);
