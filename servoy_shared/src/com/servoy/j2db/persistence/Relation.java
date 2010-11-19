@@ -818,6 +818,23 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	public boolean isValid()
 	{
+		if (valid && foreignDataSource != null)
+		{
+			try
+			{
+				IServer server = getForeignServer();
+				if (server == null) return false;
+				if (server.isValid())
+				{
+					return getForeignTable() != null;
+				}
+				else return false;
+			}
+			catch (Exception e)
+			{
+				valid = false;
+			}
+		}
 		return valid;
 	}
 
