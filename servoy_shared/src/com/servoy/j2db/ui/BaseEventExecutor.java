@@ -260,6 +260,8 @@ public abstract class BaseEventExecutor implements IEventExecutor
 			if (fName == null) fName = getFormName((IComponent)display);
 		}
 
+		if (fName == null) fName = this.formName;
+
 		JSEvent event = new JSEvent();
 		event.setType(type);
 		event.setSource(display);
