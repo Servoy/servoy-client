@@ -13,12 +13,13 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting;
 
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.FormController;
+import com.servoy.j2db.util.Debug;
 
 /**
  * @author jcompagner
@@ -37,9 +38,15 @@ public class SelectedRecordScope implements Scriptable
 
 	}
 
+	@SuppressWarnings("nls")
 	private Scriptable getSelectedRecord()
 	{
 		int selectedIndex = fc.getFormModel().getSelectedIndex();
+		if (selectedIndex == -1 && fc.getFormModel().getSize() > 0)
+		{
+			Debug.error("No selection set on foundset with size " + fc.getFormModel().getSize() + " fs: " + fc.getFormModel(), new RuntimeException());
+			fc.getFormModel().setSelectedIndex(0);
+		}
 		Scriptable record = (Scriptable)fc.getFormModel().getRecord(selectedIndex);
 		if (record == null)
 		{
