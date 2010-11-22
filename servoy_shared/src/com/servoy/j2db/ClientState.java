@@ -1342,12 +1342,6 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 					return false;
 				}
 
-				loadSecuritySettings(solutionRoot);
-
-				refreshI18NMessages();
-
-				getScriptEngine().getGlobalScope().reloadVariablesAndScripts(); // add variables for new solution
-
 				solutionLoaded(getSolution());
 			}
 			return true;
@@ -1405,15 +1399,25 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	protected void solutionLoaded(Solution s)
 	{
-		// These lines must be before other solutionLoaded call implementations, because a long running process 
-		// (solution startup method) will never update the status.
 		try
 		{
+			loadSecuritySettings(solutionRoot);
+
+			refreshI18NMessages();
+
+			getScriptEngine().getGlobalScope().reloadVariablesAndScripts(); // add variables for new solution
+
+			// These lines must be before other solutionLoaded call implementations, because a long running process 
+			// (solution startup method) will never update the status.
 			getClientInfo().setOpenSolutionId(s.getSolutionMetaData().getRootObjectId());
 			getClientInfo().setOpenSolutionTimestamp(System.currentTimeMillis());
 			getClientHost().pushClientInfo(getClientInfo().getClientId(), getClientInfo());
 		}
 		catch (RemoteException e)
+		{
+			Debug.error(e);
+		}
+		catch (ServoyException e)
 		{
 			Debug.error(e);
 		}
