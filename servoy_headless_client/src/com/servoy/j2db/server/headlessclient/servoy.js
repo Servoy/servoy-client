@@ -996,6 +996,31 @@ if (typeof(Servoy.Utils) == "undefined")
 	     // Return results
 	     return (iCaretPos);
 	   },
+	   
+	   /**
+	    * replaced the selected text with the given text.
+	    */ 
+	   replaceSelectedText: function(id,text) {
+		    // code for IE
+		    var textarea = document.getElementById(id);
+		    if (document.selection) {
+				textarea.focus();
+				var sel = document.selection.createRange();
+				// Finally replace the value of the selected text with this new replacement one
+				sel.text = text;
+		    }
+		    else {
+			    // code for Mozilla
+				var len = textarea.value.length;
+				var start = textarea.selectionStart;
+				var end = textarea.selectionEnd;
+				var sel = textarea.value.substring(start, end);
+				var replace = text;
+				 
+				// Here we are replacing the selected text with this one
+				textarea.value = textarea.value.substring(0,start) + replace + textarea.value.substring(end,len);
+			 }
+		 },
 	
 	
 	   /*
