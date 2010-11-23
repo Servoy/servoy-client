@@ -1012,33 +1012,40 @@ public class ComponentFactory
 	public static IValueList getRealValueList(IServiceProvider application, ValueList valuelist, boolean useSoftCacheForCustom, int type, String format,
 		String dataprovider)
 	{
+		if (application == null)
+		{
+			application = J2DBGlobals.getServiceProvider();
+		}
 		IValueList list = null;
 		if (valuelist != null &&
 			(valuelist.getValueListType() == ValueList.CUSTOM_VALUES || (valuelist.getValueListType() == ValueList.DATABASE_VALUES && valuelist.getDatabaseValuesType() == ValueList.TABLE_VALUES)))//reuse,those are static,OTHERS not!
 		{
-			WeakHashMap<ValueList, Object> hmValueLists = (WeakHashMap<ValueList, Object>)J2DBGlobals.getServiceProvider().getRuntimeProperties().get(
-				IServiceProvider.RT_VALUELIST_CACHE);
-			if (hmValueLists == null)
+			WeakHashMap<ValueList, Object> hmValueLists = null;
+			if (application != null)
 			{
-				hmValueLists = new WeakHashMap<ValueList, Object>();
-				J2DBGlobals.getServiceProvider().getRuntimeProperties().put(IServiceProvider.RT_VALUELIST_CACHE, hmValueLists);
-			}
-
-			Object object = hmValueLists.get(valuelist);
-			if (object instanceof SoftReference< ? >)
-			{
-				SoftReference<IValueList> sr = (SoftReference<IValueList>)object;
-				list = sr.get();
-				// if it was inserted by a soft reference but now it can't be softly referenced, put it back in hard.
-				if (list != null && !useSoftCacheForCustom)
+				hmValueLists = (WeakHashMap<ValueList, Object>)application.getRuntimeProperties().get(IServiceProvider.RT_VALUELIST_CACHE);
+				if (hmValueLists == null)
 				{
-					hmValueLists.put(valuelist, list);
+					hmValueLists = new WeakHashMap<ValueList, Object>();
+					application.getRuntimeProperties().put(IServiceProvider.RT_VALUELIST_CACHE, hmValueLists);
 				}
 
-			}
-			else if (object instanceof IValueList)
-			{
-				list = (IValueList)object;
+				Object object = hmValueLists.get(valuelist);
+				if (object instanceof SoftReference< ? >)
+				{
+					SoftReference<IValueList> sr = (SoftReference<IValueList>)object;
+					list = sr.get();
+					// if it was inserted by a soft reference but now it can't be softly referenced, put it back in hard.
+					if (list != null && !useSoftCacheForCustom)
+					{
+						hmValueLists.put(valuelist, list);
+					}
+
+				}
+				else if (object instanceof IValueList)
+				{
+					list = (IValueList)object;
+				}
 			}
 
 			if (list == null)
@@ -1052,7 +1059,7 @@ public class ComponentFactory
 				}
 				if (!useSoftCacheForCustom && valuelist.getValueListType() == ValueList.CUSTOM_VALUES)
 				{
-					hmValueLists.put(valuelist, list);
+					if (hmValueLists != null) hmValueLists.put(valuelist, list);
 					if (dataprovider != null)
 					{
 						((CustomValueList)list).addDataProvider(dataprovider);
@@ -1060,7 +1067,7 @@ public class ComponentFactory
 				}
 				else
 				{
-					hmValueLists.put(valuelist, new SoftReference<IValueList>(list));
+					if (hmValueLists != null) hmValueLists.put(valuelist, new SoftReference<IValueList>(list));
 
 					if (dataprovider != null && valuelist.getValueListType() == ValueList.CUSTOM_VALUES)
 					{
