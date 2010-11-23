@@ -33,17 +33,6 @@ import com.servoy.j2db.util.UUID;
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Table")
 public class TableNode extends AbstractBase implements ISupportChilds
 {
-	/*
-	 * Attributes, do not change default values do to repository default_textual_classvalue
-	 */
-	private String dataSource = null;
-	private int onInsertMethodID;
-	private int onUpdateMethodID;
-	private int onDeleteMethodID;
-	private int onAfterInsertMethodID;
-	private int onAfterUpdateMethodID;
-	private int onAfterDeleteMethodID;
-
 /*
  * _____________________________________________________________ Declaration and definition of constructors
  */
@@ -114,8 +103,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
  */
 	public void setDataSource(String arg)
 	{
-		checkForChange(dataSource, arg);
-		dataSource = (arg == null) ? null : arg.intern();
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_DATASOURCE, arg);
 	}
 
 	/**
@@ -123,7 +111,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 */
 	public String getDataSource()
 	{
-		return dataSource;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DATASOURCE);
 	}
 
 	public void setTableName(String name)
@@ -133,7 +121,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 
 	public String getTableName()
 	{
-		String[] stn = DataSourceUtils.getDBServernameTablename(dataSource);
+		String[] stn = DataSourceUtils.getDBServernameTablename(getDataSource());
 		return stn == null ? null : stn[1];
 	}
 
@@ -144,7 +132,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 
 	public String getServerName()
 	{
-		String[] stn = DataSourceUtils.getDBServernameTablename(dataSource);
+		String[] stn = DataSourceUtils.getDBServernameTablename(getDataSource());
 		return stn == null ? null : stn[0];
 	}
 
@@ -207,13 +195,12 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 */
 	public int getOnInsertMethodID()
 	{
-		return onInsertMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONINSERTMETHODID).intValue();
 	}
 
 	public void setOnInsertMethodID(int arg)
 	{
-		checkForChange(onInsertMethodID, arg);
-		onInsertMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONINSERTMETHODID, arg);
 	}
 
 	/**
@@ -239,13 +226,12 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 */
 	public int getOnUpdateMethodID()
 	{
-		return onUpdateMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONUPDATEMETHODID).intValue();
 	}
 
 	public void setOnUpdateMethodID(int arg)
 	{
-		checkForChange(onUpdateMethodID, arg);
-		onUpdateMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONUPDATEMETHODID, arg);
 	}
 
 	/**
@@ -271,13 +257,12 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 */
 	public int getOnDeleteMethodID()
 	{
-		return onDeleteMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDELETEMETHODID).intValue();
 	}
 
 	public void setOnDeleteMethodID(int arg)
 	{
-		checkForChange(onDeleteMethodID, arg);
-		onDeleteMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDELETEMETHODID, arg);
 	}
 
 	/**
@@ -290,13 +275,12 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 */
 	public int getOnAfterInsertMethodID()
 	{
-		return onAfterInsertMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERINSERTMETHODID).intValue();
 	}
 
 	public void setOnAfterInsertMethodID(int arg)
 	{
-		checkForChange(onAfterInsertMethodID, arg);
-		onAfterInsertMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERINSERTMETHODID, arg);
 	}
 
 	/**
@@ -309,13 +293,12 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 */
 	public int getOnAfterUpdateMethodID()
 	{
-		return onAfterUpdateMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERUPDATEMETHODID).intValue();
 	}
 
 	public void setOnAfterUpdateMethodID(int arg)
 	{
-		checkForChange(onAfterUpdateMethodID, arg);
-		onAfterUpdateMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERUPDATEMETHODID, arg);
 	}
 
 	/**
@@ -328,13 +311,12 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 */
 	public int getOnAfterDeleteMethodID()
 	{
-		return onAfterDeleteMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERDELETEMETHODID).intValue();
 	}
 
 	public void setOnAfterDeleteMethodID(int arg)
 	{
-		checkForChange(onAfterDeleteMethodID, arg);
-		onAfterDeleteMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERDELETEMETHODID, arg);
 	}
 
 	public boolean isEmpty()

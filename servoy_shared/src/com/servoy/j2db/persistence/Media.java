@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 
@@ -31,30 +31,22 @@ public class Media extends AbstractBase implements ISupportName, ICloneable
 {
 	public static final long serialVersionUID = 468097341226347599L;
 
-	private String name;
-	private String mime_type;
-	private int blob_id;
-
 	private transient byte[] media_data;
 	byte[] perm_media_data; //only used in runtime/application server
 
 	Media(ISupportChilds parent, int element_id, UUID uuid)
 	{
 		super(IRepository.MEDIA, parent, element_id, uuid);
-		this.name = null;
-		this.mime_type = null;
-		this.blob_id = 0;
 	}
 
 	public int getBlobId()
 	{
-		return blob_id;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_BLOBID).intValue();
 	}
 
 	public void setBlobId(int blob_id)
 	{
-		checkForChange(this.blob_id, blob_id);
-		this.blob_id = blob_id;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_BLOBID, blob_id);
 		media_data = null;
 	}
 
@@ -72,7 +64,7 @@ public class Media extends AbstractBase implements ISupportName, ICloneable
 			media_data = perm_media_data;
 		}
 
-		if (media_data == null && blob_id > 0)
+		if (media_data == null && getBlobId() > 0)
 		{
 			try
 			{
@@ -83,7 +75,7 @@ public class Media extends AbstractBase implements ISupportName, ICloneable
 				else
 				{
 					// Lazy loading of media data.
-					media_data = getRootObject().getRepository().getMediaBlob(blob_id);
+					media_data = getRootObject().getRepository().getMediaBlob(getBlobId());
 				}
 			}
 			catch (Exception ex)
@@ -105,8 +97,7 @@ public class Media extends AbstractBase implements ISupportName, ICloneable
 
 	public void setName(String name)
 	{
-		checkForNameChange(this.name, name);
-		this.name = name;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, name);
 	}
 
 	/**
@@ -114,7 +105,7 @@ public class Media extends AbstractBase implements ISupportName, ICloneable
 	 */
 	public String getName()
 	{
-		return name;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_NAME);
 	}
 
 	/**
@@ -124,19 +115,18 @@ public class Media extends AbstractBase implements ISupportName, ICloneable
 	 */
 	public String getMimeType()
 	{
-		return mime_type;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_MIMETYPE);
 	}
 
 	public void setMimeType(String mime_type)
 	{
-		checkForChange(this.mime_type, mime_type);
-		this.mime_type = mime_type;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_MIMETYPE, mime_type);
 	}
 
 	@Override
 	public String toString()
 	{
-		return name;
+		return getName();
 	}
 
 	/**

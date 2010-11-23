@@ -32,6 +32,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.JSONWrapperMap;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.UUID;
+import com.servoy.j2db.util.Utils;
 
 /**
  * A normal Servoy form
@@ -67,70 +68,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public static final String EMPTY_FLAG = "empty"; //$NON-NLS-1$
 
-	/*
-	 * Attributes, do not change default values do to repository default_textual_classvalue
-	 */
-
-	private String titleText = null;
-	private String dataSource = null; // url db:/serverName/tableName
-
-	/**
-	 * Constant which indicates the name of this form.
-	 */
-	private String formName = null;
-	private java.awt.Dimension size = null;
-	private boolean showInMenu = false;
-	private String styleName;
-	private java.awt.Color background = null;
-	private int view;
-
-	private int paperPrintScale;
-	private int navigatorID;//zero is default slider
-	private int extendsFormID;//zero is none
-	private String rowBGColorCalculation;
-	private int onLoadMethodID;
-	private int onUnLoadMethodID;
-	private int onShowMethodID;
-	private int onHideMethodID;
-	private int onRecordEditStartMethodID;
-	private int onRecordSelectionMethodID;
-	private int onRecordEditStopMethodID;
-	private String initialSort;
-	private String aliases;
-
-	private int onNewRecordCmdMethodID;
-	private int onDuplicateRecordCmdMethodID;
-	private int onDeleteRecordCmdMethodID;
-	private int onFindCmdMethodID;
-	private int onSearchCmdMethodID;
-	private int onShowAllRecordsCmdMethodID;
-	private int onOmitRecordCmdMethodID;
-	private int onShowOmittedRecordsCmdMethodID;
-	private int onInvertRecordsCmdMethodID;
-
-	private int onSortCmdMethodID;
-	private int onDeleteAllRecordsCmdMethodID;
-	private int onPrintPreviewCmdMethodID;
-	private int onNextRecordCmdMethodID;
-	private int onPreviousRecordCmdMethodID;
-
-
-	private int onDragMethodID;
-	private int onDragOverMethodID;
-	private int onDragEndMethodID;
-	private int onDropMethodID;
-	private int onElementFocusGainedMethodID;
-	private int onElementFocusLostMethodID;
-	private int onResizeMethodID;
-	private int onRenderMethodID;
-
-	private int scrollbars;
-	private String defaultPageFormat; //orientation;width;height;ImageableX;ImageableY,ImageableWidth;ImageableHeight
-	private String borderType = null;
-	private String styleClass;
-
-	private String namedFoundSet;
-	private int access;
+	public transient Form extendsForm;
 
 	/**
 	 * Constructor I
@@ -141,23 +79,10 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	}
 
 	// only for use in FlattenedForm
-	protected void setCustomPropertiesMap(JSONWrapperMap map)
-	{
-		if (map == null)
-		{
-			customProperties = null;
-			jsonCustomProperties = null;
-		}
-		else
-		{
-			jsonCustomProperties = map;
-			customProperties = jsonCustomProperties.toString();
-		}
-	}
-
-	// only for use in FlattenedForm
 	protected JSONWrapperMap getCustomPropertiesMap()
 	{
+		String customProperties = getTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES);
+
 		if (customProperties == null) return null;
 		if (jsonCustomProperties == null)
 		{
@@ -177,8 +102,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setBackground(java.awt.Color arg)
 	{
-		checkForChange(background, arg);
-		background = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_BACKGROUND, arg);
 	}
 
 	/**
@@ -188,7 +112,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public java.awt.Color getBackground()
 	{
-		return background;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_BACKGROUND);
 	}
 
 	/**
@@ -198,10 +122,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setServerName(String arg)
 	{
-		String uri = DataSourceUtils.createDBTableDataSource(arg, getTableName());
-		checkForChange(dataSource, uri);
-		dataSource = uri == null ? null : (uri.intern());
-		table = null;//clear any cached table
+		setDataSource(DataSourceUtils.createDBTableDataSource(arg, getTableName()));
 	}
 
 	/**
@@ -210,7 +131,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public String getServerName()
 	{
-		String[] stn = DataSourceUtils.getDBServernameTablename(dataSource);
+		String[] stn = DataSourceUtils.getDBServernameTablename(getDataSource());
 		return stn == null ? null : stn[0];
 	}
 
@@ -222,8 +143,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setName(String arg)
 	{
-		if (formName != null) throw new UnsupportedOperationException("Can't set name 2x, use updateName"); //$NON-NLS-1$
-		formName = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 	}
 
 	/**
@@ -234,8 +154,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	public void updateName(IValidateName validator, String arg) throws RepositoryException
 	{
 		validator.checkName(arg, getID(), new ValidatorSearchContext(this, IRepository.FORMS), false);
-		checkForNameChange(formName, arg);
-		formName = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg, false);
 		getRootObject().getChangeHandler().fireIPersistChanged(this);
 	}
 
@@ -244,7 +163,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public String getName()
 	{
-		return formName;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_NAME);
 	}
 
 	/**
@@ -254,8 +173,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setSize(Dimension arg)
 	{
-		checkForChange(size, arg);
-		size = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE, arg);
 	}
 
 	/**
@@ -265,16 +183,15 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public Dimension getSize()
 	{
+		Dimension size = getTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE);
 		if (size == null)
 		{
 			size = new Dimension(380, 200);
 			return new Dimension(380, 200);
 		}
-		else
-		{
-			checkParts();
-			return new Dimension(size);
-		}
+
+		checkParts(size);
+		return new Dimension(size);
 	}
 
 	/**
@@ -292,8 +209,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setWidth(int width)
 	{
-		checkForChange(getSize().width, width);
-		size.width = width;
+		setSize(new Dimension(width, getSize().height));
 	}
 
 	/**
@@ -303,8 +219,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setShowInMenu(boolean arg)
 	{
-		checkForChange(showInMenu, arg);
-		showInMenu = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_SHOWINMENU, arg);
 	}
 
 	/**
@@ -315,7 +230,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public boolean getShowInMenu()
 	{
-		return showInMenu;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_SHOWINMENU).booleanValue();
 	}
 
 	/**
@@ -325,8 +240,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setStyleName(String arg)
 	{
-		checkForChange(styleName, arg);
-		styleName = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_STYLENAME, arg);
 	}
 
 	/**
@@ -334,7 +248,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public String getDataSource()
 	{
-		return dataSource;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DATASOURCE);
 	}
 
 	/**
@@ -344,9 +258,8 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setDataSource(String arg)
 	{
-		checkForChange(dataSource, arg);
-		dataSource = arg == null ? null : (arg.intern());
-		table = null;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_DATASOURCE, arg);
+		table = null;//clear any cached table
 	}
 
 	/**
@@ -354,7 +267,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public String getStyleName()
 	{
-		return styleName;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_STYLENAME);
 	}
 
 	/**
@@ -372,10 +285,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setTableName(String arg)
 	{
-		String uri = DataSourceUtils.createDBTableDataSource(getServerName(), arg);
-		checkForChange(dataSource, uri);
-		dataSource = uri == null ? null : (uri.intern());
-		table = null;//clear any cached table
+		setDataSource(DataSourceUtils.createDBTableDataSource(getServerName(), arg));
 	}
 
 	/**
@@ -383,12 +293,11 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public String getTableName()
 	{
-		String[] stn = DataSourceUtils.getDBServernameTablename(dataSource);
+		String[] stn = DataSourceUtils.getDBServernameTablename(getDataSource());
 		return stn == null ? null : stn[1];
 	}
 
 	private transient Table table;//local cache
-	private boolean transparent;
 	private long lastModified = System.currentTimeMillis();
 
 	/**
@@ -398,7 +307,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public Table getTable() throws RepositoryException
 	{
-		if (table == null && dataSource != null)
+		if (table == null && getDataSource() != null)
 		{
 			try
 			{
@@ -423,8 +332,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setView(int arg)
 	{
-		checkForChange(view, arg);
-		view = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_VIEW, arg);
 	}
 
 	/**
@@ -443,7 +351,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public int getView()
 	{
-		return view;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_VIEW).intValue();
 	}
 
 	/**
@@ -453,8 +361,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setPaperPrintScale(int arg)
 	{
-		checkForChange(paperPrintScale, arg);
-		paperPrintScale = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_PAPERPRINTSCALE, arg);
 	}
 
 	/**
@@ -464,14 +371,12 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public int getPaperPrintScale()
 	{
+		int paperPrintScale = getTypedProperty(StaticContentSpecLoader.PROPERTY_PAPERPRINTSCALE).intValue();
 		if (paperPrintScale == 0)
 		{
 			return 100;
 		}
-		else
-		{
-			return paperPrintScale;
-		}
+		return paperPrintScale;
 	}
 
 	/**
@@ -487,7 +392,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public int getNavigatorID()
 	{
-		return navigatorID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_NAVIGATORID).intValue();
 	}
 
 	/**
@@ -497,8 +402,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setNavigatorID(int arg)
 	{
-		checkForChange(navigatorID, arg);
-		navigatorID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAVIGATORID, arg);
 	}
 
 
@@ -507,7 +411,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public int getExtendsFormID()
 	{
-		return extendsFormID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSFORMID).intValue();
 	}
 
 	/**
@@ -517,8 +421,22 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setExtendsFormID(int arg)
 	{
-		checkForChange(extendsFormID, arg);
-		extendsFormID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSFORMID, arg);
+		if (!Utils.equalObjects(arg, extendsForm != null ? extendsForm.getID() : 0))
+		{
+			// fire event to update parent form reference
+			getRootObject().getChangeHandler().fireIPersistChanged(this);
+		}
+	}
+
+	public Form getExtendsForm()
+	{
+		return extendsForm;
+	}
+
+	public void setExtendsForm(Form form)
+	{
+		this.extendsForm = form;
 	}
 
 	/*
@@ -557,7 +475,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	/**
 	 * Check the parts. change for example the form size if summed height from all part is smaller.
 	 */
-	public void checkParts()
+	public void checkParts(Dimension size)
 	{
 		int totalHeight = 0;
 		//check if parts should be changed
@@ -1071,7 +989,8 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	@Override
 	public String toString()
 	{
-		return (formName == null ? super.toString() : formName);
+		String formName = getName();
+		return formName == null ? super.toString() : formName;
 	}
 
 	/**
@@ -1199,7 +1118,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public int getOnLoadMethodID()
 	{
-		return onLoadMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID).intValue();
 	}
 
 	/**
@@ -1209,8 +1128,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setOnLoadMethodID(int arg)
 	{
-		checkForChange(onLoadMethodID, arg);
-		onLoadMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID, arg);
 	}
 
 	/**
@@ -1225,7 +1143,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public int getOnUnLoadMethodID()
 	{
-		return onUnLoadMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID).intValue();
 	}
 
 	/**
@@ -1235,8 +1153,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setOnUnLoadMethodID(int arg)
 	{
-		checkForChange(onUnLoadMethodID, arg);
-		onUnLoadMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID, arg);
 	}
 
 	/**
@@ -1245,7 +1162,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public String getInitialSort()
 	{
-		return initialSort;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_INITIALSORT);
 	}
 
 	/**
@@ -1263,7 +1180,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public int getOnHideMethodID()
 	{
-		return onHideMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID).intValue();
 	}
 
 	/**
@@ -1282,7 +1199,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public int getOnRecordEditStopMethodID()
 	{
-		return onRecordEditStopMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTOPMETHODID).intValue();
 	}
 
 	/**
@@ -1298,7 +1215,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public int getOnRecordSelectionMethodID()
 	{
-		return onRecordSelectionMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRECORDSELECTIONMETHODID).intValue();
 	}
 
 	/**
@@ -1316,7 +1233,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public int getOnShowMethodID()
 	{
-		return onShowMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONSHOWMETHODID).intValue();
 	}
 
 	/**
@@ -1326,8 +1243,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setInitialSort(String arg)
 	{
-		checkForChange(initialSort, arg);
-		initialSort = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_INITIALSORT, arg);
 	}
 
 	/**
@@ -1337,7 +1253,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public String getAliases()
 	{
-		return aliases;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ALIASES);
 	}
 
 	/**
@@ -1347,8 +1263,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setAliases(String arg)
 	{
-		checkForChange(aliases, arg);
-		aliases = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ALIASES, arg);
 	}
 
 	/**
@@ -1358,8 +1273,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setOnHideMethodID(int arg)
 	{
-		checkForChange(onHideMethodID, arg);
-		onHideMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID, arg);
 	}
 
 	/**
@@ -1369,8 +1283,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setOnRecordEditStopMethodID(int arg)
 	{
-		checkForChange(onRecordEditStopMethodID, arg);
-		onRecordEditStopMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTOPMETHODID, arg);
 	}
 
 	/**
@@ -1380,8 +1293,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setOnRecordSelectionMethodID(int arg)
 	{
-		checkForChange(onRecordSelectionMethodID, arg);
-		onRecordSelectionMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONRECORDSELECTIONMETHODID, arg);
 	}
 
 	/**
@@ -1391,8 +1303,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setOnShowMethodID(int arg)
 	{
-		checkForChange(onShowMethodID, arg);
-		onShowMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONSHOWMETHODID, arg);
 	}
 
 	/**
@@ -1407,7 +1318,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public int getOnRecordEditStartMethodID()
 	{
-		return onRecordEditStartMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTARTMETHODID).intValue();
 	}
 
 	/**
@@ -1417,8 +1328,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setOnRecordEditStartMethodID(int arg)
 	{
-		checkForChange(onRecordEditStartMethodID, arg);
-		onRecordEditStartMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTARTMETHODID, arg);
 	}
 
 	/**
@@ -1434,7 +1344,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public int getOnDeleteRecordCmdMethodID()
 	{
-		return onDeleteRecordCmdMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDELETERECORDCMDMETHODID).intValue();
 	}
 
 	/**
@@ -1450,7 +1360,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public int getOnDuplicateRecordCmdMethodID()
 	{
-		return onDuplicateRecordCmdMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDUPLICATERECORDCMDMETHODID).intValue();
 	}
 
 	/**
@@ -1466,7 +1376,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public int getOnFindCmdMethodID()
 	{
-		return onFindCmdMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONFINDCMDMETHODID).intValue();
 	}
 
 	/**
@@ -1484,7 +1394,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public int getOnSearchCmdMethodID()
 	{
-		return onSearchCmdMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONSEARCHCMDMETHODID).intValue();
 	}
 
 
@@ -1501,7 +1411,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public int getOnInvertRecordsCmdMethodID()
 	{
-		return onInvertRecordsCmdMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONINVERTRECORDSCMDMETHODID).intValue();
 	}
 
 	/**
@@ -1517,7 +1427,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public int getOnNewRecordCmdMethodID()
 	{
-		return onNewRecordCmdMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONNEWRECORDCMDMETHODID).intValue();
 	}
 
 	/**
@@ -1533,7 +1443,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public int getOnOmitRecordCmdMethodID()
 	{
-		return onOmitRecordCmdMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONOMITRECORDCMDMETHODID).intValue();
 	}
 
 	/**
@@ -1549,7 +1459,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public int getOnShowAllRecordsCmdMethodID()
 	{
-		return onShowAllRecordsCmdMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONSHOWALLRECORDSCMDMETHODID).intValue();
 	}
 
 	/**
@@ -1565,7 +1475,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public int getOnShowOmittedRecordsCmdMethodID()
 	{
-		return onShowOmittedRecordsCmdMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONSHOWOMITTEDRECORDSCMDMETHODID).intValue();
 	}
 
 	/**
@@ -1575,8 +1485,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setOnDeleteRecordCmdMethodID(int i)
 	{
-		checkForChange(onDeleteRecordCmdMethodID, i);
-		onDeleteRecordCmdMethodID = i;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDELETERECORDCMDMETHODID, i);
 	}
 
 	/**
@@ -1586,8 +1495,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setOnDuplicateRecordCmdMethodID(int i)
 	{
-		checkForChange(onDuplicateRecordCmdMethodID, i);
-		onDuplicateRecordCmdMethodID = i;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDUPLICATERECORDCMDMETHODID, i);
 	}
 
 
@@ -1598,8 +1506,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setOnSearchCmdMethodID(int i)
 	{
-		checkForChange(onSearchCmdMethodID, i);
-		onSearchCmdMethodID = i;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONSEARCHCMDMETHODID, i);
 	}
 
 	/**
@@ -1609,8 +1516,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setOnFindCmdMethodID(int i)
 	{
-		checkForChange(onFindCmdMethodID, i);
-		onFindCmdMethodID = i;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONFINDCMDMETHODID, i);
 	}
 
 	/**
@@ -1620,8 +1526,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setOnInvertRecordsCmdMethodID(int i)
 	{
-		checkForChange(onInvertRecordsCmdMethodID, i);
-		onInvertRecordsCmdMethodID = i;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONINVERTRECORDSCMDMETHODID, i);
 	}
 
 	/**
@@ -1631,8 +1536,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setOnNewRecordCmdMethodID(int i)
 	{
-		checkForChange(onNewRecordCmdMethodID, i);
-		onNewRecordCmdMethodID = i;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONNEWRECORDCMDMETHODID, i);
 	}
 
 	/**
@@ -1642,8 +1546,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setOnOmitRecordCmdMethodID(int i)
 	{
-		checkForChange(onOmitRecordCmdMethodID, i);
-		onOmitRecordCmdMethodID = i;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONOMITRECORDCMDMETHODID, i);
 	}
 
 	/**
@@ -1653,8 +1556,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setOnShowAllRecordsCmdMethodID(int i)
 	{
-		checkForChange(onShowAllRecordsCmdMethodID, i);
-		onShowAllRecordsCmdMethodID = i;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONSHOWALLRECORDSCMDMETHODID, i);
 	}
 
 	/**
@@ -1664,13 +1566,12 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setOnShowOmittedRecordsCmdMethodID(int i)
 	{
-		checkForChange(onShowOmittedRecordsCmdMethodID, i);
-		onShowOmittedRecordsCmdMethodID = i;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONSHOWOMITTEDRECORDSCMDMETHODID, i);
 	}
 
 	public int getScrollbars()
 	{
-		return scrollbars;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_SCROLLBARS).intValue();
 	}
 
 	/**
@@ -1680,8 +1581,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setScrollbars(int i)
 	{
-		checkForChange(scrollbars, i);
-		scrollbars = i;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_SCROLLBARS, i);
 	}
 
 	/**
@@ -1689,7 +1589,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public String getDefaultPageFormat()
 	{
-		return defaultPageFormat;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DEFAULTPAGEFORMAT);
 	}
 
 	/**
@@ -1700,8 +1600,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setDefaultPageFormat(String string)
 	{
-		checkForChange(defaultPageFormat, string);
-		defaultPageFormat = string;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_DEFAULTPAGEFORMAT, string);
 	}
 
 	/**
@@ -1710,7 +1609,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public String getBorderType()
 	{
-		return borderType;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_BORDERTYPE);
 	}
 
 	/**
@@ -1726,7 +1625,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public int getOnDeleteAllRecordsCmdMethodID()
 	{
-		return onDeleteAllRecordsCmdMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDELETEALLRECORDSCMDMETHODID).intValue();
 	}
 
 	/**
@@ -1742,7 +1641,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public int getOnPrintPreviewCmdMethodID()
 	{
-		return onPrintPreviewCmdMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONPRINTPREVIEWCMDMETHODID).intValue();
 	}
 
 	/**
@@ -1760,7 +1659,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public int getOnSortCmdMethodID()
 	{
-		return onSortCmdMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONSORTCMDMETHODID).intValue();
 	}
 
 	/**
@@ -1769,7 +1668,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public boolean getUseSeparateFoundSet()
 	{
-		return (SEPARATE_FLAG.equals(namedFoundSet));
+		return SEPARATE_FLAG.equals(getNamedFoundSet());
 	}
 
 	/**
@@ -1778,7 +1677,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public boolean getUseEmptyFoundSet()
 	{
-		return (EMPTY_FLAG.equals(namedFoundSet));
+		return EMPTY_FLAG.equals(getNamedFoundSet());
 	}
 
 	/**
@@ -1789,8 +1688,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setBorderType(String b)
 	{
-		checkForChange(borderType, b);
-		borderType = b;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_BORDERTYPE, b);
 	}
 
 	/**
@@ -1800,8 +1698,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setOnDeleteAllRecordsCmdMethodID(int i)
 	{
-		checkForChange(onDeleteAllRecordsCmdMethodID, i);
-		onDeleteAllRecordsCmdMethodID = i;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDELETEALLRECORDSCMDMETHODID, i);
 	}
 
 	/**
@@ -1811,8 +1708,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setOnPrintPreviewCmdMethodID(int i)
 	{
-		checkForChange(onPrintPreviewCmdMethodID, i);
-		onPrintPreviewCmdMethodID = i;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONPRINTPREVIEWCMDMETHODID, i);
 	}
 
 	/**
@@ -1822,8 +1718,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setOnSortCmdMethodID(int i)
 	{
-		checkForChange(onSortCmdMethodID, i);
-		onSortCmdMethodID = i;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONSORTCMDMETHODID, i);
 	}
 
 	/**
@@ -1842,7 +1737,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public String getTitleText()
 	{
-		return titleText;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TITLETEXT);
 	}
 
 	/**
@@ -1852,8 +1747,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setTitleText(String string)
 	{
-		checkForChange(titleText, string);
-		titleText = string;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_TITLETEXT, string);
 	}
 
 	/**
@@ -1881,7 +1775,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public String getRowBGColorCalculation()
 	{
-		return rowBGColorCalculation;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ROWBGCOLORCALCULATION);
 	}
 
 	/**
@@ -1891,8 +1785,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setRowBGColorCalculation(String arg)
 	{
-		checkForChange(rowBGColorCalculation, arg);
-		rowBGColorCalculation = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ROWBGCOLORCALCULATION, arg);
 	}
 
 	/**
@@ -1900,7 +1793,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public String getStyleClass()
 	{
-		return styleClass;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_STYLECLASS);
 	}
 
 	/**
@@ -1910,8 +1803,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setStyleClass(String arg)
 	{
-		checkForChange(styleClass, arg);
-		styleClass = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_STYLECLASS, arg);
 	}
 
 	/**
@@ -1927,7 +1819,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public int getOnNextRecordCmdMethodID()
 	{
-		return onNextRecordCmdMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONNEXTRECORDCMDMETHODID).intValue();
 	}
 
 	/**
@@ -1938,8 +1830,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setOnNextRecordCmdMethodID(int arg)
 	{
-		checkForChange(onNextRecordCmdMethodID, arg);
-		onNextRecordCmdMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONNEXTRECORDCMDMETHODID, arg);
 	}
 
 	/**
@@ -1955,7 +1846,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public int getOnPreviousRecordCmdMethodID()
 	{
-		return onPreviousRecordCmdMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONPREVIOUSRECORDCMDMETHODID).intValue();
 	}
 
 	/**
@@ -1966,8 +1857,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setOnPreviousRecordCmdMethodID(int arg)
 	{
-		checkForChange(onPreviousRecordCmdMethodID, arg);
-		onPreviousRecordCmdMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONPREVIOUSRECORDCMDMETHODID, arg);
 	}
 
 	/**
@@ -1977,8 +1867,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setTransparent(boolean arg)
 	{
-		checkForChange(transparent, arg);
-		transparent = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_TRANSPARENT, arg);
 	}
 
 	/**
@@ -1986,7 +1875,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public boolean getTransparent()
 	{
-		return transparent;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TRANSPARENT).booleanValue();
 	}
 
 	/**
@@ -1996,8 +1885,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setNamedFoundSet(String arg)
 	{
-		checkForChange(namedFoundSet, arg);
-		namedFoundSet = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAMEDFOUNDSET, arg);
 	}
 
 	/**
@@ -2006,7 +1894,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public String getNamedFoundSet()
 	{
-		return namedFoundSet;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_NAMEDFOUNDSET);
 	}
 
 	/**
@@ -2029,7 +1917,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public int getOnDragMethodID()
 	{
-		return onDragMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID).intValue();
 	}
 
 	/**
@@ -2039,8 +1927,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setOnDragMethodID(int arg)
 	{
-		checkForChange(onDragMethodID, arg);
-		onDragMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID, arg);
 	}
 
 
@@ -2056,7 +1943,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public int getOnDragEndMethodID()
 	{
-		return onDragEndMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID).intValue();
 	}
 
 	/**
@@ -2066,8 +1953,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setOnDragEndMethodID(int arg)
 	{
-		checkForChange(onDragEndMethodID, arg);
-		onDragEndMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID, arg);
 	}
 
 	/**
@@ -2089,7 +1975,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public int getOnDragOverMethodID()
 	{
-		return onDragOverMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID).intValue();
 	}
 
 	/**
@@ -2099,8 +1985,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setOnDragOverMethodID(int arg)
 	{
-		checkForChange(onDragOverMethodID, arg);
-		onDragOverMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID, arg);
 	}
 
 	/**
@@ -2116,7 +2001,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public int getOnDropMethodID()
 	{
-		return onDropMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDROPMETHODID).intValue();
 	}
 
 	/**
@@ -2126,8 +2011,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setOnDropMethodID(int arg)
 	{
-		checkForChange(onDropMethodID, arg);
-		onDropMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDROPMETHODID, arg);
 	}
 
 	/**
@@ -2143,7 +2027,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public int getOnElementFocusGainedMethodID()
 	{
-		return onElementFocusGainedMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSGAINEDMETHODID).intValue();
 	}
 
 	/**
@@ -2153,8 +2037,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setOnElementFocusGainedMethodID(int arg)
 	{
-		checkForChange(onElementFocusGainedMethodID, arg);
-		onElementFocusGainedMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSGAINEDMETHODID, arg);
 	}
 
 	/**
@@ -2170,7 +2053,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public int getOnElementFocusLostMethodID()
 	{
-		return onElementFocusLostMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSLOSTMETHODID).intValue();
 	}
 
 	/**
@@ -2180,8 +2063,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setOnElementFocusLostMethodID(int arg)
 	{
-		checkForChange(onElementFocusLostMethodID, arg);
-		onElementFocusLostMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSLOSTMETHODID, arg);
 	}
 
 	/**
@@ -2194,7 +2076,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public int getOnResizeMethodID()
 	{
-		return onResizeMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRESIZEMETHODID).intValue();
 	}
 
 	/**
@@ -2204,32 +2086,31 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setOnResizeMethodID(int arg)
 	{
-		checkForChange(onResizeMethodID, arg);
-		onResizeMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONRESIZEMETHODID, arg);
 	}
 
 	public void setOnRenderMethodID(int arg)
 	{
-		checkForChange(onRenderMethodID, arg);
-		onRenderMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID, arg);
 	}
 
 	public void setAccess(int arg)
 	{
 		int newAccess = arg;
+		int access = getAccess();
 		if ((newAccess & FormEncapsulation.MODULE_PRIVATE) == FormEncapsulation.MODULE_PRIVATE &&
 			(newAccess & FormEncapsulation.PRIVATE) == FormEncapsulation.PRIVATE)
 		{
 			if ((access & FormEncapsulation.MODULE_PRIVATE) == FormEncapsulation.MODULE_PRIVATE) newAccess = newAccess ^ FormEncapsulation.MODULE_PRIVATE;
 			else newAccess = newAccess ^ FormEncapsulation.PRIVATE;
 		}
-		checkForChange(access, newAccess);
-		access = newAccess;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ACCESS, newAccess);
+
 	}
 
 	public int getAccess()
 	{
-		return access;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ACCESS).intValue();
 	}
 
 	/** 
@@ -2240,7 +2121,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public int getOnRenderMethodID()
 	{
-		return onRenderMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID).intValue();
 	}
 
 	public long getLastModified()
@@ -2254,10 +2135,23 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	}
 
 	@Override
+	public boolean isOverrideElement()
+	{
+		return getPropertiesMap().containsKey(StaticContentSpecLoader.PROPERTY_EXTENDSFORMID.getPropertyName()) && getExtendsFormID() > 0;
+	}
+
+	@Override
+	protected IPersist getSuperPersist()
+	{
+		return getExtendsForm();
+	}
+
+	@Override
 	public IPersist clonePersist()
 	{
 		Form formClone = (Form)super.clonePersist();
-		if (size != null) formClone.setSize(new Dimension(size));
+		Dimension size = getSize();
+		if (size != null) formClone.setSize(size);
 		return formClone;
 	}
 }

@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 import java.awt.Color;
@@ -22,11 +22,9 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.beans.IntrospectionException;
 import java.lang.reflect.Method;
-import java.util.Iterator;
 import java.util.Map;
 
 import com.servoy.j2db.server.shared.IUnresolvedUUIDResolver;
-import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Internalize;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.TreeBidiMap;
@@ -211,39 +209,6 @@ public abstract class AbstractPersistFactory implements IPersistFactory
 		if (!uuid_element_id_map.containsKey(uuid))
 		{
 			uuid_element_id_map.put(uuid, new Integer(elementId));
-		}
-
-		// Set default values from the content spec.
-		int typeId = 0;
-		String propertyName = null;
-		try
-		{
-
-			final Map methods = getSettersViaIntrospection(object);
-			Iterator<ContentSpec.Element> iterator = getContentSpec().getPropertiesForObjectType(object.getTypeID());
-			while (iterator.hasNext())
-			{
-				ContentSpec.Element element = iterator.next();
-
-				// Don't set meta data properties.
-				if (element.isMetaData() || element.isDeprecated()) continue;
-
-				// Get default property value as an object.
-				typeId = element.getTypeID();
-				String defaultTextualClassValue = element.getDefaultTextualClassValue();
-				propertyName = element.getName();
-				Object propertyValue = convertArgumentStringToObject(typeId, defaultTextualClassValue);
-
-				// If the method is not found, this throws a NPE. But this really should never happen
-				// so don't bother testing for null.
-				final Method method = (Method)methods.get(propertyName);
-				method.invoke(object, new Object[] { propertyValue });
-			}
-		}
-		catch (Exception e)
-		{
-			Debug.error("Error setting default value on type: " + typeId + " property: " + propertyName, e);
-			throw new RepositoryException(e);
 		}
 
 		return object;

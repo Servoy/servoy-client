@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 import com.servoy.j2db.util.UUID;
@@ -24,10 +24,6 @@ import com.servoy.j2db.util.UUID;
  */
 public abstract class AbstractScriptProvider extends AbstractBase implements IScriptProvider, ISupportUpdateableName, ISupportContentEquals
 {
-	private String name = null;
-	private int lineNumberOffset;
-	private String declaration;
-	private String methodCode;
 
 	/**
 	 * @param type
@@ -76,8 +72,7 @@ public abstract class AbstractScriptProvider extends AbstractBase implements ISc
 
 	public void setName(String arg)
 	{
-		if (name != null) throw new UnsupportedOperationException("Can't set name 2x, use updateName"); //$NON-NLS-1$
-		name = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 	}
 
 	/**
@@ -88,12 +83,12 @@ public abstract class AbstractScriptProvider extends AbstractBase implements ISc
 	public void updateName(IValidateName validator, String arg) throws RepositoryException
 	{
 		validator.checkName(arg, getID(), new ValidatorSearchContext(getParent(), IRepository.METHODS), false);
-		checkForNameChange(name, arg);
+		String declaration = getTypedProperty(StaticContentSpecLoader.PROPERTY_DECLARATION);
 		if (declaration != null)
 		{
-			declaration = declaration.replaceFirst("(.*function\\s+)" + name + "(\\s*\\(.*\\)\\s*\\{.*)", "$1" + arg + "$2"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			declaration = declaration.replaceFirst("(.*function\\s+)" + getName() + "(\\s*\\(.*\\)\\s*\\{.*)", "$1" + arg + "$2"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		}
-		name = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg, false);
 		getRootObject().getChangeHandler().fireIPersistChanged(this);
 	}
 
@@ -102,7 +97,7 @@ public abstract class AbstractScriptProvider extends AbstractBase implements ISc
 	 */
 	public String getName()
 	{
-		return name;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_NAME);
 	}
 
 	/**
@@ -113,7 +108,7 @@ public abstract class AbstractScriptProvider extends AbstractBase implements ISc
 	@Deprecated
 	public void setMethodCode(String arg)
 	{
-		this.methodCode = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_METHODCODE, arg);
 	}
 
 	/**
@@ -124,7 +119,12 @@ public abstract class AbstractScriptProvider extends AbstractBase implements ISc
 	@Deprecated
 	public String getMethodCode()
 	{
-		if (methodCode != null) return methodCode;
+		String methodCode = getTypedProperty(StaticContentSpecLoader.PROPERTY_METHODCODE);
+		if (methodCode != null)
+		{
+			return methodCode;
+		}
+		String declaration = getTypedProperty(StaticContentSpecLoader.PROPERTY_DECLARATION);
 		if (declaration != null)
 		{
 			int functionIndex = declaration.indexOf("function "); //$NON-NLS-1$
@@ -158,13 +158,12 @@ public abstract class AbstractScriptProvider extends AbstractBase implements ISc
 
 	public int getLineNumberOffset()
 	{
-		return lineNumberOffset;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_LINENUMBEROFFSET).intValue();
 	}
 
 	public void setLineNumberOffset(int arg)
 	{
-		checkForChange(lineNumberOffset, arg);
-		lineNumberOffset = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_LINENUMBEROFFSET, arg);
 	}
 
 	/**
@@ -172,12 +171,14 @@ public abstract class AbstractScriptProvider extends AbstractBase implements ISc
 	 */
 	public String getDeclaration()
 	{
+		String methodCode = getTypedProperty(StaticContentSpecLoader.PROPERTY_METHODCODE);
+		String declaration = getTypedProperty(StaticContentSpecLoader.PROPERTY_DECLARATION);
 		if (methodCode != null && declaration == null)
 		{
-			declaration = MethodTemplate.getTemplate(getClass(), null).getMethodDeclaration(name, methodCode);
+			declaration = MethodTemplate.getTemplate(getClass(), null).getMethodDeclaration(getName(), methodCode);
 			methodCode = null;
 		}
-		return declaration;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DECLARATION);
 	}
 
 	/**
@@ -186,8 +187,7 @@ public abstract class AbstractScriptProvider extends AbstractBase implements ISc
 	 */
 	public void setDeclaration(String declaration)
 	{
-		checkForChange(this.declaration, declaration);
-		this.declaration = declaration;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_DECLARATION, declaration);
 	}
 
 }

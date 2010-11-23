@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 
@@ -36,16 +36,6 @@ public class TabPanel extends BaseComponent implements ISupportChilds, ISupportT
 	public static final int SPLIT_HORIZONTAL = -2;
 	public static final int SPLIT_VERTICAL = -3;
 
-	/*
-	 * Attributes, do not change default values do to repository default_textual_classvalue
-	 */
-	private int tabOrientation;
-	private java.awt.Color selectedTabColor = null;
-	private boolean scrollTabs;
-	private boolean closeOnTabs;
-	private int onTabChangeMethodID;
-	private int tabSeq = ISupportTabSeq.DEFAULT;
-
 	/**
 	 * Constructor I
 	 */
@@ -64,8 +54,7 @@ public class TabPanel extends BaseComponent implements ISupportChilds, ISupportT
 	 */
 	public void setTabOrientation(int arg)
 	{
-		checkForChange(tabOrientation, arg);
-		tabOrientation = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_TABORIENTATION, arg);
 	}
 
 	/**
@@ -75,7 +64,7 @@ public class TabPanel extends BaseComponent implements ISupportChilds, ISupportT
 	 */
 	public int getTabOrientation()
 	{
-		return tabOrientation;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TABORIENTATION).intValue();
 	}
 
 	/*
@@ -111,7 +100,7 @@ public class TabPanel extends BaseComponent implements ISupportChilds, ISupportT
 	@Deprecated
 	public java.awt.Color getSelectedTabColor()
 	{
-		return selectedTabColor;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_SELECTEDTABCOLOR);
 	}
 
 	/**
@@ -122,8 +111,7 @@ public class TabPanel extends BaseComponent implements ISupportChilds, ISupportT
 	@Deprecated
 	public void setSelectedTabColor(java.awt.Color arg)
 	{
-		checkForChange(selectedTabColor, arg);
-		selectedTabColor = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_SELECTEDTABCOLOR, arg);
 	}
 
 	public boolean hasOneTab()
@@ -142,26 +130,24 @@ public class TabPanel extends BaseComponent implements ISupportChilds, ISupportT
 	 */
 	public boolean getScrollTabs()
 	{
-		return scrollTabs;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_SCROLLTABS).booleanValue();
 	}
 
 	public void setScrollTabs(boolean arg)
 	{
-		checkForChange(scrollTabs, arg);
-		scrollTabs = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_SCROLLTABS, arg);
 	}
 
 	@Deprecated
 	public boolean getCloseOnTabs()
 	{
-		return closeOnTabs;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_CLOSEONTABS).booleanValue();
 	}
 
 	@Deprecated
 	public void setCloseOnTabs(boolean arg)
 	{
-		checkForChange(closeOnTabs, arg);
-		closeOnTabs = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_CLOSEONTABS, arg);
 	}
 
 	/**
@@ -175,7 +161,7 @@ public class TabPanel extends BaseComponent implements ISupportChilds, ISupportT
 	 */
 	public int getOnTabChangeMethodID()
 	{
-		return onTabChangeMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONTABCHANGEMETHODID).intValue();
 	}
 
 	/**
@@ -185,20 +171,17 @@ public class TabPanel extends BaseComponent implements ISupportChilds, ISupportT
 	 */
 	public void setOnTabChangeMethodID(int arg)
 	{
-		checkForChange(onTabChangeMethodID, arg);
-		onTabChangeMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONTABCHANGEMETHODID, arg);
 	}
 
 	public void setTabSeq(int arg)
 	{
-		if (arg < 1 && arg != ISupportTabSeq.DEFAULT && arg != ISupportTabSeq.SKIP) return;//irrelevant value from editor
-		checkForChange(tabSeq, arg);
-		tabSeq = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_TABSEQ, arg);
 	}
 
 	public int getTabSeq()
 	{
-		return tabSeq;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TABSEQ).intValue();
 	}
 
 	@Override

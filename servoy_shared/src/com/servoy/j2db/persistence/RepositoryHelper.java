@@ -137,114 +137,12 @@ public class RepositoryHelper
 		return retval;
 	}
 
-	/**
-	 * @return returns copies from mutable objects!
-	 */
-	public Map<String, Object> getPersistAsValueMap(final IPersist obj) throws RepositoryException
+	public void initClone(IPersist clone, IPersist original)
 	{
-		try
+		((AbstractBase)clone).copyPropertiesMap(((AbstractBase)original).getPropertiesMap());
+		if (((AbstractBase)clone).isOverrideElement())
 		{
-			Map<String, Object> values = new HashMap<String, Object>();
-			Map<String, Method> methods = getGettersViaIntrospection(obj);
-			Iterator<Element> iterator = developerRepository.getContentSpec().getPropertiesForObjectType(obj.getTypeID());
-			while (iterator.hasNext())
-			{
-				ContentSpec.Element element = iterator.next();
-
-				// Don't save meta data properties.
-				if (element.isMetaData() || element.isDeprecated()) continue;
-
-				String propertyName = element.getName();
-				int typeID = element.getTypeID();
-
-				Method method = methods.get(propertyName);
-				Object propertyObjectValue = method.invoke(obj, (Object[])null);
-				Object propertyObjectValueCopy = developerRepository.convertArgumentStringToObject(typeID,
-					developerRepository.convertObjectToArgumentString(typeID, propertyObjectValue));
-				values.put(propertyName, propertyObjectValueCopy);
-			}
-			return values;
-		}
-		catch (Exception e)
-		{
-			throw new RepositoryException(e);
-		}
-	}
-
-	public void updatePersistWithValueMap(IPersist persist, Map<String, Object> values) throws RepositoryException
-	{
-		try
-		{
-			String newName = null;
-			boolean updateName = false;
-			Map<String, Method> setters = getSettersViaIntrospection(persist);
-			Iterator<Map.Entry<String, Object>> valuesIterator = values.entrySet().iterator();
-			while (valuesIterator.hasNext())
-			{
-				Map.Entry<String, Object> entry = valuesIterator.next();
-
-				String propertyName = entry.getKey();
-				Object value = entry.getValue();
-
-				Method method = setters.get(propertyName);
-				if (method == null)
-				{
-					Debug.error("setter is not defined for property name: " + propertyName + ", for persist: " + persist); //$NON-NLS-1$ //$NON-NLS-2$
-					continue;
-				}
-				if ("name".equals(propertyName) && persist instanceof ISupportUpdateableName && ((ISupportUpdateableName)persist).getName() != null) //$NON-NLS-1$
-				{
-					newName = (String)value;
-					updateName = true;
-				}
-				else
-				{
-					method.invoke(persist, new Object[] { value });
-				}
-			}
-			// update name as last value, it may trigger an event that reads the other values.
-			if (updateName)
-			{
-				((ISupportUpdateableName)persist).updateName(DummyValidator.INSTANCE, newName);
-			}
-		}
-		catch (Exception e)
-		{
-			throw new RepositoryException(e);
-		}
-	}
-
-	public void initClone(IPersist clone, IPersist original) throws RepositoryException
-	{
-		try
-		{
-			Map<String, Method> getters = getGettersViaIntrospection(original);
-			Map<String, Method> setters = getSettersViaIntrospection(clone);
-
-			Iterator<Element> iterator = developerRepository.getContentSpec().getPropertiesForObjectType(original.getTypeID());
-			while (iterator.hasNext())
-			{
-				ContentSpec.Element element = iterator.next();
-
-				if (element.isDeprecated()) continue;
-
-				//int content_id = element.getContentID();
-				String mname = element.getName();
-				int type_id = element.getTypeID();
-
-				Method mget = getters.get(mname);
-				Object val = mget.invoke(original, new Object[] { });
-
-				// FIXME: if it is a reference, should we use a uuid resolver?
-				String property_value = developerRepository.convertObjectToArgumentString(type_id, val);
-
-				Method mset = setters.get(mname);
-				mset.invoke(clone, new Object[] { developerRepository.convertArgumentStringToObject(type_id, property_value) });
-			}
-		}
-		catch (Exception e)
-		{
-			throw new RepositoryException(e);
+			((AbstractBase)clone).putOverrideProperty(null);
 		}
 	}
 

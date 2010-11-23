@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -36,14 +36,6 @@ public class RectShape extends BaseComponent
 /*
  * _____________________________________________________________ Declaration of attributes
  */
-
-	/*
-	 * Attributes, do not change default values do to repository default_textual_classvalue
-	 */
-	private int lineSize;
-	private int roundedRadius;
-	private int containsFormID;
-	private int shapeType;
 
 	/**
 	 * Constructor I
@@ -73,8 +65,7 @@ public class RectShape extends BaseComponent
 	 */
 	public void setRoundedRadius(int arg)
 	{
-		checkForChange(roundedRadius, arg);
-		roundedRadius = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ROUNDEDRADIUS, arg);
 	}
 
 	/**
@@ -82,7 +73,7 @@ public class RectShape extends BaseComponent
 	 */
 	public int getRoundedRadius()
 	{
-		return roundedRadius;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ROUNDEDRADIUS).intValue();
 	}
 
 	/**
@@ -92,8 +83,7 @@ public class RectShape extends BaseComponent
 	 */
 	public void setLineSize(int arg)
 	{
-		checkForChange(lineSize, arg);
-		lineSize = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_LINESIZE, arg);
 	}
 
 	/**
@@ -101,7 +91,7 @@ public class RectShape extends BaseComponent
 	 */
 	public int getLineSize()
 	{
-		return lineSize;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_LINESIZE).intValue();
 	}
 
 
@@ -112,8 +102,7 @@ public class RectShape extends BaseComponent
 	 */
 	public void setContainsFormID(int arg)
 	{
-		checkForChange(containsFormID, arg);
-		containsFormID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_CONTAINSFORMID, arg);
 	}
 
 	/**
@@ -122,7 +111,7 @@ public class RectShape extends BaseComponent
 	 */
 	public int getContainsFormID()
 	{
-		return containsFormID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_CONTAINSFORMID).intValue();
 	}
 
 	/**
@@ -130,7 +119,7 @@ public class RectShape extends BaseComponent
 	 */
 	public int getShapeType()
 	{
-		return shapeType;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_SHAPETYPE).intValue();
 	}
 
 	/**
@@ -140,7 +129,6 @@ public class RectShape extends BaseComponent
 	 */
 	public void setShapeType(int type)
 	{
-		checkForChange(shapeType, type);
-		shapeType = type;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_SHAPETYPE, type);
 	}
 }

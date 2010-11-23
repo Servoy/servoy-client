@@ -19,7 +19,6 @@ package com.servoy.j2db.persistence;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Point;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.UUID;
@@ -33,24 +32,6 @@ import com.servoy.j2db.util.Utils;
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
 public class Bean extends BaseComponent implements ISupportTabSeq
 {
-	/*
-	 * Attributes, do not change default values do to repository default_textual_classvalue
-	 */
-	private int anchors;
-	private String name = null;
-	private String beanXML = null;
-	private String beanClassName = null;
-	private String parameters = null;
-	private int onActionMethodID;
-	private boolean usesUI;
-	private java.awt.Dimension size = null;
-	private java.awt.Point location = null;
-	private boolean printable = true;//remark not default!
-	private int formIndex;
-	private String groupID;
-	private boolean locked;
-	private int tabSeq = ISupportTabSeq.DEFAULT;
-
 	/**
 	 * Constructor I
 	 */
@@ -71,8 +52,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	@Override
 	public void setName(String arg)
 	{
-		if (name != null) throw new UnsupportedOperationException("Can't set name 2x, use updateName"); //$NON-NLS-1$
-		name = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 	}
 
 	/**
@@ -87,14 +67,13 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 		{
 			validator.checkName(arg, getID(), new ValidatorSearchContext(getParent(), IRepository.ELEMENTS), false);
 		}
-		checkForNameChange(name, arg);
-		name = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 	}
 
 	@Override
 	public String getName()
 	{
-		return name;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_NAME);
 	}
 
 	/**
@@ -105,14 +84,13 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	@Override
 	public void setAnchors(int arg)
 	{
-		checkForChange(anchors, arg);
-		anchors = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ANCHORS, arg);
 	}
 
 	@Override
 	public int getAnchors()
 	{
-		return anchors;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ANCHORS).intValue();
 	}
 
 	/**
@@ -122,8 +100,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	 */
 	public void setOnActionMethodID(int arg)
 	{
-		checkForChange(onActionMethodID, arg);
-		onActionMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID, arg);
 	}
 
 	/**
@@ -133,20 +110,19 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	 */
 	public int getOnActionMethodID()
 	{
-		return onActionMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID).intValue();
 	}
 
 	/**
 	 * Set the beanXML
 	 * 
-	 * @param arg the beanXML
+	 * @param xml the beanXML
 	 */
 	public void setBeanXML(String arg)
 	{
-		arg = Utils.stringReplace(arg, "javax.beans.XML", "java.beans.XML");//fix for remove of compat141.jar //$NON-NLS-1$ //$NON-NLS-2$
-		arg = Utils.stringReplace(arg, "com.servoy.r2", "com.servoy.extensions");//fix for path rename in 3.1
-		checkForChange(beanXML, arg);
-		beanXML = arg;
+		String xml = Utils.stringReplace(arg, "javax.beans.XML", "java.beans.XML");//fix for remove of compat141.jar //$NON-NLS-1$ //$NON-NLS-2$
+		xml = Utils.stringReplace(xml, "com.servoy.r2", "com.servoy.extensions");//fix for path rename in 3.1  //$NON-NLS-1$//$NON-NLS-2$
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_BEANXML, xml);
 	}
 
 	/**
@@ -156,8 +132,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	 */
 	public String getBeanXML()
 	{
-		beanXML = Utils.stringReplace(beanXML, "com.servoy.r2", "com.servoy.extensions");//fix for path rename in 3.1
-		return beanXML;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_BEANXML);
 	}
 
 	/**
@@ -167,8 +142,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	 */
 	public void setBeanClassName(String arg)
 	{
-		checkForChange(beanClassName, arg);
-		beanClassName = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_BEANCLASSNAME, arg);
 	}
 
 	/**
@@ -178,12 +152,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	 */
 	public String getBeanClassName()
 	{
-		String retval = beanClassName;
-		if (retval != null && retval.startsWith("com.servoy.r2"))
-		{
-			retval = Utils.stringReplace(retval, "com.servoy.r2", "com.servoy.extensions");//fix for path rename in 3.1
-		}
-		return retval;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_BEANCLASSNAME);
 	}
 
 	/**
@@ -193,8 +162,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	 */
 	public void setParameters(String arg)
 	{
-		checkForChange(parameters, arg);
-		parameters = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_PARAMETERS, arg);
 	}
 
 	/**
@@ -204,7 +172,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	 */
 	public String getParameters()
 	{
-		return parameters;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_PARAMETERS);
 	}
 
 	/**
@@ -214,8 +182,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	 */
 	public void setUsesUI(boolean arg)
 	{
-		checkForChange(usesUI, arg);
-		usesUI = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_USESUI, arg);
 	}
 
 	/**
@@ -225,7 +192,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	 */
 	public boolean getUsesUI()
 	{
-		return usesUI;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_USESUI).booleanValue();
 	}
 
 
@@ -237,15 +204,15 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	@Override
 	public void setSize(java.awt.Dimension arg)
 	{
-		checkForChange(size, arg);
-		size = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE, arg);
 	}
 
 	@Override
 	public java.awt.Dimension getSize()
 	{
-		if (size == null) return new Dimension(80, 80);
-		return new Dimension(size);
+		Dimension size = getTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE);
+		if (size == null) size = new Dimension(80, 80);
+		return size;
 	}
 
 	/**
@@ -256,15 +223,13 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	@Override
 	public void setLocation(java.awt.Point arg)
 	{
-		checkForChange(location, arg);
-		location = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_LOCATION, arg);
 	}
 
 	@Override
 	public java.awt.Point getLocation()
 	{
-		if (location == null) return new Point(0, 0);
-		return new Point(location);
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_LOCATION);
 	}
 
 	/**
@@ -275,14 +240,13 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	@Override
 	public void setPrintable(boolean arg)
 	{
-		checkForChange(printable, arg);
-		printable = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_PRINTABLE, arg);
 	}
 
 	@Override
 	public boolean getPrintable()
 	{
-		return printable;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_PRINTABLE).booleanValue();
 	}
 
 
@@ -294,8 +258,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	@Override
 	public void setFormIndex(int arg)
 	{
-		checkForChange(formIndex, arg);
-		formIndex = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_FORMINDEX, arg);
 	}
 
 	/**
@@ -306,7 +269,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	@Override
 	public int getFormIndex()
 	{
-		return formIndex;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_FORMINDEX).intValue();
 	}
 
 	/**
@@ -317,7 +280,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	@Override
 	public String getGroupID()
 	{
-		return groupID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_GROUPID);
 	}
 
 	/**
@@ -328,7 +291,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	@Override
 	public boolean getLocked()
 	{
-		return locked;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_LOCKED).booleanValue();
 	}
 
 	/**
@@ -339,8 +302,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	@Override
 	public void setGroupID(String arg)
 	{
-		checkForChange(groupID, arg);
-		groupID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_GROUPID, arg);
 	}
 
 	/**
@@ -351,8 +313,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	@Override
 	public void setLocked(boolean arg)
 	{
-		checkForChange(locked, arg);
-		locked = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_LOCKED, arg);
 	}
 
 	/**
@@ -362,14 +323,12 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	 */
 	public void setTabSeq(int arg)
 	{
-		if (arg < 1 && arg != ISupportTabSeq.DEFAULT && arg != ISupportTabSeq.SKIP) return;//irrelevant value from editor
-		checkForChange(tabSeq, arg);
-		tabSeq = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_TABSEQ, arg);
 	}
 
 	public int getTabSeq()
 	{
-		return tabSeq;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TABSEQ).intValue();
 	}
 
 	/*
@@ -381,7 +340,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	@Override
 	public Color getBackground()
 	{
-		return super.getBackground();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_BACKGROUND);
 	}
 
 	/*
@@ -393,7 +352,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	@Override
 	public String getBorderType()
 	{
-		return super.getBorderType();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_BORDERTYPE);
 	}
 
 	/*
@@ -405,7 +364,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	@Override
 	public String getFontType()
 	{
-		return super.getFontType();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_FONTTYPE);
 	}
 
 	/*
@@ -417,7 +376,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	@Deprecated
 	public Color getForeground()
 	{
-		return super.getForeground();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_FOREGROUND);
 	}
 
 	/*
@@ -429,7 +388,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	@Override
 	public int getPrintSliding()
 	{
-		return super.getPrintSliding();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_PRINTSLIDING).intValue();
 	}
 
 	/*
@@ -441,7 +400,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	@Override
 	public String getStyleClass()
 	{
-		return super.getStyleClass();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_STYLECLASS);
 	}
 
 	/*
@@ -453,17 +412,18 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	@Deprecated
 	public boolean getTransparent()
 	{
-		return super.getTransparent();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TRANSPARENT).booleanValue();
 	}
 
 	@Override
 	public String toString()
 	{
+		String name = getName();
 		if (name == null || name.trim().length() == 0)
 		{
 			return getBeanClassName();
 		}
-		return name + " [" + getBeanClassName() + ']';
+		return name + " [" + getBeanClassName() + ']'; //$NON-NLS-1$
 	}
 
 }

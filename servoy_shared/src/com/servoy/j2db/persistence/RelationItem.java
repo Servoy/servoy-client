@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -29,29 +29,21 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 {
 
 	public static final int[] RELATION_OPERATORS = new int[] {
-	// standard set
+		// standard set
 	ISQLCondition.EQUALS_OPERATOR, ISQLCondition.GT_OPERATOR, ISQLCondition.LT_OPERATOR, ISQLCondition.GTE_OPERATOR, ISQLCondition.LTE_OPERATOR, ISQLCondition.NOT_OPERATOR, ISQLCondition.IN_OPERATOR, ISQLCondition.LIKE_OPERATOR, ISQLCondition.NOT_LIKE_OPERATOR,
-	// case insensitive
+		// case insensitive
 	ISQLCondition.EQUALS_OPERATOR | ISQLCondition.CASEINSENTITIVE_MODIFIER, ISQLCondition.NOT_OPERATOR | ISQLCondition.CASEINSENTITIVE_MODIFIER, ISQLCondition.LIKE_OPERATOR |
 		ISQLCondition.CASEINSENTITIVE_MODIFIER, ISQLCondition.NOT_LIKE_OPERATOR | ISQLCondition.CASEINSENTITIVE_MODIFIER,
-	// or null
+		// or null
 	ISQLCondition.EQUALS_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.GT_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.LT_OPERATOR |
 		ISQLCondition.ORNULL_MODIFIER, ISQLCondition.GTE_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.LTE_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.NOT_OPERATOR |
 		ISQLCondition.ORNULL_MODIFIER, ISQLCondition.IN_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.LIKE_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.NOT_LIKE_OPERATOR |
 		ISQLCondition.ORNULL_MODIFIER,
-	// case insensitive or null
+		// case insensitive or null
 	ISQLCondition.EQUALS_OPERATOR | ISQLCondition.CASEINSENTITIVE_MODIFIER | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.NOT_OPERATOR |
 		ISQLCondition.CASEINSENTITIVE_MODIFIER | ISQLCondition.ORNULL_MODIFIER,
 	// 
 	};
-
-	/*
-	 * Attributes, do not change default values do to repository default_textual_classvalue
-	 */
-	private String primaryDataProviderID = null;
-	private String foreignColumnName = null;
-	private int operator;
-	private boolean conditional;
 
 	/**
 	 * Constructor I
@@ -72,8 +64,7 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 	 */
 	public void setPrimaryDataProviderID(String arg)
 	{
-		checkForChange(primaryDataProviderID, arg);
-		primaryDataProviderID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_PRIMARYDATAPROVIDERID, arg);
 	}
 
 	/**
@@ -82,7 +73,7 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 	 */
 	public String getPrimaryDataProviderID()
 	{
-		return primaryDataProviderID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_PRIMARYDATAPROVIDERID);
 	}
 
 	/**
@@ -92,8 +83,7 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 	 */
 	public void setForeignColumnName(String arg)
 	{
-		checkForChange(foreignColumnName, arg);
-		foreignColumnName = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_FOREIGNCOLUMNNAME, arg);
 	}
 
 	/**
@@ -102,7 +92,7 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 	 */
 	public String getForeignColumnName()
 	{
-		return foreignColumnName;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_FOREIGNCOLUMNNAME);
 	}
 
 	public static String getOperatorAsString(int op)
@@ -270,32 +260,12 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 	}
 
 	/**
-	 * Returns the conditional.
-	 * 
-	 * @return boolean
-	 */
-	public boolean getConditional()
-	{
-		return conditional;
-	}
-
-	/**
 	 * The operator that defines the relationship between the primary dataprovider
 	 * and the foreign column.
 	 */
 	public int getOperator()
 	{
-		return operator;
-	}
-
-	/**
-	 * Sets the conditional.
-	 * 
-	 * @param conditional The conditional to set
-	 */
-	public void setConditional(boolean conditional)
-	{
-		this.conditional = conditional;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_OPERATOR).intValue();
 	}
 
 	/**
@@ -305,7 +275,7 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 	 */
 	public void setOperator(int operator)
 	{
-		this.operator = operator;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_OPERATOR, operator);
 	}
 
 	public boolean contentEquals(Object obj)

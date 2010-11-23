@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 
@@ -40,12 +40,6 @@ public class Shape extends BaseComponent
  * _____________________________________________________________ Declaration of attributes
  */
 
-	/*
-	 * Attributes, do not change default values do to repository default_textual_classvalue
-	 */
-	private int lineSize;
-	private int shapeType;
-
 	/**
 	 * Constructor I
 	 */
@@ -61,7 +55,7 @@ public class Shape extends BaseComponent
 	 */
 	public int getLineSize()
 	{
-		return lineSize;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_LINESIZE).intValue();
 	}
 
 	/**
@@ -71,7 +65,7 @@ public class Shape extends BaseComponent
 	 */
 	public int getShapeType()
 	{
-		return shapeType;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_SHAPETYPE).intValue();
 	}
 
 	/**
@@ -81,8 +75,7 @@ public class Shape extends BaseComponent
 	 */
 	public void setLineSize(int arg)
 	{
-		checkForChange(lineSize, arg);
-		lineSize = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_LINESIZE, arg);
 	}
 
 	/**
@@ -92,8 +85,7 @@ public class Shape extends BaseComponent
 	 */
 	public void setShapeType(int arg)
 	{
-		checkForChange(shapeType, arg);
-		shapeType = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_SHAPETYPE, arg);
 	}
 
 	/**
@@ -103,18 +95,8 @@ public class Shape extends BaseComponent
 	 */
 	public void setPoints(String points)
 	{
-		checkForChange(getPoints(), points);
-		if (points != null)
-		{
-			poly = new Polygon();
-			StringTokenizer tk = new StringTokenizer(points, ";"); //$NON-NLS-1$
-			while (tk.hasMoreTokens())
-			{
-				String point = tk.nextToken();
-				Point p = PersistHelper.createPoint(point);
-				if (p != null) poly.addPoint(p.x, p.y);
-			}
-		}
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_POINTS, points);
+		poly = null;
 	}
 
 	/**
@@ -124,22 +106,7 @@ public class Shape extends BaseComponent
 	 */
 	public String getPoints()
 	{
-		if (poly != null && poly.npoints != 0)
-		{
-			StringBuffer sb = new StringBuffer();
-			for (int i = 0; i < poly.npoints; i++)
-			{
-				sb.append(poly.xpoints[i]);
-				sb.append(","); //$NON-NLS-1$
-				sb.append(poly.ypoints[i]);
-				if (i < poly.npoints - 1)
-				{
-					sb.append(";"); //$NON-NLS-1$
-				}
-			}
-			return sb.toString();
-		}
-		return null;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_POINTS);
 	}
 
 	//for runtime
@@ -147,13 +114,22 @@ public class Shape extends BaseComponent
 
 	public Polygon getPolygon()
 	{
-		return poly;
-	}
+		if (poly == null)
+		{
+			String points = getPoints();
+			if (points != null)
+			{
+				poly = new Polygon();
+				StringTokenizer tk = new StringTokenizer(points, ";"); //$NON-NLS-1$
+				while (tk.hasMoreTokens())
+				{
+					String point = tk.nextToken();
+					Point p = PersistHelper.createPoint(point);
+					if (p != null) poly.addPoint(p.x, p.y);
+				}
+			}
+		}
 
-	public void setPoly(Polygon p)
-	{
-		String oldPoints = getPoints();
-		poly = p;
-		checkForChange(oldPoints, getPoints());//polygon does not have proper equals impl
+		return poly;
 	}
 }

@@ -126,7 +126,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 				persist = solution.getChangeHandler().createNewObject((ISupportChilds)parent, typeID, id, uuid);
 				((ISupportChilds)parent).addChild(persist);
 			}
-			repositoryHelper.updatePersistWithValueMap(persist, values);
+			updatePersistWithValueMap(persist, values);
 
 			return persist;
 		}
@@ -276,7 +276,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 		}
 
 		Map<String, Object> values = ((AbstractRepository)persist.getRootObject().getRepository()).getPersistAsValueMap(persist);
-		repositoryHelper.updatePersistWithValueMap(destPersist, values);
+		updatePersistWithValueMap(destPersist, values);
 		if (destPersist.isChanged())
 		{
 			destPersist.getRootObject().getChangeHandler().fireIPersistChanged(destPersist);
@@ -473,12 +473,12 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 
 	public Map<String, Object> getPersistAsValueMap(IPersist persist) throws RepositoryException
 	{
-		return repositoryHelper.getPersistAsValueMap(persist);
+		return ((AbstractBase)persist).getPropertiesMap();
 	}
 
 	public void updatePersistWithValueMap(IPersist persist, Map<String, Object> propertyValues) throws RepositoryException
 	{
-		repositoryHelper.updatePersistWithValueMap(persist, propertyValues);
+		((AbstractBase)persist).copyPropertiesMap(propertyValues);
 	}
 
 	/**

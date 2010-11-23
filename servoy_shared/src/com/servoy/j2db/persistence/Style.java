@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 
@@ -35,12 +35,24 @@ public class Style extends StringResource implements Serializable
 
 	public String getCSSText()
 	{
-		return getContent();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_CSSTEXT);
 	}
 
 	public void setCSSText(String txt)
 	{
-		setContent(txt);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_CSSTEXT, txt);
+	}
+
+	@Override
+	public String getContent()
+	{
+		return getCSSText();
+	}
+
+	@Override
+	public void setContent(String txt)
+	{
+		setCSSText(txt);
 	}
 
 }

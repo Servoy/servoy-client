@@ -44,37 +44,12 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	public static final int HTML_AREA = 8;
 	public static final int IMAGE_MEDIA = 9;
 	public static final int TYPE_AHEAD = 10;
+
 //	list (to have a jlist alike)
 //	color_picker
 //	html_browser
 //	tree_view (if placed in table_view it becomes treetable)
 //	jsplitpane servoy imp where you can really drop left/right forms on.
-
-	/*
-	 * Attributes, do not change default values do to repository default_textual_classvalue
-	 */
-	private String text = null;
-	private String toolTipText = null;
-	private boolean editable = true;//remark not default
-	private String format = null;
-
-	private int onFocusGainedMethodID;
-	private int onFocusLostMethodID;
-	private int onDataChangeMethodID;
-	private int onActionMethodID;
-	private int onRightClickMethodID;
-	private int onRenderMethodID;
-
-	private int displayType;
-	private int scrollbars;
-	private boolean selectOnEnter;
-	private int tabSeq = ISupportTabSeq.DEFAULT;
-	private int horizontalAlignment = -1;
-	private int verticalAlignment = -1;//not implemented not possible ,also hiddden in properties
-	private int valuelist_id;
-	private String dataProviderID = null;
-	private Insets margin = null;
-	private boolean displaysTags;
 
 	/**
 	 * Constructor I
@@ -96,8 +71,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 */
 	public void setToolTipText(String arg)
 	{
-		checkForChange(toolTipText, arg);
-		toolTipText = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_TOOLTIPTEXT, arg);
 	}
 
 	/**
@@ -105,7 +79,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 */
 	public String getToolTipText()
 	{
-		return toolTipText;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TOOLTIPTEXT);
 	}
 
 	/**
@@ -115,8 +89,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 */
 	public void setEditable(boolean arg)
 	{
-		checkForChange(editable, arg);
-		editable = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_EDITABLE, arg);
 	}
 
 	/**
@@ -125,20 +98,21 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 */
 	public boolean getEditable()
 	{
-		return editable;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_EDITABLE).booleanValue();
 	}
 
 	/**
 	 * Set the formatter
 	 * 
-	 * @param arg the formatter
+	 * @param format the formatter
 	 */
 	public void setFormat(String arg)
 	{
-		if (arg != null) arg = arg.trim();
-		if (arg != null && arg.length() == 0) arg = null;
-		checkForChange(format, arg);
-		format = arg;
+		String format = arg;
+		if (format != null) format = format.trim();
+		if (format != null && format.length() == 0) format = null;
+
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_FORMAT, format);
 	}
 
 	/**
@@ -147,7 +121,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 */
 	public String getFormat()
 	{
-		return format;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_FORMAT);
 	}
 
 	/**
@@ -157,8 +131,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 */
 	public void setOnDataChangeMethodID(int arg)
 	{
-		checkForChange(onDataChangeMethodID, arg);
-		onDataChangeMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID, arg);
 	}
 
 	/**
@@ -176,14 +149,12 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 */
 	public int getOnDataChangeMethodID()
 	{
-		return onDataChangeMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID).intValue();
 	}
-
 
 	public void setOnRightClickMethodID(int arg)
 	{
-		checkForChange(onRightClickMethodID, arg);
-		onRightClickMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID, arg);
 	}
 
 	/**
@@ -196,13 +167,12 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 */
 	public int getOnRightClickMethodID()
 	{
-		return onRightClickMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID).intValue();
 	}
 
 	public void setOnRenderMethodID(int arg)
 	{
-		checkForChange(onRenderMethodID, arg);
-		onRenderMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID, arg);
 	}
 
 	/**
@@ -210,7 +180,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 */
 	public int getOnRenderMethodID()
 	{
-		return onRenderMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID).intValue();
 	}
 
 	/**
@@ -220,8 +190,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 */
 	public void setOnFocusGainedMethodID(int arg)
 	{
-		checkForChange(onFocusGainedMethodID, arg);
-		onFocusGainedMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID, arg);
 	}
 
 	/**
@@ -238,13 +207,12 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 */
 	public int getOnFocusGainedMethodID()
 	{
-		return onFocusGainedMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID).intValue();
 	}
 
 	public void setOnFocusLostMethodID(int arg)
 	{
-		checkForChange(onFocusLostMethodID, arg);
-		onFocusLostMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID, arg);
 	}
 
 	/**
@@ -260,7 +228,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 */
 	public int getOnFocusLostMethodID()
 	{
-		return onFocusLostMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID).intValue();
 	}
 
 	/**
@@ -270,13 +238,12 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 */
 	public void setScrollbars(int arg)
 	{
-		checkForChange(scrollbars, arg);
-		scrollbars = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_SCROLLBARS, arg);
 	}
 
 	public int getScrollbars()
 	{
-		return scrollbars;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_SCROLLBARS).intValue();
 	}
 
 	/**
@@ -286,8 +253,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 */
 	public void setSelectOnEnter(boolean arg)
 	{
-		checkForChange(selectOnEnter, arg);
-		selectOnEnter = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_SELECTONENTER, arg);
 	}
 
 	/**
@@ -296,7 +262,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 */
 	public boolean getSelectOnEnter()
 	{
-		return selectOnEnter;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_SELECTONENTER).booleanValue();
 	}
 
 	/**
@@ -306,14 +272,12 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 */
 	public void setTabSeq(int arg)
 	{
-		if (arg < 1 && arg != ISupportTabSeq.DEFAULT && arg != ISupportTabSeq.SKIP) return;//irrelevant value from editor
-		checkForChange(tabSeq, arg);
-		tabSeq = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_TABSEQ, arg);
 	}
 
 	public int getTabSeq()
 	{
-		return tabSeq;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TABSEQ).intValue();
 	}
 
 	/**
@@ -323,8 +287,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 */
 	public void setHorizontalAlignment(int arg)
 	{
-		checkForChange(horizontalAlignment, arg);
-		horizontalAlignment = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_HORIZONTALALIGNMENT, arg);
 	}
 
 	/**
@@ -332,7 +295,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 */
 	public int getHorizontalAlignment()
 	{
-		return horizontalAlignment;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_HORIZONTALALIGNMENT).intValue();
 	}
 
 	/**
@@ -342,8 +305,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 */
 	public void setVerticalAlignment(int arg)
 	{
-		checkForChange(verticalAlignment, arg);
-		verticalAlignment = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_VERTICALALIGNMENT, arg);
 	}
 
 	/**
@@ -353,7 +315,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 */
 	public int getVerticalAlignment()
 	{
-		return verticalAlignment;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_VERTICALALIGNMENT).intValue();
 	}
 
 	/**
@@ -363,13 +325,12 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 */
 	public void setValuelistID(int arg)
 	{
-		checkForChange(valuelist_id, arg);
-		valuelist_id = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_VALUELISTID, arg);
 	}
 
 	public int getValuelistID()
 	{
-		return valuelist_id;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_VALUELISTID).intValue();
 	}
 
 	/**
@@ -379,13 +340,12 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 */
 	public void setDataProviderID(String arg)
 	{
-		checkForChange(dataProviderID, arg);
-		dataProviderID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID, arg);
 	}
 
 	public String getDataProviderID()
 	{
-		return dataProviderID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID);
 	}
 
 	/**
@@ -401,8 +361,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 */
 	public void setOnActionMethodID(int arg)
 	{
-		checkForChange(onActionMethodID, arg);
-		onActionMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID, arg);
 	}
 
 	/**
@@ -415,7 +374,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 */
 	public int getOnActionMethodID()
 	{
-		return onActionMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID).intValue();
 	}
 
 	@Override
@@ -448,22 +407,17 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 */
 	public int getDisplayType()
 	{
-		return displayType;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DISPLAYTYPE).intValue();
 	}
 
 	public void setDisplayType(int arg)
 	{
-		checkForChange(displayType, arg);
-		displayType = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_DISPLAYTYPE, arg);
 	}
 
 	public Insets getMargin()
 	{
-		if (margin != null)
-		{
-			return new Insets(margin.top, margin.left, margin.bottom, margin.right);
-		}
-		return margin;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_MARGIN);
 	}
 
 	/**
@@ -473,8 +427,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 */
 	public void setMargin(Insets arg)
 	{
-		checkForChange(margin, arg);
-		margin = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_MARGIN, arg);
 	}
 
 	/*
@@ -482,11 +435,12 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 */
 	public boolean getUseRTF()
 	{
-		return false;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_USERTF).booleanValue();
 	}
 
 	public void setUseRTF(boolean arg)
 	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_USERTF, arg);
 	}
 
 	/**
@@ -494,7 +448,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 */
 	public boolean getDisplaysTags()
 	{
-		return displaysTags;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DISPLAYSTAGS).booleanValue();
 	}
 
 	/**
@@ -504,8 +458,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 */
 	public void setDisplaysTags(boolean arg)
 	{
-		checkForChange(displaysTags, arg);
-		displaysTags = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_DISPLAYSTAGS, arg);
 	}
 
 	/**
@@ -514,7 +467,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 */
 	public String getText()
 	{
-		return text;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TEXT);
 	}
 
 	/**
@@ -524,7 +477,6 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 */
 	public void setText(String arg)
 	{
-		checkForChange(text, arg);
-		text = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_TEXT, arg);
 	}
 }

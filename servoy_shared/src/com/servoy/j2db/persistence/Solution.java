@@ -58,23 +58,6 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 	public final static int TEXT_ORIENTATION_LOCALE_SPECIFIC = 3;
 
 	/*
-	 * Attributes, do not change default values do to repository default_textual_classvalue
-	 */
-	private String titleText;
-	private int firstFormID;
-	private int loginFormID;
-
-	private int onInitMethodID;
-	private int onOpenMethodID;
-	private int onCloseMethodID;
-	private int onErrorMethodID;
-	private int onDataBroadcastMethodID;
-
-	private int textOrientation;
-	private String i18nDataSource;
-	private String modulesNames;//solutions names, ',' separated
-
-	/*
 	 * IPersist Attributes
 	 */
 	Solution(IRepository repository, SolutionMetaData metaData)
@@ -923,7 +906,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 	 */
 	public int getFirstFormID()
 	{
-		return firstFormID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_FIRSTFORMID).intValue();
 	}
 
 	/**
@@ -939,7 +922,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 	 */
 	public int getOnCloseMethodID()
 	{
-		return onCloseMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONCLOSEMETHODID).intValue();
 	}
 
 	/**
@@ -951,7 +934,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 	 */
 	public int getOnOpenMethodID()
 	{
-		return onOpenMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONOPENMETHODID).intValue();
 	}
 
 	/**
@@ -959,7 +942,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 	 */
 	public String getTitleText()
 	{
-		return titleText;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TITLETEXT);
 	}
 
 	/**
@@ -967,8 +950,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 	 */
 	public void setLoginFormID(int i)
 	{
-		checkForChange(loginFormID, i);
-		loginFormID = i;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_LOGINFORMID, i);
 	}
 
 	/**
@@ -976,7 +958,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 	 */
 	public int getLoginFormID()
 	{
-		return loginFormID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_LOGINFORMID).intValue();
 	}
 
 	/**
@@ -984,8 +966,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 	 */
 	public void setOnErrorMethodID(int i)
 	{
-		checkForChange(onErrorMethodID, i);
-		onErrorMethodID = i;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONERRORMETHODID, i);
 	}
 
 	/**
@@ -1028,7 +1009,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 	 */
 	public int getOnErrorMethodID()
 	{
-		return onErrorMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONERRORMETHODID).intValue();
 	}
 
 	/**
@@ -1036,8 +1017,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 	 */
 	public void setFirstFormID(int i)
 	{
-		checkForChange(firstFormID, i);
-		firstFormID = i;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_FIRSTFORMID, i);
 	}
 
 	/**
@@ -1045,8 +1025,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 	 */
 	public void setOnCloseMethodID(int i)
 	{
-		checkForChange(onCloseMethodID, i);
-		onCloseMethodID = i;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONCLOSEMETHODID, i);
 	}
 
 	/**
@@ -1054,21 +1033,20 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 	 */
 	public void setOnOpenMethodID(int i)
 	{
-		checkForChange(onOpenMethodID, i);
-		onOpenMethodID = i;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONOPENMETHODID, i);
 	}
 
 	/**
-	 * @param string
+	 * @param text
 	 */
 	public void setTitleText(String string)
 	{
-		if (string != null && (string.equals("<default>") || string.equals(""))) //$NON-NLS-1$//$NON-NLS-2$
+		String text = string;
+		if (text != null && (text.equals("<default>") || text.equals(""))) //$NON-NLS-1$//$NON-NLS-2$
 		{
-			string = null;
+			text = null;
 		}
-		checkForChange(titleText, string);
-		titleText = string;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_TITLETEXT, text);
 	}
 
 	/**
@@ -1076,19 +1054,17 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 	 */
 	public String getI18nDataSource()
 	{
-		return i18nDataSource;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_I18NDATASOURCE);
 	}
 
 	public void setI18nDataSource(String dataSource)
 	{
-		dataSource = "".equals(dataSource) ? null : dataSource; //$NON-NLS-1$
-		checkForChange(i18nDataSource, dataSource);
-		i18nDataSource = dataSource == null ? null : (dataSource.intern());
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_I18NDATASOURCE, dataSource);
 	}
 
 	public String getI18nServerName()
 	{
-		String[] stn = DataSourceUtils.getDBServernameTablename(i18nDataSource);
+		String[] stn = DataSourceUtils.getDBServernameTablename(getI18nDataSource());
 		return stn == null ? null : stn[0];
 	}
 
@@ -1099,7 +1075,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 
 	public String getI18nTableName()
 	{
-		String[] stn = DataSourceUtils.getDBServernameTablename(i18nDataSource);
+		String[] stn = DataSourceUtils.getDBServernameTablename(getI18nDataSource());
 		return stn == null ? null : stn[1];
 	}
 
@@ -1127,13 +1103,12 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 	 */
 	public String getModulesNames()
 	{
-		return modulesNames;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_MODULESNAMES);
 	}
 
 	public void setModulesNames(String arg)
 	{
-		checkForChange(modulesNames, arg);
-		modulesNames = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_MODULESNAMES, arg);
 	}
 
 	/**
@@ -1147,13 +1122,12 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 	 */
 	public int getTextOrientation()
 	{
-		return textOrientation;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TEXTORIENTATION).intValue();
 	}
 
 	public void setTextOrientation(int o)
 	{
-		checkForChange(textOrientation, o);
-		textOrientation = o;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_TEXTORIENTATION, o);
 	}
 
 	/**
@@ -1169,23 +1143,21 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 	 */
 	public int getOnDataBroadcastMethodID()
 	{
-		return onDataBroadcastMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDATABROADCASTMETHODID).intValue();
 	}
 
 	public void setOnDataBroadcastMethodID(int arg)
 	{
-		checkForChange(onDataBroadcastMethodID, arg);
-		onDataBroadcastMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDATABROADCASTMETHODID, arg);
 	}
 
 	public int getOnInitMethodID()
 	{
-		return onInitMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONINITMETHODID).intValue();
 	}
 
 	public void setOnInitMethodID(int arg)
 	{
-		checkForChange(onDataBroadcastMethodID, arg);
-		onInitMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONINITMETHODID, arg);
 	}
 }

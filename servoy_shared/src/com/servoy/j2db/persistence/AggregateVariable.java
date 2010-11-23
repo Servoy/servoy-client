@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 
@@ -29,13 +29,6 @@ import com.servoy.j2db.util.UUID;
  */
 public class AggregateVariable extends AbstractBase implements IColumn, ISupportUpdateableName, ISupportHTMLToolTipText, ISupportContentEquals
 {
-
-	/*
-	 * Attributes
-	 */
-	private String name = null;
-	private int aggregateType;
-	private String dataProviderIDToAggregate;
 
 	public static final String[] AGGREGATE_TYPE_STRINGS = new String[] { "count", //$NON-NLS-1$
 	"maximum", //$NON-NLS-1$
@@ -80,8 +73,7 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 	 */
 	public void setName(String arg)
 	{
-		if (name != null) throw new UnsupportedOperationException("Can't set name 2x, use updateName"); //$NON-NLS-1$
-		name = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 	}
 
 	/**
@@ -98,8 +90,7 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 			throw new RepositoryException(ServoyException.InternalCodes.TABLE_NOT_FOUND, new Object[] { node.getTableName() });
 		}
 		validator.checkName(arg, getID(), new ValidatorSearchContext(table, IRepository.AGGREGATEVARIABLES), true);
-		checkForNameChange(name, arg);
-		name = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg, false);
 		getRootObject().getChangeHandler().fireIPersistChanged(this);
 	}
 
@@ -110,7 +101,7 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 	 */
 	public String getName()
 	{
-		return name;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_NAME);
 	}
 
 	/**
@@ -120,8 +111,7 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 	 */
 	public void setType(int arg)
 	{
-		checkForChange(aggregateType, arg);
-		aggregateType = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_TYPE, arg);
 	}
 
 	/**
@@ -131,7 +121,7 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 	 */
 	public int getType()
 	{
-		return aggregateType;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TYPE).intValue();
 	}
 
 	/**
@@ -141,8 +131,7 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 	 */
 	public void setDataProviderIDToAggregate(String arg)
 	{
-		checkForChange(dataProviderIDToAggregate, arg);
-		dataProviderIDToAggregate = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_DATAPROVIDERIDTOAGGREGATE, arg);
 	}
 
 	/**
@@ -152,14 +141,14 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 	 */
 	public String getDataProviderIDToAggregate()
 	{
-		return dataProviderIDToAggregate;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DATAPROVIDERIDTOAGGREGATE);
 	}
 
 	public String getColumnNameToAggregate()
 	{
 		try
 		{
-			Column c = getTable().getColumn(dataProviderIDToAggregate);
+			Column c = getTable().getColumn(getDataProviderIDToAggregate());
 			if (c != null)
 			{
 				return c.getSQLName();
@@ -169,7 +158,7 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 		{
 			Debug.error(e);
 		}
-		return dataProviderIDToAggregate;
+		return getDataProviderIDToAggregate();
 	}
 
 	public static String getTypeAsString(int type)
@@ -191,7 +180,7 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 	/*
 	 * _____________________________________________________________ Methods from IDataProvider
 	 */
-	public String getDataProviderID()//get the id
+	public String getDataProviderID()
 	{
 		return getName();
 	}
@@ -200,7 +189,7 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 	{
 		try
 		{
-			switch (aggregateType)
+			switch (getType())
 			{
 				case QueryAggregate.COUNT :
 					return IColumnTypes.INTEGER;
@@ -211,7 +200,7 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 //						IDataProvider dp = lookup.getDataProvider(dataProviderIDToAggregate);
 //						if (dp != null) return dp.getDataProviderType(lookup);
 //					}
-					Column c = getTable().getColumn(dataProviderIDToAggregate);
+					Column c = getTable().getColumn(getDataProviderIDToAggregate());
 					if (c != null)
 					{
 						return Column.mapToDefaultType(c.getType());

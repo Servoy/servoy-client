@@ -28,12 +28,6 @@ import com.servoy.j2db.util.UUID;
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Method")
 public class ScriptMethod extends AbstractScriptProvider implements IPersistCloneable, ICloneable
 {
-	/*
-	 * Attributes, do not change default values do to repository default_textual_classvalue
-	 */
-	private boolean showInMenu;
-	private int access;
-
 	/**
 	 * Constructor I
 	 */
@@ -44,8 +38,7 @@ public class ScriptMethod extends AbstractScriptProvider implements IPersistClon
 
 	public void setShowInMenu(boolean arg)
 	{
-		checkForChange(showInMenu, arg);
-		showInMenu = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_SHOWINMENU, arg);
 	}
 
 	/**
@@ -53,23 +46,22 @@ public class ScriptMethod extends AbstractScriptProvider implements IPersistClon
 	 */
 	public boolean getShowInMenu()
 	{
-		return showInMenu;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_SHOWINMENU).booleanValue();
 	}
 
 	public void setAccess(int arg)
 	{
-		checkForChange(access, arg);
-		access = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ACCESS, arg);
 	}
 
 	public int getAccess()
 	{
-		return access;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ACCESS).intValue();
 	}
 
 	@Override
 	public String toString()
 	{
-		return "ScriptMethod[name:" + getName() + ", inmenu:" + showInMenu + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return "ScriptMethod[name:" + getName() + ", inmenu:" + getShowInMenu() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 }

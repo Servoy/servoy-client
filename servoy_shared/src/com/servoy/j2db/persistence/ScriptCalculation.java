@@ -29,12 +29,6 @@ import com.servoy.j2db.util.UUID;
 public class ScriptCalculation extends AbstractScriptProvider implements IDataProvider, IColumn, ISupportHTMLToolTipText, ICloneable
 
 {
-
-	/*
-	 * Attributes, do not change default values do to repository default_textual_classvalue
-	 */
-	private int dataType;
-
 	/**
 	 * Constructor I
 	 */
@@ -112,7 +106,7 @@ public class ScriptCalculation extends AbstractScriptProvider implements IDataPr
 		{
 			Debug.error(e);
 		}
-		return dataType; //not stored, use type
+		return getType(); //not stored, use type
 	}
 
 	public String getTypeAsString()
@@ -136,13 +130,12 @@ public class ScriptCalculation extends AbstractScriptProvider implements IDataPr
 	 */
 	public int getType()
 	{
-		return dataType;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TYPE).intValue();
 	}
 
 	public void setType(int arg)
 	{
-		checkForChange(dataType, arg);
-		dataType = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_TYPE, arg);
 	}
 
 	/**
@@ -152,7 +145,6 @@ public class ScriptCalculation extends AbstractScriptProvider implements IDataPr
 	 */
 	public void setTypeAndCheck(int arg)
 	{
-		checkForChange(dataType, arg);
 		try
 		//if stored calc type is enforced to be the same 
 		{
@@ -162,7 +154,7 @@ public class ScriptCalculation extends AbstractScriptProvider implements IDataPr
 				Column c = table.getColumn(getName());
 				if (c != null)
 				{
-					dataType = c.getDataProviderType();
+					setType(c.getDataProviderType());
 					return;
 				}
 			}
@@ -171,6 +163,6 @@ public class ScriptCalculation extends AbstractScriptProvider implements IDataPr
 		{
 			Debug.error(e);
 		}
-		dataType = arg;
+		setType(arg);
 	}
 }

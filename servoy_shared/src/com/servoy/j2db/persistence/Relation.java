@@ -42,20 +42,6 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	IRelation
 {
 	/*
-	 * Attributes, do not change default values do to repository default_textual_classvalue
-	 */
-	private String name = null;
-	private String primaryDataSource = null;
-	private String foreignDataSource = null;
-	private boolean allowCreationRelatedRecords;
-	private boolean deleteRelatedRecords;
-	private String initialSort;
-	private boolean duplicateRelatedRecords;
-	private boolean allowParentDeleteWhenHavingRelatedRecords;
-	private boolean existsInDB;
-	private int joinType = ISQLJoin.INNER_JOIN; // 0 default in repository
-
-	/*
 	 * All 1-n providers for this class
 	 */
 	private transient IDataProvider[] primary;
@@ -160,7 +146,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	public RelationItem createNewRelationItem(IFoundSetManagerInternal foundSetManager, IDataProvider primaryDataProvider, int ops, Column foreignColumn)
 		throws RepositoryException
 	{
-		if (!foreignColumn.getTable().equals(foundSetManager.getTable(foreignDataSource)))
+		if (!foreignColumn.getTable().equals(foundSetManager.getTable(getForeignDataSource())))
 		{
 			throw new RepositoryException("one of the arguments has another tablename than the ones defined on creation of the relations"); //$NON-NLS-1$
 		}
@@ -225,15 +211,14 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	@Override
 	public String toString()
 	{
-		return name;
+		return getName();
 	}
 
 	public void updateName(IValidateName validator, String arg) throws RepositoryException
 	{
 		if (arg != null) arg = Utils.toEnglishLocaleLowerCase(arg);
 		validator.checkName(arg, getID(), new ValidatorSearchContext(IRepository.RELATIONS), true);
-		checkForNameChange(name, arg);
-		name = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg, false);
 		getRootObject().getChangeHandler().fireIPersistChanged(this);
 	}
 
@@ -245,8 +230,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	public void setName(String arg)
 	{
 		if (arg != null) arg = arg.toLowerCase();
-		if (name != null) throw new UnsupportedOperationException("Can't set name 2x, use updateName"); //$NON-NLS-1$
-		name = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 	}
 
 	/**
@@ -254,7 +238,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	 */
 	public String getName()
 	{
-		return name;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_NAME);
 	}
 
 	/**
@@ -262,15 +246,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	 */
 	public void setPrimaryDataSource(String arg)
 	{
-		checkForChange(primaryDataSource, arg);
-		if (arg != null)
-		{
-			primaryDataSource = arg.intern();
-		}
-		else
-		{
-			primaryDataSource = null;
-		}
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_PRIMARYDATASOURCE, arg);
 	}
 
 	/**
@@ -279,7 +255,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	 */
 	public String getPrimaryDataSource()
 	{
-		return primaryDataSource;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_PRIMARYDATASOURCE);
 	}
 
 	/**
@@ -287,15 +263,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	 */
 	public void setForeignDataSource(String arg)
 	{
-		checkForChange(foreignDataSource, arg);
-		if (arg != null)
-		{
-			foreignDataSource = arg.intern();
-		}
-		else
-		{
-			foreignDataSource = null;
-		}
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_FOREIGNDATASOURCE, arg);
 	}
 
 	/**
@@ -304,7 +272,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	 */
 	public String getForeignDataSource()
 	{
-		return foreignDataSource;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_FOREIGNDATASOURCE);
 	}
 
 	/**
@@ -319,6 +287,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	public String getPrimaryServerName()
 	{
+		String primaryDataSource = getPrimaryDataSource();
 		if (primaryDataSource == null)
 		{
 			return null;
@@ -354,6 +323,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	public String getForeignServerName()
 	{
+		String foreignDataSource = getForeignDataSource();
 		if (foreignDataSource == null)
 		{
 			return null;
@@ -389,6 +359,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	public String getPrimaryTableName()
 	{
+		String primaryDataSource = getPrimaryDataSource();
 		if (primaryDataSource == null)
 		{
 			return null;
@@ -414,11 +385,12 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	public Table getPrimaryTable() throws RepositoryException
 	{
-		return getTable(primaryDataSource);
+		return getTable(getPrimaryDataSource());
 	}
 
 	public IServer getPrimaryServer() throws RepositoryException, RemoteException
 	{
+		String primaryDataSource = getPrimaryDataSource();
 		if (primaryDataSource == null)
 		{
 			return null;
@@ -449,6 +421,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	public String getForeignTableName()
 	{
+		String foreignDataSource = getForeignDataSource();
 		if (foreignDataSource == null)
 		{
 			return null;
@@ -480,7 +453,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	 */
 	public String getInitialSort()
 	{
-		return initialSort;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_INITIALSORT);
 	}
 
 	/**
@@ -490,8 +463,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	 */
 	public void setInitialSort(String arg)
 	{
-		checkForChange(initialSort, arg);
-		initialSort = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_INITIALSORT, arg);
 	}
 
 
@@ -502,7 +474,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	 */
 	public boolean getDuplicateRelatedRecords()
 	{
-		return duplicateRelatedRecords;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DUPLICATERELATEDRECORDS).booleanValue();
 	}
 
 	/**
@@ -512,8 +484,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	 */
 	public void setDuplicateRelatedRecords(boolean arg)
 	{
-		checkForChange(duplicateRelatedRecords, arg);
-		duplicateRelatedRecords = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_DUPLICATERELATEDRECORDS, arg);
 	}
 
 	/**
@@ -523,8 +494,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	 */
 	public void setDeleteRelatedRecords(boolean arg)
 	{
-		checkForChange(deleteRelatedRecords, arg);
-		deleteRelatedRecords = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_DELETERELATEDRECORDS, arg);
 	}
 
 	/**
@@ -534,7 +504,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	 */
 	public boolean getDeleteRelatedRecords()
 	{
-		return deleteRelatedRecords;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DELETERELATEDRECORDS).booleanValue();
 	}
 
 	/**
@@ -544,8 +514,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	 */
 	public void setExistsInDB(boolean arg)
 	{
-		checkForChange(existsInDB, arg);
-		existsInDB = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXISTSINDB, arg);
 	}
 
 	/**
@@ -555,13 +524,12 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	 */
 	public boolean getExistsInDB()
 	{
-		return existsInDB;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_EXISTSINDB).booleanValue();
 	}
 
 	public void setAllowCreationRelatedRecords(boolean arg)
 	{
-		checkForChange(allowCreationRelatedRecords, arg);
-		allowCreationRelatedRecords = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ALLOWCREATIONRELATEDRECORDS, arg);
 	}
 
 	/**
@@ -571,13 +539,12 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	 */
 	public boolean getAllowCreationRelatedRecords()
 	{
-		return allowCreationRelatedRecords;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ALLOWCREATIONRELATEDRECORDS).booleanValue();
 	}
 
 	public void setAllowParentDeleteWhenHavingRelatedRecords(boolean arg)
 	{
-		checkForChange(allowParentDeleteWhenHavingRelatedRecords, arg);
-		allowParentDeleteWhenHavingRelatedRecords = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ALLOWPARENTDELETEWHENHAVINGRELATEDRECORDS, arg);
 	}
 
 	/**
@@ -587,10 +554,10 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	 */
 	public boolean getAllowParentDeleteWhenHavingRelatedRecords()
 	{
-		return allowParentDeleteWhenHavingRelatedRecords;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ALLOWPARENTDELETEWHENHAVINGRELATEDRECORDS).booleanValue();
 	}
 
-	public int getSize()
+	public int getItemCount()
 	{
 		return getAllObjectsAsList().size();
 	}
@@ -651,11 +618,12 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	public Table getForeignTable() throws RepositoryException
 	{
-		return getTable(foreignDataSource);
+		return getTable(getForeignDataSource());
 	}
 
 	public IServer getForeignServer() throws RepositoryException, RemoteException
 	{
+		String foreignDataSource = getForeignDataSource();
 		if (foreignDataSource == null)
 		{
 			return null;
@@ -680,7 +648,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		{
 			return false;
 		}
-		if (joinType != ISQLJoin.INNER_JOIN)
+		if (getJoinType() != ISQLJoin.INNER_JOIN)
 		{ // outer joins icw or-null modifiers do not work (oracle) or looses outer join (ansi)
 			for (int operator : getOperators())
 			{
@@ -785,7 +753,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 			RelationItem ri = (RelationItem)allobjects.get(pos);
 			if (ft == null)
 			{
-				ft = getTable(foreignDataSource);
+				ft = getTable(getForeignDataSource());
 			}
 
 			if (ft != null)
@@ -818,7 +786,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	public boolean isValid()
 	{
-		if (valid && foreignDataSource != null)
+		if (valid && getForeignDataSource() != null)
 		{
 			try
 			{
@@ -881,7 +849,8 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	public boolean isParentRef()
 	{
-		return primaryDataSource != null && primaryDataSource.equals(foreignDataSource) && getAllObjectsAsList().size() == 0;
+		String primaryDataSource = getPrimaryDataSource();
+		return primaryDataSource != null && primaryDataSource.equals(getForeignDataSource()) && getAllObjectsAsList().size() == 0;
 	}
 
 	/**
@@ -892,7 +861,8 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	 */
 	public boolean isExactPKRef(IDataProviderHandler dataProviderHandler) throws RepositoryException
 	{
-		return primaryDataSource != null && primaryDataSource.equals(foreignDataSource) // same data source
+		String primaryDataSource = getPrimaryDataSource();
+		return primaryDataSource != null && primaryDataSource.equals(getForeignDataSource()) // same data source
 			&& isFKPKRef() // FK to itself
 			&& Arrays.equals(getPrimaryDataProviders(dataProviderHandler), getForeignColumns());
 	}
@@ -1036,12 +1006,11 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	 */
 	public int getJoinType()
 	{
-		return this.joinType;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_JOINTYPE).intValue();
 	}
 
 	public void setJoinType(int JoinType)
 	{
-		checkForChange(this.joinType, JoinType);
-		this.joinType = JoinType;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_JOINTYPE, JoinType);
 	}
 }

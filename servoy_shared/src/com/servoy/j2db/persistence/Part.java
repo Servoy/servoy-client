@@ -46,22 +46,6 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 		return partType == Part.TITLE_FOOTER || partType == Part.LEADING_SUBSUMMARY || partType == Part.TRAILING_SUBSUMMARY;
 	}
 
-	/*
-	 * Attributes, do not change default values do to repository default_textual_classvalue
-	 */
-	private int partType;
-	private int height;
-	private java.awt.Color background = null;
-	private int sequence;
-
-	private boolean allowBreakAcrossPageBounds;
-	private boolean discardRemainderAfterBreak;
-	private String groupbyDataProviderIDs;
-	private boolean pageBreakBefore;
-	private int pageBreakAfterOccurrence;
-	private boolean restartPageNumber;
-	private boolean sinkWhenLast;
-
 	/**
 	 * Constructor I
 	 */
@@ -81,8 +65,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 */
 	public void setHeight(int arg)
 	{
-		checkForChange(height, arg);
-		height = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_HEIGHT, arg);
 	}
 
 	/**
@@ -92,7 +75,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 */
 	public int getHeight()
 	{
-		return height;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_HEIGHT).intValue();
 	}
 
 	/**
@@ -102,8 +85,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 */
 	public void setPartType(int arg)
 	{
-		checkForChange(partType, arg);
-		partType = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_PARTTYPE, arg);
 	}
 
 	/**
@@ -111,7 +93,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 */
 	public int getPartType()
 	{
-		return partType;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_PARTTYPE).intValue();
 	}
 
 	/**
@@ -121,8 +103,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 */
 	public void setBackground(java.awt.Color arg)
 	{
-		checkForChange(background, arg);
-		background = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_BACKGROUND, arg);
 	}
 
 	/**
@@ -134,7 +115,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 */
 	public java.awt.Color getBackground()
 	{
-		return background;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_BACKGROUND);
 	}
 
 	/**
@@ -144,8 +125,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 */
 	public void setSequence(int arg)
 	{
-		checkForChange(sequence, arg);
-		sequence = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_SEQUENCE, arg);
 	}
 
 	/**
@@ -155,7 +135,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 */
 	public int getSequence()
 	{
-		return sequence;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_SEQUENCE).intValue();
 	}
 
 
@@ -167,12 +147,8 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 */
 	public void setSize(java.awt.Dimension arg)
 	{
-		checkForChange(getSize(), arg);
-		height = arg.height;
-		width = arg.width;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE, arg);
 	}
-
-	private int width;
 
 	/**
 	 * Get the size
@@ -181,7 +157,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 */
 	public java.awt.Dimension getSize()
 	{
-		return new java.awt.Dimension(width, height);
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE);
 	}
 
 	/**
@@ -193,7 +169,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 */
 	public boolean getAllowBreakAcrossPageBounds()
 	{
-		return allowBreakAcrossPageBounds;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ALLOWBREAKACROSSPAGEBOUNDS).booleanValue();
 	}
 
 	/**
@@ -203,8 +179,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 */
 	public void setAllowBreakAcrossPageBounds(boolean b)
 	{
-		checkForChange(allowBreakAcrossPageBounds, b);
-		allowBreakAcrossPageBounds = b;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ALLOWBREAKACROSSPAGEBOUNDS, b);
 	}
 
 	/**
@@ -213,7 +188,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 */
 	public boolean getDiscardRemainderAfterBreak()
 	{
-		return discardRemainderAfterBreak;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DISCARDREMAINDERAFTERBREAK).booleanValue();
 	}
 
 	/**
@@ -223,8 +198,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 */
 	public void setDiscardRemainderAfterBreak(boolean b)
 	{
-		checkForChange(discardRemainderAfterBreak, b);
-		discardRemainderAfterBreak = b;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_DISCARDREMAINDERAFTERBREAK, b);
 	}
 
 	/**
@@ -235,7 +209,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 */
 	public String getGroupbyDataProviderIDs()
 	{
-		return groupbyDataProviderIDs;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_GROUPBYDATAPROVIDERIDS);
 	}
 
 	/**
@@ -245,8 +219,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 */
 	public void setGroupbyDataProviderIDs(String arg)
 	{
-		checkForChange(groupbyDataProviderIDs, arg);
-		groupbyDataProviderIDs = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_GROUPBYDATAPROVIDERIDS, arg);
 	}
 
 	/**
@@ -254,7 +227,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 */
 	public boolean getPageBreakBefore()
 	{
-		return pageBreakBefore;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_PAGEBREAKBEFORE).booleanValue();
 	}
 
 	/**
@@ -264,8 +237,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 */
 	public void setPageBreakBefore(boolean b)
 	{
-		checkForChange(pageBreakBefore, b);
-		pageBreakBefore = b;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_PAGEBREAKBEFORE, b);
 	}
 
 	/**
@@ -273,7 +245,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 */
 	public int getPageBreakAfterOccurrence()
 	{
-		return pageBreakAfterOccurrence;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_PAGEBREAKAFTEROCCURRENCE).intValue();
 	}
 
 	/**
@@ -283,8 +255,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 */
 	public void setPageBreakAfterOccurrence(int i)
 	{
-		checkForChange(pageBreakAfterOccurrence, i);
-		pageBreakAfterOccurrence = i;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_PAGEBREAKAFTEROCCURRENCE, i);
 	}
 
 	/**
@@ -292,7 +263,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 */
 	public boolean getRestartPageNumber()
 	{
-		return restartPageNumber;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_RESTARTPAGENUMBER).booleanValue();
 	}
 
 	/**
@@ -302,8 +273,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 */
 	public void setRestartPageNumber(boolean b)
 	{
-		checkForChange(restartPageNumber, b);
-		restartPageNumber = b;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_RESTARTPAGENUMBER, b);
 	}
 
 	/**
@@ -312,7 +282,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 */
 	public boolean getSinkWhenLast()
 	{
-		return sinkWhenLast;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_SINKWHENLAST).booleanValue();
 	}
 
 	/**
@@ -322,8 +292,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 */
 	public void setSinkWhenLast(boolean b)
 	{
-		checkForChange(sinkWhenLast, b);
-		sinkWhenLast = b;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_SINKWHENLAST, b);
 	}
 
 	/*
@@ -368,23 +337,23 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	@Override
 	public String toString()
 	{
-		return getDisplayName(partType);
+		return getDisplayName(getPartType());
 	}
 
 	public String getEditorName()
 	{
-		String s = getDisplayName(partType);
+		String s = getDisplayName(getPartType());
 		boolean b = (getPartType() == Part.LEADING_SUBSUMMARY || getPartType() == Part.TRAILING_SUBSUMMARY);
 		if (b)
 		{
-			s += " ON " + groupbyDataProviderIDs; //$NON-NLS-1$
+			s += " ON " + getGroupbyDataProviderIDs(); //$NON-NLS-1$
 		}
 		return s;
 	}
 
 	public boolean canBeMoved()
 	{
-		return canBeMoved(partType);
+		return canBeMoved(getPartType());
 	}
 
 	public static boolean canBeMoved(int partType)
@@ -399,7 +368,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 		while (parts.hasNext())
 		{
 			Part part = parts.next();
-			if (part.height < height && (prevPart == null || part.height > prevPart.height))
+			if (part.getHeight() < getHeight() && (prevPart == null || part.getHeight() > prevPart.getHeight()))
 			{
 				prevPart = part;
 			}

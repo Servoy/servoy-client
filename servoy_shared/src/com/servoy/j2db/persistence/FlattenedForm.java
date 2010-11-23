@@ -13,14 +13,12 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -30,10 +28,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.persistence.ContentSpec.Element;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.JSONWrapperMap;
-import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.UUID;
 
 
 /**
@@ -71,8 +67,6 @@ public class FlattenedForm extends Form
 
 		fill();
 
-		// name can only be set once and only from the form itself.
-		this.setName(form.getName());
 	}
 
 	public List<Form> getAllForms()
@@ -93,21 +87,13 @@ public class FlattenedForm extends Form
 		Part prevPart = null;
 		Map<String, ScriptVariable> formVariables = new HashMap<String, ScriptVariable>();
 		Map<String, ScriptMethod> formMethods = new HashMap<String, ScriptMethod>();
+		Map<UUID, IPersist> persists = new HashMap<UUID, IPersist>();
 		int maxWidth = -1;
+
+		copyPropertiesMap(form.getPropertiesMap());
+
 		for (Form f : allForms)
 		{
-			try
-			{
-				copyFormValues(f);
-			}
-			catch (IllegalAccessException e)
-			{
-				throw new RepositoryException(e);
-			}
-			catch (InvocationTargetException e)
-			{
-				throw new RepositoryException(e);
-			}
 			for (IPersist ip : f.getAllObjectsAsList())
 			{
 				// Parts are added below
@@ -124,6 +110,7 @@ public class FlattenedForm extends Form
 						ScriptMethod met = (ScriptMethod)ip;
 						formMethods.put(met.getName(), met);
 					}
+					persists.put(ip.getUUID(), ip);
 				}
 			}
 			if (f.getWidth() > maxWidth) maxWidth = f.getWidth();
@@ -135,17 +122,19 @@ public class FlattenedForm extends Form
 				Part part = parts.next();
 				if (prevPart != null && (prevPart.getPartType() > part.getPartType() || (prevPart.getPartType() == part.getPartType() && !part.canBeMoved())))
 				{
-					// skip this part, cannot override
-					continue;
+					// check if override
+					if (!part.isOverrideElement() || getChild(part.getUUID()) == null) continue;
 				}
 				prevPart = part;
 				internalAddChild(part);
+				persists.put(part.getUUID(), part);
 			}
 		}
 
 		// remove overridden form variables and methods
 		Iterator<IPersist> allIt = getAllObjects();
 		List<IPersist> remove = new ArrayList<IPersist>();
+		List<IPersist> add = new ArrayList<IPersist>();
 		while (allIt.hasNext())
 		{
 			IPersist ip = allIt.next();
@@ -167,45 +156,48 @@ public class FlattenedForm extends Form
 					remove.add(met);
 				}
 			}
+			if (persists.get(ip.getUUID()) != ip)
+			{
+				// was overridden in a sub-form, remove this one
+				remove.add(ip);
+			}
+			else if (((AbstractBase)ip).isOverrideElement())
+			{
+				boolean parentFound = false;
+				for (Form f : allForms)
+				{
+					if (f.getChild(ip.getUUID()) != null && f.getChild(ip.getUUID()) != ip)
+					{
+						parentFound = true;
+					}
+				}
+				if (!parentFound) remove.add(ip);
+				else if (ip instanceof TabPanel)
+				{
+					remove.add(ip);
+					add.add(new FlattenedTabPanel((TabPanel)ip));
+				}
+				else if (ip instanceof Portal)
+				{
+					remove.add(ip);
+					add.add(new FlattenedPortal((Portal)ip));
+				}
+			}
 		}
 
 		for (IPersist var : remove)
 		{
 			internalRemoveChild(var);
 		}
+		for (IPersist var : add)
+		{
+			internalAddChild(var);
+		}
 
-		checkParts(); // recalculate height
+		checkParts(getSize()); // recalculate height
 		setWidth(maxWidth);
 	}
 
-	/**
-	 * @param f
-	 * @throws InvocationTargetException
-	 * @throws IllegalAccessException
-	 * @throws Exception
-	 */
-	private void copyFormValues(Form f) throws IllegalAccessException, InvocationTargetException
-	{
-		ContentSpec contentSpec = StaticContentSpecLoader.getContentSpec();
-		PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
-		for (PropertyDescriptor propertyDescriptor : propertyDescriptors)
-		{
-			if ("name".equals(propertyDescriptor.getName()) || "customProperties".equals(propertyDescriptor.getName())) //$NON-NLS-1$ //$NON-NLS-2$
-			{
-				continue;
-			}
-			Element element = contentSpec.getPropertyForObjectTypeByName(IRepository.FORMS, propertyDescriptor.getName());
-			if (element != null && !element.isDeprecated() && !element.isMetaData())
-			{
-				Object value = propertyDescriptor.getReadMethod().invoke(f, (Object[])null);
-				if (!Utils.equalObjects(value, element.getDefaultClassValue()))
-				{
-					propertyDescriptor.getWriteMethod().invoke(this, new Object[] { value });
-				}
-			}
-		}
-		setCustomPropertiesMap(JSONWrapperMap.mergeMaps(getCustomPropertiesMap(), f.getCustomPropertiesMap()));
-	}
 
 	@Override
 	public Iterator<IPersist> getAllObjectsSortedByFormIndex()
@@ -244,5 +236,11 @@ public class FlattenedForm extends Form
 		{
 			Debug.error(e);
 		}
+	}
+
+	@Override
+	protected IPersist getSuperPersist()
+	{
+		return form.getExtendsForm();
 	}
 }

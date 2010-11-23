@@ -38,16 +38,7 @@ import com.servoy.j2db.util.Utils;
 public class ScriptVariable extends AbstractBase implements IVariable, IDataProvider, ISupportUpdateableName, ISupportHTMLToolTipText, ISupportContentEquals,
 	IPersistCloneable, ICloneable
 {
-	/*
-	 * Attributes, do not change default values do to repository default_textual_classvalue
-	 */
-	private String name = null;
 	private String prefixedName = null;
-	private String defaultValue = null;
-	private int variableType;
-
-	private String comment;
-	private int access;
 
 	public static final String GLOBAL_PREFIX = "globals"; //$NON-NLS-1$
 	public static final String GLOBAL_DOT_PREFIX = GLOBAL_PREFIX + '.';
@@ -71,8 +62,7 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 	 */
 	public void setName(String arg)
 	{
-		if (name != null) throw new UnsupportedOperationException("Can't set name 2x, use updateName"); //$NON-NLS-1$
-		name = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 		prefixedName = null;
 	}
 
@@ -84,8 +74,7 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 	public void updateName(IValidateName validator, String arg) throws RepositoryException
 	{
 		validator.checkName(arg, getID(), new ValidatorSearchContext(getRootObject(), IRepository.SCRIPTVARIABLES), false);
-		checkForNameChange(name, arg);
-		name = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg, false);
 		prefixedName = null;
 		getRootObject().getChangeHandler().fireIPersistChanged(this);
 	}
@@ -95,29 +84,27 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 	 */
 	public String getName()
 	{
-		return name;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_NAME);
 	}
 
 	public String getComment()
 	{
-		return comment;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_COMMENT);
 	}
 
 	public void setComment(String arg)
 	{
-		checkForChange(comment, arg);
-		this.comment = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_COMMENT, arg);
 	}
 
 	public void setAccess(int arg)
 	{
-		checkForChange(access, arg);
-		access = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ACCESS, arg);
 	}
 
 	public int getAccess()
 	{
-		return access;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ACCESS).intValue();
 	}
 
 	/**
@@ -140,16 +127,15 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 		}
 		if (!hit)
 		{
-			Debug.error("unknown variable type " + arg + " for variable " + name + " reverting to previous or MEDIA type", new RuntimeException());
-			if (variableType == 0)
+			Debug.error("unknown variable type " + arg + " for variable " + getName() + " reverting to previous or MEDIA type", new RuntimeException());
+			if (getVariableType() == 0)
 			{
-				variableType = IColumnTypes.MEDIA;
+				setTypedProperty(StaticContentSpecLoader.PROPERTY_VARIABLETYPE, IColumnTypes.MEDIA);
 			}
-			flagChanged();
 			return;
 		}
-		checkForChange(variableType, arg);
-		variableType = arg;
+
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_VARIABLETYPE, arg);
 	}
 
 	/**
@@ -157,7 +143,7 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 	 */
 	public int getVariableType()
 	{
-		return variableType;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_VARIABLETYPE).intValue();
 	}
 
 	@Override
@@ -166,19 +152,9 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 		return getDataProviderID();
 	}
 
-	@SuppressWarnings("nls")
 	public void setDefaultValue(String arg)
 	{
-		if ("".equals(arg))
-		{
-			checkForChange(defaultValue, null);
-			defaultValue = null;
-		}
-		else
-		{
-			checkForChange(defaultValue, arg);
-			defaultValue = arg;
-		}
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_DEFAULTVALUE, arg);
 	}
 
 	/**
@@ -193,13 +169,14 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 	 */
 	public String getDefaultValue()
 	{
-		return defaultValue;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DEFAULTVALUE);
 	}
 
 	@SuppressWarnings("nls")
 	public Object getInitValue()
 	{
-		switch (Column.mapToDefaultType(variableType))
+		String defaultValue = getDefaultValue();
+		switch (Column.mapToDefaultType(getVariableType()))
 		{
 			case IColumnTypes.DATETIME :
 				if ("now".equalsIgnoreCase(defaultValue))
@@ -256,8 +233,7 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 	/*
 	 * _____________________________________________________________ Methods from IDataProvider
 	 */
-
-	public String getDataProviderID()//get the id
+	public String getDataProviderID()
 	{
 		if (prefixedName == null)
 		{
@@ -275,7 +251,7 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 
 	public int getDataProviderType()
 	{
-		return variableType;
+		return getVariableType();
 	}
 
 //	public String[] getDependentDataProviderIDs()

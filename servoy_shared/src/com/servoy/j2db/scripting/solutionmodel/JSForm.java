@@ -52,6 +52,8 @@ import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.scripting.IConstantsObject;
+import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author jcompagner
@@ -196,7 +198,15 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSVariable js_getFormVariable(String name)
 	{
-		ScriptVariable variable = form.getScriptVariable(name);
+		ScriptVariable variable = null;
+		try
+		{
+			variable = application.getFlattenedSolution().getFlattenedForm(form).getScriptVariable(name);
+		}
+		catch (RepositoryException e)
+		{
+			Debug.error(e);
+		}
 		if (variable != null)
 		{
 			return new JSVariable(application, this, variable, false);
@@ -213,16 +223,35 @@ public class JSForm implements IJSParent, IConstantsObject
 	 * 	for (var i in variables)
 	 * 		application.output(variables[i].name);
 	 * 
+	 * @param returnInheritedElements optional boolean true to also return the elements from parent form 
 	 * @return an array of all variables on this form
 	 * 
 	 */
-	public JSVariable[] js_getFormVariables()
+	public JSVariable[] js_getFormVariables(Object[] args)
 	{
 		ArrayList<JSVariable> variables = new ArrayList<JSVariable>();
-		Iterator<ScriptVariable> scriptVariables = form.getScriptVariables(true);
-		while (scriptVariables.hasNext())
+		if (args.length > 0 && Utils.getAsBoolean(args[0]))
 		{
-			variables.add(new JSVariable(application, this, scriptVariables.next(), false));
+			try
+			{
+				Iterator<ScriptVariable> scriptVariables = application.getFlattenedSolution().getFlattenedForm(form).getScriptVariables(true);
+				while (scriptVariables.hasNext())
+				{
+					variables.add(new JSVariable(application, this, scriptVariables.next(), false));
+				}
+			}
+			catch (Exception ex)
+			{
+				Debug.error(ex);
+			}
+		}
+		else
+		{
+			Iterator<ScriptVariable> scriptVariables = form.getScriptVariables(true);
+			while (scriptVariables.hasNext())
+			{
+				variables.add(new JSVariable(application, this, scriptVariables.next(), false));
+			}
 		}
 		return variables.toArray(new JSVariable[variables.size()]);
 	}
@@ -271,7 +300,15 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getFormMethod(String name)
 	{
-		ScriptMethod sm = form.getScriptMethod(name);
+		ScriptMethod sm = null;
+		try
+		{
+			sm = application.getFlattenedSolution().getFlattenedForm(form).getScriptMethod(name);
+		}
+		catch (RepositoryException e)
+		{
+			Debug.error(e);
+		}
 		if (sm != null)
 		{
 			return new JSMethod(application, this, sm, false);
@@ -288,15 +325,34 @@ public class JSForm implements IJSParent, IConstantsObject
 	 * 	for (var m in methods)
 	 * 		application.output(methods[m].getName());
 	 * 
+	 * @param returnInheritedElements optional boolean true to also return the elements from parent form 
 	 * @return all form methods for the form 
 	 */
-	public JSMethod[] js_getFormMethods()
+	public JSMethod[] js_getFormMethods(Object[] args)
 	{
 		ArrayList<JSMethod> methods = new ArrayList<JSMethod>();
-		Iterator<ScriptMethod> scriptMethods = form.getScriptMethods(true);
-		while (scriptMethods.hasNext())
+		if (args.length > 0 && Utils.getAsBoolean(args[0]))
 		{
-			methods.add(new JSMethod(application, this, scriptMethods.next(), false));
+			try
+			{
+				Iterator<ScriptMethod> scriptMethods = application.getFlattenedSolution().getFlattenedForm(form).getScriptMethods(true);
+				while (scriptMethods.hasNext())
+				{
+					methods.add(new JSMethod(application, this, scriptMethods.next(), false));
+				}
+			}
+			catch (Exception ex)
+			{
+				Debug.error(ex);
+			}
+		}
+		else
+		{
+			Iterator<ScriptMethod> scriptMethods = form.getScriptMethods(true);
+			while (scriptMethods.hasNext())
+			{
+				methods.add(new JSMethod(application, this, scriptMethods.next(), false));
+			}
 		}
 		return methods.toArray(new JSMethod[methods.size()]);
 	}
@@ -784,13 +840,24 @@ public class JSForm implements IJSParent, IConstantsObject
 	public JSPortal js_getPortal(String name)
 	{
 		if (name == null) return null;
-		Iterator<Portal> portals = form.getPortals();
-		while (portals.hasNext())
+		Iterator<Portal> portals = null;
+		try
 		{
-			Portal portal = portals.next();
-			if (name.equals(portal.getName()))
+			portals = application.getFlattenedSolution().getFlattenedForm(form).getPortals();
+		}
+		catch (RepositoryException e)
+		{
+			Debug.error(e);
+		}
+		if (portals != null)
+		{
+			while (portals.hasNext())
 			{
-				return new JSPortal(this, portal, application, false);
+				Portal portal = portals.next();
+				if (name.equals(portal.getName()))
+				{
+					return new JSPortal(this, portal, application, false);
+				}
 			}
 		}
 		return null;
@@ -846,17 +913,37 @@ public class JSForm implements IJSParent, IConstantsObject
 	 * 			application.output("unnamed portal detected");
 	 * 	}
 	 * 
+	 * @param returnInheritedElements optional boolean true to also return the elements from parent form 
 	 * @return an array of all JSPortal objects on this form
 	 *
 	 */
-	public JSPortal[] js_getPortals()
+	public JSPortal[] js_getPortals(Object[] args)
 	{
 		ArrayList<JSPortal> portals = new ArrayList<JSPortal>();
-		Iterator<Portal> iterator = form.getPortals();
-		while (iterator.hasNext())
+		if (args.length > 0 && Utils.getAsBoolean(args[0]))
 		{
-			Portal tabPanel = iterator.next();
-			portals.add(new JSPortal(this, tabPanel, application, false));
+			try
+			{
+				Iterator<Portal> iterator = application.getFlattenedSolution().getFlattenedForm(form).getPortals();
+				while (iterator.hasNext())
+				{
+					Portal tabPanel = iterator.next();
+					portals.add(new JSPortal(this, tabPanel, application, false));
+				}
+			}
+			catch (Exception ex)
+			{
+				Debug.error(ex);
+			}
+		}
+		else
+		{
+			Iterator<Portal> iterator = form.getPortals();
+			while (iterator.hasNext())
+			{
+				Portal tabPanel = iterator.next();
+				portals.add(new JSPortal(this, tabPanel, application, false));
+			}
 		}
 		return portals.toArray(new JSPortal[portals.size()]);
 	}
@@ -918,14 +1005,21 @@ public class JSForm implements IJSParent, IConstantsObject
 	public JSTabPanel js_getTabPanel(String name)
 	{
 		if (name == null) return null;
-		Iterator<TabPanel> tabPanels = form.getTabPanels();
-		while (tabPanels.hasNext())
+		try
 		{
-			TabPanel tabPanel = tabPanels.next();
-			if (name.equals(tabPanel.getName()))
+			Iterator<TabPanel> tabPanels = application.getFlattenedSolution().getFlattenedForm(form).getTabPanels();
+			while (tabPanels.hasNext())
 			{
-				return new JSTabPanel(this, tabPanel, application, false);
+				TabPanel tabPanel = tabPanels.next();
+				if (name.equals(tabPanel.getName()))
+				{
+					return new JSTabPanel(this, tabPanel, application, false);
+				}
 			}
+		}
+		catch (Exception ex)
+		{
+			Debug.error(ex);
 		}
 		return null;
 	}
@@ -985,17 +1079,37 @@ public class JSForm implements IJSParent, IConstantsObject
 	 *			application.output("Tab with text " + tp.text + " has no name");
 	 *	}
 	 *
+	 * @param returnInheritedElements optional boolean true to also return the elements from parent form 
 	 * @return an array of all JSTabPanel objects on this form			
 	 *		
 	 */
-	public JSTabPanel[] js_getTabPanels()
+	public JSTabPanel[] js_getTabPanels(Object[] args)
 	{
 		ArrayList<JSTabPanel> tabPanels = new ArrayList<JSTabPanel>();
-		Iterator<TabPanel> iterator = form.getTabPanels();
-		while (iterator.hasNext())
+		if (args.length > 0 && Utils.getAsBoolean(args[0]))
 		{
-			TabPanel tabPanel = iterator.next();
-			tabPanels.add(new JSTabPanel(this, tabPanel, application, false));
+			try
+			{
+				Iterator<TabPanel> iterator = application.getFlattenedSolution().getFlattenedForm(form).getTabPanels();
+				while (iterator.hasNext())
+				{
+					TabPanel tabPanel = iterator.next();
+					tabPanels.add(new JSTabPanel(this, tabPanel, application, false));
+				}
+			}
+			catch (Exception ex)
+			{
+				Debug.error(ex);
+			}
+		}
+		else
+		{
+			Iterator<TabPanel> iterator = form.getTabPanels();
+			while (iterator.hasNext())
+			{
+				TabPanel tabPanel = iterator.next();
+				tabPanels.add(new JSTabPanel(this, tabPanel, application, false));
+			}
 		}
 		return tabPanels.toArray(new JSTabPanel[tabPanels.size()]);
 	}
@@ -1022,17 +1136,24 @@ public class JSForm implements IJSParent, IConstantsObject
 
 	private JSPart getPart(int partType, int height)
 	{
-		Iterator<Part> parts = form.getParts();
-		while (parts.hasNext())
+		try
 		{
-			Part part = parts.next();
-			if (part.getPartType() == partType && (height == -1 || part.getHeight() == height))
+			Iterator<Part> parts = application.getFlattenedSolution().getFlattenedForm(form).getParts();
+			while (parts.hasNext())
 			{
-				if (!testExtendFormForPart(partType, height))
+				Part part = parts.next();
+				if (part.getPartType() == partType && (height == -1 || part.getHeight() == height))
 				{
-					return new JSPart(this, part, false);
+					if (!testExtendFormForPart(partType, height))
+					{
+						return new JSPart(this, part, false);
+					}
 				}
 			}
+		}
+		catch (Exception ex)
+		{
+			Debug.error(ex);
 		}
 		return null;
 	}
@@ -1549,14 +1670,21 @@ public class JSForm implements IJSParent, IConstantsObject
 	{
 		if (name == null) return null;
 
-		Iterator<Field> fields = form.getFields();
-		while (fields.hasNext())
+		try
 		{
-			Field field = fields.next();
-			if (name.equals(field.getName()))
+			Iterator<Field> fields = application.getFlattenedSolution().getFlattenedForm(form).getFields();
+			while (fields.hasNext())
 			{
-				return new JSField(this, field, application, false);
+				Field field = fields.next();
+				if (name.equals(field.getName()))
+				{
+					return new JSField(this, field, application, false);
+				}
 			}
+		}
+		catch (Exception ex)
+		{
+			Debug.error(ex);
 		}
 		return null;
 	}
@@ -1607,17 +1735,37 @@ public class JSForm implements IJSParent, IConstantsObject
 	 * 			application.output(fname);
 	 * 	}
 	 * 
+	 * @param returnInheritedElements optional boolean true to also return the elements from parent form 
 	 * @return all JSField objects of this form
 	 *
 	 */
-	public JSField[] js_getFields()
+	public JSField[] js_getFields(Object[] args)
 	{
 		ArrayList<JSField> fields = new ArrayList<JSField>();
-		Iterator<Field> iterator = form.getFields();
-		while (iterator.hasNext())
+		if (args.length > 0 && Utils.getAsBoolean(args[0]))
 		{
-			Field field = iterator.next();
-			fields.add(new JSField(this, field, application, false));
+			try
+			{
+				Iterator<Field> iterator = application.getFlattenedSolution().getFlattenedForm(form).getFields();
+				while (iterator.hasNext())
+				{
+					Field field = iterator.next();
+					fields.add(new JSField(this, field, application, false));
+				}
+			}
+			catch (Exception ex)
+			{
+				Debug.error(ex);
+			}
+		}
+		else
+		{
+			Iterator<Field> iterator = form.getFields();
+			while (iterator.hasNext())
+			{
+				Field field = iterator.next();
+				fields.add(new JSField(this, field, application, false));
+			}
 		}
 		return fields.toArray(new JSField[fields.size()]);
 	}
@@ -1637,14 +1785,21 @@ public class JSForm implements IJSParent, IConstantsObject
 	{
 		if (name == null) return null;
 
-		Iterator<GraphicalComponent> graphicalComponents = form.getGraphicalComponents();
-		while (graphicalComponents.hasNext())
+		try
 		{
-			GraphicalComponent button = graphicalComponents.next();
-			if (name.equals(button.getName()) && button.getOnActionMethodID() != 0 && button.getShowClick())
+			Iterator<GraphicalComponent> graphicalComponents = application.getFlattenedSolution().getFlattenedForm(form).getGraphicalComponents();
+			while (graphicalComponents.hasNext())
 			{
-				return new JSButton(this, button, application, false);
+				GraphicalComponent button = graphicalComponents.next();
+				if (name.equals(button.getName()) && button.getOnActionMethodID() != 0 && button.getShowClick())
+				{
+					return new JSButton(this, button, application, false);
+				}
 			}
+		}
+		catch (Exception ex)
+		{
+			Debug.error(ex);
 		}
 		return null;
 	}
@@ -1695,19 +1850,42 @@ public class JSForm implements IJSParent, IConstantsObject
 	 * 			application.output(buttons[b].text + " has no name ");
 	 * }
 	 * 
+	 * @param returnInheritedElements optional boolean true to also return the elements from parent form 
 	 * @return the list of all JSbuttons on this forms
 	 *
 	 */
-	public JSButton[] js_getButtons()
+	public JSButton[] js_getButtons(Object[] args)
 	{
 		ArrayList<JSButton> buttons = new ArrayList<JSButton>();
-		Iterator<GraphicalComponent> graphicalComponents = form.getGraphicalComponents();
-		while (graphicalComponents.hasNext())
+		if (args.length > 0 && Utils.getAsBoolean(args[0]))
 		{
-			GraphicalComponent button = graphicalComponents.next();
-			if (button.getOnActionMethodID() != 0 && button.getShowClick())
+			try
 			{
-				buttons.add(new JSButton(this, button, application, false));
+				Iterator<GraphicalComponent> graphicalComponents = application.getFlattenedSolution().getFlattenedForm(form).getGraphicalComponents();
+				while (graphicalComponents.hasNext())
+				{
+					GraphicalComponent button = graphicalComponents.next();
+					if (button.getOnActionMethodID() != 0 && button.getShowClick())
+					{
+						buttons.add(new JSButton(this, button, application, false));
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				Debug.error(ex);
+			}
+		}
+		else
+		{
+			Iterator<GraphicalComponent> graphicalComponents = form.getGraphicalComponents();
+			while (graphicalComponents.hasNext())
+			{
+				GraphicalComponent button = graphicalComponents.next();
+				if (button.getOnActionMethodID() != 0 && button.getShowClick())
+				{
+					buttons.add(new JSButton(this, button, application, false));
+				}
 			}
 		}
 		return buttons.toArray(new JSButton[buttons.size()]);
@@ -1761,14 +1939,21 @@ public class JSForm implements IJSParent, IConstantsObject
 	{
 		if (name == null) return null;
 
-		Iterator<Bean> beans = form.getBeans();
-		while (beans.hasNext())
+		try
 		{
-			Bean bean = beans.next();
-			if (name.equals(bean.getName()))
+			Iterator<Bean> beans = application.getFlattenedSolution().getFlattenedForm(form).getBeans();
+			while (beans.hasNext())
 			{
-				return new JSBean(this, bean, false);
+				Bean bean = beans.next();
+				if (name.equals(bean.getName()))
+				{
+					return new JSBean(this, bean, false);
+				}
 			}
+		}
+		catch (Exception ex)
+		{
+			Debug.log(ex);
 		}
 		return null;
 	}
@@ -1813,17 +1998,37 @@ public class JSForm implements IJSParent, IConstantsObject
 	 * 			application.output(beans[b].name);
 	 * }
 	 * 
+	 * @param returnInheritedElements optional boolean true to also return the elements from parent form 
 	 * @return the list of all JSbuttons on this forms
 	 *
 	 */
-	public JSBean[] js_getBeans()
+	public JSBean[] js_getBeans(Object[] args)
 	{
 		ArrayList<JSBean> beans = new ArrayList<JSBean>();
-		Iterator<Bean> iterator = form.getBeans();
-		while (iterator.hasNext())
+		if (args.length > 0 && Utils.getAsBoolean(args[0]))
 		{
-			Bean bean = iterator.next();
-			beans.add(new JSBean(this, bean, false));
+			try
+			{
+				Iterator<Bean> iterator = application.getFlattenedSolution().getFlattenedForm(form).getBeans();
+				while (iterator.hasNext())
+				{
+					Bean bean = iterator.next();
+					beans.add(new JSBean(this, bean, false));
+				}
+			}
+			catch (Exception ex)
+			{
+				Debug.error(ex);
+			}
+		}
+		else
+		{
+			Iterator<Bean> iterator = form.getBeans();
+			while (iterator.hasNext())
+			{
+				Bean bean = iterator.next();
+				beans.add(new JSBean(this, bean, false));
+			}
 		}
 		return beans.toArray(new JSBean[beans.size()]);
 	}
@@ -1912,17 +2117,18 @@ public class JSForm implements IJSParent, IConstantsObject
 	 * 	for (var i in components)
 	 * 		application.output("Component type and name: " + components[i]); 
 	 * 
+	 * @param returnInheritedElements optional boolean true to also return the elements from parent form 
 	 * @return an array of all the JSComponents on the form.
 	 */
-	public JSComponent< ? >[] js_getComponents()
+	public JSComponent< ? >[] js_getComponents(Object[] args)
 	{
 		ArrayList<JSComponent< ? >> lst = new ArrayList<JSComponent< ? >>();
-		lst.addAll(Arrays.asList(js_getLabels()));
-		lst.addAll(Arrays.asList(js_getButtons()));
-		lst.addAll(Arrays.asList(js_getFields()));
-		lst.addAll(Arrays.asList(js_getPortals()));
-		lst.addAll(Arrays.asList(js_getBeans()));
-		lst.addAll(Arrays.asList(js_getTabPanels()));
+		lst.addAll(Arrays.asList(js_getLabels(args)));
+		lst.addAll(Arrays.asList(js_getButtons(args)));
+		lst.addAll(Arrays.asList(js_getFields(args)));
+		lst.addAll(Arrays.asList(js_getPortals(args)));
+		lst.addAll(Arrays.asList(js_getBeans(args)));
+		lst.addAll(Arrays.asList(js_getTabPanels(args)));
 		return lst.toArray(new JSComponent[lst.size()]);
 	}
 
@@ -1942,14 +2148,21 @@ public class JSForm implements IJSParent, IConstantsObject
 	{
 		if (name == null) return null;
 
-		Iterator<GraphicalComponent> graphicalComponents = form.getGraphicalComponents();
-		while (graphicalComponents.hasNext())
+		try
 		{
-			GraphicalComponent button = graphicalComponents.next();
-			if (name.equals(button.getName()) && !(button.getOnActionMethodID() != 0 && button.getShowClick()))
+			Iterator<GraphicalComponent> graphicalComponents = application.getFlattenedSolution().getFlattenedForm(form).getGraphicalComponents();
+			while (graphicalComponents.hasNext())
 			{
-				return new JSLabel(this, button, application, false);
+				GraphicalComponent button = graphicalComponents.next();
+				if (name.equals(button.getName()) && !(button.getOnActionMethodID() != 0 && button.getShowClick()))
+				{
+					return new JSLabel(this, button, application, false);
+				}
 			}
+		}
+		catch (Exception ex)
+		{
+			Debug.error(ex);
 		}
 		return null;
 	}
@@ -2002,19 +2215,42 @@ public class JSForm implements IJSParent, IConstantsObject
 	 * 			application.output(lname);
 	 * 	}
 	 * 
+	 * @param returnInheritedElements optional boolean true to also return the elements from parent form 
 	 * @return all JSLabels on this form
 	 *
 	 */
-	public JSLabel[] js_getLabels()
+	public JSLabel[] js_getLabels(Object[] args)
 	{
 		ArrayList<JSLabel> labels = new ArrayList<JSLabel>();
-		Iterator<GraphicalComponent> graphicalComponents = form.getGraphicalComponents();
-		while (graphicalComponents.hasNext())
+		if (args.length > 0 && Utils.getAsBoolean(args[0]))
 		{
-			GraphicalComponent button = graphicalComponents.next();
-			if (!(button.getOnActionMethodID() != 0 && button.getShowClick()))
+			try
 			{
-				labels.add(new JSLabel(this, button, application, false));
+				Iterator<GraphicalComponent> graphicalComponents = application.getFlattenedSolution().getFlattenedForm(form).getGraphicalComponents();
+				while (graphicalComponents.hasNext())
+				{
+					GraphicalComponent button = graphicalComponents.next();
+					if (!(button.getOnActionMethodID() != 0 && button.getShowClick()))
+					{
+						labels.add(new JSLabel(this, button, application, false));
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				Debug.error(ex);
+			}
+		}
+		else
+		{
+			Iterator<GraphicalComponent> graphicalComponents = form.getGraphicalComponents();
+			while (graphicalComponents.hasNext())
+			{
+				GraphicalComponent button = graphicalComponents.next();
+				if (!(button.getOnActionMethodID() != 0 && button.getShowClick()))
+				{
+					labels.add(new JSLabel(this, button, application, false));
+				}
 			}
 		}
 		return labels.toArray(new JSLabel[labels.size()]);

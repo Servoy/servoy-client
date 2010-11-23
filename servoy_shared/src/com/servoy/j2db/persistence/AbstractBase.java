@@ -17,6 +17,9 @@
 package com.servoy.j2db.persistence;
 
 
+import java.awt.Dimension;
+import java.awt.Insets;
+import java.awt.Point;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,6 +32,8 @@ import java.util.Random;
 
 import org.json.JSONException;
 
+import com.servoy.j2db.persistence.ContentSpec.Element;
+import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.util.JSONWrapperMap;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.UUID;
@@ -42,6 +47,10 @@ import com.servoy.j2db.util.Utils;
  */
 public abstract class AbstractBase implements IPersist
 {
+	/**
+	 * 
+	 */
+	private static final String[] OVERRIDE_PATH = new String[] { "override" };
 	/*
 	 * Attributes for IPersist
 	 */
@@ -58,12 +67,12 @@ public abstract class AbstractBase implements IPersist
 	private List<IPersist> allobjects = null;
 	private transient Map<UUID, IPersist> allobjectsMap = null;
 
+	private final Map<String, Object> propertiesMap = new HashMap<String, Object>();
+
 	/*
 	 * Attributes, do not change default values do to repository default_textual_classvalue
 	 */
 	protected transient JSONWrapperMap jsonCustomProperties = null;
-	protected String customProperties = null;
-
 
 /*
  * _____________________________________________________________ Declaration and definition of constructors
@@ -75,6 +84,137 @@ public abstract class AbstractBase implements IPersist
 		this.element_id = element_id;
 		this.uuid = uuid;
 	}
+
+	public Map<String, Object> getPropertiesMap()
+	{
+		return new HashMap<String, Object>(propertiesMap);
+	}
+
+	public void clearProperty(String propertyName)
+	{
+		propertiesMap.remove(propertyName);
+	}
+
+	public void copyPropertiesMap(Map<String, Object> newProperties)
+	{
+		if (newProperties != null)
+		{
+			propertiesMap.putAll(newProperties);
+		}
+		else
+		{
+			propertiesMap.clear();
+		}
+	}
+
+	public void setProperty(String propertyName, Object val)
+	{
+		Object value = val;
+		if (value instanceof String && propertyName.toLowerCase().endsWith("datasource")) //$NON-NLS-1$
+		{
+			value = ((String)value).intern();
+		}
+
+		checkForChange(getProperty(propertyName), value);
+		propertiesMap.put(propertyName, value);
+	}
+
+	public Object getProperty(String propertyName)
+	{
+		Object value = null;
+		if (propertiesMap.containsKey(propertyName))
+		{
+			value = propertiesMap.get(propertyName);
+		}
+		else if (!StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES.getPropertyName().equals(propertyName) && isOverrideElement())
+		{
+			IPersist superPersist = getSuperPersist();
+			if (superPersist != null)
+			{
+				return ((AbstractBase)superPersist).getProperty(propertyName);
+			}
+
+			Element element = StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(getTypeID(), propertyName);
+			if (element != null) value = element.getDefaultClassValue();
+		}
+		else
+		{
+			// content spec default value
+			Element element = StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(getTypeID(), propertyName);
+			if (element != null) value = element.getDefaultClassValue();
+		}
+
+
+		if (value instanceof Insets)
+		{
+			return new Insets(((Insets)value).top, ((Insets)value).left, ((Insets)value).bottom, ((Insets)value).right);
+		}
+		if (value instanceof Dimension)
+		{
+			return new Dimension((Dimension)value);
+		}
+		if (value instanceof Point)
+		{
+			return new Point((Point)value);
+		}
+		return value;
+	}
+
+	protected IPersist getSuperPersist()
+	{
+		Form form = (Form)getAncestor(IRepository.FORMS);
+		if (form != null)
+		{
+			Form extendsForm = form.getExtendsForm();
+			if (extendsForm != null)
+			{
+				return AbstractRepository.searchPersist(extendsForm, getUUID());
+			}
+		}
+		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	<T> T getTypedProperty(TypedProperty<T> property)
+	{
+		return (T)getProperty(property.getPropertyName());
+	}
+
+	private void setTypedProperty(TypedProperty<Integer> property, int value)
+	{
+		if (property == StaticContentSpecLoader.PROPERTY_TABSEQ && value < 1 && value != ISupportTabSeq.DEFAULT && value != ISupportTabSeq.SKIP)
+		{
+			return;//irrelevant value from editor
+		}
+		if (property == StaticContentSpecLoader.PROPERTY_ROTATION && value > 360)
+		{
+			return;
+		}
+		setProperty(property.getPropertyName(), Integer.valueOf(value));
+	}
+
+	private void setTypedProperty(TypedProperty<Boolean> property, boolean value)
+	{
+		setProperty(property.getPropertyName(), Boolean.valueOf(value));
+	}
+
+	void setTypedProperty(TypedProperty< ? > property, Object value)
+	{
+		setTypedProperty(property, value, true);
+	}
+
+	void setTypedProperty(TypedProperty< ? > property, Object value, boolean validate)
+	{
+		if (validate)
+		{
+			if (property == StaticContentSpecLoader.PROPERTY_NAME && propertiesMap.containsKey(property.getPropertyName()))
+			{
+				throw new UnsupportedOperationException("Can't set name 2x, use updateName"); //$NON-NLS-1$
+			}
+		}
+		setProperty(property.getPropertyName(), value);
+	}
+
 
 	/*
 	 * _____________________________________________________________ Methods from IPersist
@@ -304,22 +444,6 @@ public abstract class AbstractBase implements IPersist
 		return element_id;
 	}
 
-	protected void checkForChange(boolean oldValue, boolean newValue)
-	{
-		if (oldValue != newValue)
-		{
-			isChanged = true;
-		}
-	}
-
-	protected void checkForChange(int oldValue, int newValue)
-	{
-		if (oldValue != newValue)
-		{
-			isChanged = true;
-		}
-	}
-
 	protected void checkForNameChange(String oldValue, String newValue)
 	{
 		if (oldValue == null && newValue == null) return;
@@ -356,7 +480,7 @@ public abstract class AbstractBase implements IPersist
 		private static final long serialVersionUID = 1L;
 	};
 
-	protected void checkForChange(Object oldValue, Object newValue)
+	private void checkForChange(Object oldValue, Object newValue)
 	{
 		if (isChanged) return;//no need to check
 
@@ -535,13 +659,7 @@ public abstract class AbstractBase implements IPersist
 	 */
 	public void setCustomProperties(String arg)
 	{
-		// special checkForChange
-		if (!isChanged)
-		{
-			isChanged = (customProperties == null && arg != null) || (customProperties != null && !customProperties.equals(arg));
-		}
-
-		customProperties = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES, arg);
 		jsonCustomProperties = null;
 	}
 
@@ -554,6 +672,7 @@ public abstract class AbstractBase implements IPersist
 	 */
 	public String getCustomProperties()
 	{
+		String customProperties = getTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES);
 		if (jsonCustomProperties != null)
 		{
 			customProperties = jsonCustomProperties.toString();
@@ -564,6 +683,8 @@ public abstract class AbstractBase implements IPersist
 	@SuppressWarnings("unchecked")
 	public Object getCustomProperty(String[] path)
 	{
+		String customProperties = getTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES);
+
 		if (customProperties == null) return null;
 
 		if (jsonCustomProperties == null)
@@ -590,6 +711,8 @@ public abstract class AbstractBase implements IPersist
 
 	public Object putCustomProperty(String[] path, Object value)
 	{
+		String customProperties = getTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES);
+
 		if (customProperties == null && value == null) return null;
 
 		if (jsonCustomProperties == null)
@@ -633,11 +756,7 @@ public abstract class AbstractBase implements IPersist
 		{
 			old = map.put(leaf, value);
 		}
-		if (!isChanged && ((old == null && value != null) || (old != null && !old.equals(value))))
-		{
-			flagChanged();
-		}
-		customProperties = jsonCustomProperties.toString();
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES, jsonCustomProperties.toString());
 		return old;
 	}
 
@@ -657,6 +776,16 @@ public abstract class AbstractBase implements IPersist
 			return (List<Object>)putCustomProperty(new String[] { "methods", methodKey, "arguments" }, args == null ? null : Collections.unmodifiableList(args));
 		}
 		return null;
+	}
+
+	public String putOverrideProperty(String formName)
+	{
+		return (String)putCustomProperty(OVERRIDE_PATH, formName);
+	}
+
+	public boolean isOverrideElement()
+	{
+		return getCustomProperty(OVERRIDE_PATH) != null;
 	}
 
 	/* Runtime properties */

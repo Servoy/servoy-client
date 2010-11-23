@@ -55,30 +55,6 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 * Media option Bit value to keep the aspect ratio of the image. Must be used inconjunction with REDUCE and/or ENLARGE.
 	 */
 	public static final int KEEP_ASPECT = 8;
-	/*
-	 * Attributes, do not change default values do to repository default_textual_classvalue
-	 */
-	private String text = null;
-	private int verticalAlignment = -1;
-	private int horizontalAlignment = -1;
-	private int imageMediaID;
-	private int rolloverImageMediaID;
-	private int onActionMethodID;
-	private int onDoubleClickMethodID;
-	private int onRightClickMethodID;
-	private int onRenderMethodID;
-	private String toolTipText = null;
-	private String dataProviderID = null;
-	private Insets margin = null;
-	private boolean displaysTags;
-	private int rotation;
-	private int mediaOptions;
-	private int tabSeq = ISupportTabSeq.DEFAULT;
-	private int rolloverCursor;
-	private boolean showClick = true;
-	private boolean showFocus = true;
-	private String labelFor = null;
-	private String mnemonic = null;
 
 	/**
 	 * Constructor I
@@ -99,8 +75,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 */
 	public void setToolTipText(String arg)
 	{
-		checkForChange(toolTipText, arg);
-		toolTipText = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_TOOLTIPTEXT, arg);
 	}
 
 	/**
@@ -114,7 +89,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 */
 	public String getToolTipText()
 	{
-		return toolTipText;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TOOLTIPTEXT);
 	}
 
 	/**
@@ -124,19 +99,17 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 */
 	public void setDataProviderID(String arg)
 	{
-		checkForChange(dataProviderID, arg);
-		dataProviderID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID, arg);
 	}
 
 	public String getDataProviderID()
 	{
-		return dataProviderID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID);
 	}
 
 	public void setMnemonic(String arg)
 	{
-		checkForChange(mnemonic, arg);
-		mnemonic = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_MNEMONIC, arg);
 	}
 
 	/**
@@ -150,13 +123,12 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 */
 	public String getMnemonic()
 	{
-		return mnemonic;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_MNEMONIC);
 	}
 
 	public void setLabelFor(String arg)
 	{
-		checkForChange(labelFor, arg);
-		labelFor = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_LABELFOR, arg);
 	}
 
 	/**
@@ -167,7 +139,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 */
 	public String getLabelFor()
 	{
-		return labelFor;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_LABELFOR);
 	}
 
 	/**
@@ -177,8 +149,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 */
 	public void setText(String arg)
 	{
-		checkForChange(text, arg);
-		text = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_TEXT, arg);
 	}
 
 	/**
@@ -186,7 +157,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 */
 	public String getText()
 	{
-		return text;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TEXT);
 	}
 
 	/**
@@ -196,13 +167,12 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 */
 	public void setVerticalAlignment(int arg)
 	{
-		checkForChange(verticalAlignment, arg);
-		verticalAlignment = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_VERTICALALIGNMENT, arg);
 	}
 
 	public int getVerticalAlignment()
 	{
-		return verticalAlignment;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_VERTICALALIGNMENT).intValue();
 	}
 
 	/**
@@ -212,18 +182,17 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 */
 	public void setHorizontalAlignment(int arg)
 	{
-		checkForChange(horizontalAlignment, arg);
-		horizontalAlignment = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_HORIZONTALALIGNMENT, arg);
 	}
 
 	public int getHorizontalAlignment()
 	{
-		return horizontalAlignment;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_HORIZONTALALIGNMENT).intValue();
 	}
 
 	public boolean getMultiLine()
 	{
-		return true;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_MULTILINE).booleanValue();
 	}
 
 	public boolean getAllowsTabs()
@@ -238,8 +207,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 */
 	public void setRolloverImageMediaID(int arg)
 	{
-		checkForChange(rolloverImageMediaID, arg);
-		rolloverImageMediaID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ROLLOVERIMAGEMEDIAID, arg);
 	}
 
 	/**
@@ -249,7 +217,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 */
 	public int getRolloverImageMediaID()
 	{
-		return rolloverImageMediaID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ROLLOVERIMAGEMEDIAID).intValue();
 	}
 
 	/**
@@ -259,8 +227,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 */
 	public void setImageMediaID(int arg)
 	{
-		checkForChange(imageMediaID, arg);
-		imageMediaID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_IMAGEMEDIAID, arg);
 	}
 
 	/**
@@ -268,7 +235,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 */
 	public int getImageMediaID()
 	{
-		return imageMediaID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_IMAGEMEDIAID).intValue();
 	}
 
 	/**
@@ -278,8 +245,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 */
 	public void setOnActionMethodID(int arg)
 	{
-		checkForChange(onActionMethodID, arg);
-		onActionMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID, arg);
 	}
 
 	/**
@@ -287,13 +253,12 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 */
 	public int getOnActionMethodID()
 	{
-		return onActionMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID).intValue();
 	}
 
 	public void setOnDoubleClickMethodID(int arg)
 	{
-		checkForChange(onDoubleClickMethodID, arg);
-		onDoubleClickMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDOUBLECLICKMETHODID, arg);
 	}
 
 	/**
@@ -306,13 +271,12 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 */
 	public int getOnDoubleClickMethodID()
 	{
-		return onDoubleClickMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDOUBLECLICKMETHODID).intValue();
 	}
 
 	public void setOnRightClickMethodID(int arg)
 	{
-		checkForChange(onRightClickMethodID, arg);
-		onRightClickMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID, arg);
 	}
 
 	/**
@@ -320,13 +284,12 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 */
 	public int getOnRightClickMethodID()
 	{
-		return onRightClickMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID).intValue();
 	}
 
 	public void setOnRenderMethodID(int arg)
 	{
-		checkForChange(onRenderMethodID, arg);
-		onRenderMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID, arg);
 	}
 
 	/**
@@ -334,22 +297,18 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 */
 	public int getOnRenderMethodID()
 	{
-		return onRenderMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID).intValue();
 	}
 
 	@Deprecated
 	public int getValuelistID()
 	{
-		return 0;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_VALUELISTID).intValue();
 	}
 
 	public Insets getMargin()
 	{
-		if (margin != null)
-		{
-			return new Insets(margin.top, margin.left, margin.bottom, margin.right);
-		}
-		return margin;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_MARGIN);
 	}
 
 	/**
@@ -359,8 +318,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 */
 	public void setMargin(Insets arg)
 	{
-		checkForChange(margin, arg);
-		margin = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_MARGIN, arg);
 	}
 
 	/**
@@ -375,7 +333,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 */
 	public boolean getDisplaysTags()
 	{
-		return displaysTags;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DISPLAYSTAGS).booleanValue();
 	}
 
 	/**
@@ -385,8 +343,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 */
 	public void setDisplaysTags(boolean arg)
 	{
-		checkForChange(displaysTags, arg);
-		displaysTags = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_DISPLAYSTAGS, arg);
 	}
 
 	/**
@@ -395,7 +352,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 */
 	public int getRotation()
 	{
-		return rotation;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ROTATION).intValue();
 	}
 
 	/**
@@ -405,9 +362,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 */
 	public void setRotation(int i)
 	{
-		if (i > 360) return;
-		checkForChange(rotation, i);
-		rotation = i;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ROTATION, i);
 	}
 
 	@Override
@@ -444,6 +399,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 */
 	public int getMediaOptions()
 	{
+		int mediaOptions = getTypedProperty(StaticContentSpecLoader.PROPERTY_MEDIAOPTIONS).intValue();
 		if (mediaOptions == 0)
 		{
 			// set the default to 14 (Reduce/Enlarge with aspect)
@@ -458,24 +414,25 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 */
 	public int getRolloverCursor()
 	{
-		return rolloverCursor;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ROLLOVERCURSOR).intValue();
 	}
 
 	public int getTabSeq()
 	{
-		if (onActionMethodID == 0) return -1;
-		return tabSeq;
+		if (getOnActionMethodID() == 0) return -1;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TABSEQ).intValue();
 	}
 
 
 	@Override
 	public Dimension getSize()
 	{
+		Dimension size = getTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE);
 		if (size == null)
 		{
 			return new Dimension(80, 20);
 		}
-		return super.getSize();
+		return size;
 	}
 
 	/**
@@ -485,8 +442,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 */
 	public void setMediaOptions(int i)
 	{
-		checkForChange(mediaOptions, i);
-		mediaOptions = i;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_MEDIAOPTIONS, i);
 	}
 
 	/**
@@ -497,8 +453,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 */
 	public void setRolloverCursor(int i)
 	{
-		checkForChange(rolloverCursor, i);
-		rolloverCursor = i;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ROLLOVERCURSOR, i);
 	}
 
 	/**
@@ -508,9 +463,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 */
 	public void setTabSeq(int i)
 	{
-		if (i < 1 && i != ISupportTabSeq.DEFAULT && i != ISupportTabSeq.SKIP) return;//irrelevant value from editor
-		checkForChange(tabSeq, i);
-		tabSeq = i;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_TABSEQ, i);
 	}
 
 	/**
@@ -519,7 +472,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 */
 	public boolean getShowClick()
 	{
-		return showClick;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_SHOWCLICK).booleanValue();
 	}
 
 	/**
@@ -529,8 +482,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 */
 	public void setShowClick(boolean arg)
 	{
-		checkForChange(showClick, arg);
-		showClick = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_SHOWCLICK, arg);
 	}
 
 	/**
@@ -543,7 +495,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 */
 	public boolean getShowFocus()
 	{
-		return showFocus;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_SHOWFOCUS).booleanValue();
 	}
 
 	/**
@@ -553,7 +505,6 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 */
 	public void setShowFocus(boolean arg)
 	{
-		checkForChange(showFocus, arg);
-		showFocus = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_SHOWFOCUS, arg);
 	}
 }

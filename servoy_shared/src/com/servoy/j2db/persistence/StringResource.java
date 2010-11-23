@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 
@@ -36,9 +36,6 @@ public abstract class StringResource extends AbstractRootObject implements Seria
 	public static final int FORM_TEMPLATE = 1; //.template
 	public static final int ELEMENTS_TEMPLATE = 2; //.template
 
-	private String content;
-	private int resourceType;
-
 	StringResource(IRepository repository, RootObjectMetaData metaData)
 	{
 		super(repository, metaData);
@@ -46,24 +43,22 @@ public abstract class StringResource extends AbstractRootObject implements Seria
 
 	public String getContent()
 	{
-		return content;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_CONTENT);
 	}
 
 	public void setContent(String txt)
 	{
-		checkForChange(content, txt);
-		this.content = txt;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_CONTENT, txt);
 	}
 
 	public int getResourceType()
 	{
-		return resourceType;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_RESOURCETYPE).intValue();
 	}
 
 	public void setResourceType(int arg)
 	{
-		checkForChange(resourceType, arg);
-		this.resourceType = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_RESOURCETYPE, arg);
 	}
 
 	public void loadFromFile(File f)

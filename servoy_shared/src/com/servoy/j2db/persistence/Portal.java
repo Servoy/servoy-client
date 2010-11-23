@@ -32,28 +32,6 @@ import com.servoy.j2db.util.UUID;
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
 public class Portal extends BaseComponent implements ISupportFormElements, ISupportScrollbars, ISupportTabSeq
 {
-	/*
-	 * Attributes, do not change default values do to repository default_textual_classvalue
-	 */
-	private String relationName;
-	private boolean reorderable;
-	private boolean resizeble;
-	private boolean sortable;
-	private boolean multiLine;
-	private int rowHeight;
-	private boolean showVerticalLines;
-	private boolean showHorizontalLines;
-	private Dimension intercellSpacing;
-	private String initialSort;
-	private int scrollbars;
-	private String rowBGColorCalculation;
-	private int tabSeq = ISupportTabSeq.DEFAULT;
-	private int onDragMethodID;
-	private int onDragEndMethodID;
-	private int onDragOverMethodID;
-	private int onDropMethodID;
-	private int onRenderMethodID;
-
 	/**
 	 * Constructor I
 	 */
@@ -74,8 +52,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 */
 	public void setRelationName(String arg)
 	{
-		checkForChange(relationName, arg);
-		relationName = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_RELATIONNAME, arg);
 	}
 
 	/**
@@ -84,7 +61,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 */
 	public String getRelationName()
 	{
-		return relationName;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_RELATIONNAME);
 	}
 
 	/**
@@ -94,8 +71,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 */
 	public void setRowHeight(int arg)
 	{
-		checkForChange(rowHeight, arg);
-		rowHeight = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ROWHEIGHT, arg);
 	}
 
 	/**
@@ -103,7 +79,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 */
 	public int getRowHeight()
 	{
-		return rowHeight;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ROWHEIGHT).intValue();
 	}
 
 	/**
@@ -113,8 +89,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 */
 	public void setReorderable(boolean arg)
 	{
-		checkForChange(reorderable, arg);
-		reorderable = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_REORDERABLE, arg);
 	}
 
 	/**
@@ -122,7 +97,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 */
 	public boolean getReorderable()
 	{
-		return reorderable;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_REORDERABLE).booleanValue();
 	}
 
 	/**
@@ -132,8 +107,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 */
 	public void setResizeble(boolean arg)
 	{
-		checkForChange(resizeble, arg);
-		resizeble = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_RESIZEBLE, arg);
 	}
 
 	/**
@@ -141,7 +115,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 */
 	public boolean getResizeble()
 	{
-		return resizeble;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_RESIZEBLE).booleanValue();
 	}
 
 	/**
@@ -151,8 +125,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 */
 	public void setSortable(boolean arg)
 	{
-		checkForChange(sortable, arg);
-		sortable = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_SORTABLE, arg);
 	}
 
 	/**
@@ -160,7 +133,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 */
 	public boolean getSortable()
 	{
-		return sortable;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_SORTABLE).booleanValue();
 	}
 
 	/**
@@ -170,8 +143,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 */
 	public void setMultiLine(boolean arg)
 	{
-		checkForChange(multiLine, arg);
-		multiLine = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_MULTILINE, arg);
 	}
 
 	/**
@@ -180,7 +152,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 */
 	public boolean getMultiLine()
 	{
-		return multiLine;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_MULTILINE).booleanValue();
 	}
 
 	/**
@@ -193,7 +165,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 */
 	public boolean getShowVerticalLines()
 	{
-		return showVerticalLines;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_SHOWVERTICALLINES).booleanValue();
 	}
 
 	/**
@@ -203,8 +175,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 */
 	public void setShowVerticalLines(boolean arg)
 	{
-		checkForChange(showVerticalLines, arg);
-		showVerticalLines = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_SHOWVERTICALLINES, arg);
 	}
 
 	/**
@@ -217,7 +188,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 */
 	public boolean getShowHorizontalLines()
 	{
-		return showHorizontalLines;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_SHOWHORIZONTALLINES).booleanValue();
 	}
 
 	/**
@@ -227,8 +198,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 */
 	public void setShowHorizontalLines(boolean arg)
 	{
-		checkForChange(showHorizontalLines, arg);
-		showHorizontalLines = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_SHOWHORIZONTALLINES, arg);
 	}
 
 	/**
@@ -238,8 +208,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 */
 	public void setIntercellSpacing(Dimension arg)
 	{
-		checkForChange(intercellSpacing, arg);
-		intercellSpacing = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_INTERCELLSPACING, arg);
 	}
 
 
@@ -249,7 +218,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 */
 	public Dimension getIntercellSpacing()
 	{
-		return intercellSpacing;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_INTERCELLSPACING);
 	}
 
 	/**
@@ -259,8 +228,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 */
 	public void setInitialSort(String arg)
 	{
-		checkForChange(initialSort, arg);
-		initialSort = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_INITIALSORT, arg);
 	}
 
 	/**
@@ -268,7 +236,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 */
 	public String getInitialSort()
 	{
-		return initialSort;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_INITIALSORT);
 	}
 
 	/*
@@ -361,10 +329,9 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	/*
 	 * _____________________________________________________________ Methods from this class
 	 */
-
 	public int getScrollbars()
 	{
-		return scrollbars;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_SCROLLBARS).intValue();
 	}
 
 	/**
@@ -374,8 +341,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 */
 	public void setScrollbars(int i)
 	{
-		checkForChange(scrollbars, i);
-		scrollbars = i;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_SCROLLBARS, i);
 	}
 
 	/**
@@ -401,7 +367,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 */
 	public String getRowBGColorCalculation()
 	{
-		return rowBGColorCalculation;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ROWBGCOLORCALCULATION);
 	}
 
 	/**
@@ -411,8 +377,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 */
 	public void setRowBGColorCalculation(String arg)
 	{
-		checkForChange(rowBGColorCalculation, arg);
-		rowBGColorCalculation = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ROWBGCOLORCALCULATION, arg);
 	}
 
 	public Solution getSolution()
@@ -427,14 +392,12 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 */
 	public void setTabSeq(int arg)
 	{
-		if (arg < 1 && arg != ISupportTabSeq.DEFAULT && arg != ISupportTabSeq.SKIP) return;//irrelevant value from editor
-		checkForChange(tabSeq, arg);
-		tabSeq = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_TABSEQ, arg);
 	}
 
 	public int getTabSeq()
 	{
-		return tabSeq;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TABSEQ).intValue();
 	}
 
 	@Override
@@ -456,13 +419,12 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 */
 	public int getOnDragMethodID()
 	{
-		return onDragMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID).intValue();
 	}
 
 	public void setOnDragMethodID(int arg)
 	{
-		checkForChange(onDragMethodID, arg);
-		onDragMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID, arg);
 	}
 
 	/**
@@ -470,13 +432,12 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 */
 	public int getOnDragEndMethodID()
 	{
-		return onDragEndMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID).intValue();
 	}
 
 	public void setOnDragEndMethodID(int arg)
 	{
-		checkForChange(onDragEndMethodID, arg);
-		onDragEndMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID, arg);
 	}
 
 	/**
@@ -484,13 +445,12 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 */
 	public int getOnDragOverMethodID()
 	{
-		return onDragOverMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID).intValue();
 	}
 
 	public void setOnDragOverMethodID(int arg)
 	{
-		checkForChange(onDragOverMethodID, arg);
-		onDragOverMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID, arg);
 	}
 
 	/**
@@ -498,19 +458,17 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 */
 	public int getOnDropMethodID()
 	{
-		return onDropMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDROPMETHODID).intValue();
 	}
 
 	public void setOnDropMethodID(int arg)
 	{
-		checkForChange(onDropMethodID, arg);
-		onDropMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDROPMETHODID, arg);
 	}
 
 	public void setOnRenderMethodID(int arg)
 	{
-		checkForChange(onRenderMethodID, arg);
-		onRenderMethodID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID, arg);
 	}
 
 	/**
@@ -518,6 +476,6 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 */
 	public int getOnRenderMethodID()
 	{
-		return onRenderMethodID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID).intValue();
 	}
 }

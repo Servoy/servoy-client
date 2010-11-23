@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 
@@ -44,33 +44,9 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 
 	public static final int GLOBAL_METHOD_VALUES = 4;
 
-	/*
-	 * Attributes, do not change default values do to repository default_textual_classvalue
-	 */
-	private String name = null;
-	private int valueListType; // CUSTOM_VALUES or DATABASE_VALUES
-	private String customValues = null;
-
-	private String dataSource = null;//TABLE_VALUES
-
-	private String relationName;//RELATED_VALUES
-
-	private String dataProviderID1 = null;//1
-	private String dataProviderID2 = null;//2
-	private String dataProviderID3 = null;//4
-	private int showDataProvider;
-	private int returnDataProviders;
-
-	private int fallbackValueListID;
-
-	private String separator = null;
-	private String sortOptions = null;
-
 	public static final int EMPTY_VALUE_ALWAYS = 0;
 	public static final int EMPTY_VALUE_NEVER = 1;
 	public static final int EMPTY_VALUE_ONCREATION_ONLY = 2; //TODO:not impl yet
-	private int addEmptyValue;
-	private boolean useTableFilter; //only used for db valuelist
 
 	/**
 	 * Constructor I
@@ -101,8 +77,7 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	public void updateName(IValidateName validator, String arg) throws RepositoryException
 	{
 		validator.checkName(arg, getID(), new ValidatorSearchContext(IRepository.VALUELISTS), false);
-		checkForNameChange(name, arg);
-		name = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg, false);
 		getRootObject().getChangeHandler().fireIPersistChanged(this);
 	}
 
@@ -113,8 +88,7 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	 */
 	public void setName(String arg)
 	{
-		if (name != null) throw new UnsupportedOperationException("Can't set name 2x, use updateName"); //$NON-NLS-1$
-		name = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 	}
 
 	/**
@@ -124,7 +98,7 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	 */
 	public String getName()
 	{
-		return name;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_NAME);
 	}
 
 	/**
@@ -134,8 +108,7 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	 */
 	public void setValueListType(int arg)
 	{
-		checkForChange(valueListType, arg);
-		valueListType = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_VALUELISTTYPE, arg);
 	}
 
 	/**
@@ -143,12 +116,12 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	 */
 	public int getValueListType()
 	{
-		return valueListType;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_VALUELISTTYPE).intValue();
 	}
 
 	public int getDatabaseValuesType()
 	{
-		return (relationName == null ? TABLE_VALUES : RELATED_VALUES);
+		return (getRelationName() == null ? TABLE_VALUES : RELATED_VALUES);
 	}
 
 
@@ -160,12 +133,12 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	public void setRelationName(String relName)
 	{
 		String arg = relName;
+		String relationName = getRelationName();
 		if (arg != null && relationName != null && relationName.startsWith(".")) //$NON-NLS-1$
 		{
 			arg = arg + relationName; // relationName was used to store deprecated value of nmrelation
 		}
-		checkForChange(relationName, arg);
-		relationName = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_RELATIONNAME, arg);
 	}
 
 	/**
@@ -173,7 +146,7 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	 */
 	public String getRelationName()
 	{
-		return relationName;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_RELATIONNAME);
 	}
 
 	/**
@@ -188,6 +161,7 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	{
 		if (arg != null)
 		{
+			String relationName = getRelationName();
 			if (relationName == null)
 			{
 				setRelationName('.' + arg);
@@ -215,6 +189,7 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	@Deprecated
 	public String getRelationNMName()
 	{
+		String relationName = getRelationName();
 		if (relationName != null)
 		{
 			int dot = relationName.lastIndexOf('.');
@@ -234,7 +209,7 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	 */
 	public String getCustomValues()
 	{
-		return customValues;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMVALUES);
 	}
 
 	/**
@@ -244,8 +219,7 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	 */
 	public void setCustomValues(String arg)
 	{
-		checkForChange(customValues, arg);
-		customValues = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMVALUES, arg);
 	}
 
 	/**
@@ -254,7 +228,7 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	 */
 	public String getDataSource()
 	{
-		return dataSource;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DATASOURCE);
 	}
 
 	/**
@@ -264,8 +238,7 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	 */
 	public void setDataSource(String arg)
 	{
-		checkForChange(dataSource, arg);
-		dataSource = arg == null ? null : (arg.intern());
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_DATASOURCE, arg);
 	}
 
 	/**
@@ -274,6 +247,7 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	 */
 	public String getServerName()
 	{
+		String dataSource = getDataSource();
 		if (dataSource == null)
 		{
 			return null;
@@ -308,9 +282,7 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	 */
 	public void setServerName(String arg)
 	{
-		String uri = DataSourceUtils.createDBTableDataSource(arg, getTableName());
-		checkForChange(dataSource, uri);
-		dataSource = uri == null ? null : (uri.intern());
+		setDataSource(DataSourceUtils.createDBTableDataSource(arg, getTableName()));
 	}
 
 	/**
@@ -319,6 +291,7 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	 */
 	public String getTableName()
 	{
+		String dataSource = getDataSource();
 		if (dataSource == null)
 		{
 			return null;
@@ -348,6 +321,7 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 
 	public ITable getTable() throws RepositoryException, RemoteException
 	{
+		String dataSource = getDataSource();
 		if (dataSource == null)
 		{
 			return null;
@@ -381,9 +355,7 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	 */
 	public void setTableName(String arg)
 	{
-		String uri = DataSourceUtils.createDBTableDataSource(getServerName(), arg);
-		checkForChange(dataSource, uri);
-		dataSource = uri == null ? null : (uri.intern());
+		setDataSource(DataSourceUtils.createDBTableDataSource(getServerName(), arg));
 	}
 
 	/**
@@ -393,7 +365,7 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	 */
 	public String getDataProviderID1()
 	{
-		return dataProviderID1;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID1);
 	}
 
 	/**
@@ -403,8 +375,7 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	 */
 	public void setDataProviderID1(String arg)
 	{
-		checkForChange(dataProviderID1, arg);
-		dataProviderID1 = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID1, arg);
 		dataProviderIDs = null;
 	}
 
@@ -415,7 +386,7 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	 */
 	public String getDataProviderID2()
 	{
-		return dataProviderID2;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID2);
 	}
 
 	/**
@@ -425,8 +396,7 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	 */
 	public void setDataProviderID2(String arg)
 	{
-		checkForChange(dataProviderID2, arg);
-		dataProviderID2 = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID2, arg);
 		dataProviderIDs = null;
 	}
 
@@ -437,7 +407,7 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	 */
 	public String getDataProviderID3()
 	{
-		return dataProviderID3;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID3);
 	}
 
 	/**
@@ -447,8 +417,7 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	 */
 	public void setDataProviderID3(String arg)
 	{
-		checkForChange(dataProviderID3, arg);
-		dataProviderID3 = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID3, arg);
 		dataProviderIDs = null;
 	}
 
@@ -459,8 +428,10 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	 */
 	public String getSeparator()
 	{
+		String separator = getTypedProperty(StaticContentSpecLoader.PROPERTY_SEPARATOR);
 		if (separator == null) separator = " "; //$NON-NLS-1$
 		return separator;
+
 	}
 
 	/**
@@ -470,8 +441,7 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	 */
 	public void setSeparator(String arg)
 	{
-		checkForChange(separator, arg);
-		separator = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_SEPARATOR, arg);
 	}
 
 	/**
@@ -480,7 +450,7 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	 */
 	public String getSortOptions()
 	{
-		return sortOptions;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_SORTOPTIONS);
 	}
 
 	/**
@@ -490,8 +460,7 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	 */
 	public void setSortOptions(String arg)
 	{
-		checkForChange(sortOptions, arg);
-		sortOptions = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_SORTOPTIONS, arg);
 	}
 
 	/**
@@ -501,7 +470,7 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	 */
 	public int getShowDataProviders()
 	{
-		return showDataProvider;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_SHOWDATAPROVIDERS).intValue();
 	}
 
 	/**
@@ -511,8 +480,7 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	 */
 	public void setShowDataProviders(int arg)
 	{
-		checkForChange(showDataProvider, arg);
-		showDataProvider = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_SHOWDATAPROVIDERS, arg);
 	}
 
 	/**
@@ -522,7 +490,7 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	 */
 	public int getReturnDataProviders()
 	{
-		return returnDataProviders;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_RETURNDATAPROVIDERS).intValue();
 	}
 
 	/**
@@ -532,8 +500,7 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	 */
 	public void setReturnDataProviders(int arg)
 	{
-		checkForChange(returnDataProviders, arg);
-		returnDataProviders = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_RETURNDATAPROVIDERS, arg);
 	}
 
 	@Override
@@ -549,18 +516,18 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 		if (dataProviderIDs == null)
 		{
 			List<String> all = new ArrayList<String>();
-			int total = (showDataProvider | returnDataProviders);
+			int total = (getShowDataProviders() | getReturnDataProviders());
 			if ((total & 1) != 0)
 			{
-				all.add(dataProviderID1);
+				all.add(getDataProviderID1());
 			}
 			if ((total & 2) != 0)
 			{
-				all.add(dataProviderID2);
+				all.add(getDataProviderID2());
 			}
 			if ((total & 4) != 0)
 			{
-				all.add(dataProviderID3);
+				all.add(getDataProviderID3());
 			}
 			dataProviderIDs = new String[all.size()];
 			all.toArray(dataProviderIDs);
@@ -573,7 +540,7 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	 */
 	public int getAddEmptyValue()
 	{
-		return addEmptyValue;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ADDEMPTYVALUE).intValue();
 	}
 
 	/**
@@ -583,8 +550,7 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	 */
 	public void setAddEmptyValue(int arg)
 	{
-		checkForChange(addEmptyValue, arg);
-		addEmptyValue = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ADDEMPTYVALUE, arg);
 	}
 
 
@@ -610,23 +576,21 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	 */
 	public boolean getUseTableFilter()
 	{
-		return useTableFilter;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_USETABLEFILTER).booleanValue();
 	}
 
 	public void setUseTableFilter(boolean arg)
 	{
-		checkForChange(useTableFilter, arg);
-		useTableFilter = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_USETABLEFILTER, arg);
 	}
 
 	public int getFallbackValueListID()
 	{
-		return fallbackValueListID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_FALLBACKVALUELISTID).intValue();
 	}
 
 	public void setFallbackValueListID(int id)
 	{
-		checkForChange(fallbackValueListID, id);
-		this.fallbackValueListID = id;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_FALLBACKVALUELISTID, id);
 	}
 }

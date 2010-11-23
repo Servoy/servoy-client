@@ -33,27 +33,6 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 {
 	private static final long serialVersionUID = 1L;
 
-	/*
-	 * Attributes, do not change default values do to repository default_textual_classvalue
-	 */
-	private int anchors;
-	private int formIndex;
-	private java.awt.Color background = null;
-	private java.awt.Color foreground = null;
-	private String borderType = null;
-	protected java.awt.Dimension size = null;
-	private java.awt.Point location = null;
-	private String fontType = null;
-	private boolean printable = true;//remark not default!
-	private boolean visible = true;//remark not default!
-	private boolean enabled = true;//remark not default!
-	private String name = null;
-	private String groupID;
-	private boolean locked;
-	private int printSliding;
-	private boolean transparent;
-	private String styleClass;
-
 /*
  * _____________________________________________________________ Declaration and definition of constructors
  */
@@ -72,19 +51,17 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	 */
 	public void setAnchors(int arg)
 	{
-		checkForChange(anchors, arg);
-		anchors = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ANCHORS, arg);
 	}
 
 	public int getAnchors()
 	{
-		return anchors;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ANCHORS).intValue();
 	}
 
 	public void setBackground(java.awt.Color arg)
 	{
-		checkForChange(background, arg);
-		background = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_BACKGROUND, arg);
 	}
 
 	/**
@@ -92,13 +69,12 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	 */
 	public java.awt.Color getBackground()
 	{
-		return background;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_BACKGROUND);
 	}
 
 	public void setForeground(java.awt.Color arg)
 	{
-		checkForChange(foreground, arg);
-		foreground = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_FOREGROUND, arg);
 	}
 
 	/**
@@ -106,7 +82,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	 */
 	public java.awt.Color getForeground()
 	{
-		return foreground;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_FOREGROUND);
 	}
 
 	/**
@@ -117,8 +93,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	 */
 	public void setBorderType(String arg)
 	{
-		checkForChange(borderType, arg);
-		borderType = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_BORDERTYPE, arg);
 	}
 
 	/**
@@ -126,7 +101,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	 */
 	public String getBorderType()
 	{
-		return borderType;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_BORDERTYPE);
 	}
 
 	/**
@@ -137,8 +112,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	 */
 	public void setFontType(String arg)
 	{
-		checkForChange(fontType, arg);
-		fontType = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_FONTTYPE, arg);
 	}
 
 	/**
@@ -146,7 +120,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	 */
 	public String getFontType()
 	{
-		return fontType;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_FONTTYPE);
 	}
 
 	/**
@@ -156,20 +130,18 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	 */
 	public void setSize(java.awt.Dimension arg)
 	{
-		checkForChange(size, arg);
-		size = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE, arg);
+
 	}
 
 	public java.awt.Dimension getSize()
 	{
+		Dimension size = getTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE);
 		if (size == null)
 		{
 			return new java.awt.Dimension(140, 20);
 		}
-		else
-		{
-			return new Dimension(size);
-		}
+		return size;
 	}
 
 	/**
@@ -179,17 +151,17 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	 */
 	public void setLocation(java.awt.Point arg)
 	{
-		checkForChange(location, arg);
-		location = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_LOCATION, arg);
 	}
 
 	public java.awt.Point getLocation()
 	{
-		if (location == null)
+		java.awt.Point point = getTypedProperty(StaticContentSpecLoader.PROPERTY_LOCATION);
+		if (point == null)
 		{
-			return new Point(10, 10);
+			point = new Point(10, 10);
 		}
-		return new Point(location);
+		return point;
 	}
 
 	/**
@@ -201,14 +173,8 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	 */
 	public boolean contains(int x, int y)
 	{
-		if (size != null)
-		{
-			return (x >= 0) && (x < size.width) && (y >= 0) && (y < size.height);
-		}
-		else
-		{
-			return false;
-		}
+		Dimension size = getSize();
+		return (size != null) && (x >= 0) && (x < size.width) && (y >= 0) && (y < size.height);
 	}
 
 	/**
@@ -220,14 +186,9 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	 */
 	public boolean containsAbsolute(int x, int y)
 	{
-		if (location != null && size != null)
-		{
-			return (x >= location.x && x < location.x + size.width && y >= location.y && y < location.y + size.height);
-		}
-		else
-		{
-			return false;
-		}
+		Point location = getLocation();
+		Dimension size = getSize();
+		return location != null && size != null && x >= location.x && x < location.x + size.width && y >= location.y && y < location.y + size.height;
 	}
 
 	/**
@@ -242,46 +203,47 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 
 	public void setPrintable(boolean arg)
 	{
-		checkForChange(printable, arg);
-		printable = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_PRINTABLE, arg);
 	}
 
 	public boolean getPrintable()
 	{
-		return printable;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_PRINTABLE).booleanValue();
 	}
 
 	public void setVisible(boolean arg)
 	{
-		checkForChange(visible, arg);
-		visible = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_VISIBLE, arg);
 	}
 
 	public boolean getVisible()
 	{
-		return visible;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_VISIBLE).booleanValue();
 	}
 
 	public void setEnabled(boolean arg)
 	{
-		checkForChange(enabled, arg);
-		enabled = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ENABLED, arg);
 	}
 
 	public boolean getEnabled()
 	{
-		return enabled;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ENABLED).booleanValue();
 	}
 
 	public void setFormIndex(int arg)
 	{
-		checkForChange(formIndex, arg);
-		formIndex = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_FORMINDEX, arg);
 	}
 
 	public int getFormIndex()
 	{
-		return formIndex;
+		Integer ii = getTypedProperty(StaticContentSpecLoader.PROPERTY_FORMINDEX);
+		if (ii == null)
+		{
+			int abc = 23;
+		}
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_FORMINDEX).intValue();
 	}
 
 	/**
@@ -291,9 +253,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	 */
 	public void setName(String arg)
 	{
-		if (name != null) throw new UnsupportedOperationException("Can't set name 2x, use updateName"); //$NON-NLS-1$
-		checkForChange(null, arg);
-		name = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 	}
 
 	/**
@@ -307,16 +267,16 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 		{
 			validator.checkName(arg, getID(), new ValidatorSearchContext(getParent(), IRepository.ELEMENTS), false);
 		}
-		checkForNameChange(name, arg);
-		name = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg, false);
 	}
+
 
 	/**
 	 * The name of the component. Through this name it can also accessed in methods.
 	 */
 	public String getName()
 	{
-		return name;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_NAME);
 	}
 
 	/**
@@ -326,7 +286,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	 */
 	public String getGroupID()
 	{
-		return groupID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_GROUPID);
 	}
 
 	/**
@@ -336,7 +296,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	 */
 	public boolean getLocked()
 	{
-		return locked;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_LOCKED).booleanValue();
 	}
 
 	/**
@@ -346,8 +306,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	 */
 	public void setGroupID(String arg)
 	{
-		checkForChange(groupID, arg);
-		groupID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_GROUPID, arg);
 	}
 
 	/**
@@ -357,8 +316,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	 */
 	public void setLocked(boolean arg)
 	{
-		checkForChange(locked, arg);
-		locked = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_LOCKED, arg);
 	}
 
 	/**
@@ -369,7 +327,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	 */
 	public int getPrintSliding()
 	{
-		return printSliding;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_PRINTSLIDING).intValue();
 	}
 
 	/**
@@ -379,8 +337,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	 */
 	public void setPrintSliding(int i)
 	{
-		checkForChange(printSliding, i);
-		printSliding = i;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_PRINTSLIDING, i);
 	}
 
 	/**
@@ -390,8 +347,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	 */
 	public void setTransparent(boolean arg)
 	{
-		checkForChange(transparent, arg);
-		transparent = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_TRANSPARENT, arg);
 	}
 
 	/**
@@ -402,7 +358,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	 */
 	public boolean getTransparent()
 	{
-		return transparent;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TRANSPARENT).booleanValue();
 	}
 
 	/**
@@ -418,7 +374,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	 */
 	public String getStyleClass()
 	{
-		return styleClass;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_STYLECLASS);
 	}
 
 	/**
@@ -426,16 +382,15 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	 */
 	public void setStyleClass(String arg)
 	{
-		checkForChange(styleClass, arg);
-		styleClass = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_STYLECLASS, arg);
 	}
 
 	@Override
 	public IPersist clonePersist()
 	{
 		BaseComponent baseComponentClone = (BaseComponent)super.clonePersist();
-		if (size != null) baseComponentClone.setSize(new Dimension(size));
-		if (location != null) baseComponentClone.setLocation(new Point(location));
+		if (getPropertiesMap().containsKey(StaticContentSpecLoader.PROPERTY_SIZE)) baseComponentClone.setSize(getSize());
+		if (getPropertiesMap().containsKey(StaticContentSpecLoader.PROPERTY_LOCATION)) baseComponentClone.setLocation(getLocation());
 
 		return baseComponentClone;
 	}

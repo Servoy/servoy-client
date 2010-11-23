@@ -514,6 +514,15 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 				Solution[] mods = activeSolutionHandler.loadActiveSolutions(solutionAndModuleMetaDatas.toArray(new RootObjectMetaData[solutionAndModuleMetaDatas.size()]));
 				setSolutionAndModules(mainSolutionMetaData.getName(), mods);
+				Iterator<Form> it = getForms(false);
+				while (it.hasNext())
+				{
+					Form form = it.next();
+					if (form.getExtendsFormID() > 0)
+					{
+						form.setExtendsForm(getForm(form.getExtendsFormID()));
+					}
+				}
 			}
 		}
 	}
@@ -1317,11 +1326,31 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	public void iPersistChanged(IPersist persist)
 	{
 		flush(persist);
+		if (persist instanceof Form)
+		{
+			Form form = (Form)persist;
+			if (form.getExtendsFormID() > 0)
+			{
+				form.setExtendsForm(getForm(form.getExtendsFormID()));
+			}
+			else
+			{
+				form.setExtendsForm(null);
+			}
+		}
 	}
 
 	public void iPersistCreated(IPersist persist)
 	{
 		flush(persist);
+		if (persist instanceof Form)
+		{
+			Form form = (Form)persist;
+			if (form.getExtendsFormID() > 0)
+			{
+				form.setExtendsForm(getForm(form.getExtendsFormID()));
+			}
+		}
 	}
 
 	public void iPersistRemoved(IPersist persist)

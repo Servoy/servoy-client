@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 
@@ -31,22 +31,7 @@ import com.servoy.j2db.util.UUID;
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
 public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneable, ISupportUpdateableName, ISupportMedia, ICloneable
 {
-	/*
-	 * Attributes, do not change default values do to repository default_textual_classvalue
-	 */
-	private int containsFormID;
-	private java.awt.Point location = null;// x-as is display_sequence
 	private java.awt.Dimension dimension;
-	private String relationName;
-	private String text = null;
-	private String name = null;
-	private int imageMediaID;
-	private String toolTipText = null;
-	private String groupID;
-	private boolean locked;
-	private java.awt.Color foreground = null;
-	private java.awt.Color background = null;
-	private boolean useNewFormInstance;
 
 	/**
 	 * Constructor I
@@ -59,11 +44,9 @@ public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneab
 	/*
 	 * _____________________________________________________________ Methods from this class
 	 */
-
 	public void setName(String arg)
 	{
-		if (name != null) throw new UnsupportedOperationException("Can't set name 2x, use updateName"); //$NON-NLS-1$
-		name = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 	}
 
 	/**
@@ -77,16 +60,17 @@ public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneab
 		{
 			validator.checkName(arg, getID(), new ValidatorSearchContext(getParent(), IRepository.TABS), false);
 		}
-		checkForNameChange(name, arg);
-		name = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg, false);
 	}
 
 	@Override
 	public IPersist clonePersist()
 	{
 		Tab baseComponentClone = (Tab)super.clonePersist();
-		if (dimension != null) baseComponentClone.setSize(new Dimension(dimension));
-		if (location != null) baseComponentClone.setLocation(new Point(location));
+		Dimension size = getSize();
+		if (size != null) baseComponentClone.setSize(size);
+		Point location = getLocation();
+		if (location != null) baseComponentClone.setLocation(location);
 
 		return baseComponentClone;
 	}
@@ -96,7 +80,7 @@ public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneab
 	 */
 	public String getName()
 	{
-		return name;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_NAME);
 	}
 
 	/**
@@ -106,8 +90,7 @@ public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneab
 	 */
 	public void setContainsFormID(int arg)
 	{
-		checkForChange(containsFormID, arg);
-		containsFormID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_CONTAINSFORMID, arg);
 	}
 
 	/**
@@ -115,7 +98,7 @@ public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneab
 	 */
 	public int getContainsFormID()
 	{
-		return containsFormID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_CONTAINSFORMID).intValue();
 	}
 
 	/**
@@ -125,8 +108,7 @@ public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneab
 	 */
 	public void setRelationName(String arg)
 	{
-		checkForChange(relationName, arg);
-		relationName = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_RELATIONNAME, arg);
 	}
 
 	/**
@@ -135,13 +117,12 @@ public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneab
 	 */
 	public String getRelationName()
 	{
-		return relationName;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_RELATIONNAME);
 	}
 
 	public void setText(String arg)
 	{
-		checkForChange(text, arg);
-		text = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_TEXT, arg);
 	}
 
 	/**
@@ -149,13 +130,12 @@ public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneab
 	 */
 	public String getText()
 	{
-		return text;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TEXT);
 	}
 
 	public void setToolTipText(String arg)
 	{
-		checkForChange(toolTipText, arg);
-		toolTipText = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_TOOLTIPTEXT, arg);
 	}
 
 	/**
@@ -163,13 +143,12 @@ public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneab
 	 */
 	public String getToolTipText()
 	{
-		return toolTipText;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TOOLTIPTEXT);
 	}
 
 	public void setImageMediaID(int arg)
 	{
-		checkForChange(imageMediaID, arg);
-		imageMediaID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_IMAGEMEDIAID, arg);
 	}
 
 	/**
@@ -177,7 +156,7 @@ public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneab
 	 */
 	public int getImageMediaID()
 	{
-		return imageMediaID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_IMAGEMEDIAID).intValue();
 	}
 
 
@@ -190,27 +169,24 @@ public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneab
 //	{
 //		return false;
 //	}
-
 	public void setLocation(java.awt.Point p)
 	{
-		checkForChange(location, p);
-		location = p;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_LOCATION, p);
 	}
 
 	public java.awt.Point getLocation()
 	{
-		if (location == null) return new Point(0, 0);
-		return new Point(location);
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_LOCATION);
 	}
 
 	public void setSize(java.awt.Dimension d)
 	{
-		checkForChange(dimension, d);
 		dimension = d;
 	}
 
 	public java.awt.Dimension getSize()
 	{
+		// size doesn't exist in repository
 		if (dimension == null) dimension = new Dimension(80, 20);
 		return new Dimension(dimension);
 	}
@@ -227,7 +203,7 @@ public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneab
 	 */
 	public String getGroupID()
 	{
-		return groupID;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_GROUPID);
 	}
 
 	/**
@@ -237,7 +213,7 @@ public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneab
 	 */
 	public boolean getLocked()
 	{
-		return locked;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_LOCKED).booleanValue();
 	}
 
 	/**
@@ -247,8 +223,7 @@ public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneab
 	 */
 	public void setGroupID(String arg)
 	{
-		checkForChange(groupID, arg);
-		groupID = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_GROUPID, arg);
 	}
 
 	/**
@@ -258,21 +233,19 @@ public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneab
 	 */
 	public void setLocked(boolean arg)
 	{
-		checkForChange(locked, arg);
-		locked = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_LOCKED, arg);
 	}
 
 	@Deprecated
 	public java.awt.Color getBackground()
 	{
-		return background;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_BACKGROUND);
 	}
 
 	@Deprecated
 	public void setBackground(java.awt.Color arg)
 	{
-		checkForChange(background, arg);
-		background = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_BACKGROUND, arg);
 	}
 
 	/**
@@ -280,24 +253,22 @@ public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneab
 	 */
 	public java.awt.Color getForeground()
 	{
-		return foreground;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_FOREGROUND);
 	}
 
 	public void setForeground(java.awt.Color arg)
 	{
-		checkForChange(foreground, arg);
-		foreground = arg;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_FOREGROUND, arg);
 	}
 
 	public boolean getUseNewFormInstance()
 	{
-		return this.useNewFormInstance;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_USENEWFORMINSTANCE).booleanValue();
 	}
 
 	public void setUseNewFormInstance(boolean useNewFormInstance)
 	{
-		checkForChange(this.useNewFormInstance, useNewFormInstance);
-		this.useNewFormInstance = useNewFormInstance;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_USENEWFORMINSTANCE, useNewFormInstance);
 	}
 
 }
