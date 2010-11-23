@@ -2137,7 +2137,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	@Override
 	public boolean isOverrideElement()
 	{
-		return getPropertiesMap().containsKey(StaticContentSpecLoader.PROPERTY_EXTENDSFORMID.getPropertyName()) && getExtendsFormID() > 0;
+		return hasProperty(StaticContentSpecLoader.PROPERTY_EXTENDSFORMID.getPropertyName()) && getExtendsFormID() > 0;
 	}
 
 	@Override

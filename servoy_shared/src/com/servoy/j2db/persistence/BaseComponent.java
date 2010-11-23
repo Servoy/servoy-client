@@ -389,8 +389,8 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	public IPersist clonePersist()
 	{
 		BaseComponent baseComponentClone = (BaseComponent)super.clonePersist();
-		if (getPropertiesMap().containsKey(StaticContentSpecLoader.PROPERTY_SIZE)) baseComponentClone.setSize(getSize());
-		if (getPropertiesMap().containsKey(StaticContentSpecLoader.PROPERTY_LOCATION)) baseComponentClone.setLocation(getLocation());
+		if (hasProperty(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName())) baseComponentClone.setSize(getSize());
+		if (hasProperty(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName())) baseComponentClone.setLocation(getLocation());
 
 		return baseComponentClone;
 	}

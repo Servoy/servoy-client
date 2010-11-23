@@ -17,8 +17,10 @@
 package com.servoy.j2db.scripting.solutionmodel;
 
 import com.servoy.j2db.persistence.AbstractBase;
+import com.servoy.j2db.persistence.AbstractRepository;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -83,7 +85,27 @@ public class JSBase<T extends AbstractBase>
 				// inherited persist
 				try
 				{
-					baseComponent = (T)tempPersist.cloneObj(getJSParent().getSupportChild(), false, null, false, false);
+					ISupportChilds overrideParent = getJSParent().getSupportChild();
+					if (!(tempPersist.getParent() instanceof Form))
+					{
+						overrideParent = null;
+						overrideParent = (ISupportChilds)AbstractRepository.searchPersist((Form)context, tempPersist.getParent().getUUID());
+						if (parent == null)
+						{
+							try
+							{
+								parent = (ISupportChilds)((AbstractBase)persist.getParent()).cloneObj((Form)context, false, null, false, false);
+								((AbstractBase)parent).resetUUID(persist.getParent().getUUID());
+								((AbstractBase)parent).copyPropertiesMap(null);
+								((AbstractBase)parent).putOverrideProperty(((Form)persist.getAncestor(IRepository.FORMS)).getName());
+							}
+							catch (Exception ex)
+							{
+								Debug.error(ex);
+							}
+						}
+					}
+					baseComponent = (T)tempPersist.cloneObj(overrideParent, false, null, false, false);
 					baseComponent.resetUUID(tempPersist.getUUID());
 					baseComponent.copyPropertiesMap(null);
 					baseComponent.putOverrideProperty(((Form)tempPersist.getAncestor(IRepository.FORMS)).getName());

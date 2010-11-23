@@ -95,6 +95,11 @@ public abstract class AbstractBase implements IPersist
 		propertiesMap.remove(propertyName);
 	}
 
+	public boolean hasProperty(String propertyName)
+	{
+		return propertiesMap.containsKey(propertyName);
+	}
+
 	public void copyPropertiesMap(Map<String, Object> newProperties)
 	{
 		if (newProperties != null)
@@ -180,20 +185,12 @@ public abstract class AbstractBase implements IPersist
 		return (T)getProperty(property.getPropertyName());
 	}
 
-	private void setTypedProperty(TypedProperty<Integer> property, int value)
+	protected void setTypedProperty(TypedProperty<Integer> property, int value)
 	{
-		if (property == StaticContentSpecLoader.PROPERTY_TABSEQ && value < 1 && value != ISupportTabSeq.DEFAULT && value != ISupportTabSeq.SKIP)
-		{
-			return;//irrelevant value from editor
-		}
-		if (property == StaticContentSpecLoader.PROPERTY_ROTATION && value > 360)
-		{
-			return;
-		}
 		setProperty(property.getPropertyName(), Integer.valueOf(value));
 	}
 
-	private void setTypedProperty(TypedProperty<Boolean> property, boolean value)
+	protected void setTypedProperty(TypedProperty<Boolean> property, boolean value)
 	{
 		setProperty(property.getPropertyName(), Boolean.valueOf(value));
 	}
@@ -210,6 +207,19 @@ public abstract class AbstractBase implements IPersist
 			if (property == StaticContentSpecLoader.PROPERTY_NAME && propertiesMap.containsKey(property.getPropertyName()))
 			{
 				throw new UnsupportedOperationException("Can't set name 2x, use updateName"); //$NON-NLS-1$
+			}
+		}
+		if (value instanceof Integer)
+		{
+			Integer intValue = (Integer)value;
+			if (property == StaticContentSpecLoader.PROPERTY_TABSEQ && intValue.intValue() < 1 && intValue.intValue() != ISupportTabSeq.DEFAULT &&
+				intValue.intValue() != ISupportTabSeq.SKIP)
+			{
+				return;//irrelevant value from editor
+			}
+			if (property == StaticContentSpecLoader.PROPERTY_ROTATION && intValue.intValue() > 360)
+			{
+				return;
 			}
 		}
 		setProperty(property.getPropertyName(), value);
