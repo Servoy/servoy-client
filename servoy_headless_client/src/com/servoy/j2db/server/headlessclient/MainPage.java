@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -332,6 +333,43 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 					return !client.getFlattenedSolution().isInDesign(null) && getController() != null && getController().isFormVisible() && useAJAX;
 				}
 			});
+
+			add(new TriggerResizeAjaxBehavior()
+			{
+				@Override
+				public void renderHead(IHeaderResponse response)
+				{
+					super.renderHead(response);
+					if (isFormWidthZero())
+					{
+						String jsCall = "Servoy.Resize.onWindowResize ('" + getCallbackUrl() + "');"; //$NON-NLS-1$ //$NON-NLS-2$
+						response.renderOnLoadJavascript(jsCall);
+					}
+				}
+
+				private boolean isFormWidthZero()
+				{
+					final boolean[] returnValue = { false };
+					MainPage page = (MainPage)findPage();
+					if (page != null && !page.isModalWindowShown())
+					{
+						page.visitChildren(WebForm.class, new Component.IVisitor<WebForm>()
+						{
+							public Object component(WebForm form)
+							{
+								if (form.getFormWidth() == 0)
+								{
+									returnValue[0] = true;
+									return IVisitor.STOP_TRAVERSAL;
+								}
+								return IVisitor.CONTINUE_TRAVERSAL;
+							}
+						});
+					}
+					return returnValue[0];
+				}
+			});
+
 		}
 
 		add(new AbstractServoyDefaultAjaxBehavior()
@@ -1881,4 +1919,109 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			return buffer;
 		}
 	}
+
+	private class TriggerResizeAjaxBehavior extends AbstractServoyDefaultAjaxBehavior
+	{
+		@Override
+		protected void respond(AjaxRequestTarget target)
+		{
+			MainPage page = (MainPage)findPage();
+			if (page != null)
+			{
+				Map<String, String[]> params = getComponent().getRequest().getParameterMap();
+				Iterator<String> it = params.keySet().iterator();
+				while (it.hasNext())
+				{
+					final String key = it.next();
+					if (key.equals("sfw_window")) //$NON-NLS-1$
+					{
+						try
+						{
+							final String width = params.get(key)[0];
+							final String height = params.get("sfh_window")[0]; //$NON-NLS-1$
+							((WebClient)page.getController().getApplication()).setWindowBounds(page.getPageMapName() /* null for initial main page */,
+								new Rectangle(Utils.getAsInteger(width), Utils.getAsInteger(height)));
+						}
+						catch (Exception ex)
+						{
+							Debug.error(ex);
+						}
+					}
+					else if (key.startsWith("sfw_form_")) //$NON-NLS-1$
+					{
+						try
+						{
+							final String width = params.get(key)[0];
+							final String height = params.get("sfh_form_" + key.substring("sfw_form_".length()))[0]; //$NON-NLS-1$//$NON-NLS-2$
+							final String containerMarkupId = key.substring("sfh_".length());
+							page.visitChildren(WebForm.class, new Component.IVisitor<WebForm>()
+							{
+								public Object component(WebForm form)
+								{
+									if (containerMarkupId.equals(form.getContainerMarkupId()))
+									{
+										form.setFormWidth(Utils.getAsInteger(width));
+										form.storeFormHeight(Utils.getAsInteger(height));
+										return IVisitor.STOP_TRAVERSAL;
+									}
+									return IVisitor.CONTINUE_TRAVERSAL;
+								}
+							});
+						}
+						catch (Exception ex)
+						{
+							Debug.error(ex);
+						}
+					}
+				}
+				if (page.getController() != null)
+				{
+					WebForm webForm = (WebForm)page.getController().getFormUI();
+					if (webForm.isFormWidthHeightChanged())
+					{
+						page.getController().notifyResized();
+						webForm.clearFormWidthHeightChangedFlag();
+					}
+				}
+				page.visitChildren(WebTabPanel.class, new Component.IVisitor<Component>()
+				{
+					public Object component(Component component)
+					{
+						((WebTabPanel)component).notifyResized();
+						return IVisitor.CONTINUE_TRAVERSAL;
+					}
+				});
+				page.visitChildren(WebSplitPane.class, new Component.IVisitor<Component>()
+				{
+					public Object component(Component component)
+					{
+						((WebSplitPane)component).notifyResized();
+						return IVisitor.CONTINUE_TRAVERSAL;
+					}
+				});
+				getPageContributor().setResizing(true);
+				WebEventExecutor.generateResponse(target, page);
+				getPageContributor().setResizing(false);
+			}
+		}
+
+		@Override
+		public void renderHead(IHeaderResponse response)
+		{
+			super.renderHead(response);
+			String jsCall = "window.onresize = function() {"; //$NON-NLS-1$
+			Page page = findPage();
+			if (page instanceof MainPage && ((MainPage)page).getController() != null)
+			{
+				if (Utils.getAsBoolean(((MainPage)page).getController().getApplication().getSettings().getProperty("servoy.webclient.enableAnchors", //$NON-NLS-1$
+					Boolean.TRUE.toString())))
+				{
+					jsCall += "layoutEntirePage();"; //$NON-NLS-1$
+				}
+			}
+			jsCall += "Servoy.Resize.onWindowResize ('" + getCallbackUrl() + "');};"; //$NON-NLS-1$ //$NON-NLS-2$
+			response.renderOnLoadJavascript(jsCall);
+		}
+	}
+
 }
