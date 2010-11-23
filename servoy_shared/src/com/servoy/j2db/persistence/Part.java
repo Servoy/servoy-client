@@ -147,8 +147,11 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 */
 	public void setSize(java.awt.Dimension arg)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE, arg);
+		setHeight(arg.height);
+		width = arg.width;
 	}
+
+	private int width;
 
 	/**
 	 * Get the size
@@ -157,7 +160,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 */
 	public java.awt.Dimension getSize()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE);
+		return new java.awt.Dimension(width, getHeight());
 	}
 
 	/**

@@ -154,7 +154,7 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 
 	public void setDefaultValue(String arg)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_DEFAULTVALUE, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_DEFAULTVALUE, "".equals(arg) ? null : arg);
 	}
 
 	/**

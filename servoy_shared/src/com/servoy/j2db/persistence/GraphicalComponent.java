@@ -192,7 +192,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 
 	public boolean getMultiLine()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_MULTILINE).booleanValue();
+		return true;
 	}
 
 	public boolean getAllowsTabs()
