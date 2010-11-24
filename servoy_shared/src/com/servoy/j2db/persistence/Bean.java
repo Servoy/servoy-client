@@ -412,7 +412,8 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	@Deprecated
 	public boolean getTransparent()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TRANSPARENT).booleanValue();
+		Boolean b = getTypedProperty(StaticContentSpecLoader.PROPERTY_TRANSPARENT);
+		return b != null ? b.booleanValue() : false;
 	}
 
 	@Override
