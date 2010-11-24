@@ -653,7 +653,7 @@ public class ComponentFactory
 		}
 		if (border != null)
 		{
-			if (border instanceof TitledBorder)
+			if (border instanceof TitledBorder && Utils.isAppleMacOS())
 			{
 				// apple bug.. i have to set the font again (as new!!)
 				TitledBorder tb = (TitledBorder)border;
