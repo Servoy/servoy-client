@@ -2270,7 +2270,7 @@ public class Utils
 		return getPlatform() == PLATFORM_MAC;
 	}
 
-	public static boolean isValidEmailAdress(String email)
+	public static boolean isValidEmailAddress(String email)
 	{
 		return (Pattern.compile("^[_a-z0-9-+]+(\\.[_a-z0-9-+]+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*(\\.[a-z]{2,3})$", Pattern.CASE_INSENSITIVE).matcher(email).matches());
 	}
