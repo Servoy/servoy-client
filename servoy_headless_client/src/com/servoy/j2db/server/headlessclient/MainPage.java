@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -79,10 +80,10 @@ import org.apache.wicket.version.undo.Change;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
+import com.servoy.j2db.FormManager.History;
 import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.Messages;
-import com.servoy.j2db.FormManager.History;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.persistence.Solution;
@@ -96,10 +97,10 @@ import com.servoy.j2db.server.headlessclient.dataui.IFormLayoutProvider;
 import com.servoy.j2db.server.headlessclient.dataui.ISupportWebTabSeq;
 import com.servoy.j2db.server.headlessclient.dataui.StartEditOnFocusGainedEventBehavior;
 import com.servoy.j2db.server.headlessclient.dataui.StyleAppendingModifier;
+import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor;
 import com.servoy.j2db.server.headlessclient.dataui.WebSplitPane;
 import com.servoy.j2db.server.headlessclient.dataui.WebTabPanel;
-import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.server.headlessclient.yui.YUILoader;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IEventExecutor;
@@ -354,6 +355,44 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				{
 					// data notify is disabled when in design mode
 					return !client.getFlattenedSolution().isInDesign(null) && getController() != null && getController().isFormVisible();
+				}
+			});
+
+			add(new TriggerResizeAjaxBehavior()
+			{
+				@Override
+				public void renderHead(IHeaderResponse response)
+				{
+					super.renderHead(response);
+					String jsCall = "Servoy.Resize.onWindowResize ('" + getCallbackUrl() + "');"; //$NON-NLS-1$ //$NON-NLS-2$
+					response.renderOnLoadJavascript(jsCall);
+				}
+
+				@Override
+				public boolean isEnabled(Component component)
+				{
+					if (super.isEnabled(component))
+					{
+						final boolean[] returnValue = { false };
+						MainPage page = (MainPage)findPage();
+						if (page != null)
+						{
+							page.visitChildren(WebForm.class, new Component.IVisitor<WebForm>()
+							{
+								public Object component(WebForm form)
+								{
+									if (form.getFormWidth() == 0)
+									{
+										returnValue[0] = true;
+										return IVisitor.STOP_TRAVERSAL;
+									}
+									return IVisitor.CONTINUE_TRAVERSAL;
+								}
+							});
+						}
+						return returnValue[0];
+					}
+					return false;
 				}
 			});
 		}
@@ -2054,6 +2093,109 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			ClientProperties properties = ((WebClientInfo)WebClientSession.get().getClientInfo()).getProperties();
 			properties.setBrowserWidth(d.width);
 			properties.setBrowserHeight(d.height);
+		}
+	}
+
+
+	private class TriggerResizeAjaxBehavior extends AbstractServoyDefaultAjaxBehavior
+	{
+		@Override
+		protected void respond(AjaxRequestTarget target)
+		{
+			MainPage page = (MainPage)findPage();
+			if (page != null)
+			{
+				Map<String, String[]> params = getComponent().getRequest().getParameterMap();
+				Iterator<String> it = params.keySet().iterator();
+				while (it.hasNext())
+				{
+					final String key = it.next();
+					if (key.equals("sfw_window")) //$NON-NLS-1$
+					{
+						try
+						{
+							final String width = params.get(key)[0];
+							final String height = params.get("sfh_window")[0]; //$NON-NLS-1$
+							page.setWindowSize(new Dimension(Utils.getAsInteger(width), Utils.getAsInteger(height)));
+						}
+						catch (Exception ex)
+						{
+							Debug.error(ex);
+						}
+					}
+					else if (key.startsWith("sfw_form_")) //$NON-NLS-1$
+					{
+						try
+						{
+							final String width = params.get(key)[0];
+							final String height = params.get("sfh_form_" + key.substring("sfw_form_".length()))[0]; //$NON-NLS-1$//$NON-NLS-2$
+							final String containerMarkupId = key.substring("sfh_".length());
+							page.visitChildren(WebForm.class, new Component.IVisitor<WebForm>()
+							{
+								public Object component(WebForm form)
+								{
+									if (containerMarkupId.equals(form.getContainerMarkupId()))
+									{
+										form.setFormWidth(Utils.getAsInteger(width));
+										form.storeFormHeight(Utils.getAsInteger(height));
+										return IVisitor.STOP_TRAVERSAL;
+									}
+									return IVisitor.CONTINUE_TRAVERSAL;
+								}
+							});
+						}
+						catch (Exception ex)
+						{
+							Debug.error(ex);
+						}
+					}
+				}
+				if (page.getController() != null)
+				{
+					WebForm webForm = (WebForm)page.getController().getFormUI();
+					if (webForm.isFormWidthHeightChanged())
+					{
+						page.getController().notifyResized();
+						webForm.clearFormWidthHeightChangedFlag();
+					}
+				}
+				page.visitChildren(WebTabPanel.class, new Component.IVisitor<Component>()
+				{
+					public Object component(Component component)
+					{
+						((WebTabPanel)component).notifyResized();
+						return IVisitor.CONTINUE_TRAVERSAL;
+					}
+				});
+				page.visitChildren(WebSplitPane.class, new Component.IVisitor<Component>()
+				{
+					public Object component(Component component)
+					{
+						((WebSplitPane)component).notifyResized();
+						return IVisitor.CONTINUE_TRAVERSAL;
+					}
+				});
+				getPageContributor().setResizing(true);
+				WebEventExecutor.generateResponse(target, page);
+				getPageContributor().setResizing(false);
+			}
+		}
+
+		@Override
+		public void renderHead(IHeaderResponse response)
+		{
+			super.renderHead(response);
+			String jsCall = "window.onresize = function() {"; //$NON-NLS-1$
+			Page page = findPage();
+			if (page instanceof MainPage && ((MainPage)page).getController() != null)
+			{
+				if (Utils.getAsBoolean(((MainPage)page).getController().getApplication().getRuntimeProperties().get("enableAnchors"))) //$NON-NLS-1$
+				{
+					jsCall += "layoutEntirePage();"; //$NON-NLS-1$
+				}
+			}
+			jsCall += "Servoy.Resize.onWindowResize ('" + getCallbackUrl() + "');};"; //$NON-NLS-1$ //$NON-NLS-2$
+			response.renderOnLoadJavascript(jsCall);
 		}
 	}
 

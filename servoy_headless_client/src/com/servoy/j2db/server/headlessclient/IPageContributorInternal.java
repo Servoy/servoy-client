@@ -33,4 +33,9 @@ public interface IPageContributorInternal extends IPageContributor, IProviderSty
 	public void addTableToRender(Component comp);
 
 	public void setFormAchorInfos(SortedSet<FormAnchorInfo> infos, boolean forceChange);
+
+	/**
+	 * @param b
+	 */
+	public abstract void setResizing(boolean b);
 }

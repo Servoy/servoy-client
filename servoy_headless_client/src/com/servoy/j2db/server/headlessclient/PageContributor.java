@@ -16,16 +16,14 @@
  */
 package com.servoy.j2db.server.headlessclient;
 
-import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
 import java.util.Map.Entry;
+import java.util.SortedSet;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
@@ -50,8 +48,6 @@ import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataCheckBoxChoice;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataRadioChoice;
 import com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor;
-import com.servoy.j2db.server.headlessclient.dataui.WebSplitPane;
-import com.servoy.j2db.server.headlessclient.dataui.WebTabPanel;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
@@ -182,43 +178,6 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 			}
 		});
 		add(eventCallbackBehavior = new EventCallbackBehavior());
-		add(new TriggerResizeAjaxBehavior()
-		{
-			@Override
-			public void renderHead(IHeaderResponse response)
-			{
-				super.renderHead(response);
-				String jsCall = "Servoy.Resize.onWindowResize ('" + getCallbackUrl() + "');"; //$NON-NLS-1$ //$NON-NLS-2$
-				response.renderOnLoadJavascript(jsCall);
-			}
-
-			@Override
-			public boolean isEnabled(Component component)
-			{
-				if (super.isEnabled(component))
-				{
-					final boolean[] returnValue = { false };
-					MainPage page = (MainPage)findPage();
-					if (page != null)
-					{
-						page.visitChildren(WebForm.class, new Component.IVisitor<WebForm>()
-						{
-							public Object component(WebForm form)
-							{
-								if (form.getFormWidth() == 0)
-								{
-									returnValue[0] = true;
-									return IVisitor.STOP_TRAVERSAL;
-								}
-								return IVisitor.CONTINUE_TRAVERSAL;
-							}
-						});
-					}
-					return returnValue[0];
-				}
-				return false;
-			}
-		});
 	}
 
 	@Override
@@ -275,6 +234,11 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 				formAnchorInfos = infos;
 			}
 		}
+	}
+
+	public void setResizing(boolean b)
+	{
+		isResizing = b;
 	}
 
 	public void setEventListeners(String event, List<String> markupIds, IEventCallback callback, boolean post)
@@ -491,108 +455,6 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		}
 	}
 
-	private class TriggerResizeAjaxBehavior extends AbstractServoyDefaultAjaxBehavior
-	{
-		@Override
-		protected void respond(AjaxRequestTarget target)
-		{
-			MainPage page = (MainPage)findPage();
-			if (page != null)
-			{
-				Map<String, String[]> params = getComponent().getRequest().getParameterMap();
-				Iterator<String> it = params.keySet().iterator();
-				while (it.hasNext())
-				{
-					final String key = it.next();
-					if (key.equals("sfw_window")) //$NON-NLS-1$
-					{
-						try
-						{
-							final String width = params.get(key)[0];
-							final String height = params.get("sfh_window")[0]; //$NON-NLS-1$
-							page.setWindowSize(new Dimension(Utils.getAsInteger(width), Utils.getAsInteger(height)));
-						}
-						catch (Exception ex)
-						{
-							Debug.error(ex);
-						}
-					}
-					else if (key.startsWith("sfw_form_")) //$NON-NLS-1$
-					{
-						try
-						{
-							final String width = params.get(key)[0];
-							final String height = params.get("sfh_form_" + key.substring("sfw_form_".length()))[0]; //$NON-NLS-1$//$NON-NLS-2$
-							final String containerMarkupId = key.substring("sfh_".length());
-							page.visitChildren(WebForm.class, new Component.IVisitor<WebForm>()
-							{
-								public Object component(WebForm form)
-								{
-									if (containerMarkupId.equals(form.getContainerMarkupId()))
-									{
-										form.setFormWidth(Utils.getAsInteger(width));
-										form.storeFormHeight(Utils.getAsInteger(height));
-										return IVisitor.STOP_TRAVERSAL;
-									}
-									return IVisitor.CONTINUE_TRAVERSAL;
-								}
-							});
-						}
-						catch (Exception ex)
-						{
-							Debug.error(ex);
-						}
-					}
-				}
-				if (page.getController() != null)
-				{
-					WebForm webForm = (WebForm)page.getController().getFormUI();
-					if (webForm.isFormWidthHeightChanged())
-					{
-						page.getController().notifyResized();
-						webForm.clearFormWidthHeightChangedFlag();
-					}
-				}
-				page.visitChildren(WebTabPanel.class, new Component.IVisitor<Component>()
-				{
-					public Object component(Component component)
-					{
-						((WebTabPanel)component).notifyResized();
-						return IVisitor.CONTINUE_TRAVERSAL;
-					}
-				});
-				page.visitChildren(WebSplitPane.class, new Component.IVisitor<Component>()
-				{
-					public Object component(Component component)
-					{
-						((WebSplitPane)component).notifyResized();
-						return IVisitor.CONTINUE_TRAVERSAL;
-					}
-				});
-				isResizing = true;
-				WebEventExecutor.generateResponse(target, page);
-				isResizing = false;
-			}
-		}
-
-		@Override
-		public void renderHead(IHeaderResponse response)
-		{
-			super.renderHead(response);
-			String jsCall = "window.onresize = function() {"; //$NON-NLS-1$
-			Page page = findPage();
-			if (page instanceof MainPage && ((MainPage)page).getController() != null)
-			{
-				if (Utils.getAsBoolean(((MainPage)page).getController().getApplication().getRuntimeProperties().get("enableAnchors"))) //$NON-NLS-1$
-				{
-					jsCall += "layoutEntirePage();"; //$NON-NLS-1$
-				}
-			}
-			jsCall += "Servoy.Resize.onWindowResize ('" + getCallbackUrl() + "');};"; //$NON-NLS-1$ //$NON-NLS-2$
-			response.renderOnLoadJavascript(jsCall);
-		}
-	}
-
 	private class EventCallbackBehavior extends AbstractServoyDefaultAjaxBehavior
 	{
 		private static final long serialVersionUID = 1L;
@@ -639,7 +501,6 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		}
 
 
-
 		public String getAddListsenersScript(Map<String, Pair<List<String>, Boolean>> markupIdMap)
 		{
 			if (markupIdMap == null || markupIdMap.isEmpty())
@@ -670,11 +531,11 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 			}
 			return js.toString();
 		}
+
 	}
 
 	public class DelayedDialog implements Serializable
 	{
-
 		private final int type;
 		private final String formName;
 		private final Rectangle r;
