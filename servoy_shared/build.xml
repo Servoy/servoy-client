@@ -236,12 +236,12 @@
 				<include name="lib/httpclient.jar"/>
 				<include name="lib/httpcore.jar"/>
 				<include name="lib/jabsorb.jar"/>
-				<include name="lib/client/jcifs.jar"/>
+				<include name="lib/jcifs.jar"/>
 				<include name="lib/log4j.jar"/>
 				<include name="lib/mail.jar"/>
 				<include name="lib/servlet-api.jar"/>
 				<include name="lib/slf4j-api.jar"/>
-				<include name="lib/client/slf4j-jdk14.jar"/>
+				<include name="lib/slf4j-jdk14.jar"/>
 				<include name="lib/slf4j-log4j.jar"/>
 				<include name="lib/terracotta-api.jar"/>
 				<include name="lib/wicket-calendar.jar"/>
