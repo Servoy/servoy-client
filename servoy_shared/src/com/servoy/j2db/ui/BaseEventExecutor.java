@@ -257,6 +257,8 @@ public abstract class BaseEventExecutor extends RenderEventExecutor implements I
 		String fName = formName;
 		if (fName == null) fName = getFormName(display);
 
+		if (fName == null) fName = this.formName;
+
 		JSEvent event = new JSEvent();
 		event.setType(type);
 		event.setSource(display);

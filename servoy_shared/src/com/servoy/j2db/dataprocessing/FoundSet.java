@@ -2181,6 +2181,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public int js_getSelectedIndex()
 	{
+		checkSelection();
 		return getSelectedIndex() + 1;
 	}
 
@@ -2214,6 +2215,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public int[] js_getSelectedIndexes()
 	{
+		checkSelection();
 		int[] selectedIndexes = getSelectedIndexes();
 		if (selectedIndexes != null && selectedIndexes.length > 0)
 		{
@@ -2327,6 +2329,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public IRecordInternal js_getSelectedRecord()
 	{
+		checkSelection();
 		return getRecord(getSelectedIndex());
 	}
 
@@ -2339,6 +2342,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public IRecordInternal[] js_getSelectedRecords()
 	{
+		checkSelection();
 		int[] selectedIndexes = getSelectedIndexes();
 		IRecordInternal[] selectedRecords = new IRecordInternal[selectedIndexes.length];
 		for (int i = 0; i < selectedIndexes.length; i++)
@@ -2347,6 +2351,19 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 
 		return selectedRecords;
+	}
+
+	/**
+	 * 
+	 */
+	@SuppressWarnings("nls")
+	private void checkSelection()
+	{
+		if (getSize() > 0 && getSelectedIndex() == -1)
+		{
+			Debug.error("No selection set on foundset with size " + getSize() + " fs: " + this, new RuntimeException());
+			setSelectedIndex(0);
+		}
 	}
 
 	/**

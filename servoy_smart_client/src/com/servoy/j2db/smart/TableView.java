@@ -40,6 +40,7 @@ import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -1249,6 +1250,28 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 		return b;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.gui.FixedJTable#editCellAt(int, int, java.util.EventObject)
+	 */
+	@Override
+	public boolean editCellAt(int row, int column, EventObject e)
+	{
+		boolean b = super.editCellAt(row, column, e);
+		Component comp = getEditorComponent();
+		if (comp instanceof ISupportEventExecutor)
+		{
+			// focus lost event comes after editor is removed from hierarchy
+			IEventExecutor executor = ((ISupportEventExecutor)comp).getEventExecutor();
+			if (executor instanceof BaseEventExecutor)
+			{
+				((BaseEventExecutor)executor).setFormName(fc.getName());
+			}
+		}
+		return b;
+	}
+
 	@Override
 	protected boolean processKeyBinding(KeyStroke ks, KeyEvent e, int condition, boolean pressed)
 	{
@@ -1565,21 +1588,6 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 			}
 		}
 		repaint();
-	}
-
-	@Override
-	public void removeEditor()
-	{
-		if (editorComp instanceof ISupportEventExecutor)
-		{
-			// focus lost event comes after editor is removed from hierarchy
-			IEventExecutor executor = ((ISupportEventExecutor)editorComp).getEventExecutor();
-			if (executor instanceof BaseEventExecutor)
-			{
-				((BaseEventExecutor)executor).setFormName(fc.getName());
-			}
-		}
-		super.removeEditor();
 	}
 
 	int sortHeadersClickedColumnIndex = -1;
