@@ -21,6 +21,8 @@ import org.apache.wicket.markup.html.DynamicWebResource;
 import org.apache.wicket.markup.html.WebResource;
 import org.apache.wicket.protocol.http.WebResponse;
 
+import com.servoy.j2db.util.HTTPUtils;
+
 /**
  * A {@link WebResource} that serves a resource that is get from {@link WebClientSession#getResourceState()}
  * which is set for example by printing at form.
@@ -60,7 +62,6 @@ public class ServeResources extends DynamicWebResource
 	protected void setHeaders(WebResponse response)
 	{
 		super.setHeaders(response);
-		response.setHeader("Cache-Control", "cache, must-revalidate");
-		response.setHeader("Pragma", "private");
+		HTTPUtils.setNoCacheHeaders(response.getHttpServletResponse());
 	}
 }
