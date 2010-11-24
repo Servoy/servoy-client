@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 
 import org.json.JSONException;
@@ -92,6 +93,10 @@ public abstract class AbstractBase implements IPersist
 
 	public void clearProperty(String propertyName)
 	{
+		if (!isChanged)
+		{
+			isChanged = propertiesMap.containsKey(propertyName);
+		}
 		propertiesMap.remove(propertyName);
 	}
 
@@ -104,10 +109,19 @@ public abstract class AbstractBase implements IPersist
 	{
 		if (newProperties != null)
 		{
-			propertiesMap.putAll(newProperties);
+			Iterator<Entry<String, Object>> iterator = newProperties.entrySet().iterator();
+			while (iterator.hasNext())
+			{
+				Entry<String, Object> next = iterator.next();
+				setProperty(next.getKey(), next.getValue());
+			}
 		}
 		else
 		{
+			if (!isChanged)
+			{
+				isChanged = propertiesMap.size() > 0;
+			}
 			propertiesMap.clear();
 		}
 	}
