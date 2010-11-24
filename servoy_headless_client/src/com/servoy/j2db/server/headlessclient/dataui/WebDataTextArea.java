@@ -506,14 +506,24 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 		return "TEXT_AREA"; //$NON-NLS-1$
 	}
 
+	@SuppressWarnings("nls")
 	public void js_selectAll()
 	{
-		// TODO Auto-generated method stub
+		Page page = findPage();
+		if (page instanceof MainPage)
+		{
+			((MainPage)page).getPageContributor().addDynamicJavaScript("document.getElementById('" + getMarkupId() + "').select();");
+		}
 	}
 
+	@SuppressWarnings("nls")
 	public void js_replaceSelectedText(String s)
 	{
-		// TODO ignore in web?
+		Page page = findPage();
+		if (page instanceof MainPage)
+		{
+			((MainPage)page).getPageContributor().addDynamicJavaScript("Servoy.Utils.replaceSelectedText('" + getMarkupId() + "','" + s + "');");
+		}
 	}
 
 	public int js_getCaretPosition()

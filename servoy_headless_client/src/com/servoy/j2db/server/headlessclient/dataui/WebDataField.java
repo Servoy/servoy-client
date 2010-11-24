@@ -879,14 +879,24 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		}
 	}
 
+	@SuppressWarnings("nls")
 	public void js_selectAll()
 	{
-		// TODO Auto-generated method stub
+		Page page = findPage();
+		if (page instanceof MainPage)
+		{
+			((MainPage)page).getPageContributor().addDynamicJavaScript("document.getElementById('" + getMarkupId() + "').select();");
+		}
 	}
 
+	@SuppressWarnings("nls")
 	public void js_replaceSelectedText(String s)
 	{
-		// TODO ignore in web?
+		Page page = findPage();
+		if (page instanceof MainPage)
+		{
+			((MainPage)page).getPageContributor().addDynamicJavaScript("Servoy.Utils.replaceSelectedText('" + getMarkupId() + "','" + s + "');");
+		}
 	}
 
 	public String js_getSelectedText()
