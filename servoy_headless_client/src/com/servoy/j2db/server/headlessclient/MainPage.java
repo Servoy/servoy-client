@@ -364,35 +364,33 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				public void renderHead(IHeaderResponse response)
 				{
 					super.renderHead(response);
-					String jsCall = "Servoy.Resize.onWindowResize ('" + getCallbackUrl() + "');"; //$NON-NLS-1$ //$NON-NLS-2$
-					response.renderOnLoadJavascript(jsCall);
+					if (isFormWidthZero())
+					{
+						String jsCall = "Servoy.Resize.onWindowResize ('" + getCallbackUrl() + "');"; //$NON-NLS-1$ //$NON-NLS-2$
+						response.renderOnLoadJavascript(jsCall);
+					}
 				}
 
-				@Override
-				public boolean isEnabled(Component component)
+				private boolean isFormWidthZero()
 				{
-					if (super.isEnabled(component))
+					final boolean[] returnValue = { false };
+					MainPage page = (MainPage)findPage();
+					if (page != null)
 					{
-						final boolean[] returnValue = { false };
-						MainPage page = (MainPage)findPage();
-						if (page != null)
+						page.visitChildren(WebForm.class, new Component.IVisitor<WebForm>()
 						{
-							page.visitChildren(WebForm.class, new Component.IVisitor<WebForm>()
+							public Object component(WebForm form)
 							{
-								public Object component(WebForm form)
+								if (form.getFormWidth() == 0)
 								{
-									if (form.getFormWidth() == 0)
-									{
-										returnValue[0] = true;
-										return IVisitor.STOP_TRAVERSAL;
-									}
-									return IVisitor.CONTINUE_TRAVERSAL;
+									returnValue[0] = true;
+									return IVisitor.STOP_TRAVERSAL;
 								}
-							});
-						}
-						return returnValue[0];
+								return IVisitor.CONTINUE_TRAVERSAL;
+							}
+						});
 					}
-					return false;
+					return returnValue[0];
 				}
 			});
 		}
