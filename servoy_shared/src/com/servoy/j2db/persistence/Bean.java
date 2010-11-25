@@ -340,7 +340,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	@Override
 	public Color getBackground()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_BACKGROUND);
+		return null;
 	}
 
 	/*
@@ -352,7 +352,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	@Override
 	public String getBorderType()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_BORDERTYPE);
+		return null;
 	}
 
 	/*
@@ -364,7 +364,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	@Override
 	public String getFontType()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_FONTTYPE);
+		return null;
 	}
 
 	/*
@@ -376,7 +376,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	@Deprecated
 	public Color getForeground()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_FOREGROUND);
+		return null;
 	}
 
 	/*
@@ -388,7 +388,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	@Override
 	public int getPrintSliding()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_PRINTSLIDING).intValue();
+		return 0;
 	}
 
 	/*
@@ -400,7 +400,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	@Override
 	public String getStyleClass()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_STYLECLASS);
+		return null;
 	}
 
 	/*
@@ -412,8 +412,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	@Deprecated
 	public boolean getTransparent()
 	{
-		Boolean b = getTypedProperty(StaticContentSpecLoader.PROPERTY_TRANSPARENT);
-		return b != null ? b.booleanValue() : false;
+		return false;
 	}
 
 	@Override
