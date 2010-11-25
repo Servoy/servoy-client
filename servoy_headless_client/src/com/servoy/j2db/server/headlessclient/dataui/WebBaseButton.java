@@ -514,7 +514,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		return position;
 	}
 
-	private void addImageStyleAttributeModifier()
+	protected void addImageStyleAttributeModifier()
 	{
 		if (imageStyle != null) return;
 

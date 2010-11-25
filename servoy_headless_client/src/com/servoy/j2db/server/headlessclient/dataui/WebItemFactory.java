@@ -73,11 +73,11 @@ public class WebItemFactory implements ItemFactory
 	}
 
 
-	public ILabel createBeanHolder(String name, Component obj)
+	public ILabel createBeanHolder(String name, Component obj, int anchoring)
 	{
 		if (obj instanceof JComponent)
 		{
-			return new WebImageBeanHolder(application, name, (JComponent)obj);
+			return new WebImageBeanHolder(application, name, (JComponent)obj, anchoring);
 		}
 		else
 		{

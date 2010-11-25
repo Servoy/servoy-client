@@ -98,7 +98,7 @@ public class SwingItemFactory implements ItemFactory
 	}
 
 
-	public IComponent createBeanHolder(String name, Component obj)
+	public IComponent createBeanHolder(String name, Component obj, int anchoring)
 	{
 		return new VisibleBean(obj);
 	}

@@ -59,7 +59,7 @@ public interface ItemFactory
 	 * @param obj
 	 * @return
 	 */
-	IComponent createBeanHolder(String name, Component obj);
+	IComponent createBeanHolder(String name, Component obj, int anchoring);
 
 
 	/**

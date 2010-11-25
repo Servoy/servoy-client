@@ -265,6 +265,8 @@ public class TemplateGenerator
 	public static final Color DEFAULT_FORM_BG_COLOR = Color.WHITE;
 	public static final String TABLE_VIEW_CELL_CLASS = "tableviewcell"; // this value is also used in servoy.js; if you change/remove it please update servoy.js //$NON-NLS-1$
 
+	public static final String WRAPPER_SUFFIX = "_wrapper";
+
 	private static FormCache formCache = new FormCache(true);
 
 	private static Map<IServiceProvider, Map<WebForm, Map<String, String>>> serviceProviderWebFormIDToMarkupIDCache = Collections.synchronizedMap(new WeakHashMap<IServiceProvider, Map<WebForm, Map<String, String>>>()); // map of type : <service_provider, <web_form, <component_id, component_markup_id>>>
@@ -1573,9 +1575,6 @@ public class TemplateGenerator
 
 	private static void createBeanHTML(Bean bean, Form form, StringBuffer html, TextualCSS css, int startY, int endY, boolean enableAnchoring)
 	{
-		TextualStyle styleObj = css.addStyle('#' + ComponentFactory.getWebID(form, bean));
-		applyLocationAndSize(bean, styleObj, null, startY, endY, form.getSize().width, enableAnchoring);
-
 		boolean isComponent = false;
 		try
 		{
@@ -1585,6 +1584,26 @@ public class TemplateGenerator
 		catch (Throwable e)
 		{
 			Debug.error(e);
+		}
+
+		TextualStyle styleObj = css.addStyle('#' + ComponentFactory.getWebID(form, bean));
+		if (enableAnchoring)
+		{
+			styleObj.setProperty("width", "100%");
+			styleObj.setProperty("height", "100%");
+			styleObj.setProperty("position", "absolute");
+			TextualStyle wrapperStyleObj = css.addStyle('#' + ComponentFactory.getWebID(form, bean) + WRAPPER_SUFFIX);
+			wrapperStyleObj.setProperty("overflow", "visible");
+			applyLocationAndSize(bean, wrapperStyleObj, null, startY, endY, form.getSize().width, enableAnchoring);
+
+			html.append("<div ");
+			html.append(getWicketIDParameter(form, bean, "", WRAPPER_SUFFIX));
+			html.append(getJavaScriptIDParameter(form, bean, "", WRAPPER_SUFFIX));
+			html.append(">");
+		}
+		else
+		{
+			applyLocationAndSize(bean, styleObj, null, startY, endY, form.getSize().width, enableAnchoring);
 		}
 
 		if (isComponent)
@@ -1606,6 +1625,11 @@ public class TemplateGenerator
 			html.append(getWicketIDParameter(form, bean));
 			html.append(getJavaScriptIDParameter(form, bean));
 			html.append(">only wicket components are supported in webclient</div>");
+		}
+
+		if (enableAnchoring)
+		{
+			html.append("</div>");
 		}
 	}
 
@@ -1829,7 +1853,7 @@ public class TemplateGenerator
 			// or { top: 0px; bottom: 0px; } does not work. Thus we add a dummy wrapper <div>
 			// which accepts this kind of anchoring, and we place the button inside the <div>
 			// with { width: 100%; height: 100%; }, which works fine.
-			String wrapperId = ComponentFactory.getWebID(form, label) + "_wrapper";
+			String wrapperId = ComponentFactory.getWebID(form, label) + WRAPPER_SUFFIX;
 			html.append("<div id='" + wrapperId + "' class='" + wrapperId + "'>");
 			wrapperStyle = css.addStyle(styleName + wrapperId);
 		}
@@ -1993,7 +2017,7 @@ public class TemplateGenerator
 			// or { top: 0px; bottom: 0px; } does not work. Thus we add a dummy wrapper <div>
 			// which accepts this kind of anchoring, and we place the field inside the <div>
 			// with { width: 100%; height: 100%; }, which works fine.
-			String wrapperId = ComponentFactory.getWebID(form, field) + "_wrapper";
+			String wrapperId = ComponentFactory.getWebID(form, field) + WRAPPER_SUFFIX;
 			TextualStyle wrapperStyle = css.addStyle('#' + wrapperId);
 			wrapperStyle.setProperty("overflow", "visible");
 			html.append("<div servoy:id='" + wrapperId + "' id='" + wrapperId + "'>");
@@ -2129,7 +2153,7 @@ public class TemplateGenerator
 					html.append(getWicketIDParameter(form, field));
 					html.append(" tabIndex=\"-1\" ");
 					html.append("><input style='border-width: 0px; padding: 0px; margin-top: 0px; margin-bottom: 0px; margin-left: 0px;' "); //  
-					html.append(getWicketIDParameter(form, field, "check_"));
+					html.append(getWicketIDParameter(form, field, "check_", ""));
 					html.append(getDataProviderIDParameter(field));
 					html.append("type='checkbox' ");
 					html.append("/>");
@@ -2137,7 +2161,7 @@ public class TemplateGenerator
 					html.append(ComponentFactory.getWebID(form, field));
 					html.append("' style='margin-top: 0px; margin-bottom: 0px; border-top: 0px; border-bottom: 0px; padding-top: 0px; padding-bottom: 0px;");
 					html.append("' ");
-					html.append(getWicketIDParameter(form, field, "text_"));
+					html.append(getWicketIDParameter(form, field, "text_", ""));
 					html.append("></label>");
 					html.append("</div>");
 				}
@@ -2726,22 +2750,22 @@ public class TemplateGenerator
 	//returns space as last char
 	private static String getJavaScriptIDParameter(Form form, IPersist meta)
 	{
-		return getJavaScriptIDParameter(form, meta, "");
+		return getJavaScriptIDParameter(form, meta, "", "");
 	}
 
-	private static String getJavaScriptIDParameter(Form form, IPersist meta, String prefix)
+	private static String getJavaScriptIDParameter(Form form, IPersist meta, String prefix, String suffix)
 	{
-		return "id='" + prefix + ComponentFactory.getWebID(form, meta) + "' ";
+		return "id='" + prefix + ComponentFactory.getWebID(form, meta) + suffix + "' ";
 	}
 
 	//returns space as last char
 	private static String getWicketIDParameter(Form form, IPersist meta)
 	{
-		return getWicketIDParameter(form, meta, "");
+		return getWicketIDParameter(form, meta, "", "");
 	}
 
-	private static String getWicketIDParameter(Form form, IPersist meta, String prefix)
+	private static String getWicketIDParameter(Form form, IPersist meta, String prefix, String suffix)
 	{
-		return "servoy:id='" + prefix + ComponentFactory.getWebID(form, meta) + "' ";
+		return "servoy:id='" + prefix + ComponentFactory.getWebID(form, meta) + suffix + "' ";
 	}
 }

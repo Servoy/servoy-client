@@ -30,12 +30,15 @@ import javax.swing.JPanel;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.IResourceListener;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.SnapShot;
 import com.servoy.j2db.util.Utils;
@@ -56,10 +59,13 @@ public class WebImageBeanHolder extends WebBaseButton implements IComponent, IDe
 	private byte[] lastSnapshot;
 	private Date lastIsChangedQuery;
 
-	public WebImageBeanHolder(IApplication application, String id, JComponent bean)
+	private final int anchoring;
+
+	public WebImageBeanHolder(IApplication application, String id, JComponent bean, int anchoring)
 	{
 		super(application, id, ""); //$NON-NLS-1$
 		this.bean = bean;
+		this.anchoring = anchoring;
 		if (bean != null) bean.addComponentListener(new ComponentAdapter()
 		{
 			@Override
@@ -80,12 +86,54 @@ public class WebImageBeanHolder extends WebBaseButton implements IComponent, IDe
 				@Override
 				public String getObject()
 				{
-					return urlFor(IResourceListener.INTERFACE) + "&x=" + System.currentTimeMillis(); //$NON-NLS-1$
+					return urlFor(IResourceListener.INTERFACE) + "&x=" + Math.random(); //$NON-NLS-1$
 				}
 
 			}));
 
 		icon = new MediaResource();
+
+		final boolean useAnchors = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")); //$NON-NLS-1$
+		if (useAnchors)
+		{
+			if ((anchoring & (IAnchorConstants.WEST | IAnchorConstants.EAST)) != 0 || (anchoring & (IAnchorConstants.NORTH | IAnchorConstants.SOUTH)) != 0)
+			{
+				add(new AbstractServoyDefaultAjaxBehavior()
+				{
+					@Override
+					public void renderHead(IHeaderResponse response)
+					{
+						super.renderHead(response);
+
+						String beanHolderId = WebImageBeanHolder.this.getMarkupId();
+
+						int width = getSize().width;
+						int height = getSize().height;
+
+						StringBuffer sb = new StringBuffer();
+						sb.append("if(typeof(beansPreferredSize) != \"undefined\")\n").append("{\n"); //$NON-NLS-1$ //$NON-NLS-2$
+						sb.append("beansPreferredSize['").append(beanHolderId).append("'] = new Array();\n"); //$NON-NLS-1$ //$NON-NLS-2$
+						sb.append("beansPreferredSize['").append(beanHolderId).append("']['height'] = ").append(height).append(";\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						sb.append("beansPreferredSize['").append(beanHolderId).append("']['width'] = ").append(width).append(";\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						sb.append("beansPreferredSize['").append(beanHolderId).append("']['callback'] = '").append(getCallbackUrl()).append("';\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						sb.append("}\n"); //$NON-NLS-1$
+						response.renderOnLoadJavascript(sb.toString());
+					}
+
+					@Override
+					protected void respond(AjaxRequestTarget target)
+					{
+						String sWidthHint = getComponent().getRequest().getParameter("width"); //$NON-NLS-1$ 
+						String sHeightHint = getComponent().getRequest().getParameter("height"); //$NON-NLS-1$ 
+						int widthHint = Integer.parseInt(sWidthHint);
+						int heightHint = Integer.parseInt(sHeightHint);
+
+						setSize(new Dimension(widthHint, heightHint));
+						WebEventExecutor.generateResponse(target, getComponent().getPage());
+					}
+				});
+			}
+		}
 	}
 
 	public Object getDelegate()
@@ -177,6 +225,9 @@ public class WebImageBeanHolder extends WebBaseButton implements IComponent, IDe
 		parent.addNotify();
 
 		byte[] mostRecent = SnapShot.createJPGImage(null, parent, size.width, size.height);
+
+		parent.remove(bean);
+
 		if (mostRecent != null)
 		{
 			if (lastSnapshot != null)
@@ -230,6 +281,12 @@ public class WebImageBeanHolder extends WebBaseButton implements IComponent, IDe
 		{
 			changes.setChanged();
 		}
+		boolean useAnchors = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")); //$NON-NLS-1$
+		if (useAnchors)
+		{
+			if ((anchoring & (IAnchorConstants.EAST | IAnchorConstants.WEST)) != 0) changes.getChanges().remove("width"); //$NON-NLS-1$
+			if ((anchoring & (IAnchorConstants.NORTH | IAnchorConstants.SOUTH)) != 0) changes.getChanges().remove("height"); //$NON-NLS-1$
+		}
 		return changes;
 	}
 
@@ -269,5 +326,11 @@ public class WebImageBeanHolder extends WebBaseButton implements IComponent, IDe
 			Debug.log("Error checking if bean in web client was changed: " + bean, e);
 			return false;
 		}
+	}
+
+	@Override
+	protected void addImageStyleAttributeModifier()
+	{
+		// don't generate the 'background-image' attribute, it will just send twice the requests for the image
 	}
 }

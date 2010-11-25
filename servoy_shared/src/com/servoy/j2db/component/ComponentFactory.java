@@ -2147,7 +2147,7 @@ public class ComponentFactory
 			}
 			else if (!(obj instanceof IComponent))
 			{
-				c = application.getItemFactory().createBeanHolder(ComponentFactory.getWebID(form, bean), (Component)obj);
+				c = application.getItemFactory().createBeanHolder(ComponentFactory.getWebID(form, bean), (Component)obj, bean.getAnchors());
 			}
 			else
 			{

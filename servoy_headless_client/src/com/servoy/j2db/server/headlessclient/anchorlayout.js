@@ -105,6 +105,17 @@ function layoutEntirePageWorker()
 			}
 		}
 		
+		for(var i in beansPreferredSize)
+		{
+			var newPreferredSize = getPreferredTableSize(i); // we can reuse from tables, it's the same thing
+			if(newPreferredSize[0] != 0 && newPreferredSize[1] != 0 && 
+			   (newPreferredSize[1] != beansPreferredSize[i]['height'] || 
+			    newPreferredSize[0] != beansPreferredSize[i]['width']))
+			{
+				wicketAjaxGet(beansPreferredSize[i]['callback'] + "&width=" + newPreferredSize[0] + "&height=" + newPreferredSize[1]);
+			}
+		}
+
 		for(var i in splitPanes)
 		{			
 			var resize = splitPanes[i]['resize']
@@ -159,6 +170,7 @@ function layoutEntirePageWorker()
 	
 var layoutTimeout;
 var tablesPreferredHeight = new Array();
+var beansPreferredSize = new Array();
 var splitPanes = new Array();
 
 /**

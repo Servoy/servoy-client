@@ -41,6 +41,7 @@ import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.IDisplay;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataui.IServoyAwareBean;
+import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
@@ -214,7 +215,8 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 								}
 							}
 							// For field components, if anchoring is enabled, we need to add a wrapper <div> for anchoring to work.
-							if (isAnchoringEnabled && (obj instanceof Field) && TemplateGenerator.needsWrapperDivForAnchoring((Field)obj))
+							if (isAnchoringEnabled &&
+								(((obj instanceof Field) && TemplateGenerator.needsWrapperDivForAnchoring((Field)obj)) || (obj instanceof Bean)))
 							{
 								MarkupContainer compWrapper = new WrapperContainer(ComponentFactory.getWebID(null, obj) + "_wrapper", comp); //$NON-NLS-1$
 								Dimension s = ((IFormElement)obj).getSize();
@@ -243,7 +245,7 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 								compWrapper.add(StyleAttributeModifierModel.INSTANCE);
 								// TODO: this needs to be done in a cleaner way. See what is the relation between
 								// margin, padding and border when calculating the websize in ChangesRecorder vs. TemplateGenerator.
-								// Looks like one of the three is not taken into accound during calculations. For now decided to remove
+								// Looks like one of the three is not taken into account during calculations. For now decided to remove
 								// the margin and leave the padding and border.
 								comp.add(new StyleAppendingModifier(new AbstractReadOnlyModel<String>()
 								{
