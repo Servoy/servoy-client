@@ -334,43 +334,43 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				}
 			});
 
-			add(new TriggerResizeAjaxBehavior()
-			{
-				@Override
-				public void renderHead(IHeaderResponse response)
-				{
-					super.renderHead(response);
-					if (isFormWidthZero())
-					{
-						String jsCall = "Servoy.Resize.onWindowResize ('" + getCallbackUrl() + "');"; //$NON-NLS-1$ //$NON-NLS-2$
-						response.renderOnLoadJavascript(jsCall);
-					}
-				}
-
-				private boolean isFormWidthZero()
-				{
-					final boolean[] returnValue = { false };
-					MainPage page = (MainPage)findPage();
-					if (page != null && !page.isModalWindowShown())
-					{
-						page.visitChildren(WebForm.class, new Component.IVisitor<WebForm>()
-						{
-							public Object component(WebForm form)
-							{
-								if (form.getFormWidth() == 0)
-								{
-									returnValue[0] = true;
-									return IVisitor.STOP_TRAVERSAL;
-								}
-								return IVisitor.CONTINUE_TRAVERSAL;
-							}
-						});
-					}
-					return returnValue[0];
-				}
-			});
 
 		}
+		add(new TriggerResizeAjaxBehavior()
+		{
+			@Override
+			public void renderHead(IHeaderResponse response)
+			{
+				super.renderHead(response);
+				if (isFormWidthZero())
+				{
+					String jsCall = "Servoy.Resize.onWindowResize ('" + getCallbackUrl() + "');"; //$NON-NLS-1$ //$NON-NLS-2$
+					response.renderOnLoadJavascript(jsCall);
+				}
+			}
+
+			private boolean isFormWidthZero()
+			{
+				final boolean[] returnValue = { false };
+				MainPage page = (MainPage)findPage();
+				if (page != null && !page.isModalWindowShown())
+				{
+					page.visitChildren(WebForm.class, new Component.IVisitor<WebForm>()
+					{
+						public Object component(WebForm form)
+						{
+							if (form.getFormWidth() == 0)
+							{
+								returnValue[0] = true;
+								return IVisitor.STOP_TRAVERSAL;
+							}
+							return IVisitor.CONTINUE_TRAVERSAL;
+						}
+					});
+				}
+				return returnValue[0];
+			}
+		});
 
 		add(new AbstractServoyDefaultAjaxBehavior()
 		{
