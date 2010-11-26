@@ -52,6 +52,27 @@ public class PersistHelper
 	{
 	}
 
+	private static final Map<String, String> basicCssColors = new HashMap<String, String>();
+
+	{
+		basicCssColors.put("black", "#000000"); //$NON-NLS-1$ //$NON-NLS-2$
+		basicCssColors.put("silver", "#C0C0C0");//$NON-NLS-1$ //$NON-NLS-2$
+		basicCssColors.put("gray", "#808080");//$NON-NLS-1$ //$NON-NLS-2$
+		basicCssColors.put("white", "#FFFFFF");//$NON-NLS-1$ //$NON-NLS-2$
+		basicCssColors.put("maroon", "#800000");//$NON-NLS-1$ //$NON-NLS-2$
+		basicCssColors.put("red", "#FF0000");//$NON-NLS-1$ //$NON-NLS-2$
+		basicCssColors.put("purple", "#800080");//$NON-NLS-1$ //$NON-NLS-2$
+		basicCssColors.put("fuchsia", "#FF00FF");//$NON-NLS-1$ //$NON-NLS-2$
+		basicCssColors.put("green", "#008000");//$NON-NLS-1$ //$NON-NLS-2$
+		basicCssColors.put("lime", "#00FF00");//$NON-NLS-1$ //$NON-NLS-2$
+		basicCssColors.put("olive", "#808000");//$NON-NLS-1$ //$NON-NLS-2$
+		basicCssColors.put("yellow", "#FFFF00");//$NON-NLS-1$ //$NON-NLS-2$
+		basicCssColors.put("navy", "#000080");//$NON-NLS-1$ //$NON-NLS-2$
+		basicCssColors.put("blue", "#0000FF");//$NON-NLS-1$ //$NON-NLS-2$
+		basicCssColors.put("teal", "#008080");//$NON-NLS-1$ //$NON-NLS-2$
+		basicCssColors.put("aqua", "#00FFFF");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+
 	public static Object[] transVectorToArray(Vector vector)
 	{
 		Object[] fieldsToSave = new Object[vector.size()];
@@ -352,6 +373,7 @@ public class PersistHelper
 			catch (Exception e)
 			{
 				// ignore
+				if (basicCssColors.containsKey(s.toLowerCase())) return createColor(basicCssColors.get(s.toLowerCase()));
 			}
 		}
 		return retval;
