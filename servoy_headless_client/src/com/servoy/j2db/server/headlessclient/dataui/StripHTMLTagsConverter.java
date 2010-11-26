@@ -353,7 +353,7 @@ public class StripHTMLTagsConverter implements IConverter
 		return st;
 	}
 
-	private static CharSequence convertBlobLoaderReferences(CharSequence text, Component component)
+	public static CharSequence convertBlobLoaderReferences(CharSequence text, Component component)
 	{
 		return Strings.replaceAll(text,
 			"media:///servoy_blobloader?", RequestCycle.get().urlFor(component, IResourceListener.INTERFACE) + "&servoy_blobloader=true&"); //$NON-NLS-1$//$NON-NLS-2$
