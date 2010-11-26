@@ -18,6 +18,7 @@ package com.servoy.j2db.server.headlessclient.dataui;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
+import org.apache.wicket.IResourceListener;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.Session;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
@@ -29,6 +30,7 @@ import org.apache.wicket.model.Model;
 
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.ui.IComponent;
+import com.servoy.j2db.util.Debug;
 
 /**
  * This AttributeModifier will display the tooltip of an {@link IComponent#getToolTipText()} in the browser.
@@ -116,6 +118,7 @@ public class TooltipAttributeModifier extends AttributeModifier
 			/**
 			 * @see org.apache.wicket.model.AbstractReadOnlyModel#getObject()
 			 */
+			@SuppressWarnings("nls")
 			@Override
 			public Object getObject()
 			{
@@ -134,6 +137,18 @@ public class TooltipAttributeModifier extends AttributeModifier
 					{
 						if (Session.exists())
 						{
+							// blobloaders only works for components that implements IResourceListern (currently only Button/Labels/HtmlArea)
+							if (component instanceof IResourceListener)
+							{
+								tooltip = StripHTMLTagsConverter.convertBlobLoaderReferences(tooltip, component).toString();
+							}
+							else
+							{
+								if (tooltip.indexOf("media:///servoy_blobloader") != -1)
+								{
+									Debug.log("Component: " + component + " doenst support sevoy_blobloader references " + tooltip);
+								}
+							}
 							tooltip = StripHTMLTagsConverter.convertMediaReferences(tooltip,
 								((WebClientSession)Session.get()).getWebClient().getSolutionName(), new ResourceReference("media"), "").toString();
 						}
