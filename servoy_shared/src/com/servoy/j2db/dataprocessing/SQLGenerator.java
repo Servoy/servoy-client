@@ -1404,7 +1404,7 @@ public class SQLGenerator
 	public static QuerySelect createUpdateLockSelect(Table table, Object[][] pkValues, boolean lockInDb)
 	{
 		QuerySelect lockSelect = new QuerySelect(new QueryTable(table.getSQLName(), table.getCatalog(), table.getSchema()));
-		if (lockInDb) lockSelect.setLockMode(ISQLSelect.LOCK_MODE_UPDATE);
+		if (lockInDb) lockSelect.setLockMode(ISQLSelect.LOCK_MODE_LOCK_NOWAIT);
 
 		Iterator<Column> columns = table.getColumns().iterator();
 		ArrayList<QueryColumn> pkQueryColumns = new ArrayList<QueryColumn>();
