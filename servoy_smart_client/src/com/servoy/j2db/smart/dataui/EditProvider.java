@@ -30,6 +30,7 @@ import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JRootPane;
@@ -130,12 +131,33 @@ public class EditProvider implements FocusListener, PropertyChangeListener, Item
 	public void itemStateChanged(ItemEvent e)
 	{
 		if (e.getSource() instanceof JComboBox && e.getStateChange() == ItemEvent.DESELECTED) return;
-		if (!isAdjusting())
+		if (e.getSource() instanceof JCheckBox)
 		{
-			// i have to start edit first because an edit in a list view of a checkbox
-			// doesn't have always focusGained (which starts the edit)
-			listner.startEdit(src);
-			listner.commitEdit(src);
+			// see: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6998897 , http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6988854
+			SwingUtilities.invokeLater(new Runnable()
+			{
+				public void run()
+				{
+					if (!isAdjusting())
+					{
+						// i have to start edit first because an edit in a list view of a checkbox
+						// doesn't have always focusGained (which starts the edit)
+						listner.startEdit(src);
+						listner.commitEdit(src);
+					}
+
+				}
+			});
+		}
+		else
+		{
+			if (!isAdjusting())
+			{
+				// i have to start edit first because an edit in a list view of a checkbox
+				// doesn't have always focusGained (which starts the edit)
+				listner.startEdit(src);
+				listner.commitEdit(src);
+			}
 		}
 	}
 
