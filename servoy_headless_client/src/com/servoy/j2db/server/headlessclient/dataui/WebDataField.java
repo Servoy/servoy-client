@@ -254,7 +254,10 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		application.getRuntimeProperties().put(IServiceProvider.RT_LASTFIELDVALIDATIONFAILED_FLAG, Boolean.valueOf(!valid));
 		if (!valid)
 		{
-			getStylePropertyChanges().setChanged();
+			if (valid != isValueValid)
+			{
+				getStylePropertyChanges().setChanged();
+			}
 			requestFocus();
 		}
 		if (valid == isValueValid)

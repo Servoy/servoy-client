@@ -463,7 +463,19 @@ function addListeners(strEvent, callbackUrl, ids, post)
 					return !wcall;
 				}
 			}
-			Wicket.Event.add(el, strEvent, callback)
+			if(strEvent == "blur")
+			{
+				var b = el.onblur; 
+				el.onblur = function(event)
+				{ 
+					if (b) { b.apply(this,[event]);}
+					callback.apply(this,[event]);
+				}
+			}
+			else
+			{
+				Wicket.Event.add(el, strEvent, callback)
+			}
 			if(strEvent == "focus")
 			{
 				var mousedownCallback = function(e)
