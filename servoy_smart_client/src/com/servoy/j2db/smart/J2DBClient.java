@@ -2934,6 +2934,8 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		return jsreturn;
 	}
 
+	private LoginDialog loginDialog;
+
 	@Override
 	public void showDefaultLogin()
 	{
@@ -2941,7 +2943,10 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		{
 			public void run()
 			{
-				LoginDialog loginDialog = null;
+				if (loginDialog != null)
+				{
+					return; // already showing login dialog
+				}
 				try
 				{
 					while (getClientInfo().getUserUid() == null)
@@ -2991,6 +2996,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 					if (loginDialog != null)
 					{
 						loginDialog.dispose();
+						loginDialog = null;
 					}
 				}
 			}
