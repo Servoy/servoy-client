@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.query;
 
 import java.util.ArrayList;
@@ -382,8 +382,10 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		{
 			case LOCK_MODE_NONE :
 				return "NONE"; //$NON-NLS-1$
-			case LOCK_MODE_UPDATE :
-				return "UPDATE"; //$NON-NLS-1$
+			case LOCK_MODE_LOCK_BLOCK :
+				return "BLOCK"; //$NON-NLS-1$
+			case LOCK_MODE_LOCK_NOWAIT :
+				return "NOWAIT"; //$NON-NLS-1$
 
 			default :
 				return "!UKNOWN!"; //$NON-NLS-1$

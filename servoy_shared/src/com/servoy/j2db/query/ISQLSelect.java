@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.query;
 
 /**
@@ -25,5 +25,6 @@ package com.servoy.j2db.query;
 public interface ISQLSelect extends ISQLQuery
 {
 	static final int LOCK_MODE_NONE = 0;
-	static final int LOCK_MODE_UPDATE = 1;
+	static final int LOCK_MODE_LOCK_BLOCK = 1;
+	static final int LOCK_MODE_LOCK_NOWAIT = 2;
 }
