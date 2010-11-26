@@ -270,9 +270,6 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 	{
 		if ("allnames".equals(name) || "alldataproviders".equals(name) || "allrelations".equals(name) || "allmethods".equals(name) | "allvariables".equals(name)) return true; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
-		// let the record handle it
-		if ("length".equals(name) && getPrototype().has(name, getPrototype())) return false; //$NON-NLS-1$
-
 		return super.has(name, start);
 	}
 
