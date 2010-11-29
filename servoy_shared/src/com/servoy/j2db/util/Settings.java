@@ -263,6 +263,27 @@ public class Settings extends SortedProperties
 
 	}
 
+	/**
+	 * Remove old or moved settings.
+	 */
+	private void removeObsoleteSettings()
+	{
+		// remove settings that are now saved in the eclipse workspace
+		remove("showConfirmationDialogWhenErrors"); //$NON-NLS-1$
+		remove("showConfirmationDialogWhenWarnings"); //$NON-NLS-1$
+		remove("servoy.maxSampleDataTableRowCount"); //$NON-NLS-1$
+		remove("designer.preferdMetrics"); //$NON-NLS-1$
+		remove("designer.stepSize"); //$NON-NLS-1$
+		remove("copyPasteOffset"); //$NON-NLS-1$
+		remove("guidesize"); //$NON-NLS-1$
+		remove("gridcolor"); //$NON-NLS-1$
+		remove("gridsize"); //$NON-NLS-1$
+		remove("pointsize"); //$NON-NLS-1$
+		remove("showGrid"); //$NON-NLS-1$
+		remove("snapToGrid"); //$NON-NLS-1$
+		remove("saveEditorState"); //$NON-NLS-1$
+	}
+
 	private static final String enc_prefix = "encrypted:"; //$NON-NLS-1$
 
 	@Override
@@ -354,6 +375,8 @@ public class Settings extends SortedProperties
 		//no need to store those
 		Object appServerDir = remove(J2DBGlobals.SERVOY_APPLICATION_SERVER_DIRECTORY_KEY);
 		Object servoyDir = remove(J2DBGlobals.SERVOY_DIRECTORY_KEY);
+
+		removeObsoleteSettings();
 
 		FileOutputStream fis = new FileOutputStream(file);
 		store(fis, "servoy"); //$NON-NLS-1$
