@@ -2094,23 +2094,23 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID, arg);
 	}
 
-	public void setAccess(int arg)
+	public void setEncapsulation(int arg)
 	{
 		int newAccess = arg;
-		int access = getAccess();
+		int access = getEncapsulation();
 		if ((newAccess & FormEncapsulation.MODULE_PRIVATE) == FormEncapsulation.MODULE_PRIVATE &&
 			(newAccess & FormEncapsulation.PRIVATE) == FormEncapsulation.PRIVATE)
 		{
 			if ((access & FormEncapsulation.MODULE_PRIVATE) == FormEncapsulation.MODULE_PRIVATE) newAccess = newAccess ^ FormEncapsulation.MODULE_PRIVATE;
 			else newAccess = newAccess ^ FormEncapsulation.PRIVATE;
 		}
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ACCESS, newAccess);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ENCAPSULATION, newAccess);
 
 	}
 
-	public int getAccess()
+	public int getEncapsulation()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ACCESS).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ENCAPSULATION).intValue();
 	}
 
 	/** 

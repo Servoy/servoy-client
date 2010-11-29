@@ -20,7 +20,7 @@ package com.servoy.j2db.persistence;
 import com.servoy.j2db.FlattenedSolution;
 
 /**
- * Interface that specifies the encapsulation flags of the {@link Form#getAccess()}
+ * Interface that specifies the encapsulation flags of the {@link Form#getEncapsulation()}
  * 
  * @author jcompagner
  *
@@ -67,32 +67,32 @@ public final class FormEncapsulation
 
 	public static boolean isPrivate(Form form, FlattenedSolution fs)
 	{
-		if ((form.getAccess() & MODULE_PRIVATE) == MODULE_PRIVATE)
+		if ((form.getEncapsulation() & MODULE_PRIVATE) == MODULE_PRIVATE)
 		{
 			return !fs.getSolution().equals(form.getSolution());
 		}
-		if ((form.getAccess() & PRIVATE) == PRIVATE) return true;
+		if ((form.getEncapsulation() & PRIVATE) == PRIVATE) return true;
 		return false;
 	}
 
 	public static boolean hideFoundset(Form form)
 	{
-		return (form.getAccess() & HIDE_FOUNDSET) == HIDE_FOUNDSET;
+		return (form.getEncapsulation() & HIDE_FOUNDSET) == HIDE_FOUNDSET;
 	}
 
 	public static boolean hideController(Form form)
 	{
-		return (form.getAccess() & HIDE_CONTROLLER) == HIDE_CONTROLLER;
+		return (form.getEncapsulation() & HIDE_CONTROLLER) == HIDE_CONTROLLER;
 	}
 
 	public static boolean hideElements(Form form)
 	{
-		return (form.getAccess() & HIDE_ELEMENTS) == HIDE_ELEMENTS;
+		return (form.getEncapsulation() & HIDE_ELEMENTS) == HIDE_ELEMENTS;
 	}
 
 	public static boolean hideDataproviders(Form form)
 	{
-		return (form.getAccess() & HIDE_DATAPROVIDERS) == HIDE_DATAPROVIDERS;
+		return (form.getEncapsulation() & HIDE_DATAPROVIDERS) == HIDE_DATAPROVIDERS;
 	}
 
 }

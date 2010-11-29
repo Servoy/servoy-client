@@ -49,16 +49,6 @@ public class ScriptMethod extends AbstractScriptProvider implements IPersistClon
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_SHOWINMENU).booleanValue();
 	}
 
-	public void setAccess(int arg)
-	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ACCESS, arg);
-	}
-
-	public int getAccess()
-	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ACCESS).intValue();
-	}
-
 	@Override
 	public String toString()
 	{

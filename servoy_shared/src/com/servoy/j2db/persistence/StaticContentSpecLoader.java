@@ -64,7 +64,7 @@ public class StaticContentSpecLoader
 	public static final TypedProperty<Boolean> PROPERTY_VISIBLE = new TypedProperty<Boolean>("visible"); //$NON-NLS-1$
 	public static final TypedProperty<Dimension> PROPERTY_INTERCELLSPACING = new TypedProperty<Dimension>("intercellSpacing"); //$NON-NLS-1$
 	public static final TypedProperty<Insets> PROPERTY_MARGIN = new TypedProperty<Insets>("margin"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ACCESS = new TypedProperty<Integer>("access"); //$NON-NLS-1$
+	public static final TypedProperty<Integer> PROPERTY_ENCAPSULATION = new TypedProperty<Integer>("encapsulation"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_ADDEMPTYVALUE = new TypedProperty<Integer>("addEmptyValue"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_ANCHORS = new TypedProperty<Integer>("anchors"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_BLOBID = new TypedProperty<Integer>("blobId"); //$NON-NLS-1$
@@ -699,30 +699,28 @@ public class StaticContentSpecLoader
 		{
 			cs.new Element(354, IRepository.FORMS, PROPERTY_ONDRAGENDMETHODID.getPropertyName(), IRepository.ELEMENTS);
 			cs.new Element(355, IRepository.PORTALS, PROPERTY_ONDRAGENDMETHODID.getPropertyName(), IRepository.ELEMENTS);
-			cs.new Element(356, IRepository.FORMS, PROPERTY_ACCESS.getPropertyName(), IRepository.INTEGER);
-			cs.new Element(357, IRepository.SCRIPTVARIABLES, PROPERTY_ACCESS.getPropertyName(), IRepository.INTEGER);
-			cs.new Element(358, IRepository.METHODS, PROPERTY_ACCESS.getPropertyName(), IRepository.INTEGER);
-			cs.new Element(359, IRepository.SCRIPTVARIABLES, PROPERTY_COMMENT.getPropertyName(), IRepository.STRING);
-			cs.new Element(360, IRepository.FORMS, PROPERTY_ONRENDERMETHODID.getPropertyName(), IRepository.ELEMENTS);
-			cs.new Element(361, IRepository.PORTALS, PROPERTY_ONRENDERMETHODID.getPropertyName(), IRepository.ELEMENTS);
-			cs.new Element(362, IRepository.FIELDS, PROPERTY_ONRENDERMETHODID.getPropertyName(), IRepository.ELEMENTS);
-			cs.new Element(363, IRepository.GRAPHICALCOMPONENTS, PROPERTY_ONRENDERMETHODID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(356, IRepository.FORMS, PROPERTY_ENCAPSULATION.getPropertyName(), IRepository.INTEGER);
+			cs.new Element(357, IRepository.SCRIPTVARIABLES, PROPERTY_COMMENT.getPropertyName(), IRepository.STRING);
+			cs.new Element(358, IRepository.FORMS, PROPERTY_ONRENDERMETHODID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(359, IRepository.PORTALS, PROPERTY_ONRENDERMETHODID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(360, IRepository.FIELDS, PROPERTY_ONRENDERMETHODID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(361, IRepository.GRAPHICALCOMPONENTS, PROPERTY_ONRENDERMETHODID.getPropertyName(), IRepository.ELEMENTS);
 
-			cs.new Element(364, IRepository.BEANS, PROPERTY_VISIBLE.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
-			cs.new Element(365, IRepository.PORTALS, PROPERTY_VISIBLE.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
-			cs.new Element(366, IRepository.TABPANELS, PROPERTY_VISIBLE.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
-			cs.new Element(367, IRepository.GRAPHICALCOMPONENTS, PROPERTY_VISIBLE.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
-			cs.new Element(368, IRepository.SHAPES, PROPERTY_VISIBLE.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
-			cs.new Element(369, IRepository.RECTSHAPES, PROPERTY_VISIBLE.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
-			cs.new Element(370, IRepository.FIELDS, PROPERTY_VISIBLE.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(362, IRepository.BEANS, PROPERTY_VISIBLE.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(363, IRepository.PORTALS, PROPERTY_VISIBLE.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(364, IRepository.TABPANELS, PROPERTY_VISIBLE.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(365, IRepository.GRAPHICALCOMPONENTS, PROPERTY_VISIBLE.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(366, IRepository.SHAPES, PROPERTY_VISIBLE.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(367, IRepository.RECTSHAPES, PROPERTY_VISIBLE.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(368, IRepository.FIELDS, PROPERTY_VISIBLE.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
 
-			cs.new Element(371, IRepository.BEANS, PROPERTY_ENABLED.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
-			cs.new Element(372, IRepository.PORTALS, PROPERTY_ENABLED.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
-			cs.new Element(373, IRepository.TABPANELS, PROPERTY_ENABLED.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
-			cs.new Element(374, IRepository.GRAPHICALCOMPONENTS, PROPERTY_ENABLED.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
-			cs.new Element(375, IRepository.SHAPES, PROPERTY_ENABLED.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
-			cs.new Element(376, IRepository.RECTSHAPES, PROPERTY_ENABLED.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
-			cs.new Element(377, IRepository.FIELDS, PROPERTY_ENABLED.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(369, IRepository.BEANS, PROPERTY_ENABLED.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(370, IRepository.PORTALS, PROPERTY_ENABLED.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(371, IRepository.TABPANELS, PROPERTY_ENABLED.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(372, IRepository.GRAPHICALCOMPONENTS, PROPERTY_ENABLED.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(373, IRepository.SHAPES, PROPERTY_ENABLED.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(374, IRepository.RECTSHAPES, PROPERTY_ENABLED.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(375, IRepository.FIELDS, PROPERTY_ENABLED.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
 		}
 
 		//##add property adds here

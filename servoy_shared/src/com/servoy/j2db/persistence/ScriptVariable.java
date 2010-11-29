@@ -97,16 +97,6 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_COMMENT, arg);
 	}
 
-	public void setAccess(int arg)
-	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ACCESS, arg);
-	}
-
-	public int getAccess()
-	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ACCESS).intValue();
-	}
-
 	/**
 	 * Set the variableType
 	 * 
