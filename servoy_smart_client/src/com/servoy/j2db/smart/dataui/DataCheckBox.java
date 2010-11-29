@@ -324,7 +324,7 @@ public class DataCheckBox extends JCheckBox implements IFieldComponent, IDisplay
 	{
 		if (editProvider == null)
 		{
-			editProvider = new EditProvider(this);
+			editProvider = new EditProvider(this, application);
 			addFocusListener(editProvider);
 			addItemListener(editProvider);
 			editProvider.addEditListener(l);

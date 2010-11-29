@@ -30,6 +30,7 @@ import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JRootPane;
@@ -37,6 +38,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.IDisplay;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
@@ -53,10 +55,16 @@ public class EditProvider implements FocusListener, PropertyChangeListener, Item
 	private boolean documentChanged;
 	private IEditListener listner;
 	private final IDisplayData src;
+	private final IApplication application;
 
 	public EditProvider(IDisplayData s)
 	{
 		this(s, false);
+	}
+
+	public EditProvider(IDisplayData s, IApplication application)
+	{
+		this(s, false, application);
 	}
 
 	public void resetState()
@@ -66,10 +74,16 @@ public class EditProvider implements FocusListener, PropertyChangeListener, Item
 
 	public EditProvider(IDisplayData s, boolean documentListener)
 	{
+		this(s, documentListener, null);
+	}
+
+	public EditProvider(IDisplayData s, boolean documentListener, IApplication application)
+	{
 		src = s;
 		isDocumentListener = documentListener;
 		isAdjusting = 0;
 		documentChanged = false;
+		this.application = application;
 	}
 
 	public void addEditListener(IEditListener l)
@@ -130,12 +144,33 @@ public class EditProvider implements FocusListener, PropertyChangeListener, Item
 	public void itemStateChanged(ItemEvent e)
 	{
 		if (e.getSource() instanceof JComboBox && e.getStateChange() == ItemEvent.DESELECTED) return;
-		if (!isAdjusting())
+		if (e.getSource() instanceof JCheckBox && application != null)
 		{
-			// i have to start edit first because an edit in a list view of a checkbox
-			// doesn't have always focusGained (which starts the edit)
-			listner.startEdit(src);
-			listner.commitEdit(src);
+			// see: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6998897 , http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6988854
+			application.invokeLater(new Runnable()
+			{
+				public void run()
+				{
+					if (!isAdjusting())
+					{
+						// i have to start edit first because an edit in a list view of a checkbox
+						// doesn't have always focusGained (which starts the edit)
+						listner.startEdit(src);
+						listner.commitEdit(src);
+					}
+
+				}
+			});
+		}
+		else
+		{
+			if (!isAdjusting())
+			{
+				// i have to start edit first because an edit in a list view of a checkbox
+				// doesn't have always focusGained (which starts the edit)
+				listner.startEdit(src);
+				listner.commitEdit(src);
+			}
 		}
 	}
 
