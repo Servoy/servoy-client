@@ -66,6 +66,7 @@ public class ReplaceTableVisitor implements IPersistVisitor
 				TableNode tableNode = ((TableNode)object);
 				if (sourceDataSource.equals(tableNode.getDataSource()))
 				{
+					tableNode.setRuntimeProperty(AbstractBase.NameChangeProperty, sourceDataSource);
 					tableNode.setDataSource(targetDataSource);
 				}
 			}
