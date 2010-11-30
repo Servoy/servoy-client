@@ -22,6 +22,9 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.print.PageFormat;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -1739,5 +1742,15 @@ public class SessionClient extends ClientState implements ISessionClient
 	public void setOutputChannel(InfoChannel channel)
 	{
 		this.outputChannel = channel;
+	}
+
+	private void writeObject(ObjectOutputStream stream) throws IOException
+	{
+		//serialize is not implemented
+	}
+
+	private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException
+	{
+		//serialize is not implemented
 	}
 }

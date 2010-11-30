@@ -21,6 +21,8 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -820,5 +822,15 @@ public class WebClient extends SessionClient implements IWebClientApplication
 
 	public void onEndRequest(@SuppressWarnings("unused") WebClientSession webClientSession)
 	{
+	}
+
+	private void writeObject(ObjectOutputStream stream) throws IOException
+	{
+		//serialize is not implemented
+	}
+
+	private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException
+	{
+		//serialize is not implemented
 	}
 }
