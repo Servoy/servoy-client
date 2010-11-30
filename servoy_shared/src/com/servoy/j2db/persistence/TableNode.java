@@ -104,6 +104,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	public void setDataSource(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_DATASOURCE, arg);
+		table = null;
 	}
 
 	/**
