@@ -70,7 +70,7 @@ public class WebClientSession extends WebSession
 	private String serveMime;
 	private byte[] serveData;
 
-	private final DNDSessionInfo dndSessionInfo = new DNDSessionInfo();
+	private transient final DNDSessionInfo dndSessionInfo = new DNDSessionInfo();
 
 	private String keepCredentialsSolutionName;
 
