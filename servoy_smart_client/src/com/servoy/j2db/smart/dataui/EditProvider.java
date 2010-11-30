@@ -146,21 +146,20 @@ public class EditProvider implements FocusListener, PropertyChangeListener, Item
 		if (e.getSource() instanceof JComboBox && e.getStateChange() == ItemEvent.DESELECTED) return;
 		if (e.getSource() instanceof JCheckBox && application != null)
 		{
-			// see: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6998897 , http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6988854
-			application.invokeLater(new Runnable()
+			if (!isAdjusting())
 			{
-				public void run()
+				// see: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6998897 , http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6988854
+				application.invokeLater(new Runnable()
 				{
-					if (!isAdjusting())
+					public void run()
 					{
 						// i have to start edit first because an edit in a list view of a checkbox
 						// doesn't have always focusGained (which starts the edit)
 						listner.startEdit(src);
 						listner.commitEdit(src);
 					}
-
-				}
-			});
+				});
+			}
 		}
 		else
 		{
