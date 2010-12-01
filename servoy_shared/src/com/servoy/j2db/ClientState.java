@@ -132,7 +132,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		{
 			throw new IllegalStateException();
 		}
-		clientInfo = new ClientInfo(this);
+		clientInfo = new ClientInfo();
 
 		// firing some form events needs to know the position of JSEvent argument
 		ClientMethodTemplatesLoader.loadClientMethodTemplatesIfNeeded();

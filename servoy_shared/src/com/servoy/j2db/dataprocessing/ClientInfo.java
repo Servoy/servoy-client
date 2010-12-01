@@ -25,7 +25,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-import com.servoy.j2db.ClientState;
 import com.servoy.j2db.server.annotations.TerracottaAutolockRead;
 import com.servoy.j2db.server.annotations.TerracottaAutolockWrite;
 import com.servoy.j2db.server.annotations.TerracottaInstrumentedClass;
@@ -89,13 +88,8 @@ public final class ClientInfo implements Serializable
 	 */
 	private final SerializableObject lock = new SerializableObject();
 
-	public ClientInfo(ClientState state)
+	public ClientInfo()
 	{
-		//security check: only allow ClientInfo to be made with valid ClientState instances
-		if (state == null)
-		{
-			throw new IllegalStateException();
-		}
 		initHostInfo();
 	}
 
