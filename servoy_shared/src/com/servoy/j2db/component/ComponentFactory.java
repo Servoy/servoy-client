@@ -1102,7 +1102,7 @@ public class ComponentFactory
 							message.append(",");
 						}
 						message.setLength(message.length() - 1);
-						message.append("\nSo it can't be uses also for type: " + Column.getDisplayTypeString(type) + " for the dataprovider: " + dataprovider); //$NON-NLS-1$ 
+						message.append("\nSo it can't be used also for type: " + Column.getDisplayTypeString(type) + " for the dataprovider: " + dataprovider); //$NON-NLS-1$ 
 						message.append("\nPlease check these dataproviders of this valuelist: " + valuelist.getName());
 						application.reportError("Valuelist: " + list.getName() + " used with different types", message);
 					}
