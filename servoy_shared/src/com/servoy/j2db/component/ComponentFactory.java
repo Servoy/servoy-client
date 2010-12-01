@@ -924,7 +924,7 @@ public class ComponentFactory
 							message.append(",");
 						}
 						message.setLength(message.length() - 1);
-						message.append("\nSo it can't be uses also for type: " + Column.getDisplayTypeString(type) + " for the dataprovider: " + dataprovider);
+						message.append("\nSo it can't be used also for type: " + Column.getDisplayTypeString(type) + " for the dataprovider: " + dataprovider);
 						message.append("\nPlease check these dataproviders of this valuelist: " + valuelist.getName());
 						application.reportError("Valuelist: " + list.getName() + " used with different types", message);
 					}
@@ -1086,8 +1086,9 @@ public class ComponentFactory
 									}
 									catch (IOException e)
 									{
-										Debug.error("Exception loading properties for converter " + converter.getName() + ", properties: " +
-											ci.getConverterProperties(), e);
+										Debug.error(
+											"Exception loading properties for converter " + converter.getName() + ", properties: " +
+												ci.getConverterProperties(), e);
 									}
 								}
 							}
