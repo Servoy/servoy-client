@@ -78,32 +78,12 @@ public class JSBase<T extends AbstractBase>
 				if (parent.getSupportChild() instanceof Form) break;
 				parent = parent.getJSParent();
 			}
-			if (parent.getSupportChild() instanceof Form && !parent.getSupportChild().equals(tempPersist.getAncestor(IRepository.FORMS)))
+			if (parent != null && parent.getSupportChild() instanceof Form && !parent.getSupportChild().equals(tempPersist.getAncestor(IRepository.FORMS)))
 			{
 				// inherited persist
 				try
 				{
-//					ISupportChilds overrideParent = getJSParent().getSupportChild();
-//					if (!(tempPersist.getParent() instanceof Form))
-//					{
-//						overrideParent = null;
-//						overrideParent = (ISupportChilds)AbstractRepository.searchPersist((Form)context, tempPersist.getParent().getUUID());
-//						if (parent == null)
-//						{
-//							try
-//							{
-//								parent = (ISupportChilds)((AbstractBase)persist.getParent()).cloneObj((Form)context, false, null, false, false);
-//								((AbstractBase)parent).resetUUID(persist.getParent().getUUID());
-//								((AbstractBase)parent).copyPropertiesMap(null);
-//								((AbstractBase)parent).putOverrideProperty(((Form)persist.getAncestor(IRepository.FORMS)).getName());
-//							}
-//							catch (Exception ex)
-//							{
-//								Debug.error(ex);
-//							}
-//						}
-//					}
-					baseComponent = (T)tempPersist.cloneObj(parent.getSupportChild(), false, null, false, false);
+					baseComponent = (T)tempPersist.cloneObj(getJSParent().getSupportChild(), false, null, false, false);
 					baseComponent.resetUUID(tempPersist.getUUID());
 					baseComponent.copyPropertiesMap(null);
 					baseComponent.putOverrideProperty(((Form)tempPersist.getAncestor(IRepository.FORMS)).getName());
