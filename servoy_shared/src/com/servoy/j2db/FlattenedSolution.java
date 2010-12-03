@@ -159,7 +159,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		return copy;
 	}
 
-	@SuppressWarnings({ "unchecked", "nls" })
+	@SuppressWarnings( { "unchecked", "nls" })
 	public <T extends AbstractBase> T clonePersist(T persist, String newName, ISupportChilds newParent)
 	{
 		T clone = (T)persist.clonePersist();
@@ -1393,7 +1393,16 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 					Style style = user_created_styles.get(style_name);
 					if (style != null) return style;
 				}
-				Style style = all_styles.get(style_name);
+				Style style = null;
+				if (all_styles != null)
+				{
+					style = all_styles.get(style_name);
+				}
+				else
+				{
+					// this shouldn't happen
+					Debug.trace("Null all_styles detected, main solution is: " + mainSolution != null ? mainSolution.getName() : "null"); //$NON-NLS-1$//$NON-NLS-2$
+				}
 				if (style != null)
 				{
 					return style;
@@ -1421,7 +1430,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				}
 			}
 			Style s = loadStyleForForm(f);
-			if (s != null)
+			if (s != null && all_styles != null)
 			{
 				synchronized (all_styles)
 				{
