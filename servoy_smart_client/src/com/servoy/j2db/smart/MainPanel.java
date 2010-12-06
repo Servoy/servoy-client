@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.smart;
 
 import java.awt.BorderLayout;
@@ -139,6 +139,8 @@ public class MainPanel extends JPanel implements ISupportNavigator, IMainContain
 		navigator = null;
 		currentForm = null;
 		tableFormPanel.removeAll();
+		// in order for the loading label not to be removed during solution loading 
+		if (loadingLabel != null) tableFormPanel.add(loadingLabel, "LoadingLabel"); //$NON-NLS-1$
 		tabSeqComponentList.clear();
 		if (history != null)
 		{
@@ -184,12 +186,14 @@ public class MainPanel extends JPanel implements ISupportNavigator, IMainContain
 			}
 
 			tableFormPanel.add(loadingLabel, "LoadingLabel"); //$NON-NLS-1$
+			tableFormPanel.validate();
 
 			forms.show(tableFormPanel, "LoadingLabel"); //$NON-NLS-1$
 		}
 		else if (loadingLabel != null)
 		{
 			tableFormPanel.remove(loadingLabel);
+			tableFormPanel.validate();
 		}
 	}
 
