@@ -34,11 +34,11 @@ import javax.swing.SwingConstants;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
-import com.servoy.j2db.FormManager.History;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.ISupportNavigator;
+import com.servoy.j2db.FormManager.History;
 import com.servoy.j2db.scripting.JSWindowImpl;
 import com.servoy.j2db.smart.dataui.ServoyFocusTraversalPolicy;
 import com.servoy.j2db.ui.IComponent;
@@ -137,6 +137,8 @@ public class MainPanel extends JPanel implements ISupportNavigator, IMainContain
 		navigator = null;
 		currentForm = null;
 		tableFormPanel.removeAll();
+		// in order for the loading label not to be removed during solution loading 
+		if (loadingLabel != null) tableFormPanel.add(loadingLabel, "LoadingLabel"); //$NON-NLS-1$
 		tabSeqComponentList.clear();
 		if (history != null)
 		{
@@ -182,12 +184,14 @@ public class MainPanel extends JPanel implements ISupportNavigator, IMainContain
 			}
 
 			tableFormPanel.add(loadingLabel, "LoadingLabel"); //$NON-NLS-1$
+			tableFormPanel.validate();
 
 			forms.show(tableFormPanel, "LoadingLabel"); //$NON-NLS-1$
 		}
 		else if (loadingLabel != null)
 		{
-			tableFormPanel.remove(loadingLabel);
+			tableFormPanel.remove(loadingLabel); //maybe this is not needed at all
+			tableFormPanel.validate();
 		}
 	}
 
