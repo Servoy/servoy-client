@@ -28,8 +28,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Random;
+import java.util.Map.Entry;
 
 import org.json.JSONException;
 
@@ -179,7 +179,7 @@ public abstract class AbstractBase implements IPersist
 		return value;
 	}
 
-	protected IPersist getSuperPersist()
+	public IPersist getSuperPersist()
 	{
 		Form form = (Form)getAncestor(IRepository.FORMS);
 		if (form != null)

@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.persistence;
 
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,6 +68,38 @@ public class FlattenedPortal extends Portal
 	protected void internalRemoveChild(IPersist obj)
 	{
 		portal.internalRemoveChild(obj);
+		fill();
+	}
+
+	@Override
+	public Field createNewField(Point location) throws RepositoryException
+	{
+		return portal.createNewField(location);
+	}
+
+	@Override
+	public GraphicalComponent createNewGraphicalComponent(Point location) throws RepositoryException
+	{
+		return portal.createNewGraphicalComponent(location);
+	}
+
+	@Override
+	@Deprecated
+	public RectShape createNewRectangle(Point location) throws RepositoryException
+	{
+		return portal.createNewRectangle(location);
+	}
+
+	@Override
+	public Shape createNewShape(Point location) throws RepositoryException
+	{
+		return portal.createNewShape(location);
+	}
+
+	@Override
+	public void addChild(IPersist obj)
+	{
+		portal.addChild(obj);
 		fill();
 	}
 

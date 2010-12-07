@@ -137,7 +137,7 @@ public class RepositoryHelper
 		return retval;
 	}
 
-	public void initClone(IPersist clone, IPersist original)
+	public static void initClone(IPersist clone, IPersist original)
 	{
 		((AbstractBase)clone).copyPropertiesMap(((AbstractBase)original).getPropertiesMap());
 		if (((AbstractBase)clone).isOverrideElement())

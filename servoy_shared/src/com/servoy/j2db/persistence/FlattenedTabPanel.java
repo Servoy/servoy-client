@@ -71,6 +71,19 @@ public class FlattenedTabPanel extends TabPanel
 	}
 
 	@Override
+	public Tab createNewTab(String text, String relationName, Form f) throws RepositoryException
+	{
+		return tabPanel.createNewTab(text, relationName, f);
+	}
+
+	@Override
+	public void addChild(IPersist obj)
+	{
+		tabPanel.addChild(obj);
+		fill();
+	}
+
+	@Override
 	<T> T getTypedProperty(TypedProperty<T> property)
 	{
 		return tabPanel.getTypedProperty(property);

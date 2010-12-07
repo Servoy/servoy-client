@@ -239,7 +239,7 @@ public class FlattenedForm extends Form
 	}
 
 	@Override
-	protected IPersist getSuperPersist()
+	public IPersist getSuperPersist()
 	{
 		return form.getExtendsForm();
 	}

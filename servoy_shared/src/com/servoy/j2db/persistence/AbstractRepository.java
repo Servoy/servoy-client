@@ -487,7 +487,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 	@Override
 	public void initClone(IPersist clone, IPersist objToClone) throws RepositoryException
 	{
-		repositoryHelper.initClone(clone, objToClone);
+		RepositoryHelper.initClone(clone, objToClone);
 	}
 
 	/**

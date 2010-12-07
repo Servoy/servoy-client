@@ -2141,7 +2141,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	}
 
 	@Override
-	protected IPersist getSuperPersist()
+	public IPersist getSuperPersist()
 	{
 		return getExtendsForm();
 	}
