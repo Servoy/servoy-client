@@ -27,6 +27,9 @@ import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.WrapFactory;
 
 import com.servoy.j2db.FormController;
+import com.servoy.j2db.IApplication;
+import com.servoy.j2db.dataprocessing.IDataSet;
+import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -35,8 +38,14 @@ import com.servoy.j2db.util.Debug;
  */
 public final class ServoyWrapFactory extends WrapFactory
 {
-	public ServoyWrapFactory()
+	private final IApplication application;
+
+	/**
+	 * @param application
+	 */
+	public ServoyWrapFactory(IApplication application)
 	{
+		this.application = application;
 		setJavaPrimitiveWrap(false);
 	}
 
@@ -89,6 +98,10 @@ public final class ServoyWrapFactory extends WrapFactory
 			}
 			return newObject;
 
+		}
+		if (obj instanceof IDataSet)
+		{
+			return new JSDataSet(application, (IDataSet)obj);
 		}
 		if (obj instanceof FormController)
 		{
