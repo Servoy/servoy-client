@@ -159,6 +159,7 @@ public class StaticContentSpecLoader
 	public static final TypedProperty<java.awt.Color> PROPERTY_FOREGROUND = new TypedProperty<java.awt.Color>("foreground"); //$NON-NLS-1$
 	public static final TypedProperty<java.awt.Color> PROPERTY_SELECTEDTABCOLOR = new TypedProperty<java.awt.Color>("selectedTabColor"); //$NON-NLS-1$
 	public static final TypedProperty<java.awt.Dimension> PROPERTY_SIZE = new TypedProperty<java.awt.Dimension>("size"); //$NON-NLS-1$
+	public static final TypedProperty<Integer> PROPERTY_WIDTH = new TypedProperty<Integer>("width"); //$NON-NLS-1$
 	public static final TypedProperty<java.awt.Point> PROPERTY_LOCATION = new TypedProperty<java.awt.Point>("location"); //$NON-NLS-1$
 	public static final TypedProperty<String> PROPERTY_ALIASES = new TypedProperty<String>("aliases"); //$NON-NLS-1$
 	public static final TypedProperty<String> PROPERTY_BEANCLASSNAME = new TypedProperty<String>("beanClassName"); //$NON-NLS-1$
