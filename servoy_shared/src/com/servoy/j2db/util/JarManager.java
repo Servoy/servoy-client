@@ -19,6 +19,7 @@ package com.servoy.j2db.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Modifier;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -203,7 +204,7 @@ public abstract class JarManager
 						}
 						if (cls != null)
 						{
-							if (searchType.isAssignableFrom(cls))
+							if (searchType.isAssignableFrom(cls) && !Modifier.isAbstract(cls.getModifiers()))
 							{
 								Extension ext = new Extension();
 								ext.jarFileName = entry.getValue().getLeft();
@@ -282,8 +283,8 @@ public abstract class JarManager
 												if (classPathFile.exists())
 												{
 													addCommonPackageToDefinitions(classPathJar, beanClassNames, packageJarMapping);
-													subDirRetval.put(classPathFile.toURI().toURL(),
-														new Pair<String, Long>(classPathJar, new Long(classPathFile.lastModified())));
+													subDirRetval.put(classPathFile.toURI().toURL(), new Pair<String, Long>(classPathJar, new Long(
+														classPathFile.lastModified())));
 												}
 												else
 												{
