@@ -18,33 +18,20 @@ package com.servoy.j2db.smart.dataui;
 
 import java.awt.Component;
 import java.io.Serializable;
-import java.lang.ref.WeakReference;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.JComponent;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IScriptExecuter;
-import com.servoy.j2db.IServoyBeanFactory;
-import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.component.InvisibleBean;
 import com.servoy.j2db.component.VisibleBean;
 import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.LookupValueList;
-import com.servoy.j2db.persistence.Bean;
-import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IDataProviderLookup;
-import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.Shape;
-import com.servoy.j2db.persistence.TabPanel;
-import com.servoy.j2db.plugins.IClientPluginAccess;
-import com.servoy.j2db.scripting.IScriptObject;
-import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.ui.IButton;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IFieldComponent;
@@ -55,7 +42,6 @@ import com.servoy.j2db.ui.ISplitPane;
 import com.servoy.j2db.ui.IStandardLabel;
 import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.ui.ItemFactory;
-import com.servoy.j2db.util.Debug;
 
 /**
  * Factory implementation for Swing GUI
@@ -64,8 +50,6 @@ import com.servoy.j2db.util.Debug;
  */
 public class SwingItemFactory implements ItemFactory
 {
-	private static Map<String, WeakReference<Class< ? >>> beanClassCache = new ConcurrentHashMap<String, WeakReference<Class< ? >>>();
-
 	private final IApplication application;
 
 	/**
@@ -356,136 +340,6 @@ public class SwingItemFactory implements ItemFactory
 		return new ShapePainter(application, rec.getShapeType(), rec.getLineSize(), rec.getPolygon());
 	}
 
-	public static Class getPersistClass(IApplication application, IPersist persist)
-	{
-		if (persist instanceof GraphicalComponent)
-		{
-			GraphicalComponent label = (GraphicalComponent)persist;
-			if (label.getOnActionMethodID() != 0 && label.getShowClick())
-			{
-				if (label.getDataProviderID() == null && !label.getDisplaysTags())
-				{
-					return ScriptButton.class;
-				}
-				else
-				{
-					return DataButton.class;
-				}
-			}
-			else
-			{
-				if (label.getDataProviderID() == null && !label.getDisplaysTags())
-				{
-					return ScriptLabel.class;
-				}
-				else
-				{
-					return DataLabel.class;
-				}
-			}
-		}
-		else if (persist instanceof Field)
-		{
-			Field field = (Field)persist;
-
-			switch (field.getDisplayType())
-			{
-				case Field.PASSWORD :
-					return DataPassword.class;
-				case Field.RTF_AREA :
-				case Field.HTML_AREA :
-					return DataTextEditor.class;
-				case Field.TEXT_AREA :
-					return DataTextArea.class;
-				case Field.CHECKS :
-					if (field.getValuelistID() > 0)
-					{
-//						IValueList list = getRealValueList(application, valuelist, true, type, format, field.getDataProviderID());
-//						if (!(valuelist.getValueListType() == ValueList.DATABASE_VALUES && valuelist.getDatabaseValuesType() == ValueList.RELATED_VALUES) &&
-//							list.getSize() == 1 && valuelist.getAddEmptyValue() != ValueList.EMPTY_VALUE_ALWAYS)
-//						{
-//							fl = application.getItemFactory().createDataCheckBox(getWebID(field), application.getI18NMessageIfPrefixed(field.getText()), list);
-//						}
-//						else
-						// 0 or >1
-						return DataChoice.class;
-					}
-					else
-					{
-						return DataCheckBox.class;
-					}
-				case Field.RADIOS :
-					return DataChoice.class;
-				case Field.COMBOBOX :
-					return DataComboBox.class;
-				case Field.CALENDAR :
-					return DataCalendar.class;
-				case Field.IMAGE_MEDIA :
-					return DataImgMediaField.class;
-				case Field.TYPE_AHEAD :
-					return DataLookupField.class;
-				default :
-					if (field.getValuelistID() > 0)
-					{
-						return DataLookupField.class;
-					}
-					else
-					{
-						return DataField.class;
-					}
-			}
-
-		}
-		else if (persist instanceof Bean)
-		{
-			Bean bean = (Bean)persist;
-			String beanClassName = bean.getBeanClassName();
-			WeakReference<Class< ? >> beanClassRef = beanClassCache.get(beanClassName);
-			Class< ? > beanClass = null;
-			if (beanClassRef != null)
-			{
-				beanClass = beanClassRef.get();
-			}
-			if (beanClass == null)
-			{
-				ClassLoader bcl = application.getBeanManager().getClassLoader();
-				try
-				{
-					beanClass = bcl.loadClass(beanClassName);
-					if (IServoyBeanFactory.class.isAssignableFrom(beanClass))
-					{
-						Form form = (Form)bean.getParent();
-						IServoyBeanFactory beanFactory = (IServoyBeanFactory)beanClass.newInstance();
-						Object beanInstance = beanFactory.getBeanInstance(application.getApplicationType(), (IClientPluginAccess)application.getPluginAccess(),
-							new Object[] { ComponentFactory.getWebID(null, bean), form.getName(), form.getStyleName() });
-						beanClass = beanInstance.getClass();
-						if (beanInstance instanceof IScriptObject)
-						{
-							ScriptObjectRegistry.registerScriptObjectForClass(beanClass, (IScriptObject)beanInstance);
-						}
-					}
-					beanClassCache.put(beanClassName, new WeakReference<Class< ? >>(beanClass));
-				}
-				catch (Exception e)
-				{
-					Debug.error("Error loading bean: " + bean.getName() + " clz: " + beanClassName, e); //$NON-NLS-1$ //$NON-NLS-2$
-				}
-			}
-			return beanClass;
-		}
-		else if (persist instanceof TabPanel)
-		{
-			int orient = ((TabPanel)persist).getTabOrientation();
-			if (orient == TabPanel.SPLIT_HORIZONTAL || orient == TabPanel.SPLIT_VERTICAL) return SpecialSplitPane.class;
-			else return SpecialTabPanel.class;
-		}
-		else if (persist instanceof Portal)
-		{
-			return PortalComponent.class;
-		}
-		return null;
-
-	}
 
 	/**
 	 * Set a property on the runtime component
