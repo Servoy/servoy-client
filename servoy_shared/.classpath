@@ -26,7 +26,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/servlet-api.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/slf4j-api.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/slf4j-log4j.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/terracotta-api.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/wicket-calendar.jar" sourcepath="libsrc/wicket-calendar-src.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/wicket-extentions.jar" sourcepath="libsrc/wicket-extentions-src.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/wicket.jar" sourcepath="libsrc/wicket-src.jar"/>
