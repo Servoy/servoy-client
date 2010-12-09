@@ -13,12 +13,13 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util;
 
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Modifier;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -201,7 +202,7 @@ public abstract class JarManager
 						}
 						if (cls != null)
 						{
-							if (searchType.isAssignableFrom(cls))
+							if (searchType.isAssignableFrom(cls) && !Modifier.isAbstract(cls.getModifiers()))
 							{
 								Extension ext = new Extension();
 								ext.jarFileName = entry.getValue().getLeft();
