@@ -55,6 +55,7 @@ import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.Solution;
@@ -63,8 +64,8 @@ import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.JSWindowImpl;
-import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.scripting.JSWindowImpl.JSWindow;
+import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.Utils;
@@ -591,7 +592,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 			int access = application.getFlattenedSolution().getSecurityAccess(f.getUUID());
 			if (access != -1)
 			{
-				boolean b_visible = ((access & 1) != 0);
+				boolean b_visible = ((access & IRepository.VIEWABLE) != 0);
 				if (!b_visible)
 				{
 					application.invokeLater(new Runnable()
@@ -774,7 +775,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		int access = application.getFlattenedSolution().getSecurityAccess(f.getUUID());
 		if (access != -1)
 		{
-			boolean b_visible = ((access & 1) != 0);
+			boolean b_visible = ((access & IRepository.VIEWABLE) != 0);
 			if (!b_visible)
 			{
 				return null;//user has no access
