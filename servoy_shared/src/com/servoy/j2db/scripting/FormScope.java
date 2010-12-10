@@ -26,6 +26,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.FormController;
+import com.servoy.j2db.dataprocessing.SQLSheet;
 import com.servoy.j2db.persistence.AggregateVariable;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.Form;
@@ -165,7 +166,11 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 		_fp.touch();
 
 		// let the record handle it
-		if ("length".equals(name) && getPrototype() != null && getPrototype().has(name, getPrototype())) return NOT_FOUND; //$NON-NLS-1$
+		if ("length".equals(name) && _fp != null && _fp.getFormModel() != null && _fp.getFormModel().getSQLSheet() != null) //$NON-NLS-1$
+		{
+			SQLSheet sqlSheet = _fp.getFormModel().getSQLSheet();
+			if (sqlSheet.containsAggregate(name) || sqlSheet.containsCalculation(name) || sqlSheet.getColumnIndex(name) >= 0) return NOT_FOUND;
+		}
 
 		if ("alldataproviders".equals(name)) //$NON-NLS-1$
 		{
@@ -275,7 +280,11 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 		if ("allnames".equals(name) || "alldataproviders".equals(name) || "allrelations".equals(name) || "allmethods".equals(name) | "allvariables".equals(name)) return true; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
 		// let the record handle it
-		if ("length".equals(name) && getPrototype() != null && getPrototype().has(name, getPrototype())) return false; //$NON-NLS-1$
+		if ("length".equals(name) && _fp != null && _fp.getFormModel() != null && _fp.getFormModel().getSQLSheet() != null) //$NON-NLS-1$
+		{
+			SQLSheet sqlSheet = _fp.getFormModel().getSQLSheet();
+			if (sqlSheet.containsAggregate(name) || sqlSheet.containsCalculation(name) || sqlSheet.getColumnIndex(name) >= 0) return false;
+		}
 
 		return super.has(name, start);
 	}
