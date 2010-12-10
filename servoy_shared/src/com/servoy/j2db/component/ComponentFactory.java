@@ -149,7 +149,7 @@ import com.servoy.j2db.util.gui.TabLikeBorder;
 @SuppressWarnings("nls")
 public class ComponentFactory
 {
-	public static final String WEB_ID_PREFIX = "sv_";
+	public static final String WEB_ID_PREFIX = "sv";
 	public static final int RTF_AREA = 7;
 	public static final int HTML_AREA = 8;
 
@@ -169,7 +169,8 @@ public class ComponentFactory
 
 	public static String getWebID(Form form, IPersist meta)
 	{
-		String prefix = WEB_ID_PREFIX; //to stay javascript id ref compatible 
+		StringBuilder prefix = new StringBuilder();
+		prefix.append(WEB_ID_PREFIX); //to stay javascript id ref compatible 
 
 		if (element_name_as_uid_prefix == null)
 		{
@@ -181,7 +182,8 @@ public class ComponentFactory
 			String name = ((ISupportName)meta).getName();
 			if (name != null && name.trim().length() != 0)
 			{
-				prefix = name + '_';
+				prefix.append('_');
+				prefix.append(name);
 			}
 		}
 
@@ -197,11 +199,13 @@ public class ComponentFactory
 		}
 		else
 		{
+			prefix.append('_');
 			uid = meta.getUUID().toString();
 			uid = Utils.stringReplace(uid, "-", "_");
 		}
 
-		return prefix + uid;
+		prefix.append(uid);
+		return prefix.toString();
 	}
 
 	public static String stripIllegalCSSChars(String id)
