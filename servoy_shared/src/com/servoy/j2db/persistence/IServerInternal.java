@@ -16,9 +16,12 @@
  */
 package com.servoy.j2db.persistence;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.sql.DataSource;
 
 import com.servoy.j2db.dataprocessing.TableFilter;
 import com.servoy.j2db.query.ISQLQuery;
@@ -126,4 +129,12 @@ public interface IServerInternal
 	boolean hasMissingDBSequences(Table table) throws SQLException;
 
 	String[] createMissingDBSequences(Table table) throws SQLException, RepositoryException;
+
+	String getDialectClassName();
+
+	DataSource getDataSource() throws Exception;
+
+	String getIndexCreateString(Table t, String indexName, Column[] indexColumns, boolean unique) throws SQLException;
+
+	Connection getRawConnection() throws SQLException;
 }
