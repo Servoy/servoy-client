@@ -25,6 +25,7 @@ import javax.swing.AbstractListModel;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.CustomValueList.DisplayString;
+import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -36,6 +37,7 @@ import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.IQuerySort;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.OrCondition;
+import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryFunction;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QuerySort;
@@ -428,65 +430,64 @@ public class LookupListModel extends AbstractListModel
 				{
 					// its a combination
 					displayValues = Utils.stringSplit(txt, separator);
-					ArrayList<String> lst = new ArrayList<String>();
-					for (int i = 0; i < displayValues.length; i++)
+					if (displayValues.length == 1 && displayValues[0].equals(txt.toUpperCase()))
 					{
-						if (!displayValues[i].trim().equals("")) //$NON-NLS-1$
-						{
-							lst.add(displayValues[i].toUpperCase() + '%');
-						}
+						displayValues = null;
 					}
-					displayValues = lst.toArray(new String[lst.size()]);
+					else
+					{
+						ArrayList<String> lst = new ArrayList<String>();
+						for (int i = 0; i < displayValues.length; i++)
+						{
+							if (!displayValues[i].trim().equals("")) //$NON-NLS-1$
+							{
+								lst.add(displayValues[i].toUpperCase() + '%');
+							}
+						}
+						displayValues = lst.toArray(new String[lst.size()]);
+					}
 				}
 			}
 			String likeValue = txt.toUpperCase() + '%';
 			OrCondition overallOr = new OrCondition();
 			if ((showValues & 1) != 0)
 			{
-				if (displayValues != null)
-				{
-					for (String displayValue : displayValues)
-					{
-						overallOr.addCondition(new CompareCondition(ISQLCondition.LIKE_OPERATOR, new QueryFunction(QueryFunction.UPPER,
-							DBValueList.getQuerySelectValue(table, qTable, valueList.getDataProviderID1()), valueList.getDataProviderID1()), displayValue));
-					}
-				}
-				// also just add the complete value, for the possibility that it was a value with a separator.
-				overallOr.addCondition(new CompareCondition(ISQLCondition.LIKE_OPERATOR, new QueryFunction(QueryFunction.UPPER,
-					DBValueList.getQuerySelectValue(table, qTable, valueList.getDataProviderID1()), valueList.getDataProviderID1()), likeValue));
+				addOrCondition(valueList.getDataProviderID1(), qTable, likeValue, displayValues, overallOr);
 			}
 			if ((showValues & 2) != 0)
 			{
-				if (displayValues != null)
-				{
-					for (String displayValue : displayValues)
-					{
-						overallOr.addCondition(new CompareCondition(ISQLCondition.LIKE_OPERATOR, new QueryFunction(QueryFunction.UPPER,
-							DBValueList.getQuerySelectValue(table, qTable, valueList.getDataProviderID2()), valueList.getDataProviderID2()), displayValue));
-					}
-				}
-				// also just add the complete value, for the possibility that it was a value with a separator.
-				overallOr.addCondition(new CompareCondition(ISQLCondition.LIKE_OPERATOR, new QueryFunction(QueryFunction.UPPER,
-					DBValueList.getQuerySelectValue(table, qTable, valueList.getDataProviderID2()), valueList.getDataProviderID2()), likeValue));
+				addOrCondition(valueList.getDataProviderID2(), qTable, likeValue, displayValues, overallOr);
 			}
 			if ((showValues & 4) != 0)
 			{
-				if (displayValues != null)
-				{
-					for (String displayValue : displayValues)
-					{
-						overallOr.addCondition(new CompareCondition(ISQLCondition.LIKE_OPERATOR, new QueryFunction(QueryFunction.UPPER,
-							DBValueList.getQuerySelectValue(table, qTable, valueList.getDataProviderID3()), valueList.getDataProviderID3()), displayValue));
-					}
-				}
-				// also just add the complete value, for the possibility that it was a value with a separator.
-				overallOr.addCondition(new CompareCondition(ISQLCondition.LIKE_OPERATOR, new QueryFunction(QueryFunction.UPPER,
-					DBValueList.getQuerySelectValue(table, qTable, valueList.getDataProviderID3()), valueList.getDataProviderID3()), likeValue));
+				addOrCondition(valueList.getDataProviderID3(), qTable, likeValue, displayValues, overallOr);
 			}
 			select.addCondition(SQLGenerator.CONDITION_SEARCH, overallOr);
 			return true;
 		}
 		return false;
+	}
+
+	protected void addOrCondition(String dataProviderId, QueryTable qTable, String likeValue, String[] displayValues, OrCondition overallOr)
+	{
+		IQuerySelectValue querySelect = DBValueList.getQuerySelectValue(table, qTable, dataProviderId);
+		if (table.getColumnType(dataProviderId) != IColumnTypes.TEXT)
+		{
+			querySelect = new QueryFunction(QueryFunction.CAST, new IQuerySelectValue[] { querySelect, new QueryColumnValue("string", null, true) }, null); //$NON-NLS-1$
+		}
+		else
+		{
+			querySelect = new QueryFunction(QueryFunction.UPPER, querySelect, dataProviderId);
+		}
+		if (displayValues != null)
+		{
+			for (String displayValue : displayValues)
+			{
+				overallOr.addCondition(new CompareCondition(ISQLCondition.LIKE_OPERATOR, querySelect, displayValue));
+			}
+		}
+		// also just add the complete value, for the possibility that it was a value with a separator.
+		overallOr.addCondition(new CompareCondition(ISQLCondition.LIKE_OPERATOR, querySelect, likeValue));
 	}
 
 	/**
