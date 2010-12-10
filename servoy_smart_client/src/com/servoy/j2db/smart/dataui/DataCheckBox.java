@@ -801,7 +801,7 @@ public class DataCheckBox extends JCheckBox implements IFieldComponent, IDisplay
 	 */
 	public String js_getElementType()
 	{
-		return (actAsRadio ? "RADIO" : "CHECK"); //$NON-NLS-1$
+		return (actAsRadio ? "RADIOS" : "CHECK"); //$NON-NLS-1$
 	}
 
 	public String js_getName()
