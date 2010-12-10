@@ -134,7 +134,9 @@ public interface IServerInternal
 
 	DataSource getDataSource() throws Exception;
 
-	String getIndexCreateString(Table t, String indexName, Column[] indexColumns, boolean unique) throws SQLException;
+	String getIndexDropString(Connection connection, Table t, String indexName) throws SQLException;
 
-	Connection getRawConnection() throws SQLException;
+	String getIndexCreateString(Connection connection, Table t, String indexName, Column[] indexColumns, boolean unique) throws SQLException;
+
+	Connection getRawConnection() throws SQLException, RepositoryException;
 }
