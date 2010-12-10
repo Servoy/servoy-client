@@ -263,7 +263,7 @@ public class TemplateGenerator
 	public static final int NO_LABELFOR_DEFAULT_BORDER_WIDTH = 1;
 
 	public static final Color DEFAULT_FORM_BG_COLOR = Color.WHITE;
-	public static final String TABLE_VIEW_CELL_CLASS = "tableviewcell"; // this value is also used in servoy.js; if you change/remove it please update servoy.js //$NON-NLS-1$
+	public static final String TABLE_VIEW_CELL_CLASS = "tableviewcell"; // this value is also used in servoy.js; if you change/remove it please update servoy.js
 
 	public static final String WRAPPER_SUFFIX = "_wrapper";
 
@@ -279,8 +279,8 @@ public class TemplateGenerator
 		{
 			public Object component(org.apache.wicket.Component c)
 			{
-				String id = "#" + c.getId(); //$NON-NLS-1$
-				if (ids.indexOf(id) != -1) webFormIDToMarkupIDMap.put(id, "#" + c.getMarkupId()); //$NON-NLS-1$
+				String id = "#" + c.getId();
+				if (ids.indexOf(id) != -1) webFormIDToMarkupIDMap.put(id, "#" + c.getMarkupId());
 				return IVisitor.CONTINUE_TRAVERSAL;
 			}
 		});
@@ -322,8 +322,8 @@ public class TemplateGenerator
 	{
 		if (f == null) return null;
 		final IRepository repository = ApplicationServerSingleton.get().getLocalRepository();
-		boolean enableAnchoring = sp != null
-			? Utils.getAsBoolean(sp.getRuntimeProperties().get("enableAnchors")) : Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.webclient.enableAnchors", Boolean.TRUE.toString())); //$NON-NLS-1$ 
+		boolean enableAnchoring = sp != null ? Utils.getAsBoolean(sp.getRuntimeProperties().get("enableAnchors"))
+			: Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.webclient.enableAnchors", Boolean.TRUE.toString()));
 
 		String overriddenStyleName = null;
 		Map<String, String> formIDToMarkupIDMap = null;
@@ -350,7 +350,7 @@ public class TemplateGenerator
 					}
 					catch (RepositoryException e)
 					{
-						Debug.error("Couldn't create flattened form for the template generator", e); //$NON-NLS-1$ 
+						Debug.error("Couldn't create flattened form for the template generator", e);
 					}
 					finally
 					{
@@ -445,7 +445,7 @@ public class TemplateGenerator
 
 
 		String webFormCSS = getWebFormCSS(retval.getRight(), formIDToMarkupIDMap);
-		webFormCSS = StripHTMLTagsConverter.convertMediaReferences(webFormCSS, solution.getName(), new ResourceReference("media"), "").toString(); //$NON-NLS-1$ //$NON-NLS-2$ // string the formcss/solutionname/ out of the url.		
+		webFormCSS = StripHTMLTagsConverter.convertMediaReferences(webFormCSS, solution.getName(), new ResourceReference("media"), "").toString(); // string the formcss/solutionname/ out of the url.		
 		return new Pair<String, String>(retval.getLeft(), webFormCSS);
 	}
 
@@ -760,8 +760,8 @@ public class TemplateGenerator
 								html.append('>');
 								html.append("<div servoy:id='headertext' ");
 								styleObj.setProperty("cursor", "pointer");
-								styleObj.setProperty("height", cellHeight + "px"); //$NON-NLS-1$ //$NON-NLS-2$
-								styleObj.setProperty("width", cellWidth + "px"); //$NON-NLS-1$ //$NON-NLS-2$
+								styleObj.setProperty("height", cellHeight + "px");
+								styleObj.setProperty("width", cellWidth + "px");
 								html.append(styleObj.toString());
 								html.append("></div>");
 								html.append("</a>");
@@ -914,7 +914,7 @@ public class TemplateGenerator
 			html.append("</table>\n");
 			if (!(obj instanceof Form))
 			{
-				html.append("</div>\n"); //$NON-NLS-1$
+				html.append("</div>\n");
 			}
 			html.append("\n\n");
 		}
@@ -978,7 +978,7 @@ public class TemplateGenerator
 			while (iter.hasNext())
 			{
 				Map.Entry<String, TextualStyle> selectorTextualStyle = iter.next();
-				selectorValuePairs.add(new Pair<String, String>(selectorTextualStyle.getKey(), selectorTextualStyle.getValue().toString(""))); //$NON-NLS-1$
+				selectorValuePairs.add(new Pair<String, String>(selectorTextualStyle.getKey(), selectorTextualStyle.getValue().toString("")));
 			}
 
 			return selectorValuePairs;
@@ -1096,12 +1096,12 @@ public class TemplateGenerator
 			StringBuffer retval = new StringBuffer();
 			if (pSelector == null)
 			{
-				retval.append("style='"); //$NON-NLS-1$ 
+				retval.append("style='");
 			}
 			else
 			{
 				retval.append(pSelector);
-				retval.append("\n{\n"); //$NON-NLS-1$ 
+				retval.append("\n{\n");
 			}
 			Iterator<String> it = order.iterator();
 			while (it.hasNext())
@@ -1110,18 +1110,18 @@ public class TemplateGenerator
 				String val = getProperty(name);
 				if (pSelector != null) retval.append('\t');
 				retval.append(name);
-				retval.append(": "); //$NON-NLS-1$ 
+				retval.append(": ");
 				retval.append(val);
 				if (it.hasNext()) retval.append(';');
 				if (pSelector != null) retval.append('\n');
 			}
 			if (pSelector == null)
 			{
-				retval.append("' "); //$NON-NLS-1$ 
+				retval.append("' ");
 			}
 			else
 			{
-				retval.append("}\n\n"); //$NON-NLS-1$ 
+				retval.append("}\n\n");
 			}
 			return retval.toString();
 		}
@@ -1135,7 +1135,7 @@ public class TemplateGenerator
 				String name = it.next();
 				String val = getProperty(name);
 				retval.append(name);
-				retval.append(": "); //$NON-NLS-1$ 
+				retval.append(": ");
 				retval.append(val);
 				retval.append(';');
 			}
@@ -1386,7 +1386,7 @@ public class TemplateGenerator
 		styleObj.setProperty("position", "absolute");
 
 		styleObj = css.addStyle("div.webform");//$NON-NLS-1$ 
-		styleObj.setProperty("background-color", PersistHelper.createColorString(DEFAULT_FORM_BG_COLOR)); //$NON-NLS-1$ //$NON-NLS-2$
+		styleObj.setProperty("background-color", PersistHelper.createColorString(DEFAULT_FORM_BG_COLOR));
 
 		//default tab stuff
 		styleObj = css.addStyle("div.tabs div");
@@ -1509,8 +1509,8 @@ public class TemplateGenerator
 		styleObj.setProperty("outline", "none");
 
 		// disable text area resizing
-		styleObj = css.addStyle("textarea"); //$NON-NLS-1$
-		styleObj.setProperty("resize", "none"); //$NON-NLS-1$ //$NON-NLS-2$
+		styleObj = css.addStyle("textarea");
+		styleObj.setProperty("resize", "none");
 
 		return css.toString();
 	}
@@ -1707,8 +1707,8 @@ public class TemplateGenerator
 		{
 			String tabPanelMarkupId = ComponentFactory.getWebID(form, tabPanel);
 
-			StringBuffer leftPanelStyle = new StringBuffer("position: absolute; "); //$NON-NLS-1$
-			StringBuffer rightPanelStyle = new StringBuffer("position: absolute; "); //$NON-NLS-1$
+			StringBuffer leftPanelStyle = new StringBuffer("position: absolute; ");
+			StringBuffer rightPanelStyle = new StringBuffer("position: absolute; ");
 			if (tabPanel.getTabOrientation() == TabPanel.SPLIT_HORIZONTAL)
 			{
 				leftPanelStyle.append("top: 0px; left: 0px; bottom: 0px;");
@@ -1721,11 +1721,11 @@ public class TemplateGenerator
 			}
 
 
-			html.append("\t<div id='splitter_").append(tabPanelMarkupId).append("' servoy:id='splitter' style='").append(leftPanelStyle).append( //$NON-NLS-1$  //$NON-NLS-2$
-				"'><div id='websplit_left_").append(tabPanelMarkupId).append("' servoy:id='websplit_left' style='").append(leftPanelStyle).append( //$NON-NLS-1$  //$NON-NLS-2$
-				"' ><div servoy:id='webform' " + getCSSClassParameter("webform") + "></div></div></div>"); //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$
-			html.append("<div id='websplit_right_").append(tabPanelMarkupId).append("' servoy:id='websplit_right' style='").append(rightPanelStyle).append( //$NON-NLS-1$  //$NON-NLS-2$ 
-				"'><div servoy:id='webform' " + getCSSClassParameter("webform") + "></div></div>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			html.append("\t<div id='splitter_").append(tabPanelMarkupId).append("' servoy:id='splitter' style='").append(leftPanelStyle).append(
+				"'><div id='websplit_left_").append(tabPanelMarkupId).append("' servoy:id='websplit_left' style='").append(leftPanelStyle).append(
+				"' ><div servoy:id='webform' " + getCSSClassParameter("webform") + "></div></div></div>");
+			html.append("<div id='websplit_right_").append(tabPanelMarkupId).append("' servoy:id='websplit_right' style='").append(rightPanelStyle).append(
+				"'><div servoy:id='webform' " + getCSSClassParameter("webform") + "></div></div>");
 		}
 		else
 		{
@@ -2094,6 +2094,9 @@ public class TemplateGenerator
 			}
 				break;
 			case Field.CHECKS :
+			case Field.RADIOS :
+				boolean isRadio = (field.getDisplayType() == Field.RADIOS);
+				String selector = (isRadio ? "radio" : "check");
 				IValueList val = null;
 				ValueList valuelist = null;
 				if (field.getValuelistID() > 0 && sp != null)
@@ -2104,13 +2107,7 @@ public class TemplateGenerator
 					if (valuelist != null) val = ComponentFactory.getRealValueList(sp, valuelist, true, Integer.parseInt(fieldFormat[1]), fieldFormat[0],
 						field.getDataProviderID());
 				}
-				boolean addSingle = false;
-				if (val != null && valuelist != null)
-				{
-					// see condition in ComponentFactory
-					addSingle = !(valuelist.getValueListType() == ValueList.DATABASE_VALUES && valuelist.getDatabaseValuesType() == ValueList.RELATED_VALUES) &&
-						(val.getSize() == 1) && (valuelist.getAddEmptyValue() != ValueList.EMPTY_VALUE_ALWAYS);
-				}
+				boolean addSingle = ComponentFactory.isSingleValue(valuelist, val);
 
 				// If we have multiple checkboxes, then the default is "field".
 				if (field.getValuelistID() > 0 && !addSingle) cssClass = "field";
@@ -2118,7 +2115,7 @@ public class TemplateGenerator
 				if (ss != null)
 				{
 					cssClass = "field";
-					String lookUpValue = "check";
+					String lookUpValue = selector;
 					javax.swing.text.Style s = ss.getRule(lookUpValue);
 					if (s.getAttributeCount() == 0)
 					{
@@ -2126,15 +2123,14 @@ public class TemplateGenerator
 						{
 							lookUpValue += '.' + field.getStyleClass().trim();
 							s = ss.getRule(lookUpValue);
-							if (s.getAttributeCount() > 0) cssClass = "check";
+							if (s.getAttributeCount() > 0) cssClass = selector;
 						}
 					}
 					else
 					{
-						cssClass = "check";
+						cssClass = selector;
 					}
 				}
-
 
 				if (field.getValuelistID() > 0 && !addSingle)
 				{
@@ -2152,51 +2148,28 @@ public class TemplateGenerator
 					html.append(getCSSClassParameter(cssClass));
 					html.append(getWicketIDParameter(form, field));
 					html.append(" tabIndex=\"-1\" ");
-					html.append("><input style='border-width: 0px; padding: 0px; margin-top: 0px; margin-bottom: 0px; margin-left: 0px;' "); //  
+					html.append(">"); // 
+					html.append("<input style='float: left; border-width: 0px; padding: 3px; margin: 0px;' "); // 
 					html.append(getWicketIDParameter(form, field, "check_", ""));
 					html.append(getDataProviderIDParameter(field));
-					html.append("type='checkbox' ");
-					html.append("/>");
-					html.append("<label for='check_");
-					html.append(ComponentFactory.getWebID(form, field));
-					html.append("' style='margin-top: 0px; margin-bottom: 0px; border-top: 0px; border-bottom: 0px; padding-top: 0px; padding-bottom: 0px;");
-					html.append("' ");
-					html.append(getWicketIDParameter(form, field, "text_", ""));
-					html.append("></label>");
-					html.append("</div>");
-				}
-				break;
-			case Field.RADIOS :
-			{
-				cssClass = "field"; // By default the "field" class is applied.  
-				// If we have a style for the form, apply "radio" class if present, default to "field" if "radio" class is not present.
-				if (ss != null)
-				{
-					String lookUpValue = "radio";
-					javax.swing.text.Style s = ss.getRule(lookUpValue);
-					if (s.getAttributeCount() == 0)
+					if (isRadio)
 					{
-						if ((field.getStyleClass() != null) && (field.getStyleClass().trim().length() > 0))
-						{
-							lookUpValue += '.' + field.getStyleClass().trim();
-							s = ss.getRule(lookUpValue);
-							if (s.getAttributeCount() > 0) cssClass = "radio";
-						}
+						html.append("type='checkbox' ");
 					}
 					else
 					{
-						cssClass = "radio";
+						html.append("type='checkbox' ");
 					}
+					html.append("/>");
+					html.append("<label for='check_");
+					html.append(ComponentFactory.getWebID(form, field));
+					html.append("' style='float: left; border-width: 0px; padding-top: 2px; margin: 0px;");
+					html.append("' ");
+					html.append(getWicketIDParameter(form, field, "text_", ""));
+					html.append(">");
+					html.append("</label>");
+					html.append("</div>");
 				}
-
-				applyScrolling(styleObj, field);
-				html.append("<div ");
-				html.append(getWicketIDParameter(form, field));
-//					html.append(getJavaScriptIDParameter(field));
-				html.append(getDataProviderIDParameter(field));
-				html.append(getCSSClassParameter(cssClass));
-				html.append(">Multi radios</div>");
-			}
 				break;
 			case Field.COMBOBOX :
 			{
