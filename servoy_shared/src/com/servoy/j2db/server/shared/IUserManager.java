@@ -63,6 +63,8 @@ public interface IUserManager extends ISolutionSecurityManager, Remote
 
 	public IDataSet getUsers(String clientId) throws ServoyException, RemoteException;
 
+	public IDataSet getUsersByGroup(String clientId, String group_name) throws ServoyException, RemoteException;
+
 	public boolean addUserToGroup(String clientId, int userId, int groupId) throws ServoyException, RemoteException;
 
 

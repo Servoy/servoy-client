@@ -678,15 +678,23 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	 * Get all the users in the security settings (returns a dataset).
 	 *
 	 * @sampleas js_getUserGroups(Object)
-	 * 
+	 * @param groupName optional the group to filter on
 	 * @return dataset with all the users
 	 */
-	public JSDataSet js_getUsers() throws ServoyException
+	public JSDataSet js_getUsers(Object[] vargs) throws ServoyException
 	{
 		checkAuthorized();
 		try
 		{
-			IDataSet users = application.getUserManager().getUsers(application.getClientID());
+			IDataSet users = null;
+			if (vargs.length == 1)
+			{
+				users = application.getUserManager().getUsersByGroup(application.getClientID(), vargs[0].toString());
+			}
+			else
+			{
+				users = application.getUserManager().getUsers(application.getClientID());
+			}
 			return users == null ? JSDataSet.EMPTY_DATASET : new JSDataSet(application, users);
 		}
 		catch (Exception e)
