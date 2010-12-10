@@ -80,6 +80,7 @@ public class DataCheckBox extends JCheckBox implements IFieldComponent, IDisplay
 	private final EventExecutor eventExecutor;
 	private MouseAdapter rightclickMouseAdapter = null;
 	private boolean allowNull = true;
+	private final boolean actAsRadio;
 
 	public DataCheckBox(IApplication application, String text, boolean isRadio)
 	{
@@ -87,6 +88,7 @@ public class DataCheckBox extends JCheckBox implements IFieldComponent, IDisplay
 		this.application = application;
 		eventExecutor = new EventExecutor(this);
 		addKeyListener(eventExecutor);
+		this.actAsRadio = isRadio;
 	}
 
 	public DataCheckBox(IApplication application, String text, IValueList onValue, boolean isRadio)
@@ -799,7 +801,7 @@ public class DataCheckBox extends JCheckBox implements IFieldComponent, IDisplay
 	 */
 	public String js_getElementType()
 	{
-		return "CHECK"; //$NON-NLS-1$
+		return (actAsRadio ? "RADIO" : "CHECK"); //$NON-NLS-1$
 	}
 
 	public String js_getName()

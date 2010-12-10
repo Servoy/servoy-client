@@ -112,7 +112,7 @@ public class WebDataCheckBox extends MarkupContainer implements IFieldComponent,
 	private final ChangesRecorder jsChangeRecorder = new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE, TemplateGenerator.DEFAULT_FIELD_PADDING);
 
 	private final IApplication application;
-	private final MyCheckBox box;
+	private final MyCheckBox selector;
 
 	public WebDataCheckBox(IApplication application, String id, String text, IValueList list, boolean isRadio)
 	{
@@ -125,18 +125,18 @@ public class WebDataCheckBox extends MarkupContainer implements IFieldComponent,
 	{
 		super(id);
 		this.application = application;
-		box = new MyCheckBox("check_" + id); //$NON-NLS-1$
+		selector = new MyCheckBox("check_" + id, isRadio); //$NON-NLS-1$
 
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX"));
-		eventExecutor = new WebEventExecutor(box, useAJAX);
+		eventExecutor = new WebEventExecutor(selector, useAJAX);
 		setOutputMarkupPlaceholderTag(true);
 
-		add(box);
+		add(selector);
 		add(new Label("text_" + id, "")); //$NON-NLS-1$ //$NON-NLS-2$
 		text = Text.processTags(text, null);
 		setText(text);
 
-		box.add(new FocusIfInvalidAttributeModifier(box));
+		selector.add(new FocusIfInvalidAttributeModifier(selector));
 		add(StyleAttributeModifierModel.INSTANCE);
 		add(TooltipAttributeModifier.INSTANCE);
 	}
@@ -217,7 +217,7 @@ public class WebDataCheckBox extends MarkupContainer implements IFieldComponent,
 	{
 		Component component = null;
 		if (onValue != null) component = this;
-		else component = box;
+		else component = selector;
 		return new Component[] { component };
 	}
 
@@ -489,10 +489,13 @@ public class WebDataCheckBox extends MarkupContainer implements IFieldComponent,
 	private final class MyCheckBox extends CheckBox implements IResolveObject, IDisplayData
 	{
 		private static final long serialVersionUID = 1L;
+		protected ITagResolver resolver;
+		public boolean isRadio;
 
-		private MyCheckBox(String id)
+		private MyCheckBox(String id, boolean isRadio)
 		{
 			super(id);
+			this.isRadio = isRadio;
 			setOutputMarkupPlaceholderTag(true);
 			add(new AttributeModifier("disabled", true, new Model<String>() //$NON-NLS-1$
 				{
@@ -587,8 +590,6 @@ public class WebDataCheckBox extends MarkupContainer implements IFieldComponent,
 			super.onBeforeRender();
 			changeNullTo0IfNeeded(); // for table/list view
 		}
-
-		protected ITagResolver resolver;
 
 		public void setTagResolver(ITagResolver resolver)
 		{
@@ -796,7 +797,7 @@ public class WebDataCheckBox extends MarkupContainer implements IFieldComponent,
 		IMainContainer currentContainer = ((FormManager)application.getFormManager()).getCurrentContainer();
 		if (currentContainer instanceof MainPage)
 		{
-			((MainPage)currentContainer).componentToFocus(box);
+			((MainPage)currentContainer).componentToFocus(selector);
 		}
 	}
 
@@ -875,7 +876,7 @@ public class WebDataCheckBox extends MarkupContainer implements IFieldComponent,
 	 */
 	public String js_getElementType()
 	{
-		return "CHECK";
+		return (selector.isRadio ? "RADIOS" : "CHECK");
 	}
 
 	/*
