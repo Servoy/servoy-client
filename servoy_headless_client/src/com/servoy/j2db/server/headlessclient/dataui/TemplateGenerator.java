@@ -2094,7 +2094,7 @@ public class TemplateGenerator
 					html.append(getDataProviderIDParameter(field));
 					if (isRadio)
 					{
-						html.append("type='radio' "); //$NON-NLS-1$
+						html.append("type='checkbox' "); //$NON-NLS-1$
 					}
 					else
 					{
