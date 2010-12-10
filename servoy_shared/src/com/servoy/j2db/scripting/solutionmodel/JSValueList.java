@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting.solutionmodel;
 
 import java.net.URI;
@@ -537,14 +537,30 @@ public class JSValueList implements IConstantsObject
 	 * A global method that provides the data for the valuelist. The global method must provided the data 
 	 * as a JSDataSet.
 	 * 
+	 * It is called when the valuelist needs data, it has 3 modes.
+	 * real and display params both null: return the whole list
+	 * only display is specified, called by a typeahead, return a filtered list
+	 * only real value is specified, called when the list doesnt contain the real value for the give record value, this will insert this value into the existing list
+	 * 
 	 * @sample
-	 * var listProvider = solutionModel.newGlobalMethod('function myValueListProvider(displayValue, realValue, record, valueListName) {' +
-	 *		'	var result = databaseManager.createEmptyDataSet(0, 1);' +
-	 *		'	result.addRow(["one"]);' +
-	 *		'	result.addRow(["three"]);' +
-	 *		'	result.addRow(["five"]);' +
-	 * 		'	return result;' +
-	 *		'}');
+	 * var listProvider = solutionModel.newGlobalMethod('function getDataSetForValueList(displayValue, realValue, record, valueListName) {' +
+	 *		'	' +
+	 *		'if (displayValue == null && realValue == null) {' +
+	 *		'  // TODO think about caching this result. can be called often!' +
+	 *		'  // return the complete list' +
+	 *		'  return databaseManager.getDataSetByQuery("example_data", "select firstname + ' ' + lastname, employeeid from employees", null, 100);' +
+	 *		'} else if (displayValue != null) {' +
+	 *		'  // TYPE_AHEAD filter call, return a filtered list' +
+	 *		'  var args = [displayValue + "%", displayValue + "%"]' +
+	 *		'  return databaseManager.getDataSetByQuery("example_data", "select firstname + ' ' + lastname, employeeid from employees where firstname like ? or lastname like ?", args, 100);' +
+	 *		'} else if (realValue != null) {' +
+	 *		'  // TODO think about caching this result. can be called often!' +
+	 *		'  // real object not found in the current list, return 1 row with display,realvalue that will be added to the current list' +
+	 *		'  // dont return a complete list in this mode because that will be added to the list that is already there' +
+	 *		'  var args = [realValue];' +
+	 *		'  return databaseManager.getDataSetByQuery("example_data", "select firstname + ' ' + lastname, employeeid from employees where employeeid = ?", args, 1);' +
+	 *		'}' +
+	 *	'}');
 	 * var vlist = solutionModel.newValueList('vlist', JSValueList.CUSTOM_VALUES);
 	 * vlist.globalMethod = listProvider;
 	 */
