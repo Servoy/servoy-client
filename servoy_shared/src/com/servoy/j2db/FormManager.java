@@ -340,7 +340,8 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 
 		showSolutionLoading(false);
 
-		if (currentContainer != null && currentContainer.getController() != null && currentContainer.getController().getName().equals(first.getName()))
+		if (first != null && currentContainer != null && currentContainer.getController() != null &&
+			currentContainer.getController().getName().equals(first.getName()))
 		{
 			currentContainer.setFormController(null);
 		}
