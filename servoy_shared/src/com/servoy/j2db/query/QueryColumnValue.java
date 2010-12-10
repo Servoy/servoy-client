@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.query;
 
 import com.servoy.j2db.util.IVisitor;
@@ -30,11 +30,18 @@ public final class QueryColumnValue implements IQuerySelectValue
 {
 	private Object value;
 	private final String alias;
+	private final boolean fixedvalue;
 
 	public QueryColumnValue(Object value, String alias)
 	{
+		this(value, alias, false);
+	}
+
+	public QueryColumnValue(Object value, String alias, boolean fixedvalue)
+	{
 		this.value = value;
 		this.alias = alias;
+		this.fixedvalue = fixedvalue;
 	}
 
 	public Object getValue()
@@ -45,6 +52,14 @@ public final class QueryColumnValue implements IQuerySelectValue
 	public String getAlias()
 	{
 		return alias;
+	}
+
+	/**
+	 * @return the fixedvalue
+	 */
+	public boolean isFixedvalue()
+	{
+		return fixedvalue;
 	}
 
 	public QueryColumn getColumn()
@@ -65,10 +80,11 @@ public final class QueryColumnValue implements IQuerySelectValue
 	@Override
 	public int hashCode()
 	{
-		final int PRIME = 31;
+		final int prime = 31;
 		int result = 1;
-		result = PRIME * result + ((this.alias == null) ? 0 : this.alias.hashCode());
-		result = PRIME * result + ((this.value == null) ? 0 : this.value.hashCode());
+		result = prime * result + ((alias == null) ? 0 : alias.hashCode());
+		result = prime * result + (fixedvalue ? 1231 : 1237);
+		result = prime * result + ((value == null) ? 0 : value.hashCode());
 		return result;
 	}
 
@@ -78,24 +94,25 @@ public final class QueryColumnValue implements IQuerySelectValue
 		if (this == obj) return true;
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
-		final QueryColumnValue other = (QueryColumnValue)obj;
-		if (this.alias == null)
+		QueryColumnValue other = (QueryColumnValue)obj;
+		if (alias == null)
 		{
 			if (other.alias != null) return false;
 		}
-		else if (!this.alias.equals(other.alias)) return false;
-		if (this.value == null)
+		else if (!alias.equals(other.alias)) return false;
+		if (fixedvalue != other.fixedvalue) return false;
+		if (value == null)
 		{
 			if (other.value != null) return false;
 		}
-		else if (!this.value.equals(other.value)) return false;
+		else if (!value.equals(other.value)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString()
 	{
-		StringBuffer sb = new StringBuffer(alias == null ? "<anonymous>" : alias).append('='); //$NON-NLS-1$
+		StringBuilder sb = new StringBuilder(alias == null ? "<anonymous>" : alias).append('='); //$NON-NLS-1$
 		if (value == null)
 		{
 			sb.append("<null>"); //$NON-NLS-1$
@@ -104,6 +121,7 @@ public final class QueryColumnValue implements IQuerySelectValue
 		{
 			sb.append(value.toString());
 		}
+		if (fixedvalue) sb.append('*');
 		return sb.toString();
 	}
 
@@ -113,7 +131,7 @@ public final class QueryColumnValue implements IQuerySelectValue
 
 	public Object writeReplace()
 	{
-		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { value, alias });
+		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { value, alias, Boolean.valueOf(fixedvalue) });
 	}
 
 	public QueryColumnValue(ReplacedObject s)
@@ -122,6 +140,7 @@ public final class QueryColumnValue implements IQuerySelectValue
 		int i = 0;
 		value = members[i++];
 		alias = (String)members[i++];
+		fixedvalue = ((Boolean)members[i++]).booleanValue();
 	}
 
 }

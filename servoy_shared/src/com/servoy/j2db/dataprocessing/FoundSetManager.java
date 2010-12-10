@@ -1520,7 +1520,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				String transaction_id = getTransactionID(table.getServerName());
 
 				QuerySelect countSelect = new QuerySelect(new QueryTable(table.getSQLName(), table.getCatalog(), table.getSchema()));
-				countSelect.addColumn(new QueryAggregate(QueryAggregate.COUNT, new QueryColumnValue(new Integer(1), "n"), null)); //$NON-NLS-1$
+				countSelect.addColumn(new QueryAggregate(QueryAggregate.COUNT, new QueryColumnValue(Integer.valueOf(1), "n", true), null)); //$NON-NLS-1$
 
 				IDataSet set = ds.performQuery(application.getClientID(), table.getServerName(), transaction_id, countSelect,
 					getTableFilterParams(table.getServerName(), countSelect), false, 0, 10, IDataServer.FOUNDSET_LOAD_QUERY);
@@ -2011,7 +2011,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 				// select 1 from temptable where 1 = 2
 				QuerySelect testSelect = new QuerySelect(new QueryTable(tempTable.getSQLName(), tempTable.getCatalog(), tempTable.getSchema()));
-				testSelect.addColumn(new QueryColumnValue(new Integer(1), "tst")); //$NON-NLS-1$
+				testSelect.addColumn(new QueryColumnValue(Integer.valueOf(1), "tst", true)); //$NON-NLS-1$
 				testSelect.addCondition("test", BooleanCondition.FALSE_CONDITION); //$NON-NLS-1$
 				ds.performQuery(application.getClientID(), tempTable.getServerName(), null, testSelect, null, false, 0, 1, IDataServer.FIND_BROWSER_QUERY);
 			}

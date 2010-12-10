@@ -986,7 +986,7 @@ public class SQLGenerator
 
 		QuerySelect existsSelect = new QuerySelect(new QueryTable(sqlSelect.getTable().getName(), sqlSelect.getTable().getCatalogName(),
 			sqlSelect.getTable().getSchemaName()));
-		existsSelect.addColumn(new QueryColumnValue(new Integer(1), null));
+		existsSelect.addColumn(new QueryColumnValue(Integer.valueOf(1), null, true));
 
 		// innermain.pk = main.pk
 		IQuerySelectValue[] innerPkColumns = new QueryColumn[pkQueryColumns.length];
@@ -1468,7 +1468,7 @@ public class SQLGenerator
 						i = 0;
 					}
 				}
-				queryColumns.add(new QueryColumnValue(new Integer(1), alias));
+				queryColumns.add(new QueryColumnValue(Integer.valueOf(1), alias, true));
 			}
 			else
 			{
@@ -1514,7 +1514,8 @@ public class SQLGenerator
 		}
 
 		QuerySelect select = new QuerySelect(new QueryTable(table.getSQLName(), table.getCatalog(), table.getSchema()));
-		select.addColumn(new QueryAggregate(aggregateType, (column == null) ? (IQuerySelectValue)new QueryColumnValue(aggregee, "n") //$NON-NLS-1$
+		select.addColumn(new QueryAggregate(aggregateType, (column == null) ? (IQuerySelectValue)new QueryColumnValue(aggregee,
+			"n", aggregee instanceof Integer || QueryAggregate.ASTERIX.equals(aggregee)) //$NON-NLS-1$
 			: new QueryColumn(select.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength()), "maxval")); //$NON-NLS-1$ 
 		return select;
 
@@ -1545,7 +1546,7 @@ public class SQLGenerator
 			QuerySelect innerSelect = selectClone;
 
 			ArrayList<IQuerySelectValue> innerColumns = new ArrayList<IQuerySelectValue>();
-			innerColumns.add(new QueryColumnValue(new Integer(1), null));
+			innerColumns.add(new QueryColumnValue(Integer.valueOf(1), null, true));
 			innerSelect.setColumns(innerColumns);
 
 			QueryTable innerTable = innerSelect.getTable();

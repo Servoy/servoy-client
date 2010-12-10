@@ -498,7 +498,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		}
 		else
 		{
-			agregee = new QueryColumnValue(new Integer(1), null);
+			agregee = new QueryColumnValue(Integer.valueOf(1), null, true);
 		}
 
 		ArrayList<IQuerySelectValue> countCol = new ArrayList<IQuerySelectValue>();
