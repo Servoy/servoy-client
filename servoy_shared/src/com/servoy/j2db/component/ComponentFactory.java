@@ -1354,18 +1354,19 @@ public class ComponentFactory
 				}
 				break;
 			case Field.CHECKS :
+			case Field.RADIOS :
+				boolean isRadio = (field.getDisplayType() == Field.RADIOS);
 				if (valuelist != null)
 				{
 					IValueList list = getRealValueList(application, valuelist, true, type, format, field.getDataProviderID());
-					if (!(valuelist.getValueListType() == ValueList.DATABASE_VALUES && valuelist.getDatabaseValuesType() == ValueList.RELATED_VALUES) &&
-						list.getSize() == 1 && valuelist.getAddEmptyValue() != ValueList.EMPTY_VALUE_ALWAYS)
+					if (isSingleValue(valuelist, list))
 					{
-						fl = application.getItemFactory().createDataCheckBox(getWebID(field), application.getI18NMessageIfPrefixed(field.getText()), list);
+						fl = application.getItemFactory().createSelectBox(getWebID(field), application.getI18NMessageIfPrefixed(field.getText()), list,
+							isRadio);
 					}
 					else
-					// 0 or >1
 					{
-						fl = application.getItemFactory().createDataChoice(getWebID(field), list, false);
+						fl = application.getItemFactory().createDataChoice(getWebID(field), list, isRadio);
 						if (fl instanceof IScrollPane)
 						{
 							applyScrollBarsProperty((IScrollPane)fl, field);
@@ -1374,30 +1375,16 @@ public class ComponentFactory
 				}
 				else
 				{
-					fl = application.getItemFactory().createDataCheckBox(getWebID(field), application.getI18NMessageIfPrefixed(field.getText()));
+					fl = application.getItemFactory().createSelectBox(getWebID(field), application.getI18NMessageIfPrefixed(field.getText()), isRadio);
 				}
-				break;
-			case Field.RADIOS :
-			{
-				IValueList list = getRealValueList(application, valuelist, true, type, format, field.getDataProviderID());
-				fl = application.getItemFactory().createDataChoice(getWebID(field), list, true);
-				if (fl instanceof IScrollPane)
-				{
-					applyScrollBarsProperty((IScrollPane)fl, field);
-				}
-			}
 				break;
 			case Field.COMBOBOX :
-			{
 				IValueList list = getRealValueList(application, valuelist, true, type, format, field.getDataProviderID());
 				fl = application.getItemFactory().createDataComboBox(getWebID(field), list);
-			}
 				break;
-
 			case Field.CALENDAR :
 				fl = application.getItemFactory().createDataCalendar(getWebID(field));
 				break;
-
 			case Field.IMAGE_MEDIA :
 				fl = application.getItemFactory().createDataImgMediaField(getWebID(field));
 				if (fl instanceof IScrollPane)
@@ -2248,4 +2235,18 @@ public class ComponentFactory
 		return lst;
 	}
 
+	/**
+	 * @param valuelist
+	 * @param list
+	 * @return
+	 */
+	public static boolean isSingleValue(ValueList valuelist, IValueList list)
+	{
+		if (list != null && valuelist != null)
+		{
+			return !(valuelist.getValueListType() == ValueList.DATABASE_VALUES && valuelist.getDatabaseValuesType() == ValueList.RELATED_VALUES) &&
+				(list.getSize() == 1) && (valuelist.getAddEmptyValue() != ValueList.EMPTY_VALUE_ALWAYS);
+		}
+		return false;
+	}
 }

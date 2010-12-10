@@ -139,14 +139,14 @@ public interface ItemFactory
 	 * @param stringIfPrefix
 	 * @return
 	 */
-	IFieldComponent createDataCheckBox(String name, String text, IValueList list);
+	IFieldComponent createSelectBox(String name, String text, IValueList list, boolean isRadio);
 
 	/**
 	 * @param name TODO
 	 * @param stringIfPrefix
 	 * @return
 	 */
-	IFieldComponent createDataCheckBox(String name, String text);
+	IFieldComponent createSelectBox(String name, String text, boolean isRadio);
 
 	/**
 	 * @param name TODO

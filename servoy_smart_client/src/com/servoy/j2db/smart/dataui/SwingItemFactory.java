@@ -227,9 +227,9 @@ public class SwingItemFactory implements ItemFactory
 	 * 
 	 * @see com.servoy.j2db.ItemFactory#createDataCheckBox(java.lang.String, com.servoy.j2db.dataprocessing.IValueList)
 	 */
-	public IFieldComponent createDataCheckBox(String name, String text, IValueList list)
+	public IFieldComponent createSelectBox(String name, String text, IValueList list, boolean isRadio)
 	{
-		DataCheckBox dcb = new DataCheckBox(application, text, list);
+		DataCheckBox dcb = new DataCheckBox(application, text, list, isRadio);
 		dcb.setName(name);
 		return dcb;
 	}
@@ -239,9 +239,9 @@ public class SwingItemFactory implements ItemFactory
 	 * 
 	 * @see com.servoy.j2db.ItemFactory#createDataCheckBox(java.lang.String)
 	 */
-	public IFieldComponent createDataCheckBox(String name, String text)
+	public IFieldComponent createSelectBox(String name, String text, boolean isRadio)
 	{
-		DataCheckBox dcb = new DataCheckBox(application, text);
+		DataCheckBox dcb = new DataCheckBox(application, text, isRadio);
 		dcb.setName(name);
 		return dcb;
 	}

@@ -80,7 +80,7 @@ public class DataCheckBox extends JCheckBox implements IFieldComponent, IDisplay
 	private MouseAdapter rightclickMouseAdapter = null;
 	private boolean allowNull = true;
 
-	public DataCheckBox(IApplication application, String text)
+	public DataCheckBox(IApplication application, String text, boolean isRadio)
 	{
 		setText(Text.processTags(text, null));
 		this.application = application;
@@ -88,9 +88,9 @@ public class DataCheckBox extends JCheckBox implements IFieldComponent, IDisplay
 		addKeyListener(eventExecutor);
 	}
 
-	public DataCheckBox(IApplication application, String text, IValueList onValue)
+	public DataCheckBox(IApplication application, String text, IValueList onValue, boolean isRadio)
 	{
-		this(application, text);
+		this(application, text, isRadio);
 		this.onValue = onValue;
 	}
 

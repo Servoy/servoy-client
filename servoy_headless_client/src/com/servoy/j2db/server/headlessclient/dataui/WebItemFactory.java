@@ -124,14 +124,14 @@ public class WebItemFactory implements ItemFactory
 		return new WebDataCalendar(application, name);
 	}
 
-	public IFieldComponent createDataCheckBox(String name, String text, IValueList list)
+	public IFieldComponent createSelectBox(String name, String text, IValueList list, boolean isRadio)
 	{
-		return new WebDataCheckBox(application, name, text, list);
+		return new WebDataCheckBox(application, name, text, list, isRadio);
 	}
 
-	public IFieldComponent createDataCheckBox(String name, String text)
+	public IFieldComponent createSelectBox(String name, String text, boolean isRadio)
 	{
-		return new WebDataCheckBox(application, name, text);
+		return new WebDataCheckBox(application, name, text, isRadio);
 	}
 
 	public IFieldComponent createDataChoice(String name, IValueList list, boolean isRadioList)

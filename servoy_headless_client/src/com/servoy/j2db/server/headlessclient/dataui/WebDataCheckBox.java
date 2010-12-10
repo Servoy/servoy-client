@@ -113,14 +113,14 @@ public class WebDataCheckBox extends MarkupContainer implements IFieldComponent,
 	private final IApplication application;
 	private final MyCheckBox box;
 
-	public WebDataCheckBox(IApplication application, String id, String text, IValueList list)
+	public WebDataCheckBox(IApplication application, String id, String text, IValueList list, boolean isRadio)
 	{
-		this(application, id, text);
+		this(application, id, text, isRadio);
 		onValue = list;
 	}
 
 
-	public WebDataCheckBox(IApplication application, String id, String text)
+	public WebDataCheckBox(IApplication application, String id, String text, boolean isRadio)
 	{
 		super(id);
 		this.application = application;
