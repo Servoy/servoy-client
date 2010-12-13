@@ -36,7 +36,7 @@ import com.servoy.j2db.util.Utils;
  * @author rgansevles
  * 
  */
-public class FormElementGroup implements ISupportBounds, ISupportUpdateableName
+public class FormElementGroup implements ISupportBounds, ISupportName
 {
 	private String groupID;
 	private final Form form;
@@ -80,6 +80,14 @@ public class FormElementGroup implements ISupportBounds, ISupportUpdateableName
 		return groupID;
 	}
 
+	/**
+	 * @param groupID
+	 */
+	public void setGroupID(String groupID)
+	{
+		this.groupID = groupID;
+	}
+
 	public String getName()
 	{
 		return getName(groupID);
@@ -109,31 +117,6 @@ public class FormElementGroup implements ISupportBounds, ISupportUpdateableName
 		return null;
 	}
 
-	public void updateName(IValidateName validator, String name) throws RepositoryException
-	{
-		String newGroupId;
-		if (name == null)
-		{
-			newGroupId = UUID.randomUUID().toString();
-		}
-		else
-		{
-			if (!name.equals(getName()))
-			{
-				validator.checkName(name, -1, new ValidatorSearchContext(form, IRepository.ELEMENTS), false);
-			}
-			newGroupId = name;
-		}
-
-		Iterator<IFormElement> elements = getElements();
-		while (elements.hasNext())
-		{
-			elements.next().setGroupID(newGroupId);
-		}
-		// must set grouID after looping over elements (uses current groupID)
-		groupID = newGroupId;
-	}
-
 	public Rectangle getBounds()
 	{
 		return Utils.getBounds(getElements());
@@ -153,68 +136,12 @@ public class FormElementGroup implements ISupportBounds, ISupportUpdateableName
 
 	public void setLocation(Point p)
 	{
-		Point oldLocation = getLocation();
-		int dx = p.x - oldLocation.x;
-		int dy = p.y - oldLocation.y;
-		if (dx == 0 && dy == 0) return;
-
-		Iterator<IFormElement> elements = getElements();
-		while (elements.hasNext())
-		{
-			IFormElement element = elements.next();
-			Point oldElementLocation = element.getLocation();
-			Point location = new Point(oldElementLocation.x + dx, oldElementLocation.y + dy);
-			element.setLocation(location);
-		}
+		// ignore, location should only be set via FormElementGroupPropertySource
 	}
 
 	public void setSize(Dimension d)
 	{
-		Rectangle oldBounds = getBounds();
-		if (d.width == oldBounds.width && d.height == oldBounds.height || oldBounds.width == 0 || oldBounds.height == 0)
-		{
-			return;
-		}
-
-		float factorW = d.width / (float)oldBounds.width;
-		float factorH = d.height / (float)oldBounds.height;
-
-		Iterator<IFormElement> elements = getElements();
-		while (elements.hasNext())
-		{
-			IFormElement element = elements.next();
-			Dimension oldElementSize = element.getSize();
-			Point oldElementLocation = element.getLocation();
-
-			Dimension size = new Dimension((int)(oldElementSize.width * factorW), (int)(oldElementSize.height * factorH));
-
-			int newX;
-			if (oldElementLocation.x + oldElementSize.width == oldBounds.x + oldBounds.width)
-			{
-				// element was attached to the right side, keep it there
-				newX = oldBounds.x + d.width - size.width;
-			}
-			else
-			{
-				// move relative to size factor
-				newX = oldBounds.x + (int)((oldElementLocation.x - oldBounds.x) * factorW);
-			}
-			int newY;
-			if (oldElementLocation.y + oldElementSize.height == oldBounds.y + oldBounds.height)
-			{
-				// element was attached to the bottom side, keep it there
-				newY = oldBounds.y + d.height - size.height;
-			}
-			else
-			{
-				// move relative to size factor
-				newY = oldBounds.y + (int)((oldElementLocation.y - oldBounds.y) * factorH);
-			}
-			Point location = new Point(newX, newY);
-
-			element.setSize(size);
-			element.setLocation(location);
-		}
+		// ignore, size should only be set via FormElementGroupPropertySource
 	}
 
 
@@ -262,6 +189,4 @@ public class FormElementGroup implements ISupportBounds, ISupportUpdateableName
 		else if (!form.equals(other.form)) return false;
 		return true;
 	}
-
-
 }
