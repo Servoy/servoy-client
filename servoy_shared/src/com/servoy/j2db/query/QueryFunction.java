@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.query;
 
 import java.util.Arrays;
@@ -47,8 +47,9 @@ public final class QueryFunction implements IQuerySelectValue
 
 	public static final int CONCAT = 14;
 	public static final int DISTINCT = 15;
+	public static final int CASTFROM = 16;
 
-	public static final int[] ALL_DEFINED_FUNCTIONS = new int[] { SUBSTRING, LOCATE, TRIM, LENGTH, BIT_LENGTH, COALESCE, NULLIF, ABS, MOD, SQRT, UPPER, LOWER, CAST, EXTRACT, CONCAT, DISTINCT };
+	public static final int[] ALL_DEFINED_FUNCTIONS = new int[] { SUBSTRING, LOCATE, TRIM, LENGTH, BIT_LENGTH, COALESCE, NULLIF, ABS, MOD, SQRT, UPPER, LOWER, CAST, EXTRACT, CONCAT, DISTINCT, CASTFROM };
 
 
 	// functions as defined in Hibernate
@@ -70,7 +71,10 @@ public final class QueryFunction implements IQuerySelectValue
 
 	// optional but common functions
 	"concat", //$NON-NLS-1$
-	"distinct" // slightly abused as function //$NON-NLS-1$
+	"distinct", // slightly abused as function //$NON-NLS-1$
+
+	// added
+	"castfrom" //$NON-NLS-1$
 	};
 
 
@@ -132,7 +136,6 @@ public final class QueryFunction implements IQuerySelectValue
 		}
 		return args[0].getColumn();
 	}
-
 
 	@Override
 	public int hashCode()
