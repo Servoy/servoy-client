@@ -60,6 +60,7 @@ import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryCustomSelect;
 import com.servoy.j2db.query.QueryDelete;
+import com.servoy.j2db.query.QueryFunction;
 import com.servoy.j2db.query.QueryInsert;
 import com.servoy.j2db.query.QueryJoin;
 import com.servoy.j2db.query.QuerySelect;
@@ -1574,5 +1575,26 @@ public class SQLGenerator
 		return aggregateSqlSelect;
 	}
 
-
+	/**
+	 * Create a condition for comparing a column like a value.
+	 * 
+	 * @param selectValue
+	 * @param column
+	 * @param value
+	 * @return
+	 */
+	public static CompareCondition createLikeCompareCondition(IQuerySelectValue selectValue, int dataProviderType, String value)
+	{
+		IQuerySelectValue likeSelectValue;
+		if (Column.mapToDefaultType(dataProviderType) == IColumnTypes.TEXT)
+		{
+			likeSelectValue = new QueryFunction(QueryFunction.UPPER, selectValue, null);
+		}
+		else
+		{
+			likeSelectValue = new QueryFunction(QueryFunction.CASTFROM,
+				new IQuerySelectValue[] { selectValue, new QueryColumnValue("integer", null, true), new QueryColumnValue("string", null, true) }, null); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		return new CompareCondition(ISQLCondition.LIKE_OPERATOR, likeSelectValue, value);
+	}
 }

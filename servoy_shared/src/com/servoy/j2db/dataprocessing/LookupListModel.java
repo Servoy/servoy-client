@@ -25,7 +25,6 @@ import javax.swing.AbstractListModel;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.CustomValueList.DisplayString;
-import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -37,7 +36,6 @@ import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.IQuerySort;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.OrCondition;
-import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryFunction;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QuerySort;
@@ -471,23 +469,15 @@ public class LookupListModel extends AbstractListModel
 	protected void addOrCondition(String dataProviderId, QueryTable qTable, String likeValue, String[] displayValues, OrCondition overallOr)
 	{
 		IQuerySelectValue querySelect = DBValueList.getQuerySelectValue(table, qTable, dataProviderId);
-		if (table.getColumnType(dataProviderId) != IColumnTypes.TEXT)
-		{
-			querySelect = new QueryFunction(QueryFunction.CAST, new IQuerySelectValue[] { querySelect, new QueryColumnValue("string", null, true) }, null); //$NON-NLS-1$
-		}
-		else
-		{
-			querySelect = new QueryFunction(QueryFunction.UPPER, querySelect, dataProviderId);
-		}
 		if (displayValues != null)
 		{
 			for (String displayValue : displayValues)
 			{
-				overallOr.addCondition(new CompareCondition(ISQLCondition.LIKE_OPERATOR, querySelect, displayValue));
+				overallOr.addCondition(SQLGenerator.createLikeCompareCondition(querySelect, table.getColumnType(dataProviderId), displayValue));
 			}
 		}
 		// also just add the complete value, for the possibility that it was a value with a separator.
-		overallOr.addCondition(new CompareCondition(ISQLCondition.LIKE_OPERATOR, querySelect, likeValue));
+		overallOr.addCondition(SQLGenerator.createLikeCompareCondition(querySelect, table.getColumnType(dataProviderId), likeValue));
 	}
 
 	/**
