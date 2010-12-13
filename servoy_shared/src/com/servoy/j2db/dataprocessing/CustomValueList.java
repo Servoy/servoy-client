@@ -80,7 +80,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 		{
 			if (completeString == null)
 			{
-				StringBuffer sb = new StringBuffer();
+				StringBuilder sb = new StringBuilder();
 				for (int i = 0; i < strings.size(); i++)
 				{
 					sb.append(strings.get(i));
@@ -126,13 +126,25 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 		 */
 		public boolean startsWith(String txt)
 		{
+			if (strings.size() == 1)
+			{
+				return strings.get(0).toLowerCase().startsWith(txt);
+			}
+			String[] displayValues = Utils.stringSplit(txt, seperator);
 			for (int i = 0; i < strings.size(); i++)
 			{
 				String str = strings.get(i);
-				if (str.toLowerCase().startsWith(txt)) return true;
+				for (String displayValue : displayValues)
+				{
+					if (str.toLowerCase().startsWith(displayValue)) return true;
+				}
 			}
-			makeString();
-			return completeString.toLowerCase().startsWith(txt);
+			if (txt.length() > strings.get(0).length())
+			{
+				makeString();
+				return completeString.toLowerCase().startsWith(txt);
+			}
+			return false;
 		}
 
 	}
