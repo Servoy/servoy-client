@@ -58,6 +58,7 @@ import org.apache.wicket.markup.WicketTag;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebComponent;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.list.PageableListView;
@@ -3168,6 +3169,23 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		if (xy != null) jsEvent.setLocation(xy);
 
 		return jsEvent;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.wicket.Component#renderHead(org.apache.wicket.markup.html.internal.HtmlHeaderContainer)
+	 */
+	@Override
+	public void renderHead(HtmlHeaderContainer container)
+	{
+		super.renderHead(container);
+
+		String rowSelectionScript = getRowSelectionScript();
+		if (rowSelectionScript != null) container.getHeaderResponse().renderOnDomReadyJavascript(rowSelectionScript);
+		String columnResizeScript = getColumnResizeScript();
+		if (columnResizeScript != null) container.getHeaderResponse().renderOnDomReadyJavascript(columnResizeScript);
+
 	}
 
 	public String getRowSelectionScript()
