@@ -21,6 +21,7 @@ import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.Point;
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -35,6 +36,7 @@ import org.json.JSONException;
 
 import com.servoy.j2db.persistence.ContentSpec.Element;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.JSONWrapperMap;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.UUID;
@@ -128,13 +130,46 @@ public abstract class AbstractBase implements IPersist
 
 	public void setProperty(String propertyName, Object val)
 	{
+		Element element = StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(getTypeID(), propertyName);
+		if (element == null)
+		{
+			Debug.error("No content spec element found for:" + propertyName + ", typeid:" + getTypeID()); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		else if (element.isDeprecated())
+		{
+			try
+			{
+				// we must call the real setter, this is deprecated property, shouldn't get an infinite cycle
+				Map<String, Method> methods = RepositoryHelper.getSettersViaIntrospection(this);
+				if (methods.containsKey(propertyName))
+				{
+					methods.get(propertyName).invoke(this, new Object[] { val });
+					return;
+				}
+				else
+				{
+					Debug.error("No introspection method found for property:" + propertyName + ", on persist " + toString()); //$NON-NLS-1$//$NON-NLS-2$
+				}
+			}
+			catch (Exception ex)
+			{
+				Debug.error(ex);
+			}
+		}
 		Object value = val;
 		if (value instanceof String && propertyName.toLowerCase().endsWith("datasource")) //$NON-NLS-1$
 		{
 			value = ((String)value).intern();
 		}
 
-		checkForChange(getProperty(propertyName), value);
+		if (propertiesMap.containsKey(propertyName))
+		{
+			checkForChange(propertiesMap.get(propertyName), value);
+		}
+		else
+		{
+			isChanged = true;
+		}
 		propertiesMap.put(propertyName, value);
 	}
 
