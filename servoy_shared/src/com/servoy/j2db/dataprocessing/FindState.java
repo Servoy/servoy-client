@@ -353,17 +353,16 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 	{
 		return "FindRecord"; //$NON-NLS-1$
 	}
-	
+
 	public Object getDefaultValue(Class hint)
 	{
-		Debug.trace("ignore State:getDefaultValue " + hint); //$NON-NLS-1$
-		return null;
+		return toString();
 	}
 
 	public Object[] getIds()
 	{
-		Debug.trace("ignore State:getIds"); //$NON-NLS-1$
-		return new Object[0];
+		SQLSheet parentSheet = parent.getSQLSheet();
+		return parentSheet.getColumnNames();
 	}
 
 	public Scriptable getParentScope()
@@ -710,7 +709,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 	public String toString()
 	{
 		StringBuffer sb = new StringBuffer();
-		sb.append("FindState[COLUMS: "); //$NON-NLS-1$
+		sb.append("FindRecord[COLUMS: {"); //$NON-NLS-1$
 		Object[] objects = getIds();
 		if (objects != null)
 		{
@@ -720,7 +719,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 				sb.append(","); //$NON-NLS-1$
 			}
 		}
-		sb.append(" DATA:"); //$NON-NLS-1$
+		sb.append("} DATA:"); //$NON-NLS-1$
 		sb.append(columndata);
 		sb.append(",  RELATED: "); //$NON-NLS-1$
 		sb.append(relatedStates);
