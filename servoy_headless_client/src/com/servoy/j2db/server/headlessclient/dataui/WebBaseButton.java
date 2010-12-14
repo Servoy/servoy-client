@@ -63,6 +63,7 @@ import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IButton;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
+import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.RenderEventExecutor;
@@ -921,7 +922,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	 */
 	public String js_getElementType()
 	{
-		return "BUTTON"; //$NON-NLS-1$
+		return IScriptBaseMethods.BUTTON;
 	}
 
 	public String js_getDataProviderID()

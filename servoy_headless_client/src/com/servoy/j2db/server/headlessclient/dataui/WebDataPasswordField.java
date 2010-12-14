@@ -17,6 +17,7 @@
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptDataPasswordMethods;
 
 /**
@@ -53,7 +54,7 @@ public class WebDataPasswordField extends WebDataField implements IScriptDataPas
 	@Override
 	public String js_getElementType()
 	{
-		return "PASSWORD";
+		return IScriptBaseMethods.PASSWORD;
 	}
 
 	@Override

@@ -72,6 +72,7 @@ import com.servoy.j2db.ui.IAccessible;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IFormLookupPanel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
+import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.ITabPanel;
@@ -953,7 +954,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 	 */
 	public String js_getElementType()
 	{
-		return "TABPANEL"; //$NON-NLS-1$
+		return IScriptBaseMethods.TABPANEL;
 	}
 
 	public Object js_getTabIndex()

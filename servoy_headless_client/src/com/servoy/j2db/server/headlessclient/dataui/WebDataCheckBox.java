@@ -876,7 +876,7 @@ public class WebDataCheckBox extends MarkupContainer implements IFieldComponent,
 	 */
 	public String js_getElementType()
 	{
-		return (selector.isRadio ? "RADIOS" : "CHECK");
+		return (selector.isRadio ? IScriptBaseMethods.RADIOS : IScriptBaseMethods.CHECK);
 	}
 
 	/*

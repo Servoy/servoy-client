@@ -31,9 +31,9 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.StringTokenizer;
+import java.util.Map.Entry;
 
 import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
@@ -1020,8 +1020,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}));
 		if (cellview instanceof BaseComponent)
 		{
-			ComponentFactory.applyBasicComponentProperties(application, this, (BaseComponent)cellview,
-				ComponentFactory.getStyleForBasicComponent(application, (BaseComponent)cellview, form));
+			ComponentFactory.applyBasicComponentProperties(application, this, (BaseComponent)cellview, ComponentFactory.getStyleForBasicComponent(application,
+				(BaseComponent)cellview, form));
 		}
 
 		boolean sortable = true;
@@ -1257,8 +1257,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					Relation r = rels[rels.length - 1];
 					if (r != null)
 					{
-						defaultSort = ((FoundSetManager)application.getFoundSetManager()).getSortColumns(
-							application.getFoundSetManager().getTable(r.getForeignDataSource()), ((Portal)cellview).getInitialSort());
+						defaultSort = ((FoundSetManager)application.getFoundSetManager()).getSortColumns(application.getFoundSetManager().getTable(
+							r.getForeignDataSource()), ((Portal)cellview).getInitialSort());
 					}
 				}
 			}
@@ -2366,7 +2366,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	 */
 	public String js_getElementType()
 	{
-		return "PORTAL"; //$NON-NLS-1$
+		return IScriptBaseMethods.PORTAL;
 	}
 
 	/*

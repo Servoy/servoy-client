@@ -41,6 +41,7 @@ import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.ui.IAccessible;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IFormLookupPanel;
+import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.ISplitPane;
 import com.servoy.j2db.util.AutoTransferFocusListener;
 import com.servoy.j2db.util.ComponentFactoryHelper;
@@ -281,7 +282,7 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 
 	public String js_getElementType()
 	{
-		return "SPLITPANE"; //$NON-NLS-1$
+		return IScriptBaseMethods.SPLITPANE;
 	}
 
 	public String js_getFgcolor()

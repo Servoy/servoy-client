@@ -85,6 +85,7 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
+import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptTextEditorMethods;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
@@ -1640,11 +1641,11 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 	{
 		if (editorKit instanceof FixedRTFEditorKit)
 		{
-			return "RTF_AREA"; //$NON-NLS-1$
+			return IScriptBaseMethods.RTF_AREA;
 		}
 		else
 		{
-			return "HTML_AREA"; //$NON-NLS-1$
+			return IScriptBaseMethods.HTML_AREA;
 		}
 	}
 

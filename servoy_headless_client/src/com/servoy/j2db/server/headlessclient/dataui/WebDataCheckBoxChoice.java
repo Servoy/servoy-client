@@ -802,7 +802,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 	 */
 	public String js_getElementType()
 	{
-		return "CHECK"; //$NON-NLS-1$
+		return IScriptBaseMethods.CHECK;
 	}
 
 	/*

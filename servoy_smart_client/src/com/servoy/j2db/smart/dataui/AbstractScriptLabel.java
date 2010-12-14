@@ -61,6 +61,7 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
+import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.ComponentFactoryHelper;
@@ -456,7 +457,7 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 
 	public String js_getElementType()
 	{
-		return "LABEL"; //$NON-NLS-1$
+		return IScriptBaseMethods.LABEL;
 	}
 
 	public String js_getDataProviderID()

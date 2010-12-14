@@ -54,6 +54,7 @@ import com.servoy.j2db.smart.SwingForm;
 import com.servoy.j2db.ui.IAccessible;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IFormLookupPanel;
+import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.util.AutoTransferFocusListener;
 import com.servoy.j2db.util.ComponentFactoryHelper;
@@ -947,7 +948,7 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 
 	public String js_getElementType()
 	{
-		return "TABPANEL"; //$NON-NLS-1$
+		return IScriptBaseMethods.TABPANEL;
 	}
 
 	/**

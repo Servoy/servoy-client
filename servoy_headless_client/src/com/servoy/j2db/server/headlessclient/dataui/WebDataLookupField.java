@@ -41,6 +41,7 @@ import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
+import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UIUtils;
 import com.servoy.j2db.util.Utils;
@@ -99,7 +100,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 	@Override
 	public String js_getElementType()
 	{
-		return "TYPE_AHEAD"; //$NON-NLS-1$
+		return IScriptBaseMethods.TYPE_AHEAD;
 	}
 
 	/**

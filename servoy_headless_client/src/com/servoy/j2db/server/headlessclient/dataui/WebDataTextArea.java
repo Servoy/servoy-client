@@ -503,7 +503,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	 */
 	public String js_getElementType()
 	{
-		return "TEXT_AREA"; //$NON-NLS-1$
+		return IScriptBaseMethods.TEXT_AREA;
 	}
 
 	@SuppressWarnings("nls")

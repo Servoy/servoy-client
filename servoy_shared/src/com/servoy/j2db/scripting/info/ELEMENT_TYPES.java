@@ -18,8 +18,10 @@ package com.servoy.j2db.scripting.info;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
+import com.servoy.j2db.ui.IScriptBaseMethods;
 
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@SuppressWarnings("nls")
 public class ELEMENT_TYPES implements IPrefixedConstantsObject
 {
 	/**
@@ -33,7 +35,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a Button component
 	 * }
 	 */
-	public static final String BUTTON = "BUTTON"; //$NON-NLS-1$
+	public static final String BUTTON = IScriptBaseMethods.BUTTON;
 
 	/**
 	 * Constant representing an element of the Calendar type.
@@ -46,7 +48,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a Calendar field
 	 * }
 	 */
-	public static final String CALENDAR = "CALENDAR"; //$NON-NLS-1$
+	public static final String CALENDAR = IScriptBaseMethods.CALENDAR;
 
 	/**
 	 * Constant representing an element of the Check type.
@@ -59,7 +61,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a Check(box) field
 	 * }
 	 */
-	public static final String CHECK = "CHECK"; //$NON-NLS-1$
+	public static final String CHECK = IScriptBaseMethods.CHECK;
 
 	/**
 	 * Constant representing an element of the ImageMedia type.
@@ -72,7 +74,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a Image Media field
 	 * }
 	 */
-	public static final String IMAGE_MEDIA = "IMAGE_MEDIA"; //$NON-NLS-1$
+	public static final String IMAGE_MEDIA = IScriptBaseMethods.IMAGE_MEDIA;
 
 	/**
 	 * Constant representing an element of the Label type.
@@ -85,7 +87,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a Label component
 	 * }
 	 */
-	public static final String LABEL = "LABEL"; //$NON-NLS-1$
+	public static final String LABEL = IScriptBaseMethods.LABEL;
 
 	/**
 	 * Constant representing an element of the Password type.
@@ -98,7 +100,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a Password component
 	 * }
 	 */
-	public static final String PASSWORD = "PASSWORD"; //$NON-NLS-1$
+	public static final String PASSWORD = IScriptBaseMethods.PASSWORD;
 
 	/**
 	 * Constant representing an element of the Portal type.
@@ -111,7 +113,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a Portal component
 	 * }
 	 */
-	public static final String PORTAL = "PORTAL"; //$NON-NLS-1$
+	public static final String PORTAL = IScriptBaseMethods.PORTAL;
 
 	/**
 	 * Constant representing an element of the Radios type.
@@ -124,7 +126,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a Radios field.
 	 * }
 	 */
-	public static final String RADIOS = "RADIOS"; //$NON-NLS-1$
+	public static final String RADIOS = IScriptBaseMethods.RADIOS;
 
 	/**
 	 * Constant representing an element of the Tabpanel type.
@@ -137,7 +139,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a Tabpanel component
 	 * }
 	 */
-	public static final String TABPANEL = "TABPANEL"; //$NON-NLS-1$
+	public static final String TABPANEL = IScriptBaseMethods.TABPANEL;
 
 	/**
 	 * Constant representing an element of the TextArea type.
@@ -150,7 +152,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a TextArea field
 	 * }
 	 */
-	public static final String TEXT_AREA = "TEXT_AREA"; //$NON-NLS-1$
+	public static final String TEXT_AREA = IScriptBaseMethods.TEXT_AREA;
 
 	/**
 	 * Constant representing an element of the TextField type.
@@ -163,10 +165,23 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a text field
 	 * }
 	 */
-	public static final String TEXT_FIELD = "TEXT_FIELD"; //$NON-NLS-1$
+	public static final String TEXT_FIELD = IScriptBaseMethods.TEXT_FIELD;
 
 	/**
 	 * Constant representing a Group of elements.
+	 *
+	 * @sample
+	 * //the return value for an element type, as returned by the following code
+	 * var etype = elements.elementName.getElementType();
+	 * if (etype == ELEMENT_TYPES.GROUP)
+	 * {
+	 *      // element is a group element
+	 * }
+	 */
+	public static final String GROUP = IScriptBaseMethods.GROUP;
+
+	/**
+	 * Constant representing a combobox element.
 	 *
 	 * @sample
 	 * //the return value for an element of the TextField type, as returned by the following code
@@ -176,10 +191,75 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a group element
 	 * }
 	 */
-	public static final String GROUP = "GROUP"; //$NON-NLS-1$
+	public static final String COMBOBOX = IScriptBaseMethods.COMBOBOX;
+
+	/**
+	 * Constant representing a splitpane element.
+	 *
+	 * @sample
+	 * //the return value for an element type, as returned by the following code
+	 * var etype = elements.elementName.getElementType();
+	 * if (etype == ELEMENT_TYPES.GROUP)
+	 * {
+	 *      // element is a group element
+	 * }
+	 */
+	public static final String SPLITPANE = IScriptBaseMethods.SPLITPANE;
+
+	/**
+	 * Constant representing a rectangle element.
+	 *
+	 * @sample
+	 * //the return value for an element of the TextField type, as returned by the following code
+	 * var etype = elements.elementName.getElementType();
+	 * if (etype == ELEMENT_TYPES.GROUP)
+	 * {
+	 *      // element is a group element
+	 * }
+	 */
+	public static final String RECTANGLE = IScriptBaseMethods.RECTANGLE;
+
+	/**
+	 * Constant representing a html area element.
+	 *
+	 * @sample
+	 * //the return value for an element of the TextField type, as returned by the following code
+	 * var etype = elements.elementName.getElementType();
+	 * if (etype == ELEMENT_TYPES.GROUP)
+	 * {
+	 *      // element is a group element
+	 * }
+	 */
+	public static final String HTML_AREA = IScriptBaseMethods.GROUP;
+
+	/**
+	 * Constant representing a rtf area of element.
+	 *
+	 * @sample
+	 * //the return value for an element of the TextField type, as returned by the following code
+	 * var etype = elements.elementName.getElementType();
+	 * if (etype == ELEMENT_TYPES.GROUP)
+	 * {
+	 *      // element is a group element
+	 * }
+	 */
+	public static final String RTF_AREA = IScriptBaseMethods.RTF_AREA;
+
+	/**
+	 * Constant representing a typeahead element.
+	 *
+	 * @sample
+	 * //the return value for an element of the TextField type, as returned by the following code
+	 * var etype = elements.elementName.getElementType();
+	 * if (etype == ELEMENT_TYPES.GROUP)
+	 * {
+	 *      // element is a group element
+	 * }
+	 */
+	public static final String TYPE_AHEAD = IScriptBaseMethods.TYPE_AHEAD;
 
 	public String getPrefix()
 	{
-		return "ELEMENT_TYPES"; //$NON-NLS-1$
+		return "ELEMENT_TYPES";
 	}
 }

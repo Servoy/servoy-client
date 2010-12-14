@@ -71,6 +71,7 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
+import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptChoiceMethods;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
@@ -1212,11 +1213,11 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 	{
 		if (isRadioList)
 		{
-			return "RADIOS"; //$NON-NLS-1$
+			return IScriptBaseMethods.RADIOS;
 		}
 		else
 		{
-			return "CHECK"; //$NON-NLS-1$
+			return IScriptBaseMethods.CHECK;
 		}
 	}
 

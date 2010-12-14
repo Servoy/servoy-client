@@ -19,8 +19,29 @@ package com.servoy.j2db.ui;
 /**
  * @author jcompagner
  */
+@SuppressWarnings("nls")
 public interface IScriptBaseMethods
 {
+	//types for getElementType
+	public String BUTTON = "BUTTON";
+	public String CALENDAR = "CALENDAR";
+	public String CHECK = "CHECK";
+	public String IMAGE_MEDIA = "IMAGE_MEDIA";
+	public String LABEL = "LABEL";
+	public String PASSWORD = "PASSWORD";
+	public String PORTAL = "PORTAL";
+	public String RADIOS = "RADIOS";
+	public String TABPANEL = "TABPANEL";
+	public String TEXT_AREA = "TEXT_AREA";
+	public String TEXT_FIELD = "TEXT_FIELD";
+	public String GROUP = "GROUP";
+	public String COMBOBOX = "COMBOBOX";
+	public String SPLITPANE = "SPLITPANE";
+	public String RECTANGLE = "RECTANGLE";
+	public String HTML_AREA = "HTML_AREA";
+	public String RTF_AREA = "RTF_AREA";
+	public String TYPE_AHEAD = "TYPE_AHEAD";
+
 	/**
 	 * Gets or sets the background color of a field. The color has to be set using the hexadecimal RGB value as used in HTML.
 	 *

@@ -661,7 +661,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 	 */
 	public String js_getElementType()
 	{
-		return "RADIOS"; //$NON-NLS-1$
+		return IScriptBaseMethods.RADIOS;
 	}
 
 	public void setEditable(boolean b)

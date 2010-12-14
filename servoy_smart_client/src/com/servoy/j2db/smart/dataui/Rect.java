@@ -36,6 +36,7 @@ import com.servoy.j2db.persistence.RectShape;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IRect;
+import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
@@ -420,7 +421,7 @@ public class Rect extends JComponent implements IReturnedTypesProvider, IRect
 	 */
 	public String js_getElementType()
 	{
-		return "RECTANGLE";
+		return IScriptBaseMethods.RECTANGLE;
 	}
 
 	public void js_setFont(String spec)

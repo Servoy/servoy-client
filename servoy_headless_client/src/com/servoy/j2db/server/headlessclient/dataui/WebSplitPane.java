@@ -65,6 +65,7 @@ import com.servoy.j2db.ui.IAccessible;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IFormLookupPanel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
+import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.ISplitPane;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportWebBounds;
@@ -731,7 +732,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 	public String js_getElementType()
 	{
-		return "SPLITPANE"; //$NON-NLS-1$
+		return IScriptBaseMethods.SPLITPANE;
 	}
 
 	public String js_getFgcolor()

@@ -57,7 +57,7 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 	@Override
 	public String js_getElementType()
 	{
-		return "HTML_AREA"; //$NON-NLS-1$
+		return IScriptBaseMethods.HTML_AREA;
 	}
 
 	/**

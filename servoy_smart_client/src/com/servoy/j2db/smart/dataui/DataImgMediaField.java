@@ -71,6 +71,7 @@ import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IMediaFieldConstants;
+import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptMediaInputFieldMethods;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
@@ -922,8 +923,8 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 						if (resolver instanceof DataAdapterList)
 						{
 							((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.FILENAME, file.getName());
-							((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.MIMETYPE,
-								ImageLoader.getContentType(content, file.getName()));
+							((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.MIMETYPE, ImageLoader.getContentType(content,
+								file.getName()));
 						}
 					}
 					catch (Exception e)
@@ -981,7 +982,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 
 	public String js_getElementType()
 	{
-		return "IMAGE_MEDIA"; //$NON-NLS-1$
+		return IScriptBaseMethods.IMAGE_MEDIA;
 	}
 
 	public String js_getName()

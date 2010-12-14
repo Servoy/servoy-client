@@ -88,9 +88,10 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
-import com.servoy.j2db.ui.RenderEventExecutor;
+import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptDataComboboxMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
+import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.ComboModelListModelWrapper;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
@@ -1579,7 +1580,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 
 	public String js_getElementType()
 	{
-		return "COMBOBOX"; //$NON-NLS-1$
+		return IScriptBaseMethods.COMBOBOX;
 	}
 
 

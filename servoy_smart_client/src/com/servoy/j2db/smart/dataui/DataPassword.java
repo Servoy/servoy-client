@@ -44,6 +44,7 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
+import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptDataPasswordMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.RenderEventExecutor;
@@ -741,7 +742,7 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 
 	public String js_getElementType()
 	{
-		return "PASSWORD"; //$NON-NLS-1$
+		return IScriptBaseMethods.PASSWORD;
 	}
 
 	public String js_getName()

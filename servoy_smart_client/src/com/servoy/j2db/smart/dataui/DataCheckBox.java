@@ -54,6 +54,7 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
+import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptCheckBoxMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.RenderEventExecutor;
@@ -801,7 +802,7 @@ public class DataCheckBox extends JCheckBox implements IFieldComponent, IDisplay
 	 */
 	public String js_getElementType()
 	{
-		return (actAsRadio ? "RADIOS" : "CHECK"); //$NON-NLS-1$
+		return (actAsRadio ? IScriptBaseMethods.RADIOS : IScriptBaseMethods.CHECK);
 	}
 
 	public String js_getName()

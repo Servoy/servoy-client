@@ -85,6 +85,7 @@ import com.servoy.j2db.smart.TableView;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IPortalComponent;
+import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportOnRenderWrapper;
@@ -1045,7 +1046,7 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 
 	public String js_getElementType()
 	{
-		return "PORTAL"; //$NON-NLS-1$
+		return IScriptBaseMethods.PORTAL;
 	}
 
 	public String js_getName()

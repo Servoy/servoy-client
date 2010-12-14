@@ -77,11 +77,11 @@ import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
-import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptFieldMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportWebBounds;
+import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FormatParser;
@@ -1036,7 +1036,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	 */
 	public String js_getElementType()
 	{
-		return "TEXT_FIELD"; //$NON-NLS-1$
+		return IScriptBaseMethods.TEXT_FIELD;
 	}
 
 	/*

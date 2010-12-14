@@ -923,7 +923,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 	 */
 	public String js_getElementType()
 	{
-		return "IMAGE_MEDIA"; //$NON-NLS-1$
+		return IScriptBaseMethods.IMAGE_MEDIA;
 	}
 
 	/*

@@ -63,6 +63,7 @@ import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.persistence.ScriptVariable;
+import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UIUtils;
 import com.servoy.j2db.util.Utils;
@@ -150,7 +151,7 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 	@Override
 	public String js_getElementType()
 	{
-		return "TYPE_AHEAD"; //$NON-NLS-1$
+		return IScriptBaseMethods.TYPE_AHEAD;
 	}
 
 	@Override

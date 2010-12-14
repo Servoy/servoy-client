@@ -59,9 +59,10 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
-import com.servoy.j2db.ui.RenderEventExecutor;
+import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptDataCalendarMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
+import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnablePanel;
@@ -755,7 +756,7 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 
 	public String js_getElementType()
 	{
-		return "CALENDAR";
+		return IScriptBaseMethods.CALENDAR;
 	}
 
 	public void js_setFont(String spec)

@@ -52,6 +52,7 @@ import com.servoy.j2db.ui.IButton;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.ILabel;
+import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.ComponentFactoryHelper;
@@ -619,7 +620,7 @@ public class AbstractScriptButton extends JButton implements ISkinnable, IButton
 	 */
 	public String js_getElementType()
 	{
-		return "BUTTON";
+		return IScriptBaseMethods.BUTTON;
 	}
 
 	public String js_getDataProviderID()

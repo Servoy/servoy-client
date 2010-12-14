@@ -64,6 +64,7 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
+import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptTextAreaMethods;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
@@ -1192,7 +1193,7 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 
 	public String js_getElementType()
 	{
-		return "TEXT_AREA"; //$NON-NLS-1$
+		return IScriptBaseMethods.TEXT_AREA;
 	}
 
 	public String js_getName()

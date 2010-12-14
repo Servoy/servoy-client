@@ -64,6 +64,7 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.ILabelForMethods;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
+import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptHtmlSubmitLabelsMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportWebBounds;
@@ -840,7 +841,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IScriptHtml
 	 */
 	public String js_getElementType()
 	{
-		return "LABEL"; //$NON-NLS-1$
+		return IScriptBaseMethods.LABEL;
 	}
 
 	public String js_getDataProviderID()
