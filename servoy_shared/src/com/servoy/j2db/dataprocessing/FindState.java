@@ -16,7 +16,6 @@
  */
 package com.servoy.j2db.dataprocessing;
 
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -352,9 +351,9 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 
 	public String getClassName()
 	{
-		return "State"; //$NON-NLS-1$
+		return "FindRecord"; //$NON-NLS-1$
 	}
-
+	
 	public Object getDefaultValue(Class hint)
 	{
 		Debug.trace("ignore State:getDefaultValue " + hint); //$NON-NLS-1$
