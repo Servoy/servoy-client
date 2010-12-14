@@ -141,6 +141,21 @@ public class ScriptNameValidator implements IValidateName
 			return null;
 		}
 
+		//Test for script calculations
+		if (searchContext.getType() == IRepository.METHODS && searchContext.getObject() instanceof TableNode)
+		{
+			TableNode tn = (TableNode)searchContext.getObject();
+			Table table = tn.getTable();
+			Iterator<ScriptCalculation> calculations = solutionRoot.getScriptCalculations(table, false);
+			while (calculations.hasNext())
+			{
+				ScriptCalculation sc = calculations.next();
+				if (nameToCheck.equals(sc.getName()) && sc.getID() != skip_element_id)
+				{
+					return sc;
+				}
+			}
+		}
 		// Test the global levels. (form names and relations)null 
 		if ((searchContext.getType() == IRepository.SCRIPTVARIABLES || searchContext.getType() == IRepository.METHODS) &&
 			!(searchContext.getObject() instanceof Form))
