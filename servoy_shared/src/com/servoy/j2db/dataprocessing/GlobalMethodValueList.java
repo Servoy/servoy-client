@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 import java.sql.Types;
@@ -85,6 +85,22 @@ public class GlobalMethodValueList extends CustomValueList
 	{
 		if (filling)
 		{
+			return;
+		}
+		if (state instanceof PrototypeState)
+		{
+			// if it is a prototype state, clean up the valuelist and return.
+			this.record = null;
+			this.displayString = null;
+			this.realObject = null;
+			application.invokeAndWait(new Runnable()
+			{
+				public void run()
+				{
+					realValues = new SafeArrayList<Object>();
+					removeAllElements();
+				}
+			});
 			return;
 		}
 
