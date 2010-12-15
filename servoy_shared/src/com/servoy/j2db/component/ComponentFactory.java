@@ -702,11 +702,9 @@ public class ComponentFactory
 	 * 
 	 * @return Object
 	 */
-	public static Object getBeanInstanceFromXML(IApplication application, Bean bean) throws Exception
+	public static Object getBeanInstanceFromXML(IApplication application, String beanClassName, String beanXML) throws Exception
 	{
 		Object retValue = null;
-		String beanXML = bean.getBeanXML();
-		String beanClassName = bean.getBeanClassName();
 		ClassLoader bcl = application.getBeanManager().getClassLoader();
 		ClassLoader saveCL = null;
 		if (bcl != null)
@@ -1090,8 +1088,9 @@ public class ComponentFactory
 									}
 									catch (IOException e)
 									{
-										Debug.error("Exception loading properties for converter " + converter.getName() + ", properties: " +
-											ci.getConverterProperties(), e);
+										Debug.error(
+											"Exception loading properties for converter " + converter.getName() + ", properties: " +
+												ci.getConverterProperties(), e);
 									}
 								}
 							}
@@ -2099,7 +2098,7 @@ public class ComponentFactory
 		IComponent c = null;
 		try
 		{
-			Object obj = getBeanInstanceFromXML(application, bean);
+			Object obj = getBeanInstanceFromXML(application, bean.getBeanClassName(), bean.getBeanXML());
 
 			if (flattenedSolution != null && obj != null)
 			{
