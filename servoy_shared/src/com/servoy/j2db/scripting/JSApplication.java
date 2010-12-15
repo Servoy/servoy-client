@@ -1293,7 +1293,15 @@ public class JSApplication implements IReturnedTypesProvider
 	 * application.executeProgramInBackground("/home/myself/myapp", "arg1", "arg2", "arg3");
 	 * application.executeProgramInBackground("/home/myself/myapp", "arg1", "arg2", "arg3", "#", "#", "/home/myself/");	
 	 * application.executeProgramInBackground("/home/myself/myapp", "arg1", "arg2", "arg3", "#", "MY_ENV_VAR=something", "#", "/home/myself/myapp");	
-	 *
+	 * // Open a file with the default application associated with it. (on Windows)
+	 * application.executeProgramInBackground("rundll32.exe", "url.dll,FileProtocolHandler", "filename");	
+	 * // Open a file with the default application associated with it. (on Linux)
+	 * application.executeProgramInBackground("xdg-open", "filename");
+	 * // Open a file with the default application associated with it. (on MacOS)
+	 * application.executeProgramInBackground("open", "filename");
+	 * // Open a file with a specific application (on MacOS).
+	 * application.executeProgramInBackground("open", "-a", "OpenOffice.org.app", "filename.doc"); 
+	 * 
 	 * @param programName(fullpath) Name of the program to execute
 	 * @param arg1 optional Argument
 	 * @param arg2 optional Argument
@@ -1340,7 +1348,15 @@ public class JSApplication implements IReturnedTypesProvider
 	 * // For non-Windows systems:
 	 * application.executeProgram("/home/myself/myapp", "arg1", "arg2", "arg3");
 	 * application.executeProgram("/home/myself/myapp", "arg1", "arg2", "arg3", "#", "#", "/home/myself/");	
-	 * application.executeProgram("/home/myself/myapp", "arg1", "arg2", "arg3", "#", "MY_ENV_VAR=something", "#", "/home/myself/myapp");	
+	 * application.executeProgram("/home/myself/myapp", "arg1", "arg2", "arg3", "#", "MY_ENV_VAR=something", "#", "/home/myself/myapp");
+	 * // Open a file with the default application associated with it. (on Windows)
+	 * application.executeProgram("rundll32.exe", "url.dll,FileProtocolHandler", "filename");	
+	 * // Open a file with the default application associated with it. (on Linux)
+	 * application.executeProgram("xdg-open", "filename");
+	 * // Open a file with the default application associated with it. (on MacOS)
+	 * application.executeProgram("open", "filename");
+	 * // Open a file with a specific application (on MacOS).
+	 * application.executeProgram("open", "-a", "OpenOffice.org.app", "filename.doc");
 	 *
 	 * @param programName(fullpath) Name of the program to execute
 	 * @param arg1 optional Argument
