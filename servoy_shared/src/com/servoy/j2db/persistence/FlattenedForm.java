@@ -88,7 +88,6 @@ public class FlattenedForm extends Form
 		Map<String, ScriptVariable> formVariables = new HashMap<String, ScriptVariable>();
 		Map<String, ScriptMethod> formMethods = new HashMap<String, ScriptMethod>();
 		Map<UUID, IPersist> persists = new HashMap<UUID, IPersist>();
-		int maxWidth = -1;
 
 		copyPropertiesMap(form.getPropertiesMap());
 
@@ -113,7 +112,6 @@ public class FlattenedForm extends Form
 					persists.put(ip.getUUID(), ip);
 				}
 			}
-			if (f.getWidth() > maxWidth) maxWidth = f.getWidth();
 			// Add parts
 			Iterator<Part> parts = f.getParts();
 			while (parts.hasNext())
@@ -195,7 +193,6 @@ public class FlattenedForm extends Form
 		}
 
 		checkParts(getSize()); // recalculate height
-		setWidth(maxWidth);
 	}
 
 
