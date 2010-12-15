@@ -17,12 +17,10 @@
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import java.awt.Color;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Locale;
 
 import javax.swing.border.Border;
-import javax.swing.text.Style;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IForm;
@@ -193,29 +191,6 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 		}
 
 		fillFormLayoutCSS(formStyle);
-
-		/* Verbatim copy of any non-Servoy styles. */
-		FixedStyleSheet ss = ComponentFactory.getCSSStyleForForm(sp, f);
-		if (ss != null)
-		{
-			Enumeration< ? > styleNames = ss.getStyleNames();
-			while (styleNames.hasMoreElements())
-			{
-				String styleName = styleNames.nextElement().toString();
-				if (styleName.startsWith(".")) //$NON-NLS-1$
-				{
-					Style s = ss.getStyle(styleName);
-					TextualStyle copy = css.addStyle(styleName);
-					Enumeration< ? > attributeNames = s.getAttributeNames();
-					while (attributeNames.hasMoreElements())
-					{
-						Object attr = attributeNames.nextElement();
-						Object val = s.getAttribute(attr);
-						copy.setProperty(attr.toString(), val.toString());
-					}
-				}
-			}
-		}
 	}
 
 	public void renderCloseFormHTML(StringBuffer html)
