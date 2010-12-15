@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -269,9 +268,6 @@ public class TemplateGenerator
 
 	private static FormCache formCache = new FormCache(true);
 
-	private static Map<IServiceProvider, Map<WebForm, Map<String, String>>> serviceProviderWebFormIDToMarkupIDCache = Collections.synchronizedMap(new WeakHashMap<IServiceProvider, Map<WebForm, Map<String, String>>>()); // map of type : <service_provider, <web_form, <component_id, component_markup_id>>>
-
-
 	private static HashMap<String, String> getWebFormIDToMarkupIDMap(WebForm wf, final ArrayList<String> ids)
 	{
 		final HashMap<String, String> webFormIDToMarkupIDMap = new HashMap<String, String>();
@@ -415,18 +411,18 @@ public class TemplateGenerator
 
 		if (sp instanceof IApplication)
 		{
-			Map<WebForm, Map<String, String>> clientFormsIDToMarkupIDMap = serviceProviderWebFormIDToMarkupIDCache.get(sp);
+			Map runtimeProps = sp.getRuntimeProperties();
+			Map<WebForm, Map<String, String>> clientFormsIDToMarkupIDMap = (Map<WebForm, Map<String, String>>)runtimeProps.get("WebFormIDToMarkupIDCache");
 			if (clientFormsIDToMarkupIDMap == null)
 			{
 				clientFormsIDToMarkupIDMap = new WeakHashMap<WebForm, Map<String, String>>();
-				serviceProviderWebFormIDToMarkupIDCache.put(sp, clientFormsIDToMarkupIDMap);
+				runtimeProps.put("WebFormIDToMarkupIDCache", clientFormsIDToMarkupIDMap);
 			}
 
 			IForm wfc = ((IApplication)sp).getFormManager().getForm(formInstanceName);
 			if (wfc instanceof FormController)
 			{
 				IFormUIInternal wf = ((FormController)wfc).getFormUI();
-
 				if (wf instanceof WebForm)
 				{
 					formIDToMarkupIDMap = clientFormsIDToMarkupIDMap.get(wf);
@@ -442,7 +438,6 @@ public class TemplateGenerator
 				}
 			}
 		}
-
 
 		String webFormCSS = getWebFormCSS(retval.getRight(), formIDToMarkupIDMap);
 		webFormCSS = StripHTMLTagsConverter.convertMediaReferences(webFormCSS, solution.getName(), new ResourceReference("media"), "").toString(); // string the formcss/solutionname/ out of the url.		
