@@ -26,12 +26,13 @@ public class ReplaceTableVisitor implements IPersistVisitor
 {
 	private final String sourceDataSource;
 	private final String targetDataSource;
+	private final boolean replaceCalculationsAndAggregations;
 
-
-	public ReplaceTableVisitor(String sourceDataSource, String targetDataSource)
+	public ReplaceTableVisitor(String sourceDataSource, String targetDataSource, boolean replaceCalculationsAndAggregations)
 	{
 		this.sourceDataSource = sourceDataSource;
 		this.targetDataSource = targetDataSource;
+		this.replaceCalculationsAndAggregations = replaceCalculationsAndAggregations;
 	}
 
 	public Object visit(IPersist object)
@@ -60,7 +61,7 @@ public class ReplaceTableVisitor implements IPersistVisitor
 					relation.setForeignDataSource(targetDataSource);
 				}
 			}
-			else if (object instanceof TableNode)
+			else if (object instanceof TableNode && replaceCalculationsAndAggregations)
 			{
 				// The object is a table node (script calculation or aggregate variable) and has a table.
 				TableNode tableNode = ((TableNode)object);
