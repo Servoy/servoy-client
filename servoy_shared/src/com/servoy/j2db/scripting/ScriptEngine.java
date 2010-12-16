@@ -37,9 +37,9 @@ import org.mozilla.javascript.Wrapper;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.ExitScriptException;
 import com.servoy.j2db.FormController;
-import com.servoy.j2db.FormManager.HistoryProvider;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ISmartClientApplication;
+import com.servoy.j2db.FormManager.HistoryProvider;
 import com.servoy.j2db.dataprocessing.DataException;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
@@ -196,7 +196,24 @@ public class ScriptEngine implements IScriptSupport
 	private void registerScriptObjectClass(Class< ? > cls)
 	{
 		IScriptObject scriptObjectForClass = ScriptObjectRegistry.getScriptObjectForClass(cls);
-		registerScriptObjectReturnTypes(scriptObjectForClass);
+		if (scriptObjectForClass != null)
+		{
+			registerScriptObjectReturnTypes(scriptObjectForClass);
+		}
+		else
+		{
+			if (IReturnedTypesProvider.class.isAssignableFrom(cls))
+			{
+				try
+				{
+					registerScriptObjectReturnTypes((IReturnedTypesProvider)cls.newInstance());
+				}
+				catch (Exception e)
+				{
+					// ignore
+				}
+			}
+		}
 	}
 
 	/**
