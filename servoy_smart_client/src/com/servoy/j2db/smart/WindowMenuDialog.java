@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.smart;
 
 
@@ -155,6 +155,7 @@ public class WindowMenuDialog implements ActionListener
 
 	private void insertMenuItem(Form form, JRadioButtonMenuItem mi)
 	{
+		mi.updateUI(); // make sure that font or other l&f settings are applied. 
 		int count = windowMenu.getMenuComponentCount();
 		if (count == 0)
 		{
