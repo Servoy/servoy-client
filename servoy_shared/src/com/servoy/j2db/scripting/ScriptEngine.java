@@ -154,6 +154,7 @@ public class ScriptEngine implements IScriptSupport
 			toplevelScope.put(IExecutingEnviroment.TOPLEVEL_SECURITY, toplevelScope, new NativeJavaObject(toplevelScope, jssec, new InstanceJavaMembers(
 				toplevelScope, JSSecurity.class)));
 			registerScriptObjectReturnTypes(jssec);
+			toplevelScope.put(JSSecurity.class.getSimpleName(), toplevelScope, new NativeJavaClass(toplevelScope, JSSecurity.class));
 
 			toplevelScope.put(IExecutingEnviroment.TOPLEVEL_SOLUTION_MODIFIER, toplevelScope, new NativeJavaObject(toplevelScope, solutionModifier,
 				new InstanceJavaMembers(toplevelScope, JSSolutionModel.class)));
