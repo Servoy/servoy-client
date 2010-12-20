@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
@@ -484,7 +484,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 	 * Create a data source from the data set with specified name and using specified types.
 	 *
 	 * @sample
-	 *  ds.addColumn('my_id');
+	 *  ds.addColumn('my_id'); // note: use regular javascript identifiers so they can be used in scripting
 	 * 	ds.addColumn('my_label');
 	 * 	var uri = ds.createDataSource('mydata', [JSColumn.INTEGER, JSColumn.TEXT]);
 	 * 	var jsform = solutionModel.newForm(fname, uri, null, true, 300, 300);
