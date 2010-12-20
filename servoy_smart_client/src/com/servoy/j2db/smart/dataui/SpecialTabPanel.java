@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.smart.dataui;
 
 
@@ -807,6 +807,7 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 	public void js_putClientProperty(Object key, Object value)
 	{
 		putClientProperty(key, value);
+		enclosingComponent.putClientProperty(key, value);
 	}
 
 	public Object js_getClientProperty(Object key)

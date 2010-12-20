@@ -252,8 +252,8 @@ public class ComponentFactory
 						// Designer all always real components!!
 						retval = (JComponent)application.getItemFactory().createLabel(null, "Tabless panel, for JavaScript use");
 						((IStandardLabel)retval).setHorizontalAlignment(SwingConstants.CENTER);
-						applyBasicComponentProperties(application, (IComponent)retval, (BaseComponent)meta,
-							getStyleForBasicComponent(application, (BaseComponent)meta, form));
+						applyBasicComponentProperties(application, (IComponent)retval, (BaseComponent)meta, getStyleForBasicComponent(application,
+							(BaseComponent)meta, form));
 					}
 					else
 					{
@@ -796,6 +796,15 @@ public class ComponentFactory
 		String name = bc.getName();
 		if (name != null) c.setName(name);
 		if (bc.getTransparent()) c.setOpaque(false); // only use component property value if it is "checked" to be transparent
+
+		if (application.getApplicationType() == IApplication.CLIENT)
+		{
+			String delegateStyleClassNamePropertyKey = application.getSettings().getProperty("servoy.smartclient.componentStyleClassDelegatePropertyKey");
+			if (delegateStyleClassNamePropertyKey != null && c instanceof JComponent)
+			{
+				((JComponent)c).putClientProperty(delegateStyleClassNamePropertyKey, bc.getStyleClass());
+			}
+		}
 	}
 
 	private static IComponent createBean(IApplication application, Bean bean, FlattenedSolution flattenedSolution)
@@ -1260,9 +1269,8 @@ public class ComponentFactory
 									}
 									catch (IOException e)
 									{
-										Debug.error(
-											"Exception loading properties for converter " + converter.getName() + ", properties: " +
-												ci.getConverterProperties(), e);
+										Debug.error("Exception loading properties for converter " + converter.getName() + ", properties: " +
+											ci.getConverterProperties(), e);
 									}
 								}
 							}
@@ -1361,8 +1369,7 @@ public class ComponentFactory
 					IValueList list = getRealValueList(application, valuelist, true, type, format, field.getDataProviderID());
 					if (isSingleValue(valuelist, list))
 					{
-						fl = application.getItemFactory().createSelectBox(getWebID(field), application.getI18NMessageIfPrefixed(field.getText()), list,
-							isRadio);
+						fl = application.getItemFactory().createSelectBox(getWebID(field), application.getI18NMessageIfPrefixed(field.getText()), list, isRadio);
 					}
 					else
 					{
