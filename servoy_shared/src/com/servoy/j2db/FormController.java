@@ -87,13 +87,13 @@ import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.IScriptSupport;
 import com.servoy.j2db.scripting.InstanceJavaMembers;
-import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.JSWindowImpl;
-import com.servoy.j2db.scripting.JSWindowImpl.JSWindow;
 import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.scripting.SelectedRecordScope;
 import com.servoy.j2db.scripting.SolutionScope;
+import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
+import com.servoy.j2db.scripting.JSWindowImpl.JSWindow;
 import com.servoy.j2db.ui.IAccessible;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
@@ -699,62 +699,15 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * Start a find request, use the "search" function to perform/exit the find.
-		 * Make sure the operator and the data (value) are part of the string passed to dataprovider (included inside a pair of quotation marks).
-		 * 
-		 * When in find mode, columns can be assigned string expressions that are evaluated as:
-		 * General:
-		 *       c1||c2    (condition1 or condition2)
-		 *       c|format  (apply format on condition like 'x|dd-MM-yyyy')
-		 *       !c        (not condition)
-		 *       #c        (modify condition, depends on column type)
-		 *       ^         (is null)
-		 *       ^=        (is null or empty)
-		 *       &lt;x     (less than value x)
-		 *       &gt;x     (greater than value x)
-		 *       &lt;=x    (less than or equals value x)
-		 *       &gt;=x    (greater than or equals value x)
-		 *       x...y     (between values x and y, including values)
-		 *       x         (equals value x)
-		 *
-		 *  Number fields:
-		 *       =x       (equals value x)
-		 *       ^=       (is null or zero)
-		 *
-		 *  Date fields:
-		 *       #c       (equals value x, entire day)
-		 *       now      (equals now, date and or time)
-		 *       //       (equals today)
-		 *       today    (equals today)
-		 *
-		 *  Text fields:
-		 *       #c	        (case insensitive condition)
-		 *       = x      (equals a space and 'x')
-		 *       ^=       (is null or empty)
-		 *       %x%      (contains 'x')
-		 *       %x_y%    (contains 'x' followed by any char and 'y')
-		 *       \%      (contains char '%')
-		 *       \_      (contains char '_')
-		 *
-		 * Related columns can be assigned, they will result in related searches.
-		 * For example, "employees_to_department.location_id = headoffice" finds all employees in the specified location).
-		 * 
-		 * Searching on related aggregates is supported.
-		 * For example, "orders_to_details.total_amount = '&gt;1000'" finds all orders with total order details amount more than 1000.
-		 * 
+		 * @sameas com.servoy.j2db.dataprocessing.FoundSet#js_find()
 		 * @sample
 		 * if (%%prefix%%controller.find()) //find will fail if autosave is disabled and there are unsaved records
 		 * {
-		 * 	columnTextDataProvider = '=a search value';
-		 * 	columnNumberDataProvider = '>10';
-		 * 	columnDateDataProvider = '>=10-03-2009|dd-MM-yyyy';
+		 * 	columnTextDataProvider = 'a search value'
+		 * 	columnNumberDataProvider = '>10'
+		 * 	columnDateDataProvider = '31-12-2010|dd-MM-yyyy'
 		 * 	%%prefix%%controller.search()
 		 * }
-		 * 
-		 * @return true if successful, will return false if autosave is disabled and there are unsaved records.
-		 * 
-		 * @see com.servoy.j2db.FormController$JSForm#js_search(Object[])
-		 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_setAutoSave(boolean)
 		 */
 		public boolean js_find() throws ServoyException
 		{
@@ -763,20 +716,10 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * Start the database search and use the results, returns the number of records, make sure you did "find" function first.
-		 *
-		 * Note: Omitted records are automatically excluded when performing a search - meaning that the foundset result by default will not include omitted records.
-		 * 
+		 * @sameas com.servoy.j2db.dataprocessing.FoundSet#js_search()
 		 * @sample
 		 * var recordCount = %%prefix%%controller.search();
 		 * //var recordCount = %%prefix%%controller.search(false,false); //to extend foundset
-		 *
-		 * @param clearLastResults optional boolean, clear previous search, default true  
-		 * @param reduceSearch optional boolean, reduce (true) or extend (false) previous search results, default true
-		 * 
-		 * @return the recordCount
-		 * 
-		 * @see com.servoy.j2db.FormController$JSForm#js_find()
 		 */
 		public int js_search(Object[] vargs) throws ServoyException
 		{
