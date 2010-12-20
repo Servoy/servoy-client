@@ -828,6 +828,7 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 	public void js_putClientProperty(Object key, Object value)
 	{
 		putClientProperty(key, value);
+		enclosingComponent.putClientProperty(key, value);
 	}
 
 	public Object js_getClientProperty(Object key)

@@ -695,6 +695,15 @@ public class ComponentFactory
 		if (bc.getTransparent()) c.setOpaque(false); // only use component property value if it is "checked" to be transparent
 		c.setComponentEnabled(bc.getEnabled());
 		c.setComponentVisible(bc.getVisible());
+
+		if (application.getApplicationType() == IApplication.CLIENT)
+		{
+			String delegateStyleClassNamePropertyKey = application.getSettings().getProperty("servoy.smartclient.componentStyleClassDelegatePropertyKey");
+			if (delegateStyleClassNamePropertyKey != null && c instanceof JComponent)
+			{
+				((JComponent)c).putClientProperty(delegateStyleClassNamePropertyKey, bc.getStyleClass());
+			}
+		}
 	}
 
 	/**
@@ -1088,9 +1097,8 @@ public class ComponentFactory
 									}
 									catch (IOException e)
 									{
-										Debug.error(
-											"Exception loading properties for converter " + converter.getName() + ", properties: " +
-												ci.getConverterProperties(), e);
+										Debug.error("Exception loading properties for converter " + converter.getName() + ", properties: " +
+											ci.getConverterProperties(), e);
 									}
 								}
 							}
