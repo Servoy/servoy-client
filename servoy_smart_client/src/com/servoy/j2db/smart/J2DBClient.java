@@ -3359,7 +3359,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		}
 		catch (final ApplicationException e)
 		{
-			invokeLater(new Runnable()
+			invokeAndWait(new Runnable()
 			{
 				public void run()
 				{
