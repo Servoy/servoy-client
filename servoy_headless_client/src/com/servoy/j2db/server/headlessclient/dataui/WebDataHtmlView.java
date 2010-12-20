@@ -31,6 +31,7 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptTextEditorMethods;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -101,7 +102,45 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 			asb.append("wicketAjaxGet('");
 			asb.append(url);
 			asb.append("&scriptname=");
-			asb.append(Utils.stringReplace(Utils.stringReplace(scriptName, "\'", "\\\'"), "\"", "&quot;"));
+			String escapedScriptName = Utils.stringReplace(Utils.stringReplace(scriptName, "\'", "\\\'"), "\"", "&quot;");
+			int browserVariableIndex = escapedScriptName.indexOf("browser:");
+			if (browserVariableIndex != -1)
+			{
+				int start = 0;
+				StringBuilder sb = new StringBuilder(escapedScriptName.length());
+				while (browserVariableIndex != -1)
+				{
+					sb.append(escapedScriptName.substring(start, browserVariableIndex));
+					sb.append("' + ");
+
+					// is there a next variable
+					int index = searchEndVariable(escapedScriptName, browserVariableIndex + 8);
+					if (index == -1)
+					{
+						Debug.error("illegal script name encountered with browser arguments: " + escapedScriptName);
+						break;
+					}
+					else
+					{
+						sb.append(escapedScriptName.substring(browserVariableIndex + 8, index));
+						sb.append(" + '");
+						int tmp = escapedScriptName.indexOf("browser:", index);
+						if (tmp != -1)
+						{
+							start = index;
+							browserVariableIndex = tmp;
+						}
+						else
+						{
+							sb.append(escapedScriptName.substring(index));
+							escapedScriptName = sb.toString();
+							break;
+						}
+
+					}
+				}
+			}
+			asb.append(escapedScriptName);
 			asb.append("');");
 			if (testDoubleClick)
 			{
@@ -114,6 +153,35 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 		{
 			return StripHTMLTagsConverter.getTriggerJavaScript(this, scriptName);
 		}
+	}
+
+	/**
+	 * @param escapedScriptName
+	 * @param i
+	 * @return
+	 */
+	private int searchEndVariable(String script, int start)
+	{
+		int counter = start;
+		int brace = 0;
+		while (counter < script.length())
+		{
+			switch (script.charAt(counter))
+			{
+				case ',' :
+					if (brace == 0) return counter;
+					break;
+				case '(' :
+					brace++;
+					break;
+				case ')' :
+					if (brace == 0) return counter;
+					brace--;
+					break;
+			}
+			counter++;
+		}
+		return 0;
 	}
 
 	/**
