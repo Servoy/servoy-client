@@ -486,7 +486,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 	 * Create a data source from the data set with specified name and using specified types.
 	 *
 	 * @sample
-	 *  ds.addColumn('my_id');
+	 *  ds.addColumn('my_id'); // note: use regular javascript identifiers so they can be used in scripting
 	 * 	ds.addColumn('my_label');
 	 * 	var uri = ds.createDataSource('mydata', [JSColumn.INTEGER, JSColumn.TEXT]);
 	 * 	var jsform = solutionModel.newForm(fname, uri, null, true, 300, 300);
