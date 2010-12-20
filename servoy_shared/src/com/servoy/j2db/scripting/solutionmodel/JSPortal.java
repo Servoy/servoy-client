@@ -737,9 +737,26 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent, IJavaScr
 	 * // Make the columns resizeable. By default they are not resizeable.
 	 * childrenPortal.resizeble = true;
 	 */
+	@Deprecated
 	public boolean js_getResizeble()
 	{
-		return getBaseComponent(false).getResizeble();
+		return js_getResizable();
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Portal#getResizable()
+	 * 
+	 * @sample
+	 * var childrenPortal = form.newPortal('pp', 'parent_to_child', 10, 10, 620, 460);
+	 * childrenPortal.newTextField('child_table_id', 0, 100, 20);
+	 * childrenPortal.newTextField('child_table_text',150,100,20);
+	 * childrenPortal.newTextField('child_table_parent_id', 300, 100, 20);
+	 * // Make the columns resizable. By default they are not resizable.
+	 * childrenPortal.resizable = true;
+	 */
+	public boolean js_getResizable()
+	{
+		return getBaseComponent(false).getResizable();
 	}
 
 	/**
@@ -873,9 +890,15 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent, IJavaScr
 		getBaseComponent(true).setReorderable(arg);
 	}
 
+	@Deprecated
 	public void js_setResizeble(boolean arg)
 	{
-		getBaseComponent(true).setResizeble(arg);
+		js_setResizable(arg);
+	}
+
+	public void js_setResizable(boolean arg)
+	{
+		getBaseComponent(true).setResizable(arg);
 	}
 
 	public void js_setRowBGColorCalculation(String arg)

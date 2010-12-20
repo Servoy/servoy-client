@@ -46,6 +46,7 @@ public class StaticContentSpecLoader
 	public static final TypedProperty<Boolean> PROPERTY_PRINTABLE = new TypedProperty<Boolean>("printable"); //$NON-NLS-1$
 	public static final TypedProperty<Boolean> PROPERTY_REORDERABLE = new TypedProperty<Boolean>("reorderable"); //$NON-NLS-1$
 	public static final TypedProperty<Boolean> PROPERTY_RESIZEBLE = new TypedProperty<Boolean>("resizeble"); //$NON-NLS-1$
+	public static final TypedProperty<Boolean> PROPERTY_RESIZABLE = new TypedProperty<Boolean>("resizable"); //$NON-NLS-1$
 	public static final TypedProperty<Boolean> PROPERTY_RESTARTPAGENUMBER = new TypedProperty<Boolean>("restartPageNumber"); //$NON-NLS-1$
 	public static final TypedProperty<Boolean> PROPERTY_SCROLLTABS = new TypedProperty<Boolean>("scrollTabs"); //$NON-NLS-1$
 	public static final TypedProperty<Boolean> PROPERTY_SELECTONENTER = new TypedProperty<Boolean>("selectOnEnter"); //$NON-NLS-1$
@@ -128,6 +129,7 @@ public class StaticContentSpecLoader
 	public static final TypedProperty<Integer> PROPERTY_ONSHOWOMITTEDRECORDSCMDMETHODID = new TypedProperty<Integer>("onShowOmittedRecordsCmdMethodID"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_ONSORTCMDMETHODID = new TypedProperty<Integer>("onSortCmdMethodID"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_ONTABCHANGEMETHODID = new TypedProperty<Integer>("onTabChangeMethodID"); //$NON-NLS-1$
+	public static final TypedProperty<Integer> PROPERTY_ONCHANGEMETHODID = new TypedProperty<Integer>("onChangeMethodID"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_ONUNLOADMETHODID = new TypedProperty<Integer>("onUnLoadMethodID"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_ONUPDATEMETHODID = new TypedProperty<Integer>("onUpdateMethodID"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_OPERATOR = new TypedProperty<Integer>("operator"); //$NON-NLS-1$
@@ -350,7 +352,7 @@ public class StaticContentSpecLoader
 			cs.new Element(97, IRepository.PORTALS, PROPERTY_NAME.getPropertyName(), IRepository.STRING);
 			cs.new Element(98, IRepository.PORTALS, PROPERTY_RELATIONNAME.getPropertyName(), IRepository.STRING);
 			cs.new Element(99, IRepository.PORTALS, PROPERTY_REORDERABLE.getPropertyName(), IRepository.BOOLEAN);
-			cs.new Element(100, IRepository.PORTALS, PROPERTY_RESIZEBLE.getPropertyName(), IRepository.BOOLEAN);
+			cs.new Element(100, IRepository.PORTALS, PROPERTY_RESIZEBLE.getPropertyName(), IRepository.BOOLEAN).flagAsDeprecated();
 			cs.new Element(101, IRepository.PORTALS, PROPERTY_MULTILINE.getPropertyName(), IRepository.BOOLEAN);
 			cs.new Element(102, IRepository.PORTALS, PROPERTY_ROWHEIGHT.getPropertyName(), IRepository.INTEGER);
 			cs.new Element(103, IRepository.PORTALS, PROPERTY_SHOWVERTICALLINES.getPropertyName(), IRepository.BOOLEAN);
@@ -598,7 +600,7 @@ public class StaticContentSpecLoader
 			cs.new Element(287, IRepository.TABLENODES, PROPERTY_ONDELETEMETHODID.getPropertyName(), IRepository.ELEMENTS);
 			cs.new Element(288, IRepository.GRAPHICALCOMPONENTS, PROPERTY_LABELFOR.getPropertyName(), IRepository.STRING);
 			cs.new Element(289, IRepository.GRAPHICALCOMPONENTS, PROPERTY_MNEMONIC.getPropertyName(), IRepository.STRING);
-			cs.new Element(290, IRepository.TABPANELS, PROPERTY_ONTABCHANGEMETHODID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(290, IRepository.TABPANELS, PROPERTY_ONTABCHANGEMETHODID.getPropertyName(), IRepository.ELEMENTS).flagAsDeprecated();
 
 			cs.new Element(291, IRepository.TABS, PROPERTY_USENEWFORMINSTANCE.getPropertyName(), IRepository.BOOLEAN);
 			cs.new Element(292, IRepository.RELATIONS, PROPERTY_JOINTYPE.getPropertyName(), IRepository.INTEGER);
@@ -722,6 +724,12 @@ public class StaticContentSpecLoader
 			cs.new Element(373, IRepository.SHAPES, PROPERTY_ENABLED.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
 			cs.new Element(374, IRepository.RECTSHAPES, PROPERTY_ENABLED.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
 			cs.new Element(375, IRepository.FIELDS, PROPERTY_ENABLED.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
+		}
+
+		if (old_repository_version < 39)
+		{
+			cs.new Element(376, IRepository.PORTALS, PROPERTY_RESIZABLE.getPropertyName(), IRepository.BOOLEAN);
+			cs.new Element(377, IRepository.TABPANELS, PROPERTY_ONCHANGEMETHODID.getPropertyName(), IRepository.ELEMENTS);
 		}
 
 		//##add property adds here

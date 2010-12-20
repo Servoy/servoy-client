@@ -22,6 +22,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.ScriptMethod;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.util.PersistHelper;
@@ -489,7 +490,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 
 	public void js_setOnAction(JSMethod method)
 	{
-		setEventHandler(application, "onActionMethodID", method);
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID.getPropertyName(), method);
 	}
 
 	/**
@@ -497,12 +498,12 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 */
 	public JSMethod js_getOnAction()
 	{
-		return getEventHandler(application, "onActionMethodID");
+		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID.getPropertyName());
 	}
 
 	public void js_setOnDataChange(JSMethod method)
 	{
-		setEventHandler(application, "onDataChangeMethodID", method);
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName(), method);
 	}
 
 	/**
@@ -517,12 +518,12 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 */
 	public JSMethod js_getOnDataChange()
 	{
-		return getEventHandler(application, "onDataChangeMethodID");
+		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName());
 	}
 
 	public void js_setOnRightClick(JSMethod method)
 	{
-		setEventHandler(application, "onRightClickMethodID", method);
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID.getPropertyName(), method);
 	}
 
 	/**
@@ -530,12 +531,12 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 */
 	public JSMethod js_getOnRightClick()
 	{
-		return getEventHandler(application, "onRightClickMethodID");
+		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID.getPropertyName());
 	}
 
 	public void js_setOnFocusGained(JSMethod method)
 	{
-		setEventHandler(application, "onFocusGainedMethodID", method);
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName(), method);
 	}
 
 	/**
@@ -552,12 +553,12 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 */
 	public JSMethod js_getOnFocusGained()
 	{
-		return getEventHandler(application, "onFocusGainedMethodID");
+		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName());
 	}
 
 	public void js_setOnFocusLost(JSMethod method)
 	{
-		setEventHandler(application, "onFocusLostMethodID", method);
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName(), method);
 	}
 
 	/**
@@ -567,7 +568,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 */
 	public JSMethod js_getOnFocusLost()
 	{
-		return getEventHandler(application, "onFocusLostMethodID");
+		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName());
 	}
 
 

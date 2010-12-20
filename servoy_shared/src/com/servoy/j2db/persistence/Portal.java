@@ -105,17 +105,32 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 * 
 	 * @param arg the resizeble
 	 */
+	@Deprecated
 	public void setResizeble(boolean arg)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_RESIZEBLE, arg);
+		setResizable(arg);
 	}
 
 	/**
 	 * When set the portal rows can be resized by users.
 	 */
+	@Deprecated
 	public boolean getResizeble()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_RESIZEBLE).booleanValue();
+		return getResizable();
+	}
+
+	public void setResizable(boolean arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_RESIZABLE, arg);
+	}
+
+	/**
+	 * When set the portal rows can be resized by users.
+	 */
+	public boolean getResizable()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_RESIZABLE).booleanValue();
 	}
 
 	/**

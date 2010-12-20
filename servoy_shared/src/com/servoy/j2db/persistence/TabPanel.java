@@ -150,28 +150,40 @@ public class TabPanel extends BaseComponent implements ISupportChilds, ISupportT
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_CLOSEONTABS, arg);
 	}
 
+	@Deprecated
+	public int getOnTabChangeMethodID()
+	{
+		return getOnChangeMethodID();
+	}
+
+	@Deprecated
+	public void setOnTabChangeMethodID(int arg)
+	{
+		setOnChangeMethodID(arg);
+	}
+
 	/**
-	 * Method to be executed when the selected tab is changed in the tab panel.
+	 * Method to be executed when the selected tab is changed in the tab panel or divider position is changed in split pane.
 	 * 
-	 * @templatedescription Callback method when the user changes tab in a tab panel
+	 * @templatedescription Callback method when the user changes tab in a tab panel or divider position in split pane
 	 * @templatename onTabChange
 	 * @templateparam Number previousIndex index of tab shown before the change
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
-	public int getOnTabChangeMethodID()
+	public int getOnChangeMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONTABCHANGEMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID).intValue();
 	}
 
 	/**
 	 * Sets the onTabChangeMethodID.
 	 * 
-	 * @param arg The onTabChangeMethodID to set
+	 * @param arg The onChangeMethodID to set
 	 */
-	public void setOnTabChangeMethodID(int arg)
+	public void setOnChangeMethodID(int arg)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONTABCHANGEMETHODID, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID, arg);
 	}
 
 	public void setTabSeq(int arg)

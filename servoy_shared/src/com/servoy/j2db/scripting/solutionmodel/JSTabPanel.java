@@ -29,6 +29,7 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.Tab;
 import com.servoy.j2db.persistence.TabPanel;
 
@@ -259,9 +260,15 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent
 		}
 	}
 
+	@Deprecated
 	public void js_setOnTabChange(JSMethod method)
 	{
-		setEventHandler(application, "onTabChangeMethodID", method);
+		js_setOnChange(method);
+	}
+
+	public void js_setOnChange(JSMethod method)
+	{
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID.getPropertyName(), method);
 	}
 
 	/**
@@ -274,9 +281,25 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent
 	 * tabPanel.newTab('tab2', 'Child Two', childTwo);
 	 * tabPanel.onTabChange = onTabChangeMethod;
 	 */
+	@Deprecated
 	public JSMethod js_getOnTabChange()
 	{
-		return getEventHandler(application, "onTabChangeMethodID");
+		return js_getOnChange();
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.TabPanel#getOnChangeMethodID()
+	 *
+	 * @sample 
+	 * var onChangeMethod = form.newFormMethod('function onTabChange(previousIndex, event) { application.output("Tab changed from previous index " + previousIndex + " at " + event.getTimestamp()); }');
+	 * var tabPanel = form.newTabPanel('tabs', 10, 10, 620, 460);
+	 * tabPanel.newTab('tab1', 'Child Two', childOne);
+	 * tabPanel.newTab('tab2', 'Child Two', childTwo);
+	 * tabPanel.onChange = onChangeMethod;
+	 */
+	public JSMethod js_getOnChange()
+	{
+		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID.getPropertyName());
 	}
 
 	public void js_setScrollTabs(boolean arg)

@@ -23,6 +23,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.ScriptMethod;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.util.PersistHelper;
 
 /**
@@ -494,7 +495,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 
 	public void js_setOnAction(JSMethod method)
 	{
-		setEventHandler(application, "onActionMethodID", method);
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID.getPropertyName(), method);
 	}
 
 	/**
@@ -513,12 +514,12 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 */
 	public JSMethod js_getOnAction()
 	{
-		return getEventHandler(application, "onActionMethodID");
+		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID.getPropertyName());
 	}
 
 	public void js_setOnDoubleClick(JSMethod method)
 	{
-		setEventHandler(application, "onDoubleClickMethodID", method); //$NON-NLS-1$
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDOUBLECLICKMETHODID.getPropertyName(), method);
 	}
 
 	/**
@@ -528,12 +529,12 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 */
 	public JSMethod js_getOnDoubleClick()
 	{
-		return getEventHandler(application, "onDoubleClickMethodID");
+		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDOUBLECLICKMETHODID.getPropertyName());
 	}
 
 	public void js_setOnRightClick(JSMethod method)
 	{
-		setEventHandler(application, "onRightClickMethodID", method); //$NON-NLS-1$
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID.getPropertyName(), method);
 	}
 
 	/**
@@ -543,7 +544,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 */
 	public JSMethod js_getOnRightClick()
 	{
-		return getEventHandler(application, "onRightClickMethodID");
+		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID.getPropertyName());
 	}
 
 }
