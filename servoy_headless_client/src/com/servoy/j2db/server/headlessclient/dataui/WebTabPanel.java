@@ -813,6 +813,19 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 			f = ((FormController.JSForm)form).getFormPanel();
 			readOnly = f.isReadOnly();
 		}
+
+		//to make sure we don't have recursion on adding a tab, to a tabpanel, that is based 
+		//on the form that the tabpanel is placed on
+		WebForm webForm = findParent(WebForm.class);
+		if (webForm != null)
+		{
+			FormController parentFormController = webForm.getController();
+			if (parentFormController != null && f.equals(parentFormController))
+			{
+				return false;
+			}
+		}
+
 		if (f != null) fName = f.getName();
 		if (form instanceof String) fName = (String)form;
 
