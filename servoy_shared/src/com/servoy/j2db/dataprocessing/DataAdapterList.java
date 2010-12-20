@@ -354,7 +354,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 			// NEVER enable this ,values in the state could be changed: if (currentState.equals(state)) return;//same
 			if (!currentRecord.equals(state))
 			{
-				stopUIEditing(true);
+				stopUIEditing(false);
 				currentRecord.removeModificationListener(this);//unregister
 			}
 		}
@@ -430,7 +430,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 	public void valueChanged(ModificationEvent e)
 	{
 		FormScope formScope = getFormScope();
-		if (visible  && (currentRecord != null || (formScope != null && formScope.has(e.getName(), formScope))))
+		if (visible && (currentRecord != null || (formScope != null && formScope.has(e.getName(), formScope))))
 		{
 			for (IDataAdapter da : dataAdapters.values())
 			{
