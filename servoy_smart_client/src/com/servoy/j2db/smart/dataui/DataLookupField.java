@@ -20,6 +20,7 @@ package com.servoy.j2db.smart.dataui;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Window;
@@ -43,6 +44,7 @@ import javax.swing.JWindow;
 import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 import javax.swing.event.DocumentEvent;
@@ -538,6 +540,13 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 
 		int popupHeight = (int)jlist.getPreferredSize().getHeight() + scroller.getInsets().bottom + scroller.getInsets().top;
 		int popupWidth = (int)jlist.getPreferredSize().getWidth() + scroller.getInsets().right + scroller.getInsets().left;
+		Border viewportBorder = scroller.getViewportBorder();
+		if (viewportBorder != null)
+		{
+			Insets viewportBorderInsets = viewportBorder.getBorderInsets(this.scroller);
+			popupWidth += viewportBorderInsets.left + viewportBorderInsets.right;
+			popupHeight += viewportBorderInsets.top + viewportBorderInsets.bottom;
+		}
 		boolean heightLimited = false;
 		if (popupHeight > MAX_POPUP_HEIGHT)
 		{
