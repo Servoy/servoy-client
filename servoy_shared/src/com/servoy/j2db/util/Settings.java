@@ -141,7 +141,7 @@ public class Settings extends SortedProperties
 		boolean serverTwoWay = Utils.getAsBoolean(getProperty("SocketFactory.useTwoWaySocket")); //$NON-NLS-1$
 		if (twoWay == null || !serverTwoWay)
 		{
-			setProperty(base.getHost() + base.getPort() + "SocketFactory.useTwoWaySocket", getProperty("SocketFactory.useTwoWaySocket")); //$NON-NLS-1$ //$NON-NLS-2$
+			setProperty(base.getHost() + base.getPort() + "SocketFactory.useTwoWaySocket", String.valueOf(serverTwoWay)); //$NON-NLS-1$ 
 		}
 
 		if (currentIntegerformat != null)

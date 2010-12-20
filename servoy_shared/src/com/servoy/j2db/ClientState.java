@@ -572,7 +572,10 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		{
 			try
 			{
-				retval = getClientHost().register(uc);
+				if (getClientHost() != null)
+				{
+					retval = getClientHost().register(uc);
+				}
 				break;
 			}
 			catch (Exception e)
