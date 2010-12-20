@@ -621,11 +621,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * Set the foundset in find mode.
+	 * Set the foundset in find mode. (Start a find request), use the "search" function to perform/exit the find.
 	 * 
 	 * Before going into find mode, all unsaved records will be saved in the database.
-	 * If this fails (due to validation failures or sql errors) or is not allowed (autosave off), 
-	 * the foundset will not go into find mode.
+	 * If this fails (due to validation failures or sql errors) or is not allowed (autosave off), the foundset will not go into find mode.
+	 * Make sure the operator and the data (value) are part of the string passed to dataprovider (included inside a pair of quotation marks).
 	 * Note: always make sure to check the result of the find() method.
 	 * 
 	 * When in find mode, columns can be assigned string expressions that are evaluated as:
@@ -676,7 +676,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 	columnDateDataProvider = '31-12-2010|dd-MM-yyyy'
 	 * 	%%prefix%%foundset.search()
 	 * }
+	 * 
 	 * @return true if the foundset is now in find mode, false otherwise.
+	 * 
+	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_search()
+	 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_setAutoSave(boolean)
+	 * @see com.servoy.j2db.FormController$JSForm#js_find(Object[])
+	 * @see com.servoy.j2db.FormController$JSForm#js_search(Object[])
 	 */
 	public boolean js_find()
 	{
@@ -706,20 +712,20 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * Perform a search and show the results.
-	 * Must be in find mode when running search (see find()).
+	 * Start the database search and use the results, returns the number of records, make sure you did "find" function first.
 	 *
+	 * Note: Omitted records are automatically excluded when performing a search - meaning that the foundset result by default will not include omitted records.
+	 * 
 	 * @sample
 	 * var recordCount = %%prefix%%foundset.search();
-	 * //var recordCount = %%prefix%%foundset.search(false,false);//to extend foundset
+	 * //var recordCount = %%prefix%%foundset.search(false,false); //to extend foundset
 	 *
 	 * @param clearLastResults optional boolean, clear previous search, default true  
-	 *
 	 * @param reduceSearch optional boolean, reduce (true) or extend (false) previous search results, default true
 	 * 
-	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_find()
+	 * @return the recordCount
 	 * 
-	 * @return int number of rows returned
+	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_find()
 	 */
 	public int js_search(Object[] vargs) throws ServoyException
 	{
