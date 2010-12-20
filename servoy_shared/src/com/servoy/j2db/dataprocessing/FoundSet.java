@@ -628,7 +628,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * Make sure the operator and the data (value) are part of the string passed to dataprovider (included inside a pair of quotation marks).
 	 * Note: always make sure to check the result of the find() method.
 	 * 
-	 * When in find mode, columns can be assigned string expressions that are evaluated as:
+	 * When in find mode, columns can be assigned string expressions (including operators) that are evaluated as:
 	 * General:
 	 *       c1||c2    (condition1 or condition2)
 	 *       c|format  (apply format on condition like 'x|dd-MM-yyyy')
