@@ -69,6 +69,8 @@ public interface IServerInternal
 
 	void flagInvalid();
 
+	void forceFlagInvalid();
+
 	int getState();
 
 	void fireStateChanged(int oldState, int state);
