@@ -755,7 +755,6 @@ public class TemplateGenerator
 								html.append('>');
 								html.append("<div servoy:id='headertext' ");
 								styleObj.setProperty("cursor", "pointer");
-								styleObj.setProperty("height", cellHeight + "px");
 								styleObj.setProperty("width", cellWidth + "px");
 								html.append(styleObj.toString());
 								html.append("></div>");
