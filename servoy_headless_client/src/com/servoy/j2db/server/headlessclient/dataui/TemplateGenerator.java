@@ -707,7 +707,6 @@ public class TemplateGenerator
 								html.append('>');
 								html.append("<div servoy:id='headertext' "); //$NON-NLS-1$ 
 								styleObj.setProperty("cursor", "pointer"); //$NON-NLS-1$ //$NON-NLS-2$
-								styleObj.setProperty("height", cellHeight + "px"); //$NON-NLS-1$ //$NON-NLS-2$
 								styleObj.setProperty("width", cellWidth + "px"); //$NON-NLS-1$ //$NON-NLS-2$
 								html.append(styleObj.toString());
 								html.append("></div>"); //$NON-NLS-1$ 
