@@ -28,7 +28,6 @@ import javax.swing.plaf.SplitPaneUI;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
 
-import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.util.EnablePanel;
 
@@ -39,13 +38,12 @@ import com.servoy.j2db.util.EnablePanel;
  */
 public class SplitPane extends JSplitPane
 {
-	private final IApplication application;
 	private boolean readOnly;
+	private final boolean design;
 
-	public SplitPane(IApplication application, int orient)
+	public SplitPane(int orient, boolean design)
 	{
-		super();
-		this.application = application;
+		this.design = design;
 		int o = JSplitPane.HORIZONTAL_SPLIT;
 		if (orient == TabPanel.SPLIT_VERTICAL) o = JSplitPane.VERTICAL_SPLIT;
 		setOrientation(o);
@@ -153,7 +151,7 @@ public class SplitPane extends JSplitPane
 	public void setOpaque(boolean isOpaque)
 	{
 		super.setOpaque(isOpaque);
-		if (!isOpaque)
+		if (!design && !isOpaque)
 		{
 			SplitPaneUI invisibleUI = new InvisibleSplitPaneUI();
 			setUI(invisibleUI);
@@ -165,7 +163,7 @@ public class SplitPane extends JSplitPane
 	public void setBackground(Color bgColor)
 	{
 		super.setBackground(bgColor);
-		if (bgColor != null && !bgColor.equals(UIManager.getColor("SplitPane.background"))) //$NON-NLS-1$
+		if (!design && bgColor != null && !bgColor.equals(UIManager.getColor("SplitPane.background"))) //$NON-NLS-1$
 		{
 			SplitPaneUI invisibleUI = new InvisibleSplitPaneUI();
 			setUI(invisibleUI);

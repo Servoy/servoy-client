@@ -20,6 +20,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,21 +62,28 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 	private final List<ISwingFoundSet> related = new ArrayList<ISwingFoundSet>();
 	private IRecordInternal parentData;
 	private boolean accessible = true;
-	private boolean validationEnabled = true;
 	private final List<Component> tabSeqComponentList = new ArrayList<Component>();
 	private boolean transferFocusBackwards = false;
 
-	public SpecialSplitPane(IApplication app, int orient)
+	public SpecialSplitPane(IApplication app, int orient, boolean design)
 	{
 		super();
 		application = app;
 		setLayout(new BorderLayout());
-		splitPane = new SplitPane(app, orient);
+		splitPane = new SplitPane(orient, design);
 		add(splitPane, BorderLayout.CENTER);
 
 		setFocusTraversalPolicy(ServoyFocusTraversalPolicy.defaultPolicy);
 		tabSeqComponentList.add(splitPane);
 		addFocusListener(new AutoTransferFocusListener(this, this));
+	}
+
+	/**
+	 * @return the splitPane
+	 */
+	public SplitPane getSplitPane()
+	{
+		return splitPane;
 	}
 
 	public String getId()
@@ -171,7 +179,6 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 
 	public void setValidationEnabled(boolean validationEnabled)
 	{
-		this.validationEnabled = validationEnabled;
 	}
 
 	public boolean stopUIEditing(boolean looseFocus)
@@ -687,5 +694,15 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 	public void setTransferFocusBackwards(boolean transferBackwards)
 	{
 		this.transferFocusBackwards = transferBackwards;
+	}
+
+	@Override
+	protected void paintBorder(Graphics g)
+	{
+		Border border = splitPane.getBorder();
+		if (border != null)
+		{
+			border.paintBorder(splitPane, g, 0, 0, getWidth(), getHeight());
+		}
 	}
 }

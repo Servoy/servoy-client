@@ -106,7 +106,7 @@ public class SwingItemFactory implements ItemFactory
 
 	public ISplitPane createSplitPane(String name, int orient)
 	{
-		ISplitPane splitPane = new SpecialSplitPane(application, orient);
+		ISplitPane splitPane = new SpecialSplitPane(application, orient, false);
 		splitPane.setName(name);
 		return splitPane;
 	}
