@@ -698,7 +698,8 @@ public class StaticContentSpecLoader
 			cs.new Element(353, IRepository.TEMPLATES, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
 		}
 
-		if (old_repository_version < 38)
+		// 38 is for workspace update
+		if (old_repository_version < 39)
 		{
 			cs.new Element(354, IRepository.FORMS, PROPERTY_ONDRAGENDMETHODID.getPropertyName(), IRepository.ELEMENTS);
 			cs.new Element(355, IRepository.PORTALS, PROPERTY_ONDRAGENDMETHODID.getPropertyName(), IRepository.ELEMENTS);
@@ -724,10 +725,7 @@ public class StaticContentSpecLoader
 			cs.new Element(373, IRepository.SHAPES, PROPERTY_ENABLED.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
 			cs.new Element(374, IRepository.RECTSHAPES, PROPERTY_ENABLED.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
 			cs.new Element(375, IRepository.FIELDS, PROPERTY_ENABLED.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
-		}
 
-		if (old_repository_version < 39)
-		{
 			cs.new Element(376, IRepository.PORTALS, PROPERTY_RESIZABLE.getPropertyName(), IRepository.BOOLEAN);
 			cs.new Element(377, IRepository.TABPANELS, PROPERTY_ONCHANGEMETHODID.getPropertyName(), IRepository.ELEMENTS);
 		}
