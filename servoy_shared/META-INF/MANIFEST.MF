@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Servoy Shared Plug-in
-Bundle-SymbolicName: servoy_shared
+Bundle-SymbolicName: servoy_shared;singleton:=true
 Bundle-Version: 6.0.0.1200
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-Vendor: Servoy
@@ -20,7 +20,6 @@ Bundle-ClassPath: .,
  lib/servlet-api.jar,
  lib/slf4j-api.jar,
  lib/slf4j-log4j.jar,
- lib/terracotta-api.jar,
  lib/wicket-calendar.jar,
  lib/wicket-extentions.jar,
  lib/wicket.jar,
@@ -61,11 +60,6 @@ Export-Package: com.servoy.j2db,
  com.servoy.j2db.util.serialize,
  com.servoy.j2db.util.toolbar,
  com.servoy.j2db.util.xmlxport,
- com.tc.cluster,
- com.tc.cluster.exceptions,
- com.tc.injection.annotations,
- com.tc.injection.exceptions,
- com.tcclient.cluster,
  edu.stanford.ejalbert,
  edu.stanford.ejalbert.exception,
  edu.stanford.ejalbert.exceptionhandler,
