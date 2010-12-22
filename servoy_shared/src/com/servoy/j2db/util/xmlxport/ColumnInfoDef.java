@@ -28,7 +28,7 @@ public final class ColumnInfoDef implements Serializable
 	public int flags = 0;
 	public boolean allowNull = false;
 	public int autoEnterType = ColumnInfo.NO_AUTO_ENTER;
-	public int systemValue = ColumnInfo.NO_SYSTEM_VALUE;
+	public int autoEnterSubType = ColumnInfo.NO_SYSTEM_VALUE;
 	public String preSequenceChars = null;
 	public String postSequenceChars = null;
 	public int sequenceStepSize = 1;

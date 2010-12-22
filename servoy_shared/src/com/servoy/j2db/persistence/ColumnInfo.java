@@ -60,11 +60,36 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	public static final int UUID_GENERATOR = 3;
 
 	public static final int[] allDefinedSeqTypes = { NO_SEQUENCE_SELECTED, SERVOY_SEQUENCE, DATABASE_SEQUENCE, DATABASE_IDENTITY, UUID_GENERATOR };
-	public static final int[] allDefinedSystemValues = { NO_SYSTEM_VALUE, SYSTEM_VALUE_CREATION_DATETIME, SYSTEM_VALUE_CREATION_USERNAME, SYSTEM_VALUE_MODIFICATION_DATETIME, SYSTEM_VALUE_MODIFICATION_USERNAME, DATABASE_MANAGED, SYSTEM_VALUE_CREATION_USERUID, SYSTEM_VALUE_MODIFICATION_USERUID, SYSTEM_VALUE_MODIFICATION_USERUID, SYSTEM_VALUE_CREATION_SERVER_DATETIME, SYSTEM_VALUE_MODIFICATION_SERVER_DATETIME };
+	public static final int[] allDefinedSystemValues = { NO_SYSTEM_VALUE, SYSTEM_VALUE_CREATION_DATETIME, SYSTEM_VALUE_CREATION_USERNAME, SYSTEM_VALUE_MODIFICATION_DATETIME, SYSTEM_VALUE_MODIFICATION_USERNAME, DATABASE_MANAGED, SYSTEM_VALUE_CREATION_USERUID, SYSTEM_VALUE_MODIFICATION_USERUID, SYSTEM_VALUE_CREATION_SERVER_DATETIME, SYSTEM_VALUE_MODIFICATION_SERVER_DATETIME };
+
+	private String element_template_properties = null;
+
+	/*
+	 * This property is not saved but determined on the fly from the db.
+	 */
+	private String databaseDefaultValue = null;
 
 	private int columninfo_id;
 	private boolean storedPersistently;
 	private boolean changed;
+	private int autoEnterType = NO_AUTO_ENTER;
+	private int autoEnterSubType = NO_SEQUENCE_SELECTED;
+	private String databaseSequenceName = null;
+	private String preSequenceChars = null;
+	private String postSequenceChars = null;
+	private long nextSequence = 1;
+	private int sequenceStepSize = 1;
+	private String defaultValue = null;
+	private String lookupValue = null;
+	private String titleText = null;
+	private String description = null;
+	private String converterProperties = null;
+	private String converterName = null;
+	private String foreignType = null;
+	private String validatorProperties = null;
+	private String validatorName = null;
+	private String defaultFormat = null;
+	private int flags = 0;
 
 	public ColumnInfo(int columninfo_id, boolean storedPersistently)
 	{
@@ -134,11 +159,6 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 		return (autoEnterType == SEQUENCE_AUTO_ENTER && autoEnterSubType == DATABASE_IDENTITY);
 	}
 
-	/*
-	 * This property is not saved but determined on the fly from the db.
-	 */
-	private String databaseDefaultValue = null;
-
 	public void setDatabaseDefaultValue(String value)
 	{
 		databaseDefaultValue = value;
@@ -166,8 +186,6 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 		return autoEnterType;
 	}
 
-	private int autoEnterType = NO_AUTO_ENTER;
-
 	public void setAutoEnterType(int t)
 	{
 		autoEnterType = t;
@@ -189,8 +207,6 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 		return autoEnterSubType;
 	}
 
-	private int autoEnterSubType = NO_SEQUENCE_SELECTED;
-
 	public void setAutoEnterSubType(int t)
 	{
 		autoEnterSubType = t;
@@ -204,8 +220,6 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	{
 		return databaseSequenceName;
 	}
-
-	private String databaseSequenceName = null;
 
 	public void setDatabaseSequenceName(String databaseSequenceName)
 	{
@@ -229,8 +243,6 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 		return preSequenceChars;
 	}
 
-	private String preSequenceChars;
-
 	public void setPreSequenceChars(String s)
 	{
 		preSequenceChars = getNonEmptyValue(s);
@@ -240,8 +252,6 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	{
 		return postSequenceChars;
 	}
-
-	private String postSequenceChars;
 
 	public void setPostSequenceChars(String s)
 	{
@@ -256,8 +266,6 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 		return nextSequence;
 	}
 
-	private long nextSequence = 1;
-
 	public void setNextSequence(long l)
 	{
 		nextSequence = l;
@@ -267,8 +275,6 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	{
 		return sequenceStepSize;
 	}
-
-	private int sequenceStepSize = 1;
 
 	public void setSequenceStepSize(int s)
 	{
@@ -283,8 +289,6 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 		return defaultValue;
 	}
 
-	private String defaultValue = null;
-
 	public void setDefaultValue(String s)
 	{
 		defaultValue = getNonEmptyValue(s);
@@ -297,8 +301,6 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	{
 		return lookupValue;
 	}
-
-	private String lookupValue = null;
 
 	public void setLookupValue(String s)
 	{
@@ -313,8 +315,6 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 		return titleText;
 	}
 
-	private String titleText = null;
-
 	public void setTitleText(String s)
 	{
 		titleText = getNonEmptyValue(s);
@@ -327,8 +327,6 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	{
 		return description;
 	}
-
-	private String description = null;
 
 	public void setDescription(String s)
 	{
@@ -343,8 +341,6 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 		return converterProperties;
 	}
 
-	private String converterProperties = null;
-
 	public void setConverterProperties(String s)
 	{
 		converterProperties = getNonEmptyValue(s);
@@ -357,8 +353,6 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	{
 		return converterName;
 	}
-
-	private String converterName = null;
 
 	public void setConverterName(String s)
 	{
@@ -373,8 +367,6 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 		return foreignType;
 	}
 
-	private String foreignType = null;
-
 	public void setForeignType(String s)
 	{
 		foreignType = getNonEmptyValue(s);
@@ -387,8 +379,6 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	{
 		return validatorProperties;
 	}
-
-	private String validatorProperties = null;
 
 	public void setValidatorProperties(String s)
 	{
@@ -403,8 +393,6 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 		return validatorName;
 	}
 
-	private String validatorName = null;
-
 	public void setValidatorName(String s)
 	{
 		validatorName = getNonEmptyValue(s);
@@ -417,8 +405,6 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	{
 		return this.defaultFormat;
 	}
-
-	private String defaultFormat = null;
 
 	public void setDefaultFormat(String s)
 	{
@@ -628,8 +614,6 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 		return flags;
 	}
 
-	private int flags = 0;
-
 	/** Should always called via Column */
 	public void setFlags(int flags)
 	{
@@ -699,8 +683,6 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	{
 		return element_template_properties;
 	}
-
-	private String element_template_properties = null;
 
 	public void setElementTemplateProperties(String s)
 	{

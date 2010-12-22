@@ -17,7 +17,6 @@
 package com.servoy.j2db.util.xmlxport;
 
 import com.servoy.j2db.persistence.InfoChannel;
-import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.util.SortedList;
 
 
@@ -31,26 +30,17 @@ public interface IXMLExportUserChannel extends InfoChannel
 	 * Return the modules names which must be included in the export. The argument is a sorted list of all modules which the solution references. The result
 	 * should be a subset of the supplied list.
 	 * 
+	 * @param allModules names of all modules of exported solution. This list may be altered and returned.
 	 * @return the modules names which must be included in the export.
 	 */
-	public SortedList getModuleIncludeList(SortedList allModules);
+	public SortedList<String> getModuleIncludeList(SortedList<String> allModules);
 
 	/**
-	 * Unlock a protected solution.
+	 * Return a protection password for export.
 	 * 
-	 * @param solution the solution which is locked.
-	 * @return true if the unlock was successful, false otherwise
+	 * @return a protection password for export.
 	 */
-	public boolean unlock(Solution solution);
-
-	/**
-	 * Return a protection password for the specified solution.
-	 * 
-	 * @param solution the solution
-	 * 
-	 * @return a protection password for the specified solution, null to cancel.
-	 */
-	public String getProtectionPassword(Solution solution);
+	public String getProtectionPassword();
 
 	public boolean getExportAllTablesFromReferencedServers();
 }
