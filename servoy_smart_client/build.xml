@@ -113,8 +113,6 @@
 			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1200/lib/slf4j-api.jar"/>
 			<pathelement path="../servoy_shared/lib/slf4j-log4j.jar"/>
 			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1200/lib/slf4j-log4j.jar"/>
-			<pathelement path="../servoy_shared/lib/terracotta-api.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1200/lib/terracotta-api.jar"/>
 			<pathelement path="../servoy_shared/lib/wicket-calendar.jar"/>
 			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1200/lib/wicket-calendar.jar"/>
 			<pathelement path="../servoy_shared/lib/wicket-extentions.jar"/>
@@ -143,25 +141,6 @@
 			<pathelement path="${build.result.folder}/../org.eclipse.dltk.javascript.rhino_6.0.0.1200/bin/"/>
 			<pathelement path="${build.result.folder}/../org.eclipse.dltk.javascript.rhino/@dot"/>
 			<pathelement path="${build.result.folder}/../org.eclipse.dltk.javascript.rhino_6.0.0.1200/@dot"/>
-			<pathelement path="../eclipse_target/compile_target/install/plugins/org.eclipse.swt_3.6.1.v3655c.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/plugins/org.eclipse.swt.win32.win32.x86_3.6.1.v3655c.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.carbon.macosx_3.6.1.v3655c.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.cocoa.macosx.x86_64_3.6.1.v3655c.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.cocoa.macosx_3.6.1.v3655c.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.linux.ppc64_3.6.1.v3655c.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.linux.ppc_3.6.1.v3655c.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.linux.s390x_3.6.1.v3655c.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.linux.s390_3.6.1.v3655c.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.linux.x86_3.6.1.v3655c.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.linux.x86_64_3.6.1.v3655c.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.solaris.sparc_3.6.1.v3655c.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.solaris.x86_3.6.1.v3655c.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.motif.aix.ppc_3.6.1.v3655c.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.motif.hpux.ia64_32_3.6.1.v3655c.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.motif.linux.x86_3.6.1.v3655c.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.motif.solaris.sparc_3.6.1.v3655c.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.photon.qnx.x86_3.6.1.v3655c.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.win32.win32.x86_64_3.6.1.v3655c.jar"/>
 		</path>
 		<!-- compile the source code -->
 		<javac destdir="${build.result.folder}/@dot" failonerror="${javacFailOnError}" verbose="${javacVerbose}" debug="${javacDebugInfo}" includeAntRuntime="no" bootclasspath="${bundleBootClasspath}" source="${bundleJavacSource}" target="${bundleJavacTarget}"		>
@@ -302,7 +281,7 @@
 	</target>
 
 	<target name="refresh" depends="init" if="eclipse.running" description="Refresh this folder.">
-		<eclipse.convertPath fileSystemPath="C:/Users/Jan Blok/dev/servoy_smart_client" property="resourcePath"/>
+		<eclipse.convertPath fileSystemPath="D:/Workspaces/HEAD/servoy_smart_client" property="resourcePath"/>
 		<eclipse.refreshLocal resource="${resourcePath}" depth="infinite"/>
 	</target>
 
