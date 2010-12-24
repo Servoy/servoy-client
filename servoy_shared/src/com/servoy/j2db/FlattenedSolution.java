@@ -159,7 +159,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		return copy;
 	}
 
-	@SuppressWarnings( { "unchecked", "nls" })
+	@SuppressWarnings({ "unchecked", "nls" })
 	public <T extends AbstractBase> T clonePersist(T persist, String newName, ISupportChilds newParent)
 	{
 		T clone = (T)persist.clonePersist();
@@ -1649,6 +1649,11 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		return Solution.getRelations(getAllObjectsAsList(), sort);
 	}
 
+	public Iterator<Relation> getRelations(ITable filterOnTable, boolean isPrimaryTable, boolean sort, boolean globals) throws RepositoryException
+	{
+		return Solution.getRelations(getRepository(), getAllObjectsAsList(), filterOnTable, isPrimaryTable, sort, globals);
+	}
+
 	public Iterator<Relation> getRelations(ITable filterOnTable, boolean isPrimaryTable, boolean sort) throws RepositoryException
 	{
 		return Solution.getRelations(getRepository(), getAllObjectsAsList(), filterOnTable, isPrimaryTable, sort);
@@ -1682,8 +1687,8 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	public Iterator<Form> getForms(ITable basedOnTable, boolean sort)
 	{
-		return Solution.getForms(getAllObjectsAsList(), basedOnTable == null ? null : DataSourceUtils.createDBTableDataSource(basedOnTable.getServerName(),
-			basedOnTable.getName()), sort);
+		return Solution.getForms(getAllObjectsAsList(),
+			basedOnTable == null ? null : DataSourceUtils.createDBTableDataSource(basedOnTable.getServerName(), basedOnTable.getName()), sort);
 	}
 
 	public Iterator<Form> getForms(String datasource, boolean sort)

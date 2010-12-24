@@ -240,6 +240,23 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 	 */
 	public static Iterator<Relation> getRelations(IRepository repository, List<IPersist> childs, ITable basedOnTable, boolean isPrimaryTable, boolean sort)
 		throws RepositoryException
+
+	{
+		return getRelations(repository, childs, basedOnTable, isPrimaryTable, sort, true);
+	}
+
+	/**
+	 * Get relations based on the table. When basedOnTable is null and isPrimaryTable is true only global relations are returned.
+	 * 
+	 * @param childs
+	 * @param basedOnTable
+	 * @param isPrimaryTable
+	 * @param sort
+	 * @param globals
+	 * @throws RepositoryException
+	 */
+	public static Iterator<Relation> getRelations(IRepository repository, List<IPersist> childs, ITable basedOnTable, boolean isPrimaryTable, boolean sort,
+		boolean globals) throws RepositoryException
 	{
 		Iterator<Relation> retval = getRelations(childs, false);
 
@@ -254,7 +271,11 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 			Relation r = retval.next();
 			if (isPrimaryTable)
 			{
-				if (r.isGlobal() || dataSources.contains(r.getPrimaryDataSource()))
+				if (r.isGlobal())
+				{
+					if (globals) filtered.add(r);
+				}
+				else if (dataSources.contains(r.getPrimaryDataSource()))
 				{
 					filtered.add(r);
 				}
