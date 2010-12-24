@@ -771,6 +771,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 	public void setDataProviderID(String dataProviderID)
 	{
 		this.dataProviderID = dataProviderID;
+		list.setDataProviderID(dataProviderID);
 	}
 
 	/*

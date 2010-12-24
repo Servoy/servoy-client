@@ -298,15 +298,26 @@ public class LookupListModel extends AbstractListModel
 	{
 		int prevSize = alReal.size();
 
+		IRecordInternal realState = parentState;
+
 		alReal.clear();
 		alDisplay.clear();
 
 		String txt = (filter == null || firstTime) ? "" : filter.toLowerCase(); //$NON-NLS-1$
 
+		int index = dataProviderID.lastIndexOf('.');
+		if (index != -1 && realState != null)
+		{
+			IFoundSetInternal relatedFoundSet = realState.getRelatedFoundSet(dataProviderID.substring(0, index));
+			if (relatedFoundSet != null && relatedFoundSet.getSize() != 0)
+			{
+				realState = relatedFoundSet.getRecord(relatedFoundSet.getSelectedIndex());
+			}
+		}
 		if (lookup instanceof GlobalMethodValueList)
 		{
 			GlobalMethodValueList clist = (GlobalMethodValueList)lookup;
-			clist.fill(parentState, txt, null);
+			clist.fill(realState, txt, null);
 			for (int i = 0; i < clist.getSize(); i++)
 			{
 				Object display = clist.getElementAt(i);
@@ -343,7 +354,7 @@ public class LookupListModel extends AbstractListModel
 			}
 			else
 			{
-				fillRelatedValueListValues(parentState, txt);
+				fillRelatedValueListValues(realState, txt);
 			}
 		}
 		else

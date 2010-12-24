@@ -1359,6 +1359,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 	public void setDataProviderID(String id)
 	{
 		dataProviderID = id;
+		getListModelWrapper().setDataProviderID(id);
 		if (isEditable())//for debugging so component has name
 		{
 			Component comp = getEditor().getEditorComponent();

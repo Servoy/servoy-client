@@ -1055,6 +1055,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	public void setDataProviderID(String dataProviderID)
 	{
 		this.dataProviderID = dataProviderID;
+		list.setDataProviderID(dataProviderID);
 	}
 
 	public String getDataProviderID()
