@@ -543,7 +543,7 @@ public class JSValueList implements IConstantsObject
 	 * only real value is specified, called when the list doesnt contain the real value for the give record value, this will insert this value into the existing list
 	 * 
 	 * @sample
-	 * var listProvider = solutionModel.newGlobalMethod('function getDataSetForValueList(displayValue, realValue, record, valueListName) {' +
+	 * var listProvider = solutionModel.newGlobalMethod('function getDataSetForValueList(displayValue, realValue, record, valueListName, findMode) {' +
 	 *		'	' +
 	 *		'if (displayValue == null && realValue == null) {' +
 	 *		'  // TODO think about caching this result. can be called often!' +

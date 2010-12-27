@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 import java.sql.Types;
@@ -122,15 +122,15 @@ public class GlobalMethodValueList extends CustomValueList
 					Object[] args = null;
 					if (display != null && !"".equals(display)) //$NON-NLS-1$
 					{
-						args = new Object[] { display, null, state, vl.getName() };
+						args = new Object[] { display, null, state, vl.getName(), Boolean.valueOf(state instanceof FindState) };
 					}
 					else if (real != null && !"".equals(real)) //$NON-NLS-1$
 					{
-						args = new Object[] { null, real, state, vl.getName() };
+						args = new Object[] { null, real, state, vl.getName(), Boolean.valueOf(state instanceof FindState) };
 					}
 					else
 					{
-						args = new Object[] { null, null, state, vl.getName() };
+						args = new Object[] { null, null, state, vl.getName(), Boolean.valueOf(state instanceof FindState) };
 					}
 
 					final Object retValue = application.getScriptEngine().executeFunction(function, globalScope, globalScope, args, false, true);
