@@ -29,8 +29,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Map.Entry;
+import java.util.Random;
 
 import org.json.JSONException;
 
@@ -455,7 +455,7 @@ public abstract class AbstractBase implements IPersist
 	{
 		if (allobjectsMap == null && allobjects != null && allobjects.size() > 0)
 		{
-			allobjectsMap = new HashMap<UUID, IPersist>(allobjects.size());
+			allobjectsMap = new HashMap<UUID, IPersist>(allobjects.size(), 9f);
 			for (IPersist persist : allobjects)
 			{
 				if (persist != null)

@@ -870,7 +870,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	{
 		if (id == null) return null;
 
-		if (globalProviders == null) globalProviders = new HashMap<String, IDataProvider>();
+		if (globalProviders == null) globalProviders = new HashMap<String, IDataProvider>(64, 9f);
 
 		IDataProvider retval = globalProviders.get(id);
 		if (retval != null)
@@ -950,12 +950,12 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	public synchronized Map<String, IDataProvider> getAllDataProvidersForTable(Table table) throws RepositoryException
 	{
 		if (table == null) return null;
-		if (allProvidersForTable == null) allProvidersForTable = new HashMap<Table, Map<String, IDataProvider>>();
+		if (allProvidersForTable == null) allProvidersForTable = new HashMap<Table, Map<String, IDataProvider>>(64, 9f);
 
 		Map<String, IDataProvider> dataProvidersMap = allProvidersForTable.get(table);
 		if (dataProvidersMap == null)
 		{
-			dataProvidersMap = new HashMap<String, IDataProvider>();
+			dataProvidersMap = new HashMap<String, IDataProvider>(16, 9f);
 
 			//1) first the columns
 			Iterator<Column> columns = table.getColumns().iterator();
@@ -1200,7 +1200,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	{
 		try
 		{
-			relationCacheByName = new HashMap<String, Relation>();
+			relationCacheByName = new HashMap<String, Relation>(64, 0.9f);
 
 			Iterator<Relation> it = getRelations(false);
 			while (it.hasNext())
@@ -1710,7 +1710,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	{
 		if (formCacheByName == null)
 		{
-			formCacheByName = new HashMap<String, Form>();
+			formCacheByName = new HashMap<String, Form>(64, 0.9f);
 
 			Iterator<Form> forms = getForms(false);
 			while (forms.hasNext())
