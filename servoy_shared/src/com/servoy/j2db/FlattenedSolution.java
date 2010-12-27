@@ -950,7 +950,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	public synchronized Map<String, IDataProvider> getAllDataProvidersForTable(Table table) throws RepositoryException
 	{
 		if (table == null) return null;
-		if (allProvidersForTable == null) allProvidersForTable = new HashMap<Table, Map<String, IDataProvider>>(64, 9f);
+		if (allProvidersForTable == null) allProvidersForTable = new HashMap<Table, Map<String, IDataProvider>>(64, 0.9f);
 
 		Map<String, IDataProvider> dataProvidersMap = allProvidersForTable.get(table);
 		if (dataProvidersMap == null)

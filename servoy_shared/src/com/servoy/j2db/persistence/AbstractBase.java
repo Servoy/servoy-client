@@ -455,7 +455,7 @@ public abstract class AbstractBase implements IPersist
 	{
 		if (allobjectsMap == null && allobjects != null && allobjects.size() > 0)
 		{
-			allobjectsMap = new HashMap<UUID, IPersist>(allobjects.size(), 9f);
+			allobjectsMap = new HashMap<UUID, IPersist>(allobjects.size(), 0.9f);
 			for (IPersist persist : allobjects)
 			{
 				if (persist != null)
