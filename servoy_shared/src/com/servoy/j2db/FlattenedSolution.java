@@ -955,7 +955,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		Map<String, IDataProvider> dataProvidersMap = allProvidersForTable.get(table);
 		if (dataProvidersMap == null)
 		{
-			dataProvidersMap = new HashMap<String, IDataProvider>(16, 9f);
+			dataProvidersMap = new HashMap<String, IDataProvider>(16, 0.9f);
 
 			//1) first the columns
 			Iterator<Column> columns = table.getColumns().iterator();
