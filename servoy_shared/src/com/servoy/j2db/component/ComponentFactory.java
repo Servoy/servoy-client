@@ -51,7 +51,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JTabbedPane;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
@@ -125,7 +124,6 @@ import com.servoy.j2db.ui.IPortalComponent;
 import com.servoy.j2db.ui.IRect;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISplitPane;
-import com.servoy.j2db.ui.IStandardLabel;
 import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.ComponentFactoryHelper;
@@ -139,7 +137,6 @@ import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.XMLDecoder;
 import com.servoy.j2db.util.gui.MyImageIcon;
 import com.servoy.j2db.util.gui.OrientationApplier;
-import com.servoy.j2db.util.gui.TabLikeBorder;
 
 /**
  * Create UI objects based on repository objects
@@ -328,10 +325,6 @@ public class ComponentFactory
 				int orient = tabPanelMeta.getTabOrientation();
 				if (orient == TabPanel.SPLIT_HORIZONTAL || orient == TabPanel.SPLIT_VERTICAL) comp = createSplitPane(application, form, tabPanelMeta);
 				else comp = createTabPanel(application, form, tabPanelMeta, el);
-				break;
-
-			case IRepository.TABS :
-				comp = createTab(application, (Tab)meta);
 				break;
 
 			case IRepository.BEANS :
@@ -1097,8 +1090,9 @@ public class ComponentFactory
 									}
 									catch (IOException e)
 									{
-										Debug.error("Exception loading properties for converter " + converter.getName() + ", properties: " +
-											ci.getConverterProperties(), e);
+										Debug.error(
+											"Exception loading properties for converter " + converter.getName() + ", properties: " +
+												ci.getConverterProperties(), e);
 									}
 								}
 							}
@@ -1838,32 +1832,6 @@ public class ComponentFactory
 			Debug.error(ex);
 		}
 		return tabs;
-	}
-
-	private static IComponent createTab(IApplication application, Tab meta)
-	{
-		IStandardLabel retval = application.getItemFactory().createLabel(meta.getName(), application.getI18NMessageIfPrefixed(meta.getText()));
-		Form f = application.getFlattenedSolution().getForm(meta.getContainsFormID());
-		String toolTip = "";
-		if (f != null) toolTip += "Form: " + f.getName();
-		if (meta.getRelationName() != null) toolTip += " Relation: " + meta.getRelationName();
-		retval.setToolTipText(toolTip);
-//		retval.setOpaque(false);
-		retval.setBorder(new TabLikeBorder());//BorderFactory.createBevelBorder(BevelBorder.RAISED));
-		retval.setHorizontalAlignment(SwingConstants.CENTER);
-		retval.setVerticalAlignment(SwingConstants.TOP);
-		if (meta.getImageMediaID() > 0)
-		{
-			try
-			{
-				retval.setIcon(loadIcon(application.getFlattenedSolution(), new Integer(meta.getImageMediaID())));
-			}
-			catch (Exception ex)
-			{
-				Debug.error(ex);
-			}
-		}
-		return retval;
 	}
 
 	public static void flushStyle(Style style)
