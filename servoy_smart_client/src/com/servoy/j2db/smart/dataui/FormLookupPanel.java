@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.smart.dataui;
 
 import java.awt.BorderLayout;
@@ -141,7 +141,14 @@ public class FormLookupPanel extends EnablePanel implements IFormLookupPanel
 					}
 					con = con.getParent();
 				}
-				validate();
+				// invalidate later so that everything is first visible (like the datamodel of a tableview)
+				application.invokeLater(new Runnable()
+				{
+					public void run()
+					{
+						validate();
+					}
+				});
 			}
 		}
 		return fp;
