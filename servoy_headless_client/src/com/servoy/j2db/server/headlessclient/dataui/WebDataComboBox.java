@@ -330,7 +330,11 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	@Override
 	protected CharSequence getDefaultChoice(Object selected)
 	{
-		int index = list.realValueIndexOf(selected);
+		int index = -1;
+		if (selected != getNoSelectionValue())
+		{
+			index = list.realValueIndexOf(selected);
+		}
 		if (index < -1)
 		{
 			StringBuilder buffer = new StringBuilder(32);
