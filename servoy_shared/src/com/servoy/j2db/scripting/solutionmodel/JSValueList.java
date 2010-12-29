@@ -540,7 +540,9 @@ public class JSValueList implements IConstantsObject
 	 * It is called when the valuelist needs data, it has 3 modes.
 	 * real and display params both null: return the whole list
 	 * only display is specified, called by a typeahead, return a filtered list
-	 * only real value is specified, called when the list doesnt contain the real value for the give record value, this will insert this value into the existing list
+	 * only real value is specified, called when the list doesnt contain the real value for the give record value, this will insert this value into the existing list.
+	 * 
+	 * In find mode the record with be the FindRecord which is just like a normal JSRecord (DataRecord) it has the same properties (column/dataproviders) but doesnt have its methods (like isEditing())
 	 * 
 	 * @sample
 	 * var listProvider = solutionModel.newGlobalMethod('function getDataSetForValueList(displayValue, realValue, record, valueListName, findMode) {' +

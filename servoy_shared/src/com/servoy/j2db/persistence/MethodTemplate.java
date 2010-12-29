@@ -75,7 +75,7 @@ public class MethodTemplate implements IMethodTemplate
 				new MethodArgument[] { new MethodArgument("displayValue", ArgumentType.String, "The value of a lookupfield that a user types"), new MethodArgument(
 					"realValue", ArgumentType.Object, "The real value for a lookupfield where a display value should be get for"), new MethodArgument("record",
 					ArgumentType.JSRecord, "The current record for the valuelist."), new MethodArgument("valueListName", ArgumentType.String,
-					"The valuelist name that triggers the method."), new MethodArgument("findMode", ArgumentType.Boolean,
+					"The valuelist name that triggers the method. (This is the FindRecord in find mode, which is like JSRecord has all the columns/dataproviders, but doesn't have its methods)"), new MethodArgument("findMode", ArgumentType.Boolean,
 					"True if foundset of this record is in find mode") },
 				"if (displayValue == null && realValue == null)\n"
 					+ "{\n// TODO think about caching this result. can be called often!\n"
