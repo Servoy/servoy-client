@@ -35,6 +35,7 @@ import org.apache.wicket.protocol.http.request.WebClientInfo;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
+import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.LookupListModel;
@@ -338,7 +339,25 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 		this.parentState = parentState;
 		if (list instanceof LookupValueList)
 		{
-			((LookupValueList)list).fill(parentState);
+			int index = getDataProviderID().lastIndexOf('.');
+			if (index == -1 || parentState == null)
+			{
+				((LookupValueList)list).fill(parentState);
+			}
+			else
+			{
+				IFoundSetInternal relatedFoundSet = parentState.getRelatedFoundSet(getDataProviderID().substring(0, index));
+				if (relatedFoundSet == null || relatedFoundSet.getSize() == 0)
+				{
+					((LookupValueList)list).fill(null);
+				}
+				else
+				{
+					IRecordInternal relatedRecord = relatedFoundSet.getRecord(relatedFoundSet.getSelectedIndex());
+//					if (relatedRecord != null) relatedRecord.addModificationListener(this);
+					((LookupValueList)list).fill(relatedRecord);
+				}
+			}
 		}
 	}
 

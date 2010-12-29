@@ -733,6 +733,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 	public void setDataProviderID(String dataProviderID)
 	{
 		this.dataProviderID = dataProviderID;
+		list.setDataProviderID(dataProviderID);
 	}
 
 	public String getDataProviderID()

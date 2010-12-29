@@ -700,6 +700,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 	public void setDataProviderID(String dataProviderID)
 	{
 		this.dataProviderID = dataProviderID;
+		list.setDataProviderID(dataProviderID);
 	}
 
 	private String dataProviderID;

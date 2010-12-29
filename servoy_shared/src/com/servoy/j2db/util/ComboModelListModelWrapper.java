@@ -31,14 +31,17 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 import com.servoy.j2db.dataprocessing.CustomValueList;
+import com.servoy.j2db.dataprocessing.IFoundSetInternal;
+import com.servoy.j2db.dataprocessing.IModificationListener;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
+import com.servoy.j2db.dataprocessing.ModificationEvent;
 import com.servoy.j2db.util.editlist.IEditListModel;
 
 /**
  * @author jcompagner
  */
-public class ComboModelListModelWrapper<E> extends AbstractListModel implements ComboBoxModel, IEditListModel, List<E>
+public class ComboModelListModelWrapper<E> extends AbstractListModel implements ComboBoxModel, IEditListModel, List<E>, IModificationListener
 {
 	protected IValueList listModel;
 	protected final ListModelListener listener;
@@ -47,6 +50,9 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 	protected boolean hideFirstValue;
 	private Object realSelectedObject;
 	private final boolean shouldHideEmptyValueIfPresent;
+	private IRecordInternal parentState;
+	private IRecordInternal relatedRecord;
+	private String relatedFoundsetLookup;
 
 	public ComboModelListModelWrapper(IValueList listModel, boolean shouldHideEmptyValueIfPresent)
 	{
@@ -118,8 +124,14 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 		return listModel.getRelationName();
 	}
 
-	public void fill(IRecordInternal parentState)
+	public void fill(IRecordInternal ps)
 	{
+		this.parentState = ps;
+		if (relatedRecord != null)
+		{
+			relatedRecord.removeModificationListener(this);
+			relatedRecord = null;
+		}
 		boolean fireSelectionChange = false;
 		if (selectedSet != null && selectedSet.size() > 0)
 		{
@@ -128,7 +140,24 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 		}
 
 		Object obj = getSelectedItem();
-		listModel.fill(parentState);
+		if (relatedFoundsetLookup == null || ps == null)
+		{
+			listModel.fill(ps);
+		}
+		else
+		{
+			IFoundSetInternal relatedFoundSet = ps.getRelatedFoundSet(relatedFoundsetLookup);
+			if (relatedFoundSet == null || relatedFoundSet.getSize() == 0)
+			{
+				listModel.fill(null);
+			}
+			else
+			{
+				relatedRecord = relatedFoundSet.getRecord(relatedFoundSet.getSelectedIndex());
+				if (relatedRecord != null) relatedRecord.addModificationListener(this);
+				listModel.fill(relatedRecord);
+			}
+		}
 		if (obj != null)
 		{
 			if (listModel.indexOf(obj) == -1 && hasRealValues())
@@ -146,6 +175,32 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 		if (fireSelectionChange)
 		{
 			fireContentsChanged(this, -1, -1);
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.dataprocessing.IModificationListener#valueChanged(com.servoy.j2db.dataprocessing.ModificationEvent)
+	 */
+	public void valueChanged(ModificationEvent e)
+	{
+		fill(parentState);
+	}
+
+	/**
+	 * @param dataProviderID the dataProviderID to set
+	 */
+	public void setDataProviderID(String dataProviderID)
+	{
+		int index = dataProviderID.lastIndexOf('.');
+		if (index != -1)
+		{
+			this.relatedFoundsetLookup = dataProviderID.substring(0, index);
+		}
+		else
+		{
+			this.relatedFoundsetLookup = null;
 		}
 	}
 
