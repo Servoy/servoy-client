@@ -3812,9 +3812,16 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 					{
 						// Remote client object no longer exists on app server, must have been restarted
 						Debug.error("Error reregistering client", e); //$NON-NLS-1$
-						JOptionPane.showMessageDialog(getMainApplicationFrame(), Messages.getString("servoy.client.message.error.registerclient"),
-							Messages.getString("servoy.client.message.clientregister"), JOptionPane.ERROR_MESSAGE);
-						System.exit(1);
+						invokeAndWait(new Runnable()
+						{
+
+							public void run()
+							{
+								JOptionPane.showMessageDialog(getMainApplicationFrame(), Messages.getString("servoy.client.message.error.registerclient"),
+									Messages.getString("servoy.client.message.clientregister"), JOptionPane.ERROR_MESSAGE);
+								System.exit(1);
+							}
+						});
 					}
 					else
 					{
