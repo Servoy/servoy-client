@@ -777,7 +777,7 @@ public class SQLGenerator
 									// Because if it is already a Number then it shouldn't be converted to String and then back
 									if (initialObj != null && objRightType == null)
 									{
-										Debug.log("Cannot convert " + initialObj + " to a number/int."); //$NON-NLS-1$ //$NON-NLS-2$
+										Debug.log("Cannot convert (" + initialObj.getClass().getSimpleName() + ") " + initialObj + " to a number/int."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 										value = null;
 									}
 									else
@@ -791,7 +791,7 @@ public class SQLGenerator
 										value2 = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), data2, format, c.getLength(), null, false);
 										if (value2 == null)
 										{
-											Debug.log("Cannot convert " + data2 + " to a number/int."); //$NON-NLS-1$ //$NON-NLS-2$
+											Debug.log("Cannot convert (" + data2.getClass().getSimpleName() + ") " + data2 + " to a number/int."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 										}
 									}
 									break;
