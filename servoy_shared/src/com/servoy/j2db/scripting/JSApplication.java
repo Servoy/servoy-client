@@ -1212,7 +1212,8 @@ public class JSApplication implements IReturnedTypesProvider
 	 *
 	 * @sample
 	 * application.closeSolution();
-	 * //application.closeSolution('solution_name','global_method_name','my_argument');//log out, open solution 'solution_name', call global method 'global_method_name' with argument 'my_argument'
+	 * //log out, open solution 'solution_name', call global method 'global_method_name' with argument 'my_argument'
+	 * //application.closeSolution('solution_name','global_method_name','my_argument');
 	 * //note: specifying a solution will not work in developer due to debugger dependencies
 	 *
 	 * @param solutionToLoad optional Name of the solution to load 
