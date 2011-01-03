@@ -18,8 +18,10 @@
 package com.servoy.j2db.scripting;
 
 /**
+ * Interface to set the real object to a scriptable object which has a different java object.
+ * 
  * @author lvostinar
- *
+ * @since 6.0
  */
 public interface ITwoNativeJavaObject
 {
