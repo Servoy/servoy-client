@@ -805,7 +805,9 @@ public class JSDatabaseManager
 
 	/**
 	 * Can be used to recalculate a specified record or all rows in the specified foundset.
-	 * May be necessary when records are inserted in a program external to Servoy.
+	 * May be necessary when data is changed from outside of servoy, or when there is data changed inside servoy 
+	 * but records with calculations depending on that data where not loaded so not updated and you need to update
+	 * the stored calculation values because you are depending on that with queries or aggregates.  
 	 *
 	 * @sample
 	 * // recalculate one record from a foundset.
@@ -823,26 +825,23 @@ public class JSDatabaseManager
 		{
 			IRecordInternal record = (IRecordInternal)foundsetOrRecord;
 			SQLSheet sheet = record.getParentFoundSet().getSQLSheet();
-			recalculateRecord(record, sheet.getCalculationNames());
+			recalculateRecord(record, sheet.getStoredCalculationNames());
 			((FoundSet)record.getParentFoundSet()).fireFoundSetChanged();
 		}
 		else if (foundsetOrRecord instanceof FoundSet)
 		{
 			FoundSet fs = (FoundSet)foundsetOrRecord;
 			SQLSheet sheet = fs.getSQLSheet();
-			String[] calculationNames = sheet.getCalculationNames();
-			if (calculationNames.length > 0)
+			List<String> calculationNames = sheet.getStoredCalculationNames();
+			for (int i = 0; i < fs.getSize(); i++)
 			{
-				for (int i = 0; i < fs.getSize(); i++)
-				{
-					recalculateRecord(fs.getRecord(i), calculationNames);
-				}
-				fs.fireFoundSetChanged();
+				recalculateRecord(fs.getRecord(i), calculationNames);
 			}
+			fs.fireFoundSetChanged();
 		}
 	}
 
-	private void recalculateRecord(IRecordInternal record, String[] calcnames)
+	private void recalculateRecord(IRecordInternal record, List<String> calcnames)
 	{
 		record.startEditing();
 		record.getRawData().getRowManager().flagAllRowCalcsForRecalculation(record.getPKHashKey());
