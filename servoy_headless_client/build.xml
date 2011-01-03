@@ -285,7 +285,7 @@
 	</target>
 
 	<target name="refresh" depends="init" if="eclipse.running" description="Refresh this folder.">
-		<eclipse.convertPath fileSystemPath="D:/Workspaces/HEAD/servoy_headless_client" property="resourcePath"/>
+		<eclipse.convertPath fileSystemPath="C:/Users/Jan Blok/dev/servoy_headless_client" property="resourcePath"/>
 		<eclipse.refreshLocal resource="${resourcePath}" depth="infinite"/>
 	</target>
 
