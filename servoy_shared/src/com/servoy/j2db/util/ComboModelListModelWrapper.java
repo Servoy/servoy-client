@@ -193,7 +193,7 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 	 */
 	public void setDataProviderID(String dataProviderID)
 	{
-		int index = dataProviderID.lastIndexOf('.');
+		int index = dataProviderID == null ? -1 : dataProviderID.lastIndexOf('.');
 		if (index != -1)
 		{
 			this.relatedFoundsetLookup = dataProviderID.substring(0, index);
