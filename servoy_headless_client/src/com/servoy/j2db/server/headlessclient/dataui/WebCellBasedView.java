@@ -1015,6 +1015,14 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				{
 					return ""; //$NON-NLS-1$
 				}
+				else
+				{
+					WebSplitPane splitPane = findParent(WebSplitPane.class);
+					if (splitPane != null)
+					{
+						return ""; //$NON-NLS-1$
+					}
+				}
 				return "overflow: auto;"; //$NON-NLS-1$
 			}
 		}));
