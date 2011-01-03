@@ -79,6 +79,8 @@ public class JSSolutionModel
 	 *
 	 * @sample
 	 * var myForm = solutionModel.newForm('newForm', 'myServer', 'myTable', 'myStyleName', false, 800, 600)
+	 * //With only a datasource:
+	 * //var myForm = solutionModel.newForm('newForm', datasource, 'myStyleName', false, 800, 600)
 	 * //now you can add stuff to the form (under JSForm node)
 	 * //add a label
 	 * myForm.newLabel('Name', 20, 20, 120, 30)
@@ -89,7 +91,7 @@ public class JSSolutionModel
 	 *
 	 * @param server_name|data_source the specified name of the server or datasource for the specified table
 	 *
-	 * @param table_name optional the specified name of the table
+	 * @param table_name optional the specified name of the table, skip when previous argument is a datasource.
 	 *
 	 * @param style the specified style  
 	 *
