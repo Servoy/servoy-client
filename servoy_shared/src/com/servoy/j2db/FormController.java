@@ -86,6 +86,7 @@ import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.IScriptSupport;
+import com.servoy.j2db.scripting.ITwoNativeJavaObject;
 import com.servoy.j2db.scripting.InstanceJavaMembers;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.JSWindowImpl;
@@ -4016,6 +4017,10 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 											(Scriptable)elementScope);
 										if (elementSrc != null)
 										{
+											if (elementSrc instanceof ITwoNativeJavaObject)
+											{
+												((ITwoNativeJavaObject)elementSrc).setRealObject(event.js_getSource());
+											}
 											event.setSource(elementSrc);
 										}
 									}

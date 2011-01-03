@@ -23,6 +23,7 @@ import org.mozilla.javascript.JavaMembers;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 
+import com.servoy.j2db.scripting.ITwoNativeJavaObject;
 import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView;
 
 /**
@@ -33,11 +34,12 @@ import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView;
  * 
  * @author acostescu
  */
-public class CellNativeJavaObject extends NativeJavaObject
+public class CellNativeJavaObject extends NativeJavaObject implements ITwoNativeJavaObject
 {
 
 	private final WebCellBasedView view;
 	private final Component jsComponent;
+	private Object realObject;
 
 	/**
 	 * Creates a new NativeJavaObject for the given object with the corresponding java members in order to
@@ -53,6 +55,7 @@ public class CellNativeJavaObject extends NativeJavaObject
 		super(fs, obj, jm);
 		this.view = view;
 		this.jsComponent = (Component)obj;
+		realObject = null;
 	}
 
 	@Override
@@ -72,6 +75,18 @@ public class CellNativeJavaObject extends NativeJavaObject
 		}
 
 		return val;
+	}
+
+	public void setRealObject(Object realObject)
+	{
+		this.realObject = realObject;
+	}
+
+	@Override
+	public Object unwrap()
+	{
+		if (realObject != null) return realObject;
+		return super.unwrap();
 	}
 
 }
