@@ -574,12 +574,33 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 			dividerBg = "#" + dividerBg.substring(2, dividerBg.length()); //$NON-NLS-1$
 		}
 
-
 		dim = dim.toLowerCase();
 		resizeScript.append("var splitterDivs = splitter.getElementsByTagName('div');"); //$NON-NLS-1$ 
 		resizeScript.append(
 			"for(var x = 0; x < splitterDivs.length; x++) { if(splitterDivs[x].parentNode == splitter && splitterDivs[x].id.match('yui') != null) { ").append( //$NON-NLS-1$ 
 			"YAHOO.util.Dom.setStyle(splitterDivs[x], '").append(dim).append("', '").append(dividerSize).append("px');").append(dividerBg != null ? "YAHOO.util.Dom.setStyle(splitterDivs[x], 'background-color', '" + dividerBg + "');" : "").append("break; } }; "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
+
+
+		// if we have table view in the tab, then set its min-width to 0 to avoid having double scroll bars
+		ArrayList<String> tableViewTabIds = new ArrayList<String>();
+		for (int i = 0; i < 2; i++)
+		{
+			if (webTabs[i] != null)
+			{
+				int webTabFormViewType = webTabs[i].getPanel().getWebForm().getController().getView();
+
+				if (webTabFormViewType == FormController.TABLE_VIEW || webTabFormViewType == FormController.LOCKED_TABLE_VIEW)
+				{
+					tableViewTabIds.add(webTabs[i].getPanel().getFormName());
+				}
+			}
+		}
+		for (String tableViewTabId : tableViewTabIds)
+		{
+			resizeScript.append("var div_").append(tableViewTabId).append(" = document.getElementById('form_").append(tableViewTabId).append("');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			resizeScript.append("if(div_").append(tableViewTabId).append(") YAHOO.util.Dom.setStyle(div_").append(tableViewTabId).append( //$NON-NLS-1$ //$NON-NLS-2$
+				", 'min-width', '0px');"); //$NON-NLS-1$
+		}
 
 		if (!continuousLayout)
 		{
