@@ -36,7 +36,7 @@ import com.servoy.j2db.util.Utils;
 public class ServerConfig implements Serializable, Comparable<ServerConfig>
 {
 	public static final String EMPTY_TEMPLATE_NAME = "Empty"; //$NON-NLS-1$
-	public static final String SYBASE_TEMPLATE_NAME = "Sybase ASA"; //$NON-NLS-1$
+	public static final String POSTGRESQL_TEMPLATE_NAME = "Postgresql";
 
 	public static final int MAX_PREPSTATEMENT_IDLE_DEFAULT = 100;
 
@@ -340,6 +340,9 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		map.put(EMPTY_TEMPLATE_NAME, new ServerConfig("new_server", "", "", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 			"", "", null, null, true, false)); //$NON-NLS-1$ //$NON-NLS-2$ 
 
+		map.put("FoxPro DBF", new ServerConfig("new_dbf", "", "", "jdbc:DBF:/C:/TEMP?lockType=VFP", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ 
+			"com.hxtt.sql.dbf.DBFDriver", null, null, true, false)); //$NON-NLS-1$ 
+
 		map.put("Filemaker", new ServerConfig("new_filemaker", "sa", "", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
 			"jdbc:hsqldb:mem:.;fmphost=http://localhost:<webcompanionport>;fmpversion=5.5", "org.hsqldb.jdbcDriver", null, null, true, false)); //$NON-NLS-1$ //$NON-NLS-2$ 
 
@@ -372,10 +375,11 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		map.put("Oracle", new ServerConfig("new_oracle", "scott", "tiger", "jdbc:oracle:thin:@localhost:1521:<orcl_sid>", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ 
 			"oracle.jdbc.driver.OracleDriver", null, null, true, false)); //$NON-NLS-1$ 
 
-		map.put("Postgresql", new ServerConfig("new_postgresql", "DBA", "", "jdbc:postgresql://localhost:5432/<database_name>", "org.postgresql.Driver", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ 
+		map.put(POSTGRESQL_TEMPLATE_NAME, new ServerConfig(
+			"new_postgresql", "DBA", "", "jdbc:postgresql://localhost:5432/<database_name>", "org.postgresql.Driver", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ 
 			null, null, true, false));
 
-		map.put(SYBASE_TEMPLATE_NAME, new ServerConfig("new_sybase", "dba", "", "jdbc:sybase:Tds:localhost:2638?ServiceName=<database_name>&CHARSET=utf8", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
+		map.put("Sybase ASA", new ServerConfig("new_sybase", "dba", "", "jdbc:sybase:Tds:localhost:2638?ServiceName=<database_name>&CHARSET=utf8", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ 
 			"com.sybase.jdbc3.jdbc.SybDriver", null, null, true, false)); //$NON-NLS-1$ 
 
 		return Collections.unmodifiableMap(map);
