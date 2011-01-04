@@ -177,7 +177,7 @@ public class WebItemFactory implements ItemFactory
 	{
 		if (type == ComponentFactory.HTML_AREA)
 		{
-			if (willBeEditable)
+			if (false && willBeEditable)
 			{
 				return new WebDataHtmlArea(application, name);
 			}

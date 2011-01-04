@@ -2008,7 +2008,7 @@ public class TemplateGenerator
 			}
 				break;
 			case Field.HTML_AREA :
-				if (!field.getEditable())
+				if (true || !field.getEditable())
 				{
 					applyScrolling(styleObj, field);
 					html.append("<div "); //$NON-NLS-1$ 
