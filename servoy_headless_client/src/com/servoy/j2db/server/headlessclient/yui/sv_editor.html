@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>HTML Editor</title>
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.8.2r1/build/menu/assets/skins/sam/menu.css" />
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.8.2r1/build/button/assets/skins/sam/button.css" />
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.8.2r1/build/fonts/fonts-min.css" />
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.8.2r1/build/container/assets/skins/sam/container.css" />
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.8.2r1/build/editor/assets/skins/sam/editor.css" />
+<script type="text/javascript" src="http://yui.yahooapis.com/2.8.2r1/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.8.2r1/build/animation/animation-min.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.8.2r1/build/element/element-min.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.8.2r1/build/container/container-min.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.8.2r1/build/menu/menu-min.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.8.2r1/build/button/button-min.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.8.2r1/build/editor/editor-min.js"></script>
+<style type="text/css">
+	body {
+		margin:0;
+		padding:0;
+	}
+    .yui-skin-sam .yui-toolbar-container .yui-toolbar-editcode span.yui-toolbar-icon {
+        background-image: url( http://developer.yahoo.com/yui/examples/editor/assets/html_editor.gif );
+        background-position: 0 1px;
+        left: 5px;
+    }
+    .yui-skin-sam .yui-toolbar-container .yui-button-editcode-selected span.yui-toolbar-icon {
+        background-image: url( http://developer.yahoo.com/yui/examples/editor/assets/html_editor.gif );
+        background-position: 0 1px;
+        left: 5px;
+    }
+    .editor-hidden {
+        visibility: hidden;
+        top: -9999px;
+        left: -9999px;
+        position: absolute;
+    }
+    textarea {
+        border: 0;
+        margin: 0;
+        padding: 0;
+    }
+	.yui-toolbar-group-insertitem {
+    	*width: auto;
+	}
+	.yui-skin-sam .yui-editor-container {
+    	border: 0px solid #808080;
+    	height: 100%;
+	}
+</style>
+</head>
+<body class="yui-skin-sam">
+<form method="post" action="#" id="form1">
+<textarea id="editor" name="editor" rows="200" cols="80" style="height: 100%; width: 100%">
+This is some more test text.<br>This is some more test text.<br>This is some more test text.<br>This is some more test text.<br>This is some more test text.<br>This is some more test text.<br>This is some more test text.<br>
+</textarea>
+</form>
+<script>
+(function() {
+    var Dom = YAHOO.util.Dom,
+        Event = YAHOO.util.Event;
+    
+    var myConfig = {
+    	height: '100%',
+        animate: false,
+        dompath: true //we have to use true here
+    };
+
+    var myEditor = new YAHOO.widget.Editor('editor', myConfig);
+    myEditor.on('toolbarLoaded', function() {
+        var codeConfig = {
+            type: 'push', label: 'Edit HTML Code', value: 'editcode'
+        };
+        this.toolbar.addButtonToGroup(codeConfig, 'insertitem');
+        
+        Dom.setStyle(this.toolbar._titlebar, 'display', 'none'); //hide title
+        Dom.setStyle(this.dompath, 'display', 'none'); //now we hide
+        
+        this.toolbar.on('editcodeClick', function() {
+		    this.saveHTML();
+        	var ta = this.get('element');
+        	var id = document.URL.split("#")[1];
+        	if (id)
+        	{
+	        	Dom.setStyle(window.parent.document.getElementById(id+'_iframe'), 'display', 'none');
+				var html = ta.value;
+    	    	window.parent.document.getElementById(id).value = html;
+        		Dom.setStyle(window.parent.document.getElementById(id), 'display', 'inline');
+        	}
+            return false;
+        }, this, true);
+
+        this.on('editorWindowBlur', function(ev) {
+		    this.saveHTML();
+        	var ta = this.get('element');
+        	var id = document.URL.split("#")[1];
+        	if (id)
+        	{
+				var html = ta.value;
+    	    	window.parent.document.getElementById(id).value = html;
+    	    	window.parent.document.getElementById(id).onblur();
+        	}
+            return false;
+        }, this, true);
+        
+        this.on('afterRender', function() 
+        {
+        	var ta = this.get('element');
+        	var id = document.URL.split("#")[1];
+        	if (id)
+        	{
+	        	ta.value = window.parent.document.getElementById(id).value;
+    	    	this.setEditorHTML(ta.value);
+        	}
+        }, this, true);
+    }, myEditor, true);
+    myEditor.render();
+})();
+</script>
+</body>
+</html>

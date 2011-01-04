@@ -28,6 +28,7 @@ import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
  * @author jcompagner
  * 
  */
+@SuppressWarnings("nls")
 public class YUILoader implements Serializable
 {
 	public static final ResourceReference CSS_FONTS = new CompressedResourceReference(YUILoader.class, "fonts-min.css"); //$NON-NLS-1$
@@ -68,7 +69,6 @@ public class YUILoader implements Serializable
 		}
 	}
 
-
 	public static void renderResize(IHeaderResponse response)
 	{
 		response.renderCSSReference(CSS_FONTS);
@@ -92,4 +92,10 @@ public class YUILoader implements Serializable
 		}
 	}
 
+	public static final ResourceReference HTML_SV_EDITOR = new CompressedResourceReference(YUILoader.class, "sv_editor.html");
+
+	public static void renderHTMLEdit(IHeaderResponse response)
+	{
+		//response.renderCSSReference(HTML_SV_EDITOR);
+	}
 }
