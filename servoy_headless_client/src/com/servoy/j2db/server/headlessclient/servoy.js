@@ -1337,4 +1337,42 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 			,0);
 		}
 	};
+}	
+
+if (typeof(Servoy.HTMLEdit) == "undefined")
+{
+	Servoy.HTMLEdit = 
+	{
+		attach: function (elem)
+		{
+			if (elem == null) return;
+			
+		    var Dom = YAHOO.util.Dom,
+		        Event = YAHOO.util.Event;
+		    
+		    var iframe = document.getElementById(elem.id+'_iframe')
+		    if (iframe == null)
+		    {
+				iframe = document.createElement('iframe');
+				iframe.id = elem.id+'_iframe';
+				iframe.frameborder = '0';
+				iframe.scrolling = 'no'
+				iframe.src = 'resources/yui/sv_editor.html#'+elem.id;
+				elem.parentNode.appendChild(iframe);
+			}
+			else
+			{
+				iframe.src = 'resources/yui/sv_editor.html?rnd='+Math.floor(Math.random()*100000)+'#'+elem.id;
+			}
+            var xy = Dom.getXY(elem);
+            Dom.setXY(iframe, xy);
+            var w = Dom.getStyle(elem, 'width');
+            Dom.setStyle(iframe, 'width', w);
+            var h = Dom.getStyle(elem, 'height');
+            Dom.setStyle(iframe, 'height', h);
+
+            Dom.setStyle(iframe, 'display', 'inline');
+			Dom.setStyle(elem, 'display', 'none');
+		}
+	};
 }

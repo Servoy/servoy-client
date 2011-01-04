@@ -177,12 +177,17 @@ public class WebItemFactory implements ItemFactory
 	{
 		if (type == ComponentFactory.HTML_AREA)
 		{
-			//TODO make difference between editable and not editable
-			return new WebDataHtmlView(application, name);
+			if (willBeEditable)
+			{
+				return new WebDataHtmlArea(application, name);
+			}
+			else
+			{
+				return new WebDataHtmlView(application, name);
+			}
 		}
 		else
 		{
-			//TODO build RICH TEXT (RTF) COMPONENT!!
 			return new WebDataRtfField(application, name);
 		}
 	}

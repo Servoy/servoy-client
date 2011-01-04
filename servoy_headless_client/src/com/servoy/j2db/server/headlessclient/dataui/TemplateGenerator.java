@@ -2008,15 +2008,17 @@ public class TemplateGenerator
 			}
 				break;
 			case Field.HTML_AREA :
-			{
-				applyScrolling(styleObj, field);
-				html.append("<div "); //$NON-NLS-1$ 
-				html.append(getWicketIDParameter(field));
-				//html.append(getJavaScriptIDParameter(field));
-				html.append(getCSSClassParameter("field")); //$NON-NLS-1$ 
-				html.append(">Editable HTML field not [yet] supported in webclient</div>"); //$NON-NLS-1$ 
-			}
-				break;
+				if (!field.getEditable())
+				{
+					applyScrolling(styleObj, field);
+					html.append("<div "); //$NON-NLS-1$ 
+					html.append(getWicketIDParameter(field));
+					//html.append(getJavaScriptIDParameter(field));
+					html.append(getCSSClassParameter("field")); //$NON-NLS-1$ 
+					html.append(">non editable HTML field</div>"); //$NON-NLS-1$ 
+					break;
+				}
+				//$FALL-THROUGH$
 			case Field.TEXT_AREA :
 			{
 				if (ins == null)
