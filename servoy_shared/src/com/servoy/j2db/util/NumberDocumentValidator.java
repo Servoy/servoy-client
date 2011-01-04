@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util;
 
 
@@ -31,18 +31,28 @@ public class NumberDocumentValidator extends DocumentFilter implements Validatin
 {
 	private boolean allowNegativeValues = true;
 	private final DecimalFormatSymbols decimalFormatSymbols;
+	private final int maxLength;
 
 	public NumberDocumentValidator()
 	{
-		this(null);
+		this(null, -1);
 	}
 
 	/**
 	 * @param decimalFormatSymbols
 	 */
-	public NumberDocumentValidator(DecimalFormatSymbols decimalFormatSymbols)
+	public NumberDocumentValidator(DecimalFormatSymbols decimalFormatSymbols, int maxLength)
 	{
 		this.decimalFormatSymbols = decimalFormatSymbols;
+		this.maxLength = maxLength;
+	}
+
+	/**
+	 * @param maxLength
+	 */
+	public NumberDocumentValidator(int maxLength)
+	{
+		this(null, maxLength);
 	}
 
 	public String validateInsertString(Document document, int offs, String str, AttributeSet a) throws BadLocationException
@@ -93,9 +103,9 @@ public class NumberDocumentValidator extends DocumentFilter implements Validatin
 		if (j > 0)
 		{
 			String retString = new String(result, 0, j);
+			String currentTxt = document.getText(0, offset) + retString + document.getText(offset + length, document.getLength() - offset - length);
 			if (decimalFormatSymbols != null)
 			{
-				String currentTxt = document.getText(0, offset) + retString + document.getText(offset + length, document.getLength() - offset - length);
 				int index1 = currentTxt.indexOf(decimalFormatSymbols.getDecimalSeparator());
 				int index2 = currentTxt.lastIndexOf(decimalFormatSymbols.getDecimalSeparator());
 				if (index1 != index2) return ""; //$NON-NLS-1$
@@ -118,6 +128,18 @@ public class NumberDocumentValidator extends DocumentFilter implements Validatin
 
 				int percentIndex = currentTxt.indexOf(decimalFormatSymbols.getPercent());
 				if (percentIndex != -1 && percentIndex != currentTxt.length() - 1) return ""; //$NON-NLS-1$
+			}
+			if (maxLength > 0)
+			{
+				int counter = 0;
+				for (int k = 0; k < currentTxt.length(); k++)
+				{
+					if (Character.isDigit(currentTxt.charAt(k)))
+					{
+						counter++;
+					}
+				}
+				if (counter > maxLength) return ""; //$NON-NLS-1$
 			}
 			return retString;
 		}

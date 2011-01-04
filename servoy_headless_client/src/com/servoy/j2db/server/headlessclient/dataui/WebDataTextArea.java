@@ -35,7 +35,6 @@ import javax.swing.text.Document;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.form.Form;
@@ -95,7 +94,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 
 	private final IApplication application;
 
-	private SimpleAttributeModifier maxLengthBehavior;
+	private FindModeDisabledSimpleAttributeModifier maxLengthBehavior;
 
 	/**
 	 * @param id

@@ -17,6 +17,7 @@
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.model.IModel;
 
 import com.servoy.j2db.ui.IEventExecutor;
 
@@ -36,6 +37,17 @@ final class FindModeDisabledSimpleAttributeModifier extends ReadOnlyAndEnableTes
 	 * @param value
 	 */
 	FindModeDisabledSimpleAttributeModifier(IEventExecutor eventExecutor, String attribute, CharSequence value)
+	{
+		super(attribute, value);
+		this.eventExecutor = eventExecutor;
+	}
+
+	/**
+	 * @param eventExecutor 
+	 * @param attribute
+	 * @param value
+	 */
+	FindModeDisabledSimpleAttributeModifier(IEventExecutor eventExecutor, String attribute, IModel<CharSequence> value)
 	{
 		super(attribute, value);
 		this.eventExecutor = eventExecutor;

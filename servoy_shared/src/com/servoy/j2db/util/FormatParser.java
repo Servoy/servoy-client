@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util;
 
 
@@ -33,6 +33,7 @@ public class FormatParser
 	private String editOrPlaceholder;
 	private String displayFormat;
 	private String format;
+	private Integer maxLength;
 
 	public FormatParser()
 	{
@@ -55,6 +56,12 @@ public class FormatParser
 	public void setFormat(String format)
 	{
 		this.format = format;
+		this.allLowerCase = false;
+		this.allUpperCase = false;
+		this.numberValidator = false;
+		this.maxLength = null;
+		this.raw = false;
+		this.mask = false;
 
 		String dFormat = format;
 		String eFormat = null;
@@ -83,6 +90,28 @@ public class FormatParser
 			}
 			else
 			{
+				String ml = eFormat;
+				index = ml.indexOf("|#(");
+				if (index != -1 && ml.endsWith(")"))
+				{
+					eFormat = ml.substring(0, index);
+					ml = ml.substring(index + 1);
+				}
+				if (ml.startsWith("#("))
+				{
+					try
+					{
+						maxLength = Integer.valueOf(ml.substring(2, ml.length() - 1));
+						if (ml == eFormat)
+						{
+							eFormat = "";
+						}
+					}
+					catch (Exception e)
+					{
+						Debug.log(e);
+					}
+				}
 				if (eFormat.endsWith("raw"))
 				{
 					raw = true;
@@ -108,6 +137,14 @@ public class FormatParser
 
 		this.displayFormat = dFormat;
 		this.editOrPlaceholder = eFormat;
+	}
+
+	/**
+	 * @return the maxLength
+	 */
+	public Integer getMaxLength()
+	{
+		return maxLength;
 	}
 
 	/**

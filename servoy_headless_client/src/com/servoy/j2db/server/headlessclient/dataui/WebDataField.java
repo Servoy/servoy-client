@@ -39,17 +39,18 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.behavior.IBehavior;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
+import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.IModelComparator;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.convert.ConversionException;
 import org.apache.wicket.util.convert.IConverter;
+import org.apache.wicket.util.string.AppendingStringBuffer;
 import org.apache.wicket.util.string.Strings;
 import org.apache.wicket.validation.IValidationError;
 
@@ -102,6 +103,43 @@ import com.servoy.j2db.util.gui.FixedMaskFormatter;
 public class WebDataField extends TextField<Object> implements IFieldComponent, IDisplayData, IScriptFieldMethods, IProviderStylePropertyChanges,
 	ISupportWebBounds, IRightClickListener
 {
+	/**
+	 * @author jcompagner
+	 *
+	 */
+	private final class NumberValidationModel extends AbstractReadOnlyModel<CharSequence>
+	{
+		private final boolean decimal;
+
+		NumberValidationModel(boolean decimal)
+		{
+			this.decimal = decimal;
+
+		}
+
+		@SuppressWarnings("nls")
+		@Override
+		public CharSequence getObject()
+		{
+			DecimalFormatSymbols dfs = RoundHalfUpDecimalFormat.getDecimalFormatSymbols(application.getLocale());
+			AppendingStringBuffer sb = new AppendingStringBuffer();
+			sb.append("return Servoy.Validation.numbersonly(event,");
+			sb.append(decimal);
+			sb.append(",'");
+			sb.append(dfs.getDecimalSeparator());
+			sb.append("','");
+			sb.append(dfs.getGroupingSeparator());
+			sb.append("','");
+			sb.append(dfs.getCurrencySymbol());
+			sb.append("','");
+			sb.append(dfs.getPercent());
+			sb.append("',this,");
+			sb.append((parsedFormat.getMaxLength() == null ? -1 : parsedFormat.getMaxLength().intValue()));
+			sb.append(");");
+			return sb;
+		}
+	}
+
 	/**
 		 * @author jcompagner
 		 *
@@ -536,6 +574,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		if (converter != null) return converter;
 
 		int mappedType = Column.mapToDefaultType(dataType);
+		String displayFormat = parsedFormat.getDisplayFormat();
 		if (list == null && mappedType == IColumnTypes.TEXT)
 		{
 			if (parsedFormat.isAllUpperCase())
@@ -572,11 +611,11 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 					}
 				};
 			}
-			else if (parsedFormat.getDisplayFormat() != null)
+			else if (displayFormat != null)
 			{
 				try
 				{
-					final FixedMaskFormatter displayFormatter = new FixedMaskFormatter(parsedFormat.getDisplayFormat());
+					final FixedMaskFormatter displayFormatter = new FixedMaskFormatter(displayFormat);
 					displayFormatter.setValueContainsLiteralCharacters(!parsedFormat.isRaw());
 					if (parsedFormat.getPlaceHolderString() != null) displayFormatter.setPlaceholder(parsedFormat.getPlaceHolderString());
 					else if (parsedFormat.getPlaceHolderCharacter() != 0) displayFormatter.setPlaceholderCharacter(parsedFormat.getPlaceHolderCharacter());
@@ -620,7 +659,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 				}
 				catch (ParseException e)
 				{
-					Debug.error("format problem: " + parsedFormat.getDisplayFormat(), e); //$NON-NLS-1$
+					Debug.error("format problem: " + displayFormat, e); //$NON-NLS-1$
 					return super.getConverter(cls);
 				}
 
@@ -631,14 +670,14 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		{
 			converter = new ValuelistValueConverter(list, this);
 		}
-		else if (parsedFormat.getDisplayFormat() == null)
+		else if (displayFormat == null)
 		{
 			converter = super.getConverter(cls);
 		}
 		else if (mappedType == IColumnTypes.DATETIME)
 		{
 			boolean lenient = Boolean.TRUE.equals(UIUtils.getUIProperty(this, application, IApplication.DATE_FORMATTERS_LENIENT, Boolean.TRUE));
-			StateFullSimpleDateFormat displayFormatter = new StateFullSimpleDateFormat(parsedFormat.getDisplayFormat(), null, application.getLocale(), lenient);
+			StateFullSimpleDateFormat displayFormatter = new StateFullSimpleDateFormat(displayFormat, null, application.getLocale(), lenient);
 			String eFormat = parsedFormat.getEditFormat();
 			if (!parsedFormat.isMask() && parsedFormat.getEditFormat() != null) //$NON-NLS-1$
 			{
@@ -652,7 +691,16 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		}
 		else if (mappedType == IColumnTypes.INTEGER || mappedType == IColumnTypes.NUMBER)
 		{
-			RoundHalfUpDecimalFormat displayFormatter = new RoundHalfUpDecimalFormat(parsedFormat.getDisplayFormat(), application.getLocale());
+			int maxLength = parsedFormat.getMaxLength() == null ? -1 : parsedFormat.getMaxLength().intValue();
+			// if there is no display format, but the max length is set, then generate a display format.
+			if (maxLength != -1 && (displayFormat == null || displayFormat.length() == 0))
+			{
+				char[] chars = new char[maxLength];
+				for (int i = 0; i < chars.length; i++)
+					chars[i] = '#';
+				displayFormat = new String(chars);
+			}
+			RoundHalfUpDecimalFormat displayFormatter = new RoundHalfUpDecimalFormat(displayFormat, application.getLocale());
 			if (parsedFormat.getEditFormat() != null)
 			{
 				RoundHalfUpDecimalFormat editFormatter = new RoundHalfUpDecimalFormat(parsedFormat.getEditFormat(), application.getLocale());
@@ -697,9 +745,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 				setType(Double.class);
 				if (list == null)
 				{
-					DecimalFormatSymbols dfs = RoundHalfUpDecimalFormat.getDecimalFormatSymbols(application.getLocale());
-					add(new FindModeDisabledSimpleAttributeModifier(getEventExecutor(), "onkeypress", "return Servoy.Validation.numbersonly(event, true, '" +
-						dfs.getDecimalSeparator() + "','" + dfs.getGroupingSeparator() + "','" + dfs.getCurrencySymbol() + "','" + dfs.getPercent() + "');"));
+					add(new FindModeDisabledSimpleAttributeModifier(getEventExecutor(), "onkeypress", new NumberValidationModel(true)));
 				}
 			}
 			else if (mappedType == IColumnTypes.INTEGER)
@@ -707,9 +753,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 				setType(Integer.class);
 				if (list == null)
 				{
-					DecimalFormatSymbols dfs = RoundHalfUpDecimalFormat.getDecimalFormatSymbols(application.getLocale());
-					add(new FindModeDisabledSimpleAttributeModifier(getEventExecutor(), "onkeypress", "return Servoy.Validation.numbersonly(event, false, '" +
-						dfs.getDecimalSeparator() + "','" + dfs.getGroupingSeparator() + "','" + dfs.getCurrencySymbol() + "','" + dfs.getPercent() + "');"));
+					add(new FindModeDisabledSimpleAttributeModifier(getEventExecutor(), "onkeypress", new NumberValidationModel(false)));
 				}
 			}
 			else if (mappedType == IColumnTypes.TEXT && list != null)
@@ -1424,7 +1468,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	 */
 	private Dimension size = new Dimension(0, 0);
 
-	private SimpleAttributeModifier maxLengthBehavior;
+	private FindModeDisabledSimpleAttributeModifier maxLengthBehavior;
 
 	private IBehavior formatAttributeModifier;
 

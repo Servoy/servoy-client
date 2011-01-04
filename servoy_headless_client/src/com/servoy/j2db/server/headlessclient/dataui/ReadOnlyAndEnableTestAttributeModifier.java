@@ -17,7 +17,10 @@
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
+import org.apache.wicket.behavior.AbstractBehavior;
+import org.apache.wicket.markup.ComponentTag;
+import org.apache.wicket.model.AbstractReadOnlyModel;
+import org.apache.wicket.model.IModel;
 
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptInputMethods;
@@ -28,17 +31,57 @@ import com.servoy.j2db.ui.IScriptInputMethods;
  * @author jcompagner
  *
  */
-class ReadOnlyAndEnableTestAttributeModifier extends SimpleAttributeModifier
+@SuppressWarnings("nls")
+class ReadOnlyAndEnableTestAttributeModifier extends AbstractBehavior
 {
+	private static final long serialVersionUID = 1L;
+
+	/** The attribute */
+	private final String attribute;
+
+	/** The value to set */
+	private final IModel<CharSequence> model;
 
 	/**
 	 * @param eventExecutor
 	 * @param attribute
 	 * @param value
 	 */
-	ReadOnlyAndEnableTestAttributeModifier(String attribute, CharSequence value)
+	ReadOnlyAndEnableTestAttributeModifier(String attribute, final CharSequence value)
 	{
-		super(attribute, value);
+		if (attribute == null)
+		{
+			throw new IllegalArgumentException("Argument [attr] cannot be null");
+		}
+		if (value == null)
+		{
+			throw new IllegalArgumentException("Argument [value] cannot be null");
+		}
+		this.attribute = attribute;
+		this.model = new AbstractReadOnlyModel<CharSequence>()
+		{
+
+			@Override
+			public CharSequence getObject()
+			{
+				return value;
+			}
+
+		};
+	}
+
+	ReadOnlyAndEnableTestAttributeModifier(String attribute, final IModel<CharSequence> value)
+	{
+		if (attribute == null)
+		{
+			throw new IllegalArgumentException("Argument [attr] cannot be null");
+		}
+		if (value == null)
+		{
+			throw new IllegalArgumentException("Argument [value] cannot be null");
+		}
+		this.attribute = attribute;
+		this.model = value;
 	}
 
 	/**
@@ -53,6 +96,19 @@ class ReadOnlyAndEnableTestAttributeModifier extends SimpleAttributeModifier
 			if (component instanceof IScriptInputMethods && !((IScriptInputMethods)component).js_isEditable()) return false;
 		}
 		return true;
+	}
+
+	/**
+	 * @see org.apache.wicket.behavior.AbstractBehavior#onComponentTag(org.apache.wicket.Component,
+	 *      org.apache.wicket.markup.ComponentTag)
+	 */
+	@Override
+	public void onComponentTag(final Component component, final ComponentTag tag)
+	{
+		if (isEnabled(component))
+		{
+			tag.getAttributes().put(attribute, model.getObject());
+		}
 	}
 
 }

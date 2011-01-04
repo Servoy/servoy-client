@@ -75,8 +75,8 @@ import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.JSDataSet;
-import com.servoy.j2db.dataprocessing.ValueListFactory;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
+import com.servoy.j2db.dataprocessing.ValueListFactory;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.ScriptVariable;
@@ -91,6 +91,7 @@ import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.FormatParser;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ISkinnable;
 import com.servoy.j2db.util.ITagResolver;
@@ -132,14 +133,8 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 		private NumberDocumentValidator validator;
 
+		private final int maxLength;
 
-		/**
-		 * Constructor for NullNumberFormatter.
-		 */
-		public NullNumberFormatter()
-		{
-			super();
-		}
 
 		/**
 		 * Constructor for NullNumberFormatter.
@@ -149,7 +144,13 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		 */
 		public NullNumberFormatter(NumberFormat format)
 		{
+			this(format, -1);
+		}
+
+		public NullNumberFormatter(NumberFormat format, int maxLength)
+		{
 			super(format);
+			this.maxLength = maxLength;
 			format.setGroupingUsed(true);
 		}
 
@@ -186,7 +187,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 			{
 				if (validator == null)
 				{
-					validator = new NumberDocumentValidator(RoundHalfUpDecimalFormat.getDecimalFormatSymbols(application.getLocale()));
+					validator = new NumberDocumentValidator(RoundHalfUpDecimalFormat.getDecimalFormatSymbols(application.getLocale()), maxLength);
 				}
 				return validator;
 			}
@@ -1203,123 +1204,137 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		this.editFormat = format;
 		if (format != null && format.length() != 0)
 		{
-			int index = format.indexOf("|"); //$NON-NLS-1$
+			FormatParser fp = new FormatParser(format);
 
-			if (index != -1)
+			displayFormat = fp.getDisplayFormat();
+			editFormat = fp.getEditFormat();
+
+			if (fp.isAllLowerCase())
 			{
-				displayFormat = format.substring(0, index);
-				editFormat = format.substring(index + 1);
+				editorDocument.setValidator("LowerCaseDocumentValidator", new LowerCaseDocumentValidator()); //$NON-NLS-1$
+				TextFormatter display = new TextFormatter();
+				TextFormatter edit = new TextFormatter();
+				setFormatterFactory(new DefaultFormatterFactory(display, display, edit, edit));
 			}
-
-			if (displayFormat.length() == 0 && editFormat.length() == 1)
+			else if (fp.isAllUpperCase())
 			{
-				if (editFormat.charAt(0) == 'U')
-				{
-					editorDocument.setValidator("UpperCaseDocumentValidator", new UpperCaseDocumentValidator()); //$NON-NLS-1$
-				}
-				else if (editFormat.charAt(0) == 'L')
-				{
-					editorDocument.setValidator("LowerCaseDocumentValidator", new LowerCaseDocumentValidator()); //$NON-NLS-1$
-				}
-				else if (editFormat.charAt(0) == '#')
-				{
-					editorDocument.setValidator("NumberDocumentValidator", new NumberDocumentValidator()); //$NON-NLS-1$
-				}
+				editorDocument.setValidator("UpperCaseDocumentValidator", new UpperCaseDocumentValidator()); //$NON-NLS-1$
+				TextFormatter display = new TextFormatter();
+				TextFormatter edit = new TextFormatter();
+				setFormatterFactory(new DefaultFormatterFactory(display, display, edit, edit));
+			}
+			else if (fp.isNumberValidator())
+			{
+				editorDocument.setValidator("NumberDocumentValidator", new NumberDocumentValidator()); //$NON-NLS-1$
 				TextFormatter display = new TextFormatter();
 				TextFormatter edit = new TextFormatter();
 				setFormatterFactory(new DefaultFormatterFactory(display, display, edit, edit));
 			}
 			else
 			{
-				try
+				int maxLength = fp.getMaxLength() == null ? -1 : fp.getMaxLength().intValue();
+				// if there is no display format, but the max lenght is set, then generate a display format.
+				if (maxLength != -1 && (displayFormat == null || displayFormat.length() == 0))
 				{
-					JFormattedTextField.AbstractFormatter displayFormatter = null;
-					JFormattedTextField.AbstractFormatter editFormatter = null;
-					switch (Column.mapToDefaultType(dataType))
-					{
-						case IColumnTypes.NUMBER :
-							if (editFormat.equals("raw") || editFormat.equals("")) editFormat = displayFormat; //$NON-NLS-1$//$NON-NLS-2$
-
-							displayFormatter = new NullNumberFormatter(new RoundHalfUpDecimalFormat(displayFormat, application.getLocale()));// example: $#,###.##
-							editFormatter = new NullNumberFormatter(new RoundHalfUpDecimalFormat(editFormat, application.getLocale()));
-							setFormatterFactory(new DefaultFormatterFactory(displayFormatter, displayFormatter, editFormatter, editFormatter));
-							break;
-						case IColumnTypes.INTEGER :
-							if (editFormat.equals("raw") || editFormat.equals("")) editFormat = displayFormat; //$NON-NLS-1$//$NON-NLS-2$
-
-							displayFormatter = new NullNumberFormatter(new RoundHalfUpDecimalFormat(displayFormat, application.getLocale()));// example: $#,###.##
-							editFormatter = new NullNumberFormatter(new RoundHalfUpDecimalFormat(editFormat, application.getLocale()));
-							setFormatterFactory(new DefaultFormatterFactory(displayFormatter, displayFormatter, editFormatter, editFormatter));
-							break;
-						case IColumnTypes.DATETIME :
-							boolean mask = false;
-							char placeHolder = 0;
-							if (editFormat.equals("raw") || editFormat.equals("")) editFormat = displayFormat; //$NON-NLS-1$//$NON-NLS-2$
-							else if (editFormat.endsWith("mask")) //$NON-NLS-1$
-							{
-								int placeHolderIndex = editFormat.indexOf('|');
-								if (placeHolderIndex != -1)
-								{
-									placeHolder = editFormat.substring(0, placeHolderIndex).charAt(0);
-								}
-								mask = true;
-								editFormat = displayFormat;
-							}
-
-							displayFormatter = new NullDateFormatter(new StateFullSimpleDateFormat(displayFormat, false));
-							editFormatter = new NullDateFormatter(new StateFullSimpleDateFormat(editFormat, Boolean.TRUE.equals(UIUtils.getUIProperty(this,
-								IApplication.DATE_FORMATTERS_LENIENT, Boolean.TRUE))), !mask);
-							if (mask)
-							{
-								editFormatter = ((NullDateFormatter)editFormatter).getMaskFormatter(placeHolder);
-							}
-							else
-							{
-								// date formats are default in override mode
-								setCaret(getOvertypeCaret());
-							}
-							setFormatterFactory(new DefaultFormatterFactory(displayFormatter, displayFormatter, editFormatter)); // example: MM/dd/yyyy
-							break;
-						default :
-							displayFormatter = new ServoyMaskFormatter(displayFormat, true);
-							editFormatter = new ServoyMaskFormatter(displayFormat, false);
-
-							if (editFormat != displayFormat)
-							{
-								if (editFormat.equals("raw")) //$NON-NLS-1$
-								{
-									((ServoyMaskFormatter)editFormatter).setValueContainsLiteralCharacters(false);
-									((ServoyMaskFormatter)displayFormatter).setValueContainsLiteralCharacters(false);
-									editFormat = null;
-								}
-								else if (editFormat.endsWith("raw")) //$NON-NLS-1$
-								{
-									((ServoyMaskFormatter)editFormatter).setValueContainsLiteralCharacters(false);
-									((ServoyMaskFormatter)displayFormatter).setValueContainsLiteralCharacters(false);
-									editFormat = editFormat.substring(0, editFormat.indexOf('|'));
-								}
-
-								if (editFormat != null)
-								{
-									if (editFormat.length() == 1)
-									{
-										((ServoyMaskFormatter)editFormatter).setPlaceholderCharacter(editFormat.charAt(0));
-									}
-									else
-									{
-										((ServoyMaskFormatter)editFormatter).setPlaceholder(editFormat);
-									}
-								}
-							}
-							setFormatterFactory(new DefaultFormatterFactory(displayFormatter, displayFormatter, editFormatter));
-							// format overrules max length check
-							editorDocument.setValidator(MAX_LENGTH_VALIDATOR, new LengthDocumentValidator(0));
-							break;
-					}
+					char[] chars = new char[maxLength];
+					for (int i = 0; i < chars.length; i++)
+						chars[i] = '#';
+					displayFormat = new String(chars);
 				}
-				catch (Exception ex)
+
+				if (displayFormat != null)
 				{
-					Debug.error(ex);
+					if (editFormat == null) editFormat = displayFormat;
+					try
+					{
+						JFormattedTextField.AbstractFormatter displayFormatter = null;
+						JFormattedTextField.AbstractFormatter editFormatter = null;
+						switch (Column.mapToDefaultType(dataType))
+						{
+							case IColumnTypes.NUMBER :
+								if (editFormat.equals("raw") || editFormat.equals("")) editFormat = displayFormat; //$NON-NLS-1$//$NON-NLS-2$
+
+								displayFormatter = new NullNumberFormatter(new RoundHalfUpDecimalFormat(displayFormat, application.getLocale()));// example: $#,###.##
+								editFormatter = new NullNumberFormatter(new RoundHalfUpDecimalFormat(editFormat, application.getLocale()), maxLength);
+								setFormatterFactory(new DefaultFormatterFactory(displayFormatter, displayFormatter, editFormatter, editFormatter));
+								break;
+							case IColumnTypes.INTEGER :
+								if (editFormat.equals("raw") || editFormat.equals("")) editFormat = displayFormat; //$NON-NLS-1$//$NON-NLS-2$
+
+								displayFormatter = new NullNumberFormatter(new RoundHalfUpDecimalFormat(displayFormat, application.getLocale()));// example: $#,###.##
+								editFormatter = new NullNumberFormatter(new RoundHalfUpDecimalFormat(editFormat, application.getLocale()), maxLength);
+								setFormatterFactory(new DefaultFormatterFactory(displayFormatter, displayFormatter, editFormatter, editFormatter));
+								break;
+							case IColumnTypes.DATETIME :
+								boolean mask = false;
+								char placeHolder = 0;
+								if (editFormat.equals("raw") || editFormat.equals("")) editFormat = displayFormat; //$NON-NLS-1$//$NON-NLS-2$
+								else if (editFormat.endsWith("mask")) //$NON-NLS-1$
+								{
+									int placeHolderIndex = editFormat.indexOf('|');
+									if (placeHolderIndex != -1)
+									{
+										placeHolder = editFormat.substring(0, placeHolderIndex).charAt(0);
+									}
+									mask = true;
+									editFormat = displayFormat;
+								}
+
+								displayFormatter = new NullDateFormatter(new StateFullSimpleDateFormat(displayFormat, false));
+								editFormatter = new NullDateFormatter(new StateFullSimpleDateFormat(editFormat, Boolean.TRUE.equals(UIUtils.getUIProperty(this,
+									IApplication.DATE_FORMATTERS_LENIENT, Boolean.TRUE))), !mask);
+								if (mask)
+								{
+									editFormatter = ((NullDateFormatter)editFormatter).getMaskFormatter(placeHolder);
+								}
+								else
+								{
+									// date formats are default in override mode
+									setCaret(getOvertypeCaret());
+								}
+								setFormatterFactory(new DefaultFormatterFactory(displayFormatter, displayFormatter, editFormatter)); // example: MM/dd/yyyy
+								break;
+							default :
+								displayFormatter = new ServoyMaskFormatter(displayFormat, true);
+								editFormatter = new ServoyMaskFormatter(displayFormat, false);
+
+								if (editFormat != displayFormat)
+								{
+									if (editFormat.equals("raw")) //$NON-NLS-1$
+									{
+										((ServoyMaskFormatter)editFormatter).setValueContainsLiteralCharacters(false);
+										((ServoyMaskFormatter)displayFormatter).setValueContainsLiteralCharacters(false);
+										editFormat = null;
+									}
+									else if (editFormat.endsWith("raw")) //$NON-NLS-1$
+									{
+										((ServoyMaskFormatter)editFormatter).setValueContainsLiteralCharacters(false);
+										((ServoyMaskFormatter)displayFormatter).setValueContainsLiteralCharacters(false);
+										editFormat = editFormat.substring(0, editFormat.indexOf('|'));
+									}
+
+									if (editFormat != null)
+									{
+										if (editFormat.length() == 1)
+										{
+											((ServoyMaskFormatter)editFormatter).setPlaceholderCharacter(editFormat.charAt(0));
+										}
+										else
+										{
+											((ServoyMaskFormatter)editFormatter).setPlaceholder(editFormat);
+										}
+									}
+								}
+								setFormatterFactory(new DefaultFormatterFactory(displayFormatter, displayFormatter, editFormatter));
+								// format overrules max length check
+								editorDocument.setValidator(MAX_LENGTH_VALIDATOR, new LengthDocumentValidator(0));
+								break;
+						}
+					}
+					catch (Exception ex)
+					{
+						Debug.error(ex);
+					}
 				}
 			}
 		}

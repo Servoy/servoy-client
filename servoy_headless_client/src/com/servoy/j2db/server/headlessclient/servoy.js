@@ -1162,7 +1162,7 @@ if (typeof(Servoy.Validation) == "undefined")
 				obj.value=obj.value.substring(0,mlength)
 		},
 		
-		numbersonly: function(e, decimal, decimalChar, groupingChar, currencyChar, percentChar) 
+		numbersonly: function(e, decimal, decimalChar, groupingChar, currencyChar, percentChar,obj,mlength) 
 		{
 			var key;
 			var keychar;
@@ -1176,12 +1176,26 @@ if (typeof(Servoy.Validation) == "undefined")
 			else {
 			   return true;
 			}
-			keychar = String.fromCharCode(key);
-			
+
 			if ((key==null) || (key==0) || (key==8) ||  (key==9) || (key==13) || (key==27) ) {
 			   return true;
 			}
-			else if ((("-0123456789").indexOf(keychar) > -1)) {
+
+			keychar = String.fromCharCode(key);
+
+			if (mlength > 0 && obj && obj.value)
+			{
+				var counter = 0;
+				if (("0123456789").indexOf(keychar) != -1) counter++;
+				var stringLength = obj.value.length;
+				for(var i=0;i<stringLength;i++)
+				{
+				   if (("0123456789").indexOf(obj.value.charAt(i)) != -1) counter++;
+				}
+				if (counter > mlength) return false;
+			}
+			
+			if ((("-0123456789").indexOf(keychar) > -1)) {
 			   return true;
 			}
 			else if (decimal && (keychar == decimalChar)) { 
