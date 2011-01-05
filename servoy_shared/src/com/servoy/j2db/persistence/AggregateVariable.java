@@ -90,7 +90,7 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 			throw new RepositoryException(ServoyException.InternalCodes.TABLE_NOT_FOUND, new Object[] { node.getTableName() });
 		}
 		validator.checkName(arg, getID(), new ValidatorSearchContext(table, IRepository.AGGREGATEVARIABLES), true);
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg, false);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 		getRootObject().getChangeHandler().fireIPersistChanged(this);
 	}
 

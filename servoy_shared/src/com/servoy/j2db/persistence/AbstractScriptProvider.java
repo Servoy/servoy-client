@@ -89,7 +89,7 @@ public abstract class AbstractScriptProvider extends AbstractBase implements ISc
 			declaration = declaration.replaceFirst("(.*function\\s+)" + getName() + "(\\s*\\(.*\\)\\s*\\{.*)", "$1" + arg + "$2"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			setTypedProperty(StaticContentSpecLoader.PROPERTY_DECLARATION, declaration);
 		}
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg, false);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 		getRootObject().getChangeHandler().fireIPersistChanged(this);
 	}
 

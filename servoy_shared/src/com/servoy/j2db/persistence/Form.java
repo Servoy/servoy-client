@@ -154,7 +154,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	public void updateName(IValidateName validator, String arg) throws RepositoryException
 	{
 		validator.checkName(arg, getID(), new ValidatorSearchContext(this, IRepository.FORMS), false);
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg, false);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 		getRootObject().getChangeHandler().fireIPersistChanged(this);
 	}
 

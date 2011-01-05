@@ -77,7 +77,7 @@ public class ValueList extends AbstractBase implements ISupportUpdateableName, I
 	public void updateName(IValidateName validator, String arg) throws RepositoryException
 	{
 		validator.checkName(arg, getID(), new ValidatorSearchContext(IRepository.VALUELISTS), false);
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg, false);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 		getRootObject().getChangeHandler().fireIPersistChanged(this);
 	}
 

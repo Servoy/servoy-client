@@ -110,14 +110,8 @@ public class FlattenedPortal extends Portal
 	}
 
 	@Override
-	void setTypedProperty(TypedProperty< ? > property, Object value)
+	<T> void setTypedProperty(TypedProperty<T> property, T value)
 	{
 		portal.setTypedProperty(property, value);
-	}
-
-	@Override
-	void setTypedProperty(TypedProperty< ? > property, Object value, boolean validate)
-	{
-		portal.setTypedProperty(property, value, validate);
 	}
 }

@@ -74,7 +74,7 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 	public void updateName(IValidateName validator, String arg) throws RepositoryException
 	{
 		validator.checkName(arg, getID(), new ValidatorSearchContext(getRootObject(), IRepository.SCRIPTVARIABLES), false);
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg, false);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 		prefixedName = null;
 		getRootObject().getChangeHandler().fireIPersistChanged(this);
 	}

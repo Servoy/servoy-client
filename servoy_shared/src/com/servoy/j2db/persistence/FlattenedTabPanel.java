@@ -90,14 +90,8 @@ public class FlattenedTabPanel extends TabPanel
 	}
 
 	@Override
-	void setTypedProperty(TypedProperty< ? > property, Object value)
+	<T> void setTypedProperty(TypedProperty<T> property, T value)
 	{
 		tabPanel.setTypedProperty(property, value);
-	}
-
-	@Override
-	void setTypedProperty(TypedProperty< ? > property, Object value, boolean validate)
-	{
-		tabPanel.setTypedProperty(property, value, validate);
 	}
 }

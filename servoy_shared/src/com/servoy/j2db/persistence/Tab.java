@@ -60,7 +60,7 @@ public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneab
 		{
 			validator.checkName(arg, getID(), new ValidatorSearchContext(getParent(), IRepository.TABS), false);
 		}
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg, false);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 	}
 
 	@Override

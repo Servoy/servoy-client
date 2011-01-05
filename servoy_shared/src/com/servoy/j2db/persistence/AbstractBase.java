@@ -130,47 +130,40 @@ public abstract class AbstractBase implements IPersist
 
 	public void setProperty(String propertyName, Object val)
 	{
-		Element element = StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(getTypeID(), propertyName);
-		if (element == null)
+		try
 		{
-			Debug.error("No content spec element found for:" + propertyName + ", typeid:" + getTypeID()); //$NON-NLS-1$ //$NON-NLS-2$
-		}
-		else if (element.isDeprecated())
-		{
-			try
+			Map<String, Method> methods = RepositoryHelper.getSettersViaIntrospection(this);
+			if (methods.containsKey(propertyName))
 			{
-				// we must call the real setter, this is deprecated property, shouldn't get an infinite cycle
-				Map<String, Method> methods = RepositoryHelper.getSettersViaIntrospection(this);
-				if (methods.containsKey(propertyName))
-				{
-					methods.get(propertyName).invoke(this, new Object[] { val });
-					return;
-				}
-				else
-				{
-					Debug.error("No introspection method found for property:" + propertyName + ", on persist " + toString()); //$NON-NLS-1$//$NON-NLS-2$
-				}
+				methods.get(propertyName).invoke(this, new Object[] { val });
+				return;
 			}
-			catch (Exception ex)
+			else
 			{
-				Debug.error(ex);
+				Debug.error("No introspection method found for property:" + propertyName + ", on persist " + toString()); //$NON-NLS-1$//$NON-NLS-2$
 			}
 		}
-		Object value = val;
-		if (value instanceof String && propertyName.toLowerCase().endsWith("datasource")) //$NON-NLS-1$
+		catch (Exception ex)
 		{
-			value = ((String)value).intern();
+			Debug.error(ex);
 		}
+	}
 
+	/**
+	 * @param propertyName
+	 * @param val
+	 */
+	private void setPropertyInternal(String propertyName, Object val)
+	{
 		if (propertiesMap.containsKey(propertyName))
 		{
-			checkForChange(propertiesMap.get(propertyName), value);
+			checkForChange(propertiesMap.get(propertyName), val);
 		}
 		else
 		{
 			isChanged = true;
 		}
-		propertiesMap.put(propertyName, value);
+		propertiesMap.put(propertyName, val);
 	}
 
 	public Object getProperty(String propertyName)
@@ -236,28 +229,16 @@ public abstract class AbstractBase implements IPersist
 
 	protected void setTypedProperty(TypedProperty<Integer> property, int value)
 	{
-		setProperty(property.getPropertyName(), Integer.valueOf(value));
+		setPropertyInternal(property.getPropertyName(), Integer.valueOf(value));
 	}
 
 	protected void setTypedProperty(TypedProperty<Boolean> property, boolean value)
 	{
-		setProperty(property.getPropertyName(), Boolean.valueOf(value));
+		setPropertyInternal(property.getPropertyName(), Boolean.valueOf(value));
 	}
 
-	void setTypedProperty(TypedProperty< ? > property, Object value)
+	<T> void setTypedProperty(TypedProperty<T> property, T value)
 	{
-		setTypedProperty(property, value, true);
-	}
-
-	void setTypedProperty(TypedProperty< ? > property, Object value, boolean validate)
-	{
-		if (validate)
-		{
-			if (property == StaticContentSpecLoader.PROPERTY_NAME && propertiesMap.containsKey(property.getPropertyName()))
-			{
-				throw new UnsupportedOperationException("Can't set name 2x, use updateName"); //$NON-NLS-1$
-			}
-		}
 		if (value instanceof Integer)
 		{
 			Integer intValue = (Integer)value;
@@ -271,7 +252,14 @@ public abstract class AbstractBase implements IPersist
 				return;
 			}
 		}
-		setProperty(property.getPropertyName(), value);
+		if (value instanceof String && property.getPropertyName().toLowerCase().endsWith("datasource")) //$NON-NLS-1$
+		{
+			setPropertyInternal(property.getPropertyName(), ((String)value).intern());
+		}
+		else
+		{
+			setPropertyInternal(property.getPropertyName(), value);
+		}
 	}
 
 

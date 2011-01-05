@@ -218,7 +218,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	{
 		if (arg != null) arg = Utils.toEnglishLocaleLowerCase(arg);
 		validator.checkName(arg, getID(), new ValidatorSearchContext(IRepository.RELATIONS), true);
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg, false);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 		getRootObject().getChangeHandler().fireIPersistChanged(this);
 	}
 
