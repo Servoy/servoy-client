@@ -1234,10 +1234,10 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	protected void instrumentAndReplaceBody(MarkupStream markupStream, ComponentTag openTag, CharSequence bodyText)
 	{
-		replaceComponentTagBody(markupStream, openTag, instrumentBodyText(bodyText, halign, valign));
+		replaceComponentTagBody(markupStream, openTag, instrumentBodyText(bodyText, halign, valign, false, false));
 	}
 
-	protected static String instrumentBodyText(CharSequence bodyText, int halign, int valign)
+	protected static String instrumentBodyText(CharSequence bodyText, int halign, int valign, boolean fullWidth, boolean fullHeight)
 	{
 		// In order to vertically align the text inside the <button>, we wrap the text inside a <span>, and we absolutely
 		// position the <span> in the <button>. However, for centering vertically we drop this absolute positioning and
@@ -1256,6 +1256,10 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		if (valign != ISupportTextSetup.CENTER) instrumentedBodyText.append(" position: absolute;"); //$NON-NLS-1$
 		if (valign == ISupportTextSetup.TOP) instrumentedBodyText.append(" top: 0px;"); //$NON-NLS-1$
 		else if (valign == ISupportTextSetup.BOTTOM) instrumentedBodyText.append(" bottom: 0px;"); //$NON-NLS-1$
+
+		// Full width/height.
+		if (fullWidth) instrumentedBodyText.append(" width: 100%;"); //$NON-NLS-1$
+		if (fullHeight) instrumentedBodyText.append(" height: 100%;"); //$NON-NLS-1$
 
 		instrumentedBodyText.append("'>"); //$NON-NLS-1$
 		if (bodyText != null) instrumentedBodyText.append(bodyText);

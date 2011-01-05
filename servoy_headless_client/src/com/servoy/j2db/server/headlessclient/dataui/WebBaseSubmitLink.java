@@ -1206,7 +1206,12 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IScriptHtml
 
 	protected void instrumentAndReplaceBody(MarkupStream markupStream, ComponentTag openTag, CharSequence bodyText)
 	{
-		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign));
+		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, fillAllSpace(), fillAllSpace()));
+	}
+
+	protected boolean fillAllSpace()
+	{
+		return false;
 	}
 
 	@Override

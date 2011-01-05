@@ -194,6 +194,17 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 		tag.put("id", getMarkupId());
 	}
 
+	/**
+	 * This is because in the super classes we add a container <span> tag to fix the horizontal/vertical 
+	 * alignment, and that tag is missing the 'width' and 'height' attributes by default. By returning true
+	 * here we force the two attributes to be added.
+	 */
+	@Override
+	protected boolean fillAllSpace()
+	{
+		return true;
+	}
+
 	@Override
 	public IEventExecutor getEventExecutor()
 	{

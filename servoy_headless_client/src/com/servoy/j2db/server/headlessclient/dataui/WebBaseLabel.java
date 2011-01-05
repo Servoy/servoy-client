@@ -1264,7 +1264,7 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 
 	protected void instrumentAndReplaceBody(MarkupStream markupStream, ComponentTag openTag, CharSequence bodyText)
 	{
-		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign));
+		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, false, false));
 	}
 
 	@Override

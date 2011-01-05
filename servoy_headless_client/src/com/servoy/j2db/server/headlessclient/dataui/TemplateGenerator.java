@@ -1996,7 +1996,8 @@ public class TemplateGenerator
 	{
 		// this needs to be in sync with DesignModeBehavior.needsWrapperDivForAnchoring(String type)
 		return (field.getDisplayType() == Field.PASSWORD) || (field.getDisplayType() == Field.TEXT_AREA) || (field.getDisplayType() == Field.COMBOBOX) ||
-			(field.getDisplayType() == Field.TYPE_AHEAD) || (field.getDisplayType() == Field.TEXT_FIELD);
+			(field.getDisplayType() == Field.TYPE_AHEAD) || (field.getDisplayType() == Field.TEXT_FIELD) ||
+			(field.getDisplayType() == Field.HTML_AREA && field.getEditable());
 	}
 
 	private static void createFieldHTML(Field field, Form form, StringBuffer html, TextualCSS css, int startY, int endY, boolean enableAnchoring,
