@@ -40,28 +40,23 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jblok
  */
+@SuppressWarnings("nls")
 public class AboutDialog extends JEscapeDialog implements ActionListener
 {
-/*
- * _____________________________________________________________ Declaration of attributes
- */
 	private final JTextArea ta;
 	private final MemoryMonitor mem;
 	private final String dialogText;
 
-/*
- * _____________________________________________________________ Declaration and definition of constructors
- */
 	public AboutDialog(IApplication app)
 	{
-		super(app.getMainApplicationFrame(), app.getI18NMessage("servoy.aboutDialog.title"), false); //$NON-NLS-1$
+		super(app.getMainApplicationFrame(), app.getI18NMessage("servoy.aboutDialog.title"), false);
 //		this.setSize(523,360);//340
 		JPanel borderPane = new JPanel();
 		borderPane.setLayout(new BorderLayout(10, 10));
 		JPanel pane = new JPanel();
 		pane.setLayout(new BorderLayout());
 		pane.setOpaque(false);
-		JLabel logo = new JLabel("     ", app.loadImage("logo2.gif"), SwingConstants.RIGHT); //$NON-NLS-1$ //$NON-NLS-2$
+		JLabel logo = new JLabel("     ", app.loadImage("logo2.gif"), SwingConstants.RIGHT);
 		pane.add(logo, BorderLayout.CENTER);
 		mem = new MemoryMonitor();
 		pane.add(mem, BorderLayout.EAST);
@@ -69,11 +64,15 @@ public class AboutDialog extends JEscapeDialog implements ActionListener
 		borderPane.add(pane, BorderLayout.NORTH);
 		ta = new JTextArea();
 		ta.setMargin(new Insets(3, 3, 3, 3));
-		String version = ClientVersion.getVersion() + "-build " + ClientVersion.getReleaseNumber(); //$NON-NLS-1$
-		version += "\nJava version " + System.getProperty("java.version") + " (" + System.getProperty("os.name") + ")"; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+		String version = ClientVersion.getVersion() + "-build " + ClientVersion.getReleaseNumber();
+		version += "\nJava version " + System.getProperty("java.version") + " (" + System.getProperty("os.name") + ")";//$NON-NLS-2$
 		dialogText = new String(
 			app.getApplicationName() +
-				"\nVersion " + version + "\n\nCopyright \u00A9 1997-" + Utils.formatTime(System.currentTimeMillis(), "yyyy") + " \nServoy BV\nwww.servoy.com\n\nWarning: This computer program is protected by\ncopyright law and international treaties. Unauthorized\nreproduction or distribution of this program, or any\nportion of it, may result in severe civil and criminal\npenalties, and will be prosecuted to the maximum extent\npossible under law."); //$NON-NLS-1$ //$NON-NLS-2$
+				"\nVersion " +
+				version +
+				"\n\nCopyright \u00A9 1997-" +
+				Utils.formatTime(System.currentTimeMillis(), "yyyy") +
+				" \nServoy BV\nwww.servoy.com\n\nWarning: This computer program is protected by\ncopyright law and international treaties. Unauthorized\nreproduction or distribution of this program, or any\nportion of it, may result in severe civil and criminal\npenalties, and will be prosecuted to the maximum extent\npossible under law.");
 		ta.setText(dialogText);
 		ta.setOpaque(false);
 		ta.setEditable(false);
@@ -85,14 +84,14 @@ public class AboutDialog extends JEscapeDialog implements ActionListener
 
 		JPanel helperPanel = new JPanel();
 		helperPanel.setLayout(new BorderLayout());
-		final JButton button = new JButton(app.getI18NMessage("servoy.button.ok")); //$NON-NLS-1$
+		final JButton button = new JButton(app.getI18NMessage("servoy.button.ok"));
 		button.addActionListener(this);
-		button.setActionCommand("ok"); //$NON-NLS-1$
+		button.setActionCommand("ok");
 		helperPanel.add(button, BorderLayout.SOUTH);
 
-		JButton button2 = new JButton(app.getI18NMessage("servoy.aboutDialog.credits")); //$NON-NLS-1$
+		JButton button2 = new JButton(app.getI18NMessage("servoy.aboutDialog.credits"));
 		button2.addActionListener(this);
-		button2.setActionCommand("thanks"); //$NON-NLS-1$
+		button2.setActionCommand("thanks");
 		helperPanel.add(button2, BorderLayout.NORTH);
 		helperPanel.setOpaque(false);
 
@@ -120,8 +119,8 @@ public class AboutDialog extends JEscapeDialog implements ActionListener
 	public void actionPerformed(ActionEvent e)
 	{
 		String command = e.getActionCommand();
-		if (command.equals("ok")) cancel(); //$NON-NLS-1$
-		if (command.equals("thanks")) thanks(); //$NON-NLS-1$
+		if (command.equals("ok")) cancel();
+		if (command.equals("thanks")) thanks();
 	}
 
 /*
@@ -140,88 +139,116 @@ public class AboutDialog extends JEscapeDialog implements ActionListener
 	public void thanks()
 	{
 		StringBuffer sb = new StringBuffer();
-		sb.append("Used Components\n"); //$NON-NLS-1$
-		sb.append("\n"); //$NON-NLS-1$
+		sb.append("Used server libs\n");
+		sb.append("\n");
 
-		sb.append("Kunststoff Look&Feel\n"); //$NON-NLS-1$
-		sb.append("GNU LESSER GENERAL PUBLIC LICENSE Version 2.1, February 1999\n"); //$NON-NLS-1$
-		sb.append("http://www.incors.org\n"); //$NON-NLS-1$
-		sb.append("\n"); //$NON-NLS-1$
+		sb.append("Tomcat\n");
+		sb.append("Copyright \u00A9 1999, 2000  The Apache Software Foundation\n");
+		sb.append("Apache Software License,  Version 1.1\n");
+		sb.append("http://www.apache.org\n");
+		sb.append("\n");
 
-		sb.append("Tomcat servlet runner\n"); //$NON-NLS-1$
-		sb.append("Copyright \u00A9 1999, 2000  The Apache Software Foundation\n"); //$NON-NLS-1$
-		sb.append("Apache Software License,  Version 1.1\n"); //$NON-NLS-1$
-		sb.append("http://www.apache.org\n"); //$NON-NLS-1$
-		sb.append("\n"); //$NON-NLS-1$
+		sb.append("Wicket\n");
+		sb.append("Copyright \u00A9 1999, 2000  The Apache Software Foundation\n");
+		sb.append("Apache Software License,  Version 2.0\n");
+		sb.append("http://wicket.apache.org\n");
+		sb.append("\n");
 
-		sb.append("Wicket\n"); //$NON-NLS-1$
-		sb.append("Copyright \u00A9 2004, 2005 Wicket developers\n"); //$NON-NLS-1$
-		sb.append("Apache Software License,  Version 2.0\n"); //$NON-NLS-1$
-		sb.append("http://wicket.sourceforge.net/license.html\n"); //$NON-NLS-1$
-		sb.append("\n"); //$NON-NLS-1$
+		sb.append("Apache commons\n");
+		sb.append("Copyright \u00A9 1999, 2000  The Apache Software Foundation\n");
+		sb.append("Apache Software License,  Version 2.0\n");
+		sb.append("http://commons.apache.org\n");
+		sb.append("\n");
 
-		sb.append("ANTLR\n"); //$NON-NLS-1$
-		sb.append("public domain\n"); //$NON-NLS-1$
-		sb.append("http://www.antlr.org/license.html\n"); //$NON-NLS-1$
-		sb.append("\n"); //$NON-NLS-1$
+		sb.append("Hibernate\n");
+		sb.append("GNU LESSER GENERAL PUBLIC LICENSE Version 2.1, February 1999\n");
+		sb.append("http://www.hibernate.org\n");
+		sb.append("\n");
 
-		sb.append("JavaScript Interpreter\n"); //$NON-NLS-1$
-		sb.append("Copyright \u00A9 1997-1999 Netscape Communications Corporation.\n"); //$NON-NLS-1$
-		sb.append("Netscape Public License Version 1.1\n"); //$NON-NLS-1$
-		sb.append("http://www.mozilla.org/NPL/\n"); //$NON-NLS-1$
-		sb.append("\n"); //$NON-NLS-1$
+		sb.append("ANTLR\n");
+		sb.append("public domain\n");
+		sb.append("http://www.antlr.org/license.html\n");
+		sb.append("\n");
 
-		sb.append("JFontChooser,JDateChooser\n"); //$NON-NLS-1$
-		sb.append("Copyright \u00A9 1999 Lama Soft\n"); //$NON-NLS-1$
-		sb.append("Freeware\n"); //$NON-NLS-1$
-		sb.append("http://www.lamatek.com/lamasoft\n"); //$NON-NLS-1$
-		sb.append("\n"); //$NON-NLS-1$
+		sb.append("TwoWaySocketFactory\n");
+		sb.append("Copyright \u00A9 2000 Computer System Services, Inc.\n");
+		sb.append("Freeware\n");
+		sb.append("\n");
 
-		sb.append("TwoWaySocketFactory\n"); //$NON-NLS-1$
-		sb.append("Copyright \u00A9 2000 Computer System Services, Inc.\n"); //$NON-NLS-1$
-		sb.append("Freeware\n"); //$NON-NLS-1$
-		sb.append("\n"); //$NON-NLS-1$
+		sb.append("Joda time\n");
+		sb.append("Apache Software License,  Version 2.0\n");
+		sb.append("http://joda-time.sourceforge.net/license.html\n");
+		sb.append("\n");
 
-		sb.append("MRJAdapter\n"); //$NON-NLS-1$
-		sb.append("Copyright \u00A9 2003 Steve Roy\n"); //$NON-NLS-1$
-		sb.append("GNU LESSER GENERAL PUBLIC LICENSE Version 2.1, February 1999\n"); //$NON-NLS-1$
-		sb.append("http://www.gnu.org/copyleft/lesser.html\n"); //$NON-NLS-1$
-		sb.append("\n"); //$NON-NLS-1$
+		sb.append("JUG\n");
+		sb.append("GNU LESSER GENERAL PUBLIC LICENSE Version 2.1, February 1999\n");
+		sb.append("http://jug.safehaus.org\n");
+		sb.append("\n");
 
-		sb.append("JavaServiceWrapper\n"); //$NON-NLS-1$
-		sb.append("Copyright \u00A9 1999, 2003 TanukiSoftware.org\n"); //$NON-NLS-1$
-		sb.append("Freeware\n"); //$NON-NLS-1$
-		sb.append("http://wrapper.tanukisoftware.org/doc/english/license.html\n"); //$NON-NLS-1$
-		sb.append("\n"); //$NON-NLS-1$
+		sb.append("Jabsorb\n");
+		sb.append("Apache Software License,  Version 2.0\n");
+		sb.append("http://jabsorb.org\n");
+		sb.append("\n");
 
-		sb.append("Hibernate\n"); //$NON-NLS-1$
-		sb.append("GNU LESSER GENERAL PUBLIC LICENSE Version 2.1, February 1999\n"); //$NON-NLS-1$
-		sb.append("http://www.hibernate.org\n"); //$NON-NLS-1$
-		sb.append("\n"); //$NON-NLS-1$
+		sb.append("Used client libs\n");
+		sb.append("\n");
 
-		sb.append("JPEGEncoder\n"); //$NON-NLS-1$
-		sb.append("Copyright \u00A9 1998, James R. Weeks and BioElectroMech\n"); //$NON-NLS-1$
-		sb.append("http://www.obrador.com/essentialjpeg/acceptance.htm\n"); //$NON-NLS-1$
-		sb.append("\n"); //$NON-NLS-1$
+		sb.append("Kunststoff Look&Feel\n");
+		sb.append("GNU LESSER GENERAL PUBLIC LICENSE Version 2.1, February 1999\n");
+		sb.append("http://www.incors.org\n");
+		sb.append("\n");
 
-		sb.append("Image Metadata Extractor\n"); //$NON-NLS-1$
-		sb.append("Copyright \u00A9 2006, drewnoakes.com\n"); //$NON-NLS-1$
-		sb.append("Freeware\n"); //$NON-NLS-1$
-		sb.append("http://www.drewnoakes.com/code/exif/\n"); //$NON-NLS-1$
-		sb.append("\n"); //$NON-NLS-1$
+		sb.append("Rhino JavaScript Interpreter\n");
+		sb.append("Copyright \u00A9 1997-1999 Netscape Communications Corporation.\n");
+		sb.append("Netscape Public License Version 1.1\n");
+		sb.append("http://www.mozilla.org/NPL/\n");
+		sb.append("\n");
 
-		sb.append("Oracle Java Help\n"); //$NON-NLS-1$
-		sb.append("Copyright \u00A9 2002 Oracle\n"); //$NON-NLS-1$
-		sb.append("Freeware\n"); //$NON-NLS-1$
-		//OHJ and OHW are available for free from this Web site. You may redistribute OHJ as the help system for your application at no cost, and you may implement the OHW servlet at no cost. 
-		//As a service to our customers and the software community, Oracle provides Oracle Help software and support for for free. This includes both Oracle Help for Java (OHJ) and Oracle Help for the Web (OHW).
-		sb.append("http://technet.oracle.com/tech/java/help/content.html\n"); //$NON-NLS-1$
-		sb.append("\n"); //$NON-NLS-1$
+		sb.append("JFontChooser,JDateChooser\n");
+		sb.append("Copyright \u00A9 1999 Lama Soft\n");
+		sb.append("Freeware\n");
+		sb.append("\n");
 
-		sb.append("BrowserLauncher2\n"); //$NON-NLS-1$
-		sb.append("GNU LESSER GENERAL PUBLIC LICENSE Version 2.1, February 1999\n"); //$NON-NLS-1$
-		sb.append("http://www.gnu.org/licenses/lgpl.html\n"); //$NON-NLS-1$
-		sb.append("\n"); //$NON-NLS-1$
+		sb.append("MRJAdapter\n");
+		sb.append("Copyright \u00A9 2003 Steve Roy\n");
+		sb.append("GNU LESSER GENERAL PUBLIC LICENSE Version 2.1, February 1999\n");
+		sb.append("http://www.gnu.org/copyleft/lesser.html\n");
+		sb.append("\n");
+
+		sb.append("JPEGEncoder\n");
+		sb.append("Copyright \u00A9 1998, James R. Weeks and BioElectroMech\n");
+		sb.append("http://www.obrador.com/essentialjpeg/acceptance.htm\n");
+		sb.append("\n");
+
+		sb.append("Image Metadata Extractor\n");
+		sb.append("Copyright \u00A9 2006, drewnoakes.com\n");
+		sb.append("Freeware\n");
+		sb.append("http://www.drewnoakes.com/code/exif/\n");
+		sb.append("\n");
+
+		sb.append("iText\n");
+		sb.append("Copyright (C) 2000, Lowagie Bruno\n");
+		sb.append("GNU LESSER GENERAL PUBLIC LICENSE\n");
+		sb.append("http://itextpdf.com\n");
+		sb.append("\n");
+
+		sb.append("BrowserLauncher2\n");
+		sb.append("GNU LESSER GENERAL PUBLIC LICENSE Version 2.1, February 1999\n");
+		sb.append("http://www.gnu.org/licenses/lgpl.html\n");
+		sb.append("\n");
+
+		sb.append("Used developer libs\n");
+		sb.append("\n");
+
+		sb.append("Eclipse\n");
+		sb.append("Eclipse Public License v1.0\n");
+		sb.append("http://www.eclipse.org/legal/epl-v10.html\n");
+		sb.append("\n");
+
+		sb.append("DLTK\n");
+		sb.append("Eclipse Public License v1.0\n");
+		sb.append("http://www.eclipse.org/legal/epl-v10.html\n");
+		sb.append("\n");
 
 		ta.setText(sb.toString());
 		ta.setCaretPosition(0);
