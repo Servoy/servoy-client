@@ -40,8 +40,8 @@ import javax.swing.border.Border;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.html.CSS;
 
-import org.apache.wicket.ResourceReference;
 import org.apache.wicket.Component.IVisitor;
+import org.apache.wicket.ResourceReference;
 
 import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
@@ -276,7 +276,7 @@ public class TemplateGenerator
 			public Object component(org.apache.wicket.Component c)
 			{
 				String id = "#" + c.getId();
-				if (ids.indexOf(id) != -1) webFormIDToMarkupIDMap.put(id, "#" + c.getMarkupId());
+				if (ids.indexOf(id) != -1 && !webFormIDToMarkupIDMap.containsKey(id)) webFormIDToMarkupIDMap.put(id, "#" + c.getMarkupId());
 				return IVisitor.CONTINUE_TRAVERSAL;
 			}
 		});
