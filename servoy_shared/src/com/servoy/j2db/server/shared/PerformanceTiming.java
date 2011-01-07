@@ -55,6 +55,11 @@ public class PerformanceTiming
 
 	public String getTypeString()
 	{
+		return getTypeString(type);
+	}
+
+	public static String getTypeString(int type)
+	{
 		switch (type)
 		{
 			case IDataServer.CUSTOM_QUERY :

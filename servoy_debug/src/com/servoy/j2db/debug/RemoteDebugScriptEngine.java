@@ -41,9 +41,7 @@ import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.ScriptCalculation;
-import com.servoy.j2db.scripting.IProfileListener;
 import com.servoy.j2db.scripting.ScriptEngine;
-import com.servoy.j2db.scripting.ServoyDebugger;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ExtendableURLClassLoader;
 

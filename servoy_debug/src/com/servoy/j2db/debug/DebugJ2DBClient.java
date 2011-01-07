@@ -37,9 +37,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -73,6 +73,7 @@ import com.servoy.j2db.JSWindowManager;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.FoundSet;
+import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.gui.LoginDialog;
 import com.servoy.j2db.persistence.AbstractBase;
@@ -87,7 +88,6 @@ import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.IScriptSupport;
 import com.servoy.j2db.scripting.JSWindowImpl;
-import com.servoy.j2db.scripting.ServoyDebugger;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.server.shared.IApplicationServerAccess;
@@ -803,6 +803,22 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	protected ILAFManager createLAFManager()
 	{
 		return ApplicationServerSingleton.get().getLafManager();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ClientState#createDataServer()
+	 */
+	@Override
+	protected IDataServer createDataServer()
+	{
+		IDataServer dataServer = super.createDataServer();
+		if (dataServer != null)
+		{
+			dataServer = new ProfileDataServer(dataServer);
+		}
+		return dataServer;
 	}
 
 	@Override

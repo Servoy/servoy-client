@@ -935,8 +935,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			{
 				transaction_id = gt.getTransactionID(sheet.getServerName());
 			}
-			IDataSet dataset = ((ILockServer)fsm.getApplication().getDataServer()).acquireLocks(client_id, sheet.getServerName(), sheet.getTable().getName(),
-				ids, lockSelect, transaction_id, getFoundsetManager().getTableFilterParams(sheet.getServerName(), lockSelect), getFoundsetManager().chunkSize);
+			IDataSet dataset = fsm.getApplication().getDataServer().acquireLocks(client_id, sheet.getServerName(), sheet.getTable().getName(), ids, lockSelect,
+				transaction_id, getFoundsetManager().getTableFilterParams(sheet.getServerName(), lockSelect), getFoundsetManager().chunkSize);
 			if (dataset != null)
 			{
 				addLocks(ids, lockName);

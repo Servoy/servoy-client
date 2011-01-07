@@ -147,7 +147,7 @@ public class DataServerProxy implements IDataServer
 		{
 			for (QueryData element : array)
 			{
-				element.setServer_name(getMappedServerName(element.getServer_name()));
+				element.setServerName(getMappedServerName(element.getServerName()));
 			}
 		}
 		return ds.performQuery(client_id, array);

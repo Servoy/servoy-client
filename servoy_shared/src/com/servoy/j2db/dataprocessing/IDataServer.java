@@ -204,5 +204,4 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 	 */
 	public QuerySet getSQLQuerySet(String serverName, ISQLQuery sqlQuery, ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve,
 		boolean forceQualifyColumns) throws RepositoryException, RemoteException;
-
 }

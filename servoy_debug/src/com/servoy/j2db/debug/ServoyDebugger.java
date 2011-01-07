@@ -14,7 +14,7 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
-package com.servoy.j2db.scripting;
+package com.servoy.j2db.debug;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -27,6 +27,7 @@ import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.debug.DebugFrame;
 import org.mozilla.javascript.debug.DebuggableScript;
+
 
 /**
  * @author jcompagner
@@ -135,7 +136,6 @@ public class ServoyDebugger extends DBGPDebugger
 
 	public void onenter(ServoyDebugFrame servoyDebugFrame)
 	{
-		System.err.println("onenter: " + Thread.currentThread().getName() + ":::" + servoyDebugFrame);
 		ProfileInfo info = profileInfo.get();
 		if (info == null)
 		{
@@ -150,7 +150,6 @@ public class ServoyDebugger extends DBGPDebugger
 	 */
 	public void onexit(ServoyDebugFrame servoyDebugFrame)
 	{
-		System.err.println("onExit: " + Thread.currentThread().getName() + ":::" + servoyDebugFrame);
 		if (profileInfo.get().pop(servoyDebugFrame))
 		{
 			// last call

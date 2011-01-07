@@ -14,13 +14,15 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
-package com.servoy.j2db.scripting;
+package com.servoy.j2db.debug;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.mozilla.javascript.Wrapper;
+
+import com.servoy.j2db.scripting.JSEvent;
 
 /**
  * @author jcompagner
@@ -41,6 +43,7 @@ public final class ProfileData
 	private final String parentSourceCall;
 	private final boolean innerFunction;
 	private final int[] lineNumbers;
+	private final List<DataCallProfileData> dataCallProfileDatas;
 
 	/**
 	 * @param functionName
@@ -50,12 +53,15 @@ public final class ProfileData
 	 * @param parentSourceCall 
 	 * @param innerFunction 
 	 * @param lineNumbers 
+	 * @param dataCallProfileDatas 
 	 */
-	public ProfileData(String functionName, long time, Object[] args, String sourceName, String parentSourceCall, boolean innerFunction, int[] lineNumbers)
+	public ProfileData(String functionName, long time, Object[] args, String sourceName, String parentSourceCall, boolean innerFunction, int[] lineNumbers,
+		List<DataCallProfileData> dataCallProfileDatas)
 	{
 		this.parentSourceCall = parentSourceCall;
 		this.innerFunction = innerFunction;
 		this.lineNumbers = lineNumbers;
+		this.dataCallProfileDatas = dataCallProfileDatas;
 		if (this.lineNumbers != null)
 		{
 			Arrays.sort(this.lineNumbers);
@@ -133,6 +139,14 @@ public final class ProfileData
 				args[i] = sb.toString();
 			}
 		}
+	}
+
+	/**
+	 * @return the dataCallProfileDatas
+	 */
+	public List<DataCallProfileData> getDataCallProfileDatas()
+	{
+		return dataCallProfileDatas;
 	}
 
 	/**

@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 import java.io.Serializable;
@@ -72,7 +72,7 @@ public class ValueFactory // terracotta instrumented class because for example N
 	{
 	}
 
-	public static class DbIdentValue implements Serializable, ReferenceOnlyInJS // visible/usable in JS as simple reference to create related records&stuff before save
+	public final static class DbIdentValue implements Serializable, ReferenceOnlyInJS // visible/usable in JS as simple reference to create related records&stuff before save
 	{
 		private Object value;
 		// to which this dbident belongs.
@@ -89,15 +89,9 @@ public class ValueFactory // terracotta instrumented class because for example N
 		}
 
 		@Override
-		public final int hashCode()
-		{
-			// hashCode must be stable for this object, when value is set hashcode should not change, this is used in Row.getPKHashKey()
-			return super.hashCode();
-		}
-
-		@Override
 		public String toString()
 		{
+			if (value != null) return "DbIdentValue[" + value.toString() + ']'; //$NON-NLS-1$
 			return "DbIdentValue" + hashCode(); //$NON-NLS-1$
 		}
 

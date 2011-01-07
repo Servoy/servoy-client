@@ -86,7 +86,7 @@ public class QueryData implements Serializable, IVisitable
 	/**
 	 * @return the server_name
 	 */
-	public String getServer_name()
+	public String getServerName()
 	{
 		return this.server_name;
 	}
@@ -94,7 +94,7 @@ public class QueryData implements Serializable, IVisitable
 	/**
 	 * set the server_name
 	 */
-	public void setServer_name(String server_name)
+	public void setServerName(String server_name)
 	{
 		this.server_name = server_name;
 	}
@@ -102,7 +102,7 @@ public class QueryData implements Serializable, IVisitable
 	/**
 	 * @return the transaction_id
 	 */
-	public String getTransaction_id()
+	public String getTransactionId()
 	{
 		return this.transaction_id;
 	}
