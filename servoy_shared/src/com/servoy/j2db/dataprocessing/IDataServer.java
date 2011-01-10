@@ -126,8 +126,8 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 	 */
 	public Object[] performUpdates(String clientId, ISQLStatement[] statements) throws ServoyException, RemoteException;
 
-	public Blob getBlob(String clientId, String serverName, String tableName, String[] pkColumnNames, String blobColumnName, String mimeTypeColumnName,
-		String fileNameColumnName, Object[] pk, String tid) throws RepositoryException, RemoteException;
+	public Blob getBlob(String clientId, String serverName, ISQLSelect blobSelect, ArrayList<TableFilter> filters, String tid) throws RepositoryException,
+		RemoteException;
 
 	/**
 	 * Start a transaction in backend DB.

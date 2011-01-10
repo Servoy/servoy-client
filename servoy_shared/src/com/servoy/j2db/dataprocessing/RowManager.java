@@ -27,9 +27,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.WeakHashMap;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.event.TableModelEvent;
@@ -43,13 +43,17 @@ import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.AbstractBaseQuery;
+import com.servoy.j2db.query.IQuerySelectValue;
+import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.ISQLUpdate;
 import com.servoy.j2db.query.PlaceholderKey;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QueryInsert;
 import com.servoy.j2db.query.QuerySelect;
+import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.QueryUpdate;
+import com.servoy.j2db.query.SetCondition;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
@@ -600,8 +604,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 							}
 							Object robj = c.getAsRightType(newdata[i]);
 							if (robj == null) robj = ValueFactory.createNullValue(c.getType());
-							((QueryUpdate)sqlUpdate).addValue(new QueryColumn(((QueryUpdate)sqlUpdate).getTable(), c.getID(), c.getSQLName(), c.getType(),
-								c.getLength(), c.getScale()), robj);
+							((QueryUpdate)sqlUpdate).addValue(
+								new QueryColumn(((QueryUpdate)sqlUpdate).getTable(), c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale()), robj);
 							if (changedColumns == null)
 							{
 								changedColumns = new ArrayList<String>(olddata.length - i);
@@ -1014,21 +1018,38 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 	 */
 	Blob getBlob(Row row, int columnIndex) throws Exception
 	{
-		String serverName = sheet.getServerName();
-		String tableName = sheet.getTable().getName();
-		String[] pkColumnNames = sheet.getPKColumnDataProvidersAsArray();
+		QuerySelect blobSelect = new QuerySelect(new QueryTable(sheet.getTable().getSQLName(), sheet.getTable().getCatalog(), sheet.getTable().getSchema()));
+
 		String blobColumnName = sheet.getColumnNames()[columnIndex];
-		String mimeTypeColumnName = null;
-		String fileNameColumnName = null;
+		Column blobColumn = sheet.getTable().getColumn(blobColumnName);
+		blobSelect.addColumn(new QueryColumn(blobSelect.getTable(), blobColumn.getID(), blobColumn.getSQLName(), blobColumn.getType(), blobColumn.getLength(),
+			blobColumn.getScale(), false));
+
+		String[] pkColumnNames = sheet.getPKColumnDataProvidersAsArray();
+		IQuerySelectValue[] pkQuerycolumns = new IQuerySelectValue[pkColumnNames.length];
+
+		Object[][] pkValues = new Object[pkColumnNames.length][];
 		Object[] pk = row.getPK();
+
+		for (int k = 0; k < pkValues.length; k++)
+		{
+			Column pkcolumn = sheet.getTable().getColumn(pkColumnNames[k]);
+			pkQuerycolumns[k] = new QueryColumn(blobSelect.getTable(), pkcolumn.getID(), pkcolumn.getSQLName(), pkcolumn.getType(), pkcolumn.getLength(),
+				pkcolumn.getScale(), false);
+			pkValues[k] = new Object[] { pk[k] };
+		}
+
+		blobSelect.addCondition("blobselect", new SetCondition(ISQLCondition.EQUALS_OPERATOR, pkQuerycolumns, pkValues, true));
+
+		String serverName = sheet.getServerName();
 		String transaction_id = null;
 		GlobalTransaction gt = fsm.getGlobalTransaction();
 		if (gt != null)
 		{
 			transaction_id = gt.getTransactionID(sheet.getServerName());
 		}
-		return fsm.getApplication().getDataServer().getBlob(fsm.getApplication().getClientID(), serverName, tableName, pkColumnNames, blobColumnName,
-			mimeTypeColumnName, fileNameColumnName, pk, transaction_id);
+		return fsm.getApplication().getDataServer().getBlob(fsm.getApplication().getClientID(), serverName, blobSelect,
+			fsm.getTableFilterParams(sheet.getServerName(), blobSelect), transaction_id);
 	}
 
 	/**
