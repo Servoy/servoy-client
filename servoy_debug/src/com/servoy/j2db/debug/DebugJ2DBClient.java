@@ -685,6 +685,11 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 				}
 			}
 			logout(null);
+			if (unitTestsRunning)
+			{
+				repository = null;
+				applicationServerAccess = null;
+			}
 		}
 		catch (Exception ex)
 		{
