@@ -89,7 +89,7 @@ public class FlattenedForm extends Form
 		Map<String, ScriptMethod> formMethods = new HashMap<String, ScriptMethod>();
 		Map<UUID, IPersist> persists = new HashMap<UUID, IPersist>();
 
-		copyPropertiesMap(form.getPropertiesMap());
+		copyPropertiesMap(form.getPropertiesMap(), false);
 
 		for (Form f : allForms)
 		{

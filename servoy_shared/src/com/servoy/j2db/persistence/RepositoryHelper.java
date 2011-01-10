@@ -139,7 +139,7 @@ public class RepositoryHelper
 
 	public static void initClone(IPersist clone, IPersist original)
 	{
-		((AbstractBase)clone).copyPropertiesMap(((AbstractBase)original).getPropertiesMap());
+		((AbstractBase)clone).copyPropertiesMap(((AbstractBase)original).getPropertiesMap(), false);
 		if (((AbstractBase)clone).isOverrideElement())
 		{
 			((AbstractBase)clone).putOverrideProperty(null);

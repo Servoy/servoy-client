@@ -85,7 +85,7 @@ public class JSBase<T extends AbstractBase>
 				{
 					baseComponent = (T)tempPersist.cloneObj(getJSParent().getSupportChild(), false, null, false, false);
 					baseComponent.resetUUID(tempPersist.getUUID());
-					baseComponent.copyPropertiesMap(null);
+					baseComponent.copyPropertiesMap(null, true);
 					baseComponent.putOverrideProperty(((Form)tempPersist.getAncestor(IRepository.FORMS)).getName());
 				}
 				catch (Exception ex)

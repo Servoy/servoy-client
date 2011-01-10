@@ -95,10 +95,16 @@ public abstract class AbstractBase implements IPersist
 
 	public void clearProperty(String propertyName)
 	{
-		if (!isChanged)
+		if (!propertiesMap.containsKey(propertyName))
 		{
-			isChanged = propertiesMap.containsKey(propertyName);
+			return;
 		}
+		isChanged = true;
+
+		// call the setter with content spec default so any cached data is cleared
+		Element element = StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(getTypeID(), propertyName);
+		setProperty(propertyName, element == null ? null : element.getDefaultClassValue());
+
 		propertiesMap.remove(propertyName);
 	}
 
@@ -107,8 +113,21 @@ public abstract class AbstractBase implements IPersist
 		return propertiesMap.containsKey(propertyName);
 	}
 
-	public void copyPropertiesMap(Map<String, Object> newProperties)
+	public void copyPropertiesMap(Map<String, Object> newProperties, boolean overwrite)
 	{
+		if (overwrite)
+		{
+			// remove properties that are not in newProperties
+			for (String key : propertiesMap.keySet().toArray(new String[propertiesMap.size()]))
+			{
+				if (newProperties == null || !newProperties.containsKey(key))
+				{
+					clearProperty(key);
+				}
+			}
+		}
+
+		// apply the new properties
 		if (newProperties != null)
 		{
 			Iterator<Entry<String, Object>> iterator = newProperties.entrySet().iterator();
@@ -117,14 +136,6 @@ public abstract class AbstractBase implements IPersist
 				Entry<String, Object> next = iterator.next();
 				setProperty(next.getKey(), next.getValue());
 			}
-		}
-		else
-		{
-			if (!isChanged)
-			{
-				isChanged = propertiesMap.size() > 0;
-			}
-			propertiesMap.clear();
 		}
 	}
 
@@ -136,7 +147,6 @@ public abstract class AbstractBase implements IPersist
 			if (methods.containsKey(propertyName))
 			{
 				methods.get(propertyName).invoke(this, new Object[] { val });
-				return;
 			}
 			else
 			{

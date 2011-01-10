@@ -126,7 +126,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 				persist = solution.getChangeHandler().createNewObject((ISupportChilds)parent, typeID, id, uuid);
 				((ISupportChilds)parent).addChild(persist);
 			}
-			updatePersistWithValueMap(persist, values);
+			updatePersistWithValueMap(persist, values, false);
 
 			return persist;
 		}
@@ -229,7 +229,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 		solutionCopy.setChangeHandler(new ChangeHandler(this));
 
 		Map<String, Object> values = getPersistAsValueMap(solution);
-		updatePersistWithValueMap(solutionCopy, values);
+		updatePersistWithValueMap(solutionCopy, values, false);
 		return solutionCopy;
 	}
 
@@ -276,7 +276,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 		}
 
 		Map<String, Object> values = ((AbstractRepository)persist.getRootObject().getRepository()).getPersistAsValueMap(persist);
-		updatePersistWithValueMap(destPersist, values);
+		updatePersistWithValueMap(destPersist, values, false);
 		if (destPersist.isChanged())
 		{
 			destPersist.getRootObject().getChangeHandler().fireIPersistChanged(destPersist);
@@ -476,9 +476,9 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 		return ((AbstractBase)persist).getPropertiesMap();
 	}
 
-	public void updatePersistWithValueMap(IPersist persist, Map<String, Object> propertyValues) throws RepositoryException
+	public void updatePersistWithValueMap(IPersist persist, Map<String, Object> propertyValues, boolean overwrite) throws RepositoryException
 	{
-		((AbstractBase)persist).copyPropertiesMap(propertyValues);
+		((AbstractBase)persist).copyPropertiesMap(propertyValues, overwrite);
 	}
 
 	/**

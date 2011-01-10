@@ -44,7 +44,7 @@ public interface IDeveloperRepository extends IRepository, IPersistFactory
 
 	public Map<String, Object> getPersistAsValueMap(IPersist persist) throws RepositoryException;
 
-	public void updatePersistWithValueMap(IPersist retval, Map<String, Object> propertyValues) throws RepositoryException;
+	public void updatePersistWithValueMap(IPersist retval, Map<String, Object> propertyValues, boolean overwrite) throws RepositoryException;
 
 	public Object convertArgumentStringToObject(int typeID, String propertyObjectValue) throws RepositoryException;
 
