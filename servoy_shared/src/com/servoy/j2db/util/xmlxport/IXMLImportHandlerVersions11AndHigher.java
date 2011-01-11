@@ -27,11 +27,11 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.jar.JarFile;
 
+import com.servoy.j2db.persistence.I18NUtil.MessageEntry;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRootObject;
 import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.I18NUtil.MessageEntry;
 import com.servoy.j2db.util.ServoyException;
 
 /**
@@ -82,4 +82,6 @@ public interface IXMLImportHandlerVersions11AndHigher
 	void setStyleActiveRelease(IRootObject[] rootObjects) throws RepositoryException;
 
 	int getObjectId(boolean b, String string) throws RepositoryException;
+
+	void setAskForImportServerName(boolean askForImportServerName);
 }

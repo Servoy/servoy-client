@@ -60,6 +60,15 @@ public interface IXMLImportUserChannel extends InfoChannel
 	 */
 	public String askServerForRepositoryUserData();
 
+
+	/**
+	 * Ask which server the user wants to use for the import user data
+	 * 
+	 * @param importServerName the name of the server from the import 
+	 * @return the name of the server to use
+	 */
+	public String askServerForImportUserData(String importServerName);
+
 	/**
 	 * This method asks the user what to do when a server needed in the import is not found. Valid actions are <code>CANCEL_ACTION</code> in which case a
 	 * repository exception is thrown, a <code>RENAME_ACTION</code> in which case the import expects the new name specified by the user to be returned by the
