@@ -1992,6 +1992,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * The method that is triggered when (non Design Mode) dropping occurs.
 	 * 
 	 * @templatedescription Handle a drop
+	 * Return true if drop has been performed successfully, otherwise false.
 	 * @templatename onDrop
 	 * @templatetype Boolean
 	 * @templateparam JSDNDEvent event the event that triggered the action
