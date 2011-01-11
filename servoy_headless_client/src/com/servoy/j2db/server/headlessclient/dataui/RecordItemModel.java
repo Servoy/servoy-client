@@ -340,13 +340,14 @@ public abstract class RecordItemModel extends LoadableDetachableModel implements
 			GlobalScope gs = webForm.getController().getApplication().getScriptEngine().getSolutionScope().getGlobalScope();
 			value = gs.get(restName);
 		}
-		else if (fs != null && fs.has(dataProviderID, fs)) // how can fs be null.
-		{
-			value = fs.get(dataProviderID);
-		}
 		else if (record != null)
 		{
 			value = record.getValue(dataProviderID);
+		}
+
+		if (value == Scriptable.NOT_FOUND && fs != null && fs.has(dataProviderID, fs)) // how can fs be null.
+		{
+			value = fs.get(dataProviderID);
 		}
 
 		if (value instanceof DbIdentValue)
