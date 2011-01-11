@@ -31,7 +31,6 @@ import org.apache.wicket.model.IComponentInheritedModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.IWrapModel;
 import org.apache.wicket.util.convert.IConverter;
-import org.apache.wicket.util.string.CssUtils;
 import org.apache.wicket.util.value.IValueMap;
 
 import com.servoy.j2db.IApplication;
@@ -52,6 +51,9 @@ import com.servoy.j2db.util.Text;
 public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData, IDisplayTagText, IHeaderContributor
 {
 	private static final long serialVersionUID = 1L;
+
+	private final static String CSS_OPEN_TAG = "<style type=\"text/css\"><!--/*--><![CDATA[/*><!--*/\n"; //$NON-NLS-1$
+	private final static String CSS_CLOSE_TAG = "\n/*-->]]>*/</style>\n"; //$NON-NLS-1$
 
 	private boolean needEntireState;
 	private String dataProviderID;
@@ -218,7 +220,7 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 		lst = strippedText.getStyles();
 		for (CharSequence style : lst)
 		{
-			response.renderString(CssUtils.INLINE_OPEN_TAG + style + CssUtils.INLINE_CLOSE_TAG);
+			response.renderString(CSS_OPEN_TAG + style + CSS_CLOSE_TAG);
 		}
 		IValueMap map = strippedText.getBodyAttributes();
 		if (map != null && map.size() > 0)
