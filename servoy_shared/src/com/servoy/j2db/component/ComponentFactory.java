@@ -122,6 +122,7 @@ import com.servoy.j2db.ui.IFormLookupPanel;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IPortalComponent;
 import com.servoy.j2db.ui.IRect;
+import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISplitPane;
 import com.servoy.j2db.ui.ITabPanel;
@@ -691,10 +692,19 @@ public class ComponentFactory
 
 		if (application.getApplicationType() == IApplication.CLIENT)
 		{
+			//special code for smart client LAFs, like BizLaf 
 			String delegateStyleClassNamePropertyKey = application.getSettings().getProperty("servoy.smartclient.componentStyleClassDelegatePropertyKey");
 			if (delegateStyleClassNamePropertyKey != null && c instanceof JComponent)
 			{
-				((JComponent)c).putClientProperty(delegateStyleClassNamePropertyKey, bc.getStyleClass());
+				if (c instanceof IScriptBaseMethods)
+				{
+					//special case since putClientProperty can delegate properties but cannot be overridden we relay on the scripting equivalent
+					((IScriptBaseMethods)c).js_putClientProperty(delegateStyleClassNamePropertyKey, bc.getStyleClass());
+				}
+				else
+				{
+					((JComponent)c).putClientProperty(delegateStyleClassNamePropertyKey, bc.getStyleClass());
+				}
 			}
 		}
 	}
@@ -1090,9 +1100,8 @@ public class ComponentFactory
 									}
 									catch (IOException e)
 									{
-										Debug.error(
-											"Exception loading properties for converter " + converter.getName() + ", properties: " +
-												ci.getConverterProperties(), e);
+										Debug.error("Exception loading properties for converter " + converter.getName() + ", properties: " +
+											ci.getConverterProperties(), e);
 									}
 								}
 							}
