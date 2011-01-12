@@ -499,29 +499,26 @@ public class ProfileDataServer implements IDataServer
 	/**
 	 * @param clientId
 	 * @param serverName
-	 * @param tableName
-	 * @param pkColumnNames
-	 * @param blobColumnName
-	 * @param mimeTypeColumnName
-	 * @param fileNameColumnName
-	 * @param pk
+	 * @param blobSelect
+	 * @param filters
 	 * @param tid
 	 * @return
 	 * @throws RepositoryException
 	 * @throws RemoteException
-	 * @see com.servoy.j2db.dataprocessing.IDataServer#getBlob(java.lang.String, java.lang.String, java.lang.String, java.lang.String[], java.lang.String, java.lang.String, java.lang.String, java.lang.Object[], java.lang.String)
+	 * @see com.servoy.j2db.dataprocessing.IDataServer#getBlob(java.lang.String, java.lang.String, com.servoy.j2db.query.ISQLSelect, java.util.ArrayList, java.lang.String)
 	 */
-	public Blob getBlob(String clientId, String serverName, String tableName, String[] pkColumnNames, String blobColumnName, String mimeTypeColumnName,
-		String fileNameColumnName, Object[] pk, String tid) throws RepositoryException, RemoteException
+	public Blob getBlob(String clientId, String serverName, ISQLSelect blobSelect, ArrayList<TableFilter> filters, String tid) throws RepositoryException,
+		RemoteException
 	{
 		long startTime = System.currentTimeMillis();
 		try
 		{
-			return dataserver.getBlob(clientId, serverName, tableName, pkColumnNames, blobColumnName, mimeTypeColumnName, fileNameColumnName, pk, tid);
+			return dataserver.getBlob(clientId, serverName, blobSelect, filters, tid);
 		}
 		finally
 		{
-			informListeners("BlobLoad", serverName + '.' + tableName, blobColumnName, tid, startTime, pk);
+			QuerySet set = getSQLQuerySet(serverName, blobSelect, filters, 0, 1, false);
+			informListeners("BlobLoad", serverName, set.getSelect().getSql(), tid, startTime, set.getSelect().getParameters());
 		}
 	}
 

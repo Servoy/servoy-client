@@ -89,10 +89,10 @@ public class DataServerProxy implements IDataServer
 			maxNumberOfRowsToRetrieve);
 	}
 
-	public Blob getBlob(String clientId, String serverName, String tableName, String[] pkColumnNames, String blobColumnName, String mimeTypeColumnName,
-		String fileNameColumnName, Object[] pk, String tid) throws RepositoryException, RemoteException
+	public Blob getBlob(String clientId, String serverName, ISQLSelect blobSelect, ArrayList<TableFilter> filters, String tid) throws RepositoryException,
+		RemoteException
 	{
-		return ds.getBlob(clientId, getMappedServerName(serverName), tableName, pkColumnNames, blobColumnName, mimeTypeColumnName, fileNameColumnName, pk, tid);
+		return ds.getBlob(clientId, getMappedServerName(serverName), blobSelect, filters, tid);
 	}
 
 	public Object getNextSequence(String serverName, String tableName, String columnName, int columnInfoID) throws RepositoryException, RemoteException
