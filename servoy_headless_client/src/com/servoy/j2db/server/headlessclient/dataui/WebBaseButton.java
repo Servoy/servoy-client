@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import java.awt.Color;
@@ -920,6 +920,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	{
 		setBorder(ComponentFactoryHelper.createBorder(spec));
 		jsChangeRecorder.setBorder(spec);
+		jsChangeRecorder.setSize(size.width, size.height, border, margin, 0, false, valign);
 	}
 
 	/*
@@ -1052,14 +1053,14 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	public void js_setSize(int width, int height)
 	{
 		size = new Dimension(width, height);
-		jsChangeRecorder.setSize(width, height, border, margin, 0);
+		jsChangeRecorder.setSize(width, height, border, margin, 0, false, valign);
 	}
 
 	public Rectangle getWebBounds()
 	{
 		if (size != null)
 		{
-			Dimension d = jsChangeRecorder.calculateWebSize(size.width, size.height, border, margin, 0, null);
+			Dimension d = jsChangeRecorder.calculateWebSize(size.width, size.height, border, margin, 0, null, false, valign);
 			return new Rectangle(location, d);
 		}
 		return null;

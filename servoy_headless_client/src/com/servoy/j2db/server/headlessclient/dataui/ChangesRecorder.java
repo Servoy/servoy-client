@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import java.awt.Dimension;
@@ -23,7 +23,6 @@ import java.util.Properties;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.model.IModel;
@@ -157,6 +156,12 @@ public class ChangesRecorder implements IStylePropertyChanges
 			ComponentFactoryHelper.createBorderCSSProperties(border, properties);
 			changedProperties.putAll(properties);
 		}
+		else
+		{
+			changedProperties.put("border-style", "none"); //$NON-NLS-1$ //$NON-NLS-2$
+			changedProperties.remove("border-width"); //$NON-NLS-1$
+			changedProperties.remove("border-color"); //$NON-NLS-1$
+		}
 	}
 
 	/**
@@ -201,21 +206,21 @@ public class ChangesRecorder implements IStylePropertyChanges
 	 */
 	public void setSize(int width, int height, Border border, Insets margin, int fontSize)
 	{
-		setSize(width, height, border, margin, fontSize, SwingConstants.CENTER);
+		setSize(width, height, border, margin, fontSize, true, SwingConstants.CENTER);
 	}
 
-	public void setSize(int width, int height, Border border, Insets margin, int fontSize, int valign)
+	public void setSize(int width, int height, Border border, Insets margin, int fontSize, boolean borderOutside, int valign)
 	{
 		setChanged();
-		calculateWebSize(width, height, border, margin, fontSize, changedProperties, valign);
+		calculateWebSize(width, height, border, margin, fontSize, changedProperties, borderOutside, valign);
 	}
 
 	public Dimension calculateWebSize(int width, int height, Border border, Insets margin, int fontSize, Properties properties)
 	{
-		return calculateWebSize(width, height, border, margin, fontSize, properties, SwingConstants.CENTER);
+		return calculateWebSize(width, height, border, margin, fontSize, properties, true, SwingConstants.CENTER);
 	}
 
-	public Dimension calculateWebSize(int width, int height, Border border, Insets margin, int fontSize, Properties properties, int valign)
+	public Dimension calculateWebSize(int width, int height, Border border, Insets margin, int fontSize, Properties properties, boolean borderOutside, int valign)
 	{
 		if (properties != null)
 		{
@@ -225,7 +230,8 @@ public class ChangesRecorder implements IStylePropertyChanges
 		Insets insets = getPaddingAndBorder(height, border, margin, fontSize, properties, valign);
 		int realWidth = width;
 		int realheight = height;
-		if (insets != null)
+		// for <button> tags the border is drawn inside the component, regardless of the box model
+		if (insets != null && borderOutside)
 		{
 			realWidth -= (insets.left + insets.right);
 			realheight -= (insets.top + insets.bottom);
@@ -288,14 +294,25 @@ public class ChangesRecorder implements IStylePropertyChanges
 		{
 			Insets borderAndPadding = TemplateGenerator.sumInsets(insets, padding);
 			padding = (Insets)padding.clone();
-			int paddingTopInitialValue = 0;
-			if (borderMargin == null && border instanceof EmptyBorder && insets != null)
+			padding.top += TemplateGenerator.getVerticalAlignTopPadding(valign, height, borderAndPadding.top, borderAndPadding.bottom, fontSize);
+		}
+		if (properties != null)
+		{
+			if (padding != null)
 			{
-				// empty border is used for margin in webbaselabel
-				paddingTopInitialValue = insets.top;
+				properties.put("padding-top", padding.top + "px"); //$NON-NLS-1$ //$NON-NLS-2$
+				properties.put("padding-left", padding.left + "px"); //$NON-NLS-1$ //$NON-NLS-2$
+				properties.put("padding-bottom", padding.bottom + "px"); //$NON-NLS-1$ //$NON-NLS-2$
+				properties.put("padding-right", padding.right + "px"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
-			padding.top = TemplateGenerator.getVerticalAlignTopPadding(valign, height, borderAndPadding.top, borderAndPadding.bottom, fontSize);
-			if (properties != null) properties.put("padding-top", paddingTopInitialValue + padding.top + "px"); //$NON-NLS-1$ //$NON-NLS-2$
+			else
+			{
+				properties.put("padding-top", "0px"); //$NON-NLS-1$ //$NON-NLS-2$
+				properties.put("padding-left", "0px"); //$NON-NLS-1$ //$NON-NLS-2$
+				properties.put("padding-bottom", "0px"); //$NON-NLS-1$ //$NON-NLS-2$
+				properties.put("padding-right", "0px"); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			properties.remove("padding"); //$NON-NLS-1$
 		}
 
 		if (insets == null) insets = padding;
