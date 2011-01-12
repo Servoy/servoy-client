@@ -66,7 +66,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 		this.session = req.getSession();
 	}
 
-	protected synchronized void addEventDispatchThread()
+	public synchronized void addEventDispatchThread()
 	{
 		if (!dispatchThreads.contains(Thread.currentThread()))
 		{
@@ -74,7 +74,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 		}
 	}
 
-	protected synchronized void removeEventDispatchThread()
+	public synchronized void removeEventDispatchThread()
 	{
 		dispatchThreads.remove(Thread.currentThread());
 	}
@@ -208,7 +208,6 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 	/**
 	 * @see com.servoy.j2db.smart.J2DBClient#output(java.lang.Object)
 	 */
-	@SuppressWarnings("nls")
 	@Override
 	public void output(Object msg, int level)
 	{
@@ -273,7 +272,6 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 	 * @param message
 	 * @param detail
 	 */
-	@SuppressWarnings("nls")
 	private void errorToDebugger(String message, Object detail)
 	{
 		DBGPDebugger debugger = getDebugger();

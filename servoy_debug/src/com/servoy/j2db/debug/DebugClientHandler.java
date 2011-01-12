@@ -16,7 +16,9 @@
  */
 package com.servoy.j2db.debug;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -32,6 +34,7 @@ import org.apache.wicket.protocol.http.WebSession;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 
+import com.servoy.j2db.ClientState;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
@@ -94,6 +97,16 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		if (designerCallback != null) designerCallback.addScriptObjects(scope);
 
 	}
+
+	public List<ClientState> getActiveDebugClients()
+	{
+		ArrayList<ClientState> lst = new ArrayList<ClientState>();
+		if (debugJ2DBClient != null && debugJ2DBClient.getSolution() != null) lst.add(debugJ2DBClient);
+		if (debugWebClient != null && debugWebClient.getSolution() != null) lst.add(debugWebClient);
+		if (debugHeadlessClient != null && debugHeadlessClient.getSolution() != null) lst.add(debugHeadlessClient);
+		return lst;
+	}
+
 
 	public void refreshDebugClientsI18N()
 	{

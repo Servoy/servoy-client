@@ -17,6 +17,7 @@
 package com.servoy.j2db;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -44,6 +45,8 @@ public interface IDebugClientHandler
 
 	IWebClientApplication createDebugWebClient(WebSession webClientSession, HttpServletRequest req, WebCredentials credentials, String method, Object[] objects)
 		throws Exception;
+
+	List<ClientState> getActiveDebugClients();
 
 	IDebugJ2DBClient getDebugSmartClient();
 
@@ -74,5 +77,4 @@ public interface IDebugClientHandler
 	void refreshDebugClients(Collection<IPersist> changes);
 
 	boolean isClientStarted();
-
 }
