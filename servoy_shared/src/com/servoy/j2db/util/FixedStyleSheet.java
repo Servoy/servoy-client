@@ -30,8 +30,8 @@ import javax.swing.border.Border;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.html.CSS;
-import javax.swing.text.html.CSS.Attribute;
 import javax.swing.text.html.StyleSheet;
+import javax.swing.text.html.CSS.Attribute;
 
 import com.servoy.j2db.util.gui.SpecialMatteBorder;
 
@@ -86,11 +86,6 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 			float bottom = getLength(a.getAttribute(CSS.Attribute.MARGIN_BOTTOM));
 			float left = getLength(a.getAttribute(CSS.Attribute.MARGIN_LEFT));
 			float right = getLength(a.getAttribute(CSS.Attribute.MARGIN_RIGHT));
-
-			top = makeSizeSave(top);
-			right = makeSizeSave(right);
-			bottom = makeSizeSave(bottom);
-			left = makeSizeSave(left);
 
 			return new Insets((int)top, (int)left, (int)bottom, (int)right);
 		}
