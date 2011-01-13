@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util;
 
 import java.awt.Color;
@@ -75,11 +75,6 @@ public class FixedStyleSheet extends StyleSheet
 			float bottom = getLength(CSS.Attribute.MARGIN_BOTTOM, a);
 			float left = getLength(CSS.Attribute.MARGIN_LEFT, a);
 			float right = getLength(CSS.Attribute.MARGIN_RIGHT, a);
-
-			top = makeSizeSave(top);
-			right = makeSizeSave(right);
-			bottom = makeSizeSave(bottom);
-			left = makeSizeSave(left);
 
 			return new Insets((int)top, (int)left, (int)bottom, (int)right);
 		}
