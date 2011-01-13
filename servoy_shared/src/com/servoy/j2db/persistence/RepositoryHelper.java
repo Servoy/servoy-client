@@ -281,6 +281,16 @@ public class RepositoryHelper
 	}
 
 	@SuppressWarnings("nls")
+	public static boolean forceHideInDocs(String name, Class< ? > persistClass)
+	{
+		if (persistClass.equals(TableNode.class) && name.equals("dataSource"))
+		{
+			return true;
+		}
+		return false;
+	}
+
+	@SuppressWarnings("nls")
 	public static boolean forceShowInDocs(String name, Class< ? > persistClass)
 	{
 		if (persistClass.equals(Tab.class) && name.equals("containsFormID")) // handled in combined property table //$NON-NLS-1$

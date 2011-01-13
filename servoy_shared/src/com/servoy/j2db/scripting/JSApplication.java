@@ -76,6 +76,7 @@ import com.servoy.j2db.scripting.info.LOGGINGLEVEL;
 import com.servoy.j2db.scripting.info.UICONSTANTS;
 import com.servoy.j2db.scripting.info.WEBCONSTANTS;
 import com.servoy.j2db.ui.IComponent;
+import com.servoy.j2db.ui.IScriptRenderMethods;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ILogLevel;
 import com.servoy.j2db.util.ServoyException;
@@ -117,7 +118,7 @@ public class JSApplication implements IReturnedTypesProvider
 
 	private static Class< ? >[] getAllReturnedTypesInternal()
 	{
-		return new Class< ? >[] { APPLICATION_TYPES.class, DRAGNDROP.class, ELEMENT_TYPES.class, JSEvent.class, LOGGINGLEVEL.class, UICONSTANTS.class, UUID.class, WEBCONSTANTS.class, CLIENTDESIGN.class, JSDNDEvent.class, JSWindow.class, JSRenderEvent.class };
+		return new Class< ? >[] { APPLICATION_TYPES.class, DRAGNDROP.class, ELEMENT_TYPES.class, JSEvent.class, LOGGINGLEVEL.class, UICONSTANTS.class, UUID.class, WEBCONSTANTS.class, CLIENTDESIGN.class, JSDNDEvent.class, JSWindow.class, JSRenderEvent.class, IScriptRenderMethods.class };
 	}
 
 	private final Stack<FormAndComponent> selectedFormAndComponent = new Stack<FormAndComponent>();
