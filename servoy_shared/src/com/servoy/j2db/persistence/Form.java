@@ -422,7 +422,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	public void setExtendsFormID(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSFORMID, arg);
-		if (!Utils.equalObjects(arg, extendsForm != null ? extendsForm.getID() : 0))
+		if (!Utils.equalObjects(arg, extendsForm != null ? extendsForm.getID() : 0) && getRootObject().getChangeHandler() != null)
 		{
 			// fire event to update parent form reference
 			getRootObject().getChangeHandler().fireIPersistChanged(this);
