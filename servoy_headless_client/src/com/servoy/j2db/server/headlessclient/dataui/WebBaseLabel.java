@@ -1262,9 +1262,9 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 		return eventExecutor;
 	}
 
-	protected void instrumentAndReplaceBody(MarkupStream markupStream, ComponentTag openTag, CharSequence bodyText)
+	protected void instrumentAndReplaceBody(MarkupStream markupStream, ComponentTag openTag, CharSequence bodyText, boolean hasHTML)
 	{
-		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, false, false));
+		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHTML, hasHTML));
 	}
 
 	@Override

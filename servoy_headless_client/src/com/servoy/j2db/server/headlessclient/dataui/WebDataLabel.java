@@ -47,6 +47,7 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 	private Object value;
 	//private String tooltip;
 	private boolean needEntireState;
+	private boolean hasHTML;
 
 	/**
 	 * @param id
@@ -80,6 +81,7 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 		super.onBeforeRender();
 
 		IModel< ? > model = getInnermostModel();
+		hasHTML = false;
 		if (needEntireState && model instanceof RecordItemModel)
 		{
 			if (dataProviderID != null)
@@ -111,6 +113,7 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 				if (HtmlUtils.startsWithHtml(bodyText))
 				{
 					bodyText = StripHTMLTagsConverter.convertBodyText(this, bodyText, application.getFlattenedSolution()).getBodyTxt();
+					hasHTML = true;
 				}
 				else
 				{
@@ -138,6 +141,7 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 				{
 					// ignore script/header contributions for now
 					bodyText = StripHTMLTagsConverter.convertBodyText(this, bodyText, application.getFlattenedSolution()).getBodyTxt();
+					hasHTML = true;
 				}
 			}
 		}
@@ -154,7 +158,7 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 	@Override
 	protected void onComponentTagBody(MarkupStream markupStream, ComponentTag openTag)
 	{
-		instrumentAndReplaceBody(markupStream, openTag, bodyText);
+		instrumentAndReplaceBody(markupStream, openTag, bodyText, hasHTML);
 	}
 
 	/**

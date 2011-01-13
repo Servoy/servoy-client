@@ -84,11 +84,13 @@ public class WebScriptLabel extends WebBaseLabel implements IScriptScriptLabelMe
 		CharSequence bodyText = getDefaultModelObjectAsString();
 
 		Object modelObject = getDefaultModelObject();
+		boolean hasHTML = false;
 		if (HtmlUtils.startsWithHtml(modelObject))
 		{
 			// ignore script/header contributions for now			
 			bodyText = StripHTMLTagsConverter.convertBodyText(this, bodyText, application.getFlattenedSolution()).getBodyTxt();
+			hasHTML = true;
 		}
-		instrumentAndReplaceBody(markupStream, openTag, bodyText);
+		instrumentAndReplaceBody(markupStream, openTag, bodyText, hasHTML);
 	}
 }
