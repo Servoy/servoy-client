@@ -113,6 +113,15 @@ This is some more test text.<br>This is some more test text.<br>This is some mor
     	    	this.setEditorHTML(ta.value);
         	}
         }, this, true);
+        this.on('editorContentLoaded', function() 
+        {
+            var id = document.URL.split("#")[1];
+            if (id)
+            {
+            	document.getElementById('editor_editor').style.height = (window.parent.document.getElementById(id+'_iframe').offsetHeight - document.getElementById('editor_toolbar').offsetHeight -5) +"px";
+            }
+                       	
+        }, this, true);
     }, myEditor, true);
     myEditor.render();
 })();
