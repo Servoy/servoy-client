@@ -153,7 +153,7 @@ public class SplitPane extends JSplitPane
 	public void setOpaque(boolean isOpaque)
 	{
 		super.setOpaque(isOpaque);
-		if (!isOpaque)
+		if (!settingUI && !isOpaque)
 		{
 			SplitPaneUI invisibleUI = new InvisibleSplitPaneUI();
 			setUI(invisibleUI);
@@ -165,12 +165,22 @@ public class SplitPane extends JSplitPane
 	public void setBackground(Color bgColor)
 	{
 		super.setBackground(bgColor);
-		if (bgColor != null && !bgColor.equals(UIManager.getColor("SplitPane.background"))) //$NON-NLS-1$
+		if (!settingUI && bgColor != null && !bgColor.equals(UIManager.getColor("SplitPane.background"))) //$NON-NLS-1$
 		{
 			SplitPaneUI invisibleUI = new InvisibleSplitPaneUI();
 			setUI(invisibleUI);
 			revalidate();
 		}
+	}
+
+	private boolean settingUI;
+
+	@Override
+	public void setUI(SplitPaneUI ui)
+	{
+		settingUI = true;
+		super.setUI(ui);
+		settingUI = false;
 	}
 
 	private class InvisibleSplitPaneUI extends BasicSplitPaneUI
@@ -200,4 +210,6 @@ public class SplitPane extends JSplitPane
 			return d;
 		}
 	}
+
+
 }
