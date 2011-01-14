@@ -2292,6 +2292,21 @@ public class Utils
 		return PLATFORM_OTHER;
 	}
 
+	public static String getPlatformAsString()
+	{
+		switch (Utils.getPlatform())
+		{
+			case Utils.PLATFORM_LINUX :
+				return "linux"; //$NON-NLS-1$
+			case Utils.PLATFORM_MAC :
+				return "mac"; //$NON-NLS-1$
+			case Utils.PLATFORM_WINDOWS :
+				return "windows"; //$NON-NLS-1$
+			default :
+				return "other"; //$NON-NLS-1$
+		}
+	}
+
 	public static CharSequence getDotQualitfied(Object... tokens)
 	{
 		if (tokens == null)
