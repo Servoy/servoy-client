@@ -174,13 +174,14 @@ public class TemplateGenerator
 		 * @param overriddenStyleName
 		 * @return
 		 */
-		public Pair<String, ArrayList<Pair<String, String>>> getFormAndCssPair(Form f, String overriddenStyleName, IRepository repository)
+		public Pair<String, ArrayList<Pair<String, String>>> getFormAndCssPair(Form f, String instanceFormName, String overriddenStyleName,
+			IRepository repository)
 		{
 			Pair<String, ArrayList<Pair<String, String>>> retval = null;
 
 			long t = getLastModifiedTime(f.getSolution(), f, overriddenStyleName, repository);
 
-			String cacheKey = System.identityHashCode(f) + ":" + overriddenStyleName;
+			String cacheKey = System.identityHashCode(f) + ":" + instanceFormName + ":" + overriddenStyleName;
 			CacheItem cacheItem = cache.get(cacheKey);
 
 
@@ -204,13 +205,14 @@ public class TemplateGenerator
 		 * @param repository
 		 * @param retval
 		 */
-		public void putFormAndCssPair(Form f, String overriddenStyleName, IRepository repository, Pair<String, ArrayList<Pair<String, String>>> formAndCss)
+		public void putFormAndCssPair(Form f, String instanceFormName, String overriddenStyleName, IRepository repository,
+			Pair<String, ArrayList<Pair<String, String>>> formAndCss)
 		{
 			long t = getLastModifiedTime(f.getSolution(), f, overriddenStyleName, repository);
 			CacheItem cacheItem = new CacheItem();
 			cacheItem.lastmodified = t;
 			cacheItem.content = formAndCss;
-			cache.put(System.identityHashCode(f) + ":" + overriddenStyleName, cacheItem);
+			cache.put(System.identityHashCode(f) + ":" + instanceFormName + ":" + overriddenStyleName, cacheItem);
 		}
 
 
@@ -324,7 +326,7 @@ public class TemplateGenerator
 		String overriddenStyleName = null;
 		Map<String, String> formIDToMarkupIDMap = null;
 
-		Pair<String, ArrayList<Pair<String, String>>> retval = formCache.getFormAndCssPair(f, overriddenStyleName, repository);
+		Pair<String, ArrayList<Pair<String, String>>> retval = formCache.getFormAndCssPair(f, formInstanceName, overriddenStyleName, repository);
 
 		if (retval == null)
 		{
@@ -406,7 +408,7 @@ public class TemplateGenerator
 			layoutProvider.renderCloseFormHTML(html);
 
 			retval = new Pair<String, ArrayList<Pair<String, String>>>(html.toString(), css.getAsSelectorValuePairs());
-			formCache.putFormAndCssPair(f, overriddenStyleName, repository, retval);
+			formCache.putFormAndCssPair(f, formInstanceName, overriddenStyleName, repository, retval);
 		}
 
 		if (sp instanceof IApplication)
