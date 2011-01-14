@@ -2008,7 +2008,7 @@ public class TemplateGenerator
 			}
 				break;
 			case Field.HTML_AREA :
-				if (true || !field.getEditable())
+				if (!Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.enable.htmleditor", Boolean.FALSE.toString())) || !field.getEditable())
 				{
 					applyScrolling(styleObj, field);
 					html.append("<div "); //$NON-NLS-1$ 

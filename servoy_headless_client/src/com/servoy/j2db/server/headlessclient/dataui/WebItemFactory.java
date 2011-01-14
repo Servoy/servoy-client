@@ -45,6 +45,8 @@ import com.servoy.j2db.ui.ISplitPane;
 import com.servoy.j2db.ui.IStandardLabel;
 import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.ui.ItemFactory;
+import com.servoy.j2db.util.Settings;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Factory implementation for Wicket GUI
@@ -177,7 +179,7 @@ public class WebItemFactory implements ItemFactory
 	{
 		if (type == ComponentFactory.HTML_AREA)
 		{
-			if (false && willBeEditable)
+			if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.enable.htmleditor", Boolean.FALSE.toString())) && willBeEditable) //$NON-NLS-1$
 			{
 				return new WebDataHtmlArea(application, name);
 			}
