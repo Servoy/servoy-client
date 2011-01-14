@@ -53,7 +53,6 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.Utils;
 
 /**
  * @author jcompagner
@@ -223,14 +222,14 @@ public class JSForm implements IJSParent, IConstantsObject
 	 * 	for (var i in variables)
 	 * 		application.output(variables[i].name);
 	 * 
-	 * @param returnInheritedElements optional boolean true to also return the elements from parent form 
+	 * @param returnInheritedElements optional boolean true to also return the elements from parent form, default false 
 	 * @return an array of all variables on this form
 	 * 
 	 */
-	public JSVariable[] js_getFormVariables(Object[] args)
+	public JSVariable[] js_getFormVariables(boolean returnInheritedElements)
 	{
 		ArrayList<JSVariable> variables = new ArrayList<JSVariable>();
-		if (args.length > 0 && Utils.getAsBoolean(args[0]))
+		if (returnInheritedElements)
 		{
 			try
 			{
@@ -254,6 +253,11 @@ public class JSForm implements IJSParent, IConstantsObject
 			}
 		}
 		return variables.toArray(new JSVariable[variables.size()]);
+	}
+
+	public JSVariable[] js_getFormVariables()
+	{
+		return js_getFormVariables(false);
 	}
 
 	/**
@@ -325,13 +329,13 @@ public class JSForm implements IJSParent, IConstantsObject
 	 * 	for (var m in methods)
 	 * 		application.output(methods[m].getName());
 	 * 
-	 * @param returnInheritedElements optional boolean true to also return the elements from parent form 
+	 * @param returnInheritedElements optional boolean true to also return the elements from parent form, default false 
 	 * @return all form methods for the form 
 	 */
-	public JSMethod[] js_getFormMethods(Object[] args)
+	public JSMethod[] js_getFormMethods(boolean returnInheritedElements)
 	{
 		ArrayList<JSMethod> methods = new ArrayList<JSMethod>();
-		if (args.length > 0 && Utils.getAsBoolean(args[0]))
+		if (returnInheritedElements)
 		{
 			try
 			{
@@ -357,6 +361,10 @@ public class JSForm implements IJSParent, IConstantsObject
 		return methods.toArray(new JSMethod[methods.size()]);
 	}
 
+	public JSMethod[] js_getFormMethods()
+	{
+		return js_getFormMethods(false);
+	}
 
 	/**
 	 * Creates a new JSField object on the form - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
@@ -913,14 +921,14 @@ public class JSForm implements IJSParent, IConstantsObject
 	 * 			application.output("unnamed portal detected");
 	 * 	}
 	 * 
-	 * @param returnInheritedElements optional boolean true to also return the elements from parent form 
+	 * @param returnInheritedElements optional boolean true to also return the elements from parent form, default false 
 	 * @return an array of all JSPortal objects on this form
 	 *
 	 */
-	public JSPortal[] js_getPortals(Object[] args)
+	public JSPortal[] js_getPortals(boolean returnInheritedElements)
 	{
 		ArrayList<JSPortal> portals = new ArrayList<JSPortal>();
-		if (args.length > 0 && Utils.getAsBoolean(args[0]))
+		if (returnInheritedElements)
 		{
 			try
 			{
@@ -946,6 +954,11 @@ public class JSForm implements IJSParent, IConstantsObject
 			}
 		}
 		return portals.toArray(new JSPortal[portals.size()]);
+	}
+
+	public JSPortal[] js_getPortals()
+	{
+		return js_getPortals(false);
 	}
 
 	/**
@@ -1079,14 +1092,14 @@ public class JSForm implements IJSParent, IConstantsObject
 	 *			application.output("Tab with text " + tp.text + " has no name");
 	 *	}
 	 *
-	 * @param returnInheritedElements optional boolean true to also return the elements from parent form 
+	 * @param returnInheritedElements optional boolean true to also return the elements from parent form, default false 
 	 * @return an array of all JSTabPanel objects on this form			
 	 *		
 	 */
-	public JSTabPanel[] js_getTabPanels(Object[] args)
+	public JSTabPanel[] js_getTabPanels(boolean returnInheritedElements)
 	{
 		ArrayList<JSTabPanel> tabPanels = new ArrayList<JSTabPanel>();
-		if (args.length > 0 && Utils.getAsBoolean(args[0]))
+		if (returnInheritedElements)
 		{
 			try
 			{
@@ -1112,6 +1125,11 @@ public class JSForm implements IJSParent, IConstantsObject
 			}
 		}
 		return tabPanels.toArray(new JSTabPanel[tabPanels.size()]);
+	}
+
+	public JSTabPanel[] js_getTabPanels()
+	{
+		return js_getTabPanels(false);
 	}
 
 	private JSPart[] getParts(int partType)
@@ -1392,18 +1410,36 @@ public class JSForm implements IJSParent, IConstantsObject
 	 *		application.output('body Y offset: ' + allParts[i].getPartYOffset());
 	 * }
 	 * 
+	 * @param returnInheritedElements optional boolean true to also return the parts from parent form, default false
 	 * @return An array of JSPart instances corresponding to the parts of the form.
 	 */
-	public JSPart[] js_getParts()
+	public JSPart[] js_getParts(boolean returnInheritedElements)
 	{
 		ArrayList<JSPart> lst = new ArrayList<JSPart>();
-		Iterator<Part> parts = form.getParts();
+		Form f = form;
+		if (form.getExtendsFormID() != 0 && returnInheritedElements)
+		{
+			try
+			{
+				f = new FlattenedForm(application.getFlattenedSolution(), f);
+			}
+			catch (Exception e)
+			{
+				throw new RuntimeException("Cant calculate y offset for part, couldn't create flattened form", e); //$NON-NLS-1$
+			}
+		}
+		Iterator<Part> parts = f.getParts();
 		while (parts.hasNext())
 		{
 			Part part = parts.next();
-			if (!testExtendFormForPart(part.getPartType(), part.getHeight())) lst.add(new JSPart(this, part, false));
+			if (returnInheritedElements || !testExtendFormForPart(part.getPartType(), part.getHeight())) lst.add(new JSPart(this, part, false));
 		}
 		return lst.toArray(new JSPart[lst.size()]);
+	}
+
+	public JSPart[] js_getParts()
+	{
+		return js_getParts(false);
 	}
 
 	public JSPart js_getPart(int type)
@@ -1735,14 +1771,14 @@ public class JSForm implements IJSParent, IConstantsObject
 	 * 			application.output(fname);
 	 * 	}
 	 * 
-	 * @param returnInheritedElements optional boolean true to also return the elements from parent form 
+	 * @param returnInheritedElements optional boolean true to also return the elements from parent form, default false 
 	 * @return all JSField objects of this form
 	 *
 	 */
-	public JSField[] js_getFields(Object[] args)
+	public JSField[] js_getFields(boolean returnInheritedElements)
 	{
 		ArrayList<JSField> fields = new ArrayList<JSField>();
-		if (args.length > 0 && Utils.getAsBoolean(args[0]))
+		if (returnInheritedElements)
 		{
 			try
 			{
@@ -1768,6 +1804,11 @@ public class JSForm implements IJSParent, IConstantsObject
 			}
 		}
 		return fields.toArray(new JSField[fields.size()]);
+	}
+
+	public JSField[] js_getFields()
+	{
+		return js_getFields(false);
 	}
 
 	/**
@@ -1850,14 +1891,14 @@ public class JSForm implements IJSParent, IConstantsObject
 	 * 			application.output(buttons[b].text + " has no name ");
 	 * }
 	 * 
-	 * @param returnInheritedElements optional boolean true to also return the elements from parent form 
+	 * @param returnInheritedElements optional boolean true to also return the elements from parent form, default false 
 	 * @return the list of all JSbuttons on this forms
 	 *
 	 */
-	public JSButton[] js_getButtons(Object[] args)
+	public JSButton[] js_getButtons(boolean returnInheritedElements)
 	{
 		ArrayList<JSButton> buttons = new ArrayList<JSButton>();
-		if (args.length > 0 && Utils.getAsBoolean(args[0]))
+		if (returnInheritedElements)
 		{
 			try
 			{
@@ -1889,6 +1930,11 @@ public class JSForm implements IJSParent, IConstantsObject
 			}
 		}
 		return buttons.toArray(new JSButton[buttons.size()]);
+	}
+
+	public JSButton[] js_getButtons()
+	{
+		return js_getButtons(false);
 	}
 
 	/**
@@ -1998,14 +2044,14 @@ public class JSForm implements IJSParent, IConstantsObject
 	 * 			application.output(beans[b].name);
 	 * }
 	 * 
-	 * @param returnInheritedElements optional boolean true to also return the elements from parent form 
+	 * @param returnInheritedElements optional boolean true to also return the elements from parent form, default false 
 	 * @return the list of all JSbuttons on this forms
 	 *
 	 */
-	public JSBean[] js_getBeans(Object[] args)
+	public JSBean[] js_getBeans(boolean returnInheritedElements)
 	{
 		ArrayList<JSBean> beans = new ArrayList<JSBean>();
-		if (args.length > 0 && Utils.getAsBoolean(args[0]))
+		if (returnInheritedElements)
 		{
 			try
 			{
@@ -2031,6 +2077,11 @@ public class JSForm implements IJSParent, IConstantsObject
 			}
 		}
 		return beans.toArray(new JSBean[beans.size()]);
+	}
+
+	public JSBean[] js_getBeans()
+	{
+		return js_getBeans(false);
 	}
 
 	/**
@@ -2117,19 +2168,24 @@ public class JSForm implements IJSParent, IConstantsObject
 	 * 	for (var i in components)
 	 * 		application.output("Component type and name: " + components[i]); 
 	 * 
-	 * @param returnInheritedElements optional boolean true to also return the elements from parent form 
+	 * @param returnInheritedElements optional boolean true to also return the elements from parent form, default false 
 	 * @return an array of all the JSComponents on the form.
 	 */
-	public JSComponent< ? >[] js_getComponents(Object[] args)
+	public JSComponent< ? >[] js_getComponents(boolean returnInheritedElements)
 	{
 		ArrayList<JSComponent< ? >> lst = new ArrayList<JSComponent< ? >>();
-		lst.addAll(Arrays.asList(js_getLabels(args)));
-		lst.addAll(Arrays.asList(js_getButtons(args)));
-		lst.addAll(Arrays.asList(js_getFields(args)));
-		lst.addAll(Arrays.asList(js_getPortals(args)));
-		lst.addAll(Arrays.asList(js_getBeans(args)));
-		lst.addAll(Arrays.asList(js_getTabPanels(args)));
+		lst.addAll(Arrays.asList(js_getLabels(returnInheritedElements)));
+		lst.addAll(Arrays.asList(js_getButtons(returnInheritedElements)));
+		lst.addAll(Arrays.asList(js_getFields(returnInheritedElements)));
+		lst.addAll(Arrays.asList(js_getPortals(returnInheritedElements)));
+		lst.addAll(Arrays.asList(js_getBeans(returnInheritedElements)));
+		lst.addAll(Arrays.asList(js_getTabPanels(returnInheritedElements)));
 		return lst.toArray(new JSComponent[lst.size()]);
+	}
+
+	public JSComponent< ? >[] js_getComponents()
+	{
+		return js_getComponents(false);
 	}
 
 	/**
@@ -2215,14 +2271,14 @@ public class JSForm implements IJSParent, IConstantsObject
 	 * 			application.output(lname);
 	 * 	}
 	 * 
-	 * @param returnInheritedElements optional boolean true to also return the elements from parent form 
+	 * @param returnInheritedElements optional boolean true to also return the elements from parent form, default false 
 	 * @return all JSLabels on this form
 	 *
 	 */
-	public JSLabel[] js_getLabels(Object[] args)
+	public JSLabel[] js_getLabels(boolean returnInheritedElements)
 	{
 		ArrayList<JSLabel> labels = new ArrayList<JSLabel>();
-		if (args.length > 0 && Utils.getAsBoolean(args[0]))
+		if (returnInheritedElements)
 		{
 			try
 			{
@@ -2256,6 +2312,10 @@ public class JSForm implements IJSParent, IConstantsObject
 		return labels.toArray(new JSLabel[labels.size()]);
 	}
 
+	public JSLabel[] js_getLabels()
+	{
+		return js_getLabels(false);
+	}
 
 	/**
 	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#js_getBorderType()
