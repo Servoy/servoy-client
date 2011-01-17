@@ -59,6 +59,7 @@ import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.ServoyForm;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.WebForm;
+import com.servoy.j2db.server.headlessclient.WrapperContainer;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataCalendar.DateField;
 import com.servoy.j2db.server.headlessclient.dataui.drag.DraggableBehavior;
 import com.servoy.j2db.ui.BaseEventExecutor;
@@ -779,6 +780,7 @@ public class WebEventExecutor extends BaseEventExecutor
 					while (dataRendererIte.hasNext())
 					{
 						dataRendererChild = dataRendererIte.next();
+						if (dataRendererChild instanceof WrapperContainer) dataRendererChild = ((WrapperContainer)dataRendererChild).getDelegate();
 						if (dataRendererChild instanceof IComponent)
 						{
 							StringBuilder sb = null;
