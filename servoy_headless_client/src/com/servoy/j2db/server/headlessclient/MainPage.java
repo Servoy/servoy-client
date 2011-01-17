@@ -318,7 +318,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				@Override
 				protected CharSequence getPreconditionScript()
 				{
-					return "onAjaxCall();return !Servoy.DD.isDragging;"; //$NON-NLS-1$
+					return "onAjaxCall(); if(Servoy.DD.isDragging) Servoy.DD.isRestartTimerNeeded=true; return !Servoy.DD.isDragging;"; //$NON-NLS-1$
 				}
 
 				/**
