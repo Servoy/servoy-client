@@ -910,17 +910,22 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 					return Messages.getString("servoy.relation.error"); //$NON-NLS-1$
 				}
 
-				if (Column.mapToDefaultType(primary[i].getDataProviderType()) == IColumnTypes.INTEGER &&
-					Column.mapToDefaultType(foreign[i].getDataProviderType()) == IColumnTypes.NUMBER)
+				int primaryType = Column.mapToDefaultType(primary[i].getDataProviderType());
+				int foreignType = Column.mapToDefaultType(foreign[i].getDataProviderType());
+				if (primaryType == IColumnTypes.INTEGER && foreignType == IColumnTypes.NUMBER)
 				{
-					continue;//allow integer to number mappings
+					continue; //allow integer to number mappings
 				}
-				if (Column.mapToDefaultType(primary[i].getDataProviderType()) == IColumnTypes.NUMBER &&
-					Column.mapToDefaultType(foreign[i].getDataProviderType()) == IColumnTypes.INTEGER)
+				if (primaryType == IColumnTypes.NUMBER && foreignType == IColumnTypes.INTEGER)
 				{
-					continue;//allow number to integer mappings
+					continue; //allow number to integer mappings
 				}
-				else if (Column.mapToDefaultType(primary[i].getDataProviderType()) != Column.mapToDefaultType(foreign[i].getDataProviderType()))
+				if (foreignType == IColumnTypes.INTEGER && primary[i] instanceof AbstractBase &&
+					"Boolean".equals(((AbstractBase)primary[i]).getSerializableRuntimeProperty(IScriptProvider.TYPE)))
+				{
+					continue; //allow boolean var to number mappings
+				}
+				if (primaryType != foreignType)
 				{
 					return Messages.getString(
 						"servoy.relation.error.typeDoesntMatch", new Object[] { primary[i].getDataProviderID(), foreign[i].getDataProviderID() }); //$NON-NLS-1$
