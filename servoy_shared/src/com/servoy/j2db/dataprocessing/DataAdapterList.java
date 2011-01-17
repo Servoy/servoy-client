@@ -386,6 +386,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 				drd.setRecord(null, true);//clear
 			}
 		}
+		// check if destroyed.
+		if (dataAdapters == null) return;
 
 
 		//2) handle all fields
