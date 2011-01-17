@@ -1162,10 +1162,7 @@ public class JSForm implements IJSParent, IConstantsObject
 				Part part = parts.next();
 				if (part.getPartType() == partType && (height == -1 || part.getHeight() == height))
 				{
-					if (!testExtendFormForPart(partType, height))
-					{
-						return new JSPart(this, part, false);
-					}
+					return new JSPart(this, part, false);
 				}
 			}
 		}
@@ -1416,23 +1413,24 @@ public class JSForm implements IJSParent, IConstantsObject
 	public JSPart[] js_getParts(boolean returnInheritedElements)
 	{
 		ArrayList<JSPart> lst = new ArrayList<JSPart>();
-		Form f = form;
+		Iterator<Part> parts = form.getParts();
 		if (form.getExtendsFormID() != 0 && returnInheritedElements)
 		{
 			try
 			{
-				f = new FlattenedForm(application.getFlattenedSolution(), f);
+				Form f = new FlattenedForm(application.getFlattenedSolution(), form);
+				parts = f.getParts();
 			}
 			catch (Exception e)
 			{
 				throw new RuntimeException("Cant calculate y offset for part, couldn't create flattened form", e); //$NON-NLS-1$
 			}
 		}
-		Iterator<Part> parts = f.getParts();
+
 		while (parts.hasNext())
 		{
 			Part part = parts.next();
-			if (returnInheritedElements || !testExtendFormForPart(part.getPartType(), part.getHeight())) lst.add(new JSPart(this, part, false));
+			lst.add(new JSPart(this, part, false));
 		}
 		return lst.toArray(new JSPart[lst.size()]);
 	}
