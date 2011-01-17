@@ -169,101 +169,27 @@ public class JSSolutionModel
 	}
 
 	/**
-	public JSForm js_newForm(String name, JSForm toclonefrom)
-	{
-		return js_cloneForm(name, toclonefrom);
-	}
-
-	 * Creates a new JSForm Object.
+	 * Creates a new form with the given JSForm as its super form.
 	 * 
-	 * NOTE: See the JSForm node for more information about form objects that can be added to the new form. 
-	 *
-	 * @sample
-	 * var myForm = solutionModel.newForm('newForm', 'myServer', 'myTable', 'myStyleName', false, 800, 600)
-	 * //now you can add stuff to the form (under JSForm node)
-	 * //add a label
-	 * myForm.newLabel('Name', 20, 20, 120, 30)
-	 * //add a "normal" text entry field
-	 * myForm.newTextField('dataProviderNameHere', 140, 20, 140,20)
-	 *
-	 * @param name the specified name of the form
-	 *
-	 * @param server_name|data_source the specified name of the server or datasource for the specified table
-	 *
-	 * @param table_name optional the specified name of the table
-	 *
-	 * @param style the specified style  
-	 *
-	 * @param show_in_menu if true show the name of the new form in the menu; or false for not showing
-	 *
-	 * @param width the width of the form in pixels
-	 *
-	 * @param height the height of the form in pixels
-	 * 
+	 * @param name The name of the new form
+	 * @param superForm the super form that will extended from, see JSform.setExtendsForm();
 	 * @return a new JSForm object
-	public JSForm js_newForm(Object[] args)
+	 */
+	public JSForm js_newForm(String name, JSForm superForm)
 	{
-		if (args == null)
-		{
-			return null;
-		}
-		if (args.length == 2 && args[1] instanceof JSForm)
-		{
-			return js_cloneForm(String.valueOf(args[0]), (JSForm)args[1]);
-		}
-		if (args.length < 6)
-		{
-			return null;
-		}
-		int a = 0;
-		String name = String.valueOf(args[a++]);
-		String dataSource = null;
-		if (args[4] instanceof Boolean && args.length > 6)
-		{
-			// separate server and table arguments
-			Object serverName = args[a++];
-			Object tableName = args[a++];
-			if (serverName != null && tableName != null)
-			{
-				dataSource = DataSourceUtils.createDBTableDataSource(serverName.toString(), tableName.toString());
-			}
-		}
-		else
-		{
-			// combined datasource argument
-			Object ds = args[a++];
-			if (ds != null)
-			{
-				dataSource = ds.toString();
-			}
-		}
-
-		String styleName = String.valueOf(args[a++]);
-		if ("null".equals(styleName)) styleName = null;
-		boolean show_in_menu = Utils.getAsBoolean(args[a++]);
-		int width = Utils.getAsInteger(args[a++]);
-		int height = Utils.getAsInteger(args[a++]);
-
 		FlattenedSolution fs = application.getFlattenedSolution();
 		try
 		{
-			Style style = null;
-			if (styleName != null)
-			{
-				style = fs.getStyle(styleName);
-			}
-			Form form = fs.getSolutionCopy().createNewForm(new ScriptNameValidator(fs), style, name, dataSource, show_in_menu, new Dimension(width, height));
-			form.createNewPart(Part.BODY, height);
+			Form form = fs.getSolutionCopy().createNewForm(new ScriptNameValidator(fs), null, name, null, superForm.js_getShowInMenu(), null);
 			((FormManager)application.getFormManager()).addForm(form, false);
+			form.setExtendsFormID(superForm.getForm().getID());
 			return new JSForm(application, form, true);
 		}
 		catch (RepositoryException e)
 		{
 			throw new RuntimeException(e);
 		}
-
 	}
-	 */
 
 	/**
 	 * Gets the style specified by the given name.
