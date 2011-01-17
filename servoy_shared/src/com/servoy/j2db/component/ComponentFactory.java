@@ -786,8 +786,8 @@ public class ComponentFactory
 							XMLEncoder encoder = new XMLEncoder(osw);
 							encoder.writeObject(beanDesignInstance);
 							encoder.close();
-							Debug.trace("Bean XML: " + osw.toString());
-							bean.setBeanXML(osw.toString());
+							Debug.trace("Bean XML: " + osw.toString("UTF-8")); //$NON-NLS-1$ //$NON-NLS-2$
+							bean.setBeanXML(osw.toString("UTF-8")); //$NON-NLS-1$
 						}
 						finally
 						{
