@@ -13,18 +13,19 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util;
 
-import java.io.StringBufferInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
 
 /**
  * @author jblok
  */
 public class XMLDecoder extends java.beans.XMLDecoder
-{	
-	public XMLDecoder(String beanXML)
+{
+	public XMLDecoder(String beanXML) throws UnsupportedEncodingException
 	{
-		super(new StringBufferInputStream(beanXML));
+		super(new ByteArrayInputStream(beanXML.getBytes("UTF-8"))); //$NON-NLS-1$
 	}
 }
