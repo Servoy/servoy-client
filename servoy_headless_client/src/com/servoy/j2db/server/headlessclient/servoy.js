@@ -595,6 +595,7 @@ if (typeof(Servoy.DD) == "undefined")
 	{
 		isDragStarted: false,
 		isDragging: false,
+		isRestartTimerNeeded: false,
 		currentElement: new Array(),
 		dropCallback: new Array(),
 		
@@ -602,12 +603,13 @@ if (typeof(Servoy.DD) == "undefined")
 		{
 			Servoy.DD.isDragging = true;
 			Servoy.DD.isDragStarted = true;
+			Servoy.DD.isRestartTimerNeeded = false;
 		},
 	
 		dragStopped: function()
 		{
-			Servoy.DD.isDragging = false;
-			if(window.restartTimer)
+			Servoy.DD.isDragging = false;			
+			if(window.restartTimer && Servoy.DD.isRestartTimerNeeded)
 			{
 				window.restartTimer();
 			}
