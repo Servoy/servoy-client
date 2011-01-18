@@ -180,7 +180,8 @@ public class JSSolutionModel
 		FlattenedSolution fs = application.getFlattenedSolution();
 		try
 		{
-			Form form = fs.getSolutionCopy().createNewForm(new ScriptNameValidator(fs), null, name, null, superForm.js_getShowInMenu(), null);
+			Form form = fs.getSolutionCopy().createNewForm(new ScriptNameValidator(fs), null, name, null, superForm.js_getShowInMenu(),
+				superForm.getForm().getSize());
 			((FormManager)application.getFormManager()).addForm(form, false);
 			form.setExtendsFormID(superForm.getForm().getID());
 			return new JSForm(application, form, true);
