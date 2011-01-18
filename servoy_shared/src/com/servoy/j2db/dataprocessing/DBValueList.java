@@ -183,6 +183,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 	}
 
 	//also called by universal field valueChanged
+	@SuppressWarnings("nls")
 	private void fill()
 	{
 		try
@@ -258,6 +259,11 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 					String transaction_id = foundSetManager.getTransactionID(table.getServerName());
 					IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, creationSQLParts,
 						tableFilterParams, !creationSQLParts.isUnique(), 0, MAX_VALUELIST_ROWS, IDataServer.VALUELIST_QUERY);
+					if (set.getRowCount() >= MAX_VALUELIST_ROWS)
+					{
+						application.reportError("Valuelist " + getName() + " fully loaded with 500 rows, more rows are discarded!!", null);
+					}
+
 					for (int i = 0; i < set.getRowCount(); i++)
 					{
 						Object[] row = CustomValueList.processRow(set.getRow(i), showValues, returnValues);
@@ -289,6 +295,11 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 							}
 						}
 					}
+					if (fs.getSize() >= MAX_VALUELIST_ROWS)
+					{
+						application.reportError("Valuelist " + getName() + " fully loaded with 500 rows, more rows are discarded!!", null);
+					}
+
 				}
 			}
 			finally
