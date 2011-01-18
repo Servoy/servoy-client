@@ -1125,6 +1125,7 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 	public void js_putClientProperty(Object key, Object value)
 	{
 		putClientProperty(key, value);
+		enclosedComponent.putClientProperty(key, value);
 	}
 
 	public Object js_getClientProperty(Object key)

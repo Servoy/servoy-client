@@ -1170,6 +1170,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 	public void js_putClientProperty(Object key, Object value)
 	{
 		putClientProperty(key, value);
+		enclosedComponent.putClientProperty(key, value);
 	}
 
 	public Object js_getClientProperty(Object key)

@@ -939,6 +939,14 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 	public void js_putClientProperty(Object key, Object value)
 	{
 		putClientProperty(key, value);
+		if (list != null)
+		{
+			list.putClientProperty(key, value);
+		}
+		else
+		{
+			table.putClientProperty(key, value);
+		}
 	}
 
 	public Object js_getClientProperty(Object key)

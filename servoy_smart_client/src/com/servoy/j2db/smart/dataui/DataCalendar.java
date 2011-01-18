@@ -702,10 +702,7 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 	public void js_putClientProperty(Object key, Object value)
 	{
 		putClientProperty(key, value);
-		if (IApplication.DATE_FORMATTERS_LENIENT.equals(key) || IApplication.DATE_FORMATTERS_ROLL_INSTEAD_OF_ADD.equals(key))
-		{
-			enclosedComponent.js_putClientProperty(key, value);
-		}
+		enclosedComponent.js_putClientProperty(key, value);
 	}
 
 	public Object js_getClientProperty(Object key)
