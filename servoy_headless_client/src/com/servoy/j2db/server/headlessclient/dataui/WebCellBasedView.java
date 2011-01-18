@@ -31,9 +31,9 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.StringTokenizer;
-import java.util.Map.Entry;
 
 import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
@@ -1028,8 +1028,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}));
 		if (cellview instanceof BaseComponent)
 		{
-			ComponentFactory.applyBasicComponentProperties(application, this, (BaseComponent)cellview, ComponentFactory.getStyleForBasicComponent(application,
-				(BaseComponent)cellview, form));
+			ComponentFactory.applyBasicComponentProperties(application, this, (BaseComponent)cellview,
+				ComponentFactory.getStyleForBasicComponent(application, (BaseComponent)cellview, form));
 		}
 
 		boolean sortable = true;
@@ -1265,8 +1265,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					Relation r = rels[rels.length - 1];
 					if (r != null)
 					{
-						defaultSort = ((FoundSetManager)application.getFoundSetManager()).getSortColumns(application.getFoundSetManager().getTable(
-							r.getForeignDataSource()), ((Portal)cellview).getInitialSort());
+						defaultSort = ((FoundSetManager)application.getFoundSetManager()).getSortColumns(
+							application.getFoundSetManager().getTable(r.getForeignDataSource()), ((Portal)cellview).getInitialSort());
 					}
 				}
 			}
@@ -3084,11 +3084,14 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			@Override
 			protected void onDragEnd(String id, int x, int y, AjaxRequestTarget ajaxRequestTarget)
 			{
-				JSDNDEvent event = WebCellBasedView.this.createScriptEvent(EventType.onDragEnd, getDragComponent(), null);
-				event.setData(getDragData());
-				event.setDataMimeType(getDragDataMimeType());
-				event.setDragResult(getDropResult() ? getCurrentDragOperation() : DRAGNDROP.NONE);
-				WebCellBasedView.this.onDragEnd(event);
+				if (getCurrentDragOperation() != DRAGNDROP.NONE)
+				{
+					JSDNDEvent event = WebCellBasedView.this.createScriptEvent(EventType.onDragEnd, getDragComponent(), null);
+					event.setData(getDragData());
+					event.setDataMimeType(getDragDataMimeType());
+					event.setDragResult(getDropResult() ? getCurrentDragOperation() : DRAGNDROP.NONE);
+					WebCellBasedView.this.onDragEnd(event);
+				}
 
 				super.onDragEnd(id, x, y, ajaxRequestTarget);
 			}
@@ -3152,7 +3155,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			IDataRenderer dr = (IDataRenderer)dragSource;
 			FormController fct = dr.getDataAdapterList().getFormController();
 			jsEvent.setSource(fct.getFormScope());
-			jsEvent.setElementName(fct.getName());
 		}
 		else
 		{

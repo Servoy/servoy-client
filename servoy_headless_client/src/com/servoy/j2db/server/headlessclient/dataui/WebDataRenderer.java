@@ -623,11 +623,14 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 			@Override
 			protected void onDragEnd(String id, int x, int y, AjaxRequestTarget ajaxRequestTarget)
 			{
-				JSDNDEvent event = WebDataRenderer.this.createScriptEvent(EventType.onDragEnd, getDragComponent(), null);
-				event.setData(getDragData());
-				event.setDataMimeType(getDragDataMimeType());
-				event.setDragResult(getDropResult() ? getCurrentDragOperation() : DRAGNDROP.NONE);
-				WebDataRenderer.this.onDragEnd(event);
+				if (getCurrentDragOperation() != DRAGNDROP.NONE)
+				{
+					JSDNDEvent event = WebDataRenderer.this.createScriptEvent(EventType.onDragEnd, getDragComponent(), null);
+					event.setData(getDragData());
+					event.setDataMimeType(getDragDataMimeType());
+					event.setDragResult(getDropResult() ? getCurrentDragOperation() : DRAGNDROP.NONE);
+					WebDataRenderer.this.onDragEnd(event);
+				}
 
 				super.onDragEnd(id, x, y, ajaxRequestTarget);
 			}
@@ -713,7 +716,6 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 			IDataRenderer dr = (IDataRenderer)dragSource;
 			FormController fct = dr.getDataAdapterList().getFormController();
 			jsEvent.setSource(fct.getFormScope());
-			jsEvent.setElementName(fct.getName());
 		}
 		else
 		{

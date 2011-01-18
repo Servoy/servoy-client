@@ -785,7 +785,7 @@ public class WebEventExecutor extends BaseEventExecutor
 						{
 							StringBuilder sb = null;
 							if (hasDragEvent &&
-								(dataRendererChild instanceof WebBaseLabel || ((dataRendererChild instanceof IDisplay) && ((IDisplay)dataRendererChild).isReadOnly()))) sb = sbAttachDrag;
+								(dataRendererChild instanceof WebBaseLabel || dataRendererChild instanceof WebSplitPane || ((dataRendererChild instanceof IDisplay) && ((IDisplay)dataRendererChild).isReadOnly()))) sb = sbAttachDrag;
 							else if (hasDropEvent) sb = sbAttachDrop;
 
 							if (sb != null)

@@ -103,7 +103,7 @@ public class CompositeTransferHandler extends TransferHandler implements DropTar
 	{
 		super.exportDone(source, data, action);
 		JComponent cmp = getDragComponent(source);
-		if (cmp instanceof ICompositeDragNDrop)
+		if (cmp instanceof ICompositeDragNDrop && data != null)
 		{
 			ICompositeDragNDrop ddComp = (ICompositeDragNDrop)cmp;
 

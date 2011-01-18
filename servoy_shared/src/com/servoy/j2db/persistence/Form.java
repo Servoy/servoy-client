@@ -1907,7 +1907,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * DRAGNDROP.MOVE if only a move can happen,
 	 * DRAGNDROP.COPY if only a copy can happen,
 	 * DRAGNDROP.MOVE|DRAGNDROP.COPY if a move or copy can happen,
-	 * DRAGNDROP.NONE if nothing is supported (drag should start).
+	 * DRAGNDROP.NONE if nothing is supported (drag should not start).
 	 * @templatename onDrag
 	 * @templatetype Number
 	 * @templateparam JSDNDEvent event the event that triggered the action

@@ -63,7 +63,6 @@ public class FormDataTransferHandler extends CompositeTransferHandler
 					IDataRenderer dr = (IDataRenderer)dragSource;
 					FormController fc = dr.getDataAdapterList().getFormController();
 					jsEvent.setSource(fc.getFormScope());
-					jsEvent.setElementName(fc.getName());
 				}
 				else if (dragSource instanceof IComponent)
 				{
