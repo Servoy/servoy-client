@@ -24,7 +24,6 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class HTTPUtils
 {
-
 	/**
 	 * This method tries to make peace between different browsers, versions and browser bugs for no-caching response headers.<br>
 	 * It will set response headers to prevent the response from being cached.
@@ -32,7 +31,24 @@ public class HTTPUtils
 	 */
 	public static void setNoCacheHeaders(HttpServletResponse response)
 	{
-		response.setHeader("Cache-Control", "max-age=0, must-revalidate, proxy-revalidate"); //HTTP 1.1
+		setNoCacheHeaders(response, null);
+	}
+
+	/**
+	 * This method tries to make peace between different browsers, versions and browser bugs for no-caching response headers.<br>
+	 * It will set response headers to prevent the response from being cached.
+	 * @param response the HTTP response on which header fields will be set.
+	 * @param extraCacheControl some extra cache control additions.
+	 */
+	@SuppressWarnings("nls")
+	public static void setNoCacheHeaders(HttpServletResponse response, String extraCacheControl)
+	{
+		String cacheControl = "max-age=0, must-revalidate, proxy-revalidate";
+		if (extraCacheControl != null)
+		{
+			cacheControl += "," + extraCacheControl;
+		}
+		response.setHeader("Cache-Control", cacheControl); //HTTP 1.1
 		response.setHeader("Expires", "0");//$NON-NLS-1$ // mentioned as an invalid (but used anyway in HTTP 1.0) value which MUST be interpreted correctly in HTTP 1.1 specs. (this means interpreted as no-cache); we can use this to avoid incorrectly synced clocks that would cause problems if expires clause would be used as described in specs.
 
 //		if (request.isSecure())
