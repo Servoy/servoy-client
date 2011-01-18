@@ -78,7 +78,8 @@ public class JSBase<T extends AbstractBase>
 				if (parent.getSupportChild() instanceof Form) break;
 				parent = parent.getJSParent();
 			}
-			if (parent != null && parent.getSupportChild() instanceof Form && !parent.getSupportChild().equals(tempPersist.getAncestor(IRepository.FORMS)))
+			if (parent != null && parent.getSupportChild() instanceof Form &&
+				!parent.getSupportChild().getUUID().equals(tempPersist.getAncestor(IRepository.FORMS).getUUID()))
 			{
 				// inherited persist
 				try
