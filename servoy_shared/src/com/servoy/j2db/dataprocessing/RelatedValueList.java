@@ -250,7 +250,7 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 
 					if (records.length >= MAX_VALUELIST_ROWS)
 					{
-						application.reportError("Valuelist " + getName() + " fully loaded with 500 rows, more rows are discarded!!", null);
+						application.reportJSError("Valuelist " + getName() + " fully loaded with 500 rows, more rows are discarded!!", null);
 					}
 
 					for (IRecordInternal state : records)
@@ -348,7 +348,7 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 			}
 			if (dataSet.getRowCount() >= MAX_VALUELIST_ROWS)
 			{
-				application.reportError("Valuelist " + getName() + " fully loaded with 500 rows, more rows are discarded!!", null);
+				application.reportJSError("Valuelist " + getName() + " fully loaded with 500 rows, more rows are discarded!!", null);
 			}
 			for (int i = 0; i < dataSet.getRowCount(); i++)
 			{

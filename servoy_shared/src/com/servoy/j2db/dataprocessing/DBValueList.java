@@ -261,7 +261,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 						tableFilterParams, !creationSQLParts.isUnique(), 0, MAX_VALUELIST_ROWS, IDataServer.VALUELIST_QUERY);
 					if (set.getRowCount() >= MAX_VALUELIST_ROWS)
 					{
-						application.reportError("Valuelist " + getName() + " fully loaded with 500 rows, more rows are discarded!!", null);
+						application.reportJSError("Valuelist " + getName() + " fully loaded with 500 rows, more rows are discarded!!", null);
 					}
 
 					for (int i = 0; i < set.getRowCount(); i++)
@@ -297,7 +297,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 					}
 					if (fs.getSize() >= MAX_VALUELIST_ROWS)
 					{
-						application.reportError("Valuelist " + getName() + " fully loaded with 500 rows, more rows are discarded!!", null);
+						application.reportJSError("Valuelist " + getName() + " fully loaded with 500 rows, more rows are discarded!!", null);
 					}
 
 				}
