@@ -1502,6 +1502,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 	public void js_putClientProperty(Object key, Object value)
 	{
 		putClientProperty(key, value);
+		enclosedComponent.putClientProperty(key, value);
 	}
 
 	public Object js_getClientProperty(Object key)

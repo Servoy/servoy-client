@@ -329,6 +329,7 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 	public void js_putClientProperty(Object key, Object value)
 	{
 		putClientProperty(key, value);
+		splitPane.putClientProperty(key, value);
 	}
 
 	@Override
