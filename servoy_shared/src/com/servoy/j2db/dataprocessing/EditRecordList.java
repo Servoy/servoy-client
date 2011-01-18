@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -591,6 +591,8 @@ public class EditRecordList
 				fires.get(i).run();
 			}
 
+			// get the size of the edited records before the table events, so that we can look if those events did change records again.
+			int editedRecordsSize = editedRecords.size();
 			for (RowUpdateInfo rowUpdateInfo : infosToBePostProcessed)
 			{
 				try
@@ -621,6 +623,13 @@ public class EditRecordList
 					lastStopEditingException);
 				else fsm.getApplication().reportJSError("save failed for 1 or more records", lastStopEditingException); //$NON-NLS-1$
 				return ISaveConstants.SAVE_FAILED;
+			}
+
+			if (editedRecords.size() != editedRecordsSize && recordToSave == null)
+			{
+				// records where changed by the after insert/update table events, call stop edit again if this was not a specific record save. 
+				isSaving = false;
+				stopEditing(javascripStop, null);
 			}
 
 			return ISaveConstants.STOPPED;
@@ -700,8 +709,8 @@ public class EditRecordList
 						Object[] methodArgs = new Object[] { record };
 						try
 						{
-							scriptEngine.executeFunction(((Function)function), gscope, gscope, Utils.arrayMerge(methodArgs,
-								Utils.parseJSExpressions(tn.getInstanceMethodArguments(methodKey))), false, false);
+							scriptEngine.executeFunction(((Function)function), gscope, gscope,
+								Utils.arrayMerge(methodArgs, Utils.parseJSExpressions(tn.getInstanceMethodArguments(methodKey))), false, false);
 						}
 						catch (Exception e)
 						{
@@ -774,8 +783,8 @@ public class EditRecordList
 						Object[] methodArgs = new Object[] { record };
 						try
 						{
-							Object retval = scriptEngine.executeFunction(((Function)function), gscope, gscope, Utils.arrayMerge(methodArgs,
-								Utils.parseJSExpressions(tn.getInstanceMethodArguments(methodKey))), false, true);
+							Object retval = scriptEngine.executeFunction(((Function)function), gscope, gscope,
+								Utils.arrayMerge(methodArgs, Utils.parseJSExpressions(tn.getInstanceMethodArguments(methodKey))), false, true);
 							if (Boolean.FALSE.equals(retval))
 							{
 								// update or insert method returned false. should block the save.
