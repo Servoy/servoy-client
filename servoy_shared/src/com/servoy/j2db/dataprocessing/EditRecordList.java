@@ -214,32 +214,43 @@ public class EditRecordList
 		return ISaveConstants.STOPPED;
 	}
 
-	public int stopEditing(boolean javascripStop)
+	public int stopEditing(boolean javascriptStop)
 	{
-		return stopEditing(javascripStop, (List<IRecordInternal>)null);
+		return stopEditing(javascriptStop, (List<IRecordInternal>)null, 0);
 	}
 
 	/**
 	 * stop/save
 	 * 
-	 * @param javascripStop
+	 * @param javascriptStop
 	 * @param recordToSave null means all records
 	 * @return IRowChangeListener static final
 	 */
-	public int stopEditing(final boolean javascripStop, final IRecordInternal recordToSave)
+	public int stopEditing(boolean javascriptStop, IRecordInternal recordToSave)
 	{
-		return stopEditing(javascripStop, Arrays.asList(new IRecordInternal[] { recordToSave }));
+		return stopEditing(javascriptStop, Arrays.asList(new IRecordInternal[] { recordToSave }), 0);
 	}
 
 	/**
 	 * stop/save
 	 * 
-	 * @param javascripStop
+	 * @param javascriptStop
 	 * @param recordsToSave null means all records
 	 * @return IRowChangeListener static final
 	 */
-	public int stopEditing(final boolean javascripStop, final List<IRecordInternal> recordsToSave)
+	public int stopEditing(boolean javascriptStop, List<IRecordInternal> recordsToSave)
 	{
+		return stopEditing(javascriptStop, recordsToSave, 0);
+	}
+
+	private int stopEditing(final boolean javascriptStop, final List<IRecordInternal> recordsToSave, int recursionDepth)
+	{
+		if (recursionDepth > 50)
+		{
+			fsm.getApplication().reportJSError("stopEditing max recursion exceeded", new RuntimeException());
+			return ISaveConstants.SAVE_FAILED;
+		}
+
 		//prevent recursive calls
 		if (isSaving)
 		{
@@ -295,7 +306,7 @@ public class EditRecordList
 					}
 					if (stop)
 					{
-						stopEditing(javascripStop, recordsToSave);
+						stopEditing(javascriptStop, recordsToSave);
 					}
 					else
 					{
@@ -307,6 +318,7 @@ public class EditRecordList
 			return ISaveConstants.AUTO_SAVE_BLOCKED;
 		}
 
+		int editedRecordsSize;
 		try
 		{
 			isSaving = true;
@@ -352,7 +364,7 @@ public class EditRecordList
 			if (fireChange) fireEditChange();
 
 			// remove the unchanged, really calculate when it is a real stop (autosave = true or it is a javascript stop)
-			removeUnChangedRecords(autoSave || javascripStop, true);
+			removeUnChangedRecords(autoSave || javascriptStop, true);
 
 			//check if anything left
 			int editRecordListSize;
@@ -368,7 +380,7 @@ public class EditRecordList
 			}
 
 			//cannot stop, its blocked
-			if (!autoSave && !javascripStop)
+			if (!autoSave && !javascriptStop)
 			{
 				return ISaveConstants.AUTO_SAVE_BLOCKED;
 			}
@@ -477,7 +489,7 @@ public class EditRecordList
 				{
 					lastStopEditingException = new ApplicationException(ServoyException.SAVE_FAILED, lastStopEditingException);
 				}
-				if (!javascripStop) fsm.getApplication().handleException(fsm.getApplication().getI18NMessage("servoy.formPanel.error.saveFormData"), //$NON-NLS-1$
+				if (!javascriptStop) fsm.getApplication().handleException(fsm.getApplication().getI18NMessage("servoy.formPanel.error.saveFormData"), //$NON-NLS-1$
 					lastStopEditingException);
 				return ISaveConstants.SAVE_FAILED;
 			}
@@ -579,7 +591,7 @@ public class EditRecordList
 			catch (Exception e)
 			{
 				lastStopEditingException = e;
-				if (!javascripStop) fsm.getApplication().handleException(fsm.getApplication().getI18NMessage("servoy.formPanel.error.saveFormData"), //$NON-NLS-1$
+				if (!javascriptStop) fsm.getApplication().handleException(fsm.getApplication().getI18NMessage("servoy.formPanel.error.saveFormData"), //$NON-NLS-1$
 					new ApplicationException(ServoyException.SAVE_FAILED, lastStopEditingException));
 				return ISaveConstants.SAVE_FAILED;
 			}
@@ -720,6 +732,8 @@ public class EditRecordList
 				fires.get(i).run();
 			}
 
+			// get the size of the edited records before the table events, so that we can look if those events did change records again.
+			editedRecordsSize = editedRecords.size();
 			for (RowUpdateInfo rowUpdateInfo : infosToBePostProcessed)
 			{
 				try
@@ -756,13 +770,11 @@ public class EditRecordList
 			if (failedCount > 0)
 			{
 				lastStopEditingException = new ApplicationException(ServoyException.SAVE_FAILED, lastStopEditingException);
-				if (!javascripStop) fsm.getApplication().handleException(fsm.getApplication().getI18NMessage("servoy.formPanel.error.saveFormData"), //$NON-NLS-1$
+				if (!javascriptStop) fsm.getApplication().handleException(fsm.getApplication().getI18NMessage("servoy.formPanel.error.saveFormData"), //$NON-NLS-1$
 					lastStopEditingException);
 				else fsm.getApplication().reportJSError("save failed for 1 or more records", lastStopEditingException); //$NON-NLS-1$
 				return ISaveConstants.SAVE_FAILED;
 			}
-
-			return ISaveConstants.STOPPED;
 		}
 		catch (RuntimeException e)
 		{
@@ -787,6 +799,14 @@ public class EditRecordList
 			isSaving = false;
 			fireEvents();
 		}
+
+		if (editedRecords.size() != editedRecordsSize && recordsToSave == null)
+		{
+			// records where changed by the after insert/update table events, call stop edit again if this was not a specific record save. 
+			return stopEditing(javascriptStop, null, recursionDepth + 1);
+		}
+
+		return ISaveConstants.STOPPED;
 	}
 
 	/**
