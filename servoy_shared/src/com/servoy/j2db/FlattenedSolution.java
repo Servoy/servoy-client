@@ -694,7 +694,11 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			getAllModuleObjects(retval);
 			if (loginFlattenedSolution != null)
 			{
-				retval.addAll(loginFlattenedSolution.getAllObjectsAsList());
+				List<IPersist> elements = loginFlattenedSolution.getAllObjectsAsList();
+				for (IPersist persist : elements)
+				{
+					if (!retval.contains(persist)) retval.add(persist);
+				}
 			}
 			allObjectsSize = retval.size();
 			retval.removeAll(removedPersist);
@@ -1641,8 +1645,8 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	public Iterator<Form> getForms(ITable basedOnTable, boolean sort)
 	{
-		return Solution.getForms(getAllObjectsAsList(),
-			basedOnTable == null ? null : DataSourceUtils.createDBTableDataSource(basedOnTable.getServerName(), basedOnTable.getName()), sort);
+		return Solution.getForms(getAllObjectsAsList(), basedOnTable == null ? null : DataSourceUtils.createDBTableDataSource(basedOnTable.getServerName(),
+			basedOnTable.getName()), sort);
 	}
 
 	public Iterator<Form> getForms(String datasource, boolean sort)
