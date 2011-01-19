@@ -168,12 +168,6 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 
 						if (comp != null)
 						{
-
-							if (comp.getId().equals("sv_B47C97ED_CA2E_4DF9_BD46_76B0F5816254"))
-							{
-								System.out.println();
-							}
-
 							if (obj instanceof Field)
 							{
 								String name = ((Field)obj).getName();
