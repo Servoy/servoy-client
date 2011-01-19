@@ -268,7 +268,7 @@ public class Row
 	 */
 	boolean containsDataprovider(String dataProviderID)
 	{
-		return (unstoredCalcCache.containsKey(dataProviderID) || parent.getSQLSheet().getColumnIndex(dataProviderID) != -1);
+		return (containsCalculation(dataProviderID) || parent.getSQLSheet().getColumnIndex(dataProviderID) != -1);
 	}
 
 	//returns the oldvalue, or value if no change
