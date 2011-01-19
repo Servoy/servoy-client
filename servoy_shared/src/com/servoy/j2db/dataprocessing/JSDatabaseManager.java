@@ -293,11 +293,11 @@ public class JSDatabaseManager
 	 * forms.orderdetails.controller.showRecords(convertedFoundSet);
 	 *
 	 * @param foundset The JSFoundset to convert.
-	 * @param relation can be a one-to-many relation object or the name of a one-to-many relation
+	 * @param related can be a one-to-many relation object or the name of a one-to-many relation
 	 * 
 	 * @return The converted JSFoundset. 
 	 */
-	public FoundSet js_convertFoundSet(Object foundset, Object relation) throws ServoyException
+	public FoundSet js_convertFoundSet(Object foundset, Object related) throws ServoyException
 	{
 		checkAuthorized();
 		if (foundset instanceof FoundSet && ((FoundSet)foundset).getTable() != null)
@@ -305,57 +305,65 @@ public class JSDatabaseManager
 			FoundSet fs_old = (FoundSet)foundset;
 			try
 			{
-				Relation r = null;
-				if (relation instanceof RelatedFoundSet)
+				String relationName;
+				if (related instanceof RelatedFoundSet)
 				{
-					r = application.getFlattenedSolution().getRelation(((RelatedFoundSet)relation).getRelationName());
+					relationName = ((RelatedFoundSet)related).getRelationName();
 				}
-				else if (relation instanceof String)
+				else if (related instanceof String)
 				{
-					r = application.getFlattenedSolution().getRelation((String)relation);
+					relationName = (String)related;
+				}
+				else
+				{
+					Debug.warn("convertFoundSet: invalid argument " + related);
+					return null;
 				}
 
-				if (r != null && !r.isMultiServer() && fs_old.getTable() != null && fs_old.getTable().equals(r.getPrimaryTable()))
+				Relation relation = application.getFlattenedSolution().getRelation(relationName);
+				if (relation == null || relation.isMultiServer() || fs_old.getTable() == null || !fs_old.getTable().equals(relation.getPrimaryTable()))
 				{
-					Table ft = r.getForeignTable();
-					FoundSet fs_new = (FoundSet)application.getFoundSetManager().getNewFoundSet(ft, null);
+					Debug.warn("convertFoundSet: cannot use relation " + relationName);
+					return null;
+				}
 
-					QuerySelect sql = fs_old.getPksAndRecords().getQuerySelectForModification();
-					SQLSheet sheet_new = fs_old.getSQLSheet().getRelatedSheet(r, ((FoundSetManager)application.getFoundSetManager()).getSQLGenerator());
-					if (sheet_new != null)
+				Table ft = relation.getForeignTable();
+				FoundSet fs_new = (FoundSet)application.getFoundSetManager().getNewFoundSet(ft, null);
+
+				QuerySelect sql = fs_old.getPksAndRecords().getQuerySelectForModification();
+				SQLSheet sheet_new = fs_old.getSQLSheet().getRelatedSheet(relation, ((FoundSetManager)application.getFoundSetManager()).getSQLGenerator());
+				if (sheet_new != null)
+				{
+					QueryTable oldTable = sql.getTable();
+					QueryJoin join = (QueryJoin)sql.getJoin(oldTable, relation.getName());
+					if (join == null)
 					{
-						QueryTable oldTable = sql.getTable();
-						QueryJoin join = (QueryJoin)sql.getJoin(oldTable, r.getName());
-						if (join == null)
-						{
-							join = SQLGenerator.createJoin(application.getFlattenedSolution(), r, oldTable,
-								new QueryTable(ft.getSQLName(), ft.getCatalog(), ft.getSchema()), fs_old);
-							sql.addJoin(join);
-						}
-
-						QueryTable mainTable = join.getForeignTable();
-
-						// invert the join
-						sql.setTable(mainTable);
-						join.invert("INVERTED." + join.getName()); //$NON-NLS-1$
-
-						// set the columns to be the PKs from the related table
-						ArrayList<IQuerySelectValue> pkColumns = new ArrayList<IQuerySelectValue>();
-						Iterator<Column> pks = sheet_new.getTable().getRowIdentColumns().iterator();
-						while (pks.hasNext())
-						{
-							Column column = pks.next();
-							pkColumns.add(new QueryColumn(mainTable, column.getID(), column.getSQLName(), column.getType(), column.getLength(),
-								column.getScale()));
-						}
-						sql.setColumns(pkColumns);
-
-						// sorting will be on the original columns, when distinct is set, this will conflict with the related pk columns
-						sql.setDistinct(false);
-
-						fs_new.setSQLSelect(sql);
-						return fs_new;
+						join = SQLGenerator.createJoin(application.getFlattenedSolution(), relation, oldTable, new QueryTable(ft.getSQLName(), ft.getCatalog(),
+							ft.getSchema()), fs_old);
+						sql.addJoin(join);
 					}
+
+					QueryTable mainTable = join.getForeignTable();
+
+					// invert the join
+					sql.setTable(mainTable);
+					join.invert("INVERTED." + join.getName()); //$NON-NLS-1$
+
+					// set the columns to be the PKs from the related table
+					ArrayList<IQuerySelectValue> pkColumns = new ArrayList<IQuerySelectValue>();
+					Iterator<Column> pks = sheet_new.getTable().getRowIdentColumns().iterator();
+					while (pks.hasNext())
+					{
+						Column column = pks.next();
+						pkColumns.add(new QueryColumn(mainTable, column.getID(), column.getSQLName(), column.getType(), column.getLength(), column.getScale()));
+					}
+					sql.setColumns(pkColumns);
+
+					// sorting will be on the original columns, when distinct is set, this will conflict with the related pk columns
+					sql.setDistinct(false);
+
+					fs_new.setSQLSelect(sql);
+					return fs_new;
 				}
 			}
 			catch (Exception e)

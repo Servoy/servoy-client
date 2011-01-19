@@ -27,6 +27,7 @@ import java.util.Map;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 
+import com.servoy.j2db.Messages;
 import com.servoy.j2db.persistence.IRelation;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -501,6 +502,9 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 				{
 					if (!getValidSearchRelations().contains(r))
 					{
+						Debug.warn("Find: skip related search for '" + partName + "', relation cannot be used in search");
+						parent.getFoundSetManager().getApplication().reportJSError(
+							Messages.getString("servoy.relation.find.unusable", new Object[] { partName }), null);
 						return null;
 					}
 					SQLSheet sheet = parent.getSQLSheet().getRelatedSheet(

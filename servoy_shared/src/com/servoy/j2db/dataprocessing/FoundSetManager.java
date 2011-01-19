@@ -1261,6 +1261,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			Relation r = application.getFlattenedSolution().getRelation(split[i]);
 			if (r == null || !r.isUsableInSort() || !lastTable.equals(getTable(r.getPrimaryDataSource())))
 			{
+				Debug.warn("Cannot sort on dataprovider " + dataProviderID);
 				return null;
 			}
 			relations.add(r);
