@@ -72,6 +72,7 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowBGColorScript;
 import com.servoy.j2db.ui.ISupportRowStyling;
+import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnablePanel;
 import com.servoy.j2db.util.PersistHelper;
@@ -377,7 +378,7 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 			g.setColor(Color.BLACK);
 			g.fillRect(0, 0, 3, getHeight());
 		}
-		dataRendererOnRenderWrapper.getRenderEventExecutor().fireOnRender(dataRendererOnRenderWrapper, hasFocus());
+		fireDataRendererOnRender(false);
 		try
 		{
 			super.paintChildren(g);
@@ -515,6 +516,7 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 				}
 			}
 			DataAdapterList.setDataRendererComponentsRenderState(this, (IRecordInternal)value);
+			fireDataRendererOnRender(true);
 		}
 
 		if (rendererParentCanBeNull != null)
@@ -792,5 +794,27 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 	public String getOnRenderToString()
 	{
 		return dataAdapterList != null ? dataAdapterList.getFormController().getForm().toString() : super.toString();
+	}
+
+	private void fireDataRendererOnRender(boolean includeChildrenComponents)
+	{
+		dataRendererOnRenderWrapper.getRenderEventExecutor().fireOnRender(dataRendererOnRenderWrapper, hasFocus());
+
+		if (includeChildrenComponents)
+		{
+			@SuppressWarnings("rawtypes")
+			Iterator compIte = getComponentIterator();
+			Object comp;
+			while (compIte.hasNext())
+			{
+				comp = compIte.next();
+				if (comp instanceof ISupportOnRenderCallback)
+				{
+					RenderEventExecutor rendererEventExecutor = ((ISupportOnRenderCallback)comp).getRenderEventExecutor();
+					boolean hasFocus = (comp instanceof Component) ? ((Component)comp).hasFocus() : false;
+					rendererEventExecutor.fireOnRender((ISupportOnRenderCallback)comp, hasFocus);
+				}
+			}
+		}
 	}
 }
