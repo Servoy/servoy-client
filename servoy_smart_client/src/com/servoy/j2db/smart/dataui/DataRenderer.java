@@ -449,6 +449,8 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 
 					defaultColor = getBackground();
 				}
+
+
 				if (strRowBGColorProvider != null && !"".equals(strRowBGColorProvider)) //$NON-NLS-1$
 				{
 					IFoundSetInternal parent = val.getParentFoundSet();
@@ -494,7 +496,7 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 					}
 				}
 
-				if (rendererParentCanBeNull instanceof ISupportRowStyling && !specialStateCase)
+				if (rendererParentCanBeNull instanceof ISupportRowStyling && !specialStateCase && !bgRowColorSet)
 				{
 					ISupportRowStyling oddEvenStyling = (ISupportRowStyling)rendererParentCanBeNull;
 					StyleSheet ss = oddEvenStyling.getRowStyleSheet();

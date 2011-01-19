@@ -715,6 +715,22 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		boolean specialStateCase = (state instanceof PrototypeState || state instanceof FindState);
 		if (/* !(renderer instanceof JButton) && */!specialStateCase)
 		{
+			if (jtable instanceof ISupportRowStyling)
+			{
+				ISupportRowStyling oddEvenStyling = (ISupportRowStyling)jtable;
+				StyleSheet ss = oddEvenStyling.getRowStyleSheet();
+				Style style = isSelected ? oddEvenStyling.getRowSelectedStyle() : null;
+				if (style == null)
+				{
+					style = (row % 2 == 0) ? oddEvenStyling.getRowOddStyle() : oddEvenStyling.getRowEvenStyle(); // because index = 0 means record = 1	
+				}
+
+				if (ss != null && style != null)
+				{
+					bgColor = ss.getBackground(style);
+				}
+			}
+
 			String strRowBGColorProvider = null;
 			List<Object> rowBGColorArgs = null;
 
@@ -770,22 +786,6 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				if (bg_color != null && !(bg_color.toString().trim().length() == 0) && !(bg_color instanceof Undefined))
 				{
 					bgColor = PersistHelper.createColor(bg_color.toString());
-				}
-			}
-
-			if (jtable instanceof ISupportRowStyling)
-			{
-				ISupportRowStyling oddEvenStyling = (ISupportRowStyling)jtable;
-				StyleSheet ss = oddEvenStyling.getRowStyleSheet();
-				Style style = isSelected ? oddEvenStyling.getRowSelectedStyle() : null;
-				if (style == null)
-				{
-					style = (row % 2 == 0) ? oddEvenStyling.getRowOddStyle() : oddEvenStyling.getRowEvenStyle(); // because index = 0 means record = 1	
-				}
-
-				if (ss != null && style != null)
-				{
-					bgColor = ss.getBackground(style);
 				}
 			}
 		}

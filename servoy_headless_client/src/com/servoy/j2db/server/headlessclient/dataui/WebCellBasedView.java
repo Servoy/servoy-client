@@ -2887,6 +2887,17 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		Row rawData = null;
 		if (rec != null && (rawData = rec.getRawData()) != null)
 		{
+			StyleSheet ss = getRowStyleSheet();
+			Style style = isSelected ? getRowSelectedStyle() : null;
+			if (style == null)
+			{
+				style = (listItem.getIndex() % 2 == 0) ? getRowOddStyle() : getRowEvenStyle(); // because index = 0 means record = 1
+			}
+			if (ss != null && style != null)
+			{
+				color = PersistHelper.createColorString(ss.getBackground(style));
+			}
+
 			if (rowBGColorProvider != null)
 			{
 				// TODO type and name should be get somehow if this is possible, we have to know the specific cell/column for that.
@@ -2925,17 +2936,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						Debug.error(ex);
 					}
 				}
-			}
-
-			StyleSheet ss = getRowStyleSheet();
-			Style style = isSelected ? getRowSelectedStyle() : null;
-			if (style == null)
-			{
-				style = (listItem.getIndex() % 2 == 0) ? getRowOddStyle() : getRowEvenStyle(); // because index = 0 means record = 1
-			}
-			if (ss != null && style != null)
-			{
-				color = PersistHelper.createColorString(ss.getBackground(style));
 			}
 		}
 
