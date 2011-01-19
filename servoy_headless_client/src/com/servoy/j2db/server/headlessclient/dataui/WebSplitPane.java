@@ -96,7 +96,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 	private Map<Object, Object> clientProperties;
 	private final ChangesRecorder jsChangeRecorder = new ChangesRecorder(new Insets(0, 0, 0, 0), new Insets(0, 0, 0, 0));
 	private final List<ISwingFoundSet> related = new ArrayList<ISwingFoundSet>();
-	private int dividerLocation;
+	private double dividerLocation;
 	private int dividerSize = 5;
 	private boolean continuousLayout;
 	private double resizeWeight;
@@ -514,28 +514,6 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 	}
 
 	@Override
-	public void onBeforeRender()
-	{
-		super.onBeforeRender();
-		String dim, pos;
-		if (orient == TabPanel.SPLIT_HORIZONTAL)
-		{
-			dim = "width: "; //$NON-NLS-1$
-			pos = "left: "; //$NON-NLS-1$
-		}
-		else
-		{
-			dim = "height: "; //$NON-NLS-1$
-			pos = "top: "; //$NON-NLS-1$
-		}
-
-		if (dividerLocation < leftFormMinSize) dividerLocation = leftFormMinSize;
-		splitter.add(new StyleAppendingModifier(new Model<String>(dim + (dividerLocation + dividerSize) + "px"))); //$NON-NLS-1$
-		splitComponents[0].add(new StyleAppendingModifier(new Model<String>(dim + dividerLocation + "px"))); //$NON-NLS-1$
-		splitComponents[1].add(new StyleAppendingModifier(new Model<String>(pos + (dividerLocation + dividerSize) + "px"))); //$NON-NLS-1$
-	}
-
-	@Override
 	public void renderHead(HtmlHeaderContainer container)
 	{
 		super.renderHead(container);
@@ -559,12 +537,24 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		Map<String, String> leftPanelOverflow = getFormOverflowStyle(getLeftForm());
 		Map<String, String> rightPanelOverflow = getFormOverflowStyle(getRightForm());
 
-		StringBuffer resizeScript = new StringBuffer("var splitter = YAHOO.util.Dom.get('").append(splitter.getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
+
+		StringBuffer resizeScript = new StringBuffer("var dividerSize = ").append(dividerSize).append(";"); //$NON-NLS-1$ //$NON-NLS-2$ 
+		resizeScript.append("var dividerLocation = ").append(dividerLocation).append(";"); //$NON-NLS-1$ //$NON-NLS-2$
+		resizeScript.append("var newDividerLocation = dividerLocation;"); //$NON-NLS-1$
+		resizeScript.append("if(dividerLocation < 1) { newDividerLocation = YAHOO.util.Dom.get('").append(getMarkupId()).append("').offset").append(dim).append( //$NON-NLS-1$ //$NON-NLS-2$
+			"*dividerLocation;}"); //$NON-NLS-1$ 
+		resizeScript.append("if(newDividerLocation < ").append(leftFormMinSize).append(") { newDividerLocation = ").append(leftFormMinSize).append(";};"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		resizeScript.append("if(dividerLocation != newDividerLocation) { wicketAjaxGet('").append(dividerUpdater.getCallbackUrl()).append( //$NON-NLS-1$
+			"&location=' + newDividerLocation);}"); //$NON-NLS-1$
+		resizeScript.append("var splitter = YAHOO.util.Dom.get('").append(splitter.getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
+		resizeScript.append("YAHOO.util.Dom.setStyle(splitter, '").append(dim.toLowerCase()).append("', newDividerLocation + dividerSize + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$ 
 		resizeScript.append("var left = YAHOO.util.Dom.get('").append(splitComponents[0].getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
+		resizeScript.append("YAHOO.util.Dom.setStyle(left, '").append(dim.toLowerCase()).append("', newDividerLocation + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$ 
 		resizeScript.append("YAHOO.util.Dom.setStyle(left, 'background-color', '").append(isOpaque() ? "#FFFFFF" : "transparent").append("');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		resizeScript.append("YAHOO.util.Dom.setStyle(left, 'overflow-x', '").append(leftPanelOverflow.get("overflow-x")).append("');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 		resizeScript.append("YAHOO.util.Dom.setStyle(left, 'overflow-y', '").append(leftPanelOverflow.get("overflow-y")).append("');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		resizeScript.append("var right = YAHOO.util.Dom.get('").append(splitComponents[1].getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
+		resizeScript.append("YAHOO.util.Dom.setStyle(right, '").append(pos).append("', newDividerLocation + dividerSize + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$ 
 		resizeScript.append("YAHOO.util.Dom.setStyle(right, 'overflow-x', '").append(rightPanelOverflow.get("overflow-x")).append("');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 		resizeScript.append("YAHOO.util.Dom.setStyle(right, 'overflow-y', '").append(rightPanelOverflow.get("overflow-y")).append("');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		resizeScript.append("var resize = new YAHOO.util.Resize(splitter, { min").append(dim).append(": ").append(dividerSize + leftFormMinSize).append(", max").append(dim).append(": splitter.offsetParent.offset").append(dim).append(" - ").append(rightFormMinSize).append(", ").append(continuousLayout ? "" : "proxy: true, "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ 
@@ -931,8 +921,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 	public void js_setDividerLocation(double locationPos)
 	{
 		if (locationPos < 0) return;
-		if (locationPos < 1) dividerLocation = (int)((orient == TabPanel.SPLIT_HORIZONTAL ? getSize().width : getSize().height) * locationPos);
-		else dividerLocation = (int)locationPos;
+		dividerLocation = locationPos;
 		jsChangeRecorder.setChanged();
 		sizeChanged = true;
 	}
