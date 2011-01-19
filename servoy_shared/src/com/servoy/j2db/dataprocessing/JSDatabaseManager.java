@@ -1222,12 +1222,22 @@ public class JSDatabaseManager
 					List<Column> pks = fs.getSQLSheet().getTable().getRowIdentColumns();
 					if (pks.size() == 1 && pks.get(0).equals(column)) //if is pk optimize
 					{
-						PksAndRecordsHolder pksAndRecordsCopy = fs.getPksAndRecords().shallowCopy();
-						if (pksAndRecordsCopy.getPks() == null || pksAndRecordsCopy.getPks().hadMoreRows())
+						PksAndRecordsHolder pksAndRecordsCopy;
+						PKDataSet pkds;
+						boolean queryForMore;
+						int rowCount;
+						synchronized (fs.getPksAndRecords())
 						{
-							fs.queryForMorePKs(pksAndRecordsCopy, -1, true);
+							pksAndRecordsCopy = fs.getPksAndRecords().shallowCopy();
+							pkds = pksAndRecordsCopy.getPks();
+							queryForMore = pkds == null || pkds.hadMoreRows();
+							rowCount = pkds == null ? 0 : pkds.getRowCount();
 						}
-						dataSet = pksAndRecordsCopy.getPks();
+						if (queryForMore)
+						{
+							fs.queryForMorePKs(pksAndRecordsCopy, rowCount, -1, true);
+						}
+						dataSet = pkds;
 					}
 				}
 

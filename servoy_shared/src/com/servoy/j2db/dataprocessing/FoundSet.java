@@ -270,8 +270,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		// do get the sql select with the omitted pks, else a find that didn't get anything will not 
 		// just display the records without the omitted pks (when clear omit is false)
-		refreshFromDBInternal(fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), creationSqlSelect, null, true, omittedPKs, lastSortColumns,
-			true), flushRelatedFS, false, fsm.pkChunkSize, false);
+		refreshFromDBInternal(
+			fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), creationSqlSelect, null, true, omittedPKs, lastSortColumns, true),
+			flushRelatedFS, false, fsm.pkChunkSize, false);
 	}
 
 	protected void clearOmit(QuerySelect sqlSelect)
@@ -328,11 +329,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 		SafeArrayList<IRecordInternal> cachedRecords;
 		IDataSet pks;
-
+		Object[] selectedPK;
 		synchronized (pksAndRecords)
 		{
 			cachedRecords = pksAndRecords.getCachedRecords();
 			pks = pksAndRecords.getPks();
+			selectedPK = (pks != null && getSelectedIndex() >= 0 && getSelectedIndex() < pks.getRowCount()) ? pks.getRow(getSelectedIndex()) : null;
 		}
 
 		Map<Integer, IRecordInternal> newRecords = new HashMap<Integer, IRecordInternal>();
@@ -361,9 +363,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			fireSelectionAdjusting();
 		}
-
-		Object[] selectedPK = null;
-		if (pks != null && getSelectedIndex() >= 0 && getSelectedIndex() < pks.getRowCount()) selectedPK = pks.getRow(getSelectedIndex());
 
 		IDataSet oldPKs = pks;
 
@@ -1299,8 +1298,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				customQuery = query.substring(0, order_by_index) + ((level > 0) ? "" : query.substring(i - 1)); //$NON-NLS-1$
 				order_by_index = customQuery.toLowerCase().lastIndexOf("order by"); //$NON-NLS-1$
 			}
-			sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH, new SetCondition(ISQLCondition.EQUALS_OPERATOR,
-				pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), new QueryCustomSelect(customQuery, whereArgs), true));
+			sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH,
+				new SetCondition(ISQLCondition.EQUALS_OPERATOR, pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), new QueryCustomSelect(
+					customQuery, whereArgs), true));
 
 			// set the previous sort, add all joins that are needed for this sort
 			List<IQuerySort> origSorts = originalQuery.getSorts();
@@ -1563,19 +1563,23 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return creationSqlSelect;
 	}
 
-	protected boolean queryForMorePKs(boolean fireChanges)
-	{
-		PksAndRecordsHolder pksAndRecordsCopy = pksAndRecords.shallowCopy();
-		return queryForMorePKs(pksAndRecordsCopy, (pksAndRecordsCopy.getPks() == null ? 0 : pksAndRecordsCopy.getPks().getRowCount()) + fsm.pkChunkSize,
-			fireChanges);
-	}
-
 	public boolean queryForAllPKs(int estimateCount)
 	{
-		return queryForMorePKs(pksAndRecords.shallowCopy(), estimateCount + fsm.pkChunkSize, true);
+		PksAndRecordsHolder pksAndRecordsCopy;
+		int rowCount;
+		synchronized (pksAndRecords)
+		{
+			pksAndRecordsCopy = pksAndRecords.shallowCopy();
+			IDataSet pks = pksAndRecordsCopy.getPks();
+			rowCount = pks == null ? 0 : pks.getRowCount();
+		}
+		return queryForMorePKs(pksAndRecordsCopy, rowCount, estimateCount + fsm.pkChunkSize, true);
 	}
 
-	protected boolean queryForMorePKs(PksAndRecordsHolder pksAndRecordsCopy, int maxResult, boolean fireChanges)
+	/*
+	 * Fill the pks from pksAndRecordsCopy starting at originalPKRowcount.
+	 */
+	protected boolean queryForMorePKs(PksAndRecordsHolder pksAndRecordsCopy, int originalPKRowcount, int maxResult, boolean fireChanges)
 	{
 		try
 		{
@@ -1586,17 +1590,17 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			int startRow;
 			String lastPkHash;
 			int correctedMaxResult; // corrected against added or removed PKs in db since first chunk select
-			if (pks != null && dbIndexLastPk > 0 && pks.getRowCount() > 0)
+			if (pks != null && dbIndexLastPk > 0 && originalPKRowcount > 0)
 			{
-				correctedMaxResult = maxResult > 0 ? (maxResult + dbIndexLastPk - pks.getRowCount()) : maxResult;
-				lastPkHash = RowManager.createPKHashKey(pks.getRow(pks.getRowCount() - 1));
+				correctedMaxResult = maxResult > 0 ? (maxResult + dbIndexLastPk - originalPKRowcount) : maxResult;
+				lastPkHash = RowManager.createPKHashKey(pks.getRow(originalPKRowcount - 1));
 				// re-query the last pk
 				startRow = dbIndexLastPk - 1;
 			}
 			else
 			{
 				correctedMaxResult = maxResult;
-				startRow = pks == null ? 0 : pks.getRowCount();
+				startRow = originalPKRowcount;
 				lastPkHash = null;
 			}
 			int size = getCorrectedSizeForFires();
@@ -1644,20 +1648,24 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 			if (pks != null)
 			{
-				for (int i = offset; i < newpks.getRowCount(); i++)
+				synchronized (pks)
 				{
-					// check for duplicates
-					Object[] newpk = newpks.getRow(i);
-					if (!pks.hasPKCache() /* only check for duplicates if foundset could not be connected */|| !pks.containsPk(newpk))
+					int addIndex = originalPKRowcount;
+					for (int i = offset; i < newpks.getRowCount(); i++)
 					{
-						pks.addRow(newpk);
-						dbIndexLastPk = startRow + 1 + i; // keep index in db of last added pk to correct maxresult in next chunk
+						// check for duplicates
+						Object[] newpk = newpks.getRow(i);
+						if (!pks.hasPKCache() /* only check for duplicates if foundset could not be connected */|| !pks.containsPk(newpk))
+						{
+							pks.setRow(addIndex++, newpk);
+							dbIndexLastPk = startRow + 1 + i; // keep index in db of last added pk to correct maxresult in next chunk
+						}
 					}
-				}
 
-				if (!newpks.hadMoreRows())
-				{
-					pks.clearHadMoreRows();
+					if (!newpks.hadMoreRows())
+					{
+						pks.clearHadMoreRows();
+					}
 				}
 			}
 			pksAndRecordsCopy.setDbIndexLastPk(dbIndexLastPk);
@@ -1829,15 +1837,26 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	private IRecordInternal getRecord(int row, int sizeHint)
 	{
-		PksAndRecordsHolder pksAndRecordsCopy = pksAndRecords.shallowCopy();
-		IDataSet pks = pksAndRecordsCopy.getPks();
+		if (getSize() == 0 || row < 0) return null;
 
-		if (getSize() == 0 || pks == null || row < 0) return null;
+		PksAndRecordsHolder pksAndRecordsCopy;
+		IDataSet pks;
+		int rowCount;
+		boolean hadMoreRows;
+		synchronized (pksAndRecords)
+		{
+			pksAndRecordsCopy = pksAndRecords.shallowCopy();
+			pks = pksAndRecordsCopy.getPks();
 
-		if (row >= pks.getRowCount() - 1 && pks.hadMoreRows())
+			if (pks == null) return null;
+			rowCount = pks.getRowCount();
+			hadMoreRows = pks.hadMoreRows();
+		}
+
+		if (row >= rowCount - 1 && hadMoreRows)
 		{
 			int hint = ((row / fsm.pkChunkSize) + 2) * fsm.pkChunkSize;
-			queryForMorePKs(pksAndRecordsCopy, hint, true);
+			queryForMorePKs(pksAndRecordsCopy, rowCount, hint, true);
 		}
 		IRecordInternal state = pksAndRecordsCopy.getCachedRecords().get(row);
 		if (state == null && !findMode)
@@ -3010,7 +3029,15 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		// Need to get all the PKs, recursive delete may not actually remove the PK from the list because it is already being deleted.
 		if (!partOfBiggerDelete)
 		{
-			queryForMorePKs(pksAndRecords.shallowCopy(), -1, false);
+			PksAndRecordsHolder pksAndRecordsCopy;
+			int rowCount;
+			synchronized (pksAndRecords)
+			{
+				pksAndRecordsCopy = pksAndRecords.shallowCopy();
+				IDataSet pks = pksAndRecordsCopy.getPks();
+				rowCount = pks == null ? 0 : pks.getRowCount();
+			}
+			queryForMorePKs(pksAndRecordsCopy, rowCount, -1, false);
 		}
 
 		try
@@ -3176,8 +3203,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					{
 						try
 						{
-							Object retval = scriptEngine.executeFunction(((Function)function), gscope, gscope, Utils.arrayMerge((new Object[] { record }),
-								Utils.parseJSExpressions(tn.getInstanceMethodArguments("onDeleteMethodID"))), false, true); //$NON-NLS-1$
+							Object retval = scriptEngine.executeFunction(
+								((Function)function),
+								gscope,
+								gscope,
+								Utils.arrayMerge((new Object[] { record }), Utils.parseJSExpressions(tn.getInstanceMethodArguments("onDeleteMethodID"))), false, true); //$NON-NLS-1$
 							if (Boolean.FALSE.equals(retval))
 							{
 								// delete method returned false. should block the delete.
@@ -3221,8 +3251,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					{
 						try
 						{
-							scriptEngine.executeFunction(((Function)function), gscope, gscope, Utils.arrayMerge((new Object[] { record }),
-								Utils.parseJSExpressions(tn.getInstanceMethodArguments("onAfterDeleteMethodID"))), false, false); //$NON-NLS-1$
+							scriptEngine.executeFunction(
+								((Function)function),
+								gscope,
+								gscope,
+								Utils.arrayMerge((new Object[] { record }), Utils.parseJSExpressions(tn.getInstanceMethodArguments("onAfterDeleteMethodID"))), false, false); //$NON-NLS-1$
 						}
 						catch (Exception e)
 						{
@@ -3821,7 +3854,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	//prevent always doing a search in search
 	public void removeLastFound()
 	{
-		pksAndRecords.setPksAndQuery(pksAndRecords.getPks(), pksAndRecords.getDbIndexLastPk(), AbstractBaseQuery.deepClone(creationSqlSelect), true);
+		synchronized (pksAndRecords)
+		{
+			pksAndRecords.setPksAndQuery(pksAndRecords.getPks(), pksAndRecords.getDbIndexLastPk(), AbstractBaseQuery.deepClone(creationSqlSelect), true);
+		}
 	}
 
 	public void setSort(String sortString) throws ServoyException
@@ -3870,12 +3906,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			pks = pksAndRecords.getPks();
 			// set the current select with the new sort in case a refreshFromDBInternal comes along or when defer is set
 			pksAndRecords.setPksAndQuery(pks, pks == null ? 0 : pks.getRowCount(), sqlSelect, true);
-		}
 
-		if (defer)
-		{
-			if (pks != null) pks.clearHadMoreRows(); //make sure we don't do query for more pks with a new sort!
-			return;
+			if (defer)
+			{
+				if (pks != null) pks.clearHadMoreRows(); //make sure we don't do query for more pks with a new sort!
+				return;
+			}
 		}
 
 
@@ -3951,13 +3987,24 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 
 		if (findMode) return;
-		IDataSet pks = pksAndRecords.getPks();
+		PksAndRecordsHolder pksAndRecordsHolderCopy;
+		IDataSet pks;
+		int rowCount = 0;
 		Object[] selectedPK = null;
-		if (pks != null && getSelectedIndex() > 0) selectedPK = pks.getRow(getSelectedIndex()); //if first record is selected we ignore selection, is much faster
+		synchronized (pksAndRecords)
+		{
+			pksAndRecordsHolderCopy = pksAndRecords.shallowCopy();
+			pks = pksAndRecords.getPks();
+			if (pks != null)
+			{
+				rowCount = pks.getRowCount();
+				if (getSelectedIndex() > 0) selectedPK = pks.getRow(getSelectedIndex()); //if first record is selected we ignore selection, is much faster
+
+			}
+		}
 		int oldSize = getSize();
 
-		PksAndRecordsHolder pksAndRecordsHolderCopy = pksAndRecords.shallowCopy();
-		queryForMorePKs(pksAndRecordsHolderCopy, -1, false);
+		queryForMorePKs(pksAndRecordsHolderCopy, rowCount, -1, false);
 		synchronized (pksAndRecords)
 		{
 			pksAndRecordsHolderCopy.getPks().sort(recordPKComparator);
@@ -5028,8 +5075,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			{
 				for (TableFilter tf : foundSetFilters)
 				{
-					creationSqlSelect.addCondition(SQLGenerator.CONDITION_FILTER, SQLGenerator.createTableFilterCondition(creationSqlSelect.getTable(),
-						sheet.getTable(), tf));
+					creationSqlSelect.addCondition(SQLGenerator.CONDITION_FILTER,
+						SQLGenerator.createTableFilterCondition(creationSqlSelect.getTable(), sheet.getTable(), tf));
 				}
 			}
 		}
