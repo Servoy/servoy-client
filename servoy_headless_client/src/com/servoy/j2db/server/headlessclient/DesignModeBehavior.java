@@ -21,11 +21,11 @@ import java.awt.Point;
 import java.util.ArrayList;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.Component.IVisitor;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Request;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.Session;
+import org.apache.wicket.Component.IVisitor;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.mozilla.javascript.ScriptRuntime;
@@ -45,6 +45,7 @@ import com.servoy.j2db.server.headlessclient.yui.YUILoader;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IScriptBaseMethods;
+import com.servoy.j2db.ui.IScriptInputMethods;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.util.Utils;
@@ -128,8 +129,13 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 					Insets p = ((ISupportWebBounds)component).getPaddingAndBorder();
 					if (p != null) padding = "0px " + (p.left + p.right) + "px " + (p.bottom + p.top) + "px 0px";
 				}
+				boolean editable = false;
+				if (component instanceof IScriptInputMethods)
+				{
+					editable = ((IScriptInputMethods)component).js_isEditable();
+				}
 				if (webAnchorsEnabled && component instanceof IScriptBaseMethods &&
-					needsWrapperDivForAnchoring(((IScriptBaseMethods)component).js_getElementType()))
+					needsWrapperDivForAnchoring(((IScriptBaseMethods)component).js_getElementType(), editable))
 				{
 					sb.append(component.getMarkupId() + "_wrapper");
 				}
@@ -177,10 +183,12 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 		}
 	}
 
-	private boolean needsWrapperDivForAnchoring(String type)
+	private boolean needsWrapperDivForAnchoring(String type, boolean editable)
 	{
 		// this needs to be in sync with TemplateGenerator.needsWrapperDivForAnchoring(Field field)
-		return "PASSWORD".equals(type) || "TEXT_AREA".equals(type) || "COMBOBOX".equals(type) || "TYPE_AHEAD".equals(type) || "TEXT_FIELD".equals(type);
+		// and TemplateGenerator.isButton(GraphicalComponent label)
+		return "PASSWORD".equals(type) || "TEXT_AREA".equals(type) || "COMBOBOX".equals(type) || "TYPE_AHEAD".equals(type) || "TEXT_FIELD".equals(type) ||
+			(IScriptBaseMethods.HTML_AREA.equals(type) && editable) || IScriptBaseMethods.BUTTON.equals(type);
 	}
 
 	/**

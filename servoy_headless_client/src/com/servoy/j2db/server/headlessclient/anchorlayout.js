@@ -24,19 +24,6 @@ function layoutOneElement(elementInfo, partHeight, formsInfo, formName, currentC
 			if (imageURL != originalImageURL)
 				element.style.backgroundImage = imageURL;
 		}
-		var verticalAlignment = elementInfo[8];
-		if (verticalAlignment == 0) // if vertically centered
-			element.style.lineHeight = element.clientHeight + "px";
-	}
-	
-	else if (/Button/.test(elementHint))
-	{
-		var verticalAlignment = elementInfo[8];
-		if ((verticalAlignment != 0) && (verticalAlignment != -1)) // if non-centered vertical alignment
-		{
-			var delta = element.offsetHeight - element.clientHeight;
-			element.style.paddingBottom = (element.offsetParent.clientHeight - delta) + "px";
-		}
 	}
 	if (/ImgField/.test(elementHint))
 	{

@@ -34,6 +34,8 @@ import java.util.Map;
 import javax.swing.ImageIcon;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
@@ -969,6 +971,15 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 	{
 		setBorder(ComponentFactoryHelper.createBorder(spec));
 		jsChangeRecorder.setBorder(spec);
+		Border b = border;
+		Insets m = null;
+		// empty border gets handled as margin
+		if (b instanceof EmptyBorder)
+		{
+			m = b.getBorderInsets(null);
+			b = null;
+		}
+		jsChangeRecorder.setSize(size.width, size.height, b, m, getFontSize(), false, valign);
 	}
 
 	public String js_getBorder()
@@ -1108,7 +1119,15 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 	public void js_setSize(int width, int height)
 	{
 		setSize(new Dimension(width, height));
-		jsChangeRecorder.setSize(width, height, border, null, getFontSize(), valign);
+		Border b = border;
+		Insets m = null;
+		// empty border gets handled as margin
+		if (b instanceof EmptyBorder)
+		{
+			m = b.getBorderInsets(null);
+			b = null;
+		}
+		jsChangeRecorder.setSize(width, height, b, m, getFontSize(), false, valign);
 	}
 
 	protected int getFontSize()
@@ -1125,7 +1144,15 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 
 	public Rectangle getWebBounds()
 	{
-		Dimension d = jsChangeRecorder.calculateWebSize(size.width, size.height, getBorder(), null, getFontSize(), null, valign);
+		Border b = border;
+		Insets m = null;
+		// empty border gets handled as margin
+		if (b instanceof EmptyBorder)
+		{
+			m = b.getBorderInsets(null);
+			b = null;
+		}
+		Dimension d = jsChangeRecorder.calculateWebSize(size.width, size.height, b, m, getFontSize(), null, false, valign);
 		return new Rectangle(location, d);
 	}
 
@@ -1134,7 +1161,15 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 	 */
 	public Insets getPaddingAndBorder()
 	{
-		return jsChangeRecorder.getPaddingAndBorder(size.height, getBorder(), null, getFontSize(), null, valign);
+		Border b = border;
+		Insets m = null;
+		// empty border gets handled as margin
+		if (b instanceof EmptyBorder)
+		{
+			m = b.getBorderInsets(null);
+			b = null;
+		}
+		return jsChangeRecorder.getPaddingAndBorder(size.height, b, m, getFontSize(), null, false, valign);
 	}
 
 
@@ -1264,7 +1299,22 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 
 	protected void instrumentAndReplaceBody(MarkupStream markupStream, ComponentTag openTag, CharSequence bodyText, boolean hasHTML)
 	{
-		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHTML, hasHTML));
+		Insets m = null;
+		// empty border gets handled as margin
+		if (border instanceof EmptyBorder)
+		{
+			m = border.getBorderInsets(null);
+		}
+		// empty border inside compound border gets handled as margin
+		else if (border instanceof CompoundBorder)
+		{
+			Border inside = ((CompoundBorder)border).getInsideBorder();
+			if (inside instanceof EmptyBorder)
+			{
+				m = inside.getBorderInsets(null);
+			}
+		}
+		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHTML, hasHTML, m));
 	}
 
 	@Override

@@ -40,8 +40,8 @@ import javax.swing.border.Border;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.html.CSS;
 
-import org.apache.wicket.Component.IVisitor;
 import org.apache.wicket.ResourceReference;
+import org.apache.wicket.Component.IVisitor;
 
 import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
@@ -1788,6 +1788,11 @@ public class TemplateGenerator
 		applyLocationAndSize(rectshape, styleObj, ins, startY, endY, form.getSize().width, enableAnchoring);
 	}
 
+	public static boolean isButton(GraphicalComponent label)
+	{
+		return (label.getOnActionMethodID() != 0) && label.getShowClick();
+	}
+
 	private static void createGraphicalComponentHTML(GraphicalComponent label, Form form, StringBuffer html, TextualCSS css, int startY, int endY,
 		boolean enableAnchoring, IServiceProvider sp)
 	{
@@ -1839,7 +1844,7 @@ public class TemplateGenerator
 		if (labelHAlign == -1) labelHAlign = ISupportTextSetup.CENTER;
 		if (labelVAlign == -1) labelVAlign = ISupportTextSetup.CENTER;
 
-		boolean isButton = (label.getOnActionMethodID() != 0) && label.getShowClick();
+		boolean isButton = isButton(label);
 
 		TextualStyle wrapperStyle = null;
 		if (isButton)
@@ -1849,10 +1854,14 @@ public class TemplateGenerator
 			// which accepts this kind of anchoring, and we place the button inside the <div>
 			// with { width: 100%; height: 100%; }, which works fine.
 			String wrapperId = ComponentFactory.getWebID(form, label) + WRAPPER_SUFFIX;
-			html.append("<div id='" + wrapperId + "' class='" + wrapperId + "'>");
 			wrapperStyle = css.addStyle(styleName + wrapperId);
+			html.append("<div ");
+			html.append(getWicketIDParameter(form, label, "", WRAPPER_SUFFIX));
+			html.append(getJavaScriptIDParameter(form, label, "", WRAPPER_SUFFIX));
+			html.append(">");
 		}
 
+		Insets buttonBorder = null;
 		if (isButton)
 		{
 			html.append("<button type='submit' ");
@@ -1862,6 +1871,7 @@ public class TemplateGenerator
 			html.append(">");
 			html.append("</button>");
 			// buttons are border-box by default!!
+			buttonBorder = ins.getBorder();
 			ins = null;
 		}
 		else
@@ -1919,7 +1929,6 @@ public class TemplateGenerator
 		}
 
 		int height = label.getSize().height;
-		if (ins != null) height -= ins.getSum().top + ins.getSum().bottom;
 		// Firefox has a problem when rendering <button> tags. A solution is to tweak the bottom padding
 		// and make it equal to the height of the <button>. 
 		// See: http://doctype.com/html-button-tag-renders-strangely-firefox
@@ -1929,12 +1938,17 @@ public class TemplateGenerator
 			styleObj.setProperty("padding-right", "0px");
 			styleObj.setProperty("padding-left", "0px");
 			int bottomPadding = 0;
-			if (labelVAlign != ISupportTextSetup.CENTER) bottomPadding = height;
+			if (labelVAlign != ISupportTextSetup.CENTER)
+			{
+				bottomPadding = height;
+				if (buttonBorder != null) bottomPadding -= buttonBorder.top + buttonBorder.bottom;
+			}
 			styleObj.setProperty("padding-bottom", bottomPadding + "px");
 		}
 		// In order to vertically center inside a <div> (in case of labels) we do this trick with the line height.
 		else
 		{
+			if (ins != null) height -= ins.getSum().top + ins.getSum().bottom;
 			if (labelVAlign == ISupportTextSetup.CENTER) styleObj.setProperty("line-height", height + "px");
 		}
 
@@ -2016,7 +2030,10 @@ public class TemplateGenerator
 			String wrapperId = ComponentFactory.getWebID(form, field) + WRAPPER_SUFFIX;
 			TextualStyle wrapperStyle = css.addStyle('#' + wrapperId);
 			wrapperStyle.setProperty("overflow", "visible");
-			html.append("<div servoy:id='" + wrapperId + "' id='" + wrapperId + "'>");
+			html.append("<div ");
+			html.append(getWicketIDParameter(form, field, "", WRAPPER_SUFFIX));
+			html.append(getJavaScriptIDParameter(form, field, "", WRAPPER_SUFFIX));
+			html.append(">");
 		}
 
 		TextualStyle styleObj = css.addStyle('#' + ComponentFactory.getWebID(form, field));

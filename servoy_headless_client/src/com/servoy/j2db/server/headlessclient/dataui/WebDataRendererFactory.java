@@ -214,9 +214,12 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 									StartEditOnFocusGainedEventBehavior.addNewBehaviour(comp);
 								}
 							}
-							// For field components, if anchoring is enabled, we need to add a wrapper <div> for anchoring to work.
+							// For some components, if anchoring is enabled, we need to add a wrapper <div> for anchoring to work:
+							// - some of the fields
+							// - buttons
+							// - beans
 							if (isAnchoringEnabled &&
-								(((obj instanceof Field) && TemplateGenerator.needsWrapperDivForAnchoring((Field)obj)) || (obj instanceof Bean)))
+								(((obj instanceof Field) && TemplateGenerator.needsWrapperDivForAnchoring((Field)obj)) || (obj instanceof Bean) || ((obj instanceof GraphicalComponent) && TemplateGenerator.isButton((GraphicalComponent)obj))))
 							{
 								MarkupContainer compWrapper = new WrapperContainer(ComponentFactory.getWebID(null, obj) + "_wrapper", comp); //$NON-NLS-1$
 								Dimension s = ((IFormElement)obj).getSize();

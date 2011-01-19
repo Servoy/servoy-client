@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import java.awt.Dimension;
@@ -23,12 +23,12 @@ import java.util.Properties;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.model.IModel;
 
 import com.servoy.j2db.dataprocessing.IDisplayData;
+import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
@@ -157,6 +157,12 @@ public class ChangesRecorder implements IStylePropertyChanges
 			ComponentFactoryHelper.createBorderCSSProperties(border, properties);
 			changedProperties.putAll(properties);
 		}
+		else
+		{
+			changedProperties.put("border-style", "none"); //$NON-NLS-1$ //$NON-NLS-2$
+			changedProperties.remove("border-width"); //$NON-NLS-1$
+			changedProperties.remove("border-color"); //$NON-NLS-1$
+		}
 	}
 
 	/**
@@ -201,31 +207,32 @@ public class ChangesRecorder implements IStylePropertyChanges
 	 */
 	public void setSize(int width, int height, Border border, Insets margin, int fontSize)
 	{
-		setSize(width, height, border, margin, fontSize, SwingConstants.CENTER);
+		setSize(width, height, border, margin, fontSize, false, SwingConstants.CENTER);
 	}
 
-	public void setSize(int width, int height, Border border, Insets margin, int fontSize, int valign)
+	public void setSize(int width, int height, Border border, Insets margin, int fontSize, boolean isButton, int valign)
 	{
 		setChanged();
-		calculateWebSize(width, height, border, margin, fontSize, changedProperties, valign);
+		calculateWebSize(width, height, border, margin, fontSize, changedProperties, isButton, valign);
 	}
 
 	public Dimension calculateWebSize(int width, int height, Border border, Insets margin, int fontSize, Properties properties)
 	{
-		return calculateWebSize(width, height, border, margin, fontSize, properties, SwingConstants.CENTER);
+		return calculateWebSize(width, height, border, margin, fontSize, properties, false, SwingConstants.CENTER);
 	}
 
-	public Dimension calculateWebSize(int width, int height, Border border, Insets margin, int fontSize, Properties properties, int valign)
+	public Dimension calculateWebSize(int width, int height, Border border, Insets margin, int fontSize, Properties properties, boolean isButton, int valign)
 	{
 		if (properties != null)
 		{
 			properties.put("offsetWidth", width + "px"); //$NON-NLS-1$ //$NON-NLS-2$
 			properties.put("offsetHeight", height + "px"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		Insets insets = getPaddingAndBorder(height, border, margin, fontSize, properties, valign);
+		Insets insets = getPaddingAndBorder(height, border, margin, fontSize, properties, isButton, valign);
 		int realWidth = width;
 		int realheight = height;
-		if (insets != null)
+		// for <button> tags the border is drawn inside the component, regardless of the box model
+		if (insets != null && !isButton)
 		{
 			realWidth -= (insets.left + insets.right);
 			realheight -= (insets.top + insets.bottom);
@@ -241,7 +248,7 @@ public class ChangesRecorder implements IStylePropertyChanges
 
 	public Insets getPaddingAndBorder(int height, Border border, Insets margin, int fontSize, Properties properties)
 	{
-		return getPaddingAndBorder(height, border, margin, fontSize, properties, SwingConstants.CENTER);
+		return getPaddingAndBorder(height, border, margin, fontSize, properties, false, SwingConstants.CENTER);
 	}
 
 	/**
@@ -252,7 +259,7 @@ public class ChangesRecorder implements IStylePropertyChanges
 	 * @param properties
 	 * @return
 	 */
-	public Insets getPaddingAndBorder(int height, Border border, Insets margin, int fontSize, Properties properties, int valign)
+	public Insets getPaddingAndBorder(int height, Border border, Insets margin, int fontSize, Properties properties, boolean isButton, int valign)
 	{
 		Insets insets = null;
 		Insets borderMargin = margin;
@@ -284,15 +291,32 @@ public class ChangesRecorder implements IStylePropertyChanges
 		}
 		Insets padding = borderMargin;
 		if (padding == null) padding = defaultPadding;
-		if (fontSize != 0 && padding != null)
+		if (properties != null)
 		{
-			int paddingTopInitialValue = 0;
-			if (margin == null && border instanceof EmptyBorder && insets != null)
+			Insets borderAndPadding = TemplateGenerator.sumInsets(insets, padding);
+			int innerHeight = height;
+			if (borderAndPadding != null) innerHeight -= borderAndPadding.top + borderAndPadding.bottom;
+			int bottomPaddingExtra = 0;
+			if (isButton && valign != ISupportTextSetup.CENTER)
 			{
-				// empty border is used for margin in webbaselabel
-				paddingTopInitialValue = insets.top;
+				bottomPaddingExtra = innerHeight;
 			}
-			if (properties != null) properties.put("padding-top", paddingTopInitialValue + padding.top + "px"); //$NON-NLS-1$ //$NON-NLS-2$
+			if (padding == null)
+			{
+				properties.put("padding-top", "0px");
+				properties.put("padding-right", "0px");
+				properties.put("padding-left", "0px");
+				properties.put("padding-bottom", bottomPaddingExtra + "px");
+			}
+			else
+			{
+				properties.put("padding-top", padding.top + "px");
+				properties.put("padding-right", padding.right + "px");
+				properties.put("padding-left", padding.left + "px");
+				properties.put("padding-bottom", (bottomPaddingExtra + padding.bottom) + "px");
+			}
+			// In order to vertically center inside a <div> (in case of labels) we do this trick with the line height.
+			if (valign == ISupportTextSetup.CENTER) properties.put("line-height", innerHeight + "px");
 		}
 
 		if (insets == null) insets = padding;

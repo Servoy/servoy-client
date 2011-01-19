@@ -30,6 +30,7 @@ import java.util.Map;
 
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.IResourceListener;
@@ -934,6 +935,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IScriptHtml
 	{
 		setBorder(ComponentFactoryHelper.createBorder(spec));
 		jsChangeRecorder.setBorder(spec);
+		jsChangeRecorder.setSize(size.width, size.height, border, border != null ? null : margin, getFontSize(), false, valign); // border already have the margin
 	}
 
 	public String js_getBorder()
@@ -1071,7 +1073,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IScriptHtml
 	public void js_setSize(int width, int height)
 	{
 		size = new Dimension(width, height);
-		jsChangeRecorder.setSize(width, height, border, border != null ? null : margin, getFontSize(), valign); // border already have the margin
+		jsChangeRecorder.setSize(width, height, border, border != null ? null : margin, getFontSize(), false, valign); // border already have the margin
 	}
 
 	protected int getFontSize()
@@ -1088,7 +1090,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IScriptHtml
 
 	public Rectangle getWebBounds()
 	{
-		Dimension d = jsChangeRecorder.calculateWebSize(size.width, size.height, border, border != null ? null : margin, getFontSize(), null, valign); // border already have the margin
+		Dimension d = jsChangeRecorder.calculateWebSize(size.width, size.height, border, border != null ? null : margin, getFontSize(), null, false, valign); // border already have the margin
 		return new Rectangle(location, d);
 	}
 
@@ -1097,7 +1099,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IScriptHtml
 	 */
 	public Insets getPaddingAndBorder()
 	{
-		return jsChangeRecorder.getPaddingAndBorder(size.height, border, border != null ? null : margin, getFontSize(), null, valign); // border already have the margin
+		return jsChangeRecorder.getPaddingAndBorder(size.height, border, border != null ? null : margin, getFontSize(), null, false, valign); // border already have the margin
 	}
 
 
@@ -1206,7 +1208,16 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IScriptHtml
 
 	protected void instrumentAndReplaceBody(MarkupStream markupStream, ComponentTag openTag, CharSequence bodyText)
 	{
-		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, fillAllSpace(), fillAllSpace()));
+		Insets padding = null;
+		if (border == null)
+		{
+			padding = margin;
+		}
+		else if (border instanceof CompoundBorder)
+		{
+			padding = ((CompoundBorder)border).getInsideBorder().getBorderInsets(null);
+		}
+		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, fillAllSpace(), fillAllSpace(), padding));
 	}
 
 	protected boolean fillAllSpace()

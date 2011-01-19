@@ -1031,6 +1031,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	{
 		setBorder(ComponentFactoryHelper.createBorder(spec));
 		jsChangeRecorder.setBorder(spec);
+		jsChangeRecorder.setSize(size.width, size.height, border, margin, 0, true, valign);
 	}
 
 	public String js_getBorder()
@@ -1168,14 +1169,14 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	public void js_setSize(int width, int height)
 	{
 		size = new Dimension(width, height);
-		jsChangeRecorder.setSize(width, height, border, margin, 0);
+		jsChangeRecorder.setSize(width, height, border, margin, 0, true, valign);
 	}
 
 	public Rectangle getWebBounds()
 	{
 		if (size != null)
 		{
-			Dimension d = jsChangeRecorder.calculateWebSize(size.width, size.height, border, margin, 0, null);
+			Dimension d = jsChangeRecorder.calculateWebSize(size.width, size.height, border, margin, 0, null, true, valign);
 			return new Rectangle(location, d);
 		}
 		return null;
@@ -1186,7 +1187,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	 */
 	public Insets getPaddingAndBorder()
 	{
-		return jsChangeRecorder.getPaddingAndBorder(size == null ? 0 : size.height, border, margin, 0, null);
+		return jsChangeRecorder.getPaddingAndBorder(size == null ? 0 : size.height, border, margin, 0, null, true, valign);
 	}
 
 
@@ -1234,10 +1235,10 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	protected void instrumentAndReplaceBody(MarkupStream markupStream, ComponentTag openTag, CharSequence bodyText)
 	{
-		replaceComponentTagBody(markupStream, openTag, instrumentBodyText(bodyText, halign, valign, false, false));
+		replaceComponentTagBody(markupStream, openTag, instrumentBodyText(bodyText, halign, valign, false, false, margin));
 	}
 
-	protected static String instrumentBodyText(CharSequence bodyText, int halign, int valign, boolean fullWidth, boolean fullHeight)
+	protected static String instrumentBodyText(CharSequence bodyText, int halign, int valign, boolean fullWidth, boolean fullHeight, Insets padding)
 	{
 		// In order to vertically align the text inside the <button>, we wrap the text inside a <span>, and we absolutely
 		// position the <span> in the <button>. However, for centering vertically we drop this absolute positioning and
@@ -1245,17 +1246,29 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		StringBuffer instrumentedBodyText = new StringBuffer();
 		instrumentedBodyText.append("<span style='display: block;"); //$NON-NLS-1$
 
+		int top = 0;
+		int bottom = 0;
+		int left = 0;
+		int right = 0;
+		if (padding != null)
+		{
+			top = padding.top;
+			bottom = padding.bottom;
+			left = padding.left;
+			right = padding.right;
+		}
+
 		// Horizontal alignment and anchoring.
-		if (halign != ISupportTextSetup.RIGHT && valign != ISupportTextSetup.CENTER) instrumentedBodyText.append(" left: 0px;"); //$NON-NLS-1$
-		if (halign != ISupportTextSetup.LEFT && valign != ISupportTextSetup.CENTER) instrumentedBodyText.append(" right: 0px;"); //$NON-NLS-1$
+		if (halign != ISupportTextSetup.RIGHT && valign != ISupportTextSetup.CENTER) instrumentedBodyText.append(" left: " + left + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
+		if (halign != ISupportTextSetup.LEFT && valign != ISupportTextSetup.CENTER) instrumentedBodyText.append(" right: " + right + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
 		if (halign == ISupportTextSetup.LEFT) instrumentedBodyText.append(" text-align: left;"); //$NON-NLS-1$
 		else if (halign == ISupportTextSetup.RIGHT) instrumentedBodyText.append(" text-align: right;"); //$NON-NLS-1$
 		else instrumentedBodyText.append(" text-align: center;"); //$NON-NLS-1$
 
 		// Vertical alignment and anchoring.
 		if (valign != ISupportTextSetup.CENTER) instrumentedBodyText.append(" position: absolute;"); //$NON-NLS-1$
-		if (valign == ISupportTextSetup.TOP) instrumentedBodyText.append(" top: 0px;"); //$NON-NLS-1$
-		else if (valign == ISupportTextSetup.BOTTOM) instrumentedBodyText.append(" bottom: 0px;"); //$NON-NLS-1$
+		if (valign == ISupportTextSetup.TOP) instrumentedBodyText.append(" top: " + top + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
+		else if (valign == ISupportTextSetup.BOTTOM) instrumentedBodyText.append(" bottom: " + bottom + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		// Full width/height.
 		if (fullWidth) instrumentedBodyText.append(" width: 100%;"); //$NON-NLS-1$
