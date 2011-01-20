@@ -87,22 +87,6 @@ public class GlobalMethodValueList extends CustomValueList
 		{
 			return;
 		}
-		if (state instanceof PrototypeState)
-		{
-			// if it is a prototype state, clean up the valuelist and return.
-			this.record = null;
-			this.displayString = null;
-			this.realObject = null;
-			application.invokeAndWait(new Runnable()
-			{
-				public void run()
-				{
-					realValues = new SafeArrayList<Object>();
-					removeAllElements();
-				}
-			});
-			return;
-		}
 
 		try
 		{
