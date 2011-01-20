@@ -195,6 +195,7 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 	 * 
 	 * @throws ServoyException
 	 */
+	@SuppressWarnings("nls")
 	public void fillFromFoundset(Relation[] relations) throws ServoyException
 	{
 		try
@@ -246,6 +247,12 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 
 					IRecordInternal[] records = allRecords.toArray(new IRecordInternal[allRecords.size()]);
 					if (defaultSort != null) Arrays.sort(records, new RecordComparator(defaultSort));
+
+					if (records.length >= MAX_VALUELIST_ROWS)
+					{
+						application.reportJSError("Valuelist " + getName() + " fully loaded with 500 rows, more rows are discarded!!", null);
+					}
+
 					for (IRecordInternal state : records)
 					{
 						if (state == null || state.getParentFoundSet() == null) continue;
@@ -309,6 +316,7 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 	 * @throws ServoyException
 	 * @throws RemoteException
 	 */
+	@SuppressWarnings("nls")
 	protected void fillWithQuery(Relation[] relations) throws RemoteException, ServoyException
 	{
 		FoundSetManager foundSetManager = (FoundSetManager)application.getFoundSetManager();
@@ -337,6 +345,10 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 			{
 				addElement(""); //$NON-NLS-1$
 				realValues.add(null);
+			}
+			if (dataSet.getRowCount() >= MAX_VALUELIST_ROWS)
+			{
+				application.reportJSError("Valuelist " + getName() + " fully loaded with 500 rows, more rows are discarded!!", null);
 			}
 			for (int i = 0; i < dataSet.getRowCount(); i++)
 			{
