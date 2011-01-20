@@ -844,6 +844,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 	/**
 	 * @see wicket.Page#configureResponse()
 	 */
+	@SuppressWarnings("nls")
 	@Override
 	protected void configureResponse()
 	{
@@ -852,9 +853,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		if (getWebRequestCycle().getResponse() instanceof WebResponse)
 		{
 			final WebResponse response = getWebRequestCycle().getWebResponse();
-			HTTPUtils.setNoCacheHeaders(response.getHttpServletResponse());
-//			response.setHeader("Pragma", "no-cache"); //$NON-NLS-1$//$NON-NLS-2$
-//			response.setHeader("Cache-Control", "no-cache, max-age=0, must-revalidate, no-store"); //$NON-NLS-1$//$NON-NLS-2$
+			HTTPUtils.setNoCacheHeaders(response.getHttpServletResponse(), "no-store");
 		}
 
 		final RequestCycle cycle = getRequestCycle();
@@ -868,9 +867,9 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				markupStream.setCurrentIndex(0);//not sure if this is needed
 				MarkupElement m = markupStream.get();
 				String docType = m.toString().trim();
-				if (m != null && docType.toUpperCase().startsWith("<!DOCTYPE")) //$NON-NLS-1$
+				if (m != null && docType.toUpperCase().startsWith("<!DOCTYPE"))
 				{
-					int index = docType.indexOf(">"); //$NON-NLS-1$
+					int index = docType.indexOf('>');
 					if (index != -1)
 					{
 						response.write(docType.substring(0, index + 1));//delegate form doctype to be the mainpage doctype
