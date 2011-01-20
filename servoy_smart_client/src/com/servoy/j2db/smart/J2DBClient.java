@@ -3782,7 +3782,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 				getClientInfo().initHostInfo();
 
 				// recreate the UserClient
-				String prevClientId = getClientInfo().getClientId();
+				final String prevClientId = getClientInfo().getClientId();
 
 				createUserClient();
 				bindUserClient();
@@ -3796,9 +3796,16 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 					{
 						// Remote client object no longer exists on app server, must have been restarted
 						Debug.error("Error reregistering client", e); //$NON-NLS-1$
-						JOptionPane.showMessageDialog(getMainApplicationFrame(), Messages.getString("servoy.client.message.error.registerclient"),
-							Messages.getString("servoy.client.message.clientregister"), JOptionPane.ERROR_MESSAGE);
-						System.exit(1);
+						invokeAndWait(new Runnable()
+						{
+
+							public void run()
+							{
+								JOptionPane.showMessageDialog(getMainApplicationFrame(), Messages.getString("servoy.client.message.error.registerclient"),
+									Messages.getString("servoy.client.message.clientregister"), JOptionPane.ERROR_MESSAGE);
+								System.exit(1);
+							}
+						});
 					}
 					else
 					{
@@ -3813,16 +3820,16 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 					if (((FoundSetManager)getFoundSetManager()).hasLocks(null) || ((FoundSetManager)getFoundSetManager()).hasTransaction() ||
 						!((FoundSetManager)getFoundSetManager()).testClientDataSources())
 					{
-						JOptionPane.showMessageDialog(disconnectDialog, Messages.getString("servoy.client.serverdisconnect.restarting.solution"), //$NON-NLS-1$
-							Messages.getString("servoy.client.serverdisconnect.restarting.solution.title"), JOptionPane.INFORMATION_MESSAGE);
-						if (Debug.tracing())
-						{
-							Debug.trace("Client reconnected with id " + getClientID() + " from id " + prevClientId);
-						}
 						invokeLater(new Runnable()
 						{
 							public void run()
 							{
+								JOptionPane.showMessageDialog(disconnectDialog, Messages.getString("servoy.client.serverdisconnect.restarting.solution"), //$NON-NLS-1$
+									Messages.getString("servoy.client.serverdisconnect.restarting.solution.title"), JOptionPane.INFORMATION_MESSAGE);
+								if (Debug.tracing())
+								{
+									Debug.trace("Client reconnected with id " + getClientID() + " from id " + prevClientId);
+								}
 								if (Debug.tracing())
 								{
 									Debug.trace("Setting disconnect dialog to false.");
@@ -3843,9 +3850,15 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 						{
 							// Remote client object no longer exists on app server, must have been restarted
 							Debug.error("Error reregistering client", e); //$NON-NLS-1$
-							JOptionPane.showMessageDialog(getMainApplicationFrame(), Messages.getString("servoy.client.message.error.registerclient"),
-								Messages.getString("servoy.client.message.clientregister"), JOptionPane.ERROR_MESSAGE);
-							System.exit(1);
+							invokeAndWait(new Runnable()
+							{
+								public void run()
+								{
+									JOptionPane.showMessageDialog(getMainApplicationFrame(), Messages.getString("servoy.client.message.error.registerclient"),
+										Messages.getString("servoy.client.message.clientregister"), JOptionPane.ERROR_MESSAGE);
+									System.exit(1);
+								}
+							});
 						}
 						else
 						{
