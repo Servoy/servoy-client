@@ -717,7 +717,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @sameas com.servoy.j2db.dataprocessing.FoundSet#js_search()
+		 * @sameas com.servoy.j2db.dataprocessing.FoundSet#js_search(Object[])
 		 * @sample
 		 * var recordCount = %%prefix%%controller.search();
 		 * //var recordCount = %%prefix%%controller.search(false,false); //to extend foundset
