@@ -57,6 +57,7 @@ import javax.swing.text.Document;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.CustomValueList;
+import com.servoy.j2db.dataprocessing.GlobalMethodValueList;
 import com.servoy.j2db.dataprocessing.IDisplayDependencyData;
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
@@ -641,26 +642,26 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 	public void dependencyChanged(IRecordInternal record)
 	{
 		this.parentState = record;
-		if (list instanceof LookupValueList)
+		if (list instanceof LookupValueList || list instanceof GlobalMethodValueList)
 		{
 			Object o = getValue();
 
 			int index = dataProviderID.lastIndexOf('.');
 			if (index == -1 || parentState == null)
 			{
-				((LookupValueList)list).fill(parentState);
+				list.fill(parentState);
 			}
 			else
 			{
 				IFoundSetInternal relatedFoundSet = parentState.getRelatedFoundSet(dataProviderID.substring(0, index));
 				if (relatedFoundSet == null || relatedFoundSet.getSize() == 0)
 				{
-					((LookupValueList)list).fill(null);
+					list.fill(null);
 				}
 				else
 				{
 					IRecordInternal relatedRecord = relatedFoundSet.getRecord(relatedFoundSet.getSelectedIndex());
-					((LookupValueList)list).fill(relatedRecord);
+					list.fill(relatedRecord);
 				}
 			}
 
