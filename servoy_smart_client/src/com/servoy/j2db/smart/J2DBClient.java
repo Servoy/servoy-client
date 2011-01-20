@@ -3754,6 +3754,8 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		}
 	}
 
+	private volatile boolean reconnecting;
+
 	/*
 	 * @see com.servoy.j2db.util.rmi.IReconnectListener#reconnect()
 	 */
@@ -3761,58 +3763,68 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	{
 		getScheduledExecutor().execute(new Runnable()
 		{
+			@SuppressWarnings("nls")
 			public void run()
 			{
-				if (Debug.tracing())
-				{
-					Debug.trace(Thread.currentThread().getName() + ", Reconnecting to the server, unexporting the current client");
-				}
-				try
-				{
-					// Try to force unexport the object.
-					UnicastRemoteObject.unexportObject(userClient, true);
-				}
-				catch (Exception e1)
-				{
-					// ignore if not
-				}
-
-				// Create new clientinfo object. So that it can have different
-				// addresses..
-				getClientInfo().initHostInfo();
-
-				// recreate the UserClient
+				if (reconnecting) return;
 				final String prevClientId = getClientInfo().getClientId();
-
-				createUserClient();
-				bindUserClient();
+				reconnecting = true;
 				try
 				{
-					registerClient(userClient);
-				}
-				catch (Exception e)
-				{
-					if (isConnected())
+					if (Debug.tracing())
 					{
-						// Remote client object no longer exists on app server, must have been restarted
-						Debug.error("Error reregistering client", e); //$NON-NLS-1$
-						invokeAndWait(new Runnable()
-						{
+						Debug.trace(Thread.currentThread().getName() + ", Reconnecting to the server, unexporting the current client");
+					}
+					try
+					{
+						// Try to force unexport the object.
+						UnicastRemoteObject.unexportObject(userClient, true);
+					}
+					catch (Exception e1)
+					{
+						// ignore if not
+					}
 
-							public void run()
-							{
-								JOptionPane.showMessageDialog(getMainApplicationFrame(), Messages.getString("servoy.client.message.error.registerclient"),
-									Messages.getString("servoy.client.message.clientregister"), JOptionPane.ERROR_MESSAGE);
-								System.exit(1);
-							}
-						});
-					}
-					else
+					// Create new clientinfo object. So that it can have different
+					// addresses..
+					getClientInfo().initHostInfo();
+
+					// recreate the UserClient
+					createUserClient();
+					bindUserClient();
+					try
 					{
-						disconnectedFromServer();
-						reconnectedToServer();
-						return;
+						registerClient(userClient);
 					}
+					catch (Exception e)
+					{
+						if (isConnected())
+						{
+							// Remote client object no longer exists on app server, must have been restarted
+							Debug.error("Error reregistering client", e);
+							invokeAndWait(new Runnable()
+							{
+
+								public void run()
+								{
+									JOptionPane.showMessageDialog(getMainApplicationFrame(), Messages.getString("servoy.client.message.error.registerclient"),
+										Messages.getString("servoy.client.message.clientregister"), JOptionPane.ERROR_MESSAGE);
+									System.exit(1);
+								}
+							});
+						}
+						else
+						{
+							reconnecting = false;
+							disconnectedFromServer();
+							reconnectedToServer();
+							return;
+						}
+					}
+				}
+				finally
+				{
+					reconnecting = false;
 				}
 
 				if (prevClientId == null || !prevClientId.equals(getClientInfo().getClientId()))
@@ -3824,7 +3836,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 						{
 							public void run()
 							{
-								JOptionPane.showMessageDialog(disconnectDialog, Messages.getString("servoy.client.serverdisconnect.restarting.solution"), //$NON-NLS-1$
+								JOptionPane.showMessageDialog(disconnectDialog, Messages.getString("servoy.client.serverdisconnect.restarting.solution"),
 									Messages.getString("servoy.client.serverdisconnect.restarting.solution.title"), JOptionPane.INFORMATION_MESSAGE);
 								if (Debug.tracing())
 								{
