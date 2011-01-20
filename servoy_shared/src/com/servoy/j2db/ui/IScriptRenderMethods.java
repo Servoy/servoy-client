@@ -23,7 +23,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @author gboros
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "Renderable")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "Renderable", publicName = "Renderable")
 public interface IScriptRenderMethods
 {
 	public static final String JS_RENDERABLE = "Renderable";//$NON-NLS-1$

@@ -606,6 +606,7 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/setYear
 	 */
+	@Deprecated
 	public void jsFunction_setYear(Number yearValue)
 	{
 	}
