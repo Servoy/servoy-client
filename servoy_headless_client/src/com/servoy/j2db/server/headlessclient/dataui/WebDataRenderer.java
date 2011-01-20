@@ -636,14 +636,18 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 			}
 
 			@Override
-			protected void onDragStart(final String id, int x, int y, AjaxRequestTarget ajaxRequestTarget)
+			protected boolean onDragStart(final String id, int x, int y, AjaxRequestTarget ajaxRequestTarget)
 			{
 				IComponent comp = getBindedComponentChild(id);
+				if (comp instanceof WebSplitPane) return false;
 				JSDNDEvent event = WebDataRenderer.this.createScriptEvent(EventType.onDrag, comp, new Point(x, y));
 				setDropResult(false);
-				setCurrentDragOperation(WebDataRenderer.this.onDrag(event));
+				int dragOp = WebDataRenderer.this.onDrag(event);
+				if (dragOp == DRAGNDROP.NONE) return false;
+				setCurrentDragOperation(dragOp);
 				setDragComponent(comp);
 				setDragData(event.getData(), event.getDataMimeType());
+				return true;
 			}
 
 			@Override

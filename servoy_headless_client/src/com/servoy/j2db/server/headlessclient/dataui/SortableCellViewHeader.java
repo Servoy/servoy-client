@@ -269,9 +269,10 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 				}
 
 				@Override
-				protected void onDragStart(String componentId, int x, int y, AjaxRequestTarget ajaxRequestTarget)
+				protected boolean onDragStart(String componentId, int x, int y, AjaxRequestTarget ajaxRequestTarget)
 				{
 					startX = x;
+					return true;
 				}
 
 				@Override
@@ -317,9 +318,10 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 				}
 
 				@Override
-				protected void onDragStart(String componentId, int x, int y, AjaxRequestTarget ajaxRequestTarget)
+				protected boolean onDragStart(String componentId, int x, int y, AjaxRequestTarget ajaxRequestTarget)
 				{
 					startX = x;
+					return true;
 				}
 
 				@Override

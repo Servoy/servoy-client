@@ -3097,14 +3097,17 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			}
 
 			@Override
-			protected void onDragStart(final String id, int x, int y, AjaxRequestTarget ajaxRequestTarget)
+			protected boolean onDragStart(final String id, int x, int y, AjaxRequestTarget ajaxRequestTarget)
 			{
 				IComponent comp = getBindedComponentChild(id);
 				JSDNDEvent event = WebCellBasedView.this.createScriptEvent(EventType.onDrag, comp, new Point(x, y));
-				setCurrentDragOperation(WebCellBasedView.this.onDrag(event));
+				int dragOp = WebCellBasedView.this.onDrag(event);
+				if (dragOp == DRAGNDROP.NONE) return false;
+				setCurrentDragOperation(dragOp);
 				setDragData(event.getData(), event.getDataMimeType());
 				setDragComponent(comp);
 				setDropResult(false);
+				return true;
 			}
 
 			@Override

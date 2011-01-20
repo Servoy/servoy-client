@@ -599,6 +599,7 @@ if (typeof(Servoy.DD) == "undefined")
 		isRestartTimerNeeded: false,
 		currentElement: new Array(),
 		dropCallback: new Array(),
+		mouseDownEvent: null,
 		
 		dragStarted: function()
 		{
@@ -626,7 +627,7 @@ if (typeof(Servoy.DD) == "undefined")
 					dd = new YAHOO.util.DDProxy(array[i], null, {resizeFrame : false, centerFrame : true});
 				else
 					dd = new YAHOO.util.DD(array[i]);
-		
+
 				if(bXConstraint)
 					dd.setXConstraint(0, 0);
 				if(bYConstraint)
@@ -635,12 +636,16 @@ if (typeof(Servoy.DD) == "undefined")
 				dd.onMouseDown = function(e) {
 					requestFocus(this.id);
 				};					
-					
-				dd.startDrag = function(x, y) { 
-					wicketAjaxGet(callback + '&a=aStart&xc=' + x + '&yc=' + y + '&draggableID=' + this.id);
-					Servoy.DD.dragStarted();
-				};
-		
+
+				dd.on('b4MouseDownEvent', function(ev)
+				{
+					var x = YAHOO.util.Event.getPageX(ev);
+					var y = YAHOO.util.Event.getPageY(ev);
+					Servoy.DD.mouseDownEvent = ev;
+					wicketAjaxGet(callback + '&a=aStart&xc=' + x + '&yc=' + y + '&draggableID=' + this.id);					
+					return true;
+				}, dd, true);
+
 				dd.endDrag = function(e) {
 					Servoy.DD.dragStopped();
 					Servoy.DD.currentElement = new Array();
@@ -706,9 +711,10 @@ if (typeof(Servoy.DD) == "undefined")
 						Servoy.DD.isDragStarted = false;
 					}
 				};
-				
+
 				Servoy.DD.dropCallback[array[i]] = callback;	
 			}
+			
 		},
 
 		attachDrop: function(array, callback)

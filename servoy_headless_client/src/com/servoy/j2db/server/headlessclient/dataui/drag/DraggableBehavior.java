@@ -17,11 +17,11 @@
 package com.servoy.j2db.server.headlessclient.dataui.drag;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.Component.IVisitor;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Page;
 import org.apache.wicket.Request;
 import org.apache.wicket.Session;
-import org.apache.wicket.Component.IVisitor;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.IHeaderResponse;
 
@@ -178,8 +178,9 @@ public abstract class DraggableBehavior extends AbstractServoyDefaultAjaxBehavio
 
 		if (ACTION_DRAG_START.equals(action))
 		{
-			onDragStart(id, Integer.parseInt(componentRequest.getParameter(PARAM_X)), Integer.parseInt(componentRequest.getParameter(PARAM_Y)),
-				ajaxRequestTarget);
+			boolean dragStartReturn = onDragStart(id, Integer.parseInt(componentRequest.getParameter(PARAM_X)),
+				Integer.parseInt(componentRequest.getParameter(PARAM_Y)), ajaxRequestTarget);
+			if (!dragStartReturn) ajaxRequestTarget.appendJavascript("YAHOO.util.DragDropMgr.stopDrag(Servoy.DD.mouseDownEvent, false);");
 		}
 		else if (ACTION_DRAG_END.equals(action))
 		{
@@ -209,7 +210,7 @@ public abstract class DraggableBehavior extends AbstractServoyDefaultAjaxBehavio
 		if (isRenderOnHead) WebEventExecutor.generateDragAttach(getComponent(), response);
 	}
 
-	protected abstract void onDragStart(String id, int x, int y, AjaxRequestTarget ajaxRequestTarget);
+	protected abstract boolean onDragStart(String id, int x, int y, AjaxRequestTarget ajaxRequestTarget);
 
 	protected void onDragEnd(String id, int x, int y, AjaxRequestTarget ajaxRequestTarget)
 	{
