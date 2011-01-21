@@ -155,6 +155,41 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent
 		return null;
 	}
 
+
+	/**
+	 * Removes the tab with the specified name from the tab panel.
+	 *  
+	 * @param name the name of the tab to be removed
+	 * 
+	 * @sample
+	 * var tabPanel = form.newTabPanel('tabs', 10, 10, 620, 460);
+	 * tabPanel.newTab('tab1', 'Child Two', childOne);
+	 * tabPanel.newTab('tab2', 'Child Two', childTwo);
+	 * tabPanel.removeTab('tab1');
+	 * 
+	 */
+	public void js_removeTab(String name)
+	{
+		if (name == null) return;
+
+		Iterator<IPersist> tabs = getBaseComponent(false).getTabs();
+		while (tabs.hasNext())
+		{
+			Tab tab = (Tab)tabs.next();
+			if (name.equals(tab.getName()))
+			{
+				JSMethod onChangeMethodTmp = js_getOnChange();
+				js_setOnChange(null);
+
+				//removing the child tab from the tabpanel
+				getBaseComponent(true).removeChild(tab);
+
+				js_setOnChange(onChangeMethodTmp);
+				break;
+			}
+		}
+	}
+
 	/**
 	 * Returns an array of JSTab instances holding the tabs of the tab panel.
 	 *
