@@ -252,7 +252,7 @@ public class EditRecordList
 		}
 
 		//prevent recursive calls
-		if (isSaving && !javascriptStop)
+		if (isSaving)
 		{
 			return ISaveConstants.STOPPED;
 		}
@@ -321,12 +321,12 @@ public class EditRecordList
 		int editedRecordsSize;
 		try
 		{
-			isSaving = true;
 			int p = prepareForSave(true);
 			if (p != ISaveConstants.STOPPED)
 			{
 				return p;
 			}
+			isSaving = true;
 
 			//remove any non referenced failed records
 			boolean fireChange = false;
