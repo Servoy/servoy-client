@@ -1756,7 +1756,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * 
 	 * @templatedescription Calculate the row background color
 	 * @templatename rowBGColorCalculation
-	 * @templatetype Color
+	 * @templatetype String
 	 * @templateparam Number index row index
 	 * @templateparam Boolean selected is the row selected
 	 * @templateparam String elementType element type (not supported in webclient)
