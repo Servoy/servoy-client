@@ -216,6 +216,7 @@ public class JSRelation implements IJSParent, IConstantsObject
 	 */
 	public void js_removeRelationItem(String primaryDataProviderID, String operator, String foreignColumnName)
 	{
+		checkModification();
 		Iterator<IPersist> allObjects = relation.getAllObjects();
 		while (allObjects.hasNext())
 		{
@@ -235,6 +236,7 @@ public class JSRelation implements IJSParent, IConstantsObject
 					{
 						throw new RuntimeException("Could not remove relation item: " + e.getMessage()); //$NON-NLS-1$
 					}
+					relation.setValid(true);
 					break;
 				}
 			}
