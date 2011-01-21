@@ -172,7 +172,8 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent
 	{
 		if (name == null) return;
 
-		Iterator<IPersist> tabs = getBaseComponent(false).getTabs();
+		TabPanel tp = getBaseComponent(true);
+		Iterator<IPersist> tabs = tp.getTabs();
 		while (tabs.hasNext())
 		{
 			Tab tab = (Tab)tabs.next();
@@ -182,7 +183,7 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent
 				js_setOnChange(null);
 
 				//removing the child tab from the tabpanel
-				getBaseComponent(true).removeChild(tab);
+				tp.removeChild(tab);
 
 				js_setOnChange(onChangeMethodTmp);
 				break;
