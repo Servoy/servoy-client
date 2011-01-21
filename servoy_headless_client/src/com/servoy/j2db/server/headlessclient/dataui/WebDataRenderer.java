@@ -639,7 +639,6 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 			protected boolean onDragStart(final String id, int x, int y, AjaxRequestTarget ajaxRequestTarget)
 			{
 				IComponent comp = getBindedComponentChild(id);
-				if (comp instanceof WebSplitPane) return false;
 				JSDNDEvent event = WebDataRenderer.this.createScriptEvent(EventType.onDrag, comp, new Point(x, y));
 				setDropResult(false);
 				int dragOp = WebDataRenderer.this.onDrag(event);

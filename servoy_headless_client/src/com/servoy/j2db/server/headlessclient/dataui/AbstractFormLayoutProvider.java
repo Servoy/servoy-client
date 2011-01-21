@@ -215,7 +215,7 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 		html.append(partID);//Part.getDisplayName(part.getPartType()));		
 		html.append("' id='"); //$NON-NLS-1$ 
 		html.append(partID);
-		html.append("'>\n"); //$NON-NLS-1$ 
+		html.append("' class='formpart'>\n"); //$NON-NLS-1$ 
 
 		TextualStyle partStyle = css.addStyle('#' + partID);
 		fillPartStyle(partStyle, part);

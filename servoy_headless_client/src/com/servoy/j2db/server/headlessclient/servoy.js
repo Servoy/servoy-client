@@ -733,7 +733,30 @@ if (typeof(Servoy.DD) == "undefined")
 		
 		isTargetDraggable: function(target)
 		{
-			return true;
+			var targetAncestor;
+			if(Servoy.DD.isDragDropContainer(target))
+			{
+				targetAncestor = target;
+			}
+			else
+			{
+				targetAncestor = YAHOO.util.Dom.getAncestorBy ( target , function(el)
+				{
+					return Servoy.DD.isDragDropContainer(el);
+				});
+			}
+
+			if(targetAncestor)
+			{
+				return YAHOO.util.DragDropMgr.isDragDrop(targetAncestor.id);
+			}
+
+			return false;
+		},
+		
+		isDragDropContainer: function(target)
+		{
+			return YAHOO.util.DragDropMgr.isDragDrop(target.id) || YAHOO.util.Dom.hasClass(target, 'formpart') || YAHOO.util.Dom.hasClass(target, 'tabpanel');
 		}			
 	};
 }
