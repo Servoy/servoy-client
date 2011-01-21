@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
@@ -252,7 +252,7 @@ public class EditRecordList
 		}
 
 		//prevent recursive calls
-		if (isSaving)
+		if (isSaving && !javascriptStop)
 		{
 			return ISaveConstants.STOPPED;
 		}
@@ -864,8 +864,8 @@ public class EditRecordList
 						Object[] methodArgs = new Object[] { record };
 						try
 						{
-							scriptEngine.executeFunction(((Function)function), gscope, gscope,
-								Utils.arrayMerge(methodArgs, Utils.parseJSExpressions(tn.getInstanceMethodArguments(methodKey))), false, false);
+							scriptEngine.executeFunction(((Function)function), gscope, gscope, Utils.arrayMerge(methodArgs,
+								Utils.parseJSExpressions(tn.getInstanceMethodArguments(methodKey))), false, false);
 						}
 						catch (Exception e)
 						{
@@ -938,8 +938,8 @@ public class EditRecordList
 						Object[] methodArgs = new Object[] { record };
 						try
 						{
-							Object retval = scriptEngine.executeFunction(((Function)function), gscope, gscope,
-								Utils.arrayMerge(methodArgs, Utils.parseJSExpressions(tn.getInstanceMethodArguments(methodKey))), false, true);
+							Object retval = scriptEngine.executeFunction(((Function)function), gscope, gscope, Utils.arrayMerge(methodArgs,
+								Utils.parseJSExpressions(tn.getInstanceMethodArguments(methodKey))), false, true);
 							if (Boolean.FALSE.equals(retval))
 							{
 								// update or insert method returned false. should block the save.
