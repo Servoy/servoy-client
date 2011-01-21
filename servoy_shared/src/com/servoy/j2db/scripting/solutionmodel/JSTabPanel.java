@@ -179,13 +179,8 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent
 			Tab tab = (Tab)tabs.next();
 			if (name.equals(tab.getName()))
 			{
-				JSMethod onChangeMethodTmp = js_getOnChange();
-				js_setOnChange(null);
-
 				//removing the child tab from the tabpanel
 				tp.removeChild(tab);
-
-				js_setOnChange(onChangeMethodTmp);
 				break;
 			}
 		}
