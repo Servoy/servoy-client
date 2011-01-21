@@ -27,6 +27,7 @@ import com.servoy.j2db.dataprocessing.SQLSheet;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IDataProvider;
+import com.servoy.j2db.persistence.IDeveloperRepository;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.Relation;
@@ -192,6 +193,54 @@ public class JSRelation implements IJSParent, IConstantsObject
 			throw new RuntimeException(e);
 		}
 	}
+
+	/**
+	 * Removes the desired relation item from the specified relation.
+	 * 
+	 * @sample
+	 * var relation = solutionModel.newRelation('myRelation', 'myServer', 'parentTable', 'myServer', 'childTable', JSRelation.INNER_JOIN);
+	 * relation.newRelationItem('someColumn1', '=', 'someColumn2');
+	 * relation.newRelationItem('anotherColumn', '=', 'someOtherColumn');
+	 * relation.removeRelationItem('someColumn1', '=', 'someColumn2');
+	 * var criteria = relation.getRelationItems();
+	 * for (var i = 0; i < criteria.length; i++) {
+	 * 	var item = criteria[i];
+	 * 	application.output('primary column: ' + item.primaryDataProviderID);
+	 * 	application.output('operator: ' + item.operator);
+	 * 	application.output('foreign column: ' + item.foreignColumnName);
+	 * }
+	 * 
+	 * @param primaryDataProviderID the primary data provider (column) name
+	 * @param operator the operator 
+	 * @param foreignColumnName the foreign column name
+	 */
+	public void js_removeRelationItem(String primaryDataProviderID, String operator, String foreignColumnName)
+	{
+		Iterator<IPersist> allObjects = relation.getAllObjects();
+		while (allObjects.hasNext())
+		{
+			IPersist persist = allObjects.next();
+			if (persist instanceof RelationItem)
+			{
+				RelationItem ri = (RelationItem)persist;
+				int validOperator = RelationItem.getValidOperator(operator, RelationItem.RELATION_OPERATORS, null);
+				if (ri.getPrimaryDataProviderID().equals(primaryDataProviderID) && ri.getOperator() == validOperator &&
+					ri.getForeignColumnName().equals(foreignColumnName))
+				{
+					try
+					{
+						((IDeveloperRepository)persist.getRootObject().getRepository()).deleteObject(persist);
+					}
+					catch (RepositoryException e)
+					{
+						throw new RuntimeException("Could not remove relation item: " + e.getMessage()); //$NON-NLS-1$
+					}
+					break;
+				}
+			}
+		}
+	}
+
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Relation#getAllowCreationRelatedRecords()
