@@ -670,8 +670,8 @@ public class JSForm implements IJSParent, IConstantsObject
 	 *
 	 * @sample 
 	 * 	var form = solutionModel.newForm('newForm1', 'myServer', 'myTable', null, true, 800, 600);
-	 * 	var method = solutionModel.newFormMethod('function onAction(event) { application.output("onAction intercepted on " + event.getFormName()); }');
-	 * 	var button = solutionModel.newButton('myButton', 10, 10, 100, 30, method);
+	 * 	var method = form.newFormMethod('function onAction(event) { application.output("onAction intercepted on " + event.getFormName()); }');
+	 * 	var button = form.newButton('myButton', 10, 10, 100, 30, method);
 	 * 	application.output("The new button: " + button.name + " has the following onAction event handling method assigned " + button.onAction.getName());
 	 *
 	 * @param text the text on the button
