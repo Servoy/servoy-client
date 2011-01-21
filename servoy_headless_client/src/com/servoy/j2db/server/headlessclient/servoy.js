@@ -639,11 +639,16 @@ if (typeof(Servoy.DD) == "undefined")
 
 				dd.on('b4MouseDownEvent', function(ev)
 				{
-					var x = YAHOO.util.Event.getPageX(ev);
-					var y = YAHOO.util.Event.getPageY(ev);
-					Servoy.DD.mouseDownEvent = ev;
-					wicketAjaxGet(callback + '&a=aStart&xc=' + x + '&yc=' + y + '&draggableID=' + this.id);					
-					return true;
+					if(Servoy.DD.isTargetDraggable(YAHOO.util.Event.getTarget(ev)))
+					{
+						var x = YAHOO.util.Event.getPageX(ev);
+						var y = YAHOO.util.Event.getPageY(ev);
+						Servoy.DD.mouseDownEvent = ev;
+						wicketAjaxGet(callback + '&a=aStart&xc=' + x + '&yc=' + y + '&draggableID=' + this.id);
+						Servoy.DD.dragStarted();
+						return true;
+					}
+					return false;
 				}, dd, true);
 
 				dd.endDrag = function(e) {
@@ -724,6 +729,11 @@ if (typeof(Servoy.DD) == "undefined")
 				var ddtarget = new YAHOO.util.DDTarget(array[i]);
 				Servoy.DD.dropCallback[array[i]] = callback;
 			}
+		},
+		
+		isTargetDraggable: function(target)
+		{
+			return true;
 		}			
 	};
 }
