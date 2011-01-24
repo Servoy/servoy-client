@@ -43,6 +43,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
+import javax.swing.TransferHandler;
 import javax.swing.text.Document;
 
 import com.servoy.j2db.IApplication;
@@ -860,5 +861,12 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 	public RenderEventExecutor getRenderEventExecutor()
 	{
 		return enclosedComponent != null ? enclosedComponent.eventExecutor : null;
+	}
+
+	@Override
+	public void setTransferHandler(TransferHandler newHandler)
+	{
+		super.setTransferHandler(newHandler);
+		enclosedComponent.setTransferHandler(newHandler);
 	}
 }

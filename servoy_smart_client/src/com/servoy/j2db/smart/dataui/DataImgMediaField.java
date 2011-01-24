@@ -55,6 +55,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.TransferHandler;
 import javax.swing.text.Document;
 
 import com.servoy.j2db.IApplication;
@@ -923,8 +924,8 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 						if (resolver instanceof DataAdapterList)
 						{
 							((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.FILENAME, file.getName());
-							((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.MIMETYPE, ImageLoader.getContentType(content,
-								file.getName()));
+							((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.MIMETYPE,
+								ImageLoader.getContentType(content, file.getName()));
 						}
 					}
 					catch (Exception e)
@@ -1394,5 +1395,12 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 	public RenderEventExecutor getRenderEventExecutor()
 	{
 		return eventExecutor;
+	}
+
+	@Override
+	public void setTransferHandler(TransferHandler newHandler)
+	{
+		super.setTransferHandler(newHandler);
+		if (newHandler == null) setDropTarget(null);
 	}
 }

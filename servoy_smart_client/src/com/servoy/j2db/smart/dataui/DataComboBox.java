@@ -727,6 +727,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 					formattedComboEditor.editor.setHorizontalAlignment(getHorizontalAlignment());
 					formattedComboEditor.editor.setBorder(null);
 					formattedComboEditor.editor.getDocument().addDocumentListener(closePopupDocumentListener);
+					formattedComboEditor.editor.setTransferHandler(getTransferHandler());
 					if (marginBorder instanceof EmptyBorder)
 					{
 						formattedComboEditor.editor.setMargin(((EmptyBorder)marginBorder).getBorderInsets());

@@ -51,6 +51,7 @@ import java.util.concurrent.Executor;
 
 import javax.swing.BorderFactory;
 import javax.swing.JEditorPane;
+import javax.swing.TransferHandler;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.plaf.ComponentUI;
@@ -484,8 +485,8 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 	public void setMargin(Insets m)
 	{
 //		enclosedComponent.setMargin(i); seems to have no effect
-		enclosedComponent.setBorder(BorderFactory.createCompoundBorder(enclosedComponent.getBorder(), BorderFactory.createEmptyBorder(m.top, m.left, m.bottom,
-			m.right)));
+		enclosedComponent.setBorder(BorderFactory.createCompoundBorder(enclosedComponent.getBorder(),
+			BorderFactory.createEmptyBorder(m.top, m.left, m.bottom, m.right)));
 	}
 
 	public Document getDocument()
@@ -1760,5 +1761,12 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 	public RenderEventExecutor getRenderEventExecutor()
 	{
 		return eventExecutor;
+	}
+
+	@Override
+	public void setTransferHandler(TransferHandler newHandler)
+	{
+		super.setTransferHandler(newHandler);
+		enclosedComponent.setTransferHandler(newHandler);
 	}
 }

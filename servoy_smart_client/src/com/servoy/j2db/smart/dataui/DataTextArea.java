@@ -45,6 +45,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.TransferHandler;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.text.Caret;
 import javax.swing.text.Document;
@@ -321,8 +322,8 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 	public void setMargin(Insets m)
 	{
 //		enclosedComponent.setMargin(i); seems to have no effect
-		enclosedComponent.setBorder(BorderFactory.createCompoundBorder(enclosedComponent.getBorder(), BorderFactory.createEmptyBorder(m.top, m.left, m.bottom,
-			m.right)));
+		enclosedComponent.setBorder(BorderFactory.createCompoundBorder(enclosedComponent.getBorder(),
+			BorderFactory.createEmptyBorder(m.top, m.left, m.bottom, m.right)));
 	}
 
 	@Override
@@ -1379,5 +1380,12 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 	public RenderEventExecutor getRenderEventExecutor()
 	{
 		return eventExecutor;
+	}
+
+	@Override
+	public void setTransferHandler(TransferHandler newHandler)
+	{
+		super.setTransferHandler(newHandler);
+		enclosedComponent.setTransferHandler(newHandler);
 	}
 }
