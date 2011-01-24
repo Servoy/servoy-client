@@ -191,24 +191,32 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 		}
 
 		// not found via the path and in different parent, fall back on complete search on uuid
-		return searchPersist(parent, persist.getUUID());
+		return searchPersist(parent, persist.getUUID(), persist.getParent());
 	}
 
-	public static IPersist searchPersist(ISupportChilds parent, final UUID uuid)
+	public static IPersist searchPersist(ISupportChilds node, final UUID uuid)
 	{
-		if (parent == null || uuid == null) return null;
-		if (parent.getUUID().equals(uuid)) return parent;
+		return searchPersist(node, uuid, null);
+	}
 
-		return (IPersist)parent.acceptVisitor(new IPersistVisitor()
+	public static IPersist searchPersist(ISupportChilds node, final UUID uuid, final ISupportChilds searchParent)
+	{
+		if (node == null || uuid == null) return null;
+		if (node.getUUID().equals(uuid)) return node;
+
+		return (IPersist)node.acceptVisitor(new IPersistVisitor()
 		{
 			public Object visit(IPersist o)
 			{
 				if (o instanceof ISupportChilds)
 				{
-					IPersist child = ((ISupportChilds)o).getChild(uuid);
-					if (child != null)
+					if (searchParent == null || searchParent.equals(o))
 					{
-						return child;
+						IPersist child = ((ISupportChilds)o).getChild(uuid);
+						if (child != null)
+						{
+							return child;
+						}
 					}
 					return CONTINUE_TRAVERSAL;
 				}

@@ -225,7 +225,7 @@ public abstract class AbstractBase implements IPersist
 			Form extendsForm = form.getExtendsForm();
 			if (extendsForm != null)
 			{
-				return AbstractRepository.searchPersist(extendsForm, getUUID());
+				return AbstractRepository.searchPersist(extendsForm, getUUID(), extendsForm);
 			}
 		}
 		return null;
