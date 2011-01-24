@@ -599,27 +599,44 @@ if (typeof(Servoy.DD) == "undefined")
 		isRestartTimerNeeded: false,
 		currentElement: new Array(),
 		dropCallback: new Array(),
-		mouseDownEvent: null,
-		
+		mouseDownEvent: null,		
+		klEsc: null,
+
 		dragStarted: function()
 		{
 			Servoy.DD.isDragging = true;
 			Servoy.DD.isDragStarted = true;
 			Servoy.DD.isRestartTimerNeeded = false;
+			Servoy.DD.klEsc.enable();
 		},
 	
 		dragStopped: function()
 		{
+			Servoy.DD.klEsc.disable();
 			Servoy.DD.isDragging = false;			
 			if(window.restartTimer && Servoy.DD.isRestartTimerNeeded)
 			{
 				window.restartTimer();
 			}
 		},
+
+		cancelDrag: function()
+		{
+			if(Servoy.DD.mouseDownEvent != null)
+			{
+				YAHOO.util.DragDropMgr.stopDrag(Servoy.DD.mouseDownEvent, false);
+			}
+		},
 	
 		attachDrag: function (array, callback , bUseProxy, bXConstraint, bYConstraint)
 		{
 			YAHOO.util.DDM.mode = YAHOO.util.DDM.INTERSECT;
+			if(Servoy.DD.klEsc == null)
+			{
+				Servoy.DD.klEsc = new YAHOO.util.KeyListener(document, {keys:27}, {fn:Servoy.DD.cancelDrag,scope:Servoy.DD,correctScope:true }, "keyup" );
+			}
+			var clientRegion = YAHOO.util.Dom.getClientRegion();
+
 			for(var i = 0; i < array.length; i++)
 			{
 				var dd;
@@ -628,28 +645,41 @@ if (typeof(Servoy.DD) == "undefined")
 				else
 					dd = new YAHOO.util.DD(array[i]);
 
-				if(bXConstraint)
-					dd.setXConstraint(0, 0);
-				if(bYConstraint)
-					dd.setYConstraint(0, 0);			
+				if(!bXConstraint && !bYConstraint)
+				{
+					//dd.setXConstraint(clientRegion.x, clientRegion.width);
+					//dd.setYConstraint(clientRegion.y, clientRegion.height);
+				}
+				else
+				{
+					if(bXConstraint)
+						dd.setXConstraint(0, 0);
+					if(bYConstraint)
+						dd.setYConstraint(0, 0);
+				}			
 					
 				dd.onMouseDown = function(e) {
 					requestFocus(this.id);
-				};					
+				};									
 
 				dd.on('b4MouseDownEvent', function(ev)
 				{
 					if(Servoy.DD.isTargetDraggable(YAHOO.util.Event.getTarget(ev)))
 					{
-						var x = YAHOO.util.Event.getPageX(ev);
-						var y = YAHOO.util.Event.getPageY(ev);
 						Servoy.DD.mouseDownEvent = ev;
-						wicketAjaxGet(callback + '&a=aStart&xc=' + x + '&yc=' + y + '&draggableID=' + this.id);
-						Servoy.DD.dragStarted();
 						return true;
 					}
 					return false;
 				}, dd, true);
+				
+				dd.on('b4StartDragEvent', function(ev)
+				{
+					var x = YAHOO.util.Event.getPageX(ev);
+					var y = YAHOO.util.Event.getPageY(ev);					
+					wicketAjaxGet(callback + '&a=aStart&xc=' + x + '&yc=' + y + '&draggableID=' + this.id);
+					Servoy.DD.dragStarted();
+					return true;
+				}, dd, true);				
 
 				dd.endDrag = function(e) {
 					Servoy.DD.dragStopped();
@@ -757,7 +787,9 @@ if (typeof(Servoy.DD) == "undefined")
 		isDragDropContainer: function(target)
 		{
 			return YAHOO.util.DragDropMgr.isDragDrop(target.id) || YAHOO.util.Dom.hasClass(target, 'formpart') || YAHOO.util.Dom.hasClass(target, 'tabpanel');
-		}			
+		}
+		
+		
 	};
 }
 
