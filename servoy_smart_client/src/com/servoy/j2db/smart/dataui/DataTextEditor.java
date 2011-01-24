@@ -494,8 +494,8 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 	public void setMargin(Insets m)
 	{
 //		enclosedComponent.setMargin(i); seems to have no effect
-		enclosedComponent.setBorder(BorderFactory.createCompoundBorder(enclosedComponent.getBorder(), BorderFactory.createEmptyBorder(m.top, m.left, m.bottom,
-			m.right)));
+		enclosedComponent.setBorder(BorderFactory.createCompoundBorder(enclosedComponent.getBorder(),
+			BorderFactory.createEmptyBorder(m.top, m.left, m.bottom, m.right)));
 	}
 
 	public Document getDocument()
@@ -906,7 +906,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 					if (lowercaseValue.indexOf("rtf") != -1 || lowercaseValue.indexOf("<html") != -1) //$NON-NLS-1$ //$NON-NLS-2$
 					{
 						enclosedComponent.getDocument().remove(0, enclosedComponent.getDocument().getLength());
-						if (svalue.length() > 10000 && application.getModeManager().getMode() == IModeManager.EDIT_MODE && asyncLoading &&
+						if (svalue.length() > 10000 && application.getModeManager().getMode() == IModeManager.EDIT_MODE && isAsyncLoading() &&
 							lowercaseValue.indexOf("<html") != -1)
 						{
 							ByteArrayInputStream bais = new ByteArrayInputStream(svalue.getBytes("UTF-8")); //$NON-NLS-1$
@@ -1692,6 +1692,11 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 			((ISupportAsyncLoading)editorKit).setAsyncLoadingEnabled(b);
 		}
 		asyncLoading = b;
+	}
+
+	private boolean isAsyncLoading()
+	{
+		return asyncLoading && !Utils.getAsBoolean(application.getRuntimeProperties().get("isPrinting")); //$NON-NLS-1$
 	}
 
 	public String getId()
