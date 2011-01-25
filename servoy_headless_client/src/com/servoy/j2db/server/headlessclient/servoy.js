@@ -601,7 +601,6 @@ if (typeof(Servoy.DD) == "undefined")
 		dropCallback: new Array(),
 		mouseDownEvent: null,		
 		klEsc: null,
-		isConstraintSet : false,
 
 		dragStarted: function()
 		{
@@ -636,7 +635,8 @@ if (typeof(Servoy.DD) == "undefined")
 			{
 				Servoy.DD.klEsc = new YAHOO.util.KeyListener(document, {keys:27}, {fn:Servoy.DD.cancelDrag,scope:Servoy.DD,correctScope:true }, "keyup" );
 			}
-	
+			var clientRegion = YAHOO.util.Dom.getClientRegion();
+
 			for(var i = 0; i < array.length; i++)
 			{
 				var dd;
@@ -645,17 +645,18 @@ if (typeof(Servoy.DD) == "undefined")
 				else
 					dd = new YAHOO.util.DD(array[i]);
 
-				if(bXConstraint)
+				if(!bXConstraint && !bYConstraint)
 				{
-					dd.setXConstraint(0, 0);
-					Servoy.DD.isConstraintSet = true;
+					//dd.setXConstraint(clientRegion.x, clientRegion.width);
+					//dd.setYConstraint(clientRegion.y, clientRegion.height);
 				}
-				if(bYConstraint)
+				else
 				{
-					dd.setYConstraint(0, 0);
-					Servoy.DD.isConstraintSet = true;
-				}
-			
+					if(bXConstraint)
+						dd.setXConstraint(0, 0);
+					if(bYConstraint)
+						dd.setYConstraint(0, 0);
+				}			
 					
 				dd.onMouseDown = function(e) {
 					requestFocus(this.id);
@@ -673,16 +674,8 @@ if (typeof(Servoy.DD) == "undefined")
 				
 				dd.on('b4StartDragEvent', function(ev)
 				{
-					if(!Servoy.DD.isConstraintSet)
-					{
-						var clientRegion = YAHOO.util.Dom.getClientRegion();
-						this.setXConstraint(clientRegion.x, clientRegion.width);
-						this.setYConstraint(clientRegion.y, clientRegion.height);
-					}
-					
 					var x = YAHOO.util.Event.getPageX(ev);
 					var y = YAHOO.util.Event.getPageY(ev);					
-					
 					wicketAjaxGet(callback + '&a=aStart&xc=' + x + '&yc=' + y + '&draggableID=' + this.id);
 					Servoy.DD.dragStarted();
 					return true;
