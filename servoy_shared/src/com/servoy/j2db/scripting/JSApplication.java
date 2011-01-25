@@ -43,6 +43,7 @@ import javax.swing.LookAndFeel;
 import javax.swing.UIManager;
 
 import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
 import com.servoy.j2db.ApplicationException;
@@ -1615,14 +1616,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 */
 	public void js_output(Object msg)
 	{
-		if (msg != null && msg instanceof Object[])
-		{
-			application.output(Arrays.toString((Object[])msg), ILogLevel.INFO);
-		}
-		else
-		{
-			application.output(msg, ILogLevel.INFO);
-		}
+		js_output(msg, ILogLevel.INFO);
 	}
 
 	/**
@@ -1637,14 +1631,59 @@ public class JSApplication implements IReturnedTypesProvider
 	 */
 	public void js_output(Object msg, int level)
 	{
-		if (msg != null && msg instanceof Object[])
+		if (msg instanceof Object[])
 		{
 			application.output(Arrays.toString((Object[])msg), level);
+		}
+		else if (msg instanceof Scriptable)
+		{
+			application.output(getScriptableString((Scriptable)msg), level);
 		}
 		else
 		{
 			application.output(msg, level);
 		}
+	}
+
+	/**
+	 * @param scriptable
+	 * @return
+	 */
+	private String getScriptableString(Scriptable scriptable)
+	{
+		Object[] ids = scriptable.getIds();
+		if (ids != null && ids.length > 0)
+		{
+			StringBuilder sb = new StringBuilder();
+			sb.append('{');
+			for (Object object : ids)
+			{
+				sb.append(object);
+				sb.append(':');
+				Object value = null;
+				if (object instanceof String)
+				{
+					value = scriptable.get((String)object, scriptable);
+				}
+				else if (object instanceof Number)
+				{
+					value = scriptable.get(((Number)object).intValue(), scriptable);
+				}
+				if (value instanceof Scriptable)
+				{
+					sb.append(getScriptableString((Scriptable)value));
+				}
+				else
+				{
+					sb.append(value);
+				}
+				sb.append(',');
+			}
+			sb.setLength(sb.length() - 1);
+			sb.append('}');
+			return sb.toString();
+		}
+		return scriptable.toString();
 	}
 
 	/**
