@@ -676,13 +676,13 @@ if (typeof(Servoy.DD) == "undefined")
 				{
 					var x = YAHOO.util.Event.getPageX(Servoy.DD.mouseDownEvent);
 					var y = YAHOO.util.Event.getPageY(Servoy.DD.mouseDownEvent);
-					if(!Servoy.DD.isConstrainSet)
-					{
-						var clientRegion = YAHOO.util.Dom.getClientRegion();
-						this.setXConstraint(x, clientRegion.width - x);
-						this.setYConstraint(y, clientRegion.height - y);						
-						
-					}					
+//					if(!Servoy.DD.isConstrainSet)
+//					{
+//						var clientRegion = YAHOO.util.Dom.getClientRegion();
+//						var elXY = YAHOO.util.Dom.getXY(this.getEl());
+//						this.setXConstraint(elXY[0], clientRegion.width - elXY[0]);
+//						this.setYConstraint(elXY[1], clientRegion.height - elXY[1]);											
+//					}					
 					wicketAjaxGet(callback + '&a=aStart&xc=' + x + '&yc=' + y + '&draggableID=' + this.id);
 					Servoy.DD.dragStarted();
 					return true;
