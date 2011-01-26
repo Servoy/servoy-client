@@ -807,11 +807,11 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 
 	public void js_putClientProperty(Object key, Object value)
 	{
-		putClientProperty(key, value);
-		if (!(enclosingComponent instanceof JPanel))
+		if (!(enclosingComponent instanceof TablessPanel))
 		{
-			enclosingComponent.putClientProperty(key, value);
+			putClientProperty(key, value);
 		}
+		enclosingComponent.putClientProperty(key, value);
 	}
 
 	public Object js_getClientProperty(Object key)
