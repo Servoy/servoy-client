@@ -29,7 +29,6 @@ import java.util.List;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.ToolTipManager;
 import javax.swing.event.ChangeEvent;
@@ -828,11 +827,11 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 
 	public void js_putClientProperty(Object key, Object value)
 	{
-		putClientProperty(key, value);
-		if (!(enclosingComponent instanceof JPanel))
+		if (!(enclosingComponent instanceof TablessPanel))
 		{
-			enclosingComponent.putClientProperty(key, value);
+			putClientProperty(key, value);
 		}
+		enclosingComponent.putClientProperty(key, value);
 	}
 
 	public Object js_getClientProperty(Object key)
