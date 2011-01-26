@@ -815,6 +815,10 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 
 	public Object js_getClientProperty(Object key)
 	{
+		if (getClientProperty(key) == null)
+		{
+			return enclosingComponent.getClientProperty(key);
+		}
 		return getClientProperty(key);
 	}
 

@@ -166,4 +166,6 @@ public interface ITabPaneAlike extends IFocusCycleRoot<Component>
 	 * @param value
 	 */
 	public void putClientProperty(Object key, Object value);
+
+	public Object getClientProperty(Object key);
 }
