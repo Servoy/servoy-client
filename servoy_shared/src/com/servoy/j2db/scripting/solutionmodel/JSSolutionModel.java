@@ -45,6 +45,7 @@ import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptNameValidator;
 import com.servoy.j2db.persistence.ScriptVariable;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.Style;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.TableNode;
@@ -184,6 +185,7 @@ public class JSSolutionModel
 		{
 			Form form = fs.getSolutionCopy().createNewForm(new ScriptNameValidator(fs), null, name, null, superForm.js_getShowInMenu(),
 				superForm.getForm().getSize());
+			form.clearProperty(StaticContentSpecLoader.PROPERTY_DATASOURCE.getPropertyName());
 			((FormManager)application.getFormManager()).addForm(form, false);
 			form.setExtendsFormID(superForm.getForm().getID());
 			return new JSForm(application, form, true);
@@ -303,7 +305,7 @@ public class JSSolutionModel
 	 */
 	public <T extends BaseComponent> JSComponent< ? > js_cloneComponent(String newName, JSComponent<T> component, JSForm newParentForm)
 	{
-		if (!(component.getBaseComponent(false).getParent() instanceof Form))
+		if (component == null || !(component.getBaseComponent(false).getParent() instanceof Form))
 		{
 			throw new RuntimeException("only components of a form can be cloned");
 		}
