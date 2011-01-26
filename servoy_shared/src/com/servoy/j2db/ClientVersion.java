@@ -27,8 +27,8 @@ public abstract class ClientVersion
 	private static final int majorVersion = 5;
 	private static final int middleVersion = 2;
 	private static final int minorVersion = 4;
-	private static final int releaseNumber = 1008;
-	private static final String versionPostfix = "i2"; //$NON-NLS-1$
+	private static final int releaseNumber = 1009;
+	private static final String versionPostfix = "i3"; //$NON-NLS-1$
 	private static final String version = majorVersion + "." + middleVersion + "." + minorVersion + (versionPostfix != null ? " " + versionPostfix : ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 
 	public static int getReleaseNumber()
