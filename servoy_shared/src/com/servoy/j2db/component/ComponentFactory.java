@@ -125,6 +125,7 @@ import com.servoy.j2db.ui.IRect;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISplitPane;
+import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.ComponentFactoryHelper;
@@ -277,6 +278,13 @@ public class ComponentFactory
 				Debug.error(e);
 			}
 		}
+
+		if (c instanceof ISupportOnRenderCallback)
+		{
+			RenderEventExecutor ree = ((ISupportOnRenderCallback)c).getRenderEventExecutor();
+			if (ree != null) ree.saveDefaultRenderProperties((ISupportOnRenderCallback)c);
+		}
+
 		return c;
 	}
 
@@ -1100,8 +1108,9 @@ public class ComponentFactory
 									}
 									catch (IOException e)
 									{
-										Debug.error("Exception loading properties for converter " + converter.getName() + ", properties: " +
-											ci.getConverterProperties(), e);
+										Debug.error(
+											"Exception loading properties for converter " + converter.getName() + ", properties: " +
+												ci.getConverterProperties(), e);
 									}
 								}
 							}
@@ -1582,22 +1591,24 @@ public class ComponentFactory
 				Utils.parseJSExpressions(label.getInstanceMethodArguments("onRightClickMethodID")));
 		}
 
-		int onRenderMethodID = label.getOnRenderMethodID();
-		if (onRenderMethodID <= 0) onRenderMethodID = form.getOnRenderMethodID();
-		if (onRenderMethodID > 0)
+		if (label.getLabelFor() == null)
 		{
-			RenderEventExecutor renderEventExecutor = ((ILabel)l).getRenderEventExecutor();
-
-			if (renderEventExecutor != null)
+			int onRenderMethodID = label.getOnRenderMethodID();
+			if (onRenderMethodID <= 0) onRenderMethodID = form.getOnRenderMethodID();
+			if (onRenderMethodID > 0)
 			{
-				renderEventExecutor.setRenderCallback(Integer.toString(onRenderMethodID));
+				RenderEventExecutor renderEventExecutor = ((ILabel)l).getRenderEventExecutor();
 
-				IForm rendererForm = application.getFormManager().getForm(form.getName());
-				IScriptExecuter rendererScriptExecuter = rendererForm instanceof FormController ? ((FormController)rendererForm).getScriptExecuter() : null;
-				renderEventExecutor.setRenderScriptExecuter(rendererScriptExecuter);
+				if (renderEventExecutor != null)
+				{
+					renderEventExecutor.setRenderCallback(Integer.toString(onRenderMethodID));
+
+					IForm rendererForm = application.getFormManager().getForm(form.getName());
+					IScriptExecuter rendererScriptExecuter = rendererForm instanceof FormController ? ((FormController)rendererForm).getScriptExecuter() : null;
+					renderEventExecutor.setRenderScriptExecuter(rendererScriptExecuter);
+				}
 			}
 		}
-
 
 		((ILabel)l).setRotation(label.getRotation());
 		((ILabel)l).setFocusPainted(label.getShowFocus());

@@ -57,6 +57,40 @@ public class RenderEventExecutor implements IRenderEventExecutor
 		renderIsSelected = isSelected;
 	}
 
+	private String defaultBgColor;
+	private String defaultBorder;
+	private boolean defaultEnabled;
+	private String defaultFgColor;
+	private String defaultFont;
+	private String defaultTooltipText;
+	private boolean defaultTransparent;
+	private boolean defaultVisible;
+
+	public void saveDefaultRenderProperties(ISupportOnRenderCallback display)
+	{
+		defaultBgColor = display.js_getBgcolor();
+		defaultBorder = display.js_getBorder();
+		defaultEnabled = display.js_isEnabled();
+		defaultFgColor = display.js_getFgcolor();
+		defaultFont = display.js_getFont();
+		defaultTooltipText = display.js_getToolTipText();
+		defaultTransparent = display.js_isTransparent();
+		defaultVisible = display.js_isVisible();
+	}
+
+	private void setDefaultRenderProperties(ISupportOnRenderCallback display)
+	{
+		display.js_setBgcolor(defaultBgColor);
+		display.js_setBorder(defaultBorder);
+		display.js_setEnabled(defaultEnabled);
+		display.js_setFgcolor(defaultFgColor);
+		display.js_setFont(defaultFont);
+		display.js_setToolTipText(defaultTooltipText);
+		display.js_setTransparent(defaultTransparent);
+		display.js_setVisible(defaultVisible);
+
+	}
+
 	public void fireOnRender(ISupportOnRenderCallback display, boolean hasFocus)
 	{
 		if (renderScriptExecuter != null && renderCallback != null)
@@ -67,7 +101,7 @@ public class RenderEventExecutor implements IRenderEventExecutor
 			event.setRecord(renderRecord);
 			event.setIndex(renderIndex);
 			event.setSelected(renderIsSelected);
-
+			setDefaultRenderProperties(display);
 			renderScriptExecuter.executeFunction(renderCallback, new Object[] { event }, false, display, false, "onRenderMethodID", true); //$NON-NLS-1$
 		}
 	}
