@@ -273,6 +273,32 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	}
 
 	/**
+	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getEnabled()
+	 * 
+	 * @sample
+	 * var form = solutionModel.newForm('printForm', 'example_data', 'parent_table', 'null', false, 400, 300);
+	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
+	 * field.enabled = false;
+	 */
+	public boolean js_getEnabled()
+	{
+		return getBaseComponent(false).getEnabled();
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getVisible()
+	 * 
+	 * @sample
+	 * var form = solutionModel.newForm('printForm', 'example_data', 'parent_table', 'null', false, 400, 300);
+	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
+	 * field.visible = false;
+	 */
+	public boolean js_getVisible()
+	{
+		return getBaseComponent(false).getVisible();
+	}
+
+	/**
 	 * The width in pixels of the component.
 	 * 
 	 * @sample
@@ -385,6 +411,16 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	public void js_setPrintable(boolean arg)
 	{
 		getBaseComponent(true).setPrintable(arg);
+	}
+
+	public void js_setEnabled(boolean arg)
+	{
+		getBaseComponent(true).setEnabled(arg);
+	}
+
+	public void js_setVisible(boolean arg)
+	{
+		getBaseComponent(true).setVisible(arg);
 	}
 
 	public void js_setWidth(int width)

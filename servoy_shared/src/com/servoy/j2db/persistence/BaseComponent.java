@@ -216,6 +216,11 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_VISIBLE, arg);
 	}
 
+	/**
+	 * The visible property of the component, default true.
+	 * 
+	 * @return
+	 */
 	public boolean getVisible()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_VISIBLE).booleanValue();
@@ -226,6 +231,11 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ENABLED, arg);
 	}
 
+	/**
+	 * The enable state of the component, default true.
+	 * 
+	 * @return
+	 */
 	public boolean getEnabled()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ENABLED).booleanValue();
