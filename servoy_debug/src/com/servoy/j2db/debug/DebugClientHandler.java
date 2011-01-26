@@ -83,7 +83,17 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		if (debugJ2DBClient != null && debugJ2DBClient.getSolution() != null)
 		{
 			SolutionScope solutionScope = debugJ2DBClient.getScriptEngine().getSolutionScope();
-			designerCallback.addScriptObjects(solutionScope);
+			designerCallback.addScriptObjects(debugJ2DBClient, solutionScope);
+		}
+		if (debugWebClient != null && debugWebClient.getSolution() != null)
+		{
+			SolutionScope solutionScope = debugWebClient.getScriptEngine().getSolutionScope();
+			designerCallback.addScriptObjects(debugWebClient, solutionScope);
+		}
+		if (debugHeadlessClient != null && debugHeadlessClient.getSolution() != null)
+		{
+			SolutionScope solutionScope = debugHeadlessClient.getScriptEngine().getSolutionScope();
+			designerCallback.addScriptObjects(debugHeadlessClient, solutionScope);
 		}
 	}
 
@@ -92,9 +102,9 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	 * 
 	 * @see com.servoy.j2db.IDesignerCallback#addScriptObjects(org.mozilla.javascript.Scriptable)
 	 */
-	public void addScriptObjects(Scriptable scope)
+	public void addScriptObjects(ClientState client, Scriptable scope)
 	{
-		if (designerCallback != null) designerCallback.addScriptObjects(scope);
+		if (designerCallback != null) designerCallback.addScriptObjects(client, scope);
 
 	}
 
@@ -461,7 +471,8 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		{
 			debugListener = debugWebClient.getFlattenedSolution().getDebugListener();
 		}
-		debugWebClient = new DebugWebClient(req, credentials, method, objects, (currentSolution == null) ? null : currentSolution.getSolutionMetaData());
+		debugWebClient = new DebugWebClient(req, credentials, method, objects, (currentSolution == null) ? null : currentSolution.getSolutionMetaData(),
+			designerCallback);
 		if (debugListener != null && debugWebClient.getFlattenedSolution() != null) debugWebClient.getFlattenedSolution().registerDebugListener(debugListener);
 		return debugWebClient;
 	}
@@ -474,7 +485,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 			debugHeadlessClient.shutDown(true);
 		}
 		debugHeadlessClient = new DebugHeadlessClient(req, userName, password, method, objects, (currentSolution == null) ? null
-			: currentSolution.getSolutionMetaData())
+			: currentSolution.getSolutionMetaData(), designerCallback)
 		{
 			@Override
 			public void shutDown(boolean force)

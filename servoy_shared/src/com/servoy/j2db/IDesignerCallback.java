@@ -24,5 +24,5 @@ public interface IDesignerCallback
 {
 	public void showFormInDesigner(Form form);
 
-	public void addScriptObjects(Scriptable scope);
+	public void addScriptObjects(ClientState client, Scriptable scope);
 }

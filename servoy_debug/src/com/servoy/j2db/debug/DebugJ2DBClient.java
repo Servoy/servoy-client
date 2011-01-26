@@ -861,7 +861,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 
 		if (designerCallback != null)
 		{
-			designerCallback.addScriptObjects(engine.getSolutionScope());
+			designerCallback.addScriptObjects(this, engine.getSolutionScope());
 		}
 		return engine;
 	}

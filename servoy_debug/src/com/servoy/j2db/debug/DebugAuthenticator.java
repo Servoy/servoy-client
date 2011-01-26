@@ -29,7 +29,7 @@ public class DebugAuthenticator extends DebugHeadlessClient
 
 	public DebugAuthenticator(String method, Object[] methodArgs, SolutionMetaData solution) throws Exception
 	{
-		super(null, null, null, method, methodArgs, solution);
+		super(null, null, null, method, methodArgs, solution, null);
 	}
 
 	@Override

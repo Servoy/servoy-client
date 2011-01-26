@@ -34,6 +34,7 @@ import org.mozilla.javascript.RhinoException;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IDebugWebClient;
+import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.IFormManager;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
@@ -58,11 +59,14 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 	private final HttpSession session;
 	private SolutionMetaData solution;
 	private final List<Thread> dispatchThreads = new ArrayList<Thread>(3);
+	private final IDesignerCallback designerCallBack;
 
-	public DebugWebClient(HttpServletRequest req, WebCredentials credentials, String method, Object[] methodArgs, SolutionMetaData solution) throws Exception
+	public DebugWebClient(HttpServletRequest req, WebCredentials credentials, String method, Object[] methodArgs, SolutionMetaData solution,
+		IDesignerCallback designerCallBack) throws Exception
 	{
 		super(req, credentials, method, methodArgs, solution != null ? solution.getName() : "");
 		this.solution = solution;
+		this.designerCallBack = designerCallBack;
 		this.session = req.getSession();
 	}
 
@@ -202,7 +206,13 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 	@Override
 	protected IExecutingEnviroment createScriptEngine()
 	{
-		return new RemoteDebugScriptEngine(this);
+		RemoteDebugScriptEngine engine = new RemoteDebugScriptEngine(this);
+
+		if (designerCallBack != null)
+		{
+			designerCallBack.addScriptObjects(this, engine.getSolutionScope());
+		}
+		return engine;
 	}
 
 	/**

@@ -34,6 +34,7 @@ import org.mozilla.javascript.RhinoException;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.IFormManager;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.dataprocessing.IDataSet;
@@ -124,11 +125,14 @@ public class DebugHeadlessClient extends SessionClient implements IDebugHeadless
 		}
 	};
 	private SolutionMetaData solution;
+	private final IDesignerCallback designerCallBack;
 
-	public DebugHeadlessClient(ServletRequest req, String name, String pass, String method, Object[] methodArgs, SolutionMetaData solution) throws Exception
+	public DebugHeadlessClient(ServletRequest req, String name, String pass, String method, Object[] methodArgs, SolutionMetaData solution,
+		IDesignerCallback designerCallBack) throws Exception
 	{
 		super(req, name, pass, method, methodArgs, solution == null ? null : solution.getName());
 		this.solution = solution;
+		this.designerCallBack = designerCallBack;
 	}
 
 
@@ -229,7 +233,13 @@ public class DebugHeadlessClient extends SessionClient implements IDebugHeadless
 	@Override
 	protected IExecutingEnviroment createScriptEngine()
 	{
-		return new RemoteDebugScriptEngine(this);
+		RemoteDebugScriptEngine engine = new RemoteDebugScriptEngine(this);
+
+		if (designerCallBack != null)
+		{
+			designerCallBack.addScriptObjects(this, engine.getSolutionScope());
+		}
+		return engine;
 	}
 
 	/**
