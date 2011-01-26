@@ -70,7 +70,7 @@ public abstract class AbstractBase implements IPersist
 	private List<IPersist> allobjects = null;
 	private transient Map<UUID, IPersist> allobjectsMap = null;
 
-	private final Map<String, Object> propertiesMap = new HashMap<String, Object>();
+	private Map<String, Object> propertiesMap = new HashMap<String, Object>();
 
 	/*
 	 * Attributes, do not change default values do to repository default_textual_classvalue
@@ -565,6 +565,8 @@ public abstract class AbstractBase implements IPersist
 		{
 			AbstractBase cloned = (AbstractBase)super.clone();
 			cloned.allobjectsMap = null;
+			cloned.propertiesMap = new HashMap<String, Object>();
+			cloned.copyPropertiesMap(getPropertiesMap(), true);
 			if (cloned.allobjects != null)
 			{
 				cloned.allobjects = new ArrayList<IPersist>(allobjects.size());
