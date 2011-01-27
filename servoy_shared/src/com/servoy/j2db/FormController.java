@@ -88,13 +88,13 @@ import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.IScriptSupport;
 import com.servoy.j2db.scripting.ITwoNativeJavaObject;
 import com.servoy.j2db.scripting.InstanceJavaMembers;
-import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.JSWindowImpl;
-import com.servoy.j2db.scripting.JSWindowImpl.JSWindow;
 import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.scripting.SelectedRecordScope;
 import com.servoy.j2db.scripting.SolutionScope;
+import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
+import com.servoy.j2db.scripting.JSWindowImpl.JSWindow;
 import com.servoy.j2db.ui.IAccessible;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
@@ -1678,12 +1678,12 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 					dr.getOnRenderComponent().getRenderEventExecutor().setRenderScriptExecuter(getScriptExecuter());
 				}
 				//apply bgcolor to renderer				
-				if (bgColor != null)
+				if (bgColor != null && !form.getTransparent())
 				{
 					dr.setBackground(bgColor);
 				}
 			}
-			else if (s != null)
+			else if (s != null && !form.getTransparent())
 			{
 				dr.setBackground(ss.getBackground(s));
 			}
@@ -1712,7 +1712,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				dr.getOnRenderComponent().getRenderEventExecutor().setRenderScriptExecuter(getScriptExecuter());
 			}
 			//apply bgcolor to renderer				
-			if (bgColor != null)
+			if (bgColor != null && !form.getTransparent())
 			{
 				dr.setBackground(bgColor);
 			}

@@ -98,6 +98,7 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 		{
 			Part part = (Part)e2.next();
 			Color bg = part.getBackground();
+			if (form.getTransparent()) bg = null;
 			if (bg == null && printing) bg = Color.white;
 
 			IDataRenderer panel = (IDataRenderer)emptyDataRenderers.get(part);

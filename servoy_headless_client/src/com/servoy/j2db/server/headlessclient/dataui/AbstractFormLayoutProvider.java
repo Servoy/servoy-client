@@ -183,7 +183,7 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 
 		// Put CSS properties for background color and border (if any).
 		TextualStyle formStyle = css.addStyle("#" + buildFormID()); //$NON-NLS-1$ 
-		if (bgColor != null) formStyle.setProperty("background-color", PersistHelper.createColorString(bgColor)); //$NON-NLS-1$
+		if (bgColor != null && !f.getTransparent()) formStyle.setProperty("background-color", PersistHelper.createColorString(bgColor)); //$NON-NLS-1$
 		if (border != null)
 		{
 			String type = ComponentFactoryHelper.createBorderString(border);
@@ -247,7 +247,7 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 
 	private void fillPartStyle(TextualStyle partStyle, Part part)
 	{
-		if (part.getBackground() != null)
+		if (part.getBackground() != null && !f.getTransparent())
 		{
 			partStyle.setProperty("background-color", PersistHelper.createColorString(part.getBackground())); //$NON-NLS-1$ 
 		}
@@ -294,7 +294,7 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 		if (defaultNavigatorShift != 0)
 		{
 			TextualStyle navigatorStyle = new TextualStyle();
-			if (bodyPart.getBackground() != null)
+			if (bodyPart.getBackground() != null && !f.getTransparent())
 			{
 				navigatorStyle.setProperty("background-color", PersistHelper.createColorString(bodyPart.getBackground())); //$NON-NLS-1$ 
 			}
