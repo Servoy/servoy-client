@@ -98,6 +98,7 @@ import com.servoy.j2db.server.headlessclient.dataui.IFormLayoutProvider;
 import com.servoy.j2db.server.headlessclient.dataui.ISupportWebTabSeq;
 import com.servoy.j2db.server.headlessclient.dataui.RecordItemModel;
 import com.servoy.j2db.server.headlessclient.dataui.StyleAppendingModifier;
+import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.server.headlessclient.dataui.WebBeanHolder;
 import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataRenderer;
@@ -107,7 +108,6 @@ import com.servoy.j2db.server.headlessclient.dataui.WebRecordView;
 import com.servoy.j2db.server.headlessclient.dataui.WebSplitPane;
 import com.servoy.j2db.server.headlessclient.dataui.WebTabFormLookup;
 import com.servoy.j2db.server.headlessclient.dataui.WebTabPanel;
-import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.ui.IButton;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
@@ -1667,6 +1667,17 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			formWidth = 0;
 			previousParent = getParent();
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.wicket.MarkupContainer#onRender(org.apache.wicket.markup.MarkupStream)
+	 */
+	@Override
+	protected void onRender(MarkupStream markupStream)
+	{
+		super.onRender(markupStream);
 		uiRecreated = false;
 	}
 

@@ -40,8 +40,8 @@ import javax.swing.border.Border;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.html.CSS;
 
-import org.apache.wicket.ResourceReference;
 import org.apache.wicket.Component.IVisitor;
+import org.apache.wicket.ResourceReference;
 
 import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
@@ -117,7 +117,7 @@ public class TemplateGenerator
 
 					public void run()
 					{
-						long sleepTime = 24 * 60 * 60 * 1000;
+						long sleepTime = 1 * 60 * 60 * 1000;
 						while (true)
 						{
 							try
@@ -324,7 +324,6 @@ public class TemplateGenerator
 			: Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.webclient.enableAnchors", Boolean.TRUE.toString()));
 
 		String overriddenStyleName = null;
-		Map<String, String> formIDToMarkupIDMap = null;
 
 		Pair<String, ArrayList<Pair<String, String>>> retval = formCache.getFormAndCssPair(f, formInstanceName, overriddenStyleName, repository);
 
@@ -411,6 +410,7 @@ public class TemplateGenerator
 			formCache.putFormAndCssPair(f, formInstanceName, overriddenStyleName, repository, retval);
 		}
 
+		Map<String, String> formIDToMarkupIDMap = null;
 		if (sp instanceof IApplication)
 		{
 			Map runtimeProps = sp.getRuntimeProperties();
@@ -427,7 +427,7 @@ public class TemplateGenerator
 				IFormUIInternal wf = ((FormController)wfc).getFormUI();
 				if (wf instanceof WebForm)
 				{
-					formIDToMarkupIDMap = clientFormsIDToMarkupIDMap.get(wf);
+					if (!((WebForm)wf).isUIRecreated()) formIDToMarkupIDMap = clientFormsIDToMarkupIDMap.get(wf);
 					if (formIDToMarkupIDMap == null)
 					{
 						ArrayList<Pair<String, String>> formCSS = retval.getRight();
