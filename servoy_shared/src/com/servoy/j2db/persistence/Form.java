@@ -1111,6 +1111,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * If you call loadRecords() in the onShow method, you may want to set the namedFoundSet property of the form to 'empty' to prevent the first default form query.
 	 * NOTE: the onLoad event bubbles down, meaning that the onLoad is first fired on the parent then on a tab in a tabpanel (and in tab of that tab panels if you are 3 deep)
 	 * 
+	 * @templateprivate
 	 * @templatedescription Callback method when form is (re)loaded
 	 * @templatename onLoad
 	 * @templateparam JSEvent event the event that triggered the action
@@ -1136,6 +1137,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * NOTE: Forms can be prevented from being removed from memory by referencing the form object in a global variable or inside an array inside a global variable. Do take care using this technique.
 	 * Forms take up memory and if too many forms are in memory and cannot be unloaded, there is a possibility of running out of memory.
 	 * 
+	 * @templateprivate
 	 * @templatedescription Callback method when form is destroyed
 	 * @templatename onUnload
 	 * @templateparam JSEvent event the event that triggered the action
@@ -1900,6 +1902,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	/**
 	 * The method that is triggered when (non Design Mode) dragging occurs.
 	 * 
+	 * @templateprivate
 	 * @templatedescription 
 	 * Handle start of a drag, it can set the data that should be transfered and should return a constant which dragndrop mode/modes is/are supported
 	 * 

@@ -41,6 +41,7 @@ public class MethodTemplate implements IMethodTemplate
 	private static final String ATTR_NAME = "name";
 	private static final String ATTR_TYPE = "type";
 	private static final String ATTR_ADDTODO = "addtodo";
+	private static final String ATTR_PRIVATE = "private";
 
 	private static final String TAG_DESCRIPTION = "description";
 	private static final String TAG_ARGUMENTS = "arguments";
@@ -74,9 +75,11 @@ public class MethodTemplate implements IMethodTemplate
 					"A dataset with 1 or 2 columns display[,real]"),
 				new MethodArgument[] { new MethodArgument("displayValue", ArgumentType.String, "The value of a lookupfield that a user types"), new MethodArgument(
 					"realValue", ArgumentType.Object, "The real value for a lookupfield where a display value should be get for"), new MethodArgument("record",
-					ArgumentType.JSRecord, "The current record for the valuelist."), new MethodArgument("valueListName", ArgumentType.String,
-					"The valuelist name that triggers the method. (This is the FindRecord in find mode, which is like JSRecord has all the columns/dataproviders, but doesn't have its methods)"), new MethodArgument("findMode", ArgumentType.Boolean,
-					"True if foundset of this record is in find mode") },
+					ArgumentType.JSRecord, "The current record for the valuelist."), new MethodArgument(
+					"valueListName",
+					ArgumentType.String,
+					"The valuelist name that triggers the method. (This is the FindRecord in find mode, which is like JSRecord has all the columns/dataproviders, but doesn't have its methods)"), new MethodArgument(
+					"findMode", ArgumentType.Boolean, "True if foundset of this record is in find mode") },
 				"if (displayValue == null && realValue == null)\n"
 					+ "{\n// TODO think about caching this result. can be called often!\n"
 					+ "// return the complete list\n"
@@ -103,6 +106,7 @@ public class MethodTemplate implements IMethodTemplate
 	private final String description;
 	private final boolean addTodoBlock;
 	private final String defaultMethodCode;
+	private boolean privateMethod = false;
 
 
 	public MethodTemplate(String description, MethodArgument signature, MethodArgument[] args, String defaultMethodCode, boolean addTodoBlock)
@@ -320,12 +324,23 @@ public class MethodTemplate implements IMethodTemplate
 		return addTodoBlock;
 	}
 
+	public boolean isPrivateMethod()
+	{
+		return privateMethod;
+	}
+
+	public void setPrivateMethod(boolean privateMethod)
+	{
+		this.privateMethod = privateMethod;
+	}
+
 	public Element toXML()
 	{
 		Element root = DocumentHelper.createElement(TAG_METHODTEMPLATE);
 		root.addAttribute(ATTR_NAME, signature.getName());
 		if (signature.getType() != null) root.addAttribute(ATTR_TYPE, signature.getType().getName());
 		if (addTodoBlock) root.addAttribute(ATTR_ADDTODO, Boolean.TRUE.toString());
+		if (privateMethod) root.addAttribute(ATTR_PRIVATE, Boolean.TRUE.toString());
 
 		if (description != null) root.addElement(TAG_DESCRIPTION).addCDATA(description);
 		if (defaultMethodCode != null) root.addElement(TAG_CODE).addCDATA(defaultMethodCode);
@@ -367,6 +382,7 @@ public class MethodTemplate implements IMethodTemplate
 		}
 
 		MethodTemplate mtempl = new MethodTemplate(descr, new MethodArgument(name, type, null), arguments, code, addTodo);
+		if (Boolean.TRUE.toString().equals(root.attributeValue(ATTR_PRIVATE))) mtempl.setPrivateMethod(true);
 		return mtempl;
 	}
 }
