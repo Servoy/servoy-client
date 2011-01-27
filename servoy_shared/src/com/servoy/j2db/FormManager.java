@@ -988,11 +988,14 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 				Object propertyValue;
 				for (Object element : propertyIDs)
 				{
-					if (element instanceof Integer) propertyValue = scriptVar.get(((Integer)element).intValue(), scriptVar);
-					else propertyValue = scriptVar.get(element.toString(), scriptVar);
+					if (element != null)
+					{
+						if (element instanceof Integer) propertyValue = scriptVar.get(((Integer)element).intValue(), scriptVar);
+						else propertyValue = scriptVar.get(element.toString(), scriptVar);
 
-					if (propertyValue != null && propertyValue.equals(fc)) return true;
-					else if (propertyValue instanceof Scriptable && hasReferenceInScriptable((Scriptable)propertyValue, fc)) return true;
+						if (propertyValue != null && propertyValue.equals(fc)) return true;
+						else if (propertyValue instanceof Scriptable && hasReferenceInScriptable((Scriptable)propertyValue, fc)) return true;
+					}
 				}
 			}
 		}
