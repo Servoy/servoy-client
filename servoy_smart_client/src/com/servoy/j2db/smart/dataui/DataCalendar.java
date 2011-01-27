@@ -849,6 +849,16 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 	}
 
 	@Override
+	public void repaint()
+	{
+		// if repaint was requested because of a change in fireOnRender that was run from paint
+		// ignore this repaint as the changes are already painted - if not ignored, we will have
+		// a cycle calling of repaint -> paintComponent -> fireOnRender -> repaint 
+		if (enclosedComponent != null && enclosedComponent.eventExecutor != null && enclosedComponent.eventExecutor.isOnRenderRunningOnComponentPaint()) return;
+		super.repaint();
+	}
+
+	@Override
 	protected void paintComponent(Graphics g)
 	{
 		if (enclosedComponent.eventExecutor != null) enclosedComponent.eventExecutor.fireOnRender(this, enclosedComponent.hasFocus());

@@ -66,6 +66,8 @@ public class RenderEventExecutor implements IRenderEventExecutor
 	private boolean defaultTransparent;
 	private boolean defaultVisible;
 
+	private boolean useDefaultTransparent = true;
+
 	public void saveDefaultRenderProperties(ISupportOnRenderCallback display)
 	{
 		defaultBgColor = display.js_getBgcolor();
@@ -78,6 +80,11 @@ public class RenderEventExecutor implements IRenderEventExecutor
 		defaultVisible = display.js_isVisible();
 	}
 
+	public void setUseDefaultTransparent(boolean useDefaultTransparent)
+	{
+		this.useDefaultTransparent = useDefaultTransparent;
+	}
+
 	private void setDefaultRenderProperties(ISupportOnRenderCallback display)
 	{
 		display.js_setBgcolor(defaultBgColor);
@@ -86,15 +93,28 @@ public class RenderEventExecutor implements IRenderEventExecutor
 		display.js_setFgcolor(defaultFgColor);
 		display.js_setFont(defaultFont);
 		display.js_setToolTipText(defaultTooltipText);
-		display.js_setTransparent(defaultTransparent);
+		if (useDefaultTransparent) display.js_setTransparent(defaultTransparent);
 		display.js_setVisible(defaultVisible);
 
 	}
 
+	private boolean isOnRenderRunningOnComponentPaint;
+
+	public boolean isOnRenderRunningOnComponentPaint()
+	{
+		return isOnRenderRunningOnComponentPaint;
+	}
+
 	public void fireOnRender(ISupportOnRenderCallback display, boolean hasFocus)
+	{
+		fireOnRender(display, hasFocus, true);
+	}
+
+	public void fireOnRender(ISupportOnRenderCallback display, boolean hasFocus, boolean isRunningOnComponentPaint)
 	{
 		if (renderScriptExecuter != null && renderCallback != null)
 		{
+			isOnRenderRunningOnComponentPaint = isRunningOnComponentPaint;
 			JSRenderEvent event = new JSRenderEvent();
 			event.setElement(display);
 			event.setHasFocus(hasFocus);
@@ -103,6 +123,7 @@ public class RenderEventExecutor implements IRenderEventExecutor
 			event.setSelected(renderIsSelected);
 			setDefaultRenderProperties(display);
 			renderScriptExecuter.executeFunction(renderCallback, new Object[] { event }, false, display, false, "onRenderMethodID", true); //$NON-NLS-1$
+			isOnRenderRunningOnComponentPaint = false;
 		}
 	}
 }

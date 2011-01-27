@@ -844,6 +844,16 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 	}
 
 	@Override
+	public void repaint()
+	{
+		// if repaint was requested because of a change in fireOnRender that was run from paint
+		// ignore this repaint as the changes are already painted - if not ignored, we will have
+		// a cycle calling of repaint -> paintComponent -> fireOnRender -> repaint 
+		if (eventExecutor != null && eventExecutor.isOnRenderRunningOnComponentPaint()) return;
+		super.repaint();
+	}
+
+	@Override
 	protected void paintComponent(Graphics g)
 	{
 		if (eventExecutor != null) eventExecutor.fireOnRender(this, hasFocus());

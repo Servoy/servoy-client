@@ -378,7 +378,7 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 			g.setColor(Color.BLACK);
 			g.fillRect(0, 0, 3, getHeight());
 		}
-		fireDataRendererOnRender(false);
+		fireDataRendererOnRender(false, true);
 		try
 		{
 			super.paintChildren(g);
@@ -387,6 +387,16 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 		{
 			Debug.error(e);
 		}
+	}
+
+	@Override
+	public void repaint()
+	{
+		// if repaint was requested because of a change in fireOnRender that was run from paint
+		// ignore this repaint as the changes are already painted - if not ignored, we will have
+		// a cycle calling of repaint -> paintComponent -> fireOnRender -> repaint 
+		if (dataRendererOnRenderWrapper != null && dataRendererOnRenderWrapper.getRenderEventExecutor().isOnRenderRunningOnComponentPaint()) return;
+		super.repaint();
 	}
 
 	private String strRowBGColorProvider = null;
@@ -518,7 +528,7 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 				}
 			}
 			DataAdapterList.setDataRendererComponentsRenderState(this, (IRecordInternal)value);
-			fireDataRendererOnRender(true);
+			fireDataRendererOnRender(true, false);
 		}
 
 		if (rendererParentCanBeNull != null)
@@ -798,9 +808,9 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 		return dataAdapterList != null ? dataAdapterList.getFormController().getForm().toString() : super.toString();
 	}
 
-	private void fireDataRendererOnRender(boolean includeChildrenComponents)
+	private void fireDataRendererOnRender(boolean includeChildrenComponents, boolean runningOnPaint)
 	{
-		dataRendererOnRenderWrapper.getRenderEventExecutor().fireOnRender(dataRendererOnRenderWrapper, hasFocus());
+		dataRendererOnRenderWrapper.getRenderEventExecutor().fireOnRender(dataRendererOnRenderWrapper, hasFocus(), runningOnPaint);
 
 		if (includeChildrenComponents)
 		{
@@ -814,7 +824,7 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 				{
 					RenderEventExecutor rendererEventExecutor = ((ISupportOnRenderCallback)comp).getRenderEventExecutor();
 					boolean hasFocus = (comp instanceof Component) ? ((Component)comp).hasFocus() : false;
-					rendererEventExecutor.fireOnRender((ISupportOnRenderCallback)comp, hasFocus);
+					rendererEventExecutor.fireOnRender((ISupportOnRenderCallback)comp, hasFocus, runningOnPaint);
 				}
 			}
 		}
