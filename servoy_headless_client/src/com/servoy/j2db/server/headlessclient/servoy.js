@@ -1353,27 +1353,39 @@ if (typeof(Servoy.HTMLEdit) == "undefined")
 		        Event = YAHOO.util.Event;
 		    
 		    var iframe = document.getElementById(elem.id+'_iframe')
+		    var readonly = false;
+		    var editor_url;
+		    if (elem.readOnly || elem.disabled)
+		    {
+		    	readonly=true;
+		    }
 		    if (iframe == null)
 		    {
 				iframe = document.createElement('iframe');
 				iframe.id = elem.id+'_iframe';
 				iframe.frameborder = '0';
 				iframe.scrolling = 'no'
-				iframe.src = 'resources/yui/sv_editor.html#'+elem.id;
+				editor_url = 'resources/yui/sv_editor.html';
+				if (readonly)
+					editor_url += "?readonly=true"
 				elem.parentNode.appendChild(iframe);
 			}
 			else
 			{
-				iframe.src = 'resources/yui/sv_editor.html?rnd='+Math.floor(Math.random()*100000)+'#'+elem.id;
+				editor_url = 'resources/yui/sv_editor.html?rnd='+Math.floor(Math.random()*100000);
+				if (readonly)
+					editor_url += "&readonly=true"
 			}
-            var xy = Dom.getXY(elem);
-            Dom.setXY(iframe, xy);
-            var w = Dom.getStyle(elem, 'width');
-            Dom.setStyle(iframe, 'width', w);
-            var h = Dom.getStyle(elem, 'height');
-            Dom.setStyle(iframe, 'height', h);
-
-            Dom.setStyle(iframe, 'display', 'inline');
+		    editor_url = editor_url + '#'+ elem.id;
+		    iframe.src = editor_url;
+	        var xy = Dom.getXY(elem);
+	        Dom.setXY(iframe, xy);
+	        var w = Dom.getStyle(elem, 'width');
+	        Dom.setStyle(iframe, 'width', w);
+	        var h = Dom.getStyle(elem, 'height');
+	        Dom.setStyle(iframe, 'height', h);
+	
+	        Dom.setStyle(iframe, 'display', 'inline');
 			Dom.setStyle(elem, 'display', 'none');
 		}
 	};
