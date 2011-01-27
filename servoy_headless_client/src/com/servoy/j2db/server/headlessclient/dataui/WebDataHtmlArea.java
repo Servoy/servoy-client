@@ -22,12 +22,14 @@ import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.server.headlessclient.yui.YUILoader;
+import com.servoy.j2db.ui.IScriptBaseMethods;
+import com.servoy.j2db.ui.IScriptTextEditorMethods;
 
 /**
  * html editor component, bound to YUI editor
  * @author jblok
  */
-public class WebDataHtmlArea extends WebDataTextArea
+public class WebDataHtmlArea extends WebDataTextArea implements IScriptTextEditorMethods
 {
 	public WebDataHtmlArea(IApplication application, String id)
 	{
@@ -44,5 +46,34 @@ public class WebDataHtmlArea extends WebDataTextArea
 		IHeaderResponse response = container.getHeaderResponse();
 		YUILoader.renderHTMLEdit(response);
 		response.renderOnDomReadyJavascript("Servoy.HTMLEdit.attach(document.getElementById('" + getMarkupId() + "'))");
+	}
+
+	@Override
+	public String js_getElementType()
+	{
+		return IScriptBaseMethods.HTML_AREA;
+	}
+
+	public String js_getAsPlainText()
+	{
+		return null; //not supported
+	}
+
+	public String js_getURL()
+	{
+		return null; //not supported
+	}
+
+	public void js_setURL(String url)
+	{
+	}
+
+	public String js_getBaseURL()
+	{
+		return null; //not supported
+	}
+
+	public void js_setBaseURL(String url)
+	{
 	}
 }

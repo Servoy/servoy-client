@@ -2,6 +2,7 @@
 <html>
 <head>
 <title>HTML Editor</title>
+<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
 <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.8.2r1/build/menu/assets/skins/sam/menu.css" />
 <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.8.2r1/build/button/assets/skins/sam/button.css" />
 <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.8.2r1/build/fonts/fonts-min.css" />
@@ -123,6 +124,10 @@ This is some more test text.<br>This is some more test text.<br>This is some mor
                        	
         }, this, true);
     }, myEditor, true);
+    if (document.URL.indexOf('readonly=true') > 0)
+    {
+    	setTimeout(function() {myEditor.set('disabled',true);}, 1000);
+    }
     myEditor.render();
 })();
 </script>
