@@ -217,7 +217,7 @@ public abstract class AbstractBase implements IPersist
 		return value;
 	}
 
-	protected IPersist getSuperPersist()
+	public IPersist getSuperPersist()
 	{
 		Form form = (Form)getAncestor(IRepository.FORMS);
 		if (form != null)
