@@ -126,4 +126,11 @@ public class JSBean extends JSComponent<Bean> implements IJavaScriptType
 	{
 		return super.js_getTransparent();
 	}
+
+	@SuppressWarnings("nls")
+	@Override
+	public String toString()
+	{
+		return "JSBean[name:" + js_getName() + ",classname:" + js_getClassName() + ']';
+	}
 }

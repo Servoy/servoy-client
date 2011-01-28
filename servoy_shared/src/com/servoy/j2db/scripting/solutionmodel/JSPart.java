@@ -13,10 +13,11 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting.solutionmodel;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.util.PersistHelper;
@@ -323,9 +324,11 @@ public class JSPart extends JSBase<Part> implements IConstantsObject
 	/**
 	 * @see java.lang.Object#toString()
 	 */
+	@SuppressWarnings("nls")
 	@Override
 	public String toString()
 	{
-		return "Part: " + Part.getDisplayName(getBaseComponent(false).getPartType());
+		return "JSPart[name:" + Part.getDisplayName(getBaseComponent(false).getPartType()) + ",form:" +
+			((ISupportName)getBaseComponent(false).getParent()).getName() + ']';
 	}
 }

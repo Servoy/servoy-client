@@ -22,6 +22,7 @@ import java.awt.Point;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.BaseComponent;
+import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.PersistHelper;
@@ -441,9 +442,14 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	/**
 	 * @see java.lang.Object#toString()
 	 */
+	@SuppressWarnings("nls")
 	@Override
 	public String toString()
 	{
-		return getClass().getName() + ": " + getBaseComponent(false).getName(); //$NON-NLS-1$
+		T comp = getBaseComponent(false);
+		Point loc = comp.getLocation();
+		Dimension dim = comp.getSize();
+		return getClass().getSimpleName() + "[name:" + comp.getName() + ",form:" + ((ISupportName)comp.getParent()).getName() + ",x:" + loc.x + ",y:" + loc.y +
+			",width:" + dim.width + ",height:" + dim.height + ']';
 	}
 }

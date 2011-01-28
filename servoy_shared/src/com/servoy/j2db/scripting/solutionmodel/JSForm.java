@@ -57,6 +57,7 @@ import com.servoy.j2db.util.Debug;
 /**
  * @author jcompagner
  */
+@SuppressWarnings("nls")
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class JSForm implements IJSParent, IConstantsObject
 {
@@ -4008,6 +4009,12 @@ public class JSForm implements IJSParent, IConstantsObject
 	public IApplication getApplication()
 	{
 		return application;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "JSForm[name:" + form.getName() + ",size:" + form.getSize() + ",datasource:" + form.getDataSource() + ",style:" + form.getStyleName() + "]";
 	}
 
 }

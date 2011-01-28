@@ -305,9 +305,13 @@ public class JSTab extends JSBase<Tab> implements IJavaScriptType
 	/**
 	 * @see java.lang.Object#toString()
 	 */
+	@SuppressWarnings("nls")
 	@Override
 	public String toString()
 	{
-		return "Tab: " + getBaseComponent(false).getName(); //$NON-NLS-1$
+		JSForm containsForm = js_getContainsForm();
+		String containsFormString = "";
+		if (containsForm != null) containsFormString = ",form:" + containsForm.js_getName();
+		return "JSTab[name:" + getBaseComponent(false).getName() + containsFormString + ",relation:" + js_getRelationName() + ']';
 	}
 }

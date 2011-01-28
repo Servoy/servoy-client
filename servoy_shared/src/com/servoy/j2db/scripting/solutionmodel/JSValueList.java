@@ -664,9 +664,24 @@ public class JSValueList implements IConstantsObject
 	/**
 	 * @see java.lang.Object#toString()
 	 */
+	@SuppressWarnings("nls")
 	@Override
 	public String toString()
 	{
-		return "Valuelist: " + valuelist.getName(); //$NON-NLS-1$
+		int type = valuelist.getValueListType();
+		String typeString = "";
+		switch (type)
+		{
+			case ValueList.CUSTOM_VALUES :
+				typeString = "Custom";
+				break;
+			case ValueList.GLOBAL_METHOD_VALUES :
+				typeString = "GlobalMethod:" + valuelist.getCustomValues();
+				break;
+			case ValueList.TABLE_VALUES :
+				typeString = valuelist.getDatabaseValuesType() == ValueList.TABLE_VALUES ? "Table:" + valuelist.getDataSource() : "Related:" +
+					valuelist.getRelationName();
+		}
+		return "JSValueList[name:" + valuelist.getName() + ',' + typeString + ']';
 	}
 }

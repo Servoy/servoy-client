@@ -155,4 +155,15 @@ public class JSCalculation implements IJavaScriptType
 			Debug.error(e);
 		}
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		return "JSCalculation[name:" + scriptCalculation.getName() + ",type:" + scriptCalculation.getTypeAsString() + ']';
+	}
 }

@@ -28,9 +28,11 @@ import org.mozilla.javascript.ScriptOrFnNode;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptNameValidator;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.IJavaScriptType;
 
 /**
@@ -206,6 +208,21 @@ public class JSMethod implements IJavaScriptType
 	ScriptMethod getScriptMethod()
 	{
 		return sm;
+	}
+
+	@SuppressWarnings("nls")
+	@Override
+	public String toString()
+	{
+		if (sm.getParent() instanceof Form)
+		{
+			return "JSMethod[name:" + sm.getName() + ",form:" + ((Form)sm.getParent()).getName() + ']';
+		}
+		else if (sm.getParent() instanceof Solution)
+		{
+			return "JSMethod[name:" + sm.getName() + ",global, solution:" + ((Solution)sm.getParent()).getName() + ']';
+		}
+		return "JSMethod[name:" + sm.getName() + ']';
 	}
 
 	static String parseName(String content)

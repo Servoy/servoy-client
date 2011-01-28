@@ -19,6 +19,7 @@ package com.servoy.j2db.scripting.solutionmodel;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 
 import com.servoy.j2db.IApplication;
@@ -559,10 +560,11 @@ public class JSRelation implements IJSParent, IConstantsObject
 	/**
 	 * @see java.lang.Object#toString()
 	 */
+	@SuppressWarnings("nls")
 	@Override
 	public String toString()
 	{
-		return "Relation: " + relation.getName(); //$NON-NLS-1$
+		return "JSRelation[name:" + relation.getName() + ",items:" + Arrays.toString(js_getRelationItems()) + ']';
 	}
 
 	/**
