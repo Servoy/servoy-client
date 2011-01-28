@@ -449,30 +449,26 @@ public class TemplateGenerator
 	private static void placePartElements(Form f, int startY, int endY, StringBuffer html, TextualCSS css, Color formPartBgColor, boolean enableAnchoring,
 		IServiceProvider sp) throws RepositoryException
 	{
-		Iterator<IPersist> it = f.getAllObjectsSortedByFormIndex();
+		Iterator<IFormElement> it = f.getFormElementsSortedByFormIndex();
 		while (it.hasNext())
 		{
 			Point l = null;
-			IPersist element = it.next();
-			if (element instanceof Part) continue; // Skip parts
-			if (element instanceof IFormElement)
+			IFormElement element = it.next();
+			l = element.getLocation();
+
+			if (l == null) continue;//unknown where to add
+
+			if (l.y >= startY && l.y < endY)
 			{
-				l = ((IFormElement)element).getLocation();
-
-				if (l == null) continue;//unknown where to add
-
-				if (l.y >= startY && l.y < endY)
+				try
 				{
-					try
-					{
-						css.addCSSBoundsHandler(new YOffsetCSSBoundsHandler(-startY));
-						createComponentHTML(element, f, html, css, formPartBgColor, startY, endY, enableAnchoring, sp);
-						html.append('\n');
-					}
-					finally
-					{
-						css.removeCSSBoundsHandler();
-					}
+					css.addCSSBoundsHandler(new YOffsetCSSBoundsHandler(-startY));
+					createComponentHTML(element, f, html, css, formPartBgColor, startY, endY, enableAnchoring, sp);
+					html.append('\n');
+				}
+				finally
+				{
+					css.removeCSSBoundsHandler();
 				}
 			}
 		}

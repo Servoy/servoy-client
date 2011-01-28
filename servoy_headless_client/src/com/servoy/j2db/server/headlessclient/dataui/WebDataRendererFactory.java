@@ -47,7 +47,6 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.IFormElement;
-import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportAnchors;
 import com.servoy.j2db.persistence.ISupportPrinting;
 import com.servoy.j2db.persistence.ISupportTabSeq;
@@ -111,12 +110,12 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 		}
 
 		//place all the elements
-		Iterator e1 = form.getAllObjectsSortedByFormIndex();
+		Iterator<IFormElement> e1 = form.getFormElementsSortedByFormIndex();
 		return placeElements(e1, application, form, scriptExecuter, emptyDataRenderers, 0, 0, printing, undoManager, tabSequence);
 	}
 
-	private Map placeElements(Iterator e1, IApplication app, Form form, IScriptExecuter listner, Map emptyDataRenderers, int XCorrection, int YCorrection,
-		boolean printing, ControllerUndoManager undoManager, TabSequence<Component> tabSequence) throws Exception
+	private Map placeElements(Iterator<IFormElement> e1, IApplication app, Form form, IScriptExecuter listner, Map emptyDataRenderers, int XCorrection,
+		int YCorrection, boolean printing, ControllerUndoManager undoManager, TabSequence<Component> tabSequence) throws Exception
 	{
 		final boolean useAJAX = Utils.getAsBoolean(app.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 
@@ -135,137 +134,134 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 		while (e1.hasNext())
 		{
 			Point l = null;
-			IPersist obj = (IPersist)e1.next();
-			if (obj instanceof IFormElement)
+			IFormElement obj = e1.next();
+			l = (obj).getLocation();
+
+			if (l == null) continue;//unknown where to add
+			if (printing && obj instanceof ISupportPrinting)
 			{
-				l = ((IFormElement)obj).getLocation();
+				if (!((ISupportPrinting)obj).getPrintable()) continue;
+			}
 
-				if (l == null) continue;//unknown where to add
-				if (printing && obj instanceof ISupportPrinting)
-				{
-					if (!((ISupportPrinting)obj).getPrintable()) continue;
-				}
-
-				Iterator it = emptyDataRenderers.values().iterator();
-				while (it.hasNext())
-				{
-					WebDataRenderer panel = (WebDataRenderer)it.next();
+			Iterator it = emptyDataRenderers.values().iterator();
+			while (it.hasNext())
+			{
+				WebDataRenderer panel = (WebDataRenderer)it.next();
 //					Border border = panel.getBorder();
 //					if (border instanceof EmptyBorder)
 //					{
 //						insets = ((EmptyBorder)border).getBorderInsets();
 //					}
 
-					int start = panel.getLocation().y;
-					if (l.y >= start && l.y < start + panel.getSize().height)
-					{
-						org.apache.wicket.Component comp = (org.apache.wicket.Component)ComponentFactory.createComponent(app, form, obj, dataProviderLookup,
-							listner, printing);
-						// Test for a visible bean, then get the real component
+				int start = panel.getLocation().y;
+				if (l.y >= start && l.y < start + panel.getSize().height)
+				{
+					org.apache.wicket.Component comp = (org.apache.wicket.Component)ComponentFactory.createComponent(app, form, obj, dataProviderLookup,
+						listner, printing);
+					// Test for a visible bean, then get the real component
 //						if (comp instanceof VisibleBean)
 //						{
 //							comp = ((VisibleBean)comp).getDelegate();
 //						}
 
-						if (comp != null)
+					if (comp != null)
+					{
+						if (obj instanceof Field)
 						{
-							if (obj instanceof Field)
+							String name = ((Field)obj).getName();
+							if (name != null && !"".equals(name))
 							{
-								String name = ((Field)obj).getName();
-								if (name != null && !"".equals(name))
-								{
-									labelForComponents.put(name, comp);
-								}
+								labelForComponents.put(name, comp);
 							}
-							else if (obj instanceof GraphicalComponent && (comp instanceof WebBaseLabel || comp instanceof WebBaseSubmitLink))
+						}
+						else if (obj instanceof GraphicalComponent && (comp instanceof WebBaseLabel || comp instanceof WebBaseSubmitLink))
+						{
+							String labelFor = ((GraphicalComponent)obj).getLabelFor();
+							if (labelFor != null && !"".equals(labelFor))
 							{
-								String labelFor = ((GraphicalComponent)obj).getLabelFor();
-								if (labelFor != null && !"".equals(labelFor))
-								{
-									labelForComponents.put(comp, labelFor);
-								}
+								labelForComponents.put(comp, labelFor);
+							}
 
-							}
-							if ((obj instanceof ISupportTabSeq) && (tabSequence != null))
+						}
+						if ((obj instanceof ISupportTabSeq) && (tabSequence != null))
+						{
+							tabSequence.add(panel, (ISupportTabSeq)obj, comp);
+						}
+						org.apache.wicket.Component newComp = comp;
+						if (newComp instanceof IDisplay)
+						{
+							panel.addDisplayComponent(obj, (IDisplay)newComp);
+						}
+						else if (newComp instanceof WebImageBeanHolder)
+						{
+							WebImageBeanHolder wiBeanHolder = (WebImageBeanHolder)newComp;
+							Object bean = wiBeanHolder.getDelegate();
+							if (bean instanceof IServoyAwareBean)
 							{
-								tabSequence.add(panel, (ISupportTabSeq)obj, comp);
+								IServoyAwareBean ourBean = (IServoyAwareBean)bean;
+								panel.addDisplayComponent(obj, ourBean);
 							}
-							org.apache.wicket.Component newComp = comp;
-							if (newComp instanceof IDisplay)
-							{
-								panel.addDisplayComponent(obj, (IDisplay)newComp);
-							}
-							else if (newComp instanceof WebImageBeanHolder)
-							{
-								WebImageBeanHolder wiBeanHolder = (WebImageBeanHolder)newComp;
-								Object bean = wiBeanHolder.getDelegate();
-								if (bean instanceof IServoyAwareBean)
-								{
-									IServoyAwareBean ourBean = (IServoyAwareBean)bean;
-									panel.addDisplayComponent(obj, ourBean);
-								}
-							}
-							((IComponent)comp).setLocation(new Point((l.x /* +insets.left */) + XCorrection, (l.y - start) + YCorrection));
+						}
+						((IComponent)comp).setLocation(new Point((l.x /* +insets.left */) + XCorrection, (l.y - start) + YCorrection));
 
-							if (form.getOnRecordEditStartMethodID() > 0 && comp instanceof IFieldComponent)
+						if (form.getOnRecordEditStartMethodID() > 0 && comp instanceof IFieldComponent)
+						{
+							if (useAJAX && comp instanceof IDisplayData && ((IDisplayData)comp).getDataProviderID() != null &&
+								!((IDisplayData)comp).getDataProviderID().startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
 							{
-								if (useAJAX && comp instanceof IDisplayData && ((IDisplayData)comp).getDataProviderID() != null &&
-									!((IDisplayData)comp).getDataProviderID().startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+								StartEditOnFocusGainedEventBehavior.addNewBehaviour(comp);
+							}
+						}
+						// For some components, if anchoring is enabled, we need to add a wrapper <div> for anchoring to work:
+						// - some of the fields
+						// - buttons
+						// - beans
+						if (isAnchoringEnabled &&
+							(((obj instanceof Field) && TemplateGenerator.needsWrapperDivForAnchoring((Field)obj)) || (obj instanceof Bean) || ((obj instanceof GraphicalComponent) && TemplateGenerator.isButton((GraphicalComponent)obj))))
+						{
+							MarkupContainer compWrapper = new WrapperContainer(ComponentFactory.getWebID(null, obj) + "_wrapper", comp); //$NON-NLS-1$
+							Dimension s = (obj).getSize();
+							int anchors = 0;
+							if (obj instanceof ISupportAnchors) anchors = ((ISupportAnchors)obj).getAnchors();
+							int offsetWidth = s.width;
+							int offsetHeight = s.height;
+							if (comp instanceof ISupportWebBounds)
+							{
+								Rectangle b = ((ISupportWebBounds)comp).getWebBounds();
+								offsetWidth = b.width;
+								offsetHeight = b.height;
+							}
+							final String styleToReturn = computeWrapperDivStyle(l.y, l.x, offsetWidth, offsetHeight, s.width, s.height, anchors, start, start +
+								panel.getSize().height, panel.getSize().width, leftToRight);
+							// first the default
+							compWrapper.add(new StyleAppendingModifier(new AbstractReadOnlyModel<String>()
+							{
+								@Override
+								public String getObject()
 								{
-									StartEditOnFocusGainedEventBehavior.addNewBehaviour(comp);
+									return styleToReturn;
 								}
-							}
-							// For some components, if anchoring is enabled, we need to add a wrapper <div> for anchoring to work:
-							// - some of the fields
-							// - buttons
-							// - beans
-							if (isAnchoringEnabled &&
-								(((obj instanceof Field) && TemplateGenerator.needsWrapperDivForAnchoring((Field)obj)) || (obj instanceof Bean) || ((obj instanceof GraphicalComponent) && TemplateGenerator.isButton((GraphicalComponent)obj))))
+							}));
+							// then the style t hat can be set on the wrapped component
+							compWrapper.add(StyleAttributeModifierModel.INSTANCE);
+							// TODO: this needs to be done in a cleaner way. See what is the relation between
+							// margin, padding and border when calculating the websize in ChangesRecorder vs. TemplateGenerator.
+							// Looks like one of the three is not taken into account during calculations. For now decided to remove
+							// the margin and leave the padding and border.
+							comp.add(new StyleAppendingModifier(new AbstractReadOnlyModel<String>()
 							{
-								MarkupContainer compWrapper = new WrapperContainer(ComponentFactory.getWebID(null, obj) + "_wrapper", comp); //$NON-NLS-1$
-								Dimension s = ((IFormElement)obj).getSize();
-								int anchors = 0;
-								if (obj instanceof ISupportAnchors) anchors = ((ISupportAnchors)obj).getAnchors();
-								int offsetWidth = s.width;
-								int offsetHeight = s.height;
-								if (comp instanceof ISupportWebBounds)
+								@Override
+								public String getObject()
 								{
-									Rectangle b = ((ISupportWebBounds)comp).getWebBounds();
-									offsetWidth = b.width;
-									offsetHeight = b.height;
+									return "margin: 0px;"; //$NON-NLS-1$
 								}
-								final String styleToReturn = computeWrapperDivStyle(l.y, l.x, offsetWidth, offsetHeight, s.width, s.height, anchors, start,
-									start + panel.getSize().height, panel.getSize().width, leftToRight);
-								// first the default
-								compWrapper.add(new StyleAppendingModifier(new AbstractReadOnlyModel<String>()
-								{
-									@Override
-									public String getObject()
-									{
-										return styleToReturn;
-									}
-								}));
-								// then the style t hat can be set on the wrapped component
-								compWrapper.add(StyleAttributeModifierModel.INSTANCE);
-								// TODO: this needs to be done in a cleaner way. See what is the relation between
-								// margin, padding and border when calculating the websize in ChangesRecorder vs. TemplateGenerator.
-								// Looks like one of the three is not taken into account during calculations. For now decided to remove
-								// the margin and leave the padding and border.
-								comp.add(new StyleAppendingModifier(new AbstractReadOnlyModel<String>()
-								{
-									@Override
-									public String getObject()
-									{
-										return "margin: 0px;"; //$NON-NLS-1$
-									}
-								}));
-								compWrapper.add(comp);
-								panel.add(compWrapper);
-							}
-							else
-							{
-								panel.add(comp);
-							}
+							}));
+							compWrapper.add(comp);
+							panel.add(compWrapper);
+						}
+						else
+						{
+							panel.add(comp);
 						}
 					}
 				}

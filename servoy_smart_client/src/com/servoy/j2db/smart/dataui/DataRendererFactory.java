@@ -117,20 +117,29 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 	public IDataRenderer createPortalRenderer(IApplication app, Portal objToRender, Form dataProviderLookup, IScriptExecuter listner, boolean printing,
 		ControllerUndoManager undoManager) throws Exception
 	{
-		List<IPersist> children = new SortedList<IPersist>(new Comparator<IPersist>()
+		List<IPersist> allObjectsAsList = objToRender.getAllObjectsAsList();
+		List<IFormElement> formElements = new ArrayList<IFormElement>(allObjectsAsList.size());
+		for (IPersist persist : allObjectsAsList)
 		{
-			public int compare(IPersist o1, IPersist o2)
+			if (persist instanceof IFormElement)
+			{
+				formElements.add((IFormElement)persist);
+			}
+		}
+		List<IFormElement> children = new SortedList<IFormElement>(new Comparator<IFormElement>()
+		{
+			public int compare(IFormElement o1, IFormElement o2)
 			{
 				// reverse order, right order for tab sequence
 				int result = -PositionComparator.XY_PERSIST_COMPARATOR.compare(o1, o2);
-				if (result == 0 && o1 instanceof IFormElement && o2 instanceof IFormElement)
+				if (result == 0)
 				{
-					return (((IFormElement)o1).getFormIndex() - ((IFormElement)o2).getFormIndex());
+					return (o1.getFormIndex() - o2.getFormIndex());
 				}
 				return result;
 			}
-		}, objToRender.getAllObjectsAsList());
-		Iterator<IPersist> e1 = children.iterator();
+		}, formElements);
+		Iterator<IFormElement> e1 = children.iterator();
 		Map emptyDataRenderers = new LinkedHashMap();
 		DataRenderer dr = null;
 		int height = objToRender.getRowHeight();
@@ -224,14 +233,14 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 		}
 
 		//place all the elements
-		Iterator e1 = form.getAllObjectsSortedByFormIndex();
+		Iterator<IFormElement> e1 = form.getFormElementsSortedByFormIndex();
 		return placeElements(e1, app, form, listner, emptyDataRenderers, width, 0, 0, printing, false, undoManager, false, tabSequence);
 	}
 
 	//returns usesSliding
-	private Map placeElements(Iterator e1, IApplication app, Form form, IScriptExecuter listner, Map emptyDataRenderers, int width, int XCorrection,
-		int YCorrection, boolean printing, boolean cutDataProviderNames, ControllerUndoManager undoManager, boolean isPortal, TabSequence<Component> tabSequence)
-		throws Exception
+	private Map placeElements(Iterator<IFormElement> e1, IApplication app, Form form, IScriptExecuter listner, Map emptyDataRenderers, int width,
+		int XCorrection, int YCorrection, boolean printing, boolean cutDataProviderNames, ControllerUndoManager undoManager, boolean isPortal,
+		TabSequence<Component> tabSequence) throws Exception
 	{
 		IDataProviderLookup dataProviderLookup = app.getFlattenedSolution().getDataproviderLookup(app.getFoundSetManager(), form);
 		Map listTocomplete = new HashMap();
@@ -242,110 +251,107 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 		while (e1.hasNext())
 		{
 			Point l = null;
-			IPersist obj = (IPersist)e1.next();
-			if (obj instanceof IFormElement)
+			IPersist obj = e1.next();
+			l = ((IFormElement)obj).getLocation();
+
+			if (l == null) continue;//unkown where to add
+			if (printing && obj instanceof ISupportPrinting)
 			{
-				l = ((IFormElement)obj).getLocation();
+				if (!((ISupportPrinting)obj).getPrintable()) continue;
+			}
 
-				if (l == null) continue;//unkown where to add
-				if (printing && obj instanceof ISupportPrinting)
+			Iterator it = emptyDataRenderers.values().iterator();
+			while (it.hasNext())
+			{
+				DataRenderer panel = (DataRenderer)it.next();
+
+				int start = panel.getLocation().y;
+				if (l.y >= start && l.y < start + panel.getSize().height)
 				{
-					if (!((ISupportPrinting)obj).getPrintable()) continue;
-				}
-
-				Iterator it = emptyDataRenderers.values().iterator();
-				while (it.hasNext())
-				{
-					DataRenderer panel = (DataRenderer)it.next();
-
-					int start = panel.getLocation().y;
-					if (l.y >= start && l.y < start + panel.getSize().height)
+					Component comp = (Component)ComponentFactory.createComponent(app, form, obj, dataProviderLookup, listner, printing);
+					// Test for a visible bean, then get the real component
+					if (comp instanceof VisibleBean)
 					{
-						Component comp = (Component)ComponentFactory.createComponent(app, form, obj, dataProviderLookup, listner, printing);
-						// Test for a visible bean, then get the real component
-						if (comp instanceof VisibleBean)
-						{
-							comp = ((VisibleBean)comp).getDelegate();
-						}
-
-						if (comp != null)
-						{
-							if (obj instanceof Field && comp instanceof JComponent)
-							{
-								String name = ((Field)obj).getName();
-								if (name != null && !"".equals(name))
-								{
-									labelForComponents.put(name, comp);
-								}
-							}
-							else if (obj instanceof GraphicalComponent && comp instanceof JLabel)
-							{
-								String labelFor = ((GraphicalComponent)obj).getLabelFor();
-								if (labelFor != null && !"".equals(labelFor))
-								{
-									labelForComponents.put(comp, labelFor);
-								}
-
-							}
-							if (obj instanceof ISupportTabSeq && comp instanceof JComponent && (tabSequence != null))
-							{
-								tabSequence.add(panel, (ISupportTabSeq)obj, comp);
-							}
-							Component newComp = comp;
-							if (newComp instanceof IDisplay)
-							{
-								//HACK:don;t no other way to do this.........
-								if (newComp instanceof IDisplayData && cutDataProviderNames)
-								{
-									IDisplayData da = (IDisplayData)newComp;
-									String id = da.getDataProviderID();
-									if (id != null && !id.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
-									{
-										int index = id.lastIndexOf('.');
-										//TODO:check if part before . is same as relation name (objToRender.getRelationID() )
-										if (index > 0)
-										{
-											id = id.substring(index + 1);
-										}
-										da.setDataProviderID(id);
-									}
-								}
-								panel.addDisplayComponent(obj, (IDisplay)newComp);
-							}
-							comp.setLocation((l.x /* +insets.left */) + XCorrection, (l.y - start) + YCorrection);
-
-							int index = 0;
-							if (!printing && obj instanceof ISupportAnchors)
-							{
-								panel.add(comp, new Integer(((ISupportAnchors)obj).getAnchors()), index);
-							}
-							else if (printing)
-							{
-								if (obj instanceof ISupportPrintSliding && !isPortal)
-								{
-									int slide = ((ISupportPrintSliding)obj).getPrintSliding();
-									if (slide != ISupportPrintSliding.NO_SLIDING)
-									{
-										listTocomplete.put(comp, new Integer(slide));
-										panel.setUsingSliding(true);
-									}
-								}
-								panel.add(comp, index);
-							}
-							else
-							{
-								panel.add(comp, index);
-							}
-						}
+						comp = ((VisibleBean)comp).getDelegate();
 					}
 
-					if (app instanceof J2DBClient)
+					if (comp != null)
 					{
-						UIDefaults defs = ((J2DBClient)app).getSkinLookAndFeelDefaults();
-						if (defs != null)
+						if (obj instanceof Field && comp instanceof JComponent)
 						{
-							SolutionSkin.updateComponentTreeUI(defs, panel);
+							String name = ((Field)obj).getName();
+							if (name != null && !"".equals(name))
+							{
+								labelForComponents.put(name, comp);
+							}
 						}
+						else if (obj instanceof GraphicalComponent && comp instanceof JLabel)
+						{
+							String labelFor = ((GraphicalComponent)obj).getLabelFor();
+							if (labelFor != null && !"".equals(labelFor))
+							{
+								labelForComponents.put(comp, labelFor);
+							}
+
+						}
+						if (obj instanceof ISupportTabSeq && comp instanceof JComponent && (tabSequence != null))
+						{
+							tabSequence.add(panel, (ISupportTabSeq)obj, comp);
+						}
+						Component newComp = comp;
+						if (newComp instanceof IDisplay)
+						{
+							//HACK:don;t no other way to do this.........
+							if (newComp instanceof IDisplayData && cutDataProviderNames)
+							{
+								IDisplayData da = (IDisplayData)newComp;
+								String id = da.getDataProviderID();
+								if (id != null && !id.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+								{
+									int index = id.lastIndexOf('.');
+									//TODO:check if part before . is same as relation name (objToRender.getRelationID() )
+									if (index > 0)
+									{
+										id = id.substring(index + 1);
+									}
+									da.setDataProviderID(id);
+								}
+							}
+							panel.addDisplayComponent(obj, (IDisplay)newComp);
+						}
+						comp.setLocation((l.x /* +insets.left */) + XCorrection, (l.y - start) + YCorrection);
+
+						int index = 0;
+						if (!printing && obj instanceof ISupportAnchors)
+						{
+							panel.add(comp, new Integer(((ISupportAnchors)obj).getAnchors()), index);
+						}
+						else if (printing)
+						{
+							if (obj instanceof ISupportPrintSliding && !isPortal)
+							{
+								int slide = ((ISupportPrintSliding)obj).getPrintSliding();
+								if (slide != ISupportPrintSliding.NO_SLIDING)
+								{
+									listTocomplete.put(comp, new Integer(slide));
+									panel.setUsingSliding(true);
+								}
+							}
+							panel.add(comp, index);
+						}
+						else
+						{
+							panel.add(comp, index);
+						}
+					}
+				}
+
+				if (app instanceof J2DBClient)
+				{
+					UIDefaults defs = ((J2DBClient)app).getSkinLookAndFeelDefaults();
+					if (defs != null)
+					{
+						SolutionSkin.updateComponentTreeUI(defs, panel);
 					}
 				}
 			}
@@ -559,8 +565,8 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 			{
 				bs = new BarSpring();
 				sl.getConstraints(element1).setConstraint(FixedSpringLayout.WEST, bs);
-				bs.add(Spring.sum(Spring.constant(minXSpaceOnLeft, minXSpaceOnLeft, Short.MAX_VALUE), sl.getConstraint(FixedSpringLayout.EAST,
-					rightMostNonSlidingLastComponentOnLeft)));
+				bs.add(Spring.sum(Spring.constant(minXSpaceOnLeft, minXSpaceOnLeft, Short.MAX_VALUE),
+					sl.getConstraint(FixedSpringLayout.EAST, rightMostNonSlidingLastComponentOnLeft)));
 			}
 			else if (slidingComponentsOnLeft.size() > 0)
 			{
@@ -570,8 +576,8 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 
 			for (int i = slidingComponentsOnLeft.size() - 1; i >= 0; i--)
 			{
-				bs.add(Spring.sum(Spring.constant(minXSpaceOnLeft, minXSpaceOnLeft, Short.MAX_VALUE), sl.getConstraint(FixedSpringLayout.EAST,
-					(Component)slidingComponentsOnLeft.get(i))));
+				bs.add(Spring.sum(Spring.constant(minXSpaceOnLeft, minXSpaceOnLeft, Short.MAX_VALUE),
+					sl.getConstraint(FixedSpringLayout.EAST, (Component)slidingComponentsOnLeft.get(i))));
 			}
 		}
 
@@ -634,8 +640,8 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 			{
 				bs = new BarSpring();
 				sl.getConstraints(element1).setConstraint(FixedSpringLayout.NORTH, bs);
-				bs.add(Spring.sum(Spring.constant(minYSpaceOnTop, minYSpaceOnTop, Short.MAX_VALUE), sl.getConstraint(FixedSpringLayout.SOUTH,
-					lowestNonSlidingLastComponentOnTop)));
+				bs.add(Spring.sum(Spring.constant(minYSpaceOnTop, minYSpaceOnTop, Short.MAX_VALUE),
+					sl.getConstraint(FixedSpringLayout.SOUTH, lowestNonSlidingLastComponentOnTop)));
 			}
 			else if (slidingComponentsOnTop.size() > 0)
 			{
@@ -645,8 +651,8 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 
 			for (int i = slidingComponentsOnTop.size() - 1; i >= 0; i--)
 			{
-				bs.add(Spring.sum(Spring.constant(minYSpaceOnTop, minYSpaceOnTop, Short.MAX_VALUE), sl.getConstraint(FixedSpringLayout.SOUTH,
-					(Component)slidingComponentsOnTop.get(i))));
+				bs.add(Spring.sum(Spring.constant(minYSpaceOnTop, minYSpaceOnTop, Short.MAX_VALUE),
+					sl.getConstraint(FixedSpringLayout.SOUTH, (Component)slidingComponentsOnTop.get(i))));
 			}
 		}
 
@@ -707,8 +713,8 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 			{
 				bs = new BarSpring();
 				pcons.setConstraint(FixedSpringLayout.EAST, bs);
-				bs.add(Spring.sum(Spring.constant(minWidthLeft, minWidthLeft, Short.MAX_VALUE), sl.getConstraint(FixedSpringLayout.EAST,
-					lowestNonSlidingLastComponentOnX)));
+				bs.add(Spring.sum(Spring.constant(minWidthLeft, minWidthLeft, Short.MAX_VALUE),
+					sl.getConstraint(FixedSpringLayout.EAST, lowestNonSlidingLastComponentOnX)));
 				spaceToRightMargin = minWidthLeft;
 			}
 			else if (lastSlidingComponentsOnX.size() > 0)
@@ -720,8 +726,8 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 
 			for (int i = lastSlidingComponentsOnX.size() - 1; i >= 0; i--)
 			{
-				bs.add(Spring.sum(Spring.constant(minWidthLeft, minWidthLeft, Short.MAX_VALUE), sl.getConstraint(FixedSpringLayout.EAST,
-					(Component)lastSlidingComponentsOnX.get(i))));
+				bs.add(Spring.sum(Spring.constant(minWidthLeft, minWidthLeft, Short.MAX_VALUE),
+					sl.getConstraint(FixedSpringLayout.EAST, (Component)lastSlidingComponentsOnX.get(i))));
 			}
 			panel.setSpaceToRightMargin(spaceToRightMargin);
 		}
@@ -784,8 +790,8 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 			{
 				bs = new BarSpring();
 				pcons.setConstraint(FixedSpringLayout.SOUTH, bs);
-				bs.add(Spring.sum(Spring.constant(minHeightLeft, minHeightLeft, Short.MAX_VALUE), sl.getConstraint(FixedSpringLayout.SOUTH,
-					lowestNonSlidingLastComponentOnY)));
+				bs.add(Spring.sum(Spring.constant(minHeightLeft, minHeightLeft, Short.MAX_VALUE),
+					sl.getConstraint(FixedSpringLayout.SOUTH, lowestNonSlidingLastComponentOnY)));
 			}
 			else if (lastSlidingComponentsOnY.size() > 0)
 			{
@@ -795,8 +801,8 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 
 			for (int i = lastSlidingComponentsOnY.size() - 1; i >= 0; i--)
 			{
-				bs.add(Spring.sum(Spring.constant(minHeightLeft, minHeightLeft, Short.MAX_VALUE), sl.getConstraint(FixedSpringLayout.SOUTH,
-					(Component)lastSlidingComponentsOnY.get(i))));
+				bs.add(Spring.sum(Spring.constant(minHeightLeft, minHeightLeft, Short.MAX_VALUE),
+					sl.getConstraint(FixedSpringLayout.SOUTH, (Component)lastSlidingComponentsOnY.get(i))));
 			}
 		}
 		if (bs == null)//add fixed spring for panel size

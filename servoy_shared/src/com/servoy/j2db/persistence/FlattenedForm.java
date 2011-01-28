@@ -21,7 +21,6 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -193,30 +192,6 @@ public class FlattenedForm extends Form
 		}
 
 		checkParts(getSize()); // recalculate height
-	}
-
-
-	@Override
-	public Iterator<IPersist> getAllObjectsSortedByFormIndex()
-	{
-		return new FormTypeIterator(getAllObjectsAsList(), new Comparator<IPersist>()
-		{
-			public int compare(IPersist persist1, IPersist persist2)
-			{
-				Form form1 = (Form)persist1.getParent();
-				Form form2 = (Form)persist2.getParent();
-				// first sort on the hierarchy, elements of super-forms are sorted before elements of sub-forms
-				if (form1 != form2)
-				{
-					return flattenedSolution.getFormHierarchy(form1).contains(form2) ? 1 : -1;
-				}
-				if (persist1 instanceof IFormElement && persist2 instanceof IFormElement)
-				{
-					return ((IFormElement)persist1).getFormIndex() - ((IFormElement)persist2).getFormIndex();
-				}
-				return 0;
-			}
-		});
 	}
 
 	/**

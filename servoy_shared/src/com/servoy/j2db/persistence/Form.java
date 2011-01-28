@@ -998,17 +998,13 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * 
 	 * @return all the form elements
 	 */
-	public Iterator<IPersist> getAllObjectsSortedByFormIndex()
+	public Iterator<IFormElement> getFormElementsSortedByFormIndex()
 	{
-		return new FormTypeIterator(getAllObjectsAsList(), new Comparator<IPersist>()
+		return new FormTypeIterator(getAllObjectsAsList(), new Comparator<IFormElement>()
 		{
-			public int compare(IPersist persist1, IPersist persist2)
+			public int compare(IFormElement element1, IFormElement element2)
 			{
-				if (persist1 instanceof IFormElement && persist2 instanceof IFormElement)
-				{
-					return ((IFormElement)persist1).getFormIndex() - ((IFormElement)persist2).getFormIndex();
-				}
-				return 0;
+				return element1.getFormIndex() - element2.getFormIndex();
 			}
 		});
 	}
@@ -1033,35 +1029,29 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 
 	}
 
-	protected static class FormTypeIterator implements Iterator<IPersist>
+	protected static class FormTypeIterator implements Iterator<IFormElement>
 	{
-		private List<IPersist> array;
+		private List<IFormElement> array;
 		private int index = 0;
 
-		FormTypeIterator(List<IPersist> list, final Comparator<IPersist> comparator)
+		FormTypeIterator(List<IPersist> list, final Comparator<IFormElement> comparator)
 		{
-			array = new ArrayList<IPersist>();
+			array = new ArrayList<IFormElement>();
 			if (list != null)
 			{
-				int index = 0;
 				for (int i = 0; i < list.size(); i++)
 				{
 					IPersist p = list.get(i);
 					if (p instanceof IFormElement)
 					{
-						array.add(index, p);
-						index++;
-					}
-					else
-					{
-						array.add(p);
+						array.add((IFormElement)p);
 					}
 				}
 			}
 
-			IPersist[] a = array.toArray(new IPersist[array.size()]);
+			IFormElement[] a = array.toArray(new IFormElement[array.size()]);
 			Arrays.sort(a, comparator);
-			array = Arrays.<IPersist> asList(a);
+			array = Arrays.<IFormElement> asList(a);
 		}
 
 		public boolean hasNext()
@@ -1069,7 +1059,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 			return (index < array.size());
 		}
 
-		public IPersist next()
+		public IFormElement next()
 		{
 			return array.get(index++);
 		}
