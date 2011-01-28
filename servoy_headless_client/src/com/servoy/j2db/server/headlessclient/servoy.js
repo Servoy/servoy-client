@@ -1360,30 +1360,34 @@ if (typeof(Servoy.Resize) == "undefined")
 	Servoy.Resize=
 	{
 		resizeTimer : null,
+		callback : null,
 		
-		onWindowResize: function (callback)
+		onWindowResize: function ()
 		{
 			if (Servoy.Resize.resizeTimer) 
 				clearTimeout(Servoy.Resize.resizeTimer);
 
-			var ajaxCall = callback;
-			var divs = document.getElementsByTagName("div");
-			for (var i=0;i<divs.length;i++)
+			if(Servoy.Resize.callback)
 			{
-				if (divs[i].id)
+				var ajaxCall = Servoy.Resize.callback;
+				var divs = document.getElementsByTagName("div");
+				for (var i=0;i<divs.length;i++)
 				{
-					if (divs[i].id.match("^sfh_") == "sfh_")
+					if (divs[i].id)
 					{
-						ajaxCall = ajaxCall + "&" + divs[i].id + "="+divs[i].offsetHeight
-					}
-					else if (divs[i].id.match("^sfw_") == "sfw_")
-					{
-						ajaxCall = ajaxCall + "&" + divs[i].id + "="+divs[i].offsetWidth
-					}
-				} 
+						if (divs[i].id.match("^sfh_") == "sfh_")
+						{
+							ajaxCall = ajaxCall + "&" + divs[i].id + "="+divs[i].offsetHeight
+						}
+						else if (divs[i].id.match("^sfw_") == "sfw_")
+						{
+							ajaxCall = ajaxCall + "&" + divs[i].id + "="+divs[i].offsetWidth
+						}
+					} 
+				}
+				ajaxCall = "wicketAjaxGet('" + ajaxCall + "')";
+				Servoy.Resize.resizeTimer = setTimeout(ajaxCall,300);
 			}
-			ajaxCall = "wicketAjaxGet('" + ajaxCall + "')";
-			Servoy.Resize.resizeTimer = setTimeout(ajaxCall,300);
 		}
 	}
 }

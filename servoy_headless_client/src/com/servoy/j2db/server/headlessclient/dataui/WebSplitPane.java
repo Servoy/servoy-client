@@ -145,14 +145,8 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 						target.appendJavascript("layoutEntirePage();");
 					}
 				}
-				for (int i = 0; i < 2; i++)
-				{
-					if (webTabs[i] != null && webTabs[i].getPanel().isReady())
-					{
-						webTabs[i].getPanel().getWebForm().setFormWidth(0);
-					}
-				}
-				WebEventExecutor.generateResponse(target, page);
+
+				target.appendJavascript("Servoy.Resize.onWindowResize();");
 			}
 		}
 

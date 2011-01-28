@@ -2182,7 +2182,8 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		public void renderHead(IHeaderResponse response)
 		{
 			super.renderHead(response);
-			String jsCall = "window.onresize = function() {"; //$NON-NLS-1$
+			String jsCall = "Servoy.Resize.callback='" + getCallbackUrl() + "';"; //$NON-NLS-1$ //$NON-NLS-2$
+			jsCall += "window.onresize = function() {"; //$NON-NLS-1$
 			Page page = findPage();
 			if (page instanceof MainPage && ((MainPage)page).getController() != null)
 			{
@@ -2191,7 +2192,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 					jsCall += "layoutEntirePage();"; //$NON-NLS-1$
 				}
 			}
-			jsCall += "Servoy.Resize.onWindowResize ('" + getCallbackUrl() + "');};"; //$NON-NLS-1$ //$NON-NLS-2$
+			jsCall += "Servoy.Resize.onWindowResize ();};"; //$NON-NLS-1$ 
 			response.renderOnLoadJavascript(jsCall);
 		}
 	}
