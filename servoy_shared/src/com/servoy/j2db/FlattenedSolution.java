@@ -159,7 +159,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		return copy;
 	}
 
-	@SuppressWarnings( { "unchecked", "nls" })
+	@SuppressWarnings({ "unchecked", "nls" })
 	public <T extends AbstractBase> T clonePersist(T persist, String newName, ISupportChilds newParent)
 	{
 		T clone = (T)persist.clonePersist();
@@ -250,7 +250,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	public void updatePersistInSolutionCopy(final IPersist persist)
 	{
-		if (copySolution == null || persist instanceof Form) return;
+		if (copySolution == null) return;
 
 		IPersist copyPersist = (IPersist)copySolution.acceptVisitor(new IPersistVisitor()
 		{
@@ -266,20 +266,16 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 		if (copyPersist != null)
 		{
+			((AbstractBase)copyPersist).copyPropertiesMap(((AbstractBase)persist).getPropertiesMap(), false);
 			ISupportChilds parent = copyPersist.getParent();
-			parent.removeChild(copyPersist);
-			if (persist instanceof ICloneable)
-			{
-				parent.addChild(((ICloneable)persist).clonePersist());
-			}
-			else
-			{
-				parent.addChild(persist);
-			}
 			flush(persist);
 			if (parent instanceof Form)
 			{
 				((Form)parent).setLastModified(System.currentTimeMillis());
+			}
+			else if (copyPersist instanceof Form)
+			{
+				((Form)copyPersist).setLastModified(System.currentTimeMillis());
 			}
 		}
 		else if (persist.getParent() != null)
@@ -1691,8 +1687,8 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	public Iterator<Form> getForms(ITable basedOnTable, boolean sort)
 	{
-		return Solution.getForms(getAllObjectsAsList(), basedOnTable == null ? null : DataSourceUtils.createDBTableDataSource(basedOnTable.getServerName(),
-			basedOnTable.getName()), sort);
+		return Solution.getForms(getAllObjectsAsList(),
+			basedOnTable == null ? null : DataSourceUtils.createDBTableDataSource(basedOnTable.getServerName(), basedOnTable.getName()), sort);
 	}
 
 	public Iterator<Form> getForms(String datasource, boolean sort)
