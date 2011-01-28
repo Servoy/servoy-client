@@ -852,6 +852,38 @@ public abstract class AbstractBase implements IPersist
 		return getCustomProperty(OVERRIDE_PATH) != null;
 	}
 
+	/** Check if this object has any overriding properties left.
+	 * @return
+	 */
+	public boolean hasOverrideProperties()
+	{
+		for (Entry<String, Object> entry : propertiesMap.entrySet())
+		{
+			if (!StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES.getPropertyName().equals(entry.getKey()))
+			{
+				// a non custom property
+				return true;
+			}
+
+			// custom property, check for other properties stored in custom properties
+			if (jsonCustomProperties == null)
+			{
+				jsonCustomProperties = new JSONWrapperMap((String)entry.getValue());
+			}
+			for (Entry<String, Object> cEntry : jsonCustomProperties.entrySet())
+			{
+				if (!OVERRIDE_PATH[0].equals(cEntry.getKey()))
+				{
+					// a non-override custom property
+					return true;
+				}
+			}
+		}
+
+		// nothing else found
+		return false;
+	}
+
 	/* Runtime properties */
 	/** Application level meta data. */
 	private PropertyEntry[] properties;
@@ -877,5 +909,4 @@ public abstract class AbstractBase implements IPersist
 	{
 		transient_properties = property.set(transient_properties, object);
 	}
-
 }
