@@ -217,15 +217,20 @@ public abstract class AbstractBase implements IPersist
 		return value;
 	}
 
-	public IPersist getSuperPersist()
+	protected IPersist getSuperPersist()
 	{
 		Form form = (Form)getAncestor(IRepository.FORMS);
 		if (form != null)
 		{
-			Form extendsForm = form.getExtendsForm();
-			if (extendsForm != null)
+			form = form.getExtendsForm();
+			while (form != null)
 			{
-				return AbstractRepository.searchPersist(extendsForm, getUUID(), extendsForm);
+				IPersist superPersist = AbstractRepository.searchPersist(form, getUUID(), form);
+				if (superPersist != null)
+				{
+					return superPersist;
+				}
+				form = form.getExtendsForm();
 			}
 		}
 		return null;
