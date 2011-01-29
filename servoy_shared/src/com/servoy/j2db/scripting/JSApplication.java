@@ -1650,9 +1650,11 @@ public class JSApplication implements IReturnedTypesProvider
 	 * @param scriptable
 	 * @return
 	 */
+	@SuppressWarnings("nls")
 	private String getScriptableString(Scriptable scriptable, HashSet<Scriptable> processed)
 	{
-		if (processed.contains(scriptable)) return "{<recursion>}"; //$NON-NLS-1$
+		if (processed.contains(scriptable)) return "{<recursion>}";
+		if (processed.size() > 10) return "{.....}";
 		processed.add(scriptable);
 		Object[] ids = scriptable.getIds();
 		if (ids != null && ids.length > 0)
