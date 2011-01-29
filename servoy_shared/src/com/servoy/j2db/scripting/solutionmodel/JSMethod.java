@@ -214,6 +214,12 @@ public class JSMethod implements IJavaScriptType
 	@Override
 	public String toString()
 	{
+		if (sm == null)
+		{
+			if (this == DEFAULTS.COMMAND_DEFAULT) return "JSMethod[DEFAULT]";
+			if (this == DEFAULTS.COMMAND_NONE) return "JSMethod[NONE]";
+			return "JSMethod";
+		}
 		if (sm.getParent() instanceof Form)
 		{
 			return "JSMethod[name:" + sm.getName() + ",form:" + ((Form)sm.getParent()).getName() + ']';
