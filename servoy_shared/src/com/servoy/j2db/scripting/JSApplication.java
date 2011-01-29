@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
@@ -1637,7 +1638,7 @@ public class JSApplication implements IReturnedTypesProvider
 		}
 		else if (msg instanceof Scriptable)
 		{
-			application.output(getScriptableString((Scriptable)msg), level);
+			application.output(getScriptableString((Scriptable)msg, new HashSet<Scriptable>()), level);
 		}
 		else
 		{
@@ -1649,8 +1650,10 @@ public class JSApplication implements IReturnedTypesProvider
 	 * @param scriptable
 	 * @return
 	 */
-	private String getScriptableString(Scriptable scriptable)
+	private String getScriptableString(Scriptable scriptable, HashSet<Scriptable> processed)
 	{
+		if (processed.contains(scriptable)) return "{<recursion>}"; //$NON-NLS-1$
+		processed.add(scriptable);
 		Object[] ids = scriptable.getIds();
 		if (ids != null && ids.length > 0)
 		{
@@ -1671,7 +1674,7 @@ public class JSApplication implements IReturnedTypesProvider
 				}
 				if (value instanceof Scriptable)
 				{
-					sb.append(getScriptableString((Scriptable)value));
+					sb.append(getScriptableString((Scriptable)value, processed));
 				}
 				else
 				{
