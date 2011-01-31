@@ -18,6 +18,7 @@ package com.servoy.j2db.scripting.solutionmodel;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 
 import org.mozilla.javascript.Function;
@@ -363,9 +364,10 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent
 	/**
 	 * @see java.lang.Object#toString()
 	 */
+	@SuppressWarnings("nls")
 	@Override
 	public String toString()
 	{
-		return "TabPanel: " + getBaseComponent(false).getName(); //$NON-NLS-1$
+		return "JSTabPanel[name:" + getBaseComponent(false).getName() + ",tabs:" + Arrays.toString(js_getTabs()) + ']';
 	}
 }
