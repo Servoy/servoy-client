@@ -508,11 +508,36 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 	}
 
 	@Override
+	public void onBeforeRender()
+	{
+		super.onBeforeRender();
+
+		if (dividerLocation >= 1)
+		{
+			String dim, pos;
+			if (orient == TabPanel.SPLIT_HORIZONTAL)
+			{
+				dim = "width: "; //$NON-NLS-1$
+				pos = "left: "; //$NON-NLS-1$
+			}
+			else
+			{
+				dim = "height: "; //$NON-NLS-1$
+				pos = "top: "; //$NON-NLS-1$
+			}
+
+			if (dividerLocation < leftFormMinSize) dividerLocation = leftFormMinSize;
+			splitter.add(new StyleAppendingModifier(new Model<String>(dim + (dividerLocation + dividerSize) + "px"))); //$NON-NLS-1$
+			splitComponents[0].add(new StyleAppendingModifier(new Model<String>(dim + dividerLocation + "px"))); //$NON-NLS-1$
+			splitComponents[1].add(new StyleAppendingModifier(new Model<String>(pos + (dividerLocation + dividerSize) + "px"))); //$NON-NLS-1$
+		}
+	}
+
+	@Override
 	public void renderHead(HtmlHeaderContainer container)
 	{
 		super.renderHead(container);
 		IHeaderResponse headerResponse = container.getHeaderResponse();
-		YUILoader.renderResize(headerResponse);
 
 		String dim, dim_o, pos;
 		if (orient == TabPanel.SPLIT_HORIZONTAL)
@@ -528,120 +553,121 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 			pos = "top"; //$NON-NLS-1$
 		}
 
-		Map<String, String> leftPanelOverflow = getFormOverflowStyle(getLeftForm());
-		Map<String, String> rightPanelOverflow = getFormOverflowStyle(getRightForm());
 
-
-		StringBuffer resizeScript = new StringBuffer("var dividerSize = ").append(dividerSize).append(";"); //$NON-NLS-1$ //$NON-NLS-2$ 
-		resizeScript.append("var dividerLocation = ").append(dividerLocation).append(";"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("var newDividerLocation = dividerLocation;"); //$NON-NLS-1$
-		resizeScript.append("if(dividerLocation < 1) { newDividerLocation = YAHOO.util.Dom.get('").append(getMarkupId()).append("').offset").append(dim).append( //$NON-NLS-1$ //$NON-NLS-2$
-			"*dividerLocation;}"); //$NON-NLS-1$ 
-		resizeScript.append("if(newDividerLocation < ").append(leftFormMinSize).append(") { newDividerLocation = ").append(leftFormMinSize).append(";};"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		resizeScript.append("if(dividerLocation != newDividerLocation) { wicketAjaxGet('").append(dividerUpdater.getCallbackUrl()).append( //$NON-NLS-1$
-			"&location=' + newDividerLocation);}"); //$NON-NLS-1$
-		resizeScript.append("var splitter = YAHOO.util.Dom.get('").append(splitter.getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("YAHOO.util.Dom.setStyle(splitter, '").append(dim.toLowerCase()).append("', newDividerLocation + dividerSize + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$ 
-		resizeScript.append("var left = YAHOO.util.Dom.get('").append(splitComponents[0].getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("YAHOO.util.Dom.setStyle(left, '").append(dim.toLowerCase()).append("', newDividerLocation + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$ 
-		resizeScript.append("YAHOO.util.Dom.setStyle(left, 'background-color', '").append(isOpaque() ? "#FFFFFF" : "transparent").append("');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		resizeScript.append("YAHOO.util.Dom.setStyle(left, 'overflow-x', '").append(leftPanelOverflow.get("overflow-x")).append("');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
-		resizeScript.append("YAHOO.util.Dom.setStyle(left, 'overflow-y', '").append(leftPanelOverflow.get("overflow-y")).append("');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		resizeScript.append("var right = YAHOO.util.Dom.get('").append(splitComponents[1].getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("YAHOO.util.Dom.setStyle(right, '").append(pos).append("', newDividerLocation + dividerSize + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$ 
-		resizeScript.append("YAHOO.util.Dom.setStyle(right, 'overflow-x', '").append(rightPanelOverflow.get("overflow-x")).append("');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
-		resizeScript.append("YAHOO.util.Dom.setStyle(right, 'overflow-y', '").append(rightPanelOverflow.get("overflow-y")).append("');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		resizeScript.append("var resize = new YAHOO.util.Resize(splitter, { min").append(dim).append(": ").append(dividerSize + leftFormMinSize).append(", max").append(dim).append(": splitter.offsetParent.offset").append(dim).append(" - ").append(rightFormMinSize).append(", ").append(continuousLayout ? "" : "proxy: true, "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ 
-		resizeScript.append("handles: ['").append(orient == TabPanel.SPLIT_HORIZONTAL ? "r" : "b").append("']});"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		resizeScript.append("YAHOO.util.Dom.setStyle(splitter, '").append(dim_o).append("', '');"); //$NON-NLS-1$ //$NON-NLS-2$
-
-		String dividerBg = null;
-		if (!isOpaque())
+		StringBuffer resizeScript;
+		if (dividerLocation < 1)
 		{
-			dividerBg = "transparent"; //$NON-NLS-1$
+			resizeScript = new StringBuffer("wicketAjaxGet('").append(dividerUpdater.getCallbackUrl()).append( //$NON-NLS-1$
+				"&changed=true&location=' + (YAHOO.util.Dom.get('").append(getMarkupId()).append("').offset").append(dim).append( //$NON-NLS-1$ //$NON-NLS-2$
+				"*").append(dividerLocation).append("))"); //$NON-NLS-1$ //$NON-NLS-2$ 
 		}
-		else if (background != null)
+		else
 		{
-			dividerBg = Integer.toHexString(background.getRGB());
-			dividerBg = "#" + dividerBg.substring(2, dividerBg.length()); //$NON-NLS-1$
-		}
+			YUILoader.renderResize(headerResponse);
 
-		dim = dim.toLowerCase();
-		resizeScript.append("var splitterDivs = splitter.getElementsByTagName('div');"); //$NON-NLS-1$ 
-		resizeScript.append(
-			"for(var x = 0; x < splitterDivs.length; x++) { if(splitterDivs[x].parentNode == splitter && splitterDivs[x].id.match('yui') != null) { ").append( //$NON-NLS-1$ 
-			"YAHOO.util.Dom.setStyle(splitterDivs[x], '").append(dim).append("', '").append(dividerSize).append("px');").append(dividerBg != null ? "YAHOO.util.Dom.setStyle(splitterDivs[x], 'background-color', '" + dividerBg + "');" : "").append("break; } }; "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
+			Map<String, String> leftPanelOverflow = getFormOverflowStyle(getLeftForm());
+			Map<String, String> rightPanelOverflow = getFormOverflowStyle(getRightForm());
 
 
-		// if we have table view in the tab, then set its min-width to 0 to avoid having double scroll bars
-		ArrayList<String> tableViewTabIds = new ArrayList<String>();
-		for (int i = 0; i < 2; i++)
-		{
-			if (webTabs[i] != null)
+			resizeScript = new StringBuffer("var splitter = YAHOO.util.Dom.get('").append(splitter.getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
+			resizeScript.append("var left = YAHOO.util.Dom.get('").append(splitComponents[0].getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
+			resizeScript.append("YAHOO.util.Dom.setStyle(left, 'background-color', '").append(isOpaque() ? "#FFFFFF" : "transparent").append("');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			resizeScript.append("YAHOO.util.Dom.setStyle(left, 'overflow-x', '").append(leftPanelOverflow.get("overflow-x")).append("');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+			resizeScript.append("YAHOO.util.Dom.setStyle(left, 'overflow-y', '").append(leftPanelOverflow.get("overflow-y")).append("');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			resizeScript.append("var right = YAHOO.util.Dom.get('").append(splitComponents[1].getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
+			resizeScript.append("YAHOO.util.Dom.setStyle(right, 'overflow-x', '").append(rightPanelOverflow.get("overflow-x")).append("');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+			resizeScript.append("YAHOO.util.Dom.setStyle(right, 'overflow-y', '").append(rightPanelOverflow.get("overflow-y")).append("');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			resizeScript.append("var resize = new YAHOO.util.Resize(splitter, { min").append(dim).append(": ").append(dividerSize + leftFormMinSize).append(", max").append(dim).append(": splitter.offsetParent.offset").append(dim).append(" - ").append(rightFormMinSize).append(", ").append(continuousLayout ? "" : "proxy: true, "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ 
+			resizeScript.append("handles: ['").append(orient == TabPanel.SPLIT_HORIZONTAL ? "r" : "b").append("']});"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			resizeScript.append("YAHOO.util.Dom.setStyle(splitter, '").append(dim_o).append("', '');"); //$NON-NLS-1$ //$NON-NLS-2$
+
+			String dividerBg = null;
+			if (!isOpaque())
 			{
-				int webTabFormViewType = webTabs[i].getPanel().getWebForm().getController().getView();
+				dividerBg = "transparent"; //$NON-NLS-1$
+			}
+			else if (background != null)
+			{
+				dividerBg = Integer.toHexString(background.getRGB());
+				dividerBg = "#" + dividerBg.substring(2, dividerBg.length()); //$NON-NLS-1$
+			}
 
-				if (webTabFormViewType == FormController.TABLE_VIEW || webTabFormViewType == FormController.LOCKED_TABLE_VIEW)
+			dim = dim.toLowerCase();
+			resizeScript.append("var splitterDivs = splitter.getElementsByTagName('div');"); //$NON-NLS-1$ 
+			resizeScript.append(
+				"for(var x = 0; x < splitterDivs.length; x++) { if(splitterDivs[x].parentNode == splitter && splitterDivs[x].id.match('yui') != null) { ").append( //$NON-NLS-1$ 
+				"YAHOO.util.Dom.setStyle(splitterDivs[x], '").append(dim).append("', '").append(dividerSize).append("px');").append(dividerBg != null ? "YAHOO.util.Dom.setStyle(splitterDivs[x], 'background-color', '" + dividerBg + "');" : "").append("break; } }; "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
+
+
+			// if we have table view in the tab, then set its min-width to 0 to avoid having double scroll bars
+			ArrayList<String> tableViewTabIds = new ArrayList<String>();
+			for (int i = 0; i < 2; i++)
+			{
+				if (webTabs[i] != null)
 				{
-					tableViewTabIds.add(webTabs[i].getPanel().getFormName());
+					int webTabFormViewType = webTabs[i].getPanel().getWebForm().getController().getView();
+
+					if (webTabFormViewType == FormController.TABLE_VIEW || webTabFormViewType == FormController.LOCKED_TABLE_VIEW)
+					{
+						tableViewTabIds.add(webTabs[i].getPanel().getFormName());
+					}
 				}
 			}
-		}
-		for (String tableViewTabId : tableViewTabIds)
-		{
-			resizeScript.append("var div_").append(tableViewTabId).append(" = document.getElementById('form_").append(tableViewTabId).append("');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			resizeScript.append("if(div_").append(tableViewTabId).append(") YAHOO.util.Dom.setStyle(div_").append(tableViewTabId).append( //$NON-NLS-1$ //$NON-NLS-2$
-				", 'min-width', '0px');"); //$NON-NLS-1$
-		}
+			for (String tableViewTabId : tableViewTabIds)
+			{
+				resizeScript.append("var div_").append(tableViewTabId).append(" = document.getElementById('form_").append(tableViewTabId).append("');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				resizeScript.append("if(div_").append(tableViewTabId).append(") YAHOO.util.Dom.setStyle(div_").append(tableViewTabId).append( //$NON-NLS-1$ //$NON-NLS-2$
+					", 'min-width', '0px');"); //$NON-NLS-1$
+			}
 
-		if (!continuousLayout)
-		{
-			resizeScript.append("resize.on('startResize', function(ev) {"); //$NON-NLS-1$  			
+			if (!continuousLayout)
+			{
+				resizeScript.append("resize.on('startResize', function(ev) {"); //$NON-NLS-1$  			
+				resizeScript.append("YAHOO.util.Dom.setStyle(splitter, '").append(dim_o).append("', '');"); //$NON-NLS-1$ //$NON-NLS-2$
+				resizeScript.append("YAHOO.util.Dom.setStyle(this.getProxyEl(), '").append(dim_o).append("', '100%');"); //$NON-NLS-1$ //$NON-NLS-2$
+				resizeScript.append("YAHOO.util.Dom.setStyle(this.getProxyEl(), 'border', 'none');"); //$NON-NLS-1$			
+				resizeScript.append("YAHOO.util.Dom.setStyle(this.getProxyEl(), 'padding', 0);"); //$NON-NLS-1$
+				resizeScript.append(
+					"this.getProxyEl().innerHTML = '<div style = \"filter: alpha(opacity=50); opacity: 0.5; -moz-opacity: 0.5; position: absolute; left: 0; right: 0; top: 0; bottom: 0; border-").append(orient == TabPanel.SPLIT_HORIZONTAL ? "right" : "bottom").append( //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					":").append(dividerSize).append("px solid ").append(dividerBg != null ? dividerBg : "#7D98B8").append("\"></div>';"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				resizeScript.append("});"); //$NON-NLS-1$
+
+			}
+
+			resizeScript.append("resize.on('resize', function(ev) {"); //$NON-NLS-1$ 
+			resizeScript.append("var d = ev.").append(dim).append(";"); //$NON-NLS-1$ //$NON-NLS-2$
 			resizeScript.append("YAHOO.util.Dom.setStyle(splitter, '").append(dim_o).append("', '');"); //$NON-NLS-1$ //$NON-NLS-2$
-			resizeScript.append("YAHOO.util.Dom.setStyle(this.getProxyEl(), '").append(dim_o).append("', '100%');"); //$NON-NLS-1$ //$NON-NLS-2$
-			resizeScript.append("YAHOO.util.Dom.setStyle(this.getProxyEl(), 'border', 'none');"); //$NON-NLS-1$			
-			resizeScript.append("YAHOO.util.Dom.setStyle(this.getProxyEl(), 'padding', 0);"); //$NON-NLS-1$
-			resizeScript.append(
-				"this.getProxyEl().innerHTML = '<div style = \"filter: alpha(opacity=50); opacity: 0.5; -moz-opacity: 0.5; position: absolute; left: 0; right: 0; top: 0; bottom: 0; border-").append(orient == TabPanel.SPLIT_HORIZONTAL ? "right" : "bottom").append( //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				":").append(dividerSize).append("px solid ").append(dividerBg != null ? dividerBg : "#7D98B8").append("\"></div>';"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			resizeScript.append("var newLeftSize = parseInt(YAHOO.util.Dom.getStyle(splitter, '").append(dim).append("'), 10);"); //$NON-NLS-1$ //$NON-NLS-2$
+			resizeScript.append("YAHOO.util.Dom.setStyle(left, '").append(dim).append("', (newLeftSize - ").append(dividerSize).append(") + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+			resizeScript.append("YAHOO.util.Dom.setStyle(right, '").append(pos).append("', d + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$
+			resizeScript.append("});"); //$NON-NLS-1$ 
+
+			resizeScript.append("resize.on('endResize', function(ev) {"); //$NON-NLS-1$ 
+			resizeScript.append("var newLeftSize = parseInt(YAHOO.util.Dom.getStyle(splitter, '").append(dim).append("'), 10);"); //$NON-NLS-1$ //$NON-NLS-2$
+			resizeScript.append("YAHOO.util.Dom.setStyle(splitter, '").append(dim_o).append("', '');"); //$NON-NLS-1$ //$NON-NLS-2$
+			resizeScript.append("wicketAjaxGet('").append(dividerUpdater.getCallbackUrl()).append("&anchor=true").append("&changed=true").append("&location=' + (newLeftSize - ").append(dividerSize).append("));"); //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			resizeScript.append("});"); //$NON-NLS-1$
 
+			boolean useAnchors = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")); //$NON-NLS-1$
+			if (useAnchors)
+			{
+				String splitId = getMarkupId();
+				resizeScript.append("\nif(typeof(splitPanes) != \"undefined\")\n").append("{\n"); //$NON-NLS-1$ //$NON-NLS-2$
+				resizeScript.append("splitPanes['").append(splitId).append("'] = new Array();\n"); //$NON-NLS-1$ //$NON-NLS-2$
+				resizeScript.append("splitPanes['").append(splitId).append("']['orient'] = '").append(orient == TabPanel.SPLIT_HORIZONTAL ? "h" : "v").append("';\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+				resizeScript.append("splitPanes['").append(splitId).append("']['resize'] = resize;\n"); //$NON-NLS-1$ //$NON-NLS-2$ 
+				resizeScript.append("splitPanes['").append(splitId).append("']['splitter'] = splitter;\n"); //$NON-NLS-1$ //$NON-NLS-2$ 
+				resizeScript.append("splitPanes['").append(splitId).append("']['left'] = left;\n"); //$NON-NLS-1$ //$NON-NLS-2$
+				resizeScript.append("splitPanes['").append(splitId).append("']['right'] = right;\n"); //$NON-NLS-1$ //$NON-NLS-2$
+				resizeScript.append("splitPanes['").append(splitId).append("']['currentSize'] = splitter.offsetParent.offset").append(orient == TabPanel.SPLIT_HORIZONTAL ? "Width" : "Height").append(";\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+				resizeScript.append("splitPanes['").append(splitId).append("']['resizeWeight'] = ").append(resizeWeight).append(";\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+				resizeScript.append("splitPanes['").append(splitId).append("']['dividerSize'] = ").append(dividerSize).append(";\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				resizeScript.append("splitPanes['").append(splitId).append("']['leftMin'] = ").append(leftFormMinSize).append(";\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				resizeScript.append("splitPanes['").append(splitId).append("']['rightMin'] = ").append(rightFormMinSize).append(";\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				resizeScript.append("splitPanes['").append(splitId).append("']['callback'] = '").append(dividerUpdater.getCallbackUrl()).append("';\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				resizeScript.append("}\n"); //$NON-NLS-1$			
+			}
 		}
-
-		resizeScript.append("resize.on('resize', function(ev) {"); //$NON-NLS-1$ 
-		resizeScript.append("var d = ev.").append(dim).append(";"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("YAHOO.util.Dom.setStyle(splitter, '").append(dim_o).append("', '');"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("var newLeftSize = parseInt(YAHOO.util.Dom.getStyle(splitter, '").append(dim).append("'), 10);"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("YAHOO.util.Dom.setStyle(left, '").append(dim).append("', (newLeftSize - ").append(dividerSize).append(") + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
-		resizeScript.append("YAHOO.util.Dom.setStyle(right, '").append(pos).append("', d + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("});"); //$NON-NLS-1$ 
-
-		resizeScript.append("resize.on('endResize', function(ev) {"); //$NON-NLS-1$ 
-		resizeScript.append("var newLeftSize = parseInt(YAHOO.util.Dom.getStyle(splitter, '").append(dim).append("'), 10);"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("YAHOO.util.Dom.setStyle(splitter, '").append(dim_o).append("', '');"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("wicketAjaxGet('").append(dividerUpdater.getCallbackUrl()).append("&anchor=true").append("&changed=true").append("&location=' + (newLeftSize - ").append(dividerSize).append("));"); //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		resizeScript.append("});"); //$NON-NLS-1$
-
-		boolean useAnchors = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")); //$NON-NLS-1$
-		if (useAnchors)
-		{
-			String splitId = getMarkupId();
-			resizeScript.append("\nif(typeof(splitPanes) != \"undefined\")\n").append("{\n"); //$NON-NLS-1$ //$NON-NLS-2$
-			resizeScript.append("splitPanes['").append(splitId).append("'] = new Array();\n"); //$NON-NLS-1$ //$NON-NLS-2$
-			resizeScript.append("splitPanes['").append(splitId).append("']['orient'] = '").append(orient == TabPanel.SPLIT_HORIZONTAL ? "h" : "v").append("';\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-			resizeScript.append("splitPanes['").append(splitId).append("']['resize'] = resize;\n"); //$NON-NLS-1$ //$NON-NLS-2$ 
-			resizeScript.append("splitPanes['").append(splitId).append("']['splitter'] = splitter;\n"); //$NON-NLS-1$ //$NON-NLS-2$ 
-			resizeScript.append("splitPanes['").append(splitId).append("']['left'] = left;\n"); //$NON-NLS-1$ //$NON-NLS-2$
-			resizeScript.append("splitPanes['").append(splitId).append("']['right'] = right;\n"); //$NON-NLS-1$ //$NON-NLS-2$
-			resizeScript.append("splitPanes['").append(splitId).append("']['currentSize'] = splitter.offsetParent.offset").append(orient == TabPanel.SPLIT_HORIZONTAL ? "Width" : "Height").append(";\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-			resizeScript.append("splitPanes['").append(splitId).append("']['resizeWeight'] = ").append(resizeWeight).append(";\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
-			resizeScript.append("splitPanes['").append(splitId).append("']['dividerSize'] = ").append(dividerSize).append(";\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			resizeScript.append("splitPanes['").append(splitId).append("']['leftMin'] = ").append(leftFormMinSize).append(";\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			resizeScript.append("splitPanes['").append(splitId).append("']['rightMin'] = ").append(rightFormMinSize).append(";\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			resizeScript.append("splitPanes['").append(splitId).append("']['callback'] = '").append(dividerUpdater.getCallbackUrl()).append("';\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			resizeScript.append("}\n"); //$NON-NLS-1$			
-		}
-
 
 		ClientProperties clp = ((WebClientInfo)Session.get().getClientInfo()).getProperties();
 		if (clp.isBrowserKonqueror() || clp.isBrowserSafari()) headerResponse.renderOnLoadJavascript(resizeScript.toString());
