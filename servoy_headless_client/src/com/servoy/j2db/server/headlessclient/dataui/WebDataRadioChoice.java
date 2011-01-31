@@ -520,7 +520,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 		if (vScrollPolicy == ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER) prefix.append("inl"); //$NON-NLS-1$
 		else prefix.append("blk"); //$NON-NLS-1$
 		prefix.append("'"); //$NON-NLS-1$
-		prefix.append("/>"); //$NON-NLS-1$
+		prefix.append(">"); //$NON-NLS-1$
 		setPrefix(prefix.toString());
 		setSuffix("</div>"); //$NON-NLS-1$
 	}
