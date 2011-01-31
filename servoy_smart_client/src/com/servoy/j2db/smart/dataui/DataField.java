@@ -75,8 +75,8 @@ import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.JSDataSet;
-import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.dataprocessing.ValueListFactory;
+import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.ScriptVariable;
@@ -2064,14 +2064,8 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 				setFormatter(dff.getEditFormatter());
 			}
 			setCaretPosition(getText().length());
-			if (e.getID() != KeyEvent.KEY_RELEASED) selectAll();
-			SwingUtilities.invokeLater(new Runnable()
-			{
-				public void run()
-				{
-					eventExecutor.skipSelectOnEnter();
-				}
-			});
+			selectAll();
+			eventExecutor.skipSelectOnEnter();
 		}
 		if (e.getKeyCode() == KeyEvent.VK_DECIMAL)
 		{
