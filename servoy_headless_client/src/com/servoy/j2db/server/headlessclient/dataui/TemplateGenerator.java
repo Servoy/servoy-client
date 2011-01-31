@@ -1843,7 +1843,7 @@ public class TemplateGenerator
 		boolean isButton = isButton(label);
 
 		TextualStyle wrapperStyle = null;
-		if (isButton)
+		if (isButton && enableAnchoring)
 		{
 			// Anchoring <button> with { left: 0px; right: 0px; } pair
 			// or { top: 0px; bottom: 0px; } does not work. Thus we add a dummy wrapper <div>
@@ -1911,7 +1911,7 @@ public class TemplateGenerator
 			if (label.getOnActionMethodID() > 0) styleObj.setProperty("cursor", "pointer");
 		}
 
-		if (isButton)
+		if (isButton && enableAnchoring)
 		{
 			html.append("</div>");
 			styleObj.setProperty("width", "100%");
