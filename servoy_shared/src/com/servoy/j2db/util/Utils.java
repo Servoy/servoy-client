@@ -42,7 +42,6 @@ import java.math.MathContext;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
-import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
@@ -2166,39 +2165,32 @@ public class Utils
 	{
 		if (f != null /* && f.exists() */)
 		{
-			int length = (int)f.length();
-			if (length > 0)
+			if (Thread.currentThread().isInterrupted())
 			{
-				for (int tries = 0;; tries++)
+				Thread.interrupted(); // reset interrupted flag of current thread, FileChannel.read() will throw an exception for it.
+			}
+			FileInputStream fis = null;
+			try
+			{
+				int length = (int)f.length();
+				if (length > 0)
 				{
-					FileInputStream fis = null;
-					try
-					{
-						fis = new FileInputStream(f);
-						FileChannel fc = fis.getChannel();
-						ByteBuffer bb = ByteBuffer.allocate(length);
-						fc.read(bb);
-						bb.rewind();
-						CharBuffer cb = charset.decode(bb);
-						return cb.toString();
-					}
-					catch (Exception e)
-					{
-						if (e instanceof ClosedByInterruptException && tries <= 3)
-						{
-							Debug.trace("Ignored interrupted exception", e); //$NON-NLS-1$
-						}
-						else
-						{
-							Debug.error("Error reading txt file: " + f, e); //$NON-NLS-1$
-							return null;
-						}
-					}
-					finally
-					{
-						closeInputStream(fis);
-					}
+					fis = new FileInputStream(f);
+					FileChannel fc = fis.getChannel();
+					ByteBuffer bb = ByteBuffer.allocate(length);
+					fc.read(bb);
+					bb.rewind();
+					CharBuffer cb = charset.decode(bb);
+					return cb.toString();
 				}
+			}
+			catch (Exception e)
+			{
+				Debug.error("Error reading txt file: " + f, e); //$NON-NLS-1$
+			}
+			finally
+			{
+				closeInputStream(fis);
 			}
 		}
 		return null;
