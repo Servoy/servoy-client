@@ -345,9 +345,9 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 			FormController controller = fl.getWebForm().getController();
 
 			//this is not needed when closing
-			if (visible && parentData != null)
+			if (visible)
 			{
-				showFoundSet(fl, parentData, controller.getDefaultSortColumns());
+				if (parentData != null) showFoundSet(fl, parentData, controller.getDefaultSortColumns());
 
 				// Test if current one is there
 				if (fl.isReady())
