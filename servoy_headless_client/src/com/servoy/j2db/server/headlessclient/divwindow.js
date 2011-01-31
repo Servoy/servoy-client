@@ -51,7 +51,13 @@ Wicket.Object.extendClass(Wicket.DivWindow, Wicket.Window, {
 		this._super.moving.call(this);
 		// update server side location
 		if (this.onMoveTimer) clearTimeout(this.onMoveTimer);
-		if (this.settings.boundEventsDelay > 0) this.onMoveTimer = setTimeout(this.settings.onMove, this.settings.boundEventsDelay, this.left_, this.top_);
+		if (this.settings.boundEventsDelay > 0) {
+			var fun = function() {
+			  this.settings.onMove(this.left_, this.top_);
+			}
+			fun = fun.bind(this);
+		 	this.onMoveTimer = setTimeout(fun, this.settings.boundEventsDelay);
+		}
 		else {
 			this.onMoveTimer = null;
 			this.settings.onMove(this.left_, this.top_);
@@ -62,7 +68,13 @@ Wicket.Object.extendClass(Wicket.DivWindow, Wicket.Window, {
 		this._super.resizing.call(this);
 		// update server side size
 		if (this.onResizeTimer) clearTimeout(this.onResizeTimer);
-		if (this.settings.boundEventsDelay > 0) this.onResizeTimer = setTimeout(this.settings.onResize, this.settings.boundEventsDelay, this.width, this.height);
+		if (this.settings.boundEventsDelay > 0) {
+		   var fun = function() {
+			  this.settings.onResize(this.width, this.height);
+		   }
+		   fun = fun.bind(this);
+		   this.onResizeTimer = setTimeout(fun, this.settings.boundEventsDelay);
+		}
 		else {
 			this.onResizeTimer = null;
 			this.settings.onResize(this.width, this.height);
