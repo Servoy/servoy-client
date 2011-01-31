@@ -652,6 +652,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 			if (useAnchors)
 			{
 				String splitId = getMarkupId();
+				resizeScript.append("\nServoy.Resize.onWindowResize();"); //$NON-NLS-1$
 				resizeScript.append("\nif(typeof(splitPanes) != \"undefined\")\n").append("{\n"); //$NON-NLS-1$ //$NON-NLS-2$
 				resizeScript.append("splitPanes['").append(splitId).append("'] = new Array();\n"); //$NON-NLS-1$ //$NON-NLS-2$
 				resizeScript.append("splitPanes['").append(splitId).append("']['orient'] = '").append(orient == TabPanel.SPLIT_HORIZONTAL ? "h" : "v").append("';\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
@@ -665,7 +666,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 				resizeScript.append("splitPanes['").append(splitId).append("']['leftMin'] = ").append(leftFormMinSize).append(";\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				resizeScript.append("splitPanes['").append(splitId).append("']['rightMin'] = ").append(rightFormMinSize).append(";\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				resizeScript.append("splitPanes['").append(splitId).append("']['callback'] = '").append(dividerUpdater.getCallbackUrl()).append("';\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				resizeScript.append("}\n"); //$NON-NLS-1$			
+				resizeScript.append("}\n"); //$NON-NLS-1$
 			}
 		}
 
