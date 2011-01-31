@@ -182,14 +182,21 @@ public class WebClient extends SessionClient implements IWebClientApplication
 			Session webClientSession = Session.get();
 			if (webClientSession != null)
 			{
-				WebClientInfo clientInfo = (WebClientInfo)webClientSession.getClientInfo();
-				if (clientInfo != null)
+				try
 				{
-					ClientProperties properties = clientInfo.getProperties();
-					if (properties != null)
+					WebClientInfo clientInfo = (WebClientInfo)webClientSession.getClientInfo();
+					if (clientInfo != null)
 					{
-						return Utils.getPlatform(properties.getNavigatorPlatform());
+						ClientProperties properties = clientInfo.getProperties();
+						if (properties != null)
+						{
+							return Utils.getPlatform(properties.getNavigatorPlatform());
+						}
 					}
+				}
+				catch (Exception e)
+				{
+					Debug.trace("trying to get the client platform of a session, when destroying the client in a none request thread",e);
 				}
 			}
 		}
@@ -859,7 +866,8 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		}
 	}
 
-	public void onEndRequest(@SuppressWarnings("unused") WebClientSession webClientSession)
+	public void onEndRequest(@SuppressWarnings("unused")
+	WebClientSession webClientSession)
 	{
 	}
 }
