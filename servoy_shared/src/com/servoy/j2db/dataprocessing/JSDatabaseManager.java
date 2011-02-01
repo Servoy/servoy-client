@@ -1307,23 +1307,6 @@ public class JSDatabaseManager
 	}
 
 	/**
-	 * Create the datasource uri for a servername/tablename combination.
-	 *
-	 * @sample
-	 * var dataSource = databaseManager.createDBTableDataSource('example_data', 'orders');
-	 * var fs = databaseManager.getFoundSet(dataSource)
-	 *
-	 * @param serverName server name.
-	 * @param tableName table name.
-	 * 
-	 * @return datasource uri.
-	 */
-	public String js_createDBTableDataSource(String serverName, String tableName)
-	{
-		return DataSourceUtils.createDBTableDataSource(serverName, tableName);
-	}
-
-	/**
 	 * Returns the JSTable object from which more info can be obtained (like columns).
 	 * The parameter can be a JSFoundset,JSRecord,datasource string or server/tablename combination.
 	 *

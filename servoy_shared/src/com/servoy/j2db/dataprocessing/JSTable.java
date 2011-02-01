@@ -32,7 +32,7 @@ import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.util.Debug;
 
 /**
- * Scritable table object
+ * Scriptable table object
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
@@ -102,6 +102,20 @@ public class JSTable implements IReturnedTypesProvider, Wrapper, IJavaScriptType
 	public String js_getServerName()
 	{
 		return table.getServerName();
+	}
+
+	/**
+	 * Returns the table data source uri.
+	 *
+	 * @sample
+	 * var jsTable = databaseManager.getTable('udm', 'campaigns')
+	 * var dataSource = jsTable.getDataSource()
+	 * 
+	 * @return String datasource uri. 
+	 */
+	public String js_getDataSource()
+	{
+		return table.getDataSource();
 	}
 
 	/**
