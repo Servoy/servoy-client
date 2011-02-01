@@ -23,6 +23,7 @@ import org.apache.wicket.Page;
 import org.apache.wicket.Request;
 import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.behavior.IIgnoreDisabledComponentBehavior;
 import org.apache.wicket.markup.html.IHeaderResponse;
 
 import com.servoy.j2db.dnd.DRAGNDROP;
@@ -36,7 +37,7 @@ import com.servoy.j2db.ui.IComponent;
  * 
  * @author gboros
  */
-public abstract class DraggableBehavior extends AbstractServoyDefaultAjaxBehavior
+public abstract class DraggableBehavior extends AbstractServoyDefaultAjaxBehavior implements IIgnoreDisabledComponentBehavior
 {
 	private static final long serialVersionUID = 1L;
 
