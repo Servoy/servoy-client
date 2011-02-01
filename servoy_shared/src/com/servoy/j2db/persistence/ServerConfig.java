@@ -21,18 +21,15 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import net.jcip.annotations.Immutable;
-
 import com.servoy.j2db.util.Utils;
 
 
 /**
- * Immutable server configuration data.
+ * Server configuration data.
  * 
  * @author rgansevles
  * 
  */
-@Immutable
 public class ServerConfig implements Serializable, Comparable<ServerConfig>
 {
 	public static final String EMPTY_TEMPLATE_NAME = "Empty"; //$NON-NLS-1$
@@ -62,8 +59,8 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 	private final String driver;
 	private final String catalog;
 	private final String schema;
-	private final int maxActive;
-	private final int maxIdle;
+	private int maxActive;
+	private int maxIdle;
 	private final int maxPreparedStatementsIdle;
 	private final int connectionValidationType;
 	private final String validationQuery;
@@ -198,6 +195,16 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 	public boolean getSkipSysTables()
 	{
 		return skipSysTables;
+	}
+
+	public void setMaxActive(int maxActive)
+	{
+		this.maxActive = maxActive;
+	}
+
+	public void setMaxIdle(int maxIdle)
+	{
+		this.maxIdle = maxIdle;
 	}
 
 	// used for sorting in ServerManager (TreeMap)
