@@ -204,7 +204,7 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 		List<CharSequence> lst = strippedText.getJavascriptUrls();
 		for (int i = 0; i < lst.size(); i++)
 		{
-			response.renderJavascriptReference((String)lst.get(i));
+			response.renderJavascriptReference(lst.get(i).toString());
 		}
 		lst = strippedText.getJavascriptScripts();
 		for (int i = 0; i < lst.size(); i++)
