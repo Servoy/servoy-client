@@ -40,8 +40,8 @@ import javax.swing.border.Border;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.html.CSS;
 
-import org.apache.wicket.Component.IVisitor;
 import org.apache.wicket.ResourceReference;
+import org.apache.wicket.Component.IVisitor;
 
 import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
@@ -2621,6 +2621,8 @@ public class TemplateGenerator
 					String s_attr = name.toString();
 					// Skip margin related attributes. Margin is computed separately below, and rendered as padding.
 					if (s_attr.toLowerCase().contains("margin")) continue;
+					// do not add any border attributes if set on component
+					if (s_attr.toLowerCase().contains("border") && component.getBorderType() != null) continue;
 					Object val = s.getAttribute(name);
 					if (s_attr.equals("font-size"))
 					{
