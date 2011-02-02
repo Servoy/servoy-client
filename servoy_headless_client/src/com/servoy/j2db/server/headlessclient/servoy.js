@@ -701,10 +701,22 @@ if (typeof(Servoy.DD) == "undefined")
 					for(var i in targetid)
 					{						
 						target = targetid[i].id;
-						Servoy.DD.currentElement[Servoy.DD.currentElement.length] = target;
+						if(Servoy.DD.isHiddenByCurrentElement(target))
+						{
+							var currentTarget = Servoy.DD.currentElement[Servoy.DD.currentElement.length - 1];
+							Servoy.DD.currentElement[Servoy.DD.currentElement.length - 1] = target;
+							Servoy.DD.currentElement[Servoy.DD.currentElement.length] = currentTarget;
+						}
+						else
+						{
+							Servoy.DD.currentElement[Servoy.DD.currentElement.length] = target;
+						}
 					}
  
-					wicketAjaxGet(Servoy.DD.dropCallback[target] + '&a=aHover&draggableID=' + this.id + '&targetID=' + target);
+ 					if(target == Servoy.DD.currentElement[Servoy.DD.currentElement.length - 1])
+ 					{
+						wicketAjaxGet(Servoy.DD.dropCallback[target] + '&a=aHover&draggableID=' + this.id + '&targetID=' + target);
+					}
 				};
 
 				dd.onDragOut = function(ev, targetid)
@@ -798,9 +810,40 @@ if (typeof(Servoy.DD) == "undefined")
 		isDragDropContainer: function(target)
 		{
 			return YAHOO.util.DragDropMgr.isDragDrop(target.id) || YAHOO.util.Dom.hasClass(target, 'formpart') || YAHOO.util.Dom.hasClass(target, 'tabpanel');
+		},
+		
+		isHiddenByCurrentElement: function(target)
+		{
+			if(Servoy.DD.currentElement.length > 1)
+			{
+				var currentElementID = Servoy.DD.currentElement[Servoy.DD.currentElement.length - 1];
+				var currentElementParentID = YAHOO.util.Dom.get(currentElementID).parentNode.id;
+				var targetAncestor;
+				var targetElement = YAHOO.util.Dom.get(target);
+				if(targetElement.parentNode.id == currentElementParentID)
+				{
+					targetAncestor = targetElement;
+				}
+				else
+				{
+					targetAncestor = YAHOO.util.Dom.getAncestorBy (targetElement , function(el)
+					{
+						return currentElementParentID == el.parentNode.id;
+					});				
+				}
+				if(targetAncestor && currentElementID != targetAncestor.id)
+				{
+					var coveringCurrentElement = YAHOO.util.Dom.getNextSiblingBy(targetAncestor, function(el)
+					{
+						return el.id == currentElementID;
+					});
+					
+					if(coveringCurrentElement) return true;
+				}				
+			}
+
+			return false;
 		}
-		
-		
 	};
 }
 
