@@ -105,46 +105,8 @@ public class TemplateGenerator
 	private static class FormCache
 	{
 
-		private FormCache(boolean monitorCache)
+		private FormCache()
 		{
-			if (monitorCache)
-			{
-				new Thread(new Runnable()
-				{
-
-					public void run()
-					{
-						long sleepTime = 24 * 60 * 60 * 1000;
-						while (true)
-						{
-							try
-							{
-								Thread.sleep(sleepTime); // sleep for 24 hours
-
-								long time = System.currentTimeMillis();
-								Iterator<CacheItem> it = cache.values().iterator();
-								while (it.hasNext())
-								{
-									CacheItem item = it.next();
-									if ((time - item.lasttouched) > sleepTime)
-									{
-										if (Debug.tracing())
-										{
-											Debug.trace("Removing cache item: " + item.content); //$NON-NLS-1$
-										}
-										it.remove();
-									}
-								}
-
-							}
-							catch (Exception e)
-							{
-								Debug.error("error in FormCacheMonitor", e); //$NON-NLS-1$
-							}
-						}
-					}
-				}, "FormCache Monitor").start(); //$NON-NLS-1$
-			}
 		}
 
 		private static class CacheItem
@@ -193,15 +155,47 @@ public class TemplateGenerator
 		 * @param repository
 		 * @param retval
 		 */
+		@SuppressWarnings("nls")
 		public void putFormAndCssPair(Form f, String overriddenStyleName, IRepository repository, Pair<String, String> formAndCss)
 		{
 			long t = getLastModifiedTime(f.getSolution(), f, overriddenStyleName, repository);
+			String left = formAndCss.getLeft();
+			String right = formAndCss.getRight();
+			long currentTime = System.currentTimeMillis();
+			if (left != null && right != null)
+			{
+				Iterator<CacheItem> iterator = cache.values().iterator();
+				while (iterator.hasNext())
+				{
+					CacheItem item = iterator.next();
+					if ((currentTime - item.lasttouched) > 60 * 60 * 1000)
+					{
+						Debug.trace("Removing cached form html/css after 1 hour of idle");
+						iterator.remove();
+						continue;
+					}
+					boolean hit = false;
+					if (left.equals(item.content.getLeft()))
+					{
+						formAndCss.setLeft(item.content.getLeft());
+						Debug.trace("Cached form html hit, reusing that one");
+						hit = true;
+					}
+					if (right.equals(item.content.getRight()))
+					{
+						formAndCss.setRight(item.content.getRight());
+						Debug.trace("Cached form css hit, reusing that one");
+						hit = true;
+					}
+					// if one of them (html or css) did a hit then it is very unlikely that there would be another hit later on so just break.
+					if (hit) break;
+				}
+			}
 			CacheItem cacheItem = new CacheItem();
 			cacheItem.lastmodified = t;
 			cacheItem.content = formAndCss;
 			cache.put(System.identityHashCode(f) + ":" + overriddenStyleName, cacheItem); //$NON-NLS-1$
 		}
-
 
 		/**
 		 * @param solution
@@ -252,7 +246,7 @@ public class TemplateGenerator
 
 	public static final String TABLE_VIEW_CELL_CLASS = "tableviewcell"; // this value is also used in servoy.js; if you change/remove it please update servoy.js //$NON-NLS-1$
 
-	private static FormCache globalCache = new FormCache(true);
+	private static FormCache globalCache = new FormCache();
 
 	private static Map<IServiceProvider, FormCache> serviceProviderCache = Collections.synchronizedMap(new WeakHashMap<IServiceProvider, FormCache>());
 
@@ -271,9 +265,9 @@ public class TemplateGenerator
 		return getFormHTMLAndCSS(solution, form, sp);
 	}
 
-	public static Pair<String, String> getFormHTMLAndCSS(Solution solution, Form f, IServiceProvider sp) throws RepositoryException, RemoteException
+	public static Pair<String, String> getFormHTMLAndCSS(Solution solution, Form form, IServiceProvider sp) throws RepositoryException, RemoteException
 	{
-		if (f == null) return null;
+		if (form == null) return null;
 		final IRepository repository = ApplicationServerSingleton.get().getLocalRepository();
 		boolean enableAnchoring = Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.webclient.enableAnchors", Boolean.TRUE.toString())); //$NON-NLS-1$ 
 
@@ -289,16 +283,16 @@ public class TemplateGenerator
 		}
 		else
 		{
-			boolean isDesign = sp != null && sp.getFlattenedSolution().isInDesign(f) && f.getView() == FormController.LOCKED_TABLE_VIEW;
-			boolean isFormCopy = sp.getFlattenedSolution().hasCopy(f);
-			overriddenStyleName = ComponentFactory.getOverriddenStyleName(sp, f);
+			boolean isDesign = sp != null && sp.getFlattenedSolution().isInDesign(form) && form.getView() == FormController.LOCKED_TABLE_VIEW;
+			boolean isFormCopy = sp.getFlattenedSolution().hasCopy(form);
+			overriddenStyleName = ComponentFactory.getOverriddenStyleName(sp, form);
 
 			if (isFormCopy || overriddenStyleName != null || isDesign)
 			{
 				formCache = serviceProviderCache.get(sp);
 				if (formCache == null)
 				{
-					formCache = new FormCache(false);
+					formCache = new FormCache();
 					serviceProviderCache.put(sp, formCache);
 				}
 			}
@@ -308,12 +302,13 @@ public class TemplateGenerator
 			}
 		}
 
-		Pair<String, String> retval = formCache.getFormAndCssPair(f, overriddenStyleName, repository);
+		Pair<String, String> retval = formCache.getFormAndCssPair(form, overriddenStyleName, repository);
 		if (retval != null)
 		{
 			return retval;
 		}
 
+		Form f = form;
 		if (f.getExtendsFormID() > 0)
 		{
 			FlattenedSolution fs = sp == null ? null : sp.getFlattenedSolution();
@@ -393,7 +388,7 @@ public class TemplateGenerator
 
 		retval = new Pair<String, String>(html.toString(), StripHTMLTagsConverter.convertMediaReferences(css.toString(), solution.getName(),
 			new ResourceReference("media"), "../../").toString()); //$NON-NLS-1$ //$NON-NLS-2$ // string the formcss/solutionname/ out of the url.
-		formCache.putFormAndCssPair(f, overriddenStyleName, repository, retval);
+		formCache.putFormAndCssPair(form, overriddenStyleName, repository, retval);
 		return retval;
 	}
 
