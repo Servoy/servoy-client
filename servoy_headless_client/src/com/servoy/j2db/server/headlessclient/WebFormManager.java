@@ -158,8 +158,8 @@ public class WebFormManager extends FormManager
 
 				fp.destroy();
 
-				while (!(wfParent instanceof WebTabPanel) && !(wfParent instanceof WebSplitPane) && !(wfParent.getParent() instanceof MainPage) &&
-					!(wfParent.getParent() instanceof WebForm))
+				while (wfParent != null && !(wfParent instanceof WebTabPanel) && !(wfParent instanceof WebSplitPane) &&
+					!(wfParent.getParent() instanceof MainPage) && !(wfParent.getParent() instanceof WebForm))
 				{
 					wfParent = wfParent.getParent();
 				}
