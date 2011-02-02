@@ -247,6 +247,7 @@ public class FormDialog extends JEscapeDialog implements FormWindow
 					((FormManager)application.getFormManager()).setCurrentContainer(null, null);
 				}
 			}
+			((FormManager)application.getFormManager()).fillScriptMenu();
 		}
 	}
 
