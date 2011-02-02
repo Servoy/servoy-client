@@ -40,8 +40,8 @@ import javax.swing.border.Border;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.html.CSS;
 
-import org.apache.wicket.ResourceReference;
 import org.apache.wicket.Component.IVisitor;
+import org.apache.wicket.ResourceReference;
 
 import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
@@ -315,18 +315,19 @@ public class TemplateGenerator
 		return getFormHTMLAndCSS(solution, form, sp, form.getName());
 	}
 
-	public static Pair<String, String> getFormHTMLAndCSS(Solution solution, Form f, IServiceProvider sp, String formInstanceName) throws RepositoryException,
-		RemoteException
+	public static Pair<String, String> getFormHTMLAndCSS(Solution solution, Form form, IServiceProvider sp, String formInstanceName)
+		throws RepositoryException, RemoteException
 	{
-		if (f == null) return null;
+		if (form == null) return null;
 		final IRepository repository = ApplicationServerSingleton.get().getLocalRepository();
 		boolean enableAnchoring = sp != null ? Utils.getAsBoolean(sp.getRuntimeProperties().get("enableAnchors"))
 			: Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.webclient.enableAnchors", Boolean.TRUE.toString()));
 
 		String overriddenStyleName = null;
 
-		Pair<String, ArrayList<Pair<String, String>>> retval = formCache.getFormAndCssPair(f, formInstanceName, overriddenStyleName, repository);
+		Pair<String, ArrayList<Pair<String, String>>> retval = formCache.getFormAndCssPair(form, formInstanceName, overriddenStyleName, repository);
 
+		Form f = form;
 		if (retval == null)
 		{
 			if (f.getExtendsFormID() > 0)
@@ -407,7 +408,7 @@ public class TemplateGenerator
 			layoutProvider.renderCloseFormHTML(html);
 
 			retval = new Pair<String, ArrayList<Pair<String, String>>>(html.toString(), css.getAsSelectorValuePairs());
-			formCache.putFormAndCssPair(f, formInstanceName, overriddenStyleName, repository, retval);
+			formCache.putFormAndCssPair(form, formInstanceName, overriddenStyleName, repository, retval);
 		}
 
 		Map<String, String> formIDToMarkupIDMap = null;
