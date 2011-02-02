@@ -985,7 +985,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		{
 			if (solutionRoot.getSolution() != null)
 			{
-				if (!closeSolution(force, null) && !force) return;
+				// shutdown should not try to reopen preferred solution
+				if (!closeSolution(force, new String[] { }) && !force) return;
 //				solutionRoot.setSolution(null);
 			}
 		}
