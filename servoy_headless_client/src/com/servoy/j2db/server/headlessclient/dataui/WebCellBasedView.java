@@ -697,10 +697,19 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			while (it.hasNext())
 			{
 				Component component = it.next();
-				if (component instanceof CellContainer)
+				if (component instanceof CellContainer && component.isVisibleInHierarchy())
 				{
 					Object c = ((CellContainer)component).iterator().next();
-					if (updateComponentRenderState(c, isSelected) && target != null && c instanceof Component) target.addComponent((Component)c);
+					if (updateComponentRenderState(c, isSelected) && target != null && c instanceof Component)
+					{
+						Component innerComponent = (Component)c;
+						target.addComponent(innerComponent);
+						WebEventExecutor.generateDragAttach(innerComponent, target.getHeaderResponse());
+						if (!innerComponent.isVisible())
+						{
+							((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges().setRendered();
+						}
+					}
 				}
 			}
 		}
@@ -3294,9 +3303,14 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			Integer selection = new Integer(sel);
 			if (oldSelectedIndexes.indexOf(selection) == -1) indexesToUpdate.add(selection);
 		}
-		indexesToUpdate.addAll(oldSelectedIndexes);
 
-		return indexesToUpdate.size() > 0 ? indexesToUpdate : null;
+
+		if (indexesToUpdate.size() > 0)
+		{
+			indexesToUpdate.addAll(oldSelectedIndexes);
+			return indexesToUpdate;
+		}
+		else return null;
 	}
 
 	private int[] getSelectedIndexes()
