@@ -730,6 +730,8 @@ public class StaticContentSpecLoader
 
 			cs.new Element(376, IRepository.PORTALS, PROPERTY_RESIZABLE.getPropertyName(), IRepository.BOOLEAN);
 			cs.new Element(377, IRepository.TABPANELS, PROPERTY_ONCHANGEMETHODID.getPropertyName(), IRepository.ELEMENTS);
+
+			cs.new Element(378, IRepository.SHAPES, PROPERTY_ANCHORS.getPropertyName(), IRepository.INTEGER);
 		}
 
 		//##add property adds here
