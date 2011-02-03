@@ -476,7 +476,7 @@ public class TemplateGenerator
 
 			if (obj instanceof Form)
 			{
-				html.append("<table border=0 cellpadding=0 cellspacing=0 width='100%'>\n");//$NON-NLS-1$ 
+				html.append("<span servoy:id='info'></span>\n<table border=0 cellpadding=0 cellspacing=0 width='100%'>\n");//$NON-NLS-1$ 
 			}
 			else
 			//is portal
@@ -490,7 +490,7 @@ public class TemplateGenerator
 				html.append(getWicketIDParameter(p));
 //				html.append(getJavaScriptIDParameter(p));
 				html.append(getCSSClassParameter("portal"));//$NON-NLS-1$ 
-				html.append("><table cellpadding='0' cellspacing='0' class='portal'>\n");//$NON-NLS-1$ 
+				html.append("><span servoy:id='info'></span>\n<table cellpadding='0' cellspacing='0' class='portal'>\n");//$NON-NLS-1$ 
 			}
 			css.addCSSBoundsHandler(NoLocationCSSBoundsHandler.INSTANCE);
 			html.append("<tr><td height='99%'><table border=0 cellpadding=0 cellspacing=0 width='100%'>\n");//$NON-NLS-1$ 

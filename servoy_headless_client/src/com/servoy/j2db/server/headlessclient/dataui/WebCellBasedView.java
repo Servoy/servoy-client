@@ -56,6 +56,7 @@ import org.apache.wicket.markup.WicketTag;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebComponent;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -188,6 +189,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	private final boolean useAJAX, useAnchors;
 	private Component resizedComponent; // the component that has been resized because of a column resize
 
+	private ServoyTableResizeBehavior tableResizeBehavior;
+	private Label loadingInfo; // used to show loading info when rendering is postponed waiting for size info response from browser
+
 	/**
 	 * @author jcompagner
 	 *
@@ -218,6 +222,11 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			this.startY = startY;
 			this.endY = endY;
 			this.cellview = cellview;
+		}
+
+		boolean isResponded()
+		{
+			return responded;
 		}
 
 		@SuppressWarnings("nls")
@@ -904,6 +913,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		useAnchors = Utils.getAsBoolean((application.getSettings().getProperty("servoy.webclient.enableAnchors", Boolean.TRUE.toString()))); //$NON-NLS-1$
 		setOutputMarkupPlaceholderTag(true);
 
+		loadingInfo = new Label("info", "Loading ..."); //$NON-NLS-1$
+		loadingInfo.setVisible(false);
+		add(loadingInfo);
+
 		if (!useAJAX) bodyHeightHint = sizeHint;
 
 		jsChangeRecorder = new ChangesRecorder(null, null)
@@ -1162,7 +1175,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		if (useAJAX)
 		{
 			add(pagingNavigator = new ServoyAjaxPagingNavigator("navigator", table)); //$NON-NLS-1$
-			add(new ServoyTableResizeBehavior(startY, endY, cellview));
+			add(tableResizeBehavior = new ServoyTableResizeBehavior(startY, endY, cellview));
 		}
 		else
 		{
@@ -1879,51 +1892,72 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	@Override
 	protected void onBeforeRender()
 	{
-		WebTabPanel tabPanel = findParent(WebTabPanel.class);
-		if (tabPanel != null)
+		boolean canRenderView = true;
+		if (tableResizeBehavior != null)
 		{
-			Dimension tabSize = tabPanel.getTabSize();
-			if (tabSize != null)
+			// delay rendering table view (that can be big) if we
+			// just wait for the size response from the browser
+			canRenderView = tableResizeBehavior.isResponded();
+			if (!canRenderView)
 			{
-				bodyHeightHint = (int)tabSize.getHeight();
+				// force to get a response from the browser
+				bodyHeightHint = -1;
+				bodyWidthHint = -1;
+			}
+			if (headers != null) headers.setVisible(canRenderView);
+			table.setVisible(canRenderView);
+			pagingNavigator.setVisible(canRenderView);
+			loadingInfo.setVisible(!canRenderView);
+		}
+
+		if (canRenderView)
+		{
+			WebTabPanel tabPanel = findParent(WebTabPanel.class);
+			if (tabPanel != null)
+			{
+				Dimension tabSize = tabPanel.getTabSize();
+				if (tabSize != null)
+				{
+					bodyHeightHint = (int)tabSize.getHeight();
+					bodyHeightHint -= getOtherFormPartsHeight();
+				}
+			}
+			else if (bodyHeightHint == -1)
+			{
+				bodyHeightHint = ((WebClientInfo)RequestCycle.get().getSession().getClientInfo()).getProperties().getBrowserHeight();
 				bodyHeightHint -= getOtherFormPartsHeight();
 			}
-		}
-		else if (bodyHeightHint == -1)
-		{
-			bodyHeightHint = ((WebClientInfo)RequestCycle.get().getSession().getClientInfo()).getProperties().getBrowserHeight();
-			bodyHeightHint -= getOtherFormPartsHeight();
-		}
 
-		if (isCurrentDataChanged)
-		{
-			if (bodyHeightHint == -1) bodyHeightHint = sizeHint;
-			isCurrentDataChanged = false;
-		}
-
-		if (bodyHeightHint != -1)
-		{
-			int oldRowsPerPage = table.getRowsPerPage();
-
-			Pair<Boolean, Pair<Integer, Integer>> rowsCalculation = needsMoreThanOnePage(bodyHeightHint);
-			int maxRows = rowsCalculation.getRight().getLeft().intValue();
-			table.setRowsPerPage(maxRows);
-
-			// set headers width according to cell's width
-			setHeadersWidth();
-			int firstSelectedIndex = 0;
-			if (currentData != null)
+			if (isCurrentDataChanged)
 			{
-				selectedIndexes = getSelectedIndexes();
-				firstSelectedIndex = currentData.getSelectedIndex();
+				if (bodyHeightHint == -1) bodyHeightHint = sizeHint;
+				isCurrentDataChanged = false;
 			}
 
-			// if rowPerPage changed & the selected was visible, switch to the page so it remain visible
-			int currentPage = table.getCurrentPage();
-			if (maxRows != oldRowsPerPage && currentPage * oldRowsPerPage <= firstSelectedIndex && (currentPage + 1) * oldRowsPerPage > firstSelectedIndex) table.setCurrentPage(firstSelectedIndex < 1
-				? 0 : firstSelectedIndex / maxRows);
+			if (bodyHeightHint != -1)
+			{
+				int oldRowsPerPage = table.getRowsPerPage();
+
+				Pair<Boolean, Pair<Integer, Integer>> rowsCalculation = needsMoreThanOnePage(bodyHeightHint);
+				int maxRows = rowsCalculation.getRight().getLeft().intValue();
+				table.setRowsPerPage(maxRows);
+
+				// set headers width according to cell's width
+				setHeadersWidth();
+				int firstSelectedIndex = 0;
+				if (currentData != null)
+				{
+					selectedIndexes = getSelectedIndexes();
+					firstSelectedIndex = currentData.getSelectedIndex();
+				}
+
+				// if rowPerPage changed & the selected was visible, switch to the page so it remain visible
+				int currentPage = table.getCurrentPage();
+				if (maxRows != oldRowsPerPage && currentPage * oldRowsPerPage <= firstSelectedIndex && (currentPage + 1) * oldRowsPerPage > firstSelectedIndex) table.setCurrentPage(firstSelectedIndex < 1
+					? 0 : firstSelectedIndex / maxRows);
+			}
+			pagingNavigator.setVisible(showPageNavigator && table.getPageCount() > 1);
 		}
-		pagingNavigator.setVisible(showPageNavigator && table.getPageCount() > 1);
 		super.onBeforeRender();
 	}
 
