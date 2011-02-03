@@ -75,8 +75,8 @@ import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.JSDataSet;
-import com.servoy.j2db.dataprocessing.ValueListFactory;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
+import com.servoy.j2db.dataprocessing.ValueListFactory;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.ScriptVariable;
@@ -2291,14 +2291,14 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		// if repaint was requested because of a change in fireOnRender that was run from paint
 		// ignore this repaint as the changes are already painted - if not ignored, we will have
 		// a cycle calling of repaint -> paintComponent -> fireOnRender -> repaint 
-		if (eventExecutor != null && eventExecutor.isOnRenderRunningOnComponentPaint()) return;
+		if (!isIgnoreOnRender && eventExecutor != null && eventExecutor.isOnRenderRunningOnComponentPaint()) return;
 		super.repaint();
 	}
 
 	@Override
 	protected void paintComponent(Graphics g)
 	{
-		if (eventExecutor != null) eventExecutor.fireOnRender(this, hasFocus());
+		if (!isIgnoreOnRender && eventExecutor != null) eventExecutor.fireOnRender(this, hasFocus());
 		super.paintComponent(g);
 	}
 
@@ -2308,5 +2308,12 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 	public RenderEventExecutor getRenderEventExecutor()
 	{
 		return eventExecutor;
+	}
+
+	private boolean isIgnoreOnRender;
+
+	public void setIgnoreOnRender(boolean isIgnoreOnRender)
+	{
+		this.isIgnoreOnRender = isIgnoreOnRender;
 	}
 }

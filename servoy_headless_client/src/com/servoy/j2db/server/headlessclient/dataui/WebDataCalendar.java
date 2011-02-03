@@ -99,6 +99,7 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 		this.application = application;
 		DatePicker settings = new DatePicker();
 		field = new DateField(application, "datefield", settings);
+		field.setIgnoreOnRender(true);
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		if (useAJAX)
 		{

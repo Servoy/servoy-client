@@ -1538,7 +1538,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	protected void onBeforeRender()
 	{
 		super.onBeforeRender();
-		if (eventExecutor != null)
+		if (!isIgnoreOnRender && eventExecutor != null)
 		{
 			boolean isFocused = false;
 			IMainContainer currentContainer = ((FormManager)application.getFormManager()).getCurrentContainer();
@@ -1556,5 +1556,12 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	public RenderEventExecutor getRenderEventExecutor()
 	{
 		return eventExecutor;
+	}
+
+	private boolean isIgnoreOnRender;
+
+	public void setIgnoreOnRender(boolean isIgnoreOnRender)
+	{
+		this.isIgnoreOnRender = isIgnoreOnRender;
 	}
 }

@@ -106,7 +106,7 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 				super.setFormat(Types.DATE, format);
 			}
 		};
-
+		enclosedComponent.setIgnoreOnRender(true);
 		enclosedComponent.setBorder(BorderFactory.createEmptyBorder());
 		enclosedComponent.setOpaque(false);
 		add(enclosedComponent, BorderLayout.CENTER);
