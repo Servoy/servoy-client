@@ -586,6 +586,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 	public void setHorizontalAlignment(int a)
 	{
 		halign = a;
+		rendererComponent.setHorizontalAlignment(halign);
 	}
 
 	public void notifyVisible(boolean b, List invokeLaterRunnables)
