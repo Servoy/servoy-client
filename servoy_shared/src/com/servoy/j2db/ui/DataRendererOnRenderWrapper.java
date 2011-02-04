@@ -17,6 +17,11 @@
 
 package com.servoy.j2db.ui;
 
+import java.awt.Color;
+import java.awt.Font;
+
+import javax.swing.border.Border;
+
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.PersistHelper;
 
@@ -43,7 +48,7 @@ public class DataRendererOnRenderWrapper implements ISupportOnRenderCallback
 	 */
 	public String js_getBgcolor()
 	{
-		return PersistHelper.createColorString(onRenderComponent.getBackground());
+		return PersistHelper.createColorString(getBackground());
 	}
 
 	/*
@@ -51,17 +56,7 @@ public class DataRendererOnRenderWrapper implements ISupportOnRenderCallback
 	 */
 	public void js_setBgcolor(String clr)
 	{
-		onRenderComponent.setBackground(PersistHelper.createColor(clr));
-	}
-
-	public String getBgcolor()
-	{
-		return js_getBgcolor();
-	}
-
-	public void setBgcolor(String clr)
-	{
-		js_setBgcolor(clr);
+		setBackground(PersistHelper.createColor(clr));
 	}
 
 	/*
@@ -189,7 +184,7 @@ public class DataRendererOnRenderWrapper implements ISupportOnRenderCallback
 	 */
 	public String js_getBorder()
 	{
-		return ComponentFactoryHelper.createBorderString(onRenderComponent.getBorder());
+		return ComponentFactoryHelper.createBorderString(getBorder());
 	}
 
 	/*
@@ -197,7 +192,7 @@ public class DataRendererOnRenderWrapper implements ISupportOnRenderCallback
 	 */
 	public void js_setBorder(String spec)
 	{
-		onRenderComponent.setBorder(ComponentFactoryHelper.createBorder(spec));
+		setBorder(ComponentFactoryHelper.createBorder(spec));
 	}
 
 	/*
@@ -269,5 +264,133 @@ public class DataRendererOnRenderWrapper implements ISupportOnRenderCallback
 	public String toString()
 	{
 		return onRenderComponent.getOnRenderToString();
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IRenderComponent#setComponentEnabled(boolean)
+	 */
+	public void setComponentEnabled(boolean enabled)
+	{
+		// ignore
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IRenderComponent#isEnabled()
+	 */
+	public boolean isEnabled()
+	{
+		return true;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IRenderComponent#setComponentVisible(boolean)
+	 */
+	public void setComponentVisible(boolean visible)
+	{
+		// ignore
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IRenderComponent#isVisible()
+	 */
+	public boolean isVisible()
+	{
+		return true;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IRenderComponent#setForeground(java.awt.Color)
+	 */
+	public void setForeground(Color foreground)
+	{
+		// ignore
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IRenderComponent#getForeground()
+	 */
+	public Color getForeground()
+	{
+		return null;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IRenderComponent#setBackground(java.awt.Color)
+	 */
+	public void setBackground(Color background)
+	{
+		onRenderComponent.setBackground(background);
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IRenderComponent#getBackground()
+	 */
+	public Color getBackground()
+	{
+		return onRenderComponent.getBackground();
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IRenderComponent#setFont(java.awt.Font)
+	 */
+	public void setFont(Font font)
+	{
+		// ignore
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IRenderComponent#getFont()
+	 */
+	public Font getFont()
+	{
+		return null;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IRenderComponent#setBorder(javax.swing.border.Border)
+	 */
+	public void setBorder(Border border)
+	{
+		onRenderComponent.setBorder(border);
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IRenderComponent#getBorder()
+	 */
+	public Border getBorder()
+	{
+		return onRenderComponent.getBorder();
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IRenderComponent#setOpaque(boolean)
+	 */
+	public void setOpaque(boolean opaque)
+	{
+		// ignore
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IRenderComponent#isOpaque()
+	 */
+	public boolean isOpaque()
+	{
+		return true;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IRenderComponent#setToolTipText(java.lang.String)
+	 */
+	public void setToolTipText(String tooltip)
+	{
+		// ignore
+	}
+
+	/*
+	 * @see com.servoy.j2db.ui.IRenderComponent#getToolTipText()
+	 */
+	public String getToolTipText()
+	{
+		return null;
 	}
 }

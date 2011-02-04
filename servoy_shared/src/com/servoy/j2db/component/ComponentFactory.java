@@ -282,7 +282,7 @@ public class ComponentFactory
 		if (c instanceof ISupportOnRenderCallback)
 		{
 			RenderEventExecutor ree = ((ISupportOnRenderCallback)c).getRenderEventExecutor();
-			if (ree != null) ree.saveDefaultRenderProperties((ISupportOnRenderCallback)c);
+			if (ree != null && ree.hasRenderCallback()) ree.saveDefaultRenderProperties((ISupportOnRenderCallback)c);
 		}
 
 		return c;

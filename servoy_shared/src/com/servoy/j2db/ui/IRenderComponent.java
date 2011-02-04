@@ -17,11 +17,46 @@
 
 package com.servoy.j2db.ui;
 
+import java.awt.Color;
+import java.awt.Font;
+
+import javax.swing.border.Border;
+
 /**
+ * Interface to which elements supporting on render callback needs to conform
  * @author gboros
- *
  */
-public interface ISupportOnRenderCallback extends IRenderComponent, IScriptRenderMethods
+public interface IRenderComponent
 {
-	public RenderEventExecutor getRenderEventExecutor();
+	public void setComponentEnabled(boolean enabled);
+
+	public boolean isEnabled();
+
+	public void setComponentVisible(boolean visible);
+
+	public boolean isVisible();
+
+	public void setForeground(Color foreground);
+
+	public Color getForeground();
+
+	public void setBackground(Color background);
+
+	public Color getBackground();
+
+	public void setFont(Font font);
+
+	public Font getFont();
+
+	public void setBorder(Border border);
+
+	public Border getBorder();
+
+	public void setOpaque(boolean opaque);
+
+	public boolean isOpaque();
+
+	public void setToolTipText(String tooltip);
+
+	public String getToolTipText();
 }

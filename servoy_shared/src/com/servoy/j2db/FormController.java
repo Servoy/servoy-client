@@ -88,13 +88,13 @@ import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.IScriptSupport;
 import com.servoy.j2db.scripting.ITwoNativeJavaObject;
 import com.servoy.j2db.scripting.InstanceJavaMembers;
+import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.JSWindowImpl;
+import com.servoy.j2db.scripting.JSWindowImpl.JSWindow;
 import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.scripting.SelectedRecordScope;
 import com.servoy.j2db.scripting.SolutionScope;
-import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
-import com.servoy.j2db.scripting.JSWindowImpl.JSWindow;
 import com.servoy.j2db.ui.IAccessible;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
@@ -1692,7 +1692,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			if (drOnRenderComp != null)
 			{
 				RenderEventExecutor ree = drOnRenderComp.getRenderEventExecutor();
-				if (ree != null) ree.saveDefaultRenderProperties(drOnRenderComp);
+				if (ree != null && ree.hasRenderCallback()) ree.saveDefaultRenderProperties(drOnRenderComp);
 			}
 		}
 
@@ -1728,7 +1728,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			if (drOnRenderComp != null)
 			{
 				RenderEventExecutor ree = drOnRenderComp.getRenderEventExecutor();
-				if (ree != null) ree.saveDefaultRenderProperties(drOnRenderComp);
+				if (ree != null && ree.hasRenderCallback()) ree.saveDefaultRenderProperties(drOnRenderComp);
 			}
 		}
 

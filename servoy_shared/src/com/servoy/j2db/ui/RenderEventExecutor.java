@@ -17,6 +17,11 @@
 
 package com.servoy.j2db.ui;
 
+import java.awt.Color;
+import java.awt.Font;
+
+import javax.swing.border.Border;
+
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.scripting.JSRenderEvent;
@@ -57,27 +62,27 @@ public class RenderEventExecutor implements IRenderEventExecutor
 		renderIsSelected = isSelected;
 	}
 
-	private String defaultBgColor;
-	private String defaultBorder;
-	private boolean defaultEnabled;
-	private String defaultFgColor;
-	private String defaultFont;
-	private String defaultTooltipText;
-	private boolean defaultTransparent;
-	private boolean defaultVisible;
+	protected Color renderDefaultBgColor;
+	protected Border renderDefaultBorder;
+	protected boolean renderDefaultEnabled;
+	protected Color renderDefaultFgColor;
+	protected Font renderDefaultFont;
+	protected String renderDefaultTooltipText;
+	protected boolean renderDefaultOpaque;
+	protected boolean renderDefaultVisible;
 
 	private boolean useDefaultTransparent = true;
 
 	public void saveDefaultRenderProperties(ISupportOnRenderCallback display)
 	{
-		defaultBgColor = display.js_getBgcolor();
-		defaultBorder = display.js_getBorder();
-		defaultEnabled = display.js_isEnabled();
-		defaultFgColor = display.js_getFgcolor();
-		defaultFont = display.js_getFont();
-		defaultTooltipText = display.js_getToolTipText();
-		defaultTransparent = display.js_isTransparent();
-		defaultVisible = display.js_isVisible();
+		renderDefaultBgColor = display.getBackground();
+		renderDefaultBorder = display.getBorder();
+		renderDefaultEnabled = display.isEnabled();
+		renderDefaultFgColor = display.getForeground();
+		renderDefaultFont = display.getFont();
+		renderDefaultTooltipText = display.getToolTipText();
+		renderDefaultOpaque = display.isOpaque();
+		renderDefaultVisible = display.isVisible();
 	}
 
 	public void setUseDefaultTransparent(boolean useDefaultTransparent)
@@ -85,16 +90,21 @@ public class RenderEventExecutor implements IRenderEventExecutor
 		this.useDefaultTransparent = useDefaultTransparent;
 	}
 
-	private void setDefaultRenderProperties(ISupportOnRenderCallback display)
+	public boolean isUseDefaultTransparent()
 	{
-		display.js_setBgcolor(defaultBgColor);
-		display.js_setBorder(defaultBorder);
-		display.js_setEnabled(defaultEnabled);
-		display.js_setFgcolor(defaultFgColor);
-		display.js_setFont(defaultFont);
-		display.js_setToolTipText(defaultTooltipText);
-		if (useDefaultTransparent) display.js_setTransparent(defaultTransparent);
-		display.js_setVisible(defaultVisible);
+		return useDefaultTransparent;
+	}
+
+	protected void setDefaultRenderProperties(ISupportOnRenderCallback display)
+	{
+		display.setBackground(renderDefaultBgColor);
+		display.setBorder(renderDefaultBorder);
+		display.setComponentEnabled(renderDefaultEnabled);
+		display.setForeground(renderDefaultFgColor);
+		display.setFont(renderDefaultFont);
+		display.setToolTipText(renderDefaultTooltipText);
+		if (isUseDefaultTransparent()) display.setOpaque(renderDefaultOpaque);
+		display.setComponentVisible(renderDefaultVisible);
 
 	}
 
