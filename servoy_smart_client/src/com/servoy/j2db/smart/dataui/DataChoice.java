@@ -120,6 +120,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		enclosedComponent = new JNavigableEditList();
 		eventExecutor = new EventExecutor(this, enclosedComponent);
 		enclosedComponent.addKeyListener(eventExecutor);
+		enclosedComponent.setModel(list);
 
 		if (isRadioList)
 		{
@@ -133,7 +134,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 			enclosedComponent.setCellEditor(new NavigableCellEditor(new CheckBoxCell()));
 			list.setMultiValueSelect(true);
 		}
-		enclosedComponent.setModel(list);
+
 //		enclosedComponent.setPrototypeCellValue(new Integer(0));
 
 		getViewport().setView(enclosedComponent);
@@ -459,7 +460,6 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 			rendererComponent.setEnabled(editList.isEnabled());
 			rendererComponent.setForeground(editList.getForeground());
 //			rendererComponent.setBackground(editList.getBackground());
-			rendererComponent.setHorizontalAlignment(halign);
 			if (value == null)
 			{
 				rendererComponent.setText(""); //$NON-NLS-1$
