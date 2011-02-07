@@ -31,9 +31,9 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.StringTokenizer;
-import java.util.Map.Entry;
 
 import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
@@ -620,9 +620,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				MarkupContainer cellContainer = comp.getParent();
 				if (cellContainer instanceof CellContainer)
 				{
-					cellContainer.add(new StyleAppendingModifier(new Model<String>(("background-color: " + compColor.toString()).intern()))); //$NON-NLS-1$
+					cellContainer.add(new StyleAppendingModifier(new Model<String>("background-color: " + compColor.toString()))); //$NON-NLS-1$
 				}
-				comp.add(new StyleAppendingModifier(new Model<String>(("background-color: " + compColor.toString()).intern()))); //$NON-NLS-1$
+				comp.add(new StyleAppendingModifier(new Model<String>("background-color: " + compColor.toString()))); //$NON-NLS-1$
 			}
 			if (js_isReadOnly() && validationEnabled && comp instanceof IScriptReadOnlyMethods) // if in find mode, the field should not be readonly
 			{
@@ -1050,8 +1050,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}));
 		if (cellview instanceof BaseComponent)
 		{
-			ComponentFactory.applyBasicComponentProperties(application, this, (BaseComponent)cellview, ComponentFactory.getStyleForBasicComponent(application,
-				(BaseComponent)cellview, form));
+			ComponentFactory.applyBasicComponentProperties(application, this, (BaseComponent)cellview,
+				ComponentFactory.getStyleForBasicComponent(application, (BaseComponent)cellview, form));
 		}
 
 		boolean sortable = true;
@@ -1287,8 +1287,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					Relation r = rels[rels.length - 1];
 					if (r != null)
 					{
-						defaultSort = ((FoundSetManager)application.getFoundSetManager()).getSortColumns(application.getFoundSetManager().getTable(
-							r.getForeignDataSource()), ((Portal)cellview).getInitialSort());
+						defaultSort = ((FoundSetManager)application.getFoundSetManager()).getSortColumns(
+							application.getFoundSetManager().getTable(r.getForeignDataSource()), ((Portal)cellview).getInitialSort());
 					}
 				}
 			}
@@ -1857,7 +1857,35 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			}
 		};
 
-		c.add(new AttributeModifier("class", true, componentClassModel)); //$NON-NLS-1$
+		c.add(new AttributeModifier("class", true, componentClassModel) //$NON-NLS-1$
+		{
+			@Override
+			protected String newValue(final String currentValue, String replacementValue)
+			{
+				String currentClass = currentValue == null ? "" : currentValue; //$NON-NLS-1$
+				String replacementClass = ""; //$NON-NLS-1$
+				if (replacementValue != null)
+				{
+					replacementClass = replacementValue;
+
+					if (currentClass.equals(replacementClass)) return currentClass.trim();
+
+					// check if already added
+					int replacementClassIdx = currentClass.indexOf(replacementClass);
+
+					if ((replacementClassIdx != -1) &&
+						(replacementClassIdx == 0 || currentClass.charAt(replacementClassIdx - 1) == ' ') &&
+						(replacementClassIdx == currentClass.length() - replacementClass.length() || currentClass.charAt(replacementClassIdx +
+							replacementClass.length()) == ' '))
+					{
+						return currentClass.trim();
+					}
+				}
+
+				String result = replacementClass + " " + currentClass; //$NON-NLS-1$
+				return result.trim();
+			}
+		});
 	}
 
 	/**
