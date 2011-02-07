@@ -49,7 +49,7 @@ public class StyleAppendingModifier extends AttributeModifier
 
 	public StyleAppendingModifier(TextualStyle style)
 	{
-		this(new Model<String>(style.getOnlyProperties()));
+		this(new Model<String>(style.getOnlyProperties().intern()));
 	}
 
 	@Override
