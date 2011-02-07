@@ -23,7 +23,7 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 
 /**
- * Class defining drag and drop constants
+ * Class defining drag and drop constants.
  *  
  * @author gboros
  */
@@ -61,16 +61,27 @@ public class DRAGNDROP implements IPrefixedConstantsObject, IReturnedTypesProvid
 	public static final int MOVE = DnDConstants.ACTION_MOVE;
 
 
+	/**
+	 * Constant used as mime type for servoy objects.
+	 */
 	public static final String MIME_TYPE_SERVOY = "application/x-servoy-object; class=java.lang.Object";
 
+	/**
+	 * Constant used as mime type for servoy record objects.
+	 */
 	public static final String MIME_TYPE_SERVOY_RECORD = "application/x-servoy-record-object; class=com.servoy.j2db.dataprocessing.Record";
 
-
+	/*
+	 * @see com.servoy.j2db.scripting.IPrefixedConstantsObject#getPrefix()
+	 */
 	public String getPrefix()
 	{
 		return "DRAGNDROP"; //$NON-NLS-1$
 	}
 
+	/*
+	 * @see com.servoy.j2db.scripting.IReturnedTypesProvider#getAllReturnedTypes()
+	 */
 	public Class< ? >[] getAllReturnedTypes()
 	{
 		return null;

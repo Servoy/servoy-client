@@ -41,15 +41,41 @@ public abstract class DraggableBehavior extends AbstractServoyDefaultAjaxBehavio
 {
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Drag start action name.
+	 */
 	public static final String ACTION_DRAG_START = "aStart";
+	/**
+	 * Drag end action name.
+	 */
 	public static final String ACTION_DRAG_END = "aEnd";
+	/**
+	 * Drop hover action name.
+	 */
 	public static final String ACTION_DROP_HOVER = "aHover";
+	/**
+	 * Drop action name.
+	 */
 	public static final String ACTION_DROP = "aDrop";
-
+	/**
+	 * Action parameter name.
+	 */
 	public static final String PARAM_ACTION = "a";
+	/**
+	 * Draggable element id parameter name.
+	 */
 	public static final String PARAM_DRAGGABLE_ID = "draggableID";
+	/**
+	 * Target element id parameter name.
+	 */
 	public static final String PARAM_TARGET_ID = "targetID";
+	/**
+	 * Mouse x coordinate parameter name.
+	 */
 	public static final String PARAM_X = "xc";
+	/**
+	 * Mouse y coordinate parameter name.
+	 */
 	public static final String PARAM_Y = "yc";
 
 	private boolean bUseProxy;
@@ -60,86 +86,174 @@ public abstract class DraggableBehavior extends AbstractServoyDefaultAjaxBehavio
 
 	protected static boolean dropResult;
 
+	/**
+	 * Sets whatever the behavior javascript code will be rendered
+	 * in the response head, or on the body
+	 * 
+	 * @param isRenderOnHead true to render the behavior javascript in the response head
+	 */
 	public void setRenderOnHead(boolean isRenderOnHead)
 	{
 		this.isRenderOnHead = isRenderOnHead;
 	}
 
+	/**
+	 * Sets whatever a floating element (proxy) is showing for the dragging element.
+	 * 
+	 * @param bUseProxy whatever to show floating element for the drag
+	 */
 	public void setUseProxy(boolean bUseProxy)
 	{
 		this.bUseProxy = bUseProxy;
 	}
 
+	/**
+	 * Returns whatever a floating element (proxy) is showing for the dragging element.
+	 * 
+	 * @return whatever floating element is showing for the drag
+	 */
 	public boolean isUseProxy()
 	{
 		return this.bUseProxy;
 	}
 
+	/**
+	 * Sets whatever dragging is only possible vertically.
+	 * 
+	 * @param bXConstraint whatever dragging is only possible vertically
+	 */
 	public void setXConstraint(boolean bXConstraint)
 	{
 		this.bXConstraint = bXConstraint;
 	}
 
+	/**
+	 * Returns whatever dragging is only possible vertically.
+	 * 
+	 * @return whatever dragging is only possible vertically.
+	 */
 	public boolean isXConstraint()
 	{
 		return this.bXConstraint;
 	}
 
+	/**
+	 * Sets whatever dragging is only possible horizontally.
+	 * 
+	 * @param bYConstraint whatever dragging is only possible horizontally
+	 */
 	public void setYConstraint(boolean bYConstraint)
 	{
 		this.bYConstraint = bYConstraint;
 	}
 
+	/**
+	 * Returns whatever dragging is only possible horizontally.
+	 * 
+	 * @return whatever dragging is only possible horizontally.
+	 */
 	public boolean isYConstraint()
 	{
 		return this.bYConstraint;
 	}
 
+	/**
+	 * Sets the dragging data.
+	 * 
+	 * @param dragData the data
+	 * @param mimeType the data mime type
+	 */
 	public void setDragData(Object dragData, String mimeType)
 	{
 		((WebClientSession)Session.get()).getDNDSessionInfo().setData(dragData, mimeType);
 	}
 
+	/**
+	 * Gets the drag data.
+	 * 
+	 * @return the drag data
+	 */
 	public Object getDragData()
 	{
 		return ((WebClientSession)Session.get()).getDNDSessionInfo().getData();
 	}
 
+	/**
+	 * Gets the drag data mime type.
+	 * 
+	 * @return the drag data mime type
+	 */
 	public String getDragDataMimeType()
 	{
 		return ((WebClientSession)Session.get()).getDNDSessionInfo().getMimeType();
 	}
 
+	/**
+	 * Sets the current drag operation, a DRAGNDROP constant or a combination of that
+	 * 
+	 * @param currentDragOperation
+	 */
 	public void setCurrentDragOperation(int currentDragOperation)
 	{
 		((WebClientSession)Session.get()).getDNDSessionInfo().setCurrentOperation(currentDragOperation);
 	}
 
+	/**
+	 * Returns the current drag operation, a DRAGNDROP constant or a combination of that
+	 * @return
+	 */
 	public int getCurrentDragOperation()
 	{
 		return ((WebClientSession)Session.get()).getDNDSessionInfo().getCurrentOperation();
 	}
 
+	/**
+	 * Sets the drag component.
+	 * 
+	 * @param component that is dragged
+	 */
 	public void setDragComponent(IComponent component)
 	{
 		((WebClientSession)Session.get()).getDNDSessionInfo().setComponent(component);
 	}
 
+	/**
+	 * Returns the drag component.
+	 * 
+	 * @return the drag component
+	 */
 	public IComponent getDragComponent()
 	{
 		return ((WebClientSession)Session.get()).getDNDSessionInfo().getComponent();
 	}
 
+	/**
+	 * Sets the drop result.
+	 * 
+	 * @param dropResult whatever it was a successful drop
+	 */
 	public void setDropResult(boolean dropResult)
 	{
 		((WebClientSession)Session.get()).getDNDSessionInfo().setDropResult(dropResult);
 	}
 
+	/**
+	 * Returns the drop result.
+	 * 
+	 * @return whatever it was a successful drop
+	 */
 	public boolean getDropResult()
 	{
 		return ((WebClientSession)Session.get()).getDNDSessionInfo().getDropResult();
 	}
 
+	/**
+	 * Get the child component with the specified id.
+	 * 
+	 * @param childId id of child component
+	 * 
+	 * @return the child component or null if not found
+	 */
 	public IComponent getBindedComponentChild(final String childId)
 	{
 		IComponent bindedComponentChild = null;
@@ -211,15 +325,47 @@ public abstract class DraggableBehavior extends AbstractServoyDefaultAjaxBehavio
 		if (isRenderOnHead) WebEventExecutor.generateDragAttach(getComponent(), response);
 	}
 
+	/**
+	 * Called when a drag is started.
+	 * 
+	 * @param id drag component id
+	 * @param x mouse x coordinate
+	 * @param y mouse y coordinate
+	 * @param ajaxRequestTarget
+	 * @return whatever the drag can start
+	 */
 	protected abstract boolean onDragStart(String id, int x, int y, AjaxRequestTarget ajaxRequestTarget);
 
+	/**
+	 * Called when a drag ends.
+	 * 
+	 * @param id target component id
+	 * @param x mouse x coordinate
+	 * @param y mouse y coordinate
+	 * @param ajaxRequestTarget
+	 */
 	protected void onDragEnd(String id, int x, int y, AjaxRequestTarget ajaxRequestTarget)
 	{
 		setDragData(null, null);
 		setCurrentDragOperation(DRAGNDROP.NONE);
 	}
 
+	/**
+	 * Called on drop hover.
+	 * 
+	 * @param id drag component id
+	 * @param targeid target component id
+	 * @param ajaxRequestTarget
+	 */
 	protected abstract void onDropHover(String id, String targeid, AjaxRequestTarget ajaxRequestTarget);
 
+	/**
+	 * Called on drop.
+	 * @param id drag component id
+	 * @param targetid target component id
+	 * @param x mouse x coordinate
+	 * @param y mouse y coordinate
+	 * @param ajaxRequestTarget
+	 */
 	protected abstract void onDrop(String id, String targetid, int x, int y, AjaxRequestTarget ajaxRequestTarget);
 }

@@ -42,7 +42,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
 /**
- * Class used for handling drag and drop operations in smart client
+ * Class used for handling drag and drop operations in smart client.
  * 
  * @author gboros
  */
@@ -55,6 +55,9 @@ public class CompositeTransferHandler extends TransferHandler implements DropTar
 	private boolean canImport;
 	private Transferable customTransferable;
 
+	/**
+	 * @see javax.swing.TransferHandler#getSourceActions(JComponent)
+	 */
 	@Override
 	public int getSourceActions(JComponent c)
 	{
@@ -88,6 +91,9 @@ public class CompositeTransferHandler extends TransferHandler implements DropTar
 		return customTransferable;
 	}
 
+	/**
+	 * @see javax.swing.TransferHandler#exportAsDrag(JComponent, InputEvent, int)
+	 */
 	@Override
 	public void exportAsDrag(JComponent comp, InputEvent e, int action)
 	{
@@ -130,6 +136,9 @@ public class CompositeTransferHandler extends TransferHandler implements DropTar
 		inputEvent = null;
 	}
 
+	/**
+	 *	@see javax.swing.TransferHandler#canImport(JComponent, DataFlavor[])
+	 */
 	public boolean canImport(JComponent comp, DataFlavor[] transferFlavors, Transferable transferable)
 	{
 		JComponent cmp = getDragComponent(comp);
@@ -158,6 +167,13 @@ public class CompositeTransferHandler extends TransferHandler implements DropTar
 		return false;
 	}
 
+	/**
+	 * Gets the drag component from the component parameter.
+	 * 
+	 * @param comp to check for drag
+	 * 
+	 * @return the drag component
+	 */
 	public JComponent getDragComponent(JComponent comp)
 	{
 		if (comp instanceof JViewport)
@@ -167,11 +183,6 @@ public class CompositeTransferHandler extends TransferHandler implements DropTar
 		return comp;
 	}
 
-	/**
-	 * @param ddComp
-	 * @param event
-	 * @return
-	 */
 //	private ISupportDragNDrop testTarget(ISupportDragNDrop ddComp, JSEvent event)
 //	{
 //		if (event.js_getSource() instanceof SpecialTabPanel)
@@ -190,6 +201,9 @@ public class CompositeTransferHandler extends TransferHandler implements DropTar
 //		return ddComp;
 //	}
 
+	/**
+	 * @see javax.swing.TransferHandler#importData(JComponent, Transferable)
+	 */
 	@Override
 	public boolean importData(JComponent comp, Transferable t)
 	{
@@ -318,6 +332,9 @@ public class CompositeTransferHandler extends TransferHandler implements DropTar
 	private Object lastDragSource = null;
 	private IRecordInternal lastDragRecord = null;
 
+	/**
+	 * @see java.awt.dnd.DropTargetListener#dragEnter(DropTargetDragEvent)
+	 */
 	public void dragEnter(DropTargetDragEvent e)
 	{
 		dropTargetDragEvent = e;
@@ -354,6 +371,9 @@ public class CompositeTransferHandler extends TransferHandler implements DropTar
 		dropTargetDragEvent = null;
 	}
 
+	/**
+	 * @see java.awt.dnd.DropTargetListener#dragOver(DropTargetDragEvent)
+	 */
 	public void dragOver(DropTargetDragEvent e)
 	{
 		dropTargetDragEvent = e;
@@ -389,11 +409,17 @@ public class CompositeTransferHandler extends TransferHandler implements DropTar
 		dropTargetDragEvent = null;
 	}
 
+	/**
+	 * @see java.awt.dnd.DropTargetListener#dragExit(DropTargetEvent)
+	 */
 	public void dragExit(DropTargetEvent e)
 	{
 		dropTargetDragEvent = null;
 	}
 
+	/**
+	 * @see java.awt.dnd.DropTargetListener#drop(DropTargetDropEvent)
+	 */
 	public void drop(DropTargetDropEvent e)
 	{
 		dropTargetDropEvent = e;
@@ -422,6 +448,9 @@ public class CompositeTransferHandler extends TransferHandler implements DropTar
 		dropTargetDropEvent = null;
 	}
 
+	/**
+	 * @see java.awt.dnd.DropTargetListener#dropActionChanged(DropTargetDragEvent)
+	 */
 	public void dropActionChanged(DropTargetDragEvent e)
 	{
 		dropTargetDragEvent = e;

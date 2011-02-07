@@ -22,6 +22,11 @@ import com.servoy.j2db.dataprocessing.Record;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.JSEvent;
 
+/**
+ * JSDNDEvent, used as argument to drag and drop callbacks.
+ * 
+ * @author gboros
+ */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class JSDNDEvent extends JSEvent
 {
@@ -29,6 +34,11 @@ public class JSDNDEvent extends JSEvent
 	private Record record;
 	private String dataMimeType;
 
+	/**
+	 * Sets the result of the drag action.
+	 * 
+	 * @param dragResult a DRAGNDROP constant, representing the result of the drag action
+	 */
 	public void setDragResult(int dragResult)
 	{
 		this.dragResult = dragResult;
@@ -60,6 +70,11 @@ public class JSDNDEvent extends JSEvent
 		return this.dragResult;
 	}
 
+	/**
+	 * Sets the record of the event.
+	 * 
+	 * @param record of the event
+	 */
 	public void setRecord(Record record)
 	{
 		this.record = record;
@@ -78,28 +93,48 @@ public class JSDNDEvent extends JSEvent
 	}
 
 	/**
-	 * The event data mime type
+	 * Returns the event data mime type.
+	 * 
+	 * @return event data mime type
 	 */
 	public String js_getDataMimeType()
 	{
 		return dataMimeType;
 	}
 
+	/**
+	 * Sets the event data mime type.
+	 * 
+	 * @param mimeType event data mime type
+	 */
 	public void js_setDataMimeType(String mimeType)
 	{
 		dataMimeType = mimeType;
 	}
 
+	/**
+	 * Returns the event data mime type.
+	 * 
+	 * @return event data mime type
+	 */
 	public String getDataMimeType()
 	{
 		return dataMimeType;
 	}
 
+	/**
+	 * Sets the event data mime type.
+	 * 
+	 * @param mimeType event data mime type
+	 */
 	public void setDataMimeType(String mimeType)
 	{
 		dataMimeType = mimeType;
 	}
 
+	/**
+	 * String representation of the drag and drop event.
+	 */
 	@Override
 	public String toString()
 	{
