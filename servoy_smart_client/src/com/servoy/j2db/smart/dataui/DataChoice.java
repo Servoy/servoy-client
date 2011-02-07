@@ -458,7 +458,8 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 			rendererComponent.setFont(editList.getFont());
 			rendererComponent.setEnabled(editList.isEnabled());
 			rendererComponent.setForeground(editList.getForeground());
-//			rendererComponent.setBackground(editList.getBackground()); 
+//			rendererComponent.setBackground(editList.getBackground());
+			rendererComponent.setHorizontalAlignment(halign);
 			if (value == null)
 			{
 				rendererComponent.setText(""); //$NON-NLS-1$
@@ -586,7 +587,6 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 	public void setHorizontalAlignment(int a)
 	{
 		halign = a;
-		rendererComponent.setHorizontalAlignment(halign);
 	}
 
 	public void notifyVisible(boolean b, List invokeLaterRunnables)
