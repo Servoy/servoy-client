@@ -7,7 +7,7 @@
 	<property name="basearch" value="${arch}"/>
 	<property name="basenl" value="${nl}"/>
 	<property name="bundleId" value="servoy_headless_client"/>
-	<property name="bundleVersion" value="5.2.4.1009"/>
+	<property name="bundleVersion" value="5.2.5.1010"/>
 	<property name="p2.publishonerror" value="false"/>
 
 	<!-- Compiler settings. -->
@@ -41,7 +41,7 @@
 			<isset property="buildTempFolder"/>
 		</condition>
 		<property name="pluginTemp" value="${basedir}"/>
-		<condition property="build.result.folder" value="${pluginTemp}/servoy_headless_client_5.2.4.1009"		>
+		<condition property="build.result.folder" value="${pluginTemp}/servoy_headless_client_5.2.5.1010"		>
 			<isset property="buildTempFolder"/>
 		</condition>
 		<property name="build.result.folder" value="${basedir}"/>
@@ -71,7 +71,7 @@
 		<antcall target="gather.bin.parts">
 			<param name="destination.temp.folder" value="${temp.folder}/"/>
 		</antcall>
-		<jar destfile="${plugin.destination}/servoy_headless_client_5.2.4.1009.jar" basedir="${temp.folder}/servoy_headless_client_5.2.4.1009" filesetmanifest="merge"/>
+		<jar destfile="${plugin.destination}/servoy_headless_client_5.2.5.1010.jar" basedir="${temp.folder}/servoy_headless_client_5.2.5.1010" filesetmanifest="merge"/>
 		<delete dir="${temp.folder}"/>
 	</target>
 
@@ -207,7 +207,7 @@
 	</target>
 
 	<target name="publish.bin.parts" depends="init" if="p2.publish.parts" unless="compilation.problem.marker.exists">
-		<mkdir dir="${build.result.folder}/servoy_headless_client_5.2.4.1009"/>
+		<mkdir dir="${build.result.folder}/servoy_headless_client_5.2.5.1010"/>
 		<copy todir="${build.result.folder}" failonerror="true" overwrite="true">
 			<fileset dir="${basedir}">
 				<include name="META-INF/MANIFEST.MF"/>
@@ -231,19 +231,19 @@
 	</target>
 
 	<target name="gather.bin.parts" depends="init" if="destination.temp.folder">
-		<mkdir dir="${destination.temp.folder}/servoy_headless_client_5.2.4.1009"/>
-		<copy todir="${destination.temp.folder}/servoy_headless_client_5.2.4.1009" failonerror="true" overwrite="false">
+		<mkdir dir="${destination.temp.folder}/servoy_headless_client_5.2.5.1010"/>
+		<copy todir="${destination.temp.folder}/servoy_headless_client_5.2.5.1010" failonerror="true" overwrite="false">
 			<fileset dir="${build.result.folder}/@dot">
 				<include name="**"/>
 			</fileset>
 		</copy>
-		<copy todir="${destination.temp.folder}/servoy_headless_client_5.2.4.1009" failonerror="true" overwrite="true">
+		<copy todir="${destination.temp.folder}/servoy_headless_client_5.2.5.1010" failonerror="true" overwrite="true">
 			<fileset dir="${basedir}">
 				<include name="META-INF/"/>
 			</fileset>
 		</copy>
 		<antcall target="apitools.generation">
-			<param name="target.folder" value="${destination.temp.folder}/servoy_headless_client_5.2.4.1009"/>
+			<param name="target.folder" value="${destination.temp.folder}/servoy_headless_client_5.2.5.1010"/>
 			<param name="projectLocation" value="${basedir}"/>
 			<param name="binary.folders" value="${build.result.folder}/@dot"/>
 			<param name="projectName" value="${bundleId}_${bundleVersion}"/>
@@ -254,10 +254,10 @@
 	</target>
 
 	<target name="gather.sources" depends="init" if="destination.temp.folder">
-		<mkdir dir="${destination.temp.folder}/servoy_headless_client_5.2.4.1009"/>
-		<copy file="${build.result.folder}/src.zip" todir="${destination.temp.folder}/servoy_headless_client_5.2.4.1009" failonerror="false" overwrite="false"/>
+		<mkdir dir="${destination.temp.folder}/servoy_headless_client_5.2.5.1010"/>
+		<copy file="${build.result.folder}/src.zip" todir="${destination.temp.folder}/servoy_headless_client_5.2.5.1010" failonerror="false" overwrite="false"/>
 		<antcall target="copy.src.includes">
-			<param name="source.destination.folder" value="${destination.temp.folder}/servoy_headless_client_5.2.4.1009"/>
+			<param name="source.destination.folder" value="${destination.temp.folder}/servoy_headless_client_5.2.5.1010"/>
 		</antcall>
 	</target>
 
@@ -274,8 +274,8 @@
 	</target>
 
 	<target name="gather.logs" depends="init" if="destination.temp.folder">
-		<mkdir dir="${destination.temp.folder}/servoy_headless_client_5.2.4.1009"/>
-		<copy todir="${destination.temp.folder}/servoy_headless_client_5.2.4.1009" failonerror="false" overwrite="false">
+		<mkdir dir="${destination.temp.folder}/servoy_headless_client_5.2.5.1010"/>
+		<copy todir="${destination.temp.folder}/servoy_headless_client_5.2.5.1010" failonerror="false" overwrite="false">
 			<fileset dir="${build.result.folder}">
 				<include name="@dot${logExtension}"/>
 			</fileset>
@@ -285,8 +285,8 @@
 	<target name="clean" depends="init" description="Clean the plug-in: servoy_headless_client of all the zips, jars and logs created.">
 		<delete dir="${build.result.folder}/@dot"/>
 		<delete file="${build.result.folder}/src.zip"/>
-		<delete file="${plugin.destination}/servoy_headless_client_5.2.4.1009.jar"/>
-		<delete file="${plugin.destination}/servoy_headless_client_5.2.4.1009.zip"/>
+		<delete file="${plugin.destination}/servoy_headless_client_5.2.5.1010.jar"/>
+		<delete file="${plugin.destination}/servoy_headless_client_5.2.5.1010.zip"/>
 		<delete dir="${temp.folder}"/>
 		<delete file="${compilation.problem.marker}" quiet="true"/>
 	</target>
@@ -312,7 +312,7 @@
 				<include name="**/*.bin${logExtension}"/>
 			</fileset>
 		</delete>
-		<zip destfile="${plugin.destination}/servoy_headless_client_5.2.4.1009.zip" basedir="${temp.folder}" filesonly="true" whenempty="skip" update="false"/>
+		<zip destfile="${plugin.destination}/servoy_headless_client_5.2.5.1010.zip" basedir="${temp.folder}" filesonly="true" whenempty="skip" update="false"/>
 		<delete dir="${temp.folder}"/>
 	</target>
 
