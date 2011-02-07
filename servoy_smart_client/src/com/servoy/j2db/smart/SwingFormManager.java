@@ -676,7 +676,8 @@ public class SwingFormManager extends FormManager implements ISwingFormManager, 
 		}
 
 		boolean bringToFrontNeeded = false;
-		if (sfd == null)
+		boolean newDialog = sfd == null;
+		if (newDialog)
 		{
 			sfd = createFormDialog(getApplication(), currentWindow, windowModal, windowName);
 			getApplication().registerWindow(USER_WINDOW_PREFIX + windowName, sfd);
@@ -766,6 +767,19 @@ public class SwingFormManager extends FormManager implements ISwingFormManager, 
 				currentContainer = currentMainContainer;
 			}
 
+			if (newDialog && Utils.getPlatform() == Utils.PLATFORM_LINUX)
+			{
+				getApplication().invokeLater(new Runnable()
+				{
+					public void run()
+					{
+						// needed to work around a focus issue on Linux, text fields in a tabpanel on a dialog do not get focus.
+						fd.setVisible(false);
+						fd.setVisible(true);
+					}
+				});
+			}
+
 			// blocks in case of modal dialogs
 			if (bounds == FormManager.FULL_SCREEN)
 			{
@@ -773,35 +787,10 @@ public class SwingFormManager extends FormManager implements ISwingFormManager, 
 			}
 			else
 			{
-				if (Utils.getPlatform() == Utils.PLATFORM_LINUX)
+				sfd.setVisible(true);
+				if (bringToFrontNeeded)
 				{
-					final boolean finalBringToFrontNeeded = bringToFrontNeeded;
-					getApplication().invokeLater(new Runnable()
-					{
-						public void run()
-						{
-							getApplication().invokeLater(new Runnable()
-							{
-								public void run()
-								{
-									fd.getRootPane().requestFocus();
-								}
-							});
-							fd.setVisible(true);
-							if (finalBringToFrontNeeded)
-							{
-								fd.toFront();
-							}
-						}
-					});
-				}
-				else
-				{
-					sfd.setVisible(true);
-					if (bringToFrontNeeded)
-					{
-						sfd.toFront();
-					}
+					sfd.toFront();
 				}
 			}
 
