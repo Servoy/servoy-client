@@ -168,9 +168,9 @@ public class TemplateGenerator
 				while (iterator.hasNext())
 				{
 					CacheItem item = iterator.next();
-					if ((currentTime - item.lasttouched) > 60 * 60 * 1000)
+					if ((currentTime - item.lasttouched) > 4 * 60 * 60 * 1000)
 					{
-						Debug.trace("Removing cached form html/css after 1 hour of idle");
+						Debug.trace("Removing cached form html/css after 4 hour of idle");
 						iterator.remove();
 						continue;
 					}
