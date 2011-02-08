@@ -94,7 +94,7 @@ public class MediaUploadPage extends WebPage
 				super.renderHead(container);
 				if (close)
 				{
-					container.getHeaderResponse().renderOnLoadJavascript("window.opener.triggerAjaxUpdate();window.close();");
+					container.getHeaderResponse().renderOnLoadJavascript("window.opener.triggerAjaxUpdate();");
 				}
 			}
 		};
@@ -106,7 +106,7 @@ public class MediaUploadPage extends WebPage
 		add(panel);
 	}
 
-	@SuppressWarnings({ "nls", "unchecked" })
+	@SuppressWarnings( { "nls", "unchecked" })
 	public MediaUploadPage(IPageMap pageMap, final IMediaUploadCallback callback, boolean multiSelect)
 	{
 		super(pageMap);
@@ -152,8 +152,7 @@ public class MediaUploadPage extends WebPage
 				super.renderHead(container);
 				if (close)
 				{
-					container.getHeaderResponse().renderOnLoadJavascript(
-						"setTimeout('window.parent.triggerAjaxUpdate();window.parent.Wicket.Window.current.close();',500);");
+					container.getHeaderResponse().renderOnLoadJavascript("window.parent.triggerAjaxUpdate();");
 				}
 			}
 		};

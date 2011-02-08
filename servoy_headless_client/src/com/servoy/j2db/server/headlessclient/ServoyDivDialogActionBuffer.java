@@ -112,7 +112,6 @@ public class ServoyDivDialogActionBuffer
 					if (divDialog.isShown())
 					{
 						divDialog.close(target);
-						divDialog.setPageMapName(null);
 					}
 					break;
 				case Action.OP_TO_FRONT :
