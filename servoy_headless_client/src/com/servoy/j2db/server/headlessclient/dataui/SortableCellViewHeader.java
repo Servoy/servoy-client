@@ -56,7 +56,7 @@ import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.TabIndexHelper;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.BorderAndPadding;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
-import com.servoy.j2db.server.headlessclient.dataui.drag.DraggableBehavior;
+import com.servoy.j2db.server.headlessclient.dnd.DraggableBehavior;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.util.Debug;

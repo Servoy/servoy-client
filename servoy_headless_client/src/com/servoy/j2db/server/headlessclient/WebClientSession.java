@@ -45,7 +45,7 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.StartupArgumentsScope;
-import com.servoy.j2db.server.headlessclient.dataui.drag.DNDSessionInfo;
+import com.servoy.j2db.server.headlessclient.dnd.DNDSessionInfo;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;

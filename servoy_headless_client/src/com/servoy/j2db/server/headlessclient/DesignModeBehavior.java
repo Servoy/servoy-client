@@ -40,7 +40,7 @@ import com.servoy.j2db.server.headlessclient.dataui.AbstractServoyDefaultAjaxBeh
 import com.servoy.j2db.server.headlessclient.dataui.WebDataCalendar;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataRenderer;
 import com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor;
-import com.servoy.j2db.server.headlessclient.dataui.drag.DraggableBehavior;
+import com.servoy.j2db.server.headlessclient.dnd.DraggableBehavior;
 import com.servoy.j2db.server.headlessclient.yui.YUILoader;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
