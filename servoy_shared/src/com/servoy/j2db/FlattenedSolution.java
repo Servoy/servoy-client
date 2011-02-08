@@ -256,7 +256,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		{
 			public Object visit(IPersist o)
 			{
-				if (o.getUUID() == persist.getUUID())
+				if (o.getUUID().equals(persist.getUUID()))
 				{
 					return o;
 				}
