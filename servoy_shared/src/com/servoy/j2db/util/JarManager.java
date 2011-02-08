@@ -264,32 +264,14 @@ public abstract class JarManager
 										addCommonPackageToDefinitions(fileName, beanClassNames, packageJarMapping);
 										foundBeanClassNames.addAll(beanClassNames);
 
-										String classpath = (String)mf.getMainAttributes().get(Attributes.Name.CLASS_PATH);
-										if (classpath != null)
+										Map<String, File> classPathReferences = getManifestClassPath(jarFile, dir);
+										if (classPathReferences != null && classPathReferences.size() > 0)
 										{
-											StringTokenizer st = new StringTokenizer(classpath, " "); //$NON-NLS-1$
-											while (st.hasMoreTokens())
+											for (String reference : classPathReferences.keySet())
 											{
-												String classPathJar = st.nextToken();
-												File classPathFile = null;
-												if (classPathJar.startsWith("/")) //$NON-NLS-1$
-												{
-													classPathFile = new File(dir.getParentFile(), classPathJar);
-												}
-												else
-												{
-													classPathFile = new File(dir, classPathJar);
-												}
-												if (classPathFile.exists())
-												{
-													addCommonPackageToDefinitions(classPathJar, beanClassNames, packageJarMapping);
-													subDirRetval.put(classPathFile.toURI().toURL(), new Pair<String, Long>(classPathJar, new Long(
-														classPathFile.lastModified())));
-												}
-												else
-												{
-													Debug.log("Classpath entry: " + classPathJar + " of bean: " + fileName + " not found"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-												}
+												addCommonPackageToDefinitions(reference, beanClassNames, packageJarMapping);
+												subDirRetval.put(classPathReferences.get(reference).toURI().toURL(), new Pair(reference, new Long(
+													classPathReferences.get(reference).lastModified())));
 											}
 										}
 									}
@@ -321,6 +303,51 @@ public abstract class JarManager
 			}
 		}
 		return foundBeanClassNames;
+	}
+
+	public static Map<String, File> getManifestClassPath(File jarFile, File contextDir)
+	{
+		Map<String, File> references = new HashMap<String, File>();
+		try
+		{
+			JarFile file = new JarFile(jarFile);
+			Manifest mf = file.getManifest();
+			if (mf != null)
+			{
+				String classpath = (String)mf.getMainAttributes().get(Attributes.Name.CLASS_PATH);
+				if (classpath != null)
+				{
+					StringTokenizer st = new StringTokenizer(classpath, " "); //$NON-NLS-1$
+					while (st.hasMoreTokens())
+					{
+						String classPathJar = st.nextToken();
+						File classPathFile = null;
+						if (classPathJar.startsWith("/")) //$NON-NLS-1$
+						{
+							classPathFile = new File(contextDir.getParentFile(), classPathJar);
+						}
+						else
+						{
+							classPathFile = new File(contextDir, classPathJar);
+						}
+						if (classPathFile.exists())
+						{
+							references.put(classPathJar, classPathFile);
+						}
+						else
+						{
+							Debug.log("Classpath entry: " + classPathJar + " of jar: " + jarFile.getAbsolutePath() + " not found"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						}
+					}
+				}
+			}
+		}
+		catch (Exception ex)
+		{
+			Debug.error(ex);
+		}
+		return references;
+
 	}
 
 	private static List<String> getBeanClassNames(Manifest mf)
