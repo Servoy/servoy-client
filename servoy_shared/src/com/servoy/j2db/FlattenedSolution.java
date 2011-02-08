@@ -204,7 +204,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			}
 			catch (RepositoryException e)
 			{
-				Debug.error("Couldnt set a new id on form " + clone, e);
+				Debug.error("Couldn't set a new id on form " + clone, e);
 			}
 		}
 		flush(persist);
@@ -228,7 +228,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		boolean exists = realPersist != null || getAllObjectsAsList().indexOf(persist) != -1;
 		if (!exists && revertToOriginal)
 		{
-			throw new RuntimeException("Cant revert " + persist + " to original, because there is no original"); //$NON-NLS-1$//$NON-NLS-2$
+			throw new RuntimeException("Can't revert " + persist + " to original, because there is no original"); //$NON-NLS-1$//$NON-NLS-2$
 		}
 		else if (exists && !revertToOriginal)
 		{
@@ -284,7 +284,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			{
 				public Object visit(IPersist o)
 				{
-					if (o.getUUID() == persist.getParent().getUUID())
+					if (o.getUUID().equals(persist.getParent().getUUID()))
 					{
 						return o;
 					}
@@ -311,7 +311,6 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			}
 		}
 	}
-
 
 	public Solution getSolutionCopy()
 	{
