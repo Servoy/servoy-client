@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.server.shared;
 
+import java.util.Date;
+
 /**
  * Interface to receive some client information at the server side
  * 
@@ -71,4 +73,8 @@ public interface IClientInformation extends com.servoy.j2db.server.IClientInform
 	 * @return A String holding the name of the user. If the solution that is running on the client does not require a login, then null is returned.
 	 */
 	String getUserName();
+
+	Date getClientLoginTime();
+
+	Date getClientIdleTime();
 }
