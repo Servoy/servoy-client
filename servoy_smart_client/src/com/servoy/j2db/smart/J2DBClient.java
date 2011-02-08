@@ -2017,7 +2017,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 					{
 						public void run()
 						{
-							if (getSolution() == null)
+							if (getSolution() == null && getClientInfo() != null)
 							{
 								// select new solution, run later because logout may trigger a login dialog as well
 								handleClientUserUidChanged(null, getClientInfo().getUserUid());
