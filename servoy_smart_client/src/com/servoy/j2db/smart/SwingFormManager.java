@@ -810,7 +810,8 @@ public class SwingFormManager extends FormManager implements ISwingFormManager, 
 		Window w = getApplication().getWindow(USER_WINDOW_PREFIX + windowName);
 
 		FormFrame frame = null;
-		if (w instanceof FormFrame)
+		boolean newWindow = !(w instanceof FormFrame);
+		if (!newWindow)
 		{
 			frame = (FormFrame)w;
 		}
@@ -886,6 +887,19 @@ public class SwingFormManager extends FormManager implements ISwingFormManager, 
 				}
 			});
 			frame.setResizable(resizeble);
+
+			if (newWindow && Utils.getPlatform() == Utils.PLATFORM_LINUX)
+			{
+				getApplication().invokeLater(new Runnable()
+				{
+					public void run()
+					{
+						// needed to work around a focus issue on Linux, text fields in a tabpanel on a window do not get focus.
+						ff.setVisible(false);
+						ff.setVisible(true);
+					}
+				});
+			}
 
 			// blocks in case of modal dialogs
 			if (bounds == FormManager.FULL_SCREEN)
