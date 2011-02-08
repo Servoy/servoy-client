@@ -499,6 +499,11 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 		return setForm(true, form, relation);
 	}
 
+	public boolean js_setLeftForm(Object form)
+	{
+		return js_setLeftForm(form, null);
+	}
+
 	public FormScope js_getLeftForm()
 	{
 		Component leftComponent = splitPane.getLeftComponent();
@@ -509,6 +514,11 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 	public boolean js_setRightForm(Object form, Object relation)
 	{
 		return setForm(false, form, relation);
+	}
+
+	public boolean js_setRightForm(Object form)
+	{
+		return js_setRightForm(form, null);
 	}
 
 	public FormScope js_getRightForm()

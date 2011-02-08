@@ -891,6 +891,11 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		else return false;
 	}
 
+	public boolean js_setLeftForm(Object form)
+	{
+		return js_setLeftForm(form, null);
+	}
+
 	public FormScope js_getLeftForm()
 	{
 		if (webTabs[0] != null) return webTabs[0].getPanel().getWebForm().getController().getFormScope();
@@ -905,6 +910,11 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 			return true;
 		}
 		else return false;
+	}
+
+	public boolean js_setRightForm(Object form)
+	{
+		return js_setRightForm(form, null);
 	}
 
 	public FormScope js_getRightForm()

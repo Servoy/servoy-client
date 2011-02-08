@@ -29,6 +29,17 @@ public interface IScriptSplitPaneMethods extends IScriptTransparentMethods, IScr
 {
 
 	/**
+	 * Set a relationless form as left panel.
+	 * 
+	 * @sample %%prefix%%%%elementName%%.setLeftForm(forms.orders);
+	 *
+	 * @param form/formname the specified form/formname you wish to add as left panel
+	 * 
+	 * @return a boolean value indicating if tab was successfully added
+	 */
+	public boolean js_setLeftForm(Object form);
+
+	/**
 	 * Set a relationless or related form as left panel.
 	 * 
 	 * @sample %%prefix%%%%elementName%%.setLeftForm(forms.orders,'orders_to_order_details');
@@ -50,6 +61,16 @@ public interface IScriptSplitPaneMethods extends IScriptTransparentMethods, IScr
 	 */
 	public FormScope js_getLeftForm();
 
+	/**
+	 * Set a relationless form as right panel.
+	 * 
+	 * @sample %%prefix%%%%elementName%%.setRightForm(forms.orders);
+	 *
+	 * @param form/formname the specified form/formname you wish to add as right panel
+	 * 
+	 * @return a boolean value indicating if tab was successfully added
+	 */
+	public boolean js_setRightForm(Object form);
 
 	/**
 	 * Set a relationless or related form as right panel.
