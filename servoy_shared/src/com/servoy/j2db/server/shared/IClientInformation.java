@@ -74,7 +74,17 @@ public interface IClientInformation extends com.servoy.j2db.server.IClientInform
 	 */
 	String getUserName();
 
-	Date getClientLoginTime();
+	/**
+	 * Gets the time and date this client logged in.
+	 * 
+	 * @return A Date when the client logged in. If the solution that is running on the client does not require a login, then null is returned.
+	 */
+	Date getLoginTime();
 
-	Date getClientIdleTime();
+	/**
+	 * Gets the time and date since this client has been idle.
+	 * 
+	 * @return A Date representing since when the client is idle. If the solution that is running on the client does not require a login, then null is returned.
+	 */
+	Date getIdleTime();
 }
