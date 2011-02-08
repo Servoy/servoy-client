@@ -200,6 +200,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	private Style oddStyle, evenStyle, selectedStyle;
 
 	private ServoyTableResizeBehavior tableResizeBehavior;
+	private boolean bodySizeHintSetFromClient;
 	private Label loadingInfo; // used to show loading info when rendering is postponed waiting for size info response from browser
 
 	/**
@@ -232,11 +233,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			this.startY = startY;
 			this.endY = endY;
 			this.cellview = cellview;
-		}
-
-		boolean isResponded()
-		{
-			return responded;
 		}
 
 		@SuppressWarnings("nls")
@@ -277,6 +273,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			String sBodyHeightHint = getComponent().getRequest().getParameter("bodyHeight"); //$NON-NLS-1$ 
 			bodyWidthHint = Integer.parseInt(sBodyWidthHint);
 			bodyHeightHint = Integer.parseInt(sBodyHeightHint);
+			bodySizeHintSetFromClient = true;
 
 			int totalDefaultWidth = 0;
 			int totalWidthToStretch = 0;
@@ -1971,7 +1968,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			// delay rendering table view (that can be big) if we
 			// just wait for the size response from the browser
-			canRenderView = tableResizeBehavior.isResponded();
+			canRenderView = bodySizeHintSetFromClient;
 			if (!canRenderView)
 			{
 				// force to get a response from the browser
