@@ -75,8 +75,6 @@ public class Settings extends SortedProperties
 
 	private Settings()
 	{
-		super();
-		put(J2DBGlobals.SERVOY_DIRECTORY_KEY, System.getProperty("user.dir"));
 	}
 
 	public void addPropertyChangeListener(PropertyChangeListener listener, String sProperty)
@@ -374,7 +372,6 @@ public class Settings extends SortedProperties
 
 		//no need to store those
 		Object appServerDir = remove(J2DBGlobals.SERVOY_APPLICATION_SERVER_DIRECTORY_KEY);
-		Object servoyDir = remove(J2DBGlobals.SERVOY_DIRECTORY_KEY);
 
 		removeObsoleteSettings();
 
@@ -383,7 +380,6 @@ public class Settings extends SortedProperties
 		fis.close();
 
 		if (appServerDir != null) put(J2DBGlobals.SERVOY_APPLICATION_SERVER_DIRECTORY_KEY, appServerDir);
-		if (servoyDir != null) put(J2DBGlobals.SERVOY_DIRECTORY_KEY, servoyDir);
 	}
 
 	/**

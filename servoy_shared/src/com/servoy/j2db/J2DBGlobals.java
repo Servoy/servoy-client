@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db;
 
 
@@ -24,20 +24,18 @@ import javax.swing.event.SwingPropertyChangeSupport;
 
 public class J2DBGlobals
 {
-	private static final ThreadLocal serviceproviders = new ThreadLocal();
+	private static final ThreadLocal<IServiceProvider> serviceproviders = new ThreadLocal<IServiceProvider>();
 
-	public static final String SERVOY_DIRECTORY_KEY = "servoy.dir";
-	public static final String SERVOY_APPLICATION_SERVER_DIRECTORY_KEY = "servoy_application_server.dir";
+	public static final String SERVOY_APPLICATION_SERVER_DIRECTORY_KEY = "servoy_application_server.dir"; //$NON-NLS-1$
 
 	public static final String CLIENT_LOCAL_DIR = "/.servoy/"; //$NON-NLS-1$
 
-	private static WeakHashMap changeSupportMap = new WeakHashMap();
+	private static WeakHashMap<Object, SwingPropertyChangeSupport> changeSupportMap = new WeakHashMap<Object, SwingPropertyChangeSupport>();
 	private static IServiceProvider singletonServiceProvider;
 
 	public static void setSingletonServiceProvider(IServiceProvider serviceprovider)
 	{
 		J2DBGlobals.singletonServiceProvider = serviceprovider;
-
 	}
 
 	public static IServiceProvider getSingletonServiceProvider()
@@ -52,7 +50,7 @@ public class J2DBGlobals
 
 	public static IServiceProvider getServiceProvider()
 	{
-		IServiceProvider provider = (IServiceProvider)serviceproviders.get();
+		IServiceProvider provider = serviceproviders.get();
 		if (provider == null)
 		{
 			return singletonServiceProvider;
@@ -84,7 +82,7 @@ public class J2DBGlobals
 	public static void firePropertyChange(Object src, String propertyName, Object oldValue, Object newValue)
 	{
 		if (oldValue == null && newValue == null) return;
-		SwingPropertyChangeSupport changeSupport = (SwingPropertyChangeSupport)changeSupportMap.get(src);
+		SwingPropertyChangeSupport changeSupport = changeSupportMap.get(src);
 		if (changeSupport != null && changeSupport.hasListeners(propertyName))
 		{
 			changeSupport.firePropertyChange(propertyName, oldValue, newValue);
@@ -104,7 +102,7 @@ public class J2DBGlobals
 	 */
 	public static synchronized void addPropertyChangeListener(Object src, PropertyChangeListener listener)
 	{
-		SwingPropertyChangeSupport changeSupport = (SwingPropertyChangeSupport)changeSupportMap.get(src);
+		SwingPropertyChangeSupport changeSupport = changeSupportMap.get(src);
 		if (changeSupport == null)
 		{
 			changeSupport = new SwingPropertyChangeSupport(src);
@@ -129,7 +127,7 @@ public class J2DBGlobals
 		{
 			return;
 		}
-		SwingPropertyChangeSupport changeSupport = (SwingPropertyChangeSupport)changeSupportMap.get(src);
+		SwingPropertyChangeSupport changeSupport = changeSupportMap.get(src);
 		if (changeSupport == null)
 		{
 			changeSupport = new SwingPropertyChangeSupport(src);
@@ -146,7 +144,7 @@ public class J2DBGlobals
 	 */
 	public static synchronized void removePropertyChangeListener(Object src, PropertyChangeListener listener)
 	{
-		SwingPropertyChangeSupport changeSupport = (SwingPropertyChangeSupport)changeSupportMap.get(src);
+		SwingPropertyChangeSupport changeSupport = changeSupportMap.get(src);
 		if (changeSupport != null)
 		{
 			changeSupport.removePropertyChangeListener(listener);
@@ -163,7 +161,6 @@ public class J2DBGlobals
 		changeSupportMap.remove(src);
 	}
 
-
 	/**
 	 * Removes a <code>PropertyChangeListener</code> for a specific property. If listener is <code>null</code>, no exception is thrown and no action is
 	 * performed.
@@ -177,7 +174,7 @@ public class J2DBGlobals
 		{
 			return;
 		}
-		SwingPropertyChangeSupport changeSupport = (SwingPropertyChangeSupport)changeSupportMap.get(src);
+		SwingPropertyChangeSupport changeSupport = changeSupportMap.get(src);
 		if (changeSupport == null)
 		{
 			return;
@@ -188,26 +185,4 @@ public class J2DBGlobals
 			changeSupportMap.remove(changeSupport);
 		}
 	}
-
-	/**
-	 * Returns an array of all the <code>PropertyChangeListener</code>s added to this Component with addPropertyChangeListener().
-	 * 
-	 * @return all of the <code>PropertyChangeListener</code>s added or an empty array if no listeners have been added
-	 * 
-	 * @see #addPropertyChangeListener
-	 * @see #removePropertyChangeListener
-	 * @see #getPropertyChangeListeners(java.lang.String)
-	 * @see java.beans.PropertyChangeSupport#getPropertyChangeListeners public static synchronized PropertyChangeListener[] getPropertyChangeListeners(Object
-	 *      src) { SwingPropertyChangeSupport changeSupport = (SwingPropertyChangeSupport)changeSupportMap.get(src); if (changeSupport == null) { return new
-	 *      PropertyChangeListener[0]; } return changeSupport.getPropertyChangeListeners(); }
-	 */
-
-	/**
-	 * Returns an array of all the listeners which have been associated with the named property.
-	 * 
-	 * @return all of the <code>PropertyChangeListeners</code> associated with the named property or an empty array if no listeners have been added
-	 * @see #getPropertyChangeListeners public static synchronized PropertyChangeListener[] getPropertyChangeListeners(Object src,String propertyName) {
-	 *      SwingPropertyChangeSupport changeSupport = (SwingPropertyChangeSupport)changeSupportMap.get(src); if (changeSupport == null) { return new
-	 *      PropertyChangeListener[0]; } return changeSupport.getPropertyChangeListeners(propertyName); }
-	 */
 }
