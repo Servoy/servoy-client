@@ -40,6 +40,7 @@ import com.servoy.j2db.LAFManager;
 import com.servoy.j2db.scripting.JSWindowImpl;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.UIUtils;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Swing implementation of the JSWindow. It is based on a wrapped awt Window instance.
@@ -50,6 +51,7 @@ public class SwingJSWindowImpl extends JSWindowImpl
 {
 
 	protected Window wrappedWindow = null; // will be null before the JSWindow is first shown or after the JSWindow is destroyed; can be JFrame (in case of main app. frame), FromFrame or FormDialog
+	private boolean createdNewWindow;
 	protected TextToolbar textToolbar;
 
 	public SwingJSWindowImpl(IApplication application, String windowName, int windowType, JSWindowImpl parentWindow)
@@ -468,6 +470,7 @@ public class SwingJSWindowImpl extends JSWindowImpl
 			wrappedWindow = frame = createFormFrame(application, windowName);
 			frame.setResizable(resizable);
 			frame.setMainContainer(container);
+			createdNewWindow = true;
 		}
 		else if (frame.isVisible())
 		{
@@ -519,6 +522,7 @@ public class SwingJSWindowImpl extends JSWindowImpl
 		{
 			wrappedWindow = sfd = createFormDialog(application, parentJSWindow != null ? (Window)parentJSWindow.getWrappedObject() : null, windowModal,
 				windowName);
+			createdNewWindow = true;
 			sfd.setResizable(resizable);
 			sfd.setMainContainer(container);
 			if (reparented)
@@ -600,6 +604,20 @@ public class SwingJSWindowImpl extends JSWindowImpl
 					}
 				}
 			});
+
+			if (createdNewWindow && Utils.getPlatform() == Utils.PLATFORM_LINUX)
+			{
+				createdNewWindow = false;
+				application.invokeLater(new Runnable()
+				{
+					public void run()
+					{
+						// needed to work around a focus issue on Linux, text fields in a tabpanel on a dialog do not get focus.
+						wrappedWindow.setVisible(false);
+						wrappedWindow.setVisible(true);
+					}
+				});
+			}
 
 			// blocks in case of modal dialogs
 			if (oldShow && FormManager.FULL_SCREEN.equals(initialBounds))
