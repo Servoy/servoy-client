@@ -8,6 +8,6 @@ Require-Bundle: org.eclipse.dltk.javascript.rhino,servoy_shared,servoy_smart_cli
 Bundle-Vendor: Servoy
 Export-Package: com.servoy.j2db.server.headlessclient,
  com.servoy.j2db.server.headlessclient.dataui,
- com.servoy.j2db.server.headlessclient.dataui.drag,
+ com.servoy.j2db.server.headlessclient.dnd,
  com.servoy.j2db.server.headlessclient.mask,
  com.servoy.j2db.server.headlessclient.yui
