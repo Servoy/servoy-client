@@ -161,6 +161,11 @@ public class MethodTemplate implements IMethodTemplate
 
 	public String getMethodDeclaration(CharSequence name, CharSequence methodCode)
 	{
+		return getMethodDeclaration(name, methodCode, false);
+	}
+
+	public String getMethodDeclaration(CharSequence name, CharSequence methodCode, boolean outputPrivateTag)
+	{
 		StringBuilder sb = new StringBuilder();
 		if (description != null && description.length() > 0)
 		{
@@ -198,6 +203,11 @@ public class MethodTemplate implements IMethodTemplate
 				sb.append(' ').append(signature.getDescription());
 			}
 			sb.append('\n');
+		}
+		if (outputPrivateTag)
+		{
+			if (sb.length() > 0) sb.append(" *");
+			sb.append("\n * @private\n");
 		}
 		if (sb.length() > 0)
 		{
@@ -277,7 +287,7 @@ public class MethodTemplate implements IMethodTemplate
 		return new MethodTemplate(template.description, template.signature, Utils.arrayMerge(template.args, formalArguments), null, true)
 		{
 			@Override
-			public String getMethodDeclaration(CharSequence name, CharSequence methodCode)
+			public String getMethodDeclaration(CharSequence name, CharSequence methodCode, boolean outputPrivateTag)
 			{
 				CharSequence body;
 				if (methodCode == null)
@@ -304,7 +314,7 @@ public class MethodTemplate implements IMethodTemplate
 				{
 					body = methodCode;
 				}
-				return super.getMethodDeclaration(name, body);
+				return super.getMethodDeclaration(name, body, outputPrivateTag);
 			}
 		};
 	}
