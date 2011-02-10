@@ -672,7 +672,11 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 		{
 			Object o = getValue();
 
-			int index = dataProviderID.lastIndexOf('.');
+			int index = -1;
+			if (!dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+			{
+				index = dataProviderID.lastIndexOf('.');
+			}
 			if (index == -1 || parentState == null)
 			{
 				list.fill(parentState);
