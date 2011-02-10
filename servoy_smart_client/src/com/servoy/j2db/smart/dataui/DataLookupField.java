@@ -404,14 +404,14 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 					@Override
 					public void run()
 					{
-						synchronized (DataLookupField.this)
-						{
-							task = null;
-						}
 						application.invokeLater(new Runnable()
 						{
 							public void run()
 							{
+								synchronized (DataLookupField.this)
+								{
+									task = null;
+								}
 								fillValueListImpl(firstTime);
 							}
 						});
