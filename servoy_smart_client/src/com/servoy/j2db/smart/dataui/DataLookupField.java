@@ -263,19 +263,32 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 		}
 		try
 		{
-			if (e.getID() == KeyEvent.KEY_PRESSED && jlist != null && popup.isVisible())
+			if (e.getID() == KeyEvent.KEY_PRESSED && e.getKeyCode() == KeyEvent.VK_ENTER)
 			{
-				if (e.getKeyCode() == KeyEvent.VK_ENTER)
+				boolean doFill = false;
+				synchronized (this)
 				{
-					commitSelectedValue();
-					super.processKeyEvent(e);
-					if (!eventExecutor.getValidationEnabled())
+					if (task != null)
 					{
-						// consume the enter release key in find mode.
-						consumeEnterReleased = true;
+						task.cancel();
+						task = null;
+						doFill = true;
 					}
 				}
-				else if (e.getKeyCode() == KeyEvent.VK_DOWN)
+				if (doFill) fillValueListImpl(false);
+
+				Object value = getValue();
+				commitSelectedValue();
+				super.processKeyEvent(e);
+				if (!eventExecutor.getValidationEnabled() && !Utils.equalObjects(value, getValue()))
+				{
+					// consume the enter release key in find mode.
+					consumeEnterReleased = true;
+				}
+			}
+			else if (e.getID() == KeyEvent.KEY_PRESSED && jlist != null && popup.isVisible())
+			{
+				if (e.getKeyCode() == KeyEvent.VK_DOWN)
 				{
 					int index = jlist.getSelectedIndex() + 1;
 					if (index < dlm.getSize())
@@ -370,28 +383,42 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 
 	protected void fillValueList(final boolean firstTime)
 	{
-		if (task != null) task.cancel();
+		synchronized (this)
+		{
+			if (task != null)
+			{
+				task.cancel();
+				task = null;
+			}
+		}
 		if (firstTime)
 		{
 			fillValueListImpl(firstTime);
 		}
 		else
 		{
-			task = new TimerTask()
+			synchronized (this)
 			{
-				@Override
-				public void run()
+				task = new TimerTask()
 				{
-					application.invokeLater(new Runnable()
+					@Override
+					public void run()
 					{
-						public void run()
+						synchronized (DataLookupField.this)
 						{
-							fillValueListImpl(firstTime);
+							task = null;
 						}
-					});
-				}
-			};
-			timer.schedule(task, 500);
+						application.invokeLater(new Runnable()
+						{
+							public void run()
+							{
+								fillValueListImpl(firstTime);
+							}
+						});
+					}
+				};
+				timer.schedule(task, 500);
+			}
 		}
 	}
 

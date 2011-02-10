@@ -21,7 +21,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.IRequestTarget;
+import org.apache.wicket.RequestCycle;
 import org.apache.wicket.Session;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AbstractAutoCompleteTextRenderer;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteBehavior;
@@ -278,6 +281,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 	 * @param value
 	 * @return
 	 */
+	@SuppressWarnings("nls")
 	public String mapTrimmedToNotTrimmed(String value)
 	{
 		// Although the value entered by the user should be trimmed, make sure it is so.
@@ -285,17 +289,27 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 		try
 		{
 			// this is the &nbsp character we set for empty value
-			if ("\u00A0".equals(trimmed)) trimmed = ""; //$NON-NLS-1$//$NON-NLS-2$
+			if ("\u00A0".equals(trimmed)) trimmed = "";
 			// Grab all values that start with the value entered by the user.
-			String result = matchValueListValue(trimmed);
+			String result = matchValueListValue(trimmed, false);
 			if (result == null)
 			{
 				dlm.fill(parentState, getDataProviderID(), trimmed, false);
-				result = matchValueListValue(trimmed);
+				result = matchValueListValue(trimmed, false);
 				if (result == null)
 				{
 					dlm.fill(parentState, getDataProviderID(), null, false);
-					result = matchValueListValue(trimmed);
+					// now just try to match it be start with matching instead of equals:
+					result = matchValueListValue(trimmed, true);
+					// if this is found then it is a commit of data of a partial string, make sure that the field is updated with the complete value.
+					if (result != null && !result.equals(trimmed) && RequestCycle.get() != null)
+					{
+						IRequestTarget requestTarget = RequestCycle.get().getRequestTarget();
+						if (requestTarget instanceof AjaxRequestTarget)
+						{
+							((AjaxRequestTarget)requestTarget).appendJavascript("document.getElementById('" + getMarkupId() + "').value='" + result + "'");
+						}
+					}
 				}
 			}
 			// If no match was found then return back the value, otherwise return the found match.
@@ -310,17 +324,24 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 
 	/**
 	 * @param trimmed
+	 * @param startsWidth TODO
 	 * @return
 	 */
-	private String matchValueListValue(String trimmed)
+	private String matchValueListValue(String trimmed, boolean startsWidth)
 	{
 		int size = dlm.getSize();
 		// Find a match in the value list.
 		String result = null;
+		if (startsWidth) trimmed = trimmed.toLowerCase();
 		for (int i = 0; i < size; i++)
 		{
 			String currentValue = dlm.getElementAt(i).toString();
-			if (currentValue.trim().equals(trimmed))
+			if (startsWidth && currentValue.trim().toLowerCase().startsWith(trimmed))
+			{
+				result = currentValue;
+				break;
+			}
+			else if (currentValue.trim().equals(trimmed))
 			{
 				result = currentValue;
 				break;
