@@ -159,7 +159,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 					if (isDisplayable()) popup.show(DataImgMediaField.this, e.getX() - DataImgMediaField.this.getHorizontalScrollBar().getValue(), e.getY() -
 						DataImgMediaField.this.getVerticalScrollBar().getValue());
 				}
-				else if (popup == null || !popup.isVisible())
+				else if ((popup == null || !popup.isVisible()) && isEnabled())
 				{
 					eventExecutor.fireActionCommand(false, DataImgMediaField.this, e.getModifiers(), e.getPoint());
 				}
@@ -924,8 +924,8 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 						if (resolver instanceof DataAdapterList)
 						{
 							((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.FILENAME, file.getName());
-							((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.MIMETYPE,
-								ImageLoader.getContentType(content, file.getName()));
+							((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.MIMETYPE, ImageLoader.getContentType(content,
+								file.getName()));
 						}
 					}
 					catch (Exception e)
