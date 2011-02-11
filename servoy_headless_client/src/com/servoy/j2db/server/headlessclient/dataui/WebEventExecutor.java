@@ -770,7 +770,8 @@ public class WebEventExecutor extends BaseEventExecutor
 
 			if (behaviorComponent instanceof WebDataRenderer)
 			{
-				boolean hasDragEvent = ((WebDataRenderer)behaviorComponent).getDragNDropController().getForm().getOnDragMethodID() > 0;
+				boolean hasDragEvent = ((WebDataRenderer)behaviorComponent).getDragNDropController().getForm().getOnDragMethodID() > 0 ||
+					((WebDataRenderer)behaviorComponent).getDragNDropController().getForm().getOnDragOverMethodID() > 0;
 				boolean hasDropEvent = ((WebDataRenderer)behaviorComponent).getDragNDropController().getForm().getOnDropMethodID() > 0;
 
 				if (component instanceof WebDataRenderer)
@@ -785,7 +786,7 @@ public class WebEventExecutor extends BaseEventExecutor
 						dataRendererChild = dataRendererIte.next();
 						if (dataRendererChild instanceof WebTabPanel || dataRendererChild instanceof WebSplitPane) continue;
 						if (dataRendererChild instanceof WrapperContainer) dataRendererChild = ((WrapperContainer)dataRendererChild).getDelegate();
-						if (dataRendererChild instanceof IComponent)
+						if (dataRendererChild instanceof IComponent && ((IComponent)dataRendererChild).isEnabled())
 						{
 							StringBuilder sb = null;
 							if (hasDragEvent &&
@@ -801,7 +802,7 @@ public class WebEventExecutor extends BaseEventExecutor
 						}
 					}
 				}
-				else
+				else if (component != null && component.isEnabled())
 				{
 					StringBuilder sb = null;
 
@@ -818,7 +819,8 @@ public class WebEventExecutor extends BaseEventExecutor
 			}
 			else
 			{
-				final boolean hasDragEvent = ((WebCellBasedView)behaviorComponent).getDragNDropController().getForm().getOnDragMethodID() > 0;
+				final boolean hasDragEvent = ((WebDataRenderer)behaviorComponent).getDragNDropController().getForm().getOnDragMethodID() > 0 ||
+					((WebDataRenderer)behaviorComponent).getDragNDropController().getForm().getOnDragOverMethodID() > 0;
 				final boolean hasDropEvent = ((WebCellBasedView)behaviorComponent).getDragNDropController().getForm().getOnDropMethodID() > 0;
 
 				if (component instanceof WebCellBasedView)
@@ -831,7 +833,7 @@ public class WebEventExecutor extends BaseEventExecutor
 					{
 						public Object component(Component comp)
 						{
-							if (comp instanceof IComponent)
+							if (comp instanceof IComponent && comp.isEnabled())
 							{
 								StringBuilder sb = null;
 
@@ -850,7 +852,7 @@ public class WebEventExecutor extends BaseEventExecutor
 
 					});
 				}
-				else
+				else if (component != null && component.isEnabled())
 				{
 					StringBuilder sb = null;
 

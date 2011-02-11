@@ -745,7 +745,8 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 	public IComponent getDragSource(Point xy)
 	{
 		Component dragedComp = getComponentAt(xy);
-		if (!this.equals(dragedComp) && dragedComp instanceof IComponent) return (IComponent)dragedComp;
+		if (!this.equals(dragedComp) && dragedComp instanceof IComponent && dragedComp.isEnabled() && !(dragedComp instanceof SpecialTabPanel) &&
+			!(dragedComp instanceof SpecialSplitPane)) return (IComponent)dragedComp;
 
 		return this;
 	}

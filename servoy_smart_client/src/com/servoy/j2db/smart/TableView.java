@@ -1742,7 +1742,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 			CellAdapter column = (CellAdapter)getColumnModel().getColumn(columnNrAtXY);
 			Component renderer = column.getTableCellRendererComponent(this, null, false, false, rowNrAtXY, columnNrAtXY);
 
-			if (renderer instanceof IComponent) return (IComponent)renderer;
+			if (renderer instanceof IComponent && renderer.isEnabled()) return (IComponent)renderer;
 		}
 
 		return this;
