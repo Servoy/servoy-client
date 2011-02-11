@@ -117,12 +117,12 @@ public class TemplateGenerator
 
 					public void run()
 					{
-						long sleepTime = 1 * 60 * 60 * 1000;
+						long sleepTime = 4 * 60 * 60 * 1000;
 						while (true)
 						{
 							try
 							{
-								Thread.sleep(sleepTime); // sleep for 24 hours
+								Thread.sleep(sleepTime); // sleep for 4 hours
 
 								long time = System.currentTimeMillis();
 								Iterator<CacheItem> it = cache.values().iterator();
