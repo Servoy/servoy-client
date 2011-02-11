@@ -28,6 +28,7 @@ import com.servoy.j2db.dataprocessing.CustomValueList.DisplayString;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.query.AbstractBaseQuery;
@@ -305,13 +306,16 @@ public class LookupListModel extends AbstractListModel
 
 		String txt = (filter == null || firstTime) ? "" : filter.toLowerCase(); //$NON-NLS-1$
 
-		int index = dataProviderID.lastIndexOf('.');
-		if (index != -1 && realState != null)
+		if (dataProviderID != null && !dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
 		{
-			IFoundSetInternal relatedFoundSet = realState.getRelatedFoundSet(dataProviderID.substring(0, index));
-			if (relatedFoundSet != null && relatedFoundSet.getSize() != 0)
+			int index = dataProviderID.lastIndexOf('.');
+			if (index != -1 && realState != null)
 			{
-				realState = relatedFoundSet.getRecord(relatedFoundSet.getSelectedIndex());
+				IFoundSetInternal relatedFoundSet = realState.getRelatedFoundSet(dataProviderID.substring(0, index));
+				if (relatedFoundSet != null && relatedFoundSet.getSize() != 0)
+				{
+					realState = relatedFoundSet.getRecord(relatedFoundSet.getSelectedIndex());
+				}
 			}
 		}
 		if (lookup instanceof GlobalMethodValueList)

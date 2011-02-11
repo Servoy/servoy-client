@@ -36,6 +36,7 @@ import com.servoy.j2db.dataprocessing.IModificationListener;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.ModificationEvent;
+import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.util.editlist.IEditListModel;
 
 /**
@@ -193,7 +194,7 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 	 */
 	public void setDataProviderID(String dataProviderID)
 	{
-		int index = dataProviderID == null ? -1 : dataProviderID.lastIndexOf('.');
+		int index = (dataProviderID == null || dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX)) ? -1 : dataProviderID.lastIndexOf('.');
 		if (index != -1)
 		{
 			this.relatedFoundsetLookup = dataProviderID.substring(0, index);
