@@ -194,8 +194,7 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 	 */
 	public void setDataProviderID(String dataProviderID)
 	{
-		if (dataProviderID != null && dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX)) return;
-		int index = dataProviderID == null ? -1 : dataProviderID.lastIndexOf('.');
+		int index = (dataProviderID == null || dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX)) ? -1 : dataProviderID.lastIndexOf('.');
 		if (index != -1)
 		{
 			this.relatedFoundsetLookup = dataProviderID.substring(0, index);
