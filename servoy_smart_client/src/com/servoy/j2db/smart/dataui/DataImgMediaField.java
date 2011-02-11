@@ -279,6 +279,11 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 		this.useAsync = useAsync;
 	}
 
+	private boolean isAsyncLoading()
+	{
+		return useAsync && !Utils.getAsBoolean(application.getRuntimeProperties().get("isPrinting")); //$NON-NLS-1$
+	}
+
 	protected ITagResolver resolver;
 
 	public void setTagResolver(ITagResolver resolver)
@@ -321,7 +326,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 
 			if (obj instanceof byte[] || (obj instanceof String && !editState))
 			{
-				if (useAsync && application.getModeManager().getMode() == IModeManager.EDIT_MODE)
+				if (isAsyncLoading() && application.getModeManager().getMode() == IModeManager.EDIT_MODE)
 				{
 					enclosedComponent.setIconDirect((Icon)null, enclosedComponent.getNextSeq());//clear previous image
 					enclosedComponent.setText(application.getI18NMessage("servoy.imageMedia.loadingImage"));//show loading text //$NON-NLS-1$
@@ -348,7 +353,8 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 								enclosedComponent.setText(null);
 							}
 						}
-						if (!useAsync || (application.getModeManager().getMode() != IModeManager.EDIT_MODE) || Utils.equalObjects(tmp, getValueObject()))
+						if (!isAsyncLoading() || (application.getModeManager().getMode() != IModeManager.EDIT_MODE) ||
+							Utils.equalObjects(tmp, getValueObject()))
 						{
 							enclosedComponent.setIconDirect(icon, seq);
 						}
@@ -359,7 +365,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 					}
 				};
 
-				if (useAsync && application.getModeManager().getMode() == IModeManager.EDIT_MODE)
+				if (isAsyncLoading() && application.getModeManager().getMode() == IModeManager.EDIT_MODE)
 				{
 					application.getScheduledExecutor().execute(action);
 				}
