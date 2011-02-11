@@ -28,6 +28,7 @@ import javax.swing.border.Border;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.FormManager.History;
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.ui.IComponent;
@@ -40,6 +41,12 @@ import com.servoy.j2db.ui.IComponent;
 public class DummyMainContainer implements IMainContainer
 {
 	private FormController f;
+	private final IApplication application;
+
+	public DummyMainContainer(IApplication application)
+	{
+		this.application = application;
+	}
 
 	public void showSolutionLoading(boolean b)
 	{
@@ -229,7 +236,7 @@ public class DummyMainContainer implements IMainContainer
 	{
 		if (history == null)
 		{
-			history = new FormManager.History(f.getApplication(), this);
+			history = new FormManager.History(application, this);
 		}
 		return history;
 	}

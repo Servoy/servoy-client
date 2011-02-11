@@ -153,7 +153,7 @@ public class DebugHeadlessClient extends SessionClient implements IDebugHeadless
 	@Override
 	protected IFormManager createFormManager()
 	{
-		DebugWebFormManager fm = new DebugWebFormManager(this, new DummyMainContainer());
+		DebugWebFormManager fm = new DebugWebFormManager(this, new DummyMainContainer(this));
 		return fm;
 	}
 

@@ -529,7 +529,7 @@ public class SessionClient extends ClientState implements ISessionClient
 	@Override
 	protected IFormManager createFormManager()
 	{
-		WebFormManager fm = new WebFormManager(this, new DummyMainContainer());
+		WebFormManager fm = new WebFormManager(this, new DummyMainContainer(this));
 		return fm;
 	}
 
