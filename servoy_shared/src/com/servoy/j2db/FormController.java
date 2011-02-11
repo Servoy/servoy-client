@@ -4123,46 +4123,49 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		Scriptable thisObject = null;
 		if (src instanceof IComponent)
 		{
-
-			ElementScope es = (ElementScope)formScope.get("elements", formScope); //$NON-NLS-1$
-			String name = ((IComponent)src).getName();
-			if (name != null && name.length() != 0)
+			Object esObj = formScope.get("elements", formScope); //$NON-NLS-1$
+			if (esObj != Scriptable.NOT_FOUND)
 			{
-				Object o = es.get(name, es);
-				if (o instanceof Scriptable)
+				ElementScope es = (ElementScope)esObj;
+				String name = ((IComponent)src).getName();
+				if (name != null && name.length() != 0)
 				{
-					thisObject = (Scriptable)o;
-				}
-			}
-
-			if (thisObject == null)
-			{
-				if (name == null || name.length() == 0)
-				{
-					name = ComponentFactory.WEB_ID_PREFIX + System.currentTimeMillis();
-					// Check Web components always have a name! Because name can't be set 
-					((IComponent)src).setName(name);
-				}
-				Context.enter();
-				InstanceJavaMembers ijm = new InstanceJavaMembers(formScope, src.getClass());
-				JavaMembers jm = ijm;
-				if (ijm.getFieldIds(false).size() == 0 && ijm.getMethodIds(false).size() == 0)
-				{
-					jm = new JavaMembers(formScope, src.getClass())
+					Object o = es.get(name, es);
+					if (o instanceof Scriptable)
 					{
-						@Override
-						protected boolean shouldDeleteGetAndSetMethods()
-						{
-							return true;
-						}
-					};
+						thisObject = (Scriptable)o;
+					}
 				}
-				thisObject = new NativeJavaObject(formScope, src, jm);
 
-				es.setLocked(false);
-				es.put(name, es, thisObject);
-				es.setLocked(true);
-				Context.exit();
+				if (thisObject == null)
+				{
+					if (name == null || name.length() == 0)
+					{
+						name = ComponentFactory.WEB_ID_PREFIX + System.currentTimeMillis();
+						// Check Web components always have a name! Because name can't be set 
+						((IComponent)src).setName(name);
+					}
+					Context.enter();
+					InstanceJavaMembers ijm = new InstanceJavaMembers(formScope, src.getClass());
+					JavaMembers jm = ijm;
+					if (ijm.getFieldIds(false).size() == 0 && ijm.getMethodIds(false).size() == 0)
+					{
+						jm = new JavaMembers(formScope, src.getClass())
+						{
+							@Override
+							protected boolean shouldDeleteGetAndSetMethods()
+							{
+								return true;
+							}
+						};
+					}
+					thisObject = new NativeJavaObject(formScope, src, jm);
+
+					es.setLocked(false);
+					es.put(name, es, thisObject);
+					es.setLocked(true);
+					Context.exit();
+				}
 			}
 		}
 		if (src == null && useFormAsEventSourceEventually) src = formScope;
