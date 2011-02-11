@@ -177,6 +177,8 @@ public abstract class AbstractScriptProvider extends AbstractBase implements ISc
 		if (methodCode != null && declaration == null)
 		{
 			declaration = MethodTemplate.getTemplate(getClass(), null).getMethodDeclaration(getName(), methodCode);
+			setTypedProperty(StaticContentSpecLoader.PROPERTY_DECLARATION, declaration);
+			clearProperty(StaticContentSpecLoader.PROPERTY_METHODCODE.getPropertyName());
 		}
 		return declaration;
 	}
