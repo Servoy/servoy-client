@@ -37,6 +37,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.IServiceProvider;
@@ -604,7 +605,11 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				// else this can just cascade through..
 				return null;
 			}
-			array[i] = columns[i].getAsRightType(state.getValue(dataProviderID));
+			Object value = state.getValue(dataProviderID);
+			if (value != Scriptable.NOT_FOUND)
+			{
+				array[i] = columns[i].getAsRightType(value);
+			}
 			if (array[i] != null)
 			{
 				isNull = false;
