@@ -2018,7 +2018,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				int firstSelectedIndex = 0;
 				if (currentData != null)
 				{
-					selectedIndexes = getSelectedIndexes();
 					firstSelectedIndex = currentData.getSelectedIndex();
 				}
 
@@ -3261,8 +3260,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	public void renderHead(HtmlHeaderContainer container)
 	{
 		super.renderHead(container);
-
+		selectedIndexes = null;
 		String rowSelectionScript = getRowSelectionScript();
+		updateRowComponentsRenderState(null);
 		if (rowSelectionScript != null) container.getHeaderResponse().renderOnDomReadyJavascript(rowSelectionScript);
 		String columnResizeScript = getColumnResizeScript();
 		if (columnResizeScript != null) container.getHeaderResponse().renderOnDomReadyJavascript(columnResizeScript);
@@ -3349,12 +3349,15 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	private List<Integer> getIndexToUpdate()
 	{
-		if (currentData == null || selectedIndexes == null) return null;
+		if (currentData == null) return null;
 
 		List<Integer> indexesToUpdate = new ArrayList<Integer>();
 		List<Integer> oldSelectedIndexes = new ArrayList<Integer>();
-		for (int oldSelected : selectedIndexes)
-			oldSelectedIndexes.add(new Integer(oldSelected));
+		if (selectedIndexes != null)
+		{
+			for (int oldSelected : selectedIndexes)
+				oldSelectedIndexes.add(new Integer(oldSelected));
+		}
 
 		int[] newSelectedIndexes = getSelectedIndexes();
 		for (int sel : newSelectedIndexes)

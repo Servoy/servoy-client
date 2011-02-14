@@ -817,10 +817,10 @@ public class WebEventExecutor extends BaseEventExecutor
 					}
 				}
 			}
-			else
+			else if (behaviorComponent instanceof WebCellBasedView)
 			{
-				final boolean hasDragEvent = ((WebDataRenderer)behaviorComponent).getDragNDropController().getForm().getOnDragMethodID() > 0 ||
-					((WebDataRenderer)behaviorComponent).getDragNDropController().getForm().getOnDragOverMethodID() > 0;
+				final boolean hasDragEvent = ((WebCellBasedView)behaviorComponent).getDragNDropController().getForm().getOnDragMethodID() > 0 ||
+					((WebCellBasedView)behaviorComponent).getDragNDropController().getForm().getOnDragOverMethodID() > 0;
 				final boolean hasDropEvent = ((WebCellBasedView)behaviorComponent).getDragNDropController().getForm().getOnDropMethodID() > 0;
 
 				if (component instanceof WebCellBasedView)
