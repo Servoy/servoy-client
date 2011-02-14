@@ -159,7 +159,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		return copy;
 	}
 
-	@SuppressWarnings({ "unchecked", "nls" })
+	@SuppressWarnings( { "unchecked", "nls" })
 	public <T extends AbstractBase> T clonePersist(T persist, String newName, ISupportChilds newParent)
 	{
 		T clone = (T)persist.clonePersist();
@@ -1589,6 +1589,10 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	public ScriptMethod getScriptMethod(String methodName)
 	{
+		if (methodName != null && methodName.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+		{
+			methodName = methodName.toString().substring(ScriptVariable.GLOBAL_DOT_PREFIX.length());
+		}
 		if (scriptMethodCacheByName == null)
 		{
 			scriptMethodCacheByName = new HashMap<String, ScriptMethod>();
@@ -1686,8 +1690,8 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	public Iterator<Form> getForms(ITable basedOnTable, boolean sort)
 	{
-		return Solution.getForms(getAllObjectsAsList(),
-			basedOnTable == null ? null : DataSourceUtils.createDBTableDataSource(basedOnTable.getServerName(), basedOnTable.getName()), sort);
+		return Solution.getForms(getAllObjectsAsList(), basedOnTable == null ? null : DataSourceUtils.createDBTableDataSource(basedOnTable.getServerName(),
+			basedOnTable.getName()), sort);
 	}
 
 	public Iterator<Form> getForms(String datasource, boolean sort)

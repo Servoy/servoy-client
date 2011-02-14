@@ -54,4 +54,13 @@ public class ScriptMethod extends AbstractScriptProvider implements IPersistClon
 	{
 		return "ScriptMethod[name:" + getName() + ", inmenu:" + getShowInMenu() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
+
+	public String getPrefixedName()
+	{
+		if (getParent() instanceof Solution)
+		{
+			return ScriptVariable.GLOBAL_DOT_PREFIX + getName();
+		}
+		return getName();
+	}
 }
