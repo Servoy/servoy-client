@@ -39,4 +39,13 @@ public interface IFormElement extends ISupportBounds, ISupportName, ISupportUpda
 
 
 	public void setName(String name);
+
+	public boolean getVisible();
+
+	public void setVisible(boolean arg);
+
+	public boolean getEnabled();
+
+	public void setEnabled(boolean arg);
+
 }

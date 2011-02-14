@@ -145,6 +145,49 @@ public class FormElementGroup implements ISupportBounds, ISupportName
 	}
 
 
+	/**
+	 * If at least 1 element is visible, the group is visible.
+	 */
+	public boolean getVisible()
+	{
+		Iterator<IFormElement> elements = getElements();
+		while (elements.hasNext())
+		{
+			if (elements.next().getVisible())
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public void setVisible(@SuppressWarnings("unused") boolean arg)
+	{
+		// ignore, visible should only be set via FormElementGroupPropertySource
+	}
+
+	/**
+	 * If at least 1 element is enabled, the group is enabled.
+	 */
+	public boolean getEnabled()
+	{
+		Iterator<IFormElement> elements = getElements();
+		while (elements.hasNext())
+		{
+			if (elements.next().getEnabled())
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public void setEnabled(@SuppressWarnings("unused") boolean arg)
+	{
+		// ignore, enabled should only be set via FormElementGroupPropertySource
+	}
+
+
 	public IFormElement getElement(int n)
 	{
 		Iterator<IFormElement> elements = getElements();
