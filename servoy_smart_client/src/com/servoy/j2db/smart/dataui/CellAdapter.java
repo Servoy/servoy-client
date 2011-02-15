@@ -375,7 +375,8 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 	 */
 	public Component getTableCellEditorComponent(JTable jtable, Object value, boolean isSelected, int row, int column)
 	{
-		Component cellEditorComp = getTableCellEditorComponentEx(jtable, value, isSelected, row, column);
+		boolean[] isBgColorSet = new boolean[] { false };
+		Component cellEditorComp = getTableCellEditorComponentEx(jtable, value, isSelected, row, column, isBgColorSet);
 		if (cellEditorComp instanceof ISupportOnRenderCallback)
 		{
 			RenderEventExecutor renderEventExecutor = ((ISupportOnRenderCallback)cellEditorComp).getRenderEventExecutor();
@@ -385,12 +386,13 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				IRecordInternal record = foundset != null ? foundset.getRecord(row) : null;
 				renderEventExecutor.setRenderState(record, row, isSelected);
 				renderEventExecutor.setUseDefaultTransparent(false);
+				renderEventExecutor.setUseDefaultBackground(!isBgColorSet[0]);
 			}
 		}
 		return cellEditorComp;
 	}
 
-	private Component getTableCellEditorComponentEx(JTable jtable, Object value, boolean isSelected, int row, int column)
+	private Component getTableCellEditorComponentEx(JTable jtable, Object value, boolean isSelected, int row, int column, boolean[] isBgColorSet)
 	{
 		if (editor == null || !editor.isVisible() || !(jtable.getModel() instanceof IFoundSetInternal))
 		{
@@ -401,6 +403,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		final ISwingFoundSet foundset = (ISwingFoundSet)jtable.getModel();
 
 		Color bgColor = getBgColor(jtable, isSelected, row, foundset, newRec, true);
+		if (bgColor != null && isBgColorSet != null && isBgColorSet.length > 0) isBgColorSet[0] = true;
 
 		if (isSelected)
 		{
@@ -473,7 +476,8 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 
 	public Component getTableCellRendererComponent(JTable jtable, Object value, boolean isSelected, boolean hasFocus, final int row, final int column)
 	{
-		Component cellRendererComp = getTableCellRendererComponentEx(jtable, value, isSelected, hasFocus, row, column);
+		boolean[] isBgColorSet = new boolean[] { false };
+		Component cellRendererComp = getTableCellRendererComponentEx(jtable, value, isSelected, hasFocus, row, column, isBgColorSet);
 		if (cellRendererComp instanceof ISupportOnRenderCallback)
 		{
 			RenderEventExecutor renderEventExecutor = ((ISupportOnRenderCallback)cellRendererComp).getRenderEventExecutor();
@@ -483,12 +487,14 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				IRecordInternal record = foundset != null ? foundset.getRecord(row) : null;
 				renderEventExecutor.setRenderState(record, row, isSelected);
 				renderEventExecutor.setUseDefaultTransparent(false);
+				renderEventExecutor.setUseDefaultBackground(!isBgColorSet[0]);
 			}
 		}
 		return cellRendererComp;
 	}
 
-	private Component getTableCellRendererComponentEx(JTable jtable, Object value, boolean isSelected, boolean hasFocus, final int row, final int column)
+	private Component getTableCellRendererComponentEx(JTable jtable, Object value, boolean isSelected, boolean hasFocus, final int row, final int column,
+		boolean[] isBgColorSet)
 	{
 		if (renderer == null || !renderer.isVisible() || !(jtable.getModel() instanceof IFoundSetInternal))
 		{
@@ -517,6 +523,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		}
 
 		Color bgColor = getBgColor(jtable, isSelected, row, foundset, state, false);
+		if (bgColor != null && isBgColorSet != null && isBgColorSet.length > 0) isBgColorSet[0] = true;
 
 		if (isSelected)
 		{

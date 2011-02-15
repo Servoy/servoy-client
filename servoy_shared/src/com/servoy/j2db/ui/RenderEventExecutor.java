@@ -72,6 +72,7 @@ public class RenderEventExecutor implements IRenderEventExecutor
 	protected boolean renderDefaultVisible;
 
 	private boolean useDefaultTransparent = true;
+	private boolean useDefaultBackround = true;
 
 	public void saveDefaultRenderProperties(ISupportOnRenderCallback display)
 	{
@@ -95,9 +96,19 @@ public class RenderEventExecutor implements IRenderEventExecutor
 		return useDefaultTransparent;
 	}
 
+	public void setUseDefaultBackground(boolean useDefaultBackround)
+	{
+		this.useDefaultBackround = useDefaultBackround;
+	}
+
+	public boolean isUseDefaultBackground()
+	{
+		return useDefaultBackround;
+	}
+
 	protected void setDefaultRenderProperties(ISupportOnRenderCallback display)
 	{
-		display.setBackground(renderDefaultBgColor);
+		if (isUseDefaultBackground()) display.setBackground(renderDefaultBgColor);
 		display.setBorder(renderDefaultBorder);
 		display.setComponentEnabled(renderDefaultEnabled);
 		display.setForeground(renderDefaultFgColor);
