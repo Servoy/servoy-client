@@ -93,20 +93,22 @@ public class JSDNDEvent extends JSEvent
 	}
 
 	/**
-	 * Returns the event data mime type.
+	 * The event data mime type.
 	 * 
-	 * @return event data mime type
+	 * @sample
+	 * // only accept drag if data is a servoy record 
+	 * function onDragOver(event)
+	 * {
+	 *		if(event.dataMimeType.indexOf("application/x-servoy-record-object") == 0) return true;
+	 *		else return false;
+	 * } 
 	 */
 	public String js_getDataMimeType()
 	{
 		return dataMimeType;
 	}
 
-	/**
-	 * Sets the event data mime type.
-	 * 
-	 * @param mimeType event data mime type
-	 */
+
 	public void js_setDataMimeType(String mimeType)
 	{
 		dataMimeType = mimeType;
@@ -114,7 +116,7 @@ public class JSDNDEvent extends JSEvent
 
 	/**
 	 * Returns the event data mime type.
-	 * 
+	
 	 * @return event data mime type
 	 */
 	public String getDataMimeType()
