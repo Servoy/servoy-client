@@ -193,6 +193,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	private boolean bodySizeHintSetFromClient;
 	private Label loadingInfo; // used to show loading info when rendering is postponed waiting for size info response from browser\
 	private String lastRenderedPath;
+	private boolean isAnchored;
 
 	/**
 	 * @author jcompagner
@@ -1008,10 +1009,15 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			setRowBGColorScript(p.getRowBGColorCalculation(), p.getInstanceMethodArguments("rowBGColorCalculation")); //$NON-NLS-1$
 			sortable = p.getSortable();
 			initialSortString = p.getInitialSort();
+
+			int portalAnchors = p.getAnchors();
+			isAnchored = (((portalAnchors & IAnchorConstants.NORTH) > 0) && ((portalAnchors & IAnchorConstants.SOUTH) > 0)) ||
+				(((portalAnchors & IAnchorConstants.EAST) > 0) && ((portalAnchors & IAnchorConstants.WEST) > 0));
 		}
 		else if (cellview instanceof Form)
 		{
 			initialSortString = form.getInitialSort();
+			isAnchored = true;
 		}
 		initDragNDrop(fc, startY);
 
@@ -1898,7 +1904,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 
 		boolean canRenderView = true;
-		if (tableResizeBehavior != null)
+
+		if (tableResizeBehavior != null && isAnchored)
 		{
 			if (!getPath().equals(lastRenderedPath))
 			{
