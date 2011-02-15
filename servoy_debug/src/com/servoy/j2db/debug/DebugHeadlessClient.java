@@ -324,6 +324,11 @@ public class DebugHeadlessClient extends SessionClient implements IDebugHeadless
 		}
 	}
 
+	@Override
+	public boolean isInDeveloper()
+	{
+		return true;
+	}
 
 	/**
 	 * @param form
