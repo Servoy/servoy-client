@@ -31,9 +31,9 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.StringTokenizer;
-import java.util.Map.Entry;
 
 import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
@@ -191,7 +191,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	private ServoyTableResizeBehavior tableResizeBehavior;
 	private boolean bodySizeHintSetFromClient;
-	private Label loadingInfo; // used to show loading info when rendering is postponed waiting for size info response from browser
+	private Label loadingInfo; // used to show loading info when rendering is postponed waiting for size info response from browser\
+	private String lastRenderedPath;
 
 	/**
 	 * @author jcompagner
@@ -995,8 +996,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}));
 		if (cellview instanceof BaseComponent)
 		{
-			ComponentFactory.applyBasicComponentProperties(application, this, (BaseComponent)cellview, ComponentFactory.getStyleForBasicComponent(application,
-				(BaseComponent)cellview, form));
+			ComponentFactory.applyBasicComponentProperties(application, this, (BaseComponent)cellview,
+				ComponentFactory.getStyleForBasicComponent(application, (BaseComponent)cellview, form));
 		}
 
 		boolean sortable = true;
@@ -1225,8 +1226,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				relationName = relName;
 				if (r != null)
 				{
-					defaultSort = ((FoundSetManager)application.getFoundSetManager()).getSortColumns(application.getFoundSetManager().getTable(
-						r.getForeignDataSource()), ((Portal)cellview).getInitialSort());
+					defaultSort = ((FoundSetManager)application.getFoundSetManager()).getSortColumns(
+						application.getFoundSetManager().getTable(r.getForeignDataSource()), ((Portal)cellview).getInitialSort());
 				}
 			}
 			else
@@ -1889,12 +1890,24 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	@Override
 	protected void onBeforeRender()
 	{
+		WebTabPanel tabPanel = findParent(WebTabPanel.class);
+		Dimension tabSize = null;
+		if (tabPanel != null)
+		{
+			tabSize = tabPanel.getTabSize();
+		}
+
 		boolean canRenderView = true;
 		if (tableResizeBehavior != null)
 		{
+			if (!getPath().equals(lastRenderedPath))
+			{
+				bodySizeHintSetFromClient = false;
+				lastRenderedPath = getPath();
+			}
 			// delay rendering table view (that can be big) if we
 			// just wait for the size response from the browser
-			canRenderView = bodySizeHintSetFromClient;
+			canRenderView = bodySizeHintSetFromClient || tabSize != null;
 			if (!canRenderView)
 			{
 				// force to get a response from the browser
@@ -1909,10 +1922,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		if (canRenderView)
 		{
-			WebTabPanel tabPanel = findParent(WebTabPanel.class);
 			if (tabPanel != null)
 			{
-				Dimension tabSize = tabPanel.getTabSize();
 				if (tabSize != null)
 				{
 					bodyHeightHint = (int)tabSize.getHeight();
