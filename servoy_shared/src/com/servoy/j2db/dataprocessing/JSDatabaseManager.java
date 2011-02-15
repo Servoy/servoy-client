@@ -908,11 +908,22 @@ public class JSDatabaseManager
 	 *  application.output('Table:'+tableSQLName+' in server:'+jstable.getServerName()+' failed to save.')
 	 * }
 	 * 
+	 * @param foundset optional return failed records in the foundset only.
+	 * 
 	 * @return Array of failed JSRecords
 	 */
 	public IRecordInternal[] js_getFailedRecords()
 	{
 		return application.getFoundSetManager().getEditRecordList().getFailedRecords();
+	}
+
+	public IRecordInternal[] js_getFailedRecords(Object foundset)
+	{
+		if (foundset instanceof IFoundSetInternal)
+		{
+			return application.getFoundSetManager().getEditRecordList().getFailedRecords((IFoundSetInternal)foundset);
+		}
+		return null;
 	}
 
 	/**
@@ -946,11 +957,22 @@ public class JSDatabaseManager
 	 * //in most cases you will want to set autoSave back on now
 	 * databaseManager.setAutoSave(true);
 	 * 
+	 * @param foundset optional return edited records in the foundset only.
+	 * 
 	 * @return Array of outstanding/unsaved JSRecords.
 	 */
 	public IRecordInternal[] js_getEditedRecords()
 	{
 		return application.getFoundSetManager().getEditRecordList().getEditedRecords();
+	}
+
+	public IRecordInternal[] js_getEditedRecords(Object foundset)
+	{
+		if (foundset instanceof IFoundSetInternal)
+		{
+			return application.getFoundSetManager().getEditRecordList().getEditedRecords((IFoundSetInternal)foundset);
+		}
+		return null;
 	}
 
 	/**
