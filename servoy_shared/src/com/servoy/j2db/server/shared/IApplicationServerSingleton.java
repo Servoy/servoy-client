@@ -89,6 +89,8 @@ public interface IApplicationServerSingleton
 
 	boolean checkRuntimeLicense(String companyName, String license);
 
+	boolean hasDeveloperLicense();
+
 	String checkDefaultServoyAuthorisation(Object userName, Object password);
 
 	long getStartTime();
