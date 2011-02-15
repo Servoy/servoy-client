@@ -47,7 +47,7 @@ public class YUILoader implements Serializable
 	public static final JavascriptResourceReference JS_DOM_DEBUG = new JavascriptResourceReference(YUILoader.class, "dom-debug.js"); //$NON-NLS-1$
 	public static final JavascriptResourceReference JS_EVENT_DEBUG = new JavascriptResourceReference(YUILoader.class, "event-debug.js"); //$NON-NLS-1$
 	public static final JavascriptResourceReference JS_DRAGDROP_DEBUG = new JavascriptResourceReference(YUILoader.class, "dragdrop-debug.js"); //$NON-NLS-1$
-	public static final JavascriptResourceReference JS_RESIZE_DEBUG = new JavascriptResourceReference(YUILoader.class, "resize-debug-patched270.js"); //$NON-NLS-1$
+	public static final JavascriptResourceReference JS_RESIZE_DEBUG = new JavascriptResourceReference(YUILoader.class, "resize-debug-patched.js"); //$NON-NLS-1$
 
 	private YUILoader()
 	{

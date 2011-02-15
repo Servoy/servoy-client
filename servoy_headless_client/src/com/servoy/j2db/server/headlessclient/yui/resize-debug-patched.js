@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2009, Yahoo! Inc. All rights reserved.
+Copyright (c) 2010, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
-http://developer.yahoo.net/yui/license.txt
-version: 2.7.0
+http://developer.yahoo.com/yui/license.html
+version: 2.8.2r1
 */
 /**
  * @description <p>Makes an element resizable</p>
@@ -236,12 +236,8 @@ var D = YAHOO.util.Dom,
                 YAHOO.log('Creating the Proxy Element', 'info', 'Resize');
                 this._proxy = document.createElement('div');
                 this._proxy.className = this.CSS_PROXY;
-                this._proxy.style.height = this.get('height') + 'px';
-                this._proxy.style.width = this.get('width') + 'px';
-                var wrapPadding = this.get('wrapPadding');
-                if (wrapPadding)
-                  D.setStyle(this._proxy, 'padding', wrapPadding);
-                
+                this._proxy.style.height = this.get('element').clientHeight + 'px';
+                this._proxy.style.width = this.get('element').clientWidth + 'px';
                 this._wrap.parentNode.appendChild(this._proxy);
             } else {
                 YAHOO.log('No proxy element, turn off animate config option', 'info', 'Resize');
@@ -277,9 +273,6 @@ var D = YAHOO.util.Dom,
                 if (this.get('element').tagName.toLowerCase() == 'textarea') {
                     D.addClass(this._wrap, 'yui-resize-textarea');
                 }
-                var wrapPadding = this.get('wrapPadding');
-                if (wrapPadding)
-                  D.setStyle(this._wrap, 'padding', wrapPadding);
                 D.setStyle(this._wrap, 'width', this.get('width') + 'px');
                 D.setStyle(this._wrap, 'height', this.get('height') + 'px');
                 D.setStyle(this._wrap, 'z-index', this.getStyle('z-index'));
@@ -499,8 +492,8 @@ var D = YAHOO.util.Dom,
                     YAHOO.log('Activate proxy element', 'info', 'Resize');
                     this._proxy.style.visibility = 'visible';
                     this._proxy.style.zIndex = '1000';
-                    this._proxy.style.height = this.get('height')+ 'px';
-                    this._proxy.style.width = this.get('width') + 'px';
+                    this._proxy.style.height = this.get('element').clientHeight + 'px';
+                    this._proxy.style.width = this.get('element').clientWidth + 'px';
                 }
 
                 for (var i in this._handles) {
@@ -545,8 +538,8 @@ var D = YAHOO.util.Dom,
             YAHOO.log('Setting up property cache', 'info', 'Resize');
             this._cache.xy = D.getXY(this._wrap);
             D.setXY(this._wrap, this._cache.xy);
-            this._cache.height = this.get('height');
-            this._cache.width = this.get('width');
+            this._cache.height = this.get('clientHeight');
+            this._cache.width = this.get('clientWidth');
             this._cache.start.height = this._cache.height;
             this._cache.start.width = this._cache.width;
             this._cache.start.top = this._cache.xy[1];
@@ -1188,15 +1181,6 @@ var D = YAHOO.util.Dom,
                 y = Event.getPageY(ev),
                 nh = (y - xy);
 
-				if (this._proxy)
-				{
-				 	var bottom = this._proxy.style.paddingBottom;
-				 	var index = bottom.indexOf("px");
-				 	if (index != -1)
-				 	{
-						nh -= parseInt(bottom.substring(0,index));
-					} 
-				}
                 if (flip) {
                     nh = (xy - y) + parseInt(this.get('height'), 10);
                 }
@@ -1449,16 +1433,6 @@ var D = YAHOO.util.Dom,
             this.setAttributeConfig('minWidth', {
                 value: attr.minWidth || 15,
                 validator: YAHOO.lang.isNumber
-            });
-
-            /**
-            * @attribute minWidth
-            * @description The minimum width of the element
-            * @type Number
-            */
-            this.setAttributeConfig('wrapPadding', {
-                value: attr.wrapPadding || 15,
-                validator: YAHOO.lang.isString
             });
 
             /**
@@ -1775,4 +1749,4 @@ var D = YAHOO.util.Dom,
 
 })();
 
-YAHOO.register("resize", YAHOO.util.Resize, {version: "2.7.0", build: "1799"});
+YAHOO.register("resize", YAHOO.util.Resize, {version: "2.8.2r1", build: "7"}); 
