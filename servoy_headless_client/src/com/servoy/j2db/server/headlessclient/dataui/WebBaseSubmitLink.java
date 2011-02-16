@@ -54,6 +54,7 @@ import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.component.ComponentFactory;
+import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.server.headlessclient.ByteArrayResource;
@@ -1217,7 +1218,15 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IScriptHtml
 		{
 			padding = ((CompoundBorder)border).getInsideBorder().getBorderInsets(null);
 		}
-		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, fillAllSpace(), fillAllSpace(), padding));
+
+		String instrumentedBodyText = WebBaseButton.instrumentBodyText(bodyText, halign, valign, fillAllSpace(), fillAllSpace(), padding);
+		// for vertical centering we need a table wrapper to have the possible <img> in the content centered
+		if (valign == ISupportTextSetup.CENTER && instrumentedBodyText.toLowerCase().indexOf("<img ") != -1) //$NON-NLS-1$
+		{
+			instrumentedBodyText = (new StringBuffer(
+				"<table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" height=\"100%\"><tr><td style=\"vertical-align:middle;\">").append(instrumentedBodyText).append("</td></tr></table>")).toString(); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		replaceComponentTagBody(markupStream, openTag, instrumentedBodyText);
 	}
 
 	protected boolean fillAllSpace()
