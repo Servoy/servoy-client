@@ -908,8 +908,6 @@ public class JSDatabaseManager
 	 *  application.output('Table:'+tableSQLName+' in server:'+jstable.getServerName()+' failed to save.')
 	 * }
 	 * 
-	 * @param foundset optional return failed records in the foundset only.
-	 * 
 	 * @return Array of failed JSRecords
 	 */
 	public IRecordInternal[] js_getFailedRecords()
@@ -917,13 +915,34 @@ public class JSDatabaseManager
 		return application.getFoundSetManager().getEditRecordList().getFailedRecords();
 	}
 
-	public IRecordInternal[] js_getFailedRecords(Object foundset)
+	/**
+	 * Returns an array of records that fail after a save. 
+	 *
+	 * @sample
+	 * var array = databaseManager.getFailedRecords(foundset)
+	 * for( var i = 0 ; i < array.length ; i++ )
+	 * {
+	 * 	var record = array[i];
+	 * 	application.output(record.exception);
+	 * 	if (record.exception.getErrorCode() == ServoyException.RECORD_VALIDATION_FAILED)
+	 * 	{
+	 * 		// exception thrown in pre-insert/update/delete event method
+	 * 		var thrown = record.exception.getValue()
+	 * 		application.output("Record validation failed: "+thrown)
+	 * 	}
+	 *  // find out the table of the record (similar to getEditedRecords)
+	 *  var jstable = databaseManager.getTable(record);
+	 *  var tableSQLName = jstable.getSQLName();
+	 *  application.output('Table:'+tableSQLName+' in server:'+jstable.getServerName()+' failed to save.')
+	 * }
+	 * 
+	 * @param foundset return failed records in the foundset only.
+	 * 
+	 * @return Array of failed JSRecords
+	 */
+	public IRecordInternal[] js_getFailedRecords(IFoundSetInternal foundset)
 	{
-		if (foundset instanceof IFoundSetInternal)
-		{
-			return application.getFoundSetManager().getEditRecordList().getFailedRecords((IFoundSetInternal)foundset);
-		}
-		return null;
+		return application.getFoundSetManager().getEditRecordList().getFailedRecords(foundset);
 	}
 
 	/**
@@ -957,8 +976,6 @@ public class JSDatabaseManager
 	 * //in most cases you will want to set autoSave back on now
 	 * databaseManager.setAutoSave(true);
 	 * 
-	 * @param foundset optional return edited records in the foundset only.
-	 * 
 	 * @return Array of outstanding/unsaved JSRecords.
 	 */
 	public IRecordInternal[] js_getEditedRecords()
@@ -966,13 +983,44 @@ public class JSDatabaseManager
 		return application.getFoundSetManager().getEditRecordList().getEditedRecords();
 	}
 
-	public IRecordInternal[] js_getEditedRecords(Object foundset)
+	/**
+	 * Returns an array of edited records with outstanding (unsaved) data. 
+	 * 
+	 * NOTE: To return a dataset of outstanding (unsaved) edited data for each record, see JSRecord.getChangedData();
+	 * NOTE2: The fields focus may be lost in user interface in order to determine the edits. 
+	 * 
+	 * @sample
+	 * //This method can be used to loop through all outstanding changes in a foundset,
+	 * //the application.output line contains all the changed data, their tablename and primary key
+	 * var editr = databaseManager.getEditedRecords(foundset)
+	 * for (x=0;x<editr.length;x++)
+	 * {
+	 * 	var ds = editr[x].getChangedData();
+	 * 	var jstable = databaseManager.getTable(editr[x]);
+	 * 	var tableSQLName = jstable.getSQLName();
+	 * 	var pkrec = jstable.getRowIdentifierColumnNames().join(',');
+	 * 	var pkvals = new Array();
+	 * 	for (var j = 0; j < jstable.getRowIdentifierColumnNames().length; j++)
+	 * 	{
+	 * 		pkvals[j] = editr[x][jstable.getRowIdentifierColumnNames()[j]];
+	 * 	}
+	 * 	application.output('Table: '+tableSQLName +', PKs: '+ pkvals.join(',') +' ('+pkrec +')');
+	 * 	// Get a dataset with outstanding changes on a record
+	 * 	for( var i = 1 ; i <= ds.getMaxRowIndex() ; i++ )
+	 * 	{
+	 * 		application.output('Column: '+ ds.getValue(i,1) +', oldValue: '+ ds.getValue(i,2) +', newValue: '+ ds.getValue(i,3));
+	 * 	}
+	 * }
+	 * databaseManager.saveData(foundset);//save all records from foundset
+	 * 
+	 * @param foundset return edited records in the foundset only.
+	 * 
+	 * @return Array of outstanding/unsaved JSRecords.
+	 */
+
+	public IRecordInternal[] js_getEditedRecords(IFoundSetInternal foundset)
 	{
-		if (foundset instanceof IFoundSetInternal)
-		{
-			return application.getFoundSetManager().getEditRecordList().getEditedRecords((IFoundSetInternal)foundset);
-		}
-		return null;
+		return application.getFoundSetManager().getEditRecordList().getEditedRecords(foundset);
 	}
 
 	/**
