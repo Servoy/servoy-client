@@ -92,7 +92,6 @@ public class DebugHeadlessClient extends SessionClient implements IDebugHeadless
 			}
 			else if (isDeleted)
 			{
-				List<String> lst = new ArrayList<String>();
 				Iterator<Entry<String, Form>> iterator = possibleForms.entrySet().iterator();
 				while (iterator.hasNext())
 				{
@@ -194,10 +193,10 @@ public class DebugHeadlessClient extends SessionClient implements IDebugHeadless
 	private void performRefresh(List<IPersist> changes)
 	{
 
-		List[] scopesAndFormsToReload = DebugUtils.getScopesAndFormsToReload(this, changes);
+		List<FormController>[] scopesAndFormsToReload = DebugUtils.getScopesAndFormsToReload(this, changes);
 
 		refreshI18NMessages();
-		for (FormController controller : (List<FormController>)scopesAndFormsToReload[0])
+		for (FormController controller : scopesAndFormsToReload[0])
 		{
 			if (controller.getForm() instanceof FlattenedForm)
 			{
@@ -207,7 +206,7 @@ public class DebugHeadlessClient extends SessionClient implements IDebugHeadless
 			controller.getFormScope().reload();
 		}
 
-		if (scopesAndFormsToReload[1].size() > 0) ((WebFormManager)getFormManager()).reload(((List<FormController>)scopesAndFormsToReload[1]).toArray(new FormController[0]));
+		if (scopesAndFormsToReload[1].size() > 0) ((WebFormManager)getFormManager()).reload((scopesAndFormsToReload[1]).toArray(new FormController[0]));
 	}
 
 	public void refreshForI18NChange()
@@ -249,21 +248,14 @@ public class DebugHeadlessClient extends SessionClient implements IDebugHeadless
 	public void output(Object msg, int level)
 	{
 		super.output(msg, level);
-		if (msg == null)
+		DBGPDebugger debugger = getDebugger();
+		if (debugger != null)
 		{
-			msg = "<null>";
+			debugger.outputStdOut((msg == null ? "<null>" : msg.toString()) + '\n'); //$NON-NLS-1$
 		}
-		if (msg != null)
+		else
 		{
-			DBGPDebugger debugger = getDebugger();
-			if (debugger != null)
-			{
-				debugger.outputStdOut(msg.toString() + "\n");
-			}
-			else
-			{
-				Debug.error("No debugger found, for msg report: " + msg);
-			}
+			Debug.error("No debugger found, for msg report: " + msg); //$NON-NLS-1$
 		}
 	}
 
@@ -325,36 +317,26 @@ public class DebugHeadlessClient extends SessionClient implements IDebugHeadless
 			else if (detail instanceof Exception)
 			{
 				Object e = ((Exception)detail).getCause();
-				if (e != null)
-				{
-					detail = e;
-				}
-				msg += "\n > " + detail.toString(); // complete stack?
+				msg += "\n > " + ((e == null ? detail : e).toString()); // complete stack? //$NON-NLS-1$
 			}
 			else if (detail != null)
 			{
-				msg += "\n" + detail;
+				msg = msg + '\n' + detail;
 			}
-			debugger.outputStdErr(msg.toString() + "\n"); //$NON-NLS-1$
+			debugger.outputStdErr(msg.toString() + '\n');
 		}
 		else
 		{
-			Debug.error("No debugger found, for error report: " + message);
+			Debug.error("No debugger found, for error report: " + message); //$NON-NLS-1$
 		}
 	}
 
-	@Override
-	public boolean isInDeveloper()
-	{
-		return true;
-	}
-
 	/**
-	 * @param form
+	 * @param f
 	 */
-	public void show(Form form)
+	public void show(Form f)
 	{
-		this.form = form;
+		this.form = f;
 	}
 
 	/**

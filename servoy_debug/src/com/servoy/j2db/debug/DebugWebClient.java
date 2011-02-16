@@ -344,12 +344,6 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 		this.form = f;
 	}
 
-	@Override
-	public boolean isInDeveloper()
-	{
-		return true;
-	}
-
 	public boolean checkForChanges()
 	{
 		if (getClientInfo() == null) return false;

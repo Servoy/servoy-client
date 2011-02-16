@@ -37,9 +37,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -463,12 +463,6 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	protected void attachAppleMenu(Map<String, Action> atns)
 	{
 		// dont attach anything
-	}
-
-	@Override
-	public boolean isInDeveloper()
-	{
-		return true;
 	}
 
 	/**

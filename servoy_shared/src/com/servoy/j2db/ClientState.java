@@ -56,6 +56,7 @@ import com.servoy.j2db.plugins.IPluginManagerInternal;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.StartupArgumentsScope;
+import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.server.shared.IApplicationServerAccess;
 import com.servoy.j2db.server.shared.IClientManager;
@@ -415,9 +416,9 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		}
 		catch (RepositoryException e)
 		{
-			Debug.error("Could not load solution " + (solutionMetaData == null ? "<none>" : solutionMetaData.getName()), e);
-			reportError(Messages.getString("servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>"
-				: solutionMetaData.getName() }), e);
+			Debug.error("Could not load solution " + (solutionMetaData == null ? "<none>" : solutionMetaData.getName()), e); //$NON-NLS-1$ //$NON-NLS-2$
+			reportError(
+				Messages.getString("servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>" : solutionMetaData.getName() }), e); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
@@ -1205,8 +1206,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 						function,
 						gscope,
 						gscope,
-						Utils.arrayMerge((new Object[] { new Boolean(force) }), Utils.parseJSExpressions(getSolution().getInstanceMethodArguments(
-							"onCloseMethodID"))), false, false)); //$NON-NLS-1$
+						Utils.arrayMerge((new Object[] { new Boolean(force) }),
+							Utils.parseJSExpressions(getSolution().getInstanceMethodArguments("onCloseMethodID"))), false, false)); //$NON-NLS-1$
 				}
 				catch (Exception e1)
 				{
@@ -1249,12 +1250,12 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		J2DBGlobals.removeAllPropertyChangeListeners(modeManager);
 	}
 
-	private void writeObject(ObjectOutputStream stream) throws IOException
+	private void writeObject(@SuppressWarnings("unused") ObjectOutputStream stream) throws IOException
 	{
 		//serialize is not implemented
 	}
 
-	private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException
+	private void readObject(@SuppressWarnings("unused") ObjectInputStream stream) throws IOException, ClassNotFoundException
 	{
 		//serialize is not implemented
 	}
@@ -1573,16 +1574,16 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		return retval;
 	}
 
-	public boolean isInDeveloper()
+	public final boolean isInDeveloper()
 	{
-		return false;
+		return ApplicationServerSingleton.get() != null && ApplicationServerSingleton.get().isDeveloperStartup();
 	}
 
 	public abstract void blockGUI(String reason);
 
 	public abstract void releaseGUI();
 
-	public void invokeLater(Runnable r, boolean immediate)
+	public void invokeLater(Runnable r, @SuppressWarnings("unused") boolean immediate)
 	{
 		invokeLater(r);
 	}
