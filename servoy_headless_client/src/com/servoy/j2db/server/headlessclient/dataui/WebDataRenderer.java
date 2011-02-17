@@ -587,6 +587,11 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 		return getDataAdapterList().getFormController().getName();
 	}
 
+	public boolean isGridView()
+	{
+		return false;
+	}
+
 	public IRecordInternal getDragRecord(Point xy)
 	{
 		return getDataAdapterList().getState();

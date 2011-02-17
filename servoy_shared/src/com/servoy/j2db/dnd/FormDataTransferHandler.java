@@ -19,6 +19,7 @@ package com.servoy.j2db.dnd;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Point;
+import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDragEvent;
 
 import javax.swing.TransferHandler;
@@ -119,7 +120,15 @@ public class FormDataTransferHandler extends CompositeTransferHandler
 					return visibleComponent == newDragSource;
 				}
 			}
-			else return false;
+			else
+			{
+				Object s = e.getSource();
+				if (s instanceof DropTarget)
+				{
+					Component dtc = ((DropTarget)s).getComponent();
+					if (dtc instanceof IFormDataDragNDrop) return ((IFormDataDragNDrop)dtc).isGridView();
+				}
+			}
 		}
 
 		return super.canReplaceDragSource(currentDragSource, newDragSource, e);

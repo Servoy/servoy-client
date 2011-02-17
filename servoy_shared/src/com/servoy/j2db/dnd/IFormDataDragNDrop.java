@@ -34,4 +34,6 @@ public interface IFormDataDragNDrop extends ICompositeDragNDrop
 	public String getDragFormName();
 
 	public IRecordInternal getDragRecord(Point xy);
+
+	public boolean isGridView();
 }

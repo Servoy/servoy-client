@@ -1063,10 +1063,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			sortable = p.getSortable();
 			initialSortString = p.getInitialSort();
 			onRenderMethodID = p.getOnRenderMethodID();
-			
+
 			int portalAnchors = p.getAnchors();
 			isAnchored = (((portalAnchors & IAnchorConstants.NORTH) > 0) && ((portalAnchors & IAnchorConstants.SOUTH) > 0)) ||
-				(((portalAnchors & IAnchorConstants.EAST) > 0) && ((portalAnchors & IAnchorConstants.WEST) > 0));			
+				(((portalAnchors & IAnchorConstants.EAST) > 0) && ((portalAnchors & IAnchorConstants.WEST) > 0));
 		}
 		else if (cellview instanceof Form)
 		{
@@ -3119,6 +3119,11 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	public String getDragFormName()
 	{
 		return getDataAdapterList().getFormController().getName();
+	}
+
+	public boolean isGridView()
+	{
+		return true;
 	}
 
 	public IRecordInternal getDragRecord(Point xy)

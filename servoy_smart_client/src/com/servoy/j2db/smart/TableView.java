@@ -1753,6 +1753,11 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 		return fc.getName();
 	}
 
+	public boolean isGridView()
+	{
+		return true;
+	}
+
 	public IRecordInternal getDragRecord(Point xy)
 	{
 		int rowNrAtXY = rowAtPoint(xy);
