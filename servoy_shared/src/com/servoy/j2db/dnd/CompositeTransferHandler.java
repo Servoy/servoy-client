@@ -344,7 +344,14 @@ public class CompositeTransferHandler extends TransferHandler implements DropTar
 		if (c instanceof ICompositeDragNDrop)
 		{
 			ICompositeDragNDrop dropComponent = (ICompositeDragNDrop)c;
-			lastDragSource = dropComponent.getDragSource(getEventXY(e));
+			Object newDragSource = dropComponent.getDragSource(getEventXY(e));
+			if (!canReplaceDragSource(lastDragSource, newDragSource, e))
+			{
+				e.rejectDrag();
+				dropTargetDragEvent = null;
+				return; // dragSource did not changed
+			}
+			lastDragSource = newDragSource;
 			lastDragRecord = c instanceof IFormDataDragNDrop ? ((IFormDataDragNDrop)dropComponent).getDragRecord(getEventXY(e)) : null; //TODO: move this code out
 		}
 		TransferHandler importer = c.getTransferHandler();
@@ -465,5 +472,18 @@ public class CompositeTransferHandler extends TransferHandler implements DropTar
 			e.rejectDrag();
 		}
 		dropTargetDragEvent = null;
+	}
+
+	/**
+	 *  Called during dragStart to check if the current drag source can be replaced by the new one
+	 * 
+	 * @param currentDragSource the current drag source
+	 * @param newDragSource the new drag source
+	 * @param e the drag event
+	 * @return true if the new drag source can replace the current drag source
+	 */
+	protected boolean canReplaceDragSource(Object currentDragSource, Object newDragSource, DropTargetDragEvent e)
+	{
+		return true;
 	}
 }

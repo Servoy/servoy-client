@@ -16,7 +16,10 @@
  */
 package com.servoy.j2db.dnd;
 
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Point;
+import java.awt.dnd.DropTargetDragEvent;
 
 import javax.swing.TransferHandler;
 
@@ -83,5 +86,42 @@ public class FormDataTransferHandler extends CompositeTransferHandler
 		}
 
 		return jsEvent;
+	}
+
+	@Override
+	protected boolean canReplaceDragSource(Object currentDragSource, Object newDragSource, DropTargetDragEvent e)
+	{
+		if (currentDragSource instanceof Component && newDragSource instanceof Component)
+		{
+			if (currentDragSource != newDragSource)
+			{
+				// check if the oldLastDragSource is hidding the newDragSource
+				Component cCurrentDragSource = (Component)currentDragSource;
+				Component cNewDragSource = (Component)newDragSource;
+
+				Point xy = getEventXY(e);
+				Container currentDsParent = cCurrentDragSource.getParent();
+				Container newDsParent = cNewDragSource.getParent();
+				boolean isCompositeParentFound = cNewDragSource instanceof ICompositeDragNDrop;
+
+				while (newDsParent != null && newDsParent != currentDsParent)
+				{
+					if (isCompositeParentFound) xy.translate(cNewDragSource.getX(), cNewDragSource.getY());
+					else isCompositeParentFound = newDsParent instanceof ICompositeDragNDrop;
+					cNewDragSource = newDsParent;
+					newDsParent = cNewDragSource.getParent();
+				}
+				if (isCompositeParentFound) xy.translate(cNewDragSource.getX(), cNewDragSource.getY());
+
+				if (newDsParent != null && newDsParent == currentDsParent)
+				{
+					Component visibleComponent = newDsParent.findComponentAt(xy);
+					return visibleComponent == newDragSource;
+				}
+			}
+			else return false;
+		}
+
+		return super.canReplaceDragSource(currentDragSource, newDragSource, e);
 	}
 }
