@@ -1171,7 +1171,7 @@ public class JSSolutionModel
 	 * @param left_width left width of empty border in pixels
 	 * 
 	 */
-	public String js_createBorder(int top_width, int right_width, int bottom_width, int left_width)
+	public String js_createEmptyBorder(int top_width, int right_width, int bottom_width, int left_width)
 	{
 		Border border = BorderFactory.createEmptyBorder(top_width, left_width, bottom_width, right_width);
 		return ComponentFactoryHelper.createBorderString(border);
@@ -1189,7 +1189,7 @@ public class JSSolutionModel
 	 * @param shadow_color bevel border shadow color
 	 * 
 	 */
-	public String js_createBorder(int bevel_type, String highlight_color, String shadow_color)
+	public String js_createEtchedBorder(int bevel_type, String highlight_color, String shadow_color)
 	{
 		Border border = null;
 		if (highlight_color != null && shadow_color != null)
@@ -1216,7 +1216,7 @@ public class JSSolutionModel
 	 * @param shadow_outer_color bevel border shadow outer color
 	 * @param shadow_inner_color bevel border shadow outer color
 	 */
-	public String js_createBorder(int bevel_type, String highlight_outer_color, String highlight_inner_color, String shadow_outer_color,
+	public String js_createBevelBorder(int bevel_type, String highlight_outer_color, String highlight_inner_color, String shadow_outer_color,
 		String shadow_inner_color)
 	{
 		Border border = null;
@@ -1244,7 +1244,7 @@ public class JSSolutionModel
 	 * @param color color of the line border
 	 * 
 	 */
-	public String js_createBorder(int thick, String color)
+	public String js_createLineBorder(int thick, String color)
 	{
 		Border border = BorderFactory.createLineBorder(PersistHelper.createColor(color), thick);
 		return ComponentFactoryHelper.createBorderString(border);
@@ -1264,7 +1264,7 @@ public class JSSolutionModel
 	 * @param title_position bevel title text position
 	 * 
 	 */
-	public String js_createBorder(String title_text, String font, String color, int title_justification, int title_position)
+	public String js_createTitledBorder(String title_text, String font, String color, int title_justification, int title_position)
 	{
 		TitledBorder border = BorderFactory.createTitledBorder(title_text);
 		border.setTitleJustification(title_justification);
@@ -1288,7 +1288,7 @@ public class JSSolutionModel
 	 * @param color border color
 	 * 
 	 */
-	public String js_createBorder(int top_width, int right_width, int bottom_width, int left_width, String color)
+	public String js_createMatteBorder(int top_width, int right_width, int bottom_width, int left_width, String color)
 	{
 		Border border = BorderFactory.createMatteBorder(top_width, left_width, bottom_width, right_width, PersistHelper.createColor(color));
 		return ComponentFactoryHelper.createBorderString(border);
@@ -1315,8 +1315,8 @@ public class JSSolutionModel
 	 * @param rounding_radius width of the arc to round the corners
 	 * @param dash_pattern the dash pattern of border stroke
 	 */
-	public String js_createBorder(int top_width, int right_width, int bottom_width, int left_width, String top_color, String right_color, String bottom_color,
-		String left_color, float rounding_radius, float[] dash_pattern)
+	public String js_createSpecialMatteBorder(int top_width, int right_width, int bottom_width, int left_width, String top_color, String right_color,
+		String bottom_color, String left_color, float rounding_radius, float[] dash_pattern)
 	{
 		SpecialMatteBorder border = new SpecialMatteBorder(top_width, left_width, bottom_width, right_width, PersistHelper.createColor(top_color),
 			PersistHelper.createColor(right_color), PersistHelper.createColor(bottom_color), PersistHelper.createColor(left_color));
