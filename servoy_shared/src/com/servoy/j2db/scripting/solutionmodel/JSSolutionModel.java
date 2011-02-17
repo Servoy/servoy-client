@@ -1163,7 +1163,7 @@ public class JSSolutionModel
 	 * 
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
-	 * form.borderType = solutionModel.createBorder(1,1,1,1);
+	 * form.borderType = solutionModel.createEmptyBorder(1,1,1,1);
 	 *  
 	 * @param top_width top width of empty border in pixels
 	 * @param right_width right width of empty border in pixels
@@ -1182,7 +1182,7 @@ public class JSSolutionModel
 	 * 
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
-	 * form.borderType = solutionModel.createBorder(SM_BEVELTYPE.RAISED,'#ff0000','#00ff00');
+	 * form.borderType = solutionModel.createEtchedBorder(SM_BEVELTYPE.RAISED,'#ff0000','#00ff00');
 	 * 
 	 * @param bevel_type bevel border type
 	 * @param highlight_color bevel border highlight color
@@ -1208,7 +1208,7 @@ public class JSSolutionModel
 	 * 
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
-	 * form.borderType = solutionModel.createBorder(SM_BEVELTYPE.RAISED,'#ff0000','#00ff00','#ff0000','#00ff00');
+	 * form.borderType = solutionModel.createBevelBorder(SM_BEVELTYPE.RAISED,'#ff0000','#00ff00','#ff0000','#00ff00');
 	 * 
 	 * @param bevel_type bevel border type (SM_BEVELTYPE.RAISED or SM_BEVELTYPE.LOWERED)
 	 * @param highlight_outer_color bevel border highlight outer color
@@ -1238,7 +1238,7 @@ public class JSSolutionModel
 	 * 
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
-	 * form.borderType = solutionModel.createBorder(1,'#ff0000');
+	 * form.borderType = solutionModel.createLineBorder(1,'#ff0000');
 	 *  
 	 * @param thick border thickness in pixels
 	 * @param color color of the line border
@@ -1255,7 +1255,7 @@ public class JSSolutionModel
 	 * 
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
-	 * form.borderType = solutionModel.createBorder('Test',solutionModel.createFont('Arial',SM_FONTSTYLE.PLAIN,10),'#ff0000',SM_TITLEJUSTIFICATION.CENTER,SM_TITLEPOSITION.TOP);
+	 * form.borderType = solutionModel.createTitledBorder('Test',solutionModel.createFont('Arial',SM_FONTSTYLE.PLAIN,10),'#ff0000',SM_TITLEJUSTIFICATION.CENTER,SM_TITLEPOSITION.TOP);
 	 * 
 	 * @param title_text the text from border
 	 * @param font title text font string
@@ -1279,7 +1279,7 @@ public class JSSolutionModel
 	 * 
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
-	 * form.borderType = solutionModel.createBorder(1,1,1,1,"#00ff00");
+	 * form.borderType = solutionModel.createMatteBorder(1,1,1,1,"#00ff00");
 	 *  
 	 * @param top_width top width of matte border in pixels
 	 * @param right_width right width of matte border in pixels
@@ -1300,9 +1300,9 @@ public class JSSolutionModel
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
 	 * // create a rectangle border (no rounded corners) and continous line
-	 * form.borderType = solutionModel.createBorder(1,1,1,1,"#00ff00","#00ff00","#00ff00","#00ff00",0,null);
+	 * form.borderType = solutionModel.createSpecialMatteBorder(1,1,1,1,"#00ff00","#00ff00","#00ff00","#00ff00",0,null);
 	 * // create a border with rounded corners and dashed line (25 pixels drawn, then 25 pixels skipped)
-	 * // form.borderType = solutionModel.createBorder(1,1,1,1,"#00ff00","#00ff00","#00ff00","#00ff00",10,new Array(25,25));
+	 * // form.borderType = solutionModel.createSpecialMatteBorder(1,1,1,1,"#00ff00","#00ff00","#00ff00","#00ff00",10,new Array(25,25));
 	 * 
 	 * @param top_width top width of matte border in pixels
 	 * @param right_width right width of matte border in pixels
