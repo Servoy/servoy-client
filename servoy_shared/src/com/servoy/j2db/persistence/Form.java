@@ -583,11 +583,11 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	}
 
 	/**
-	 * Get the all the fields on a form sorted by taborder.
+	 * Get the all the tab seq elements on a form sorted by taborder.
 	 * 
 	 * @return the fields
 	 */
-	public Iterator<ISupportTabSeq> getFieldsByTabOrder()
+	public Iterator<ISupportTabSeq> getTabSeqElementsByTabOrder()
 	{
 		SortedList<ISupportTabSeq> sl = new SortedList<ISupportTabSeq>(TabSeqComparator.INSTANCE);
 		Iterator<Field> fields = getFields();
