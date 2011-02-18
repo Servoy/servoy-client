@@ -46,7 +46,13 @@ public class ConsumeEnterAttributeModifier extends ServoyActionEventBehavior
 	@Override
 	protected void onUpdate(AjaxRequestTarget target)
 	{
-		eventExecutor.onEvent(EventType.none, target, getComponent(), Utils.getAsInteger(RequestCycle.get().getRequest().getParameter(
-			IEventExecutor.MODIFIERS_PARAMETER)));
+		eventExecutor.onEvent(EventType.none, target, getComponent(),
+			Utils.getAsInteger(RequestCycle.get().getRequest().getParameter(IEventExecutor.MODIFIERS_PARAMETER)));
+	}
+
+	@Override
+	protected boolean getUpdateModel()
+	{
+		return false;
 	}
 }
