@@ -1049,7 +1049,7 @@ public class ComponentFactory
 		return vl;
 	}
 
-	public static String[] getFieldFormat(Field field, IDataProviderLookup dataProviderLookup, IServiceProvider application)
+	public static Pair<String, Integer> getFieldFormat(Field field, IDataProviderLookup dataProviderLookup, IServiceProvider application)
 	{
 		String format = null;
 		int type = IColumnTypes.TEXT;
@@ -1108,9 +1108,8 @@ public class ComponentFactory
 									}
 									catch (IOException e)
 									{
-										Debug.error(
-											"Exception loading properties for converter " + converter.getName() + ", properties: " +
-												ci.getConverterProperties(), e);
+										Debug.error("Exception loading properties for converter " + converter.getName() + ", properties: " +
+											ci.getConverterProperties(), e);
 									}
 								}
 							}
@@ -1134,7 +1133,7 @@ public class ComponentFactory
 				Debug.error(e);
 			}
 		}
-		return new String[] { format, new Integer(type).toString() };
+		return new Pair<String, Integer>(format, type);
 	}
 
 	private static IComponent createField(IApplication application, Form form, Field field, IDataProviderLookup dataProviderLookup, IScriptExecuter el,
@@ -1142,9 +1141,9 @@ public class ComponentFactory
 	{
 		ValueList valuelist = null;
 		if (field.getValuelistID() > 0) valuelist = getValueList(application, field, dataProviderLookup);
-		String[] fieldFormat = getFieldFormat(field, dataProviderLookup, application);
-		String format = fieldFormat[0];
-		int type = Integer.parseInt(fieldFormat[1]);
+		Pair<String, Integer> fieldFormat = getFieldFormat(field, dataProviderLookup, application);
+		String format = fieldFormat.getLeft();
+		int type = fieldFormat.getRight();
 
 		IDataProvider dp = null;
 		if (field.getDataProviderID() != null && dataProviderLookup != null)

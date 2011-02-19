@@ -40,8 +40,8 @@ import javax.swing.border.Border;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.html.CSS;
 
-import org.apache.wicket.Component.IVisitor;
 import org.apache.wicket.ResourceReference;
+import org.apache.wicket.Component.IVisitor;
 
 import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
@@ -2113,10 +2113,10 @@ public class TemplateGenerator
 				ValueList valuelist = null;
 				if (field.getValuelistID() > 0 && sp != null)
 				{
-					String[] fieldFormat = ComponentFactory.getFieldFormat(field,
-						sp.getFlattenedSolution().getDataproviderLookup(sp.getFoundSetManager(), form), sp);
+					Pair<String, Integer> fieldFormat = ComponentFactory.getFieldFormat(field, sp.getFlattenedSolution().getDataproviderLookup(
+						sp.getFoundSetManager(), form), sp);
 					valuelist = sp.getFlattenedSolution().getValueList(field.getValuelistID());
-					if (valuelist != null) val = ComponentFactory.getRealValueList(sp, valuelist, true, Integer.parseInt(fieldFormat[1]), fieldFormat[0],
+					if (valuelist != null) val = ComponentFactory.getRealValueList(sp, valuelist, true, fieldFormat.getRight(), fieldFormat.getLeft(),
 						field.getDataProviderID());
 				}
 				boolean addSingle = ComponentFactory.isSingleValue(valuelist, val);
