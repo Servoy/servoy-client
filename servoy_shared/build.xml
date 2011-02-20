@@ -16,6 +16,7 @@
 	<property name="javacVerbose" value="false"/>
 	<property name="logExtension" value=".log"/>
 	<property name="compilerArg" value=""/>
+	<property name="compilation.prereq.log" value="${buildDirectory}/prereqErrors.log"/>
 	<condition property="dir_bootclasspath" value="${java.home}/../Classes">
 		<os family="mac"/>
 	</condition>
@@ -54,7 +55,7 @@
 		<condition property="compilation.problem.marker.exists" value="true"		>
 			<and>
 			<available file="${compilation.problem.marker}"/>
-			<isfalse value="p2.publishonerror"/>
+			<isfalse value="${p2.publishonerror}"/>
 			</and>
 		</condition>
 	</target>
@@ -80,69 +81,69 @@
 		<mkdir dir="${build.result.folder}/@dot"/>
 		<path id="@dot.classpath">
 			<pathelement path="../org.eclipse.dltk.javascript.rhino/bin/"/>
-			
+			<pathelement path="${build.result.folder}/../org.eclipse.dltk.javascript.rhino_6.0.0.1203/bin/"/>
 			<pathelement path="${build.result.folder}/../org.eclipse.dltk.javascript.rhino/@dot"/>
-			
+			<pathelement path="${build.result.folder}/../org.eclipse.dltk.javascript.rhino_6.0.0.1203/@dot"/>
 			<pathelement path="lib/annotations-1.0.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1203/lib/annotations-1.0.jar"/>
 			<pathelement path="lib/BrowserLauncher2.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1203/lib/BrowserLauncher2.jar"/>
 			<pathelement path="lib/commons-codec.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1203/lib/commons-codec.jar"/>
 			<pathelement path="lib/commons-collections.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1203/lib/commons-collections.jar"/>
 			<pathelement path="lib/commons-dbcp.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1203/lib/commons-dbcp.jar"/>
 			<pathelement path="lib/commons-httpclient.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1203/lib/commons-httpclient.jar"/>
 			<pathelement path="lib/commons-io.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1203/lib/commons-io.jar"/>
 			<pathelement path="lib/commons-logging.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1203/lib/commons-logging.jar"/>
 			<pathelement path="lib/dom4j.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1203/lib/dom4j.jar"/>
 			<pathelement path="lib/jabsorb.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1203/lib/jabsorb.jar"/>
 			<pathelement path="lib/log4j.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1203/lib/log4j.jar"/>
 			<pathelement path="lib/servlet-api.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1203/lib/servlet-api.jar"/>
 			<pathelement path="lib/slf4j-api.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1203/lib/slf4j-api.jar"/>
 			<pathelement path="lib/slf4j-log4j.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1203/lib/slf4j-log4j.jar"/>
 			<pathelement path="lib/wicket-calendar.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1203/lib/wicket-calendar.jar"/>
 			<pathelement path="lib/wicket-extentions.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1203/lib/wicket-extentions.jar"/>
 			<pathelement path="lib/wicket.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1203/lib/wicket.jar"/>
 			<pathelement path="lib/commons-pool.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1203/lib/commons-pool.jar"/>
 			<pathelement path="lib/activation.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1203/lib/activation.jar"/>
 			<pathelement path="lib/mail.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1203/lib/mail.jar"/>
 			<pathelement path="lib/httpclient.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1203/lib/httpclient.jar"/>
 			<pathelement path="lib/httpcore.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1203/lib/httpcore.jar"/>
 			<pathelement path="lib/jcifs.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1203/lib/jcifs.jar"/>
 			<pathelement path="lib/slf4j-jdk14.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1203/lib/slf4j-jdk14.jar"/>
 			<pathelement path="lib/apache-mime4j.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1203/lib/apache-mime4j.jar"/>
 			<pathelement path="lib/httpmime.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1203/lib/httpmime.jar"/>
 		</path>
 		<!-- compile the source code -->
 		<javac destdir="${build.result.folder}/@dot" failonerror="${javacFailOnError}" verbose="${javacVerbose}" debug="${javacDebugInfo}" includeAntRuntime="no" bootclasspath="${bundleBootClasspath}" source="${bundleJavacSource}" target="${bundleJavacTarget}"		>
 			<compilerarg line="${compilerArg}" compiler="${build.compiler}"/>
 			<classpath refid="@dot.classpath" />
 			<src path="src/"			/>
-			<compilerarg value="@${basedir}/javaCompiler...args" compiler="org.eclipse.jdt.core.JDTCompilerAdapter"/>
-			<compilerarg line="-log '${build.result.folder}/@dot${logExtension}'" compiler="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+			<compilerarg value="@${basedir}/javaCompiler...args" compiler="org.eclipse.jdt.core.JDTCompilerAdapter"			/>
+			<compilerarg line="-log &apos;${build.result.folder}/@dot${logExtension}&apos;" compiler="org.eclipse.jdt.core.JDTCompilerAdapter"			/>
 		</javac>
 		<antcall target="checkCompilationResults"/>
 		<!-- Copy necessary resources -->
@@ -180,7 +181,11 @@
 	</target>
 
 	<target name="checkCompilationResults" if="compilation.error.occured">
-		<echo file="${compilation.problem.marker}" message="servoy_shared : compilation.error.occured=${compilation.error.occured}"/>
+		<echo file="${compilation.problem.marker}" message="servoy_shared_6.0.0.1203${line.separator}compilation.error.occured=${compilation.error.occured}"/>
+		<eclipse.logCompileError bundle="servoy_shared_6.0.0.1203" log="${compilation.prereq.log}">
+			<include name="C:/workspace_trunk/org.eclipse.dltk.javascript.rhino/compilation.problem"/>
+			<include name="${pluginTemp}/org.eclipse.dltk.javascript.rhino_6.0.0.1203/compilation.problem"/>
+		</eclipse.logCompileError>
 	</target>
 
 	<target name="build.sources" depends="init">
@@ -200,7 +205,7 @@
 		<antcall target="apitools.generation">
 			<param name="target.folder" value="${build.result.folder}"/>
 			<param name="projectLocation" value="${basedir}"/>
-			<param name="binary.folders" value="${build.result.folder}/@dot;C:\Users\Jan Blok\dev\servoy_shared/lib/mail.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/slf4j-log4j.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/dom4j.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/commons-io.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/BrowserLauncher2.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/jabsorb.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/httpmime.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/wicket.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/apache-mime4j.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/servlet-api.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/slf4j-jdk14.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/activation.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/commons-codec.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/slf4j-api.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/log4j.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/commons-dbcp.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/wicket-extentions.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/wicket-calendar.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/httpclient.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/httpcore.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/commons-logging.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/jcifs.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/commons-collections.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/commons-pool.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/annotations-1.0.jar"/>
+			<param name="binary.folders" value="${build.result.folder}/@dot;C:\workspace_trunk\servoy_shared/lib/mail.jar;C:\workspace_trunk\servoy_shared/lib/slf4j-log4j.jar;C:\workspace_trunk\servoy_shared/lib/dom4j.jar;C:\workspace_trunk\servoy_shared/lib/commons-io.jar;C:\workspace_trunk\servoy_shared/lib/BrowserLauncher2.jar;C:\workspace_trunk\servoy_shared/lib/jabsorb.jar;C:\workspace_trunk\servoy_shared/lib/httpmime.jar;C:\workspace_trunk\servoy_shared/lib/wicket.jar;C:\workspace_trunk\servoy_shared/lib/apache-mime4j.jar;C:\workspace_trunk\servoy_shared/lib/servlet-api.jar;C:\workspace_trunk\servoy_shared/lib/slf4j-jdk14.jar;C:\workspace_trunk\servoy_shared/lib/activation.jar;C:\workspace_trunk\servoy_shared/lib/commons-codec.jar;C:\workspace_trunk\servoy_shared/lib/slf4j-api.jar;C:\workspace_trunk\servoy_shared/lib/log4j.jar;C:\workspace_trunk\servoy_shared/lib/commons-dbcp.jar;C:\workspace_trunk\servoy_shared/lib/wicket-extentions.jar;C:\workspace_trunk\servoy_shared/lib/wicket-calendar.jar;C:\workspace_trunk\servoy_shared/lib/httpclient.jar;C:\workspace_trunk\servoy_shared/lib/httpcore.jar;C:\workspace_trunk\servoy_shared/lib/commons-logging.jar;C:\workspace_trunk\servoy_shared/lib/jcifs.jar;C:\workspace_trunk\servoy_shared/lib/commons-collections.jar;C:\workspace_trunk\servoy_shared/lib/commons-pool.jar;C:\workspace_trunk\servoy_shared/lib/annotations-1.0.jar"/>
 			<param name="projectName" value="${bundleId}_${bundleVersion}"/>
 		</antcall>
 		<eclipse.gatherBundle 
@@ -259,7 +264,7 @@
 		<antcall target="apitools.generation">
 			<param name="target.folder" value="${destination.temp.folder}/servoy_shared_6.0.0.1203"/>
 			<param name="projectLocation" value="${basedir}"/>
-			<param name="binary.folders" value="${build.result.folder}/@dot;C:\Users\Jan Blok\dev\servoy_shared/lib/mail.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/slf4j-log4j.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/dom4j.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/commons-io.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/BrowserLauncher2.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/jabsorb.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/httpmime.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/wicket.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/apache-mime4j.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/servlet-api.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/slf4j-jdk14.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/activation.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/commons-codec.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/slf4j-api.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/log4j.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/commons-dbcp.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/wicket-extentions.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/wicket-calendar.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/httpclient.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/httpcore.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/commons-logging.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/jcifs.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/commons-collections.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/commons-pool.jar;C:\Users\Jan Blok\dev\servoy_shared/lib/annotations-1.0.jar"/>
+			<param name="binary.folders" value="${build.result.folder}/@dot;C:\workspace_trunk\servoy_shared/lib/mail.jar;C:\workspace_trunk\servoy_shared/lib/slf4j-log4j.jar;C:\workspace_trunk\servoy_shared/lib/dom4j.jar;C:\workspace_trunk\servoy_shared/lib/commons-io.jar;C:\workspace_trunk\servoy_shared/lib/BrowserLauncher2.jar;C:\workspace_trunk\servoy_shared/lib/jabsorb.jar;C:\workspace_trunk\servoy_shared/lib/httpmime.jar;C:\workspace_trunk\servoy_shared/lib/wicket.jar;C:\workspace_trunk\servoy_shared/lib/apache-mime4j.jar;C:\workspace_trunk\servoy_shared/lib/servlet-api.jar;C:\workspace_trunk\servoy_shared/lib/slf4j-jdk14.jar;C:\workspace_trunk\servoy_shared/lib/activation.jar;C:\workspace_trunk\servoy_shared/lib/commons-codec.jar;C:\workspace_trunk\servoy_shared/lib/slf4j-api.jar;C:\workspace_trunk\servoy_shared/lib/log4j.jar;C:\workspace_trunk\servoy_shared/lib/commons-dbcp.jar;C:\workspace_trunk\servoy_shared/lib/wicket-extentions.jar;C:\workspace_trunk\servoy_shared/lib/wicket-calendar.jar;C:\workspace_trunk\servoy_shared/lib/httpclient.jar;C:\workspace_trunk\servoy_shared/lib/httpcore.jar;C:\workspace_trunk\servoy_shared/lib/commons-logging.jar;C:\workspace_trunk\servoy_shared/lib/jcifs.jar;C:\workspace_trunk\servoy_shared/lib/commons-collections.jar;C:\workspace_trunk\servoy_shared/lib/commons-pool.jar;C:\workspace_trunk\servoy_shared/lib/annotations-1.0.jar"/>
 			<param name="projectName" value="${bundleId}_${bundleVersion}"/>
 		</antcall>
 	</target>
@@ -306,7 +311,7 @@
 	</target>
 
 	<target name="refresh" depends="init" if="eclipse.running" description="Refresh this folder.">
-		<eclipse.convertPath fileSystemPath="C:/Users/Jan Blok/dev/servoy_shared" property="resourcePath"/>
+		<eclipse.convertPath fileSystemPath="C:/workspace_trunk/servoy_shared" property="resourcePath"/>
 		<eclipse.refreshLocal resource="${resourcePath}" depth="infinite"/>
 	</target>
 
@@ -331,7 +336,7 @@
 	</target>
 
 	<target name="apitools.generation" if="generateAPIDescription">
-		<apitooling.apigeneration  projectName="${projectName}" project="${projectLocation}" binary="${binary.folders}" target="${target.folder}"		/>
+		<apitooling.apigeneration  projectName="${projectName}" project="${projectLocation}" binary="${binary.folders}" target="${target.folder}" extramanifests="${extraManifests}"		/>
 	</target>
 
 </project>
