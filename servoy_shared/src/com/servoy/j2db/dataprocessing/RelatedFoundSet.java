@@ -873,11 +873,9 @@ public abstract class RelatedFoundSet extends FoundSet
 			int size = getCorrectedSizeForFires();
 			IRecordInternal record = getRecord(getSelectedIndex());
 			mustQueryForUpdates = true;
-			if (size >= 0)
-			{
-				Map<FoundSet, int[]> parentToIndexen = getFoundSetManager().getEditRecordList().getFoundsetEventMap();
-				parentToIndexen.put(this, new int[] { 0, size });
-			}
+			Map<FoundSet, int[]> parentToIndexen = getFoundSetManager().getEditRecordList().getFoundsetEventMap();
+			// when foundset was empty (size = -1) this will be fired as an insert event, see EditRecordList.fireEvents()
+			parentToIndexen.put(this, new int[] { 0, size });
 			fireAggregateChange(record);
 		}
 	}
