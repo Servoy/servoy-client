@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
@@ -864,8 +864,8 @@ public class EditRecordList
 						Object[] methodArgs = new Object[] { record };
 						try
 						{
-							scriptEngine.executeFunction(((Function)function), gscope, gscope, Utils.arrayMerge(methodArgs,
-								Utils.parseJSExpressions(tn.getInstanceMethodArguments(methodKey))), false, false);
+							scriptEngine.executeFunction(((Function)function), gscope, gscope,
+								Utils.arrayMerge(methodArgs, Utils.parseJSExpressions(tn.getInstanceMethodArguments(methodKey))), false, false);
 						}
 						catch (Exception e)
 						{
@@ -938,8 +938,8 @@ public class EditRecordList
 						Object[] methodArgs = new Object[] { record };
 						try
 						{
-							Object retval = scriptEngine.executeFunction(((Function)function), gscope, gscope, Utils.arrayMerge(methodArgs,
-								Utils.parseJSExpressions(tn.getInstanceMethodArguments(methodKey))), false, true);
+							Object retval = scriptEngine.executeFunction(((Function)function), gscope, gscope,
+								Utils.arrayMerge(methodArgs, Utils.parseJSExpressions(tn.getInstanceMethodArguments(methodKey))), false, true);
 							if (Boolean.FALSE.equals(retval))
 							{
 								// update or insert method returned false. should block the save.
@@ -1274,7 +1274,15 @@ public class EditRecordList
 			Map.Entry<FoundSet, int[]> entry = it.next();
 			int[] indexen = entry.getValue();
 			FoundSet fs = entry.getKey();
-			fs.fireFoundSetEvent(indexen[0], indexen[1], FoundSetEvent.CHANGE_UPDATE);
+			if (indexen[0] == 0 && indexen[1] < 0)
+			{
+				// fire size change of currently empty foundset
+				fs.fireFoundSetEvent(0, -1 - indexen[1], FoundSetEvent.CHANGE_INSERT);
+			}
+			else
+			{
+				fs.fireFoundSetEvent(indexen[0], indexen[1], FoundSetEvent.CHANGE_UPDATE);
+			}
 		}
 		// call until the map is null..
 		fireEvents();
