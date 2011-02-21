@@ -530,14 +530,8 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 
 	public void js_setDividerLocation(final double location)
 	{
-		application.invokeLater(new Runnable()
-		{
-			public void run()
-			{
-				if (location < 1) splitPane.setDividerLocation(location);
-				else splitPane.setDividerLocation((int)location);
-			}
-		});
+		if (location < 1) splitPane.setDividerLocation(location);
+		else splitPane.setDividerLocation((int)location);
 	}
 
 	public double js_getDividerLocation()
