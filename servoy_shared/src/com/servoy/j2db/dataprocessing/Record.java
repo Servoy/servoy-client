@@ -1015,9 +1015,23 @@ public class Record implements Scriptable, IRecordInternal
 		return row.getLastException();
 	}
 
-	public void js_setException(@SuppressWarnings("unused") Exception ex)
+	public void js_setException(@SuppressWarnings("unused")
+	Exception ex)
 	{
 		//ignore
+	}
+
+	/**
+	 * Returns the records datasource string.
+	 *
+	 * @sample
+	 * var ds = record.getDataSource();
+	 * 
+	 * @return The datasource string of this record.
+	 */
+	public String js_getDataSource()
+	{
+		return parent.getDataSource();
 	}
 
 	/**
@@ -1033,7 +1047,8 @@ public class Record implements Scriptable, IRecordInternal
 		return parent;
 	}
 
-	public void js_setFoundset(@SuppressWarnings("unused") IFoundSetInternal foundset)
+	public void js_setFoundset(@SuppressWarnings("unused")
+	IFoundSetInternal foundset)
 	{
 		//ignore
 	}
