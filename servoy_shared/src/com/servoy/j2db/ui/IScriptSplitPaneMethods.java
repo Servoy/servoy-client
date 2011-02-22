@@ -33,7 +33,7 @@ public interface IScriptSplitPaneMethods extends IScriptTransparentMethods, IScr
 	 * 
 	 * @sample %%prefix%%%%elementName%%.setLeftForm(forms.orders);
 	 *
-	 * @param form/formname the specified form/formname you wish to add as left panel
+	 * @param form the specified form or form name you wish to add as left panel
 	 * 
 	 * @return a boolean value indicating if tab was successfully added
 	 */
@@ -44,8 +44,8 @@ public interface IScriptSplitPaneMethods extends IScriptTransparentMethods, IScr
 	 * 
 	 * @sample %%prefix%%%%elementName%%.setLeftForm(forms.orders,'orders_to_order_details');
 	 *
-	 * @param form/formname the specified form/formname you wish to add as left panel
-	 * @param relatedfoundset/relationname the specified name of the related foundset or null for relationless
+	 * @param form the specified form or form name you wish to add as left panel
+	 * @param relation the relation name or a related foundset or null for relationless
 	 * 
 	 * @return a boolean value indicating if tab was successfully added
 	 */
@@ -66,7 +66,7 @@ public interface IScriptSplitPaneMethods extends IScriptTransparentMethods, IScr
 	 * 
 	 * @sample %%prefix%%%%elementName%%.setRightForm(forms.orders);
 	 *
-	 * @param form/formname the specified form/formname you wish to add as right panel
+	 * @param form the specified form or form name you wish to add as right panel
 	 * 
 	 * @return a boolean value indicating if tab was successfully added
 	 */
@@ -77,8 +77,8 @@ public interface IScriptSplitPaneMethods extends IScriptTransparentMethods, IScr
 	 * 
 	 * @sample %%prefix%%%%elementName%%.setRightForm(forms.orders,'orders_to_order_details');
 	 *
-	 * @param form/formname the specified form/formname you wish to add as right panel
-	 * @param relatedfoundset/relationname the specified name of the related foundset or null for relationless
+	 * @param form the specified form or form name you wish to add as right panel
+	 * @param relation the relation name or a related foundset or null for relationless
 	 * 
 	 * @return a boolean value indicating if tab was successfully added
 	 */
