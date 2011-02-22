@@ -1785,11 +1785,6 @@ public class TemplateGenerator
 		applyLocationAndSize(rectshape, styleObj, ins, startY, endY, form.getSize().width, enableAnchoring);
 	}
 
-	public static boolean isButton(GraphicalComponent label)
-	{
-		return (label.getOnActionMethodID() != 0) && label.getShowClick();
-	}
-
 	private static void createGraphicalComponentHTML(GraphicalComponent label, Form form, StringBuffer html, TextualCSS css, int startY, int endY,
 		boolean enableAnchoring, IServiceProvider sp)
 	{
@@ -1841,7 +1836,7 @@ public class TemplateGenerator
 		if (labelHAlign == -1) labelHAlign = ISupportTextSetup.CENTER;
 		if (labelVAlign == -1) labelVAlign = ISupportTextSetup.CENTER;
 
-		boolean isButton = isButton(label);
+		boolean isButton = ComponentFactory.isButton(label);
 
 		TextualStyle wrapperStyle = null;
 		if (isButton && enableAnchoring)

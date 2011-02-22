@@ -2177,4 +2177,9 @@ public class ComponentFactory
 		}
 		return false;
 	}
+
+	public static boolean isButton(GraphicalComponent label)
+	{
+		return (label.getOnActionMethodID() != 0) && label.getShowClick();
+	}
 }

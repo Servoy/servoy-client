@@ -217,7 +217,7 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 						// - buttons
 						// - beans
 						if (isAnchoringEnabled &&
-							(((obj instanceof Field) && TemplateGenerator.needsWrapperDivForAnchoring((Field)obj)) || (obj instanceof Bean) || ((obj instanceof GraphicalComponent) && TemplateGenerator.isButton((GraphicalComponent)obj))))
+							(((obj instanceof Field) && TemplateGenerator.needsWrapperDivForAnchoring((Field)obj)) || (obj instanceof Bean) || ((obj instanceof GraphicalComponent) && ComponentFactory.isButton((GraphicalComponent)obj))))
 						{
 							MarkupContainer compWrapper = new WrapperContainer(ComponentFactory.getWebID(null, obj) + "_wrapper", comp); //$NON-NLS-1$
 							Dimension s = (obj).getSize();
