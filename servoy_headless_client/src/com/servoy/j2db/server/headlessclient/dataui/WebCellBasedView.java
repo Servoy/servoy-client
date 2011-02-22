@@ -136,6 +136,7 @@ import com.servoy.j2db.ui.IScriptReadOnlyMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportEventExecutor;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
+import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.PropertyCopy;
 import com.servoy.j2db.ui.RenderEventExecutor;
@@ -523,20 +524,23 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			final IRecordInternal rec = listItem.getModelObject();
 			Object color = WebCellBasedView.this.getListItemBgColor(listItem, false);
-			final Object compColor;
-			if (color != null && !(color instanceof Undefined))
-			{
-				compColor = color;
-			}
-			else
+			if (color instanceof Undefined) color = null;
+			Object fgColor = WebCellBasedView.this.getListItemFgColor(listItem, false);
+			if (fgColor instanceof Undefined) fgColor = null;
+			Object styleFont = WebCellBasedView.this.getListItemFont(listItem, false);
+			if (styleFont instanceof Undefined) styleFont = null;
+
+			if (color == null && fgColor == null && styleFont == null)
 			{
 				listItem.add(new AttributeModifier("class", new Model<String>((listItem.getIndex() % 2) == 0 ? "even" : "odd"))); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-				compColor = null;
 			}
 
 			final int visibleRowIndex = listItem.getIndex() % getRowsPerPage();
 			if (createComponents)
 			{
+				final Object compColor = color;
+				final Object compFgColor = fgColor;
+				final Object compFont = styleFont;
 				createComponents(application, form, cellview, dataProviderLookup, el, startY, endY, new ItemAdd()
 				{
 					public void add(IPersist element, final Component comp)
@@ -563,7 +567,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						}
 
 						listItem.add(listItemChild);
-						setUpComponent(comp, rec, compColor, visibleRowIndex);
+						setUpComponent(comp, rec, compColor, compFgColor, compFont, visibleRowIndex);
 					}
 				});
 			}
@@ -577,17 +581,15 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					// re-initialize :) it - apply js_ user changes applied on the column identifier component
 					// and other initializations...
 					initializeComponent(child, cellview, cellToElement.get(child));
-					setUpComponent(child, rec, compColor, visibleRowIndex);
+					setUpComponent(child, rec, color, fgColor, styleFont, visibleRowIndex);
 				}
 			}
 
-
 			//listItem.add(new SimpleAttributeModifier("onfocus", "Wicket.Log.info('ONFOCUS')"));
-
 			enableChildrenInContainer(this, isEnabled());
 		}
 
-		private void setUpComponent(Component comp, IRecordInternal record, Object compColor, int visibleRowIndex)
+		private void setUpComponent(Component comp, IRecordInternal record, Object compColor, Object fgColor, Object compFont, int visibleRowIndex)
 		{
 			// set correct tab index
 			if (tabIndex < 0)
@@ -623,6 +625,21 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 				comp.add(new StyleAppendingModifier(new Model<String>("background-color: " + compColor.toString()))); //$NON-NLS-1$
 			}
+
+			if (fgColor != null)
+			{
+				comp.add(new StyleAppendingModifier(new Model<String>("color: " + fgColor.toString()))); //$NON-NLS-1$
+			}
+
+			if (compFont != null)
+			{
+				Pair<String, String> fontProps[] = PersistHelper.createFontCSSProperties(compFont.toString());
+				for (Pair<String, String> fontProp : fontProps)
+					comp.add(new StyleAppendingModifier(new Model<String>(
+						new StringBuilder(fontProp.getLeft()).append(": ").append(fontProp.getRight()).toString()))); //$NON-NLS-1$
+			}
+
+
 			if (js_isReadOnly() && validationEnabled && comp instanceof IScriptReadOnlyMethods) // if in find mode, the field should not be readonly
 			{
 				((IScriptReadOnlyMethods)comp).js_setReadOnly(true);
@@ -2964,13 +2981,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	}
 
 
-	private Object getListItemBgColor(ListItem<IRecordInternal> listItem, boolean isSelected)
+	private Object getStyleAttributeForListItem(ListItem<IRecordInternal> listItem, boolean isSelected, ISupportRowStyling.ATTRIBUTE rowStyleAttribute)
 	{
-		Object color = null;
+		Object listItemAttrValue = null;
 		final IRecordInternal rec = listItem.getModelObject();
-		String rowBGColorProvider = getRowBGColorScript();
-		Row rawData = null;
-		if (rec != null && (rawData = rec.getRawData()) != null)
+
+		if (rec != null && rec.getRawData() != null)
 		{
 			StyleSheet ss = getRowStyleSheet();
 			Style style = isSelected ? getRowSelectedStyle() : null;
@@ -2980,8 +2996,42 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			}
 			if (ss != null && style != null)
 			{
-				color = PersistHelper.createColorString(ss.getBackground(style));
+				switch (rowStyleAttribute)
+				{
+					case BGCOLOR :
+						listItemAttrValue = PersistHelper.createColorString(ss.getBackground(style));
+						break;
+					case FGCOLOR :
+						listItemAttrValue = PersistHelper.createColorString(ss.getForeground(style));
+						break;
+					case FONT :
+						listItemAttrValue = PersistHelper.createFontString(ss.getFont(style));
+				}
 			}
+		}
+
+		return listItemAttrValue;
+	}
+
+	private Object getListItemFgColor(ListItem<IRecordInternal> listItem, boolean isSelected)
+	{
+		return getStyleAttributeForListItem(listItem, isSelected, ISupportRowStyling.ATTRIBUTE.FGCOLOR);
+	}
+
+	private Object getListItemFont(ListItem<IRecordInternal> listItem, boolean isSelected)
+	{
+		return getStyleAttributeForListItem(listItem, isSelected, ISupportRowStyling.ATTRIBUTE.FONT);
+	}
+
+	private Object getListItemBgColor(ListItem<IRecordInternal> listItem, boolean isSelected)
+	{
+		Object color = null;
+		final IRecordInternal rec = listItem.getModelObject();
+		String rowBGColorProvider = getRowBGColorScript();
+		Row rawData = null;
+		if (rec != null && (rawData = rec.getRawData()) != null)
+		{
+			color = getStyleAttributeForListItem(listItem, isSelected, ISupportRowStyling.ATTRIBUTE.BGCOLOR);
 
 			if (rowBGColorProvider != null)
 			{
@@ -3312,9 +3362,39 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					if (selectedListItem != null)
 					{
 						String selectedId = selectedListItem.getMarkupId();
-						Object selectedColor = getListItemBgColor(selectedListItem, Arrays.binarySearch(newSelectedIndexes, rowIdx) >= 0);
+						boolean isSelected = Arrays.binarySearch(newSelectedIndexes, rowIdx) >= 0;
+						Object selectedColor = getListItemBgColor(selectedListItem, isSelected);
+						Object selectedFgColor = getListItemFgColor(selectedListItem, isSelected);
+						Object selectedFont = getListItemFont(selectedListItem, isSelected);
 						selectedColor = (selectedColor == null ? "" : selectedColor.toString()); //$NON-NLS-1$
-						sab.append("Servoy.TableView.setRowBgColor('").append(selectedId).append("', '").append(selectedColor).append("');\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						selectedFgColor = (selectedFgColor == null) ? "" : selectedFgColor.toString(); //$NON-NLS-1$
+						String fstyle = "", fweight = "", fsize = "", ffamily = ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+						if (selectedFont != null)
+						{
+							Pair<String, String> fontCSSProps[] = PersistHelper.createFontCSSProperties(selectedFont.toString());
+							for (Pair<String, String> fontCSSProp : fontCSSProps)
+							{
+								String key = fontCSSProp.getLeft();
+								String value = fontCSSProp.getRight();
+								if (value == null) value = ""; //$NON-NLS-1$
+								if ("font-style".equals(key)) //$NON-NLS-1$
+								fstyle = value;
+								else if ("font-weight".equals(key)) //$NON-NLS-1$
+								fweight = value;
+								else if ("font-size".equals(key)) //$NON-NLS-1$
+								fsize = value;
+								else if ("font-family".equals(key)) //$NON-NLS-1$
+								ffamily = value;
+							}
+						}
+						sab.append("Servoy.TableView.setRowStyle('"). //$NON-NLS-1$
+						append(selectedId).append("', '"). //$NON-NLS-1$
+						append(selectedColor).append("', '"). //$NON-NLS-1$
+						append(selectedFgColor).append("', '"). //$NON-NLS-1$
+						append(fstyle).append("', '"). //$NON-NLS-1$
+						append(fweight).append("', '"). //$NON-NLS-1$
+						append(fsize).append("', '"). //$NON-NLS-1$
+						append(ffamily).append("');\n"); //$NON-NLS-1$
 					}
 				}
 			}

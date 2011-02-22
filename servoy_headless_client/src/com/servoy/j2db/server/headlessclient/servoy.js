@@ -522,7 +522,7 @@ if (typeof(Servoy.TableView) == "undefined")
 {
 	Servoy.TableView = 
 	{
-		setRowBgColorEl: function(el, bgcolor, inDepth)
+		setRowStyleEl: function(el, bgcolor, fgcolor, fontStyle, fontWeight, fontSize, fontFamily, inDepth)
 		{
 			var elChildren = el.childNodes;
 			var elChildrenLen = elChildren.length;
@@ -531,7 +531,14 @@ if (typeof(Servoy.TableView) == "undefined")
 			{
 				// ignore the tableview filler (last column) 
 				if(el.attributes['id'])
+				{
 					el.style.backgroundColor = bgcolor;
+					el.style.color = fgcolor;
+					el.style.fontStyle = fontStyle;
+					el.style.fontWeight = fontWeight;
+					el.style.fontSize = fontSize;
+					el.style.fontFamily = fontFamily;
+				}
 			}
 			if (inDepth)
 			{
@@ -539,12 +546,12 @@ if (typeof(Servoy.TableView) == "undefined")
 				for(var i = 0; i < elChildrenLen; i++)
 				{
 					if(elChildren[i].tagName)			
-						Servoy.TableView.setRowBgColorEl(elChildren[i], bgcolor, continueInDepth);
+						Servoy.TableView.setRowStyleEl(elChildren[i], bgcolor, fgcolor, fontStyle, fontWeight, fontSize, fontFamily, continueInDepth);
 				}
 			}
 		},
 
-		setRowBgColor: function(rowId, bgcolor)
+		setRowStyle: function(rowId, bgcolor, fgcolor, fontStyle, fontWeight, fontSize, fontFamily)
 		{
 			var rowEl = document.getElementById(rowId);
 			if(rowEl)
@@ -555,7 +562,7 @@ if (typeof(Servoy.TableView) == "undefined")
 				for(var i = 0; i < rowChildrenLen; i++)
 				{
 					if(rowChildren[i].tagName)			
-						Servoy.TableView.setRowBgColorEl(rowChildren[i], bgcolor, true);
+						Servoy.TableView.setRowStyleEl(rowChildren[i], bgcolor, fgcolor, fontStyle, fontWeight, fontSize, fontFamily, true);
 				}
 			}
 		},

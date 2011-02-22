@@ -26,6 +26,11 @@ import javax.swing.text.html.StyleSheet;
  */
 public interface ISupportRowStyling
 {
+	enum ATTRIBUTE
+	{
+		BGCOLOR, FGCOLOR, FONT
+	}
+
 	public void setRowStyles(StyleSheet styleSheet, Style oddStyle, Style evenStyle, Style selectedStyle);
 
 	public StyleSheet getRowStyleSheet();

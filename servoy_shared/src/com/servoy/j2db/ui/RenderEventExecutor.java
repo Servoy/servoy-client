@@ -73,6 +73,8 @@ public class RenderEventExecutor implements IRenderEventExecutor
 
 	private boolean useDefaultTransparent = true;
 	private boolean useDefaultBackround = true;
+	private boolean useDefaultForeground = true;
+	private boolean useDefaultFont = true;
 
 	public void saveDefaultRenderProperties(ISupportOnRenderCallback display)
 	{
@@ -106,13 +108,33 @@ public class RenderEventExecutor implements IRenderEventExecutor
 		return useDefaultBackround;
 	}
 
+	public void setUseDefaultForeground(boolean useDefaultForeground)
+	{
+		this.useDefaultForeground = useDefaultForeground;
+	}
+
+	public boolean isUseDefaultForeground()
+	{
+		return useDefaultForeground;
+	}
+
+	public void setUseDefaultFont(boolean useDefaultFont)
+	{
+		this.useDefaultFont = useDefaultFont;
+	}
+
+	public boolean isUseDefaultFont()
+	{
+		return useDefaultFont;
+	}
+
 	protected void setDefaultRenderProperties(ISupportOnRenderCallback display)
 	{
 		if (isUseDefaultBackground()) display.setBackground(renderDefaultBgColor);
 		display.setBorder(renderDefaultBorder);
 		display.setComponentEnabled(renderDefaultEnabled);
-		display.setForeground(renderDefaultFgColor);
-		display.setFont(renderDefaultFont);
+		if (isUseDefaultForeground()) display.setForeground(renderDefaultFgColor);
+		if (isUseDefaultFont()) display.setFont(renderDefaultFont);
 		display.setToolTipText(renderDefaultTooltipText);
 		if (isUseDefaultTransparent()) display.setOpaque(renderDefaultOpaque);
 		display.setComponentVisible(renderDefaultVisible);

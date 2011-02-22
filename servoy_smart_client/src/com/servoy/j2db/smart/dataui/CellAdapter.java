@@ -21,6 +21,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -147,7 +148,12 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 	private Color unselectedForeground;
 	private Color unselectedBackground;
 
+	private Font unselectedFont;
+
 	private Color lastEditorBgColor;
+	private Color lastEditorFgColor;
+
+	private Font lastEditorFont;
 
 	private boolean adjusting = false;
 	private Object lastInvalidValue = NONE;
@@ -375,8 +381,11 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 	 */
 	public Component getTableCellEditorComponent(JTable jtable, Object value, boolean isSelected, int row, int column)
 	{
-		boolean[] isBgColorSet = new boolean[] { false };
-		Component cellEditorComp = getTableCellEditorComponentEx(jtable, value, isSelected, row, column, isBgColorSet);
+		Color bgColor = getBgColor(jtable, isSelected, row, true);
+		Color fgColor = getFgColor(jtable, isSelected, row);
+		Font font = getFont(jtable, isSelected, row);
+
+		Component cellEditorComp = getTableCellEditorComponentEx(jtable, value, isSelected, row, column, bgColor, fgColor, font);
 		if (cellEditorComp instanceof ISupportOnRenderCallback)
 		{
 			RenderEventExecutor renderEventExecutor = ((ISupportOnRenderCallback)cellEditorComp).getRenderEventExecutor();
@@ -386,13 +395,16 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				IRecordInternal record = foundset != null ? foundset.getRecord(row) : null;
 				renderEventExecutor.setRenderState(record, row, isSelected);
 				renderEventExecutor.setUseDefaultTransparent(false);
-				renderEventExecutor.setUseDefaultBackground(!isBgColorSet[0]);
+				renderEventExecutor.setUseDefaultBackground(bgColor == null);
+				renderEventExecutor.setUseDefaultForeground(fgColor == null);
+				renderEventExecutor.setUseDefaultFont(font == null);
 			}
 		}
 		return cellEditorComp;
 	}
 
-	private Component getTableCellEditorComponentEx(JTable jtable, Object value, boolean isSelected, int row, int column, boolean[] isBgColorSet)
+	private Component getTableCellEditorComponentEx(JTable jtable, Object value, boolean isSelected, int row, int column, Color bgColorParam,
+		Color fgColorParam, Font fontParam)
 	{
 		if (editor == null || !editor.isVisible() || !(jtable.getModel() instanceof IFoundSetInternal))
 		{
@@ -400,20 +412,35 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		}
 
 		IRecordInternal newRec = ((IFoundSetInternal)jtable.getModel()).getRecord(row);
-		final ISwingFoundSet foundset = (ISwingFoundSet)jtable.getModel();
-
-		Color bgColor = getBgColor(jtable, isSelected, row, foundset, newRec, true);
-		if (bgColor != null && isBgColorSet != null && isBgColorSet.length > 0) isBgColorSet[0] = true;
 
 		if (isSelected)
 		{
+			Color bgColor = bgColorParam;
 			if (bgColor == null)
 			{
 				bgColor = unselectedBackground; // unselected background is the default background color of the editor.
 			}
 			lastEditorBgColor = bgColor;
 			editor.setBackground(bgColor);
+
+
+			Color fgColor = fgColorParam;
+			if (fgColor == null)
+			{
+				fgColor = unselectedForeground; // unselected foreground is the default foreground color of the editor.
+			}
+			lastEditorFgColor = fgColor;
+			editor.setForeground(fgColor);
+
+			Font font = fontParam;
+			if (font == null)
+			{
+				font = unselectedFont; // unselected font is the default font of the editor.
+			}
+			lastEditorFont = font;
+			editor.setFont(font);
 		}
+
 //		try
 //		{
 //			if (currentEditingState != null && newRec != currentEditingState && currentEditingState.isEditing())
@@ -476,8 +503,11 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 
 	public Component getTableCellRendererComponent(JTable jtable, Object value, boolean isSelected, boolean hasFocus, final int row, final int column)
 	{
-		boolean[] isBgColorSet = new boolean[] { false };
-		Component cellRendererComp = getTableCellRendererComponentEx(jtable, value, isSelected, hasFocus, row, column, isBgColorSet);
+		Color bgColor = getBgColor(jtable, isSelected, row, false);
+		Color fgColor = getFgColor(jtable, isSelected, row);
+		Font font = getFont(jtable, isSelected, row);
+
+		Component cellRendererComp = getTableCellRendererComponentEx(jtable, value, isSelected, hasFocus, row, column, bgColor, fgColor, font);
 		if (cellRendererComp instanceof ISupportOnRenderCallback)
 		{
 			RenderEventExecutor renderEventExecutor = ((ISupportOnRenderCallback)cellRendererComp).getRenderEventExecutor();
@@ -487,14 +517,16 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				IRecordInternal record = foundset != null ? foundset.getRecord(row) : null;
 				renderEventExecutor.setRenderState(record, row, isSelected);
 				renderEventExecutor.setUseDefaultTransparent(false);
-				renderEventExecutor.setUseDefaultBackground(!isBgColorSet[0]);
+				renderEventExecutor.setUseDefaultBackground(bgColor == null);
+				renderEventExecutor.setUseDefaultForeground(fgColor == null);
+				renderEventExecutor.setUseDefaultFont(font == null);
 			}
 		}
 		return cellRendererComp;
 	}
 
 	private Component getTableCellRendererComponentEx(JTable jtable, Object value, boolean isSelected, boolean hasFocus, final int row, final int column,
-		boolean[] isBgColorSet)
+		Color bgColor, Color fgColor, Font font)
 	{
 		if (renderer == null || !renderer.isVisible() || !(jtable.getModel() instanceof IFoundSetInternal))
 		{
@@ -522,9 +554,6 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			editor.setSize(cellRect.width, cellRect.height);
 		}
 
-		Color bgColor = getBgColor(jtable, isSelected, row, foundset, state, false);
-		if (bgColor != null && isBgColorSet != null && isBgColorSet.length > 0) isBgColorSet[0] = true;
-
 		if (isSelected)
 		{
 			Color tableSelectionColor = jtable.getSelectionForeground();
@@ -543,12 +572,13 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				}
 			}
 
-			renderer.setForeground(tableSelectionColor);
+			renderer.setForeground(fgColor != null ? fgColor : tableSelectionColor);
 			renderer.setBackground((bgColor != null ? bgColor : jtable.getSelectionBackground()));
 			if (!renderer.isOpaque() && renderer instanceof JComponent)
 			{
 				((JComponent)renderer).setOpaque(true);
 			}
+			if (font != null) renderer.setFont(font);
 		}
 		else
 		{
@@ -558,10 +588,21 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			{
 				unselectedBackground = background;
 			}
-			unselectedForeground = editor.getForeground();
+			Color foreground = editor.getForeground();
+			if (foreground != null && !foreground.equals(lastEditorFgColor))
+			{
+				unselectedForeground = foreground;
+			}
+			Font editorFont = editor.getFont();
+			if (editorFont != null && !editorFont.equals(lastEditorFont))
+			{
+				unselectedFont = editorFont;
+			}
+
 			if (editor instanceof IDisplayData && ((IDisplayData)editor).isValueValid() || !(editor instanceof IDisplayData))
 			{
-				renderer.setForeground((unselectedForeground != null) ? unselectedForeground : jtable.getForeground());
+				Color currentForeground = (fgColor != null ? fgColor : (unselectedForeground != null) ? unselectedForeground : jtable.getForeground());
+				renderer.setForeground(currentForeground);
 			}
 			Color currentColor = (bgColor != null ? bgColor : (unselectedBackground != null) ? unselectedBackground : jtable.getBackground());
 			renderer.setBackground(currentColor);
@@ -570,6 +611,9 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			{
 				((JComponent)renderer).setOpaque(currentOpaque);
 			}
+
+			Font currentFont = (font != null ? font : (unselectedFont != null) ? unselectedFont : jtable.getFont());
+			renderer.setFont(currentFont);
 		}
 
 		if (renderer instanceof JComponent)
@@ -718,15 +762,17 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		return renderer;
 	}
 
-	private Color getBgColor(JTable jtable, boolean isSelected, final int row, final ISwingFoundSet foundset, final IRecordInternal state, boolean isEdited)
+	private Object getStyleAttributeForRow(JTable jtable, boolean isSelected, int row, ISupportRowStyling.ATTRIBUTE rowStyleAttribute)
 	{
-		Color bgColor = null;
+		Object rowStyleAttrValue = null;
+		IRecordInternal state = ((IFoundSetInternal)jtable.getModel()).getRecord(row);
 		boolean specialStateCase = (state instanceof PrototypeState || state instanceof FindState);
 		if (/* !(renderer instanceof JButton) && */!specialStateCase)
 		{
 			if (jtable instanceof ISupportRowStyling)
 			{
 				ISupportRowStyling oddEvenStyling = (ISupportRowStyling)jtable;
+
 				StyleSheet ss = oddEvenStyling.getRowStyleSheet();
 				Style style = isSelected ? oddEvenStyling.getRowSelectedStyle() : null;
 				if (style == null)
@@ -736,9 +782,43 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 
 				if (ss != null && style != null)
 				{
-					bgColor = ss.getBackground(style);
+					switch (rowStyleAttribute)
+					{
+						case BGCOLOR :
+							rowStyleAttrValue = ss.getBackground(style);
+							break;
+						case FGCOLOR :
+							rowStyleAttrValue = ss.getForeground(style);
+							break;
+						case FONT :
+							rowStyleAttrValue = ss.getFont(style);
+					}
 				}
 			}
+		}
+
+		return rowStyleAttrValue;
+	}
+
+	private Color getFgColor(JTable jtable, boolean isSelected, int row)
+	{
+		return (Color)getStyleAttributeForRow(jtable, isSelected, row, ISupportRowStyling.ATTRIBUTE.FGCOLOR);
+	}
+
+	private Font getFont(JTable jtable, boolean isSelected, int row)
+	{
+		return (Font)getStyleAttributeForRow(jtable, isSelected, row, ISupportRowStyling.ATTRIBUTE.FONT);
+	}
+
+	private Color getBgColor(JTable jtable, boolean isSelected, int row, boolean isEdited)
+	{
+		Color bgColor = null;
+		IRecordInternal state = ((IFoundSetInternal)jtable.getModel()).getRecord(row);
+		boolean specialStateCase = (state instanceof PrototypeState || state instanceof FindState);
+		if (/* !(renderer instanceof JButton) && */!specialStateCase)
+		{
+			ISwingFoundSet foundset = (ISwingFoundSet)jtable.getModel();
+			bgColor = (Color)getStyleAttributeForRow(jtable, isSelected, row, ISupportRowStyling.ATTRIBUTE.BGCOLOR);
 
 			String strRowBGColorProvider = null;
 			List<Object> rowBGColorArgs = null;
