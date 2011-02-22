@@ -2163,7 +2163,10 @@ public class Utils
 	{
 		if (f != null /* && f.exists() */)
 		{
-
+			if (Thread.currentThread().isInterrupted())
+			{
+				Thread.interrupted(); // reset interrupted flag of current thread, FileChannel.read() will throw an exception for it.
+			}
 			FileInputStream fis = null;
 			try
 			{
