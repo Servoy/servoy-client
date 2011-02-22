@@ -125,6 +125,9 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	//user manager, giving access to (other)user info 
 	private transient volatile IUserManager userManager;
 
+	// does this client use the login solution when configured?
+	private boolean useLoginSolution = true;
+
 	protected ClientState()
 	{
 		//security check:all subclasses should be signed by same certificateS, this way unsigned subclasses are impossible to run
@@ -416,8 +419,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		catch (RepositoryException e)
 		{
 			Debug.error("Could not load solution " + (solutionMetaData == null ? "<none>" : solutionMetaData.getName()), e);
-			reportError(Messages.getString("servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>"
-				: solutionMetaData.getName() }), e);
+			reportError(
+				Messages.getString("servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>" : solutionMetaData.getName() }), e);
 		}
 	}
 
@@ -1219,8 +1222,9 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 						function,
 						gscope,
 						gscope,
-						Utils.arrayMerge((new Object[] { new Boolean(force) }), Utils.parseJSExpressions(getSolution().getInstanceMethodArguments(
-							"onCloseMethodID"))), false, false)); //$NON-NLS-1$
+						Utils.arrayMerge((new Object[] { new Boolean(force) }),
+							Utils.parseJSExpressions(getSolution().getInstanceMethodArguments("onCloseMethodID"))), false, false)); //$NON-NLS-1$
+
 				}
 				catch (Exception e1)
 				{
@@ -1315,6 +1319,14 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		}
 	}
 
+	/**
+	 * @param useLoginSolution the useLoginSolution to set
+	 */
+	public void setUseLoginSolution(boolean useLoginSolution)
+	{
+		this.useLoginSolution = useLoginSolution;
+	}
+
 	public boolean loadSolutionsAndModules(SolutionMetaData solutionMetaData)
 	{
 		if (solutionRoot.getSolution() != null && !solutionRoot.getSolution().getName().equals(solutionMetaData.getName())) return false; // SHOULD BE NULL!
@@ -1322,10 +1334,10 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		{
 			if (solutionMetaData != null)
 			{
-				boolean loggedInAtServer = clientInfo.getUserUid() != null;
-				solutionRoot.setSolution(solutionMetaData, !loggedInAtServer, loggedInAtServer, getActiveSolutionHandler());// assign only here and not earlier
+				boolean loadLoginSolution = useLoginSolution && clientInfo.getUserUid() == null;
+				solutionRoot.setSolution(solutionMetaData, loadLoginSolution, !loadLoginSolution, getActiveSolutionHandler());// assign only here and not earlier
 
-				if (solutionRoot.getSolution() == null && !loggedInAtServer)
+				if (solutionRoot.getSolution() == null && clientInfo.getUserUid() == null)
 				{
 					if (haveRepositoryAccess())
 					{
@@ -1372,6 +1384,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			return false;
 		}
 	}
+
 
 	protected abstract void showDefaultLogin() throws ServoyException;
 

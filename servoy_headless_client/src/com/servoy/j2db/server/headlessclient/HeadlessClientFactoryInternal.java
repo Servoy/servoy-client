@@ -61,6 +61,7 @@ public class HeadlessClientFactoryInternal
 					{
 						sc[0] = new SessionClient(req, username, password, null, solutionOpenMethodArgs, solutionname);
 					}
+					sc[0].setUseLoginSolution(false);
 					sc[0].loadSolution(solutionname);
 
 				}
@@ -110,6 +111,7 @@ public class HeadlessClientFactoryInternal
 				}
 			};
 		}
+		sc.setUseLoginSolution(false);
 		sc.loadSolution(authenticatorName);
 		return sc;
 	}
@@ -133,6 +135,7 @@ public class HeadlessClientFactoryInternal
 				};
 			}
 		};
+		sc.setUseLoginSolution(false);
 		sc.setOutputChannel(channel);
 		sc.loadSolution(importHookModule.getName());
 		return sc;
