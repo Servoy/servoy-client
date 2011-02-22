@@ -126,6 +126,9 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	//user manager, giving access to (other)user info 
 	private transient volatile IUserManager userManager;
 
+	// does this client use the login solution when configured?
+	private boolean useLoginSolution = true;
+
 	protected ClientState()
 	{
 		//security check:all subclasses should be signed by same certificateS, this way unsigned subclasses are impossible to run
@@ -1302,6 +1305,14 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		}
 	}
 
+	/**
+	 * @param useLoginSolution the useLoginSolution to set
+	 */
+	public void setUseLoginSolution(boolean useLoginSolution)
+	{
+		this.useLoginSolution = useLoginSolution;
+	}
+
 	public boolean loadSolutionsAndModules(SolutionMetaData solutionMetaData)
 	{
 		if (solutionRoot.getSolution() != null && !solutionRoot.getSolution().getName().equals(solutionMetaData.getName())) return false; // SHOULD BE NULL!
@@ -1309,10 +1320,10 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		{
 			if (solutionMetaData != null)
 			{
-				boolean loggedInAtServer = clientInfo.getUserUid() != null;
-				solutionRoot.setSolution(solutionMetaData, !loggedInAtServer, loggedInAtServer, getActiveSolutionHandler());// assign only here and not earlier
+				boolean loadLoginSolution = useLoginSolution && clientInfo.getUserUid() == null;
+				solutionRoot.setSolution(solutionMetaData, loadLoginSolution, !loadLoginSolution, getActiveSolutionHandler());// assign only here and not earlier
 
-				if (solutionRoot.getSolution() == null && !loggedInAtServer)
+				if (solutionRoot.getSolution() == null && clientInfo.getUserUid() == null)
 				{
 					if (haveRepositoryAccess())
 					{
@@ -1359,6 +1370,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			return false;
 		}
 	}
+
 
 	protected abstract void showDefaultLogin() throws ServoyException;
 
