@@ -1478,8 +1478,8 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			}
 
 			setUIProperty(LookAndFeelInfo.class.getName(), lnf);
-			
-			
+
+
 			Font dfltFont = PersistHelper.createFont(settings.getProperty("font"));
 			if (dfltFont == null)
 			{
@@ -1499,7 +1499,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			}
 
 			if (dfltFont != null) setUIProperty(Font.class.getName(), dfltFont);
-			
+
 		}
 		catch (Exception e)
 		{
@@ -3669,7 +3669,9 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		{
 			ex = ((Exception)ex).getCause();
 		}
-		if (isConnected() && ex instanceof ServoyException && ((ServoyException)ex).getErrorCode() == ServoyException.InternalCodes.CLIENT_NOT_REGISTERED)
+		if (isConnected() &&
+			ex instanceof ServoyException &&
+			(((ServoyException)ex).getErrorCode() == ServoyException.InternalCodes.CLIENT_NOT_REGISTERED || ((ServoyException)ex).getErrorCode() == ServoyException.InternalCodes.INVALID_RMI_SERVER_CONNECTION))
 		{
 			if (rmiFactoryFactory != null)
 			{
