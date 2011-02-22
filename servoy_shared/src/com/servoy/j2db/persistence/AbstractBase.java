@@ -29,8 +29,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Random;
+import java.util.Map.Entry;
 
 import org.json.JSONException;
 
@@ -167,7 +167,14 @@ public abstract class AbstractBase implements IPersist
 	{
 		if (propertiesMap.containsKey(propertyName))
 		{
-			checkForChange(propertiesMap.get(propertyName), val);
+			if (!StaticContentSpecLoader.PROPERTY_NAME.getPropertyName().equals(propertyName))
+			{
+				checkForChange(propertiesMap.get(propertyName), val);
+			}
+			else
+			{
+				checkForNameChange((String)propertiesMap.get(propertyName), (String)val);
+			}
 		}
 		else
 		{
