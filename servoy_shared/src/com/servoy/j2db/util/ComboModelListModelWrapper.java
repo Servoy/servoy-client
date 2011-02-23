@@ -44,7 +44,7 @@ import com.servoy.j2db.util.editlist.IEditListModel;
  */
 public class ComboModelListModelWrapper<E> extends AbstractListModel implements ComboBoxModel, IEditListModel, List<E>, IModificationListener
 {
-	protected IValueList listModel;
+	protected SeparatorProcessingValueList listModel;
 	protected final ListModelListener listener;
 	protected Object selectedObject;
 	protected boolean valueListChanging;
@@ -84,7 +84,7 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 			}
 		}
 		int prevSize = listModel != null ? listModel.getSize() : 0;
-		listModel = newModel;
+		listModel.setWrapped(newModel);
 		selectedSet = newSelectedSet;
 		listModel.addListDataListener(listener);
 		this.hideFirstValue = (listModel.getAllowEmptySelection() && shouldHideEmptyValueIfPresent);
@@ -424,18 +424,18 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 
 	public String getFormat()
 	{
-		if (listModel instanceof CustomValueList)
+		if (listModel.getWrapped() instanceof CustomValueList)
 		{
-			return ((CustomValueList)listModel).getFormat();
+			return ((CustomValueList)listModel.getWrapped()).getFormat();
 		}
 		return null;
 	}
 
 	public int getValueType()
 	{
-		if (listModel instanceof CustomValueList)
+		if (listModel.getWrapped() instanceof CustomValueList)
 		{
-			return ((CustomValueList)listModel).getType();
+			return ((CustomValueList)listModel.getWrapped()).getType();
 		}
 		return 0;
 	}
@@ -572,14 +572,30 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 	 * 
 	 * "-" is only considered a separator if present as display value in the valuelist.
 	 */
-	private class SeparatorProcessingValueList implements IValueList
+	protected class SeparatorProcessingValueList implements IValueList
 	{
 
-		private final IValueList listModel;
+		private IValueList wrapped;
 
 		public SeparatorProcessingValueList(IValueList listModel)
 		{
-			this.listModel = listModel;
+			this.wrapped = listModel;
+		}
+
+		/**
+		 * @return the wrapped
+		 */
+		public IValueList getWrapped()
+		{
+			return wrapped;
+		}
+
+		/**
+		 * @param wrapped the wrapped to set
+		 */
+		public void setWrapped(IValueList wrapped)
+		{
+			this.wrapped = wrapped;
 		}
 
 		private Object convertToRuntimeSeparator(Object o)
@@ -599,23 +615,23 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 		public Object getRealElementAt(int row)
 		{
 			// if list does not have real values, then the real values will be display values... so separator affects those
-			return listModel.hasRealValues() ? listModel.getRealElementAt(row) : convertToRuntimeSeparator(listModel.getRealElementAt(row));
+			return wrapped.hasRealValues() ? wrapped.getRealElementAt(row) : convertToRuntimeSeparator(wrapped.getRealElementAt(row));
 		}
 
 		public int realValueIndexOf(Object o)
 		{
 			// if list does not have real values, then the real values will be display values... so separator affects those
-			return listModel.hasRealValues() ? listModel.realValueIndexOf(o) : listModel.realValueIndexOf(convertFromRuntimeSeparator(o));
+			return wrapped.hasRealValues() ? wrapped.realValueIndexOf(o) : wrapped.realValueIndexOf(convertFromRuntimeSeparator(o));
 		}
 
 		public int indexOf(Object o)
 		{
-			return listModel.indexOf(convertFromRuntimeSeparator(o));
+			return wrapped.indexOf(convertFromRuntimeSeparator(o));
 		}
 
 		public Object getElementAt(int index)
 		{
-			return convertToRuntimeSeparator(listModel.getElementAt(index));
+			return convertToRuntimeSeparator(wrapped.getElementAt(index));
 		}
 
 		// the rest of the methods are forwarded to listModel
@@ -623,57 +639,57 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 
 		public void setFallbackValueList(IValueList list)
 		{
-			listModel.setFallbackValueList(list);
+			wrapped.setFallbackValueList(list);
 		}
 
 		public void addListDataListener(ListDataListener l)
 		{
-			listModel.addListDataListener(l);
+			wrapped.addListDataListener(l);
 		}
 
 		public String getRelationName()
 		{
-			return listModel.getRelationName();
+			return wrapped.getRelationName();
 		}
 
 		public boolean hasRealValues()
 		{
-			return listModel.hasRealValues();
+			return wrapped.hasRealValues();
 		}
 
 		public int getSize()
 		{
-			return listModel.getSize();
+			return wrapped.getSize();
 		}
 
 		public void removeListDataListener(ListDataListener l)
 		{
-			listModel.getSize();
+			wrapped.removeListDataListener(l);
 		}
 
 		public void deregister()
 		{
-			listModel.deregister();
+			wrapped.deregister();
 		}
 
 		public void fill(IRecordInternal parentState)
 		{
-			listModel.fill(parentState);
+			wrapped.fill(parentState);
 		}
 
 		public boolean getAllowEmptySelection()
 		{
-			return listModel.getAllowEmptySelection();
+			return wrapped.getAllowEmptySelection();
 		}
 
 		public IValueList getFallbackValueList()
 		{
-			return listModel.getFallbackValueList();
+			return wrapped.getFallbackValueList();
 		}
 
 		public String getName()
 		{
-			return listModel.getName();
+			return wrapped.getName();
 		}
 
 	}
