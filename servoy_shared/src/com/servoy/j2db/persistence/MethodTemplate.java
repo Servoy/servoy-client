@@ -98,7 +98,7 @@ public class MethodTemplate implements IMethodTemplate
 					+ "// dont return a complete list in this mode because that will be added to the list that is already there\n"
 					+ "var args = [realValue];\n"
 					+ "return databaseManager.getDataSetByQuery(\"example_data\",\"select firstname + ' ' + lastname, employeeid from employees where employeeid = ?\",args,1);\n"
-					+ "}\n", false));
+					+ "}\nreturn null;\n", false));
 	}
 
 	private final MethodArgument signature;
