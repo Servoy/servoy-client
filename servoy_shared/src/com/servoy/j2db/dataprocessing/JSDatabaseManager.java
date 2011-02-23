@@ -1015,7 +1015,7 @@ public class JSDatabaseManager
 	 * 	application.output(dataset.getValue(i,1) +' '+ dataset.getValue(i,2) +' '+ dataset.getValue(i,3));
 	 * }
 	 *
-	 * @param record The specified record.
+	 * @param r The specified record.
 	 *
 	 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_getEditedRecords()
 	 * @see com.servoy.j2db.dataprocessing.Record#js_getChangedData()
