@@ -567,389 +567,404 @@ public class SQLGenerator
 					continue;
 				}
 
-				//filter on the || (=or)
-				ISQLCondition or = null;
-				for (String element : raw.toString().split("\\|\\|")) //$NON-NLS-1$
+				String format = state.getFormat(dataProviderID);
+				if (Utils.stringIsEmpty(format))
 				{
-					String data = element.trim();
-					if (data.length() == 0) //filter out the zero length strings
+					format = TagResolver.getDefaultFormatForType(application.getSettings(), c.getDataProviderType());
+				}
+
+				ISQLCondition or = null;
+				if (raw instanceof Object[])
+				{
+					int length = ((Object[])raw).length;
+					Object[] elements = new Object[length];
+					for (int e = 0; e < length; e++)
 					{
-						continue;
+						elements[e] = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), ((Object[])raw)[e], format, c.getLength(), null, false);
 					}
-
-					try
+					// where qCol in (e1, e2, ..., en)
+					or = new SetCondition(ISQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { qCol }, new Object[][] { elements }, true);
+				}
+				else
+				{
+					//filter on the || (=or)
+					for (String element : raw.toString().split("\\|\\|")) //$NON-NLS-1$
 					{
-						String format = state.getFormat(dataProviderID);
-						if (Utils.stringIsEmpty(format))
+						String data = element.trim();
+						if (data.length() == 0) //filter out the zero length strings
 						{
-							format = TagResolver.getDefaultFormatForType(application.getSettings(), c.getDataProviderType());
+							continue;
 						}
-						// find the format (only applicable for date columns)
-						if (c.getDataProviderType() == IColumnTypes.DATETIME)
+
+						try
 						{
-							int pipe_index = data.indexOf('|');
-							if (pipe_index != -1)//the format is speced from within javascript '1-1-2003...30-1-2003|dd-MM-yyyy'
+							// find the format (only applicable for date columns)
+							if (c.getDataProviderType() == IColumnTypes.DATETIME)
 							{
-								format = data.substring(pipe_index + 1);
-								data = data.substring(0, pipe_index);
+								int pipe_index = data.indexOf('|');
+								if (pipe_index != -1)//the format is speced from within javascript '1-1-2003...30-1-2003|dd-MM-yyyy'
+								{
+									format = data.substring(pipe_index + 1);
+									data = data.substring(0, pipe_index);
+								}
 							}
-						}
 
-						// find the operators and the modifiers
-						boolean isNot = false;
-						boolean hash = false;
-						int nullCheck = NULLCHECK_NONE;
-						int operator = ISQLCondition.EQUALS_OPERATOR;
-						String data2 = null; // for between
+							// find the operators and the modifiers
+							boolean isNot = false;
+							boolean hash = false;
+							int nullCheck = NULLCHECK_NONE;
+							int operator = ISQLCondition.EQUALS_OPERATOR;
+							String data2 = null; // for between
 
-						boolean parsing = true;
-						while (parsing && data.length() > 0)
-						{
-							char first = data.charAt(0);
-							switch (first)
+							boolean parsing = true;
+							while (parsing && data.length() > 0)
 							{
-								case '!' : // ! negation
-									if (data.startsWith("!!")) //$NON-NLS-1$ 
-									{
-										parsing = false;
-									}
-									else
-									{
-										isNot = true;
-									}
-									data = data.substring(1);
-
-									break;
-
-								case '#' : // # case insensitive (Text) or day search (Date)
-									if (data.startsWith("##")) //$NON-NLS-1$ 
-									{
-										parsing = false;
-									}
-									else
-									{
-										hash = true;
-									}
-									data = data.substring(1);
-									break;
-
-								case '^' : // ^ or ^= nullchecks
-									if (data.startsWith("^^")) //$NON-NLS-1$ 
-									{
-										data = data.substring(1);
-									}
-									else
-									{
-										if (data.startsWith("^=")) //$NON-NLS-1$
+								char first = data.charAt(0);
+								switch (first)
+								{
+									case '!' : // ! negation
+										if (data.startsWith("!!")) //$NON-NLS-1$ 
 										{
-											nullCheck = NULLCHECK_NULL_EMPTY;
+											parsing = false;
 										}
 										else
 										{
-											nullCheck = NULLCHECK_NULL;
+											isNot = true;
 										}
-									}
-									parsing = false;
-									break;
+										data = data.substring(1);
 
-								default :
+										break;
 
-									// unary operators
-									if (data.startsWith("<=") || data.startsWith("=<")) //$NON-NLS-1$ //$NON-NLS-2$ 
-									{
-										operator = ISQLCondition.LTE_OPERATOR;
-										data = data.substring(2);
-									}
-									else if (data.startsWith(">=") || data.startsWith("=>")) //$NON-NLS-1$ //$NON-NLS-2$ 
-									{
-										operator = ISQLCondition.GTE_OPERATOR;
-										data = data.substring(2);
-									}
-									else if (data.startsWith("==")) //$NON-NLS-1$ 
-									{
-										operator = ISQLCondition.EQUALS_OPERATOR;
-										data = data.substring(2);
-									}
-									else if (data.startsWith("<")) //$NON-NLS-1$ 
-									{
-										operator = ISQLCondition.LT_OPERATOR;
-										data = data.substring(1);
-									}
-									else if (data.startsWith(">")) //$NON-NLS-1$ 
-									{
-										operator = ISQLCondition.GT_OPERATOR;
-										data = data.substring(1);
-									}
-									else if (data.startsWith("=")) //$NON-NLS-1$ 
-									{
-										operator = ISQLCondition.EQUALS_OPERATOR;
-										data = data.substring(1);
-									}
-									else
-									{
-										// between ?
-										int index = data.indexOf("..."); //$NON-NLS-1$
-										if (index != -1)
+									case '#' : // # case insensitive (Text) or day search (Date)
+										if (data.startsWith("##")) //$NON-NLS-1$ 
 										{
-											data2 = data.substring(index + 3);
-											data = data.substring(0, index);
-											operator = ISQLCondition.BETWEEN_OPERATOR;
+											parsing = false;
 										}
+										else
+										{
+											hash = true;
+										}
+										data = data.substring(1);
+										break;
 
-										// regular data
+									case '^' : // ^ or ^= nullchecks
+										if (data.startsWith("^^")) //$NON-NLS-1$ 
+										{
+											data = data.substring(1);
+										}
+										else
+										{
+											if (data.startsWith("^=")) //$NON-NLS-1$
+											{
+												nullCheck = NULLCHECK_NULL_EMPTY;
+											}
+											else
+											{
+												nullCheck = NULLCHECK_NULL;
+											}
+										}
 										parsing = false;
-									}
+										break;
+
+									default :
+
+										// unary operators
+										if (data.startsWith("<=") || data.startsWith("=<")) //$NON-NLS-1$ //$NON-NLS-2$ 
+										{
+											operator = ISQLCondition.LTE_OPERATOR;
+											data = data.substring(2);
+										}
+										else if (data.startsWith(">=") || data.startsWith("=>")) //$NON-NLS-1$ //$NON-NLS-2$ 
+										{
+											operator = ISQLCondition.GTE_OPERATOR;
+											data = data.substring(2);
+										}
+										else if (data.startsWith("==")) //$NON-NLS-1$ 
+										{
+											operator = ISQLCondition.EQUALS_OPERATOR;
+											data = data.substring(2);
+										}
+										else if (data.startsWith("<")) //$NON-NLS-1$ 
+										{
+											operator = ISQLCondition.LT_OPERATOR;
+											data = data.substring(1);
+										}
+										else if (data.startsWith(">")) //$NON-NLS-1$ 
+										{
+											operator = ISQLCondition.GT_OPERATOR;
+											data = data.substring(1);
+										}
+										else if (data.startsWith("=")) //$NON-NLS-1$ 
+										{
+											operator = ISQLCondition.EQUALS_OPERATOR;
+											data = data.substring(1);
+										}
+										else
+										{
+											// between ?
+											int index = data.indexOf("..."); //$NON-NLS-1$
+											if (index != -1)
+											{
+												data2 = data.substring(index + 3);
+												data = data.substring(0, index);
+												operator = ISQLCondition.BETWEEN_OPERATOR;
+											}
+
+											// regular data
+											parsing = false;
+										}
+								}
 							}
-						}
 
-						ISQLCondition condition = null;
+							ISQLCondition condition = null;
 
-						if (nullCheck != NULLCHECK_NONE)
-						{
-							// nullchecks
-							CompareCondition compareEmpty = null;
-							if (nullCheck == NULLCHECK_NULL_EMPTY)
+							if (nullCheck != NULLCHECK_NONE)
 							{
+								// nullchecks
+								CompareCondition compareEmpty = null;
+								if (nullCheck == NULLCHECK_NULL_EMPTY)
+								{
+									switch (c.getDataProviderType())
+									{
+										case IColumnTypes.INTEGER :
+										case IColumnTypes.NUMBER :
+											compareEmpty = new CompareCondition(ISQLCondition.EQUALS_OPERATOR, qCol, new Integer(0));
+											break;
+
+										case IColumnTypes.TEXT :
+											compareEmpty = new CompareCondition(ISQLCondition.EQUALS_OPERATOR, qCol, ""); //$NON-NLS-1$
+											break;
+									}
+								}
+
+								condition = OrCondition.or(compareEmpty, new CompareCondition(ISQLCondition.EQUALS_OPERATOR, qCol, null));
+							}
+
+							else if (data.length() > 0)
+							{
+								// get the operators
+								Object value = null;
+								Object value2 = null; // for between
+								int modifier = 0;
+
 								switch (c.getDataProviderType())
 								{
 									case IColumnTypes.INTEGER :
 									case IColumnTypes.NUMBER :
-										compareEmpty = new CompareCondition(ISQLCondition.EQUALS_OPERATOR, qCol, new Integer(0));
-										break;
-
-									case IColumnTypes.TEXT :
-										compareEmpty = new CompareCondition(ISQLCondition.EQUALS_OPERATOR, qCol, ""); //$NON-NLS-1$
-										break;
-								}
-							}
-
-							condition = OrCondition.or(compareEmpty, new CompareCondition(ISQLCondition.EQUALS_OPERATOR, qCol, null));
-						}
-
-						else if (data.length() > 0)
-						{
-							// get the operators
-							Object value = null;
-							Object value2 = null; // for between
-							int modifier = 0;
-
-							switch (c.getDataProviderType())
-							{
-								case IColumnTypes.INTEGER :
-								case IColumnTypes.NUMBER :
-									Object initialObj = raw instanceof String ? data : raw;
-									Object objRightType = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), initialObj, format, c.getLength(), null,
-										false);
-									// Now get asRightType with RAW and not with the string. 
-									// Because if it is already a Number then it shouldn't be converted to String and then back
-									if (initialObj != null && objRightType == null)
-									{
-										Debug.log("Cannot convert (" + initialObj.getClass().getSimpleName() + ") " + initialObj + " to a number/int."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-										value = null;
-									}
-									else
-									{
-										value = objRightType;
-									}
-
-									// parse data2 (between)
-									if (data2 != null)
-									{
-										value2 = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), data2, format, c.getLength(), null, false);
-										if (value2 == null)
-										{
-											Debug.log("Cannot convert (" + data2.getClass().getSimpleName() + ") " + data2 + " to a number/int."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-										}
-									}
-									break;
-
-								case IColumnTypes.DATETIME :
-									// special date parsing
-									boolean dateSearch = hash;
-									Date date;
-									Date tmp = null;
-									if (data.equalsIgnoreCase("now")) //$NON-NLS-1$ 
-									{
-										date = (Date)Column.getAsRightType(c.getDataProviderType(), c.getFlags(), tmp = new Date(), c.getLength(), false);
-									}
-									else if (data.startsWith("//") || data.equalsIgnoreCase("today")) //$NON-NLS-1$ //$NON-NLS-2$
-									{
-										date = (Date)Column.getAsRightType(c.getDataProviderType(), c.getFlags(), tmp = new Date(), c.getLength(), false);
-										dateSearch = true;
-									}
-									else
-									{
+										Object initialObj = raw instanceof String ? data : raw;
+										Object objRightType = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), initialObj, format, c.getLength(),
+											null, false);
 										// Now get asRightType with RAW and not with the string. 
-										// Because if it is already a Date then it shouldn't be converted to String and then back
-										Object initialObj1 = ((raw instanceof String) ? data : raw);
-										Object tst = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), initialObj1, format, c.getLength(), null,
-											false);
-										if (tst == null && initialObj1 != null)
+										// Because if it is already a Number then it shouldn't be converted to String and then back
+										if (initialObj != null && objRightType == null)
 										{
-											// Format failed.. Reporting that to the user
-											Debug.log("Cannot parse " + initialObj1 + " using format " + format + '.'); //$NON-NLS-1$ //$NON-NLS-2$
-											date = null;
+											Debug.log("Cannot convert (" + initialObj.getClass().getSimpleName() + ") " + initialObj + " to a number/int."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+											value = null;
 										}
 										else
 										{
-											date = (Date)tst;
+											value = objRightType;
 										}
-									}
 
-									if (dateSearch && date != null)
-									{
-										if (operator == ISQLCondition.EQUALS_OPERATOR)
+										// parse data2 (between)
+										if (data2 != null)
 										{
-											value = getStartOfDay(date, c);
-											value2 = getEndOfDay(date, c);
-											operator = ISQLCondition.BETWEEN_OPERATOR;
+											value2 = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), data2, format, c.getLength(), null, false);
+											if (value2 == null)
+											{
+												Debug.log("Cannot convert (" + data2.getClass().getSimpleName() + ") " + data2 + " to a number/int."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+											}
 										}
-										else if (operator == ISQLCondition.BETWEEN_OPERATOR || operator == ISQLCondition.LT_OPERATOR ||
-											operator == ISQLCondition.GTE_OPERATOR)
-										{
-											value = getStartOfDay(date, c);
-										}
-										else
-										{
-											value = getEndOfDay(date, c);
-										}
-									}
-									else
-									{
-										value = date;
-									}
+										break;
 
-									// parse data2 (between)
-									if (data2 != null)
-									{
-										dateSearch = hash;
-										if (data2.equalsIgnoreCase("now")) //$NON-NLS-1$ 
+									case IColumnTypes.DATETIME :
+										// special date parsing
+										boolean dateSearch = hash;
+										Date date;
+										Date tmp = null;
+										if (data.equalsIgnoreCase("now")) //$NON-NLS-1$ 
 										{
-											date = (Date)Column.getAsRightType(c.getDataProviderType(), c.getFlags(), (tmp != null ? tmp : new Date()),
-												c.getLength(), false);
+											date = (Date)Column.getAsRightType(c.getDataProviderType(), c.getFlags(), tmp = new Date(), c.getLength(), false);
 										}
-										else if (data2.startsWith("//") || data2.equalsIgnoreCase("today")) //$NON-NLS-1$ //$NON-NLS-2$
+										else if (data.startsWith("//") || data.equalsIgnoreCase("today")) //$NON-NLS-1$ //$NON-NLS-2$
 										{
-											date = (Date)Column.getAsRightType(c.getDataProviderType(), c.getFlags(), (tmp != null ? tmp : new Date()),
-												c.getLength(), false);
+											date = (Date)Column.getAsRightType(c.getDataProviderType(), c.getFlags(), tmp = new Date(), c.getLength(), false);
 											dateSearch = true;
 										}
 										else
 										{
-											Object dt = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), data2, format, c.getLength(), null, false);
-											if (dt instanceof Date)
+											// Now get asRightType with RAW and not with the string. 
+											// Because if it is already a Date then it shouldn't be converted to String and then back
+											Object initialObj1 = ((raw instanceof String) ? data : raw);
+											Object tst = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), initialObj1, format, c.getLength(), null,
+												false);
+											if (tst == null && initialObj1 != null)
 											{
-												date = (Date)dt;
+												// Format failed.. Reporting that to the user
+												Debug.log("Cannot parse " + initialObj1 + " using format " + format + '.'); //$NON-NLS-1$ //$NON-NLS-2$
+												date = null;
 											}
 											else
 											{
-												Debug.log("Cannot parse '" + data2 + "' using format " + format + '.'); //$NON-NLS-1$ //$NON-NLS-2$
-												date = null;
+												date = (Date)tst;
 											}
 										}
 
 										if (dateSearch && date != null)
 										{
-											value2 = getEndOfDay(date, c);
-										}
-										else
-										{
-											value2 = date;
-										}
-									}
-									break;
-
-
-								case IColumnTypes.TEXT :
-									if (hash)
-									{
-										modifier |= ISQLCondition.CASEINSENTITIVE_MODIFIER;
-									}
-
-									if (operator == ISQLCondition.EQUALS_OPERATOR)
-									{
-										//count the amount of percents based upon the amount we decide what to do
-										int percentCount = 0;
-										char[] chars = data.toCharArray();
-										StringBuffer dataBuf = new StringBuffer();
-										boolean escapeNext = false;
-										for (char d : chars)
-										{
-											if (!escapeNext && d == '\\')
+											if (operator == ISQLCondition.EQUALS_OPERATOR)
 											{
-												escapeNext = true;
+												value = getStartOfDay(date, c);
+												value2 = getEndOfDay(date, c);
+												operator = ISQLCondition.BETWEEN_OPERATOR;
+											}
+											else if (operator == ISQLCondition.BETWEEN_OPERATOR || operator == ISQLCondition.LT_OPERATOR ||
+												operator == ISQLCondition.GTE_OPERATOR)
+											{
+												value = getStartOfDay(date, c);
 											}
 											else
 											{
-												if (!escapeNext && d == '%') percentCount++;
-												dataBuf.append(d);
-												escapeNext = false;
+												value = getEndOfDay(date, c);
 											}
 										}
-										data = dataBuf.toString();
-
-										if (percentCount > 0)
+										else
 										{
-											operator = ISQLCondition.LIKE_OPERATOR;
+											value = date;
+										}
+
+										// parse data2 (between)
+										if (data2 != null)
+										{
+											dateSearch = hash;
+											if (data2.equalsIgnoreCase("now")) //$NON-NLS-1$ 
+											{
+												date = (Date)Column.getAsRightType(c.getDataProviderType(), c.getFlags(), (tmp != null ? tmp : new Date()),
+													c.getLength(), false);
+											}
+											else if (data2.startsWith("//") || data2.equalsIgnoreCase("today")) //$NON-NLS-1$ //$NON-NLS-2$
+											{
+												date = (Date)Column.getAsRightType(c.getDataProviderType(), c.getFlags(), (tmp != null ? tmp : new Date()),
+													c.getLength(), false);
+												dateSearch = true;
+											}
+											else
+											{
+												Object dt = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), data2, format, c.getLength(), null,
+													false);
+												if (dt instanceof Date)
+												{
+													date = (Date)dt;
+												}
+												else
+												{
+													Debug.log("Cannot parse '" + data2 + "' using format " + format + '.'); //$NON-NLS-1$ //$NON-NLS-2$
+													date = null;
+												}
+											}
+
+											if (dateSearch && date != null)
+											{
+												value2 = getEndOfDay(date, c);
+											}
+											else
+											{
+												value2 = date;
+											}
+										}
+										break;
+
+
+									case IColumnTypes.TEXT :
+										if (hash)
+										{
+											modifier |= ISQLCondition.CASEINSENTITIVE_MODIFIER;
+										}
+
+										if (operator == ISQLCondition.EQUALS_OPERATOR)
+										{
+											//count the amount of percents based upon the amount we decide what to do
+											int percentCount = 0;
+											char[] chars = data.toCharArray();
+											StringBuffer dataBuf = new StringBuffer();
+											boolean escapeNext = false;
+											for (char d : chars)
+											{
+												if (!escapeNext && d == '\\')
+												{
+													escapeNext = true;
+												}
+												else
+												{
+													if (!escapeNext && d == '%') percentCount++;
+													dataBuf.append(d);
+													escapeNext = false;
+												}
+											}
+											data = dataBuf.toString();
+
+											if (percentCount > 0)
+											{
+												operator = ISQLCondition.LIKE_OPERATOR;
+											}
+										}
+										value = data;
+										value2 = data2;
+										break;
+
+									default :
+										operator = ISQLCondition.LIKE_OPERATOR;
+										value = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), data, format, c.getLength() + 2, null, false);//+2 for %...%
+								}
+
+								// create the condition
+								if (value != null)
+								{
+									if (operator == ISQLCondition.BETWEEN_OPERATOR)
+									{
+										if (value2 != null)
+										{
+											condition = new CompareCondition(operator | modifier, qCol, new Object[] { value, value2 });
 										}
 									}
-									value = data;
-									value2 = data2;
-									break;
-
-								default :
-									operator = ISQLCondition.LIKE_OPERATOR;
-									value = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), data, format, c.getLength() + 2, null, false);//+2 for %...%
+									else
+									{
+										condition = new CompareCondition(operator | modifier, qCol, value);
+									}
+								}
 							}
 
-							// create the condition
-							if (value != null)
+							if (condition != null)
 							{
-								if (operator == ISQLCondition.BETWEEN_OPERATOR)
+								if (isNot)
 								{
-									if (value2 != null)
-									{
-										condition = new CompareCondition(operator | modifier, qCol, new Object[] { value, value2 });
-									}
+									condition = condition.negate();
 								}
 								else
 								{
-									condition = new CompareCondition(operator | modifier, qCol, value);
+									// When a search on a related null-value is performed, we have to add a not-null check to the related pk to make sure
+									// the left outer join does not cause a match with the null value.
+									if (nullCheck != NULLCHECK_NONE && rfs.getRelations().size() > 0)
+									{
+										// in case of composite pk, checking only the first pk column is enough
+										Column firstForeignPKColumn = table.getRowIdentColumns().get(0);
+										condition = AndCondition.and(condition, new CompareCondition(ISQLCondition.NOT_OPERATOR, new QueryColumn(columnTable,
+											firstForeignPKColumn.getID(), firstForeignPKColumn.getSQLName(), firstForeignPKColumn.getType(),
+											firstForeignPKColumn.getLength(), firstForeignPKColumn.getScale()), null));
+									}
 								}
-							}
-						}
 
-						if (condition != null)
-						{
-							if (isNot)
-							{
-								condition = condition.negate();
+								or = OrCondition.or(or, condition);
 							}
-							else
-							{
-								// When a search on a related null-value is performed, we have to add a not-null check to the related pk to make sure
-								// the left outer join does not cause a match with the null value.
-								if (nullCheck != NULLCHECK_NONE && rfs.getRelations().size() > 0)
-								{
-									// in case of composite pk, checking only the first pk column is enough
-									Column firstForeignPKColumn = table.getRowIdentColumns().get(0);
-									condition = AndCondition.and(condition,
-										new CompareCondition(ISQLCondition.NOT_OPERATOR, new QueryColumn(columnTable, firstForeignPKColumn.getID(),
-											firstForeignPKColumn.getSQLName(), firstForeignPKColumn.getType(), firstForeignPKColumn.getLength(),
-											firstForeignPKColumn.getScale()), null));
-								}
-							}
-
-							or = OrCondition.or(or, condition);
 						}
-					}
-					catch (Exception ex)
-					{
-						if (ex instanceof ApplicationException)
+						catch (Exception ex)
 						{
-							throw (ApplicationException)ex;
+							if (ex instanceof ApplicationException)
+							{
+								throw (ApplicationException)ex;
+							}
+							Debug.error(ex);
 						}
-						Debug.error(ex);
 					}
 				}
 
