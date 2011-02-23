@@ -329,7 +329,7 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 		fireContentsChanged(this, rowIndex, rowIndex);
 		// selection changed
 		fireContentsChanged(this, -1, -1);
-		if (tmp != null)
+		if (tmp != null && relatedRecord == null)
 		{
 			relatedRecord = tmp;
 			relatedRecord.addModificationListener(this);
