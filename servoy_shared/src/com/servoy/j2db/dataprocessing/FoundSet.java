@@ -667,6 +667,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * Searching on related aggregates is supported.
 	 * For example, "orders_to_details.total_amount = '&gt;1000'" finds all orders with total order details amount more than 1000.
 	 *  
+	 * Arrays can be used for searching a number of values, this will result in an 'IN' condition that will be used in the search.
+	 * The values are not restricted to strings but can be any type that matches the column type.
+	 * For example, "record.department_id = [1, 33, 99]"
+	 *  
 	 * @sample
 	 * if (%%prefix%%foundset.find()) //find will fail if autosave is disabled and there are unsaved records
 	 * {
