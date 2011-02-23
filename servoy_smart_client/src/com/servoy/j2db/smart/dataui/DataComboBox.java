@@ -1576,6 +1576,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 				IValueList newVl = ValueListFactory.fillRealValueList(application, valuelist, ValueList.CUSTOM_VALUES, frmt, type, value);
 				vl = newVl;
 				getListModelWrapper().register(vl);
+				setEditable(isEditable());
 			}
 		}
 	}
