@@ -539,7 +539,7 @@ public class ComponentFactory
 		return pair;
 	}
 
-	public static final String[] LOOKUP_NAMES = { "button", "check", "combobox", "field", "form", "label", "portal", "radio", "tabpanel" };
+	public static final String[] LOOKUP_NAMES = { "button", "check", "combobox", ISupportRowStyling.CLASS_EVEN, "field", "form", "label", ISupportRowStyling.CLASS_ODD, "portal", "radio", ISupportRowStyling.CLASS_SELECTED, "tabpanel" };
 
 	/**
 	 * @param bc
