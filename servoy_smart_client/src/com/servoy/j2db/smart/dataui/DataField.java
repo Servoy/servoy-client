@@ -1266,19 +1266,9 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 								setFormatterFactory(new DefaultFormatterFactory(displayFormatter, displayFormatter, editFormatter, editFormatter));
 								break;
 							case IColumnTypes.DATETIME :
-								boolean mask = false;
-								char placeHolder = 0;
-								if (editFormat.equals("raw") || editFormat.equals("")) editFormat = displayFormat; //$NON-NLS-1$//$NON-NLS-2$
-								else if (editFormat.endsWith("mask")) //$NON-NLS-1$
-								{
-									int placeHolderIndex = editFormat.indexOf('|');
-									if (placeHolderIndex != -1)
-									{
-										placeHolder = editFormat.substring(0, placeHolderIndex).charAt(0);
-									}
-									mask = true;
-									editFormat = displayFormat;
-								}
+								boolean mask = fp.isMask();
+								char placeHolder = fp.getPlaceHolderCharacter();
+								if (mask || editFormat.equals("raw") || editFormat.equals("")) editFormat = displayFormat; //$NON-NLS-1$//$NON-NLS-2$
 
 								displayFormatter = new NullDateFormatter(new StateFullSimpleDateFormat(displayFormat, false));
 								editFormatter = new NullDateFormatter(new StateFullSimpleDateFormat(editFormat, Boolean.TRUE.equals(UIUtils.getUIProperty(this,
