@@ -253,8 +253,8 @@ public class ComponentFactory
 						// Designer all always real components!!
 						retval = (JComponent)application.getItemFactory().createLabel(null, "Tabless panel, for JavaScript use");
 						((IStandardLabel)retval).setHorizontalAlignment(SwingConstants.CENTER);
-						applyBasicComponentProperties(application, (IComponent)retval, (BaseComponent)meta, getStyleForBasicComponent(application,
-							(BaseComponent)meta, form));
+						applyBasicComponentProperties(application, (IComponent)retval, (BaseComponent)meta,
+							getStyleForBasicComponent(application, (BaseComponent)meta, form));
 					}
 					else
 					{
@@ -724,7 +724,9 @@ public class ComponentFactory
 					}
 				}
 				//else c.setOpaque(false); // no background-color means transparent
-				if (s.getAttribute(CSS.Attribute.FONT_FAMILY) != null || s.getAttribute(CSS.Attribute.FONT) != null)
+				if (s.getAttribute(CSS.Attribute.FONT_FAMILY) != null || s.getAttribute(CSS.Attribute.FONT) != null ||
+					s.getAttribute(CSS.Attribute.FONT_SIZE) != null || s.getAttribute(CSS.Attribute.FONT_STYLE) != null ||
+					s.getAttribute(CSS.Attribute.FONT_VARIANT) != null || s.getAttribute(CSS.Attribute.FONT_WEIGHT) != null)
 				{
 					Font f = ss.getFont(s);
 					if (f != null) c.setFont(f);
@@ -1279,8 +1281,9 @@ public class ComponentFactory
 									}
 									catch (IOException e)
 									{
-										Debug.error("Exception loading properties for converter " + converter.getName() + ", properties: " +
-											ci.getConverterProperties(), e);
+										Debug.error(
+											"Exception loading properties for converter " + converter.getName() + ", properties: " +
+												ci.getConverterProperties(), e);
 									}
 								}
 							}
