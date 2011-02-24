@@ -205,7 +205,8 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 					label.setHorizontalAlignment(getHorizontalAlignment());
 					label.setVerticalAlignment(getVerticalAlignment());
 				}
-				lfComponent.setPreferredSize(new Dimension(lfComponent.getPreferredSize().width, (int)gc.getSize().getHeight()));
+				// take the height of the first column label
+				if (column == 0) lfComponent.setPreferredSize(new Dimension(lfComponent.getPreferredSize().width, (int)gc.getSize().getHeight()));
 			}
 			return lfComponent;
 		}

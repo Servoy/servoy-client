@@ -593,6 +593,7 @@ public class TemplateGenerator
 				}
 
 				int currentColumnCount = 0;
+				int headerHeight = 0;
 				it2 = obj.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 				while (it2.hasNext())
 				{
@@ -628,6 +629,7 @@ public class TemplateGenerator
 							GraphicalComponent label = labelsFor.get(((IFormElement)element).getName());
 							if (label != null)
 							{
+								if (currentColumnCount == 1) headerHeight = label.getSize().height;
 								html.append(' ');
 								BorderAndPadding ins = applyBaseComponentProperties(label, form, styleObj, (Insets)DEFAULT_LABEL_PADDING.clone(), null, sp);
 								// some css attributes were not applied
@@ -679,7 +681,7 @@ public class TemplateGenerator
 								if (cssBorder != null && label.getBorderType() == null) ComponentFactoryHelper.createBorderCSSProperties(
 									ComponentFactoryHelper.createBorderString(cssBorder), bgborderstyleObj);
 								else ComponentFactoryHelper.createBorderCSSProperties(label.getBorderType(), bgborderstyleObj);
-								bgborderstyleObj.setProperty(CSS.Attribute.HEIGHT.toString(), label.getSize().height + "px");
+								if (headerHeight > 0) bgborderstyleObj.setProperty(CSS.Attribute.HEIGHT.toString(), headerHeight + "px");
 								html.append(bgborderstyleObj.toString());
 								Enumeration<Object> e = bgborderstyleObj.keys();
 								while (e.hasMoreElements())
