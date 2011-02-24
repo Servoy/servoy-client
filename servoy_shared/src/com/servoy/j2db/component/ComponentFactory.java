@@ -126,6 +126,7 @@ import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISplitPane;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
+import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.ComponentFactoryHelper;
@@ -1108,8 +1109,9 @@ public class ComponentFactory
 									}
 									catch (IOException e)
 									{
-										Debug.error("Exception loading properties for converter " + converter.getName() + ", properties: " +
-											ci.getConverterProperties(), e);
+										Debug.error(
+											"Exception loading properties for converter " + converter.getName() + ", properties: " +
+												ci.getConverterProperties(), e);
 									}
 								}
 							}
@@ -1748,7 +1750,8 @@ public class ComponentFactory
 			{
 				lookupname += '.' + meta.getStyleClass();
 			}
-			portalComponent.setRowStyles(ss, ss.getRule(lookupname + " odd"), ss.getRule(lookupname + " even"), ss.getRule(lookupname + " selected"));
+			portalComponent.setRowStyles(ss, ss.getRule(lookupname + " " + ISupportRowStyling.CLASS_ODD),
+				ss.getRule(lookupname + " " + ISupportRowStyling.CLASS_EVEN), ss.getRule(lookupname + " " + ISupportRowStyling.CLASS_SELECTED));
 		}
 		return portalComponent;
 	}

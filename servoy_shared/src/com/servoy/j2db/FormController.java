@@ -99,6 +99,7 @@ import com.servoy.j2db.ui.IAccessible;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
+import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
@@ -1552,9 +1553,9 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				lookupname += '.' + formStyleClass;
 			}
 			s = ss.getRule(lookupname);
-			styleOdd = ss.getRule(lookupname + " odd"); //$NON-NLS-1$
-			styleEven = ss.getRule(lookupname + " even"); //$NON-NLS-1$
-			styleSelected = ss.getRule(lookupname + " selected"); //$NON-NLS-1$
+			styleOdd = ss.getRule(lookupname + " " + ISupportRowStyling.CLASS_ODD); //$NON-NLS-1$
+			styleEven = ss.getRule(lookupname + " " + ISupportRowStyling.CLASS_EVEN); //$NON-NLS-1$
+			styleSelected = ss.getRule(lookupname + " " + ISupportRowStyling.CLASS_SELECTED); //$NON-NLS-1$
 			if (s != null)
 			{
 				if (border == null)

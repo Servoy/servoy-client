@@ -26,6 +26,10 @@ import javax.swing.text.html.StyleSheet;
  */
 public interface ISupportRowStyling
 {
+	String CLASS_ODD = "odd"; //$NON-NLS-1$
+	String CLASS_EVEN = "even"; //$NON-NLS-1$
+	String CLASS_SELECTED = "selected"; //$NON-NLS-1$
+
 	enum ATTRIBUTE
 	{
 		BGCOLOR, FGCOLOR, FONT
