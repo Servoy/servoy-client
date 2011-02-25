@@ -19,6 +19,7 @@ package com.servoy.j2db.server.headlessclient.dataui;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.markup.html.form.CheckBox;
 
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataCalendar.DateField;
@@ -91,7 +92,7 @@ public class ServoyFormComponentUpdatingBehavior extends ServoyAjaxFormComponent
 	{
 		if (super.isEnabled(comp))
 		{
-			if (!eventExecutor.hasLeaveCmds() || component instanceof DateField)
+			if (!eventExecutor.hasLeaveCmds() || component instanceof DateField || component instanceof CheckBox)
 			{
 				if (comp instanceof IScriptReadOnlyMethods)
 				{
