@@ -2011,7 +2011,7 @@ public class Utils
 			{
 				double a = ((Number)oldObj).doubleValue();
 				double b = ((Number)obj).doubleValue();
-				return (a == b || (Math.abs(a - b) < equalsPrecision && ((1 - equalsPrecision) < a / b && a / b < (1 + equalsPrecision))));
+				return a == b || Math.abs(a - b) < equalsPrecision;
 			}
 			return ((Number)oldObj).longValue() == ((Number)obj).longValue();
 		}
