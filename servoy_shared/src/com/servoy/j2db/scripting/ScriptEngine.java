@@ -37,9 +37,9 @@ import org.mozilla.javascript.Wrapper;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.ExitScriptException;
 import com.servoy.j2db.FormController;
+import com.servoy.j2db.FormManager.HistoryProvider;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ISmartClientApplication;
-import com.servoy.j2db.FormManager.HistoryProvider;
 import com.servoy.j2db.dataprocessing.DataException;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
@@ -506,7 +506,10 @@ public class ScriptEngine implements IScriptSupport
 			}
 			if (Context.getCurrentContext() == null && !application.isShutDown())
 			{
-				application.getFlattenedSolution().checkStateForms(application);
+				if (application.isEventDispatchThread() && !(scope instanceof TableScope))
+				{
+					application.getFlattenedSolution().checkStateForms(application);
+				}
 				String userUidAfter = application.getClientInfo().getUserUid();
 				if (!Utils.stringSafeEquals(userUidBefore, userUidAfter))
 				{
