@@ -289,11 +289,11 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		}
 		if (solution.getLoginFormID() > 0 && solution.getMustAuthenticate() && application.getUserUID() != null && loginForm != null)
 		{
-			if (currentContainer.getController() != null && currentContainer.getController().getForm() == loginForm)
+			if (currentContainer.getController() != null && loginForm.getName().equals(currentContainer.getController().getForm().getName()))
 			{
 				currentContainer.setFormController(null);
 			}
-			if (mainContainer.getController() != null && mainContainer.getController().getForm() == loginForm)
+			if (mainContainer.getController() != null && loginForm.getName().equals(mainContainer.getController().getForm().getName()))
 			{
 				mainContainer.setFormController(null);
 			}
