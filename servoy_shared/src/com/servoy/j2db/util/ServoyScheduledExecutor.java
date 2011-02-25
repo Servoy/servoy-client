@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util;
 
 import java.util.ArrayList;
@@ -44,6 +44,15 @@ public class ServoyScheduledExecutor extends ThreadPoolExecutor implements Sched
 	{
 		public void run()
 		{
+			try
+			{
+				// sleep for a while so that if there are more then one of these 
+				// runnables inserted it doesn't get handled by 1 worker.
+				Thread.sleep(10);
+			}
+			catch (InterruptedException e)
+			{
+			}
 		}
 	};
 	private volatile ScheduledThreadPoolExecutor scheduledService;
@@ -87,6 +96,23 @@ public class ServoyScheduledExecutor extends ThreadPoolExecutor implements Sched
 		return scheduledService;
 	}
 
+	// a thread local that will be set on threads of this scheduler, to check recusion in execute
+	private static final ThreadLocal<Boolean> schedulerThreadsCheck = new ThreadLocal<Boolean>();
+
+	@Override
+	protected void beforeExecute(Thread t, Runnable r)
+	{
+		schedulerThreadsCheck.set(Boolean.TRUE);
+		super.beforeExecute(t, r);
+	}
+
+	@Override
+	protected void afterExecute(Runnable r, Throwable t)
+	{
+		schedulerThreadsCheck.remove();
+		super.afterExecute(r, t);
+	}
+
 	/**
 	 * @see java.util.concurrent.ScheduledExecutorService#schedule(java.lang.Runnable, long, java.util.concurrent.TimeUnit)
 	 */
@@ -127,19 +153,23 @@ public class ServoyScheduledExecutor extends ThreadPoolExecutor implements Sched
 	{
 		// hack around the fact that the java 5 Executor will not grow and shrink like we want it to.
 		// java 6 has support for it to also be able to time out core pool threads.
-		int activeCount = super.getActiveCount();
-		int coreSize = super.getCorePoolSize();
-		if (activeCount >= coreSize && super.getMaximumPoolSize() > coreSize)
+		// make it also always one bigger if the caller is a scheduler thread it self and the active count => current core size.
+		synchronized (schedulerThreadsCheck)
 		{
-			setCorePoolSize(coreSize + 1);
-		}
-		else if (coreSize > executorSize && (activeCount + 1) < coreSize)
-		{
-			int newCoreSize = Math.max(executorSize, activeCount + 1);
-			setCorePoolSize(newCoreSize);
-			while (newCoreSize++ < coreSize)
+			int activeCount = super.getActiveCount();
+			int coreSize = super.getCorePoolSize();
+			if (activeCount >= coreSize && (super.getMaximumPoolSize() > coreSize || schedulerThreadsCheck.get() != null))
 			{
-				super.execute(NOTHING);
+				setCorePoolSize(coreSize + 1);
+			}
+			else if (coreSize > executorSize && (activeCount + 1) < coreSize)
+			{
+				int newCoreSize = Math.max(executorSize, activeCount + 1);
+				setCorePoolSize(newCoreSize);
+				while (newCoreSize++ < coreSize)
+				{
+					super.execute(NOTHING);
+				}
 			}
 		}
 		super.execute(command);
