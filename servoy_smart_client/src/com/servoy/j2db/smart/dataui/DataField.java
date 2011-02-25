@@ -2193,6 +2193,11 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		return false;
 	}
 
+	public void setTheFormatter(AbstractFormatter format)
+	{
+		setFormatter(format);
+	}
+
 	@Override
 	public String toString()
 	{
