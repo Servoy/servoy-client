@@ -316,10 +316,24 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 			}
 			selectedSet.remove(i);
 		}
+		// when firing tmp remove the listener from the relatedRecord
+		// so that we don't get a modification change from our own fire.
+		IRecordInternal tmp = null;
+		if (relatedRecord != null)
+		{
+			relatedRecord.removeModificationListener(this);
+			tmp = relatedRecord;
+			relatedRecord = null;
+		}
 		// data changed
 		fireContentsChanged(this, rowIndex, rowIndex);
 		// selection changed
 		fireContentsChanged(this, -1, -1);
+		if (tmp != null && relatedRecord == null)
+		{
+			relatedRecord = tmp;
+			relatedRecord.addModificationListener(this);
+		}
 	}
 
 	protected Set<Integer> selectedSet;
