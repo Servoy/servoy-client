@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting;
 
 
@@ -21,8 +21,11 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Formatter;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import org.mozilla.javascript.ScriptRuntime;
@@ -34,7 +37,6 @@ import com.servoy.j2db.dataprocessing.JSDatabaseManager;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.FixedFormatter;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
@@ -862,9 +864,46 @@ public class JSUtils
 	public String js_stringFormat(String text_to_format, Object parameters_array)
 	{
 		if (text_to_format == null) return null;
-		if (parameters_array instanceof Object[]) return new FixedFormatter().format(text_to_format, (Object[])parameters_array).toString();
+		if (parameters_array instanceof Object[])
+		{
+			Object[] parameters = (Object[])parameters_array;
+			for (int i = 0; i < parameters.length; i++)
+			{
+				if (parameters[i] instanceof Integer)
+				{
+					// possible problem
+					int j = 0;
+					int position = text_to_format.indexOf("%");
+					while (j != i && position >= 0)
+					{
+						j++;
+						position = text_to_format.indexOf("%", position + 1);
+					}
+					if (i == j && position >= 0)
+					{
+						List<Character> conversionsList = Arrays.asList(CONVERSIONS);
+
+						for (int k = position + 1; k < text_to_format.length(); k++)
+						{
+							if (text_to_format.charAt(k) == 'f')
+							{
+								parameters[i] = new Float((Integer)parameters[i]);
+								break;
+							}
+							if (conversionsList.contains(text_to_format.charAt(k)))
+							{
+								break;
+							}
+						}
+					}
+				}
+			}
+			return new Formatter().format(text_to_format, parameters).toString();
+		}
 		else return text_to_format;
 	}
+
+	private final Character[] CONVERSIONS = new Character[] { 'b', 'B', 'h', 'H', 's', 'S', 'c', 'C', 'd', 'o', 'x', 'X', 'e', 'E', 'g', 'G', 'a', 'A', 't', 'T', 'n' };
 
 	/**
 	 * Returns the number of words in the text string.
