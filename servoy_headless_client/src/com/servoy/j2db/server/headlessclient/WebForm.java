@@ -82,7 +82,6 @@ import com.servoy.j2db.persistence.FormElementGroup;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportAnchors;
 import com.servoy.j2db.persistence.ISupportBounds;
-import com.servoy.j2db.persistence.ISupportScrollbars;
 import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.plugins.PluginManager;
@@ -195,47 +194,6 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 				return (component.findParent(WebTabPanel.class) != null) || (component.findParent(WebSplitPane.class) != null);
 			}
 		});
-		final int scrollBars = controller.getForm().getScrollbars();
-		add(new StyleAppendingModifier(new Model<String>()
-		{
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public String getObject()
-			{
-				WebTabPanel tabpanel = findParent(WebTabPanel.class);
-				if (tabpanel != null)
-				{
-					String overflow = ""; //$NON-NLS-1$
-					if ((scrollBars & ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER)
-					{
-						overflow += "overflow-x: hidden;"; //$NON-NLS-1$
-					}
-					else if ((scrollBars & ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS)
-					{
-						overflow += "overflow-x: scroll;"; //$NON-NLS-1$
-					}
-					else
-					{
-						overflow += "overflow-x: auto;"; //$NON-NLS-1$
-					}
-					if ((scrollBars & ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER) == ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER)
-					{
-						overflow += "overflow-y: hidden;"; //$NON-NLS-1$
-					}
-					else if ((scrollBars & ISupportScrollbars.VERTICAL_SCROLLBAR_ALWAYS) == ISupportScrollbars.VERTICAL_SCROLLBAR_ALWAYS)
-					{
-						overflow += "overflow-y: scroll;"; //$NON-NLS-1$
-					}
-					else
-					{
-						overflow += "overflow-y: auto;"; //$NON-NLS-1$
-					}
-					return overflow;
-				}
-				return null;
-			}
-		}));
 
 		container = new WebMarkupContainer("servoywebform"); //$NON-NLS-1$
 		// we need to explicitly make the form transparent, to override the
