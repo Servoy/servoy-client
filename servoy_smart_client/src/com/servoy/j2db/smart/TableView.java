@@ -76,6 +76,7 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.text.JTextComponent;
 
 import com.servoy.j2db.FormController;
+import com.servoy.j2db.FormDialog;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IView;
@@ -1282,6 +1283,18 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 			{
 				b = parent.isVisible();
 				parent = parent.getParent();
+			}
+			if (b)
+			{
+				// one more try for fids
+				while (parent != null && !(parent instanceof FormDialog))
+				{
+					parent = parent.getParent();
+					if (parent instanceof FormDialog)
+					{
+						b = parent.isVisible();
+					}
+				}
 			}
 			// if this tableview is already invisible return the previous row count
 			if (!b) return prevRowCount;
