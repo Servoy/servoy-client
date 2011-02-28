@@ -2258,7 +2258,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	}
 
 	/**
-	 * Returns all JSLabels of this form, including the ones without a name.
+	 * Returns all JSLabels of this form (optionally including it super forms labels), including the ones without a name.
 	 *
 	 * @sample 
 	 * 	var frm = solutionModel.getForm("myForm");
@@ -2270,7 +2270,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 * 			application.output(lname);
 	 * 	}
 	 * 
-	 * @param returnInheritedElements optional boolean true to also return the elements from parent form, default false 
+	 * @param returnInheritedElements boolean true to also return the elements from parent form 
 	 * @return all JSLabels on this form
 	 *
 	 */
@@ -2311,6 +2311,22 @@ public class JSForm implements IJSParent, IConstantsObject
 		return labels.toArray(new JSLabel[labels.size()]);
 	}
 
+	/**
+	 * Returns all JSLabels of this form (not including its super form), including the ones without a name.
+	 *
+	 * @sample 
+	 * 	var frm = solutionModel.getForm("myForm");
+	 * 	var labels = frm.getLabels();
+	 * 	for (var i in labels)
+	 * 	{
+	 * 		var lname = labels[i].name;
+	 * 		if (lname != null)
+	 * 			application.output(lname);
+	 * 	}
+	 * 
+	 * @return all JSLabels on this form
+	 *
+	 */
 	public JSLabel[] js_getLabels()
 	{
 		return js_getLabels(false);
