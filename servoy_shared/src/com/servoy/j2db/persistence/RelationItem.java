@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -29,17 +29,17 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 {
 
 	public static final int[] RELATION_OPERATORS = new int[] {
-	// standard set
+		// standard set
 	ISQLCondition.EQUALS_OPERATOR, ISQLCondition.GT_OPERATOR, ISQLCondition.LT_OPERATOR, ISQLCondition.GTE_OPERATOR, ISQLCondition.LTE_OPERATOR, ISQLCondition.NOT_OPERATOR, ISQLCondition.IN_OPERATOR, ISQLCondition.LIKE_OPERATOR, ISQLCondition.NOT_LIKE_OPERATOR,
-	// case insensitive
+		// case insensitive
 	ISQLCondition.EQUALS_OPERATOR | ISQLCondition.CASEINSENTITIVE_MODIFIER, ISQLCondition.NOT_OPERATOR | ISQLCondition.CASEINSENTITIVE_MODIFIER, ISQLCondition.LIKE_OPERATOR |
 		ISQLCondition.CASEINSENTITIVE_MODIFIER, ISQLCondition.NOT_LIKE_OPERATOR | ISQLCondition.CASEINSENTITIVE_MODIFIER,
-	// or null
+		// or null
 	ISQLCondition.EQUALS_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.GT_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.LT_OPERATOR |
 		ISQLCondition.ORNULL_MODIFIER, ISQLCondition.GTE_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.LTE_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.NOT_OPERATOR |
 		ISQLCondition.ORNULL_MODIFIER, ISQLCondition.IN_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.LIKE_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.NOT_LIKE_OPERATOR |
 		ISQLCondition.ORNULL_MODIFIER,
-	// case insensitive or null
+		// case insensitive or null
 	ISQLCondition.EQUALS_OPERATOR | ISQLCondition.CASEINSENTITIVE_MODIFIER | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.NOT_OPERATOR |
 		ISQLCondition.CASEINSENTITIVE_MODIFIER | ISQLCondition.ORNULL_MODIFIER,
 	// 
@@ -305,6 +305,7 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 	 */
 	public void setOperator(int operator)
 	{
+		checkForChange(this.operator, operator);
 		this.operator = operator;
 	}
 
