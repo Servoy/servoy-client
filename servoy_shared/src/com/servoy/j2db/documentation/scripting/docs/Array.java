@@ -306,7 +306,7 @@ public class Array
 	 *
 	 * @sample
 	 * var words = new Array("limit","lines","finish","complete","In","Out");
-	 * var nwords1 = words.splice(3, 5);
+	 * var nwords1 = words.slice(3, 5);
 	 *
 	 * @param begin 
 	 * @param end optional 
@@ -363,7 +363,7 @@ public class Array
 	 *
 	 * @param arrayIndex 
 	 * @param length 
-	 * @param value1
+	 * @param value1 optional
 	 * @param value2 optional
 	 * @param valueN optional
 	 * 
