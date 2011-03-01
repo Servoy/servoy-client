@@ -314,9 +314,11 @@ public class NativeObjectSerializer extends AbstractSerializer
 
 	private Object getUnmarshalled(SerializerState state, Object jsonValue) throws UnmarshallException
 	{
+		Object unmarshalled;
 		if (jsonValue instanceof JSONObject)
 		{
 			JSONObject jsonObjectValue = (JSONObject)jsonValue;
+			Class< ? > clazz = null;
 			if (jsonObjectValue.has("javaClass")) //$NON-NLS-1$
 			{
 				String classHint;
@@ -330,19 +332,24 @@ public class NativeObjectSerializer extends AbstractSerializer
 				}
 				try
 				{
-					jsonValue = ser.unmarshall(state, Class.forName(classHint), jsonValue);
+					clazz = Class.forName(classHint);
 				}
 				catch (ClassNotFoundException ex)
 				{
 					throw new UnmarshallException("cannot find class for " + classHint); //$NON-NLS-1$
 				}
 			}
+			unmarshalled = ser.unmarshall(state, clazz, jsonValue);
 		}
 		else if (handleArrays && jsonValue instanceof JSONArray)
 		{
-			jsonValue = ser.unmarshall(state, NativeArray.class, jsonValue);
+			unmarshalled = ser.unmarshall(state, NativeArray.class, jsonValue);
 		}
-		return JSONSerializerWrapper.unwrapFromJSON(jsonValue);
+		else
+		{
+			unmarshalled = jsonValue;
+		}
+		return JSONSerializerWrapper.unwrapFromJSON(unmarshalled);
 	}
 
 	private boolean hasPropertyMark(JSONObject jso)
