@@ -29,7 +29,6 @@ Bundle-ClassPath: .,
  lib/httpclient.jar,
  lib/httpcore.jar,
  lib/jcifs.jar,
- lib/slf4j-jdk14.jar,
  lib/apache-mime4j.jar,
  lib/httpmime.jar
 Require-Bundle: org.eclipse.dltk.javascript.rhino
