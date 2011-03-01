@@ -56,6 +56,8 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.text.Document;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.ISupportVisibleChangeListener;
+import com.servoy.j2db.IVisibleChangeListener;
 import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.GlobalMethodValueList;
 import com.servoy.j2db.dataprocessing.IDisplayDependencyData;
@@ -101,6 +103,16 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 
 
 	private static Timer timer = new Timer("Lookup ValueList Timer", true); //$NON-NLS-1$
+
+	private ISupportVisibleChangeListener popupParentWithVisibleChangeSupport;
+	private final IVisibleChangeListener popupParentVisibleChangeListener = new IVisibleChangeListener()
+	{
+
+		public void beforeVisibleChange(boolean newVisibleState)
+		{
+			if (popup != null && !newVisibleState) popup.setVisible(false);
+		}
+	};
 
 	public DataLookupField(IApplication app, CustomValueList list)
 	{
@@ -501,6 +513,16 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 		if (popup == null)
 		{
 			popup = new JWindow(windowParent);
+			if (windowParent instanceof ISupportVisibleChangeListener)
+			{
+				if (popupParentWithVisibleChangeSupport != null && !popupParentWithVisibleChangeSupport.equals(windowParent))
+				{
+					popupParentWithVisibleChangeSupport.removeVisibleChangeListener(popupParentVisibleChangeListener);
+				}
+				popupParentWithVisibleChangeSupport = (ISupportVisibleChangeListener)windowParent;
+				popupParentWithVisibleChangeSupport.addVisibleChangeListener(popupParentVisibleChangeListener);
+
+			}
 			popup.setFocusable(false);
 			popup.getContentPane().setLayout(new BorderLayout());
 
@@ -837,8 +859,8 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 			jlist = null;
 		}
 		if (list != null && changeListener != null) list.removeListDataListener(changeListener);
+		if (popupParentWithVisibleChangeSupport != null) popupParentWithVisibleChangeSupport.removeVisibleChangeListener(popupParentVisibleChangeListener);
 	}
-
 
 	/**
 	 * @author jcompagner
@@ -953,4 +975,6 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 			return super.getListCellRendererComponent(lst, value, index, isSelected, cellHasFocus);
 		}
 	}
+
+
 }

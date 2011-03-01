@@ -24,6 +24,7 @@ import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,7 +50,7 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jblok
  */
-public class FormDialog extends JEscapeDialog implements FormWindow
+public class FormDialog extends JEscapeDialog implements FormWindow, ISupportVisibleChangeListener
 {
 	private static final long serialVersionUID = 1L;
 
@@ -127,6 +128,9 @@ public class FormDialog extends JEscapeDialog implements FormWindow
 	@Override
 	public void setVisible(boolean b)
 	{
+		for (IVisibleChangeListener l : visibleChangeListeners)
+			l.beforeVisibleChange(b);
+
 		if (!b)
 		{
 			// For future implementation of case 286968 change
@@ -302,4 +306,17 @@ public class FormDialog extends JEscapeDialog implements FormWindow
 			}
 		}
 	}
+
+	private final ArrayList<IVisibleChangeListener> visibleChangeListeners = new ArrayList<IVisibleChangeListener>();
+
+	public void addVisibleChangeListener(IVisibleChangeListener l)
+	{
+		if (visibleChangeListeners.indexOf(l) == -1) visibleChangeListeners.add(l);
+	}
+
+	public void removeVisibleChangeListener(IVisibleChangeListener l)
+	{
+		visibleChangeListeners.remove(l);
+	}
+
 }
