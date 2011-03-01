@@ -26,7 +26,7 @@ public class SQLKeywords
 	//SQL Related
 	public final static String[] keywords = new String[] { //
 
-	// SQL related
+		// SQL related
 	"truncate", //$NON-NLS-1$
 	"type", //$NON-NLS-1$
 	"number", //$NON-NLS-1$
@@ -42,7 +42,7 @@ public class SQLKeywords
 	"version",//problem for sybase //$NON-NLS-1$
 	"release",//problem for sybase //$NON-NLS-1$
 
-	//begin, hypersonic small list special words
+		//begin, hypersonic small list special words
 	"cached", //$NON-NLS-1$
 	"datetime", //$NON-NLS-1$
 	"limit", //$NON-NLS-1$
@@ -284,7 +284,7 @@ public class SQLKeywords
 	"year", //$NON-NLS-1$
 	"zone", //$NON-NLS-1$
 
-	//	Firebird
+		//	Firebird
 	"active", //$NON-NLS-1$
 	"admin", //$NON-NLS-1$
 	"after", //$NON-NLS-1$
@@ -391,7 +391,7 @@ public class SQLKeywords
 	"temporary", //$NON-NLS-1$
 	"ties", //$NON-NLS-1$
 
-	// Sybase ASA
+		// Sybase ASA
 	"backup", //$NON-NLS-1$
 	"bigint", //$NON-NLS-1$
 	"binary", //$NON-NLS-1$
@@ -485,16 +485,93 @@ public class SQLKeywords
 	"with_lparen", //$NON-NLS-1$
 	"writetext", //$NON-NLS-1$
 
-	// MySql
+		// MySql
 	"ignore", //$NON-NLS-1$
 	"load", //$NON-NLS-1$
 
-	// PostgreSQL
+		// PostgreSQL
 	"domains", //$NON-NLS-1$
 
-	// Oracle
+		// Oracle
 	"uid", //$NON-NLS-1$
 	"length", //$NON-NLS-1$
+
+		// some more found in Hibernate dialects
+	"account", //$NON-NLS-1$
+	"alias", //$NON-NLS-1$
+	"arith_overflow", //$NON-NLS-1$
+	"artition", //$NON-NLS-1$
+	"browse", //$NON-NLS-1$
+	"bulk", //$NON-NLS-1$
+	"class", //$NON-NLS-1$
+	"clustered", //$NON-NLS-1$
+	"compute", //$NON-NLS-1$
+	"confirm", //$NON-NLS-1$
+	"controlrow", //$NON-NLS-1$
+	"count_big", //$NON-NLS-1$
+	"dbcc", //$NON-NLS-1$
+	"decrypt", //$NON-NLS-1$
+	"determnistic", //$NON-NLS-1$
+	"disk", //$NON-NLS-1$
+	"dummy", //$NON-NLS-1$
+	"dump", //$NON-NLS-1$
+	"encrypt", //$NON-NLS-1$
+	"endtran", //$NON-NLS-1$
+	"errlvl", //$NON-NLS-1$
+	"errordata", //$NON-NLS-1$
+	"errorexit", //$NON-NLS-1$
+	"exclusive", //$NON-NLS-1$
+	"exist", //$NON-NLS-1$
+	"exp_row_size", //$NON-NLS-1$
+	"fillfactor", //$NON-NLS-1$
+	"identity_gap", //$NON-NLS-1$
+	"identity_start", //$NON-NLS-1$
+	"jar", //$NON-NLS-1$
+	"kill", //$NON-NLS-1$
+	"lineno", //$NON-NLS-1$
+	"materialized", //$NON-NLS-1$
+	"max_rows_per_page", //$NON-NLS-1$
+	"mirror", //$NON-NLS-1$
+	"mirrorexit", //$NON-NLS-1$
+	"nonclustered", //$NON-NLS-1$
+	"nonscrollable", //$NON-NLS-1$
+	"non_sensitive", //$NON-NLS-1$
+	"numeric_truncation", //$NON-NLS-1$
+	"offsets", //$NON-NLS-1$
+	"once", //$NON-NLS-1$
+	"online", //$NON-NLS-1$
+	"perm", //$NON-NLS-1$
+	"permanent", //$NON-NLS-1$
+	"processexit", //$NON-NLS-1$
+	"proxy_table", //$NON-NLS-1$
+	"quiesce", //$NON-NLS-1$
+	"readpast", //$NON-NLS-1$
+	"reconfigure", //$NON-NLS-1$
+	"reorg", //$NON-NLS-1$
+	"replace", //$NON-NLS-1$
+	"replication", //$NON-NLS-1$
+	"reservepagegap", //$NON-NLS-1$
+	"rowcount", //$NON-NLS-1$
+	"rule", //$NON-NLS-1$
+	"scrollable", //$NON-NLS-1$
+	"semi_sensitive", //$NON-NLS-1$
+	"shutdown", //$NON-NLS-1$
+	"stringsize", //$NON-NLS-1$
+	"stripe", //$NON-NLS-1$
+	"summary", //$NON-NLS-1$
+	"syb_identity", //$NON-NLS-1$
+	"syb_restree", //$NON-NLS-1$
+	"syb_terminate", //$NON-NLS-1$
+	"textsize", //$NON-NLS-1$
+	"title", //$NON-NLS-1$
+	"tracefile", //$NON-NLS-1$
+	"unpartition", //$NON-NLS-1$
+	"use", //$NON-NLS-1$
+	"user_option", //$NON-NLS-1$
+	"xmlextract", //$NON-NLS-1$
+	"xmlparse", //$NON-NLS-1$
+	"xmltest", //$NON-NLS-1$
+	"xmlvalidate" //$NON-NLS-1$
 	};
 
 	public static boolean checkIfKeyword(String name)
