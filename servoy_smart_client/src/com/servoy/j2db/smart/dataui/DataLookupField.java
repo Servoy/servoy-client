@@ -108,17 +108,9 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 	{
 		public void beforeVisibleChange(final ISupportVisibleChangeListener component, boolean newVisibleState)
 		{
-			if (!newVisibleState)
+			if (!newVisibleState && popup != null)
 			{
-				if (popup != null) popup.setVisible(false);
-				final IVisibleChangeListener visibleChangeListener = this;
-				application.invokeLater(new Runnable()
-				{
-					public void run()
-					{
-						component.removeVisibleChangeListener(visibleChangeListener);
-					}
-				});
+				popup.setVisible(false);
 			}
 		}
 	};
@@ -528,9 +520,10 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 				{
 					super.setVisible(b);
 
-					if (b && windowParent instanceof ISupportVisibleChangeListener)
+					if (windowParent instanceof ISupportVisibleChangeListener)
 					{
-						((ISupportVisibleChangeListener)windowParent).addVisibleChangeListener(popupParentVisibleChangeListener);
+						if (b) ((ISupportVisibleChangeListener)windowParent).addVisibleChangeListener(popupParentVisibleChangeListener);
+						else ((ISupportVisibleChangeListener)windowParent).removeVisibleChangeListener(popupParentVisibleChangeListener);
 					}
 				}
 			};

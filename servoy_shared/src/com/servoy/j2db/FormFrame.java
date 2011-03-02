@@ -258,7 +258,7 @@ public class FormFrame extends JFrame implements FormWindow
 	@Override
 	public void setVisible(boolean b)
 	{
-		for (IVisibleChangeListener l : visibleChangeListeners)
+		for (IVisibleChangeListener l : visibleChangeListeners.toArray(new IVisibleChangeListener[visibleChangeListeners.size()]))
 			l.beforeVisibleChange(this, b);
 
 		super.setVisible(b);
