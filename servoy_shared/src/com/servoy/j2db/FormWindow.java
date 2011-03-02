@@ -22,7 +22,7 @@ import java.awt.Rectangle;
  * Behaviour common to all types of AWT Window classes that can work with Servoy Forms.
  * @author acostescu
  */
-public interface FormWindow
+public interface FormWindow extends ISupportVisibleChangeListener
 {
 
 	// For future implementation of case 286968 change

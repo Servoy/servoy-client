@@ -25,6 +25,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,6 +39,7 @@ import javax.swing.KeyStroke;
 import javax.swing.WindowConstants;
 
 import com.servoy.j2db.cmd.ICmdManager;
+import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Text;
 
 /**
@@ -253,4 +255,25 @@ public class FormFrame extends JFrame implements FormWindow
 //		super.setVisible(b);
 //	}
 
+	@Override
+	public void setVisible(boolean b)
+	{
+		for (IVisibleChangeListener l : visibleChangeListeners)
+			l.beforeVisibleChange(this, b);
+
+		super.setVisible(b);
+	}
+
+
+	private final ArrayList<IVisibleChangeListener> visibleChangeListeners = new ArrayList<IVisibleChangeListener>();
+
+	public void addVisibleChangeListener(IVisibleChangeListener l)
+	{
+		if (visibleChangeListeners.indexOf(l) == -1) visibleChangeListeners.add(l);
+	}
+
+	public void removeVisibleChangeListener(IVisibleChangeListener l)
+	{
+		visibleChangeListeners.remove(l);
+	}
 }

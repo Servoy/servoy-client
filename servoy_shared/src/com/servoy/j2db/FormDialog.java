@@ -50,7 +50,7 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jblok
  */
-public class FormDialog extends JEscapeDialog implements FormWindow, ISupportVisibleChangeListener
+public class FormDialog extends JEscapeDialog implements FormWindow
 {
 	private static final long serialVersionUID = 1L;
 
@@ -129,7 +129,7 @@ public class FormDialog extends JEscapeDialog implements FormWindow, ISupportVis
 	public void setVisible(boolean b)
 	{
 		for (IVisibleChangeListener l : visibleChangeListeners)
-			l.beforeVisibleChange(b);
+			l.beforeVisibleChange(this, b);
 
 		if (!b)
 		{
@@ -318,5 +318,4 @@ public class FormDialog extends JEscapeDialog implements FormWindow, ISupportVis
 	{
 		visibleChangeListeners.remove(l);
 	}
-
 }
