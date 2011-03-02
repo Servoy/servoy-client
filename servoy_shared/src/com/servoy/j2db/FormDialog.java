@@ -127,7 +127,7 @@ public class FormDialog extends JEscapeDialog implements FormWindow, ISupportVis
 	public void setVisible(boolean b)
 	{
 		for (IVisibleChangeListener l : visibleChangeListeners)
-			l.beforeVisibleChange(b);
+			l.beforeVisibleChange(this, b);
 
 		if (!b)
 		{

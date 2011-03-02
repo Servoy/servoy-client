@@ -23,5 +23,5 @@ package com.servoy.j2db;
  */
 public interface IVisibleChangeListener
 {
-	void beforeVisibleChange(boolean newVisibleState);
+	void beforeVisibleChange(ISupportVisibleChangeListener component, boolean newVisibleState);
 }
