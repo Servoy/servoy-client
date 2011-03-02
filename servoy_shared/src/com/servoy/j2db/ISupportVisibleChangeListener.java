@@ -18,8 +18,8 @@
 package com.servoy.j2db;
 
 /**
- * @author gabi
- *
+ * Interface for components that support notifying there visibility state
+ * @author gboros
  */
 public interface ISupportVisibleChangeListener
 {
