@@ -196,7 +196,14 @@ public class JSApplication implements IReturnedTypesProvider
 			int sol_id = 0;
 			if (currentSolutionOnly)
 			{
-				sol_id = application.getSolution().getSolutionID();
+				if (application.getFlattenedSolution().isMainSolutionLoaded())
+				{
+					sol_id = application.getSolution().getSolutionID();
+				}
+				else
+				{
+					sol_id = application.getFlattenedSolution().getMainSolutionMetaData().getRootObjectId();
+				}
 			}
 			return application.getClientHost().getActiveClientCount(sol_id);
 		}
