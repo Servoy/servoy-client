@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.server.annotations.TerracottaInstrumentedClass;
@@ -114,10 +115,14 @@ public class StartupArgumentsScope extends DefaultScope implements Externalizabl
 		{
 			paramKey = paramsIte.next();
 			paramValue = arguments.get(paramKey);
-			if (paramValue instanceof String[] && ((String[])paramValue).length > 0) paramValue = ((String[])paramValue)[0];
-			if (!(paramValue instanceof String)) continue;
-
-			put(paramKey, this, paramValue);
+			if (paramValue instanceof String)
+			{
+				put(paramKey, this, paramValue);
+			}
+			else if (paramValue instanceof String[])
+			{
+				put(paramKey, this, new NativeArray((String[])paramValue));
+			}
 		}
 	}
 
@@ -211,6 +216,12 @@ public class StartupArgumentsScope extends DefaultScope implements Externalizabl
 	@Override
 	public String getClassName()
 	{
-		return "ArgumentScope"; //$NON-NLS-1$
+		return "ArgumentsScope"; //$NON-NLS-1$
+	}
+
+	@Override
+	public String toString()
+	{
+		return "ArgumentsScope: " + allVars.toString(); //$NON-NLS-1$
 	}
 }
