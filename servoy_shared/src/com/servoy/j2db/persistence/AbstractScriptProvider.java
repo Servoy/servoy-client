@@ -24,6 +24,7 @@ import com.servoy.j2db.util.UUID;
  */
 public abstract class AbstractScriptProvider extends AbstractBase implements IScriptProvider, ISupportUpdateableName, ISupportContentEquals
 {
+	private transient String methodCode;
 
 	/**
 	 * @param type
@@ -73,6 +74,7 @@ public abstract class AbstractScriptProvider extends AbstractBase implements ISc
 	public void setName(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
+		if (methodCode != null) setMethodCode(methodCode);
 	}
 
 	/**
@@ -90,6 +92,7 @@ public abstract class AbstractScriptProvider extends AbstractBase implements ISc
 			setTypedProperty(StaticContentSpecLoader.PROPERTY_DECLARATION, declaration);
 		}
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
+		if (methodCode != null) setMethodCode(methodCode);
 		getRootObject().getChangeHandler().fireIPersistChanged(this);
 	}
 
@@ -109,8 +112,16 @@ public abstract class AbstractScriptProvider extends AbstractBase implements ISc
 	@Deprecated
 	public void setMethodCode(String arg)
 	{
-		String declaration = MethodTemplate.getTemplate(getClass(), null).getMethodDeclaration(getName(), arg);
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_DECLARATION, declaration);
+		String name = getName();
+		if (name == null)
+		{
+			// keep deprecated methodCode until name is set
+			methodCode = arg;
+		}
+		else
+		{
+			setDeclaration(MethodTemplate.getTemplate(getClass(), null).getMethodDeclaration(name, arg));
+		}
 	}
 
 	/**
@@ -121,31 +132,27 @@ public abstract class AbstractScriptProvider extends AbstractBase implements ISc
 	@Deprecated
 	public String getMethodCode()
 	{
-		String methodCode = getTypedProperty(StaticContentSpecLoader.PROPERTY_METHODCODE);
-		if (methodCode != null)
+		String declaration = getTypedProperty(StaticContentSpecLoader.PROPERTY_DECLARATION);
+		if (declaration == null)
 		{
 			return methodCode;
 		}
-		String declaration = getTypedProperty(StaticContentSpecLoader.PROPERTY_DECLARATION);
-		if (declaration != null)
+
+		int functionIndex = declaration.indexOf("function "); //$NON-NLS-1$
+		if (functionIndex == -1) return declaration;
+		int startBracketIndex = declaration.indexOf('{', functionIndex) + 1;
+		// remove the extra \n we put in when serializing
+		if (declaration.charAt(startBracketIndex) == '\n')
 		{
-			int functionIndex = declaration.indexOf("function "); //$NON-NLS-1$
-			if (functionIndex == -1) return declaration;
-			int startBracketIndex = declaration.indexOf('{', functionIndex) + 1;
-			// remove the extra \n we put in when serializing
-			if (declaration.charAt(startBracketIndex) == '\n')
-			{
-				startBracketIndex++;
-			}
-			int endBracketIndex = declaration.lastIndexOf('}');
-			// remove the extra \n we put in when serializing
-			if (endBracketIndex > startBracketIndex && declaration.charAt(endBracketIndex - 1) == '\n')
-			{
-				endBracketIndex--;
-			}
-			return declaration.substring(startBracketIndex, endBracketIndex);
+			startBracketIndex++;
 		}
-		return null;
+		int endBracketIndex = declaration.lastIndexOf('}');
+		// remove the extra \n we put in when serializing
+		if (endBracketIndex > startBracketIndex && declaration.charAt(endBracketIndex - 1) == '\n')
+		{
+			endBracketIndex--;
+		}
+		return declaration.substring(startBracketIndex, endBracketIndex);
 	}
 
 	public String getDisplayName()//can be camelcasing
@@ -173,15 +180,7 @@ public abstract class AbstractScriptProvider extends AbstractBase implements ISc
 	 */
 	public String getDeclaration()
 	{
-		String methodCode = getTypedProperty(StaticContentSpecLoader.PROPERTY_METHODCODE);
-		String declaration = getTypedProperty(StaticContentSpecLoader.PROPERTY_DECLARATION);
-		if (methodCode != null && declaration == null)
-		{
-			declaration = MethodTemplate.getTemplate(getClass(), null).getMethodDeclaration(getName(), methodCode);
-			setTypedProperty(StaticContentSpecLoader.PROPERTY_DECLARATION, declaration);
-			clearProperty(StaticContentSpecLoader.PROPERTY_METHODCODE.getPropertyName());
-		}
-		return declaration;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DECLARATION);
 	}
 
 	/**
@@ -191,6 +190,7 @@ public abstract class AbstractScriptProvider extends AbstractBase implements ISc
 	public void setDeclaration(String declaration)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_DECLARATION, declaration);
+		methodCode = null;
 	}
 
 }
