@@ -181,4 +181,23 @@ public class Number
 	{
 		return null;
 	}
+
+	/**
+	 * Returns a string representing the specified Number object.
+	 * 
+	 * @sample
+	 * var n = 7;
+	 * application.output(n.toString()); //displays "7"
+	 * application.output(n.toString(2)); //displays "111"
+	 *   
+	 * @param radix optional An integer between 2 and 36 specifying the base to use for representing numeric values
+	 * 
+	 * @return A string representing the specified Number object.
+	 * 
+	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Number/toString
+	 */
+	public String js_toString(Number radix)
+	{
+		return null;
+	}
 }
