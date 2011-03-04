@@ -66,7 +66,6 @@ public class Log4JHTMLTableLayout extends Layout
 		return false;
 	}
 
-	@Override
 	public void activateOptions()
 	{
 	}
