@@ -2193,9 +2193,10 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		return false;
 	}
 
-	public void setTheFormatter(AbstractFormatter format)
+	@Override
+	public void setFormatter(AbstractFormatter format)
 	{
-		setFormatter(format);
+		super.setFormatter(format);
 	}
 
 	@Override
