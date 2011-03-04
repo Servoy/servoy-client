@@ -109,7 +109,8 @@ public abstract class AbstractScriptProvider extends AbstractBase implements ISc
 	@Deprecated
 	public void setMethodCode(String arg)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_METHODCODE, arg);
+		String declaration = MethodTemplate.getTemplate(getClass(), null).getMethodDeclaration(getName(), arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_DECLARATION, declaration);
 	}
 
 	/**
