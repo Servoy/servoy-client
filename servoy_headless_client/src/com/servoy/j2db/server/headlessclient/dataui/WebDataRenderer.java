@@ -309,7 +309,10 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 		}
 
 		DataAdapterList.setDataRendererComponentsRenderState(this, record);
-		jsChangeRecorder.setChanged();
+		if (getOnRenderComponent().getRenderEventExecutor().hasRenderCallback())
+		{
+			jsChangeRecorder.setChanged();
+		}
 	}
 
 	public Color getBackground()
