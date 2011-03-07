@@ -1941,7 +1941,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 * 
 	 * @sample
 	 *  var form = solutionModel.newForm('newForm1', 'server1', 'table1', null, true, 800, 600);
-	 * 	var bean = form.newBean('bean','myclass',200,200,300,300);
+	 * 	var bean = form.newBean('bean','com.servoy.extensions.beans.dbtreeview.DBTreeView',200,200,300,300);
 	 *	forms['newForm1'].controller.show();
 	 * 
 	 * @param name the specified name of the JSBean object
