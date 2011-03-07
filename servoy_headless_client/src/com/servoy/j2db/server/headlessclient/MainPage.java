@@ -778,14 +778,14 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				boolean isAjaxRequest = getRequestCycle().getRequestTarget() instanceof AjaxRequestTarget;
 				if (!isAjaxRequest)
 				{
-					pageContributor.setFormAchorInfos(null, onlyChanged); // reset formAnchorInfo
+					pageContributor.setFormAnchorInfos(null, onlyChanged); // reset formAnchorInfo
 				}
-				pageContributor.setFormAchorInfos(formAnchorInfo, onlyChanged);
+				pageContributor.setFormAnchorInfos(formAnchorInfo, onlyChanged);
 				formsForFullAnchorRendering.clear();
 			}
 			else
 			{
-				pageContributor.setFormAchorInfos(null, onlyChanged);
+				pageContributor.setFormAnchorInfos(null, onlyChanged);
 			}
 		}
 	}

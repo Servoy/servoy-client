@@ -219,7 +219,7 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		//response.renderJavascriptReference("http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js"); //$NON-NLS-1$
 	}
 
-	public void setFormAchorInfos(SortedSet<FormAnchorInfo> infos, boolean forceChange)
+	public void setFormAnchorInfos(SortedSet<FormAnchorInfo> infos, boolean onlyChanged)
 	{
 		anchorInfoChanged = !Utils.equalObjects(formAnchorInfos, infos);
 		if (infos == null)
@@ -228,7 +228,7 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		}
 		else
 		{
-			if (forceChange || !infos.equals(formAnchorInfos))
+			if (!onlyChanged || !infos.equals(formAnchorInfos))
 			{
 				if (!isResizing) getStylePropertyChanges().setChanged();
 				formAnchorInfos = infos;
