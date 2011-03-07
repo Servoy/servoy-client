@@ -753,7 +753,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			if (tracking || usesLobs)
 			{
 				statement.setTrackingData(sheet.getColumnNames(), row.getRawOldColumnData(), row.getRawColumnData(), fsm.getApplication().getUserUID(),
-					fsm.getTrackingInfo());
+					fsm.getTrackingInfo(), fsm.getApplication().getClientID());
 			}
 			return new RowUpdateInfo(row, statement, dbPKReturnValues, aggregatesToRemove);
 		}
@@ -886,7 +886,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			stats_a[0] = statement;
 			if (tracking)
 			{
-				statement.setTrackingData(sheet.getColumnNames(), r.getRawColumnData(), null, fsm.getApplication().getUserUID(), fsm.getTrackingInfo());
+				statement.setTrackingData(sheet.getColumnNames(), r.getRawColumnData(), null, fsm.getApplication().getUserUID(), fsm.getTrackingInfo(),
+					fsm.getApplication().getClientID());
 			}
 
 			try

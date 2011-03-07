@@ -26,7 +26,8 @@ import java.util.HashMap;
  */
 public interface ITrackingSQLStatement extends ISQLStatement
 {
-	public void setTrackingData(String[] column_names, Object[] olddata, Object[] newdata, String user_uid, HashMap<String, String> trackingInfo);
+	public void setTrackingData(String[] column_names, Object[] olddata, Object[] newdata, String user_uid, HashMap<String, Object> trackingInfo,
+		String clientId);
 
 	public String[] getColumnNames();
 
@@ -36,5 +37,7 @@ public interface ITrackingSQLStatement extends ISQLStatement
 
 	public String getUserUID();
 
-	public HashMap<String, String> getTrackingInfo();
+	public HashMap<String, Object> getTrackingInfo();
+
+	public String getClientID();
 }

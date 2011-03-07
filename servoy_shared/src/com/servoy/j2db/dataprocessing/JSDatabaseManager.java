@@ -2503,7 +2503,7 @@ public class JSDatabaseManager
 	 * @param columnName The name of the column in the log table, used for tracking info
 	 * @param value The value to be set when inserting a new row in the log table, for the 'columnName' column
 	 */
-	public void js_addTrackingInfo(String columnName, String value)
+	public void js_addTrackingInfo(String columnName, Object value)
 	{
 		application.getFoundSetManager().addTrackingInfo(columnName, value);
 	}

@@ -50,7 +50,8 @@ public class SQLStatement implements ITrackingSQLStatement
 	private int expectedUpdateCount = -1;
 
 	private String user_uid;
-	private HashMap<String, String> trackingInfo;
+	private HashMap<String, Object> trackingInfo;
+	private String clientId;
 
 	private boolean oracleFix;
 	private final ISQLSelect requerySelect;
@@ -96,7 +97,8 @@ public class SQLStatement implements ITrackingSQLStatement
 		return this.oracleFix;
 	}
 
-	public void setTrackingData(String[] column_names, Object[] oldData, Object[] newData, String user_uid, HashMap<String, String> trackingInfo)
+	public void setTrackingData(String[] column_names, Object[] oldData, Object[] newData, String user_uid, HashMap<String, Object> trackingInfo,
+		String clientId)
 	{
 		// TODO filter all data that is not changed out of the 3 arrays.
 		if (oldData == null && newData == null) return;
@@ -124,6 +126,7 @@ public class SQLStatement implements ITrackingSQLStatement
 		this.column_names = column_names;
 		this.user_uid = user_uid;
 		this.trackingInfo = trackingInfo;
+		this.clientId = clientId;
 
 		//optimize wire transfer
 		for (int i = 0; i < oldTrackingData.length; i++)
@@ -223,7 +226,7 @@ public class SQLStatement implements ITrackingSQLStatement
 		return user_uid;
 	}
 
-	public HashMap<String, String> getTrackingInfo()
+	public HashMap<String, Object> getTrackingInfo()
 	{
 		return trackingInfo;
 	}
@@ -232,6 +235,12 @@ public class SQLStatement implements ITrackingSQLStatement
 	{
 		return transactionID;
 	}
+
+	public String getClientID()
+	{
+		return clientId;
+	}
+
 
 	/**
 	 * Returns the pks.

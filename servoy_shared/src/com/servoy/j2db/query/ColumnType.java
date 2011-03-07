@@ -63,7 +63,7 @@ public class ColumnType implements Serializable
 		return sqlType;
 	}
 
-	static ColumnType getInstance(int sqlType, int length, int scale)
+	public static ColumnType getInstance(int sqlType, int length, int scale)
 	{
 		ColumnType instance;
 		synchronized (instances)

@@ -99,7 +99,7 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	/**
 	 * add tracking info used for logging  
 	 */
-	public void addTrackingInfo(String columnName, String value);
+	public void addTrackingInfo(String columnName, Object value);
 
 
 	/**
@@ -107,5 +107,5 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	 * 
 	 * @return map of tracking info  
 	 */
-	public HashMap<String, String> getTrackingInfo();
+	public HashMap<String, Object> getTrackingInfo();
 }
