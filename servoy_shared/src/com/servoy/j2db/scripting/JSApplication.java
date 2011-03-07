@@ -226,6 +226,12 @@ public class JSApplication implements IReturnedTypesProvider
 	 * var arg1 = startupArgumentObj.arg1_name;
 	 * var arg2 = startupArgumentObj.arg2_name;
 	 * 
+	 * Note: the argument value can be a string or an array of strings if
+	 * the argument has multiple values
+	 * Ex.: for the url : http://myhost/servoy-webclient/ss/s/mySolution/a/bla/a/bla1/a/bla2
+	 * the first element in the returned array is an array : [bla, bla1, bla2], and the second
+	 * element has a attribute with name "a" and as value an array [bla, bla1, bla2]
+	 * 
 	 * @return Array with 2 elements, the startup argument and an object containing all startup arguments, or
 	 * null if there is no argument passed
 	 */
