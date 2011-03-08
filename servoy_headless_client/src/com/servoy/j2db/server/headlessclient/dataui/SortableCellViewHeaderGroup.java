@@ -94,7 +94,7 @@ public class SortableCellViewHeaderGroup extends Model implements IComponentAssi
 		return direction ? SortColumn.ASCENDING : SortColumn.DESCENDING;
 	}
 
-	protected final void sort(final String name, final WebCellBasedView view)
+	protected final void sort(final String name, final WebCellBasedView view, int modifiers)
 	{
 		direction = Utils.getAsBoolean(sorted.get(name));
 		direction = !direction;
@@ -161,10 +161,12 @@ public class SortableCellViewHeaderGroup extends Model implements IComponentAssi
 								}
 								else if (fc != null && fc.getForm().getOnSortCmdMethodID() != -1)
 								{
+									JSEvent event = view.createScriptEvent(JSEvent.EventType.none, null, null);
+									event.setModifiers(modifiers);
 									fc.executeFunction(
 										String.valueOf(fc.getForm().getOnSortCmdMethodID()),
 										Utils.arrayMerge(
-											(new Object[] { dataProvider == null ? id : dataProvider.getDataProviderID(), Boolean.valueOf(direction) }),
+											(new Object[] { dataProvider == null ? id : dataProvider.getDataProviderID(), Boolean.valueOf(direction), event }),
 											Utils.parseJSExpressions(fc.getForm().getInstanceMethodArguments("onSortCmdMethodID"))), true, null, false, "onSortCmdMethodID"); //$NON-NLS-1$//$NON-NLS-2$
 								}
 

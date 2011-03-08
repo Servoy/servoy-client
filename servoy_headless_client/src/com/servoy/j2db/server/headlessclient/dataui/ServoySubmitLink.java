@@ -17,6 +17,7 @@
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import org.apache.wicket.Page;
+import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.calldecorator.CancelEventIfNoAjaxDecorator;
@@ -25,6 +26,8 @@ import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.form.SubmitLink;
 
 import com.servoy.j2db.server.headlessclient.MainPage;
+import com.servoy.j2db.ui.IEventExecutor;
+import com.servoy.j2db.util.Utils;
 
 /**
  * A {@link SubmitLink} that can be configured to use ajax.
@@ -35,6 +38,7 @@ public abstract class ServoySubmitLink extends SubmitLink implements IAjaxLink
 {
 	private String inputId;
 	private final boolean useAJAX;
+	private int modifiers;
 
 	public ServoySubmitLink(String id, boolean useAJAX)
 	{
@@ -49,6 +53,7 @@ public abstract class ServoySubmitLink extends SubmitLink implements IAjaxLink
 				@Override
 				protected void onEvent(AjaxRequestTarget target)
 				{
+					modifiers = Utils.getAsInteger(RequestCycle.get().getRequest().getParameter(IEventExecutor.MODIFIERS_PARAMETER));
 					onClick(target);
 				}
 
@@ -72,6 +77,12 @@ public abstract class ServoySubmitLink extends SubmitLink implements IAjaxLink
 					{
 						super.onComponentTag(tag);
 					}
+				}
+
+				@Override
+				protected CharSequence generateCallbackScript(final CharSequence partialCall)
+				{
+					return super.generateCallbackScript(partialCall + "+'&modifiers='+getModifiers(event)"); //$NON-NLS-1$
 				}
 			});
 		}
@@ -120,6 +131,11 @@ public abstract class ServoySubmitLink extends SubmitLink implements IAjaxLink
 			}
 		}
 		return inputId;
+	}
+
+	public int getModifiers()
+	{
+		return modifiers;
 	}
 
 	/**
