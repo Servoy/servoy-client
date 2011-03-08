@@ -123,7 +123,7 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 					// make sure the link is focused; there is difference across browsers
 					((MainPage)page).componentToFocus(this);
 				}
-				group.sort(componentId, view);
+				group.sort(componentId, view, WebEventExecutor.convertModifiers(getModifiers()));
 
 				SortableCellViewHeader sortableCellViewHeader;
 				for (Object header : view.getHeaderComponents())

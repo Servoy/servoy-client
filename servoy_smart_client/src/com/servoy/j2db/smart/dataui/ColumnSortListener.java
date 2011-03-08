@@ -162,7 +162,8 @@ public class ColumnSortListener extends MouseAdapter
 									// Also execute the on sort command on none data providers (like a label) then they can do there own sort.
 									fc.executeFunction(
 										String.valueOf(fc.getForm().getOnSortCmdMethodID()),
-										Utils.arrayMerge((new Object[] { dataProviderID, new Boolean(lastSortAsc) }),
+										Utils.arrayMerge(
+											(new Object[] { dataProviderID, new Boolean(lastSortAsc), getJavaScriptEvent(e, JSEvent.EventType.none, null) }),
 											Utils.parseJSExpressions(fc.getForm().getInstanceMethodArguments("onSortCmdMethodID"))), true, null, false, "onSortCmdMethodID"); //$NON-NLS-1$//$NON-NLS-2$
 								}
 								else if (dataProviderID != null)
