@@ -1375,18 +1375,16 @@ public class ComponentFactory
 				}
 				break;
 			case Field.CHECKS :
-			case Field.RADIOS :
-				boolean isRadio = (field.getDisplayType() == Field.RADIOS);
 				if (valuelist != null)
 				{
 					IValueList list = getRealValueList(application, valuelist, true, type, format, field.getDataProviderID());
 					if (isSingleValue(valuelist, list))
 					{
-						fl = application.getItemFactory().createSelectBox(getWebID(field), application.getI18NMessageIfPrefixed(field.getText()), list, isRadio);
+						fl = application.getItemFactory().createSelectBox(getWebID(field), application.getI18NMessageIfPrefixed(field.getText()), list, false);
 					}
 					else
 					{
-						fl = application.getItemFactory().createDataChoice(getWebID(field), list, isRadio);
+						fl = application.getItemFactory().createDataChoice(getWebID(field), list, false);
 						if (fl instanceof IScrollPane)
 						{
 							applyScrollBarsProperty((IScrollPane)fl, field);
@@ -1395,8 +1393,18 @@ public class ComponentFactory
 				}
 				else
 				{
-					fl = application.getItemFactory().createSelectBox(getWebID(field), application.getI18NMessageIfPrefixed(field.getText()), isRadio);
+					fl = application.getItemFactory().createSelectBox(getWebID(field), application.getI18NMessageIfPrefixed(field.getText()), false);
 				}
+				break;
+			case Field.RADIOS :
+			{
+				IValueList list = getRealValueList(application, valuelist, true, type, format, field.getDataProviderID());
+				fl = application.getItemFactory().createDataChoice(getWebID(field), list, true);
+				if (fl instanceof IScrollPane)
+				{
+					applyScrollBarsProperty((IScrollPane)fl, field);
+				}
+			}
 				break;
 			case Field.COMBOBOX :
 				IValueList list = getRealValueList(application, valuelist, true, type, format, field.getDataProviderID());

@@ -2030,9 +2030,6 @@ public class TemplateGenerator
 			}
 				break;
 			case Field.CHECKS :
-			case Field.RADIOS :
-				boolean isRadio = (field.getDisplayType() == Field.RADIOS);
-				String selector = (isRadio ? "radio" : "check");
 				IValueList val = null;
 				ValueList valuelist = null;
 				if (field.getValuelistID() > 0 && sp != null)
@@ -2051,7 +2048,7 @@ public class TemplateGenerator
 				if (ss != null)
 				{
 					cssClass = "field"; //$NON-NLS-1$ 
-					String lookUpValue = selector;
+					String lookUpValue = "check"; //$NON-NLS-1$ 
 					javax.swing.text.Style s = ss.getRule(lookUpValue);
 					if (s.getAttributeCount() == 0)
 					{
@@ -2059,14 +2056,15 @@ public class TemplateGenerator
 						{
 							lookUpValue += '.' + field.getStyleClass().trim();
 							s = ss.getRule(lookUpValue);
-							if (s.getAttributeCount() > 0) cssClass = selector;
+							if (s.getAttributeCount() > 0) cssClass = "check"; //$NON-NLS-1$ 
 						}
 					}
 					else
 					{
-						cssClass = selector;
+						cssClass = "check"; //$NON-NLS-1$ 
 					}
 				}
+
 
 				if (field.getValuelistID() > 0 && !addSingle)
 				{
@@ -2084,28 +2082,51 @@ public class TemplateGenerator
 					html.append(getCSSClassParameter(cssClass));
 					html.append(getWicketIDParameter(field));
 					html.append(" tabIndex=\"-1\" "); //$NON-NLS-1$ 
-					html.append(">"); // //$NON-NLS-1$ 
-					html.append("<input style='float: left; border-width: 0px; padding: 3px; margin: 0px;' "); // //$NON-NLS-1$ 
+					html.append("><input style='border-width: 0px; padding: 0px; margin-top: 0px; margin-bottom: 0px; margin-left: 0px;' "); // //$NON-NLS-1$ 
 					html.append(getWicketIDParameter(field, "check_")); //$NON-NLS-1$ 
 					html.append(getDataProviderIDParameter(field));
-					if (isRadio)
-					{
-						html.append("type='checkbox' "); //$NON-NLS-1$
-					}
-					else
-					{
-						html.append("type='checkbox' "); //$NON-NLS-1$
-					}
+					html.append("type='checkbox' "); //$NON-NLS-1$ 
 					html.append("/>"); //$NON-NLS-1$ 
 					html.append("<label for='check_"); //$NON-NLS-1$ 
 					html.append(ComponentFactory.getWebID(field));
-					html.append("' style='float: left; border-width: 0px; padding-top: 2px; margin: 0px;"); //$NON-NLS-1$ 
+					html.append("' style='margin-top: 0px; margin-bottom: 0px; border-top: 0px; border-bottom: 0px; padding-top: 0px; padding-bottom: 0px;"); //$NON-NLS-1$ 
 					html.append("' "); //$NON-NLS-1$ 
 					html.append(getWicketIDParameter(field, "text_")); //$NON-NLS-1$ 
-					html.append(">"); //$NON-NLS-1$ 
-					html.append("</label>"); //$NON-NLS-1$ 
+					html.append("></label>"); //$NON-NLS-1$ 
 					html.append("</div>"); //$NON-NLS-1$ 
 				}
+				break;
+			case Field.RADIOS :
+			{
+				cssClass = "field"; // By default the "field" class is applied. //$NON-NLS-1$ 
+				// If we have a style for the form, apply "radio" class if present, default to "field" if "radio" class is not present.
+				if (ss != null)
+				{
+					String lookUpValue = "radio"; //$NON-NLS-1$ 
+					javax.swing.text.Style s = ss.getRule(lookUpValue);
+					if (s.getAttributeCount() == 0)
+					{
+						if ((field.getStyleClass() != null) && (field.getStyleClass().trim().length() > 0))
+						{
+							lookUpValue += '.' + field.getStyleClass().trim();
+							s = ss.getRule(lookUpValue);
+							if (s.getAttributeCount() > 0) cssClass = "radio"; //$NON-NLS-1$ 
+						}
+					}
+					else
+					{
+						cssClass = "radio"; //$NON-NLS-1$ 
+					}
+				}
+
+				applyScrolling(styleObj, field);
+				html.append("<div "); //$NON-NLS-1$ 
+				html.append(getWicketIDParameter(field));
+//					html.append(getJavaScriptIDParameter(field));
+				html.append(getDataProviderIDParameter(field));
+				html.append(getCSSClassParameter(cssClass));
+				html.append(">Multi radios</div>"); //$NON-NLS-1$ 
+			}
 				break;
 			case Field.COMBOBOX :
 			{
