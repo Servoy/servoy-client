@@ -2448,7 +2448,11 @@ public class JSForm implements IJSParent, IConstantsObject
 	 * var form = solutionModel.newForm('myForm','myServer','myTable',null,true,800,600);
 	 * //assign the global method as a string. Or use a calculation name as the string.
 	 * form.rowBGColorCalculation = "globals.calculationDataProvider";
+	 * 
+	 * @deprecated
+	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#js_getOnRender()
 	 */
+	@Deprecated
 	public String js_getRowBGColorCalculation()
 	{
 		return form.getRowBGColorCalculation();
@@ -3309,6 +3313,7 @@ public class JSForm implements IJSParent, IConstantsObject
 		form.setPaperPrintScale(arg);
 	}
 
+	@Deprecated
 	public void js_setRowBGColorCalculation(String arg)
 	{
 		checkModification();
@@ -3870,13 +3875,24 @@ public class JSForm implements IJSParent, IConstantsObject
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnResizeMethodID()
-	 
+	 * 
 	 * @sample
 	 * form.onResize = form.newFormMethod('function onResize(event) { application.output("onResize intercepted on " + event.getFormName()); }');
 	 */
 	public JSMethod js_getOnResize()
 	{
 		return getEventHandler("onResizeMethodID");
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Form#getOnRenderMethodID()
+	 * 
+	 * @sample
+	 * form.onRender = form.newFormMethod('function onRender(event) { event.getElement().bgcolor = \'#00ff00\' }');
+	 */
+	public JSMethod js_getOnRender()
+	{
+		return getEventHandler("onRenderMethodID");
 	}
 
 	public void js_setOnDeleteAllRecordsCmd(JSMethod method)
@@ -4012,6 +4028,11 @@ public class JSForm implements IJSParent, IConstantsObject
 	public void js_setOnUnLoad(JSMethod method)
 	{
 		setEventHandler("onUnLoadMethodID", method);
+	}
+
+	public void js_setOnRender(JSMethod method)
+	{
+		setEventHandler("onRenderMethodID", method);
 	}
 
 	public void js_setOnResize(JSMethod method)

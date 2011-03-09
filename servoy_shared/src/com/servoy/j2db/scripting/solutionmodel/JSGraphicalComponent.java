@@ -532,6 +532,22 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDOUBLECLICKMETHODID.getPropertyName());
 	}
 
+	public void js_setOnRender(JSMethod method)
+	{
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID.getPropertyName(), method);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getOnRenderMethodID()
+	 * 
+	 * @sample
+	 * label.onRender = form.newFormMethod('function onRender(event) { event.getElement().bgcolor = \'#00ff00\' }');
+	 */
+	public JSMethod js_getOnRender()
+	{
+		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID.getPropertyName());
+	}
+
 	public void js_setOnRightClick(JSMethod method)
 	{
 		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID.getPropertyName(), method);

@@ -521,6 +521,23 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName());
 	}
 
+	public void js_setOnRender(JSMethod method)
+	{
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID.getPropertyName(), method);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Field#getOnRenderMethodID()
+	 * 
+	 * @sample
+	 * field.onRender = form.newFormMethod('function onRender(event) { event.getElement().bgcolor = \'#00ff00\' }');
+	 */
+	public JSMethod js_getOnRender()
+	{
+		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID.getPropertyName());
+	}
+
+
 	public void js_setOnRightClick(JSMethod method)
 	{
 		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID.getPropertyName(), method);

@@ -31,6 +31,7 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.util.Utils;
 
@@ -770,7 +771,12 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent, IJavaScr
 	 * // Set the row background color calculation. The name should be of a calculation that
 	 * // exists in the table.
 	 * childrenPortal.rowBGColorCalculation = 'row_color';
+	 * 
+	 * @deprecated
+	 *
+	 * @see com.servoy.j2db.scripting.solutionmodel.JSPortal#js_getOnRender()
 	 */
+	@Deprecated
 	public String js_getRowBGColorCalculation()
 	{
 		return getBaseComponent(false).getRowBGColorCalculation();
@@ -901,6 +907,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent, IJavaScr
 		getBaseComponent(true).setResizable(arg);
 	}
 
+	@Deprecated
 	public void js_setRowBGColorCalculation(String arg)
 	{
 		getBaseComponent(true).setRowBGColorCalculation(arg);
@@ -978,4 +985,83 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent, IJavaScr
 		super.js_setY(y);
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Portal#getOnRenderMethodID()
+	 * 
+	 * @sample
+	 * portal.onRender = form.newFormMethod('function onRender(event) { event.getElement().bgcolor = \'#00ff00\' }');
+	 */
+	public JSMethod js_getOnRender()
+	{
+		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID.getPropertyName());
+	}
+
+	public void js_setOnRender(JSMethod method)
+	{
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID.getPropertyName(), method);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Portal#getOnDragMethodID()
+	 * 
+	 * @sample
+	 * form.onDrag = form.newFormMethod('function onDrag(event) { application.output("onDrag intercepted from " + event.getSource()); }');
+	 * form.onDragEnd = form.newFormMethod('function onDragEnd(event) { application.output("onDragEnd intercepted from " + event.getSource()); }');
+	 * form.onDragOver = form.newFormMethod('function onDragOver(event) { application.output("onDragOver intercepted from " + event.getSource()); }');
+	 * form.onDrop = form.newFormMethod('function onDrop(event) { application.output("onDrop intercepted from " + event.getSource()); }');
+	 */
+	public JSMethod js_getOnDrag()
+	{
+		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID.getPropertyName());
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Portal#getOnDragEndMethodID()
+	 * 
+	 * @sampleas js_getOnDrag()
+	 */
+	public JSMethod js_getOnDragEnd()
+	{
+		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID.getPropertyName());
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Portal#getOnDragOverMethodID()
+	 * 
+	 * @sampleas js_getOnDrag()
+	 */
+	public JSMethod js_getOnDragOver()
+	{
+		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID.getPropertyName());
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Portal#getOnDropMethodID()
+	 * 
+	 * @sampleas js_getOnDrag()
+	 */
+	public JSMethod js_getOnDrop()
+	{
+		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDROPMETHODID.getPropertyName());
+	}
+
+	public void js_setOnDrag(JSMethod method)
+	{
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID.getPropertyName(), method);
+	}
+
+	public void js_setOnDragEnd(JSMethod method)
+	{
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID.getPropertyName(), method);
+	}
+
+	public void js_setOnDragOver(JSMethod method)
+	{
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID.getPropertyName(), method);
+	}
+
+	public void js_setOnDrop(JSMethod method)
+	{
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDROPMETHODID.getPropertyName(), method);
+	}
 }
