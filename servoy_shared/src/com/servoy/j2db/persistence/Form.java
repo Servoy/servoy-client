@@ -2109,6 +2109,8 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	}
 
 	/** 
+	 * The method that is executed when the component is rendered.
+	 * 
 	 * @templatedescription Called before the form component is rendered
 	 * @templatename onRender
 	 * @templateparam JSRenderEvent event the render event

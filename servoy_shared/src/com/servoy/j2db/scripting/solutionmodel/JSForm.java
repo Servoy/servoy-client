@@ -41,6 +41,7 @@ import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.FormEncapsulation;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.Part;
@@ -111,6 +112,66 @@ public class JSForm implements IJSParent, IConstantsObject
 	 * @sameas LIST_VIEW
 	 */
 	public static final int LOCKED_RECORD_VIEW = IForm.LOCKED_RECORD_VIEW;
+
+
+	/**
+	 * The constants to set or get the encapsulation property of a JSForm. 
+	 * They are as follows: JSForm.DEFAULT_ENCAPSULATION, JSForm.PRIVATE_ENCAPSULATION, JSForm.MODULE_PRIVATE_ENCAPSULATION, JSForm.HIDE_DATAPROVIDERS_ENCAPSULATION, JSForm.HIDE_FOUNDSET_ENCAPSULATION, JSForm.HIDE_CONTROLLER_ENCAPSULATION, JSForm.HIDE_ELEMENTS_ENCAPSULATION
+	 *
+	 * @sample 
+	 *  var myDefaultForm = solutionModel.newForm('newForm1', 'myServer', 'myTable', 'myStyleName', false, 800, 600);
+	 * 	myDefaultForm.encapsulation = JSForm.DEFAULT_ENCAPSULATION;
+	 * 
+	 * 	var myPrivateForm = solutionModel.newForm('newForm2', 'myServer', 'myTable', 'myStyleName', false, 800, 600);
+	 * 	myPrivateForm.encapsulation = JSForm.PRIVATE_ENCAPSULATION;
+	 * 
+	 * 	var myModulePrivateForm = solutionModel.newForm('newForm3', 'myServer', 'myTable', 'myStyleName', false, 800, 600);
+	 * 	myModulePrivateForm.encapsulation = JSForm.MODULE_PRIVATE_ENCAPSULATION;
+	 * 
+	 *  var myHideDataprovidersForm = solutionModel.newForm('newForm4', 'myServer', 'myTable', 'myStyleName', false, 800, 600);
+	 * 	myHideDataprovidersForm.encapsulation = JSForm.HIDE_DATAPROVIDERS_ENCAPSULATION;
+	 * 
+	 *  var myHideFoundsetForm = solutionModel.newForm('newForm5', 'myServer', 'myTable', 'myStyleName', false, 800, 600);
+	 * 	myHideFoundsetForm.encapsulation = JSForm.HIDE_FOUNDSET_ENCAPSULATION;
+	 * 
+	 *  var myHideControllerForm = solutionModel.newForm('newForm6', 'myServer', 'myTable', 'myStyleName', false, 800, 600);
+	 * 	myHideControllerForm.encapsulation = JSForm.HIDE_CONTROLLER_ENCAPSULATION;
+	 * 
+	 * 	var myHideElementsForm = solutionModel.newForm('newForm7', 'myServer', 'myTable', 'myStyleName', false, 800, 600);
+	 * 	myHideElementsForm.encapsulation = JSForm.HIDE_ELEMENTS_ENCAPSULATION;
+	 */
+	public static final int DEFAULT_ENCAPSULATION = FormEncapsulation.DEFAULT;
+
+	/**
+	 * @sameas DEFAULT_ENCAPSULATION
+	 */
+	public static final int PRIVATE_ENCAPSULATION = FormEncapsulation.PRIVATE;
+
+	/**
+	 * @sameas DEFAULT_ENCAPSULATION
+	 */
+	public static final int MODULE_PRIVATE_ENCAPSULATION = FormEncapsulation.MODULE_PRIVATE;
+
+	/**
+	 * @sameas DEFAULT_ENCAPSULATION
+	 */
+	public static final int HIDE_DATAPROVIDERS_ENCAPSULATION = FormEncapsulation.HIDE_DATAPROVIDERS;
+
+	/**
+	 * @sameas DEFAULT_ENCAPSULATION
+	 */
+	public static final int HIDE_FOUNDSET_ENCAPSULATION = FormEncapsulation.HIDE_FOUNDSET;
+
+	/**
+	 * @sameas DEFAULT_ENCAPSULATION
+	 */
+	public static final int HIDE_CONTROLLER_ENCAPSULATION = FormEncapsulation.HIDE_CONTROLLER;
+
+	/**
+	 * @sameas DEFAULT_ENCAPSULATION
+	 */
+	public static final int HIDE_ELEMENTS_ENCAPSULATION = FormEncapsulation.HIDE_ELEMENTS;
+
 
 	private Form form;
 	private final IApplication application;
@@ -4038,6 +4099,25 @@ public class JSForm implements IJSParent, IConstantsObject
 	public void js_setOnResize(JSMethod method)
 	{
 		setEventHandler("onResizeMethodID", method);
+	}
+
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Form#getEncapsulation()
+	 *
+	 * @sample 
+	 * var myForm = solutionModel.newForm('newForm1', 'myServer', 'myTable', null, true, 800, 600);
+	 * myForm.encapsulation = JSForm.HIDE_CONTROLLER_ENCAPSULATION;
+	 */
+	public int js_getEncapsulation()
+	{
+		return form.getEncapsulation();
+	}
+
+	public void js_setEncapsulation(int arg)
+	{
+		checkModification();
+		form.setEncapsulation(arg);
 	}
 
 	/**
