@@ -44,7 +44,14 @@ public class WebDataHtmlArea extends WebDataTextArea implements IScriptTextEdito
 		super.renderHead(container);
 		IHeaderResponse response = container.getHeaderResponse();
 		YUILoader.renderHTMLEdit(response);
-		response.renderOnDomReadyJavascript("Servoy.HTMLEdit.attach(document.getElementById('" + getMarkupId() + "'))");
+		if (findParent(WebTabPanel.class) != null)
+		{
+			response.renderOnDomReadyJavascript("setTimeout(function(){Servoy.HTMLEdit.attach(document.getElementById('" + getMarkupId() + "'))}, 0);");
+		}
+		else
+		{
+			response.renderOnDomReadyJavascript("Servoy.HTMLEdit.attach(document.getElementById('" + getMarkupId() + "'))");
+		}
 	}
 
 	@Override
