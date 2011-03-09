@@ -325,6 +325,11 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		return serverUrl.toLowerCase().startsWith("jdbc:postgresql:"); //$NON-NLS-1$
 	}
 
+	public boolean isHxttDBFDriver()
+	{
+		return driver.toLowerCase().indexOf("hxtt") != -1; //$NON-NLS-1$
+	}
+
 	public static String getConnectionValidationTypeAsString(int connectionValidationType)
 	{
 		switch (connectionValidationType)
