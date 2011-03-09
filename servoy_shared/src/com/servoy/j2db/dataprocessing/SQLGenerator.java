@@ -1005,12 +1005,15 @@ public class SQLGenerator
 		existsSelect.addColumn(new QueryColumnValue(Integer.valueOf(1), null, true));
 
 		// innermain.pk = main.pk
-		IQuerySelectValue[] innerPkColumns = new QueryColumn[pkQueryColumns.length];
+		QueryColumn[] innerPkColumns = new QueryColumn[pkQueryColumns.length];
 		for (int p = 0; p < pkQueryColumns.length; p++)
 		{
 			QueryColumn pk = pkQueryColumns[p];
 			innerPkColumns[p] = new QueryColumn(existsSelect.getTable(), pk.getId(), pk.getName(), pk.getColumnType().getSqlType(),
 				pk.getColumnType().getLength(), pk.getColumnType().getScale(), pk.isIdentity());
+
+			// group by on the inner pk, some dbs (hxtt dbf) require that
+			existsSelect.addGroupBy(innerPkColumns[p]);
 		}
 		existsSelect.addCondition("AGGREGATE-SEARCH", new SetCondition(new int[] { ISQLCondition.EQUALS_OPERATOR }, innerPkColumns, //$NON-NLS-1$
 			pkQueryColumns, true));
