@@ -122,14 +122,14 @@ public class WebClientsApplication extends WebApplication
 				}
 				else
 				{
-					if (((WebRequest)RequestCycle.get().getRequest()).isAjax())
-					{
-						throw new AbortException();
-					}
-					else
-					{
-						throw new RestartResponseException(getApplicationSettings().getPageExpiredErrorPage());
-					}
+//					if (((WebRequest)RequestCycle.get().getRequest()).isAjax())
+//					{
+//						throw new AbortException();
+//					}
+//					else
+//					{
+					throw new RestartResponseException(getApplicationSettings().getPageExpiredErrorPage());
+//					}
 				}
 			}
 		}
