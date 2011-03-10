@@ -424,13 +424,8 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent, IJavaScr
 		}
 	}
 
-	public JSLabel js_newLabel(String txt, int x, int width, int height)
-	{
-		return js_newLabel(txt, x, width, height, null);
-	}
-
 	/**
-	 * Creates a new label on the form, with the given text, place, size and an optional JSMethod as the onClick action.
+	 * Creates a new label on the form, with the given text, place and size.
 	 *
 	 * @sample
 	 * var clickMethod = form.newFormMethod('function clickMe() { application.output("I was clicked!"); }');
@@ -447,7 +442,32 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent, IJavaScr
 	 *
 	 * @param height The height of the label. In a portal the height of all components is set to the height of the first component, unless the "multiLine" property is set.
 	 *
-	 * @param action optional The JSMethod object that should be executed when the label is clicked.
+	 * @return A JSLabel instance that represents the newly created label.
+	 */
+	public JSLabel js_newLabel(String txt, int x, int width, int height)
+	{
+		return js_newLabel(txt, x, width, height, null);
+	}
+
+	/**
+	 * Creates a new label on the form, with the given text, place, size and an JSMethod as the onClick action.
+	 *
+	 * @sample
+	 * var clickMethod = form.newFormMethod('function clickMe() { application.output("I was clicked!"); }');
+	 * var childrenPortal = form.newPortal('pp', 'parent_to_my_table', 10, 10, 1180, 780);
+	 * var calLabel = childrenPortal.newLabel('Date', 120, 60, 20); 
+	 * // This will result in a button being actually created, because we specify an action.
+	 * var textLabel = childrenPortal.newLabel('Text', 180, 60, 20, clickMethod);
+	 *
+	 * @param text The text that will be displayed in the label. 
+	 *
+	 * @param x The x coordinate of the label. If the portal does not have the "multiLine" property set, then the x coordinates are used only for determining the order of the columns in the grid. If the portal has the "multiLine" property set, then the components are actually displayed at the specified coordinates.
+	 *
+	 * @param width The width of the label.
+	 *
+	 * @param height The height of the label. In a portal the height of all components is set to the height of the first component, unless the "multiLine" property is set.
+	 *
+	 * @param action The JSMethod object that should be executed when the label is clicked.
 	 * 
 	 * @return A JSLabel instance that represents the newly created label.
 	 */

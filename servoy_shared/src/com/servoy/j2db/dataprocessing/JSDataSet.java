@@ -250,6 +250,16 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 		}
 	}
 
+	/**
+	 * Add a row to the dataset. The row will be added as the last row.
+	 *
+	 * @sample
+	 * //assuming the variable dataset contains a dataset
+	 * dataset.addRow(new Array(1,2,3,4,5,6,7,7)); //adds a row with 8 columns
+	 * dataset.addRow(2, new Array(1,2,3,4,5,6,7,7)); //adds a row with 8 columns after row 2
+	 *
+	 * @param array row data
+	 */
 	public void js_addRow(Object[] row)
 	{
 		js_addRow(js_getMaxRowIndex() + 1, row);
@@ -263,7 +273,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 	 * dataset.addRow(new Array(1,2,3,4,5,6,7,7)); //adds a row with 8 columns
 	 * dataset.addRow(2, new Array(1,2,3,4,5,6,7,7)); //adds a row with 8 columns after row 2
 	 *
-	 * @param index optional index to add row (1-based), add by default as last row
+	 * @param index index to add row (1-based)
 	 *
 	 * @param array row data
 	 */
@@ -497,7 +507,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 	 *
 	 * @param name data source name
 	 * 
-	 * @param types optional array of types as defined in JSColumn, when null or not supplied types are inferred from the data if possible.
+	 * @param types array of types as defined in JSColumn
 	 * 
 	 * @return String uri reference to the created data source.
 	 */
@@ -546,6 +556,24 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 		return dataSource;
 	}
 
+	/**
+	 * Create a data source from the data set with specified name and using specified types.
+	 * The types are inferred from the data if possible.
+	 *
+	 * @sample
+	 *  ds.addColumn('my_id'); // note: use regular javascript identifiers so they can be used in scripting
+	 * 	ds.addColumn('my_label');
+	 * 	var uri = ds.createDataSource('mydata', [JSColumn.INTEGER, JSColumn.TEXT]);
+	 * 	var jsform = solutionModel.newForm(fname, uri, null, true, 300, 300);
+	 * 
+	 *  var query = 'select customerid, address, city, country  from customers';
+	 *  var ds2 = databaseManager.getDataSetByQuery('example_data', query, null, 999);
+	 *  var uri2 = ds2.createDataSource('mydata2'); // types are inferred from query result
+	 *
+	 * @param name data source name
+	 * 
+	 * @return String uri reference to the created data source.
+	 */
 	public String js_createDataSource(String name) throws ServoyException
 	{
 		return js_createDataSource(name, null);

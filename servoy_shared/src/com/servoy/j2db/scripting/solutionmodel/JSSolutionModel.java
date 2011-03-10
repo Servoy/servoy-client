@@ -276,6 +276,21 @@ public class JSSolutionModel
 		return new JSForm(application, clone, true);
 	}
 
+	/**
+	 * Makes an exact copy of the given component (JSComponent/JSField/JSLabel) and gives it a new name.
+	 *
+	 * @sample
+	 * // get an existing field to clone.
+	 * var field = solutionModel.getForm("formWithField").getField("fieldName");
+	 * // make a clone/copy of the field
+	 * var clone = solutionModel.cloneComponent("clonedField",field);
+	 * 
+	 * @param newName the new name of the cloned component
+	 *
+	 * @param component the component to clone
+	 *
+	 * @return the exact copy of the given component
+	 */
 	public <T extends BaseComponent> JSComponent< ? > js_cloneComponent(String newName, JSComponent<T> component)
 	{
 		return js_cloneComponent(newName, component, null);
@@ -283,7 +298,7 @@ public class JSSolutionModel
 
 
 	/**
-	 * Makes an exact copy of the given component (JSComponent/JSField/JSLabel), gives it a new name and optionally moves it to a new parent form.
+	 * Makes an exact copy of the given component (JSComponent/JSField/JSLabel), gives it a new name and moves it to a new parent form, specified as a parameter.
 	 *
 	 * @sample
 	 * // get an existing field to clone.
@@ -299,7 +314,7 @@ public class JSSolutionModel
 	 *
 	 * @param component the component to clone
 	 *
-	 * @param newParentForm optional the new parent form 
+	 * @param newParentForm the new parent form 
 	 * 
 	 * @return the exact copy of the given component
 	 */
@@ -411,6 +426,18 @@ public class JSSolutionModel
 		return null;
 	}
 
+	/**
+	 * Get an array of forms, that are all based on datasource/servername.
+	 *
+	 * @sample
+	 * var forms = solutionModel.getForms(datasource)
+	 * for (var i in forms)
+	 * 		application.output(forms[i].name)
+	 *
+	 * @param server the datasource or servername 
+	 * 
+	 * @return an array of JSForm type elements
+	 */
 	public JSForm[] js_getForms(String datasource)
 	{
 		if (datasource == null) throw new IllegalArgumentException("SolutionModel.getForms() param datasource (server/table) is null");
@@ -418,16 +445,16 @@ public class JSSolutionModel
 	}
 
 	/**
-	 * Get an array of forms, that are all based on datasource/servername or tablename.
+	 * Get an array of forms, that are all based on datasource/servername and tablename.
 	 *
 	 * @sample
-	 * var forms = solutionModel.getForms(datasource)
+	 * var forms = solutionModel.getForms(datasource,tablename)
 	 * for (var i in forms)
 	 * 		application.output(forms[i].name)
 	 *
-	 * @param server optional the datasource or servername 
+	 * @param server the datasource or servername 
 	 * 
-	 * @param tablename optional the tablename
+	 * @param tablename the tablename
 	 * 
 	 * @return an array of JSForm type elements
 	 */
@@ -436,6 +463,16 @@ public class JSSolutionModel
 		return js_getForms(DataSourceUtils.createDBTableDataSource(server, tablename));
 	}
 
+	/**
+	 * Get an array of all forms.
+	 *
+	 * @sample
+	 * var forms = solutionModel.getForms()
+	 * for (var i in forms)
+	 * 		application.output(forms[i].name)
+	 *
+	 * @return an array of JSForm type elements
+	 */
 	public JSForm[] js_getForms()
 	{
 		return getForms(null);

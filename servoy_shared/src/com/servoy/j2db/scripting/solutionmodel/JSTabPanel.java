@@ -60,6 +60,34 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent
 		return getBaseComponent(false);
 	}
 
+	/**
+	 * Adds a new tab with the text label and JSForm.
+	 *
+	 * @sample 
+	 * // Create a parent form.
+	 * var form = solutionModel.newForm('parentForm', 'example_data', 'parent_table', 'null', false, 640, 480);
+	 * // Create a first child form.
+	 * var childOne = solutionModel.newForm('childOne', 'example_data', 'child_table', 'null', false, 400, 300);
+	 * childOne.newField('child_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
+	 * // Create a relation to link the parent form to the first child form.
+	 * var parentToChild = solutionModel.newRelation('parentToChild','example_data','parent_table','example_data','child_table',JSRelation.INNER_JOIN);
+	 * parentToChild.newRelationItem('parent_table_id','=','child_table_parent_id');
+	 * // Create a second child form.
+	 * var childTwo = solutionModel.newForm('childTwo', 'example_data', 'my_table', 'null', false, 400, 300);
+	 * childTwo.newField('my_table_image', JSField.IMAGE_MEDIA, 10, 10, 100, 100);
+	 * // Create a tab panel and add two tabs to it, with the two child forms.
+	 * var tabPanel = form.newTabPanel('tabs', 10, 10, 620, 460);
+	 * tabPanel.newTab('tab1', 'Child Two', childOne, parentToChild); // The first form uses the relation.
+	 * tabPanel.newTab('tab2', 'Child Two', childTwo);
+	 *
+	 * @param name The name of the new tab.
+	 *
+	 * @param text The text to be displayed on the new tab.
+	 *
+	 * @param form The JSForm instance that should be displayed in the new tab.
+	 *
+	 * @return A JSTab instance representing the newly created and added tab.
+	 */
 	public JSTab js_newTab(String name, String text, JSForm form)
 	{
 		return js_newTab(name, text, form, null);
@@ -91,7 +119,7 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent
 	 *
 	 * @param form The JSForm instance that should be displayed in the new tab.
 	 *
-	 * @param relation optional A JSRelation object that relates the parent form with the form
+	 * @param relation A JSRelation object that relates the parent form with the form
 	 *                          that will be displayed in the new tab.
 	 *                          
 	 * @return A JSTab instance representing the newly created and added tab.

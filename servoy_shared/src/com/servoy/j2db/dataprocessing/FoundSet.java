@@ -506,15 +506,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		fireDifference(size, getSize());
 	}
 
-	public boolean js_addFoundSetFilterParam(String dataprovider, String operator, Object value)
-	{
-		return addFilterParam(null, dataprovider, operator, value);
-	}
-
 	/**
 	 * Add a filter parameter that is permanent per user session to limit a specified foundset of records.
 	 * Use clear() or loadAllRecords() to make the filter effective.
-	 * When given a name, the filter can be removed again using removeFoundSetFilterParam(name).
 	 *
 	 * @sample
 	 * var success = %%prefix%%foundset.addFoundSetFilterParam('customerid', '=', 'BLONP', 'custFilter');//possible to add multiple
@@ -527,7 +521,30 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * @param value Object filter value (for in array and between an array with 2 elements)
 	 *
-	 * @param name optional String name, can be used to remove the filter again.
+	 * @return true if adding the filter succeeded, false otherwise.
+	 */
+	public boolean js_addFoundSetFilterParam(String dataprovider, String operator, Object value)
+	{
+		return addFilterParam(null, dataprovider, operator, value);
+	}
+
+	/**
+	 * Add a filter parameter that is permanent per user session to limit a specified foundset of records.
+	 * Use clear() or loadAllRecords() to make the filter effective.
+	 * The filter is removed again using removeFoundSetFilterParam(name).
+	 *
+	 * @sample
+	 * var success = %%prefix%%foundset.addFoundSetFilterParam('customerid', '=', 'BLONP', 'custFilter');//possible to add multiple
+	 * %%prefix%%foundset.loadAllRecords();//to make param(s) effective
+	 * // Named filters can be removed using %%prefix%%foundset.removeFoundSetFilterParam(filterName)
+	 *
+	 * @param dataprovider String column to filter on.
+	 *
+	 * @param operator String operator: =, <, >, >=, <=, !=, (NOT) LIKE, (NOT) IN, (NOT) BETWEEN and IS (NOT) NULL 
+	 *
+	 * @param value Object filter value (for in array and between an array with 2 elements)
+	 *
+	 * @param name String name, used to remove the filter again.
 	 * 
 	 * @return true if adding the filter succeeded, false otherwise.
 	 */
@@ -554,6 +571,27 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
+	 * Get a previously defined foundset filter, using its given name.
+	 * The result is an array of:
+	 *  [ tableName, dataprovider, operator, value, name ]
+	 *
+	 * @sample
+	 * var params = foundset.getFoundSetFilterParams()
+	 * for (var i = 0; params != null && i < params.length; i++)
+	 * {
+	 * 	application.output('FoundSet filter on table ' + params[i][0]+ ': '+ params[i][1]+ ' '+params[i][2]+ ' '+params[i][3] +(params[i][4] == null ? ' [no name]' : ' ['+params[i][4]+']'))
+	 * }
+	 *
+	 * @param filterName name of the filter to retrieve.
+	 * 
+	 * @return Array of filter definitions.
+	 */
+	public Object[][] js_getFoundSetFilterParams(String filterName)
+	{
+		return getFoundSetFilterParams(filterName);
+	}
+
+	/**
 	 * Get the list of previously defined foundset filters.
 	 * The result is an array of:
 	 *  [ tableName, dataprovider, operator, value, name ]
@@ -565,15 +603,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 	application.output('FoundSet filter on table ' + params[i][0]+ ': '+ params[i][1]+ ' '+params[i][2]+ ' '+params[i][3] +(params[i][4] == null ? ' [no name]' : ' ['+params[i][4]+']'))
 	 * }
 	 *
-	 * @param filterName optional name of the filters to retrieve, get all if not specified.
-	 * 
 	 * @return Array of filter definitions.
 	 */
-	public Object[][] js_getFoundSetFilterParams(String filterName)
-	{
-		return getFoundSetFilterParams(filterName);
-	}
-
 	public Object[][] js_getFoundSetFilterParams()
 	{
 		return getFoundSetFilterParams(null);

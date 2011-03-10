@@ -284,7 +284,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 * 	for (var i in variables)
 	 * 		application.output(variables[i].name);
 	 * 
-	 * @param returnInheritedElements optional boolean true to also return the elements from parent form, default false 
+	 * @param returnInheritedElements boolean true to also return the elements from the parent form 
 	 * @return an array of all variables on this form
 	 * 
 	 */
@@ -317,6 +317,18 @@ public class JSForm implements IJSParent, IConstantsObject
 		return variables.toArray(new JSVariable[variables.size()]);
 	}
 
+	/**
+	 * An array consisting of all form variables for this form.
+	 * 
+	 * @sample
+	 * 	var frm = solutionModel.getForm("myForm");
+	 * 	var variables = frm.getFormVariables();
+	 * 	for (var i in variables)
+	 * 		application.output(variables[i].name);
+	 * 
+	 * @return an array of all variables on this form
+	 * 
+	 */
 	public JSVariable[] js_getFormVariables()
 	{
 		return js_getFormVariables(false);
@@ -391,7 +403,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 * 	for (var m in methods)
 	 * 		application.output(methods[m].getName());
 	 * 
-	 * @param returnInheritedElements optional boolean true to also return the elements from parent form, default false 
+	 * @param returnInheritedElements boolean true to also return the elements from the parent form 
 	 * @return all form methods for the form 
 	 */
 	public JSMethod[] js_getFormMethods(boolean returnInheritedElements)
@@ -423,6 +435,17 @@ public class JSForm implements IJSParent, IConstantsObject
 		return methods.toArray(new JSMethod[methods.size()]);
 	}
 
+	/**
+	 * Returns all existing form methods for this form.
+	 * 
+	 * @sample
+	 * 	var frm = solutionModel.getForm("myForm");
+	 * 	var methods = frm.getFormMethods();
+	 * 	for (var m in methods)
+	 * 		application.output(methods[m].getName());
+	 * 
+	 * @return all form methods for the form 
+	 */
 	public JSMethod[] js_getFormMethods()
 	{
 		return js_getFormMethods(false);
@@ -768,13 +791,33 @@ public class JSForm implements IJSParent, IConstantsObject
 		}
 	}
 
+	/**
+	 * Creates a new JSLabel object on the form - including the text of the label, the "x" and "y" position of the label object in pixels, the width and height of the label object in pixels.
+	 *
+	 * @sample 
+	 * 	var form = solutionModel.newForm('newForm1', 'myServer', 'myTable', null, true, 800, 600);
+	 * 	var label = form.newLabel('The text on the label', 140, 140, 50, 20);
+	 * 	forms['newForm1'].controller.show(); 
+	 *
+	 * @param text the specified text of the label object
+	 *
+	 * @param x the horizontal "x" position of the label object in pixels
+	 *
+	 * @param y the vertical "y" position of the label object in pixels
+	 *
+	 * @param width the width of the label object in pixels
+	 *
+	 * @param height the height of the label object in pixels
+	 * 
+	 * @return a JSLabel object
+	 */
 	public JSLabel js_newLabel(String txt, int x, int y, int width, int height)
 	{
 		return js_newLabel(txt, x, y, width, height, null);
 	}
 
 	/**
-	 * Creates a new JSLabel object on the form - including the text of the label, the "x" and "y" position of the label object in pixels, the width and height of the label object in pixels and the optional JSMethod action such as the method for an onAction event.
+	 * Creates a new JSLabel object on the form - including the text of the label, the "x" and "y" position of the label object in pixels, the width and height of the label object in pixels and a JSMethod action such as the method for an onAction event.
 	 *
 	 * @sample 
 	 * 	var form = solutionModel.newForm('newForm1', 'myServer', 'myTable', null, true, 800, 600);
@@ -791,7 +834,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 *
 	 * @param height the height of the label object in pixels
 	 *
-	 * @param jsmethod optional the event action JSMethod of the label object
+	 * @param jsmethod the event action JSMethod of the label object
 	 * 
 	 * @return a JSLabel object
 	 */
@@ -969,7 +1012,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	}
 
 	/**
-	 * Returns all JSPortal objects of this form, including the ones without a name.
+	 * Returns all JSPortal objects of this form (optionally also the ones from the parent form), including the ones without a name.
 	 *
 	 * @sample 
 	 * 	var frm = solutionModel.getForm("myForm");
@@ -983,7 +1026,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 * 			application.output("unnamed portal detected");
 	 * 	}
 	 * 
-	 * @param returnInheritedElements optional boolean true to also return the elements from parent form, default false 
+	 * @param returnInheritedElements boolean true to also return the elements from parent form 
 	 * @return an array of all JSPortal objects on this form
 	 *
 	 */
@@ -1018,6 +1061,24 @@ public class JSForm implements IJSParent, IConstantsObject
 		return portals.toArray(new JSPortal[portals.size()]);
 	}
 
+	/**
+	 * Returns all JSPortal objects of this form (not including the ones from the parent form), including the ones without a name.
+	 *
+	 * @sample 
+	 * 	var frm = solutionModel.getForm("myForm");
+	 * 	var portals = frm.getPortals();
+	 * 	for (var i in portals)
+	 * 	{
+	 * 		var p = portals[i];
+	 * 		if (p.name != null)
+	 * 			application.output(p.name);
+	 * 		else
+	 * 			application.output("unnamed portal detected");
+	 * 	}
+	 * 
+	 * @return an array of all JSPortal objects on this form
+	 *
+	 */
 	public JSPortal[] js_getPortals()
 	{
 		return js_getPortals(false);
@@ -1140,7 +1201,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	}
 
 	/**
-	 * Returns all JSTabPanels of this form, including the ones without a name.
+	 * Returns all JSTabPanels of this form (optionally the ones from the parent form), including the ones without a name.
 	 *
 	 * @sample 
 	 * 	var frm = solutionModel.getForm("myForm");
@@ -1154,7 +1215,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 *			application.output("Tab with text " + tp.text + " has no name");
 	 *	}
 	 *
-	 * @param returnInheritedElements optional boolean true to also return the elements from parent form, default false 
+	 * @param returnInheritedElements boolean true to also return the elements from parent form
 	 * @return an array of all JSTabPanel objects on this form			
 	 *		
 	 */
@@ -1189,6 +1250,24 @@ public class JSForm implements IJSParent, IConstantsObject
 		return tabPanels.toArray(new JSTabPanel[tabPanels.size()]);
 	}
 
+	/**
+	 * Returns all JSTabPanels of this form (not including the ones from the parent form), including the ones without a name.
+	 *
+	 * @sample 
+	 * 	var frm = solutionModel.getForm("myForm");
+	 * 	var tabPanels = frm.getTabPanels();
+	 * 	for (var i in tabPanels)
+	 * 	{
+	 *		var tp = tabPanels[i];
+	 *		if (tp.name != null)
+	 *			application.output("Tab " + tp.name + " has text " + tp.text);
+	 *		else
+	 *			application.output("Tab with text " + tp.text + " has no name");
+	 *	}
+	 *
+	 * @return an array of all JSTabPanel objects on this form			
+	 *		
+	 */
 	public JSTabPanel[] js_getTabPanels()
 	{
 		return js_getTabPanels(false);
@@ -1460,7 +1539,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	}
 
 	/**
-	 * Gets all the parts from the form, ordered by there height (lowerbound) property, from top == 0 to bottom.
+	 * Gets all the parts from the form (optionally also from the parent form), ordered by there height (lowerbound) property, from top == 0 to bottom.
 	 *
 	 * @sample 
 	 * var allParts = form.getParts()
@@ -1469,7 +1548,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 *		application.output('body Y offset: ' + allParts[i].getPartYOffset());
 	 * }
 	 * 
-	 * @param returnInheritedElements optional boolean true to also return the parts from parent form, default false
+	 * @param returnInheritedElements boolean true to also return the parts from parent form
 	 * @return An array of JSPart instances corresponding to the parts of the form.
 	 */
 	public JSPart[] js_getParts(boolean returnInheritedElements)
@@ -1497,19 +1576,26 @@ public class JSForm implements IJSParent, IConstantsObject
 		return lst.toArray(new JSPart[lst.size()]);
 	}
 
+	/**
+	 * Gets all the parts from the form (not including the parts of the parent form), ordered by there height (lowerbound) property, from top == 0 to bottom.
+	 *
+	 * @sample 
+	 * var allParts = form.getParts()
+	 * for (var i=0; i<allParts.length; i++) {
+	 *	if (allParts[i].getPartType() == JSPart.BODY)
+	 *		application.output('body Y offset: ' + allParts[i].getPartYOffset());
+	 * }
+	 * 
+	 * @return An array of JSPart instances corresponding to the parts of the form.
+	 */
 	public JSPart[] js_getParts()
 	{
 		return js_getParts(false);
 	}
 
-	public JSPart js_getPart(int type)
-	{
-		return getPart(type);
-	}
 
 	/**
 	 * Gets a part of the form from the given type (see JSPart constants). 
-	 * Use the optional height if you want to get a specific LEADING_SUBSUMMARY or TRAILING_SUBSUMMARY.
 	 *
 	 * @sample 
 	 * form.getPart(JSPart.HEADER).background = 'red';
@@ -1517,7 +1603,24 @@ public class JSForm implements IJSParent, IConstantsObject
 	 *
 	 * @param type The type of the part to retrieve.
 	 *
-	 * @param height optional The heigh of the part to retrieve. Use this parameter when retrieving one of multiple
+	 * @return A JSPart instance representing the retrieved form part.
+	 */
+	public JSPart js_getPart(int type)
+	{
+		return getPart(type);
+	}
+
+	/**
+	 * Gets a part of the form from the given type (see JSPart constants). 
+	 * Use the height if you want to get a specific LEADING_SUBSUMMARY or TRAILING_SUBSUMMARY.
+	 *
+	 * @sample 
+	 * form.getPart(JSPart.HEADER).background = 'red';
+	 * form.getPart(JSPart.LEADING_SUBSUMMARY, 160).background = 'red';
+	 *
+	 * @param type The type of the part to retrieve.
+	 *
+	 * @param height The height of the part to retrieve. Use this parameter when retrieving one of multiple
 	 * 	                      Leading/Trailing Subsummary parts.
 	 * 
 	 * @return A JSPart instance representing the retrieved form part.
@@ -1527,6 +1630,22 @@ public class JSForm implements IJSParent, IConstantsObject
 		return getPart(type, height);
 	}
 
+	/**
+	 * Returns the Y offset of a given part (see JSPart) of the form. This will include 
+	 * all the super forms parts if this form extends a form. 
+	 *
+	 * @sample
+	 * // get the subform
+	 * var form = solutionModel.getForm('SubForm');
+	 * // get the start offset of the body
+	 * var height = form.getPartYOffset(JSPart.BODY);
+	 * // place a new button based on the start offset.
+	 * form.newButton('mybutton',50,50+height,80,20,solutionModel.getGlobalMethod('test'));
+	 *
+	 * @param type The type of the part whose Y offset will be returned.
+	 *
+	 * @return A number holding the Y offset of the specified form part.
+	 */
 	public int js_getPartYOffset(int type)
 	{
 		return js_getPartYOffset(type, -1);
@@ -1534,7 +1653,7 @@ public class JSForm implements IJSParent, IConstantsObject
 
 	/**
 	 * Returns the Y offset of a given part (see JSPart) of the form. This will include 
-	 * all the super forms parts if this form extends a form. Use the optional height for 
+	 * all the super forms parts if this form extends a form. Use the height parameter for 
 	 * targetting one of multiple subsummary parts.
 	 *
 	 * @sample
@@ -1547,7 +1666,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 *
 	 * @param type The type of the part whose Y offset will be returned.
 	 *
-	 * @param height optional The height of the part whose Y offset will be returned. This is used when
+	 * @param height The height of the part whose Y offset will be returned. This is used when
 	 *                        one of multiple Leading/Trailing Sumsummary parts is retrieved.
 	 *                        
 	 * @return A number holding the Y offset of the specified form part.
@@ -1579,14 +1698,24 @@ public class JSForm implements IJSParent, IConstantsObject
 		return -1;
 	}
 
+	/**
+	 * Removes a JSPart of the given type. 
+	 *
+	 * @sample 
+	 * form.removePart(JSPart.HEADER);
+	 * form.removePart(JSPart.LEADING_SUBSUMMARY, 160);
+	 *
+	 * @param type The type of the part that should be removed.
+	 *                        
+	 * @return True if the part is successfully removed, false otherwise.
+	 */
 	public boolean js_removePart(int type)
 	{
 		return js_removePart(type, -1);
 	}
 
 	/**
-	 * Removes a JSPart of the given type. Use the height parameter if you want to remove one of multiple
-	 * subsummary parts.
+	 * Removes a JSPart of the given type. The height parameter is for removing one of multiple subsummary parts.
 	 *
 	 * @sample 
 	 * form.removePart(JSPart.HEADER);
@@ -1594,8 +1723,8 @@ public class JSForm implements IJSParent, IConstantsObject
 	 *
 	 * @param type The type of the part that should be removed.
 	 *
-	 * @param height optional The height of the part that should be removed. Use this parameter when you want
-	 *                        to remove one of multiple Leading/Trailing Subsummary parts.
+	 * @param height The height of the part that should be removed. This parameter is for 
+	 * 					removing one of multiple Leading/Trailing Subsummary parts.
 	 *                        
 	 * @return True if the part is successfully removed, false otherwise.
 	 */
@@ -1831,7 +1960,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 * 			application.output(fname);
 	 * 	}
 	 * 
-	 * @param returnInheritedElements optional boolean true to also return the elements from parent form, default false 
+	 * @param returnInheritedElements boolean true to also return the elements from the parent form 
 	 * @return all JSField objects of this form
 	 *
 	 */
@@ -1866,6 +1995,22 @@ public class JSForm implements IJSParent, IConstantsObject
 		return fields.toArray(new JSField[fields.size()]);
 	}
 
+	/**
+	 * Returns all JSField objects of this form, including the ones without a name.
+	 *
+	 * @sample 
+	 * 	var frm = solutionModel.getForm("myForm");
+	 * 	var fields = frm.getFields();
+	 * 	for (var f in fields)
+	 * 	{
+	 * 		var fname = fields[f].name;
+	 * 		if (fname != null)
+	 * 			application.output(fname);
+	 * 	}
+	 * 
+	 * @return all JSField objects of this form
+	 *
+	 */
 	public JSField[] js_getFields()
 	{
 		return js_getFields(false);
@@ -1951,7 +2096,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 * 			application.output(buttons[b].text + " has no name ");
 	 * }
 	 * 
-	 * @param returnInheritedElements optional boolean true to also return the elements from parent form, default false 
+	 * @param returnInheritedElements boolean true to also return the elements from parent form
 	 * @return the list of all JSbuttons on this forms
 	 *
 	 */
@@ -1992,6 +2137,22 @@ public class JSForm implements IJSParent, IConstantsObject
 		return buttons.toArray(new JSButton[buttons.size()]);
 	}
 
+	/**
+	 * Returns all JSButtons of this form, including the ones without a name.
+	 *
+	 * @sample 
+	 * var buttons = myForm.getButtons();
+	 * for (var b in buttons)
+	 * {
+	 * 		if (buttons[b].name != null) 
+	 * 			application.output(buttons[b].name);
+	 * 		else
+	 * 			application.output(buttons[b].text + " has no name ");
+	 * }
+	 * 
+	 * @return the list of all JSbuttons on this forms
+	 *
+	 */
 	public JSButton[] js_getButtons()
 	{
 		return js_getButtons(false);
@@ -2104,7 +2265,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 * 			application.output(beans[b].name);
 	 * }
 	 * 
-	 * @param returnInheritedElements optional boolean true to also return the elements from parent form, default false 
+	 * @param returnInheritedElements boolean true to also return the elements from parent form 
 	 * @return the list of all JSbuttons on this forms
 	 *
 	 */
@@ -2139,6 +2300,20 @@ public class JSForm implements IJSParent, IConstantsObject
 		return beans.toArray(new JSBean[beans.size()]);
 	}
 
+	/**
+	 * Returns all JSBeans of this form. 
+	 *
+	 * @sample 
+	 * var beans = myForm.getBeans();
+	 * for (var b in beans)
+	 * {
+	 * 		if (beans[b].name != null) 
+	 * 			application.output(beans[b].name);
+	 * }
+	 * 
+	 * @return the list of all JSbuttons on this forms
+	 *
+	 */
 	public JSBean[] js_getBeans()
 	{
 		return js_getBeans(false);
@@ -2228,7 +2403,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 * 	for (var i in components)
 	 * 		application.output("Component type and name: " + components[i]); 
 	 * 
-	 * @param returnInheritedElements optional boolean true to also return the elements from parent form, default false 
+	 * @param returnInheritedElements boolean true to also return the elements from the parent form 
 	 * @return an array of all the JSComponents on the form.
 	 */
 	public JSComponent< ? >[] js_getComponents(boolean returnInheritedElements)
@@ -2243,6 +2418,17 @@ public class JSForm implements IJSParent, IConstantsObject
 		return lst.toArray(new JSComponent[lst.size()]);
 	}
 
+	/**
+	 * Returns a array of all the JSComponents that a form has; they are of type JSField,JSLabel,JSButton,JSPortal,JSBean or JSTabPanel.
+	 *
+	 * @sample
+	 * 	var form = solutionModel.getForm("myForm");
+	 * 	var components = form.getComponents();
+	 * 	for (var i in components)
+	 * 		application.output("Component type and name: " + components[i]); 
+	 * 
+	 * @return an array of all the JSComponents on the form.
+	 */
 	public JSComponent< ? >[] js_getComponents()
 	{
 		return js_getComponents(false);

@@ -97,11 +97,30 @@ public class JSCalculation implements IJavaScriptType
 
 	}
 
+	/**
+	 * This method returns the name of the stored calculation.
+	 * 
+	 * @sample
+	 * var calc = solutionModel.newCalculation("function myCalculation() { return 123; }", JSVariable.INTEGER, "db:/example_data/customers");
+	 * application.output(calc.getName()); 
+	 * 
+	 * @return the name of the stored calculation
+	 */
 	public String js_getName()
 	{
 		return scriptCalculation.getName();
 	}
 
+	/**
+	 * Returns whether this calculation is a stored one or not.
+	 * 
+	 * @sample
+	 * var calc = solutionModel.newCalculation("function myCalculation() { return 123; }", JSVariable.INTEGER, "db:/example_data/customers");
+	 * if (calc.isStored()) application.output("The calculation is stored").
+	 * else application.output("The calculation is not stored").
+	 * 
+	 * @return true if the calculation is stored, false otherwise
+	 */
 	public boolean js_isStored()
 	{
 		try

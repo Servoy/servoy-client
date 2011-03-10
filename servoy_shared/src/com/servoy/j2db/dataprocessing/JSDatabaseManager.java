@@ -1075,7 +1075,7 @@ public class JSDatabaseManager
 	 * @sample var sql = databaseManager.getSQL(foundset)
 	 *
 	 * @param foundset The JSFoundset to get the sql for.
-	 * @param includeFilters optional, include the foundset and table filters, default true.
+	 * @param includeFilters include the foundset and table filters.
 	 * 
 	 * @return String representing the sql of the JSFoundset.
 	 */
@@ -1113,6 +1113,17 @@ public class JSDatabaseManager
 		return null;
 	}
 
+	/**
+	 * Returns the internal SQL which defines the specified (related)foundset.
+	 * Table filters are on by default.
+	 * Make sure to set the applicable filters when the sql is used in a loadRecords() call.
+	 *
+	 * @sample var sql = databaseManager.getSQL(foundset)
+	 *
+	 * @param foundset The JSFoundset to get the sql for.
+	 * 
+	 * @return String representing the sql of the JSFoundset.
+	 */
 	public String js_getSQL(Object foundset) throws ServoyException
 	{
 		checkAuthorized();
@@ -1122,10 +1133,10 @@ public class JSDatabaseManager
 	/**
 	 * Returns the internal SQL parameters, as an array, that are used to define the specified (related)foundset.
 	 *
-	 * @sample var sqlParameterArray = databaseManager.getSQLParameters(foundset)
+	 * @sample var sqlParameterArray = databaseManager.getSQLParameters(foundset,false)
 	 *
 	 * @param foundset The JSFoundset to get the sql parameters for.
-	 * @param includeFilters optional, include the parameters for the filters, default true.
+	 * @param includeFilters include the parameters for the filters.
 	 * 
 	 * @return An Array with the sql parameter values.
 	 */
@@ -1153,6 +1164,16 @@ public class JSDatabaseManager
 		return null;
 	}
 
+	/**
+	 * Returns the internal SQL parameters, as an array, that are used to define the specified (related)foundset.
+	 * Parameters for the filters are included.
+	 *
+	 * @sample var sqlParameterArray = databaseManager.getSQLParameters(foundset,false)
+	 *
+	 * @param foundset The JSFoundset to get the sql parameters for.
+	 * 
+	 * @return An Array with the sql parameter values.
+	 */
 	public Object[] js_getSQLParameters(Object foundset) throws ServoyException
 	{
 		checkAuthorized();
@@ -1983,7 +2004,7 @@ public class JSDatabaseManager
 	/**
 	 * Returns true if a transaction is committed; rollback if commit fails. 
 	 * 
-	 * @param saveFirst optional save edited records to the database first (default true)
+	 * @param saveFirst save edited records to the database first (default true)
 	 * 
 	 * @sampleas js_startTransaction()
 	 * 
@@ -1996,6 +2017,14 @@ public class JSDatabaseManager
 		return fsm.commitTransaction(saveFirst);
 	}
 
+	/**
+	 * Returns true if a transaction is committed; rollback if commit fails. 
+	 * Saves all edited records and commits the data.
+	 * 
+	 * @sampleas js_startTransaction()
+	 * 
+	 * @return if the transaction could be committed.
+	 */
 	public boolean js_commitTransaction() throws ServoyException
 	{
 		return js_commitTransaction(true);
@@ -2005,7 +2034,7 @@ public class JSDatabaseManager
 	 * Rollback a transaction started by databaseManager.startTransaction().
 	 * Note that when autosave is false, rollbackEditedRecords() will not handle deleted records, while rollbackTransaction() does.
 	 * 
-	 * @param rollbackEdited optional call rollbackEditedRecords() before rolling back the transaction (default true)
+	 * @param rollbackEdited call rollbackEditedRecords() before rolling back the transaction
 	 * 
 	 * @sampleas js_startTransaction() 
 	 */
@@ -2016,6 +2045,13 @@ public class JSDatabaseManager
 		fsm.rollbackTransaction(rollbackEdited, true);
 	}
 
+	/**
+	 * Rollback a transaction started by databaseManager.startTransaction().
+	 * Note that when autosave is false, rollbackEditedRecords() will not handle deleted records, while rollbackTransaction() does.
+	 * Also, rollbackEditedRecords() is called before rolling back the transaction.
+	 * 
+	 * @sampleas js_startTransaction() 
+	 */
 	public void js_rollbackTransaction() throws ServoyException
 	{
 		js_rollbackTransaction(true);

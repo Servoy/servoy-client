@@ -236,6 +236,18 @@ public class JSI18N
 		return 0;
 	}
 
+	/**
+	 * Gets the real message (for the clients locale) for a specified message key. 
+	 *
+	 * @sample
+	 * // returns 'Welcome my_name in my solution'
+	 * // if the key 'mykey.username.text' is 'Welcome {0} in my solution'
+	 * i18n.getI18NMessage('mykey.username.text',new Array('my_name'))
+	 *
+	 * @param i18nKey The message key
+	 *
+	 * @return a String that is the message for the message key.
+	 */
 	public String js_getI18NMessage(String i18nKey)
 	{
 		return application.getI18NMessage(i18nKey);
@@ -252,7 +264,7 @@ public class JSI18N
 	 *
 	 * @param i18nKey The message key
 	 *
-	 * @param dynamicValues optional Arguments array when using parameter substitution.
+	 * @param dynamicValues Arguments array when using parameter substitution.
 	 * 
 	 * @return a String that is the message for the message key.
 	 */

@@ -266,19 +266,8 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 		return null;
 	}
 
-	/*
-	 * not a real javadoc yet since js doc produces fails on this
-	 * 
-	 * @sameas com.servoy.j2db.scripting.JSSecurity#js_isUserMemberOfGroup(String, Object[])
-	 */
-	public boolean js_isUserMemberOfGroup(String groupName) throws ServoyException
-	{
-		return application.getUserUID() != null ? js_isUserMemberOfGroup(groupName, application.getUserUID()) : false;
-	}
-
-
 	/**
-	 * Check whatever the current user, or the user specified as parameter is part of the specified group
+	 * Check whatever the current user is part of the specified group
 	 *
 	 * @sample
 	 * //check whatever user is part of the Administrators group
@@ -288,7 +277,27 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	 * }
 	 * 
 	 * @param groupName name of the group to check
-	 * @param userUID optional UID of the user to check
+	 * 
+	 * @return dataset with groupnames
+	 */
+	public boolean js_isUserMemberOfGroup(String groupName) throws ServoyException
+	{
+		return application.getUserUID() != null ? js_isUserMemberOfGroup(groupName, application.getUserUID()) : false;
+	}
+
+
+	/**
+	 * Check whatever the user specified as parameter is part of the specified group.
+	 *
+	 * @sample
+	 * //check whatever user is part of the Administrators group
+	 * if(security.isUserMemberOfGroup('Administrators', security.getUserUID('admin')))
+	 * {
+	 * 		// do administration stuff
+	 * }
+	 * 
+	 * @param groupName name of the group to check
+	 * @param userUID UID of the user to check
 	 * 
 	 * @return dataset with groupnames
 	 */
@@ -298,23 +307,8 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 		return userGroups != null ? Arrays.asList(userGroups.js_getColumnAsArray(2)).indexOf(groupName) > -1 : false;
 	}
 
-	/*
-	 * not a real javadoc yet since js doc produces fails on this
-	 * 
-	 * @sameas com.servoy.j2db.scripting.JSSecurity#js_getUserGroups(Object[])
-	 */
-	public JSDataSet js_getUserGroups() throws ServoyException
-	{
-		JSDataSet groups = null;
-		if (application.getUserUID() != null)
-		{
-			groups = js_getUserGroups(application.getUserUID());
-		}
-		return (groups == null ? new JSDataSet(new ApplicationException(ServoyException.INCORRECT_LOGIN)) : groups);
-	}
-
 	/**
-	 * Get all the groups of the current user, finds the goups for given user UID if passed as parameter.
+	 * Get all the groups of the current user.
 	 *
 	 * @sample
 	 * //get all the users in the security settings (Returns a JSDataset)
@@ -338,7 +332,44 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	 * 	}
 	 * }
 	 *
-	 * @param userUID optional to retrieve the user groups
+	 * @return dataset with groupnames
+	 */
+	public JSDataSet js_getUserGroups() throws ServoyException
+	{
+		JSDataSet groups = null;
+		if (application.getUserUID() != null)
+		{
+			groups = js_getUserGroups(application.getUserUID());
+		}
+		return (groups == null ? new JSDataSet(new ApplicationException(ServoyException.INCORRECT_LOGIN)) : groups);
+	}
+
+	/**
+	 * Get all the groups for given user UID.
+	 *
+	 * @sample
+	 * //get all the users in the security settings (Returns a JSDataset)
+	 * var dsUsers = security.getUsers()
+	 * 
+	 * //loop through each user to get their group
+	 * //The getValue call is (row,column) where column 1 == id and 2 == name
+	 * for(var i=1 ; i<=dsUsers.getMaxRowIndex() ; i++)
+	 * {
+	 * 	//print to the output debugger tab: "user: " and the username
+	 * 	application.output("user:" + dsUsers.getValue(i,2));
+	 * 
+	 * 	//set p to the user group for the current user
+	 * 	var p = security.getUserGroups(dsUsers.getValue(i,1));
+	 * 
+	 * 	for(k=1;k<=p.getMaxRowIndex();k++)
+	 * 	{
+	 * 		//print to the output debugger tab: "group" and the group(s)
+	 * 		//the user belongs to
+	 * 		application.output("group: " + p.getValue(k,2));
+	 * 	}
+	 * }
+	 *
+	 * @param userUID to retrieve the user groups
 	 * 
 	 * @return dataset with groupnames
 	 */
@@ -1125,7 +1156,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	 *
 	 * @param authenticator_solution authenticator solution installed on the Servoy Server, null for servoy built-in authentication
 	 * @param method authenticator method, null for servoy built-in authentication
-	 * @param credentials optional array whose elements are passed as arguments to the authenticator method, in case of servoy built-in authentication this should be [username, password]
+	 * @param credentials array whose elements are passed as arguments to the authenticator method, in case of servoy built-in authentication this should be [username, password]
 	 * 
 	 * @return authentication result from authenticator solution or boolean in case of servoy built-in authentication
 	 */
@@ -1142,6 +1173,27 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 		}
 	}
 
+	/**
+	 * Authenticate to the Servoy Server using one of the installed authenticators or the Servoy default authenticator.
+	 * 
+	 * Note: this method should be called from a login solution.
+	 * 
+	 * @sample
+	 * // create the credentials object as expected by the authenticator solution
+	 * var ok =  security.authenticate('myldap_authenticator', 'login', [globals.userName, globals.passWord])
+	 * if (!ok)
+	 * {
+	 * 	plugins.dialogs.showErrorDialog('Login failed', 'OK')
+	 * }
+	 * 	
+	 * // if no authenticator name is used, the credentials are checked using the Servoy built-in user management
+	 * ok = security.authenticate(null, null, [globals.userName, globals.passWord])
+	 *
+	 * @param authenticator_solution authenticator solution installed on the Servoy Server, null for servoy built-in authentication
+	 * @param method authenticator method, null for servoy built-in authentication
+	 * 
+	 * @return authentication result from authenticator solution or boolean in case of servoy built-in authentication
+	 */
 	public Object js_authenticate(String authenticator_solution, String method)
 	{
 		return js_authenticate(authenticator_solution, method, null);
