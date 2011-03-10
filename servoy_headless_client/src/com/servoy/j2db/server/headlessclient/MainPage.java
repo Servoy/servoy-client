@@ -1908,12 +1908,20 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		}
 
 		@Override
+		protected void onAfterRender()
+		{
+			super.onAfterRender();
+			setShowPageInDialogDelayed(false);
+		}
+
+		@Override
 		@SuppressWarnings("nls")
 		protected AppendingStringBuffer postProcessSettings(AppendingStringBuffer settings)
 		{
 			AppendingStringBuffer buffer = super.postProcessSettings(settings);
 			buffer.append("var userOnCloseButton = settings.onCloseButton;\n");
-			buffer.append("settings.onCloseButton = function() { var cb=this.caption.getElementsByTagName('a')[0];Wicket.Event.add(cb, 'blur', function() { setTimeout(userOnCloseButton, 500); });cb.focus();cb.blur();};\n");
+			buffer.append("var cb = null;\n");
+			buffer.append("settings.onCloseButton = function() { if(!cb) { cb=this.caption.getElementsByTagName('a')[0];Wicket.Event.add(cb, 'blur', function() {setTimeout(userOnCloseButton, 500); }); } cb.focus();cb.blur();};\n");
 
 			return buffer;
 		}
