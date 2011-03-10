@@ -119,9 +119,10 @@ public class StartupArgumentsScope extends DefaultScope implements Externalizabl
 			{
 				put(paramKey, this, paramValue);
 			}
-			else if (paramValue instanceof String[])
+			else if (paramValue instanceof String[] && ((String[])paramValue).length > 0)
 			{
-				put(paramKey, this, new NativeArray((String[])paramValue));
+
+				put(paramKey, this, ((String[])paramValue).length > 1 ? new NativeArray((String[])paramValue) : ((String[])paramValue)[0]);
 			}
 		}
 	}
