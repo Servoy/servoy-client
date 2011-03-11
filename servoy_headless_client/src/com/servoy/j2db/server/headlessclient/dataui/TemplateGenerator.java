@@ -18,6 +18,7 @@ package com.servoy.j2db.server.headlessclient.dataui;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Insets;
 import java.awt.Point;
 import java.io.IOException;
@@ -1913,7 +1914,10 @@ public class TemplateGenerator
 		{
 			applyLocationAndSize(label, styleObj, ins, startY, endY, form.getSize().width, enableAnchoring);
 		}
-
+		if (label.getRolloverCursor() == Cursor.HAND_CURSOR)
+		{
+			styleObj.setProperty("cursor", "pointer");
+		}
 		int height = label.getSize().height;
 		// Firefox has a problem when rendering <button> tags. A solution is to tweak the bottom padding
 		// and make it equal to the height of the <button>. 
