@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util.editlist;
 
 
@@ -608,42 +608,40 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 	@Override
 	public String getToolTipText(MouseEvent event)
 	{
-		if (!isEditing())
+		if (event != null)
 		{
-			if (event != null)
+			Point p = event.getPoint();
+			int index = locationToIndex(p);
+			ListCellRenderer r = getCellRenderer();
+			Rectangle cellBounds;
+
+			if (index != -1 && r != null && (cellBounds = getCellBounds(index, index)) != null && cellBounds.contains(p.x, p.y))
 			{
-				Point p = event.getPoint();
-				int index = locationToIndex(p);
-				ListCellRenderer r = getCellRenderer();
-				Rectangle cellBounds;
+				ListSelectionModel lsm = getSelectionModel();
+				Component rComponent = r.getListCellRendererComponent(this, getModel().getElementAt(index), index, lsm.isSelectedIndex(index),
+					(hasFocus() && (lsm.getLeadSelectionIndex() == index)));
 
-				if (index != -1 && r != null && (cellBounds = getCellBounds(index, index)) != null && cellBounds.contains(p.x, p.y))
+				if (rComponent instanceof JComponent)
 				{
-					ListSelectionModel lsm = getSelectionModel();
-					Component rComponent = r.getListCellRendererComponent(this, getModel().getElementAt(index), index, lsm.isSelectedIndex(index),
-						(hasFocus() && (lsm.getLeadSelectionIndex() == index)));
+					MouseEvent newEvent;
 
-					if (rComponent instanceof JComponent)
+					p.translate(-cellBounds.x, -cellBounds.y);
+					newEvent = new MouseEvent(rComponent, event.getID(), event.getWhen(), event.getModifiers(), p.x, p.y, event.getClickCount(),
+						event.isPopupTrigger());
+
+					this.add(rComponent);
+					rComponent.setBounds(cellBounds);
+					rComponent.doLayout();
+					String tip = ((JComponent)rComponent).getToolTipText(newEvent);
+					this.remove(rComponent);
+					if (tip != null)
 					{
-						MouseEvent newEvent;
-
-						p.translate(-cellBounds.x, -cellBounds.y);
-						newEvent = new MouseEvent(rComponent, event.getID(), event.getWhen(), event.getModifiers(), p.x, p.y, event.getClickCount(),
-							event.isPopupTrigger());
-
-						this.add(rComponent);
-						rComponent.setBounds(cellBounds);
-						rComponent.doLayout();
-						String tip = ((JComponent)rComponent).getToolTipText(newEvent);
-						this.remove(rComponent);
-						if (tip != null)
-						{
-							return tip;
-						}
+						return tip;
 					}
 				}
 			}
 		}
+
 		return super.getToolTipText();
 	}
 
