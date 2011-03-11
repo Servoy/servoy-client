@@ -44,11 +44,13 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
@@ -653,10 +655,13 @@ public class ComponentFactory
 		if (dim != null) c.setSize(bc.getSize());
 
 		javax.swing.border.Border border = ComponentFactoryHelper.createBorder(bc.getBorderType());
-		if (c instanceof JCheckBox/* DataCheckBox */&& (border != null || isBorderStyle))
+		if ((c instanceof JCheckBox/* DataCheckBox */|| c instanceof JRadioButton/* DataRadioButton */) && (border != null || isBorderStyle))
 		{
-			((JCheckBox)c).setBorderPainted(true);
-			((JCheckBox)c).setBorderPaintedFlat(false);
+			((AbstractButton)c).setBorderPainted(true);
+			if (c instanceof JCheckBox)
+			{
+				((JCheckBox)c).setBorderPaintedFlat(false);
+			}
 		}
 		if (border != null)
 		{
@@ -1203,19 +1208,17 @@ public class ComponentFactory
 				}
 				break;
 			case Field.CHECKS :
-			case Field.RADIOS :
-				boolean isRadio = (field.getDisplayType() == Field.RADIOS);
 				if (valuelist != null)
 				{
 					IValueList list = getRealValueList(application, valuelist, true, type, format, field.getDataProviderID());
 					if (isSingleValue(valuelist, list))
 					{
 						fl = application.getItemFactory().createSelectBox(getWebID(form, field), application.getI18NMessageIfPrefixed(field.getText()), list,
-							isRadio);
+							false);
 					}
 					else
 					{
-						fl = application.getItemFactory().createDataChoice(getWebID(form, field), list, isRadio);
+						fl = application.getItemFactory().createDataChoice(getWebID(form, field), list, false);
 						if (fl instanceof IScrollPane)
 						{
 							applyScrollBarsProperty((IScrollPane)fl, field);
@@ -1224,8 +1227,25 @@ public class ComponentFactory
 				}
 				else
 				{
-					fl = application.getItemFactory().createSelectBox(getWebID(form, field), application.getI18NMessageIfPrefixed(field.getText()), isRadio);
+					fl = application.getItemFactory().createSelectBox(getWebID(form, field), application.getI18NMessageIfPrefixed(field.getText()), false);
 				}
+				break;
+			case Field.RADIOS :
+			{
+				IValueList list = getRealValueList(application, valuelist, true, type, format, field.getDataProviderID());
+				if (isSingleValue(valuelist, list))
+				{
+					fl = application.getItemFactory().createSelectBox(getWebID(form, field), application.getI18NMessageIfPrefixed(field.getText()), list, true);
+				}
+				else
+				{
+					fl = application.getItemFactory().createDataChoice(getWebID(form, field), list, true);
+					if (fl instanceof IScrollPane)
+					{
+						applyScrollBarsProperty((IScrollPane)fl, field);
+					}
+				}
+			}
 				break;
 			case Field.COMBOBOX :
 			{

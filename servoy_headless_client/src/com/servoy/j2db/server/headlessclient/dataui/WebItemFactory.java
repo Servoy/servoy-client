@@ -126,12 +126,19 @@ public class WebItemFactory implements ItemFactory
 
 	public IFieldComponent createSelectBox(String name, String text, IValueList list, boolean isRadio)
 	{
-		return new WebDataCheckBox(application, name, text, list, isRadio);
+		if (isRadio)
+		{
+			return new WebDataRadioButton(application, name, text, list);
+		}
+		else
+		{
+			return new WebDataCheckBox(application, name, text, list);
+		}
 	}
 
 	public IFieldComponent createSelectBox(String name, String text, boolean isRadio)
 	{
-		return new WebDataCheckBox(application, name, text, isRadio);
+		return createSelectBox(name, text, null, isRadio);
 	}
 
 	public IFieldComponent createDataChoice(String name, IValueList list, boolean isRadioList)

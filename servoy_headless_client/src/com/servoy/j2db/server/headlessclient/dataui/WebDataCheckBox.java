@@ -114,18 +114,18 @@ public class WebDataCheckBox extends MarkupContainer implements IFieldComponent,
 	private final IApplication application;
 	private final MyCheckBox selector;
 
-	public WebDataCheckBox(IApplication application, String id, String text, IValueList list, boolean isRadio)
+	public WebDataCheckBox(IApplication application, String id, String text, IValueList list)
 	{
-		this(application, id, text, isRadio);
+		this(application, id, text);
 		onValue = list;
 	}
 
 
-	public WebDataCheckBox(IApplication application, String id, String text, boolean isRadio)
+	public WebDataCheckBox(IApplication application, String id, String text)
 	{
 		super(id);
 		this.application = application;
-		selector = new MyCheckBox("check_" + id, isRadio); //$NON-NLS-1$
+		selector = new MyCheckBox("check_" + id); //$NON-NLS-1$
 
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX"));
 		eventExecutor = new WebEventExecutor(selector, useAJAX);
@@ -490,12 +490,10 @@ public class WebDataCheckBox extends MarkupContainer implements IFieldComponent,
 	{
 		private static final long serialVersionUID = 1L;
 		protected ITagResolver resolver;
-		public boolean isRadio;
 
-		private MyCheckBox(String id, boolean isRadio)
+		private MyCheckBox(String id)
 		{
 			super(id);
-			this.isRadio = isRadio;
 			setOutputMarkupPlaceholderTag(true);
 			add(new AttributeModifier("disabled", true, new Model<String>() //$NON-NLS-1$
 				{
@@ -876,7 +874,7 @@ public class WebDataCheckBox extends MarkupContainer implements IFieldComponent,
 	 */
 	public String js_getElementType()
 	{
-		return (selector.isRadio ? IScriptBaseMethods.RADIOS : IScriptBaseMethods.CHECK);
+		return IScriptBaseMethods.CHECK;
 	}
 
 	/*

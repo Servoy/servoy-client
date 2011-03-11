@@ -1901,7 +1901,6 @@ public class TemplateGenerator
 			}
 			if (label.getOnActionMethodID() > 0) styleObj.setProperty("cursor", "pointer");
 		}
-
 		if (isButton && enableAnchoring)
 		{
 			html.append("</div>");
@@ -2112,7 +2111,7 @@ public class TemplateGenerator
 				boolean addSingle = ComponentFactory.isSingleValue(valuelist, val);
 
 				// If we have multiple checkboxes, then the default is "field".
-				if (field.getValuelistID() > 0 && !addSingle) cssClass = "field";
+				if (field.getValuelistID() > 0 && !addSingle && !isRadio) cssClass = "field";
 				// If we have a style for the form, apply "check" class if present, default to "field" if "check" class is not present.
 				if (ss != null)
 				{
@@ -2134,7 +2133,7 @@ public class TemplateGenerator
 					}
 				}
 
-				if (field.getValuelistID() > 0 && !addSingle)
+				if ((field.getValuelistID() > 0 || isRadio) && !addSingle)
 				{
 					applyScrolling(styleObj, field);
 					html.append("<div ");
@@ -2151,12 +2150,12 @@ public class TemplateGenerator
 					html.append(getWicketIDParameter(form, field));
 					html.append(" tabIndex=\"-1\" ");
 					html.append(">"); // 
-					html.append("<input style='float: left; border-width: 0px; padding: 3px; margin: 0px;' "); // 
+					html.append("<input style='float: left; border-width: 0px; padding: " + (isRadio ? "0px" : "3px") + "; margin: 0px;' "); // 
 					html.append(getWicketIDParameter(form, field, "check_", ""));
 					html.append(getDataProviderIDParameter(field));
 					if (isRadio)
 					{
-						html.append("type='checkbox' ");
+						html.append("type='radio' ");
 					}
 					else
 					{
@@ -2165,7 +2164,7 @@ public class TemplateGenerator
 					html.append("/>");
 					html.append("<label for='check_");
 					html.append(ComponentFactory.getWebID(form, field));
-					html.append("' style='float: left; border-width: 0px; padding-top: 2px; margin: 0px;");
+					html.append("' style='float: left; border-width: 0px; padding-top: " + (isRadio ? "0px" : "2px") + "; margin: 0px;");
 					html.append("' ");
 					html.append(getWicketIDParameter(form, field, "text_", ""));
 					html.append(">");

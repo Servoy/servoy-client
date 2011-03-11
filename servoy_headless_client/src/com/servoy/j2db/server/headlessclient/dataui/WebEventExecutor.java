@@ -61,11 +61,13 @@ import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.server.headlessclient.WrapperContainer;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataCalendar.DateField;
+import com.servoy.j2db.server.headlessclient.dataui.WebDataRadioButton.MyRadioButton;
 import com.servoy.j2db.server.headlessclient.dnd.DraggableBehavior;
 import com.servoy.j2db.ui.BaseEventExecutor;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
+import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IScriptBaseMethods;
@@ -97,7 +99,7 @@ public class WebEventExecutor extends BaseEventExecutor
 			{
 				component.add(new ServoyChoiceComponentUpdatingBehavior(component, this));
 			}
-			else if (component instanceof CheckBox)
+			else if (component instanceof CheckBox || component instanceof MyRadioButton)
 			{
 				component.add(new ServoyFormComponentUpdatingBehavior("onclick", component, this)); //$NON-NLS-1$
 			}
@@ -281,52 +283,55 @@ public class WebEventExecutor extends BaseEventExecutor
 	{
 		if (id != null && useAJAX)
 		{
-			component.add(new ServoyAjaxEventBehavior("oncontextmenu") //$NON-NLS-1$
+			if (component instanceof ILabel || component instanceof IFieldComponent || component instanceof SortableCellViewHeader)
 			{
-				@Override
-				protected void onEvent(AjaxRequestTarget target)
+				component.add(new ServoyAjaxEventBehavior("oncontextmenu") //$NON-NLS-1$
 				{
-					WebEventExecutor.this.onEvent(JSEvent.EventType.rightClick, target, component,
-						Utils.getAsInteger(RequestCycle.get().getRequest().getParameter(IEventExecutor.MODIFIERS_PARAMETER)),
-						new Point(Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("mx")), //$NON-NLS-1$
-							Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("my")))); //$NON-NLS-1$
-				}
-
-				@Override
-				protected CharSequence generateCallbackScript(final CharSequence partialCall)
-				{
-					return super.generateCallbackScript(partialCall + "+Servoy.Utils.getActionParams(event)"); //$NON-NLS-1$
-				}
-
-				@Override
-				public boolean isEnabled(Component comp)
-				{
-					if (super.isEnabled(comp))
+					@Override
+					protected void onEvent(AjaxRequestTarget target)
 					{
-						if (comp instanceof IScriptBaseMethods)
-						{
-							Object oe = ((IScriptBaseMethods)comp).js_getClientProperty("ajax.enabled"); //$NON-NLS-1$
-							if (oe != null) return Utils.getAsBoolean(oe);
-						}
-						return true;
+						WebEventExecutor.this.onEvent(JSEvent.EventType.rightClick, target, component,
+							Utils.getAsInteger(RequestCycle.get().getRequest().getParameter(IEventExecutor.MODIFIERS_PARAMETER)),
+							new Point(Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("mx")), //$NON-NLS-1$
+								Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("my")))); //$NON-NLS-1$
 					}
-					return false;
-				}
 
-				// We need to return false, otherwise the context menu of the browser is displayed.
-				@Override
-				protected IAjaxCallDecorator getAjaxCallDecorator()
-				{
-					return new AjaxCallDecorator()
+					@Override
+					protected CharSequence generateCallbackScript(final CharSequence partialCall)
 					{
-						@Override
-						public CharSequence decorateScript(CharSequence script)
+						return super.generateCallbackScript(partialCall + "+Servoy.Utils.getActionParams(event)"); //$NON-NLS-1$
+					}
+
+					@Override
+					public boolean isEnabled(Component comp)
+					{
+						if (super.isEnabled(comp))
 						{
-							return script + " return false;"; //$NON-NLS-1$
+							if (comp instanceof IScriptBaseMethods)
+							{
+								Object oe = ((IScriptBaseMethods)comp).js_getClientProperty("ajax.enabled"); //$NON-NLS-1$
+								if (oe != null) return Utils.getAsBoolean(oe);
+							}
+							return true;
 						}
-					};
-				}
-			});
+						return false;
+					}
+
+					// We need to return false, otherwise the context menu of the browser is displayed.
+					@Override
+					protected IAjaxCallDecorator getAjaxCallDecorator()
+					{
+						return new AjaxCallDecorator()
+						{
+							@Override
+							public CharSequence decorateScript(CharSequence script)
+							{
+								return script + " return false;"; //$NON-NLS-1$
+							}
+						};
+					}
+				});
+			}
 		}
 		super.setRightClickCmd(id, args);
 	}

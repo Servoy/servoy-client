@@ -213,9 +213,18 @@ public class SwingItemFactory implements ItemFactory
 	 */
 	public IFieldComponent createSelectBox(String name, String text, IValueList list, boolean isRadio)
 	{
-		DataCheckBox dcb = new DataCheckBox(application, text, list, isRadio);
-		dcb.setName(name);
-		return dcb;
+		if (isRadio)
+		{
+			DataRadioButton rb = new DataRadioButton(application, text, list);
+			rb.setName(name);
+			return rb;
+		}
+		else
+		{
+			DataCheckBox dcb = new DataCheckBox(application, text, list);
+			dcb.setName(name);
+			return dcb;
+		}
 	}
 
 	/*
@@ -225,9 +234,7 @@ public class SwingItemFactory implements ItemFactory
 	 */
 	public IFieldComponent createSelectBox(String name, String text, boolean isRadio)
 	{
-		DataCheckBox dcb = new DataCheckBox(application, text, isRadio);
-		dcb.setName(name);
-		return dcb;
+		return createSelectBox(name, text, null, isRadio);
 	}
 
 	/*
