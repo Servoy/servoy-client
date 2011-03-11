@@ -34,6 +34,7 @@ import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptNameValidator;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.IJavaScriptType;
+import com.servoy.j2db.util.UUID;
 
 /**
  * @author jcompagner
@@ -271,5 +272,17 @@ public class JSMethod implements IJavaScriptType
 			return new EvaluatorException(message);
 		}
 
+	}
+
+	/**
+	 * Returns the UUID of the method object
+	 * 
+	 * @sample
+	 * var method = form.newFormMethod('function original() { application.output("Original function."); }');
+	 * application.output(method.getUUID().toString());
+	 */
+	public UUID js_getUUID()
+	{
+		return sm.getUUID();
 	}
 }

@@ -20,6 +20,7 @@ import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.UUID;
 
 /**
  * @author jcompagner
@@ -119,5 +120,17 @@ public class JSBase<T extends AbstractBase>
 		}
 		else if (!baseComponent.getUUID().equals(other.baseComponent.getUUID())) return false;
 		return true;
+	}
+
+	/**
+	 * Returns the UUID of this component.
+	 * 
+	 * @sample
+	 * var button_uuid = solutionModel.getForm("my_form").getButton("my_button").getUUID();
+	 * application.output(button_uuid.toString());
+	 */
+	public UUID js_getUUID()
+	{
+		return baseComponent.getUUID();
 	}
 }

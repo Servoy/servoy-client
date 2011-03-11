@@ -41,6 +41,7 @@ import com.servoy.j2db.query.ISQLJoin;
 import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
+import com.servoy.j2db.util.UUID;
 
 /**
  * @author jcompagner
@@ -575,4 +576,15 @@ public class JSRelation implements IJSParent, IConstantsObject
 		return relation;
 	}
 
+	/**
+	 * Returns the UUID of the relation object
+	 * 
+	 * @sample
+	 * var relation = solutionModel.newRelation('parentToChild', 'example_data', 'parent_table', 'example_data', 'child_table', JSRelation.INNER_JOIN);
+	 * application.output(relation.getUUID().toString())
+	 */
+	public UUID js_getUUID()
+	{
+		return relation.getUUID();
+	}
 }

@@ -30,6 +30,7 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.UUID;
 
 /**
  * @author jcompagner
@@ -683,5 +684,17 @@ public class JSValueList implements IConstantsObject
 					valuelist.getRelationName();
 		}
 		return "JSValueList[name:" + valuelist.getName() + ',' + typeString + ']';
+	}
+
+	/**
+	 * Returns the UUID of the value list
+	 *
+	 * @sample 
+	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
+	 * application.output(vlist.getUUID().toString());
+	 */
+	public UUID js_getUUID()
+	{
+		return valuelist.getUUID();
 	}
 }

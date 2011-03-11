@@ -21,6 +21,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.util.ImageLoader;
+import com.servoy.j2db.util.UUID;
 
 /**
  * @author jcompagner
@@ -130,4 +131,15 @@ public class JSMedia implements IJavaScriptType
 		return "JSMedia[name: " + media.getName() + ']';
 	}
 
+	/**
+	 * Returns the UUID of this media
+	 * 
+	 * @sample
+	 * var ballImg = plugins.file.readFile('d:/ball.jpg');
+	 * application.output(ballImg.getUUID().toString());
+	 */
+	public UUID js_getUUID()
+	{
+		return media.getUUID();
+	}
 }

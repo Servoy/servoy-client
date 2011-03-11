@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting.solutionmodel;
 
 import com.servoy.j2db.IApplication;
@@ -23,6 +23,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptNameValidator;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.scripting.IConstantsObject;
+import com.servoy.j2db.util.UUID;
 
 /**
  * @author jcompagner
@@ -231,4 +232,15 @@ public class JSVariable implements IConstantsObject
 		return variable;
 	}
 
+	/**
+	 * Returns the UUID of the variable
+	 * 
+	 * @sample
+	 * var dateVar = solutionModel.newGlobalVariable('gDate', JSVariable.DATETIME);
+	 * application.output(dateVar.getUUID().toString());
+	 */
+	public UUID js_getUUID()
+	{
+		return variable.getUUID();
+	}
 }

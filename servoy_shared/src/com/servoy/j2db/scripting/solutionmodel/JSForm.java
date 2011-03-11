@@ -54,6 +54,7 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.UUID;
 
 /**
  * @author jcompagner
@@ -4320,4 +4321,15 @@ public class JSForm implements IJSParent, IConstantsObject
 		return "JSForm[name:" + form.getName() + ",size:" + form.getSize() + ",datasource:" + form.getDataSource() + ",style:" + form.getStyleName() + "]";
 	}
 
+	/**
+	 * Returns the UUID of this form.
+	 *
+	 * @sample 
+	 * var form_UUID = myForm.getUUID();
+	 * application.output(form_UUID.toString());
+	 */
+	public UUID js_getUUID()
+	{
+		return form.getUUID();
+	}
 }

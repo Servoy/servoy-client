@@ -21,6 +21,7 @@ import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Style;
 import com.servoy.j2db.scripting.IJavaScriptType;
+import com.servoy.j2db.util.UUID;
 
 /**
  * @author jcompagner
@@ -94,4 +95,15 @@ public class JSStyle implements IJavaScriptType
 		return "JSStyle[name:" + style.getName() + ']';
 	}
 
+	/**
+	 * Returns the UUID of the style object
+	 * 
+	 * @sample
+	 * var st = solutionModel.newStyle('myStyle','form { background-color: yellow; }');
+	 * application.output(st.getUUID().toString());
+	 */
+	public UUID js_getUUID()
+	{
+		return style.getUUID();
+	}
 }

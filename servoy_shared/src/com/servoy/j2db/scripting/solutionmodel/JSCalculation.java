@@ -29,6 +29,7 @@ import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.scripting.TableScope;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.UUID;
 
 @SuppressWarnings("nls")
 public class JSCalculation implements IJavaScriptType
@@ -184,5 +185,17 @@ public class JSCalculation implements IJavaScriptType
 	public String toString()
 	{
 		return "JSCalculation[name:" + scriptCalculation.getName() + ",type:" + scriptCalculation.getTypeAsString() + ']';
+	}
+
+	/**
+	 * Returns the UUID of the calculation.
+	 * 
+	 * @sample
+	 * var calc = solutionModel.newCalculation("function myCalculation() { return 123; }", JSVariable.INTEGER, "db:/example_data/customers");
+	 * application.output(calc.getUUID().toString()); 
+	 */
+	public UUID js_getUUID()
+	{
+		return scriptCalculation.getUUID();
 	}
 }
