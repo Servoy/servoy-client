@@ -395,6 +395,10 @@ function addListeners(strEvent, callbackUrl, ids, post)
 			{
 				callback = function(e)
 				{
+					if(strEvent == "blur")
+					{
+						ignoreFocusGained = null;
+					}
 					if(Wicket.Focus.refocusLastFocusedComponentAfterResponse && !Wicket.Focus.focusSetFromServer) return true;
 					if(!e) e = window.event;
 					var modifiers;
