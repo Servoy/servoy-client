@@ -415,12 +415,13 @@ public class ProfileDataServer implements IDataServer
 		}
 		finally
 		{
+			int counter = 0;
 			for (QueryData queryData : array)
 			{
 				QuerySet set = getSQLQuerySet(queryData.getServerName(), queryData.getSqlSelect(), queryData.getFilters(), queryData.getStartRow(),
 					queryData.getRowsToRetrieve(), false);
-				informListeners("Query[" + queryData.getType() + ']', queryData.getServerName(), set.getSelect().getSql(), queryData.getTransactionId(),
-					startTime, set.getSelect().getParameters());
+				informListeners(PerformanceTiming.getTypeString(queryData.getType()) + " Combined Query[" + (counter++) + '/' + array.length + ']',
+					queryData.getServerName(), set.getSelect().getSql(), queryData.getTransactionId(), startTime, set.getSelect().getParameters());
 			}
 		}
 	}
