@@ -28,7 +28,6 @@ import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
@@ -417,33 +416,12 @@ public class JSSolutionModel
 	 */
 	public JSForm js_getForm(String name)
 	{
-		FlattenedSolution fs = application.getFlattenedSolution();
-		Form form = fs.getForm(name);
-
-		if (form != null)
+		Form form = ((FormManager)application.getFormManager()).getPossibleForm(name);
+		if (form == null)
 		{
-			return new JSForm(application, form, false);
+			FlattenedSolution fs = application.getFlattenedSolution();
+			form = fs.getForm(name);
 		}
-		return null;
-	}
-
-	/**
-	 * Gets the specified form object and returns information about the form (see JSForm node).
-	 *
-	 * @sample
-	 * var myForm = solutionModel.getForm(forms['existingFormName']);
-	 * //get the style of the form (for all other properties see JSForm node)
-	 * var styleName = myForm.styleName;
-	 *
-	 * @param an instance object of a form
-	 * 
-	 * @return a JSForm
-	 */
-	public JSForm js_getForm(FormController formController)
-	{
-		if (formController == null) return null;
-		FlattenedSolution fs = application.getFlattenedSolution();
-		Form form = fs.getForm(formController.getName());
 
 		if (form != null)
 		{
