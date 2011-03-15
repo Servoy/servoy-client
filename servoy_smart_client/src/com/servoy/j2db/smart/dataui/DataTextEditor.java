@@ -23,6 +23,7 @@ import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Point;
@@ -528,6 +529,27 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 			{
 //				Debug.trace(e);//is intenionaly trace, becouse fails before 1.4			
 			}
+		}
+
+		/**
+		 * Fix for bad font rendering (bad kerning == strange spacing) in java 1.5 see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5097047
+		 */
+		@Override
+		public FontMetrics getFontMetrics(Font font)
+		{
+			if (application != null)//getFontMetrics can be called in the constructor super call before application is assigned
+			{
+				boolean isPrinting = Utils.getAsBoolean(application.getRuntimeProperties().get("isPrinting")); //$NON-NLS-1$
+				if (isPrinting)
+				{
+					Graphics g = (Graphics)application.getRuntimeProperties().get("printGraphics"); //$NON-NLS-1$
+					if (g != null)
+					{
+						return g.getFontMetrics(font);
+					}
+				}
+			}
+			return super.getFontMetrics(font);
 		}
 
 		// MAC FIX
@@ -1702,19 +1724,6 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 	public String getId()
 	{
 		return (String)getClientProperty("Id");
-	}
-
-	@Override
-	protected void printChildren(Graphics g)
-	{
-		super.printChildren(g);
-		super.printBorder(g); // print border after children print, to prevent child backgrounds ontop of border
-	}
-
-	@Override
-	protected void printBorder(Graphics g)
-	{
-		//intentionally empty to have the border drawn after the content
 	}
 
 	private int preferredWidth = -1;
