@@ -924,7 +924,7 @@ public class SessionClient extends ClientState implements ISessionClient
 		return false;
 	}
 
-	public void setI18NMessagesFilter(String columnname, String value)
+	public void setI18NMessagesFilter(String columnname, Object value)
 	{
 		Properties properties = new Properties();
 		Messages.loadMessagesFromDatabase(null, getClientInfo().getClientId(), getSettings(), getDataServer(), getRepository(), properties, locale,

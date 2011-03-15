@@ -38,7 +38,7 @@ public class MessagesResourceBundle extends ResourceBundle implements Externaliz
 
 	private transient Locale locale;
 	private transient String i18nColumnName;
-	private transient String i18nColunmValue;
+	private transient Object i18nColunmValue;
 	private transient int solutionId;
 
 	private transient Properties messages;
@@ -59,7 +59,7 @@ public class MessagesResourceBundle extends ResourceBundle implements Externaliz
 		applicationServerLoader = asl;
 	}
 
-	public MessagesResourceBundle(IApplication application, Locale locale, String i18nColumnName, String i18nColunmValue, int solutionId)
+	public MessagesResourceBundle(IApplication application, Locale locale, String i18nColumnName, Object i18nColunmValue, int solutionId)
 	{
 		this.application = application;
 		this.locale = locale;
@@ -174,7 +174,7 @@ public class MessagesResourceBundle extends ResourceBundle implements Externaliz
 	{
 		locale = (Locale)s.readObject();
 		i18nColumnName = (String)s.readObject();
-		i18nColunmValue = (String)s.readObject();
+		i18nColunmValue = s.readObject();
 		solutionId = s.readInt();
 		jarBundle = ResourceBundle.getBundle(Messages.BUNDLE_NAME, locale);
 	}

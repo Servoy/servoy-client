@@ -3575,9 +3575,9 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	}
 
 	private String i18nColumnName;
-	private String i18nColunmValue;
+	private Object i18nColunmValue;
 
-	public void setI18NMessagesFilter(String columnname, String value)
+	public void setI18NMessagesFilter(String columnname, Object value)
 	{
 		this.i18nColumnName = columnname;
 		this.i18nColunmValue = value;
@@ -3589,7 +3589,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		return i18nColumnName;
 	}
 
-	public String getI18NColumnValueFilter()
+	public Object getI18NColumnValueFilter()
 	{
 		return i18nColunmValue;
 	}

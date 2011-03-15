@@ -343,7 +343,7 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 
 	public Remote getServerService(String name);
 
-	public void setI18NMessagesFilter(String columnname, String value);
+	public void setI18NMessagesFilter(String columnname, Object value);
 
 	public ResourceBundle getResourceBundle(Locale locale);
 

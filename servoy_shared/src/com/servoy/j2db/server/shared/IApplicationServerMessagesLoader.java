@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.shared;
 
 import java.util.Locale;
@@ -28,5 +28,5 @@ import com.servoy.j2db.MessagesResourceBundle;
  */
 public interface IApplicationServerMessagesLoader
 {
-	void loadMessages(Properties messages, Locale locale, int solutionId, String i18nColumnName, String i18nColunmValue);
+	void loadMessages(Properties messages, Locale locale, int solutionId, String i18nColumnName, Object i18nColunmValue);
 }
