@@ -351,6 +351,8 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 	 */
 	private void commitSelectedValue()
 	{
+		if (jlist == null) return;
+
 		int index = jlist.getSelectedIndex();
 		if (index >= 0)
 		{
