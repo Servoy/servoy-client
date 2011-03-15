@@ -258,7 +258,15 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setDataSource(String arg)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_DATASOURCE, arg);
+		if (arg == null)
+		{
+			// cannot override form data source from superform with null, always remove the dataSource property when set to null
+			clearTypedProperty(StaticContentSpecLoader.PROPERTY_DATASOURCE);
+		}
+		else
+		{
+			setTypedProperty(StaticContentSpecLoader.PROPERTY_DATASOURCE, arg);
+		}
 		table = null;//clear any cached table
 	}
 
