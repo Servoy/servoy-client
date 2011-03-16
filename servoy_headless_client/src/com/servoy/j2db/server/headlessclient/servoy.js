@@ -1415,6 +1415,18 @@ if (typeof(Servoy.Resize) == "undefined")
 	{
 		resizeTimer : null,
 		callback : null,
+		orientationCallback : null,
+		
+		onOrientationChange: function ()
+		{
+			if(Servoy.Resize.orientationCallback)
+			{
+				var ajaxCall = Servoy.Resize.orientationCallback;
+				ajaxCall = ajaxCall + "&orientation=" + window.orientation
+				ajaxCall = "wicketAjaxGet('" + ajaxCall + "')";
+				setTimeout(ajaxCall,0);
+			}
+		},
 		
 		onWindowResize: function ()
 		{

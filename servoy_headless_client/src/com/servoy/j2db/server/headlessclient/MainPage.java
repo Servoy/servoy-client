@@ -359,6 +359,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			});
 
 		}
+		add(new TriggerOrientationChangeAjaxBehavior());
 		add(new TriggerResizeAjaxBehavior()
 		{
 			@Override
@@ -2078,6 +2079,18 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		return ((WebClientInfo)WebClientSession.get().getClientInfo()).getProperties().getBrowserHeight();
 	}
 
+	private int orientation = 0;
+
+	public int getOrientation()
+	{
+		return orientation;
+	}
+
+	private void setOrientation(String orientationString)
+	{
+		orientation = Utils.getAsInteger(orientationString);
+	}
+
 	public void setWindowSize(Dimension d)
 	{
 		if (getPageMapName() != null)
@@ -2193,6 +2206,41 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				}
 			}
 			jsCall += "Servoy.Resize.onWindowResize ();};"; //$NON-NLS-1$ 
+			response.renderOnLoadJavascript(jsCall);
+		}
+	}
+
+	private class TriggerOrientationChangeAjaxBehavior extends AbstractServoyDefaultAjaxBehavior
+	{
+		@Override
+		protected void respond(AjaxRequestTarget target)
+		{
+			MainPage page = (MainPage)findPage();
+			if (page != null)
+			{
+				Map<String, String[]> params = getComponent().getRequest().getParameterMap();
+				Iterator<String> it = params.keySet().iterator();
+				while (it.hasNext())
+				{
+					final String key = it.next();
+					if (key.equals("orientation")) //$NON-NLS-1$
+					{
+						setOrientation(params.get(key)[0]);
+						break;
+					}
+				}
+				WebEventExecutor.generateResponse(target, page);
+			}
+		}
+
+		@Override
+		public void renderHead(IHeaderResponse response)
+		{
+			super.renderHead(response);
+			String jsCall = "if ('onorientationchange' in window){"; //$NON-NLS-1$
+			jsCall += "Servoy.Resize.orientationCallback='" + getCallbackUrl() + "';"; //$NON-NLS-1$ //$NON-NLS-2$
+			jsCall += "window.onorientationchange = function() {"; //$NON-NLS-1$
+			jsCall += "Servoy.Resize.onOrientationChange ();};};"; //$NON-NLS-1$ 
 			response.renderOnLoadJavascript(jsCall);
 		}
 	}

@@ -195,7 +195,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 				}
 				catch (Exception e)
 				{
-					Debug.trace("trying to get the client platform of a session, when destroying the client in a none request thread",e);
+					Debug.trace("trying to get the client platform of a session, when destroying the client in a none request thread", e);
 				}
 			}
 		}
@@ -797,6 +797,10 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	{
 		int width = ((WebClientInfo)WebClientSession.get().getClientInfo()).getProperties().getScreenWidth();
 		int height = ((WebClientInfo)WebClientSession.get().getClientInfo()).getProperties().getScreenHeight();
+		if (getMainPage().getOrientation() == 90 || getMainPage().getOrientation() == -90)
+		{
+			return new Dimension(height, width);
+		}
 		return new Dimension(width, height);
 	}
 
@@ -827,8 +831,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		}
 	}
 
-	public void onEndRequest(@SuppressWarnings("unused")
-	WebClientSession webClientSession)
+	public void onEndRequest(@SuppressWarnings("unused") WebClientSession webClientSession)
 	{
 	}
 
