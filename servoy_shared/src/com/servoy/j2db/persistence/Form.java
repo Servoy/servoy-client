@@ -32,7 +32,6 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.JSONWrapperMap;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.UUID;
-import com.servoy.j2db.util.Utils;
 
 /**
  * A normal Servoy form
@@ -430,7 +429,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	public void setExtendsFormID(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSFORMID, arg);
-		if (!Utils.equalObjects(arg, extendsForm != null ? extendsForm.getID() : 0) && getRootObject().getChangeHandler() != null)
+		if (arg != (extendsForm == null ? 0 : extendsForm.getID()) && getRootObject().getChangeHandler() != null)
 		{
 			// fire event to update parent form reference
 			getRootObject().getChangeHandler().fireIPersistChanged(this);
@@ -776,13 +775,12 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * @return the new form variable
 	 * @throws RepositoryException
 	 */
-	public ScriptVariable createNewScriptVariable(IValidateName validator, String name, int variableType) throws RepositoryException
+	public ScriptVariable createNewScriptVariable(IValidateName validator, String nm, int variableType) throws RepositoryException
 	{
-		if (name == null) name = "untitled"; //$NON-NLS-1$
+		String name = nm == null ? "untitled" : nm; //$NON-NLS-1$
 
 		boolean hit = false;
-		int[] types = Column.allDefinedTypes;
-		for (int element : types)
+		for (int element : Column.allDefinedTypes)
 		{
 			if (variableType == element)
 			{
@@ -827,14 +825,11 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public Portal createNewPortal(String name, Point location) throws RepositoryException
 	{
-		if (name == null) name = "untitled";
-
 		Portal obj = (Portal)getRootObject().getChangeHandler().createNewObject(this, IRepository.PORTALS);
 		//set all the required properties
 
 		obj.setLocation(location);
-		obj.setName(name);
-//		obj.setRelationID(relation.getID());
+		obj.setName(name == null ? "untitled" : name); //$NON-NLS-1$
 
 		addChild(obj);
 		return obj;
@@ -862,12 +857,10 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public Bean createNewBean(String name, String className) throws RepositoryException
 	{
-		if (name == null) name = "untitled"; //$NON-NLS-1$
-
 		Bean obj = (Bean)getRootObject().getChangeHandler().createNewObject(this, IRepository.BEANS);
 		//set all the required properties
 
-		obj.setName(name);
+		obj.setName(name == null ? "untitled" : name); //$NON-NLS-1$
 		obj.setBeanClassName(className);
 
 		addChild(obj);
@@ -972,9 +965,9 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * @param name the name of the method
 	 * @return the new script method
 	 */
-	public ScriptMethod createNewScriptMethod(IValidateName validator, String name) throws RepositoryException
+	public ScriptMethod createNewScriptMethod(IValidateName validator, String nm) throws RepositoryException
 	{
-		if (name == null) name = "untitled"; //$NON-NLS-1$
+		String name = nm == null ? "untitled" : nm; //$NON-NLS-1$
 		ValidatorSearchContext ft = new ValidatorSearchContext(this, IRepository.METHODS);
 		validator.checkName(name, 0, ft, false);
 		ScriptMethod obj = (ScriptMethod)getRootObject().getChangeHandler().createNewObject(this, IRepository.METHODS);
