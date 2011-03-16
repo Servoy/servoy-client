@@ -148,9 +148,13 @@ public class RenderEventExecutor implements IRenderEventExecutor
 		return isOnRenderRunningOnComponentPaint;
 	}
 
+	private boolean isFocused;
+
 	public void fireOnRender(ISupportOnRenderCallback display, boolean hasFocus)
 	{
-		fireOnRender(display, hasFocus, true);
+		// don't fire if already is focused as no changes on component can happen
+		if (!hasFocus || (hasFocus != isFocused)) fireOnRender(display, hasFocus, true);
+		isFocused = hasFocus;
 	}
 
 	public void fireOnRender(ISupportOnRenderCallback display, boolean hasFocus, boolean isRunningOnComponentPaint)
