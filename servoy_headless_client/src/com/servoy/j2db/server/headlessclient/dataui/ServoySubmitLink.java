@@ -82,7 +82,7 @@ public abstract class ServoySubmitLink extends SubmitLink implements IAjaxLink
 				@Override
 				protected CharSequence generateCallbackScript(final CharSequence partialCall)
 				{
-					return super.generateCallbackScript(partialCall + "+'&modifiers='+getModifiers(event)"); //$NON-NLS-1$
+					return super.generateCallbackScript(partialCall + "+'&modifiers='+Servoy.Utils.getModifiers(event)"); //$NON-NLS-1$
 				}
 			});
 		}
