@@ -788,22 +788,18 @@ function showtip(e,message)
 		}
 	m = document.getElementById('mktipmsg');
 
-	
 	m.innerHTML = message;
-	m.style.display = "block";
-
 	m.style.left = x + 20  + "px";	
 	m.style.top = y - 4 + "px";		
-	
-	setTimeout("adjustTooltip("+x+","+targetParentWidth+","+wWidth +","+y+","+targetParentHeight+","+wHeight+");", 0);
 	m.style.zIndex = 203;
-	
+	setTimeout("adjustAndShowTooltip("+x+","+targetParentWidth+","+wWidth +","+y+","+targetParentHeight+","+wHeight+");", 0);
 	tipTimeout = setTimeout("hidetip();", 5000);
 }
 
-function adjustTooltip(x,targetParentWidth,wWidth,y,targetParentHeight,wHeight)
+function adjustAndShowTooltip(x,targetParentWidth,wWidth,y,targetParentHeight,wHeight)
 {
 	m = document.getElementById('mktipmsg');
+	m.style.display = "block";
 	var tooltipOffsetWidth = x + 20 + m.offsetWidth; 
 	if((targetParentWidth < tooltipOffsetWidth || wWidth < tooltipOffsetWidth)&&(x - 20 -m.offsetWidth>=0))
 		m.style.left = x - 20 -m.offsetWidth  + "px";
