@@ -188,6 +188,17 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 							}
 
 							Label headerText = new Label("headertext", text); //$NON-NLS-1$
+							if (width > -1)
+							{
+								headerText.add(new StyleAppendingModifier(new Model<String>()
+								{
+									@Override
+									public String getObject()
+									{
+										return "width: " + LabelResolverLink.this.width + "px";
+									}
+								}));
+							}
 							headerText.setEscapeModelStrings(false);
 							autoAdd(headerText);
 
@@ -201,6 +212,21 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 				}
 			}
 			return false;
+		}
+
+		private int width = -1;
+
+		void setWidth(int width)
+		{
+			this.width = width;
+			add(new StyleAppendingModifier(new Model<String>()
+			{
+				@Override
+				public String getObject()
+				{
+					return "width: " + LabelResolverLink.this.width + "px";
+				}
+			}));
 		}
 	}
 
@@ -465,14 +491,7 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 		});
 		add(styleModifier);
 		headerColumnTable.add(styleModifier);
-		labelResolver.add(new StyleAppendingModifier(new Model<String>()
-		{
-			@Override
-			public String getObject()
-			{
-				return "width: " + (clientWidth - SortableCellViewHeader.ARROW_WIDTH) + "px"; //$NON-NLS-1$ //$NON-NLS-2$
-			}
-		}));
+		labelResolver.setWidth(clientWidth - SortableCellViewHeader.ARROW_WIDTH);
 		getStylePropertyChanges().setChanged();
 	}
 
