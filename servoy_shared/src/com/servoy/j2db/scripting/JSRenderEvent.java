@@ -41,14 +41,24 @@ public class JSRenderEvent implements IJavaScriptType
 		this.element = element;
 	}
 
+
+	/** 
+	 * @deprecated
+	 */
+	@Deprecated
+	public IScriptRenderMethods js_getElement()
+	{
+		return element;
+	}
+
 	/**
 	 * Returns the element that is being rendered.
 	 *
-	 * @sample event.getElement();
+	 * @sample event.getRenderable();
 	 * 
 	 * @return Renderable the element that is being rendered 
 	 */
-	public IScriptRenderMethods js_getElement()
+	public IScriptRenderMethods js_getRenderable()
 	{
 		return element;
 	}
