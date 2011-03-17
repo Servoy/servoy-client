@@ -3477,7 +3477,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			view.setModel(formModel);
 		}
 		view.setRowBGColorScript(form.getRowBGColorCalculation(), form.getInstanceMethodArguments("rowBGColorCalculation")); //$NON-NLS-1$
-		view.setRowStyles(ss, styleOdd, styleEven, styleSelected);
+		if (view instanceof ISupportRowStyling) ((ISupportRowStyling)view).setRowStyles(ss, styleOdd, styleEven, styleSelected);
 
 		if (formReadOnly)
 		{

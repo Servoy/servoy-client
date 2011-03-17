@@ -155,7 +155,7 @@ import com.servoy.j2db.util.Utils;
  * @author jblok
  */
 public class WebCellBasedView extends WebMarkupContainer implements IView, IPortalComponent, IScriptPortalComponentMethods, IDataRenderer,
-	IProviderStylePropertyChanges, TableModelListener, ListSelectionListener, ISupportWebBounds, ISupportWebTabSeq
+	IProviderStylePropertyChanges, TableModelListener, ListSelectionListener, ISupportWebBounds, ISupportWebTabSeq, ISupportRowStyling
 {
 	private static final int SCROLLBAR_SIZE = 17;
 	private static final long serialVersionUID = 1L;

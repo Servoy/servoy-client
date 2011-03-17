@@ -141,6 +141,7 @@ import com.servoy.j2db.ui.IScriptReadOnlyMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.ISupportEventExecutor;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
+import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnablePanel;
@@ -154,7 +155,7 @@ import com.servoy.j2db.util.SortedList;
  * 
  * @author jblok
  */
-public class TableView extends FixedJTable implements IView, IDataRenderer
+public class TableView extends FixedJTable implements IView, IDataRenderer, ISupportRowStyling
 {
 	private Component[] editorComponents;
 	private Component[] rendererComponents;

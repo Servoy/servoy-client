@@ -31,8 +31,6 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.text.Style;
-import javax.swing.text.html.StyleSheet;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IView;
@@ -56,8 +54,6 @@ public class RecordView extends EnablePanel implements ChangeListener, ListDataL
 	private DataRenderer renderer;
 	private final IApplication application;
 	private boolean isAdjusting;
-	private StyleSheet styleSheet;
-	private Style oddStyle, evenStyle, selectedStyle;
 
 	public RecordView(IApplication app)
 	{
@@ -380,48 +376,5 @@ public class RecordView extends EnablePanel implements ChangeListener, ListDataL
 	public void setEditable(boolean findMode)
 	{
 		//TODO: done elsewhere?
-	}
-
-	/*
-	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#setStyles(javax.swing.text.html.StyleSheet, javax.swing.text.Style, javax.swing.text.Style)
-	 */
-	public void setRowStyles(StyleSheet styleSheet, Style oddStyle, Style evenStyle, Style selectedStyle)
-	{
-		this.styleSheet = styleSheet;
-		this.oddStyle = oddStyle;
-		this.evenStyle = evenStyle;
-		this.selectedStyle = selectedStyle;
-	}
-
-	/*
-	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getOddStyle()
-	 */
-	public Style getRowOddStyle()
-	{
-		return oddStyle;
-	}
-
-	/*
-	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getEvenStyle()
-	 */
-	public Style getRowEvenStyle()
-	{
-		return evenStyle;
-	}
-
-	/*
-	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getStyleSheet()
-	 */
-	public StyleSheet getRowStyleSheet()
-	{
-		return styleSheet;
-	}
-
-	/*
-	 * @see com.servoy.j2db.ui.ISupportRowStyling#getSelectedStyle()
-	 */
-	public Style getRowSelectedStyle()
-	{
-		return selectedStyle;
 	}
 }

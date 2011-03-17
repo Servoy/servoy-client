@@ -21,8 +21,8 @@ import javax.swing.text.Style;
 import javax.swing.text.html.StyleSheet;
 
 /**
- * @author gabi
- *
+ * Interface for components that support css row styling
+ * @author gboros
  */
 public interface ISupportRowStyling
 {

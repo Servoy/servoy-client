@@ -62,6 +62,7 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
+import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.PersistHelper;
@@ -505,15 +506,20 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 					}
 				}
 
-				StyleSheet ss = parentView.getRowStyleSheet();
-				Style style = isSelected ? parentView.getRowSelectedStyle() : null;
-				if (style == null)
+				if (parentView instanceof ISupportRowStyling)
 				{
-					style = (recIndex % 2 == 0) ? parentView.getRowEvenStyle() : parentView.getRowOddStyle();
-				}
-				if (ss != null && style != null)
-				{
-					return PersistHelper.createColorString(ss.getBackground(style));
+					ISupportRowStyling parentViewWithRowStyling = (ISupportRowStyling)parentView;
+					StyleSheet ss = parentViewWithRowStyling.getRowStyleSheet();
+					Style style = isSelected ? parentViewWithRowStyling.getRowSelectedStyle() : null;
+					if (style == null)
+					{
+						style = (recIndex % 2 == 0) ? parentViewWithRowStyling.getRowEvenStyle() : parentViewWithRowStyling.getRowOddStyle();
+					}
+
+					if (ss != null && style != null)
+					{
+						return PersistHelper.createColorString(ss.getBackground(style));
+					}
 				}
 			}
 		}
