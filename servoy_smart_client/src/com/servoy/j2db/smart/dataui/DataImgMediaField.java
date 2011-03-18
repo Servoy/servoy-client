@@ -930,8 +930,8 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 						if (resolver instanceof DataAdapterList)
 						{
 							((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.FILENAME, file.getName());
-							((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.MIMETYPE, ImageLoader.getContentType(content,
-								file.getName()));
+							((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.MIMETYPE,
+								ImageLoader.getContentType(content, file.getName()));
 						}
 					}
 					catch (Exception e)
@@ -1386,16 +1386,6 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 	public String getId()
 	{
 		return (String)getClientProperty("Id"); //$NON-NLS-1$
-	}
-
-	@Override
-	public void repaint()
-	{
-		// if repaint was requested because of a change in fireOnRender that was run from paint
-		// ignore this repaint as the changes are already painted - if not ignored, we will have
-		// a cycle calling of repaint -> paintComponent -> fireOnRender -> repaint 
-		if (eventExecutor != null && eventExecutor.isOnRenderRunningOnComponentPaint()) return;
-		super.repaint();
 	}
 
 	@Override

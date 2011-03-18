@@ -125,16 +125,6 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 		return super.getFontMetrics(font);
 	}
 
-	@Override
-	public void repaint()
-	{
-		// if repaint was requested because of a change in fireOnRender that was run from paint
-		// ignore this repaint as the changes are already painted - if not ignored, we will have
-		// a cycle calling of repaint -> paintComponent -> fireOnRender -> repaint 
-		if (eventExecutor != null && eventExecutor.isOnRenderRunningOnComponentPaint()) return;
-		super.repaint();
-	}
-
 	/**
 	 * Fix for bad font rendering (bad kerning == strange spacing) in java 1.5 see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5097047
 	 */

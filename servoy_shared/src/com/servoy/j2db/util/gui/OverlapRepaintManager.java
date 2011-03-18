@@ -26,6 +26,9 @@ import javax.swing.JComponent;
 import javax.swing.RepaintManager;
 import javax.swing.SwingUtilities;
 
+import com.servoy.j2db.ui.ISupportOnRenderCallback;
+import com.servoy.j2db.ui.ISupportOnRenderWrapper;
+import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.AnchorLayout;
 
 /**
@@ -70,6 +73,16 @@ public class OverlapRepaintManager extends RepaintManager
 		// this area paints over an overlapped component that should be on top of the current repainting one...
 		if (SwingUtilities.isEventDispatchThread())
 		{
+			// if its marked as dirty because of a change in fireOnRender that was run from paint
+			// ignore this as the changes are already painted - if not ignored, we will have
+			// a cycle calling of repaint -> paintComponent -> fireOnRender -> repaint 
+			ISupportOnRenderCallback componentOnRenderParent = getOnRenderParent(c);
+			if (componentOnRenderParent != null)
+			{
+				RenderEventExecutor ree = componentOnRenderParent.getRenderEventExecutor();
+				if (ree != null && ree.isOnRenderRunningOnComponentPaint()) return;
+			}
+
 			delegate.addDirtyRegion(c, x, y, w, h); // add the dirty region
 			searchOverlappingRegionsInHierarchy(c.getParent(), c, new Rectangle(x, y, w, h));
 		}
@@ -88,6 +101,14 @@ public class OverlapRepaintManager extends RepaintManager
 
 			SwingUtilities.invokeLater(run);
 		}
+	}
+
+	private ISupportOnRenderCallback getOnRenderParent(Component c)
+	{
+		if (c == null) return null;
+		if (c instanceof ISupportOnRenderCallback) return (ISupportOnRenderCallback)c;
+		else if (c instanceof ISupportOnRenderWrapper) return ((ISupportOnRenderWrapper)c).getOnRenderComponent();
+		else return getOnRenderParent(c.getParent());
 	}
 
 	private void searchOverlappingRegionsInHierarchy(Container parent, JComponent c, Rectangle repaintedArea)

@@ -378,7 +378,6 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 			g.setColor(Color.BLACK);
 			g.fillRect(0, 0, 3, getHeight());
 		}
-		fireDataRendererOnRender(false, true);
 		try
 		{
 			super.paintChildren(g);
@@ -387,16 +386,6 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 		{
 			Debug.error(e);
 		}
-	}
-
-	@Override
-	public void repaint()
-	{
-		// if repaint was requested because of a change in fireOnRender that was run from paint
-		// ignore this repaint as the changes are already painted - if not ignored, we will have
-		// a cycle calling of repaint -> paintComponent -> fireOnRender -> repaint 
-		if (dataRendererOnRenderWrapper != null && dataRendererOnRenderWrapper.getRenderEventExecutor().isOnRenderRunningOnComponentPaint()) return;
-		super.repaint();
 	}
 
 	private String strRowBGColorProvider = null;

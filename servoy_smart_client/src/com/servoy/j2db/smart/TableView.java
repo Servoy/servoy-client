@@ -1884,17 +1884,6 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 	}
 
 	@Override
-	public void repaint()
-	{
-		// if repaint was requested because of a change in fireOnRender that was run from paint
-		// ignore this repaint as the changes are already painted - if not ignored, we will have
-		// a cycle calling of repaint -> paintComponent -> fireOnRender -> repaint 
-		if (dataRendererOnRenderWrapper != null && dataRendererOnRenderWrapper.getRenderEventExecutor().hasRenderCallback() &&
-			dataRendererOnRenderWrapper.getRenderEventExecutor().isOnRenderRunningOnComponentPaint()) return;
-		super.repaint();
-	}
-
-	@Override
 	public void paintComponent(Graphics g)
 	{
 		if (dataRendererOnRenderWrapper.getRenderEventExecutor().hasRenderCallback())
