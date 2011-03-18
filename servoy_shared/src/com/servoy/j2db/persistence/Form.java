@@ -182,15 +182,9 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public Dimension getSize()
 	{
-		Dimension size = getTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE);
-		if (size == null)
-		{
-			size = new Dimension(380, 200);
-			return new Dimension(380, 200);
-		}
-
-		checkParts(size);
-		return new Dimension(size);
+		Dimension size = checkParts(getParts(), getTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE));
+		setSize(size);
+		return size;
 	}
 
 	/**
@@ -482,28 +476,22 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	/**
 	 * Check the parts. change for example the form size if summed height from all part is smaller.
 	 */
-	public void checkParts(Dimension size)
+	public static Dimension checkParts(Iterator<Part> parts, Dimension size)
 	{
 		int totalHeight = 0;
-		//check if parts should be changed
-		Iterator<Part> it = getParts();
-		while (it.hasNext())
+		while (parts.hasNext())
 		{
-			Part p = it.next();
-			int h = p.getHeight();
-			if (h > totalHeight)
-			{
-				totalHeight = h;
-			}
+			totalHeight = Math.max(totalHeight, parts.next().getHeight());
 		}
 		if (size == null)
 		{
-			setSize(new Dimension(640, totalHeight));
+			return new Dimension(640, totalHeight);
 		}
-		else if (size.height != totalHeight && totalHeight > 0)
+		if (size.height != totalHeight && totalHeight > 0)
 		{
-			setSize(new Dimension(size.width, totalHeight));
+			return new Dimension(size.width, totalHeight);
 		}
+		return size;
 	}
 
 	/**

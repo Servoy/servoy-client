@@ -191,7 +191,7 @@ public class FlattenedForm extends Form
 			internalAddChild(var);
 		}
 
-		checkParts(getSize()); // recalculate height
+		setSize(checkParts(getParts(), getSize())); // recalculate height
 	}
 
 	/**
