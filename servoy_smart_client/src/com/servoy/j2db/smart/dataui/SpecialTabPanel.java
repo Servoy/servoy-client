@@ -50,6 +50,7 @@ import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.gui.EnableTabPanel;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.smart.SwingForm;
 import com.servoy.j2db.ui.IAccessible;
@@ -388,7 +389,7 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 				if (validationEnabled && onTabChangeMethod != null && previousIndex != -1)
 				{
 					scriptExecutor.executeFunction(onTabChangeMethod, Utils.arrayMerge((new Object[] { new Integer(previousIndex + 1) }), onTabChangeArgs),
-						true, this, false, "onTabChangeMethodID", false); //$NON-NLS-1$
+						true, this, false, StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID.getPropertyName(), false);
 				}
 			}
 		}

@@ -121,6 +121,7 @@ import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptVariable;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabSeqComparator;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.scripting.JSEvent;
@@ -744,7 +745,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 							event.setModifiers(e.getModifiers() == IEventExecutor.MODIFIERS_UNSPECIFIED ? 0 : e.getModifiers());
 							event.setLocation(e.getPoint());
 							scriptExecuter.executeFunction(String.valueOf(gc.getOnRightClickMethodID()), new Object[] { event }, true, e.getComponent(), false,
-								"onRightClickMethodID", false);
+								StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID.getPropertyName(), false);
 						}
 					}
 					resizingColumn = null;

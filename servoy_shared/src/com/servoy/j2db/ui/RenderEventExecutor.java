@@ -24,6 +24,7 @@ import javax.swing.border.Border;
 
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.scripting.JSRenderEvent;
 
 /**
@@ -169,7 +170,8 @@ public class RenderEventExecutor implements IRenderEventExecutor
 			event.setIndex(renderIndex);
 			event.setSelected(renderIsSelected);
 			setDefaultRenderProperties(display);
-			renderScriptExecuter.executeFunction(renderCallback, new Object[] { event }, false, display, false, "onRenderMethodID", true); //$NON-NLS-1$
+			renderScriptExecuter.executeFunction(renderCallback, new Object[] { event }, false, display, false,
+				StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID.getPropertyName(), true);
 			isOnRenderRunningOnComponentPaint = false;
 		}
 	}
