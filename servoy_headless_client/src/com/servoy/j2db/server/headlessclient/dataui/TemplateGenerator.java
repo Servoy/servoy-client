@@ -41,8 +41,8 @@ import javax.swing.border.Border;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.html.CSS;
 
-import org.apache.wicket.Component.IVisitor;
 import org.apache.wicket.ResourceReference;
+import org.apache.wicket.Component.IVisitor;
 
 import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
@@ -1671,7 +1671,7 @@ public class TemplateGenerator
 			else
 			{
 				html.append("\t\t<div servoy:id='tablinks'");
-				html.append("><a servoy:id='tablink' href='tab1'><span style=\"white-space: nowrap;\" servoy:id='linktext'>");
+				html.append("><a servoy:id='tablink' href='tab1'><div servoy:id='icon'></div><span style=\"white-space: nowrap;\" servoy:id='linktext'>");
 				html.append("No tabs");
 				html.append("</span></a></div>\n");
 			}
@@ -2106,8 +2106,8 @@ public class TemplateGenerator
 				ValueList valuelist = null;
 				if (field.getValuelistID() > 0 && sp != null)
 				{
-					Pair<String, Integer> fieldFormat = ComponentFactory.getFieldFormat(field,
-						sp.getFlattenedSolution().getDataproviderLookup(sp.getFoundSetManager(), form), sp);
+					Pair<String, Integer> fieldFormat = ComponentFactory.getFieldFormat(field, sp.getFlattenedSolution().getDataproviderLookup(
+						sp.getFoundSetManager(), form), sp);
 					valuelist = sp.getFlattenedSolution().getValueList(field.getValuelistID());
 					if (valuelist != null) val = ComponentFactory.getRealValueList(sp, valuelist, true, fieldFormat.getRight(), fieldFormat.getLeft(),
 						field.getDataProviderID());
