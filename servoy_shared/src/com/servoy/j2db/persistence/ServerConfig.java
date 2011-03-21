@@ -33,7 +33,7 @@ import com.servoy.j2db.util.Utils;
 public class ServerConfig implements Serializable, Comparable<ServerConfig>
 {
 	public static final String EMPTY_TEMPLATE_NAME = "Empty"; //$NON-NLS-1$
-	public static final String POSTGRESQL_TEMPLATE_NAME = "Postgresql";
+	public static final String POSTGRESQL_TEMPLATE_NAME = "Postgresql"; //$NON-NLS-1$
 
 	public static final int MAX_PREPSTATEMENT_IDLE_DEFAULT = 100;
 
@@ -56,6 +56,7 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 	private final String userName;
 	private final String password;
 	private final String serverUrl;
+	private final Map<String, String> connectionProperties;
 	private final String driver;
 	private final String catalog;
 	private final String schema;
@@ -67,16 +68,17 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 	private final String dataModelCloneFrom;
 	private final boolean enabled;
 	private final boolean skipSysTables;
+	private final String dialectClass;
 
-
-	public ServerConfig(String serverName, String userName, String password, String serverUrl, String driver, String catalog, String schema, int maxActive,
-		int maxIdle, int maxPreparedStatementsIdle, int connectionValidationType, String validationQuery, String dataModelCloneFrom, boolean enabled,
-		boolean skipSysTables)
+	public ServerConfig(String serverName, String userName, String password, String serverUrl, Map<String, String> connectionProperties, String driver,
+		String catalog, String schema, int maxActive, int maxIdle, int maxPreparedStatementsIdle, int connectionValidationType, String validationQuery,
+		String dataModelCloneFrom, boolean enabled, boolean skipSysTables, String dialectClass)
 	{
 		this.serverName = Utils.toEnglishLocaleLowerCase(serverName);//safety for when stored in columnInfo
 		this.userName = userName;
 		this.password = password;
 		this.serverUrl = serverUrl;
+		this.connectionProperties = connectionProperties == null ? null : Collections.unmodifiableMap(connectionProperties);
 		this.driver = driver;
 		this.maxActive = maxActive;
 		this.maxIdle = maxIdle;
@@ -86,6 +88,7 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		this.dataModelCloneFrom = Utils.toEnglishLocaleLowerCase(dataModelCloneFrom);
 		this.enabled = enabled;
 		this.skipSysTables = skipSysTables;
+		this.dialectClass = dialectClass;
 
 		if (driver == null || serverUrl == null)
 		{
@@ -101,25 +104,25 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		else this.schema = schema;
 	}
 
-	public ServerConfig(String serverName, String userName, String password, String serverUrl, String driver, String catalog, String schema, boolean enabled,
-		boolean skipSysTables)
+	public ServerConfig(String serverName, String userName, String password, String serverUrl, Map<String, String> connectionProperties, String driver,
+		String catalog, String schema, boolean enabled, boolean skipSysTables, String dialectClass)
 	{
-		this(serverName, userName, password, serverUrl, driver, catalog, schema, MAX_ACTIVE_DEFAULT, MAX_IDLE_DEFAULT, MAX_PREPSTATEMENT_IDLE_DEFAULT,
-			VALIDATION_TYPE_DEFAULT, null, null, enabled, skipSysTables);
+		this(serverName, userName, password, serverUrl, connectionProperties, driver, catalog, schema, MAX_ACTIVE_DEFAULT, MAX_IDLE_DEFAULT,
+			MAX_PREPSTATEMENT_IDLE_DEFAULT, VALIDATION_TYPE_DEFAULT, null, null, enabled, skipSysTables, dialectClass);
 	}
 
 	public ServerConfig getNamedCopy(String newServerName)
 	{
 		if (serverName.equals(newServerName)) return this;
-		return new ServerConfig(newServerName, userName, password, serverUrl, driver, catalog, schema, maxActive, maxIdle, maxPreparedStatementsIdle,
-			connectionValidationType, validationQuery, dataModelCloneFrom, enabled, skipSysTables);
+		return new ServerConfig(newServerName, userName, password, serverUrl, connectionProperties, driver, catalog, schema, maxActive, maxIdle,
+			maxPreparedStatementsIdle, connectionValidationType, validationQuery, dataModelCloneFrom, enabled, skipSysTables, dialectClass);
 	}
 
 	public ServerConfig getEnabledCopy(boolean newEnabled)
 	{
 		if (enabled == newEnabled) return this;
-		return new ServerConfig(serverName, userName, password, serverUrl, driver, catalog, schema, maxActive, maxIdle, maxPreparedStatementsIdle,
-			connectionValidationType, validationQuery, dataModelCloneFrom, newEnabled, skipSysTables);
+		return new ServerConfig(serverName, userName, password, serverUrl, connectionProperties, driver, catalog, schema, maxActive, maxIdle,
+			maxPreparedStatementsIdle, connectionValidationType, validationQuery, dataModelCloneFrom, newEnabled, skipSysTables, dialectClass);
 	}
 
 	public String getServerName()
@@ -140,6 +143,11 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 	public String getServerUrl()
 	{
 		return serverUrl;
+	}
+
+	public Map<String, String> getConnectionProperties()
+	{
+		return connectionProperties;
 	}
 
 	public String getDriver()
@@ -197,6 +205,11 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		return skipSysTables;
 	}
 
+	public String getDialectClass()
+	{
+		return dialectClass;
+	}
+
 	public void setMaxActive(int maxActive)
 	{
 		this.maxActive = maxActive;
@@ -214,15 +227,16 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		return serverName.compareTo(sc.getServerName());
 	}
 
-
 	@Override
 	public int hashCode()
 	{
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((catalog == null) ? 0 : catalog.hashCode());
+		result = prime * result + ((connectionProperties == null) ? 0 : connectionProperties.hashCode());
 		result = prime * result + connectionValidationType;
 		result = prime * result + ((dataModelCloneFrom == null) ? 0 : dataModelCloneFrom.hashCode());
+		result = prime * result + ((dialectClass == null) ? 0 : dialectClass.hashCode());
 		result = prime * result + ((driver == null) ? 0 : driver.hashCode());
 		result = prime * result + (enabled ? 1231 : 1237);
 		result = prime * result + maxActive;
@@ -250,12 +264,22 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 			if (other.catalog != null) return false;
 		}
 		else if (!catalog.equals(other.catalog)) return false;
+		if (connectionProperties == null)
+		{
+			if (other.connectionProperties != null) return false;
+		}
+		else if (!connectionProperties.equals(other.connectionProperties)) return false;
 		if (connectionValidationType != other.connectionValidationType) return false;
 		if (dataModelCloneFrom == null)
 		{
 			if (other.dataModelCloneFrom != null) return false;
 		}
 		else if (!dataModelCloneFrom.equals(other.dataModelCloneFrom)) return false;
+		if (dialectClass == null)
+		{
+			if (other.dialectClass != null) return false;
+		}
+		else if (!dialectClass.equals(other.dialectClass)) return false;
 		if (driver == null)
 		{
 			if (other.driver != null) return false;
@@ -350,49 +374,50 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		Map<String, ServerConfig> map = new LinkedHashMap<String, ServerConfig>();
 
 		map.put(EMPTY_TEMPLATE_NAME, new ServerConfig("new_server", "", "", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
-			"", "", null, null, true, false)); //$NON-NLS-1$ //$NON-NLS-2$ 
+			"", null, "", null, null, true, false, null)); //$NON-NLS-1$ //$NON-NLS-2$ 
 
-		map.put("FoxPro DBF", new ServerConfig("new_dbf", "", "", "jdbc:DBF:/C:/TEMP?lockType=VFP", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ 
-			"com.hxtt.sql.dbf.DBFDriver", null, null, true, false)); //$NON-NLS-1$ 
+		map.put("FoxPro DBF", new ServerConfig("new_dbf", "", "", "jdbc:DBF:/C:/TEMP?lockType=VFP", null, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ 
+			"com.hxtt.sql.dbf.DBFDriver", null, null, true, false, null)); //$NON-NLS-1$ 
 
 		map.put("Filemaker", new ServerConfig("new_filemaker", "sa", "", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			"jdbc:hsqldb:mem:.;fmphost=http://localhost:<webcompanionport>;fmpversion=5.5", "org.hsqldb.jdbcDriver", null, null, true, false)); //$NON-NLS-1$ //$NON-NLS-2$ 
+			"jdbc:hsqldb:mem:.;fmphost=http://localhost:<webcompanionport>;fmpversion=5.5", null, "org.hsqldb.jdbcDriver", null, null, true, false, null)); //$NON-NLS-1$ //$NON-NLS-2$ 
 
 		map.put(
 			"FireBird", new ServerConfig("new_firebird", "sysdba", "masterkey", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-				"jdbc:firebirdsql:localhost/3050:%%user.dir%%/database/<database_name>.gdb?lc_ctype=WIN1252", "org.firebirdsql.jdbc.FBDriver", null, null, true, false)); //$NON-NLS-1$ //$NON-NLS-2$ 
+				"jdbc:firebirdsql:localhost/3050:%%user.dir%%/database/<database_name>.gdb?lc_ctype=WIN1252", null, "org.firebirdsql.jdbc.FBDriver", null, null, true, false, null)); //$NON-NLS-1$ //$NON-NLS-2$ 
 
-		map.put("In Memory", new ServerConfig("new_inmem", "sa", "", "jdbc:hsqldb:mem:.", "org.hsqldb.jdbcDriver", null, null, true, false)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ 
+		map.put("In Memory", new ServerConfig("new_inmem", "sa", "", "jdbc:hsqldb:mem:.", null, "org.hsqldb.jdbcDriver", null, null, true, false, null)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ 
 
-		map.put("Informix", new ServerConfig("new_informix", "sa", "", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			"jdbc:informix-sqli://<server_host>:<port>:informixserver=<informix_server_name>;database=<database_name>", "com.informix.jdbc.IfxDriver", null, //$NON-NLS-1$ //$NON-NLS-2$ 
-			null, true, false));
+		map.put(
+			"Informix", new ServerConfig("new_informix", "sa", "", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
+				"jdbc:informix-sqli://<server_host>:<port>:informixserver=<informix_server_name>;database=<database_name>", null, "com.informix.jdbc.IfxDriver", null, //$NON-NLS-1$ //$NON-NLS-2$ 
+				null, true, false, null));
 
 		map.put("MS SQL", new ServerConfig("new_mssql", "sa", "", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			"jdbc:sqlserver://localhost:1433;DatabaseName=<database_name>;SelectMethod=cursor", "com.microsoft.sqlserver.jdbc.SQLServerDriver", null, //$NON-NLS-1$ //$NON-NLS-2$ 
-			null, true, false));
+			"jdbc:sqlserver://localhost:1433;DatabaseName=<database_name>;SelectMethod=cursor", null, "com.microsoft.sqlserver.jdbc.SQLServerDriver", null, //$NON-NLS-1$ //$NON-NLS-2$ 
+			null, true, false, null));
 
-		map.put("MS SQL (freetds)", new ServerConfig("new_mssql_freetds", "sa", "", "jdbc:jtds:sqlserver://<server_host>/Northwind", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ 
-			"net.sourceforge.jtds.jdbc.Driver", null, null, true, false)); //$NON-NLS-1$ 
+		map.put("MS SQL (freetds)", new ServerConfig("new_mssql_freetds", "sa", "", "jdbc:jtds:sqlserver://<server_host>/Northwind", null, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ 
+			"net.sourceforge.jtds.jdbc.Driver", null, null, true, false, null)); //$NON-NLS-1$ 
 
-		map.put("MySQL", new ServerConfig("new_mysql", "root", "", "jdbc:mysql://localhost/<database_name>", "org.gjt.mm.mysql.Driver", null, null, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ 
-			true, false));
+		map.put("MySQL", new ServerConfig("new_mysql", "root", "", "jdbc:mysql://localhost/<database_name>", null, "org.gjt.mm.mysql.Driver", null, null, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ 
+			true, false, null));
 
-		map.put("ODBC Datasource", new ServerConfig("new_ODBC_data_source_name", "sa", "", "jdbc:odbc:<odbc_DSN>", "sun.jdbc.odbc.JdbcOdbcDriver", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ 
-			null, null, true, false));
+		map.put("ODBC Datasource", new ServerConfig("new_ODBC_data_source_name", "sa", "", "jdbc:odbc:<odbc_DSN>", null, "sun.jdbc.odbc.JdbcOdbcDriver", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ 
+			null, null, true, false, null));
 
-		map.put("Openbase", new ServerConfig("new_openbase", "admin", "", "jdbc:openbase://localhost/<database_name>", "com.openbase.jdbc.ObDriver", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ 
-			null, null, true, false));
+		map.put("Openbase", new ServerConfig("new_openbase", "admin", "", "jdbc:openbase://localhost/<database_name>", null, "com.openbase.jdbc.ObDriver", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ 
+			null, null, true, false, null));
 
-		map.put("Oracle", new ServerConfig("new_oracle", "scott", "tiger", "jdbc:oracle:thin:@localhost:1521:<orcl_sid>", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ 
-			"oracle.jdbc.driver.OracleDriver", null, null, true, false)); //$NON-NLS-1$ 
+		map.put("Oracle", new ServerConfig("new_oracle", "scott", "tiger", "jdbc:oracle:thin:@localhost:1521:<orcl_sid>", null, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ 
+			"oracle.jdbc.driver.OracleDriver", null, null, true, false, null)); //$NON-NLS-1$ 
 
 		map.put(POSTGRESQL_TEMPLATE_NAME, new ServerConfig(
-			"new_postgresql", "DBA", "", "jdbc:postgresql://localhost:5432/<database_name>", "org.postgresql.Driver", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ 
-			null, null, true, false));
+			"new_postgresql", "DBA", "", "jdbc:postgresql://localhost:5432/<database_name>", null, "org.postgresql.Driver", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ 
+			null, null, true, false, null));
 
-		map.put("Sybase ASA", new ServerConfig("new_sybase", "dba", "", "jdbc:sybase:Tds:localhost:2638?ServiceName=<database_name>&CHARSET=utf8", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ 
-			"com.sybase.jdbc3.jdbc.SybDriver", null, null, true, false)); //$NON-NLS-1$ 
+		map.put("Sybase ASA", new ServerConfig("new_sybase", "dba", "", "jdbc:sybase:Tds:localhost:2638?ServiceName=<database_name>&CHARSET=utf8", null, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ 
+			"com.sybase.jdbc3.jdbc.SybDriver", null, null, true, false, null)); //$NON-NLS-1$ 
 
 		return Collections.unmodifiableMap(map);
 	}
