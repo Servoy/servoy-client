@@ -474,9 +474,9 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		if (!flp.isReady()) return;
 
 		FormController fp = flp.getWebForm().getController();
-		if (parentState != null && fp != null && flp.getRelationName() != null)
+		if (fp != null && flp.getRelationName() != null)
 		{
-			IFoundSetInternal relatedFoundset = parentState.getRelatedFoundSet(flp.getRelationName(), sort);
+			IFoundSetInternal relatedFoundset = parentState == null ? null : parentState.getRelatedFoundSet(flp.getRelationName(), sort);
 			if (relatedFoundset != null) registerSelectionListeners(parentState, flp.getRelationName());
 			fp.loadData(relatedFoundset, null);
 		}
