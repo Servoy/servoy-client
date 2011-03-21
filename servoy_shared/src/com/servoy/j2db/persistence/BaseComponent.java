@@ -248,11 +248,6 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 
 	public int getFormIndex()
 	{
-		Integer ii = getTypedProperty(StaticContentSpecLoader.PROPERTY_FORMINDEX);
-		if (ii == null)
-		{
-			int abc = 23;
-		}
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_FORMINDEX).intValue();
 	}
 
