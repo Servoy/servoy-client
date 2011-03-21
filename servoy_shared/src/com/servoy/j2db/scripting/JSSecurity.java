@@ -866,7 +866,8 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	}
 
 	/**
-	 * Logout the current user.
+	 * Logout the current user. You can redirect to another solution if needed, if you want to go to a different url, 
+	 * you need to call application.showURL(url) before calling security.logout()
 	 *
 	 * @sample
 	 * var groups = new Array();
@@ -879,7 +880,9 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	 * 	else 
 	 * 	{ 
 	 *  		plugins.dialogs.showInfoDialog('Logged in','Logged in','OK') 
-	 * 	} 
+	 * 	}
+	 *  //Set the url to go to after logout.
+	 *  //application.showURL('http://www.servoy.com', '_self'); 
 	 * 	security.logout();
 	 * 	//security.logout('solution_name');//log out and open solution 'solution_name'
 	 * 	//security.logout('solution_name','global_method_name','my_argument');//log out, open solution 'solution_name', call global method 'global_method_name' with argument 'my_argument'
