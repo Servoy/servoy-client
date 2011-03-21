@@ -1959,8 +1959,15 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					table = null;
 				}
 			}
+			GlobalTransaction gt = getGlobalTransaction();
+			String tid = null;
+			if (gt != null)
+			{
+				tid = gt.getTransactionID(table == null ? IServer.INMEM_SERVER : table.getServerName());
+			}
 			table = application.getDataServer().insertDataSet(application.getClientID(), dataSet, dataSource,
-				table == null ? IServer.INMEM_SERVER : table.getServerName(), table == null ? null : table.getName() /* create temp table when null */, intTypes);
+				table == null ? IServer.INMEM_SERVER : table.getServerName(), table == null ? null : table.getName() /* create temp table when null */, tid,
+				intTypes);
 			if (table != null)
 			{
 				inMemDataSources.put(dataSource, table);

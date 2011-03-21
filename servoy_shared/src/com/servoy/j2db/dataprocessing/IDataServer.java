@@ -179,13 +179,14 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 	 * @param dataSource
 	 * @param serverName
 	 * @param tableName when null a temporary table will be created
+	 * @param tid transaction id
 	 * @param types see java.sql.Types
 	 * @return the table where the set was inserted into
 	 * @throws ServoyException
 	 * @throws RemoteException
 	 */
-	public ITable insertDataSet(String client_id, IDataSet set, String dataSource, String serverName, String tableName, int[] types) throws ServoyException,
-		RemoteException;
+	public ITable insertDataSet(String client_id, IDataSet set, String dataSource, String serverName, String tableName, String tid, int[] types)
+		throws ServoyException, RemoteException;
 
 	public void dropTemporaryTable(String client_id, String serverName, String tableName) throws RemoteException;
 

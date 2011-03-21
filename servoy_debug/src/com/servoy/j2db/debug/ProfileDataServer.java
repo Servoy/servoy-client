@@ -624,19 +624,20 @@ public class ProfileDataServer implements IDataServer
 	 * @param dataSource
 	 * @param serverName
 	 * @param tableName
+	 * @param tid
 	 * @param types
 	 * @return
 	 * @throws ServoyException
 	 * @throws RemoteException
-	 * @see com.servoy.j2db.dataprocessing.IDataServer#insertDataSet(java.lang.String, com.servoy.j2db.dataprocessing.IDataSet, java.lang.String, java.lang.String, java.lang.String, int[])
+	 * @see com.servoy.j2db.dataprocessing.IDataServer#insertDataSet(java.lang.String, com.servoy.j2db.dataprocessing.IDataSet, java.lang.String, java.lang.String, java.lang.String, java.lang.String, int[])
 	 */
-	public ITable insertDataSet(String client_id, IDataSet set, String dataSource, String serverName, String tableName, int[] types) throws ServoyException,
-		RemoteException
+	public ITable insertDataSet(String client_id, IDataSet set, String dataSource, String serverName, String tableName, String tid, int[] types)
+		throws ServoyException, RemoteException
 	{
 		long startTime = System.currentTimeMillis();
 		try
 		{
-			return dataserver.insertDataSet(client_id, set, dataSource, serverName, tableName, types);
+			return dataserver.insertDataSet(client_id, set, dataSource, serverName, tableName, tid, types);
 		}
 		finally
 		{
