@@ -1288,31 +1288,22 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 								displayFormatter = new ServoyMaskFormatter(displayFormat, true);
 								editFormatter = new ServoyMaskFormatter(displayFormat, false);
 
-								if (editFormat != displayFormat)
+								if (fp.isRaw())
 								{
-									if (editFormat.equals("raw")) //$NON-NLS-1$
-									{
-										((ServoyMaskFormatter)editFormatter).setValueContainsLiteralCharacters(false);
-										((ServoyMaskFormatter)displayFormatter).setValueContainsLiteralCharacters(false);
-										editFormat = null;
-									}
-									else if (editFormat.endsWith("raw")) //$NON-NLS-1$
-									{
-										((ServoyMaskFormatter)editFormatter).setValueContainsLiteralCharacters(false);
-										((ServoyMaskFormatter)displayFormatter).setValueContainsLiteralCharacters(false);
-										editFormat = editFormat.substring(0, editFormat.indexOf('|'));
-									}
+									((ServoyMaskFormatter)editFormatter).setValueContainsLiteralCharacters(false);
+									((ServoyMaskFormatter)displayFormatter).setValueContainsLiteralCharacters(false);
+								}
 
-									if (editFormat != null)
+
+								if (editFormat != null)
+								{
+									if (editFormat.length() == 1)
 									{
-										if (editFormat.length() == 1)
-										{
-											((ServoyMaskFormatter)editFormatter).setPlaceholderCharacter(editFormat.charAt(0));
-										}
-										else
-										{
-											((ServoyMaskFormatter)editFormatter).setPlaceholder(editFormat);
-										}
+										((ServoyMaskFormatter)editFormatter).setPlaceholderCharacter(editFormat.charAt(0));
+									}
+									else
+									{
+										((ServoyMaskFormatter)editFormatter).setPlaceholder(editFormat);
 									}
 								}
 								setFormatterFactory(new DefaultFormatterFactory(displayFormatter, displayFormatter, editFormatter));
