@@ -1261,7 +1261,8 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		Component component = currentFocusHolder;
 		if (component instanceof JRootPane || component instanceof JFrame)
 		{
-			component = this;
+			// do not give focus to swing form as will transfer it to first field
+			//component = this;
 		}
 		else while (component != null && !(component instanceof Window) && !(component instanceof IView) && !isPartOfSlider(component) &&
 			!isPartOfTabPanel(component))
