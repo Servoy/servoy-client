@@ -335,7 +335,7 @@ public class ComponentFactory
 			case IRepository.TABPANELS :
 				TabPanel tabPanelMeta = (TabPanel)meta;
 				int orient = tabPanelMeta.getTabOrientation();
-				if (orient == TabPanel.SPLIT_HORIZONTAL || orient == TabPanel.SPLIT_VERTICAL) comp = createSplitPane(application, form, tabPanelMeta);
+				if (orient == TabPanel.SPLIT_HORIZONTAL || orient == TabPanel.SPLIT_VERTICAL) comp = createSplitPane(application, form, tabPanelMeta, el);
 				else comp = createTabPanel(application, form, tabPanelMeta, el);
 				break;
 
@@ -1785,7 +1785,7 @@ public class ComponentFactory
 		return part;
 	}
 
-	private static IComponent createSplitPane(IApplication application, Form form, TabPanel meta)
+	private static IComponent createSplitPane(IApplication application, Form form, TabPanel meta, IScriptExecuter el)
 	{
 		ISplitPane splitPane = application.getItemFactory().createSplitPane(getWebID(form, meta), meta.getTabOrientation());
 		applyBasicComponentProperties(application, splitPane, meta, getStyleForBasicComponent(application, meta, form));
@@ -1812,6 +1812,11 @@ public class ComponentFactory
 		}
 
 		splitPane.js_setDividerLocation(meta.getTabOrientation() == TabPanel.SPLIT_HORIZONTAL ? splitPane.getSize().width / 2 : splitPane.getSize().height / 2);
+		if (el != null && meta.getOnChangeMethodID() > 0)
+		{
+			splitPane.setOnDividerChangeMethodCmd((Integer.toString(meta.getOnChangeMethodID())));
+			splitPane.addScriptExecuter(el);
+		}
 		return splitPane;
 	}
 

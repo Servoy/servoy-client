@@ -48,6 +48,7 @@ import org.apache.wicket.protocol.http.request.WebClientInfo;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IFormManager;
+import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
@@ -56,6 +57,7 @@ import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.persistence.ISupportScrollbars;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.server.headlessclient.MainPage;
@@ -112,6 +114,9 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 	private int leftPanelLastTabIndex = ISupportWebTabSeq.DEFAULT;
 	private boolean sizeChanged = false;
 
+	private String onDividerChangeMethodCmd;
+	private IScriptExecuter scriptExecutor;
+
 	private final AbstractServoyDefaultAjaxBehavior dividerUpdater = new AbstractServoyDefaultAjaxBehavior()
 	{
 		@Override
@@ -128,8 +133,10 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		@Override
 		protected void respond(AjaxRequestTarget target)
 		{
-			if (getComponent().getRequest().getParameter("location") != null) dividerLocation = Utils.getAsInteger(getComponent().getRequest().getParameter(
-				"location")); //$NON-NLS-1$
+			if (getComponent().getRequest().getParameter("location") != null)
+			{
+				setDividerLocation(Utils.getAsInteger(getComponent().getRequest().getParameter("location"))); //$NON-NLS-1$ 
+			}
 			if (getComponent().getRequest().getParameter("changed") != null)
 			{
 				// rerender for tableview header
@@ -923,10 +930,23 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		return null;
 	}
 
+	private void setDividerLocation(double newDividerLocation)
+	{
+		if (Math.abs(dividerLocation - newDividerLocation) > Double.MIN_VALUE)
+		{
+			dividerLocation = newDividerLocation;
+			if (onDividerChangeMethodCmd != null && scriptExecutor != null)
+			{
+				scriptExecutor.executeFunction(onDividerChangeMethodCmd, new Object[] { new Integer(-1) }, false, WebSplitPane.this, false,
+					StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID.getPropertyName(), true);
+			}
+		}
+	}
+
 	public void js_setDividerLocation(double locationPos)
 	{
 		if (locationPos < 0) return;
-		dividerLocation = locationPos;
+		setDividerLocation(locationPos);
 		jsChangeRecorder.setChanged();
 		sizeChanged = true;
 	}
@@ -1093,5 +1113,25 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 				}
 			}
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ISplitPane#setOnDividerChangeMethodCmd(java.lang.String)
+	 */
+	public void setOnDividerChangeMethodCmd(String onDividerChangeMethodCmd)
+	{
+		this.onDividerChangeMethodCmd = onDividerChangeMethodCmd;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ISplitPane#addScriptExecuter(com.servoy.j2db.IScriptExecuter)
+	 */
+	public void addScriptExecuter(IScriptExecuter el)
+	{
+		this.scriptExecutor = el;
 	}
 }

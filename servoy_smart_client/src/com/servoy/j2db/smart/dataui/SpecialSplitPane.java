@@ -21,9 +21,12 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Graphics;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JSplitPane;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
@@ -31,6 +34,7 @@ import javax.swing.event.ListSelectionListener;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
@@ -38,6 +42,7 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.dataprocessing.SortColumn;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.ui.IAccessible;
 import com.servoy.j2db.ui.IDataRenderer;
@@ -65,12 +70,26 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 	private final List<Component> tabSeqComponentList = new ArrayList<Component>();
 	private boolean transferFocusBackwards = false;
 
+	private String onDividerChangeMethodCmd;
+	private IScriptExecuter scriptExecutor;
+
 	public SpecialSplitPane(IApplication app, int orient, boolean design)
 	{
 		super();
 		application = app;
 		setLayout(new BorderLayout());
 		splitPane = new SplitPane(orient, design);
+		splitPane.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY, new PropertyChangeListener()
+		{
+			public void propertyChange(PropertyChangeEvent evt)
+			{
+				if (onDividerChangeMethodCmd != null && scriptExecutor != null)
+				{
+					scriptExecutor.executeFunction(onDividerChangeMethodCmd, new Object[] { new Integer(-1) }, false, SpecialSplitPane.this, false,
+						StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID.getPropertyName(), true);
+				}
+			}
+		});
 		add(splitPane, BorderLayout.CENTER);
 
 		setFocusTraversalPolicy(ServoyFocusTraversalPolicy.defaultPolicy);
@@ -709,5 +728,31 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 		{
 			border.paintBorder(splitPane, g, 0, 0, getWidth(), getHeight());
 		}
+	}
+
+	@Override
+	public String toString()
+	{
+		return "SpecialSplitPane, name='" + getName() + "', hash " + hashCode(); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ISplitPane#setOnDividerChangeMethodCmd(java.lang.String)
+	 */
+	public void setOnDividerChangeMethodCmd(String onDividerChangeMethodCmd)
+	{
+		this.onDividerChangeMethodCmd = onDividerChangeMethodCmd;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ISplitPane#addScriptExecuter(com.servoy.j2db.IScriptExecuter)
+	 */
+	public void addScriptExecuter(IScriptExecuter el)
+	{
+		this.scriptExecutor = el;
 	}
 }

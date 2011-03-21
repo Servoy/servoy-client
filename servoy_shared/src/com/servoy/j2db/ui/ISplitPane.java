@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.ui;
 
+import com.servoy.j2db.IScriptExecuter;
+
 /**
  * Interface to which split pane components need to conform, to be handled in the same way for swing(rich client) or wicket(webclient) UI
  * 
@@ -32,4 +34,8 @@ public interface ISplitPane extends IComponent, IScriptSplitPaneMethods
 	void setRightForm(IFormLookupPanel flp);
 
 	IFormLookupPanel getRightForm();
+
+	void setOnDividerChangeMethodCmd(String onDividerChangeMethodCmd);
+
+	void addScriptExecuter(IScriptExecuter el);
 }
