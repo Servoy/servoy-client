@@ -511,7 +511,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 			 * Key for a client property used to indicate whether the default font and foreground color from the component are used if a font or foreground
 			 * color is not specified in the styled text
 			 */
-			putClientProperty("JEditorPane.honorDisplayProperties", Boolean.TRUE); //$NON-NLS-1$			
+			putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
 		}
 
 		private void setDragEnabledEx(boolean b)
