@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.gui.editlist;
 
 import java.awt.event.ActionEvent;
@@ -82,15 +82,18 @@ public class JNavigableEditList extends JEditList
 		@SuppressWarnings("unchecked")
 		public void actionPerformed(ActionEvent e)
 		{
-			ListModel model = getModel();
-			if (model instanceof ComboModelListModelWrapper)
+			if (isEditable())
 			{
-				ComboModelListModelWrapper comboModel = (ComboModelListModelWrapper)model;
-				int[] indices = getSelectedIndices();
-				for (int idx : indices)
+				ListModel model = getModel();
+				if (model instanceof ComboModelListModelWrapper)
 				{
-					Boolean newValue = new Boolean(!comboModel.isRowSelected(idx));
-					comboModel.setElementAt(newValue, idx);
+					ComboModelListModelWrapper comboModel = (ComboModelListModelWrapper)model;
+					int[] indices = getSelectedIndices();
+					for (int idx : indices)
+					{
+						Boolean newValue = new Boolean(!comboModel.isRowSelected(idx));
+						comboModel.setElementAt(newValue, idx);
+					}
 				}
 			}
 		}
