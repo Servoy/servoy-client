@@ -57,15 +57,11 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Document;
 import javax.swing.text.EditorKit;
-import javax.swing.text.Style;
-import javax.swing.text.StyleConstants;
 import javax.swing.text.View;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLFrameHyperlinkEvent;
-import javax.swing.text.html.StyleSheet;
 
 import com.servoy.j2db.ExitScriptException;
 import com.servoy.j2db.FormController;
@@ -427,32 +423,6 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 		if (enclosedComponent != null)
 		{
 			enclosedComponent.setFont(f);
-			if (f != null)
-			{
-				Style s = null;
-				DefaultStyledDocument doc = (DefaultStyledDocument)enclosedComponent.getDocument();
-				if (doc instanceof HTMLDocument)
-				{
-					StyleSheet[] sheets = ((HTMLDocument)doc).getStyleSheet().getStyleSheets();
-					for (StyleSheet element : sheets)
-					{
-						s = element.getStyle("body"); //$NON-NLS-1$
-						if (s != null) break;
-					}
-				}
-				else
-				{
-					s = doc.getStyle("default"); //$NON-NLS-1$
-				}
-				if (s != null)
-				{
-					int style = f.getStyle();
-					StyleConstants.setBold(s, ((style & Font.BOLD) == Font.BOLD));
-					StyleConstants.setItalic(s, ((style & Font.ITALIC) == Font.ITALIC));
-					StyleConstants.setFontFamily(s, f.getFamily());
-					StyleConstants.setFontSize(s, f.getSize());
-				}
-			}
 		}
 	}
 
