@@ -56,9 +56,8 @@ public class FlattenedForm extends Form
 	 * @param parent
 	 * @param element_id
 	 * @param uuid
-	 * @throws RepositoryException
 	 */
-	public FlattenedForm(FlattenedSolution flattenedSolution, Form form) throws RepositoryException
+	public FlattenedForm(FlattenedSolution flattenedSolution, Form form)
 	{
 		super(form.getParent(), form.getID(), form.getUUID());
 		this.flattenedSolution = flattenedSolution;
@@ -78,7 +77,7 @@ public class FlattenedForm extends Form
 	 * @param form
 	 * @throws RepositoryException
 	 */
-	private void fill() throws RepositoryException
+	private void fill()
 	{
 		List<Form> allForms = flattenedSolution.getFormHierarchy(form);
 		Collections.reverse(allForms); // change from sub-first to super-first
@@ -200,14 +199,7 @@ public class FlattenedForm extends Form
 	public void reload()
 	{
 		internalClearAllObjects();
-		try
-		{
-			fill();
-		}
-		catch (RepositoryException e)
-		{
-			Debug.error(e);
-		}
+		fill();
 	}
 
 	@Override

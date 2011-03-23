@@ -19,11 +19,9 @@ package com.servoy.j2db.persistence;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.util.Collections;
 import java.util.Iterator;
 
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FilteredIterator;
 import com.servoy.j2db.util.IFilter;
 import com.servoy.j2db.util.UUID;
@@ -51,17 +49,7 @@ public class FormElementGroup implements ISupportBounds, ISupportName
 
 	public Iterator<IFormElement> getElements()
 	{
-		Form flattenedForm;
-		try
-		{
-			flattenedForm = flattenedSolution.getFlattenedForm(form);
-		}
-		catch (RepositoryException e)
-		{
-			Debug.error(e);
-			return Collections.<IFormElement> emptyList().iterator();
-		}
-		return new FilteredIterator<IFormElement>(flattenedForm.getAllObjects(), new IFilter<IFormElement>()
+		return new FilteredIterator<IFormElement>(flattenedSolution.getFlattenedForm(form).getAllObjects(), new IFilter<IFormElement>()
 		{
 			public boolean match(Object o)
 			{

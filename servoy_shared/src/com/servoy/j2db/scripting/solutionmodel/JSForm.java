@@ -39,7 +39,6 @@ import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.persistence.Field;
-import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.FormEncapsulation;
 import com.servoy.j2db.persistence.GraphicalComponent;
@@ -260,15 +259,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSVariable js_getFormVariable(String name)
 	{
-		ScriptVariable variable = null;
-		try
-		{
-			variable = application.getFlattenedSolution().getFlattenedForm(form).getScriptVariable(name);
-		}
-		catch (RepositoryException e)
-		{
-			Debug.error(e);
-		}
+		ScriptVariable variable = application.getFlattenedSolution().getFlattenedForm(form).getScriptVariable(name);
 		if (variable != null)
 		{
 			return new JSVariable(application, this, variable, false);
@@ -379,15 +370,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getFormMethod(String name)
 	{
-		ScriptMethod sm = null;
-		try
-		{
-			sm = application.getFlattenedSolution().getFlattenedForm(form).getScriptMethod(name);
-		}
-		catch (RepositoryException e)
-		{
-			Debug.error(e);
-		}
+		ScriptMethod sm = application.getFlattenedSolution().getFlattenedForm(form).getScriptMethod(name);
 		if (sm != null)
 		{
 			return new JSMethod(application, this, sm, false);
@@ -954,24 +937,13 @@ public class JSForm implements IJSParent, IConstantsObject
 	public JSPortal js_getPortal(String name)
 	{
 		if (name == null) return null;
-		Iterator<Portal> portals = null;
-		try
+		Iterator<Portal> portals = application.getFlattenedSolution().getFlattenedForm(form).getPortals();
+		while (portals.hasNext())
 		{
-			portals = application.getFlattenedSolution().getFlattenedForm(form).getPortals();
-		}
-		catch (RepositoryException e)
-		{
-			Debug.error(e);
-		}
-		if (portals != null)
-		{
-			while (portals.hasNext())
+			Portal portal = portals.next();
+			if (name.equals(portal.getName()))
 			{
-				Portal portal = portals.next();
-				if (name.equals(portal.getName()))
-				{
-					return new JSPortal(this, portal, application, false);
-				}
+				return new JSPortal(this, portal, application, false);
 			}
 		}
 		return null;
@@ -1321,32 +1293,17 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	private boolean testExtendFormForPart(int partType, int height)
 	{
-		int extendsFormID = form.getExtendsFormID();
-		if (extendsFormID > 0)
+		Form superForm = application.getFlattenedSolution().getForm(form.getExtendsFormID());
+		if (superForm != null)
 		{
-			Form superForm = application.getFlattenedSolution().getForm(extendsFormID);
-			if (superForm != null)
+			Iterator<Part> superParts = application.getFlattenedSolution().getFlattenedForm(superForm).getParts();
+			while (superParts.hasNext())
 			{
-				if (superForm.getExtendsFormID() != 0)
+				Part superPart = superParts.next();
+				// don't return the part if the extends form already has this part.
+				if (superPart.getPartType() == partType && (height == -1 || superPart.getHeight() == height))
 				{
-					try
-					{
-						superForm = new FlattenedForm(application.getFlattenedSolution(), superForm);
-					}
-					catch (Exception e)
-					{
-						throw new RuntimeException("Cant calculate y offset for part, couldn't create flattened form", e); //$NON-NLS-1$
-					}
-				}
-				Iterator<Part> superParts = superForm.getParts();
-				while (superParts.hasNext())
-				{
-					Part superPart = superParts.next();
-					// don't return the part if the extends form already has this part.
-					if (superPart.getPartType() == partType && (height == -1 || superPart.getHeight() == height))
-					{
-						return true;
-					}
+					return true;
 				}
 			}
 		}
@@ -1554,14 +1511,13 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSPart[] js_getParts(boolean returnInheritedElements)
 	{
-		ArrayList<JSPart> lst = new ArrayList<JSPart>();
+		List<JSPart> lst = new ArrayList<JSPart>();
 		Iterator<Part> parts = form.getParts();
 		if (form.getExtendsFormID() != 0 && returnInheritedElements)
 		{
 			try
 			{
-				Form f = new FlattenedForm(application.getFlattenedSolution(), form);
-				parts = f.getParts();
+				parts = application.getFlattenedSolution().getFlattenedForm(form).getParts();
 			}
 			catch (Exception e)
 			{
@@ -1674,26 +1630,15 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public int js_getPartYOffset(int type, int height)
 	{
-		Form f = form;
-		if (form.getExtendsFormID() != 0)
-		{
-			try
-			{
-				f = new FlattenedForm(application.getFlattenedSolution(), f);
-			}
-			catch (Exception e)
-			{
-				throw new RuntimeException("Cant calculate y offset for part, couldn't create flattened form", e); //$NON-NLS-1$
-			}
-		}
+		Form ff = application.getFlattenedSolution().getFlattenedForm(form);
 
-		Iterator<Part> parts = f.getParts();
+		Iterator<Part> parts = ff.getParts();
 		while (parts.hasNext())
 		{
 			Part part = parts.next();
 			if (part.getPartType() == type && (height == -1 || part.getHeight() == height))
 			{
-				return f.getPartStartYPos(part.getID());
+				return ff.getPartStartYPos(part.getID());
 			}
 		}
 		return -1;

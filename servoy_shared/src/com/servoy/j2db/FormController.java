@@ -1586,14 +1586,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 		getFormUI().setDesignMode(null);
 		Form f = application.getFlattenedSolution().getForm(form.getName());
-		try
-		{
-			form = application.getFlattenedSolution().getFlattenedForm(f);
-		}
-		catch (RepositoryException e)
-		{
-			return false;
-		}
+		form = application.getFlattenedSolution().getFlattenedForm(f);
 		initStylesAndBorder();
 		int v = currentViewType;
 		currentViewType = -1;

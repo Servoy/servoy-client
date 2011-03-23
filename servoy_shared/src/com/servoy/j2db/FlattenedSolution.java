@@ -124,10 +124,19 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	private SimplePersistFactory persistFactory;
 	private IFlattenedSolutionDebugListener debugListener;
 
+	private final Map<Form, FlattenedForm[]> flattenedFormCache;
+
 	/**
+	 * @param cacheFlattenedForms turn flattened form caching on when flushFlattenedFormCache() will also be called.
 	 */
+	public FlattenedSolution(boolean cacheFlattenedForms)
+	{
+		flattenedFormCache = cacheFlattenedForms ? new HashMap<Form, FlattenedForm[]>() : null;
+	}
+
 	public FlattenedSolution()
 	{
+		this(false);
 	}
 
 	/**
@@ -138,6 +147,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	 */
 	public FlattenedSolution(SolutionMetaData solutionMetaData, IActiveSolutionHandler activeSolutionHandler) throws RepositoryException, RemoteException
 	{
+		this(false);
 		setSolution(solutionMetaData, true, true, activeSolutionHandler);
 	}
 
@@ -159,7 +169,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		return copy;
 	}
 
-	@SuppressWarnings( { "unchecked", "nls" })
+	@SuppressWarnings({ "unchecked", "nls" })
 	public <T extends AbstractBase> T clonePersist(T persist, String newName, ISupportChilds newParent)
 	{
 		T clone = (T)persist.clonePersist();
@@ -636,7 +646,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	 * 
 	 * TODO: cache flattened forms for performance
 	 */
-	public Form getFlattenedForm(IPersist persist) throws RepositoryException
+	public Form getFlattenedForm(IPersist persist)
 	{
 		if (persist == null)
 		{
@@ -648,7 +658,42 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			// no form or nothing to flatten
 			return form;
 		}
-		return new FlattenedForm(this, form);
+
+		if (flattenedFormCache == null)
+		{
+			// no caching
+			return new FlattenedForm(this, form);
+		}
+
+		// cache flattened form
+		FlattenedForm[] flattedFormRef;
+		synchronized (flattenedFormCache)
+		{
+			flattedFormRef = flattenedFormCache.get(form);
+			if (flattedFormRef == null)
+			{
+				flattenedFormCache.put(form, flattedFormRef = new FlattenedForm[] { null });
+			}
+		}
+		synchronized (flattedFormRef)
+		{
+			if (flattedFormRef[0] == null)
+			{
+				flattedFormRef[0] = new FlattenedForm(this, form);
+			}
+			return flattedFormRef[0];
+		}
+	}
+
+	public void flushFlattenedFormCache()
+	{
+		if (flattenedFormCache != null)
+		{
+			synchronized (flattenedFormCache)
+			{
+				flattenedFormCache.clear();
+			}
+		}
 	}
 
 	/**
@@ -1047,6 +1092,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		beanDesignInstances = null;
 
 		allObjectscache = null;
+		flushFlattenedFormCache();
 	}
 
 	class FormAndTableDataProviderLookup implements IDataProviderLookup
@@ -1690,8 +1736,8 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	public Iterator<Form> getForms(ITable basedOnTable, boolean sort)
 	{
-		return Solution.getForms(getAllObjectsAsList(), basedOnTable == null ? null : DataSourceUtils.createDBTableDataSource(basedOnTable.getServerName(),
-			basedOnTable.getName()), sort);
+		return Solution.getForms(getAllObjectsAsList(),
+			basedOnTable == null ? null : DataSourceUtils.createDBTableDataSource(basedOnTable.getServerName(), basedOnTable.getName()), sort);
 	}
 
 	public Iterator<Form> getForms(String datasource, boolean sort)
@@ -1706,7 +1752,11 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	public Form getForm(int id)
 	{
-		return AbstractBase.selectById(getForms(false), id);
+		if (id > 0)
+		{
+			return AbstractBase.selectById(getForms(false), id);
+		}
+		return null;
 	}
 
 	public Form getForm(String name)

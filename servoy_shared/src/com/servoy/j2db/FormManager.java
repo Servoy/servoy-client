@@ -56,7 +56,6 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IRepository;
-import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
@@ -868,14 +867,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 			{
 				application.blockGUI(application.getI18NMessage("servoy.formManager.loadingForm") + formName); //$NON-NLS-1$
 
-				try
-				{
-					f = application.getFlattenedSolution().getFlattenedForm(f);
-				}
-				catch (RepositoryException e)
-				{
-					Debug.error("Couldnt generate the flattened form", e); //$NON-NLS-1$
-				}
+				f = application.getFlattenedSolution().getFlattenedForm(f);
 
 				fp = new FormController(application, f, name);
 				createdFormControllers.put(fp.getName(), fp);
