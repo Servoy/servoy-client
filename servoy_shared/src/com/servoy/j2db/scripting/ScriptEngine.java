@@ -55,6 +55,20 @@ import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.scripting.solutionmodel.JSSolutionModel;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
+import com.servoy.j2db.ui.IDepricatedScriptTabPanelMethods;
+import com.servoy.j2db.ui.IScriptCheckBoxMethods;
+import com.servoy.j2db.ui.IScriptChoiceMethods;
+import com.servoy.j2db.ui.IScriptDataCalendarMethods;
+import com.servoy.j2db.ui.IScriptDataComboboxMethods;
+import com.servoy.j2db.ui.IScriptDataPasswordMethods;
+import com.servoy.j2db.ui.IScriptFieldMethods;
+import com.servoy.j2db.ui.IScriptMediaInputFieldMethods;
+import com.servoy.j2db.ui.IScriptPortalComponentMethods;
+import com.servoy.j2db.ui.IScriptScriptButtonMethods;
+import com.servoy.j2db.ui.IScriptScriptLabelMethods;
+import com.servoy.j2db.ui.IScriptSplitPaneMethods;
+import com.servoy.j2db.ui.IScriptTextAreaMethods;
+import com.servoy.j2db.ui.IScriptTextEditorMethods;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
@@ -90,6 +104,7 @@ public class ScriptEngine implements IScriptSupport
 	private final JSSolutionModel solutionModifier;
 
 
+	@SuppressWarnings("nls")
 	public ScriptEngine(IApplication app)
 	{
 		application = app;
@@ -126,9 +141,25 @@ public class ScriptEngine implements IScriptSupport
 
 			toplevelScope.put(Record.JS_RECORD, toplevelScope, new InstanceOfScope(Record.JS_RECORD, Record.class));
 			toplevelScope.put(FoundSet.JS_FOUNDSET, toplevelScope, new InstanceOfScope(FoundSet.JS_FOUNDSET, FoundSet.class));
-			toplevelScope.put("JSDataSet", toplevelScope, new InstanceOfScope("JSDataSet", JSDataSet.class)); //$NON-NLS-1$ //$NON-NLS-2$
-			toplevelScope.put("Form", toplevelScope, new InstanceOfScope("Form", FormScope.class)); //$NON-NLS-1$ //$NON-NLS-2$
+			toplevelScope.put("JSDataSet", toplevelScope, new InstanceOfScope("JSDataSet", JSDataSet.class));
+			toplevelScope.put("Form", toplevelScope, new InstanceOfScope("Form", FormScope.class));
 
+
+			toplevelScope.put("RuntimeButton", toplevelScope, new InstanceOfScope("RuntimeButton", IScriptScriptButtonMethods.class));
+			toplevelScope.put("RuntimeLabel", toplevelScope, new InstanceOfScope("RuntimeLabel", IScriptScriptLabelMethods.class));
+			toplevelScope.put("RuntimePassword", toplevelScope, new InstanceOfScope("RuntimePassword", IScriptDataPasswordMethods.class));
+			toplevelScope.put("RuntimeHtmlArea", toplevelScope, new InstanceOfScope("RuntimeHtmlArea", IScriptTextEditorMethods.class));
+			toplevelScope.put("RuntimeTextArea", toplevelScope, new InstanceOfScope("RuntimeTextArea", IScriptTextAreaMethods.class));
+			toplevelScope.put("RuntimeChecks", toplevelScope, new InstanceOfScope("RuntimeChecks", IScriptChoiceMethods.class));
+			toplevelScope.put("RuntimeCheckBox", toplevelScope, new InstanceOfScope("RuntimeCheckBox", IScriptCheckBoxMethods.class));
+			toplevelScope.put("RuntimeRadios", toplevelScope, new InstanceOfScope("RuntimeRadios", IScriptChoiceMethods.class));
+			toplevelScope.put("RuntimeComboBox", toplevelScope, new InstanceOfScope("RuntimeComboBox", IScriptDataComboboxMethods.class));
+			toplevelScope.put("RuntimeCalendar", toplevelScope, new InstanceOfScope("RuntimeCalendar", IScriptDataCalendarMethods.class));
+			toplevelScope.put("RuntimeMediaField", toplevelScope, new InstanceOfScope("RuntimeMediaField", IScriptMediaInputFieldMethods.class));
+			toplevelScope.put("RuntimeTextField", toplevelScope, new InstanceOfScope("RuntimeTextField", IScriptFieldMethods.class));
+			toplevelScope.put("RuntimeTabPanel", toplevelScope, new InstanceOfScope("RuntimeTabPanel", IDepricatedScriptTabPanelMethods.class));
+			toplevelScope.put("RuntimeSplitPane", toplevelScope, new InstanceOfScope("RuntimeSplitPane", IScriptSplitPaneMethods.class));
+			toplevelScope.put("RuntimePortal", toplevelScope, new InstanceOfScope("RuntimePortal", IScriptPortalComponentMethods.class));
 
 			ScriptObjectRegistry.getJavaMembers(FormController.JSForm.class, toplevelScope);
 			toplevelScope.setPrototype(null);
