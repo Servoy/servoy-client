@@ -46,6 +46,7 @@ import javax.swing.UIManager;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.xml.XMLObject;
 
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.ClientState;
@@ -1665,6 +1666,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 */
 	private String getScriptableString(Scriptable scriptable, HashSet<Scriptable> processed)
 	{
+		if (scriptable instanceof XMLObject) return scriptable.toString();
 		if (processed.contains(scriptable)) return scriptable.toString();
 		if (processed.size() > 10) return scriptable.toString();
 		processed.add(scriptable);
