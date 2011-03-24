@@ -123,7 +123,7 @@ public class ProfileDataServer implements IDataServer
 				}
 
 			}
-			DataCallProfileData pd = new DataCallProfileData(name, ds, transaction_id, startTime, endTime, sql, argumentString);
+			DataCallProfileData pd = new DataCallProfileData(name, ds, transaction_id, startTime, endTime, sql, argumentString, 1);
 
 			listeners.get(listeners.size() - 1).addDataCallProfileData(pd);
 		}

@@ -31,18 +31,19 @@ public class DataCallProfileData
 	private final long endTime;
 	private final String query;
 	private final String argumentString;
+	private final int count;
 
 	/**
 	 * @param string
 	 * @param server_name
-	 * @param table_name
 	 * @param transaction_id
-	 * @param endTime 
 	 * @param startTime 
+	 * @param endTime
 	 * @param query 
 	 * @param argumentString 
 	 */
-	public DataCallProfileData(String name, String datasource, String transaction_id, long startTime, long endTime, String query, String argumentString)
+	public DataCallProfileData(String name, String datasource, String transaction_id, long startTime, long endTime, String query, String argumentString,
+		int count)
 	{
 		this.name = name;
 		this.datasource = datasource;
@@ -51,6 +52,7 @@ public class DataCallProfileData
 		this.endTime = endTime;
 		this.query = query;
 		this.argumentString = argumentString;
+		this.count = count;
 	}
 
 	/**
@@ -96,5 +98,13 @@ public class DataCallProfileData
 	public String getArgumentString()
 	{
 		return argumentString;
+	}
+
+	/**
+	 * @return the count
+	 */
+	public int getCount()
+	{
+		return count;
 	}
 }
