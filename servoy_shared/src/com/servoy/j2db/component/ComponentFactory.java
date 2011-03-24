@@ -2171,7 +2171,10 @@ public class ComponentFactory
 				c = (IComponent)obj;
 			}
 
+			// beans do not store the transparent property, keep the value from component
+			boolean isOpaque = c.isOpaque();
 			applyBasicComponentProperties(application, c, bean, null);
+			c.setOpaque(isOpaque);
 		}
 		catch (Throwable e)//sometimes setting size or location throws exception or even error...create label instead
 		{
