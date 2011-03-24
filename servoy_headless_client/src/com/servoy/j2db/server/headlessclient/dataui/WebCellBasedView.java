@@ -1633,6 +1633,27 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						((IProviderStylePropertyChanges)ic).getStylePropertyChanges().setRendered(); // avoid the tableview to render because of this change
 					}
 					resizedPersist = p;
+
+
+					// set width for all cell of the column
+					Iterator<Entry<Component, IPersist>> cellToElementIte = cellToElement.entrySet().iterator();
+					Entry<Component, IPersist> cellToElementEntry;
+					Component cellComponent;
+					while (cellToElementIte.hasNext())
+					{
+						cellToElementEntry = cellToElementIte.next();
+						cellComponent = cellToElementEntry.getKey();
+						if (p.equals(cellToElementEntry.getValue()) && cellComponent instanceof IScriptBaseMethods)
+						{
+							IScriptBaseMethods cellScriptComponent = (IScriptBaseMethods)cellComponent;
+							cellScriptComponent.js_setSize(cellScriptComponent.js_getWidth() + x, cellScriptComponent.js_getHeight());
+							if (cellComponent instanceof IProviderStylePropertyChanges)
+							{
+								((IProviderStylePropertyChanges)cellComponent).getStylePropertyChanges().setRendered(); // avoid the tableview to render because of this change
+							}
+						}
+					}
+
 				}
 				else
 				{
@@ -3437,12 +3458,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		if (resizedComponent instanceof IProviderStylePropertyChanges)
 		{
 			String tableId = getMarkupId();
-			String columnId = resizedComponent.getMarkupId();
+			String classId = resizedComponent.getId();
 			String sWidth = (String)((IProviderStylePropertyChanges)resizedComponent).getStylePropertyChanges().getChanges().get("width"); //$NON-NLS-1$
 			if (sWidth != null)
 			{
 				resizedComponent = null;
-				return new AppendingStringBuffer("Servoy.TableView.setTableColumnWidth('").append(tableId).append("', '").append(columnId).append("', ").append(
+				return new AppendingStringBuffer("Servoy.TableView.setTableColumnWidth('").append(tableId).append("', '").append(classId).append("', ").append(
 					Integer.parseInt(sWidth.substring(0, sWidth.length() - 2))).append(")").toString();
 			}
 		}

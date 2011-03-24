@@ -571,32 +571,27 @@ if (typeof(Servoy.TableView) == "undefined")
 			}
 		},
 
-		setTableColumnWidthEl: function(tableElement, columnid, width)
+		setTableColumnWidthEl: function(tableElement, classid, width)
 		{
-			if(tableElement.id && tableElement.style)
+			if(YAHOO.util.Dom.hasClass(tableElement, classid) && tableElement.style)
 			{
-				var idx = tableElement.id.indexOf(":");
-		
-				if(idx > 0 && idx < tableElement.id.length - 1 && tableElement.id.slice(idx + 1) == columnid)
-				{
-					tableElement.style["width"] = "" + width + "px";
-					return;
-				}
+				tableElement.style["width"] = "" + width + "px";
+				return;
 			}
 		
 			var tableElementChildren = tableElement.childNodes;
 			if(tableElementChildren)
 			{
 				for(var i = 0; i < tableElementChildren.length; i++)
-					Servoy.TableView.setTableColumnWidthEl(tableElementChildren[i], columnid, width);
+					Servoy.TableView.setTableColumnWidthEl(tableElementChildren[i], classid, width);
 			}
 		},
 
-		setTableColumnWidth: function(table, columnid, width)
+		setTableColumnWidth: function(table, classid, width)
 		{
 			var tableEl = document.getElementById(table);
 			if(tableEl)
-				Servoy.TableView.setTableColumnWidthEl(tableEl, columnid, width);
+				Servoy.TableView.setTableColumnWidthEl(tableEl, classid, width);
 		}	
 	};
 }
