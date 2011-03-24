@@ -38,6 +38,7 @@ import com.servoy.j2db.persistence.ChangeHandler;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ColumnInfo;
 import com.servoy.j2db.persistence.ColumnWrapper;
+import com.servoy.j2db.persistence.ContentSpec.Element;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IActiveSolutionHandler;
@@ -73,6 +74,7 @@ import com.servoy.j2db.persistence.ServerProxy;
 import com.servoy.j2db.persistence.SimplePersistFactory;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.Style;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.TableNode;
@@ -193,6 +195,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 					e.getMessage());
 			}
 		}
+		final Map<Integer, Integer> updatedElementIds = new HashMap<Integer, Integer>();
 		clone.acceptVisitor(new IPersistVisitor()
 		{
 			public Object visit(IPersist o)
@@ -200,22 +203,44 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				if (o instanceof AbstractBase)
 				{
 					((AbstractBase)o).resetUUID();
+					try
+					{
+						int newElementID = getPersistFactory().getNewElementID(o.getUUID());
+						updatedElementIds.put(Integer.valueOf(o.getID()), Integer.valueOf(newElementID));
+						((AbstractBase)o).setID(newElementID);
+					}
+					catch (RepositoryException e)
+					{
+						Debug.log(e);
+					}
 				}
 				return IPersistVisitor.CONTINUE_TRAVERSAL;
 			}
 		});
-		// give the form a new id so that assignments to tabpanels do get a new id.
-		// can't do this for all elements because form.onloadid points then to something that doesn't exisits.
-		if (clone instanceof Form)
+
+		if (clone instanceof ISupportChilds)
 		{
-			try
+			clone.acceptVisitor(new IPersistVisitor()
 			{
-				((Form)clone).setID(getPersistFactory().getNewElementID(clone.getUUID()));
-			}
-			catch (RepositoryException e)
-			{
-				Debug.error("Couldn't set a new id on form " + clone, e);
-			}
+				public Object visit(IPersist o)
+				{
+					if (o instanceof AbstractBase)
+					{
+						Map<String, Object> propertiesMap = ((AbstractBase)o).getPropertiesMap();
+						for (Map.Entry<String, Object> entry : propertiesMap.entrySet())
+						{
+							Integer elementId = updatedElementIds.get(entry.getValue());
+							if (elementId != null)
+							{
+								Element element = StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(o.getTypeID(), entry.getKey());
+								if (element.getTypeID() == IRepository.ELEMENTS) ((AbstractBase)o).setProperty(entry.getKey(), elementId);
+							}
+
+						}
+					}
+					return null;
+				}
+			});
 		}
 		flush(persist);
 		return clone;
