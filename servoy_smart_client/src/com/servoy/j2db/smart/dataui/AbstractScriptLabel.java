@@ -160,6 +160,11 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 		}
 		else
 		{
+			// metal and windows laf do not sets the font, they rely on the setting of the font
+			// by the container, when rendering the child, but that is not working in case of
+			// table views where the label is not a child, so lets just set the component font
+			// on the graphics
+			g.setFont(getFont());
 			super.paintComponent(g);
 		}
 	}

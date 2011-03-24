@@ -342,6 +342,13 @@ public class ChangesRecorder implements IStylePropertyChanges
 				changedProperties.put(element.getLeft(), element.getRight());
 			}
 		}
+		else
+		{
+			changedProperties.remove("font-family"); //$NON-NLS-1$
+			changedProperties.remove("font-size"); //$NON-NLS-1$
+			changedProperties.remove("font-style"); //$NON-NLS-1$
+			changedProperties.remove("font-weight"); //$NON-NLS-1$
+		}
 	}
 
 	/**
