@@ -1393,6 +1393,40 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		return null;
 	}
 
+	/**
+	 * Search for a persist in the parent tree in the main solution and all modules.
+	 * 
+	 * @param persist
+	 * @return
+	 */
+	public IPersist searchPersist(IPersist persist)
+	{
+		if (mainSolution != null)
+		{
+			IPersist found = AbstractRepository.searchPersist(mainSolution, persist);
+			if (found != null)
+			{
+				return found;
+			}
+			if (modules != null)
+			{
+				for (Solution module : modules)
+				{
+					found = AbstractRepository.searchPersist(module, persist);
+					if (found != null)
+					{
+						return found;
+					}
+				}
+			}
+		}
+		if (loginFlattenedSolution != null)
+		{
+			return loginFlattenedSolution.searchPersist(persist);
+		}
+		return null;
+	}
+
 	public void iPersistChanged(IPersist persist)
 	{
 		flush(persist);
