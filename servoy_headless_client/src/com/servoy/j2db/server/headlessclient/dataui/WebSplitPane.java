@@ -140,7 +140,14 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 			if (getComponent().getRequest().getParameter("changed") != null)
 			{
 				// rerender for tableview header
-				getStylePropertyChanges().setChanged();
+				WebSplitPane.this.visitChildren(WebCellBasedView.class, new Component.IVisitor<WebCellBasedView>()
+				{
+					public Object component(WebCellBasedView component)
+					{
+						component.getStylePropertyChanges().setChanged();
+						return IVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
+					}
+				});
 			}
 			if (getComponent().getRequest().getParameter("anchor") != null)
 			{
