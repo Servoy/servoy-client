@@ -3375,6 +3375,11 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 							Messages.getString("servoy.maintenance.label"), JOptionPane.ERROR_MESSAGE);
 						System.exit(1);
 					}
+					else if (e.getErrorCode() == ServoyException.InternalCodes.INVALID_RMI_SERVER_CONNECTION)
+					{
+						JOptionPane.showMessageDialog(frame, e.getMessage(), Messages.getString("servoy.general.error"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
+						System.exit(1);
+					}
 				}
 			});
 		}

@@ -570,14 +570,16 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		String prevClientId = clientInfo.getClientId();
 		long t1 = System.currentTimeMillis();
 		int counter = 0;
+		IClientHost mClientHost = null;
 		Object[] retval = null;
 		while (counter++ < 10)
 		{
 			try
 			{
-				if (getClientHost() != null)
+				mClientHost = getClientHost();
+				if (mClientHost != null)
 				{
-					retval = getClientHost().register(uc);
+					retval = mClientHost.register(uc);
 				}
 				break;
 			}
@@ -617,9 +619,16 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		}
 		if (clientInfo.getClientId() == null)
 		{
-			if (retval != null && ((Integer)retval[1]).intValue() == IClientManager.REGISTER_FAILED_MAINTENANCE_MODE) throw new ApplicationException(
-				ServoyException.MAINTENANCE_MODE);
-			else throw new ApplicationException(ServoyException.NO_LICENSE);
+			if (mClientHost == null)
+			{
+				throw new ApplicationException(ServoyException.InternalCodes.INVALID_RMI_SERVER_CONNECTION);
+			}
+			else
+			{
+				if (retval != null && ((Integer)retval[1]).intValue() == IClientManager.REGISTER_FAILED_MAINTENANCE_MODE) throw new ApplicationException(
+					ServoyException.MAINTENANCE_MODE);
+				else throw new ApplicationException(ServoyException.NO_LICENSE);
+			}
 		}
 		else
 		{
