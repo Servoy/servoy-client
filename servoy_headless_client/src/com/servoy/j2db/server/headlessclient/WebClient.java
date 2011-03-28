@@ -196,7 +196,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 				}
 				catch (Exception e)
 				{
-					Debug.trace("trying to get the client platform of a session, when destroying the client in a none request thread",e);
+					Debug.trace("trying to get the client platform of a session, when destroying the client in a none request thread", e);
 				}
 			}
 		}
@@ -559,7 +559,8 @@ public class WebClient extends SessionClient implements IWebClientApplication
 			executeEvents();
 
 			super.shutDown(force);
-			if (WebClientSession.get() != null) WebClientSession.get().logout(); //valueUnbound will do real shutdown
+			if (RequestCycle.get() != null && WebClientSession.get() != null) WebClientSession.get().logout(); //valueUnbound will do real shutdown
+			else if (session != null) session.invalidate();
 		}
 		finally
 		{

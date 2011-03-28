@@ -148,7 +148,7 @@ public class SessionClient extends ClientState implements ISessionClient
 	private static Session wicket_session = null;
 
 	private ResourceBundle localeJarMessages;
-	private transient HttpSession session;
+	protected transient HttpSession session;
 
 	private transient InfoChannel outputChannel;
 
