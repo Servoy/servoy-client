@@ -41,9 +41,9 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.debug.Debugger;
 
 import com.servoy.j2db.cmd.ICmdManager;
-import com.servoy.j2db.util.JEscapeDialog;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.gui.JEscapeDialog;
 
 /**
  * Class to show Servoy form in a dialog box.

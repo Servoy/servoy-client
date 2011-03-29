@@ -31,7 +31,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import com.servoy.j2db.smart.J2DBClient;
-import com.servoy.j2db.util.JEscapeDialog;
+import com.servoy.j2db.util.gui.JEscapeDialog;
 
 /**
  * Shows a msg dialog with one option (checkbox) for use like "never show this dialog again"

@@ -54,7 +54,6 @@ import javax.swing.text.NumberFormatter;
 
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.JEscapeDialog;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 

@@ -49,8 +49,8 @@ import com.servoy.j2db.Messages;
 import com.servoy.j2db.gui.FixedJList;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.smart.cmd.MenuWindowAction;
-import com.servoy.j2db.util.JEscapeDialog;
 import com.servoy.j2db.util.Settings;
+import com.servoy.j2db.util.gui.JEscapeDialog;
 import com.servoy.j2db.util.gui.JMenuAlwaysEnabled;
 import com.servoy.j2db.util.gui.SortedListModel;
 

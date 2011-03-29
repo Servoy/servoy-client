@@ -33,9 +33,9 @@ import javax.swing.SwingConstants;
 
 import com.servoy.j2db.ClientVersion;
 import com.servoy.j2db.ISmartClientApplication;
-import com.servoy.j2db.util.JEscapeDialog;
 import com.servoy.j2db.util.MemoryMonitor;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.gui.JEscapeDialog;
 
 /**
  * Shows about info

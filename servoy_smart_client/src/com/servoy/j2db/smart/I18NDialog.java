@@ -31,7 +31,7 @@ import javax.swing.JPanel;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.property.I18NPanel;
-import com.servoy.j2db.util.JEscapeDialog;
+import com.servoy.j2db.util.gui.JEscapeDialog;
 
 public class I18NDialog extends JEscapeDialog implements ActionListener
 {

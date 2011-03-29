@@ -40,9 +40,9 @@ import javax.swing.SwingUtilities;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.smart.J2DBClient;
 import com.servoy.j2db.util.IdentDocumentValidator;
-import com.servoy.j2db.util.JEscapeDialog;
 import com.servoy.j2db.util.LengthDocumentValidator;
 import com.servoy.j2db.util.ValidatingDocument;
+import com.servoy.j2db.util.gui.JEscapeDialog;
 
 /**
  * @author		jblok
@@ -185,7 +185,7 @@ public class InputDialog extends JEscapeDialog implements ActionListener
 		setVisible(false);
 	}
 	/**
-	 * @see com.servoy.j2db.util.JEscapeDialog#cancel()
+	 * @see com.servoy.j2db.util.gui.JEscapeDialog#cancel()
 	 */
 	protected void cancel()
 	{

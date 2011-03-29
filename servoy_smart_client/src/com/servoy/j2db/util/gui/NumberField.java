@@ -14,13 +14,19 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
-package com.servoy.j2db.util;
+package com.servoy.j2db.util.gui;
 
 
 
 import javax.swing.JTextField;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.text.Document;
+
+import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ISkinnable;
+import com.servoy.j2db.util.NumberDocumentValidator;
+import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.ValidatingDocument;
 
 public class NumberField extends JTextField implements ISkinnable
 {

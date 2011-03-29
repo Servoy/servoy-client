@@ -14,7 +14,7 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
-package com.servoy.j2db.util;
+package com.servoy.j2db.util.gui;
 
 
 import java.awt.Dialog;
@@ -31,6 +31,9 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JRootPane;
 import javax.swing.KeyStroke;
+
+import com.servoy.j2db.util.Settings;
+import com.servoy.j2db.util.UIUtils;
 
 public abstract class JEscapeDialog extends JDialog
 {

@@ -33,7 +33,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import com.servoy.j2db.smart.J2DBClient;
-import com.servoy.j2db.util.JEscapeDialog;
+import com.servoy.j2db.util.gui.JEscapeDialog;
 
 /**
  * @author sebster

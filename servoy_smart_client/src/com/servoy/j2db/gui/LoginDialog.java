@@ -40,7 +40,7 @@ import javax.swing.SwingUtilities;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.smart.J2DBClient;
-import com.servoy.j2db.util.JEscapeDialog;
+import com.servoy.j2db.util.gui.JEscapeDialog;
 
 /**
  * @author jblok

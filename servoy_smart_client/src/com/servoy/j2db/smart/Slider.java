@@ -40,7 +40,7 @@ import com.servoy.j2db.smart.dataui.SolutionSkin;
 import com.servoy.j2db.util.EnablePanel;
 import com.servoy.j2db.util.ISkinnable;
 import com.servoy.j2db.util.ISupplyFocusChildren;
-import com.servoy.j2db.util.NumberField;
+import com.servoy.j2db.util.gui.NumberField;
 
 public class Slider extends EnablePanel implements ChangeListener, ActionListener, ISupplyFocusChildren<Component>
 {

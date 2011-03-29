@@ -37,7 +37,7 @@ import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.property.SortEditor;
-import com.servoy.j2db.util.JEscapeDialog;
+import com.servoy.j2db.util.gui.JEscapeDialog;
 
 public class SortDialog extends JEscapeDialog implements ActionListener
 {

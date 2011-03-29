@@ -61,7 +61,7 @@ import javax.swing.text.MaskFormatter;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.smart.cmd.MnemonicCheckAction;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.JEscapeDialog;
+import com.servoy.j2db.util.gui.JEscapeDialog;
 
 
 /**

@@ -40,7 +40,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.preference.PreferencePanel;
 import com.servoy.j2db.smart.J2DBClient;
-import com.servoy.j2db.util.JEscapeDialog;
+import com.servoy.j2db.util.gui.JEscapeDialog;
 
 /**
  * This class shows the application preferences

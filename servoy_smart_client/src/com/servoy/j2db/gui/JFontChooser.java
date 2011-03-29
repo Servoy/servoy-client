@@ -52,9 +52,9 @@ import javax.swing.event.ListSelectionListener;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.smart.WebStart;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.JEscapeDialog;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.gui.IPropertyEditorDialog;
+import com.servoy.j2db.util.gui.JEscapeDialog;
 
 /**
  * A simple FontChooser dialog that implements similar functionality to

@@ -35,8 +35,8 @@ import javax.swing.JPanel;
 import com.servoy.j2db.IBasicApplication;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.smart.J2DBClient;
-import com.servoy.j2db.util.JEscapeDialog;
 import com.servoy.j2db.util.gui.IPropertyEditorDialog;
+import com.servoy.j2db.util.gui.JEscapeDialog;
 
 /**
  * <class description>
