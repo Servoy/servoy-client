@@ -63,8 +63,8 @@ import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.JSWindowImpl;
-import com.servoy.j2db.scripting.JSWindowImpl.JSWindow;
 import com.servoy.j2db.scripting.SolutionScope;
+import com.servoy.j2db.scripting.JSWindowImpl.JSWindow;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.Utils;
@@ -1011,20 +1011,6 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 			FormController fpBeforePreview = fp;
 			switch (oldmode)
 			{
-				case ModeManager.DESIGN_MODE :
-					//				if (!f.getShowInMenu())
-					//				{
-					//					try
-					//					{
-					//						f = f.getSolution().getFirstForm();
-					//					}
-					//					catch (RepositoryException e)
-					//					{
-					//						Debug.error(e);
-					//					}
-					//				}
-					break;
-
 				case IModeManager.PREVIEW_MODE :
 					fpBeforePreview = removePreview();
 					break;
@@ -1079,10 +1065,6 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 							Utils.invokeLater(application, invokeLaterRunnables);
 						}
 					}
-					break;
-				case ModeManager.DESIGN_MODE :
-					application.getFoundSetManager().getEditRecordList().stopEditing(false);
-					readOnlyCheck = new ArrayList<String>();
 					break;
 			}
 		}

@@ -150,7 +150,7 @@ import com.servoy.j2db.LAFManager;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.MessagesResourceBundle;
-import com.servoy.j2db.ModeManager;
+import com.servoy.j2db.SwingModeManager;
 import com.servoy.j2db.cmd.ICmdManager;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
@@ -1115,7 +1115,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	@Override
 	protected IModeManager createModeManager()
 	{
-		return new ModeManager(this);
+		return new SwingModeManager(this);
 	}
 
 	@Override
@@ -2406,14 +2406,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			file.add(mi);
 		}
 
-		// action = (Action) actions.get("cmdprint");
-		// if (action != null)
-		// {
-		// mi = new ActionMenuItem(action);
-		// file.add(mi);
-		// }
-
-		file.add(((ModeManager)modeManager).getPreviewModeMenuItem(actions));
+		file.add(((SwingModeManager)modeManager).getPreviewModeMenuItem(actions));
 
 		file.addSeparator();
 
@@ -2426,10 +2419,6 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			}
 			file.add(import_Menu);
 		}
-		//		import_Menu = new JMenu(Messages.getString("servoy.menuitem.import")); //$NON-NLS-1$
-		//		import_Menu.setIcon(loadImage("import_wiz.gif")); //$NON-NLS-1$
-		//		import_Menu.setEnabled(false);
-		//		file.add(import_Menu);
 
 		action = actions.get("menuexportaction"); //$NON-NLS-1$
 		if (action != null)
@@ -2440,10 +2429,6 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			}
 			file.add(export_Menu);
 		}
-		//		export_Menu = new JMenu(Messages.getString("servoy.menuitem.export")); //$NON-NLS-1$
-		//		export_Menu.setIcon(loadImage("export_wiz.gif")); //$NON-NLS-1$
-		//		export_Menu.setEnabled(false);
-		//		file.add(export_Menu);
 
 		file.addSeparator();
 
@@ -2607,7 +2592,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		JMenu select = menuBar.add(new JMenuAlwaysEnabled(new MenuSelectAction(this)));
 		//		select.setOpaque(false);
 
-		select.add(((ModeManager)modeManager).getFindModeMenuItem(actions));
+		select.add(((SwingModeManager)modeManager).getFindModeMenuItem(actions));
 
 		action = actions.get("cmdperformfind"); //$NON-NLS-1$
 		if (action != null)

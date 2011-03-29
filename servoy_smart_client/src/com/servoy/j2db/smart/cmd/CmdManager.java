@@ -34,14 +34,12 @@ import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.IModeManager;
 import com.servoy.j2db.ISmartClientApplication;
-import com.servoy.j2db.ModeManager;
 import com.servoy.j2db.cmd.ICmd;
 import com.servoy.j2db.cmd.ICmdManagerInternal;
 import com.servoy.j2db.cmd.IHandleUndoRedo;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.smart.SwingFormManager;
-import com.servoy.j2db.smart.TextToolbar;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -188,18 +186,12 @@ public class CmdManager implements ICmdManagerInternal, PropertyChangeListener, 
 			}
 			else
 			{
-				ableDesignRelatedActions(application.getModeManager().getMode() == ModeManager.DESIGN_MODE && solution != null);
 				ableFormRelatedActions(false);
 			}
 		}
 		else if ("mode".equals(name)) //$NON-NLS-1$
 		{
 			int oldmode = ((Integer)evt.getOldValue()).intValue();
-			if (oldmode == ModeManager.DESIGN_MODE)
-			{
-				ableDesignRelatedActions(false);
-				if (undoManager != null) undoManager.discardAllEdits();
-			}
 
 			Action menuselectaction = actions.get("menuselectaction"); //$NON-NLS-1$
 			int mode = ((Integer)evt.getNewValue()).intValue();
@@ -209,11 +201,6 @@ public class CmdManager implements ICmdManagerInternal, PropertyChangeListener, 
 					break;
 
 				case IModeManager.PREVIEW_MODE :
-					break;
-
-				case ModeManager.DESIGN_MODE :
-					ableDesignRelatedActions(true);
-					if (menuselectaction != null) menuselectaction.setEnabled(false);
 					break;
 
 				case IModeManager.EDIT_MODE :
@@ -239,7 +226,6 @@ public class CmdManager implements ICmdManagerInternal, PropertyChangeListener, 
 		else if ("formCreated".equals(name)) //$NON-NLS-1$
 		{
 			ableFormRelatedActions(evt.getNewValue() != null);
-			ableDesignRelatedActions(evt.getNewValue() != null);
 		}
 		else if ("undomanager".equals(name)) //$NON-NLS-1$
 		{
@@ -271,7 +257,6 @@ public class CmdManager implements ICmdManagerInternal, PropertyChangeListener, 
 		if (cmdpreviewmode != null) cmdpreviewmode.setEnabled(enable);
 		Action cmdfindmode = actions.get("cmdfindmode"); //$NON-NLS-1$
 		if (cmdfindmode != null) cmdfindmode.setEnabled(enable);
-		ableDesignMode(enable);
 
 		Action action = actions.get("cmdpaste"); //$NON-NLS-1$
 		if (action != null) action.setEnabled(enable);
@@ -411,43 +396,6 @@ public class CmdManager implements ICmdManagerInternal, PropertyChangeListener, 
 			Action a = actions.get("menuexportaction"); //$NON-NLS-1$
 			if (a != null) a.setEnabled(enable);
 		}
-
-//		Action action = (Action)actions.get("cmdpaste");
-//		if (action != null)action.setEnabled(enable);
-//		action = (Action)actions.get("cmdcopy");
-//		if (action != null)action.setEnabled(enable);
-//		action = (Action)actions.get("cmdcut");
-//		if (action != null)action.setEnabled(enable);
-	}
-
-	protected void ableDesignMode(boolean enable)
-	{
-		Action cmddesignmode = actions.get("cmddesignmode"); //$NON-NLS-1$
-		Solution solution = application.getSolution();
-		if (solution != null && solution.getForms(null, false).hasNext())
-		{
-			if (cmddesignmode != null) cmddesignmode.setEnabled(enable);
-		}
-		else
-		{
-			if (cmddesignmode != null) cmddesignmode.setEnabled(false);
-		}
-	}
-
-	protected void ableDesignRelatedActions(boolean enable)
-	{
-		//always default disable, if coming from design, must do, coming from edit can do
-		TextToolbar tb = (TextToolbar)application.getToolbarPanel().getToolBar("text"); //$NON-NLS-1$
-		if (tb != null) tb.setEnabled(false);
-
-		Action cmdpreviewmode = actions.get("cmdpreviewmode"); //$NON-NLS-1$
-		if (cmdpreviewmode != null) cmdpreviewmode.setEnabled(!enable);
-
-		Action cmdfindmode = actions.get("cmdfindmode"); //$NON-NLS-1$
-		if (cmdfindmode != null) cmdfindmode.setEnabled(!enable);
-
-		Action menuelementaction = actions.get("menuelementaction"); //$NON-NLS-1$ 
-		if (menuelementaction != null) menuelementaction.setEnabled(enable);
 	}
 
 	/**
