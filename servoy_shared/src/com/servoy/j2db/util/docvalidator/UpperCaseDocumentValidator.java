@@ -13,34 +13,30 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
-package com.servoy.j2db.util;
+ */
+package com.servoy.j2db.util.docvalidator;
+
+
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+
+import com.servoy.j2db.util.ValidatingDocument;
+import com.servoy.j2db.util.ValidatingDocument.IDocumentValidator;
 
 /**
- * Interface for objects that can visit IVisitable structures.
- * 
- * @see IVisitable
- * @author rgansevles
- */
-public interface IVisitor
+ * Document validator which only allows uppercase
+ * @author jblok 
+*/
+public class UpperCaseDocumentValidator implements ValidatingDocument.IDocumentValidator
 {
-	/**
-	 * visit method, return o or a replacement of o (will stop traversal). Traversal can be controlled also by returning VistorResult.
-	 * 
-	 * @param o
-	 * @return
-	 */
-	Object visit(Object o);
-
-	public static class VistorResult
+	public String validateInsertString(Document document, int offs, String str, AttributeSet a) throws BadLocationException
 	{
-		public final boolean continueTraversal;
-		public final Object object;
+		return str.toUpperCase();
+	}
 
-		public VistorResult(Object object, boolean continueTraversal)
-		{
-			this.object = object;
-			this.continueTraversal = continueTraversal;
-		}
+	public String validateReplace(Document document, int offset, int length, String text, AttributeSet attrs) throws BadLocationException
+	{
+		return text.toUpperCase();
 	}
 }

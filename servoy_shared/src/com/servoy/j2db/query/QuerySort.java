@@ -16,8 +16,8 @@
 */
 package com.servoy.j2db.query;
 
-import com.servoy.j2db.util.IVisitor;
 import com.servoy.j2db.util.serialize.ReplacedObject;
+import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
  * Sort class in a query structure that refers to a column.

@@ -14,47 +14,34 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
-package com.servoy.j2db.util;
+package com.servoy.j2db.util.visitor;
 
-public class IndexedObject implements Comparable
+
+/**
+ * Interface for objects that can visit IVisitable structures.
+ * 
+ * @see IVisitable
+ * @author rgansevles
+ */
+public interface IVisitor
 {
-	private int index;
-	private Object object;
-	
-	public IndexedObject(int index, Object object)
+	/**
+	 * visit method, return o or a replacement of o (will stop traversal). Traversal can be controlled also by returning VistorResult.
+	 * 
+	 * @param o
+	 * @return
+	 */
+	Object visit(Object o);
+
+	public static class VistorResult
 	{
-		this.index = index;
-		this.object = object;
-	}
-	
-	public int getIndex()
-	{
-		return index;
-	}
-	
-	public void setIndex(int index)
-	{
-		this.index = index;
-	}
-	
-	public Object getObject()
-	{
-		return object;
-	}
-	
-	public void setObject(Object object)
-	{
-		this.object = object;
-	}
-	
-	public String toString()
-	{
-		return object.toString();
-	}
-	
-	public int compareTo(Object other)
-	{
-		return index - ((IndexedObject) other).index;
+		public final boolean continueTraversal;
+		public final Object object;
+
+		public VistorResult(Object object, boolean continueTraversal)
+		{
+			this.object = object;
+			this.continueTraversal = continueTraversal;
+		}
 	}
 }
-

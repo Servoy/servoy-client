@@ -23,9 +23,9 @@ import java.util.Map;
 
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.ISQLSelect;
-import com.servoy.j2db.util.IVisitable;
-import com.servoy.j2db.util.IVisitor;
 import com.servoy.j2db.util.serialize.ReplacedObject;
+import com.servoy.j2db.util.visitor.IVisitable;
+import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
  * @author jcompagner

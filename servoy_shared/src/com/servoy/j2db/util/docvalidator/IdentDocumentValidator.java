@@ -14,11 +14,14 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
-package com.servoy.j2db.util;
+package com.servoy.j2db.util.docvalidator;
 
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+
+import com.servoy.j2db.util.ValidatingDocument;
+import com.servoy.j2db.util.ValidatingDocument.IDocumentValidator;
 
 public class IdentDocumentValidator implements ValidatingDocument.IDocumentValidator
 {

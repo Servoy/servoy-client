@@ -40,8 +40,8 @@ import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.IDelegate;
-import com.servoy.j2db.util.SnapShot;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.gui.SnapShot;
 
 /**
  * Shows an image from a bean running in the server

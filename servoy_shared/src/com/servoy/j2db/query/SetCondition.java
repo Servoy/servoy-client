@@ -19,8 +19,8 @@ package com.servoy.j2db.query;
 import java.util.Arrays;
 
 import com.servoy.j2db.query.AbstractBaseQuery.PlaceHolderSetter;
-import com.servoy.j2db.util.IVisitor;
 import com.servoy.j2db.util.serialize.ReplacedObject;
+import com.servoy.j2db.util.visitor.IVisitor;
 
 
 /**

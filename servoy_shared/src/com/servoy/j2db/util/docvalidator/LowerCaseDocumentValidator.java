@@ -14,29 +14,28 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
-package com.servoy.j2db.util;
+package com.servoy.j2db.util.docvalidator;
 
-import java.util.HashMap;
-import java.util.Map;
 
-/** Visitor class to for replacing duplicate objects with the same instance in a IVisitable object.
- * @see IVisitable
- * @author rgansevles
- *
- */
-public class PackVisitor implements IVisitor
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+
+import com.servoy.j2db.util.ValidatingDocument;
+import com.servoy.j2db.util.ValidatingDocument.IDocumentValidator;
+
+/**
+ * @author jblok 
+*/
+public class LowerCaseDocumentValidator implements ValidatingDocument.IDocumentValidator
 {
-	Map map = new HashMap();
-
-	public Object visit(Object o)
+	public String validateInsertString(Document document, int offs, String str, AttributeSet a) throws BadLocationException
 	{
-		Object o2 = map.get(o);
-		if (o2 == null)
-		{
-			map.put(o, o);
-			o2 = o;
-		}
-		return o2;
+		return str.toLowerCase();
 	}
 
+	public String validateReplace(Document document, int offset, int length, String text, AttributeSet attrs) throws BadLocationException
+	{
+		return text.toLowerCase();
+	}
 }

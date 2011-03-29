@@ -14,25 +14,19 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
-package com.servoy.j2db.util;
+package com.servoy.j2db.util.visitor;
 
 
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
 
-/**
- * @author jblok 
-*/
-public class LowerCaseDocumentValidator implements ValidatingDocument.IDocumentValidator
+/** 
+ * Interface for treelike structures that accept a visitor recursively.
+ * @author rgansevles
+ */
+public interface IVisitable
 {
-	public String validateInsertString(Document document, int offs, String str, AttributeSet a) throws BadLocationException
-	{
-		return str.toLowerCase();
-	}
-
-	public String validateReplace(Document document, int offset, int length, String text, AttributeSet attrs) throws BadLocationException
-	{
-		return text.toLowerCase();
-	}
+	/**
+	 * Accept a visitor recursively.
+	 * @param map
+	 */
+	public void acceptVisitor(IVisitor visitor);
 }

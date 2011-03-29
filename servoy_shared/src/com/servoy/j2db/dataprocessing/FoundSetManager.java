@@ -66,12 +66,12 @@ import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.IVisitor;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.StringComparator;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.WeakHashSet;
+import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
  * Manager for foundsets

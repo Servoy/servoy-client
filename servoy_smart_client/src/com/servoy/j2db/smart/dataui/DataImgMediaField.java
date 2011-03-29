@@ -85,12 +85,12 @@ import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.PersistHelper;
-import com.servoy.j2db.util.SnapShot;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.EnableScrollPanel;
 import com.servoy.j2db.util.gui.FileNameSuggestionFileChooser;
 import com.servoy.j2db.util.gui.MyImageIcon;
+import com.servoy.j2db.util.gui.SnapShot;
 
 /**
  * Field for serving blobs (mainly images)

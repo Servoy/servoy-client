@@ -31,9 +31,9 @@ import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.OptimizedDefaultListModel;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.model.OptimizedDefaultListModel;
 
 /**
  * user defined fixed valuelist.

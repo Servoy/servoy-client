@@ -51,11 +51,11 @@ import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ITagResolver;
-import com.servoy.j2db.util.LengthDocumentValidator;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.ValidatingDocument;
+import com.servoy.j2db.util.docvalidator.LengthDocumentValidator;
 
 /**
  * Runtime swing password field 

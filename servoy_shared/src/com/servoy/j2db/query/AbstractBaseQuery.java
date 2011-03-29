@@ -23,12 +23,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.servoy.j2db.util.DeepCloneVisitor;
-import com.servoy.j2db.util.IVisitable;
-import com.servoy.j2db.util.IVisitor;
-import com.servoy.j2db.util.ReplaceVisitor;
-import com.servoy.j2db.util.IVisitor.VistorResult;
 import com.servoy.j2db.util.serialize.ReplacedObject;
+import com.servoy.j2db.util.visitor.DeepCloneVisitor;
+import com.servoy.j2db.util.visitor.IVisitable;
+import com.servoy.j2db.util.visitor.IVisitor;
+import com.servoy.j2db.util.visitor.ReplaceVisitor;
+import com.servoy.j2db.util.visitor.IVisitor.VistorResult;
 
 /**
  * Base class for all DML classes.

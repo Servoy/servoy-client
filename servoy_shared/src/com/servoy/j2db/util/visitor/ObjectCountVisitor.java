@@ -14,7 +14,8 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
-package com.servoy.j2db.util;
+package com.servoy.j2db.util.visitor;
+
 
 
 /** Visitor class to for counting the number of references to an object in a IVisitable object.

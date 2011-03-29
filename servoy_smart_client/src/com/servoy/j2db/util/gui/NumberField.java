@@ -24,9 +24,9 @@ import javax.swing.text.Document;
 
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ISkinnable;
-import com.servoy.j2db.util.NumberDocumentValidator;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.ValidatingDocument;
+import com.servoy.j2db.util.docvalidator.NumberDocumentValidator;
 
 public class NumberField extends JTextField implements ISkinnable
 {

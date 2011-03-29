@@ -39,9 +39,9 @@ import javax.swing.SwingUtilities;
 
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.smart.J2DBClient;
-import com.servoy.j2db.util.IdentDocumentValidator;
-import com.servoy.j2db.util.LengthDocumentValidator;
 import com.servoy.j2db.util.ValidatingDocument;
+import com.servoy.j2db.util.docvalidator.IdentDocumentValidator;
+import com.servoy.j2db.util.docvalidator.LengthDocumentValidator;
 import com.servoy.j2db.util.gui.JEscapeDialog;
 
 /**

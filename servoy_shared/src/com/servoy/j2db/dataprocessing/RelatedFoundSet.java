@@ -47,10 +47,10 @@ import com.servoy.j2db.query.PlaceholderKey;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.PackVisitor;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.visitor.PackVisitor;
 
 /**
  * This class is normally found as related state from another state and therefore holds related data

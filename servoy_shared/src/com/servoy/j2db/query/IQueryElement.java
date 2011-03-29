@@ -18,8 +18,8 @@ package com.servoy.j2db.query;
 
 import java.io.Serializable;
 
-import com.servoy.j2db.util.IVisitable;
 import com.servoy.j2db.util.serialize.IWriteReplace;
+import com.servoy.j2db.util.visitor.IVisitable;
 
 /**
  * Common interface for all elements in the query structure.

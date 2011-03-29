@@ -14,13 +14,14 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
-package com.servoy.j2db.util;
+package com.servoy.j2db.util.visitor;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.servoy.j2db.query.IQueryElement;
+import com.servoy.j2db.util.Immutable;
 
 /**
  * Visitor class to for performing a deep clone that maintains tree structure.

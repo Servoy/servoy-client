@@ -23,9 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.servoy.j2db.util.IVisitor;
-import com.servoy.j2db.util.ObjectCountVisitor;
 import com.servoy.j2db.util.serialize.ReplacedObject;
+import com.servoy.j2db.util.visitor.IVisitor;
+import com.servoy.j2db.util.visitor.ObjectCountVisitor;
 
 /**
  * Query select statement.

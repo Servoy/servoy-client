@@ -83,10 +83,10 @@ import com.servoy.j2db.ui.IScriptRenderMethods;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ILogLevel;
 import com.servoy.j2db.util.ServoyException;
-import com.servoy.j2db.util.SnapShot;
 import com.servoy.j2db.util.SwingHelper;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.gui.SnapShot;
 
 /**
  * Application object from the SOM to handle all JS application calls

@@ -14,54 +14,30 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
-package com.servoy.j2db.util;
+package com.servoy.j2db.util.visitor;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
-/** Visitor class to for replacing all occurrences of one object with another one in a IVisitable object.
+/** Visitor class to for replacing duplicate objects with the same instance in a IVisitable object.
  * @see IVisitable
  * @author rgansevles
  *
- */public class ReplaceVisitor implements IVisitor
+ */
+public class PackVisitor implements IVisitor
 {
+	Map map = new HashMap();
 
-	private Object org;
-	private Object repl;
-	private boolean useEquals;
-	
-	// result
-	private boolean found = false;
-	
-	/**
-	 * @param org
-	 * @param repl
-	 */
-	public ReplaceVisitor(Object org, Object repl, boolean useEquals)
-	{
-		this.org = org;
-		this.repl = repl;
-		this.useEquals = useEquals;
-	}
 	public Object visit(Object o)
 	{
-		boolean match = false;
-		if (org == null)
+		Object o2 = map.get(o);
+		if (o2 == null)
 		{
-			match = o == null;
+			map.put(o, o);
+			o2 = o;
 		}
-		else
-		{
-			match = (org == o || (useEquals && org.equals(o)));
-		}
-		if (match)
-		{
-			found = true;
-			return repl;
-		}
-		return o;
+		return o2;
 	}
 
-	public boolean found()
-	{
-		return found;
-	}
 }

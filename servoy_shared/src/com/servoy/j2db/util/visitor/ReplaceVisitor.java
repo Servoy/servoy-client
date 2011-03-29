@@ -14,18 +14,55 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
-package com.servoy.j2db.util;
+package com.servoy.j2db.util.visitor;
 
 
-/** 
- * Interface for treelike structures that accept a visitor recursively.
+
+/** Visitor class to for replacing all occurrences of one object with another one in a IVisitable object.
+ * @see IVisitable
  * @author rgansevles
- */
-public interface IVisitable
+ *
+ */public class ReplaceVisitor implements IVisitor
 {
+
+	private Object org;
+	private Object repl;
+	private boolean useEquals;
+	
+	// result
+	private boolean found = false;
+	
 	/**
-	 * Accept a visitor recursively.
-	 * @param map
+	 * @param org
+	 * @param repl
 	 */
-	public void acceptVisitor(IVisitor visitor);
+	public ReplaceVisitor(Object org, Object repl, boolean useEquals)
+	{
+		this.org = org;
+		this.repl = repl;
+		this.useEquals = useEquals;
+	}
+	public Object visit(Object o)
+	{
+		boolean match = false;
+		if (org == null)
+		{
+			match = o == null;
+		}
+		else
+		{
+			match = (org == o || (useEquals && org.equals(o)));
+		}
+		if (match)
+		{
+			found = true;
+			return repl;
+		}
+		return o;
+	}
+
+	public boolean found()
+	{
+		return found;
+	}
 }

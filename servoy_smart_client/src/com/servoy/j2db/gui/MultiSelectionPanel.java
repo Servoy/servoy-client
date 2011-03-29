@@ -37,7 +37,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import com.servoy.j2db.smart.J2DBClient;
-import com.servoy.j2db.util.IndexedObject;
 
 public class MultiSelectionPanel extends JPanel implements ActionListener
 {
