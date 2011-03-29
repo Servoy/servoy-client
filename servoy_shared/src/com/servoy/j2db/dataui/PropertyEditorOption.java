@@ -72,5 +72,13 @@ public enum PropertyEditorOption
 	/**
 	 * String setting for lookupName in {@link PropertyEditorClass#styleclass} property selection.
 	 */
-	styleLookupName
+	styleLookupName,
+	/**
+	 * {@link Comparable} setting for defining order of properties in properties view, default: order by displayName.
+	 */
+	propertyOrder,
+	/**
+	 * String method name (no args), can be used to create a new instance of a sub-property, default: empty constructor of property type.
+	 */
+	subPropertyFactoryMethod
 }

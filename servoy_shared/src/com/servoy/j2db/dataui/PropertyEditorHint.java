@@ -13,9 +13,10 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataui;
 
+import java.beans.PropertyDescriptor;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,23 +30,32 @@ import java.util.Map;
  *  <pre>
  *  public class ExampleBeanBeanInfo extends SimpleBeanInfo
  *  {
- *  	public PropertyDescriptor[] getPropertyDescriptors()
- *  	{
- *  		try
+ *  		@Override
+ *  		public PropertyDescriptor[] getPropertyDescriptors()
  *  		{
- *  			PropertyDescriptor dp = new PropertyDescriptor("myDataprovider", ExampleBean.class);
- *  			PropertyEditorHint dpHint = new PropertyEditorHint(PropertyEditorClass.dataprovider);
- *  			dpHint.setOption(PropertyEditorOption.includeForm, Boolean.FALSE); // filter out form variables
- *  			dp.setValue(PropertyEditorHint.PROPERTY_EDITOR_HINT, dpHint);
- *  
- *  			....
- *  
- *  			return new PropertyDescriptor[] { dp, .... };
- *  		}
- *  		catch (IntrospectionException e)
- *  		{
- *  			Debug.error("MyBeanInfo: unexpected exception: " + e);
- *  			return null;
+ *  			try
+ *  			{
+ *  				PropertyDescriptor myDataprovider = new PropertyDescriptor("myDataprovider", ExampleBean.class);
+ *  				PropertyEditorHint dpHint = new PropertyEditorHint(PropertyEditorClass.dataprovider);
+ *  				dpHint.setOption(PropertyEditorOption.includeForm, Boolean.FALSE); // filter out form variables
+ *  				dpHint.setOption(PropertyEditorOption.propertyOrder, new Integer(1)); // configure order of properties
+ *  				myDataprovider.setValue(PropertyEditorHint.PROPERTY_EDITOR_HINT, dpHint);
+ *  	
+ *  				PropertyDescriptor moreInfo = new PropertyDescriptor("moreInfo", MoreInfo.class);
+ *  				dpHint = new PropertyEditorHint(PropertyEditorClass.defaultEditor);
+ *  				dpHint.setOption(PropertyEditorOption.subPropertyFactoryMethod, "createMoreInfo"); // instance method MoreInfo.createMoreInfo()
+ *  				dpHint.setOption(PropertyEditorOption.propertyOrder, new Integer(2)); // configure order of properties
+ *  				moreInfo.setValue(PropertyEditorHint.PROPERTY_EDITOR_HINT, dpHint);
+ *  				
+ *  				....
+ *  	
+ *  				return new PropertyDescriptor[] { myDataprovider, moreInfo  , .... };
+ *  			}
+ *  			catch (IntrospectionException e)
+ *  			{
+ *  				Debug.error("ExampleBeanBeanInfo: unexpected exception: " + e);
+ *  				return null;
+ *  			}
  *  		}
  *  	}
  *  }
@@ -93,7 +103,7 @@ public class PropertyEditorHint
 
 	protected Object getDefaultOption(PropertyEditorOption key)
 	{
-		if (key == PropertyEditorOption.styleLookupName)
+		if (key == PropertyEditorOption.styleLookupName || key == PropertyEditorOption.propertyOrder || key == PropertyEditorOption.subPropertyFactoryMethod)
 		{
 			return null;
 		}
