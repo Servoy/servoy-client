@@ -40,7 +40,7 @@ import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.smart.dataui.DataRenderer;
 import com.servoy.j2db.util.EnablePanel;
-import com.servoy.j2db.util.IEditListModel;
+import com.servoy.j2db.util.model.IEditListModel;
 
 /**
  * The recordview controller from mvc architecture

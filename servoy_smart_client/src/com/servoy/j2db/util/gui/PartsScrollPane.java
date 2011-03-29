@@ -35,8 +35,6 @@ import javax.swing.plaf.basic.BasicBorders;
 
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.util.EnablePanel;
-import com.servoy.j2db.util.EnableScrollPanel;
-import com.servoy.j2db.util.FixedJScrollPane;
 import com.servoy.j2db.util.ISkinnable;
 import com.servoy.j2db.util.Utils;
 

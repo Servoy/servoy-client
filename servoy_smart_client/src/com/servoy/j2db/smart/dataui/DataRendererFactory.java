@@ -69,10 +69,10 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.util.ComponentFactoryHelper;
-import com.servoy.j2db.util.EnableScrollPanel;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.gui.AnchorLayout;
+import com.servoy.j2db.util.gui.EnableScrollPanel;
 import com.servoy.j2db.util.gui.FixedSpringLayout;
 import com.servoy.j2db.util.gui.Spring;
 

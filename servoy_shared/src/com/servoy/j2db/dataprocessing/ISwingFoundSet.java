@@ -19,8 +19,8 @@ package com.servoy.j2db.dataprocessing;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
-import com.servoy.j2db.util.IEditListModel;
 import com.servoy.j2db.util.model.AlwaysRowSelectedSelectionModel;
+import com.servoy.j2db.util.model.IEditListModel;
 
 /**
  * @author jblok

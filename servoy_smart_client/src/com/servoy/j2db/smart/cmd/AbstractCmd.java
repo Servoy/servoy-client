@@ -28,8 +28,8 @@ import javax.swing.undo.UndoableEdit;
 
 import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.cmd.ICmd;
-import com.servoy.j2db.util.FixedDefaultButtonModel;
 import com.servoy.j2db.util.IProvideButtonModel;
+import com.servoy.j2db.util.gui.FixedDefaultButtonModel;
 
 /** 
  *  Abstract class for all commands. The cmdmanager serves as a

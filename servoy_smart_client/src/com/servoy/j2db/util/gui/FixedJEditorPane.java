@@ -14,7 +14,7 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
-package com.servoy.j2db.util;
+package com.servoy.j2db.util.gui;
 
 import java.awt.Rectangle;
 import java.io.FilterInputStream;
@@ -33,6 +33,7 @@ import javax.swing.text.ChangedCharSetException;
 import javax.swing.text.Document;
 import javax.swing.text.EditorKit;
 import javax.swing.text.html.HTMLDocument;
+
 
 /**
  * A modified JEditorPane; it makes possible async loading for html documents without using setPage(URL) (in most cases the content will be provided via

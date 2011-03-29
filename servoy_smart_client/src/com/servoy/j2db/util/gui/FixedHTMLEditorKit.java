@@ -14,7 +14,7 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
-package com.servoy.j2db.util;
+package com.servoy.j2db.util.gui;
 
 
 import java.awt.Color;
@@ -92,6 +92,10 @@ import javax.swing.text.html.StyleSheet;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.component.ISupportAsyncLoading;
+import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.FixedStyleSheet;
+import com.servoy.j2db.util.HtmlUtils;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author jblok

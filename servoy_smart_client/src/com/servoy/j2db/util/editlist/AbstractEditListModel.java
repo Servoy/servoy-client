@@ -22,7 +22,7 @@ import java.io.Serializable;
 
 import javax.swing.AbstractListModel;
 
-import com.servoy.j2db.util.IEditListModel;
+import com.servoy.j2db.util.model.IEditListModel;
 
 /**
  *  This abstract class provides default implementations for most of

@@ -80,7 +80,6 @@ import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.EnableScrollPanel;
 import com.servoy.j2db.util.FileChooserUtils;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ITagResolver;
@@ -89,6 +88,7 @@ import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.SnapShot;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.gui.EnableScrollPanel;
 import com.servoy.j2db.util.gui.FileNameSuggestionFileChooser;
 import com.servoy.j2db.util.gui.MyImageIcon;
 

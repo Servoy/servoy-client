@@ -27,9 +27,9 @@ import javax.swing.InputMap;
 import javax.swing.KeyStroke;
 import javax.swing.ListModel;
 
-import com.servoy.j2db.util.IEditListModel;
 import com.servoy.j2db.util.editlist.JEditList;
 import com.servoy.j2db.util.model.ComboModelListModelWrapper;
+import com.servoy.j2db.util.model.IEditListModel;
 
 public class JNavigableEditList extends JEditList
 {

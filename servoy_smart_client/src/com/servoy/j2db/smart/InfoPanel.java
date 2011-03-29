@@ -33,7 +33,7 @@ import javax.swing.event.HyperlinkListener;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.FixedHTMLEditorKit;
+import com.servoy.j2db.util.gui.FixedHTMLEditorKit;
 
 public class InfoPanel extends JPanel implements HyperlinkListener, MouseListener, Runnable
 {

@@ -14,7 +14,7 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
-package com.servoy.j2db.util;
+package com.servoy.j2db.util.gui;
 
 
 import java.awt.Component;
@@ -27,6 +27,9 @@ import javax.swing.JViewport;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.Scrollable;
 import javax.swing.ViewportLayout;
+
+import com.servoy.j2db.util.HtmlUtils;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author jblok

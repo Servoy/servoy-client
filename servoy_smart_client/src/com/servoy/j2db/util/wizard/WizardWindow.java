@@ -56,7 +56,6 @@ import javax.swing.border.Border;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.smart.J2DBClient;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.HighlightJButton;
 import com.servoy.j2db.util.JEscapeDialog;
 import com.servoy.j2db.util.SwingHelper;
 import com.servoy.j2db.util.gui.FixedCardLayout;
