@@ -40,8 +40,8 @@ import com.servoy.j2db.smart.dataui.DataCalendar;
 import com.servoy.j2db.smart.dataui.DataRenderer;
 import com.servoy.j2db.ui.IScriptReadOnlyMethods;
 import com.servoy.j2db.ui.ISupportRowStyling;
+import com.servoy.j2db.util.IEditListModel;
 import com.servoy.j2db.util.editlist.EmptyEditListModel;
-import com.servoy.j2db.util.editlist.IEditListModel;
 import com.servoy.j2db.util.editlist.JEditList;
 
 /**

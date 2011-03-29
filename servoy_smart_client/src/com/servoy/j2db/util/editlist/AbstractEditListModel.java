@@ -22,6 +22,8 @@ import java.io.Serializable;
 
 import javax.swing.AbstractListModel;
 
+import com.servoy.j2db.util.IEditListModel;
+
 /**
  *  This abstract class provides default implementations for most of
  *  the methods in the <code>TableModel</code> interface. It takes care of

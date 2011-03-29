@@ -13,13 +13,13 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
-import com.servoy.j2db.util.editlist.IEditListModel;
+import com.servoy.j2db.util.IEditListModel;
 import com.servoy.j2db.util.gui.AlwaysRowSelectedSelectionModel;
 
 /**
@@ -30,6 +30,7 @@ public interface ISwingFoundSet extends IFoundSetInternal, TableModel, IEditList
 	public AlwaysRowSelectedSelectionModel getSelectionModel();
 
 	public void addTableModelListener(TableModelListener l);
+
 	public void removeTableModelListener(TableModelListener l);
 
 	public void fireTableModelEvent(int row, int row2, int column, int update);

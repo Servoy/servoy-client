@@ -37,7 +37,6 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.ModificationEvent;
 import com.servoy.j2db.persistence.ScriptVariable;
-import com.servoy.j2db.util.editlist.IEditListModel;
 
 /**
  * @author jcompagner

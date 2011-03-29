@@ -28,7 +28,7 @@ import javax.swing.KeyStroke;
 import javax.swing.ListModel;
 
 import com.servoy.j2db.util.ComboModelListModelWrapper;
-import com.servoy.j2db.util.editlist.IEditListModel;
+import com.servoy.j2db.util.IEditListModel;
 import com.servoy.j2db.util.editlist.JEditList;
 
 public class JNavigableEditList extends JEditList
