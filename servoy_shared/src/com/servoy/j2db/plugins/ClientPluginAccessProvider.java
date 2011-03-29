@@ -347,14 +347,12 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 	/**
 	 * @see com.servoy.j2db.plugins.IClientPluginAccess#exportObject(java.rmi.Remote)
 	 */
-	@Deprecated
 	public void exportObject(Remote object) throws RemoteException
 	{
 		if (application instanceof ISmartClientApplication)
 		{
 			((ISmartClientApplication)application).exportObject(object);
 		}
-
 	}
 
 	/**
