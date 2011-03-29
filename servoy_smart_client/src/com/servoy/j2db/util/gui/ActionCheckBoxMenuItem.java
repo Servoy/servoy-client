@@ -14,23 +14,37 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
-package com.servoy.j2db.util;
+package com.servoy.j2db.util.gui;
 
 
 import javax.swing.Action;
-import javax.swing.JCheckBox;
+import javax.swing.JCheckBoxMenuItem;
+
+import com.servoy.j2db.util.IProvideButtonModel;
 
 /**
- * @author jcompagner
+ * <class description>
+ * 
+ * @author jblok
  */
-public class ActionCheckBox extends JCheckBox
+public class ActionCheckBoxMenuItem extends JCheckBoxMenuItem
 {
-	public ActionCheckBox(Action action)
+/*
+ * _____________________________________________________________ Declaration of attributes
+ */
+
+
+/*
+ * _____________________________________________________________ Declaration and definition of constructors
+ */
+	public ActionCheckBoxMenuItem(Action action)
 	{
+		super();
 		if (action instanceof IProvideButtonModel)
 		{
 			setModel(((IProvideButtonModel)action).getModel());
 		}
 		setAction(action);
+		setToolTipText(null);
 	}
 }

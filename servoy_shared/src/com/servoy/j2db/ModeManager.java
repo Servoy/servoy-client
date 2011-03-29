@@ -25,10 +25,10 @@ import javax.swing.ButtonModel;
 import javax.swing.JMenuItem;
 
 import com.servoy.j2db.dataprocessing.SQLGenerator;
-import com.servoy.j2db.util.ActionCheckBoxMenuItem;
-import com.servoy.j2db.util.ActionMenuItem;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IProvideButtonModel;
+import com.servoy.j2db.util.gui.ActionCheckBoxMenuItem;
+import com.servoy.j2db.util.gui.ActionMenuItem;
 
 /**
  * Mode manager, like browse,find and print preview

@@ -39,10 +39,10 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
 import com.servoy.j2db.Messages;
-import com.servoy.j2db.util.ActionCheckBoxMenuItem;
 import com.servoy.j2db.util.EnablePanel;
 import com.servoy.j2db.util.FixedToggleButtonModel;
 import com.servoy.j2db.util.IProvideButtonModel;
+import com.servoy.j2db.util.gui.ActionCheckBoxMenuItem;
 
 /**
  * ToolbarPanel is a container for the <code>Toolbar</code> components. The

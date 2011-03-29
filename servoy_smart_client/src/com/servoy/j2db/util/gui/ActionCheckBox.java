@@ -14,33 +14,25 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
-package com.servoy.j2db.util;
+package com.servoy.j2db.util.gui;
 
 
 import javax.swing.Action;
-import javax.swing.JMenuItem;
+import javax.swing.JCheckBox;
+
+import com.servoy.j2db.util.IProvideButtonModel;
 
 /**
- * <class description>
- * 
- * @author jblok
+ * @author jcompagner
  */
-
-public class ActionMenuItem extends JMenuItem
+public class ActionCheckBox extends JCheckBox
 {
-	public ActionMenuItem(Action action)
+	public ActionCheckBox(Action action)
 	{
-		super();
 		if (action instanceof IProvideButtonModel)
 		{
 			setModel(((IProvideButtonModel)action).getModel());
 		}
 		setAction(action);
-	}
-
-	// Ignore all tooltips set on menuitems
-	@Override
-	public void setToolTipText(String text)
-	{
 	}
 }
