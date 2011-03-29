@@ -14,7 +14,7 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
-package com.servoy.j2db;
+package com.servoy.j2db.smart;
 
 
 import java.awt.BorderLayout;
@@ -31,6 +31,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 
+import com.servoy.j2db.ClientVersion;
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.util.JEscapeDialog;
 import com.servoy.j2db.util.MemoryMonitor;
 import com.servoy.j2db.util.Utils;

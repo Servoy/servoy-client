@@ -128,7 +128,6 @@ import javax.swing.text.DefaultFormatter;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.MaskFormatter;
 
-import com.servoy.j2db.AboutDialog;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.BeanManager;
 import com.servoy.j2db.ClientRepository;
