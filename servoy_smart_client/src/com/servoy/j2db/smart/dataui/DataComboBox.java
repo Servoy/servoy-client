@@ -92,7 +92,6 @@ import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptDataComboboxMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.util.ComboModelListModelWrapper;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
@@ -104,6 +103,7 @@ import com.servoy.j2db.util.StateFullSimpleDateFormat;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.UIUtils;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.model.ComboModelListModelWrapper;
 
 /**
  * Runtime swing combo box component

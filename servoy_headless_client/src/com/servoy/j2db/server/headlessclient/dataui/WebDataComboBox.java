@@ -141,7 +141,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 			private boolean valueInList = true;
 
 			/**
-			 * @see com.servoy.j2db.util.ComboModelListModelWrapper#getSize()
+			 * @see com.servoy.j2db.util.model.ComboModelListModelWrapper#getSize()
 			 */
 			@Override
 			public int size()
@@ -154,7 +154,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 			}
 
 			/**
-			 * @see com.servoy.j2db.util.ComboModelListModelWrapper#getElementAt(int)
+			 * @see com.servoy.j2db.util.model.ComboModelListModelWrapper#getElementAt(int)
 			 */
 			@Override
 			public Object getElementAt(int index)
@@ -176,7 +176,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 			}
 
 			/**
-			 * @see com.servoy.j2db.util.ComboModelListModelWrapper#getRealElementAt(int)
+			 * @see com.servoy.j2db.util.model.ComboModelListModelWrapper#getRealElementAt(int)
 			 */
 			@Override
 			public Object getRealElementAt(int index)
@@ -194,7 +194,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 			}
 
 			/**
-			 * @see com.servoy.j2db.util.ComboModelListModelWrapper#realValueIndexOf(java.lang.Object)
+			 * @see com.servoy.j2db.util.model.ComboModelListModelWrapper#realValueIndexOf(java.lang.Object)
 			 */
 			@Override
 			public int realValueIndexOf(Object obj)
@@ -217,7 +217,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 			}
 
 			/**
-			 * @see com.servoy.j2db.util.ComboModelListModelWrapper#indexOf(java.lang.Object)
+			 * @see com.servoy.j2db.util.model.ComboModelListModelWrapper#indexOf(java.lang.Object)
 			 */
 			@Override
 			public int indexOf(Object o)
@@ -233,7 +233,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 			}
 
 			/**
-			 * @see com.servoy.j2db.util.ComboModelListModelWrapper#setSelectedItem(java.lang.Object)
+			 * @see com.servoy.j2db.util.model.ComboModelListModelWrapper#setSelectedItem(java.lang.Object)
 			 */
 			@Override
 			public void setSelectedItem(Object anObject)

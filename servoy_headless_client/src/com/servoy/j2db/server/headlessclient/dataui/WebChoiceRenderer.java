@@ -19,7 +19,7 @@ package com.servoy.j2db.server.headlessclient.dataui;
 import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 
-import com.servoy.j2db.util.ComboModelListModelWrapper;
+import com.servoy.j2db.util.model.ComboModelListModelWrapper;
 
 /**
  * A {@link IChoiceRenderer} implementation for getting id and display values of a form components with {@link ComboModelListModelWrapper} valuelist.

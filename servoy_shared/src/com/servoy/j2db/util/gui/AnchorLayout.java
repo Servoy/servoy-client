@@ -14,7 +14,7 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
-package com.servoy.j2db.util;
+package com.servoy.j2db.util.gui;
 
 
 import java.awt.BorderLayout;
@@ -30,6 +30,8 @@ import java.util.Hashtable;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+
+import com.servoy.j2db.util.IAnchorConstants;
 
 /**
  * Handy Layout Manager keeps anchored sides of an component on the same distance to the border by resizing. (Used in combination with excact positioning,

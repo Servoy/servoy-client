@@ -29,7 +29,6 @@ import javax.swing.SwingUtilities;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportOnRenderWrapper;
 import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.util.AnchorLayout;
 
 /**
  * This repaint manager makes sure that overlapping components inside a container are repainted properly.<BR>

@@ -76,7 +76,6 @@ import com.servoy.j2db.ui.IScriptChoiceMethods;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.util.ComboModelListModelWrapper;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.EnableScrollPanel;
 import com.servoy.j2db.util.ISupplyFocusChildren;
@@ -88,6 +87,7 @@ import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.editlist.IEditListEditor;
 import com.servoy.j2db.util.editlist.JEditList;
+import com.servoy.j2db.util.model.ComboModelListModelWrapper;
 
 /**
  * Runtime swing radio/check box choice component

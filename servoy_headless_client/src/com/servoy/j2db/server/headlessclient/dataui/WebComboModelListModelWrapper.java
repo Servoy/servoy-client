@@ -17,7 +17,7 @@
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import com.servoy.j2db.dataprocessing.IValueList;
-import com.servoy.j2db.util.ComboModelListModelWrapper;
+import com.servoy.j2db.util.model.ComboModelListModelWrapper;
 
 /**
  * ComboModelListModelWrapper to be used in WebClient (ComboModelListModelWrapper is implements List based on display values, web components expects List based
