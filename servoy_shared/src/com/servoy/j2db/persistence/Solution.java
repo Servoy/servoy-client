@@ -1003,23 +1003,30 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 	 * application.output('MSG: '+ex.getMessage())
 	 * if (ex instanceof ServoyException)
 	 * {
-	 * 	application.output('is a ServoyException')
-	 * 	application.output('Errorcode: '+ex.getErrorCode())
-	 * 	if (ex.getErrorCode() == ServoyException.SAVE_FAILED)
+	 *  /** @type {ServoyException} *&#47;
+	 *  var servoyException = ex;
+	 * 	application.output("is a ServoyException")
+	 * 	application.output("Errorcode: "+servoyException.getErrorCode())
+	 *  var trace = "";
+	 *  if (ex.getScriptStackTrace) trace = servoyException.getScriptStackTrace();
+	 *  else if (servoyException.getStackTrace)  trace = servoyException.getStackTrace();
+	 * 	if (servoyException.getErrorCode() == ServoyException.SAVE_FAILED)
 	 * 	{
 	 *  		plugins.dialogs.showErrorDialog( 'Error',  'It seems you did not fill in a required field', 'OK');
 	 *  		//Get the failed records after a save
 	 *  		var array = databaseManager.getFailedRecords()
 	 *  		for( var i = 0 ; i < array.length ; i++ )
 	 *  		{
-	 * 			var record = array[i];
-	 * 			application.output(record.exception);
-	 * 			if (record.exception instanceof DataException)
-	 * 			{
-	 * 				application.output('SQL: '+record.exception.getSQL())
-	 * 				application.output('SQLState: '+record.exception.getSQLState())
-	 * 				application.output('VendorErrorCode: '+record.exception.getVendorErrorCode())
-	 * 			}
+	 * 			  var record = array[i];
+	 * 			  application.output(record.exception);
+	 * 			  if (record.exception instanceof DataException)
+	 * 			  {
+	 *              /** @type {DataException} *&#47;
+	 *              var dataException = record.exception;
+	 * 				application.output('SQL: '+dataException.getSQL())
+	 * 				application.output('SQLState: '+dataException.getSQLState())
+	 * 				application.output('VendorErrorCode: '+dataException.getVendorErrorCode())
+	 * 			  }
 	 * 		}
 	 * 		return false
 	 * 	}
