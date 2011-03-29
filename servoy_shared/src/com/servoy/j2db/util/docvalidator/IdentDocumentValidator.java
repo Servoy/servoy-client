@@ -20,8 +20,7 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
-import com.servoy.j2db.util.ValidatingDocument;
-import com.servoy.j2db.util.ValidatingDocument.IDocumentValidator;
+import com.servoy.j2db.util.docvalidator.ValidatingDocument.IDocumentValidator;
 
 public class IdentDocumentValidator implements ValidatingDocument.IDocumentValidator
 {

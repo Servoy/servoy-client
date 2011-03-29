@@ -24,8 +24,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.DocumentFilter;
 
-import com.servoy.j2db.util.ValidatingDocument;
-import com.servoy.j2db.util.ValidatingDocument.IDocumentValidator;
+import com.servoy.j2db.util.docvalidator.ValidatingDocument.IDocumentValidator;
 
 /**
  * @author jblok 

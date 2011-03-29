@@ -79,8 +79,8 @@ import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
-import com.servoy.j2db.util.ValidatingDocument;
 import com.servoy.j2db.util.docvalidator.LengthDocumentValidator;
+import com.servoy.j2db.util.docvalidator.ValidatingDocument;
 import com.servoy.j2db.util.gui.EnableScrollPanel;
 
 /**

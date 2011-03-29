@@ -101,11 +101,11 @@ import com.servoy.j2db.util.StateFullSimpleDateFormat;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.UIUtils;
 import com.servoy.j2db.util.Utils;
-import com.servoy.j2db.util.ValidatingDocument;
 import com.servoy.j2db.util.docvalidator.LengthDocumentValidator;
 import com.servoy.j2db.util.docvalidator.LowerCaseDocumentValidator;
 import com.servoy.j2db.util.docvalidator.NumberDocumentValidator;
 import com.servoy.j2db.util.docvalidator.UpperCaseDocumentValidator;
+import com.servoy.j2db.util.docvalidator.ValidatingDocument;
 import com.servoy.j2db.util.gui.FixedMaskFormatter;
 
 /**
