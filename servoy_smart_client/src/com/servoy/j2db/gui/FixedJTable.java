@@ -44,7 +44,7 @@ import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.smart.dataui.CellAdapter;
 import com.servoy.j2db.util.IDelegate;
-import com.servoy.j2db.util.gui.AlwaysRowSelectedSelectionModel;
+import com.servoy.j2db.util.model.AlwaysRowSelectedSelectionModel;
 
 /**
  * @author jcompagner

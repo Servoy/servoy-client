@@ -152,8 +152,8 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IFocusCycleRoot;
 import com.servoy.j2db.util.ISupportFocusTransfer;
 import com.servoy.j2db.util.ITabPaneAlike;
+import com.servoy.j2db.util.OrientationApplier;
 import com.servoy.j2db.util.Utils;
-import com.servoy.j2db.util.gui.OrientationApplier;
 import com.servoy.j2db.util.gui.PartsScrollPane;
 
 

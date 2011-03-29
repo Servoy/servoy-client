@@ -20,7 +20,7 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
 import com.servoy.j2db.util.IEditListModel;
-import com.servoy.j2db.util.gui.AlwaysRowSelectedSelectionModel;
+import com.servoy.j2db.util.model.AlwaysRowSelectedSelectionModel;
 
 /**
  * @author jblok

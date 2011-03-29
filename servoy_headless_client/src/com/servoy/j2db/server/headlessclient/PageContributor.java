@@ -53,9 +53,9 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.OrientationApplier;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Utils;
-import com.servoy.j2db.util.gui.OrientationApplier;
 
 /**
  * Implementation of {@link IPageContributorInternal} that is a wicket component that is added to the page for adding all kinds of behaviors and scripts to the main page.

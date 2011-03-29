@@ -34,9 +34,9 @@ import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualCSS
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.FixedStyleSheet;
+import com.servoy.j2db.util.OrientationApplier;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
-import com.servoy.j2db.util.gui.OrientationApplier;
 
 /**
  * Generic superclass of available layout providers for web client. Holds the common

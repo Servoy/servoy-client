@@ -109,9 +109,9 @@ import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HTTPUtils;
 import com.servoy.j2db.util.IDelegate;
+import com.servoy.j2db.util.OrientationApplier;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
-import com.servoy.j2db.util.gui.OrientationApplier;
 
 /**
  * Main page being a main container.

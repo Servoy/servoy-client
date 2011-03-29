@@ -135,13 +135,13 @@ import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FixedStyleSheet;
 import com.servoy.j2db.util.OpenProperties;
+import com.servoy.j2db.util.OrientationApplier;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.XMLDecoder;
 import com.servoy.j2db.util.gui.MyImageIcon;
-import com.servoy.j2db.util.gui.OrientationApplier;
 
 /**
  * Create UI objects based on repository objects

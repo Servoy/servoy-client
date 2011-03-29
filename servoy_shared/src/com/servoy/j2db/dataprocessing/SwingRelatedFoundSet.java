@@ -26,7 +26,7 @@ import javax.swing.event.TableModelListener;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.util.ServoyException;
-import com.servoy.j2db.util.gui.AlwaysRowSelectedSelectionModel;
+import com.servoy.j2db.util.model.AlwaysRowSelectedSelectionModel;
 
 /**
  * This class is normally found as related state from another state and therefore holds related data

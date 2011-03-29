@@ -25,7 +25,7 @@ import javax.swing.event.TableModelListener;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.util.ServoyException;
-import com.servoy.j2db.util.gui.AlwaysRowSelectedSelectionModel;
+import com.servoy.j2db.util.model.AlwaysRowSelectedSelectionModel;
 
 /**
  * The foundset to be used in swing apps

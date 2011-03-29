@@ -63,8 +63,8 @@ import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.ISupplyFocusChildren;
+import com.servoy.j2db.util.OrientationApplier;
 import com.servoy.j2db.util.Utils;
-import com.servoy.j2db.util.gui.OrientationApplier;
 
 /**
  * The web implementation of the {@link IDataRendererFactory}

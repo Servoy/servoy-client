@@ -121,9 +121,9 @@ import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.ISupplyFocusChildren;
+import com.servoy.j2db.util.OrientationApplier;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
-import com.servoy.j2db.util.gui.OrientationApplier;
 
 /**
  * @author jcompagner

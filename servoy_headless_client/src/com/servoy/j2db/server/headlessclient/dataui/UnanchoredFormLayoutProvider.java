@@ -21,7 +21,7 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
-import com.servoy.j2db.util.gui.OrientationApplier;
+import com.servoy.j2db.util.OrientationApplier;
 
 /**
  * Layout provider for web client that does not allow anchoring of components.
