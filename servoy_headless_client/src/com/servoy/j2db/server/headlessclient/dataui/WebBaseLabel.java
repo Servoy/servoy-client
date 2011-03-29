@@ -78,10 +78,10 @@ import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.ImageLoader;
-import com.servoy.j2db.util.JpegEncoder;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.gui.JpegEncoder;
 
 /**
  * Base class for simples labels.

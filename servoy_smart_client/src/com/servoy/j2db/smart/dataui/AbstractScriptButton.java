@@ -60,9 +60,9 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ISkinnable;
 import com.servoy.j2db.util.ImageLoader;
-import com.servoy.j2db.util.JpegEncoder;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.gui.JpegEncoder;
 import com.servoy.j2db.util.gui.MyImageIcon;
 
 /**
