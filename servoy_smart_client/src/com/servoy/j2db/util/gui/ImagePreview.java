@@ -13,9 +13,8 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
-package com.servoy.j2db.util;
-
+ */
+package com.servoy.j2db.util.gui;
 
 
 import java.awt.Dimension;
@@ -27,6 +26,10 @@ import java.io.File;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
+
+import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.FileChooserUtils;
+import com.servoy.j2db.util.ImageLoader;
 
 public class ImagePreview extends JComponent implements PropertyChangeListener
 {
@@ -50,7 +53,7 @@ public class ImagePreview extends JComponent implements PropertyChangeListener
 		String prop = e.getPropertyName();
 		if (prop.equals(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY))
 		{
-			File f = (File) e.getNewValue();
+			File f = (File)e.getNewValue();
 			if (f != null && isShowing())
 			{
 				try
@@ -65,10 +68,10 @@ public class ImagePreview extends JComponent implements PropertyChangeListener
 			}
 		}
 	}
-	
+
 	public void setThumbNailData(byte[] array)
 	{
-		if(array == null)
+		if (array == null)
 		{
 			thumbnail = null;
 		}
@@ -76,13 +79,14 @@ public class ImagePreview extends JComponent implements PropertyChangeListener
 		{
 			Dimension dim = getSize();
 			Dimension imageSize = ImageLoader.getSize(array);
-			dim.width = Math.min(dim.width-10, imageSize.width);
-			dim.height = Math.min(dim.height-5, imageSize.height);
+			dim.width = Math.min(dim.width - 10, imageSize.width);
+			dim.height = Math.min(dim.height - 5, imageSize.height);
 			thumbnail = ImageLoader.getIcon(array, dim.width, dim.height, true);
 			repaint();
 		}
 	}
 
+	@Override
 	public void paint(Graphics g)
 	{
 //		if (thumbnail == null)

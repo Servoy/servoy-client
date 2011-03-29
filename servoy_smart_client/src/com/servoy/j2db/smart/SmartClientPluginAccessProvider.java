@@ -18,6 +18,11 @@
 package com.servoy.j2db.smart;
 
 import java.awt.Window;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLStreamHandler;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -29,6 +34,10 @@ import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.plugins.ClientPluginAccessProvider;
 import com.servoy.j2db.plugins.IClientPluginAccess;
+import com.servoy.j2db.plugins.IMediaUploadCallback;
+import com.servoy.j2db.plugins.IUploadData;
+import com.servoy.j2db.util.FileChooserUtils;
+import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.toolbar.IToolbarPanel;
 
 
@@ -130,4 +139,99 @@ public class SmartClientPluginAccessProvider extends ClientPluginAccessProvider 
 	{
 		return application.getMainApplicationFrame();
 	}
+
+	@Override
+	public void showFileOpenDialog(IMediaUploadCallback callback, String fileNameHint, boolean multiSelect, String[] filter, int selection, String dialogTitle)
+	{
+		File file = null;
+		if (fileNameHint != null) file = new File(fileNameHint);
+		if (multiSelect)
+		{
+			File[] files = FileChooserUtils.getFiles(getCurrentWindow(), file, selection, filter, dialogTitle);
+			if (files != null && files.length > 0)
+			{
+				IUploadData[] data = new FileUploadData[files.length];
+				for (int i = 0; i < files.length; i++)
+				{
+					data[i] = new FileUploadData(files[i]);
+				}
+				callback.uploadComplete(data);
+			}
+
+		}
+		else
+		{
+			final File f = FileChooserUtils.getAReadFile(getCurrentWindow(), file, selection, filter, dialogTitle);
+			if (f != null)
+			{
+				IUploadData data = new FileUploadData(f);
+				callback.uploadComplete(new IUploadData[] { data });
+			}
+		}
+	}
+
+	/**
+	 * @author jcompagner
+	 *
+	 */
+	private static final class FileUploadData implements IUploadData
+	{
+		/**
+		 * 
+		 */
+		private final File f;
+
+		/**
+		 * @param f
+		 */
+		private FileUploadData(File f)
+		{
+			this.f = f;
+		}
+
+		public File getFile()
+		{
+			return f;
+		}
+
+		public String getName()
+		{
+			return f.getName();
+		}
+
+		public String getContentType()
+		{
+			try
+			{
+				return ImageLoader.getContentType(FileChooserUtils.readFile(f, 32), f.getName());
+			}
+			catch (Exception e)
+			{
+				throw new RuntimeException(e);
+			}
+		}
+
+		public byte[] getBytes()
+		{
+			try
+			{
+				return FileChooserUtils.readFile(f);
+			}
+			catch (Exception e)
+			{
+				throw new RuntimeException(e);
+			}
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see com.servoy.j2db.plugins.IUploadData#getInputStream()
+		 */
+		public InputStream getInputStream() throws IOException
+		{
+			return new BufferedInputStream(new FileInputStream(f));
+		}
+	}
+
 }
