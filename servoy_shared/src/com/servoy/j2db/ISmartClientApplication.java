@@ -24,6 +24,8 @@ import java.util.Date;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 
+import com.servoy.j2db.util.toolbar.IToolbarPanel;
+
 
 /**
  * Client interface with smart-client specific features.
@@ -68,6 +70,14 @@ public interface ISmartClientApplication extends IApplication
 	 * @return Window the window requested or null if not found
 	 */
 	public Window getWindow(String name);
+
+	/**
+	 * Get the toolbar panel (used to control toolbars).
+	 * 
+	 * @return IToolbarPanel
+	 */
+	public IToolbarPanel getToolbarPanel();
+
 
 	public String showI18NDialog(String preselect_key, String preselect_language);
 

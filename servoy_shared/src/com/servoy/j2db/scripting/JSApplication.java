@@ -922,9 +922,9 @@ public class JSApplication implements IReturnedTypesProvider
 	 */
 	public void js_setToolbarVisible(String name, boolean visible)
 	{
-		if (testMagicProperty())
+		if (application instanceof ISmartClientApplication)
 		{
-			application.getToolbarPanel().setToolbarVisible(name, visible);
+			((ISmartClientApplication)application).getToolbarPanel().setToolbarVisible(name, visible);
 		}
 	}
 

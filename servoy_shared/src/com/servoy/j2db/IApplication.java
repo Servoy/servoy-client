@@ -35,7 +35,6 @@ import com.servoy.j2db.plugins.IPluginManager;
 import com.servoy.j2db.server.shared.IUserManager;
 import com.servoy.j2db.ui.ItemFactory;
 import com.servoy.j2db.util.ILogLevel;
-import com.servoy.j2db.util.toolbar.IToolbarPanel;
 
 /**
  * Main interface for the client application.
@@ -181,13 +180,6 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 * @param title to show
 	 */
 	public void setTitle(String title);
-
-	/**
-	 * Get the toolbar panel (used to control toolbars).
-	 * 
-	 * @return IToolbarPanel
-	 */
-	public IToolbarPanel getToolbarPanel();
 
 	/**
 	 * Get the Look and Feel manager (used to set the laf on the application).

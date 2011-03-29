@@ -219,7 +219,7 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 	@Deprecated
 	public IToolbarPanel getToolbarPanel()
 	{
-		return application.getToolbarPanel();
+		return null;
 	}
 
 	/**
