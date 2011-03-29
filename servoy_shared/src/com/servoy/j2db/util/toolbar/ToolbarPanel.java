@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util.toolbar;
 
 
@@ -34,6 +34,7 @@ import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonModel;
 import javax.swing.Icon;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
@@ -42,7 +43,6 @@ import com.servoy.j2db.Messages;
 import com.servoy.j2db.util.EnablePanel;
 import com.servoy.j2db.util.FixedToggleButtonModel;
 import com.servoy.j2db.util.IProvideButtonModel;
-import com.servoy.j2db.util.gui.ActionCheckBoxMenuItem;
 
 /**
  * ToolbarPanel is a container for the <code>Toolbar</code> components. The
@@ -567,11 +567,11 @@ public class ToolbarPanel extends EnablePanel implements IToolbarPanel
 		{
 			ToolbarAction tba = (ToolbarAction)element;
 
-			ActionCheckBoxMenuItem mi = new ActionCheckBoxMenuItem(tba);
+			JCheckBoxMenuItem mi = new JCheckBoxMenuItem(tba);
 			//			mi.setState(tba.isSelected());
 			popup.add(mi);
 
-			ActionCheckBoxMenuItem mi2 = new ActionCheckBoxMenuItem(tba);
+			JCheckBoxMenuItem mi2 = new JCheckBoxMenuItem(tba);
 			menu.add(mi2);
 		}
 		return popup;
