@@ -58,7 +58,6 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IFormLookupPanel;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.ITabPanel;
-import com.servoy.j2db.util.AutoTransferFocusListener;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnablePanel;
@@ -70,6 +69,7 @@ import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.gui.AutoTransferFocusListener;
 
 /**
  * The Servoy tabpanel

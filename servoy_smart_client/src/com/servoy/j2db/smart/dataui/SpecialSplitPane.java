@@ -49,13 +49,13 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IFormLookupPanel;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.ISplitPane;
-import com.servoy.j2db.util.AutoTransferFocusListener;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.EnablePanel;
 import com.servoy.j2db.util.IFocusCycleRoot;
 import com.servoy.j2db.util.ISupportFocusTransfer;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.gui.AutoTransferFocusListener;
 
 
 public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDisplayRelatedData, IAccessible, IFocusCycleRoot<Component>, ISupportFocusTransfer,

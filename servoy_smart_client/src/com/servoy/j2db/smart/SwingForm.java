@@ -147,13 +147,13 @@ import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptReadOnlyMethods;
 import com.servoy.j2db.ui.ISplitPane;
 import com.servoy.j2db.ui.ITabPanel;
-import com.servoy.j2db.util.AutoTransferFocusListener;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IFocusCycleRoot;
 import com.servoy.j2db.util.ISupportFocusTransfer;
 import com.servoy.j2db.util.ITabPaneAlike;
 import com.servoy.j2db.util.OrientationApplier;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.gui.AutoTransferFocusListener;
 import com.servoy.j2db.util.gui.PartsScrollPane;
 
 
