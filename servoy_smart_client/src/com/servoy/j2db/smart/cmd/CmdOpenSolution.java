@@ -22,7 +22,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.KeyStroke;
 import javax.swing.undo.UndoableEdit;
 
-import com.servoy.j2db.IApplication;
+import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.smart.J2DBClient;
 
 /**
@@ -31,7 +31,7 @@ import com.servoy.j2db.smart.J2DBClient;
 @SuppressWarnings("nls")
 public class CmdOpenSolution extends AbstractCmd
 {
-	public CmdOpenSolution(IApplication app)
+	public CmdOpenSolution(ISmartClientApplication app)
 	{
 		super(app, "CmdOpenSolution", app.getI18NMessage("servoy.menuitem.openSolution"), "servoy.menuitem.openSolution", app.getI18NMessage(
 			"servoy.menuitem.openSolution.mnemonic").charAt(0), app.loadImage("open_project.gif"));

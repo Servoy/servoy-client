@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.property;
 
 
@@ -58,6 +58,8 @@ import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.Table;
+import com.servoy.j2db.plugins.ClientPluginAccessProvider;
+import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.smart.J2DBClient;
 import com.servoy.j2db.util.Debug;
 
@@ -541,6 +543,11 @@ public class DataProviderEditor extends JPanel implements IOptimizedPropertyEdit
 	public void init(IApplication app)
 	{
 		application = app;
+	}
+
+	public void init(IClientPluginAccess access)
+	{
+		application = ((ClientPluginAccessProvider)access).getApplication();
 	}
 
 	private final ArrayList elist = new ArrayList();

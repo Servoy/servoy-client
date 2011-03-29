@@ -20,8 +20,8 @@ package com.servoy.j2db.smart.cmd;
 import javax.swing.undo.UndoableEdit;
 
 import com.servoy.j2db.FormManager;
-import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IForm;
+import com.servoy.j2db.ISmartClientApplication;
 
 /**
  * return to show all menu action
@@ -29,7 +29,7 @@ import com.servoy.j2db.IForm;
  */
 public class CmdStopSearchFindAll extends AbstractCmd
 {
-	public CmdStopSearchFindAll(IApplication app)
+	public CmdStopSearchFindAll(ISmartClientApplication app)
 	{
 		super(
 			app,

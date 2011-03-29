@@ -37,9 +37,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -69,6 +69,7 @@ import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.IFormManager;
 import com.servoy.j2db.ILAFManager;
 import com.servoy.j2db.IMainContainer;
+import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.JSWindowManager;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.component.ComponentFactory;
@@ -123,7 +124,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		 * @param app
 		 * @param mainContainer
 		 */
-		private DebugSwingFormMananger(IApplication app, IMainContainer mainContainer)
+		private DebugSwingFormMananger(ISmartClientApplication app, IMainContainer mainContainer)
 		{
 			super(app, mainContainer);
 		}
@@ -239,21 +240,21 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		@Override
 		protected JSWindowImpl createWindowInternal(String windowName, int type, JSWindowImpl parentWindow)
 		{
-			return new SwingJSWindowImpl(application, windowName, type, parentWindow)
+			return new SwingJSWindowImpl((ISmartClientApplication)application, windowName, type, parentWindow)
 			{
 
 				@Override
-				protected FormFrame createFormFrame(IApplication app, String formWindowName)
+				protected FormFrame createFormFrame(String formWindowName)
 				{
-					FormFrame ff = super.createFormFrame(app, formWindowName);
+					FormFrame ff = super.createFormFrame(formWindowName);
 					setUpFormWindow(ff, ff.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW), ff.getRootPane().getActionMap());
 					return ff;
 				}
 
 				@Override
-				protected FormDialog createFormDialog(IApplication app, Window owner, boolean modal, String dialogName)
+				protected FormDialog createFormDialog(Window owner, boolean modal, String dialogName)
 				{
-					FormDialog debugFormDialog = super.createFormDialog(app, owner, modal, dialogName);
+					FormDialog debugFormDialog = super.createFormDialog(owner, modal, dialogName);
 					setUpFormWindow(debugFormDialog, debugFormDialog.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW),
 						debugFormDialog.getRootPane().getActionMap());
 					return debugFormDialog;

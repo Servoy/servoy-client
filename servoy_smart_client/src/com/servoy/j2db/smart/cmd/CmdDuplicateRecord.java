@@ -22,9 +22,9 @@ import java.awt.event.KeyEvent;
 import javax.swing.KeyStroke;
 import javax.swing.undo.UndoableEdit;
 
-import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.IFormManager;
+import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.smart.J2DBClient;
 
 /**
@@ -40,7 +40,7 @@ public class CmdDuplicateRecord extends AbstractCmd
 /*
  * _____________________________________________________________ Declaration and definition of constructors
  */
-	public CmdDuplicateRecord(IApplication app)
+	public CmdDuplicateRecord(ISmartClientApplication app)
 	{
 		super(
 			app,

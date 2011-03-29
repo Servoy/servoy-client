@@ -35,10 +35,10 @@ import javax.swing.JSeparator;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
-import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IModeManager;
+import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.ISwingFormManager;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.cmd.ICmdManager;
@@ -63,7 +63,7 @@ public class SwingFormManager extends FormManager implements ISwingFormManager, 
 	protected WindowMenuDialog windowMenuDialog;
 	private JMenu scriptMenu;
 
-	public SwingFormManager(IApplication app, IMainContainer mainContainer)
+	public SwingFormManager(ISmartClientApplication app, IMainContainer mainContainer)
 	{
 		super(app, mainContainer);
 		windowMenuDialog = new WindowMenuDialog(app, this);
@@ -460,7 +460,7 @@ public class SwingFormManager extends FormManager implements ISwingFormManager, 
 
 		try
 		{
-			final PrintPreview printPreview = new PrintPreview(getApplication(), afp, foundset, zoomFactor, printJob);
+			final PrintPreview printPreview = new PrintPreview((ISmartClientApplication)getApplication(), afp, foundset, zoomFactor, printJob);
 			Runnable r = new Runnable()
 			{
 				public void run()

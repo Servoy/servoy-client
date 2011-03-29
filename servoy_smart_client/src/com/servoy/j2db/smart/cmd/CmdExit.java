@@ -23,7 +23,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.KeyStroke;
 import javax.swing.undo.UndoableEdit;
 
-import com.servoy.j2db.IApplication;
+import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.smart.J2DBClient;
 
 /**
@@ -40,7 +40,7 @@ public class CmdExit extends AbstractCmd
 /*
  * _____________________________________________________________ Declaration and definition of constructors
  */
-	public CmdExit(IApplication app)
+	public CmdExit(ISmartClientApplication app)
 	{
 		super(app, "CmdExit", app.getI18NMessage("servoy.menuitem.exit"), "servoy.menuitem.exit", app.getI18NMessage("servoy.menuitem.exit.mnemonic").charAt(0));//,app.loadImage("error.gif")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, ActionEvent.ALT_MASK));

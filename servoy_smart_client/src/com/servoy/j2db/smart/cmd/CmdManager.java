@@ -31,9 +31,9 @@ import javax.swing.undo.UndoableEdit;
 import com.servoy.j2db.ControllerUndoManager;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
-import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.IModeManager;
+import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.ModeManager;
 import com.servoy.j2db.cmd.ICmd;
 import com.servoy.j2db.cmd.ICmdManagerInternal;
@@ -59,12 +59,12 @@ public class CmdManager implements ICmdManagerInternal, PropertyChangeListener, 
 
 	protected HashMap<String, Action> actions = new HashMap<String, Action>();
 
-	protected IApplication application;
+	protected ISmartClientApplication application;
 
 	/**
 	 * Constructor I
 	 */
-	public CmdManager(IApplication app)
+	public CmdManager(ISmartClientApplication app)
 	{
 		application = app;
 

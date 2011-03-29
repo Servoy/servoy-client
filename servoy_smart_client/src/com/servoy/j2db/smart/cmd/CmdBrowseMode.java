@@ -20,8 +20,8 @@ package com.servoy.j2db.smart.cmd;
 import javax.swing.ButtonModel;
 import javax.swing.undo.UndoableEdit;
 
-import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IModeManager;
+import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.util.FixedToggleButtonModel;
 
 /**
@@ -37,7 +37,7 @@ public class CmdBrowseMode extends AbstractCmd
 /*
  * _____________________________________________________________ Declaration and definition of constructors
  */
-	public CmdBrowseMode(IApplication app)
+	public CmdBrowseMode(ISmartClientApplication app)
 	{
 		super(app, "CmdBrowseMode", "User", null, 'B'); //$NON-NLS-1$ //$NON-NLS-2$
 		setActionCommand("browse"); //$NON-NLS-1$

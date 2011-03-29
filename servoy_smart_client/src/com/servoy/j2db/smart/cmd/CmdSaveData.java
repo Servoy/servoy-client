@@ -24,14 +24,14 @@ import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.undo.UndoableEdit;
 
-import com.servoy.j2db.IApplication;
+import com.servoy.j2db.ISmartClientApplication;
 
 /**
  * @author jblok
  */
 public class CmdSaveData extends AbstractCmd
 {
-	public CmdSaveData(IApplication app)
+	public CmdSaveData(ISmartClientApplication app)
 	{
 		super(app, "CmdSaveData", app.getI18NMessage("servoy.menuitem.saveData"), "servoy.menuitem.saveData");//,'v',app.loadImage("find_next.gif")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		// remove F6 "toggle focus" from JSplitPane, as we need it for save

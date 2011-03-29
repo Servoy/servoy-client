@@ -134,7 +134,7 @@ public class PageDefinition implements Printable
 
 		AffineTransform save = graphics2D.getTransform();
 		graphics2D.transform(at);//do transformation
-		RepaintManager currentManager = RepaintManager.currentManager(application.getMainApplicationFrame());
+		RepaintManager currentManager = RepaintManager.currentManager(renderParent.getParent());
 		boolean isDoubleBufferingEnabled = currentManager.isDoubleBufferingEnabled();
 		Object oldPrintState = application.getRuntimeProperties().get("isPrinting"); //$NON-NLS-1$
 		try

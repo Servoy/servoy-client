@@ -67,11 +67,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Stack;
 import java.util.TimeZone;
+import java.util.Map.Entry;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.security.auth.Subject;
@@ -95,8 +95,6 @@ import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JFormattedTextField.AbstractFormatter;
-import javax.swing.JFormattedTextField.AbstractFormatterFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
@@ -117,8 +115,10 @@ import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
-import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.WindowConstants;
+import javax.swing.JFormattedTextField.AbstractFormatter;
+import javax.swing.JFormattedTextField.AbstractFormatterFactory;
+import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.plaf.FontUIResource;
@@ -174,7 +174,6 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.Style;
-import com.servoy.j2db.plugins.ClientPluginAccessProvider;
 import com.servoy.j2db.plugins.ClientPluginManager;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.plugins.PluginManager;
@@ -1089,7 +1088,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	protected void createPluginManager()
 	{
 		pluginManager = new ClientPluginManager(this);
-		pluginAccess = new ClientPluginAccessProvider(this);
+		pluginAccess = new SmartClientPluginAccessProvider(this);
 
 		getScheduledExecutor().execute(new Runnable()
 		{
@@ -3067,6 +3066,11 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		{
 			ad.toFront();
 		}
+	}
+
+	public void looseFocus()
+	{
+		getMainApplicationFrame().getContentPane().requestFocus();
 	}
 
 	@Override

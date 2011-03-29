@@ -22,14 +22,14 @@ import java.awt.event.KeyEvent;
 import javax.swing.KeyStroke;
 import javax.swing.undo.UndoableEdit;
 
-import com.servoy.j2db.IApplication;
+import com.servoy.j2db.ISmartClientApplication;
 
 /**
  * @author jblok
  */
 public class CmdSpell extends AbstractCmd
 {
-	public CmdSpell(IApplication app)
+	public CmdSpell(ISmartClientApplication app)
 	{
 		super(
 			app,

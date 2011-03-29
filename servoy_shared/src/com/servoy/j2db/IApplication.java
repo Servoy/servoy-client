@@ -19,14 +19,11 @@ package com.servoy.j2db;
 
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Window;
 import java.awt.print.PageFormat;
 import java.net.URLStreamHandler;
 import java.rmi.Remote;
 import java.util.Locale;
 import java.util.ResourceBundle;
-
-import javax.swing.JMenu;
 
 import com.servoy.j2db.cmd.ICmdManager;
 import com.servoy.j2db.dataprocessing.ClientInfo;
@@ -260,30 +257,10 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 */
 	public IPluginAccess getPluginAccess();
 
-	//__________________________________________________________________________________
-	//TODO:should these methods be moved to ISwingApplication?
-
 	/**
 	 * A parent to render with
 	 */
 	public Container getPrintingRendererParent();
-
-	/**
-	 * Add a window to the cache (makes dialogs and windows faster popup if called second time). <br>
-	 * <b>Note:</b> the cache will be cleared on solution close and .dispose() will be called on all
-	 * 
-	 * @param name
-	 * @param the dialog or window
-	 */
-	public void registerWindow(String name, Window d);
-
-	/**
-	 * Get a cached window.
-	 * 
-	 * @param name
-	 * @return Window the window requested or null if not found
-	 */
-	public Window getWindow(String name);
 
 	/**
 	 * Get the current page format.
@@ -293,20 +270,6 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	public PageFormat getPageFormat();
 
 	public void setPageFormat(PageFormat currentPageFormat);
-
-	/**
-	 * Get the import menu, used by plugins to add import menu items (actions).
-	 * 
-	 * @return JMenu
-	 */
-	public JMenu getImportMenu();
-
-	/**
-	 * Get the export menu, used by plugins to add export menu items (actions).
-	 * 
-	 * @return JMenu
-	 */
-	public JMenu getExportMenu();
 
 	/**
 	 * Get clear of the login form, since this call indicated a succesfull login was done on security scripting object.
@@ -362,4 +325,6 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	public JSWindowManager getJSWindowManager();
 
 	public String getSolutionName();
+
+	public void looseFocus();
 }

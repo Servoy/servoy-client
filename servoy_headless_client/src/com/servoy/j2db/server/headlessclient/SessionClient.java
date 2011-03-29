@@ -1744,6 +1744,11 @@ public class SessionClient extends ClientState implements ISessionClient
 		this.outputChannel = channel;
 	}
 
+	public void looseFocus()
+	{
+		//nop
+	}
+
 	private void writeObject(ObjectOutputStream stream) throws IOException
 	{
 		//serialize is not implemented

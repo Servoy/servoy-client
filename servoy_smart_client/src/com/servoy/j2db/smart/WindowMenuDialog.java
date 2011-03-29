@@ -44,7 +44,7 @@ import javax.swing.ListSelectionModel;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
-import com.servoy.j2db.IApplication;
+import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.gui.FixedJList;
 import com.servoy.j2db.persistence.Form;
@@ -72,9 +72,9 @@ public class WindowMenuDialog implements ActionListener
 	protected SwingFormManager actionListener;
 	protected ArrayList inMenu;
 
-	private final IApplication application;
+	private final ISmartClientApplication application;
 
-	public WindowMenuDialog(IApplication application, SwingFormManager actionListener)
+	public WindowMenuDialog(ISmartClientApplication application, SwingFormManager actionListener)
 	{
 		super();
 		this.application = application;

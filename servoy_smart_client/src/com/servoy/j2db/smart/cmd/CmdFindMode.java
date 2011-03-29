@@ -23,9 +23,9 @@ import javax.swing.ButtonModel;
 import javax.swing.KeyStroke;
 import javax.swing.undo.UndoableEdit;
 
-import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.IFormManager;
+import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.smart.J2DBClient;
 import com.servoy.j2db.util.FixedToggleButtonModel;
 
@@ -34,7 +34,7 @@ import com.servoy.j2db.util.FixedToggleButtonModel;
  */
 public class CmdFindMode extends AbstractCmd
 {
-	public CmdFindMode(IApplication app)
+	public CmdFindMode(ISmartClientApplication app)
 	{
 		super(
 			app,

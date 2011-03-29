@@ -20,8 +20,8 @@ package com.servoy.j2db.smart.cmd;
 import javax.swing.ButtonModel;
 import javax.swing.undo.UndoableEdit;
 
-import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IForm;
+import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.util.FixedToggleButtonModel;
 
 /**
@@ -30,7 +30,7 @@ import com.servoy.j2db.util.FixedToggleButtonModel;
  */
 public class CmdViewAsList extends AbstractCmd
 {
-	public CmdViewAsList(IApplication app)
+	public CmdViewAsList(ISmartClientApplication app)
 	{
 		super(
 			app,

@@ -558,4 +558,18 @@ public abstract class WizardWindow implements IWizard
 		Debug.error(msg);
 		Debug.error(ex);
 	}
+
+	/**
+	 * @param string
+	 * @param currentWindow
+	 * @throws Exception 
+	 */
+	public void showWindow(String title, Window w) throws Exception
+	{
+		if (w instanceof Dialog)
+		{
+			showDialog(title, (Dialog)w);
+		}
+		showDialog(title, (Frame)w);
+	}
 }

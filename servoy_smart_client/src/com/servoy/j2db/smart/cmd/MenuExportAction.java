@@ -19,7 +19,7 @@ package com.servoy.j2db.smart.cmd;
 
 import javax.swing.undo.UndoableEdit;
 
-import com.servoy.j2db.IApplication;
+import com.servoy.j2db.ISmartClientApplication;
 
 /**
  * Action used in edit menu
@@ -28,7 +28,7 @@ import com.servoy.j2db.IApplication;
  */
 public class MenuExportAction extends AbstractCmd
 {
-	public MenuExportAction(IApplication app)
+	public MenuExportAction(ISmartClientApplication app)
 	{
 		super(app, "MenuExportAction", app.getI18NMessage("servoy.menuitem.export"), "servoy.menuitem.export", app.loadImage("export_wiz.gif")); //$NON-NLS-1$ //$NON-NLS-2$
 		setEnabled(false);

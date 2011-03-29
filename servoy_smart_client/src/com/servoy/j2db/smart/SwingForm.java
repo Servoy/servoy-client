@@ -55,8 +55,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -98,6 +98,7 @@ import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.IFormUIInternal;
+import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.IView;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.component.ComponentFactory;
@@ -124,8 +125,8 @@ import com.servoy.j2db.printing.PrintPreview;
 import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.GroupScriptObject;
 import com.servoy.j2db.scripting.JSEvent;
-import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
+import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.scripting.info.CLIENTDESIGN;
 import com.servoy.j2db.smart.dataui.CellAdapter;
 import com.servoy.j2db.smart.dataui.DataComboBox;
@@ -806,8 +807,9 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		setEnabled(enabled);
 	}
 
-	public void showSortDialog(IApplication application, String options)
+	public void showSortDialog(IApplication app, String options)
 	{
+		ISmartClientApplication application = (ISmartClientApplication)app;
 		try
 		{
 			Table t = (Table)formController.getTable();
@@ -1088,8 +1090,9 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			Messages.getString("servoy.button.cancel"), //$NON-NLS-1$
 			Messages.getString("servoy.formPanel.printCurrentRecord") //$NON-NLS-1$
 			};
-			return JOptionPane.showOptionDialog(formController.getApplication().getMainApplicationFrame(),
-				Messages.getString("servoy.formPanel.message.largeResultset", new Object[] { new Integer(formModel.getSize()) }), //$NON-NLS-1$
+			ISmartClientApplication application = (ISmartClientApplication)formController.getApplication();
+			return JOptionPane.showOptionDialog(application.getMainApplicationFrame(), Messages.getString(
+				"servoy.formPanel.message.largeResultset", new Object[] { new Integer(formModel.getSize()) }), //$NON-NLS-1$
 				Messages.getString("servoy.general.warning"), //$NON-NLS-1$
 				JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[2]);
 		}
@@ -1101,7 +1104,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 	 */
 	public void printPreview(boolean showDialogs, boolean printCurrentRecordOnly, int zoomFactor, PrinterJob printerJob)
 	{
-		IApplication application = formController.getApplication();
+		ISmartClientApplication application = (ISmartClientApplication)formController.getApplication();
 		try
 		{
 			// TODO do a print preview even if records are not saved?
@@ -1350,8 +1353,8 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 	{
 		// create custom Yes/No buttons to avoid bug 129045 (ENTER from this dialog closing and showing the dialog again
 		// because the dialog closes on ENTER press and it is reopened on ENTER release) - reproducible with Servoy Developer 3.5.7_05-build 520 / Java version 1.5.0_11-b03 (Windows XP)
-		Component parentComponent = application.getMainApplicationFrame();
-		Locale l = application.getMainApplicationFrame().getLocale();
+		Component parentComponent = ((ISmartClientApplication)application).getMainApplicationFrame();
+		Locale l = parentComponent.getLocale();
 		JButton buttonYes = getNoDoClickJButton(UIManager.getString("OptionPane.yesButtonText", l), getMnemonic("OptionPane.yesButtonMnemonic", l)); //$NON-NLS-1$ //$NON-NLS-2$
 		JButton buttonNo = getNoDoClickJButton(UIManager.getString("OptionPane.noButtonText", l), getMnemonic("OptionPane.noButtonMnemonic", l)); //$NON-NLS-1$ //$NON-NLS-2$
 

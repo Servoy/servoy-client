@@ -26,7 +26,7 @@ import javax.swing.Icon;
 import javax.swing.KeyStroke;
 import javax.swing.undo.UndoableEdit;
 
-import com.servoy.j2db.IApplication;
+import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.cmd.ICmd;
 import com.servoy.j2db.util.FixedDefaultButtonModel;
 import com.servoy.j2db.util.IProvideButtonModel;
@@ -51,7 +51,7 @@ public abstract class AbstractCmd extends MnemonicCheckAction implements ICmd, I
 
 	/** Arguments that configure the Cmd instance. */
 	protected Hashtable _args;
-	protected IApplication application;
+	protected ISmartClientApplication application;
 
 
 	////////////////////////////////////////////////////////////////
@@ -74,29 +74,29 @@ public abstract class AbstractCmd extends MnemonicCheckAction implements ICmd, I
 		putValue(Action.ACTION_COMMAND_KEY, s);
 	}
 
-	public AbstractCmd(IApplication app, String classname, String name, String key)
+	public AbstractCmd(ISmartClientApplication app, String classname, String name, String key)
 	{
 		this(app, classname, null, name, key);
 	}
 
-	public AbstractCmd(IApplication app, String classname, String name, String key, char mnemonic)
+	public AbstractCmd(ISmartClientApplication app, String classname, String name, String key, char mnemonic)
 	{
 		this(app, classname, null, name, key);
 		putValue(Action.MNEMONIC_KEY, new Integer(mnemonic));
 	}
 
-	public AbstractCmd(IApplication app, String classname, String name, String key, char mnemonic, Icon icon)
+	public AbstractCmd(ISmartClientApplication app, String classname, String name, String key, char mnemonic, Icon icon)
 	{
 		this(app, classname, null, name, key, icon);
 		putValue(Action.MNEMONIC_KEY, new Integer(mnemonic));
 	}
 
-	public AbstractCmd(IApplication app, String classname, String name, String key, Icon icon)
+	public AbstractCmd(ISmartClientApplication app, String classname, String name, String key, Icon icon)
 	{
 		this(app, classname, null, name, key, icon);
 	}
 
-	public AbstractCmd(IApplication app, String classname, Hashtable args, String name, String key)
+	public AbstractCmd(ISmartClientApplication app, String classname, Hashtable args, String name, String key)
 	{
 		super(name, key);
 		application = app;
@@ -106,7 +106,7 @@ public abstract class AbstractCmd extends MnemonicCheckAction implements ICmd, I
 		setEnabled(false);
 	}
 
-	public AbstractCmd(IApplication app, String classname, Hashtable args, String name, String key, Icon icon)
+	public AbstractCmd(ISmartClientApplication app, String classname, Hashtable args, String name, String key, Icon icon)
 	{
 		super(name, key, icon);
 		application = app;

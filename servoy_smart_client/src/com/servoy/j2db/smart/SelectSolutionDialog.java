@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.smart;
 
 
@@ -39,6 +39,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.gui.FixedJList;
 import com.servoy.j2db.persistence.SolutionMetaData;
@@ -62,7 +63,7 @@ public class SelectSolutionDialog extends JEscapeDialog implements ActionListene
 	/*
 	 * _____________________________________________________________ Declaration and definition of constructors
 	 */
-	public SelectSolutionDialog(IApplication app)
+	public SelectSolutionDialog(ISmartClientApplication app)
 	{
 		super(app.getMainApplicationFrame(), true);
 		application = app;

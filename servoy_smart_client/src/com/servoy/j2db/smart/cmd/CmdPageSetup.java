@@ -24,7 +24,7 @@ import java.util.Properties;
 
 import javax.swing.undo.UndoableEdit;
 
-import com.servoy.j2db.IApplication;
+import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.smart.J2DBClient;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.PageSetupDialog;
@@ -40,7 +40,7 @@ public class CmdPageSetup extends AbstractCmd
 /*
  * _____________________________________________________________ Declaration and definition of constructors
  */
-	public CmdPageSetup(IApplication app)
+	public CmdPageSetup(ISmartClientApplication app)
 	{
 		super(
 			app,

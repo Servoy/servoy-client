@@ -24,7 +24,7 @@ import javax.swing.KeyStroke;
 import javax.swing.text.JTextComponent;
 import javax.swing.undo.UndoableEdit;
 
-import com.servoy.j2db.IApplication;
+import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.smart.J2DBClient;
 
 /**
@@ -32,7 +32,7 @@ import com.servoy.j2db.smart.J2DBClient;
  */
 public class CmdCopy extends AbstractCmd
 {
-	public CmdCopy(IApplication app)
+	public CmdCopy(ISmartClientApplication app)
 	{
 		super(
 			app,

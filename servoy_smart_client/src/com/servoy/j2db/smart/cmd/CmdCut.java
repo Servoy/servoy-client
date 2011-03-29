@@ -24,7 +24,7 @@ import javax.swing.KeyStroke;
 import javax.swing.text.JTextComponent;
 import javax.swing.undo.UndoableEdit;
 
-import com.servoy.j2db.IApplication;
+import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.smart.J2DBClient;
 
 /**
@@ -40,7 +40,7 @@ public class CmdCut extends AbstractCmd
 /*
  * _____________________________________________________________ Declaration and definition of constructors
  */
-	public CmdCut(IApplication app)
+	public CmdCut(ISmartClientApplication app)
 	{
 		super(
 			app,

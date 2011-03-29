@@ -23,7 +23,7 @@ import java.util.EventObject;
 import javax.swing.KeyStroke;
 import javax.swing.undo.UndoableEdit;
 
-import com.servoy.j2db.IApplication;
+import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.smart.J2DBClient;
 
 /** 
@@ -33,7 +33,7 @@ public class CmdPrint extends AbstractCmd
 {
 	public static int OVERLAP = 0;
 
-	public CmdPrint(IApplication app)
+	public CmdPrint(ISmartClientApplication app)
 	{
 		super(
 			app,

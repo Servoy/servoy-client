@@ -19,9 +19,9 @@ package com.servoy.j2db.smart.cmd;
 
 import javax.swing.undo.UndoableEdit;
 
-import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.IFormManager;
+import com.servoy.j2db.ISmartClientApplication;
 
 /**
  * @author jblok
@@ -35,7 +35,7 @@ public class CmdShowOmitRecords extends AbstractCmd
 /*
  * _____________________________________________________________ Declaration and definition of constructors
  */
-	public CmdShowOmitRecords(IApplication app)
+	public CmdShowOmitRecords(ISmartClientApplication app)
 	{
 		super(
 			app,

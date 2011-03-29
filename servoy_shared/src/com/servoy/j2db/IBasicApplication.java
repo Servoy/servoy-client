@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db;
 
 
@@ -21,7 +21,6 @@ import java.awt.Component;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.swing.ImageIcon;
-import javax.swing.JFrame;
 
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Solution;
@@ -57,13 +56,6 @@ public interface IBasicApplication extends IUIBlocker
 	 * @return IRepository
 	 */
 	public IRepository getRepository();
-
-	/**
-	 * Get the main application frame.
-	 * 
-	 * @return JFrame
-	 */
-	public JFrame getMainApplicationFrame();
 
 	/**
 	 * Report an error when in a dialog.

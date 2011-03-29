@@ -409,7 +409,7 @@ public abstract class JSWindowImpl
 
 	}
 
-	protected IApplication application;
+	private final IApplication application;
 
 	// values that remain unchanged
 	protected final String windowName;
@@ -430,7 +430,7 @@ public abstract class JSWindowImpl
 	private final JSWindow jsWindow;
 
 
-	public JSWindowImpl(IApplication application, String windowName, int windowType, JSWindowImpl parentWindow)
+	protected JSWindowImpl(IApplication application, String windowName, int windowType, JSWindowImpl parentWindow)
 	{
 		if (windowType != JSWindow.WINDOW && windowType != JSWindow.DIALOG && windowType != JSWindow.MODAL_DIALOG)
 		{

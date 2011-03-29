@@ -277,7 +277,7 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 						{
 							final ApplicationException ae = new ApplicationException(ServoyException.NO_RELATED_CREATE_ACCESS, new Object[] { parts[i] });
 							// unfocus the current field, otherwise when the dialog is closed focus is set back to this field and the same error recurs ad infinitum.
-							application.getMainApplicationFrame().requestFocus();
+							application.looseFocus();
 							application.invokeLater(new Runnable()
 							{
 								public void run()
@@ -300,12 +300,9 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 		else
 		{
 			//loose focus first
-			// don't transfer focus to menu bar.. (macosx)
+			//don't transfer focus to menu bar.. (macosx)
 			//application.getMainApplicationFrame().getJMenuBar().requestFocus();
-			if (application.getMainApplicationFrame() != null)
-			{
-				application.getMainApplicationFrame().getContentPane().requestFocus();
-			}
+			application.looseFocus();
 			application.reportWarningInStatus(application.getI18NMessage("servoy.foundSet.error.noModifyAccess")); //$NON-NLS-1$
 		}
 	}

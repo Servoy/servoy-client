@@ -19,7 +19,7 @@ package com.servoy.j2db.smart.cmd;
 
 import javax.swing.undo.UndoableEdit;
 
-import com.servoy.j2db.IApplication;
+import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.smart.J2DBClient;
 
 /**
@@ -35,7 +35,7 @@ public class CmdAbout extends AbstractCmd
 /*
  * _____________________________________________________________ Declaration and definition of constructors
  */
-	public CmdAbout(IApplication app)
+	public CmdAbout(ISmartClientApplication app)
 	{
 		super(app,
 			"CmdAbout", app.getI18NMessage("servoy.menuitem.about"), "servoy.menuitem.about", app.getI18NMessage("servoy.menuitem.about.mnemonic").charAt(0)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$

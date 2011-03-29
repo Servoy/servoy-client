@@ -19,7 +19,7 @@ package com.servoy.j2db.smart.cmd;
 
 import javax.swing.undo.UndoableEdit;
 
-import com.servoy.j2db.IApplication;
+import com.servoy.j2db.ISmartClientApplication;
 
 /**
  * @author jblok
@@ -27,7 +27,7 @@ import com.servoy.j2db.IApplication;
 public class CmdLogout extends AbstractCmd
 {
 
-	public CmdLogout(IApplication app)
+	public CmdLogout(ISmartClientApplication app)
 	{
 		super(
 			app,

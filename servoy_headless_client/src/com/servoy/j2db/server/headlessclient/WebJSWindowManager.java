@@ -22,6 +22,7 @@ import java.util.List;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IMainContainer;
+import com.servoy.j2db.IWebClientApplication;
 import com.servoy.j2db.JSWindowManager;
 import com.servoy.j2db.scripting.JSWindowImpl;
 
@@ -41,7 +42,7 @@ public class WebJSWindowManager extends JSWindowManager
 	@Override
 	protected JSWindowImpl createWindowInternal(String windowName, int type, JSWindowImpl parent)
 	{
-		return new WebJSWindowImpl(application, windowName, type, parent);
+		return new WebJSWindowImpl((IWebClientApplication)application, windowName, type, parent);
 	}
 
 	@Override
@@ -77,7 +78,7 @@ public class WebJSWindowManager extends JSWindowManager
 
 		public MainApplicationWebJSFrame(IApplication application)
 		{
-			super(application, null, JSWindow.WINDOW, null);
+			super((IWebClientApplication)application, null, JSWindow.WINDOW, null);
 		}
 
 		@Override

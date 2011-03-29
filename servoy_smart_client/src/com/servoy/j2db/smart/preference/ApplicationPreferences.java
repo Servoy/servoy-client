@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.smart.preference;
 
 
@@ -37,6 +37,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.preference.PreferencePanel;
 import com.servoy.j2db.smart.J2DBClient;
 import com.servoy.j2db.util.JEscapeDialog;
@@ -55,7 +56,7 @@ public class ApplicationPreferences extends JEscapeDialog implements ActionListe
 	/**
 	 * Constructor
 	 */
-	public ApplicationPreferences(IApplication app)
+	public ApplicationPreferences(ISmartClientApplication app)
 	{
 		super(app.getMainApplicationFrame(), true /* modal */);
 		setTitle(app.getI18NMessage("servoy.preferencedialog.title")); //$NON-NLS-1$

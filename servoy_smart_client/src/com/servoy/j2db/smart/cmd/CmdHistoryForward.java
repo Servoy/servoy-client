@@ -24,7 +24,7 @@ import javax.swing.KeyStroke;
 import javax.swing.undo.UndoableEdit;
 
 import com.servoy.j2db.FormManager;
-import com.servoy.j2db.IApplication;
+import com.servoy.j2db.ISmartClientApplication;
 
 /**
  * @author jblok
@@ -39,7 +39,7 @@ public class CmdHistoryForward extends AbstractCmd
 /*
  * _____________________________________________________________ Declaration and definition of constructors
  */
-	public CmdHistoryForward(IApplication app)
+	public CmdHistoryForward(ISmartClientApplication app)
 	{
 		super(
 			app,

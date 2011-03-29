@@ -49,6 +49,7 @@ import javax.swing.text.Document;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
@@ -82,14 +83,14 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 	private final DataField enclosedComponent;
 	private String dataProviderID;
 	private final JButton showCal;
-	private final IApplication application;
+	private final ISmartClientApplication application;
 	private List<ILabel> labels;
 
 	private MouseAdapter rightclickMouseAdapter = null;
 
 	public DataCalendar(IApplication app)
 	{
-		application = app;
+		application = (ISmartClientApplication)app;
 		setLayout(new BorderLayout());
 		enclosedComponent = new DataField(app)
 		{

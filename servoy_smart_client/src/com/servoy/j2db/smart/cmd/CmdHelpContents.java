@@ -19,14 +19,14 @@ package com.servoy.j2db.smart.cmd;
 
 import javax.swing.undo.UndoableEdit;
 
-import com.servoy.j2db.IApplication;
+import com.servoy.j2db.ISmartClientApplication;
 
 /**
  * @author jblok
  */
 public class CmdHelpContents extends AbstractCmd
 {
-	public CmdHelpContents(IApplication app)
+	public CmdHelpContents(ISmartClientApplication app)
 	{
 		super(app, "CmdHelpContents", "Contents", null, 'C', app.loadImage("search_help.gif")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		setActionCommand("helpContents"); //$NON-NLS-1$

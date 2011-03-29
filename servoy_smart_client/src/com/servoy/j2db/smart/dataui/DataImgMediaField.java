@@ -62,6 +62,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IModeManager;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.component.ISupportAsyncLoading;
 import com.servoy.j2db.dataprocessing.DataAdapterList;
@@ -726,7 +727,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 			else
 			{
 				Image img = (Image)tr.getTransferData(DataFlavor.imageFlavor);
-				data = SnapShot.createJPGImage(application.getMainApplicationFrame(), img, -1, -1);
+				data = SnapShot.createJPGImage(((ISmartClientApplication)application).getMainApplicationFrame(), img, -1, -1);
 			}
 
 			String[] fileNameAndMimeType;
@@ -782,7 +783,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 	void loadFromFile()
 	{
 		JFileChooser fc = new JFileChooser();
-		int returnVal = fc.showOpenDialog(application.getMainApplicationFrame());
+		int returnVal = fc.showOpenDialog(((ISmartClientApplication)application).getMainApplicationFrame());
 		if (returnVal == JFileChooser.APPROVE_OPTION)
 		{
 			try
@@ -846,7 +847,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 				fc.suggestFileName("filename.unknown"); //$NON-NLS-1$
 			}
 
-			int returnVal = fc.showSaveDialog(application.getMainApplicationFrame());
+			int returnVal = fc.showSaveDialog(((ISmartClientApplication)application).getMainApplicationFrame());
 			if (returnVal == JFileChooser.APPROVE_OPTION)
 			{
 				try
@@ -930,8 +931,8 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 						if (resolver instanceof DataAdapterList)
 						{
 							((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.FILENAME, file.getName());
-							((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.MIMETYPE,
-								ImageLoader.getContentType(content, file.getName()));
+							((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.MIMETYPE, ImageLoader.getContentType(content,
+								file.getName()));
 						}
 					}
 					catch (Exception e)

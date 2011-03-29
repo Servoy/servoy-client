@@ -21,9 +21,9 @@ import javax.swing.ButtonModel;
 import javax.swing.undo.UndoableEdit;
 
 import com.servoy.j2db.FormManager;
-import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.IFormManager;
+import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.util.FixedToggleButtonModel;
 
 /**
@@ -39,7 +39,7 @@ public class CmdReduceFind extends AbstractCmd
 /*
  * _____________________________________________________________ Declaration and definition of constructors
  */
-	public CmdReduceFind(IApplication app)
+	public CmdReduceFind(ISmartClientApplication app)
 	{
 		super(
 			app,

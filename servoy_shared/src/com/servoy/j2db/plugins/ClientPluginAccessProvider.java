@@ -46,9 +46,7 @@ import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IBeanManager;
 import com.servoy.j2db.IFormManager;
-import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.J2DBGlobals;
-import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.cmd.ICmdManager;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.IDataServer;
@@ -177,14 +175,22 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 		return application.getSettings();
 	}
 
+	/**
+	 * @deprecated
+	 */
+	@Deprecated
 	public JMenu getImportMenu()
 	{
-		return application.getImportMenu();
+		return null;
 	}
 
+	/**
+	 * @deprecated
+	 */
+	@Deprecated
 	public JMenu getExportMenu()
 	{
-		return application.getExportMenu();
+		return null;
 	}
 
 	/**
@@ -193,37 +199,31 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 	@Deprecated
 	public JFrame getMainApplicationFrame()
 	{
-		return application.getMainApplicationFrame();
+		return null;
 	}
 
+	/**
+	 * @deprecated
+	 */
+	@Deprecated
 	public Window getCurrentWindow()
 	{
-		Object window = application.getJSWindowManager().getCurrentWindowWrappedObject();
-		if ((window instanceof Window) && ((Window)window).isVisible())
-		{
-			return (Window)window;
-		}
-		else
-		{
-			return application.getMainApplicationFrame();
-		}
+		return null;
 	}
 
+	/**
+	 * @deprecated
+	 */
+	@Deprecated
 	public Window getWindow(String windowName)
 	{
-		if (windowName == null) return application.getMainApplicationFrame();
-
-		Object window = application.getJSWindowManager().getCurrentWindowWrappedObject();
-		if ((window instanceof Window) && ((Window)window).isVisible())
-		{
-			return (Window)window;
-		}
-		else
-		{
-			return null;
-		}
+		return null;
 	}
 
+	/**
+	 * @deprecated
+	 */
+	@Deprecated
 	public IToolbarPanel getToolbarPanel()
 	{
 		return application.getToolbarPanel();
@@ -275,22 +275,21 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 	}
 
 	/**
-	 * Register a URLStreamHandler for a protocol
-	 * 
-	 * @param protocolName
-	 * @param handler
+	 * @deprecated
 	 */
+	@Deprecated
 	public void registerURLStreamHandler(String protocolName, URLStreamHandler handler)
 	{
-		application.addURLStreamHandler(protocolName, handler);
+		//nop
 	}
 
 	/**
-	 * @see com.servoy.j2db.plugins.IClientPluginAccess#getMediaURLStreamHandler()
+	 * @deprecated
 	 */
+	@Deprecated
 	public URLStreamHandler getMediaURLStreamHandler()
 	{
-		return new MediaURLStreamHandler(application);
+		return null;
 	}
 
 	/**
@@ -345,14 +344,12 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 	}
 
 	/**
-	 * @see com.servoy.j2db.plugins.IClientPluginAccess#exportObject(java.rmi.Remote)
+	 * @deprecated
 	 */
+	@Deprecated
 	public void exportObject(Remote object) throws RemoteException
 	{
-		if (application instanceof ISmartClientApplication)
-		{
-			((ISmartClientApplication)application).exportObject(object);
-		}
+		//nop
 	}
 
 	/**

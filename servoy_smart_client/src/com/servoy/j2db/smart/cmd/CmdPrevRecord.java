@@ -24,15 +24,15 @@ import javax.swing.KeyStroke;
 import javax.swing.undo.UndoableEdit;
 
 import com.servoy.j2db.FormController;
-import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IFormManager;
+import com.servoy.j2db.ISmartClientApplication;
 
 /**
  * @author jcompagner
 */
 public class CmdPrevRecord extends AbstractCmd
 {
-	public CmdPrevRecord(IApplication app)
+	public CmdPrevRecord(ISmartClientApplication app)
 	{
 		super(app, "CmdPrevRecord", app.getI18NMessage("servoy.menuitem.previousRecord"), "servoy.menuitem.previousRecord", app.getI18NMessage(
 			"servoy.menuitem.previousRecord.mnemonic").charAt(0)/*

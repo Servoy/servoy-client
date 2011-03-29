@@ -25,8 +25,8 @@ import javax.swing.undo.UndoableEdit;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
-import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IForm;
+import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.dataprocessing.IFoundSet;
 
 /**
@@ -42,7 +42,7 @@ public class CmdPerformFind extends AbstractCmd
 /*
  * _____________________________________________________________ Declaration and definition of constructors
  */
-	public CmdPerformFind(IApplication app)
+	public CmdPerformFind(ISmartClientApplication app)
 	{
 		super(
 			app,

@@ -28,6 +28,7 @@ import com.servoy.j2db.FormDialog;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IMainContainer;
+import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.JSWindowManager;
 import com.servoy.j2db.scripting.JSWindowImpl;
 
@@ -47,13 +48,13 @@ public class SwingJSWindowManager extends JSWindowManager
 	@Override
 	protected JSWindowImpl createWindowInternal(String windowName, int type, JSWindowImpl parent)
 	{
-		return new SwingJSWindowImpl(application, windowName, type, parent);
+		return new SwingJSWindowImpl((ISmartClientApplication)application, windowName, type, parent);
 	}
 
 	@Override
 	protected JSWindowImpl getMainApplicationWindow()
 	{
-		return new MainApplicationSwingJSWindow(application);
+		return new MainApplicationSwingJSWindow((ISmartClientApplication)application);
 	}
 
 	@Override
@@ -146,7 +147,7 @@ public class SwingJSWindowManager extends JSWindowManager
 	private static class MainApplicationSwingJSWindow extends SwingJSWindowImpl
 	{
 
-		public MainApplicationSwingJSWindow(IApplication application)
+		public MainApplicationSwingJSWindow(ISmartClientApplication application)
 		{
 			super(application, null, JSWindow.WINDOW, null);
 			wrappedWindow = application.getMainApplicationFrame();

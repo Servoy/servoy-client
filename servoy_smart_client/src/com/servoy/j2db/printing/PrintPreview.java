@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.printing;
 
 
@@ -49,6 +49,7 @@ import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
@@ -58,6 +59,7 @@ import javax.swing.plaf.basic.BasicComboBoxEditor;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.cmd.ICmd;
 import com.servoy.j2db.cmd.ICmdManager;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
@@ -84,7 +86,7 @@ public class PrintPreview extends JPanel implements ActionListener, ItemListener
 	private final String preferredPrinterName;
 	private PrinterJob printerJob;
 	private final int currentShowingPage;
-	private final IApplication application;
+	private final ISmartClientApplication application;
 
 	private final JComboBox zoom;
 	private final JComboBox pages;
@@ -94,7 +96,7 @@ public class PrintPreview extends JPanel implements ActionListener, ItemListener
 	private static final float MIN_ZOOM_VALUE = 0.1f;
 	private static final float MAX_ZOOM_VALUE = 4.0f;
 
-	public PrintPreview(IApplication app, FormController formPanel, IFoundSetInternal fs, int zoomFactor, PrinterJob printerJob) throws Exception
+	public PrintPreview(ISmartClientApplication app, FormController formPanel, IFoundSetInternal fs, int zoomFactor, PrinterJob printerJob) throws Exception
 	{
 		this(app, formPanel, fs, printerJob);
 		float z = getValidZoom(zoomFactor + "");
@@ -103,7 +105,7 @@ public class PrintPreview extends JPanel implements ActionListener, ItemListener
 	}
 
 
-	public PrintPreview(IApplication app, FormController formPanel, IFoundSetInternal fs, PrinterJob printerJob) throws Exception
+	public PrintPreview(ISmartClientApplication app, FormController formPanel, IFoundSetInternal fs, PrinterJob printerJob) throws Exception
 	{
 		application = app;
 		((JSApplication)application.getScriptEngine().getSOMObject("application")).setDidLastPrintPreviewPrint(false); //$NON-NLS-1$
@@ -378,7 +380,7 @@ public class PrintPreview extends JPanel implements ActionListener, ItemListener
 	public static void startPrinting(IApplication application, Pageable pageable, PrinterJob a_printerJob, String a_preferredPrinterName,
 		boolean showPrinterSelectDialog, boolean avoidDialogs)
 	{
-		RepaintManager currentManager = RepaintManager.currentManager(application.getMainApplicationFrame());
+		RepaintManager currentManager = RepaintManager.currentManager(application.getPrintingRendererParent().getParent());
 		boolean isDoubleBufferingEnabled = false;
 		try
 		{
@@ -425,7 +427,7 @@ public class PrintPreview extends JPanel implements ActionListener, ItemListener
 					}
 					else
 					{
-						JOptionPane.showConfirmDialog(application.getMainApplicationFrame(),
+						JOptionPane.showConfirmDialog(((ISmartClientApplication)application).getMainApplicationFrame(),
 							application.getI18NMessage("servoy.print.msg.noPrintersFound"), application.getI18NMessage("servoy.print.printing.title"), //$NON-NLS-1$ //$NON-NLS-2$
 							JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
 						capablePrintServices = new PrintService[0];
@@ -484,8 +486,9 @@ public class PrintPreview extends JPanel implements ActionListener, ItemListener
 				{
 					if (showPrinterSelectDialog)
 					{
-						GraphicsConfiguration gc = application.getMainApplicationFrame().getGraphicsConfiguration();
-						Point loc = application.getMainApplicationFrame().getLocation();
+						JFrame frame = ((ISmartClientApplication)application).getMainApplicationFrame();
+						GraphicsConfiguration gc = frame.getGraphicsConfiguration();
+						Point loc = frame.getLocation();
 						service = ServiceUI.printDialog(gc, loc.x + 50, loc.y + 50, capablePrintServices, service, flavor, pras);
 					}
 					if (service != null)

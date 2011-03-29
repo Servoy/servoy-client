@@ -124,8 +124,10 @@ public class JSApplication implements IReturnedTypesProvider
 		return new Class< ? >[] { APPLICATION_TYPES.class, DRAGNDROP.class, ELEMENT_TYPES.class, JSEvent.class, LOGGINGLEVEL.class, UICONSTANTS.class, UUID.class, WEBCONSTANTS.class, CLIENTDESIGN.class, JSDNDEvent.class, JSWindow.class, JSRenderEvent.class, IScriptRenderMethods.class };
 	}
 
+	@Deprecated
 	private final Stack<FormAndComponent> selectedFormAndComponent = new Stack<FormAndComponent>();
 
+	@Deprecated
 	private FormAndComponent getTriggerNames()
 	{
 		if (!selectedFormAndComponent.isEmpty())
@@ -136,14 +138,13 @@ public class JSApplication implements IReturnedTypesProvider
 		return new FormAndComponent(null, null);
 	}
 
+	@Deprecated
 	public void pushLastNames(FormAndComponent formAndComponent)
 	{
 		selectedFormAndComponent.push(formAndComponent);
 	}
 
-	/**
-	 * 
-	 */
+	@Deprecated
 	public void popLastStackNames(FormAndComponent formAndComponent)
 	{
 		if (!selectedFormAndComponent.isEmpty() && selectedFormAndComponent.peek() == formAndComponent)
@@ -2388,7 +2389,7 @@ public class JSApplication implements IReturnedTypesProvider
 	@Deprecated
 	public byte[] js_createJPGImage(Object obj, int width, int height)
 	{
-		return SnapShot.createJPGImage(application.getMainApplicationFrame(), obj, width, height);
+		return SnapShot.createJPGImage(((ISmartClientApplication)application).getMainApplicationFrame(), obj, width, height);
 	}
 
 	/**

@@ -13,12 +13,13 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.printing;
 
 import java.awt.Container;
 import java.util.HashSet;
 import java.util.Set;
+
 import javax.swing.JComponent;
 
 /**
@@ -26,13 +27,14 @@ import javax.swing.JComponent;
  */
 public class RendererParentWrapper
 {
-	private Container swingRenderParent;
-	private Set addedComps = new HashSet();
+	private final Container swingRenderParent;
+	private final Set addedComps = new HashSet();
+
 	public RendererParentWrapper(Container a_parent)
 	{
 		swingRenderParent = a_parent;
 	}
-	
+
 	public void add(JComponent comp)
 	{
 		if (!addedComps.contains(comp))//add only when not added yet
@@ -41,12 +43,12 @@ public class RendererParentWrapper
 			swingRenderParent.add(comp);
 		}
 	}
-	
+
 	public void remove(JComponent comp)
 	{
 		//nop
 	}
-	
+
 	public void removeAll()
 	{
 		swingRenderParent.removeAll();
@@ -57,14 +59,19 @@ public class RendererParentWrapper
 	{
 		swingRenderParent.validate();
 	}
-	
+
 	public void invalidate()
 	{
 		swingRenderParent.invalidate();
 	}
-	
+
 	public void destroy()
 	{
 		removeAll();
+	}
+
+	public Container getParent()
+	{
+		return swingRenderParent;
 	}
 }

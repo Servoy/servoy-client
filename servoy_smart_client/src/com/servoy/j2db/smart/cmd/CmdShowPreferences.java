@@ -19,7 +19,7 @@ package com.servoy.j2db.smart.cmd;
 
 import javax.swing.undo.UndoableEdit;
 
-import com.servoy.j2db.IApplication;
+import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.smart.J2DBClient;
 import com.servoy.j2db.util.SwingHelper;
 
@@ -28,7 +28,7 @@ import com.servoy.j2db.util.SwingHelper;
  */
 public class CmdShowPreferences extends AbstractCmd
 {
-	public CmdShowPreferences(IApplication app)
+	public CmdShowPreferences(ISmartClientApplication app)
 	{
 		super(
 			app,

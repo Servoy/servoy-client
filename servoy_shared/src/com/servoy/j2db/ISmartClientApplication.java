@@ -13,41 +13,81 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db;
 
+import java.awt.Window;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.Date;
 
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+
 
 /**
- * Client with smart-client specific features.
+ * Client interface with smart-client specific features.
  * @author rgansevles
- *
  */
 public interface ISmartClientApplication extends IApplication
 {
+	/**
+	 * Get the import menu, used by plugins to add import menu items (actions).
+	 * 
+	 * @return JMenu
+	 */
+	public JMenu getImportMenu();
 
-	String showI18NDialog(String preselect_key, String preselect_language);
+	/**
+	 * Get the export menu, used by plugins to add export menu items (actions).
+	 * 
+	 * @return JMenu
+	 */
+	public JMenu getExportMenu();
 
-	Date showCalendar(String pattern, Date date);
+	/**
+	 * Get the main application frame.
+	 * 
+	 * @return JFrame
+	 */
+	public JFrame getMainApplicationFrame();
 
-	String showColorChooser(String originalColor);
+	/**
+	 * Add a window to the cache (makes dialogs and windows faster popup if called second time). <br>
+	 * <b>Note:</b> the cache will be cleared on solution close and .dispose() will be called on all
+	 * 
+	 * @param name
+	 * @param the dialog or window
+	 */
+	public void registerWindow(String name, Window d);
 
-	String showFontChooser(String font);
+	/**
+	 * Get a cached window.
+	 * 
+	 * @param name
+	 * @return Window the window requested or null if not found
+	 */
+	public Window getWindow(String name);
 
-	void beep();
+	public String showI18NDialog(String preselect_key, String preselect_language);
 
-	void setClipboardContent(String string);
+	public Date showCalendar(String pattern, Date date);
 
-	String getClipboardString();
+	public String showColorChooser(String originalColor);
 
-	void setNumpadEnterAsFocusNextEnabled(boolean enabled);
+	public String showFontChooser(String font);
 
-	int exportObject(Remote object) throws RemoteException;
+	public void beep();
 
-	void setPaintTableImmediately(boolean b);
+	public void setClipboardContent(String string);
 
-	int getPaintTableImmediately();
+	public String getClipboardString();
+
+	public void setNumpadEnterAsFocusNextEnabled(boolean enabled);
+
+	public int exportObject(Remote object) throws RemoteException;
+
+	public void setPaintTableImmediately(boolean b);
+
+	public int getPaintTableImmediately();
 }

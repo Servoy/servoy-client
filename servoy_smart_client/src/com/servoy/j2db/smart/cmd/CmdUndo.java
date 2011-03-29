@@ -22,7 +22,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.KeyStroke;
 import javax.swing.undo.UndoableEdit;
 
-import com.servoy.j2db.IApplication;
+import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.smart.J2DBClient;
 
 /**
@@ -31,7 +31,7 @@ import com.servoy.j2db.smart.J2DBClient;
  */
 public class CmdUndo extends AbstractCmd
 {
-	public CmdUndo(IApplication app)
+	public CmdUndo(ISmartClientApplication app)
 	{
 		super(
 			app,

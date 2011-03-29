@@ -26,8 +26,8 @@ import org.apache.wicket.protocol.http.WebRequestCycle;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
-import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IMainContainer;
+import com.servoy.j2db.IWebClientApplication;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.scripting.JSWindowImpl;
 import com.servoy.j2db.server.headlessclient.dataui.WebDefaultRecordNavigator;
@@ -39,12 +39,13 @@ import com.servoy.j2db.server.headlessclient.dataui.WebDefaultRecordNavigator;
  */
 public class WebJSWindowImpl extends JSWindowImpl
 {
-
+	protected final IWebClientApplication application;
 	boolean firstShow = true;
 
-	public WebJSWindowImpl(IApplication application, String windowName, int windowType, JSWindowImpl parentWindow)
+	public WebJSWindowImpl(IWebClientApplication application, String windowName, int windowType, JSWindowImpl parentWindow)
 	{
 		super(application, windowName, windowType, parentWindow);
+		this.application = application;
 	}
 
 	@Override

@@ -32,7 +32,7 @@ import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 
 import com.servoy.j2db.ClientVersion;
-import com.servoy.j2db.IApplication;
+import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.util.JEscapeDialog;
 import com.servoy.j2db.util.MemoryMonitor;
 import com.servoy.j2db.util.Utils;
@@ -49,7 +49,7 @@ public class AboutDialog extends JEscapeDialog implements ActionListener
 	private final MemoryMonitor mem;
 	private final String dialogText;
 
-	public AboutDialog(IApplication app)
+	public AboutDialog(ISmartClientApplication app)
 	{
 		super(app.getMainApplicationFrame(), app.getI18NMessage("servoy.aboutDialog.title"), false);
 //		this.setSize(523,360);//340

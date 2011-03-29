@@ -19,16 +19,16 @@ package com.servoy.j2db.smart.cmd;
 
 import javax.swing.undo.UndoableEdit;
 
-import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.IFormManager;
+import com.servoy.j2db.ISmartClientApplication;
 
 /**
  * @author jblok
  */
 public class CmdReCopyValues extends AbstractCmd
 {
-	public CmdReCopyValues(IApplication app)
+	public CmdReCopyValues(ISmartClientApplication app)
 	{
 		super(app, "CmdReCopyValues", app.getI18NMessage("servoy.menuitem.relookup"), "servoy.menuitem.relookup"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}

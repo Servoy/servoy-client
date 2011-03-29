@@ -51,7 +51,7 @@ import javax.swing.text.StyledEditorKit.StyledTextAction;
 import javax.swing.text.html.CSS;
 import javax.swing.text.html.HTML;
 
-import com.servoy.j2db.IApplication;
+import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.gui.CustomColorChooserDialog;
 import com.servoy.j2db.gui.JFontChooser;
@@ -70,7 +70,7 @@ import com.servoy.j2db.util.toolbar.ToolbarToggleButton;
 public class TextToolbar extends Toolbar implements ActionListener
 {
 	private HashMap actions = new HashMap();
-	private final IApplication application;
+	private final ISmartClientApplication application;
 	private final Font[] allFonts;
 	private final Vector allFontNames;
 
@@ -88,12 +88,12 @@ public class TextToolbar extends Toolbar implements ActionListener
 	private final ToolbarButton moreCmds;
 	private final JPopupMenu moreCmdsMenu;
 
-	public TextToolbar(IApplication app)
+	public TextToolbar(ISmartClientApplication app)
 	{
 		this(app, null);
 	}
 
-	public TextToolbar(IApplication app, Map sourceActions)
+	public TextToolbar(ISmartClientApplication app, Map sourceActions)
 	{
 		super("text", Messages.getString("servoy.texttoolbar.label"), true); //$NON-NLS-1$ //$NON-NLS-2$
 		application = app;

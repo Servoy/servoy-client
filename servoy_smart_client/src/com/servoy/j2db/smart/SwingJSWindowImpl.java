@@ -34,8 +34,8 @@ import com.servoy.j2db.FormDialog;
 import com.servoy.j2db.FormFrame;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.FormWindow;
-import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IMainContainer;
+import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.LAFManager;
 import com.servoy.j2db.scripting.JSWindowImpl;
 import com.servoy.j2db.util.Pair;
@@ -53,10 +53,12 @@ public class SwingJSWindowImpl extends JSWindowImpl
 	protected Window wrappedWindow = null; // will be null before the JSWindow is first shown or after the JSWindow is destroyed; can be JFrame (in case of main app. frame), FromFrame or FormDialog
 	private boolean createdNewWindow;
 	protected TextToolbar textToolbar;
+	protected final ISmartClientApplication application;
 
-	public SwingJSWindowImpl(IApplication application, String windowName, int windowType, JSWindowImpl parentWindow)
+	public SwingJSWindowImpl(ISmartClientApplication application, String windowName, int windowType, JSWindowImpl parentWindow)
 	{
 		super(application, windowName, windowType, parentWindow);
+		this.application = application;
 	}
 
 	@Override
@@ -467,7 +469,7 @@ public class SwingJSWindowImpl extends JSWindowImpl
 		FormFrame frame = (FormFrame)wrappedWindow;
 		if (frame == null)
 		{
-			wrappedWindow = frame = createFormFrame(application, windowName);
+			wrappedWindow = frame = createFormFrame(windowName);
 			frame.setResizable(resizable);
 			frame.setMainContainer(container);
 			createdNewWindow = true;
@@ -520,8 +522,7 @@ public class SwingJSWindowImpl extends JSWindowImpl
 		boolean bringToFrontNeeded = false;
 		if (sfd == null)
 		{
-			wrappedWindow = sfd = createFormDialog(application, parentJSWindow != null ? (Window)parentJSWindow.getWrappedObject() : null, windowModal,
-				windowName);
+			wrappedWindow = sfd = createFormDialog(parentJSWindow != null ? (Window)parentJSWindow.getWrappedObject() : null, windowModal, windowName);
 			createdNewWindow = true;
 			sfd.setResizable(resizable);
 			sfd.setMainContainer(container);
@@ -673,23 +674,23 @@ public class SwingJSWindowImpl extends JSWindowImpl
 		}
 	}
 
-	protected FormDialog createFormDialog(IApplication app, Window owner, boolean modal, String dialogName)
+	protected FormDialog createFormDialog(Window owner, boolean modal, String dialogName)
 	{
-		if (owner == null || (!(owner instanceof JDialog || owner instanceof JFrame))) owner = app.getMainApplicationFrame();
+		if (owner == null || (!(owner instanceof JDialog || owner instanceof JFrame))) owner = application.getMainApplicationFrame();
 
 		if (owner instanceof JDialog)
 		{
-			return new FormDialog(app, (JDialog)owner, modal, dialogName);
+			return new FormDialog(application, (JDialog)owner, modal, dialogName);
 		}
 		else
 		{
-			return new FormDialog(app, (JFrame)owner, modal, dialogName);
+			return new FormDialog(application, (JFrame)owner, modal, dialogName);
 		}
 	}
 
-	protected FormFrame createFormFrame(IApplication app, String windowName)
+	protected FormFrame createFormFrame(String windowName)
 	{
-		FormFrame frame = new FormFrame(app, windowName);
+		FormFrame frame = new FormFrame(application, windowName);
 		frame.setIconImage(application.getMainApplicationFrame().getIconImage());
 		return frame;
 	}

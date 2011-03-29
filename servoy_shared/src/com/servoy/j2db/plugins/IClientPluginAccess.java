@@ -184,35 +184,45 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 	 * Get the import menu, used by plugins to add import menu items (actions).
 	 * 
 	 * @return JMenu
+	 * @deprecated
 	 */
+	@Deprecated
 	public JMenu getImportMenu();
 
 	/**
 	 * Get the export menu, used by plugins to add export menu items (actions).
 	 * 
 	 * @return JMenu
+	 * @deprecated
 	 */
+	@Deprecated
 	public JMenu getExportMenu();
 
 	/**
 	 * Get the current showing window (Dialog or Frame) Use this one as a parent if you want to display a dialog or other frame.
 	 * 
 	 * @return Window
+	 * @deprecated
 	 */
+	@Deprecated
 	public Window getCurrentWindow();
 
 	/**
 	 * Gets the java Window for the JS window or JS dialog with the given name.
 	 * @param windowName the name of the window as given when opening a window or dialog from JS. If windowName is null, the main application frame is returned.
 	 * @return the dialog or frame instance that corresponds to the given window name.
+	 * @deprecated
 	 */
+	@Deprecated
 	public Window getWindow(String windowName);
 
 	/**
 	 * Get the toolbar panel (used to control toolbars).
 	 * 
 	 * @return IToolbarPanel
+	 * @deprecated
 	 */
+	@Deprecated
 	public IToolbarPanel getToolbarPanel();
 
 	/**
@@ -255,7 +265,9 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 	 * 
 	 * @param protocolName
 	 * @param handler
+	 * @deprecated
 	 */
+	@Deprecated
 	public void registerURLStreamHandler(String protocolName, URLStreamHandler handler);
 
 	/**
@@ -266,7 +278,9 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 	 * @return The URLStreamHandler for the protocol 'media'
 	 * 
 	 * @since 5.2
+	 * @deprecated
 	 */
+	@Deprecated
 	public URLStreamHandler getMediaURLStreamHandler();
 
 	/**
@@ -314,7 +328,9 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 	 *  
 	 * @param object The remote object to export
 	 * @since 6.0
+	 * @deprecated
 	 */
+	@Deprecated
 	public void exportObject(Remote object) throws Exception;
 
 	/**

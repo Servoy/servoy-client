@@ -33,7 +33,6 @@ import com.servoy.j2db.util.Utils;
  */
 public abstract class JSWindowManager
 {
-
 	private static final String MAIN_APPLICATION_WINDOW_NAME = "mainApplicationWindow";
 
 	private final HashMap<String, JSWindowImpl> windows = new HashMap<String, JSWindowImpl>();
@@ -106,12 +105,6 @@ public abstract class JSWindowManager
 	public JSWindowImpl getCurrentWindow()
 	{
 		return getWindow(currentWindowName);
-	}
-
-	public Object getCurrentWindowWrappedObject()
-	{
-		JSWindowImpl w = getCurrentWindow();
-		return w != null ? w.getWrappedObject() : null;
 	}
 
 	/**
@@ -229,4 +222,15 @@ public abstract class JSWindowManager
 		// dummy; subclasses can override if needed
 	}
 
+	public Object getCurrentWindowWrappedObject()
+	{
+		JSWindowImpl w = getCurrentWindow();
+		return w != null ? w.getWrappedObject() : null;
+	}
+
+	public Object getWindowWrappedObject(String windowName)
+	{
+		JSWindowImpl w = getWindow(windowName);
+		return w != null ? w.getWrappedObject() : null;
+	}
 }
