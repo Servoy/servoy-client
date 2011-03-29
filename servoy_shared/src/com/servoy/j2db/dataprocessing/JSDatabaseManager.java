@@ -158,10 +158,26 @@ public class JSDatabaseManager
 	 * Adds a filter to all the foundsets based on a table.
 	 * Note: if null is provided as the tablename the filter will be applied on all tables with the dataprovider name
 	 * returns true if the tablefilter could be applied.
+	 * If a filter already exists on a column, the new filter replaces the existing one.
 	 *
 	 * @sample
-	 * //best way to call this in a global solution startup method
+	 * //best way to call this in a global solution startup method, but filters may be added/removed at any time.
+	 * 
+	 * // filter on messages table where messagesid>10, the filter has a name so it can be removed using databaseManager.removeTableFilterParam()
 	 * var success = databaseManager.addTableFilterParam('admin', 'messages', 'messagesid', '>', 10, 'higNumberedMessagesRule')
+	 * 
+	 * // all tables that have the companyid column should be filtered
+	 * var success = databaseManager.addTableFilterParam('crm', null, 'companyidid', '=', currentcompanyid)
+	 * 
+	 * // replace the table filter for one table (a table-column can have only 1 filter, a new filter replaces an existing one)
+	 * var success = databaseManager.addTableFilterParam('crm', 'specialcompanies', 'companyidid', '=', thespecialcompanyid)
+	 * 
+	 * // some filters with in-conditions
+	 * var success = databaseManager.addTableFilterParam('crm', 'products', 'productcode', 'in', [120, 144, 200])
+	 * var success = databaseManager.addTableFilterParam('crm', 'orders', 'countrycode', 'in', 'select country code from countries where region = "Europe"')
+	 * 
+	 * // you can use modifiers in the operator as well, filter on companies where companyname is null or equals-ignore-case 'servoy'
+	 * var success = databaseManager.addTableFilterParam('crm', 'companies', 'companyname', '#^||=', 'servoy')
 	 *
 	 * @param server_name The name of the database server connection for the specified table name.
 	 * @param table_name The name of the specified table. 
