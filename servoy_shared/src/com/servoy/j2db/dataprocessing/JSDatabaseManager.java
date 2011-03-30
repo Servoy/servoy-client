@@ -158,7 +158,6 @@ public class JSDatabaseManager
 	 * Adds a filter to all the foundsets based on a table.
 	 * Note: if null is provided as the tablename the filter will be applied on all tables with the dataprovider name
 	 * returns true if the tablefilter could be applied.
-	 * If a filter already exists on a column, the new filter replaces the existing one.
 	 *
 	 * @sample
 	 * //best way to call this in a global solution startup method, but filters may be added/removed at any time.
@@ -168,9 +167,6 @@ public class JSDatabaseManager
 	 * 
 	 * // all tables that have the companyid column should be filtered
 	 * var success = databaseManager.addTableFilterParam('crm', null, 'companyidid', '=', currentcompanyid)
-	 * 
-	 * // replace the table filter for one table (a table-column can have only 1 filter, a new filter replaces an existing one)
-	 * var success = databaseManager.addTableFilterParam('crm', 'specialcompanies', 'companyidid', '=', thespecialcompanyid)
 	 * 
 	 * // some filters with in-conditions
 	 * var success = databaseManager.addTableFilterParam('crm', 'products', 'productcode', 'in', [120, 144, 200])

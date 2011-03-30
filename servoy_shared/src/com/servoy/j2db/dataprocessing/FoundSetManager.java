@@ -866,27 +866,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		List<TableFilter> params = tableFilterParams.get(t.getServerName());
 		if (params == null)
 		{
-			params = new ArrayList<TableFilter>();
-			params.add(filter);
-			tableFilterParams.put(t.getServerName(), params);
+			tableFilterParams.put(t.getServerName(), params = new ArrayList<TableFilter>());
 		}
-		else
-		{
-			boolean set = false;
-			for (int i = 0; i < params.size(); i++)
-			{
-				TableFilter f = params.get(i);
-				if (f.getTableName().equals(t.getName()) && f.getDataprovider().equals(dataprovider))
-				{
-					params.set(i, filter);
-					set = true;
-				}
-			}
-			if (!set)
-			{
-				params.add(filter);
-			}
-		}
+		params.add(filter);
 
 		refreshFoundSetsFromDB(getDataSource(t));
 		fireTableEvent(t);
