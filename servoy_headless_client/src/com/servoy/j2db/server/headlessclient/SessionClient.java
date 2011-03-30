@@ -150,7 +150,7 @@ public class SessionClient extends ClientState implements ISessionClient
 	private static WebClientsApplication wicket_app = new WebClientsApplication();
 	private static Session wicket_session = null;
 
-	private ResourceBundle localeJarMessages;
+	private transient ResourceBundle localeJarMessages;
 	private transient HttpSession session;
 
 	private transient InfoChannel outputChannel;
