@@ -25,6 +25,7 @@ import java.util.Date;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 
+import com.servoy.j2db.dataprocessing.IDisplay;
 import com.servoy.j2db.util.toolbar.IToolbarPanel;
 
 
@@ -87,7 +88,6 @@ public interface ISmartClientApplication extends IApplication
 	 */
 	public IToolbarPanel getToolbarPanel();
 
-
 	public String showI18NDialog(String preselect_key, String preselect_language);
 
 	public Date showCalendar(String pattern, Date date);
@@ -109,4 +109,7 @@ public interface ISmartClientApplication extends IApplication
 	public void setPaintTableImmediately(boolean b);
 
 	public int getPaintTableImmediately();
+
+	public void updateInsertModeIcon(IDisplay display);
+
 }

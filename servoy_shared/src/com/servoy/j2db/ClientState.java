@@ -420,8 +420,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		catch (RepositoryException e)
 		{
 			Debug.error("Could not load solution " + (solutionMetaData == null ? "<none>" : solutionMetaData.getName()), e); //$NON-NLS-1$ //$NON-NLS-2$
-			reportError(
-				Messages.getString("servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>" : solutionMetaData.getName() }), e); //$NON-NLS-1$ //$NON-NLS-2$
+			reportError(Messages.getString(
+				"servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>" : solutionMetaData.getName() }), e); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
@@ -1218,8 +1218,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 						function,
 						gscope,
 						gscope,
-						Utils.arrayMerge((new Object[] { new Boolean(force) }),
-							Utils.parseJSExpressions(getSolution().getInstanceMethodArguments("onCloseMethodID"))), false, false)); //$NON-NLS-1$
+						Utils.arrayMerge((new Object[] { new Boolean(force) }), Utils.parseJSExpressions(getSolution().getInstanceMethodArguments(
+							"onCloseMethodID"))), false, false)); //$NON-NLS-1$
 				}
 				catch (Exception e1)
 				{
@@ -1452,7 +1452,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	//server-to-desktop activation
 	public abstract void activateSolutionMethod(String globalMethodName, StartupArgumentsScope argumentsScope);
 
-	public DataServerProxy proxyDataServer()
+	public synchronized DataServerProxy getDataServerProxy()
 	{
 		IDataServer ds = getDataServer();
 		if (ds != null && !(ds instanceof DataServerProxy))

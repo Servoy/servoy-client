@@ -31,6 +31,7 @@ import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.component.INullableAware;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.Column;
@@ -295,7 +296,8 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 		}
 		if (isGlobal || !isColumn || state.startEditing()) //globals are always allowed to set in datarenderers
 		{
-			application.updateInsertMode(display);
+			//bit ugly should use property event here
+			if (application instanceof ISmartClientApplication) ((ISmartClientApplication)application).updateInsertModeIcon(display);
 		}
 		else
 		{

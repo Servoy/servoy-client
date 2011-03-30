@@ -1154,7 +1154,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	 * 
 	 * @param display
 	 */
-	public void updateInsertMode(IDisplay display)
+	public void updateInsertModeIcon(IDisplay display)
 	{
 		Icon icon = empty;
 		if (display instanceof DataField)

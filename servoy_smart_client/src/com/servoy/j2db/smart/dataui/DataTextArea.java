@@ -55,6 +55,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IModeManager;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
@@ -322,8 +323,8 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 	public void setMargin(Insets m)
 	{
 //		enclosedComponent.setMargin(i); seems to have no effect
-		enclosedComponent.setBorder(BorderFactory.createCompoundBorder(enclosedComponent.getBorder(),
-			BorderFactory.createEmptyBorder(m.top, m.left, m.bottom, m.right)));
+		enclosedComponent.setBorder(BorderFactory.createCompoundBorder(enclosedComponent.getBorder(), BorderFactory.createEmptyBorder(m.top, m.left, m.bottom,
+			m.right)));
 	}
 
 	@Override
@@ -475,7 +476,7 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 			if (e.getID() == KeyEvent.KEY_RELEASED && e.getKeyCode() == KeyEvent.VK_INSERT)
 			{
 				setInsertMode(!isInsertMode());
-				application.updateInsertMode(DataTextArea.this);
+				((ISmartClientApplication)application).updateInsertModeIcon(DataTextArea.this);
 			}
 		}
 

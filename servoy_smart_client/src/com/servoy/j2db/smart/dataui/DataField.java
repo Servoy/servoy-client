@@ -68,6 +68,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.IDataSet;
@@ -75,8 +76,8 @@ import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.JSDataSet;
-import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.dataprocessing.ValueListFactory;
+import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.ScriptVariable;
@@ -2160,7 +2161,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 				{
 					formatter.setOverwriteMode(!formatter.getOverwriteMode());
 					toggleOverwrite = false;
-					application.updateInsertMode(this);
+					((ISmartClientApplication)application).updateInsertModeIcon(this);
 
 					int caretPos = getCaretPosition();
 					if (formatter.getOverwriteMode())

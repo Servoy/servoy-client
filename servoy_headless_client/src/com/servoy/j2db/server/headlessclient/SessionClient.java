@@ -83,7 +83,6 @@ import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.IDataSet;
-import com.servoy.j2db.dataprocessing.IDisplay;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IUserClient;
@@ -1409,13 +1408,6 @@ public class SessionClient extends ClientState implements ISessionClient
 			};
 		}
 		return toolbarPanel;
-	}
-
-
-	public void updateInsertMode(IDisplay display)
-	{
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override

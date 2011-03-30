@@ -1740,7 +1740,7 @@ public class JSDatabaseManager
 			return false;
 		}
 
-		DataServerProxy pds = application.proxyDataServer();
+		DataServerProxy pds = application.getDataServerProxy();
 		if (pds == null)
 		{
 			// no dataserver access yet?

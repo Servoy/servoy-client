@@ -26,7 +26,6 @@ import java.util.ResourceBundle;
 import com.servoy.j2db.cmd.ICmdManager;
 import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.dataprocessing.DataServerProxy;
-import com.servoy.j2db.dataprocessing.IDisplay;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.plugins.IPluginAccess;
 import com.servoy.j2db.plugins.IPluginManager;
@@ -291,27 +290,72 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 */
 	public void handleClientUserUidChanged(String userUidBefore, String userUidAfter);
 
+	/**
+	 * Get a remote service
+	 * @return the remote server object
+	 */
 	public Remote getServerService(String name);
 
+	/**
+	 * Set a message filter
+	 */
 	public void setI18NMessagesFilter(String columnname, Object value);
 
+	/**
+	 * Get a locale resouce bundle
+	 * @return the resouce bundle
+	 */
 	public ResourceBundle getResourceBundle(Locale locale);
 
-	public void updateInsertMode(IDisplay display);
-
+	/**
+	 * Get the screensize
+	 * @return the dimension
+	 */
 	public Dimension getScreenSize();
 
+	/**
+	 * Show an url in a browser
+	 * @param url the url to show
+	 * @param target the target
+	 * @param target_options the options
+	 * @param timeout_ms
+	 * @return true is successful
+	 */
 	public boolean showURL(String url, String target, String target_options, int timeout_ms);
 
+	/**
+	 * Test if this client is running from developer
+	 * @return the dev status
+	 */
 	public boolean isInDeveloper();
 
+	/**
+	 * Test if this client in in shutdown
+	 * @return the shutdown status
+	 */
 	public boolean isShutDown();
 
-	public DataServerProxy proxyDataServer();
+	/**
+	 * Delivers a proxied version of IDataServer interface for use with switchServer.
+	 * Which is also be returned from getDataServer() then as well, after the call.
+	 * @return the proxy
+	 */
+	public DataServerProxy getDataServerProxy();
 
+	/**
+	 * Get the window manager
+	 * @return the manager
+	 */
 	public JSWindowManager getJSWindowManager();
 
+	/**
+	 * Get the solution name
+	 * @return the solution name
+	 */
 	public String getSolutionName();
 
+	/**
+	 * Loose the focus, helpfull to get an cursor out of the fields.
+	 */
 	public void looseFocus();
 }
