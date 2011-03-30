@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.printing;
 
 
@@ -59,6 +59,7 @@ import com.servoy.j2db.smart.dataui.DataRenderer;
 import com.servoy.j2db.smart.dataui.DataRendererFactory;
 import com.servoy.j2db.ui.PropertyCopy;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.RendererParentWrapper;
 
 /**
  * this class renders the pages in the printpreview and suplies pageble for real printing
@@ -173,7 +174,7 @@ public class FormPreviewPanel extends JPanel implements IPrintInfo
 		}
 
 		//create list
-		renderParent = new RendererParentWrapper(application.getPrintingRendererParent());
+		renderParent = application.getPrintingRendererParent();
 		plist = new PageList(application, this, renderParent);
 
 		PartNode node = null;

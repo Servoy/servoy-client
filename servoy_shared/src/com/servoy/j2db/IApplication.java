@@ -17,10 +17,8 @@
 package com.servoy.j2db;
 
 
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.print.PageFormat;
-import java.net.URLStreamHandler;
 import java.rmi.Remote;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -35,6 +33,7 @@ import com.servoy.j2db.plugins.IPluginManager;
 import com.servoy.j2db.server.shared.IUserManager;
 import com.servoy.j2db.ui.ItemFactory;
 import com.servoy.j2db.util.ILogLevel;
+import com.servoy.j2db.util.RendererParentWrapper;
 
 /**
  * Main interface for the client application.
@@ -91,8 +90,7 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 * 
 	 * @return the Operation System name where the client runs in.
 	 */
-	String getOSName();
-
+	public String getOSName();
 
 	/**
 	 * Get the platform of the client, local platform for smart client, browser platform for web client.
@@ -225,22 +223,19 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	public boolean closeSolution(boolean force, Object[] args);
 
 	/**
-	 * Register a URLStreamHandler for a protocol
+	 * get the clientinfo object
 	 * 
-	 * @param protocolName
-	 * @param handler
+	 * @return the client info
 	 */
-	public void addURLStreamHandler(String protocolName, URLStreamHandler handler);
-
 	public ClientInfo getClientInfo();
 
 	/**
-	 * Creates new ui components
+	 * Get the factory to create new ui components
 	 */
 	public ItemFactory getItemFactory();
 
 	/**
-	 * @return
+	 * Get the factory to create new data renderers
 	 */
 	public IDataRendererFactory getDataRenderFactory();
 
@@ -252,7 +247,7 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	/**
 	 * A parent to render with
 	 */
-	public Container getPrintingRendererParent();
+	public RendererParentWrapper getPrintingRendererParent();
 
 	/**
 	 * Get the current page format.

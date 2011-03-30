@@ -18,7 +18,6 @@ package com.servoy.j2db.server.headlessclient;
 
 
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.print.PageFormat;
@@ -55,7 +54,6 @@ import javax.servlet.http.HttpSessionBindingEvent;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.SwingUtilities;
 
@@ -118,6 +116,7 @@ import com.servoy.j2db.util.ITaskExecuter;
 import com.servoy.j2db.util.LocalhostRMIRegistry;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.RendererParentWrapper;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.ServoyScheduledExecutor;
 import com.servoy.j2db.util.Settings;
@@ -1695,17 +1694,13 @@ public class SessionClient extends ClientState implements ISessionClient
 		return dataRendererFactory;
 	}
 
-	private transient Container printingRendererParent;
+	private transient RendererParentWrapper printingRendererParent;
 
-	public Container getPrintingRendererParent()
+	public RendererParentWrapper getPrintingRendererParent()
 	{
 		if (printingRendererParent == null)
 		{
-			printingRendererParent = new JLabel();
-			printingRendererParent.addNotify();
-			printingRendererParent.setVisible(true);
-			printingRendererParent.setSize(new Dimension(Short.MAX_VALUE, Short.MAX_VALUE));
-			printingRendererParent.doLayout();
+			printingRendererParent = new RendererParentWrapper();
 		}
 		return printingRendererParent;
 	}

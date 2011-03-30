@@ -59,6 +59,7 @@ import com.servoy.j2db.smart.dataui.DataRenderer;
 import com.servoy.j2db.ui.IDisplayTagText;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ITagResolver;
+import com.servoy.j2db.util.RendererParentWrapper;
 import com.servoy.j2db.util.Text;
 
 /**

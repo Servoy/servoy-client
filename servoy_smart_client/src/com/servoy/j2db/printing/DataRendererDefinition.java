@@ -48,6 +48,7 @@ import com.servoy.j2db.smart.dataui.PortalComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.RendererParentWrapper;
 import com.servoy.j2db.util.Utils;
 
 /**

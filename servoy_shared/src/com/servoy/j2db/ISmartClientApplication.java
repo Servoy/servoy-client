@@ -17,6 +17,7 @@
 package com.servoy.j2db;
 
 import java.awt.Window;
+import java.net.URLStreamHandler;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.Date;
@@ -33,6 +34,14 @@ import com.servoy.j2db.util.toolbar.IToolbarPanel;
  */
 public interface ISmartClientApplication extends IApplication
 {
+	/**
+	 * Register a URLStreamHandler for a protocol
+	 * 
+	 * @param protocolName
+	 * @param handler
+	 */
+	public void addURLStreamHandler(String protocolName, URLStreamHandler handler);
+
 	/**
 	 * Get the import menu, used by plugins to add import menu items (actions).
 	 * 

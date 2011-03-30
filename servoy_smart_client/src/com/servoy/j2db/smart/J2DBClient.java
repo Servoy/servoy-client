@@ -20,7 +20,6 @@ package com.servoy.j2db.smart;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -246,6 +245,7 @@ import com.servoy.j2db.util.ITaskExecuter;
 import com.servoy.j2db.util.OrientationApplier;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.RendererParentWrapper;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.ServoyScheduledExecutor;
 import com.servoy.j2db.util.Settings;
@@ -3968,9 +3968,9 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		return false;
 	}
 
-	public Container getPrintingRendererParent()
+	public RendererParentWrapper getPrintingRendererParent()
 	{
-		return getEditLabel();
+		return new RendererParentWrapper(getEditLabel());
 	}
 
 

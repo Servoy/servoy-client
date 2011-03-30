@@ -14,15 +14,18 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
-package com.servoy.j2db.printing;
+package com.servoy.j2db.util;
 
 import java.awt.Container;
+import java.awt.Dimension;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 
 /**
+ * Helper class for printing in (non) GUI env
  * @author jblok
  */
 public class RendererParentWrapper
@@ -33,6 +36,15 @@ public class RendererParentWrapper
 	public RendererParentWrapper(Container a_parent)
 	{
 		swingRenderParent = a_parent;
+	}
+
+	public RendererParentWrapper()
+	{
+		swingRenderParent = new JLabel();
+		swingRenderParent.addNotify();
+		swingRenderParent.setVisible(true);
+		swingRenderParent.setSize(new Dimension(Short.MAX_VALUE, Short.MAX_VALUE));
+		swingRenderParent.doLayout();
 	}
 
 	public void add(JComponent comp)
