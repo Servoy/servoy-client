@@ -24,12 +24,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.servoy.j2db.FormDialog;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.JSWindowManager;
+import com.servoy.j2db.gui.FormDialog;
 import com.servoy.j2db.scripting.JSWindowImpl;
 
 /**

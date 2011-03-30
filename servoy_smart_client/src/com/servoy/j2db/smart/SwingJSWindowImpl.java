@@ -30,13 +30,13 @@ import javax.swing.JFrame;
 import javax.swing.RootPaneContainer;
 
 import com.servoy.j2db.FormController;
-import com.servoy.j2db.FormDialog;
 import com.servoy.j2db.FormFrame;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.FormWindow;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.LAFManager;
+import com.servoy.j2db.gui.FormDialog;
 import com.servoy.j2db.scripting.JSWindowImpl;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.UIUtils;

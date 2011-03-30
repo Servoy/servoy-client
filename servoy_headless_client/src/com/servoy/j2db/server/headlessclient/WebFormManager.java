@@ -86,7 +86,7 @@ public class WebFormManager extends FormManager
 	}
 
 	@Override
-	protected void fillScriptMenu()
+	public void fillScriptMenu()
 	{
 	}
 

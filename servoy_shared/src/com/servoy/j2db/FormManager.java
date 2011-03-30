@@ -226,7 +226,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 
 	protected abstract void selectFormMenuItem(Form form);
 
-	protected abstract void fillScriptMenu();
+	public abstract void fillScriptMenu();
 
 	protected abstract void enableCmds(boolean enable);
 

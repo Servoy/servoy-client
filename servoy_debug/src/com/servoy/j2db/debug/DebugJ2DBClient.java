@@ -57,7 +57,6 @@ import org.mozilla.javascript.RhinoException;
 
 import com.servoy.j2db.Credentials;
 import com.servoy.j2db.FormController;
-import com.servoy.j2db.FormDialog;
 import com.servoy.j2db.FormFrame;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.FormWindow;
@@ -76,6 +75,7 @@ import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
+import com.servoy.j2db.gui.FormDialog;
 import com.servoy.j2db.gui.LoginDialog;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.FlattenedForm;
