@@ -38,13 +38,15 @@ import java.util.Map;
  *  				PropertyDescriptor myDataprovider = new PropertyDescriptor("myDataprovider", ExampleBean.class);
  *  				PropertyEditorHint dpHint = new PropertyEditorHint(PropertyEditorClass.dataprovider);
  *  				dpHint.setOption(PropertyEditorOption.includeForm, Boolean.FALSE); // filter out form variables
- *  				dpHint.setOption(PropertyEditorOption.propertyOrder, new Integer(1)); // configure order of properties
+ *  				dpHint.setOption(PropertyEditorOption.propertyOrder, new Integer(1)); // configure order of properties (optional)
  *  				myDataprovider.setValue(PropertyEditorHint.PROPERTY_EDITOR_HINT, dpHint);
  *  	
+ *  				// the MoreInfo class acts as a bean, its properties can be set via expanding a node in the Properties View.
  *  				PropertyDescriptor moreInfo = new PropertyDescriptor("moreInfo", MoreInfo.class);
  *  				dpHint = new PropertyEditorHint(PropertyEditorClass.defaultEditor);
- *  				dpHint.setOption(PropertyEditorOption.subPropertyFactoryMethod, "createMoreInfo"); // instance method MoreInfo.createMoreInfo()
- *  				dpHint.setOption(PropertyEditorOption.propertyOrder, new Integer(2)); // configure order of properties
+ *  				// configure a factory method for the MoreInfo class, if not specified, the default constructor will be used
+ *  				dpHint.setOption(PropertyEditorOption.subPropertyFactoryMethod, "createMoreInfo"); // instance method ExampleBean.createMoreInfo()
+ *  				dpHint.setOption(PropertyEditorOption.propertyOrder, new Integer(2)); // configure order of properties (optional)
  *  				moreInfo.setValue(PropertyEditorHint.PROPERTY_EDITOR_HINT, dpHint);
  *  				
  *  				....
