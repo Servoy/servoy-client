@@ -128,14 +128,15 @@ public class FunctionDefinition
 
 	/**
 	* Test if the given methodName or formName do exist. Will return one of the {@link Exist} enums.
+	* @since 5.2
 	*/
 	public Exist exists(IClientPluginAccess access)
 	{
+		final Exist[] retVal = new Exist[] { Exist.METHOD_NOT_FOUND };
 		if (access instanceof ClientPluginAccessProvider)
 		{
-			final Exist[] retVal = new Exist[] { Exist.METHOD_NOT_FOUND };
 			final IApplication application = ((ClientPluginAccessProvider)access).getApplication();
-			Runnable run = new Runnable()
+			application.invokeAndWait(new Runnable()
 			{
 				public void run()
 				{
@@ -156,7 +157,7 @@ public class FunctionDefinition
 							{
 								retVal[0] = Exist.FORM_NOT_FOUND;
 							}
-							if (fp.getFormScope().get(methodName, fp.getFormScope()) instanceof Function)
+							else if (fp.getFormScope().get(methodName, fp.getFormScope()) instanceof Function)
 							{
 								retVal[0] = Exist.METHOD_FOUND;
 							}
@@ -167,12 +168,9 @@ public class FunctionDefinition
 						retVal[0] = Exist.NO_SOLUTION;
 					}
 				}
-			};
-
-			application.invokeAndWait(run);
-			return retVal[0];
+			});
 		}
-		return Exist.METHOD_NOT_FOUND;
+		return retVal[0];
 	}
 
 	/**
