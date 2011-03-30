@@ -360,6 +360,10 @@ public class RepositoryHelper
 		{
 			return true;
 		}
+		if (name.equals("formIndex")) // handled in Z-Ordering actions //$NON-NLS-1$
+		{
+			return true;
+		}
 		if (name.equals("containsFormID")) // handled in combined property table //$NON-NLS-1$
 		{
 			return true;
@@ -415,7 +419,7 @@ public class RepositoryHelper
 		{
 			return false;
 		}
-		if (name.equals("locked") || name.equals("formIndex")) //$NON-NLS-1$ //$NON-NLS-2$
+		if (name.equals("locked")) //$NON-NLS-1$ 
 		{
 			return false;
 		}
