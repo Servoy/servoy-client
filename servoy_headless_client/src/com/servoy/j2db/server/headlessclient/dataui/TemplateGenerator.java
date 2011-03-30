@@ -41,8 +41,8 @@ import javax.swing.border.Border;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.html.CSS;
 
-import org.apache.wicket.ResourceReference;
 import org.apache.wicket.Component.IVisitor;
+import org.apache.wicket.ResourceReference;
 
 import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
@@ -257,6 +257,7 @@ public class TemplateGenerator
 
 	public static final int DEFAULT_FONT_SIZE = 11;
 	public static final Insets DEFAULT_LABEL_PADDING = new Insets(0, 0, 0, 0);
+	public static final Insets DEFAULT_BUTTON_PADDING = new Insets(0, 0, 0, 0);
 	public static final Insets DEFAULT_FIELD_PADDING = new Insets(1, 1, 1, 1);
 	public static final Insets DEFAULT_BUTTON_BORDER_SIZE = new Insets(1, 1, 1, 1);
 	public static final Insets DEFAULT_FIELD_BORDER_SIZE = new Insets(2, 2, 2, 2);
@@ -1248,7 +1249,7 @@ public class TemplateGenerator
 		styleObj = css.addStyle(".label");//input, select, textarea");  
 		styleObj.setProperty("padding", createInsetsText(DEFAULT_LABEL_PADDING));
 
-
+		
 		Style s = (Style)ApplicationServerSingleton.get().getLocalRepository().getActiveRootObject(name, IRepository.STYLES);
 		boolean bodyMarginAdded = false;
 		if (s != null)
@@ -1507,6 +1508,16 @@ public class TemplateGenerator
 		// disable text area resizing
 		styleObj = css.addStyle("textarea");
 		styleObj.setProperty("resize", "none");
+
+		//label stuff
+		styleObj = css.addStyle(".label");
+		styleObj.setProperty("overflow", "hidden");
+
+		//button stuff
+		styleObj = css.addStyle(".button");
+		styleObj.setProperty("padding", createInsetsText(DEFAULT_BUTTON_PADDING));
+		styleObj.setProperty("overflow", "hidden");
+
 
 		return css.toString();
 	}
@@ -1924,9 +1935,6 @@ public class TemplateGenerator
 		// See: http://doctype.com/html-button-tag-renders-strangely-firefox
 		if (isButton)
 		{
-			styleObj.setProperty("padding-top", "0px");
-			styleObj.setProperty("padding-right", "0px");
-			styleObj.setProperty("padding-left", "0px");
 			int bottomPadding = 0;
 			if (labelVAlign != ISupportTextSetup.CENTER)
 			{
@@ -1941,8 +1949,6 @@ public class TemplateGenerator
 			if (ins != null) height -= ins.getSum().top + ins.getSum().bottom;
 			if (labelVAlign == ISupportTextSetup.CENTER) styleObj.setProperty("line-height", height + "px");
 		}
-
-		styleObj.setProperty("overflow", "hidden");
 	}
 
 	public static boolean isFilledText(String text)
@@ -2106,8 +2112,8 @@ public class TemplateGenerator
 				ValueList valuelist = null;
 				if (field.getValuelistID() > 0 && sp != null)
 				{
-					Pair<String, Integer> fieldFormat = ComponentFactory.getFieldFormat(field, sp.getFlattenedSolution().getDataproviderLookup(
-						sp.getFoundSetManager(), form), sp);
+					Pair<String, Integer> fieldFormat = ComponentFactory.getFieldFormat(field,
+						sp.getFlattenedSolution().getDataproviderLookup(sp.getFoundSetManager(), form), sp);
 					valuelist = sp.getFlattenedSolution().getValueList(field.getValuelistID());
 					if (valuelist != null) val = ComponentFactory.getRealValueList(sp, valuelist, true, fieldFormat.getRight(), fieldFormat.getLeft(),
 						field.getDataProviderID());

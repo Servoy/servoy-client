@@ -21,6 +21,7 @@ import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.calldecorator.AjaxCallDecorator;
+import org.apache.wicket.markup.html.IHeaderResponse;
 
 import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.ui.IEventExecutor;
@@ -40,6 +41,8 @@ public class ServoyActionEventBehavior extends ServoyAjaxFormComponentUpdatingBe
 	protected final Component component;
 	protected final WebEventExecutor eventExecutor;
 
+	private String sharedName;
+
 	/**
 	 * @param event
 	 * @param eventExecutor
@@ -49,6 +52,50 @@ public class ServoyActionEventBehavior extends ServoyAjaxFormComponentUpdatingBe
 		super(event);
 		this.component = component;
 		this.eventExecutor = eventExecutor;
+	}
+
+	public ServoyActionEventBehavior(String event, Component component, WebEventExecutor eventExecutor, String sharedName)
+	{
+		super(event);
+		this.component = component;
+		this.eventExecutor = eventExecutor;
+		this.sharedName = sharedName;
+	}
+
+	private boolean isRenderHead;
+
+	@Override
+	public void renderHead(IHeaderResponse response)
+	{
+		isRenderHead = true;
+		super.renderHead(response);
+
+		if (sharedName != null)
+		{
+			CharSequence eh = getEventHandler();
+			CharSequence callbackUrl = getCallbackUrl(false);
+			String compId = getComponent().getMarkupId();
+			String newEh = Utils.stringReplace(eh.toString(), "'" + callbackUrl + "'", "callback"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			newEh = Utils.stringReplace(newEh, "'" + compId + "'", "componentId"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+			response.renderJavascript("function " + getJSEventName() + "(event, callback, componentId ) { " + newEh + "}", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				getJSEventName());
+
+		}
+		isRenderHead = false;
+	}
+
+	@Override
+	protected CharSequence generateCallbackScript(CharSequence partialCall)
+	{
+		if (sharedName == null || isRenderHead)
+		{
+			return super.generateCallbackScript(partialCall + "+'modifiers='+Servoy.Utils.getModifiers(event)"); //$NON-NLS-1$
+		}
+		else
+		{
+			return getJSEventName() + "(event, '" + getCallbackUrl(false) + "', '" + getComponent().getMarkupId() + "')"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		}
 	}
 
 	@Override
@@ -75,12 +122,6 @@ public class ServoyActionEventBehavior extends ServoyAjaxFormComponentUpdatingBe
 	{
 		super.onError(target, e);
 		eventExecutor.onError(target, component);
-	}
-
-	@Override
-	protected CharSequence generateCallbackScript(final CharSequence partialCall)
-	{
-		return super.generateCallbackScript(partialCall + "+'modifiers='+Servoy.Utils.getModifiers(event)"); //$NON-NLS-1$
 	}
 
 	/**
@@ -115,9 +156,9 @@ public class ServoyActionEventBehavior extends ServoyAjaxFormComponentUpdatingBe
 			{
 				if (component instanceof WebDataTextArea)
 				{
-					return "testEnterKey(event, function() {" + script + "});";
+					return "testEnterKey(event, function() {" + script + "});"; //$NON-NLS-1$ //$NON-NLS-2$
 				}
-				return "return testEnterKey(event, function() {" + script + "});";
+				return "return testEnterKey(event, function() {" + script + "});"; //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		};
 	}
@@ -128,6 +169,13 @@ public class ServoyActionEventBehavior extends ServoyAjaxFormComponentUpdatingBe
 	@Override
 	protected String findIndicatorId()
 	{
-		return "indicator";
+		return "indicator"; //$NON-NLS-1$
+	}
+
+	private String getJSEventName()
+	{
+		String eventName = getEvent() + sharedName;
+		if (getComponent() instanceof WebDataTextArea) eventName += "TextArea"; //$NON-NLS-1$
+		return eventName;
 	}
 }

@@ -158,11 +158,11 @@ public class WebEventExecutor extends BaseEventExecutor
 			if (!((component instanceof TextField< ? > || component instanceof TextArea< ? >) && component instanceof IDisplay && ((IDisplay)component).isReadOnly()) &&
 				!(component instanceof ILabel) && component instanceof FormComponent< ? >)
 			{
-				component.add(new ServoyActionEventBehavior("onKeyDown", component, this)); // please keep the case in the event name //$NON-NLS-1$
+				component.add(new ServoyActionEventBehavior("onKeyDown", component, this, "ActionCmd")); // please keep the case in the event name //$NON-NLS-1$ //$NON-NLS-2$ 
 			}
 			else
 			{
-				component.add(new ServoyAjaxEventBehavior("onclick") //$NON-NLS-1$
+				component.add(new ServoyAjaxEventBehavior("onclick", "ActionCmd") //$NON-NLS-1$ //$NON-NLS-2$
 				{
 					private static final long serialVersionUID = 1L;
 
@@ -233,7 +233,7 @@ public class WebEventExecutor extends BaseEventExecutor
 		{
 			if (component instanceof ILabel)
 			{
-				component.add(new ServoyAjaxEventBehavior("ondblclick") //$NON-NLS-1$
+				component.add(new ServoyAjaxEventBehavior("ondblclick", "Cmd") //$NON-NLS-1$ //$NON-NLS-2$
 				{
 					@Override
 					protected void onEvent(AjaxRequestTarget target)

@@ -19,9 +19,11 @@ package com.servoy.j2db.server.headlessclient.dataui;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxEventBehavior;
+import org.apache.wicket.markup.html.IHeaderResponse;
 
 import com.servoy.j2db.server.headlessclient.IDesignModeListener;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Base class for all the ajax behaviors.
@@ -32,8 +34,8 @@ import com.servoy.j2db.server.headlessclient.WebClientSession;
  */
 public abstract class ServoyAjaxEventBehavior extends AjaxEventBehavior implements IDesignModeListener
 {
-
 	private boolean designMode;
+	private String sharedName;
 
 	/**
 	 * @param event
@@ -41,6 +43,54 @@ public abstract class ServoyAjaxEventBehavior extends AjaxEventBehavior implemen
 	public ServoyAjaxEventBehavior(String event)
 	{
 		super(event);
+	}
+
+	public ServoyAjaxEventBehavior(String event, String sharedName)
+	{
+		super(event);
+		this.sharedName = sharedName;
+	}
+
+	private boolean isRenderHead;
+
+	@Override
+	public void renderHead(IHeaderResponse response)
+	{
+		isRenderHead = true;
+		super.renderHead(response);
+
+		if (sharedName != null)
+		{
+			CharSequence eh = getEventHandler();
+			CharSequence callbackUrl = getCallbackUrl(false);
+			String compId = getComponent().getMarkupId();
+			String newEh = Utils.stringReplace(eh.toString(), "'" + callbackUrl + "'", "callback"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			newEh = Utils.stringReplace(newEh, "'" + compId + "'", "componentId"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+			response.renderJavascript("function " + getJSEventName() + "(event, callback, componentId ) { " + newEh + "}", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				getJSEventName());
+		}
+
+		isRenderHead = false;
+	}
+
+	@Override
+	protected CharSequence generateCallbackScript(CharSequence partialCall)
+	{
+		if (sharedName == null || isRenderHead)
+		{
+			return super.generateCallbackScript(partialCall);
+		}
+		else
+		{
+			return getJSEventName() + "(event, '" + getCallbackUrl(false) + "', '" + getComponent().getMarkupId() + "')"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		}
+	}
+
+
+	private String getJSEventName()
+	{
+		return getEvent() + sharedName;
 	}
 
 	/**
