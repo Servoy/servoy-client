@@ -1246,10 +1246,15 @@ public class TemplateGenerator
 		styleObj.setProperty("background-color", "#FFFFFF");
 
 		//default label stuff
-		styleObj = css.addStyle(".label");//input, select, textarea");  
+		styleObj = css.addStyle(".label");//input, select, textarea");
 		styleObj.setProperty("padding", createInsetsText(DEFAULT_LABEL_PADDING));
+		styleObj.setProperty("overflow", "hidden");
 
-		
+		//default button stuff
+		styleObj = css.addStyle(".button");
+		styleObj.setProperty("padding", createInsetsText(DEFAULT_BUTTON_PADDING));
+		styleObj.setProperty("overflow", "hidden");
+
 		Style s = (Style)ApplicationServerSingleton.get().getLocalRepository().getActiveRootObject(name, IRepository.STYLES);
 		boolean bodyMarginAdded = false;
 		if (s != null)
@@ -1508,16 +1513,6 @@ public class TemplateGenerator
 		// disable text area resizing
 		styleObj = css.addStyle("textarea");
 		styleObj.setProperty("resize", "none");
-
-		//label stuff
-		styleObj = css.addStyle(".label");
-		styleObj.setProperty("overflow", "hidden");
-
-		//button stuff
-		styleObj = css.addStyle(".button");
-		styleObj.setProperty("padding", createInsetsText(DEFAULT_BUTTON_PADDING));
-		styleObj.setProperty("overflow", "hidden");
-
 
 		return css.toString();
 	}
