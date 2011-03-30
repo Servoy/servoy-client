@@ -93,6 +93,7 @@ import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.EnableScrollPanel;
 import com.servoy.j2db.util.IDestroyable;
 import com.servoy.j2db.util.IFocusCycleRoot;
 import com.servoy.j2db.util.ISkinnable;
@@ -102,7 +103,6 @@ import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.editlist.AbstractEditListModel;
 import com.servoy.j2db.util.editlist.JEditList;
 import com.servoy.j2db.util.gui.AutoTransferFocusListener;
-import com.servoy.j2db.util.gui.EnableScrollPanel;
 
 /**
  * Runtime swing portal component

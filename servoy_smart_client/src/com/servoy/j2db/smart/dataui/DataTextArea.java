@@ -72,6 +72,7 @@ import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.EnableScrollPanel;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ISkinnable;
 import com.servoy.j2db.util.ISupplyFocusChildren;
@@ -81,7 +82,6 @@ import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.docvalidator.LengthDocumentValidator;
 import com.servoy.j2db.util.docvalidator.ValidatingDocument;
-import com.servoy.j2db.util.gui.EnableScrollPanel;
 
 /**
  * Runtime swing component which makes a text area
