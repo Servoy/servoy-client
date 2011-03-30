@@ -509,8 +509,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * Add a filter parameter that is permanent per user session to limit a specified foundset of records.
 	 * Use clear() or loadAllRecords() to make the filter effective.
+	 * Multiple filters can be added to the same dataprovider, they will all be applied.
 	 *
 	 * @sample
+	 * // Filter a fondset on a dataprovider value.
+	 * // Note that multiple filters can be added to the same dataprovider, they will all be applied.
+	 * 
 	 * var success = %%prefix%%foundset.addFoundSetFilterParam('customerid', '=', 'BLONP', 'custFilter');//possible to add multiple
 	 * %%prefix%%foundset.loadAllRecords();//to make param(s) effective
 	 * // Named filters can be removed using %%prefix%%foundset.removeFoundSetFilterParam(filterName)

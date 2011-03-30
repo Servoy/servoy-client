@@ -156,11 +156,13 @@ public class JSDatabaseManager
 
 	/**
 	 * Adds a filter to all the foundsets based on a table.
-	 * Note: if null is provided as the tablename the filter will be applied on all tables with the dataprovider name
+	 * Note: if null is provided as the tablename the filter will be applied on all tables with the dataprovider name.
+	 * A dataprovider can have multiple filters defined, they will all be applied.
 	 * returns true if the tablefilter could be applied.
 	 *
 	 * @sample
-	 * //best way to call this in a global solution startup method, but filters may be added/removed at any time.
+	 * // Best way to call this in a global solution startup method, but filters may be added/removed at any time.
+	 * // Note that multiple filters can be added to the same dataprovider, they will all be applied.
 	 * 
 	 * // filter on messages table where messagesid>10, the filter has a name so it can be removed using databaseManager.removeTableFilterParam()
 	 * var success = databaseManager.addTableFilterParam('admin', 'messages', 'messagesid', '>', 10, 'higNumberedMessagesRule')
