@@ -36,7 +36,7 @@ import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptChoiceMethods;
+import com.servoy.j2db.ui.IScriptRadioMethods;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Utils;
 
@@ -46,7 +46,7 @@ import com.servoy.j2db.util.Utils;
  * @author lvostinar
  *
  */
-public class WebDataRadioButton extends WebBaseSelectBox implements IScriptChoiceMethods
+public class WebDataRadioButton extends WebBaseSelectBox implements IScriptRadioMethods
 {
 	private final IConverter converter = new RadioButtonConverter();
 
@@ -394,41 +394,6 @@ public class WebDataRadioButton extends WebBaseSelectBox implements IScriptChoic
 		{
 			return value != null ? value.toString() : null;
 		}
-	}
-
-	/*
-	 * @see com.servoy.j2db.ui.IScriptScrollableMethods#js_getScrollX()
-	 */
-	public int js_getScrollX()
-	{
-		return 0;
-	}
-
-
-	/*
-	 * @see com.servoy.j2db.ui.IScriptScrollableMethods#js_getScrollY()
-	 */
-	public int js_getScrollY()
-	{
-		return 0;
-	}
-
-
-	/*
-	 * @see com.servoy.j2db.ui.IScriptScrollableMethods#js_setScroll(int, int)
-	 */
-	public void js_setScroll(int x, int y)
-	{
-
-	}
-
-
-	/*
-	 * @see com.servoy.j2db.ui.IScriptChoiceMethods#js_getSelectedElements()
-	 */
-	public Object[] js_getSelectedElements()
-	{
-		return new Object[] { selector.getValue() };
 	}
 
 	/**

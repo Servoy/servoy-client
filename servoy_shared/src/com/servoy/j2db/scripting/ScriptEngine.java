@@ -64,6 +64,7 @@ import com.servoy.j2db.ui.IScriptDataPasswordMethods;
 import com.servoy.j2db.ui.IScriptFieldMethods;
 import com.servoy.j2db.ui.IScriptMediaInputFieldMethods;
 import com.servoy.j2db.ui.IScriptPortalComponentMethods;
+import com.servoy.j2db.ui.IScriptRadioMethods;
 import com.servoy.j2db.ui.IScriptScriptButtonMethods;
 import com.servoy.j2db.ui.IScriptScriptLabelMethods;
 import com.servoy.j2db.ui.IScriptSplitPaneMethods;
@@ -144,15 +145,18 @@ public class ScriptEngine implements IScriptSupport
 			toplevelScope.put("JSDataSet", toplevelScope, new InstanceOfScope("JSDataSet", JSDataSet.class));
 			toplevelScope.put("Form", toplevelScope, new InstanceOfScope("Form", FormScope.class));
 
+			toplevelScope.put("RuntimeForm", toplevelScope, new InstanceOfScope("RuntimeForm", FormScope.class));
 
 			toplevelScope.put("RuntimeButton", toplevelScope, new InstanceOfScope("RuntimeButton", IScriptScriptButtonMethods.class));
 			toplevelScope.put("RuntimeLabel", toplevelScope, new InstanceOfScope("RuntimeLabel", IScriptScriptLabelMethods.class));
 			toplevelScope.put("RuntimePassword", toplevelScope, new InstanceOfScope("RuntimePassword", IScriptDataPasswordMethods.class));
 			toplevelScope.put("RuntimeHtmlArea", toplevelScope, new InstanceOfScope("RuntimeHtmlArea", IScriptTextEditorMethods.class));
+			toplevelScope.put("RuntimeRtfArea", toplevelScope, new InstanceOfScope("RuntimeRtfArea", IScriptTextEditorMethods.class));
 			toplevelScope.put("RuntimeTextArea", toplevelScope, new InstanceOfScope("RuntimeTextArea", IScriptTextAreaMethods.class));
 			toplevelScope.put("RuntimeChecks", toplevelScope, new InstanceOfScope("RuntimeChecks", IScriptChoiceMethods.class));
 			toplevelScope.put("RuntimeCheckBox", toplevelScope, new InstanceOfScope("RuntimeCheckBox", IScriptCheckBoxMethods.class));
 			toplevelScope.put("RuntimeRadios", toplevelScope, new InstanceOfScope("RuntimeRadios", IScriptChoiceMethods.class));
+			toplevelScope.put("RuntimeRadio", toplevelScope, new InstanceOfScope("RuntimeRadio", IScriptRadioMethods.class));
 			toplevelScope.put("RuntimeComboBox", toplevelScope, new InstanceOfScope("RuntimeComboBox", IScriptDataComboboxMethods.class));
 			toplevelScope.put("RuntimeCalendar", toplevelScope, new InstanceOfScope("RuntimeCalendar", IScriptDataCalendarMethods.class));
 			toplevelScope.put("RuntimeMediaField", toplevelScope, new InstanceOfScope("RuntimeMediaField", IScriptMediaInputFieldMethods.class));

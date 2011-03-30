@@ -55,7 +55,7 @@ import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptChoiceMethods;
+import com.servoy.j2db.ui.IScriptRadioMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.ComponentFactoryHelper;
@@ -72,7 +72,7 @@ import com.servoy.j2db.util.Utils;
  * @author lvostinar
  *
  */
-public class DataRadioButton extends JRadioButton implements IFieldComponent, IDisplayData, ISkinnable, IScriptChoiceMethods, INullableAware,
+public class DataRadioButton extends JRadioButton implements IFieldComponent, IDisplayData, ISkinnable, IScriptRadioMethods, INullableAware,
 	ISupportCachedLocationAndSize
 {
 	private Object value;
@@ -969,29 +969,5 @@ public class DataRadioButton extends JRadioButton implements IFieldComponent, ID
 	public RenderEventExecutor getRenderEventExecutor()
 	{
 		return eventExecutor;
-	}
-
-	public void js_setScroll(int x, int y)
-	{
-
-	}
-
-	public int js_getScrollX()
-	{
-		return 0;
-	}
-
-	public int js_getScrollY()
-	{
-		return 0;
-	}
-
-	public Object[] js_getSelectedElements()
-	{
-		if (isSelected())
-		{
-			return new Object[] { value };
-		}
-		return new Object[0];
 	}
 }
