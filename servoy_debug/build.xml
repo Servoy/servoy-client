@@ -103,8 +103,6 @@
 			
 			<pathelement path="../servoy_shared/lib/commons-dbcp.jar"/>
 			
-			<pathelement path="../servoy_shared/lib/commons-httpclient.jar"/>
-			
 			<pathelement path="../servoy_shared/lib/commons-io.jar"/>
 			
 			<pathelement path="../servoy_shared/lib/commons-logging.jar"/>

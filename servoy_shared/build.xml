@@ -93,8 +93,6 @@
 			
 			<pathelement path="lib/commons-dbcp.jar"/>
 			
-			<pathelement path="lib/commons-httpclient.jar"/>
-			
 			<pathelement path="lib/commons-io.jar"/>
 			
 			<pathelement path="lib/commons-logging.jar"/>
