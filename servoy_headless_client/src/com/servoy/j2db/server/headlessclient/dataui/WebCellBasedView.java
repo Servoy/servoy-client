@@ -2022,6 +2022,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			if (!getPath().equals(lastRenderedPath))
 			{
 				bodySizeHintSetFromClient = false;
+				tabSize = null;
 				lastRenderedPath = getPath();
 			}
 			// delay rendering table view (that can be big) if we

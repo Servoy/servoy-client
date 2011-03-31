@@ -1348,7 +1348,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 	@SuppressWarnings("unchecked")
 	public FormAnchorInfo getFormAnchorInfo(final boolean onlyChanged)
 	{
-		formAnchorInfo = new FormAnchorInfo(formController.getName(), formController.getForm().getSize());
+		formAnchorInfo = new FormAnchorInfo(formController.getName(), formController.getForm().getSize(), formController.getForm().getUUID());
 
 		final Map<String, ISupportAnchors> elements = new HashMap<String, ISupportAnchors>();
 		Iterator<IPersist> e1 = formController.getForm().getAllObjects();
