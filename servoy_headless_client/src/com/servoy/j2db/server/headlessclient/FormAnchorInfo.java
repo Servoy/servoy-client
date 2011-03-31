@@ -31,6 +31,7 @@ import com.servoy.j2db.server.headlessclient.dataui.WebScriptSubmitLink;
 import com.servoy.j2db.server.headlessclient.dataui.WebTabPanel;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -43,6 +44,7 @@ public final class FormAnchorInfo implements Comparable<FormAnchorInfo>
 {
 	public String formName;
 	public Dimension formSize;
+	public UUID formID;
 	public String navigatorWebId;
 	public boolean isTableView;
 	public boolean isTopLevelForm;
@@ -57,10 +59,11 @@ public final class FormAnchorInfo implements Comparable<FormAnchorInfo>
 	private static final String HEIGHTS_VAR = "heights"; //$NON-NLS-1$
 	private static final String FORM_VAR = "f"; //$NON-NLS-1$
 
-	public FormAnchorInfo(String name, Dimension size)
+	public FormAnchorInfo(String name, Dimension size, UUID id)
 	{
 		formName = name;
 		formSize = size;
+		formID = id;
 	}
 
 	public FormPartAnchorInfo addPart(String partName, String webID, int height)
@@ -144,7 +147,7 @@ public final class FormAnchorInfo implements Comparable<FormAnchorInfo>
 		if (obj instanceof FormAnchorInfo)
 		{
 			FormAnchorInfo fai = (FormAnchorInfo)obj;
-			return Utils.equalObjects(fai.formName, formName) && Utils.equalObjects(fai.formSize, formSize) &&
+			return Utils.equalObjects(fai.formID, formID) && Utils.equalObjects(fai.formName, formName) && Utils.equalObjects(fai.formSize, formSize) &&
 				Utils.equalObjects(fai.bodyContainerId, bodyContainerId) && Utils.equalObjects(fai.navigatorWebId, navigatorWebId) &&
 				Utils.equalObjects(fai.parts, parts) && fai.isTableView == isTableView && fai.isTopLevelForm == isTopLevelForm &&
 				fai.isTopLevelNavigator == isTopLevelNavigator;
@@ -163,6 +166,7 @@ public final class FormAnchorInfo implements Comparable<FormAnchorInfo>
 		StringBuffer sb = new StringBuffer("\n[FormAnchorInfo:\n");
 		sb.append("\tform name=").append(formName).append("\n");
 		sb.append("\tform size=").append(formSize).append("\n");
+		sb.append("\tform id=").append(formID).append("\n");
 		if (parts == null) sb.append("\tnull anchor info\n");
 		else
 		{
@@ -180,7 +184,10 @@ public final class FormAnchorInfo implements Comparable<FormAnchorInfo>
 
 	public int compareTo(FormAnchorInfo o)
 	{
-		return this.formName.compareTo(o.formName);
+		int nameCompare = this.formName.compareTo(o.formName);
+		if (nameCompare != 0) return nameCompare;
+
+		return this.formID.equals(o.formID) ? nameCompare : this.formID.compareTo(o.formID);
 	}
 
 	/**
