@@ -1313,6 +1313,14 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		scrollRectToVisible(cellRect);
 	}
 
+	public void setVisibleRect(Rectangle scrollPosition)
+	{
+		if (isVisible())
+		{
+			scrollRectToVisible(scrollPosition);
+		}
+	}
+
 	/**
 	 * @see com.servoy.j2db.IView#removeListSelectionListener(javax.swing.event.ListSelectionListener)
 	 */

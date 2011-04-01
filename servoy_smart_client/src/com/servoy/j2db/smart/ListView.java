@@ -19,6 +19,7 @@ package com.servoy.j2db.smart;
 
 import java.awt.Component;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.List;
@@ -303,6 +304,14 @@ public class ListView extends JEditList implements IView, ISupportRowStyling
 	public Style getRowSelectedStyle()
 	{
 		return selectedStyle;
+	}
+
+	public void setVisibleRect(Rectangle scrollPosition)
+	{
+		if (isVisible())
+		{
+			scrollRectToVisible(scrollPosition);
+		}
 	}
 
 }

@@ -17,6 +17,7 @@
 package com.servoy.j2db.server.headlessclient.dataui;
 
 
+import java.awt.Rectangle;
 import java.util.List;
 
 import org.apache.wicket.Component;
@@ -172,6 +173,16 @@ public class WebRecordView extends WebMarkupContainer implements IView
 
 	public void ensureIndexIsVisible(int index)
 	{
+	}
+
+	public Rectangle getVisibleRect()
+	{
+		return null;
+	}
+
+	public void setVisibleRect(Rectangle scrollPosition)
+	{
+
 	}
 
 	public boolean isDisplayingMoreThanOneRecord()

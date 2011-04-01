@@ -18,6 +18,7 @@ package com.servoy.j2db.smart;
 
 
 import java.awt.BorderLayout;
+import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
@@ -376,5 +377,13 @@ public class RecordView extends EnablePanel implements ChangeListener, ListDataL
 	public void setEditable(boolean findMode)
 	{
 		//TODO: done elsewhere?
+	}
+
+	public void setVisibleRect(Rectangle scrollPosition)
+	{
+		if (isVisible())
+		{
+			scrollRectToVisible(scrollPosition);
+		}
 	}
 }

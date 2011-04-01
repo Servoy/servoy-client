@@ -2306,6 +2306,16 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	{
 	}
 
+	public Rectangle getVisibleRect()
+	{
+		return null;
+	}
+
+	public void setVisibleRect(Rectangle scrollPosition)
+	{
+
+	}
+
 	public boolean isDisplayingMoreThanOneRecord()
 	{
 		return true;

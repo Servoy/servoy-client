@@ -17,6 +17,8 @@
 package com.servoy.j2db;
 
 
+import java.awt.Rectangle;
+
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.ui.ISupportRowBGColorScript;
 import com.servoy.j2db.util.IDestroyable;
@@ -47,4 +49,8 @@ public interface IView extends ISupportRowBGColorScript, IDestroyable
 	public void setEditable(boolean findMode);
 
 	public boolean isDisplayingMoreThanOneRecord();
+
+	public Rectangle getVisibleRect();
+
+	public void setVisibleRect(Rectangle scrollPosition);
 }

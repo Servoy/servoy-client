@@ -88,13 +88,13 @@ import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.IScriptSupport;
 import com.servoy.j2db.scripting.ITwoNativeJavaObject;
 import com.servoy.j2db.scripting.InstanceJavaMembers;
+import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.JSWindowImpl;
+import com.servoy.j2db.scripting.JSWindowImpl.JSWindow;
 import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.scripting.SelectedRecordScope;
 import com.servoy.j2db.scripting.SolutionScope;
-import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
-import com.servoy.j2db.scripting.JSWindowImpl.JSWindow;
 import com.servoy.j2db.ui.IAccessible;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
@@ -1583,7 +1583,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		// of a component on the form but
 		// onshow/onload that should be allowed
 		//if (isFormExecutingFunction()) return false;
-
+		Rectangle scrollPosition = null;
+		if (view != null) scrollPosition = view.getVisibleRect();
 		getFormUI().setDesignMode(null);
 		Form f = application.getFlattenedSolution().getForm(form.getName());
 		form = application.getFlattenedSolution().getFlattenedForm(f);
@@ -1618,6 +1619,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		// make sure this form is seen as new.
 		application.getFlattenedSolution().deregisterLiveForm(form, namedInstance);
 		application.getFlattenedSolution().registerLiveForm(form, namedInstance);
+		if (view != null && scrollPosition != null) view.setVisibleRect(scrollPosition);
 		return true;
 
 	}
