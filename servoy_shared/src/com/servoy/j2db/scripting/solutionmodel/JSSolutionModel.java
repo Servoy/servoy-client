@@ -369,6 +369,29 @@ public class JSSolutionModel
 		return false;
 	}
 
+	/**
+	 * Removes the relation specified by name.
+	 * 
+	 * @sample
+	 * var success = solutionModel.removeRelation('myRelation');
+	 * if (success) { application.output("Relation has been removed");}
+	 * else {application.output("Relation could not be removed");}
+	 * 
+	 * @param name the name of the relation to be removed
+	 * 
+	 * @return true if the removal was successful, false otherwise
+	 */
+	public boolean js_removeRelation(String name)
+	{
+		FlattenedSolution fs = application.getFlattenedSolution();
+		Relation rel = fs.getRelation(name.toLowerCase());
+		if (rel != null)
+		{
+			fs.deletePersistCopy(rel, false);
+			return true;
+		}
+		return false;
+	}
 
 	/**
 	 * Reverts the specified form to the original (blueprint) version of the form; will result in an exception error if the form is not an original form.
