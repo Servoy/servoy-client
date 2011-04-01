@@ -112,10 +112,7 @@ public abstract class JSWindowManager
 	 * When windows sit on top of other windows, the top-most windows should probably be closed first. (for example if you have many modal windows on top of each-other and
 	 * you need to close all the windows, you might want to keep closing the top-most window until all are closed)
 	 */
-	protected List<String> getOrderedContainers()
-	{
-		return ((FormManager)application.getFormManager()).getCreatedMainContainerKeys();
-	}
+	protected abstract List<String> getOrderedContainers();
 
 	protected boolean doCloseFormInWindow(IMainContainer container)
 	{

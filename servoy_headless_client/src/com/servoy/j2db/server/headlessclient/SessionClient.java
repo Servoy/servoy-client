@@ -243,7 +243,7 @@ public class SessionClient extends ClientState implements ISessionClient
 
 	protected JSWindowManager createJSWindowManager()
 	{
-		return new WebJSWindowManager(this);
+		return new DummyJSWindowManager(this);
 	}
 
 	public JSWindowManager getJSWindowManager()

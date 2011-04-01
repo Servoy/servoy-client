@@ -56,6 +56,7 @@ import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IFormManager;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.IWebClientApplication;
+import com.servoy.j2db.JSWindowManager;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.dataprocessing.IUserClient;
@@ -101,6 +102,12 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	public int getApplicationType()
 	{
 		return WEB_CLIENT;
+	}
+
+	@Override
+	protected JSWindowManager createJSWindowManager()
+	{
+		return new WebJSWindowManager(this);
 	}
 
 	@SuppressWarnings("nls")
