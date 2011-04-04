@@ -384,7 +384,7 @@ public class JSSolutionModel
 	public boolean js_removeRelation(String name)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
-		Relation rel = fs.getRelation(name.toLowerCase());
+		Relation rel = fs.getRelation(name);
 		if (rel != null)
 		{
 			fs.deletePersistCopy(rel, false);
