@@ -565,7 +565,8 @@ public class WebClient extends SessionClient implements IWebClientApplication
 			executeEvents();
 
 			super.shutDown(force);
-			if (WebClientSession.get() != null) WebClientSession.get().logout(); //valueUnbound will do real shutdown
+			if (RequestCycle.get() != null && WebClientSession.get() != null) WebClientSession.get().logout(); //valueUnbound will do real shutdown
+			else if (session != null) session.invalidate();
 		}
 		finally
 		{
