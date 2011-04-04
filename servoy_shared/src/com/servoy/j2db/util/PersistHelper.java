@@ -444,7 +444,9 @@ public class PersistHelper
 					Object compositeFont = ((Method)getCompositeFontMethod).invoke(null, retval);
 					if (compositeFont instanceof Font)
 					{
-						retval = (Font)compositeFont;
+						Font fnt = (Font)compositeFont;
+						// force Font object instead of FontUIResource
+						retval = fnt.deriveFont(fnt.getStyle());
 					}
 				}
 			}
