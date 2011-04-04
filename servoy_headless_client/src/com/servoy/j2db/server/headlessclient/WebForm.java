@@ -223,6 +223,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		TabIndexHelper.setUpTabIndexAttributeModifier(container, ISupportWebTabSeq.SKIP);
 		add(container);
 		readonly = false;
+		setOutputMarkupId(true);
 	}
 
 	public String getContainerMarkupId()
@@ -1731,5 +1732,4 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 	{
 		// was in FormController only called for SwingForm
 	}
-
 }

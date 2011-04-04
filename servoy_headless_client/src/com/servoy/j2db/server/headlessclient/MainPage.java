@@ -474,7 +474,39 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		if (useAJAX)
 		{
 			add(new TriggerUpdateAjaxBehavior()); // for when another page needs to trigger an ajax update on this page using js (see media upload) 
+			add(new AbstractServoyDefaultAjaxBehavior()
+			{
 
+				@Override
+				protected void respond(AjaxRequestTarget target)
+				{
+				}
+
+				@Override
+				public void renderHead(IHeaderResponse response)
+				{
+					super.renderHead(response);
+					Map<String, String[]> parameters = getRequestCycle().getRequest().getParameterMap();
+					if (parameters != null && !parameters.isEmpty()) //$NON-NLS-1$
+					{
+						for (String key : parameters.keySet())
+						{
+							if (key.startsWith("scroll_"))
+							{
+								String id = key.substring(7);
+								String[] values = parameters.get(key);
+								values = values[0].split("_");
+								if (values != null)
+								{
+									response.renderOnDomReadyJavascript("var element = document.getElementById('" + id +
+										"'); if (element){element.scrollLeft=" + values[0] + ";element.scrollTop=" + values[1] + "; }");
+								}
+							}
+						}
+					}
+				}
+
+			});
 			divDialogRepeater = new RepeatingView(DIV_DIALOG_REPEATER_ID);
 			divDialogsParent.add(divDialogRepeater);
 

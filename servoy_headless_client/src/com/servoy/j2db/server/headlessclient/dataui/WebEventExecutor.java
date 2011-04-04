@@ -46,6 +46,7 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.PageableListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.protocol.http.ClientProperties;
+import org.apache.wicket.protocol.http.RequestUtils;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
 
 import com.servoy.j2db.dataprocessing.FoundSet;
@@ -573,7 +574,8 @@ public class WebEventExecutor extends BaseEventExecutor
 					}
 				});
 
-				Object isDesignSwitch = page.visitChildren(WebForm.class, new Component.IVisitor<WebForm>()
+				final List<String> recreatedIDs = new ArrayList<String>();
+				page.visitChildren(WebForm.class, new Component.IVisitor<WebForm>()
 				{
 					/**
 					 * @see org.apache.wicket.Component.IVisitor#component(org.apache.wicket.Component)
@@ -582,15 +584,31 @@ public class WebEventExecutor extends BaseEventExecutor
 					{
 						if (component.isUIRecreated())
 						{
-							return Boolean.TRUE;
+							recreatedIDs.add(component.getMarkupId());
+							return IVisitor.CONTINUE_TRAVERSAL;
 						}
 						return IVisitor.CONTINUE_TRAVERSAL;
 					}
 				});
-				if (isDesignSwitch != null && ((Boolean)isDesignSwitch).booleanValue())
+				if (recreatedIDs.size() > 0)
 				{
 					page.ignoreVersionMerge();
-					RequestCycle.get().setResponsePage(page);
+					StringBuffer argument = new StringBuffer();
+					argument.append("\"");
+					argument.append(RequestUtils.toAbsolutePath(RequestCycle.get().urlFor(page).toString()));
+					argument.append("\"");
+					argument.append(",");
+					for (String id : recreatedIDs)
+					{
+						argument.append("\"");
+						argument.append(id);
+						argument.append("\"");
+						if (recreatedIDs.indexOf(id) != recreatedIDs.size() - 1)
+						{
+							argument.append(",");
+						}
+					}
+					target.appendJavascript("Servoy.Utils.redirectKeepingScrolls(" + argument + ");");
 					return;
 				}
 
