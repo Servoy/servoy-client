@@ -688,6 +688,77 @@ public class JSDatabaseManager
 		}
 	}
 
+	private boolean validateQueryArguments(Object[] arguments, String sql_query)
+	{
+		// TODO HOW TO HANDLE ARGS WITH NULL?? sHOULD BE CONVERTED TO NullValue?????
+		if (arguments != null)
+		{
+			for (int i = 0; i < arguments.length; i++)
+			{
+				if (arguments[i] instanceof java.util.Date)
+				{
+					arguments[i] = new Timestamp(((java.util.Date)arguments[i]).getTime());
+				}
+				else if (arguments[i] instanceof DbIdentValue && ((DbIdentValue)arguments[i]).getPkValue() == null)
+				{
+					Debug.log("Custom query: " + sql_query + //$NON-NLS-1$
+						" not executed because the arguments have a database ident value that is null, from a not yet saved record"); //$NON-NLS-1$
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	/**  
+	 * Performs a sql query on the specified server, saves the the result in a datasource.
+	 * Will throw an exception if anything went wrong when executing the query.
+	 * Column types in the datasource are inferred from the query result.
+	 *
+	 * @sample
+	 *  var query = 'select address, city, country  from customers';
+	 *  var uri = databaseManager.createDataSourceByQuery('mydata', 'example_data', query, null, 999);
+	 * 
+	 * // the uri can be used to create a form using solution model
+	 * var myForm = solutionModel.newForm('newForm', uri, 'myStyleName', false, 800, 600)
+	 * myForm.newTextField('city', 140, 20, 140,20)
+	 * 
+	 * // the uri can be used to acces a foundset directly
+	 * var fs = databaseManager.getFoundSet(uri)
+	 * fs.loadAllRecords();
+	 *
+	 * @param name data source name
+	 * @param server_name The name of the server where the query should be executed.
+	 * @param sql_query The custom sql.
+	 * @param arguments Specified arguments or null if there are no arguments.
+	 * @param max_returned_rows The maximum number of rows returned by the query.  
+	 * 
+	 * @return datasource containing the results of the query or null if the parameters are wrong. 
+	 */
+	public String js_createDataSourceByQuery(String name, String server_name, String sql_query, Object[] arguments, int max_returned_rows)
+		throws ServoyException
+	{
+		checkAuthorized();
+		if (server_name == null) throw new RuntimeException(new ServoyException(ServoyException.InternalCodes.SERVER_NOT_FOUND, new Object[] { "<null>" })); //$NON-NLS-1$
+		if (sql_query == null || sql_query.trim().length() == 0) throw new RuntimeException(new DataException(ServoyException.BAD_SQL_SYNTAX,
+			new SQLException(), sql_query));
+
+		if (!validateQueryArguments(arguments, sql_query))
+		{
+			return null;
+		}
+
+		try
+		{
+			return ((FoundSetManager)application.getFoundSetManager()).createDataSourceFromQuery(name, server_name, sql_query, arguments, max_returned_rows);
+		}
+		catch (ServoyException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
 	/**
 	 * Performs a sql query on the specified server, returns the result in a dataset.
 	 * Will throw an exception if anything did go wrong when executing the query.
@@ -695,7 +766,7 @@ public class JSDatabaseManager
 	 * @sample
 	 * //finds duplicate records in a specified foundset
 	 * var vQuery =" SELECT companiesid from companies where company_name IN (SELECT company_name from companies group bycompany_name having count(company_name)>1 )";
-	 * var vDataset =databaseManager.getDataSetByQuery(databaseManager.getDataSourceServerName(controller.getDataSource()), vQuery, null, 1000);
+	 * var vDataset = databaseManager.getDataSetByQuery(databaseManager.getDataSourceServerName(controller.getDataSource()), vQuery, null, 1000);
 	 * controller.loadRecords(vDataset);
 	 * 
 	 * var maxReturnedRows = 10;//useful to limit number of rows
@@ -731,23 +802,11 @@ public class JSDatabaseManager
 		if (sql_query == null || sql_query.trim().length() == 0) throw new RuntimeException(new DataException(ServoyException.BAD_SQL_SYNTAX,
 			new SQLException(), sql_query));
 
-		// TODO HOW TO HANDLE ARGS WITH NULL?? sHOULD BE CONVERTED TO NullValue?????
-		if (arguments != null)
+		if (!validateQueryArguments(arguments, sql_query))
 		{
-			for (int i = 0; i < arguments.length; i++)
-			{
-				if (arguments[i] instanceof java.util.Date)
-				{
-					arguments[i] = new Timestamp(((java.util.Date)arguments[i]).getTime());
-				}
-				else if (arguments[i] instanceof DbIdentValue && ((DbIdentValue)arguments[i]).getPkValue() == null)
-				{
-					Debug.log("Custom query: " + sql_query + //$NON-NLS-1$
-						" not executed because the arguments have a database ident value that is null, from a not yet saved record"); //$NON-NLS-1$
-					return new JSDataSet(application);
-				}
-			}
+			return new JSDataSet(application);
 		}
+
 		try
 		{
 			return new JSDataSet(application, ((FoundSetManager)application.getFoundSetManager()).getDataSetByQuery(server_name, sql_query, arguments,
@@ -756,9 +815,6 @@ public class JSDatabaseManager
 		catch (ServoyException e)
 		{
 			throw new RuntimeException(e);
-//			Debug.error(e);
-//			if (application != null) application.handleException(null, e);
-//			return new JSDataSet(e);
 		}
 	}
 
@@ -1947,7 +2003,7 @@ public class JSDatabaseManager
 	 *
 	 * @sample
 	 * //return all the table names as array
-	 * var tableNamesArray =databaseManager.getTableNames('user_data');
+	 * var tableNamesArray = databaseManager.getTableNames('user_data');
 	 * var firstTableName = tableNamesArray[0];
 	 *
 	 * @param serverName The server name to get the table names from.
@@ -1965,7 +2021,7 @@ public class JSDatabaseManager
 	 *
 	 * @sample
 	 * //return all the view names as array
-	 * var viewNamesArray =databaseManager.getViewNames('user_data');
+	 * var viewNamesArray = databaseManager.getViewNames('user_data');
 	 * var firstViewName = viewNamesArray[0];
 	 *
 	 * @param serverName The server name to get the view names from.

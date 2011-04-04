@@ -60,6 +60,7 @@ import com.servoy.j2db.query.IQueryElement;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.query.QueryColumnValue;
+import com.servoy.j2db.query.QueryCustomSelect;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.scripting.GlobalScope;
@@ -1615,34 +1616,94 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return null;
 	}
 
-
-	public IDataSet getDataSetByQuery(String serverName, String sql, Object[] args, int maxNumberOfRowsToRetrieve) throws ServoyException
+	private boolean checkQueryForSelect(String sql)
 	{
-		IDataSet set = null;
+		if (sql == null) return false;
+
 		String lowerCaseSql = sql.trim().toLowerCase();
 		int withIndex = lowerCaseSql.indexOf("with"); //$NON-NLS-1$
 		int selectIndex = lowerCaseSql.indexOf("select"); //$NON-NLS-1$
 		int callIndex = lowerCaseSql.indexOf("call"); //$NON-NLS-1$
-		if ((selectIndex != -1 && selectIndex < 4) || (callIndex != -1 && callIndex < 4) || (withIndex != -1 && withIndex < 4))
-		{
-			IDataServer ds = application.getDataServer();
-			String transaction_id = getTransactionID(serverName);
-			try
-			{
-				long time = System.currentTimeMillis();
-				set = ds.performCustomQuery(application.getClientID(), serverName, "<user_query>", transaction_id, sql, args, 0, maxNumberOfRowsToRetrieve); //$NON-NLS-1$
-				if (Debug.tracing())
-				{
-					Debug.trace("Custom query, time: " + (System.currentTimeMillis() - time) + " thread: " + Thread.currentThread().getName() + " SQL: " + sql); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-				}
+		return ((selectIndex != -1 && selectIndex < 4) || (callIndex != -1 && callIndex < 4) || (withIndex != -1 && withIndex < 4));
+	}
 
-			}
-			catch (RemoteException e)
+	public IDataSet getDataSetByQuery(String serverName, String sql, Object[] args, int maxNumberOfRowsToRetrieve) throws ServoyException
+	{
+		if (!checkQueryForSelect(sql))
+		{
+			return null;
+		}
+
+		IDataServer ds = application.getDataServer();
+		String transaction_id = getTransactionID(serverName);
+		IDataSet set = null;
+		try
+		{
+			long time = System.currentTimeMillis();
+			set = ds.performCustomQuery(application.getClientID(), serverName, "<user_query>", transaction_id, sql, args, 0, maxNumberOfRowsToRetrieve); //$NON-NLS-1$
+			if (Debug.tracing())
 			{
-				throw new RepositoryException(e);
+				Debug.trace("Custom query, time: " + (System.currentTimeMillis() - time) + " thread: " + Thread.currentThread().getName() + " SQL: " + sql); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 			}
+
+		}
+		catch (RemoteException e)
+		{
+			throw new RepositoryException(e);
 		}
 		return set;
+	}
+
+	public String createDataSourceFromQuery(String name, String serverName, String sql, Object[] args, int maxNumberOfRowsToRetrieve) throws ServoyException
+	{
+		if (name == null || !checkQueryForSelect(sql))
+		{
+			return null;
+		}
+
+		try
+		{
+			String queryTid = getTransactionID(serverName);
+
+			String dataSource = DataSourceUtils.createInmemDataSource(name);
+			ITable table = inMemDataSources.get(dataSource);
+			if (table != null)
+			{
+				// temp table was used before, delete all data in it
+				FoundSet foundSet = (FoundSet)getSharedFoundSet(dataSource, null);
+				foundSet.removeLastFound();
+				try
+				{
+					foundSet.deleteAllRecords();
+				}
+				catch (Exception e)
+				{
+					Debug.log(e);
+					table = null;
+				}
+			}
+			GlobalTransaction gt = getGlobalTransaction();
+			String targetTid = null;
+			if (gt != null)
+			{
+				targetTid = gt.getTransactionID(table == null ? IServer.INMEM_SERVER : table.getServerName());
+			}
+
+			table = application.getDataServer().insertQueryResult(application.getClientID(), serverName, queryTid, new QueryCustomSelect(sql, args), null,
+				false, 0, maxNumberOfRowsToRetrieve, IDataServer.CUSTOM_QUERY, dataSource, table == null ? IServer.INMEM_SERVER : table.getServerName(),
+				table == null ? null : table.getName() /* create temp table when null */, targetTid);
+			if (table != null)
+			{
+				inMemDataSources.put(dataSource, table);
+				fireTableEvent(table);
+				return dataSource;
+			}
+		}
+		catch (RemoteException e)
+		{
+			throw new RepositoryException(e);
+		}
+		return null;
 	}
 
 	@Override

@@ -647,6 +647,41 @@ public class ProfileDataServer implements IDataServer
 
 	/**
 	 * @param client_id
+	 * @param queryServerName
+	 * @param queryTid
+	 * @param sqlSelect the sql statement
+	 * @param filters filters to apply
+	 * @param distinctInMemory require distinct values but query is not distinct
+	 * @param startRow start row normally 0
+	 * @param rowsToRetrieve rowsToRetrieve number of rows to retrieve
+	 * @param type query type
+	 * @param dataSource
+	 * @param targetServerName
+	 * @param targetTableName when null a temporary table will be created
+	 * @param targetTid transaction id
+	 * @return the table where the set was inserted into
+	 * @throws ServoyException
+	 * @throws RemoteException
+	 */
+	public ITable insertQueryResult(String client_id, String queryServerName, String queryTid, ISQLSelect sqlSelect, ArrayList filters,
+		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, String dataSource, String targetServerName, String targetTableName,
+		String targetTid) throws ServoyException, RemoteException
+	{
+		long startTime = System.currentTimeMillis();
+		try
+		{
+			return dataserver.insertQueryResult(client_id, queryServerName, queryTid, sqlSelect, filters, distinctInMemory, startRow, rowsToRetrieve, type,
+				dataSource, targetServerName, targetTableName, targetTid);
+		}
+		finally
+		{
+			QuerySet set = getSQLQuerySet(queryServerName, sqlSelect, filters, startRow, rowsToRetrieve, false);
+			informListeners("FillDataSource", queryServerName, set.getSelect().getSql(), queryTid, startTime, set.getSelect().getParameters());
+		}
+	}
+
+	/**
+	 * @param client_id
 	 * @param serverName
 	 * @param tableName
 	 * @throws RemoteException
