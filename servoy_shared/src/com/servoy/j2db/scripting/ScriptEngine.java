@@ -28,8 +28,10 @@ import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.JavaScriptException;
+import org.mozilla.javascript.NativeFunction;
 import org.mozilla.javascript.NativeJavaClass;
 import org.mozilla.javascript.NativeJavaObject;
+import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.Wrapper;
@@ -561,7 +563,17 @@ public class ScriptEngine implements IScriptSupport
 		Context cx = Context.enter();
 		try
 		{
-			Object o = cx.evaluateString(scope, eval_string, "internal_anon", 1, null); //$NON-NLS-1$
+			Object o = null;
+			Function compileFunction = cx.compileFunction(scope, "function evalFunction(){}", "evalFunction", 0, null); //$NON-NLS-1$ //$NON-NLS-2$ 
+			if (compileFunction instanceof NativeFunction)
+			{
+				o = cx.evaluateString(ScriptRuntime.createFunctionActivation((NativeFunction)compileFunction, scope, null), eval_string,
+					"internal_anon", 1, null); //$NON-NLS-1$
+			}
+			else
+			{
+				o = cx.evaluateString(scope, eval_string, "internal_anon", 1, null); //$NON-NLS-1$
+			}
 			if (o instanceof Wrapper)
 			{
 				o = ((Wrapper)o).unwrap();
