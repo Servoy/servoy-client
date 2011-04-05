@@ -193,8 +193,9 @@ public class JSLib
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Guide/Predefined_Functions/parseInt_and_parseFloat_Functions
 	 */
-	public void js_parseFloat()
+	public Number js_parseFloat()
 	{
+		return null;
 	}
 
 	/**
@@ -204,8 +205,9 @@ public class JSLib
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Guide/Predefined_Functions/parseInt_and_parseFloat_Functions
 	 */
-	public void js_parseInt()
+	public Number js_parseInt()
 	{
+		return null;
 	}
 
 	/**
