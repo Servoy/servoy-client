@@ -28,7 +28,6 @@ import org.jabsorb.serializer.impl.BeanSerializer;
 import org.jabsorb.serializer.impl.BooleanSerializer;
 import org.jabsorb.serializer.impl.DateSerializer;
 import org.jabsorb.serializer.impl.DictionarySerializer;
-import org.jabsorb.serializer.impl.ListSerializer;
 import org.jabsorb.serializer.impl.MapSerializer;
 import org.jabsorb.serializer.impl.NumberSerializer;
 import org.jabsorb.serializer.impl.PrimitiveSerializer;
@@ -54,17 +53,10 @@ public class JSONSerializerWrapper
 {
 	private JSONSerializer serializer;
 	private final Serializer defaultSerializer;
-	private final boolean handleArrays;
 
 	public JSONSerializerWrapper(Serializer defaultSerializer)
 	{
-		this(defaultSerializer, false);
-	}
-
-	public JSONSerializerWrapper(Serializer defaultSerializer, boolean handleArrays)
-	{
 		this.defaultSerializer = defaultSerializer;
-		this.handleArrays = handleArrays;
 	}
 
 	public Object toJSON(Object obj) throws Exception
@@ -134,10 +126,7 @@ public class JSONSerializerWrapper
 				serializer.registerSerializer(new DictionarySerializer());
 				serializer.registerSerializer(new MapSerializer());
 				serializer.registerSerializer(new SetSerializer());
-				if (!handleArrays)
-				{
-					serializer.registerSerializer(new ListSerializer()); // is handled by NativeObjectSerializer
-				}
+				// serializer.registerSerializer(new ListSerializer()); // is handled by NativeObjectSerializer
 				serializer.registerSerializer(new DateSerializer());
 				serializer.registerSerializer(new StringSerializer());
 				serializer.registerSerializer(new NumberSerializer());
