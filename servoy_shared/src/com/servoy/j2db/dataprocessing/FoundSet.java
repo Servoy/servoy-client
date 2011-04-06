@@ -2931,6 +2931,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	public int getSize()
 	{
+		return getRawSize();
+	}
+
+	// get the size without the danger of firing a query
+	protected final int getRawSize()
+	{
 		int retval = 0;
 		if (findMode)
 		{
@@ -4780,7 +4786,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		sb.append("FoundSet[Table:"); //$NON-NLS-1$
 		sb.append(getTable() == null ? "<none>" : getTable().getName()); //$NON-NLS-1$
 		sb.append(",Size: "); //$NON-NLS-1$
-		sb.append(getSize());
+		sb.append(getRawSize());
 		if (relationName != null)
 		{
 			sb.append(",Relation: "); //$NON-NLS-1$

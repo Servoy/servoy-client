@@ -898,7 +898,7 @@ public abstract class RelatedFoundSet extends FoundSet
 			try
 			{
 				long time = System.currentTimeMillis();
-				int oldSize = super.getSize();
+				int oldSize = getRawSize();
 				String transaction_id = fsm.getTransactionID(sheet);
 				QuerySelect sqlSelect = getPksAndRecords().getQuerySelectForReading();
 				IDataSet pks = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, sqlSelect,
@@ -925,7 +925,7 @@ public abstract class RelatedFoundSet extends FoundSet
 				// differences: selected record isn't tried to keep in sync with pk, new records are handled different.
 				// boolean must be false before clear (that fires a aggregate change so again a getRecord())
 				clearInternalState(true);
-				fireDifference(oldSize, super.getSize());
+				fireDifference(oldSize, getRawSize());
 			}
 			catch (ServoyException ex)
 			{
