@@ -1129,7 +1129,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 
 		// only act on new foundsets or size changes for related foundsets
 		if (e.getType() == FoundSetEvent.NEW_FOUNDSET ||
-			(e.getType() == FoundSetEvent.CONTENTS_CHANGED && (e.getChangeType() == FoundSetEvent.CHANGE_INSERT || e.getChangeType() == FoundSetEvent.CHANGE_DELETE)))
+			(e.getType() == FoundSetEvent.CONTENTS_CHANGED && (e.getChangeType() == FoundSetEvent.CHANGE_INSERT ||
+				e.getChangeType() == FoundSetEvent.FOUNDSET_INVALIDATED || e.getChangeType() == FoundSetEvent.CHANGE_DELETE)))
 		{
 			if (sourceFoundset instanceof RelatedFoundSet && !sourceFoundset.isInFindMode())
 			{

@@ -1274,10 +1274,10 @@ public class EditRecordList
 			Map.Entry<FoundSet, int[]> entry = it.next();
 			int[] indexen = entry.getValue();
 			FoundSet fs = entry.getKey();
-			if (indexen[0] == 0 && indexen[1] < 0)
+			if (indexen[0] < 0 && indexen[1] < 0)
 			{
-				// fire size change of currently empty foundset
-				fs.fireFoundSetEvent(0, -1 - indexen[1], FoundSetEvent.CHANGE_INSERT);
+				// fire foundset-invalidated
+				fs.fireFoundSetEvent(-1, -1, FoundSetEvent.FOUNDSET_INVALIDATED);
 			}
 			else
 			{
