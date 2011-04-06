@@ -45,55 +45,6 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	 */
 
 	/**
-	 * Set the name
-	 * 
-	 * @param arg the name
-	 */
-	@Override
-	public void setName(String arg)
-	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
-	}
-
-	/**
-	 * Update the name
-	 * 
-	 * @param arg the name
-	 */
-	@Override
-	public void updateName(IValidateName validator, String arg) throws RepositoryException
-	{
-		if (arg != null)
-		{
-			validator.checkName(arg, getID(), new ValidatorSearchContext(getParent(), IRepository.ELEMENTS), false);
-		}
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
-	}
-
-	@Override
-	public String getName()
-	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_NAME);
-	}
-
-	/**
-	 * Set the anchors
-	 * 
-	 * @param arg the anchors
-	 */
-	@Override
-	public void setAnchors(int arg)
-	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ANCHORS, arg);
-	}
-
-	@Override
-	public int getAnchors()
-	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ANCHORS).intValue();
-	}
-
-	/**
 	 * Set the actionMethodID
 	 * 
 	 * @param arg the actionMethodID
@@ -196,17 +147,6 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	}
 
 
-	/**
-	 * Set the size
-	 * 
-	 * @param arg the size
-	 */
-	@Override
-	public void setSize(java.awt.Dimension arg)
-	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE, arg);
-	}
-
 	@Override
 	public java.awt.Dimension getSize()
 	{
@@ -215,105 +155,10 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 		return size;
 	}
 
-	/**
-	 * Set the location
-	 * 
-	 * @param arg the location
-	 */
-	@Override
-	public void setLocation(java.awt.Point arg)
-	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_LOCATION, arg);
-	}
-
 	@Override
 	public java.awt.Point getLocation()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_LOCATION);
-	}
-
-	/**
-	 * Set the printable
-	 * 
-	 * @param arg the printable
-	 */
-	@Override
-	public void setPrintable(boolean arg)
-	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_PRINTABLE, arg);
-	}
-
-	@Override
-	public boolean getPrintable()
-	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_PRINTABLE).booleanValue();
-	}
-
-
-	/**
-	 * Set the formIndex
-	 * 
-	 * @param arg the formIndex
-	 */
-	@Override
-	public void setFormIndex(int arg)
-	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_FORMINDEX, arg);
-	}
-
-	/**
-	 * Get the formIndex
-	 * 
-	 * @return the formIndex
-	 */
-	@Override
-	public int getFormIndex()
-	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_FORMINDEX).intValue();
-	}
-
-	/**
-	 * Returns the groupID.
-	 * 
-	 * @return int
-	 */
-	@Override
-	public String getGroupID()
-	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_GROUPID);
-	}
-
-	/**
-	 * Returns the locked.
-	 * 
-	 * @return boolean
-	 */
-	@Override
-	public boolean getLocked()
-	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_LOCKED).booleanValue();
-	}
-
-	/**
-	 * Sets the groupID.
-	 * 
-	 * @param groupID The groupID to set
-	 */
-	@Override
-	public void setGroupID(String arg)
-	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_GROUPID, arg);
-	}
-
-	/**
-	 * Sets the locked.
-	 * 
-	 * @param locked The locked to set
-	 */
-	@Override
-	public void setLocked(boolean arg)
-	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_LOCKED, arg);
 	}
 
 	/**
