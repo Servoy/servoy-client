@@ -30,7 +30,6 @@ import com.servoy.j2db.persistence.InfoChannel;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
-import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.server.shared.IApplicationServerSingleton;
 
@@ -90,30 +89,6 @@ public class HeadlessClientFactoryInternal
 			throw exception[0];
 		}
 		return sc[0];
-	}
-
-	public static ISessionClient createAuthenticator(String authenticatorName, String method, Object[] solutionOpenMethodArgs) throws Exception
-	{
-		ISessionClient sc;
-		IApplicationServerSingleton as = ApplicationServerSingleton.get();
-		if (as.isDeveloperStartup())
-		{
-			sc = as.getDebugClientHandler().createDebugAuthenticator(authenticatorName, method, solutionOpenMethodArgs);
-		}
-		else
-		{
-			sc = new SessionClient(null, null, null, method, solutionOpenMethodArgs, authenticatorName)
-			{
-				@Override
-				protected int getSolutionTypeFilter()
-				{
-					return SolutionMetaData.AUTHENTICATOR;
-				}
-			};
-		}
-		sc.setUseLoginSolution(false);
-		sc.loadSolution(authenticatorName);
-		return sc;
 	}
 
 	public static ISessionClient createImportHookClient(final Solution importHookModule, final InfoChannel channel) throws Exception
