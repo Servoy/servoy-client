@@ -1144,7 +1144,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	/**
 	 * Authenticate to the Servoy Server using one of the installed authenticators or the Servoy default authenticator.
 	 * 
-	 * Note: this method should be called from a login solution.
+	 * Note: this method should be called from a login solution, once logged in, the authenticate method has no effect.
 	 * 
 	 * @sample
 	 * // create the credentials object as expected by the authenticator solution
