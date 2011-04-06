@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -1081,69 +1080,6 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 			}
 		}
 		return new Dimension(min, max);
-	}
-
-	public List<BaseComponent> getOverlapingFormElements(BaseComponent formElement)
-	{
-		List<BaseComponent> overlapingElements = new LinkedList<BaseComponent>();
-
-		Dimension formElementDimension = null;
-		Point formElementUpLeft = null;
-		Point formElementRightDown = null;
-		double formElementHeight = 0;
-		double formElementWidth = 0;
-
-		formElementDimension = (Dimension)(formElement).getProperty(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName());
-		formElementUpLeft = (Point)(formElement).getProperty(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName());
-		if (formElementDimension != null && formElementUpLeft != null)
-		{
-			formElementHeight = formElementDimension.getHeight();
-			formElementWidth = formElementDimension.getWidth();
-			formElementRightDown = new Point((int)formElementUpLeft.getX() + (int)formElementWidth, (int)formElementUpLeft.getY() + (int)formElementHeight);
-		}
-
-		Iterator<IPersist> it = getAllObjects();
-		while (it.hasNext())
-		{
-			IPersist element = it.next();
-			if (element instanceof BaseComponent)
-			{
-				BaseComponent itBaseComponent = (BaseComponent)element;
-				if (element.getUUID() == (formElement).getUUID())
-				{
-					continue;
-				}
-				Dimension elementDimension = (Dimension)itBaseComponent.getProperty(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName());
-				double elementWidth = elementDimension.getWidth();
-				double elementHeight = elementDimension.getHeight();
-				Point elementUpLeft = (Point)itBaseComponent.getProperty(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName());
-				Point elementDownRight = (Point)itBaseComponent.getProperty(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName());
-				elementDownRight.setLocation(elementDownRight.getX() + elementWidth, elementDownRight.getY() + elementHeight);
-				if (elementDimension != null && elementUpLeft != null)
-				{
-					if ((((elementUpLeft.getX() >= formElementUpLeft.getX() && elementUpLeft.getX() <= formElementRightDown.getX()) && (elementUpLeft.getY() >= formElementUpLeft.getY() && elementUpLeft.getY() <= formElementRightDown.getY())) ||
-						((elementUpLeft.getX() + elementWidth >= formElementUpLeft.getX() && elementUpLeft.getX() + elementWidth <= formElementRightDown.getX()) && (elementUpLeft.getY() >= formElementUpLeft.getY() && elementUpLeft.getY() <= formElementRightDown.getY())) ||
-						((elementUpLeft.getX() >= formElementUpLeft.getX() && elementUpLeft.getX() <= formElementRightDown.getX()) && (elementUpLeft.getY() +
-							elementHeight >= formElementUpLeft.getY() && elementUpLeft.getY() + elementHeight <= formElementRightDown.getY())) || ((elementUpLeft.getX() +
-						elementWidth >= formElementUpLeft.getX() && elementUpLeft.getX() + elementWidth <= formElementRightDown.getX()) && (elementUpLeft.getY() +
-						elementHeight >= formElementUpLeft.getY() && elementUpLeft.getY() + elementHeight <= formElementRightDown.getY()))) ||
-
-						(((formElementUpLeft.getX() >= elementUpLeft.getX() && formElementUpLeft.getX() <= elementDownRight.getX()) && (formElementUpLeft.getY() >= elementUpLeft.getY() && formElementUpLeft.getY() <= elementDownRight.getY())) ||
-							((formElementUpLeft.getX() + formElementWidth >= elementUpLeft.getX() && formElementUpLeft.getX() + formElementWidth <= elementDownRight.getX()) && (formElementUpLeft.getY() >= elementUpLeft.getY() && formElementUpLeft.getY() <= elementDownRight.getY())) ||
-							((formElementUpLeft.getX() >= elementUpLeft.getX() && formElementUpLeft.getX() <= elementDownRight.getX()) && (formElementUpLeft.getY() +
-								formElementHeight >= elementUpLeft.getY() && formElementUpLeft.getY() + formElementHeight <= elementDownRight.getY())) || ((formElementUpLeft.getX() +
-							formElementWidth >= elementUpLeft.getX() && formElementUpLeft.getX() + formElementWidth <= elementDownRight.getX()) && (formElementUpLeft.getY() +
-							formElementHeight >= elementUpLeft.getY() && formElementUpLeft.getY() + formElementHeight <= elementDownRight.getY()))))
-					{
-						overlapingElements.add((BaseComponent)element);
-					}
-				}
-			}
-		}
-
-		if (overlapingElements.size() != 0) return overlapingElements;
-
-		return null;
 	}
 
 	/**
