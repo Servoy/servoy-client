@@ -165,6 +165,7 @@ public class Settings extends SortedProperties
 		{
 			String lnf = getProperty("selectedlnf"); //$NON-NLS-1$
 			String theme = getProperty("lnf.theme"); //$NON-NLS-1$
+			String font = getProperty("font"); //$NON-NLS-1$
 			// keep the lnf the user has selected
 			if (lnf != null && getProperty(base.getHost() + base.getPort() + "_selectedlnf") == null) //$NON-NLS-1$
 			{
@@ -173,6 +174,10 @@ public class Settings extends SortedProperties
 			if (theme != null && getProperty(base.getHost() + base.getPort() + "_lnf.theme") == null) //$NON-NLS-1$
 			{
 				setProperty(base.getHost() + base.getPort() + "_lnf.theme", theme); //$NON-NLS-1$
+			}
+			if (font != null && getProperty(base.getHost() + base.getPort() + "_font") == null) //$NON-NLS-1$
+			{
+				setProperty(base.getHost() + base.getPort() + "_font", font); //$NON-NLS-1$
 			}
 		}
 		else if (currentLnf != null)

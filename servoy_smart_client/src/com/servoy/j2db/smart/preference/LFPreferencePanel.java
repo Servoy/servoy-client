@@ -272,7 +272,7 @@ public class LFPreferencePanel extends PreferencePanel implements ItemListener, 
 				_application.getSettings().setProperty(clientPrefix + "selectedlnf", c_laf); //$NON-NLS-1$
 				if (_selectedFont != null)
 				{
-					_application.getSettings().setProperty("font", PersistHelper.createFontString(_selectedFont)); //$NON-NLS-1$
+					_application.getSettings().setProperty(clientPrefix + "font", PersistHelper.createFontString(_selectedFont)); //$NON-NLS-1$
 				}
 			}
 			else
