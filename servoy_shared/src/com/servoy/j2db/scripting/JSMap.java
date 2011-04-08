@@ -24,13 +24,28 @@ import java.util.HashMap;
  * HashMap extension to implement JSConvertedMap.
  * This instructs the Servoy engine how to convert data to scriptable objects before returning it to the scripting engine.
  * 
- * @author pbakker
+ * @author lvostinar
  *
  */
-public class JSMap extends HashMap<String, String[]> implements JSConvertedMap<String, String[]>
+public class JSMap extends HashMap<Object, Object> implements JSConvertedMap<Object, Object>
 {
+	private final String constructorName;
+
+	/**
+	 * @param constructorName
+	 */
+	public JSMap(String constructorName)
+	{
+		this.constructorName = constructorName;
+	}
+
+	public JSMap()
+	{
+		this("Object"); //$NON-NLS-1$
+	}
+
 	public String getConstructorName()
 	{
-		return "Object"; //$NON-NLS-1$
+		return constructorName;
 	}
 }

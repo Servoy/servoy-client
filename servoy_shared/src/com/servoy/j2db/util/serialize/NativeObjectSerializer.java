@@ -17,7 +17,6 @@
 package com.servoy.j2db.util.serialize;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,7 +35,7 @@ import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeFunction;
 import org.mozilla.javascript.NativeObject;
 
-import com.servoy.j2db.scripting.JSConvertedMap;
+import com.servoy.j2db.scripting.JSMap;
 
 
 /**
@@ -362,23 +361,5 @@ public class NativeObjectSerializer extends AbstractSerializer
 			}
 		}
 		return false;
-	}
-
-	private static class JSMap extends HashMap<Object, Object> implements JSConvertedMap<Object, Object>
-	{
-		private final String name;
-
-		private JSMap(String name)
-		{
-			this.name = name;
-		}
-
-		/**
-		 * @see com.servoy.j2db.scripting.JSConvertedMap#getNativeObjectConstructorName()
-		 */
-		public String getConstructorName()
-		{
-			return name;
-		}
 	}
 }
