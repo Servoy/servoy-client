@@ -21,7 +21,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.Timer;
@@ -52,8 +54,8 @@ public class ColumnSortListener extends MouseAdapter
 	private final IApplication application;
 	private final TableView table;
 	private final FormController fc;//can be null if portal!
+	private final Map<Integer, Boolean> lastColumnIndex = new HashMap<Integer, Boolean>();
 	private boolean lastSortAsc = false;
-	private int lastColumnIndex = -1;
 	private Timer sortTimer = null;
 
 	public ColumnSortListener(IApplication app, TableView table, FormController fc)
@@ -113,20 +115,28 @@ public class ColumnSortListener extends MouseAdapter
 				return;
 			}
 
-			lastSortAsc = columnModelIndex == lastColumnIndex ? !lastSortAsc : true;
-			lastColumnIndex = columnModelIndex;
+			lastSortAsc = lastColumnIndex.containsKey(columnModelIndex) ? !lastColumnIndex.get(columnModelIndex) : true;
 
 			if ((fc != null) && (column instanceof CellAdapter) && e.getClickCount() <= 1 && table.getModel() instanceof IFoundSetInternal)
 			{
 				List<SortColumn> sortCols = ((IFoundSetInternal)table.getModel()).getSortColumns();
 				if (sortCols != null && sortCols.size() > 0)
 				{
-					SortColumn sc = sortCols.get(0);
-					CellAdapter ca = (CellAdapter)column;
-					if (sc.getDataProviderID().equals(ca.getDataProviderID())) lastSortAsc = sc.getSortOrder() == SortColumn.DESCENDING;
+					for (SortColumn sc : sortCols)
+					{
+						CellAdapter ca = (CellAdapter)column;
+						if (sc.getDataProviderID().equals(ca.getDataProviderID())) lastSortAsc = sc.getSortOrder() == SortColumn.DESCENDING;
+					}
 				}
 			}
 
+			if (!e.isShiftDown())
+			{
+				// clear previous data
+				table.sortHeadersClicked(-1, true);
+				lastColumnIndex.clear();
+			}
+			lastColumnIndex.put(columnModelIndex, lastSortAsc);
 			table.sortHeadersClicked(columnModelIndex, lastSortAsc);
 
 			if (column instanceof CellAdapter && table.getModel() instanceof IFoundSetInternal)
@@ -175,8 +185,21 @@ public class ColumnSortListener extends MouseAdapter
 										if (sc != null && sc.getColumn().getDataProviderType() != IColumnTypes.MEDIA)
 										{
 											List<SortColumn> list = new ArrayList<SortColumn>();
+											if (e.isShiftDown())
+											{
+												list = model.getSortColumns();
+												for (SortColumn oldColumn : list)
+												{
+													if (oldColumn.getDataProviderID().equals(dataProviderID))
+													{
+														sc = oldColumn;
+														list.remove(oldColumn);
+														break;
+													}
+												}
+											}
 											sc.setSortOrder(lastSortAsc ? SortColumn.ASCENDING : SortColumn.DESCENDING);
-											list.add(sc);
+											list.add(0, sc);
 											model.sort(list, false);
 										}
 									}

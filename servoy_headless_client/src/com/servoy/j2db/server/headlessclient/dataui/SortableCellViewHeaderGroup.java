@@ -16,9 +16,12 @@
  */
 package com.servoy.j2db.server.headlessclient.dataui;
 
+import java.awt.Event;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.list.PageableListView;
@@ -27,7 +30,6 @@ import org.apache.wicket.model.IComponentAssignedModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.IWrapModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.util.collections.MicroMap;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.component.ComponentFactory;
@@ -59,7 +61,7 @@ public class SortableCellViewHeaderGroup extends Model implements IComponentAssi
 {
 	private static final long serialVersionUID = 1L;
 
-	final private MicroMap<String, Boolean> sorted = new MicroMap<String, Boolean>();
+	final private Map<String, Boolean> sorted = new HashMap<String, Boolean>();
 	final private PageableListView listView;
 	final private AbstractBase cellview;
 	final private Form form;
@@ -92,10 +94,10 @@ public class SortableCellViewHeaderGroup extends Model implements IComponentAssi
 		return direction ? SortColumn.ASCENDING : SortColumn.DESCENDING;
 	}
 
-	public void recordSort(String name, boolean ascending)
+	public void recordSort(Map<String, Boolean> sortMap)
 	{
 		sorted.clear();
-		sorted.put(name, new Boolean(ascending));
+		sorted.putAll(sortMap);
 	}
 
 	protected final void sort(final String name, final WebCellBasedView view, int modifiers)
@@ -157,9 +159,22 @@ public class SortableCellViewHeaderGroup extends Model implements IComponentAssi
 										: dataProvider.getDataProviderID());
 									if (sc != null && sc.getColumn().getDataProviderType() != IColumnTypes.MEDIA)
 									{
-										List<SortColumn> list = new ArrayList<SortColumn>(1);
+										List<SortColumn> list = new ArrayList<SortColumn>();
+										if ((modifiers & Event.SHIFT_MASK) != 0)
+										{
+											list = fs.getSortColumns();
+											for (SortColumn oldColumn : list)
+											{
+												if (oldColumn.getDataProviderID().equals(sc.getDataProviderID()))
+												{
+													sc = oldColumn;
+													list.remove(oldColumn);
+													break;
+												}
+											}
+										}
 										sc.setSortOrder(direction ? SortColumn.ASCENDING : SortColumn.DESCENDING);
-										list.add(sc);
+										list.add(0, sc);
 										fs.sort(list, false);
 									}
 								}
@@ -173,8 +188,10 @@ public class SortableCellViewHeaderGroup extends Model implements IComponentAssi
 											(new Object[] { dataProvider == null ? id : dataProvider.getDataProviderID(), Boolean.valueOf(direction), event }),
 											Utils.parseJSExpressions(fc.getForm().getInstanceMethodArguments("onSortCmdMethodID"))), true, null, false, "onSortCmdMethodID"); //$NON-NLS-1$//$NON-NLS-2$
 								}
-
-								sorted.clear();
+								if ((modifiers & Event.SHIFT_MASK) == 0)
+								{
+									sorted.clear();
+								}
 								sorted.put(name, new Boolean(direction));
 
 								listView.setCurrentPage(0);

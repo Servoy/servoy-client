@@ -169,8 +169,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 	private boolean reorderble = true;
 	private boolean resizeble = true;
 	private boolean sortable = true;
-	private int currentSortCol = 0;
-	private boolean currentSortAsc = true;
+	private final Map<Integer, Boolean> currentSortCol = new HashMap<Integer, Boolean>();
 	private int keyReleaseToBeIgnored;
 	private boolean wasEditingBeforeKeyPress;
 	private final AbstractBase cellview;
@@ -663,18 +662,17 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 			rendererComponents = renderers.toArray(new Component[renderers.size()]);
 			dal = new DataAdapterList(app, dpl, new HashMap<IPersist, Object>(), fc, displays, null);
 
-			currentSortAsc = true;
-			currentSortCol = -1;
 			if (initialSort != null && initialSort.size() > 0)
 			{
-				SortColumn col = initialSort.get(0);
-				for (int i = 0; i < tcm.getColumnCount(); i++)
+				for (SortColumn col : initialSort)
 				{
-					CellAdapter ca = (CellAdapter)tcm.getColumn(i);
-					if (ca.getDataProviderID() != null && ca.getDataProviderID().equals(col.getDataProviderID()))
+					for (int i = 0; i < tcm.getColumnCount(); i++)
 					{
-						currentSortCol = i;
-						currentSortAsc = (col.getSortOrder() == SortColumn.ASCENDING);
+						CellAdapter ca = (CellAdapter)tcm.getColumn(i);
+						if (ca.getDataProviderID() != null && ca.getDataProviderID().equals(col.getDataProviderID()))
+						{
+							currentSortCol.put(new Integer(i), new Boolean((col.getSortOrder() == SortColumn.ASCENDING)));
+						}
 					}
 				}
 			}
@@ -1134,18 +1132,51 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 
 	public void updateSortStatus(int sortCol, boolean sortAsc)
 	{
-		this.currentSortCol = sortCol;
-		this.currentSortAsc = sortAsc;
+		if (sortCol >= 0)
+		{
+			currentSortCol.put(new Integer(sortCol), new Boolean(sortAsc));
+		}
+		else
+		{
+			currentSortCol.clear();
+		}
 	}
 
-	public int getCurrentSortColumn()
+	public boolean setSortStatus(IFoundSetInternal foundset)
+	{
+		List<SortColumn> sortCols = foundset.getSortColumns();
+		if (sortCols != null && sortCols.size() > 0)
+		{
+			boolean found = false;
+			for (SortColumn sc : sortCols)
+			{
+				for (int i = 0; (i < getColumnModel().getColumnCount()); i++)
+				{
+					TableColumn tc = getColumnModel().getColumn(i);
+					if (tc instanceof CellAdapter)
+					{
+						CellAdapter ca = (CellAdapter)tc;
+						if (ca.getDataProviderID() != null && ca.getDataProviderID().equals(sc.getDataProviderID()))
+						{
+							if (!found)
+							{
+								// clear old sort
+								updateSortStatus(-1, true);
+							}
+							found = true;
+							updateSortStatus(ca.getModelIndex(), sc.getSortOrder() == SortColumn.ASCENDING);
+						}
+					}
+				}
+			}
+			return found;
+		}
+		return false;
+	}
+
+	public Map<Integer, Boolean> getCurrentSortColumn()
 	{
 		return this.currentSortCol;
-	}
-
-	public boolean getCurrentSortAsc()
-	{
-		return this.currentSortAsc;
 	}
 
 	@Override
@@ -1374,9 +1405,9 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 			super.setModel((ISwingFoundSet)fs);
 			setSelectionModel(((ISwingFoundSet)fs).getSelectionModel());
 		}
-		if (currentSortCol != -1 && getTableHeader() != null)
+		if (currentSortCol.size() > 0 && getTableHeader() != null)
 		{
-			updateSortStatus(-1, true);
+			setSortStatus(fs);
 			getTableHeader().invalidate();
 			getTableHeader().repaint();
 		}
@@ -1613,13 +1644,18 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		repaint();
 	}
 
-	int sortHeadersClickedColumnIndex = -1;
-	boolean sortHeadersClickedAsc;
+	Map<Integer, Boolean> sortHeadersClicked = new HashMap<Integer, Boolean>();
 
 	public void sortHeadersClicked(int columnIndex, boolean asc)
 	{
-		this.sortHeadersClickedColumnIndex = columnIndex;
-		this.sortHeadersClickedAsc = asc;
+		if (columnIndex >= 0)
+		{
+			sortHeadersClicked.put(new Integer(columnIndex), new Boolean(asc));
+		}
+		else
+		{
+			sortHeadersClicked.clear();
+		}
 	}
 
 	@Override
@@ -1635,29 +1671,17 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 			List<SortColumn> sortCols = ((FoundSet)getModel()).getSortColumns();
 			if (sortCols != null && sortCols.size() > 0)
 			{
-				SortColumn sc = sortCols.get(0);
-				boolean found = false;
-				int modelIndex = -1;
-				for (int i = 0; !found && (i < getColumnModel().getColumnCount()); i++)
+				if (!setSortStatus((FoundSet)getModel()))
 				{
-					TableColumn tc = getColumnModel().getColumn(i);
-					if (tc instanceof CellAdapter)
+					// clear
+					updateSortStatus(-1, true);
+					if (sortHeadersClicked.size() > 0)
 					{
-						CellAdapter ca = (CellAdapter)tc;
-						if (ca.getDataProviderID() != null && ca.getDataProviderID().equals(sc.getDataProviderID()))
+						for (Integer index : sortHeadersClicked.keySet())
 						{
-							found = true;
-							modelIndex = ca.getModelIndex();
+							updateSortStatus(index, sortHeadersClicked.get(index));
 						}
 					}
-				}
-				if (found)
-				{
-					updateSortStatus(modelIndex, sc.getSortOrder() == SortColumn.ASCENDING);
-				}
-				else if (sortHeadersClickedColumnIndex != -1)
-				{
-					updateSortStatus(sortHeadersClickedColumnIndex, sortHeadersClickedAsc);
 				}
 				getTableHeader().invalidate();
 				getTableHeader().repaint();

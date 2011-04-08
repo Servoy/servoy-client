@@ -177,9 +177,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	private final ChangesRecorder jsChangeRecorder; //incase this class is a portal
 	private DataAdapterList dal;
 
-	private boolean initialSortAsc = true;
-	private String initialSortColumnName = null;
-	private String initialSortedColumnId = null;
+	private final Map<String, Boolean> initialSortColumnNames = new HashMap<String, Boolean>();
+	private final Map<String, Boolean> initialSortedColumns = new HashMap<String, Boolean>();
 
 	private final boolean addHeaders;
 
@@ -1105,24 +1104,26 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			if (initialSortString != null)
 			{
 				StringTokenizer tokByComma = new StringTokenizer(initialSortString, ","); //$NON-NLS-1$
-				if (tokByComma.hasMoreTokens())
+				while (tokByComma.hasMoreTokens())
 				{
 					String initialSortFirstToken = tokByComma.nextToken();
 					StringTokenizer tokBySpace = new StringTokenizer(initialSortFirstToken);
 					if (tokBySpace.hasMoreTokens())
 					{
-						initialSortColumnName = tokBySpace.nextToken();
+						String initialSortColumnName = tokBySpace.nextToken();
 
 						if (tokBySpace.hasMoreTokens())
 						{
 							String sortDir = tokBySpace.nextToken();
+							boolean initialSortAsc = true;
 							if (sortDir.equalsIgnoreCase("DESC")) initialSortAsc = false; //$NON-NLS-1$
+							initialSortColumnNames.put(initialSortColumnName, new Boolean(initialSortAsc));
 						}
 					}
 				}
 			}
 			// If no initial sort was specified, then default will be the first PK column.
-			if (initialSortColumnName == null)
+			if (initialSortColumnNames.size() == 0)
 			{
 				try
 				{
@@ -1149,10 +1150,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					if (dataSource != null)
 					{
 						Iterator<String> pkColumnNames = application.getFoundSetManager().getTable(dataSource).getRowIdentColumnNames();
-						if (pkColumnNames.hasNext())
+						while (pkColumnNames.hasNext())
 						{
-							initialSortColumnName = pkColumnNames.next();
-							initialSortAsc = true;
+							initialSortColumnNames.put(pkColumnNames.next(), Boolean.TRUE);
 						}
 					}
 				}
@@ -1233,7 +1233,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					}
 					if (dataprovider != null)
 					{
-						if (dataprovider.equals(initialSortColumnName)) initialSortedColumnId = comp.getId();
+						if (initialSortColumnNames.containsKey(dataprovider)) initialSortedColumns.put(comp.getId(), initialSortColumnNames.get(dataprovider));
 					}
 				}
 			}
@@ -1247,7 +1247,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		if (addHeaders)
 		{
 			// elementToColumnHeader will be filled up by SortableCellViewHeaders when components in it are resolved
-			headers = new SortableCellViewHeaders(form, this, "header", table, cellview, application, initialSortedColumnId, initialSortAsc, new IHeaders() //$NON-NLS-1$
+			headers = new SortableCellViewHeaders(form, this, "header", table, cellview, application, initialSortedColumns, new IHeaders() //$NON-NLS-1$
 				{
 
 					public void registerHeader(IPersist matchingElement, Component headerComponent)
@@ -1958,34 +1958,36 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		// We try to detect when a sort has been done on the foundset, and we update the arrows in the header accordingly.
 		// This is just an heuristic for filtering out the sort event from all table changed events that are raised.
-		if (currentData != null && e.getColumn() == TableModelEvent.ALL_COLUMNS && e.getFirstRow() == 0)
+		if (currentData != null && e.getColumn() == TableModelEvent.ALL_COLUMNS && e.getFirstRow() == 0 && elementToColumnHeader.size() > 0)
 		{
 			List<SortColumn> sortCols = currentData.getSortColumns();
 			if (sortCols != null && sortCols.size() > 0)
 			{
-				SortColumn sc = sortCols.get(0);
-
+				Map<String, Boolean> sortMap = new HashMap<String, Boolean>();
 				for (IPersist persist : elementToColumnHeader.keySet())
 				{
-					Component comp = elementToColumnIdentifierComponent.get(persist);
 					SortableCellViewHeader sortableCellViewHeader = (SortableCellViewHeader)elementToColumnHeader.get(persist);
-					boolean solved = false;
-					if (comp instanceof IDisplayData)
+					sortableCellViewHeader.setResizeImage(SortableCellViewHeader.R_ARROW_OFF);
+				}
+				for (SortColumn sc : sortCols)
+				{
+					for (IPersist persist : elementToColumnHeader.keySet())
 					{
-						IDisplayData dispComp = (IDisplayData)comp;
-						if (sc.getDataProviderID().equals(dispComp.getDataProviderID()))
+						Component comp = elementToColumnIdentifierComponent.get(persist);
+						SortableCellViewHeader sortableCellViewHeader = (SortableCellViewHeader)elementToColumnHeader.get(persist);
+						if (comp instanceof IDisplayData)
 						{
-							boolean descending = sc.getSortOrder() == SortColumn.DESCENDING;
-							sortableCellViewHeader.setResizeImage(descending ? SortableCellViewHeader.R_ARROW_UP : SortableCellViewHeader.R_ARROW_DOWN);
-							headers.recordSort(comp.getMarkupId(), !descending);
-							solved = true;
+							IDisplayData dispComp = (IDisplayData)comp;
+							if (sc.getDataProviderID().equals(dispComp.getDataProviderID()))
+							{
+								boolean descending = sc.getSortOrder() == SortColumn.DESCENDING;
+								sortableCellViewHeader.setResizeImage(descending ? SortableCellViewHeader.R_ARROW_UP : SortableCellViewHeader.R_ARROW_DOWN);
+								sortMap.put(comp.getMarkupId(), !descending);
+							}
 						}
 					}
-					if (!solved)
-					{
-						sortableCellViewHeader.setResizeImage(SortableCellViewHeader.R_ARROW_OFF);
-					}
 				}
+				headers.recordSort(sortMap);
 			}
 		}
 	}

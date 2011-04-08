@@ -19,6 +19,7 @@ package com.servoy.j2db.server.headlessclient.dataui;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
@@ -73,7 +74,7 @@ public class SortableCellViewHeaders extends WebMarkupContainer implements IProv
 	 *            column - column given by the IPersist.
 	 */
 	public SortableCellViewHeaders(Form form, WebCellBasedView view, String id, final PageableListView listView, AbstractBase cellview,
-		IApplication application, String initiallySortedColumnId, boolean initialSortAsc, IHeaders headerManager)
+		IApplication application, Map<String, Boolean> initialSortMap, IHeaders headerManager)
 	{
 		super(id);//id is normally 'header'
 		this.setOutputMarkupId(true);
@@ -83,7 +84,7 @@ public class SortableCellViewHeaders extends WebMarkupContainer implements IProv
 		this.application = application;
 		this.headerManager = headerManager;
 		group = new SortableCellViewHeaderGroup(form, listView, cellview);
-		if (initiallySortedColumnId != null) group.recordSort(initiallySortedColumnId, initialSortAsc);
+		if (initialSortMap != null) group.recordSort(initialSortMap);
 	}
 
 	private boolean resolve(MarkupStream markupStream, ComponentTag tag, String id)
@@ -365,8 +366,8 @@ public class SortableCellViewHeaders extends WebMarkupContainer implements IProv
 		return jsChangeRecorder;
 	}
 
-	public void recordSort(String name, boolean ascending)
+	public void recordSort(Map<String, Boolean> sortMap)
 	{
-		group.recordSort(name, ascending);
+		group.recordSort(sortMap);
 	}
 }

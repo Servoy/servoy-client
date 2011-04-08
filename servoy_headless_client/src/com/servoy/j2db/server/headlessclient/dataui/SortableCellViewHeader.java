@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.server.headlessclient.dataui;
 
+import java.awt.Event;
 import java.awt.Insets;
 import java.util.Iterator;
 
@@ -123,7 +124,8 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 					// make sure the link is focused; there is difference across browsers
 					((MainPage)page).componentToFocus(this);
 				}
-				group.sort(componentId, view, WebEventExecutor.convertModifiers(getModifiers()));
+				int eventModifiers = WebEventExecutor.convertModifiers(getModifiers());
+				group.sort(componentId, view, eventModifiers);
 
 				SortableCellViewHeader sortableCellViewHeader;
 				for (Object header : view.getHeaderComponents())
@@ -134,7 +136,7 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 						sortableCellViewHeader.setResizeImage(group.getSortDirection() == SortColumn.DESCENDING ? SortableCellViewHeader.R_ARROW_UP
 							: SortableCellViewHeader.R_ARROW_DOWN);
 					}
-					else
+					else if ((eventModifiers & Event.SHIFT_MASK) == 0)
 					{
 						sortableCellViewHeader.setResizeImage(SortableCellViewHeader.R_ARROW_OFF);
 					}

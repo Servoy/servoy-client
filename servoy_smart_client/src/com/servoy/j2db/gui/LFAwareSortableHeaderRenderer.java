@@ -127,13 +127,13 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 	{
 		if (gc != null && gc.getImageMediaID() == 0)
 		{
-			if (parentTable.getCurrentSortColumn() != columnIndex || !parentTable.shouldDisplaySortIcons())
+			if (!parentTable.getCurrentSortColumn().keySet().contains(new Integer(columnIndex)) || !parentTable.shouldDisplaySortIcons())
 			{
 				this.setIcon(null);
 			}
 			else
 			{
-				if (parentTable.getCurrentSortAsc()) this.setIcon(arrowDown);
+				if (parentTable.getCurrentSortColumn().get(new Integer(columnIndex)).booleanValue()) this.setIcon(arrowDown);
 				else this.setIcon(arrowUp);
 				this.setHorizontalTextPosition(SwingConstants.LEADING);
 			}
@@ -161,13 +161,13 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 				{
 					JLabel label = (JLabel)lfComponent;
 					Dimension preferredSize = label.getPreferredSize();
-					if (parentTable.getCurrentSortColumn() != columnIndex)
+					if (!parentTable.getCurrentSortColumn().keySet().contains(columnIndex))
 					{
 						if (label.getIcon() != null) label.setIcon(null);
 					}
 					else
 					{
-						if (parentTable.getCurrentSortAsc())
+						if (parentTable.getCurrentSortColumn().get(new Integer(columnIndex)).booleanValue())
 						{
 							if (label.getIcon() != arrowDown) label.setIcon(arrowDown);
 						}
