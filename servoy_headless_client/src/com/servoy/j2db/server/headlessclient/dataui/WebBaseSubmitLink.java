@@ -101,6 +101,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IScriptHtml
 	protected MediaResource icon;
 	private AttributeModifier imageStyle;
 	private Media media;
+	private Dimension mediaSize;
 	private Media rolloverMedia;
 	private String iconUrl;
 	private ResourceReference iconReference;
@@ -324,6 +325,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IScriptHtml
 	public void setIcon(byte[] bs)
 	{
 		media = null;
+		mediaSize = null;
 		iconReference = null;
 		if (bs != null && bs.length != 0)
 		{
@@ -538,6 +540,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IScriptHtml
 			remove(imageStyle);
 			imageStyle = null;
 		}
+		mediaSize = null;
 	}
 
 	public void setRotation(int rotation)
@@ -1219,7 +1222,14 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IScriptHtml
 			padding = ((CompoundBorder)border).getInsideBorder().getBorderInsets(null);
 		}
 
-		String instrumentedBodyText = WebBaseButton.instrumentBodyText(bodyText, halign, valign, fillAllSpace(), fillAllSpace(), padding);
+		Insets iconMargin = null;
+		if (media != null && ((mediaOptions & 1) == 1) && (halign == ISupportTextSetup.LEFT))
+		{
+			if (mediaSize == null) mediaSize = ImageLoader.getSize(media.getMediaData());
+			iconMargin = new Insets(0, mediaSize.width + 4, 0, 0);
+		}
+
+		String instrumentedBodyText = WebBaseButton.instrumentBodyText(bodyText, halign, valign, fillAllSpace(), fillAllSpace(), padding, iconMargin);
 		// for vertical centering we need a table wrapper to have the possible <img> in the content centered
 		if (valign == ISupportTextSetup.CENTER && instrumentedBodyText.toLowerCase().indexOf("<img ") != -1) //$NON-NLS-1$
 		{

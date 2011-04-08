@@ -106,6 +106,7 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 	private ResourceReference rolloverIconReference;
 	private String iconUrl;
 	private Media media;
+	private Dimension mediaSize;
 	private Media rolloverMedia;
 	protected final IApplication application;
 	protected ChangesRecorder jsChangeRecorder = new ChangesRecorder(null, TemplateGenerator.DEFAULT_LABEL_PADDING);
@@ -129,6 +130,7 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 		add(TooltipAttributeModifier.INSTANCE);
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		eventExecutor = new WebEventExecutor(this, useAJAX);
+		halign = ISupportTextSetup.LEFT; // default horizontal align
 	}
 
 	/**
@@ -277,6 +279,7 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 	public void setIcon(final byte[] bs)
 	{
 		media = null;
+		mediaSize = null;
 		iconReference = null;
 		if (bs != null && bs.length != 0)
 		{
@@ -488,6 +491,7 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 			remove(imageStyle);
 			imageStyle = null;
 		}
+		mediaSize = null;
 	}
 
 	public void setRotation(int rotation)
@@ -1315,7 +1319,15 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 				m = inside.getBorderInsets(null);
 			}
 		}
-		String instrumentedBodyText = WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHTML, hasHTML, m);
+
+		Insets iconMargin = null;
+		if (media != null && ((mediaOptions & 1) == 1) && (halign == ISupportTextSetup.LEFT))
+		{
+			if (mediaSize == null) mediaSize = ImageLoader.getSize(media.getMediaData());
+			iconMargin = new Insets(0, mediaSize.width + 4, 0, 0);
+		}
+
+		String instrumentedBodyText = WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHTML, hasHTML, m, iconMargin);
 		// for vertical centering we need a table wrapper to have the possible <img> in the content centered
 		if (valign == ISupportTextSetup.CENTER && instrumentedBodyText.toLowerCase().indexOf("<img ") != -1) //$NON-NLS-1$
 		{

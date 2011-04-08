@@ -96,6 +96,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	protected MediaResource icon;
 	private AttributeModifier imageStyle;
 	private Media media;
+	private Dimension mediaSize;
 	private Media rolloverMedia;
 	private String iconUrl;
 	private ResourceReference iconReference;
@@ -391,6 +392,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	public void setIcon(byte[] bs)
 	{
 		media = null;
+		mediaSize = null;
 		iconReference = null;
 		if (bs != null && bs.length != 0)
 		{
@@ -598,6 +600,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			remove(imageStyle);
 			imageStyle = null;
 		}
+		mediaSize = null;
 	}
 
 	/**
@@ -1235,10 +1238,22 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	protected void instrumentAndReplaceBody(MarkupStream markupStream, ComponentTag openTag, CharSequence bodyText)
 	{
-		replaceComponentTagBody(markupStream, openTag, instrumentBodyText(bodyText, halign, valign, false, false, margin));
+		Insets iconMargin = null;
+		if (media != null && ((mediaOptions & 1) == 1) && (halign == ISupportTextSetup.LEFT))
+		{
+			if (mediaSize == null) mediaSize = ImageLoader.getSize(media.getMediaData());
+			iconMargin = new Insets(0, mediaSize.width + 4, 0, 0);
+		}
+		replaceComponentTagBody(markupStream, openTag, instrumentBodyText(bodyText, halign, valign, false, false, margin, iconMargin));
 	}
 
 	protected static String instrumentBodyText(CharSequence bodyText, int halign, int valign, boolean fullWidth, boolean fullHeight, Insets padding)
+	{
+		return instrumentBodyText(bodyText, halign, valign, fullWidth, fullHeight, padding, null);
+	}
+
+	protected static String instrumentBodyText(CharSequence bodyText, int halign, int valign, boolean fullWidth, boolean fullHeight, Insets padding,
+		Insets marginForIcon)
 	{
 		// In order to vertically align the text inside the <button>, we wrap the text inside a <span>, and we absolutely
 		// position the <span> in the <button>. However, for centering vertically we drop this absolute positioning and
@@ -1273,6 +1288,12 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		// Full width/height.
 		if (fullWidth) instrumentedBodyText.append(" width: 100%;"); //$NON-NLS-1$
 		if (fullHeight) instrumentedBodyText.append(" height: 100%;"); //$NON-NLS-1$
+
+		if (marginForIcon != null)
+		{
+			instrumentedBodyText.append(" margin-left: " + marginForIcon.left + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
+			instrumentedBodyText.append(" margin-right: " + marginForIcon.right + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 
 		instrumentedBodyText.append("'>"); //$NON-NLS-1$
 		if (bodyText != null) instrumentedBodyText.append(bodyText);
