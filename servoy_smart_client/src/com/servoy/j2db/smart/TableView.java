@@ -1144,32 +1144,35 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 
 	public boolean setSortStatus(IFoundSetInternal foundset)
 	{
-		List<SortColumn> sortCols = foundset.getSortColumns();
-		if (sortCols != null && sortCols.size() > 0)
+		if (foundset != null)
 		{
-			boolean found = false;
-			for (SortColumn sc : sortCols)
+			List<SortColumn> sortCols = foundset.getSortColumns();
+			if (sortCols != null && sortCols.size() > 0)
 			{
-				for (int i = 0; (i < getColumnModel().getColumnCount()); i++)
+				boolean found = false;
+				for (SortColumn sc : sortCols)
 				{
-					TableColumn tc = getColumnModel().getColumn(i);
-					if (tc instanceof CellAdapter)
+					for (int i = 0; (i < getColumnModel().getColumnCount()); i++)
 					{
-						CellAdapter ca = (CellAdapter)tc;
-						if (ca.getDataProviderID() != null && ca.getDataProviderID().equals(sc.getDataProviderID()))
+						TableColumn tc = getColumnModel().getColumn(i);
+						if (tc instanceof CellAdapter)
 						{
-							if (!found)
+							CellAdapter ca = (CellAdapter)tc;
+							if (ca.getDataProviderID() != null && ca.getDataProviderID().equals(sc.getDataProviderID()))
 							{
-								// clear old sort
-								updateSortStatus(-1, true);
+								if (!found)
+								{
+									// clear old sort
+									updateSortStatus(-1, true);
+								}
+								found = true;
+								updateSortStatus(ca.getModelIndex(), sc.getSortOrder() == SortColumn.ASCENDING);
 							}
-							found = true;
-							updateSortStatus(ca.getModelIndex(), sc.getSortOrder() == SortColumn.ASCENDING);
 						}
 					}
 				}
+				return found;
 			}
-			return found;
 		}
 		return false;
 	}
