@@ -168,13 +168,12 @@ public class SortableCellViewHeaderGroup extends Model implements IComponentAssi
 												if (oldColumn.getDataProviderID().equals(sc.getDataProviderID()))
 												{
 													sc = oldColumn;
-													list.remove(oldColumn);
 													break;
 												}
 											}
 										}
 										sc.setSortOrder(direction ? SortColumn.ASCENDING : SortColumn.DESCENDING);
-										list.add(0, sc);
+										if (!list.contains(sc)) list.add(sc);
 										fs.sort(list, false);
 									}
 								}

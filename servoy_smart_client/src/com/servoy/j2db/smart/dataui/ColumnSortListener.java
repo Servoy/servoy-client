@@ -193,13 +193,12 @@ public class ColumnSortListener extends MouseAdapter
 													if (oldColumn.getDataProviderID().equals(dataProviderID))
 													{
 														sc = oldColumn;
-														list.remove(oldColumn);
 														break;
 													}
 												}
 											}
 											sc.setSortOrder(lastSortAsc ? SortColumn.ASCENDING : SortColumn.DESCENDING);
-											list.add(0, sc);
+											if (!list.contains(sc)) list.add(sc);
 											model.sort(list, false);
 										}
 									}
