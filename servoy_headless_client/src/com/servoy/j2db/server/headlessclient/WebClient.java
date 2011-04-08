@@ -617,7 +617,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	{
 		if (getClientInfo().getUserUid() != null)
 		{
-			if (getSolution() != null && getSolution().requireAuthentication())
+			if (getSolution() != null)
 			{
 				if (closeSolution(false, solution_to_open_args)) // don't shutdown if already closing; wait for the first closeSolution to finish
 				{
