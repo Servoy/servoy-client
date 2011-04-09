@@ -15,7 +15,8 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db;
+package com.servoy.j2db.ui;
+
 
 /**
  * Listener for components that support notifying there visibility state

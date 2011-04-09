@@ -56,8 +56,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.text.Document;
 
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.ISupportVisibleChangeListener;
-import com.servoy.j2db.IVisibleChangeListener;
 import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.GlobalMethodValueList;
 import com.servoy.j2db.dataprocessing.IDisplayDependencyData;
@@ -70,6 +68,8 @@ import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.ui.IScriptBaseMethods;
+import com.servoy.j2db.ui.ISupportVisibleChangeListener;
+import com.servoy.j2db.ui.IVisibleChangeListener;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UIUtils;
 import com.servoy.j2db.util.Utils;

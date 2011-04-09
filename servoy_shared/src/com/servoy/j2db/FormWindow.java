@@ -18,6 +18,8 @@ package com.servoy.j2db;
 
 import java.awt.Rectangle;
 
+import com.servoy.j2db.ui.ISupportVisibleChangeListener;
+
 /**
  * Behaviour common to all types of AWT Window classes that can work with Servoy Forms.
  * @author acostescu

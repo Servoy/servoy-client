@@ -39,6 +39,7 @@ import javax.swing.KeyStroke;
 import javax.swing.WindowConstants;
 
 import com.servoy.j2db.cmd.ICmdManager;
+import com.servoy.j2db.ui.IVisibleChangeListener;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Text;
 
