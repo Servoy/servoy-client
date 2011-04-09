@@ -22,6 +22,7 @@ import java.util.Map;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.ui.IDataRenderer;
+import com.servoy.j2db.util.TabSequence;
 
 /**
  * @author jcompagner

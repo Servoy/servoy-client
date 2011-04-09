@@ -14,7 +14,7 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
-package com.servoy.j2db;
+package com.servoy.j2db.util;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -24,6 +24,9 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import com.servoy.j2db.FormController;
+import com.servoy.j2db.IDataRendererFactory;
+import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.component.IDataRendererYPositionComparator;
 import com.servoy.j2db.dataprocessing.IDisplay;
 import com.servoy.j2db.persistence.Form;
@@ -33,7 +36,6 @@ import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.TabSeqComparator;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
-import com.servoy.j2db.util.ISupplyFocusChildren;
 
 /**
  * Helper class for management of tab sequence. Used both for smart and web clients.

@@ -36,7 +36,6 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IDataRendererFactory;
 import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IScriptExecuter;
-import com.servoy.j2db.TabSequence;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.IDisplay;
 import com.servoy.j2db.dataprocessing.IDisplayData;
@@ -64,6 +63,7 @@ import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.OrientationApplier;
+import com.servoy.j2db.util.TabSequence;
 import com.servoy.j2db.util.Utils;
 
 /**
