@@ -71,7 +71,7 @@ import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.EnableScrollPanel;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.SortedList;
-import com.servoy.j2db.util.TabSequence;
+import com.servoy.j2db.util.TabSequenceHelper;
 import com.servoy.j2db.util.gui.AnchorLayout;
 import com.servoy.j2db.util.gui.FixedSpringLayout;
 import com.servoy.j2db.util.gui.Spring;
@@ -212,7 +212,7 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 	 * @return usesSliding
 	 */
 	public Map completeRenderers(IApplication app, Form form, IScriptExecuter listner, Map emptyDataRenderers, int width, boolean printing,
-		ControllerUndoManager undoManager, TabSequence<Component> tabSequence) throws Exception
+		ControllerUndoManager undoManager, TabSequenceHelper<Component> tabSequence) throws Exception
 	{
 		int partHeight = 0;
 		Iterator e2 = form.getParts();
@@ -240,7 +240,7 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 	//returns usesSliding
 	private Map placeElements(Iterator<IFormElement> e1, IApplication app, Form form, IScriptExecuter listner, Map emptyDataRenderers, int width,
 		int XCorrection, int YCorrection, boolean printing, boolean cutDataProviderNames, ControllerUndoManager undoManager, boolean isPortal,
-		TabSequence<Component> tabSequence) throws Exception
+		TabSequenceHelper<Component> tabSequence) throws Exception
 	{
 		IDataProviderLookup dataProviderLookup = app.getFlattenedSolution().getDataproviderLookup(app.getFoundSetManager(), form);
 		Map listTocomplete = new HashMap();

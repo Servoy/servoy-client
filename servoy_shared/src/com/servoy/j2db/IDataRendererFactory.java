@@ -22,7 +22,7 @@ import java.util.Map;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.ui.IDataRenderer;
-import com.servoy.j2db.util.TabSequence;
+import com.servoy.j2db.util.TabSequenceHelper;
 
 /**
  * @author jcompagner
@@ -41,7 +41,7 @@ public interface IDataRendererFactory<T>
 	 * @param undoManager
 	 */
 	Map completeRenderers(IApplication application, Form form, IScriptExecuter scriptExecuter, Map part_panels, int width, boolean printing,
-		ControllerUndoManager undoManager, TabSequence<T> tabSequence) throws Exception;
+		ControllerUndoManager undoManager, TabSequenceHelper<T> tabSequence) throws Exception;
 
 	/**
 	 * @param name TODO

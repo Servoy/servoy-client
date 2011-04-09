@@ -107,7 +107,7 @@ import com.servoy.j2db.util.FixedStyleSheet;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyException;
-import com.servoy.j2db.util.TabSequence;
+import com.servoy.j2db.util.TabSequenceHelper;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
@@ -1453,7 +1453,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	 * Holds for each data renderer a map with <ISupportTabSeq, Component>. It is recreated each time createDataRenderers() is called. It is needed for setting
 	 * the tab sequence in setView().
 	 */
-	private final TabSequence< ? > tabSequence;
+	private final TabSequenceHelper< ? > tabSequence;
 	private DesignModeCallbacks designMode;
 
 	public FormController(IApplication app, Form form, String namedInstance)
@@ -1466,7 +1466,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		scriptExecuter = new ScriptExecuter(this);
 		containerImpl = fm.getFormUI(this);
 		pageFormat = PersistHelper.createPageFormat(form.getDefaultPageFormat());
-		tabSequence = new TabSequence(containerImpl, application.getDataRenderFactory());
+		tabSequence = new TabSequenceHelper(containerImpl, application.getDataRenderFactory());
 		app.getFlattenedSolution().registerLiveForm(form, namedInstance);
 	}
 

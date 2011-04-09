@@ -42,7 +42,7 @@ import com.servoy.j2db.ui.IDataRenderer;
  * 
  * @author gerzse
  */
-public class TabSequence<T>
+public class TabSequenceHelper<T>
 {
 
 	/**
@@ -74,7 +74,7 @@ public class TabSequence<T>
 	private final IDataRendererFactory<T> dataRendererFactory;
 
 
-	public TabSequence(IFormUIInternal<T> runtimeContainer, IDataRendererFactory<T> dataRendererFactory)
+	public TabSequenceHelper(IFormUIInternal<T> runtimeContainer, IDataRendererFactory<T> dataRendererFactory)
 	{
 		abstractTabSequence = new TreeMap<IDataRenderer, SortedMap<ISupportTabSeq, T>>(IDataRendererYPositionComparator.INSTANCE);
 		runtimeTabSequence = new ArrayList<T>();

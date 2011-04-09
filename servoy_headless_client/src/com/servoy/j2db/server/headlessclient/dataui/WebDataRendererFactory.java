@@ -63,7 +63,7 @@ import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.OrientationApplier;
-import com.servoy.j2db.util.TabSequence;
+import com.servoy.j2db.util.TabSequenceHelper;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -89,7 +89,7 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 	 * com.servoy.j2db.IScriptExecuter, java.util.Map, int, boolean, com.servoy.j2db.ControllerUndoManager)
 	 */
 	public Map completeRenderers(IApplication application, Form form, IScriptExecuter scriptExecuter, Map emptyDataRenderers, int width, boolean printing,
-		ControllerUndoManager undoManager, TabSequence<Component> tabSequence) throws Exception
+		ControllerUndoManager undoManager, TabSequenceHelper<Component> tabSequence) throws Exception
 	{
 		int partHeight = 0;
 		Iterator e2 = form.getParts();
@@ -115,7 +115,7 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 	}
 
 	private Map placeElements(Iterator<IFormElement> e1, IApplication app, Form form, IScriptExecuter listner, Map emptyDataRenderers, int XCorrection,
-		int YCorrection, boolean printing, ControllerUndoManager undoManager, TabSequence<Component> tabSequence) throws Exception
+		int YCorrection, boolean printing, ControllerUndoManager undoManager, TabSequenceHelper<Component> tabSequence) throws Exception
 	{
 		final boolean useAJAX = Utils.getAsBoolean(app.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 
