@@ -37,10 +37,10 @@ import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.dataprocessing.ValueFactory.NullValue;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.Ident;
-import com.servoy.j2db.util.SQLKeywords;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.keyword.Ident;
+import com.servoy.j2db.util.keyword.SQLKeywords;
 
 /**
  * A database column , this information is not stored inside the repository but recreated each time<br>

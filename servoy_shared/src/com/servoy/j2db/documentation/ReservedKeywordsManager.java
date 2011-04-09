@@ -30,9 +30,9 @@ import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.Ident;
-import com.servoy.j2db.util.RhinoKeywords;
-import com.servoy.j2db.util.SQLKeywords;
+import com.servoy.j2db.util.keyword.Ident;
+import com.servoy.j2db.util.keyword.RhinoKeywords;
+import com.servoy.j2db.util.keyword.SQLKeywords;
 
 /**
  * Takes care of the reserved keywords part of the documentation. Manages 

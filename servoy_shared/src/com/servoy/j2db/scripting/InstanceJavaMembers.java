@@ -30,7 +30,7 @@ import org.mozilla.javascript.JavaMembers;
 import org.mozilla.javascript.MemberBox;
 import org.mozilla.javascript.Scriptable;
 
-import com.servoy.j2db.util.Ident;
+import com.servoy.j2db.util.keyword.Ident;
 
 /**
  * @author jcompagner

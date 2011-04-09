@@ -21,8 +21,8 @@ import java.util.Iterator;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.Ident;
-import com.servoy.j2db.util.SQLKeywords;
+import com.servoy.j2db.util.keyword.Ident;
+import com.servoy.j2db.util.keyword.SQLKeywords;
 
 /**
  * @author jcompagner,jblok
