@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.persistence;
 
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.StringTokenizer;
@@ -105,11 +106,13 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 	@SuppressWarnings("nls")
 	public void setVariableType(int arg)
 	{
+		int variableType = arg;
+		if (variableType == Types.FLOAT) variableType = IColumnTypes.NUMBER;
 		boolean hit = false;
 		int[] types = Column.allDefinedTypes;
 		for (int element : types)
 		{
-			if (arg == element)
+			if (variableType == element)
 			{
 				hit = true;
 				break;
@@ -117,15 +120,18 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 		}
 		if (!hit)
 		{
-			Debug.error("unknown variable type " + arg + " for variable " + getName() + " reverting to previous or MEDIA type", new RuntimeException());
+			Debug.error("unknown variable type " + variableType + " for variable " + getName() + " reverting to previous or MEDIA type", new RuntimeException());
 			if (getVariableType() == 0)
 			{
-				setTypedProperty(StaticContentSpecLoader.PROPERTY_VARIABLETYPE, IColumnTypes.MEDIA);
+				variableType = IColumnTypes.MEDIA;
 			}
-			return;
+			else
+			{
+				return;
+			}
 		}
 
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_VARIABLETYPE, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_VARIABLETYPE, variableType);
 	}
 
 	/**
