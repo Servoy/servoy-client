@@ -1647,20 +1647,6 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		repaint();
 	}
 
-	Map<Integer, Boolean> sortHeadersClicked = new HashMap<Integer, Boolean>();
-
-	public void sortHeadersClicked(int columnIndex, boolean asc)
-	{
-		if (columnIndex >= 0)
-		{
-			sortHeadersClicked.put(new Integer(columnIndex), new Boolean(asc));
-		}
-		else
-		{
-			sortHeadersClicked.clear();
-		}
-	}
-
 	@Override
 	public void tableChanged(TableModelEvent e)
 	{
@@ -1677,13 +1663,6 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 				{
 					// clear
 					updateSortStatus(-1, true);
-					if (sortHeadersClicked.size() > 0)
-					{
-						for (Integer index : sortHeadersClicked.keySet())
-						{
-							updateSortStatus(index, sortHeadersClicked.get(index));
-						}
-					}
 				}
 				getTableHeader().invalidate();
 				getTableHeader().repaint();

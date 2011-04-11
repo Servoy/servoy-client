@@ -133,11 +133,9 @@ public class ColumnSortListener extends MouseAdapter
 			if (!e.isShiftDown())
 			{
 				// clear previous data
-				table.sortHeadersClicked(-1, true);
 				lastColumnIndex.clear();
 			}
 			lastColumnIndex.put(columnModelIndex, lastSortAsc);
-			table.sortHeadersClicked(columnModelIndex, lastSortAsc);
 
 			if (column instanceof CellAdapter && table.getModel() instanceof IFoundSetInternal)
 			{
