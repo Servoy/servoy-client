@@ -251,7 +251,6 @@ import com.servoy.j2db.util.ServoyScheduledExecutor;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.SwingHelper;
-import com.servoy.j2db.util.TaskThreadPool;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.ActionCheckBoxMenuItem;
@@ -324,9 +323,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 
 	private final FlashDataChange flashDataChange = new FlashDataChange();
 
-	private TaskThreadPool taskThreadPool;
-
-	private volatile ScheduledExecutorService scheduledExecutorService;
+	private volatile ServoyScheduledExecutor scheduledExecutorService;
 
 	/**
 	 * Toolbars
@@ -404,23 +401,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	@Deprecated
 	public ITaskExecuter getThreadPool()
 	{
-		if (taskThreadPool == null)
-		{
-			synchronized (J2DBGlobals.class)
-			{
-				if (taskThreadPool == null)
-				{
-					taskThreadPool = new TaskThreadPool(new Runnable()
-					{
-						public void run()
-						{
-							J2DBGlobals.setServiceProvider(J2DBClient.this);
-						}
-					}, 4);
-				}
-			}
-		}
-		return taskThreadPool;
+		return (ITaskExecuter)getScheduledExecutor();
 	}
 
 	@Override
@@ -1349,12 +1330,6 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		}
 
 		super.shutDown(force);
-
-		if (taskThreadPool != null)
-		{
-			taskThreadPool.stop();
-			taskThreadPool = null;
-		}
 
 		if (scheduledExecutorService != null)
 		{

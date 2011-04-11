@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
  * 
  * @author jcompagner
  */
-public class ServoyScheduledExecutor extends ThreadPoolExecutor implements ScheduledExecutorService
+public class ServoyScheduledExecutor extends ThreadPoolExecutor implements ScheduledExecutorService, ITaskExecuter
 {
 	private final Runnable NOTHING = new Runnable()
 	{
@@ -173,6 +173,17 @@ public class ServoyScheduledExecutor extends ThreadPoolExecutor implements Sched
 			}
 		}
 		super.execute(command);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.util.ITaskExecuter#addTask(java.lang.Runnable)
+	 */
+	@Deprecated
+	public void addTask(Runnable task) throws IllegalArgumentException
+	{
+		execute(task);
 	}
 
 	/**

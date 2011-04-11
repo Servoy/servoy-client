@@ -119,7 +119,6 @@ import com.servoy.j2db.util.RendererParentWrapper;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.ServoyScheduledExecutor;
 import com.servoy.j2db.util.Settings;
-import com.servoy.j2db.util.TaskThreadPool;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.toolbar.IToolbarPanel;
 import com.servoy.j2db.util.toolbar.Toolbar;
@@ -141,8 +140,6 @@ public class SessionClient extends ClientState implements ISessionClient
 
 	protected transient IDataRendererFactory<org.apache.wicket.Component> dataRendererFactory;
 	protected transient ItemFactory itemFactory;
-
-	private transient TaskThreadPool taskThreadPool;
 
 	//just for the cases there is no org.apache.wicket running
 	private static WebClientsApplication wicket_app = new WebClientsApplication();
@@ -339,11 +336,6 @@ public class SessionClient extends ClientState implements ISessionClient
 		try
 		{
 			super.shutDown(force);
-			if (taskThreadPool != null)
-			{
-				taskThreadPool.stop();
-				taskThreadPool = null;
-			}
 
 			if (scheduledExecutorService != null)
 			{
@@ -509,7 +501,7 @@ public class SessionClient extends ClientState implements ISessionClient
 
 	protected TimeZone timeZone;
 
-	private transient ScheduledExecutorService scheduledExecutorService;
+	private transient ServoyScheduledExecutor scheduledExecutorService;
 
 	@Override
 	protected IExecutingEnviroment createScriptEngine()
@@ -1257,23 +1249,7 @@ public class SessionClient extends ClientState implements ISessionClient
 	@Override
 	public ITaskExecuter getThreadPool()
 	{
-		if (taskThreadPool == null)
-		{
-			synchronized (J2DBGlobals.class)
-			{
-				if (taskThreadPool == null)
-				{
-					taskThreadPool = new TaskThreadPool(new Runnable()
-					{
-						public void run()
-						{
-							setThreadLocals(SessionClient.this);
-						}
-					}, 3);
-				}
-			}
-		}
-		return taskThreadPool;
+		return (ITaskExecuter)getScheduledExecutor();
 	}
 
 	@Override
