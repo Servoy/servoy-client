@@ -41,6 +41,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.text.Style;
+import javax.swing.text.html.CSS;
 import javax.swing.text.html.StyleSheet;
 
 import org.apache.wicket.AttributeModifier;
@@ -3033,13 +3034,17 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				switch (rowStyleAttribute)
 				{
 					case BGCOLOR :
-						listItemAttrValue = PersistHelper.createColorString(ss.getBackground(style));
+						listItemAttrValue = style.getAttribute(CSS.Attribute.BACKGROUND_COLOR) != null
+							? PersistHelper.createColorString(ss.getBackground(style)) : null;
 						break;
 					case FGCOLOR :
-						listItemAttrValue = PersistHelper.createColorString(ss.getForeground(style));
+						listItemAttrValue = style.getAttribute(CSS.Attribute.COLOR) != null ? PersistHelper.createColorString(ss.getForeground(style)) : null;
 						break;
 					case FONT :
-						listItemAttrValue = PersistHelper.createFontString(ss.getFont(style));
+						listItemAttrValue = style.getAttribute(CSS.Attribute.FONT) != null || style.getAttribute(CSS.Attribute.FONT_FAMILY) != null ||
+							style.getAttribute(CSS.Attribute.FONT_SIZE) != null || style.getAttribute(CSS.Attribute.FONT_STYLE) != null ||
+							style.getAttribute(CSS.Attribute.FONT_VARIANT) != null || style.getAttribute(CSS.Attribute.FONT_WEIGHT) != null
+							? PersistHelper.createFontString(ss.getFont(style)) : null;
 				}
 			}
 		}

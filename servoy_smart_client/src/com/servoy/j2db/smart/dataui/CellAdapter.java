@@ -61,6 +61,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import javax.swing.text.Style;
+import javax.swing.text.html.CSS;
 import javax.swing.text.html.StyleSheet;
 
 import org.mozilla.javascript.Scriptable;
@@ -784,13 +785,18 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 					switch (rowStyleAttribute)
 					{
 						case BGCOLOR :
-							rowStyleAttrValue = ss.getBackground(style);
+							rowStyleAttrValue = style.getAttribute(CSS.Attribute.BACKGROUND_COLOR) != null
+								? PersistHelper.createColorString(ss.getBackground(style)) : null;
 							break;
 						case FGCOLOR :
-							rowStyleAttrValue = ss.getForeground(style);
+							rowStyleAttrValue = style.getAttribute(CSS.Attribute.COLOR) != null ? PersistHelper.createColorString(ss.getForeground(style))
+								: null;
 							break;
 						case FONT :
-							rowStyleAttrValue = ss.getFont(style);
+							rowStyleAttrValue = style.getAttribute(CSS.Attribute.FONT) != null || style.getAttribute(CSS.Attribute.FONT_FAMILY) != null ||
+								style.getAttribute(CSS.Attribute.FONT_SIZE) != null || style.getAttribute(CSS.Attribute.FONT_STYLE) != null ||
+								style.getAttribute(CSS.Attribute.FONT_VARIANT) != null || style.getAttribute(CSS.Attribute.FONT_WEIGHT) != null
+								? PersistHelper.createFontString(ss.getFont(style)) : null;
 					}
 				}
 			}
