@@ -551,17 +551,17 @@ public class JSValueList implements IConstantsObject
 	 *		'if (displayValue == null && realValue == null) {' +
 	 *		'  // TODO think about caching this result. can be called often!' +
 	 *		'  // return the complete list' +
-	 *		'  return databaseManager.getDataSetByQuery("example_data", "select firstname + ' ' + lastname, employeeid from employees", null, 100);' +
+	 *		'  return databaseManager.getDataSetByQuery("example_data", "select firstname || ' ' || lastname, employeeid from employees", null, 100);' +
 	 *		'} else if (displayValue != null) {' +
 	 *		'  // TYPE_AHEAD filter call, return a filtered list' +
 	 *		'  var args = [displayValue + "%", displayValue + "%"]' +
-	 *		'  return databaseManager.getDataSetByQuery("example_data", "select firstname + ' ' + lastname, employeeid from employees where firstname like ? or lastname like ?", args, 100);' +
+	 *		'  return databaseManager.getDataSetByQuery("example_data", "select firstname || ' ' || lastname, employeeid from employees where firstname like ? or lastname like ?", args, 100);' +
 	 *		'} else if (realValue != null) {' +
 	 *		'  // TODO think about caching this result. can be called often!' +
 	 *		'  // real object not found in the current list, return 1 row with display,realvalue that will be added to the current list' +
 	 *		'  // dont return a complete list in this mode because that will be added to the list that is already there' +
-	 *		'  var args = [realValue];' +
-	 *		'  return databaseManager.getDataSetByQuery("example_data", "select firstname + ' ' + lastname, employeeid from employees where employeeid = ?", args, 1);' +
+	 *		'  args = [realValue];' +
+	 *		'  return databaseManager.getDataSetByQuery("example_data", "select firstname || ' ' || lastname, employeeid from employees where employeeid = ?", args, 1);' +
 	 *		'}' +
 	 *	'}');
 	 * var vlist = solutionModel.newValueList('vlist', JSValueList.CUSTOM_VALUES);
