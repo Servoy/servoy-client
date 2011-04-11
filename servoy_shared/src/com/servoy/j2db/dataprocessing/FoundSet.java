@@ -1228,6 +1228,24 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return false;
 	}
 
+	protected boolean selectRecords(Object[][] pks)
+	{
+		if (pks != null)
+		{
+			int[] selectedIndexes = new int[pks.length];
+			for (int i = 0; i < pks.length; i++)
+			{
+				selectedIndexes[i] = getRecordIndex(pks[i], 0);
+				if (selectedIndexes[i] == -1) return false;
+			}
+
+			setSelectedIndexes(selectedIndexes);
+			return true;
+		}
+
+		return false;
+	}
+
 	public boolean loadByQuery(String query, Object[] args) throws ServoyException
 	{
 		if (query == null || sheet.getTable() == null) return false;
@@ -3959,9 +3977,16 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 		}
 
-
-		Object[] selectedPK = null;
-		if (pks != null && getSelectedIndex() >= 0) selectedPK = pks.getRow(getSelectedIndex()); //always keep selection when sorting
+		//always keep selection when sorting
+		Object[][] selectedPKs = null;
+		int[] selectedIndexes = getSelectedIndexes();
+		if (pks != null && selectedIndexes != null && selectedIndexes.length > 0 && selectedIndexes[0] >= 0)
+		{
+			selectedPKs = new Object[selectedIndexes.length][];
+			int i = 0;
+			for (int selectedIndex : selectedIndexes)
+				selectedPKs[i++] = pks.getRow(selectedIndex);
+		}
 
 		int oldSize = getSize();
 		//cache pks
@@ -3991,7 +4016,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		int newSize = getSize();
 		fireDifference(oldSize, newSize);
 
-		if (selectedPK == null || !selectRecord(selectedPK))
+		boolean selectedPKsRecPresent = false;
+		if (selectedPKs != null)
+		{
+			selectedPKsRecPresent = selectedPKs.length == 1 ? selectRecord(selectedPKs[0]) : selectRecords(selectedPKs);
+		}
+
+		if (!selectedPKsRecPresent)
 		{
 			setSelectedIndex(newSize > 0 ? 0 : -1);
 		}
@@ -4035,7 +4066,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		PksAndRecordsHolder pksAndRecordsHolderCopy;
 		IDataSet pks;
 		int rowCount = 0;
-		Object[] selectedPK = null;
+		Object[][] selectedPKs = null;
 		synchronized (pksAndRecords)
 		{
 			pksAndRecordsHolderCopy = pksAndRecords.shallowCopy();
@@ -4043,8 +4074,16 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			if (pks != null)
 			{
 				rowCount = pks.getRowCount();
-				if (getSelectedIndex() > 0) selectedPK = pks.getRow(getSelectedIndex()); //if first record is selected we ignore selection, is much faster
+				int[] selectedIndexes = getSelectedIndexes();
 
+				//if single selecte and first record is selected we ignore selection, is much faster
+				if (selectedIndexes != null && (selectedIndexes.length > 1 || (selectedIndexes.length == 1 && selectedIndexes[0] > 0)))
+				{
+					selectedPKs = new Object[selectedIndexes.length][];
+					int i = 0;
+					for (int selectedIndex : selectedIndexes)
+						selectedPKs[i++] = pks.getRow(selectedIndex);
+				}
 			}
 		}
 		int oldSize = getSize();
@@ -4059,7 +4098,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		int newSize = getSize();
 		fireDifference(oldSize, newSize);
 
-		if (selectedPK == null || !selectRecord(selectedPK))
+		boolean selectedPKsRecPresent = false;
+		if (selectedPKs != null)
+		{
+			selectedPKsRecPresent = selectedPKs.length == 1 ? selectRecord(selectedPKs[0]) : selectRecords(selectedPKs);
+		}
+
+		if (!selectedPKsRecPresent)
 		{
 			setSelectedIndex(newSize > 0 ? 0 : -1);
 		}
