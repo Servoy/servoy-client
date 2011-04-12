@@ -49,28 +49,38 @@ public class NativeObjectSerializer extends AbstractSerializer
 
 	private static final String PROPERTY_MARK = "_"; //$NON-NLS-1$
 
-	private static Class[] _serializableClasses = new Class[] { NativeObject.class, NativeObject[].class, NativeArray.class, List.class, ArrayList.class, LinkedList.class, Vector.class };
+	private static Class[] _serializableClassesStandard = new Class[] { NativeObject.class, NativeObject[].class, NativeArray.class };
+	private static Class[] _serializableClassesWithArrays = new Class[] { NativeObject.class, NativeObject[].class, NativeArray.class, List.class, ArrayList.class, LinkedList.class, Vector.class };
 
-	private static Class[] _JSONClasses = new Class[] { JSONObject.class, JSONArray.class };
+	private static Class[] _JSONClassesStandard = new Class[] { JSONObject.class };
+	private static Class[] _JSONClassesWithArrays = new Class[] { JSONObject.class, JSONArray.class };
 
 	private final boolean prefixKeys;
 
 	private final boolean addJavaClassHint;
 
+	private final boolean handleArrays;
+
 	public NativeObjectSerializer(boolean prefixKeys, boolean addJavaClassHint)
+	{
+		this(prefixKeys, addJavaClassHint, false);
+	}
+
+	public NativeObjectSerializer(boolean prefixKeys, boolean addJavaClassHint, boolean handleArrays)
 	{
 		this.prefixKeys = prefixKeys;
 		this.addJavaClassHint = addJavaClassHint;
+		this.handleArrays = handleArrays;
 	}
 
 	public Class[] getJSONClasses()
 	{
-		return _JSONClasses;
+		return handleArrays ? _JSONClassesWithArrays : _JSONClassesStandard;
 	}
 
 	public Class[] getSerializableClasses()
 	{
-		return _serializableClasses;
+		return handleArrays ? _serializableClassesWithArrays : _serializableClassesStandard;
 	}
 
 	public Object marshall(SerializerState state, Object parent, Object o) throws MarshallException
@@ -80,32 +90,35 @@ public class NativeObjectSerializer extends AbstractSerializer
 			throw new MarshallException("cannot marshall NativeObject using class " + o.getClass()); //$NON-NLS-1$
 		}
 
-		if (o instanceof NativeArray)
+		if (handleArrays)
 		{
-			NativeArray nativeArray = (NativeArray)o;
-			JSONArray jsonArray = new JSONArray();
-			long length = nativeArray.getLength();
-
-			for (int i = 0; i < length; i++)
+			if (o instanceof NativeArray)
 			{
-				Object elem = nativeArray.get(i, nativeArray);
-				jsonArray.put(ser.marshall(state, o, elem, new Integer(i)));
+				NativeArray nativeArray = (NativeArray)o;
+				JSONArray jsonArray = new JSONArray();
+				long length = nativeArray.getLength();
+
+				for (int i = 0; i < length; i++)
+				{
+					Object elem = nativeArray.get(i, nativeArray);
+					jsonArray.put(ser.marshall(state, o, elem, new Integer(i)));
+				}
+				return jsonArray;
 			}
-			return jsonArray;
-		}
 
-		if (o instanceof List< ? >)
-		{
-			List< ? > list = (List< ? >)o;
-			JSONArray jsonArray = new JSONArray();
-			long length = list.size();
-
-			for (int i = 0; i < length; i++)
+			if (o instanceof List< ? >)
 			{
-				Object elem = list.get(i);
-				jsonArray.put(ser.marshall(state, o, elem, new Integer(i)));
+				List< ? > list = (List< ? >)o;
+				JSONArray jsonArray = new JSONArray();
+				long length = list.size();
+
+				for (int i = 0; i < length; i++)
+				{
+					Object elem = list.get(i);
+					jsonArray.put(ser.marshall(state, o, elem, new Integer(i)));
+				}
+				return jsonArray;
 			}
-			return jsonArray;
 		}
 
 		// else NativeObject
@@ -164,7 +177,7 @@ public class NativeObjectSerializer extends AbstractSerializer
 	@SuppressWarnings("nls")
 	public ObjectMatch tryUnmarshall(SerializerState state, Class clazz, Object json) throws UnmarshallException
 	{
-		if (json instanceof JSONArray)
+		if (handleArrays && json instanceof JSONArray)
 		{
 			return ObjectMatch.OKAY;
 		}
@@ -191,7 +204,7 @@ public class NativeObjectSerializer extends AbstractSerializer
 	@SuppressWarnings("nls")
 	public Object unmarshall(SerializerState state, Class clazz, Object json) throws UnmarshallException
 	{
-		if (json instanceof JSONArray)
+		if (handleArrays && json instanceof JSONArray)
 		{
 			return unmarshallJSONArray(state, (JSONArray)json);
 		}
@@ -335,7 +348,7 @@ public class NativeObjectSerializer extends AbstractSerializer
 			}
 			unmarshalled = ser.unmarshall(state, clazz, jsonValue);
 		}
-		else if (jsonValue instanceof JSONArray)
+		else if (handleArrays && jsonValue instanceof JSONArray)
 		{
 			unmarshalled = ser.unmarshall(state, NativeArray.class, jsonValue);
 		}

@@ -16,10 +16,8 @@
  */
 package com.servoy.j2db.util.serialize;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.jabsorb.JSONSerializer;
+import org.jabsorb.serializer.MarshallException;
 import org.jabsorb.serializer.Serializer;
 import org.jabsorb.serializer.SerializerState;
 import org.jabsorb.serializer.UnmarshallException;
@@ -28,6 +26,7 @@ import org.jabsorb.serializer.impl.BeanSerializer;
 import org.jabsorb.serializer.impl.BooleanSerializer;
 import org.jabsorb.serializer.impl.DateSerializer;
 import org.jabsorb.serializer.impl.DictionarySerializer;
+import org.jabsorb.serializer.impl.ListSerializer;
 import org.jabsorb.serializer.impl.MapSerializer;
 import org.jabsorb.serializer.impl.NumberSerializer;
 import org.jabsorb.serializer.impl.PrimitiveSerializer;
@@ -53,10 +52,17 @@ public class JSONSerializerWrapper
 {
 	private JSONSerializer serializer;
 	private final Serializer defaultSerializer;
+	private final boolean handleArrays;
 
 	public JSONSerializerWrapper(Serializer defaultSerializer)
 	{
+		this(defaultSerializer, false);
+	}
+
+	public JSONSerializerWrapper(Serializer defaultSerializer, boolean handleArrays)
+	{
 		this.defaultSerializer = defaultSerializer;
+		this.handleArrays = handleArrays;
 	}
 
 	public Object toJSON(Object obj) throws Exception
@@ -83,6 +89,13 @@ public class JSONSerializerWrapper
 		{
 			serializer = new JSONSerializer()
 			{
+				@Override
+				public Object marshall(SerializerState state, Object parent, Object java, Object ref) throws MarshallException
+				{
+					// NativeArray may contain wrapped data
+					return super.marshall(state, parent, wrapToJSON(java), ref);
+				}
+
 				@Override
 				public Object unmarshall(SerializerState state, Class clazz, Object json) throws UnmarshallException
 				{
@@ -126,7 +139,10 @@ public class JSONSerializerWrapper
 				serializer.registerSerializer(new DictionarySerializer());
 				serializer.registerSerializer(new MapSerializer());
 				serializer.registerSerializer(new SetSerializer());
-				// serializer.registerSerializer(new ListSerializer()); // is handled by NativeObjectSerializer
+				if (!handleArrays)
+				{
+					serializer.registerSerializer(new ListSerializer()); // is handled by NativeObjectSerializer
+				}
 				serializer.registerSerializer(new DateSerializer());
 				serializer.registerSerializer(new StringSerializer());
 				serializer.registerSerializer(new NumberSerializer());
@@ -155,23 +171,11 @@ public class JSONSerializerWrapper
 	 */
 	public static Object wrapToJSON(Object object)
 	{
-		// unwrap rhino object, dont unwrap NativeArrat, those are handled by the NativeObjectSerializer
+		// unwrap rhino object, don't unwrap NativeArray, those are handled by the NativeObjectSerializer
 		Object obj = object;
 		if (obj instanceof Wrapper && !(obj instanceof NativeArray))
 		{
 			obj = ((Wrapper)obj).unwrap();
-		}
-		// change simple array to ArrayList (need this because of bug in JSONRPC with array in array)
-		if (obj instanceof Object[])
-		{
-			Object[] objArray = (Object[])obj;
-			List<Object> arrayToArrayList = new ArrayList<Object>(objArray.length);
-			for (Object element : objArray)
-			{
-				arrayToArrayList.add(wrapToJSON(element));
-			}
-
-			return arrayToArrayList;
 		}
 
 		return obj;
@@ -187,19 +191,6 @@ public class JSONSerializerWrapper
 
 	public static Object unwrapFromJSON(Object obj)
 	{
-		//change ArrayList to simple array (need this because of bug in JSONRPC with array in array)
-		if (obj instanceof ArrayList)
-		{
-			List<Object> objArrayList = (List<Object>)obj;
-			Object[] plainArray = new Object[objArrayList.size()];
-
-			for (int i = 0; i < objArrayList.size(); i++)
-			{
-				plainArray[i] = unwrapFromJSON(objArrayList.get(i));
-			}
-
-			return plainArray;
-		}
 		if (obj == JSONObject.NULL)
 		{
 			return null;
@@ -207,6 +198,4 @@ public class JSONSerializerWrapper
 
 		return obj;
 	}
-
-
 }
