@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 
@@ -22,19 +22,17 @@ import java.util.Comparator;
 /**
  * @author jcompagner
  */
-public class ColumnComparator implements Comparator
+public class ColumnComparator implements Comparator<IColumn>
 {
 	public static final ColumnComparator INSTANCE = new ColumnComparator();
 
 	/**
 	 * @see java.util.Comparator#compare(Object, Object)
 	 */
-	public int compare(Object o1, Object o2)
+	public int compare(IColumn column1, IColumn column2)
 	{
 		// Names of IColumn can't be null!!
-		IColumn column1 = (IColumn)o1;
-		IColumn column2 = (IColumn)o2;
-		if (column1 instanceof Column)
+		if (column1 instanceof Column && column2 instanceof Column)
 		{
 			if (((Column)column1).getRowIdentType() != Column.NORMAL_COLUMN)
 			{
