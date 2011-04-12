@@ -742,7 +742,8 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 							//dipatch to my listers
 							public void focusGained(FocusEvent e)
 							{
-								if (!DataComboBox.this.isPopupVisible() && DataComboBox.this.isVisible() && DataComboBox.this.isEnabled())
+								if (!DataComboBox.this.isPopupVisible() && DataComboBox.this.isVisible() && DataComboBox.this.isEnabled() &&
+									Boolean.TRUE.equals(UIUtils.getUIProperty(DataComboBox.this, IApplication.COMBOBOX_SHOW_POPUP_ON_FOCUS_GAIN, Boolean.TRUE)))
 								{
 									try
 									{
@@ -824,7 +825,8 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		super.processFocusEvent(e);
 		if (!isEditable())
 		{
-			if (e.getID() == FocusEvent.FOCUS_GAINED && !isPopupVisible() && isVisible() && isEnabled())
+			if (e.getID() == FocusEvent.FOCUS_GAINED && !isPopupVisible() && isVisible() && isEnabled() &&
+				Boolean.TRUE.equals(UIUtils.getUIProperty(this, IApplication.COMBOBOX_SHOW_POPUP_ON_FOCUS_GAIN, Boolean.TRUE)))
 			{
 				try
 				{

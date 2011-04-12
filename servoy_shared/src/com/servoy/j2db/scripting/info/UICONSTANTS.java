@@ -59,6 +59,23 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	public static final String TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN = IApplication.TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN;
 
 	/**
+	 * Property that can be set using application.setUIProperty() or element.putClientProperty().
+	 * 
+	 * If set on application it will affect all COMBOBOX fields. If set on an element it will affect only that COMBOBOX element/field (with priority over the application property).
+	 * Value can be true/false/null.
+	 * 
+	 * If set to true, the affected COMBOBOX will show the pop-up when gaining focus.
+	 * DEFAULT: true.
+	 *
+	 * @sample
+	 * // make all COMBOBOX fields not show the pop-up when gaining focus
+	 * application.setUIProperty(APP_UI_PROPERTY.COMBOBOX_SHOW_POPUP_ON_FOCUS_GAIN, false);
+	 * // make one COMBOBOX field show the pop-up when gaining focus - overrides the application property set
+	 * forms.someForm.elements.comboboxElement.putClientProperty(APP_UI_PROPERTY.COMBOBOX_SHOW_POPUP_ON_FOCUS_GAIN, true);
+	 */
+	public static final String COMBOBOX_SHOW_POPUP_ON_FOCUS_GAIN = IApplication.COMBOBOX_SHOW_POPUP_ON_FOCUS_GAIN;
+
+	/**
 	 * Property that can be set using application.setUIProperty() or element.putClientProperty(). It is used only in Smart Client.
 	 * 
 	 * If set on application it will affect all date formatted fields. If set on an element it will affect only that date formatted element/field (with priority over the application property).
