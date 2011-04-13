@@ -52,6 +52,7 @@ import org.apache.wicket.markup.IMarkupCacheKeyProvider;
 import org.apache.wicket.markup.Markup;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
@@ -1638,6 +1639,27 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 	{
 		super.onRender(markupStream);
 		uiRecreated = false;
+	}
+
+	long lastModifiedTime = 0;
+
+	@Override
+	public void renderHead(HtmlHeaderContainer container)
+	{
+		super.renderHead(container);
+		StringBuffer cssRef = new StringBuffer();
+		cssRef.append("\n<link rel='stylesheet' type='text/css' href='/servoy-webclient/formcss/"); //$NON-NLS-1$ 
+		cssRef.append(formController.getForm().getSolution().getName());
+		cssRef.append('/');
+		cssRef.append(formController.getName());
+		cssRef.append("_t"); //$NON-NLS-1$ 
+		if (lastModifiedTime == 0 || isUIRecreated())
+		{
+			lastModifiedTime = System.currentTimeMillis();
+		}
+		cssRef.append(lastModifiedTime);
+		cssRef.append("t.css'/>\n"); //$NON-NLS-1$ 
+		container.getHeaderResponse().renderString(cssRef.toString());
 	}
 
 	public boolean isDesignMode()

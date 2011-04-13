@@ -153,13 +153,6 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 		html.append(" - Servoy"); //$NON-NLS-1$ 
 		html.append("</title>\n"); //$NON-NLS-1$ 
 		html.append("<servoy:head>\n"); //$NON-NLS-1$ 
-		html.append("\t<link rel='stylesheet' type='text/css' href='/servoy-webclient/formcss/"); //$NON-NLS-1$ 
-		html.append(solution.getName());
-		html.append('/');
-		html.append(getFormInstanceName());
-		html.append("_t"); //$NON-NLS-1$ 
-		html.append(System.currentTimeMillis());
-		html.append("t.css'/>\n"); //$NON-NLS-1$ 
 		html.append("</servoy:head>\n"); //$NON-NLS-1$ 
 		html.append("</head>\n"); //$NON-NLS-1$ 
 		html.append("<body id='servoy_page'>\n"); //$NON-NLS-1$ 
