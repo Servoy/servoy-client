@@ -148,6 +148,7 @@ public class SortableCellViewHeaderGroup extends Model implements IComponentAssi
 								if (fc != null && labelForOnActionMethodId > 0)
 								{
 									JSEvent event = view.createScriptEvent(JSEvent.EventType.action, null, null);
+									event.setModifiers(modifiers);
 									event.setElementName(gc.getName());
 									fc.executeFunction(
 										String.valueOf(labelForOnActionMethodId),
