@@ -59,6 +59,7 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.dnd.DRAGNDROP;
 import com.servoy.j2db.dnd.FormDataTransferHandler;
+import com.servoy.j2db.dnd.ISupportDragNDropTextTransfer;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.IPersist;
@@ -167,7 +168,8 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 					{
 						child.addMouseMotionListener(dragTester);
 						child.addMouseListener(dragTester);
-						((JComponent)child).setTransferHandler(null);
+						if (child instanceof ISupportDragNDropTextTransfer) ((ISupportDragNDropTextTransfer)child).clearTransferHandler();
+						else ((JComponent)child).setTransferHandler(null);
 					}
 				}
 

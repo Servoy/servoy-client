@@ -17,9 +17,11 @@
 package com.servoy.j2db.smart.dataui;
 
 
+import java.awt.AWTEvent;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -28,6 +30,7 @@ import java.awt.Point;
 import java.awt.dnd.DropTarget;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -49,6 +52,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JFormattedTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.TransferHandler;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.plaf.ComponentUI;
@@ -77,6 +81,8 @@ import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.dataprocessing.ValueListFactory;
+import com.servoy.j2db.dnd.FormDataTransferHandler;
+import com.servoy.j2db.dnd.ISupportDragNDropTextTransfer;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.ScriptVariable;
@@ -109,7 +115,8 @@ import com.servoy.j2db.util.gui.FixedMaskFormatter;
  * Runtime swing field
  * @author jblok, jcompagner
  */
-public class DataField extends JFormattedTextField implements IDisplayData, IFieldComponent, ISkinnable, IScriptFieldMethods, ISupportCachedLocationAndSize
+public class DataField extends JFormattedTextField implements IDisplayData, IFieldComponent, ISkinnable, IScriptFieldMethods, ISupportCachedLocationAndSize,
+	ISupportDragNDropTextTransfer
 {
 	private static final long serialVersionUID = 1L;
 
@@ -2256,5 +2263,72 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		{
 			opaqueBackground = color;
 		}
+	}
+
+	private TransferHandler textTransferHandler;
+
+	/*
+	 * @see com.servoy.j2db.dnd.ISupportTextTransfer#clearTransferHandler()
+	 */
+	public void clearTransferHandler()
+	{
+		textTransferHandler = getTransferHandler();
+		setTransferHandler(null);
+	}
+
+	public TransferHandler getTextTransferHandler()
+	{
+		return textTransferHandler;
+	}
+
+	@Override
+	public void copy()
+	{
+		if (textTransferHandler != null)
+		{
+			Action copyAction = FormDataTransferHandler.getCopyFormDataAction();
+			copyAction.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, (String)copyAction.getValue(Action.NAME),
+				EventQueue.getMostRecentEventTime(), getCurrentEventModifiers()));
+		}
+		else super.copy();
+	}
+
+	@Override
+	public void cut()
+	{
+		if (textTransferHandler != null && isEditable() && isEnabled())
+		{
+			Action cutAction = FormDataTransferHandler.getCutFormDataAction();
+			cutAction.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, (String)cutAction.getValue(Action.NAME),
+				EventQueue.getMostRecentEventTime(), getCurrentEventModifiers()));
+		}
+		else super.cut();
+	}
+
+	@Override
+	public void paste()
+	{
+		if (textTransferHandler != null && isEditable() && isEnabled())
+		{
+			Action pasteAction = FormDataTransferHandler.getPasteFormDataAction();
+			pasteAction.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, (String)pasteAction.getValue(Action.NAME),
+				EventQueue.getMostRecentEventTime(), getCurrentEventModifiers()));
+		}
+		else super.paste();
+	}
+
+	private int getCurrentEventModifiers()
+	{
+		int modifiers = 0;
+		AWTEvent currentEvent = EventQueue.getCurrentEvent();
+		if (currentEvent instanceof InputEvent)
+		{
+			modifiers = ((InputEvent)currentEvent).getModifiers();
+		}
+		else if (currentEvent instanceof ActionEvent)
+		{
+			modifiers = ((ActionEvent)currentEvent).getModifiers();
+		}
+		return modifiers;
 	}
 }
