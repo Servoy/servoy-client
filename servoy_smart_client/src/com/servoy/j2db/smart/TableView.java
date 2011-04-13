@@ -98,6 +98,7 @@ import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.dnd.DRAGNDROP;
 import com.servoy.j2db.dnd.FormDataTransferHandler;
+import com.servoy.j2db.dnd.ISupportDragNDropTextTransfer;
 import com.servoy.j2db.dnd.JSDNDEvent;
 import com.servoy.j2db.gui.FixedJTable;
 import com.servoy.j2db.gui.LFAwareSortableHeaderRenderer;
@@ -437,7 +438,8 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 
 						if (dragMouseListener != null && editor instanceof JComponent)
 						{
-							((JComponent)editor).setTransferHandler(null);
+							if (editor instanceof ISupportDragNDropTextTransfer) ((ISupportDragNDropTextTransfer)editor).clearTransferHandler();
+							else ((JComponent)editor).setTransferHandler(null);
 							editor.addMouseListener(dragMouseListener);
 							editor.addMouseMotionListener(dragMouseListener);
 						}
@@ -498,7 +500,8 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 
 						if (dragMouseListener != null && renderer instanceof JComponent)
 						{
-							((JComponent)renderer).setTransferHandler(null);
+							if (renderer instanceof ISupportDragNDropTextTransfer) ((ISupportDragNDropTextTransfer)renderer).clearTransferHandler();
+							else ((JComponent)renderer).setTransferHandler(null);
 							editor.addMouseListener(dragMouseListener);
 							editor.addMouseMotionListener(dragMouseListener);
 						}

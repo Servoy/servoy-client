@@ -17,11 +17,13 @@
 package com.servoy.j2db.smart.dataui;
 
 
+import java.awt.AWTEvent;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -30,10 +32,12 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.dnd.DropTarget;
+import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -50,6 +54,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.concurrent.Executor;
 
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JEditorPane;
 import javax.swing.TransferHandler;
@@ -73,6 +78,8 @@ import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.component.ISupportAsyncLoading;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
+import com.servoy.j2db.dnd.FormDataTransferHandler;
+import com.servoy.j2db.dnd.ISupportDragNDropTextTransfer;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.printing.IFixedPreferredWidth;
 import com.servoy.j2db.smart.MainPanel;
@@ -108,7 +115,7 @@ import com.servoy.j2db.util.rtf.FixedRTFEditorKit;
  * @author jblok
  */
 public class DataTextEditor extends EnableScrollPanel implements IDisplayData, IFieldComponent, IScrollPane, ISupportAsyncLoading, IScriptTextEditorMethods,
-	IFixedPreferredWidth, ISupportCachedLocationAndSize, ISupplyFocusChildren
+	IFixedPreferredWidth, ISupportCachedLocationAndSize, ISupplyFocusChildren, ISupportDragNDropTextTransfer
 {
 	private final FixedJEditorPane enclosedComponent;
 	private String dataProviderID;
@@ -470,7 +477,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 		return new Component[] { enclosedComponent };
 	}
 
-	private class MyEditorPane extends FixedJEditorPane implements ISkinnable
+	private class MyEditorPane extends FixedJEditorPane implements ISkinnable, ISupportDragNDropTextTransfer
 	{
 		MyEditorPane(Executor exe)
 		{
@@ -674,6 +681,76 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 
 				walkView(g, kid, kidbox);
 			}
+		}
+
+		@Override
+		public void copy()
+		{
+			if (textTransferHandler != null)
+			{
+				Action copyAction = FormDataTransferHandler.getCopyFormDataAction();
+				copyAction.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, (String)copyAction.getValue(Action.NAME),
+					EventQueue.getMostRecentEventTime(), getCurrentEventModifiers()));
+			}
+			else super.copy();
+		}
+
+		@Override
+		public void cut()
+		{
+			if (textTransferHandler != null && isEditable() && isEnabled())
+			{
+				Action cutAction = FormDataTransferHandler.getCutFormDataAction();
+				cutAction.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, (String)cutAction.getValue(Action.NAME),
+					EventQueue.getMostRecentEventTime(), getCurrentEventModifiers()));
+			}
+			else super.cut();
+		}
+
+		@Override
+		public void paste()
+		{
+			if (textTransferHandler != null && isEditable() && isEnabled())
+			{
+				Action pasteAction = FormDataTransferHandler.getPasteFormDataAction();
+				pasteAction.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, (String)pasteAction.getValue(Action.NAME),
+					EventQueue.getMostRecentEventTime(), getCurrentEventModifiers()));
+			}
+			else super.paste();
+		}
+
+		private int getCurrentEventModifiers()
+		{
+			int modifiers = 0;
+			AWTEvent currentEvent = EventQueue.getCurrentEvent();
+			if (currentEvent instanceof InputEvent)
+			{
+				modifiers = ((InputEvent)currentEvent).getModifiers();
+			}
+			else if (currentEvent instanceof ActionEvent)
+			{
+				modifiers = ((ActionEvent)currentEvent).getModifiers();
+			}
+			return modifiers;
+		}
+
+		private TransferHandler textTransferHandler;
+
+		/*
+		 * @see com.servoy.j2db.dnd.ISupportDragNDropTextTransfer#clearTransferHandler()
+		 */
+		public void clearTransferHandler()
+		{
+			textTransferHandler = getTransferHandler();
+			setTransferHandler(null);
+		}
+
+		/*
+		 * @see com.servoy.j2db.dnd.ISupportDragNDropTextTransfer#getTextTransferHandler()
+		 */
+		public TransferHandler getTextTransferHandler()
+		{
+			return textTransferHandler;
 		}
 	}
 
@@ -1747,10 +1824,20 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 		return eventExecutor;
 	}
 
-	@Override
-	public void setTransferHandler(TransferHandler newHandler)
+	/*
+	 * @see com.servoy.j2db.dnd.ISupportTextTransfer#clearTransferHandler()
+	 */
+	public void clearTransferHandler()
 	{
-		super.setTransferHandler(newHandler);
-		enclosedComponent.setTransferHandler(newHandler);
+		setTransferHandler(null);
+		if (enclosedComponent instanceof ISupportDragNDropTextTransfer) ((ISupportDragNDropTextTransfer)enclosedComponent).clearTransferHandler();
+	}
+
+	/*
+	 * @see com.servoy.j2db.dnd.ISupportTextTransfer#getTextTransferHandler()
+	 */
+	public TransferHandler getTextTransferHandler()
+	{
+		return enclosedComponent instanceof ISupportDragNDropTextTransfer ? ((ISupportDragNDropTextTransfer)enclosedComponent).getTextTransferHandler() : null;
 	}
 }

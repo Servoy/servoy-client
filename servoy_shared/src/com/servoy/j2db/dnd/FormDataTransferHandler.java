@@ -19,10 +19,17 @@ package com.servoy.j2db.dnd;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Point;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.Transferable;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDragEvent;
+import java.awt.event.ActionEvent;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JComponent;
 import javax.swing.TransferHandler;
+import javax.swing.UIManager;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.component.ComponentFactory;
@@ -31,6 +38,7 @@ import com.servoy.j2db.dataprocessing.Record;
 import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
+import com.servoy.j2db.util.Debug;
 
 
 /**
@@ -132,5 +140,97 @@ public class FormDataTransferHandler extends CompositeTransferHandler
 		}
 
 		return super.canReplaceDragSource(currentDragSource, newDragSource, e);
+	}
+
+	static final Action cutFormDataAction = new TransferAction("cut");
+	static final Action copyFormDataAction = new TransferAction("copy");
+	static final Action pasteFormDataAction = new TransferAction("paste");
+
+	public static Action getCopyFormDataAction()
+	{
+		return copyFormDataAction;
+	}
+
+	public static Action getCutFormDataAction()
+	{
+		return cutFormDataAction;
+	}
+
+	public static Action getPasteFormDataAction()
+	{
+		return pasteFormDataAction;
+	}
+
+	static class TransferAction extends AbstractAction
+	{
+		TransferAction(String name)
+		{
+			super(name);
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			Object src = e.getSource();
+			if (src instanceof JComponent)
+			{
+				JComponent c = (JComponent)src;
+				TransferHandler th = (src instanceof ISupportDragNDropTextTransfer) ? ((ISupportDragNDropTextTransfer)src).getTextTransferHandler()
+					: c.getTransferHandler();
+				Clipboard clipboard = getClipboard(c);
+				String name = (String)getValue(Action.NAME);
+				Transferable trans = null;
+
+				// any of these calls may throw IllegalStateException
+				try
+				{
+					if ((clipboard != null) && (th != null) && (name != null))
+					{
+						if ("cut".equals(name))
+						{
+							th.exportToClipboard(c, clipboard, MOVE);
+						}
+						else if ("copy".equals(name))
+						{
+							th.exportToClipboard(c, clipboard, COPY);
+						}
+						else if ("paste".equals(name))
+						{
+							trans = clipboard.getContents(null);
+						}
+					}
+				}
+				catch (IllegalStateException ise)
+				{
+					// clipboard was unavailable
+					UIManager.getLookAndFeel().provideErrorFeedback(c);
+					return;
+				}
+
+				// this is a paste action, import data into the component
+				if (trans != null)
+				{
+					th.importData(c, trans);
+				}
+			}
+		}
+
+		/**
+		 * Returns the clipboard to use for cut/copy/paste.
+		 */
+		private Clipboard getClipboard(JComponent c)
+		{
+			Clipboard clipboard = null;
+
+			try
+			{
+				clipboard = c.getToolkit().getSystemClipboard();
+			}
+			catch (Exception ex)
+			{
+				Debug.error("Error getting system clipboard", ex);
+			}
+
+			return clipboard;
+		}
 	}
 }

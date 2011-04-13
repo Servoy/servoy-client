@@ -17,19 +17,25 @@
 package com.servoy.j2db.smart.dataui;
 
 
+import java.awt.AWTEvent;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JPasswordField;
+import javax.swing.TransferHandler;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 
@@ -40,6 +46,8 @@ import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.TagResolver;
+import com.servoy.j2db.dnd.FormDataTransferHandler;
+import com.servoy.j2db.dnd.ISupportDragNDropTextTransfer;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
@@ -61,7 +69,8 @@ import com.servoy.j2db.util.docvalidator.ValidatingDocument;
  * Runtime swing password field 
  * @author jblok
  */
-public class DataPassword extends JPasswordField implements IFieldComponent, IDisplayData, IScriptDataPasswordMethods, ISupportCachedLocationAndSize
+public class DataPassword extends JPasswordField implements IFieldComponent, IDisplayData, IScriptDataPasswordMethods, ISupportCachedLocationAndSize,
+	ISupportDragNDropTextTransfer
 {
 	private String dataProviderID;
 	private final EventExecutor eventExecutor;
@@ -856,5 +865,72 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 	public RenderEventExecutor getRenderEventExecutor()
 	{
 		return eventExecutor;
+	}
+
+	private TransferHandler textTransferHandler;
+
+	/*
+	 * @see com.servoy.j2db.dnd.ISupportTextTransfer#clearTransferHandler()
+	 */
+	public void clearTransferHandler()
+	{
+		textTransferHandler = getTransferHandler();
+		setTransferHandler(null);
+	}
+
+	public TransferHandler getTextTransferHandler()
+	{
+		return textTransferHandler;
+	}
+
+	@Override
+	public void copy()
+	{
+		if (textTransferHandler != null)
+		{
+			Action copyAction = FormDataTransferHandler.getCopyFormDataAction();
+			copyAction.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, (String)copyAction.getValue(Action.NAME),
+				EventQueue.getMostRecentEventTime(), getCurrentEventModifiers()));
+		}
+		else super.copy();
+	}
+
+	@Override
+	public void cut()
+	{
+		if (textTransferHandler != null && isEditable() && isEnabled())
+		{
+			Action cutAction = FormDataTransferHandler.getCutFormDataAction();
+			cutAction.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, (String)cutAction.getValue(Action.NAME),
+				EventQueue.getMostRecentEventTime(), getCurrentEventModifiers()));
+		}
+		else super.cut();
+	}
+
+	@Override
+	public void paste()
+	{
+		if (textTransferHandler != null && isEditable() && isEnabled())
+		{
+			Action pasteAction = FormDataTransferHandler.getPasteFormDataAction();
+			pasteAction.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, (String)pasteAction.getValue(Action.NAME),
+				EventQueue.getMostRecentEventTime(), getCurrentEventModifiers()));
+		}
+		else super.paste();
+	}
+
+	private int getCurrentEventModifiers()
+	{
+		int modifiers = 0;
+		AWTEvent currentEvent = EventQueue.getCurrentEvent();
+		if (currentEvent instanceof InputEvent)
+		{
+			modifiers = ((InputEvent)currentEvent).getModifiers();
+		}
+		else if (currentEvent instanceof ActionEvent)
+		{
+			modifiers = ((ActionEvent)currentEvent).getModifiers();
+		}
+		return modifiers;
 	}
 }
