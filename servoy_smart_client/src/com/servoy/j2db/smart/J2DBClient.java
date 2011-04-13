@@ -783,7 +783,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		try
 		{
 			Class< ? > cls = Class.forName(rmiFactory.trim());
-			Constructor< ? > constructor = cls.getConstructor(new Class[] { URL.class, IApplication.class, Properties.class, IReconnectListener.class });
+			Constructor< ? > constructor = cls.getConstructor(new Class[] { URL.class, ISmartClientApplication.class, Properties.class, IReconnectListener.class });
 			rmiFactoryFactory = (IRMIClientSocketFactoryFactory)constructor.newInstance(new Object[] { webstartbase, this, getSettings(), this });
 			Debug.trace("IRMISocketFactoryFactory instantiated: " + cls); //$NON-NLS-1$
 		}
