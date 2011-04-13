@@ -1847,6 +1847,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			Object[] args = new Object[] { getJSEvent(formScope) };
 			executeFormMethod(form.getOnUnLoadMethodID(), args, "onUnLoadMethodID", true, true); //$NON-NLS-1$
 			containerImpl.destroy();
+			getForm().setLastModified(System.currentTimeMillis());
 
 			((FoundSetManager)application.getFoundSetManager()).removeFoundSetListener(this);
 
