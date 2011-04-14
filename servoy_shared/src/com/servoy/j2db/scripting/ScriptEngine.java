@@ -60,8 +60,10 @@ import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IDepricatedScriptTabPanelMethods;
 import com.servoy.j2db.ui.IScriptCheckBoxMethods;
 import com.servoy.j2db.ui.IScriptChoiceMethods;
+import com.servoy.j2db.ui.IScriptDataButtonMethods;
 import com.servoy.j2db.ui.IScriptDataCalendarMethods;
 import com.servoy.j2db.ui.IScriptDataComboboxMethods;
+import com.servoy.j2db.ui.IScriptDataLabelMethods;
 import com.servoy.j2db.ui.IScriptDataPasswordMethods;
 import com.servoy.j2db.ui.IScriptFieldMethods;
 import com.servoy.j2db.ui.IScriptMediaInputFieldMethods;
@@ -149,8 +151,10 @@ public class ScriptEngine implements IScriptSupport
 
 			toplevelScope.put("RuntimeForm", toplevelScope, new InstanceOfScope("RuntimeForm", FormScope.class));
 
-			toplevelScope.put("RuntimeButton", toplevelScope, new InstanceOfScope("RuntimeButton", IScriptScriptButtonMethods.class));
-			toplevelScope.put("RuntimeLabel", toplevelScope, new InstanceOfScope("RuntimeLabel", IScriptScriptLabelMethods.class));
+			toplevelScope.put("RuntimeScriptButton", toplevelScope, new InstanceOfScope("RuntimeScriptButton", IScriptScriptButtonMethods.class));
+			toplevelScope.put("RuntimeDataButton", toplevelScope, new InstanceOfScope("RuntimeDataButton", IScriptDataButtonMethods.class));
+			toplevelScope.put("RuntimeScriptLabel", toplevelScope, new InstanceOfScope("RuntimeScriptLabel", IScriptScriptLabelMethods.class));
+			toplevelScope.put("RuntimeDataLabel", toplevelScope, new InstanceOfScope("RuntimeDataLabel", IScriptDataLabelMethods.class));
 			toplevelScope.put("RuntimePassword", toplevelScope, new InstanceOfScope("RuntimePassword", IScriptDataPasswordMethods.class));
 			toplevelScope.put("RuntimeHtmlArea", toplevelScope, new InstanceOfScope("RuntimeHtmlArea", IScriptTextEditorMethods.class));
 			toplevelScope.put("RuntimeRtfArea", toplevelScope, new InstanceOfScope("RuntimeRtfArea", IScriptTextEditorMethods.class));
