@@ -187,6 +187,7 @@ public class StartupArgumentsScope extends DefaultScope implements Externalizabl
 	{
 		Object firstArgument = get(StartupArgumentsScope.PARAM_KEY_ARGUMENT, this);
 		if (firstArgument == Scriptable.NOT_FOUND) firstArgument = get(StartupArgumentsScope.PARAM_KEY_SHORT_ARGUMENT, this);
+		if (firstArgument instanceof NativeArray) firstArgument = ((NativeArray)firstArgument).get(0, (NativeArray)firstArgument);
 		return firstArgument == Scriptable.NOT_FOUND ? null : firstArgument.toString();
 	}
 
@@ -224,5 +225,22 @@ public class StartupArgumentsScope extends DefaultScope implements Externalizabl
 	public String toString()
 	{
 		return "ArgumentsScope: " + allVars.toString(); //$NON-NLS-1$
+	}
+
+	public JSMap toJSMap()
+	{
+		JSMap jsMap = new JSMap();
+		String key;
+		for (Map.Entry<String, Object> e : getArguments().entrySet())
+		{
+			key = e.getKey();
+			if (StartupArgumentsScope.PARAM_KEY_SOLUTION.equals(key) || StartupArgumentsScope.PARAM_KEY_METHOD.equals(key) ||
+				StartupArgumentsScope.PARAM_KEY_CLIENT_IDENTIFIER.equals(key) || StartupArgumentsScope.PARAM_KEY_SHORT_SOLUTION.equals(key) ||
+				StartupArgumentsScope.PARAM_KEY_SHORT_METHOD.equals(key)) continue;
+
+			jsMap.put(e.getKey(), e.getValue());
+		}
+
+		return jsMap;
 	}
 }

@@ -218,30 +218,32 @@ public class JSApplication implements IReturnedTypesProvider
 
 	/**
 	 * Get the parameters which are provided by startup.
-	 *
+	 * It returns an array with 2 elements, a string that is the startup argument and a map containing all named startup arguments, or
+	 * null if there is no argument passed
+	 * 
 	 * @sample
 	 * var args_array = application.getStartupArguments();
 	 * // the first element in the array is the 'argument' value from the startup
 	 * var argument = args_array[0];
-	 * // the second element is an object containing all the startup arguments
+	 * // the second element is a map  containing all the named startup arguments
 	 * var startupArgumentObj = args_array[1];
-	 * var arg1 = startupArgumentObj.arg1_name;
-	 * var arg2 = startupArgumentObj.arg2_name;
-	 * 
-	 * Note: the argument value can be a string or an array of strings if
-	 * the argument has multiple values
-	 * Ex.: for the url : http://myhost/servoy-webclient/ss/s/mySolution/a/bla/a/bla1/a/bla2
-	 * the first element in the returned array is an array : [bla, bla1, bla2], and the second
-	 * element has a attribute with name "a" and as value an array [bla, bla1, bla2]
-	 * 
-	 * @return Array with 2 elements, the startup argument and an object containing all startup arguments, or
-	 * null if there is no argument passed
+	 * var arg1 = startupArgumentObj['arg1_name'];
+	 * var arg2 = startupArgumentObj['arg2_name'];
+	 *  
+	 * @return Array with 2 elements, a string that is the startup argument and a map containing all named startup arguments,
+	 * or null if there is no argument passed
 	 */
 	public Object[] js_getStartupArguments()
 	{
 		if (application instanceof ClientState)
 		{
-			return ((ClientState)application).getPreferedSolutionMethodArguments();
+			Object[] startupArguments = ((ClientState)application).getPreferedSolutionMethodArguments();
+			if (startupArguments != null && startupArguments.length > 1 && startupArguments[1] instanceof StartupArgumentsScope)
+			{
+				startupArguments[1] = ((StartupArgumentsScope)startupArguments[1]).toJSMap();
+			}
+
+			return startupArguments;
 		}
 		return null;
 	}
