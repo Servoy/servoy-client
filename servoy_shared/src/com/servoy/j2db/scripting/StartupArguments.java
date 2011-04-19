@@ -99,7 +99,7 @@ public class StartupArguments extends HashMap<String, Object>
 				{
 					JSMap array = new JSMap("Array");
 					for (int i = 0; i < sParamValue.length; i++)
-						array.put(new Integer(i), sParamValue[i]);
+						array.put(Integer.valueOf(i), sParamValue[i]);
 					put(paramKey, array);
 				}
 				else put(paramKey, sParamValue[0]);
@@ -205,7 +205,40 @@ public class StartupArguments extends HashMap<String, Object>
 					StartupArguments.PARAM_KEY_CLIENT_IDENTIFIER.equals(key) || StartupArguments.PARAM_KEY_SHORT_SOLUTION.equals(key) ||
 					StartupArguments.PARAM_KEY_SHORT_METHOD.equals(key)) continue;
 
-				jsMap.put(StartupArguments.PARAM_KEY_SHORT_ARGUMENT.equals(key) ? StartupArguments.PARAM_KEY_ARGUMENT : e.getKey(), e.getValue());
+				jsMap.put(e.getKey(), e.getValue());
+			}
+
+			Object shortArgumentValue = jsMap.get(StartupArguments.PARAM_KEY_SHORT_ARGUMENT);
+			if (shortArgumentValue != null)
+			{
+				Object argumentValue = jsMap.get(StartupArguments.PARAM_KEY_ARGUMENT);
+				if (argumentValue != null)
+				{
+					JSMap argumentValueMap;
+					if (argumentValue instanceof JSMap)
+					{
+						argumentValueMap = (JSMap)argumentValue;
+					}
+					else
+					{
+						argumentValueMap = new JSMap("Array");
+						argumentValueMap.put(Integer.valueOf(0), jsMap.get(StartupArguments.PARAM_KEY_ARGUMENT));
+						jsMap.put(StartupArguments.PARAM_KEY_ARGUMENT, argumentValueMap);
+					}
+
+					int argumentValueMapSize = argumentValueMap.size();
+					if (shortArgumentValue instanceof JSMap)
+					{
+						JSMap shortArgumentValueMap = (JSMap)shortArgumentValue;
+						for (int i = 0; i < shortArgumentValueMap.size(); i++)
+						{
+							argumentValueMap.put(Integer.valueOf(argumentValueMapSize + i), shortArgumentValueMap.get(Integer.valueOf(i)));
+						}
+					}
+					else argumentValueMap.put(Integer.valueOf(argumentValueMapSize), shortArgumentValue);
+				}
+				else jsMap.put(StartupArguments.PARAM_KEY_ARGUMENT, shortArgumentValue);
+				jsMap.remove(StartupArguments.PARAM_KEY_SHORT_ARGUMENT);
 			}
 		}
 
