@@ -3911,8 +3911,8 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	{
 		try
 		{
-			((IClientPluginAccess)getPluginAccess()).executeMethod(null, globalMethodName, new Object[] { argumentsScope.getFirstArgument(), argumentsScope },
-				true);
+			((IClientPluginAccess)getPluginAccess()).executeMethod(null, globalMethodName,
+				new Object[] { argumentsScope.getFirstArgument(), argumentsScope.toJSMap() }, true);
 			getMainApplicationFrame().toFront();
 		}
 		catch (Exception e)

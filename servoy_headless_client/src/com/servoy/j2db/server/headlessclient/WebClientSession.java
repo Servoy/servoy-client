@@ -127,7 +127,8 @@ public class WebClientSession extends WebSession
 			existingClient = false;
 			HttpServletRequest req = ((WebRequest)RequestCycle.get().getRequest()).getHttpServletRequest();
 			httpSession = req.getSession();
-			webClient = createWebClient(req, credentials, method, firstArgument == null ? null : new Object[] { firstArgument, argumentsScope }, sd.getName());
+			webClient = createWebClient(req, credentials, method, firstArgument == null ? null : new Object[] { firstArgument, argumentsScope.toJSMap() },
+				sd.getName());
 			webClient.handleArguments(new String[] { sd.getName() }, argumentsScope);
 			if (RequestCycle.get() != null)
 			{

@@ -149,7 +149,7 @@ public class SolutionLoader extends WebPage
 								if (function instanceof Function)
 								{
 									sc.getScriptEngine().executeFunction((Function)function, gscope, gscope,
-										(firstArgument == null ? null : new Object[] { firstArgument, argumentsScope }), false, false);
+										(firstArgument == null ? null : new Object[] { firstArgument, argumentsScope.toJSMap() }), false, false);
 								}
 							}
 							catch (Exception e1)

@@ -155,7 +155,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		{
 			Object[] new_preferedSolutionMethodArguments = new Object[preferredSolutionMethodArguments.length + 1];
 			System.arraycopy(preferredSolutionMethodArguments, 0, new_preferedSolutionMethodArguments, 0, preferredSolutionMethodArguments.length);
-			new_preferedSolutionMethodArguments[preferredSolutionMethodArguments.length] = argumentsScope;
+			new_preferedSolutionMethodArguments[preferredSolutionMethodArguments.length] = argumentsScope.toJSMap();
 			preferredSolutionMethodArguments = new_preferedSolutionMethodArguments;
 		}
 	}
