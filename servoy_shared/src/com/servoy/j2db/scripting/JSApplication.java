@@ -26,7 +26,6 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
@@ -1651,7 +1650,18 @@ public class JSApplication implements IReturnedTypesProvider
 	{
 		if (msg instanceof Object[])
 		{
-			application.output(Arrays.toString((Object[])msg), level);
+			Object[] a = (Object[])msg;
+			StringBuilder buf = new StringBuilder();
+
+			for (int i = 0; i < a.length; i++)
+			{
+				if (i == 0) buf.append('[');
+				else buf.append(", "); //$NON-NLS-1$
+				if (a[i] instanceof Scriptable) buf.append(getScriptableString((Scriptable)a[i], new HashSet<Scriptable>()));
+				else buf.append(String.valueOf(a[i]));
+			}
+			buf.append(']');
+			application.output(buf.toString(), level);
 		}
 		else if (msg instanceof Scriptable)
 		{
@@ -1677,11 +1687,15 @@ public class JSApplication implements IReturnedTypesProvider
 		if (ids != null && ids.length > 0)
 		{
 			StringBuilder sb = new StringBuilder();
-			sb.append('{');
+			if (scriptable instanceof NativeArray) sb.append('[');
+			else sb.append('{');
 			for (Object object : ids)
 			{
-				sb.append(object);
-				sb.append(':');
+				if (!(object instanceof Integer))
+				{
+					sb.append(object);
+					sb.append(':');
+				}
 				Object value = null;
 				if (object instanceof String)
 				{
@@ -1702,7 +1716,8 @@ public class JSApplication implements IReturnedTypesProvider
 				sb.append(',');
 			}
 			sb.setLength(sb.length() - 1);
-			sb.append('}');
+			if (scriptable instanceof NativeArray) sb.append(']');
+			else sb.append('}');
 			return sb.toString();
 		}
 		return scriptable.toString();
