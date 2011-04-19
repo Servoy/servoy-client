@@ -14,7 +14,7 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
-package com.servoy.j2db.smart.preference;
+package com.servoy.j2db.preference;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
@@ -44,7 +44,6 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.gui.JFontChooser;
-import com.servoy.j2db.preference.PreferencePanel;
 import com.servoy.j2db.smart.J2DBClient;
 import com.servoy.j2db.smart.WebStart;
 import com.servoy.j2db.util.PersistHelper;
