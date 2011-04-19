@@ -320,7 +320,12 @@ public class JSI18N
 	 *
 	 * @param value The filter value.  
 	 */
-	public void js_setI18NMessagesFilter(String columnName, Object value)
+	public void js_setI18NMessagesFilter(String columnName, String value)
+	{
+		application.setI18NMessagesFilter(columnName, value);
+	}
+
+	public void js_setI18NMessagesFilter(String columnName, String[] value)
 	{
 		application.setI18NMessagesFilter(columnName, value);
 	}

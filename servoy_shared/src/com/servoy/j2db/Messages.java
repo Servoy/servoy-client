@@ -144,8 +144,21 @@ public class Messages
 			String filterUrlPart = "";
 			if (callback.getI18NColumnNameFilter() != null && callback.getI18NColumnValueFilter() != null)
 			{
+				Object columnValueFilter = callback.getI18NColumnValueFilter();
+				String columnValueFilterParam;
+				if (columnValueFilter instanceof String[])
+				{
+					StringBuffer sbColumnValueFilter = new StringBuffer();
+					for (String s : (String[])columnValueFilter)
+					{
+						sbColumnValueFilter.append("&columnvalue=" + s);
+					}
+					columnValueFilterParam = sbColumnValueFilter.toString();
+				}
+				else columnValueFilterParam = "&columnvalue=" + columnValueFilter;
+
 				filterFilePart = "_" + callback.getI18NColumnNameFilter() + "_" + callback.getI18NColumnValueFilter();
-				filterUrlPart = "&columnname=" + callback.getI18NColumnNameFilter() + "&columnvalue=" + callback.getI18NColumnValueFilter();
+				filterUrlPart = "&columnname=" + callback.getI18NColumnNameFilter() + columnValueFilterParam;
 			}
 			if (solution != null)
 			{
@@ -356,6 +369,7 @@ public class Messages
 				noConnection = true;
 				return;
 			}
+
 			// first test if name and filter are set if so then load the defaults first with the column name = null
 			boolean loadDefaultsFirst = columnNameFilter != null && columnValueFilter != null && columnNameFilter.length() > 0 &&
 				columnValueFilter instanceof String && ((String)columnValueFilter).length() > 0;
