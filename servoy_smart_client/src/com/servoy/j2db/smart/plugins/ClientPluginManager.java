@@ -14,11 +14,12 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
-package com.servoy.j2db.plugins;
+package com.servoy.j2db.smart.plugins;
 
 import java.lang.reflect.Method;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.plugins.IClientPlugin;
 import com.servoy.j2db.preference.PreferencePanel;
 import com.servoy.j2db.smart.preference.ApplicationPreferences;
 import com.servoy.j2db.util.Debug;
