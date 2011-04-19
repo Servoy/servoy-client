@@ -495,7 +495,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	{
 		boolean toggleTracing = false;
 		StartupArgumentsScope arguments = new StartupArgumentsScope(args);
-		Iterator<Entry<String, Object>> iterator = arguments.getArguments().entrySet().iterator();
+		Iterator<Entry<String, Object>> iterator = arguments.entrySet().iterator();
 		while (iterator.hasNext())
 		{
 			Entry<String, Object> arg = iterator.next();

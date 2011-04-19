@@ -16,26 +16,19 @@
  */
 package com.servoy.j2db.scripting;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.mozilla.javascript.NativeArray;
-import org.mozilla.javascript.Scriptable;
-
 import com.servoy.j2db.server.annotations.TerracottaInstrumentedClass;
 
 /**
- *  This class represents a javascript object containing all the startup arguments
+ *  This class represents a object containing all the startup arguments
  * 
  * @author gboros
  */
 @TerracottaInstrumentedClass
-public class StartupArgumentsScope extends DefaultScope implements Externalizable
+public class StartupArgumentsScope extends HashMap<String, Object>
 {
 	private static final long serialVersionUID = 1L;
 
@@ -51,7 +44,7 @@ public class StartupArgumentsScope extends DefaultScope implements Externalizabl
 
 	public StartupArgumentsScope()
 	{
-		super(null);
+		super();
 	}
 
 	/**
@@ -59,7 +52,7 @@ public class StartupArgumentsScope extends DefaultScope implements Externalizabl
 	 */
 	public StartupArgumentsScope(Map<String, Object> arguments)
 	{
-		super(null);
+		super();
 		fillArguments(arguments);
 	}
 
@@ -68,7 +61,7 @@ public class StartupArgumentsScope extends DefaultScope implements Externalizabl
 	 */
 	public StartupArgumentsScope(String[] sArguments)
 	{
-		super(null);
+		super();
 		if (sArguments != null)
 		{
 			String key, value;
@@ -80,30 +73,10 @@ public class StartupArgumentsScope extends DefaultScope implements Externalizabl
 					key = element.substring(0, sepIdx);
 					value = sepIdx < element.length() - 1 ? element.substring(sepIdx + 1) : ""; //$NON-NLS-1$
 
-					put(key, this, value);
+					put(key, value);
 				}
 			}
 		}
-	}
-
-	/**
-	 * @see java.io.Externalizable#readExternal(java.io.ObjectInput)
-	 */
-	@SuppressWarnings("unchecked")
-	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
-	{
-		this.allIndex = (HashMap<Integer, Object>)in.readObject();
-		this.allVars = (HashMap<String, Object>)in.readObject();
-
-	}
-
-	/**
-	 * @see java.io.Externalizable#writeExternal(java.io.ObjectOutput)
-	 */
-	public void writeExternal(ObjectOutput out) throws IOException
-	{
-		out.writeObject(this.allIndex);
-		out.writeObject(this.allVars);
 	}
 
 	private void fillArguments(Map<String, Object> arguments)
@@ -117,12 +90,19 @@ public class StartupArgumentsScope extends DefaultScope implements Externalizabl
 			paramValue = arguments.get(paramKey);
 			if (paramValue instanceof String)
 			{
-				put(paramKey, this, paramValue);
+				put(paramKey, paramValue);
 			}
 			else if (paramValue instanceof String[] && ((String[])paramValue).length > 0)
 			{
-
-				put(paramKey, this, ((String[])paramValue).length > 1 ? new NativeArray((String[])paramValue) : ((String[])paramValue)[0]);
+				String[] sParamValue = (String[])paramValue;
+				if (sParamValue.length > 1)
+				{
+					JSMap array = new JSMap("Array");
+					for (int i = 0; i < sParamValue.length; i++)
+						array.put(new Integer(i), sParamValue[i]);
+					put(paramKey, array);
+				}
+				else put(paramKey, sParamValue[0]);
 			}
 		}
 	}
@@ -131,64 +111,64 @@ public class StartupArgumentsScope extends DefaultScope implements Externalizabl
 	{
 		if (solutionName == null)
 		{
-			delete(StartupArgumentsScope.PARAM_KEY_SOLUTION);
-			delete(StartupArgumentsScope.PARAM_KEY_SHORT_SOLUTION);
+			remove(StartupArgumentsScope.PARAM_KEY_SOLUTION);
+			remove(StartupArgumentsScope.PARAM_KEY_SHORT_SOLUTION);
 		}
 		else
 		{
-			put(StartupArgumentsScope.PARAM_KEY_SOLUTION, this, solutionName);
-			put(StartupArgumentsScope.PARAM_KEY_SHORT_SOLUTION, this, solutionName);
+			put(StartupArgumentsScope.PARAM_KEY_SOLUTION, solutionName);
+			put(StartupArgumentsScope.PARAM_KEY_SHORT_SOLUTION, solutionName);
 		}
 	}
 
 	public String getSolutionName()
 	{
-		Object solutionName = get(StartupArgumentsScope.PARAM_KEY_SOLUTION, this);
-		if (solutionName == Scriptable.NOT_FOUND) solutionName = get(StartupArgumentsScope.PARAM_KEY_SHORT_SOLUTION, this);
-		return solutionName == Scriptable.NOT_FOUND ? null : solutionName.toString();
+		Object solutionName = get(StartupArgumentsScope.PARAM_KEY_SOLUTION);
+		if (solutionName == null) solutionName = get(StartupArgumentsScope.PARAM_KEY_SHORT_SOLUTION);
+		return solutionName == null ? null : solutionName.toString();
 	}
 
 	public void setMethodName(String methodName)
 	{
 		if (methodName == null)
 		{
-			delete(StartupArgumentsScope.PARAM_KEY_METHOD);
-			delete(StartupArgumentsScope.PARAM_KEY_SHORT_METHOD);
+			remove(StartupArgumentsScope.PARAM_KEY_METHOD);
+			remove(StartupArgumentsScope.PARAM_KEY_SHORT_METHOD);
 		}
 		else
 		{
-			put(StartupArgumentsScope.PARAM_KEY_METHOD, this, methodName);
-			put(StartupArgumentsScope.PARAM_KEY_SHORT_METHOD, this, methodName);
+			put(StartupArgumentsScope.PARAM_KEY_METHOD, methodName);
+			put(StartupArgumentsScope.PARAM_KEY_SHORT_METHOD, methodName);
 		}
 	}
 
 	public String getMethodName()
 	{
-		Object methodName = get(StartupArgumentsScope.PARAM_KEY_METHOD, this);
-		if (methodName == Scriptable.NOT_FOUND) methodName = get(StartupArgumentsScope.PARAM_KEY_SHORT_METHOD, this);
-		return methodName == Scriptable.NOT_FOUND ? null : methodName.toString();
+		Object methodName = get(StartupArgumentsScope.PARAM_KEY_METHOD);
+		if (methodName == null) methodName = get(StartupArgumentsScope.PARAM_KEY_SHORT_METHOD);
+		return methodName == null ? null : methodName.toString();
 	}
 
 	public void setFirstArgument(String firstArgument)
 	{
 		if (firstArgument == null)
 		{
-			delete(StartupArgumentsScope.PARAM_KEY_ARGUMENT);
-			delete(StartupArgumentsScope.PARAM_KEY_SHORT_ARGUMENT);
+			remove(StartupArgumentsScope.PARAM_KEY_ARGUMENT);
+			remove(StartupArgumentsScope.PARAM_KEY_SHORT_ARGUMENT);
 		}
 		else
 		{
-			put(StartupArgumentsScope.PARAM_KEY_ARGUMENT, this, firstArgument);
-			put(StartupArgumentsScope.PARAM_KEY_SHORT_ARGUMENT, this, firstArgument);
+			put(StartupArgumentsScope.PARAM_KEY_ARGUMENT, firstArgument);
+			put(StartupArgumentsScope.PARAM_KEY_SHORT_ARGUMENT, firstArgument);
 		}
 	}
 
 	public String getFirstArgument()
 	{
-		Object firstArgument = get(StartupArgumentsScope.PARAM_KEY_ARGUMENT, this);
-		if (firstArgument == Scriptable.NOT_FOUND) firstArgument = get(StartupArgumentsScope.PARAM_KEY_SHORT_ARGUMENT, this);
-		if (firstArgument instanceof NativeArray) firstArgument = ((NativeArray)firstArgument).get(0, (NativeArray)firstArgument);
-		return firstArgument == Scriptable.NOT_FOUND ? null : firstArgument.toString();
+		Object firstArgument = get(StartupArgumentsScope.PARAM_KEY_ARGUMENT);
+		if (firstArgument == null) firstArgument = get(StartupArgumentsScope.PARAM_KEY_SHORT_ARGUMENT);
+		if (firstArgument instanceof JSMap) firstArgument = ((JSMap)firstArgument).get(Integer.valueOf(0));
+		return firstArgument == null ? null : firstArgument.toString();
 	}
 
 
@@ -196,49 +176,37 @@ public class StartupArgumentsScope extends DefaultScope implements Externalizabl
 	{
 		if (clientIdentifier == null)
 		{
-			delete(StartupArgumentsScope.PARAM_KEY_CLIENT_IDENTIFIER);
+			remove(StartupArgumentsScope.PARAM_KEY_CLIENT_IDENTIFIER);
 		}
 		else
 		{
-			put(StartupArgumentsScope.PARAM_KEY_CLIENT_IDENTIFIER, this, clientIdentifier);
+			put(StartupArgumentsScope.PARAM_KEY_CLIENT_IDENTIFIER, clientIdentifier);
 		}
 	}
 
 	public String getClientIdentifier()
 	{
-		Object clientIdentifier = get(StartupArgumentsScope.PARAM_KEY_CLIENT_IDENTIFIER, this);
-		return clientIdentifier == Scriptable.NOT_FOUND ? null : clientIdentifier.toString();
+		Object clientIdentifier = get(StartupArgumentsScope.PARAM_KEY_CLIENT_IDENTIFIER);
+		return clientIdentifier == null ? null : clientIdentifier.toString();
 	}
 
-	public Map<String, Object> getArguments()
-	{
-		return allVars;
-	}
-
-	@Override
-	public String getClassName()
-	{
-		return "ArgumentsScope"; //$NON-NLS-1$
-	}
-
-	@Override
-	public String toString()
-	{
-		return "ArgumentsScope: " + allVars.toString(); //$NON-NLS-1$
-	}
+	private JSMap jsMap;
 
 	public JSMap toJSMap()
 	{
-		JSMap jsMap = new JSMap();
-		String key;
-		for (Map.Entry<String, Object> e : getArguments().entrySet())
+		if (jsMap == null)
 		{
-			key = e.getKey();
-			if (StartupArgumentsScope.PARAM_KEY_SOLUTION.equals(key) || StartupArgumentsScope.PARAM_KEY_METHOD.equals(key) ||
-				StartupArgumentsScope.PARAM_KEY_CLIENT_IDENTIFIER.equals(key) || StartupArgumentsScope.PARAM_KEY_SHORT_SOLUTION.equals(key) ||
-				StartupArgumentsScope.PARAM_KEY_SHORT_METHOD.equals(key)) continue;
+			jsMap = new JSMap();
+			Object key;
+			for (Map.Entry<String, Object> e : entrySet())
+			{
+				key = e.getKey();
+				if (StartupArgumentsScope.PARAM_KEY_SOLUTION.equals(key) || StartupArgumentsScope.PARAM_KEY_METHOD.equals(key) ||
+					StartupArgumentsScope.PARAM_KEY_CLIENT_IDENTIFIER.equals(key) || StartupArgumentsScope.PARAM_KEY_SHORT_SOLUTION.equals(key) ||
+					StartupArgumentsScope.PARAM_KEY_SHORT_METHOD.equals(key)) continue;
 
-			jsMap.put(e.getKey(), e.getValue());
+				jsMap.put(StartupArgumentsScope.PARAM_KEY_SHORT_ARGUMENT.equals(key) ? StartupArgumentsScope.PARAM_KEY_ARGUMENT : e.getKey(), e.getValue());
+			}
 		}
 
 		return jsMap;
