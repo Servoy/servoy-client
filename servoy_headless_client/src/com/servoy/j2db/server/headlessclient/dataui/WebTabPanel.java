@@ -836,7 +836,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		if (fName != null)
 		{
 			String tabName = fName;
-			if (vargs.length > 6)
+			if (vargs.length >= 2)
 			{
 				tabName = (String)vargs[index++];
 			}
