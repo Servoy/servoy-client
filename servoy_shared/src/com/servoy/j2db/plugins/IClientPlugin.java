@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.plugins;
 
 
@@ -22,7 +22,6 @@ import java.beans.PropertyChangeListener;
 import javax.swing.Icon;
 
 import com.servoy.j2db.persistence.ISupportName;
-import com.servoy.j2db.preference.PreferencePanel;
 import com.servoy.j2db.scripting.IScriptObject;
 
 /**
@@ -36,14 +35,6 @@ public interface IClientPlugin extends IPlugin, PropertyChangeListener, ISupport
 	 * Called on startup after client application started.
 	 */
 	public void initialize(IClientPluginAccess app) throws PluginException;
-
-	/**
-	 * Create panels for the Preferences dialog, lazy called when shown.
-	 * 
-	 * @return Array of <TT>PreferencePanel</TT> panels. Return empty array or <TT>null</TT> if this plugin doesn't require any panels in the Preferences
-	 *         Dialog.
-	 */
-	public PreferencePanel[] getPreferencePanels();
 
 	/**
 	 * returns the (JavaScript)name for the plugin,name SHOULD apply to the JAVA identifier rules.

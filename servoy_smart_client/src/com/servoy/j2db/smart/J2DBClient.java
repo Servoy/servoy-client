@@ -176,6 +176,7 @@ import com.servoy.j2db.persistence.Style;
 import com.servoy.j2db.plugins.ClientPluginManager;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.plugins.PluginManager;
+import com.servoy.j2db.plugins.SmartClientPluginAccessProvider;
 import com.servoy.j2db.preference.PreferencePanel;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.ScriptEngine;

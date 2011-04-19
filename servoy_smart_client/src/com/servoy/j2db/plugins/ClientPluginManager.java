@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.plugins;
 
+import java.lang.reflect.Method;
+
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.preference.PreferencePanel;
 import com.servoy.j2db.smart.preference.ApplicationPreferences;
@@ -26,6 +28,7 @@ import com.servoy.j2db.util.Debug;
  * 
  * @author rgansevles
  */
+@SuppressWarnings("nls")
 public class ClientPluginManager extends PluginManager
 {
 	public ClientPluginManager(IApplication application)
@@ -43,7 +46,7 @@ public class ClientPluginManager extends PluginManager
 				IClientPlugin plugin = (IClientPlugin)element;
 				try
 				{
-					PreferencePanel[] panels = plugin.getPreferencePanels();
+					PreferencePanel[] panels = getPreferencePanels(plugin);
 					if (panels != null)
 					{
 						for (PreferencePanel element2 : panels)
@@ -81,5 +84,36 @@ public class ClientPluginManager extends PluginManager
 //				}
 //			}
 		}
+	}
+
+	/*
+	 * using reflection here since we moved this method downwards and not all plugin will implement ISmartClientPlugin yet
+	 * 
+	 * @see ISmartClientPlugin
+	 */
+	private PreferencePanel[] getPreferencePanels(IClientPlugin plugin)
+	{
+		try
+		{
+			Method methodToInvoke = null;
+			Method[] methods = plugin.getClass().getMethods();
+			for (Method method : methods)
+			{
+				if (method.getName().equalsIgnoreCase("getPreferencePanels"))
+				{
+					methodToInvoke = method;
+					break;
+				}
+			}
+			if (methodToInvoke != null)
+			{
+				return (PreferencePanel[])methodToInvoke.invoke(plugin, new Object[0]);
+			}
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+		}
+		return null;
 	}
 }

@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.smart;
+package com.servoy.j2db.plugins;
 
 import java.awt.Window;
 import java.io.BufferedInputStream;
@@ -32,10 +32,8 @@ import javax.swing.JMenu;
 
 import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.MediaURLStreamHandler;
-import com.servoy.j2db.plugins.ClientPluginAccessProvider;
-import com.servoy.j2db.plugins.IClientPluginAccess;
-import com.servoy.j2db.plugins.IMediaUploadCallback;
-import com.servoy.j2db.plugins.IUploadData;
+import com.servoy.j2db.smart.ISmartClientPluginAccess;
+import com.servoy.j2db.smart.J2DBClient;
 import com.servoy.j2db.util.FileChooserUtils;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.toolbar.IToolbarPanel;
