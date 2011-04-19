@@ -450,7 +450,7 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 		if (f != null)
 		{
 			String name = f.getName();
-			if (vargs.length > 6)
+			if (vargs.length >= 2)
 			{
 				name = (String)vargs[index++];
 			}
