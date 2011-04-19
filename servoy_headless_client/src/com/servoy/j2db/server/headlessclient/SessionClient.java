@@ -102,7 +102,7 @@ import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.ScriptEngine;
-import com.servoy.j2db.scripting.StartupArgumentsScope;
+import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataRendererFactory;
 import com.servoy.j2db.server.headlessclient.dataui.WebItemFactory;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
@@ -1631,7 +1631,7 @@ public class SessionClient extends ClientState implements ISessionClient
 	}
 
 	@Override
-	public void activateSolutionMethod(String globalMethodName, StartupArgumentsScope argumentsScope)
+	public void activateSolutionMethod(String globalMethodName, StartupArguments argumentsScope)
 	{
 		//not needed cannot push to client
 	}

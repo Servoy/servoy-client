@@ -179,7 +179,7 @@ import com.servoy.j2db.plugins.PluginManager;
 import com.servoy.j2db.preference.PreferencePanel;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.ScriptEngine;
-import com.servoy.j2db.scripting.StartupArgumentsScope;
+import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.server.shared.IApplicationServerAccess;
 import com.servoy.j2db.server.shared.RemoteActiveSolutionHandler;
@@ -494,7 +494,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	public static void main(final String[] args)
 	{
 		boolean toggleTracing = false;
-		StartupArgumentsScope arguments = new StartupArgumentsScope(args);
+		StartupArguments arguments = new StartupArguments(args);
 		Iterator<Entry<String, Object>> iterator = arguments.entrySet().iterator();
 		while (iterator.hasNext())
 		{
@@ -3907,7 +3907,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	}
 
 	@Override
-	public void activateSolutionMethod(String globalMethodName, StartupArgumentsScope argumentsScope)
+	public void activateSolutionMethod(String globalMethodName, StartupArguments argumentsScope)
 	{
 		try
 		{

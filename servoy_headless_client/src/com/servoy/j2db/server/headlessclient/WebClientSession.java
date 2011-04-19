@@ -44,7 +44,7 @@ import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.GlobalScope;
-import com.servoy.j2db.scripting.StartupArgumentsScope;
+import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.headlessclient.dnd.DNDSessionInfo;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.util.Settings;
@@ -90,7 +90,7 @@ public class WebClientSession extends WebSession
 	}
 
 	@SuppressWarnings("nls")
-	public IWebClientApplication startSessionClient(RootObjectMetaData sd, String method, StartupArgumentsScope argumentsScope) throws Exception
+	public IWebClientApplication startSessionClient(RootObjectMetaData sd, String method, StartupArguments argumentsScope) throws Exception
 	{
 		String firstArgument = argumentsScope.getFirstArgument();
 		boolean existingClient = false;

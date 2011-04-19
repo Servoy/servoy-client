@@ -41,7 +41,7 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.GlobalScope;
-import com.servoy.j2db.scripting.StartupArgumentsScope;
+import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
@@ -79,7 +79,7 @@ public class SolutionLoader extends WebPage
 		FeedbackPanel feedback = new FeedbackPanel("feedback");
 		add(feedback);
 
-		StartupArgumentsScope argumentsScope = new StartupArgumentsScope(pp);
+		StartupArguments argumentsScope = new StartupArguments(pp);
 
 		String solutionName = argumentsScope.getSolutionName();
 		String method = argumentsScope.getMethodName();
