@@ -34,6 +34,7 @@ import org.mozilla.javascript.IdScriptableObject;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeFunction;
 import org.mozilla.javascript.NativeObject;
+import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.scripting.JSMap;
 
@@ -101,7 +102,7 @@ public class NativeObjectSerializer extends AbstractSerializer
 				for (int i = 0; i < length; i++)
 				{
 					Object elem = nativeArray.get(i, nativeArray);
-					jsonArray.put(ser.marshall(state, o, elem, new Integer(i)));
+					jsonArray.put(ser.marshall(state, o, elem == Scriptable.NOT_FOUND ? null : elem, new Integer(i)));
 				}
 				return jsonArray;
 			}
