@@ -238,9 +238,9 @@ public class JSApplication implements IReturnedTypesProvider
 		if (application instanceof ClientState)
 		{
 			Object[] startupArguments = ((ClientState)application).getPreferedSolutionMethodArguments();
-			if (startupArguments != null && startupArguments.length > 1 && startupArguments[1] instanceof StartupArgumentsScope)
+			if (startupArguments != null && startupArguments.length > 1 && startupArguments[1] instanceof StartupArguments)
 			{
-				startupArguments[1] = ((StartupArgumentsScope)startupArguments[1]).toJSMap();
+				startupArguments[1] = ((StartupArguments)startupArguments[1]).toJSMap();
 			}
 
 			return startupArguments;

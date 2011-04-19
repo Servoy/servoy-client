@@ -28,7 +28,7 @@ import com.servoy.j2db.server.annotations.TerracottaInstrumentedClass;
  * @author gboros
  */
 @TerracottaInstrumentedClass
-public class StartupArgumentsScope extends HashMap<String, Object>
+public class StartupArguments extends HashMap<String, Object>
 {
 	private static final long serialVersionUID = 1L;
 
@@ -42,7 +42,7 @@ public class StartupArgumentsScope extends HashMap<String, Object>
 
 	public static final char PARAM_KEY_VALUE_SEPARATOR = ':';
 
-	public StartupArgumentsScope()
+	public StartupArguments()
 	{
 		super();
 	}
@@ -50,7 +50,7 @@ public class StartupArgumentsScope extends HashMap<String, Object>
 	/**
 	 * @param arguments the map of arguments where the key is the argName and the value is the argValue
 	 */
-	public StartupArgumentsScope(Map<String, Object> arguments)
+	public StartupArguments(Map<String, Object> arguments)
 	{
 		super();
 		fillArguments(arguments);
@@ -59,7 +59,7 @@ public class StartupArgumentsScope extends HashMap<String, Object>
 	/**
 	 * @param sArguments the array of arguments, where each element is of type argName:argValue
 	 */
-	public StartupArgumentsScope(String[] sArguments)
+	public StartupArguments(String[] sArguments)
 	{
 		super();
 		if (sArguments != null)
@@ -111,20 +111,20 @@ public class StartupArgumentsScope extends HashMap<String, Object>
 	{
 		if (solutionName == null)
 		{
-			remove(StartupArgumentsScope.PARAM_KEY_SOLUTION);
-			remove(StartupArgumentsScope.PARAM_KEY_SHORT_SOLUTION);
+			remove(StartupArguments.PARAM_KEY_SOLUTION);
+			remove(StartupArguments.PARAM_KEY_SHORT_SOLUTION);
 		}
 		else
 		{
-			put(StartupArgumentsScope.PARAM_KEY_SOLUTION, solutionName);
-			put(StartupArgumentsScope.PARAM_KEY_SHORT_SOLUTION, solutionName);
+			put(StartupArguments.PARAM_KEY_SOLUTION, solutionName);
+			put(StartupArguments.PARAM_KEY_SHORT_SOLUTION, solutionName);
 		}
 	}
 
 	public String getSolutionName()
 	{
-		Object solutionName = get(StartupArgumentsScope.PARAM_KEY_SOLUTION);
-		if (solutionName == null) solutionName = get(StartupArgumentsScope.PARAM_KEY_SHORT_SOLUTION);
+		Object solutionName = get(StartupArguments.PARAM_KEY_SOLUTION);
+		if (solutionName == null) solutionName = get(StartupArguments.PARAM_KEY_SHORT_SOLUTION);
 		return solutionName == null ? null : solutionName.toString();
 	}
 
@@ -132,20 +132,20 @@ public class StartupArgumentsScope extends HashMap<String, Object>
 	{
 		if (methodName == null)
 		{
-			remove(StartupArgumentsScope.PARAM_KEY_METHOD);
-			remove(StartupArgumentsScope.PARAM_KEY_SHORT_METHOD);
+			remove(StartupArguments.PARAM_KEY_METHOD);
+			remove(StartupArguments.PARAM_KEY_SHORT_METHOD);
 		}
 		else
 		{
-			put(StartupArgumentsScope.PARAM_KEY_METHOD, methodName);
-			put(StartupArgumentsScope.PARAM_KEY_SHORT_METHOD, methodName);
+			put(StartupArguments.PARAM_KEY_METHOD, methodName);
+			put(StartupArguments.PARAM_KEY_SHORT_METHOD, methodName);
 		}
 	}
 
 	public String getMethodName()
 	{
-		Object methodName = get(StartupArgumentsScope.PARAM_KEY_METHOD);
-		if (methodName == null) methodName = get(StartupArgumentsScope.PARAM_KEY_SHORT_METHOD);
+		Object methodName = get(StartupArguments.PARAM_KEY_METHOD);
+		if (methodName == null) methodName = get(StartupArguments.PARAM_KEY_SHORT_METHOD);
 		return methodName == null ? null : methodName.toString();
 	}
 
@@ -153,20 +153,20 @@ public class StartupArgumentsScope extends HashMap<String, Object>
 	{
 		if (firstArgument == null)
 		{
-			remove(StartupArgumentsScope.PARAM_KEY_ARGUMENT);
-			remove(StartupArgumentsScope.PARAM_KEY_SHORT_ARGUMENT);
+			remove(StartupArguments.PARAM_KEY_ARGUMENT);
+			remove(StartupArguments.PARAM_KEY_SHORT_ARGUMENT);
 		}
 		else
 		{
-			put(StartupArgumentsScope.PARAM_KEY_ARGUMENT, firstArgument);
-			put(StartupArgumentsScope.PARAM_KEY_SHORT_ARGUMENT, firstArgument);
+			put(StartupArguments.PARAM_KEY_ARGUMENT, firstArgument);
+			put(StartupArguments.PARAM_KEY_SHORT_ARGUMENT, firstArgument);
 		}
 	}
 
 	public String getFirstArgument()
 	{
-		Object firstArgument = get(StartupArgumentsScope.PARAM_KEY_ARGUMENT);
-		if (firstArgument == null) firstArgument = get(StartupArgumentsScope.PARAM_KEY_SHORT_ARGUMENT);
+		Object firstArgument = get(StartupArguments.PARAM_KEY_ARGUMENT);
+		if (firstArgument == null) firstArgument = get(StartupArguments.PARAM_KEY_SHORT_ARGUMENT);
 		if (firstArgument instanceof JSMap) firstArgument = ((JSMap)firstArgument).get(Integer.valueOf(0));
 		return firstArgument == null ? null : firstArgument.toString();
 	}
@@ -176,17 +176,17 @@ public class StartupArgumentsScope extends HashMap<String, Object>
 	{
 		if (clientIdentifier == null)
 		{
-			remove(StartupArgumentsScope.PARAM_KEY_CLIENT_IDENTIFIER);
+			remove(StartupArguments.PARAM_KEY_CLIENT_IDENTIFIER);
 		}
 		else
 		{
-			put(StartupArgumentsScope.PARAM_KEY_CLIENT_IDENTIFIER, clientIdentifier);
+			put(StartupArguments.PARAM_KEY_CLIENT_IDENTIFIER, clientIdentifier);
 		}
 	}
 
 	public String getClientIdentifier()
 	{
-		Object clientIdentifier = get(StartupArgumentsScope.PARAM_KEY_CLIENT_IDENTIFIER);
+		Object clientIdentifier = get(StartupArguments.PARAM_KEY_CLIENT_IDENTIFIER);
 		return clientIdentifier == null ? null : clientIdentifier.toString();
 	}
 
@@ -201,11 +201,11 @@ public class StartupArgumentsScope extends HashMap<String, Object>
 			for (Map.Entry<String, Object> e : entrySet())
 			{
 				key = e.getKey();
-				if (StartupArgumentsScope.PARAM_KEY_SOLUTION.equals(key) || StartupArgumentsScope.PARAM_KEY_METHOD.equals(key) ||
-					StartupArgumentsScope.PARAM_KEY_CLIENT_IDENTIFIER.equals(key) || StartupArgumentsScope.PARAM_KEY_SHORT_SOLUTION.equals(key) ||
-					StartupArgumentsScope.PARAM_KEY_SHORT_METHOD.equals(key)) continue;
+				if (StartupArguments.PARAM_KEY_SOLUTION.equals(key) || StartupArguments.PARAM_KEY_METHOD.equals(key) ||
+					StartupArguments.PARAM_KEY_CLIENT_IDENTIFIER.equals(key) || StartupArguments.PARAM_KEY_SHORT_SOLUTION.equals(key) ||
+					StartupArguments.PARAM_KEY_SHORT_METHOD.equals(key)) continue;
 
-				jsMap.put(StartupArgumentsScope.PARAM_KEY_SHORT_ARGUMENT.equals(key) ? StartupArgumentsScope.PARAM_KEY_ARGUMENT : e.getKey(), e.getValue());
+				jsMap.put(StartupArguments.PARAM_KEY_SHORT_ARGUMENT.equals(key) ? StartupArguments.PARAM_KEY_ARGUMENT : e.getKey(), e.getValue());
 			}
 		}
 

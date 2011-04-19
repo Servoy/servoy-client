@@ -55,7 +55,7 @@ import com.servoy.j2db.plugins.IPluginAccess;
 import com.servoy.j2db.plugins.IPluginManagerInternal;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
-import com.servoy.j2db.scripting.StartupArgumentsScope;
+import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.server.shared.IApplicationServerAccess;
@@ -149,7 +149,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 //		Debug.log("file.encoding " + System.getProperty("file.encoding"));
 	}
 
-	private void appendArgumentsScopeToPreferedSolutionMethodArguments(StartupArgumentsScope argumentsScope)
+	private void appendArgumentsScopeToPreferedSolutionMethodArguments(StartupArguments argumentsScope)
 	{
 		if (preferredSolutionMethodArguments != null && preferredSolutionMethodArguments.length == 1)
 		{
@@ -160,7 +160,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		}
 	}
 
-	public void handleArguments(String args[], StartupArgumentsScope argumentsScope)
+	public void handleArguments(String args[], StartupArguments argumentsScope)
 	{
 		handleArguments(args);
 		appendArgumentsScopeToPreferedSolutionMethodArguments(argumentsScope);
@@ -177,7 +177,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		}
 		else
 		{
-			StartupArgumentsScope argumentsScope = new StartupArgumentsScope(args);
+			StartupArguments argumentsScope = new StartupArguments(args);
 
 			if (argumentsScope.getSolutionName() == null && argumentsScope.getMethodName() == null && argumentsScope.getFirstArgument() == null &&
 				argumentsScope.getClientIdentifier() == null)
@@ -1450,7 +1450,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	}
 
 	//server-to-desktop activation
-	public abstract void activateSolutionMethod(String globalMethodName, StartupArgumentsScope argumentsScope);
+	public abstract void activateSolutionMethod(String globalMethodName, StartupArguments argumentsScope);
 
 	public synchronized DataServerProxy getDataServerProxy()
 	{

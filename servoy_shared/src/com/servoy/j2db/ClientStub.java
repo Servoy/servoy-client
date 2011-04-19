@@ -25,7 +25,7 @@ import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.IUserClient;
-import com.servoy.j2db.scripting.StartupArgumentsScope;
+import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 
@@ -140,7 +140,7 @@ public class ClientStub implements IUserClient
 		}
 	}
 
-	public void activateSolutionMethod(final String globalMethodName, final StartupArgumentsScope argumentsScope)
+	public void activateSolutionMethod(final String globalMethodName, final StartupArguments argumentsScope)
 	{
 		client.invokeLater(new Runnable()
 		{

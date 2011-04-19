@@ -18,7 +18,7 @@ package com.servoy.j2db;
 
 import org.apache.wicket.Page;
 
-import com.servoy.j2db.scripting.StartupArgumentsScope;
+import com.servoy.j2db.scripting.StartupArguments;
 
 
 /**
@@ -36,7 +36,7 @@ public interface IWebClientApplication extends ISessionClient
 
 	Page getMainPage();
 
-	void handleArguments(String args[], StartupArgumentsScope argumentsScope);
+	void handleArguments(String args[], StartupArguments argumentsScope);
 
 	void handleArguments(String[] args);
 }
