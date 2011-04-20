@@ -156,7 +156,7 @@ public class WebClientSession extends WebSession
 					if (function instanceof Function)
 					{
 						webClient.getScriptEngine().executeFunction((Function)function, gscope, gscope,
-							(firstArgument == null ? null : new Object[] { firstArgument, argumentsScope }), false, false);
+							(firstArgument == null ? null : new Object[] { firstArgument, argumentsScope.toJSMap() }), false, false);
 					}
 				}
 			}
