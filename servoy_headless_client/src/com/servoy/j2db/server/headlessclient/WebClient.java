@@ -525,9 +525,12 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	@Override
 	public void invokeLater(Runnable r)
 	{
-		if (isEventDispatchThread())
+		// When shutting down call runnable immediately, otherwise it may never happen.
+		// When printing (SwingUtilities.isEventDispatchThread()) runnable also needs to be called directly.
+		// In all other cases the events will be called from executeEvents(), see WebClientsApplication.processEvents(). or on begin of next request.
+		if (isShutDown() || SwingUtilities.isEventDispatchThread())
 		{
-			// we have to test for the thread locals because isEventDispatchThread can return true for 2 threads including AWT Thread
+			// thread locals may not have been set when in AWT Thread
 			boolean reset = testThreadLocals();
 			try
 			{
@@ -613,17 +616,29 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	}
 
 	@Override
-	public void logout(Object[] solution_to_open_args)
+	public void logout(final Object[] solution_to_open_args)
 	{
 		if (getClientInfo().getUserUid() != null)
 		{
 			if (getSolution() != null)
 			{
-				if (closeSolution(false, solution_to_open_args)) // don't shutdown if already closing; wait for the first closeSolution to finish
+				// close solution first
+				invokeLater(new Runnable()
 				{
-					credentials.clear();
-					getClientInfo().clearUserInfo();
-				}
+					public void run()
+					{
+						boolean doLogOut = getClientInfo().getUserUid() != null;
+						if (getSolution() != null)
+						{
+							doLogOut = closeSolution(false, solution_to_open_args);
+						}
+						if (doLogOut && getSolution() == null)
+						{
+							credentials.clear();
+							getClientInfo().clearUserInfo();
+						}
+					}
+				});
 			}
 			else
 			{
@@ -631,7 +646,6 @@ public class WebClient extends SessionClient implements IWebClientApplication
 				getClientInfo().clearUserInfo();
 			}
 		}
-
 	}
 
 	//behaviour in webclient is different, we do shutdown the webclient instance ,since we cannot switch solution

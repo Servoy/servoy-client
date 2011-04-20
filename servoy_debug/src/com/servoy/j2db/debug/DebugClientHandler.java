@@ -230,7 +230,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 							WebClientsApplication fakeApplication = ((WebClient)serviceProvider).getFakeApplication();
 							Application.set(fakeApplication);
 							rc = new WebRequestCycle(fakeApplication, new EmptyRequest(), new WebResponse());
-							serviceProvider.invokeLater(run);
+							serviceProvider.invokeAndWait(run);
 						}
 						finally
 						{
