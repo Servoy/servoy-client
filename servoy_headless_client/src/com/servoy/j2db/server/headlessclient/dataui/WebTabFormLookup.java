@@ -19,6 +19,7 @@ package com.servoy.j2db.server.headlessclient.dataui;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 
 import com.servoy.j2db.FormController;
@@ -68,6 +69,19 @@ public class WebTabFormLookup implements IFormLookupPanel
 		return (webForm != null && !webForm.isDestroyed());
 	}
 
+	public boolean isFormReady()
+	{
+		boolean isFormReady = true;
+		WebForm wf = getWebForm(false);
+		if (wf != null)
+		{
+			MarkupContainer wfParent = wf.getParent();
+			isFormReady = !(wfParent != parent && wfParent instanceof WebTabPanel && ((WebTabPanel)wfParent).getCurrentForm() == wf);
+		}
+
+		return isFormReady;
+	}
+
 	public boolean isReadOnly()
 	{
 		if (isReady())
@@ -106,6 +120,11 @@ public class WebTabFormLookup implements IFormLookupPanel
 
 	public WebForm getWebForm()
 	{
+		return getWebForm(true);
+	}
+
+	private WebForm getWebForm(boolean removeFromParent)
+	{
 		if (webForm != null && webForm.isDestroyed())
 		{
 			webForm = null;
@@ -124,7 +143,7 @@ public class WebTabFormLookup implements IFormLookupPanel
 
 			webForm = (WebForm)fc.getFormUI();
 
-			if (webForm.getParent() != null && webForm.getParent() != parent)
+			if (removeFromParent && webForm.getParent() != null && webForm.getParent() != parent)
 			{
 				webForm.remove();
 			}
