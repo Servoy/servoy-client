@@ -1720,6 +1720,8 @@ public class JSApplication implements IReturnedTypesProvider
 			else sb.append('}');
 			return sb.toString();
 		}
+		Object defaultValue = scriptable.getDefaultValue(String.class);
+		if (defaultValue != null) return defaultValue.toString();
 		return scriptable.toString();
 	}
 
