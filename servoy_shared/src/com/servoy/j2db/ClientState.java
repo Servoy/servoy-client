@@ -24,6 +24,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.URL;
+import java.net.URLConnection;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.HashMap;
@@ -1591,7 +1592,9 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		try
 		{
 			URL url = new URL("http://www.servoy.com/client/ad"); //$NON-NLS-1$
-			InputStream is = url.openConnection().getInputStream();
+			URLConnection urlConnection = url.openConnection();
+			urlConnection.setConnectTimeout(5000);
+			InputStream is = urlConnection.getInputStream();
 			InputStreamReader isr = new InputStreamReader(is);
 			BufferedReader br = new BufferedReader(isr);
 			String line = br.readLine();
