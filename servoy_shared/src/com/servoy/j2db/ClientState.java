@@ -1593,7 +1593,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		{
 			URL url = new URL("http://www.servoy.com/client/ad"); //$NON-NLS-1$
 			URLConnection urlConnection = url.openConnection();
-			urlConnection.setReadTimeout(5000);
+			urlConnection.setConnectTimeout(5000);
 			InputStream is = urlConnection.getInputStream();
 			InputStreamReader isr = new InputStreamReader(is);
 			BufferedReader br = new BufferedReader(isr);
