@@ -420,8 +420,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		catch (RepositoryException e)
 		{
 			Debug.error("Could not load solution " + (solutionMetaData == null ? "<none>" : solutionMetaData.getName()), e); //$NON-NLS-1$ //$NON-NLS-2$
-			reportError(
-				Messages.getString("servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>" : solutionMetaData.getName() }), e); //$NON-NLS-1$ //$NON-NLS-2$
+			reportError(Messages.getString(
+				"servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>" : solutionMetaData.getName() }), e); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
@@ -958,6 +958,20 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		}
 	}
 
+	public void removeClientInfo(String info)
+	{
+		clientInfo.removeInfo(info);
+		// try to push the new client info
+		try
+		{
+			getClientHost().pushClientInfo(clientInfo.getClientId(), clientInfo);
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+		}
+	}
+
 	public void removeAllClientInfo()
 	{
 		clientInfo.removeAllInfo();
@@ -1218,8 +1232,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 						function,
 						gscope,
 						gscope,
-						Utils.arrayMerge((new Object[] { new Boolean(force) }),
-							Utils.parseJSExpressions(getSolution().getInstanceMethodArguments("onCloseMethodID"))), false, false)); //$NON-NLS-1$
+						Utils.arrayMerge((new Object[] { new Boolean(force) }), Utils.parseJSExpressions(getSolution().getInstanceMethodArguments(
+							"onCloseMethodID"))), false, false)); //$NON-NLS-1$
 				}
 				catch (Exception e1)
 				{

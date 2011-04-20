@@ -291,6 +291,27 @@ public class JSApplication implements IReturnedTypesProvider
 	}
 
 	/**
+	 * Removes a string of client information which is stored on the server and
+	 * previously was added using the application.addClientInfo('client info')
+	 * 
+	 * This function can be called more than once, if you want to delete multiple
+	 * lines of client information.
+	 *
+	 * @sample 
+	 * application.removeClientInfo('SaaS company name');
+	 *
+	 * @param info A line of text to be removed from the client information
+	 *             on behalf of the running Servoy client.
+	 */
+	public void js_removeClientInfo(String info)
+	{
+		if (application instanceof ClientState)
+		{
+			((ClientState)application).removeClientInfo(info);
+		}
+	}
+
+	/**
 	 * Removes all names given to the client via the admin page.
 	 *
 	 * @sample application.removeAllClientInfo();

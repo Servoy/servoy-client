@@ -103,6 +103,15 @@ public final class ClientInfo implements Serializable
 	}
 
 	@TerracottaAutolockWrite
+	public void removeInfo(String info)
+	{
+		synchronized (lock)
+		{
+			infos.remove(info);
+		}
+	}
+
+	@TerracottaAutolockWrite
 	public void removeAllInfo()
 	{
 		synchronized (lock)
