@@ -413,6 +413,8 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 	 */
 	private void setCurrentForm(WebTabFormLookup fl, int previousIndex, List<Runnable> invokeLaterRunnables)
 	{
+		if (fl != null && !fl.isFormReady()) return;
+
 		jsChangeRecorder.setChanged();
 		currentForm = fl;
 		if (parentData != null)
@@ -450,6 +452,11 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		}
 	}
 
+	public WebForm getCurrentForm()
+	{
+		return currentForm != null ? currentForm.getWebForm() : null;
+	}
+
 	/**
 	 * @see org.apache.wicket.MarkupContainer#remove(org.apache.wicket.Component)
 	 */
@@ -459,8 +466,9 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		if (currentForm != null && component == currentForm.getWebForm())
 		{
 			currentForm.setWebForm(null);
+			//replace(new Label("webform", new Model<String>("")));
 		}
-		super.remove(component);
+		else super.remove(component);
 	}
 
 	private void recomputeTabSequence()
