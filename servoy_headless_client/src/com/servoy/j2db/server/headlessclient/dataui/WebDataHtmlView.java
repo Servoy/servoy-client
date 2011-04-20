@@ -168,6 +168,12 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 		{
 			switch (script.charAt(counter))
 			{
+				case '\\' :
+					if (brace == 0) return counter;
+					break;
+				case '\'' :
+					if (brace == 0) return counter;
+					break;
 				case ',' :
 					if (brace == 0) return counter;
 					break;
