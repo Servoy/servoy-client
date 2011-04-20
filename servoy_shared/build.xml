@@ -247,6 +247,7 @@
 				<include name="lib/apache-mime4j.jar"/>
 				<include name="lib/jcifs.jar"/>
 				<include name="plugin.xml"/>
+				<include name="lib/httpclient-cache.jar"/>
 			</fileset>
 		</copy>
 		<antcall target="apitools.generation">
