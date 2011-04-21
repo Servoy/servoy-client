@@ -203,7 +203,7 @@ public class StartupArguments extends HashMap<String, Object>
 				key = e.getKey();
 				if (StartupArguments.PARAM_KEY_SOLUTION.equals(key) || StartupArguments.PARAM_KEY_METHOD.equals(key) ||
 					StartupArguments.PARAM_KEY_CLIENT_IDENTIFIER.equals(key) || StartupArguments.PARAM_KEY_SHORT_SOLUTION.equals(key) ||
-					StartupArguments.PARAM_KEY_SHORT_METHOD.equals(key)) continue;
+					StartupArguments.PARAM_KEY_SHORT_METHOD.equals(key) || (key != null && key.toString().startsWith("system.property."))) continue; //$NON-NLS-1$
 
 				jsMap.put(e.getKey(), e.getValue());
 			}
@@ -221,7 +221,7 @@ public class StartupArguments extends HashMap<String, Object>
 					}
 					else
 					{
-						argumentValueMap = new JSMap("Array");
+						argumentValueMap = new JSMap("Array"); //$NON-NLS-1$
 						argumentValueMap.put(Integer.valueOf(0), jsMap.get(StartupArguments.PARAM_KEY_ARGUMENT));
 						jsMap.put(StartupArguments.PARAM_KEY_ARGUMENT, argumentValueMap);
 					}
