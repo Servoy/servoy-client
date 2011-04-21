@@ -1600,12 +1600,12 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 
 		public void showDocument(URL url)
 		{
-			app.showURL(url.toString(), null, null, 0);
+			app.showURL(url.toString(), null, null, 0, true);
 		}
 
 		public void showDocument(URL url, String target)
 		{
-			app.showURL(url.toString(), null, null, 0);
+			app.showURL(url.toString(), null, null, 0, true);
 		}
 
 		public void showStatus(String status)

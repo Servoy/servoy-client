@@ -1199,7 +1199,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			}
 
 			String url = page.serveResource(formController.getName() + ".pdf", baos.toByteArray(), contentType); //$NON-NLS-1$
-			page.setShowURLCMD(url, "_self", null, 0); //$NON-NLS-1$
+			page.setShowURLCMD(url, "_self", null, 0, true); //$NON-NLS-1$
 		}
 		else
 		{

@@ -325,7 +325,7 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 * @param timeout_ms
 	 * @return true is successful
 	 */
-	public boolean showURL(String url, String target, String target_options, int timeout_ms);
+	public boolean showURL(String url, String target, String target_options, int timeout_ms, boolean closeDialogs);
 
 	/**
 	 * Test if this client is running from developer

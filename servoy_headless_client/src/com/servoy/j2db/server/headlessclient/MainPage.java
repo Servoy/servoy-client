@@ -1230,9 +1230,9 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		return Integer.toString(inputNameIds++);
 	}
 
-	public void setShowURLCMD(String url, String target, String target_options, int timeout)
+	public void setShowURLCMD(String url, String target, String target_options, int timeout, boolean closeDialogs)
 	{
-		showUrlInfo = new ShowUrlInfo(url, target, target_options, timeout);
+		showUrlInfo = new ShowUrlInfo(url, target, target_options, timeout, closeDialogs);
 	}
 
 	/**
@@ -1253,7 +1253,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			}
 			else if (showUrlInfo.target.equalsIgnoreCase("_self")) //$NON-NLS-1$
 			{
-				return "showurl('" + showUrlInfo.url + "'," + showUrlInfo.timeout + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				return "showurl('" + showUrlInfo.url + "'," + showUrlInfo.timeout + "," + showUrlInfo.closeDialogs + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			}
 			else if (showUrlInfo.target.equalsIgnoreCase("_top")) //$NON-NLS-1$
 			{
@@ -1773,6 +1773,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		private final String target;
 		private final String target_options;
 		private final int timeout;
+		private final boolean closeDialogs;
 
 		/**
 		 * @param url
@@ -1780,12 +1781,13 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		 * @param target_options
 		 * @param timeout
 		 */
-		public ShowUrlInfo(String url, String target, String target_options, int timeout)
+		public ShowUrlInfo(String url, String target, String target_options, int timeout, boolean closeDialogs)
 		{
 			this.url = url;
 			this.target = target == null ? "_blank" : target; //$NON-NLS-1$
 			this.target_options = target_options;
 			this.timeout = timeout * 1000;
+			this.closeDialogs = closeDialogs;
 		}
 
 		/**

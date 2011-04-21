@@ -3957,7 +3957,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	}
 
 
-	public boolean showURL(String url, String target, String target_options, int timeout_ms)
+	public boolean showURL(String url, String target, String target_options, int timeout_ms, boolean closeDialogs)
 	{
 		// mail to doesn't work in showUrl through webstart
 		if (WebStart.isRunningWebStart() && url.toLowerCase().startsWith("http"))

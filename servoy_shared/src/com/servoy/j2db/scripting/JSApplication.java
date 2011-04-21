@@ -1552,7 +1552,7 @@ public class JSApplication implements IReturnedTypesProvider
 				timeout = ((Number)vargs[3]).intValue();
 			}
 
-			return application.showURL(url, target, target_options, timeout);
+			return application.showURL(url, target, target_options, timeout, true);
 		}
 		return false;
 	}
