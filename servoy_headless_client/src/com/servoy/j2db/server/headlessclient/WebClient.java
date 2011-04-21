@@ -770,11 +770,11 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	}
 
 	@Override
-	public boolean showURL(String url, String target, String target_options, int timeout)
+	public boolean showURL(String url, String target, String target_options, int timeout, boolean closeDialogs)
 	{
 		if (getMainPage() != null)
 		{
-			getMainPage().setShowURLCMD(url, target, target_options, timeout);
+			getMainPage().setShowURLCMD(url, target, target_options, timeout, closeDialogs);
 			return true;
 		}
 		return false;
@@ -867,8 +867,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		}
 	}
 
-	public void onEndRequest(@SuppressWarnings("unused")
-	WebClientSession webClientSession)
+	public void onEndRequest(@SuppressWarnings("unused") WebClientSession webClientSession)
 	{
 	}
 }

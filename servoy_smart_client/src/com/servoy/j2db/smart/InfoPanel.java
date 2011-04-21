@@ -122,7 +122,7 @@ public class InfoPanel extends JPanel implements HyperlinkListener, MouseListene
 			{
 				URL url = hyperlinkEvent.getURL();
 				if (url == null) return;
-				app.showURL(url.toString(), null, null, 0);
+				app.showURL(url.toString(), null, null, 0, true);
 				close();
 			}
 			catch (Exception e)

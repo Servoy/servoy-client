@@ -42,12 +42,17 @@ public class WebClientPluginAccessProvider extends ClientPluginAccessProvider im
 
 	public boolean showURL(String url, String target, String target_options)
 	{
-		return client.showURL(url, target, target_options, 0);
+		return client.showURL(url, target, target_options, 0, true);
 	}
 
 	public boolean showURL(String url, String target, String target_options, int timeout)
 	{
-		return client.showURL(url, target, target_options, timeout);
+		return client.showURL(url, target, target_options, timeout, true);
+	}
+
+	public boolean showURL(String url, String target, String target_options, int timeout, boolean closeDialogs)
+	{
+		return client.showURL(url, target, target_options, timeout, closeDialogs);
 	}
 
 	public IPageContributor getPageContributor()

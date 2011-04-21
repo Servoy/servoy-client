@@ -34,9 +34,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -1142,8 +1142,8 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	}
 
 	@Override
-	public boolean showURL(String url, String target, String target_options, int timeout_ms)
+	public boolean showURL(String url, String target, String target_options, int timeout_ms, boolean closeDialogs)
 	{
-		return browserLauncher != null ? browserLauncher.showURL(url) : super.showURL(url, target, target_options, timeout_ms);
+		return browserLauncher != null ? browserLauncher.showURL(url) : super.showURL(url, target, target_options, timeout_ms, closeDialogs);
 	}
 }

@@ -358,7 +358,7 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 
 	public Rectangle getWindowBounds(String windowName);
 
-	public boolean showURL(String url, String target, String target_options, int timeout_ms);
+	public boolean showURL(String url, String target, String target_options, int timeout_ms, boolean closeDialogs);
 
 	public boolean isInDeveloper();
 

@@ -899,7 +899,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 						HTMLFrameHyperlinkEvent link = (HTMLFrameHyperlinkEvent)hyperlinkEvent;
 						if ("_blank".equalsIgnoreCase(link.getTarget())) //$NON-NLS-1$
 						{
-							application.showURL(url.toString(), null, null, 0);
+							application.showURL(url.toString(), null, null, 0, true);
 							return;
 						}
 					}
