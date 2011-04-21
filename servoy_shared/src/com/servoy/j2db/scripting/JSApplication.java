@@ -1348,7 +1348,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 * @param arg2 optional Argument
 	 * @param argN optional Argument
 	 * @param # optional Divider between program args and environment vars
-	 * @param environmentvar1 Environment variable
+	 * @param environmentvar1 optional Environment variable
 	 * @param environmentvarN optional Environment variable
 	 * @param # optional Divider between program environment vars and startdir
 	 * @param startdirectory optional Program start directory 
@@ -1404,7 +1404,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 * @param arg2 optional Argument
 	 * @param argN optional Argument
 	 * @param # optional Divider between program args and environment vars
-	 * @param environmentvar1 Environment variable
+	 * @param environmentvar1 optional Environment variable
 	 * @param environmentvarN optional Environment variable
 	 * @param # optional Divider between program environment vars and startdir
 	 * @param startdirectory optional Program start directory
