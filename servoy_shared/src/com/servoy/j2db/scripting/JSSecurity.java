@@ -866,27 +866,17 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	}
 
 	/**
-	 * Logout the current user. You can redirect to another solution if needed, if you want to go to a different url, 
-	 * you need to call application.showURL(url) before calling security.logout()
+	 * Logout the current user and close the solution, if the solution requires authentication and user is logged in.
+	 * You can redirect to another solution if needed; if you want to go to a different url, you need to call application.showURL(url) before calling security.logout() (this is only applicable for Web Client).
+	 * An alternative option to close a solution and to open another solution, while keeping the user logged in, is application.closeSolution().
 	 *
 	 * @sample
-	 * var groups = new Array();
-	 * 	groups[0] = 'testgroup';
-	 * 	var ok =  security.login('user1', security.getUserUID('user1') , groups)
-	 * 	if (!ok) 
-	 * 	{
-	 * 		plugins.dialogs.showErrorDialog('Login failure',  'Already logged in? or no user_uid/groups specified?', 'OK')
-	 *  	}
-	 * 	else 
-	 * 	{ 
-	 *  		plugins.dialogs.showInfoDialog('Logged in','Logged in','OK') 
-	 * 	}
 	 *  //Set the url to go to after logout.
-	 *  //application.showURL('http://www.servoy.com', '_self'); 
-	 * 	security.logout();
-	 * 	//security.logout('solution_name');//log out and open solution 'solution_name'
-	 * 	//security.logout('solution_name','global_method_name','my_argument');//log out, open solution 'solution_name', call global method 'global_method_name' with argument 'my_argument'
-	 * 	//note: specifying a solution will not work in developer due to debugger dependencies
+	 *  //application.showURL('http://www.servoy.com', '_self');  //Web Client only
+	 *  security.logout();
+	 * 	//security.logout('solution_name');//log out and close current solution and open solution 'solution_name'
+	 * 	//security.logout('solution_name','global_method_name','my_argument');//log out, close current solution, open solution 'solution_name', call global method 'global_method_name' with argument 'my_argument'
+	 * 	//Note: specifying a solution will not work in the Developer due to debugger dependencies
 	 *
 	 * @param solutionToLoad optional the solution to load after logout
 	 * @param method optional the method to run in the solution to load

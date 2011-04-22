@@ -1248,13 +1248,16 @@ public class JSApplication implements IReturnedTypesProvider
 	}
 
 	/**
-	 * Close the current open solution and optionally open a new one.
+	 * Closes the currently open solution and optionally opens another solution, calling a specified global method with the specified arguments.
+	 * If the user has been logged in, this function keeps the user logged in and in the newly open solution, the login is skipped and the solution goes straight to the first form.
+	 * An alternative option is security.logout() which also does a log out for the user (for solutions that require authentication).
 	 *
 	 * @sample
 	 * application.closeSolution();
-	 * //log out, open solution 'solution_name', call global method 'global_method_name' with argument 'my_argument'
+	 * //close current solution, open solution 'solution_name', call global method 'global_method_name' with argument 'my_argument'.
+	 * //if the user has been logged in, he will stay logged in
 	 * //application.closeSolution('solution_name','global_method_name','my_argument');
-	 * //note: specifying a solution will not work in developer due to debugger dependencies
+	 * //Note: specifying a solution will not work in the Developer due to debugger dependencies
 	 *
 	 * @param solutionToLoad optional Name of the solution to load 
 	 * @param method optional Name of the global method to call
