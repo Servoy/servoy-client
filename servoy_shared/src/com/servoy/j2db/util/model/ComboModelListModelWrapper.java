@@ -204,6 +204,15 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 		}
 	}
 
+	/**
+	 * Set the real selected object, in case the listModel currently does not have a mapping for the real value, save the real value for a listmodel change.
+	 * @param realSelectedObject
+	 */
+	public void setRealSelectedObject(Object realSelectedObject)
+	{
+		this.realSelectedObject = realSelectedObject;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -396,20 +405,16 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 			valueListChanging = true;
 			try
 			{
-				Object obj = getSelectedItem();
-				if (obj != null)
+				if (hasRealValues() && realSelectedObject != null)
 				{
-					if (hasRealValues() && realSelectedObject != null)
+					int index = listModel.realValueIndexOf(realSelectedObject);
+					if (index == -1)
 					{
-						int index = listModel.realValueIndexOf(realSelectedObject);
-						if (index == -1)
-						{
-							setSelectedItem(null);
-						}
-						else
-						{
-							setSelectedItem(getElementAt(index));
-						}
+						setSelectedItem(null);
+					}
+					else
+					{
+						setSelectedItem(getElementAt(index));
 					}
 				}
 				fireContentsChanged(this, e.getIndex0(), e.getIndex1());
@@ -418,7 +423,6 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 			{
 				valueListChanging = false;
 			}
-
 		}
 	}
 

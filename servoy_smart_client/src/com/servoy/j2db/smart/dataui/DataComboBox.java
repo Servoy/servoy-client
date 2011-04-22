@@ -1295,6 +1295,8 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 						if (data == null || "".equals(data) || getListModelWrapper().hasRealValues()) //$NON-NLS-1$
 						{
 							setSelectedItem(null);
+							// data does not resolve now, when underlying data changes real selected data may map.
+							if (getListModelWrapper().hasRealValues()) getListModelWrapper().setRealSelectedObject(data);
 						}
 						else
 						{
