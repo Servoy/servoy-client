@@ -34,16 +34,13 @@ import org.apache.wicket.markup.html.DynamicWebResource.ResourceState;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.protocol.http.WebSession;
-import org.mozilla.javascript.Function;
 
 import com.servoy.j2db.IWebClientApplication;
 import com.servoy.j2db.J2DBGlobals;
-import com.servoy.j2db.Messages;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
-import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.headlessclient.dnd.DNDSessionInfo;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
@@ -145,26 +142,6 @@ public class WebClientSession extends WebSession
 		}
 
 		webClient.handleClientUserUidChanged(null, ""); // fake first load
-		if (method != null && existingClient)
-		{
-			try
-			{
-				if (webClient.getScriptEngine() != null)
-				{
-					GlobalScope gscope = webClient.getScriptEngine().getSolutionScope().getGlobalScope();
-					Object function = gscope.get(method, gscope);
-					if (function instanceof Function)
-					{
-						webClient.getScriptEngine().executeFunction((Function)function, gscope, gscope,
-							(firstArgument == null ? null : new Object[] { firstArgument, argumentsScope.toJSMap() }), false, false);
-					}
-				}
-			}
-			catch (Exception e1)
-			{
-				webClient.reportError(Messages.getString("servoy.formManager.error.ExecutingOpenSolutionMethod", new Object[] { method }), e1); //$NON-NLS-1$
-			}
-		}
 		if (webClient.getSolution() != null) getSolutionLastModifiedTime(webClient.getSolution());
 		else
 		{
