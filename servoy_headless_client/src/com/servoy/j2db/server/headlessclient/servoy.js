@@ -866,22 +866,6 @@ function showtip(e,message)
 
 	if(!e)
 		var e = window.event;
-
-	var targetParentWidth = 0;
-	var targetParentHeight = 0;
-	var src = e.target;	// get the target element
-	
-	// for IE
-	if(!src)
-		src = e.srcElement;
-		
-	if(src.parentNode)
-	{
-		var positionXY = Servoy.Utils.getXY(src.parentNode);
-		var sizeWH = getRootElementSize(src.parentNode);
-		targetParentWidth = positionXY[0] + sizeWH[0];
-		targetParentHeight = positionXY[1] + sizeWH[1];
-	}
 		
 	var wWidth = 0, wHeight = 0;
   	if( typeof( window.innerWidth ) == 'number' )
@@ -920,22 +904,27 @@ function showtip(e,message)
 	m.style.left = x + 20  + "px";	
 	m.style.top = y - 4 + "px";		
 	m.style.zIndex = 203;
-	setTimeout("adjustAndShowTooltip("+x+","+targetParentWidth+","+wWidth +","+y+","+targetParentHeight+","+wHeight+");", 0);
+	setTimeout("adjustAndShowTooltip("+x+","+wWidth +","+y+","+wHeight+");", 0);
 	tipTimeout = setTimeout("hidetip();", 5000);
 }
 
-function adjustAndShowTooltip(x,targetParentWidth,wWidth,y,targetParentHeight,wHeight)
+function adjustAndShowTooltip(x, wWidth, y, wHeight)
 {
 	m = document.getElementById('mktipmsg');
 	m.style.display = "block";
 	var tooltipOffsetWidth = x + 20 + m.offsetWidth; 
-	if((targetParentWidth < tooltipOffsetWidth || wWidth < tooltipOffsetWidth)&&(x - 20 -m.offsetWidth >= 0))
-		m.style.left = x - 20 -m.offsetWidth  + "px";
+
+	if(wWidth < tooltipOffsetWidth)
+	{
+		var newLeft = x - 20 -m.offsetWidth;
+		m.style.left = newLeft  + "px";
+	}
 
 	var tooltipOffsetHeight = y - 4 + m.offsetHeight
-	if((targetParentHeight < tooltipOffsetHeight || wHeight < tooltipOffsetHeight)&&(y - 4 - m.offsetHeight>=0))
+	if(wHeight < tooltipOffsetHeight)
 	{
-		m.style.top = y - 4 - m.offsetHeight  + "px";
+		var newTop = y - 4 - m.offsetHeight;
+		m.style.top = newTop  + "px";
 	}
 }
 
@@ -945,20 +934,6 @@ function hidetip()
 	var m;
 	m = document.getElementById('mktipmsg');
 	m.style.display = "none";
-}
-
-function getRootElementSize(oElement)
-{
-	var iReturnValue = new Array();
-	iReturnValue[0] = 0;
-	iReturnValue[1] = 0;
-	while( oElement != null )
-	{
-		iReturnValue[0] = oElement.offsetWidth;
-		iReturnValue[1] = oElement.offsetHeight;
-		oElement = oElement.offsetParent;
-	}
-	return iReturnValue;
 }
 
 var previousText;
