@@ -153,11 +153,9 @@ public class TooltipAttributeModifier extends AttributeModifier
 								((WebClientSession)Session.get()).getWebClient().getSolutionName(), new ResourceReference("media"), "").toString();
 						}
 						boolean isHTMLText = tooltip.trim().toLowerCase().startsWith("<html>");
-						if (!isHTMLText)
-						{
-							tooltip = tooltip.replace("\r\n", "<br>");
-							tooltip = tooltip.replace("\n", "<br>");
-						}
+
+						tooltip = tooltip.replace("\r\n", isHTMLText ? " " : "<br>");
+						tooltip = tooltip.replace("\n", isHTMLText ? " " : "<br>");
 						tooltip = tooltip.replace("\\", "\\\\");
 						tooltip = tooltip.replace("\'", "\\\'");
 						return "showtip(event, '" + tooltip + "');";
