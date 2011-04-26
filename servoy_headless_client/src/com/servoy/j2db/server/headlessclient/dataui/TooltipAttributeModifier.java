@@ -152,8 +152,8 @@ public class TooltipAttributeModifier extends AttributeModifier
 							tooltip = StripHTMLTagsConverter.convertMediaReferences(tooltip,
 								((WebClientSession)Session.get()).getWebClient().getSolutionName(), new ResourceReference("media"), "").toString();
 						}
-						tooltip = tooltip.replace("\r\n", " ");
-						tooltip = tooltip.replace('\n', ' ');
+						tooltip = tooltip.replace("\r\n", "<br>");
+						tooltip = tooltip.replace("\n", "<br>");
 						tooltip = tooltip.replace("\\", "\\\\");
 						tooltip = tooltip.replace("\'", "\\\'");
 						return "showtip(event, '" + tooltip + "');";

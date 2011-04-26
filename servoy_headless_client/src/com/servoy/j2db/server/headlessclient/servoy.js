@@ -776,6 +776,8 @@ function showtip(e,message)
 	m.style.left = x + 20  + "px";	
 	m.style.top = y - 4 + "px";		
 	m.style.zIndex = 203;
+	m.style.width = "";
+	m.style.overflow = "hidden";
 	setTimeout("adjustAndShowTooltip("+x+","+wWidth +","+y+","+wHeight+");", 0);
 	tipTimeout = setTimeout("hidetip();", 5000);
 }
@@ -788,6 +790,11 @@ function adjustAndShowTooltip(x, wWidth, y, wHeight)
 	if(wWidth < tooltipOffsetWidth)
 	{
 		var newLeft = x - 20 -m.offsetWidth;
+		if(newLeft < 0)
+		{
+			newLeft = 0;
+			m.style.width = x - 20 + "px";
+		}
 		m.style.left = newLeft  + "px";
 	}
 
