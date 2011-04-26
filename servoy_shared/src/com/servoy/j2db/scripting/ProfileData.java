@@ -61,16 +61,17 @@ public final class ProfileData
 			Arrays.sort(this.lineNumbers);
 		}
 		// calcs always end with _ and are always in a source file that ends with _calculations)
-		if (functionName.endsWith("_") && sourceName.endsWith("_calculations.js")) //$NON-NLS-1$ //$NON-NLS-2$
+		if (functionName != null && functionName.endsWith("_") && sourceName.endsWith("_calculations.js")) //$NON-NLS-1$ //$NON-NLS-2$
 		{
 			this.functionName = functionName.substring(0, functionName.length() - 1);
 			this.isCalculation = true;
 		}
 		else
 		{
-			this.functionName = functionName;
+			this.functionName = functionName == null ? "<eval>" : functionName; //$NON-NLS-1$
 			this.isCalculation = false;
 		}
+
 		this.time = time;
 		this.args = args;
 		this.sourceName = sourceName;

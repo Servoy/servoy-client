@@ -135,7 +135,6 @@ public class ServoyDebugger extends DBGPDebugger
 
 	public void onenter(ServoyDebugFrame servoyDebugFrame)
 	{
-		System.err.println("onenter: " + Thread.currentThread().getName() + ":::" + servoyDebugFrame);
 		ProfileInfo info = profileInfo.get();
 		if (info == null)
 		{
@@ -150,7 +149,6 @@ public class ServoyDebugger extends DBGPDebugger
 	 */
 	public void onexit(ServoyDebugFrame servoyDebugFrame)
 	{
-		System.err.println("onExit: " + Thread.currentThread().getName() + ":::" + servoyDebugFrame);
 		if (profileInfo.get().pop(servoyDebugFrame))
 		{
 			// last call
