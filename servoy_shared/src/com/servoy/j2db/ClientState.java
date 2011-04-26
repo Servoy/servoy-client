@@ -36,6 +36,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.JavaScriptException;
 import org.mozilla.javascript.RhinoException;
+import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Undefined;
 
 import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.dataprocessing.DataServerProxy;
@@ -421,8 +423,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		catch (RepositoryException e)
 		{
 			Debug.error("Could not load solution " + (solutionMetaData == null ? "<none>" : solutionMetaData.getName()), e); //$NON-NLS-1$ //$NON-NLS-2$
-			reportError(Messages.getString(
-				"servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>" : solutionMetaData.getName() }), e); //$NON-NLS-1$ //$NON-NLS-2$
+			reportError(
+				Messages.getString("servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>" : solutionMetaData.getName() }), e); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
@@ -531,7 +533,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		// do nothing here
 	}
 
-	public void logout(@SuppressWarnings("unused") Object[] solution_to_open_args)
+	public void logout(@SuppressWarnings("unused")
+	Object[] solution_to_open_args)
 	{
 		String userUid = null;
 		try
@@ -1085,7 +1088,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 				s_args = new String[args.length];
 				for (int i = 0; i < args.length; i++)
 				{
-					s_args[i] = (args[i] != null ? args[i].toString() : null);
+					s_args[i] = (args[i] != null && args[i] != Scriptable.NOT_FOUND && args[i] != Undefined.instance ? args[i].toString() : null);
 				}
 			}
 			else if (!force && args == null && getPreferedSolutionNameToLoadOnInit() != null)
@@ -1233,8 +1236,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 						function,
 						gscope,
 						gscope,
-						Utils.arrayMerge((new Object[] { new Boolean(force) }), Utils.parseJSExpressions(getSolution().getInstanceMethodArguments(
-							"onCloseMethodID"))), false, false)); //$NON-NLS-1$
+						Utils.arrayMerge((new Object[] { new Boolean(force) }),
+							Utils.parseJSExpressions(getSolution().getInstanceMethodArguments("onCloseMethodID"))), false, false)); //$NON-NLS-1$
 				}
 				catch (Exception e1)
 				{
@@ -1277,12 +1280,14 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		J2DBGlobals.removeAllPropertyChangeListeners(modeManager);
 	}
 
-	private void writeObject(@SuppressWarnings("unused") ObjectOutputStream stream) throws IOException
+	private void writeObject(@SuppressWarnings("unused")
+	ObjectOutputStream stream) throws IOException
 	{
 		//serialize is not implemented
 	}
 
-	private void readObject(@SuppressWarnings("unused") ObjectInputStream stream) throws IOException, ClassNotFoundException
+	private void readObject(@SuppressWarnings("unused")
+	ObjectInputStream stream) throws IOException, ClassNotFoundException
 	{
 		//serialize is not implemented
 	}
@@ -1621,7 +1626,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	public abstract void releaseGUI();
 
-	public void invokeLater(Runnable r, @SuppressWarnings("unused") boolean immediate)
+	public void invokeLater(Runnable r, @SuppressWarnings("unused")
+	boolean immediate)
 	{
 		invokeLater(r);
 	}
