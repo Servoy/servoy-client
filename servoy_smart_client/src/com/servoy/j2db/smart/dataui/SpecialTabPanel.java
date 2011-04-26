@@ -453,17 +453,20 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 
 		//to make sure we don't have recursion on adding a tab, to a tabpanel, that is based 
 		//on the form that the tabpanel is placed on
-		Container parent = getParent();
-		while (!(parent instanceof SwingForm) && parent != null)
+		if (f != null)
 		{
-			parent = parent.getParent();
-		}
-		if (parent != null)
-		{
-			FormController parentFormController = ((SwingForm)parent).getController();
-			if (parentFormController != null && f.equals(parentFormController))
+			Container parent = getParent();
+			while (!(parent instanceof SwingForm) && parent != null)
 			{
-				return false;
+				parent = parent.getParent();
+			}
+			if (parent != null)
+			{
+				FormController parentFormController = ((SwingForm)parent).getController();
+				if (parentFormController != null && parentFormController.equals(f))
+				{
+					return false;
+				}
 			}
 		}
 

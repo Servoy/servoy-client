@@ -831,7 +831,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 			if (webForm != null)
 			{
 				FormController parentFormController = webForm.getController();
-				if (parentFormController != null && f.equals(parentFormController))
+				if (parentFormController != null && parentFormController.equals(f))
 				{
 					return false;
 				}
