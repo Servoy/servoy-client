@@ -13,13 +13,14 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.property;
 
 
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -40,6 +41,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
@@ -492,11 +494,14 @@ class RadioRenderer extends DefaultCellEditor implements TableCellRenderer, Acti
 		super(new JCheckBox());
 
 		editorComponent = new JPanel();
+		editorComponent.setLayout(new GridLayout(1, 2));
 		r1 = new JRadioButton("asc"); //$NON-NLS-1$
+		r1.setHorizontalAlignment(SwingConstants.CENTER);
 		r1.setMargin(new Insets(0, 0, 0, 0));
 		r1.setPreferredSize(new Dimension(50, 15));
 		r1.addActionListener(this);
 		r2 = new JRadioButton("desc"); //$NON-NLS-1$
+		r2.setHorizontalAlignment(SwingConstants.CENTER);
 		r2.setMargin(new Insets(0, 0, 0, 0));
 		r2.setPreferredSize(new Dimension(50, 15));
 		r2.addActionListener(this);
