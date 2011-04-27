@@ -779,7 +779,6 @@ function showtip(e,message)
 	m.style.width = "";
 	m.style.overflow = "hidden";
 	setTimeout("adjustAndShowTooltip("+x+","+wWidth +","+y+","+wHeight+");", 0);
-	tipTimeout = setTimeout("hidetip();", 5000);
 }
 
 function adjustAndShowTooltip(x, wWidth, y, wHeight)
@@ -804,6 +803,7 @@ function adjustAndShowTooltip(x, wWidth, y, wHeight)
 		var newTop = y - 4 - m.offsetHeight;
 		m.style.top = newTop  + "px";
 	}
+	tipTimeout = setTimeout("hidetip();", 5000);
 }
 
 function hidetip()
