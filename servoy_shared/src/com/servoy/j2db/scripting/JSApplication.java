@@ -232,6 +232,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 * @return Array with 2 elements, a string that is the startup argument and a map containing all named startup arguments,
 	 * or null if there is no argument passed
 	 */
+	@Deprecated
 	public Object[] js_getStartupArguments()
 	{
 		if (application instanceof ClientState)
