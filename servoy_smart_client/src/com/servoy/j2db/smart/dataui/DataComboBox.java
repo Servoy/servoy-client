@@ -216,6 +216,12 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 			// this in not needed on MAC as default L&F overrides this behavior...
 			// this would also cause appearance problems for comboboxes on MAC (JVM bug(s)) 
 			putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE); //$NON-NLS-1$
+
+			if (Utils.isAppleMacOS())
+			{
+				// if we are on mac and non aqua laf the combo is broken (cannot select using mouse) because we set this to false in J2DBClient
+				setLightWeightPopupEnabled(true);
+			}
 		}
 
 		// this property says whether you can select items from the drop-down with ENTER or not in an editable combobox (since 1.5xx - visible bug effect in 1.6)
