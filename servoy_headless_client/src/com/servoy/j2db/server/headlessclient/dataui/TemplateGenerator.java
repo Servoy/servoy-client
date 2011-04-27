@@ -1499,7 +1499,6 @@ public class TemplateGenerator
 		styleObj.setProperty("padding", "2px");
 		styleObj.setProperty("background-color", "#FFFFE1");
 		styleObj.setProperty("border", "1px solid #000000");
-		styleObj.setProperty("white-space", "nowrap");
 		styleObj.setProperty("font-family", "arial, helvetica, tahoma, sans-serif");
 		styleObj.setProperty("font-size", "11px");
 		styleObj.setProperty("color", "#000000");
