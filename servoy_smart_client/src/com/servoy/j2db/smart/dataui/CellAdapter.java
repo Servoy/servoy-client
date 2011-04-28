@@ -785,18 +785,16 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 					switch (rowStyleAttribute)
 					{
 						case BGCOLOR :
-							rowStyleAttrValue = style.getAttribute(CSS.Attribute.BACKGROUND_COLOR) != null
-								? PersistHelper.createColorString(ss.getBackground(style)) : null;
+							rowStyleAttrValue = style.getAttribute(CSS.Attribute.BACKGROUND_COLOR) != null ? ss.getBackground(style) : null;
 							break;
 						case FGCOLOR :
-							rowStyleAttrValue = style.getAttribute(CSS.Attribute.COLOR) != null ? PersistHelper.createColorString(ss.getForeground(style))
-								: null;
+							rowStyleAttrValue = style.getAttribute(CSS.Attribute.COLOR) != null ? ss.getForeground(style) : null;
 							break;
 						case FONT :
 							rowStyleAttrValue = style.getAttribute(CSS.Attribute.FONT) != null || style.getAttribute(CSS.Attribute.FONT_FAMILY) != null ||
 								style.getAttribute(CSS.Attribute.FONT_SIZE) != null || style.getAttribute(CSS.Attribute.FONT_STYLE) != null ||
 								style.getAttribute(CSS.Attribute.FONT_VARIANT) != null || style.getAttribute(CSS.Attribute.FONT_WEIGHT) != null
-								? PersistHelper.createFontString(ss.getFont(style)) : null;
+								? ss.getFont(style) : null;
 					}
 				}
 			}
