@@ -43,10 +43,13 @@ import java.util.Map.Entry;
 
 import javax.swing.Action;
 
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 
+import com.servoy.j2db.FormController.JSForm;
 import com.servoy.j2db.cmd.ICmdManagerInternal;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
@@ -62,6 +65,7 @@ import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.scripting.InstanceJavaMembers;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SafeArrayList;
@@ -693,7 +697,15 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 				// this code must be below the checkAndUpdateUser because setFormController can already set the formui
 				currentContainer.setFormController(fp);
 				SolutionScope ss = application.getScriptEngine().getSolutionScope();
-				ss.put("currentcontroller", ss, fp.initForJSUsage()); //$NON-NLS-1$
+				Context.enter();
+				try
+				{
+					ss.put("currentcontroller", ss, new NativeJavaObject(ss, fp.initForJSUsage(), new InstanceJavaMembers(ss, JSForm.class))); //$NON-NLS-1$
+				}
+				finally
+				{
+					Context.exit();
+				}
 				fp.setView(fp.getView());
 				fp.executeOnLoadMethod();
 				// test if solution is closed in the onload method.
