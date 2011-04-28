@@ -569,7 +569,13 @@ public class WebClient extends SessionClient implements IWebClientApplication
 
 			super.shutDown(force);
 			if (RequestCycle.get() != null && WebClientSession.get() != null) WebClientSession.get().logout(); //valueUnbound will do real shutdown
-			else if (session != null) session.invalidate();
+			else if (session != null) try
+			{
+				session.invalidate();
+			}
+			catch (Exception e)
+			{
+			}
 		}
 		finally
 		{
@@ -853,7 +859,8 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		}
 	}
 
-	public void onEndRequest(@SuppressWarnings("unused") WebClientSession webClientSession)
+	public void onEndRequest(@SuppressWarnings("unused")
+	WebClientSession webClientSession)
 	{
 	}
 
