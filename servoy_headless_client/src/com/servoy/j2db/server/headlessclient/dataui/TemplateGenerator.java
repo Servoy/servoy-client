@@ -2056,7 +2056,7 @@ public class TemplateGenerator
 				html.append("type='password' ");
 				if (field.getSelectOnEnter())
 				{
-					html.append("onfocus='this.select()'");
+					html.append("onfocus='var x= this;setTimeout(function(){x.select();},0)'");
 				}
 				html.append("/>");
 			}
