@@ -65,6 +65,7 @@ import com.servoy.j2db.persistence.Style;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.scripting.IScriptSupport;
 import com.servoy.j2db.scripting.info.WEBCONSTANTS;
+import com.servoy.j2db.util.Ad;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Settings;
@@ -397,7 +398,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 			registered = super.registerClient(uc);
 			if (!registered)
 			{
-				if (adsInfo == null) adsInfo = getAdInfo();
+				if (adsInfo == null) adsInfo = Ad.getAdInfo();
 				final int w = Utils.getAsInteger(adsInfo[1]);
 				final int h = Utils.getAsInteger(adsInfo[2]);
 				if (w > 50 && h > 50)
@@ -859,8 +860,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		}
 	}
 
-	public void onEndRequest(@SuppressWarnings("unused")
-	WebClientSession webClientSession)
+	public void onEndRequest(@SuppressWarnings("unused") WebClientSession webClientSession)
 	{
 	}
 

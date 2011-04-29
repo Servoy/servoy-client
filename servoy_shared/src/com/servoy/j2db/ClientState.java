@@ -16,15 +16,11 @@
  */
 package com.servoy.j2db;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.URL;
-import java.net.URLConnection;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.HashMap;
@@ -423,8 +419,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		catch (RepositoryException e)
 		{
 			Debug.error("Could not load solution " + (solutionMetaData == null ? "<none>" : solutionMetaData.getName()), e); //$NON-NLS-1$ //$NON-NLS-2$
-			reportError(
-				Messages.getString("servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>" : solutionMetaData.getName() }), e); //$NON-NLS-1$ //$NON-NLS-2$
+			reportError(Messages.getString(
+				"servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>" : solutionMetaData.getName() }), e); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
@@ -533,8 +529,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		// do nothing here
 	}
 
-	public void logout(@SuppressWarnings("unused")
-	Object[] solution_to_open_args)
+	public void logout(@SuppressWarnings("unused") Object[] solution_to_open_args)
 	{
 		String userUid = null;
 		try
@@ -1236,8 +1231,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 						function,
 						gscope,
 						gscope,
-						Utils.arrayMerge((new Object[] { new Boolean(force) }),
-							Utils.parseJSExpressions(getSolution().getInstanceMethodArguments("onCloseMethodID"))), false, false)); //$NON-NLS-1$
+						Utils.arrayMerge((new Object[] { new Boolean(force) }), Utils.parseJSExpressions(getSolution().getInstanceMethodArguments(
+							"onCloseMethodID"))), false, false)); //$NON-NLS-1$
 				}
 				catch (Exception e1)
 				{
@@ -1280,14 +1275,12 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		J2DBGlobals.removeAllPropertyChangeListeners(modeManager);
 	}
 
-	private void writeObject(@SuppressWarnings("unused")
-	ObjectOutputStream stream) throws IOException
+	private void writeObject(@SuppressWarnings("unused") ObjectOutputStream stream) throws IOException
 	{
 		//serialize is not implemented
 	}
 
-	private void readObject(@SuppressWarnings("unused")
-	ObjectInputStream stream) throws IOException, ClassNotFoundException
+	private void readObject(@SuppressWarnings("unused") ObjectInputStream stream) throws IOException, ClassNotFoundException
 	{
 		//serialize is not implemented
 	}
@@ -1590,33 +1583,6 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		return true;
 	}
 
-	//returns url,w,h,time_ms
-	public Object[] getAdInfo()
-	{
-		Object[] retval = new Object[4];
-		try
-		{
-			URL url = new URL("http://www.servoy.com/client/ad"); //$NON-NLS-1$
-			URLConnection urlConnection = url.openConnection();
-			urlConnection.setConnectTimeout(5000);
-			InputStream is = urlConnection.getInputStream();
-			InputStreamReader isr = new InputStreamReader(is);
-			BufferedReader br = new BufferedReader(isr);
-			String line = br.readLine();
-			Utils.closeReader(br);
-			String[] size_array = line.split(","); //$NON-NLS-1$
-			retval[0] = url;
-			retval[1] = Utils.findNumber(size_array[0]);
-			retval[2] = Utils.findNumber(size_array[1]);
-			retval[3] = Utils.findNumber(size_array[2]);
-		}
-		catch (Exception e)
-		{
-			Debug.error(e);
-		}
-		return retval;
-	}
-
 	public final boolean isInDeveloper()
 	{
 		return ApplicationServerSingleton.get() != null && ApplicationServerSingleton.get().isDeveloperStartup();
@@ -1626,8 +1592,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	public abstract void releaseGUI();
 
-	public void invokeLater(Runnable r, @SuppressWarnings("unused")
-	boolean immediate)
+	public void invokeLater(Runnable r, @SuppressWarnings("unused") boolean immediate)
 	{
 		invokeLater(r);
 	}

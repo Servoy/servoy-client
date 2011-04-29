@@ -66,11 +66,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Stack;
 import java.util.TimeZone;
+import java.util.Map.Entry;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.security.auth.Subject;
@@ -94,8 +94,6 @@ import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JFormattedTextField.AbstractFormatter;
-import javax.swing.JFormattedTextField.AbstractFormatterFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
@@ -116,8 +114,10 @@ import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
-import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.WindowConstants;
+import javax.swing.JFormattedTextField.AbstractFormatter;
+import javax.swing.JFormattedTextField.AbstractFormatterFactory;
+import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.plaf.FontUIResource;
@@ -239,6 +239,7 @@ import com.servoy.j2db.smart.plugins.ClientPluginManager;
 import com.servoy.j2db.smart.plugins.PluginManager;
 import com.servoy.j2db.smart.plugins.SmartClientPluginAccessProvider;
 import com.servoy.j2db.ui.ItemFactory;
+import com.servoy.j2db.util.Ad;
 import com.servoy.j2db.util.BrowserLauncher;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ExtendableURLStreamHandlerFactory;
@@ -3282,7 +3283,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		{
 			public void run()
 			{
-				final Object[] adsInfo = J2DBClient.this.getAdInfo();
+				final Object[] adsInfo = Ad.getAdInfo();
 				final int w = Utils.getAsInteger(adsInfo[1]);
 				final int h = Utils.getAsInteger(adsInfo[2]);
 				if (w > 50 && h > 50)
