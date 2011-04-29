@@ -22,9 +22,9 @@ import java.applet.AppletContext;
 import java.applet.AppletStub;
 import java.applet.AudioClip;
 import java.awt.Dimension;
+import java.awt.Event;
 import java.awt.Image;
 import java.awt.Rectangle;
-import java.awt.event.InputEvent;
 import java.awt.print.PrinterJob;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -305,7 +305,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 
 		ScriptMethod sm = null;
 		int modifiers = Utils.getAsInteger(application.getRuntimeProperties().get("load.solution.modifiers")); //$NON-NLS-1$
-		if ((modifiers & InputEvent.SHIFT_MASK) != InputEvent.SHIFT_MASK)
+		if ((modifiers & Event.SHIFT_MASK) != Event.SHIFT_MASK)
 		{
 			sm = application.getFlattenedSolution().getScriptMethod(solution.getOnOpenMethodID());
 		}
@@ -1563,16 +1563,8 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		public AudioClip getAudioClip(URL url)
 		{
 			// We don't currently support audio clips in the Beans.instantiate
-			// applet context, unless by some luck there exists a URL content
-			// class that can generate an AudioClip from the audio URL.
-			try
-			{
-				return (AudioClip)url.getContent();
-			}
-			catch (Exception ex)
-			{
-				return null;
-			}
+			// applet context
+			return null;
 		}
 
 		public synchronized Image getImage(URL url)
