@@ -32,9 +32,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -67,8 +67,8 @@ import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.InstanceJavaMembers;
 import com.servoy.j2db.scripting.JSWindowImpl;
-import com.servoy.j2db.scripting.JSWindowImpl.JSWindow;
 import com.servoy.j2db.scripting.SolutionScope;
+import com.servoy.j2db.scripting.JSWindowImpl.JSWindow;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.Utils;
@@ -1607,7 +1607,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 
 		public Enumeration<Applet> getApplets()
 		{
-			return ((Hashtable<String, Applet>)applets).elements();
+			return Collections.enumeration(applets.values());
 		}
 
 		public void showDocument(URL url)
