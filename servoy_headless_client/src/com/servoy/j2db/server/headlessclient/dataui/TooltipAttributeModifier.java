@@ -28,6 +28,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.IWrapModel;
 import org.apache.wicket.model.Model;
 
+import com.servoy.j2db.server.headlessclient.WebClient;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.util.Debug;
@@ -122,7 +123,7 @@ public class TooltipAttributeModifier extends AttributeModifier
 			@Override
 			public Object getObject()
 			{
-				if (component instanceof IComponent || component instanceof SortableCellViewHeader)
+				if (!WebClient.isMobile() && (component instanceof IComponent || component instanceof SortableCellViewHeader))
 				{
 					String tooltip = null;
 					if (component instanceof IComponent)
