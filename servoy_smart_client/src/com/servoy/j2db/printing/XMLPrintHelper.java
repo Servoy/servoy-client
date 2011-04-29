@@ -22,7 +22,6 @@ import java.awt.Rectangle;
 import java.io.IOException;
 import java.io.Writer;
 
-import com.servoy.j2db.component.ISupportXMLOutput;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.util.Utils;
