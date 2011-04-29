@@ -40,7 +40,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.TreeSet;
+import java.util.Collections;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -116,12 +116,9 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 		plainDocument = editorDocument = enclosedComponent.getDocument();
 		enclosedComponent.setBorder(BorderFactory.createEmptyBorder());
 
-		TreeSet<KeyStroke> set = new TreeSet<KeyStroke>();
-		set.add(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, InputEvent.SHIFT_DOWN_MASK));
-		enclosedComponent.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, set);
-		set = new TreeSet<KeyStroke>();
-		set.add(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0));
-		enclosedComponent.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, set);
+		enclosedComponent.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS,
+			Collections.singleton(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, InputEvent.SHIFT_DOWN_MASK)));
+		enclosedComponent.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, Collections.singleton(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0)));
 
 		Keymap keymap = enclosedComponent.getKeymap();
 		keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, InputEvent.CTRL_DOWN_MASK), new AbstractAction()
