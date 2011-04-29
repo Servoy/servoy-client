@@ -225,11 +225,6 @@ public class EditListUI extends BasicListUI
 
 		void adjustFocusAndSelection(final MouseEvent e)
 		{
-			if (!SwingUtilities.isLeftMouseButton(e))
-			{
-				return;
-			}
-
 			if (!list.isEnabled())
 			{
 				return;
@@ -304,7 +299,7 @@ public class EditListUI extends BasicListUI
 			{
 				missedPaints = false;
 				setDispatchComponent(e);
-				if (dispatchComponent != null) dispatchComponent.requestFocus();
+				if (dispatchComponent != null && SwingUtilities.isLeftMouseButton(e)) dispatchComponent.requestFocus();
 				repostEvent(e);
 //				if (event != null && event.getID() == MouseEvent.MOUSE_RELEASED && event.getWhen() > e.getWhen() && dispatchComponent != null)
 //				{
