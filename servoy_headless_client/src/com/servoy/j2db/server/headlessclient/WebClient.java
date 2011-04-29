@@ -873,8 +873,28 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		}
 	}
 
-	public void onEndRequest(@SuppressWarnings("unused")
-	WebClientSession webClientSession)
+	public void onEndRequest(@SuppressWarnings("unused") WebClientSession webClientSession)
 	{
+	}
+
+	@SuppressWarnings("nls")
+	public static boolean isMobile()
+	{
+		boolean isMobile = false;
+		if (Session.exists())
+		{
+			org.apache.wicket.request.ClientInfo info = Session.get().getClientInfo();
+			if (info instanceof WebClientInfo)
+			{
+				String userAgent = ((WebClientInfo)info).getProperties().getNavigatorUserAgent();
+				if (userAgent != null)
+				{
+					userAgent = userAgent.toLowerCase();
+					isMobile = userAgent.contains("android") || userAgent.contains("iphone") || userAgent.contains("ipad");
+				}
+			}
+		}
+
+		return isMobile;
 	}
 }
