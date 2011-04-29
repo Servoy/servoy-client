@@ -57,7 +57,6 @@ import org.mozilla.javascript.RhinoException;
 
 import com.servoy.j2db.Credentials;
 import com.servoy.j2db.FormController;
-import com.servoy.j2db.FormFrame;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.FormWindow;
 import com.servoy.j2db.IApplication;
@@ -93,6 +92,7 @@ import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.server.shared.IApplicationServerAccess;
 import com.servoy.j2db.server.shared.RemoteActiveSolutionHandler;
+import com.servoy.j2db.smart.FormFrame;
 import com.servoy.j2db.smart.J2DBClient;
 import com.servoy.j2db.smart.MainPanel;
 import com.servoy.j2db.smart.SwingForm;

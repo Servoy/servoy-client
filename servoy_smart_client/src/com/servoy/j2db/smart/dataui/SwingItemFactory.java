@@ -23,8 +23,6 @@ import javax.swing.JComponent;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IScriptExecuter;
-import com.servoy.j2db.component.InvisibleBean;
-import com.servoy.j2db.component.VisibleBean;
 import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.LookupValueList;

@@ -45,7 +45,6 @@ import com.servoy.j2db.IDataRendererFactory;
 import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.component.ComponentFactory;
-import com.servoy.j2db.component.VisibleBean;
 import com.servoy.j2db.dataprocessing.IDisplay;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.persistence.Field;

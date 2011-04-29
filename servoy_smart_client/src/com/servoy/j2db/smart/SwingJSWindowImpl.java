@@ -30,7 +30,6 @@ import javax.swing.JFrame;
 import javax.swing.RootPaneContainer;
 
 import com.servoy.j2db.FormController;
-import com.servoy.j2db.FormFrame;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.FormWindow;
 import com.servoy.j2db.IMainContainer;

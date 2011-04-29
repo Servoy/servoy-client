@@ -14,7 +14,7 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
-package com.servoy.j2db;
+package com.servoy.j2db.smart;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -38,6 +38,12 @@ import javax.swing.JRootPane;
 import javax.swing.KeyStroke;
 import javax.swing.WindowConstants;
 
+import com.servoy.j2db.FormController;
+import com.servoy.j2db.FormManager;
+import com.servoy.j2db.FormWindow;
+import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IFormManager;
+import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.cmd.ICmdManager;
 import com.servoy.j2db.ui.IVisibleChangeListener;
 import com.servoy.j2db.util.Settings;
