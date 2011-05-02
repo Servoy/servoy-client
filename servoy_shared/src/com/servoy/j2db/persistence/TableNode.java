@@ -270,7 +270,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * A method that is executed after an insert operation.
 	 * 
 	 * @templatedescription Record after-insert trigger
-	 * @templatename afterInsertRecord
+	 * @templatename afterRecordInsert
 	 * @templateparam JSRecord record record that is inserted
 	 * @templateaddtodo
 	 */
@@ -288,7 +288,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * A method that is executed after an update operation.
 	 * 
 	 * @templatedescription Record after-update trigger
-	 * @templatename afterUpdateRecord
+	 * @templatename afterRecordUpdate
 	 * @templateparam JSRecord record record that is updated
 	 * @templateaddtodo
 	 */
@@ -306,7 +306,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * A method that is executed after a delete operation.
 	 * 
 	 * @templatedescription Record after-delete trigger
-	 * @templatename afterDeleteRecord
+	 * @templatename afterRecordDelete
 	 * @templateparam JSRecord record record that is deleted
 	 * @templateaddtodo
 	 */
