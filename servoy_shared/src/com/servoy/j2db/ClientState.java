@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.net.URL;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -167,45 +168,58 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	public void handleArguments(String[] args)
 	{
+		String[] filteredArgs = null;
+
+		// filter out all system.properties
+		if (args != null)
+		{
+			ArrayList<String> filteredArgsList = new ArrayList<String>();
+			for (String arg : args)
+			{
+				if (!arg.startsWith("system.property.")) filteredArgsList.add(arg); //$NON-NLS-1$
+			}
+			filteredArgs = new String[filteredArgsList.size()];
+			filteredArgs = filteredArgsList.toArray(filteredArgs);
+		}
 
 		clientInfo.setSpecialClientIndentifier(null);
-		if (args == null || args.length == 0)
+		if (filteredArgs == null || filteredArgs.length == 0)
 		{
 			//clear, do not clear method and arguments (clear method when it is called, we want to access the arguments during the app livespan)
 			preferredSolutionNameToLoadOnInit = null;
 		}
 		else
 		{
-			StartupArguments argumentsScope = new StartupArguments(args);
+			StartupArguments argumentsScope = new StartupArguments(filteredArgs);
 
 			if (argumentsScope.getSolutionName() == null && argumentsScope.getMethodName() == null && argumentsScope.getFirstArgument() == null &&
 				argumentsScope.getClientIdentifier() == null)
 			{
-				preferredSolutionNameToLoadOnInit = args[0];
-				if (args.length >= 2)
+				preferredSolutionNameToLoadOnInit = filteredArgs[0];
+				if (filteredArgs.length >= 2)
 				{
-					if (args[1] != null && args[1].startsWith("CI:")) //$NON-NLS-1$
+					if (filteredArgs[1] != null && filteredArgs[1].startsWith("CI:")) //$NON-NLS-1$
 					{
-						clientInfo.setSpecialClientIndentifier(args[1].substring(3));
+						clientInfo.setSpecialClientIndentifier(filteredArgs[1].substring(3));
 					}
 					else
 					{
-						preferredSolutionMethodNameToCall = args[1];
+						preferredSolutionMethodNameToCall = filteredArgs[1];
 					}
 					preferredSolutionMethodArguments = null;
-					if (args.length >= 3)
+					if (filteredArgs.length >= 3)
 					{
-						if (args[2] != null && args[2].startsWith("CI:")) //$NON-NLS-1$
+						if (filteredArgs[2] != null && filteredArgs[2].startsWith("CI:")) //$NON-NLS-1$
 						{
-							clientInfo.setSpecialClientIndentifier(args[2].substring(3));
+							clientInfo.setSpecialClientIndentifier(filteredArgs[2].substring(3));
 						}
 						else
 						{
-							preferredSolutionMethodArguments = new Object[] { args[2] };
+							preferredSolutionMethodArguments = new Object[] { filteredArgs[2] };
 						}
-						if (args.length >= 4 && args[3] != null && args[3].startsWith("CI:")) //$NON-NLS-1$
+						if (filteredArgs.length >= 4 && filteredArgs[3] != null && filteredArgs[3].startsWith("CI:")) //$NON-NLS-1$
 						{
-							clientInfo.setSpecialClientIndentifier(args[3].substring(3));
+							clientInfo.setSpecialClientIndentifier(filteredArgs[3].substring(3));
 						}
 					}
 				}
@@ -419,8 +433,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		catch (RepositoryException e)
 		{
 			Debug.error("Could not load solution " + (solutionMetaData == null ? "<none>" : solutionMetaData.getName()), e); //$NON-NLS-1$ //$NON-NLS-2$
-			reportError(Messages.getString(
-				"servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>" : solutionMetaData.getName() }), e); //$NON-NLS-1$ //$NON-NLS-2$
+			reportError(
+				Messages.getString("servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>" : solutionMetaData.getName() }), e); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
@@ -1231,8 +1245,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 						function,
 						gscope,
 						gscope,
-						Utils.arrayMerge((new Object[] { new Boolean(force) }), Utils.parseJSExpressions(getSolution().getInstanceMethodArguments(
-							"onCloseMethodID"))), false, false)); //$NON-NLS-1$
+						Utils.arrayMerge((new Object[] { new Boolean(force) }),
+							Utils.parseJSExpressions(getSolution().getInstanceMethodArguments("onCloseMethodID"))), false, false)); //$NON-NLS-1$
 				}
 				catch (Exception e1)
 				{
