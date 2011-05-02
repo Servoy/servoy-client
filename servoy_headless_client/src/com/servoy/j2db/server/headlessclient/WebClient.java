@@ -570,12 +570,15 @@ public class WebClient extends SessionClient implements IWebClientApplication
 
 			super.shutDown(force);
 			if (RequestCycle.get() != null && WebClientSession.get() != null) WebClientSession.get().logout(); //valueUnbound will do real shutdown
-			else if (session != null) try
+			else if (session != null)
 			{
-				session.invalidate();
-			}
-			catch (Exception e)
-			{
+				try
+				{
+					session.invalidate();
+				}
+				catch (Exception e)
+				{
+				}
 			}
 		}
 		finally
