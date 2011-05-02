@@ -186,9 +186,9 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 * @sample
 	 * //the return value for an element of the TextField type, as returned by the following code
 	 * var etype = elements.elementName.getElementType();
-	 * if (etype == ELEMENT_TYPES.GROUP)
+	 * if (etype == ELEMENT_TYPES.COMBOBOX)
 	 * {
-	 *      // element is a group element
+	 *      // element is a COMBOBOX element
 	 * }
 	 */
 	public static final String COMBOBOX = IScriptBaseMethods.COMBOBOX;
@@ -199,9 +199,9 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 * @sample
 	 * //the return value for an element type, as returned by the following code
 	 * var etype = elements.elementName.getElementType();
-	 * if (etype == ELEMENT_TYPES.GROUP)
+	 * if (etype == ELEMENT_TYPES.SPLITPANE)
 	 * {
-	 *      // element is a group element
+	 *      // element is a splitpane element
 	 * }
 	 */
 	public static final String SPLITPANE = IScriptBaseMethods.SPLITPANE;
@@ -212,9 +212,9 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 * @sample
 	 * //the return value for an element of the TextField type, as returned by the following code
 	 * var etype = elements.elementName.getElementType();
-	 * if (etype == ELEMENT_TYPES.GROUP)
+	 * if (etype == ELEMENT_TYPES.RECTANGLE)
 	 * {
-	 *      // element is a group element
+	 *      // element is a rectangle element
 	 * }
 	 */
 	public static final String RECTANGLE = IScriptBaseMethods.RECTANGLE;
@@ -225,12 +225,12 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 * @sample
 	 * //the return value for an element of the TextField type, as returned by the following code
 	 * var etype = elements.elementName.getElementType();
-	 * if (etype == ELEMENT_TYPES.GROUP)
+	 * if (etype == ELEMENT_TYPES.HTML_AREA)
 	 * {
-	 *      // element is a group element
+	 *      // element is a HTML textarea
 	 * }
 	 */
-	public static final String HTML_AREA = IScriptBaseMethods.GROUP;
+	public static final String HTML_AREA = IScriptBaseMethods.HTML_AREA;
 
 	/**
 	 * Constant representing a rtf area of element.
@@ -238,9 +238,9 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 * @sample
 	 * //the return value for an element of the TextField type, as returned by the following code
 	 * var etype = elements.elementName.getElementType();
-	 * if (etype == ELEMENT_TYPES.GROUP)
+	 * if (etype == ELEMENT_TYPES.RTF_AREA)
 	 * {
-	 *      // element is a group element
+	 *      // element is a RTF textarea.
 	 * }
 	 */
 	public static final String RTF_AREA = IScriptBaseMethods.RTF_AREA;
@@ -251,9 +251,9 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 * @sample
 	 * //the return value for an element of the TextField type, as returned by the following code
 	 * var etype = elements.elementName.getElementType();
-	 * if (etype == ELEMENT_TYPES.GROUP)
+	 * if (etype == ELEMENT_TYPES.TYPE_AHEAD)
 	 * {
-	 *      // element is a group element
+	 *      // element is a type ahead element
 	 * }
 	 */
 	public static final String TYPE_AHEAD = IScriptBaseMethods.TYPE_AHEAD;
