@@ -62,7 +62,7 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 	private final String schema;
 	private int maxActive;
 	private int maxIdle;
-	private final int maxPreparedStatementsIdle;
+	private int maxPreparedStatementsIdle;
 	private final int connectionValidationType;
 	private final String validationQuery;
 	private final String dataModelCloneFrom;
@@ -218,6 +218,11 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 	public void setMaxIdle(int maxIdle)
 	{
 		this.maxIdle = maxIdle;
+	}
+
+	public void setMaxPreparedStatementsIdle(int maxPreparedStatementsIdle)
+	{
+		this.maxPreparedStatementsIdle = maxPreparedStatementsIdle;
 	}
 
 	// used for sorting in ServerManager (TreeMap)
