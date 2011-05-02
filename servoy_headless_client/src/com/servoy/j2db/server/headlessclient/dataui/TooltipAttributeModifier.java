@@ -28,6 +28,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.IWrapModel;
 import org.apache.wicket.model.Model;
 
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.server.headlessclient.WebClient;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.ui.IComponent;
@@ -136,6 +137,8 @@ public class TooltipAttributeModifier extends AttributeModifier
 					}
 					if (tooltip != null)
 					{
+						int initialDelay = 0;
+						int dismissDelay = 5000;
 						if (Session.exists())
 						{
 							// blobloaders only works for components that implements IResourceListern (currently only Button/Labels/HtmlArea)
@@ -150,8 +153,13 @@ public class TooltipAttributeModifier extends AttributeModifier
 									Debug.log("Component: " + component + " doenst support sevoy_blobloader references " + tooltip);
 								}
 							}
-							tooltip = StripHTMLTagsConverter.convertMediaReferences(tooltip,
-								((WebClientSession)Session.get()).getWebClient().getSolutionName(), new ResourceReference("media"), "").toString();
+							WebClient webClient = ((WebClientSession)Session.get()).getWebClient();
+							tooltip = StripHTMLTagsConverter.convertMediaReferences(tooltip, webClient.getSolutionName(), new ResourceReference("media"), "").toString();
+							Object initialDelayValue = webClient.getUIProperty(IApplication.TOOLTIP_INITIAL_DELAY);
+							if (initialDelayValue instanceof Number) initialDelay = ((Number)initialDelayValue).intValue();
+							Object dismissDelayValue = webClient.getUIProperty(IApplication.TOOLTIP_DISMISS_DELAY);
+							if (dismissDelayValue instanceof Number) dismissDelay = ((Number)dismissDelayValue).intValue();
+
 						}
 						boolean isHTMLText = tooltip.trim().toLowerCase().startsWith("<html>");
 
@@ -159,7 +167,8 @@ public class TooltipAttributeModifier extends AttributeModifier
 						tooltip = tooltip.replace("\n", isHTMLText ? " " : "<br>");
 						tooltip = tooltip.replace("\\", "\\\\");
 						tooltip = tooltip.replace("\'", "\\\'");
-						return "showtip(event, '" + tooltip + "');";
+
+						return "showtip(event, '" + tooltip + "'," + initialDelay + "," + dismissDelay + ");";
 					}
 				}
 				return null;

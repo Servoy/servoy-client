@@ -858,7 +858,7 @@ if (typeof(Servoy.DD) == "undefined")
 
 var tipTimeout;
 
-function showtip(e,message)
+function showtip(e,message,initialDelay, dismissDelay)
 {
 	var x = 0;
 	var y = 0;
@@ -906,10 +906,10 @@ function showtip(e,message)
 	m.style.zIndex = 203;
 	m.style.width = "";
 	m.style.overflow = "hidden";
-	setTimeout("adjustAndShowTooltip("+x+","+wWidth +","+y+","+wHeight+");", 0);
+	setTimeout("adjustAndShowTooltip("+x+","+wWidth +","+y+","+wHeight+","+dismissDelay+");", initialDelay);
 }
 
-function adjustAndShowTooltip(x, wWidth, y, wHeight)
+function adjustAndShowTooltip(x, wWidth, y, wHeight, dismissDelay)
 {
 	m = document.getElementById('mktipmsg');
 	m.style.display = "block";
@@ -932,7 +932,7 @@ function adjustAndShowTooltip(x, wWidth, y, wHeight)
 		var newTop = y - 4 - m.offsetHeight;
 		m.style.top = newTop  + "px";
 	}
-	tipTimeout = setTimeout("hidetip();", 5000);
+	tipTimeout = setTimeout("hidetip();", dismissDelay);
 }
 
 function hidetip()

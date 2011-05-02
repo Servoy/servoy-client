@@ -78,6 +78,14 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 * When Boolean.TRUE, the system standard Print dialog is used when printing; if Boolean.FALSE, the Servoy Print dialog will be used.
 	 */
 	public static final String USE_SYSTEM_PRINT_DIALOG = "useSystemPrintDialog"; //$NON-NLS-1$
+	/**
+	 * Value that indicates the delay in milliseconds before the tooltip is shown.
+	 */
+	public static final String TOOLTIP_INITIAL_DELAY = "tooltipInitialDelay"; //$NON-NLS-1$
+	/**
+	 * Value that indicates the delay in milliseconds after the tooltip is dismissed.
+	 */
+	public static final String TOOLTIP_DISMISS_DELAY = "tooltipDismissDelay"; //$NON-NLS-1$
 
 	public static final String APP_WINDOW_NAME = "Application_frame";
 

@@ -146,6 +146,24 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 */
 	public static final String USE_SYSTEM_PRINT_DIALOG = IApplication.USE_SYSTEM_PRINT_DIALOG;
 
+	/**
+	 * Property than can be set using application.setUIProperty() and
+	 * indicates the delay in milliseconds before the tooltip is shown.
+	 *
+	 * @sample
+	 * application.setUIProperty(APP_UI_PROPERTY.TOOLTIP_INITIAL_DELAY, 2000)
+	 */
+	public static final String TOOLTIP_INITIAL_DELAY = IApplication.TOOLTIP_INITIAL_DELAY;
+
+	/**
+	 * Property than can be set using application.setUIProperty() and
+	 * indicates the delay in milliseconds after the tooltip is dismissed.
+	 *
+	 * @sample
+	 * application.setUIProperty(APP_UI_PROPERTY.TOOLTIP_DISMISS_DELAY, 4000)
+	 */
+	public static final String TOOLTIP_DISMISS_DELAY = IApplication.TOOLTIP_DISMISS_DELAY;
+
 	public String getPrefix()
 	{
 		return "APP_UI_PROPERTY"; //$NON-NLS-1$
