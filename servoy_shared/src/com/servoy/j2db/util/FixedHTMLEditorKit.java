@@ -1510,10 +1510,13 @@ public class FixedHTMLEditorKit extends StyledEditorKit implements ISupportAsync
 				throw new BadLocationException("Invalid location", pos);
 			}
 
-			HTMLEditorKit.ParserCallback receiver = hdoc.getReader(pos);
-			Boolean ignoreCharset = (Boolean)doc.getProperty("IgnoreCharsetDirective"); //$NON-NLS-1$
-			p.parse(in, receiver, (ignoreCharset == null) ? false : ignoreCharset.booleanValue());
-			receiver.flush();
+			synchronized (this)
+			{
+				HTMLEditorKit.ParserCallback receiver = hdoc.getReader(pos);
+				Boolean ignoreCharset = (Boolean)doc.getProperty("IgnoreCharsetDirective"); //$NON-NLS-1$
+				p.parse(in, receiver, (ignoreCharset == null) ? false : ignoreCharset.booleanValue());
+				receiver.flush();
+			}
 		}
 		else
 		{
