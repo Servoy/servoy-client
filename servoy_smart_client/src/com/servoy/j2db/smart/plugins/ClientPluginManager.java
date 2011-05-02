@@ -113,7 +113,7 @@ public class ClientPluginManager extends PluginManager
 		}
 		catch (Exception e)
 		{
-			Debug.error(e);
+			Debug.error("Failed to get the preference panle for client plugin: " + plugin.getName(), e);
 		}
 		return null;
 	}
