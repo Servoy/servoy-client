@@ -816,6 +816,10 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		IDataServer dataServer = super.createDataServer();
 		if (dataServer != null)
 		{
+			if (new DeveloperPreferences(Settings.getInstance()).useSerializingDataserverProxy())
+			{
+				dataServer = SerializingDataserverProxy.createSerializingDataserverProxy(dataServer);
+			}
 			dataServer = new ProfileDataServer(dataServer);
 		}
 		return dataServer;
