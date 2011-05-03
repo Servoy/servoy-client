@@ -19,6 +19,7 @@ package com.servoy.j2db.server.headlessclient.dataui;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 
@@ -76,7 +77,18 @@ public class WebTabFormLookup implements IFormLookupPanel
 		if (wf != null)
 		{
 			MarkupContainer wfParent = wf.getParent();
-			isFormReady = !(wfParent != parent && wfParent instanceof WebTabPanel && ((WebTabPanel)wfParent).getCurrentForm() == wf);
+			if (wfParent instanceof WebTabPanel && ((WebTabPanel)wfParent).isVisible())
+			{
+				boolean isTabPanelVisible = true;
+
+				Component c = wfParent;
+				WebForm pwf;
+				while ((pwf = c.findParent(WebForm.class)) != null && (isTabPanelVisible = pwf.getController().isFormVisible()) == true)
+					c = pwf;
+
+				// if the form is current in another visible tabpanel, then it is not ready for this tabpanel
+				isFormReady = !(isTabPanelVisible && wfParent != parent && ((WebTabPanel)wfParent).getCurrentForm() == wf);
+			}
 		}
 
 		return isFormReady;
