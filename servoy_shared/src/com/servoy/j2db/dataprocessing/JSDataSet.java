@@ -533,17 +533,8 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 				intTypes[i] = Utils.getAsInteger(((Object[])types)[i]);
 			}
 		}
-		else
-		{
-			// types may be known when dataset was created from query
-			intTypes = set.getColumnTypes();
-		}
-		if (intTypes == null)
-		{
-			return null;
-		}
 
-		String dataSource = application.getFoundSetManager().createDataSourceFromDataSet(name, set, intTypes);
+		String dataSource = application.getFoundSetManager().createDataSourceFromDataSet(name, set, intTypes /* inferred from dataset when null */);
 		if (dataSource != null)
 		{
 			// create a new foundSet for the temp table

@@ -2010,7 +2010,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			}
 			table = application.getDataServer().insertDataSet(application.getClientID(), dataSet, dataSource,
 				table == null ? IServer.INMEM_SERVER : table.getServerName(), table == null ? null : table.getName() /* create temp table when null */, tid,
-				intTypes);
+				intTypes /* inferred from dataset when null */);
 			if (table != null)
 			{
 				inMemDataSources.put(dataSource, table);

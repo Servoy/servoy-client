@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
 
+import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Internalize;
 import com.servoy.j2db.util.Pair;
@@ -52,7 +53,7 @@ public class BufferedDataSet implements IDataSet
 	private List<Object[]> rows; //which contains RowData with column data
 	private boolean hadMore;
 	private String[] columnNames;
-	private int[] columnTypes;
+	private ColumnType[] columnTypes;
 
 	public BufferedDataSet()
 	{
@@ -78,9 +79,9 @@ public class BufferedDataSet implements IDataSet
 	public BufferedDataSet(String[] columnNames, int[] columnTypes, List<Object[]> rows)
 	{
 		this.columnNames = columnNames;
-		this.columnTypes = columnTypes;
 		this.rows = rows;
 		hadMore = false;
+		setColumnTypes(columnTypes);
 	}
 
 
@@ -157,7 +158,7 @@ public class BufferedDataSet implements IDataSet
 		ResultSetMetaData metaData = rs.getMetaData();
 
 		int numberOfColumns = metaData.getColumnCount();
-		columnTypes = new int[numberOfColumns];
+		columnTypes = new ColumnType[numberOfColumns];
 		boolean[] blobSkips = new boolean[numberOfColumns];
 		if (createMetaInfo)
 		{
@@ -165,7 +166,7 @@ public class BufferedDataSet implements IDataSet
 		}
 		for (int column = 1; column <= numberOfColumns; column++)
 		{
-			columnTypes[column - 1] = metaData.getColumnType(column);
+			columnTypes[column - 1] = ColumnType.getInstance(metaData.getColumnType(column), metaData.getPrecision(column), metaData.getScale(column));
 			blobSkips[column - 1] = false;
 			if (createMetaInfo || skipBlobs)
 			{
@@ -176,7 +177,7 @@ public class BufferedDataSet implements IDataSet
 				}
 				if (name != null && name.toUpperCase().indexOf(IDataServer.BLOB_MARKER_COLUMN_ALIAS) != -1)
 				{
-					columnTypes[column - 1] = Types.BLOB;
+					columnTypes[column - 1] = ColumnType.getInstance(Types.BLOB, Integer.MAX_VALUE, 0);
 					blobSkips[column - 1] = skipBlobs;
 				}
 			}
@@ -219,7 +220,7 @@ public class BufferedDataSet implements IDataSet
 			{
 				try
 				{
-					switch (columnTypes[i - 1])
+					switch (columnTypes[i - 1].getSqlType())
 					{
 						case Types.TINYINT :
 						case Types.SMALLINT :
@@ -513,7 +514,21 @@ public class BufferedDataSet implements IDataSet
 		{
 			return null;
 		}
-		return columnTypes.clone();
+		int[] tps = new int[columnTypes.length];
+		for (int i = 0; i < columnTypes.length; i++)
+		{
+			tps[i] = columnTypes[i].getSqlType();
+		}
+		return tps;
+	}
+
+
+	/**
+	 * @return
+	 */
+	public ColumnType[] getColumnTypeInfo()
+	{
+		return columnTypes == null ? null : columnTypes.clone();
 	}
 
 	/*
@@ -521,7 +536,18 @@ public class BufferedDataSet implements IDataSet
 	 */
 	public void setColumnTypes(int[] columnTypes)
 	{
-		this.columnTypes = columnTypes;
+		if (columnTypes == null)
+		{
+			this.columnTypes = null;
+		}
+		else
+		{
+			this.columnTypes = new ColumnType[columnTypes.length];
+			for (int i = 0; i < columnTypes.length; i++)
+			{
+				this.columnTypes[i] = ColumnType.getInstance(columnTypes[i], Integer.MAX_VALUE, 0);
+			}
+		}
 	}
 
 	/*
@@ -560,22 +586,11 @@ public class BufferedDataSet implements IDataSet
 		{
 			return false;
 		}
-		String[] oldColumns = getColumnNames();
-		String[] newColumns = new String[size + 1];
-		int[] oldColumnTypes = columnTypes;
-		int[] newColumnTypes = oldColumnTypes == null && size > 0 ? null : new int[size + 1];
-		for (int i = 0; i < columnIndex; i++)
-		{
-			newColumns[i] = oldColumns[i];
-			if (newColumnTypes != null) newColumnTypes[i] = oldColumnTypes[i];
-		}
-		newColumns[columnIndex] = columnName;
-		if (newColumnTypes != null) newColumnTypes[columnIndex] = columnType;
-		for (int i = columnIndex + 1; i < size + 1; i++)
-		{
-			newColumns[i] = oldColumns[i - 1];
-			if (newColumnTypes != null) newColumnTypes[i] = oldColumnTypes[i - 1];
-		}
+
+		String[] newColumns = Utils.arrayInsert(getColumnNames(), new String[] { columnName }, columnIndex, 1);
+		ColumnType[] newColumnTypes = Utils.arrayInsert(columnTypes, new ColumnType[] { ColumnType.getInstance(columnType, Integer.MAX_VALUE, 0) },
+			columnIndex, 1);
+
 		columnNames = newColumns;
 		columnTypes = newColumnTypes;
 		updateRowsWhenColumnAdded(columnIndex);
@@ -592,8 +607,8 @@ public class BufferedDataSet implements IDataSet
 		}
 		String[] oldColumns = getColumnNames();
 		String[] newColumns = new String[size - 1];
-		int[] oldColumnTypes = columnTypes;
-		int[] newColumnTypes = oldColumnTypes == null || size == 1 ? null : new int[size - 1];
+		ColumnType[] oldColumnTypes = columnTypes;
+		ColumnType[] newColumnTypes = oldColumnTypes == null || size == 1 ? null : new ColumnType[size - 1];
 		for (int i = 0; i < columnIndex; i++)
 		{
 			newColumns[i] = oldColumns[i];
@@ -768,5 +783,4 @@ public class BufferedDataSet implements IDataSet
 			return 0;
 		}
 	}
-
 }
