@@ -728,7 +728,7 @@ if (typeof(Servoy.DD) == "undefined")
 
 /* Tooltip fctions */
 
-var tipTimeout;
+var tipInitialTimeout, tipTimeout;
 
 function showtip(e,message)
 {
@@ -778,7 +778,7 @@ function showtip(e,message)
 	m.style.zIndex = 203;
 	m.style.width = "";
 	m.style.overflow = "hidden";
-	setTimeout("adjustAndShowTooltip("+x+","+wWidth +","+y+","+wHeight+");", 0);
+	tipInitialTimeout = setTimeout("adjustAndShowTooltip("+x+","+wWidth +","+y+","+wHeight+");", 750);
 }
 
 function adjustAndShowTooltip(x, wWidth, y, wHeight)
@@ -808,6 +808,7 @@ function adjustAndShowTooltip(x, wWidth, y, wHeight)
 
 function hidetip()
 {
+	clearTimeout(tipInitialTimeout);
 	clearTimeout(tipTimeout);
 	var m;
 	m = document.getElementById('mktipmsg');
