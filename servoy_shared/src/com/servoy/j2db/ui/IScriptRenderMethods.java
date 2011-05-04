@@ -102,23 +102,7 @@ public interface IScriptRenderMethods
 	public Object js_getClientProperty(Object key);
 
 	/**
-	 * Gets or sets the border attribute(s) of a specified element. 
-	 * 
-	 * The border attributes:
-	 * 
-	 * borderType - EmptyBorder, EtchedBorder, BevelBorder, LineBorder, TitleBorder, MatteBorder, SpecialMatteBorder.
-	 * size - (numeric value) for: bottom, left, right, top.
-	 * color - (hexadecimal value) for: bottom, left, right, top.
-	 * dash pattern - (numeric value) for selected side(s).
-	 * rounding radius - (numeric value) for selected side(s).
-	 * 
-	 * NOTE: Use the same value(s) and order of attribute(s) from the element design time property "borderType".
-	 *
-	 * @sample
-	 * //sets the border type to "LineBorder"
-	 * //sets a 1 px line width for the bottom and left side of the border
-	 * //sets the hexadecimal color of the border to "#ccffcc"
-	 * %%prefix%%%%elementName%%.border = 'LineBorder,1,#ccffcc'
+	 * @sameas com.servoy.j2db.ui.IScriptBaseMethods#js_getBorder()
 	 */
 	public String js_getBorder();
 
@@ -132,14 +116,7 @@ public interface IScriptRenderMethods
 	public void js_setToolTipText(String tooltip);
 
 	/**
-	 * Gets or sets the font name, style, and size of an element. 
-	 * 
-	 * font name - the name of the font family.
-	 * style - the type of the font. (plain = 0; bold = 1; italic = 2; bold-italic = 3).
-	 * size - the size of the font (in points).
-	 * 
-	 * @sample
-	 * %%prefix%%%%elementName%%.font = 'Tahoma,1,11';
+	 * @sameas com.servoy.j2db.ui.IScriptTransparentMethods#js_getFont()
 	 */
 	public String js_getFont();
 

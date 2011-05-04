@@ -280,6 +280,11 @@ public class Rect extends JComponent implements IReturnedTypesProvider, IRect
 		setBorder(ComponentFactoryHelper.createBorder(spec));
 	}
 
+	public String js_getBorder()
+	{
+		return ComponentFactoryHelper.createBorderString(getBorder());
+	}
+
 	/*
 	 * visible---------------------------------------------------
 	 */
@@ -427,6 +432,11 @@ public class Rect extends JComponent implements IReturnedTypesProvider, IRect
 	public void js_setFont(String spec)
 	{
 		setFont(PersistHelper.createFont(spec));
+	}
+
+	public String js_getFont()
+	{
+		return PersistHelper.createFontString(getFont());
 	}
 
 	public String js_getName()

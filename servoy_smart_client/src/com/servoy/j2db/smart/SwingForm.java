@@ -55,8 +55,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -121,10 +121,10 @@ import com.servoy.j2db.printing.FormPreviewPanel;
 import com.servoy.j2db.printing.PageList;
 import com.servoy.j2db.printing.PrintPreview;
 import com.servoy.j2db.scripting.ElementScope;
-import com.servoy.j2db.scripting.GroupScriptObject;
+import com.servoy.j2db.scripting.RuntimeGroup;
 import com.servoy.j2db.scripting.JSEvent;
-import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.scripting.JSEvent.EventType;
+import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.scripting.info.CLIENTDESIGN;
 import com.servoy.j2db.smart.dataui.CellAdapter;
 import com.servoy.j2db.smart.dataui.DataComboBox;
@@ -985,14 +985,14 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 							Object group = es.get(groupName, fs);
 							if (group == Scriptable.NOT_FOUND)
 							{
-								group = new NativeJavaObject(fs, new GroupScriptObject(fs), ScriptObjectRegistry.getJavaMembers(GroupScriptObject.class,
+								group = new NativeJavaObject(fs, new RuntimeGroup(groupName), ScriptObjectRegistry.getJavaMembers(RuntimeGroup.class,
 									ScriptableObject.getTopLevelScope(fs)));
 								es.put(groupName, fs, group);
 								es.put(counter++, fs, group);
 							}
-							if (group instanceof NativeJavaObject && ((NativeJavaObject)group).unwrap() instanceof GroupScriptObject)
+							if (group instanceof NativeJavaObject && ((NativeJavaObject)group).unwrap() instanceof RuntimeGroup)
 							{
-								((GroupScriptObject)(((NativeJavaObject)group).unwrap())).addScriptable(s);
+								((RuntimeGroup)(((NativeJavaObject)group).unwrap())).addScriptable(s);
 							}
 						}
 					}
@@ -1091,8 +1091,8 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			Messages.getString("servoy.formPanel.printCurrentRecord") //$NON-NLS-1$
 			};
 			ISmartClientApplication application = (ISmartClientApplication)formController.getApplication();
-			return JOptionPane.showOptionDialog(application.getMainApplicationFrame(), Messages.getString(
-				"servoy.formPanel.message.largeResultset", new Object[] { new Integer(formModel.getSize()) }), //$NON-NLS-1$
+			return JOptionPane.showOptionDialog(application.getMainApplicationFrame(),
+				Messages.getString("servoy.formPanel.message.largeResultset", new Object[] { new Integer(formModel.getSize()) }), //$NON-NLS-1$
 				Messages.getString("servoy.general.warning"), //$NON-NLS-1$
 				JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[2]);
 		}

@@ -2686,6 +2686,11 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		jsChangeRecorder.setBorder(spec);
 	}
 
+	public String js_getBorder()
+	{
+		return ComponentFactoryHelper.createBorderString(getBorder());
+	}
+
 	/*
 	 * visible---------------------------------------------------
 	 */

@@ -89,6 +89,8 @@ public interface ITabPaneAlike extends IFocusCycleRoot<Component>
 	 */
 	public void setFont(Font font);
 
+	public Font getFont();
+
 	/**
 	 * @return
 	 */

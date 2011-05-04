@@ -295,7 +295,7 @@ public interface IScriptBaseMethods
 	public Object js_getClientProperty(Object key);
 
 	/**
-	 * Sets the border attribute(s) of a specified element. 
+	 * Gets or sets the border attribute(s) of a specified element. 
 	 * 
 	 * The border attributes:
 	 * 
@@ -315,6 +315,8 @@ public interface IScriptBaseMethods
 	 *
 	 * @param spec the border attributes
 	 */
+	public String js_getBorder();
+
 	public void js_setBorder(String spec);
 
 }

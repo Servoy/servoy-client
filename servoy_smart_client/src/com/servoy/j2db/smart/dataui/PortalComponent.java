@@ -820,10 +820,14 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 		}
 	}
 
-
 	public void js_setBorder(String spec)
 	{
 		setBorder(ComponentFactoryHelper.createBorder(spec));
+	}
+
+	public String js_getBorder()
+	{
+		return ComponentFactoryHelper.createBorderString(getBorder());
 	}
 
 	/*

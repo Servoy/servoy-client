@@ -1315,6 +1315,11 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		jsChangeRecorder.setFont(spec);
 	}
 
+	public String js_getFont()
+	{
+		return PersistHelper.createFontString(getFont());
+	}
+
 	public Font getFont()
 	{
 		return font;
@@ -1374,11 +1379,15 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		return foreground;
 	}
 
-
 	public void js_setBorder(String spec)
 	{
 		setBorder(ComponentFactoryHelper.createBorder(spec));
 		jsChangeRecorder.setBorder(spec);
+	}
+
+	public String js_getBorder()
+	{
+		return ComponentFactoryHelper.createBorderString(getBorder());
 	}
 
 	/*

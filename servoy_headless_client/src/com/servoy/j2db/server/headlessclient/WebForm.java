@@ -89,7 +89,7 @@ import com.servoy.j2db.printing.FormPreviewPanel;
 import com.servoy.j2db.printing.PageList;
 import com.servoy.j2db.printing.PrintPreview;
 import com.servoy.j2db.scripting.ElementScope;
-import com.servoy.j2db.scripting.GroupScriptObject;
+import com.servoy.j2db.scripting.RuntimeGroup;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.server.headlessclient.FormAnchorInfo.FormPartAnchorInfo;
 import com.servoy.j2db.server.headlessclient.dataui.FormLayoutProviderFactory;
@@ -1084,14 +1084,14 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 							Object group = es.get(groupName, fs);
 							if (group == Scriptable.NOT_FOUND)
 							{
-								group = new NativeJavaObject(fs, new GroupScriptObject(fs), ScriptObjectRegistry.getJavaMembers(GroupScriptObject.class,
+								group = new NativeJavaObject(fs, new RuntimeGroup(groupName), ScriptObjectRegistry.getJavaMembers(RuntimeGroup.class,
 									ScriptableObject.getTopLevelScope(fs)));
 								es.put(groupName, fs, group);
 								es.put(counter++, fs, group);
 							}
-							if (group instanceof NativeJavaObject && ((NativeJavaObject)group).unwrap() instanceof GroupScriptObject)
+							if (group instanceof NativeJavaObject && ((NativeJavaObject)group).unwrap() instanceof RuntimeGroup)
 							{
-								((GroupScriptObject)(((NativeJavaObject)group).unwrap())).addScriptable(s);
+								((RuntimeGroup)(((NativeJavaObject)group).unwrap())).addScriptable(s);
 							}
 						}
 					}

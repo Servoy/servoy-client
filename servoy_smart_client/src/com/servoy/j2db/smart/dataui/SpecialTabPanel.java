@@ -708,6 +708,11 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 		setBorder(ComponentFactoryHelper.createBorder(spec));
 	}
 
+	public String js_getBorder()
+	{
+		return ComponentFactoryHelper.createBorderString(getBorder());
+	}
+
 	/*
 	 * visible---------------------------------------------------
 	 */
@@ -1005,6 +1010,11 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 	public void js_setFont(String spec)
 	{
 		enclosingComponent.setFont(PersistHelper.createFont(spec));
+	}
+
+	public String js_getFont()
+	{
+		return PersistHelper.createFontString(enclosingComponent.getFont());
 	}
 
 	public String js_getName()

@@ -264,6 +264,11 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 		splitPane.setFont(PersistHelper.createFont(spec));
 	}
 
+	public String js_getFont()
+	{
+		return PersistHelper.createFontString(splitPane.getFont());
+	}
+
 	public void js_setToolTipText(String tooltip)
 	{
 		splitPane.setToolTipText(tooltip);
@@ -396,6 +401,11 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 	public void js_setBorder(String spec)
 	{
 		setBorder(ComponentFactoryHelper.createBorder(spec));
+	}
+
+	public String js_getBorder()
+	{
+		return ComponentFactoryHelper.createBorderString(getBorder());
 	}
 
 	public void js_setEnabled(boolean b)

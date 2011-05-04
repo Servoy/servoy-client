@@ -717,6 +717,11 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		jsChangeRecorder.setFont(spec);
 	}
 
+	public String js_getFont()
+	{
+		return PersistHelper.createFontString(getFont());
+	}
+
 	public void js_setToolTipText(String tooltip)
 	{
 		setToolTipText(tooltip);
@@ -816,6 +821,11 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 	{
 		setBorder(ComponentFactoryHelper.createBorder(spec));
 		jsChangeRecorder.setBorder(spec);
+	}
+
+	public String js_getBorder()
+	{
+		return ComponentFactoryHelper.createBorderString(getBorder());
 	}
 
 	public void js_setEnabled(boolean b)
