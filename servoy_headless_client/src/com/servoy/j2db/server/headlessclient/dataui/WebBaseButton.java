@@ -24,9 +24,7 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
@@ -54,26 +52,22 @@ import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.MediaURLStreamHandler;
-import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.persistence.Media;
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.server.headlessclient.ByteArrayResource;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IButton;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
-import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.util.ComponentFactoryHelper;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeButton;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
-import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.ImageLoader;
-import com.servoy.j2db.util.PersistHelper;
-import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -102,12 +96,12 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	private ResourceReference iconReference;
 	private ResourceReference rolloverIconReference;
 	protected IApplication application;
-	protected ChangesRecorder jsChangeRecorder = new ChangesRecorder(null, null);
 	private String text_url;
 	private String rolloverUrl;
 	private ServoyAjaxEventBehavior rolloverBehavior;
 	private char mnemonic;
 	private final WebEventExecutor eventExecutor;
+	protected AbstractRuntimeButton scriptable;
 
 	public WebBaseButton(IApplication application, String id)
 	{
@@ -131,6 +125,11 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		setModel(new Model<String>(label));
 	}
 
+
+	public IScriptable getScriptObject()
+	{
+		return scriptable;
+	}
 
 	/**
 	 * @see org.apache.wicket.Component#getLocale()
@@ -227,7 +226,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 			if (useAJAX)
 			{
-				Object oe = js_getClientProperty("ajax.enabled"); //$NON-NLS-1$
+				Object oe = scriptable.js_getClientProperty("ajax.enabled"); //$NON-NLS-1$
 				if (oe != null) useAJAX = Utils.getAsBoolean(oe);
 			}
 
@@ -315,7 +314,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	protected void onRender(MarkupStream markupStream)
 	{
 		super.onRender(markupStream);
-		jsChangeRecorder.setRendered();
+		scriptable.getChangesRecorder().setRendered();
 	}
 
 	/**
@@ -353,7 +352,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	public IStylePropertyChanges getStylePropertyChanges()
 	{
-		return jsChangeRecorder;
+		return scriptable.getChangesRecorder();
 	}
 
 	/**
@@ -570,7 +569,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 						styleAttribute = "background-image: url(" + url + "); background-repeat: " + repeat + "; background-position: " + position; //$NON-NLS-1$ //$NON-NLS-2$
 					}
 				}
-				if (!js_isEnabled())
+				if (!scriptable.js_isEnabled())
 				{
 					styleAttribute += "; filter:alpha(opacity=50);-moz-opacity:.50;opacity:.50"; //$NON-NLS-1$
 				}
@@ -627,12 +626,22 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		this.halign = c;
 	}
 
+	public int getHorizontalAlignment()
+	{
+		return halign;
+	}
+
 	/**
 	 * @see com.servoy.j2db.ui.IStandardLabel#setVerticalAlignment(int)
 	 */
 	public void setVerticalAlignment(int t)
 	{
 		this.valign = t;
+	}
+
+	public int getVerticalAlignment()
+	{
+		return valign;
 	}
 
 	public void setText(String txt)
@@ -672,6 +681,11 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		this.margin = margin;
 	}
 
+	public Insets getMargin()
+	{
+		return margin;
+	}
+
 	@Override
 	public IConverter getConverter(Class< ? > cls)
 	{
@@ -701,17 +715,12 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	/*
 	 * jsmethods---------------------------------------------------
 	 */
-	public void js_requestFocus(Object[] vargs)
+	public void requestFocus(Object[] vargs)
 	{
 		if (vargs != null && vargs.length >= 1 && !Utils.getAsBoolean(vargs[0]))
 		{
 			eventExecutor.skipNextFocusGain();
 		}
-		requestFocus();
-	}
-
-	public void requestFocus()
-	{
 		// is the current main container always the right one?
 		IMainContainer currentContainer = ((FormManager)application.getFormManager()).getCurrentContainer();
 		if (currentContainer instanceof MainPage)
@@ -720,7 +729,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		}
 	}
 
-	public void js_setImageURL(String textUrl)
+	public void setImageURL(String textUrl)
 	{
 		this.text_url = textUrl;
 		if (textUrl == null)
@@ -765,7 +774,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 				}
 			}
 		}
-		jsChangeRecorder.setChanged();
+		scriptable.getChangesRecorder().setChanged();
 	}
 
 	public String getImageURL()
@@ -778,7 +787,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		return rolloverUrl;
 	}
 
-	public void js_setRolloverImageURL(String imageUrl)
+	public void setRolloverImageURL(String imageUrl)
 	{
 		this.rolloverUrl = imageUrl;
 		rolloverIconReference = null;
@@ -796,10 +805,10 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			}
 		}
 		addRolloverBehaviors();
-		jsChangeRecorder.setChanged();
+		scriptable.getChangesRecorder().setChanged();
 	}
 
-	public byte[] js_getThumbnailJPGImage(Object[] args)
+	public byte[] getThumbnailJPGImage(Object[] args)
 	{
 		return WebBaseLabel.getThumbnailJPGImage(args, icon, text_url, media != null ? media.getID() : 0, (mediaOptions & 8) == 8, application);
 	}
@@ -812,16 +821,6 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		return !isEnabled();
 	}
 
-
-	/*
-	 * name---------------------------------------------------
-	 */
-	public String js_getName()
-	{
-		String jsName = getName();
-		if (jsName != null && jsName.startsWith(ComponentFactory.WEB_ID_PREFIX)) jsName = null;
-		return jsName;
-	}
 
 	public void setName(String n)
 	{
@@ -862,17 +861,6 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	private boolean opaque;
 
-	public boolean js_isTransparent()
-	{
-		return !opaque;
-	}
-
-	public void js_setTransparent(boolean b)
-	{
-		opaque = !b;
-		jsChangeRecorder.setTransparent(b);
-	}
-
 	public boolean isOpaque()
 	{
 		return opaque;
@@ -882,10 +870,6 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	/*
 	 * tooltip---------------------------------------------------
 	 */
-	public String js_getToolTipText()
-	{
-		return tooltip;
-	}
 
 	private String tooltip;
 
@@ -901,52 +885,12 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		}
 	}
 
-	public void js_setToolTipText(String tip)
-	{
-		setToolTipText(tip);
-		jsChangeRecorder.setChanged();
-	}
-
 	/**
 	 * @see com.servoy.j2db.ui.IComponent#getToolTipText()
 	 */
 	public String getToolTipText()
 	{
-		if (tooltip != null && getModel() instanceof ITagResolver)
-		{
-			final ITagResolver resolver = (ITagResolver)getModel();
-			return Text.processTags(tooltip, resolver);
-		}
 		return tooltip;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_getElementType()
-	 */
-	public String js_getElementType()
-	{
-		return IScriptBaseMethods.BUTTON;
-	}
-
-	public String js_getDataProviderID()
-	{
-		//default implementation
-		return null;
-	}
-
-	public String js_getMnemonic()
-	{
-		if (mnemonic == 0) return ""; //$NON-NLS-1$
-		return new Character(mnemonic).toString();
-	}
-
-	public void js_setMnemonic(String mnem)
-	{
-		String mnemonicText = application.getI18NMessageIfPrefixed(mnem);
-		if (mnemonicText != null && mnemonicText.length() > 0)
-		{
-			setDisplayedMnemonic(mnemonicText.charAt(0));
-		}
 	}
 
 	/*
@@ -959,35 +903,14 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	private Font font;
 
-	public void js_setFont(String spec)
-	{
-		font = PersistHelper.createFont(spec);
-		jsChangeRecorder.setFont(spec);
-	}
-
-	public String js_getFont()
-	{
-		return PersistHelper.createFontString(font);
-	}
-
 	public Font getFont()
 	{
 		return font;
 	}
 
-
-	/*
-	 * bgcolor---------------------------------------------------
-	 */
-	public String js_getBgcolor()
+	public int getFontSize()
 	{
-		return PersistHelper.createColorString(background);
-	}
-
-	public void js_setBgcolor(String bgcolor)
-	{
-		background = PersistHelper.createColor(bgcolor);
-		jsChangeRecorder.setBgcolor(bgcolor);
+		return 0;
 	}
 
 	private Color background;
@@ -1003,20 +926,6 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	}
 
 
-	/*
-	 * fgcolor---------------------------------------------------
-	 */
-	public String js_getFgcolor()
-	{
-		return PersistHelper.createColorString(foreground);
-	}
-
-	public void js_setFgcolor(String fgcolor)
-	{
-		foreground = PersistHelper.createColor(fgcolor);
-		jsChangeRecorder.setFgcolor(fgcolor);
-	}
-
 	private Color foreground;
 
 	public void setForeground(Color cfg)
@@ -1030,18 +939,6 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	}
 
 
-	public void js_setBorder(String spec)
-	{
-		setBorder(ComponentFactoryHelper.createBorder(spec));
-		jsChangeRecorder.setBorder(spec);
-		jsChangeRecorder.setSize(size.width, size.height, border, margin, 0, true, valign);
-	}
-
-	public String js_getBorder()
-	{
-		return ComponentFactoryHelper.createBorderString(getBorder());
-	}
-
 	/*
 	 * visible---------------------------------------------------
 	 */
@@ -1050,38 +947,13 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		setVisible(visible);
 	}
 
-	public boolean js_isVisible()
-	{
-		return isVisible();
-	}
-
-	public void js_setVisible(boolean visible)
-	{
-		setVisible(visible);
-		jsChangeRecorder.setVisible(visible);
-	}
-
-
-	/*
-	 * enabled---------------------------------------------------
-	 */
-	public void js_setEnabled(final boolean b)
-	{
-		setComponentEnabled(b);
-	}
-
 	public void setComponentEnabled(final boolean b)
 	{
 		if (accessible)
 		{
 			super.setEnabled(b);
-			jsChangeRecorder.setChanged();
+			scriptable.getChangesRecorder().setChanged();
 		}
-	}
-
-	public boolean js_isEnabled()
-	{
-		return isEnabled();
 	}
 
 	private boolean accessible = true;
@@ -1093,25 +965,25 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	}
 
 
+	private boolean viewable = true;
+
+	public void setViewable(boolean b)
+	{
+		this.viewable = b;
+		setComponentVisible(b);
+	}
+
+	public boolean isViewable()
+	{
+		return viewable;
+	}
+
 	/*
 	 * location---------------------------------------------------
 	 */
 	private Point location = new Point(0, 0);
 
-	public int js_getLocationX()
-	{
-		return getLocation().x;
-	}
-
-	public int js_getLocationY()
-	{
-		return getLocation().y;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_getAbsoluteFormLocationY()
-	 */
-	public int js_getAbsoluteFormLocationY()
+	public int getAbsoluteFormLocationY()
 	{
 		WebDataRenderer parent = findParent(WebDataRenderer.class);
 		if (parent != null)
@@ -1119,12 +991,6 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			return parent.getYOffset() + getLocation().y;
 		}
 		return getLocation().y;
-	}
-
-	public void js_setLocation(int x, int y)
-	{
-		location = new Point(x, y);
-		jsChangeRecorder.setLocation(x, y);
 	}
 
 	public void setLocation(Point location)
@@ -1139,27 +1005,6 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 
 	/*
-	 * client properties for ui---------------------------------------------------
-	 */
-
-	public void js_putClientProperty(Object key, Object value)
-	{
-		if (clientProperties == null)
-		{
-			clientProperties = new HashMap<Object, Object>();
-		}
-		clientProperties.put(key, value);
-	}
-
-	private Map<Object, Object> clientProperties;
-
-	public Object js_getClientProperty(Object key)
-	{
-		if (clientProperties == null) return null;
-		return clientProperties.get(key);
-	}
-
-	/*
 	 * size---------------------------------------------------
 	 */
 	private Dimension size = new Dimension(0, 0);
@@ -1169,17 +1014,11 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		return size;
 	}
 
-	public void js_setSize(int width, int height)
-	{
-		size = new Dimension(width, height);
-		jsChangeRecorder.setSize(width, height, border, margin, 0, true, valign);
-	}
-
 	public Rectangle getWebBounds()
 	{
 		if (size != null)
 		{
-			Dimension d = jsChangeRecorder.calculateWebSize(size.width, size.height, border, margin, 0, null, true, valign);
+			Dimension d = ((ChangesRecorder)scriptable.getChangesRecorder()).calculateWebSize(size.width, size.height, border, margin, 0, null, true, valign);
 			return new Rectangle(location, d);
 		}
 		return null;
@@ -1190,19 +1029,9 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	 */
 	public Insets getPaddingAndBorder()
 	{
-		return jsChangeRecorder.getPaddingAndBorder(size == null ? 0 : size.height, border, margin, 0, null, true, valign);
+		return ((ChangesRecorder)scriptable.getChangesRecorder()).getPaddingAndBorder(size == null ? 0 : size.height, border, margin, 0, null, true, valign);
 	}
 
-
-	public int js_getWidth()
-	{
-		return size.width;
-	}
-
-	public int js_getHeight()
-	{
-		return size.height;
-	}
 
 	/**
 	 * @see com.servoy.j2db.ui.IStandardLabel#setDisplayedMnemonic(char)
@@ -1227,8 +1056,9 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	@Override
 	public String toString()
 	{
-		return js_getElementType() + "(web)[name:" + js_getName() + ",x:" + js_getLocationX() + ",y:" + js_getLocationY() + ",width:" + js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + js_getHeight() + ",label:" + getText() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.js_getElementType() +
+			"(web)[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
+			",height:" + scriptable.js_getHeight() + ",label:" + getText() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	public IEventExecutor getEventExecutor()
@@ -1307,5 +1137,20 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	public RenderEventExecutor getRenderEventExecutor()
 	{
 		return eventExecutor;
+	}
+
+	public Object getLabelFor()
+	{
+		return null;
+	}
+
+	public int getDisplayedMnemonic()
+	{
+		return mnemonic;
+	}
+
+	public String getParameterValue(String param)
+	{
+		return null;
 	}
 }

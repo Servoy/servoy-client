@@ -81,24 +81,24 @@ import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.printing.ISupportXMLOutput;
 import com.servoy.j2db.printing.XMLPrintHelper;
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.smart.TableView;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
+import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IPortalComponent;
-import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportOnRenderWrapper;
 import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.util.ComponentFactoryHelper;
+import com.servoy.j2db.ui.scripting.RuntimePortal;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnableScrollPanel;
 import com.servoy.j2db.util.IDestroyable;
 import com.servoy.j2db.util.IFocusCycleRoot;
 import com.servoy.j2db.util.ISkinnable;
 import com.servoy.j2db.util.ISupportFocusTransfer;
-import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.editlist.AbstractEditListModel;
 import com.servoy.j2db.util.editlist.JEditList;
@@ -133,6 +133,7 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 	private List<SortColumn> defaultSort = null;
 
 	private boolean transferFocusBackwards = false;
+	private final RuntimePortal scriptable;
 
 	public PortalComponent(final IApplication app, Form form, Portal meta, IDataProviderLookup dataProviderLookup, IScriptExecuter el, boolean printing)
 	{
@@ -251,6 +252,12 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 		setFocusCycleRoot(true);
 		setFocusTraversalPolicy(ServoyFocusTraversalPolicy.datarenderPolicy);
 		addFocusListener(new AutoTransferFocusListener(this, this));
+		scriptable = new RuntimePortal(this, new DummyChangesRecorder(), application, list != null ? list : table);
+	}
+
+	public IScriptable getScriptObject()
+	{
+		return scriptable;
 	}
 
 	// TODO: probably these should also be removed from the component at some point?
@@ -497,6 +504,7 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 				valueChanged(null, stopEditing);
 			}
 		}
+		scriptable.setFoundset(currentData);
 	}
 
 	public String getSelectedRelationName()
@@ -624,15 +632,6 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 		return rowBGColorArgs;
 	}
 
-	/*
-	 * datahandling---------------------------------------------------
-	 */
-	@Deprecated
-	public int js_getRecordIndex()
-	{
-		return getRecordIndex() + 1;
-	}
-
 	private int getRecordIndex()
 	{
 		if (table != null)
@@ -645,7 +644,7 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 		}
 	}
 
-	private void setRecordIndex(int i)
+	public void setRecordIndex(int i)
 	{
 		if (table != null)
 		{
@@ -661,115 +660,6 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 			list.setSelectedIndex(i);
 			list.ensureIndexIsVisible(i);
 		}
-	}
-
-	@Deprecated
-	public void js_setRecordIndex(int i)
-	{
-		if (i >= 1 && i <= js_getMaxRecordIndex())
-		{
-			setRecordIndex(i - 1);
-		}
-	}
-
-	public int jsFunction_getSelectedIndex()
-	{
-		return getRecordIndex() + 1;
-	}
-
-	public void jsFunction_setSelectedIndex(int i) //Object[] args)
-	{
-		if (i >= 1 && i <= js_getMaxRecordIndex())
-		{
-			setRecordIndex(i - 1);
-		}
-	}
-
-	@Deprecated
-	public int js_getMaxRecordIndex()
-	{
-		if (table != null)
-		{
-			TableModel tm = table.getModel();
-			return tm.getRowCount();
-		}
-		else
-		{
-			ListModel tm = list.getModel();
-			return tm.getSize();
-		}
-	}
-
-	public void js_deleteRecord()
-	{
-		if (currentData != null)
-		{
-			try
-			{
-				currentData.deleteRecord(getRecordIndex());
-			}
-			catch (Exception ex)
-			{
-				Debug.error(ex);
-			}
-		}
-	}
-
-	public void js_newRecord(Object[] vargs)
-	{
-		boolean addOnTop = true;
-		if (vargs != null && vargs.length >= 1 && vargs[0] instanceof Boolean)
-		{
-			addOnTop = ((Boolean)vargs[0]).booleanValue();
-		}
-		if (currentData != null)
-		{
-			try
-			{
-				int i = currentData.newRecord(addOnTop);
-				setRecordIndex(i);
-			}
-			catch (Exception ex)
-			{
-				Debug.error(ex);
-			}
-		}
-	}
-
-	public void js_duplicateRecord(Object[] vargs)
-	{
-		boolean addOnTop = true;
-		if (vargs != null && vargs.length >= 1 && vargs[0] instanceof Boolean)
-		{
-			addOnTop = ((Boolean)vargs[0]).booleanValue();
-		}
-		if (currentData != null)
-		{
-			try
-			{
-				int i = currentData.duplicateRecord(getRecordIndex(), addOnTop);
-				setRecordIndex(i);
-			}
-			catch (Exception ex)
-			{
-				Debug.error(ex);
-			}
-		}
-	}
-
-
-	/*
-	 * bgcolor---------------------------------------------------
-	 */
-	public String js_getBgcolor()
-	{
-		return PersistHelper.createColorString(getBackground());
-	}
-
-	public void js_setBgcolor(String clr)
-	{
-		Color c = PersistHelper.createColor(clr);
-		setBackground(c);
 	}
 
 	@Override
@@ -790,20 +680,6 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 	}
 
 
-	/*
-	 * fgcolor---------------------------------------------------
-	 */
-	public String js_getFgcolor()
-	{
-		return PersistHelper.createColorString(getForeground());
-	}
-
-	public void js_setFgcolor(String clr)
-	{
-		Color c = PersistHelper.createColor(clr);
-		setForeground(c);
-	}
-
 	@Override
 	public void setForeground(Color c)
 	{
@@ -820,23 +696,6 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 		}
 	}
 
-	public void js_setBorder(String spec)
-	{
-		setBorder(ComponentFactoryHelper.createBorder(spec));
-	}
-
-	public String js_getBorder()
-	{
-		return ComponentFactoryHelper.createBorderString(getBorder());
-	}
-
-	/*
-	 * enabled---------------------------------------------------
-	 */
-	public void js_setEnabled(final boolean b)
-	{
-		setComponentEnabled(b);
-	}
 
 	public void setComponentEnabled(final boolean b)
 	{
@@ -854,11 +713,6 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 		}
 	}
 
-	public boolean js_isEnabled()
-	{
-		return isEnabled();
-	}
-
 	private boolean accessible = true;
 
 	public void setAccessible(boolean b)
@@ -867,16 +721,20 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 		accessible = b;
 	}
 
+	private boolean viewable = true;
 
-	/*
-	 * readonly---------------------------------------------------
-	 */
-	public boolean isReadOnly()
+	public void setViewable(boolean b)
 	{
-		return !isEnabled();
+		this.viewable = b;
+		setComponentVisible(b);
 	}
 
-	public boolean js_isReadOnly()
+	public boolean isViewable()
+	{
+		return viewable;
+	}
+
+	public boolean isReadOnly()
 	{
 		if (list != null)
 		{
@@ -888,7 +746,7 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 		}
 	}
 
-	public void js_setReadOnly(boolean b)
+	public void setReadOnly(boolean b)
 	{
 		if (list != null)
 		{
@@ -901,23 +759,7 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 	}
 
 
-	/*
-	 * location---------------------------------------------------
-	 */
-	public int js_getLocationX()
-	{
-		return getLocation().x;
-	}
-
-	public int js_getLocationY()
-	{
-		return getLocation().y;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_getAbsoluteFormLocationY()
-	 */
-	public int js_getAbsoluteFormLocationY()
+	public int getAbsoluteFormLocationY()
 	{
 		Container parent = getParent();
 		while ((parent != null) && !(parent instanceof IDataRenderer))
@@ -931,141 +773,12 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 		return getLocation().y;
 	}
 
-	public void js_setLocation(int x, int y)
-	{
-		setLocation(x, y);
-	}
-
-	/*
-	 * client properties for ui---------------------------------------------------
-	 */
-
-	public void js_putClientProperty(Object key, Object value)
-	{
-		putClientProperty(key, value);
-		if (list != null)
-		{
-			list.putClientProperty(key, value);
-		}
-		else
-		{
-			table.putClientProperty(key, value);
-		}
-	}
-
-	public Object js_getClientProperty(Object key)
-	{
-		return getClientProperty(key);
-	}
-
-	/*
-	 * size---------------------------------------------------
-	 */
-	public void js_setSize(int x, int y)
-	{
-		setSize(x, y);
-	}
-
-	public int js_getWidth()
-	{
-		return getSize().width;
-	}
-
-	public int js_getHeight()
-	{
-		return getSize().height;
-	}
-
-
 	/*
 	 * visible---------------------------------------------------
 	 */
 	public void setComponentVisible(boolean b)
 	{
 		setVisible(b);
-	}
-
-	public boolean js_isVisible()
-	{
-		return isVisible();
-	}
-
-	public void js_setVisible(boolean b)
-	{
-		setVisible(b);
-	}
-
-
-	/*
-	 * scroll---------------------------------------------------
-	 */
-	public void js_setScroll(int x, int y)
-	{
-		if (list != null)
-		{
-			list.scrollRectToVisible(new Rectangle(x, y, getWidth(), getHeight()));
-		}
-		else
-		{
-			table.scrollRectToVisible(new Rectangle(x, y, getWidth(), getHeight()));
-		}
-	}
-
-	public int js_getScrollX()
-	{
-		if (list != null)
-		{
-			return list.getVisibleRect().x;
-		}
-		else
-		{
-			return table.getVisibleRect().x;
-		}
-	}
-
-	public int js_getScrollY()
-	{
-		if (list != null)
-		{
-			return list.getVisibleRect().y;
-		}
-		else
-		{
-			return table.getVisibleRect().y;
-		}
-	}
-
-
-	/*
-	 * jsmethods---------------------------------------------------
-	 */
-	public String js_getSortColumns()
-	{
-		List lst = currentData.getSortColumns();
-		StringBuffer sb = new StringBuffer();
-		if (lst.size() > 0)
-		{
-			for (int i = 0; i < lst.size(); i++)
-			{
-				SortColumn sc = (SortColumn)lst.get(i);
-				sb.append(sc.toString());
-				sb.append(", "); //$NON-NLS-1$
-			}
-			sb.setLength(sb.length() - 2);
-		}
-		return sb.toString();
-	}
-
-	public String js_getElementType()
-	{
-		return IScriptBaseMethods.PORTAL;
-	}
-
-	public String js_getName()
-	{
-		String jsName = getName();
-		if (jsName != null && jsName.startsWith(ComponentFactory.WEB_ID_PREFIX)) jsName = null;
-		return jsName;
 	}
 
 	public List<SortColumn> getDefaultSort()

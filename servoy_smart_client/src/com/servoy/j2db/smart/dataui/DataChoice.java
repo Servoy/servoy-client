@@ -26,7 +26,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -35,7 +34,6 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.StringTokenizer;
 
 import javax.swing.AbstractCellEditor;
@@ -53,34 +51,31 @@ import sun.java2d.SunGraphics2D;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
-import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.CustomValueList;
-import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
-import com.servoy.j2db.dataprocessing.JSDataSet;
-import com.servoy.j2db.dataprocessing.ValueListFactory;
 import com.servoy.j2db.gui.editlist.JNavigableEditList;
 import com.servoy.j2db.gui.editlist.NavigableCellEditor;
 import com.servoy.j2db.gui.editlist.NavigableCellRenderer;
-import com.servoy.j2db.persistence.ValueList;
+import com.servoy.j2db.scripting.IScriptable;
+import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptChoiceMethods;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
+import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.util.ComponentFactoryHelper;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
+import com.servoy.j2db.ui.scripting.RuntimeCheckBoxChoice;
+import com.servoy.j2db.ui.scripting.RuntimeRadioChoice;
 import com.servoy.j2db.util.EnableScrollPanel;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.ITagResolver;
-import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.StringComparator;
 import com.servoy.j2db.util.Text;
@@ -94,7 +89,7 @@ import com.servoy.j2db.util.model.ComboModelListModelWrapper;
  * @author jblok, jcompagner
  */
 public class DataChoice extends EnableScrollPanel implements IDisplayData, IFieldComponent, IScrollPane, IDisplayRelatedData, ListDataListener,
-	IScriptChoiceMethods, ISupplyFocusChildren<Component>, ISupportCachedLocationAndSize
+	ISupplyFocusChildren<Component>, ISupportCachedLocationAndSize, ISupportValueList
 {
 	private String dataProviderID;
 	private final ComboModelListModelWrapper list;
@@ -108,7 +103,8 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 	private final IApplication application;
 	private final boolean isRadioList;
 	private MouseAdapter rightclickMouseAdapter = null;
-	private final IValueList vl;
+	private IValueList vl;
+	private AbstractRuntimeField scriptable;
 
 	public DataChoice(IApplication app, IValueList vl, boolean isRadioList)
 	{
@@ -127,17 +123,24 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 			enclosedComponent.setCellRenderer(new NavigableCellRenderer(new RadioCell()));
 			enclosedComponent.setCellEditor(new NavigableCellEditor(new RadioCell()));
 			list.setMultiValueSelect(false);
+			scriptable = new RuntimeRadioChoice(this, new DummyChangesRecorder(), app, enclosedComponent, list);
 		}
 		else
 		{
 			enclosedComponent.setCellRenderer(new NavigableCellRenderer(new CheckBoxCell()));
 			enclosedComponent.setCellEditor(new NavigableCellEditor(new CheckBoxCell()));
 			list.setMultiValueSelect(true);
+			scriptable = new RuntimeCheckBoxChoice(this, new DummyChangesRecorder(), app, enclosedComponent, list);
 		}
 
 //		enclosedComponent.setPrototypeCellValue(new Integer(0));
 
 		getViewport().setView(enclosedComponent);
+	}
+
+	public IScriptable getScriptObject()
+	{
+		return scriptable;
 	}
 
 	/*
@@ -306,6 +309,11 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 	public void setMargin(Insets i)
 	{
 		margin = i;
+	}
+
+	public Insets getMargin()
+	{
+		return margin;
 	}
 
 	/*
@@ -789,6 +797,11 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		enclosedComponent.setEditable(b);
 	}
 
+	public boolean isEditable()
+	{
+		return !isReadOnly();
+	}
+
 	/*
 	 * _____________________________________________________________ Methods for IDisplayRelatedData
 	 */
@@ -859,20 +872,6 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 	}
 
 
-	/*
-	 * bgcolor---------------------------------------------------
-	 */
-	public String js_getBgcolor()
-	{
-		return PersistHelper.createColorString(getBackground());
-	}
-
-	public void js_setBgcolor(String clr)
-	{
-		Color c = PersistHelper.createColor(clr);
-		setBackground(c);
-	}
-
 	@Override
 	public void setBackground(Color c)
 	{
@@ -886,20 +885,6 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 	}
 
 
-	/*
-	 * fgcolor---------------------------------------------------
-	 */
-	public String js_getFgcolor()
-	{
-		return PersistHelper.createColorString(getForeground());
-	}
-
-	public void js_setFgcolor(String clr)
-	{
-		Color c = PersistHelper.createColor(clr);
-		setForeground(c);
-	}
-
 	@Override
 	public void setForeground(Color c)
 	{
@@ -911,49 +896,6 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		if (enclosedComponent != null) enclosedComponent.setForeground(c);
 		if (rendererComponent != null) rendererComponent.setForeground(c);
 		if (editorComponent != null) editorComponent.setForeground(c);
-	}
-
-
-	public void js_setBorder(String spec)
-	{
-		setBorder(ComponentFactoryHelper.createBorder(spec));
-	}
-
-	public String js_getBorder()
-	{
-		return ComponentFactoryHelper.createBorderString(getBorder());
-	}
-
-	/*
-	 * scroll---------------------------------------------------
-	 */
-	public void js_setScroll(int x, int y)
-	{
-		enclosedComponent.scrollRectToVisible(new Rectangle(x, y, getWidth(), getHeight()));
-	}
-
-	public int js_getScrollX()
-	{
-		return enclosedComponent.getVisibleRect().x;
-	}
-
-	public int js_getScrollY()
-	{
-		return enclosedComponent.getVisibleRect().y;
-	}
-
-
-	/*
-	 * visible---------------------------------------------------
-	 */
-	public boolean js_isVisible()
-	{
-		return isVisible();
-	}
-
-	public void js_setVisible(boolean b)
-	{
-		setVisible(b);
 	}
 
 	public void setComponentVisible(boolean b_visible)
@@ -981,35 +923,9 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		labels.add(label);
 	}
 
-	public String[] js_getLabelForElementNames()
+	public List<ILabel> getLabelsFor()
 	{
-		if (labels != null)
-		{
-			List<String> al = new ArrayList<String>(labels.size());
-			for (int i = 0; i < labels.size(); i++)
-			{
-				ILabel label = labels.get(i);
-				if (label.getName() != null && !"".equals(label.getName()) && !label.getName().startsWith(ComponentFactory.WEB_ID_PREFIX))
-				{
-					al.add(label.getName());
-				}
-			}
-			return al.toArray(new String[al.size()]);
-		}
-		return new String[0];
-	}
-
-	/*
-	 * opaque---------------------------------------------------
-	 */
-	public boolean js_isTransparent()
-	{
-		return !isOpaque();
-	}
-
-	public void js_setTransparent(boolean b)
-	{
-		setOpaque(!b);
+		return labels;
 	}
 
 	@Override
@@ -1030,14 +946,9 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		return !enclosedComponent.isEditable();
 	}
 
-	public boolean js_isReadOnly()
-	{
-		return isReadOnly();
-	}
-
 	private boolean editState;
 
-	public void js_setReadOnly(boolean b)
+	public void setReadOnly(boolean b)
 	{
 		if (b && !enclosedComponent.isEditable()) return;
 		if (b)
@@ -1049,14 +960,6 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		{
 			enclosedComponent.setEditable(editState);
 		}
-	}
-
-	/*
-	 * enabled---------------------------------------------------
-	 */
-	public void js_setEnabled(final boolean b)
-	{
-		setComponentEnabled(b);
 	}
 
 	public void setComponentEnabled(final boolean b)
@@ -1076,11 +979,6 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		}
 	}
 
-	public boolean js_isEnabled()
-	{
-		return isEnabled();
-	}
-
 	private boolean accessible = true;
 
 	public void setAccessible(boolean b)
@@ -1088,6 +986,19 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		if (!b) setComponentEnabled(b);
 		if (!b) enclosedComponent.setEnabled(b);
 		accessible = b;
+	}
+
+	private boolean viewable = true;
+
+	public void setViewable(boolean b)
+	{
+		this.viewable = b;
+		setComponentVisible(b);
+	}
+
+	public boolean isViewable()
+	{
+		return viewable;
 	}
 
 	/*
@@ -1101,42 +1012,12 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		this.titleText = title;
 	}
 
-	public String js_getTitleText()
+	public String getTitleText()
 	{
 		return Text.processTags(titleText, resolver);
 	}
 
-	/*
-	 * tooltip---------------------------------------------------
-	 */
-	public void js_setToolTipText(String txt)
-	{
-		enclosedComponent.setToolTipText(txt);
-	}
-
-	public String js_getToolTipText()
-	{
-		return enclosedComponent.getToolTipText();
-	}
-
-
-	/*
-	 * location---------------------------------------------------
-	 */
-	public int js_getLocationX()
-	{
-		return getLocation().x;
-	}
-
-	public int js_getLocationY()
-	{
-		return getLocation().y;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_getAbsoluteFormLocationY()
-	 */
-	public int js_getAbsoluteFormLocationY()
+	public int getAbsoluteFormLocationY()
 	{
 		Container parent = getParent();
 		while ((parent != null) && !(parent instanceof IDataRenderer))
@@ -1152,139 +1033,45 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 
 	private Point cachedLocation;
 
-	public void js_setLocation(int x, int y)
-	{
-		cachedLocation = new Point(x, y);
-		setLocation(x, y);
-		validate();
-	}
-
 	public Point getCachedLocation()
 	{
 		return cachedLocation;
 	}
 
-	/*
-	 * client properties for ui---------------------------------------------------
-	 */
-
-	public void js_putClientProperty(Object key, Object value)
-	{
-		putClientProperty(key, value);
-		enclosedComponent.putClientProperty(key, value);
-	}
-
-	public Object js_getClientProperty(Object key)
-	{
-		return getClientProperty(key);
-	}
-
 	private Dimension cachedSize;
-
-	/*
-	 * size---------------------------------------------------
-	 */
-	public void js_setSize(int x, int y)
-	{
-		cachedSize = new Dimension(x, y);
-		setSize(x, y);
-		validate();
-	}
 
 	public Dimension getCachedSize()
 	{
 		return cachedSize;
 	}
 
-	public int js_getWidth()
+	public void setCachedLocation(Point location)
 	{
-		return getSize().width;
+		this.cachedLocation = location;
 	}
 
-	public int js_getHeight()
+	public void setCachedSize(Dimension size)
 	{
-		return getSize().height;
+		this.cachedSize = size;
 	}
 
-
-	public String js_getDataProviderID()
+	public IValueList getValueList()
 	{
-		return getDataProviderID();
+		return vl;
 	}
 
-	public String js_getElementType()
+	public ListDataListener getListener()
 	{
-		if (isRadioList)
-		{
-			return IScriptBaseMethods.RADIOS;
-		}
-		else
-		{
-			return IScriptBaseMethods.CHECK;
-		}
-	}
-
-	public String js_getName()
-	{
-		String jsName = getName();
-		if (jsName != null && jsName.startsWith(ComponentFactory.WEB_ID_PREFIX)) jsName = null;
-		return jsName;
-	}
-
-	public String js_getValueListName()
-	{
-		if (list != null)
-		{
-			return list.getName();
-		}
 		return null;
 	}
 
-	public void js_setValueListItems(Object value)
+	public void setValueList(IValueList vl)
 	{
-		if (list != null && (value instanceof JSDataSet || value instanceof IDataSet))
-		{
-			String name = list.getName();
-			ValueList valuelist = application.getFlattenedSolution().getValueList(name);
-			if (valuelist != null && valuelist.getValueListType() == ValueList.CUSTOM_VALUES)
-			{
-				String format = list.getFormat();
-				int type = list.getValueType();
-				IValueList newVl = ValueListFactory.fillRealValueList(application, valuelist, ValueList.CUSTOM_VALUES, format, type, value);
-				list.register(newVl);
-			}
-		}
+		list.register(vl);
+		this.vl = vl;
 	}
 
-	public void js_setFont(String spec)
-	{
-		setFont(PersistHelper.createFont(spec));
-	}
-
-	public String js_getFont()
-	{
-		return PersistHelper.createFontString(getFont());
-	}
-
-	public Object[] js_getSelectedElements()
-	{
-		Set rows = list.getSelectedRows();
-		if (rows != null)
-		{
-			Object[] values = new Object[rows.size()];
-			Iterator it = rows.iterator();
-			int i = 0;
-			while (it.hasNext())
-			{
-				Integer element = (Integer)it.next();
-				values[i++] = list.getRealElementAt(element.intValue());
-			}
-			return values;
-		}
-		return new Object[0];
-	}
-
-	public void js_requestFocus(Object[] vargs)
+	public void requestFocus(Object[] vargs)
 	{
 //		if (!enclosedComponent.hasFocus()) Don't test on hasFocus (it can have focus,but other component already did requestFocus)
 		{
@@ -1378,8 +1165,9 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 	@Override
 	public String toString()
 	{
-		return js_getElementType() + "[name:" + js_getName() + ",x:" + js_getLocationX() + ",y:" + js_getLocationY() + ",width:" + js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + js_getHeight() + ",value:" + getValueObject() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.js_getElementType() +
+			"[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
+			",height:" + scriptable.js_getHeight() + ",value:" + getValueObject() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	public List getDefaultSort()

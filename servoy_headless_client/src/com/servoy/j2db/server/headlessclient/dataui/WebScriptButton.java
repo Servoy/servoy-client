@@ -17,40 +17,18 @@
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.ui.IScriptScriptButtonMethods;
+import com.servoy.j2db.ui.scripting.RuntimeScriptButton;
 
 /**
  * Represents a button in the webbrowser.
  * 
  * @author jcompagner
  */
-public class WebScriptButton extends WebBaseButton implements IScriptScriptButtonMethods
+public class WebScriptButton extends WebBaseButton
 {
-	private String i18n;
-
 	public WebScriptButton(IApplication application, String id)
 	{
 		super(application, id);
-	}
-
-	public String js_getText()
-	{
-		if (i18n != null) return i18n;
-		return getText();
-	}
-
-	public void js_setText(String txt)
-	{
-		if (txt != null && txt.startsWith("i18n:")) //$NON-NLS-1$
-		{
-			i18n = txt;
-			txt = application.getI18NMessage(txt);
-		}
-		else
-		{
-			i18n = null;
-		}
-		setText(txt);
-		jsChangeRecorder.setChanged();
+		scriptable = new RuntimeScriptButton(this, new ChangesRecorder(null, null), application);
 	}
 }

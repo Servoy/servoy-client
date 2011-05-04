@@ -114,8 +114,8 @@ import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
+import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
-import com.servoy.j2db.ui.IAccessible;
 import com.servoy.j2db.ui.IButton;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDisplayTagText;
@@ -129,6 +129,7 @@ import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISplitPane;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowStyling;
+import com.servoy.j2db.ui.ISupportSecuritySettings;
 import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.ComponentFactoryHelper;
@@ -248,11 +249,21 @@ public class ComponentFactory
 		if (access != -1)
 		{
 			boolean b_visible = ((access & IRepository.VIEWABLE) != 0);
-			if (!b_visible) c.setComponentVisible(false);
-			if (c instanceof IAccessible)
+			if (!b_visible)
+			{
+				if (c instanceof ISupportSecuritySettings)
+				{
+					((ISupportSecuritySettings)c).setViewable(false);
+				}
+				else
+				{
+					c.setComponentVisible(false);
+				}
+			}
+			if (c instanceof ISupportSecuritySettings)
 			{
 				boolean b_accessible = ((access & IRepository.ACCESSIBLE) != 0);
-				if (!b_accessible) ((IAccessible)c).setAccessible(false);
+				if (!b_accessible) ((ISupportSecuritySettings)c).setAccessible(false);
 			}
 		}
 
@@ -710,10 +721,10 @@ public class ComponentFactory
 			String delegateStyleClassNamePropertyKey = application.getSettings().getProperty("servoy.smartclient.componentStyleClassDelegatePropertyKey");
 			if (delegateStyleClassNamePropertyKey != null && c instanceof JComponent)
 			{
-				if (c instanceof IScriptBaseMethods)
+				if (c instanceof IScriptableProvider && ((IScriptableProvider)c).getScriptObject() instanceof IScriptBaseMethods)
 				{
 					//special case since putClientProperty can delegate properties but cannot be overridden we relay on the scripting equivalent
-					((IScriptBaseMethods)c).js_putClientProperty(delegateStyleClassNamePropertyKey, bc.getStyleClass());
+					((IScriptBaseMethods)((IScriptableProvider)c).getScriptObject()).js_putClientProperty(delegateStyleClassNamePropertyKey, bc.getStyleClass());
 				}
 				else
 				{
@@ -1811,7 +1822,8 @@ public class ComponentFactory
 			Debug.error(ex);
 		}
 
-		splitPane.js_setDividerLocation(meta.getTabOrientation() == TabPanel.SPLIT_HORIZONTAL ? splitPane.getSize().width / 2 : splitPane.getSize().height / 2);
+		splitPane.setRuntimeDividerLocation(meta.getTabOrientation() == TabPanel.SPLIT_HORIZONTAL ? splitPane.getSize().width / 2
+			: splitPane.getSize().height / 2);
 		if (el != null && meta.getOnChangeMethodID() > 0)
 		{
 			splitPane.setOnDividerChangeMethodCmd((Integer.toString(meta.getOnChangeMethodID())));

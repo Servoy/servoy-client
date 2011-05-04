@@ -34,8 +34,7 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.server.headlessclient.MainPage;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptCheckBoxMethods;
+import com.servoy.j2db.ui.scripting.RuntimeCheckbox;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Utils;
 
@@ -44,7 +43,7 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jcompagner
  */
-public class WebDataCheckBox extends WebBaseSelectBox implements IScriptCheckBoxMethods
+public class WebDataCheckBox extends WebBaseSelectBox
 {
 
 	public WebDataCheckBox(IApplication application, String id, String text, IValueList list)
@@ -57,6 +56,8 @@ public class WebDataCheckBox extends WebBaseSelectBox implements IScriptCheckBox
 	public WebDataCheckBox(IApplication application, String id, String text)
 	{
 		super(application, id, text);
+		scriptable = new RuntimeCheckbox(this, new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE, TemplateGenerator.DEFAULT_FIELD_PADDING),
+			application);
 	}
 
 
@@ -87,9 +88,9 @@ public class WebDataCheckBox extends WebBaseSelectBox implements IScriptCheckBox
 
 	public void setValueObject(Object value)
 	{
-		jsChangeRecorder.testChanged(this, value);
+		((ChangesRecorder)getStylePropertyChanges()).testChanged(this, value);
 		changeNullTo0IfNeeded(); // for record view
-		if (jsChangeRecorder.isChanged())
+		if (getStylePropertyChanges().isChanged())
 		{
 			// this component is going to update it's contents, without the user changing the
 			// components contents; so remove invalid state if necessary
@@ -101,8 +102,9 @@ public class WebDataCheckBox extends WebBaseSelectBox implements IScriptCheckBox
 	@Override
 	public String toString()
 	{
-		return js_getElementType() + "(web)[name:" + js_getName() + ",x:" + js_getLocationX() + ",y:" + js_getLocationY() + ",width:" + js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
-			",height:" + js_getHeight() + ",value:" + getDefaultModelObject() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.js_getElementType() +
+			"(web)[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+			",height:" + scriptable.js_getHeight() + ",value:" + getDefaultModelObject() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	private final class MyCheckBox extends CheckBox implements IResolveObject, IDisplayData
@@ -362,15 +364,6 @@ public class WebDataCheckBox extends WebBaseSelectBox implements IScriptCheckBox
 				((RecordItemModel)model).updateRenderedValue(this);
 			}
 		}
-	}
-
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_getElementType()
-	 */
-	public String js_getElementType()
-	{
-		return IScriptBaseMethods.CHECK;
 	}
 
 }

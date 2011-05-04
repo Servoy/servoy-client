@@ -24,7 +24,6 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -40,27 +39,24 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.SwingUtilities;
-import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.IconUIResource;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.component.ComponentFactory;
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.ui.IButton;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.ILabel;
-import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.util.ComponentFactoryHelper;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeButton;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ISkinnable;
 import com.servoy.j2db.util.ImageLoader;
-import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.JpegEncoder;
 import com.servoy.j2db.util.gui.MyImageIcon;
@@ -77,7 +73,7 @@ public class AbstractScriptButton extends JButton implements ISkinnable, IButton
 
 	private boolean specialPaint = false;
 	protected IApplication application;
-
+	protected AbstractRuntimeButton scriptable;
 	protected EventExecutor eventExecutor;
 
 	private MouseAdapter doubleclickMouseAdapter;
@@ -89,6 +85,11 @@ public class AbstractScriptButton extends JButton implements ISkinnable, IButton
 		application = app;
 //		setContentAreaFilled(false);
 		eventExecutor = new EventExecutor(this);
+	}
+
+	public IScriptable getScriptObject()
+	{
+		return scriptable;
 	}
 
 	/**
@@ -375,93 +376,9 @@ public class AbstractScriptButton extends JButton implements ISkinnable, IButton
 
 
 	/**
-	 * @implem see com.servoy.j2db.ui.IScriptLabelMethods#js_getBgcolor()
-	 */
-	public String js_getBgcolor()
-	{
-		return PersistHelper.createColorString(getBackground());
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptLabelMethods#js_setBgcolor(java.lang.String)
-	 */
-	public void js_setBgcolor(String clr)
-	{
-		setBackground(PersistHelper.createColor(clr));
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptLabelMethods#js_getFgcolor()
-	 */
-	public String js_getFgcolor()
-	{
-		return PersistHelper.createColorString(getForeground());
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptLabelMethods#js_setFgcolor(java.lang.String)
-	 */
-	public void js_setFgcolor(String clr)
-	{
-		setForeground(PersistHelper.createColor(clr));
-	}
-
-	public void js_setBorder(String spec)
-	{
-		Border border = ComponentFactoryHelper.createBorder(spec);
-		Border oldBorder = getBorder();
-		if (oldBorder instanceof CompoundBorder && ((CompoundBorder)oldBorder).getInsideBorder() != null)
-		{
-			Insets insets = ((CompoundBorder)oldBorder).getInsideBorder().getBorderInsets(this);
-//			setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(insets.top, insets.left, insets.bottom, insets.right)));
-		}
-		else
-		{
-			setBorder(border);
-		}
-	}
-
-	public String js_getBorder()
-	{
-		return ComponentFactoryHelper.createBorderString(getBorder());
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptLabelMethods#js_isVisible()
-	 */
-	public boolean js_isVisible()
-	{
-		return isVisible();
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptLabelMethods#js_setVisible(boolean)
-	 */
-	public void js_setVisible(boolean b)
-	{
-		setVisible(b);
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptLabelMethods#js_isTransparent()
-	 */
-	public boolean js_isTransparent()
-	{
-		return !isOpaque();
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptLabelMethods#js_setTransparent(boolean)
-	 */
-	public void js_setTransparent(boolean b)
-	{
-		setOpaque(!b);
-	}
-
-	/**
 	 * @see com.servoy.j2db.ui.IScriptLabelMethods#js_setImageURL(java.lang.String)
 	 */
-	public void js_setImageURL(String text_url)
+	public void setImageURL(String text_url)
 	{
 		this.text_url = text_url;
 		try
@@ -489,7 +406,7 @@ public class AbstractScriptButton extends JButton implements ISkinnable, IButton
 		return text_url;
 	}
 
-	public void js_setRolloverImageURL(String image_url)
+	public void setRolloverImageURL(String image_url)
 	{
 		this.rollover_url = image_url;
 		try
@@ -521,11 +438,6 @@ public class AbstractScriptButton extends JButton implements ISkinnable, IButton
 		return rollover_url;
 	}
 
-	public void js_setEnabled(final boolean b)
-	{
-		setComponentEnabled(b);
-	}
-
 	public void setComponentEnabled(final boolean b)
 	{
 		if (accessible)
@@ -534,17 +446,25 @@ public class AbstractScriptButton extends JButton implements ISkinnable, IButton
 		}
 	}
 
-	public boolean js_isEnabled()
-	{
-		return isEnabled();
-	}
-
 	private boolean accessible = true;
 
 	public void setAccessible(boolean b)
 	{
 		if (!b) setComponentEnabled(b);
 		accessible = b;
+	}
+
+	private boolean viewable = true;
+
+	public void setViewable(boolean b)
+	{
+		this.viewable = b;
+		setComponentVisible(b);
+	}
+
+	public boolean isViewable()
+	{
+		return viewable;
 	}
 
 	// If component not shown or not added yet 
@@ -563,7 +483,7 @@ public class AbstractScriptButton extends JButton implements ISkinnable, IButton
 		}
 	}
 
-	public void js_requestFocus(Object[] vargs)
+	public void requestFocus(Object[] vargs)
 	{
 //		if (!hasFocus()) Don't test on hasFocus (it can have focus,but other component already did requestFocus)
 		{
@@ -585,86 +505,10 @@ public class AbstractScriptButton extends JButton implements ISkinnable, IButton
 		}
 	}
 
-	private String i18nTT;
-
 	private int textTransformMode;
 
-	/**
-	 * @see com.servoy.j2db.ui.IScriptLabelMethods#js_setToolTipText(java.lang.String)
-	 */
-	public void js_setToolTipText(String text)
-	{
-		if (text != null && text.startsWith("i18n:")) //$NON-NLS-1$
-		{
-			i18nTT = text;
-			text = application.getI18NMessage(text);
-		}
-		else
-		{
-			i18nTT = null;
-		}
-		setToolTipText(text);
-	}
 
-	/**
-	 * @see com.servoy.j2db.ui.IScriptLabelMethods#js_getToolTipText()
-	 */
-	public String js_getToolTipText()
-	{
-		if (i18nTT != null) return i18nTT;
-		return getToolTipText();
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_getElementType()
-	 */
-	public String js_getElementType()
-	{
-		return IScriptBaseMethods.BUTTON;
-	}
-
-	public String js_getDataProviderID()
-	{
-		//default implementation
-		return null;
-	}
-
-	public String js_getMnemonic()
-	{
-		int i = getMnemonic();
-		if (i == 0) return "";
-		return new Character((char)i).toString();
-	}
-
-	public void js_setMnemonic(String mnemonic)
-	{
-		mnemonic = application.getI18NMessageIfPrefixed(mnemonic);
-		if (mnemonic != null && mnemonic.length() > 0)
-		{
-			setDisplayedMnemonic(mnemonic.charAt(0));
-		}
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptLabelMethods#js_getLocationX()
-	 */
-	public int js_getLocationX()
-	{
-		return getLocation().x;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptLabelMethods#js_getLocationY()
-	 */
-	public int js_getLocationY()
-	{
-		return getLocation().y;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_getAbsoluteFormLocationY()
-	 */
-	public int js_getAbsoluteFormLocationY()
+	public int getAbsoluteFormLocationY()
 	{
 		Container parent = getParent();
 		while ((parent != null) && !(parent instanceof IDataRenderer))
@@ -681,39 +525,9 @@ public class AbstractScriptButton extends JButton implements ISkinnable, IButton
 
 	private Point cachedLocation;
 
-	/**
-	 * @see com.servoy.j2db.ui.IScriptLabelMethods#js_setLocation(int, int)
-	 */
-	public void js_setLocation(int x, int y)
-	{
-		cachedLocation = new Point(x, y);
-		setLocation(x, y);
-	}
-
 	public Point getCachedLocation()
 	{
 		return cachedLocation;
-	}
-
-	/*
-	 * client properties for ui---------------------------------------------------
-	 */
-
-	public void js_putClientProperty(Object key, Object value)
-	{
-		if ("contentAreaFilled".equals(key) && value instanceof Boolean)
-		{
-			setContentAreaFilled(((Boolean)value).booleanValue());
-		}
-		else
-		{
-			putClientProperty(key, value);
-		}
-	}
-
-	public Object js_getClientProperty(Object key)
-	{
-		return getClientProperty(key);
 	}
 
 
@@ -721,53 +535,23 @@ public class AbstractScriptButton extends JButton implements ISkinnable, IButton
 
 	private ActionListener actionAdapter;
 
-	/**
-	 * @see com.servoy.j2db.ui.IScriptLabelMethods#js_setSize(int, int)
-	 */
-	public void js_setSize(int x, int y)
-	{
-		cachedSize = new Dimension(x, y);
-		setSize(x, y);
-	}
 
 	public Dimension getCachedSize()
 	{
 		return cachedSize;
 	}
 
-	/**
-	 * @see com.servoy.j2db.ui.IScriptLabelMethods#js_setFont(java.lang.String)
-	 */
-	public void js_setFont(String spec)
+	public void setCachedLocation(Point location)
 	{
-		setFont(PersistHelper.createFont(spec));
+		this.cachedLocation = location;
 	}
 
-	public String js_getFont()
+	public void setCachedSize(Dimension size)
 	{
-		return PersistHelper.createFontString(getFont());
+		this.cachedSize = size;
 	}
 
-	/**
-	 * @see com.servoy.j2db.ui.IScriptLabelMethods#js_getWidth()
-	 */
-	public int js_getWidth()
-	{
-		return getSize().width;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptLabelMethods#js_getHeight()
-	 */
-	public int js_getHeight()
-	{
-		return getSize().height;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptLabelMethods#js_getThumbnailJPGImage(java.lang.Object[])
-	 */
-	public byte[] js_getThumbnailJPGImage(Object[] args)
+	public byte[] getThumbnailJPGImage(Object[] args)
 	{
 		int width = -1;
 		int height = -1;
@@ -797,21 +581,12 @@ public class AbstractScriptButton extends JButton implements ISkinnable, IButton
 		return null;
 	}
 
-	/**
-	 * @see com.servoy.j2db.ui.IScriptLabelMethods#js_getName()
-	 */
-	public String js_getName()
-	{
-		String jsName = getName();
-		if (jsName != null && jsName.startsWith(ComponentFactory.WEB_ID_PREFIX)) jsName = null;
-		return jsName;
-	}
-
 	@Override
 	public String toString()
 	{
-		return js_getElementType() + "[name:" + js_getName() + ",x:" + js_getLocationX() + ",y:" + js_getLocationY() + ",width:" + js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + js_getHeight() + ",label:" + getText() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.js_getElementType() +
+			"[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
+			",height:" + scriptable.js_getHeight() + ",label:" + getText() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 
@@ -1016,5 +791,25 @@ public class AbstractScriptButton extends JButton implements ISkinnable, IButton
 	public RenderEventExecutor getRenderEventExecutor()
 	{
 		return eventExecutor;
+	}
+
+	public String getParameterValue(String param)
+	{
+		return null;
+	}
+
+	public int getFontSize()
+	{
+		return 0;
+	}
+
+	public Object getLabelFor()
+	{
+		return null;
+	}
+
+	public int getDisplayedMnemonic()
+	{
+		return getMnemonic();
 	}
 }

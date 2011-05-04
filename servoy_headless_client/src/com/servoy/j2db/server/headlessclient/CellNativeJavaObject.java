@@ -23,6 +23,7 @@ import org.mozilla.javascript.JavaMembers;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 
+import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.ITwoNativeJavaObject;
 import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView;
 
@@ -38,7 +39,7 @@ public class CellNativeJavaObject extends NativeJavaObject implements ITwoNative
 {
 
 	private final WebCellBasedView view;
-	private final Component jsComponent;
+	private final Component uiComponent;
 	private Object realObject;
 
 	/**
@@ -52,9 +53,9 @@ public class CellNativeJavaObject extends NativeJavaObject implements ITwoNative
 	 */
 	public CellNativeJavaObject(Scriptable fs, Object obj, JavaMembers jm, WebCellBasedView view)
 	{
-		super(fs, obj, jm);
+		super(fs, ((IScriptableProvider)obj).getScriptObject(), jm);
 		this.view = view;
-		this.jsComponent = (Component)obj;
+		this.uiComponent = (Component)obj;
 		realObject = null;
 	}
 
@@ -69,7 +70,7 @@ public class CellNativeJavaObject extends NativeJavaObject implements ITwoNative
 			{
 				// must remember to request focus for the according cell in the cell view...
 				// when that cell's component is created
-				view.setColumnThatRequestsFocus(jsComponent);
+				view.setColumnThatRequestsFocus(uiComponent);
 				val = new BaseFunction();
 			}
 		}

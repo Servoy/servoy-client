@@ -1572,7 +1572,7 @@ public class JSApplication implements IReturnedTypesProvider
 		IClientPlugin cp = application.getPluginManager().getPlugin(IClientPlugin.class, "mail"); //$NON-NLS-1$
 		if (cp != null)
 		{
-			IScriptObject so = cp.getScriptObject();
+			IScriptable so = cp.getScriptObject();
 			if (so != null)
 			{
 				try
@@ -2630,7 +2630,7 @@ public class JSApplication implements IReturnedTypesProvider
 		IClientPlugin cp = application.getPluginManager().getPlugin(IClientPlugin.class, "file"); //$NON-NLS-1$
 		if (cp != null)
 		{
-			IScriptObject so = cp.getScriptObject();
+			IScriptable so = cp.getScriptObject();
 			if (so != null)
 			{
 				try
@@ -2660,7 +2660,7 @@ public class JSApplication implements IReturnedTypesProvider
 		IClientPlugin cp = application.getPluginManager().getPlugin(IClientPlugin.class, "file"); //$NON-NLS-1$
 		if (cp != null)
 		{
-			IScriptObject so = cp.getScriptObject();
+			IScriptable so = cp.getScriptObject();
 			if (so != null)
 			{
 				try
@@ -2690,7 +2690,7 @@ public class JSApplication implements IReturnedTypesProvider
 		IClientPlugin cp = application.getPluginManager().getPlugin(IClientPlugin.class, "file"); //$NON-NLS-1$
 		if (cp != null)
 		{
-			IScriptObject so = cp.getScriptObject();
+			IScriptable so = cp.getScriptObject();
 			if (so != null)
 			{
 				try
@@ -2720,7 +2720,7 @@ public class JSApplication implements IReturnedTypesProvider
 		IClientPlugin cp = application.getPluginManager().getPlugin(IClientPlugin.class, "file"); //$NON-NLS-1$
 		if (cp != null)
 		{
-			IScriptObject so = cp.getScriptObject();
+			IScriptable so = cp.getScriptObject();
 			if (so != null)
 			{
 				try
@@ -2750,7 +2750,7 @@ public class JSApplication implements IReturnedTypesProvider
 		IClientPlugin cp = application.getPluginManager().getPlugin(IClientPlugin.class, "file"); //$NON-NLS-1$
 		if (cp != null)
 		{
-			IScriptObject so = cp.getScriptObject();
+			IScriptable so = cp.getScriptObject();
 			if (so != null)
 			{
 				try
@@ -2780,7 +2780,7 @@ public class JSApplication implements IReturnedTypesProvider
 		IClientPlugin cp = application.getPluginManager().getPlugin(IClientPlugin.class, "file"); //$NON-NLS-1$
 		if (cp != null)
 		{
-			IScriptObject so = cp.getScriptObject();
+			IScriptable so = cp.getScriptObject();
 			if (so != null)
 			{
 				try
@@ -2810,7 +2810,7 @@ public class JSApplication implements IReturnedTypesProvider
 		IClientPlugin cp = application.getPluginManager().getPlugin(IClientPlugin.class, "file"); //$NON-NLS-1$
 		if (cp != null)
 		{
-			IScriptObject so = cp.getScriptObject();
+			IScriptable so = cp.getScriptObject();
 			if (so != null)
 			{
 				try
@@ -2840,7 +2840,7 @@ public class JSApplication implements IReturnedTypesProvider
 		IClientPlugin cp = application.getPluginManager().getPlugin(IClientPlugin.class, "file"); //$NON-NLS-1$
 		if (cp != null)
 		{
-			IScriptObject so = cp.getScriptObject();
+			IScriptable so = cp.getScriptObject();
 			if (so != null)
 			{
 				try
@@ -2870,7 +2870,7 @@ public class JSApplication implements IReturnedTypesProvider
 		IClientPlugin cp = application.getPluginManager().getPlugin(IClientPlugin.class, "file"); //$NON-NLS-1$
 		if (cp != null)
 		{
-			IScriptObject so = cp.getScriptObject();
+			IScriptable so = cp.getScriptObject();
 			if (so != null)
 			{
 				try

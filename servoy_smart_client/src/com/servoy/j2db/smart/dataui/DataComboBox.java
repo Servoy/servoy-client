@@ -63,6 +63,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.plaf.ComponentUI;
@@ -70,34 +71,31 @@ import javax.swing.text.Document;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IScriptExecuter;
-import com.servoy.j2db.component.ComponentFactory;
-import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
-import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.SortColumn;
-import com.servoy.j2db.dataprocessing.ValueListFactory;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.ScriptVariable;
-import com.servoy.j2db.persistence.ValueList;
+import com.servoy.j2db.scripting.IScriptable;
+import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptDataComboboxMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
+import com.servoy.j2db.ui.ISupportSpecialClientProperty;
+import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.util.ComponentFactoryHelper;
+import com.servoy.j2db.ui.scripting.RuntimeDataCombobox;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ISkinnable;
 import com.servoy.j2db.util.ITagResolver;
-import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.RoundHalfUpDecimalFormat;
 import com.servoy.j2db.util.StateFullSimpleDateFormat;
 import com.servoy.j2db.util.Text;
@@ -110,7 +108,7 @@ import com.servoy.j2db.util.model.ComboModelListModelWrapper;
  * @author jblok
  */
 public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRelatedData, IFieldComponent, ISkinnable, ItemListener,
-	IScriptDataComboboxMethods, ISupportCachedLocationAndSize
+	ISupportCachedLocationAndSize, ISupportSpecialClientProperty, ISupportValueList
 {
 	private String dataProviderID;
 	private final ComboModelListModelWrapper list;
@@ -134,6 +132,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 	private final ComboBoxAccesibleStateHolder accesibleStateHolder;
 	private final DocumentListener closePopupDocumentListener;
 	private int keyReleaseToBeIgnored = -1;
+	protected RuntimeDataCombobox scriptable;
 
 	public DataComboBox(IApplication application, IValueList vl)
 	{
@@ -232,6 +231,13 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		UIManager.put("ComboBox.isEnterSelectablePopup", Boolean.TRUE); //$NON-NLS-1$
 
 		setRenderer(new DividerListCellRenderer(getRenderer()));
+
+		scriptable = new RuntimeDataCombobox(this, new DummyChangesRecorder(), application);
+	}
+
+	public IScriptable getScriptObject()
+	{
+		return scriptable;
 	}
 
 	private void hackDefaultPopupWidthBehavior()
@@ -670,6 +676,11 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		}
 	}
 
+	public Insets getMargin()
+	{
+		return null;
+	}
+
 	public Document getDocument()
 	{
 		ComboBoxEditor cbe = getEditor();
@@ -958,16 +969,6 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 			return ed.getFormat();
 		}
 		return null;
-	}
-
-	public String js_getFormat()
-	{
-		return getFormat();
-	}
-
-	public void js_setFormat(String frmt)
-	{
-		setFormat(dataType, application.getI18NMessageIfPrefixed(frmt));
 	}
 
 	private int halign;
@@ -1516,7 +1517,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 	 * _____________________________________________________________ Methods for javascript
 	 */
 
-	public void js_requestFocus(Object[] vargs)
+	public void requestFocus(Object[] vargs)
 	{
 //		if (!hasFocus()) Don't test on hasFocus (it can have focus,but other component already did requestFocus)
 		{
@@ -1542,109 +1543,21 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		}
 	}
 
-	public void js_setFont(String spec)
+	public IValueList getValueList()
 	{
-		setFont(PersistHelper.createFont(spec));
+		return vl;
 	}
 
-	public String js_getFont()
+	public void setValueList(IValueList vl)
 	{
-		return PersistHelper.createFontString(getFont());
+		this.vl = vl;
+		getListModelWrapper().register(vl);
+		setEditable(isEditable());
 	}
 
-	public String js_getDataProviderID()
+	public ListDataListener getListener()
 	{
-		return getDataProviderID();
-	}
-
-	public String js_getName()
-	{
-		String jsName = getName();
-		if (jsName != null && jsName.startsWith(ComponentFactory.WEB_ID_PREFIX)) jsName = null;
-		return jsName;
-	}
-
-	public String js_getValueListName()
-	{
-		if (vl != null)
-		{
-			return vl.getName();
-		}
 		return null;
-	}
-
-	public void js_setValueListItems(Object value)
-	{
-		if (vl != null && getListModelWrapper() != null && (value instanceof JSDataSet || value instanceof IDataSet))
-		{
-			String name = vl.getName();
-			ValueList valuelist = application.getFlattenedSolution().getValueList(name);
-			if (valuelist != null && valuelist.getValueListType() == ValueList.CUSTOM_VALUES)
-			{
-				String frmt = getListModelWrapper().getFormat();
-				int type = getListModelWrapper().getValueType();
-				IValueList newVl = ValueListFactory.fillRealValueList(application, valuelist, ValueList.CUSTOM_VALUES, frmt, type, value);
-				vl = newVl;
-				getListModelWrapper().register(vl);
-				setEditable(isEditable());
-			}
-		}
-	}
-
-	public String js_getElementType()
-	{
-		return IScriptBaseMethods.COMBOBOX;
-	}
-
-
-	/*
-	 * bgcolor---------------------------------------------------
-	 */
-	public String js_getBgcolor()
-	{
-		return PersistHelper.createColorString(getBackground());
-	}
-
-	public void js_setBgcolor(String clr)
-	{
-		setBackground(PersistHelper.createColor(clr));
-	}
-
-
-	/*
-	 * fgcolor---------------------------------------------------
-	 */
-	public String js_getFgcolor()
-	{
-		return PersistHelper.createColorString(getForeground());
-	}
-
-	public void js_setFgcolor(String clr)
-	{
-		setForeground(PersistHelper.createColor(clr));
-	}
-
-	public void js_setBorder(String spec)
-	{
-		setBorder(ComponentFactoryHelper.createBorder(spec));
-	}
-
-	public String js_getBorder()
-	{
-		return ComponentFactoryHelper.createBorderString(getBorder());
-	}
-
-	/*
-	 * visible---------------------------------------------------
-	 */
-	public boolean js_isVisible()
-	{
-		return isVisible();
-	}
-
-	public void js_setVisible(boolean b)
-	{
-		setVisible(b);
 	}
 
 	public void setComponentVisible(boolean b_visible)
@@ -1672,49 +1585,11 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		labels.add(label);
 	}
 
-	public String[] js_getLabelForElementNames()
+	public List<ILabel> getLabelsFor()
 	{
-		if (labels != null)
-		{
-			List<String> al = new ArrayList<String>(labels.size());
-			for (int i = 0; i < labels.size(); i++)
-			{
-				ILabel label = labels.get(i);
-				if (label.getName() != null && !"".equals(label.getName()) && !label.getName().startsWith(ComponentFactory.WEB_ID_PREFIX)) //$NON-NLS-1$
-				{
-					al.add(label.getName());
-				}
-			}
-			return al.toArray(new String[al.size()]);
-		}
-		return new String[0];
+		return labels;
 	}
 
-	/*
-	 * opaque---------------------------------------------------
-	 */
-	public boolean js_isTransparent()
-	{
-		return !isOpaque();
-	}
-
-	public void js_setTransparent(boolean b)
-	{
-		setOpaque(!b);
-	}
-
-	/*
-	 * enabled---------------------------------------------------
-	 */
-	public boolean js_isEnabled()
-	{
-		return isEnabled();
-	}
-
-	public void js_setEnabled(boolean b)
-	{
-		setComponentEnabled(b);
-	}
 
 	public void setComponentEnabled(boolean b)
 	{
@@ -1726,6 +1601,18 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		accesibleStateHolder.setAccessible(b);
 	}
 
+	private boolean viewable = true;
+
+	public void setViewable(boolean b)
+	{
+		this.viewable = b;
+		setComponentVisible(b);
+	}
+
+	public boolean isViewable()
+	{
+		return viewable;
+	}
 
 	/*
 	 * readonly/editable---------------------------------------------------
@@ -1735,24 +1622,9 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		return !isEnabled();
 	}
 
-	public boolean js_isReadOnly()
-	{
-		return isReadOnly();
-	}
-
-	public void js_setReadOnly(boolean b)
+	public void setReadOnly(boolean b)
 	{
 		accesibleStateHolder.setReadOnly(b);
-	}
-
-	public boolean js_isEditable()
-	{
-		return isEditable();
-	}
-
-	public void js_setEditable(boolean b)
-	{
-		setEditable(b);
 	}
 
 	/*
@@ -1766,41 +1638,12 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		this.titleText = title;
 	}
 
-	public String js_getTitleText()
+	public String getTitleText()
 	{
 		return Text.processTags(titleText, resolver);
 	}
 
-	/*
-	 * tooltip---------------------------------------------------
-	 */
-	public void js_setToolTipText(String txt)
-	{
-		setToolTipText(txt);
-	}
-
-	public String js_getToolTipText()
-	{
-		return getToolTipText();
-	}
-
-	/*
-	 * location---------------------------------------------------
-	 */
-	public int js_getLocationX()
-	{
-		return getLocation().x;
-	}
-
-	public int js_getLocationY()
-	{
-		return getLocation().y;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_getAbsoluteFormLocationY()
-	 */
-	public int js_getAbsoluteFormLocationY()
+	public int getAbsoluteFormLocationY()
 	{
 		Container parent = getParent();
 		while ((parent != null) && !(parent instanceof IDataRenderer))
@@ -1816,25 +1659,13 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 
 	private Point cachedLocation;
 
-	public void js_setLocation(int x, int y)
-	{
-		cachedLocation = new Point(x, y);
-		setLocation(x, y);
-		validate();
-	}
-
 	public Point getCachedLocation()
 	{
 		return cachedLocation;
 	}
 
-	/*
-	 * client properties for ui---------------------------------------------------
-	 */
-
-	public void js_putClientProperty(Object key, Object value)
+	public void setClientProperty(Object key, Object value)
 	{
-		putClientProperty(key, value);
 		if (IApplication.DATE_FORMATTERS_LENIENT.equals(key) || IApplication.DATE_FORMATTERS_ROLL_INSTEAD_OF_ADD.equals(key))
 		{
 			if (IApplication.DATE_FORMATTERS_LENIENT.equals(key) && format instanceof StateFullSimpleDateFormat)
@@ -1849,43 +1680,29 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		}
 	}
 
-	public Object js_getClientProperty(Object key)
-	{
-		return getClientProperty(key);
-	}
-
 	private Dimension cachedSize;
-
-	/*
-	 * size---------------------------------------------------
-	 */
-	public void js_setSize(int x, int y)
-	{
-		cachedSize = new Dimension(x, y);
-		setSize(x, y);
-		validate();
-	}
 
 	public Dimension getCachedSize()
 	{
 		return cachedSize;
 	}
 
-	public int js_getWidth()
+	public void setCachedLocation(Point location)
 	{
-		return getSize().width;
+		this.cachedLocation = location;
 	}
 
-	public int js_getHeight()
+	public void setCachedSize(Dimension size)
 	{
-		return getSize().height;
+		this.cachedSize = size;
 	}
 
 	@Override
 	public String toString()
 	{
-		return js_getElementType() + "[name:" + js_getName() + ",x:" + js_getLocationX() + ",y:" + js_getLocationY() + ",width:" + js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + js_getHeight() + ",value:" + getValueObject() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.js_getElementType() +
+			"[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
+			",height:" + scriptable.js_getHeight() + ",value:" + getValueObject() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	public String getId()
@@ -1954,7 +1771,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 
 		public void putClientProperty(Object key, Object value)
 		{
-			editor.js_putClientProperty(key, value);
+			((IScriptBaseMethods)editor.getScriptObject()).js_putClientProperty(key, value);
 		}
 
 		public void setFormat(int type, String format)

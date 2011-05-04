@@ -18,7 +18,6 @@ package com.servoy.j2db.smart.dataui;
 
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -39,14 +38,12 @@ import java.io.ByteArrayOutputStream;
 import java.net.URL;
 import java.util.StringTokenizer;
 
-import javax.swing.BorderFactory;
 import javax.swing.GrayFilter;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.IconUIResource;
@@ -57,19 +54,17 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IModeManager;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.component.ComponentFactory;
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
-import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
-import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.util.ComponentFactoryHelper;
+import com.servoy.j2db.ui.scripting.AbstractHTMLSubmitRuntimeLabel;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ISkinnable;
 import com.servoy.j2db.util.ImageLoader;
-import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.JpegEncoder;
 import com.servoy.j2db.util.gui.MyImageIcon;
@@ -89,6 +84,7 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 	protected IApplication application;
 	private boolean borderPainted = true;
 	protected EventExecutor eventExecutor;
+	protected AbstractHTMLSubmitRuntimeLabel scriptable;
 
 	private MouseAdapter actionMouseAdapter = null;
 	private MouseAdapter doubleClickMouseAdapter = null;
@@ -99,6 +95,11 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 	{
 		application = app;
 		eventExecutor = new EventExecutor(this);
+	}
+
+	public IScriptable getScriptObject()
+	{
+		return scriptable;
 	}
 
 	/**
@@ -411,7 +412,7 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 	 * _____________________________________________________________ Methods for javascript
 	 */
 
-	public void js_setImageURL(String text_url)
+	public void setImageURL(String text_url)
 	{
 		this.text_url = text_url;
 		try
@@ -439,7 +440,7 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 		return text_url;
 	}
 
-	public void js_setRolloverImageURL(String image_url)
+	public void setRolloverImageURL(String image_url)
 	{
 		this.rollover_url = image_url;
 		try
@@ -460,41 +461,13 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 		return rollover_url;
 	}
 
-	public String js_getElementType()
-	{
-		return IScriptBaseMethods.LABEL;
-	}
-
-	public String js_getDataProviderID()
-	{
-		//default implementation
-		return null;
-	}
-
-	public String js_getParameterValue(String param)
+	public String getParameterValue(String param)
 	{
 		// TODO catch the submit of a html that is displayed. 
 		return null;
 	}
 
-	public String js_getName()
-	{
-		String jsName = getName();
-		if (jsName != null && jsName.startsWith(ComponentFactory.WEB_ID_PREFIX)) jsName = null;
-		return jsName;
-	}
-
-	public void js_setFont(String spec)
-	{
-		setFont(PersistHelper.createFont(spec));
-	}
-
-	public String js_getFont()
-	{
-		return PersistHelper.createFontString(getFont());
-	}
-
-	public byte[] js_getThumbnailJPGImage(Object[] args)
+	public byte[] getThumbnailJPGImage(Object[] args)
 	{
 		int width = -1;
 		int height = -1;
@@ -528,119 +501,9 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 	}
 
 
-	/*
-	 * bgcolor---------------------------------------------------
-	 */
-	public String js_getBgcolor()
-	{
-		return PersistHelper.createColorString(getBackground());
-	}
-
-	public void js_setBgcolor(String clr)
-	{
-		setBackground(PersistHelper.createColor(clr));
-	}
-
-
-	/*
-	 * fgcolor---------------------------------------------------
-	 */
-	public String js_getFgcolor()
-	{
-		return PersistHelper.createColorString(getForeground());
-	}
-
-	public void js_setFgcolor(String clr)
-	{
-		setForeground(PersistHelper.createColor(clr));
-	}
-
-
-	public void js_setBorder(String spec)
-	{
-		Border border = ComponentFactoryHelper.createBorder(spec);
-		Border oldBorder = getBorder();
-		if (oldBorder instanceof CompoundBorder && ((CompoundBorder)oldBorder).getInsideBorder() != null)
-		{
-			Insets insets = ((CompoundBorder)oldBorder).getInsideBorder().getBorderInsets(this);
-			setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(insets.top, insets.left, insets.bottom, insets.right)));
-		}
-		else
-		{
-			setBorder(border);
-		}
-	}
-
-	public String js_getBorder()
-	{
-		return ComponentFactoryHelper.createBorderString(getBorder());
-	}
-
-	/*
-	 * visible---------------------------------------------------
-	 */
-	public boolean js_isVisible()
-	{
-		return isVisible();
-	}
-
-	public void js_setVisible(boolean b)
-	{
-		setVisible(b);
-	}
-
 	public void setComponentVisible(boolean b_visible)
 	{
 		setVisible(b_visible);
-	}
-
-	public String js_getLabelForElementName()
-	{
-		Component component = getLabelFor();
-		if (component instanceof IFieldComponent)
-		{
-			return ((IFieldComponent)component).getName();
-		}
-		return null;
-	}
-
-	public String js_getMnemonic()
-	{
-		int i = getDisplayedMnemonic();
-		if (i == 0) return "";
-		return new Character((char)i).toString();
-	}
-
-	public void js_setMnemonic(String mnemonic)
-	{
-		mnemonic = application.getI18NMessageIfPrefixed(mnemonic);
-		if (mnemonic != null && mnemonic.length() > 0)
-		{
-			setDisplayedMnemonic(mnemonic.charAt(0));
-		}
-	}
-
-	/*
-	 * opaque---------------------------------------------------
-	 */
-	public boolean js_isTransparent()
-	{
-		return !isOpaque();
-	}
-
-	public void js_setTransparent(boolean b)
-	{
-		setOpaque(!b);
-		repaint();
-	}
-
-
-	/*
-	 * enabled---------------------------------------------------
-	 */
-	public void js_setEnabled(final boolean b)
-	{
-		setComponentEnabled(b);
 	}
 
 	public void setComponentEnabled(final boolean b)
@@ -651,11 +514,6 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 		}
 	}
 
-	public boolean js_isEnabled()
-	{
-		return isEnabled();
-	}
-
 	private boolean accessible = true;
 
 	public void setAccessible(boolean b)
@@ -664,42 +522,20 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 		accessible = b;
 	}
 
+	private boolean viewable = true;
 
-	/*
-	 * tooltip---------------------------------------------------
-	 */
-	public void js_setToolTipText(String text)
+	public void setViewable(boolean b)
 	{
-		if (text != null && text.startsWith("i18n:")) //$NON-NLS-1$
-		{
-			text = application.getI18NMessage(text);
-		}
-		setToolTipText(text);
+		this.viewable = b;
+		setComponentVisible(b);
 	}
 
-	public String js_getToolTipText()
+	public boolean isViewable()
 	{
-		return getToolTipText();
+		return viewable;
 	}
 
-
-	/*
-	 * location---------------------------------------------------
-	 */
-	public int js_getLocationX()
-	{
-		return getLocation().x;
-	}
-
-	public int js_getLocationY()
-	{
-		return getLocation().y;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_getAbsoluteFormLocationY()
-	 */
-	public int js_getAbsoluteFormLocationY()
+	public int getAbsoluteFormLocationY()
 	{
 		Container parent = getParent();
 		while ((parent != null) && !(parent instanceof IDataRenderer))
@@ -715,58 +551,27 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 
 	private Point cachedLocation;
 
-	public void js_setLocation(int x, int y)
-	{
-		cachedLocation = new Point(x, y);
-		setLocation(x, y);
-	}
-
 	public Point getCachedLocation()
 	{
 		return cachedLocation;
 	}
 
-	/*
-	 * client properties for ui---------------------------------------------------
-	 */
-
-	public void js_putClientProperty(Object key, Object value)
+	public void setCachedLocation(Point location)
 	{
-		putClientProperty(key, value);
+		this.cachedLocation = location;
 	}
 
-	public Object js_getClientProperty(Object key)
+	public void setCachedSize(Dimension size)
 	{
-		return getClientProperty(key);
+		this.cachedSize = size;
 	}
-
 
 	private Dimension cachedSize;
-
-	/*
-	 * size---------------------------------------------------
-	 */
-	public void js_setSize(int x, int y)
-	{
-		cachedSize = new Dimension(x, y);
-		setSize(x, y);
-	}
 
 	public Dimension getCachedSize()
 	{
 		return cachedSize;
 	}
-
-	public int js_getWidth()
-	{
-		return getSize().width;
-	}
-
-	public int js_getHeight()
-	{
-		return getSize().height;
-	}
-
 
 	private IconUIResource disabledIcon;
 
@@ -1006,8 +811,9 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 	@Override
 	public String toString()
 	{
-		return js_getElementType() + ",[name:" + js_getName() + ",x:" + js_getLocationX() + ",y:" + js_getLocationY() + ",width:" + js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + js_getHeight() + ",label:" + getText() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.js_getElementType() +
+			",[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
+			",height:" + scriptable.js_getHeight() + ",label:" + getText() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 
@@ -1206,5 +1012,10 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 	public RenderEventExecutor getRenderEventExecutor()
 	{
 		return eventExecutor;
+	}
+
+	public int getFontSize()
+	{
+		return 0;
 	}
 }

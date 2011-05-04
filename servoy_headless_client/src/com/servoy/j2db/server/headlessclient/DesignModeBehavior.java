@@ -21,11 +21,11 @@ import java.awt.Point;
 import java.util.ArrayList;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.Component.IVisitor;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Request;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.Session;
-import org.apache.wicket.Component.IVisitor;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.mozilla.javascript.ScriptRuntime;
@@ -33,6 +33,7 @@ import org.mozilla.javascript.ScriptRuntime;
 import com.servoy.j2db.DesignModeCallbacks;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.dnd.DRAGNDROP;
+import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.scripting.info.CLIENTDESIGN;
@@ -113,9 +114,9 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 				Component component = markupIds.get(i);
 
 				Object clientdesign_handles = null;
-				if (component instanceof IScriptBaseMethods)
+				if (component instanceof IScriptableProvider && ((IScriptableProvider)component).getScriptObject() instanceof IScriptBaseMethods)
 				{
-					IScriptBaseMethods sbmc = (IScriptBaseMethods)component;
+					IScriptBaseMethods sbmc = (IScriptBaseMethods)((IScriptableProvider)component).getScriptObject();
 					if (sbmc.js_getName() == null) continue; //skip, elements with no name are not usable in CD
 
 					clientdesign_handles = sbmc.js_getClientProperty(CLIENTDESIGN.HANDLES);
@@ -130,12 +131,13 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 					if (p != null) padding = "0px " + (p.left + p.right) + "px " + (p.bottom + p.top) + "px 0px";
 				}
 				boolean editable = false;
-				if (component instanceof IScriptInputMethods)
+				if (component instanceof IScriptableProvider && ((IScriptableProvider)component).getScriptObject() instanceof IScriptInputMethods)
 				{
-					editable = ((IScriptInputMethods)component).js_isEditable();
+					editable = ((IScriptInputMethods)((IScriptableProvider)component).getScriptObject()).js_isEditable();
 				}
-				if (webAnchorsEnabled && component instanceof IScriptBaseMethods &&
-					needsWrapperDivForAnchoring(((IScriptBaseMethods)component).js_getElementType(), editable))
+				if (webAnchorsEnabled && component instanceof IScriptableProvider &&
+					((IScriptableProvider)component).getScriptObject() instanceof IScriptBaseMethods &&
+					needsWrapperDivForAnchoring(((IScriptBaseMethods)((IScriptableProvider)component).getScriptObject()).js_getElementType(), editable))
 				{
 					sb.append(component.getMarkupId() + "_wrapper");
 				}
@@ -187,7 +189,8 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 	{
 		// this needs to be in sync with TemplateGenerator.needsWrapperDivForAnchoring(Field field)
 		// and TemplateGenerator.isButton(GraphicalComponent label)
-		return "PASSWORD".equals(type) || "TEXT_AREA".equals(type) || "COMBOBOX".equals(type) || "TYPE_AHEAD".equals(type) || "TEXT_FIELD".equals(type) ||
+		return IScriptBaseMethods.PASSWORD.equals(type) || IScriptBaseMethods.TEXT_AREA.equals(type) || IScriptBaseMethods.COMBOBOX.equals(type) ||
+			IScriptBaseMethods.TYPE_AHEAD.equals(type) || IScriptBaseMethods.TEXT_FIELD.equals(type) ||
 			(IScriptBaseMethods.HTML_AREA.equals(type) && editable) || IScriptBaseMethods.BUTTON.equals(type);
 	}
 

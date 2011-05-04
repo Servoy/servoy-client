@@ -67,9 +67,10 @@ import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.persistence.ScriptVariable;
-import com.servoy.j2db.ui.IScriptBaseMethods;
+import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.ISupportVisibleChangeListener;
 import com.servoy.j2db.ui.IVisibleChangeListener;
+import com.servoy.j2db.ui.scripting.RuntimeDataLookupField;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UIUtils;
 import com.servoy.j2db.util.Utils;
@@ -118,9 +119,7 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 	public DataLookupField(IApplication app, CustomValueList list)
 	{
 		super(app, list);
-		this.application = app;
-		super.setEditable(true);
-		registerKeyboardAction(new HidePopup(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, true), WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+		init(app);
 		dlm = new LookupListModel(application, list);
 		changeListener = new ChangeListener();
 		list.addListDataListener(changeListener);
@@ -129,9 +128,7 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 	public DataLookupField(IApplication app, final LookupValueList list)
 	{
 		super(app, list);
-		this.application = app;
-		super.setEditable(true);
-		registerKeyboardAction(new HidePopup(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, true), WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+		init(app);
 
 		dlm = new LookupListModel(app, list);
 
@@ -156,29 +153,22 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 	public DataLookupField(IApplication application, String serverName, String tableName, String dataProviderID)
 	{
 		super(application);
-		super.setEditable(true);
-		registerKeyboardAction(new HidePopup(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, true), WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-		this.application = application;
+		init(application);
 		dlm = new LookupListModel(application, serverName, tableName, dataProviderID);
 	}
 
-	/**
-	 * @see com.servoy.j2db.smart.dataui.DataField#js_getElementType()
-	 */
-	@Override
-	public String js_getElementType()
+	private void init(IApplication application)
 	{
-		return IScriptBaseMethods.TYPE_AHEAD;
+		this.application = application;
+		super.setEditable(true);
+		registerKeyboardAction(new HidePopup(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, true), WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+		scriptable = new RuntimeDataLookupField(this, new DummyChangesRecorder(), application);
 	}
 
 	@Override
-	public void js_setValueListItems(Object value)
+	public void setValueList(IValueList vl)
 	{
-		if (list instanceof CustomValueList && changeListener != null)
-		{
-			list.removeListDataListener(changeListener);
-		}
-		super.js_setValueListItems(value);
+		super.setValueList(vl);
 		if (list instanceof CustomValueList)
 		{
 			dlm = new LookupListModel(application, (CustomValueList)list);
@@ -190,6 +180,12 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 			}
 		}
 		setValue(getValue()); // force update the display value
+	}
+
+	@Override
+	public ListDataListener getListener()
+	{
+		return changeListener;
 	}
 
 	/*

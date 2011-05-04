@@ -35,8 +35,7 @@ import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.server.headlessclient.MainPage;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptRadioMethods;
+import com.servoy.j2db.ui.scripting.RuntimeRadioButton;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Utils;
 
@@ -46,7 +45,7 @@ import com.servoy.j2db.util.Utils;
  * @author lvostinar
  *
  */
-public class WebDataRadioButton extends WebBaseSelectBox implements IScriptRadioMethods
+public class WebDataRadioButton extends WebBaseSelectBox
 {
 	private final IConverter converter = new RadioButtonConverter();
 
@@ -60,8 +59,9 @@ public class WebDataRadioButton extends WebBaseSelectBox implements IScriptRadio
 	public WebDataRadioButton(IApplication application, String id, String text)
 	{
 		super(application, id, text);
+		scriptable = new RuntimeRadioButton(this, new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE, TemplateGenerator.DEFAULT_FIELD_PADDING),
+			application);
 	}
-
 
 	@Override
 	protected FormComponent getSelector(String id)
@@ -72,8 +72,8 @@ public class WebDataRadioButton extends WebBaseSelectBox implements IScriptRadio
 
 	public void setValueObject(Object value)
 	{
-		jsChangeRecorder.testChanged(this, value);
-		if (jsChangeRecorder.isChanged())
+		((ChangesRecorder)getStylePropertyChanges()).testChanged(this, value);
+		if (getStylePropertyChanges().isChanged())
 		{
 			// this component is going to update it's contents, without the user changing the
 			// components contents; so remove invalid state if necessary
@@ -84,8 +84,9 @@ public class WebDataRadioButton extends WebBaseSelectBox implements IScriptRadio
 	@Override
 	public String toString()
 	{
-		return js_getElementType() + "(web)[name:" + js_getName() + ",x:" + js_getLocationX() + ",y:" + js_getLocationY() + ",width:" + js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
-			",height:" + js_getHeight() + ",value:" + getDefaultModelObject() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.js_getElementType() +
+			"(web)[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+			",height:" + scriptable.js_getHeight() + ",value:" + getDefaultModelObject() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	public final class MyRadioButton extends FormComponent<Boolean> implements IDisplayData
@@ -394,13 +395,5 @@ public class WebDataRadioButton extends WebBaseSelectBox implements IScriptRadio
 		{
 			return value != null ? value.toString() : null;
 		}
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_getElementType()
-	 */
-	public String js_getElementType()
-	{
-		return IScriptBaseMethods.RADIOS;
 	}
 }

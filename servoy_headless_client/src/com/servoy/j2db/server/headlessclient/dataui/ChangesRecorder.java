@@ -29,7 +29,7 @@ import org.apache.wicket.model.IModel;
 
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.persistence.ISupportTextSetup;
-import com.servoy.j2db.ui.IStylePropertyChanges;
+import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
@@ -52,7 +52,7 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  * @since 5.0
  */
-public class ChangesRecorder implements IStylePropertyChanges
+public class ChangesRecorder implements IStylePropertyChangesRecorder
 {
 	private final Properties changedProperties = new Properties();
 	private String bgcolor;

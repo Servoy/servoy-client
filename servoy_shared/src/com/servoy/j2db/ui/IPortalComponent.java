@@ -17,12 +17,18 @@
 package com.servoy.j2db.ui;
 
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
+import com.servoy.j2db.scripting.IScriptableProvider;
 
 
 /**
  * @author jcompagner
  */
-public interface IPortalComponent extends IComponent, IDisplayRelatedData, IAccessible, ISupportRowBGColorScript, IScriptPortalComponentMethods,
+public interface IPortalComponent extends IComponent, IDisplayRelatedData, ISupportSecuritySettings, ISupportRowBGColorScript, IScriptableProvider,
 	ISupportRowStyling
 {
+	public int getAbsoluteFormLocationY();
+
+	public void setReadOnly(boolean b);
+
+	public void setRecordIndex(int i);
 }

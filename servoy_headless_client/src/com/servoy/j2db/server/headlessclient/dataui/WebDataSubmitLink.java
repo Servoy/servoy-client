@@ -288,7 +288,7 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 
 	public void setValueObject(Object value)
 	{
-		jsChangeRecorder.testChanged(this, value);
+		((ChangesRecorder)scriptable.getChangesRecorder()).testChanged(this, value);
 	}
 
 	public boolean needEditListner()
@@ -310,12 +310,6 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 	{
 		this.needEntireState = needEntireState;
 
-	}
-
-	@Override
-	public String js_getDataProviderID()
-	{
-		return getDataProviderID();
 	}
 
 	public String getDataProviderID()

@@ -17,12 +17,15 @@
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import java.awt.Insets;
+import java.util.List;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
-import com.servoy.j2db.ui.IScriptTextEditorMethods;
+import com.servoy.j2db.ui.scripting.RuntimeRTFArea;
+import com.servoy.j2db.util.Text;
 
 /**
  * 
@@ -32,8 +35,13 @@ import com.servoy.j2db.ui.IScriptTextEditorMethods;
  * @author jcompagner
  * 
  */
-public class WebDataRtfField extends WebDataLabel implements IFieldComponent, IScriptTextEditorMethods
+public class WebDataRtfField extends WebDataLabel implements IFieldComponent
 {
+	private static final long serialVersionUID = 1L;
+	private int dataType;
+	private String format;
+	private final RuntimeRTFArea scriptable;
+
 	/**
 	 * @param application
 	 * @param id
@@ -41,11 +49,14 @@ public class WebDataRtfField extends WebDataLabel implements IFieldComponent, IS
 	public WebDataRtfField(IApplication application, String id)
 	{
 		super(application, id);
+		this.scriptable = new RuntimeRTFArea(this, new ChangesRecorder(null, TemplateGenerator.DEFAULT_LABEL_PADDING), application, null);
 	}
 
-	private static final long serialVersionUID = 1L;
-	private int dataType;
-	private String format;
+	@Override
+	public IScriptable getScriptObject()
+	{
+		return this.scriptable;
+	}
 
 	/**
 	 * @see com.servoy.j2db.ui.IFieldComponent#getDataType()
@@ -85,11 +96,6 @@ public class WebDataRtfField extends WebDataLabel implements IFieldComponent, IS
 	public void addLabelFor(ILabel label)
 	{
 		// TODO void for now
-	}
-
-	public String[] js_getLabelForElementNames()
-	{
-		return new String[0];
 	}
 
 	@Override
@@ -134,6 +140,28 @@ public class WebDataRtfField extends WebDataLabel implements IFieldComponent, IS
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.IFieldComponent#getMargin()
+	 */
+	public Insets getMargin()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.IFieldComponent#isEditable()
+	 */
+	public boolean isEditable()
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 	/**
 	 * @see com.servoy.j2db.ui.IFieldComponent#setMaxLength(int)
 	 */
@@ -152,183 +180,33 @@ public class WebDataRtfField extends WebDataLabel implements IFieldComponent, IS
 
 	}
 
-	/**
-	 * @see com.servoy.j2db.ui.IScriptTextEditorMethods#js_getAsPlainText()
-	 */
-	public String js_getAsPlainText()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptTextEditorMethods#js_getBaseURL()
-	 */
-	public String js_getBaseURL()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptTextEditorMethods#js_getURL()
-	 */
-	public String js_getURL()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptTextEditorMethods#js_setBaseURL(java.lang.String)
-	 */
-	public void js_setBaseURL(String url)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptTextEditorMethods#js_setURL(java.lang.String)
-	 */
-	public void js_setURL(String url)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptReadOnlyMethods#js_isReadOnly()
-	 */
-	public boolean js_isReadOnly()
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptReadOnlyMethods#js_setReadOnly(boolean)
-	 */
-	public void js_setReadOnly(boolean b)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptScrollableMethods#js_getScrollX()
-	 */
-	public int js_getScrollX()
-	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptScrollableMethods#js_getScrollY()
-	 */
-	public int js_getScrollY()
-	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptScrollableMethods#js_setScroll(int, int)
-	 */
-	public void js_setScroll(int x, int y)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptTextInputMethods#js_getCaretPosition()
-	 */
-	public int js_getCaretPosition()
-	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptTextInputMethods#js_getSelectedText()
-	 */
-	public String js_getSelectedText()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptTextInputMethods#js_replaceSelectedText(java.lang.String)
-	 */
-	public void js_replaceSelectedText(String s)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptTextInputMethods#js_selectAll()
-	 */
-	public void js_selectAll()
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptTextInputMethods#js_setCaretPosition(int)
-	 */
-	public void js_setCaretPosition(int pos)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptInputMethods#js_getDataProviderID()
-	 */
-	@Override
-	public String js_getDataProviderID()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptInputMethods#js_isEditable()
-	 */
-	public boolean js_isEditable()
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptInputMethods#js_requestFocus(java.lang.Object[])
-	 */
-	public void js_requestFocus(Object[] vargs)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptInputMethods#js_setEditable(boolean)
-	 */
-	public void js_setEditable(boolean b)
-	{
-		// TODO Auto-generated method stub
-
-	}
 
 	@Override
 	public String toString()
 	{
-		return js_getElementType() + "(web)[name:" + js_getName() + ",x:" + js_getLocationX() + ",y:" + js_getLocationY() + ",width:" + js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + js_getHeight() + ",value:" + getDefaultModelObjectAsString() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.js_getElementType() +
+			"(web)[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
+			",height:" + scriptable.js_getHeight() + ",value:" + getDefaultModelObjectAsString() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	}
+
+	public List<ILabel> getLabelsFor()
+	{
+		return null;
+	}
+
+	public String getTitleText()
+	{
+		return Text.processTags(titleText, resolver);
+	}
+
+	public void requestFocus(Object[] vargs)
+	{
+
+	}
+
+	public void setReadOnly(boolean b)
+	{
+
 	}
 
 }

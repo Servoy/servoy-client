@@ -24,14 +24,11 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.Border;
+import javax.swing.event.ListDataListener;
 import javax.swing.text.Document;
 
 import org.apache.wicket.AttributeModifier;
@@ -49,17 +46,13 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
-import com.servoy.j2db.component.ComponentFactory;
-import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
-import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.SortColumn;
-import com.servoy.j2db.dataprocessing.ValueListFactory;
-import com.servoy.j2db.persistence.ValueList;
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.ServoyForm;
@@ -67,15 +60,14 @@ import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptChoiceMethods;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.IStylePropertyChanges;
+import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.util.ComponentFactoryHelper;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
+import com.servoy.j2db.ui.scripting.RuntimeRadioChoice;
 import com.servoy.j2db.util.ITagResolver;
-import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
@@ -85,8 +77,8 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jcompagner
  */
-public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFieldComponent, IDisplayRelatedData, IScriptChoiceMethods,
-	IProviderStylePropertyChanges, IScrollPane, ISupportWebBounds, IRightClickListener, IOwnTabSequenceHandler
+public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFieldComponent, IDisplayRelatedData, IProviderStylePropertyChanges, IScrollPane,
+	ISupportWebBounds, IRightClickListener, IOwnTabSequenceHandler, ISupportValueList
 {
 	private static final long serialVersionUID = 1L;
 	private static final String NO_COLOR = "NO_COLOR"; //$NON-NLS-1$
@@ -101,11 +93,11 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 	private int horizontalAlignment;
 	private String inputId;
 	private final IApplication application;
-	private final ChangesRecorder jsChangeRecorder = new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE, TemplateGenerator.DEFAULT_FIELD_PADDING);
 	private String tmpForeground = NO_COLOR;
-	private final IValueList vl;
+	private IValueList vl;
 	private int tabIndex = -1;
 	private int vScrollPolicy;
+	protected AbstractRuntimeField scriptable;
 
 	public WebDataRadioChoice(IApplication application, String id, IValueList vl)
 	{
@@ -134,11 +126,20 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 		add(TooltipAttributeModifier.INSTANCE);
 
 		updatePrefix();
+
+		scriptable = new RuntimeRadioChoice(this, new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE, TemplateGenerator.DEFAULT_FIELD_PADDING),
+			application, null, list);
 	}
+
+	public IScriptable getScriptObject()
+	{
+		return scriptable;
+	}
+
 
 	public IStylePropertyChanges getStylePropertyChanges()
 	{
-		return jsChangeRecorder;
+		return scriptable.getChangesRecorder();
 	}
 
 	/**
@@ -191,8 +192,8 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 			requestFocus();
 			if (tmpForeground == NO_COLOR)
 			{
-				tmpForeground = js_getFgcolor();
-				js_setFgcolor("red"); //$NON-NLS-1$
+				tmpForeground = scriptable.js_getFgcolor();
+				scriptable.js_setFgcolor("red"); //$NON-NLS-1$
 			}
 		}
 		else
@@ -200,7 +201,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 			previousValidValue = null;
 			if (tmpForeground != NO_COLOR)
 			{
-				js_setFgcolor(tmpForeground);
+				scriptable.js_setFgcolor(tmpForeground);
 				tmpForeground = NO_COLOR;
 			}
 		}
@@ -278,7 +279,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 	protected void onRender(final MarkupStream markupStream)
 	{
 		super.onRender(markupStream);
-		jsChangeRecorder.setRendered();
+		getStylePropertyChanges().setRendered();
 		IModel model = getInnermostModel();
 		if (model instanceof RecordItemModel)
 		{
@@ -294,7 +295,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		if (useAJAX)
 		{
-			Object oe = js_getClientProperty("ajax.enabled"); //$NON-NLS-1$
+			Object oe = scriptable.js_getClientProperty("ajax.enabled"); //$NON-NLS-1$
 			if (oe != null) useAJAX = Utils.getAsBoolean(oe);
 		}
 		if (!useAJAX)
@@ -318,12 +319,12 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 	@Override
 	public void updateModel()
 	{
-		boolean b = jsChangeRecorder.isChanged();
+		boolean b = getStylePropertyChanges().isChanged();
 		super.updateModel();
 		// if before updating the model the changed flag was false make sure it stays that way.
 		if (!b)
 		{
-			jsChangeRecorder.setRendered();
+			getStylePropertyChanges().setRendered();
 		}
 	}
 
@@ -381,6 +382,14 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 	}
 
 	/**
+	 * @return the margin
+	 */
+	public Insets getMargin()
+	{
+		return margin;
+	}
+
+	/**
 	 * @see com.servoy.j2db.ui.IFieldComponent#setHorizontalAlignment(int)
 	 */
 	public void setHorizontalAlignment(int horizontalAlignment)
@@ -404,8 +413,8 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 
 	public void setValueObject(Object value)
 	{
-		jsChangeRecorder.testChanged(this, value);
-		if (jsChangeRecorder.isChanged())
+		((ChangesRecorder)getStylePropertyChanges()).testChanged(this, value);
+		if (getStylePropertyChanges().isChanged())
 		{
 			// this component is going to update it's contents, without the user changing the
 			// components contents; so remove invalid state if necessary
@@ -429,8 +438,9 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 	@Override
 	public String toString()
 	{
-		return js_getElementType() + "(web)[name:" + js_getName() + ",x:" + js_getLocationX() + ",y:" + js_getLocationY() + ",width:" + js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + js_getHeight() + ",value:" + getDefaultModelObjectAsString() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.js_getElementType() +
+			"(web)[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
+			",height:" + scriptable.js_getHeight() + ",value:" + getDefaultModelObjectAsString() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 
@@ -440,7 +450,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 	public void setRecord(IRecordInternal state, boolean stopEditing)
 	{
 		list.fill(state);
-		jsChangeRecorder.setChanged();
+		getStylePropertyChanges().setChanged();
 	}
 
 	public String getSelectedRelationName()
@@ -525,31 +535,8 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 		setSuffix("</div>"); //$NON-NLS-1$
 	}
 
-	/*
-	 * jsmethods---------------------------------------------------
-	 */
-	public Object[] js_getSelectedElements()
-	{
-		Set<Integer> rows = list.getSelectedRows();
-		if (rows != null)
-		{
-			Object[] values = new Object[rows.size()];
-			Iterator<Integer> it = rows.iterator();
-			int i = 0;
-			while (it.hasNext())
-			{
-				Integer element = it.next();
-				values[i++] = list.getRealElementAt(element.intValue());
-			}
-			return values;
-		}
-		return new Object[0];
-	}
 
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_requestFocus(java.lang.Object[])
-	 */
-	public void js_requestFocus(Object[] vargs)
+	public void requestFocus(Object[] vargs)
 	{
 		if (vargs != null && vargs.length >= 1 && !Utils.getAsBoolean(vargs[0]))
 		{
@@ -568,6 +555,16 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 		}
 	}
 
+	public IValueList getValueList()
+	{
+		return vl;
+	}
+
+	public ListDataListener getListener()
+	{
+		return null;
+	}
+
 	public String js_getValueListName()
 	{
 		if (list != null)
@@ -577,21 +574,12 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 		return null;
 	}
 
-	public void js_setValueListItems(Object value)
+	public void setValueList(IValueList vl)
 	{
-		if (list != null && (value instanceof JSDataSet || value instanceof IDataSet))
-		{
-			String listName = list.getName();
-			ValueList valuelist = application.getFlattenedSolution().getValueList(listName);
-			if (valuelist != null && valuelist.getValueListType() == ValueList.CUSTOM_VALUES)
-			{
-				String listFormat = list.getFormat();
-				int type = list.getValueType();
-				IValueList newVl = ValueListFactory.fillRealValueList(application, valuelist, ValueList.CUSTOM_VALUES, listFormat, type, value);
-				list.register(newVl);
-				getStylePropertyChanges().setChanged();
-			}
-		}
+		this.vl = vl;
+		list.register(vl);
+		getStylePropertyChanges().setChanged();
+
 	}
 
 	/*
@@ -616,25 +604,9 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 		return dataType;
 	}
 
-	/*
-	 * editable/readonly---------------------------------------------------
-	 */
-//	private boolean editable;
-//	public boolean js_isEditable()
-//	{
-//		return editable;
-//	}
-//	public void js_setEditable(boolean editable)
-//	{
-//		this.editable = editable;
-//	}
-//	public boolean js_isReadOnly()
-//	{
-//		return !editable;
-//	}
 	private boolean editState;
 
-	public void js_setReadOnly(boolean b)
+	public void setReadOnly(boolean b)
 	{
 		if (b)
 		{
@@ -645,23 +617,6 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 		{
 			setEditable(editState);
 		}
-		jsChangeRecorder.setChanged();
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptReadOnlyMethods#js_isReadOnly()
-	 */
-	public boolean js_isReadOnly()
-	{
-		return isReadOnly();
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_getElementType()
-	 */
-	public String js_getElementType()
-	{
-		return IScriptBaseMethods.RADIOS;
 	}
 
 	public void setEditable(boolean b)
@@ -670,27 +625,14 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 		setEnabled(b);
 	}
 
+	public boolean isEditable()
+	{
+		return !isReadOnly();
+	}
+
 	public boolean isReadOnly()
 	{
 		return !isEnabled();
-	}
-
-
-	/*
-	 * scrolling---------------------------------------------------
-	 */
-	public int js_getScrollX()
-	{
-		return 0;
-	}
-
-	public int js_getScrollY()
-	{
-		return 0;
-	}
-
-	public void js_setScroll(int x, int y)
-	{
 	}
 
 
@@ -708,22 +650,6 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 	public String getDataProviderID()
 	{
 		return dataProviderID;
-	}
-
-	public String js_getDataProviderID()
-	{
-		return dataProviderID;
-	}
-
-
-	/*
-	 * name---------------------------------------------------
-	 */
-	public String js_getName()
-	{
-		String jsName = getName();
-		if (jsName != null && jsName.startsWith(ComponentFactory.WEB_ID_PREFIX)) jsName = null;
-		return jsName;
 	}
 
 	public void setName(String n)
@@ -765,17 +691,6 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 
 	private boolean opaque;
 
-	public boolean js_isTransparent()
-	{
-		return !opaque;
-	}
-
-	public void js_setTransparent(boolean b)
-	{
-		opaque = !b;
-		jsChangeRecorder.setTransparent(b);
-	}
-
 	public boolean isOpaque()
 	{
 		return opaque;
@@ -792,17 +707,9 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 		this.titleText = title;
 	}
 
-	public String js_getTitleText()
+	public String getTitleText()
 	{
 		return Text.processTags(titleText, resolver);
-	}
-
-	/*
-	 * tooltip---------------------------------------------------
-	 */
-	public String js_getToolTipText()
-	{
-		return tooltip;
 	}
 
 	private String tooltip;
@@ -817,12 +724,6 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 		{
 			this.tooltip = tooltip;
 		}
-	}
-
-	public void js_setToolTipText(String tip)
-	{
-		setToolTipText(tip);
-		jsChangeRecorder.setChanged();
 	}
 
 	protected ITagResolver resolver;
@@ -854,36 +755,11 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 
 	private Font font;
 
-	public void js_setFont(String spec)
-	{
-		font = PersistHelper.createFont(spec);
-		jsChangeRecorder.setFont(spec);
-	}
-
-	public String js_getFont()
-	{
-		return PersistHelper.createFontString(font);
-	}
-
 	public Font getFont()
 	{
 		return font;
 	}
 
-
-	/*
-	 * bgcolor---------------------------------------------------
-	 */
-	public String js_getBgcolor()
-	{
-		return PersistHelper.createColorString(background);
-	}
-
-	public void js_setBgcolor(String bgcolor)
-	{
-		background = PersistHelper.createColor(bgcolor);
-		jsChangeRecorder.setBgcolor(bgcolor);
-	}
 
 	private Color background;
 
@@ -898,20 +774,6 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 	}
 
 
-	/*
-	 * fgcolor---------------------------------------------------
-	 */
-	public String js_getFgcolor()
-	{
-		return PersistHelper.createColorString(foreground);
-	}
-
-	public void js_setFgcolor(String fgcolor)
-	{
-		foreground = PersistHelper.createColor(fgcolor);
-		jsChangeRecorder.setFgcolor(fgcolor);
-	}
-
 	private Color foreground;
 
 	private List<ILabel> labels;
@@ -924,18 +786,6 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 	public Color getForeground()
 	{
 		return foreground;
-	}
-
-
-	public void js_setBorder(String spec)
-	{
-		setBorder(ComponentFactoryHelper.createBorder(spec));
-		jsChangeRecorder.setBorder(spec);
-	}
-
-	public String js_getBorder()
-	{
-		return ComponentFactoryHelper.createBorderString(getBorder());
 	}
 
 	/*
@@ -954,62 +804,15 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 		}
 	}
 
-	public boolean js_isVisible()
-	{
-		return isVisible();
-	}
-
-	public void js_setVisible(boolean visible)
-	{
-		setVisible(visible);
-		jsChangeRecorder.setVisible(visible);
-		if (labels != null)
-		{
-			for (int i = 0; i < labels.size(); i++)
-			{
-				ILabel label = labels.get(i);
-				if (label instanceof IScriptBaseMethods)
-				{
-					((IScriptBaseMethods)label).js_setVisible(visible);
-				}
-				else
-				{
-					label.setComponentVisible(visible);
-				}
-			}
-		}
-	}
-
 	public void addLabelFor(ILabel label)
 	{
 		if (labels == null) labels = new ArrayList<ILabel>(3);
 		labels.add(label);
 	}
 
-	public String[] js_getLabelForElementNames()
+	public List<ILabel> getLabelsFor()
 	{
-		if (labels != null)
-		{
-			List<String> al = new ArrayList<String>(labels.size());
-			for (int i = 0; i < labels.size(); i++)
-			{
-				ILabel label = labels.get(i);
-				if (label.getName() != null && !"".equals(label.getName()) && !label.getName().startsWith(ComponentFactory.WEB_ID_PREFIX)) //$NON-NLS-1$
-				{
-					al.add(label.getName());
-				}
-			}
-			return al.toArray(new String[al.size()]);
-		}
-		return new String[0];
-	}
-
-	/*
-	 * enabled---------------------------------------------------
-	 */
-	public void js_setEnabled(final boolean b)
-	{
-		setComponentEnabled(b);
+		return labels;
 	}
 
 	public void setComponentEnabled(final boolean b)
@@ -1017,7 +820,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 		if (accessible)
 		{
 			super.setEnabled(b);
-			jsChangeRecorder.setChanged();
+			getStylePropertyChanges().setChanged();
 			if (labels != null)
 			{
 				for (int i = 0; i < labels.size(); i++)
@@ -1029,11 +832,6 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 		}
 	}
 
-	public boolean js_isEnabled()
-	{
-		return isEnabled();
-	}
-
 	private boolean accessible = true;
 
 	public void setAccessible(boolean b)
@@ -1042,26 +840,25 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 		accessible = b;
 	}
 
+	private boolean viewable = true;
+
+	public void setViewable(boolean b)
+	{
+		this.viewable = b;
+		setComponentVisible(b);
+	}
+
+	public boolean isViewable()
+	{
+		return viewable;
+	}
 
 	/*
 	 * location---------------------------------------------------
 	 */
 	private Point location = new Point(0, 0);
 
-	public int js_getLocationX()
-	{
-		return getLocation().x;
-	}
-
-	public int js_getLocationY()
-	{
-		return getLocation().y;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_getAbsoluteFormLocationY()
-	 */
-	public int js_getAbsoluteFormLocationY()
+	public int getAbsoluteFormLocationY()
 	{
 		WebDataRenderer parent = findParent(WebDataRenderer.class);
 		if (parent != null)
@@ -1069,12 +866,6 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 			return parent.getYOffset() + getLocation().y;
 		}
 		return getLocation().y;
-	}
-
-	public void js_setLocation(int x, int y)
-	{
-		location = new Point(x, y);
-		jsChangeRecorder.setLocation(x, y);
 	}
 
 	public void setLocation(Point location)
@@ -1088,27 +879,6 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 	}
 
 	/*
-	 * client properties for ui---------------------------------------------------
-	 */
-
-	public void js_putClientProperty(Object key, Object value)
-	{
-		if (clientProperties == null)
-		{
-			clientProperties = new HashMap<Object, Object>();
-		}
-		clientProperties.put(key, value);
-	}
-
-	private Map<Object, Object> clientProperties;
-
-	public Object js_getClientProperty(Object key)
-	{
-		if (clientProperties == null) return null;
-		return clientProperties.get(key);
-	}
-
-	/*
 	 * size---------------------------------------------------
 	 */
 	private Dimension size = new Dimension(0, 0);
@@ -1118,15 +888,9 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 		return size;
 	}
 
-	public void js_setSize(int width, int height)
-	{
-		size = new Dimension(width, height);
-		jsChangeRecorder.setSize(width, height, border, margin, 0);
-	}
-
 	public Rectangle getWebBounds()
 	{
-		Dimension d = jsChangeRecorder.calculateWebSize(size.width, size.height, border, margin, 0, null);
+		Dimension d = ((ChangesRecorder)getStylePropertyChanges()).calculateWebSize(size.width, size.height, border, margin, 0, null);
 		return new Rectangle(location, d);
 	}
 
@@ -1135,23 +899,13 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 	 */
 	public Insets getPaddingAndBorder()
 	{
-		return jsChangeRecorder.getPaddingAndBorder(size.height, border, margin, 0, null);
+		return ((ChangesRecorder)getStylePropertyChanges()).getPaddingAndBorder(size.height, border, margin, 0, null);
 	}
 
 
 	public void setSize(Dimension size)
 	{
 		this.size = size;
-	}
-
-	public int js_getWidth()
-	{
-		return size.width;
-	}
-
-	public int js_getHeight()
-	{
-		return size.height;
 	}
 
 	public void setRightClickCommand(String rightClickCmd, Object[] args)

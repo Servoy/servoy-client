@@ -17,11 +17,12 @@
 package com.servoy.j2db.ui;
 
 import com.servoy.j2db.IScriptExecuter;
+import com.servoy.j2db.scripting.IScriptableProvider;
 
 /**
  * @author jcompagner,jblok
  */
-public interface ILabel extends IStandardLabel, IAccessible, ISupportEventExecutor, ISupportOnRenderCallback
+public interface ILabel extends IStandardLabel, ISupportSecuritySettings, ISupportEventExecutor, ISupportOnRenderCallback, IScriptableProvider
 {
 	public static int NONE = 0;
 	public static int CAPITALIZE = 1;
@@ -71,4 +72,22 @@ public interface ILabel extends IStandardLabel, IAccessible, ISupportEventExecut
 	 * @param mode (capitalize | uppercase | lowercase | none)
 	 */
 	public void setTextTransform(int mode);
+
+	public void setImageURL(String text_url);
+
+	public void setRolloverImageURL(String image_url);
+
+	public byte[] getThumbnailJPGImage(Object[] args);
+
+	public int getAbsoluteFormLocationY();
+
+	public String getImageURL();
+
+	public String getRolloverImageURL();
+
+	public String getParameterValue(String param);
+
+	public int getFontSize();
+
+	public Object getLabelFor();
 }

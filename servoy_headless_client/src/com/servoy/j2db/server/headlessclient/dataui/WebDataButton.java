@@ -32,7 +32,7 @@ import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IDisplayTagText;
-import com.servoy.j2db.ui.IScriptDataButtonMethods;
+import com.servoy.j2db.ui.scripting.RuntimeDataButton;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Text;
@@ -42,7 +42,7 @@ import com.servoy.j2db.util.Text;
  * 
  * @author jcompagner
  */
-public class WebDataButton extends WebBaseButton implements IDisplayData, IDisplayTagText, IScriptDataButtonMethods
+public class WebDataButton extends WebBaseButton implements IDisplayData, IDisplayTagText
 {
 	private static final long serialVersionUID = 1L;
 
@@ -56,6 +56,7 @@ public class WebDataButton extends WebBaseButton implements IDisplayData, IDispl
 	public WebDataButton(IApplication application, String id)
 	{
 		super(application, id);
+		scriptable = new RuntimeDataButton(this, new ChangesRecorder(null, null), application);
 	}
 
 	@Override
@@ -211,7 +212,7 @@ public class WebDataButton extends WebBaseButton implements IDisplayData, IDispl
 
 	public void setValueObject(Object value)
 	{
-		jsChangeRecorder.testChanged(this, value);
+		((ChangesRecorder)scriptable.getChangesRecorder()).testChanged(this, value);
 	}
 
 	public boolean needEditListner()
@@ -236,12 +237,6 @@ public class WebDataButton extends WebBaseButton implements IDisplayData, IDispl
 	{
 		// TODO Auto-generated method stub
 
-	}
-
-	@Override
-	public String js_getDataProviderID()
-	{
-		return getDataProviderID();
 	}
 
 	public String getDataProviderID()

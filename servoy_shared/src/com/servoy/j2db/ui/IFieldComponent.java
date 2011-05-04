@@ -18,13 +18,15 @@ package com.servoy.j2db.ui;
 
 
 import java.awt.Insets;
+import java.util.List;
 
 import com.servoy.j2db.IScriptExecuter;
+import com.servoy.j2db.scripting.IScriptableProvider;
 
 /**
  * @author jblok
  */
-public interface IFieldComponent extends IAccessible, IComponent, ISupportEventExecutor, ISupportOnRenderCallback
+public interface IFieldComponent extends ISupportSecuritySettings, IComponent, ISupportEventExecutor, ISupportOnRenderCallback, IScriptableProvider
 {
 	public void setToolTipText(String tooltip);
 
@@ -65,4 +67,18 @@ public interface IFieldComponent extends IAccessible, IComponent, ISupportEventE
 	public void setFormat(int dataType, String format);
 
 	public void addLabelFor(ILabel label);
+
+	public List<ILabel> getLabelsFor();
+
+	public String getTitleText();
+
+	public int getAbsoluteFormLocationY();
+
+	public void requestFocus(Object[] vargs);
+
+	public void setReadOnly(boolean b);
+
+	public Insets getMargin();
+
+	public boolean isEditable();
 }

@@ -47,7 +47,7 @@ import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
-import com.servoy.j2db.ui.IScriptBaseMethods;
+import com.servoy.j2db.ui.scripting.RuntimeDataLookupField;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UIUtils;
 import com.servoy.j2db.util.Utils;
@@ -101,15 +101,6 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 	}
 
 	/**
-	 * @see com.servoy.j2db.server.headlessclient.dataui.WebDataField#js_getElementType()
-	 */
-	@Override
-	public String js_getElementType()
-	{
-		return IScriptBaseMethods.TYPE_AHEAD;
-	}
-
-	/**
 	 * @see com.servoy.j2db.server.headlessclient.dataui.WebDataField#setValidationEnabled(boolean)
 	 */
 	@Override
@@ -136,6 +127,9 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 
 	private void init()
 	{
+		this.scriptable = new RuntimeDataLookupField(this, new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE,
+			TemplateGenerator.DEFAULT_FIELD_PADDING), application);
+
 		add(new HeaderContributor(new IHeaderContributor()
 		{
 			private static final long serialVersionUID = 1L;
@@ -149,7 +143,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			@Override
 			public boolean isEnabled(Component component)
 			{
-				return !js_isReadOnly() && js_isEnabled();
+				return !scriptable.js_isReadOnly() && scriptable.js_isEnabled();
 			}
 		});
 
@@ -231,11 +225,11 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			@Override
 			public void renderHead(IHeaderResponse response)
 			{
-				settings.setShowListOnEmptyInput(Boolean.TRUE.equals(UIUtils.getUIProperty(WebDataLookupField.this, application,
+				settings.setShowListOnEmptyInput(Boolean.TRUE.equals(UIUtils.getUIProperty(scriptable, application,
 					IApplication.TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY, Boolean.TRUE)));
-				settings.setShowListOnFocusGain(Boolean.TRUE.equals(UIUtils.getUIProperty(WebDataLookupField.this, application,
+				settings.setShowListOnFocusGain(Boolean.TRUE.equals(UIUtils.getUIProperty(scriptable, application,
 					IApplication.TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN, Boolean.TRUE)));
-				if (!js_isReadOnly() && js_isEnabled())
+				if (!scriptable.js_isReadOnly() && scriptable.js_isEnabled())
 				{
 					super.renderHead(response);
 					response.renderJavascript("Wicket.AutoCompleteSettings.enterHidesWithNoSelection = true;", "AutocompleteSettingsID"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -255,20 +249,20 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 	}
 
 	@Override
-	public void js_putClientProperty(Object key, Object value)
+	public void setClientProperty(Object key, Object value)
 	{
 		if ((IApplication.TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN.equals(key) || IApplication.TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY.equals(key)) &&
-			!Utils.equalObjects(js_getClientProperty(key), value))
+			!Utils.equalObjects(scriptable.js_getClientProperty(key), value))
 		{
 			getStylePropertyChanges().setChanged();
 		}
-		super.js_putClientProperty(key, value);
+		super.setClientProperty(key, value);
 	}
 
 	@Override
-	public void js_setValueListItems(Object value)
+	public void setValueList(IValueList vl)
 	{
-		super.js_setValueListItems(value);
+		super.setValueList(vl);
 		if (list instanceof CustomValueList)
 		{
 			dlm = new LookupListModel(application, (CustomValueList)list);

@@ -122,6 +122,7 @@ import com.servoy.j2db.printing.PageList;
 import com.servoy.j2db.printing.PrintPreview;
 import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.RuntimeGroup;
+import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
@@ -561,9 +562,9 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		{
 			if (((TableView)comp).isEditable() == true) return false;
 		}
-		else if (comp instanceof IScriptReadOnlyMethods)
+		else if (comp instanceof IScriptableProvider && ((IScriptableProvider)comp).getScriptObject() instanceof IScriptReadOnlyMethods)
 		{
-			return ((IScriptReadOnlyMethods)comp).js_isReadOnly();
+			return ((IScriptReadOnlyMethods)((IScriptableProvider)comp).getScriptObject()).js_isReadOnly();
 		}
 		return false;
 	}
@@ -601,19 +602,19 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 				((TableView)comp).setEditable(true);
 			}
 		}
-		else if (comp instanceof IScriptReadOnlyMethods)
+		else if (comp instanceof IScriptableProvider && ((IScriptableProvider)comp).getScriptObject() instanceof IScriptReadOnlyMethods)
 		{
 			if (b == true)
 			{
 				if (componentIsReadOnly(comp) == false)
 				{
-					((IScriptReadOnlyMethods)comp).js_setReadOnly(true);
+					((IScriptReadOnlyMethods)((IScriptableProvider)comp).getScriptObject()).js_setReadOnly(true);
 					if (markedComponents.contains(comp) == false) markedComponents.add(comp); // pay attention; what to do if container
 				}
 			}
 			else
 			{
-				((IScriptReadOnlyMethods)comp).js_setReadOnly(false);
+				((IScriptReadOnlyMethods)((IScriptableProvider)comp).getScriptObject()).js_setReadOnly(false);
 			}
 		}
 		else if (comp instanceof Container)
@@ -944,9 +945,11 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 				{
 					obj = ((VisibleBean)comp).getDelegate();
 				}
+				String groupName = FormElementGroup.getName((String)formController.getComponentProperty(comp, ComponentFactory.GROUPID_COMPONENT_PROPERTY));
+				if (obj instanceof IScriptableProvider) obj = ((IScriptableProvider)obj).getScriptObject();
 				JavaMembers jm = ScriptObjectRegistry.getJavaMembers(obj.getClass(), ScriptableObject.getTopLevelScope(fs));
 
-				String groupName = FormElementGroup.getName((String)formController.getComponentProperty(comp, ComponentFactory.GROUPID_COMPONENT_PROPERTY));
+
 				boolean named = name != null && !name.equals("") && !name.startsWith(ComponentFactory.WEB_ID_PREFIX); //$NON-NLS-1$
 				if (groupName != null || named)
 				{
@@ -966,6 +969,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 						Scriptable s = null;
 						if (obj2 != null)
 						{
+							if (obj2 instanceof IScriptableProvider) obj2 = ((IScriptableProvider)obj2).getScriptObject();
 							NativeJavaObject s2 = new NativeJavaObject(fs, obj2, jm);
 
 							s = new TwoNativeJavaObject(fs, obj, s2, jm, controller);
@@ -2123,9 +2127,9 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		private boolean addSelectedComponent(Component component, Rectangle bounds)
 		{
 			Object clientdesign_handles = null;
-			if (component instanceof IScriptBaseMethods)
+			if (component instanceof IScriptableProvider && ((IScriptableProvider)component).getScriptObject() instanceof IScriptBaseMethods)
 			{
-				IScriptBaseMethods sbmc = (IScriptBaseMethods)component;
+				IScriptBaseMethods sbmc = (IScriptBaseMethods)((IScriptableProvider)component).getScriptObject();
 				if (sbmc.js_getName() == null) return false; //skip, elements with no name are not usable in CD
 
 				clientdesign_handles = sbmc.js_getClientProperty(CLIENTDESIGN.HANDLES);

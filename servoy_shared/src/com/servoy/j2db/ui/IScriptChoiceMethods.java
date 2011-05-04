@@ -13,14 +13,13 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.ui;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RadioButton")
-public interface IScriptChoiceMethods extends IScriptBaseMethods, IScriptReadOnlyMethods, IScriptScrollableMethods, IScriptFocusMethods,
-	IScriptValuelistMethods
+public interface IScriptChoiceMethods extends IScriptReadOnlyMethods, IScriptScrollableMethods, IScriptFocusMethods, IScriptValuelistMethods
 {
 	/**
 	 * Gets the selected values (real values from valuelist) as array.

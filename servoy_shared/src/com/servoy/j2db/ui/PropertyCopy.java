@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.ui;
 
 import java.util.Iterator;
@@ -21,6 +21,8 @@ import java.util.Map;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.scripting.IScriptable;
+import com.servoy.j2db.scripting.IScriptableProvider;
 
 /**
  * @author jblok
@@ -104,11 +106,44 @@ public class PropertyCopy
 		copy.setOpaque(org.isOpaque());
 		copy.setFont(org.getFont());
 
-		//should we use another interface here for readonly set/get?
-		if (org instanceof IScriptReadOnlyMethods && copy instanceof IScriptReadOnlyMethods)
+		if (org instanceof IScriptableProvider && copy instanceof IScriptableProvider)
 		{
-			((IScriptReadOnlyMethods)copy).js_setReadOnly(((IScriptReadOnlyMethods)org).js_isReadOnly());
+			IScriptable source = ((IScriptableProvider)org).getScriptObject();
+			IScriptable destination = ((IScriptableProvider)copy).getScriptObject();
+			//should we use another interface here for readonly set/get?
+			if (source instanceof IScriptReadOnlyMethods && destination instanceof IScriptReadOnlyMethods)
+			{
+				((IScriptReadOnlyMethods)destination).js_setReadOnly(((IScriptReadOnlyMethods)source).js_isReadOnly());
+			}
+
+			if (source instanceof IScriptBaseMethods && destination instanceof IScriptBaseMethods)
+			{
+				((IScriptBaseMethods)destination).js_setVisible(((IScriptBaseMethods)source).js_isVisible());
+			}
+
+			if (source instanceof IScriptLabelMethods && destination instanceof IScriptLabelMethods)
+			{
+				String imageURL = ((IScriptLabelMethods)source).getImageURL();
+				if (imageURL != null)
+				{
+					//only copy if explicitly set with a url
+					((IScriptLabelMethods)destination).js_setImageURL(imageURL);
+				}
+				String rolloverImageURL = ((IScriptLabelMethods)source).getRolloverImageURL();
+				if (rolloverImageURL != null)
+				{
+					//only copy if explicitly set with a url
+					((IScriptLabelMethods)destination).js_setRolloverImageURL(rolloverImageURL);
+				}
+			}
+
+			if (source instanceof IScriptTabPanelMethods && destination instanceof IScriptTabPanelMethods)
+			{
+				// keep active tab when printing
+				((IScriptTabPanelMethods)destination).js_setTabIndex(((IScriptTabPanelMethods)source).js_getTabIndex());
+			}
 		}
+
 
 		if (org instanceof IFieldComponent && copy instanceof IFieldComponent)
 		{
@@ -119,36 +154,12 @@ public class PropertyCopy
 			((ILabel)copy).setMediaIcon(((ILabel)org).getMediaIcon());
 			((ILabel)copy).setText(((ILabel)org).getText());
 		}
-		if (org instanceof IScriptBaseMethods && copy instanceof IScriptBaseMethods)
-		{
-			((IScriptBaseMethods)copy).js_setVisible(((IScriptBaseMethods)org).js_isVisible());
-		}
+
 		if (org instanceof IProviderStylePropertyChanges && copy instanceof IProviderStylePropertyChanges)
 		{
 			((IProviderStylePropertyChanges)copy).getStylePropertyChanges().setChanges(
 				((IProviderStylePropertyChanges)org).getStylePropertyChanges().getChanges());
 		}
 
-		if (org instanceof IScriptLabelMethods && copy instanceof IScriptLabelMethods)
-		{
-			String imageURL = ((IScriptLabelMethods)org).getImageURL();
-			if (imageURL != null)
-			{
-				//only copy if explicitly set with a url
-				((IScriptLabelMethods)copy).js_setImageURL(imageURL);
-			}
-			String rolloverImageURL = ((IScriptLabelMethods)org).getRolloverImageURL();
-			if (rolloverImageURL != null)
-			{
-				//only copy if explicitly set with a url
-				((IScriptLabelMethods)copy).js_setRolloverImageURL(rolloverImageURL);
-			}
-		}
-
-		if (org instanceof IScriptTabPanelMethods && copy instanceof IScriptTabPanelMethods)
-		{
-			// keep active tab when printing
-			((IScriptTabPanelMethods)copy).js_setTabIndex(((IScriptTabPanelMethods)org).js_getTabIndex());
-		}
 	}
 }

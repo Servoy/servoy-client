@@ -37,6 +37,7 @@ import org.apache.wicket.model.AbstractReadOnlyModel;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IStylePropertyChanges;
+import com.servoy.j2db.ui.scripting.RuntimeScriptButton;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.IDelegate;
@@ -66,6 +67,7 @@ public class WebImageBeanHolder extends WebBaseButton implements IComponent, IDe
 		super(application, id, ""); //$NON-NLS-1$
 		this.bean = bean;
 		this.anchoring = anchoring;
+		scriptable = new RuntimeScriptButton(this, new ChangesRecorder(null, null), application);
 		if (bean != null) bean.addComponentListener(new ComponentAdapter()
 		{
 			@Override
@@ -73,7 +75,7 @@ public class WebImageBeanHolder extends WebBaseButton implements IComponent, IDe
 			{
 				if (!WebImageBeanHolder.this.getSize().equals(WebImageBeanHolder.this.bean.getSize()))
 				{
-					WebImageBeanHolder.this.js_setSize(WebImageBeanHolder.this.bean.getWidth(), WebImageBeanHolder.this.bean.getHeight());
+					WebImageBeanHolder.this.scriptable.js_setSize(WebImageBeanHolder.this.bean.getWidth(), WebImageBeanHolder.this.bean.getHeight());
 				}
 			}
 		});

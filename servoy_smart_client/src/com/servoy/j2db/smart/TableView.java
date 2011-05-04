@@ -124,6 +124,7 @@ import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabSeqComparator;
 import com.servoy.j2db.persistence.Table;
+import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.smart.dataui.CellAdapter;
 import com.servoy.j2db.smart.dataui.ColumnSortListener;
@@ -132,7 +133,6 @@ import com.servoy.j2db.smart.dataui.TableTabSequenceHandler;
 import com.servoy.j2db.smart.dataui.VisibleBean;
 import com.servoy.j2db.ui.BaseEventExecutor;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
-import com.servoy.j2db.ui.IAccessible;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
@@ -144,6 +144,7 @@ import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.ISupportEventExecutor;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowStyling;
+import com.servoy.j2db.ui.ISupportSecuritySettings;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnablePanel;
@@ -299,10 +300,12 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 			tcm = createDefaultColumnModel();
 		}
 		boolean b_accessible = true;
+		boolean b_viewable = true;
 		int access = app.getFlattenedSolution().getSecurityAccess(cellview.getUUID());
 		if (access != -1)
 		{
 			b_accessible = ((access & IRepository.ACCESSIBLE) != 0);
+			b_viewable = ((access & IRepository.VIEWABLE) != 0);
 		}
 
 		ActionListener buttonListener = new ActionListener()
@@ -444,10 +447,10 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 							editor.addMouseMotionListener(dragMouseListener);
 						}
 
-						if (editor instanceof IScriptBaseMethods)
+						if (editor instanceof IScriptableProvider && ((IScriptableProvider)editor).getScriptObject() instanceof IScriptBaseMethods)
 						{
-							((IScriptBaseMethods)editor).js_setLocation(l.x, l.y);
-							((IScriptBaseMethods)editor).js_setSize(size.width, size.height);
+							((IScriptBaseMethods)((IScriptableProvider)editor).getScriptObject()).js_setLocation(l.x, l.y);
+							((IScriptBaseMethods)((IScriptableProvider)editor).getScriptObject()).js_setSize(size.width, size.height);
 						}
 						else
 						{
@@ -461,9 +464,10 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 							editor = ((VisibleBean)editor).getDelegate();
 						}
 
-						if (editor instanceof IAccessible)
+						if (editor instanceof ISupportSecuritySettings)
 						{
-							((IAccessible)editor).setAccessible(b_accessible);
+							((ISupportSecuritySettings)editor).setAccessible(b_accessible);
+							((ISupportSecuritySettings)editor).setViewable(b_viewable);
 						}
 
 						if (editor instanceof JButton)
@@ -506,10 +510,10 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 							editor.addMouseMotionListener(dragMouseListener);
 						}
 
-						if (renderer instanceof IScriptBaseMethods)
+						if (renderer instanceof IScriptableProvider && ((IScriptableProvider)renderer).getScriptObject() instanceof IScriptBaseMethods)
 						{
-							((IScriptBaseMethods)renderer).js_setLocation(l.x, l.y);
-							((IScriptBaseMethods)renderer).js_setSize(size.width, size.height);
+							((IScriptBaseMethods)((IScriptableProvider)renderer).getScriptObject()).js_setLocation(l.x, l.y);
+							((IScriptBaseMethods)((IScriptableProvider)renderer).getScriptObject()).js_setSize(size.width, size.height);
 						}
 						else
 						{
@@ -572,9 +576,10 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 							//it is impossible to get lazy loaded images displaying correctly, due to needed repaintfire, which we cannot initiate
 							((ISupportAsyncLoading)renderer).setAsyncLoadingEnabled(false);
 						}
-						if (renderer instanceof IAccessible)
+						if (renderer instanceof ISupportSecuritySettings)
 						{
-							((IAccessible)renderer).setAccessible(b_accessible);
+							((ISupportSecuritySettings)renderer).setAccessible(b_accessible);
+							((ISupportSecuritySettings)renderer).setViewable(b_viewable);
 						}
 						if (index == 0 && cellview instanceof Form)
 						{
@@ -1098,9 +1103,9 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 
 		if (sizeChanged)
 		{
-			if (component instanceof IScriptBaseMethods)
+			if (component instanceof IScriptableProvider && ((IScriptableProvider)component).getScriptObject() instanceof IScriptBaseMethods)
 			{
-				((IScriptBaseMethods)component).js_setSize(cellRect.width, height);
+				((IScriptBaseMethods)((IScriptableProvider)component).getScriptObject()).js_setSize(cellRect.width, height);
 			}
 			else
 			{
@@ -1109,9 +1114,9 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		}
 		if (locationChanged)
 		{
-			if (component instanceof IScriptBaseMethods)
+			if (component instanceof IScriptableProvider && ((IScriptableProvider)component).getScriptObject() instanceof IScriptBaseMethods)
 			{
-				((IScriptBaseMethods)component).js_setLocation(cellRect.x, y);
+				((IScriptBaseMethods)((IScriptableProvider)component).getScriptObject()).js_setLocation(cellRect.x, y);
 			}
 			else
 			{
@@ -1644,7 +1649,10 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		{
 			for (Component element : rendererComponents)
 			{
-				if (element instanceof IScriptReadOnlyMethods) ((IScriptReadOnlyMethods)element).js_setReadOnly(!editable);
+				if (element instanceof IScriptableProvider && ((IScriptableProvider)element).getScriptObject() instanceof IScriptReadOnlyMethods)
+				{
+					((IScriptReadOnlyMethods)((IScriptableProvider)element).getScriptObject()).js_setReadOnly(!editable);
+				}
 			}
 		}
 		repaint();

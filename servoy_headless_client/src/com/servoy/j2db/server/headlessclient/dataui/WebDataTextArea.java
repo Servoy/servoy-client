@@ -24,10 +24,8 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.swing.border.Border;
 import javax.swing.text.Document;
@@ -50,10 +48,10 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
-import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.persistence.ScriptVariable;
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.ServoyForm;
@@ -61,14 +59,13 @@ import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptTextAreaMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
+import com.servoy.j2db.ui.ISupportInputSelection;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.util.ComponentFactoryHelper;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
+import com.servoy.j2db.ui.scripting.RuntimeTextArea;
 import com.servoy.j2db.util.ITagResolver;
-import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
@@ -77,8 +74,8 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jcompagner
  */
-public class WebDataTextArea extends TextArea implements IFieldComponent, IDisplayData, IScriptTextAreaMethods, IProviderStylePropertyChanges,
-	ISupportWebBounds, IRightClickListener
+public class WebDataTextArea extends TextArea implements IFieldComponent, IDisplayData, IProviderStylePropertyChanges, ISupportWebBounds, IRightClickListener,
+	ISupportInputSelection
 {
 	private static final long serialVersionUID = 1L;
 
@@ -90,11 +87,10 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	private String inputId;
 	private final WebEventExecutor eventExecutor;
 
-	private final ChangesRecorder jsChangeRecorder = new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE, TemplateGenerator.DEFAULT_FIELD_PADDING);
-
 	private final IApplication application;
 
 	private FindModeDisabledSimpleAttributeModifier maxLengthBehavior;
+	protected AbstractRuntimeField scriptable;
 
 	/**
 	 * @param id
@@ -130,8 +126,14 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 				return editable ? null : FilterBackspaceKeyAttributeModifier.SCRIPT;
 			}
 		}));
+		this.scriptable = new RuntimeTextArea(this, new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE, TemplateGenerator.DEFAULT_FIELD_PADDING),
+			application, null);
 	}
 
+	public IScriptable getScriptObject()
+	{
+		return this.scriptable;
+	}
 
 	/**
 	 * @see org.apache.wicket.Component#getLocale()
@@ -144,7 +146,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 
 	public IStylePropertyChanges getStylePropertyChanges()
 	{
-		return jsChangeRecorder;
+		return scriptable.getChangesRecorder();
 	}
 
 	/**
@@ -160,7 +162,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	protected void onRender(final MarkupStream markupStream)
 	{
 		super.onRender(markupStream);
-		jsChangeRecorder.setRendered();
+		getStylePropertyChanges().setRendered();
 		IModel model = getInnermostModel();
 		if (model instanceof RecordItemModel)
 		{
@@ -176,7 +178,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		if (useAJAX)
 		{
-			Object oe = js_getClientProperty("ajax.enabled");
+			Object oe = scriptable.js_getClientProperty("ajax.enabled");
 			if (oe != null) useAJAX = Utils.getAsBoolean(oe);
 		}
 
@@ -339,6 +341,11 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 		this.margin = margin;
 	}
 
+	public Insets getMargin()
+	{
+		return margin;
+	}
+
 	/**
 	 * @see com.servoy.j2db.ui.IFieldComponent#setHorizontalAlignment(int)
 	 */
@@ -359,7 +366,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 
 	public void setValueObject(Object value)
 	{
-		jsChangeRecorder.testChanged(this, value);
+		((ChangesRecorder)getStylePropertyChanges()).testChanged(this, value);
 	}
 
 	public boolean needEditListner()
@@ -468,7 +475,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	/*
 	 * jsmethods---------------------------------------------------
 	 */
-	public void js_requestFocus(Object[] vargs)
+	public void requestFocus(Object[] vargs)
 	{
 		if (vargs != null && vargs.length >= 1 && !Utils.getAsBoolean(vargs[0]))
 		{
@@ -486,27 +493,8 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 		}
 	}
 
-	public void js_setCaretPosition(int pos)
-	{
-		// TODO ignore for the web??
-	}
-
-	public String js_getSelectedText()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_getElementType()
-	 */
-	public String js_getElementType()
-	{
-		return IScriptBaseMethods.TEXT_AREA;
-	}
-
 	@SuppressWarnings("nls")
-	public void js_selectAll()
+	public void selectAll()
 	{
 		Page page = findPage();
 		if (page instanceof MainPage)
@@ -516,7 +504,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	}
 
 	@SuppressWarnings("nls")
-	public void js_replaceSelectedText(String s)
+	public void replaceSelectedText(String s)
 	{
 		Page page = findPage();
 		if (page instanceof MainPage)
@@ -524,13 +512,6 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 			((MainPage)page).getPageContributor().addDynamicJavaScript("Servoy.Utils.replaceSelectedText('" + getMarkupId() + "','" + s + "');");
 		}
 	}
-
-	public int js_getCaretPosition()
-	{
-		// TODO ignore for the web??
-		return -1;
-	}
-
 
 	/*
 	 * readonly/editable---------------------------------------------------
@@ -543,7 +524,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 		editable = b;
 	}
 
-	public boolean js_isEditable()
+	public boolean isEditable()
 	{
 		return editable;
 	}
@@ -553,19 +534,9 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 		return !editable;
 	}
 
-	public void js_setEditable(boolean editable)
-	{
-		this.editable = editable;
-	}
-
-	public boolean js_isReadOnly()
-	{
-		return !editable;
-	}
-
 	private boolean editState;
 
-	public void js_setReadOnly(boolean b)
+	public void setReadOnly(boolean b)
 	{
 		if (b && !editable) return;
 		if (b)
@@ -577,28 +548,6 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 		{
 			setEditable(editState);
 		}
-		jsChangeRecorder.setChanged();
-	}
-
-
-	/*
-	 * scrolling---------------------------------------------------
-	 */
-	public int js_getScrollX()
-	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	public int js_getScrollY()
-	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	public void js_setScroll(int x, int y)
-	{
-		// TODO Auto-generated method stub
 	}
 
 
@@ -615,23 +564,8 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 		return dataProviderID;
 	}
 
-	public String js_getDataProviderID()
-	{
-		return dataProviderID;
-	}
-
 	private String dataProviderID;
 
-
-	/*
-	 * name---------------------------------------------------
-	 */
-	public String js_getName()
-	{
-		String jsName = getName();
-		if (jsName != null && jsName.startsWith(ComponentFactory.WEB_ID_PREFIX)) jsName = null;
-		return jsName;
-	}
 
 	public void setName(String n)
 	{
@@ -672,17 +606,6 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 
 	private boolean opaque;
 
-	public boolean js_isTransparent()
-	{
-		return !opaque;
-	}
-
-	public void js_setTransparent(boolean b)
-	{
-		opaque = !b;
-		jsChangeRecorder.setTransparent(b);
-	}
-
 	public boolean isOpaque()
 	{
 		return opaque;
@@ -699,17 +622,9 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 		this.titleText = title;
 	}
 
-	public String js_getTitleText()
+	public String getTitleText()
 	{
 		return Text.processTags(titleText, resolver);
-	}
-
-	/*
-	 * tooltip---------------------------------------------------
-	 */
-	public String js_getToolTipText()
-	{
-		return tooltip;
 	}
 
 	private String tooltip;
@@ -721,12 +636,6 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 			tooltip = null;
 		}
 		this.tooltip = tooltip;
-	}
-
-	public void js_setToolTipText(String tooltip)
-	{
-		setToolTipText(tooltip);
-		jsChangeRecorder.setChanged();
 	}
 
 	protected ITagResolver resolver;
@@ -759,36 +668,11 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 
 	private Font font;
 
-	public void js_setFont(String spec)
-	{
-		font = PersistHelper.createFont(spec);
-		jsChangeRecorder.setFont(spec);
-	}
-
-	public String js_getFont()
-	{
-		return PersistHelper.createFontString(font);
-	}
-
 	public Font getFont()
 	{
 		return font;
 	}
 
-
-	/*
-	 * bgcolor---------------------------------------------------
-	 */
-	public String js_getBgcolor()
-	{
-		return PersistHelper.createColorString(background);
-	}
-
-	public void js_setBgcolor(String bgcolor)
-	{
-		background = PersistHelper.createColor(bgcolor);
-		jsChangeRecorder.setBgcolor(bgcolor);
-	}
 
 	private Color background;
 
@@ -803,23 +687,14 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	}
 
 
-	/*
-	 * fgcolor---------------------------------------------------
-	 */
-	public String js_getFgcolor()
-	{
-		return PersistHelper.createColorString(foreground);
-	}
-
-	public void js_setFgcolor(String fgcolor)
-	{
-		foreground = PersistHelper.createColor(fgcolor);
-		jsChangeRecorder.setFgcolor(fgcolor);
-	}
-
 	private Color foreground;
 
 	private List<ILabel> labels;
+
+	public List<ILabel> getLabelsFor()
+	{
+		return labels;
+	}
 
 	public void setForeground(Color cfg)
 	{
@@ -829,17 +704,6 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	public Color getForeground()
 	{
 		return foreground;
-	}
-
-	public void js_setBorder(String spec)
-	{
-		setBorder(ComponentFactoryHelper.createBorder(spec));
-		jsChangeRecorder.setBorder(spec);
-	}
-
-	public String js_getBorder()
-	{
-		return ComponentFactoryHelper.createBorderString(getBorder());
 	}
 
 	/*
@@ -858,31 +722,6 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 		}
 	}
 
-	public boolean js_isVisible()
-	{
-		return isVisible();
-	}
-
-	public void js_setVisible(boolean visible)
-	{
-		setVisible(visible);
-		jsChangeRecorder.setVisible(visible);
-		if (labels != null)
-		{
-			for (int i = 0; i < labels.size(); i++)
-			{
-				ILabel label = labels.get(i);
-				if (label instanceof IScriptBaseMethods)
-				{
-					((IScriptBaseMethods)label).js_setVisible(visible);
-				}
-				else
-				{
-					label.setComponentVisible(visible);
-				}
-			}
-		}
-	}
 
 	public void addLabelFor(ILabel label)
 	{
@@ -890,39 +729,18 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 		labels.add(label);
 	}
 
-	public String[] js_getLabelForElementNames()
+	public List<ILabel> getLabelForElementNames()
 	{
-		if (labels != null)
-		{
-			List<String> al = new ArrayList<String>(labels.size());
-			for (int i = 0; i < labels.size(); i++)
-			{
-				ILabel label = labels.get(i);
-				if (label.getName() != null && !"".equals(label.getName()) && !label.getName().startsWith(ComponentFactory.WEB_ID_PREFIX)) //$NON-NLS-1$
-				{
-					al.add(label.getName());
-				}
-			}
-			return al.toArray(new String[al.size()]);
-		}
-		return new String[0];
+		return labels;
 	}
 
-
-	/*
-	 * enabled---------------------------------------------------
-	 */
-	public void js_setEnabled(final boolean b)
-	{
-		setComponentEnabled(b);
-	}
 
 	public void setComponentEnabled(final boolean b)
 	{
 		if (accessible)
 		{
 			super.setEnabled(b);
-			jsChangeRecorder.setChanged();
+			((ChangesRecorder)getStylePropertyChanges()).setChanged();
 			if (labels != null)
 			{
 				for (int i = 0; i < labels.size(); i++)
@@ -934,11 +752,6 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 		}
 	}
 
-	public boolean js_isEnabled()
-	{
-		return isEnabled();
-	}
-
 	private boolean accessible = true;
 
 	public void setAccessible(boolean b)
@@ -947,26 +760,25 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 		accessible = b;
 	}
 
+	private boolean viewable = true;
+
+	public void setViewable(boolean b)
+	{
+		this.viewable = b;
+		setComponentVisible(b);
+	}
+
+	public boolean isViewable()
+	{
+		return viewable;
+	}
 
 	/*
 	 * location---------------------------------------------------
 	 */
 	private Point location = new Point(0, 0);
 
-	public int js_getLocationX()
-	{
-		return getLocation().x;
-	}
-
-	public int js_getLocationY()
-	{
-		return getLocation().y;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_getAbsoluteFormLocationY()
-	 */
-	public int js_getAbsoluteFormLocationY()
+	public int getAbsoluteFormLocationY()
 	{
 		WebDataRenderer parent = findParent(WebDataRenderer.class);
 		if (parent != null)
@@ -974,12 +786,6 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 			return parent.getYOffset() + getLocation().y;
 		}
 		return getLocation().y;
-	}
-
-	public void js_setLocation(int x, int y)
-	{
-		location = new Point(x, y);
-		jsChangeRecorder.setLocation(x, y);
 	}
 
 	public void setLocation(Point location)
@@ -993,27 +799,6 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	}
 
 	/*
-	 * client properties for ui---------------------------------------------------
-	 */
-
-	public void js_putClientProperty(Object key, Object value)
-	{
-		if (clientProperties == null)
-		{
-			clientProperties = new HashMap<Object, Object>();
-		}
-		clientProperties.put(key, value);
-	}
-
-	private Map<Object, Object> clientProperties;
-
-	public Object js_getClientProperty(Object key)
-	{
-		if (clientProperties == null) return null;
-		return clientProperties.get(key);
-	}
-
-	/*
 	 * size---------------------------------------------------
 	 */
 	private Dimension size = new Dimension(0, 0);
@@ -1023,15 +808,9 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 		return size;
 	}
 
-	public void js_setSize(int width, int height)
-	{
-		size = new Dimension(width, height);
-		jsChangeRecorder.setSize(width, height, border, margin, 0);
-	}
-
 	public Rectangle getWebBounds()
 	{
-		Dimension d = jsChangeRecorder.calculateWebSize(size.width, size.height, border, margin, 0, null);
+		Dimension d = ((ChangesRecorder)getStylePropertyChanges()).calculateWebSize(size.width, size.height, border, margin, 0, null);
 		return new Rectangle(location, d);
 	}
 
@@ -1040,22 +819,12 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	 */
 	public Insets getPaddingAndBorder()
 	{
-		return jsChangeRecorder.getPaddingAndBorder(size.height, border, margin, 0, null);
+		return ((ChangesRecorder)getStylePropertyChanges()).getPaddingAndBorder(size.height, border, margin, 0, null);
 	}
 
 	public void setSize(Dimension size)
 	{
 		this.size = size;
-	}
-
-	public int js_getWidth()
-	{
-		return size.width;
-	}
-
-	public int js_getHeight()
-	{
-		return size.height;
 	}
 
 	public void setRightClickCommand(String rightClickCmd, Object[] args)
@@ -1076,8 +845,9 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	@Override
 	public String toString()
 	{
-		return js_getElementType() + "(web)[name:" + js_getName() + ",x:" + js_getLocationX() + ",y:" + js_getLocationY() + ",width:" + js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + js_getHeight() + ",value:" + getDefaultModelObjectAsString() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.js_getElementType() +
+			"(web)[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
+			",height:" + scriptable.js_getHeight() + ",value:" + getDefaultModelObjectAsString() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	@Override

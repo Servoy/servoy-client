@@ -86,6 +86,7 @@ import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.IScriptSupport;
+import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.ITwoNativeJavaObject;
 import com.servoy.j2db.scripting.InstanceJavaMembers;
 import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
@@ -95,11 +96,11 @@ import com.servoy.j2db.scripting.JSWindowImpl.JSWindow;
 import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.scripting.SelectedRecordScope;
 import com.servoy.j2db.scripting.SolutionScope;
-import com.servoy.j2db.ui.IAccessible;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowStyling;
+import com.servoy.j2db.ui.ISupportSecuritySettings;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
@@ -1744,9 +1745,9 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 						while (componentIterator.hasNext())
 						{
 							IComponent c = componentIterator.next();
-							if (c instanceof IAccessible)
+							if (c instanceof ISupportSecuritySettings)
 							{
-								if (!b_accessible) ((IAccessible)c).setAccessible(b_accessible);
+								if (!b_accessible) ((ISupportSecuritySettings)c).setAccessible(b_accessible);
 							}
 						}
 					}
@@ -4032,7 +4033,12 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 										{
 											if (elementSrc instanceof ITwoNativeJavaObject)
 											{
-												((ITwoNativeJavaObject)elementSrc).setRealObject(event.js_getSource());
+												Object scriptable = event.js_getSource();
+												if (scriptable instanceof IScriptableProvider)
+												{
+													scriptable = ((IScriptableProvider)scriptable).getScriptObject();
+												}
+												((ITwoNativeJavaObject)elementSrc).setRealObject(scriptable);
 											}
 											event.setSource(elementSrc);
 										}

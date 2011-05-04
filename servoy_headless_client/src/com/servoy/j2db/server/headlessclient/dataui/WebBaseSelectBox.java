@@ -25,12 +25,11 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.swing.border.Border;
+import javax.swing.event.ListDataListener;
 import javax.swing.text.Document;
 
 import org.apache.wicket.Component;
@@ -51,16 +50,11 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
-import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.component.INullableAware;
-import com.servoy.j2db.dataprocessing.CustomValueList;
-import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IValueList;
-import com.servoy.j2db.dataprocessing.JSDataSet;
-import com.servoy.j2db.dataprocessing.ValueListFactory;
-import com.servoy.j2db.persistence.ValueList;
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.ServoyForm;
@@ -68,14 +62,13 @@ import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
-import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
+import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.util.ComponentFactoryHelper;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.ITagResolver;
-import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
@@ -84,7 +77,7 @@ import com.servoy.j2db.util.Utils;
  *
  */
 public abstract class WebBaseSelectBox extends MarkupContainer implements IFieldComponent, IDisplayData, IProviderStylePropertyChanges, INullableAware,
-	ISupportWebBounds, IRightClickListener, ISupplyFocusChildren<Component>
+	ISupportWebBounds, IRightClickListener, ISupplyFocusChildren<Component>, ISupportValueList
 {
 	protected static final long serialVersionUID = 1L;
 	protected static final String NO_COLOR = "NO_COLOR";
@@ -102,10 +95,9 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 	protected boolean allowNull = true;
 	protected String tmpForeground = NO_COLOR;
 
-	protected final ChangesRecorder jsChangeRecorder = new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE, TemplateGenerator.DEFAULT_FIELD_PADDING);
-
 	protected final IApplication application;
 	protected final FormComponent selector;
+	protected AbstractRuntimeField scriptable;
 
 	public WebBaseSelectBox(IApplication application, String id, String text, IValueList list)
 	{
@@ -131,6 +123,11 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 		selector.add(new FocusIfInvalidAttributeModifier(selector));
 		add(StyleAttributeModifierModel.INSTANCE);
 		add(TooltipAttributeModifier.INSTANCE);
+	}
+
+	public IScriptable getScriptObject()
+	{
+		return scriptable;
 	}
 
 	protected abstract FormComponent getSelector(String id);
@@ -160,7 +157,7 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 
 	public IStylePropertyChanges getStylePropertyChanges()
 	{
-		return jsChangeRecorder;
+		return scriptable.getChangesRecorder();
 	}
 
 	/*
@@ -205,8 +202,8 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 			requestFocus();
 			if (tmpForeground == NO_COLOR)
 			{
-				tmpForeground = js_getFgcolor();
-				js_setFgcolor("red");
+				tmpForeground = scriptable.js_getFgcolor();
+				scriptable.js_setFgcolor("red");
 			}
 		}
 		else
@@ -214,7 +211,7 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 			previousValidValue = null;
 			if (tmpForeground != NO_COLOR)
 			{
-				js_setFgcolor(tmpForeground);
+				scriptable.js_setFgcolor(tmpForeground);
 				tmpForeground = NO_COLOR;
 			}
 		}
@@ -307,7 +304,7 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 	{
 		super.onRender(markupStream);
 
-		jsChangeRecorder.setRendered();
+		getStylePropertyChanges().setRendered();
 		IModel model = getInnermostModel();
 
 		if (model instanceof RecordItemModel)
@@ -324,7 +321,7 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		if (useAJAX)
 		{
-			Object oe = js_getClientProperty("ajax.enabled");
+			Object oe = scriptable.js_getClientProperty("ajax.enabled");
 			if (oe != null) useAJAX = Utils.getAsBoolean(oe);
 		}
 		if (!useAJAX)
@@ -375,12 +372,22 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 		editable = b;
 	}
 
+	public boolean isEditable()
+	{
+		return !isReadOnly();
+	}
+
 	/**
 	 * @see com.servoy.j2db.ui.IFieldComponent#setMargin(java.awt.Insets)
 	 */
 	public void setMargin(Insets margin)
 	{
 		this.margin = margin;
+	}
+
+	public Insets getMargin()
+	{
+		return margin;
 	}
 
 	/**
@@ -544,41 +551,24 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 		return eventExecutor;
 	}
 
-	/*
-	 * jsmethods---------------------------------------------------
-	 */
-	public String js_getValueListName()
+	public IValueList getValueList()
 	{
-		if (onValue != null)
-		{
-			return onValue.getName();
-		}
+		return onValue;
+	}
+
+	public ListDataListener getListener()
+	{
 		return null;
 	}
 
-	public void js_setValueListItems(Object value)
+	public void setValueList(IValueList vl)
 	{
-		if (onValue != null && (value instanceof JSDataSet || value instanceof IDataSet))
-		{
-			String name = onValue.getName();
-			ValueList valuelist = application.getFlattenedSolution().getValueList(name);
-			if (valuelist != null && valuelist.getValueListType() == ValueList.CUSTOM_VALUES)
-			{
-				String format = null;
-				int type = 0;
-				if (onValue instanceof CustomValueList)
-				{
-					format = ((CustomValueList)onValue).getFormat();
-					type = ((CustomValueList)onValue).getType();
-				}
-				IValueList newVl = ValueListFactory.fillRealValueList(application, valuelist, ValueList.CUSTOM_VALUES, format, type, value);
-				onValue = newVl;
-				getStylePropertyChanges().setChanged();
-			}
-		}
+		this.onValue = vl;
+		getStylePropertyChanges().setChanged();
+
 	}
 
-	public void js_requestFocus(Object[] vargs)
+	public void requestFocus(Object[] vargs)
 	{
 		if (vargs != null && vargs.length >= 1 && !Utils.getAsBoolean(vargs[0]))
 		{
@@ -591,7 +581,7 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 	 * readonly---------------------------------------------------
 	 */
 
-	public void js_setReadOnly(boolean b)
+	public void setReadOnly(boolean b)
 	{
 		if (b && !editable) return;
 		if (b)
@@ -603,12 +593,6 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 		{
 			setEditable(editState);
 		}
-		jsChangeRecorder.setChanged();
-	}
-
-	public boolean js_isReadOnly()
-	{
-		return isReadOnly();
 	}
 
 	public boolean isReadOnly()
@@ -622,11 +606,6 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 	 */
 	protected String dataProviderID;
 
-	public String js_getDataProviderID()
-	{
-		return dataProviderID;
-	}
-
 	public void setDataProviderID(String dataProviderID)
 	{
 		this.dataProviderID = dataProviderID;
@@ -635,28 +614,6 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 	public String getDataProviderID()
 	{
 		return dataProviderID;
-	}
-
-	/*
-	 * name---------------------------------------------------
-	 */
-	public String js_getName()
-	{
-		String jsName = getName();
-		if (jsName != null && jsName.startsWith(ComponentFactory.WEB_ID_PREFIX)) jsName = null;
-		return jsName;
-	}
-
-
-	public boolean js_isTransparent()
-	{
-		return !opaque;
-	}
-
-	public void js_setTransparent(boolean b)
-	{
-		opaque = !b;
-		jsChangeRecorder.setTransparent(b);
 	}
 
 	public boolean isOpaque()
@@ -675,17 +632,9 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 		this.titleText = title;
 	}
 
-	public String js_getTitleText()
+	public String getTitleText()
 	{
 		return Text.processTags(titleText, resolver);
-	}
-
-	/*
-	 * tooltip---------------------------------------------------
-	 */
-	public String js_getToolTipText()
-	{
-		return tooltip;
 	}
 
 	private String tooltip;
@@ -697,12 +646,6 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 			tooltip = null;
 		}
 		this.tooltip = tooltip;
-	}
-
-	public void js_setToolTipText(String tooltip)
-	{
-		setToolTipText(tooltip);
-		jsChangeRecorder.setChanged();
 	}
 
 	protected ITagResolver resolver;
@@ -734,35 +677,9 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 
 	private Font font;
 
-	public void js_setFont(String spec)
-	{
-		font = PersistHelper.createFont(spec);
-		jsChangeRecorder.setFont(spec);
-	}
-
-	public String js_getFont()
-	{
-		return PersistHelper.createFontString(font);
-	}
-
 	public Font getFont()
 	{
 		return font;
-	}
-
-
-	/*
-	 * bgcolor---------------------------------------------------
-	 */
-	public String js_getBgcolor()
-	{
-		return PersistHelper.createColorString(background);
-	}
-
-	public void js_setBgcolor(String bgcolor)
-	{
-		background = PersistHelper.createColor(bgcolor);
-		jsChangeRecorder.setBgcolor(bgcolor);
 	}
 
 	private Color background;
@@ -778,20 +695,6 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 	}
 
 
-	/*
-	 * fgcolor---------------------------------------------------
-	 */
-	public String js_getFgcolor()
-	{
-		return PersistHelper.createColorString(foreground);
-	}
-
-	public void js_setFgcolor(String fgcolor)
-	{
-		foreground = PersistHelper.createColor(fgcolor);
-		jsChangeRecorder.setFgcolor(fgcolor);
-	}
-
 	private Color foreground;
 
 	private List<ILabel> labels;
@@ -806,17 +709,6 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 		return foreground;
 	}
 
-
-	public void js_setBorder(String spec)
-	{
-		setBorder(ComponentFactoryHelper.createBorder(spec));
-		jsChangeRecorder.setBorder(spec);
-	}
-
-	public String js_getBorder()
-	{
-		return ComponentFactoryHelper.createBorderString(getBorder());
-	}
 
 	/*
 	 * visible---------------------------------------------------
@@ -834,62 +726,15 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 		}
 	}
 
-	public boolean js_isVisible()
-	{
-		return isVisible();
-	}
-
-	public void js_setVisible(boolean visible)
-	{
-		setVisible(visible);
-		jsChangeRecorder.setVisible(visible);
-		if (labels != null)
-		{
-			for (int i = 0; i < labels.size(); i++)
-			{
-				ILabel label = labels.get(i);
-				if (label instanceof IScriptBaseMethods)
-				{
-					((IScriptBaseMethods)label).js_setVisible(visible);
-				}
-				else
-				{
-					label.setComponentVisible(visible);
-				}
-			}
-		}
-	}
-
 	public void addLabelFor(ILabel label)
 	{
 		if (labels == null) labels = new ArrayList<ILabel>(3);
 		labels.add(label);
 	}
 
-	public String[] js_getLabelForElementNames()
+	public List<ILabel> getLabelsFor()
 	{
-		if (labels != null)
-		{
-			List<String> al = new ArrayList<String>(labels.size());
-			for (int i = 0; i < labels.size(); i++)
-			{
-				ILabel label = labels.get(i);
-				if (label.getName() != null && !"".equals(label.getName()) && !label.getName().startsWith(ComponentFactory.WEB_ID_PREFIX))
-				{
-					al.add(label.getName());
-				}
-			}
-			return al.toArray(new String[al.size()]);
-		}
-		return new String[0];
-	}
-
-	/*
-	 * enabled---------------------------------------------------
-	 */
-	public void js_setEnabled(final boolean b)
-	{
-		setComponentEnabled(b);
+		return labels;
 	}
 
 	public void setComponentEnabled(final boolean b)
@@ -898,7 +743,7 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 		{
 			editState = b;
 			super.setEnabled(b);
-			jsChangeRecorder.setChanged();
+			getStylePropertyChanges().setChanged();
 			if (labels != null)
 			{
 				for (int i = 0; i < labels.size(); i++)
@@ -910,11 +755,6 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 		}
 	}
 
-	public boolean js_isEnabled()
-	{
-		return isEnabled();
-	}
-
 	private boolean accessible = true;
 
 	public void setAccessible(boolean b)
@@ -923,26 +763,25 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 		accessible = b;
 	}
 
+	private boolean viewable = true;
+
+	public void setViewable(boolean b)
+	{
+		this.viewable = b;
+		setComponentVisible(b);
+	}
+
+	public boolean isViewable()
+	{
+		return viewable;
+	}
 
 	/*
 	 * location---------------------------------------------------
 	 */
 	private Point location = new Point(0, 0);
 
-	public int js_getLocationX()
-	{
-		return getLocation().x;
-	}
-
-	public int js_getLocationY()
-	{
-		return getLocation().y;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_getAbsoluteFormLocationY()
-	 */
-	public int js_getAbsoluteFormLocationY()
+	public int getAbsoluteFormLocationY()
 	{
 		WebDataRenderer parent = findParent(WebDataRenderer.class);
 		if (parent != null)
@@ -950,12 +789,6 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 			return parent.getYOffset() + getLocation().y;
 		}
 		return getLocation().y;
-	}
-
-	public void js_setLocation(int x, int y)
-	{
-		location = new Point(x, y);
-		jsChangeRecorder.setLocation(x, y);
 	}
 
 	public void setLocation(Point location)
@@ -969,27 +802,6 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 	}
 
 	/*
-	 * client properties for ui---------------------------------------------------
-	 */
-
-	public void js_putClientProperty(Object key, Object value)
-	{
-		if (clientProperties == null)
-		{
-			clientProperties = new HashMap<Object, Object>();
-		}
-		clientProperties.put(key, value);
-	}
-
-	private Map<Object, Object> clientProperties;
-
-	public Object js_getClientProperty(Object key)
-	{
-		if (clientProperties == null) return null;
-		return clientProperties.get(key);
-	}
-
-	/*
 	 * size---------------------------------------------------
 	 */
 	private Dimension size = new Dimension(0, 0);
@@ -999,15 +811,9 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 		return size;
 	}
 
-	public void js_setSize(int width, int height)
-	{
-		size = new Dimension(width, height);
-		jsChangeRecorder.setSize(width, height, border, margin, 0);
-	}
-
 	public Rectangle getWebBounds()
 	{
-		Dimension d = jsChangeRecorder.calculateWebSize(size.width, size.height, border, margin, 0, null);
+		Dimension d = ((ChangesRecorder)getStylePropertyChanges()).calculateWebSize(size.width, size.height, border, margin, 0, null);
 		return new Rectangle(location, d);
 	}
 
@@ -1016,23 +822,13 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 	 */
 	public Insets getPaddingAndBorder()
 	{
-		return jsChangeRecorder.getPaddingAndBorder(size.height, border, margin, 0, null);
+		return ((ChangesRecorder)getStylePropertyChanges()).getPaddingAndBorder(size.height, border, margin, 0, null);
 	}
 
 
 	public void setSize(Dimension size)
 	{
 		this.size = size;
-	}
-
-	public int js_getWidth()
-	{
-		return size.width;
-	}
-
-	public int js_getHeight()
-	{
-		return size.height;
 	}
 
 	public void setRightClickCommand(String rightClickCmd, Object[] args)
@@ -1052,7 +848,7 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 			{
 				if (super.isEnabled(component))
 				{
-					Object oe = WebBaseSelectBox.this.js_getClientProperty("ajax.enabled");
+					Object oe = WebBaseSelectBox.this.scriptable.js_getClientProperty("ajax.enabled");
 					if (oe != null) return Utils.getAsBoolean(oe);
 					return true;
 				}

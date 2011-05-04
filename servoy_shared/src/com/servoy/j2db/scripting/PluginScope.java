@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting;
 
 
@@ -103,7 +103,7 @@ public class PluginScope extends DefaultScope
 				return Scriptable.NOT_FOUND;
 			}
 
-			IScriptObject tocall = null;
+			IScriptable tocall = null;
 			IClientPlugin plugin = application.getPluginManager().getPlugin(IClientPlugin.class, realName);
 			if (plugin == null)
 			{
@@ -132,9 +132,9 @@ public class PluginScope extends DefaultScope
 					put(realName, this, s_tocall);//save so we do not all this again
 					setLocked(true);
 					IExecutingEnviroment scriptEngine = application.getScriptEngine();
-					if (scriptEngine != null)
+					if (scriptEngine != null && tocall instanceof IReturnedTypesProvider)
 					{
-						scriptEngine.registerScriptObjectReturnTypes(tocall);
+						scriptEngine.registerScriptObjectReturnTypes((IReturnedTypesProvider)tocall);
 					}
 				}
 				finally

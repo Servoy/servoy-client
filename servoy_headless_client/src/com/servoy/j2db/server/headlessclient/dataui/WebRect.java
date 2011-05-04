@@ -24,15 +24,13 @@ import javax.swing.border.LineBorder;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.RectShape;
 import com.servoy.j2db.ui.IRect;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptTransparentMethods;
 
 /**
  * Represents a rectangle in the browser, (a div with a 1 pixel border)
  * 
  * @author jcompagner
  */
-public class WebRect extends WebBaseLabel implements IRect, IScriptTransparentMethods
+public class WebRect extends WebBaseLabel implements IRect
 {
 
 	/**
@@ -99,14 +97,5 @@ public class WebRect extends WebBaseLabel implements IRect, IScriptTransparentMe
 	{
 		if (webBorder == null) webBorder = new LineBorder(Color.BLACK, 1);
 		return webBorder;
-	}
-
-	/*
-	 * jsmethods---------------------------------------------------
-	 */
-	@Override
-	public String js_getElementType()
-	{
-		return IScriptBaseMethods.RECTANGLE;
 	}
 }

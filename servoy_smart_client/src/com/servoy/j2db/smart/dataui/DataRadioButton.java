@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JRadioButton;
+import javax.swing.event.ListDataListener;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.text.Document;
 
@@ -40,29 +41,23 @@ import sun.java2d.SunGraphics2D;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
-import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.component.INullableAware;
-import com.servoy.j2db.dataprocessing.CustomValueList;
-import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IValueList;
-import com.servoy.j2db.dataprocessing.JSDataSet;
-import com.servoy.j2db.dataprocessing.ValueListFactory;
-import com.servoy.j2db.persistence.ValueList;
+import com.servoy.j2db.scripting.IScriptable;
+import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptRadioMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
+import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.util.ComponentFactoryHelper;
+import com.servoy.j2db.ui.scripting.RuntimeRadioButton;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ISkinnable;
 import com.servoy.j2db.util.ITagResolver;
-import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
@@ -72,8 +67,8 @@ import com.servoy.j2db.util.Utils;
  * @author lvostinar
  *
  */
-public class DataRadioButton extends JRadioButton implements IFieldComponent, IDisplayData, ISkinnable, IScriptRadioMethods, INullableAware,
-	ISupportCachedLocationAndSize
+public class DataRadioButton extends JRadioButton implements IFieldComponent, IDisplayData, ISkinnable, INullableAware, ISupportCachedLocationAndSize,
+	ISupportValueList
 {
 	private Object value;
 	protected IValueList onValue;
@@ -83,6 +78,7 @@ public class DataRadioButton extends JRadioButton implements IFieldComponent, ID
 	private final EventExecutor eventExecutor;
 	private MouseAdapter rightclickMouseAdapter = null;
 	private boolean allowNull = true;
+	private final RuntimeRadioButton scriptable;
 
 	public DataRadioButton(IApplication application, String text)
 	{
@@ -90,12 +86,18 @@ public class DataRadioButton extends JRadioButton implements IFieldComponent, ID
 		this.application = application;
 		eventExecutor = new EventExecutor(this);
 		addKeyListener(eventExecutor);
+		scriptable = new RuntimeRadioButton(this, new DummyChangesRecorder(), application);
 	}
 
 	public DataRadioButton(IApplication application, String text, IValueList onValue)
 	{
 		this(application, text);
 		this.onValue = onValue;
+	}
+
+	public IScriptable getScriptObject()
+	{
+		return scriptable;
 	}
 
 	/**
@@ -245,7 +247,7 @@ public class DataRadioButton extends JRadioButton implements IFieldComponent, ID
 
 				private void handle(MouseEvent e)
 				{
-					if (js_isEnabled())
+					if (scriptable.js_isEnabled())
 					{
 						eventExecutor.fireRightclickCommand(true, DataRadioButton.this, e.getModifiers(), e.getPoint());
 					}
@@ -456,14 +458,6 @@ public class DataRadioButton extends JRadioButton implements IFieldComponent, ID
 	}
 
 
-	/*
-	 * enabled---------------------------------------------------
-	 */
-	public void js_setEnabled(final boolean b)
-	{
-		setComponentEnabled(b);
-	}
-
 	public void setComponentEnabled(final boolean b)
 	{
 		if (accessible)
@@ -482,11 +476,6 @@ public class DataRadioButton extends JRadioButton implements IFieldComponent, ID
 		}
 	}
 
-	public boolean js_isEnabled()
-	{
-		return enabled;
-	}
-
 	public void setEditable(boolean b)
 	{
 		if (accessible)
@@ -497,6 +486,11 @@ public class DataRadioButton extends JRadioButton implements IFieldComponent, ID
 		}
 	}
 
+	public boolean isEditable()
+	{
+		return !isReadOnly();
+	}
+
 	private boolean accessible = true;
 
 	public void setAccessible(boolean b)
@@ -505,13 +499,17 @@ public class DataRadioButton extends JRadioButton implements IFieldComponent, ID
 		accessible = b;
 	}
 
+	private boolean viewable = true;
 
-	/*
-	 * readonly---------------------------------------------------
-	 */
-	public boolean js_isReadOnly()
+	public void setViewable(boolean b)
 	{
-		return isReadOnly();
+		this.viewable = b;
+		setComponentVisible(b);
+	}
+
+	public boolean isViewable()
+	{
+		return viewable;
 	}
 
 	private boolean editState;
@@ -519,7 +517,7 @@ public class DataRadioButton extends JRadioButton implements IFieldComponent, ID
 	private boolean enabled = true;
 	private boolean readonly = false;
 
-	public void js_setReadOnly(boolean b)
+	public void setReadOnly(boolean b)
 	{
 		if (b && isReadOnly()) return;
 		if (b)
@@ -547,56 +545,6 @@ public class DataRadioButton extends JRadioButton implements IFieldComponent, ID
 	}
 
 
-	/*
-	 * bgcolor---------------------------------------------------
-	 */
-	public String js_getBgcolor()
-	{
-		return PersistHelper.createColorString(getBackground());
-	}
-
-	public void js_setBgcolor(String clr)
-	{
-		setBackground(PersistHelper.createColor(clr));
-	}
-
-
-	/*
-	 * fgcolor---------------------------------------------------
-	 */
-	public String js_getFgcolor()
-	{
-		return PersistHelper.createColorString(getForeground());
-	}
-
-	public void js_setFgcolor(String clr)
-	{
-		setForeground(PersistHelper.createColor(clr));
-	}
-
-	public void js_setBorder(String spec)
-	{
-		setBorder(ComponentFactoryHelper.createBorder(spec));
-	}
-
-	public String js_getBorder()
-	{
-		return ComponentFactoryHelper.createBorderString(getBorder());
-	}
-
-	/*
-	 * visible---------------------------------------------------
-	 */
-	public boolean js_isVisible()
-	{
-		return isVisible();
-	}
-
-	public void js_setVisible(boolean b)
-	{
-		setVisible(b);
-	}
-
 	public void setComponentVisible(boolean b_visible)
 	{
 		setVisible(b_visible);
@@ -623,37 +571,10 @@ public class DataRadioButton extends JRadioButton implements IFieldComponent, ID
 		labels.add(label);
 	}
 
-	public String[] js_getLabelForElementNames()
+	public List<ILabel> getLabelsFor()
 	{
-		if (labels != null)
-		{
-			List<String> al = new ArrayList<String>(labels.size());
-			for (int i = 0; i < labels.size(); i++)
-			{
-				ILabel label = labels.get(i);
-				if (label.getName() != null && !"".equals(label.getName()) && !label.getName().startsWith(ComponentFactory.WEB_ID_PREFIX))
-				{
-					al.add(label.getName());
-				}
-			}
-			return al.toArray(new String[al.size()]);
-		}
-		return new String[0];
+		return labels;
 	}
-
-	/*
-	 * opaque---------------------------------------------------
-	 */
-	public boolean js_isTransparent()
-	{
-		return !isOpaque();
-	}
-
-	public void js_setTransparent(boolean b)
-	{
-		setOpaque(!b);
-	}
-
 
 	/*
 	 * titleText---------------------------------------------------
@@ -666,42 +587,12 @@ public class DataRadioButton extends JRadioButton implements IFieldComponent, ID
 		this.titleText = title;
 	}
 
-	public String js_getTitleText()
+	public String getTitleText()
 	{
 		return Text.processTags(titleText, resolver);
 	}
 
-	/*
-	 * tooltip---------------------------------------------------
-	 */
-	public void js_setToolTipText(String txt)
-	{
-		setToolTipText(txt);
-	}
-
-	public String js_getToolTipText()
-	{
-		return getToolTipText();
-	}
-
-
-	/*
-	 * location---------------------------------------------------
-	 */
-	public int js_getLocationX()
-	{
-		return getLocation().x;
-	}
-
-	public int js_getLocationY()
-	{
-		return getLocation().y;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_getAbsoluteFormLocationY()
-	 */
-	public int js_getAbsoluteFormLocationY()
+	public int getAbsoluteFormLocationY()
 	{
 		Container parent = getParent();
 		while ((parent != null) && !(parent instanceof IDataRenderer))
@@ -717,111 +608,43 @@ public class DataRadioButton extends JRadioButton implements IFieldComponent, ID
 
 	private Point cachedLocation;
 
-	public void js_setLocation(int x, int y)
-	{
-		cachedLocation = new Point(x, y);
-		setLocation(x, y);
-	}
-
 	public Point getCachedLocation()
 	{
 		return cachedLocation;
 	}
 
-	/*
-	 * client properties for ui---------------------------------------------------
-	 */
-
-	public void js_putClientProperty(Object key, Object value)
+	public void setCachedLocation(Point location)
 	{
-		putClientProperty(key, value);
+		this.cachedLocation = location;
 	}
 
-	public Object js_getClientProperty(Object key)
+	public void setCachedSize(Dimension size)
 	{
-		return getClientProperty(key);
+		this.cachedSize = size;
 	}
 
 
 	private Dimension cachedSize;
-
-	/*
-	 * size---------------------------------------------------
-	 */
-	public void js_setSize(int x, int y)
-	{
-		cachedSize = new Dimension(x, y);
-		setSize(x, y);
-	}
 
 	public Dimension getCachedSize()
 	{
 		return cachedSize;
 	}
 
-	public int js_getWidth()
+	public IValueList getValueList()
 	{
-		return getSize().width;
+		return onValue;
 	}
 
-	public int js_getHeight()
+	public ListDataListener getListener()
 	{
-		return getSize().height;
-	}
-
-
-	public String js_getDataProviderID()
-	{
-		return getDataProviderID();
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_getElementType()
-	 */
-	public String js_getElementType()
-	{
-		return IScriptBaseMethods.RADIOS;
-	}
-
-	public String js_getName()
-	{
-		String jsName = getName();
-		if (jsName != null && jsName.startsWith(ComponentFactory.WEB_ID_PREFIX)) jsName = null;
-		return jsName;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptCheckBoxMethods#js_getValueListName()
-	 */
-	public String js_getValueListName()
-	{
-		if (onValue != null)
-		{
-			return onValue.getName();
-		}
 		return null;
 	}
 
-
-	public void js_setValueListItems(Object value)
+	public void setValueList(IValueList vl)
 	{
-		if (onValue != null && (value instanceof JSDataSet || value instanceof IDataSet))
-		{
-			String name = onValue.getName();
-			ValueList valuelist = application.getFlattenedSolution().getValueList(name);
-			if (valuelist != null && valuelist.getValueListType() == ValueList.CUSTOM_VALUES)
-			{
-				String format = null;
-				int type = 0;
-				if (onValue instanceof CustomValueList)
-				{
-					format = ((CustomValueList)onValue).getFormat();
-					type = ((CustomValueList)onValue).getType();
-				}
-				IValueList newVl = ValueListFactory.fillRealValueList(application, valuelist, ValueList.CUSTOM_VALUES, format, type, value);
-				onValue = newVl;
-			}
-		}
+		onValue = vl;
+
 	}
 
 	// If component not shown or not added yet 
@@ -840,7 +663,7 @@ public class DataRadioButton extends JRadioButton implements IFieldComponent, ID
 		}
 	}
 
-	public void js_requestFocus(Object[] vargs)
+	public void requestFocus(Object[] vargs)
 	{
 //		if (!hasFocus()) Don't test on hasFocus (it can have focus,but other component already did requestFocus)
 		{
@@ -866,21 +689,12 @@ public class DataRadioButton extends JRadioButton implements IFieldComponent, ID
 		}
 	}
 
-	public void js_setFont(String spec)
-	{
-		setFont(PersistHelper.createFont(spec));
-	}
-
-	public String js_getFont()
-	{
-		return PersistHelper.createFontString(getFont());
-	}
-
 	@Override
 	public String toString()
 	{
-		return js_getElementType() + "[name:" + js_getName() + ",x:" + js_getLocationX() + ",y:" + js_getLocationY() + ",width:" + js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + js_getHeight() + ",value:" + getValueObject() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.js_getElementType() +
+			"[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
+			",height:" + scriptable.js_getHeight() + ",value:" + getValueObject() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	public boolean stopUIEditing(boolean looseFocus)

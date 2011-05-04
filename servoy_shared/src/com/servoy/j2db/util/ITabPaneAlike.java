@@ -24,19 +24,17 @@ import java.awt.Font;
 import javax.swing.Icon;
 import javax.swing.event.ChangeListener;
 
+import com.servoy.j2db.ui.ISupportReadOnly;
+
 
 /**
  * @author jblok
  */
-public interface ITabPaneAlike extends IFocusCycleRoot<Component>
+public interface ITabPaneAlike extends IFocusCycleRoot<Component>, ISupportReadOnly
 {
 	public void setEnabledAt(int index, boolean enabled);
 
 	public boolean isEnabledAt(int index);
-
-	public void setReadOnly(boolean b);
-
-	public boolean isReadOnly();
 
 	public void setTabPlacement(int tabPlacement);
 
@@ -88,8 +86,6 @@ public interface ITabPaneAlike extends IFocusCycleRoot<Component>
 	 * @param font
 	 */
 	public void setFont(Font font);
-
-	public Font getFont();
 
 	/**
 	 * @return

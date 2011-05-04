@@ -27,9 +27,7 @@ import java.awt.Rectangle;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.swing.ImageIcon;
 import javax.swing.SwingConstants;
@@ -58,27 +56,23 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.MediaURLStreamHandler;
-import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.persistence.Media;
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.ByteArrayResource;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
-import com.servoy.j2db.ui.ILabelForMethods;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptHtmlSubmitLabelsMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.util.ComponentFactoryHelper;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeBaseComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.ImageLoader;
-import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.JpegEncoder;
@@ -88,8 +82,8 @@ import com.servoy.j2db.util.gui.JpegEncoder;
  * 
  * @author jcompagner,jblok
  */
-public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabelsMethods, IResourceListener, IProviderStylePropertyChanges, ILabelForMethods,
-	IDoubleClickListener, IRightClickListener, ISupportWebBounds
+public class WebBaseLabel extends Label implements ILabel, IResourceListener, IProviderStylePropertyChanges, IDoubleClickListener, IRightClickListener,
+	ISupportWebBounds
 {
 	private static final long serialVersionUID = 1L;
 
@@ -109,13 +103,13 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 	private Dimension mediaSize;
 	private Media rolloverMedia;
 	protected final IApplication application;
-	protected ChangesRecorder jsChangeRecorder = new ChangesRecorder(null, TemplateGenerator.DEFAULT_LABEL_PADDING);
 	private String text_url;
 	private String rolloverUrl;
 	private ServoyAjaxEventBehavior rolloverBehavior;
 
 	protected IFieldComponent labelForComponent;
 	private final WebEventExecutor eventExecutor;
+	protected AbstractRuntimeBaseComponent scriptable;
 
 	/**
 	 * @param id
@@ -153,6 +147,11 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 		setDefaultModel(model);
 	}
 
+	public IScriptable getScriptObject()
+	{
+		return scriptable;
+	}
+
 	/**
 	 * @see org.apache.wicket.Component#getLocale()
 	 */
@@ -169,7 +168,7 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 	protected void onRender(MarkupStream markupStream)
 	{
 		super.onRender(markupStream);
-		jsChangeRecorder.setRendered();
+		scriptable.getChangesRecorder().setRendered();
 	}
 
 	/**
@@ -243,7 +242,7 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 
 	public IStylePropertyChanges getStylePropertyChanges()
 	{
-		return jsChangeRecorder;
+		return scriptable.getChangesRecorder();
 	}
 
 	/**
@@ -461,7 +460,7 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 						styleAttribute = "background-image: url(" + url + "); background-repeat: " + repeat + "; background-position: " + position; //$NON-NLS-1$ //$NON-NLS-2$
 					}
 				}
-				if (!js_isEnabled())
+				if (!scriptable.js_isEnabled())
 				{
 					styleAttribute += "; filter:alpha(opacity=50);-moz-opacity:.50;opacity:.50"; //$NON-NLS-1$
 				}
@@ -514,6 +513,11 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 		this.valign = t;
 	}
 
+	public int getVerticalAlignment()
+	{
+		return valign;
+	}
+
 	public void setText(String txt)
 	{
 		setDefaultModel(new Model<String>(txt));
@@ -564,10 +568,7 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 		// ignore should be done through css
 	}
 
-	/*
-	 * jsmethods---------------------------------------------------
-	 */
-	public void js_setImageURL(String textUrl)
+	public void setImageURL(String textUrl)
 	{
 		this.text_url = textUrl;
 		if (textUrl == null)
@@ -611,7 +612,7 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 				}
 			}
 		}
-		jsChangeRecorder.setChanged();
+		scriptable.getChangesRecorder().setChanged();
 	}
 
 	public String getImageURL()
@@ -624,7 +625,7 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 		return rolloverUrl;
 	}
 
-	public void js_setRolloverImageURL(String imageUrl)
+	public void setRolloverImageURL(String imageUrl)
 	{
 		this.rolloverUrl = imageUrl;
 		rolloverIconReference = null;
@@ -642,10 +643,11 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 			}
 		}
 		addRolloverBehaviors();
-		jsChangeRecorder.setChanged();
+		scriptable.getChangesRecorder().setChanged();
 	}
 
-	public byte[] js_getThumbnailJPGImage(Object[] args)
+
+	public byte[] getThumbnailJPGImage(Object[] args)
 	{
 		return getThumbnailJPGImage(args, icon, text_url, media != null ? media.getID() : 0, (mediaOptions & 8) == 8, application);
 	}
@@ -728,7 +730,7 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 	}
 
 	@Deprecated
-	public String js_getParameterValue(String param)
+	public String getParameterValue(String param)
 	{
 		RequestCycle cycle = RequestCycle.get();
 		if (cycle != null)
@@ -754,12 +756,6 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 	/*
 	 * name---------------------------------------------------
 	 */
-	public String js_getName()
-	{
-		String jsName = getName();
-		if (jsName != null && jsName.startsWith(ComponentFactory.WEB_ID_PREFIX)) jsName = null;
-		return jsName;
-	}
 
 	public void setName(String n)
 	{
@@ -800,62 +796,20 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 
 	private boolean opaque;
 
-	public boolean js_isTransparent()
-	{
-		return !opaque;
-	}
-
-	public void js_setTransparent(boolean b)
-	{
-		opaque = !b;
-		jsChangeRecorder.setTransparent(b);
-	}
-
 	public boolean isOpaque()
 	{
 		return opaque;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_getElementType()
-	 */
-	public String js_getElementType()
-	{
-		return IScriptBaseMethods.LABEL;
-	}
-
-	public String js_getDataProviderID()
-	{
-		//default implementation
-		return null;
 	}
 
 	/*
 	 * titleText---------------------------------------------------
 	 */
 
-	private String titleText = null;
+	protected String titleText = null;
 
 	public void setTitleText(String title)
 	{
 		this.titleText = title;
-	}
-
-	public String js_getTitleText()
-	{
-		if (titleText != null && getDefaultModel() instanceof ITagResolver)
-		{
-			return Text.processTags(titleText, (ITagResolver)getDefaultModel());
-		}
-		return titleText;
-	}
-
-	/*
-	 * tooltip---------------------------------------------------
-	 */
-	public String js_getToolTipText()
-	{
-		return tooltip;
 	}
 
 	private String tooltip;
@@ -870,12 +824,6 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 		{
 			this.tooltip = tooltip;
 		}
-	}
-
-	public void js_setToolTipText(String tip)
-	{
-		setToolTipText(tip);
-		jsChangeRecorder.setChanged();
 	}
 
 	/**
@@ -901,17 +849,6 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 
 	private Font font;
 
-	public void js_setFont(String spec)
-	{
-		font = PersistHelper.createFont(spec);
-		jsChangeRecorder.setFont(spec);
-	}
-
-	public String js_getFont()
-	{
-		return PersistHelper.createFontString(font);
-	}
-
 	public Font getFont()
 	{
 		return font;
@@ -921,17 +858,6 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 	/*
 	 * bgcolor---------------------------------------------------
 	 */
-	public String js_getBgcolor()
-	{
-		return PersistHelper.createColorString(background);
-	}
-
-	public void js_setBgcolor(String bgcolor)
-	{
-		background = PersistHelper.createColor(bgcolor);
-		jsChangeRecorder.setBgcolor(bgcolor);
-	}
-
 	private Color background;
 
 	public void setBackground(Color cbg)
@@ -948,16 +874,6 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 	/*
 	 * fgcolor---------------------------------------------------
 	 */
-	public String js_getFgcolor()
-	{
-		return PersistHelper.createColorString(foreground);
-	}
-
-	public void js_setFgcolor(String fgcolor)
-	{
-		foreground = PersistHelper.createColor(fgcolor);
-		jsChangeRecorder.setFgcolor(fgcolor);
-	}
 
 	private Color foreground;
 
@@ -972,26 +888,6 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 	}
 
 
-	public void js_setBorder(String spec)
-	{
-		setBorder(ComponentFactoryHelper.createBorder(spec));
-		jsChangeRecorder.setBorder(spec);
-		Border b = border;
-		Insets m = null;
-		// empty border gets handled as margin
-		if (b instanceof EmptyBorder)
-		{
-			m = b.getBorderInsets(null);
-			b = null;
-		}
-		jsChangeRecorder.setSize(size.width, size.height, b, m, getFontSize(), false, valign);
-	}
-
-	public String js_getBorder()
-	{
-		return ComponentFactoryHelper.createBorderString(getBorder());
-	}
-
 	/*
 	 * visible---------------------------------------------------
 	 */
@@ -1000,39 +896,18 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 		setVisible(visible);
 	}
 
-	public boolean js_isVisible()
-	{
-		return isVisible();
-	}
-
-	public void js_setVisible(boolean visible)
-	{
-		setVisible(visible);
-		jsChangeRecorder.setVisible(visible);
-	}
-
-
 	/*
 	 * enabled---------------------------------------------------
 	 */
-	public void js_setEnabled(final boolean b)
-	{
-		setComponentEnabled(b);
-	}
-
 	public void setComponentEnabled(final boolean b)
 	{
 		if (accessible)
 		{
 			super.setEnabled(b);
-			jsChangeRecorder.setChanged();
+			scriptable.getChangesRecorder().setChanged();
 		}
 	}
 
-	public boolean js_isEnabled()
-	{
-		return isEnabled();
-	}
 
 	private boolean accessible = true;
 
@@ -1042,26 +917,25 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 		accessible = b;
 	}
 
+	private boolean viewable = true;
+
+	public void setViewable(boolean b)
+	{
+		this.viewable = b;
+		setComponentVisible(b);
+	}
+
+	public boolean isViewable()
+	{
+		return viewable;
+	}
 
 	/*
 	 * location---------------------------------------------------
 	 */
 	private Point location = new Point(0, 0);
 
-	public int js_getLocationX()
-	{
-		return getLocation().x;
-	}
-
-	public int js_getLocationY()
-	{
-		return getLocation().y;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_getAbsoluteFormLocationY()
-	 */
-	public int js_getAbsoluteFormLocationY()
+	public int getAbsoluteFormLocationY()
 	{
 		WebDataRenderer parent = findParent(WebDataRenderer.class);
 		if (parent != null)
@@ -1069,12 +943,6 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 			return parent.getYOffset() + getLocation().y;
 		}
 		return getLocation().y;
-	}
-
-	public void js_setLocation(int x, int y)
-	{
-		location = new Point(x, y);
-		jsChangeRecorder.setLocation(x, y);
 	}
 
 	public void setLocation(Point location)
@@ -1085,27 +953,6 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 	public Point getLocation()
 	{
 		return location;
-	}
-
-	/*
-	 * client properties for ui---------------------------------------------------
-	 */
-
-	public void js_putClientProperty(Object key, Object value)
-	{
-		if (clientProperties == null)
-		{
-			clientProperties = new HashMap<Object, Object>();
-		}
-		clientProperties.put(key, value);
-	}
-
-	private Map<Object, Object> clientProperties;
-
-	public Object js_getClientProperty(Object key)
-	{
-		if (clientProperties == null) return null;
-		return clientProperties.get(key);
 	}
 
 	/*
@@ -1121,21 +968,7 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 		return size;
 	}
 
-	public void js_setSize(int width, int height)
-	{
-		setSize(new Dimension(width, height));
-		Border b = border;
-		Insets m = null;
-		// empty border gets handled as margin
-		if (b instanceof EmptyBorder)
-		{
-			m = b.getBorderInsets(null);
-			b = null;
-		}
-		jsChangeRecorder.setSize(width, height, b, m, getFontSize(), false, valign);
-	}
-
-	protected int getFontSize()
+	public int getFontSize()
 	{
 		int fontSize = TemplateGenerator.DEFAULT_FONT_SIZE;
 		Font fnt = getFont();
@@ -1157,7 +990,7 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 			m = b.getBorderInsets(null);
 			b = null;
 		}
-		Dimension d = jsChangeRecorder.calculateWebSize(size.width, size.height, b, m, getFontSize(), null, false, valign);
+		Dimension d = ((ChangesRecorder)scriptable.getChangesRecorder()).calculateWebSize(size.width, size.height, b, m, getFontSize(), null, false, valign);
 		return new Rectangle(location, d);
 	}
 
@@ -1174,39 +1007,13 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 			m = b.getBorderInsets(null);
 			b = null;
 		}
-		return jsChangeRecorder.getPaddingAndBorder(size.height, b, m, getFontSize(), null, false, valign);
+		return ((ChangesRecorder)scriptable.getChangesRecorder()).getPaddingAndBorder(size.height, b, m, getFontSize(), null, false, valign);
 	}
 
 
-	public int js_getWidth()
+	public IFieldComponent getLabelFor()
 	{
-		return size.width;
-	}
-
-	public int js_getHeight()
-	{
-		return size.height;
-	}
-
-	public String js_getLabelForElementName()
-	{
-		if (labelForComponent != null) return labelForComponent.getName();
-		return null;
-	}
-
-	public String js_getMnemonic()
-	{
-		if (mnemonic == 0) return "";
-		return new Character(mnemonic).toString();
-	}
-
-	public void js_setMnemonic(String mnemonic)
-	{
-		mnemonic = application.getI18NMessageIfPrefixed(mnemonic);
-		if (mnemonic != null && mnemonic.length() > 0)
-		{
-			setDisplayedMnemonic(mnemonic.charAt(0));
-		}
+		return labelForComponent;
 	}
 
 	/**
@@ -1215,6 +1022,11 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 	public void setDisplayedMnemonic(char mnemonic)
 	{
 		this.mnemonic = mnemonic;
+	}
+
+	public int getDisplayedMnemonic()
+	{
+		return mnemonic;
 	}
 
 	public void setLabelFor(IFieldComponent component)
@@ -1239,7 +1051,7 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		if (useAJAX)
 		{
-			Object oe = js_getClientProperty("ajax.enabled");
+			Object oe = scriptable.js_getClientProperty("ajax.enabled");
 			if (oe != null) useAJAX = Utils.getAsBoolean(oe);
 		}
 
@@ -1293,8 +1105,9 @@ public class WebBaseLabel extends Label implements ILabel, IScriptHtmlSubmitLabe
 	@Override
 	public String toString()
 	{
-		return js_getElementType() + "(web)[name:" + js_getName() + ",x:" + js_getLocationX() + ",y:" + js_getLocationY() + ",width:" + js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + js_getHeight() + ",label:" + getText() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.js_getElementType() +
+			"(web)[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
+			",height:" + scriptable.js_getHeight() + ",label:" + getText() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	public IEventExecutor getEventExecutor()

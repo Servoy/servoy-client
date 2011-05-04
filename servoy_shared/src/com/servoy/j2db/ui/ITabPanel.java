@@ -19,12 +19,13 @@ package com.servoy.j2db.ui;
 import java.awt.Color;
 
 import com.servoy.j2db.IScriptExecuter;
+import com.servoy.j2db.scripting.IScriptableProvider;
 
 /**
  * @author jcompagner
  */
 
-public interface ITabPanel extends IComponent, IDepricatedScriptTabPanelMethods
+public interface ITabPanel extends IComponent, IScriptableProvider
 {
 	void setTabLayoutPolicy(int scroll_tab_layout);
 
@@ -44,4 +45,30 @@ public interface ITabPanel extends IComponent, IDepricatedScriptTabPanelMethods
 	void setOnTabChangeMethodCmd(String onTabChangeMethodCmd, Object[] onTabChangeArgs);
 
 	void addScriptExecuter(IScriptExecuter el);
+
+	boolean removeTabAt(int index);
+
+	boolean removeAllTabs();
+
+	boolean addTab(Object[] vargs);
+
+	int getAbsoluteFormLocationY();
+
+	void setReadOnly(boolean b);
+
+	void setTabTextAt(int i, String text);
+
+	public String getTabTextAt(int i);
+
+	public String getTabNameAt(int i);
+
+	public String getTabFormNameAt(int i);
+
+	public void setTabIndex(Object arg);
+
+	public boolean isTabEnabledAt(int index);
+
+	public Object getTabIndex();
+
+	public int getMaxTabIndex();
 }

@@ -53,8 +53,7 @@ import javax.swing.JFormattedTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
-import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
+import javax.swing.event.ListDataListener;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.text.Caret;
 import javax.swing.text.DateFormatter;
@@ -73,36 +72,33 @@ import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.ISmartClientApplication;
-import com.servoy.j2db.component.ComponentFactory;
-import com.servoy.j2db.dataprocessing.CustomValueList;
-import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IValueList;
-import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
-import com.servoy.j2db.dataprocessing.ValueListFactory;
 import com.servoy.j2db.dnd.FormDataTransferHandler;
 import com.servoy.j2db.dnd.ISupportDragNDropTextTransfer;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.ScriptVariable;
-import com.servoy.j2db.persistence.ValueList;
+import com.servoy.j2db.scripting.IScriptable;
+import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.IDataRenderer;
+import com.servoy.j2db.ui.IEditProvider;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptFieldMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
+import com.servoy.j2db.ui.ISupportEditProvider;
+import com.servoy.j2db.ui.ISupportSpecialClientProperty;
+import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.util.ComponentFactoryHelper;
+import com.servoy.j2db.ui.scripting.RuntimeDataField;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FormatParser;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ISkinnable;
 import com.servoy.j2db.util.ITagResolver;
-import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.RoundHalfUpDecimalFormat;
 import com.servoy.j2db.util.StateFullSimpleDateFormat;
 import com.servoy.j2db.util.Text;
@@ -119,8 +115,8 @@ import com.servoy.j2db.util.gui.FixedMaskFormatter;
  * Runtime swing field
  * @author jblok, jcompagner
  */
-public class DataField extends JFormattedTextField implements IDisplayData, IFieldComponent, ISkinnable, IScriptFieldMethods, ISupportCachedLocationAndSize,
-	ISupportDragNDropTextTransfer
+public class DataField extends JFormattedTextField implements IDisplayData, IFieldComponent, ISkinnable, ISupportCachedLocationAndSize,
+	ISupportDragNDropTextTransfer, ISupportEditProvider, ISupportValueList, ISupportSpecialClientProperty
 {
 	private static final long serialVersionUID = 1L;
 
@@ -131,6 +127,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 	// when a parse error occurred the value should always be set in setValue(), otherwise unsaved data is displayed in the field
 	private boolean parseErrorOccurred = false;
 	private MouseAdapter rightclickMouseAdapter = null;
+	protected RuntimeDataField scriptable;
 
 	/**
 	 * @author jcompagner
@@ -678,7 +675,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		};
 		plainDocument = getDocument();
 		setDocument(editorDocument = new ValidatingDocument());
-
+		scriptable = new RuntimeDataField(this, new DummyChangesRecorder(), application);
 		addKeyListener(new KeyAdapter()
 		{
 
@@ -707,6 +704,11 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		addMouseListener(eventExecutor);
 		addKeyListener(eventExecutor);
 		setDragEnabledEx(true);
+	}
+
+	public IScriptable getScriptObject()
+	{
+		return scriptable;
 	}
 
 	private Caret getOvertypeCaret()
@@ -829,6 +831,11 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 	}
 
 	protected EditProvider editProvider = null;
+
+	public IEditProvider getEditProvider()
+	{
+		return editProvider;
+	}
 
 	public void addEditListener(IEditListener l)
 	{
@@ -1190,19 +1197,10 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 	public String getFormat()
 	{
-		if (displayFormat == editFormat) return displayFormat;
-		else return displayFormat + "|" + editFormat; //$NON-NLS-1$
+		return fp.getFormat();
 	}
 
-	public void js_setFormat(String format)
-	{
-		setFormat(dataType, application.getI18NMessageIfPrefixed(format));
-	}
-
-	public String js_getFormat()
-	{
-		return completeFormat;
-	}
+	protected final FormatParser fp = new FormatParser();
 
 	public void setFormat(int dataType, String format)
 	{
@@ -1212,7 +1210,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		this.editFormat = format;
 		if (format != null && format.length() != 0)
 		{
-			FormatParser fp = new FormatParser(format);
+			fp.setFormat(format);
 
 			displayFormat = fp.getDisplayFormat();
 			editFormat = fp.getEditFormat();
@@ -1337,89 +1335,6 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 	}
 
 
-	/*
-	 * caret---------------------------------------------------
-	 */
-	public int js_getCaretPosition()
-	{
-		return getCaretPosition();
-	}
-
-	public void js_setCaretPosition(int pos)
-	{
-		if (pos < 0)
-		{
-			pos = 0;
-		}
-		if (pos > getDocument().getLength())
-		{
-			pos = getDocument().getLength();
-		}
-		setCaretPosition(pos);
-	}
-
-
-	/*
-	 * bgcolor---------------------------------------------------
-	 */
-	public String js_getBgcolor()
-	{
-		return PersistHelper.createColorString(getBackground());
-	}
-
-	public void js_setBgcolor(String clr)
-	{
-		setBackground(PersistHelper.createColor(clr));
-	}
-
-
-	/*
-	 * fgcolor---------------------------------------------------
-	 */
-	public String js_getFgcolor()
-	{
-		return PersistHelper.createColorString(getForeground());
-	}
-
-	public void js_setFgcolor(String clr)
-	{
-		setForeground(PersistHelper.createColor(clr));
-	}
-
-
-	public void js_setBorder(String spec)
-	{
-		Border border = ComponentFactoryHelper.createBorder(spec);
-		Border oldBorder = getBorder();
-		if (oldBorder instanceof CompoundBorder && ((CompoundBorder)oldBorder).getInsideBorder() != null)
-		{
-			Insets insets = ((CompoundBorder)oldBorder).getInsideBorder().getBorderInsets(this);
-			setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(insets.top, insets.left, insets.bottom, insets.right)));
-		}
-		else
-		{
-			setBorder(border);
-		}
-	}
-
-	public String js_getBorder()
-	{
-		return ComponentFactoryHelper.createBorderString(getBorder());
-	}
-
-	/*
-	 * visible---------------------------------------------------
-	 */
-	public boolean js_isVisible()
-	{
-		return isVisible();
-	}
-
-	public void js_setVisible(boolean b)
-	{
-		setVisible(b);
-	}
-
 	public void setComponentVisible(boolean b_visible)
 	{
 		setVisible(b_visible);
@@ -1445,46 +1360,11 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		labels.add(label);
 	}
 
-	public String[] js_getLabelForElementNames()
+	public List<ILabel> getLabelsFor()
 	{
-		if (labels != null)
-		{
-			List<String> al = new ArrayList<String>(labels.size());
-			for (int i = 0; i < labels.size(); i++)
-			{
-				ILabel label = labels.get(i);
-				if (label.getName() != null && !"".equals(label.getName()) && !label.getName().startsWith(ComponentFactory.WEB_ID_PREFIX)) //$NON-NLS-1$
-				{
-					al.add(label.getName());
-				}
-			}
-			return al.toArray(new String[al.size()]);
-		}
-		return new String[0];
+		return labels;
 	}
 
-	/*
-	 * opaque---------------------------------------------------
-	 */
-	public boolean js_isTransparent()
-	{
-		return !isOpaque();
-	}
-
-	public void js_setTransparent(boolean b)
-	{
-		setOpaque(!b);
-		repaint();
-	}
-
-
-	/*
-	 * enabled---------------------------------------------------
-	 */
-	public void js_setEnabled(final boolean b)
-	{
-		setComponentEnabled(b);
-	}
 
 	public void setComponentEnabled(final boolean b)
 	{
@@ -1502,11 +1382,6 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		}
 	}
 
-	public boolean js_isEnabled()
-	{
-		return isEnabled();
-	}
-
 	private boolean accessible = true;
 
 	public void setAccessible(boolean b)
@@ -1515,6 +1390,18 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		accessible = b;
 	}
 
+	private boolean viewable = true;
+
+	public void setViewable(boolean b)
+	{
+		this.viewable = b;
+		setComponentVisible(b);
+	}
+
+	public boolean isViewable()
+	{
+		return viewable;
+	}
 
 	/*
 	 * readonly---------------------------------------------------
@@ -1524,14 +1411,9 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		return !isEditable();
 	}
 
-	public boolean js_isReadOnly()
-	{
-		return isReadOnly();
-	}
-
 	protected boolean editState;
 
-	public void js_setReadOnly(boolean b)
+	public void setReadOnly(boolean b)
 	{
 		if (b && !isEditable()) return;
 		if (b)
@@ -1545,35 +1427,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		}
 	}
 
-	public boolean js_isEditable()
-	{
-		return isEditable();
-	}
-
-	public void js_setEditable(boolean b)
-	{
-		setEditable(b);
-	}
-
-
-	/*
-	 * location---------------------------------------------------
-	 */
-
-	public int js_getLocationX()
-	{
-		return getLocation().x;
-	}
-
-	public int js_getLocationY()
-	{
-		return getLocation().y;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_getAbsoluteFormLocationY()
-	 */
-	public int js_getAbsoluteFormLocationY()
+	public int getAbsoluteFormLocationY()
 	{
 		Container parent = getParent();
 		while ((parent != null) && !(parent instanceof IDataRenderer))
@@ -1589,24 +1443,13 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 	private Point cachedLocation;
 
-	public void js_setLocation(int x, int y)
-	{
-		cachedLocation = new Point(x, y);
-		setLocation(x, y);
-	}
-
 	public Point getCachedLocation()
 	{
 		return cachedLocation;
 	}
 
-	/*
-	 * client properties for ui---------------------------------------------------
-	 */
-
-	public void js_putClientProperty(Object key, Object value)
+	public void setClientProperty(Object key, Object value)
 	{
-		putClientProperty(key, value);
 		if (IApplication.DATE_FORMATTERS_LENIENT.equals(key))
 		{
 			AbstractFormatterFactory ff = getFormatterFactory();
@@ -1622,36 +1465,24 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		}
 	}
 
-	public Object js_getClientProperty(Object key)
-	{
-		return getClientProperty(key);
-	}
-
-
 	/*
 	 * size---------------------------------------------------
 	 */
 	private Dimension cachedSize;
-
-	public void js_setSize(int x, int y)
-	{
-		cachedSize = new Dimension(x, y);
-		setSize(x, y);
-	}
 
 	public Dimension getCachedSize()
 	{
 		return cachedSize;
 	}
 
-	public int js_getWidth()
+	public void setCachedLocation(Point location)
 	{
-		return getSize().width;
+		this.cachedLocation = location;
 	}
 
-	public int js_getHeight()
+	public void setCachedSize(Dimension size)
 	{
-		return getSize().height;
+		this.cachedSize = size;
 	}
 
 	// If component not shown or not added yet
@@ -1682,22 +1513,9 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		this.titleText = title;
 	}
 
-	public String js_getTitleText()
+	public String getTitleText()
 	{
 		return Text.processTags(titleText, resolver);
-	}
-
-	/*
-	 * tooltip---------------------------------------------------
-	 */
-	public void js_setToolTipText(String txt)
-	{
-		setToolTipText(txt);
-	}
-
-	public String js_getToolTipText()
-	{
-		return getToolTipText();
 	}
 
 	@Override
@@ -1925,7 +1743,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 	//_____________________________________________________________
 
-	public void js_requestFocus(final Object[] vargs)
+	public void requestFocus(final Object[] vargs)
 	{
 //		if (!hasFocus()) Don't test on hasFocus (it can have focus,but other component already did requestFocus)
 		{
@@ -1951,88 +1769,20 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		}
 	}
 
-	public String js_getSelectedText()
+	public IValueList getValueList()
 	{
-		return this.getSelectedText();
+		return list;
 	}
 
-	public void js_selectAll()
+	public void setValueList(IValueList vl)
 	{
-		this.selectAll();
+		this.list = vl;
+
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.dataui.IBaseScriptMethods#js_replaceSelectedText(java.lang.String)
-	 */
-	public void js_replaceSelectedText(String s)
+	public ListDataListener getListener()
 	{
-		if (editProvider != null) editProvider.startEdit();
-		this.replaceSelection(s);
-		if (editProvider != null) editProvider.commitData();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.dataui.IBaseScriptMethods#js_setFont(java.lang.String)
-	 */
-	public void js_setFont(String spec)
-	{
-		setFont(PersistHelper.createFont(spec));
-	}
-
-	public String js_getFont()
-	{
-		return PersistHelper.createFontString(getFont());
-	}
-
-	public String js_getDataProviderID()
-	{
-		return getDataProviderID();
-	}
-
-	public String js_getElementType()
-	{
-		return IScriptBaseMethods.TEXT_FIELD;
-	}
-
-	public String js_getName()
-	{
-		String jsName = getName();
-		if (jsName != null && jsName.startsWith(ComponentFactory.WEB_ID_PREFIX)) jsName = null;
-		return jsName;
-	}
-
-	public String js_getValueListName()
-	{
-		if (list != null)
-		{
-			return list.getName();
-		}
 		return null;
-	}
-
-	public void js_setValueListItems(Object value)
-	{
-		if (list != null && (value instanceof JSDataSet || value instanceof IDataSet))
-		{
-			String name = list.getName();
-			ValueList valuelist = application.getFlattenedSolution().getValueList(name);
-			if (valuelist != null && valuelist.getValueListType() == ValueList.CUSTOM_VALUES)
-			{
-				String format = null;
-				int type = 0;
-				if (list instanceof CustomValueList)
-				{
-					format = ((CustomValueList)list).getFormat();
-					type = ((CustomValueList)list).getType();
-				}
-				IValueList newVl = ValueListFactory.fillRealValueList(application, valuelist, ValueList.CUSTOM_VALUES, format, type, value);
-				list = newVl;
-			}
-		}
 	}
 
 	/**
@@ -2201,8 +1951,9 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 	@Override
 	public String toString()
 	{
-		return js_getElementType() + "[name:" + js_getName() + ",x:" + js_getLocationX() + ",y:" + js_getLocationY() + ",width:" + js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + js_getHeight() + ",value:" + getValueObject() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.js_getElementType() +
+			"[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
+			",height:" + scriptable.js_getHeight() + ",value:" + getValueObject() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 

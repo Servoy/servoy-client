@@ -21,7 +21,7 @@ package com.servoy.j2db.ui;
  * 
  *  @author lvostinar
  */
-public interface IScriptDataLabelMethods extends IScriptHtmlSubmitLabelsMethods, ILabelForMethods
+public interface IScriptDataLabelMethods extends IScriptHtmlSubmitLabelsMethods, IScriptLabelForMethods
 {
 
 }

@@ -35,7 +35,6 @@ import javax.swing.event.ListSelectionListener;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IScriptExecuter;
-import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
@@ -44,22 +43,22 @@ import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.scripting.FormScope;
-import com.servoy.j2db.ui.IAccessible;
+import com.servoy.j2db.scripting.IScriptable;
+import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IFormLookupPanel;
-import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.ISplitPane;
-import com.servoy.j2db.util.ComponentFactoryHelper;
+import com.servoy.j2db.ui.ISupportSecuritySettings;
+import com.servoy.j2db.ui.scripting.RuntimeSplitPane;
 import com.servoy.j2db.util.EnablePanel;
 import com.servoy.j2db.util.IFocusCycleRoot;
 import com.servoy.j2db.util.ISupportFocusTransfer;
-import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.AutoTransferFocusListener;
 
 
-public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDisplayRelatedData, IAccessible, IFocusCycleRoot<Component>, ISupportFocusTransfer,
-	ListSelectionListener
+public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDisplayRelatedData, ISupportSecuritySettings, IFocusCycleRoot<Component>,
+	ISupportFocusTransfer, ListSelectionListener
 {
 	private final IApplication application;
 	private final SplitPane splitPane;
@@ -72,6 +71,7 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 
 	private String onDividerChangeMethodCmd;
 	private IScriptExecuter scriptExecutor;
+	private final IScriptable scriptable;
 
 	public SpecialSplitPane(IApplication app, int orient, boolean design)
 	{
@@ -95,6 +95,12 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 		setFocusTraversalPolicy(ServoyFocusTraversalPolicy.defaultPolicy);
 		tabSeqComponentList.add(splitPane);
 		addFocusListener(new AutoTransferFocusListener(this, this));
+		scriptable = new RuntimeSplitPane(this, new DummyChangesRecorder(), application, splitPane);
+	}
+
+	public IScriptable getScriptObject()
+	{
+		return scriptable;
 	}
 
 	/**
@@ -231,6 +237,19 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 		accessible = b;
 	}
 
+	private boolean viewable = true;
+
+	public void setViewable(boolean b)
+	{
+		this.viewable = b;
+		setComponentVisible(b);
+	}
+
+	public boolean isViewable()
+	{
+		return viewable;
+	}
+
 	public void valueChanged(ListSelectionEvent e)
 	{
 		if (parentData != null)
@@ -249,31 +268,6 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 		}
 	}
 
-	public String js_getToolTipText()
-	{
-		return splitPane.getToolTipText();
-	}
-
-	public boolean js_isTransparent()
-	{
-		return !isOpaque();
-	}
-
-	public void js_setFont(String spec)
-	{
-		splitPane.setFont(PersistHelper.createFont(spec));
-	}
-
-	public String js_getFont()
-	{
-		return PersistHelper.createFontString(splitPane.getFont());
-	}
-
-	public void js_setToolTipText(String tooltip)
-	{
-		splitPane.setToolTipText(tooltip);
-	}
-
 	@Override
 	public void setOpaque(boolean isOpaque)
 	{
@@ -281,13 +275,7 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 		super.setOpaque(isOpaque);
 	}
 
-	public void js_setTransparent(boolean b)
-	{
-		setOpaque(!b);
-		repaint();
-	}
-
-	public int js_getAbsoluteFormLocationY()
+	public int getAbsoluteFormLocationY()
 	{
 		Container parent = getParent();
 		while ((parent != null) && !(parent instanceof IDataRenderer))
@@ -299,69 +287,6 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 			return ((IDataRenderer)parent).getYOffset() + getLocation().y;
 		}
 		return getLocation().y;
-	}
-
-	public String js_getBgcolor()
-	{
-		return PersistHelper.createColorString(splitPane.getBackground());
-	}
-
-	public Object js_getClientProperty(Object key)
-	{
-		return getClientProperty(key);
-	}
-
-	public String js_getElementType()
-	{
-		return IScriptBaseMethods.SPLITPANE;
-	}
-
-	public String js_getFgcolor()
-	{
-		return PersistHelper.createColorString(splitPane.getForeground());
-	}
-
-	public int js_getHeight()
-	{
-		return getSize().height;
-	}
-
-	public int js_getLocationX()
-	{
-		return getLocation().x;
-	}
-
-	public int js_getLocationY()
-	{
-		return getLocation().y;
-	}
-
-	public String js_getName()
-	{
-		String jsName = getName();
-		if (jsName != null && jsName.startsWith(ComponentFactory.WEB_ID_PREFIX)) jsName = null;
-		return jsName;
-	}
-
-	public int js_getWidth()
-	{
-		return getSize().width;
-	}
-
-	public boolean js_isEnabled()
-	{
-		return isEnabled();
-	}
-
-	public boolean js_isVisible()
-	{
-		return isVisible();
-	}
-
-	public void js_putClientProperty(Object key, Object value)
-	{
-		putClientProperty(key, value);
-		splitPane.putClientProperty(key, value);
 	}
 
 	@Override
@@ -380,11 +305,6 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 		else return super.getBackground();
 	}
 
-	public void js_setBgcolor(String clr)
-	{
-		setBackground(PersistHelper.createColor(clr));
-	}
-
 	@Override
 	public void setBorder(Border b)
 	{
@@ -396,53 +316,6 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 	{
 		if (splitPane != null) return splitPane.getBorder();
 		else return super.getBorder();
-	}
-
-	public void js_setBorder(String spec)
-	{
-		setBorder(ComponentFactoryHelper.createBorder(spec));
-	}
-
-	public String js_getBorder()
-	{
-		return ComponentFactoryHelper.createBorderString(getBorder());
-	}
-
-	public void js_setEnabled(boolean b)
-	{
-		setComponentEnabled(b);
-	}
-
-	public void js_setFgcolor(String clr)
-	{
-		splitPane.setForeground(PersistHelper.createColor(clr));
-	}
-
-	public void js_setLocation(int x, int y)
-	{
-		setLocation(x, y);
-	}
-
-	public void js_setSize(int width, int height)
-	{
-		setSize(width, height);
-		revalidate();
-		repaint();
-	}
-
-	public void js_setVisible(boolean b)
-	{
-		setVisible(b);
-	}
-
-	public boolean js_isReadOnly()
-	{
-		return splitPane.isReadOnly();
-	}
-
-	public void js_setReadOnly(boolean b)
-	{
-		splitPane.setReadOnly(b);
 	}
 
 	private void showFoundSet(FormLookupPanel flp, IRecordInternal parentState, List<SortColumn> sort)
@@ -523,103 +396,73 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 		return new FormLookupPanel(application, tabname, relationName, formName);
 	}
 
-	public boolean js_setLeftForm(Object form, Object relation)
+	public FormScope getForm(boolean bLeftForm)
 	{
-		return setForm(true, form, relation);
-	}
-
-	public boolean js_setLeftForm(Object form)
-	{
-		return js_setLeftForm(form, null);
-	}
-
-	public FormScope js_getLeftForm()
-	{
-		Component leftComponent = splitPane.getLeftComponent();
-		if (leftComponent instanceof FormLookupPanel) return ((FormLookupPanel)leftComponent).getFormPanel().getFormScope();
+		Component component = bLeftForm ? splitPane.getLeftComponent() : splitPane.getRightComponent();
+		if (component instanceof FormLookupPanel) return ((FormLookupPanel)component).getFormPanel().getFormScope();
 		return null;
 	}
 
-	public boolean js_setRightForm(Object form, Object relation)
-	{
-		return setForm(false, form, relation);
-	}
-
-	public boolean js_setRightForm(Object form)
-	{
-		return js_setRightForm(form, null);
-	}
-
-	public FormScope js_getRightForm()
-	{
-		Component rightComponent = splitPane.getRightComponent();
-		if (rightComponent instanceof FormLookupPanel) return ((FormLookupPanel)rightComponent).getFormPanel().getFormScope();
-		return null;
-	}
-
-	public void js_setDividerLocation(final double location)
+	public void setRuntimeDividerLocation(final double location)
 	{
 		if (location < 1) splitPane.setDividerLocation(location);
 		else splitPane.setDividerLocation((int)location);
 	}
 
-	public double js_getDividerLocation()
+	public double getDividerLocation()
 	{
 		return splitPane.getDividerLocation();
 	}
 
-	public void js_setDividerSize(int size)
+	public void setDividerSize(int size)
 	{
 		splitPane.setDividerSize(size < 0 ? -1 : size);
 	}
 
-	public int js_getDividerSize()
+	public int getDividerSize()
 	{
 		return splitPane.getDividerSize();
 	}
 
-	public double js_getResizeWeight()
+	public double getResizeWeight()
 	{
 		return splitPane.getResizeWeight();
 	}
 
-	public void js_setResizeWeight(double resizeWeight)
+	public void setResizeWeight(double resizeWeight)
 	{
 		splitPane.setResizeWeight(resizeWeight);
 	}
 
-	public boolean js_getContinuousLayout()
+	public boolean getContinuousLayout()
 	{
 		return splitPane.isContinuousLayout();
 	}
 
-	public void js_setContinuousLayout(boolean b)
+	public void setContinuousLayout(boolean b)
 	{
 		splitPane.setContinuousLayout(b);
 	}
 
 
-	public int js_getRightFormMinSize()
+	public int getFormMinSize(boolean bLeftForm)
 	{
-		return splitPane.getRightFormMinSize();
+		return bLeftForm ? splitPane.getLeftFormMinSize() : splitPane.getRightFormMinSize();
 	}
 
-	public void js_setRightFormMinSize(int minSize)
+	public void setFormMinSize(boolean bLeftForm, int minSize)
 	{
-		splitPane.setRightFormMinSize(minSize);
+		if (bLeftForm)
+		{
+			splitPane.setLeftFormMinSize(minSize);
+		}
+		else
+		{
+			splitPane.setRightFormMinSize(minSize);
+		}
 	}
 
-	public int js_getLeftFormMinSize()
-	{
-		return splitPane.getLeftFormMinSize();
-	}
-
-	public void js_setLeftFormMinSize(int minSize)
-	{
-		splitPane.setLeftFormMinSize(minSize);
-	}
-
-	private boolean setForm(boolean bLeftForm, Object form, Object relation)
+	public boolean setForm(boolean bLeftForm, Object form, Object relation)
 	{
 		FormController f = null;
 		String fName = null;

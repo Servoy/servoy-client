@@ -49,7 +49,6 @@ import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IFormManager;
 import com.servoy.j2db.IScriptExecuter;
-import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
@@ -60,19 +59,18 @@ import com.servoy.j2db.persistence.ISupportScrollbars;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.scripting.FormScope;
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.server.headlessclient.yui.YUILoader;
-import com.servoy.j2db.ui.IAccessible;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IFormLookupPanel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
-import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.ISplitPane;
 import com.servoy.j2db.ui.IStylePropertyChanges;
+import com.servoy.j2db.ui.ISupportSecuritySettings;
 import com.servoy.j2db.ui.ISupportWebBounds;
-import com.servoy.j2db.util.ComponentFactoryHelper;
-import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.ui.scripting.RuntimeSplitPane;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -80,8 +78,8 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author gboros
  */
-public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDisplayRelatedData, IProviderStylePropertyChanges, IAccessible, ISupportWebBounds,
-	ISupportWebTabSeq, ListSelectionListener
+public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDisplayRelatedData, IProviderStylePropertyChanges, ISupportSecuritySettings,
+	ISupportWebBounds, ISupportWebTabSeq, ListSelectionListener
 {
 	private final IApplication application;
 	private final int orient;
@@ -96,7 +94,6 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 	private boolean opaque;
 	private boolean accessible = true;
 	private Map<Object, Object> clientProperties;
-	private final ChangesRecorder jsChangeRecorder = new ChangesRecorder(new Insets(0, 0, 0, 0), new Insets(0, 0, 0, 0));
 	private final List<ISwingFoundSet> related = new ArrayList<ISwingFoundSet>();
 	private double dividerLocation;
 	private int dividerSize = 5;
@@ -116,6 +113,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 	private String onDividerChangeMethodCmd;
 	private IScriptExecuter scriptExecutor;
+	private final RuntimeSplitPane scriptable;
 
 	private final AbstractServoyDefaultAjaxBehavior dividerUpdater = new AbstractServoyDefaultAjaxBehavior()
 	{
@@ -189,6 +187,12 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		splitter.add(splitComponents[0]);
 		add(splitter);
 		add(splitComponents[1]);
+		scriptable = new RuntimeSplitPane(this, new ChangesRecorder(new Insets(0, 0, 0, 0), new Insets(0, 0, 0, 0)), application, null);
+	}
+
+	public IScriptable getScriptObject()
+	{
+		return scriptable;
 	}
 
 	public Color getBackground()
@@ -266,7 +270,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 					return CONTINUE_TRAVERSAL;
 				}
 			});
-			jsChangeRecorder.setChanged();
+			getStylePropertyChanges().setChanged();
 		}
 	}
 
@@ -306,6 +310,16 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 	public void setSize(Dimension size)
 	{
+		if (this.size != null)
+		{
+			for (int tabIdx = 0; tabIdx < 2; tabIdx++)
+			{
+				if (webTabs[tabIdx] != null && webTabs[tabIdx].getPanel().isReady())
+				{
+					webTabs[tabIdx].getPanel().getWebForm().setFormWidth(0);
+				}
+			}
+		}
 		this.size = size;
 	}
 
@@ -437,7 +451,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 	public IStylePropertyChanges getStylePropertyChanges()
 	{
-		return jsChangeRecorder;
+		return scriptable.getChangesRecorder();
 	}
 
 	public void setAccessible(boolean b)
@@ -446,14 +460,27 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		accessible = b;
 	}
 
+	private boolean viewable = true;
+
+	public void setViewable(boolean b)
+	{
+		this.viewable = b;
+		setComponentVisible(b);
+	}
+
+	public boolean isViewable()
+	{
+		return viewable;
+	}
+
 	public Insets getPaddingAndBorder()
 	{
-		return jsChangeRecorder.getPaddingAndBorder(size.height, border, new Insets(0, 0, 0, 0), 0, null);
+		return ((ChangesRecorder)getStylePropertyChanges()).getPaddingAndBorder(size.height, border, new Insets(0, 0, 0, 0), 0, null);
 	}
 
 	public Rectangle getWebBounds()
 	{
-		Dimension d = jsChangeRecorder.calculateWebSize(size.width, size.height, border, new Insets(0, 0, 0, 0), 0, null);
+		Dimension d = ((ChangesRecorder)getStylePropertyChanges()).calculateWebSize(size.width, size.height, border, new Insets(0, 0, 0, 0), 0, null);
 		return new Rectangle(location, d);
 	}
 
@@ -518,7 +545,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 	protected void onRender(MarkupStream markupStream)
 	{
 		super.onRender(markupStream);
-		jsChangeRecorder.setRendered();
+		getStylePropertyChanges().setRendered();
 	}
 
 	@Override
@@ -701,40 +728,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		return formOverflowStyle;
 	}
 
-	public String js_getToolTipText()
-	{
-		return tooltip;
-	}
-
-	public boolean js_isTransparent()
-	{
-		return !opaque;
-	}
-
-	public void js_setFont(String spec)
-	{
-		font = PersistHelper.createFont(spec);
-		jsChangeRecorder.setFont(spec);
-	}
-
-	public String js_getFont()
-	{
-		return PersistHelper.createFontString(getFont());
-	}
-
-	public void js_setToolTipText(String tooltip)
-	{
-		setToolTipText(tooltip);
-		jsChangeRecorder.setChanged();
-	}
-
-	public void js_setTransparent(boolean b)
-	{
-		opaque = !b;
-		jsChangeRecorder.setTransparent(b);
-	}
-
-	public int js_getAbsoluteFormLocationY()
+	public int getAbsoluteFormLocationY()
 	{
 		WebDataRenderer parent = findParent(WebDataRenderer.class);
 		if (parent != null)
@@ -744,138 +738,13 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		return getLocation().y;
 	}
 
-	public String js_getBgcolor()
-	{
-		return PersistHelper.createColorString(background);
-	}
 
-	public Object js_getClientProperty(Object key)
-	{
-		if (clientProperties == null) return null;
-		return clientProperties.get(key);
-	}
-
-	public String js_getElementType()
-	{
-		return IScriptBaseMethods.SPLITPANE;
-	}
-
-	public String js_getFgcolor()
-	{
-		return PersistHelper.createColorString(foreground);
-	}
-
-	public int js_getHeight()
-	{
-		return size.height;
-	}
-
-	public int js_getLocationX()
-	{
-		return getLocation().x;
-	}
-
-	public int js_getLocationY()
-	{
-		return getLocation().y;
-	}
-
-	public String js_getName()
-	{
-		String jsName = getName();
-		if (jsName != null && jsName.startsWith(ComponentFactory.WEB_ID_PREFIX)) jsName = null;
-		return jsName;
-	}
-
-	public int js_getWidth()
-	{
-		return size.width;
-	}
-
-	public boolean js_isEnabled()
-	{
-		return isEnabled();
-	}
-
-	public boolean js_isVisible()
-	{
-		return isVisible();
-	}
-
-	public void js_putClientProperty(Object key, Object value)
-	{
-		if (clientProperties == null)
-		{
-			clientProperties = new HashMap<Object, Object>();
-		}
-		clientProperties.put(key, value);
-	}
-
-	public void js_setBgcolor(String clr)
-	{
-		background = PersistHelper.createColor(clr);
-		jsChangeRecorder.setBgcolor(clr);
-	}
-
-	public void js_setBorder(String spec)
-	{
-		setBorder(ComponentFactoryHelper.createBorder(spec));
-		jsChangeRecorder.setBorder(spec);
-	}
-
-	public String js_getBorder()
-	{
-		return ComponentFactoryHelper.createBorderString(getBorder());
-	}
-
-	public void js_setEnabled(boolean b)
-	{
-		setComponentEnabled(b);
-	}
-
-	public void js_setFgcolor(String clr)
-	{
-		foreground = PersistHelper.createColor(clr);
-		jsChangeRecorder.setChanged();
-	}
-
-	public void js_setLocation(int x, int y)
-	{
-		location = new Point(x, y);
-		jsChangeRecorder.setLocation(x, y);
-	}
-
-	public void js_setSize(int width, int height)
-	{
-		size = new Dimension(width, height);
-		jsChangeRecorder.setSize(width, height, border, new Insets(0, 0, 0, 0), 0);
-		for (int tabIdx = 0; tabIdx < 2; tabIdx++)
-		{
-			if (webTabs[tabIdx] != null && webTabs[tabIdx].getPanel().isReady())
-			{
-				webTabs[tabIdx].getPanel().getWebForm().setFormWidth(0);
-			}
-		}
-	}
-
-	public void js_setVisible(boolean visible)
-	{
-		setVisible(visible);
-		jsChangeRecorder.setVisible(visible);
-	}
-
-	public boolean js_isReadOnly()
-	{
-		return isReadOnly();
-	}
-
-	public void js_setReadOnly(boolean b)
+	public void setReadOnly(boolean b)
 	{
 		for (int tabIdx = 0; tabIdx < 2; tabIdx++)
 		{
 			if (webTabs[tabIdx] != null) webTabs[tabIdx].getPanel().setReadOnly(b);
 		}
-		jsChangeRecorder.setChanged();
 	}
 
 	public void setLeftForm(IFormLookupPanel flp)
@@ -905,45 +774,10 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		return new WebTabFormLookup(name, relationName, formName, this, application);
 	}
 
-	public boolean js_setLeftForm(Object form, Object relation)
+	public FormScope getForm(boolean bLeftForm)
 	{
-		if (setForm(true, form, relation))
-		{
-			jsChangeRecorder.setChanged();
-			return true;
-		}
-		else return false;
-	}
-
-	public boolean js_setLeftForm(Object form)
-	{
-		return js_setLeftForm(form, null);
-	}
-
-	public FormScope js_getLeftForm()
-	{
-		if (webTabs[0] != null) return webTabs[0].getPanel().getWebForm().getController().getFormScope();
-		return null;
-	}
-
-	public boolean js_setRightForm(Object form, Object relation)
-	{
-		if (setForm(false, form, relation))
-		{
-			jsChangeRecorder.setChanged();
-			return true;
-		}
-		else return false;
-	}
-
-	public boolean js_setRightForm(Object form)
-	{
-		return js_setRightForm(form, null);
-	}
-
-	public FormScope js_getRightForm()
-	{
-		if (webTabs[1] != null) return webTabs[1].getPanel().getWebForm().getController().getFormScope();
+		int i = bLeftForm ? 0 : 1;
+		if (webTabs[i] != null) return webTabs[i].getPanel().getWebForm().getController().getFormScope();
 		return null;
 	}
 
@@ -960,76 +794,72 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		}
 	}
 
-	public void js_setDividerLocation(double locationPos)
+	public void setRuntimeDividerLocation(double locationPos)
 	{
 		if (locationPos < 0) return;
 		setDividerLocation(locationPos);
-		jsChangeRecorder.setChanged();
+		getStylePropertyChanges().setChanged();
 		sizeChanged = true;
 	}
 
-	public double js_getDividerLocation()
+	public double getDividerLocation()
 	{
 		return dividerLocation;
 	}
 
-	public void js_setDividerSize(int size)
+	public void setDividerSize(int size)
 	{
 		dividerSize = size < 0 ? 0 : size;
-		jsChangeRecorder.setChanged();
+		getStylePropertyChanges().setChanged();
 		sizeChanged = true;
 	}
 
-	public int js_getDividerSize()
+	public int getDividerSize()
 	{
 		return dividerSize;
 	}
 
-	public double js_getResizeWeight()
+	public double getResizeWeight()
 	{
 		return resizeWeight;
 	}
 
-	public void js_setResizeWeight(double resizeWeight)
+	public void setResizeWeight(double resizeWeight)
 	{
 		this.resizeWeight = resizeWeight;
-		jsChangeRecorder.setChanged();
+		getStylePropertyChanges().setChanged();
 	}
 
-	public boolean js_getContinuousLayout()
+	public boolean getContinuousLayout()
 	{
 		return continuousLayout;
 	}
 
-	public void js_setContinuousLayout(boolean b)
+	public void setContinuousLayout(boolean b)
 	{
 		continuousLayout = b;
-		jsChangeRecorder.setChanged();
+		getStylePropertyChanges().setChanged();
 	}
 
-	public int js_getRightFormMinSize()
+	public void setFormMinSize(boolean bLeftForm, int minSize)
 	{
-		return rightFormMinSize;
+		if (bLeftForm)
+		{
+			leftFormMinSize = minSize;
+		}
+		else
+		{
+			rightFormMinSize = minSize;
+		}
+		getStylePropertyChanges().setChanged();
 	}
 
-	public void js_setRightFormMinSize(int minSize)
+	public int getFormMinSize(boolean bLeftForm)
 	{
-		rightFormMinSize = minSize;
-		jsChangeRecorder.setChanged();
+		return bLeftForm ? leftFormMinSize : rightFormMinSize;
 	}
 
-	public int js_getLeftFormMinSize()
-	{
-		return leftFormMinSize;
-	}
-
-	public void js_setLeftFormMinSize(int minSize)
-	{
-		leftFormMinSize = minSize;
-		jsChangeRecorder.setChanged();
-	}
-
-	private boolean setForm(boolean bLeftForm, Object form, Object relation)
+	public boolean setForm(boolean bLeftForm, Object form, Object relation)
 	{
 		FormController f = null;
 		String fName = null;

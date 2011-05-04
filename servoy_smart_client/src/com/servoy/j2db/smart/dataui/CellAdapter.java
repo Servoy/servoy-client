@@ -94,6 +94,7 @@ import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.dataui.IServoyAwareBean;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.ScriptVariable;
+import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.smart.J2DBClient;
 import com.servoy.j2db.smart.ListView;
 import com.servoy.j2db.smart.TableView;
@@ -845,7 +846,8 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				Record.VALIDATE_CALCS.set(Boolean.FALSE);
 				try
 				{
-					String type = (editor instanceof IScriptBaseMethods) ? ((IScriptBaseMethods)editor).js_getElementType() : null;
+					String type = (editor instanceof IScriptableProvider && ((IScriptableProvider)editor).getScriptObject() instanceof IScriptBaseMethods)
+						? ((IScriptBaseMethods)((IScriptableProvider)editor).getScriptObject()).js_getElementType() : null;
 					String name = (editor instanceof IDisplayData) ? ((IDisplayData)editor).getDataProviderID() : null;
 					if (isRowBGColorCalculation)
 					{

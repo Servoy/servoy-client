@@ -46,12 +46,12 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import javax.swing.Action;
@@ -65,7 +65,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.EditorKit;
 import javax.swing.text.View;
-import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLFrameHyperlinkEvent;
 
 import com.servoy.j2db.ExitScriptException;
@@ -82,27 +81,30 @@ import com.servoy.j2db.dnd.FormDataTransferHandler;
 import com.servoy.j2db.dnd.ISupportDragNDropTextTransfer;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.printing.IFixedPreferredWidth;
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.smart.MainPanel;
 import com.servoy.j2db.smart.SwingForm;
 import com.servoy.j2db.smart.SwingJSWindowImpl;
 import com.servoy.j2db.smart.TextToolbar;
+import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.IDataRenderer;
+import com.servoy.j2db.ui.IEditProvider;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptTextEditorMethods;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
+import com.servoy.j2db.ui.ISupportEditProvider;
 import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.util.ComponentFactoryHelper;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
+import com.servoy.j2db.ui.scripting.RuntimeHTMLArea;
+import com.servoy.j2db.ui.scripting.RuntimeRTFArea;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnableScrollPanel;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ISkinnable;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.ITagResolver;
-import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.FixedHTMLEditorKit;
@@ -114,8 +116,8 @@ import com.servoy.j2db.util.rtf.FixedRTFEditorKit;
  * 
  * @author jblok
  */
-public class DataTextEditor extends EnableScrollPanel implements IDisplayData, IFieldComponent, IScrollPane, ISupportAsyncLoading, IScriptTextEditorMethods,
-	IFixedPreferredWidth, ISupportCachedLocationAndSize, ISupplyFocusChildren, ISupportDragNDropTextTransfer
+public class DataTextEditor extends EnableScrollPanel implements IDisplayData, IFieldComponent, IScrollPane, ISupportAsyncLoading, IFixedPreferredWidth,
+	ISupportCachedLocationAndSize, ISupplyFocusChildren, ISupportDragNDropTextTransfer, ISupportEditProvider
 {
 	private final FixedJEditorPane enclosedComponent;
 	private String dataProviderID;
@@ -129,6 +131,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 	private final EventExecutor eventExecutor;
 	private MouseAdapter rightclickMouseAdapter = null;
 	private SwingJSWindowImpl parentWindow;
+	protected AbstractRuntimeField scriptable;
 
 	public DataTextEditor(IApplication app, int type)
 	{
@@ -138,7 +141,15 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 		enclosedComponent = (FixedJEditorPane)getViewport().getView();
 		eventExecutor = new EventExecutor(this, enclosedComponent);
 		enclosedComponent.addKeyListener(eventExecutor);
+		if (type == ComponentFactory.HTML_AREA)
+		{
+			scriptable = new RuntimeHTMLArea(this, new DummyChangesRecorder(), app, enclosedComponent);
+		}
+		else
+		{
+			scriptable = new RuntimeRTFArea(this, new DummyChangesRecorder(), app, enclosedComponent);
 
+		}
 		plainEditorKit = enclosedComponent.getEditorKit();
 		plainEditorDocument = getDocument();
 
@@ -185,6 +196,11 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 //		{
 //			Debug.trace("Found action "+actions[i]+" name "+actions[i].getValue(Action.NAME));
 //		}
+	}
+
+	public IScriptable getScriptObject()
+	{
+		return scriptable;
 	}
 
 	private void prepareForTextToolbarHandling()
@@ -465,6 +481,11 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 //		enclosedComponent.setMargin(i); seems to have no effect
 		enclosedComponent.setBorder(BorderFactory.createCompoundBorder(enclosedComponent.getBorder(),
 			BorderFactory.createEmptyBorder(m.top, m.left, m.bottom, m.right)));
+	}
+
+	public Insets getMargin()
+	{
+		return null;
 	}
 
 	public Document getDocument()
@@ -766,6 +787,11 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 
 	private EditProvider editProvider = null;
 
+	public IEditProvider getEditProvider()
+	{
+		return editProvider;
+	}
+
 	public void addEditListener(IEditListener l)
 	{
 		if (editProvider == null)
@@ -819,6 +845,11 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 		{
 			enclosedComponent.addMouseListener(eventExecutor);//listen when not editable
 		}
+	}
+
+	public boolean isEditable()
+	{
+		return enclosedComponent.isEditable();
 	}
 
 	private LinkListener linkListener;
@@ -1122,37 +1153,6 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 	}
 
 
-	/*
-	 * caret---------------------------------------------------
-	 */
-	public int js_getCaretPosition()
-	{
-		if (enclosedComponent == null) return 0;
-		return enclosedComponent.getCaretPosition();
-	}
-
-	public void js_setCaretPosition(int pos)
-	{
-		if (enclosedComponent == null) return;
-		if (pos < 0) pos = 0;
-		if (pos > getDocument().getLength()) pos = getDocument().getLength();
-		enclosedComponent.setCaretPosition(pos);
-	}
-
-
-	/*
-	 * bgcolor---------------------------------------------------
-	 */
-	public void js_setBgcolor(String clr)
-	{
-		setBackground(PersistHelper.createColor(clr));
-	}
-
-	public String js_getBgcolor()
-	{
-		return PersistHelper.createColorString(enclosedComponent.getBackground());
-	}
-
 	@Override
 	public void setBackground(Color bg)
 	{
@@ -1171,91 +1171,6 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 	}
 
 
-	public void js_setBorder(String spec)
-	{
-		setBorder(ComponentFactoryHelper.createBorder(spec));
-	}
-
-	public String js_getBorder()
-	{
-		return ComponentFactoryHelper.createBorderString(getBorder());
-	}
-
-	/*
-	 * url---------------------------------------------------
-	 */
-	public void js_setURL(String url)
-	{
-		if (editorKit instanceof FixedHTMLEditorKit)
-		{
-			try
-			{
-				enclosedComponent.setPage(url);
-			}
-			catch (IOException e)
-			{
-				Debug.error(e);
-			}
-		}
-	}
-
-	public String js_getURL()
-	{
-		if (editorKit instanceof FixedHTMLEditorKit)
-		{
-			URL url = enclosedComponent.getPage();
-			if (url != null)
-			{
-				return url.toString();
-			}
-		}
-		return null;
-	}
-
-	public void js_setBaseURL(String url)
-	{
-		Document document = enclosedComponent.getDocument();
-		if (document instanceof HTMLDocument)
-		{
-			try
-			{
-				((HTMLDocument)document).setBase(new URL(url));
-			}
-			catch (IOException e)
-			{
-				Debug.error(e);
-			}
-		}
-	}
-
-	public String js_getBaseURL()
-	{
-		Document document = enclosedComponent.getDocument();
-		if (document instanceof HTMLDocument)
-		{
-			URL url = ((HTMLDocument)document).getBase();
-			if (url != null)
-			{
-				return url.toString();
-			}
-		}
-		return null;
-	}
-
-
-	/*
-	 * fgcolor---------------------------------------------------
-	 */
-	public String js_getFgcolor()
-	{
-		return PersistHelper.createColorString(getForeground());
-	}
-
-	public void js_setFgcolor(String clr)
-	{
-		setForeground(PersistHelper.createColor(clr));
-	}
-
 	@Override
 	public Color getForeground()
 	{
@@ -1273,19 +1188,6 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 		super.setForeground(fg);
 	}
 
-
-	/*
-	 * scroll---------------------------------------------------
-	 */
-	public boolean js_isVisible()
-	{
-		return isVisible();
-	}
-
-	public void js_setVisible(boolean b)
-	{
-		setVisible(b);
-	}
 
 	public void setComponentVisible(boolean b_visible)
 	{
@@ -1312,54 +1214,9 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 		labels.add(label);
 	}
 
-	public String[] js_getLabelForElementNames()
+	public List<ILabel> getLabelsFor()
 	{
-		if (labels != null)
-		{
-			ArrayList<String> al = new ArrayList<String>(labels.size());
-			for (int i = 0; i < labels.size(); i++)
-			{
-				ILabel label = labels.get(i);
-				if (label.getName() != null && !"".equals(label.getName()) && !label.getName().startsWith(ComponentFactory.WEB_ID_PREFIX)) //$NON-NLS-1$
-				{
-					al.add(label.getName());
-				}
-			}
-			return al.toArray(new String[al.size()]);
-		}
-		return new String[0];
-	}
-
-	/*
-	 * scroll---------------------------------------------------
-	 */
-	public void js_setScroll(int x, int y)
-	{
-		enclosedComponent.scrollRectToVisible(new Rectangle(x, y, getWidth(), getHeight()));
-	}
-
-	public int js_getScrollX()
-	{
-		return enclosedComponent.getVisibleRect().x;
-	}
-
-	public int js_getScrollY()
-	{
-		return enclosedComponent.getVisibleRect().y;
-	}
-
-
-	/*
-	 * opaque---------------------------------------------------
-	 */
-	public boolean js_isTransparent()
-	{
-		return !isOpaque();
-	}
-
-	public void js_setTransparent(boolean b)
-	{
-		setOpaque(!b);
+		return labels;
 	}
 
 	@Override
@@ -1370,14 +1227,6 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 		super.setOpaque(b);
 	}
 
-
-	/*
-	 * enabled---------------------------------------------------
-	 */
-	public void js_setEnabled(final boolean b)
-	{
-		setComponentEnabled(b);
-	}
 
 	public void setComponentEnabled(final boolean b)
 	{
@@ -1395,11 +1244,6 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 		}
 	}
 
-	public boolean js_isEnabled()
-	{
-		return isEnabled();
-	}
-
 	private boolean accessible = true;
 
 	public void setAccessible(boolean b)
@@ -1408,30 +1252,22 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 		accessible = b;
 	}
 
+	private boolean viewable = true;
 
-	/*
-	 * editable---------------------------------------------------
-	 */
-	@Deprecated
-	public boolean js_isEditable()
+	public void setViewable(boolean b)
 	{
-		return enclosedComponent.isEditable();
+		this.viewable = b;
+		setComponentVisible(b);
 	}
 
-	@Deprecated
-	public void js_setEditable(boolean b)
+	public boolean isViewable()
 	{
-		setEditable(b);
+		return viewable;
 	}
-
 
 	/*
 	 * readonly---------------------------------------------------
 	 */
-	public boolean js_isReadOnly()
-	{
-		return isReadOnly();
-	}
 
 	public boolean isReadOnly()
 	{
@@ -1440,7 +1276,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 
 	private boolean editState;
 
-	public void js_setReadOnly(boolean b)
+	public void setReadOnly(boolean b)
 	{
 		if (b && !enclosedComponent.isEditable()) return;
 		if (b)
@@ -1465,7 +1301,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 		this.titleText = title;
 	}
 
-	public String js_getTitleText()
+	public String getTitleText()
 	{
 		return Text.processTags(titleText, resolver);
 	}
@@ -1474,16 +1310,6 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 	/*
 	 * tooltip---------------------------------------------------
 	 */
-	public void js_setToolTipText(String txt)
-	{
-		setToolTipText(txt);
-	}
-
-	public String js_getToolTipText()
-	{
-		return getToolTipText();
-	}
-
 	private String tooltip;
 
 	@Override
@@ -1521,23 +1347,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 		return null;
 	}
 
-	/*
-	 * location---------------------------------------------------
-	 */
-	public int js_getLocationX()
-	{
-		return getLocation().x;
-	}
-
-	public int js_getLocationY()
-	{
-		return getLocation().y;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_getAbsoluteFormLocationY()
-	 */
-	public int js_getAbsoluteFormLocationY()
+	public int getAbsoluteFormLocationY()
 	{
 		Container parent = getParent();
 		while ((parent != null) && !(parent instanceof IDataRenderer))
@@ -1553,101 +1363,26 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 
 	private Point cachedLocation;
 
-	public void js_setLocation(int x, int y)
-	{
-		cachedLocation = new Point(x, y);
-		setLocation(x, y);
-		this.validate();
-	}
-
 	public Point getCachedLocation()
 	{
 		return cachedLocation;
 	}
 
-	/*
-	 * client properties for ui---------------------------------------------------
-	 */
-
-	public void js_putClientProperty(Object key, Object value)
+	public void setCachedLocation(Point location)
 	{
-		putClientProperty(key, value);
-		enclosedComponent.putClientProperty(key, value);
+		this.cachedLocation = location;
 	}
 
-	public Object js_getClientProperty(Object key)
+	public void setCachedSize(Dimension size)
 	{
-		return getClientProperty(key);
+		this.cachedSize = size;
 	}
-
 
 	private Dimension cachedSize;
-
-	/*
-	 * size---------------------------------------------------
-	 */
-	public void js_setSize(int x, int y)
-	{
-		cachedSize = new Dimension(x, y);
-		setSize(x, y);
-		this.validate();
-	}
 
 	public Dimension getCachedSize()
 	{
 		return cachedSize;
-	}
-
-	public int js_getWidth()
-	{
-		return getSize().width;
-	}
-
-	public int js_getHeight()
-	{
-		return getSize().height;
-	}
-
-
-	/*
-	 * textselect---------------------------------------------------
-	 */
-	public void js_selectAll()
-	{
-		enclosedComponent.selectAll();
-	}
-
-	public String js_getSelectedText()
-	{
-		return enclosedComponent.getSelectedText();
-	}
-
-	public void js_replaceSelectedText(String s)
-	{
-		if (editProvider != null) editProvider.startEdit();
-		enclosedComponent.replaceSelection(s);
-		if (editProvider != null) editProvider.commitData();
-	}
-
-
-	/*
-	 * jsmethods---------------------------------------------------
-	 */
-	public String js_getAsPlainText()
-	{
-		Document doc = enclosedComponent.getDocument();
-		if (doc != null)
-		{
-			try
-			{
-				return doc.getText(0, doc.getLength());
-			}
-			catch (BadLocationException e)
-			{
-				Debug.error(e);
-			}
-		}
-		return null;
 	}
 
 	// If component not shown or not added yet 
@@ -1666,7 +1401,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 		}
 	}
 
-	public void js_requestFocus(Object[] vargs)
+	public void requestFocus(Object[] vargs)
 	{
 //		if (!enclosedComponent.hasFocus()) Don't test on hasFocus (it can have focus,but other component already did requestFocus)
 		{
@@ -1693,45 +1428,12 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 	}
 
 
-	public void js_setFont(String spec)
-	{
-		setFont(PersistHelper.createFont(spec));
-	}
-
-	public String js_getFont()
-	{
-		return PersistHelper.createFontString(getFont());
-	}
-
-	public String js_getDataProviderID()
-	{
-		return getDataProviderID();
-	}
-
-	public String js_getElementType()
-	{
-		if (editorKit instanceof FixedRTFEditorKit)
-		{
-			return IScriptBaseMethods.RTF_AREA;
-		}
-		else
-		{
-			return IScriptBaseMethods.HTML_AREA;
-		}
-	}
-
-	public String js_getName()
-	{
-		String jsName = getName();
-		if (jsName != null && jsName.startsWith(ComponentFactory.WEB_ID_PREFIX)) jsName = null;
-		return jsName;
-	}
-
 	@Override
 	public String toString()
 	{
-		return js_getElementType() + "[name:" + js_getName() + ",x:" + js_getLocationX() + ",y:" + js_getLocationY() + ",width:" + js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + js_getHeight() + ",value:" + getValueObject() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.js_getElementType() +
+			"[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
+			",height:" + scriptable.js_getHeight() + ",value:" + getValueObject() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	public boolean stopUIEditing(boolean looseFocus)

@@ -31,30 +31,25 @@ import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.persistence.RectShape;
-import com.servoy.j2db.scripting.IReturnedTypesProvider;
+import com.servoy.j2db.scripting.IScriptable;
+import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IRect;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.util.ComponentFactoryHelper;
-import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.ui.scripting.RuntimeRectangle;
 import com.servoy.j2db.util.Utils;
 
 /**
  * Rectangular shape
  * @author jblok
  */
-public class Rect extends JComponent implements IReturnedTypesProvider, IRect
+public class Rect extends JComponent implements IRect
 {
 	protected IApplication application;
 	protected int radius = 16;
 	protected int lineWidth = 0;
 	protected int type;
-
-	public Rect()
-	{
-	} // for scripting purposes
+	private final IScriptable scriptable;
 
 	public Rect(IApplication application, int type)
 	{
@@ -66,6 +61,13 @@ public class Rect extends JComponent implements IReturnedTypesProvider, IRect
 			setBackground(Color.white);
 			setForeground(Color.black);
 		}
+		scriptable = new RuntimeRectangle(this, new DummyChangesRecorder(), application);
+	}
+
+
+	public IScriptable getScriptObject()
+	{
+		return scriptable;
 	}
 
 	/**
@@ -239,17 +241,6 @@ public class Rect extends JComponent implements IReturnedTypesProvider, IRect
 		return color;
 	}
 
-	public String js_getBgcolor()
-	{
-		return PersistHelper.createColorString(getBackground());
-	}
-
-	public void js_setBgcolor(String clr)
-	{
-		setBackground(PersistHelper.createColor(clr));
-	}
-
-
 	/*
 	 * fgcolor---------------------------------------------------
 	 */
@@ -264,73 +255,11 @@ public class Rect extends JComponent implements IReturnedTypesProvider, IRect
 		return color;
 	}
 
-	public String js_getFgcolor()
-	{
-		return PersistHelper.createColorString(getForeground());
-	}
-
-	public void js_setFgcolor(String clr)
-	{
-		setForeground(PersistHelper.createColor(clr));
-	}
-
-
-	public void js_setBorder(String spec)
-	{
-		setBorder(ComponentFactoryHelper.createBorder(spec));
-	}
-
-	public String js_getBorder()
-	{
-		return ComponentFactoryHelper.createBorderString(getBorder());
-	}
-
-	/*
-	 * visible---------------------------------------------------
-	 */
-	public boolean js_isVisible()
-	{
-		return isVisible();
-	}
-
-	public void js_setVisible(boolean b)
-	{
-		setVisible(b);
-	}
-
 	public void setComponentVisible(boolean b_visible)
 	{
 		setVisible(b_visible);
 	}
 
-
-	/*
-	 * opaque---------------------------------------------------
-	 */
-	public boolean js_isTransparent()
-	{
-		return !isOpaque();
-	}
-
-	public void js_setTransparent(boolean b)
-	{
-		setOpaque(!b);
-		repaint();
-	}
-
-
-	/*
-	 * enabled---------------------------------------------------
-	 */
-	public boolean js_isEnabled()
-	{
-		return isEnabled();
-	}
-
-	public void js_setEnabled(boolean b)
-	{
-		setComponentEnabled(b);
-	}
 
 	public void setComponentEnabled(boolean enabled)
 	{
@@ -338,37 +267,7 @@ public class Rect extends JComponent implements IReturnedTypesProvider, IRect
 	}
 
 
-	/*
-	 * tooltip---------------------------------------------------
-	 */
-	public void js_setToolTipText(String txt)
-	{
-		setToolTipText(txt);
-	}
-
-	public String js_getToolTipText()
-	{
-		return getToolTipText();
-	}
-
-
-	/*
-	 * location---------------------------------------------------
-	 */
-	public int js_getLocationX()
-	{
-		return getLocation().x;
-	}
-
-	public int js_getLocationY()
-	{
-		return getLocation().y;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_getAbsoluteFormLocationY()
-	 */
-	public int js_getAbsoluteFormLocationY()
+	public int getAbsoluteFormLocationY()
 	{
 		Container parent = getParent();
 		while ((parent != null) && !(parent instanceof IDataRenderer))
@@ -380,75 +279,6 @@ public class Rect extends JComponent implements IReturnedTypesProvider, IRect
 			return ((IDataRenderer)parent).getYOffset() + getLocation().y;
 		}
 		return getLocation().y;
-	}
-
-	public void js_setLocation(int x, int y)
-	{
-		setLocation(x, y);
-	}
-
-	/*
-	 * client properties for ui---------------------------------------------------
-	 */
-
-	public void js_putClientProperty(Object key, Object value)
-	{
-		putClientProperty(key, value);
-	}
-
-	public Object js_getClientProperty(Object key)
-	{
-		return getClientProperty(key);
-	}
-
-
-	/*
-	 * size---------------------------------------------------
-	 */
-	public void js_setSize(int x, int y)
-	{
-		setSize(x, y);
-	}
-
-	public int js_getWidth()
-	{
-		return getSize().width;
-	}
-
-	public int js_getHeight()
-	{
-		return getSize().height;
-	}
-
-
-	/*
-	 * jsmethods---------------------------------------------------
-	 */
-	public String js_getElementType()
-	{
-		return IScriptBaseMethods.RECTANGLE;
-	}
-
-	public void js_setFont(String spec)
-	{
-		setFont(PersistHelper.createFont(spec));
-	}
-
-	public String js_getFont()
-	{
-		return PersistHelper.createFontString(getFont());
-	}
-
-	public String js_getName()
-	{
-		String jsName = getName();
-		if (jsName != null && jsName.startsWith(ComponentFactory.WEB_ID_PREFIX)) jsName = null;
-		return jsName;
-	}
-
-	public Class< ? >[] getAllReturnedTypes()
-	{
-		return null;
 	}
 
 	public String getId()

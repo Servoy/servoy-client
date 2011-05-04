@@ -13,14 +13,17 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.ui;
 
-
-/**
- * @author jblok
- */
-public interface IAccessible
+public interface IScriptLabelForMethods extends IScriptLabelMethods
 {
-	public void setAccessible(boolean b);
+	/**
+	 * Gets the label for property of a label. This property is used to link a label to a certain element (by default used for tableview header, form security, can be used for custom purposes ).
+	 *
+	 * @sample var name = %%prefix%%%%elementName%%.getLabelForElementName();
+	 * 
+	 * @return The label for property (String).
+	 */
+	String js_getLabelForElementName();
 }

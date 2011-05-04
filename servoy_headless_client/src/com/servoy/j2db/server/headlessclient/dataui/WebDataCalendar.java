@@ -26,9 +26,8 @@ import java.awt.Rectangle;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.swing.border.Border;
 import javax.swing.text.Document;
@@ -49,25 +48,22 @@ import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IScriptExecuter;
-import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptDataCalendarMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.util.ComponentFactoryHelper;
+import com.servoy.j2db.ui.scripting.RuntimeDataCalendar;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.ITagResolver;
-import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.StateFullSimpleDateFormat;
 import com.servoy.j2db.util.Utils;
 
@@ -76,19 +72,19 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jcompagner
  */
-public class WebDataCalendar extends WebMarkupContainer implements IFieldComponent, IDisplayData, IScriptDataCalendarMethods, IDelegate, ISupportWebBounds,
-	IRightClickListener, IProviderStylePropertyChanges, ISupplyFocusChildren<Component>
+public class WebDataCalendar extends WebMarkupContainer implements IFieldComponent, IDisplayData, IDelegate, ISupportWebBounds, IRightClickListener,
+	IProviderStylePropertyChanges, ISupplyFocusChildren<Component>
 {
 	private static final long serialVersionUID = 1L;
 
 	private final DateField field;
 	private Cursor cursor;
 	private final IApplication application;
-	private final ChangesRecorder jsChangeRecorder;
 	private boolean readOnly = false;
 	private boolean showPicker = true;
 	private boolean editable;
 	private Insets margin;
+	protected RuntimeDataCalendar scriptable;
 
 	/**
 	 * @param id
@@ -173,7 +169,7 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 			});
 		}
 		add(field);
-		jsChangeRecorder = new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE, TemplateGenerator.DEFAULT_FIELD_PADDING)
+		ChangesRecorder jsChangeRecorder = new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE, TemplateGenerator.DEFAULT_FIELD_PADDING)
 		{
 			@Override
 			public boolean isChanged()
@@ -192,11 +188,16 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 				field.getStylePropertyChanges().setRendered();
 			}
 		};
-
+		scriptable = new RuntimeDataCalendar(this, jsChangeRecorder, application);
 		setOutputMarkupPlaceholderTag(true);
 
 		add(StyleAttributeModifierModel.INSTANCE);
 		add(TooltipAttributeModifier.INSTANCE);
+	}
+
+	public IScriptable getScriptObject()
+	{
+		return scriptable;
 	}
 
 	protected boolean isChooserEnabled()
@@ -225,7 +226,7 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 	protected void onRender(MarkupStream markupStream)
 	{
 		super.onRender(markupStream);
-		jsChangeRecorder.setRendered();
+		getStylePropertyChanges().setRendered();
 	}
 
 	@Override
@@ -242,7 +243,7 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 
 	public IStylePropertyChanges getStylePropertyChanges()
 	{
-		return jsChangeRecorder;
+		return scriptable.getChangesRecorder();
 	}
 
 	public Object getDelegate()
@@ -258,6 +259,11 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 	public void setMargin(Insets i)
 	{
 		this.margin = i;
+	}
+
+	public Insets getMargin()
+	{
+		return margin;
 	}
 
 	public void addScriptExecuter(IScriptExecuter el)
@@ -360,7 +366,7 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 			if (showPicker && readOnly)
 			{
 				showPicker = false;
-				jsChangeRecorder.setChanged();
+				getStylePropertyChanges().setChanged();
 			}
 		}
 		else
@@ -388,8 +394,9 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 	@Override
 	public String toString()
 	{
-		return js_getElementType() + "(web)[name:" + js_getName() + ",x:" + js_getLocationX() + ",y:" + js_getLocationY() + ",width:" + js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + js_getHeight() + ",value:" + getDefaultModelObjectAsString() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.js_getElementType() +
+			"(web)[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
+			",height:" + scriptable.js_getHeight() + ",value:" + getDefaultModelObjectAsString() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	class DateField extends WebDataField implements ITextFormatProvider
@@ -420,13 +427,7 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 		}
 
 		@Override
-		public boolean js_isReadOnly()
-		{
-			return false;
-		}
-
-		@Override
-		public boolean js_isEditable()
+		public boolean isEditable()
 		{
 			return true;
 		}
@@ -456,20 +457,9 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 	}
 
 
-	/*
-	 * jsmethods---------------------------------------------------
-	 */
-	public void js_requestFocus(Object[] vargs)
+	public void requestFocus(Object[] vargs)
 	{
-		field.js_requestFocus(vargs);
-	}
-
-	/*
-	 * dataprovider---------------------------------------------------
-	 */
-	public String js_getDataProviderID()
-	{
-		return getDataProviderID();
+		field.requestFocus(vargs);
 	}
 
 	public String getDataProviderID()
@@ -480,14 +470,6 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 	public void setDataProviderID(String id)
 	{
 		field.setDataProviderID(id);
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_getElementType()
-	 */
-	public String js_getElementType()
-	{
-		return IScriptBaseMethods.CALENDAR;
 	}
 
 	/*
@@ -503,33 +485,14 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 		return field.getFormat();
 	}
 
-	public void js_setFormat(String format)
-	{
-		field.setFormat(field.getDataType(), application.getI18NMessageIfPrefixed(format));
-	}
-
 	public int getDataType()
 	{
 		return field.getDataType();
 	}
 
-	public String js_getFormat()
-	{
-		return field.getFormat();
-	}
-
-
-	/*
-	 * readonly/editable---------------------------------------------------
-	 */
-	public boolean js_isEditable()
+	public boolean isEditable()
 	{
 		return editable;
-	}
-
-	public void js_setEditable(boolean b)
-	{
-		setEditable(b);
 	}
 
 	public void setEditable(boolean b)
@@ -538,19 +501,13 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 		editable = b;
 	}
 
-	public boolean js_isReadOnly()
-	{
-		return isReadOnly();
-	}
-
-	public void js_setReadOnly(boolean b)
+	public void setReadOnly(boolean b)
 	{
 		if (readOnly != b)
 		{
 			readOnly = b;
 			showPicker = !b;
-			field.js_setReadOnly(b);
-			jsChangeRecorder.setChanged();
+			field.setReadOnly(b);
 		}
 	}
 
@@ -559,16 +516,6 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 		return !showPicker;
 	}
 
-
-	/*
-	 * name---------------------------------------------------
-	 */
-	public String js_getName()
-	{
-		String jsName = getName();
-		if (jsName != null && jsName.startsWith(ComponentFactory.WEB_ID_PREFIX)) jsName = null;
-		return jsName;
-	}
 
 	public void setName(String n)
 	{
@@ -610,17 +557,6 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 
 	private boolean opaque;
 
-	public boolean js_isTransparent()
-	{
-		return !opaque;
-	}
-
-	public void js_setTransparent(boolean b)
-	{
-		opaque = !b;
-		jsChangeRecorder.setTransparent(b);
-	}
-
 	public boolean isOpaque()
 	{
 		return opaque;
@@ -635,9 +571,9 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 		field.setTitleText(title);
 	}
 
-	public String js_getTitleText()
+	public String getTitleText()
 	{
-		return field.js_getTitleText();
+		return field.getTitleText();
 	}
 
 	/*
@@ -647,17 +583,6 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 	public void setToolTipText(String tip)
 	{
 		field.setToolTipText(tip);
-	}
-
-	public void js_setToolTipText(String txt)
-	{
-		setToolTipText(txt);
-		jsChangeRecorder.setChanged();
-	}
-
-	public String js_getToolTipText()
-	{
-		return field.js_getToolTipText();
 	}
 
 	/**
@@ -673,17 +598,6 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 	 */
 	private Font font;
 
-	public void js_setFont(String spec)
-	{
-		font = PersistHelper.createFont(spec);
-		jsChangeRecorder.setFont(spec);
-	}
-
-	public String js_getFont()
-	{
-		return PersistHelper.createFontString(font);
-	}
-
 	public Font getFont()
 	{
 		return font;
@@ -692,20 +606,6 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 	public void setFont(Font f)
 	{
 		if (f != null && field != null) field.setFont(f);
-	}
-
-	/*
-	 * bgcolor---------------------------------------------------
-	 */
-	public String js_getBgcolor()
-	{
-		return PersistHelper.createColorString(background);
-	}
-
-	public void js_setBgcolor(String bgcolor)
-	{
-		background = PersistHelper.createColor(bgcolor);
-		jsChangeRecorder.setBgcolor(bgcolor);
 	}
 
 	private Color background;
@@ -721,20 +621,6 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 	}
 
 
-	/*
-	 * fgcolor---------------------------------------------------
-	 */
-	public String js_getFgcolor()
-	{
-		return PersistHelper.createColorString(foreground);
-	}
-
-	public void js_setFgcolor(String fgcolor)
-	{
-		foreground = PersistHelper.createColor(fgcolor);
-		jsChangeRecorder.setFgcolor(fgcolor);
-	}
-
 	private Color foreground;
 
 	private ArrayList<ILabel> labels;
@@ -748,17 +634,6 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 	public Color getForeground()
 	{
 		return foreground;
-	}
-
-	public void js_setBorder(String spec)
-	{
-		setBorder(ComponentFactoryHelper.createBorder(spec));
-		jsChangeRecorder.setBorder(spec);
-	}
-
-	public String js_getBorder()
-	{
-		return ComponentFactoryHelper.createBorderString(getBorder());
 	}
 
 	/*
@@ -777,62 +652,15 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 		}
 	}
 
-	public boolean js_isVisible()
-	{
-		return isVisible();
-	}
-
-	public void js_setVisible(boolean visible)
-	{
-		setVisible(visible);
-		jsChangeRecorder.setVisible(visible);
-		if (labels != null)
-		{
-			for (int i = 0; i < labels.size(); i++)
-			{
-				ILabel label = labels.get(i);
-				if (label instanceof IScriptBaseMethods)
-				{
-					((IScriptBaseMethods)label).js_setVisible(visible);
-				}
-				else
-				{
-					label.setComponentVisible(visible);
-				}
-			}
-		}
-	}
-
 	public void addLabelFor(ILabel label)
 	{
 		if (labels == null) labels = new ArrayList<ILabel>(3);
 		labels.add(label);
 	}
 
-	public String[] js_getLabelForElementNames()
+	public List<ILabel> getLabelsFor()
 	{
-		if (labels != null)
-		{
-			ArrayList<String> al = new ArrayList<String>(labels.size());
-			for (int i = 0; i < labels.size(); i++)
-			{
-				ILabel label = labels.get(i);
-				if (label.getName() != null && !"".equals(label.getName()) && !label.getName().startsWith(ComponentFactory.WEB_ID_PREFIX)) //$NON-NLS-1$
-				{
-					al.add(label.getName());
-				}
-			}
-			return al.toArray(new String[al.size()]);
-		}
-		return new String[0];
-	}
-
-	/*
-	 * enabled---------------------------------------------------
-	 */
-	public void js_setEnabled(final boolean b)
-	{
-		setComponentEnabled(b);
+		return labels;
 	}
 
 	public void setComponentEnabled(final boolean b)
@@ -841,7 +669,7 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 		{
 			super.setEnabled(b);
 			field.setEnabled(b);
-			jsChangeRecorder.setChanged();
+			getStylePropertyChanges().setChanged();
 			if (labels != null)
 			{
 				for (int i = 0; i < labels.size(); i++)
@@ -853,11 +681,6 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 		}
 	}
 
-	public boolean js_isEnabled()
-	{
-		return isEnabled();
-	}
-
 	private boolean accessible = true;
 
 	public void setAccessible(boolean b)
@@ -866,26 +689,25 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 		accessible = b;
 	}
 
+	private boolean viewable = true;
+
+	public void setViewable(boolean b)
+	{
+		this.viewable = b;
+		setComponentVisible(b);
+	}
+
+	public boolean isViewable()
+	{
+		return viewable;
+	}
 
 	/*
 	 * location---------------------------------------------------
 	 */
 	private Point location = new Point(0, 0);
 
-	public int js_getLocationX()
-	{
-		return getLocation().x;
-	}
-
-	public int js_getLocationY()
-	{
-		return getLocation().y;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_getAbsoluteFormLocationY()
-	 */
-	public int js_getAbsoluteFormLocationY()
+	public int getAbsoluteFormLocationY()
 	{
 		WebDataRenderer parent = findParent(WebDataRenderer.class);
 		if (parent != null)
@@ -893,12 +715,6 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 			return parent.getYOffset() + getLocation().y;
 		}
 		return getLocation().y;
-	}
-
-	public void js_setLocation(int x, int y)
-	{
-		location = new Point(x, y);
-		jsChangeRecorder.setLocation(x, y);
 	}
 
 	public void setLocation(Point location)
@@ -912,31 +728,6 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 	}
 
 	/*
-	 * client properties for ui---------------------------------------------------
-	 */
-
-	public void js_putClientProperty(Object key, Object value)
-	{
-		if (clientProperties == null)
-		{
-			clientProperties = new HashMap<Object, Object>();
-		}
-		clientProperties.put(key, value);
-		if (IApplication.DATE_FORMATTERS_LENIENT.equals(key))
-		{
-			field.js_putClientProperty(key, value);
-		}
-	}
-
-	private Map<Object, Object> clientProperties;
-
-	public Object js_getClientProperty(Object key)
-	{
-		if (clientProperties == null) return null;
-		return clientProperties.get(key);
-	}
-
-	/*
 	 * size---------------------------------------------------
 	 */
 	private Dimension size = new Dimension(0, 0);
@@ -946,15 +737,9 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 		return size;
 	}
 
-	public void js_setSize(int width, int height)
-	{
-		size = new Dimension(width, height);
-		jsChangeRecorder.setSize(width, height, border, margin, 0);
-	}
-
 	public Rectangle getWebBounds()
 	{
-		Dimension d = jsChangeRecorder.calculateWebSize(size.width, size.height, border, null, 0, null);
+		Dimension d = ((ChangesRecorder)getStylePropertyChanges()).calculateWebSize(size.width, size.height, border, null, 0, null);
 		return new Rectangle(location, d);
 	}
 
@@ -963,23 +748,13 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 	 */
 	public Insets getPaddingAndBorder()
 	{
-		return jsChangeRecorder.getPaddingAndBorder(size.height, border, null, 0, null);
+		return ((ChangesRecorder)getStylePropertyChanges()).getPaddingAndBorder(size.height, border, null, 0, null);
 	}
 
 
 	public void setSize(Dimension size)
 	{
 		this.size = size;
-	}
-
-	public int js_getWidth()
-	{
-		return size.width;
-	}
-
-	public int js_getHeight()
-	{
-		return size.height;
 	}
 
 	public void setRightClickCommand(String rightClickCmd, Object[] args)

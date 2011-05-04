@@ -42,12 +42,13 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.IDisplay;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
+import com.servoy.j2db.ui.IEditProvider;
 
 /**
  * Listener object for various listeners influencing the edit state
  * @author jblok
  */
-public class EditProvider implements FocusListener, PropertyChangeListener, ItemListener, ActionListener, DocumentListener, DropTargetListener
+public class EditProvider implements FocusListener, PropertyChangeListener, ItemListener, ActionListener, DocumentListener, DropTargetListener, IEditProvider
 {
 	private boolean editable = true;
 	private int isAdjusting;

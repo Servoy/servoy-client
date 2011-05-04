@@ -22,6 +22,7 @@ import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 
+import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptInputMethods;
 
@@ -92,8 +93,10 @@ class ReadOnlyAndEnableTestAttributeModifier extends AbstractBehavior
 	{
 		if (super.isEnabled(component))
 		{
-			if (component instanceof IScriptBaseMethods && !((IScriptBaseMethods)component).js_isEnabled()) return false;
-			if (component instanceof IScriptInputMethods && !((IScriptInputMethods)component).js_isEditable()) return false;
+			Object scriptable = component;
+			if (component instanceof IScriptableProvider) scriptable = ((IScriptableProvider)component).getScriptObject();
+			if (scriptable instanceof IScriptBaseMethods && !((IScriptBaseMethods)scriptable).js_isEnabled()) return false;
+			if (scriptable instanceof IScriptInputMethods && !((IScriptInputMethods)scriptable).js_isEditable()) return false;
 		}
 		return true;
 	}

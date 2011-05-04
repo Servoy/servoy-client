@@ -17,6 +17,7 @@
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
@@ -24,14 +25,14 @@ import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.util.string.AppendingStringBuffer;
 
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.component.ComponentFactory;
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptTextEditorMethods;
+import com.servoy.j2db.ui.scripting.RuntimeHTMLArea;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -39,26 +40,25 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jcompagner
  */
-public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponent, IScriptTextEditorMethods, ISupportScriptCallback
+public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponent, ISupportScriptCallback
 {
 	private static final long serialVersionUID = 1L;
 
 	private AbstractDefaultAjaxBehavior inlineScriptExecutor;
+	private final IScriptable scriptable;
 
 	public WebDataHtmlView(IApplication application, String id)
 	{
 		super(application, id);
 		setEscapeModelStrings(false);
-		jsChangeRecorder = new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE, TemplateGenerator.DEFAULT_FIELD_PADDING);
+		this.scriptable = new RuntimeHTMLArea(this, new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE, TemplateGenerator.DEFAULT_FIELD_PADDING),
+			application, null);
 	}
 
-	/**
-	 * @see com.servoy.j2db.server.headlessclient.dataui.WebBaseSubmitLink#js_getElementType()
-	 */
 	@Override
-	public String js_getElementType()
+	public IScriptable getScriptObject()
 	{
-		return IScriptBaseMethods.HTML_AREA;
+		return this.scriptable;
 	}
 
 	/**
@@ -231,6 +231,11 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 	{
 	}
 
+	public boolean isEditable()
+	{
+		return false;
+	}
+
 	public void setEnterCmds(String[] enterCmds, Object[][] args)
 	{
 	}
@@ -276,22 +281,9 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 		labels.add(label);
 	}
 
-	public String[] js_getLabelForElementNames()
+	public List<ILabel> getLabelsFor()
 	{
-		if (labels != null)
-		{
-			ArrayList<String> al = new ArrayList<String>(labels.size());
-			for (int i = 0; i < labels.size(); i++)
-			{
-				ILabel label = labels.get(i);
-				if (label.getName() != null && !"".equals(label.getName()) && !label.getName().startsWith(ComponentFactory.WEB_ID_PREFIX)) //$NON-NLS-1$
-				{
-					al.add(label.getName());
-				}
-			}
-			return al.toArray(new String[al.size()]);
-		}
-		return new String[0];
+		return labels;
 	}
 
 	/*
@@ -307,27 +299,6 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 			{
 				ILabel label = labels.get(i);
 				label.setComponentVisible(visible);
-			}
-		}
-	}
-
-	@Override
-	public void js_setVisible(boolean visible)
-	{
-		super.js_setVisible(visible);
-		if (labels != null)
-		{
-			for (int i = 0; i < labels.size(); i++)
-			{
-				ILabel label = labels.get(i);
-				if (label instanceof IScriptBaseMethods)
-				{
-					((IScriptBaseMethods)label).js_setVisible(visible);
-				}
-				else
-				{
-					label.setComponentVisible(visible);
-				}
 			}
 		}
 	}
@@ -349,134 +320,21 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 		}
 	}
 
-	public String js_getAsPlainText()
-	{
-		return null; //not supported
-	}
-
-	public String js_getURL()
-	{
-		return null; //not supported
-	}
-
-	public void js_setURL(String url)
-	{
-	}
-
-	public void js_setTitleText(String title)
-	{
-		this.titleText = title;
-		if (getDataProviderID() == null)
-		{
-			setTagText(titleText);
-		}
-		jsChangeRecorder.setChanged();
-	}
-
-
 	@Override
-	public String js_getDataProviderID()
-	{
-		return getDataProviderID();
-	}
-
-
-	/*
-	 * scrolling---------------------------------------------------
-	 */
-	public int js_getScrollX()
-	{
-		return 0; //not supported
-	}
-
-	public int js_getScrollY()
-	{
-		return 0; //not supported
-	}
-
-	public void js_setScroll(int x, int y)
-	{
-	}
-
-
-	/*
-	 * readonly/editable---------------------------------------------------
-	 */
-	public void js_setEditable(boolean b)
-	{
-	}
-
-	public boolean js_isEditable()
-	{
-		return false;
-	}
-
-	public boolean js_isReadOnly()
-	{
-		return false;
-	}
-
-	public void js_setReadOnly(boolean b)
-	{
-	}
-
-
-	/*
-	 * jsmethods---------------------------------------------------
-	 */
-	public int js_getCaretPosition()
-	{
-		return 0; //not supported
-	}
-
-	public void js_requestFocus(Object[] vargs)
-	{
-//		if (vargs != null && vargs.length >= 1 && !Utils.getAsBoolean(vargs[0])) 
-//		{
-//			eventExecutor.skipNextFocusGain();
-//		}
-//		requestFocus();
-//	}
-//	public void requestFocus()
-//	{
-//		Page page = findPage();
-//		if (page instanceof MainPage)
-//		{
-//			((MainPage)page).componentToFocus(this);
-//		}
-	}
-
-	public String js_getSelectedText()
-	{
-		return null; //not supported
-	}
-
-	public void js_replaceSelectedText(String s)
-	{
-	}
-
-	public void js_selectAll()
-	{
-	}
-
-	public void js_setCaretPosition(int pos)
-	{
-	}
-
-	public String js_getBaseURL()
-	{
-		return null; //not supported
-	}
-
-	public void js_setBaseURL(String url)
-	{
-	}
-
-	@Override
-	protected int getFontSize()
+	public int getFontSize()
 	{
 		// Since the fontSize is used only for calculating web size, it is safe to just return 0
 		// in order to avoid any padding adjustments. (issue 169037)
 		return 0;
+	}
+
+	public String getTitleText()
+	{
+		return Text.processTags(titleText, resolver);
+	}
+
+	public void setReadOnly(boolean b)
+	{
+
 	}
 }

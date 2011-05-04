@@ -17,39 +17,21 @@
 package com.servoy.j2db.smart.dataui;
 
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.ui.IScriptScriptLabelMethods;
+import com.servoy.j2db.ui.DummyChangesRecorder;
+import com.servoy.j2db.ui.scripting.RuntimeScriptLabel;
 
 
 /**
  * @author jcompagner
  */
 
-public class ScriptLabel extends AbstractScriptLabel implements IScriptScriptLabelMethods
+public class ScriptLabel extends AbstractScriptLabel
 {
-	private String i18n;
 
 	public ScriptLabel(IApplication app)
 	{
 		super(app);
+		scriptable = new RuntimeScriptLabel(this, new DummyChangesRecorder(), app);
 	}
 
-	public String js_getText()
-	{
-		if (i18n != null) return i18n;
-		return getText();
-	}
-
-	public void js_setText(String txt)
-	{
-		if (txt != null && txt.startsWith("i18n:")) //$NON-NLS-1$
-		{
-			i18n = txt;
-			txt = application.getI18NMessage(txt);
-		}
-		else
-		{
-			i18n = null;
-		}
-		setText(txt);
-	}
 }

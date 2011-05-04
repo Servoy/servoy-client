@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting;
 
 import java.lang.reflect.Field;
@@ -43,9 +43,9 @@ public class ScriptObjectRegistry
 
 	private static final HashMap<Object, Map<Class< ? >, JavaMembers>> javaMembersCache = new HashMap<Object, Map<Class< ? >, JavaMembers>>();
 
-	private static Map<Class< ? >, IScriptObject> scriptObjectRegistry = new ConcurrentHashMap<Class< ? >, IScriptObject>();
+	private static Map<Class< ? >, IScriptable> scriptObjectRegistry = new ConcurrentHashMap<Class< ? >, IScriptable>();
 
-	public static void registerScriptObjectForClass(Class< ? > clz, IScriptObject scriptobject)
+	public static void registerScriptObjectForClass(Class< ? > clz, IScriptable scriptobject)
 	{
 		scriptObjectRegistry.put(clz, scriptobject);
 	}
@@ -57,7 +57,7 @@ public class ScriptObjectRegistry
 
 	public static IScriptObject getScriptObjectForClass(Class< ? > clz)
 	{
-		IScriptObject so = scriptObjectRegistry.get(clz);
+		IScriptable so = scriptObjectRegistry.get(clz);
 		if (so == null)
 		{
 			try
@@ -73,24 +73,32 @@ public class ScriptObjectRegistry
 			{
 				for (Class< ? > key : scriptObjectRegistry.keySet())
 				{
-					if (key.isAssignableFrom(clz)) return scriptObjectRegistry.get(key);
-				}
-				if (IScriptObject.class.isAssignableFrom(clz))
-				{
-					try
+					if (key.isAssignableFrom(clz))
 					{
-						// just try to make it.
-						so = (IScriptObject)clz.newInstance();
-						ScriptObjectRegistry.registerScriptObjectForClass(clz, so);
+						so = scriptObjectRegistry.get(key);
+						break;
 					}
-					catch (Exception e)
+				}
+				if (so == null)
+				{
+					if (IScriptable.class.isAssignableFrom(clz))
 					{
-						// ignore
+						try
+						{
+							// just try to make it.
+							so = (IScriptable)clz.newInstance();
+							ScriptObjectRegistry.registerScriptObjectForClass(clz, so);
+						}
+						catch (Exception e)
+						{
+							// ignore
+						}
 					}
 				}
 			}
 		}
-		return so;
+		if (so instanceof IScriptObject) return (IScriptObject)so;
+		return null;
 	}
 
 	public static Set<Class< ? >> getRegisteredClasses()

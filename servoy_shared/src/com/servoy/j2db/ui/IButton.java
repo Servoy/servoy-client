@@ -13,11 +13,10 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.ui;
 
 import java.awt.Insets;
-
 
 
 /**
@@ -31,10 +30,13 @@ public interface IButton extends ILabel
 	 * @param b
 	 */
 	void setRolloverEnabled(boolean b);
-	
+
 	/**
 	 * @param i
 	 */
 	void setMargin(Insets i);
-	
+
+	Insets getMargin();
+
+	public void requestFocus(Object[] vargs);
 }

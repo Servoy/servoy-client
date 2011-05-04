@@ -119,6 +119,8 @@ import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.TabSeqComparator;
+import com.servoy.j2db.scripting.IScriptable;
+import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.TabIndexHelper;
@@ -128,11 +130,10 @@ import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
+import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IPortalComponent;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptInputMethods;
-import com.servoy.j2db.ui.IScriptPortalComponentMethods;
 import com.servoy.j2db.ui.IScriptReadOnlyMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportEventExecutor;
@@ -141,7 +142,7 @@ import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.PropertyCopy;
 import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.util.ComponentFactoryHelper;
+import com.servoy.j2db.ui.scripting.RuntimePortal;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.ISupplyFocusChildren;
@@ -155,8 +156,8 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jblok
  */
-public class WebCellBasedView extends WebMarkupContainer implements IView, IPortalComponent, IScriptPortalComponentMethods, IDataRenderer,
-	IProviderStylePropertyChanges, TableModelListener, ListSelectionListener, ISupportWebBounds, ISupportWebTabSeq, ISupportRowStyling
+public class WebCellBasedView extends WebMarkupContainer implements IView, IPortalComponent, IDataRenderer, IProviderStylePropertyChanges, TableModelListener,
+	ListSelectionListener, ISupportWebBounds, ISupportWebTabSeq, ISupportRowStyling
 {
 	private static final int SCROLLBAR_SIZE = 17;
 	private static final long serialVersionUID = 1L;
@@ -175,7 +176,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	private final IModel<FoundSetListWrapper> data = new Model<FoundSetListWrapper>();
 	private PagingNavigator pagingNavigator;
 	boolean showPageNavigator = true;
-	private final ChangesRecorder jsChangeRecorder; //incase this class is a portal
 	private DataAdapterList dal;
 
 	private final Map<String, Boolean> initialSortColumnNames = new HashMap<String, Boolean>();
@@ -205,6 +205,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	private Label loadingInfo; // used to show loading info when rendering is postponed waiting for size info response from browser\
 	private String lastRenderedPath;
 	private boolean isAnchored;
+	private RuntimePortal scriptable;
 
 	/**
 	 * @author jcompagner
@@ -283,10 +284,14 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			int stretchedElementsCount = 0;
 			for (IPersist element : elementToColumnIdentifierComponent.keySet())
 			{
-				Component c = elementToColumnIdentifierComponent.get(element);
-				if (c instanceof IScriptBaseMethods)
+				Object scriptable = elementToColumnIdentifierComponent.get(element);
+				if (scriptable instanceof IScriptableProvider)
 				{
-					int width = ((IScriptBaseMethods)c).js_getWidth();
+					scriptable = ((IScriptableProvider)scriptable).getScriptObject();
+				}
+				if (scriptable instanceof IScriptBaseMethods)
+				{
+					int width = ((IScriptBaseMethods)scriptable).js_getWidth();
 					totalDefaultWidth += width;
 					if (element instanceof ISupportAnchors)
 					{
@@ -319,7 +324,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				tabPanel.setTabSize(new Dimension(Integer.parseInt(sBodyWidthHint), bodyHeightHint + otherPartsHeight));
 			}
 			WebCellBasedView.this.setVisibilityAllowed(true);
-			WebCellBasedView.this.jsChangeRecorder.setChanged();
+			WebCellBasedView.this.getStylePropertyChanges().setChanged();
 			WebEventExecutor.generateResponse(target, getComponent().getPage());
 		}
 	}
@@ -546,10 +551,14 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					public void add(IPersist element, final Component comp)
 					{
 						Component component = elementToColumnIdentifierComponent.values().iterator().next();
-						if ((component instanceof IComponent) && (comp instanceof IScriptBaseMethods))
+						if ((component instanceof IComponent) && (comp instanceof IScriptableProvider))
 						{
-							IScriptBaseMethods ic = (IScriptBaseMethods)comp;
-							ic.js_setSize(ic.js_getWidth(), ((IComponent)component).getSize().height);
+							IScriptable scriptable = ((IScriptableProvider)comp).getScriptObject();
+							if (scriptable instanceof IScriptBaseMethods)
+							{
+								IScriptBaseMethods ic = (IScriptBaseMethods)scriptable;
+								ic.js_setSize(ic.js_getWidth(), ((IComponent)component).getSize().height);
+							}
 						}
 						cellToElement.put(comp, element);
 						Component listItemChild = comp;
@@ -640,9 +649,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			}
 
 
-			if (js_isReadOnly() && validationEnabled && comp instanceof IScriptReadOnlyMethods) // if in find mode, the field should not be readonly
+			if (scriptable.js_isReadOnly() && validationEnabled && comp instanceof IScriptableProvider &&
+				((IScriptableProvider)comp).getScriptObject() instanceof IScriptReadOnlyMethods) // if in find mode, the field should not be readonly
 			{
-				((IScriptReadOnlyMethods)comp).js_setReadOnly(true);
+				((IScriptReadOnlyMethods)((IScriptableProvider)comp).getScriptObject()).js_setReadOnly(true);
 			}
 			if (!isEnabled() && comp instanceof IComponent)
 			{
@@ -987,7 +997,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		if (!useAJAX) bodyHeightHint = sizeHint;
 
-		jsChangeRecorder = new ChangesRecorder(null, null)
+		ChangesRecorder jsChangeRecorder = new ChangesRecorder(null, null)
 		{
 			@Override
 			public boolean isChanged()
@@ -1040,6 +1050,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 			}
 		};
+		scriptable = new RuntimePortal(this, jsChangeRecorder, application, null);
 
 		add(new StyleAppendingModifier(new Model<String>()
 		{
@@ -1336,6 +1347,11 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 	}
 
+	public IScriptable getScriptObject()
+	{
+		return scriptable;
+	}
+
 	public void setTabIndex(int tabIndex)
 	{
 		this.tabIndex = tabIndex;
@@ -1615,9 +1631,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		for (IPersist p : elementToColumnHeader.keySet())
 		{
 			Component c = elementToColumnIdentifierComponent.get(p);
-			if (c instanceof IScriptBaseMethods)
+			if (c instanceof IScriptableProvider && ((IScriptableProvider)c).getScriptObject() instanceof IScriptBaseMethods)
 			{
-				IScriptBaseMethods ic = (IScriptBaseMethods)c;
+				IScriptBaseMethods ic = (IScriptBaseMethods)((IScriptableProvider)c).getScriptObject();
 				if (elementToColumnHeader.get(p).equals(headerColumn))
 				{
 					int height = ic.js_getHeight();
@@ -1644,9 +1660,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					{
 						cellToElementEntry = cellToElementIte.next();
 						cellComponent = cellToElementEntry.getKey();
-						if (p.equals(cellToElementEntry.getValue()) && cellComponent instanceof IScriptBaseMethods)
+						if (p.equals(cellToElementEntry.getValue()) && cellComponent instanceof IScriptableProvider &&
+							((IScriptableProvider)cellComponent).getScriptObject() instanceof IScriptBaseMethods)
 						{
-							IScriptBaseMethods cellScriptComponent = (IScriptBaseMethods)cellComponent;
+							IScriptBaseMethods cellScriptComponent = (IScriptBaseMethods)((IScriptableProvider)cellComponent).getScriptObject();
 							cellScriptComponent.js_setSize(cellScriptComponent.js_getWidth() + x, cellScriptComponent.js_getHeight());
 							if (cellComponent instanceof IProviderStylePropertyChanges)
 							{
@@ -1995,7 +2012,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	public IStylePropertyChanges getStylePropertyChanges()
 	{
-		return jsChangeRecorder;
+		return scriptable.getChangesRecorder();
 	}
 
 	/**
@@ -2212,6 +2229,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			// valueChanged(null,stopEditing);
 		}
+		scriptable.setFoundset(currentData);
 		for (Object header : getHeaderComponents())
 		{
 			((SortableCellViewHeader)header).setResizeImage(SortableCellViewHeader.R_ARROW_OFF);
@@ -2328,163 +2346,14 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	{
 	}
 
-	/*
-	 * scrollable---------------------------------------------------
-	 */
-	public void js_setScroll(int x, int y)
-	{
-		// todo ignore in webclient?
-	}
 
-	public int js_getScrollX()
-	{
-		// todo ignore in webclient?
-		return 0;
-	}
-
-	public int js_getScrollY()
-	{
-		// todo ignore in webclient?
-		return 0;
-	}
-
-	/*
-	 * data related methods---------------------------------------------------
-	 */
-	public String js_getSortColumns()
+	public void setRecordIndex(int i)
 	{
 		if (currentData != null)
 		{
-			List<SortColumn> lst = currentData.getSortColumns();
-			StringBuffer sb = new StringBuffer();
-			if (lst.size() > 0)
-			{
-				for (int i = 0; i < lst.size(); i++)
-				{
-					SortColumn sc = lst.get(i);
-					sb.append(sc.toString());
-					sb.append(", "); //$NON-NLS-1$
-				}
-				sb.setLength(sb.length() - 2);
-			}
-			return sb.toString();
-		}
-		return ""; //$NON-NLS-1$
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptPortalComponentMethods#js_getRecordIndex()
-	 */
-	public int js_getRecordIndex()
-	{
-		if (currentData != null) return currentData.getSelectedIndex() + 1;
-		return 0;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptPortalComponentMethods#js_setRecordIndex(int)
-	 */
-	public void js_setRecordIndex(int i)
-	{
-		if (i >= 1 && i <= js_getMaxRecordIndex())
-		{
-			currentData.setSelectedIndex(i - 1);
+			currentData.setSelectedIndex(i);
 		}
 	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptPortalComponentMethods#jsFunction_getSelectedIndex()
-	 */
-	public int jsFunction_getSelectedIndex()
-	{
-		return currentData.getSelectedIndex() + 1;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptPortalComponentMethods#jsFunction_setSelectedIndex(int)
-	 */
-	public void jsFunction_setSelectedIndex(int i)
-	{
-		if (i >= 1 && i <= js_getMaxRecordIndex())
-		{
-			currentData.setSelectedIndex(i - 1);
-		}
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptPortalComponentMethods#js_getMaxRecordIndex()
-	 */
-	public int js_getMaxRecordIndex()
-	{
-		return currentData.getSize();
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptPortalComponentMethods#js_deleteRecord()
-	 */
-	public void js_deleteRecord()
-	{
-		if (currentData != null)
-		{
-			try
-			{
-				currentData.deleteRecord(currentData.getSelectedIndex());
-			}
-			catch (Exception ex)
-			{
-				Debug.error(ex);
-			}
-		}
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptPortalComponentMethods#js_newRecord(java.lang.Object[])
-	 */
-	public void js_newRecord(Object[] vargs)
-	{
-		boolean addOnTop = true;
-		if (vargs != null && vargs.length >= 1 && vargs[0] instanceof Boolean)
-		{
-			addOnTop = ((Boolean)vargs[0]).booleanValue();
-		}
-		if (currentData != null)
-		{
-			try
-			{
-				int i = currentData.newRecord(addOnTop ? 0 : Integer.MAX_VALUE, true);
-				currentData.setSelectedIndex(i);
-			}
-			catch (Exception ex)
-			{
-				Debug.error(ex);
-			}
-		}
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptPortalComponentMethods#js_duplicateRecord(java.lang.Object[])
-	 */
-	public void js_duplicateRecord(Object[] vargs)
-	{
-		boolean addOnTop = true;
-		if (vargs != null && vargs.length >= 1 && vargs[0] instanceof Boolean)
-		{
-			addOnTop = ((Boolean)vargs[0]).booleanValue();
-		}
-		if (currentData != null)
-		{
-			try
-			{
-				int i = currentData.duplicateRecord(currentData.getSelectedIndex(), addOnTop ? 0 : Integer.MAX_VALUE);
-				currentData.setSelectedIndex(i);
-			}
-			catch (Exception ex)
-			{
-				Debug.error(ex);
-			}
-		}
-	}
-
 
 	/*
 	 * readonly---------------------------------------------------
@@ -2494,34 +2363,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		return isReadOnly;
 	}
 
-	public void js_setReadOnly(boolean b)
+	public void setReadOnly(boolean b)
 	{
 		isReadOnly = b;
-		getStylePropertyChanges().setChanged();
-	}
-
-	public boolean js_isReadOnly()
-	{
-		return isReadOnly;
-	}
-
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_getElementType()
-	 */
-	public String js_getElementType()
-	{
-		return IScriptBaseMethods.PORTAL;
-	}
-
-	/*
-	 * name---------------------------------------------------
-	 */
-	public String js_getName()
-	{
-		String jsName = getName();
-		if (jsName != null && jsName.startsWith(ComponentFactory.WEB_ID_PREFIX)) jsName = null;
-		return jsName;
 	}
 
 	public void setName(String n)
@@ -2626,20 +2470,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	}
 
 
-	/*
-	 * bgcolor---------------------------------------------------
-	 */
-	public String js_getBgcolor()
-	{
-		return PersistHelper.createColorString(background);
-	}
-
-	public void js_setBgcolor(String bgcolor)
-	{
-		background = PersistHelper.createColor(bgcolor);
-		jsChangeRecorder.setBgcolor(bgcolor);
-	}
-
 	private Color background;
 
 	public void setBackground(Color cbg)
@@ -2652,20 +2482,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		return background;
 	}
 
-
-	/*
-	 * fgcolor---------------------------------------------------
-	 */
-	public String js_getFgcolor()
-	{
-		return PersistHelper.createColorString(foreground);
-	}
-
-	public void js_setFgcolor(String fgcolor)
-	{
-		foreground = PersistHelper.createColor(fgcolor);
-		jsChangeRecorder.setFgcolor(fgcolor);
-	}
 
 	private Color foreground;
 
@@ -2680,17 +2496,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	}
 
 
-	public void js_setBorder(String spec)
-	{
-		setBorder(ComponentFactoryHelper.createBorder(spec));
-		jsChangeRecorder.setBorder(spec);
-	}
-
-	public String js_getBorder()
-	{
-		return ComponentFactoryHelper.createBorderString(getBorder());
-	}
-
 	/*
 	 * visible---------------------------------------------------
 	 */
@@ -2699,25 +2504,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		setVisible(visible);
 	}
 
-	public boolean js_isVisible()
-	{
-		return isVisible();
-	}
-
-	public void js_setVisible(boolean visible)
-	{
-		setVisible(visible);
-		jsChangeRecorder.setVisible(visible);
-	}
-
-
-	/*
-	 * enabled---------------------------------------------------
-	 */
-	public void js_setEnabled(final boolean b)
-	{
-		setComponentEnabled(b);
-	}
 
 	public void setComponentEnabled(final boolean b)
 	{
@@ -2731,11 +2517,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 	}
 
-	public boolean js_isEnabled()
-	{
-		return isEnabled();
-	}
-
 	private boolean accessible = true;
 
 	public void setAccessible(boolean b)
@@ -2744,26 +2525,25 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		accessible = b;
 	}
 
+	private boolean viewable = true;
+
+	public void setViewable(boolean b)
+	{
+		this.viewable = b;
+		setComponentVisible(b);
+	}
+
+	public boolean isViewable()
+	{
+		return viewable;
+	}
 
 	/*
 	 * location---------------------------------------------------
 	 */
 	private Point location = new Point(0, 0);
 
-	public int js_getLocationX()
-	{
-		return getLocation().x;
-	}
-
-	public int js_getLocationY()
-	{
-		return getLocation().y;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_getAbsoluteFormLocationY()
-	 */
-	public int js_getAbsoluteFormLocationY()
+	public int getAbsoluteFormLocationY()
 	{
 		WebDataRenderer parent = findParent(WebDataRenderer.class);
 		if (parent != null)
@@ -2771,12 +2551,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			return parent.getYOffset() + getLocation().y;
 		}
 		return getLocation().y;
-	}
-
-	public void js_setLocation(int x, int y)
-	{
-		location = new Point(x, y);
-		jsChangeRecorder.setLocation(x, y);
 	}
 
 	public void setLocation(Point location)
@@ -2787,27 +2561,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	public Point getLocation()
 	{
 		return location;
-	}
-
-	/*
-	 * client properties for ui---------------------------------------------------
-	 */
-
-	public void js_putClientProperty(Object key, Object value)
-	{
-		if (clientProperties == null)
-		{
-			clientProperties = new HashMap<Object, Object>();
-		}
-		clientProperties.put(key, value);
-	}
-
-	private Map<Object, Object> clientProperties;
-
-	public Object js_getClientProperty(Object key)
-	{
-		if (clientProperties == null) return null;
-		return clientProperties.get(key);
 	}
 
 	/**
@@ -2829,15 +2582,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		return size;
 	}
 
-	public void js_setSize(int width, int height)
-	{
-		size = new Dimension(width, height);
-		jsChangeRecorder.setSize(width, height, border, new Insets(0, 0, 0, 0), 0);
-	}
-
 	public Rectangle getWebBounds()
 	{
-		Dimension d = jsChangeRecorder.calculateWebSize(size.width, size.height, border, new Insets(0, 0, 0, 0), 0, null);
+		Dimension d = ((ChangesRecorder)getStylePropertyChanges()).calculateWebSize(size.width, size.height, border, new Insets(0, 0, 0, 0), 0, null);
 		return new Rectangle(location, d);
 	}
 
@@ -2846,23 +2593,13 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	 */
 	public Insets getPaddingAndBorder()
 	{
-		return jsChangeRecorder.getPaddingAndBorder(size.height, border, new Insets(0, 0, 0, 0), 0, null);
+		return ((ChangesRecorder)getStylePropertyChanges()).getPaddingAndBorder(size.height, border, new Insets(0, 0, 0, 0), 0, null);
 	}
 
 
 	public void setSize(Dimension size)
 	{
 		this.size = size;
-	}
-
-	public int js_getWidth()
-	{
-		return size.width;
-	}
-
-	public int js_getHeight()
-	{
-		return size.height;
 	}
 
 	/**
@@ -2893,7 +2630,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		for (PersistColumnIdentifierComponent pci : orderedPersistColumnIdentifierComponent)
 		{
 			IComponent c = pci.getComponent();
-			if (!(c instanceof WebBaseButton || c instanceof WebBaseLabel || !c.isEnabled() || (validationEnabled && c instanceof IScriptInputMethods && !((IScriptInputMethods)c).js_isEditable())))
+			if (!(c instanceof WebBaseButton || c instanceof WebBaseLabel || !c.isEnabled() || (validationEnabled && c instanceof IFieldComponent && !((IFieldComponent)c).isEditable())))
 			{
 				firstFocusableColumnIdentifier = (Component)c;
 				break;
@@ -2968,12 +2705,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	{
 		if (list == null || list.size() == 0)
 		{
-			if (elementTabIndexes.size() > 0) jsChangeRecorder.setChanged();
+			if (elementTabIndexes.size() > 0) getStylePropertyChanges().setChanged();
 			elementTabIndexes.clear();
 		}
 		else
 		{
-			jsChangeRecorder.setChanged();
+			getStylePropertyChanges().setChanged();
 			elementTabIndexes.clear();
 			int columnTabIndex = 0;
 			for (Component rowIdComponent : list)
@@ -3642,9 +3379,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			if (distributeToThisColumn)
 			{
 				Component c = elementToColumnIdentifierComponent.get(element);
-				if (c instanceof IScriptBaseMethods)
+				if (c instanceof IScriptableProvider && ((IScriptableProvider)c).getScriptObject() instanceof IScriptBaseMethods)
 				{
-					IScriptBaseMethods ic = (IScriptBaseMethods)c;
+					IScriptBaseMethods ic = (IScriptBaseMethods)((IScriptableProvider)c).getScriptObject();
 					int thisDelta = delta * ic.js_getWidth() / totalWidthToStretch;
 					consumedDelta += thisDelta;
 					int newWidth = ic.js_getWidth() + thisDelta;

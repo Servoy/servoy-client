@@ -60,7 +60,7 @@ import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.QueryUpdate;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
-import com.servoy.j2db.scripting.IScriptObject;
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.scripting.info.COLUMNTYPE;
 import com.servoy.j2db.scripting.info.SQL_ACTION_TYPES;
@@ -829,7 +829,7 @@ public class JSDatabaseManager
 		IClientPlugin cp = application.getPluginManager().getPlugin(IClientPlugin.class, "rawSQL"); //$NON-NLS-1$
 		if (cp != null)
 		{
-			IScriptObject so = cp.getScriptObject();
+			IScriptable so = cp.getScriptObject();
 			if (so != null)
 			{
 				try

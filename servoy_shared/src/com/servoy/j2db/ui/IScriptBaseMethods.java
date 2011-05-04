@@ -16,11 +16,13 @@
  */
 package com.servoy.j2db.ui;
 
+import com.servoy.j2db.scripting.IScriptable;
+
 /**
  * @author jcompagner
  */
 @SuppressWarnings("nls")
-public interface IScriptBaseMethods
+public interface IScriptBaseMethods extends IScriptable
 {
 	//types for getElementType
 	public String BUTTON = "BUTTON";

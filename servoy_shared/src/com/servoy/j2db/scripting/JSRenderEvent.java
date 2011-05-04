@@ -21,6 +21,7 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.Record;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.ui.IScriptRenderMethods;
+import com.servoy.j2db.ui.ISupportOnRenderCallback;
 
 /**
  * JSRenderEvent, used as argument to render callbacks.
@@ -30,13 +31,13 @@ import com.servoy.j2db.ui.IScriptRenderMethods;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class JSRenderEvent implements IJavaScriptType
 {
-	private IScriptRenderMethods element;
+	private ISupportOnRenderCallback element;
 	private IRecordInternal record;
 	private boolean hasFocus;
 	private boolean isSelected;
 	private int index;
 
-	public void setElement(IScriptRenderMethods element)
+	public void setElement(ISupportOnRenderCallback element)
 	{
 		this.element = element;
 	}
@@ -48,7 +49,8 @@ public class JSRenderEvent implements IJavaScriptType
 	@Deprecated
 	public IScriptRenderMethods js_getElement()
 	{
-		return element;
+		if (element instanceof IScriptableProvider) return (IScriptRenderMethods)((IScriptableProvider)element).getScriptObject();
+		return (IScriptRenderMethods)element;
 	}
 
 	/**
@@ -60,7 +62,8 @@ public class JSRenderEvent implements IJavaScriptType
 	 */
 	public IScriptRenderMethods js_getRenderable()
 	{
-		return element;
+		if (element instanceof IScriptableProvider) return (IScriptRenderMethods)((IScriptableProvider)element).getScriptObject();
+		return (IScriptRenderMethods)element;
 	}
 
 	public void setRecord(IRecordInternal record)

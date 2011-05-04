@@ -50,35 +50,33 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.ISmartClientApplication;
-import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.gui.JDateChooser;
 import com.servoy.j2db.persistence.ScriptVariable;
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.ui.BaseEventExecutor;
+import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptDataCalendarMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.util.ComponentFactoryHelper;
+import com.servoy.j2db.ui.scripting.RuntimeDataCalendar;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnablePanel;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.ITagResolver;
-import com.servoy.j2db.util.PersistHelper;
 
 /**
  * Runtime swing calendar field
  * @author jblok
  */
 public class DataCalendar extends EnablePanel implements IFieldComponent, IDisplayData, ActionListener, IDelegate, ISupplyFocusChildren<Component>,
-	IScriptDataCalendarMethods, ISupportCachedLocationAndSize
+	ISupportCachedLocationAndSize
 {
 	private final DataField enclosedComponent;
 	private String dataProviderID;
@@ -87,6 +85,7 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 	private List<ILabel> labels;
 
 	private MouseAdapter rightclickMouseAdapter = null;
+	protected RuntimeDataCalendar scriptable;
 
 	public DataCalendar(IApplication app)
 	{
@@ -122,6 +121,12 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 		setOpaque(true);
 		setBackground(Color.white);
 		setBorder(BorderFactory.createEtchedBorder());
+		scriptable = new RuntimeDataCalendar(this, new DummyChangesRecorder(), application);
+	}
+
+	public IScriptable getScriptObject()
+	{
+		return this.scriptable;
 	}
 
 	public Object getDelegate()
@@ -149,6 +154,11 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 	public void setMargin(Insets i)
 	{
 		enclosedComponent.setMargin(i);
+	}
+
+	public Insets getMargin()
+	{
+		return enclosedComponent.getMargin();
 	}
 
 	@Override
@@ -402,44 +412,6 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 		enclosedComponent.setFormat(dataType, format);
 	}
 
-	public void js_setFormat(String format)
-	{
-		enclosedComponent.setFormat(enclosedComponent.getDataType(), application.getI18NMessageIfPrefixed(format));
-	}
-
-	public String js_getFormat()
-	{
-		return enclosedComponent.getFormat();
-	}
-
-
-	/*
-	 * bgcolor---------------------------------------------------
-	 */
-	public String js_getBgcolor()
-	{
-		return PersistHelper.createColorString(getBackground());
-	}
-
-	public void js_setBgcolor(String clr)
-	{
-		setBackground(PersistHelper.createColor(clr));
-	}
-
-
-	/*
-	 * fgcolor---------------------------------------------------
-	 */
-	public String js_getFgcolor()
-	{
-		return PersistHelper.createColorString(getForeground());
-	}
-
-	public void js_setFgcolor(String clr)
-	{
-		setForeground(PersistHelper.createColor(clr));
-	}
-
 	@Override
 	public void setForeground(Color fg)
 	{
@@ -447,29 +419,6 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 		if (enclosedComponent != null) enclosedComponent.setForeground(fg);
 	}
 
-
-	public void js_setBorder(String spec)
-	{
-		setBorder(ComponentFactoryHelper.createBorder(spec));
-	}
-
-	public String js_getBorder()
-	{
-		return ComponentFactoryHelper.createBorderString(getBorder());
-	}
-
-	/*
-	 * visible---------------------------------------------------
-	 */
-	public boolean js_isVisible()
-	{
-		return isVisible();
-	}
-
-	public void js_setVisible(boolean b)
-	{
-		setVisible(b);
-	}
 
 	public void setComponentVisible(boolean b_visible)
 	{
@@ -496,47 +445,6 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 		labels.add(label);
 	}
 
-	public String[] js_getLabelForElementNames()
-	{
-		if (labels != null)
-		{
-			ArrayList<String> al = new ArrayList<String>(labels.size());
-			for (int i = 0; i < labels.size(); i++)
-			{
-				ILabel label = labels.get(i);
-				if (label.getName() != null && !"".equals(label.getName()) && !label.getName().startsWith(ComponentFactory.WEB_ID_PREFIX)) //$NON-NLS-1$
-				{
-					al.add(label.getName());
-				}
-			}
-			return al.toArray(new String[al.size()]);
-		}
-		return new String[0];
-	}
-
-
-	/*
-	 * opaque---------------------------------------------------
-	 */
-	public boolean js_isTransparent()
-	{
-		return !isOpaque();
-	}
-
-	public void js_setTransparent(boolean b)
-	{
-		setOpaque(!b);
-	}
-
-
-	/*
-	 * enabled---------------------------------------------------
-	 */
-	public void js_setEnabled(final boolean b)
-	{
-		setComponentEnabled(b);
-	}
-
 	public void setComponentEnabled(final boolean b)
 	{
 		if (accessible)
@@ -554,11 +462,6 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 		}
 	}
 
-	public boolean js_isEnabled()
-	{
-		return isEnabled();
-	}
-
 	private boolean accessible = true;
 
 	public void setAccessible(boolean b)
@@ -567,13 +470,17 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 		accessible = b;
 	}
 
+	private boolean viewable = true;
 
-	/*
-	 * readonly---------------------------------------------------
-	 */
-	public boolean js_isReadOnly()
+	public void setViewable(boolean b)
 	{
-		return isReadOnly();
+		this.viewable = b;
+		setComponentVisible(b);
+	}
+
+	public boolean isViewable()
+	{
+		return viewable;
 	}
 
 	public boolean isReadOnly()
@@ -584,7 +491,8 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 	private boolean fieldEditState = true;
 	private boolean readOnly = false;
 
-	public void js_setReadOnly(boolean readOnly)
+	@Override
+	public void setReadOnly(boolean readOnly)
 	{
 		this.readOnly = readOnly;
 		if (readOnly && !showCal.isEnabled()) return;
@@ -604,14 +512,9 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 	/*
 	 * editable---------------------------------------------------
 	 */
-	public boolean js_isEditable()
+	public boolean isEditable()
 	{
 		return enclosedComponent.isEditable();
-	}
-
-	public void js_setEditable(boolean b)
-	{
-		setEditable(b);
 	}
 
 	public void setEditable(boolean b)
@@ -630,46 +533,16 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 		if (enclosedComponent != null) enclosedComponent.setTitleText(title);
 	}
 
-	public String js_getTitleText()
+	public String getTitleText()
 	{
 		if (enclosedComponent != null)
 		{
-			return enclosedComponent.js_getTitleText();
+			return enclosedComponent.getTitleText();
 		}
 		return null;
 	}
 
-	/*
-	 * tooltip---------------------------------------------------
-	 */
-	public void js_setToolTipText(String txt)
-	{
-		setToolTipText(txt);
-	}
-
-	public String js_getToolTipText()
-	{
-		return getToolTipText();
-	}
-
-
-	/*
-	 * location---------------------------------------------------
-	 */
-	public int js_getLocationX()
-	{
-		return getLocation().x;
-	}
-
-	public int js_getLocationY()
-	{
-		return getLocation().y;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_getAbsoluteFormLocationY()
-	 */
-	public int js_getAbsoluteFormLocationY()
+	public int getAbsoluteFormLocationY()
 	{
 		Container parent = getParent();
 		while ((parent != null) && !(parent instanceof IDataRenderer))
@@ -685,94 +558,33 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 
 	private Point cachedLocation;
 
-	public void js_setLocation(int x, int y)
-	{
-		cachedLocation = new Point(x, y);
-		setLocation(x, y);
-		validate();
-	}
-
 	public Point getCachedLocation()
 	{
 		return cachedLocation;
 	}
 
-	/*
-	 * client properties for ui---------------------------------------------------
-	 */
-
-	public void js_putClientProperty(Object key, Object value)
-	{
-		putClientProperty(key, value);
-		enclosedComponent.js_putClientProperty(key, value);
-	}
-
-	public Object js_getClientProperty(Object key)
-	{
-		return getClientProperty(key);
-	}
-
-
 	private Dimension cachedSize;
-
-	/*
-	 * size---------------------------------------------------
-	 */
-	public void js_setSize(int x, int y)
-	{
-		cachedSize = new Dimension(x, y);
-		setSize(x, y);
-		validate();
-	}
-
-	public int js_getWidth()
-	{
-		return getSize().width;
-	}
-
-	public int js_getHeight()
-	{
-		return getSize().height;
-	}
 
 	public Dimension getCachedSize()
 	{
 		return cachedSize;
 	}
 
-
-	public String js_getDataProviderID()
+	public void setCachedLocation(Point location)
 	{
-		return getDataProviderID();
+		this.cachedLocation = location;
 	}
 
-	public String js_getName()
+	public void setCachedSize(Dimension size)
 	{
-		String jsName = getName();
-		if (jsName != null && jsName.startsWith(ComponentFactory.WEB_ID_PREFIX)) jsName = null;
-		return jsName;
+		this.cachedSize = size;
 	}
 
-	public String js_getElementType()
-	{
-		return IScriptBaseMethods.CALENDAR;
-	}
-
-	public void js_setFont(String spec)
-	{
-		setFont(PersistHelper.createFont(spec));
-	}
-
-	public String js_getFont()
-	{
-		return PersistHelper.createFontString(getFont());
-	}
-
-	public void js_requestFocus(Object[] vargs)
+	public void requestFocus(Object[] vargs)
 	{
 		if (isDisplayable())
 		{
-			enclosedComponent.js_requestFocus(vargs);
+			enclosedComponent.requestFocus(vargs);
 		}
 		else
 		{
@@ -811,8 +623,9 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 	@Override
 	public String toString()
 	{
-		return js_getElementType() + "[name:" + js_getName() + ",x:" + js_getLocationX() + ",y:" + js_getLocationY() + ",width:" + js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + js_getHeight() + ",value:" + getValueObject() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.js_getElementType() +
+			"[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
+			",height:" + scriptable.js_getHeight() + ",value:" + getValueObject() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	/*
@@ -869,5 +682,10 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 	{
 		super.setTransferHandler(newHandler);
 		enclosedComponent.setTransferHandler(newHandler);
+	}
+
+	public List<ILabel> getLabelsFor()
+	{
+		return labels;
 	}
 }

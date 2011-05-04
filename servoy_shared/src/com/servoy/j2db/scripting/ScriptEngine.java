@@ -150,7 +150,6 @@ public class ScriptEngine implements IScriptSupport
 			toplevelScope.put("Form", toplevelScope, new InstanceOfScope("Form", FormScope.class));
 
 			toplevelScope.put("RuntimeForm", toplevelScope, new InstanceOfScope("RuntimeForm", FormScope.class));
-
 			toplevelScope.put("RuntimeButton", toplevelScope, new InstanceOfScope("RuntimeButton", IScriptScriptButtonMethods.class));
 			toplevelScope.put("RuntimeDataButton", toplevelScope, new InstanceOfScope("RuntimeDataButton", IScriptDataButtonMethods.class));
 			toplevelScope.put("RuntimeLabel", toplevelScope, new InstanceOfScope("RuntimeLabel", IScriptScriptLabelMethods.class));

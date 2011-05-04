@@ -23,6 +23,7 @@ import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.util.string.AppendingStringBuffer;
 
+import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IScriptReadOnlyMethods;
@@ -94,9 +95,10 @@ public class ServoyChoiceComponentUpdatingBehavior extends AbstractServoyDefault
 	{
 		if (super.isEnabled(component))
 		{
-			if (component instanceof IScriptReadOnlyMethods)
+			if (component instanceof IScriptableProvider && ((IScriptableProvider)component).getScriptObject() instanceof IScriptReadOnlyMethods)
 			{
-				return !((IScriptReadOnlyMethods)component).js_isReadOnly() && ((IScriptReadOnlyMethods)component).js_isEnabled();
+				return !((IScriptReadOnlyMethods)((IScriptableProvider)component).getScriptObject()).js_isReadOnly() &&
+					((IScriptReadOnlyMethods)((IScriptableProvider)component).getScriptObject()).js_isEnabled();
 			}
 			return true;
 		}

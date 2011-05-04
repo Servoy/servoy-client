@@ -29,6 +29,7 @@ import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
 
 import com.servoy.j2db.persistence.TabPanel;
+import com.servoy.j2db.ui.ISupportReadOnly;
 import com.servoy.j2db.util.EnablePanel;
 
 /**
@@ -36,7 +37,7 @@ import com.servoy.j2db.util.EnablePanel;
  * 
  * @author gboros
  */
-public class SplitPane extends JSplitPane
+public class SplitPane extends JSplitPane implements ISupportReadOnly
 {
 	private boolean readOnly;
 	private final boolean design;

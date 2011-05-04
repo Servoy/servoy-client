@@ -29,7 +29,6 @@ import java.util.List;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.ToolTipManager;
 import javax.swing.event.ChangeEvent;
@@ -52,13 +51,14 @@ import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.gui.EnableTabPanel;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabPanel;
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.smart.SwingForm;
-import com.servoy.j2db.ui.IAccessible;
+import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IFormLookupPanel;
-import com.servoy.j2db.ui.IScriptBaseMethods;
+import com.servoy.j2db.ui.ISupportSecuritySettings;
 import com.servoy.j2db.ui.ITabPanel;
-import com.servoy.j2db.util.ComponentFactoryHelper;
+import com.servoy.j2db.ui.scripting.RuntimeTabPanel;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnablePanel;
 import com.servoy.j2db.util.IFocusCycleRoot;
@@ -76,8 +76,8 @@ import com.servoy.j2db.util.gui.AutoTransferFocusListener;
  * 
  * @author jblok
  */
-public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData, ChangeListener, IAccessible, ITabPanel, IFocusCycleRoot<Component>,
-	ISupportFocusTransfer, ListSelectionListener
+public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData, ChangeListener, ISupportSecuritySettings, ITabPanel,
+	IFocusCycleRoot<Component>, ISupportFocusTransfer, ListSelectionListener
 {
 	private static final long serialVersionUID = 1L;
 
@@ -98,6 +98,7 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 
 	private final List<Component> tabSeqComponentList = new ArrayList<Component>();
 	private boolean transferFocusBackwards = false;
+	private final RuntimeTabPanel scriptable;
 
 	public SpecialTabPanel(IApplication app, int orient, boolean oneTab)
 	{
@@ -138,6 +139,13 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 		tabSeqComponentList.add((Component)this.enclosingComponent);
 
 		addFocusListener(new AutoTransferFocusListener(this, this));
+
+		scriptable = new RuntimeTabPanel(this, new DummyChangesRecorder(), application, (JComponent)enclosingComponent);
+	}
+
+	public IScriptable getScriptObject()
+	{
+		return scriptable;
 	}
 
 	/**
@@ -395,18 +403,9 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 		}
 	}
 
-	public boolean js_removeTabAt(int i)
+	public boolean removeAllTabs()
 	{
-		if (i >= 1 && i <= js_getMaxTabIndex() && removeTabAt(i - 1))
-		{
-			return true;
-		}
-		return false;
-	}
-
-	public boolean js_removeAllTabs()
-	{
-		if (js_getMaxTabIndex() == 0) return true;
+		if (getMaxTabIndex() == 0) return true;
 
 		boolean retval = false;
 		String tmp = onTabChangeMethod;
@@ -430,7 +429,7 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 		return retval;
 	}
 
-	public boolean js_addTab(Object[] vargs)
+	public boolean addTab(Object[] vargs)
 	{
 		if (vargs.length < 1) return false;
 
@@ -580,98 +579,26 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 		return false;
 	}
 
-	@Deprecated
-	public String js_getTabBGColorAt(int i)
+
+	public void setTabTextAt(int i, String text)
 	{
-		if (i >= 1 && i <= js_getMaxTabIndex())
-		{
-			return PersistHelper.createColorString(getBackgroundAt(i - 1));
-		}
-		return null;
+		originalTabText.set(i, text);
+		enclosingComponent.setTitleAt(i, text);
 	}
 
-	public String js_getTabFGColorAt(int i)
+	public String getTabTextAt(int i)
 	{
-		if (i >= 1 && i <= js_getMaxTabIndex())
-		{
-			return PersistHelper.createColorString(getForegroundAt(i - 1));
-		}
-		return null;
+		return enclosingComponent.getTitleAt(i);
 	}
 
-	public void js_setTabFGColorAt(int i, String clr)
+	public String getTabNameAt(int i)
 	{
-		if (i >= 1 && i <= js_getMaxTabIndex())
-		{
-			setTabForegroundAt(i - 1, PersistHelper.createColor(clr));
-		}
+		return enclosingComponent.getNameAt(i);
 	}
 
-	@Deprecated
-	public void js_setTabBGColorAt(int i, String clr)
+	public String getTabFormNameAt(int i)
 	{
-		if (i >= 1 && i <= js_getMaxTabIndex())
-		{
-			setTabBackgroundAt(i - 1, PersistHelper.createColor(clr));
-		}
-	}
-
-	public void js_setTabTextAt(int i, String text)
-	{
-		if (i >= 1 && i <= js_getMaxTabIndex())
-		{
-			originalTabText.set(i - 1, text);
-			enclosingComponent.setTitleAt(i - 1, text);
-		}
-	}
-
-	public String js_getTabTextAt(int i)
-	{
-		if (i >= 1 && i <= js_getMaxTabIndex())
-		{
-			return enclosingComponent.getTitleAt(i - 1);
-		}
-		return null;
-	}
-
-	public String js_getTabNameAt(int i)
-	{
-		if (i >= 1 && i <= js_getMaxTabIndex())
-		{
-			return enclosingComponent.getNameAt(i - 1);
-		}
-		return null;
-	}
-
-	public String js_getTabFormNameAt(int i)
-	{
-		if (i >= 1 && i <= js_getMaxTabIndex())
-		{
-			return enclosingComponent.getFormNameAt(i - 1);
-		}
-		return null;
-	}
-
-	public String js_getTabRelationNameAt(int i)
-	{
-		if (i >= 1 && i <= js_getMaxTabIndex())
-		{
-			return allRelationNames.get(i - 1);
-		}
-		return null;
-	}
-
-	/*
-	 * bgcolor---------------------------------------------------
-	 */
-	public String js_getBgcolor()
-	{
-		return PersistHelper.createColorString(enclosingComponent.getBackground());
-	}
-
-	public void js_setBgcolor(String clr)
-	{
-		enclosingComponent.setBackground(PersistHelper.createColor(clr));
+		return enclosingComponent.getFormNameAt(i);
 	}
 
 	@Override
@@ -682,19 +609,6 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 	}
 
 
-	/*
-	 * fgcolor---------------------------------------------------
-	 */
-	public String js_getFgcolor()
-	{
-		return PersistHelper.createColorString(enclosingComponent.getForeground());
-	}
-
-	public void js_setFgcolor(String clr)
-	{
-		enclosingComponent.setForeground(PersistHelper.createColor(clr));
-	}
-
 	@Override
 	public void setForeground(Color fg)
 	{
@@ -702,29 +616,6 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 		if (enclosingComponent != null) enclosingComponent.setForeground(fg);
 	}
 
-
-	public void js_setBorder(String spec)
-	{
-		setBorder(ComponentFactoryHelper.createBorder(spec));
-	}
-
-	public String js_getBorder()
-	{
-		return ComponentFactoryHelper.createBorderString(getBorder());
-	}
-
-	/*
-	 * visible---------------------------------------------------
-	 */
-	public boolean js_isVisible()
-	{
-		return isVisible();
-	}
-
-	public void js_setVisible(boolean b)
-	{
-		setVisible(b);
-	}
 
 	public void setComponentVisible(boolean b_visible)
 	{
@@ -740,36 +631,12 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 		return !isEnabled();
 	}
 
-	public boolean js_isReadOnly()
-	{
-		return enclosingComponent.isReadOnly();
-	}
-
-	public void js_setReadOnly(boolean b)
-	{
-		enclosingComponent.setReadOnly(b);
-	}
-
-
-	/*
-	 * enabled---------------------------------------------------
-	 */
-	public void js_setEnabled(final boolean b)
-	{
-		setComponentEnabled(b);
-	}
-
 	public void setComponentEnabled(final boolean b)
 	{
 		if (accessible)
 		{
 			super.setEnabled(b);
 		}
-	}
-
-	public boolean js_isEnabled()
-	{
-		return isEnabled();
 	}
 
 	private boolean accessible = true;
@@ -781,38 +648,20 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 		accessible = b;
 	}
 
+	private boolean viewable = true;
 
-	/*
-	 * tooltip---------------------------------------------------
-	 */
-	public void js_setToolTipText(String txt)
+	public void setViewable(boolean b)
 	{
-		enclosingComponent.setToolTipText(txt);
+		this.viewable = b;
+		setComponentVisible(b);
 	}
 
-	public String js_getToolTipText()
+	public boolean isViewable()
 	{
-		return enclosingComponent.getToolTipText();
+		return viewable;
 	}
 
-
-	/*
-	 * location---------------------------------------------------
-	 */
-	public int js_getLocationX()
-	{
-		return getLocation().x;
-	}
-
-	public int js_getLocationY()
-	{
-		return getLocation().y;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_getAbsoluteFormLocationY()
-	 */
-	public int js_getAbsoluteFormLocationY()
+	public int getAbsoluteFormLocationY()
 	{
 		Container parent = getParent();
 		while ((parent != null) && !(parent instanceof IDataRenderer))
@@ -826,65 +675,6 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 		return getLocation().y;
 	}
 
-	public void js_setLocation(int x, int y)
-	{
-		setLocation(x, y);
-	}
-
-	/*
-	 * client properties for ui---------------------------------------------------
-	 */
-
-	public void js_putClientProperty(Object key, Object value)
-	{
-		putClientProperty(key, value);
-		if (!(enclosingComponent instanceof JPanel))
-		{
-			enclosingComponent.putClientProperty(key, value);
-		}
-	}
-
-	public Object js_getClientProperty(Object key)
-	{
-		return getClientProperty(key);
-	}
-
-
-	/*
-	 * size---------------------------------------------------
-	 */
-	public void js_setSize(int x, int y)
-	{
-		setSize(x, y);
-		revalidate();
-		repaint();
-	}
-
-	public int js_getWidth()
-	{
-		return getSize().width;
-	}
-
-	public int js_getHeight()
-	{
-		return getSize().height;
-	}
-
-
-	/*
-	 * opaque---------------------------------------------------
-	 */
-	public boolean js_isTransparent()
-	{
-		return !isOpaque();
-	}
-
-	public void js_setTransparent(boolean b)
-	{
-		setOpaque(!b);
-		repaint();
-	}
-
 	@Override
 	public void setOpaque(boolean isOpaque)
 	{
@@ -893,15 +683,10 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 	}
 
 
-	/*
-	 * jsmethods---------------------------------------------------
-	 */
-
-
-	public void js_setTabIndex(Object arg)
+	public void setTabIndex(Object arg)
 	{
 		int index = Utils.getAsInteger(arg);
-		if (index >= 1 && index <= js_getMaxTabIndex())
+		if (index >= 1 && index <= scriptable.js_getMaxTabIndex())
 		{
 			enclosingComponent.setSelectedIndex(index - 1);
 		}
@@ -921,78 +706,7 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 		}
 	}
 
-	/**
-	 * Get the selected tab form name
-	 *
-	 * @sample var formName = %%prefix%%%%elementName%%.getSelectedTabFormName();
-	 */
-	@Deprecated
-	public String js_getSelectedTabFormName()
-	{
-		return js_getTabFormNameAt(((Integer)js_getTabIndex()).intValue());
-	}
-
-	/**
-	 * Sets the enabled status for a specific tab
-	 *
-	 * @sample 
-	 *
-	 * @param index 
-	 *
-	 * @param enabled 
-	 */
-	@Deprecated
-	public void js_setTabEnabled(int i, boolean b)
-	{
-		js_setTabEnabledAt(i, b);
-	}
-
-	public void js_setTabEnabledAt(int i, boolean b)
-	{
-		if (i >= 1 && i <= js_getMaxTabIndex())
-		{
-			setTabEnabledAt(i - 1, b);
-		}
-	}
-
-	/**
-	 * Gets the enabled status from a specific tab
-	 *
-	 * @sample 
-	 *
-	 * @param index 
-	 */
-	@Deprecated
-	public boolean js_isTabEnabled(int i)
-	{
-		return js_isTabEnabledAt(i);
-	}
-
-	public boolean js_isTabEnabledAt(int i)
-	{
-		if (i >= 1 && i <= js_getMaxTabIndex())
-		{
-			return isTabEnabledAt(i - 1);
-		}
-		return false;
-	}
-
-	public String js_getElementType()
-	{
-		return IScriptBaseMethods.TABPANEL;
-	}
-
-	/**
-	 * Set / Get the selectedTabIndex; it can be set, with number or string(tabName)
-	 *
-	 * @sample
-	 * //Set / Get the selectedTabIndex
-	 * var current = tabpanel.tabIndex;
-	 * tabpanel.tabIndex = current+1;
-	 * //or you can do it using a tab name;
-	 * //tabpanel.tabIndex = 'tabName'
-	 */
-	public Object js_getTabIndex()
+	public Object getTabIndex()
 	{
 		int selectedIndex = enclosingComponent.getSelectedIndex();
 		if (selectedIndex >= 0)
@@ -1002,28 +716,10 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 		return new Integer(-1);
 	}
 
-	public int js_getMaxTabIndex()
+	public int getMaxTabIndex()
 	{
 		return enclosingComponent.getTabCount();
 	}
-
-	public void js_setFont(String spec)
-	{
-		enclosingComponent.setFont(PersistHelper.createFont(spec));
-	}
-
-	public String js_getFont()
-	{
-		return PersistHelper.createFontString(enclosingComponent.getFont());
-	}
-
-	public String js_getName()
-	{
-		String jsName = getName();
-		if (jsName != null && jsName.startsWith(ComponentFactory.WEB_ID_PREFIX)) jsName = null;
-		return jsName;
-	}
-
 
 	@Override
 	public void setFont(Font font)

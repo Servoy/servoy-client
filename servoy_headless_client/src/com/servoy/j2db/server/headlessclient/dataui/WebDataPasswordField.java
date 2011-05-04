@@ -17,15 +17,14 @@
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptDataPasswordMethods;
+import com.servoy.j2db.ui.scripting.RuntimeDataPassword;
 
 /**
  * Represents a password field in the webbrowser.
  * 
  * @author jcompagner
  */
-public class WebDataPasswordField extends WebDataField implements IScriptDataPasswordMethods
+public class WebDataPasswordField extends WebDataField
 {
 	private static final long serialVersionUID = 1L;
 
@@ -36,6 +35,8 @@ public class WebDataPasswordField extends WebDataField implements IScriptDataPas
 	public WebDataPasswordField(IApplication application, String id)
 	{
 		super(application, id);
+		this.scriptable = new RuntimeDataPassword(this, new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE,
+			TemplateGenerator.DEFAULT_FIELD_PADDING), application);
 	}
 
 	/**
@@ -48,19 +49,11 @@ public class WebDataPasswordField extends WebDataField implements IScriptDataPas
 	}
 
 
-	/**
-	 * @see com.servoy.j2db.server.headlessclient.dataui.WebDataField#js_getElementType()
-	 */
-	@Override
-	public String js_getElementType()
-	{
-		return IScriptBaseMethods.PASSWORD;
-	}
-
 	@Override
 	public String toString()
 	{
-		return js_getElementType() + "(web)[name:" + js_getName() + ",x:" + js_getLocationX() + ",y:" + js_getLocationY() + ",width:" + js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ 
-			",height:" + js_getHeight() + "]";
+		return scriptable.js_getElementType() +
+			"(web)[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ 
+			",height:" + scriptable.js_getHeight() + "]";
 	}
 }

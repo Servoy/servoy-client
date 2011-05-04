@@ -90,6 +90,7 @@ import com.servoy.j2db.printing.PageList;
 import com.servoy.j2db.printing.PrintPreview;
 import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.RuntimeGroup;
+import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.server.headlessclient.FormAnchorInfo.FormPartAnchorInfo;
 import com.servoy.j2db.server.headlessclient.dataui.FormLayoutProviderFactory;
@@ -114,7 +115,6 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
-import com.servoy.j2db.ui.IScriptLabelMethods;
 import com.servoy.j2db.ui.IScriptReadOnlyMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportWebBounds;
@@ -210,7 +210,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 				WebTabPanel tabpanel = findParent(WebTabPanel.class);
 				if (tabpanel != null)
 				{
-					if (controller.getForm().getTransparent() && tabpanel.js_isTransparent())
+					if (controller.getForm().getTransparent() && !tabpanel.isOpaque())
 					{
 						return "background-color:transparent;";
 					}
@@ -268,7 +268,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 					index = currentTabPanel.getTabIndex(current);
 					if (index != -1)
 					{
-						tabName = currentTabPanel.js_getTabNameAt(index + 1); // js method so +1
+						tabName = currentTabPanel.getTabNameAt(index); // js method so +1
 					}
 					current = (WebForm)parent;
 					set.addRow(0, new Object[] { null, current.formController.getName(), currentTabPanel.getName(), tabName, new Integer(index) });
@@ -1056,9 +1056,12 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 				{
 					comp = ((WebBeanHolder)comp).getDelegate();
 				}
-				JavaMembers jm = ScriptObjectRegistry.getJavaMembers(comp.getClass(), ScriptableObject.getTopLevelScope(fs));
-
 				String groupName = FormElementGroup.getName((String)formController.getComponentProperty(comp, ComponentFactory.GROUPID_COMPONENT_PROPERTY));
+				Object scriptable = comp;
+				if (comp instanceof IScriptableProvider) scriptable = ((IScriptableProvider)comp).getScriptObject();
+				JavaMembers jm = ScriptObjectRegistry.getJavaMembers(scriptable.getClass(), ScriptableObject.getTopLevelScope(fs));
+
+
 				boolean named = name != null && !name.equals("") && !name.startsWith(ComponentFactory.WEB_ID_PREFIX); //$NON-NLS-1$ 
 				if (groupName != null || named)
 				{
@@ -1071,13 +1074,13 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 						}
 						else
 						{
-							s = new NativeJavaObject(fs, comp, jm);
+							s = new NativeJavaObject(fs, scriptable, jm);
 						}
 						if (named)
 						{
 							es.put(name, fs, s);
 							es.put(counter++, fs, s);
-							hmChildrenJavaMembers.put(name, new Object[] { jm, comp });
+							hmChildrenJavaMembers.put(name, new Object[] { jm, scriptable });
 						}
 						if (groupName != null)
 						{
@@ -1420,7 +1423,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 									{
 										hasBgImage = true;
 									}
-									if (comp instanceof IScriptLabelMethods && ((IScriptLabelMethods)comp).getImageURL() != null)
+									if (comp instanceof ILabel && ((ILabel)comp).getImageURL() != null)
 									{
 										hasBgImage = true;
 									}

@@ -54,6 +54,7 @@ import com.servoy.j2db.dataprocessing.IDisplay;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
+import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.server.headlessclient.MainPage;
@@ -72,6 +73,7 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IScriptBaseMethods;
+import com.servoy.j2db.ui.IScriptRenderMethods;
 import com.servoy.j2db.ui.ISupportEventExecutor;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.util.ComponentFactoryHelper;
@@ -196,9 +198,9 @@ public class WebEventExecutor extends BaseEventExecutor
 					{
 						if (super.isEnabled(comp))
 						{
-							if (comp instanceof IScriptBaseMethods)
+							if (comp instanceof IScriptableProvider && ((IScriptableProvider)comp).getScriptObject() instanceof IScriptBaseMethods)
 							{
-								Object oe = ((IScriptBaseMethods)comp).js_getClientProperty("ajax.enabled");
+								Object oe = ((IScriptBaseMethods)((IScriptableProvider)comp).getScriptObject()).js_getClientProperty("ajax.enabled");
 								if (oe != null) return Utils.getAsBoolean(oe);
 							}
 							return true;
@@ -258,9 +260,9 @@ public class WebEventExecutor extends BaseEventExecutor
 					{
 						if (super.isEnabled(comp))
 						{
-							if (comp instanceof IScriptBaseMethods)
+							if (comp instanceof IScriptableProvider && ((IScriptableProvider)comp).getScriptObject() instanceof IScriptBaseMethods)
 							{
-								Object oe = ((IScriptBaseMethods)comp).js_getClientProperty("ajax.enabled");
+								Object oe = ((IScriptBaseMethods)((IScriptableProvider)comp).getScriptObject()).js_getClientProperty("ajax.enabled");
 								if (oe != null) return Utils.getAsBoolean(oe);
 							}
 							return true;
@@ -308,7 +310,7 @@ public class WebEventExecutor extends BaseEventExecutor
 					{
 						if (super.isEnabled(comp))
 						{
-							if (comp instanceof IScriptBaseMethods)
+							if (comp instanceof IScriptableProvider && ((IScriptableProvider)comp).getScriptObject() instanceof IScriptBaseMethods)
 							{
 								Object oe = ((IScriptBaseMethods)comp).js_getClientProperty("ajax.enabled"); //$NON-NLS-1$
 								if (oe != null) return Utils.getAsBoolean(oe);
@@ -966,13 +968,22 @@ public class WebEventExecutor extends BaseEventExecutor
 	@Override
 	protected void setDefaultRenderProperties(ISupportOnRenderCallback display)
 	{
-		display.js_setBgcolor(PersistHelper.createColorString(renderDefaultBgColor));
-		if (renderDefaultBorder != null) display.js_setBorder(ComponentFactoryHelper.createBorderString(renderDefaultBorder));
-		display.js_setEnabled(renderDefaultEnabled);
-		display.js_setFgcolor(PersistHelper.createColorString(renderDefaultFgColor));
-		display.js_setFont(PersistHelper.createFontString(renderDefaultFont));
-		display.js_setToolTipText(renderDefaultTooltipText);
-		if (isUseDefaultTransparent()) display.js_setTransparent(!renderDefaultOpaque);
-		display.js_setVisible(renderDefaultVisible);
+		IScriptRenderMethods scriptable = null;
+		if (display instanceof IScriptableProvider)
+		{
+			scriptable = (IScriptRenderMethods)((IScriptableProvider)display).getScriptObject();
+		}
+		else
+		{
+			scriptable = (IScriptRenderMethods)display;
+		}
+		scriptable.js_setBgcolor(PersistHelper.createColorString(renderDefaultBgColor));
+		if (renderDefaultBorder != null) scriptable.js_setBorder(ComponentFactoryHelper.createBorderString(renderDefaultBorder));
+		scriptable.js_setEnabled(renderDefaultEnabled);
+		scriptable.js_setFgcolor(PersistHelper.createColorString(renderDefaultFgColor));
+		scriptable.js_setFont(PersistHelper.createFontString(renderDefaultFont));
+		scriptable.js_setToolTipText(renderDefaultTooltipText);
+		if (isUseDefaultTransparent()) scriptable.js_setTransparent(!renderDefaultOpaque);
+		scriptable.js_setVisible(renderDefaultVisible);
 	}
 }

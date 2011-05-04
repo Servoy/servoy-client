@@ -24,9 +24,7 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
@@ -66,18 +64,18 @@ import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabPanel;
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.TabIndexHelper;
 import com.servoy.j2db.server.headlessclient.WebForm;
-import com.servoy.j2db.ui.IAccessible;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IFormLookupPanel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
-import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
+import com.servoy.j2db.ui.ISupportSecuritySettings;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.ITabPanel;
-import com.servoy.j2db.util.ComponentFactoryHelper;
+import com.servoy.j2db.ui.scripting.RuntimeTabPanel;
 import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.PersistHelper;
@@ -89,8 +87,8 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jcompagner
  */
-public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDisplayRelatedData, IProviderStylePropertyChanges, IAccessible, ISupportWebBounds,
-	ISupportWebTabSeq, ListSelectionListener
+public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDisplayRelatedData, IProviderStylePropertyChanges, ISupportSecuritySettings,
+	ISupportWebBounds, ISupportWebTabSeq, ListSelectionListener
 {
 	private static final long serialVersionUID = 1L;
 
@@ -99,7 +97,6 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 	protected IRecordInternal parentData;
 	private final List<String> allRelationNames = new ArrayList<String>(5);
 	protected final List<WebTabHolder> allTabs = new ArrayList<WebTabHolder>(5);
-	private final ChangesRecorder jsChangeRecorder = new ChangesRecorder(new Insets(0, 0, 0, 0), new Insets(0, 0, 0, 0));
 	private final List<ISwingFoundSet> related = new ArrayList<ISwingFoundSet>();
 
 	private IScriptExecuter scriptExecutor;
@@ -110,6 +107,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 	protected final int orient;
 	private int tabSequenceIndex = ISupportWebTabSeq.DEFAULT;
 	private Dimension tabSize;
+	private RuntimeTabPanel scriptable;
 
 	public WebTabPanel(IApplication application, String name, int orient, boolean oneTab)
 	{
@@ -339,6 +337,12 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		}
 		add(StyleAttributeModifierModel.INSTANCE);
 		add(TooltipAttributeModifier.INSTANCE);
+		scriptable = new RuntimeTabPanel(this, new ChangesRecorder(new Insets(0, 0, 0, 0), new Insets(0, 0, 0, 0)), application, null);
+	}
+
+	public IScriptable getScriptObject()
+	{
+		return scriptable;
 	}
 
 	/**
@@ -351,7 +355,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 
 	public IStylePropertyChanges getStylePropertyChanges()
 	{
-		return jsChangeRecorder;
+		return scriptable.getChangesRecorder();
 	}
 
 	private void setActiveTabPanel(WebTabFormLookup fl)
@@ -415,7 +419,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 	{
 		if (fl != null && !fl.isFormReady()) return;
 
-		jsChangeRecorder.setChanged();
+		getStylePropertyChanges().setChanged();
 		currentForm = fl;
 		if (parentData != null)
 		{
@@ -484,7 +488,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 	protected void onRender(MarkupStream markupStream)
 	{
 		super.onRender(markupStream);
-		jsChangeRecorder.setRendered();
+		getStylePropertyChanges().setRendered();
 	}
 
 
@@ -637,7 +641,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 				if (!element.getText().equals(elementNewText))
 				{
 					element.setText(elementNewText);
-					jsChangeRecorder.setChanged();
+					getStylePropertyChanges().setChanged();
 				}
 			}
 		}
@@ -791,7 +795,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 	{
 		allTabs.add(index, new WebTabHolder(text, flp, iconData, tip));
 		allRelationNames.add(index, flp.getRelationName());
-		jsChangeRecorder.setChanged();
+		getStylePropertyChanges().setChanged();
 	}
 
 	public void setTabForegroundAt(int index, Color fg)
@@ -802,7 +806,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 	{
 	}
 
-	public boolean js_addTab(Object[] vargs)
+	public boolean addTab(Object[] vargs)
 	{
 		if (vargs.length < 1) return false;
 
@@ -940,49 +944,18 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		return false;
 	}
 
-	public int js_getMaxTabIndex()
+	public int getMaxTabIndex()
 	{
 		return allTabs.size();
 	}
 
-	public String js_getTabBGColorAt(int i)
+	public String getTabFormNameAt(int i)
 	{
-		return null;
+		WebTabHolder holder = allTabs.get(i);
+		return holder.getPanel().getFormName();
 	}
 
-	public String js_getTabFGColorAt(int i)
-	{
-		return null;
-	}
-
-	public String js_getTabFormNameAt(int i)
-	{
-		if (i >= 1 && i <= js_getMaxTabIndex())
-		{
-			WebTabHolder holder = allTabs.get(i - 1);
-			return holder.getPanel().getFormName();
-		}
-		return null;
-	}
-
-	public String js_getTabRelationNameAt(int i)
-	{
-		if (i >= 1 && i <= js_getMaxTabIndex())
-		{
-			return allRelationNames.get(i - 1);
-		}
-		return null;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_getElementType()
-	 */
-	public String js_getElementType()
-	{
-		return IScriptBaseMethods.TABPANEL;
-	}
-
-	public Object js_getTabIndex()
+	public Object getTabIndex()
 	{
 		for (int i = 0; i < allTabs.size(); i++)
 		{
@@ -1000,76 +973,51 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		return new Integer(-1);
 	}
 
-	public String js_getTabNameAt(int i)
+	public String getTabNameAt(int i)
 	{
-		if (i >= 1 && i <= js_getMaxTabIndex())
+		WebTabHolder holder = allTabs.get(i);
+		return holder.getPanel().getName();
+	}
+
+	public String getTabTextAt(int i)
+	{
+		WebTabHolder holder = allTabs.get(i);
+		return holder.getText();
+	}
+
+	public boolean isTabEnabledAt(int index)
+	{
+		WebTabHolder holder = allTabs.get(index);
+		return holder.isEnabled();
+	}
+
+	public boolean removeTabAt(int index)
+	{
+		WebTabHolder holder = allTabs.get(index);
+		List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
+		boolean ok = holder.getPanel().notifyVisible(false, invokeLaterRunnables);
+		Utils.invokeLater(application, invokeLaterRunnables);
+		if (!ok)
 		{
-			WebTabHolder holder = allTabs.get(i - 1);
-			return holder.getPanel().getName();
+			return false;
 		}
-		return null;
-	}
-
-	public String js_getTabTextAt(int i)
-	{
-		if (i >= 1 && i <= js_getMaxTabIndex())
+		allTabs.remove(index);
+		if (holder.getPanel() == currentForm)
 		{
-			WebTabHolder holder = allTabs.get(i - 1);
-			return holder.getText();
-		}
-		return null;
-	}
-
-	/**
-	 * @deprecated
-	 */
-	@Deprecated
-	public boolean js_isTabEnabled(int i)
-	{
-		return js_isTabEnabledAt(i);
-	}
-
-	public boolean js_isTabEnabledAt(int i)
-	{
-		if (i >= 1 && i <= js_getMaxTabIndex())
-		{
-			WebTabHolder holder = allTabs.get(i - 1);
-			return holder.isEnabled();
-		}
-		return false;
-	}
-
-	public boolean js_removeTabAt(int i)
-	{
-		if (i >= 1 && i <= js_getMaxTabIndex())
-		{
-			WebTabHolder holder = allTabs.get(i - 1);
-			List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-			boolean ok = holder.getPanel().notifyVisible(false, invokeLaterRunnables);
-			Utils.invokeLater(application, invokeLaterRunnables);
-			if (!ok)
+			if (allTabs.size() > 0)
 			{
-				return false;
+				setActiveTabPanel(allTabs.get(0).getPanel());
 			}
-			allTabs.remove(i - 1);
-			if (holder.getPanel() == currentForm)
+			else
 			{
-				if (allTabs.size() > 0)
-				{
-					setActiveTabPanel(allTabs.get(0).getPanel());
-				}
-				else
-				{
-					//safety
-					currentForm = null;
-				}
+				//safety
+				currentForm = null;
 			}
 		}
-		jsChangeRecorder.setChanged();
 		return true;
 	}
 
-	public boolean js_removeAllTabs()
+	public boolean removeAllTabs()
 	{
 		for (int i = 0; i < allTabs.size(); i++)
 		{
@@ -1098,47 +1046,20 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 			// else add it
 			WebTabPanel.this.add(new Label("webform", new Model<String>("")));//temporary add; //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		jsChangeRecorder.setChanged();
 		return true;
-	}
-
-	public void js_setTabBGColorAt(int i, String s)
-	{
-	}
-
-	/**
-	 * @deprecated
-	 */
-	@Deprecated
-	public void js_setTabEnabled(int i, boolean b)
-	{
-		js_setTabEnabledAt(i, b);
-	}
-
-	public void js_setTabEnabledAt(int i, boolean b)
-	{
-		if (i >= 1 && i <= js_getMaxTabIndex())
-		{
-			setTabEnabledAt(i - 1, b);
-		}
-		jsChangeRecorder.setChanged();
 	}
 
 	public void setTabEnabledAt(int i, boolean b)
 	{
 		WebTabHolder holder = allTabs.get(i);
 		holder.setEnabled(b);
-		jsChangeRecorder.setChanged();
+		getStylePropertyChanges().setChanged();
 	}
 
-	public void js_setTabFGColorAt(int i, String s)
-	{
-	}
-
-	public void js_setTabIndex(Object arg)
+	public void setTabIndex(Object arg)
 	{
 		int index = Utils.getAsInteger(arg);
-		if (index >= 1 && index <= js_getMaxTabIndex())
+		if (index >= 1 && index <= scriptable.js_getMaxTabIndex())
 		{
 			WebTabHolder holder = allTabs.get(index - 1);
 			setActiveTabPanel(holder.getPanel());
@@ -1160,14 +1081,10 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		}
 	}
 
-	public void js_setTabTextAt(int i, String s)
+	public void setTabTextAt(int i, String s)
 	{
-		if (i >= 1 && i <= js_getMaxTabIndex())
-		{
-			WebTabHolder holder = allTabs.get(i - 1);
-			holder.setText(TemplateGenerator.getSafeText(s));
-		}
-		jsChangeRecorder.setChanged();
+		WebTabHolder holder = allTabs.get(i);
+		holder.setText(TemplateGenerator.getSafeText(s));
 	}
 
 
@@ -1183,30 +1100,13 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		return false;
 	}
 
-	public void js_setReadOnly(boolean b)
+	public void setReadOnly(boolean b)
 	{
 		for (int i = 0; i < allTabs.size(); i++)
 		{
 			WebTabHolder holder = allTabs.get(i);
 			holder.getPanel().setReadOnly(b);
 		}
-		jsChangeRecorder.setChanged();
-	}
-
-	public boolean js_isReadOnly()
-	{
-		return isReadOnly();
-	}
-
-
-	/*
-	 * name---------------------------------------------------
-	 */
-	public String js_getName()
-	{
-		String jsName = getName();
-		if (jsName != null && jsName.startsWith(ComponentFactory.WEB_ID_PREFIX)) jsName = null;
-		return jsName;
 	}
 
 	public void setName(String n)
@@ -1248,30 +1148,11 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 
 	private boolean opaque;
 
-	public boolean js_isTransparent()
-	{
-		return !opaque;
-	}
-
-	public void js_setTransparent(boolean b)
-	{
-		opaque = !b;
-		jsChangeRecorder.setTransparent(b);
-	}
-
 	public boolean isOpaque()
 	{
 		return opaque;
 	}
 
-
-	/*
-	 * tooltip---------------------------------------------------
-	 */
-	public String js_getToolTipText()
-	{
-		return tooltip;
-	}
 
 	private String tooltip;
 
@@ -1282,12 +1163,6 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 			tooltip = null;
 		}
 		this.tooltip = tooltip;
-	}
-
-	public void js_setToolTipText(String tip)
-	{
-		setToolTipText(tip);
-		jsChangeRecorder.setChanged();
 	}
 
 	/**
@@ -1309,36 +1184,11 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 
 	private Font font;
 
-	public void js_setFont(String spec)
-	{
-		font = PersistHelper.createFont(spec);
-		jsChangeRecorder.setFont(spec);
-	}
-
-	public String js_getFont()
-	{
-		return PersistHelper.createFontString(getFont());
-	}
-
 	public Font getFont()
 	{
 		return font;
 	}
 
-
-	/*
-	 * bgcolor---------------------------------------------------
-	 */
-	public String js_getBgcolor()
-	{
-		return PersistHelper.createColorString(background);
-	}
-
-	public void js_setBgcolor(String bgcolor)
-	{
-		background = PersistHelper.createColor(bgcolor);
-		jsChangeRecorder.setBgcolor(bgcolor);
-	}
 
 	private Color background;
 
@@ -1353,20 +1203,6 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 	}
 
 
-	/*
-	 * fgcolor---------------------------------------------------
-	 */
-	public String js_getFgcolor()
-	{
-		return PersistHelper.createColorString(foreground);
-	}
-
-	public void js_setFgcolor(String fgcolor)
-	{
-		foreground = PersistHelper.createColor(fgcolor);
-		jsChangeRecorder.setChanged();
-	}
-
 	private Color foreground;
 
 	public void setForeground(Color cfg)
@@ -1379,16 +1215,6 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		return foreground;
 	}
 
-	public void js_setBorder(String spec)
-	{
-		setBorder(ComponentFactoryHelper.createBorder(spec));
-		jsChangeRecorder.setBorder(spec);
-	}
-
-	public String js_getBorder()
-	{
-		return ComponentFactoryHelper.createBorderString(getBorder());
-	}
 
 	/*
 	 * visible---------------------------------------------------
@@ -1396,26 +1222,6 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 	public void setComponentVisible(boolean visible)
 	{
 		setVisible(visible);
-	}
-
-	public boolean js_isVisible()
-	{
-		return isVisible();
-	}
-
-	public void js_setVisible(boolean visible)
-	{
-		setVisible(visible);
-		jsChangeRecorder.setVisible(visible);
-	}
-
-
-	/*
-	 * enabled---------------------------------------------------
-	 */
-	public void js_setEnabled(final boolean b)
-	{
-		setComponentEnabled(b);
 	}
 
 	public void setComponentEnabled(final boolean b)
@@ -1438,13 +1244,8 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 					return CONTINUE_TRAVERSAL;
 				}
 			});
-			jsChangeRecorder.setChanged();
+			getStylePropertyChanges().setChanged();
 		}
-	}
-
-	public boolean js_isEnabled()
-	{
-		return isEnabled();
 	}
 
 	private boolean accessible = true;
@@ -1455,26 +1256,25 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		accessible = b;
 	}
 
+	private boolean viewable = true;
+
+	public void setViewable(boolean b)
+	{
+		this.viewable = b;
+		setComponentVisible(b);
+	}
+
+	public boolean isViewable()
+	{
+		return viewable;
+	}
 
 	/*
 	 * location---------------------------------------------------
 	 */
 	private Point location = new Point(0, 0);
 
-	public int js_getLocationX()
-	{
-		return getLocation().x;
-	}
-
-	public int js_getLocationY()
-	{
-		return getLocation().y;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_getAbsoluteFormLocationY()
-	 */
-	public int js_getAbsoluteFormLocationY()
+	public int getAbsoluteFormLocationY()
 	{
 		WebDataRenderer parent = findParent(WebDataRenderer.class);
 		if (parent != null)
@@ -1482,12 +1282,6 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 			return parent.getYOffset() + getLocation().y;
 		}
 		return getLocation().y;
-	}
-
-	public void js_setLocation(int x, int y)
-	{
-		location = new Point(x, y);
-		jsChangeRecorder.setLocation(x, y);
 	}
 
 	public void setLocation(Point location)
@@ -1501,27 +1295,6 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 	}
 
 	/*
-	 * client properties for ui---------------------------------------------------
-	 */
-
-	public void js_putClientProperty(Object key, Object value)
-	{
-		if (clientProperties == null)
-		{
-			clientProperties = new HashMap<Object, Object>();
-		}
-		clientProperties.put(key, value);
-	}
-
-	private Map<Object, Object> clientProperties;
-
-	public Object js_getClientProperty(Object key)
-	{
-		if (clientProperties == null) return null;
-		return clientProperties.get(key);
-	}
-
-	/*
 	 * size---------------------------------------------------
 	 */
 	private Dimension size = new Dimension(0, 0);
@@ -1531,19 +1304,9 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		return size;
 	}
 
-	public void js_setSize(int width, int height)
-	{
-		size = new Dimension(width, height);
-		jsChangeRecorder.setSize(width, height, border, new Insets(0, 0, 0, 0), 0);
-		if (currentForm != null && currentForm.isReady())
-		{
-			currentForm.getWebForm().setFormWidth(0);
-		}
-	}
-
 	public Rectangle getWebBounds()
 	{
-		Dimension d = jsChangeRecorder.calculateWebSize(size.width, size.height, border, new Insets(0, 0, 0, 0), 0, null);
+		Dimension d = ((ChangesRecorder)getStylePropertyChanges()).calculateWebSize(size.width, size.height, border, new Insets(0, 0, 0, 0), 0, null);
 		return new Rectangle(location, d);
 	}
 
@@ -1552,23 +1315,17 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 	 */
 	public Insets getPaddingAndBorder()
 	{
-		return jsChangeRecorder.getPaddingAndBorder(size.height, border, new Insets(0, 0, 0, 0), 0, null);
+		return ((ChangesRecorder)getStylePropertyChanges()).getPaddingAndBorder(size.height, border, new Insets(0, 0, 0, 0), 0, null);
 	}
 
 
 	public void setSize(Dimension size)
 	{
+		if (this.size != null && currentForm != null && currentForm.isReady())
+		{
+			currentForm.getWebForm().setFormWidth(0);
+		}
 		this.size = size;
-	}
-
-	public int js_getWidth()
-	{
-		return size.width;
-	}
-
-	public int js_getHeight()
-	{
-		return size.height;
 	}
 
 	/**
@@ -1601,7 +1358,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 	{
 		if (currentForm != null && currentForm.getWebForm() == current)
 		{
-			Object o = js_getTabIndex();
+			Object o = scriptable.js_getTabIndex();
 			if (o instanceof Integer)
 			{
 				if (((Integer)o).intValue() == -1) return -1;
@@ -1637,16 +1394,6 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		return tabSize;
 	}
 
-	/**
-	 * @deprecated
-	 */
-	@Deprecated
-	public String js_getSelectedTabFormName()
-	{
-		if (currentForm != null) return currentForm.getFormName();
-		return null;
-	}
-
 
 	private class ServoyTabIcon extends Label implements IResourceListener
 	{
@@ -1669,7 +1416,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 						CharSequence url = urlFor(IResourceListener.INTERFACE) + "&r=" + Math.random(); //$NON-NLS-1$
 						result += getResponse().encodeURL(url);
 						result += ")";
-						if (!js_isEnabled())
+						if (!scriptable.js_isEnabled())
 						{
 							result += "; filter:alpha(opacity=50);-moz-opacity:.50;opacity:.50"; //$NON-NLS-1$
 						}

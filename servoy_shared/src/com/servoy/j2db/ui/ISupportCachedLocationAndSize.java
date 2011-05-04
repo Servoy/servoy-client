@@ -24,6 +24,10 @@ public interface ISupportCachedLocationAndSize
 	public Point getCachedLocation();
 
 	public Dimension getCachedSize();
+
+	public void setCachedLocation(Point location);
+
+	public void setCachedSize(Dimension size);
 }
 //TODO maybe this interface & it's use can be simplified/removed
 //this interface might only be useful in current implementation to keep initial design Y location of components for smart-client TableView - as the X and width

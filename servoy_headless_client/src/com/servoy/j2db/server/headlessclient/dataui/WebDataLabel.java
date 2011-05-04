@@ -28,7 +28,7 @@ import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.ui.IDisplayTagText;
-import com.servoy.j2db.ui.IScriptDataLabelMethods;
+import com.servoy.j2db.ui.scripting.RuntimeDataLabel;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Text;
@@ -38,7 +38,7 @@ import com.servoy.j2db.util.Text;
 * 
 * @author jcompagner
 */
-public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplayTagText, IScriptDataLabelMethods
+public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplayTagText
 {
 	private static final long serialVersionUID = 1L;
 
@@ -55,6 +55,7 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 	public WebDataLabel(IApplication application, String id)
 	{
 		super(application, id);
+		scriptable = new RuntimeDataLabel(this, new ChangesRecorder(null, TemplateGenerator.DEFAULT_LABEL_PADDING), application);
 	}
 
 	@Override
@@ -174,7 +175,7 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 	 */
 	public void setValueObject(Object obj)
 	{
-		jsChangeRecorder.testChanged(this, obj);
+		((ChangesRecorder)scriptable.getChangesRecorder()).testChanged(this, obj);
 	}
 
 	/**
@@ -209,12 +210,6 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 	{
 		// TODO Auto-generated method stub
 
-	}
-
-	@Override
-	public String js_getDataProviderID()
-	{
-		return getDataProviderID();
 	}
 
 	public String getDataProviderID()

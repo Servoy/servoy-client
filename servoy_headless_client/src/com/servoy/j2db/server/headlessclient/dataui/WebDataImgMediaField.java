@@ -27,10 +27,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.Border;
@@ -62,12 +60,12 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.MediaURLStreamHandler;
-import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.plugins.IMediaUploadCallback;
 import com.servoy.j2db.plugins.IUploadData;
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.server.headlessclient.IDesignModeListener;
@@ -79,17 +77,16 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IMediaFieldConstants;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptMediaInputFieldMethods;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.util.ComponentFactoryHelper;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
+import com.servoy.j2db.ui.scripting.RuntimeMediaField;
+import com.servoy.j2db.ui.scripting.RuntimeScriptButton;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.ImageLoader;
-import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
@@ -98,8 +95,8 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jcompagner,jblok
  */
-public class WebDataImgMediaField extends WebMarkupContainer implements IDisplayData, IFieldComponent, IScrollPane, IScriptMediaInputFieldMethods,
-	ILinkListener, IProviderStylePropertyChanges, ISupportWebBounds, IRightClickListener, IDesignModeListener
+public class WebDataImgMediaField extends WebMarkupContainer implements IDisplayData, IFieldComponent, IScrollPane, ILinkListener,
+	IProviderStylePropertyChanges, ISupportWebBounds, IRightClickListener, IDesignModeListener
 {
 	private static final long serialVersionUID = 1L;
 
@@ -151,11 +148,10 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 	private final Image remove;
 	private final ImageDisplay imgd;
 
-	private final ChangesRecorder jsChangeRecorder = new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE, TemplateGenerator.DEFAULT_FIELD_PADDING);
-
 	private final IApplication application;
 
 	private boolean designMode;
+	private final AbstractRuntimeField scriptable;
 
 	/**
 	 * @param id
@@ -165,6 +161,9 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 		super(id);
 		this.application = application;
 		mediaOption = 1;
+
+		scriptable = new RuntimeMediaField(this, new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE, TemplateGenerator.DEFAULT_FIELD_PADDING),
+			application, null);
 
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		eventExecutor = new WebEventExecutor(this, useAJAX);
@@ -184,7 +183,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 			@Override
 			public boolean isVisible()
 			{
-				return !js_isReadOnly() && js_isEnabled();
+				return !scriptable.js_isReadOnly() && scriptable.js_isEnabled();
 			}
 		};
 		upload.add(new SimpleAttributeModifier("alt", application.getI18NMessage("servoy.imageMedia.popup.menuitem.load"))); //$NON-NLS-1$//$NON-NLS-2$
@@ -256,7 +255,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 			@Override
 			public boolean isVisible()
 			{
-				return !js_isReadOnly() && js_isEnabled();
+				return !scriptable.js_isReadOnly() && scriptable.js_isEnabled();
 			}
 		};
 		download.add(new SimpleAttributeModifier("alt", application.getI18NMessage("servoy.imageMedia.popup.menuitem.save"))); //$NON-NLS-1$ //$NON-NLS-2$
@@ -291,7 +290,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 			@Override
 			public boolean isVisible()
 			{
-				return !js_isReadOnly() && js_isEnabled();
+				return !scriptable.js_isReadOnly() && scriptable.js_isEnabled();
 			}
 		};
 		remove.add(new SimpleAttributeModifier("alt", application.getI18NMessage("servoy.imageMedia.popup.menuitem.remove"))); //$NON-NLS-1$ //$NON-NLS-2$
@@ -326,6 +325,11 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 		});
 		add(StyleAttributeModifierModel.INSTANCE);
 		add(TooltipAttributeModifier.INSTANCE);
+	}
+
+	public IScriptable getScriptObject()
+	{
+		return scriptable;
 	}
 
 	/*
@@ -374,7 +378,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 	protected void onRender(MarkupStream markupStream)
 	{
 		super.onRender(markupStream);
-		jsChangeRecorder.setRendered();
+		getStylePropertyChanges().setRendered();
 		IModel model = getInnermostModel();
 
 		if (model instanceof RecordItemModel)
@@ -391,7 +395,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		if (useAJAX)
 		{
-			Object oe = js_getClientProperty("ajax.enabled");
+			Object oe = scriptable.js_getClientProperty("ajax.enabled");
 			if (oe != null) useAJAX = Utils.getAsBoolean(oe);
 		}
 		if (!useAJAX)
@@ -411,7 +415,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 
 	public IStylePropertyChanges getStylePropertyChanges()
 	{
-		return jsChangeRecorder;
+		return scriptable.getChangesRecorder();
 	}
 
 	/**
@@ -581,6 +585,21 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 		this.margin = margin;
 	}
 
+	public Insets getMargin()
+	{
+		return margin;
+	}
+
+	public void requestFocus(Object[] vargs)
+	{
+
+	}
+
+	public List<ILabel> getLabelsFor()
+	{
+		return labels;
+	}
+
 	/**
 	 * @see com.servoy.j2db.ui.IFieldComponent#setHorizontalAlignment(int)
 	 */
@@ -602,7 +621,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 
 	public void setValueObject(Object value)
 	{
-		jsChangeRecorder.testChanged(this, value);
+		((ChangesRecorder)getStylePropertyChanges()).testChanged(this, value);
 	}
 
 	public boolean needEntireState()
@@ -646,7 +665,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 		public ImageDisplay(IApplication application, String id)
 		{
 			super(application, id);
-
+			scriptable = new RuntimeScriptButton(this, new ChangesRecorder(null, null), application);
 			setMediaOption(8 + 1);
 			final String elementId = getImageId();
 			add(new SimpleAttributeModifier("id", elementId)); //$NON-NLS-1$ 
@@ -831,17 +850,9 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 		}
 	}
 
-	/*
-	 * readonly/editable---------------------------------------------------
-	 */
-	public boolean js_isReadOnly()
-	{
-		return !editable;
-	}
-
 	private boolean editState;
 
-	public void js_setReadOnly(boolean b)
+	public void setReadOnly(boolean b)
 	{
 		if (b && !editable) return;
 		if (b)
@@ -853,10 +864,9 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 		{
 			setEditable(editState);
 		}
-		jsChangeRecorder.setChanged();
 	}
 
-	public boolean js_isEditable()
+	public boolean isEditable()
 	{
 		return editable;
 	}
@@ -908,50 +918,9 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 		return dataProviderID;
 	}
 
-	public String js_getDataProviderID()
-	{
-		return dataProviderID;
-	}
-
 	public void setDataProviderID(String dataProviderID)
 	{
 		this.dataProviderID = dataProviderID;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_getElementType()
-	 */
-	public String js_getElementType()
-	{
-		return IScriptBaseMethods.IMAGE_MEDIA;
-	}
-
-	/*
-	 * scrolling---------------------------------------------------
-	 */
-	public void js_setScroll(int x, int y)
-	{
-	}
-
-	public int js_getScrollX()
-	{
-		return 0;
-	}
-
-	public int js_getScrollY()
-	{
-		return 0;
-	}
-
-
-	/*
-	 * name---------------------------------------------------
-	 */
-	public String js_getName()
-	{
-		String jsName = getName();
-		if (jsName != null && jsName.startsWith(ComponentFactory.WEB_ID_PREFIX)) jsName = null;
-		return jsName;
 	}
 
 	public void setName(String n)
@@ -993,17 +962,6 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 
 	private boolean opaque;
 
-	public boolean js_isTransparent()
-	{
-		return !opaque;
-	}
-
-	public void js_setTransparent(boolean b)
-	{
-		opaque = !b;
-		jsChangeRecorder.setTransparent(b);
-	}
-
 	public boolean isOpaque()
 	{
 		return opaque;
@@ -1020,17 +978,9 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 		this.titleText = title;
 	}
 
-	public String js_getTitleText()
+	public String getTitleText()
 	{
 		return Text.processTags(titleText, resolver);
-	}
-
-	/*
-	 * tooltip---------------------------------------------------
-	 */
-	public String js_getToolTipText()
-	{
-		return tooltip;
 	}
 
 	private String tooltip;
@@ -1042,12 +992,6 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 			tooltip = null;
 		}
 		this.tooltip = tooltip;
-	}
-
-	public void js_setToolTipText(String tooltip)
-	{
-		setToolTipText(tooltip);
-		jsChangeRecorder.setChanged();
 	}
 
 	protected ITagResolver resolver;
@@ -1079,36 +1023,11 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 
 	private Font font;
 
-	public void js_setFont(String spec)
-	{
-		font = PersistHelper.createFont(spec);
-		jsChangeRecorder.setFont(spec);
-	}
-
-	public String js_getFont()
-	{
-		return PersistHelper.createFontString(font);
-	}
-
 	public Font getFont()
 	{
 		return font;
 	}
 
-
-	/*
-	 * bgcolor---------------------------------------------------
-	 */
-	public String js_getBgcolor()
-	{
-		return PersistHelper.createColorString(background);
-	}
-
-	public void js_setBgcolor(String bgcolor)
-	{
-		background = PersistHelper.createColor(bgcolor);
-		jsChangeRecorder.setBgcolor(bgcolor);
-	}
 
 	private Color background;
 
@@ -1123,23 +1042,9 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 	}
 
 
-	/*
-	 * fgcolor---------------------------------------------------
-	 */
-	public String js_getFgcolor()
-	{
-		return PersistHelper.createColorString(foreground);
-	}
-
-	public void js_setFgcolor(String fgcolor)
-	{
-		foreground = PersistHelper.createColor(fgcolor);
-		jsChangeRecorder.setFgcolor(fgcolor);
-	}
-
 	private Color foreground;
 
-	private ArrayList labels;
+	private ArrayList<ILabel> labels;
 
 	public void setForeground(Color cfg)
 	{
@@ -1152,17 +1057,6 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 	}
 
 
-	public void js_setBorder(String spec)
-	{
-		setBorder(ComponentFactoryHelper.createBorder(spec));
-		jsChangeRecorder.setBorder(spec);
-	}
-
-	public String js_getBorder()
-	{
-		return ComponentFactoryHelper.createBorderString(getBorder());
-	}
-
 	/*
 	 * visible---------------------------------------------------
 	 */
@@ -1173,34 +1067,8 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 		{
 			for (int i = 0; i < labels.size(); i++)
 			{
-				ILabel label = (ILabel)labels.get(i);
+				ILabel label = labels.get(i);
 				label.setComponentVisible(visible);
-			}
-		}
-	}
-
-	public boolean js_isVisible()
-	{
-		return isVisible();
-	}
-
-	public void js_setVisible(boolean visible)
-	{
-		setVisible(visible);
-		jsChangeRecorder.setVisible(visible);
-		if (labels != null)
-		{
-			for (int i = 0; i < labels.size(); i++)
-			{
-				ILabel label = (ILabel)labels.get(i);
-				if (label instanceof IScriptBaseMethods)
-				{
-					((IScriptBaseMethods)label).js_setVisible(visible);
-				}
-				else
-				{
-					label.setComponentVisible(visible);
-				}
 			}
 		}
 	}
@@ -1211,34 +1079,22 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 		labels.add(label);
 	}
 
-	/*
-	 * enabled---------------------------------------------------
-	 */
-	public void js_setEnabled(final boolean b)
-	{
-		setComponentEnabled(b);
-	}
 
 	public void setComponentEnabled(final boolean b)
 	{
 		if (accessible)
 		{
 			super.setEnabled(b);
-			jsChangeRecorder.setChanged();
+			getStylePropertyChanges().setChanged();
 			if (labels != null)
 			{
 				for (int i = 0; i < labels.size(); i++)
 				{
-					ILabel label = (ILabel)labels.get(i);
+					ILabel label = labels.get(i);
 					label.setComponentEnabled(b);
 				}
 			}
 		}
-	}
-
-	public boolean js_isEnabled()
-	{
-		return isEnabled();
 	}
 
 	private boolean accessible = true;
@@ -1249,26 +1105,25 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 		accessible = b;
 	}
 
+	private boolean viewable = true;
+
+	public void setViewable(boolean b)
+	{
+		this.viewable = b;
+		setComponentVisible(b);
+	}
+
+	public boolean isViewable()
+	{
+		return viewable;
+	}
 
 	/*
 	 * location---------------------------------------------------
 	 */
 	private Point location = new Point(0, 0);
 
-	public int js_getLocationX()
-	{
-		return getLocation().x;
-	}
-
-	public int js_getLocationY()
-	{
-		return getLocation().y;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_getAbsoluteFormLocationY()
-	 */
-	public int js_getAbsoluteFormLocationY()
+	public int getAbsoluteFormLocationY()
 	{
 		WebDataRenderer parent = findParent(WebDataRenderer.class);
 		if (parent != null)
@@ -1276,12 +1131,6 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 			return parent.getYOffset() + getLocation().y;
 		}
 		return getLocation().y;
-	}
-
-	public void js_setLocation(int x, int y)
-	{
-		location = new Point(x, y);
-		jsChangeRecorder.setLocation(x, y);
 	}
 
 	public void setLocation(Point location)
@@ -1294,26 +1143,6 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 		return location;
 	}
 
-	/*
-	 * client properties for ui---------------------------------------------------
-	 */
-
-	public void js_putClientProperty(Object key, Object value)
-	{
-		if (clientProperties == null)
-		{
-			clientProperties = new HashMap<Object, Object>();
-		}
-		clientProperties.put(key, value);
-	}
-
-	private Map<Object, Object> clientProperties;
-
-	public Object js_getClientProperty(Object key)
-	{
-		if (clientProperties == null) return null;
-		return clientProperties.get(key);
-	}
 
 	/*
 	 * size---------------------------------------------------
@@ -1325,15 +1154,9 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 		return size;
 	}
 
-	public void js_setSize(int width, int height)
-	{
-		size = new Dimension(width, height);
-		jsChangeRecorder.setSize(width, height, border, margin, 0);
-	}
-
 	public Rectangle getWebBounds()
 	{
-		Dimension d = jsChangeRecorder.calculateWebSize(size.width, size.height, border, margin, 0, null);
+		Dimension d = ((ChangesRecorder)getStylePropertyChanges()).calculateWebSize(size.width, size.height, border, margin, 0, null);
 		return new Rectangle(location, d);
 	}
 
@@ -1342,23 +1165,13 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 	 */
 	public Insets getPaddingAndBorder()
 	{
-		return jsChangeRecorder.getPaddingAndBorder(size.height, border, margin, 0, null);
+		return ((ChangesRecorder)getStylePropertyChanges()).getPaddingAndBorder(size.height, border, margin, 0, null);
 	}
 
 
 	public void setSize(Dimension size)
 	{
 		this.size = size;
-	}
-
-	public int js_getWidth()
-	{
-		return size.width;
-	}
-
-	public int js_getHeight()
-	{
-		return size.height;
 	}
 
 	public void setRightClickCommand(String rightClickCmd, Object[] args)
@@ -1387,8 +1200,9 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 	@Override
 	public String toString()
 	{
-		return js_getElementType() + "(web)[name:" + js_getName() + ",x:" + js_getLocationX() + ",y:" + js_getLocationY() + ",width:" + js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + js_getHeight() + ",value:" + getDefaultModelObjectAsString() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.js_getElementType() +
+			"(web)[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
+			",height:" + scriptable.js_getHeight() + ",value:" + getDefaultModelObjectAsString() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	@Override

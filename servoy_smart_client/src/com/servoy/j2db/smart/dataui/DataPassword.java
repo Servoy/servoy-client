@@ -31,35 +31,33 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JPasswordField;
 import javax.swing.TransferHandler;
-import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
-import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.dnd.FormDataTransferHandler;
 import com.servoy.j2db.dnd.ISupportDragNDropTextTransfer;
+import com.servoy.j2db.scripting.IScriptable;
+import com.servoy.j2db.scripting.IScriptableProvider;
+import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptDataPasswordMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.util.ComponentFactoryHelper;
+import com.servoy.j2db.ui.scripting.RuntimeDataPassword;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ITagResolver;
-import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.docvalidator.LengthDocumentValidator;
@@ -69,13 +67,14 @@ import com.servoy.j2db.util.docvalidator.ValidatingDocument;
  * Runtime swing password field 
  * @author jblok
  */
-public class DataPassword extends JPasswordField implements IFieldComponent, IDisplayData, IScriptDataPasswordMethods, ISupportCachedLocationAndSize,
-	ISupportDragNDropTextTransfer
+public class DataPassword extends JPasswordField implements IFieldComponent, IDisplayData, ISupportCachedLocationAndSize, ISupportDragNDropTextTransfer,
+	IScriptableProvider
 {
 	private String dataProviderID;
 	private final EventExecutor eventExecutor;
 	private final IApplication application;
 	private MouseAdapter rightclickMouseAdapter = null;
+	protected RuntimeDataPassword scriptable;
 
 	public DataPassword(IApplication app)
 	{
@@ -101,6 +100,12 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 		});
 		addMouseListener(eventExecutor);
 		addKeyListener(eventExecutor);
+		scriptable = new RuntimeDataPassword(this, new DummyChangesRecorder(), application);
+	}
+
+	public IScriptable getScriptObject()
+	{
+		return scriptable;
 	}
 
 	// MAC FIX
@@ -396,66 +401,6 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 	}
 
 
-	/*
-	 * bgcolor---------------------------------------------------
-	 */
-	public String js_getBgcolor()
-	{
-		return PersistHelper.createColorString(getBackground());
-	}
-
-	public void js_setBgcolor(String clr)
-	{
-		setBackground(PersistHelper.createColor(clr));
-	}
-
-
-	/*
-	 * fgcolor---------------------------------------------------
-	 */
-	public String js_getFgcolor()
-	{
-		return PersistHelper.createColorString(getForeground());
-	}
-
-	public void js_setFgcolor(String clr)
-	{
-		setForeground(PersistHelper.createColor(clr));
-	}
-
-	public void js_setBorder(String spec)
-	{
-		Border border = ComponentFactoryHelper.createBorder(spec);
-		Border oldBorder = getBorder();
-		if (oldBorder instanceof CompoundBorder && ((CompoundBorder)oldBorder).getInsideBorder() != null)
-		{
-			Insets insets = ((CompoundBorder)oldBorder).getInsideBorder().getBorderInsets(this);
-			setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(insets.top, insets.left, insets.bottom, insets.right)));
-		}
-		else
-		{
-			setBorder(border);
-		}
-	}
-
-	public String js_getBorder()
-	{
-		return ComponentFactoryHelper.createBorderString(getBorder());
-	}
-
-	/*
-	 * visible---------------------------------------------------
-	 */
-	public boolean js_isVisible()
-	{
-		return isVisible();
-	}
-
-	public void js_setVisible(boolean b)
-	{
-		setVisible(b);
-	}
-
 	public void setComponentVisible(boolean b_visible)
 	{
 		setVisible(b_visible);
@@ -481,45 +426,9 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 		labels.add(label);
 	}
 
-	public String[] js_getLabelForElementNames()
+	public List<ILabel> getLabelsFor()
 	{
-		if (labels != null)
-		{
-			ArrayList al = new ArrayList(labels.size());
-			for (int i = 0; i < labels.size(); i++)
-			{
-				ILabel label = (ILabel)labels.get(i);
-				if (label.getName() != null && !"".equals(label.getName()) && !label.getName().startsWith(ComponentFactory.WEB_ID_PREFIX))
-				{
-					al.add(label.getName());
-				}
-			}
-			return (String[])al.toArray(new String[al.size()]);
-		}
-		return new String[0];
-	}
-
-	/*
-	 * opaque---------------------------------------------------
-	 */
-	public boolean js_isTransparent()
-	{
-		return !isOpaque();
-	}
-
-	public void js_setTransparent(boolean b)
-	{
-		setOpaque(!b);
-		repaint();
-	}
-
-
-	/*
-	 * enabled---------------------------------------------------
-	 */
-	public void js_setEnabled(final boolean b)
-	{
-		setComponentEnabled(b);
+		return labels;
 	}
 
 	public void setComponentEnabled(final boolean b)
@@ -538,11 +447,6 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 		}
 	}
 
-	public boolean js_isEnabled()
-	{
-		return isEnabled();
-	}
-
 	private boolean accessible = true;
 
 	public void setAccessible(boolean b)
@@ -551,6 +455,18 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 		accessible = b;
 	}
 
+	private boolean viewable = true;
+
+	public void setViewable(boolean b)
+	{
+		this.viewable = b;
+		setComponentVisible(b);
+	}
+
+	public boolean isViewable()
+	{
+		return viewable;
+	}
 
 	/*
 	 * readonly---------------------------------------------------
@@ -560,14 +476,9 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 		return !isEditable();
 	}
 
-	public boolean js_isReadOnly()
-	{
-		return isReadOnly();
-	}
-
 	private boolean editState;
 
-	public void js_setReadOnly(boolean b)
+	public void setReadOnly(boolean b)
 	{
 		if (b && !isEditable()) return;
 		if (b)
@@ -583,19 +494,6 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 
 
 	/*
-	 * editable---------------------------------------------------
-	 */
-	public boolean js_isEditable()
-	{
-		return isEditable();
-	}
-
-	public void js_setEditable(boolean b)
-	{
-		setEditable(b);
-	}
-
-	/*
 	 * titleText---------------------------------------------------
 	 */
 
@@ -606,22 +504,9 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 		this.titleText = title;
 	}
 
-	public String js_getTitleText()
+	public String getTitleText()
 	{
-		return Text.processTags(titleText, resolver);
-	}
-
-	/*
-	 * tooltip---------------------------------------------------
-	 */
-	public void js_setToolTipText(String txt)
-	{
-		setToolTipText(txt);
-	}
-
-	public String js_getToolTipText()
-	{
-		return getToolTipText();
+		return titleText;
 	}
 
 	private String tooltip;
@@ -651,23 +536,7 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 	}
 
 
-	/*
-	 * location---------------------------------------------------
-	 */
-	public int js_getLocationX()
-	{
-		return getLocation().x;
-	}
-
-	public int js_getLocationY()
-	{
-		return getLocation().y;
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_getAbsoluteFormLocationY()
-	 */
-	public int js_getAbsoluteFormLocationY()
+	public int getAbsoluteFormLocationY()
 	{
 		Container parent = getParent();
 		while ((parent != null) && !(parent instanceof IDataRenderer))
@@ -683,90 +552,29 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 
 	private Point cachedLocation;
 
-	public void js_setLocation(int x, int y)
-	{
-		cachedLocation = new Point(x, y);
-		setLocation(x, y);
-	}
-
 	public Point getCachedLocation()
 	{
 		return cachedLocation;
 	}
 
-	/*
-	 * client properties for ui---------------------------------------------------
-	 */
-
-	public void js_putClientProperty(Object key, Object value)
+	public void setCachedLocation(Point location)
 	{
-		putClientProperty(key, value);
+		this.cachedLocation = location;
 	}
 
-	public Object js_getClientProperty(Object key)
+	public void setCachedSize(Dimension size)
 	{
-		return getClientProperty(key);
+		this.cachedSize = size;
 	}
-
 
 	private Dimension cachedSize;
-
-	/*
-	 * size---------------------------------------------------
-	 */
-	public void js_setSize(int x, int y)
-	{
-		cachedSize = new Dimension(x, y);
-		setSize(x, y);
-	}
 
 	public Dimension getCachedSize()
 	{
 		return cachedSize;
 	}
 
-	public int js_getWidth()
-	{
-		return getSize().width;
-	}
-
-	public int js_getHeight()
-	{
-		return getSize().height;
-	}
-
-
-	/*
-	 * jsmethods---------------------------------------------------
-	 */
-	public void js_setFont(String spec)
-	{
-		setFont(PersistHelper.createFont(spec));
-	}
-
-	public String js_getFont()
-	{
-		return PersistHelper.createFontString(getFont());
-	}
-
-	public String js_getElementType()
-	{
-		return IScriptBaseMethods.PASSWORD;
-	}
-
-	public String js_getName()
-	{
-		String jsName = getName();
-		if (jsName != null && jsName.startsWith(ComponentFactory.WEB_ID_PREFIX)) jsName = null;
-		return jsName;
-	}
-
-	public String js_getDataProviderID()
-	{
-		return getDataProviderID();
-	}
-
-	public void js_requestFocus(Object[] vargs)
+	public void requestFocus(Object[] vargs)
 	{
 //		if (!hasFocus()) Don't test on hasFocus (it can have focus,but other component already did requestFocus)
 		{
@@ -812,8 +620,9 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 	@Override
 	public String toString()
 	{
-		return js_getElementType() + "[name:" + js_getName() + ",x:" + js_getLocationX() + ",y:" + js_getLocationY() + ",width:" + js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + js_getHeight() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ 
+		return scriptable.js_getElementType() +
+			"[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
+			",height:" + scriptable.js_getHeight() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ 
 	}
 
 	public boolean stopUIEditing(boolean looseFocus)

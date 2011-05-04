@@ -22,14 +22,15 @@ import java.beans.PropertyChangeListener;
 import javax.swing.Icon;
 
 import com.servoy.j2db.persistence.ISupportName;
-import com.servoy.j2db.scripting.IScriptObject;
+import com.servoy.j2db.scripting.IScriptable;
+import com.servoy.j2db.scripting.IScriptableProvider;
 
 /**
  * Base interface for all client plugins.
  * 
  * @author jblok
  */
-public interface IClientPlugin extends IPlugin, PropertyChangeListener, ISupportName
+public interface IClientPlugin extends IPlugin, PropertyChangeListener, ISupportName, IScriptableProvider
 {
 	/**
 	 * Called on startup after client application started.
@@ -49,7 +50,7 @@ public interface IClientPlugin extends IPlugin, PropertyChangeListener, ISupport
 	public Icon getImage();
 
 	/**
-	 * returns the object which has 'js_xxxx' methods for script calling, or null if not scriptable
+	 * returns the scriptable object
 	 */
-	public IScriptObject getScriptObject();
+	public IScriptable getScriptObject();
 }

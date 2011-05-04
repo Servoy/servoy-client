@@ -20,7 +20,6 @@ import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
 
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.ui.IScriptTextLabelMethods;
 import com.servoy.j2db.util.HtmlUtils;
 
 /**
@@ -28,7 +27,7 @@ import com.servoy.j2db.util.HtmlUtils;
  * 
  * @author jcompagner
  */
-public class WebScriptSubmitLink extends WebBaseSubmitLink implements IScriptTextLabelMethods
+public class WebScriptSubmitLink extends WebBaseSubmitLink
 {
 	private static final long serialVersionUID = 1L;
 
@@ -43,37 +42,6 @@ public class WebScriptSubmitLink extends WebBaseSubmitLink implements IScriptTex
 		super(application, id);
 	}
 
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.dataui.ITextScriptLabel#js_getText()
-	 */
-	public String js_getText()
-	{
-		if (i18n != null) return i18n;
-		return getText();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.dataui.ITextScriptLabel#js_setText(java.lang.String)
-	 */
-	public void js_setText(String txt)
-	{
-		if (txt != null && txt.startsWith("i18n:")) //$NON-NLS-1$
-		{
-			i18n = txt;
-			setText(application.getI18NMessage(txt));
-		}
-		else
-		{
-			i18n = null;
-			setText(txt);
-		}
-		jsChangeRecorder.setChanged();
-	}
 
 	/**
 	 * @see com.servoy.j2db.server.headlessclient.dataui.WebBaseSubmitLink#onComponentTagBody(wicket.markup.MarkupStream, wicket.markup.ComponentTag)

@@ -26,8 +26,9 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.TagResolver;
+import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.IDisplayTagText;
-import com.servoy.j2db.ui.IScriptDataButtonMethods;
+import com.servoy.j2db.ui.scripting.RuntimeDataButton;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Text;
 
@@ -35,7 +36,7 @@ import com.servoy.j2db.util.Text;
  * Runtime swing button
  * @author jblok
  */
-public class DataButton extends AbstractScriptButton implements IDisplayData, IDisplayTagText, IScriptDataButtonMethods
+public class DataButton extends AbstractScriptButton implements IDisplayData, IDisplayTagText
 {
 	private String dataProviderID;
 	private Object value;
@@ -47,6 +48,7 @@ public class DataButton extends AbstractScriptButton implements IDisplayData, ID
 	public DataButton(IApplication app)
 	{
 		super(app);
+		scriptable = new RuntimeDataButton(this, new DummyChangesRecorder(), app);
 	}
 
 	/*
@@ -204,12 +206,6 @@ public class DataButton extends AbstractScriptButton implements IDisplayData, ID
 	public void addEditListener(IEditListener l)
 	{
 		//ignore
-	}
-
-	@Override
-	public String js_getDataProviderID()
-	{
-		return getDataProviderID();
 	}
 
 	public String getDataProviderID()

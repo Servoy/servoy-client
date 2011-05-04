@@ -26,8 +26,9 @@ import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.printing.IFixedPreferredWidth;
+import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.IDisplayTagText;
-import com.servoy.j2db.ui.IScriptDataLabelMethods;
+import com.servoy.j2db.ui.scripting.RuntimeDataLabel;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Text;
 
@@ -35,7 +36,7 @@ import com.servoy.j2db.util.Text;
  * Runtime swing label component
  * @author jblok, jcompagner
  */
-public class DataLabel extends AbstractScriptLabel implements IDisplayData, IDisplayTagText, IFixedPreferredWidth, IScriptDataLabelMethods
+public class DataLabel extends AbstractScriptLabel implements IDisplayData, IDisplayTagText, IFixedPreferredWidth
 {
 	private String dataProviderID;
 	private Object value;
@@ -44,6 +45,7 @@ public class DataLabel extends AbstractScriptLabel implements IDisplayData, IDis
 	public DataLabel(IApplication app)
 	{
 		super(app);
+		scriptable = new RuntimeDataLabel(this, new DummyChangesRecorder(), app);
 	}
 
 	/*
@@ -212,12 +214,6 @@ public class DataLabel extends AbstractScriptLabel implements IDisplayData, IDis
 				super.setToolTipText(tooltip);
 			}
 		}
-	}
-
-	@Override
-	public String js_getDataProviderID()
-	{
-		return getDataProviderID();
 	}
 
 	public String getDataProviderID()

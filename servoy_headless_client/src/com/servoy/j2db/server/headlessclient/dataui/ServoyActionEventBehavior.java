@@ -23,6 +23,7 @@ import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.calldecorator.AjaxCallDecorator;
 import org.apache.wicket.markup.html.IHeaderResponse;
 
+import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IScriptReadOnlyMethods;
@@ -132,9 +133,10 @@ public class ServoyActionEventBehavior extends ServoyAjaxFormComponentUpdatingBe
 	{
 		if (super.isEnabled(component))
 		{
-			if (component instanceof IScriptReadOnlyMethods)
+			if (component instanceof IScriptableProvider && ((IScriptableProvider)component).getScriptObject() instanceof IScriptReadOnlyMethods)
 			{
-				return !((IScriptReadOnlyMethods)component).js_isReadOnly() && ((IScriptReadOnlyMethods)component).js_isEnabled();
+				return !((IScriptReadOnlyMethods)((IScriptableProvider)component).getScriptObject()).js_isReadOnly() &&
+					((IScriptReadOnlyMethods)((IScriptableProvider)component).getScriptObject()).js_isEnabled();
 			}
 			return true;
 		}

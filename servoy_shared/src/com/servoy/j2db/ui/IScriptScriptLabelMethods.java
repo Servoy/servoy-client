@@ -24,7 +24,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  *  @author lvostinar
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Label")
-public interface IScriptScriptLabelMethods extends IScriptHtmlSubmitLabelsMethods, ILabelForMethods, IScriptTextLabelMethods
+public interface IScriptScriptLabelMethods extends IScriptHtmlSubmitLabelsMethods, IScriptLabelForMethods, IScriptTextLabelMethods
 {
 
 }
