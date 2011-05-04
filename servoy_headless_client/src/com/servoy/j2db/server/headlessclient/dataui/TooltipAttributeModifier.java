@@ -137,7 +137,7 @@ public class TooltipAttributeModifier extends AttributeModifier
 					}
 					if (tooltip != null)
 					{
-						int initialDelay = 0;
+						int initialDelay = 750;
 						int dismissDelay = 5000;
 						if (Session.exists())
 						{
