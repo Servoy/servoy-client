@@ -26,6 +26,7 @@ import com.servoy.j2db.persistence.QuerySet;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.ISQLQuery;
 import com.servoy.j2db.query.ISQLSelect;
+import com.servoy.j2db.query.ISQLUpdate;
 import com.servoy.j2db.util.ServoyException;
 
 /**
@@ -111,6 +112,9 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 	 */
 	public ISQLStatement createSQLStatement(int action, String server_name, String tableName, Object[] pkColumnData, String tid, String sql,
 		Object[] questiondata) throws RemoteException;
+
+	public ISQLStatement createSQLStatement(int action, String server_name, String tableName, Object[] pkColumnData, String tid, ISQLUpdate sqlUpdate,
+		ArrayList<TableFilter> filters) throws RemoteException;
 
 	public boolean notifyDataChange(String client_id, String server_name, String tableName, IDataSet pks, int action, String transaction_id)
 		throws RemoteException;

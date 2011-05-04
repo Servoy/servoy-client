@@ -35,8 +35,10 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.ISQLQuery;
 import com.servoy.j2db.query.ISQLSelect;
+import com.servoy.j2db.query.ISQLUpdate;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.server.shared.PerformanceTiming;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 
 /**
@@ -449,6 +451,29 @@ public class ProfileDataServer implements IDataServer
 		finally
 		{
 			informListeners("Query", server_name, sql, tid, startTime, questiondata);
+		}
+	}
+
+	public ISQLStatement createSQLStatement(int action, String server_name, String tableName, Object[] pkColumnData, String tid, ISQLUpdate sqlUpdate,
+		ArrayList<TableFilter> filters) throws RemoteException
+	{
+		long startTime = System.currentTimeMillis();
+		try
+		{
+			return dataserver.createSQLStatement(action, server_name, tableName, pkColumnData, tid, sqlUpdate, filters);
+		}
+		finally
+		{
+			QuerySet set;
+			try
+			{
+				set = getSQLQuerySet(server_name, sqlUpdate, null, -1, -1, false);
+				informListeners("Query", server_name, set.getUpdate().getSql(), tid, startTime, set.getUpdate().getParameters());
+			}
+			catch (RepositoryException e)
+			{
+				Debug.error(e);
+			}
 		}
 	}
 

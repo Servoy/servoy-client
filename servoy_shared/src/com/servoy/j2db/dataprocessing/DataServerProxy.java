@@ -28,6 +28,7 @@ import com.servoy.j2db.persistence.QuerySet;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.ISQLQuery;
 import com.servoy.j2db.query.ISQLSelect;
+import com.servoy.j2db.query.ISQLUpdate;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.util.ServoyException;
 
@@ -80,6 +81,12 @@ public class DataServerProxy implements IDataServer
 		Object[] questiondata) throws RemoteException
 	{
 		return ds.createSQLStatement(action, getMappedServerName(serverName), tableName, pkColumnData, tid, sql, questiondata);
+	}
+
+	public ISQLStatement createSQLStatement(int action, String server_name, String tableName, Object[] pkColumnData, String tid, ISQLUpdate sqlUpdate,
+		ArrayList<TableFilter> filters) throws RemoteException
+	{
+		return ds.createSQLStatement(action, getMappedServerName(server_name), tableName, pkColumnData, tid, sqlUpdate, filters);
 	}
 
 	public IDataSet executeStoredProcedure(String clientId, String serverName, String transaction_id, String procedureDeclaration, Object[] args,
