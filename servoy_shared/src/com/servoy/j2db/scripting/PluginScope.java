@@ -17,6 +17,7 @@
 package com.servoy.j2db.scripting;
 
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,6 +28,7 @@ import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.plugins.IClientPlugin;
+import com.servoy.j2db.util.Debug;
 
 /**
  * @author jcompagner
@@ -116,7 +118,18 @@ public class PluginScope extends DefaultScope
 			}
 			if (plugin != null)
 			{
-				tocall = plugin.getScriptObject();
+				try
+				{
+					Method method = plugin.getClass().getMethod("getScriptObject", (Class[])null);
+					if (method != null)
+					{
+						tocall = (IScriptable)method.invoke(plugin, (Object[])null);
+					}
+				}
+				catch (Exception e)
+				{
+					Debug.error(e);
+				}
 			}
 			if (tocall != null)
 			{
