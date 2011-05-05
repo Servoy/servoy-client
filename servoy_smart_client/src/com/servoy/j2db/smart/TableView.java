@@ -638,6 +638,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 								{
 									ca.setMinWidth(((IFormElement)obj).getSize().width);
 									ca.setMaxWidth(((IFormElement)obj).getSize().width);
+									ca.setResizable(false);
 								}
 
 							}
