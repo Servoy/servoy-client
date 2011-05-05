@@ -15,14 +15,34 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.ui;
+package com.servoy.j2db.scripting;
+
+import org.mozilla.javascript.JavaMembers;
+import org.mozilla.javascript.NativeJavaObject;
+import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Wrapper;
 
 /**
  * @author lvostinar
  * @since 6.0
  *
  */
-public interface IComponentProvider
+public class UnwrappingNativeJavaObject extends NativeJavaObject
 {
-	IComponent getComponent();
+	/**
+	 * @param fs
+	 * @param scriptable
+	 * @param jm
+	 */
+	public UnwrappingNativeJavaObject(Scriptable fs, Object scriptable, JavaMembers jm)
+	{
+		super(fs, scriptable, jm);
+	}
+
+	@Override
+	public Object unwrap()
+	{
+		if (javaObject instanceof Wrapper) return ((Wrapper)javaObject).unwrap();
+		return super.unwrap();
+	}
 }

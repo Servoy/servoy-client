@@ -35,7 +35,6 @@ import com.servoy.j2db.persistence.ISupportTabSeq;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.TabSeqComparator;
 import com.servoy.j2db.ui.IComponent;
-import com.servoy.j2db.ui.IComponentProvider;
 import com.servoy.j2db.ui.IDataRenderer;
 
 /**
@@ -135,7 +134,6 @@ public class TabSequenceHelper<T>
 			for (Object element : elements)
 			{
 				String name = null;
-				if (element instanceof IComponentProvider) element = ((IComponentProvider)element).getComponent();
 				if (element instanceof IComponent) name = ((IComponent)element).getName();
 				if (element instanceof ISupplyFocusChildren)
 				{

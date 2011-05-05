@@ -24,10 +24,11 @@ import java.util.Map;
 
 import javax.swing.JComponent;
 
+import org.mozilla.javascript.Wrapper;
+
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.ui.IComponent;
-import com.servoy.j2db.ui.IComponentProvider;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
@@ -39,7 +40,7 @@ import com.servoy.j2db.util.PersistHelper;
  * @author lvostinar
  * @since 6.0
  */
-public abstract class AbstractRuntimeBaseComponent implements IScriptBaseMethods, IComponentProvider
+public abstract class AbstractRuntimeBaseComponent implements IScriptBaseMethods, Wrapper
 {
 	protected final IComponent component;
 	protected final IStylePropertyChangesRecorder jsChangeRecorder;
@@ -53,10 +54,7 @@ public abstract class AbstractRuntimeBaseComponent implements IScriptBaseMethods
 		this.application = application;
 	}
 
-	/**
-	 * @return the component
-	 */
-	public IComponent getComponent()
+	public Object unwrap()
 	{
 		return component;
 	}

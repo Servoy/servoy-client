@@ -20,11 +20,12 @@ import org.apache.wicket.Component;
 import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.JavaMembers;
-import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.ITwoNativeJavaObject;
+import com.servoy.j2db.scripting.UnwrappingNativeJavaObject;
 import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView;
 
 /**
@@ -35,7 +36,7 @@ import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView;
  * 
  * @author acostescu
  */
-public class CellNativeJavaObject extends NativeJavaObject implements ITwoNativeJavaObject
+public class CellNativeJavaObject extends UnwrappingNativeJavaObject implements ITwoNativeJavaObject
 {
 
 	private final WebCellBasedView view;
@@ -86,7 +87,11 @@ public class CellNativeJavaObject extends NativeJavaObject implements ITwoNative
 	@Override
 	public Object unwrap()
 	{
-		if (realObject != null) return realObject;
+		if (realObject != null)
+		{
+			if (realObject instanceof Wrapper) return ((Wrapper)realObject).unwrap();
+			return realObject;
+		}
 		return super.unwrap();
 	}
 

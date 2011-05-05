@@ -27,7 +27,6 @@ import java.io.ByteArrayOutputStream;
 import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
-import com.servoy.j2db.ui.IComponentProvider;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ImageLoader;
 
@@ -45,10 +44,6 @@ public class SnapShot
 	{
 		ImageIcon imageIcon = null;
 		Component comp = null;
-		if (obj instanceof IComponentProvider)
-		{
-			obj = ((IComponentProvider)obj).getComponent();
-		}
 		if (obj instanceof Component)
 		{
 			comp = (Component)obj;
