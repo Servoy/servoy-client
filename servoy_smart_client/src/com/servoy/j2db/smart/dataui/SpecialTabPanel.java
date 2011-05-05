@@ -140,7 +140,7 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 
 		addFocusListener(new AutoTransferFocusListener(this, this));
 
-		scriptable = new RuntimeTabPanel(this, new DummyChangesRecorder(), application, (JComponent)enclosingComponent);
+		scriptable = new RuntimeTabPanel(this, new DummyChangesRecorder(), application, (JComponent)this.enclosingComponent);
 	}
 
 	public IScriptable getScriptObject()

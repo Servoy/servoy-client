@@ -193,7 +193,7 @@ public class RuntimeTabPanel extends AbstractRuntimeFormContainer implements IDe
 	{
 		if (i >= 1 && i <= js_getMaxTabIndex())
 		{
-			return tabPanel.getTabFormNameAt(i - 1);
+			return tabPanel.getTabNameAt(i - 1);
 		}
 		return null;
 	}
