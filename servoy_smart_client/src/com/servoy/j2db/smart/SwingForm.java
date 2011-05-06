@@ -126,7 +126,6 @@ import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.scripting.RuntimeGroup;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
-import com.servoy.j2db.scripting.UnwrappingNativeJavaObject;
 import com.servoy.j2db.scripting.info.CLIENTDESIGN;
 import com.servoy.j2db.smart.dataui.CellAdapter;
 import com.servoy.j2db.smart.dataui.DataComboBox;
@@ -971,13 +970,13 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 						if (obj2 != null)
 						{
 							if (obj2 instanceof IScriptableProvider) obj2 = ((IScriptableProvider)obj2).getScriptObject();
-							NativeJavaObject s2 = new UnwrappingNativeJavaObject(fs, obj2, jm);
+							NativeJavaObject s2 = new NativeJavaObject(fs, obj2, jm);
 
 							s = new TwoNativeJavaObject(fs, obj, s2, jm, controller);
 						}
 						else
 						{
-							s = new UnwrappingNativeJavaObject(fs, obj, jm);
+							s = new NativeJavaObject(fs, obj, jm);
 						}
 						if (named)
 						{

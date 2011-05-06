@@ -31,7 +31,6 @@ import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.scripting.TwoNativeJavaMethod;
-import com.servoy.j2db.scripting.UnwrappingNativeJavaObject;
 import com.servoy.j2db.smart.ListView;
 import com.servoy.j2db.smart.TableView;
 import com.servoy.j2db.smart.dataui.CellAdapter;
@@ -44,7 +43,7 @@ import com.servoy.j2db.smart.dataui.PortalComponent;
  * 
  * @author jcompagner
  */
-public class TwoNativeJavaObject extends UnwrappingNativeJavaObject
+public class TwoNativeJavaObject extends NativeJavaObject
 {
 	private final NativeJavaObject javaObject2;
 	private final Component listView;

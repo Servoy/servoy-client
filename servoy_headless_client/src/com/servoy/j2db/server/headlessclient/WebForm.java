@@ -92,7 +92,6 @@ import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.RuntimeGroup;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
-import com.servoy.j2db.scripting.UnwrappingNativeJavaObject;
 import com.servoy.j2db.server.headlessclient.FormAnchorInfo.FormPartAnchorInfo;
 import com.servoy.j2db.server.headlessclient.dataui.FormLayoutProviderFactory;
 import com.servoy.j2db.server.headlessclient.dataui.IFormLayoutProvider;
@@ -1075,7 +1074,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 						}
 						else
 						{
-							s = new UnwrappingNativeJavaObject(fs, scriptable, jm);
+							s = new NativeJavaObject(fs, scriptable, jm);
 						}
 						if (named)
 						{
