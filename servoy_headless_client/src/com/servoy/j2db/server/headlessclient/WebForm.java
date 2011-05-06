@@ -115,6 +115,7 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
+import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptReadOnlyMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportWebBounds;
@@ -1061,7 +1062,6 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 				if (comp instanceof IScriptableProvider) scriptable = ((IScriptableProvider)comp).getScriptObject();
 				JavaMembers jm = ScriptObjectRegistry.getJavaMembers(scriptable.getClass(), ScriptableObject.getTopLevelScope(fs));
 
-
 				boolean named = name != null && !name.equals("") && !name.startsWith(ComponentFactory.WEB_ID_PREFIX); //$NON-NLS-1$ 
 				if (groupName != null || named)
 				{
@@ -1092,9 +1092,10 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 								es.put(groupName, fs, group);
 								es.put(counter++, fs, group);
 							}
-							if (group instanceof NativeJavaObject && ((NativeJavaObject)group).unwrap() instanceof RuntimeGroup)
+							if (scriptable instanceof IScriptBaseMethods && group instanceof NativeJavaObject &&
+								((NativeJavaObject)group).unwrap() instanceof RuntimeGroup)
 							{
-								((RuntimeGroup)(((NativeJavaObject)group).unwrap())).addScriptable(s);
+								((RuntimeGroup)(((NativeJavaObject)group).unwrap())).addScriptBaseMethodsObj((IScriptBaseMethods)scriptable);
 							}
 						}
 					}

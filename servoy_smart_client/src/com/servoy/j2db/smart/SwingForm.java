@@ -947,6 +947,11 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 				}
 				String groupName = FormElementGroup.getName((String)formController.getComponentProperty(comp, ComponentFactory.GROUPID_COMPONENT_PROPERTY));
 				if (obj instanceof IScriptableProvider) obj = ((IScriptableProvider)obj).getScriptObject();
+				IScriptBaseMethods baseMethodsObj = null;
+				if (obj instanceof IScriptBaseMethods)
+				{
+					baseMethodsObj = (IScriptBaseMethods)obj;
+				}
 				JavaMembers jm = ScriptObjectRegistry.getJavaMembers(obj.getClass(), ScriptableObject.getTopLevelScope(fs));
 
 
@@ -973,6 +978,22 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 							NativeJavaObject s2 = new NativeJavaObject(fs, obj2, jm);
 
 							s = new TwoNativeJavaObject(fs, obj, s2, jm, controller);
+
+							// group properties have to be set to both
+							if (groupName != null && obj2 instanceof IScriptBaseMethods)
+							{
+								if (baseMethodsObj == null)
+								{
+									baseMethodsObj = (IScriptBaseMethods)obj2;
+								}
+								else
+								{
+									RuntimeGroup runtimeGroup = new RuntimeGroup(baseMethodsObj.js_getName());
+									runtimeGroup.addScriptBaseMethodsObj(baseMethodsObj);
+									runtimeGroup.addScriptBaseMethodsObj((IScriptBaseMethods)obj2);
+									baseMethodsObj = runtimeGroup;
+								}
+							}
 						}
 						else
 						{
@@ -994,9 +1015,9 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 								es.put(groupName, fs, group);
 								es.put(counter++, fs, group);
 							}
-							if (group instanceof NativeJavaObject && ((NativeJavaObject)group).unwrap() instanceof RuntimeGroup)
+							if (baseMethodsObj != null && group instanceof NativeJavaObject && ((NativeJavaObject)group).unwrap() instanceof RuntimeGroup)
 							{
-								((RuntimeGroup)(((NativeJavaObject)group).unwrap())).addScriptable(s);
+								((RuntimeGroup)(((NativeJavaObject)group).unwrap())).addScriptBaseMethodsObj(baseMethodsObj);
 							}
 						}
 					}
