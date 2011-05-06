@@ -2241,6 +2241,24 @@ public class JSApplication implements IReturnedTypesProvider
 
 	/**
 	 * Close all visible windows (except main application window). Returns true if operation was successful.
+	 * 
+	 * @sample
+	 * var win = application.createWindow("aWindowName", JSWindow.WINDOW, null);
+	 * win.setInitialBounds(10, 10, 300, 300);
+	 * win.setTitle("This is a window");
+	 * controller.show(win);
+	 * 
+	 * var win2 = application.createWindow("anotherWindowName", JSWindow.WINDOW, null);
+	 * win2.setInitialBounds(100, 100, 300, 300);
+	 * win2.setTitle("This is another window");
+	 * controller.show(win2);
+	 * 
+	 * var qdialog = plugins.dialogs.showQuestionDialog("QuestionDialog","Do you want to close the windows?","Yes","No");
+	 * if (qdialog == "Yes") {
+	 * 	application.closeAllWindows();
+	 *  controller.show(null);
+	 * }
+	 *  
 	 * @return Boolean true if all windows were closed and false otherwise.
 	 */
 	public boolean js_closeAllWindows()

@@ -174,6 +174,21 @@ public class JSSolutionModel
 	/**
 	 * Creates a new form with the given JSForm as its super form.
 	 * 
+	 * @sample
+	 * //creates 2 forms with elements on them; shows the parent form, waits 2 seconds and shows the child form
+	 * var mySuperForm = solutionModel.newForm('mySuperForm', 'myServerName', 'myTableName', null, false, 800, 600);
+	 * var label1 = mySuperForm.newLabel('LabelName', 20, 20, 120, 30);
+	 * label1.text = 'DataProvider';
+	 * label1.background = 'red';
+	 * mySuperForm.newTextField('myDataProvider', 140, 20, 140,20);
+	 * forms['mySuperForm'].controller.show();
+	 * application.sleep(2000);
+	 * var mySubForm = solutionModel.newForm('mySubForm', mySuperForm);
+	 * var label2 = mySuperForm.newLabel('SubForm Label', 20, 120, 120, 30);
+	 * label2.background = 'green';
+	 * forms['mySuperForm'].controller.recreateUI();
+	 * forms['mySubForm'].controller.show();
+	 * 	
 	 * @param name The name of the new form
 	 * @param superForm the super form that will extended from, see JSform.setExtendsForm();
 	 * @return a new JSForm object
@@ -1073,6 +1088,9 @@ public class JSSolutionModel
 	 * Gets all the calculations for the given datasource.
 	 * 
 	 * @param datasource The datasource the calculations belong to.
+	 * 
+	 * @sampleas js_newCalculation(String, int, String)
+	 * 
 	 */
 	public JSCalculation[] js_getCalculations(String datasource)
 	{
@@ -1102,6 +1120,9 @@ public class JSSolutionModel
 	 * 
 	 * @param name The name of the calculation
 	 * @param datasource The datasource the calculation belongs to.
+	 * 
+	 * @sampleas js_newCalculation(String, int, String)
+	 * 
 	 */
 	public JSCalculation js_getCalculation(String name, String datasource)
 	{
@@ -1129,6 +1150,9 @@ public class JSSolutionModel
 	 * 
 	 * @param code The code of the calculation, this must be a full function declaration.
 	 * @param datasource The datasource this calculation belongs to. 
+	 * 
+	 * @sampleas js_newCalculation(String, int, String)
+	 * 
 	 */
 	public JSCalculation js_newCalculation(String code, String datasource)
 	{
@@ -1141,6 +1165,20 @@ public class JSSolutionModel
 	 * @param code The code of the calculation, this must be a full function declaration.
 	 * @param type The type of the calculation, one of the JSVariable types.
 	 * @param datasource The datasource this calculation belongs to. 
+	 * 
+	 * @sample
+	 * var calc = solutionModel.newCalculation("function myCalculation() { return 123; }", JSVariable.INTEGER, "db:/example_data/customers");
+	 * var calc2 = solutionModel.newCalculation("function myCalculation2() { return '20'; }", "db:/example_data/customers");
+	 * var calc3 = solutionModel.newCalculation("function myCalculation3() { return 'Hello World!'; }",	JSVariable.TEXT, "db:/example_data/employees");
+	 * 
+	 * var c = solutionModel.getCalculation("myCalculation","db:/example_data/customers");
+	 * application.output("Name: " + c.getName() + ", Stored: " + c.isStored());
+	 * 
+	 * var allCalcs = solutionModel.getCalculations("db:/example_data/customers");
+	 * for (var i = 0; i < allCalcs.length; i++) {
+	 * 	application.output(allCalcs[i]);
+	 * }
+	 * 
 	 */
 	public JSCalculation js_newCalculation(String code, int type, String datasource)
 	{

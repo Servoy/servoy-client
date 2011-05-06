@@ -40,16 +40,19 @@ public class PAGEORIENTATION implements IPrefixedConstantsObject
 
 	/**
 	 * Landscape page orientation.
+	 * 
+	 * @sample
 	 * var form = solutionModel.getForm("some_form");
 	 * form.defaultPageFormat = solutionModel.createPageFormat(792,612,72,72,72,72,SM_ORIENTATION.LANDSCAPE,SM_UNITS.PIXELS);
 	 */
 	public static final int LANDSCAPE = PageFormat.LANDSCAPE;
 
 	/**
+	 * Reverse landscape page orientation.
+	 * 
+	 * @sample
 	 * var form = solutionModel.getForm("some_form");
 	 * form.defaultPageFormat = solutionModel.createPageFormat(792,612,72,72,72,72,SM_ORIENTATION.REVERSE_LANDSCAPE,SM_UNITS.PIXELS);
-	 * 
-	 * Reverse landscape page orientation.
 	 */
 	public static final int REVERSE_LANDSCAPE = PageFormat.REVERSE_LANDSCAPE;
 

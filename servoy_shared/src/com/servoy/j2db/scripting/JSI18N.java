@@ -296,7 +296,6 @@ public class JSI18N
 	/**
 	 * Call this if you want to add a filter for a column (created by you) in the i18n table.
 	 * So that you can have multiple default values and multiple values per locale for one key.
-	 * You can use filter fall back by setting the filter value as an array of strings.
 	 *
 	 * @sample
 	 * // Puts i18n in filter mode - this allows you to have multiple default/per locale
@@ -325,6 +324,17 @@ public class JSI18N
 		application.setI18NMessagesFilter(columnName, value);
 	}
 
+	/**
+	 * Call this if you want to add a filter for a column (created by you) in the i18n table.
+	 * So that you can have multiple default values and multiple values per locale for one key.
+	 * You can use filter fall back by setting the filter value as an array of strings.
+	 *
+	 * @sampleas js_setI18NMessagesFilter(String, String)
+	 *
+	 * @param columnName The column name that is the filter column in the i18n table.
+	 *
+	 * @param value The filter value.  
+	 */
 	public void js_setI18NMessagesFilter(String columnName, String[] value)
 	{
 		application.setI18NMessagesFilter(columnName, value);

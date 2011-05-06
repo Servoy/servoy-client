@@ -42,48 +42,64 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * Exception code for UNKNOWN_DATABASE_EXCEPTION.
 	 * 
 	 * This code is used when an unrecognized database exception has occurred.
+	 * 
+	 * @sampleas js_getErrorCode()
 	 */
 	public static final int UNKNOWN_DATABASE_EXCEPTION = 100;
 	/**
 	 * Exception code for DATA_INTEGRITY_VIOLATION.
 	 * 
 	 * This code is used when a database exception is recognized as an integrity exception (like constraint violation).
+	 * 
+	 * @sampleas js_getErrorCode()
 	 */
 	public static final int DATA_INTEGRITY_VIOLATION = 101;
 	/**
 	 * Exception code for BAD_SQL_SYNTAX.
 	 * 
 	 * This code is used when a database exception is recognized as an sql syntax error.
+	 * 
+	 * @sampleas js_getErrorCode()
 	 */
 	public static final int BAD_SQL_SYNTAX = 102;
 	/**
 	 * Exception code for PERMISSION_DENIED.
 	 * 
 	 * This code is used when a database exception is recognized as a authorization error.
+	 * 
+	 * @sampleas js_getErrorCode()
 	 */
 	public static final int PERMISSION_DENIED = 103;
 	/**
 	 * Exception code for DEADLOCK.
 	 * 
 	 * This code is used when a deadlock is detected by the database.
+	 * 
+	 * @sampleas js_getErrorCode()
 	 */
 	public static final int DEADLOCK = 104;
 	/**
 	 * Exception code for DATA_ACCESS_RESOURCE_FAILURE.
 	 * 
 	 * This code is used when a database exception received an error accessing storage devices.
+	 * 
+	 * @sampleas js_getErrorCode()
 	 */
 	public static final int DATA_ACCESS_RESOURCE_FAILURE = 105;
 	/**
 	 * Exception code for ACQUIRE_LOCK_FAILURE.
 	 * 
 	 * This code is used when a database failed to lock a row or table.
+	 * 
+	 * @sampleas js_getErrorCode()
 	 */
 	public static final int ACQUIRE_LOCK_FAILURE = 106;
 	/**
 	 * Exception code for INVALID_RESULTSET_ACCESS.
 	 * 
 	 * This code is used when a data is requested that is not selected in the sql.
+	 * 
+	 * @sampleas js_getErrorCode()
 	 */
 	public static final int INVALID_RESULTSET_ACCESS = 107;
 	/**
@@ -91,6 +107,8 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * 
 	 * This code is used when a data could not be deleted or updated when expected (for example 
 	 * when a record was deleted outside Servoy and a Servoy client wants to update the record).
+	 * 
+	 * @sampleas js_getErrorCode()
 	 */
 	public static final int UNEXPECTED_UPDATE_COUNT = 108;
 
@@ -102,12 +120,16 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * Exception code for NO_LICENSE.
 	 * 
 	 * This code is used when a client could not be registered with the server because of license limitations.
+	 * 
+	 * @sampleas js_getErrorCode()
 	 */
 	public static final int NO_LICENSE = 307;
 	/**
 	 * Exception code for RECORD_LOCKED.
 	 * 
 	 * This code is used when a record could not be updated or deleted because it is locked by another client.
+	 * 
+	 * @sampleas js_getErrorCode()
 	 */
 	public static final int RECORD_LOCKED = 308;
 	/**
@@ -121,48 +143,64 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * Exception code for INVALID_INPUT.
 	 * 
 	 * This code is used when the user enters data that could not be validated.
+	 * 
+	 * @sampleas js_getErrorCode()
 	 */
 	public static final int INVALID_INPUT = 310;
 	/**
 	 * Exception code for EXECUTE_PROGRAM_FAILED.
 	 * 
 	 * This code is used when an external program was not executed correctly.
+	 * 
+	 * @sampleas js_getErrorCode()
 	 */
 	public static final int EXECUTE_PROGRAM_FAILED = 311;
 	/**
 	 * Exception code for INCORRECT_LOGIN.
 	 * 
 	 * This code is used when the user enters invalid credentials.
+	 * 
+	 * @sampleas js_getErrorCode()
 	 */
 	public static final int INCORRECT_LOGIN = 312;
 	/**
 	 * Exception code for NO_MODIFY_ACCESS.
 	 * 
 	 * This code is used when a user wants to update data and this is disallowed by security settings.
+	 * 
+	 * @sampleas js_getErrorCode()
 	 */
 	public static final int NO_MODIFY_ACCESS = 319;
 	/**
 	 * Exception code for NO_ACCESS.
 	 * 
 	 * This code is used when a user wants to view data and this is disallowed by security settings.
+	 * 
+	 * @sampleas js_getErrorCode()
 	 */
 	public static final int NO_ACCESS = 320;
 	/**
 	 * Exception code for NO_DELETE_ACCESS.
 	 * 
 	 * This code is used when a user wants to delete data and this is disallowed by security settings.
+	 * 
+	 * @sampleas js_getErrorCode()
 	 */
 	public static final int NO_DELETE_ACCESS = 322;
 	/**
 	 * Exception code for NO_CREATE_ACCESS.
 	 * 
 	 * This code is used when a user wants to create new records and this is disallowed by security settings.
+	 * 
+	 * @sampleas js_getErrorCode()
 	 */
 	public static final int NO_CREATE_ACCESS = 323;
 	/**
 	 * Exception code for NO_RELATED_CREATE_ACCESS.
 	 * 
 	 * This code is used when a user wants to create new related records and this is disallowed by security settings.
+	 * 
+	 * @sampleas js_getErrorCode()
 	 */
 	public static final int NO_RELATED_CREATE_ACCESS = 324;
 //	public static final int VALIDATOR_NOT_FOUND = 327;
@@ -171,42 +209,56 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * Exception code for SAVE_FAILED.
 	 * 
 	 * This code is used when a javascript exception occurred during saving data to the database.
+	 * 
+	 * @sampleas js_getErrorCode()
 	 */
 	public static final int SAVE_FAILED = 330;
 	/**
 	 * Exception code for NO_PARENT_DELETE_WITH_RELATED_RECORDS.
 	 * 
 	 * This code is used when a record could not be deleted because a non-empty relation exists for the record that does not allow parent delete when having related records.
+	 * 
+	 * @sampleas js_getErrorCode()
 	 */
 	public static final int NO_PARENT_DELETE_WITH_RELATED_RECORDS = 331;
 	/**
 	 * Exception code for DELETE_NOT_GRANTED.
 	 * 
 	 * This code is used when a record deletion was rejected by a pre-delete Servoy trigger.
+	 * 
+	 * @sampleas js_getErrorCode()
 	 */
 	public static final int DELETE_NOT_GRANTED = 332;
 	/**
 	 * Exception code for MAINTENANCE_MODE.
 	 * 
 	 * This code is used when a client could not be registered with the server because the server is in maintenance mode.
+	 * 
+	 * @sampleas js_getErrorCode()
 	 */
 	public static final int MAINTENANCE_MODE = 333;
 	/**
 	 * Exception code for ABSTRACT_FORM.
 	 * 
-	 * This code is used when a form is shown that cannot be created (for example, a form without parts).
+	 * This code is used when a form, that cannot be created, is shown (for example, a form without parts).
+	 * 
+	 * @sampleas js_getErrorCode()
 	 */
 	public static final int ABSTRACT_FORM = 334;
 	/**
 	 * Exception code for RECORD_VALIDATION_FAILED.
 	 * 
 	 * This code is used when a record update/insert was rejected by a pre-update/insert Servoy trigger.
+	 * 
+	 * @sampleas js_getErrorCode()
 	 */
 	public static final int RECORD_VALIDATION_FAILED = 335;
 	/**
 	 * Exception code for CLIENT_NOT_AUTHORIZED.
 	 * 
 	 * This code is used when an client performs an action that requires the user to be logged in and the user has not logged in yet.
+	 * 
+	 * @sampleas js_getErrorCode()
 	 */
 	public static final int CLIENT_NOT_AUTHORIZED = 336;
 

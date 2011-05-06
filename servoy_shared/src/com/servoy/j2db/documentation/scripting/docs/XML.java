@@ -28,7 +28,18 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 public class XML
 {
 	/**
-	 * If set to true, then comments in the XML is ignored when constructing new XML objects.
+	 * If set to true, then comments in the XML are ignored when constructing new XML objects.
+	 * 
+	 * @sample
+	 * var element = <foo><!-- my comment --><bar/></foo>;
+	 * application.output(element.comments().length());
+	 * application.output(element.toXMLString());
+	 * 
+	 * XML.ignoreComments = false;
+	 * 
+	 * element = <foo><!-- my comment --><bar/></foo>;
+	 * application.output(element.comments().length());
+	 * application.output(element.toXMLString()); 
 	 * 
 	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
 	 */
@@ -44,6 +55,11 @@ public class XML
 	/**
 	 * If set to true, then processing instructions are ignored when constructing new XML objects.
 	 * 
+	 * @sample
+	 * XML.ignoreProcessingInstructions=false;
+	 * var xmlElement = <publishing><?process author="yes"?><author type="leadership">John C. Maxwell</author></publishing>;
+	 * application.output(" Element = "+ xmlElement.toXMLString());
+	 * 
 	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
 	 */
 	public Boolean js_getIgnoreProcessingInstructions()
@@ -57,6 +73,14 @@ public class XML
 
 	/**
 	 * If set to true, then whitespace in the XML is ignored when constructing new XML objects.
+	 * 
+	 * @sample
+	 *  XML.ignoreWhitespace = false;
+	 *  var xmlElement =
+	 *  <publishing>
+	 *  	<author>John C. Maxwell</author>
+	 *  </publishing>;
+	 *  application.output(xmlElement.toString());
 	 * 
 	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
 	 */
@@ -73,6 +97,8 @@ public class XML
 	 * If set to true, then toString() and toXMLString() methods will normalize the output
 	 * to achieve a uniform appearance.
 	 * 
+	 * @sampleas js_getPrettyIndent()
+	 * 
 	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
 	 */
 	public Boolean js_getPrettyPrinting()
@@ -85,8 +111,16 @@ public class XML
 	}
 
 	/**
-	 * The amount of positions used when indenting child nodes relative to their parent
+	 * The amount of positions used when indenting child nodes are relative to their parent
 	 * if prettyPrinting is enabled.
+	 * 
+	 * @sample
+	 * var xmlElement = <publishing><author>Tom DeMarco</author><author>Roger S. Pressman</author></publishing>;
+	 * application.output(xmlElement.toXMLString());
+	 * XML.prettyPrinting = true;
+	 * XML.prettyIndent = 4;
+	 * xmlElement = <publishing><author>Tom DeMarco</author><author>Roger S. Pressman</author></publishing>;
+	 * application.output(xmlElement.toXMLString());
 	 * 
 	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
 	 */

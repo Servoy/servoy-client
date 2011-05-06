@@ -78,7 +78,10 @@ public class JSLib
 	/**
 	 * Decodes a URI previously encoded with encodeURI or another similar routine.
 	 * 
-	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Functions/decodeURI
+	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/decodeURI
+	 * 
+	 * @sampleas js_encodeURI(String)
+	 * 
 	 */
 	public String js_decodeURI(String encodedURI)
 	{
@@ -86,10 +89,14 @@ public class JSLib
 	}
 
 	/**
+	 * Decodes a URI component previously created by encodeURIComponent or by a similar routine.
 	 * 
 	 * @param encodedURI
 	 * 
-	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Functions/decodeURIComponent
+	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Global_Functions/decodeURIComponent
+	 * 
+	 * @sampleas js_encodeURIComponent(String)
+	 * 
 	 */
 	public String js_decodeURIComponent(String encodedURI)
 	{
@@ -99,7 +106,15 @@ public class JSLib
 	/**
 	 * Encodes a URI by replacing certain characters with escape sequences.
 	 * 
-	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Functions/encodeURI
+	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/encodeURI
+	 * 
+	 * @sample
+	 * var str = "http://www.mysite.com/my code.asp?name=[cool]";
+	 * var encoded = encodeURI(str);
+	 * var decoded = decodeURI(encoded);
+	 * application.output(encoded);//http://www.mysite.com/my%20code.asp?name=%5bcool%5d
+	 * application.output(decoded);//http://www.mysite.com/my code.asp?name=[cool]
+	 * 
 	 */
 	public String js_encodeURI(String URI)
 	{
@@ -107,8 +122,17 @@ public class JSLib
 	}
 
 	/**
+	 * Encodes a URI component by replacing all special characters with their corresponding UTF-8 escape sequences.
 	 * 
-	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Functions/encodeURIComponent
+	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/encodeURIComponent
+	 * 
+	 * @sample
+	 * var str = "my code.asp?name=[cool]";
+	 * var encoded = encodeURIComponent(str);
+	 * var decoded = decodeURIComponent(encoded);
+	 * application.output(encoded); //my%20code.asp%3fname%3d%5bcool%5d
+	 * application.output(decoded); //my code.asp?name=[cool]
+	 * 
 	 */
 	public String js_encodeURIComponent(String str)
 	{

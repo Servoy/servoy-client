@@ -183,7 +183,10 @@ public abstract class JSWindowImpl
 
 		/**
 		 * Set whether or not this window can be resized by the user.
+		 * 
 		 * @param resizable true or false.
+		 * 
+		 * @sampleas js_isVisible()
 		 */
 		public void js_setResizable(boolean resizable)
 		{
@@ -192,6 +195,9 @@ public abstract class JSWindowImpl
 
 		/**
 		 * Returns the x coordinate.
+		 * 
+		 * @sampleas js_getName()
+		 * 
 		 * @return the x coordinate.
 		 */
 		public int js_getX()
@@ -201,6 +207,9 @@ public abstract class JSWindowImpl
 
 		/**
 		 * Returns the y coordinate.
+		 * 
+		 * @sampleas js_getName()
+		 * 
 		 * @return the y coordinate.
 		 */
 		public int js_getY()
@@ -210,6 +219,9 @@ public abstract class JSWindowImpl
 
 		/**
 		 * Returns the width.
+		 * 
+		 * @sampleas js_getName()
+		 * 
 		 * @return the width.
 		 */
 		public int js_getWidth()
@@ -219,6 +231,9 @@ public abstract class JSWindowImpl
 
 		/**
 		 * Returns the height.
+		 * 
+		 * @sampleas js_getName()
+		 * 
 		 * @return the height.
 		 */
 		public int js_getHeight()
@@ -237,6 +252,13 @@ public abstract class JSWindowImpl
 
 		/**
 		 * Returns the title text.
+		 * 
+		 * @sample
+		 * var win1 = application.createWindow("Window 1", JSWindow.WINDOW, null);
+		 * win1.setInitialBounds(200, 200, 450, 350);
+		 * win1.title = "Window 1";
+		 * controller.show(win1);
+		 * 
 		 * @return the title text.
 		 */
 		public String js_getTitle()
@@ -246,7 +268,10 @@ public abstract class JSWindowImpl
 
 		/**
 		 * Sets whether or not this window should have a text tool bar. Has no effect on web client or smart client main application frame.
+		 * 
 		 * @param showTextToolbar true if you want a text tool bar to be added to this window, false otherwise.
+		 * 
+		 * @sampleas js_toFront()
 		 */
 		public void js_showTextToolbar(boolean showTextToolbar)
 		{
@@ -255,6 +280,25 @@ public abstract class JSWindowImpl
 
 		/**
 		 * Returns the window name. It will be null in case of main application frame.
+		 * 
+		 * @sample
+		 * var someWindow = application.createWindow("someWindowName", JSWindow.WINDOW, null);
+		 * someWindow.setInitialBounds(200, 200, 450, 350);
+		 * controller.show(someWindow);
+		 * 
+		 * var name = "Name: " + someWindow.getName() + "\n"
+		 * var parent = "Parent: " + (someWindow.getParent() == null ? "none" : someWindow.getParent()) + "\n"
+		 * var type = "TypeNumber: " + someWindow.getType() + "\n"
+		 * var height = "Height: " + someWindow.getHeight() + "\n"
+		 * var width = "Width: " + someWindow.getWidth() + "\n"
+		 * var locationX = "Location-X-coordinate: " + someWindow.getX() + "\n"
+		 * var locationY = "Location-Y-coordinate: " + someWindow.getY() + "\n"
+		 * var info = name + parent + type + height + width + locationX + locationY + "\n"
+		 * var closeMsg = "Press 'Ok' to close this dialog."
+		 * 
+		 * var infoDialog = plugins.dialogs.showInfoDialog("Window Info", info + closeMsg, "Ok");
+		 * if (infoDialog == "Ok") someWindow.close()
+		 * 
 		 * @return the window name.
 		 */
 		public String js_getName()
@@ -264,6 +308,9 @@ public abstract class JSWindowImpl
 
 		/**
 		 * Returns the window type.
+		 * 
+		 * @sampleas js_getName()
+		 * 
 		 * @return the window type. Can be one of JSWindow.DIALOG, JSWindow.MODAL_DIALOG, JSWindow.WINDOW.
 		 */
 		public int js_getType()
@@ -273,6 +320,9 @@ public abstract class JSWindowImpl
 
 		/**
 		 * Returns the parent JSWindow, if available.
+		 * 
+		 * @sampleas js_getName()
+		 * 
 		 * @return the parent JSWindow, if available. If there is no parent JSWindow, it will return null.
 		 */
 		public JSWindow js_getParent()
@@ -283,6 +333,15 @@ public abstract class JSWindowImpl
 		/**
 		 * Closes (hides) the window. It can be shown again using window.show(), controller.show() or controller.showRecords().
 		 * The main application window cannot be closed.
+		 * 
+		 * @sample
+		 * //creates and shows a window for 3 seconds before closing it
+		 * var win = application.createWindow("someWindowName", JSWindow.WINDOW, null);
+		 * win.setInitialBounds(200, 200, 450, 350);
+		 * controller.show(win);
+		 * application.sleep(3000);
+		 * win.close();
+		 * 
 		 * @return Boolean true if the window was successfully closed and false otherwise.
 		 */
 		public boolean js_close()
@@ -295,6 +354,16 @@ public abstract class JSWindowImpl
 		 * The window will no longer be available with application.getWindow('windowName') and will no longer be usable.
 		 * 
 		 * The main application window cannot be destroyed. 
+		 * 
+		 * @sample
+		 * var getWindow = application.getWindow("someWindowName");
+		 * getWindow.destroy();
+		 * getWindow = application.getWindow("someWindowName");
+		 * if (getWindow == null) {
+		 * 		application.output("Window has been destroyed");
+		 * 	} else { 
+		 * 		application.output("Window could not be destroyed");
+		 * 	}
 		 */
 		public void js_destroy()
 		{
@@ -303,6 +372,14 @@ public abstract class JSWindowImpl
 
 		/**
 		 * Returns true if the window is visible, false otherwise.
+		 * 
+		 * @sample
+		 * var someWindow = application.getWindow("someWindowName");
+		 * if (someWindow.isVisible() == false) { 
+		 * 	controller.show(someWindow);
+		 * 	someWindow.setResizable(false);
+		 * }
+		 * 
 		 * @return true if the window is visible, false otherwise.
 		 */
 		public boolean js_isVisible()
@@ -312,6 +389,31 @@ public abstract class JSWindowImpl
 
 		/**
 		 * Bring this window in front of other windows, if possible.
+		 * 
+		 * @sample
+		 * var win1 = application.createWindow("Window 1", JSWindow.WINDOW, null);
+		 * win1.setInitialBounds(200, 200, 450, 350);
+		 * win1.setTitle("Window 1");
+		 * win1.showTextToolbar(false);
+		 * controller.show(win1);
+		 * 
+		 * var win2 = application.createWindow("Window 2", JSWindow.WINDOW, null);
+		 * win2.setInitialBounds(500, 500, 450, 350);
+		 * win2.setTitle("Window 2");
+		 * win2.showTextToolbar(false);
+		 * controller.show(win2);
+		 * 
+		 * var win3 = application.createWindow("Window 3", JSWindow.WINDOW, null);
+		 * win3.setInitialBounds(650, 700, 450, 350);
+		 * win3.setTitle("Window 3");
+		 * win3.showTextToolbar(true);
+		 * controller.show(win3);
+		 * 
+		 * application.sleep(2000);
+		 * win3.toBack();
+		 * application.sleep(2000);
+		 * win1.toFront();
+		 * 
 		 */
 		public void js_toFront()
 		{
@@ -320,6 +422,8 @@ public abstract class JSWindowImpl
 
 		/**
 		 * Shows this window behind other windows, if possible.
+		 * 
+		 * @sampleas js_toFront()
 		 */
 		public void js_toBack()
 		{

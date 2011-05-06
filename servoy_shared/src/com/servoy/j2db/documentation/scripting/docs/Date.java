@@ -116,7 +116,10 @@ public class Date
 	/**
 	 * Returns the milliseconds elapsed since 1 January 1970 00:00:00 UTC up until now.
 	 * 
-	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/now
+	 * @sample
+	 * var timestamp = Date.now();
+	 * 
+	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Date/now
 	 */
 	public Date js_now()
 	{
@@ -126,7 +129,11 @@ public class Date
 	/**
 	 * Takes a date string (such as "Dec 25, 1995") and returns the number of milliseconds since January 1, 1970, 00:00:00 UTC.
 	 * 
-	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/parse
+	 * @sample
+	 * var str = Date.parse("Wed, 09 Aug 1995 00:00:00 GMT");
+	 * application.output(str);
+	 * 
+	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Date/parse
 	 */
 	public Date js_parse(String s)
 	{

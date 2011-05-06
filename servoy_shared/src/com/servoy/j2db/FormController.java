@@ -163,6 +163,18 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 		/**
 		 * Returns the JSWindow that the form is shown in, or null if the form is not currently showing in a window.
+		 * 
+		 * @sample
+		 * var currentWindow = controller.getWindow();
+		 * if (currentWindow != null) {
+		 * 		currentWindow.title = 'We have a new title';
+		 * } else {
+		 * 		currentWindow = application.createWindow("Window Name", JSWindow.WINDOW, null);
+		 * 		currentWindow(650, 700, 450, 350);
+		 * 		currentWindow = "Window Title";
+		 * 		controller.show(currentWindow);
+		 * }
+		 * 
 		 * @return the JSWindow that the form is shown in, or null if the form is not currently showing in a window.
 		 */
 		public JSWindow js_getWindow()

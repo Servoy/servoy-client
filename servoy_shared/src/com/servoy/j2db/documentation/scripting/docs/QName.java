@@ -30,6 +30,11 @@ public class QName
 	/**
 	 * Identifies the local name of the QName.
 	 * 
+	 * @sample
+	 * var Qnamevar = new QName('http://www.w3.org/1999/xhtml', 'author');
+	 * application.output(Qnamevar.localName);
+	 * application.output(Qnamevar.uri);
+	 * 
 	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
 	 */
 	public String js_getLocalName()
@@ -43,6 +48,8 @@ public class QName
 
 	/**
 	 * Identifies the namespace of the QName, if applicable.
+	 * 
+	 * @sampleas js_getLocalName()
 	 * 
 	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
 	 */
