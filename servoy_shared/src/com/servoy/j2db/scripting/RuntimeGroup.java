@@ -69,18 +69,36 @@ public class RuntimeGroup implements IScriptTransparentMethods, IScriptReadOnlyM
 		return name;
 	}
 
+	private static IScriptBaseMethods getScriptObject(Scriptable scriptable)
+	{
+		if (scriptable instanceof Wrapper)
+		{
+			Object javaObject = ((Wrapper)scriptable).unwrap();
+			if (javaObject instanceof IScriptableProvider)
+			{
+				IScriptable scriptObject = ((IScriptableProvider)javaObject).getScriptObject();
+				if (scriptObject instanceof IScriptBaseMethods)
+				{
+					return (IScriptBaseMethods)scriptObject;
+				}
+			}
+			else if (javaObject instanceof IScriptBaseMethods)
+			{
+				return (IScriptBaseMethods)javaObject;
+			}
+		}
+		return null;
+	}
+
 	public boolean js_isVisible()
 	{
 		// if 1 element is visible, the group is visible
 		for (Scriptable scriptable : scriptables)
 		{
-			if (scriptable instanceof Wrapper)
+			IScriptBaseMethods scriptObject = getScriptObject(scriptable);
+			if (scriptObject != null && scriptObject.js_isVisible())
 			{
-				Object javaObject = ((Wrapper)scriptable).unwrap();
-				if (javaObject instanceof IScriptBaseMethods && ((IScriptBaseMethods)javaObject).js_isVisible())
-				{
-					return true;
-				}
+				return true;
 			}
 		}
 
@@ -91,13 +109,10 @@ public class RuntimeGroup implements IScriptTransparentMethods, IScriptReadOnlyM
 	{
 		for (Scriptable scriptable : scriptables)
 		{
-			if (scriptable instanceof Wrapper)
+			IScriptBaseMethods scriptObject = getScriptObject(scriptable);
+			if (scriptObject != null)
 			{
-				Object javaObject = ((Wrapper)scriptable).unwrap();
-				if (javaObject instanceof IScriptBaseMethods)
-				{
-					((IScriptBaseMethods)javaObject).js_setVisible(b);
-				}
+				scriptObject.js_setVisible(b);
 			}
 		}
 	}
@@ -107,13 +122,10 @@ public class RuntimeGroup implements IScriptTransparentMethods, IScriptReadOnlyM
 		// if 1 element is enabled, the group is enabled
 		for (Scriptable scriptable : scriptables)
 		{
-			if (scriptable instanceof Wrapper)
+			IScriptBaseMethods scriptObject = getScriptObject(scriptable);
+			if (scriptObject != null && scriptObject.js_isEnabled())
 			{
-				Object javaObject = ((Wrapper)scriptable).unwrap();
-				if (javaObject instanceof IScriptBaseMethods && ((IScriptBaseMethods)javaObject).js_isEnabled())
-				{
-					return true;
-				}
+				return true;
 			}
 		}
 
@@ -124,13 +136,10 @@ public class RuntimeGroup implements IScriptTransparentMethods, IScriptReadOnlyM
 	{
 		for (Scriptable scriptable : scriptables)
 		{
-			if (scriptable instanceof Wrapper)
+			IScriptBaseMethods scriptObject = getScriptObject(scriptable);
+			if (scriptObject != null)
 			{
-				Object javaObject = ((Wrapper)scriptable).unwrap();
-				if (javaObject instanceof IScriptBaseMethods)
-				{
-					((IScriptBaseMethods)javaObject).js_setEnabled(b);
-				}
+				scriptObject.js_setEnabled(b);
 			}
 		}
 	}
@@ -139,16 +148,13 @@ public class RuntimeGroup implements IScriptTransparentMethods, IScriptReadOnlyM
 	{
 		for (Scriptable scriptable : scriptables)
 		{
-			if (scriptable instanceof Wrapper)
+			IScriptBaseMethods scriptObject = getScriptObject(scriptable);
+			if (scriptObject != null)
 			{
-				Object javaObject = ((Wrapper)scriptable).unwrap();
-				if (javaObject instanceof IScriptBaseMethods)
+				String clr = scriptObject.js_getBgcolor();
+				if (clr != null)
 				{
-					String clr = ((IScriptBaseMethods)javaObject).js_getBgcolor();
-					if (clr != null)
-					{
-						return clr;
-					}
+					return clr;
 				}
 			}
 		}
@@ -159,13 +165,10 @@ public class RuntimeGroup implements IScriptTransparentMethods, IScriptReadOnlyM
 	{
 		for (Scriptable scriptable : scriptables)
 		{
-			if (scriptable instanceof Wrapper)
+			IScriptBaseMethods scriptObject = getScriptObject(scriptable);
+			if (scriptObject != null)
 			{
-				Object javaObject = ((Wrapper)scriptable).unwrap();
-				if (javaObject instanceof IScriptBaseMethods)
-				{
-					((IScriptBaseMethods)javaObject).js_setBgcolor(clr);
-				}
+				scriptObject.js_setBgcolor(clr);
 			}
 		}
 	}
@@ -174,16 +177,13 @@ public class RuntimeGroup implements IScriptTransparentMethods, IScriptReadOnlyM
 	{
 		for (Scriptable scriptable : scriptables)
 		{
-			if (scriptable instanceof Wrapper)
+			IScriptBaseMethods scriptObject = getScriptObject(scriptable);
+			if (scriptObject != null)
 			{
-				Object javaObject = ((Wrapper)scriptable).unwrap();
-				if (javaObject instanceof IScriptBaseMethods)
+				String clr = scriptObject.js_getFgcolor();
+				if (clr != null)
 				{
-					String clr = ((IScriptBaseMethods)javaObject).js_getFgcolor();
-					if (clr != null)
-					{
-						return clr;
-					}
+					return clr;
 				}
 			}
 		}
@@ -194,13 +194,10 @@ public class RuntimeGroup implements IScriptTransparentMethods, IScriptReadOnlyM
 	{
 		for (Scriptable scriptable : scriptables)
 		{
-			if (scriptable instanceof Wrapper)
+			IScriptBaseMethods scriptObject = getScriptObject(scriptable);
+			if (scriptObject != null)
 			{
-				Object javaObject = ((Wrapper)scriptable).unwrap();
-				if (javaObject instanceof IScriptBaseMethods)
-				{
-					((IScriptBaseMethods)javaObject).js_setFgcolor(clr);
-				}
+				scriptObject.js_setFgcolor(clr);
 			}
 		}
 	}
@@ -209,16 +206,13 @@ public class RuntimeGroup implements IScriptTransparentMethods, IScriptReadOnlyM
 	{
 		for (Scriptable scriptable : scriptables)
 		{
-			if (scriptable instanceof Wrapper)
+			IScriptBaseMethods scriptObject = getScriptObject(scriptable);
+			if (scriptObject != null)
 			{
-				Object javaObject = ((Wrapper)scriptable).unwrap();
-				if (javaObject instanceof IScriptBaseMethods)
+				String spec = scriptObject.js_getBorder();
+				if (spec != null)
 				{
-					String spec = ((IScriptBaseMethods)javaObject).js_getBorder();
-					if (spec != null)
-					{
-						return spec;
-					}
+					return spec;
 				}
 			}
 		}
@@ -229,13 +223,10 @@ public class RuntimeGroup implements IScriptTransparentMethods, IScriptReadOnlyM
 	{
 		for (Scriptable scriptable : scriptables)
 		{
-			if (scriptable instanceof Wrapper)
+			IScriptBaseMethods scriptObject = getScriptObject(scriptable);
+			if (scriptObject != null)
 			{
-				Object javaObject = ((Wrapper)scriptable).unwrap();
-				if (javaObject instanceof IScriptBaseMethods)
-				{
-					((IScriptBaseMethods)javaObject).js_setBorder(spec);
-				}
+				scriptObject.js_setBorder(spec);
 			}
 		}
 	}
@@ -245,13 +236,10 @@ public class RuntimeGroup implements IScriptTransparentMethods, IScriptReadOnlyM
 		int y = -1;
 		for (Scriptable scriptable : scriptables)
 		{
-			if (scriptable instanceof Wrapper)
+			IScriptBaseMethods scriptObject = getScriptObject(scriptable);
+			if (scriptObject != null)
 			{
-				Object javaObject = ((Wrapper)scriptable).unwrap();
-				if (javaObject instanceof IScriptBaseMethods)
-				{
-					y = Math.min(y == -1 ? Integer.MAX_VALUE : y, ((IScriptBaseMethods)javaObject).js_getAbsoluteFormLocationY());
-				}
+				y = Math.min(y == -1 ? Integer.MAX_VALUE : y, scriptObject.js_getAbsoluteFormLocationY());
 			}
 		}
 
@@ -262,13 +250,10 @@ public class RuntimeGroup implements IScriptTransparentMethods, IScriptReadOnlyM
 	{
 		for (Scriptable scriptable : scriptables)
 		{
-			if (scriptable instanceof Wrapper)
+			IScriptBaseMethods scriptObject = getScriptObject(scriptable);
+			if (scriptObject != null)
 			{
-				Object javaObject = ((Wrapper)scriptable).unwrap();
-				if (javaObject instanceof IScriptBaseMethods)
-				{
-					((IScriptBaseMethods)javaObject).js_putClientProperty(key, value);
-				}
+				scriptObject.js_putClientProperty(key, value);
 			}
 		}
 	}
@@ -277,16 +262,13 @@ public class RuntimeGroup implements IScriptTransparentMethods, IScriptReadOnlyM
 	{
 		for (Scriptable scriptable : scriptables)
 		{
-			if (scriptable instanceof Wrapper)
+			IScriptBaseMethods scriptObject = getScriptObject(scriptable);
+			if (scriptObject != null)
 			{
-				Object javaObject = ((Wrapper)scriptable).unwrap();
-				if (javaObject instanceof IScriptBaseMethods)
+				Object value = scriptObject.js_getClientProperty(key);
+				if (value != null)
 				{
-					Object property = ((IScriptBaseMethods)javaObject).js_getClientProperty(key);
-					if (property != null)
-					{
-						return property;
-					}
+					return value;
 				}
 			}
 		}
@@ -297,13 +279,10 @@ public class RuntimeGroup implements IScriptTransparentMethods, IScriptReadOnlyM
 	{
 		for (Scriptable scriptable : scriptables)
 		{
-			if (scriptable instanceof Wrapper)
+			IScriptBaseMethods scriptObject = getScriptObject(scriptable);
+			if (scriptObject instanceof IScriptTransparentMethods)
 			{
-				Object javaObject = ((Wrapper)scriptable).unwrap();
-				if (javaObject instanceof IScriptTransparentMethods)
-				{
-					((IScriptTransparentMethods)javaObject).js_setToolTipText(tooltip);
-				}
+				((IScriptTransparentMethods)scriptObject).js_setToolTipText(tooltip);
 			}
 		}
 	}
@@ -312,16 +291,13 @@ public class RuntimeGroup implements IScriptTransparentMethods, IScriptReadOnlyM
 	{
 		for (Scriptable scriptable : scriptables)
 		{
-			if (scriptable instanceof Wrapper)
+			IScriptBaseMethods scriptObject = getScriptObject(scriptable);
+			if (scriptObject instanceof IScriptTransparentMethods)
 			{
-				Object javaObject = ((Wrapper)scriptable).unwrap();
-				if (javaObject instanceof IScriptTransparentMethods)
+				String tooltip = ((IScriptTransparentMethods)scriptObject).js_getToolTipText();
+				if (tooltip != null)
 				{
-					String toolTip = ((IScriptTransparentMethods)javaObject).js_getToolTipText();
-					if (toolTip != null)
-					{
-						return toolTip;
-					}
+					return tooltip;
 				}
 			}
 		}
@@ -332,13 +308,10 @@ public class RuntimeGroup implements IScriptTransparentMethods, IScriptReadOnlyM
 	{
 		for (Scriptable scriptable : scriptables)
 		{
-			if (scriptable instanceof Wrapper)
+			IScriptBaseMethods scriptObject = getScriptObject(scriptable);
+			if (scriptObject instanceof IScriptTransparentMethods)
 			{
-				Object javaObject = ((Wrapper)scriptable).unwrap();
-				if (javaObject instanceof IScriptTransparentMethods)
-				{
-					((IScriptTransparentMethods)javaObject).js_setFont(spec);
-				}
+				((IScriptTransparentMethods)scriptObject).js_setFont(spec);
 			}
 		}
 	}
@@ -347,16 +320,13 @@ public class RuntimeGroup implements IScriptTransparentMethods, IScriptReadOnlyM
 	{
 		for (Scriptable scriptable : scriptables)
 		{
-			if (scriptable instanceof Wrapper)
+			IScriptBaseMethods scriptObject = getScriptObject(scriptable);
+			if (scriptObject instanceof IScriptTransparentMethods)
 			{
-				Object javaObject = ((Wrapper)scriptable).unwrap();
-				if (javaObject instanceof IScriptTransparentMethods)
+				String spec = ((IScriptTransparentMethods)scriptObject).js_getFont();
+				if (spec != null)
 				{
-					String font = ((IScriptTransparentMethods)javaObject).js_getFont();
-					if (font != null)
-					{
-						return font;
-					}
+					return spec;
 				}
 			}
 		}
@@ -367,16 +337,12 @@ public class RuntimeGroup implements IScriptTransparentMethods, IScriptReadOnlyM
 	{
 		for (Scriptable scriptable : scriptables)
 		{
-			if (scriptable instanceof Wrapper)
+			IScriptBaseMethods scriptObject = getScriptObject(scriptable);
+			if (scriptObject instanceof IScriptTransparentMethods && !((IScriptTransparentMethods)scriptObject).js_isTransparent())
 			{
-				Object javaObject = ((Wrapper)scriptable).unwrap();
-				if (javaObject instanceof IScriptTransparentMethods && !((IScriptTransparentMethods)javaObject).js_isTransparent())
-				{
-					return false;
-				}
+				return false;
 			}
 		}
-
 		return true;
 	}
 
@@ -384,31 +350,25 @@ public class RuntimeGroup implements IScriptTransparentMethods, IScriptReadOnlyM
 	{
 		for (Scriptable scriptable : scriptables)
 		{
-			if (scriptable instanceof Wrapper)
+			IScriptBaseMethods scriptObject = getScriptObject(scriptable);
+			if (scriptObject instanceof IScriptTransparentMethods)
 			{
-				Object javaObject = ((Wrapper)scriptable).unwrap();
-				if (javaObject instanceof IScriptTransparentMethods)
-				{
-					((IScriptTransparentMethods)javaObject).js_setTransparent(b);
-				}
+				((IScriptTransparentMethods)scriptObject).js_setTransparent(b);
 			}
 		}
 	}
 
 	public boolean js_isReadOnly()
 	{
+
 		for (Scriptable scriptable : scriptables)
 		{
-			if (scriptable instanceof Wrapper)
+			IScriptBaseMethods scriptObject = getScriptObject(scriptable);
+			if (scriptObject instanceof IScriptReadOnlyMethods && !((IScriptReadOnlyMethods)scriptObject).js_isReadOnly())
 			{
-				Object javaObject = ((Wrapper)scriptable).unwrap();
-				if (javaObject instanceof IScriptReadOnlyMethods && !((IScriptReadOnlyMethods)javaObject).js_isReadOnly())
-				{
-					return false;
-				}
+				return false;
 			}
 		}
-
 		return true;
 	}
 
@@ -416,13 +376,10 @@ public class RuntimeGroup implements IScriptTransparentMethods, IScriptReadOnlyM
 	{
 		for (Scriptable scriptable : scriptables)
 		{
-			if (scriptable instanceof Wrapper)
+			IScriptBaseMethods scriptObject = getScriptObject(scriptable);
+			if (scriptObject instanceof IScriptReadOnlyMethods)
 			{
-				Object javaObject = ((Wrapper)scriptable).unwrap();
-				if (javaObject instanceof IScriptReadOnlyMethods)
-				{
-					((IScriptReadOnlyMethods)javaObject).js_setReadOnly(b);
-				}
+				((IScriptReadOnlyMethods)scriptObject).js_setReadOnly(b);
 			}
 		}
 	}
@@ -454,14 +411,10 @@ public class RuntimeGroup implements IScriptTransparentMethods, IScriptReadOnlyM
 
 		for (Scriptable scriptable : scriptables)
 		{
-			if (scriptable instanceof Wrapper)
+			IScriptBaseMethods scriptObject = getScriptObject(scriptable);
+			if (scriptObject != null)
 			{
-				Object javaObject = ((Wrapper)scriptable).unwrap();
-				if (javaObject instanceof IScriptBaseMethods)
-				{
-					((IScriptBaseMethods)javaObject).js_setLocation(((IScriptBaseMethods)javaObject).js_getLocationX() + dx,
-						((IScriptBaseMethods)javaObject).js_getLocationY() + dy);
-				}
+				scriptObject.js_setLocation(scriptObject.js_getLocationX() + dx, scriptObject.js_getLocationY() + dy);
 			}
 		}
 	}
@@ -493,20 +446,16 @@ public class RuntimeGroup implements IScriptTransparentMethods, IScriptReadOnlyM
 
 		for (Scriptable scriptable : scriptables)
 		{
-			if (scriptable instanceof Wrapper)
+			IScriptBaseMethods scriptObject = getScriptObject(scriptable);
+			if (scriptObject != null)
 			{
-				Object javaObject = ((Wrapper)scriptable).unwrap();
-				if (javaObject instanceof IScriptBaseMethods)
-				{
-					int x = ((IScriptBaseMethods)javaObject).js_getLocationX();
-					int y = ((IScriptBaseMethods)javaObject).js_getLocationY();
-					((IScriptBaseMethods)javaObject).js_setLocation(bounds.x + (int)Math.floor(scalew * (x - bounds.x)),
-						bounds.y + (int)Math.floor(scaleh * (y - bounds.y)));
+				int x = scriptObject.js_getLocationX();
+				int y = scriptObject.js_getLocationY();
+				scriptObject.js_setLocation(bounds.x + (int)Math.floor(scalew * (x - bounds.x)), bounds.y + (int)Math.floor(scaleh * (y - bounds.y)));
 
-					int w = ((IScriptBaseMethods)javaObject).js_getWidth();
-					int h = ((IScriptBaseMethods)javaObject).js_getHeight();
-					((IScriptBaseMethods)javaObject).js_setSize((int)Math.floor(scalew * w), (int)Math.floor(scaleh * h));
-				}
+				int w = scriptObject.js_getWidth();
+				int h = scriptObject.js_getHeight();
+				scriptObject.js_setSize((int)Math.floor(scalew * w), (int)Math.floor(scaleh * h));
 			}
 		}
 	}
@@ -516,24 +465,21 @@ public class RuntimeGroup implements IScriptTransparentMethods, IScriptReadOnlyM
 		Rectangle bounds = null;
 		for (Scriptable scriptable : scriptables)
 		{
-			if (scriptable instanceof Wrapper)
+			IScriptBaseMethods scriptObject = getScriptObject(scriptable);
+			if (scriptObject != null)
 			{
-				Object javaObject = ((Wrapper)scriptable).unwrap();
-				if (javaObject instanceof IScriptBaseMethods)
+				int x = scriptObject.js_getLocationX();
+				int y = scriptObject.js_getLocationY();
+				int width = scriptObject.js_getWidth();
+				int height = scriptObject.js_getHeight();
+				Rectangle rect = new Rectangle(x, y, width, height);
+				if (bounds == null)
 				{
-					int x = ((IScriptBaseMethods)javaObject).js_getLocationX();
-					int y = ((IScriptBaseMethods)javaObject).js_getLocationY();
-					int width = ((IScriptBaseMethods)javaObject).js_getWidth();
-					int height = ((IScriptBaseMethods)javaObject).js_getHeight();
-					Rectangle rect = new Rectangle(x, y, width, height);
-					if (bounds == null)
-					{
-						bounds = rect;
-					}
-					else
-					{
-						bounds = bounds.union(rect);
-					}
+					bounds = rect;
+				}
+				else
+				{
+					bounds = bounds.union(rect);
 				}
 			}
 		}
