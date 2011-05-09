@@ -553,6 +553,9 @@ public class WebEventExecutor extends BaseEventExecutor
 	{
 		if (target != null && page instanceof MainPage && WebClientSession.get().getWebClient().getSolution() != null)
 		{
+			// do executed the events for before generating the response.
+			WebClientSession.get().getWebClient().executeEvents();
+
 			final MainPage mainPage = ((MainPage)page);
 
 			// PageContributor installs focus/blur event handlers for changed/new components
