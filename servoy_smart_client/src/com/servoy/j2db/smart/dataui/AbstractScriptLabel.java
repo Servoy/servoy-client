@@ -871,6 +871,30 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 			setRequestFocusEnabled(true);
 			actionMouseAdapter = new MouseAdapter()
 			{
+				private boolean armed = false;
+
+				/*
+				 * (non-Javadoc)
+				 * 
+				 * @see java.awt.event.MouseAdapter#mouseEntered(java.awt.event.MouseEvent)
+				 */
+				@Override
+				public void mouseEntered(MouseEvent e)
+				{
+					armed = true;
+				}
+
+				/*
+				 * (non-Javadoc)
+				 * 
+				 * @see java.awt.event.MouseAdapter#mouseExited(java.awt.event.MouseEvent)
+				 */
+				@Override
+				public void mouseExited(MouseEvent e)
+				{
+					armed = false;
+				}
+
 				/*
 				 * @see java.awt.event.MouseAdapter#mousePressed(java.awt.event.MouseEvent)
 				 */
@@ -878,6 +902,7 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 				public void mousePressed(MouseEvent e)
 				{
 					if (SwingUtilities.isLeftMouseButton(e)) requestFocus();
+					armed = true;
 				}
 
 				@Override
@@ -885,7 +910,7 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 				{
 					if (SwingUtilities.isLeftMouseButton(e) && isEnabled())
 					{
-						eventExecutor.fireActionCommand(true, AbstractScriptLabel.this, e.getModifiers(), e.getPoint());
+						if (armed) eventExecutor.fireActionCommand(true, AbstractScriptLabel.this, e.getModifiers(), e.getPoint());
 					}
 				}
 			};
