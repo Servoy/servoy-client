@@ -40,8 +40,6 @@ import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.link.ILinkListener;
-import org.apache.wicket.markup.parser.XmlPullParser;
-import org.apache.wicket.markup.parser.XmlTag;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.convert.IConverter;
 import org.apache.wicket.util.string.Strings;
@@ -263,40 +261,6 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	protected void onBeforeRender()
 	{
 		super.onBeforeRender();
-
-		Object modelObject = getModelObject();
-		if (HtmlUtils.startsWithHtml(modelObject))
-		{
-			XmlPullParser parser = new XmlPullParser();
-			try
-			{
-				parser.parse(modelObject.toString());
-				XmlTag me = (XmlTag)parser.nextTag();
-				while (me != null)
-				{
-					parser.setPositionMarker();
-					if ("img".equalsIgnoreCase(me.getName())) //$NON-NLS-1$
-					{
-						String src = me.getAttributes().getString("src"); //$NON-NLS-1$
-						if (src != null && src.startsWith(MediaURLStreamHandler.MEDIA_URL_DEF))
-						{
-							String mediaName = src.substring(MediaURLStreamHandler.MEDIA_URL_DEF.length());
-							Media m = application.getFlattenedSolution().getMedia(mediaName);
-							if (m != null)
-							{
-								setMediaIcon(m.getID());
-								break;
-							}
-						}
-					}
-					me = (XmlTag)parser.nextTag();
-				}
-			}
-			catch (Exception ex)
-			{
-				Debug.error(ex);
-			}
-		}
 
 		if (eventExecutor != null)
 		{
