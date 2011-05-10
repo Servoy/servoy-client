@@ -26,10 +26,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Formatter;
 import java.util.List;
+import java.util.Properties;
 import java.util.StringTokenizer;
 
 import org.mozilla.javascript.ScriptRuntime;
+import org.mozilla.javascript.UniqueTag;
 
+import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
@@ -37,6 +40,7 @@ import com.servoy.j2db.dataprocessing.JSDatabaseManager;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
@@ -104,35 +108,61 @@ public class JSUtils
 	}
 
 	/**
-	 * Returns the text with % %tags%% replaced, based on provided record or foundset.
+	 * Returns the text with %%tags%% replaced, based on provided record or foundset or form.
 	 *
 	 * @sample
-	 * //Next line places a string in variable x, whereby the tag(% %TAG%%) is filled with the value of the database column 'company_name' of the selected record.
-	 * var x = utils.stringReplaceTags("The companyName of the selected record is % %company_name%% ", foundset)
-	 * //var otherExample = utils.stringReplaceTags("The amount of the related order line % %amount%% ", order_to_orderdetails);
-	 * //var recordExample = utils.stringReplaceTags("The amount of the related order line % %amount%% ", order_to_orderdetails.getRecord(i);
-	 *
+	 * //Next line places a string in variable x, whereby the tag(%%TAG%%) is filled with the value of the database column 'company_name' of the selected record.
+	 * var x = utils.stringReplaceTags("The companyName of the selected record is %%company_name%% ", foundset)
+	 * //var otherExample = utils.stringReplaceTags("The amount of the related order line %%amount%% ", order_to_orderdetails);
+	 * //var recordExample = utils.stringReplaceTags("The amount of the related order line %%amount%% ", order_to_orderdetails.getRecord(i);
+	 * //Next line places a string in variable y, whereby the tag(%%TAG%%) is filled with the value of the form variable 'x' of the form named 'main'.
+	 * var y = utils.stringReplaceTags("The value of form variable is %%x%% ", forms.main);
 	 * @param text the text tags to work with
-	 * @param foundset_or_record the foundset or record to be used to fill in the tags
+	 * @param foundset_or_record_or_form the foundset or record or form to be used to fill in the tags
 	 * @return the text with replaced tags
 	 */
-	public String js_stringReplaceTags(Object text, Object foundset_or_record)
+	public String js_stringReplaceTags(Object text, Object foundset_or_record_or_form)
 	{
 		if (text != null)
 		{
-			IRecordInternal record = null;
-			if (foundset_or_record instanceof FoundSet)
+			ITagResolver tagResolver = null;
+			Properties settings = null;
+			if (foundset_or_record_or_form instanceof FoundSet)
 			{
-				record = ((FoundSet)foundset_or_record).getRecord(((FoundSet)foundset_or_record).getSelectedIndex());
+				IRecordInternal record = ((FoundSet)foundset_or_record_or_form).getRecord(((FoundSet)foundset_or_record_or_form).getSelectedIndex());
+				if (record != null)
+				{
+					settings = record.getParentFoundSet().getFoundSetManager().getApplication().getSettings();
+					tagResolver = TagResolver.createResolver(record);
+				}
 			}
-			else if (foundset_or_record instanceof IRecordInternal)
+			else if (foundset_or_record_or_form instanceof IRecordInternal)
 			{
-				record = (IRecordInternal)foundset_or_record;
+				IRecordInternal record = (IRecordInternal)foundset_or_record_or_form;
+				if (record != null)
+				{
+					settings = record.getParentFoundSet().getFoundSetManager().getApplication().getSettings();
+					tagResolver = TagResolver.createResolver(record);
+				}
 			}
-			if (record != null)
+			else if (foundset_or_record_or_form instanceof FormController)
 			{
-				return Text.processTags(TagResolver.formatObject(text, record.getParentFoundSet().getFoundSetManager().getApplication().getSettings()),
-					TagResolver.createResolver(record));
+				final FormController fc = (FormController)foundset_or_record_or_form;
+				settings = fc.getApplication().getSettings();
+				tagResolver = new ITagResolver()
+				{
+					public String getStringValue(String name)
+					{
+						Object value = fc.getFormScope().get(name);
+						if (value == null || value == UniqueTag.NOT_FOUND) value = ""; //$NON-NLS-1$
+						return value.toString();
+					}
+				};
+			}
+
+			if (tagResolver != null && settings != null)
+			{
+				return Text.processTags(TagResolver.formatObject(text, settings), tagResolver);
 			}
 			return ""; //$NON-NLS-1$
 		}
