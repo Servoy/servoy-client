@@ -20,7 +20,6 @@ package com.servoy.j2db.persistence;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +33,7 @@ import com.servoy.j2db.util.Utils;
  */
 public class ServerProxy implements IServer, Serializable
 {
-	private final IServer server;
+	protected final IServer server;
 
 	//local cache
 	private String serverName;
@@ -64,14 +63,12 @@ public class ServerProxy implements IServer, Serializable
 	{
 		if (tableName == null) return null;
 
-		ITable table = tables.get(Utils.toEnglishLocaleLowerCase(tableName));
+		String lcname = Utils.toEnglishLocaleLowerCase(tableName);
+		ITable table = tables.get(lcname);
 		if (table == null)
 		{
-			if (server != null)
-			{
-				table = server.getTable(tableName);
-				tables.put(Utils.toEnglishLocaleLowerCase(tableName), table);
-			}
+			table = server.getTable(tableName);
+			tables.put(lcname, table);
 		}
 		return table;
 	}
@@ -108,20 +105,18 @@ public class ServerProxy implements IServer, Serializable
 
 	void addTable(Table t)
 	{
-		tables.put(t.getName(), t);
+		tables.put(Utils.toEnglishLocaleLowerCase(t.getName()), t);
 	}
 
 	public void combineTables(ServerProxy sp)
 	{
 		if (sp == null || sp == this) return;
 
-		Iterator<ITable> it = sp.tables.values().iterator();
-		while (it.hasNext())
+		for (java.util.Map.Entry<String, ITable> entry : sp.tables.entrySet())
 		{
-			Table t = (Table)it.next();
-			if (t != null && !tables.containsKey(t.getName()))
+			if (entry.getValue() != null && !tables.containsKey(entry.getKey()))
 			{
-				addTable(t);
+				tables.put(entry.getKey(), entry.getValue());
 			}
 		}
 	}
