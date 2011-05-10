@@ -34,7 +34,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.calldecorator.AjaxCallDecorator;
 import org.apache.wicket.ajax.calldecorator.AjaxPostprocessingCallDecorator;
-import org.apache.wicket.ajax.calldecorator.CancelEventIfNoAjaxDecorator;
 import org.apache.wicket.behavior.AbstractBehavior;
 import org.apache.wicket.behavior.IBehavior;
 import org.apache.wicket.markup.ComponentTag;
@@ -219,7 +218,8 @@ public class WebEventExecutor extends BaseEventExecutor
 							@Override
 							public CharSequence postDecorateScript(CharSequence script)
 							{
-								return "if (testDoubleClickId('" + component.getMarkupId() + "')) { " + script + "} return false;";
+								return "Servoy.Utils.startClickTimer(function() { if (testDoubleClickId('" +
+									component.getMarkupId() + "')) { " + script + "}; Servoy.Utils.clickTimerRunning = false; return false; });";
 							}
 						};
 					}
@@ -273,7 +273,17 @@ public class WebEventExecutor extends BaseEventExecutor
 					@Override
 					protected IAjaxCallDecorator getAjaxCallDecorator()
 					{
-						return new CancelEventIfNoAjaxDecorator();
+						return new AjaxPostprocessingCallDecorator(null)
+						{
+							private static final long serialVersionUID = 1L;
+
+							@SuppressWarnings("nls")
+							@Override
+							public CharSequence postDecorateScript(CharSequence script)
+							{
+								return "Servoy.Utils.stopClickTimer();" + script + "return !" + IAjaxCallDecorator.WICKET_CALL_RESULT_VAR + ";";
+							}
+						};
 					}
 				});
 			}

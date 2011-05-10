@@ -1093,6 +1093,24 @@ if (typeof(Servoy.Utils) == "undefined")
 {
 	Servoy.Utils=
 	{
+		clickTimer: null,
+		clickTimerRunning: false,
+		
+		startClickTimer: function(f)
+		{
+			if(!Servoy.Utils.clickTimerRunning)
+			{
+				Servoy.Utils.clickTimerRunning = true;
+				Servoy.Utils.clickTimer = setTimeout(f, 200);
+			}		
+		},
+		
+		stopClickTimer: function()
+		{
+			clearTimeout(Servoy.Utils.clickTimer);
+			Servoy.Utils.clickTimerRunning = false;
+		},
+		
 		getSelection: function(oField){
 		 // Initialize
 	     var begin = 0;

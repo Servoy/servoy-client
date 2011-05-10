@@ -29,6 +29,9 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Shape;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
@@ -43,6 +46,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.ComponentUI;
@@ -859,6 +863,9 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 		return eventExecutor.hasActionCmd();
 	}
 
+	private Timer clickTimer;
+	private final static int clickInterval = ((Integer)Toolkit.getDefaultToolkit().getDesktopProperty("awt.multiClickInterval")).intValue();
+
 	/**
 	 * @see com.servoy.j2db.ui.ILabel#setActionCommand(java.lang.String, Object[])
 	 */
@@ -906,11 +913,22 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 				}
 
 				@Override
-				public void mouseReleased(MouseEvent e)
+				public void mouseReleased(final MouseEvent e)
 				{
 					if (SwingUtilities.isLeftMouseButton(e) && isEnabled())
 					{
-						if (armed) eventExecutor.fireActionCommand(true, AbstractScriptLabel.this, e.getModifiers(), e.getPoint());
+						if (armed && e.getClickCount() == 1)
+						{
+							clickTimer = new Timer(clickInterval, new ActionListener()
+							{
+								public void actionPerformed(ActionEvent ev)
+								{
+									eventExecutor.fireActionCommand(true, AbstractScriptLabel.this, e.getModifiers(), e.getPoint());
+								}
+							});
+							clickTimer.setRepeats(false); //after expiring once, stop the timer
+							clickTimer.start();
+						}
 					}
 				}
 			};
@@ -931,6 +949,7 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 					// Don't allow double click with other buttons except left button.
 					if ((e.getClickCount() == 2) && SwingUtilities.isLeftMouseButton(e) && isEnabled())
 					{
+						if (clickTimer != null) clickTimer.stop();
 						eventExecutor.fireDoubleclickCommand(true, AbstractScriptLabel.this, e.getModifiers(), e.getPoint());
 					}
 				}

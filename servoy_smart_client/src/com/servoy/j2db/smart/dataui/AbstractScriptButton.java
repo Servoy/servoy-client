@@ -25,6 +25,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -39,6 +40,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.IconUIResource;
 
@@ -629,6 +631,9 @@ public class AbstractScriptButton extends JButton implements ISkinnable, IButton
 		this.mediaOption = mediaOption;
 	}
 
+	private Timer clickTimer;
+	private final static int clickInterval = ((Integer)Toolkit.getDefaultToolkit().getDesktopProperty("awt.multiClickInterval")).intValue();
+
 	/**
 	 * @see com.servoy.j2db.ui.ILabel#setActionCommand(java.lang.String, Object[])
 	 */
@@ -639,10 +644,17 @@ public class AbstractScriptButton extends JButton implements ISkinnable, IButton
 		{
 			actionAdapter = new ActionListener()
 			{
-				public void actionPerformed(ActionEvent e)
+				public void actionPerformed(final ActionEvent e)
 				{
-					eventExecutor.fireActionCommand(true, AbstractScriptButton.this, e.getModifiers());
-
+					clickTimer = new Timer(clickInterval, new ActionListener()
+					{
+						public void actionPerformed(ActionEvent ev)
+						{
+							eventExecutor.fireActionCommand(true, AbstractScriptButton.this, e.getModifiers());
+						}
+					});
+					clickTimer.setRepeats(false); //after expiring once, stop the timer
+					clickTimer.start();
 				}
 			};
 			addActionListener(actionAdapter);
@@ -734,11 +746,13 @@ public class AbstractScriptButton extends JButton implements ISkinnable, IButton
 					// Don't allow double click with other buttons except left button.
 					if ((e.getClickCount() == 2) && SwingUtilities.isLeftMouseButton(e) && isEnabled())
 					{
+						if (clickTimer != null) clickTimer.stop();
 						eventExecutor.fireDoubleclickCommand(true, AbstractScriptButton.this, e.getModifiers(), e.getPoint());
 					}
 				}
 			};
 			addMouseListener(doubleclickMouseAdapter);
+			setMultiClickThreshhold(clickInterval);
 		}
 	}
 
