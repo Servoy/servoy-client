@@ -41,26 +41,33 @@ public class FlattenedTabPanel extends TabPanel
 	{
 		internalClearAllObjects();
 		List<TabPanel> panels = new ArrayList<TabPanel>();
-		panels.add(tabPanel);
-		Form form = (Form)tabPanel.getAncestor(IRepository.FORMS);
-		while (form.getExtendsForm() != null)
+		List<Integer> existingIDs = new ArrayList<Integer>();
+		TabPanel panel = tabPanel;
+		while (panel != null && !panels.contains(panel))
 		{
-			if (form.getExtendsForm().getChild(uuid) instanceof TabPanel)
-			{
-				panels.add((TabPanel)form.getExtendsForm().getChild(uuid));
-			}
-			form = form.getExtendsForm();
+			panels.add(panel);
+			panel = (TabPanel)panel.getSuperPersist();
 		}
-		for (TabPanel panel : panels)
+		for (TabPanel temp : panels)
 		{
-			for (IPersist child : panel.getAllObjectsAsList())
+			for (IPersist child : temp.getAllObjectsAsList())
 			{
-				if (this.getChild(child.getUUID()) == null)
+				if (!existingIDs.contains(child.getID()) && !existingIDs.contains(new Integer(((AbstractBase)child).getExtendsID())))
 				{
+					if (((AbstractBase)child).isOverrideOrphanElement())
+					{
+						// some deleted element
+						continue;
+					}
 					internalAddChild(child);
+				}
+				if (((AbstractBase)child).getExtendsID() > 0 && !existingIDs.contains(((AbstractBase)child).getExtendsID()))
+				{
+					existingIDs.add(((AbstractBase)child).getExtendsID());
 				}
 			}
 		}
+
 	}
 
 	@Override
@@ -93,5 +100,11 @@ public class FlattenedTabPanel extends TabPanel
 	<T> void setTypedProperty(TypedProperty<T> property, T value)
 	{
 		tabPanel.setTypedProperty(property, value);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		return tabPanel.equals(obj);
 	}
 }

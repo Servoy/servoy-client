@@ -410,9 +410,10 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	/**
 	 * The selected parent (extend form) for the form. The default is set to -none-.
 	 */
+	@Deprecated
 	public int getExtendsFormID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSFORMID).intValue();
+		return getExtendsID();
 	}
 
 	/**
@@ -420,9 +421,16 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * 
 	 * @param arg the selected parent
 	 */
+	@Deprecated
 	public void setExtendsFormID(int arg)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSFORMID, arg);
+		setExtendsID(arg);
+	}
+
+	@Override
+	public void setExtendsID(int arg)
+	{
+		super.setExtendsID(arg);
 		if (arg != (extendsForm == null ? 0 : extendsForm.getID()) && getRootObject().getChangeHandler() != null)
 		{
 			// fire event to update parent form reference
@@ -2120,11 +2128,6 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 		this.lastModified = lastModified;
 	}
 
-	@Override
-	public boolean isOverrideElement()
-	{
-		return hasProperty(StaticContentSpecLoader.PROPERTY_EXTENDSFORMID.getPropertyName()) && getExtendsFormID() > 0;
-	}
 
 	@Override
 	public IPersist getSuperPersist()

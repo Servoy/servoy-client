@@ -493,4 +493,14 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID).intValue();
 	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (obj instanceof FlattenedPortal)
+		{
+			return obj.equals(this);
+		}
+		return super.equals(obj);
+	}
 }

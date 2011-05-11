@@ -21,14 +21,11 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.UUID;
 
 
 /**
@@ -80,114 +77,85 @@ public class FlattenedForm extends Form
 	private void fill()
 	{
 		List<Form> allForms = flattenedSolution.getFormHierarchy(form);
-		Collections.reverse(allForms); // change from sub-first to super-first
-
-		Part prevPart = null;
-		Map<String, ScriptVariable> formVariables = new HashMap<String, ScriptVariable>();
-		Map<String, ScriptMethod> formMethods = new HashMap<String, ScriptMethod>();
-		Map<UUID, IPersist> persists = new HashMap<UUID, IPersist>();
 
 		copyPropertiesMap(form.getPropertiesMap(), false);
 
+		List<Integer> existingIDs = new ArrayList<Integer>();
 		for (Form f : allForms)
 		{
 			for (IPersist ip : f.getAllObjectsAsList())
 			{
-				// Parts are added below
-				if (!(ip instanceof Part))
+				if (!existingIDs.contains(new Integer(ip.getID())) && !existingIDs.contains(new Integer(((AbstractBase)ip).getExtendsID())))
 				{
-					internalAddChild(ip);
-					if (ip instanceof ScriptVariable)
+					if (((AbstractBase)ip).isOverrideOrphanElement())
 					{
-						ScriptVariable var = (ScriptVariable)ip;
-						formVariables.put(var.getName(), var);
+						// some deleted element
+						continue;
 					}
-					else if (ip instanceof ScriptMethod)
+					boolean addScriptMethod = (ip instanceof ScriptMethod && getScriptMethod(((ScriptMethod)ip).getName()) == null);
+					boolean addScriptVariable = (ip instanceof ScriptVariable && getScriptVariable(((ScriptVariable)ip).getName()) == null);
+					boolean addOtherElement = (!(ip instanceof Part) && !(ip instanceof ScriptMethod) && !(ip instanceof ScriptVariable));
+					if (addScriptVariable || addScriptMethod || addOtherElement)
 					{
-						ScriptMethod met = (ScriptMethod)ip;
-						formMethods.put(met.getName(), met);
+						if (ip instanceof TabPanel)
+						{
+							internalAddChild(new FlattenedTabPanel((TabPanel)ip));
+						}
+						else if (ip instanceof Portal)
+						{
+							internalAddChild(new FlattenedPortal((Portal)ip));
+						}
+						else
+						{
+							internalAddChild(ip);
+						}
 					}
-					persists.put(ip.getUUID(), ip);
+				}
+				if (((AbstractBase)ip).isOverrideElement() && !existingIDs.contains(((AbstractBase)ip).getExtendsID()))
+				{
+					existingIDs.add(new Integer(((AbstractBase)ip).getExtendsID()));
 				}
 			}
+		}
+
+		Part prevPart = null;
+		Collections.reverse(allForms); // change from sub-first to super-first
+		for (Form f : allForms)
+		{
 			// Add parts
 			Iterator<Part> parts = f.getParts();
 			while (parts.hasNext())
 			{
 				// Sub-forms can only add parts to the bottom
 				Part part = parts.next();
-				if (prevPart != null && (prevPart.getPartType() > part.getPartType() || (prevPart.getPartType() == part.getPartType() && !part.canBeMoved())))
+				if (part.isOverrideElement())
 				{
-					// check if override
-					if (!part.isOverrideElement() || getChild(part.getUUID()) == null) continue;
-				}
-				prevPart = part;
-				internalAddChild(part);
-				persists.put(part.getUUID(), part);
-			}
-		}
-
-		// remove overridden form variables and methods
-		Iterator<IPersist> allIt = getAllObjects();
-		List<IPersist> remove = new ArrayList<IPersist>();
-		List<IPersist> add = new ArrayList<IPersist>();
-		while (allIt.hasNext())
-		{
-			IPersist ip = allIt.next();
-			if (ip instanceof ScriptVariable)
-			{
-				ScriptVariable var = (ScriptVariable)ip;
-				if (formVariables.get(var.getName()) != var)
-				{
-					// was overridden in a sub-form, remove this one
-					remove.add(var);
-				}
-			}
-			else if (ip instanceof ScriptMethod)
-			{
-				ScriptMethod met = (ScriptMethod)ip;
-				if (formMethods.get(met.getName()) != met)
-				{
-					// was overridden in a sub-form, remove this one
-					remove.add(met);
-				}
-			}
-			if (persists.get(ip.getUUID()) != ip)
-			{
-				// was overridden in a sub-form, remove this one
-				remove.add(ip);
-			}
-			else if (((AbstractBase)ip).isOverrideElement())
-			{
-				boolean parentFound = false;
-				for (Form f : allForms)
-				{
-					if (f.getChild(ip.getUUID()) != null && f.getChild(ip.getUUID()) != ip)
+					Part parentPart = null;
+					Iterator<Part> it = getParts();
+					while (it.hasNext())
 					{
-						parentFound = true;
+						Part temp = it.next();
+						if (temp.getID() == part.getExtendsID() || temp.getExtendsID() == part.getExtendsID())
+						{
+							parentPart = temp;
+							break;
+						}
+					}
+					if (parentPart != null)
+					{
+						internalAddChild(part);
+						internalRemoveChild(parentPart);
 					}
 				}
-				if (!parentFound) remove.add(ip);
-				else if (ip instanceof TabPanel)
+				else
 				{
-					remove.add(ip);
-					add.add(new FlattenedTabPanel((TabPanel)ip));
-				}
-				else if (ip instanceof Portal)
-				{
-					remove.add(ip);
-					add.add(new FlattenedPortal((Portal)ip));
+					if (prevPart == null || prevPart.getPartType() < part.getPartType() || (prevPart.getPartType() == part.getPartType() && part.canBeMoved()))
+					{
+						internalAddChild(part);
+						prevPart = part;
+					}
 				}
 			}
-		}
-
-		for (IPersist var : remove)
-		{
-			internalRemoveChild(var);
-		}
-		for (IPersist var : add)
-		{
-			internalAddChild(var);
 		}
 
 		setSize(checkParts(getParts(), getSize())); // recalculate height

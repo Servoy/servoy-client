@@ -210,4 +210,14 @@ public class TabPanel extends BaseComponent implements ISupportChilds, ISupportT
 		}
 	}
 
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (obj instanceof FlattenedTabPanel)
+		{
+			return obj.equals(this);
+		}
+		return super.equals(obj);
+	}
+
 }

@@ -72,6 +72,7 @@ public class StaticContentSpecLoader
 	public static final TypedProperty<Integer> PROPERTY_CONTAINSFORMID = new TypedProperty<Integer>("containsFormID"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_DISPLAYTYPE = new TypedProperty<Integer>("displayType"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_EXTENDSFORMID = new TypedProperty<Integer>("extendsFormID"); //$NON-NLS-1$
+	public static final TypedProperty<Integer> PROPERTY_EXTENDSID = new TypedProperty<Integer>("extendsID"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_FALLBACKVALUELISTID = new TypedProperty<Integer>("fallbackValueListID"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_FIRSTFORMID = new TypedProperty<Integer>("firstFormID"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_FORMINDEX = new TypedProperty<Integer>("formIndex"); //$NON-NLS-1$
@@ -615,7 +616,7 @@ public class StaticContentSpecLoader
 		if (old_repository_version < 31)
 		{
 			cs.new Element(294, IRepository.FORMS, PROPERTY_TRANSPARENT.getPropertyName(), IRepository.BOOLEAN);
-			cs.new Element(295, IRepository.FORMS, PROPERTY_EXTENDSFORMID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(295, IRepository.FORMS, PROPERTY_EXTENDSFORMID.getPropertyName(), IRepository.ELEMENTS).flagAsDeprecated();
 			cs.new Element(296, IRepository.GRAPHICALCOMPONENTS, PROPERTY_ONDOUBLECLICKMETHODID.getPropertyName(), IRepository.ELEMENTS);
 			cs.new Element(297, IRepository.GRAPHICALCOMPONENTS, PROPERTY_ONRIGHTCLICKMETHODID.getPropertyName(), IRepository.ELEMENTS);
 		}
@@ -732,10 +733,19 @@ public class StaticContentSpecLoader
 			cs.new Element(377, IRepository.TABPANELS, PROPERTY_ONCHANGEMETHODID.getPropertyName(), IRepository.ELEMENTS);
 		}
 
-		// 40 is for workspace update
 		if (old_repository_version < 40)
 		{
 			cs.new Element(378, IRepository.SHAPES, PROPERTY_ANCHORS.getPropertyName(), IRepository.INTEGER);
+			cs.new Element(379, IRepository.FORMS, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(380, IRepository.BEANS, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(381, IRepository.FIELDS, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(382, IRepository.GRAPHICALCOMPONENTS, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(383, IRepository.PARTS, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(384, IRepository.PORTALS, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(385, IRepository.TABS, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(386, IRepository.TABPANELS, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(387, IRepository.RECTSHAPES, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(388, IRepository.SHAPES, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS);
 		}
 
 		//##add property adds here

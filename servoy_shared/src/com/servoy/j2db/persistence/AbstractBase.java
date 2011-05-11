@@ -226,21 +226,58 @@ public abstract class AbstractBase implements IPersist
 
 	public IPersist getSuperPersist()
 	{
-		Form form = (Form)getAncestor(IRepository.FORMS);
-		if (form != null)
+		if (getExtendsID() > 0)
 		{
-			form = form.getExtendsForm();
-			while (form != null)
+			Form form = (Form)getAncestor(IRepository.FORMS);
+			if (form != null)
 			{
-				IPersist superPersist = AbstractRepository.searchPersist(form, getUUID(), form);
-				if (superPersist != null)
-				{
-					return superPersist;
-				}
 				form = form.getExtendsForm();
+				while (form != null)
+				{
+					IPersist superPersist = (IPersist)form.acceptVisitor(new IPersistVisitor()
+					{
+						public Object visit(IPersist o)
+						{
+							if (getExtendsID() == o.getID() || getExtendsID() == ((AbstractBase)o).getExtendsID())
+							{
+								return o;
+							}
+							return CONTINUE_TRAVERSAL;
+						}
+					});
+					if (superPersist != null)
+					{
+						return superPersist;
+					}
+					form = form.getExtendsForm();
+				}
 			}
 		}
 		return null;
+	}
+
+	public boolean isOverrideOrphanElement()
+	{
+		IPersist parentPersist = this;
+		while (parentPersist != null && ((AbstractBase)parentPersist).isOverrideElement())
+		{
+			parentPersist = ((AbstractBase)parentPersist).getSuperPersist();
+			if (parentPersist == null) return true;
+		}
+		return false;
+	}
+
+	public int getExtendsID()
+	{
+		// fix for elements that don't have this property (methods,vars)
+		Integer extendsId = getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID);
+		if (extendsId == null) return -1;
+		return extendsId.intValue();
+	}
+
+	public void setExtendsID(int arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID, arg);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -860,14 +897,19 @@ public abstract class AbstractBase implements IPersist
 		return null;
 	}
 
-	public String putOverrideProperty(String formName)
+	public boolean hasOverrideCustomProperty()
 	{
-		return (String)putCustomProperty(OVERRIDE_PATH, formName);
+		return (getCustomProperty(OVERRIDE_PATH) != null);
+	}
+
+	public void removeOverrideCustomProperty()
+	{
+		putCustomProperty(OVERRIDE_PATH, null);
 	}
 
 	public boolean isOverrideElement()
 	{
-		return getCustomProperty(OVERRIDE_PATH) != null;
+		return hasProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()) && getExtendsID() > 0;
 	}
 
 	/** Check if this object has any overriding properties left.
@@ -877,24 +919,10 @@ public abstract class AbstractBase implements IPersist
 	{
 		for (Entry<String, Object> entry : propertiesMap.entrySet())
 		{
-			if (!StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES.getPropertyName().equals(entry.getKey()))
+			if (!StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName().equals(entry.getKey()))
 			{
-				// a non custom property
+				// a non override property
 				return true;
-			}
-
-			// custom property, check for other properties stored in custom properties
-			if (jsonCustomProperties == null)
-			{
-				jsonCustomProperties = new JSONWrapperMap((String)entry.getValue());
-			}
-			for (Entry<String, Object> cEntry : jsonCustomProperties.entrySet())
-			{
-				if (!OVERRIDE_PATH[0].equals(cEntry.getKey()))
-				{
-					// a non-override custom property
-					return true;
-				}
 			}
 		}
 

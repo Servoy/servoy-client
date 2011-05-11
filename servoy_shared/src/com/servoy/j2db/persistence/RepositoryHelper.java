@@ -142,7 +142,7 @@ public class RepositoryHelper
 		((AbstractBase)clone).copyPropertiesMap(((AbstractBase)original).getPropertiesMap(), false);
 		if (((AbstractBase)clone).isOverrideElement())
 		{
-			((AbstractBase)clone).putOverrideProperty(null);
+			((AbstractBase)clone).clearProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName());
 		}
 	}
 
@@ -536,6 +536,13 @@ public class RepositoryHelper
 			return false;
 		}
 		if (ValueList.class.isAssignableFrom(persistClass) && !"name".equals(name)) //$NON-NLS-1$
+		{
+			return false;
+		}
+		if (name.equals(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()) &&
+			(Portal.class.isAssignableFrom(persistClass) || TabPanel.class.isAssignableFrom(persistClass) || Bean.class.isAssignableFrom(persistClass) ||
+				Field.class.isAssignableFrom(persistClass) || GraphicalComponent.class.isAssignableFrom(persistClass) ||
+				Tab.class.isAssignableFrom(persistClass) || Shape.class.isAssignableFrom(persistClass) || RectShape.class.isAssignableFrom(persistClass) || Part.class.isAssignableFrom(persistClass)))
 		{
 			return false;
 		}

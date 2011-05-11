@@ -18,6 +18,7 @@ package com.servoy.j2db.scripting.solutionmodel;
 
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
@@ -85,10 +86,14 @@ public class JSBase<T extends AbstractBase>
 				// inherited persist
 				try
 				{
+					IPersist parentPersist = tempPersist;
+					while (((AbstractBase)parentPersist).getSuperPersist() != null)
+					{
+						parentPersist = ((AbstractBase)parentPersist).getSuperPersist();
+					}
 					baseComponent = (T)tempPersist.cloneObj(getJSParent().getSupportChild(), false, null, false, false);
-					baseComponent.resetUUID(tempPersist.getUUID());
 					baseComponent.copyPropertiesMap(null, true);
-					baseComponent.putOverrideProperty(((Form)tempPersist.getAncestor(IRepository.FORMS)).getName());
+					baseComponent.setExtendsID(parentPersist.getID());
 				}
 				catch (Exception ex)
 				{

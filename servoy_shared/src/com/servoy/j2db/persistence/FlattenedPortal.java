@@ -42,23 +42,28 @@ public class FlattenedPortal extends Portal
 	{
 		internalClearAllObjects();
 		List<Portal> portals = new ArrayList<Portal>();
-		portals.add(portal);
-		Form form = (Form)portal.getAncestor(IRepository.FORMS);
-		while (form.getExtendsForm() != null)
+		List<Integer> existingIDs = new ArrayList<Integer>();
+		Portal currentPortal = portal;
+		while (currentPortal != null && !portals.contains(currentPortal))
 		{
-			if (form.getExtendsForm().getChild(uuid) instanceof Portal)
-			{
-				portals.add((Portal)form.getExtendsForm().getChild(uuid));
-			}
-			form = form.getExtendsForm();
+			portals.add(currentPortal);
+			currentPortal = (Portal)currentPortal.getSuperPersist();
 		}
-		for (Portal portal : portals)
+		for (Portal temp : portals)
 		{
-			for (IPersist child : portal.getAllObjectsAsList())
+			for (IPersist child : temp.getAllObjectsAsList())
 			{
-				if (this.getChild(child.getUUID()) == null)
+				if (!existingIDs.contains(child.getID()) && !existingIDs.contains(new Integer(((AbstractBase)child).getExtendsID())))
 				{
+					if (((AbstractBase)child).isOverrideOrphanElement())
+					{
+						continue;
+					}
 					internalAddChild(child);
+				}
+				if (((AbstractBase)child).getExtendsID() > 0 && !existingIDs.contains(((AbstractBase)child).getExtendsID()))
+				{
+					existingIDs.add(((AbstractBase)child).getExtendsID());
 				}
 			}
 		}
@@ -113,5 +118,11 @@ public class FlattenedPortal extends Portal
 	<T> void setTypedProperty(TypedProperty<T> property, T value)
 	{
 		portal.setTypedProperty(property, value);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		return portal.equals(obj);
 	}
 }
