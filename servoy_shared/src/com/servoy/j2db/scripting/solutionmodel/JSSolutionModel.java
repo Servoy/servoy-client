@@ -890,10 +890,8 @@ public class JSSolutionModel
 		return methods.toArray(new JSMethod[methods.size()]);
 	}
 
-	//newRelation(String name, String primaryServerName, String primaryTableName, String foreignServerName, String foreignTableName,int joinType) <b>
-	//newRelation(String name, String primaryDatasource, String foreignDataSource,int joinType)
 	/**
-	 * Creates a new JSRelation Object with a specified name; includes the primary datasource, optional table name, foreign datasource, optional foreign table name, and the type of join for the new relation.
+	 * Creates a new JSRelation Object with a specified name; includes the primary server and table name, foreign server and table name, and the type of join for the new relation.
 	 *
 	 * @sample 
 	 * var rel = solutionModel.newRelation('myRelation','myPrimaryServerName','myPrimaryTableName','myForeignServerName','myForeignTableName',JSRelation.INNER_JOIN);
@@ -901,94 +899,115 @@ public class JSSolutionModel
 	 *
 	 * @param name the specified name of the new relation
 	 *
-	 * @param primary_server_name|primary_data_source the specified name of the primary server or datasource
+	 * @param primaryServerName the specified name of the primary server
 	 *
-	 * @param primary_table_name optional the specified name of the primary table
+	 * @param primaryTableName the specified name of the primary table
 	 *
-	 * @param foreign_server_name|foreign_data_source the specified name of the foreign server or datasource
+	 * @param foreignServerName the specified name of the foreign server
 	 *
-	 * @param foreign_table_name optional the specified name of the foreign table
+	 * @param foreignTableName the specified name of the foreign table
+	 *
+	 * @param joinType the type of join for the new relation; JSRelation.INNER_JOIN, JSRelation.LEFT_OUTER_JOIN
+	 * 
+	 * @return a JSRelation object
+	 */
+	public JSRelation js_newRelation(String name, String primaryServerName, String primaryTableName, String foreignServerName, String foreignTableName,
+		int joinType)
+	{
+		return js_newRelation(name, DataSourceUtils.createDBTableDataSource(primaryServerName, primaryTableName),
+			DataSourceUtils.createDBTableDataSource(foreignServerName, foreignTableName), joinType);
+	}
+
+	/**
+	 * Creates a new JSRelation Object with a specified name; includes the primary server and table name, foreign server and table name, and the type of join for the new relation.
+	 *
+	 * @sample 
+	 * var rel = solutionModel.newRelation('myRelation','myPrimaryServerName','myPrimaryTableName','myForeignServerName','myForeignTableName',JSRelation.INNER_JOIN);
+	 * application.output(rel.getRelationItems()); 
+	 *
+	 * @param name the specified name of the new relation
+	 *
+	 * @param primary_server_name|primary_datasource the specified name of the primary server
+	 *
+	 * @param primary_table_name|foreign_servername the specified name of the primary table
+	 *
+	 * @param foreign_table_name|foreing_datasource the specified name of the foreign server
 	 *
 	 * @param join_type the type of join for the new relation; JSRelation.INNER_JOIN, JSRelation.LEFT_OUTER_JOIN
 	 * 
 	 * @return a JSRelation object
+	 * @deprecated
 	 */
-	public JSRelation js_newRelation(Object[] args)
+	@Deprecated
+	public JSRelation js_newRelation(String name, String primaryDataSourceOrServer, String primaryTableNameOrForeignServer, String foreignDataSourceOrTable,
+		int joinType)
 	{
-		String name = null;
-		String primaryDataSource = null;
-		String foreignDataSource = null;
-		int joinType;
+		if (primaryDataSourceOrServer.indexOf(':') == -1)
+		{
+			return js_newRelation(name, DataSourceUtils.createDBTableDataSource(primaryDataSourceOrServer, primaryTableNameOrForeignServer),
+				foreignDataSourceOrTable, joinType);
+		}
+		else
+		{
+			return js_newRelation(name, primaryDataSourceOrServer,
+				DataSourceUtils.createDBTableDataSource(primaryTableNameOrForeignServer, foreignDataSourceOrTable), joinType);
+		}
+	}
 
-		FlattenedSolution fs = application.getFlattenedSolution();
 
+	/**
+	 * Creates a new JSRelation Object with a specified name; includes the primary datasource, foreign datasource and the type of join for the new relation.
+	 *
+	 * @sample 
+	 * var rel = solutionModel.newRelation('myRelation','myPrimaryDataSource','myForeignDataSource',JSRelation.INNER_JOIN);
+	 * application.output(rel.getRelationItems()); 
+	 *
+	 * @param name the specified name of the new relation
+	 *
+	 * @param primaryDataSource the specified name of the primary datasource
+	 *
+	 * @param foreignDataSource the specified name of the foreign datasource
+	 *
+	 * @param joinType the type of join for the new relation; JSRelation.INNER_JOIN, JSRelation.LEFT_OUTER_JOIN
+	 * 
+	 * @return a JSRelation object
+	 */
+	public JSRelation js_newRelation(String name, String primaryDataSource, String foreignDataSource, int joinType)
+	{
+		if (name == null || primaryDataSource == null || foreignDataSource == null)
+		{
+			return null;
+		}
 		try
 		{
-			int a = 0;
-			// name
-			if (a < args.length && args[a] != null)
+			if (application.getFoundSetManager().getTable(primaryDataSource) == null)
 			{
-				name = args[a++].toString();
+				throw new RuntimeException("Can't create relation '" + name + "' because primaryDataSource '" + primaryDataSource + "' doesn't exist");
 			}
-			// primary server data source or server+table
-			if (a < args.length && args[a] != null)
+		}
+		catch (RepositoryException e1)
+		{
+			throw new RuntimeException("Can't create relation '" + name + "' because primaryDataSource '" + primaryDataSource + "' doesn't exist");
+		}
+		try
+		{
+			if (application.getFoundSetManager().getTable(foreignDataSource) == null)
 			{
-				String primary = args[a++].toString();
-				if (primary.indexOf(':') < 0 && a < args.length && args[a] != null)
-				{
-					// not an uri, server/table combi
-					String primaryTableName = args[a++].toString();
-					IServer primaryServer = fs.getSolution().getServer(primary);
-					if (primaryServer == null) throw new RuntimeException("cant create relation, primary server not found: " + primary);
-					if (primaryServer.getTable(primaryTableName) == null) throw new RuntimeException("cant create relation, primary table not found: " +
-						primaryTableName);
+				throw new RuntimeException("Can't create relation '" + name + "' because foreignDataSource '" + foreignDataSource + "' doesn't exist");
+			}
+		}
+		catch (RepositoryException e1)
+		{
+			throw new RuntimeException("Can't create relation '" + name + "' because foreignDataSource '" + foreignDataSource + "' doesn't exist");
+		}
 
-					primaryDataSource = DataSourceUtils.createDBTableDataSource(primary, primaryTableName);
-				}
-				else
-				{
-					// uri
-					primaryDataSource = primary;
-				}
-			}
-			// foreign server data source or server+table
-			if (a < args.length && args[a] != null)
-			{
-				String foreign = args[a++].toString();
-				if (foreign.indexOf(':') < 0 && a < args.length && args[a] != null)
-				{
-					// not an uri, server/table combi
-					String foreignTableName = args[a++].toString();
-					IServer foreignServer = fs.getSolution().getServer(foreign);
-					if (foreignServer == null) throw new RuntimeException("cant create relation, foreign server not found: " + foreign);
-					if (foreignServer.getTable(foreignTableName) == null) throw new RuntimeException("cant create relation, foreign table not found: " +
-						foreignTableName);
-
-					foreignDataSource = DataSourceUtils.createDBTableDataSource(foreign, foreignTableName);
-				}
-				else
-				{
-					// uri
-					foreignDataSource = foreign;
-				}
-			}
-			if (a < args.length && args[a] != null)
-			{
-				joinType = Utils.getAsInteger(args[a]);
-			}
-			else
-			{
-				return null;
-			}
-			if (name == null || primaryDataSource == null || foreignDataSource == null)
-			{
-				return null;
-			}
-
+		FlattenedSolution fs = application.getFlattenedSolution();
+		try
+		{
 			Relation relation = fs.getSolutionCopy().createNewRelation(new ScriptNameValidator(fs), name, primaryDataSource, foreignDataSource, joinType);
 			return new JSRelation(relation, application, true);
 		}
-		catch (Exception e)
+		catch (RepositoryException e)
 		{
 			throw new RuntimeException(e);
 		}
