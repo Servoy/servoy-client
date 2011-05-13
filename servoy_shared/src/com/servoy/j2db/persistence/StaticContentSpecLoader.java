@@ -603,7 +603,7 @@ public class StaticContentSpecLoader
 			cs.new Element(287, IRepository.TABLENODES, PROPERTY_ONDELETEMETHODID.getPropertyName(), IRepository.ELEMENTS);
 			cs.new Element(288, IRepository.GRAPHICALCOMPONENTS, PROPERTY_LABELFOR.getPropertyName(), IRepository.STRING);
 			cs.new Element(289, IRepository.GRAPHICALCOMPONENTS, PROPERTY_MNEMONIC.getPropertyName(), IRepository.STRING);
-			cs.new Element(290, IRepository.TABPANELS, PROPERTY_ONTABCHANGEMETHODID.getPropertyName(), IRepository.ELEMENTS).flagAsDeprecated();
+			cs.new Element(290, IRepository.TABPANELS, PROPERTY_ONTABCHANGEMETHODID.getPropertyName(), IRepository.ELEMENTS).flagAsDeprecated(377);
 
 			cs.new Element(291, IRepository.TABS, PROPERTY_USENEWFORMINSTANCE.getPropertyName(), IRepository.BOOLEAN);
 			cs.new Element(292, IRepository.RELATIONS, PROPERTY_JOINTYPE.getPropertyName(), IRepository.INTEGER);
@@ -616,7 +616,7 @@ public class StaticContentSpecLoader
 		if (old_repository_version < 31)
 		{
 			cs.new Element(294, IRepository.FORMS, PROPERTY_TRANSPARENT.getPropertyName(), IRepository.BOOLEAN);
-			cs.new Element(295, IRepository.FORMS, PROPERTY_EXTENDSFORMID.getPropertyName(), IRepository.ELEMENTS).flagAsDeprecated();
+			cs.new Element(295, IRepository.FORMS, PROPERTY_EXTENDSFORMID.getPropertyName(), IRepository.ELEMENTS).flagAsDeprecated(379);
 			cs.new Element(296, IRepository.GRAPHICALCOMPONENTS, PROPERTY_ONDOUBLECLICKMETHODID.getPropertyName(), IRepository.ELEMENTS);
 			cs.new Element(297, IRepository.GRAPHICALCOMPONENTS, PROPERTY_ONRIGHTCLICKMETHODID.getPropertyName(), IRepository.ELEMENTS);
 		}

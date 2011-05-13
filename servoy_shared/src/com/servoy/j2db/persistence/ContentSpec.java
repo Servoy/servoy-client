@@ -77,9 +77,9 @@ public class ContentSpec
 		private boolean isMetaData;
 
 		/**
-		 * Indicate if content item is deprecated
+		 * Indicate if content item is deprecated; 0 - not deprecated; -1 deprecated with no replacement specified; >0 content id replacement
 		 */
-		private boolean isDeprecated;
+		private int deprecatedMoveContentID = 0;
 
 		/**
 		 * The default_textual_classvalue of this property.
@@ -163,13 +163,23 @@ public class ContentSpec
 
 		public boolean isDeprecated()
 		{
-			return isDeprecated;
+			return deprecatedMoveContentID != 0;
 		}
 
 
 		public void flagAsDeprecated()
 		{
-			isDeprecated = true;
+			flagAsDeprecated(-1);
+		}
+
+		public void flagAsDeprecated(int moveContentID)
+		{
+			this.deprecatedMoveContentID = moveContentID;
+		}
+
+		public int getDeprecatedMoveContentID()
+		{
+			return deprecatedMoveContentID;
 		}
 	}
 
