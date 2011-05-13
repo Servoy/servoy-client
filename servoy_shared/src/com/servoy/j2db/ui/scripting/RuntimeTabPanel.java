@@ -20,8 +20,10 @@ package com.servoy.j2db.ui.scripting;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
+import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.ui.IDepricatedScriptTabPanelMethods;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
@@ -29,6 +31,7 @@ import com.servoy.j2db.ui.ISupportReadOnly;
 import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.util.ITabPaneAlike;
 import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Scriptable tabpanel.
@@ -82,7 +85,99 @@ public class RuntimeTabPanel extends AbstractRuntimeFormContainer implements IDe
 
 	public boolean js_addTab(Object[] vargs)
 	{
-		return tabPanel.addTab(vargs);
+		if (vargs.length < 1) return false;
+
+		int index = 0;
+		Object form = vargs[index++];
+
+		FormController f = null;
+		String fName = null;
+		boolean readOnly = false;
+		if (form instanceof FormController)
+		{
+			f = (FormController)form;
+			readOnly = f.isReadOnly();
+		}
+		if (form instanceof FormController.JSForm)
+		{
+			f = ((FormController.JSForm)form).getFormPanel();
+			readOnly = f.isReadOnly();
+		}
+
+		if (f != null) fName = f.getName();
+		if (form instanceof String) fName = (String)form;
+		if (fName != null)
+		{
+			String name = fName;
+			if (vargs.length >= 2)
+			{
+				name = (String)vargs[index++];
+			}
+			String tabText = name;
+			if (vargs.length >= 3)
+			{
+				tabText = (String)vargs[index++];
+			}
+			String tooltip = ""; //$NON-NLS-1$
+			if (vargs.length >= 4)
+			{
+				tooltip = (String)vargs[index++];
+			}
+			String iconURL = ""; //$NON-NLS-1$
+			if (vargs.length >= 5)
+			{
+				iconURL = (String)vargs[index++];
+			}
+			String fg = null;
+			if (vargs.length >= 6)
+			{
+				fg = (String)vargs[index++];
+			}
+			String bg = null;
+			if (vargs.length >= 7)
+			{
+				bg = (String)vargs[index++];
+			}
+
+			RelatedFoundSet relatedFs = null;
+			String relationName = null;
+			int tabIndex = -1;
+			if (vargs.length > 7)
+			{
+				Object object = vargs[index++];
+				if (object instanceof RelatedFoundSet)
+				{
+					relatedFs = (RelatedFoundSet)object;
+				}
+				else if (object instanceof String)
+				{
+					relationName = (String)object;
+				}
+				else if (object instanceof Number)
+				{
+					tabIndex = ((Number)object).intValue();
+				}
+			}
+			if (vargs.length > 8)
+			{
+				tabIndex = Utils.getAsInteger(vargs[index++]);
+			}
+
+			if (relatedFs != null)
+			{
+				relationName = relatedFs.getRelationName();
+				if (f != null && !relatedFs.getDataSource().equals(f.getDataSource()))
+				{
+					return false;
+				}
+				// TODO do this check to check if the parent table has this relation? How to get the parent table 
+//				Table parentTable = null;
+//				application.getSolution().getRelations(Solution.SOLUTION+Solution.MODULES, parentTable, true, false);
+			}
+			return tabPanel.addTab(f != null ? f : fName, name, tabText, tooltip, iconURL, fg, bg, relatedFs != null ? relatedFs : relationName, tabIndex,
+				readOnly);
+		}
+		return false;
 	}
 
 	@Override

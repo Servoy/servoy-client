@@ -806,28 +806,10 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 	{
 	}
 
-	public boolean addTab(Object[] vargs)
+	public boolean addTab(Object form, String name, String tabText, String tooltip, String iconURL, String fg, String bg, Object relation, int tabIndex,
+		boolean readOnly)
 	{
-		if (vargs.length < 1) return false;
-
-		int index = 0;
-		Object form = vargs[index++];
-
-		FormController f = null;
-		String fName = null;
-		boolean readOnly = false;
 		if (form instanceof FormController)
-		{
-			f = (FormController)form;
-			readOnly = f.isReadOnly();
-		}
-		if (form instanceof FormController.JSForm)
-		{
-			f = ((FormController.JSForm)form).getFormPanel();
-			readOnly = f.isReadOnly();
-		}
-
-		if (f != null)
 		{
 			//to make sure we don't have recursion on adding a tab, to a tabpanel, that is based 
 			//on the form that the tabpanel is placed on
@@ -835,86 +817,30 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 			if (webForm != null)
 			{
 				FormController parentFormController = webForm.getController();
-				if (parentFormController != null && parentFormController.equals(f))
+				if (parentFormController != null && parentFormController.equals(form))
 				{
 					return false;
 				}
 			}
 		}
 
-		if (f != null) fName = f.getName();
-		if (form instanceof String) fName = (String)form;
+		String fName;
+		if (form instanceof FormController)
+		{
+			fName = ((FormController)form).getName();
+		}
+		else
+		{
+			fName = (String)form;
+		}
 
 		if (fName != null)
 		{
-			String tabName = fName;
-			if (vargs.length >= 2)
-			{
-				tabName = (String)vargs[index++];
-			}
-			String tabText = tabName;
-			if (vargs.length >= 3)
-			{
-				tabText = (String)vargs[index++];
-			}
-			String tabTooltip = ""; //$NON-NLS-1$
-			if (vargs.length >= 4)
-			{
-				tabTooltip = (String)vargs[index++];
-			}
-			String iconURL = ""; //$NON-NLS-1$
-			if (vargs.length >= 5)
-			{
-				iconURL = (String)vargs[index++];
-			}
-			String fg = null;
-			if (vargs.length >= 6)
-			{
-				fg = (String)vargs[index++];
-			}
-			String bg = null;
-			if (vargs.length >= 7)
-			{
-				bg = (String)vargs[index++];
-			}
+			String relationName = relation instanceof RelatedFoundSet ? ((RelatedFoundSet)relation).getRelationName() : (String)relation;
+			RelatedFoundSet relatedFs = relation instanceof RelatedFoundSet ? (RelatedFoundSet)relation : null;
 
-			RelatedFoundSet relatedFs = null;
-			String relationName = null;
-			int tabIndex = -1;
-			if (vargs.length > 7)
-			{
-				Object object = vargs[index++];
-				if (object instanceof RelatedFoundSet)
-				{
-					relatedFs = (RelatedFoundSet)object;
-				}
-				else if (object instanceof String)
-				{
-					relationName = (String)object;
-				}
-				else if (object instanceof Number)
-				{
-					tabIndex = ((Number)object).intValue();
-				}
-			}
-			if (vargs.length > 8)
-			{
-				tabIndex = Utils.getAsInteger(vargs[index++]);
-			}
-
-			if (relatedFs != null)
-			{
-				relationName = relatedFs.getRelationName();
-				if (f != null && !relatedFs.getDataSource().equals(f.getDataSource()))
-				{
-					return false;
-				}
-				// TODO do this check to check if the parent table has this relation? How to get the parent table 
-//				Table parentTable = null;
-//				application.getSolution().getRelations(Solution.SOLUTION+Solution.MODULES, parentTable, true, false);
-			}
-			WebTabFormLookup flp = (WebTabFormLookup)createFormLookupPanel(tabName, relationName, fName);
-			if (f != null) flp.setReadOnly(readOnly);
+			WebTabFormLookup flp = (WebTabFormLookup)createFormLookupPanel(name, relationName, fName);
+			if (form instanceof FormController) flp.setReadOnly(readOnly);
 			byte[] iconData = null;
 			//TODO handle icon
 
@@ -922,11 +848,11 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 			if (tabIndex == -1 || tabIndex >= count)
 			{
 				tabIndex = count;
-				addTab(application.getI18NMessageIfPrefixed(tabText), iconData, flp, application.getI18NMessageIfPrefixed(tabTooltip));
+				addTab(application.getI18NMessageIfPrefixed(tabText), iconData, flp, application.getI18NMessageIfPrefixed(tooltip));
 			}
 			else
 			{
-				insertTab(application.getI18NMessageIfPrefixed(tabText), iconData, flp, application.getI18NMessageIfPrefixed(tabTooltip), tabIndex);
+				insertTab(application.getI18NMessageIfPrefixed(tabText), iconData, flp, application.getI18NMessageIfPrefixed(tooltip), tabIndex);
 			}
 			if (fg != null) setTabForegroundAt(tabIndex, PersistHelper.createColor(fg));
 			if (bg != null) setTabBackgroundAt(tabIndex, PersistHelper.createColor(bg));

@@ -50,7 +50,7 @@ public interface ITabPanel extends IComponent, IScriptableProvider
 
 	boolean removeAllTabs();
 
-	boolean addTab(Object[] vargs);
+	boolean addTab(Object form, String name, String text, String tooltip, String iconURL, String fg, String bg, Object relation, int index, boolean readOnly);
 
 	int getAbsoluteFormLocationY();
 
