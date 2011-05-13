@@ -226,7 +226,8 @@ public abstract class AbstractBase implements IPersist
 
 	public IPersist getSuperPersist()
 	{
-		if (getExtendsID() > 0)
+		final int extendsID = getExtendsID();
+		if (extendsID > 0)
 		{
 			Form form = (Form)getAncestor(IRepository.FORMS);
 			if (form != null)
@@ -238,7 +239,7 @@ public abstract class AbstractBase implements IPersist
 					{
 						public Object visit(IPersist o)
 						{
-							if (getExtendsID() == o.getID() || getExtendsID() == ((AbstractBase)o).getExtendsID())
+							if (extendsID == o.getID() || extendsID == ((AbstractBase)o).getExtendsID())
 							{
 								return o;
 							}
