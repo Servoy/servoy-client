@@ -16,38 +16,21 @@
  */
 package com.servoy.j2db.persistence;
 
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.util.Debug;
 
 
 /**
  * @author jcompagner
  */
-public class FlattenedForm extends Form
+public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form>
 {
-	private static BeanInfo beanInfo;
 	private final FlattenedSolution flattenedSolution;
 	private final Form form;
-
-	static
-	{
-		try
-		{
-			beanInfo = Introspector.getBeanInfo(Form.class);
-		}
-		catch (IntrospectionException e)
-		{
-			Debug.error("Error loading bean info for form", e);
-		}
-	}
 
 	/**
 	 * @param parent
@@ -61,7 +44,11 @@ public class FlattenedForm extends Form
 		this.form = form;
 
 		fill();
+	}
 
+	public Form getWrappedPersist()
+	{
+		return form;
 	}
 
 	public List<Form> getAllForms()
@@ -85,7 +72,8 @@ public class FlattenedForm extends Form
 		{
 			for (IPersist ip : f.getAllObjectsAsList())
 			{
-				if (!existingIDs.contains(new Integer(ip.getID())) && !existingIDs.contains(new Integer(((AbstractBase)ip).getExtendsID())))
+				Integer extendsID = new Integer(((AbstractBase)ip).getExtendsID());
+				if (!existingIDs.contains(new Integer(ip.getID())) && !existingIDs.contains(extendsID))
 				{
 					if (((AbstractBase)ip).isOverrideOrphanElement())
 					{
@@ -111,9 +99,9 @@ public class FlattenedForm extends Form
 						}
 					}
 				}
-				if (((AbstractBase)ip).isOverrideElement() && !existingIDs.contains(((AbstractBase)ip).getExtendsID()))
+				if (((AbstractBase)ip).isOverrideElement() && !existingIDs.contains(extendsID))
 				{
-					existingIDs.add(new Integer(((AbstractBase)ip).getExtendsID()));
+					existingIDs.add(extendsID);
 				}
 			}
 		}

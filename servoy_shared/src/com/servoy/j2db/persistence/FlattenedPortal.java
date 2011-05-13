@@ -27,7 +27,7 @@ import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
  * @author lvostinar
  *
  */
-public class FlattenedPortal extends Portal
+public class FlattenedPortal extends Portal implements IFlattenedPersistWrapper<Portal>
 {
 	private final Portal portal;
 
@@ -36,6 +36,11 @@ public class FlattenedPortal extends Portal
 		super(portal.getParent(), portal.getID(), portal.getUUID());
 		this.portal = portal;
 		fill();
+	}
+
+	public Portal getWrappedPersist()
+	{
+		return portal;
 	}
 
 	private void fill()
@@ -53,7 +58,8 @@ public class FlattenedPortal extends Portal
 		{
 			for (IPersist child : temp.getAllObjectsAsList())
 			{
-				if (!existingIDs.contains(child.getID()) && !existingIDs.contains(new Integer(((AbstractBase)child).getExtendsID())))
+				Integer extendsID = new Integer(((AbstractBase)child).getExtendsID());
+				if (!existingIDs.contains(new Integer(child.getID())) && !existingIDs.contains(extendsID))
 				{
 					if (((AbstractBase)child).isOverrideOrphanElement())
 					{
@@ -61,9 +67,9 @@ public class FlattenedPortal extends Portal
 					}
 					internalAddChild(child);
 				}
-				if (((AbstractBase)child).getExtendsID() > 0 && !existingIDs.contains(((AbstractBase)child).getExtendsID()))
+				if (extendsID.intValue() > 0 && !existingIDs.contains(extendsID))
 				{
-					existingIDs.add(((AbstractBase)child).getExtendsID());
+					existingIDs.add(extendsID);
 				}
 			}
 		}
@@ -118,18 +124,5 @@ public class FlattenedPortal extends Portal
 	<T> void setTypedProperty(TypedProperty<T> property, T value)
 	{
 		portal.setTypedProperty(property, value);
-	}
-
-	@Override
-	public boolean equals(Object obj)
-	{
-		return portal.equals(obj);
-	}
-
-	@Override
-	public int hashCode()
-	{
-		// just to be more explicit, id is the same
-		return portal.hashCode();
 	}
 }

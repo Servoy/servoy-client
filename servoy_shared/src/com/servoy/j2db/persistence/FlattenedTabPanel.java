@@ -26,7 +26,7 @@ import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
  * @author lvostinar
  *
  */
-public class FlattenedTabPanel extends TabPanel
+public class FlattenedTabPanel extends TabPanel implements IFlattenedPersistWrapper<TabPanel>
 {
 	private final TabPanel tabPanel;
 
@@ -35,6 +35,11 @@ public class FlattenedTabPanel extends TabPanel
 		super(tabPanel.getParent(), tabPanel.getID(), tabPanel.getUUID());
 		this.tabPanel = tabPanel;
 		fill();
+	}
+
+	public TabPanel getWrappedPersist()
+	{
+		return tabPanel;
 	}
 
 	private void fill()
@@ -52,7 +57,8 @@ public class FlattenedTabPanel extends TabPanel
 		{
 			for (IPersist child : temp.getAllObjectsAsList())
 			{
-				if (!existingIDs.contains(child.getID()) && !existingIDs.contains(new Integer(((AbstractBase)child).getExtendsID())))
+				Integer extendsID = new Integer(((AbstractBase)child).getExtendsID());
+				if (!existingIDs.contains(new Integer(child.getID())) && !existingIDs.contains(extendsID))
 				{
 					if (((AbstractBase)child).isOverrideOrphanElement())
 					{
@@ -61,13 +67,12 @@ public class FlattenedTabPanel extends TabPanel
 					}
 					internalAddChild(child);
 				}
-				if (((AbstractBase)child).getExtendsID() > 0 && !existingIDs.contains(((AbstractBase)child).getExtendsID()))
+				if (extendsID.intValue() > 0 && !existingIDs.contains(extendsID))
 				{
-					existingIDs.add(((AbstractBase)child).getExtendsID());
+					existingIDs.add(extendsID);
 				}
 			}
 		}
-
 	}
 
 	@Override
@@ -100,18 +105,5 @@ public class FlattenedTabPanel extends TabPanel
 	<T> void setTypedProperty(TypedProperty<T> property, T value)
 	{
 		tabPanel.setTypedProperty(property, value);
-	}
-
-	@Override
-	public boolean equals(Object obj)
-	{
-		return tabPanel.equals(obj);
-	}
-
-	@Override
-	public int hashCode()
-	{
-		// just to be more explicit, id is the same
-		return tabPanel.hashCode();
 	}
 }
