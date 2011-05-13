@@ -22,8 +22,9 @@ import java.awt.Insets;
 import javax.swing.border.Border;
 
 /**
+ * Interface for settings properties in changes recorder.
+ * 
  * @author lvostinar
- *
  */
 public interface IStylePropertyChangesRecorder extends IStylePropertyChanges
 {

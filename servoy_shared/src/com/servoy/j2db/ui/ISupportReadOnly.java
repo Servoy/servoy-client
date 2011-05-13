@@ -18,6 +18,8 @@
 package com.servoy.j2db.ui;
 
 /**
+ * Interface for get/set readonly property.
+ * 
  * @author lvostinar
  * @since 6.0
  */

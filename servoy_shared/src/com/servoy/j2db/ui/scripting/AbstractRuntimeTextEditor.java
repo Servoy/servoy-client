@@ -31,9 +31,10 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.util.Debug;
 
 /**
+ * Abstract scriptable text component with styled content (HTML,RTF)
+ * 
  * @author lvostinar
  * @since 6.0
- *
  */
 public abstract class AbstractRuntimeTextEditor extends AbstractRuntimeTextComponent
 {

@@ -24,9 +24,10 @@ import com.servoy.j2db.ui.IScriptDataLabelMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 
 /**
+ * Scriptable data label(with dataprovider) component. 
+ * 
  * @author lvostinar
  * @since 6.0
- *
  */
 public class RuntimeDataLabel extends AbstractHTMLSubmitRuntimeLabel implements IScriptDataLabelMethods
 {

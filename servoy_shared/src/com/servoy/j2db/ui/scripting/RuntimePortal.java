@@ -34,9 +34,10 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.util.Debug;
 
 /**
+ * Scriptable portal component.
+ * 
  * @author lvostinar
  * @since 6.0
- *
  */
 public class RuntimePortal extends AbstractRuntimeBaseComponent implements IScriptPortalComponentMethods
 {

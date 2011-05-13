@@ -24,9 +24,10 @@ import com.servoy.j2db.ui.IScriptCheckBoxMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 
 /**
+ * Scriptable checkbox component.
+ * 
  * @author lvostinar	
  * @since 6.0
- *
  */
 public class RuntimeCheckbox extends AbstractRuntimeValuelistComponent implements IScriptCheckBoxMethods
 {

@@ -18,8 +18,9 @@
 package com.servoy.j2db.ui;
 
 /**
+ * Interface for handling special client properties. 
+ * 
  * @author lvostinar
- *
  */
 public interface ISupportSpecialClientProperty
 {

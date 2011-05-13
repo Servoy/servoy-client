@@ -23,6 +23,8 @@ import com.servoy.j2db.ui.IScriptScriptButtonMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 
 /**
+ * Scriptable button.
+ * 
  * @author lvostinar
  * @since 6.0
  */

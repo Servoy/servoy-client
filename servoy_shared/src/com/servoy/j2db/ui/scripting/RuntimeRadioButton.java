@@ -24,9 +24,10 @@ import com.servoy.j2db.ui.IScriptRadioMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 
 /**
+ * Scriptable single radio component.
+ * 
  * @author lvostinar
  * @since 6.0
- *
  */
 public class RuntimeRadioButton extends AbstractRuntimeValuelistComponent implements IScriptRadioMethods
 {

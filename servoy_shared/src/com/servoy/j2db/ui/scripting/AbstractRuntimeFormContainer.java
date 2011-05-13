@@ -29,9 +29,10 @@ import com.servoy.j2db.ui.ISupportReadOnly;
 import com.servoy.j2db.util.PersistHelper;
 
 /**
+ * Abstract scriptable component that can contain forms.
+ * 
  * @author lvostinar
  * @since 6.0
- *
  */
 public abstract class AbstractRuntimeFormContainer extends AbstractRuntimeBaseComponent
 {

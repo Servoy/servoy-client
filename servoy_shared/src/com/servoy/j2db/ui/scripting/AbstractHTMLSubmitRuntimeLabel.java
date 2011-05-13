@@ -32,9 +32,10 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 
 /**
+ * Abstract scriptable component which has label + html submit behavior.
+ * 
  * @author lvostinar
  * @since 6.0
- *
  */
 public abstract class AbstractHTMLSubmitRuntimeLabel extends AbstractRuntimeLabel
 {
@@ -61,6 +62,7 @@ public abstract class AbstractHTMLSubmitRuntimeLabel extends AbstractRuntimeLabe
 		jsChangeRecorder.setSize(x, y, b, m, label.getFontSize(), false, label.getVerticalAlignment());
 	}
 
+	@Override
 	public void js_setBorder(String spec)
 	{
 		Border border = ComponentFactoryHelper.createBorder(spec);

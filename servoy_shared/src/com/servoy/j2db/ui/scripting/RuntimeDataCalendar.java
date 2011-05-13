@@ -24,9 +24,10 @@ import com.servoy.j2db.ui.IScriptDataCalendarMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 
 /**
+ * Scriptable calendar component.
+ * 
  * @author lvostinar
  * @since 6.0
- *
  */
 public class RuntimeDataCalendar extends AbstractRuntimeField implements IScriptDataCalendarMethods
 {

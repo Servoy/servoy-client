@@ -22,9 +22,10 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 
 /**
+ * Abstract scriptable valuelist component.
+ * 
  * @author lvostinar
  * @since 6.0
- *
  */
 public abstract class AbstractRuntimeFormattedValuelistComponent extends AbstractRuntimeValuelistComponent
 {

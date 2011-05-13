@@ -26,9 +26,10 @@ import com.servoy.j2db.ui.IScriptTextEditorMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 
 /**
+ * Scriptable RTF area component.
+ * 
  * @author lvostinar
  * @since 6.0
- *
  */
 public class RuntimeRTFArea extends AbstractRuntimeTextEditor implements IScriptTextEditorMethods
 {

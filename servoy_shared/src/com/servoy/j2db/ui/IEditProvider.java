@@ -18,8 +18,9 @@
 package com.servoy.j2db.ui;
 
 /**
+ * Interface for doing an edit.
+ * 
  * @author lvostinar
- *
  */
 public interface IEditProvider
 {

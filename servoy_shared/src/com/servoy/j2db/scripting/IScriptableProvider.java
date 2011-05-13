@@ -18,10 +18,15 @@
 package com.servoy.j2db.scripting;
 
 /**
+ * Interface that provides a scriptable object.
+ * 
  * @author lvostinar
  * @since 6.0
  */
 public interface IScriptableProvider
 {
+	/**
+	 * returns the object which has 'js_xxxx' methods for script calling, or null if not scriptable
+	 */
 	IScriptable getScriptObject();
 }

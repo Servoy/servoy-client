@@ -22,8 +22,9 @@ import javax.swing.event.ListDataListener;
 import com.servoy.j2db.dataprocessing.IValueList;
 
 /**
+ * Interface for handling get/set of a valuelist.
+ * 
  * @author lvostinar
- *
  */
 public interface ISupportValueList
 {

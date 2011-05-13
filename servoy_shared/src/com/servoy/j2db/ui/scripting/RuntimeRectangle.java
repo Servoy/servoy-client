@@ -27,6 +27,8 @@ import com.servoy.j2db.ui.IScriptRectMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 
 /**
+ * Scriptable rectangle component.
+ * 
  * @author lvostinar
  * @since 6.0
  */

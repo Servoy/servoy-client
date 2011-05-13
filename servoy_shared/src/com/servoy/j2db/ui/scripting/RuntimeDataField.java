@@ -35,9 +35,10 @@ import com.servoy.j2db.ui.ISupportInputSelection;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 
 /**
+ * Scriptable plain text component.
+ * 
  * @author lvostinar
  * @since 6.0
- *
  */
 public class RuntimeDataField extends AbstractRuntimeFormattedValuelistComponent implements IScriptFieldMethods
 {

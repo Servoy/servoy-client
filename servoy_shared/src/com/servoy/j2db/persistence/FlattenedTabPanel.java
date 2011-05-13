@@ -107,4 +107,11 @@ public class FlattenedTabPanel extends TabPanel
 	{
 		return tabPanel.equals(obj);
 	}
+
+	@Override
+	public int hashCode()
+	{
+		// just to be more explicit, id is the same
+		return tabPanel.hashCode();
+	}
 }

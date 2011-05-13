@@ -30,9 +30,10 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.util.Debug;
 
 /**
+ * Scriptable HTML area component.
+ * 
  * @author lvostinar
  * @since 6.0
- *
  */
 public class RuntimeHTMLArea extends AbstractRuntimeTextEditor implements IScriptTextEditorMethods
 {

@@ -28,6 +28,8 @@ import com.servoy.j2db.ui.ISupportEditProvider;
 import com.servoy.j2db.ui.ISupportInputSelection;
 
 /**
+ * Abstract scriptable text component.
+ * 
  * @author lvostinar
  * @since 6.0
  */

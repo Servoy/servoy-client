@@ -24,9 +24,10 @@ import com.servoy.j2db.ui.IStandardLabel;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 
 /**
+ * Abstract scriptable label.
+ * 
  * @author lvostinar
  * @since 6.0
- *
  */
 public abstract class AbstractRuntimeLabel extends AbstractRuntimeBaseComponent
 {

@@ -23,8 +23,10 @@ import com.servoy.j2db.ui.IScriptScriptLabelMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 
 /**
+ * Scriptable label.
+ * 
  * @author laurian
- *
+ * @since 6.0
  */
 public class RuntimeScriptLabel extends AbstractHTMLSubmitRuntimeLabel implements IScriptScriptLabelMethods
 {

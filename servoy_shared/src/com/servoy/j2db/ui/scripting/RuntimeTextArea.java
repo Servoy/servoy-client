@@ -26,9 +26,10 @@ import com.servoy.j2db.ui.IScriptTextAreaMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 
 /**
+ * Scriptable text area.
+ * 
  * @author lvostinar
  * @since 6.0
- *
  */
 public class RuntimeTextArea extends AbstractRuntimeTextComponent implements IScriptTextAreaMethods
 {

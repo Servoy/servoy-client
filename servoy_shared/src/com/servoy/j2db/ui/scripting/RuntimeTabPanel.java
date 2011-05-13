@@ -31,9 +31,10 @@ import com.servoy.j2db.util.ITabPaneAlike;
 import com.servoy.j2db.util.PersistHelper;
 
 /**
+ * Scriptable tabpanel.
+ * 
  * @author lvostinar
  * @since 6.0
- *
  */
 public class RuntimeTabPanel extends AbstractRuntimeFormContainer implements IDepricatedScriptTabPanelMethods
 {

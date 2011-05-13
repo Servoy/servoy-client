@@ -125,4 +125,11 @@ public class FlattenedPortal extends Portal
 	{
 		return portal.equals(obj);
 	}
+
+	@Override
+	public int hashCode()
+	{
+		// just to be more explicit, id is the same
+		return portal.hashCode();
+	}
 }

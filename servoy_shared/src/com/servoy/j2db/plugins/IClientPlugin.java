@@ -22,7 +22,6 @@ import java.beans.PropertyChangeListener;
 import javax.swing.Icon;
 
 import com.servoy.j2db.persistence.ISupportName;
-import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 
 /**
@@ -48,9 +47,4 @@ public interface IClientPlugin extends IPlugin, PropertyChangeListener, ISupport
 	 * @return ImageIcon (null means not availeble)
 	 */
 	public Icon getImage();
-
-	/**
-	 * returns the scriptable object
-	 */
-	public IScriptable getScriptObject();
 }

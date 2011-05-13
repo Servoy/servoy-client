@@ -28,6 +28,7 @@ import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.component.ComponentFactory;
+import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
@@ -37,6 +38,8 @@ import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.PersistHelper;
 
 /**
+ * Abstract scriptable component for {@link BaseComponent}.
+ * 
  * @author lvostinar
  * @since 6.0
  */

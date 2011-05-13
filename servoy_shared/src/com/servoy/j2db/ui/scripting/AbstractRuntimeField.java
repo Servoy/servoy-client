@@ -35,8 +35,9 @@ import com.servoy.j2db.ui.ISupportSpecialClientProperty;
 import com.servoy.j2db.util.IDelegate;
 
 /**
+ * Abstract scriptable field.
+ * 
  * @author lvostinar
- *
  */
 public abstract class AbstractRuntimeField extends AbstractRuntimeBaseComponent
 {

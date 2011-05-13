@@ -28,9 +28,10 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.ISupportReadOnly;
 
 /**
+ * Scriptable split pane.
+ * 
  * @author lvostinar
  * @since 6.0
- *
  */
 public class RuntimeSplitPane extends AbstractRuntimeFormContainer implements IScriptSplitPaneMethods
 {

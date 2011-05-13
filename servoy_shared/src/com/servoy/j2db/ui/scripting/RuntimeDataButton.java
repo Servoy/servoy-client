@@ -24,6 +24,8 @@ import com.servoy.j2db.ui.IScriptDataButtonMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 
 /**
+ * Scriptable data (can have dataprovider) button.
+ * 
  * @author lvostinar
  * @since 6.0
  */

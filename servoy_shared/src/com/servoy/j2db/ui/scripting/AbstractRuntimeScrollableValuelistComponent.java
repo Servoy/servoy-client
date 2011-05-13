@@ -29,9 +29,10 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.util.model.ComboModelListModelWrapper;
 
 /**
+ * Abstract scriptable component with scroll and valuelist support.
+ * 
  * @author lvostinar
  * @since 6.0
- *
  */
 public abstract class AbstractRuntimeScrollableValuelistComponent extends AbstractRuntimeValuelistComponent
 {

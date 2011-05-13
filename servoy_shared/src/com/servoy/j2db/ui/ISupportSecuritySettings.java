@@ -18,6 +18,8 @@ package com.servoy.j2db.ui;
 
 
 /**
+ * Interface to get/set the security settings.
+ * 
  * @author jblok
  */
 public interface ISupportSecuritySettings

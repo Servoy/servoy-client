@@ -18,8 +18,9 @@
 package com.servoy.j2db.ui;
 
 /**
+ * Interface for handling text selection in input control.
+ * 
  * @author lvostinar
- *
  */
 public interface ISupportInputSelection
 {

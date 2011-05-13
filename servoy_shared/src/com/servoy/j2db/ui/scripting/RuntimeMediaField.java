@@ -28,6 +28,8 @@ import com.servoy.j2db.ui.IScriptMediaInputFieldMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 
 /**
+ * Scriptable media component.
+ * 
  * @author lvostinar
  * @since 6.0
  */

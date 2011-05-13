@@ -29,6 +29,8 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 
 /**
+ * Scriptable combobox component.
+ * 
  * @author lvostinar
  * @since 6.0
  */

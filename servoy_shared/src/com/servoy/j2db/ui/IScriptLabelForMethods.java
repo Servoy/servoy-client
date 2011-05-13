@@ -16,6 +16,11 @@
  */
 package com.servoy.j2db.ui;
 
+/**
+ * Label for scriptable interface support.
+ *
+ */
+
 public interface IScriptLabelForMethods extends IScriptLabelMethods
 {
 	/**
