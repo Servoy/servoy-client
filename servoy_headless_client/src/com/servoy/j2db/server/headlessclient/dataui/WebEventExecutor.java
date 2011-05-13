@@ -218,8 +218,8 @@ public class WebEventExecutor extends BaseEventExecutor
 							@Override
 							public CharSequence postDecorateScript(CharSequence script)
 							{
-								return "Servoy.Utils.startClickTimer(function() { if (testDoubleClickId('" +
-									component.getMarkupId() + "')) { " + script + "}; Servoy.Utils.clickTimerRunning = false; return false; });";
+								return "Servoy.Utils.startClickTimer(function() { if (testDoubleClickId('" + component.getMarkupId() + "')) { " + script +
+									"}; Servoy.Utils.clickTimerRunning = false; return false; });";
 							}
 						};
 					}
@@ -322,7 +322,7 @@ public class WebEventExecutor extends BaseEventExecutor
 						{
 							if (comp instanceof IScriptableProvider && ((IScriptableProvider)comp).getScriptObject() instanceof IScriptBaseMethods)
 							{
-								Object oe = ((IScriptBaseMethods)comp).js_getClientProperty("ajax.enabled"); //$NON-NLS-1$
+								Object oe = ((IScriptBaseMethods)((IScriptableProvider)comp).getScriptObject()).js_getClientProperty("ajax.enabled"); //$NON-NLS-1$
 								if (oe != null) return Utils.getAsBoolean(oe);
 							}
 							return true;
