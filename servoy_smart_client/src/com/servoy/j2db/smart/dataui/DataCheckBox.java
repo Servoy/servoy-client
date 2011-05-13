@@ -964,14 +964,4 @@ public class DataCheckBox extends JCheckBox implements IFieldComponent, IDisplay
 			}
 		}
 	}
-
-//	@Override
-//	public Border getBorder()
-//	{	
-//		Border b = super.getBorder();
-//		Insets m = this.getMargin();
-//
-//		if (b != null && m != null) return BorderFactory.createCompoundBorder(b, BorderFactory.createEmptyBorder(m.top, m.left, m.bottom, m.right));
-//		else return super.getBorder();
-//	}
 }
