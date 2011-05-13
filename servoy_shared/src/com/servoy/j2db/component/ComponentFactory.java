@@ -1409,13 +1409,19 @@ public class ComponentFactory
 		}
 
 		Insets m = field.getMargin();
+		if (m == null) m = style_margin;
+
 		if (m != null)
 		{
 			fl.setMargin(m);
-		}
-		else if (style_margin != null)
-		{
-			fl.setMargin(style_margin);
+			if (fl instanceof IMarginAwareBorder && field.getBorderType() != null)
+			{
+				Border b = ComponentFactoryHelper.createBorder(field.getBorderType());
+				if (b != null)
+				{
+					fl.setBorder(BorderFactory.createCompoundBorder(b, BorderFactory.createEmptyBorder(m.top, m.left, m.bottom, m.right)));
+				}
+			}
 		}
 
 		return fl;
