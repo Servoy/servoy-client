@@ -320,15 +320,6 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 * @deprecated
 	 */
 	@Deprecated
-	public Iterator getRectangles() throws RepositoryException
-	{
-		return getObjects(IRepository.RECTSHAPES);
-	}
-
-	/**
-	 * @deprecated
-	 */
-	@Deprecated
 	public RectShape createNewRectangle(Point location) throws RepositoryException
 	{
 		RectShape obj = (RectShape)getRootObject().getChangeHandler().createNewObject(this, IRepository.RECTSHAPES);
@@ -492,15 +483,5 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	public int getOnRenderMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID).intValue();
-	}
-
-	@Override
-	public boolean equals(Object obj)
-	{
-		if (obj instanceof FlattenedPortal)
-		{
-			return obj.equals(this);
-		}
-		return super.equals(obj);
 	}
 }
