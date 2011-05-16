@@ -49,13 +49,6 @@ public interface ISmartClientPluginAccess extends IClientPluginAccess
 	public JMenu getExportMenu();
 
 	/**
-	 * Get the current showing window (Dialog or Frame) Use this one as a parent if you want to display a dialog or other frame.
-	 * 
-	 * @return Window
-	 */
-	public Window getCurrentWindow();
-
-	/**
 	 * Gets the java Window for the JS window or JS dialog with the given name.
 	 * @param windowName the name of the window as given when opening a window or dialog from JS. If windowName is null, the main application frame is returned.
 	 * @return the dialog or frame instance that corresponds to the given window name.

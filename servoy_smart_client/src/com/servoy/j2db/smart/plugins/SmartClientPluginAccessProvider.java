@@ -88,6 +88,7 @@ public class SmartClientPluginAccessProvider extends ClientPluginAccessProvider 
 	}
 
 	@Override
+	@Deprecated
 	public Window getWindow(String windowName)
 	{
 		if (windowName == null) return application.getMainApplicationFrame();
@@ -104,6 +105,7 @@ public class SmartClientPluginAccessProvider extends ClientPluginAccessProvider 
 	}
 
 	@Override
+	@Deprecated
 	public Window getCurrentWindow()
 	{
 		Object window = application.getJSWindowManager().getCurrentWindowWrappedObject();
