@@ -571,6 +571,10 @@ public class SwingJSWindowImpl extends JSWindowImpl implements ISwingRuntimeWind
 			{
 				((JFrame)wrappedWindow).setJMenuBar(wrappedWindowMenuBar);
 			}
+			else if (wrappedWindowMenuBar != null && wrappedWindow instanceof JDialog)
+			{
+				((JDialog)wrappedWindow).setJMenuBar(wrappedWindowMenuBar);
+			}
 
 			if (oldShow && !restoreWindowBounds())
 			{
