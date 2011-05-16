@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.mozilla.javascript.Function;
+
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
@@ -35,6 +37,8 @@ import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptCalculation;
+import com.servoy.j2db.persistence.ScriptMethod;
+import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.ISQLQuery;
@@ -43,6 +47,8 @@ import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QueryInsert;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryUpdate;
+import com.servoy.j2db.scripting.GlobalScope;
+import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.OpenProperties;
 import com.servoy.j2db.util.Pair;
@@ -73,11 +79,13 @@ public class SQLSheet
 	private final Table table;
 	private List<SortColumn> defaultSort;
 	private final Map<String, SQLDescription> relatedForeignSQLAccess;
+	private final IServiceProvider app;
 
 	private Map<String, Integer> allCalculationsTypes; //dataproviderID -> type
 
 	public SQLSheet(IServiceProvider app, String connectionName, Table table)//for root
 	{
+		this.app = app;
 		this.table = table;
 		this.connectionName = connectionName;
 		sql = new SafeArrayList<SQLDescription>();
@@ -329,6 +337,27 @@ public class SQLSheet
 					{
 						String lookupDataProviderID = ci.getLookupValue();
 						Object obj = s.getValue(lookupDataProviderID);
+						if (lookupDataProviderID != null && lookupDataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX) && !s.has(lookupDataProviderID))
+						{
+							ScriptMethod globalScriptMethod = app.getFlattenedSolution().getScriptMethod(lookupDataProviderID);
+							if (globalScriptMethod != null)
+							{
+								IExecutingEnviroment scriptEngine = app.getScriptEngine();
+								GlobalScope gscope = scriptEngine.getSolutionScope().getGlobalScope();
+								Object function = gscope.get(globalScriptMethod.getName());
+								if (function instanceof Function)
+								{
+									try
+									{
+										obj = scriptEngine.executeFunction(((Function)function), gscope, gscope, null, false, false);
+									}
+									catch (Exception e)
+									{
+										Debug.error(e);
+									}
+								}
+							}
+						}
 						// Protect to writing null to null-protected columns. An exception gets written in the log.
 						if (!((obj == null) && !c.getAllowNull())) s.setValue(id, obj, false);
 					}
