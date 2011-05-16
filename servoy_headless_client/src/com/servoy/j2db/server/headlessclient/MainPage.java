@@ -918,6 +918,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 	public void flushCachedItems()
 	{
+		if (main != null) main.setMainPage(null);
 		main = null;
 		currentForm = null;
 		navigator = null;
@@ -1046,11 +1047,13 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 					((FormManager)client.getFormManager()).showFormInMainPanel(formName);
 				}
 			});
+			main.setMainPage(null);
 		}
 		listview.removeAll();
 
 		main = (WebForm)container;
-		webForms.add((WebForm)container);
+		main.setMainPage(this);
+		webForms.add(main);
 
 		/*
 		 * if (navigator != null) { calculateFormAndNavigatorSizes(); }

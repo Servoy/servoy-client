@@ -45,7 +45,6 @@ import javax.swing.border.Border;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
-import org.apache.wicket.Page;
 import org.apache.wicket.Session;
 import org.apache.wicket.behavior.IBehavior;
 import org.apache.wicket.markup.IMarkupCacheKeyProvider;
@@ -1325,10 +1324,9 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 	public String getContainerName()
 	{
 		String name = null;
-		Page page = findPage();
-		if (page instanceof MainPage)
+		MainPage mp = getMainPage();
+		if (mp != null)
 		{
-			MainPage mp = (MainPage)page;
 			name = mp.getContainerName();
 			if (name == null) name = IApplication.APP_WINDOW_NAME; // main container name is null for main app. window
 		}
@@ -1337,12 +1335,24 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 
 	public boolean isFormInDialog()
 	{
-		Page page = findPage();
-		if (page instanceof MainPage)
+		MainPage mp = getMainPage();
+		if (mp != null)
 		{
-			return ((MainPage)page).isShowingInDialog();
+			return mp.isShowingInDialog();
 		}
 		return false;
+	}
+
+	private MainPage mainPage;
+
+	public void setMainPage(MainPage mainPage)
+	{
+		this.mainPage = mainPage;
+	}
+
+	public MainPage getMainPage()
+	{
+		return mainPage;
 	}
 
 	private FormAnchorInfo formAnchorInfo;
