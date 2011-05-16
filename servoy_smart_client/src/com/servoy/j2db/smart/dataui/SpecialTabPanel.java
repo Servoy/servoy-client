@@ -383,7 +383,7 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 				List<Runnable> invokeLaterRunnables2 = new ArrayList<Runnable>();
 				flp.notifyVisible(true, invokeLaterRunnables2);
 				Utils.invokeLater(application, invokeLaterRunnables2);
-				if (validationEnabled && onTabChangeMethod != null && previousIndex != -1)
+				if (onTabChangeMethod != null && previousIndex != -1)
 				{
 					scriptExecutor.executeFunction(onTabChangeMethod, Utils.arrayMerge((new Object[] { new Integer(previousIndex + 1) }), onTabChangeArgs),
 						true, this, false, "onTabChangeMethodID", false); //$NON-NLS-1$
