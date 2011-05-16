@@ -2851,9 +2851,14 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		addServicePreferencesTab(appPrefs);
 	}
 
+	@SuppressWarnings("nls")
 	protected void addServicePreferencesTab(ApplicationPreferences appPrefs)
 	{
-		appPrefs.addPreferenceTab(new ServicePanel(this));
+		String rmiFactory = settings.getProperty("SocketFactory.rmiClientFactory", "com.servoy.j2db.rmi.DefaultClientSocketFactoryFactory");
+		if (rmiFactory == null || rmiFactory.endsWith("com.servoy.j2db.rmi.DefaultClientSocketFactoryFactory"))
+		{
+			appPrefs.addPreferenceTab(new ServicePanel(this));
+		}
 	}
 
 	@Override

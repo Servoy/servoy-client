@@ -38,11 +38,10 @@ import com.servoy.j2db.util.Utils;
 public class ServicePanel extends PreferencePanel implements ChangeListener
 {
 	private final IApplication application;
-	private JLabel _labelIsRunning;
 	private final JCheckBox checkBox;
 
 	/**
-	 * Constructor for HttpServicePanel.
+	 * Constructor for ServicePanel that shows the 2 way socket option, will only be called/shown when the DefaultRMISocketfactory is used.
 	 * 
 	 * @param application
 	 */
