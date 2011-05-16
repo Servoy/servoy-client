@@ -24,6 +24,7 @@ import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.plugins.IRuntimeWindow;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
@@ -33,7 +34,7 @@ import com.servoy.j2db.util.Utils;
  * @author acostescu
  * @since 6.0
  */
-public abstract class JSWindowImpl
+public abstract class JSWindowImpl implements IRuntimeWindow
 {
 
 	/**

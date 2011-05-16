@@ -88,22 +88,6 @@ public class SmartClientPluginAccessProvider extends ClientPluginAccessProvider 
 	}
 
 	@Override
-	public Window getWindow(String windowName)
-	{
-		if (windowName == null) return application.getMainApplicationFrame();
-
-		Object window = application.getJSWindowManager().getWindowWrappedObject(windowName);
-		if ((window instanceof Window) && ((Window)window).isVisible())
-		{
-			return (Window)window;
-		}
-		else
-		{
-			return null;
-		}
-	}
-
-	@Override
 	public Window getCurrentWindow()
 	{
 		Object window = application.getJSWindowManager().getCurrentWindowWrappedObject();

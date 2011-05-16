@@ -622,4 +622,14 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 		Style s = application.getFlattenedSolution().getStyle(style_name);
 		return ComponentFactory.getCSSStyle(s);
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.plugins.IClientPluginAccess#getRuntimeWindow(java.lang.String)
+	 */
+	public IRuntimeWindow getRuntimeWindow(String name)
+	{
+		return application.getJSWindowManager().getWindow(name);
+	}
 }

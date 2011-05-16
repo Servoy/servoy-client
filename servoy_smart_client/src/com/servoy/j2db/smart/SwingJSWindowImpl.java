@@ -27,6 +27,7 @@ import java.awt.Window;
 import javax.swing.Action;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JMenuBar;
 import javax.swing.RootPaneContainer;
 
 import com.servoy.j2db.FormController;
@@ -36,6 +37,7 @@ import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.LAFManager;
 import com.servoy.j2db.gui.FormDialog;
+import com.servoy.j2db.plugins.ISwingRuntimeWindow;
 import com.servoy.j2db.scripting.JSWindowImpl;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.UIUtils;
@@ -46,10 +48,11 @@ import com.servoy.j2db.util.Utils;
  * @author acostescu
  * @since 6.0
  */
-public class SwingJSWindowImpl extends JSWindowImpl
+public class SwingJSWindowImpl extends JSWindowImpl implements ISwingRuntimeWindow
 {
 
 	protected Window wrappedWindow = null; // will be null before the JSWindow is first shown or after the JSWindow is destroyed; can be JFrame (in case of main app. frame), FromFrame or FormDialog
+	protected JMenuBar wrappedWindowMenuBar = null;
 	private boolean createdNewWindow;
 	protected TextToolbar textToolbar;
 	protected final ISmartClientApplication application;
@@ -560,6 +563,11 @@ public class SwingJSWindowImpl extends JSWindowImpl
 		{
 			applyTextToolbar((RootPaneContainer)wrappedWindow);
 
+			if (wrappedWindowMenuBar != null && wrappedWindow instanceof JFrame)
+			{
+				((JFrame)wrappedWindow).setJMenuBar(wrappedWindowMenuBar);
+			}
+
 			if (oldShow && !restoreWindowBounds())
 			{
 				// quickly set the form to visible if not visible.
@@ -740,6 +748,36 @@ public class SwingJSWindowImpl extends JSWindowImpl
 			}
 		}
 		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.plugins.ISwingRuntimeWindow#getJMenuBar()
+	 */
+	public JMenuBar getJMenuBar()
+	{
+		return wrappedWindowMenuBar;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.plugins.ISwingRuntimeWindow#getWindow()
+	 */
+	public Window getWindow()
+	{
+		return wrappedWindow;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.plugins.ISwingRuntimeWindow#setJMenuBar(javax.swing.JMenuBar)
+	 */
+	public void setJMenuBar(JMenuBar menuBar)
+	{
+		wrappedWindowMenuBar = menuBar;
 	}
 
 }
