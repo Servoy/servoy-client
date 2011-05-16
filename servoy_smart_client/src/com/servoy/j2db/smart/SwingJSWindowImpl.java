@@ -40,8 +40,10 @@ import com.servoy.j2db.gui.FormDialog;
 import com.servoy.j2db.plugins.ISwingRuntimeWindow;
 import com.servoy.j2db.scripting.JSWindowImpl;
 import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.UIUtils;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.toolbar.ToolbarPanel;
 
 /**
  * Swing implementation of the JSWindow. It is based on a wrapped awt Window instance.
@@ -55,6 +57,7 @@ public class SwingJSWindowImpl extends JSWindowImpl implements ISwingRuntimeWind
 	protected JMenuBar wrappedWindowMenuBar = null;
 	private boolean createdNewWindow;
 	protected TextToolbar textToolbar;
+	protected ToolbarPanel toolbarPanel;
 	protected final ISmartClientApplication application;
 
 	public SwingJSWindowImpl(ISmartClientApplication application, String windowName, int windowType, JSWindowImpl parentWindow)
@@ -303,6 +306,7 @@ public class SwingJSWindowImpl extends JSWindowImpl implements ISwingRuntimeWind
 			wrappedWindow.dispose();
 			wrappedWindow = null;
 			textToolbar = null;
+			toolbarPanel = null;
 		}
 	}
 
@@ -715,14 +719,17 @@ public class SwingJSWindowImpl extends JSWindowImpl implements ISwingRuntimeWind
 			{
 				textToolbar = new TextToolbar(application);
 			}
-			window.getContentPane().add(textToolbar, BorderLayout.NORTH);
+			toolbarPanel = new ToolbarPanel(Settings.INITIAL_CLIENT_WIDTH - 200);
+			toolbarPanel.addToolbar(textToolbar, 0);
+			window.getContentPane().add(toolbarPanel, BorderLayout.NORTH);
 		}
 		else
 		{
 			if (textToolbar != null)
 			{
-				window.getContentPane().remove(textToolbar);
+				window.getContentPane().remove(toolbarPanel);
 				textToolbar = null;
+				toolbarPanel = null;
 			}
 		}
 	}
