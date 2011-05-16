@@ -22,8 +22,14 @@ import java.awt.Window;
 import javax.swing.JMenuBar;
 
 /**
+ * <p>
+ * NOTE: do not implement this interface, it can change with new Servoy versions if new functionality is needed.
+ * </p> 
+ * 
  * @author alorincz
  *
+ * @since 6.0
+ * 
  */
 public interface ISwingRuntimeWindow extends IRuntimeWindow
 {

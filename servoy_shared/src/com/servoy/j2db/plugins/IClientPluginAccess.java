@@ -405,4 +405,6 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 	public IStyleSheet getStyleSheet(String name);
 
 	public IRuntimeWindow getRuntimeWindow(String name);
+
+	public IRuntimeWindow getCurrentRuntimeWindow();
 }
