@@ -107,7 +107,7 @@ public class ToolbarPanel extends EnablePanel implements IToolbarPanel
 			}
 		};
 		addMouseListener(madapter);
-		setBorder(BorderFactory.createEmptyBorder(0, 0, 2, 0));
+		setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 	}
 
 	public void clear()
