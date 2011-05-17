@@ -20,9 +20,10 @@ package com.servoy.j2db.persistence;
 import java.rmi.RemoteException;
 import java.util.List;
 
+import com.servoy.j2db.J2DBGlobals;
+import com.servoy.j2db.Messages;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.DataSourceUtils;
-import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
 
 /**
@@ -50,13 +51,12 @@ public class TableNode extends AbstractBase implements ISupportChilds
 		return SortedTypeIterator.createFilteredList(getAllObjectsAsList(), IRepository.SCRIPTCALCULATIONS);
 	}
 
-	public ScriptCalculation createNewScriptCalculation(IValidateName validator, String name) throws RemoteException, RepositoryException
+	public ScriptCalculation createNewScriptCalculation(IValidateName validator, String calcName) throws RepositoryException
 	{
-		if (name == null) name = "untitled"; //$NON-NLS-1$
+		String name = calcName == null ? "untitled" : calcName; //$NON-NLS-1$
 
 		//check if name is in use
-		ValidatorSearchContext ft = new ValidatorSearchContext(getRootObject().getServer(getServerName()).getTable(getTableName()),
-			IRepository.SCRIPTCALCULATIONS);
+		ValidatorSearchContext ft = new ValidatorSearchContext(getTable(), IRepository.SCRIPTCALCULATIONS);
 		validator.checkName(name, 0, ft, false);
 
 		ScriptCalculation obj = (ScriptCalculation)getRootObject().getChangeHandler().createNewObject(this, IRepository.SCRIPTCALCULATIONS);
@@ -78,14 +78,13 @@ public class TableNode extends AbstractBase implements ISupportChilds
 		return SortedTypeIterator.createFilteredList(getAllObjectsAsList(), IRepository.AGGREGATEVARIABLES);
 	}
 
-	AggregateVariable createNewAggregateVariable(IValidateName validator, String name, int atype, String dataProviderIDToAggregate) throws RemoteException,
-		RepositoryException
+	AggregateVariable createNewAggregateVariable(IValidateName validator, String calcName, int atype, String dataProviderIDToAggregate)
+		throws RepositoryException
 	{
-		if (name == null) name = "untitled"; //$NON-NLS-1$
+		String name = calcName == null ? "untitled" : calcName; //$NON-NLS-1$
 
 		//check if name is in use
-		ValidatorSearchContext ft = new ValidatorSearchContext(getRootObject().getServer(getServerName()).getTable(getTableName()),
-			IRepository.AGGREGATEVARIABLES);
+		ValidatorSearchContext ft = new ValidatorSearchContext(getTable(), IRepository.AGGREGATEVARIABLES);
 		validator.checkName(name, 0, ft, true);
 
 		AggregateVariable obj = (AggregateVariable)getRootObject().getChangeHandler().createNewObject(this, IRepository.AGGREGATEVARIABLES);
@@ -143,15 +142,35 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	{
 		if (table == null)
 		{
-			try
+			String dataSource = getDataSource();
+			if (dataSource == null)
 			{
-				IServer server = getRootObject().getServer(getServerName());
-				if (server == null) throw new RepositoryException(ServoyException.InternalCodes.SERVER_NOT_FOUND, new Object[] { getServerName() });
-				table = (Table)server.getTable(getTableName());
+				return null;
 			}
-			catch (RemoteException e)
+			String[] stn = DataSourceUtils.getDBServernameTablename(dataSource);
+			if (stn != null)
 			{
-				throw new RepositoryException(e);
+				try
+				{
+					IServer server = getRootObject().getServer(stn[0]);
+					if (server == null)
+					{
+						throw new RepositoryException(Messages.getString("servoy.exception.serverNotFound", new Object[] { stn[0] })); //$NON-NLS-1$
+					}
+					table = (Table)server.getTable(stn[1]);
+				}
+				catch (RemoteException e)
+				{
+					throw new RepositoryException(e);
+				}
+			}
+			else
+			{
+				// not a server/table combi, ask the current clients foundset manager
+				if (J2DBGlobals.getServiceProvider() != null)
+				{
+					table = (Table)J2DBGlobals.getServiceProvider().getFoundSetManager().getTable(dataSource);
+				}
 			}
 		}
 		return table;
@@ -160,15 +179,11 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	@Override
 	public String toString()
 	{
-		StringBuffer sb = new StringBuffer();
-		List<IPersist> allobjects = getAllObjectsAsList();
-		if (allobjects != null)
+		StringBuilder sb = new StringBuilder();
+		for (IPersist obj : getAllObjectsAsList())
 		{
-			for (int i = 0; i < allobjects.size(); i++)
-			{
-				sb.append(allobjects.get(i));
-				sb.append("\n"); //$NON-NLS-1$
-			}
+			sb.append(obj);
+			sb.append('\n');
 		}
 		return sb.toString();
 	}

@@ -373,7 +373,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			Solution solutionCopy = getSolutionCopy();
 			Iterator<TableNode> tableNodes = solutionCopy.getTableNodes(table);
 			if (tableNodes.hasNext()) return tableNodes.next();
-			return solutionCopy.createNewTableNode(table.getServerName(), table.getName());
+			return solutionCopy.createNewTableNode(table.getDataSource());
 		}
 		catch (Exception e)
 		{
@@ -548,9 +548,9 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				while (it.hasNext())
 				{
 					Form form = it.next();
-					if (form.getExtendsFormID() > 0)
+					if (form.getExtendsID() > 0)
 					{
-						form.setExtendsForm(getForm(form.getExtendsFormID()));
+						form.setExtendsForm(getForm(form.getExtendsID()));
 					}
 				}
 			}
@@ -678,7 +678,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			return null;
 		}
 		Form form = (Form)persist.getAncestor(IRepository.FORMS);
-		if (form == null || form.getExtendsFormID() == 0)
+		if (form == null || form.getExtendsID() == 0)
 		{
 			// no form or nothing to flatten
 			return form;
@@ -745,12 +745,12 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 						return true;
 					}
 				}
-				if (form instanceof FlattenedForm || f.getExtendsFormID() == 0)
+				if (form instanceof FlattenedForm || f.getExtendsID() == 0)
 				{
 					// no (more) hierarchy to investigate
 					break;
 				}
-				f = getForm(f.getExtendsFormID());
+				f = getForm(f.getExtendsID());
 				if (f == null || formHierarchy.contains(f) /* prevent cycles */)
 				{
 					break;
@@ -1433,9 +1433,9 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		if (persist instanceof Form)
 		{
 			Form form = (Form)persist;
-			if (form.getExtendsFormID() > 0)
+			if (form.getExtendsID() > 0)
 			{
-				form.setExtendsForm(getForm(form.getExtendsFormID()));
+				form.setExtendsForm(getForm(form.getExtendsID()));
 			}
 			else
 			{
@@ -1450,9 +1450,9 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		if (persist instanceof Form)
 		{
 			Form form = (Form)persist;
-			if (form.getExtendsFormID() > 0)
+			if (form.getExtendsID() > 0)
 			{
-				form.setExtendsForm(getForm(form.getExtendsFormID()));
+				form.setExtendsForm(getForm(form.getExtendsID()));
 			}
 		}
 	}
@@ -1585,7 +1585,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			if (!(f instanceof FlattenedForm))
 			{
 				Form extendedForm;
-				int extended_form_id = f.getExtendsFormID();
+				int extended_form_id = f.getExtendsID();
 
 				List<RootObjectReference> modulesMetaData = null;
 
@@ -1624,7 +1624,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 						break;//in case referring to no longer existing form
 					}
 					style_name = extendedForm.getStyleName();
-					extended_form_id = extendedForm.getExtendsFormID();
+					extended_form_id = extendedForm.getExtendsID();
 					if (visited.contains(new Integer(extended_form_id)))
 					{
 						break;//in case of cycle in form inheritance hierarchy
@@ -1694,10 +1694,8 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	public ScriptMethod getScriptMethod(String methodName)
 	{
-		if (methodName != null && methodName.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
-		{
-			methodName = methodName.toString().substring(ScriptVariable.GLOBAL_DOT_PREFIX.length());
-		}
+		String baseName = (methodName != null && methodName.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+			? methodName.substring(ScriptVariable.GLOBAL_DOT_PREFIX.length()) : methodName;
 		if (scriptMethodCacheByName == null)
 		{
 			scriptMethodCacheByName = new HashMap<String, ScriptMethod>();
@@ -1709,7 +1707,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			}
 
 		}
-		return scriptMethodCacheByName.get(methodName);
+		return scriptMethodCacheByName.get(baseName);
 	}
 
 	public Iterator<ScriptVariable> getScriptVariables(boolean sort)
@@ -1843,9 +1841,9 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		List<Form> formHierarchy = new ArrayList<Form>();
 		formHierarchy.add(form);
 		Form f = form;
-		while (f != null && f.getExtendsFormID() != 0)
+		while (f != null && f.getExtendsID() != 0)
 		{
-			f = getForm(f.getExtendsFormID());
+			f = getForm(f.getExtendsID());
 			if (f == null || formHierarchy.contains(f) /* prevent cycles */)
 			{
 				break;
@@ -1863,7 +1861,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		while (sameTableFormsIte.hasNext())
 		{
 			Form sameTableForm = sameTableFormsIte.next();
-			if (sameTableForm.getExtendsFormID() == parentForm.getID())
+			if (sameTableForm.getExtendsID() == parentForm.getID())
 			{
 				inheritingForms.add(sameTableForm);
 			}

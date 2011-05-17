@@ -124,13 +124,10 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 		return selectByName(getForms(null, false), name);
 	}
 
-	public Form createNewForm(IValidateName validator, Style style, String name, String dataSource, boolean show_in_menu, Dimension size)
+	public Form createNewForm(IValidateName validator, Style style, String formName, String dataSource, boolean show_in_menu, Dimension size)
 		throws RepositoryException
 	{
-		if (name == null)
-		{
-			name = "untitled"; //$NON-NLS-1$
-		}
+		String name = formName == null ? "untitled" : formName; //$NON-NLS-1$
 		// Check if name is in use.
 		validator.checkName(name, 0, new ValidatorSearchContext(IRepository.FORMS), false);
 
@@ -309,10 +306,9 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 		return null;
 	}
 
-	public Relation createNewRelation(IValidateName validator, String name, int joinType) throws RepositoryException
+	public Relation createNewRelation(IValidateName validator, String relationName, int joinType) throws RepositoryException
 	{
-		if (name == null) name = "untitled"; //$NON-NLS-1$
-		name = Utils.toEnglishLocaleLowerCase(name);
+		String name = relationName == null ? "untitled" : Utils.toEnglishLocaleLowerCase(relationName); //$NON-NLS-1$
 		//check if name is in use
 		validator.checkName(name, 0, new ValidatorSearchContext(IRepository.RELATIONS), true);
 		Relation obj = (Relation)getChangeHandler().createNewObject(this, IRepository.RELATIONS);
@@ -363,9 +359,9 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 		return selectByName(getValueLists(false), name);
 	}
 
-	public ValueList createNewValueList(IValidateName validator, String name) throws RepositoryException
+	public ValueList createNewValueList(IValidateName validator, String vlName) throws RepositoryException
 	{
-		if (name == null) name = "untitled"; //$NON-NLS-1$
+		String name = vlName == null ? "untitled" : vlName; //$NON-NLS-1$
 
 		//check if name is in use
 		validator.checkName(name, 0, new ValidatorSearchContext(IRepository.VALUELISTS), false);
@@ -413,9 +409,9 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 		return null;
 	}
 
-	public ScriptVariable createNewScriptVariable(IValidateName validator, String name, int variableType) throws RepositoryException
+	public ScriptVariable createNewScriptVariable(IValidateName validator, String varName, int variableType) throws RepositoryException
 	{
-		if (name == null) name = "untitled"; //$NON-NLS-1$
+		String name = varName == null ? "untitled" : varName; //$NON-NLS-1$
 
 		boolean hit = false;
 		int[] types = Column.allDefinedTypes;
@@ -470,14 +466,14 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 		return retval;
 	}
 
-	public ScriptCalculation createNewScriptCalculation(IValidateName validator, Table table, String name) throws RepositoryException, RemoteException
+	public ScriptCalculation createNewScriptCalculation(IValidateName validator, Table table, String name) throws RepositoryException
 	{
 		TableNode tableNode = null;
 		Iterator<TableNode> it = getTableNodes(table);
 		if (!it.hasNext())
 		{
 			//create
-			tableNode = createNewTableNode(table.getServerName(), table.getName());
+			tableNode = createNewTableNode(table.getDataSource());
 		}
 		else
 		{
@@ -487,14 +483,14 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 	}
 
 	public AggregateVariable createNewAggregateVariable(IValidateName validator, Table table, String name, int aggType, String dataProviderIDToAggregate)
-		throws RepositoryException, RemoteException
+		throws RepositoryException
 	{
 		TableNode tableNode = null;
 		Iterator<TableNode> it = getTableNodes(table);
 		if (!it.hasNext())
 		{
 			//create
-			tableNode = createNewTableNode(table.getServerName(), table.getName());
+			tableNode = createNewTableNode(table.getDataSource());
 		}
 		else
 		{
@@ -554,13 +550,12 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 	}
 
 
-	public TableNode createNewTableNode(String connectionName, String tableName) throws RepositoryException
+	public TableNode createNewTableNode(String dataSource) throws RepositoryException
 	{
 		TableNode obj = (TableNode)getChangeHandler().createNewObject(this, IRepository.TABLENODES);
 		//set all the required properties
 
-		obj.setServerName(connectionName);
-		obj.setTableName(tableName);
+		obj.setDataSource(dataSource);
 		addChild(obj);
 		return obj;
 	}
@@ -645,13 +640,9 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 		}
 	}
 
-	public ScriptMethod createNewGlobalScriptMethod(IValidateName validator, String name) throws RepositoryException
+	public ScriptMethod createNewGlobalScriptMethod(IValidateName validator, String scriptName) throws RepositoryException
 	{
-		// Validate name.
-		if (name == null)
-		{
-			name = "untitled"; //$NON-NLS-1$
-		}
+		String name = scriptName == null ? "untitled" : scriptName; //$NON-NLS-1$
 		validator.checkName(name, 0, new ValidatorSearchContext(IRepository.METHODS), false);
 
 		ScriptMethod obj = (ScriptMethod)getChangeHandler().createNewObject(this, IRepository.METHODS);
@@ -785,7 +776,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 						String moduleDescriptor = tk.nextToken();
 						int i = moduleDescriptor.indexOf(':');
 						String name = null;
-						UUID uuid = null;
+						UUID moduleUuid = null;
 						if (i != -1)
 						{
 							releaseNumber = Integer.parseInt(moduleDescriptor.substring(i + 1));
@@ -796,8 +787,8 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 							if (moduleDescriptor.indexOf('-') != -1)
 							{
 								// A uuid reference.
-								uuid = UUID.fromString(moduleDescriptor);
-								metaData = (SolutionMetaData)getRepository().getRootObjectMetaData(uuid);
+								moduleUuid = UUID.fromString(moduleDescriptor);
+								metaData = (SolutionMetaData)getRepository().getRootObjectMetaData(moduleUuid);
 								if (metaData != null) name = metaData.getName();
 							}
 							else
@@ -805,9 +796,9 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 								// A module name; for backwards compatibility.
 								name = moduleDescriptor;
 								metaData = (SolutionMetaData)getRepository().getRootObjectMetaData(name, IRepository.SOLUTIONS);
-								if (metaData != null) uuid = metaData.getRootObjectUuid();
+								if (metaData != null) moduleUuid = metaData.getRootObjectUuid();
 							}
-							referencedModules.add(new RootObjectReference(name, uuid, metaData, releaseNumber));
+							referencedModules.add(new RootObjectReference(name, moduleUuid, metaData, releaseNumber));
 						}
 					}
 					catch (Exception e)
@@ -855,7 +846,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 	public void setLoginSolutionName(String loginSolutionName) throws RepositoryException
 	{
 		List<RootObjectReference> referencedModules = getReferencedModules(null);
-		ArrayList<String> newModules = new ArrayList<String>();
+		List<String> newModules = new ArrayList<String>();
 		for (RootObjectReference moduleReference : referencedModules)
 		{
 			RootObjectMetaData metaData = moduleReference.getMetaData();
@@ -870,13 +861,12 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 
 		if (newModules.size() > 0)
 		{
-			StringBuffer sb = new StringBuffer();
-			String modulesDelim = ","; //$NON-NLS-1$
+			StringBuilder sb = new StringBuilder();
 			for (String module : newModules)
 			{
 				if (sb.length() > 0)
 				{
-					sb.append(modulesDelim);
+					sb.append(',');
 				}
 				sb.append(module);
 			}
