@@ -17,7 +17,6 @@
 
 package com.servoy.j2db.smart;
 
-import java.awt.Window;
 import java.net.URL;
 import java.net.URLStreamHandler;
 import java.rmi.Remote;
@@ -47,13 +46,6 @@ public interface ISmartClientPluginAccess extends IClientPluginAccess
 	 * @return JMenu
 	 */
 	public JMenu getExportMenu();
-
-	/**
-	 * Gets the java Window for the JS window or JS dialog with the given name.
-	 * @param windowName the name of the window as given when opening a window or dialog from JS. If windowName is null, the main application frame is returned.
-	 * @return the dialog or frame instance that corresponds to the given window name.
-	 */
-	public Window getWindow(String windowName);
 
 	/**
 	 * Get the toolbar panel (used to control toolbars).

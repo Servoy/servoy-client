@@ -22,16 +22,16 @@ import java.awt.Window;
 import javax.swing.JMenuBar;
 
 /**
+ * This interface represents a window in smart client.
  * <p>
  * NOTE: do not implement this interface, it can change with new Servoy versions if new functionality is needed.
  * </p> 
  * 
  * @author alorincz
- *
  * @since 6.0
- * 
+ * @see SwingJSWindowImpl
  */
-public interface ISwingRuntimeWindow extends IRuntimeWindow
+public interface ISmartRuntimeWindow extends IRuntimeWindow
 {
 	public void setJMenuBar(JMenuBar menuBar);
 

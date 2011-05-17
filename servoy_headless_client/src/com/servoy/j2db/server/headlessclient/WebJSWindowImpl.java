@@ -29,6 +29,7 @@ import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IWebClientApplication;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.plugins.IWebRuntimeWindow;
 import com.servoy.j2db.scripting.JSWindowImpl;
 import com.servoy.j2db.server.headlessclient.dataui.WebDefaultRecordNavigator;
 
@@ -37,7 +38,7 @@ import com.servoy.j2db.server.headlessclient.dataui.WebDefaultRecordNavigator;
  * @author acostescu
  * @since 6.0
  */
-public class WebJSWindowImpl extends JSWindowImpl
+public class WebJSWindowImpl extends JSWindowImpl implements IWebRuntimeWindow
 {
 	protected final IWebClientApplication application;
 	boolean firstShow = true;

@@ -37,7 +37,7 @@ import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.LAFManager;
 import com.servoy.j2db.gui.FormDialog;
-import com.servoy.j2db.plugins.ISwingRuntimeWindow;
+import com.servoy.j2db.plugins.ISmartRuntimeWindow;
 import com.servoy.j2db.scripting.JSWindowImpl;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Settings;
@@ -50,7 +50,7 @@ import com.servoy.j2db.util.toolbar.ToolbarPanel;
  * @author acostescu
  * @since 6.0
  */
-public class SwingJSWindowImpl extends JSWindowImpl implements ISwingRuntimeWindow
+public class SwingJSWindowImpl extends JSWindowImpl implements ISmartRuntimeWindow
 {
 
 	protected Window wrappedWindow = null; // will be null before the JSWindow is first shown or after the JSWindow is destroyed; can be JFrame (in case of main app. frame), FromFrame or FormDialog
@@ -789,6 +789,14 @@ public class SwingJSWindowImpl extends JSWindowImpl implements ISwingRuntimeWind
 	public void setJMenuBar(JMenuBar menuBar)
 	{
 		wrappedWindowMenuBar = menuBar;
+		if (wrappedWindow != null && wrappedWindow instanceof JFrame)
+		{
+			((JFrame)wrappedWindow).setJMenuBar(wrappedWindowMenuBar);
+		}
+		else if (wrappedWindow != null && wrappedWindow instanceof JDialog)
+		{
+			((JDialog)wrappedWindow).setJMenuBar(wrappedWindowMenuBar);
+		}
 	}
 
 }

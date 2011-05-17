@@ -405,14 +405,13 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 	public IStyleSheet getStyleSheet(String name);
 
 	/**
+	 * Returns the window with the given name as parameter. If the parameter is null then the
+	 * main application window is returned.
+	 * 
 	 * @since 6.0
-	 * 
 	 * @param name of the window to be returned
-	 * 
 	 * @return an ISwingRuntimeWindow or IWebRuntimeWindow depending on whether smart client or web client is being run
-	 * 
-	 * @see ISwingRuntimeWindow
-	 * 
+	 * @see ISmartRuntimeWindow
 	 * @see IWebRuntimeWindow
 	 */
 	public IRuntimeWindow getRuntimeWindow(String name);
@@ -421,11 +420,8 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 	 * Returns the currently visible window, if non is visible then the main application window is returned
 	 * 
 	 * @since 6.0
-	 * 
 	 * @return an ISwingRuntimeWindow or IWebRuntimeWindow depending on whether smart client or web client is being run
-	 * 
-	 * @see ISwingRuntimeWindow
-	 * 
+	 * @see ISmartRuntimeWindow
 	 * @see IWebRuntimeWindow
 	 */
 	public IRuntimeWindow getCurrentRuntimeWindow();

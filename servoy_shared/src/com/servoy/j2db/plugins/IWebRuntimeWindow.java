@@ -18,13 +18,14 @@
 package com.servoy.j2db.plugins;
 
 /**
+ * This interface represents a window in web client
  * <p>
  * NOTE: do not implement this interface, it can change with new Servoy versions if new functionality is needed.
  * </p> 
  * 
  * @author alorincz
- *
  * @since 6.0
+ * @see WebJSWindowImpl
  */
 public interface IWebRuntimeWindow extends IRuntimeWindow
 {
