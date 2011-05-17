@@ -176,7 +176,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			ArrayList<String> filteredArgsList = new ArrayList<String>();
 			for (String arg : args)
 			{
-				if (!arg.startsWith("system.property.")) filteredArgsList.add(arg); //$NON-NLS-1$
+				if (arg != null && arg.startsWith("system.property.")) continue; //$NON-NLS-1$
+				filteredArgsList.add(arg);
 			}
 			filteredArgs = new String[filteredArgsList.size()];
 			filteredArgs = filteredArgsList.toArray(filteredArgs);
