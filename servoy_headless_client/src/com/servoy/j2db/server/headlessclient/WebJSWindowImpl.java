@@ -213,7 +213,7 @@ public class WebJSWindowImpl extends JSWindowImpl
 	private Rectangle getSizeAndLocation(Rectangle r, IMainContainer container, final FormController fp)
 	{
 		int navid = fp.getForm().getNavigatorID();
-		Dimension size = fp.getForm().getSize();
+		Dimension size = new Dimension(fp.getForm().getSize());
 		if (navid == Form.NAVIGATOR_DEFAULT && fp.getForm().getView() != FormController.TABLE_VIEW &&
 			fp.getForm().getView() != FormController.LOCKED_TABLE_VIEW)
 		{
