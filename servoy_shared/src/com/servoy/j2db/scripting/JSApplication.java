@@ -2335,9 +2335,7 @@ public class JSApplication implements IReturnedTypesProvider
 		{
 			return null;
 		}
-		String fixedDialogName = dialogName.replace(' ', '_').replace(':', '_').replace('-', '_');
-		if (fixedDialogName.length() > 0 && fixedDialogName.charAt(0) >= '0' && fixedDialogName.charAt(0) <= '9') fixedDialogName = "w_" + fixedDialogName; //$NON-NLS-1$
-		return fixedDialogName;
+		return dialogName.replace(' ', '_').replace(':', '_');
 	}
 
 	/**

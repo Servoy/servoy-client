@@ -1498,8 +1498,9 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		if (getPageMapName() != null && callingContainer != null) callingContainer.showPopupWindow(windowContainer, titleString, r2, resizeable, closeAll);
 		else
 		{
+			String windowVarName = MainPage.getValidJSVariableName(windowContainer.getPageMapName());
 			StringBuilder sb = new StringBuilder(100);
-			sb.append(windowContainer.getPageMapName()); // so that we can reference this window via current page JS
+			sb.append(windowVarName); // so that we can reference this window via current page JS
 			sb.append("=window.open('");
 			sb.append(RequestCycle.get().urlFor(windowContainer));
 			sb.append("','");
@@ -1533,9 +1534,9 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			{
 				// safari doesn't tell you that a popup was blocked
 				sb.append("if (");
-				sb.append(windowContainer.getPageMapName());
+				sb.append(windowVarName);
 				sb.append(" == null || typeof(");
-				sb.append(windowContainer.getPageMapName());
+				sb.append(windowVarName);
 				sb.append(") == \"undefined\") alert('Pop-up page could not be opened, please disable your pop-up blocker.');");
 			}
 			appendJavaScriptChanges(sb.toString());
@@ -2047,7 +2048,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 					}
 					else if (mp.isShowingInWindow())
 					{
-						triggerScript += mp.getPageMapName() + ".";
+						triggerScript += MainPage.getValidJSVariableName(mp.getPageMapName()) + ".";
 					}
 					else ok = false; // some windows in the window chain are closed...
 				}
@@ -2282,4 +2283,8 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		}
 	}
 
+	private static String getValidJSVariableName(String name)
+	{
+		return "v_" + name.replace('-', '_').replace(' ', '_').replace(':', '_'); //$NON-NLS-1$
+	}
 }
