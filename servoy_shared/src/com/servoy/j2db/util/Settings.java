@@ -334,6 +334,7 @@ public class Settings extends SortedProperties
 		Properties to_save = new SortedProperties(); //make background list, we want to keep this unencripted
 		try
 		{
+			SecuritySupport.clearCryptKey();
 			Cipher desCipher = Cipher.getInstance("DESede"); //$NON-NLS-1$
 			desCipher.init(Cipher.ENCRYPT_MODE, SecuritySupport.getCryptKey(this));
 
