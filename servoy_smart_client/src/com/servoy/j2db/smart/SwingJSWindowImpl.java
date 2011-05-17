@@ -789,11 +789,11 @@ public class SwingJSWindowImpl extends JSWindowImpl implements ISmartRuntimeWind
 	public void setJMenuBar(JMenuBar menuBar)
 	{
 		wrappedWindowMenuBar = menuBar;
-		if (wrappedWindow != null && wrappedWindow instanceof JFrame)
+		if (wrappedWindow instanceof JFrame)
 		{
 			((JFrame)wrappedWindow).setJMenuBar(wrappedWindowMenuBar);
 		}
-		else if (wrappedWindow != null && wrappedWindow instanceof JDialog)
+		else if (wrappedWindow instanceof JDialog)
 		{
 			((JDialog)wrappedWindow).setJMenuBar(wrappedWindowMenuBar);
 		}
