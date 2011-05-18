@@ -128,7 +128,22 @@ public class WrapperContainer extends WebMarkupContainer implements IDelegate<Co
 				Object height = componentChanges.remove("height"); //$NON-NLS-1$
 				if (height != null) changes.put("height", height); //$NON-NLS-1$ 
 
-				changed = changes.size() > 0;
+				boolean visibilityChanged = false;
+				if (wrappedComponent.isVisible())
+				{
+					if ("none".equals(changes.get("display"))) //$NON-NLS-1$ //$NON-NLS-2$
+					{
+						changes.remove("display"); //$NON-NLS-1$
+						visibilityChanged = true;
+					}
+				}
+				else
+				{
+					changes.put("display", "none"); //$NON-NLS-1$ //$NON-NLS-2$
+					visibilityChanged = true;
+				}
+
+				changed = changes.size() > 0 || visibilityChanged;
 			}
 		}
 
