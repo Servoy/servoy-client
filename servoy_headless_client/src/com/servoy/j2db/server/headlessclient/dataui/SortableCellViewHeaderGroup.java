@@ -147,7 +147,9 @@ public class SortableCellViewHeaderGroup extends Model implements IComponentAssi
 								}
 								if (fc != null && labelForOnActionMethodId > 0)
 								{
-									JSEvent event = view.createScriptEvent(JSEvent.EventType.action, null, null);
+									JSEvent event = new JSEvent();
+									event.setType(JSEvent.EventType.action);
+									event.setFormName(view.getDataAdapterList().getFormController().getName());
 									event.setModifiers(modifiers);
 									event.setElementName(gc.getName());
 									fc.executeFunction(
@@ -180,7 +182,9 @@ public class SortableCellViewHeaderGroup extends Model implements IComponentAssi
 								}
 								else if (fc != null && fc.getForm().getOnSortCmdMethodID() != -1)
 								{
-									JSEvent event = view.createScriptEvent(JSEvent.EventType.none, null, null);
+									JSEvent event = new JSEvent();
+									event.setType(JSEvent.EventType.none);
+									event.setFormName(view.getDataAdapterList().getFormController().getName());
 									event.setModifiers(modifiers);
 									fc.executeFunction(
 										String.valueOf(fc.getForm().getOnSortCmdMethodID()),
