@@ -870,6 +870,28 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		}
 	}
 
+	private boolean tabKeyEvent = false;
+
+	@Override
+	public void processKeyEvent(KeyEvent e)
+	{
+		tabKeyEvent = (e.getKeyCode() == KeyEvent.VK_TAB);
+		super.processKeyEvent(e);
+		tabKeyEvent = false;
+	}
+
+	@Override
+	public void hidePopup()
+	{
+		// do not hide if it comes from processfocusevent behavior (open popup on focus gain)
+		boolean popupShown = tabKeyEvent && !isEditable() && isEnabled() && isVisible() &&
+			Boolean.TRUE.equals(UIUtils.getUIProperty(this, IApplication.COMBOBOX_SHOW_POPUP_ON_FOCUS_GAIN, Boolean.TRUE));
+		if (!popupShown)
+		{
+			super.hidePopup();
+		}
+	}
+
 	@Override
 	protected boolean processKeyBinding(KeyStroke ks, KeyEvent e, int condition, boolean pressed)
 	{
