@@ -305,13 +305,16 @@ public class BufferedDataSet implements IDataSet
 						case Types.CHAR :
 						case Types.VARCHAR :
 						case Types.LONGVARCHAR :
-						case -8 ://nchar fix for 'odbc-bridge' and 'inet driver'
-						case -9 ://nvarchar fix for 'odbc-bridge' and 'inet driver'
-						case -10 ://ntext fix for 'odbc-bridge' and 'inet driver'
-						case -11 ://UID text fix M$ driver -sql server
+						case Types4.ROWID : //nchar fix for 'odbc-bridge' and 'inet driver'
+						case Types4.NVARCHAR : //nvarchar fix for 'odbc-bridge' and 'inet driver'
+						case Types4.NCHAR : // JDBC4 
+						case Types4.LONGNVARCHAR : // JDBC4 
+						case -10 : //ntext fix for 'odbc-bridge' and 'inet driver'
+						case -11 : //UID text fix M$ driver -sql server
 							newRow[i - 1] = rs.getString(i);
 							break;
 						case Types.CLOB :
+						case Types4.NCLOB :
 							Clob clob = rs.getClob(i);
 							if (clob != null)
 							{
@@ -341,6 +344,7 @@ public class BufferedDataSet implements IDataSet
 								newRow[i - 1] = rs.getBytes(i);
 							}
 							break;
+						case Types4.SQLXML :
 						case Types.OTHER :
 						case Types.NULL :
 						default :

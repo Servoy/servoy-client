@@ -34,6 +34,7 @@ import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.IDataServer;
+import com.servoy.j2db.dataprocessing.Types4;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.dataprocessing.ValueFactory.NullValue;
 import com.servoy.j2db.util.Debug;
@@ -161,11 +162,14 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 				return DATETIME;
 
 			case Types.CHAR :
+			case Types4.NCHAR :
 			case Types.VARCHAR :
 			case Types.LONGVARCHAR :
+			case Types4.LONGNVARCHAR :
 			case Types.CLOB :
-			case -8 ://nchar fix for 'odbc-bridge' and 'inet driver'
-			case -9 ://nvarchar fix for 'odbc-bridge' and 'inet driver'
+			case Types4.NCLOB :
+			case Types4.ROWID : //nchar fix for 'odbc-bridge' and 'inet driver'
+			case Types4.NVARCHAR : //nvarchar fix for 'odbc-bridge' and 'inet driver'
 			case -10 ://ntext fix for 'odbc-bridge' and 'inet driver'
 			case -11 ://UID text fix M$ driver -sql server
 				return TEXT;
@@ -189,6 +193,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 			case Types.BINARY :
 			case Types.LONGVARBINARY :
 			case Types.BLOB :
+			case Types4.SQLXML :
 			case Types.NULL :
 				return MEDIA;
 
