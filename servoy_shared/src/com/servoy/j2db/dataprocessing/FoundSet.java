@@ -1552,6 +1552,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			List<Column> pkColumns = sheet.getTable().getRowIdentColumns();
 
+			if (set.getColumnCount() < pkColumns.size())
+			{
+				throw new RuntimeException("Dataset column count (" + set.getColumnCount() + ") does not match table pk size (" + pkColumns.size() + ")");
+			}
+
 			if (set.getColumnCount() > pkColumns.size())
 			{
 				int[] columns = new int[pkColumns.size()];
