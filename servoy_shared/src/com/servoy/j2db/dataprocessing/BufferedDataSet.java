@@ -227,6 +227,7 @@ public class BufferedDataSet implements IDataSet
 						case Types.INTEGER :
 							newRow[i - 1] = Integer.valueOf(rs.getInt(i));
 							break;
+
 						case Types.NUMERIC :
 						case Types.DECIMAL :
 							int precision = metaData.getPrecision(i);
@@ -270,29 +271,35 @@ public class BufferedDataSet implements IDataSet
 									break;
 								}
 							}
+
 						case Types.FLOAT :
 						case Types.DOUBLE :
 							newRow[i - 1] = new Double(rs.getDouble(i));
 							break;
+
 						case Types.REAL :
 							newRow[i - 1] = new Double(rs.getFloat(i));
 							//cant do getDouble on mssql driver
 							break;
+
 						case Types.BIGINT :
 							newRow[i - 1] = Long.valueOf(rs.getLong(i));
 							break;
+
 						case Types.DATE :
 							java.util.Date d1 = rs.getTimestamp(i);
 							//wrap again some drivers return not serial subclasses
 							if (d1 != null) newRow[i - 1] = new Date((conversionTimeZone != null) ? TimezoneUtils.convertOutgoingDate(d1.getTime(),
 								conversionTimeZone.getLeft(), TimeZone.getDefault(), conversionTimeZone.getRight().booleanValue()) : d1.getTime());
 							break;
+
 						case Types.TIME :
 							java.util.Date d2 = rs.getTimestamp(i);
 							//wrap again some drivers return not serial subclasses
 							if (d2 != null) newRow[i - 1] = new Time((conversionTimeZone != null) ? TimezoneUtils.convertOutgoingDate(d2.getTime(),
 								conversionTimeZone.getLeft(), TimeZone.getDefault(), conversionTimeZone.getRight().booleanValue()) : d2.getTime());
 							break;
+
 						case Types.TIMESTAMP :
 						case 11 ://date?? fix for 'odbc-bridge' and 'inet driver'
 							java.util.Date d3 = rs.getTimestamp(i);
@@ -303,23 +310,16 @@ public class BufferedDataSet implements IDataSet
 							break;
 
 						case Types.BIT :
-						case 16 : //is java 1.4 BOOLEAN type
+						case Types.BOOLEAN :
 							newRow[i - 1] = Integer.valueOf((Utils.getAsBoolean(rs.getString(i)) ? 1 : 0));
 							break;
-						case Types.CHAR :
-						case Types.VARCHAR :
-						case Types.LONGVARCHAR :
-						case -8 ://nchar fix for 'odbc-bridge' and 'inet driver'
-						case -9 ://nvarchar fix for 'odbc-bridge' and 'inet driver'
-						case -10 ://ntext fix for 'odbc-bridge' and 'inet driver'
-						case -11 ://UID text fix M$ driver -sql server
-							newRow[i - 1] = rs.getString(i);
-							break;
+
 						case Types.CLOB :
+						case Types4.NCLOB :
 							Clob clob = rs.getClob(i);
 							if (clob != null)
 							{
-								StringBuffer sb = new StringBuffer();
+								StringBuilder sb = new StringBuilder();
 								char[] chars = new char[2048];
 								Reader reader = clob.getCharacterStream();
 								int read = reader.read(chars);
@@ -331,6 +331,7 @@ public class BufferedDataSet implements IDataSet
 								newRow[i - 1] = sb.toString();
 							}
 							break;
+
 						case Types.VARBINARY :
 						case Types.BINARY :
 						case Types.LONGVARBINARY :
@@ -345,8 +346,7 @@ public class BufferedDataSet implements IDataSet
 								newRow[i - 1] = rs.getBytes(i);
 							}
 							break;
-						case Types.OTHER :
-						case Types.NULL :
+
 						default :
 							newRow[i - 1] = rs.getString(i);
 					}
@@ -669,7 +669,7 @@ public class BufferedDataSet implements IDataSet
 	@Override
 	public String toString()
 	{
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append("BufferedDataSet "); //$NON-NLS-1$
 		if (columnNames != null && columnNames.length > 0)
 		{
