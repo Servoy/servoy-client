@@ -1849,28 +1849,33 @@ public class JSDatabaseManager
 	 * record.emp_name = 'John'
 	 * databaseManager.saveData()
 	 *
-	 * @param server_name/data_source The servername or datasource to get a JSFoundset for.
-	 * @param table_name optional The tablename of the first param was the servername.
+	 * @param serverName The servername to get a JSFoundset for.
+	 * @param tableName The tablename for that server
 	 * 
 	 * @return A new JSFoundset for that datasource.
 	 */
-	public FoundSet js_getFoundSet(Object[] vargs) throws ServoyException
+	public FoundSet js_getFoundSet(String serverName, String tableName) throws ServoyException
+	{
+		return js_getFoundSet(DataSourceUtils.createDBTableDataSource(serverName, tableName));
+	}
+
+	/**
+	 * Returns a foundset object for a specified datasource or server and tablename. 
+	 *
+	 * @sample
+	 * var fs = databaseManager.getFoundSet(controller.getDataSource())
+	 * var ridx = fs.newRecord()
+	 * var record = fs.getRecord(ridx)
+	 * record.emp_name = 'John'
+	 * databaseManager.saveData()
+	 *
+	 * @param dataSource The datasource to get a JSFoundset for.
+	 * 
+	 * @return A new JSFoundset for that datasource.
+	 */
+	public FoundSet js_getFoundSet(String dataSource) throws ServoyException
 	{
 		checkAuthorized();
-		String dataSource;
-		if (vargs != null && vargs.length == 1)
-		{
-			dataSource = String.valueOf(vargs[0]);
-		}
-		else if (vargs != null && vargs.length == 2)
-		{
-			// serverName, tableName
-			dataSource = DataSourceUtils.createDBTableDataSource(String.valueOf(vargs[0]), String.valueOf(vargs[1]));
-		}
-		else
-		{
-			return null;
-		}
 		try
 		{
 			IFoundSetInternal fs = application.getFoundSetManager().getNewFoundSet(dataSource, null);
@@ -1879,9 +1884,8 @@ public class JSDatabaseManager
 		}
 		catch (Exception e)
 		{
-			Debug.error(e);
+			throw new RuntimeException("Can't get new foundset for: " + dataSource, e); //$NON-NLS-1$
 		}
-		return null;
 	}
 
 	/**
