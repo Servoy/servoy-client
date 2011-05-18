@@ -17,29 +17,15 @@
 package com.servoy.j2db.dataprocessing;
 
 
-import java.io.Reader;
-import java.sql.Clob;
-import java.sql.Date;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TimeZone;
 
 import com.servoy.j2db.query.ColumnType;
-import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.Internalize;
-import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SafeArrayList;
-import com.servoy.j2db.util.TimezoneUtils;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -84,6 +70,13 @@ public class BufferedDataSet implements IDataSet
 		setColumnTypes(columnTypes);
 	}
 
+	public BufferedDataSet(String[] columnNames, ColumnType[] columnTypes, List<Object[]> rows, boolean hadMore)
+	{
+		this.columnNames = columnNames;
+		this.columnTypes = columnTypes;
+		this.rows = rows;
+		this.hadMore = hadMore;
+	}
 
 	protected BufferedDataSet(IDataSet set)//make copy
 	{
@@ -129,265 +122,6 @@ public class BufferedDataSet implements IDataSet
 			rows = new SafeArrayList<Object[]>(0);
 			hadMore = false;
 		}
-	}
-
-
-	/**
-	 * Get all data in mem, to make it possible to get the Row Count, column Count, etc. Column definition
-	 * 
-	 * NUMBER(P <= 9) Integer
-	 * 
-	 * NUMBER(P <= 18) Long
-	 * 
-	 * NUMBER(P >= 19) BigDecimal
-	 * 
-	 * NUMBER(P <=16, S > 0) Double
-	 * 
-	 * NUMBER(P >= 17, S > 0) BigDecimal
-	 */
-	public BufferedDataSet(ResultSet rs, int startRow, int maxResults, boolean createMetaInfo, boolean skipBlobs, boolean unique,
-		Pair<TimeZone, Boolean> conversionTimeZone) throws SQLException
-	{
-		if (rs == null)
-		{
-			rows = new SafeArrayList<Object[]>(0);
-			return;
-		}
-		rows = new SafeArrayList<Object[]>(50);
-
-		ResultSetMetaData metaData = rs.getMetaData();
-
-		int numberOfColumns = metaData.getColumnCount();
-		columnTypes = new ColumnType[numberOfColumns];
-		boolean[] blobSkips = new boolean[numberOfColumns];
-		if (createMetaInfo)
-		{
-			columnNames = new String[numberOfColumns];
-		}
-		for (int column = 1; column <= numberOfColumns; column++)
-		{
-			columnTypes[column - 1] = ColumnType.getInstance(metaData.getColumnType(column), metaData.getPrecision(column), metaData.getScale(column));
-			blobSkips[column - 1] = false;
-			if (createMetaInfo || skipBlobs)
-			{
-				String name = metaData.getColumnLabel(column);
-				if (createMetaInfo)
-				{
-					columnNames[column - 1] = name;
-				}
-				if (name != null && name.toUpperCase().indexOf(IDataServer.BLOB_MARKER_COLUMN_ALIAS) != -1)
-				{
-					columnTypes[column - 1] = ColumnType.getInstance(Types.BLOB, Integer.MAX_VALUE, 0);
-					blobSkips[column - 1] = skipBlobs;
-				}
-			}
-		}
-
-		Set<RowData> uniqueRows = null;
-		if (unique)
-		{
-			uniqueRows = new HashSet<RowData>(50);
-		}
-
-		// Get all rows.
-		int count = 0;
-		while (true)
-		{
-			hadMore = rs.next();
-			if (!hadMore)
-			{
-				break;
-			}
-
-			// when unique flag is set, we have to check more records to see if there are more (new) results
-			if (!unique)
-			{
-				if (maxResults >= 0 && count >= maxResults)
-				{
-					break;
-				}
-
-				// if unique flag is set we may have to skip the row without incrementing count
-				if (count < startRow)
-				{
-					count++;
-					continue;
-				}
-			}
-
-			Object[] newRow = new Object[numberOfColumns];
-			for (int i = 1; i <= numberOfColumns; i++)
-			{
-				try
-				{
-					switch (columnTypes[i - 1].getSqlType())
-					{
-						case Types.TINYINT :
-						case Types.SMALLINT :
-						case Types.INTEGER :
-							newRow[i - 1] = Integer.valueOf(rs.getInt(i));
-							break;
-
-						case Types.NUMERIC :
-						case Types.DECIMAL :
-							int precision = metaData.getPrecision(i);
-							int scale = metaData.getScale(i);
-							if (scale == 0 && precision == 0)
-							{
-								// We don't know what is returned now. Just get it as a double
-								newRow[i - 1] = new Double(rs.getDouble(i));
-								break;
-							}
-							else if (scale == 0)
-							{
-								if (precision <= 9)
-								{
-									newRow[i - 1] = Integer.valueOf(rs.getInt(i));
-									break;
-								}
-								else if (precision <= 18)
-								{
-									newRow[i - 1] = Long.valueOf(rs.getLong(i));
-									break;
-								}
-								else
-								// if (precision >= 19)
-								{
-									newRow[i - 1] = rs.getBigDecimal(i);
-									break;
-								}
-							}
-							else
-							{
-								if (precision <= 16)
-								{
-									newRow[i - 1] = new Double(rs.getDouble(i));
-									break;
-								}
-								else
-								// if (precision >= 17)
-								{
-									newRow[i - 1] = rs.getBigDecimal(i);
-									break;
-								}
-							}
-
-						case Types.FLOAT :
-						case Types.DOUBLE :
-							newRow[i - 1] = new Double(rs.getDouble(i));
-							break;
-
-						case Types.REAL :
-							newRow[i - 1] = new Double(rs.getFloat(i));
-							//cant do getDouble on mssql driver
-							break;
-
-						case Types.BIGINT :
-							newRow[i - 1] = Long.valueOf(rs.getLong(i));
-							break;
-
-						case Types.DATE :
-							java.util.Date d1 = rs.getTimestamp(i);
-							//wrap again some drivers return not serial subclasses
-							if (d1 != null) newRow[i - 1] = new Date((conversionTimeZone != null) ? TimezoneUtils.convertOutgoingDate(d1.getTime(),
-								conversionTimeZone.getLeft(), TimeZone.getDefault(), conversionTimeZone.getRight().booleanValue()) : d1.getTime());
-							break;
-
-						case Types.TIME :
-							java.util.Date d2 = rs.getTimestamp(i);
-							//wrap again some drivers return not serial subclasses
-							if (d2 != null) newRow[i - 1] = new Time((conversionTimeZone != null) ? TimezoneUtils.convertOutgoingDate(d2.getTime(),
-								conversionTimeZone.getLeft(), TimeZone.getDefault(), conversionTimeZone.getRight().booleanValue()) : d2.getTime());
-							break;
-
-						case Types.TIMESTAMP :
-						case 11 ://date?? fix for 'odbc-bridge' and 'inet driver'
-							java.util.Date d3 = rs.getTimestamp(i);
-
-							//wrap again some drivers return not serial subclasses
-							if (d3 != null) newRow[i - 1] = new Timestamp((conversionTimeZone != null) ? TimezoneUtils.convertOutgoingDate(d3.getTime(),
-								conversionTimeZone.getLeft(), TimeZone.getDefault(), conversionTimeZone.getRight().booleanValue()) : d3.getTime());
-							break;
-
-						case Types.BIT :
-						case Types.BOOLEAN :
-							newRow[i - 1] = Integer.valueOf((Utils.getAsBoolean(rs.getString(i)) ? 1 : 0));
-							break;
-
-						case Types.CLOB :
-						case Types4.NCLOB :
-							Clob clob = rs.getClob(i);
-							if (clob != null)
-							{
-								StringBuilder sb = new StringBuilder();
-								char[] chars = new char[2048];
-								Reader reader = clob.getCharacterStream();
-								int read = reader.read(chars);
-								while (read != -1)
-								{
-									sb.append(chars, 0, read);
-									read = reader.read(chars);
-								}
-								newRow[i - 1] = sb.toString();
-							}
-							break;
-
-						case Types.VARBINARY :
-						case Types.BINARY :
-						case Types.LONGVARBINARY :
-						case Types.BLOB :
-							if (blobSkips[i - 1])
-							{
-								//add marker
-								newRow[i - 1] = ValueFactory.createBlobMarkerValue();
-							}
-							else
-							{
-								newRow[i - 1] = rs.getBytes(i);
-							}
-							break;
-
-						default :
-							newRow[i - 1] = rs.getString(i);
-					}
-				}
-				catch (Exception e)
-				{
-					Debug.error(e);
-				}
-
-				if (!(newRow[i - 1] instanceof ValueFactory.BlobMarkerValue) && rs.wasNull()) //wasNull
-				{
-					//cannot be called when value is not retrieved (which is in caseof blobmarker)
-					newRow[i - 1] = null;//remove last object
-				}
-			}
-
-			newRow = (Object[])Internalize.intern(newRow);
-
-			if (uniqueRows != null && !uniqueRows.add(new RowData(newRow)))
-			{
-				// skip this duplicate row without incrementing count
-				continue;
-			}
-
-			if (maxResults >= 0 && count >= maxResults)
-			{
-				// we have enough records, hadMore is now set because we have seen a new and different record
-				break;
-			}
-
-			if (count++ >= startRow)
-			{
-				rows.add(newRow);
-			}
-		}
-
-		/*
-		 * if(rs.next()) { String callstack = ""; if (Debug.TRACE) { // Get the page where it was called from // it starts with _jsp. java.io.StringWriter sw =
-		 * new java.io.StringWriter(); new Exception().printStackTrace(new java.io.PrintWriter(sw)); callstack = sw.toString(); Debug.trace("There is more data
-		 * in the resultset than asked for..."+callstack); } }
-		 */
 	}
 
 	/**
@@ -581,19 +315,18 @@ public class BufferedDataSet implements IDataSet
 	public boolean addColumn(int columnIndex, String columnName, int columnType)
 	{
 		int size = getColumnCount();
-		if (columnIndex == -1) columnIndex = size;
-		if (columnIndex < 0 || columnIndex > size || Utils.stringIsEmpty(columnName))
+		int index = (columnIndex == -1) ? size : columnIndex;
+		if (index < 0 || index > size || Utils.stringIsEmpty(columnName))
 		{
 			return false;
 		}
 
-		String[] newColumns = Utils.arrayInsert(getColumnNames(), new String[] { columnName }, columnIndex, 1);
-		ColumnType[] newColumnTypes = Utils.arrayInsert(columnTypes, new ColumnType[] { ColumnType.getInstance(columnType, Integer.MAX_VALUE, 0) },
-			columnIndex, 1);
+		String[] newColumns = Utils.arrayInsert(getColumnNames(), new String[] { columnName }, index, 1);
+		ColumnType[] newColumnTypes = Utils.arrayInsert(columnTypes, new ColumnType[] { ColumnType.getInstance(columnType, Integer.MAX_VALUE, 0) }, index, 1);
 
 		columnNames = newColumns;
 		columnTypes = newColumnTypes;
-		updateRowsWhenColumnAdded(columnIndex);
+		updateRowsWhenColumnAdded(index);
 		return true;
 	}
 
@@ -687,54 +420,6 @@ public class BufferedDataSet implements IDataSet
 			sb.append(' ');
 		}
 		return sb.toString();
-	}
-
-	/**
-	 * Container class for row data. Used for uniqueness check.
-	 * 
-	 * @author rgansevles
-	 * 
-	 */
-	private static class RowData
-	{
-		Object[] data;
-
-		public RowData(Object[] data)
-		{
-			this.data = data;
-		}
-
-		private static int hashCode(Object[] array)
-		{
-			final int PRIME = 31;
-			if (array == null) return 0;
-			int result = 1;
-			for (Object element : array)
-			{
-				result = PRIME * result + (element == null ? 0 : element.hashCode());
-			}
-			return result;
-		}
-
-		@Override
-		public int hashCode()
-		{
-			final int PRIME = 31;
-			int result = 1;
-			result = PRIME * result + RowData.hashCode(this.data);
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj)
-		{
-			if (this == obj) return true;
-			if (obj == null) return false;
-			if (getClass() != obj.getClass()) return false;
-			final RowData other = (RowData)obj;
-			if (!Arrays.equals(this.data, other.data)) return false;
-			return true;
-		}
 	}
 
 	private static class ArrayComparator implements Comparator<Object[]>
