@@ -17,6 +17,7 @@
 package com.servoy.j2db.server.headlessclient;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -90,7 +91,6 @@ public class WebClientSession extends WebSession
 	public IWebClientApplication startSessionClient(RootObjectMetaData sd, String method, StartupArguments argumentsScope) throws Exception
 	{
 		String firstArgument = argumentsScope.getFirstArgument();
-		boolean existingClient = false;
 		IWebClientApplication webClient = getWebClient();
 		if (webClient != null)
 		{
@@ -99,7 +99,6 @@ public class WebClientSession extends WebSession
 			{
 				return webClient; // not allowed to close solution?
 			}
-			existingClient = true;
 
 			if (solutionLoaded && isSignedIn() && !Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.allowSolutionBrowsing", "true")) &&
 				!sd.getName().equals(keepCredentialsSolutionName))
@@ -121,7 +120,6 @@ public class WebClientSession extends WebSession
 		}
 		if (webClient == null || webClient.isShutDown())
 		{
-			existingClient = false;
 			HttpServletRequest req = ((WebRequest)RequestCycle.get().getRequest()).getHttpServletRequest();
 			httpSession = req.getSession();
 			webClient = createWebClient(req, credentials, method, firstArgument == null ? null : new Object[] { firstArgument, argumentsScope.toJSMap() },
@@ -137,8 +135,12 @@ public class WebClientSession extends WebSession
 		}
 		else
 		{
-			webClient.handleArguments(new String[] { sd.getName(), method, firstArgument }, argumentsScope);
+			ArrayList<String> argsArray = new ArrayList<String>();
+			argsArray.add(sd.getName());
+			if (method != null) argsArray.add(method);
+			if (firstArgument != null) argsArray.add(firstArgument);
 
+			webClient.handleArguments(argsArray.toArray(new String[argsArray.size()]), argumentsScope);
 		}
 
 		webClient.handleClientUserUidChanged(null, ""); // fake first load
