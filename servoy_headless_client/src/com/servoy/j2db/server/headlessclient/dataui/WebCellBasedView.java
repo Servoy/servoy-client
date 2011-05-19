@@ -267,38 +267,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			bodyHeightHint = Integer.parseInt(sBodyHeightHint);
 			bodySizeHintSetFromClient = true;
 
-			int totalDefaultWidth = 0;
-			int totalWidthToStretch = 0;
-			int stretchedElementsCount = 0;
-			for (IPersist element : elementToColumnIdentifierComponent.keySet())
-			{
-				Component c = elementToColumnIdentifierComponent.get(element);
-				if (c instanceof IScriptBaseMethods)
-				{
-					int width = ((IScriptBaseMethods)c).js_getWidth();
-					totalDefaultWidth += width;
-					if (element instanceof ISupportAnchors)
-					{
-						int anchors = ((ISupportAnchors)element).getAnchors();
-						if (((anchors & IAnchorConstants.EAST) != 0) && ((anchors & IAnchorConstants.WEST) != 0))
-						{
-							totalWidthToStretch += width;
-							stretchedElementsCount++;
-						}
-					}
-				}
-			}
-
-			boolean shouldFillAllHorizSpace = shouldFillAllHorizontalSpace();
-			if (shouldFillAllHorizSpace)
-			{
-				if (stretchedElementsCount > 0)
-				{
-					int delta = bodyWidthHint - totalDefaultWidth;
-					distributeExtraSpace(delta, totalWidthToStretch, null, true);
-					setHeadersWidth();
-				}
-			}
+			distributeExtraSpace();
 
 			WebTabPanel tabPanel = findParent(WebTabPanel.class);
 			if (tabPanel != null)
@@ -1883,6 +1852,21 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		return jsChangeRecorder;
 	}
 
+	private ArrayList<Component> visibleColummIdentifierComponents;
+
+	private ArrayList<Component> getVisibleColummIdentifierComponents()
+	{
+		ArrayList<Component> colummIdentifierComponents = new ArrayList<Component>();
+		Iterator<Component> columnComponentsIte = elementToColumnIdentifierComponent.values().iterator();
+		Component c;
+		while (columnComponentsIte.hasNext())
+		{
+			c = columnComponentsIte.next();
+			if (c.isVisible()) colummIdentifierComponents.add(c);
+		}
+		return colummIdentifierComponents;
+	}
+
 	/**
 	 * @see wicket.MarkupContainer#onRender(wicket.markup.MarkupStream)
 	 */
@@ -1930,6 +1914,14 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		if (canRenderView)
 		{
+			ArrayList<Component> oldVisibleColummIdentifierComponents = visibleColummIdentifierComponents;
+			visibleColummIdentifierComponents = getVisibleColummIdentifierComponents();
+
+			if (oldVisibleColummIdentifierComponents != null && !oldVisibleColummIdentifierComponents.equals(visibleColummIdentifierComponents))
+			{
+				distributeExtraSpace();
+			}
+
 			if (tabPanel != null)
 			{
 				if (tabSize != null)
@@ -3332,7 +3324,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			if (distributeToThisColumn)
 			{
 				Component c = elementToColumnIdentifierComponent.get(element);
-				if (c instanceof IScriptBaseMethods)
+				if (c instanceof IScriptBaseMethods && c.isVisible())
 				{
 					IScriptBaseMethods ic = (IScriptBaseMethods)c;
 					int thisDelta = delta * ic.js_getWidth() / totalWidthToStretch;
@@ -3359,6 +3351,42 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 
 		updateXLocationForColumns(getOrderedHeaders());
+	}
+
+	private void distributeExtraSpace()
+	{
+		int totalDefaultWidth = 0;
+		int totalWidthToStretch = 0;
+		int stretchedElementsCount = 0;
+		for (IPersist element : elementToColumnIdentifierComponent.keySet())
+		{
+			Component c = elementToColumnIdentifierComponent.get(element);
+			if (c instanceof IScriptBaseMethods && c.isVisible())
+			{
+				int width = ((IScriptBaseMethods)c).js_getWidth();
+				totalDefaultWidth += width;
+				if (element instanceof ISupportAnchors)
+				{
+					int anchors = ((ISupportAnchors)element).getAnchors();
+					if (((anchors & IAnchorConstants.EAST) != 0) && ((anchors & IAnchorConstants.WEST) != 0))
+					{
+						totalWidthToStretch += width;
+						stretchedElementsCount++;
+					}
+				}
+			}
+		}
+
+		boolean shouldFillAllHorizSpace = shouldFillAllHorizontalSpace();
+		if (shouldFillAllHorizSpace)
+		{
+			if (stretchedElementsCount > 0)
+			{
+				int delta = bodyWidthHint - totalDefaultWidth;
+				distributeExtraSpace(delta, totalWidthToStretch, null, true);
+				setHeadersWidth();
+			}
+		}
 	}
 
 	private int getOtherFormPartsHeight()
