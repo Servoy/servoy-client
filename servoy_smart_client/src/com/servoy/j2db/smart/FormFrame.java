@@ -19,15 +19,12 @@ package com.servoy.j2db.smart;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.GraphicsDevice;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.swing.Action;
 import javax.swing.ActionMap;
@@ -60,11 +57,6 @@ public class FormFrame extends JFrame implements FormWindow
 
 	private IApplication application;
 	private IMainContainer mainContainer;
-
-	private final Map<String, Rectangle> formBounds = new HashMap<String, Rectangle>();
-
-	// For future implementation of case 286968 change
-//	private boolean persistBounds;
 
 	public FormFrame(IApplication app, String windowName)
 	{
@@ -204,18 +196,16 @@ public class FormFrame extends JFrame implements FormWindow
 		}
 	}
 
-	public Rectangle getFormBounds(String name)
+	public boolean restoreBounds()
 	{
-		return formBounds.get(name);
+		return Settings.getInstance().loadBounds(this);
 	}
 
 	public void storeBounds()
 	{
-		if (mainContainer.getController() != null)
-		{
-			formBounds.put(mainContainer.getController().getName(), getBounds());
-		}
+		Settings.getInstance().saveBounds(this);
 	}
+
 
 	public void setFullScreen()
 	{

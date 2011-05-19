@@ -748,15 +748,9 @@ public class SwingJSWindowImpl extends JSWindowImpl implements ISmartRuntimeWind
 
 	public boolean restoreWindowBounds()
 	{
-		if (wrappedWindow instanceof FormWindow && ((FormWindow)wrappedWindow).getMainContainer().getController() != null)
+		if (wrappedWindow instanceof FormWindow)
 		{
-			String name = ((FormWindow)wrappedWindow).getMainContainer().getController().getName();
-			Rectangle r = ((FormWindow)wrappedWindow).getFormBounds(name);
-			if (r != null)
-			{
-				setWindowBounds(r, false);
-				return true;
-			}
+			return ((FormWindow)wrappedWindow).restoreBounds();
 		}
 		return false;
 	}

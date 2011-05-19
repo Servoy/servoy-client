@@ -16,8 +16,6 @@
  */
 package com.servoy.j2db;
 
-import java.awt.Rectangle;
-
 import com.servoy.j2db.ui.ISupportVisibleChangeListener;
 
 /**
@@ -27,14 +25,9 @@ import com.servoy.j2db.ui.ISupportVisibleChangeListener;
 public interface FormWindow extends ISupportVisibleChangeListener
 {
 
-	// For future implementation of case 286968 change
-//	public void loadPersistedBounds();
-//
-//	public void setPersistBounds(boolean persistBounds);
-
 	void storeBounds(); // used to keep runtime bounds / form
 
-	Rectangle getFormBounds(String formName);
+	boolean restoreBounds();
 
 	void setMainContainer(IMainContainer container);
 

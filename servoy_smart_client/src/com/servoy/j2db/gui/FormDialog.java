@@ -20,13 +20,10 @@ package com.servoy.j2db.gui;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.GraphicsDevice;
-import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.swing.Action;
 import javax.swing.ActionMap;
@@ -47,6 +44,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.cmd.ICmdManager;
 import com.servoy.j2db.ui.IVisibleChangeListener;
+import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.JEscapeDialog;
@@ -64,13 +62,9 @@ public class FormDialog extends JEscapeDialog implements FormWindow
 	private IMainContainer mainContainer;
 	private boolean closeAll;
 
-	private final Map<String, Rectangle> formBounds = new HashMap<String, Rectangle>();
-
 	private IMainContainer previousModalContainer;
 
 	private IMainContainer previousMainContainer;
-
-//	private boolean persistBounds = false;
 
 	public FormDialog(IApplication app, JDialog owner, boolean modal, String dialogName)
 	{
@@ -277,17 +271,14 @@ public class FormDialog extends JEscapeDialog implements FormWindow
 		this.closeAll = closeAll;
 	}
 
-	public Rectangle getFormBounds(String name)
+	public boolean restoreBounds()
 	{
-		return formBounds.get(name);
+		return Settings.getInstance().loadBounds(this);
 	}
 
 	public void storeBounds()
 	{
-		if (mainContainer.getController() != null)
-		{
-			formBounds.put(mainContainer.getController().getName(), getBounds());
-		}
+		Settings.getInstance().saveBounds(this);
 	}
 
 	public void setPreviousMainContainer(IMainContainer previousModalContainer, IMainContainer previousMainContainer)
