@@ -409,6 +409,230 @@ public class JSSolutionModel
 	}
 
 	/**
+	 * Removes the specified global method.
+	 * 
+	 * @sample
+	 * var m1 = solutionModel.newGlobalMethod('function myglobalmethod1(){application.output("Global Method 1");}');
+	 * var m2 = solutionModel.newGlobalMethod('function myglobalmethod2(){application.output("Global Method 2");}');
+	 * 
+	 * var success = solutionModel.removeGlobalMethod("myglobalmethod1");
+	 * if (success == false) application.output("!!! myglobalmethod1 could not be removed !!!");
+	 * 
+	 * var list = solutionModel.getGlobalMethods();
+	 * for (var i = 0; i < list.length; i++) { 
+	 * 		application.output(list[i].code);
+	 * }
+	 * 
+	 * @param name the name of the global method to be removed
+	 * @return true if the removal was successful, false otherwise
+	 */
+	public boolean js_removeGlobalMethod(String name)
+	{
+		FlattenedSolution fs = application.getFlattenedSolution();
+		ScriptMethod sm = fs.getScriptMethod(name);
+		if (sm != null)
+		{
+			fs.deletePersistCopy(sm, false);
+			((FormManager)application.getFormManager()).fillScriptMenu();
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Removes the specified global variable.
+	 * 
+	 * @sample
+	 * var v1 = solutionModel.newGlobalVariable("globalVar1",JSVariable.INTEGER);
+	 * var v2 = solutionModel.newGlobalVariable("globalVar2",JSVariable.TEXT);
+	 * 
+	 * var success = solutionModel.removeGlobalVariable("globalVar1");
+	 * if (success == false) application.output("!!! globalVar1 could not be removed !!!");
+	 * 
+	 * var list = solutionModel.getGlobalVariables();
+	 * for (var i = 0; i < list.length; i++) {
+	 * 		application.output(list[i].name + "[ " + list[i].variableType + "]: " + list[i].variableType);
+	 * }
+	 * 
+	 * @param name the name of the global variable to be removed 
+	 * @return true if the removal was successful, false otherwise
+	 */
+	public boolean js_removeGlobalVariable(String name)
+	{
+		FlattenedSolution fs = application.getFlattenedSolution();
+		ScriptVariable sv = fs.getScriptVariable(name);
+		if (sv != null)
+		{
+			fs.deletePersistCopy(sv, false);
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Removes the media item specified by name.
+	 * 
+	 * @sample
+	 * var bytes1 = plugins.file.readFile('D:/Imgs/image1.png');
+	 * var image1 = solutionModel.newMedia('image1.png', bytes1);
+	 * var bytes2 = plugins.file.readFile('D:/Imgs/image2.jpg');
+	 * var image2 = solutionModel.newMedia('image2.jpg',bytes2);
+	 * var bytes3 = plugins.file.readFile('D:/Imgs/image3.jpg');
+	 * var image3 = solutionModel.newMedia('image3.jpg',bytes3);
+	 * 
+	 * var f = solutionModel.newForm("newForm",currentcontroller.getDataSource(),null,false,500,350);
+	 * var l = f.newLabel('', 20, 70, 300, 200);
+	 * l.imageMedia = image1;
+	 * l.borderType =  solutionModel.createLineBorder(4,'#ff0000');
+	 * forms["newForm"].controller.show();
+	 * 
+	 * var status = solutionModel.removeMedia('image1.jpg');
+	 * if (status) application.output("image1.png has been removed");
+	 * else application.output("image1.png has not been removed");
+	 * 
+	 * var mediaList = solutionModel.getMediaList();
+	 * for (var i = 0; i < mediaList.length; i++) {
+	 * 		application.output(mediaList[i].getName() + ":" + mediaList[i].mimeType);
+	 * }
+	 * 
+	 * @param name the name of the media item to be removed
+	 * 
+	 * @return true if the removal was successful, false otherwise
+	 */
+	public boolean js_removeMedia(String name)
+	{
+		FlattenedSolution fs = application.getFlattenedSolution();
+		Media mediaItem = fs.getMedia(name);
+		if (mediaItem != null)
+		{
+			fs.deletePersistCopy(mediaItem, false);
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Removes the specified style.
+	 * 
+	 * @sample
+	 * var s = solutionModel.newStyle("smStyle1",'form { background-color: yellow; }');
+	 * var status = solutionModel.removeStyle("smStyle1");
+	 * if (status == false) application.output("Could not remove style.");
+	 * else application.output("Style removed.");
+	 * 
+	 * @param name the name of the style to be removed
+	 * 
+	 * @return true if the removal was successful, false otherwise
+	 */
+	public boolean js_removeStyle(String name)
+	{
+		FlattenedSolution fs = application.getFlattenedSolution();
+		Style style = fs.getStyle(name);
+		if (style != null)
+		{
+			fs.removeStyle(name);
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Removes the specified valuelist.
+	 * 
+	 * @sample
+	 * var vlName = "customValueList";
+	 * var vl = solutionModel.newValueList(vlName,JSValueList.CUSTOM_VALUES);
+	 * vl.customValues = "customvalue1\ncustomvalue2";
+	 * 
+	 * var status = solutionModel.removeValueList(vlName);
+	 * if (status) application.output("Removal has been done.");
+	 * else application.output("ValueList not removed.");
+	 * 
+	 * var vls = solutionModel.getValueLists();
+	 * if (vls != null) {
+	 * 	for (var i = 0; i < vls.length; i++) {
+	 * 		application.output(vls[i]);
+	 * 	}
+	 * 	application.output("");
+	 * }
+	 * 
+	 * 
+	 * @param name name of the valuelist to be removed
+	 * 
+	 * @return true if the removal was successful, false otherwise
+	 */
+	public boolean js_removeValueList(String name)
+	{
+		FlattenedSolution fs = application.getFlattenedSolution();
+		ValueList valueList = fs.getValueList(name);
+		if (valueList != null)
+		{
+			fs.deletePersistCopy(valueList, false);
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Removes the calculation specified by name and datasource.
+	 * 
+	 * @sample
+	 * var calc1 = solutionModel.newCalculation("function myCalculation1() { return 123; }", JSVariable.INTEGER, "db:/example_data/customers");
+	 * var calc2 = solutionModel.newCalculation("function myCalculation2() { return '20'; }", "db:/example_data/customers");
+	 * 
+	 * var c = solutionModel.getCalculation("myCalculation1", "db:/example_data/customers");
+	 * application.output("Name: " + c.getName() + ", Stored: " + c.isStored());
+	 * 
+	 * solutionModel.removeCalculation("myCalculation1", "db:/example_data/customers");
+	 * c = solutionModel.getCalculation("myCalculation1", "db:/example_data/customers");
+	 * if (c != null) {
+	 * 		application.output("myCalculation could not be removed.");
+	 * }
+	 * 
+	 * var allCalcs = solutionModel.getCalculations("db:/example_data/customers");
+	 * for (var i = 0; i < allCalcs.length; i++) {
+	 * 		application.output(allCalcs[i]);
+	 * }
+	 * 
+	 * @param name the name of the calculation to be removed
+	 * @param datasource the datasource the calculation belongs to
+	 * 
+	 * @return true if the removal was successful, false otherwise
+	 */
+	public boolean js_removeCalculation(String name, String datasource)
+	{
+		try
+		{
+			ITable table = application.getFoundSetManager().getTable(datasource);
+			if (table == null) throw new RuntimeException("No table found for datasource: " + datasource);
+
+			FlattenedSolution fs = application.getFlattenedSolution();
+			TableNode tablenode = fs.getSolutionCopyTableNode(table);
+			ScriptCalculation sc = tablenode.getScriptCalculation(name);
+			if (sc != null)
+			{
+				tablenode.removeChild(sc);
+				return true;
+			}
+			else
+			{
+				//it is a design time calculation, therefore we "hide" it
+				sc = fs.getScriptCalculation(name, table);
+				if (sc != null)
+				{
+					fs.addToRemovedPersists(sc);
+					return true;
+				}
+			}
+			return false;
+		}
+		catch (Exception e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
 	 * Reverts the specified form to the original (blueprint) version of the form; will result in an exception error if the form is not an original form.
 	 * 
 	 * NOTE: Make sure you call history.remove first in your Servoy method (script) or call form.controller.recreateUI() before the script ends.

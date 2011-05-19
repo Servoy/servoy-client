@@ -115,6 +115,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	private Map<String, ScriptVariable> scriptVariableCacheByName = null;
 	private Map<String, ValueList> valuelistCacheByName = null;
 	private final List<IPersist> removedPersist = new ArrayList<IPersist>(3);
+	private final List<String> deletedStyles = new ArrayList<String>(3);
 
 	private Map<Bean, Object> beanDesignInstances;
 
@@ -267,6 +268,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		}
 		else if (exists && !revertToOriginal)
 		{
+			allObjectscache = null;
 			if (realPersist != null)
 			{
 				removedPersist.add(realPersist);
@@ -275,6 +277,19 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			{
 				removedPersist.add(persist);
 			}
+		}
+	}
+
+	public void addToRemovedPersists(AbstractBase persist)
+	{
+		AbstractBase realPersist = persist.getRuntimeProperty(CLONE_PROPERTY);
+		if (realPersist != null)
+		{
+			removedPersist.add(realPersist);
+		}
+		else
+		{
+			removedPersist.add(persist);
 		}
 	}
 
@@ -453,7 +468,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			return loginFlattenedSolution.createStyle(name, content);
 		}
 
-		if (all_styles.containsKey(name)) throw new RuntimeException("Style with name '" + name + "' already exists"); //$NON-NLS-1$ //$NON-NLS-2$
+		if (all_styles.containsKey(name) && !deletedStyles.contains(name)) throw new RuntimeException("Style with name '" + name + "' already exists"); //$NON-NLS-1$ //$NON-NLS-2$
 		if (user_created_styles == null) user_created_styles = new HashMap<String, Style>();
 		if (user_created_styles.containsKey(name)) throw new RuntimeException("Style with name '" + name + "' already exists"); //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -1483,12 +1498,28 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		}
 	}
 
+	public void removeStyle(String name)
+	{
+		if (user_created_styles != null && user_created_styles.containsKey(name))
+		{
+			user_created_styles.remove(name);
+		}
+		else
+		{
+			deletedStyles.add(name);
+		}
+	}
+
 	public synchronized Style getStyle(String name)
 	{
 		if (user_created_styles != null)
 		{
 			Style style = user_created_styles.get(name);
 			if (style != null) return style;
+		}
+		if (deletedStyles.contains(name))
+		{
+			return null;
 		}
 		if (loginFlattenedSolution != null)
 		{
@@ -1526,6 +1557,10 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		synchronized (this)
 		{
 			String style_name = f.getStyleName();
+			if (deletedStyles.contains(style_name))
+			{
+				return null;
+			}
 			if (style_name != null)
 			{
 				String overridden = null;
@@ -1914,6 +1949,14 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 						}
 					}
 				}
+			}
+		}
+		//remove the deleted calculation from the deletedPersists
+		for (ScriptCalculation sc : scriptCalculations)
+		{
+			if (removedPersist.contains(sc))
+			{
+				scriptCalculations.remove(sc);
 			}
 		}
 		return scriptCalculations.iterator();
