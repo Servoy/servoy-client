@@ -30,6 +30,7 @@ import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IScriptBaseMethods;
+import com.servoy.j2db.ui.IScriptRenderMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.ISupportSpecialClientProperty;
 import com.servoy.j2db.util.IDelegate;
@@ -39,7 +40,7 @@ import com.servoy.j2db.util.IDelegate;
  * 
  * @author lvostinar
  */
-public abstract class AbstractRuntimeField extends AbstractRuntimeBaseComponent
+public abstract class AbstractRuntimeField extends AbstractRuntimeBaseComponent implements IScriptRenderMethods
 {
 	protected IFieldComponent component;
 

@@ -32,7 +32,7 @@ import com.servoy.j2db.util.PersistHelper;
  * @author gabi
  *
  */
-public class DataRendererOnRenderWrapper implements ISupportOnRenderCallback
+public class DataRendererOnRenderWrapper implements ISupportOnRenderCallback, IScriptRenderMethods
 {
 	private final RenderEventExecutor renderEventExecutor;
 	private final ISupportOnRenderWrapper onRenderComponent;

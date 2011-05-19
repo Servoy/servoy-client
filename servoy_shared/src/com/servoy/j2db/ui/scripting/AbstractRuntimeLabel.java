@@ -20,6 +20,7 @@ package com.servoy.j2db.ui.scripting;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IScriptBaseMethods;
+import com.servoy.j2db.ui.IScriptRenderMethods;
 import com.servoy.j2db.ui.IStandardLabel;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 
@@ -29,7 +30,7 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
  * @author lvostinar
  * @since 6.0
  */
-public abstract class AbstractRuntimeLabel extends AbstractRuntimeBaseComponent
+public abstract class AbstractRuntimeLabel extends AbstractRuntimeBaseComponent implements IScriptRenderMethods
 {
 	protected ILabel label;
 	private String i18nTT;

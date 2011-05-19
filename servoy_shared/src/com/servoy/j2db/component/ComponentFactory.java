@@ -1629,7 +1629,7 @@ public class ComponentFactory
 				Utils.parseJSExpressions(label.getInstanceMethodArguments("onRightClickMethodID")));
 		}
 
-		if (label.getLabelFor() == null)
+		if (label.getLabelFor() == null || (form.getView() != FormController.TABLE_VIEW && form.getView() != FormController.LOCKED_TABLE_VIEW))
 		{
 			int onRenderMethodID = label.getOnRenderMethodID();
 			if (onRenderMethodID <= 0) onRenderMethodID = form.getOnRenderMethodID();
