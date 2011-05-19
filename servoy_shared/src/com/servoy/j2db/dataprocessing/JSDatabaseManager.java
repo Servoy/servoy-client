@@ -1843,6 +1843,8 @@ public class JSDatabaseManager
 	 * Returns a foundset object for a specified datasource or server and tablename. 
 	 *
 	 * @sample
+	 * // type the foundset returned from the call with JSDoc, fill in the right server/tablename
+	 * /** @type {JSFoundset<db:/servername/tablename>} *&#47;
 	 * var fs = databaseManager.getFoundSet(controller.getDataSource())
 	 * var ridx = fs.newRecord()
 	 * var record = fs.getRecord(ridx)
@@ -1863,6 +1865,8 @@ public class JSDatabaseManager
 	 * Returns a foundset object for a specified datasource or server and tablename. 
 	 *
 	 * @sample
+	 * // type the foundset returned from the call with JSDoc, fill in the right server/tablename
+	 * /** @type {JSFoundset<db:/servername/tablename>} *&#47;
 	 * var fs = databaseManager.getFoundSet(controller.getDataSource())
 	 * var ridx = fs.newRecord()
 	 * var record = fs.getRecord(ridx)

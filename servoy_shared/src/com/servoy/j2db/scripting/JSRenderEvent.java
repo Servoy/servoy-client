@@ -74,7 +74,10 @@ public class JSRenderEvent implements IJavaScriptType
 	/**
 	 * Returns the record of the element that is being rendered.
 	 *
-	 * @sample event.getRecord();
+	 * @sample
+	 * // type the record returned from the call with JSDoc, fill in the right server/tablename
+	 * /** @type {JSRecord<db:/servername/tablename>} *&#47;
+	 * var record = event.getRecord();
 	 * 
 	 * @return Record of the element that is being rendered
 	 */
