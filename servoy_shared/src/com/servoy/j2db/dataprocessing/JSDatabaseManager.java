@@ -182,7 +182,7 @@ public class JSDatabaseManager
 	 * @param server_name The name of the database server connection for the specified table name.
 	 * @param table_name The name of the specified table. 
 	 * @param dataprovider A specified dataprovider column name.  
-	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN". 
+	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "||=" (or-is-null). 
 	 * @param value The specified filter value. 
 	 * @param filter_name optional The specified name of the database table filter. 
 	 * 
