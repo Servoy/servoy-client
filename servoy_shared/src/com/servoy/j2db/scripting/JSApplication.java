@@ -1899,18 +1899,28 @@ public class JSApplication implements IReturnedTypesProvider
 	}
 
 	/**
-	 * Test if the form is currently showing in a dialog.
-	 *
+	 * Test if the form is currently showing in a window.
+	 * 
 	 * @sample
-	 * if(application.isFormInDialog(forms.formname))
+	 * if(application.isFormInWindow(forms.formname))
 	 * {
-	 * 	//close dialog
+	 * 	//close window
 	 * }
-	 *
+	 * 
 	 * @param form Form object or name
 	 * 
-	 * @return Boolean (true) if the form is showing in a dialog, (false) otherwise
+	 * @return Boolean (true) if the form is showing in a window, (false) otherwise
 	 */
+	public boolean js_isFormInWindow(Object form)
+	{
+		return js_isFormInDialog(form);
+	}
+
+	/**
+	 * @deprecated 
+	 * @see js_isFormInWindow(Object form)
+	 */
+	@Deprecated
 	public boolean js_isFormInDialog(Object form)
 	{
 		FormController fp = getFormController(form);
