@@ -656,13 +656,18 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 	 */
 	public boolean isCountAggregateDataAdapter(IDataAdapter dataAdapter)
 	{
+		return isCountAggregateDataProvider(dataAdapter.getDataProviderID());
+	}
+
+	private boolean isCountAggregateDataProvider(String dataProvider)
+	{
 		try
 		{
 			if (dataProviderLookup == null)
 			{
 				return false;
 			}
-			IDataProvider dp = dataProviderLookup.getDataProvider(dataAdapter.getDataProviderID());
+			IDataProvider dp = dataProviderLookup.getDataProvider(dataProvider);
 			if (dp instanceof AggregateVariable)
 			{
 				return ((AggregateVariable)dp).getType() == QueryAggregate.COUNT;
@@ -768,7 +773,15 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 
 	public String getStringValue(String name)
 	{
-		return TagResolver.formatObject(getValueObject(currentRecord, name), application.getSettings());
+		String stringValue = TagResolver.formatObject(getValueObject(currentRecord, name), application.getSettings());
+		if (stringValue == null)
+		{
+			if ("selectedIndex".equals(name) || isCountAggregateDataProvider(name)) //$NON-NLS-1$
+			{
+				return "0"; //$NON-NLS-1$
+			}
+		}
+		return stringValue;
 	}
 
 	/**
