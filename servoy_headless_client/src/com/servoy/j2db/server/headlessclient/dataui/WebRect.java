@@ -24,6 +24,7 @@ import javax.swing.border.LineBorder;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.RectShape;
 import com.servoy.j2db.ui.IRect;
+import com.servoy.j2db.ui.scripting.RuntimeRectangle;
 
 /**
  * Represents a rectangle in the browser, (a div with a 1 pixel border)
@@ -44,6 +45,7 @@ public class WebRect extends WebBaseLabel implements IRect
 			setBackground(Color.white);
 			setForeground(Color.black);
 		}
+		scriptable = new RuntimeRectangle(this, new ChangesRecorder(null, TemplateGenerator.DEFAULT_LABEL_PADDING), application);
 	}
 
 	/**

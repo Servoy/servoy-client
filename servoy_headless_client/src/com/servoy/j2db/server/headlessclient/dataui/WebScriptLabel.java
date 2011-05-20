@@ -20,7 +20,6 @@ import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
 
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.ui.scripting.RuntimeScriptLabel;
 import com.servoy.j2db.util.HtmlUtils;
 
 /**
@@ -39,7 +38,6 @@ public class WebScriptLabel extends WebBaseLabel
 	public WebScriptLabel(IApplication application, String id)
 	{
 		super(application, id);
-		scriptable = new RuntimeScriptLabel(this, new ChangesRecorder(null, TemplateGenerator.DEFAULT_LABEL_PADDING), application);
 	}
 
 

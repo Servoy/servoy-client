@@ -70,6 +70,7 @@ import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeBaseComponent;
+import com.servoy.j2db.ui.scripting.RuntimeScriptLabel;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.ImageLoader;
@@ -118,6 +119,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	{
 		super(id);
 		this.application = application;
+		scriptable = new RuntimeScriptLabel(this, new ChangesRecorder(null, TemplateGenerator.DEFAULT_LABEL_PADDING), application);
 		setEscapeModelStrings(false);
 		setOutputMarkupPlaceholderTag(true);
 		add(StyleAttributeModifierModel.INSTANCE);
