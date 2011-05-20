@@ -466,8 +466,8 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 
 						if (editor instanceof ISupportSecuritySettings)
 						{
-							((ISupportSecuritySettings)editor).setAccessible(b_accessible);
-							((ISupportSecuritySettings)editor).setViewable(b_viewable);
+							if (!b_accessible) ((ISupportSecuritySettings)editor).setAccessible(false);
+							if (!b_viewable) ((ISupportSecuritySettings)editor).setViewable(false);
 						}
 
 						if (editor instanceof JButton)
@@ -578,8 +578,8 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 						}
 						if (renderer instanceof ISupportSecuritySettings)
 						{
-							((ISupportSecuritySettings)renderer).setAccessible(b_accessible);
-							((ISupportSecuritySettings)renderer).setViewable(b_viewable);
+							if (!b_accessible) ((ISupportSecuritySettings)renderer).setAccessible(false);
+							if (!b_viewable) ((ISupportSecuritySettings)renderer).setViewable(false);
 						}
 						if (index == 0 && cellview instanceof Form)
 						{

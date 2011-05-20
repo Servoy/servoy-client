@@ -879,16 +879,19 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 				comps = new Component[tv.getColumnCount()];
 				compsRenderer = new Component[tv.getColumnCount()];
 
+				CellAdapter[] tableCellAdapters = new CellAdapter[tv.getColumnCount()];
+
 				for (int j = 0; j < comps.length; j++)
 				{
-					comps[j] = ((CellAdapter)tv.getCellEditor(0, j)).getEditor();
-					compsRenderer[j] = ((CellAdapter)tv.getCellEditor(0, j)).getRenderer();
+					tableCellAdapters[j] = (CellAdapter)tv.getCellEditor(0, j);
+					comps[j] = tableCellAdapters[j].getEditor();
+					compsRenderer[j] = tableCellAdapters[j].getRenderer();
 				}
 				for (int j = 0; j < comps.length; j++)
 				{
 					if (compsRenderer[j] instanceof Component && !((Component)compsRenderer[j]).isVisible())
 					{
-						tv.getColumnModel().removeColumn((CellAdapter)tv.getCellEditor(0, j));
+						tv.getColumnModel().removeColumn(tableCellAdapters[j]);
 					}
 				}
 			}
