@@ -1240,9 +1240,9 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 	}
 
 	/**
-	 * @see com.servoy.j2db.IFormUIInternal#isFormInDialog()
+	 * @see com.servoy.j2db.IFormUIInternal#isFormInWindow()
 	 */
-	public boolean isFormInDialog()
+	public boolean isFormInWindow()
 	{
 		Container parent = getParent();
 		while (parent != null)

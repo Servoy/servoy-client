@@ -823,11 +823,21 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		}
 	}
 
+	/**
+	 * Specifies if the main page is running in an additional window.
+	 * 
+	 * @return true if the main page is in an additional window, false otherwise
+	 */
 	public boolean isShowingInDialog()
 	{
 		return showingInDialog;
 	}
 
+	/**
+	 * Specifies if the main page is running in the main window.
+	 * 
+	 * @return true if the main page is in the main window, false otherwise
+	 */
 	public boolean isShowingInWindow()
 	{
 		return showingInWindow;

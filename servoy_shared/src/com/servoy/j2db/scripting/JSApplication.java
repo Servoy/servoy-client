@@ -1929,7 +1929,7 @@ public class JSApplication implements IReturnedTypesProvider
 		// but it is still in a visible dialog.
 		if (fp != null /* && fp.isFormVisible() */)
 		{
-			return fp.getFormUI().isFormInDialog();
+			return fp.getFormUI().isFormInWindow();
 		}
 		return false;
 	}

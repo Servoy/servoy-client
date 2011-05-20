@@ -1333,7 +1333,10 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		return name;
 	}
 
-	public boolean isFormInDialog()
+	/**
+	 * @see com.servoy.j2db.IFormUIInternal#isFormInWindow()
+	 */
+	public boolean isFormInWindow()
 	{
 		MainPage mp = getMainPage();
 		if (mp != null)

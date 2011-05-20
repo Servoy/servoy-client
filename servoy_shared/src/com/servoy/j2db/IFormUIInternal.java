@@ -70,7 +70,7 @@ public interface IFormUIInternal<T> extends IFormUI, IFocusCycleRoot<T>
 
 	public void updateFormUI();
 
-	public boolean isFormInDialog();
+	public boolean isFormInWindow();
 
 	/**
 	 * Returns the name of the window/dialog in which this form is showing. In case of main application window, it will return IApplication.APP_WINDOW_NAME to differentiate from the case where
