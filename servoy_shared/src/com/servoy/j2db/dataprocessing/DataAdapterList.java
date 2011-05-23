@@ -654,12 +654,12 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 	 * @param dataAdapter
 	 * @return true if dataAdapter is for count aggregate, otherwise false
 	 */
-	public boolean isCountAggregateDataAdapter(IDataAdapter dataAdapter)
+	public boolean isCountOrAvgOrSumAggregateDataProvider(IDataAdapter dataAdapter)
 	{
-		return isCountAggregateDataProvider(dataAdapter.getDataProviderID());
+		return isCountOrAvgOrSumAggregateDataProvider(dataAdapter.getDataProviderID());
 	}
 
-	private boolean isCountAggregateDataProvider(String dataProvider)
+	private boolean isCountOrAvgOrSumAggregateDataProvider(String dataProvider)
 	{
 		try
 		{
@@ -670,7 +670,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 			IDataProvider dp = dataProviderLookup.getDataProvider(dataProvider);
 			if (dp instanceof AggregateVariable)
 			{
-				return ((AggregateVariable)dp).getType() == QueryAggregate.COUNT;
+				int aggType = ((AggregateVariable)dp).getType();
+				return aggType == QueryAggregate.COUNT || aggType == QueryAggregate.AVG || aggType == QueryAggregate.SUM;
 			}
 		}
 		catch (Exception ex)
@@ -776,7 +777,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 		String stringValue = TagResolver.formatObject(getValueObject(currentRecord, name), application.getSettings());
 		if (stringValue == null)
 		{
-			if ("selectedIndex".equals(name) || isCountAggregateDataProvider(name)) //$NON-NLS-1$
+			if ("selectedIndex".equals(name) || isCountOrAvgOrSumAggregateDataProvider(name)) //$NON-NLS-1$
 			{
 				return "0"; //$NON-NLS-1$
 			}
