@@ -337,6 +337,8 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 
 		unselectedBackground = editor.getBackground();
 		unselectedForeground = editor.getForeground();
+		unselectedFont = editor.getFont();
+
 	}
 
 	public void setDataAdapterList(DataAdapterList dal)
