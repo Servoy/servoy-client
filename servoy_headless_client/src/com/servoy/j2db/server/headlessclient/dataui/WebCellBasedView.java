@@ -1378,6 +1378,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				while (nextHeaderIdx < orderedHeaders.size())
 				{
 					nextHeader = (SortableCellViewHeader)orderedHeaders.get(nextHeaderIdx);
+					if (nextHeader.isUnmovable()) return;
 					if (offset < nextHeader.getWidth() || nextHeaderIdx == orderedHeaders.size() - 1) // over next element or end
 					{
 						if (offset < nextHeader.getWidth() / 2) // move before
@@ -1413,6 +1414,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				while (nextHeaderIdx > -1)
 				{
 					nextHeader = (SortableCellViewHeader)orderedHeaders.get(nextHeaderIdx);
+					if (nextHeader.isUnmovable()) return;
 					if (offset < nextHeader.getWidth() || nextHeaderIdx == 0) // over next element or end
 					{
 						if (offset < nextHeader.getWidth() / 2) // move after

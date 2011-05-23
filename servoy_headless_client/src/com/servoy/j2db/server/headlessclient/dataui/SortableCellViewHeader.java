@@ -242,6 +242,8 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 
 	private final IApplication application;
 
+	private boolean isUnmovable;
+
 	/**
 	 * Construct.
 	 * 
@@ -277,8 +279,11 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 					if (((anchors & IAnchorConstants.EAST) == 0) || ((anchors & IAnchorConstants.WEST) == 0))
 					{
 						blockResize = true;
-						break;
 					}
+
+					isUnmovable = ((anchors & IAnchorConstants.NORTH) == IAnchorConstants.NORTH) &&
+						((anchors & IAnchorConstants.SOUTH) == IAnchorConstants.SOUTH);
+					break;
 				}
 			}
 		}
@@ -292,13 +297,14 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 				@Override
 				protected void onDragEnd(String componentId, int x, int y, AjaxRequestTarget ajaxRequestTarget)
 				{
-					view.moveColumn(SortableCellViewHeader.this, x - startX, ajaxRequestTarget);
+					if (!isUnmovable()) view.moveColumn(SortableCellViewHeader.this, x - startX, ajaxRequestTarget);
 					labelResolver.setDropped(true);
 				}
 
 				@Override
 				protected boolean onDragStart(String componentId, int x, int y, AjaxRequestTarget ajaxRequestTarget)
 				{
+					if (isUnmovable()) return false;
 					startX = x;
 					return true;
 				}
@@ -440,6 +446,11 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 		{
 			setResizeImage(dir ? SortableCellViewHeader.R_ARROW_DOWN : SortableCellViewHeader.R_ARROW_UP);
 		}
+	}
+
+	public boolean isUnmovable()
+	{
+		return isUnmovable;
 	}
 
 	public String getToolTipText()

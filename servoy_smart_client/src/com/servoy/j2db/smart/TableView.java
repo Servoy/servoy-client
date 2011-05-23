@@ -337,6 +337,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		List<Component> renderers = new ArrayList<Component>();
 		final Map<String, IPersist> labelsFor = new HashMap<String, IPersist>();
 		LinkedHashMap<String, IDataAdapter> displays = new LinkedHashMap<String, IDataAdapter>();
+		ArrayList<Integer> unmovableColumns = new ArrayList<Integer>();
 		try
 		{
 			int index = 0;
@@ -640,7 +641,12 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 									ca.setMaxWidth(((IFormElement)obj).getSize().width);
 									ca.setResizable(false);
 								}
+							}
 
+							if (((anchors & IAnchorConstants.NORTH) == IAnchorConstants.NORTH) &&
+								((anchors & IAnchorConstants.SOUTH) == IAnchorConstants.SOUTH))
+							{
+								unmovableColumns.add(Integer.valueOf(index));
 							}
 						}
 						int objAccess = app.getFlattenedSolution().getSecurityAccess(obj.getUUID());
@@ -717,6 +723,14 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		JTableHeader theader = getTableHeader();
 		if (theader != null)
 		{
+			if (theader instanceof UnmovableTableHeader)
+			{
+				int[] unmovableColumnsA = new int[unmovableColumns.size()];
+				int i = 0;
+				for (Integer c : unmovableColumns)
+					unmovableColumnsA[i++] = c.intValue();
+				((UnmovableTableHeader)theader).setUnmovableColumns(unmovableColumnsA);
+			}
 			theader.addMouseListener(new MouseAdapter()
 			{
 				@Override
@@ -1986,4 +2000,73 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 	{
 		return selectedStyle;
 	}
+
+	@Override
+	protected JTableHeader createDefaultTableHeader()
+	{
+		return new UnmovableTableHeader(columnModel);
+	}
+
+
+	class UnmovableTableHeader extends JTableHeader
+	{
+		int[] unmovableColumnIndexes;
+
+		UnmovableTableHeader(TableColumnModel model)
+		{
+			super(model);
+		}
+
+		public void setUnmovableColumns(int[] unmovableColumnIndexes)
+		{
+			this.unmovableColumnIndexes = unmovableColumnIndexes;
+		}
+
+		boolean isUnmovableColumn(int viewIndex)
+		{
+			if (unmovableColumnIndexes != null)
+			{
+				for (int unmovableColumnIdx : unmovableColumnIndexes)
+				{
+					if (unmovableColumnIdx == viewIndex) return true;
+				}
+			}
+			return false;
+		}
+
+		@Override
+		public TableColumn getDraggedColumn()
+		{
+			TableColumn draggedCol = super.getDraggedColumn();
+			if (draggedCol != null)
+			{
+				int modelIndex = draggedCol.getModelIndex();
+				int index = getTable().convertColumnIndexToView(modelIndex);
+
+				/* If the user tries to move an unmovable column don’t allow it */
+				if (isUnmovableColumn(index))
+				{
+					setDraggedColumn(null);
+				}
+				/* if the current dragged column is dragged towards right and the next column is unmovable one, don’t allow it */
+				else if (getDraggedDistance() > 0)
+				{
+					if (isUnmovableColumn(index + 1))
+					{
+						setDraggedColumn(null);
+					}
+				}
+				/* if the current dragged column is dragged towards left and the next column is unmovable one, don’t allow it */
+				else if (getDraggedDistance() < 0)
+				{
+					if (isUnmovableColumn(index - 1))
+					{
+						setDraggedColumn(null);
+					}
+				}
+			}
+
+			return draggedCol;
+		}
+	};
 }
