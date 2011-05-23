@@ -1913,16 +1913,6 @@ public class JSApplication implements IReturnedTypesProvider
 	 */
 	public boolean js_isFormInWindow(Object form)
 	{
-		return js_isFormInDialog(form);
-	}
-
-	/**
-	 * @deprecated 
-	 * @see js_isFormInWindow(Object form)
-	 */
-	@Deprecated
-	public boolean js_isFormInDialog(Object form)
-	{
 		FormController fp = getFormController(form);
 
 		// can't test if the form is visible, in onhide the form controller is already made not visible.
@@ -1932,6 +1922,16 @@ public class JSApplication implements IReturnedTypesProvider
 			return fp.getFormUI().isFormInWindow();
 		}
 		return false;
+	}
+
+	/**
+	 * @deprecated 
+	 * @see js_isFormInWindow(Object form)
+	 */
+	@Deprecated
+	public boolean js_isFormInDialog(Object form)
+	{
+		return js_isFormInWindow(form);
 	}
 
 	private FormController getFormController(Object form)
