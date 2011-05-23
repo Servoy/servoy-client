@@ -113,9 +113,9 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 				obj = state.getValue(dataProviderID);
 			}
 
-			// if display value is null but is for countaggregate set it to 0, as
-			// it means that the foundset has no records, so count is 0;
-			if (obj == null && dal.isCountAggregateDataAdapter(this)) obj = new Integer(0);
+			// if display value is null but is for count/avg/sum aggregate set it to 0, as
+			// it means that the foundset has no records, so count/avg/sum is 0;
+			if (obj == null && dal.isCountOrAvgOrSumAggregateDataProvider(this)) obj = new Integer(0);
 		}
 		if (obj == Scriptable.NOT_FOUND)
 		{
