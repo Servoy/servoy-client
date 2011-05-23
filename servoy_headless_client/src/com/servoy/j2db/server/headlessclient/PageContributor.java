@@ -440,6 +440,7 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 
 	private static void addComponentToEventListWhenNeeded(Component c, List<String> focusGainedFields, List<String> focusLostFields)
 	{
+		if (!c.isEnabled()) return;
 		if (c instanceof IFieldComponent && ((IFieldComponent)c).getEventExecutor() != null)
 		{
 			// Skip RadioChoice and CheckboxChoice, they are inside <div>s and does not really 
