@@ -369,6 +369,13 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
  * public Dimension getPreferredSize() { return new Dimension(form.getSize().width, body_end - body_start); //form.getSize(); }
  */
 
+	@Override
+	protected void paintComponent(Graphics g)
+	{
+		fireDataRendererOnRender(false, true);
+		super.paintComponent(g);
+	}
+
 	/*
 	 * @see javax.swing.JComponent#paintChildren(java.awt.Graphics)
 	 */
@@ -380,7 +387,6 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 			g.setColor(Color.BLACK);
 			g.fillRect(0, 0, 3, getHeight());
 		}
-		fireDataRendererOnRender(false, true);
 		try
 		{
 			super.paintChildren(g);
