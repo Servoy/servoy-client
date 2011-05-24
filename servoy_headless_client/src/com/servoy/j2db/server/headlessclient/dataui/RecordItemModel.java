@@ -231,7 +231,8 @@ public abstract class RecordItemModel extends LoadableDetachableModel implements
 	 */
 	public void setValue(Component component, String dataProviderID, Object obj)
 	{
-		boolean ownComponentsValue = dataProviderID.endsWith(getDataProviderID(component));
+		String compDpid = getDataProviderID(component);
+		boolean ownComponentsValue = compDpid != null && dataProviderID.endsWith(compDpid);
 		Object prevValue = null;
 		if (ownComponentsValue && component instanceof IResolveObject)
 		{
