@@ -35,7 +35,7 @@ public class Ad
 		Object[] retval = new Object[4];
 		try
 		{
-			URL url = new URL("http://www.servoy.com/client/ad"); //$NON-NLS-1$
+			URL url = new URL("https://www.servoy.com/client/ad"); //$NON-NLS-1$
 			URLConnection urlConnection = url.openConnection();
 			urlConnection.setConnectTimeout(5000);
 			InputStream is = urlConnection.getInputStream();
