@@ -1998,12 +1998,12 @@ public class JSApplication implements IReturnedTypesProvider
 	}
 
 	/**
-	 * Get a window by window name.
+	 * Get a window by window name. When not supplying a name, the main application window is grabbed.
+	 * 
 	 * @sample
 	 * // close and dispose window resources
 	 * win = application.getWindow("someWindowName");
 	 * if (win != null) {
-	 * 	if (win.isVisible()) win.close();
 	 * 	win.destroy();
 	 * }
 	 * 
