@@ -309,7 +309,7 @@ public class RuntimeTabPanel extends AbstractRuntimeFormContainer<ITabPanel, JCo
 	{
 		if (i >= 1 && i <= js_getMaxTabIndex())
 		{
-			getComponent().isTabEnabledAt(i - 1);
+			return getComponent().isTabEnabledAt(i - 1);
 		}
 		return false;
 	}
