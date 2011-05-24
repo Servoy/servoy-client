@@ -793,6 +793,7 @@ public class WebEventExecutor extends BaseEventExecutor
 		if (draggableBehavior == null) return;
 
 		boolean bUseProxy = draggableBehavior.isUseProxy();
+		boolean bResizeProxyFrame = draggableBehavior.isResizeProxyFrame();
 		boolean bXConstraint = draggableBehavior.isXConstraint();
 		boolean bYConstraint = draggableBehavior.isYConstraint();
 		CharSequence dragUrl = draggableBehavior.getCallbackUrl();
@@ -914,6 +915,8 @@ public class WebEventExecutor extends BaseEventExecutor
 				sbAttachDrag.append("', ");
 				sbAttachDrag.append(bUseProxy);
 				sbAttachDrag.append(", ");
+				sbAttachDrag.append(bResizeProxyFrame);
+				sbAttachDrag.append(", ");
 				sbAttachDrag.append(bXConstraint);
 				sbAttachDrag.append(", ");
 				sbAttachDrag.append(bYConstraint);
@@ -947,8 +950,8 @@ public class WebEventExecutor extends BaseEventExecutor
 		else
 		//default handling 
 		{
-			jsCode = "Servoy.DD.attachDrag(['" + component.getMarkupId() + "'],'" + dragUrl + "', " + bUseProxy + ", " + bXConstraint + ", " + bYConstraint +
-				")";
+			jsCode = "Servoy.DD.attachDrag(['" + component.getMarkupId() + "'],'" + dragUrl + "', " + bUseProxy + ", " + bResizeProxyFrame + ", " +
+				bXConstraint + ", " + bYConstraint + ")";
 			if (response == null)
 			{
 				jsCode = (new StringBuilder().append("\n<script type=\"text/javascript\">\n").append(jsCode).append("</script>\n")).toString();

@@ -635,7 +635,7 @@ if (typeof(Servoy.DD) == "undefined")
 			}
 		},
 	
-		attachDrag: function (array, callback , bUseProxy, bXConstraint, bYConstraint)
+		attachDrag: function (array, callback , bUseProxy, bResizeProxyFrame, bXConstraint, bYConstraint)
 		{
 			YAHOO.util.DDM.mode = YAHOO.util.DDM.INTERSECT;
 			if(Servoy.DD.klEsc == null)
@@ -648,7 +648,7 @@ if (typeof(Servoy.DD) == "undefined")
 			{
 				var dd;
 				if(bUseProxy)
-					dd = new YAHOO.util.DDProxy(array[i], null, {resizeFrame : false, centerFrame : true});
+					dd = new YAHOO.util.DDProxy(array[i], null, {resizeFrame : bResizeProxyFrame, centerFrame : true});
 				else
 					dd = new YAHOO.util.DD(array[i]);
 
@@ -690,6 +690,7 @@ if (typeof(Servoy.DD) == "undefined")
 //						this.setYConstraint(elXY[1], clientRegion.height - elXY[1]);											
 //					}					
 					wicketAjaxGet(callback + '&a=aStart&xc=' + x + '&yc=' + y + '&draggableID=' + this.id);
+					this.style.background = '#FF0000';
 					Servoy.DD.dragStarted();
 					return true;
 				}, dd, true);				

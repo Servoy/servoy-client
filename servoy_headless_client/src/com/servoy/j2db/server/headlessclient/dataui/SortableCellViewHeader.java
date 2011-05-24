@@ -288,7 +288,7 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 			}
 		}
 
-		if ((!(cellview instanceof Portal) || ((Portal)cellview).getReorderable()) && useAJAX)
+		if (((!(cellview instanceof Portal) || ((Portal)cellview).getReorderable()) && useAJAX) && !isUnmovable())
 		{
 			DraggableBehavior dragMoveBehavior = new DraggableBehavior()
 			{
@@ -297,14 +297,13 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 				@Override
 				protected void onDragEnd(String componentId, int x, int y, AjaxRequestTarget ajaxRequestTarget)
 				{
-					if (!isUnmovable()) view.moveColumn(SortableCellViewHeader.this, x - startX, ajaxRequestTarget);
+					view.moveColumn(SortableCellViewHeader.this, x - startX, ajaxRequestTarget);
 					labelResolver.setDropped(true);
 				}
 
 				@Override
 				protected boolean onDragStart(String componentId, int x, int y, AjaxRequestTarget ajaxRequestTarget)
 				{
-					if (isUnmovable()) return false;
 					startX = x;
 					return true;
 				}
@@ -326,6 +325,7 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 			dragMoveBehavior.setRenderOnHead(false);
 			dragMoveBehavior.setYConstraint(true);
 			dragMoveBehavior.setUseProxy(true);
+			dragMoveBehavior.setResizeProxyFrame(true);
 			headerColumnTable.add(dragMoveBehavior);
 		}
 

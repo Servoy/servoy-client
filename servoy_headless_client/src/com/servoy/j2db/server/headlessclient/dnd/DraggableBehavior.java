@@ -79,6 +79,7 @@ public abstract class DraggableBehavior extends AbstractServoyDefaultAjaxBehavio
 	public static final String PARAM_Y = "yc";
 
 	private boolean bUseProxy;
+	private boolean bResizeProxyFrame;
 	private boolean bXConstraint;
 	private boolean bYConstraint;
 
@@ -115,6 +116,26 @@ public abstract class DraggableBehavior extends AbstractServoyDefaultAjaxBehavio
 	public boolean isUseProxy()
 	{
 		return this.bUseProxy;
+	}
+
+	/**
+	 * Sets whatever the proxy frame is resized to the dragged element size.
+	 * 
+	 * @param bResizeProxyFrame whatever the proxy frame is resized to the dragged element size
+	 */
+	public void setResizeProxyFrame(boolean bResizeProxyFrame)
+	{
+		this.bResizeProxyFrame = bResizeProxyFrame;
+	}
+
+	/**
+	 * Returns whatever the proxy frame is resized to the dragged element size.
+	 * 
+	 * @return whatever the proxy frame is resized to the dragged element size
+	 */
+	public boolean isResizeProxyFrame()
+	{
+		return this.bResizeProxyFrame;
 	}
 
 	/**
