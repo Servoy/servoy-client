@@ -35,7 +35,6 @@ import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.scripting.RuntimeScriptButton;
 import com.servoy.j2db.util.Debug;
@@ -48,7 +47,7 @@ import com.servoy.j2db.util.gui.SnapShot;
  * Shows an image from a bean running in the server
  * @author jcompagner
  */
-public class WebImageBeanHolder extends WebBaseButton implements IComponent, IDelegate
+public class WebImageBeanHolder extends WebBaseButton implements IDelegate
 {
 	private static final long serialVersionUID = 1L;
 
@@ -62,12 +61,12 @@ public class WebImageBeanHolder extends WebBaseButton implements IComponent, IDe
 
 	private final int anchoring;
 
-	public WebImageBeanHolder(IApplication application, String id, JComponent bean, int anchoring)
+	public WebImageBeanHolder(IApplication application, RuntimeScriptButton scriptable, String id, JComponent bean, int anchoring)
 	{
-		super(application, id, ""); //$NON-NLS-1$
+		super(application, scriptable, id, ""); //$NON-NLS-1$
+		((ChangesRecorder)scriptable.getChangesRecorder()).setDefaultBorderAndPadding(null, null);
 		this.bean = bean;
 		this.anchoring = anchoring;
-		scriptable = new RuntimeScriptButton(this, new ChangesRecorder(null, null), application);
 		if (bean != null) bean.addComponentListener(new ComponentAdapter()
 		{
 			@Override
@@ -75,7 +74,7 @@ public class WebImageBeanHolder extends WebBaseButton implements IComponent, IDe
 			{
 				if (!WebImageBeanHolder.this.getSize().equals(WebImageBeanHolder.this.bean.getSize()))
 				{
-					WebImageBeanHolder.this.scriptable.js_setSize(WebImageBeanHolder.this.bean.getWidth(), WebImageBeanHolder.this.bean.getHeight());
+					WebImageBeanHolder.this.getScriptObject().js_setSize(WebImageBeanHolder.this.bean.getWidth(), WebImageBeanHolder.this.bean.getHeight());
 				}
 			}
 		});

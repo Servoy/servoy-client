@@ -33,13 +33,20 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
  * @author lvostinar
  * @since 6.0
  */
-public class RuntimeMediaField extends AbstractRuntimeField implements IScriptMediaInputFieldMethods
+public class RuntimeMediaField extends AbstractRuntimeField<IFieldComponent> implements IScriptMediaInputFieldMethods
 {
-	private final JComponent jComponent;
+	private JComponent jComponent;
 
-	public RuntimeMediaField(IFieldComponent component, IStylePropertyChangesRecorder jsChangeRecorder, IApplication application, JComponent jComponent)
+	public RuntimeMediaField(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
-		super(component, jsChangeRecorder, application);
+		super(jsChangeRecorder, application);
+	}
+
+	/**
+	 * @param jComponent the jComponent to set
+	 */
+	public void setjComponent(JComponent jComponent)
+	{
 		this.jComponent = jComponent;
 	}
 
@@ -76,6 +83,6 @@ public class RuntimeMediaField extends AbstractRuntimeField implements IScriptMe
 
 	public boolean js_isEditable()
 	{
-		return component.isEditable();
+		return getComponent().isEditable();
 	}
 }

@@ -26,9 +26,9 @@ import com.servoy.j2db.ui.scripting.RuntimeScriptButton;
  */
 public class WebScriptButton extends WebBaseButton
 {
-	public WebScriptButton(IApplication application, String id)
+	public WebScriptButton(IApplication application, RuntimeScriptButton scriptable, String id)
 	{
-		super(application, id);
-		scriptable = new RuntimeScriptButton(this, new ChangesRecorder(null, null), application);
+		super(application, scriptable, id);
+		((ChangesRecorder)scriptable.getChangesRecorder()).setDefaultBorderAndPadding(null, null);
 	}
 }

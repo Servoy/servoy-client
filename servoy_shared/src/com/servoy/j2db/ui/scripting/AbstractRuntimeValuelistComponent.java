@@ -25,6 +25,7 @@ import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.ValueListFactory;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.ui.IFieldComponent;
+import com.servoy.j2db.ui.IScriptValuelistMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.ISupportValueList;
 
@@ -34,18 +35,18 @@ import com.servoy.j2db.ui.ISupportValueList;
  * @author lvostinar
  * @since 6.0
  */
-public abstract class AbstractRuntimeValuelistComponent extends AbstractRuntimeField
+public abstract class AbstractRuntimeValuelistComponent<C extends IFieldComponent> extends AbstractRuntimeField<C> implements IScriptValuelistMethods
 {
-	public AbstractRuntimeValuelistComponent(IFieldComponent component, IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
+	public AbstractRuntimeValuelistComponent(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
-		super(component, jsChangeRecorder, application);
+		super(jsChangeRecorder, application);
 	}
 
 	public String js_getValueListName()
 	{
-		if (component instanceof ISupportValueList)
+		if (getComponent() instanceof ISupportValueList)
 		{
-			IValueList list = ((ISupportValueList)component).getValueList();
+			IValueList list = ((ISupportValueList)getComponent()).getValueList();
 			if (list != null)
 			{
 				return list.getName();
@@ -56,9 +57,9 @@ public abstract class AbstractRuntimeValuelistComponent extends AbstractRuntimeF
 
 	public void js_setValueListItems(Object value)
 	{
-		if (component instanceof ISupportValueList)
+		if (getComponent() instanceof ISupportValueList)
 		{
-			IValueList list = ((ISupportValueList)component).getValueList();
+			IValueList list = ((ISupportValueList)getComponent()).getValueList();
 			if (list != null && (value instanceof JSDataSet || value instanceof IDataSet))
 			{
 				String name = list.getName();
@@ -73,7 +74,7 @@ public abstract class AbstractRuntimeValuelistComponent extends AbstractRuntimeF
 						type = ((CustomValueList)list).getType();
 					}
 					IValueList newVl = ValueListFactory.fillRealValueList(application, valuelist, ValueList.CUSTOM_VALUES, format, type, value);
-					((ISupportValueList)component).setValueList(newVl);
+					((ISupportValueList)getComponent()).setValueList(newVl);
 				}
 			}
 		}

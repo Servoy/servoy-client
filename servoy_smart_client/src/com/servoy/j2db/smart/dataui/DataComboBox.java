@@ -80,13 +80,10 @@ import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.ScriptVariable;
-import com.servoy.j2db.scripting.IScriptable;
-import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
-import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.ISupportSpecialClientProperty;
 import com.servoy.j2db.ui.ISupportValueList;
@@ -132,9 +129,9 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 	private final ComboBoxAccesibleStateHolder accesibleStateHolder;
 	private final DocumentListener closePopupDocumentListener;
 	private int keyReleaseToBeIgnored = -1;
-	protected RuntimeDataCombobox scriptable;
+	private final RuntimeDataCombobox scriptable;
 
-	public DataComboBox(IApplication application, IValueList vl)
+	public DataComboBox(IApplication application, RuntimeDataCombobox scriptable, IValueList vl)
 	{
 		super();
 
@@ -232,10 +229,10 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 
 		setRenderer(new DividerListCellRenderer(getRenderer()));
 
-		scriptable = new RuntimeDataCombobox(this, new DummyChangesRecorder(), application);
+		this.scriptable = scriptable;
 	}
 
-	public IScriptable getScriptObject()
+	public final RuntimeDataCombobox getScriptObject()
 	{
 		return scriptable;
 	}
@@ -1351,7 +1348,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		}
 	}
 
-	public boolean needEditListner()
+	public boolean needEditListener()
 	{
 		return true;
 	}
@@ -1722,9 +1719,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 	@Override
 	public String toString()
 	{
-		return scriptable.js_getElementType() +
-			"[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + scriptable.js_getHeight() + ",value:" + getValueObject() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.toString();
 	}
 
 	public String getId()
@@ -1740,7 +1735,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		public FormattedComboBoxEditor(IApplication app, ComboBoxEditor oldEditor, final ComboBoxModel model)
 		{
 			this.defaultEditor = oldEditor;
-			editor = new DataField(app)
+			editor = new DataField(app, null /* no scriptable */)
 			{
 				// text field should show its readonly-state when not editable
 				@Override
@@ -1754,6 +1749,13 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 				{
 					super.restorePreviousValidValue();
 					model.setSelectedItem(getValue());
+				}
+
+				@Override
+				public String toString()
+				{
+					// super uses scriptable
+					return "DataField for " + FormattedComboBoxEditor.this.toString(); //$NON-NLS-1$ 
 				}
 			};
 			// workaround for MAC OS X default L&F - combobox behavior declared in the editor component was lost when using our
@@ -1793,7 +1795,9 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 
 		public void putClientProperty(Object key, Object value)
 		{
-			((IScriptBaseMethods)editor.getScriptObject()).js_putClientProperty(key, value);
+			// editor has no scriptObject
+			editor.putClientProperty(key, value);
+			editor.setClientProperty(key, value);
 		}
 
 		public void setFormat(int type, String format)

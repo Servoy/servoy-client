@@ -31,30 +31,28 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
  * @author lvostinar
  * @since 6.0
  */
-public abstract class AbstractRuntimeButton extends AbstractRuntimeLabel
+public abstract class AbstractRuntimeButton<C extends IButton> extends AbstractRuntimeLabel<C>
 {
-	protected IButton button;
 
-	public AbstractRuntimeButton(IButton button, IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
+	public AbstractRuntimeButton(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
-		super(button, jsChangeRecorder, application);
-		this.button = button;
+		super(jsChangeRecorder, application);
 	}
 
 	@Override
 	public void js_setBorder(String spec)
 	{
 		super.js_setBorder(spec);
-		jsChangeRecorder.setSize(button.getSize().width, button.getSize().height, button.getBorder(), button.getMargin(), 0, true,
-			button.getVerticalAlignment());
+		getChangesRecorder().setSize(getComponent().getSize().width, getComponent().getSize().height, getComponent().getBorder(), getComponent().getMargin(),
+			0, true, getComponent().getVerticalAlignment());
 	}
 
 	@Override
 	public void js_putClientProperty(Object key, Object value)
 	{
-		if (button instanceof JComponent && "contentAreaFilled".equals(key) && value instanceof Boolean)
+		if (getComponent() instanceof JComponent && "contentAreaFilled".equals(key) && value instanceof Boolean)
 		{
-			((AbstractButton)button).setContentAreaFilled(((Boolean)value).booleanValue());
+			((AbstractButton)getComponent()).setContentAreaFilled(((Boolean)value).booleanValue());
 		}
 		else
 		{
@@ -67,12 +65,12 @@ public abstract class AbstractRuntimeButton extends AbstractRuntimeLabel
 	public void js_setSize(int width, int height)
 	{
 		super.js_setSize(width, height);
-		jsChangeRecorder.setSize(width, height, button.getBorder(), button.getMargin(), 0, true, button.getVerticalAlignment());
+		getChangesRecorder().setSize(width, height, getComponent().getBorder(), getComponent().getMargin(), 0, true, getComponent().getVerticalAlignment());
 	}
 
 	public void js_requestFocus(Object[] vargs)
 	{
-		button.requestFocus(vargs);
+		getComponent().requestFocus(vargs);
 	}
 
 	@Override

@@ -58,7 +58,6 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IModeManager;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.component.ComponentFactory;
-import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.ILabel;
@@ -77,7 +76,7 @@ import com.servoy.j2db.util.gui.SpecialMatteBorder;
 /**
  * @author jcompagner
  */
-public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, ISupportCachedLocationAndSize
+public abstract class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, ISupportCachedLocationAndSize
 {
 	private static final long serialVersionUID = 1L;
 
@@ -88,20 +87,21 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 	protected IApplication application;
 	private boolean borderPainted = true;
 	protected EventExecutor eventExecutor;
-	protected AbstractHTMLSubmitRuntimeLabel scriptable;
+	private final AbstractHTMLSubmitRuntimeLabel<ILabel> scriptable;
 
 	private MouseAdapter actionMouseAdapter = null;
 	private MouseAdapter doubleClickMouseAdapter = null;
 	private MouseAdapter rightclickMouseAdapter = null;
 	private MouseAdapter rolloverMouseAdapter = null;
 
-	public AbstractScriptLabel(IApplication app)
+	public AbstractScriptLabel(IApplication app, AbstractHTMLSubmitRuntimeLabel<ILabel> scriptable)
 	{
+		this.scriptable = scriptable;
 		application = app;
 		eventExecutor = new EventExecutor(this);
 	}
 
-	public IScriptable getScriptObject()
+	public final AbstractHTMLSubmitRuntimeLabel<ILabel> getScriptObject()
 	{
 		return scriptable;
 	}
@@ -815,9 +815,7 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 	@Override
 	public String toString()
 	{
-		return scriptable.js_getElementType() +
-			",[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + scriptable.js_getHeight() + ",label:" + getText() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.toString();
 	}
 
 

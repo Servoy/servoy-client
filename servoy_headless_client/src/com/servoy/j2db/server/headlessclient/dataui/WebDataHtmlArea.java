@@ -17,12 +17,15 @@
 
 package com.servoy.j2db.server.headlessclient.dataui;
 
+import javax.swing.JEditorPane;
+
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.server.headlessclient.yui.YUILoader;
-import com.servoy.j2db.ui.scripting.RuntimeHTMLArea;
+import com.servoy.j2db.ui.IFieldComponent;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeTextEditor;
 
 /**
  * html editor component, bound to YUI editor
@@ -30,11 +33,9 @@ import com.servoy.j2db.ui.scripting.RuntimeHTMLArea;
  */
 public class WebDataHtmlArea extends WebDataTextArea
 {
-	public WebDataHtmlArea(IApplication application, String id)
+	public WebDataHtmlArea(IApplication application, AbstractRuntimeTextEditor<IFieldComponent, JEditorPane> scriptable, String id)
 	{
-		super(application, id);
-		scriptable = new RuntimeHTMLArea(this, new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE, TemplateGenerator.DEFAULT_FIELD_PADDING),
-			application, null);
+		super(application, scriptable, id);
 	}
 
 	/**

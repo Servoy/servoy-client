@@ -55,9 +55,7 @@ import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.gui.JDateChooser;
 import com.servoy.j2db.persistence.ScriptVariable;
-import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.ui.BaseEventExecutor;
-import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
@@ -85,13 +83,13 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 	private List<ILabel> labels;
 
 	private MouseAdapter rightclickMouseAdapter = null;
-	protected RuntimeDataCalendar scriptable;
+	private final RuntimeDataCalendar scriptable;
 
-	public DataCalendar(IApplication app)
+	public DataCalendar(IApplication app, RuntimeDataCalendar scriptable)
 	{
 		application = (ISmartClientApplication)app;
 		setLayout(new BorderLayout());
-		enclosedComponent = new DataField(app)
+		enclosedComponent = new DataField(app, null)
 		{
 			@Override
 			public void setFormat(int dataType, String format)
@@ -105,13 +103,27 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 				}
 				super.setFormat(Types.DATE, format);
 			}
+
+			@Override
+			public String toString()
+			{
+				// super uses scriptable
+				return "DataField for " + DataCalendar.this.toString(); //$NON-NLS-1$ 
+			}
 		};
 		enclosedComponent.setIgnoreOnRender(true);
 		enclosedComponent.setBorder(BorderFactory.createEmptyBorder());
 		enclosedComponent.setOpaque(false);
 		add(enclosedComponent, BorderLayout.CENTER);
 
-		showCal = new AbstractScriptButton(app);
+		showCal = new AbstractScriptButton(app, null /* no scriptable */)
+		{
+			@Override
+			public String toString() // super uses scriptable
+			{
+				return "show-calendar button for " + DataCalendar.this.toString();
+			}
+		};
 		showCal.setText("..."); //$NON-NLS-1$
 		showCal.addActionListener(this);
 		showCal.setPreferredSize(new Dimension(20, 15));
@@ -121,10 +133,10 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 		setOpaque(true);
 		setBackground(Color.white);
 		setBorder(BorderFactory.createEtchedBorder());
-		scriptable = new RuntimeDataCalendar(this, new DummyChangesRecorder(), application);
+		this.scriptable = scriptable;
 	}
 
-	public IScriptable getScriptObject()
+	public final RuntimeDataCalendar getScriptObject()
 	{
 		return this.scriptable;
 	}
@@ -355,7 +367,7 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 		return enclosedComponent.getValue();
 	}
 
-	public boolean needEditListner()
+	public boolean needEditListener()
 	{
 		return true;
 	}
@@ -623,9 +635,7 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 	@Override
 	public String toString()
 	{
-		return scriptable.js_getElementType() +
-			"[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + scriptable.js_getHeight() + ",value:" + getValueObject() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.toString();
 	}
 
 	/*

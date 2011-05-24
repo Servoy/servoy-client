@@ -29,11 +29,11 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
  * @author lvostinar	
  * @since 6.0
  */
-public class RuntimeCheckbox extends AbstractRuntimeValuelistComponent implements IScriptCheckBoxMethods
+public class RuntimeCheckbox extends AbstractRuntimeValuelistComponent<IFieldComponent> implements IScriptCheckBoxMethods
 {
-	public RuntimeCheckbox(IFieldComponent component, IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
+	public RuntimeCheckbox(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
-		super(component, jsChangeRecorder, application);
+		super(jsChangeRecorder, application);
 	}
 
 	public String js_getElementType()

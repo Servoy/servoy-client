@@ -35,11 +35,11 @@ import com.servoy.j2db.util.Debug;
  * @author lvostinar
  * @since 6.0
  */
-public class RuntimeHTMLArea extends AbstractRuntimeTextEditor implements IScriptTextEditorMethods
+public class RuntimeHTMLArea extends AbstractRuntimeTextEditor<IFieldComponent, JEditorPane> implements IScriptTextEditorMethods
 {
-	public RuntimeHTMLArea(IFieldComponent component, IStylePropertyChangesRecorder jsChangeRecorder, IApplication application, JEditorPane editorPane)
+	public RuntimeHTMLArea(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
-		super(component, jsChangeRecorder, application, editorPane);
+		super(jsChangeRecorder, application);
 	}
 
 	@Override
@@ -49,7 +49,7 @@ public class RuntimeHTMLArea extends AbstractRuntimeTextEditor implements IScrip
 		{
 			try
 			{
-				((JEditorPane)textComponent).setPage(url);
+				(textComponent).setPage(url);
 			}
 			catch (IOException e)
 			{
@@ -63,7 +63,7 @@ public class RuntimeHTMLArea extends AbstractRuntimeTextEditor implements IScrip
 	{
 		if (textComponent != null)
 		{
-			URL url = ((JEditorPane)textComponent).getPage();
+			URL url = (textComponent).getPage();
 			if (url != null)
 			{
 				return url.toString();

@@ -81,12 +81,10 @@ import com.servoy.j2db.dnd.FormDataTransferHandler;
 import com.servoy.j2db.dnd.ISupportDragNDropTextTransfer;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.printing.IFixedPreferredWidth;
-import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.smart.MainPanel;
 import com.servoy.j2db.smart.SwingForm;
 import com.servoy.j2db.smart.SwingJSWindowImpl;
 import com.servoy.j2db.smart.TextToolbar;
-import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEditProvider;
 import com.servoy.j2db.ui.IEventExecutor;
@@ -97,8 +95,7 @@ import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.ISupportEditProvider;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
-import com.servoy.j2db.ui.scripting.RuntimeHTMLArea;
-import com.servoy.j2db.ui.scripting.RuntimeRTFArea;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeTextEditor;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnableScrollPanel;
 import com.servoy.j2db.util.HtmlUtils;
@@ -131,9 +128,9 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 	private final EventExecutor eventExecutor;
 	private MouseAdapter rightclickMouseAdapter = null;
 	private SwingJSWindowImpl parentWindow;
-	protected AbstractRuntimeField scriptable;
+	private final AbstractRuntimeTextEditor<IFieldComponent, JEditorPane> scriptable;
 
-	public DataTextEditor(IApplication app, int type)
+	public DataTextEditor(IApplication app, AbstractRuntimeTextEditor<IFieldComponent, JEditorPane> scriptable, int type)
 	{
 		super();
 		application = app;
@@ -141,15 +138,8 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 		enclosedComponent = (FixedJEditorPane)getViewport().getView();
 		eventExecutor = new EventExecutor(this, enclosedComponent);
 		enclosedComponent.addKeyListener(eventExecutor);
-		if (type == ComponentFactory.HTML_AREA)
-		{
-			scriptable = new RuntimeHTMLArea(this, new DummyChangesRecorder(), app, enclosedComponent);
-		}
-		else
-		{
-			scriptable = new RuntimeRTFArea(this, new DummyChangesRecorder(), app, enclosedComponent);
-
-		}
+		this.scriptable = scriptable;
+		scriptable.setTextComponent(enclosedComponent);
 		plainEditorKit = enclosedComponent.getEditorKit();
 		plainEditorDocument = getDocument();
 
@@ -198,7 +188,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 //		}
 	}
 
-	public IScriptable getScriptObject()
+	public final AbstractRuntimeField getScriptObject()
 	{
 		return scriptable;
 	}
@@ -780,7 +770,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 		return enclosedComponent;
 	}
 
-	public boolean needEditListner()
+	public boolean needEditListener()
 	{
 		return true;
 	}
@@ -1431,9 +1421,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 	@Override
 	public String toString()
 	{
-		return scriptable.js_getElementType() +
-			"[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + scriptable.js_getHeight() + ",value:" + getValueObject() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.toString();
 	}
 
 	public boolean stopUIEditing(boolean looseFocus)

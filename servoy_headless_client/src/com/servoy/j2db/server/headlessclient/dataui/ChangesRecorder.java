@@ -29,6 +29,7 @@ import org.apache.wicket.model.IModel;
 
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.persistence.ISupportTextSetup;
+import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
@@ -56,10 +57,11 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 {
 	private final Properties changedProperties = new Properties();
 	private String bgcolor;
-	private final Insets defaultBorder;
-	private final Insets defaultPadding;
+	private Insets defaultBorder;
+	private Insets defaultPadding;
 	private boolean changed;
 	private boolean valueChanged;
+	private IStylePropertyChanges additionalChangesRecorder;
 
 	/**
 	 * default constructor if the component doesnt have default border or padding.
@@ -80,6 +82,21 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 	{
 		this.defaultBorder = defaultBorder;
 		this.defaultPadding = defaultPadding;
+	}
+
+	public void setDefaultBorderAndPadding(Insets defaultBorder, Insets defaultPadding)
+	{
+		this.defaultBorder = defaultBorder;
+		this.defaultPadding = defaultPadding;
+	}
+
+	/** Additional changes recorder for inner components that may change requiring the entire component to be rendered
+	 * 
+	 * @param additionalChangesRecorder the additionalChangesRecorder to set
+	 */
+	public void setAdditionalChangesRecorder(IStylePropertyChanges additionalChangesRecorder)
+	{
+		this.additionalChangesRecorder = additionalChangesRecorder;
 	}
 
 	/**
@@ -368,12 +385,16 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 	}
 
 	/**
-	 *  Call this method from the {@link Component#onBeforeRender()} call te let the  change recorder know it has been rendered.
+	 *  Call this method from the {@link Component#onBeforeRender()} call to let the  change recorder know it has been rendered.
 	 */
 	public void setRendered()
 	{
 		changed = false;
 		valueChanged = false;
+		if (additionalChangesRecorder != null)
+		{
+			additionalChangesRecorder.setRendered();
+		}
 	}
 
 	/**
@@ -383,7 +404,7 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 	 */
 	public boolean isChanged()
 	{
-		return changed;
+		return changed || (additionalChangesRecorder != null && additionalChangesRecorder.isChanged());
 	}
 
 	/**

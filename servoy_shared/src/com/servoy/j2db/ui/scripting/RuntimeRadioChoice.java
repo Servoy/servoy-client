@@ -24,7 +24,6 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptChoiceMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
-import com.servoy.j2db.util.model.ComboModelListModelWrapper;
 
 /**
  * Scriptable radio group component.
@@ -32,13 +31,12 @@ import com.servoy.j2db.util.model.ComboModelListModelWrapper;
  * @author lvostinar
  * @since 6.0
  */
-public class RuntimeRadioChoice extends AbstractRuntimeScrollableValuelistComponent implements IScriptChoiceMethods
+public class RuntimeRadioChoice extends AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent> implements IScriptChoiceMethods
 {
 
-	public RuntimeRadioChoice(IFieldComponent component, IStylePropertyChangesRecorder jsChangeRecorder, IApplication application, JComponent field,
-		ComboModelListModelWrapper list)
+	public RuntimeRadioChoice(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
-		super(component, jsChangeRecorder, application, field, list);
+		super(jsChangeRecorder, application);
 	}
 
 	public String js_getElementType()

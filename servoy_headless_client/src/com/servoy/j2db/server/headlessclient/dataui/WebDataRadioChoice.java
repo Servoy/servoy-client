@@ -52,7 +52,6 @@ import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.SortColumn;
-import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.ServoyForm;
@@ -65,8 +64,7 @@ import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
-import com.servoy.j2db.ui.scripting.RuntimeRadioChoice;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeScrollableValuelistComponent;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
@@ -97,9 +95,9 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 	private IValueList vl;
 	private int tabIndex = -1;
 	private int vScrollPolicy;
-	protected AbstractRuntimeField scriptable;
+	private final AbstractRuntimeScrollableValuelistComponent<IFieldComponent, ? > scriptable;
 
-	public WebDataRadioChoice(IApplication application, String id, IValueList vl)
+	public WebDataRadioChoice(IApplication application, AbstractRuntimeScrollableValuelistComponent<IFieldComponent, ? > scriptable, String id, IValueList vl)
 	{
 		super(id);
 		this.application = application;
@@ -127,11 +125,11 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 
 		updatePrefix();
 
-		scriptable = new RuntimeRadioChoice(this, new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE, TemplateGenerator.DEFAULT_FIELD_PADDING),
-			application, null, list);
+		this.scriptable = scriptable;
+		scriptable.setList(list);
 	}
 
-	public IScriptable getScriptObject()
+	public final AbstractRuntimeScrollableValuelistComponent<IFieldComponent, ? > getScriptObject()
 	{
 		return scriptable;
 	}
@@ -423,9 +421,9 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 	}
 
 	/**
-	 * @see com.servoy.j2db.dataprocessing.IDisplayData#needEditListner()
+	 * @see com.servoy.j2db.dataprocessing.IDisplayData#needEditListener()
 	 */
-	public boolean needEditListner()
+	public boolean needEditListener()
 	{
 		return false;
 	}
@@ -438,9 +436,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 	@Override
 	public String toString()
 	{
-		return scriptable.js_getElementType() +
-			"(web)[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + scriptable.js_getHeight() + ",value:" + getDefaultModelObjectAsString() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.toString("value:" + getDefaultModelObjectAsString()); //$NON-NLS-1$ 
 	}
 
 

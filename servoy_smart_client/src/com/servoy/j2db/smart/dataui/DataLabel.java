@@ -26,7 +26,6 @@ import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.printing.IFixedPreferredWidth;
-import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.IDisplayTagText;
 import com.servoy.j2db.ui.scripting.RuntimeDataLabel;
 import com.servoy.j2db.util.ITagResolver;
@@ -42,10 +41,9 @@ public class DataLabel extends AbstractScriptLabel implements IDisplayData, IDis
 	private Object value;
 	private String tooltip;
 
-	public DataLabel(IApplication app)
+	public DataLabel(IApplication app, RuntimeDataLabel scriptable)
 	{
-		super(app);
-		scriptable = new RuntimeDataLabel(this, new DummyChangesRecorder(), app);
+		super(app, scriptable);
 	}
 
 	/*
@@ -76,7 +74,7 @@ public class DataLabel extends AbstractScriptLabel implements IDisplayData, IDis
 		return null;
 	}
 
-	public boolean needEditListner()
+	public boolean needEditListener()
 	{
 		return false;
 	}

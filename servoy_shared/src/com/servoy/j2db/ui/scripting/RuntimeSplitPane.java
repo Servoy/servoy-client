@@ -33,14 +33,11 @@ import com.servoy.j2db.ui.ISupportReadOnly;
  * @author lvostinar
  * @since 6.0
  */
-public class RuntimeSplitPane extends AbstractRuntimeFormContainer implements IScriptSplitPaneMethods
+public class RuntimeSplitPane extends AbstractRuntimeFormContainer<ISplitPane, JSplitPane> implements IScriptSplitPaneMethods
 {
-	private final ISplitPane splitPane;
-
-	public RuntimeSplitPane(ISplitPane component, IStylePropertyChangesRecorder jsChangeRecorder, IApplication application, JSplitPane enclosingComponent)
+	public RuntimeSplitPane(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
-		super(component, jsChangeRecorder, application, enclosingComponent);
-		this.splitPane = component;
+		super(jsChangeRecorder, application);
 	}
 
 	public String js_getElementType()
@@ -66,24 +63,24 @@ public class RuntimeSplitPane extends AbstractRuntimeFormContainer implements IS
 		}
 		else
 		{
-			splitPane.setReadOnly(b);
+			getComponent().setReadOnly(b);
 		}
-		jsChangeRecorder.setChanged();
+		getChangesRecorder().setChanged();
 	}
 
 	public int js_getAbsoluteFormLocationY()
 	{
-		return splitPane.getAbsoluteFormLocationY();
+		return getComponent().getAbsoluteFormLocationY();
 	}
 
 	public boolean js_setLeftForm(Object form, Object relation)
 	{
-		if (splitPane.setForm(true, form, relation))
+		if (getComponent().setForm(true, form, relation))
 		{
-			jsChangeRecorder.setChanged();
+			getChangesRecorder().setChanged();
 			return true;
 		}
-		else return false;
+		return false;
 	}
 
 	public boolean js_setLeftForm(Object form)
@@ -93,12 +90,12 @@ public class RuntimeSplitPane extends AbstractRuntimeFormContainer implements IS
 
 	public boolean js_setRightForm(Object form, Object relation)
 	{
-		if (splitPane.setForm(false, form, relation))
+		if (getComponent().setForm(false, form, relation))
 		{
-			jsChangeRecorder.setChanged();
+			getChangesRecorder().setChanged();
 			return true;
 		}
-		else return false;
+		return false;
 	}
 
 	public boolean js_setRightForm(Object form)
@@ -108,75 +105,71 @@ public class RuntimeSplitPane extends AbstractRuntimeFormContainer implements IS
 
 	public FormScope js_getLeftForm()
 	{
-		return splitPane.getForm(true);
+		return getComponent().getForm(true);
 	}
 
 	public FormScope js_getRightForm()
 	{
-		return splitPane.getForm(false);
+		return getComponent().getForm(false);
 	}
 
 	public void js_setResizeWeight(double resizeWeight)
 	{
-		splitPane.setResizeWeight(resizeWeight);
+		getComponent().setResizeWeight(resizeWeight);
 	}
 
 	public double js_getDividerLocation()
 	{
-		return splitPane.getDividerLocation();
+		return getComponent().getDividerLocation();
 	}
 
 	public void js_setDividerLocation(double location)
 	{
-		splitPane.setRuntimeDividerLocation(location);
-
+		getComponent().setRuntimeDividerLocation(location);
 	}
 
 	public int js_getDividerSize()
 	{
-		return splitPane.getDividerSize();
+		return getComponent().getDividerSize();
 	}
 
 	public void js_setDividerSize(int size)
 	{
-		splitPane.setDividerSize(size);
-
+		getComponent().setDividerSize(size);
 	}
 
 	public double js_getResizeWeight()
 	{
-		return splitPane.getResizeWeight();
+		return getComponent().getResizeWeight();
 	}
 
 	public boolean js_getContinuousLayout()
 	{
-		return splitPane.getContinuousLayout();
+		return getComponent().getContinuousLayout();
 	}
 
 	public void js_setContinuousLayout(boolean b)
 	{
-		splitPane.setContinuousLayout(b);
+		getComponent().setContinuousLayout(b);
 	}
 
 	public int js_getRightFormMinSize()
 	{
-		return splitPane.getFormMinSize(false);
+		return getComponent().getFormMinSize(false);
 	}
 
 	public void js_setRightFormMinSize(int minSize)
 	{
-		splitPane.setFormMinSize(false, minSize);
-
+		getComponent().setFormMinSize(false, minSize);
 	}
 
 	public int js_getLeftFormMinSize()
 	{
-		return splitPane.getFormMinSize(true);
+		return getComponent().getFormMinSize(true);
 	}
 
 	public void js_setLeftFormMinSize(int minSize)
 	{
-		splitPane.setFormMinSize(true, minSize);
-
+		getComponent().setFormMinSize(true, minSize);
 	}
 }

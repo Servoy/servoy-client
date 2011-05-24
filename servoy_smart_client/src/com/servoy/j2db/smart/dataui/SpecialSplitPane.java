@@ -43,8 +43,6 @@ import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.scripting.FormScope;
-import com.servoy.j2db.scripting.IScriptable;
-import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IFormLookupPanel;
 import com.servoy.j2db.ui.ISplitPane;
@@ -71,9 +69,9 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 
 	private String onDividerChangeMethodCmd;
 	private IScriptExecuter scriptExecutor;
-	private final IScriptable scriptable;
+	private final RuntimeSplitPane scriptable;
 
-	public SpecialSplitPane(IApplication app, int orient, boolean design)
+	public SpecialSplitPane(IApplication app, RuntimeSplitPane scriptable, int orient, boolean design)
 	{
 		super();
 		application = app;
@@ -95,10 +93,11 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 		setFocusTraversalPolicy(ServoyFocusTraversalPolicy.defaultPolicy);
 		tabSeqComponentList.add(splitPane);
 		addFocusListener(new AutoTransferFocusListener(this, this));
-		scriptable = new RuntimeSplitPane(this, new DummyChangesRecorder(), application, splitPane);
+		this.scriptable = scriptable;
+		if (scriptable != null /* design mode */) scriptable.setEnclosingComponent(splitPane);
 	}
 
-	public IScriptable getScriptObject()
+	public final RuntimeSplitPane getScriptObject()
 	{
 		return scriptable;
 	}

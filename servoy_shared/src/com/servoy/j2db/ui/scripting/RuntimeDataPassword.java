@@ -37,11 +37,11 @@ import com.servoy.j2db.util.ComponentFactoryHelper;
  * @author lvostinar
  * @since 6.0
  */
-public class RuntimeDataPassword extends AbstractRuntimeField implements IScriptDataPasswordMethods
+public class RuntimeDataPassword extends AbstractRuntimeField<IFieldComponent> implements IScriptDataPasswordMethods
 {
-	public RuntimeDataPassword(IFieldComponent component, IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
+	public RuntimeDataPassword(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
-		super(component, jsChangeRecorder, application);
+		super(jsChangeRecorder, application);
 	}
 
 	public String js_getElementType()
@@ -51,31 +51,37 @@ public class RuntimeDataPassword extends AbstractRuntimeField implements IScript
 
 	public boolean js_isEditable()
 	{
-		return component.isEditable();
+		return getComponent().isEditable();
 	}
 
 	public void js_setEditable(boolean b)
 	{
-		component.setEditable(b);
-		jsChangeRecorder.setChanged();
+		getComponent().setEditable(b);
+		getChangesRecorder().setChanged();
 	}
 
 	@Override
 	public void js_setBorder(String spec)
 	{
 		Border border = ComponentFactoryHelper.createBorder(spec);
-		Border oldBorder = component.getBorder();
-		if (component instanceof Component && oldBorder instanceof CompoundBorder && ((CompoundBorder)oldBorder).getInsideBorder() != null)
+		Border oldBorder = getComponent().getBorder();
+		if (getComponent() instanceof Component && oldBorder instanceof CompoundBorder && ((CompoundBorder)oldBorder).getInsideBorder() != null)
 		{
-			Insets insets = ((CompoundBorder)oldBorder).getInsideBorder().getBorderInsets((Component)component);
-			component.setBorder(BorderFactory.createCompoundBorder(border,
-				BorderFactory.createEmptyBorder(insets.top, insets.left, insets.bottom, insets.right)));
+			Insets insets = ((CompoundBorder)oldBorder).getInsideBorder().getBorderInsets((Component)getComponent());
+			getComponent().setBorder(
+				BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(insets.top, insets.left, insets.bottom, insets.right)));
 		}
 		else
 		{
-			component.setBorder(border);
+			getComponent().setBorder(border);
 		}
-		jsChangeRecorder.setBorder(spec);
+		getChangesRecorder().setBorder(spec);
+	}
+
+	@Override
+	public String getValueString()
+	{
+		return "password: *******"; //$NON-NLS-1$
 	}
 
 }

@@ -66,8 +66,6 @@ import com.servoy.j2db.component.ISupportAsyncLoading;
 import com.servoy.j2db.dataprocessing.DataAdapterList;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
-import com.servoy.j2db.scripting.IScriptable;
-import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
@@ -76,7 +74,6 @@ import com.servoy.j2db.ui.IMediaFieldConstants;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
 import com.servoy.j2db.ui.scripting.RuntimeMediaField;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnableScrollPanel;
@@ -123,14 +120,21 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 	private final IApplication application;
 	private final EventExecutor eventExecutor;
 	private MouseAdapter rightclickMouseAdapter = null;
-	private final AbstractRuntimeField scriptable;
+	private final RuntimeMediaField scriptable;
 
-	public DataImgMediaField(IApplication app)
+	public DataImgMediaField(IApplication app, RuntimeMediaField scriptable)
 	{
 		application = app;
 		eventExecutor = new EventExecutor(this);//not setting the enclosed comp, not needed here
 
-		getViewport().setView(new AbstractScriptLabel(app));
+		getViewport().setView(new AbstractScriptLabel(app, null /* no scriptable */)
+		{
+			@Override
+			public String toString() // uses scriptable
+			{
+				return "Enclosed component for  " + DataImgMediaField.this.toString();
+			}
+		});
 		enclosedComponent = (AbstractScriptLabel)getViewport().getView();
 		enclosedComponent.setOpaque(true);
 //		setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -190,10 +194,11 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 		{
 			Debug.error(e);
 		}
-		scriptable = new RuntimeMediaField(this, new DummyChangesRecorder(), application, enclosedComponent);
+		this.scriptable = scriptable;
+		scriptable.setjComponent(enclosedComponent);
 	}
 
-	public IScriptable getScriptObject()
+	public final RuntimeMediaField getScriptObject()
 	{
 		return scriptable;
 	}
@@ -238,7 +243,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 		return null;
 	}
 
-	public boolean needEditListner()
+	public boolean needEditListener()
 	{
 		return true;
 	}
@@ -274,9 +279,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 	@Override
 	public String toString()
 	{
-		return scriptable.js_getElementType() +
-			"[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + scriptable.js_getHeight() + ",value:" + getValueObject() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.toString();
 	}
 
 	private boolean useAsync = true;

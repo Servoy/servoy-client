@@ -81,8 +81,6 @@ import com.servoy.j2db.dnd.ISupportDragNDropTextTransfer;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.ScriptVariable;
-import com.servoy.j2db.scripting.IScriptable;
-import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEditProvider;
 import com.servoy.j2db.ui.IEventExecutor;
@@ -127,7 +125,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 	// when a parse error occurred the value should always be set in setValue(), otherwise unsaved data is displayed in the field
 	private boolean parseErrorOccurred = false;
 	private MouseAdapter rightclickMouseAdapter = null;
-	protected RuntimeDataField scriptable;
+	private final RuntimeDataField scriptable;
 
 	/**
 	 * @author jcompagner
@@ -642,13 +640,13 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 	private boolean toggleOverwrite = true;
 
-	DataField(IApplication application, IValueList list)
+	DataField(IApplication application, RuntimeDataField scriptable, IValueList list)
 	{
-		this(application);
+		this(application, scriptable);
 		this.list = list;
 	}
 
-	public DataField(IApplication application)
+	public DataField(IApplication application, RuntimeDataField scriptable)
 	{
 		super();// new InternationalFormatter()); //why is InternationalFormatter
 		// needed, causes trouble on date objects??
@@ -675,10 +673,9 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		};
 		plainDocument = getDocument();
 		setDocument(editorDocument = new ValidatingDocument());
-		scriptable = new RuntimeDataField(this, new DummyChangesRecorder(), application);
+		this.scriptable = scriptable;
 		addKeyListener(new KeyAdapter()
 		{
-
 			@Override
 			public void keyPressed(KeyEvent e)
 			{
@@ -706,7 +703,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		setDragEnabledEx(true);
 	}
 
-	public IScriptable getScriptObject()
+	public final RuntimeDataField getScriptObject()
 	{
 		return scriptable;
 	}
@@ -825,7 +822,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 	protected String dataProviderID;
 
-	public boolean needEditListner()
+	public boolean needEditListener()
 	{
 		return true;
 	}
@@ -1951,9 +1948,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 	@Override
 	public String toString()
 	{
-		return scriptable.js_getElementType() +
-			"[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + scriptable.js_getHeight() + ",value:" + getValueObject() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.toString();
 	}
 
 

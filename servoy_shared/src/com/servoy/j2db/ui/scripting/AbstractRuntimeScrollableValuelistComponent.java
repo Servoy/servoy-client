@@ -25,6 +25,7 @@ import javax.swing.JComponent;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IFieldComponent;
+import com.servoy.j2db.ui.IScriptScrollableMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.util.model.ComboModelListModelWrapper;
 
@@ -34,16 +35,30 @@ import com.servoy.j2db.util.model.ComboModelListModelWrapper;
  * @author lvostinar
  * @since 6.0
  */
-public abstract class AbstractRuntimeScrollableValuelistComponent extends AbstractRuntimeValuelistComponent
+public abstract class AbstractRuntimeScrollableValuelistComponent<C extends IFieldComponent, F extends JComponent> extends AbstractRuntimeValuelistComponent<C>
+	implements IScriptScrollableMethods
 {
-	protected JComponent field;
+	protected F field;
 	protected ComboModelListModelWrapper list;
 
-	public AbstractRuntimeScrollableValuelistComponent(IFieldComponent component, IStylePropertyChangesRecorder jsChangeRecorder, IApplication application,
-		JComponent field, ComboModelListModelWrapper list)
+	public AbstractRuntimeScrollableValuelistComponent(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
-		super(component, jsChangeRecorder, application);
+		super(jsChangeRecorder, application);
+	}
+
+	/**
+	 * @param field the field to set
+	 */
+	public void setField(F field)
+	{
 		this.field = field;
+	}
+
+	/**
+	 * @param list the list to set
+	 */
+	public void setList(ComboModelListModelWrapper list)
+	{
 		this.list = list;
 	}
 

@@ -47,7 +47,6 @@ import javax.swing.plaf.IconUIResource;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.component.ComponentFactory;
-import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.ui.IButton;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
@@ -66,7 +65,7 @@ import com.servoy.j2db.util.gui.MyImageIcon;
 /**
  * @author jcompagner
  */
-public class AbstractScriptButton extends JButton implements ISkinnable, IButton, ISupportCachedLocationAndSize
+public abstract class AbstractScriptButton extends JButton implements ISkinnable, IButton, ISupportCachedLocationAndSize
 {
 	private static final long serialVersionUID = 1L;
 
@@ -75,21 +74,21 @@ public class AbstractScriptButton extends JButton implements ISkinnable, IButton
 
 	private boolean specialPaint = false;
 	protected IApplication application;
-	protected AbstractRuntimeButton scriptable;
+	private final AbstractRuntimeButton<IButton> scriptable;
 	protected EventExecutor eventExecutor;
 
 	private MouseAdapter doubleclickMouseAdapter;
 	private MouseAdapter rightclickMouseAdapter;
 
-
-	public AbstractScriptButton(IApplication app)
+	public AbstractScriptButton(IApplication app, AbstractRuntimeButton<IButton> scriptable)
 	{
+		this.scriptable = scriptable;
 		application = app;
 //		setContentAreaFilled(false);
 		eventExecutor = new EventExecutor(this);
 	}
 
-	public IScriptable getScriptObject()
+	public final AbstractRuntimeButton<IButton> getScriptObject()
 	{
 		return scriptable;
 	}
@@ -586,9 +585,7 @@ public class AbstractScriptButton extends JButton implements ISkinnable, IButton
 	@Override
 	public String toString()
 	{
-		return scriptable.js_getElementType() +
-			"[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + scriptable.js_getHeight() + ",label:" + getText() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.toString();
 	}
 
 

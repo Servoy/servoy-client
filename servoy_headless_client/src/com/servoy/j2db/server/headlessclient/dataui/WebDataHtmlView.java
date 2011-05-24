@@ -19,18 +19,19 @@ package com.servoy.j2db.server.headlessclient.dataui;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JEditorPane;
+
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.util.string.AppendingStringBuffer;
 
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
-import com.servoy.j2db.ui.scripting.RuntimeHTMLArea;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeTextEditor;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
@@ -45,20 +46,11 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 	private static final long serialVersionUID = 1L;
 
 	private AbstractDefaultAjaxBehavior inlineScriptExecutor;
-	private final IScriptable scriptable;
 
-	public WebDataHtmlView(IApplication application, String id)
+	public WebDataHtmlView(IApplication application, AbstractRuntimeTextEditor<IFieldComponent, JEditorPane> scriptable, String id)
 	{
-		super(application, id);
+		super(application, scriptable, id);
 		setEscapeModelStrings(false);
-		this.scriptable = new RuntimeHTMLArea(this, new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE, TemplateGenerator.DEFAULT_FIELD_PADDING),
-			application, null);
-	}
-
-	@Override
-	public IScriptable getScriptObject()
-	{
-		return this.scriptable;
 	}
 
 	/**

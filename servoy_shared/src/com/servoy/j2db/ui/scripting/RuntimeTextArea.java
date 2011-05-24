@@ -31,11 +31,11 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
  * @author lvostinar
  * @since 6.0
  */
-public class RuntimeTextArea extends AbstractRuntimeTextComponent implements IScriptTextAreaMethods
+public class RuntimeTextArea extends AbstractRuntimeTextComponent<IFieldComponent, JTextComponent> implements IScriptTextAreaMethods
 {
-	public RuntimeTextArea(IFieldComponent component, IStylePropertyChangesRecorder jsChangeRecorder, IApplication application, JTextComponent textArea)
+	public RuntimeTextArea(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
-		super(component, jsChangeRecorder, application, textArea);
+		super(jsChangeRecorder, application);
 	}
 
 	public String js_getElementType()

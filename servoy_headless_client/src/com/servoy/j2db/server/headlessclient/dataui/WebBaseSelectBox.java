@@ -54,7 +54,6 @@ import com.servoy.j2db.component.INullableAware;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IValueList;
-import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.ServoyForm;
@@ -97,17 +96,12 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 
 	protected final IApplication application;
 	protected final FormComponent selector;
-	protected AbstractRuntimeField scriptable;
+	private final AbstractRuntimeField<IFieldComponent> scriptable;
 
-	public WebBaseSelectBox(IApplication application, String id, String text, IValueList list)
-	{
-		this(application, id, text);
-		onValue = list;
-	}
-
-	public WebBaseSelectBox(IApplication application, String id, String text)
+	public WebBaseSelectBox(IApplication application, AbstractRuntimeField<IFieldComponent> scriptable, String id, String text)
 	{
 		super(id);
+		this.scriptable = scriptable;
 		this.application = application;
 		selector = getSelector("check_" + id); //$NON-NLS-1$
 
@@ -125,7 +119,7 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 		add(TooltipAttributeModifier.INSTANCE);
 	}
 
-	public IScriptable getScriptObject()
+	public final AbstractRuntimeField<IFieldComponent> getScriptObject()
 	{
 		return scriptable;
 	}
@@ -422,7 +416,7 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 		return allowNull;
 	}
 
-	public boolean needEditListner()
+	public boolean needEditListener()
 	{
 		return false;
 	}

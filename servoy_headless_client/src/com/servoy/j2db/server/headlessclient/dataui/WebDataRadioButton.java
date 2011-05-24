@@ -35,7 +35,8 @@ import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.server.headlessclient.MainPage;
-import com.servoy.j2db.ui.scripting.RuntimeRadioButton;
+import com.servoy.j2db.ui.IFieldComponent;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeValuelistComponent;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Utils;
 
@@ -49,18 +50,15 @@ public class WebDataRadioButton extends WebBaseSelectBox
 {
 	private final IConverter converter = new RadioButtonConverter();
 
-
-	public WebDataRadioButton(IApplication application, String id, String text, IValueList list)
+	public WebDataRadioButton(IApplication application, AbstractRuntimeValuelistComponent<IFieldComponent> scriptable, String id, String text, IValueList list)
 	{
-		this(application, id, text);
+		this(application, scriptable, id, text);
 		onValue = list;
 	}
 
-	public WebDataRadioButton(IApplication application, String id, String text)
+	public WebDataRadioButton(IApplication application, AbstractRuntimeValuelistComponent<IFieldComponent> scriptable, String id, String text)
 	{
-		super(application, id, text);
-		scriptable = new RuntimeRadioButton(this, new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE, TemplateGenerator.DEFAULT_FIELD_PADDING),
-			application);
+		super(application, scriptable, id, text);
 	}
 
 	@Override
@@ -84,9 +82,7 @@ public class WebDataRadioButton extends WebBaseSelectBox
 	@Override
 	public String toString()
 	{
-		return scriptable.js_getElementType() +
-			"(web)[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
-			",height:" + scriptable.js_getHeight() + ",value:" + getDefaultModelObject() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return getScriptObject().toString("value:" + getDefaultModelObject()); //$NON-NLS-1$ 
 	}
 
 	public final class MyRadioButton extends FormComponent<Boolean> implements IDisplayData
@@ -236,11 +232,11 @@ public class WebDataRadioButton extends WebBaseSelectBox
 		}
 
 		/**
-		 * @see com.servoy.j2db.dataprocessing.IDisplayData#needEditListner()
+		 * @see com.servoy.j2db.dataprocessing.IDisplayData#needEditListener()
 		 */
-		public boolean needEditListner()
+		public boolean needEditListener()
 		{
-			return WebDataRadioButton.this.needEditListner();
+			return WebDataRadioButton.this.needEditListener();
 		}
 
 		/**

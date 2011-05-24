@@ -30,6 +30,8 @@ import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IScriptBaseMethods;
+import com.servoy.j2db.ui.IScriptFocusMethods;
+import com.servoy.j2db.ui.IScriptReadOnlyMethods;
 import com.servoy.j2db.ui.IScriptRenderMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.ISupportSpecialClientProperty;
@@ -40,35 +42,33 @@ import com.servoy.j2db.util.IDelegate;
  * 
  * @author lvostinar
  */
-public abstract class AbstractRuntimeField extends AbstractRuntimeBaseComponent implements IScriptRenderMethods
+public abstract class AbstractRuntimeField<C extends IFieldComponent> extends AbstractRuntimeBaseComponent<C> implements IScriptRenderMethods,
+	IScriptFocusMethods, IScriptReadOnlyMethods
 {
-	protected IFieldComponent component;
-
-	public AbstractRuntimeField(IFieldComponent component, IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
+	public AbstractRuntimeField(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
-		super(component, jsChangeRecorder, application);
-		this.component = component;
+		super(jsChangeRecorder, application);
 	}
 
 	public String js_getDataProviderID()
 	{
-		return ((IDisplayData)component).getDataProviderID();
+		return getComponent() instanceof IDisplayData ? ((IDisplayData)getComponent()).getDataProviderID() : null;
 	}
 
 	public void js_setToolTipText(String txt)
 	{
-		component.setToolTipText(txt);
-		jsChangeRecorder.setChanged();
+		getComponent().setToolTipText(txt);
+		getChangesRecorder().setChanged();
 	}
 
 	public String js_getToolTipText()
 	{
-		return component.getToolTipText();
+		return getComponent().getToolTipText();
 	}
 
 	public String[] js_getLabelForElementNames()
 	{
-		List<ILabel> labels = component.getLabelsFor();
+		List<ILabel> labels = getComponent().getLabelsFor();
 		if (labels != null)
 		{
 			ArrayList<String> al = new ArrayList<String>(labels.size());
@@ -87,37 +87,37 @@ public abstract class AbstractRuntimeField extends AbstractRuntimeBaseComponent 
 
 	public String js_getTitleText()
 	{
-		return component.getTitleText();
+		return getComponent().getTitleText();
 	}
 
 	public int js_getAbsoluteFormLocationY()
 	{
-		return component.getAbsoluteFormLocationY();
+		return getComponent().getAbsoluteFormLocationY();
 	}
 
 	public void js_requestFocus(Object[] vargs)
 	{
-		component.requestFocus(vargs);
+		getComponent().requestFocus(vargs);
 	}
 
 	public void js_setReadOnly(boolean b)
 	{
-		component.setReadOnly(b);
-		jsChangeRecorder.setChanged();
+		getComponent().setReadOnly(b);
+		getChangesRecorder().setChanged();
 	}
 
 	public boolean js_isReadOnly()
 	{
-		return ((IDisplay)component).isReadOnly();
+		return getComponent() instanceof IDisplay && ((IDisplay)getComponent()).isReadOnly();
 	}
 
 	@Override
 	public void js_setVisible(boolean b)
 	{
 		super.js_setVisible(b);
-		if (component.isViewable())
+		if (getComponent().isViewable())
 		{
-			List<ILabel> labels = component.getLabelsFor();
+			List<ILabel> labels = getComponent().getLabelsFor();
 			if (labels != null)
 			{
 				for (int i = 0; i < labels.size(); i++)
@@ -141,13 +141,13 @@ public abstract class AbstractRuntimeField extends AbstractRuntimeBaseComponent 
 	public void js_putClientProperty(Object key, Object value)
 	{
 		super.js_putClientProperty(key, value);
-		if (component instanceof IDelegate && ((IDelegate)component).getDelegate() instanceof JComponent)
+		if (getComponent() instanceof IDelegate && ((IDelegate)getComponent()).getDelegate() instanceof JComponent)
 		{
-			((JComponent)((IDelegate)component).getDelegate()).putClientProperty(key, value);
+			((JComponent)((IDelegate)getComponent()).getDelegate()).putClientProperty(key, value);
 		}
-		if (component instanceof ISupportSpecialClientProperty)
+		if (getComponent() instanceof ISupportSpecialClientProperty)
 		{
-			((ISupportSpecialClientProperty)component).setClientProperty(key, value);
+			((ISupportSpecialClientProperty)getComponent()).setClientProperty(key, value);
 		}
 	}
 
@@ -155,6 +155,6 @@ public abstract class AbstractRuntimeField extends AbstractRuntimeBaseComponent 
 	public void js_setSize(int x, int y)
 	{
 		super.js_setSize(x, y);
-		jsChangeRecorder.setSize(x, y, component.getBorder(), component.getMargin(), 0);
+		getChangesRecorder().setSize(x, y, getComponent().getBorder(), getComponent().getMargin(), 0);
 	}
 }

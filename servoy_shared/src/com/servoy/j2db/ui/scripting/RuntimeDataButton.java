@@ -29,18 +29,16 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
  * @author lvostinar
  * @since 6.0
  */
-public class RuntimeDataButton extends AbstractRuntimeButton implements IScriptDataButtonMethods
+public class RuntimeDataButton extends AbstractRuntimeButton<IButton> implements IScriptDataButtonMethods
 {
-	private String i18n;
-
-	public RuntimeDataButton(IButton button, IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
+	public RuntimeDataButton(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
-		super(button, jsChangeRecorder, application);
+		super(jsChangeRecorder, application);
 	}
 
 	@Override
 	public String js_getDataProviderID()
 	{
-		return ((IDisplayData)button).getDataProviderID();
+		return getComponent() instanceof IDisplayData ? ((IDisplayData)getComponent()).getDataProviderID() : null;
 	}
 }

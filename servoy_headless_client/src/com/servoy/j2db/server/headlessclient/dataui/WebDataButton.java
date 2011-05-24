@@ -53,10 +53,10 @@ public class WebDataButton extends WebBaseButton implements IDisplayData, IDispl
 
 	private CharSequence bodyText;
 
-	public WebDataButton(IApplication application, String id)
+	public WebDataButton(IApplication application, RuntimeDataButton scriptable, String id)
 	{
-		super(application, id);
-		scriptable = new RuntimeDataButton(this, new ChangesRecorder(null, null), application);
+		super(application, scriptable, id);
+		((ChangesRecorder)scriptable.getChangesRecorder()).setDefaultBorderAndPadding(null, null);
 	}
 
 	@Override
@@ -212,10 +212,10 @@ public class WebDataButton extends WebBaseButton implements IDisplayData, IDispl
 
 	public void setValueObject(Object value)
 	{
-		((ChangesRecorder)scriptable.getChangesRecorder()).testChanged(this, value);
+		((ChangesRecorder)getScriptObject().getChangesRecorder()).testChanged(this, value);
 	}
 
-	public boolean needEditListner()
+	public boolean needEditListener()
 	{
 		return false;
 	}

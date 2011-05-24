@@ -46,9 +46,7 @@ import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.dnd.FormDataTransferHandler;
 import com.servoy.j2db.dnd.ISupportDragNDropTextTransfer;
-import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
-import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
@@ -74,11 +72,12 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 	private final EventExecutor eventExecutor;
 	private final IApplication application;
 	private MouseAdapter rightclickMouseAdapter = null;
-	protected RuntimeDataPassword scriptable;
+	private final RuntimeDataPassword scriptable;
 
-	public DataPassword(IApplication app)
+	public DataPassword(IApplication app, RuntimeDataPassword scriptable)
 	{
 		super();
+		this.scriptable = scriptable;
 		application = app;
 		eventExecutor = new EventExecutor(this);
 
@@ -100,10 +99,9 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 		});
 		addMouseListener(eventExecutor);
 		addKeyListener(eventExecutor);
-		scriptable = new RuntimeDataPassword(this, new DummyChangesRecorder(), application);
 	}
 
-	public IScriptable getScriptObject()
+	public final RuntimeDataPassword getScriptObject()
 	{
 		return scriptable;
 	}
@@ -319,7 +317,7 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 		return new String(getPassword());
 	}
 
-	public boolean needEditListner()
+	public boolean needEditListener()
 	{
 		return true;
 	}
@@ -620,9 +618,7 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 	@Override
 	public String toString()
 	{
-		return scriptable.js_getElementType() +
-			"[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + scriptable.js_getHeight() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ 
+		return scriptable.toString();
 	}
 
 	public boolean stopUIEditing(boolean looseFocus)

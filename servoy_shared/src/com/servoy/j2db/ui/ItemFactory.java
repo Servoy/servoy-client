@@ -19,6 +19,9 @@ package com.servoy.j2db.ui;
 import java.awt.Component;
 import java.io.Serializable;
 
+import javax.swing.JComponent;
+import javax.swing.JEditorPane;
+
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.IValueList;
@@ -26,7 +29,24 @@ import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.Portal;
-import com.servoy.j2db.persistence.Shape;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeScrollableValuelistComponent;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeTextEditor;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeValuelistComponent;
+import com.servoy.j2db.ui.scripting.RuntimeDataButton;
+import com.servoy.j2db.ui.scripting.RuntimeDataCalendar;
+import com.servoy.j2db.ui.scripting.RuntimeDataCombobox;
+import com.servoy.j2db.ui.scripting.RuntimeDataField;
+import com.servoy.j2db.ui.scripting.RuntimeDataLabel;
+import com.servoy.j2db.ui.scripting.RuntimeDataLookupField;
+import com.servoy.j2db.ui.scripting.RuntimeDataPassword;
+import com.servoy.j2db.ui.scripting.RuntimeMediaField;
+import com.servoy.j2db.ui.scripting.RuntimePortal;
+import com.servoy.j2db.ui.scripting.RuntimeRectangle;
+import com.servoy.j2db.ui.scripting.RuntimeScriptButton;
+import com.servoy.j2db.ui.scripting.RuntimeScriptLabel;
+import com.servoy.j2db.ui.scripting.RuntimeSplitPane;
+import com.servoy.j2db.ui.scripting.RuntimeTabPanel;
+import com.servoy.j2db.ui.scripting.RuntimeTextArea;
 
 /**
  * Factory interface to create elements
@@ -66,7 +86,7 @@ public interface ItemFactory
 	 * @param name
 	 * @return the rect created
 	 */
-	IRect createRect(String name, int type);
+	IRect createRect(RuntimeRectangle scriptable, String name, int type);
 
 	/**
 	 * @param name TODO
@@ -74,14 +94,14 @@ public interface ItemFactory
 	 * @param b
 	 * @return
 	 */
-	ITabPanel createTabPanel(String name, int orient, boolean b);
+	ITabPanel createTabPanel(RuntimeTabPanel scriptable, String name, int orient, boolean b);
 
 	/**
 	 * @param name TODO
 	 * @param orient
 	 * @return
 	 */
-	ISplitPane createSplitPane(String name, int orient);
+	ISplitPane createSplitPane(RuntimeSplitPane scriptable, String name, int orient);
 
 	/**
 	 * @param meta
@@ -90,48 +110,49 @@ public interface ItemFactory
 	 * @param printing
 	 * @return
 	 */
-	IPortalComponent createPortalComponent(Portal meta, Form form, IDataProviderLookup dataProviderLookup, IScriptExecuter el, boolean printing);
+	IPortalComponent createPortalComponent(RuntimePortal scriptable, Portal meta, Form form, IDataProviderLookup dataProviderLookup, IScriptExecuter el,
+		boolean printing);
 
 
 	/**
 	 * @return
 	 */
-	IButton createDataButton(String name);
+	IButton createDataButton(RuntimeDataButton scriptable, String name);
 
 	/**
 	 * @return
 	 */
-	IButton createScriptButton(String name);
+	IButton createScriptButton(RuntimeScriptButton scriptable, String name);
 
 	/**
 	 * @return
 	 */
-	ILabel createScriptLabel(String name, boolean hasActionListner);
+	ILabel createScriptLabel(RuntimeScriptLabel scriptable, String name, boolean hasActionListener);
 
 	/**
 	 * @return
 	 */
-	ILabel createDataLabel(String name, boolean hasActionListner);
+	ILabel createDataLabel(RuntimeDataLabel scriptable, String name, boolean hasActionListener);
 
 	/**
 	 * @param name TODO
 	 * @return
 	 */
-	IFieldComponent createDataPassword(String name);
+	IFieldComponent createDataPassword(RuntimeDataPassword scriptable, String name);
 
 	/**
 	 * @param name TODO
 	 * @param rtf_area
 	 * @return
 	 */
-	IFieldComponent createDataTextEditor(String name, int type, boolean willBeEditable);
+	IFieldComponent createDataTextEditor(AbstractRuntimeTextEditor<IFieldComponent, JEditorPane> scriptable, String name, int type, boolean willBeEditable);
 
 
 	/**
 	 * @param name TODO
 	 * @return
 	 */
-	IFieldComponent createDataTextArea(String name);
+	IFieldComponent createDataTextArea(RuntimeTextArea scriptable, String name);
 
 	/**
 	 * @param name TODO
@@ -139,14 +160,7 @@ public interface ItemFactory
 	 * @param stringIfPrefix
 	 * @return
 	 */
-	IFieldComponent createSelectBox(String name, String text, IValueList list, boolean isRadio);
-
-	/**
-	 * @param name TODO
-	 * @param stringIfPrefix
-	 * @return
-	 */
-	IFieldComponent createSelectBox(String name, String text, boolean isRadio);
+	IFieldComponent createSelectBox(AbstractRuntimeValuelistComponent<IFieldComponent> scriptable, String name, String text, IValueList list, boolean isRadio);
 
 	/**
 	 * @param name TODO
@@ -154,51 +168,45 @@ public interface ItemFactory
 	 * @param b
 	 * @return
 	 */
-	IFieldComponent createDataChoice(String name, IValueList list, boolean b);
+	IFieldComponent createDataChoice(AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent> scriptable, String name, IValueList list,
+		boolean b);
 
 	/**
 	 * @param name TODO
 	 * @param list
 	 * @return
 	 */
-	IFieldComponent createDataComboBox(String name, IValueList list);
+	IFieldComponent createDataComboBox(RuntimeDataCombobox scriptable, String name, IValueList list);
 
 	/**
 	 * @param name TODO
 	 * @return
 	 */
-	IFieldComponent createDataCalendar(String name);
+	IFieldComponent createDataCalendar(RuntimeDataCalendar scriptable, String name);
 
 	/**
 	 * @param name TODO
 	 * @return
 	 */
-	IFieldComponent createDataImgMediaField(String name);
+	IFieldComponent createDataImgMediaField(RuntimeMediaField scriptable, String name);
 
 	/**
 	 * @param name TODO
 	 * @return
 	 */
-	IFieldComponent createDataField(String name);
+	IFieldComponent createDataField(RuntimeDataField scriptable, String name);
 
 	/**
 	 * @param lookupValueList
 	 * @param wicketIDParameter
 	 */
-	IFieldComponent createDataLookupField(String name, LookupValueList lookupValueList);
+	IFieldComponent createDataLookupField(RuntimeDataLookupField scriptable, String name, LookupValueList lookupValueList);
 
 	/**
 	 * @param wicketIDParameter
 	 * @param list
 	 */
-	IFieldComponent createDataLookupField(String name, CustomValueList list);
-
-	/**
-	 * @param webID
-	 * @param rec
-	 * @return
-	 */
-	IComponent createShape(String webID, Shape rec);
+	IFieldComponent createDataLookupField(RuntimeDataLookupField scriptable, String name, CustomValueList list);
 
 	/**
 	 * @param webID
@@ -206,7 +214,7 @@ public interface ItemFactory
 	 * @param tableName
 	 * @return
 	 */
-	IFieldComponent createDataLookupField(String webID, String serverName, String tableName, String dataProviderID);
+	IFieldComponent createDataLookupField(RuntimeDataLookupField scriptable, String webID, String serverName, String tableName, String dataProviderID);
 
 	/**
 	 * Set a property on the runtime component
@@ -224,4 +232,9 @@ public interface ItemFactory
 	 * @param key
 	 */
 	Serializable getComponentProperty(Object component, Object key);
+
+	/** 
+	 * Create the changes recorder for the runtime component.
+	 */
+	IStylePropertyChangesRecorder createChangesRecorder();
 }

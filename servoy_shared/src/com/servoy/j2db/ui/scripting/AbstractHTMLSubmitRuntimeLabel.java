@@ -37,11 +37,11 @@ import com.servoy.j2db.util.ComponentFactoryHelper;
  * @author lvostinar
  * @since 6.0
  */
-public abstract class AbstractHTMLSubmitRuntimeLabel extends AbstractRuntimeLabel
+public abstract class AbstractHTMLSubmitRuntimeLabel<C extends ILabel> extends AbstractRuntimeLabel<C>
 {
-	public AbstractHTMLSubmitRuntimeLabel(ILabel label, IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
+	public AbstractHTMLSubmitRuntimeLabel(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
-		super(label, jsChangeRecorder, application);
+		super(jsChangeRecorder, application);
 	}
 
 	/*
@@ -51,7 +51,7 @@ public abstract class AbstractHTMLSubmitRuntimeLabel extends AbstractRuntimeLabe
 	public void js_setSize(int x, int y)
 	{
 		super.js_setSize(x, y);
-		Border b = label.getBorder();
+		Border b = getComponent().getBorder();
 		Insets m = null;
 		// empty border gets handled as margin
 		if (b instanceof EmptyBorder)
@@ -59,24 +59,25 @@ public abstract class AbstractHTMLSubmitRuntimeLabel extends AbstractRuntimeLabe
 			m = b.getBorderInsets(null);
 			b = null;
 		}
-		jsChangeRecorder.setSize(x, y, b, m, label.getFontSize(), false, label.getVerticalAlignment());
+		getChangesRecorder().setSize(x, y, b, m, getComponent().getFontSize(), false, getComponent().getVerticalAlignment());
 	}
 
 	@Override
 	public void js_setBorder(String spec)
 	{
 		Border border = ComponentFactoryHelper.createBorder(spec);
-		Border oldBorder = label.getBorder();
-		if (label instanceof Component && oldBorder instanceof CompoundBorder && ((CompoundBorder)oldBorder).getInsideBorder() != null)
+		Border oldBorder = getComponent().getBorder();
+		if (getComponent() instanceof Component && oldBorder instanceof CompoundBorder && ((CompoundBorder)oldBorder).getInsideBorder() != null)
 		{
-			Insets insets = ((CompoundBorder)oldBorder).getInsideBorder().getBorderInsets((Component)label);
-			label.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(insets.top, insets.left, insets.bottom, insets.right)));
+			Insets insets = ((CompoundBorder)oldBorder).getInsideBorder().getBorderInsets((Component)getComponent());
+			getComponent().setBorder(
+				BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(insets.top, insets.left, insets.bottom, insets.right)));
 		}
 		else
 		{
-			label.setBorder(border);
+			getComponent().setBorder(border);
 		}
-		jsChangeRecorder.setBorder(spec);
+		getChangesRecorder().setBorder(spec);
 		Border b = border;
 		Insets m = null;
 		// empty border gets handled as margin
@@ -85,18 +86,19 @@ public abstract class AbstractHTMLSubmitRuntimeLabel extends AbstractRuntimeLabe
 			m = b.getBorderInsets(null);
 			b = null;
 		}
-		jsChangeRecorder.setSize(label.getSize().width, label.getSize().height, b, m, label.getFontSize(), false, label.getVerticalAlignment());
+		getChangesRecorder().setSize(getComponent().getSize().width, getComponent().getSize().height, b, m, getComponent().getFontSize(), false,
+			getComponent().getVerticalAlignment());
 	}
 
 	@Deprecated
 	public String js_getParameterValue(String param)
 	{
-		return label.getParameterValue(param);
+		return getComponent().getParameterValue(param);
 	}
 
 	public String js_getLabelForElementName()
 	{
-		Object component = label.getLabelFor();
+		Object component = getComponent().getLabelFor();
 		if (component instanceof IFieldComponent)
 		{
 			return ((IFieldComponent)component).getName();

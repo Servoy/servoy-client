@@ -51,7 +51,6 @@ import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.persistence.ScriptVariable;
-import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.ServoyForm;
@@ -64,7 +63,6 @@ import com.servoy.j2db.ui.ISupportInputSelection;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
-import com.servoy.j2db.ui.scripting.RuntimeTextArea;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
@@ -90,12 +88,9 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	private final IApplication application;
 
 	private FindModeDisabledSimpleAttributeModifier maxLengthBehavior;
-	protected AbstractRuntimeField scriptable;
+	private final AbstractRuntimeField<IFieldComponent> scriptable;
 
-	/**
-	 * @param id
-	 */
-	public WebDataTextArea(IApplication application, String id)
+	public WebDataTextArea(IApplication application, AbstractRuntimeField<IFieldComponent> scriptable, String id)
 	{
 		super(id);
 		this.application = application;
@@ -126,13 +121,12 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 				return editable ? null : FilterBackspaceKeyAttributeModifier.SCRIPT;
 			}
 		}));
-		this.scriptable = new RuntimeTextArea(this, new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE, TemplateGenerator.DEFAULT_FIELD_PADDING),
-			application, null);
+		this.scriptable = scriptable;
 	}
 
-	public IScriptable getScriptObject()
+	public final AbstractRuntimeField<IFieldComponent> getScriptObject()
 	{
-		return this.scriptable;
+		return scriptable;
 	}
 
 	/**
@@ -369,7 +363,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 		((ChangesRecorder)getStylePropertyChanges()).testChanged(this, value);
 	}
 
-	public boolean needEditListner()
+	public boolean needEditListener()
 	{
 		return false;
 	}
@@ -845,9 +839,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	@Override
 	public String toString()
 	{
-		return scriptable.js_getElementType() +
-			"(web)[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + scriptable.js_getHeight() + ",value:" + getDefaultModelObjectAsString() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.toString("value:" + getDefaultModelObjectAsString()); //$NON-NLS-1$ 
 	}
 
 	@Override

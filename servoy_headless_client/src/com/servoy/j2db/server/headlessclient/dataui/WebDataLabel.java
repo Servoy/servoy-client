@@ -28,7 +28,7 @@ import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.ui.IDisplayTagText;
-import com.servoy.j2db.ui.scripting.RuntimeDataLabel;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeBaseComponent;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Text;
@@ -49,13 +49,9 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 	private boolean needEntireState;
 	private boolean hasHTML;
 
-	/**
-	 * @param id
-	 */
-	public WebDataLabel(IApplication application, String id)
+	public WebDataLabel(IApplication application, AbstractRuntimeBaseComponent< ? > scriptable, String id)
 	{
-		super(application, id);
-		scriptable = new RuntimeDataLabel(this, new ChangesRecorder(null, TemplateGenerator.DEFAULT_LABEL_PADDING), application);
+		super(application, scriptable, id);
 	}
 
 	@Override
@@ -175,13 +171,13 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 	 */
 	public void setValueObject(Object obj)
 	{
-		((ChangesRecorder)scriptable.getChangesRecorder()).testChanged(this, obj);
+		((ChangesRecorder)getScriptObject().getChangesRecorder()).testChanged(this, obj);
 	}
 
 	/**
-	 * @see com.servoy.j2db.dataprocessing.IDisplayData#needEditListner()
+	 * @see com.servoy.j2db.dataprocessing.IDisplayData#needEditListener()
 	 */
-	public boolean needEditListner()
+	public boolean needEditListener()
 	{
 		return false;
 	}

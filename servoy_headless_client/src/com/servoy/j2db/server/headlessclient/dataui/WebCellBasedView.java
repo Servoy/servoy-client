@@ -205,7 +205,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	private Label loadingInfo; // used to show loading info when rendering is postponed waiting for size info response from browser\
 	private String lastRenderedPath;
 	private boolean isAnchored;
-	private RuntimePortal scriptable;
+	private final RuntimePortal scriptable;
 
 	/**
 	 * @author jcompagner
@@ -246,7 +246,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			super.renderHead(response);
 			String cellViewId = WebCellBasedView.this.getMarkupId();
 
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 
 			if (useAnchors)
 			{
@@ -935,7 +935,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 	}
 
-	public WebCellBasedView(final String id, final IApplication application, final Form form, final AbstractBase cellview,
+	public WebCellBasedView(final String id, final IApplication application, RuntimePortal scriptable, final Form form, final AbstractBase cellview,
 		final IDataProviderLookup dataProviderLookup, final IScriptExecuter el, boolean addHeaders, final int startY, final int endY, final int sizeHint)
 	{
 		super(id);
@@ -1015,8 +1015,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 			}
 		};
-		scriptable = new RuntimePortal(this, jsChangeRecorder, application, null);
+		this.scriptable = scriptable;
+		((ChangesRecorder)scriptable.getChangesRecorder()).setAdditionalChangesRecorder(jsChangeRecorder);
 
+		add(TooltipAttributeModifier.INSTANCE);
 		add(new StyleAppendingModifier(new Model<String>()
 		{
 			private static final long serialVersionUID = 1L;
@@ -1312,7 +1314,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 	}
 
-	public IScriptable getScriptObject()
+	public final RuntimePortal getScriptObject()
 	{
 		return scriptable;
 	}

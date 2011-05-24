@@ -29,16 +29,16 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
  * @author lvostinar
  * @since 6.0
  */
-public class RuntimeDataLabel extends AbstractHTMLSubmitRuntimeLabel implements IScriptDataLabelMethods
+public class RuntimeDataLabel extends AbstractHTMLSubmitRuntimeLabel<ILabel> implements IScriptDataLabelMethods
 {
-	public RuntimeDataLabel(ILabel label, IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
+	public RuntimeDataLabel(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
-		super(label, jsChangeRecorder, application);
+		super(jsChangeRecorder, application);
 	}
 
 	@Override
 	public String js_getDataProviderID()
 	{
-		return ((IDisplayData)label).getDataProviderID();
+		return getComponent() instanceof IDisplayData ? ((IDisplayData)getComponent()).getDataProviderID() : null;
 	}
 }

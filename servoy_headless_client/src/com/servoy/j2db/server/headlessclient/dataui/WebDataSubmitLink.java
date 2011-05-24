@@ -39,6 +39,7 @@ import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.dataui.StripHTMLTagsConverter.StrippedText;
 import com.servoy.j2db.ui.IDisplayTagText;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeBaseComponent;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Text;
@@ -61,10 +62,11 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 	//private String tooltip;
 	private String inputId;
 
-	public WebDataSubmitLink(IApplication application, String id)
+	public WebDataSubmitLink(IApplication application, AbstractRuntimeBaseComponent scriptable, String id)
 	{
-		super(application, id);
+		super(application, scriptable, id);
 	}
+
 
 	@Override
 	public void setText(String txt)
@@ -96,7 +98,7 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 			if (model instanceof IComponentInheritedModel< ? >)
 			{
 				// we turn off versioning as we share the model with another
-				// component that is the owner of the model (that component
+				// ct that is the owner of the model (that component
 				// has to decide whether to version or not
 				setVersioned(false);
 
@@ -288,10 +290,10 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 
 	public void setValueObject(Object value)
 	{
-		((ChangesRecorder)scriptable.getChangesRecorder()).testChanged(this, value);
+		((ChangesRecorder)getScriptObject().getChangesRecorder()).testChanged(this, value);
 	}
 
-	public boolean needEditListner()
+	public boolean needEditListener()
 	{
 		return false;
 	}

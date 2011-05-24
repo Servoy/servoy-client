@@ -29,22 +29,22 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
  * @author lvostinar
  * @since 6.0
  */
-public class RuntimeDataCalendar extends AbstractRuntimeField implements IScriptDataCalendarMethods
+public class RuntimeDataCalendar extends AbstractRuntimeField<IFieldComponent> implements IScriptDataCalendarMethods
 {
-	public RuntimeDataCalendar(IFieldComponent component, IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
+	public RuntimeDataCalendar(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
-		super(component, jsChangeRecorder, application);
+		super(jsChangeRecorder, application);
 	}
 
 	public void js_setFormat(String format)
 	{
-		component.setFormat(component.getDataType(), application.getI18NMessageIfPrefixed(format));
-		jsChangeRecorder.setChanged();
+		getComponent().setFormat(getComponent().getDataType(), application.getI18NMessageIfPrefixed(format));
+		getChangesRecorder().setChanged();
 	}
 
 	public String js_getFormat()
 	{
-		return component.getFormat();
+		return getComponent().getFormat();
 	}
 
 	public String js_getElementType()
@@ -54,12 +54,12 @@ public class RuntimeDataCalendar extends AbstractRuntimeField implements IScript
 
 	public boolean js_isEditable()
 	{
-		return component.isEditable();
+		return getComponent().isEditable();
 	}
 
 	public void js_setEditable(boolean b)
 	{
-		component.setEditable(b);
-		jsChangeRecorder.setChanged();
+		getComponent().setEditable(b);
+		getChangesRecorder().setChanged();
 	}
 }

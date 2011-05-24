@@ -28,11 +28,12 @@ import javax.swing.border.Border;
  */
 public class DummyChangesRecorder implements IStylePropertyChangesRecorder
 {
+	public static final DummyChangesRecorder INSTANCE = new DummyChangesRecorder();
 
 	/**
 	 * 
 	 */
-	public DummyChangesRecorder()
+	private DummyChangesRecorder()
 	{
 	}
 

@@ -67,8 +67,6 @@ import com.servoy.j2db.dnd.FormDataTransferHandler;
 import com.servoy.j2db.dnd.ISupportDragNDropTextTransfer;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.printing.IFixedPreferredWidth;
-import com.servoy.j2db.scripting.IScriptable;
-import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEditProvider;
 import com.servoy.j2db.ui.IEventExecutor;
@@ -104,9 +102,9 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 	private final EventExecutor eventExecutor;
 	private final IApplication application;
 	private MouseAdapter rightclickMouseAdapter = null;
-	protected RuntimeTextArea scriptable;
+	private final RuntimeTextArea scriptable;
 
-	public DataTextArea(IApplication app)
+	public DataTextArea(IApplication app, RuntimeTextArea scriptable)
 	{
 		super();
 		application = app;
@@ -147,10 +145,11 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 				}
 			}
 		});
-		scriptable = new RuntimeTextArea(this, new DummyChangesRecorder(), app, enclosedComponent);
+		this.scriptable = scriptable;
+		scriptable.setTextComponent(enclosedComponent);
 	}
 
-	public IScriptable getScriptObject()
+	public final RuntimeTextArea getScriptObject()
 	{
 		return scriptable;
 	}
@@ -757,7 +756,7 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 	/*
 	 * @see IDisplayData#needFocusListner()
 	 */
-	public boolean needEditListner()
+	public boolean needEditListener()
 	{
 		return true;
 	}
@@ -1105,9 +1104,7 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 	@Override
 	public String toString()
 	{
-		return scriptable.js_getElementType() +
-			"[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + scriptable.js_getHeight() + ",value:" + getValueObject() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.toString();
 	}
 
 	public boolean stopUIEditing(boolean looseFocus)

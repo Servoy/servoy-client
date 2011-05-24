@@ -17,28 +17,18 @@
 package com.servoy.j2db.smart.dataui;
 
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.scripting.IScriptable;
-import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.scripting.RuntimeScriptButton;
 
 
 /**
- * @author jcompager
+ * @author jcompagner
  */
 
 public class ScriptButton extends AbstractScriptButton
 {
-	private final IScriptable scriptable;
-
-	public ScriptButton(IApplication app)
+	public ScriptButton(IApplication app, RuntimeScriptButton scriptable)
 	{
-		super(app);
-		scriptable = new RuntimeScriptButton(this, new DummyChangesRecorder(), app);
-	}
-
-	public IScriptable getScriptObject()
-	{
-		return scriptable;
+		super(app, scriptable);
 	}
 
 	@Override

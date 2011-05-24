@@ -28,9 +28,13 @@ import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.component.ComponentFactory;
+import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.persistence.BaseComponent;
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.ui.IComponent;
+import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IScriptBaseMethods;
+import com.servoy.j2db.ui.IScriptTransparentMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.ISupportSecuritySettings;
@@ -43,18 +47,33 @@ import com.servoy.j2db.util.PersistHelper;
  * @author lvostinar
  * @since 6.0
  */
-public abstract class AbstractRuntimeBaseComponent implements IScriptBaseMethods, Wrapper
+public abstract class AbstractRuntimeBaseComponent<C extends IComponent> implements IScriptable, IScriptBaseMethods, IScriptTransparentMethods, Wrapper
 {
-	protected final IComponent component;
-	protected final IStylePropertyChangesRecorder jsChangeRecorder;
+	private C component;
+	private final IStylePropertyChangesRecorder jsChangeRecorder;
 	private Map<Object, Object> clientProperties;
 	protected final IApplication application;
 
-	public AbstractRuntimeBaseComponent(IComponent component, IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
+	public AbstractRuntimeBaseComponent(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
-		this.component = component;
 		this.jsChangeRecorder = jsChangeRecorder;
 		this.application = application;
+	}
+
+	/**
+	 * @return the component
+	 */
+	public C getComponent()
+	{
+		return component;
+	}
+
+	/**
+	 * @param component the component to set
+	 */
+	public void setComponent(C component)
+	{
+		this.component = component;
 	}
 
 	public Object unwrap()
@@ -72,116 +91,116 @@ public abstract class AbstractRuntimeBaseComponent implements IScriptBaseMethods
 
 	public String js_getBgcolor()
 	{
-		return PersistHelper.createColorString(component.getBackground());
+		return PersistHelper.createColorString(getComponent().getBackground());
 	}
 
 	public void js_setBgcolor(String clr)
 	{
-		component.setBackground(PersistHelper.createColor(clr));
-		jsChangeRecorder.setBgcolor(clr);
+		getComponent().setBackground(PersistHelper.createColor(clr));
+		getChangesRecorder().setBgcolor(clr);
 	}
 
 	public String js_getFgcolor()
 	{
-		return PersistHelper.createColorString(component.getForeground());
+		return PersistHelper.createColorString(getComponent().getForeground());
 	}
 
 	public void js_setFgcolor(String clr)
 	{
-		component.setForeground(PersistHelper.createColor(clr));
-		jsChangeRecorder.setFgcolor(clr);
+		getComponent().setForeground(PersistHelper.createColor(clr));
+		getChangesRecorder().setFgcolor(clr);
 	}
 
 	public void js_setFont(String spec)
 	{
-		component.setFont(PersistHelper.createFont(spec));
-		jsChangeRecorder.setFont(spec);
+		getComponent().setFont(PersistHelper.createFont(spec));
+		getChangesRecorder().setFont(spec);
 	}
 
 	public String js_getFont()
 	{
-		return PersistHelper.createFontString(component.getFont());
+		return PersistHelper.createFontString(getComponent().getFont());
 	}
 
 	public int js_getWidth()
 	{
-		return component.getSize().width;
+		return getComponent().getSize().width;
 	}
 
 	public int js_getHeight()
 	{
-		return component.getSize().height;
+		return getComponent().getSize().height;
 	}
 
 	public boolean js_isVisible()
 	{
-		return component.isVisible();
+		return getComponent().isVisible();
 	}
 
 	public void js_setVisible(boolean b)
 	{
-		if (!(component instanceof ISupportSecuritySettings) || ((ISupportSecuritySettings)component).isViewable())
+		if (!(getComponent() instanceof ISupportSecuritySettings) || ((ISupportSecuritySettings)getComponent()).isViewable())
 		{
-			component.setComponentVisible(b);
-			jsChangeRecorder.setVisible(b);
+			getComponent().setComponentVisible(b);
+			getChangesRecorder().setVisible(b);
 		}
 	}
 
 	public boolean js_isTransparent()
 	{
-		return !component.isOpaque();
+		return !getComponent().isOpaque();
 	}
 
 	public void js_setTransparent(boolean b)
 	{
-		component.setOpaque(!b);
-		jsChangeRecorder.setTransparent(b);
-		if (component instanceof JComponent)
+		getComponent().setOpaque(!b);
+		getChangesRecorder().setTransparent(b);
+		if (getComponent() instanceof JComponent)
 		{
-			((JComponent)component).repaint();
+			((JComponent)getComponent()).repaint();
 		}
 	}
 
 	public void js_setEnabled(final boolean b)
 	{
-		component.setComponentEnabled(b);
+		getComponent().setComponentEnabled(b);
 	}
 
 	public boolean js_isEnabled()
 	{
-		return component.isEnabled();
+		return getComponent().isEnabled();
 	}
 
 	public void js_setLocation(int x, int y)
 	{
-		component.setLocation(new Point(x, y));
-		jsChangeRecorder.setLocation(x, y);
-		if (component instanceof ISupportCachedLocationAndSize)
+		getComponent().setLocation(new Point(x, y));
+		getChangesRecorder().setLocation(x, y);
+		if (getComponent() instanceof ISupportCachedLocationAndSize)
 		{
-			((ISupportCachedLocationAndSize)component).setCachedLocation(new Point(x, y));
+			((ISupportCachedLocationAndSize)getComponent()).setCachedLocation(new Point(x, y));
 		}
-		if (component instanceof JComponent)
+		if (getComponent() instanceof JComponent)
 		{
-			((JComponent)component).validate();
+			((JComponent)getComponent()).validate();
 		}
 	}
 
 	public void js_setSize(int x, int y)
 	{
-		if (component instanceof ISupportCachedLocationAndSize)
+		if (getComponent() instanceof ISupportCachedLocationAndSize)
 		{
-			((ISupportCachedLocationAndSize)component).setCachedSize(new Dimension(x, y));
+			((ISupportCachedLocationAndSize)getComponent()).setCachedSize(new Dimension(x, y));
 		}
-		component.setSize(new Dimension(x, y));
-		if (component instanceof JComponent)
+		getComponent().setSize(new Dimension(x, y));
+		if (getComponent() instanceof JComponent)
 		{
-			((JComponent)component).validate();
+			((JComponent)getComponent()).validate();
 		}
 	}
 
 	public String js_getName()
 	{
-		String jsName = component.getName();
+		String jsName = getComponent().getName();
 		if (jsName != null && jsName.startsWith(ComponentFactory.WEB_ID_PREFIX)) jsName = null;
 		return jsName;
 	}
@@ -189,12 +208,12 @@ public abstract class AbstractRuntimeBaseComponent implements IScriptBaseMethods
 
 	public int js_getLocationX()
 	{
-		return component.getLocation().x;
+		return getComponent().getLocation().x;
 	}
 
 	public int js_getLocationY()
 	{
-		return component.getLocation().y;
+		return getComponent().getLocation().y;
 	}
 
 	public void js_putClientProperty(Object key, Object value)
@@ -204,17 +223,17 @@ public abstract class AbstractRuntimeBaseComponent implements IScriptBaseMethods
 			clientProperties = new HashMap<Object, Object>();
 		}
 		clientProperties.put(key, value);
-		if (component instanceof JComponent)
+		if (getComponent() instanceof JComponent)
 		{
-			((JComponent)component).putClientProperty(key, value);
+			((JComponent)getComponent()).putClientProperty(key, value);
 		}
 	}
 
 	public Object js_getClientProperty(Object key)
 	{
-		if (component instanceof JComponent)
+		if (getComponent() instanceof JComponent)
 		{
-			return ((JComponent)component).getClientProperty(key);
+			return ((JComponent)getComponent()).getClientProperty(key);
 		}
 		if (clientProperties == null) return null;
 		return clientProperties.get(key);
@@ -222,12 +241,41 @@ public abstract class AbstractRuntimeBaseComponent implements IScriptBaseMethods
 
 	public String js_getBorder()
 	{
-		return ComponentFactoryHelper.createBorderString(component.getBorder());
+		return ComponentFactoryHelper.createBorderString(getComponent().getBorder());
 	}
 
 	public void js_setBorder(String spec)
 	{
-		component.setBorder(ComponentFactoryHelper.createBorder(spec));
-		jsChangeRecorder.setBorder(spec);
+		getComponent().setBorder(ComponentFactoryHelper.createBorder(spec));
+		getChangesRecorder().setBorder(spec);
+	}
+
+	public String getValueString()
+	{
+		if (getComponent() instanceof IDisplayData)
+		{
+			return "value: " + ((IDisplayData)getComponent()).getValueObject(); //$NON-NLS-1$
+		}
+		if (getComponent() instanceof ILabel)
+		{
+			return "label: " + ((ILabel)getComponent()).getText(); //$NON-NLS-1$
+		}
+		return null;
+	}
+
+	public String toString(String valueString)
+	{
+		if (getComponent() == null)
+		{
+			return "ScriptObject (component not yet set): " + getClass(); //$NON-NLS-1$
+		}
+		return js_getElementType() + "[name:" + js_getName() + ",x:" + js_getLocationX() + ",y:" + js_getLocationY() + ",width:" + js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
+			",height:" + js_getHeight() + (valueString == null ? "" : (',' + valueString)) + ']'; //$NON-NLS-1$ //$NON-NLS-2$ 
+	}
+
+	@Override
+	public String toString()
+	{
+		return toString(getComponent() == null ? null : getValueString());
 	}
 }

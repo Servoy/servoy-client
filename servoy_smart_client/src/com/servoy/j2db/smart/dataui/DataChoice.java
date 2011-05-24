@@ -38,6 +38,7 @@ import java.util.StringTokenizer;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JRadioButton;
 import javax.swing.JToggleButton;
@@ -60,8 +61,6 @@ import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.gui.editlist.JNavigableEditList;
 import com.servoy.j2db.gui.editlist.NavigableCellEditor;
 import com.servoy.j2db.gui.editlist.NavigableCellRenderer;
-import com.servoy.j2db.scripting.IScriptable;
-import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
@@ -71,8 +70,7 @@ import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
-import com.servoy.j2db.ui.scripting.RuntimeCheckBoxChoice;
-import com.servoy.j2db.ui.scripting.RuntimeRadioChoice;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeScrollableValuelistComponent;
 import com.servoy.j2db.util.EnableScrollPanel;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.ITagResolver;
@@ -104,9 +102,9 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 	private final boolean isRadioList;
 	private MouseAdapter rightclickMouseAdapter = null;
 	private IValueList vl;
-	private AbstractRuntimeField scriptable;
+	private final AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent> scriptable;
 
-	public DataChoice(IApplication app, IValueList vl, boolean isRadioList)
+	public DataChoice(IApplication app, AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent> scriptable, IValueList vl, boolean isRadioList)
 	{
 		super();
 		application = app;
@@ -123,22 +121,23 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 			enclosedComponent.setCellRenderer(new NavigableCellRenderer(new RadioCell()));
 			enclosedComponent.setCellEditor(new NavigableCellEditor(new RadioCell()));
 			list.setMultiValueSelect(false);
-			scriptable = new RuntimeRadioChoice(this, new DummyChangesRecorder(), app, enclosedComponent, list);
 		}
 		else
 		{
 			enclosedComponent.setCellRenderer(new NavigableCellRenderer(new CheckBoxCell()));
 			enclosedComponent.setCellEditor(new NavigableCellEditor(new CheckBoxCell()));
 			list.setMultiValueSelect(true);
-			scriptable = new RuntimeCheckBoxChoice(this, new DummyChangesRecorder(), app, enclosedComponent, list);
 		}
+		this.scriptable = scriptable;
+		scriptable.setField(enclosedComponent);
+		scriptable.setList(list);
 
 //		enclosedComponent.setPrototypeCellValue(new Integer(0));
 
 		getViewport().setView(enclosedComponent);
 	}
 
-	public IScriptable getScriptObject()
+	public final AbstractRuntimeField<IFieldComponent> getScriptObject()
 	{
 		return scriptable;
 	}
@@ -746,7 +745,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		}
 	}
 
-	public boolean needEditListner()
+	public boolean needEditListener()
 	{
 		return true;
 	}
@@ -1165,9 +1164,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 	@Override
 	public String toString()
 	{
-		return scriptable.js_getElementType() +
-			"[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + scriptable.js_getHeight() + ",value:" + getValueObject() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.toString();
 	}
 
 	public List getDefaultSort()

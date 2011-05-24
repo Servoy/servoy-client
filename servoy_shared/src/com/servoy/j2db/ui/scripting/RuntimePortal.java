@@ -26,7 +26,6 @@ import javax.swing.JComponent;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.SortColumn;
-import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IPortalComponent;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptPortalComponentMethods;
@@ -39,14 +38,21 @@ import com.servoy.j2db.util.Debug;
  * @author lvostinar
  * @since 6.0
  */
-public class RuntimePortal extends AbstractRuntimeBaseComponent implements IScriptPortalComponentMethods
+public class RuntimePortal extends AbstractRuntimeBaseComponent<IPortalComponent> implements IScriptPortalComponentMethods
 {
 	private IFoundSetInternal foundset;
-	private final JComponent jComponent;
+	private JComponent jComponent;
 
-	public RuntimePortal(IComponent component, IStylePropertyChangesRecorder jsChangeRecorder, IApplication application, JComponent jComponent)
+	public RuntimePortal(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
-		super(component, jsChangeRecorder, application);
+		super(jsChangeRecorder, application);
+	}
+
+	/**
+	 * @param jComponent the jComponent to set
+	 */
+	public void setJComponent(JComponent jComponent)
+	{
 		this.jComponent = jComponent;
 	}
 
@@ -62,7 +68,7 @@ public class RuntimePortal extends AbstractRuntimeBaseComponent implements IScri
 
 	public String js_getSortColumns()
 	{
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		if (foundset != null)
 		{
 			List lst = foundset.getSortColumns();
@@ -139,12 +145,12 @@ public class RuntimePortal extends AbstractRuntimeBaseComponent implements IScri
 
 	public void js_setReadOnly(boolean b)
 	{
-		((IPortalComponent)component).setReadOnly(b);
+		getComponent().setReadOnly(b);
 	}
 
 	public int js_getAbsoluteFormLocationY()
 	{
-		return ((IPortalComponent)component).getAbsoluteFormLocationY();
+		return getComponent().getAbsoluteFormLocationY();
 	}
 
 	public int jsFunction_getSelectedIndex()
@@ -162,7 +168,7 @@ public class RuntimePortal extends AbstractRuntimeBaseComponent implements IScri
 	{
 		if (i >= 1 && i <= js_getMaxRecordIndex())
 		{
-			((IPortalComponent)component).setRecordIndex(i - 1);
+			getComponent().setRecordIndex(i - 1);
 		}
 	}
 
@@ -170,7 +176,7 @@ public class RuntimePortal extends AbstractRuntimeBaseComponent implements IScri
 	{
 		if (i >= 1 && i <= js_getMaxRecordIndex())
 		{
-			((IPortalComponent)component).setRecordIndex(i - 1);
+			getComponent().setRecordIndex(i - 1);
 		}
 	}
 
@@ -186,7 +192,7 @@ public class RuntimePortal extends AbstractRuntimeBaseComponent implements IScri
 			try
 			{
 				int i = foundset.newRecord(addOnTop);
-				((IPortalComponent)component).setRecordIndex(i);
+				getComponent().setRecordIndex(i);
 			}
 			catch (Exception ex)
 			{
@@ -207,7 +213,7 @@ public class RuntimePortal extends AbstractRuntimeBaseComponent implements IScri
 			try
 			{
 				int i = foundset.duplicateRecord(foundset.getSelectedIndex(), addOnTop);
-				((IPortalComponent)component).setRecordIndex(i);
+				getComponent().setRecordIndex(i);
 			}
 			catch (Exception ex)
 			{
@@ -220,11 +226,22 @@ public class RuntimePortal extends AbstractRuntimeBaseComponent implements IScri
 	public void js_setSize(int x, int y)
 	{
 		super.js_setSize(x, y);
-		jsChangeRecorder.setSize(component.getSize().width, component.getSize().height, component.getBorder(), new Insets(0, 0, 0, 0), 0);
+		getChangesRecorder().setSize(getComponent().getSize().width, getComponent().getSize().height, getComponent().getBorder(), new Insets(0, 0, 0, 0), 0);
 	}
 
 	public boolean js_isReadOnly()
 	{
-		return ((IPortalComponent)component).isReadOnly();
+		return getComponent().isReadOnly();
+	}
+
+	public String js_getToolTipText()
+	{
+		return getComponent().getToolTipText();
+	}
+
+	public void js_setToolTipText(String tooltip)
+	{
+		getComponent().setToolTipText(tooltip);
+		getChangesRecorder().setChanged();
 	}
 }

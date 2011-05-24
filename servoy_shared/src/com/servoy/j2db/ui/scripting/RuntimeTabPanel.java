@@ -39,14 +39,11 @@ import com.servoy.j2db.util.Utils;
  * @author lvostinar
  * @since 6.0
  */
-public class RuntimeTabPanel extends AbstractRuntimeFormContainer implements IDepricatedScriptTabPanelMethods
+public class RuntimeTabPanel extends AbstractRuntimeFormContainer<ITabPanel, JComponent> implements IDepricatedScriptTabPanelMethods
 {
-	private final ITabPanel tabPanel;
-
-	public RuntimeTabPanel(ITabPanel component, IStylePropertyChangesRecorder jsChangeRecorder, IApplication application, JComponent enclosingComponent)
+	public RuntimeTabPanel(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
-		super(component, jsChangeRecorder, application, enclosingComponent);
-		this.tabPanel = component;
+		super(jsChangeRecorder, application);
 	}
 
 	public void js_setReadOnly(boolean b)
@@ -57,21 +54,21 @@ public class RuntimeTabPanel extends AbstractRuntimeFormContainer implements IDe
 		}
 		else
 		{
-			tabPanel.setReadOnly(b);
+			getComponent().setReadOnly(b);
 		}
-		jsChangeRecorder.setChanged();
+		getChangesRecorder().setChanged();
 	}
 
 	public int js_getAbsoluteFormLocationY()
 	{
-		return tabPanel.getAbsoluteFormLocationY();
+		return getComponent().getAbsoluteFormLocationY();
 	}
 
 	public boolean js_removeTabAt(int i)
 	{
-		if (i >= 1 && i <= js_getMaxTabIndex() && tabPanel.removeTabAt(i - 1))
+		if (i >= 1 && i <= js_getMaxTabIndex() && getComponent().removeTabAt(i - 1))
 		{
-			jsChangeRecorder.setChanged();
+			getChangesRecorder().setChanged();
 			return true;
 		}
 		return false;
@@ -79,8 +76,8 @@ public class RuntimeTabPanel extends AbstractRuntimeFormContainer implements IDe
 
 	public boolean js_removeAllTabs()
 	{
-		jsChangeRecorder.setChanged();
-		return tabPanel.removeAllTabs();
+		getChangesRecorder().setChanged();
+		return getComponent().removeAllTabs();
 	}
 
 	public boolean js_addTab(Object[] vargs)
@@ -174,8 +171,8 @@ public class RuntimeTabPanel extends AbstractRuntimeFormContainer implements IDe
 //				Table parentTable = null;
 //				application.getSolution().getRelations(Solution.SOLUTION+Solution.MODULES, parentTable, true, false);
 			}
-			return tabPanel.addTab(f != null ? f : fName, name, tabText, tooltip, iconURL, fg, bg, relatedFs != null ? relatedFs : relationName, tabIndex,
-				readOnly);
+			return getComponent().addTab(f != null ? f : fName, name, tabText, tooltip, iconURL, fg, bg, relatedFs != null ? relatedFs : relationName,
+				tabIndex, readOnly);
 		}
 		return false;
 	}
@@ -233,9 +230,9 @@ public class RuntimeTabPanel extends AbstractRuntimeFormContainer implements IDe
 
 	public String js_getTabRelationNameAt(int i)
 	{
-		if (i >= 1 && i <= js_getMaxTabIndex())
+		if (getComponent() instanceof IDisplayRelatedData && i >= 1 && i <= js_getMaxTabIndex())
 		{
-			return ((IDisplayRelatedData)tabPanel).getAllRelationNames()[i - 1];
+			return ((IDisplayRelatedData)getComponent()).getAllRelationNames()[i - 1];
 		}
 		return null;
 	}
@@ -256,8 +253,8 @@ public class RuntimeTabPanel extends AbstractRuntimeFormContainer implements IDe
 	{
 		if (i >= 1 && i <= js_getMaxTabIndex())
 		{
-			tabPanel.setTabEnabledAt(i - 1, b);
-			jsChangeRecorder.setChanged();
+			getComponent().setTabEnabledAt(i - 1, b);
+			getChangesRecorder().setChanged();
 		}
 	}
 
@@ -271,8 +268,8 @@ public class RuntimeTabPanel extends AbstractRuntimeFormContainer implements IDe
 	{
 		if (i >= 1 && i <= js_getMaxTabIndex())
 		{
-			tabPanel.setTabTextAt(i - 1, text);
-			jsChangeRecorder.setChanged();
+			getComponent().setTabTextAt(i - 1, text);
+			getChangesRecorder().setChanged();
 		}
 	}
 
@@ -280,7 +277,7 @@ public class RuntimeTabPanel extends AbstractRuntimeFormContainer implements IDe
 	{
 		if (i >= 1 && i <= js_getMaxTabIndex())
 		{
-			return tabPanel.getTabTextAt(i - 1);
+			return getComponent().getTabTextAt(i - 1);
 		}
 		return null;
 	}
@@ -289,7 +286,7 @@ public class RuntimeTabPanel extends AbstractRuntimeFormContainer implements IDe
 	{
 		if (i >= 1 && i <= js_getMaxTabIndex())
 		{
-			return tabPanel.getTabNameAt(i - 1);
+			return getComponent().getTabNameAt(i - 1);
 		}
 		return null;
 	}
@@ -298,33 +295,33 @@ public class RuntimeTabPanel extends AbstractRuntimeFormContainer implements IDe
 	{
 		if (i >= 1 && i <= js_getMaxTabIndex())
 		{
-			return tabPanel.getTabFormNameAt(i - 1);
+			return getComponent().getTabFormNameAt(i - 1);
 		}
 		return null;
 	}
 
 	public void js_setTabIndex(Object arg)
 	{
-		tabPanel.setTabIndex(arg);
+		getComponent().setTabIndex(arg);
 	}
 
 	public boolean js_isTabEnabledAt(int i)
 	{
 		if (i >= 1 && i <= js_getMaxTabIndex())
 		{
-			return tabPanel.isTabEnabledAt(i - 1);
+			getComponent().isTabEnabledAt(i - 1);
 		}
 		return false;
 	}
 
 	public Object js_getTabIndex()
 	{
-		return tabPanel.getTabIndex();
+		return getComponent().getTabIndex();
 	}
 
 	public int js_getMaxTabIndex()
 	{
-		return tabPanel.getMaxTabIndex();
+		return getComponent().getMaxTabIndex();
 	}
 
 }

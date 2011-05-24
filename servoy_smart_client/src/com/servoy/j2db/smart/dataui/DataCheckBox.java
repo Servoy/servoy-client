@@ -46,8 +46,6 @@ import com.servoy.j2db.component.INullableAware;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IValueList;
-import com.servoy.j2db.scripting.IScriptable;
-import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
@@ -55,7 +53,7 @@ import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.ui.scripting.RuntimeCheckbox;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeValuelistComponent;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ISkinnable;
 import com.servoy.j2db.util.ITagResolver;
@@ -78,24 +76,24 @@ public class DataCheckBox extends JCheckBox implements IFieldComponent, IDisplay
 	private final EventExecutor eventExecutor;
 	private MouseAdapter rightclickMouseAdapter = null;
 	private boolean allowNull = true;
-	private final RuntimeCheckbox scriptable;
+	private final AbstractRuntimeValuelistComponent<IFieldComponent> scriptable;
 
-	public DataCheckBox(IApplication application, String text)
+	public DataCheckBox(IApplication application, AbstractRuntimeValuelistComponent<IFieldComponent> scriptable, String text)
 	{
 		setText(Text.processTags(text, null));
 		this.application = application;
 		eventExecutor = new EventExecutor(this);
 		addKeyListener(eventExecutor);
-		scriptable = new RuntimeCheckbox(this, new DummyChangesRecorder(), application);
+		this.scriptable = scriptable;
 	}
 
-	public DataCheckBox(IApplication application, String text, IValueList onValue)
+	public DataCheckBox(IApplication application, AbstractRuntimeValuelistComponent<IFieldComponent> scriptable, String text, IValueList onValue)
 	{
-		this(application, text);
+		this(application, scriptable, text);
 		this.onValue = onValue;
 	}
 
-	public IScriptable getScriptObject()
+	public final AbstractRuntimeValuelistComponent<IFieldComponent> getScriptObject()
 	{
 		return scriptable;
 	}
@@ -319,7 +317,7 @@ public class DataCheckBox extends JCheckBox implements IFieldComponent, IDisplay
 		needEntireState = b;
 	}
 
-	public boolean needEditListner()
+	public boolean needEditListener()
 	{
 		return true;
 	}
@@ -713,9 +711,7 @@ public class DataCheckBox extends JCheckBox implements IFieldComponent, IDisplay
 	@Override
 	public String toString()
 	{
-		return scriptable.js_getElementType() +
-			"[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + scriptable.js_getHeight() + ",value:" + getValueObject() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.toString();
 	}
 
 	public boolean stopUIEditing(boolean looseFocus)

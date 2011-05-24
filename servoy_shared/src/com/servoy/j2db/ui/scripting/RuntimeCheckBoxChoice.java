@@ -23,7 +23,6 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
-import com.servoy.j2db.util.model.ComboModelListModelWrapper;
 
 /**
  * Scriptable checkbox group component.
@@ -31,12 +30,11 @@ import com.servoy.j2db.util.model.ComboModelListModelWrapper;
  * @author lvostinar
  * @since 6.0
  */
-public class RuntimeCheckBoxChoice extends AbstractRuntimeScrollableValuelistComponent
+public class RuntimeCheckBoxChoice extends AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent>
 {
-	public RuntimeCheckBoxChoice(IFieldComponent component, IStylePropertyChangesRecorder jsChangeRecorder, IApplication application, JComponent field,
-		ComboModelListModelWrapper list)
+	public RuntimeCheckBoxChoice(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
-		super(component, jsChangeRecorder, application, field, list);
+		super(jsChangeRecorder, application);
 	}
 
 	public String js_getElementType()

@@ -182,7 +182,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 					((DisplaysAdapter)da).addDisplay(display);//for more than one field on form showing same content...
 				}
 
-				if (display.needEditListner() && da instanceof IEditListener)
+				if (display.needEditListener() && da instanceof IEditListener)
 				{
 					display.addEditListener((IEditListener)da);
 				}

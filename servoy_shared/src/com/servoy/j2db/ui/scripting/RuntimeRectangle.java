@@ -20,7 +20,6 @@ package com.servoy.j2db.ui.scripting;
 import javax.swing.JComponent;
 
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IRect;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptRectMethods;
@@ -32,16 +31,16 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
  * @author lvostinar
  * @since 6.0
  */
-public class RuntimeRectangle extends AbstractRuntimeBaseComponent implements IScriptRectMethods
+public class RuntimeRectangle extends AbstractRuntimeBaseComponent<IRect> implements IScriptRectMethods
 {
-	public RuntimeRectangle(IComponent component, IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
+	public RuntimeRectangle(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
-		super(component, jsChangeRecorder, application);
+		super(jsChangeRecorder, application);
 	}
 
 	public int js_getAbsoluteFormLocationY()
 	{
-		return ((IRect)component).getAbsoluteFormLocationY();
+		return getComponent().getAbsoluteFormLocationY();
 	}
 
 	public String js_getElementType()
@@ -51,22 +50,21 @@ public class RuntimeRectangle extends AbstractRuntimeBaseComponent implements IS
 
 	public void js_setToolTipText(String txt)
 	{
-		component.setToolTipText(txt);
+		getComponent().setToolTipText(txt);
 	}
 
 	public String js_getToolTipText()
 	{
-		return component.getToolTipText();
+		return getComponent().getToolTipText();
 	}
-
 
 	@Override
 	public void js_setTransparent(boolean b)
 	{
 		super.js_setTransparent(b);
-		if (component instanceof JComponent)
+		if (getComponent() instanceof JComponent)
 		{
-			((JComponent)component).repaint();
+			((JComponent)getComponent()).repaint();
 		}
 	}
 

@@ -65,7 +65,6 @@ import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.plugins.IMediaUploadCallback;
 import com.servoy.j2db.plugins.IUploadData;
-import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.server.headlessclient.IDesignModeListener;
@@ -81,7 +80,6 @@ import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
 import com.servoy.j2db.ui.scripting.RuntimeMediaField;
 import com.servoy.j2db.ui.scripting.RuntimeScriptButton;
 import com.servoy.j2db.util.Debug;
@@ -151,26 +149,27 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 	private final IApplication application;
 
 	private boolean designMode;
-	private final AbstractRuntimeField scriptable;
+	private final RuntimeMediaField scriptable;
 
 	/**
 	 * @param id
 	 */
-	public WebDataImgMediaField(final IApplication application, final String id)
+	public WebDataImgMediaField(final IApplication application, RuntimeMediaField scriptable, final String id)
 	{
 		super(id);
 		this.application = application;
 		mediaOption = 1;
 
-		scriptable = new RuntimeMediaField(this, new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE, TemplateGenerator.DEFAULT_FIELD_PADDING),
-			application, null);
+		this.scriptable = scriptable;
 
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		eventExecutor = new WebEventExecutor(this, useAJAX);
 		setOutputMarkupPlaceholderTag(true);
 		setVersioned(false);
 
-		imgd = new ImageDisplay(application, id); //uses the same name
+		RuntimeScriptButton imgScriptable = new RuntimeScriptButton(new ChangesRecorder(null, null), application);
+		imgd = new ImageDisplay(application, imgScriptable, id); //uses the same name
+		imgScriptable.setComponent(imgd);
 		add(imgd);
 
 		upload = new Image("upload_icon", new ResourceReference(IApplication.class, "images/open_project.gif")) //$NON-NLS-1$//$NON-NLS-2$
@@ -183,7 +182,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 			@Override
 			public boolean isVisible()
 			{
-				return !scriptable.js_isReadOnly() && scriptable.js_isEnabled();
+				return !WebDataImgMediaField.this.scriptable.js_isReadOnly() && WebDataImgMediaField.this.scriptable.js_isEnabled();
 			}
 		};
 		upload.add(new SimpleAttributeModifier("alt", application.getI18NMessage("servoy.imageMedia.popup.menuitem.load"))); //$NON-NLS-1$//$NON-NLS-2$
@@ -255,7 +254,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 			@Override
 			public boolean isVisible()
 			{
-				return !scriptable.js_isReadOnly() && scriptable.js_isEnabled();
+				return !WebDataImgMediaField.this.scriptable.js_isReadOnly() && WebDataImgMediaField.this.scriptable.js_isEnabled();
 			}
 		};
 		download.add(new SimpleAttributeModifier("alt", application.getI18NMessage("servoy.imageMedia.popup.menuitem.save"))); //$NON-NLS-1$ //$NON-NLS-2$
@@ -290,7 +289,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 			@Override
 			public boolean isVisible()
 			{
-				return !scriptable.js_isReadOnly() && scriptable.js_isEnabled();
+				return !WebDataImgMediaField.this.scriptable.js_isReadOnly() && WebDataImgMediaField.this.scriptable.js_isEnabled();
 			}
 		};
 		remove.add(new SimpleAttributeModifier("alt", application.getI18NMessage("servoy.imageMedia.popup.menuitem.remove"))); //$NON-NLS-1$ //$NON-NLS-2$
@@ -327,7 +326,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 		add(TooltipAttributeModifier.INSTANCE);
 	}
 
-	public IScriptable getScriptObject()
+	public final RuntimeMediaField getScriptObject()
 	{
 		return scriptable;
 	}
@@ -629,7 +628,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 		return needEntireState;
 	}
 
-	public boolean needEditListner()
+	public boolean needEditListener()
 	{
 		return false;
 	}
@@ -662,10 +661,9 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 	{
 		private static final long serialVersionUID = 1L;
 
-		public ImageDisplay(IApplication application, String id)
+		public ImageDisplay(IApplication application, RuntimeScriptButton scriptable, String id)
 		{
-			super(application, id);
-			scriptable = new RuntimeScriptButton(this, new ChangesRecorder(null, null), application);
+			super(application, scriptable, id);
 			setMediaOption(8 + 1);
 			final String elementId = getImageId();
 			add(new SimpleAttributeModifier("id", elementId)); //$NON-NLS-1$ 
@@ -1200,9 +1198,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 	@Override
 	public String toString()
 	{
-		return scriptable.js_getElementType() +
-			"(web)[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + scriptable.js_getHeight() + ",value:" + getDefaultModelObjectAsString() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.toString("value:" + getDefaultModelObjectAsString()); //$NON-NLS-1$ 
 	}
 
 	@Override

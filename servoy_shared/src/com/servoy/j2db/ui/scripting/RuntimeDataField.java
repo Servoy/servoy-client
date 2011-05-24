@@ -40,36 +40,36 @@ import com.servoy.j2db.util.ComponentFactoryHelper;
  * @author lvostinar
  * @since 6.0
  */
-public class RuntimeDataField extends AbstractRuntimeFormattedValuelistComponent implements IScriptFieldMethods
+public class RuntimeDataField extends AbstractRuntimeFormattedValuelistComponent<IFieldComponent> implements IScriptFieldMethods
 {
-	public RuntimeDataField(IFieldComponent component, IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
+	public RuntimeDataField(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
-		super(component, jsChangeRecorder, application);
+		super(jsChangeRecorder, application);
 	}
 
 	public int js_getCaretPosition()
 	{
-		if (component instanceof JTextComponent)
+		if (getComponent() instanceof JTextComponent)
 		{
-			return ((JTextComponent)component).getCaretPosition();
+			return ((JTextComponent)getComponent()).getCaretPosition();
 		}
 		return 0;
 	}
 
 	public void js_setCaretPosition(int pos)
 	{
-		if (component instanceof JTextComponent)
+		if (getComponent() instanceof JTextComponent)
 		{
 			if (pos < 0)
 			{
 				pos = 0;
 			}
-			if (pos > ((JTextComponent)component).getDocument().getLength())
+			if (pos > ((JTextComponent)getComponent()).getDocument().getLength())
 			{
-				pos = ((JTextComponent)component).getDocument().getLength();
+				pos = ((JTextComponent)getComponent()).getDocument().getLength();
 			}
-			((JTextComponent)component).requestFocus();
-			((JTextComponent)component).setCaretPosition(pos);
+			((JTextComponent)getComponent()).requestFocus();
+			((JTextComponent)getComponent()).setCaretPosition(pos);
 		}
 	}
 
@@ -80,36 +80,36 @@ public class RuntimeDataField extends AbstractRuntimeFormattedValuelistComponent
 
 	public String js_getSelectedText()
 	{
-		if (component instanceof JTextComponent)
+		if (getComponent() instanceof JTextComponent)
 		{
-			return ((JTextComponent)component).getSelectedText();
+			return ((JTextComponent)getComponent()).getSelectedText();
 		}
 		return null;
 	}
 
 	public void js_selectAll()
 	{
-		if (component instanceof JTextComponent)
+		if (getComponent() instanceof JTextComponent)
 		{
-			((JTextComponent)component).selectAll();
+			((JTextComponent)getComponent()).selectAll();
 		}
-		if (component instanceof ISupportInputSelection)
+		if (getComponent() instanceof ISupportInputSelection)
 		{
-			((ISupportInputSelection)component).selectAll();
+			((ISupportInputSelection)getComponent()).selectAll();
 		}
 	}
 
 	public void js_replaceSelectedText(String s)
 	{
-		if (component instanceof JTextComponent)
+		if (getComponent() instanceof JTextComponent)
 		{
-			if (component instanceof ISupportEditProvider && ((ISupportEditProvider)component).getEditProvider() != null) ((ISupportEditProvider)component).getEditProvider().startEdit();
-			((JTextComponent)component).replaceSelection(s);
-			if (component instanceof ISupportEditProvider && ((ISupportEditProvider)component).getEditProvider() != null) ((ISupportEditProvider)component).getEditProvider().commitData();
+			if (getComponent() instanceof ISupportEditProvider && ((ISupportEditProvider)getComponent()).getEditProvider() != null) ((ISupportEditProvider)getComponent()).getEditProvider().startEdit();
+			((JTextComponent)getComponent()).replaceSelection(s);
+			if (getComponent() instanceof ISupportEditProvider && ((ISupportEditProvider)getComponent()).getEditProvider() != null) ((ISupportEditProvider)getComponent()).getEditProvider().commitData();
 		}
-		if (component instanceof ISupportInputSelection)
+		if (getComponent() instanceof ISupportInputSelection)
 		{
-			((ISupportInputSelection)component).replaceSelectedText(s);
+			((ISupportInputSelection)getComponent()).replaceSelectedText(s);
 		}
 	}
 
@@ -117,17 +117,17 @@ public class RuntimeDataField extends AbstractRuntimeFormattedValuelistComponent
 	public void js_setBorder(String spec)
 	{
 		Border border = ComponentFactoryHelper.createBorder(spec);
-		Border oldBorder = component.getBorder();
-		if (component instanceof Component && oldBorder instanceof CompoundBorder && ((CompoundBorder)oldBorder).getInsideBorder() != null)
+		Border oldBorder = getComponent().getBorder();
+		if (getComponent() instanceof Component && oldBorder instanceof CompoundBorder && ((CompoundBorder)oldBorder).getInsideBorder() != null)
 		{
-			Insets insets = ((CompoundBorder)oldBorder).getInsideBorder().getBorderInsets((Component)component);
-			component.setBorder(BorderFactory.createCompoundBorder(border,
-				BorderFactory.createEmptyBorder(insets.top, insets.left, insets.bottom, insets.right)));
+			Insets insets = ((CompoundBorder)oldBorder).getInsideBorder().getBorderInsets((Component)getComponent());
+			getComponent().setBorder(
+				BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(insets.top, insets.left, insets.bottom, insets.right)));
 		}
 		else
 		{
-			component.setBorder(border);
+			getComponent().setBorder(border);
 		}
-		jsChangeRecorder.setBorder(spec);
+		getChangesRecorder().setBorder(spec);
 	}
 }

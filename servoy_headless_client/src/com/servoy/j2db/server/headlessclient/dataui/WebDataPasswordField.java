@@ -32,11 +32,9 @@ public class WebDataPasswordField extends WebDataField
 	 * @param application
 	 * @param id
 	 */
-	public WebDataPasswordField(IApplication application, String id)
+	public WebDataPasswordField(IApplication application, RuntimeDataPassword scriptable, String id)
 	{
-		super(application, id);
-		this.scriptable = new RuntimeDataPassword(this, new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE,
-			TemplateGenerator.DEFAULT_FIELD_PADDING), application);
+		super(application, scriptable, id);
 	}
 
 	/**
@@ -52,8 +50,6 @@ public class WebDataPasswordField extends WebDataField
 	@Override
 	public String toString()
 	{
-		return scriptable.js_getElementType() +
-			"(web)[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ 
-			",height:" + scriptable.js_getHeight() + "]";
+		return getScriptObject().toString();
 	}
 }

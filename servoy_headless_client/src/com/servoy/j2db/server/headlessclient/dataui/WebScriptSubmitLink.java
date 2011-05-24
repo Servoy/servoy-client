@@ -20,6 +20,7 @@ import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.ui.scripting.RuntimeScriptLabel;
 import com.servoy.j2db.util.HtmlUtils;
 
 /**
@@ -31,15 +32,12 @@ public class WebScriptSubmitLink extends WebBaseSubmitLink
 {
 	private static final long serialVersionUID = 1L;
 
-	private String i18n;
-
-
 	/**
 	 * @param id
 	 */
-	public WebScriptSubmitLink(IApplication application, String id)
+	public WebScriptSubmitLink(IApplication application, RuntimeScriptLabel scriptable, String id)
 	{
-		super(application, id);
+		super(application, scriptable, id);
 	}
 
 

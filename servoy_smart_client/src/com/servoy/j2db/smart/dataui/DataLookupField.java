@@ -67,7 +67,6 @@ import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.persistence.ScriptVariable;
-import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.ISupportVisibleChangeListener;
 import com.servoy.j2db.ui.IVisibleChangeListener;
 import com.servoy.j2db.ui.scripting.RuntimeDataLookupField;
@@ -116,18 +115,18 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 		}
 	};
 
-	public DataLookupField(IApplication app, CustomValueList list)
+	public DataLookupField(IApplication app, RuntimeDataLookupField scriptable, CustomValueList list)
 	{
-		super(app, list);
+		super(app, scriptable, list);
 		init(app);
 		dlm = new LookupListModel(application, list);
 		changeListener = new ChangeListener();
 		list.addListDataListener(changeListener);
 	}
 
-	public DataLookupField(IApplication app, final LookupValueList list)
+	public DataLookupField(IApplication app, RuntimeDataLookupField scriptable, final LookupValueList list)
 	{
-		super(app, list);
+		super(app, scriptable, list);
 		init(app);
 
 		dlm = new LookupListModel(app, list);
@@ -150,9 +149,9 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 	/**
 	 * @param application2
 	 */
-	public DataLookupField(IApplication application, String serverName, String tableName, String dataProviderID)
+	public DataLookupField(IApplication application, RuntimeDataLookupField scriptable, String serverName, String tableName, String dataProviderID)
 	{
-		super(application);
+		super(application, scriptable);
 		init(application);
 		dlm = new LookupListModel(application, serverName, tableName, dataProviderID);
 	}
@@ -162,7 +161,6 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 		this.application = application;
 		super.setEditable(true);
 		registerKeyboardAction(new HidePopup(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, true), WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-		scriptable = new RuntimeDataLookupField(this, new DummyChangesRecorder(), application);
 	}
 
 	@Override

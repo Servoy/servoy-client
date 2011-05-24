@@ -64,7 +64,6 @@ import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabPanel;
-import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.TabIndexHelper;
 import com.servoy.j2db.server.headlessclient.WebForm;
@@ -107,9 +106,9 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 	protected final int orient;
 	private int tabSequenceIndex = ISupportWebTabSeq.DEFAULT;
 	private Dimension tabSize;
-	private RuntimeTabPanel scriptable;
+	private final RuntimeTabPanel scriptable;
 
-	public WebTabPanel(IApplication application, String name, int orient, boolean oneTab)
+	public WebTabPanel(IApplication application, RuntimeTabPanel scriptable, String name, int orient, boolean oneTab)
 	{
 		super(name);
 		this.application = application;
@@ -337,10 +336,11 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		}
 		add(StyleAttributeModifierModel.INSTANCE);
 		add(TooltipAttributeModifier.INSTANCE);
-		scriptable = new RuntimeTabPanel(this, new ChangesRecorder(new Insets(0, 0, 0, 0), new Insets(0, 0, 0, 0)), application, null);
+		this.scriptable = scriptable;
+		((ChangesRecorder)scriptable.getChangesRecorder()).setDefaultBorderAndPadding(null, TemplateGenerator.DEFAULT_LABEL_PADDING);
 	}
 
-	public IScriptable getScriptObject()
+	public final RuntimeTabPanel getScriptObject()
 	{
 		return scriptable;
 	}

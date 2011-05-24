@@ -37,15 +37,15 @@ public class WebRect extends WebBaseLabel implements IRect
 	/**
 	 * @param id
 	 */
-	public WebRect(String id, IApplication application, int type)
+	public WebRect(String id, IApplication application, RuntimeRectangle scriptable, int type)
 	{
-		super(application, id);
+		super(application, scriptable, id);
+		((ChangesRecorder)scriptable.getChangesRecorder()).setDefaultBorderAndPadding(null, TemplateGenerator.DEFAULT_LABEL_PADDING);
 		if (type != RectShape.BORDER_PANEL)
 		{
 			setBackground(Color.white);
 			setForeground(Color.black);
 		}
-		scriptable = new RuntimeRectangle(this, new ChangesRecorder(null, TemplateGenerator.DEFAULT_LABEL_PADDING), application);
 	}
 
 	/**
@@ -53,7 +53,6 @@ public class WebRect extends WebBaseLabel implements IRect
 	 */
 	public int getLineWidth()
 	{
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
@@ -62,7 +61,6 @@ public class WebRect extends WebBaseLabel implements IRect
 	 */
 	public int getRadius()
 	{
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
@@ -71,8 +69,6 @@ public class WebRect extends WebBaseLabel implements IRect
 	 */
 	public void setLineWidth(int lineWidth)
 	{
-		// TODO Auto-generated method stub
-
 	}
 
 	/**
@@ -80,8 +76,6 @@ public class WebRect extends WebBaseLabel implements IRect
 	 */
 	public void setRadius(int radius)
 	{
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override

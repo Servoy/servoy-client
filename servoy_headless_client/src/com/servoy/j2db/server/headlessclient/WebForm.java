@@ -92,6 +92,7 @@ import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.RuntimeGroup;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.server.headlessclient.FormAnchorInfo.FormPartAnchorInfo;
+import com.servoy.j2db.server.headlessclient.dataui.ChangesRecorder;
 import com.servoy.j2db.server.headlessclient.dataui.FormLayoutProviderFactory;
 import com.servoy.j2db.server.headlessclient.dataui.IFormLayoutProvider;
 import com.servoy.j2db.server.headlessclient.dataui.ISupportWebTabSeq;
@@ -119,6 +120,7 @@ import com.servoy.j2db.ui.IScriptReadOnlyMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.ITabPanel;
+import com.servoy.j2db.ui.scripting.RuntimePortal;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.ISupplyFocusChildren;
@@ -602,8 +604,12 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 				{
 					sizeHint += Math.max(endY, 200 - sizeHint);
 				}
-				view = new WebCellBasedView("View", app, f, f, app.getFlattenedSolution().getDataproviderLookup(app.getFoundSetManager(), f),
+
+				RuntimePortal viewScriptable = new RuntimePortal(new ChangesRecorder(null, null), app);
+				view = new WebCellBasedView("View", app, viewScriptable, f, f, app.getFlattenedSolution().getDataproviderLookup(app.getFoundSetManager(), f),
 					fp.getScriptExecuter(), addHeaders, startY, endY, sizeHint);
+				viewScriptable.setComponent((WebCellBasedView)view);
+
 				dataRenderers[FormController.FORM_EDITOR] = (WebCellBasedView)view;
 			}
 		}

@@ -47,7 +47,6 @@ import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.link.ILinkListener;
-import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.convert.IConverter;
 
@@ -58,10 +57,10 @@ import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.persistence.Media;
-import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.ByteArrayResource;
 import com.servoy.j2db.server.headlessclient.MainPage;
+import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
@@ -70,7 +69,6 @@ import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeBaseComponent;
-import com.servoy.j2db.ui.scripting.RuntimeScriptLabel;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.ImageLoader;
@@ -110,16 +108,14 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 
 	protected IFieldComponent labelForComponent;
 	private final WebEventExecutor eventExecutor;
-	protected AbstractRuntimeBaseComponent scriptable;
+	private final AbstractRuntimeBaseComponent< ? extends IComponent> scriptable;
 
-	/**
-	 * @param id
-	 */
-	public WebBaseLabel(IApplication application, String id)
+	public WebBaseLabel(IApplication application, AbstractRuntimeBaseComponent< ? extends IComponent> scriptable, String id)
 	{
 		super(id);
 		this.application = application;
-		scriptable = new RuntimeScriptLabel(this, new ChangesRecorder(null, TemplateGenerator.DEFAULT_LABEL_PADDING), application);
+		this.scriptable = scriptable;
+		((ChangesRecorder)scriptable.getChangesRecorder()).setDefaultBorderAndPadding(null, TemplateGenerator.DEFAULT_LABEL_PADDING);
 		setEscapeModelStrings(false);
 		setOutputMarkupPlaceholderTag(true);
 		add(StyleAttributeModifierModel.INSTANCE);
@@ -133,23 +129,13 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	 * @param id
 	 * @param label
 	 */
-	public WebBaseLabel(IApplication application, String id, String label)
+	public WebBaseLabel(IApplication application, AbstractRuntimeBaseComponent< ? extends IComponent> scriptable, String id, String label)
 	{
-		this(application, id);
+		this(application, scriptable, id);
 		setDefaultModel(new Model<String>(label));
 	}
 
-	/**
-	 * @param id
-	 * @param model
-	 */
-	public WebBaseLabel(IApplication application, String id, IModel model)
-	{
-		this(application, id);
-		setDefaultModel(model);
-	}
-
-	public IScriptable getScriptObject()
+	public final AbstractRuntimeBaseComponent< ? extends IComponent> getScriptObject()
 	{
 		return scriptable;
 	}
@@ -462,7 +448,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 						styleAttribute = "background-image: url(" + url + "); background-repeat: " + repeat + "; background-position: " + position; //$NON-NLS-1$ //$NON-NLS-2$
 					}
 				}
-				if (!scriptable.js_isEnabled())
+				if (!isEnabled())
 				{
 					styleAttribute += "; filter:alpha(opacity=50);-moz-opacity:.50;opacity:.50"; //$NON-NLS-1$
 				}
@@ -1107,9 +1093,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	@Override
 	public String toString()
 	{
-		return scriptable.js_getElementType() +
-			"(web)[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + scriptable.js_getHeight() + ",label:" + getText() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.toString();
 	}
 
 	public IEventExecutor getEventExecutor()

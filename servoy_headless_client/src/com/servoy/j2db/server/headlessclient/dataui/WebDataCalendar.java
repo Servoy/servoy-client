@@ -50,7 +50,6 @@ import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
-import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
@@ -60,6 +59,7 @@ import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.ui.scripting.RuntimeDataCalendar;
+import com.servoy.j2db.ui.scripting.RuntimeDataField;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.ISupplyFocusChildren;
@@ -84,17 +84,22 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 	private boolean showPicker = true;
 	private boolean editable;
 	private Insets margin;
-	protected RuntimeDataCalendar scriptable;
+	private final RuntimeDataCalendar scriptable;
 
 	/**
 	 * @param id
 	 */
-	public WebDataCalendar(IApplication application, String id)
+	public WebDataCalendar(IApplication application, RuntimeDataCalendar scriptable, String id)
 	{
 		super(id);
 		this.application = application;
 		DatePicker settings = new DatePicker();
-		field = new DateField(application, "datefield", settings);
+
+		RuntimeDataField fieldScriptable = new RuntimeDataField(new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE,
+			TemplateGenerator.DEFAULT_FIELD_PADDING), application);
+		field = new DateField(application, fieldScriptable, "datefield", settings);
+		fieldScriptable.setComponent(field);
+
 		field.setIgnoreOnRender(true);
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		if (useAJAX)
@@ -169,33 +174,19 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 			});
 		}
 		add(field);
-		ChangesRecorder jsChangeRecorder = new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE, TemplateGenerator.DEFAULT_FIELD_PADDING)
-		{
-			@Override
-			public boolean isChanged()
-			{
-				// because the DataPicker behavior will add a tag to the end of the field component
-				// each time that component is rendered, we must make sure that we render the whole container;
-				// otherwise, each independent render of the field component will add one more div tag with the calendar popup image
-				// to the HTML tag of this container
-				return super.isChanged() || field.getStylePropertyChanges().isChanged();
-			}
-
-			@Override
-			public void setRendered()
-			{
-				super.setRendered();
-				field.getStylePropertyChanges().setRendered();
-			}
-		};
-		scriptable = new RuntimeDataCalendar(this, jsChangeRecorder, application);
+		this.scriptable = scriptable;
+		// because the DataPicker behavior will add a tag to the end of the field component
+		// each time that component is rendered, we must make sure that we render the whole container;
+		// otherwise, each independent render of the field component will add one more div tag with the calendar popup image
+		// to the HTML tag of this container
+		((ChangesRecorder)scriptable.getChangesRecorder()).setAdditionalChangesRecorder(field.getStylePropertyChanges());
 		setOutputMarkupPlaceholderTag(true);
 
 		add(StyleAttributeModifierModel.INSTANCE);
 		add(TooltipAttributeModifier.INSTANCE);
 	}
 
-	public IScriptable getScriptObject()
+	public final RuntimeDataCalendar getScriptObject()
 	{
 		return scriptable;
 	}
@@ -336,7 +327,7 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 		return field.getValue();
 	}
 
-	public boolean needEditListner()
+	public boolean needEditListener()
 	{
 		return true;
 	}
@@ -394,9 +385,7 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 	@Override
 	public String toString()
 	{
-		return scriptable.js_getElementType() +
-			"(web)[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + scriptable.js_getHeight() + ",value:" + getDefaultModelObjectAsString() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.toString();
 	}
 
 	class DateField extends WebDataField implements ITextFormatProvider
@@ -408,9 +397,9 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 		/**
 		 * @param id
 		 */
-		public DateField(IApplication application, String id, DatePicker settings)
+		public DateField(IApplication application, RuntimeDataField scriptable, String id, DatePicker settings)
 		{
-			super(application, id);
+			super(application, scriptable, id);
 			this.settings = settings;
 		}
 

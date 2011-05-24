@@ -58,7 +58,6 @@ import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.ScriptVariable;
-import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.MainPage;
@@ -71,7 +70,6 @@ import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
 import com.servoy.j2db.ui.scripting.RuntimeDataCombobox;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FormatParser;
@@ -109,7 +107,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	private Insets margin;
 	private int horizontalAlignment;
 	private final IApplication application;
-	protected AbstractRuntimeField scriptable;
+	private final RuntimeDataCombobox scriptable;
 
 	private boolean editable = true;
 	private boolean readOnly = false;
@@ -119,7 +117,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 
 	private IValueList valueList;
 
-	public WebDataComboBox(IApplication application, String name, IValueList valueList)
+	public WebDataComboBox(IApplication application, RuntimeDataCombobox scriptable, String name, IValueList valueList)
 	{
 		super(name);
 		this.parsedFormat = new FormatParser();
@@ -289,13 +287,14 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 		add(new FocusIfInvalidAttributeModifier(this));
 		add(StyleAttributeModifierModel.INSTANCE);
 		add(TooltipAttributeModifier.INSTANCE);
-		this.scriptable = new RuntimeDataCombobox(this, new ChangesRecorder(TemplateGenerator.DEFAULT_LABEL_PADDING, TemplateGenerator.DEFAULT_LABEL_PADDING),
-			application);
+		this.scriptable = scriptable;
+		((ChangesRecorder)scriptable.getChangesRecorder()).setDefaultBorderAndPadding(TemplateGenerator.DEFAULT_LABEL_PADDING,
+			TemplateGenerator.DEFAULT_LABEL_PADDING);
 	}
 
-	public IScriptable getScriptObject()
+	public final RuntimeDataCombobox getScriptObject()
 	{
-		return this.scriptable;
+		return scriptable;
 	}
 
 	/**
@@ -669,7 +668,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 		}
 	}
 
-	public boolean needEditListner()
+	public boolean needEditListener()
 	{
 		return false;
 	}
@@ -1224,9 +1223,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	@Override
 	public String toString()
 	{
-		return scriptable.js_getElementType() +
-			"(web)[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + scriptable.js_getHeight() + ",value:" + getDefaultModelObjectAsString() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.toString("value:" + getDefaultModelObjectAsString()); //$NON-NLS-1$ 
 	}
 
 	@Override

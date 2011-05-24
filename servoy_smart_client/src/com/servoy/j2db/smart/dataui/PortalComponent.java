@@ -74,17 +74,14 @@ import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
-import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.printing.ISupportXMLOutput;
 import com.servoy.j2db.printing.XMLPrintHelper;
-import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.smart.TableView;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
-import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IPortalComponent;
 import com.servoy.j2db.ui.IScrollPane;
@@ -135,7 +132,7 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 	private boolean transferFocusBackwards = false;
 	private final RuntimePortal scriptable;
 
-	public PortalComponent(final IApplication app, Form form, Portal meta, IDataProviderLookup dataProviderLookup, IScriptExecuter el, boolean printing)
+	public PortalComponent(final IApplication app, RuntimePortal scriptable, Form form, Portal meta, IScriptExecuter el, boolean printing)
 	{
 		application = app;
 		setCorner(ScrollPaneConstants.UPPER_RIGHT_CORNER, new JPanel());
@@ -252,10 +249,11 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 		setFocusCycleRoot(true);
 		setFocusTraversalPolicy(ServoyFocusTraversalPolicy.datarenderPolicy);
 		addFocusListener(new AutoTransferFocusListener(this, this));
-		scriptable = new RuntimePortal(this, new DummyChangesRecorder(), application, list != null ? list : table);
+		this.scriptable = scriptable;
+		scriptable.setJComponent(list != null ? list : table);
 	}
 
-	public IScriptable getScriptObject()
+	public final RuntimePortal getScriptObject()
 	{
 		return scriptable;
 	}

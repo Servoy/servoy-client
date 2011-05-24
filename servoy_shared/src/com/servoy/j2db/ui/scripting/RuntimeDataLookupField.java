@@ -20,7 +20,6 @@ package com.servoy.j2db.ui.scripting;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.IValueList;
-import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.ISupportValueList;
@@ -33,9 +32,9 @@ import com.servoy.j2db.ui.ISupportValueList;
  */
 public class RuntimeDataLookupField extends RuntimeDataField
 {
-	public RuntimeDataLookupField(IFieldComponent component, IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
+	public RuntimeDataLookupField(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
-		super(component, jsChangeRecorder, application);
+		super(jsChangeRecorder, application);
 	}
 
 	@Override
@@ -47,12 +46,12 @@ public class RuntimeDataLookupField extends RuntimeDataField
 	@Override
 	public void js_setValueListItems(Object value)
 	{
-		if (component instanceof ISupportValueList)
+		if (getComponent() instanceof ISupportValueList)
 		{
-			IValueList list = ((ISupportValueList)component).getValueList();
-			if (list instanceof CustomValueList && ((ISupportValueList)component).getListener() != null)
+			IValueList list = ((ISupportValueList)getComponent()).getValueList();
+			if (list instanceof CustomValueList && ((ISupportValueList)getComponent()).getListener() != null)
 			{
-				list.removeListDataListener(((ISupportValueList)component).getListener());
+				list.removeListDataListener(((ISupportValueList)getComponent()).getListener());
 			}
 		}
 		super.js_setValueListItems(value);

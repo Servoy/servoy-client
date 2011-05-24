@@ -63,7 +63,6 @@ import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
-import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.MainPage;
@@ -73,7 +72,6 @@ import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
-import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportInputSelection;
 import com.servoy.j2db.ui.ISupportSpecialClientProperty;
@@ -173,19 +171,19 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 
 	protected IConverter converter;
 	protected IValueList list;
-	protected AbstractRuntimeField scriptable;
+	private final AbstractRuntimeField<IFieldComponent> scriptable;
 	protected final IApplication application;
 
-	public WebDataField(IApplication application, String id, IValueList list)
+	public WebDataField(IApplication application, RuntimeDataField scriptable, String id, IValueList list)
 	{
-		this(application, id);
+		this(application, scriptable, id);
 		this.list = list;
 	}
 
 	/**
 	 * @param id
 	 */
-	public WebDataField(IApplication application, String id)
+	public WebDataField(IApplication application, AbstractRuntimeField<IFieldComponent> scriptable, String id)
 	{
 		super(id);
 		this.parsedFormat = new FormatParser();
@@ -219,13 +217,12 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 				return editable ? null : FilterBackspaceKeyAttributeModifier.SCRIPT;
 			}
 		}));
-		this.scriptable = new RuntimeDataField(this, new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE, TemplateGenerator.DEFAULT_FIELD_PADDING),
-			application);
+		this.scriptable = scriptable;
 	}
 
-	public IScriptable getScriptObject()
+	public final AbstractRuntimeField<IFieldComponent> getScriptObject()
 	{
-		return this.scriptable;
+		return scriptable;
 	}
 
 	/**
@@ -678,8 +675,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		}
 		else if (mappedType == IColumnTypes.DATETIME)
 		{
-			boolean lenient = Boolean.TRUE.equals(UIUtils.getUIProperty((IScriptBaseMethods)this.getScriptObject(), application,
-				IApplication.DATE_FORMATTERS_LENIENT, Boolean.TRUE));
+			boolean lenient = Boolean.TRUE.equals(UIUtils.getUIProperty(this.getScriptObject(), application, IApplication.DATE_FORMATTERS_LENIENT, Boolean.TRUE));
 			StateFullSimpleDateFormat displayFormatter = new StateFullSimpleDateFormat(displayFormat, null, application.getLocale(), lenient);
 			String eFormat = parsedFormat.getEditFormat();
 			if (!parsedFormat.isMask() && parsedFormat.getEditFormat() != null) //$NON-NLS-1$
@@ -855,7 +851,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		}
 	}
 
-	public boolean needEditListner()
+	public boolean needEditListener()
 	{
 		return false;
 	}
@@ -1234,7 +1230,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		{
 			if (converter instanceof FormatConverter)
 			{
-				((FormatConverter)converter).setLenient(Boolean.TRUE.equals(UIUtils.getUIProperty((IScriptBaseMethods)this.getScriptObject(), application,
+				((FormatConverter)converter).setLenient(Boolean.TRUE.equals(UIUtils.getUIProperty(this.getScriptObject(), application,
 					IApplication.DATE_FORMATTERS_LENIENT, Boolean.TRUE)));
 			}
 		}
@@ -1291,9 +1287,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	@Override
 	public String toString()
 	{
-		return scriptable.js_getElementType() +
-			"(web)[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + scriptable.js_getHeight() + ",value:" + getDefaultModelObjectAsString() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.toString("value:" + getDefaultModelObjectAsString()); //$NON-NLS-1$ 
 	}
 
 	@Override

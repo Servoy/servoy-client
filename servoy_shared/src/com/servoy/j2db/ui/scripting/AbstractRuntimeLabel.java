@@ -21,7 +21,6 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptRenderMethods;
-import com.servoy.j2db.ui.IStandardLabel;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 
 /**
@@ -30,25 +29,23 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
  * @author lvostinar
  * @since 6.0
  */
-public abstract class AbstractRuntimeLabel extends AbstractRuntimeBaseComponent implements IScriptRenderMethods
+public abstract class AbstractRuntimeLabel<C extends ILabel> extends AbstractRuntimeBaseComponent<C> implements IScriptRenderMethods
 {
-	protected ILabel label;
 	private String i18nTT;
 
-	public AbstractRuntimeLabel(ILabel label, IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
+	public AbstractRuntimeLabel(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
-		super(label, jsChangeRecorder, application);
-		this.label = label;
+		super(jsChangeRecorder, application);
 	}
 
 	public void js_setImageURL(String text_url)
 	{
-		label.setImageURL(text_url);
+		getComponent().setImageURL(text_url);
 	}
 
 	public void js_setRolloverImageURL(String imageUrl)
 	{
-		label.setRolloverImageURL(imageUrl);
+		getComponent().setRolloverImageURL(imageUrl);
 	}
 
 	public String js_getElementType()
@@ -64,12 +61,12 @@ public abstract class AbstractRuntimeLabel extends AbstractRuntimeBaseComponent 
 
 	public byte[] js_getThumbnailJPGImage(Object[] args)
 	{
-		return label.getThumbnailJPGImage(args);
+		return getComponent().getThumbnailJPGImage(args);
 	}
 
 	public int js_getAbsoluteFormLocationY()
 	{
-		return label.getAbsoluteFormLocationY();
+		return getComponent().getAbsoluteFormLocationY();
 	}
 
 	public void js_setToolTipText(String text)
@@ -83,8 +80,8 @@ public abstract class AbstractRuntimeLabel extends AbstractRuntimeBaseComponent 
 		{
 			i18nTT = null;
 		}
-		label.setToolTipText(text);
-		jsChangeRecorder.setChanged();
+		getComponent().setToolTipText(text);
+		getChangesRecorder().setChanged();
 	}
 
 	/**
@@ -93,12 +90,12 @@ public abstract class AbstractRuntimeLabel extends AbstractRuntimeBaseComponent 
 	public String js_getToolTipText()
 	{
 		if (i18nTT != null) return i18nTT;
-		return label.getToolTipText();
+		return getComponent().getToolTipText();
 	}
 
 	public String js_getMnemonic()
 	{
-		int i = ((IStandardLabel)label).getDisplayedMnemonic();
+		int i = getComponent().getDisplayedMnemonic();
 		if (i == 0) return "";
 		return new Character((char)i).toString();
 	}
@@ -108,17 +105,17 @@ public abstract class AbstractRuntimeLabel extends AbstractRuntimeBaseComponent 
 		mnemonic = application.getI18NMessageIfPrefixed(mnemonic);
 		if (mnemonic != null && mnemonic.length() > 0)
 		{
-			((IStandardLabel)label).setDisplayedMnemonic(mnemonic.charAt(0));
+			getComponent().setDisplayedMnemonic(mnemonic.charAt(0));
 		}
 	}
 
 	public String getImageURL()
 	{
-		return label.getImageURL();
+		return getComponent().getImageURL();
 	}
 
 	public String getRolloverImageURL()
 	{
-		return label.getRolloverImageURL();
+		return getComponent().getRolloverImageURL();
 	}
 }

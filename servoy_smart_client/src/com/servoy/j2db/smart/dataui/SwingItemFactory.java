@@ -20,6 +20,7 @@ import java.awt.Component;
 import java.io.Serializable;
 
 import javax.swing.JComponent;
+import javax.swing.JEditorPane;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IScriptExecuter;
@@ -29,7 +30,7 @@ import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.Portal;
-import com.servoy.j2db.persistence.Shape;
+import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.IButton;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IFieldComponent;
@@ -38,8 +39,27 @@ import com.servoy.j2db.ui.IPortalComponent;
 import com.servoy.j2db.ui.IRect;
 import com.servoy.j2db.ui.ISplitPane;
 import com.servoy.j2db.ui.IStandardLabel;
+import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.ui.ItemFactory;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeScrollableValuelistComponent;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeTextEditor;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeValuelistComponent;
+import com.servoy.j2db.ui.scripting.RuntimeDataButton;
+import com.servoy.j2db.ui.scripting.RuntimeDataCalendar;
+import com.servoy.j2db.ui.scripting.RuntimeDataCombobox;
+import com.servoy.j2db.ui.scripting.RuntimeDataField;
+import com.servoy.j2db.ui.scripting.RuntimeDataLabel;
+import com.servoy.j2db.ui.scripting.RuntimeDataLookupField;
+import com.servoy.j2db.ui.scripting.RuntimeDataPassword;
+import com.servoy.j2db.ui.scripting.RuntimeMediaField;
+import com.servoy.j2db.ui.scripting.RuntimePortal;
+import com.servoy.j2db.ui.scripting.RuntimeRectangle;
+import com.servoy.j2db.ui.scripting.RuntimeScriptButton;
+import com.servoy.j2db.ui.scripting.RuntimeScriptLabel;
+import com.servoy.j2db.ui.scripting.RuntimeSplitPane;
+import com.servoy.j2db.ui.scripting.RuntimeTabPanel;
+import com.servoy.j2db.ui.scripting.RuntimeTextArea;
 
 /**
  * Factory implementation for Swing GUI
@@ -95,16 +115,16 @@ public class SwingItemFactory implements ItemFactory
 	 * 
 	 * @see com.servoy.j2db.ItemFactory#createTabPanel(int, boolean)
 	 */
-	public ITabPanel createTabPanel(String name, int orient, boolean oneTab)
+	public ITabPanel createTabPanel(RuntimeTabPanel scriptable, String name, int orient, boolean oneTab)
 	{
-		ITabPanel tabPanel = new SpecialTabPanel(application, orient, oneTab);
+		ITabPanel tabPanel = new SpecialTabPanel(application, scriptable, orient, oneTab);
 		tabPanel.setName(name);
 		return tabPanel;
 	}
 
-	public ISplitPane createSplitPane(String name, int orient)
+	public ISplitPane createSplitPane(RuntimeSplitPane scriptable, String name, int orient)
 	{
-		ISplitPane splitPane = new SpecialSplitPane(application, orient, false);
+		ISplitPane splitPane = new SpecialSplitPane(application, scriptable, orient, false);
 		splitPane.setName(name);
 		return splitPane;
 	}
@@ -115,9 +135,10 @@ public class SwingItemFactory implements ItemFactory
 	 * @see com.servoy.j2db.ItemFactory#createPortalComponent(com.servoy.j2db.persistence.Portal, com.servoy.j2db.persistence.IDataProviderLookup,
 	 * com.servoy.j2db.IScriptExecuter, boolean)
 	 */
-	public IPortalComponent createPortalComponent(Portal meta, Form form, IDataProviderLookup dataProviderLookup, IScriptExecuter el, boolean printing)
+	public IPortalComponent createPortalComponent(RuntimePortal scriptable, Portal meta, Form form, IDataProviderLookup dataProviderLookup, IScriptExecuter el,
+		boolean printing)
 	{
-		return new PortalComponent(application, form, meta, dataProviderLookup, el, printing);
+		return new PortalComponent(application, scriptable, form, meta, el, printing);
 	}
 
 	/*
@@ -125,9 +146,9 @@ public class SwingItemFactory implements ItemFactory
 	 * 
 	 * @see com.servoy.j2db.ItemFactory#createDataButton()
 	 */
-	public IButton createDataButton(String name)
+	public IButton createDataButton(RuntimeDataButton scriptable, String name)
 	{
-		DataButton db = new DataButton(application);
+		DataButton db = new DataButton(application, scriptable);
 		db.setName(name);
 		return db;
 	}
@@ -137,9 +158,9 @@ public class SwingItemFactory implements ItemFactory
 	 * 
 	 * @see com.servoy.j2db.ItemFactory#createScriptButton()
 	 */
-	public IButton createScriptButton(String name)
+	public IButton createScriptButton(RuntimeScriptButton scriptable, String name)
 	{
-		ScriptButton sb = new ScriptButton(application);
+		ScriptButton sb = new ScriptButton(application, scriptable);
 		sb.setName(name);
 		return sb;
 	}
@@ -149,9 +170,9 @@ public class SwingItemFactory implements ItemFactory
 	 * 
 	 * @see com.servoy.j2db.ItemFactory#createScriptLabel()
 	 */
-	public ILabel createScriptLabel(String name, boolean hasActionListner)
+	public ILabel createScriptLabel(RuntimeScriptLabel scriptable, String name, boolean hasActionListener)
 	{
-		ScriptLabel sl = new ScriptLabel(application);
+		ScriptLabel sl = new ScriptLabel(application, scriptable);
 		sl.setName(name);
 		return sl;
 	}
@@ -161,9 +182,9 @@ public class SwingItemFactory implements ItemFactory
 	 * 
 	 * @see com.servoy.j2db.ItemFactory#createDataLabel()
 	 */
-	public ILabel createDataLabel(String name, boolean hasActionListner)
+	public ILabel createDataLabel(RuntimeDataLabel scriptable, String name, boolean hasActionListener)
 	{
-		DataLabel dl = new DataLabel(application);
+		DataLabel dl = new DataLabel(application, scriptable);
 		dl.setName(name);
 		return dl;
 	}
@@ -173,9 +194,9 @@ public class SwingItemFactory implements ItemFactory
 	 * 
 	 * @see com.servoy.j2db.ItemFactory#createDataPassword()
 	 */
-	public IFieldComponent createDataPassword(String name)
+	public IFieldComponent createDataPassword(RuntimeDataPassword scriptable, String name)
 	{
-		DataPassword dp = new DataPassword(application);
+		DataPassword dp = new DataPassword(application, scriptable);
 		dp.setName(name);
 		return dp;
 	}
@@ -185,9 +206,10 @@ public class SwingItemFactory implements ItemFactory
 	 * 
 	 * @see com.servoy.j2db.ItemFactory#createDataTextEditor(int)
 	 */
-	public IFieldComponent createDataTextEditor(String name, int type, boolean willBeEditable)
+	public IFieldComponent createDataTextEditor(AbstractRuntimeTextEditor<IFieldComponent, JEditorPane> scriptable, String name, int type,
+		boolean willBeEditable)
 	{
-		DataTextEditor dte = new DataTextEditor(application, type);
+		DataTextEditor dte = new DataTextEditor(application, scriptable, type);
 		dte.setName(name);
 		return dte;
 	}
@@ -197,9 +219,9 @@ public class SwingItemFactory implements ItemFactory
 	 * 
 	 * @see com.servoy.j2db.ItemFactory#createDataTextArea()
 	 */
-	public IFieldComponent createDataTextArea(String name)
+	public IFieldComponent createDataTextArea(RuntimeTextArea scriptable, String name)
 	{
-		DataTextArea dta = new DataTextArea(application);
+		DataTextArea dta = new DataTextArea(application, scriptable);
 		dta.setName(name);
 		return dta;
 	}
@@ -209,17 +231,18 @@ public class SwingItemFactory implements ItemFactory
 	 * 
 	 * @see com.servoy.j2db.ItemFactory#createDataCheckBox(java.lang.String, com.servoy.j2db.dataprocessing.IValueList)
 	 */
-	public IFieldComponent createSelectBox(String name, String text, IValueList list, boolean isRadio)
+	public IFieldComponent createSelectBox(AbstractRuntimeValuelistComponent<IFieldComponent> scriptable, String name, String text, IValueList list,
+		boolean isRadio)
 	{
 		if (isRadio)
 		{
-			DataRadioButton rb = new DataRadioButton(application, text, list);
+			DataRadioButton rb = new DataRadioButton(application, scriptable, text, list);
 			rb.setName(name);
 			return rb;
 		}
 		else
 		{
-			DataCheckBox dcb = new DataCheckBox(application, text, list);
+			DataCheckBox dcb = new DataCheckBox(application, scriptable, text, list);
 			dcb.setName(name);
 			return dcb;
 		}
@@ -228,21 +251,12 @@ public class SwingItemFactory implements ItemFactory
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.servoy.j2db.ItemFactory#createDataCheckBox(java.lang.String)
-	 */
-	public IFieldComponent createSelectBox(String name, String text, boolean isRadio)
-	{
-		return createSelectBox(name, text, null, isRadio);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see com.servoy.j2db.ItemFactory#createDataChoice(com.servoy.j2db.dataprocessing.IValueList, boolean)
 	 */
-	public IFieldComponent createDataChoice(String name, IValueList list, boolean b)
+	public IFieldComponent createDataChoice(AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent> scriptable, String name, IValueList list,
+		boolean b)
 	{
-		DataChoice dc = new DataChoice(application, list, b);
+		DataChoice dc = new DataChoice(application, scriptable, list, b);
 		dc.setName(name);
 		return dc;
 	}
@@ -252,9 +266,9 @@ public class SwingItemFactory implements ItemFactory
 	 * 
 	 * @see com.servoy.j2db.ItemFactory#createDataComboBox(com.servoy.j2db.dataprocessing.IValueList)
 	 */
-	public IFieldComponent createDataComboBox(String name, IValueList list)
+	public IFieldComponent createDataComboBox(RuntimeDataCombobox scriptable, String name, IValueList list)
 	{
-		DataComboBox dcb = new DataComboBox(application, list);
+		DataComboBox dcb = new DataComboBox(application, scriptable, list);
 		dcb.setName(name);
 		return dcb;
 	}
@@ -264,9 +278,9 @@ public class SwingItemFactory implements ItemFactory
 	 * 
 	 * @see com.servoy.j2db.ItemFactory#createDataCalendar()
 	 */
-	public IFieldComponent createDataCalendar(String name)
+	public IFieldComponent createDataCalendar(RuntimeDataCalendar scriptable, String name)
 	{
-		DataCalendar dc = new DataCalendar(application);
+		DataCalendar dc = new DataCalendar(application, scriptable);
 		dc.setName(name);
 		return dc;
 	}
@@ -276,9 +290,9 @@ public class SwingItemFactory implements ItemFactory
 	 * 
 	 * @see com.servoy.j2db.ItemFactory#createDataImgMediaField()
 	 */
-	public IFieldComponent createDataImgMediaField(String name)
+	public IFieldComponent createDataImgMediaField(RuntimeMediaField scriptable, String name)
 	{
-		DataImgMediaField field = new DataImgMediaField(application);
+		DataImgMediaField field = new DataImgMediaField(application, scriptable);
 		field.setName(name);
 		return field;
 	}
@@ -288,9 +302,9 @@ public class SwingItemFactory implements ItemFactory
 	 * 
 	 * @see com.servoy.j2db.ItemFactory#createDataField()
 	 */
-	public IFieldComponent createDataField(String name)
+	public IFieldComponent createDataField(RuntimeDataField scriptable, String name)
 	{
-		DataField df = new DataField(application);
+		DataField df = new DataField(application, scriptable);
 		df.setName(name);
 		return df;
 	}
@@ -300,9 +314,9 @@ public class SwingItemFactory implements ItemFactory
 	 * 
 	 * @see com.servoy.j2db.ui.ItemFactory#createDataLookupField(java.lang.String, com.servoy.j2db.dataprocessing.LookupValueList)
 	 */
-	public IFieldComponent createDataLookupField(String name, LookupValueList lookupValueList)
+	public IFieldComponent createDataLookupField(RuntimeDataLookupField scriptable, String name, LookupValueList lookupValueList)
 	{
-		DataLookupField dlf = new DataLookupField(application, lookupValueList);
+		DataLookupField dlf = new DataLookupField(application, scriptable, lookupValueList);
 		dlf.setName(name);
 		return dlf;
 	}
@@ -312,9 +326,9 @@ public class SwingItemFactory implements ItemFactory
 	 * 
 	 * @see com.servoy.j2db.ui.ItemFactory#createDataLookupField(java.lang.String, com.servoy.j2db.dataprocessing.CustomValueList)
 	 */
-	public IFieldComponent createDataLookupField(String name, CustomValueList list)
+	public IFieldComponent createDataLookupField(RuntimeDataLookupField scriptable, String name, CustomValueList list)
 	{
-		DataLookupField dlf = new DataLookupField(application, list);
+		DataLookupField dlf = new DataLookupField(application, scriptable, list);
 		dlf.setName(name);
 		return dlf;
 	}
@@ -322,9 +336,9 @@ public class SwingItemFactory implements ItemFactory
 	/**
 	 * @see com.servoy.j2db.ui.ItemFactory#createDataLookupField(java.lang.String, java.lang.String, java.lang.String)
 	 */
-	public IFieldComponent createDataLookupField(String name, String serverName, String tableName, String dataProviderID)
+	public IFieldComponent createDataLookupField(RuntimeDataLookupField scriptable, String name, String serverName, String tableName, String dataProviderID)
 	{
-		DataLookupField dlf = new DataLookupField(application, serverName, tableName, dataProviderID);
+		DataLookupField dlf = new DataLookupField(application, scriptable, serverName, tableName, dataProviderID);
 		dlf.setName(name);
 		return dlf;
 	}
@@ -332,19 +346,10 @@ public class SwingItemFactory implements ItemFactory
 	/**
 	 * @see com.servoy.j2db.ui.ItemFactory#createRect(java.lang.String)
 	 */
-	public IRect createRect(String name, int type)
+	public IRect createRect(RuntimeRectangle scriptable, String name, int type)
 	{
-		return new Rect(application, type);
+		return new Rect(application, scriptable, type);
 	}
-
-	/**
-	 * @see com.servoy.j2db.ui.ItemFactory#createShape(java.lang.String, com.servoy.j2db.persistence.Shape)
-	 */
-	public IComponent createShape(String webID, Shape rec)
-	{
-		return new ShapePainter(application, rec.getShapeType(), rec.getLineSize(), rec.getPolygon());
-	}
-
 
 	/**
 	 * Set a property on the runtime component
@@ -367,5 +372,15 @@ public class SwingItemFactory implements ItemFactory
 			return (Serializable)((JComponent)component).getClientProperty(key);
 		}
 		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ItemFactory#createChangesRecorder()
+	 */
+	public IStylePropertyChangesRecorder createChangesRecorder()
+	{
+		return DummyChangesRecorder.INSTANCE;
 	}
 }

@@ -25,22 +25,22 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 /**
  * Scriptable label.
  * 
- * @author laurian
+ * @author lvostinar
  * @since 6.0
  */
-public class RuntimeScriptLabel extends AbstractHTMLSubmitRuntimeLabel implements IScriptScriptLabelMethods
+public class RuntimeScriptLabel extends AbstractHTMLSubmitRuntimeLabel<ILabel> implements IScriptScriptLabelMethods
 {
 	private String i18n;
 
-	public RuntimeScriptLabel(ILabel label, IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
+	public RuntimeScriptLabel(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
-		super(label, jsChangeRecorder, application);
+		super(jsChangeRecorder, application);
 	}
 
 	public String js_getText()
 	{
 		if (i18n != null) return i18n;
-		return label.getText();
+		return getComponent().getText();
 	}
 
 	public void js_setText(String txt)
@@ -54,7 +54,7 @@ public class RuntimeScriptLabel extends AbstractHTMLSubmitRuntimeLabel implement
 		{
 			i18n = null;
 		}
-		label.setText(txt);
-		jsChangeRecorder.setChanged();
+		getComponent().setText(txt);
+		getChangesRecorder().setChanged();
 	}
 }

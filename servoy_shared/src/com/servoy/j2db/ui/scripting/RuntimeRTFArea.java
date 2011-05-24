@@ -31,11 +31,11 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
  * @author lvostinar
  * @since 6.0
  */
-public class RuntimeRTFArea extends AbstractRuntimeTextEditor implements IScriptTextEditorMethods
+public class RuntimeRTFArea extends AbstractRuntimeTextEditor<IFieldComponent, JEditorPane> implements IScriptTextEditorMethods
 {
-	public RuntimeRTFArea(IFieldComponent component, IStylePropertyChangesRecorder jsChangeRecorder, IApplication application, JEditorPane editorPane)
+	public RuntimeRTFArea(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
-		super(component, jsChangeRecorder, application, editorPane);
+		super(jsChangeRecorder, application);
 	}
 
 	public String js_getElementType()

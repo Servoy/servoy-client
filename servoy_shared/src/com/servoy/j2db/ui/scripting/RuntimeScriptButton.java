@@ -28,19 +28,19 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
  * @author lvostinar
  * @since 6.0
  */
-public class RuntimeScriptButton extends AbstractRuntimeButton implements IScriptScriptButtonMethods
+public class RuntimeScriptButton extends AbstractRuntimeButton<IButton> implements IScriptScriptButtonMethods
 {
 	private String i18n;
 
-	public RuntimeScriptButton(IButton button, IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
+	public RuntimeScriptButton(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
-		super(button, jsChangeRecorder, application);
+		super(jsChangeRecorder, application);
 	}
 
 	public String js_getText()
 	{
 		if (i18n != null) return i18n;
-		return button.getText();
+		return getComponent().getText();
 	}
 
 	public void js_setText(String txt)
@@ -54,7 +54,7 @@ public class RuntimeScriptButton extends AbstractRuntimeButton implements IScrip
 		{
 			i18n = null;
 		}
-		button.setText(txt);
-		jsChangeRecorder.setChanged();
+		getComponent().setText(txt);
+		getChangesRecorder().setChanged();
 	}
 }

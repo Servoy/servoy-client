@@ -59,7 +59,6 @@ import com.servoy.j2db.persistence.ISupportScrollbars;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.scripting.FormScope;
-import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.server.headlessclient.yui.YUILoader;
@@ -164,7 +163,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 	};
 
-	public WebSplitPane(IApplication application, String name, int orient)
+	public WebSplitPane(IApplication application, RuntimeSplitPane scriptable, String name, int orient)
 	{
 		super(name);
 		this.application = application;
@@ -187,10 +186,11 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		splitter.add(splitComponents[0]);
 		add(splitter);
 		add(splitComponents[1]);
-		scriptable = new RuntimeSplitPane(this, new ChangesRecorder(new Insets(0, 0, 0, 0), new Insets(0, 0, 0, 0)), application, null);
+		this.scriptable = scriptable;
+		((ChangesRecorder)scriptable.getChangesRecorder()).setDefaultBorderAndPadding(null, TemplateGenerator.DEFAULT_LABEL_PADDING);
 	}
 
-	public IScriptable getScriptObject()
+	public final RuntimeSplitPane getScriptObject()
 	{
 		return scriptable;
 	}

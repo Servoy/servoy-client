@@ -23,6 +23,8 @@ import javax.swing.text.JTextComponent;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IFieldComponent;
+import com.servoy.j2db.ui.IScriptScrollableMethods;
+import com.servoy.j2db.ui.IScriptTextInputMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.ISupportEditProvider;
 import com.servoy.j2db.ui.ISupportInputSelection;
@@ -33,15 +35,22 @@ import com.servoy.j2db.ui.ISupportInputSelection;
  * @author lvostinar
  * @since 6.0
  */
-public abstract class AbstractRuntimeTextComponent extends AbstractRuntimeField
+public abstract class AbstractRuntimeTextComponent<C extends IFieldComponent, T extends JTextComponent> extends AbstractRuntimeField<C> implements
+	IScriptTextInputMethods, IScriptScrollableMethods
 {
-	protected final JTextComponent textComponent;
+	protected T textComponent;
 
-	public AbstractRuntimeTextComponent(IFieldComponent component, IStylePropertyChangesRecorder jsChangeRecorder, IApplication application,
-		JTextComponent textArea)
+	public AbstractRuntimeTextComponent(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
-		super(component, jsChangeRecorder, application);
-		this.textComponent = textArea;
+		super(jsChangeRecorder, application);
+	}
+
+	/**
+	 * @param textComponent the textComponent to set
+	 */
+	public void setTextComponent(T textComponent)
+	{
+		this.textComponent = textComponent;
 	}
 
 	public int js_getCaretPosition()
@@ -92,14 +101,14 @@ public abstract class AbstractRuntimeTextComponent extends AbstractRuntimeField
 	@Deprecated
 	public boolean js_isEditable()
 	{
-		return component.isEditable();
+		return getComponent().isEditable();
 	}
 
 	@Deprecated
 	public void js_setEditable(boolean b)
 	{
-		component.setEditable(b);
-		jsChangeRecorder.setChanged();
+		getComponent().setEditable(b);
+		getChangesRecorder().setChanged();
 	}
 
 	public void js_selectAll()
@@ -108,9 +117,9 @@ public abstract class AbstractRuntimeTextComponent extends AbstractRuntimeField
 		{
 			textComponent.selectAll();
 		}
-		if (component instanceof ISupportInputSelection)
+		if (getComponent() instanceof ISupportInputSelection)
 		{
-			((ISupportInputSelection)component).selectAll();
+			((ISupportInputSelection)getComponent()).selectAll();
 		}
 	}
 
@@ -127,13 +136,13 @@ public abstract class AbstractRuntimeTextComponent extends AbstractRuntimeField
 	{
 		if (textComponent != null)
 		{
-			if (component instanceof ISupportEditProvider && ((ISupportEditProvider)component).getEditProvider() != null) ((ISupportEditProvider)component).getEditProvider().startEdit();
+			if (getComponent() instanceof ISupportEditProvider && ((ISupportEditProvider)getComponent()).getEditProvider() != null) ((ISupportEditProvider)getComponent()).getEditProvider().startEdit();
 			textComponent.replaceSelection(s);
-			if (component instanceof ISupportEditProvider && ((ISupportEditProvider)component).getEditProvider() != null) ((ISupportEditProvider)component).getEditProvider().commitData();
+			if (getComponent() instanceof ISupportEditProvider && ((ISupportEditProvider)getComponent()).getEditProvider() != null) ((ISupportEditProvider)getComponent()).getEditProvider().commitData();
 		}
-		if (component instanceof ISupportInputSelection)
+		if (getComponent() instanceof ISupportInputSelection)
 		{
-			((ISupportInputSelection)component).replaceSelectedText(s);
+			((ISupportInputSelection)getComponent()).replaceSelectedText(s);
 		}
 	}
 

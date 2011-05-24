@@ -19,12 +19,13 @@ package com.servoy.j2db.server.headlessclient.dataui;
 import java.awt.Insets;
 import java.util.List;
 
+import javax.swing.JEditorPane;
+
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
-import com.servoy.j2db.ui.scripting.RuntimeRTFArea;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeTextEditor;
 import com.servoy.j2db.util.Text;
 
 /**
@@ -40,22 +41,15 @@ public class WebDataRtfField extends WebDataLabel implements IFieldComponent
 	private static final long serialVersionUID = 1L;
 	private int dataType;
 	private String format;
-	private final RuntimeRTFArea scriptable;
 
 	/**
 	 * @param application
 	 * @param id
 	 */
-	public WebDataRtfField(IApplication application, String id)
+	public WebDataRtfField(IApplication application, AbstractRuntimeTextEditor<IFieldComponent, JEditorPane> scriptable, String id)
 	{
-		super(application, id);
-		this.scriptable = new RuntimeRTFArea(this, new ChangesRecorder(null, TemplateGenerator.DEFAULT_LABEL_PADDING), application, null);
-	}
-
-	@Override
-	public IScriptable getScriptObject()
-	{
-		return this.scriptable;
+		super(application, scriptable, id);
+		((ChangesRecorder)scriptable.getChangesRecorder()).setDefaultBorderAndPadding(null, TemplateGenerator.DEFAULT_LABEL_PADDING);
 	}
 
 	/**
@@ -71,8 +65,6 @@ public class WebDataRtfField extends WebDataLabel implements IFieldComponent
 	 */
 	public void setActionCmd(String actionCmd, Object[] args)
 	{
-		// TODO Auto-generated method stub
-
 	}
 
 	/**
@@ -80,7 +72,6 @@ public class WebDataRtfField extends WebDataLabel implements IFieldComponent
 	 */
 	public void setChangeCmd(String changeCmd, Object[] args)
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -89,7 +80,6 @@ public class WebDataRtfField extends WebDataLabel implements IFieldComponent
 	 */
 	public void setEditable(boolean editable)
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -109,8 +99,6 @@ public class WebDataRtfField extends WebDataLabel implements IFieldComponent
 	 */
 	public void setEnterCmds(String[] enterCmds, Object[][] args)
 	{
-		// TODO Auto-generated method stub
-
 	}
 
 	/**
@@ -127,8 +115,6 @@ public class WebDataRtfField extends WebDataLabel implements IFieldComponent
 	 */
 	public void setLeaveCmds(String[] leaveCmds, Object[][] args)
 	{
-		// TODO Auto-generated method stub
-
 	}
 
 	/**
@@ -136,8 +122,6 @@ public class WebDataRtfField extends WebDataLabel implements IFieldComponent
 	 */
 	public void setMargin(Insets margin)
 	{
-		// TODO Auto-generated method stub
-
 	}
 
 	/*
@@ -147,7 +131,6 @@ public class WebDataRtfField extends WebDataLabel implements IFieldComponent
 	 */
 	public Insets getMargin()
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -158,7 +141,6 @@ public class WebDataRtfField extends WebDataLabel implements IFieldComponent
 	 */
 	public boolean isEditable()
 	{
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -167,8 +149,6 @@ public class WebDataRtfField extends WebDataLabel implements IFieldComponent
 	 */
 	public void setMaxLength(int maxLength)
 	{
-		// TODO Auto-generated method stub
-
 	}
 
 	/**
@@ -176,17 +156,13 @@ public class WebDataRtfField extends WebDataLabel implements IFieldComponent
 	 */
 	public void setSelectOnEnter(boolean selectOnEnter)
 	{
-		// TODO Auto-generated method stub
-
 	}
 
 
 	@Override
 	public String toString()
 	{
-		return scriptable.js_getElementType() +
-			"(web)[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + scriptable.js_getHeight() + ",value:" + getDefaultModelObjectAsString() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return getScriptObject().toString("value:" + getDefaultModelObjectAsString()); //$NON-NLS-1$ 
 	}
 
 	public List<ILabel> getLabelsFor()

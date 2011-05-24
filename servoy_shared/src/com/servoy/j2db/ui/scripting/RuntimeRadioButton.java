@@ -29,11 +29,11 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
  * @author lvostinar
  * @since 6.0
  */
-public class RuntimeRadioButton extends AbstractRuntimeValuelistComponent implements IScriptRadioMethods
+public class RuntimeRadioButton extends AbstractRuntimeValuelistComponent<IFieldComponent> implements IScriptRadioMethods
 {
-	public RuntimeRadioButton(IFieldComponent component, IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
+	public RuntimeRadioButton(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
-		super(component, jsChangeRecorder, application);
+		super(jsChangeRecorder, application);
 	}
 
 	public String js_getElementType()

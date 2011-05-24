@@ -52,7 +52,6 @@ import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.persistence.Media;
-import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.server.headlessclient.ByteArrayResource;
 import com.servoy.j2db.server.headlessclient.MainPage;
@@ -99,11 +98,12 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	private ServoyAjaxEventBehavior rolloverBehavior;
 	private char mnemonic;
 	private final WebEventExecutor eventExecutor;
-	protected AbstractRuntimeButton scriptable;
+	private final AbstractRuntimeButton<IButton> scriptable;
 
-	public WebBaseButton(IApplication application, String id)
+	public WebBaseButton(IApplication application, AbstractRuntimeButton<IButton> scriptable, String id)
 	{
 		super(id);
+		this.scriptable = scriptable;
 		this.application = application;
 
 		//we might have html on a button
@@ -117,14 +117,14 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		setOutputMarkupPlaceholderTag(true);
 	}
 
-	public WebBaseButton(IApplication application, String id, String label)
+	public WebBaseButton(IApplication application, AbstractRuntimeButton<IButton> scriptable, String id, String label)
 	{
-		this(application, id);
+		this(application, scriptable, id);
 		setModel(new Model<String>(label));
 	}
 
 
-	public IScriptable getScriptObject()
+	public final AbstractRuntimeButton<IButton> getScriptObject()
 	{
 		return scriptable;
 	}
@@ -1020,9 +1020,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	@Override
 	public String toString()
 	{
-		return scriptable.js_getElementType() +
-			"(web)[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + scriptable.js_getHeight() + ",label:" + getText() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return scriptable.toString();
 	}
 
 	public IEventExecutor getEventExecutor()

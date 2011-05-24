@@ -34,14 +34,20 @@ import com.servoy.j2db.util.PersistHelper;
  * @author lvostinar
  * @since 6.0
  */
-public abstract class AbstractRuntimeFormContainer extends AbstractRuntimeBaseComponent
+public abstract class AbstractRuntimeFormContainer<C extends IComponent, E extends JComponent> extends AbstractRuntimeBaseComponent<C>
 {
-	protected JComponent enclosingComponent;
+	protected E enclosingComponent;
 
-	public AbstractRuntimeFormContainer(IComponent component, IStylePropertyChangesRecorder jsChangeRecorder, IApplication application,
-		JComponent enclosingComponent)
+	public AbstractRuntimeFormContainer(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
-		super(component, jsChangeRecorder, application);
+		super(jsChangeRecorder, application);
+	}
+
+	/**
+	 * @param enclosingComponent the enclosingComponent to set
+	 */
+	public void setEnclosingComponent(E enclosingComponent)
+	{
 		this.enclosingComponent = enclosingComponent;
 	}
 
@@ -53,9 +59,9 @@ public abstract class AbstractRuntimeFormContainer extends AbstractRuntimeBaseCo
 		}
 		else
 		{
-			component.setToolTipText(txt);
+			getComponent().setToolTipText(txt);
 		}
-		jsChangeRecorder.setChanged();
+		getChangesRecorder().setChanged();
 	}
 
 	public String js_getToolTipText()
@@ -64,10 +70,7 @@ public abstract class AbstractRuntimeFormContainer extends AbstractRuntimeBaseCo
 		{
 			return enclosingComponent.getToolTipText();
 		}
-		else
-		{
-			return component.getToolTipText();
-		}
+		return getComponent().getToolTipText();
 	}
 
 	@Override
@@ -95,10 +98,7 @@ public abstract class AbstractRuntimeFormContainer extends AbstractRuntimeBaseCo
 		{
 			return PersistHelper.createFontString(enclosingComponent.getFont());
 		}
-		else
-		{
-			return super.js_getFont();
-		}
+		return super.js_getFont();
 	}
 
 	@Override
@@ -151,11 +151,11 @@ public abstract class AbstractRuntimeFormContainer extends AbstractRuntimeBaseCo
 	public void js_setSize(int x, int y)
 	{
 		super.js_setSize(x, y);
-		if (component instanceof JComponent)
+		if (getComponent() instanceof JComponent)
 		{
-			((JComponent)component).repaint();
+			((JComponent)getComponent()).repaint();
 		}
-		jsChangeRecorder.setSize(component.getSize().width, component.getSize().height, component.getBorder(), new Insets(0, 0, 0, 0), 0);
+		getChangesRecorder().setSize(getComponent().getSize().width, getComponent().getSize().height, getComponent().getBorder(), new Insets(0, 0, 0, 0), 0);
 	}
 
 	public boolean js_isReadOnly()
@@ -164,9 +164,6 @@ public abstract class AbstractRuntimeFormContainer extends AbstractRuntimeBaseCo
 		{
 			return ((ISupportReadOnly)enclosingComponent).isReadOnly();
 		}
-		else
-		{
-			return ((IDisplay)component).isReadOnly();
-		}
+		return ((IDisplay)getComponent()).isReadOnly();
 	}
 }

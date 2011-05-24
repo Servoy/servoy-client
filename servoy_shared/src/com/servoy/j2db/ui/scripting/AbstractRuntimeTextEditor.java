@@ -27,6 +27,7 @@ import javax.swing.text.html.HTMLDocument;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IFieldComponent;
+import com.servoy.j2db.ui.IScriptTextEditorMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.util.Debug;
 
@@ -36,15 +37,15 @@ import com.servoy.j2db.util.Debug;
  * @author lvostinar
  * @since 6.0
  */
-public abstract class AbstractRuntimeTextEditor extends AbstractRuntimeTextComponent
+public abstract class AbstractRuntimeTextEditor<C extends IFieldComponent, T extends JTextComponent> extends AbstractRuntimeTextComponent<C, T> implements
+	IScriptTextEditorMethods
 {
-	public AbstractRuntimeTextEditor(IFieldComponent component, IStylePropertyChangesRecorder jsChangeRecorder, IApplication application,
-		JTextComponent textArea)
+	public AbstractRuntimeTextEditor(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
-		super(component, jsChangeRecorder, application, textArea);
+		super(jsChangeRecorder, application);
 	}
 
-	public void js_setURL(String url)
+	public void js_setURL(@SuppressWarnings("unused") String url)
 	{
 	}
 

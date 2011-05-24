@@ -17,7 +17,6 @@
 package com.servoy.j2db.smart.dataui;
 
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.scripting.RuntimeScriptLabel;
 
 
@@ -28,10 +27,9 @@ import com.servoy.j2db.ui.scripting.RuntimeScriptLabel;
 public class ScriptLabel extends AbstractScriptLabel
 {
 
-	public ScriptLabel(IApplication app)
+	public ScriptLabel(IApplication app, RuntimeScriptLabel scriptable)
 	{
-		super(app);
-		scriptable = new RuntimeScriptLabel(this, new DummyChangesRecorder(), app);
+		super(app, scriptable);
 	}
 
 }

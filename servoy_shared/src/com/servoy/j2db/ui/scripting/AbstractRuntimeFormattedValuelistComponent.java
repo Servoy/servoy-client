@@ -19,6 +19,7 @@ package com.servoy.j2db.ui.scripting;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IFieldComponent;
+import com.servoy.j2db.ui.IScriptFormattedFieldMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 
 /**
@@ -27,32 +28,33 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
  * @author lvostinar
  * @since 6.0
  */
-public abstract class AbstractRuntimeFormattedValuelistComponent extends AbstractRuntimeValuelistComponent
+public abstract class AbstractRuntimeFormattedValuelistComponent<C extends IFieldComponent> extends AbstractRuntimeValuelistComponent<C> implements
+	IScriptFormattedFieldMethods
 {
-	public AbstractRuntimeFormattedValuelistComponent(IFieldComponent component, IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
+	public AbstractRuntimeFormattedValuelistComponent(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
-		super(component, jsChangeRecorder, application);
+		super(jsChangeRecorder, application);
 	}
 
 	public void js_setFormat(String format)
 	{
-		component.setFormat(component.getDataType(), application.getI18NMessageIfPrefixed(format));
-		jsChangeRecorder.setChanged();
+		getComponent().setFormat(getComponent().getDataType(), application.getI18NMessageIfPrefixed(format));
+		getChangesRecorder().setChanged();
 	}
 
 	public String js_getFormat()
 	{
-		return component.getFormat();
+		return getComponent().getFormat();
 	}
 
 	public boolean js_isEditable()
 	{
-		return component.isEditable();
+		return getComponent().isEditable();
 	}
 
 	public void js_setEditable(boolean b)
 	{
-		component.setEditable(b);
-		jsChangeRecorder.setChanged();
+		getComponent().setEditable(b);
+		getChangesRecorder().setChanged();
 	}
 }

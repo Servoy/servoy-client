@@ -69,9 +69,9 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 	 * @param id
 	 * @param list
 	 */
-	public WebDataLookupField(IApplication application, String id, LookupValueList list)
+	public WebDataLookupField(IApplication application, RuntimeDataLookupField scriptable, String id, LookupValueList list)
 	{
-		super(application, id, list);
+		super(application, scriptable, id, list);
 		dlm = new LookupListModel(application, list);
 		init();
 	}
@@ -81,21 +81,22 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 	 * @param id
 	 * @param list
 	 */
-	public WebDataLookupField(IApplication application, String id, final String serverName, String tableName, String dataProviderID)
+	public WebDataLookupField(IApplication application, RuntimeDataLookupField scriptable, String id, final String serverName, String tableName,
+		String dataProviderID)
 	{
-		super(application, id);
+		super(application, scriptable, id);
 		dlm = new LookupListModel(application, serverName, tableName, dataProviderID);
 		init();
 	}
 
 	/**
 	 * @param application
-	 * @param name
 	 * @param list
+	 * @param name
 	 */
-	public WebDataLookupField(IApplication application, String id, CustomValueList list)
+	public WebDataLookupField(IApplication application, RuntimeDataLookupField scriptable, String id, CustomValueList list)
 	{
-		super(application, id, list);
+		super(application, scriptable, id, list);
 		dlm = new LookupListModel(application, list);
 		init();
 	}
@@ -127,9 +128,6 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 
 	private void init()
 	{
-		this.scriptable = new RuntimeDataLookupField(this, new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE,
-			TemplateGenerator.DEFAULT_FIELD_PADDING), application);
-
 		add(new HeaderContributor(new IHeaderContributor()
 		{
 			private static final long serialVersionUID = 1L;
@@ -143,7 +141,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			@Override
 			public boolean isEnabled(Component component)
 			{
-				return !scriptable.js_isReadOnly() && scriptable.js_isEnabled();
+				return !getScriptObject().js_isReadOnly() && getScriptObject().js_isEnabled();
 			}
 		});
 
@@ -225,11 +223,11 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			@Override
 			public void renderHead(IHeaderResponse response)
 			{
-				settings.setShowListOnEmptyInput(Boolean.TRUE.equals(UIUtils.getUIProperty(scriptable, application,
+				settings.setShowListOnEmptyInput(Boolean.TRUE.equals(UIUtils.getUIProperty(getScriptObject(), application,
 					IApplication.TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY, Boolean.TRUE)));
-				settings.setShowListOnFocusGain(Boolean.TRUE.equals(UIUtils.getUIProperty(scriptable, application,
+				settings.setShowListOnFocusGain(Boolean.TRUE.equals(UIUtils.getUIProperty(getScriptObject(), application,
 					IApplication.TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN, Boolean.TRUE)));
-				if (!scriptable.js_isReadOnly() && scriptable.js_isEnabled())
+				if (!getScriptObject().js_isReadOnly() && getScriptObject().js_isEnabled())
 				{
 					super.renderHead(response);
 					response.renderJavascript("Wicket.AutoCompleteSettings.enterHidesWithNoSelection = true;", "AutocompleteSettingsID"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -252,7 +250,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 	public void setClientProperty(Object key, Object value)
 	{
 		if ((IApplication.TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN.equals(key) || IApplication.TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY.equals(key)) &&
-			!Utils.equalObjects(scriptable.js_getClientProperty(key), value))
+			!Utils.equalObjects(getScriptObject().js_getClientProperty(key), value))
 		{
 			getStylePropertyChanges().setChanged();
 		}

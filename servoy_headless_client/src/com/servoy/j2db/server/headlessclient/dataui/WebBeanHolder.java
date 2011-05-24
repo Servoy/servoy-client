@@ -17,6 +17,7 @@
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.ui.scripting.RuntimeScriptLabel;
 import com.servoy.j2db.util.IDelegate;
 
 /**
@@ -34,9 +35,9 @@ public class WebBeanHolder extends WebBaseLabel implements IDelegate
 	 * @param id
 	 * @param label
 	 */
-	public WebBeanHolder(IApplication application, String id, Object bean)
+	public WebBeanHolder(IApplication application, RuntimeScriptLabel scriptable, String id, Object bean)
 	{
-		super(application, id, "");
+		super(application, scriptable, id, "");
 		this.bean = bean;
 		setOutputMarkupPlaceholderTag(true);
 	}

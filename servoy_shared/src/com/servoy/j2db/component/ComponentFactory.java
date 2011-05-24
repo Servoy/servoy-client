@@ -106,7 +106,6 @@ import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.RectShape;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.Shape;
 import com.servoy.j2db.persistence.Style;
 import com.servoy.j2db.persistence.Tab;
 import com.servoy.j2db.persistence.TabPanel;
@@ -127,11 +126,36 @@ import com.servoy.j2db.ui.IRect;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISplitPane;
+import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.ISupportSecuritySettings;
 import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.ui.RenderEventExecutor;
+import com.servoy.j2db.ui.scripting.AbstractHTMLSubmitRuntimeLabel;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeButton;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeValuelistComponent;
+import com.servoy.j2db.ui.scripting.RuntimeCheckBoxChoice;
+import com.servoy.j2db.ui.scripting.RuntimeCheckbox;
+import com.servoy.j2db.ui.scripting.RuntimeDataButton;
+import com.servoy.j2db.ui.scripting.RuntimeDataCalendar;
+import com.servoy.j2db.ui.scripting.RuntimeDataCombobox;
+import com.servoy.j2db.ui.scripting.RuntimeDataField;
+import com.servoy.j2db.ui.scripting.RuntimeDataLabel;
+import com.servoy.j2db.ui.scripting.RuntimeDataLookupField;
+import com.servoy.j2db.ui.scripting.RuntimeDataPassword;
+import com.servoy.j2db.ui.scripting.RuntimeHTMLArea;
+import com.servoy.j2db.ui.scripting.RuntimeMediaField;
+import com.servoy.j2db.ui.scripting.RuntimePortal;
+import com.servoy.j2db.ui.scripting.RuntimeRTFArea;
+import com.servoy.j2db.ui.scripting.RuntimeRadioButton;
+import com.servoy.j2db.ui.scripting.RuntimeRadioChoice;
+import com.servoy.j2db.ui.scripting.RuntimeRectangle;
+import com.servoy.j2db.ui.scripting.RuntimeScriptButton;
+import com.servoy.j2db.ui.scripting.RuntimeScriptLabel;
+import com.servoy.j2db.ui.scripting.RuntimeSplitPane;
+import com.servoy.j2db.ui.scripting.RuntimeTabPanel;
+import com.servoy.j2db.ui.scripting.RuntimeTextArea;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FixedStyleSheet;
@@ -329,10 +353,6 @@ public class ComponentFactory
 
 			case IRepository.RECTSHAPES :
 				comp = createRectangle(application, form, (RectShape)meta);
-				break;
-
-			case IRepository.SHAPES :
-				comp = createShape(application, form, (Shape)meta);
 				break;
 
 			case IRepository.PORTALS :
@@ -847,25 +867,14 @@ public class ComponentFactory
 
 	private static IComponent createRectangle(IApplication application, Form form, RectShape rec)
 	{
-		IRect panel = application.getItemFactory().createRect(getWebID(form, rec), rec.getShapeType());
+		RuntimeRectangle scriptable = new RuntimeRectangle(application.getItemFactory().createChangesRecorder(), application);
+		IRect panel = application.getItemFactory().createRect(scriptable, getWebID(form, rec), rec.getShapeType());
+		scriptable.setComponent(panel);
 //		panel.setOpaque(!rec.getTransparent());
 		panel.setLineWidth(rec.getLineSize());
 		panel.setRadius(rec.getRoundedRadius());
 //		JLabel panel = new JLabel("xxx");
 		applyBasicComponentProperties(application, panel, rec, getStyleForBasicComponent(application, rec, form));
-		return panel;
-	}
-
-	private static IComponent createShape(IApplication application, Form form, Shape rec)
-	{
-		IComponent panel = application.getItemFactory().createShape(getWebID(form, rec), rec);
-		//ShapePainter panel = new ShapePainter(application, rec.getShapeType(),rec.getLineSize(),rec.getPolygon());
-//		panel.setOpaque(!rec.getTransparent());
-		applyBasicComponentProperties(application, panel, rec, getStyleForBasicComponent(application, rec, form));
-// why did we do this? it breaks printslide dus to the fact it is to large and intersect with stuff
-//		Point p = rec.getLocation();
-//		Dimension d = panel.getSize();
-//		panel.setSize(new Dimension(p.x+d.width+rec.getLineSize(),p.y+d.height+rec.getLineSize()));
 		return panel;
 	}
 
@@ -1191,45 +1200,67 @@ public class ComponentFactory
 			}
 		}
 
+		IStylePropertyChangesRecorder jsChangeRecorder = application.getItemFactory().createChangesRecorder();
+
 		IFieldComponent fl = null;
 		switch (field.getDisplayType())
 		{
 			case Field.PASSWORD :
-				fl = application.getItemFactory().createDataPassword(getWebID(form, field));
+			{
+				RuntimeDataPassword scriptable = new RuntimeDataPassword(jsChangeRecorder, application);
+				fl = application.getItemFactory().createDataPassword(scriptable, getWebID(form, field));
+				scriptable.setComponent(fl);
+			}
 				break;
 			case Field.RTF_AREA :
-				fl = application.getItemFactory().createDataTextEditor(getWebID(form, field), RTF_AREA, field.getEditable());
+			{
+				RuntimeRTFArea scriptable = new RuntimeRTFArea(jsChangeRecorder, application);
+				fl = application.getItemFactory().createDataTextEditor(scriptable, getWebID(form, field), RTF_AREA, field.getEditable());
+				scriptable.setComponent(fl);
 				if (fl instanceof IScrollPane)
 				{
 					applyScrollBarsProperty((IScrollPane)fl, field);
 				}
+			}
 				break;
 			case Field.HTML_AREA :
-				fl = application.getItemFactory().createDataTextEditor(getWebID(form, field), HTML_AREA, field.getEditable());
+			{
+				RuntimeHTMLArea scriptable = new RuntimeHTMLArea(jsChangeRecorder, application);
+				fl = application.getItemFactory().createDataTextEditor(scriptable, getWebID(form, field), HTML_AREA, field.getEditable());
+				scriptable.setComponent(fl);
 				if (fl instanceof IScrollPane)
 				{
 					applyScrollBarsProperty((IScrollPane)fl, field);
 				}
+			}
 				break;
 			case Field.TEXT_AREA :
-				fl = application.getItemFactory().createDataTextArea(getWebID(form, field));
+			{
+				RuntimeTextArea scriptable = new RuntimeTextArea(jsChangeRecorder, application);
+				fl = application.getItemFactory().createDataTextArea(scriptable, getWebID(form, field));
+				scriptable.setComponent(fl);
 				if (fl instanceof IScrollPane)
 				{
 					applyScrollBarsProperty((IScrollPane)fl, field);
 				}
+			}
 				break;
 			case Field.CHECKS :
+			{
+				AbstractRuntimeValuelistComponent<IFieldComponent> scriptable;
 				if (valuelist != null)
 				{
 					IValueList list = getRealValueList(application, valuelist, true, type, format, field.getDataProviderID());
 					if (isSingleValue(valuelist, list))
 					{
-						fl = application.getItemFactory().createSelectBox(getWebID(form, field), application.getI18NMessageIfPrefixed(field.getText()), list,
-							false);
+						scriptable = new RuntimeCheckbox(jsChangeRecorder, application);
+						fl = application.getItemFactory().createSelectBox(scriptable, getWebID(form, field),
+							application.getI18NMessageIfPrefixed(field.getText()), list, false);
 					}
 					else
 					{
-						fl = application.getItemFactory().createDataChoice(getWebID(form, field), list, false);
+						scriptable = new RuntimeCheckBoxChoice(jsChangeRecorder, application);
+						fl = application.getItemFactory().createDataChoice((RuntimeCheckBoxChoice)scriptable, getWebID(form, field), list, false);
 						if (fl instanceof IScrollPane)
 						{
 							applyScrollBarsProperty((IScrollPane)fl, field);
@@ -1238,68 +1269,92 @@ public class ComponentFactory
 				}
 				else
 				{
-					fl = application.getItemFactory().createSelectBox(getWebID(form, field), application.getI18NMessageIfPrefixed(field.getText()), false);
+					scriptable = new RuntimeCheckbox(jsChangeRecorder, application);
+					fl = application.getItemFactory().createSelectBox(scriptable, getWebID(form, field), application.getI18NMessageIfPrefixed(field.getText()),
+						null, false);
 				}
+				scriptable.setComponent(fl);
+			}
 				break;
 			case Field.RADIOS :
 			{
+				AbstractRuntimeValuelistComponent<IFieldComponent> scriptable;
 				IValueList list = getRealValueList(application, valuelist, true, type, format, field.getDataProviderID());
 				if (isSingleValue(valuelist, list))
 				{
-					fl = application.getItemFactory().createSelectBox(getWebID(form, field), application.getI18NMessageIfPrefixed(field.getText()), list, true);
+					scriptable = new RuntimeRadioButton(jsChangeRecorder, application);
+					fl = application.getItemFactory().createSelectBox(scriptable, getWebID(form, field), application.getI18NMessageIfPrefixed(field.getText()),
+						list, true);
 				}
 				else
 				{
-					fl = application.getItemFactory().createDataChoice(getWebID(form, field), list, true);
+					scriptable = new RuntimeRadioChoice(jsChangeRecorder, application);
+					fl = application.getItemFactory().createDataChoice((RuntimeRadioChoice)scriptable, getWebID(form, field), list, true);
 					if (fl instanceof IScrollPane)
 					{
 						applyScrollBarsProperty((IScrollPane)fl, field);
 					}
 				}
+				scriptable.setComponent(fl);
 			}
 				break;
 			case Field.COMBOBOX :
 			{
+				RuntimeDataCombobox scriptable = new RuntimeDataCombobox(jsChangeRecorder, application);
 				IValueList list = getRealValueList(application, valuelist, true, type, format, field.getDataProviderID());
-				fl = application.getItemFactory().createDataComboBox(getWebID(form, field), list);
+				fl = application.getItemFactory().createDataComboBox(scriptable, getWebID(form, field), list);
+				scriptable.setComponent(fl);
 			}
 				break;
 
 			case Field.CALENDAR :
-				fl = application.getItemFactory().createDataCalendar(getWebID(form, field));
+			{
+				RuntimeDataCalendar scriptable = new RuntimeDataCalendar(jsChangeRecorder, application);
+				fl = application.getItemFactory().createDataCalendar(scriptable, getWebID(form, field));
+				scriptable.setComponent(fl);
+			}
 				break;
 
 			case Field.IMAGE_MEDIA :
-				fl = application.getItemFactory().createDataImgMediaField(getWebID(form, field));
+			{
+				RuntimeMediaField scriptable = new RuntimeMediaField(jsChangeRecorder, application);
+				fl = application.getItemFactory().createDataImgMediaField(scriptable, getWebID(form, field));
 				if (fl instanceof IScrollPane)
 				{
 					applyScrollBarsProperty((IScrollPane)fl, field);
 				}
+				scriptable.setComponent(fl);
+			}
 				break;
 			case Field.TYPE_AHEAD :
 				if (field.getValuelistID() > 0)
 				{
-					fl = createTypeAheadWithValueList(application, form, field, dataProviderLookup, type, format);
+					fl = createTypeAheadWithValueList(application, form, field, dataProviderLookup, type, format, jsChangeRecorder);
 					break;
 				}
 				else if (dp != null && dp.getColumnWrapper() != null && dp.getColumnWrapper().getRelations() == null)//only allow plain columns
 				{
-					fl = application.getItemFactory().createDataLookupField(getWebID(form, field), form.getServerName(), form.getTableName(),
+					RuntimeDataLookupField scriptable = new RuntimeDataLookupField(jsChangeRecorder, application);
+					fl = application.getItemFactory().createDataLookupField(scriptable, getWebID(form, field), form.getServerName(), form.getTableName(),
 						dp == null ? field.getDataProviderID() : dp.getDataProviderID());
+					scriptable.setComponent(fl);
 					break;
 				}
 				//$FALL-THROUGH$ else treat as the default case: TEXT_FIELD
-			default ://Field.TEXT_FIELD
+			default ://Field.TEXT_FIELD 
 				if (field.getValuelistID() > 0)
 				{
-					fl = createTypeAheadWithValueList(application, form, field, dataProviderLookup, type, format);
+					fl = createTypeAheadWithValueList(application, form, field, dataProviderLookup, type, format, jsChangeRecorder);
 				}
 				else
 				{
-					fl = application.getItemFactory().createDataField(getWebID(form, field));
+					RuntimeDataField scriptable = new RuntimeDataField(jsChangeRecorder, application);
+					fl = application.getItemFactory().createDataField(scriptable, getWebID(form, field));
+					scriptable.setComponent(fl);
 				}
 				break;
 		}
+
 		if (fl instanceof ISupportAsyncLoading)
 		{
 			((ISupportAsyncLoading)fl).setAsyncLoadingEnabled(!printing);
@@ -1450,32 +1505,44 @@ public class ComponentFactory
 	 * @return
 	 */
 	private static IFieldComponent createTypeAheadWithValueList(IApplication application, Form form, Field field, IDataProviderLookup dataProviderLookup,
-		int type, String format)
+		int type, String format, IStylePropertyChangesRecorder jsChangeRecorder)
 	{
-		IFieldComponent fl = null;
+		RuntimeDataField scriptable;
+		IFieldComponent fl;
 		ValueList valuelist = getValueList(application, field, dataProviderLookup);
 		if (valuelist == null)
 		{
-			fl = application.getItemFactory().createDataField(getWebID(form, field));
+			scriptable = new RuntimeDataField(jsChangeRecorder, application);
+			fl = application.getItemFactory().createDataField(scriptable, getWebID(form, field));
 		}
-		else if (valuelist.getValueListType() == ValueList.DATABASE_VALUES)
+		else
 		{
-			LookupValueList lookupValueList = null;
-			try
+			scriptable = new RuntimeDataLookupField(jsChangeRecorder, application);
+			if (valuelist.getValueListType() == ValueList.DATABASE_VALUES)
 			{
-				lookupValueList = new LookupValueList(valuelist, application);
-				fl = application.getItemFactory().createDataLookupField(getWebID(form, field), lookupValueList);
+				LookupValueList lookupValueList = null;
+				try
+				{
+					lookupValueList = new LookupValueList(valuelist, application);
+					fl = application.getItemFactory().createDataLookupField((RuntimeDataLookupField)scriptable, getWebID(form, field), lookupValueList);
+				}
+				catch (Exception e1)
+				{
+					Debug.error(e1);
+					return null;
+				}
 			}
-			catch (Exception e1)
+			else if (valuelist.getValueListType() == ValueList.CUSTOM_VALUES || valuelist.getValueListType() == ValueList.GLOBAL_METHOD_VALUES)
 			{
-				Debug.error(e1);
+				fl = application.getItemFactory().createDataLookupField((RuntimeDataLookupField)scriptable, getWebID(form, field),
+					(CustomValueList)getRealValueList(application, valuelist, true, type, format, field.getDataProviderID()));
+			}
+			else
+			{
+				return null;
 			}
 		}
-		else if (valuelist.getValueListType() == ValueList.CUSTOM_VALUES || valuelist.getValueListType() == ValueList.GLOBAL_METHOD_VALUES)
-		{
-			fl = application.getItemFactory().createDataLookupField(getWebID(form, field),
-				(CustomValueList)getRealValueList(application, valuelist, true, type, format, field.getDataProviderID()));
-		}
+		scriptable.setComponent(fl);
 		return fl;
 	}
 
@@ -1540,16 +1607,21 @@ public class ComponentFactory
 
 		}
 
-		IComponent l;
+		ILabel l;
+		IStylePropertyChangesRecorder jsChangeRecorder = application.getItemFactory().createChangesRecorder();
 		if (label.getOnActionMethodID() != 0 && label.getShowClick())
 		{
+			AbstractRuntimeButton<IButton> scriptable;
+			IButton button;
 			if (label.getDataProviderID() == null && !label.getDisplaysTags())
 			{
-				l = application.getItemFactory().createScriptButton(getWebID(form, label));
+				scriptable = new RuntimeScriptButton(jsChangeRecorder, application);
+				button = application.getItemFactory().createScriptButton((RuntimeScriptButton)scriptable, getWebID(form, label));
 			}
 			else
 			{
-				l = application.getItemFactory().createDataButton(getWebID(form, label));
+				scriptable = new RuntimeDataButton(jsChangeRecorder, application);
+				button = application.getItemFactory().createDataButton((RuntimeDataButton)scriptable, getWebID(form, label));
 				IDataProvider dp = null;
 				try
 				{
@@ -1559,33 +1631,38 @@ public class ComponentFactory
 				{
 					Debug.error(e);
 				}
-				((IDisplayData)l).setDataProviderID(dp == null ? label.getDataProviderID() : dp.getDataProviderID());
-				((IDisplayTagText)l).setTagText(application.getI18NMessageIfPrefixed(label.getText()));
-				((IDisplayData)l).setNeedEntireState(label.getDisplaysTags());
+				((IDisplayData)button).setDataProviderID(dp == null ? label.getDataProviderID() : dp.getDataProviderID());
+				((IDisplayTagText)button).setTagText(application.getI18NMessageIfPrefixed(label.getText()));
+				((IDisplayData)button).setNeedEntireState(label.getDisplaysTags());
 			}
-			((ILabel)l).setMediaOption(label.getMediaOptions());
+			scriptable.setComponent(button);
+			button.setMediaOption(label.getMediaOptions());
 			if (label.getRolloverImageMediaID() > 0)
 			{
 				try
 				{
-					((IButton)l).setRolloverIcon(label.getRolloverImageMediaID());
-					((IButton)l).setRolloverEnabled(true);
+					button.setRolloverIcon(label.getRolloverImageMediaID());
+					button.setRolloverEnabled(true);
 				}
 				catch (Exception ex)
 				{
 					Debug.error(ex);
 				}
 			}
+			l = button;
 		}
 		else
 		{
+			AbstractHTMLSubmitRuntimeLabel<ILabel> scriptable;
 			if (label.getDataProviderID() == null && !label.getDisplaysTags())
 			{
-				l = application.getItemFactory().createScriptLabel(getWebID(form, label), (label.getOnActionMethodID() > 0));
+				scriptable = new RuntimeScriptLabel(jsChangeRecorder, application);
+				l = application.getItemFactory().createScriptLabel((RuntimeScriptLabel)scriptable, getWebID(form, label), (label.getOnActionMethodID() > 0));
 			}
 			else
 			{
-				l = application.getItemFactory().createDataLabel(getWebID(form, label), (label.getOnActionMethodID() > 0));
+				scriptable = new RuntimeDataLabel(jsChangeRecorder, application);
+				l = application.getItemFactory().createDataLabel((RuntimeDataLabel)scriptable, getWebID(form, label), (label.getOnActionMethodID() > 0));
 				IDataProvider dp = null;
 				try
 				{
@@ -1599,12 +1676,13 @@ public class ComponentFactory
 				((IDisplayTagText)l).setTagText(application.getI18NMessageIfPrefixed(label.getText()));
 				((IDisplayData)l).setNeedEntireState(label.getDisplaysTags());
 			}
-			((ILabel)l).setMediaOption(label.getMediaOptions());
+			scriptable.setComponent(l);
+			l.setMediaOption(label.getMediaOptions());
 			if (label.getRolloverImageMediaID() > 0)
 			{
 				try
 				{
-					((ILabel)l).setRolloverIcon(label.getRolloverImageMediaID());
+					l.setRolloverIcon(label.getRolloverImageMediaID());
 				}
 				catch (Exception ex)
 				{
@@ -1615,17 +1693,17 @@ public class ComponentFactory
 		String mnemonic = application.getI18NMessageIfPrefixed(label.getMnemonic());
 		if (mnemonic != null && mnemonic.length() > 0)
 		{
-			((ILabel)l).setDisplayedMnemonic(mnemonic.charAt(0));
+			l.setDisplayedMnemonic(mnemonic.charAt(0));
 		}
-		((ILabel)l).setTextTransform(textTransform);
+		l.setTextTransform(textTransform);
 		if (el != null && (label.getOnActionMethodID() > 0 || label.getOnDoubleClickMethodID() > 0 || label.getOnRightClickMethodID() > 0))
 		{
-			((ILabel)l).addScriptExecuter(el);
-			if (label.getOnActionMethodID() > 0) ((ILabel)l).setActionCommand(Integer.toString(label.getOnActionMethodID()),
+			l.addScriptExecuter(el);
+			if (label.getOnActionMethodID() > 0) l.setActionCommand(Integer.toString(label.getOnActionMethodID()),
 				Utils.parseJSExpressions(label.getInstanceMethodArguments("onActionMethodID")));
-			if (label.getOnDoubleClickMethodID() > 0) ((ILabel)l).setDoubleClickCommand(Integer.toString(label.getOnDoubleClickMethodID()),
+			if (label.getOnDoubleClickMethodID() > 0) l.setDoubleClickCommand(Integer.toString(label.getOnDoubleClickMethodID()),
 				Utils.parseJSExpressions(label.getInstanceMethodArguments("onDoubleClickMethodID")));
-			if (label.getOnRightClickMethodID() > 0) ((ILabel)l).setRightClickCommand(Integer.toString(label.getOnRightClickMethodID()),
+			if (label.getOnRightClickMethodID() > 0) l.setRightClickCommand(Integer.toString(label.getOnRightClickMethodID()),
 				Utils.parseJSExpressions(label.getInstanceMethodArguments("onRightClickMethodID")));
 		}
 
@@ -1635,7 +1713,7 @@ public class ComponentFactory
 			if (onRenderMethodID <= 0) onRenderMethodID = form.getOnRenderMethodID();
 			if (onRenderMethodID > 0)
 			{
-				RenderEventExecutor renderEventExecutor = ((ILabel)l).getRenderEventExecutor();
+				RenderEventExecutor renderEventExecutor = l.getRenderEventExecutor();
 
 				if (renderEventExecutor != null)
 				{
@@ -1648,19 +1726,19 @@ public class ComponentFactory
 			}
 		}
 
-		((ILabel)l).setRotation(label.getRotation());
-		((ILabel)l).setFocusPainted(label.getShowFocus());
+		l.setRotation(label.getRotation());
+		l.setFocusPainted(label.getShowFocus());
 		l.setCursor(Cursor.getPredefinedCursor(label.getRolloverCursor()));
 		try
 		{
 			int halign = label.getHorizontalAlignment();
 			if (halign != -1)
 			{
-				((ILabel)l).setHorizontalAlignment(halign);
+				l.setHorizontalAlignment(halign);
 			}
 			else if (style_halign != -1)
 			{
-				((ILabel)l).setHorizontalAlignment(style_halign);
+				l.setHorizontalAlignment(style_halign);
 			}
 		}
 		catch (RuntimeException e)
@@ -1671,18 +1749,18 @@ public class ComponentFactory
 		int valign = label.getVerticalAlignment();
 		if (valign != -1)
 		{
-			((ILabel)l).setVerticalAlignment(valign);
+			l.setVerticalAlignment(valign);
 		}
 		else if (style_valign != -1)
 		{
-			((ILabel)l).setVerticalAlignment(style_valign);
+			l.setVerticalAlignment(style_valign);
 		}
 
 		try
 		{
 			if (!label.getDisplaysTags())
 			{
-				((ILabel)l).setText(application.getI18NMessageIfPrefixed(label.getText()));
+				l.setText(application.getI18NMessageIfPrefixed(label.getText()));
 			}
 		}
 		catch (RuntimeException e1)
@@ -1694,7 +1772,7 @@ public class ComponentFactory
 		{
 			try
 			{
-				((ILabel)l).setMediaIcon(label.getImageMediaID());
+				l.setMediaIcon(label.getImageMediaID());
 			}
 			catch (Exception e)
 			{
@@ -1705,7 +1783,7 @@ public class ComponentFactory
 		{
 			try
 			{
-				((ILabel)l).setMediaIcon(mediaid);
+				l.setMediaIcon(mediaid);
 			}
 			catch (Exception e)
 			{
@@ -1778,7 +1856,9 @@ public class ComponentFactory
 	private static IComponent createPortal(IApplication application, Form form, Portal meta, IDataProviderLookup dataProviderLookup, IScriptExecuter el,
 		boolean printing)
 	{
-		IPortalComponent portalComponent = application.getItemFactory().createPortalComponent(meta, form, dataProviderLookup, el, printing);
+		RuntimePortal scriptable = new RuntimePortal(application.getItemFactory().createChangesRecorder(), application);
+		IPortalComponent portalComponent = application.getItemFactory().createPortalComponent(scriptable, meta, form, dataProviderLookup, el, printing);
+		scriptable.setComponent(portalComponent);
 		FixedStyleSheet ss = ComponentFactory.getCSSStyleForForm(application, form);
 		if (ss != null)
 		{
@@ -1804,7 +1884,9 @@ public class ComponentFactory
 
 	private static IComponent createSplitPane(IApplication application, Form form, TabPanel meta, IScriptExecuter el)
 	{
-		ISplitPane splitPane = application.getItemFactory().createSplitPane(getWebID(form, meta), meta.getTabOrientation());
+		RuntimeSplitPane scriptable = new RuntimeSplitPane(application.getItemFactory().createChangesRecorder(), application);
+		ISplitPane splitPane = application.getItemFactory().createSplitPane(scriptable, getWebID(form, meta), meta.getTabOrientation());
+		scriptable.setComponent(splitPane);
 		applyBasicComponentProperties(application, splitPane, meta, getStyleForBasicComponent(application, meta, form));
 		try
 		{
@@ -1848,7 +1930,9 @@ public class ComponentFactory
 			UIManager.put("TabbedPane.selected", meta.getSelectedTabColor());
 		}
 		int orient = meta.getTabOrientation();
-		ITabPanel tabs = application.getItemFactory().createTabPanel(getWebID(form, meta), orient, meta.hasOneTab());
+		RuntimeTabPanel scriptable = new RuntimeTabPanel(application.getItemFactory().createChangesRecorder(), application);
+		ITabPanel tabs = application.getItemFactory().createTabPanel(scriptable, getWebID(form, meta), orient, meta.hasOneTab());
+		scriptable.setComponent(tabs);
 		if (meta.getScrollTabs())
 		{
 			tabs.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);

@@ -26,7 +26,6 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.TagResolver;
-import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.IDisplayTagText;
 import com.servoy.j2db.ui.scripting.RuntimeDataButton;
 import com.servoy.j2db.util.ITagResolver;
@@ -45,10 +44,9 @@ public class DataButton extends AbstractScriptButton implements IDisplayData, ID
 
 	private String tagText = ""; //$NON-NLS-1$
 
-	public DataButton(IApplication app)
+	public DataButton(IApplication app, RuntimeDataButton scriptable)
 	{
-		super(app);
-		scriptable = new RuntimeDataButton(this, new DummyChangesRecorder(), app);
+		super(app, scriptable);
 	}
 
 	/*
@@ -198,7 +196,7 @@ public class DataButton extends AbstractScriptButton implements IDisplayData, ID
 		return value;
 	}
 
-	public boolean needEditListner()
+	public boolean needEditListener()
 	{
 		return false;
 	}

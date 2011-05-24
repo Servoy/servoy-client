@@ -32,8 +32,6 @@ import javax.swing.UIManager;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.RectShape;
-import com.servoy.j2db.scripting.IScriptable;
-import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IRect;
 import com.servoy.j2db.ui.scripting.RuntimeRectangle;
@@ -49,9 +47,9 @@ public class Rect extends JComponent implements IRect
 	protected int radius = 16;
 	protected int lineWidth = 0;
 	protected int type;
-	private final IScriptable scriptable;
+	private final RuntimeRectangle scriptable;
 
-	public Rect(IApplication application, int type)
+	public Rect(IApplication application, RuntimeRectangle scriptable, int type)
 	{
 		super();
 		this.application = application;
@@ -61,11 +59,10 @@ public class Rect extends JComponent implements IRect
 			setBackground(Color.white);
 			setForeground(Color.black);
 		}
-		scriptable = new RuntimeRectangle(this, new DummyChangesRecorder(), application);
+		this.scriptable = scriptable;
 	}
 
-
-	public IScriptable getScriptObject()
+	public final RuntimeRectangle getScriptObject()
 	{
 		return scriptable;
 	}

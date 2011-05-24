@@ -34,7 +34,8 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.server.headlessclient.MainPage;
-import com.servoy.j2db.ui.scripting.RuntimeCheckbox;
+import com.servoy.j2db.ui.IFieldComponent;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeValuelistComponent;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Utils;
 
@@ -46,18 +47,16 @@ import com.servoy.j2db.util.Utils;
 public class WebDataCheckBox extends WebBaseSelectBox
 {
 
-	public WebDataCheckBox(IApplication application, String id, String text, IValueList list)
+	public WebDataCheckBox(IApplication application, AbstractRuntimeValuelistComponent<IFieldComponent> scriptable, String id, String text, IValueList list)
 	{
-		this(application, id, text);
+		this(application, scriptable, id, text);
 		onValue = list;
 	}
 
 
-	public WebDataCheckBox(IApplication application, String id, String text)
+	public WebDataCheckBox(IApplication application, AbstractRuntimeValuelistComponent<IFieldComponent> scriptable, String id, String text)
 	{
-		super(application, id, text);
-		scriptable = new RuntimeCheckbox(this, new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE, TemplateGenerator.DEFAULT_FIELD_PADDING),
-			application);
+		super(application, scriptable, id, text);
 	}
 
 
@@ -102,9 +101,7 @@ public class WebDataCheckBox extends WebBaseSelectBox
 	@Override
 	public String toString()
 	{
-		return scriptable.js_getElementType() +
-			"(web)[name:" + scriptable.js_getName() + ",x:" + scriptable.js_getLocationX() + ",y:" + scriptable.js_getLocationY() + ",width:" + scriptable.js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
-			",height:" + scriptable.js_getHeight() + ",value:" + getDefaultModelObject() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return getScriptObject().toString("value:" + getDefaultModelObject()); //$NON-NLS-1$ 
 	}
 
 	private final class MyCheckBox extends CheckBox implements IResolveObject, IDisplayData
@@ -250,11 +247,11 @@ public class WebDataCheckBox extends WebBaseSelectBox
 		}
 
 		/**
-		 * @see com.servoy.j2db.dataprocessing.IDisplayData#needEditListner()
+		 * @see com.servoy.j2db.dataprocessing.IDisplayData#needEditListener()
 		 */
-		public boolean needEditListner()
+		public boolean needEditListener()
 		{
-			return WebDataCheckBox.this.needEditListner();
+			return WebDataCheckBox.this.needEditListener();
 		}
 
 		/**

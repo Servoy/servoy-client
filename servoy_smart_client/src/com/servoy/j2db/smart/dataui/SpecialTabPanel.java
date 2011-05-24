@@ -51,9 +51,7 @@ import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.gui.EnableTabPanel;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabPanel;
-import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.smart.SwingForm;
-import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IFormLookupPanel;
 import com.servoy.j2db.ui.ISupportSecuritySettings;
@@ -100,12 +98,12 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 	private boolean transferFocusBackwards = false;
 	private final RuntimeTabPanel scriptable;
 
-	public SpecialTabPanel(IApplication app, int orient, boolean oneTab)
+	public SpecialTabPanel(IApplication app, RuntimeTabPanel scriptable, int orient, boolean oneTab)
 	{
-		this(app, orient, oneTab, null);
+		this(app, scriptable, orient, oneTab, null);
 	}
 
-	protected SpecialTabPanel(IApplication app, int orient, boolean oneTab, ITabPaneAlike enclosingComponent)
+	protected SpecialTabPanel(IApplication app, RuntimeTabPanel scriptable, int orient, boolean oneTab, ITabPaneAlike enclosingComponent)
 	{
 		super();
 		application = app;
@@ -140,10 +138,11 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 
 		addFocusListener(new AutoTransferFocusListener(this, this));
 
-		scriptable = new RuntimeTabPanel(this, new DummyChangesRecorder(), application, (JComponent)this.enclosingComponent);
+		this.scriptable = scriptable;
+		scriptable.setEnclosingComponent((JComponent)this.enclosingComponent);
 	}
 
-	public IScriptable getScriptObject()
+	public final RuntimeTabPanel getScriptObject()
 	{
 		return scriptable;
 	}

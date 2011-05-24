@@ -34,11 +34,11 @@ import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
  * @author lvostinar
  * @since 6.0
  */
-public class RuntimeDataCombobox extends AbstractRuntimeFormattedValuelistComponent implements IScriptDataComboboxMethods
+public class RuntimeDataCombobox extends AbstractRuntimeFormattedValuelistComponent<IFieldComponent> implements IScriptDataComboboxMethods
 {
-	public RuntimeDataCombobox(IFieldComponent component, IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
+	public RuntimeDataCombobox(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
-		super(component, jsChangeRecorder, application);
+		super(jsChangeRecorder, application);
 	}
 
 	public String js_getElementType()
@@ -49,15 +49,15 @@ public class RuntimeDataCombobox extends AbstractRuntimeFormattedValuelistCompon
 	@Override
 	public void js_setSize(int x, int y)
 	{
-		if (component instanceof ISupportCachedLocationAndSize)
+		if (getComponent() instanceof ISupportCachedLocationAndSize)
 		{
-			((ISupportCachedLocationAndSize)component).setCachedSize(new Dimension(x, y));
+			((ISupportCachedLocationAndSize)getComponent()).setCachedSize(new Dimension(x, y));
 		}
-		component.setSize(new Dimension(x, y));
-		if (component instanceof JComponent)
+		getComponent().setSize(new Dimension(x, y));
+		if (getComponent() instanceof JComponent)
 		{
-			((JComponent)component).validate();
+			((JComponent)getComponent()).validate();
 		}
-		jsChangeRecorder.setSize(x, y, null, null, 0);
+		getChangesRecorder().setSize(x, y, null, null, 0);
 	}
 }
