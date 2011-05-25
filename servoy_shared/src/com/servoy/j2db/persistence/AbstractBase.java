@@ -115,7 +115,7 @@ public abstract class AbstractBase implements IPersist
 
 	public void copyPropertiesMap(Map<String, Object> newProperties, boolean overwrite)
 	{
-		if (overwrite)
+		if (overwrite && propertiesMap.size() > 0)
 		{
 			// remove properties that are not in newProperties
 			for (String key : propertiesMap.keySet().toArray(new String[propertiesMap.size()]))
