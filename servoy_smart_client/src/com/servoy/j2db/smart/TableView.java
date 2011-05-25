@@ -57,6 +57,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JViewport;
 import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import javax.swing.border.Border;
@@ -789,7 +790,8 @@ public class TableView extends FixedJTable implements IView, IDataRenderer
 					int row = rowAtPoint(p);
 					int column = columnAtPoint(p);
 					if (column == -1 || row == -1) return;
-					if (getSelectedRow() != row)
+					ListSelectionModel sm = getSelectionModel();
+					if (sm != null && !sm.isSelectedIndex(row))
 					{
 						if (isEditing() && !getCellEditor().stopCellEditing()) return;
 						boolean ctrl = e.isControlDown();

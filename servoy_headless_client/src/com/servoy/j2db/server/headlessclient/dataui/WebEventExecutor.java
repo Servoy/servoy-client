@@ -51,6 +51,7 @@ import org.apache.wicket.protocol.http.request.WebClientInfo;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IDisplay;
 import com.servoy.j2db.dataprocessing.IDisplayData;
+import com.servoy.j2db.dataprocessing.IFoundSet;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.scripting.JSEvent;
@@ -507,8 +508,8 @@ public class WebEventExecutor extends BaseEventExecutor
 						}
 					}
 				}
-				else if (fs.getSelectedIndex() != index) fs.setSelectedIndex(index);
-				if (fs.getSelectedIndex() != index && !(fs instanceof FoundSet && ((FoundSet)fs).isMultiSelect()))
+				else if (!isIndexSelected(fs, index)) fs.setSelectedIndex(index);
+				if (!WebEventExecutor.isIndexSelected(fs, index) && !(fs instanceof FoundSet && ((FoundSet)fs).isMultiSelect()))
 				{
 					// setSelectedIndex failed, probably due to validation failed, do a blur()
 					if (target != null) target.appendJavascript("var toBlur = document.getElementById(\"" + component.getMarkupId() +
@@ -518,6 +519,20 @@ public class WebEventExecutor extends BaseEventExecutor
 			}
 		}
 		return true;
+	}
+
+	private static boolean isIndexSelected(IFoundSet fs, int index)
+	{
+		if (fs instanceof FoundSet)
+		{
+			FoundSet fsObj = (FoundSet)fs;
+			for (int selectedIdx : fsObj.getSelectedIndexes())
+			{
+				if (selectedIdx == index) return true;
+			}
+			return false;
+		}
+		else return fs.getSelectedIndex() == index;
 	}
 
 	@SuppressWarnings("nls")
