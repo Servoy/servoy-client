@@ -278,9 +278,7 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 	 * @return The URLStreamHandler for the protocol 'media'
 	 * 
 	 * @since 5.2
-	 * @deprecated
 	 */
-	@Deprecated
 	public URLStreamHandler getMediaURLStreamHandler();
 
 	/**

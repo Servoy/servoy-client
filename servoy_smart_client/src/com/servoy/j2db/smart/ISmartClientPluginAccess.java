@@ -17,7 +17,6 @@
 
 package com.servoy.j2db.smart;
 
-import java.net.URL;
 import java.net.URLStreamHandler;
 import java.rmi.Remote;
 
@@ -61,17 +60,6 @@ public interface ISmartClientPluginAccess extends IClientPluginAccess
 	 * @param handler
 	 */
 	public void registerURLStreamHandler(String protocolName, URLStreamHandler handler);
-
-	/**
-	 * Returns a URLStreamHandler for handling servoy urls ('media' protocol). 
-	 * Use this when you construct urls to those by using one of the URL constructors:
-	 * {@link URL#URL(URL, String, URLStreamHandler)} or {@link URL#URL(String, String, int, String, URLStreamHandler)} 
-	 *
-	 * @return The URLStreamHandler for the protocol 'media'
-	 * 
-	 * @since 5.2
-	 */
-	public URLStreamHandler getMediaURLStreamHandler();
 
 	/**
 	 * exports a remote object on the client that can be transfered to the server (with a remote server call) that can have call backs.
