@@ -4178,7 +4178,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 	}
 
-	protected void fireFoundSetEvent(@SuppressWarnings("unused") int firstRow, @SuppressWarnings("unused") int lastRow, int changeType)
+	protected void fireFoundSetEvent(@SuppressWarnings("unused")
+	int firstRow, @SuppressWarnings("unused")
+	int lastRow, int changeType)
 	{
 		if (foundSetEventListeners.size() > 0)
 		{
@@ -4781,7 +4783,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 		}
 
-		int maxRows = getSize() - 1;
+		int maxRows = getSize();
+		if (hadMoreRows())
+		{
+			maxRows--;
+		}
 		String format = maxRows < 10 ? "0" : maxRows < 100 ? "00" : "000"; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 		DecimalFormat df = new DecimalFormat(format);
 
