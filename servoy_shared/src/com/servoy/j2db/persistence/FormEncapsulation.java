@@ -67,11 +67,19 @@ public final class FormEncapsulation
 
 	public static boolean isPrivate(Form form, FlattenedSolution fs)
 	{
-		if ((form.getEncapsulation() & MODULE_PRIVATE) == MODULE_PRIVATE)
+		if (!isModulePrivate(form, fs))
+		{
+			return (form.getEncapsulation() & PRIVATE) == PRIVATE;
+		}
+		return true;
+	}
+
+	public static boolean isModulePrivate(Form form, FlattenedSolution fs)
+	{
+		if ((form.getEncapsulation() & MODULE_PRIVATE) == MODULE_PRIVATE || (form.getEncapsulation() & PRIVATE) == PRIVATE)
 		{
 			return !fs.getSolution().equals(form.getSolution());
 		}
-		if ((form.getEncapsulation() & PRIVATE) == PRIVATE) return true;
 		return false;
 	}
 
