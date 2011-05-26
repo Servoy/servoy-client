@@ -260,4 +260,21 @@ public class WebJSWindowImpl extends JSWindowImpl implements IWebRuntimeWindow
 		return (MainPage)((FormManager)application.getFormManager()).getMainContainer(windowName);
 	}
 
+	@Override
+	public JSWindow getParent()
+	{
+		if (initialParentWindow == null)
+		{
+			JSWindowImpl pw = application.getJSWindowManager().getWindow(null);
+			if (pw != null)
+			{
+				return pw.getJSWindow();
+			}
+			else
+			{
+				return null;
+			}
+		}
+		return initialParentWindow.getJSWindow();
+	}
 }
