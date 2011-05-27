@@ -509,7 +509,7 @@ public class WebEventExecutor extends BaseEventExecutor
 					}
 				}
 				else if (!isIndexSelected(fs, index)) fs.setSelectedIndex(index);
-				if (!WebEventExecutor.isIndexSelected(fs, index) && !(fs instanceof FoundSet && ((FoundSet)fs).isMultiSelect()))
+				if (!isIndexSelected(fs, index) && !(fs instanceof FoundSet && ((FoundSet)fs).isMultiSelect()))
 				{
 					// setSelectedIndex failed, probably due to validation failed, do a blur()
 					if (target != null) target.appendJavascript("var toBlur = document.getElementById(\"" + component.getMarkupId() +
@@ -530,9 +530,9 @@ public class WebEventExecutor extends BaseEventExecutor
 			{
 				if (selectedIdx == index) return true;
 			}
-			return false;
 		}
-		else return fs.getSelectedIndex() == index;
+
+		return fs.getSelectedIndex() == index;
 	}
 
 	@SuppressWarnings("nls")
