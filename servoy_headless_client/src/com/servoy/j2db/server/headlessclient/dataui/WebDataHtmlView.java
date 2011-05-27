@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JEditorPane;
+import javax.swing.SwingConstants;
 
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
@@ -50,6 +51,7 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 	public WebDataHtmlView(IApplication application, AbstractRuntimeTextEditor<IFieldComponent, JEditorPane> scriptable, String id)
 	{
 		super(application, scriptable, id);
+		setHorizontalAlignment(SwingConstants.LEFT);
 		setEscapeModelStrings(false);
 	}
 

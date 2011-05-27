@@ -43,6 +43,7 @@ import javax.swing.JList;
 import javax.swing.JRadioButton;
 import javax.swing.JToggleButton;
 import javax.swing.ListCellRenderer;
+import javax.swing.SwingConstants;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import javax.swing.text.Document;
@@ -107,6 +108,8 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 	public DataChoice(IApplication app, AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent> scriptable, IValueList vl, boolean isRadioList)
 	{
 		super();
+		setHorizontalAlignment(SwingConstants.LEFT);
+		setBorder(null);
 		application = app;
 		this.vl = vl;
 		this.isRadioList = isRadioList;

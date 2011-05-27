@@ -134,7 +134,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 	public DataComboBox(IApplication application, RuntimeDataCombobox scriptable, IValueList vl)
 	{
 		super();
-
+		setHorizontalAlignment(SwingConstants.LEFT);
 		hackDefaultPopupWidthBehavior();
 		this.application = application;
 		this.vl = vl;

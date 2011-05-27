@@ -2114,12 +2114,10 @@ public class TemplateGenerator
 				}
 				boolean addSingle = ComponentFactory.isSingleValue(valuelist, val);
 
-				// If we have multiple checkboxes, then the default is "field".
-				if (field.getValuelistID() > 0 && !addSingle && !isRadio) cssClass = "field";
 				// If we have a style for the form, apply "check" class if present, default to "field" if "check" class is not present.
 				if (ss != null)
 				{
-					cssClass = "field";
+					cssClass = "";
 					String lookUpValue = selector;
 					javax.swing.text.Style s = ss.getRule(lookUpValue);
 					if (s.getAttributeCount() == 0)
