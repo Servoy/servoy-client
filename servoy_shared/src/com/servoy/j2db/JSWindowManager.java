@@ -74,7 +74,17 @@ public abstract class JSWindowManager
 			win.destroy();
 		}
 
-		win = createWindowInternal(windowName, type, parent != null ? parent.getImpl() : null);
+		JSWindowImpl currentWindow = null;
+		if (type == JSWindow.DIALOG || type == JSWindow.MODAL_DIALOG)
+		{
+			JSWindowImpl pw = application.getJSWindowManager().getCurrentWindow();
+			if (pw != null)
+			{
+				currentWindow = pw.getJSWindow().getImpl();
+			}
+		}
+
+		win = createWindowInternal(windowName, type, parent != null ? parent.getImpl() : currentWindow);
 		if (win != null) windows.put(windowName, win);
 		return win;
 	}
