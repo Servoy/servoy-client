@@ -265,14 +265,17 @@ public class WebJSWindowImpl extends JSWindowImpl implements IWebRuntimeWindow
 	{
 		if (initialParentWindow == null)
 		{
-			JSWindowImpl pw = application.getJSWindowManager().getWindow(null);
-			if (pw != null)
+			if (windowType == JSWindow.DIALOG || windowType == JSWindow.MODAL_DIALOG)
 			{
-				return pw.getJSWindow();
-			}
-			else
-			{
-				return null;
+				JSWindowImpl pw = application.getJSWindowManager().getCurrentWindow();
+				if (pw != null)
+				{
+					return pw.getJSWindow();
+				}
+				else
+				{
+					return null;
+				}
 			}
 		}
 		return initialParentWindow.getJSWindow();
