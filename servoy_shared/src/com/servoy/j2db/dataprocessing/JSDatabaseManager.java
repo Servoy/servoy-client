@@ -1468,6 +1468,33 @@ public class JSDatabaseManager
 	}
 
 	/**
+	 * Check wether a data source exists. This function can be used for any type of data source (db-based, in-memory).
+	 *
+	 * @sample
+	 * if (!databaseManager.dataSourceExists(dataSource))
+	 * {
+	 *    // does not exist
+	 * }
+	 *
+	 * @param datasource
+	 * 
+	 * @return boolean exists
+	 */
+	public boolean js_dataSourceExists(String dataSource) throws ServoyException
+	{
+		checkAuthorized();
+		try
+		{
+			return application.getFoundSetManager().getTable(dataSource) != null;
+		}
+		catch (RepositoryException e)
+		{
+			Debug.debug(e); // server not found
+			return false;
+		}
+	}
+
+	/**
 	 * Returns the JSTable object from which more info can be obtained (like columns).
 	 * The parameter can be a JSFoundset,JSRecord,datasource string or server/tablename combination.
 	 *
@@ -1485,7 +1512,7 @@ public class JSDatabaseManager
 	 * var columnSQLName = jscolumn.getSQLName();
 	 * var isPrimaryKey = jscolumn.isRowIdentifier();
 	 *
-	 * @param foundset/record/datasource/server_name The data where the JSTable can be get from.
+	 * @param foundset/record/datasource (only db-defined)/server_name The data where the JSTable can be get from.
 	 * @param table_name optional The tablename of the first param is a servername string.
 	 * 
 	 * @return the JSTable get from the input.
