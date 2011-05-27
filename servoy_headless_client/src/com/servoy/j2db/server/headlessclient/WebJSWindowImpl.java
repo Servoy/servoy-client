@@ -272,11 +272,8 @@ public class WebJSWindowImpl extends JSWindowImpl implements IWebRuntimeWindow
 				{
 					return pw.getJSWindow();
 				}
-				else
-				{
-					return null;
-				}
 			}
+			return null;
 		}
 		return initialParentWindow.getJSWindow();
 	}
