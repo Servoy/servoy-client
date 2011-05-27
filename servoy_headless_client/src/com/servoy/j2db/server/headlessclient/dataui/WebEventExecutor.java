@@ -568,9 +568,8 @@ public class WebEventExecutor extends BaseEventExecutor
 			{
 				if (selectedIdx == index) return true;
 			}
-			return false;
 		}
-		else return fs.getSelectedIndex() == index;
+		return fs.getSelectedIndex() == index;
 	}
 
 	@SuppressWarnings("nls")
