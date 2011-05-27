@@ -948,6 +948,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		// load menu
 		JMenuBar menu = createMenuBar(actions);
 		frame.setJMenuBar(menu);
+		((SwingJSWindowImpl)jsWindowManager.getWindow(null)).setJMenuBar(menu);
 		if (Utils.isAppleMacOS())
 		{
 			attachAppleMenu(actions);
