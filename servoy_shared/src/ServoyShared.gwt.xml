@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+	<source path='com/servoy/j2db'>
+		<exclude name="MediaURLStreamHandler.java" />
+		<exclude name="IDebug*.java" />
+		<exclude name="dataprocessing/IOracleLobHandler.java" />
+		
+		<exclude name="ISmartClientApplication.java" />
+		<exclude name="ISessionClient.java" />
+		<exclude name="IWebClientApplication.java" />
+
+		<exclude name="Messages*.java" />
+		<exclude name="LAFManager.java" />
+		<exclude name="BeanManager.java" />
+		<exclude name="util/JarManager.java" />
+		<exclude name="util/Ad.java" />
+		
+		<exclude name="dataprocessing/SQLGenerator.java" />
+		<exclude name="server/shared/IApplicationServerMessagesLoader.java" />
+		<exclude name="server/shared/IApplicationServerSingleton.java" />
+		<exclude name="headlessclient/ISessionBean.java" />
+		<exclude name="plugins/IServerAccess.java" />
+		
+		<exclude name="util/visitor/**" />
+		<exclude name="util/toolbar/**" />
+		<exclude name="util/xmlxport/**" />
+		<exclude name="util/rmi/**" />
+		<exclude name="util/serialize/**" />
+		<exclude name="util/SlidingWindowAppender.java" />
+	</source>
+</module>
