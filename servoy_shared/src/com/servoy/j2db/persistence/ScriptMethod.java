@@ -63,4 +63,15 @@ public class ScriptMethod extends AbstractScriptProvider implements IPersistClon
 		}
 		return getName();
 	}
+
+	/**
+	 * @return
+	 */
+	@SuppressWarnings("nls")
+	public boolean isPrivate()
+	{
+		String declaration = getDeclaration();
+		int index = declaration.indexOf("*/");
+		return index != -1 && declaration.lastIndexOf("@private", index) != -1;
+	}
 }

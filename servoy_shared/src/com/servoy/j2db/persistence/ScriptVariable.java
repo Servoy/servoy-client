@@ -317,4 +317,12 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 		Wrapper wrapper = (Wrapper)NativeDate.jsConstructor(args);
 		return (Date)wrapper.unwrap();
 	}
+
+	/**
+	 * @return
+	 */
+	public boolean isPrivate()
+	{
+		return getComment() != null && getComment().indexOf("@private") != -1;
+	}
 }
