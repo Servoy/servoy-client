@@ -685,7 +685,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 				{
 					for (Style style : userStyles)
 					{
-						ComponentFactory.flushStyle(style);
+						ComponentFactory.flushStyle(this, style);
 					}
 				}
 				getRuntimeProperties().put(IServiceProvider.RT_VALUELIST_CACHE, null);

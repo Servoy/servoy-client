@@ -256,12 +256,16 @@ public class JSSolutionModel
 	 */
 	public JSStyle js_newStyle(String name, String content)
 	{
-		Style style = application.getFlattenedSolution().createStyle(name, content);
-		if (style != null)
+
+		Style style = application.getFlattenedSolution().createStyle(name, null);
+		if (style == null)
 		{
-			return new JSStyle(application, style, true);
+			return null;
 		}
-		return null;
+
+		JSStyle jsStyle = new JSStyle(application, style, true);
+		jsStyle.js_setText(content);
+		return jsStyle;
 	}
 
 	/**

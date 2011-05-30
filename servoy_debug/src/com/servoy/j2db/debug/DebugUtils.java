@@ -177,7 +177,7 @@ public class DebugUtils
 			}
 			else if (persist instanceof Style)
 			{
-				ComponentFactory.flushStyle(((Style)persist));
+				ComponentFactory.flushStyle(null, ((Style)persist));
 				List<FormController> cachedFormControllers = ((FormManager)clientState.getFormManager()).getCachedFormControllers();
 
 				String styleName = ((Style)persist).getName();

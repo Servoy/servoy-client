@@ -85,7 +85,9 @@ public class JSStyle implements IJavaScriptType
 			copy = true;
 		}
 		style.setContent(text);
-		ComponentFactory.flushStyle(style);
+		// flag style to make sure its parsed style is not cached globally
+		style.setRuntimeProperty(ComponentFactory.MODIFIED_BY_CLIENT, Boolean.TRUE);
+		ComponentFactory.flushStyle(application, style);
 	}
 
 	@SuppressWarnings("nls")

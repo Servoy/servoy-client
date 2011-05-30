@@ -106,6 +106,7 @@ import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.RectShape;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.RuntimeProperty;
 import com.servoy.j2db.persistence.Style;
 import com.servoy.j2db.persistence.Tab;
 import com.servoy.j2db.persistence.TabPanel;
@@ -188,6 +189,11 @@ public class ComponentFactory
 
 	public static boolean paintSampleData = false;
 	private static Map<Object, IconHolder> lstIcons = new WeakHashMap<Object, IconHolder>();
+
+	public static final RuntimeProperty<Boolean> MODIFIED_BY_CLIENT = new RuntimeProperty<Boolean>()
+	{
+	};
+	private static final String PARSED_STYLES = "parsedStyles";
 	private static ConcurrentMap<Style, FixedStyleSheet> parsedStyles = new ConcurrentHashMap<Style, FixedStyleSheet>();
 
 	private static Boolean element_name_as_uid_prefix;
@@ -386,11 +392,28 @@ public class ComponentFactory
 		return comp;
 	}
 
-	public static FixedStyleSheet getCSSStyle(Style s)
+	public static FixedStyleSheet getCSSStyle(IServiceProvider sp, Style s)
 	{
 		if (s == null) return null;
 
-		FixedStyleSheet ss = parsedStyles.get(s);
+		Map<Style, FixedStyleSheet> parsedStylesMap;
+		if (sp != null && Boolean.TRUE.equals(s.getRuntimeProperty(MODIFIED_BY_CLIENT)))
+		{
+			// style changed by client, cache parsed style per client.
+			parsedStylesMap = (ConcurrentMap<Style, FixedStyleSheet>)sp.getRuntimeProperties().get(PARSED_STYLES);
+			if (parsedStylesMap == null)
+			{
+				parsedStylesMap = new ConcurrentHashMap<Style, FixedStyleSheet>();
+				sp.getRuntimeProperties().put(PARSED_STYLES, parsedStylesMap);
+			}
+		}
+		else
+		{
+			// static style, cache globally.
+			parsedStylesMap = parsedStyles;
+		}
+
+		FixedStyleSheet ss = parsedStylesMap.get(s);
 		if (ss == null)
 		{
 			ss = new FixedStyleSheet();
@@ -402,14 +425,14 @@ public class ComponentFactory
 			{
 				Debug.error(e);//parsing can fail in java 1.5
 			}
-			parsedStyles.put(s, ss);
+			parsedStylesMap.put(s, ss);
 		}
 		return ss;
 	}
 
 	public static FixedStyleSheet getCSSStyleForForm(IServiceProvider sp, Form form)
 	{
-		return getCSSStyle(getStyleForForm(sp, form));
+		return getCSSStyle(sp, getStyleForForm(sp, form));
 	}
 
 //	/**
@@ -487,7 +510,7 @@ public class ComponentFactory
 
 		if (repos_style != null)
 		{
-			FixedStyleSheet ss = getCSSStyle(repos_style);
+			FixedStyleSheet ss = getCSSStyle(sp, repos_style);
 
 			String lookupName = getLookupName(bc);
 
@@ -1983,9 +2006,22 @@ public class ComponentFactory
 		return tabs;
 	}
 
-	public static void flushStyle(Style style)
+	public static void flushStyle(IServiceProvider sp, Style style)
 	{
-		parsedStyles.remove(style);
+		Map<Style, FixedStyleSheet> parsedStylesMap;
+		if (sp != null && Boolean.TRUE.equals(style.getRuntimeProperty(MODIFIED_BY_CLIENT)))
+		{
+			parsedStylesMap = (ConcurrentMap<Style, FixedStyleSheet>)sp.getRuntimeProperties().get(PARSED_STYLES);
+		}
+		else
+		{
+			// static style, cache globally.
+			parsedStylesMap = parsedStyles;
+		}
+		if (parsedStylesMap != null)
+		{
+			parsedStylesMap.remove(style);
+		}
 	}
 
 	@SuppressWarnings("unchecked")

@@ -1989,7 +1989,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			{
 				for (Style style : userStyles)
 				{
-					ComponentFactory.flushStyle(style);
+					ComponentFactory.flushStyle(this, style);
 				}
 			}
 
