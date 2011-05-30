@@ -673,9 +673,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * @sample
 	 * if (%%prefix%%foundset.find()) //find will fail if autosave is disabled and there are unsaved records
 	 * {
-	 * 	columnTextDataProvider = 'a search value'
-	 * 	columnNumberDataProvider = '>10'
-	 * 	%%prefix%%foundset.search()
+	 * 	columnTextDataProvider = 'a search value';
+	 *  // for numbers you have to make sure to format it correctly so that the decimal point is in your locales notation (. or ,)
+	 * 	columnNumberDataProvider = '>' + utils.numberFormat(anumber, '####.00');
+	 * 	%%prefix%%foundset.search();
 	 * }
 	 * @return true if the foundset is now in find mode, false otherwise.
 	 */
@@ -3969,7 +3970,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 	}
 
-	protected void fireFoundSetEvent(@SuppressWarnings("unused") int firstRow, @SuppressWarnings("unused") int lastRow, int changeType)
+	protected void fireFoundSetEvent(@SuppressWarnings("unused")
+	int firstRow, @SuppressWarnings("unused")
+	int lastRow, int changeType)
 	{
 		if (foundSetEventListeners.size() > 0)
 		{
