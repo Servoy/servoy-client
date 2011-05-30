@@ -21,6 +21,8 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.swing.BorderFactory;
@@ -422,5 +424,34 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 			if (s.getAttribute(a) != null) return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Cache for style classes per lookupname.
+	 */
+	private Map<Pair<String, String>, String[]> styleClassesCache;
+
+	/**
+	 * Get cached style classes for lookupName and formStyleClass
+	 * @param lookupName
+	 * @param formStyleClass
+	 * @return
+	 */
+	public String[] getCachedStyleClasses(String lookupName, String formStyleClass)
+	{
+		if (styleClassesCache == null)
+		{
+			return null;
+		}
+		return styleClassesCache.get(new Pair<String, String>(lookupName, formStyleClass));
+	}
+
+	public void setCachedStyleClasses(String lookupName, String formStyleClass, String[] styleClasses)
+	{
+		if (styleClassesCache == null)
+		{
+			styleClassesCache = new HashMap<Pair<String, String>, String[]>();
+		}
+		styleClassesCache.put(new Pair<String, String>(lookupName, formStyleClass), styleClasses);
 	}
 }
