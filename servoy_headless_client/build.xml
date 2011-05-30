@@ -81,67 +81,67 @@
 		<mkdir dir="${build.result.folder}/@dot"/>
 		<path id="@dot.classpath">
 			<pathelement path="../org.eclipse.dltk.javascript.rhino/bin/"/>
-			<pathelement path="${build.result.folder}/../org.eclipse.dltk.javascript.rhino_6.0.0.1211/bin/"/>
+			
 			<pathelement path="${build.result.folder}/../org.eclipse.dltk.javascript.rhino/@dot"/>
-			<pathelement path="${build.result.folder}/../org.eclipse.dltk.javascript.rhino_6.0.0.1211/@dot"/>
+			
 			<pathelement path="../servoy_shared/bin/"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/bin/"/>
+			
 			<pathelement path="${build.result.folder}/../servoy_shared/@dot"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/@dot"/>
+			
 			<pathelement path="../servoy_shared/bin"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/bin"/>
+			
 			<pathelement path="../servoy_shared/lib/annotations-1.0.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/annotations-1.0.jar"/>
+			
 			<pathelement path="../servoy_shared/lib/BrowserLauncher2.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/BrowserLauncher2.jar"/>
+			
 			<pathelement path="../servoy_shared/lib/commons-codec.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/commons-codec.jar"/>
+			
 			<pathelement path="../servoy_shared/lib/commons-collections.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/commons-collections.jar"/>
+			
 			<pathelement path="../servoy_shared/lib/commons-dbcp.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/commons-dbcp.jar"/>
+			
 			<pathelement path="../servoy_shared/lib/commons-io.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/commons-io.jar"/>
+			
 			<pathelement path="../servoy_shared/lib/commons-logging.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/commons-logging.jar"/>
+			
 			<pathelement path="../servoy_shared/lib/dom4j.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/dom4j.jar"/>
+			
 			<pathelement path="../servoy_shared/lib/jabsorb.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/jabsorb.jar"/>
+			
 			<pathelement path="../servoy_shared/lib/log4j.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/log4j.jar"/>
+			
 			<pathelement path="../servoy_shared/lib/servlet-api.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/servlet-api.jar"/>
+			
 			<pathelement path="../servoy_shared/lib/slf4j-api.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/slf4j-api.jar"/>
+			
 			<pathelement path="../servoy_shared/lib/slf4j-log4j.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/slf4j-log4j.jar"/>
+			
 			<pathelement path="../servoy_shared/lib/wicket-calendar.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/wicket-calendar.jar"/>
+			
 			<pathelement path="../servoy_shared/lib/wicket-extentions.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/wicket-extentions.jar"/>
+			
 			<pathelement path="../servoy_shared/lib/wicket.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/wicket.jar"/>
+			
 			<pathelement path="../servoy_shared/lib/commons-pool.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/commons-pool.jar"/>
+			
 			<pathelement path="../servoy_shared/lib/activation.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/activation.jar"/>
+			
 			<pathelement path="../servoy_shared/lib/mail.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/mail.jar"/>
+			
 			<pathelement path="../servoy_shared/lib/httpclient.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/httpclient.jar"/>
+			
 			<pathelement path="../servoy_shared/lib/httpcore.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/httpcore.jar"/>
+			
 			<pathelement path="../servoy_shared/lib/jcifs.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/jcifs.jar"/>
+			
 			<pathelement path="../servoy_shared/lib/apache-mime4j.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/apache-mime4j.jar"/>
+			
 			<pathelement path="../servoy_shared/lib/httpmime.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/httpmime.jar"/>
+			
 			<pathelement path="../servoy_smart_client/bin/"/>
-			<pathelement path="${build.result.folder}/../servoy_smart_client_6.0.0.1211/bin/"/>
+			
 			<pathelement path="${build.result.folder}/../servoy_smart_client/@dot"/>
-			<pathelement path="${build.result.folder}/../servoy_smart_client_6.0.0.1211/@dot"/>
+			
 		</path>
 		<!-- compile the source code -->
 		<javac destdir="${build.result.folder}/@dot" failonerror="${javacFailOnError}" verbose="${javacVerbose}" debug="${javacDebugInfo}" includeAntRuntime="no" bootclasspath="${bundleBootClasspath}" source="${bundleJavacSource}" target="${bundleJavacTarget}"		>

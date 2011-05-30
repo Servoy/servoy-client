@@ -81,57 +81,57 @@
 		<mkdir dir="${build.result.folder}/@dot"/>
 		<path id="@dot.classpath">
 			<pathelement path="../org.eclipse.dltk.javascript.rhino/bin/"/>
-			<pathelement path="${build.result.folder}/../org.eclipse.dltk.javascript.rhino_6.0.0.1211/bin/"/>
+			
 			<pathelement path="${build.result.folder}/../org.eclipse.dltk.javascript.rhino/@dot"/>
-			<pathelement path="${build.result.folder}/../org.eclipse.dltk.javascript.rhino_6.0.0.1211/@dot"/>
+			
 			<pathelement path="lib/annotations-1.0.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/annotations-1.0.jar"/>
+			
 			<pathelement path="lib/BrowserLauncher2.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/BrowserLauncher2.jar"/>
+			
 			<pathelement path="lib/commons-codec.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/commons-codec.jar"/>
+			
 			<pathelement path="lib/commons-collections.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/commons-collections.jar"/>
+			
 			<pathelement path="lib/commons-dbcp.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/commons-dbcp.jar"/>
+			
 			<pathelement path="lib/commons-io.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/commons-io.jar"/>
+			
 			<pathelement path="lib/commons-logging.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/commons-logging.jar"/>
+			
 			<pathelement path="lib/dom4j.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/dom4j.jar"/>
+			
 			<pathelement path="lib/jabsorb.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/jabsorb.jar"/>
+			
 			<pathelement path="lib/log4j.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/log4j.jar"/>
+			
 			<pathelement path="lib/servlet-api.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/servlet-api.jar"/>
+			
 			<pathelement path="lib/slf4j-api.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/slf4j-api.jar"/>
+			
 			<pathelement path="lib/slf4j-log4j.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/slf4j-log4j.jar"/>
+			
 			<pathelement path="lib/wicket-calendar.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/wicket-calendar.jar"/>
+			
 			<pathelement path="lib/wicket-extentions.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/wicket-extentions.jar"/>
+			
 			<pathelement path="lib/wicket.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/wicket.jar"/>
+			
 			<pathelement path="lib/commons-pool.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/commons-pool.jar"/>
+			
 			<pathelement path="lib/activation.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/activation.jar"/>
+			
 			<pathelement path="lib/mail.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/mail.jar"/>
+			
 			<pathelement path="lib/httpclient.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/httpclient.jar"/>
+			
 			<pathelement path="lib/httpcore.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/httpcore.jar"/>
+			
 			<pathelement path="lib/jcifs.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/jcifs.jar"/>
+			
 			<pathelement path="lib/apache-mime4j.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/apache-mime4j.jar"/>
+			
 			<pathelement path="lib/httpmime.jar"/>
-			<pathelement path="${build.result.folder}/../servoy_shared_6.0.0.1211/lib/httpmime.jar"/>
+			
 		</path>
 		<!-- compile the source code -->
 		<javac destdir="${build.result.folder}/@dot" failonerror="${javacFailOnError}" verbose="${javacVerbose}" debug="${javacDebugInfo}" includeAntRuntime="no" bootclasspath="${bundleBootClasspath}" source="${bundleJavacSource}" target="${bundleJavacTarget}"		>
