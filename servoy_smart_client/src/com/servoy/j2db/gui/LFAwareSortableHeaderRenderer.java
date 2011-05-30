@@ -16,15 +16,20 @@
  */
 package com.servoy.j2db.gui;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Insets;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import javax.swing.border.Border;
 import javax.swing.plaf.UIResource;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
@@ -54,6 +59,12 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 	private ImageIcon arrowUp = null;
 	private final int defaultHorizontalTextPosition;
 	protected final GraphicalComponent gc;
+	private static Border defaultBorder;
+	private static Color defaultFgColor;
+	private static Color defaultBgColor;
+	private static Font defaultFont;
+	private Border border;
+	private Insets margin;
 
 	public LFAwareSortableHeaderRenderer(IApplication app, TableView parentTable, int columnIndex, ImageIcon arrowUp, ImageIcon arrowDown,
 		GraphicalComponent gc, Form formForStyles)
@@ -69,6 +80,9 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 		this.defaultHorizontalTextPosition = getHorizontalTextPosition();
 		this.gc = gc;
 
+		setHorizontalAlignment(CENTER);
+		setVerticalAlignment(CENTER);
+
 		if (gc != null)
 		{
 			int style_halign = -1;
@@ -82,6 +96,10 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 				{
 					style_valign = ss.getVAlign(s);
 					style_halign = ss.getHAlign(s);
+					if (ss.hasMargin(s))
+					{
+						margin = ss.getMargin(s);
+					}
 				}
 			}
 			int halign = gc.getHorizontalAlignment();
@@ -116,6 +134,7 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 				parentTable.getColumnModel().getColumn(columnIndex).setHeaderValue(text);
 			}
 			setToolTipText(app.getI18NMessageIfPrefixed(gc.getToolTipText()));
+			if (gc != null && gc.getMargin() != null) margin = gc.getMargin();
 		}
 	}
 
@@ -153,13 +172,25 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 				lfComponent = lfAwareRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 				lfValue = value;
 			}
+			if (defaultFgColor == null) defaultFgColor = ((JLabel)lfComponent).getForeground();
+			if (defaultBgColor == null) defaultBgColor = ((JLabel)lfComponent).getBackground();
+			if (defaultFont == null) defaultFont = ((JLabel)lfComponent).getFont();
+			if (lfComponent instanceof JLabel)
+			{
+				if (defaultBorder == null) defaultBorder = ((JLabel)lfComponent).getBorder();
+			}
 			// If the returned component supports icons (is a JLabel), then add the needed icon to it.
 			// Usually the returned component is a JLabel.
 			if (gc == null)
 			{
+				lfComponent.setForeground(defaultFgColor);
+				lfComponent.setBackground(defaultBgColor);
+				lfComponent.setFont(defaultFont);
 				if (lfComponent instanceof JLabel)
 				{
 					JLabel label = (JLabel)lfComponent;
+					label.setOpaque(true);
+					label.setToolTipText(null);
 					Dimension preferredSize = label.getPreferredSize();
 					if (!parentTable.getCurrentSortColumn().keySet().contains(columnIndex))
 					{
@@ -197,17 +228,40 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 					String text = ""; //$NON-NLS-1$
 					if (value != null && value.toString().trim().length() > 0) text = value.toString();
 					if (!text.equals(label.getText())) label.setText(text);
-					if (getBorder() != null && !Utils.equalObjects(getBorder(), label.getBorder())) label.setBorder(getBorder());
 					if (!Utils.equalObjects(getIcon(), label.getIcon())) label.setIcon(getIcon());
 					if (label.isOpaque() != isOpaque()) label.setOpaque(isOpaque());
 					if (!Utils.equalObjects(getToolTipText(), label.getToolTipText())) label.setToolTipText(getToolTipText());
 					if (label.getHorizontalTextPosition() != SwingConstants.LEADING) label.setHorizontalTextPosition(SwingConstants.LEADING);
-					label.setHorizontalAlignment(getHorizontalAlignment());
-					label.setVerticalAlignment(getVerticalAlignment());
 				}
 				// take the height of the first column label
 				if (column == 0) lfComponent.setPreferredSize(new Dimension(lfComponent.getPreferredSize().width, (int)gc.getSize().getHeight()));
 			}
+
+			if (lfComponent instanceof JLabel)
+			{
+				JLabel label = (JLabel)lfComponent;
+				label.setHorizontalAlignment(getHorizontalAlignment());
+				label.setVerticalAlignment(getVerticalAlignment());
+				if (border == null)
+				{
+					if (getBorder() != null)
+					{
+						border = BorderFactory.createCompoundBorder(defaultBorder, getBorder());
+					}
+					else
+					{
+						border = defaultBorder;
+					}
+
+					if (margin != null)
+					{
+						border = BorderFactory.createCompoundBorder(border,
+							BorderFactory.createEmptyBorder(margin.top, margin.left, margin.bottom, margin.right));
+					}
+				}
+				label.setBorder(border);
+			}
+
 			return lfComponent;
 		}
 		else
