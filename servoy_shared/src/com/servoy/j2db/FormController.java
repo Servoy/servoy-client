@@ -1546,7 +1546,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 		catch (Exception ex)
 		{
-			application.reportError(application.getI18NMessage("servoy.formPanel.error.setupForm"), ex); //$NON-NLS-1$
+			application.reportError(application.getI18NMessage("servoy.formPanel.error.setupForm") + ": " + getName(), ex); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
@@ -3459,7 +3459,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			}
 			catch (Exception e)
 			{
-				Debug.error(e);
+				application.reportError(application.getI18NMessage("servoy.formPanel.error.setupForm") + ": " + getName(), e); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 
@@ -3831,7 +3831,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			}
 			catch (Exception ex)
 			{
-				application.reportError(application.getI18NMessage("servoy.formPanel.error.initFormScope"), ex); //$NON-NLS-1$
+				application.reportError(application.getI18NMessage("servoy.formPanel.error.initFormScope") + ": " + getName(), ex); //$NON-NLS-1$
 				return null;
 			}
 

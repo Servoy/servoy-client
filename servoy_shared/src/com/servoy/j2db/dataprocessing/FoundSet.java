@@ -714,7 +714,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * if (%%prefix%%foundset.find()) //find will fail if autosave is disabled and there are unsaved records
 	 * {
 	 * 	columnTextDataProvider = 'a search value'
-	 * 	columnNumberDataProvider = '>10'
+	 *  // for numbers you have to make sure to format it correctly so that the decimal point is in your locales notation (. or ,)
+	 * 	columnNumberDataProvider = '>' + utils.numberFormat(anumber, '####.00');
 	 * 	columnDateDataProvider = '31-12-2010|dd-MM-yyyy'
 	 * 	%%prefix%%foundset.search()
 	 * }
