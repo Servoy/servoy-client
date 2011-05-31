@@ -77,7 +77,7 @@ public class WebTabFormLookup implements IFormLookupPanel
 		if (wf != null)
 		{
 			MarkupContainer wfParent = wf.getParent();
-			if (wfParent instanceof WebTabPanel && ((WebTabPanel)wfParent).isVisible())
+			if (wfParent instanceof WebTabPanel && ((WebTabPanel)wfParent).isVisible() && wfParent.getParent() != null)
 			{
 				boolean isTabPanelVisible = true;
 
