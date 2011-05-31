@@ -1147,6 +1147,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				{
 					l.editingStopped(new ChangeEvent(this));
 				}
+				currentEditingState = null;
 				return true;
 			}
 			finally
