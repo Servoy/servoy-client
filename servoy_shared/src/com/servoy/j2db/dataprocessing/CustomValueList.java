@@ -400,7 +400,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 
 		for (Object obj : allRealValues)
 		{
-			if (type != Types.OTHER)
+			if (type != Types.OTHER && Column.mapToDefaultType(type) != IColumnTypes.MEDIA)
 			{
 				obj = Column.getAsRightType(type, Column.NORMAL_COLUMN, obj, format, Integer.MAX_VALUE, null, false);
 			}
