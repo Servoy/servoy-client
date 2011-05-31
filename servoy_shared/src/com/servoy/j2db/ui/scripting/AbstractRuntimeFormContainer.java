@@ -20,6 +20,7 @@ package com.servoy.j2db.ui.scripting;
 import java.awt.Insets;
 
 import javax.swing.JComponent;
+import javax.swing.SwingConstants;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.IDisplay;
@@ -155,7 +156,8 @@ public abstract class AbstractRuntimeFormContainer<C extends IComponent, E exten
 		{
 			((JComponent)getComponent()).repaint();
 		}
-		getChangesRecorder().setSize(getComponent().getSize().width, getComponent().getSize().height, getComponent().getBorder(), new Insets(0, 0, 0, 0), 0);
+		getChangesRecorder().setSize(getComponent().getSize().width, getComponent().getSize().height, getComponent().getBorder(), new Insets(0, 0, 0, 0), 0,
+			false, SwingConstants.TOP);
 	}
 
 	public boolean js_isReadOnly()
