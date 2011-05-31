@@ -53,16 +53,23 @@ public class JSONSerializerWrapper
 	private JSONSerializer serializer;
 	private final Serializer defaultSerializer;
 	private final boolean handleArrays;
+	private final boolean handleByteArrays;
 
 	public JSONSerializerWrapper(Serializer defaultSerializer)
 	{
-		this(defaultSerializer, false);
+		this(defaultSerializer, false, false);
 	}
 
 	public JSONSerializerWrapper(Serializer defaultSerializer, boolean handleArrays)
 	{
+		this(defaultSerializer, handleArrays, false);
+	}
+
+	public JSONSerializerWrapper(Serializer defaultSerializer, boolean handleArrays, boolean handleByteArrays)
+	{
 		this.defaultSerializer = defaultSerializer;
 		this.handleArrays = handleArrays;
+		this.handleByteArrays = handleByteArrays;
 	}
 
 	public Object toJSON(Object obj) throws Exception
@@ -144,7 +151,7 @@ public class JSONSerializerWrapper
 					serializer.registerSerializer(new ListSerializer()); // is handled by NativeObjectSerializer
 				}
 				serializer.registerSerializer(new DateSerializer());
-				serializer.registerSerializer(new StringSerializer());
+				serializer.registerSerializer(handleByteArrays ? new StringByteArraySerializer() : new StringSerializer()); // handle byte arrays as base64 encoded?
 				serializer.registerSerializer(new NumberSerializer());
 				serializer.registerSerializer(new BooleanSerializer());
 				serializer.registerSerializer(new PrimitiveSerializer());
