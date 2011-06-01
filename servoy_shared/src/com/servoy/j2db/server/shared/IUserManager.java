@@ -68,7 +68,7 @@ public interface IUserManager extends ISolutionSecurityManager, Remote
 	public boolean addUserToGroup(String clientId, int userId, int groupId) throws ServoyException, RemoteException;
 
 
-	public int createGroup(String clientId, String adminGroup) throws ServoyException, RemoteException;
+	public int createGroup(String clientId, String groupName) throws ServoyException, RemoteException;
 
 	//this err constants are related to the createUser method;
 	public static int ERR_RESOURCE_PROJECT_MISSING = -2;
