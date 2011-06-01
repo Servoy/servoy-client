@@ -121,7 +121,7 @@ public class SolutionLoader extends WebPage
 				{
 					session.getClientInfo();
 					IWebClientApplication sc = session.getWebClient();
-					if (sc != null && sc.getSolution() != null && sc.getSolution().getName().equals(solutionName))
+					if (sc != null && sc.getSolution() != null && sc.getFlattenedSolution().getMainSolutionMetaData().getName().equals(solutionName))
 					{
 						// make sure it is registered as a start of a request.
 						session.getWebClient().onBeginRequest(session);

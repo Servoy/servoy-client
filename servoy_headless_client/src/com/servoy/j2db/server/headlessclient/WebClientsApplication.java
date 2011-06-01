@@ -388,16 +388,16 @@ public class WebClientsApplication extends WebApplication
 		return new UrlCompressingWebRequestProcessor()
 		{
 			@Override
-			public void processEvents(RequestCycle requestCycle)
+			public void respond(RequestCycle requestCycle)
 			{
-				super.processEvents(requestCycle);
-
 				// execute events from WebClient.invokeLater() before the respond (render) is started
 				Session session = Session.get();
 				if (session instanceof WebClientSession && ((WebClientSession)session).getWebClient() != null)
 				{
-					  ((WebClientSession)session).getWebClient().executeEvents();
+					((WebClientSession)session).getWebClient().executeEvents();
 				}
+
+				super.respond(requestCycle);
 			}
 
 			/**
