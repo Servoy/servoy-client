@@ -537,7 +537,7 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 				}
 			}
 			DataAdapterList.setDataRendererComponentsRenderState(this, (IRecordInternal)value);
-			if (isShowing()) fireDataRendererOnRender(true, false);
+			if (!isRenderer() || isShowing()) fireDataRendererOnRender(true, false);
 		}
 
 		if (rendererParentCanBeNull != null)

@@ -1959,6 +1959,33 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		return cellview.toString();
 	}
 
+	@Override
+	public boolean isCellEditable(int row, int column)
+	{
+		boolean isCellEditable = super.isCellEditable(row, column);
+		if (isCellEditable)
+		{
+			Object o = getCellEditor(row, column);
+			if (o instanceof CellAdapter && ((CellAdapter)o).getEditor() instanceof ISupportOnRenderCallback)
+			{
+				Object value = getValueAt(row, column);
+				boolean isSelected = isCellSelected(row, column);
+				Component c = ((CellAdapter)o).getTableCellEditorComponent(this, value, isSelected, row, column);
+				if (c instanceof ISupportOnRenderCallback)
+				{
+					RenderEventExecutor renderEventExecutor = ((ISupportOnRenderCallback)c).getRenderEventExecutor();
+					if (renderEventExecutor != null)
+					{
+						renderEventExecutor.fireOnRender((ISupportOnRenderCallback)c, false);
+						isCellEditable = c.isEnabled();
+					}
+				}
+			}
+		}
+
+		return isCellEditable;
+	}
+
 	/*
 	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#setStyles(javax.swing.text.html.StyleSheet, javax.swing.text.Style, javax.swing.text.Style)
 	 */
