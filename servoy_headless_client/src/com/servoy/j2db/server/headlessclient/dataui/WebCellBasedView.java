@@ -1839,7 +1839,13 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						return CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
 					}
 				});
-				((ListItem)component).setModel(table.getListItemModel(table.getModel(), e.getFirstRow()));
+				IModel<IRecordInternal> newModel = table.getListItemModel(table.getModel(), e.getFirstRow());
+				IModel oldModel = ((ListItem)component).getModel();
+				if (newModel != null && oldModel != null && newModel.getObject() != null && !newModel.getObject().equals(oldModel.getObject()))
+				{
+					// refresh model if it changed
+					((ListItem)component).setModel(newModel);
+				}
 			}
 		}
 		else
