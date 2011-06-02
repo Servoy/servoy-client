@@ -1382,7 +1382,8 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 		if (preferredWidth < 0)
 		{
 			// normal behavior (used when not in print preview... and normally in print preview)
-			if (application.getModeManager().getMode() == IModeManager.PREVIEW_MODE)
+			// preview and printing should behave the same
+			if (application.getModeManager().getMode() == IModeManager.PREVIEW_MODE || Utils.getAsBoolean(application.getRuntimeProperties().get("isPrinting")))
 			{
 				// in print preview, the preferred size of the text area must calculate it's width as well;
 				// this happens only if line wrap is false
