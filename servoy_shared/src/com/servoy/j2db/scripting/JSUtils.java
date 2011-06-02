@@ -35,6 +35,7 @@ import org.mozilla.javascript.UniqueTag;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.FoundSet;
+import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.JSDatabaseManager;
 import com.servoy.j2db.dataprocessing.TagResolver;
@@ -148,14 +149,19 @@ public class JSUtils
 			else if (foundset_or_record_or_form instanceof FormController)
 			{
 				final FormController fc = (FormController)foundset_or_record_or_form;
+				IFoundSetInternal fs = fc.getFoundSet();
+				final ITagResolver defaultTagResolver = (fs != null) ? TagResolver.createResolver(fs.getRecord(fs.getSelectedIndex())) : null;
 				settings = fc.getApplication().getSettings();
 				tagResolver = new ITagResolver()
 				{
 					public String getStringValue(String name)
 					{
 						Object value = fc.getFormScope().get(name);
-						if (value == null || value == UniqueTag.NOT_FOUND) value = ""; //$NON-NLS-1$
-						return value.toString();
+						if (value == null || value == UniqueTag.NOT_FOUND)
+						{
+							value = defaultTagResolver != null ? defaultTagResolver.getStringValue(name) : null;
+						}
+						return value != null ? value.toString() : ""; //$NON-NLS-1$
 					}
 				};
 			}
