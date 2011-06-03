@@ -1012,7 +1012,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	public IFoundSetInternal getSharedFoundSet(String dataSource, List defaultSortColumns) throws ServoyException
 	{
-		if (dataSource == null)
+		if (dataSource == null || !application.getFlattenedSolution().isMainSolutionLoaded())
 		{
 			return getNoTableFoundSet();
 		}
