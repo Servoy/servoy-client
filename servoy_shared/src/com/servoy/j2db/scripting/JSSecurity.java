@@ -820,6 +820,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	 * 	//security.logout('solution_name');//log out and open solution 'solution_name'
 	 * 	//security.logout('solution_name','global_method_name','my_argument');//log out, open solution 'solution_name', call global method 'global_method_name' with argument 'my_argument'
 	 * 	//note: specifying a solution will not work in developer due to debugger dependencies
+	 *  //specified solution should be of compatible type with client (normal type or client specific(Smart client only/Web client only) type )
 	 *
 	 * @param solutionToLoad optional the solution to load after logout
 	 * @param method optional the method to run in the solution to load
