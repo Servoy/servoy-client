@@ -1261,7 +1261,8 @@ public class JSApplication implements IReturnedTypesProvider
 	 * //if the user has been logged in, he will stay logged in
 	 * //application.closeSolution('solution_name','global_method_name','my_argument');
 	 * //Note: specifying a solution will not work in the Developer due to debugger dependencies
-	 *
+	 * //specified solution should be of compatible type with client (normal type or client specific(Smart client only/Web client only) type )
+	 * 
 	 * @param solutionToLoad optional Name of the solution to load 
 	 * @param method optional Name of the global method to call
 	 * @param argument optional Argument passed to the global method
