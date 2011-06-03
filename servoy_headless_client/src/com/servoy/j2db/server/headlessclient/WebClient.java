@@ -65,6 +65,7 @@ import com.servoy.j2db.persistence.Style;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.scripting.IScriptSupport;
 import com.servoy.j2db.scripting.info.WEBCONSTANTS;
+import com.servoy.j2db.server.headlessclient.MainPage.ShowUrlInfo;
 import com.servoy.j2db.util.Ad;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
@@ -677,6 +678,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 			closing = true;
 
 			MainPage.ShowUrlInfo showUrlInfo = getMainPage().getShowUrlInfo();
+			boolean shownInDialog = getMainPage().isShowingInDialog();
 			boolean retval = super.closeSolution(force, args);
 			if (retval)
 			{
@@ -693,6 +695,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 				RequestCycle rc = RequestCycle.get();
 				if (rc != null)
 				{
+
 					if (showUrlInfo != null)
 					{
 						String url = "/";
@@ -719,7 +722,16 @@ public class WebClient extends SessionClient implements IWebClientApplication
 						{
 							if (getPreferedSolutionNameToLoadOnInit() == null)
 							{
-								getMainPage().setResponsePage(SelectSolution.class);
+								if (shownInDialog && rc.getRequestTarget() instanceof AjaxRequestTarget)
+								{
+									CharSequence urlFor = getMainPage().urlFor(SelectSolution.class, null);
+									((AjaxRequestTarget)rc.getRequestTarget()).appendJavascript(MainPage.getShowUrlScript(new ShowUrlInfo(urlFor.toString(),
+										"_self", null, 0, true)));
+								}
+								else
+								{
+									getMainPage().setResponsePage(SelectSolution.class);
+								}
 							}
 							else
 							{
@@ -735,7 +747,16 @@ public class WebClient extends SessionClient implements IWebClientApplication
 								{
 									map.put("a", getPreferedSolutionMethodArguments()[0]);
 								}
-								rc.setResponsePage(SolutionLoader.class, new PageParameters(map), null);
+								if (shownInDialog && rc.getRequestTarget() instanceof AjaxRequestTarget)
+								{
+									CharSequence urlFor = getMainPage().urlFor(SolutionLoader.class, new PageParameters(map));
+									((AjaxRequestTarget)rc.getRequestTarget()).appendJavascript(MainPage.getShowUrlScript(new ShowUrlInfo(urlFor.toString(),
+										"_self", null, 0, true)));
+								}
+								else
+								{
+									rc.setResponsePage(SolutionLoader.class, new PageParameters(map), null);
+								}
 							}
 						}
 					}
@@ -863,7 +884,8 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		}
 	}
 
-	public void onEndRequest(@SuppressWarnings("unused") WebClientSession webClientSession)
+	public void onEndRequest(@SuppressWarnings("unused")
+	WebClientSession webClientSession)
 	{
 	}
 

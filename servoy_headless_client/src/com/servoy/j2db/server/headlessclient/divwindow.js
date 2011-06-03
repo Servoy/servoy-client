@@ -182,6 +182,7 @@ Wicket.Object.extendClass(Wicket.DivWindow, Wicket.Window, {
 
 	// override
 	adjustOpenWindowsStatusOnShow: function() {
+	    this._super.adjustOpenWindowsStatusOnShow.call(this);
 		this.parentModalWindow = Wicket.DivWindow.currentModalWindow;
 		if (this.settings.modal) {
 			Wicket.DivWindow.currentModalWindow = this;
