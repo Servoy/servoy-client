@@ -218,13 +218,15 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		@Override
 		protected void respond(AjaxRequestTarget target)
 		{
-			ServoyForm form = main.findParent(ServoyForm.class);
-			if (form != null)
+			if (main != null)
 			{
-				form.processDelayedActions();
+				ServoyForm form = main.findParent(ServoyForm.class);
+				if (form != null)
+				{
+					form.processDelayedActions();
+				}
+				WebEventExecutor.generateResponse(target, getPage());
 			}
-
-			WebEventExecutor.generateResponse(target, getPage());
 		}
 
 		@Override
