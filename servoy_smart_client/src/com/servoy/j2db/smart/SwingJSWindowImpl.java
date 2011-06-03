@@ -432,6 +432,24 @@ public class SwingJSWindowImpl extends JSWindowImpl implements ISmartRuntimeWind
 			sfd.setModal(windowModal);
 			if (windowModal)
 			{
+				try
+				{
+					Method[] methods = FormDialog.class.getMethods();
+					for (Method method : methods)
+					{
+						if (method.getName().equals("setModalityType")) //$NON-NLS-1$
+						{
+							Class< ? > clz = Class.forName("java.awt.Dialog$ModalityType"); //$NON-NLS-1$
+							Field field = clz.getField("DOCUMENT_MODAL"); //$NON-NLS-1$
+							method.invoke(sfd, new Object[] { field.get(clz) });
+							break;
+						}
+					}
+				}
+				catch (Exception e)
+				{
+
+				}
 				// When a modal window is closed, the old modal window state will have to be restored...
 				// For example, when inside JS for an event you close a modal window and open another one,
 				// the new modal window must have as owner not the closed window, but the last opened modal window
@@ -695,34 +713,14 @@ public class SwingJSWindowImpl extends JSWindowImpl implements ISmartRuntimeWind
 	{
 		if (owner == null || (!(owner instanceof JDialog || owner instanceof JFrame))) owner = application.getMainApplicationFrame();
 
-		FormDialog formDialog = null;
 		if (owner instanceof JDialog)
 		{
-			formDialog = new FormDialog(application, (JDialog)owner, modal, dialogName);
+			return new FormDialog(application, (JDialog)owner, modal, dialogName);
 		}
 		else
 		{
-			formDialog = new FormDialog(application, (JFrame)owner, modal, dialogName);
+			return new FormDialog(application, (JFrame)owner, modal, dialogName);
 		}
-		try
-		{
-			Method[] methods = FormDialog.class.getMethods();
-			for (Method method : methods)
-			{
-				if (method.getName().equals("setModalityType")) //$NON-NLS-1$
-				{
-					Class< ? > clz = Class.forName("java.awt.Dialog$ModalityType"); //$NON-NLS-1$
-					Field field = clz.getField("DOCUMENT_MODAL"); //$NON-NLS-1$
-					method.invoke(formDialog, new Object[] { field.get(clz) });
-					break;
-				}
-			}
-		}
-		catch (Exception e)
-		{
-
-		}
-		return formDialog;
 	}
 
 	protected FormFrame createFormFrame(String windowName)
