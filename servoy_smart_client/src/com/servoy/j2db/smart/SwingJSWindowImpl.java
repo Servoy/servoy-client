@@ -18,12 +18,12 @@ package com.servoy.j2db.smart;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.Window;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import javax.swing.Action;
@@ -404,8 +404,30 @@ public class SwingJSWindowImpl extends JSWindowImpl implements ISmartRuntimeWind
 	private void doOldShowInDialog(String formName, boolean closeAll, boolean legacyV3Behavior)
 	{
 		FormManager fm = ((FormManager)application.getFormManager());
-		IMainContainer currentMainContainer = fm.getModalDialogContainer();
-		JSWindowImpl currentModalJSWindow = application.getJSWindowManager().getWindow(currentMainContainer.getContainerName());
+		IMainContainer currentModalDialogContainer = fm.getModalDialogContainer();
+
+		Window dialogWindowOwner = getWindowFromMainContainer(currentModalDialogContainer);
+
+		if (dialogWindowOwner != null)
+		{
+			IMainContainer currentContainer = fm.getCurrentContainer();
+			Window currentContainerWindow = getWindowFromMainContainer(currentContainer);
+			while (currentContainerWindow != null)
+			{
+				if (dialogWindowOwner == currentContainerWindow)
+				{
+					break;
+				}
+				currentContainerWindow = currentContainerWindow.getOwner();
+			}
+			if (currentContainerWindow == null)
+			{
+				// if it never really was the owner (in the own chain of the dialog) then do just use the currentContainer.
+				currentModalDialogContainer = currentContainer;
+			}
+		}
+
+		JSWindowImpl currentModalJSWindow = application.getJSWindowManager().getWindow(currentModalDialogContainer.getContainerName());
 		boolean windowModal = ((legacyV3Behavior && wrappedWindow == null) || getType() == JSWindow.MODAL_DIALOG);
 
 		Pair<Boolean, IMainContainer> p = createAndReparentDialogIfNeeded(fm, currentModalJSWindow, windowModal);
@@ -432,24 +454,7 @@ public class SwingJSWindowImpl extends JSWindowImpl implements ISmartRuntimeWind
 			sfd.setModal(windowModal);
 			if (windowModal)
 			{
-				try
-				{
-					Method[] methods = FormDialog.class.getMethods();
-					for (Method method : methods)
-					{
-						if (method.getName().equals("setModalityType")) //$NON-NLS-1$
-						{
-							Class< ? > clz = Class.forName("java.awt.Dialog$ModalityType"); //$NON-NLS-1$
-							Field field = clz.getField("DOCUMENT_MODAL"); //$NON-NLS-1$
-							method.invoke(sfd, new Object[] { field.get(clz) });
-							break;
-						}
-					}
-				}
-				catch (Exception e)
-				{
-
-				}
+				testAndSetJava6Modality(sfd);
 				// When a modal window is closed, the old modal window state will have to be restored...
 				// For example, when inside JS for an event you close a modal window and open another one,
 				// the new modal window must have as owner not the closed window, but the last opened modal window
@@ -457,18 +462,76 @@ public class SwingJSWindowImpl extends JSWindowImpl implements ISmartRuntimeWind
 				// This has to happen when setVisible(false) is called on the modal dialog. We cannot simply rely
 				// on executing this after sfd.setVisible(true) is unblocked, because then it will be executed
 				// after the new dialog is opened by java script. (because that execution continues as the next event on the EventThread)
-				sfd.setPreviousMainContainer(previousModalContainer, currentMainContainer);
+				sfd.setPreviousMainContainer(previousModalContainer, currentModalDialogContainer);
 			}
 			else
 			{
 				// If it is a none modal dialog, make sure the current container is reset to the currentMainContainer (== previous his parent)
 				// else it is switched a bit to early (if a developer shows 2 dialogs at once from a main container)
 				// the focus event of the FormDialog will set it correctly.
-				fm.setCurrentContainer(currentMainContainer, currentMainContainer.getName());
+				fm.setCurrentContainer(currentModalDialogContainer, currentModalDialogContainer.getName());
 			}
 		}
 
 		finalizeShowWindow(fp, formName, container, true, legacyV3Behavior, bringToFrontNeeded);
+	}
+
+	private static Object setModalityTypeMethod = null;
+	private static Object modalityDocumentModalValue = null;
+
+
+	/**
+	 * This is a special method for that test for the ModalityType class/enum of java 6 of the value DOCUMENT_MODAL
+	 * and if found it will set that on the dialog given as the argument,this way we default in 6 to document modal instead of application modal. 
+	 * @param sfd
+	 */
+	@SuppressWarnings("nls")
+	public static void testAndSetJava6Modality(FormDialog sfd)
+	{
+		if (setModalityTypeMethod == null)
+		{
+			try
+			{
+				Class< ? > clz = Class.forName("java.awt.Dialog$ModalityType");
+				modalityDocumentModalValue = clz.getField("DOCUMENT_MODAL").get(clz);
+				setModalityTypeMethod = FormDialog.class.getMethod("setModalityType", clz);
+			}
+			catch (Exception e)
+			{
+				setModalityTypeMethod = Boolean.FALSE;
+			}
+		}
+		if (setModalityTypeMethod instanceof Method)
+		{
+			try
+			{
+				((Method)setModalityTypeMethod).invoke(sfd, new Object[] { modalityDocumentModalValue });
+			}
+			catch (Exception e)
+			{
+				setModalityTypeMethod = Boolean.FALSE;
+			}
+		}
+	}
+
+	/**
+	 * @param currentModalDialogContainer
+	 * @return
+	 */
+	public Window getWindowFromMainContainer(IMainContainer currentModalDialogContainer)
+	{
+		Window dialogWindowOwner = null;
+		Container component = (Container)currentModalDialogContainer;
+		while (component != null)
+		{
+			if (component instanceof Window)
+			{
+				dialogWindowOwner = (Window)component;
+				break;
+			}
+			component = component.getParent();
+		}
+		return dialogWindowOwner;
 	}
 
 	private void doOldShowInWindow(String formName)
