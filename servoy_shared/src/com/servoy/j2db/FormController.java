@@ -3608,7 +3608,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 		catch (Exception ex)
 		{
-			Debug.error(ex);
+			application.reportError("invalid foundset set in form " + getName(), ex);
 		}
 	}
 
