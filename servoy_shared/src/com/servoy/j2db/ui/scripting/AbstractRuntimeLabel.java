@@ -109,12 +109,12 @@ public abstract class AbstractRuntimeLabel<C extends ILabel> extends AbstractRun
 		}
 	}
 
-	public String getImageURL()
+	public String js_getImageURL()
 	{
 		return getComponent().getImageURL();
 	}
 
-	public String getRolloverImageURL()
+	public String js_getRolloverImageURL()
 	{
 		return getComponent().getRolloverImageURL();
 	}

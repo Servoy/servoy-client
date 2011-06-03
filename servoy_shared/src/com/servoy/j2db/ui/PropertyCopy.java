@@ -123,13 +123,13 @@ public class PropertyCopy
 
 			if (source instanceof IScriptLabelMethods && destination instanceof IScriptLabelMethods)
 			{
-				String imageURL = ((IScriptLabelMethods)source).getImageURL();
+				String imageURL = ((IScriptLabelMethods)source).js_getImageURL();
 				if (imageURL != null)
 				{
 					//only copy if explicitly set with a url
 					((IScriptLabelMethods)destination).js_setImageURL(imageURL);
 				}
-				String rolloverImageURL = ((IScriptLabelMethods)source).getRolloverImageURL();
+				String rolloverImageURL = ((IScriptLabelMethods)source).js_getRolloverImageURL();
 				if (rolloverImageURL != null)
 				{
 					//only copy if explicitly set with a url

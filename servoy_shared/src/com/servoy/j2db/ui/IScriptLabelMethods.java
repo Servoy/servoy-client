@@ -24,52 +24,42 @@ package com.servoy.j2db.ui;
 public interface IScriptLabelMethods extends IScriptDataProviderMethods
 {
 	/**
-	 * Sets the image displayed on a button or label; based on URL. 
+	 * Gets/Sets the image displayed on a button or label; based on URL. 
 	 * 
-	 * Syntax 
-	 * elements.elementName.setImageURL(String)
-	 *
-	 * @param url
-	 * the specified URL.
-	 *
 	 * @sample
 	 * //dynamically sets an image displayed on a button or label
-	 * %%prefix%%%%elementName%%.setImageURL("http://www.servoy.com/images/test.gif");
+	 * %%prefix%%%%elementName%%.imageURL = "http://www.servoy.com/images/test.gif";
 	 * 
 	 * //sets an image from your own image library
-	 * %%prefix%%%%elementName%%.setImageURL("media:///arrow.gif");
+	 * %%prefix%%%%elementName%%.imageURL = "media:///arrow.gif";
 	 * 
 	 * //loads an image (BLOB) from a field in a selected record into HTML
-	 * %%prefix%%%%elementName%%.setImageURL('media:///servoy_blobloader?datasource='+controller.getDataSource()+'&dataprovider=image_data&mimetype=image/jpeg&rowid1=2');	
+	 * %%prefix%%%%elementName%%.imageURL = 'media:///servoy_blobloader?datasource='+controller.getDataSource()+'&dataprovider=image_data&mimetype=image/jpeg&rowid1=2';	
 	 */
+
+	public String js_getImageURL();
+
 	public void js_setImageURL(String text_url);
 
-	public String getImageURL();
 
 	/**
-	 * Sets the image displayed on a button or label roll over; based on URL. 
+	 * Gets/Sets the image displayed on a button or label roll over; based on URL. 
 	 * 
-	 * Syntax 
-	 * elements.elementName.setRolloverImageURL(String)
-	 *
-	 * @param url
-	 * the specified URL.
-	 *
 	 * @sample
 	 * //dynamically sets a roll over image displayed on a button or label
-	 * %%prefix%%%%elementName%%.setRolloverImageURL("http://www.servoy.com/images/test.gif");
+	 * %%prefix%%%%elementName%%.rolloverImageURL = "http://www.servoy.com/images/test.gif";
 	 * 
 	 * //sets an image from your own image library
-	 * %%prefix%%%%elementName%%.setRolloverImageURL("media:///arrow.gif");
+	 * %%prefix%%%%elementName%%.rolloverImageURL = "media:///arrow.gif";
 	 * 
 	 * //loads an image (BLOB) from a field in a selected record into HTML
-	 * %%prefix%%%%elementName%%.setRolloverImageURL('media:///servoy_blobloader?datasource='+controller.getDataSource()+'&dataprovider=image_data&mimetype=image/jpeg&rowid1=2');
+	 * %%prefix%%%%elementName%%.rolloverImageURL = 'media:///servoy_blobloader?datasource='+controller.getDataSource()+'&dataprovider=image_data&mimetype=image/jpeg&rowid1=2';
 	 * 	
 	 */
 
-	public void js_setRolloverImageURL(String image_url);
+	public String js_getRolloverImageURL();
 
-	public String getRolloverImageURL();
+	public void js_setRolloverImageURL(String image_url);
 
 	/**
 	 * Returns the image data in .jpg format from an icon; thumbnailing only works in record view. 
