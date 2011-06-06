@@ -609,8 +609,13 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			{
 				Pair<String, String> fontProps[] = PersistHelper.createFontCSSProperties(compFont.toString());
 				for (Pair<String, String> fontProp : fontProps)
-					comp.add(new StyleAppendingModifier(new Model<String>(
-						new StringBuilder(fontProp.getLeft()).append(": ").append(fontProp.getRight()).toString()))); //$NON-NLS-1$
+				{
+					if (fontProp != null)
+					{
+						comp.add(new StyleAppendingModifier(new Model<String>(
+							new StringBuilder(fontProp.getLeft()).append(": ").append(fontProp.getRight()).toString()))); //$NON-NLS-1$
+					}
+				}
 			}
 
 
@@ -3155,17 +3160,20 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 							Pair<String, String> fontCSSProps[] = PersistHelper.createFontCSSProperties(selectedFont.toString());
 							for (Pair<String, String> fontCSSProp : fontCSSProps)
 							{
-								String key = fontCSSProp.getLeft();
-								String value = fontCSSProp.getRight();
-								if (value == null) value = ""; //$NON-NLS-1$
-								if ("font-style".equals(key)) //$NON-NLS-1$
-								fstyle = value;
-								else if ("font-weight".equals(key)) //$NON-NLS-1$
-								fweight = value;
-								else if ("font-size".equals(key)) //$NON-NLS-1$
-								fsize = value;
-								else if ("font-family".equals(key)) //$NON-NLS-1$
-								ffamily = value;
+								if (fontCSSProp != null)
+								{
+									String key = fontCSSProp.getLeft();
+									String value = fontCSSProp.getRight();
+									if (value == null) value = ""; //$NON-NLS-1$
+									if ("font-style".equals(key)) //$NON-NLS-1$
+									fstyle = value;
+									else if ("font-weight".equals(key)) //$NON-NLS-1$
+									fweight = value;
+									else if ("font-size".equals(key)) //$NON-NLS-1$
+									fsize = value;
+									else if ("font-family".equals(key)) //$NON-NLS-1$
+									ffamily = value;
+								}
 							}
 						}
 						sab.append("Servoy.TableView.setRowStyle('"). //$NON-NLS-1$
