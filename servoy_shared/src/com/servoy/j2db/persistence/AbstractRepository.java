@@ -284,7 +284,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 		}
 
 		Map<String, Object> values = ((AbstractRepository)persist.getRootObject().getRepository()).getPersistAsValueMap(persist);
-		updatePersistWithValueMap(destPersist, values, false);
+		updatePersistWithValueMap(destPersist, values, true);
 		if (destPersist.isChanged())
 		{
 			destPersist.getRootObject().getChangeHandler().fireIPersistChanged(destPersist);
