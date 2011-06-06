@@ -29,6 +29,7 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.JavaMembers;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.scripting.TwoNativeJavaMethod;
 import com.servoy.j2db.smart.ListView;
@@ -93,6 +94,7 @@ public class TwoNativeJavaObject extends NativeJavaObject
 				}
 				else
 				{
+					final JComponent uiComponent = (JComponent)((javaObject instanceof Wrapper) ? ((Wrapper)javaObject).unwrap() : javaObject);
 					if (listView instanceof TableView)
 					{
 						final TableView tv = (TableView)listView;
@@ -104,7 +106,7 @@ public class TwoNativeJavaObject extends NativeJavaObject
 								final int selectedRow = tv.getSelectedRow();
 								for (int i = 0; i < tv.getColumnCount(); i++)
 								{
-									if (((CellAdapter)tv.getCellEditor(selectedRow, i)).getEditor() == javaObject)
+									if (((CellAdapter)tv.getCellEditor(selectedRow, i)).getEditor() == uiComponent)
 									{
 										final int currentColumn = i;
 										tv.setColumnSelectionInterval(currentColumn, currentColumn);
@@ -118,7 +120,7 @@ public class TwoNativeJavaObject extends NativeJavaObject
 					else if (listView instanceof ListView)
 					{
 						((ListView)listView).editCellAt((((ListView)listView).getSelectedIndex()));
-						((JComponent)javaObject).requestFocus();
+						uiComponent.requestFocus();
 						SwingUtilities.invokeLater(new Runnable()
 						{
 							public void run()
@@ -129,7 +131,7 @@ public class TwoNativeJavaObject extends NativeJavaObject
 					}
 					else if (listView instanceof PortalComponent)
 					{
-						((PortalComponent)listView).editCellFor(((JComponent)javaObject));
+						((PortalComponent)listView).editCellFor(uiComponent);
 					}
 				}
 			}
@@ -154,16 +156,17 @@ public class TwoNativeJavaObject extends NativeJavaObject
 			// state. For example popupmenu tries to show an popup on the components location.
 			if (executingFunction == null || executingFunction.startsWith("getLocation") || executingFunction.startsWith("getWidth")) //$NON-NLS-1$ //$NON-NLS-2$
 			{
+				final JComponent uiComponent = (JComponent)((javaObject instanceof Wrapper) ? ((Wrapper)javaObject).unwrap() : javaObject);
 				if (listView instanceof TableView)
 				{
 					TableView tv = (TableView)listView;
 					TableCellEditor cellEditor = tv.getCellEditor();
-					if (!(cellEditor instanceof CellAdapter && ((CellAdapter)cellEditor).getEditor() == javaObject))
+					if (!(cellEditor instanceof CellAdapter && ((CellAdapter)cellEditor).getEditor() == uiComponent))
 					{
 						int selectedRow = tv.getSelectedRow();
 						for (int i = 0; i < tv.getColumnCount(); i++)
 						{
-							if (((CellAdapter)tv.getCellEditor(selectedRow, i)).getEditor() == javaObject)
+							if (((CellAdapter)tv.getCellEditor(selectedRow, i)).getEditor() == uiComponent)
 							{
 								TableModel tm = tv.getModel();
 								if (tm != null && tm.getRowCount() > 0)
@@ -173,10 +176,10 @@ public class TwoNativeJavaObject extends NativeJavaObject
 										tv.setColumnSelectionInterval(i, i);
 										tv.editCellAt(selectedRow, i);
 									}
-									else if (javaObject instanceof Component)
+									else
 									{
 										// bounds can be modified even if readonly when moving columns
-										((Component)javaObject).setBounds(tv.getCellRect(selectedRow, i, false));
+										((Component)uiComponent).setBounds(tv.getCellRect(selectedRow, i, false));
 									}
 								}
 								break;
@@ -190,7 +193,7 @@ public class TwoNativeJavaObject extends NativeJavaObject
 				}
 				else if (listView instanceof PortalComponent)
 				{
-					((PortalComponent)listView).editCellFor(((JComponent)javaObject));
+					((PortalComponent)listView).editCellFor(uiComponent);
 				}
 			}
 			else executingFunction = null;
