@@ -407,6 +407,22 @@ public class JSI18N
 	}
 
 	/**
+	 * Sets the current time zone of the client.
+	 * The parameter should be a string having the form which can be seen in the Edit -> Preferences -> Locale
+	 * at the "Default Timezone" combobox.
+	 *
+	 * @sample
+	 * // This will set the default time zone to Central European Time
+	 * i18n.setTimeZone("Europe/Rome");
+	 */
+	public void js_setDefaultTimeZone(String timezone)
+	{
+		Properties settings = application.getSettings();
+		TimeZone.setDefault(TimeZone.getTimeZone(timezone));
+		settings.setProperty("timezone.default", timezone); //$NON-NLS-1$
+	}
+
+	/**
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
