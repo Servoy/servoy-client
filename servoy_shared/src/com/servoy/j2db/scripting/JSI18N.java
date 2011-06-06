@@ -274,6 +274,31 @@ public class JSI18N
 	}
 
 	/**
+	 * Gets the list of countries available for localization
+	 *
+	 * @sample
+	 * i18n.getCountries()
+	 *
+	 * @return a String array containing the available countries.
+	 */
+	public String[] js_getCountries()
+	{
+		Locale[] locales = Locale.getAvailableLocales();
+		ArrayList<String> countries = new ArrayList<String>();
+		for (int i = 0; i < locales.length; i++)
+			if (!locales[i].getCountry().equals("")) countries.add(locales[i].getCountry()); //$NON-NLS-1$
+
+		String[] retList = new String[countries.size()];
+		Iterator<String> it = countries.iterator();
+		for (int i = 0; i < countries.size(); i++)
+		{
+			retList[i] = it.next();
+		}
+
+		return retList;
+	}
+
+	/**
 	 * Sets the value of i18n key for client scope,if value null the setting is removed. 
 	 * All forms not yet loaded will change (execute this in solution startup or first form)
 	 *
