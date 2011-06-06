@@ -997,9 +997,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 	 *  var servoyException = ex;
 	 * 	application.output("is a ServoyException")
 	 * 	application.output("Errorcode: "+servoyException.getErrorCode())
-	 *  var trace = "";
-	 *  if (ex.getScriptStackTrace) trace = servoyException.getScriptStackTrace();
-	 *  else if (servoyException.getStackTrace)  trace = servoyException.getStackTrace();
+	 *  var trace = servoyException.getStackTrace();
 	 * 	if (servoyException.getErrorCode() == ServoyException.SAVE_FAILED)
 	 * 	{
 	 *  		plugins.dialogs.showErrorDialog( 'Error',  'It seems you did not fill in a required field', 'OK');
