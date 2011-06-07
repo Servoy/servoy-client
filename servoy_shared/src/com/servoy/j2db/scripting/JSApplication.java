@@ -1926,8 +1926,8 @@ public class JSApplication implements IReturnedTypesProvider
 	}
 
 	/**
-	 * @deprecated 
-	 * @see js_isFormInWindow(Object form)
+	 * @deprecated
+	 * @see com.servoy.j2db.scripting.JSApplication#js_isFormInWindow(Object form)
 	 */
 	@Deprecated
 	public boolean js_isFormInDialog(Object form)
