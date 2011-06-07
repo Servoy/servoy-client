@@ -183,7 +183,7 @@ public class WebEventExecutor extends BaseEventExecutor
 					@Override
 					protected CharSequence generateCallbackScript(final CharSequence partialCall)
 					{
-						return super.generateCallbackScript(partialCall + "+Servoy.Utils.getActionParams(event)"); //$NON-NLS-1$
+						return super.generateCallbackScript(partialCall + "+actionParam"); //$NON-NLS-1$
 					}
 
 					@Override
@@ -219,8 +219,8 @@ public class WebEventExecutor extends BaseEventExecutor
 							@Override
 							public CharSequence postDecorateScript(CharSequence script)
 							{
-								return "Servoy.Utils.startClickTimer(function() { if (testDoubleClickId('" + component.getMarkupId() + "')) { " + script +
-									"}; Servoy.Utils.clickTimerRunning = false; return false; });";
+								return "var actionParam = Servoy.Utils.getActionParams(event); Servoy.Utils.startClickTimer(function() { if (testDoubleClickId('" +
+									component.getMarkupId() + "')) { " + script + "}; Servoy.Utils.clickTimerRunning = false; return false; });";
 							}
 						};
 					}
