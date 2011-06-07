@@ -114,20 +114,26 @@ public class ClientStub implements IUserClient
 					{
 						while (!datachanges.isEmpty())
 						{
-							Object[] array = datachanges.pop();
-							String server_name = (String)array[0];
-							String table_name = (String)array[1];
-							IDataSet pks = (IDataSet)array[2];
-							int action = ((Integer)array[3]).intValue();
-							Object[] insertColumnData = (Object[])array[4];
-
-							IDataServer ds = client.getDataServer();
-							if (ds instanceof DataServerProxy)
+							final Object[] array = datachanges.pop();
+							client.invokeLater(new Runnable()
 							{
-								server_name = ((DataServerProxy)ds).getReverseMappedServerName(server_name);
-							}
-							((FoundSetManager)client.getFoundSetManager()).notifyDataChange(DataSourceUtils.createDBTableDataSource(server_name, table_name),
-								pks, action, insertColumnData);
+								public void run()
+								{
+									String server_name = (String)array[0];
+									String table_name = (String)array[1];
+									IDataSet pks = (IDataSet)array[2];
+									int action = ((Integer)array[3]).intValue();
+									Object[] insertColumnData = (Object[])array[4];
+
+									IDataServer ds = client.getDataServer();
+									if (ds instanceof DataServerProxy)
+									{
+										server_name = ((DataServerProxy)ds).getReverseMappedServerName(server_name);
+									}
+									((FoundSetManager)client.getFoundSetManager()).notifyDataChange(
+										DataSourceUtils.createDBTableDataSource(server_name, table_name), pks, action, insertColumnData);
+								}
+							});
 						}
 						synchronized (datachanges)
 						{
