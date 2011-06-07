@@ -212,10 +212,9 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 	public void setRecord(IRecordInternal parentState, boolean stopEditing)
 	{
 		parentData = parentState;
-		FormLookupPanel flp = (FormLookupPanel)enclosingComponent.getSelectedComponent();
-		if (flp != null)
+		if (currentForm != null) // enclosingComponent may already point to the next (uninitialised) form, see stateChanged()
 		{
-			showFoundSet(flp, parentState, getDefaultSort());
+			showFoundSet(currentForm, parentState, getDefaultSort());
 		}
 		ITagResolver resolver = getTagResolver(parentState);
 		for (int i = 0; i < originalTabText.size(); i++)
@@ -312,10 +311,9 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 
 	public String getSelectedRelationName()
 	{
-		FormLookupPanel flp = (FormLookupPanel)enclosingComponent.getSelectedComponent();
-		if (flp != null)
+		if (currentForm != null) // enclosingComponent may already point to the next (uninitialised) form, see stateChanged()
 		{
-			return flp.getRelationName();
+			return currentForm.getRelationName();
 		}
 		return null;
 	}
@@ -336,15 +334,11 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 
 	public List<SortColumn> getDefaultSort()
 	{
-		FormLookupPanel flp = (FormLookupPanel)enclosingComponent.getSelectedComponent();
-		if (flp != null)
+		if (currentForm != null) // enclosingComponent may already point to the next (uninitialised) form, see stateChanged()
 		{
-			return flp.getDefaultSort();
+			return currentForm.getDefaultSort();
 		}
-		else
-		{
-			return null;
-		}
+		return null;
 	}
 
 	public boolean stopUIEditing(boolean looseFocus)
@@ -365,6 +359,9 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 			//hold a reference so that when calling saveData the lastSelected is not replaced by the current selected.
 			FormLookupPanel previous = currentForm;
 
+			// stopEditing may trigger calls to this panel, note that currentForm still points to the previous tab
+			// and the new one (enclosingComponent.getSelectedComponent()) may not be initialized yet,
+			// so refer to currentForm and not to enclosingComponent.getSelectedComponent() in callbacks.
 			int stopped = application.getFoundSetManager().getEditRecordList().stopEditing(false);
 			boolean cantStop = stopped != ISaveConstants.STOPPED && stopped != ISaveConstants.AUTO_SAVE_BLOCKED;
 			if (previous != null)
@@ -817,14 +814,10 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 
 	public void valueChanged(ListSelectionEvent e)
 	{
-		if (parentData != null)
+		if (parentData != null && currentForm != null) // enclosingComponent may already point to the next (uninitialised) form, see stateChanged()
 		{
-			FormLookupPanel flp = (FormLookupPanel)enclosingComponent.getSelectedComponent();
-			if (flp != null)
-			{
-				flp.getFormPanel();//make sure the flp is ready
-				showFoundSet(flp, parentData, flp.getDefaultSort());
-			}
+			currentForm.getFormPanel();//make sure the flp is ready
+			showFoundSet(currentForm, parentData, currentForm.getDefaultSort());
 		}
 	}
 
