@@ -102,7 +102,7 @@ public class GlobalMethodValueList extends CustomValueList
 				Function function = application.getScriptEngine().getGlobalScope().getFunctionByName(globalFunction);
 				try
 				{
-					if (real == null)
+					if (real == null || "".equals(real)) //$NON-NLS-1$
 					{
 						application.invokeAndWait(new Runnable()
 						{
