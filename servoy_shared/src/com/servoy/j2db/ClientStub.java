@@ -112,26 +112,38 @@ public class ClientStub implements IUserClient
 				{
 					public void run()
 					{
-						while (!datachanges.isEmpty())
+						while (datachangesHandler != null)
 						{
-							Object[] array = datachanges.pop();
-							String server_name = (String)array[0];
-							String table_name = (String)array[1];
-							IDataSet pks = (IDataSet)array[2];
-							int action = ((Integer)array[3]).intValue();
-							Object[] insertColumnData = (Object[])array[4];
-
-							IDataServer ds = client.getDataServer();
-							if (ds instanceof DataServerProxy)
+							final Object[] array;
+							synchronized (datachanges)
 							{
-								server_name = ((DataServerProxy)ds).getReverseMappedServerName(server_name);
+								if (datachanges.isEmpty())
+								{
+									datachangesHandler = null; // done
+									break;
+								}
+								array = datachanges.pop();
 							}
-							((FoundSetManager)client.getFoundSetManager()).notifyDataChange(DataSourceUtils.createDBTableDataSource(server_name, table_name),
-								pks, action, insertColumnData);
-						}
-						synchronized (datachanges)
-						{
-							datachangesHandler = null;
+
+							client.invokeLater(new Runnable()
+							{
+								public void run()
+								{
+									String server_name = (String)array[0];
+									String table_name = (String)array[1];
+									IDataSet pks = (IDataSet)array[2];
+									int action = ((Integer)array[3]).intValue();
+									Object[] insertColumnData = (Object[])array[4];
+
+									IDataServer ds = client.getDataServer();
+									if (ds instanceof DataServerProxy)
+									{
+										server_name = ((DataServerProxy)ds).getReverseMappedServerName(server_name);
+									}
+									((FoundSetManager)client.getFoundSetManager()).notifyDataChange(
+										DataSourceUtils.createDBTableDataSource(server_name, table_name), pks, action, insertColumnData);
+								}
+							});
 						}
 					}
 				};
