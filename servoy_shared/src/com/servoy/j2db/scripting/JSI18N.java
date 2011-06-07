@@ -433,12 +433,13 @@ public class JSI18N
 
 	/**
 	 * Sets the current time zone of the client.
-	 * The parameter should be a string having the form which can be seen in the Edit -> Preferences -> Locale
-	 * at the "Default Timezone" combobox.
+	 * The parameter should be a string having the format which can be seen in the Edit -> Preferences -> Locale
+	 * at the "Default Timezone" combobox. For instance the time zone for Netherlands is set using the ID
+	 * "Europe/Amsterdam". 
 	 *
 	 * @sample
 	 * // This will set the default time zone to Central European Time
-	 * i18n.setTimeZone("Europe/Rome");
+	 * i18n.setTimeZone("Europe/Amsterdam");
 	 */
 	public void js_setDefaultTimeZone(String timezone)
 	{
