@@ -510,10 +510,12 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 		{
 			adjusting = true;
 			Object obj = null;
+			boolean formVariable = false;
 			if (dataProviderID != null)
 			{
 				if (dal.getFormScope().has(dataProviderID, dal.getFormScope()))
 				{
+					formVariable = true;
 					obj = dal.getFormScope().get(dataProviderID);
 				}
 				else if (record != null)
@@ -527,7 +529,11 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 					fireModificationEvent(obj);
 				}
 			}
-			setValueToDisplays(obj);
+			// do not set value for form variable except when really changed
+			if (!formVariable || dataProviderID == null || dataProviderID.equals(e.getName()))
+			{
+				setValueToDisplays(obj);
+			}
 		}
 		finally
 		{
