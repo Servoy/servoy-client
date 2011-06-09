@@ -484,8 +484,11 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		}
 		else
 		{
-			setComboEditable(!getListModelWrapper().hasRealValues());
-			if (!isEnabled() && accesibleStateHolder.isAccessible()) setEnabled(true);
+			if (application.isFormElementsEditableInFindMode())
+			{
+				setComboEditable(!getListModelWrapper().hasRealValues());
+				if (!isEnabled() && accesibleStateHolder.isAccessible()) setEnabled(true);
+			}
 		}
 		if (isEditable())
 		{

@@ -4215,4 +4215,22 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	{
 		throw new IOException("A Servoy client is not serializable"); //$NON-NLS-1$
 	}
+
+	private boolean isFormElementsEditableInFindMode = true;
+
+	/*
+	 * @see com.servoy.j2db.IApplication#setFormElementsEditableInFindMode(boolean)
+	 */
+	public void setFormElementsEditableInFindMode(boolean editable)
+	{
+		isFormElementsEditableInFindMode = editable;
+	}
+
+	/*
+	 * @see com.servoy.j2db.IApplication#isFormElementsEditableInFindMode()
+	 */
+	public boolean isFormElementsEditableInFindMode()
+	{
+		return isFormElementsEditableInFindMode;
+	}
 }

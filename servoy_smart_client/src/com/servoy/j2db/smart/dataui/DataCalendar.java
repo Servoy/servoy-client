@@ -405,7 +405,7 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 		{
 			showCal.setEnabled(!readOnly && isEnabled());
 		}
-		else if (!showCal.isEnabled() && isEnabled())
+		else if (!showCal.isEnabled() && isEnabled() && application.isFormElementsEditableInFindMode())
 		{
 			showCal.setEnabled(true);
 		}

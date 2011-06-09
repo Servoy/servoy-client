@@ -284,7 +284,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		else
 		{
 			wasEditable = !isReadOnly();
-			setEditable(true);
+			if (application.isFormElementsEditableInFindMode()) setEditable(true);
 		}
 
 		eventExecutor.setValidationEnabled(b);

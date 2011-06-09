@@ -2557,6 +2557,17 @@ public class JSApplication implements IReturnedTypesProvider
 		return application.getOSName();
 	}
 
+	/**
+	 * Set if forms elemens should be changed to editable in find mode
+	 * 
+	 * @sample application.setFormElementsEditableInFindMode(false);
+	 * 
+	 * @param editable Boolean of whatever form elements should be changed to editable in find mode. 
+	 */
+	public void js_setFormElementsEditableInFindMode(boolean editable)
+	{
+		application.setFormElementsEditableInFindMode(editable);
+	}
 
 	/**
 	 * Set if numpad enter should behave like focus next.

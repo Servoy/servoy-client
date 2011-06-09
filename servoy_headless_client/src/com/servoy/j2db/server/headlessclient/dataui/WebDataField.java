@@ -393,7 +393,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		else
 		{
 			wasEditable = editable;
-			setEditable(true);// allow search
+			if (application.isFormElementsEditableInFindMode()) setEditable(true);// allow search
 		}
 		editState = prevEditState;
 	}

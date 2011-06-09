@@ -447,7 +447,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 		else
 		{
 			wasEditable = editable;
-			setEditable(true);//allow search
+			if (application.isFormElementsEditableInFindMode()) setEditable(true);//allow search
 		}
 		editState = prevEditState;
 	}

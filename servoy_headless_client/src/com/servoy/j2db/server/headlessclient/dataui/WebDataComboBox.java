@@ -517,7 +517,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 		else if (enabledState && (!isEditable() || !isEnabled()))
 		{
 			old = editState;
-			setEditable(true);
+			if (application.isFormElementsEditableInFindMode()) setEditable(true);
 			editState = old;
 
 			old = enabledState;

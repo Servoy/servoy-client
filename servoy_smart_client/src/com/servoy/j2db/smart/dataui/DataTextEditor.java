@@ -166,7 +166,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 			@Override
 			public void keyReleased(KeyEvent e)
 			{
-				if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
+				if (e.getKeyCode() == KeyEvent.VK_ESCAPE && previousValue != null)
 				{
 					StringReader sr = new StringReader((String)previousValue);
 					try
@@ -396,7 +396,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 		else
 		{
 			wasEditable = enclosedComponent.isEditable();
-			setEditable(true);//allow search
+			if (application.isFormElementsEditableInFindMode()) setEditable(true);//allow search
 			enclosedComponent.setEditorKit(plainEditorKit);
 			enclosedComponent.setDocument(plainEditorDocument);
 		}

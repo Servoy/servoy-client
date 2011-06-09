@@ -370,4 +370,15 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 * Loose the focus, helpfull to get an cursor out of the fields.
 	 */
 	public void looseFocus();
+
+	/**
+	 * Set whatever a form elements should be made editable in find mode
+	 */
+	public void setFormElementsEditableInFindMode(boolean editable);
+
+
+	/**
+	 * Checks whatever a form elements should be made editable in find mode
+	 */
+	public boolean isFormElementsEditableInFindMode();
 }

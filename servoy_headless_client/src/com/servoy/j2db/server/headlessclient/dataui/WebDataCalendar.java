@@ -362,7 +362,7 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 		}
 		else
 		{
-			showPicker = true;
+			if (application.isFormElementsEditableInFindMode()) showPicker = true;
 		}
 	}
 

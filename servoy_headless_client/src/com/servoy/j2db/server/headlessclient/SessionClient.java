@@ -1721,4 +1721,22 @@ public class SessionClient extends ClientState implements ISessionClient
 	{
 		//serialize is not implemented
 	}
+
+	private boolean isFormElementsEditableInFindMode = true;
+
+	/*
+	 * @see com.servoy.j2db.IApplication#setFormElementsEditableInFindMode(boolean)
+	 */
+	public void setFormElementsEditableInFindMode(boolean editable)
+	{
+		isFormElementsEditableInFindMode = editable;
+	}
+
+	/*
+	 * @see com.servoy.j2db.IApplication#isFormElementsEditableInFindMode()
+	 */
+	public boolean isFormElementsEditableInFindMode()
+	{
+		return isFormElementsEditableInFindMode;
+	}
 }
