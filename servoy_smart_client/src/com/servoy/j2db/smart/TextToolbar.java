@@ -59,6 +59,7 @@ import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.FixedHTMLEditorKit;
+import com.servoy.j2db.util.rtf.FixedRTFEditorKit;
 import com.servoy.j2db.util.toolbar.Toolbar;
 import com.servoy.j2db.util.toolbar.ToolbarButton;
 import com.servoy.j2db.util.toolbar.ToolbarToggleButton;
@@ -588,6 +589,11 @@ public class TextToolbar extends Toolbar implements ActionListener
 			JEditorPane editor = getEditor(e);
 			if (editor != null)
 			{
+				if (editor.getEditorKit() instanceof FixedRTFEditorKit)
+				{
+					new StyledEditorKit.ForegroundAction("set-foreground", fg).actionPerformed(e); //$NON-NLS-1$
+					return;
+				}
 				Color fg = this.fg;
 				if ((e != null) && (e.getSource() == editor))
 				{
