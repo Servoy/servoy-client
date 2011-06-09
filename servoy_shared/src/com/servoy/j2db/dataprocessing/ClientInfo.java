@@ -103,11 +103,11 @@ public final class ClientInfo implements Serializable
 	}
 
 	@TerracottaAutolockWrite
-	public void removeInfo(String info)
+	public boolean removeInfo(String info)
 	{
 		synchronized (lock)
 		{
-			infos.remove(info);
+			return infos.remove(info);
 		}
 	}
 

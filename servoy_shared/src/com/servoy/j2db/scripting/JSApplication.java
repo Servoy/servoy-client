@@ -299,17 +299,19 @@ public class JSApplication implements IReturnedTypesProvider
 	 * lines of client information.
 	 *
 	 * @sample 
-	 * application.removeClientInfo('SaaS company name');
+	 * var removed = application.removeClientInfo('SaaS company name');
 	 *
 	 * @param info A line of text to be removed from the client information
 	 *             on behalf of the running Servoy client.
+	 * @return boolean indicator if info was removed successfully
 	 */
-	public void js_removeClientInfo(String info)
+	public boolean js_removeClientInfo(String info)
 	{
 		if (application instanceof ClientState)
 		{
-			((ClientState)application).removeClientInfo(info);
+			return ((ClientState)application).removeClientInfo(info);
 		}
+		return false;
 	}
 
 	/**

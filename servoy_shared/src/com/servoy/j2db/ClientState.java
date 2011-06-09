@@ -972,9 +972,9 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		}
 	}
 
-	public void removeClientInfo(String info)
+	public boolean removeClientInfo(String info)
 	{
-		clientInfo.removeInfo(info);
+		boolean removed = clientInfo.removeInfo(info);
 		// try to push the new client info
 		try
 		{
@@ -984,6 +984,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		{
 			Debug.error(e);
 		}
+		return removed;
 	}
 
 	public void removeAllClientInfo()
