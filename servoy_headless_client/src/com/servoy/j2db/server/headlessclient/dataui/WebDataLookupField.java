@@ -296,12 +296,14 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 					// now just try to match it be start with matching instead of equals:
 					result = matchValueListValue(trimmed, true);
 					// if this is found then it is a commit of data of a partial string, make sure that the field is updated with the complete value.
-					if (result != null && !result.equals(trimmed) && RequestCycle.get() != null)
+					String displayValue = (result == null && list.hasRealValues()) ? "" : result;
+					// if this is found then it is a commit of data of a partial string, make sure that the field is updated with the complete value.
+					if (displayValue != null && !displayValue.equals(trimmed) && RequestCycle.get() != null)
 					{
 						IRequestTarget requestTarget = RequestCycle.get().getRequestTarget();
 						if (requestTarget instanceof AjaxRequestTarget)
 						{
-							((AjaxRequestTarget)requestTarget).appendJavascript("document.getElementById('" + getMarkupId() + "').value='" + result + "'");
+							((AjaxRequestTarget)requestTarget).appendJavascript("document.getElementById('" + getMarkupId() + "').value='" + displayValue + "'");
 						}
 					}
 				}
