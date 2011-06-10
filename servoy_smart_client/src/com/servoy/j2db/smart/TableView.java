@@ -1682,9 +1682,10 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 
 		// We try to detect when a sort has been done on the foundset, and we update the arrows in the header accordingly.
 		// This is just an heuristic for filtering out the sort event from all table changed events that are raised.
-		if (getTableHeader() != null & fc != null && e.getColumn() == TableModelEvent.ALL_COLUMNS && e.getFirstRow() == 0)
+		if (getModel() instanceof IFoundSetInternal && getTableHeader() != null && fc != null && e.getColumn() == TableModelEvent.ALL_COLUMNS &&
+			e.getFirstRow() == 0)
 		{
-			List<SortColumn> sortCols = ((FoundSet)getModel()).getSortColumns();
+			List<SortColumn> sortCols = ((IFoundSetInternal)getModel()).getSortColumns();
 			if (sortCols != null && sortCols.size() > 0)
 			{
 				if (!setSortStatus((FoundSet)getModel()))
