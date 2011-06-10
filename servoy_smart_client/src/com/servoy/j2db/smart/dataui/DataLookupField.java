@@ -69,6 +69,7 @@ import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.ui.ISupportVisibleChangeListener;
 import com.servoy.j2db.ui.IVisibleChangeListener;
+import com.servoy.j2db.ui.scripting.RuntimeDataField;
 import com.servoy.j2db.ui.scripting.RuntimeDataLookupField;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UIUtils;
@@ -818,7 +819,8 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 			else
 			{
 				wasEditable = isEditable();
-				getScriptObject().setEditableInFindMode();
+				RuntimeDataField scriptable = getScriptObject();
+				if (scriptable != null) scriptable.setEditableInFindMode();
 			}
 			editState = prevEditState;
 		}

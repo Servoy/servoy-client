@@ -160,7 +160,6 @@ public abstract class AbstractRuntimeField<C extends IFieldComponent> extends Ab
 
 	public void setEditableInFindMode()
 	{
-		Object o = application.getUIProperty(IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE);
 		if (!Boolean.TRUE.equals(application.getUIProperty(IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE)))
 		{
 			getComponent().setEditable(true);

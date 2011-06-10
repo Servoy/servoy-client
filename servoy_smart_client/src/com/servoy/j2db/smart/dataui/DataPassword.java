@@ -210,7 +210,7 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 		else
 		{
 			wasEditable = isEditable();
-			scriptable.setEditableInFindMode();
+			if (scriptable != null) scriptable.setEditableInFindMode();
 		}
 		editState = prevEditState;
 	}

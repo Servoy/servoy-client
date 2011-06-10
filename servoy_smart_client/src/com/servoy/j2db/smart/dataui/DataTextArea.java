@@ -296,7 +296,7 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 		else
 		{
 			wasEditable = enclosedComponent.isEditable();
-			scriptable.setEditableInFindMode();
+			if (scriptable != null) scriptable.setEditableInFindMode();
 			// keep the old text
 			String text = enclosedComponent.getText();
 			enclosedComponent.setDocument(plainDocument);

@@ -396,7 +396,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 		else
 		{
 			wasEditable = enclosedComponent.isEditable();
-			scriptable.setEditableInFindMode();
+			if (scriptable != null) scriptable.setEditableInFindMode();
 			enclosedComponent.setEditorKit(plainEditorKit);
 			enclosedComponent.setDocument(plainEditorDocument);
 		}
