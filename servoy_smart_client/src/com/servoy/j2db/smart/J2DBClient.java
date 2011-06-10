@@ -1561,10 +1561,9 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			}
 			else
 			{
-				uiDefaults.get(name.toString());
+				return uiDefaults.get(name.toString());
 			}
 		}
-		return null;
 	}
 
 	public boolean setUIProperty(Object name, Object value)

@@ -818,7 +818,7 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 			else
 			{
 				wasEditable = isEditable();
-				if (application.isFormElementsEditableInFindMode()) setEditable(true);//allow search
+				getScriptObject().setEditableInFindMode();
 			}
 			editState = prevEditState;
 		}

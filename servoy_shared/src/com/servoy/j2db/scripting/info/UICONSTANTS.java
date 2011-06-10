@@ -164,6 +164,20 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 */
 	public static final String TOOLTIP_DISMISS_DELAY = IApplication.TOOLTIP_DISMISS_DELAY;
 
+	/**
+	 * Property than can be set using application.setUIProperty().
+	 * 
+	 * If set to true, fields that are read-only won't be editable in find mode
+	 * If set to false, fields that are read-only will be editable in find mode
+	 * 
+	 * The value can be true/false
+	 * DEFAULT: false 
+	 * 
+	 * @sample
+	 * application.setUIProperty(APP_UI_PROPERTY.USE_SYSTEM_PRINT_DIALOG, true)
+	 */
+	public static final String LEAVE_FIELDS_READONLY_IN_FIND_MODE = IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE;
+
 	public String getPrefix()
 	{
 		return "APP_UI_PROPERTY"; //$NON-NLS-1$

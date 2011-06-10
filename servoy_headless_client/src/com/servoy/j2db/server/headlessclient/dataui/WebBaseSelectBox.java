@@ -278,7 +278,7 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 		{
 			wasEditable = editable;
 			oldEditState = editState;
-			if (application.isFormElementsEditableInFindMode()) setEditable(true);
+			scriptable.setEditableInFindMode();
 		}
 		eventExecutor.setValidationEnabled(b);
 	}

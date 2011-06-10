@@ -86,6 +86,11 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 * Value that indicates the delay in milliseconds after the tooltip is dismissed.
 	 */
 	public static final String TOOLTIP_DISMISS_DELAY = "tooltipDismissDelay"; //$NON-NLS-1$
+	/**
+	 * When Boolean.TRUE, fields that are read-only won't be editable in find mode
+	 */
+	public static final String LEAVE_FIELDS_READONLY_IN_FIND_MODE = "leaveFieldsReadOnlyInFindMode"; //$NON-NLS-1$
+
 
 	public static final String APP_WINDOW_NAME = "Application_frame";
 
@@ -370,15 +375,4 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 * Loose the focus, helpfull to get an cursor out of the fields.
 	 */
 	public void looseFocus();
-
-	/**
-	 * Set whatever a form elements should be made editable in find mode
-	 */
-	public void setFormElementsEditableInFindMode(boolean editable);
-
-
-	/**
-	 * Checks whatever a form elements should be made editable in find mode
-	 */
-	public boolean isFormElementsEditableInFindMode();
 }

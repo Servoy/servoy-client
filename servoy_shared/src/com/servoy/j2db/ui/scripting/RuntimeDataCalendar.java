@@ -62,4 +62,13 @@ public class RuntimeDataCalendar extends AbstractRuntimeField<IFieldComponent> i
 		getComponent().setEditable(b);
 		getChangesRecorder().setChanged();
 	}
+
+	@Override
+	public void setEditableInFindMode()
+	{
+		if (!Boolean.TRUE.equals(application.getUIProperty(IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE)))
+		{
+			getComponent().setReadOnly(false);
+		}
+	}
 }

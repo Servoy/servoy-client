@@ -1723,7 +1723,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		else
 		{
 			wasEditable = isEditable();
-			if (application.isFormElementsEditableInFindMode()) setEditable(true);
+			scriptable.setEditableInFindMode();
 			setDocument(plainDocument);
 
 			saveFormatter = getFormatterFactory();
