@@ -467,6 +467,12 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 				getValue(element);//cache them all in this printstate
 			}
 		}
+
+		@Override
+		public String toString()
+		{
+			return "PrintState " + super.toString();
+		}
 	}
 
 	/**

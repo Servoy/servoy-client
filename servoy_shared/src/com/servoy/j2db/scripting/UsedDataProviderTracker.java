@@ -24,6 +24,7 @@ import org.mozilla.javascript.Scriptable;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
+import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.Relation;
@@ -127,9 +128,16 @@ public class UsedDataProviderTracker
 							{
 								if (currentRecord.getRawData() == null)
 								{
-									// should not happen
-									Debug.error("Unexpected state: calculation depends on column '" + part + "' from record without pk: " + currentRecord,
-										new IllegalStateException());
+									if (currentRecord instanceof PrototypeState)
+									{
+										Debug.trace("Calculation '" + name + "' depends on field '" + part + "' from PrototypeState " + currentRecord);
+									}
+									else
+									{
+										// should not happen
+										Debug.error("Unexpected state: calculation '" + name + "' depends on column '" + part + "' from record without pk: " +
+											currentRecord, new IllegalStateException());
+									}
 								}
 								else
 								{
@@ -165,9 +173,16 @@ public class UsedDataProviderTracker
 							{
 								if (currentRecord.getRawData() == null)
 								{
-									// should not happen
-									Debug.error("Unexpected state: calculation depends on field '" + part + "' from record without pk: " + currentRecord,
-										new IllegalStateException());
+									if (currentRecord instanceof PrototypeState)
+									{
+										Debug.trace("Calculation '" + name + "' depends on field '" + part + "' from PrototypeState " + currentRecord);
+									}
+									else
+									{
+										// should not happen
+										Debug.error("Unexpected state: calculation '" + name + "' depends on field '" + part + "' from record without pk: " +
+											currentRecord, new IllegalStateException());
+									}
 								}
 								else
 								{
