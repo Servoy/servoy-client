@@ -392,8 +392,23 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 	@Override
 	public void addCSSAttribute(MutableAttributeSet attr, CSS.Attribute key, String value)
 	{
-		if (key == CSS.Attribute.BACKGROUND_COLOR && BORDER_COLOR_TRANSPARENT.equalsIgnoreCase(value)) attr.addAttribute(key, value);
-		else super.addCSSAttribute(attr, key, value);
+		String newValue = expandColorValue(key, value);
+		if (key == CSS.Attribute.BACKGROUND_COLOR && BORDER_COLOR_TRANSPARENT.equalsIgnoreCase(newValue)) attr.addAttribute(key, newValue);
+		else super.addCSSAttribute(attr, key, newValue);
+	}
+
+	/*
+	 * If the attribute is a color property then check whether it is in sort format or not. Short format means #abc which should expand to #aabbcc. If in short
+	 * format then expand it.
+	 */
+	protected String expandColorValue(CSS.Attribute key, String value)
+	{
+		if (key != null && key.toString().matches(".*color.*") && value.startsWith("#") && value.length() == 4) //$NON-NLS-1$//$NON-NLS-2$
+		{
+			return new StringBuilder("#").append(value.charAt(1)).append(value.charAt(1)).append(value.charAt(2)).append(value.charAt(2)).append( //$NON-NLS-1$
+				value.charAt(3)).append(value.charAt(3)).toString();
+		}
+		else return value;
 	}
 
 	public static Attribute[] borderAttributes = new Attribute[] { CSS.Attribute.BORDER, CSS.Attribute.BORDER_BOTTOM, CSS.Attribute.BORDER_BOTTOM_WIDTH, CSS.Attribute.BORDER_COLOR, CSS.Attribute.BORDER_LEFT, CSS.Attribute.BORDER_LEFT_WIDTH, CSS.Attribute.BORDER_RIGHT, CSS.Attribute.BORDER_RIGHT_WIDTH, CSS.Attribute.BORDER_STYLE, CSS.Attribute.BORDER_TOP, CSS.Attribute.BORDER_TOP_WIDTH, CSS.Attribute.BORDER_WIDTH };
