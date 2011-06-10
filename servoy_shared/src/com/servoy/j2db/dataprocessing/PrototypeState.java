@@ -172,4 +172,16 @@ public class PrototypeState extends Record
 	{
 		return null;
 	}
+
+	@Override
+	public String toString()
+	{
+		StringBuilder sb = new StringBuilder("PrototypeState[] COLUMS: ");
+		for (Object element : getIds())
+		{
+			sb.append(element);
+			sb.append(',');
+		}
+		return sb.toString();
+	}
 }
