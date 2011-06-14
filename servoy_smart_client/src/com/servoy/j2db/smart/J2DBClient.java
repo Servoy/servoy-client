@@ -104,7 +104,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JRootPane;
 import javax.swing.JToolBar;
@@ -2334,7 +2333,6 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	 */
 	protected JMenuBar createMenuBar(Map<String, Action> actions)
 	{
-		JPopupMenu.setDefaultLightWeightPopupEnabled(false); //make sure menu are aways visibile
 
 		// MenuBar
 		// menuBar = new JMenuBar();
