@@ -611,7 +611,7 @@ public class WebEventExecutor extends BaseEventExecutor
 					 */
 					public Object component(WebForm component)
 					{
-						if (component.isUIRecreated())
+						if (component.isVisibleInHierarchy() && component.isUIRecreated())
 						{
 							recreatedIDs.add(component.getMarkupId());
 							return IVisitor.CONTINUE_TRAVERSAL;
