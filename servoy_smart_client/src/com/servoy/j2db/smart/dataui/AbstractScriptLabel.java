@@ -917,15 +917,22 @@ public abstract class AbstractScriptLabel extends JLabel implements ISkinnable, 
 					{
 						if (armed && e.getClickCount() == 1)
 						{
-							clickTimer = new Timer(clickInterval, new ActionListener()
+							if (doubleClickMouseAdapter != null)
 							{
-								public void actionPerformed(ActionEvent ev)
+								clickTimer = new Timer(clickInterval, new ActionListener()
 								{
-									eventExecutor.fireActionCommand(true, AbstractScriptLabel.this, e.getModifiers(), e.getPoint());
-								}
-							});
-							clickTimer.setRepeats(false); //after expiring once, stop the timer
-							clickTimer.start();
+									public void actionPerformed(ActionEvent ev)
+									{
+										eventExecutor.fireActionCommand(true, AbstractScriptLabel.this, e.getModifiers(), e.getPoint());
+									}
+								});
+								clickTimer.setRepeats(false); //after expiring once, stop the timer
+								clickTimer.start();
+							}
+							else
+							{
+								eventExecutor.fireActionCommand(true, AbstractScriptLabel.this, e.getModifiers(), e.getPoint());
+							}
 						}
 					}
 				}

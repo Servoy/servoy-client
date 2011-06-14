@@ -643,15 +643,22 @@ public abstract class AbstractScriptButton extends JButton implements ISkinnable
 			{
 				public void actionPerformed(final ActionEvent e)
 				{
-					clickTimer = new Timer(clickInterval, new ActionListener()
+					if (doubleclickMouseAdapter != null)
 					{
-						public void actionPerformed(ActionEvent ev)
+						clickTimer = new Timer(clickInterval, new ActionListener()
 						{
-							eventExecutor.fireActionCommand(true, AbstractScriptButton.this, e.getModifiers());
-						}
-					});
-					clickTimer.setRepeats(false); //after expiring once, stop the timer
-					clickTimer.start();
+							public void actionPerformed(ActionEvent ev)
+							{
+								eventExecutor.fireActionCommand(true, AbstractScriptButton.this, e.getModifiers());
+							}
+						});
+						clickTimer.setRepeats(false); //after expiring once, stop the timer
+						clickTimer.start();
+					}
+					else
+					{
+						eventExecutor.fireActionCommand(true, AbstractScriptButton.this, e.getModifiers());
+					}
 				}
 			};
 			addActionListener(actionAdapter);
