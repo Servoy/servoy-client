@@ -306,6 +306,7 @@ public class JSI18N
 	 * //sets the value of i18n key for client scope; if value null the setting is removed
 	 * //Warning: already created form elements with i18n text lookup will not change,
 	 * //so call this method in the solution startup method or in methods from first form
+	 * //this method saves message for current locale, so if locale is changed with setLocale, all messages set from scripting will be lost
 	 * 
 	 * i18n.setI18NMessage('mykey.username.text','my_name')
 	 *
