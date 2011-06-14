@@ -2295,7 +2295,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	}
 
 	/**
-	 * Removes a component (JSLabel, JSButton, JSField, JSPortal, JSBean, JSTabpanel) that has the given name. It is the same as calling "if(!removeLabel(name) && !removeButton(name) ....)".
+	 * Removes a component (JSLabel, JSButton, JSField, JSPortal, JSBean, JSTabpanel) that has the given name. It is the same as calling "if(!removeLabel(name) &amp;&amp; !removeButton(name) ....)".
 	 * Returns true if removal was successful, false otherwise.  
 	 *
 	 * @sample
