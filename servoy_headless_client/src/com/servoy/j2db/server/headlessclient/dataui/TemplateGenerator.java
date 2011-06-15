@@ -2161,7 +2161,8 @@ public class TemplateGenerator
 					html.append(getWicketIDParameter(form, field));
 					html.append(" tabIndex=\"-1\" ");
 					html.append(">"); // 
-					html.append("<input style='float: left; border-width: 0px; padding: " + (isRadio ? "0px" : "3px") + "; margin: 0px;' "); // 
+					html.append("<table cellspacing='0' cellpadding='0' border='0' width='100%' height='100%'><tr><td style='vertical-align: middle;'><input style='border-width: 0px; padding: " +
+						(isRadio ? "0px" : "3px") + "; margin: 0px;' "); // 
 					html.append(getWicketIDParameter(form, field, "check_", ""));
 					html.append(getDataProviderIDParameter(field));
 					if (isRadio)
@@ -2175,12 +2176,12 @@ public class TemplateGenerator
 					html.append("/>");
 					html.append("<label for='check_");
 					html.append(ComponentFactory.getWebID(form, field));
-					html.append("' style='float: left; border-width: 0px; padding-top: " + (isRadio ? "0px" : "2px") + "; margin: 0px;");
+					html.append("' style='border-width: 0px; padding-top: " + (isRadio ? "0px" : "2px") + "; margin: 0px;");
 					html.append("' ");
 					html.append(getWicketIDParameter(form, field, "text_", ""));
 					html.append(">");
 					html.append("</label>");
-					html.append("</div>");
+					html.append("</td></tr></table></div>");
 				}
 				break;
 			case Field.COMBOBOX :
