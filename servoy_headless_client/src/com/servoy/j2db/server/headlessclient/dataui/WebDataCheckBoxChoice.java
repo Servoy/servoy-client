@@ -24,10 +24,8 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.StringTokenizer;
 
 import javax.swing.JComponent;
 import javax.swing.ScrollPaneConstants;
@@ -51,7 +49,6 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
-import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
 import com.servoy.j2db.dataprocessing.IEditListener;
@@ -90,11 +87,11 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 	private final WebComboModelListModelWrapper list;
 	private final WebEventExecutor eventExecutor;
 
-	private Cursor cursor;
+//	private Cursor cursor;
 	private boolean needEntireState;
-	private int maxLength;
+//	private int maxLength;
 	private Insets margin;
-	private int horizontalAlignment;
+//	private int horizontalAlignment;
 	private String inputId;
 	private String tmpForeground = NO_COLOR;
 
@@ -384,7 +381,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 	 */
 	public void setMaxLength(int maxLength)
 	{
-		this.maxLength = maxLength;
+//		this.maxLength = maxLength;
 	}
 
 	/**
@@ -405,7 +402,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 	 */
 	public void setHorizontalAlignment(int horizontalAlignment)
 	{
-		this.horizontalAlignment = horizontalAlignment;
+//		this.horizontalAlignment = horizontalAlignment;
 	}
 
 	/**
@@ -413,7 +410,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 	 */
 	public void setCursor(Cursor cursor)
 	{
-		this.cursor = cursor;
+//		this.cursor = cursor;
 	}
 
 	public Object getValueObject()
@@ -548,55 +545,21 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 	{
 		if (displayVal instanceof List)
 		{
-			List<Object> displayList = (List<Object>)displayVal;
-			if (displayList.size() > 0)
-			{
-				StringBuffer stringRetval = new StringBuffer();
-				if (!eventExecutor.getValidationEnabled()) stringRetval.append('%');
-				Iterator<Object> it = displayList.iterator();
-				while (it.hasNext())
-				{
-					Object obj = it.next();
-					if (!it.hasNext() && stringRetval.length() == 0)
-					{
-						return obj;//keep plain
-					}
-					stringRetval.append(CustomValueList.convertToString(obj, application));
-					if (it.hasNext()) stringRetval.append('\n');
-					if (!eventExecutor.getValidationEnabled()) stringRetval.append('%');
-				}
-				return stringRetval.toString();
-			}
+			return getScriptObject().getChoiceValue(((List< ? >)displayVal).toArray(), false);
 		}
 		return null;
 	}
 
 	public Object resolveDisplayValue(Object realVal)
 	{
-		List<Object> retval = new ArrayList<Object>();
-		if (realVal instanceof String)
-		{
-			String delim = (eventExecutor.getValidationEnabled() ? "\n" : "%\n"); //$NON-NLS-1$ //$NON-NLS-2$
-			StringTokenizer tk = new StringTokenizer(realVal.toString(), delim);
-			while (tk.hasMoreTokens())
-			{
-				retval.add(tk.nextToken().trim()); // do a trim because "\r\n" might leave the "\r" in the token
-			}
-		}
-		else
-		{
-			retval.add(realVal);//keep plain
-		}
-		return retval;
+		return getScriptObject().resolveChoiceValues(realVal);
 	}
-
 
 	/**
 	 * @see com.servoy.j2db.ui.IScrollPane#setHorizontalScrollBarPolicy(int)
 	 */
 	public void setHorizontalScrollBarPolicy(int policy)
 	{
-
 	}
 
 	/**
@@ -610,7 +573,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 
 	private void updatePrefix()
 	{
-		StringBuffer prefix = new StringBuffer();
+		StringBuilder prefix = new StringBuilder();
 		prefix.append("<div"); //$NON-NLS-1$
 		if (tabIndex != -1) prefix.append(" tabindex='").append(tabIndex).append("'"); //$NON-NLS-1$//$NON-NLS-2$
 		prefix.append(" class='"); //$NON-NLS-1$

@@ -794,7 +794,7 @@ public class Utils
 		if (index != -1)
 		{
 			int occurence = 0;
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			int startIndex = 0;
 			boolean isExact = true;
 			while (index != -1)
@@ -870,7 +870,7 @@ public class Utils
 	public static String stringRemoveTags(String str)
 	{
 		if (str == null) return null;
-		StringBuffer sb = new StringBuffer(str.length());
+		StringBuilder sb = new StringBuilder(str.length());
 		int opened = 0;
 		char ch;
 
@@ -902,6 +902,12 @@ public class Utils
 		return stringJoin(Arrays.asList(array).iterator(), separator);
 	}
 
+	public static String stringJoin(Object[] array, String separator)
+	{
+		if (array == null) return null;
+		return stringJoin(Arrays.asList(array).iterator(), separator);
+	}
+
 	/**
 	 * <p>
 	 * Joins the elements of the provided <code>Iterator</code> into a single String containing the provided elements.
@@ -915,13 +921,35 @@ public class Utils
 	 * @param separator the separator character to use
 	 * @return the joined String, <code>null</code> if null iterator input
 	 */
-	public static String stringJoin(Iterator iterator, char separator)
+	public static String stringJoin(Iterator< ? > iterator, char separator)
 	{
 		if (iterator == null)
 		{
 			return null;
 		}
-		StringBuffer buf = new StringBuffer(256); // Java default is 16, probably too small
+		StringBuilder buf = new StringBuilder(256); // Java default is 16, probably too small
+		while (iterator.hasNext())
+		{
+			Object obj = iterator.next();
+			if (obj != null)
+			{
+				buf.append(obj);
+			}
+			if (iterator.hasNext())
+			{
+				buf.append(separator);
+			}
+		}
+		return buf.toString();
+	}
+
+	public static String stringJoin(Iterator< ? > iterator, String separator)
+	{
+		if (iterator == null)
+		{
+			return null;
+		}
+		StringBuilder buf = new StringBuilder(256); // Java default is 16, probably too small
 		while (iterator.hasNext())
 		{
 			Object obj = iterator.next();
@@ -995,7 +1023,7 @@ public class Utils
 			return null;
 		}
 
-		final StringBuffer buffer = new StringBuffer();
+		final StringBuilder buffer = new StringBuilder();
 		int newlineCount = 0;
 
 		buffer.append("<p>"); //$NON-NLS-1$
@@ -1621,25 +1649,9 @@ public class Utils
 		return i;
 	}
 
-//	public static String arrayToString(Object[] array)
-//	{
-//		if (array == null) return "null"; //$NON-NLS-1$
-//		if (array.length == 0) return "[]"; //$NON-NLS-1$
-//		StringBuffer sb = new StringBuffer();
-//		sb.append("["); //$NON-NLS-1$
-//		for (int i = 0; i < Math.min(100, array.length); i++)
-//		{
-//			sb.append(array[i]);
-//			sb.append(","); //$NON-NLS-1$
-//		}
-//		sb.setLength(sb.length() - 1);
-//		sb.append("]"); //$NON-NLS-1$
-//		return sb.toString();
-//	}
-
 	public static String unescape(String string, int escape)
 	{
-		StringBuffer buffer = new StringBuffer(string.length());
+		StringBuilder buffer = new StringBuilder(string.length());
 		int i = string.indexOf(escape), b = 0;
 		while (i >= 0)
 		{
@@ -1693,7 +1705,7 @@ public class Utils
 
 	public static String longToHexString(long n, int digits)
 	{
-		StringBuffer buffer = new StringBuffer(Long.toHexString(n));
+		StringBuilder buffer = new StringBuilder(Long.toHexString(n));
 		if (buffer.length() > digits) return buffer.substring(buffer.length() - digits);
 		while (buffer.length() < digits)
 			buffer.insert(0, '0');
@@ -2218,7 +2230,7 @@ public class Utils
 		else isr = new InputStreamReader(f);
 		try
 		{
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			BufferedReader br = new BufferedReader(isr);
 			String line;
 			while ((line = br.readLine()) != null)
@@ -2353,7 +2365,7 @@ public class Utils
 		{
 			try
 			{
-				StringBuffer sb = new StringBuffer();
+				StringBuilder sb = new StringBuilder();
 				StringTokenizer st = new StringTokenizer(text.toString(), " "); //$NON-NLS-1$
 				int i = 0;
 				while (st.hasMoreTokens())

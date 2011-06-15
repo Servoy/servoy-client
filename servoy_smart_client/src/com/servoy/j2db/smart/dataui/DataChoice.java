@@ -32,7 +32,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -53,7 +52,6 @@ import sun.java2d.SunGraphics2D;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
-import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
 import com.servoy.j2db.dataprocessing.IEditListener;
@@ -75,8 +73,6 @@ import com.servoy.j2db.ui.scripting.AbstractRuntimeScrollableValuelistComponent;
 import com.servoy.j2db.util.EnableScrollPanel;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.ITagResolver;
-import com.servoy.j2db.util.SortedList;
-import com.servoy.j2db.util.StringComparator;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.editlist.IEditListEditor;
@@ -633,37 +629,13 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 	public Object getValueObject()
 	{
 		Object[] rows = list.getSelectedRows().toArray();
-		if (rows != null && rows.length > 0)
+		Object[] objs = new Object[rows.length];
+		for (int i = 0; i < rows.length; i++)
 		{
-			List retval = new SortedList(StringComparator.INSTANCE);//sorted to have same order to seach in with LIKE (in the db)
-			for (int i = 0; i < rows.length; i++)
-			{
-				Integer element = (Integer)rows[i];
-				Object obj = list.getRealElementAt(element.intValue());
-				if (i == (rows.length - 1) && retval.size() == 0 && (isRadioList || eventExecutor.getValidationEnabled()))
-				{
-					return obj;
-				}
-				retval.add(CustomValueList.convertToString(obj, application));
-			}
-
-			StringBuffer stringRetval = new StringBuffer();
-			Iterator iter = retval.iterator();
-			if (iter.hasNext() && !eventExecutor.getValidationEnabled()) stringRetval.append('%');
-			while (iter.hasNext())
-			{
-				String element = (String)iter.next();
-				stringRetval.append(element);
-				if (iter.hasNext())
-				{
-					stringRetval.append('\n');
-					if (!eventExecutor.getValidationEnabled()) stringRetval.append('%');
-				}
-			}
-			if (stringRetval.length() != 0 && !eventExecutor.getValidationEnabled()) stringRetval.append('%');
-			return stringRetval.toString();
+			objs[i] = list.getRealElementAt(((Integer)rows[i]).intValue());
 		}
-		return null;
+
+		return getScriptObject().getChoiceValue(objs, isRadioList);
 	}
 
 	private Object previousValue;
