@@ -2082,7 +2082,7 @@ public class TemplateGenerator
 					html.append(getCSSClassParameter(cssClass));
 					html.append(getWicketIDParameter(field));
 					html.append(" tabIndex=\"-1\" "); //$NON-NLS-1$ 
-					html.append("><input style='border-width: 0px; padding: 0px; margin-top: 0px; margin-bottom: 0px; margin-left: 0px;' "); // //$NON-NLS-1$ 
+					html.append("><table cellspacing='0' cellpadding='0' border='0' width='100%' height='100%'><tr><td style='vertical-align: middle;'><input style='border-width: 0px; padding: 0px; margin-top: 0px; margin-bottom: 0px; margin-left: 0px;' "); // //$NON-NLS-1$ 
 					html.append(getWicketIDParameter(field, "check_")); //$NON-NLS-1$ 
 					html.append(getDataProviderIDParameter(field));
 					html.append("type='checkbox' "); //$NON-NLS-1$ 
@@ -2093,7 +2093,7 @@ public class TemplateGenerator
 					html.append("' "); //$NON-NLS-1$ 
 					html.append(getWicketIDParameter(field, "text_")); //$NON-NLS-1$ 
 					html.append("></label>"); //$NON-NLS-1$ 
-					html.append("</div>"); //$NON-NLS-1$ 
+					html.append("</td></tr></table></div>"); //$NON-NLS-1$ 
 				}
 				break;
 			case Field.RADIOS :
