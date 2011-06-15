@@ -48,6 +48,7 @@ import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
@@ -371,12 +372,12 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 				if (row_col)
 				{
 					//row
-					if (pair.getLeft() > index) pair.setLeft(pair.getLeft().intValue() + plus_minus);
+					if (pair.getLeft().intValue() > index) pair.setLeft(new Integer(pair.getLeft().intValue() + plus_minus));
 				}
 				else
 				{
 					//col
-					if (pair.getRight() > index) pair.setRight(pair.getRight().intValue() + plus_minus);
+					if (pair.getRight().intValue() > index) pair.setRight(new Integer(pair.getRight().intValue() + plus_minus));
 				}
 				newhtmlAttributes.put(pair, value);//rehash
 			}
@@ -627,40 +628,40 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 			if (htmlAttributes == null)
 			{
 				//-2=apply to container, -1=apply to all, x=apply to specific
-				addHTMLProperty(new Integer(-2), -2, "BORDER", "1"); //$NON-NLS-1$ //$NON-NLS-2$
-				addHTMLProperty(new Integer(-2), -2, "CELLPADDING", "1"); //$NON-NLS-1$ //$NON-NLS-2$
-				addHTMLProperty(new Integer(-2), -2, "CELLSPACING", "0"); //$NON-NLS-1$ //$NON-NLS-2$
-				addHTMLProperty(new Integer(-1), -1, "class", "text"); //$NON-NLS-1$ //$NON-NLS-2$
+				addHTMLProperty(-2, -2, "BORDER", "1"); //$NON-NLS-1$ //$NON-NLS-2$
+				addHTMLProperty(-2, -2, "CELLPADDING", "1"); //$NON-NLS-1$ //$NON-NLS-2$
+				addHTMLProperty(-2, -2, "CELLSPACING", "0"); //$NON-NLS-1$ //$NON-NLS-2$
+				addHTMLProperty(-1, -1, "class", "text"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			int numberOfColumns = set.getColumnCount();
 			out.append("<TABLE "); //$NON-NLS-1$
-			out.append(getHTMLProperties(new Integer(-2), -2));
+			out.append(getHTMLProperties(-2, -2));
 			out.append('>');
 			String[] columnNames = set.getColumnNames();
 			if (columnNames != null && addColumnNames)
 			{
 				if (prettyIndent) out.append("\n\t"); //$NON-NLS-1$
 				out.append("<TR"); //$NON-NLS-1$
-				if (!Utils.stringIsEmpty(getHTMLProperties(new Integer(-1), -1)))
+				if (!Utils.stringIsEmpty(getHTMLProperties(-1, -1)))
 				{
 					out.append(' ');//any row					
-					out.append(getHTMLProperties(new Integer(-1), -1));//any row					
+					out.append(getHTMLProperties(-1, -1));//any row					
 				}
 				out.append('>');
 				for (int x = 0; x < numberOfColumns; x++)
 				{
 					if (prettyIndent) out.append("\n\t\t"); //$NON-NLS-1$
 					out.append("<TD"); //$NON-NLS-1$
-					if (!Utils.stringIsEmpty(getHTMLProperties(new Integer(-1), x)))
+					if (!Utils.stringIsEmpty(getHTMLProperties(-1, x)))
 					{
 						out.append(' ');
-						out.append(getHTMLProperties(new Integer(-1), x));//specific column
+						out.append(getHTMLProperties(-1, x));//specific column
 					}
 					out.append('>');
 					out.append("<B>"); //$NON-NLS-1$
 					if (escapeValues)
 					{
-						String val = Utils.escapeMarkup(columnNames[x], escapeSpaces).toString();
+						String val = HtmlUtils.escapeMarkup(columnNames[x], escapeSpaces).toString();
 						if (multiLineMarkup == false)
 						{
 							out.append(val);
@@ -684,11 +685,11 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 				Object[] row = set.getRow(j);
 				if (prettyIndent) out.append("\n\t"); //$NON-NLS-1$
 				out.append("<TR"); //$NON-NLS-1$
-				if (!Utils.stringIsEmpty(getHTMLProperties(new Integer(-1), -1)) || !Utils.stringIsEmpty(getHTMLProperties(j, -1)))
+				if (!Utils.stringIsEmpty(getHTMLProperties(-1, -1)) || !Utils.stringIsEmpty(getHTMLProperties(j, -1)))
 				{
 					out.append(' ');
 				}
-				out.append(getHTMLProperties(new Integer(-1), -1));//any row
+				out.append(getHTMLProperties(-1, -1));//any row
 				out.append(getHTMLProperties(j, -1));//specific row
 				out.append('>');
 
@@ -696,17 +697,17 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 				{
 					if (prettyIndent) out.append("\n\t\t"); //$NON-NLS-1$
 					out.append("<TD"); //$NON-NLS-1$
-					if (!Utils.stringIsEmpty(getHTMLProperties(new Integer(-1), x)) || !Utils.stringIsEmpty(getHTMLProperties(j, x)))
+					if (!Utils.stringIsEmpty(getHTMLProperties(-1, x)) || !Utils.stringIsEmpty(getHTMLProperties(j, x)))
 					{
 						out.append(' ');
 					}
-					out.append(getHTMLProperties(new Integer(-1), x));//specific column
+					out.append(getHTMLProperties(-1, x));//specific column
 					out.append(getHTMLProperties(j, x));//specific cell
 					out.append('>');
 
 					if (escapeValues)
 					{
-						String val = Utils.escapeMarkup("" + row[x], escapeSpaces).toString(); //$NON-NLS-1$
+						String val = HtmlUtils.escapeMarkup("" + row[x], escapeSpaces).toString(); //$NON-NLS-1$
 						if (multiLineMarkup == false)
 						{
 							out.append(val);
@@ -885,7 +886,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 	 */
 	public void js_addHTMLProperty(int row, int col, String name, String value)//one based
 	{
-		addHTMLProperty(new Integer(row - 1), col - 1, name, value);
+		addHTMLProperty(row - 1, col - 1, name, value);
 	}
 
 	public void addHTMLProperty(int rowIdent, int c, String pname, String pvalue)
@@ -899,7 +900,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 //				rowIdent = set.getRow(r);
 //			}
 //		}
-		Pair<Integer, Integer> key = new Pair<Integer, Integer>(rowIdent, new Integer(c));
+		Pair<Integer, Integer> key = new Pair<Integer, Integer>(new Integer(rowIdent), new Integer(c));
 		Map<String, String> value = htmlAttributes.get(key);
 		if (value == null)
 		{
@@ -912,7 +913,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 	private String getHTMLProperties(int rowIdent, int c)
 	{
 		StringBuilder sb = new StringBuilder();
-		Pair<Integer, Integer> key = new Pair<Integer, Integer>(rowIdent, new Integer(c));
+		Pair<Integer, Integer> key = new Pair<Integer, Integer>(new Integer(rowIdent), new Integer(c));
 		Map<String, String> value = htmlAttributes.get(key);
 		if (value != null)
 		{
@@ -1883,7 +1884,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 
 		public String[] getColumnNames()
 		{
-			Object[] columnNames = foundSet.getTable().getColumnNames();
+			String[] columnNames = foundSet.getTable().getColumnNames();
 			// hide servoy internal pk column
 			String[] res = new String[columnNames.length - 1];
 			System.arraycopy(columnNames, 1, res, 0, res.length);
@@ -1905,10 +1906,18 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 
 		public Object[] getRow(int row)
 		{
-			Object[] rawColumnData = foundSet.getRecord(row).getRawData().getRawColumnData();
+			IRecordInternal record = foundSet.getRecord(row);
+			if (record == null)
+			{
+				return null;
+			}
+			String[] columnNames = foundSet.getTable().getColumnNames();
 			// hide servoy internal pk column
-			Object[] res = new Object[rawColumnData.length - 1];
-			System.arraycopy(rawColumnData, 1, res, 0, res.length);
+			Object[] res = new Object[columnNames.length - 1];
+			for (int i = 1; i < columnNames.length; i++)
+			{
+				res[i - 1] = record.getValue(columnNames[i]); // get value via record so that conversion is done
+			}
 			return res;
 		}
 

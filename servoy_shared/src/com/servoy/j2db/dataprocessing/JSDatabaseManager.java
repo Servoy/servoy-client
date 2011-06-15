@@ -50,6 +50,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.plugins.IClientPlugin;
 import com.servoy.j2db.query.AbstractBaseQuery;
+import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLCondition;
@@ -330,14 +331,14 @@ public class JSDatabaseManager
 				}
 				else
 				{
-					Debug.warn("convertFoundSet: invalid argument " + related);
+					Debug.warn("convertFoundSet: invalid argument " + related); //$NON-NLS-1$
 					return null;
 				}
 
 				Relation relation = application.getFlattenedSolution().getRelation(relationName);
 				if (relation == null || relation.isMultiServer() || fs_old.getTable() == null || !fs_old.getTable().equals(relation.getPrimaryTable()))
 				{
-					Debug.warn("convertFoundSet: cannot use relation " + relationName);
+					Debug.warn("convertFoundSet: cannot use relation " + relationName); //$NON-NLS-1$
 					return null;
 				}
 
@@ -416,7 +417,8 @@ public class JSDatabaseManager
 		if (object instanceof JSDataSet) return (JSDataSet)object;
 
 		String[] dpnames = { "id" }; //$NON-NLS-1$
-		int[] dptypes = { IColumnTypes.INTEGER };
+		ColumnType[] dptypes = { ColumnType.getInstance(IColumnTypes.INTEGER, Integer.MAX_VALUE, 0) };
+
 		List<Object[]> lst = new ArrayList<Object[]>();
 
 		if (object instanceof FoundSet)
@@ -442,13 +444,17 @@ public class JSDatabaseManager
 				boolean getInOneQuery = !fs.isInFindMode() && (fs.hadMoreRows() || fs.getSize() > fsm.pkChunkSize) &&
 					!fsm.getEditRecordList().hasEditedRecords(fs);
 
-				dptypes = new int[dpnames.length];
+				dptypes = new ColumnType[dpnames.length];
 				Table table = fs.getSQLSheet().getTable();
 				Map<String, Column> columnMap = new HashMap<String, Column>();
 				for (int i = 0; i < dpnames.length; i++)
 				{
 					IDataProvider dp = application.getFlattenedSolution().getDataProviderForTable(table, dpnames[i]);
-					dptypes[i] = dp == null ? 0 : dp.getDataProviderType();
+
+
+					dptypes[i] = dp == null ? ColumnType.getInstance(0, 0, 0) : ColumnType.getInstance(
+						dp instanceof Column ? ((Column)dp).getType() : dp.getDataProviderType(), dp.getLength(),
+						dp instanceof Column ? ((Column)dp).getScale() : 0);
 					if (getInOneQuery)
 					{
 						// only columns and data we can get from the foundset (calculations only when stored)
@@ -629,7 +635,7 @@ public class JSDatabaseManager
 				}
 			}
 		}
-		return new JSDataSet(application, new BufferedDataSet(dpnames, dptypes, lst));
+		return new JSDataSet(application, new BufferedDataSet(dpnames, dptypes, lst, false));
 	}
 
 	private Method getMethod(Object o, String pname, Map<String, Method> getters)
