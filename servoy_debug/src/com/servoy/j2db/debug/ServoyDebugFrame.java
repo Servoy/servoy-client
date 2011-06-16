@@ -115,6 +115,7 @@ public class ServoyDebugFrame extends DBGPDebugFrame implements IDataCallListene
 		{
 			name = currentNode.getParent().getFunctionName();
 			lineNumbers = currentNode.getLineNumbers();
+			currentNode = currentNode.getParent();
 			innerFunction = true;
 		}
 
