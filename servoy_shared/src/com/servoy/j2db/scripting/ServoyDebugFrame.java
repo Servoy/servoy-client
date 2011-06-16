@@ -83,10 +83,12 @@ public class ServoyDebugFrame extends DBGPDebugFrame
 		int[] lineNumbers = null;
 		boolean innerFunction = false;
 		String name = node.getFunctionName();
-		while ((name == null || name.equals("")) && node.getParent() != null) //$NON-NLS-1$
+		DebuggableScript currentNode = node;
+		while ((name == null || name.equals("")) && currentNode.getParent() != null) //$NON-NLS-1$
 		{
-			name = node.getParent().getFunctionName();
-			lineNumbers = node.getLineNumbers();
+			name = currentNode.getParent().getFunctionName();
+			lineNumbers = currentNode.getLineNumbers();
+			currentNode = currentNode.getParent();
 			innerFunction = true;
 		}
 		return new ProfileData(name, (endTime - startTime), args, node.getSourceName(), parentSource, innerFunction, lineNumbers);
