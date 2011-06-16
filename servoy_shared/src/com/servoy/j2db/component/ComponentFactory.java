@@ -39,6 +39,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -913,17 +914,18 @@ public class ComponentFactory
 		if (valuelist != null &&
 			(valuelist.getValueListType() == ValueList.CUSTOM_VALUES || (valuelist.getValueListType() == ValueList.DATABASE_VALUES && valuelist.getDatabaseValuesType() == ValueList.TABLE_VALUES)))//reuse,those are static,OTHERS not!
 		{
-			WeakHashMap<ValueList, Object> hmValueLists = null;
+			WeakHashMap<Pair<ValueList, String>, Object> hmValueLists = null;
 			if (application != null)
 			{
-				hmValueLists = (WeakHashMap<ValueList, Object>)application.getRuntimeProperties().get(IServiceProvider.RT_VALUELIST_CACHE);
+				hmValueLists = (WeakHashMap<Pair<ValueList, String>, Object>)application.getRuntimeProperties().get(IServiceProvider.RT_VALUELIST_CACHE);
 				if (hmValueLists == null)
 				{
-					hmValueLists = new WeakHashMap<ValueList, Object>();
+					hmValueLists = new WeakHashMap<Pair<ValueList, String>, Object>();
 					application.getRuntimeProperties().put(IServiceProvider.RT_VALUELIST_CACHE, hmValueLists);
 				}
 
-				Object object = hmValueLists.get(valuelist);
+				Pair<ValueList, String> key = new Pair<ValueList, String>(valuelist, format);
+				Object object = hmValueLists.get(key);
 				if (object instanceof SoftReference< ? >)
 				{
 					SoftReference<IValueList> sr = (SoftReference<IValueList>)object;
@@ -931,9 +933,8 @@ public class ComponentFactory
 					// if it was inserted by a soft reference but now it can't be softly referenced, put it back in hard.
 					if (list != null && !useSoftCacheForCustom)
 					{
-						hmValueLists.put(valuelist, list);
+						hmValueLists.put(key, list);
 					}
-
 				}
 				else if (object instanceof IValueList)
 				{
@@ -952,7 +953,7 @@ public class ComponentFactory
 				}
 				if (!useSoftCacheForCustom && valuelist.getValueListType() == ValueList.CUSTOM_VALUES)
 				{
-					if (hmValueLists != null) hmValueLists.put(valuelist, list);
+					if (hmValueLists != null) hmValueLists.put(new Pair<ValueList, String>(valuelist, format), list);
 					if (dataprovider != null)
 					{
 						((CustomValueList)list).addDataProvider(dataprovider);
@@ -960,7 +961,7 @@ public class ComponentFactory
 				}
 				else
 				{
-					if (hmValueLists != null) hmValueLists.put(valuelist, new SoftReference<IValueList>(list));
+					if (hmValueLists != null) hmValueLists.put(new Pair<ValueList, String>(valuelist, format), new SoftReference<IValueList>(list));
 
 					if (dataprovider != null && valuelist.getValueListType() == ValueList.CUSTOM_VALUES)
 					{
@@ -2027,11 +2028,19 @@ public class ComponentFactory
 	@SuppressWarnings("unchecked")
 	public static void flushValueList(ValueList vl)
 	{
-		WeakHashMap<ValueList, Object> hmValueLists = (WeakHashMap<ValueList, Object>)J2DBGlobals.getServiceProvider().getRuntimeProperties().get(
+		WeakHashMap<Pair<ValueList, String>, Object> hmValueLists = (WeakHashMap<Pair<ValueList, String>, Object>)J2DBGlobals.getServiceProvider().getRuntimeProperties().get(
 			IServiceProvider.RT_VALUELIST_CACHE);
-		if (hmValueLists != null)
+		if (hmValueLists != null && vl != null)
 		{
-			hmValueLists.remove(vl);
+			Iterator<Entry<Pair<ValueList, String>, Object>> iterator = hmValueLists.entrySet().iterator();
+			while (iterator.hasNext())
+			{
+				Entry<Pair<ValueList, String>, Object> next = iterator.next();
+				if (vl.equals(next.getKey().getLeft()))
+				{
+					iterator.remove();
+				}
+			}
 		}
 	}
 
