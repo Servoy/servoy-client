@@ -68,11 +68,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Stack;
 import java.util.TimeZone;
-import java.util.Map.Entry;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.security.auth.Subject;
@@ -96,6 +96,8 @@ import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JFormattedTextField.AbstractFormatter;
+import javax.swing.JFormattedTextField.AbstractFormatterFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
@@ -116,14 +118,11 @@ import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
-import javax.swing.WindowConstants;
-import javax.swing.JFormattedTextField.AbstractFormatter;
-import javax.swing.JFormattedTextField.AbstractFormatterFactory;
 import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.WindowConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.plaf.FontUIResource;
-import javax.swing.plaf.InputMapUIResource;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.MetalTheme;
 import javax.swing.text.DefaultFormatter;
@@ -1504,50 +1503,10 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 				// create a temp data field here so that the cached ui defaults are based on it.
 				new DataField(this);
 			}
-			replaceCtrlShortcutsWithMacShortcuts();
 		}
 		catch (Exception e)
 		{
 			Debug.error(e);
-		}
-	}
-
-	protected void replaceCtrlShortcutsWithMacShortcuts()
-	{
-		if (Utils.isAppleMacOS() && UIManager.getLookAndFeel().getClass().getName().toUpperCase().indexOf("AQUA") < 0)
-		{
-			for (Object keyObj : UIManager.getLookAndFeelDefaults().keySet())
-			{
-				String key = keyObj.toString();
-
-				if (key.contains("InputMap"))
-				{
-					Object val = UIManager.getLookAndFeelDefaults().get(key);
-
-					if (val instanceof InputMapUIResource)
-					{
-						InputMapUIResource map = (InputMapUIResource)val;
-						for (KeyStroke keyStroke : map.allKeys())
-						{
-							int modifiers = keyStroke.getModifiers();
-
-							if ((modifiers & InputEvent.CTRL_MASK) > 0)
-							{
-								modifiers -= InputEvent.CTRL_DOWN_MASK;
-								modifiers -= InputEvent.CTRL_MASK;
-								modifiers += InputEvent.META_DOWN_MASK + InputEvent.META_MASK;
-
-								KeyStroke k = KeyStroke.getKeyStroke(keyStroke.getKeyCode(), modifiers);
-
-								Object mapVal = map.get(keyStroke);
-								map.remove(keyStroke);
-								map.put(k, mapVal);
-							}
-
-						}
-					}
-				}
-			}
 		}
 	}
 
@@ -1660,7 +1619,6 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 						}
 					}
 					UIManager.setLookAndFeel(laf);// yes, this is the second time if there is a methalTHeme but this is only it works
-					replaceCtrlShortcutsWithMacShortcuts();
 				}
 			}
 
