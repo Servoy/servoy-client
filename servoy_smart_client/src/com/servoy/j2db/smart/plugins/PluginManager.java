@@ -24,6 +24,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -59,7 +60,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 	private final File pluginDir;
 	private static ExtendableURLClassLoader _pluginsClassLoader;
 	private static Map<URL, Pair<String, Long>> supportLibUrls = new HashMap<URL, Pair<String, Long>>();
-	private static Map<URL, Pair<String, Long>> pluginUrls = new HashMap<URL, Pair<String, Long>>();
+	private static Map<URL, Pair<String, Long>> pluginUrls = new LinkedHashMap<URL, Pair<String, Long>>();
 
 	private static Extension[] clientPluginInfo;
 
@@ -187,10 +188,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 	{
 		try
 		{
-			Map<URL, Pair<String, Long>> all = new HashMap<URL, Pair<String, Long>>();
-			all.putAll(pluginUrls);
-//			all.putAll(supportLibUrls);
-			Class<IServerPlugin>[] classes = getAssignableClasses((ExtendableURLClassLoader)getClassLoader(), IServerPlugin.class, all);
+			Class<IServerPlugin>[] classes = getAssignableClasses((ExtendableURLClassLoader)getClassLoader(), IServerPlugin.class, pluginUrls);
 			return classes;
 		}
 		catch (Throwable th)
@@ -272,7 +270,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 						}
 						catch (Throwable th)
 						{
-								Debug.error("Error occured loading client plugin class " + element.instanceClass.getName(), th); //$NON-NLS-1$ 
+							Debug.error("Error occured loading client plugin class " + element.instanceClass.getName(), th); //$NON-NLS-1$ 
 						}
 					}
 				}
