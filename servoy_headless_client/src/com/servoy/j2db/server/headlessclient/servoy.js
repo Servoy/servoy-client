@@ -1278,11 +1278,16 @@ if (typeof(Servoy.Utils) == "undefined")
 	  
 	  getActionParams: function(e)
 	  {
-		var src = e.target;	// get the target element
-		// for IE
-		if(!src)
-			src = e.srcElement;
-		return '&modifiers='+Servoy.Utils.getModifiers(e)+'&mx=' + ((e.pageX ? e.pageX : e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft) - Servoy.Utils.getXY(src)[0]) + '&my=' + ((e.pageY ? e.pageY : e.clientY + document.body.scrollLeft + document.documentElement.scrollLeft) - Servoy.Utils.getXY(src)[1]);
+	  	var elem;
+  		if (e.target)
+		{
+			elem = e.target;
+		}
+		else if (e.srcElement)
+		{
+			elem = e.srcElement;
+		}
+		return '&modifiers='+Servoy.Utils.getModifiers(e)+'&mx=' + ((e.pageX ? e.pageX : e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft) - Servoy.Utils.getXY(elem)[0]) + '&my=' + ((e.pageY ? e.pageY : e.clientY + document.body.scrollLeft + document.documentElement.scrollLeft) - Servoy.Utils.getXY(elem)[1]);
 	  },
 	  
 	  redirectKeepingScrolls: function()
