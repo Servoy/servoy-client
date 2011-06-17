@@ -174,7 +174,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * DEFAULT: false 
 	 * 
 	 * @sample
-	 * application.setUIProperty(APP_UI_PROPERTY.USE_SYSTEM_PRINT_DIALOG, true)
+	 * application.setUIProperty(APP_UI_PROPERTY.LEAVE_FIELDS_READONLY_IN_FIND_MODE, true)
 	 */
 	public static final String LEAVE_FIELDS_READONLY_IN_FIND_MODE = IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE;
 
