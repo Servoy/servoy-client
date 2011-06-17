@@ -120,6 +120,7 @@ import javax.swing.WindowConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.plaf.FontUIResource;
+import javax.swing.plaf.InputMapUIResource;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.MetalTheme;
 import javax.swing.text.DefaultFormatter;
@@ -1479,6 +1480,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 					}
 				}
 			}
+			replaceCtrlShortcutsWithMacShortcuts();
 
 			if (dfltFont != null) setUIProperty(Font.class.getName(), dfltFont);
 
@@ -1486,6 +1488,45 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		catch (Exception e)
 		{
 			Debug.error(e);
+		}
+	}
+
+	protected void replaceCtrlShortcutsWithMacShortcuts()
+	{
+		if (Utils.isAppleMacOS() && UIManager.getLookAndFeel().getClass().getName().toUpperCase().indexOf("AQUA") < 0)
+		{
+			for (Object keyObj : UIManager.getLookAndFeelDefaults().keySet())
+			{
+				String key = keyObj.toString();
+
+				if (key.contains("InputMap"))
+				{
+					Object val = UIManager.getLookAndFeelDefaults().get(key);
+
+					if (val instanceof InputMapUIResource)
+					{
+						InputMapUIResource map = (InputMapUIResource)val;
+						for (KeyStroke keyStroke : map.allKeys())
+						{
+							int modifiers = keyStroke.getModifiers();
+
+							if ((modifiers & InputEvent.CTRL_MASK) > 0)
+							{
+								modifiers -= InputEvent.CTRL_DOWN_MASK;
+								modifiers -= InputEvent.CTRL_MASK;
+								modifiers += InputEvent.META_DOWN_MASK + InputEvent.META_MASK;
+
+								KeyStroke k = KeyStroke.getKeyStroke(keyStroke.getKeyCode(), modifiers);
+
+								Object mapVal = map.get(keyStroke);
+								map.remove(keyStroke);
+								map.put(k, mapVal);
+							}
+
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -1597,6 +1638,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 						}
 					}
 					UIManager.setLookAndFeel(laf);// yes, this is the second time if there is a methalTHeme but this is only it works
+					replaceCtrlShortcutsWithMacShortcuts();
 				}
 			}
 
