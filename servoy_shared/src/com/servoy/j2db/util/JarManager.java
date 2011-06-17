@@ -23,6 +23,8 @@ import java.lang.reflect.Modifier;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -235,10 +237,16 @@ public abstract class JarManager
 		List<String> foundBeanClassNames = new ArrayList<String>();
 		if (dir != null && dir.isDirectory())
 		{
-			String[] files = dir.list();
-			for (int i = 0; i < files.length; ++i)
+			String[] filesa = dir.list();
+			List<String> files = Arrays.asList(filesa);
+
+			//make sure we have a predefined load order (== alphabetically)
+			Collections.sort(files);
+
+			Iterator<String> it = files.iterator();
+			while (it.hasNext())
 			{
-				String fileName = files[i];
+				String fileName = it.next();
 				if (fileName.toLowerCase().endsWith(".zip") || fileName.toLowerCase().endsWith(".jar")) //$NON-NLS-1$ //$NON-NLS-2$
 				{
 					try
