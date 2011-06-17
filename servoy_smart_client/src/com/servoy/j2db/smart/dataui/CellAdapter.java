@@ -378,6 +378,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				displays.get(d).setFindMode(b);
 			}
 		}
+		if (table != null && !table.isEditing()) currentEditingState = null;
 	}
 
 	/*
@@ -1297,7 +1298,6 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				{
 					l.editingStopped(new ChangeEvent(this));
 				}
-				currentEditingState = null;
 				return true;
 			}
 			finally
