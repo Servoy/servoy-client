@@ -131,6 +131,7 @@ import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FixedStyleSheet;
+import com.servoy.j2db.util.FormatParser;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.OpenProperties;
 import com.servoy.j2db.util.Pair;
@@ -1037,6 +1038,7 @@ public class ComponentFactory
 		{
 			application = J2DBGlobals.getServiceProvider();
 		}
+		String displayFormat = format == null ? null : new FormatParser(format).getDisplayFormat();
 		IValueList list = null;
 		if (valuelist != null &&
 			(valuelist.getValueListType() == ValueList.CUSTOM_VALUES || (valuelist.getValueListType() == ValueList.DATABASE_VALUES && valuelist.getDatabaseValuesType() == ValueList.TABLE_VALUES)))//reuse,those are static,OTHERS not!
@@ -1071,12 +1073,12 @@ public class ComponentFactory
 
 			if (list == null)
 			{
-				list = ValueListFactory.createRealValueList(application, valuelist, type, format);
+				list = ValueListFactory.createRealValueList(application, valuelist, type, displayFormat);
 				if (valuelist.getFallbackValueListID() > 0 && valuelist.getFallbackValueListID() != valuelist.getID())
 				{
 					ValueList vl = application.getFlattenedSolution().getValueList(valuelist.getFallbackValueListID());
 					vl.setDisplayValueType(valuelist.getDisplayValueType());
-					list.setFallbackValueList(getRealValueList(application, vl, useSoftCacheForCustom, type, format, dataprovider));
+					list.setFallbackValueList(getRealValueList(application, vl, useSoftCacheForCustom, type, displayFormat, dataprovider));
 				}
 				if (!useSoftCacheForCustom && valuelist.getValueListType() == ValueList.CUSTOM_VALUES)
 				{
@@ -1132,12 +1134,12 @@ public class ComponentFactory
 		}
 		else
 		{
-			list = ValueListFactory.createRealValueList(application, valuelist, type, format);
+			list = ValueListFactory.createRealValueList(application, valuelist, type, displayFormat);
 			if (valuelist != null && valuelist.getFallbackValueListID() > 0 && valuelist.getFallbackValueListID() != valuelist.getID())
 			{
 				ValueList vl = application.getFlattenedSolution().getValueList(valuelist.getFallbackValueListID());
 				vl.setDisplayValueType(valuelist.getDisplayValueType());
-				list.setFallbackValueList(getRealValueList(application, vl, useSoftCacheForCustom, type, format, dataprovider));
+				list.setFallbackValueList(getRealValueList(application, vl, useSoftCacheForCustom, type, displayFormat, dataprovider));
 			}
 		}
 		return list;
