@@ -1934,7 +1934,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		// so that in scripting and in ui everything does format (and global relations are able display)
 		if (state == null)
 		{
-			state = proto;
+			state = getPrototypeState();
 		}
 		return state;
 	}
@@ -2422,7 +2422,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		checkSelection();
 		IRecordInternal record = getRecord(getSelectedIndex());
-		return record != null && record.getRawData() != null ? record : null; // safety, do not return proto
+		return record == getPrototypeState() ? null : record; // safety, do not return proto
 	}
 
 	/**
@@ -2440,7 +2440,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		for (int index : selectedIndexes)
 		{
 			IRecordInternal record = getRecord(index);
-			if (record != null && record.getRawData() != null) // safety, do not return proto
+			if (record != null && record != getPrototypeState()) // safety, do not return proto
 			{
 				selectedRecords.add(record);
 			}
@@ -4184,9 +4184,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 	}
 
-	protected void fireFoundSetEvent(@SuppressWarnings("unused")
-	int firstRow, @SuppressWarnings("unused")
-	int lastRow, int changeType)
+	protected void fireFoundSetEvent(@SuppressWarnings("unused") int firstRow, @SuppressWarnings("unused") int lastRow, int changeType)
 	{
 		if (foundSetEventListeners.size() > 0)
 		{
