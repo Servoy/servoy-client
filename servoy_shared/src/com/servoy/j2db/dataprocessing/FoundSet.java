@@ -2421,7 +2421,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	public IRecordInternal js_getSelectedRecord()
 	{
 		checkSelection();
-		return getRecord(getSelectedIndex());
+		IRecordInternal record = getRecord(getSelectedIndex());
+		return record != null && record.getRawData() != null ? record : null; // safety, do not return proto
 	}
 
 	/**
@@ -2435,13 +2436,17 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		checkSelection();
 		int[] selectedIndexes = getSelectedIndexes();
-		IRecordInternal[] selectedRecords = new IRecordInternal[selectedIndexes.length];
-		for (int i = 0; i < selectedIndexes.length; i++)
+		List<IRecordInternal> selectedRecords = new ArrayList<IRecordInternal>(selectedIndexes.length);
+		for (int index : selectedIndexes)
 		{
-			selectedRecords[i] = getRecord(selectedIndexes[i]);
+			IRecordInternal record = getRecord(index);
+			if (record != null && record.getRawData() != null) // safety, do not return proto
+			{
+				selectedRecords.add(record);
+			}
 		}
 
-		return selectedRecords;
+		return selectedRecords.toArray(new IRecordInternal[selectedRecords.size()]);
 	}
 
 	/**
