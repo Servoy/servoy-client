@@ -407,7 +407,10 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 		}
 		else if (!showCal.isEnabled() && isEnabled())
 		{
-			scriptable.setEditableInFindMode();
+			if (!Boolean.TRUE.equals(application.getUIProperty(IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE)))
+			{
+				setReadOnly(false);
+			}
 		}
 	}
 

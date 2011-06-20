@@ -164,15 +164,6 @@ public abstract class AbstractRuntimeField<C extends IFieldComponent> extends Ab
 		getChangesRecorder().setSize(x, y, getComponent().getBorder(), getComponent().getMargin(), 0);
 	}
 
-	public void setEditableInFindMode()
-	{
-		if (!Boolean.TRUE.equals(application.getUIProperty(IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE)))
-		{
-			getComponent().setEditable(true);
-		}
-	}
-
-
 	/** Get the value for a choice on possibly multiple values.
 	 * 
 	 * Multiple values are joined with newline.

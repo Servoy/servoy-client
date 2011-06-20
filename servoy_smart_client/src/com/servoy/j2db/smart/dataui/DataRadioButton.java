@@ -267,7 +267,10 @@ public class DataRadioButton extends JRadioButton implements IFieldComponent, ID
 		else
 		{
 			wasEditable = !isReadOnly();
-			if (scriptable != null) scriptable.setEditableInFindMode();
+			if (!Boolean.TRUE.equals(application.getUIProperty(IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE)))
+			{
+				setEditable(true);
+			}
 		}
 		eventExecutor.setValidationEnabled(b);
 		editState = prevEditState;

@@ -362,7 +362,10 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 		}
 		else
 		{
-			scriptable.setEditableInFindMode();
+			if (!Boolean.TRUE.equals(application.getUIProperty(IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE)))
+			{
+				setReadOnly(false);
+			}
 		}
 	}
 
