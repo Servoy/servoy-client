@@ -267,17 +267,31 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 
 			private int getExtendedWidth(JComboBox cmb)
 			{
-
 				int width = (int)cmb.getSize().getWidth();
-
-
 				for (int i = 0; i < cmb.getItemCount(); i++)
 				{
-					Object text = cmb.getItemAt(i);
-					if (text == null) continue;
+					Object obj = cmb.getItemAt(i);
+					if (obj == null) continue;
 
-					int textWidth = cmb.getFontMetrics(cmb.getFont()).stringWidth(text.toString());
-					width = Math.max(width, textWidth + 10);//add offset 10
+					String formatted = null;
+					if (format != null)
+					{
+						try
+						{
+							formatted = format.format(obj);
+						}
+						catch (IllegalArgumentException ex)
+						{
+							Debug.trace("Error formatting value for combobox " + dataProviderID + ", " + ex); //$NON-NLS-1$//$NON-NLS-2$
+						}
+					}
+					if (formatted == null)
+					{
+						formatted = obj.toString();
+					}
+
+					int textWidth = cmb.getFontMetrics(cmb.getFont()).stringWidth(formatted);
+					width = Math.max(width, textWidth + 10); // add offset 10
 				}
 
 				return width;
