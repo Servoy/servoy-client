@@ -97,10 +97,17 @@ public class ServerProxy implements IServer, Serializable
 		return serverName;
 	}
 
+	private boolean valid = false;
+
 	public boolean isValid() throws RemoteException
 	{
-		// Can i proxy this? Or can a valid test always change back to in or valid? 
-		return server.isValid();
+		// cache the valid state when the server was valid on the servoy server. 
+		// If this toggles for a client then we have other problems anyway. 
+		if (!valid)
+		{
+			valid = server.isValid();
+		}
+		return valid;
 	}
 
 	void addTable(Table t)

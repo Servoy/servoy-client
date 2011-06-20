@@ -139,7 +139,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		foreign = foreignColumns; //faster
 		operators = ops; //faster
 		isGlobal = null;
-		valid = true;
+		valid = null;
 	}
 
 
@@ -165,7 +165,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		foreign = null;
 		operators = null;
 		isGlobal = null;
-		valid = true;
+		valid = null;
 
 		return obj;
 	}
@@ -594,7 +594,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 				IServer server = getRootObject().getServer(stn[0]);
 				if (server == null)
 				{
-					valid = false;
+					valid = Boolean.FALSE;
 					throw new RepositoryException(Messages.getString("servoy.exception.serverNotFound", new Object[] { stn[0] })); //$NON-NLS-1$
 				}
 				return (Table)server.getTable(stn[1]);
@@ -663,7 +663,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	public boolean isUsableInSearch()
 	{
-		return valid && !isMultiServer() && !isGlobal();
+		return isValid() && !isMultiServer() && !isGlobal();
 	}
 
 	public boolean isMultiServer()
@@ -733,7 +733,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 		if (exception != null)
 		{
-			valid = false;
+			valid = Boolean.FALSE;
 			throw exception;
 		}
 
@@ -779,38 +779,35 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 		if (exception != null)
 		{
-			valid = false;
+			valid = Boolean.FALSE;
 			throw exception;
 		}
 	}
 
 	public boolean isValid()
 	{
-		if (valid && getForeignDataSource() != null)
+		if (valid == null && getForeignDataSource() != null)
 		{
 			try
 			{
 				IServer server = getForeignServer();
-				if (server == null) return false;
-				if (server.isValid())
-				{
-					return getForeignTable() != null;
-				}
-				else return false;
+				valid = server != null && server.isValid() && getForeignTable() != null ? Boolean.TRUE : Boolean.FALSE;
 			}
 			catch (Exception e)
 			{
-				valid = false;
+				valid = Boolean.FALSE;
 			}
 		}
-		return valid;
+		// default to true
+		if (valid == null) return true;
+		return valid.booleanValue();
 	}
 
-	public boolean valid = true;
+	public Boolean valid = null;
 
 	public void setValid(boolean b)
 	{
-		valid = b;
+		valid = b ? Boolean.TRUE : Boolean.FALSE;
 		if (b)//clear so they are checked again
 		{
 			primary = null;
@@ -951,7 +948,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	 */
 	private boolean isGlobalEx()
 	{
-		if (!valid) return false;//don't know
+		if (!isValid()) return false;//don't know
 
 		List<IPersist> allobjects = getAllObjectsAsList();
 		if (allobjects.size() == 0) return false;
