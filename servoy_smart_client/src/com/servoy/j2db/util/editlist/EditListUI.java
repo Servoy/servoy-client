@@ -42,6 +42,7 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IFormUI;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.ISupportEventExecutor;
+import com.servoy.j2db.util.Utils;
 
 public class EditListUI extends BasicListUI
 {
@@ -259,7 +260,7 @@ public class EditListUI extends BasicListUI
 				// boolean adjusting = (e.getID() == MouseEvent.MOUSE_PRESSED) ? true : false;
 				//				list.setValueIsAdjusting(adjusting);
 				int anchorIndex = list.getAnchorSelectionIndex();
-				if (e.isControlDown())
+				if (Utils.isCommandKeyDown(e))
 				{
 					if (list.isSelectedIndex(row))
 					{
@@ -330,7 +331,7 @@ public class EditListUI extends BasicListUI
 			{
 				return;
 			}
-			if (e.isShiftDown() || e.isControlDown())
+			if (e.isShiftDown() || Utils.isCommandKeyDown(e))
 			{
 				return;
 			}

@@ -19,6 +19,7 @@ package com.servoy.j2db.util;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.print.PageFormat;
 import java.awt.print.Paper;
 import java.io.BufferedInputStream;
@@ -2278,6 +2279,11 @@ public class Utils
 			}
 		}
 		return false;
+	}
+
+	public static boolean isCommandKeyDown(InputEvent e)
+	{
+		return isAppleMacOS() ? e.isMetaDown() : e.isControlDown();
 	}
 
 	public static boolean isAppleMacOS()

@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util.toolbar;
 
 
@@ -34,6 +34,8 @@ import javax.swing.JToolBar;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.MouseInputListener;
 
+import com.servoy.j2db.util.Utils;
+
 /**
  * Toolbar provides a component which is useful for displaying commonly used actions. It can be dragged inside its <code>ToolbarPanel</code> to customize its
  * location.
@@ -49,8 +51,8 @@ public class Toolbar extends JToolBar
 	private static final String ACTION = "Action"; // NOI18N //$NON-NLS-1$
 	/** Basic toolbar height. */
 	public static/*
-					 * nbif compat nbelse
-					 */
+				 * nbif compat nbelse
+				 */
 	final/* nbend */
 	int BASIC_HEIGHT = 26;
 
@@ -320,7 +322,7 @@ public class Toolbar extends JToolBar
 		{
 			int m = e.getModifiers();
 			int type = DnDEvent.DND_ONE;
-			if (e.isControlDown()) type = DnDEvent.DND_LINE;
+			if (Utils.isCommandKeyDown(e)) type = DnDEvent.DND_LINE;
 			else if (((m & InputEvent.BUTTON2_MASK) != 0) || ((m & InputEvent.BUTTON3_MASK) != 0)) type = DnDEvent.DND_END;
 			if (startPoint == null) startPoint = new Point(e.getX(), e.getY());
 			fireDragToolbar(e.getX() - startPoint.x, e.getY() - startPoint.y, type);
@@ -337,12 +339,12 @@ public class Toolbar extends JToolBar
 
 	/*
 	 * nbif compat public void mouseClicked (MouseEvent e) { if (mouseListener == null) mouseListener = new ToolbarMouseListener (); mouseListener.mouseClicked
-	 * (e); } public void mouseEntered (MouseEvent e) { if (mouseListener == null) mouseListener = new ToolbarMouseListener (); mouseListener.mouseEntered (e); }
-	 * public void mouseExited (MouseEvent e) { if (mouseListener == null) mouseListener = new ToolbarMouseListener (); mouseListener.mouseExited (e); } public
-	 * void mousePressed (MouseEvent e) { if (mouseListener == null) mouseListener = new ToolbarMouseListener (); mouseListener.mousePressed (e); } public void
-	 * mouseReleased (MouseEvent e) { if (mouseListener == null) mouseListener = new ToolbarMouseListener (); mouseListener.mouseReleased (e); } public void
-	 * mouseDragged (MouseEvent e) { if (mouseListener == null) mouseListener = new ToolbarMouseListener (); mouseListener.mouseDragged (e); } public void
-	 * mouseMoved (MouseEvent e) { if (mouseListener == null) mouseListener = new ToolbarMouseListener (); mouseListener.mouseMoved (e); } /*nbend
+	 * (e); } public void mouseEntered (MouseEvent e) { if (mouseListener == null) mouseListener = new ToolbarMouseListener (); mouseListener.mouseEntered (e);
+	 * } public void mouseExited (MouseEvent e) { if (mouseListener == null) mouseListener = new ToolbarMouseListener (); mouseListener.mouseExited (e); }
+	 * public void mousePressed (MouseEvent e) { if (mouseListener == null) mouseListener = new ToolbarMouseListener (); mouseListener.mousePressed (e); }
+	 * public void mouseReleased (MouseEvent e) { if (mouseListener == null) mouseListener = new ToolbarMouseListener (); mouseListener.mouseReleased (e); }
+	 * public void mouseDragged (MouseEvent e) { if (mouseListener == null) mouseListener = new ToolbarMouseListener (); mouseListener.mouseDragged (e); }
+	 * public void mouseMoved (MouseEvent e) { if (mouseListener == null) mouseListener = new ToolbarMouseListener (); mouseListener.mouseMoved (e); } /*nbend
 	 */
 
 

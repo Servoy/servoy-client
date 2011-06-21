@@ -153,6 +153,7 @@ import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SortedList;
+import com.servoy.j2db.util.Utils;
 
 /**
  * The tableview display controller
@@ -861,7 +862,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 					if (sm != null && !sm.isSelectedIndex(row))
 					{
 						if (isEditing() && !getCellEditor().stopCellEditing()) return;
-						boolean ctrl = e.isControlDown();
+						boolean ctrl = Utils.isCommandKeyDown(e);
 						changeSelection(row, column, ctrl, !ctrl && e.isShiftDown());
 					}
 				}
