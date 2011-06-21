@@ -55,7 +55,7 @@ import com.servoy.j2db.util.toolbar.ToolbarPanel;
 public class SwingJSWindowImpl extends JSWindowImpl implements ISmartRuntimeWindow
 {
 
-	protected Window wrappedWindow = null; // will be null before the JSWindow is first shown or after the JSWindow is destroyed; can be JFrame (in case of main app. frame), FromFrame or FormDialog
+	protected Window wrappedWindow = null; // will be null before the JSWindow is first shown or after the JSWindow is destroyed; can be JFrame (in case of main app. frame), FormFrame or FormDialog
 	protected JMenuBar wrappedWindowMenuBar = null;
 	private boolean createdNewWindow;
 	protected TextToolbar textToolbar;
@@ -73,9 +73,7 @@ public class SwingJSWindowImpl extends JSWindowImpl implements ISmartRuntimeWind
 	{
 		if (wrappedWindow == null)
 		{
-			return 0;
-			// For future implementation of case 286968 change
-//			return super.getHeight();
+			return initialBounds.height;
 		}
 		else
 		{
@@ -88,9 +86,7 @@ public class SwingJSWindowImpl extends JSWindowImpl implements ISmartRuntimeWind
 	{
 		if (wrappedWindow == null)
 		{
-			return 0;
-			// For future implementation of case 286968 change
-//			return super.getWidth();
+			return initialBounds.width;
 		}
 		else
 		{
@@ -103,9 +99,7 @@ public class SwingJSWindowImpl extends JSWindowImpl implements ISmartRuntimeWind
 	{
 		if (wrappedWindow == null)
 		{
-			return 0;
-			// For future implementation of case 286968 change
-//			return super.getX();
+			return initialBounds.x;
 		}
 		else
 		{
@@ -119,9 +113,7 @@ public class SwingJSWindowImpl extends JSWindowImpl implements ISmartRuntimeWind
 	{
 		if (wrappedWindow == null)
 		{
-			return 0;
-			// For future implementation of case 286968 change
-//			return super.getY();
+			return initialBounds.y;
 		}
 		else
 		{
@@ -174,8 +166,7 @@ public class SwingJSWindowImpl extends JSWindowImpl implements ISmartRuntimeWind
 	{
 		if (wrappedWindow == null)
 		{
-			// For future implementation of case 286968 change
-//			super.setLocation(x, y); // initial location
+			setInitialBounds(x, y, getWidth(), getHeight());
 		}
 		else if (canChangeBoundsThroughScripting())
 		{
@@ -187,8 +178,6 @@ public class SwingJSWindowImpl extends JSWindowImpl implements ISmartRuntimeWind
 				y = (screenSize.height / 2) - (getHeight() / 2);
 			}
 
-			// For future implementation of case 286968 change
-//			super.setLocation(x, y);
 			wrappedWindow.setLocation(x, y);
 		}
 	}
@@ -198,13 +187,10 @@ public class SwingJSWindowImpl extends JSWindowImpl implements ISmartRuntimeWind
 	{
 		if (wrappedWindow == null)
 		{
-			// For future implementation of case 286968 change
-//			super.setSize(width, height); // initial size
+			setInitialBounds(getX(), getY(), width, height);
 		}
 		else if (canChangeBoundsThroughScripting())
 		{
-			// For future implementation of case 286968 change
-//			super.setSize(width, height);
 			wrappedWindow.setSize(width, height);
 			wrappedWindow.validate();
 		}

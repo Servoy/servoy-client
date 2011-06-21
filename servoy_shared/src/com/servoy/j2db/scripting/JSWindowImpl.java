@@ -156,7 +156,7 @@ public abstract class JSWindowImpl implements IRuntimeWindow
 		 * win.show(forms.myForm);
 		 * // win.show("myForm");
 		 * 
-		 * @param form the form that will be shown inside this window. It can be a form name or a form object (actual form or JSFrom).
+		 * @param form the form that will be shown inside this window. It can be a form name or a form object (actual form or JSForm).
 		 */
 		public void js_show(Object form) throws ServoyException
 		{
@@ -472,21 +472,39 @@ public abstract class JSWindowImpl implements IRuntimeWindow
 //		 * in sample: // do not use win.setSize(...) or win.setLocation(...) here as they would override the effect of setInitialBounds()
 //		 * 
 
-		// For future implementation of case 286968 change
-//		/**
-//		 * Set the window location. Can be called before showing the window.
-//		 * @param x x coordinate.
-//		 * @param y y coordinate.
-//		 */
-//		public abstract void js_setLocation(int x, int y);
+		/**
+		 * Set the window location.
+		 * 
+		 * @sample
+		 * var window = application.createWindow('test',JSWindow.DIALOG);
+		 * window.show(forms.child1);
+		 * window.setLocation(0,0);
+		 * window.setSize(400,600);
+		 * 
+		 * @param x x coordinate.
+		 * @param y y coordinate.
+		 */
+		public void js_setLocation(int x, int y)
+		{
+			impl.setLocation(x, y);
+		}
 
-		// For future implementation of case 286968 change
-//		/**
-//		 * Set the window size. Can be called before showing the window.
-//		 * @param width the width.
-//		 * @param height the height.
-//		 */
-//		public abstract void js_setSize(int width, int height);
+		/**
+		 * Set the window size.
+		 * 
+		 * @sample
+		 * var window = application.createWindow('test',JSWindow.DIALOG);
+		 * window.show(forms.child1);
+		 * window.setLocation(0,0);
+		 * window.setSize(400,600);
+		 * 
+		 * @param width the width.
+		 * @param height the height.
+		 */
+		public void js_setSize(int width, int height)
+		{
+			impl.setSize(width, height);
+		}
 
 		// For future implementation of case 286968
 //		/**
@@ -567,53 +585,16 @@ public abstract class JSWindowImpl implements IRuntimeWindow
 
 	public abstract void setLocation(int x, int y);
 
-	// For future implementation of case 286968 change
-//	{
-//		if (bounds == null) bounds = new Rectangle(x, y, DEFAULT, DEFAULT);
-//		else
-//		{
-//			this.bounds.x = x;
-//			this.bounds.y = x;
-//		}
-//	}
-
 	public abstract int getX();
-
-	// For future implementation of case 286968 change
-//	{
-//		return bounds != null ? bounds.x : -1;
-//	}
 
 	public abstract int getY();
 
-	// For future implementation of case 286968 change
-//	{
-//		return bounds != null ? bounds.y : -1;
-//	}
-
 	public abstract void setSize(int width, int height);
-
-	// For future implementation of case 286968 change
-//	{
-//		if (bounds == null) bounds = new Rectangle(DEFAULT, DEFAULT, width, height);
-//		else
-//		{
-//			this.bounds.width = width;
-//			this.bounds.height = height;
-//		}
-//	}
 
 	public abstract int getWidth();
 
-//	{
-//		return bounds != null ? bounds.width : -1;
-//	}
-
 	public abstract int getHeight();
 
-//	{
-//		return bounds != null ? bounds.height : -1;
-//	}
 
 	public void setTitle(String title)
 	{

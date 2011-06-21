@@ -369,6 +369,18 @@ public class DivWindow extends ModalWindow
 		this.initialCookieBounds = initialCookieBounds;
 	}
 
+	public String getChangeBoundsJS(int x, int y, int width, int height)
+	{
+		return "var win; try { win = window.parent.Wicket.DivWindow; } catch (ignore) {}; if (typeof(win) == \"undefined\" || typeof(win.openWindows[\"" +
+			getJSId() + "\"]) == \"undefined\") { try { win = window.Wicket.DivWindow; } catch (ignore) {} }; " +
+			" if (typeof(win) != \"undefined\" && typeof(win.openWindows[\"" + getJSId() + "\"]) != \"undefined\") { win.openWindows[\"" + getJSId() +
+			"\"].savePositionAs(" + ((x >= 0) ? ("'" + x + "px'") : "win.openWindows[\"" + getJSId() + "\"].window.style.left") + "," +
+			((y >= 0) ? ("'" + y + "px'") : "win.openWindows[\"" + getJSId() + "\"].window.style.top") + "," +
+			((width >= 0) ? ("'" + width + "px'") : "win.openWindows[\"" + getJSId() + "\"].window.style.width") + "," +
+			((height >= 0) ? ("'" + height + "px'") : "win.openWindows[\"" + getJSId() + "\"].content.style.height") + "); win.openWindows[\"" + getJSId() +
+			"\"].loadPosition();}";
+	}
+
 	public void toFront(AjaxRequestTarget target)
 	{
 		target.appendJavascript(getActionJavascript(".toFront"));

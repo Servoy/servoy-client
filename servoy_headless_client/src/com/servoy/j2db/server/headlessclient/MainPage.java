@@ -1669,6 +1669,18 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		return null;
 	}
 
+	public void setDialogBounds(String windowName, int x, int y, int width, int height)
+	{
+		if (callingContainer != null)
+		{
+			ServoyDivDialog divDialog = callingContainer.divDialogs.get(windowName);
+			if (divDialog != null)
+			{
+				appendJavaScriptChanges(divDialog.getChangeBoundsJS(x, y, width, height));
+			}
+		}
+	}
+
 	public void close()
 	{
 		// first touch this page so that it is locked if this is a normal request
@@ -1986,7 +1998,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		}
 	}
 
-	private void appendJavaScriptChanges(String script)
+	public void appendJavaScriptChanges(String script)
 	{
 		if (javaScriptChanges == null) javaScriptChanges = script;
 		else javaScriptChanges += script;

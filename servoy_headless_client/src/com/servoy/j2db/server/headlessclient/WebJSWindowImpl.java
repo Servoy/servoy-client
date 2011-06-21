@@ -171,13 +171,45 @@ public class WebJSWindowImpl extends JSWindowImpl implements IWebRuntimeWindow
 	@Override
 	public void setLocation(int x, int y)
 	{
-		// not supported for WC yet
+		initialBounds.x = x;
+		initialBounds.y = y;
+		MainPage dialogContainer = (MainPage)((FormManager)application.getFormManager()).getOrCreateMainContainer(windowName);
+		if (windowType == JSWindow.WINDOW)
+		{
+			if (dialogContainer != null && dialogContainer.isShowingInWindow())
+			{
+				dialogContainer.appendJavaScriptChanges("window.moveTo(" + x + "," + y + ");");
+			}
+		}
+		else
+		{
+			if (dialogContainer != null && dialogContainer.isShowingInDialog())
+			{
+				dialogContainer.setDialogBounds(windowName, x, y, -1, -1);
+			}
+		}
 	}
 
 	@Override
 	public void setSize(int width, int height)
 	{
-		// not supported for WC yet
+		initialBounds.width = width;
+		initialBounds.height = height;
+		MainPage dialogContainer = (MainPage)((FormManager)application.getFormManager()).getOrCreateMainContainer(windowName);
+		if (windowType == JSWindow.WINDOW)
+		{
+			if (dialogContainer != null && dialogContainer.isShowingInWindow())
+			{
+				dialogContainer.appendJavaScriptChanges("window.resizeTo(" + width + "," + height + ");");
+			}
+		}
+		else
+		{
+			if (dialogContainer != null && dialogContainer.isShowingInDialog())
+			{
+				dialogContainer.setDialogBounds(windowName, -1, -1, width, height);
+			}
+		}
 	}
 
 	@Override
