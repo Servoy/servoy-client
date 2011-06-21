@@ -47,6 +47,7 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.ComboBoxEditor;
 import javax.swing.ComboBoxModel;
+import javax.swing.DefaultListSelectionModel;
 import javax.swing.InputMap;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -67,6 +68,7 @@ import javax.swing.event.ListDataListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.plaf.ComponentUI;
+import javax.swing.plaf.basic.ComboPopup;
 import javax.swing.text.Document;
 
 import com.servoy.j2db.IApplication;
@@ -225,6 +227,41 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		setRenderer(new DividerListCellRenderer(getRenderer()));
 
 		this.scriptable = scriptable;
+
+		Object o = getUI().getAccessibleChild(this, 0);
+		if (o instanceof ComboPopup)
+		{
+			((ComboPopup)o).getList().setSelectionModel(new DefaultListSelectionModel()
+			{
+				/*
+				 * (non-Javadoc)
+				 * 
+				 * @see javax.swing.DefaultListSelectionModel#setSelectionInterval(int, int)
+				 */
+				@Override
+				public void setSelectionInterval(int index0, int index1)
+				{
+					Object x = getListModelWrapper().get(index0);
+					int leftInd = index0;
+					int rightInd = index1;
+					if (x == IValueList.SEPARATOR)
+					{
+						int index = getMinSelectionIndex();
+						if (index < index0)
+						{
+							leftInd++;
+							rightInd++;
+						}
+						else
+						{
+							leftInd--;
+							rightInd--;
+						}
+					}
+					super.setSelectionInterval(leftInd, rightInd);
+				}
+			});
+		}
 	}
 
 	public final RuntimeDataCombobox getScriptObject()
