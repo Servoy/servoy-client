@@ -139,6 +139,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 		f.setSize(size);
 		if (style != null) f.setStyleName(style.getName());
 		addChild(f);
+		if (getForm(getFirstFormID()) == null) setFirstFormID(f.getID());
 		return f;
 	}
 
