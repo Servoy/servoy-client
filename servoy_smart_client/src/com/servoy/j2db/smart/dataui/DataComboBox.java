@@ -1132,11 +1132,11 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 			}
 			else
 			{
-				Object oldValue = getValueObject();
-				if (oldValue instanceof Date && value instanceof Date && format instanceof StateFullSimpleDateFormat)
+				if (value instanceof Date && format instanceof StateFullSimpleDateFormat)
 				{
+					// original date is set in setValueObject, do not use getValueObject() here because when an editable combo is made empty, 
+					// the underlying value is set to null, but date merging should continue from last merged date (see NullDateFormatter)
 					StateFullSimpleDateFormat sfsd = (StateFullSimpleDateFormat)format;
-					sfsd.setOriginal((Date)oldValue);
 					String stringRep = sfsd.format(value);
 					try
 					{
@@ -1302,6 +1302,11 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 	{
 		try
 		{
+			if (format instanceof StateFullSimpleDateFormat && (data instanceof Date || data == null))
+			{
+				// set original date for date merging in StateFullSimpleDateFormat, see DataField.NullDateFormatter.stringToValue()
+				((StateFullSimpleDateFormat)format).setOriginal((Date)data);
+			}
 			adjusting = true;
 			if (editProvider != null) editProvider.setAdjusting(true);
 			if (needEntireState)

@@ -309,11 +309,23 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		}
 	}
 
-	public class NullDateFormatter extends DateFormatter
+	/**
+	 * Interface for setting initial value to formatter.
+	 * 
+	 * @author rgansevles
+	 */
+	public interface ISetInitialValue<T>
+	{
+		void setInitialValue(T val);
+	}
+
+	public class NullDateFormatter extends DateFormatter implements ISetInitialValue<Date>
 	{
 		private static final long serialVersionUID = 1L;
 
 		private final boolean editFormatter;
+
+		private Date lastMergedDate;
 
 		/**
 		 * Constructor for NullNumberFormatter.
@@ -418,24 +430,28 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 			setCaretPosition(caret > length ? length : caret);
 		}
 
+		public void setInitialValue(Date val)
+		{
+			this.lastMergedDate = val;
+		}
+
 		/**
 		 * @see javax.swing.JFormattedTextField.AbstractFormatter#stringToValue(java.lang.String)
 		 */
 		@Override
 		public Object stringToValue(String text) throws ParseException
 		{
-			if (text == null || text.trim().equals("") || text.equals(editFormat) || text.equals(displayFormat)) return null; //$NON-NLS-1$
-			try
+			if (text == null || text.trim().equals("") || text.equals(editFormat) || text.equals(displayFormat))
 			{
-				StateFullSimpleDateFormat format = (StateFullSimpleDateFormat)getFormat();
-				format.setOriginal((Date)getValue());
-				super.stringToValue(text);
-				return format.getMergedDate();
+				return null;
 			}
-			catch (ParseException e)
-			{
-				throw e;
-			}
+
+			// keep track of last parsed value so that when the field is made empty (editable combo), next date merge will use prev value, not null
+			StateFullSimpleDateFormat format = (StateFullSimpleDateFormat)getFormat();
+			format.setOriginal(lastMergedDate);
+			super.stringToValue(text);
+			lastMergedDate = format.getMergedDate();
+			return lastMergedDate;
 		}
 
 		/**
@@ -484,40 +500,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 			String maskPattern = pattern.replace('y', '#').replace('M', '#').replace('w', '#').replace('W', '#').replace('D', '#').replace('d', '#').replace(
 				'F', '#').replace('a', '?').replace('H', '#').replace('k', '#').replace('K', '#').replace('h', '#').replace('m', '#').replace('s', '#').replace(
 				'S', '#');
-			FixedMaskFormatter maskFormatter = new FixedMaskFormatter(maskPattern)
-			{
-				/**
-				 * @see com.servoy.j2db.smart.dataui.ServoyMaskFormatter#valueToString(java.lang.Object)
-				 */
-				@Override
-				public String valueToString(Object value) throws ParseException
-				{
-					return super.valueToString(NullDateFormatter.this.valueToString(value));
-				}
-
-				/**
-					 * @see com.servoy.j2db.smart.dataui.ServoyMaskFormatter#stringToValue(java.lang.String)
-					 */
-				@Override
-				public Object stringToValue(String value) throws ParseException
-				{
-					Object s = super.stringToValue(value);
-					if (s instanceof String)
-					{
-						return NullDateFormatter.this.stringToValue((String)s);
-					}
-					return s;
-				}
-
-				/**
-				 * @see javax.swing.JFormattedTextField.AbstractFormatter#getActions()
-				 */
-				@Override
-				protected Action[] getActions()
-				{
-					return NullDateFormatter.this.getActions();
-				}
-			};
+			FixedMaskFormatter maskFormatter = new FixedMaskDateFormatter(maskPattern);
 			maskFormatter.setValueClass(String.class);
 			if (placeHolder != 0)
 			{
@@ -528,6 +511,54 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 				maskFormatter.setPlaceholder(pattern);
 			}
 			return maskFormatter;
+		}
+
+		private final class FixedMaskDateFormatter extends FixedMaskFormatter implements ISetInitialValue<Date>
+		{
+			/**
+			 * @param mask
+			 */
+			private FixedMaskDateFormatter(String mask) throws ParseException
+			{
+				super(mask);
+			}
+
+			public void setInitialValue(Date val)
+			{
+				NullDateFormatter.this.setInitialValue(val);
+			}
+
+			/**
+			 * @see com.servoy.j2db.smart.dataui.ServoyMaskFormatter#valueToString(java.lang.Object)
+			 */
+			@Override
+			public String valueToString(Object value) throws ParseException
+			{
+				return super.valueToString(NullDateFormatter.this.valueToString(value));
+			}
+
+			/**
+				 * @see com.servoy.j2db.smart.dataui.ServoyMaskFormatter#stringToValue(java.lang.String)
+				 */
+			@Override
+			public Object stringToValue(String value) throws ParseException
+			{
+				Object s = super.stringToValue(value);
+				if (s instanceof String)
+				{
+					return NullDateFormatter.this.stringToValue((String)s);
+				}
+				return s;
+			}
+
+			/**
+			 * @see javax.swing.JFormattedTextField.AbstractFormatter#getActions()
+			 */
+			@Override
+			protected Action[] getActions()
+			{
+				return NullDateFormatter.this.getActions();
+			}
 		}
 	}
 
@@ -959,6 +990,11 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 			{
 				editProvider.setAdjusting(true);
 			}
+			if (((DefaultFormatterFactory)getFormatterFactory()) != null &&
+				((DefaultFormatterFactory)getFormatterFactory()).getEditFormatter() instanceof ISetInitialValue)
+			{
+				((ISetInitialValue)((DefaultFormatterFactory)getFormatterFactory()).getEditFormatter()).setInitialValue(obj);
+			}
 			setValueEx(obj);
 		}
 		catch (Exception e)
@@ -966,7 +1002,6 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 			try
 			{
 				setValueEx(null);
-
 			}
 			catch (Exception ex)
 			{
@@ -980,7 +1015,6 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 				editProvider.setAdjusting(false);
 			}
 		}
-
 	}
 
 	// also used by datacalendar we than don't want the edit to be blocked by
