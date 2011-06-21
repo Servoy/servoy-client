@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.SortedList;
@@ -37,6 +38,8 @@ import com.servoy.j2db.util.Utils;
 public class Table implements ITable, Serializable, ISupportUpdateableName
 {
 	public static final long serialVersionUID = -5229736429539207132L;
+
+	private final ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock();
 
 /*
  * _____________________________________________________________ Declaration of attributes
@@ -75,6 +78,27 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 		this.tableType = tableType;
 		this.catalog = catalog;
 		this.schema = schema;
+	}
+
+
+	public void acquireReadLock()
+	{
+		rwLock.readLock().lock();
+	}
+
+	public void releaseReadLock()
+	{
+		rwLock.readLock().unlock();
+	}
+
+	public void acquireWriteLock()
+	{
+		rwLock.writeLock().lock();
+	}
+
+	public void releaseWriteLock()
+	{
+		rwLock.writeLock().unlock();
 	}
 
 /*
