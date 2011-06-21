@@ -161,6 +161,7 @@ import com.servoy.j2db.ui.scripting.RuntimeTextArea;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FixedStyleSheet;
+import com.servoy.j2db.util.FormatParser;
 import com.servoy.j2db.util.OpenProperties;
 import com.servoy.j2db.util.OrientationApplier;
 import com.servoy.j2db.util.Pair;
@@ -910,6 +911,7 @@ public class ComponentFactory
 		{
 			application = J2DBGlobals.getServiceProvider();
 		}
+		String displayFormat = format == null ? null : new FormatParser(format).getDisplayFormat();
 		IValueList list = null;
 		if (valuelist != null &&
 			(valuelist.getValueListType() == ValueList.CUSTOM_VALUES || (valuelist.getValueListType() == ValueList.DATABASE_VALUES && valuelist.getDatabaseValuesType() == ValueList.TABLE_VALUES)))//reuse,those are static,OTHERS not!
@@ -924,7 +926,7 @@ public class ComponentFactory
 					application.getRuntimeProperties().put(IServiceProvider.RT_VALUELIST_CACHE, hmValueLists);
 				}
 
-				Pair<ValueList, String> key = new Pair<ValueList, String>(valuelist, format);
+				Pair<ValueList, String> key = new Pair<ValueList, String>(valuelist, displayFormat);
 				Object object = hmValueLists.get(key);
 				if (object instanceof SoftReference< ? >)
 				{
@@ -944,16 +946,16 @@ public class ComponentFactory
 
 			if (list == null)
 			{
-				list = ValueListFactory.createRealValueList(application, valuelist, type, format);
+				list = ValueListFactory.createRealValueList(application, valuelist, type, displayFormat);
 				if (valuelist.getFallbackValueListID() > 0 && valuelist.getFallbackValueListID() != valuelist.getID())
 				{
 					ValueList vl = application.getFlattenedSolution().getValueList(valuelist.getFallbackValueListID());
 					vl.setDisplayValueType(valuelist.getDisplayValueType());
-					list.setFallbackValueList(getRealValueList(application, vl, useSoftCacheForCustom, type, format, dataprovider));
+					list.setFallbackValueList(getRealValueList(application, vl, useSoftCacheForCustom, type, displayFormat, dataprovider));
 				}
 				if (!useSoftCacheForCustom && valuelist.getValueListType() == ValueList.CUSTOM_VALUES)
 				{
-					if (hmValueLists != null) hmValueLists.put(new Pair<ValueList, String>(valuelist, format), list);
+					if (hmValueLists != null) hmValueLists.put(new Pair<ValueList, String>(valuelist, displayFormat), list);
 					if (dataprovider != null)
 					{
 						((CustomValueList)list).addDataProvider(dataprovider);
@@ -961,7 +963,7 @@ public class ComponentFactory
 				}
 				else
 				{
-					if (hmValueLists != null) hmValueLists.put(new Pair<ValueList, String>(valuelist, format), new SoftReference<IValueList>(list));
+					if (hmValueLists != null) hmValueLists.put(new Pair<ValueList, String>(valuelist, displayFormat), new SoftReference<IValueList>(list));
 
 					if (dataprovider != null && valuelist.getValueListType() == ValueList.CUSTOM_VALUES)
 					{
@@ -1005,12 +1007,12 @@ public class ComponentFactory
 		}
 		else
 		{
-			list = ValueListFactory.createRealValueList(application, valuelist, type, format);
+			list = ValueListFactory.createRealValueList(application, valuelist, type, displayFormat);
 			if (valuelist != null && valuelist.getFallbackValueListID() > 0 && valuelist.getFallbackValueListID() != valuelist.getID())
 			{
 				ValueList vl = application.getFlattenedSolution().getValueList(valuelist.getFallbackValueListID());
 				vl.setDisplayValueType(valuelist.getDisplayValueType());
-				list.setFallbackValueList(getRealValueList(application, vl, useSoftCacheForCustom, type, format, dataprovider));
+				list.setFallbackValueList(getRealValueList(application, vl, useSoftCacheForCustom, type, displayFormat, dataprovider));
 			}
 		}
 		return list;

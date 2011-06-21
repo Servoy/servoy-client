@@ -90,6 +90,7 @@ import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.ui.scripting.RuntimeDataCombobox;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.FormatParser;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ISkinnable;
 import com.servoy.j2db.util.ITagResolver;
@@ -962,18 +963,19 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		}
 		if (formatString != null && formatString.length() != 0)
 		{
+			String displayFormat = new FormatParser(formatString).getDisplayFormat();
 			try
 			{
 				switch (Column.mapToDefaultType(dataType))
 				{
 					case IColumnTypes.NUMBER :
-						format = new RoundHalfUpDecimalFormat(formatString, application.getLocale());
+						format = new RoundHalfUpDecimalFormat(displayFormat, application.getLocale());
 						break;
 					case IColumnTypes.INTEGER :
-						format = new RoundHalfUpDecimalFormat(formatString, application.getLocale());
+						format = new RoundHalfUpDecimalFormat(displayFormat, application.getLocale());
 						break;
 					case IColumnTypes.DATETIME :
-						format = new StateFullSimpleDateFormat(formatString, Boolean.TRUE.equals(UIUtils.getUIProperty(this,
+						format = new StateFullSimpleDateFormat(displayFormat, Boolean.TRUE.equals(UIUtils.getUIProperty(this,
 							IApplication.DATE_FORMATTERS_LENIENT, Boolean.TRUE)));
 						// format = new SimpleDateFormat(formatString);
 						break;
