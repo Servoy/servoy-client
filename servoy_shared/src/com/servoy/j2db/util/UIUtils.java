@@ -20,6 +20,7 @@ import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
+import java.awt.event.InputEvent;
 
 import javax.swing.JComponent;
 import javax.swing.UIManager;
@@ -88,6 +89,11 @@ public class UIUtils
 			}
 		}
 		return false;
+	}
+
+	public static boolean isCommandKeyDown(InputEvent e)
+	{
+		return Utils.isAppleMacOS() ? e.isMetaDown() : e.isControlDown();
 	}
 
 }

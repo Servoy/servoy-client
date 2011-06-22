@@ -34,7 +34,7 @@ import javax.swing.JToolBar;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.MouseInputListener;
 
-import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.UIUtils;
 
 /**
  * Toolbar provides a component which is useful for displaying commonly used actions. It can be dragged inside its <code>ToolbarPanel</code> to customize its
@@ -322,7 +322,7 @@ public class Toolbar extends JToolBar
 		{
 			int m = e.getModifiers();
 			int type = DnDEvent.DND_ONE;
-			if (Utils.isCommandKeyDown(e)) type = DnDEvent.DND_LINE;
+			if (UIUtils.isCommandKeyDown(e)) type = DnDEvent.DND_LINE;
 			else if (((m & InputEvent.BUTTON2_MASK) != 0) || ((m & InputEvent.BUTTON3_MASK) != 0)) type = DnDEvent.DND_END;
 			if (startPoint == null) startPoint = new Point(e.getX(), e.getY());
 			fireDragToolbar(e.getX() - startPoint.x, e.getY() - startPoint.y, type);
