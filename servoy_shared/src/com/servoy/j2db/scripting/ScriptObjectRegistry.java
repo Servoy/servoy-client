@@ -19,7 +19,6 @@ package com.servoy.j2db.scripting;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
@@ -41,7 +40,7 @@ public class ScriptObjectRegistry
 {
 	private static final Object NULL_SCOPE = new Object();
 
-	private static final HashMap<Object, Map<Class< ? >, JavaMembers>> javaMembersCache = new HashMap<Object, Map<Class< ? >, JavaMembers>>();
+	private static final ConcurrentHashMap<Object, Map<Class< ? >, JavaMembers>> javaMembersCache = new ConcurrentHashMap<Object, Map<Class< ? >, JavaMembers>>();
 
 	private static Map<Class< ? >, IScriptable> scriptObjectRegistry = new ConcurrentHashMap<Class< ? >, IScriptable>();
 
@@ -135,7 +134,7 @@ public class ScriptObjectRegistry
 		Map<Class< ? >, JavaMembers> map = javaMembersCache.get(key);
 		if (map == null)
 		{
-			map = new HashMap<Class< ? >, JavaMembers>();
+			map = new ConcurrentHashMap<Class< ? >, JavaMembers>();
 			javaMembersCache.put(key, map);
 		}
 		JavaMembers jm = map.get(clss);
