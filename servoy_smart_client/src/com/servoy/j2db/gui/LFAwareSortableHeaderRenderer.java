@@ -244,14 +244,7 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 				label.setVerticalAlignment(getVerticalAlignment());
 				if (border == null)
 				{
-					if (getBorder() != null)
-					{
-						border = BorderFactory.createCompoundBorder(defaultBorder, getBorder());
-					}
-					else
-					{
-						border = defaultBorder;
-					}
+					border = (getBorder() != null) ? getBorder() : defaultBorder;
 
 					if (margin != null)
 					{
