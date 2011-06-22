@@ -18,7 +18,6 @@ package com.servoy.j2db.persistence;
 
 import java.beans.IntrospectionException;
 import java.lang.reflect.Method;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -49,7 +48,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 	private final Map<String, String> mimeTypeMap;
 	protected final IServerManager serverManager;
 
-	protected AbstractRepository(IServerManager serverManager)
+	protected AbstractRepository(IServerManager serverManager, boolean loadImportHooks)
 	{
 		this.serverManager = serverManager;
 		mimeTypeMap = new HashMap<String, String>();
@@ -58,7 +57,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 		mimeTypeMap.put("jpg", "image/jpg"); //$NON-NLS-1$ //$NON-NLS-2$
 
 
-		repositoryHelper = new RepositoryHelper(this);
+		repositoryHelper = new RepositoryHelper(this, loadImportHooks);
 	}
 
 	public String getContentType(String filename)
@@ -104,17 +103,18 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 		return RepositoryHelper.getGettersViaIntrospection(obj);
 	}
 
-	public IPersist createNewPersistInSolution(Solution solution, UUID parentUUID, int typeID, int id, UUID uuid, Map values) throws RepositoryException
+	public IPersist createNewPersistInSolution(Solution solution, UUID parentUUID, int typeID, int id, UUID uuid, Map<String, Object> values)
+		throws RepositoryException
 	{
 		IPersist parent = searchPersist(solution, parentUUID);
 		if (parent instanceof ISupportChilds)
 		{
 			IPersist persist = null;
 			// first try to find the persist/child, if it is not already loaded. (tablenodes will do that)
-			Iterator it = ((ISupportChilds)parent).getAllObjects();
+			Iterator<IPersist> it = ((ISupportChilds)parent).getAllObjects();
 			while (it.hasNext())
 			{
-				IPersist child = (IPersist)it.next();
+				IPersist child = it.next();
 				if (child.getUUID().equals(uuid))
 				{
 					persist = child;
@@ -267,7 +267,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 			if (!(destParent instanceof ISupportChilds))
 			{
 				// this should never happen, don't know how to fix this one
-				throw new RepositoryException("Could not update editing solution, please refresh the solution");
+				throw new RepositoryException("Could not update editing solution, please refresh the solution"); //$NON-NLS-1$
 			}
 			destPersist = createObject((ISupportChilds)destParent, persist.getTypeID(), persist.getID(), persist.getUUID());
 			((ISupportChilds)destParent).addChild(destPersist);
@@ -354,12 +354,12 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 		getRootObjectCache().removeRootObject(rootObjectId);
 	}
 
-	public List getActiveRootObjects(int objectTypeId) throws RepositoryException
+	public List<IRootObject> getActiveRootObjects(int objectTypeId) throws RepositoryException
 	{
 		try
 		{
 			RootObjectMetaData[] metadatas = getRootObjectMetaDatasForType(objectTypeId);
-			ArrayList rootObjects = new ArrayList(metadatas.length);
+			List<IRootObject> rootObjects = new ArrayList<IRootObject>(metadatas.length);
 			for (RootObjectMetaData element : metadatas)
 			{
 				rootObjects.add(getRootObject(element.getRootObjectId(), element.getActiveRelease()));
@@ -380,22 +380,6 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 		return result;
 	}
 
-
-	private SolutionMetaData[] getSolutionMetaDatas(int solutionType) throws RepositoryException, RemoteException
-	{
-		RootObjectMetaData[] all = getRootObjectMetaDatas();
-		List filtered = new ArrayList();
-		for (RootObjectMetaData element : all)
-		{
-			SolutionMetaData smd = (SolutionMetaData)element;
-			if (smd.getObjectTypeId() == IRepository.SOLUTIONS && (solutionType == -1 || smd.getSolutionType() == solutionType))
-			{
-				filtered.add(element);
-			}
-		}
-		SolutionMetaData[] result = new SolutionMetaData[filtered.size()];
-		return (SolutionMetaData[])filtered.toArray(result);
-	}
 
 	public RootObjectMetaData[] getRootObjectMetaDatas() throws RepositoryException
 	{
@@ -449,11 +433,10 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 		{
 			try
 			{
-				Collection metaDatas = loadRootObjectMetaDatas();
-				Iterator iterator = metaDatas.iterator();
+				Iterator<RootObjectMetaData> iterator = loadRootObjectMetaDatas().iterator();
 				while (iterator.hasNext())
 				{
-					metadata = (RootObjectMetaData)iterator.next();
+					metadata = iterator.next();
 					if (metadata.getRootObjectId() == rootObjectId)
 					{
 						getRootObjectCache().add(metadata);

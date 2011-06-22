@@ -54,9 +54,12 @@ public class RepositoryHelper
 
 	private final IDeveloperRepository developerRepository;
 
-	public RepositoryHelper(IDeveloperRepository dr)
+	private final boolean loadImportHooks;
+
+	public RepositoryHelper(IDeveloperRepository dr, boolean loadImportHooks)
 	{
 		developerRepository = dr;
+		this.loadImportHooks = loadImportHooks;
 	}
 
 	private static final Map<Class< ? >, Map<String, Method>> setterCache = Collections.synchronizedMap(new HashMap<Class< ? >, Map<String, Method>>());
@@ -195,11 +198,11 @@ public class RepositoryHelper
 				try
 				{
 					String moduleDescriptor = tk.nextToken();
-					SolutionMetaData metaData = null;
+					SolutionMetaData metaData;
 					int releaseNumber = 0;
 					int i = moduleDescriptor.indexOf(':');
-					String name = null;
-					UUID uuid = null;
+					String name;
+					UUID uuid;
 					if (i != -1)
 					{
 						releaseNumber = Integer.parseInt(moduleDescriptor.substring(i + 1));
@@ -211,18 +214,24 @@ public class RepositoryHelper
 						// A uuid reference.
 						uuid = UUID.fromString(moduleDescriptor);
 						metaData = (SolutionMetaData)developerRepository.getRootObjectMetaData(uuid);
-						if (metaData != null) name = metaData.getName();
-						else continue;
+						if (metaData == null)
+						{
+							continue;
+						}
+						name = metaData.getName();
 					}
 					else
 					{
 						// A module name; for backwards compatibility.
 						name = moduleDescriptor;
 						metaData = (SolutionMetaData)developerRepository.getRootObjectMetaData(name, IRepository.SOLUTIONS);
-						if (metaData != null) uuid = metaData.getRootObjectUuid();
-						else continue;
+						if (metaData == null)
+						{
+							continue;
+						}
+						uuid = metaData.getRootObjectUuid();
 					}
-					if (referencedModules.get(uuid) == null)
+					if (referencedModules.get(uuid) == null && (loadImportHooks || !SolutionMetaData.isImportHook(metaData)))
 					{
 						referencedModules.put(uuid, new RootObjectReference(name, uuid, metaData, releaseNumber));
 						Solution sol = (Solution)developerRepository.getRootObject(metaData.getRootObjectId(), releaseNumber);
