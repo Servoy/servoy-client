@@ -178,6 +178,7 @@ public class JSMethod implements IJavaScriptType
 	 * 	var frm = solutionModel.getForm("myForm");
 	 * 	var button = frm.getButton("button");
 	 *  // get the arguments from the button.
+	 *  // NOTE: string arguments will be returned with quotes (comp.onAction.getArguments()[0] == '\'foo\' evals to true)
 	 * 	var arguments = button.onAction.getArguments();
 	 *  if (arguments && arguments.length > 1 && arguments[1] == 10) { 
 	 *    // change the value and assign it back to the onAction.
