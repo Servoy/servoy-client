@@ -26,6 +26,7 @@ import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.Toolkit;
 import java.awt.Window;
@@ -261,7 +262,6 @@ import com.servoy.j2db.util.gui.ActionRadioMenuItem;
 import com.servoy.j2db.util.gui.IPropertyEditorDialog;
 import com.servoy.j2db.util.gui.JDK131ProgressBar;
 import com.servoy.j2db.util.gui.JMenuAlwaysEnabled;
-import com.servoy.j2db.util.gui.NumpadEnterFocusTraversalManager;
 import com.servoy.j2db.util.gui.OverlapRepaintManager;
 import com.servoy.j2db.util.rmi.IRMIClientSocketFactoryFactory;
 import com.servoy.j2db.util.rmi.IReconnectListener;
@@ -4160,10 +4160,35 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		return WebStart.getClipboardString();
 	}
 
+	private KeyEventDispatcher dispatcher = null;
+
 	public void setNumpadEnterAsFocusNextEnabled(boolean enabled)
 	{
-		KeyboardFocusManager.setCurrentKeyboardFocusManager((enabled ? new NumpadEnterFocusTraversalManager() : null));
-		KeyboardFocusManager.getCurrentKeyboardFocusManager().addPropertyChangeListener(new GlobalAutoScrollerFocusListener());
+		if (dispatcher == null)
+		{
+			dispatcher = new KeyEventDispatcher()
+
+			{
+				public boolean dispatchKeyEvent(KeyEvent e)
+				{
+					if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_NUMPAD && e.getKeyCode() == 10) //numpad enter key
+					{
+						e.setKeyChar('\t');
+						e.setKeyCode(9);
+					}
+					return false;
+				}
+			};
+		}
+		if (enabled)
+		{
+			KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(dispatcher);
+		}
+		else
+		{
+			KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(dispatcher);
+			dispatcher = null;
+		}
 	}
 
 
