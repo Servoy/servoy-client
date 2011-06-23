@@ -1912,7 +1912,9 @@ public class JSApplication implements IReturnedTypesProvider
 	 * @param form Form object or name
 	 * 
 	 * @return Boolean (true) if the form is showing in a window, (false) otherwise
+	 * @deprecated controller.getWindow()
 	 */
+	@Deprecated
 	public boolean js_isFormInWindow(Object form)
 	{
 		FormController fp = getFormController(form);

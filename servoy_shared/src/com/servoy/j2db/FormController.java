@@ -180,7 +180,9 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		public JSWindow js_getWindow()
 		{
 			checkDestroyed();
-			if (formController.isFormVisible())
+			// can't test if the form is visible, in onhide the form controller is already made not visible.
+			// but it is still in a visible dialog.
+			//if (formController.isFormVisible())
 			{
 				String name = formController.getContainerName();
 				if (name != null)
