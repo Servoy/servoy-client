@@ -1251,6 +1251,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						}
 						sortableHeader.setTabIndex(tabIndex);
 						sortableHeader.setScriptExecuter(el);
+						sortableHeader.setResizeClass(columnIdentifier.getId());
 						WebCellBasedView.this.registerHeader(matchingElement, headerComponent);
 					}
 				});

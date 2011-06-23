@@ -592,7 +592,7 @@ if (typeof(Servoy.TableView) == "undefined")
 			var tableEl = document.getElementById(table);
 			if(tableEl)
 				Servoy.TableView.setTableColumnWidthEl(tableEl, classid, width);
-		}	
+		}
 	};
 }
 
@@ -607,7 +607,6 @@ if (typeof(Servoy.DD) == "undefined")
 		dropCallback: new Array(),
 		mouseDownEvent: null,		
 		klEsc: null,
-		isConstrainSet: false,
 
 		dragStarted: function()
 		{
@@ -655,13 +654,10 @@ if (typeof(Servoy.DD) == "undefined")
 				if(bXConstraint)
 				{
 					dd.setXConstraint(0, 0);
-					Servoy.DD.isConstrainSet = true;
-					
 				}
 				if(bYConstraint)
 				{
 					dd.setYConstraint(0, 0);
-					Servoy.DD.isConstrainSet = true;
 				}			
 					
 				dd.onMouseDown = function(e) {
@@ -682,20 +678,36 @@ if (typeof(Servoy.DD) == "undefined")
 				{
 					var x = YAHOO.util.Event.getPageX(Servoy.DD.mouseDownEvent);
 					var y = YAHOO.util.Event.getPageY(Servoy.DD.mouseDownEvent);
-//					if(!Servoy.DD.isConstrainSet)
-//					{
-//						var clientRegion = YAHOO.util.Dom.getClientRegion();
-//						var elXY = YAHOO.util.Dom.getXY(this.getEl());
-//						this.setXConstraint(elXY[0], clientRegion.width - elXY[0]);
-//						this.setYConstraint(elXY[1], clientRegion.height - elXY[1]);											
-//					}					
+
+					if(this.id)
+					{
+						if(this.id.indexOf("headerColumnTable") == 0)
+						{
+							Servoy.DD.setupHoverElements(this.id, x);
+						}
+						else if(this.id.indexOf("resizeBar") == 0)
+						{
+							Servoy.DD.setupResizeElement(this.id, x);
+						}
+					}
+					
 					wicketAjaxGet(callback + '&a=aStart&xc=' + x + '&yc=' + y + '&draggableID=' + this.id);
 					this.style.background = '#FF0000';
 					Servoy.DD.dragStarted();
 					return true;
 				}, dd, true);				
 
+				dd.onDrag = function(ev)
+				{
+					if(Servoy.DD.resizeElContainers)
+					{
+						Servoy.DD.doColumnResize(ev);
+					}
+				};
+
 				dd.endDrag = function(e) {
+					Servoy.DD.clearResize();
+					Servoy.DD.clearHover();
 					Servoy.DD.dragStopped();
 					Servoy.DD.currentElement = new Array();
 					var x = YAHOO.util.Event.getPageX(e);
@@ -722,12 +734,21 @@ if (typeof(Servoy.DD) == "undefined")
  
  					if(target == Servoy.DD.currentElement[Servoy.DD.currentElement.length - 1])
  					{
+ 						Servoy.DD.setHoverEl(target);
 						wicketAjaxGet(Servoy.DD.dropCallback[target] + '&a=aHover&draggableID=' + this.id + '&targetID=' + target);
 					}
 				};
 
 				dd.onDragOut = function(ev, targetid)
 				{
+					if(Servoy.DD.hoverEl)
+					{
+						for(var i in targetid)
+						{						
+							var el = targetid[i].getEl();
+							if(Servoy.DD.hoverEl == el.id) Servoy.DD.setHoverEl(null);
+						}
+					}					
 					if(Servoy.DD.currentElement.length > 0)
 					{
 						var hoverTarget = null;
@@ -756,6 +777,7 @@ if (typeof(Servoy.DD) == "undefined")
 						Servoy.DD.currentElement = newCurrentElement;
 						if(hoverTarget != null && Servoy.DD.currentElement.length > 0 && hoverTarget == Servoy.DD.currentElement[Servoy.DD.currentElement.length-1])
 						{
+							Servoy.DD.setHoverEl(hoverTarget);
 							wicketAjaxGet(Servoy.DD.dropCallback[hoverTarget] + '&a=aHover&draggableID=' + this.id + '&targetID=' + hoverTarget);
 						}
 					}
@@ -777,9 +799,48 @@ if (typeof(Servoy.DD) == "undefined")
 					}
 				};
 
+				dd.onDragOver = function(ev, targetid) {
+					if(Servoy.DD.hoverEl)
+					{
+						for(var i in targetid)
+						{						
+							var el = targetid[i].getEl();
+							if(Servoy.DD.hoverEl == el.id)
+							{
+								var moveOffset = YAHOO.util.Event.getPageX(ev) - Servoy.DD.moveElXPosition ;
+								if(Servoy.DD.moveElWidth / 2 < Math.abs(moveOffset))
+								{								
+									var moveBorderStyle = "2px solid red";
+									var offsetX = YAHOO.util.Event.getPageX(ev) - Servoy.DD.hoverElContainerXPosition;
+									var usedBorder = (offsetX < Servoy.DD.hoverElContainerWidth / 2) ? "border-left" : "border-right";
+									
+									var currentBorder = YAHOO.util.Dom.getStyle(Servoy.DD.hoverElContainer, usedBorder);
+									if(currentBorder != moveBorderStyle)
+									{
+										if(usedBorder == "border-left")
+										{
+											YAHOO.util.Dom.setStyle(Servoy.DD.hoverElContainer, "border-right", Servoy.DD.hoverElContainerBorder);
+										}
+										else
+										{
+											YAHOO.util.Dom.setStyle(Servoy.DD.hoverElContainer, "border-left", null);
+										}
+										
+										YAHOO.util.Dom.setStyle(Servoy.DD.hoverElContainer, usedBorder, moveBorderStyle);
+									}
+								}
+								else
+								{
+									YAHOO.util.Dom.setStyle(Servoy.DD.hoverElContainer, "border-right", Servoy.DD.hoverElContainerBorder);
+									YAHOO.util.Dom.setStyle(Servoy.DD.hoverElContainer, "border-left", null);
+								}
+							}
+						}
+					}
+				};
+
 				Servoy.DD.dropCallback[array[i]] = callback;	
 			}
-			
 		},
 
 		attachDrop: function(array, callback)
@@ -850,6 +911,183 @@ if (typeof(Servoy.DD) == "undefined")
 			}
 
 			return false;
+		},
+
+		hoverEl: null,
+		hoverElContainer: null,
+		hoverElContainerBorder: null,
+		hoverElContainerWidth: null,
+		hoverElContainerXPosition: null,
+		hoverElements: null,
+		moveElWidth: null,
+		moveElXPosition: null,
+		
+		setHoverEl: function(el)
+		{
+			if(!el || Servoy.DD.isHoverElement(el))
+			{
+				if(Servoy.DD.hoverEl)
+				{
+					YAHOO.util.Dom.setStyle(Servoy.DD.hoverElContainer, "border-left", null);
+					YAHOO.util.Dom.setStyle(Servoy.DD.hoverElContainer, "border-right", Servoy.DD.hoverElContainerBorder);						
+				}
+				Servoy.DD.hoverEl = el;
+				if(el)
+				{
+					Servoy.DD.hoverElContainer = YAHOO.util.Dom.getAncestorByTagName(el, "th");
+					if(Servoy.DD.hoverElContainer)
+					{
+						Servoy.DD.hoverElContainerBorder = YAHOO.util.Dom.getStyle(Servoy.DD.hoverElContainer, "border-right");
+						Servoy.DD.hoverElContainerWidth = YAHOO.util.Dom.getStyle(Servoy.DD.hoverElContainer, "width");
+						Servoy.DD.hoverElContainerWidth = parseInt(Servoy.DD.hoverElContainerWidth.substring(0, Servoy.DD.hoverElContainerWidth.indexOf("px")));
+						Servoy.DD.hoverElContainerXPosition = YAHOO.util.Dom.getX(Servoy.DD.hoverElContainer);
+					}
+				}
+				else
+				{
+					Servoy.DD.hoverElContainer = null;
+					Servoy.DD.hoverElContainerBorder = null;
+					Servoy.DD.hoverElContainerWidth = null;
+					Servoy.DD.hoverElContainerXPosition = null;
+				}
+			}
+		},
+		
+		clearHover: function()
+		{
+			Servoy.DD.setHoverEl(null);
+			Servoy.DD.hoverElements = null;
+			Servoy.DD.moveElXPosition = null;
+			Servoy.DD.moveElWidth = null;
+		},
+		
+		setupHoverElements: function(dragEl, x)
+		{
+			Servoy.DD.moveElXPosition = x;
+			Servoy.DD.moveElWidth = YAHOO.util.Dom.getStyle(dragEl, "width");
+			Servoy.DD.moveElWidth = parseInt(Servoy.DD.moveElWidth.substring(0, Servoy.DD.moveElWidth.indexOf("px")));			
+
+			var column = YAHOO.util.Dom.getAncestorByTagName(dragEl, "th");
+			if(column)
+			{
+				Servoy.DD.hoverElements = new Array();
+				var siblingColumn = column;
+				
+				while((siblingColumn = YAHOO.util.Dom.getPreviousSiblingBy(siblingColumn, function(el) { return el.tagName && el.tagName.toLowerCase() == "th"; })) != null)
+				{
+					var siblingColumnTable = Servoy.DD.getHoverColumnTable(siblingColumn);
+					if(siblingColumnTable != null)
+					{
+						Servoy.DD.hoverElements[Servoy.DD.hoverElements.length] = siblingColumnTable.id;
+					}
+					else
+					{
+						break;
+					}
+				}
+				siblingColumn = column;
+				while((siblingColumn = YAHOO.util.Dom.getNextSiblingBy(siblingColumn, function(el) { return el.tagName && el.tagName.toLowerCase() == "th"; })) != null)
+				{
+					var siblingColumnTable = Servoy.DD.getHoverColumnTable(siblingColumn);
+					if(siblingColumnTable != null)
+					{
+						Servoy.DD.hoverElements[Servoy.DD.hoverElements.length] = siblingColumnTable.id;
+					}
+					else
+					{
+						break;
+					}
+				}
+			}
+		},
+		
+		isHoverElement: function(el)
+		{
+			if(el && el.indexOf("headerColumnTable") == 0 && Servoy.DD.hoverElements)
+			{
+				for(var i in Servoy.DD.hoverElements)
+				{
+					if(el == Servoy.DD.hoverElements[i]) return true;
+				}
+			}
+
+			return false;
+		},
+		
+		getHoverColumnTable: function(column)
+		{
+			var siblingColumnTable = YAHOO.util.Dom.getFirstChildBy(column, function(el) { return el.tagName && el.tagName.toLowerCase() == "table"; });
+			if(siblingColumnTable && siblingColumnTable.id && siblingColumnTable.id.indexOf("headerColumnTable") == 0)
+			{
+				return siblingColumnTable;
+			}
+			else
+			{
+				return null;
+			}
+		},
+		
+		resizeEl: null,
+		resizeElXPosition: null,
+		resizeElContainers: null,
+		resizeElContainersWidth: null,
+		
+		setupResizeElement: function(el, x)
+		{
+			Servoy.DD.resizeEl = el;
+			Servoy.DD.resizeElXPosition = x;
+			Servoy.DD.resizeElContainers = new Array();
+			Servoy.DD.resizeElContainersWidth = new Array();
+			
+			
+			var cellClass = YAHOO.util.Dom.getAttribute(el, "class");
+			cellClass = cellClass.substring(7);	// the cellClass is appended with resize_
+			
+			Servoy.DD.resizeElContainers[Servoy.DD.resizeElContainers.length] = YAHOO.util.Dom.getAncestorByTagName(el, "th"); 
+			Servoy.DD.resizeElContainers[Servoy.DD.resizeElContainers.length] = YAHOO.util.Dom.getAncestorByTagName(el, "table");
+			if(Servoy.DD.resizeElContainers[0])
+			{
+				// get header elements
+				var columnDivs = YAHOO.util.Dom.getElementsBy(function(el) { return true; }, "div", Servoy.DD.resizeElContainers[0]);
+				for(var i in columnDivs)
+				{
+					Servoy.DD.resizeElContainers[Servoy.DD.resizeElContainers.length] = columnDivs[i];
+				}
+				
+				// get table cell elements
+				var theTable = YAHOO.util.Dom.getAncestorByTagName(Servoy.DD.resizeElContainers[0], "table");
+				var cellElements = YAHOO.util.Dom.getElementsByClassName(cellClass, null, theTable);
+				for(var i in cellElements)
+				{
+					Servoy.DD.resizeElContainers[Servoy.DD.resizeElContainers.length] = cellElements[i];
+				}
+			}
+		
+			for(var i in Servoy.DD.resizeElContainers)
+			{
+				if(Servoy.DD.resizeElContainers[i])
+				{
+					Servoy.DD.resizeElContainersWidth[i] = YAHOO.util.Dom.getStyle(Servoy.DD.resizeElContainers[i], "width");					
+					Servoy.DD.resizeElContainersWidth[i] = parseInt(Servoy.DD.resizeElContainersWidth[i].substring(0, Servoy.DD.resizeElContainersWidth[i].indexOf("px")));
+				}
+			}	 
+		},
+		
+		clearResize: function()
+		{
+			Servoy.DD.resizeEl = null;
+			Servoy.DD.resizeElXPosition = null;
+			Servoy.DD.resizeElContainers = null;
+			Servoy.DD.resizeElContainersWidth = null;
+		},
+		
+		doColumnResize: function(ev)
+		{		
+			var offsetX = YAHOO.util.Event.getPageX(ev) - Servoy.DD.resizeElXPosition;
+			for(var i in Servoy.DD.resizeElContainers)
+			{
+				YAHOO.util.Dom.setStyle(Servoy.DD.resizeElContainers[i], "width", Servoy.DD.resizeElContainersWidth[i] + offsetX + "px");
+			}
 		}
 	};
 }

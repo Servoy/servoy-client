@@ -29,6 +29,7 @@ import org.apache.wicket.Page;
 import org.apache.wicket.Resource;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -464,6 +465,11 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 		{
 			((Image)resizeBar).setImageResourceReference(resourceReference);
 		}
+	}
+
+	public void setResizeClass(String resizeClass)
+	{
+		resizeBar.add(new SimpleAttributeModifier("class", "resize_" + resizeClass));
 	}
 
 	protected ChangesRecorder jsChangeRecorder = new ChangesRecorder(null, null);
