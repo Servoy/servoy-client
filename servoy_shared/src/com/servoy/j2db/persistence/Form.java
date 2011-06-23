@@ -1928,7 +1928,6 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * Handle end of a drag
 	 * 
 	 * @templatename onDragEnd
-	 * @templatetype Number
 	 * @templateparam JSDNDEvent event the event that triggered the action
 	 * @templateaddtodo 
 	 */
