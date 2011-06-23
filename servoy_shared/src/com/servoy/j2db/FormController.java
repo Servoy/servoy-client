@@ -91,8 +91,8 @@ import com.servoy.j2db.scripting.ITwoNativeJavaObject;
 import com.servoy.j2db.scripting.InstanceJavaMembers;
 import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
 import com.servoy.j2db.scripting.JSEvent;
-import com.servoy.j2db.scripting.JSWindowImpl;
-import com.servoy.j2db.scripting.JSWindowImpl.JSWindow;
+import com.servoy.j2db.scripting.JSWindow;
+import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.scripting.SelectedRecordScope;
 import com.servoy.j2db.scripting.SolutionScope;
@@ -186,7 +186,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				if (name != null)
 				{
 					if (IApplication.APP_WINDOW_NAME.equals(name)) name = null;
-					JSWindowImpl w = formController.getApplication().getJSWindowManager().getWindow(name);
+					RuntimeWindow w = formController.getApplication().getRuntimeWindowManager().getWindow(name);
 					return (w != null && w.isVisible()) ? w.getJSWindow() : null;
 				}
 			}
@@ -4105,7 +4105,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		Object src = source;
 		if (src == null)
 		{
-			Object window = application.getJSWindowManager().getCurrentWindowWrappedObject();
+			Object window = application.getRuntimeWindowManager().getCurrentWindowWrappedObject();
 //			if (!(window instanceof Window) || !((Window)window).isVisible())
 //			{
 //				window = application.getMainApplicationFrame();

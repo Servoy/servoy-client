@@ -116,7 +116,7 @@ public class FormFrame extends JFrame implements FormWindow
 
 	public void cancel()
 	{
-		application.getJSWindowManager().closeFormInWindow(mainContainer.getContainerName(), true);
+		application.getRuntimeWindowManager().closeFormInWindow(mainContainer.getContainerName(), true);
 	}
 
 	@Override

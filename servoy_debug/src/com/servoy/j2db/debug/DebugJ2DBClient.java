@@ -68,8 +68,8 @@ import com.servoy.j2db.IFormManager;
 import com.servoy.j2db.ILAFManager;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.ISmartClientApplication;
-import com.servoy.j2db.JSWindowManager;
 import com.servoy.j2db.Messages;
+import com.servoy.j2db.RuntimeWindowManager;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IDataServer;
@@ -87,7 +87,7 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.IScriptSupport;
-import com.servoy.j2db.scripting.JSWindowImpl;
+import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.server.shared.IApplicationServerAccess;
@@ -97,8 +97,8 @@ import com.servoy.j2db.smart.J2DBClient;
 import com.servoy.j2db.smart.MainPanel;
 import com.servoy.j2db.smart.SwingForm;
 import com.servoy.j2db.smart.SwingFormManager;
-import com.servoy.j2db.smart.SwingJSWindowImpl;
-import com.servoy.j2db.smart.SwingJSWindowManager;
+import com.servoy.j2db.smart.SwingRuntimeWindow;
+import com.servoy.j2db.smart.SwingRuntimeWindowManager;
 import com.servoy.j2db.smart.cmd.CmdManager;
 import com.servoy.j2db.smart.dataui.FormLookupPanel;
 import com.servoy.j2db.smart.scripting.ScriptMenuItem;
@@ -230,17 +230,17 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 
 	}
 
-	public class DebugSwingJSWindowManager extends SwingJSWindowManager
+	public class DebugSwingRuntimeWindowManager extends SwingRuntimeWindowManager
 	{
-		public DebugSwingJSWindowManager(IApplication application)
+		public DebugSwingRuntimeWindowManager(IApplication application)
 		{
 			super(application);
 		}
 
 		@Override
-		protected JSWindowImpl createWindowInternal(String windowName, int type, JSWindowImpl parentWindow)
+		protected RuntimeWindow createWindowInternal(String windowName, int type, RuntimeWindow parentWindow)
 		{
-			return new SwingJSWindowImpl((ISmartClientApplication)application, windowName, type, parentWindow)
+			return new SwingRuntimeWindow((ISmartClientApplication)application, windowName, type, parentWindow)
 			{
 
 				@Override
@@ -838,9 +838,9 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	}
 
 	@Override
-	protected JSWindowManager createJSWindowManager()
+	protected RuntimeWindowManager createJSWindowManager()
 	{
-		return new DebugSwingJSWindowManager(this);
+		return new DebugSwingRuntimeWindowManager(this);
 	}
 
 	// overridden ssl-rmi seems not to work locally

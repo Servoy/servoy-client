@@ -40,7 +40,8 @@ import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.LAFManager;
 import com.servoy.j2db.gui.FormDialog;
 import com.servoy.j2db.plugins.ISmartRuntimeWindow;
-import com.servoy.j2db.scripting.JSWindowImpl;
+import com.servoy.j2db.scripting.JSWindow;
+import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.UIUtils;
@@ -52,7 +53,7 @@ import com.servoy.j2db.util.toolbar.ToolbarPanel;
  * @author acostescu
  * @since 6.0
  */
-public class SwingJSWindowImpl extends JSWindowImpl implements ISmartRuntimeWindow
+public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWindow
 {
 
 	protected Window wrappedWindow = null; // will be null before the JSWindow is first shown or after the JSWindow is destroyed; can be JFrame (in case of main app. frame), FormFrame or FormDialog
@@ -62,7 +63,7 @@ public class SwingJSWindowImpl extends JSWindowImpl implements ISmartRuntimeWind
 	protected ToolbarPanel toolbarPanel;
 	protected final ISmartClientApplication application;
 
-	public SwingJSWindowImpl(ISmartClientApplication application, String windowName, int windowType, JSWindowImpl parentWindow)
+	public SwingRuntimeWindow(ISmartClientApplication application, String windowName, int windowType, RuntimeWindow parentWindow)
 	{
 		super(application, windowName, windowType, parentWindow);
 		this.application = application;
@@ -146,14 +147,14 @@ public class SwingJSWindowImpl extends JSWindowImpl implements ISmartRuntimeWind
 		if (wrappedWindow != null)
 		{
 			Window parent = wrappedWindow.getOwner();
-			JSWindowImpl pw;
+			RuntimeWindow pw;
 			if (parent == application.getMainApplicationFrame())
 			{
-				pw = application.getJSWindowManager().getWindow(null);
+				pw = application.getRuntimeWindowManager().getWindow(null);
 			}
 			else if (parent != null)
 			{
-				pw = application.getJSWindowManager().getWindow(parent.getName());
+				pw = application.getRuntimeWindowManager().getWindow(parent.getName());
 			}
 			else pw = null;
 			return (pw != null) ? pw.getJSWindow() : null;
@@ -305,7 +306,7 @@ public class SwingJSWindowImpl extends JSWindowImpl implements ISmartRuntimeWind
 	}
 
 	@Override
-	public void closeUI()
+	public void hideUI()
 	{
 		if (wrappedWindow instanceof FormWindow) // it should always be either null or instanceof FormWindow
 		{
@@ -413,7 +414,7 @@ public class SwingJSWindowImpl extends JSWindowImpl implements ISmartRuntimeWind
 			}
 		}
 
-		JSWindowImpl currentModalJSWindow = application.getJSWindowManager().getWindow(currentModalDialogContainer.getContainerName());
+		RuntimeWindow currentModalJSWindow = application.getRuntimeWindowManager().getWindow(currentModalDialogContainer.getContainerName());
 		boolean windowModal = ((legacyV3Behavior && wrappedWindow == null) || getType() == JSWindow.MODAL_DIALOG);
 
 		Pair<Boolean, IMainContainer> p = createAndReparentDialogIfNeeded(fm, currentModalJSWindow, windowModal);
@@ -556,7 +557,7 @@ public class SwingJSWindowImpl extends JSWindowImpl implements ISmartRuntimeWind
 		return bringToFrontNeeded;
 	}
 
-	private Pair<Boolean, IMainContainer> createAndReparentDialogIfNeeded(FormManager fm, JSWindowImpl parentJSWindow, boolean windowModal)
+	private Pair<Boolean, IMainContainer> createAndReparentDialogIfNeeded(FormManager fm, RuntimeWindow parentJSWindow, boolean windowModal)
 	{
 		IMainContainer container = fm.getOrCreateMainContainer(windowName);
 		IMainContainer previousModalContainer = null;
@@ -581,7 +582,7 @@ public class SwingJSWindowImpl extends JSWindowImpl implements ISmartRuntimeWind
 			{
 				// wrong owner... will create a new window and close/dispose old one
 				savedStatusForRecreate = saveWrappedWindowStatusForRecreate();
-				close(true);
+				hide(true);
 				sfd.dispose();
 				sfd = null;
 				wrappedWindow = null;

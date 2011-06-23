@@ -713,7 +713,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 				// temporary set the dialog container as the current container (the close event is processed by the main container, not the dialog)
 				fm.setCurrentContainer(divDialogContainer, divDialogContainer.getContainerName());
-				client.getJSWindowManager().closeFormInWindow(divDialog.getPageMapName(), divDialog.getCloseAll());
+				client.getRuntimeWindowManager().closeFormInWindow(divDialog.getPageMapName(), divDialog.getCloseAll());
 
 				// reset current container again
 				fm.setCurrentContainer(currentContainer, currentContainer.getContainerName());

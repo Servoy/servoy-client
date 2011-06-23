@@ -93,7 +93,7 @@ public class SmartClientPluginAccessProvider extends ClientPluginAccessProvider 
 	{
 		if (windowName == null) return application.getMainApplicationFrame();
 
-		Object window = application.getJSWindowManager().getWindowWrappedObject(windowName);
+		Object window = application.getRuntimeWindowManager().getWindowWrappedObject(windowName);
 		if ((window instanceof Window) && ((Window)window).isVisible())
 		{
 			return (Window)window;
@@ -108,7 +108,7 @@ public class SmartClientPluginAccessProvider extends ClientPluginAccessProvider 
 	@Deprecated
 	public Window getCurrentWindow()
 	{
-		Object window = application.getJSWindowManager().getCurrentWindowWrappedObject();
+		Object window = application.getRuntimeWindowManager().getCurrentWindowWrappedObject();
 		if ((window instanceof Window) && ((Window)window).isVisible())
 		{
 			return (Window)window;

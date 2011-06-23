@@ -145,7 +145,7 @@ import com.servoy.j2db.IMessagesCallback;
 import com.servoy.j2db.IModeManager;
 import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.J2DBGlobals;
-import com.servoy.j2db.JSWindowManager;
+import com.servoy.j2db.RuntimeWindowManager;
 import com.servoy.j2db.LAFManager;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.Messages;
@@ -300,7 +300,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	protected CmdManager cmdManager;
 	protected IBeanManager beanManager;
 	protected ILAFManager lafManager;
-	private JSWindowManager jsWindowManager;
+	private RuntimeWindowManager jsWindowManager;
 
 	protected Icon empty;
 	private Icon overwrite;
@@ -948,7 +948,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		// load menu
 		JMenuBar menu = createMenuBar(actions);
 		frame.setJMenuBar(menu);
-		((SwingJSWindowImpl)jsWindowManager.getWindow(null)).setJMenuBar(menu);
+		((SwingRuntimeWindow)jsWindowManager.getWindow(null)).setJMenuBar(menu);
 		if (Utils.isAppleMacOS())
 		{
 			attachAppleMenu(actions);
@@ -1713,12 +1713,12 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		return true;
 	}
 
-	protected JSWindowManager createJSWindowManager()
+	protected RuntimeWindowManager createJSWindowManager()
 	{
-		return new SwingJSWindowManager(this);
+		return new SwingRuntimeWindowManager(this);
 	}
 
-	public JSWindowManager getJSWindowManager()
+	public RuntimeWindowManager getRuntimeWindowManager()
 	{
 		return jsWindowManager;
 	}
@@ -3116,7 +3116,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	@Override
 	public void reportError(String message, Object detail)
 	{
-		Window window = (Window)getJSWindowManager().getCurrentWindowWrappedObject();
+		Window window = (Window)getRuntimeWindowManager().getCurrentWindowWrappedObject();
 		if (window == null || !window.isVisible())
 		{
 			window = getMainApplicationFrame();

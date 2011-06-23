@@ -25,7 +25,6 @@ package com.servoy.j2db.plugins;
  * 
  * @author alorincz
  * @since 6.0
- * @see WebJSWindowImpl
  */
 public interface IWebRuntimeWindow extends IRuntimeWindow
 {

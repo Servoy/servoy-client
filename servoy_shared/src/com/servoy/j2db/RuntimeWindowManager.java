@@ -21,8 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.servoy.j2db.FormManager.History;
-import com.servoy.j2db.scripting.JSWindowImpl;
-import com.servoy.j2db.scripting.JSWindowImpl.JSWindow;
+import com.servoy.j2db.scripting.JSWindow;
+import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -31,29 +31,29 @@ import com.servoy.j2db.util.Utils;
  * @author acostescu
  * @since 6.0
  */
-public abstract class JSWindowManager
+public abstract class RuntimeWindowManager
 {
 	private static final String MAIN_APPLICATION_WINDOW_NAME = "mainApplicationWindow";
 
-	private final HashMap<String, JSWindowImpl> windows = new HashMap<String, JSWindowImpl>();
+	private final HashMap<String, RuntimeWindow> windows = new HashMap<String, RuntimeWindow>();
 	private String currentWindowName = null; // this should be null when the main application window is the current window
 	protected IApplication application;
 
-	public JSWindowManager(IApplication application)
+	public RuntimeWindowManager(IApplication application)
 	{
 		this.application = application;
 		windows.put(MAIN_APPLICATION_WINDOW_NAME, getMainApplicationWindow());
 	}
 
-	protected abstract JSWindowImpl getMainApplicationWindow();
+	protected abstract RuntimeWindow getMainApplicationWindow();
 
-	protected abstract JSWindowImpl createWindowInternal(String windowName, int type, JSWindowImpl parent);
+	protected abstract RuntimeWindow createWindowInternal(String windowName, int type, RuntimeWindow parent);
 
 	/**
 	 * @param string the name of the window. If this is null, returns a wrapper for the main application frame.
 	 * @return the user window with the specified name or a wrapper for the main application frame. if name is null.
 	 */
-	public JSWindowImpl getWindow(String windowName)
+	public RuntimeWindow getWindow(String windowName)
 	{
 		if (windowName == null) windowName = MAIN_APPLICATION_WINDOW_NAME;
 		return windows.get(windowName);
@@ -66,18 +66,18 @@ public abstract class JSWindowManager
 	 * @param i 
 	 * @return the newly created window.
 	 */
-	public JSWindowImpl createWindow(String windowName, int type, JSWindow parent)
+	public RuntimeWindow createWindow(String windowName, int type, JSWindow parent)
 	{
-		JSWindowImpl win = windows.get(windowName);
+		RuntimeWindow win = windows.get(windowName);
 		if (win != null)
 		{
 			win.destroy();
 		}
 
-		JSWindowImpl currentWindow = null;
+		RuntimeWindow currentWindow = null;
 		if (type == JSWindow.DIALOG || type == JSWindow.MODAL_DIALOG)
 		{
-			JSWindowImpl pw = application.getJSWindowManager().getCurrentWindow();
+			RuntimeWindow pw = application.getRuntimeWindowManager().getCurrentWindow();
 			if (pw != null)
 			{
 				currentWindow = pw.getJSWindow().getImpl();
@@ -112,7 +112,7 @@ public abstract class JSWindowManager
 		J2DBGlobals.firePropertyChange(this, "currentWindow", oldName, currentWindowName); //$NON-NLS-1$
 	}
 
-	public JSWindowImpl getCurrentWindow()
+	public RuntimeWindow getCurrentWindow()
 	{
 		return getWindow(currentWindowName);
 	}
@@ -136,8 +136,8 @@ public abstract class JSWindowManager
 		}
 		if (ok)
 		{
-			JSWindowImpl w = getWindow(container.getContainerName());
-			if (w != null) w.closeUI();
+			RuntimeWindow w = getWindow(container.getContainerName());
+			if (w != null) w.hideUI();
 		}
 		return ok;
 	}
@@ -231,13 +231,13 @@ public abstract class JSWindowManager
 
 	public Object getCurrentWindowWrappedObject()
 	{
-		JSWindowImpl w = getCurrentWindow();
+		RuntimeWindow w = getCurrentWindow();
 		return w != null ? w.getWrappedObject() : null;
 	}
 
 	public Object getWindowWrappedObject(String windowName)
 	{
-		JSWindowImpl w = getWindow(windowName);
+		RuntimeWindow w = getWindow(windowName);
 		return w != null ? w.getWrappedObject() : null;
 	}
 }

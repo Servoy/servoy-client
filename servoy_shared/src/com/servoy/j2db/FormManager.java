@@ -66,9 +66,9 @@ import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.InstanceJavaMembers;
-import com.servoy.j2db.scripting.JSWindowImpl;
+import com.servoy.j2db.scripting.JSWindow;
+import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.scripting.SolutionScope;
-import com.servoy.j2db.scripting.JSWindowImpl.JSWindow;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.Utils;
@@ -434,7 +434,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 
 	protected void destroyContainer(IMainContainer container)
 	{
-		JSWindowImpl w = application.getJSWindowManager().getWindow(container.getContainerName());
+		RuntimeWindow w = application.getRuntimeWindowManager().getWindow(container.getContainerName());
 		if (w != null) w.destroy();
 
 		FormController fc = container.getController();
@@ -461,17 +461,17 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 			legacyV3Behavior = true;
 		}
 
-		JSWindowImpl thisWindow = application.getJSWindowManager().getWindow(windowName);
+		RuntimeWindow thisWindow = application.getRuntimeWindowManager().getWindow(windowName);
 		if (thisWindow != null && thisWindow.getType() != JSWindow.DIALOG && thisWindow.getType() != JSWindow.MODAL_DIALOG)
 		{
-			thisWindow.close(true); // make sure it is closed before reference to it is lost
+			thisWindow.hide(true); // make sure it is closed before reference to it is lost
 			thisWindow.destroy();
 			thisWindow = null;
 		}
 
 		if (thisWindow == null)
 		{
-			thisWindow = application.getJSWindowManager().createWindow(windowName, modal ? JSWindow.MODAL_DIALOG : JSWindow.DIALOG, null);
+			thisWindow = application.getRuntimeWindowManager().createWindow(windowName, modal ? JSWindow.MODAL_DIALOG : JSWindow.DIALOG, null);
 		}
 		thisWindow.setInitialBounds(bounds.x, bounds.y, bounds.width, bounds.height);
 		thisWindow.showTextToolbar(showTextToolbar);
@@ -488,18 +488,18 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 			windowName = DEFAULT_DIALOG_NAME;
 		}
 
-		JSWindowImpl thisWindow = application.getJSWindowManager().getWindow(windowName);
+		RuntimeWindow thisWindow = application.getRuntimeWindowManager().getWindow(windowName);
 
 		if (thisWindow != null && thisWindow.getType() != JSWindow.WINDOW)
 		{
-			thisWindow.close(true); // make sure it's closed before reference to it is lost
+			thisWindow.hide(true); // make sure it's closed before reference to it is lost
 			thisWindow.destroy();
 			thisWindow = null;
 		}
 
 		if (thisWindow == null)
 		{
-			thisWindow = application.getJSWindowManager().createWindow(windowName, JSWindow.WINDOW, null);
+			thisWindow = application.getRuntimeWindowManager().createWindow(windowName, JSWindow.WINDOW, null);
 		}
 		thisWindow.setInitialBounds(bounds.x, bounds.y, bounds.width, bounds.height);
 		thisWindow.showTextToolbar(showTextToolbar);
@@ -553,7 +553,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 
 	public FormController showFormInCurrentContainer(final String formName)
 	{
-		return showFormInMainPanel(formName, getCurrentContainer(), null, true, application.getJSWindowManager().getCurrentWindowName());
+		return showFormInMainPanel(formName, getCurrentContainer(), null, true, application.getRuntimeWindowManager().getCurrentWindowName());
 	}
 
 	public void clearLoginForm()
@@ -728,7 +728,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 							if (currentController != null && fp.getName().equals(currentController.getName()))
 							{
 								showContainer.show(fp.getName());
-								application.getJSWindowManager().setCurrentWindowName(dialogName);
+								application.getRuntimeWindowManager().setCurrentWindowName(dialogName);
 							}
 						}
 					});
@@ -736,7 +736,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 				else
 				{
 					currentContainer.show(fp.getName());
-					application.getJSWindowManager().setCurrentWindowName(dialogName);
+					application.getRuntimeWindowManager().setCurrentWindowName(dialogName);
 				}
 				invokeLaterRunnables.add(title_focus);
 				Utils.invokeLater(application, invokeLaterRunnables);
@@ -1381,7 +1381,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 			int saveIndex = index;
 			index = idx; // must set index now to prevent add() from adding same form twice
 			FormController fc = ((FormManager)application.getFormManager()).showFormInMainPanel(f, container, null, true,
-				application.getJSWindowManager().getCurrentWindowName());
+				application.getRuntimeWindowManager().getCurrentWindowName());
 			if (fc == null || !fc.getName().equals(f))
 			{
 				index = saveIndex;
@@ -1775,7 +1775,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 				ss.put("currentcontroller", ss, formController.initForJSUsage()); //$NON-NLS-1$
 			}
 		}
-		application.getJSWindowManager().setCurrentWindowName(name);
+		application.getRuntimeWindowManager().setCurrentWindowName(name);
 	}
 
 	public boolean createNewFormInstance(String designFormName, String newInstanceScriptName)

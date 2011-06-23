@@ -55,7 +55,7 @@ import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ISmartClientApplication;
-import com.servoy.j2db.JSWindowManager;
+import com.servoy.j2db.RuntimeWindowManager;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.ClientInfo;
@@ -70,7 +70,6 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.plugins.IClientPlugin;
-import com.servoy.j2db.scripting.JSWindowImpl.JSWindow;
 import com.servoy.j2db.scripting.info.APPLICATION_TYPES;
 import com.servoy.j2db.scripting.info.CLIENTDESIGN;
 import com.servoy.j2db.scripting.info.ELEMENT_TYPES;
@@ -977,22 +976,22 @@ public class JSApplication implements IReturnedTypesProvider
 		return application.getScreenSize().height;
 	}
 
-	private JSWindowImpl getUserWindow(String windowName)
+	private RuntimeWindow getUserWindow(String windowName)
 	{
-		JSWindowImpl w = null;
+		RuntimeWindow w = null;
 		if (windowName == null)
 		{
 			// no name specified; use default dialog if it is showing, or else the main application window
-			w = application.getJSWindowManager().getWindow(FormManager.DEFAULT_DIALOG_NAME);
+			w = application.getRuntimeWindowManager().getWindow(FormManager.DEFAULT_DIALOG_NAME);
 			if (w == null || (!w.isVisible()))
 			{
-				w = application.getJSWindowManager().getWindow(null); // main app. frame
+				w = application.getRuntimeWindowManager().getWindow(null); // main app. frame
 			}
 		}
 		else
 		{
 			// we use the window with the given name, if found
-			w = application.getJSWindowManager().getWindow(windowName);
+			w = application.getRuntimeWindowManager().getWindow(windowName);
 		}
 
 		return w;
@@ -1018,7 +1017,7 @@ public class JSApplication implements IReturnedTypesProvider
 		{
 			dialogName = replaceFailingCharacters((String)args[0]);
 		}
-		JSWindowImpl w = getUserWindow(dialogName);
+		RuntimeWindow w = getUserWindow(dialogName);
 		return w != null ? w.getX() : 0;
 
 	}
@@ -1044,7 +1043,7 @@ public class JSApplication implements IReturnedTypesProvider
 			dialogName = replaceFailingCharacters((String)args[0]);
 		}
 
-		JSWindowImpl w = getUserWindow(dialogName);
+		RuntimeWindow w = getUserWindow(dialogName);
 		return w != null ? w.getY() : 0;
 	}
 
@@ -1068,7 +1067,7 @@ public class JSApplication implements IReturnedTypesProvider
 		{
 			dialogName = replaceFailingCharacters((String)args[0]);
 		}
-		JSWindowImpl w = getUserWindow(dialogName);
+		RuntimeWindow w = getUserWindow(dialogName);
 		return w != null ? w.getWidth() : 0;
 	}
 
@@ -1092,7 +1091,7 @@ public class JSApplication implements IReturnedTypesProvider
 		{
 			dialogName = replaceFailingCharacters((String)args[0]);
 		}
-		JSWindowImpl w = getUserWindow(dialogName);
+		RuntimeWindow w = getUserWindow(dialogName);
 		return w != null ? w.getHeight() : 0;
 	}
 
@@ -1134,7 +1133,7 @@ public class JSApplication implements IReturnedTypesProvider
 		}
 
 		windowName = replaceFailingCharacters(windowName);
-		JSWindowImpl w = getUserWindow(windowName);
+		RuntimeWindow w = getUserWindow(windowName);
 
 		if (w != null)
 		{
@@ -1180,7 +1179,7 @@ public class JSApplication implements IReturnedTypesProvider
 		}
 
 		windowName = replaceFailingCharacters(windowName);
-		JSWindowImpl w = getUserWindow(windowName);
+		RuntimeWindow w = getUserWindow(windowName);
 
 		if (w != null)
 		{
@@ -1992,7 +1991,7 @@ public class JSApplication implements IReturnedTypesProvider
 		{
 			JSWindow parent = null;
 			if (args.length == 3) parent = (JSWindow)args[2];
-			return application.getJSWindowManager().createWindow(replaceFailingCharacters((String)args[0]), ((Number)args[1]).intValue(), parent).getJSWindow();
+			return application.getRuntimeWindowManager().createWindow(replaceFailingCharacters((String)args[0]), ((Number)args[1]).intValue(), parent).getJSWindow();
 		}
 		else
 		{
@@ -2019,7 +2018,7 @@ public class JSApplication implements IReturnedTypesProvider
 		{
 			if (args.length == 1 && args[0] instanceof String)
 			{
-				JSWindowImpl jw = application.getJSWindowManager().getWindow(replaceFailingCharacters((String)args[0]));
+				RuntimeWindow jw = application.getRuntimeWindowManager().getWindow(replaceFailingCharacters((String)args[0]));
 				return jw != null ? jw.getJSWindow() : null;
 			}
 			else
@@ -2030,7 +2029,7 @@ public class JSApplication implements IReturnedTypesProvider
 		else
 		{
 			// we must return the JSWindow wrapper for main application frame
-			return application.getJSWindowManager().getWindow(null).getJSWindow();
+			return application.getRuntimeWindowManager().getWindow(null).getJSWindow();
 		}
 	}
 
@@ -2276,7 +2275,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 */
 	public boolean js_closeAllWindows()
 	{
-		return application.getJSWindowManager().closeFormInWindow(null, true);
+		return application.getRuntimeWindowManager().closeFormInWindow(null, true);
 	}
 
 	/**
@@ -2314,7 +2313,7 @@ public class JSApplication implements IReturnedTypesProvider
 	{
 		String dialogName = null;
 
-		JSWindowManager wm = application.getJSWindowManager();
+		RuntimeWindowManager wm = application.getRuntimeWindowManager();
 		boolean all = false;
 		if (vargs != null && vargs.length >= 1)
 		{

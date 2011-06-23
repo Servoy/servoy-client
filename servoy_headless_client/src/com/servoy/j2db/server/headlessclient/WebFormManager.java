@@ -37,7 +37,7 @@ import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.scripting.JSWindowImpl.JSWindow;
+import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.server.headlessclient.dataui.WebSplitPane;
 import com.servoy.j2db.server.headlessclient.dataui.WebTabPanel;
 import com.servoy.j2db.smart.SwingForm;

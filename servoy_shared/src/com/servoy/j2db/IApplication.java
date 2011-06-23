@@ -363,7 +363,7 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 * Get the window manager
 	 * @return the manager
 	 */
-	public JSWindowManager getJSWindowManager();
+	public RuntimeWindowManager getRuntimeWindowManager();
 
 	/**
 	 * Get the solution name

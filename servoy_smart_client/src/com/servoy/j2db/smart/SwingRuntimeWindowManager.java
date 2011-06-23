@@ -28,31 +28,32 @@ import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.ISmartClientApplication;
-import com.servoy.j2db.JSWindowManager;
+import com.servoy.j2db.RuntimeWindowManager;
 import com.servoy.j2db.gui.FormDialog;
-import com.servoy.j2db.scripting.JSWindowImpl;
+import com.servoy.j2db.scripting.JSWindow;
+import com.servoy.j2db.scripting.RuntimeWindow;
 
 /**
  * Swing implementation of the JSWindowManager. It works with SwingJSWindowImpl windows.
  * @author acostescu
  * @since 6.0
  */
-public class SwingJSWindowManager extends JSWindowManager
+public class SwingRuntimeWindowManager extends RuntimeWindowManager
 {
 
-	public SwingJSWindowManager(IApplication application)
+	public SwingRuntimeWindowManager(IApplication application)
 	{
 		super(application);
 	}
 
 	@Override
-	protected JSWindowImpl createWindowInternal(String windowName, int type, JSWindowImpl parent)
+	protected RuntimeWindow createWindowInternal(String windowName, int type, RuntimeWindow parent)
 	{
-		return new SwingJSWindowImpl((ISmartClientApplication)application, windowName, type, parent);
+		return new SwingRuntimeWindow((ISmartClientApplication)application, windowName, type, parent);
 	}
 
 	@Override
-	protected JSWindowImpl getMainApplicationWindow()
+	protected RuntimeWindow getMainApplicationWindow()
 	{
 		return new MainApplicationSwingJSWindow((ISmartClientApplication)application);
 	}
@@ -130,7 +131,7 @@ public class SwingJSWindowManager extends JSWindowManager
 	@Override
 	protected void storeWindowBounds(IMainContainer container)
 	{
-		SwingJSWindowImpl w = (SwingJSWindowImpl)getWindow(container.getContainerName());
+		SwingRuntimeWindow w = (SwingRuntimeWindow)getWindow(container.getContainerName());
 		if (w != null)
 		{
 			w.storeBounds();
@@ -140,11 +141,11 @@ public class SwingJSWindowManager extends JSWindowManager
 	@Override
 	protected boolean restoreWindowBounds(IMainContainer container)
 	{
-		SwingJSWindowImpl w = (SwingJSWindowImpl)getWindow(container.getContainerName());
+		SwingRuntimeWindow w = (SwingRuntimeWindow)getWindow(container.getContainerName());
 		return w != null ? w.restoreWindowBounds() : false;
 	}
 
-	private static class MainApplicationSwingJSWindow extends SwingJSWindowImpl
+	private static class MainApplicationSwingJSWindow extends SwingRuntimeWindow
 	{
 
 		public MainApplicationSwingJSWindow(ISmartClientApplication application)
@@ -185,7 +186,7 @@ public class SwingJSWindowManager extends JSWindowManager
 		}
 
 		@Override
-		public void closeUI()
+		public void hideUI()
 		{
 			// should never get called, but to be on the safe side
 		}

@@ -39,7 +39,7 @@ import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.ISupportNavigator;
 import com.servoy.j2db.FormManager.History;
-import com.servoy.j2db.scripting.JSWindowImpl;
+import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.smart.dataui.ServoyFocusTraversalPolicy;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.util.Debug;
@@ -311,7 +311,7 @@ public class MainPanel extends JPanel implements ISupportNavigator, IMainContain
 		}
 		else
 		{
-			JSWindowImpl w = application.getJSWindowManager().getWindow(getContainerName());
+			RuntimeWindow w = application.getRuntimeWindowManager().getWindow(getContainerName());
 			if (w != null) w.setTitle(titleText);
 		}
 	}

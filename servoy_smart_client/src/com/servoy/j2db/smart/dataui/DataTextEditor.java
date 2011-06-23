@@ -83,7 +83,7 @@ import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.printing.IFixedPreferredWidth;
 import com.servoy.j2db.smart.MainPanel;
 import com.servoy.j2db.smart.SwingForm;
-import com.servoy.j2db.smart.SwingJSWindowImpl;
+import com.servoy.j2db.smart.SwingRuntimeWindow;
 import com.servoy.j2db.smart.TextToolbar;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEditProvider;
@@ -127,7 +127,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 	private final IApplication application;
 	private final EventExecutor eventExecutor;
 	private MouseAdapter rightclickMouseAdapter = null;
-	private SwingJSWindowImpl parentWindow;
+	private SwingRuntimeWindow parentWindow;
 	private final AbstractRuntimeTextEditor<IFieldComponent, JEditorPane> scriptable;
 
 	public DataTextEditor(IApplication app, AbstractRuntimeTextEditor<IFieldComponent, JEditorPane> scriptable, int type)
@@ -225,7 +225,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 					}
 					if (parent instanceof MainPanel)
 					{
-						parentWindow = (SwingJSWindowImpl)application.getJSWindowManager().getWindow(((MainPanel)parent).getContainerName());
+						parentWindow = (SwingRuntimeWindow)application.getRuntimeWindowManager().getWindow(((MainPanel)parent).getContainerName());
 					}
 					else
 					{

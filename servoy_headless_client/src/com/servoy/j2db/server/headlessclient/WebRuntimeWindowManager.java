@@ -23,30 +23,31 @@ import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IWebClientApplication;
-import com.servoy.j2db.JSWindowManager;
-import com.servoy.j2db.scripting.JSWindowImpl;
+import com.servoy.j2db.RuntimeWindowManager;
+import com.servoy.j2db.scripting.JSWindow;
+import com.servoy.j2db.scripting.RuntimeWindow;
 
 /**
  * Swing implementation of the JSWindowManager. It works with WebJSWindowImpl windows.
  * @author acostescu
  * @since 6.0
  */
-public class WebJSWindowManager extends JSWindowManager
+public class WebRuntimeWindowManager extends RuntimeWindowManager
 {
 
-	public WebJSWindowManager(IApplication application)
+	public WebRuntimeWindowManager(IApplication application)
 	{
 		super(application);
 	}
 
 	@Override
-	protected JSWindowImpl createWindowInternal(String windowName, int type, JSWindowImpl parent)
+	protected RuntimeWindow createWindowInternal(String windowName, int type, RuntimeWindow parent)
 	{
-		return new WebJSWindowImpl((IWebClientApplication)application, windowName, type, parent);
+		return new WebRuntimeWindow((IWebClientApplication)application, windowName, type, parent);
 	}
 
 	@Override
-	protected JSWindowImpl getMainApplicationWindow()
+	protected RuntimeWindow getMainApplicationWindow()
 	{
 		return new MainApplicationWebJSFrame(application);
 	}
@@ -73,7 +74,7 @@ public class WebJSWindowManager extends JSWindowManager
 		return result;
 	}
 
-	private static class MainApplicationWebJSFrame extends WebJSWindowImpl
+	private static class MainApplicationWebJSFrame extends WebRuntimeWindow
 	{
 
 		public MainApplicationWebJSFrame(IApplication application)
@@ -97,7 +98,7 @@ public class WebJSWindowManager extends JSWindowManager
 		}
 
 		@Override
-		public void closeUI()
+		public void hideUI()
 		{
 			// should never get called, but to be on the safe side
 		}

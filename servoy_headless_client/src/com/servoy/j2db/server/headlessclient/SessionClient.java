@@ -73,7 +73,7 @@ import com.servoy.j2db.IModeManager;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.ISessionClient;
 import com.servoy.j2db.J2DBGlobals;
-import com.servoy.j2db.JSWindowManager;
+import com.servoy.j2db.RuntimeWindowManager;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.ModeManager;
 import com.servoy.j2db.cmd.ICmd;
@@ -149,7 +149,7 @@ public class SessionClient extends ClientState implements ISessionClient
 	protected transient HttpSession session;
 
 	private transient InfoChannel outputChannel;
-	private JSWindowManager jsWindowManager;
+	private RuntimeWindowManager jsWindowManager;
 
 	private final HashMap<String, String> defaultUserProperties = new HashMap<String, String>();
 
@@ -238,12 +238,12 @@ public class SessionClient extends ClientState implements ISessionClient
 		jsWindowManager = createJSWindowManager();
 	}
 
-	protected JSWindowManager createJSWindowManager()
+	protected RuntimeWindowManager createJSWindowManager()
 	{
-		return new DummyJSWindowManager(this);
+		return new DummyRuntimeWindowManager(this);
 	}
 
-	public JSWindowManager getJSWindowManager()
+	public RuntimeWindowManager getRuntimeWindowManager()
 	{
 		return jsWindowManager;
 	}

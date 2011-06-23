@@ -29,7 +29,6 @@ import javax.swing.JMenuBar;
  * 
  * @author alorincz
  * @since 6.0
- * @see SwingJSWindowImpl
  */
 public interface ISmartRuntimeWindow extends IRuntimeWindow
 {

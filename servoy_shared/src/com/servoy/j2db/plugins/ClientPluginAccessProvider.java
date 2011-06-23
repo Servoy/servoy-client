@@ -51,7 +51,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Style;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IScriptSupport;
-import com.servoy.j2db.scripting.JSWindowImpl;
+import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ILogLevel;
 import com.servoy.j2db.util.IStyleSheet;
@@ -633,7 +633,7 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 	 */
 	public IRuntimeWindow getRuntimeWindow(String name)
 	{
-		return application.getJSWindowManager().getWindow(name);
+		return application.getRuntimeWindowManager().getWindow(name);
 	}
 
 	/*
@@ -643,9 +643,9 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 	 */
 	public IRuntimeWindow getCurrentRuntimeWindow()
 	{
-		JSWindowImpl windowImpl = application.getJSWindowManager().getCurrentWindow();
+		RuntimeWindow windowImpl = application.getRuntimeWindowManager().getCurrentWindow();
 		if (windowImpl.getWrappedObject() != null) return windowImpl;
-		else return application.getJSWindowManager().getWindow(null);
+		else return application.getRuntimeWindowManager().getWindow(null);
 	}
 
 }

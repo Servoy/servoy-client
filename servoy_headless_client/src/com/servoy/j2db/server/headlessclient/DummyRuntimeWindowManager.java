@@ -21,8 +21,8 @@ import java.util.Collections;
 import java.util.List;
 
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.JSWindowManager;
-import com.servoy.j2db.scripting.JSWindowImpl;
+import com.servoy.j2db.RuntimeWindowManager;
+import com.servoy.j2db.scripting.RuntimeWindow;
 
 /**
  * Dummy window manager implementation for non-gui apps.
@@ -30,21 +30,21 @@ import com.servoy.j2db.scripting.JSWindowImpl;
  * @author rgansevles
  *
  */
-public class DummyJSWindowManager extends JSWindowManager
+public class DummyRuntimeWindowManager extends RuntimeWindowManager
 {
-	public DummyJSWindowManager(IApplication application)
+	public DummyRuntimeWindowManager(IApplication application)
 	{
 		super(application);
 	}
 
 	@Override
-	protected JSWindowImpl getMainApplicationWindow()
+	protected RuntimeWindow getMainApplicationWindow()
 	{
 		return null;
 	}
 
 	@Override
-	protected JSWindowImpl createWindowInternal(String windowName, int type, JSWindowImpl parent)
+	protected RuntimeWindow createWindowInternal(String windowName, int type, RuntimeWindow parent)
 	{
 		return null;
 	}
