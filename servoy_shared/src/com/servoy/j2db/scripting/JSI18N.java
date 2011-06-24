@@ -22,10 +22,10 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.Messages;
@@ -434,19 +434,31 @@ public class JSI18N
 
 	/**
 	 * Sets the current time zone of the client.
-	 * The parameter should be a string having the format which can be seen in the Edit -> Preferences -> Locale
-	 * at the "Default Timezone" combobox. For instance the time zone for Netherlands is set using the ID
-	 * "Europe/Amsterdam". 
+	 * The parameter should be a string having the format which can be retrieved via i18n.getAvailableTimeZones or
+	 * can be seen in the SmartClient Edit -> Preferences -> Locale at the "Default Timezone" combobox. 
+	 * For instance the time zone for Netherlands is set using the ID "Europe/Amsterdam". 
 	 *
 	 * @sample
 	 * // This will set the default time zone to Central European Time
 	 * i18n.setTimeZone("Europe/Amsterdam");
 	 */
-	public void js_setDefaultTimeZone(String timezone)
+	public void js_setTimeZone(String timezone)
 	{
 		Properties settings = application.getSettings();
 		TimeZone.setDefault(TimeZone.getTimeZone(timezone));
 		settings.setProperty("timezone.default", timezone); //$NON-NLS-1$
+	}
+
+	/**
+	 * Get the list of available time zones.
+	 * 
+	 * @sample
+	 * //Get the list of available time zones 
+	 * var timezones = i18n.getAvailableTimeZoneIDs();
+	 */
+	public String[] js_getAvailableTimeZoneIDs()
+	{
+		return TimeZone.getAvailableIDs();
 	}
 
 	/**
