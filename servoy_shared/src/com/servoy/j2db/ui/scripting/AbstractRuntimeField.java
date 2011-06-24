@@ -96,6 +96,11 @@ public abstract class AbstractRuntimeField<C extends IFieldComponent> extends Ab
 		return getComponent().getTitleText();
 	}
 
+	public void js_setTitleText(String titleText)
+	{
+		getComponent().setTitleText(titleText);
+	}
+
 	public int js_getAbsoluteFormLocationY()
 	{
 		return getComponent().getAbsoluteFormLocationY();
