@@ -178,7 +178,6 @@ public interface IServiceProvider extends IEventDelegator
 	 */
 	public String getClientID();
 
-
 	/**
 	 * Get the client's locale.
 	 * 
@@ -229,11 +228,17 @@ public interface IServiceProvider extends IEventDelegator
 	public URL getServerURL();
 
 	/**
-	 * Set the default locale.
+	 * Set the locale.
 	 * 
 	 * @param locale The locale to set.
 	 */
 	public void setLocale(Locale locale);
+
+	/**
+	 * Set the timezone
+	 * @param timezone
+	 */
+	public void setTimeZone(TimeZone timeZone);
 
 	/**
 	 * get a i18n message for the given key
@@ -259,7 +264,6 @@ public interface IServiceProvider extends IEventDelegator
 	 * @return a String for the given key or the key itself
 	 */
 	public String getI18NMessageIfPrefixed(String i18nKey);
-
 
 	/**
 	 * set an i18n message client side

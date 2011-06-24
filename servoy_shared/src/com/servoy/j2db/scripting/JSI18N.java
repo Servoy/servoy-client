@@ -444,9 +444,8 @@ public class JSI18N
 	 */
 	public void js_setTimeZone(String timezone)
 	{
-		Properties settings = application.getSettings();
-		TimeZone.setDefault(TimeZone.getTimeZone(timezone));
-		settings.setProperty("timezone.default", timezone); //$NON-NLS-1$
+		TimeZone zone = TimeZone.getTimeZone(timezone);
+		if (zone != null) application.setTimeZone(zone);
 	}
 
 	/**

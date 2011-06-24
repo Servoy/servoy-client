@@ -1110,9 +1110,13 @@ public class SessionClient extends ClientState implements ISessionClient
 		return timeZone == null ? TimeZone.getDefault() : timeZone;
 	}
 
-	public void setTimeZone(TimeZone timeZone)
+	public synchronized void setTimeZone(TimeZone zone)
 	{
-		this.timeZone = timeZone;
+		if (timeZone != null && timeZone.equals(zone)) return;
+		TimeZone old = timeZone;
+		timeZone = zone;
+		J2DBGlobals.firePropertyChange(this, "timeZone", old, timeZone); //$NON-NLS-1$
+
 		ClientInfo clientInfo = getClientInfo();
 		clientInfo.setTimeZone(timeZone);
 		try
