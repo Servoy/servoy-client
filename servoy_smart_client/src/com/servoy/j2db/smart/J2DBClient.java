@@ -145,11 +145,11 @@ import com.servoy.j2db.IMessagesCallback;
 import com.servoy.j2db.IModeManager;
 import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.J2DBGlobals;
-import com.servoy.j2db.RuntimeWindowManager;
 import com.servoy.j2db.LAFManager;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.MessagesResourceBundle;
+import com.servoy.j2db.RuntimeWindowManager;
 import com.servoy.j2db.SwingModeManager;
 import com.servoy.j2db.cmd.ICmdManager;
 import com.servoy.j2db.component.ComponentFactory;
@@ -3558,7 +3558,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		if (!old.equals(locale))
 		{
 			Locale.setDefault(locale);
-			Messages.load(this);
+			Messages.loadInternal(this);
 			J2DBGlobals.firePropertyChange(this, "locale", old, locale);
 		}
 	}
@@ -3605,9 +3605,9 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	}
 
 	private String i18nColumnName;
-	private Object i18nColunmValue;
+	private String[] i18nColunmValue;
 
-	public void setI18NMessagesFilter(String columnname, Object value)
+	public void setI18NMessagesFilter(String columnname, String[] value)
 	{
 		this.i18nColumnName = columnname;
 		this.i18nColunmValue = value;
@@ -3619,7 +3619,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		return i18nColumnName;
 	}
 
-	public Object getI18NColumnValueFilter()
+	public String[] getI18NColumnValueFilter()
 	{
 		return i18nColunmValue;
 	}
@@ -3635,7 +3635,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	@Override
 	protected void refreshI18NMessages()
 	{
-		Messages.load(this);
+		Messages.loadInternal(this);
 	}
 
 	@Override

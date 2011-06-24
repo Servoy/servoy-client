@@ -38,7 +38,7 @@ public class MessagesResourceBundle extends ResourceBundle implements Externaliz
 
 	private transient Locale locale;
 	private transient String i18nColumnName;
-	private transient Object i18nColunmValue;
+	private transient String[] i18nColunmValue;
 	private transient int solutionId;
 
 	private transient Properties messages;
@@ -59,7 +59,7 @@ public class MessagesResourceBundle extends ResourceBundle implements Externaliz
 		applicationServerLoader = asl;
 	}
 
-	public MessagesResourceBundle(IApplication application, Locale locale, String i18nColumnName, Object i18nColunmValue, int solutionId)
+	public MessagesResourceBundle(IApplication application, Locale locale, String i18nColumnName, String[] i18nColunmValue, int solutionId)
 	{
 		this.application = application;
 		this.locale = locale;
@@ -106,11 +106,11 @@ public class MessagesResourceBundle extends ResourceBundle implements Externaliz
 				try
 				{
 					sol = (Solution)application.getRepository().getActiveRootObject(solutionId);
-					Messages.loadMessagesFromDatabase(null, application.getClientID(), application.getSettings(), application.getDataServer(),
+					Messages.loadMessagesFromDatabaseInternal(null, application.getClientID(), application.getSettings(), application.getDataServer(),
 						application.getRepository(), messages, locale, Messages.ALL_LOCALES, null, null, i18nColumnName, i18nColunmValue);
-					Messages.loadMessagesFromDatabase(sol != null ? sol.getI18nDataSource() : null, application.getClientID(), application.getSettings(),
-						application.getDataServer(), application.getRepository(), messages, locale, Messages.ALL_LOCALES, null, null, i18nColumnName,
-						i18nColunmValue);
+					Messages.loadMessagesFromDatabaseInternal(sol != null ? sol.getI18nDataSource() : null, application.getClientID(),
+						application.getSettings(), application.getDataServer(), application.getRepository(), messages, locale, Messages.ALL_LOCALES, null,
+						null, i18nColumnName, i18nColunmValue);
 				}
 				catch (Exception e)
 				{
@@ -174,7 +174,7 @@ public class MessagesResourceBundle extends ResourceBundle implements Externaliz
 	{
 		locale = (Locale)s.readObject();
 		i18nColumnName = (String)s.readObject();
-		i18nColunmValue = s.readObject();
+		i18nColunmValue = (String[])s.readObject();
 		solutionId = s.readInt();
 		jarBundle = ResourceBundle.getBundle(Messages.BUNDLE_NAME, locale);
 	}

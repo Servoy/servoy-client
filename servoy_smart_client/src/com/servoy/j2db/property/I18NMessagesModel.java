@@ -127,7 +127,7 @@ public class I18NMessagesModel
 		}
 	}
 
-	public Collection<I18NMessagesModelEntry> getMessages(String searchKey, String filterColumn, Object filterValue)
+	public Collection<I18NMessagesModelEntry> getMessages(String searchKey, String filterColumn, String[] filterValue)
 	{
 		TreeMap<String, I18NMessagesModelEntry> tm = new TreeMap<String, I18NMessagesModelEntry>(StringComparator.INSTANCE);
 		if (defaultMap != null)

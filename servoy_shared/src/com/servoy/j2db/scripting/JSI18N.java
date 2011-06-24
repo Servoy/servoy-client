@@ -347,7 +347,7 @@ public class JSI18N
 	 */
 	public void js_setI18NMessagesFilter(String columnName, String value)
 	{
-		application.setI18NMessagesFilter(columnName, value);
+		js_setI18NMessagesFilter(columnName, value == null ? null : new String[] { value });
 	}
 
 	/**

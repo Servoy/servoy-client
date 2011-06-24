@@ -316,7 +316,7 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	/**
 	 * Set a message filter
 	 */
-	public void setI18NMessagesFilter(String columnname, Object value);
+	public void setI18NMessagesFilter(String columnname, String[] value);
 
 	/**
 	 * Get a locale resouce bundle

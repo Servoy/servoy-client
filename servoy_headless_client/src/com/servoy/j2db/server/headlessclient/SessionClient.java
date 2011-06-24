@@ -73,9 +73,9 @@ import com.servoy.j2db.IModeManager;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.ISessionClient;
 import com.servoy.j2db.J2DBGlobals;
-import com.servoy.j2db.RuntimeWindowManager;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.ModeManager;
+import com.servoy.j2db.RuntimeWindowManager;
 import com.servoy.j2db.cmd.ICmd;
 import com.servoy.j2db.cmd.ICmdManager;
 import com.servoy.j2db.component.ComponentFactory;
@@ -914,13 +914,13 @@ public class SessionClient extends ClientState implements ISessionClient
 		return false;
 	}
 
-	public void setI18NMessagesFilter(String columnname, Object value)
+	public void setI18NMessagesFilter(String columnname, String[] value)
 	{
 		Properties properties = new Properties();
-		Messages.loadMessagesFromDatabase(null, getClientInfo().getClientId(), getSettings(), getDataServer(), getRepository(), properties, locale,
+		Messages.loadMessagesFromDatabaseInternal(null, getClientInfo().getClientId(), getSettings(), getDataServer(), getRepository(), properties, locale,
 			Messages.ALL_LOCALES, null, null, columnname, value);
 		Solution solution = getSolution();
-		Messages.loadMessagesFromDatabase(solution != null ? solution.getI18nDataSource() : null, getClientInfo().getClientId(), getSettings(),
+		Messages.loadMessagesFromDatabaseInternal(solution != null ? solution.getI18nDataSource() : null, getClientInfo().getClientId(), getSettings(),
 			getDataServer(), getRepository(), properties, locale, Messages.ALL_LOCALES, null, null, columnname, value);
 		synchronized (messages)
 		{
@@ -1061,10 +1061,10 @@ public class SessionClient extends ClientState implements ISessionClient
 			{
 				properties = new Properties();
 				Messages.invalidConnection = false;
-				Messages.loadMessagesFromDatabase(null, getClientInfo().getClientId(), getSettings(), getDataServer(), getRepository(), properties, loc);
+				Messages.loadMessagesFromDatabaseInternal(null, getClientInfo().getClientId(), getSettings(), getDataServer(), getRepository(), properties, loc);
 				if (getSolution() != null) //must be sure that solution is loaded, app might retrieve system messages, before solution loaded!
 				{
-					Messages.loadMessagesFromDatabase(getSolution().getI18nDataSource(), getClientInfo().getClientId(), getSettings(), getDataServer(),
+					Messages.loadMessagesFromDatabaseInternal(getSolution().getI18nDataSource(), getClientInfo().getClientId(), getSettings(), getDataServer(),
 						getRepository(), properties, loc);
 					messages.put(loc, properties);
 				}

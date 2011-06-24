@@ -28,5 +28,5 @@ import com.servoy.j2db.MessagesResourceBundle;
  */
 public interface IApplicationServerMessagesLoader
 {
-	void loadMessages(Properties messages, Locale locale, int solutionId, String i18nColumnName, Object i18nColunmValue);
+	void loadMessages(Properties messages, Locale locale, int solutionId, String i18nColumnName, String[] i18nColunmValue);
 }

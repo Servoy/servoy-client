@@ -480,7 +480,7 @@ public class I18NPanel extends JPanel implements DocumentListener
 					if (application instanceof IMessagesCallback)
 					{
 						// TODO just a cast to IMessageCallback.. IApplication could inherited it but then debugger panel must also have those methods
-						Messages.load((IMessagesCallback)application);
+						Messages.loadInternal((IMessagesCallback)application);
 					}
 					boolean modelChanged = false;
 					for (int i = 0; i < messageModel.getRowCount(); i++)
@@ -940,7 +940,7 @@ public class I18NPanel extends JPanel implements DocumentListener
 		if (i18NMessagesModel != null)
 		{
 			String filterColumn = null;
-			Object filterValue = null;
+			String[] filterValue = null;
 			if (application instanceof IMessagesCallback)
 			{
 				filterColumn = ((IMessagesCallback)application).getI18NColumnNameFilter();

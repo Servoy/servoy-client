@@ -25,5 +25,5 @@ public interface IMessagesCallback extends IServiceProvider
 
 	public String getI18NColumnNameFilter();
 
-	public Object getI18NColumnValueFilter();
+	public String[] getI18NColumnValueFilter();
 }
