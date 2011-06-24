@@ -393,31 +393,37 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 		FormManager fm = ((FormManager)application.getFormManager());
 		IMainContainer currentModalDialogContainer = fm.getModalDialogContainer();
 
-		Window dialogWindowOwner = getWindowFromMainContainer(currentModalDialogContainer);
-
-		if (dialogWindowOwner != null)
+		JSWindow parentJSWindow = getParent();
+		RuntimeWindow parentRuntimeWindow = null;
+		if (parentJSWindow != null && parentJSWindow.getImpl().isVisible()) parentRuntimeWindow = parentJSWindow.getImpl();
+		else
 		{
-			IMainContainer currentContainer = fm.getCurrentContainer();
-			Window currentContainerWindow = getWindowFromMainContainer(currentContainer);
-			while (currentContainerWindow != null)
+			Window dialogWindowOwner = getWindowFromMainContainer(currentModalDialogContainer);
+
+			if (dialogWindowOwner != null)
 			{
-				if (dialogWindowOwner == currentContainerWindow)
+				IMainContainer currentContainer = fm.getCurrentContainer();
+				Window currentContainerWindow = getWindowFromMainContainer(currentContainer);
+				while (currentContainerWindow != null)
 				{
-					break;
+					if (dialogWindowOwner == currentContainerWindow)
+					{
+						break;
+					}
+					currentContainerWindow = currentContainerWindow.getOwner();
 				}
-				currentContainerWindow = currentContainerWindow.getOwner();
+				if (currentContainerWindow == null)
+				{
+					// if it never really was the owner (in the own chain of the dialog) then do just use the currentContainer.
+					currentModalDialogContainer = currentContainer;
+				}
 			}
-			if (currentContainerWindow == null)
-			{
-				// if it never really was the owner (in the own chain of the dialog) then do just use the currentContainer.
-				currentModalDialogContainer = currentContainer;
-			}
+			parentRuntimeWindow = application.getRuntimeWindowManager().getWindow(currentModalDialogContainer.getContainerName());
 		}
 
-		RuntimeWindow currentModalJSWindow = application.getRuntimeWindowManager().getWindow(currentModalDialogContainer.getContainerName());
 		boolean windowModal = ((legacyV3Behavior && wrappedWindow == null) || getType() == JSWindow.MODAL_DIALOG);
 
-		Pair<Boolean, IMainContainer> p = createAndReparentDialogIfNeeded(fm, currentModalJSWindow, windowModal);
+		Pair<Boolean, IMainContainer> p = createAndReparentDialogIfNeeded(fm, parentRuntimeWindow, windowModal);
 
 		boolean bringToFrontNeeded = p.getLeft().booleanValue();
 		IMainContainer previousModalContainer = p.getRight();
