@@ -43,6 +43,7 @@ import javax.swing.LookAndFeel;
 import javax.swing.UIManager;
 
 import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.xml.XMLObject;
@@ -60,9 +61,11 @@ import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.dataprocessing.CustomValueList;
+import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.JSDataSet;
+import com.servoy.j2db.dataprocessing.Record;
 import com.servoy.j2db.dnd.DRAGNDROP;
 import com.servoy.j2db.dnd.JSDNDEvent;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -1708,6 +1711,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 */
 	private String getScriptableString(Scriptable scriptable, HashSet<Scriptable> processed)
 	{
+		if (scriptable instanceof Record || scriptable instanceof FoundSet) return scriptable.toString();
 		if (scriptable instanceof XMLObject) return scriptable.toString();
 		if (processed.contains(scriptable)) return scriptable.toString();
 		if (processed.size() > 10) return scriptable.toString();
@@ -1734,15 +1738,18 @@ public class JSApplication implements IReturnedTypesProvider
 				{
 					value = scriptable.get(((Number)object).intValue(), scriptable);
 				}
-				if (value instanceof Scriptable)
+				if (!(value instanceof NativeJavaMethod))
 				{
-					sb.append(getScriptableString((Scriptable)value, processed));
+					if (value instanceof Scriptable)
+					{
+						sb.append(getScriptableString((Scriptable)value, processed));
+					}
+					else
+					{
+						sb.append(value);
+					}
+					sb.append(',');
 				}
-				else
-				{
-					sb.append(value);
-				}
-				sb.append(',');
 			}
 			sb.setLength(sb.length() - 1);
 			if (scriptable instanceof NativeArray) sb.append(']');
