@@ -678,28 +678,27 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 
 		public Object component(org.apache.wicket.Component component)
 		{
-			if (componentIsReadOnly(component) == false && readonlyFlag == true)
+			if (((IScriptableProvider)component).getScriptObject() instanceof IScriptReadOnlyMethods)
 			{
-				((IScriptReadOnlyMethods)component).js_setReadOnly(readonlyFlag);
+				IScriptReadOnlyMethods scriptable = (IScriptReadOnlyMethods)((IScriptableProvider)component).getScriptObject();
+				if (scriptable.js_isReadOnly() == false && readonlyFlag == true)
+				{
+					scriptable.js_setReadOnly(readonlyFlag);
 
-				if (markedList.contains(component) == false)
-				{
-					markedList.add(component);
+					if (markedList.contains(component) == false)
+					{
+						markedList.add(component);
+					}
 				}
-			}
-			else if (readonlyFlag == false)
-			{
-				if (markedList.contains(component) == true)
+				else if (readonlyFlag == false)
 				{
-					((IScriptReadOnlyMethods)component).js_setReadOnly(readonlyFlag);
+					if (markedList.contains(component) == true)
+					{
+						scriptable.js_setReadOnly(readonlyFlag);
+					}
 				}
 			}
 			return CONTINUE_TRAVERSAL;
-		}
-
-		private boolean componentIsReadOnly(org.apache.wicket.Component component)
-		{
-			return ((IScriptReadOnlyMethods)component).js_isReadOnly();
 		}
 
 		public List<Component> getMarkedComponens()
@@ -717,7 +716,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		{
 			readonly = b;
 			WicketCompVisitorMarker visitorMarker = new WicketCompVisitorMarker(markedComponents, readonly);
-			visitChildren(IScriptReadOnlyMethods.class, visitorMarker);
+			visitChildren(IScriptableProvider.class, visitorMarker);
 			if (readonly == false)
 			{
 				markedComponents.clear();
