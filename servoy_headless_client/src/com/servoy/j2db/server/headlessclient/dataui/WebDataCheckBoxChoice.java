@@ -34,7 +34,6 @@ import javax.swing.event.ListDataListener;
 import javax.swing.text.Document;
 
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
@@ -57,7 +56,6 @@ import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.MainPage;
-import com.servoy.j2db.server.headlessclient.ServoyForm;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
@@ -232,11 +230,12 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 	{
 		if (eventExecutor.hasChangeCmd() || eventExecutor.hasActionCmd())
 		{
-			ServoyForm form = findParent(ServoyForm.class);
-			form.addDelayedAction(new ServoyForm.IDelayedAction()
+			application.invokeLater(new Runnable()
 			{
-				public void execute()
+				public void run()
 				{
+					WebEventExecutor.setSelectedIndex(WebDataCheckBoxChoice.this, null, IEventExecutor.MODIFIERS_UNSPECIFIED);
+
 					Object value = oldVal;
 					if (previousValidValue != null) value = oldVal;
 					eventExecutor.fireChangeCommand(value, newVal, false, WebDataCheckBoxChoice.this);
@@ -246,11 +245,6 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 					{
 						eventExecutor.fireActionCommand(false, WebDataCheckBoxChoice.this);
 					}
-				}
-
-				public Component getComponent()
-				{
-					return WebDataCheckBoxChoice.this;
 				}
 			});
 		}

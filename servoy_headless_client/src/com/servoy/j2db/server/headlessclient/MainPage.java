@@ -220,11 +220,6 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		{
 			if (main != null)
 			{
-				ServoyForm form = main.findParent(ServoyForm.class);
-				if (form != null)
-				{
-					form.processDelayedActions();
-				}
 				WebEventExecutor.generateResponse(target, getPage());
 			}
 		}
@@ -1935,7 +1930,6 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			if (form != null)
 			{
 				Page page = form.getPage(); // JS might change the page this form belongs to... so remember it now
-				form.processDelayedActions();
 
 				int webModifier = Utils.getAsInteger(RequestCycle.get().getRequest().getParameter(IEventExecutor.MODIFIERS_PARAMETER));
 				WebEventExecutor.setSelectedIndex(component, target, WebEventExecutor.convertModifiers(webModifier), true);

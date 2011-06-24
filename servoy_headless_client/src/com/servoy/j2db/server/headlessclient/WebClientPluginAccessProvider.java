@@ -32,38 +32,40 @@ import com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor;
  */
 public class WebClientPluginAccessProvider extends ClientPluginAccessProvider implements IWebClientPluginAccess
 {
-	private final WebClient client;
-
 	public WebClientPluginAccessProvider(WebClient client)
 	{
 		super(client);
-		this.client = client;
+	}
+
+	public WebClient getClient()
+	{
+		return (WebClient)application;
 	}
 
 	public boolean showURL(String url, String target, String target_options)
 	{
-		return client.showURL(url, target, target_options, 0, true);
+		return getClient().showURL(url, target, target_options, 0, true);
 	}
 
 	public boolean showURL(String url, String target, String target_options, int timeout)
 	{
-		return client.showURL(url, target, target_options, timeout, true);
+		return getClient().showURL(url, target, target_options, timeout, true);
 	}
 
 	public boolean showURL(String url, String target, String target_options, int timeout, boolean closeDialogs)
 	{
-		return client.showURL(url, target, target_options, timeout, closeDialogs);
+		return getClient().showURL(url, target, target_options, timeout, closeDialogs);
 	}
 
 	public IPageContributor getPageContributor()
 	{
-		MainPage mp = client.getMainPage();
+		MainPage mp = getClient().getMainPage();
 		return mp.getPageContributor();
 	}
 
 	public String serveResource(String filename, byte[] bs, String mimetype)
 	{
-		MainPage mp = client.getMainPage();
+		MainPage mp = getClient().getMainPage();
 		return mp.serveResource(filename, bs, mimetype);
 	}
 
@@ -82,7 +84,18 @@ public class WebClientPluginAccessProvider extends ClientPluginAccessProvider im
 	@Override
 	public void showFileOpenDialog(IMediaUploadCallback callback, String fileNameHint, boolean multiSelect, String[] filter, int selection, String dialogTitle)
 	{
-		MainPage mp = client.getMainPage();
+		MainPage mp = getClient().getMainPage();
 		mp.showOpenFileDialog(callback, multiSelect, dialogTitle);
+	}
+
+	@Override
+	public Object executeMethod(String context, String methodname, Object[] arguments, final boolean async) throws Exception
+	{
+		// execute outstanding events first
+		if (getClient().isEventDispatchThread())
+		{
+			getClient().executeEvents();
+		}
+		return super.executeMethod(context, methodname, arguments, async);
 	}
 }

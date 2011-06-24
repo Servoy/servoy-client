@@ -513,22 +513,18 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 	{
 		if (eventExecutor.hasChangeCmd())
 		{
-			ServoyForm form = findParent(ServoyForm.class);
-			form.addDelayedAction(new ServoyForm.IDelayedAction()
+			application.invokeLater(new Runnable()
 			{
-				public void execute()
+				public void run()
 				{
+					WebEventExecutor.setSelectedIndex(WebDataImgMediaField.this, null, IEventExecutor.MODIFIERS_UNSPECIFIED);
+
 					Object value = oldVal;
 					if (previousValidValue != null) value = oldVal;
 
 					eventExecutor.fireChangeCommand(value, newVal, false, WebDataImgMediaField.this);
-				}
 
-				public Component getComponent()
-				{
-					return WebDataImgMediaField.this;
 				}
-
 			});
 		}
 		else

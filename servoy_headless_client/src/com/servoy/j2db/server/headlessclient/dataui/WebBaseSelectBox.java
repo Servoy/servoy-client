@@ -56,7 +56,6 @@ import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.MainPage;
-import com.servoy.j2db.server.headlessclient.ServoyForm;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
@@ -219,16 +218,16 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 		return new Component[] { component };
 	}
 
-
 	public void notifyLastNewValueWasChange(final Object oldVal, final Object newVal)
 	{
 		if (eventExecutor.hasChangeCmd() || eventExecutor.hasActionCmd())
 		{
-			ServoyForm form = findParent(ServoyForm.class);
-			form.addDelayedAction(new ServoyForm.IDelayedAction()
+			application.invokeLater(new Runnable()
 			{
-				public void execute()
+				public void run()
 				{
+					WebEventExecutor.setSelectedIndex(WebBaseSelectBox.this, null, IEventExecutor.MODIFIERS_UNSPECIFIED);
+
 					Object value = oldVal;
 					if (previousValidValue != null) value = oldVal;
 					eventExecutor.fireChangeCommand(value, newVal, false, WebBaseSelectBox.this);
@@ -238,11 +237,6 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 					{
 						eventExecutor.fireActionCommand(false, WebBaseSelectBox.this);
 					}
-				}
-
-				public Component getComponent()
-				{
-					return WebBaseSelectBox.this;
 				}
 			});
 		}

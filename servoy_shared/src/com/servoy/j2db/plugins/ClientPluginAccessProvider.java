@@ -373,7 +373,7 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 	 * @deprecated
 	 */
 	@Deprecated
-	public void executeMethod(final String formname, final String methodname, final Object[] arguments)
+	public final void executeMethod(final String formname, final String methodname, final Object[] arguments)
 	{
 		try
 		{
@@ -507,6 +507,7 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 						{
 							try
 							{
+								application.getFoundSetManager().getEditRecordList().prepareForSave(false); // push the updated elements data in the Record.
 								retval = application.getScriptEngine().executeFunction((Function)function, gs, gs, arguments, true, true);
 							}
 							catch (Exception e)
@@ -544,7 +545,7 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 									Debug.error(ex);
 									application.handleException(application.getI18NMessage("servoy.formPanel.error.formData"), ex); //$NON-NLS-1$
 								}
-								retval = fp.executeFunction(methodname, arguments, false, null, true, null, false, true);
+								retval = fp.executeFunction(methodname, arguments, true, null, true, null, false, true);
 							}
 						}
 						catch (Exception e)

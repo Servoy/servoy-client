@@ -33,7 +33,6 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import javax.swing.text.Document;
 
-import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
@@ -61,7 +60,6 @@ import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.MainPage;
-import com.servoy.j2db.server.headlessclient.ServoyForm;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
@@ -448,11 +446,12 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	{
 		if (eventExecutor.hasChangeCmd() || eventExecutor.hasActionCmd())
 		{
-			ServoyForm form = findParent(ServoyForm.class);
-			form.addDelayedAction(new ServoyForm.IDelayedAction()
+			application.invokeLater(new Runnable()
 			{
-				public void execute()
+				public void run()
 				{
+					WebEventExecutor.setSelectedIndex(WebDataComboBox.this, null, IEventExecutor.MODIFIERS_UNSPECIFIED);
+
 					Object value = oldVal;
 					if (previousValidValue != null) value = oldVal;
 
@@ -463,13 +462,8 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 					{
 						eventExecutor.fireActionCommand(false, WebDataComboBox.this);
 					}
-				}
 
-				public Component getComponent()
-				{
-					return WebDataComboBox.this;
 				}
-
 			});
 		}
 		else

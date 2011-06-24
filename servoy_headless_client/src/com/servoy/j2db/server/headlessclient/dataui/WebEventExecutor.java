@@ -352,7 +352,6 @@ public class WebEventExecutor extends BaseEventExecutor
 
 	public void onEvent(EventType type, AjaxRequestTarget target, Component comp, int webModifiers)
 	{
-
 		onEvent(type, target, comp, webModifiers, null);
 	}
 
@@ -363,8 +362,9 @@ public class WebEventExecutor extends BaseEventExecutor
 		{
 			return;
 		}
+
 		Page page = form.getPage(); // JS might change the page this form belongs to... so remember it now
-		form.processDelayedActions();
+		WebClientSession.get().getWebClient().executeEvents(); // process model changes from web components
 
 		boolean compHasOnRender = false;
 		if (comp instanceof ISupportEventExecutor)

@@ -31,7 +31,6 @@ import javax.swing.border.Border;
 import javax.swing.text.Document;
 
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
@@ -53,7 +52,6 @@ import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.MainPage;
-import com.servoy.j2db.server.headlessclient.ServoyForm;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
@@ -407,20 +405,16 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	{
 		if (eventExecutor.hasChangeCmd())
 		{
-			ServoyForm form = findParent(ServoyForm.class);
-			form.addDelayedAction(new ServoyForm.IDelayedAction()
+			application.invokeLater(new Runnable()
 			{
-				public void execute()
+				public void run()
 				{
+					WebEventExecutor.setSelectedIndex(WebDataTextArea.this, null, IEventExecutor.MODIFIERS_UNSPECIFIED);
+
 					Object value = oldVal;
 					if (previousValidValue != null) value = oldVal;
 
 					eventExecutor.fireChangeCommand(value, newVal, false, WebDataTextArea.this);
-				}
-
-				public Component getComponent()
-				{
-					return WebDataTextArea.this;
 				}
 			});
 		}

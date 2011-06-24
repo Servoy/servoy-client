@@ -35,7 +35,6 @@ import javax.swing.event.ListDataListener;
 import javax.swing.text.Document;
 
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.behavior.IBehavior;
 import org.apache.wicket.markup.ComponentTag;
@@ -66,7 +65,6 @@ import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.MainPage;
-import com.servoy.j2db.server.headlessclient.ServoyForm;
 import com.servoy.j2db.server.headlessclient.mask.MaskBehavior;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
@@ -326,22 +324,15 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	{
 		if (eventExecutor.hasChangeCmd())
 		{
-			ServoyForm form = findParent(ServoyForm.class);
-			form.addDelayedAction(new ServoyForm.IDelayedAction()
+			application.invokeLater(new Runnable()
 			{
-				public void execute()
+				public void run()
 				{
+					WebEventExecutor.setSelectedIndex(WebDataField.this, null, IEventExecutor.MODIFIERS_UNSPECIFIED);
 					Object value = oldVal;
 					if (previousValidValue != null) value = oldVal;
-
 					eventExecutor.fireChangeCommand(value, newVal, false, WebDataField.this);
 				}
-
-				public Component getComponent()
-				{
-					return WebDataField.this;
-				}
-
 			});
 		}
 		else

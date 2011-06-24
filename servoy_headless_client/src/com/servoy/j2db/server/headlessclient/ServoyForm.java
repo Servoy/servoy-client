@@ -13,18 +13,10 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.form.Form;
-
-import com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor;
-import com.servoy.j2db.ui.IEventExecutor;
-import com.servoy.j2db.util.Debug;
 
 
 /**
@@ -35,7 +27,6 @@ import com.servoy.j2db.util.Debug;
 public final class ServoyForm extends Form
 {
 	private static final long serialVersionUID = 1L;
-	private final List delayedActions = new ArrayList();
 
 	/**
 	 * @param id
@@ -43,61 +34,6 @@ public final class ServoyForm extends Form
 	public ServoyForm(String id)
 	{
 		super(id);
-	}
-
-	/**
-	 * @see wicket.markup.html.form.Form#onSubmit()
-	 */
-	@Override
-	protected void onSubmit()
-	{
-
-	}
-
-	/**
-	 * @see wicket.markup.html.form.Form#process()
-	 */
-	@Override
-	public boolean process()
-	{
-		try
-		{
-			return super.process();
-		}
-		finally
-		{
-			processDelayedActions();
-		}
-	}
-
-	/**
-	 * 
-	 */
-	public void processDelayedActions()
-	{
-		for (int i = 0; i < delayedActions.size(); i++)
-		{
-			IDelayedAction sa = (IDelayedAction)delayedActions.get(i);
-			try
-			{
-				WebEventExecutor.setSelectedIndex(sa.getComponent(), null, IEventExecutor.MODIFIERS_UNSPECIFIED);
-				sa.execute();
-			}
-			catch (RuntimeException re)
-			{
-				Debug.error("Error executing a delayed(datachange action)", re);
-			}
-		}
-		delayedActions.clear();
-	}
-
-	/**
-	 * @param webEventExecutor
-	 * @return
-	 */
-	public void addDelayedAction(IDelayedAction delayedAction)
-	{
-		delayedActions.add(delayedAction);
 	}
 
 	public String getHiddenField()
@@ -108,17 +44,6 @@ public final class ServoyForm extends Form
 	public String getJavascriptCssId()
 	{
 		return super.getJavascriptId();
-	}
-
-
-	public interface IDelayedAction
-	{
-		public void execute();
-
-		/**
-		 * @return
-		 */
-		public Component getComponent();
 	}
 
 	@Override
