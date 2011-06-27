@@ -82,7 +82,6 @@ import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.IEventDelegator;
 import com.servoy.j2db.persistence.ISupportBounds;
-import com.servoy.j2db.util.keyword.Ident;
 
 /**
  * Utility methods
@@ -2343,27 +2342,6 @@ public class Utils
 			ptr = new CharSequenceBuffer(new CharSequenceBuffer(ptr, "."), String.valueOf(tokens[i])); //$NON-NLS-1$
 		}
 		return new CharSequenceBuffer(new CharSequenceBuffer(String.valueOf(tokens[0]), "."), ptr); //$NON-NLS-1$
-	}
-
-	public static String generateNormalizedName(String plainSQLName)
-	{
-		if (plainSQLName == null) return null;
-		String name = toEnglishLocaleLowerCase(plainSQLName.trim());//to lower case because the not all databases support camelcasing and jdbc drivers comeback with all to upper or lower
-		name = stringReplace(name, " ", "_");//$NON-NLS-1$ //$NON-NLS-2$
-		name = stringReplace(name, "-", "_");//$NON-NLS-1$ //$NON-NLS-2$
-		return name;
-	}
-
-	public static final String RESERVED_NAME_PREFIX = "_"; //$NON-NLS-1$
-
-	public static String generateNormalizedNonReservedName(String plainSQLName)
-	{
-		String name = Utils.generateNormalizedName(plainSQLName);
-		if (Ident.checkIfKeyword(name))
-		{
-			name = RESERVED_NAME_PREFIX + name;
-		}
-		return name;
 	}
 
 	public static String toEnglishLocaleLowerCase(String text)

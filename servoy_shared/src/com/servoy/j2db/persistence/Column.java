@@ -693,7 +693,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 	{
 		if (dataprovider_id == null)
 		{
-			dataprovider_id = Utils.generateNormalizedNonReservedName(plainSQLName);
+			dataprovider_id = Ident.generateNormalizedNonReservedName(plainSQLName);
 		}
 		return dataprovider_id;
 	}

@@ -16,6 +16,8 @@
 */
 package com.servoy.j2db.util.keyword;
 
+import com.servoy.j2db.util.Utils;
+
 
 /**
  * @author jblok
@@ -133,5 +135,26 @@ public class Ident
 			}
 		}
 		return false;
+	}
+
+	public static String generateNormalizedName(String plainSQLName)
+	{
+		if (plainSQLName == null) return null;
+		String name = Utils.toEnglishLocaleLowerCase(plainSQLName.trim());//to lower case because the not all databases support camelcasing and jdbc drivers comeback with all to upper or lower
+		name = Utils.stringReplace(name, " ", "_");//$NON-NLS-1$ //$NON-NLS-2$
+		name = Utils.stringReplace(name, "-", "_");//$NON-NLS-1$ //$NON-NLS-2$
+		return name;
+	}
+
+	public static final String RESERVED_NAME_PREFIX = "_"; //$NON-NLS-1$
+
+	public static String generateNormalizedNonReservedName(String plainSQLName)
+	{
+		String name = generateNormalizedName(plainSQLName);
+		if (checkIfKeyword(name))
+		{
+			name = RESERVED_NAME_PREFIX + name;
+		}
+		return name;
 	}
 }

@@ -83,7 +83,7 @@ import com.servoy.j2db.server.shared.IFlattenedSolutionDebugListener;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
-import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.keyword.Ident;
 
 /**
  * Runtime object which represents the entire solution, flattened, containing modules, caching stuff
@@ -1023,7 +1023,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			dataProvider = dps.get(dataProviderID);
 		}
 		if (dataProvider != null) return dataProvider;
-		Column column = table.getColumn(Utils.generateNormalizedName(dataProviderID));
+		Column column = table.getColumn(Ident.generateNormalizedName(dataProviderID));
 		if (column != null)
 		{
 			return column;

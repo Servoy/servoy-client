@@ -29,6 +29,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.keyword.Ident;
 
 /**
  * A database table
@@ -143,7 +144,7 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 	{
 		if (name == null)
 		{
-			name = Utils.generateNormalizedName(plainSQLName);
+			name = Ident.generateNormalizedName(plainSQLName);
 		}
 		return name;
 	}

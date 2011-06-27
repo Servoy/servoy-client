@@ -22,6 +22,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import com.servoy.j2db.util.keyword.Ident;
+
 
 /**
  * <br>
@@ -91,7 +93,7 @@ public class DataSourceUtils
 		{
 			// when importing from some 3.5 solutions through introspection, name might not be the lower-case name (not sure if it also happens with newer exports);
 			// it will be normalized here - as data sources should point to table name not to table SQL name
-			sb.append(Utils.generateNormalizedName(tableName));
+			sb.append(Ident.generateNormalizedName(tableName));
 		}
 		return sb.toString();
 	}
