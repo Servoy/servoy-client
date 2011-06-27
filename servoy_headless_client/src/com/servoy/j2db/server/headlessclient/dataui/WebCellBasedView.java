@@ -702,9 +702,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			while (it.hasNext())
 			{
 				Component component = it.next();
-				if (component instanceof CellContainer && component.isVisibleInHierarchy())
+				if (component.isVisibleInHierarchy())
 				{
-					Object c = ((CellContainer)component).iterator().next();
+					Object c = component instanceof CellContainer ? ((CellContainer)component).iterator().next() : component;
 					if (updateComponentRenderState(c, isSelected) && target != null && c instanceof Component)
 					{
 						Component innerComponent = (Component)c;

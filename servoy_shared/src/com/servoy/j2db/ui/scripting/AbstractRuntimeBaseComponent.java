@@ -97,7 +97,7 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 	public void js_setBgcolor(String clr)
 	{
 		getComponent().setBackground(PersistHelper.createColor(clr));
-		getChangesRecorder().setBgcolor(clr);
+		if (getComponent().isOpaque()) getChangesRecorder().setBgcolor(clr);
 	}
 
 	public String js_getFgcolor()

@@ -640,6 +640,7 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 		{
 			dataAdapterList.setRecord(record, true);
 		}
+		DataAdapterList.setDataRendererComponentsRenderState(this, record);
 	}
 
 	public String getId()
