@@ -2927,15 +2927,7 @@ public class JSForm implements IJSParent, IConstantsObject
 
 	public void js_setName(String arg)
 	{
-		checkModification();
-		try
-		{
-			form.updateName(new ScriptNameValidator(application.getFlattenedSolution()), arg);
-		}
-		catch (RepositoryException e)
-		{
-			throw new RuntimeException("can't update name to '" + arg + "' of form " + form.getName(), e);
-		}
+		throw new RuntimeException("name is a read only property of form " + form.getName() + ", can't change it to " + arg);
 	}
 
 	public void js_setNavigator(Object navigator)
