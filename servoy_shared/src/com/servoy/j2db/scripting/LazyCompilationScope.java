@@ -23,8 +23,11 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.dltk.rhino.dbgp.LazyInitScope;
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.debug.Debugger;
+import org.mozilla.javascript.debug.IDebuggerWithWatchPoints;
 
 import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.ISupportScriptProviders;
@@ -110,6 +113,30 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 	@Override
 	public Object get(String name, Scriptable start)
 	{
+		Object o = getImpl(name, start);
+		if (o != Scriptable.NOT_FOUND)
+		{
+			Context currentContext = Context.getCurrentContext();
+			if (currentContext != null)
+			{
+				Debugger debugger = currentContext.getDebugger();
+				if (debugger instanceof IDebuggerWithWatchPoints)
+				{
+					IDebuggerWithWatchPoints wp = (IDebuggerWithWatchPoints)debugger;
+					wp.access(name, this);
+				}
+			}
+		}
+		return o;
+	}
+
+	/**
+	 * @param name
+	 * @param start
+	 * @return
+	 */
+	protected final Object getImpl(String name, Scriptable start)
+	{
 		Object o = super.get(name, start);
 		if (o instanceof IScriptProvider)
 		{
@@ -142,7 +169,7 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 				Debug.error(e);
 				o = null;
 			}
-			if (o == null) return Scriptable.NOT_FOUND;
+			if (o == null) o = Scriptable.NOT_FOUND;
 		}
 		return o;
 	}
@@ -189,7 +216,7 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 	public Function getFunctionByName(String name)
 	{
 		if (name == null) return null;
-		Object o = get(name, this);
+		Object o = getImpl(name, this);
 		return (o instanceof Function ? (Function)o : null);
 	}
 

@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting;
 
 
@@ -33,6 +33,7 @@ import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.WrappedException;
 import org.mozilla.javascript.Wrapper;
 import org.mozilla.javascript.debug.Debugger;
+import org.mozilla.javascript.debug.IDebuggerWithWatchPoints;
 import org.mozilla.javascript.xml.XMLObject;
 
 import com.servoy.j2db.Messages;
@@ -284,6 +285,19 @@ public class ScriptVariableScope extends LazyCompilationScope
 		{
 			try
 			{
+				Context currentContext = Context.getCurrentContext();
+				if (currentContext != null)
+				{
+					Debugger debugger = currentContext.getDebugger();
+					if (debugger != null)
+					{
+						if (debugger instanceof IDebuggerWithWatchPoints)
+						{
+							IDebuggerWithWatchPoints wp = (IDebuggerWithWatchPoints)debugger;
+							wp.modification(name, this);
+						}
+					}
+				}
 				put(name, value);
 			}
 			catch (RuntimeException re)
@@ -443,7 +457,7 @@ public class ScriptVariableScope extends LazyCompilationScope
 	 */
 	public Object get(String dataProviderID)
 	{
-		return unwrap(get(dataProviderID, this));
+		return unwrap(getImpl(dataProviderID, this));
 	}
 
 	private Object unwrap(Object obj)
