@@ -124,7 +124,7 @@ public class TagResolver
 			formatString = (pattern == null || pattern.trim().length() == 0) ? new SimpleDateFormat().toPattern() : pattern;
 		}
 		// Note that Integer extends Number, so first check for Integer, then for Number
-		else if (Integer.class.isAssignableFrom(clazz))
+		else if (Integer.class.isAssignableFrom(clazz) || Long.class.isAssignableFrom(clazz))
 		{
 			String pattern = settings.getProperty("locale.integerformat"); //$NON-NLS-1$
 			// Note: new DecimalFormat() uses Locale.getDefault()
