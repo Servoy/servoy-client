@@ -2928,7 +2928,14 @@ public class JSForm implements IJSParent, IConstantsObject
 	public void js_setName(String arg)
 	{
 		checkModification();
-		form.setName(arg);
+		try
+		{
+			form.updateName(new ScriptNameValidator(application.getFlattenedSolution()), arg);
+		}
+		catch (RepositoryException e)
+		{
+			throw new RuntimeException("can't update name to '" + arg + "' of form " + form.getName(), e);
+		}
 	}
 
 	public void js_setNavigator(Object navigator)
