@@ -357,41 +357,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 		}
 		add(new TriggerOrientationChangeAjaxBehavior());
-		add(new TriggerResizeAjaxBehavior()
-		{
-			@Override
-			public void renderHead(IHeaderResponse response)
-			{
-				super.renderHead(response);
-				if (isFormWidthZero())
-				{
-					String jsCall = "Servoy.Resize.onWindowResize ('" + getCallbackUrl() + "');"; //$NON-NLS-1$ //$NON-NLS-2$
-					response.renderOnLoadJavascript(jsCall);
-				}
-			}
-
-			private boolean isFormWidthZero()
-			{
-				final boolean[] returnValue = { false };
-				MainPage page = (MainPage)findPage();
-				if (page != null)
-				{
-					page.visitChildren(WebForm.class, new Component.IVisitor<WebForm>()
-					{
-						public Object component(WebForm form)
-						{
-							if (form.getFormWidth() == 0)
-							{
-								returnValue[0] = true;
-								return IVisitor.STOP_TRAVERSAL;
-							}
-							return IVisitor.CONTINUE_TRAVERSAL;
-						}
-					});
-				}
-				return returnValue[0];
-			}
-		});
+		add(new TriggerResizeAjaxBehavior());
 
 		add(new AbstractServoyDefaultAjaxBehavior()
 		{
@@ -2261,8 +2227,34 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 					jsCall += "layoutEntirePage();"; //$NON-NLS-1$
 				}
 			}
-			jsCall += "Servoy.Resize.onWindowResize ();};"; //$NON-NLS-1$ 
+			jsCall += "Servoy.Resize.onWindowResize();};"; //$NON-NLS-1$ 
+			if (isFormWidthZero())
+			{
+				jsCall += "Servoy.Resize.onWindowResize();"; //$NON-NLS-1$ 
+			}
 			response.renderOnLoadJavascript(jsCall);
+		}
+
+		private boolean isFormWidthZero()
+		{
+			final boolean[] returnValue = { false };
+			MainPage page = (MainPage)findPage();
+			if (page != null)
+			{
+				page.visitChildren(WebForm.class, new Component.IVisitor<WebForm>()
+				{
+					public Object component(WebForm form)
+					{
+						if (form.getFormWidth() == 0)
+						{
+							returnValue[0] = true;
+							return IVisitor.STOP_TRAVERSAL;
+						}
+						return IVisitor.CONTINUE_TRAVERSAL;
+					}
+				});
+			}
+			return returnValue[0];
 		}
 	}
 
