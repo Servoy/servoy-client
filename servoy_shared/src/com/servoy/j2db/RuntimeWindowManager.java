@@ -109,7 +109,7 @@ public abstract class RuntimeWindowManager
 	{
 		String oldName = this.currentWindowName;
 		this.currentWindowName = currentWindowName;
-		J2DBGlobals.firePropertyChange(this, "currentWindow", oldName, currentWindowName); //$NON-NLS-1$
+		J2DBGlobals.firePropertyChange(application, "currentWindow", oldName, currentWindowName); //$NON-NLS-1$
 	}
 
 	public RuntimeWindow getCurrentWindow()
