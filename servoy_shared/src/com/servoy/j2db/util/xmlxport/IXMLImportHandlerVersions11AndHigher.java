@@ -66,7 +66,7 @@ public interface IXMLImportHandlerVersions11AndHigher
 
 	void importRevisionInfo(ImportInfo importInfo) throws RepositoryException;
 
-	void executePreImport(ImportInfo importInfo, IRootObject[] rootObjects, ImportTransactable importTransactable) throws RepositoryException; // RAGTEST args??
+	void executePreImport(ImportInfo importInfo, IRootObject[] rootObjects, ImportTransactable importTransactable) throws RepositoryException;
 
 	void importingDone(ImportInfo importInfo, IRootObject[] rootObjects, ImportTransactable importTransactable) throws RepositoryException;
 
