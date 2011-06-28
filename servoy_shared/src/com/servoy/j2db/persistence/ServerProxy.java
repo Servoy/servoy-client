@@ -19,9 +19,9 @@ package com.servoy.j2db.persistence;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
@@ -38,25 +38,12 @@ public class ServerProxy implements IServer, Serializable
 	//local cache
 	private String serverName;
 	private String databaseProductName;
-	private final Map<String, ITable> tables = new HashMap<String, ITable>();
+	private final Map<String, ITable> tables = new ConcurrentHashMap<String, ITable>();
 
 	public ServerProxy(IServer a_server)
 	{
 		server = a_server;
-//we cannot load all tables with columns from database, it to slow on big databases (1000+ tables)		
-//		try
-//		{
-//			Iterator it = server.getTableNames().iterator();
-//			while (it.hasNext())
-//			{
-//				String tname = (String) it.next();
-//				getTable(tname); //make sure it loaded, so it can be serialized to client
-//			}
-//		}
-//		catch (Exception e)
-//		{
-//			Debug.error(e);
-//		}
+		// we cannot load all tables with columns from database, it to slow on big databases (1000+ tables)		
 	}
 
 	public ITable getTable(String tableName) throws RepositoryException, RemoteException
@@ -110,11 +97,6 @@ public class ServerProxy implements IServer, Serializable
 		return valid;
 	}
 
-	void addTable(Table t)
-	{
-		tables.put(Utils.toEnglishLocaleLowerCase(t.getName()), t);
-	}
-
 	public void combineTables(ServerProxy sp)
 	{
 		if (sp == null || sp == this) return;
@@ -163,6 +145,6 @@ public class ServerProxy implements IServer, Serializable
 		{
 			return t.getTableType();
 		}
-		return 0;
+		return ITable.UNKNOWN;
 	}
 }
