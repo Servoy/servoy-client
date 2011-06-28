@@ -278,7 +278,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 		return _fp;
 	}
 
-	private class ExtendsScope extends LazyCompilationScope
+	private class ExtendsScope extends LazyCompilationScope implements Wrapper
 	{
 		public ExtendsScope(LazyCompilationScope parent, IExecutingEnviroment scriptEngine, ISupportScriptProviders methodLookup)
 		{
@@ -291,7 +291,12 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 		@Override
 		public Object get(String name, Scriptable start)
 		{
-			return super.get(name, start);
+			Object object = super.get(name, start);
+			if (object == Scriptable.NOT_FOUND && getFunctionParentScriptable() != null)
+			{
+				return getFunctionParentScriptable().get(name, start);
+			}
+			return object;
 		}
 
 		@Override
@@ -307,6 +312,16 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 		protected Scriptable getFunctionSuper(IScriptProvider sp)
 		{
 			return FormScope.this.getFunctionSuper(sp);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.mozilla.javascript.Wrapper#unwrap()
+		 */
+		public Object unwrap()
+		{
+			return _fp;
 		}
 	}
 
