@@ -28,6 +28,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.persistence.AbstractBase;
@@ -103,38 +105,41 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	private Solution copySolution = null;
 
-	private Map<Object, Integer> securityAccess;
+	private ConcurrentMap<Object, Integer> securityAccess;
 
-	private Map<Table, Map<String, IDataProvider>> allProvidersForTable = null; //table -> Map(dpname,dp) ,runtime var
-	private Map<String, IDataProvider> globalProviders = null; //global -> dp ,runtime var
+	private ConcurrentMap<Table, Map<String, IDataProvider>> allProvidersForTable = null; //table -> Map(dpname,dp) ,runtime var
+	private ConcurrentMap<String, IDataProvider> globalProviders = null; //global -> dp ,runtime var
 
+	// concurrent caches.
+	private ConcurrentMap<String, Relation> relationCacheByName = null;
+	private ConcurrentMap<String, ScriptMethod> scriptMethodCacheByName = null;
+	private ConcurrentMap<String, Form> formCacheByName = null;
+	private ConcurrentMap<String, ScriptVariable> scriptVariableCacheByName = null;
+	private ConcurrentMap<String, ValueList> valuelistCacheByName = null;
 
-	private Map<String, Relation> relationCacheByName = null;
-	private Map<String, ScriptMethod> scriptMethodCacheByName = null;
-	private Map<String, Form> formCacheByName = null;
-	private Map<String, ScriptVariable> scriptVariableCacheByName = null;
-	private Map<String, ValueList> valuelistCacheByName = null;
-	private final List<IPersist> removedPersist = new ArrayList<IPersist>(3);
-	private final List<String> deletedStyles = new ArrayList<String>(3);
+	private final List<IPersist> removedPersist = Collections.synchronizedList(new ArrayList<IPersist>(3));
+	private final List<String> deletedStyles = Collections.synchronizedList(new ArrayList<String>(3));
 
-	private Map<Bean, Object> beanDesignInstances;
-
+	// 2 synchronized on liveForms object.
 	private final Map<String, Set<String>> liveForms = new HashMap<String, Set<String>>();
 	private final Map<String, ChangedFormData> changedForms = new HashMap<String, ChangedFormData>();
 
 	private HashMap<String, Style> all_styles; // concurrent modification exceptions can happen; see comments from Solution->PRE_LOADED_STYLES.
 	private HashMap<String, Style> user_created_styles; // concurrent modification exceptions shouldn't happen with current implementation for this map; no need to sync
+
 	private SimplePersistFactory persistFactory;
 	private IFlattenedSolutionDebugListener debugListener;
 
-	private final Map<Form, FlattenedForm[]> flattenedFormCache;
+	private final ConcurrentMap<Form, FlattenedForm[]> flattenedFormCache;
+	private ConcurrentMap<Bean, Object> beanDesignInstances;
+
 
 	/**
 	 * @param cacheFlattenedForms turn flattened form caching on when flushFlattenedFormCache() will also be called.
 	 */
 	public FlattenedSolution(boolean cacheFlattenedForms)
 	{
-		flattenedFormCache = cacheFlattenedForms ? new HashMap<Form, FlattenedForm[]>() : null;
+		flattenedFormCache = cacheFlattenedForms ? new ConcurrentHashMap<Form, FlattenedForm[]>() : null;
 	}
 
 	public FlattenedSolution()
@@ -859,7 +864,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	{
 		if (securityAccess == null)
 		{
-			securityAccess = sp;
+			securityAccess = new ConcurrentHashMap<Object, Integer>(sp);
 		}
 		else if (sp != null)
 		{
@@ -939,8 +944,12 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 		mainSolutionMetaData = null;
 
-		changedForms.clear();
-		liveForms.clear();
+		synchronized (liveForms)
+		{
+			changedForms.clear();
+			liveForms.clear();
+		}
+
 		designFormName = null;
 
 		copySolution = null;
@@ -954,7 +963,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	{
 		if (id == null) return null;
 
-		if (globalProviders == null) globalProviders = new HashMap<String, IDataProvider>(64, 9f);
+		if (globalProviders == null) globalProviders = new ConcurrentHashMap<String, IDataProvider>(64, 9f, 16);
 
 		IDataProvider retval = globalProviders.get(id);
 		if (retval != null)
@@ -1034,7 +1043,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	public synchronized Map<String, IDataProvider> getAllDataProvidersForTable(Table table) throws RepositoryException
 	{
 		if (table == null) return null;
-		if (allProvidersForTable == null) allProvidersForTable = new HashMap<Table, Map<String, IDataProvider>>(64, 0.9f);
+		if (allProvidersForTable == null) allProvidersForTable = new ConcurrentHashMap<Table, Map<String, IDataProvider>>(64, 0.9f, 16);
 
 		Map<String, IDataProvider> dataProvidersMap = allProvidersForTable.get(table);
 		if (dataProvidersMap == null)
@@ -1285,7 +1294,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	{
 		try
 		{
-			relationCacheByName = new HashMap<String, Relation>(64, 0.9f);
+			relationCacheByName = new ConcurrentHashMap<String, Relation>(64, 0.9f, 16);
 
 			Iterator<Relation> it = getRelations(false);
 			while (it.hasNext())
@@ -1697,7 +1706,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	{
 		if (beanDesignInstances == null)
 		{
-			beanDesignInstances = new HashMap<Bean, Object>();
+			beanDesignInstances = new ConcurrentHashMap<Bean, Object>();
 		}
 		else
 		{
@@ -1733,7 +1742,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			? methodName.substring(ScriptVariable.GLOBAL_DOT_PREFIX.length()) : methodName;
 		if (scriptMethodCacheByName == null)
 		{
-			scriptMethodCacheByName = new HashMap<String, ScriptMethod>();
+			scriptMethodCacheByName = new ConcurrentHashMap<String, ScriptMethod>();
 			Iterator<ScriptMethod> scriptMethods = getScriptMethods(false);
 			while (scriptMethods.hasNext())
 			{
@@ -1754,7 +1763,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	{
 		if (scriptVariableCacheByName == null)
 		{
-			scriptVariableCacheByName = new HashMap<String, ScriptVariable>();
+			scriptVariableCacheByName = new ConcurrentHashMap<String, ScriptVariable>();
 			Iterator<ScriptVariable> scriptVariable = getScriptVariables(false);
 			while (scriptVariable.hasNext())
 			{
@@ -1814,7 +1823,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	{
 		if (valuelistCacheByName == null)
 		{
-			valuelistCacheByName = new HashMap<String, ValueList>();
+			valuelistCacheByName = new ConcurrentHashMap<String, ValueList>();
 
 			Iterator<ValueList> valuelists = getValueLists(false);
 			while (valuelists.hasNext())
@@ -1855,7 +1864,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	{
 		if (formCacheByName == null)
 		{
-			formCacheByName = new HashMap<String, Form>(64, 0.9f);
+			formCacheByName = new ConcurrentHashMap<String, Form>(64, 0.9f, 16);
 
 			Iterator<Form> forms = getForms(false);
 			while (forms.hasNext())
