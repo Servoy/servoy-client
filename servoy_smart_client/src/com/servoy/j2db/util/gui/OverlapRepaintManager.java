@@ -72,6 +72,7 @@ public class OverlapRepaintManager extends RepaintManager
 		// this area paints over an overlapped component that should be on top of the current repainting one...
 		if (SwingUtilities.isEventDispatchThread())
 		{
+			int dX = x, dY = y, dW = w, dH = h;
 			// if its marked as dirty because of a change in fireOnRender that was run from paint
 			// ignore this as the changes are already painted - if not ignored, we will have
 			// a cycle calling of repaint -> paintComponent -> fireOnRender -> repaint 
@@ -79,11 +80,22 @@ public class OverlapRepaintManager extends RepaintManager
 			if (componentOnRenderParent != null)
 			{
 				RenderEventExecutor ree = componentOnRenderParent.getRenderEventExecutor();
-				if (ree != null && ree.isOnRenderRunningOnComponentPaint()) return;
+				if (ree != null)
+				{
+					if (ree.isOnRenderRunningOnComponentPaint()) return;
+					else
+					{
+						// make the entire component dirty so changes made in onRender are applied
+						dX = 0;
+						dY = 0;
+						dW = c.getWidth();
+						dH = c.getHeight();
+					}
+				}
 			}
 
-			delegate.addDirtyRegion(c, x, y, w, h); // add the dirty region
-			searchOverlappingRegionsInHierarchy(c.getParent(), c, new Rectangle(x, y, w, h));
+			delegate.addDirtyRegion(c, dX, dY, dW, dH); // add the dirty region
+			searchOverlappingRegionsInHierarchy(c.getParent(), c, new Rectangle(dX, dY, dW, dH));
 		}
 		else
 		{
