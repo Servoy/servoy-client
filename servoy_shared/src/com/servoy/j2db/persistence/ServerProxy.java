@@ -55,7 +55,10 @@ public class ServerProxy implements IServer, Serializable
 		if (table == null)
 		{
 			table = server.getTable(tableName);
-			tables.put(lcname, table);
+			if (table != null)
+			{
+				tables.put(lcname, table);
+			}
 		}
 		return table;
 	}
