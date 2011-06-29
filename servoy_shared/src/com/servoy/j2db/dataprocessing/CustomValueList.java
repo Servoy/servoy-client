@@ -303,7 +303,11 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 							else
 							{
 								Object value;
-								try
+								if (SEPARATOR_DESIGN_VALUE.equals(strval) && (type != IColumnTypes.DATETIME && type != IColumnTypes.MEDIA))
+								{
+									value = Column.getAsRightType(Types.VARCHAR, Column.NORMAL_COLUMN, strval, format, Integer.MAX_VALUE, null, true);
+								}
+								else try
 								{
 									value = Column.getAsRightType(type, Column.NORMAL_COLUMN, strval, format, Integer.MAX_VALUE, null, true);
 								}
