@@ -75,9 +75,10 @@ public class ServoyDivDialog extends DivWindow
 	{
 		AppendingStringBuffer buffer = super.postProcessSettings(settings);
 		buffer.append("var userOnCloseButton = settings.onCloseButton;\n");
+		buffer.append("if (userOnCloseButton){\n");
 		buffer.append("var cb = null;\n");
 		buffer.append("settings.onCloseButton = function() { if(!cb) { cb=this.caption.getElementsByTagName('a')[0];Wicket.Event.add(cb, 'blur', function() {setTimeout(userOnCloseButton, 500); }); } cb.focus();cb.blur();};\n");
-
+		buffer.append("}");
 		return buffer;
 	}
 }
