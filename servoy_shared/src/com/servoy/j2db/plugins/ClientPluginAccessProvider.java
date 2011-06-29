@@ -645,8 +645,11 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 	public IRuntimeWindow getCurrentRuntimeWindow()
 	{
 		RuntimeWindow windowImpl = application.getRuntimeWindowManager().getCurrentWindow();
-		if (windowImpl.getWrappedObject() != null) return windowImpl;
-		else return application.getRuntimeWindowManager().getWindow(null);
+		if (windowImpl != null && windowImpl.getWrappedObject() != null)
+		{
+			return windowImpl;
+		}
+		return application.getRuntimeWindowManager().getWindow(null);
 	}
 
 }
