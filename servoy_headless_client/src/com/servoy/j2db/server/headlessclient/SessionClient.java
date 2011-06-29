@@ -1061,11 +1061,12 @@ public class SessionClient extends ClientState implements ISessionClient
 			{
 				properties = new Properties();
 				Messages.invalidConnection = false;
-				Messages.loadMessagesFromDatabaseInternal(null, getClientInfo().getClientId(), getSettings(), getDataServer(), getRepository(), properties, loc);
+				Messages.loadMessagesFromDatabaseInternal(null, ApplicationServerSingleton.get().getClientId(), getSettings(), getDataServer(),
+					getRepository(), properties, loc);
 				if (getSolution() != null) //must be sure that solution is loaded, app might retrieve system messages, before solution loaded!
 				{
-					Messages.loadMessagesFromDatabaseInternal(getSolution().getI18nDataSource(), getClientInfo().getClientId(), getSettings(), getDataServer(),
-						getRepository(), properties, loc);
+					Messages.loadMessagesFromDatabaseInternal(getSolution().getI18nDataSource(), ApplicationServerSingleton.get().getClientId(), getSettings(),
+						getDataServer(), getRepository(), properties, loc);
 					messages.put(loc, properties);
 				}
 			}
