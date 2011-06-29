@@ -383,6 +383,7 @@ function rearrageTabsInTabPanel(tabPanelId)
 }
 
 var onFocusModifiers = 0;
+var focusCallbackTimeout;
 function addListeners(strEvent, callbackUrl, ids, post)
 {
 	if (ids)
@@ -403,36 +404,71 @@ function addListeners(strEvent, callbackUrl, ids, post)
 					if(!e) e = window.event;
 					var modifiers;
 					if(strEvent == "focus")
-					{
-						// skip onFocus callback if the component has been re-focused after a response					
+					{					
+						clearTimeout(focusCallbackTimeout);
 						modifiers = onFocusModifiers;
 						onFocusModifiers = 0;
+						var thisEl = this;
+						// if it has display/editvalues then test if the current value is the displayValue. if so only a get instead of a post. 
+						if (Wicket.$(this.id).displayValue && Wicket.$(this.id).value == Wicket.$(this.id).displayValue)
+						{
+							focusCallbackTimeout = setTimeout(function()
+							{
+								if(Wicket.Focus.getFocusedElement() == thisEl)
+								{
+									var wcall=wicketAjaxGet
+									(
+										callbackUrl+'&nopostdata=true&event='+strEvent+'&id='+thisEl.id+'&modifiers='+modifiers,
+										null,
+										function() { onAjaxError(); }.bind(thisEl),
+										function() { onAjaxCall(); return Wicket.$(thisEl.id) != null; }.bind(thisEl)
+									);
+								}
+							}, 200);
+							return false;
+						}
+						
+						focusCallbackTimeout = setTimeout(function()
+						{
+							if(Wicket.Focus.getFocusedElement() == thisEl)
+							{
+								var wcall=wicketAjaxPost
+								(
+									callbackUrl+'&event='+strEvent+'&id='+thisEl.id+'&modifiers='+modifiers,
+									wicketSerialize(Wicket.$(thisEl.id)),
+									null,
+									function() { onAjaxError(); }.bind(thisEl),
+									function() { onAjaxCall(); return Wicket.$(thisEl.id) != null; }.bind(thisEl)
+								);
+							}
+						}, 200);						
+						return false;
 					}
 					else
 					{
 						modifiers = Servoy.Utils.getModifiers(e);
-					}
-					// if it has display/editvalues then test if the current value is the displayValue. if so only a get instead of a post. 
-					if (Wicket.$(this.id).displayValue && Wicket.$(this.id).value == Wicket.$(this.id).displayValue)
-					{
-						var wcall=wicketAjaxGet
+						// if it has display/editvalues then test if the current value is the displayValue. if so only a get instead of a post. 
+						if (Wicket.$(this.id).displayValue && Wicket.$(this.id).value == Wicket.$(this.id).displayValue)
+						{
+							var wcall=wicketAjaxGet
+							(
+								callbackUrl+'&nopostdata=true&event='+strEvent+'&id='+this.id+'&modifiers='+modifiers,
+								null,
+								function() { onAjaxError(); }.bind(this),
+								function() { onAjaxCall(); return Wicket.$(this.id) != null; }.bind(this)
+							);
+							return !wcall;
+						}
+						var wcall=wicketAjaxPost
 						(
-							callbackUrl+'&nopostdata=true&event='+strEvent+'&id='+this.id+'&modifiers='+modifiers,
+							callbackUrl+'&event='+strEvent+'&id='+this.id+'&modifiers='+modifiers,
+							wicketSerialize(Wicket.$(this.id)),
 							null,
 							function() { onAjaxError(); }.bind(this),
 							function() { onAjaxCall(); return Wicket.$(this.id) != null; }.bind(this)
 						);
 						return !wcall;
 					}
-					var wcall=wicketAjaxPost
-					(
-						callbackUrl+'&event='+strEvent+'&id='+this.id+'&modifiers='+modifiers,
-						wicketSerialize(Wicket.$(this.id)),
-						null,
-						function() { onAjaxError(); }.bind(this),
-						function() { onAjaxCall(); return Wicket.$(this.id) != null; }.bind(this)
-					);
-					return !wcall;
 				}
 			}
 			else
@@ -447,24 +483,40 @@ function addListeners(strEvent, callbackUrl, ids, post)
 					}
 					if(!e) e = window.event;
 					var modifiers;
+					
 					if(strEvent == "focus")
 					{
-						// skip onFocus callback if the component has been re-focused after a response
+						clearTimeout(focusCallbackTimeout);
 						modifiers = onFocusModifiers;
 						onFocusModifiers = 0;
+						var thisEl = this;
+						focusCallbackTimeout = setTimeout(function()
+							{
+								if(Wicket.Focus.getFocusedElement() == thisEl)
+								{
+									var wcall=wicketAjaxGet
+									(					
+										callbackUrl+'&event='+strEvent+'&id='+thisEl.id+'&modifiers='+modifiers,
+										null,
+										function() { onAjaxError(); }.bind(thisEl),
+										function() { return Wicket.$(thisEl.id) != null; }.bind(thisEl)
+									);
+								}
+							}, 200);
+						return false;
 					}
 					else
 					{
 						modifiers = Servoy.Utils.getModifiers(e);
-					}					
-					var wcall=wicketAjaxGet
-					(					
-						callbackUrl+'&event='+strEvent+'&id='+this.id+'&modifiers='+modifiers,
-						null,
-						function() { onAjaxError(); }.bind(this),
-						function() { return Wicket.$(this.id) != null; }.bind(this)
-					);
-					return !wcall;
+						var wcall=wicketAjaxGet
+						(					
+							callbackUrl+'&event='+strEvent+'&id='+this.id+'&modifiers='+modifiers,
+							null,
+							function() { onAjaxError(); }.bind(this),
+							function() { return Wicket.$(this.id) != null; }.bind(this)
+						);
+						return !wcall;
+					}
 				}
 			}
 			if(strEvent == "blur")
