@@ -3995,7 +3995,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		//always keep selection when sorting
 		Object[][] selectedPKs = null;
 		int[] selectedIndexes = getSelectedIndexes();
-		if (pks != null && selectedIndexes != null && selectedIndexes.length > 0 && selectedIndexes[0] > 0) //if first record is selected we ignore selection, is much faster
+		// if single selected and first record is selected we ignore selection
+		if (pks != null && selectedIndexes != null && (selectedIndexes.length > 1 || (selectedIndexes.length == 1 && selectedIndexes[0] > 0)))
 		{
 			selectedPKs = new Object[selectedIndexes.length][];
 			int i = 0;
@@ -4093,7 +4094,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				rowCount = pks.getRowCount();
 				int[] selectedIndexes = getSelectedIndexes();
 
-				//if single selecte and first record is selected we ignore selection, is much faster
+				//if single selected and first record is selected we ignore selection
 				if (selectedIndexes != null && (selectedIndexes.length > 1 || (selectedIndexes.length == 1 && selectedIndexes[0] > 0)))
 				{
 					selectedPKs = new Object[selectedIndexes.length][];
