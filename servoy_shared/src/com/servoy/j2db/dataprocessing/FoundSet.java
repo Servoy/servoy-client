@@ -3995,12 +3995,14 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		//always keep selection when sorting
 		Object[][] selectedPKs = null;
 		int[] selectedIndexes = getSelectedIndexes();
-		if (pks != null && selectedIndexes != null && selectedIndexes.length > 0 && selectedIndexes[0] >= 0)
+		if (pks != null && selectedIndexes != null && selectedIndexes.length > 0 && selectedIndexes[0] > 0) //if first record is selected we ignore selection, is much faster
 		{
 			selectedPKs = new Object[selectedIndexes.length][];
 			int i = 0;
 			for (int selectedIndex : selectedIndexes)
+			{
 				selectedPKs[i++] = pks.getRow(selectedIndex);
+			}
 		}
 
 		int oldSize = getSize();
