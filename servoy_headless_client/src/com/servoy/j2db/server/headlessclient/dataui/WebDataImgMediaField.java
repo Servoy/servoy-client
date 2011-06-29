@@ -70,7 +70,6 @@ import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.server.headlessclient.IDesignModeListener;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.MediaUploadPage;
-import com.servoy.j2db.server.headlessclient.ServoyForm;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
@@ -425,7 +424,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 		IModel model = getInnermostModel();
 		if (model instanceof RecordItemModel)
 		{
-			setResponsePage(new MediaUploadPage(PageMap.forName("mediaupload"), (RecordItemModel)model, this)); //$NON-NLS-1$
+			setResponsePage(new MediaUploadPage(PageMap.forName("mediaupload"), (RecordItemModel)model, this, application)); //$NON-NLS-1$
 		}
 	}
 

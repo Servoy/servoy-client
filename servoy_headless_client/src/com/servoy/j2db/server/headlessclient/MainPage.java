@@ -490,7 +490,8 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 				public Page createPage()
 				{
-					return new MediaUploadPage(PageMap.forName(FILE_UPLOAD_PAGEMAP), mediaUploadCallback, mediaUploadMultiSelect);
+					return new MediaUploadPage(PageMap.forName(FILE_UPLOAD_PAGEMAP), mediaUploadCallback, mediaUploadMultiSelect,
+						getController().getApplication());
 				}
 			});
 			fileUploadWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback()

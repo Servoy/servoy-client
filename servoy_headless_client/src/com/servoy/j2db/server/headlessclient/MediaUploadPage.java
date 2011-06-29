@@ -24,6 +24,7 @@ import java.util.Collection;
 
 import org.apache.wicket.IPageMap;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.form.upload.MultiFileUploadField;
@@ -33,6 +34,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.IWrapModel;
 import org.apache.wicket.model.Model;
 
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.plugins.IMediaUploadCallback;
 import com.servoy.j2db.plugins.IUploadData;
 import com.servoy.j2db.server.headlessclient.dataui.RecordItemModel;
@@ -57,11 +59,11 @@ public class MediaUploadPage extends WebPage
 	 * @param dataProviderID
 	 */
 	@SuppressWarnings("nls")
-	public MediaUploadPage(IPageMap pageMap, final RecordItemModel model, final WebDataImgMediaField field)
+	public MediaUploadPage(IPageMap pageMap, final RecordItemModel model, final WebDataImgMediaField field, IApplication application)
 	{
 		super(pageMap);
 		mfuf = null;
-		fuf = new SingleFileUpload("panel");
+		fuf = new SingleFileUpload("panel", application);
 		Form form = new Form("form")
 		{
 			private static final long serialVersionUID = 1L;
@@ -106,8 +108,8 @@ public class MediaUploadPage extends WebPage
 		add(panel);
 	}
 
-	@SuppressWarnings( { "nls", "unchecked" })
-	public MediaUploadPage(IPageMap pageMap, final IMediaUploadCallback callback, boolean multiSelect)
+	@SuppressWarnings({ "nls", "unchecked" })
+	public MediaUploadPage(IPageMap pageMap, final IMediaUploadCallback callback, boolean multiSelect, IApplication application)
 	{
 		super(pageMap);
 
@@ -160,15 +162,16 @@ public class MediaUploadPage extends WebPage
 		{
 			fuf = null;
 			IModel<Collection<FileUpload>> model = new Model(new ArrayList());
-			mfuf = new MultiFileUpload("panel", model);
+			mfuf = new MultiFileUpload("panel", model, application);
 			form.add(mfuf);
 		}
 		else
 		{
 			mfuf = null;
-			fuf = new SingleFileUpload("panel");
+			fuf = new SingleFileUpload("panel", application);
 			form.add(fuf);
 		}
+		form.add(new Label("uploadtitle", new Model<String>(application.getI18NMessage("servoy.filechooser.upload.title"))));
 		form.setMultiPart(true);
 		add(form);
 		FeedbackPanel panel = new FeedbackPanel("feedback");
