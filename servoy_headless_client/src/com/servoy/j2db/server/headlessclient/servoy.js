@@ -383,7 +383,7 @@ function rearrageTabsInTabPanel(tabPanelId)
 }
 
 var onFocusModifiers = 0;
-var focusCallbackTimeout;
+var focusCallbackTimeout = null;
 function addListeners(strEvent, callbackUrl, ids, post)
 {
 	if (ids)
@@ -398,6 +398,7 @@ function addListeners(strEvent, callbackUrl, ids, post)
 				{
 					if(strEvent == "blur")
 					{
+						if(focusCallbackTimeout) return false;	// on focuse delayed, so it is a quick switch, ignore the blur
 						ignoreFocusGained = null;
 					}
 					if(Wicket.Focus.refocusLastFocusedComponentAfterResponse && !Wicket.Focus.focusSetFromServer) return true;
@@ -424,6 +425,7 @@ function addListeners(strEvent, callbackUrl, ids, post)
 										function() { onAjaxCall(); return Wicket.$(thisEl.id) != null; }.bind(thisEl)
 									);
 								}
+								focusCallbackTimeout = null;
 							}, 200);
 							return false;
 						}
@@ -441,6 +443,7 @@ function addListeners(strEvent, callbackUrl, ids, post)
 									function() { onAjaxCall(); return Wicket.$(thisEl.id) != null; }.bind(thisEl)
 								);
 							}
+							focusCallbackTimeout = null;
 						}, 200);						
 						return false;
 					}
@@ -475,6 +478,7 @@ function addListeners(strEvent, callbackUrl, ids, post)
 			{
 				callback = function(e)
 				{
+					if(strEvent == "blur" && focusCallbackTimeout) return false; // on focuse delayed, so it is a quick switch, ignore the blur	
 					if(Wicket.Focus.refocusLastFocusedComponentAfterResponse && !Wicket.Focus.focusSetFromServer) return true;
 					if (ignoreFocusGained && ignoreFocusGained == this.id)
 					{
@@ -502,6 +506,7 @@ function addListeners(strEvent, callbackUrl, ids, post)
 										function() { return Wicket.$(thisEl.id) != null; }.bind(thisEl)
 									);
 								}
+								focusCallbackTimeout = null;
 							}, 200);
 						return false;
 					}
