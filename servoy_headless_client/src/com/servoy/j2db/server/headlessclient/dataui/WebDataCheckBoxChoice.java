@@ -820,13 +820,16 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 	 */
 	public void setComponentVisible(boolean visible)
 	{
-		setVisible(visible);
-		if (labels != null)
+		if (viewable)
 		{
-			for (int i = 0; i < labels.size(); i++)
+			setVisible(visible);
+			if (labels != null)
 			{
-				ILabel label = labels.get(i);
-				label.setComponentVisible(visible);
+				for (int i = 0; i < labels.size(); i++)
+				{
+					ILabel label = labels.get(i);
+					label.setComponentVisible(visible);
+				}
 			}
 		}
 	}
@@ -877,8 +880,8 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 
 	public void setViewable(boolean b)
 	{
+		if (!b) setComponentVisible(b);
 		this.viewable = b;
-		setComponentVisible(b);
 	}
 
 	public boolean isViewable()

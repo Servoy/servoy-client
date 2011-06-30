@@ -877,7 +877,10 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 
 	public void setComponentVisible(boolean b_visible)
 	{
-		setVisible(b_visible);
+		if (viewable)
+		{
+			setVisible(b_visible);
+		}
 	}
 
 	@Override
@@ -969,8 +972,8 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 
 	public void setViewable(boolean b)
 	{
+		if (!b) setComponentVisible(b);
 		this.viewable = b;
-		setComponentVisible(b);
 	}
 
 	public boolean isViewable()

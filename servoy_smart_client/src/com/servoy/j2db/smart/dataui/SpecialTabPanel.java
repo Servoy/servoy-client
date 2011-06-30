@@ -540,7 +540,10 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 
 	public void setComponentVisible(boolean b_visible)
 	{
-		setVisible(b_visible);
+		if (viewable)
+		{
+			setVisible(b_visible);
+		}
 	}
 
 
@@ -573,8 +576,8 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 
 	public void setViewable(boolean b)
 	{
+		if (!b) setComponentVisible(b);
 		this.viewable = b;
-		setComponentVisible(b);
 	}
 
 	public boolean isViewable()

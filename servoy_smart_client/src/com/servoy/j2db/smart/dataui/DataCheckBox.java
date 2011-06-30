@@ -526,8 +526,8 @@ public class DataCheckBox extends JCheckBox implements IFieldComponent, IDisplay
 
 	public void setViewable(boolean b)
 	{
+		if (!b) setComponentVisible(b);
 		this.viewable = b;
-		setComponentVisible(b);
 	}
 
 	public boolean isViewable()
@@ -570,7 +570,10 @@ public class DataCheckBox extends JCheckBox implements IFieldComponent, IDisplay
 
 	public void setComponentVisible(boolean b_visible)
 	{
-		setVisible(b_visible);
+		if (viewable)
+		{
+			setVisible(b_visible);
+		}
 	}
 
 

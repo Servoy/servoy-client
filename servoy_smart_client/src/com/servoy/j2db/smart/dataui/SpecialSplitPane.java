@@ -125,7 +125,10 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 
 	public void setComponentVisible(boolean visible)
 	{
-		setVisible(visible);
+		if (viewable)
+		{
+			setVisible(visible);
+		}
 	}
 
 	public String[] getAllRelationNames()
@@ -240,8 +243,8 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 
 	public void setViewable(boolean b)
 	{
+		if (!b) setComponentVisible(b);
 		this.viewable = b;
-		setComponentVisible(b);
 	}
 
 	public boolean isViewable()

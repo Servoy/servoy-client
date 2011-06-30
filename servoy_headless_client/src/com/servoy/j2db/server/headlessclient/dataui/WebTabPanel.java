@@ -1147,7 +1147,10 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 	 */
 	public void setComponentVisible(boolean visible)
 	{
-		setVisible(visible);
+		if (viewable)
+		{
+			setVisible(visible);
+		}
 	}
 
 	public void setComponentEnabled(final boolean b)
@@ -1186,8 +1189,8 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 
 	public void setViewable(boolean b)
 	{
+		if (!b) setComponentVisible(b);
 		this.viewable = b;
-		setComponentVisible(b);
 	}
 
 	public boolean isViewable()

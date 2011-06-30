@@ -459,8 +459,8 @@ public abstract class AbstractScriptButton extends JButton implements ISkinnable
 
 	public void setViewable(boolean b)
 	{
+		if (!b) setComponentVisible(b);
 		this.viewable = b;
-		setComponentVisible(b);
 	}
 
 	public boolean isViewable()
@@ -675,7 +675,10 @@ public abstract class AbstractScriptButton extends JButton implements ISkinnable
 
 	public void setComponentVisible(boolean b_visible)
 	{
-		setVisible(b_visible);
+		if (viewable)
+		{
+			setVisible(b_visible);
+		}
 	}
 
 	public boolean isReadOnly()

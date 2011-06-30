@@ -723,8 +723,8 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 
 	public void setViewable(boolean b)
 	{
+		if (!b) setComponentVisible(b);
 		this.viewable = b;
-		setComponentVisible(b);
 	}
 
 	public boolean isViewable()
@@ -776,7 +776,10 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 	 */
 	public void setComponentVisible(boolean b)
 	{
-		setVisible(b);
+		if (viewable)
+		{
+			setVisible(b);
+		}
 	}
 
 	public List<SortColumn> getDefaultSort()

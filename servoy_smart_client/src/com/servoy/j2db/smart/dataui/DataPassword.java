@@ -404,7 +404,10 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 
 	public void setComponentVisible(boolean b_visible)
 	{
-		setVisible(b_visible);
+		if (viewable)
+		{
+			setVisible(b_visible);
+		}
 	}
 
 	@Override
@@ -460,8 +463,8 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 
 	public void setViewable(boolean b)
 	{
+		if (!b) setComponentVisible(b);
 		this.viewable = b;
-		setComponentVisible(b);
 	}
 
 	public boolean isViewable()

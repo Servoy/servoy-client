@@ -2507,7 +2507,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	 */
 	public void setComponentVisible(boolean visible)
 	{
-		setVisible(visible);
+		if (viewable)
+		{
+			setVisible(visible);
+		}
 	}
 
 
@@ -2535,8 +2538,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	public void setViewable(boolean b)
 	{
+		if (!b) setComponentVisible(b);
 		this.viewable = b;
-		setComponentVisible(b);
 	}
 
 	public boolean isViewable()

@@ -908,7 +908,10 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	 */
 	public void setComponentVisible(boolean visible)
 	{
-		setVisible(visible);
+		if (viewable)
+		{
+			setVisible(visible);
+		}
 	}
 
 	public void setComponentEnabled(final boolean b)
@@ -933,8 +936,8 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	public void setViewable(boolean b)
 	{
+		if (!b) setComponentVisible(b);
 		this.viewable = b;
-		setComponentVisible(b);
 	}
 
 	public boolean isViewable()
