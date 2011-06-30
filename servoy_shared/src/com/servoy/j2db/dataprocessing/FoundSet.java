@@ -1454,7 +1454,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			else
 			{
 				tables = query.substring(from_index + 4, where_index);
-				sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH, new CustomCondition(query.substring(where_index + 5, order_by_index), whereArgs));
+				sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH, new CustomCondition(query.substring(where_index + 5, order_by_index).trim(), whereArgs));
 			}
 
 			// pick the foundset main table from the tables in the query (does not have to be the first one, we generate sql ourselves
