@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.query;
 
 import com.servoy.j2db.util.serialize.ReplacedObject;
@@ -42,6 +42,14 @@ public final class CustomCondition extends QueryCustomElement implements ISQLCon
 		{
 			return new CustomCondition("not (" + sql + ')', args); //$NON-NLS-1$
 		}
+	}
+
+	/**
+	 * Check whether the sql is already surrounded by round brackets.
+	 */
+	public boolean isBracketed()
+	{
+		return sql.startsWith("(") && matchFirstBrace(sql) == sql.length() - 1; //$NON-NLS-1$
 	}
 
 	/**
