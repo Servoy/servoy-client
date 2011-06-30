@@ -70,16 +70,17 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jcompagner
  */
+@SuppressWarnings("nls")
 public class WebDataTextArea extends TextArea implements IFieldComponent, IDisplayData, IProviderStylePropertyChanges, ISupportWebBounds, IRightClickListener,
 	ISupportInputSelection
 {
 	private static final long serialVersionUID = 1L;
 
-	private boolean selectOnEnter;
-	private Cursor cursor;
+//	private boolean selectOnEnter;
+//	private Cursor cursor;
 	private boolean needEntireState;
 	private Insets margin;
-	private int horizontalAlignment;
+//	private int horizontalAlignment;
 	private String inputId;
 	private final WebEventExecutor eventExecutor;
 
@@ -155,7 +156,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	{
 		super.onRender(markupStream);
 		getStylePropertyChanges().setRendered();
-		IModel model = getInnermostModel();
+		IModel< ? > model = getInnermostModel();
 		if (model instanceof RecordItemModel)
 		{
 			((RecordItemModel)model).updateRenderedValue(this);
@@ -176,7 +177,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 
 		if (!useAJAX)
 		{
-			Form f = getForm();
+			Form< ? > f = getForm();
 			if (f != null)
 			{
 				if (eventExecutor.hasRightClickCmd())
@@ -227,7 +228,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	 */
 	public void setSelectOnEnter(boolean selectOnEnter)
 	{
-		this.selectOnEnter = selectOnEnter;
+//		this.selectOnEnter = selectOnEnter;
 	}
 
 	/**
@@ -343,12 +344,12 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	 */
 	public void setHorizontalAlignment(int horizontalAlignment)
 	{
-		this.horizontalAlignment = horizontalAlignment;
+//		this.horizontalAlignment = horizontalAlignment;
 	}
 
 	public void setCursor(Cursor cursor)
 	{
-		this.cursor = cursor;
+//		this.cursor = cursor;
 	}
 
 	public Object getValueObject()
@@ -411,10 +412,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 				{
 					WebEventExecutor.setSelectedIndex(WebDataTextArea.this, null, IEventExecutor.MODIFIERS_UNSPECIFIED);
 
-					Object value = oldVal;
-					if (previousValidValue != null) value = oldVal;
-
-					eventExecutor.fireChangeCommand(value, newVal, false, WebDataTextArea.this);
+					eventExecutor.fireChangeCommand(previousValidValue == null ? oldVal : previousValidValue, newVal, false, WebDataTextArea.this);
 				}
 			});
 		}
@@ -484,7 +482,6 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 		}
 	}
 
-	@SuppressWarnings("nls")
 	public void selectAll()
 	{
 		Page page = findPage();
@@ -494,7 +491,6 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 		}
 	}
 
-	@SuppressWarnings("nls")
 	public void replaceSelectedText(String s)
 	{
 		Page page = findPage();
@@ -622,11 +618,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 
 	public void setToolTipText(String tooltip)
 	{
-		if (Utils.stringIsEmpty(tooltip))
-		{
-			tooltip = null;
-		}
-		this.tooltip = tooltip;
+		this.tooltip = Utils.stringIsEmpty(tooltip) ? null : tooltip;
 	}
 
 	protected ITagResolver resolver;
@@ -828,7 +820,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 
 	public void onRightClick()
 	{
-		Form f = getForm();
+		Form< ? > f = getForm();
 		if (f != null)
 		{
 			// If form validation fails, we don't execute the method.

@@ -74,6 +74,7 @@ import com.servoy.j2db.util.Utils;
  * @author lvostinar
  *
  */
+@SuppressWarnings("nls")
 public abstract class WebBaseSelectBox extends MarkupContainer implements IFieldComponent, IDisplayData, IProviderStylePropertyChanges, INullableAware,
 	ISupportWebBounds, IRightClickListener, ISupplyFocusChildren<Component>, ISupportValueList
 {
@@ -94,7 +95,7 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 	protected String tmpForeground = NO_COLOR;
 
 	protected final IApplication application;
-	protected final FormComponent selector;
+	protected final FormComponent< ? > selector;
 	private final AbstractRuntimeField<IFieldComponent> scriptable;
 
 	public WebBaseSelectBox(IApplication application, AbstractRuntimeField<IFieldComponent> scriptable, String id, String text)
@@ -110,8 +111,7 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 
 		add(selector);
 		add(new Label("text_" + id, "")); //$NON-NLS-1$ //$NON-NLS-2$
-		text = Text.processTags(text, null);
-		setText(text);
+		setText(Text.processTags(text, null));
 
 		selector.add(new FocusIfInvalidAttributeModifier(selector));
 		add(StyleAttributeModifierModel.INSTANCE);
@@ -123,7 +123,7 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 		return scriptable;
 	}
 
-	protected abstract FormComponent getSelector(String id);
+	protected abstract FormComponent< ? > getSelector(String id);
 
 	public void setText(String txt)
 	{
@@ -228,9 +228,7 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 				{
 					WebEventExecutor.setSelectedIndex(WebBaseSelectBox.this, null, IEventExecutor.MODIFIERS_UNSPECIFIED);
 
-					Object value = oldVal;
-					if (previousValidValue != null) value = oldVal;
-					eventExecutor.fireChangeCommand(value, newVal, false, WebBaseSelectBox.this);
+					eventExecutor.fireChangeCommand(previousValidValue == null ? oldVal : previousValidValue, newVal, false, WebBaseSelectBox.this);
 
 					//if change cmd is not succeeded also don't call action cmd?
 					if (isValueValid)
@@ -296,7 +294,7 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 		super.onRender(markupStream);
 
 		getStylePropertyChanges().setRendered();
-		IModel model = getInnermostModel();
+		IModel< ? > model = getInnermostModel();
 
 		if (model instanceof RecordItemModel)
 		{
@@ -317,7 +315,7 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 		}
 		if (!useAJAX)
 		{
-			Form f = getForm();
+			Form< ? > f = getForm();
 			if (f != null)
 			{
 				if (eventExecutor.hasRightClickCmd())
@@ -510,12 +508,12 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 	protected boolean opaque;
 
 	// Searches for a parent form, up the hierarchy of controls in the page.
-	protected Form getForm()
+	protected Form< ? > getForm()
 	{
 		Component c = this;
 		while ((c != null) && !(c instanceof Form))
 			c = c.getParent();
-		return (Form)c;
+		return (Form< ? >)c;
 	}
 
 	@Override
@@ -632,11 +630,7 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 
 	public void setToolTipText(String tooltip)
 	{
-		if (Utils.stringIsEmpty(tooltip))
-		{
-			tooltip = null;
-		}
-		this.tooltip = tooltip;
+		this.tooltip = Utils.stringIsEmpty(tooltip) ? null : tooltip;
 	}
 
 	protected ITagResolver resolver;
@@ -867,7 +861,7 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 
 	public void onRightClick()
 	{
-		Form f = getForm();
+		Form< ? > f = getForm();
 		if (f != null)
 		{
 			// If form validation fails, we don't execute the method.

@@ -236,9 +236,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 				{
 					WebEventExecutor.setSelectedIndex(WebDataCheckBoxChoice.this, null, IEventExecutor.MODIFIERS_UNSPECIFIED);
 
-					Object value = oldVal;
-					if (previousValidValue != null) value = oldVal;
-					eventExecutor.fireChangeCommand(value, newVal, false, WebDataCheckBoxChoice.this);
+					eventExecutor.fireChangeCommand(previousValidValue == null ? oldVal : previousValidValue, newVal, false, WebDataCheckBoxChoice.this);
 
 					//if change cmd is not succeeded also don't call action cmd?
 					if (isValueValid)
@@ -293,7 +291,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 	{
 		super.onRender(markupStream);
 		getStylePropertyChanges().setRendered();
-		IModel model = getInnermostModel();
+		IModel< ? > model = getInnermostModel();
 
 		if (model instanceof RecordItemModel)
 		{
@@ -314,7 +312,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 		}
 		if (!useAJAX)
 		{
-			Form f = getForm();
+			Form< ? > f = getForm();
 			if (f != null)
 			{
 				if (eventExecutor.hasRightClickCmd())
@@ -950,7 +948,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 
 	public void onRightClick()
 	{
-		Form f = getForm();
+		Form< ? > f = getForm();
 		if (f != null)
 		{
 			// If form validation fails, we don't execute the method.

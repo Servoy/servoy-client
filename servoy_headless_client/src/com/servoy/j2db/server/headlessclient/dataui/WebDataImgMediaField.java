@@ -92,6 +92,7 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jcompagner,jblok
  */
+@SuppressWarnings("nls")
 public class WebDataImgMediaField extends WebMarkupContainer implements IDisplayData, IFieldComponent, IScrollPane, ILinkListener,
 	IProviderStylePropertyChanges, ISupportWebBounds, IRightClickListener, IDesignModeListener
 {
@@ -125,9 +126,9 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 			Debug.error(ex);
 		}
 	}
-	private Cursor cursor;
+//	private Cursor cursor;
 	private boolean needEntireState;
-	private int maxLength;
+//	private int maxLength;
 	private Insets margin;
 	private int horizontalAlignment = -1;
 
@@ -222,7 +223,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 							{
 								setDefaultModelObject(fu[0].getBytes());
 								getStylePropertyChanges().setValueChanged();
-								IModel m = WebDataImgMediaField.this.getInnermostModel();
+								IModel< ? > m = WebDataImgMediaField.this.getInnermostModel();
 								if (m instanceof RecordItemModel)
 								{
 									RecordItemModel model = (RecordItemModel)m;
@@ -304,7 +305,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 				WebDataImgMediaField.this.setDefaultModelObject(null);
 				WebDataImgMediaField.this.getStylePropertyChanges().setChanged();
 
-				IModel m = WebDataImgMediaField.this.getInnermostModel();
+				IModel< ? > m = WebDataImgMediaField.this.getInnermostModel();
 				if (m instanceof RecordItemModel)
 				{
 					RecordItemModel model = (RecordItemModel)m;
@@ -377,7 +378,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 	{
 		super.onRender(markupStream);
 		getStylePropertyChanges().setRendered();
-		IModel model = getInnermostModel();
+		IModel< ? > model = getInnermostModel();
 
 		if (model instanceof RecordItemModel)
 		{
@@ -398,7 +399,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 		}
 		if (!useAJAX)
 		{
-			Form f = getForm();
+			Form< ? > f = getForm();
 			if (f != null)
 			{
 				if (eventExecutor.hasRightClickCmd())
@@ -421,7 +422,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 	 */
 	public void onLinkClicked()
 	{
-		IModel model = getInnermostModel();
+		IModel< ? > model = getInnermostModel();
 		if (model instanceof RecordItemModel)
 		{
 			setResponsePage(new MediaUploadPage(PageMap.forName("mediaupload"), (RecordItemModel)model, this, application)); //$NON-NLS-1$
@@ -518,11 +519,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 				{
 					WebEventExecutor.setSelectedIndex(WebDataImgMediaField.this, null, IEventExecutor.MODIFIERS_UNSPECIFIED);
 
-					Object value = oldVal;
-					if (previousValidValue != null) value = oldVal;
-
-					eventExecutor.fireChangeCommand(value, newVal, false, WebDataImgMediaField.this);
-
+					eventExecutor.fireChangeCommand(previousValidValue == null ? oldVal : previousValidValue, newVal, false, WebDataImgMediaField.this);
 				}
 			});
 		}
@@ -568,7 +565,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 	 */
 	public void setMaxLength(int maxLength)
 	{
-		this.maxLength = maxLength;
+//		this.maxLength = maxLength;
 	}
 
 	/**
@@ -604,7 +601,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 
 	public void setCursor(Cursor cursor)
 	{
-		this.cursor = cursor;
+//		this.cursor = cursor;
 	}
 
 	public Object getValueObject()
@@ -723,7 +720,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 				}
 				if (data instanceof byte[])
 				{
-					IModel m = WebDataImgMediaField.this.getInnermostModel();
+					IModel< ? > m = WebDataImgMediaField.this.getInnermostModel();
 					String fileName = null;
 					String mimeType = null;
 					if (m instanceof RecordItemModel)
@@ -818,28 +815,6 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 			super.onComponentTag(tag);
 			CharSequence url = urlFor(IResourceListener.INTERFACE) + "&r=" + Math.random(); //$NON-NLS-1$
 			tag.put("src", Strings.replaceAll(getResponse().encodeURL(url), "&", "&amp;")); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#setOnRenderMethodID(int)
-		 */
-		public void setOnRenderMethodID(int onRenderMethodID)
-		{
-			// TODO Auto-generated method stub
-
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getOnRenderMethodID()
-		 */
-		public int getOnRenderMethodID()
-		{
-			// TODO Auto-generated method stub
-			return 0;
 		}
 	}
 
@@ -980,11 +955,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 
 	public void setToolTipText(String tooltip)
 	{
-		if (Utils.stringIsEmpty(tooltip))
-		{
-			tooltip = null;
-		}
-		this.tooltip = tooltip;
+		this.tooltip = Utils.stringIsEmpty(tooltip) ? null : tooltip;
 	}
 
 	protected ITagResolver resolver;
@@ -1071,7 +1042,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 
 	public void addLabelFor(ILabel label)
 	{
-		if (labels == null) labels = new ArrayList(3);
+		if (labels == null) labels = new ArrayList<ILabel>(3);
 		labels.add(label);
 	}
 
@@ -1177,7 +1148,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 
 	public void onRightClick()
 	{
-		Form f = getForm();
+		Form< ? > f = getForm();
 		if (f != null)
 		{
 			// If form validation fails, we don't execute the method.
@@ -1185,12 +1156,12 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 		}
 	}
 
-	private Form getForm()
+	private Form< ? > getForm()
 	{
 		Component c = this;
 		while ((c != null) && !(c instanceof Form))
 			c = c.getParent();
-		return (Form)c;
+		return (Form< ? >)c;
 	}
 
 	@Override

@@ -152,11 +152,11 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 
 	private static final String NO_COLOR = "NO_COLOR"; //$NON-NLS-1$
 
-	private Cursor cursor;
+//	private Cursor cursor;
 	private boolean needEntireState;
 	private int dataType;
 	private Insets margin;
-	private int horizontalAlignment;
+//	private int horizontalAlignment;
 
 	private final WebEventExecutor eventExecutor;
 	private String inputId;
@@ -329,9 +329,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 				public void run()
 				{
 					WebEventExecutor.setSelectedIndex(WebDataField.this, null, IEventExecutor.MODIFIERS_UNSPECIFIED);
-					Object value = oldVal;
-					if (previousValidValue != null) value = oldVal;
-					eventExecutor.fireChangeCommand(value, newVal, false, WebDataField.this);
+					eventExecutor.fireChangeCommand(previousValidValue == null ? oldVal : previousValidValue, newVal, false, WebDataField.this);
 				}
 			});
 		}
@@ -348,7 +346,6 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 				getStylePropertyChanges().setValueChanged();
 			}
 		});
-
 	}
 
 	public void setChangeCmd(String id, Object[] args)
@@ -820,12 +817,12 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	 */
 	public void setHorizontalAlignment(int horizontalAlignment)
 	{
-		this.horizontalAlignment = horizontalAlignment;
+//		this.horizontalAlignment = horizontalAlignment;
 	}
 
 	public void setCursor(Cursor cursor)
 	{
-		this.cursor = cursor;
+//		this.cursor = cursor;
 	}
 
 	public Object getValueObject()

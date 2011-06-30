@@ -82,11 +82,11 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 	private final WebComboModelListModelWrapper list;
 	private final WebEventExecutor eventExecutor;
 
-	private Cursor cursor;
+//	private Cursor cursor;
 	private boolean needEntireState;
-	private int maxLength;
+//	private int maxLength;
 	private Insets margin;
-	private int horizontalAlignment;
+//	private int horizontalAlignment;
 	private String inputId;
 	private final IApplication application;
 	private String tmpForeground = NO_COLOR;
@@ -213,10 +213,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 				{
 					WebEventExecutor.setSelectedIndex(WebDataRadioChoice.this, null, IEventExecutor.MODIFIERS_UNSPECIFIED);
 
-					Object value = oldVal;
-					if (previousValidValue != null) value = oldVal;
-
-					eventExecutor.fireChangeCommand(value, newVal, false, WebDataRadioChoice.this);
+					eventExecutor.fireChangeCommand(previousValidValue == null ? oldVal : previousValidValue, newVal, false, WebDataRadioChoice.this);
 
 					//if change cmd is not succeeded also don't call action cmd?
 					if (isValueValid)
@@ -271,7 +268,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 	{
 		super.onRender(markupStream);
 		getStylePropertyChanges().setRendered();
-		IModel model = getInnermostModel();
+		IModel< ? > model = getInnermostModel();
 		if (model instanceof RecordItemModel)
 		{
 			((RecordItemModel)model).updateRenderedValue(this);
@@ -291,7 +288,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 		}
 		if (!useAJAX)
 		{
-			Form f = getForm();
+			Form< ? > f = getForm();
 			if (f != null)
 			{
 				if (eventExecutor.hasRightClickCmd())
@@ -361,7 +358,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 	 */
 	public void setMaxLength(int maxLength)
 	{
-		this.maxLength = maxLength;
+//		this.maxLength = maxLength;
 	}
 
 	/**
@@ -385,7 +382,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 	 */
 	public void setHorizontalAlignment(int horizontalAlignment)
 	{
-		this.horizontalAlignment = horizontalAlignment;
+//		this.horizontalAlignment = horizontalAlignment;
 	}
 
 	/**
@@ -393,7 +390,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 	 */
 	public void setCursor(Cursor cursor)
 	{
-		this.cursor = cursor;
+//		this.cursor = cursor;
 	}
 
 	public Object getValueObject()

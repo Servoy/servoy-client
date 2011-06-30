@@ -82,6 +82,7 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jcompagner
  */
+@SuppressWarnings("nls")
 public class WebDataComboBox extends DropDownChoice implements IFieldComponent, IDisplayData, IDisplayRelatedData, IProviderStylePropertyChanges,
 	ISupportWebBounds, IRightClickListener, IScriptableProvider, ISupportValueList
 {
@@ -100,10 +101,10 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	protected IConverter converter;
 
 	private String inputId;
-	private Cursor cursor;
-	private int maxLength;
+//	private Cursor cursor;
+//	private int maxLength;
 	private Insets margin;
-	private int horizontalAlignment;
+//	private int horizontalAlignment;
 	private final IApplication application;
 	private final RuntimeDataCombobox scriptable;
 
@@ -452,17 +453,13 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 				{
 					WebEventExecutor.setSelectedIndex(WebDataComboBox.this, null, IEventExecutor.MODIFIERS_UNSPECIFIED);
 
-					Object value = oldVal;
-					if (previousValidValue != null) value = oldVal;
-
-					eventExecutor.fireChangeCommand(value, newVal, false, WebDataComboBox.this);
+					eventExecutor.fireChangeCommand(previousValidValue == null ? oldVal : previousValidValue, newVal, false, WebDataComboBox.this);
 
 					//if change cmd is not succeeded also don't call action cmd?
 					if (isValueValid)
 					{
 						eventExecutor.fireActionCommand(false, WebDataComboBox.this);
 					}
-
 				}
 			});
 		}
@@ -535,7 +532,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	{
 		super.onRender(markupStream);
 		getStylePropertyChanges().setRendered();
-		IModel model = getInnermostModel();
+		IModel< ? > model = getInnermostModel();
 		if (model instanceof RecordItemModel)
 		{
 			((RecordItemModel)model).updateRenderedValue(this);
@@ -555,7 +552,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 		}
 		if (!useAJAX)
 		{
-			Form f = getForm();
+			Form< ? > f = getForm();
 			if (f != null)
 			{
 				if (eventExecutor.hasRightClickCmd())
@@ -603,7 +600,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 
 	public void setMaxLength(int maxLength)
 	{
-		this.maxLength = maxLength;
+//		this.maxLength = maxLength;
 	}
 
 	public void setMargin(Insets margin)
@@ -618,12 +615,12 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 
 	public void setHorizontalAlignment(int horizontalAlignment)
 	{
-		this.horizontalAlignment = horizontalAlignment;
+//		this.horizontalAlignment = horizontalAlignment;
 	}
 
 	public void setCursor(Cursor cursor)
 	{
-		this.cursor = cursor;
+//		this.cursor = cursor;
 	}
 
 	public Object getValueObject()
@@ -812,7 +809,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	}
 
 	@Override
-	public IConverter getConverter(Class cls)
+	public IConverter getConverter(Class< ? > cls)
 	{
 		if (converter != null) return converter;
 
