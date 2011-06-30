@@ -302,22 +302,25 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 							}
 							else
 							{
-								Object value;
-								if (SEPARATOR_DESIGN_VALUE.equals(strval) && (type != IColumnTypes.DATETIME && type != IColumnTypes.MEDIA))
+								if (SEPARATOR_DESIGN_VALUE.equals(strval) || ESCAPED_SEPARATOR_DESIGN_VALUE.equals(strval))
 								{
-									value = Column.getAsRightType(Types.VARCHAR, Column.NORMAL_COLUMN, strval, format, Integer.MAX_VALUE, null, true);
+									super.addElement(strval);
 								}
-								else try
+								else
 								{
-									value = Column.getAsRightType(type, Column.NORMAL_COLUMN, strval, format, Integer.MAX_VALUE, null, true);
+									Object value;
+									try
+									{
+										value = Column.getAsRightType(type, Column.NORMAL_COLUMN, strval, format, Integer.MAX_VALUE, null, true);
+									}
+									catch (Exception e)
+									{
+										Debug.error("Could not convert custom value list value '" + strval + "' to type " + Column.getDisplayTypeString(type) +
+											" for value list " + getName() + " -- skipped: " + e.getMessage());
+										continue;
+									}
+									super.addElement(value);
 								}
-								catch (Exception e)
-								{
-									Debug.error("Could not convert custom value list value '" + strval + "' to type " + Column.getDisplayTypeString(type) +
-										" for value list " + getName() + " -- skipped: " + e.getMessage());
-									continue;
-								}
-								super.addElement(value);
 							}
 						}
 						else
