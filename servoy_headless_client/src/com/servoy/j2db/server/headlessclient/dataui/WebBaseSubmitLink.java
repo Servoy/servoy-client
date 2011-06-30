@@ -41,6 +41,7 @@ import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.form.SubmitLink;
+import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.convert.IConverter;
 import org.apache.wicket.util.string.Strings;
@@ -82,8 +83,8 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 {
 	private static final long serialVersionUID = 1L;
 
-	private int halign;
-	private int valign;
+	private int halign = -1;
+	private int valign = -1;
 	private int mediaOptions;
 	private int rotation;
 	private boolean showFocus;
@@ -150,6 +151,22 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 	public Locale getLocale()
 	{
 		return application.getLocale();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.wicket.Component#renderHead(org.apache.wicket.markup.html.internal.HtmlHeaderContainer)
+	 */
+	@SuppressWarnings("nls")
+	@Override
+	public void renderHead(HtmlHeaderContainer container)
+	{
+		super.renderHead(container);
+		if (valign == ISupportTextSetup.CENTER)
+		{
+			container.getHeaderResponse().renderOnDomReadyJavascript("Servoy.Utils.setLabelChildHeight('" + getMarkupId() + "')");
+		}
 	}
 
 	/**
@@ -1032,7 +1049,8 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 			iconMargin = new Insets(0, mediaSize.width + 4, 0, 0);
 		}
 
-		String instrumentedBodyText = WebBaseButton.instrumentBodyText(bodyText, halign, valign, fillAllSpace(), fillAllSpace(), padding, iconMargin);
+		String instrumentedBodyText = WebBaseButton.instrumentBodyText(bodyText, halign, valign, fillAllSpace(), fillAllSpace(), padding, iconMargin,
+			getMarkupId() + "_lb");
 		// for vertical centering we need a table wrapper to have the possible <img> in the content centered
 		if (valign == ISupportTextSetup.CENTER && instrumentedBodyText.toLowerCase().indexOf("<img ") != -1) //$NON-NLS-1$
 		{

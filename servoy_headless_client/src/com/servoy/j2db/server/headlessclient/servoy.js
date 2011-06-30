@@ -1401,6 +1401,16 @@ if (typeof(Servoy.Utils) == "undefined")
 			}		
 		},
 		
+		setLabelChildHeight: function(elemid) 
+		{
+		  var elem = document.getElementById(elemid);
+		  var elemHeight =  elem.clientHeight;
+		  var child = document.getElementById(elemid + "_lb");
+		  var childHeight = child.clientHeight;
+		  var top = Math.floor((elemHeight - childHeight)/2);
+		  child.style.top = top + "px";
+		},
+		
 		stopClickTimer: function()
 		{
 			clearTimeout(Servoy.Utils.clickTimer);

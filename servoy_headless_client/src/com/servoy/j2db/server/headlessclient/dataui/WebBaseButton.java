@@ -1036,23 +1036,23 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			if (mediaSize == null) mediaSize = ImageLoader.getSize(media.getMediaData());
 			iconMargin = new Insets(0, mediaSize.width + 4, 0, 0);
 		}
-		replaceComponentTagBody(markupStream, openTag, instrumentBodyText(bodyText, halign, valign, false, false, margin, iconMargin));
+		replaceComponentTagBody(markupStream, openTag, instrumentBodyText(bodyText, halign, valign, false, false, margin, iconMargin, null));
 	}
 
 	protected static String instrumentBodyText(CharSequence bodyText, int halign, int valign, boolean fullWidth, boolean fullHeight, Insets padding)
 	{
-		return instrumentBodyText(bodyText, halign, valign, fullWidth, fullHeight, padding, null);
+		return instrumentBodyText(bodyText, halign, valign, fullWidth, fullHeight, padding, null, null);
 	}
 
+	@SuppressWarnings("nls")
 	protected static String instrumentBodyText(CharSequence bodyText, int halign, int valign, boolean fullWidth, boolean fullHeight, Insets padding,
-		Insets marginForIcon)
+		Insets marginForIcon, String cssid)
 	{
 		// In order to vertically align the text inside the <button>, we wrap the text inside a <span>, and we absolutely
 		// position the <span> in the <button>. However, for centering vertically we drop this absolute positioning and
 		// rely on the fact that by default the <button> tag vertically centers its content.
 		StringBuffer instrumentedBodyText = new StringBuffer();
 		instrumentedBodyText.append("<span style='display: block;"); //$NON-NLS-1$
-
 		int top = 0;
 		int bottom = 0;
 		int left = 0;
@@ -1073,21 +1073,28 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		else instrumentedBodyText.append(" text-align: center;"); //$NON-NLS-1$
 
 		// Vertical alignment and anchoring.
-		if (valign != ISupportTextSetup.CENTER) instrumentedBodyText.append(" position: absolute;"); //$NON-NLS-1$
+		if (valign != ISupportTextSetup.CENTER || cssid != null) instrumentedBodyText.append(" position: absolute;"); //$NON-NLS-1$
+		//else if (!fullHeight && innerHeight != -1) instrumentedBodyText.append("line-height: " + innerHeight + "px;");
 		if (valign == ISupportTextSetup.TOP) instrumentedBodyText.append(" top: " + top + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
 		else if (valign == ISupportTextSetup.BOTTOM) instrumentedBodyText.append(" bottom: " + bottom + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		// Full width/height.
-		if (fullWidth) instrumentedBodyText.append(" width: 100%;"); //$NON-NLS-1$
-		if (fullHeight) instrumentedBodyText.append(" height: 100%;"); //$NON-NLS-1$
+		if (fullWidth || (valign == ISupportTextSetup.CENTER && cssid != null)) instrumentedBodyText.append(" width: 100%;"); //$NON-NLS-1$
+		if (fullHeight && valign != ISupportTextSetup.CENTER) instrumentedBodyText.append(" height: 100%;"); //$NON-NLS-1$
 
 		if (marginForIcon != null)
 		{
 			instrumentedBodyText.append(" margin-left: " + marginForIcon.left + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
 			instrumentedBodyText.append(" margin-right: " + marginForIcon.right + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-
-		instrumentedBodyText.append("'>"); //$NON-NLS-1$
+		instrumentedBodyText.append("'"); //$NON-NLS-1$
+		if (cssid != null)
+		{
+			instrumentedBodyText.append(" id='"); //$NON-NLS-1$
+			instrumentedBodyText.append(cssid); //$NON-NLS-1$
+			instrumentedBodyText.append("'"); //$NON-NLS-1$
+		}
+		instrumentedBodyText.append(">"); //$NON-NLS-1$
 		if (bodyText != null) instrumentedBodyText.append(bodyText);
 		instrumentedBodyText.append("</span>"); //$NON-NLS-1$
 		return instrumentedBodyText.toString();

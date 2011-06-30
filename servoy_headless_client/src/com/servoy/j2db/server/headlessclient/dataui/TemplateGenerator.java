@@ -1946,12 +1946,6 @@ public class TemplateGenerator
 			}
 			styleObj.setProperty("padding-bottom", bottomPadding + "px");
 		}
-		// In order to vertically center inside a <div> (in case of labels) we do this trick with the line height.
-		else
-		{
-			if (ins != null) height -= ins.getSum().top + ins.getSum().bottom;
-			if (labelVAlign == ISupportTextSetup.CENTER) styleObj.setProperty("line-height", height + "px");
-		}
 	}
 
 	public static boolean isFilledText(String text)

@@ -46,6 +46,7 @@ import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 import org.apache.wicket.markup.html.link.ILinkListener;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.convert.IConverter;
@@ -147,6 +148,22 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	public Locale getLocale()
 	{
 		return application.getLocale();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.wicket.Component#renderHead(org.apache.wicket.markup.html.internal.HtmlHeaderContainer)
+	 */
+	@SuppressWarnings("nls")
+	@Override
+	public void renderHead(HtmlHeaderContainer container)
+	{
+		super.renderHead(container);
+		if (valign == ISupportTextSetup.CENTER)
+		{
+			container.getHeaderResponse().renderOnDomReadyJavascript("Servoy.Utils.setLabelChildHeight('" + getMarkupId() + "')");
+		}
 	}
 
 	/**
@@ -1101,6 +1118,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 		return eventExecutor;
 	}
 
+	@SuppressWarnings("nls")
 	protected void instrumentAndReplaceBody(MarkupStream markupStream, ComponentTag openTag, CharSequence bodyText, boolean hasHTML)
 	{
 		Insets m = null;
@@ -1126,7 +1144,10 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 			iconMargin = new Insets(0, mediaSize.width + 4, 0, 0);
 		}
 
-		String instrumentedBodyText = WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHTML, hasHTML, m, iconMargin);
+		int height = size.height;
+		Insets paddingAndBorder = getPaddingAndBorder();
+		height -= paddingAndBorder.bottom + paddingAndBorder.top;
+		String instrumentedBodyText = WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHTML, hasHTML, m, iconMargin, getMarkupId() + "_lb");
 		// for vertical centering we need a table wrapper to have the possible <img> in the content centered
 		if (valign == ISupportTextSetup.CENTER && instrumentedBodyText.toLowerCase().indexOf("<img ") != -1) //$NON-NLS-1$
 		{

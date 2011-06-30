@@ -332,8 +332,6 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 				properties.put("padding-left", padding.left + "px");
 				properties.put("padding-bottom", (bottomPaddingExtra + padding.bottom) + "px");
 			}
-			// In order to vertically center inside a <div> (in case of labels) we do this trick with the line height.
-			if (valign == ISupportTextSetup.CENTER) properties.put("line-height", innerHeight + "px");
 		}
 
 		if (insets == null) insets = padding;
