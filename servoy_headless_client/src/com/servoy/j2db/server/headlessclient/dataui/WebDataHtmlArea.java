@@ -21,6 +21,7 @@ import javax.swing.JEditorPane;
 
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
+import org.apache.wicket.util.convert.ConversionException;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.server.headlessclient.yui.YUILoader;
@@ -33,6 +34,9 @@ import com.servoy.j2db.ui.scripting.AbstractRuntimeTextEditor;
  */
 public class WebDataHtmlArea extends WebDataTextArea
 {
+	public static final String htmlTextStartTags = "<html><body>"; //$NON-NLS-1$
+	public static final String htmlTextEndTags = "</body></html>"; //$NON-NLS-1$
+
 	public WebDataHtmlArea(IApplication application, AbstractRuntimeTextEditor<IFieldComponent, JEditorPane> scriptable, String id)
 	{
 		super(application, scriptable, id);
@@ -57,4 +61,15 @@ public class WebDataHtmlArea extends WebDataTextArea
 		}
 	}
 
+	@Override
+	protected Object convertValue(String[] value) throws ConversionException
+	{
+		String convert = (String)super.convertValue(value);
+		if (convert != null && !convert.startsWith(htmlTextStartTags))
+		{
+			// html editor takes away <html> tags making text incompatible with SC
+			convert = htmlTextStartTags + convert + htmlTextEndTags;
+		}
+		return convert;
+	}
 }
