@@ -420,10 +420,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 			{
 				public void execute()
 				{
-					Object value = oldVal;
-					if (previousValidValue != null) value = oldVal;
-
-					eventExecutor.fireChangeCommand(value, newVal, false, WebDataTextArea.this);
+					eventExecutor.fireChangeCommand(previousValidValue == null ? oldVal : previousValidValue, newVal, false, WebDataTextArea.this);
 				}
 
 				public Component getComponent()

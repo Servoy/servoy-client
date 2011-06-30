@@ -222,17 +222,13 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 			{
 				public void execute()
 				{
-					Object value = oldVal;
-					if (previousValidValue != null) value = oldVal;
-
-					eventExecutor.fireChangeCommand(value, newVal, false, WebDataRadioChoice.this);
+					eventExecutor.fireChangeCommand(previousValidValue == null ? oldVal : previousValidValue, newVal, false, WebDataRadioChoice.this);
 
 					//if change cmd is not succeeded also don't call action cmd?
 					if (isValueValid)
 					{
 						eventExecutor.fireActionCommand(false, WebDataRadioChoice.this);
 					}
-
 				}
 
 				public Component getComponent()

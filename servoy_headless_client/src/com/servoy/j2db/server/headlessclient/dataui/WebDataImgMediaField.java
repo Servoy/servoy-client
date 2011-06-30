@@ -517,10 +517,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 			{
 				public void execute()
 				{
-					Object value = oldVal;
-					if (previousValidValue != null) value = oldVal;
-
-					eventExecutor.fireChangeCommand(value, newVal, false, WebDataImgMediaField.this);
+					eventExecutor.fireChangeCommand(previousValidValue == null ? oldVal : previousValidValue, newVal, false, WebDataImgMediaField.this);
 				}
 
 				public Component getComponent()

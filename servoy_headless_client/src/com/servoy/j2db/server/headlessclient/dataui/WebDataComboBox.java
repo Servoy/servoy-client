@@ -443,10 +443,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 			{
 				public void execute()
 				{
-					Object value = oldVal;
-					if (previousValidValue != null) value = oldVal;
-
-					eventExecutor.fireChangeCommand(value, newVal, false, WebDataComboBox.this);
+					eventExecutor.fireChangeCommand(previousValidValue == null ? oldVal : previousValidValue, newVal, false, WebDataComboBox.this);
 
 					//if change cmd is not succeeded also don't call action cmd?
 					if (isValueValid)

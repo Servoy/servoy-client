@@ -248,9 +248,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 			{
 				public void execute()
 				{
-					Object value = oldVal;
-					if (previousValidValue != null) value = oldVal;
-					eventExecutor.fireChangeCommand(value, newVal, false, WebDataCheckBoxChoice.this);
+					eventExecutor.fireChangeCommand(previousValidValue == null ? oldVal : previousValidValue, newVal, false, WebDataCheckBoxChoice.this);
 
 					//if change cmd is not succeeded also don't call action cmd?
 					if (isValueValid)

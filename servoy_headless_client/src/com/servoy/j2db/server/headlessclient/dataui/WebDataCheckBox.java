@@ -240,9 +240,7 @@ public class WebDataCheckBox extends MarkupContainer implements IFieldComponent,
 			{
 				public void execute()
 				{
-					Object value = oldVal;
-					if (previousValidValue != null) value = oldVal;
-					eventExecutor.fireChangeCommand(value, newVal, false, WebDataCheckBox.this);
+					eventExecutor.fireChangeCommand(previousValidValue == null ? oldVal : previousValidValue, newVal, false, WebDataCheckBox.this);
 
 					//if change cmd is not succeeded also don't call action cmd?
 					if (isValueValid)

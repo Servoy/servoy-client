@@ -292,10 +292,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 			{
 				public void execute()
 				{
-					Object value = oldVal;
-					if (previousValidValue != null) value = oldVal;
-
-					eventExecutor.fireChangeCommand(value, newVal, false, WebDataField.this);
+					eventExecutor.fireChangeCommand(previousValidValue == null ? oldVal : previousValidValue, newVal, false, WebDataField.this);
 				}
 
 				public Component getComponent()
