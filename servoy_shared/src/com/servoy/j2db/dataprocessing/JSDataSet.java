@@ -19,13 +19,14 @@ package com.servoy.j2db.dataprocessing;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
@@ -357,14 +358,23 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 		return result;
 	}
 
-	private void correctAttributeIndex(boolean row_col, boolean add_del, int index)
+	private void correctAttributeIndex(final boolean row_col, boolean add_del, int index)
 	{
 		if (htmlAttributes != null)
 		{
 			int plus_minus = (add_del ? +1 : -1);
 			Map<Pair<Integer, Integer>, Map<String, String>> newhtmlAttributes = new HashMap<Pair<Integer, Integer>, Map<String, String>>();
+
 			//replace the row ref
-			Iterator<Pair<Integer, Integer>> it = htmlAttributes.keySet().iterator();
+			List<Pair<Integer, Integer>> keys = new ArrayList<Pair<Integer, Integer>>(htmlAttributes.keySet());
+			Collections.sort(keys, new Comparator<Pair<Integer, Integer>>()
+			{
+				public int compare(Pair<Integer, Integer> o1, Pair<Integer, Integer> o2)
+				{
+					return (row_col ? o1.getLeft() - o2.getLeft() : o1.getRight() - o2.getRight());
+				}
+			});
+			Iterator<Pair<Integer, Integer>> it = keys.iterator();
 			while (it.hasNext())
 			{
 				Pair<Integer, Integer> pair = it.next();
