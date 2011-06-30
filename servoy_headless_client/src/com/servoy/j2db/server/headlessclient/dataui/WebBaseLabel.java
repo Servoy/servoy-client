@@ -30,7 +30,6 @@ import java.net.URL;
 import java.util.Locale;
 
 import javax.swing.ImageIcon;
-import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -83,7 +82,7 @@ import com.servoy.j2db.util.gui.JpegEncoder;
  * @author jcompagner,jblok
  */
 public class WebBaseLabel extends Label implements ILabel, IResourceListener, IProviderStylePropertyChanges, IDoubleClickListener, IRightClickListener,
-	ISupportWebBounds
+	ISupportWebBounds, IImageDisplay
 {
 	private static final long serialVersionUID = 1L;
 
@@ -95,7 +94,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 
 	protected MediaResource icon;
 	private int mediaOptions;
-	private AttributeModifier imageStyle;
+	private AttributeModifier enabledStyle;
 	private ResourceReference iconReference;
 	private ResourceReference rolloverIconReference;
 	private String iconUrl;
@@ -287,7 +286,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 		iconReference = null;
 		if (bs != null && bs.length != 0)
 		{
-			addImageStyleAttributeModifier();
+			addEnabledStyleAttributeModifier();
 			icon = new MediaResource(bs, mediaOptions);
 			if (size != null)
 			{
@@ -304,7 +303,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	{
 		if (rolloverBehavior != null) return;
 
-		rolloverBehavior = new ServoyAjaxEventBehavior("onmouseover")
+		rolloverBehavior = new ServoyAjaxEventBehavior("onmouseover") //$NON-NLS-1$ 
 		{
 			@Override
 			protected CharSequence generateCallbackScript(CharSequence partialCall)
@@ -333,15 +332,14 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 						if (mediaName.startsWith(MediaURLStreamHandler.MEDIA_URL_BLOBLOADER))
 						{
 							url = RequestCycle.get().urlFor(WebBaseLabel.this, IResourceListener.INTERFACE) +
-								"&" + MediaURLStreamHandler.MEDIA_URL_BLOBLOADER + "=true&" + //$NON-NLS-1$ 
+								"&" + MediaURLStreamHandler.MEDIA_URL_BLOBLOADER + "=true&" + //$NON-NLS-1$ //$NON-NLS-2$ 
 								mediaName.substring((MediaURLStreamHandler.MEDIA_URL_BLOBLOADER + "?").length()); //$NON-NLS-1$ 
 						}
 					}
 					else url = rolloverUrl;
 				}
-				url = "url(" + url + ")";
-				return "Servoy.Rollover.onMouseOver('" + WebBaseLabel.this.getMarkupId() + "','" + url + "','" + getBackgroundPosition() + "','" +
-					getBackgroundRepeat() + "')";
+
+				return "Servoy.Rollover.onMouseOver('" + WebBaseLabel.this.getMarkupId() + "_img','" + url + "')"; //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$  
 			}
 
 			@Override
@@ -351,12 +349,12 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 			}
 		};
 		add(rolloverBehavior);
-		ServoyAjaxEventBehavior mouseoutBehavior = new ServoyAjaxEventBehavior("onmouseout")
+		ServoyAjaxEventBehavior mouseoutBehavior = new ServoyAjaxEventBehavior("onmouseout") //$NON-NLS-1$ 
 		{
 			@Override
 			protected CharSequence generateCallbackScript(CharSequence partialCall)
 			{
-				return "Servoy.Rollover.onMouseOut('" + WebBaseLabel.this.getMarkupId() + "')";
+				return "Servoy.Rollover.onMouseOut('" + WebBaseLabel.this.getMarkupId() + "_img')"; //$NON-NLS-1$  //$NON-NLS-2$ 
 			}
 
 			@Override
@@ -368,111 +366,21 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 		add(mouseoutBehavior);
 	}
 
-	private String getBackgroundRepeat()
+	private void addEnabledStyleAttributeModifier()
 	{
-		return "no-repeat";
-	}
+		if (enabledStyle != null) return;
 
-	private String getBackgroundPosition()
-	{
-		String position = "center center"; //$NON-NLS-1$ 
-		String text = WebBaseLabel.this.getDefaultModelObjectAsString();
-		if (text != null && text.length() != 0)
-		{
-			position = "center left"; //$NON-NLS-1$ 
-		}
-		else
-		{
-			if (valign == SwingConstants.TOP)
-			{
-				position = "top "; //$NON-NLS-1$
-			}
-			else if (valign == SwingConstants.BOTTOM)
-			{
-				position = "bottom "; //$NON-NLS-1$ 
-			}
-			else
-			{
-				position = "center "; //$NON-NLS-1$ 
-			}
-
-			if (halign == SwingConstants.LEFT)
-			{
-				position += "left"; //$NON-NLS-1$ 
-			}
-			else if (halign == SwingConstants.RIGHT)
-			{
-				position += "right"; //$NON-NLS-1$ 
-			}
-			else
-			{
-				position += "center"; //$NON-NLS-1$ 
-			}
-		}
-		return position;
-	}
-
-	private void addImageStyleAttributeModifier()
-	{
-		if (imageStyle != null) return;
-
-		imageStyle = new StyleAppendingModifier(new Model<String>()
+		enabledStyle = new StyleAppendingModifier(new Model<String>()
 		{
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public String getObject()
 			{
-				String position = getBackgroundPosition();
-				String repeat = getBackgroundRepeat();
-
-				String styleAttribute = null;
-				if (icon != null)
-				{
-					CharSequence url = urlFor(IResourceListener.INTERFACE) + "&r=" + Math.random(); //$NON-NLS-1$
-					styleAttribute = "background-image: url(" + getResponse().encodeURL(url) + "); background-repeat: no-repeat; background-position: " + position; //$NON-NLS-1$//$NON-NLS-2$
-				}
-				else if (iconReference != null && media != null)
-				{
-					String solutionName = application.getSolution().getName();
-					if (mediaOptions != 0 && mediaOptions != 1)
-					{
-						styleAttribute = "background-image: url(" + urlFor(iconReference) + "?id=" + media.getName() + "&s=" + solutionName + "&option=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-							mediaOptions +
-							"&w=" + getSize().width + "&h=" + getSize().height + "&l=" + (media.getMediaData() != null ? +media.getMediaData().hashCode() : 0) + "); background-repeat: " + repeat + "; background-position: " + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-							position;
-					}
-					else
-					{
-						styleAttribute = "background-image: url(" + urlFor(iconReference) + "?id=" + media.getName() + "&s=" + solutionName + //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-							"&l=" + (media.getMediaData() != null ? +media.getMediaData().hashCode() : 0) + //$NON-NLS-1$
-							"); background-repeat: " + repeat + "; background-position: " + position; //$NON-NLS-1$
-					}
-				}
-				else if (iconUrl != null)
-				{
-					styleAttribute = "background-image: url(" + iconUrl + "); background-repeat: " + repeat + "; background-position: " + position; //$NON-NLS-1$ //$NON-NLS-2$
-
-				}
-				else if (text_url != null)
-				{
-					String mediaName = text_url.substring(MediaURLStreamHandler.MEDIA_URL_DEF.length());
-					if (mediaName.startsWith(MediaURLStreamHandler.MEDIA_URL_BLOBLOADER))
-					{
-						String url = RequestCycle.get().urlFor(WebBaseLabel.this, IResourceListener.INTERFACE) +
-							"&" + MediaURLStreamHandler.MEDIA_URL_BLOBLOADER + "=true&" + //$NON-NLS-1$
-							mediaName.substring((MediaURLStreamHandler.MEDIA_URL_BLOBLOADER + "?").length()); //$NON-NLS-1$
-						styleAttribute = "background-image: url(" + url + "); background-repeat: " + repeat + "; background-position: " + position; //$NON-NLS-1$ //$NON-NLS-2$
-					}
-				}
-				if (!isEnabled())
-				{
-					styleAttribute += "; filter:alpha(opacity=50);-moz-opacity:.50;opacity:.50"; //$NON-NLS-1$
-				}
-				return styleAttribute;
+				return isEnabled() ? "" : "filter:alpha(opacity=50);-moz-opacity:.50;opacity:.50;"; //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		});
-		add(imageStyle);
+		add(enabledStyle);
 	}
 
 	public int getMediaIcon()
@@ -487,13 +395,13 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 		this.iconReference = null;
 		if ((media = application.getFlattenedSolution().getMedia(iconId)) != null)
 		{
-			addImageStyleAttributeModifier();
+			addEnabledStyleAttributeModifier();
 			iconReference = new ResourceReference("media"); //$NON-NLS-1$
 		}
-		else if (imageStyle != null)
+		else if (enabledStyle != null)
 		{
-			remove(imageStyle);
-			imageStyle = null;
+			remove(enabledStyle);
+			enabledStyle = null;
 		}
 		mediaSize = null;
 	}
@@ -590,7 +498,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 				icon = null;
 				iconReference = null;
 				iconUrl = textUrl;
-				addImageStyleAttributeModifier();
+				addEnabledStyleAttributeModifier();
 			}
 			else
 			{
@@ -608,7 +516,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 						icon = null;
 						iconReference = null;
 						iconUrl = null;
-						addImageStyleAttributeModifier();
+						addEnabledStyleAttributeModifier();
 					}
 				}
 				catch (Exception ex)
@@ -1124,39 +1032,43 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	@SuppressWarnings("nls")
 	protected void instrumentAndReplaceBody(MarkupStream markupStream, ComponentTag openTag, CharSequence bodyText, boolean hasHTML)
 	{
-		Insets m = null;
-		// empty border gets handled as margin
-		if (border instanceof EmptyBorder)
+		String instrumentedBodyText;
+		String imgURL = WebBaseButton.getImageDisplayURL(this, application);
+
+		if (imgURL != null)
 		{
-			m = border.getBorderInsets(null);
+			instrumentedBodyText = "<img id=\"" + WebBaseLabel.this.getMarkupId() + "_img\" src=\"" + imgURL + "\" align=\"middle\">&nbsp;" + bodyText; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
-		// empty border inside compound border gets handled as margin
-		else if (border instanceof CompoundBorder)
+		else
 		{
-			Border inside = ((CompoundBorder)border).getInsideBorder();
-			if (inside instanceof EmptyBorder)
+			Insets m = null;
+			// empty border gets handled as margin
+			if (border instanceof EmptyBorder)
 			{
-				m = inside.getBorderInsets(null);
+				m = border.getBorderInsets(null);
+			}
+			// empty border inside compound border gets handled as margin
+			else if (border instanceof CompoundBorder)
+			{
+				Border inside = ((CompoundBorder)border).getInsideBorder();
+				if (inside instanceof EmptyBorder)
+				{
+					m = inside.getBorderInsets(null);
+				}
+			}
+
+			int height = size.height;
+			Insets paddingAndBorder = getPaddingAndBorder();
+			height -= paddingAndBorder.bottom + paddingAndBorder.top;
+			instrumentedBodyText = WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHTML, hasHTML, m, getMarkupId() + "_lb");
+			// for vertical centering we need a table wrapper to have the possible <img> in the content centered
+			if (valign == ISupportTextSetup.CENTER && instrumentedBodyText.toLowerCase().indexOf("<img ") != -1) //$NON-NLS-1$
+			{
+				instrumentedBodyText = (new StringBuffer(
+					"<table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" height=\"100%\"><tr><td style=\"vertical-align:middle;\">").append(instrumentedBodyText).append("</td></tr></table>")).toString(); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 
-		Insets iconMargin = null;
-		if (media != null && ((mediaOptions & 1) == 1) && (halign == ISupportTextSetup.LEFT))
-		{
-			if (mediaSize == null) mediaSize = ImageLoader.getSize(media.getMediaData());
-			iconMargin = new Insets(0, mediaSize.width + 4, 0, 0);
-		}
-
-		int height = size.height;
-		Insets paddingAndBorder = getPaddingAndBorder();
-		height -= paddingAndBorder.bottom + paddingAndBorder.top;
-		String instrumentedBodyText = WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHTML, hasHTML, m, iconMargin, getMarkupId() + "_lb");
-		// for vertical centering we need a table wrapper to have the possible <img> in the content centered
-		if (valign == ISupportTextSetup.CENTER && instrumentedBodyText.toLowerCase().indexOf("<img ") != -1) //$NON-NLS-1$
-		{
-			instrumentedBodyText = (new StringBuffer(
-				"<table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" height=\"100%\"><tr><td style=\"vertical-align:middle;\">").append(instrumentedBodyText).append("</td></tr></table>")).toString(); //$NON-NLS-1$ //$NON-NLS-2$
-		}
 		replaceComponentTagBody(markupStream, openTag, instrumentedBodyText);
 	}
 
@@ -1182,5 +1094,65 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	public RenderEventExecutor getRenderEventExecutor()
 	{
 		return eventExecutor;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getIcon()
+	 */
+	public MediaResource getIcon()
+	{
+		return icon;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getIconReference()
+	 */
+	public ResourceReference getIconReference()
+	{
+		return iconReference;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getMedia()
+	 */
+	public Media getMedia()
+	{
+		return media;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getMediaOptions()
+	 */
+	public int getMediaOptions()
+	{
+		return mediaOptions;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getIconUrl()
+	 */
+	public String getIconUrl()
+	{
+		return iconUrl;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getTextUrl()
+	 */
+	public String getTextUrl()
+	{
+		return text_url;
 	}
 }

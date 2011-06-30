@@ -1783,27 +1783,19 @@ if (typeof(Servoy.Rollover) == "undefined")
 {
 	Servoy.Rollover=
 	{
-		bgUrl : null,
-		bgPosition : null,
-		bgRepeat : null,
+		imgUrl : null,
 		
-		onMouseOver: function (elementId,imageUrl,position,repeat)
+		onMouseOver: function (elementId,imageUrl)
 		{
 			var el = document.getElementById(elementId);
-			bgUrl = el.style.backgroundImage;
-			bgPosition = el.style.backgroundPosition;
-			bgRepeat = el.style.backgroundRepeat;
-			el.style.backgroundImage = imageUrl;
-			el.style.backgroundPosition = position;
-			el.style.backgroundRepeat = repeat;
+			imgUrl = el.src;
+			el.src = imageUrl;
 		},
 		
 		onMouseOut: function (elementId)
 		{
 			var el = document.getElementById(elementId);
-			el.style.backgroundImage = bgUrl;
-			el.style.backgroundPosition = bgPosition;
-			el.style.backgroundRepeat = bgRepeat;
+			el.src = imgUrl;
 		}
 	}
 }

@@ -330,8 +330,8 @@ public class WebImageBeanHolder extends WebBaseButton implements IDelegate
 	}
 
 	@Override
-	protected void addImageStyleAttributeModifier()
+	protected void addEnabledStyleAttributeModifier()
 	{
-		// don't generate the 'background-image' attribute, it will just send twice the requests for the image
+		// ignore
 	}
 }
