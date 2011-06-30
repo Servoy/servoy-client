@@ -943,7 +943,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	protected void instrumentAndReplaceBody(MarkupStream markupStream, ComponentTag openTag, CharSequence bodyText)
 	{
 		String instrumentedBodyText;
-		String imgURL = getImageDisplayURL(this, application);
+		String imgURL = getImageDisplayURL(this);
 
 		if (imgURL != null)
 		{
@@ -956,7 +956,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		replaceComponentTagBody(markupStream, openTag, instrumentedBodyText);
 	}
 
-	protected static String getImageDisplayURL(IImageDisplay imageDisplay, IApplication application)
+	protected static String getImageDisplayURL(IImageDisplay imageDisplay)
 	{
 		String imgURL = null;
 
@@ -970,7 +970,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			}
 			else if (imageDisplay.getIconReference() != null && imageDisplay.getMedia() != null)
 			{
-				String solutionName = application.getSolution().getName();
+				String solutionName = J2DBGlobals.getServiceProvider().getSolution().getName();
 				if (imageDisplay.getMediaOptions() != 0 && imageDisplay.getMediaOptions() != 1)
 				{
 					imgURL = imageDisplayComponent.urlFor(imageDisplay.getIconReference()) +

@@ -1033,7 +1033,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	protected void instrumentAndReplaceBody(MarkupStream markupStream, ComponentTag openTag, CharSequence bodyText, boolean hasHTML)
 	{
 		String instrumentedBodyText;
-		String imgURL = WebBaseButton.getImageDisplayURL(this, application);
+		String imgURL = WebBaseButton.getImageDisplayURL(this);
 
 		if (imgURL != null)
 		{

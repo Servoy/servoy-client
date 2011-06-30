@@ -921,7 +921,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 	protected void instrumentAndReplaceBody(MarkupStream markupStream, ComponentTag openTag, CharSequence bodyText)
 	{
 		String instrumentedBodyText;
-		String imgURL = WebBaseButton.getImageDisplayURL(this, application);
+		String imgURL = WebBaseButton.getImageDisplayURL(this);
 
 		if (imgURL != null)
 		{
