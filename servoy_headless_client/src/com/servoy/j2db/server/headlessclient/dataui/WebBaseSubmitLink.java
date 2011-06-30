@@ -35,7 +35,6 @@ import org.apache.wicket.Page;
 import org.apache.wicket.Request;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ResourceReference;
-import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
@@ -47,7 +46,6 @@ import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IScriptExecuter;
-import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.persistence.Media;
@@ -337,67 +335,9 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 	{
 		if (rolloverBehavior != null) return;
 
-		rolloverBehavior = new ServoyAjaxEventBehavior("onmouseover") //$NON-NLS-1$ 
-		{
-			@Override
-			protected CharSequence generateCallbackScript(CharSequence partialCall)
-			{
-				String solutionName = J2DBGlobals.getServiceProvider().getSolution().getName();
-				String url = "";
-				if (rolloverIconReference != null && rolloverMedia != null)
-				{
-					if (mediaOptions != 0 && mediaOptions != 1)
-					{
-						url = urlFor(rolloverIconReference) + "?id=" + rolloverMedia.getName() + "&s=" + solutionName + "&option=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
-							mediaOptions + "&w=" + getSize().width + "&h=" + getSize().height + "&l=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-							(rolloverMedia.getMediaData() != null ? +rolloverMedia.getMediaData().hashCode() : 0);
-					}
-					else
-					{
-						url = urlFor(rolloverIconReference) + "?id=" + rolloverMedia.getName() + "&s=" + solutionName + "&l=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
-							(rolloverMedia.getMediaData() != null ? +rolloverMedia.getMediaData().hashCode() : 0);
-					}
-				}
-				else if (rolloverUrl != null)
-				{
-					if (rolloverUrl.startsWith(MediaURLStreamHandler.MEDIA_URL_DEF))
-					{
-						String mediaName = rolloverUrl.substring(MediaURLStreamHandler.MEDIA_URL_DEF.length());
-						if (mediaName.startsWith(MediaURLStreamHandler.MEDIA_URL_BLOBLOADER))
-						{
-							url = RequestCycle.get().urlFor(WebBaseSubmitLink.this, IResourceListener.INTERFACE) +
-								"&" + MediaURLStreamHandler.MEDIA_URL_BLOBLOADER + "=true&" + //$NON-NLS-1$ //$NON-NLS-2$ 
-								mediaName.substring((MediaURLStreamHandler.MEDIA_URL_BLOBLOADER + "?").length()); //$NON-NLS-1$ 
-						}
-					}
-					else url = rolloverUrl;
-				}
-
-				return "Servoy.Rollover.onMouseOver('" + WebBaseSubmitLink.this.getMarkupId() + "_img','" + url + "')"; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$ 
-			}
-
-			@Override
-			protected void onEvent(AjaxRequestTarget target)
-			{
-				// not used, client side implementation
-			}
-		};
+		rolloverBehavior = WebBaseButton.getImageDisplayRolloverBehavior(this);
 		add(rolloverBehavior);
-		ServoyAjaxEventBehavior mouseoutBehavior = new ServoyAjaxEventBehavior("onmouseout") //$NON-NLS-1$ 
-		{
-			@Override
-			protected CharSequence generateCallbackScript(CharSequence partialCall)
-			{
-				return "Servoy.Rollover.onMouseOut('" + WebBaseSubmitLink.this.getMarkupId() + "_img')"; //$NON-NLS-1$  //$NON-NLS-2$ 
-			}
-
-			@Override
-			protected void onEvent(AjaxRequestTarget target)
-			{
-				// not used, client side implementation
-			}
-		};
-		add(mouseoutBehavior);
+		add(WebBaseButton.getImageDisplayRolloutBehavior(this));
 	}
 
 	private void addEnabledStyleAttributeModifier()
@@ -1066,5 +1006,35 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 	public String getTextUrl()
 	{
 		return text_url;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getRolloverIconReference()
+	 */
+	public ResourceReference getRolloverIconReference()
+	{
+		return rolloverIconReference;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getRolloverMedia()
+	 */
+	public Media getRolloverMedia()
+	{
+		return rolloverMedia;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getRolloverUrl()
+	 */
+	public String getRolloverUrl()
+	{
+		return rolloverUrl;
 	}
 }

@@ -372,67 +372,9 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	{
 		if (rolloverBehavior != null) return;
 
-		rolloverBehavior = new ServoyAjaxEventBehavior("onmouseover") //$NON-NLS-1$
-		{
-			@Override
-			protected CharSequence generateCallbackScript(CharSequence partialCall)
-			{
-				String solutionName = J2DBGlobals.getServiceProvider().getSolution().getName();
-				String url = "";
-				if (rolloverIconReference != null && rolloverMedia != null)
-				{
-					if (mediaOptions != 0 && mediaOptions != 1)
-					{
-						url = urlFor(rolloverIconReference) + "?id=" + rolloverMedia.getName() + "&s=" + solutionName + "&option=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
-							mediaOptions + "&w=" + getSize().width + "&h=" + getSize().height + "&l=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-							(rolloverMedia.getMediaData() != null ? +rolloverMedia.getMediaData().hashCode() : 0);
-					}
-					else
-					{
-						url = urlFor(rolloverIconReference) + "?id=" + rolloverMedia.getName() + "&s=" + solutionName + "&l=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
-							(rolloverMedia.getMediaData() != null ? +rolloverMedia.getMediaData().hashCode() : 0);
-					}
-				}
-				else if (rolloverUrl != null)
-				{
-					if (rolloverUrl.startsWith(MediaURLStreamHandler.MEDIA_URL_DEF))
-					{
-						String mediaName = rolloverUrl.substring(MediaURLStreamHandler.MEDIA_URL_DEF.length());
-						if (mediaName.startsWith(MediaURLStreamHandler.MEDIA_URL_BLOBLOADER))
-						{
-							url = RequestCycle.get().urlFor(WebBaseButton.this, IResourceListener.INTERFACE) +
-								"&" + MediaURLStreamHandler.MEDIA_URL_BLOBLOADER + "=true&" + //$NON-NLS-1$ //$NON-NLS-2$
-								mediaName.substring((MediaURLStreamHandler.MEDIA_URL_BLOBLOADER + "?").length()); //$NON-NLS-1$ 
-						}
-					}
-					else url = rolloverUrl;
-				}
-
-				return "Servoy.Rollover.onMouseOver('" + WebBaseButton.this.getMarkupId() + "_img','" + url + "')"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			}
-
-			@Override
-			protected void onEvent(AjaxRequestTarget target)
-			{
-				// not used, client side implementation
-			}
-		};
+		rolloverBehavior = WebBaseButton.getImageDisplayRolloverBehavior(this);
 		add(rolloverBehavior);
-		ServoyAjaxEventBehavior mouseoutBehavior = new ServoyAjaxEventBehavior("onmouseout") //$NON-NLS-1$
-		{
-			@Override
-			protected CharSequence generateCallbackScript(CharSequence partialCall)
-			{
-				return "Servoy.Rollover.onMouseOut('" + WebBaseButton.this.getMarkupId() + "_img')"; //$NON-NLS-1$ //$NON-NLS-2$
-			}
-
-			@Override
-			protected void onEvent(AjaxRequestTarget target)
-			{
-				// not used, client side implementation
-			}
-		};
-		add(mouseoutBehavior);
+		add(WebBaseButton.getImageDisplayRolloutBehavior(this));
 	}
 
 	protected void addEnabledStyleAttributeModifier()
@@ -1004,6 +946,87 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		return imgURL;
 	}
 
+	protected static ServoyAjaxEventBehavior getImageDisplayRolloverBehavior(final IImageDisplay imageDisplay)
+	{
+		if (imageDisplay instanceof Component)
+		{
+			final Component imageDisplayComponent = (Component)imageDisplay;
+			return new ServoyAjaxEventBehavior("onmouseover") //$NON-NLS-1$ 
+			{
+				@Override
+				protected CharSequence generateCallbackScript(CharSequence partialCall)
+				{
+					String solutionName = J2DBGlobals.getServiceProvider().getSolution().getName();
+					String url = "";
+					if (imageDisplay.getRolloverIconReference() != null && imageDisplay.getRolloverMedia() != null)
+					{
+						if (imageDisplay.getMediaOptions() != 0 && imageDisplay.getMediaOptions() != 1)
+						{
+							url = imageDisplayComponent.urlFor(imageDisplay.getRolloverIconReference()) +
+								"?id=" + imageDisplay.getRolloverMedia().getName() + "&s=" + solutionName + "&option=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+								imageDisplay.getMediaOptions() + "&w=" + imageDisplay.getSize().width + "&h=" + imageDisplay.getSize().height + "&l=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+								(imageDisplay.getRolloverMedia().getMediaData() != null ? +imageDisplay.getRolloverMedia().getMediaData().hashCode() : 0);
+						}
+						else
+						{
+							url = imageDisplayComponent.urlFor(imageDisplay.getRolloverIconReference()) +
+								"?id=" + imageDisplay.getRolloverMedia().getName() + "&s=" + solutionName + "&l=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+								(imageDisplay.getRolloverMedia().getMediaData() != null ? +imageDisplay.getRolloverMedia().getMediaData().hashCode() : 0);
+						}
+					}
+					else if (imageDisplay.getRolloverUrl() != null)
+					{
+						if (imageDisplay.getRolloverUrl().startsWith(MediaURLStreamHandler.MEDIA_URL_DEF))
+						{
+							String mediaName = imageDisplay.getRolloverUrl().substring(MediaURLStreamHandler.MEDIA_URL_DEF.length());
+							if (mediaName.startsWith(MediaURLStreamHandler.MEDIA_URL_BLOBLOADER))
+							{
+								url = RequestCycle.get().urlFor(imageDisplayComponent, IResourceListener.INTERFACE) +
+									"&" + MediaURLStreamHandler.MEDIA_URL_BLOBLOADER + "=true&" + //$NON-NLS-1$ //$NON-NLS-2$ 
+									mediaName.substring((MediaURLStreamHandler.MEDIA_URL_BLOBLOADER + "?").length()); //$NON-NLS-1$ 
+							}
+						}
+						else url = imageDisplay.getRolloverUrl();
+					}
+
+					return "Servoy.Rollover.onMouseOver('" + imageDisplayComponent.getMarkupId() + "_img','" + url + "')"; //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$  
+				}
+
+				@Override
+				protected void onEvent(AjaxRequestTarget target)
+				{
+					// not used, client side implementation
+				}
+			};
+		}
+
+		return null;
+	}
+
+	protected static ServoyAjaxEventBehavior getImageDisplayRolloutBehavior(IImageDisplay imageDisplay)
+	{
+		if (imageDisplay instanceof Component)
+		{
+			final Component imageDisplayComponent = (Component)imageDisplay;
+			return new ServoyAjaxEventBehavior("onmouseout") //$NON-NLS-1$ 
+			{
+				@Override
+				protected CharSequence generateCallbackScript(CharSequence partialCall)
+				{
+					return "Servoy.Rollover.onMouseOut('" + imageDisplayComponent.getMarkupId() + "_img')"; //$NON-NLS-1$  //$NON-NLS-2$ 
+				}
+
+				@Override
+				protected void onEvent(AjaxRequestTarget target)
+				{
+					// not used, client side implementation
+				}
+			};
+		}
+
+		return null;
+	}
+
 	@SuppressWarnings("nls")
 	protected static String instrumentBodyText(CharSequence bodyText, int halign, int valign, boolean fullWidth, boolean fullHeight, Insets padding,
 		String cssid)
@@ -1137,5 +1160,35 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	public String getTextUrl()
 	{
 		return text_url;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getRolloverIconReference()
+	 */
+	public ResourceReference getRolloverIconReference()
+	{
+		return rolloverIconReference;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getRolloverMedia()
+	 */
+	public Media getRolloverMedia()
+	{
+		return rolloverMedia;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getRolloverUrl()
+	 */
+	public String getRolloverUrl()
+	{
+		return rolloverUrl;
 	}
 }

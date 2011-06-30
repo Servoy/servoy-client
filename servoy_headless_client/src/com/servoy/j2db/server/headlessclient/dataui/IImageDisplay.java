@@ -40,4 +40,10 @@ public interface IImageDisplay extends IComponent
 	public String getIconUrl();
 
 	public String getTextUrl();
+
+	public ResourceReference getRolloverIconReference();
+
+	public Media getRolloverMedia();
+
+	public String getRolloverUrl();
 }
