@@ -64,6 +64,8 @@ public class ServoyDivDialogActionBuffer
 
 	private final List<Action> buffer = new ArrayList<Action>();
 
+	private boolean closePopup = false;
+
 	public void add(ServoyDivDialog divDialog, WebMarkupContainer parentToUpdate)
 	{
 		buffer.add(new Action(divDialog, Action.OP_DIALOG_ADDED_OR_REMOVED, new Object[] { parentToUpdate }));
@@ -79,8 +81,14 @@ public class ServoyDivDialogActionBuffer
 		buffer.add(new Action(divDialog, Action.OP_SHOW, new Object[] { pageMapName }));
 	}
 
+	public boolean isClosing()
+	{
+		return closePopup;
+	}
+
 	public void close(ServoyDivDialog divDialog)
 	{
+		closePopup = true;
 		buffer.add(new Action(divDialog, Action.OP_CLOSE, null));
 	}
 
@@ -96,6 +104,7 @@ public class ServoyDivDialogActionBuffer
 
 	public void apply(AjaxRequestTarget target)
 	{
+		closePopup = false;
 		for (Action a : buffer)
 		{
 			ServoyDivDialog divDialog = a.getDivDialog();

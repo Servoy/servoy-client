@@ -55,7 +55,8 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 	{
 		FormManager fm = (FormManager)application.getFormManager();
 		IMainContainer currContainer = getParentContainerForShow(fm);
-		if (((WebRequestCycle)RequestCycle.get()).getWebRequest().isAjax() && !((MainPage)currContainer).isShowPageInDialogDelayed())
+		if (((WebRequestCycle)RequestCycle.get()).getWebRequest().isAjax() && !((MainPage)currContainer).isShowPageInDialogDelayed() &&
+			!((MainPage)currContainer).isPopupClosing())
 		{
 			IMainContainer dialogContainer = fm.getOrCreateMainContainer(windowName);
 			// In case this modal dialog wants to show another modal dialog during onStart event, we make sure it

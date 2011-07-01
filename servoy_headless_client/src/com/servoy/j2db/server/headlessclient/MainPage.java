@@ -1746,6 +1746,11 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		this.showPageInDialogDelayed = showDelayed;
 	}
 
+	public boolean isPopupClosing()
+	{
+		return divDialogActionBuffer.isClosing();
+	}
+
 	public void renderJavascriptChanges(final AjaxRequestTarget target)
 	{
 		divDialogActionBuffer.apply(target);
