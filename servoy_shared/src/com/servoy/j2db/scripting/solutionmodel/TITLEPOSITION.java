@@ -19,12 +19,14 @@ package com.servoy.j2db.scripting.solutionmodel;
 
 import javax.swing.border.TitledBorder;
 
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
  * @author lvostinar
  *
  */
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class TITLEPOSITION implements IPrefixedConstantsObject
 {
 	/**

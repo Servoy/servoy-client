@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 import java.sql.SQLException;
@@ -56,6 +56,7 @@ public class DataException extends ServoyException
 
 	// THIS METHOD IS REMOVED FROM InstanceJavaMethod WITH A HACK to keep compatibility with old ways :) - when ServoyException was not using js_...
 	/**
+	 * @sameas com.servoy.j2db.util.ServoyException#js_isServoyException()
 	 * @deprecated Use "typeof" operator instead.
 	 */
 	@Deprecated

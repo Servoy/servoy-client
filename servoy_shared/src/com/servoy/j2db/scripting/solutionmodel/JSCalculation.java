@@ -21,6 +21,7 @@ import java.util.Arrays;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.persistence.ScriptNameValidator;
@@ -32,6 +33,7 @@ import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
 
 @SuppressWarnings("nls")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class JSCalculation implements IJavaScriptType
 {
 	private ScriptCalculation scriptCalculation;

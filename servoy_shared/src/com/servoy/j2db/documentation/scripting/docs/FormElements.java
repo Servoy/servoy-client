@@ -70,7 +70,7 @@ public class FormElements
 	/**
 	 * Get an element of the form by its name.
 	 * 
-	 * @sampleas allnames
+	 * @sampleas js_getAllnames()
 	 */
 	public String js_getIndex_name()
 	{
@@ -84,7 +84,7 @@ public class FormElements
 	/**
 	 * Get an element of the form by its index.
 	 * 
-	 * @sampleas length
+	 * @sampleas js_getLength()
 	 */
 	public Number js_getIndex_index()
 	{

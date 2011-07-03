@@ -371,7 +371,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	}
 
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#js_setOnActionMethod()
+	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#js_setOnActionMethod(Function)
 	 */
 	@Deprecated
 	public void js_setOnActionMethod(Function function)
