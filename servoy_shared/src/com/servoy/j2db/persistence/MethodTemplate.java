@@ -37,6 +37,10 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class MethodTemplate implements IMethodTemplate
 {
+	public static final int PUBLIC_TAG = 0;
+	public static final int PROTECTED_TAG = 1;
+	public static final int PRIVATE_TAG = 2;
+
 	private static final String TAG_METHODTEMPLATE = "methodtemplate";
 	private static final String ATTR_NAME = "name";
 	private static final String ATTR_TYPE = "type";
@@ -161,10 +165,17 @@ public class MethodTemplate implements IMethodTemplate
 
 	public String getMethodDeclaration(CharSequence name, CharSequence methodCode)
 	{
-		return getMethodDeclaration(name, methodCode, false);
+		return getMethodDeclaration(name, methodCode, PUBLIC_TAG);
 	}
 
-	public String getMethodDeclaration(CharSequence name, CharSequence methodCode, boolean outputPrivateTag)
+	/**
+	 * 
+	 * @param name
+	 * @param methodCode
+	 * @param outputPrivateTag 0: public, 1: protected 2: private
+	 * @return
+	 */
+	public String getMethodDeclaration(CharSequence name, CharSequence methodCode, int tagToOutput)
 	{
 		StringBuilder sb = new StringBuilder();
 		if (description != null && description.length() > 0)
@@ -204,10 +215,15 @@ public class MethodTemplate implements IMethodTemplate
 			}
 			sb.append('\n');
 		}
-		if (outputPrivateTag)
+		if (tagToOutput == PRIVATE_TAG)
 		{
 			if (sb.length() > 0) sb.append(" *");
 			sb.append("\n * @private\n");
+		}
+		if (tagToOutput == PROTECTED_TAG)
+		{
+			if (sb.length() > 0) sb.append(" *");
+			sb.append("\n * @protected\n");
 		}
 		if (sb.length() > 0)
 		{
@@ -287,7 +303,7 @@ public class MethodTemplate implements IMethodTemplate
 		return new MethodTemplate(template.description, template.signature, Utils.arrayMerge(template.args, formalArguments), null, true)
 		{
 			@Override
-			public String getMethodDeclaration(CharSequence name, CharSequence methodCode, boolean outputPrivateTag)
+			public String getMethodDeclaration(CharSequence name, CharSequence methodCode, int tagToOutput)
 			{
 				CharSequence body;
 				if (methodCode == null)
@@ -314,7 +330,7 @@ public class MethodTemplate implements IMethodTemplate
 				{
 					body = methodCode;
 				}
-				return super.getMethodDeclaration(name, body, outputPrivateTag);
+				return super.getMethodDeclaration(name, body, tagToOutput);
 			}
 		};
 	}
