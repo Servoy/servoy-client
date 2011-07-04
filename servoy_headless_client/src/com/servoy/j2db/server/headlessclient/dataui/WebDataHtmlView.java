@@ -52,6 +52,7 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 	{
 		super(application, scriptable, id);
 		setHorizontalAlignment(SwingConstants.LEFT);
+		setVerticalAlignment(SwingConstants.TOP);
 		setEscapeModelStrings(false);
 	}
 
