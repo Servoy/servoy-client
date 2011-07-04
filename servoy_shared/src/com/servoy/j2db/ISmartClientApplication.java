@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db;
 
+import java.awt.Component;
 import java.awt.Window;
 import java.net.URLStreamHandler;
 import java.rmi.Remote;
@@ -87,6 +88,24 @@ public interface ISmartClientApplication extends IApplication
 	 * @return IToolbarPanel
 	 */
 	public IToolbarPanel getToolbarPanel();
+
+	/**
+	 * Report an error when in a dialog.
+	 * 
+	 * @param parentComponent
+	 * @param msg
+	 * @param detail
+	 */
+	public void reportError(Component parentComponent, String msg, Object detail);
+
+	/**
+	 * Report an info when in a dialog.
+	 * 
+	 * @param parentComponent
+	 * @param msg
+	 * @param detail
+	 */
+	public void reportInfo(Component parentComponent, String msg, String title);
 
 	public String showI18NDialog(String preselect_key, String preselect_language);
 

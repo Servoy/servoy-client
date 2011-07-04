@@ -16,7 +16,6 @@
  */
 package com.servoy.j2db.debug;
 
-import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -277,22 +276,13 @@ public class DebugHeadlessClient extends SessionClient implements IDebugHeadless
 	}
 
 	/**
-	 * @see com.servoy.j2db.smart.J2DBClient#reportError(java.awt.Component, java.lang.String, java.lang.Object)
-	 */
-	@Override
-	public void reportError(Component parentComponent, String message, Object detail)
-	{
-		errorToDebugger(message, detail);
-		super.reportError(parentComponent, message, detail);
-	}
-
-	/**
 	 * @see com.servoy.j2db.ClientState#reportError(java.lang.String, java.lang.Object)
 	 */
 	@Override
-	public void reportError(String msg, Object detail)
+	public void reportError(String message, Object detail)
 	{
-		reportError(null, msg, detail);
+		errorToDebugger(message, detail);
+		super.reportError(message, detail);
 	}
 
 	/**

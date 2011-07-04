@@ -239,7 +239,7 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 
 	public void reportError(Component parentComponent, String msg, Object detail)
 	{
-		application.reportError(parentComponent, msg, detail);
+		application.reportError(msg, detail);
 	}
 
 	public void handleException(String msg, Exception e)
@@ -513,9 +513,8 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 							catch (Exception e)
 							{
 								retval = e;
-								if (async) application.handleException(
-									"Exception calling global method '" + methodname + "' with arguments " + Arrays.toString(arguments) +
-										" in async mode on solution " + getSolutionName(), e);
+								if (async) application.handleException("Exception calling global method '" + methodname + "' with arguments " +
+									Arrays.toString(arguments) + " in async mode on solution " + getSolutionName(), e);
 
 							}
 						}
@@ -551,9 +550,8 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 						catch (Exception e)
 						{
 							retval = e;
-							if (async) application.handleException(
-								"Exception calling form method '" + methodname + "' with arguments " + Arrays.toString(arguments) + " on form '" + context +
-									"'in async mode on solution " + getSolutionName(), e);
+							if (async) application.handleException("Exception calling form method '" + methodname + "' with arguments " +
+								Arrays.toString(arguments) + " on form '" + context + "'in async mode on solution " + getSolutionName(), e);
 
 						}
 					}

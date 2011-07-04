@@ -92,6 +92,7 @@ import com.servoy.j2db.util.gui.SnapShot;
  * 
  * @author jblok
  */
+@SuppressWarnings("nls")
 public class DataImgMediaField extends EnableScrollPanel implements IDisplayData, IFieldComponent, IScrollPane, DropTargetListener, ISupportAsyncLoading,
 	ISupportCachedLocationAndSize
 {
@@ -102,7 +103,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 		byte[] notEmptyImage = new byte[0];
 		try
 		{
-			InputStream is = IApplication.class.getResourceAsStream("images/notemptymedia.gif"); //$NON-NLS-1$
+			InputStream is = IApplication.class.getResourceAsStream("images/notemptymedia.gif");
 			notEmptyImage = new byte[is.available()];
 			is.read(notEmptyImage);
 			is.close();
@@ -291,7 +292,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 
 	private boolean isAsyncLoading()
 	{
-		return useAsync && !Utils.getAsBoolean(application.getRuntimeProperties().get("isPrinting")); //$NON-NLS-1$
+		return useAsync && !Utils.getAsBoolean(application.getRuntimeProperties().get("isPrinting"));
 	}
 
 	protected ITagResolver resolver;
@@ -305,7 +306,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 
 	public void setValueObject(Object obj)
 	{
-		if ("".equals(obj)) obj = null; //$NON-NLS-1$
+		if ("".equals(obj)) obj = null;
 		try
 		{
 			if (editProvider != null) editProvider.setAdjusting(true);
@@ -339,7 +340,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 				if (isAsyncLoading() && application.getModeManager().getMode() == IModeManager.EDIT_MODE)
 				{
 					enclosedComponent.setIconDirect((Icon)null, enclosedComponent.getNextSeq());//clear previous image
-					enclosedComponent.setText(application.getI18NMessage("servoy.imageMedia.loadingImage"));//show loading text //$NON-NLS-1$
+					enclosedComponent.setText(application.getI18NMessage("servoy.imageMedia.loadingImage"));//show loading text 
 				}
 
 				final Object tmp = obj;
@@ -358,7 +359,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 							{
 								icon = NOT_EMPTY_IMAGE;
 							}
-							else if (application.getI18NMessage("servoy.imageMedia.loadingImage").equals(enclosedComponent.getText())) //$NON-NLS-1$
+							else if (application.getI18NMessage("servoy.imageMedia.loadingImage").equals(enclosedComponent.getText()))
 							{
 								enclosedComponent.setText(null);
 							}
@@ -368,7 +369,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 						{
 							enclosedComponent.setIconDirect(icon, seq);
 						}
-						else if (application.getI18NMessage("servoy.imageMedia.loadingImage").equals(enclosedComponent.getText())) //$NON-NLS-1$
+						else if (application.getI18NMessage("servoy.imageMedia.loadingImage").equals(enclosedComponent.getText()))
 						{
 							enclosedComponent.setText(null);
 						}
@@ -387,7 +388,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 			else
 			{
 				setIcon(null);
-				if (application.getI18NMessage("servoy.imageMedia.loadingImage").equals(enclosedComponent.getText())) //$NON-NLS-1$
+				if (application.getI18NMessage("servoy.imageMedia.loadingImage").equals(enclosedComponent.getText()))
 				{
 					enclosedComponent.setText(null);
 				}
@@ -408,7 +409,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 			array = Utils.getURLContent((String)tmp);
 			if (array == null)
 			{
-				Debug.error("Cannot get media for field with dataprovider '" + getDataProviderID() + "' on form " + //$NON-NLS-1$ //$NON-NLS-2$
+				Debug.error("Cannot get media for field with dataprovider '" + getDataProviderID() + "' on form " +
 					(application.getFormManager().getCurrentForm() == null ? null : application.getFormManager().getCurrentForm().getName()));
 			}
 		}
@@ -577,47 +578,47 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 				public void actionPerformed(ActionEvent e)
 				{
 					String cmd = e.getActionCommand();
-					if (cmd.equals("load")) //$NON-NLS-1$
+					if (cmd.equals("load"))
 					{
 						loadFromFile();
 					}
-					else if (cmd.equals("save")) //$NON-NLS-1$
+					else if (cmd.equals("save"))
 					{
 						saveToFile();
 					}
-					else if (cmd.equals("copy")) //$NON-NLS-1$
+					else if (cmd.equals("copy"))
 					{
 						copyToClipboard();
 					}
-					else if (cmd.equals("paste")) //$NON-NLS-1$
+					else if (cmd.equals("paste"))
 					{
 						pasteFromClipboard();
 					}
-					else if (cmd.equals("remove")) //$NON-NLS-1$
+					else if (cmd.equals("remove"))
 					{
 						removeImage();
 					}
 				}
 			};
 			popup = new JPopupMenu();
-			JMenuItem loadMenuItem = new JMenuItem(application.getI18NMessage("servoy.imageMedia.popup.menuitem.load")); //$NON-NLS-1$
-			loadMenuItem.setActionCommand("load"); //$NON-NLS-1$
+			JMenuItem loadMenuItem = new JMenuItem(application.getI18NMessage("servoy.imageMedia.popup.menuitem.load"));
+			loadMenuItem.setActionCommand("load");
 			loadMenuItem.addActionListener(listener);
 			popup.add(loadMenuItem);
-			JMenuItem saveMenuItem = new JMenuItem(application.getI18NMessage("servoy.imageMedia.popup.menuitem.save")); //$NON-NLS-1$
-			saveMenuItem.setActionCommand("save"); //$NON-NLS-1$
+			JMenuItem saveMenuItem = new JMenuItem(application.getI18NMessage("servoy.imageMedia.popup.menuitem.save"));
+			saveMenuItem.setActionCommand("save");
 			saveMenuItem.addActionListener(listener);
 			popup.add(saveMenuItem);
-			JMenuItem copyMenuItem = new JMenuItem(application.getI18NMessage("servoy.imageMedia.popup.menuitem.copy")); //$NON-NLS-1$
-			copyMenuItem.setActionCommand("copy"); //$NON-NLS-1$
+			JMenuItem copyMenuItem = new JMenuItem(application.getI18NMessage("servoy.imageMedia.popup.menuitem.copy"));
+			copyMenuItem.setActionCommand("copy");
 			copyMenuItem.addActionListener(listener);
 			popup.add(copyMenuItem);
-			JMenuItem pasteMenuItem = new JMenuItem(application.getI18NMessage("servoy.imageMedia.popup.menuitem.paste")); //$NON-NLS-1$
-			pasteMenuItem.setActionCommand("paste"); //$NON-NLS-1$
+			JMenuItem pasteMenuItem = new JMenuItem(application.getI18NMessage("servoy.imageMedia.popup.menuitem.paste"));
+			pasteMenuItem.setActionCommand("paste");
 			pasteMenuItem.addActionListener(listener);
 			popup.add(pasteMenuItem);
-			JMenuItem removeMenuItem = new JMenuItem(application.getI18NMessage("servoy.imageMedia.popup.menuitem.remove")); //$NON-NLS-1$
-			removeMenuItem.setActionCommand("remove"); //$NON-NLS-1$
+			JMenuItem removeMenuItem = new JMenuItem(application.getI18NMessage("servoy.imageMedia.popup.menuitem.remove"));
+			removeMenuItem.setActionCommand("remove");
 			removeMenuItem.addActionListener(listener);
 			popup.add(removeMenuItem);
 		}
@@ -819,7 +820,14 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 			}
 			catch (Exception e)
 			{
-				application.reportError(this, application.getI18NMessage("servoy.imageMedia.error.loading"), e); //$NON-NLS-1$
+				if (application instanceof ISmartClientApplication)
+				{
+					((ISmartClientApplication)application).reportError(this, application.getI18NMessage("servoy.imageMedia.error.loading"), e);
+				}
+				else
+				{
+					application.reportError(application.getI18NMessage("servoy.imageMedia.error.loading"), e);
+				}
 			}
 		}
 	}
@@ -845,15 +853,15 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 			}
 			else if (array.length > 3 && array[0] == -1 && array[1] == -40 && array[2] == -1)//jpeg
 			{
-				fc.suggestFileName("image.jpg"); //$NON-NLS-1$
+				fc.suggestFileName("image.jpg");
 			}
 			else if (array.length > 3 && array[0] == 0x47 && array[1] == 0x49 && array[2] == 0x46)//gif
 			{
-				fc.suggestFileName("image.gif"); //$NON-NLS-1$
+				fc.suggestFileName("image.gif");
 			}
 			else
 			{
-				fc.suggestFileName("filename.unknown"); //$NON-NLS-1$
+				fc.suggestFileName("filename.unknown");
 			}
 
 			int returnVal = fc.showSaveDialog(((ISmartClientApplication)application).getMainApplicationFrame());
@@ -869,7 +877,14 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 				}
 				catch (Exception e)
 				{
-					application.reportError(this, application.getI18NMessage("servoy.imageMedia.error.loading"), e); //$NON-NLS-1$
+					if (application instanceof ISmartClientApplication)
+					{
+						((ISmartClientApplication)application).reportError(this, application.getI18NMessage("servoy.imageMedia.error.loading"), e);
+					}
+					else
+					{
+						application.reportError(application.getI18NMessage("servoy.imageMedia.error.loading"), e);
+					}
 				}
 			}
 		}
@@ -955,20 +970,27 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 						if (resolver instanceof DataAdapterList)
 						{
 							((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.FILENAME, file.getName());
-							((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.MIMETYPE,
-								ImageLoader.getContentType(content, file.getName()));
+							((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.MIMETYPE, ImageLoader.getContentType(content,
+								file.getName()));
 						}
 					}
 					catch (Exception e)
 					{
-						application.reportError(this, application.getI18NMessage("servoy.imageMedia.error.loading"), e); //$NON-NLS-1$
+						if (application instanceof ISmartClientApplication)
+						{
+							((ISmartClientApplication)application).reportError(this, application.getI18NMessage("servoy.imageMedia.error.loading"), e);
+						}
+						else
+						{
+							application.reportError(application.getI18NMessage("servoy.imageMedia.error.loading"), e);
+						}
 					}
 				}
 				dropTargetDropEvent.getDropTargetContext().dropComplete(true);
 			}
 			else
 			{
-				Debug.trace("Rejected"); //$NON-NLS-1$
+				Debug.trace("Rejected");
 				dropTargetDropEvent.rejectDrop();
 			}
 		}
@@ -1103,13 +1125,13 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 	@Override
 	public void setToolTipText(String tip)
 	{
-		if (tip != null && tip.indexOf("%%") != -1) //$NON-NLS-1$
+		if (tip != null && tip.indexOf("%%") != -1)
 		{
 			tooltip = tip;
 		}
 		else if (!Utils.stringIsEmpty(tip))
 		{
-			if (!Utils.stringContainsIgnoreCase(tip, "<html") || HtmlUtils.hasUsefulHtmlContent(tip)) //$NON-NLS-1$
+			if (!Utils.stringContainsIgnoreCase(tip, "<html") || HtmlUtils.hasUsefulHtmlContent(tip))
 			{
 				setToolTipTextImpl(tip);
 			}
@@ -1237,7 +1259,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 
 	public String getId()
 	{
-		return (String)getClientProperty("Id"); //$NON-NLS-1$
+		return (String)getClientProperty("Id");
 	}
 
 	@Override

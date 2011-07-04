@@ -17,7 +17,6 @@
 package com.servoy.j2db.server.headlessclient;
 
 
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.print.PageFormat;
@@ -414,21 +413,10 @@ public class SessionClient extends ClientState implements ISessionClient
 		messages.clear();
 	}
 
-	public void reportInfo(Component parentComponent, String message, String title)
-	{
-		Debug.log(message);
-	}
-
 	public void reportInfo(String message)
 	{
 		Debug.log(message);
 	}
-
-	public void reportError(Component parentComponent, String message, Object detail)
-	{
-		Debug.error(detail);
-	}
-
 
 	@Override
 	protected void checkForActiveTransactions(boolean force)

@@ -17,7 +17,6 @@
 package com.servoy.j2db;
 
 
-import java.awt.Component;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.swing.ImageIcon;
@@ -64,7 +63,7 @@ public interface IBasicApplication extends IUIBlocker
 	 * @param msg
 	 * @param detail
 	 */
-	public void reportError(Component parentComponent, String msg, Object detail);
+//	public void reportError(Object parentComponent, String msg, Object detail);
 
 	/**
 	 * Report an info when in a dialog.
@@ -73,7 +72,7 @@ public interface IBasicApplication extends IUIBlocker
 	 * @param msg
 	 * @param detail
 	 */
-	public void reportInfo(Component parentComponent, String msg, String title);
+//	public void reportInfo(Object parentComponent, String msg, String title);
 
 	/**
 	 * Report an error.
