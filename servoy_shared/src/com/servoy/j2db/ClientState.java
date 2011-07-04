@@ -62,7 +62,6 @@ import com.servoy.j2db.server.shared.IApplicationServerAccess;
 import com.servoy.j2db.server.shared.IClientManager;
 import com.servoy.j2db.server.shared.IUserManager;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.ITaskExecuter;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.serialize.JSONConverter;
@@ -434,8 +433,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		catch (RepositoryException e)
 		{
 			Debug.error("Could not load solution " + (solutionMetaData == null ? "<none>" : solutionMetaData.getName()), e); //$NON-NLS-1$ //$NON-NLS-2$
-			reportError(
-				Messages.getString("servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>" : solutionMetaData.getName() }), e); //$NON-NLS-1$ //$NON-NLS-2$
+			reportError(Messages.getString(
+				"servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>" : solutionMetaData.getName() }), e); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
@@ -932,10 +931,6 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		Debug.log(s);
 	}
 
-	@Deprecated
-	public abstract ITaskExecuter getThreadPool();
-
-
 	public abstract ScheduledExecutorService getScheduledExecutor();
 
 	public abstract boolean isRunningRemote();
@@ -1247,8 +1242,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 						function,
 						gscope,
 						gscope,
-						Utils.arrayMerge((new Object[] { new Boolean(force) }),
-							Utils.parseJSExpressions(getSolution().getInstanceMethodArguments("onCloseMethodID"))), false, false)); //$NON-NLS-1$
+						Utils.arrayMerge((new Object[] { new Boolean(force) }), Utils.parseJSExpressions(getSolution().getInstanceMethodArguments(
+							"onCloseMethodID"))), false, false)); //$NON-NLS-1$
 				}
 				catch (Exception e1)
 				{

@@ -23,7 +23,6 @@ import javax.swing.ImageIcon;
 
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Solution;
-import com.servoy.j2db.util.ITaskExecuter;
 import com.servoy.j2db.util.IUIBlocker;
 
 /**
@@ -57,24 +56,6 @@ public interface IBasicApplication extends IUIBlocker
 	public IRepository getRepository();
 
 	/**
-	 * Report an error when in a dialog.
-	 * 
-	 * @param parentComponent
-	 * @param msg
-	 * @param detail
-	 */
-//	public void reportError(Object parentComponent, String msg, Object detail);
-
-	/**
-	 * Report an info when in a dialog.
-	 * 
-	 * @param parentComponent
-	 * @param msg
-	 * @param detail
-	 */
-//	public void reportInfo(Object parentComponent, String msg, String title);
-
-	/**
 	 * Report an error.
 	 * 
 	 * @param msg
@@ -99,22 +80,10 @@ public interface IBasicApplication extends IUIBlocker
 	public ImageIcon loadImage(String name);
 
 	/**
-	 * Get the task executor.
-	 * 
-	 * @return ITaskExecuter
-	 * 
-	 * @deprecated use {@link #getScheduledExecutor()}
-	 */
-	@Deprecated
-	public ITaskExecuter getThreadPool();
-
-
-	/**
 	 * Get the scheduled executor.
 	 * 
 	 * @return {@link ScheduledExecutorService}
 	 * 
 	 */
 	public ScheduledExecutorService getScheduledExecutor();
-
 }

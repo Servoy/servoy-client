@@ -244,7 +244,6 @@ import com.servoy.j2db.util.Ad;
 import com.servoy.j2db.util.BrowserLauncher;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ExtendableURLStreamHandlerFactory;
-import com.servoy.j2db.util.ITaskExecuter;
 import com.servoy.j2db.util.OrientationApplier;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
@@ -397,13 +396,6 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	public int getClientPlatform()
 	{
 		return Utils.getPlatform();
-	}
-
-	@Override
-	@Deprecated
-	public ITaskExecuter getThreadPool()
-	{
-		return (ITaskExecuter)getScheduledExecutor();
 	}
 
 	@Override

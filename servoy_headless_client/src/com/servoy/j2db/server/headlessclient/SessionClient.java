@@ -110,7 +110,6 @@ import com.servoy.j2db.smart.dataui.SwingItemFactory;
 import com.servoy.j2db.smart.plugins.PluginManager;
 import com.servoy.j2db.ui.ItemFactory;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.ITaskExecuter;
 import com.servoy.j2db.util.LocalhostRMIRegistry;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
@@ -1237,12 +1236,6 @@ public class SessionClient extends ClientState implements ISessionClient
 	{
 		// unknown client platform, overridden in WebClient
 		return Utils.PLATFORM_OTHER;
-	}
-
-	@Override
-	public ITaskExecuter getThreadPool()
-	{
-		return (ITaskExecuter)getScheduledExecutor();
 	}
 
 	@Override

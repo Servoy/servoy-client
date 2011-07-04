@@ -31,7 +31,6 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.server.shared.IApplicationServer;
-import com.servoy.j2db.util.ITaskExecuter;
 
 /**
  * Interface for minimal service provider.
@@ -132,15 +131,6 @@ public interface IServiceProvider extends IEventDelegator
 	 * @return IExecutingEnviroment
 	 */
 	public IExecutingEnviroment getScriptEngine();
-
-	/**
-	 * Get the task executor.
-	 * 
-	 * @return ITaskExecuter
-	 * @deprecated use {@link #getScheduledExecutor()}
-	 */
-	@Deprecated
-	public ITaskExecuter getThreadPool();
 
 	/**
 	 * Get the scheduled executor.

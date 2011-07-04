@@ -57,6 +57,7 @@ import com.servoy.j2db.util.ILogLevel;
 import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.ITaskExecuter;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.ServoyScheduledExecutor;
 import com.servoy.j2db.util.toolbar.IToolbarPanel;
 
 /**
@@ -229,7 +230,7 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 	@Deprecated
 	public ITaskExecuter getThreadPool()
 	{
-		return application.getThreadPool();
+		return (ServoyScheduledExecutor)application.getScheduledExecutor();
 	}
 
 	public ScheduledExecutorService getExecutor()
