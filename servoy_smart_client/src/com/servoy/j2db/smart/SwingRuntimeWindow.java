@@ -812,6 +812,18 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 				toolbarPanel = null;
 			}
 		}
+		if (isVisible())
+		{
+			if (toolbarPanel != null)
+			{
+				toolbarPanel.revalidate();
+			}
+			else
+			{
+				window.getContentPane().invalidate();
+				window.getContentPane().validate();
+			}
+		}
 	}
 
 	public void storeBounds()

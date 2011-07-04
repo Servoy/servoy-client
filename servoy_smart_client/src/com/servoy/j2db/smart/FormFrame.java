@@ -198,12 +198,12 @@ public class FormFrame extends JFrame implements FormWindow
 
 	public boolean restoreBounds()
 	{
-		return Settings.getInstance().loadBounds(this);
+		return Settings.getInstance().loadBounds(this, application.getSolutionName());
 	}
 
 	public void storeBounds()
 	{
-		Settings.getInstance().saveBounds(this);
+		Settings.getInstance().saveBounds(this, application.getSolutionName());
 	}
 
 

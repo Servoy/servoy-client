@@ -136,7 +136,7 @@ public class JSWindow implements IConstantsObject
 	}
 
 	/**
-	 * Shows the given form in this window.
+	 * Shows the given form(form name, form object or JSForm) in this window.
 	 * 
 	 * @sample
 	 * win.show(forms.myForm);
@@ -169,12 +169,15 @@ public class JSWindow implements IConstantsObject
 	}
 
 	/**
-	 * Set whether or not this window can be resized by the user.
-	 * 
-	 * @param resizable true or false.
+	 * Gets/Sets whether or not this window can be resized by the user (default true).
 	 * 
 	 * @sampleas js_isVisible()
 	 */
+	public boolean js_getResizable()
+	{
+		return impl.getResizable();
+	}
+
 	public void js_setResizable(boolean resizable)
 	{
 		impl.setResizable(resizable);
@@ -228,17 +231,13 @@ public class JSWindow implements IConstantsObject
 		return impl.getHeight();
 	}
 
-	/**
-	 * Set the title text of this window.
-	 * @param title the title text.
-	 */
 	public void js_setTitle(String title)
 	{
 		impl.setTitle(title);
 	}
 
 	/**
-	 * Returns the title text.
+	 * Gets/Sets the title text.
 	 * 
 	 * @sample
 	 * var win1 = application.createWindow("Window 1", JSWindow.WINDOW, null);
@@ -246,7 +245,6 @@ public class JSWindow implements IConstantsObject
 	 * win1.title = "Window 1";
 	 * controller.show(win1);
 	 * 
-	 * @return the title text.
 	 */
 	public String js_getTitle()
 	{
@@ -386,7 +384,7 @@ public class JSWindow implements IConstantsObject
 	 * var someWindow = application.getWindow("someWindowName");
 	 * if (someWindow.isVisible() == false) { 
 	 * 	controller.show(someWindow);
-	 * 	someWindow.setResizable(false);
+	 * 	someWindow.resizable = false;
 	 * }
 	 * 
 	 * @return true if the window is visible, false otherwise.

@@ -1980,9 +1980,11 @@ public class JSApplication implements IReturnedTypesProvider
 	 * 
 	 * @sample
 	 * // create and show a window, with specified title, initial location and size
+	 * // type of the window can be one of JSWindow.DIALOG, JSWindow.MODAL_DIALOG, JSWindow.WINDOW
+	 * // If parentWindow is not specified, the current window will be used as parent; parentWindow parameter is only used by dialogs
 	 * var win = application.createWindow("windowName", JSWindow.WINDOW);
 	 * win.setInitialBounds(10, 10, 300, 300);
-	 * win.setTitle("This is a window");
+	 * win.title = "This is a window";
 	 * controller.show(win);
 	 * // create and show a non-modal dialog with default initial bounds/title
 	 * var nmd = application.createWindow("nonModalDialogName", JSWindow.DIALOG);
@@ -1990,22 +1992,36 @@ public class JSApplication implements IReturnedTypesProvider
 	 * 
 	 * @param windowName the name of the window.
 	 * @param type the type of the window. Can be one of JSWindow.DIALOG, JSWindow.MODAL_DIALOG, JSWindow.WINDOW.
-	 * @param parentWindow optional the parent JSWindow object. If it is not specified, the current window will be used as parent. This parameter is only used by dialogs.
 	 * @return the newly created window.
 	 */
-	public JSWindow js_createWindow(Object[] args)
+	public JSWindow js_createWindow(String windowName, int type)
 	{
-		if (args != null && (args.length == 2 || (args.length == 3 && (args[2] instanceof JSWindow || args[2] == null))) && args[0] instanceof String &&
-			args[1] instanceof Number)
-		{
-			JSWindow parent = null;
-			if (args.length == 3) parent = (JSWindow)args[2];
-			return application.getRuntimeWindowManager().createWindow(replaceFailingCharacters((String)args[0]), ((Number)args[1]).intValue(), parent).getJSWindow();
-		}
-		else
-		{
-			throw new IllegalArgumentException("application.createWindow() should be called with a string argument");
-		}
+		return application.getRuntimeWindowManager().createWindow(replaceFailingCharacters(windowName), type, null).getJSWindow();
+	}
+
+	/**
+	 * Creates a new window that can be used for displaying forms. Initially the window is not visible.
+	 * If there is already a window with the given name, it will be closed and destroyed prior to creating the new window.
+	 * Use the form controller show() and showRecords() methods in order to show a form in this window.
+	 * 
+	 * @sample
+	 * // create and show a window, with specified title, initial location and size
+	 * var win = application.createWindow("windowName", JSWindow.WINDOW);
+	 * win.setInitialBounds(10, 10, 300, 300);
+	 * win.title = "This is a window";
+	 * controller.show(win);
+	 * // create and show a non-modal dialog with default initial bounds/title
+	 * var nmd = application.createWindow("nonModalDialogName", JSWindow.DIALOG);
+	 * controller.showRecords(15, nmd); // 15 is a single-number pk in this case
+	 * 
+	 * @param windowName the name of the window.
+	 * @param type the type of the window. Can be one of JSWindow.DIALOG, JSWindow.MODAL_DIALOG, JSWindow.WINDOW.
+	 * @param parentWindow the parent JSWindow object. If it is not specified, the current window will be used as parent. This parameter is only used by dialogs.
+	 * @return the newly created window.
+	 */
+	public JSWindow js_createWindow(String windowName, int type, JSWindow parentWindow)
+	{
+		return application.getRuntimeWindowManager().createWindow(replaceFailingCharacters(windowName), type, parentWindow).getJSWindow();
 	}
 
 	/**
@@ -2013,7 +2029,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 * 
 	 * @sample
 	 * // close and dispose window resources
-	 * win = application.getWindow("someWindowName");
+	 * var win = application.getWindow("someWindowName");
 	 * if (win != null) {
 	 * 	win.destroy();
 	 * }
@@ -2266,12 +2282,12 @@ public class JSApplication implements IReturnedTypesProvider
 	 * @sample
 	 * var win = application.createWindow("aWindowName", JSWindow.WINDOW, null);
 	 * win.setInitialBounds(10, 10, 300, 300);
-	 * win.setTitle("This is a window");
+	 * win.title = "This is a window";
 	 * controller.show(win);
 	 * 
 	 * var win2 = application.createWindow("anotherWindowName", JSWindow.WINDOW, null);
 	 * win2.setInitialBounds(100, 100, 300, 300);
-	 * win2.setTitle("This is another window");
+	 * win2.title = "This is another window";
 	 * controller.show(win2);
 	 * 
 	 * var qdialog = plugins.dialogs.showQuestionDialog("QuestionDialog","Do you want to close the windows?","Yes","No");

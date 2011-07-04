@@ -87,6 +87,11 @@ public abstract class RuntimeWindow implements IRuntimeWindow
 		this.resizable = resizable;
 	}
 
+	public boolean getResizable()
+	{
+		return resizable;
+	}
+
 	public abstract void setLocation(int x, int y);
 
 	public abstract int getX();

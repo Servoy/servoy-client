@@ -402,11 +402,11 @@ public class Settings extends SortedProperties
 	/**
 	 * Load the bounds from a certain component
 	 */
-	public synchronized boolean loadBounds(Component component)
+	public synchronized boolean loadBounds(Component component, String solutionName)
 	{
 		if (component == null || component.getName() == null) return false;
 
-		String bounds = getProperty("rect_" + component.getName() + "_bounds"); //$NON-NLS-1$ //$NON-NLS-2$
+		String bounds = getProperty("rect_" + (solutionName != null ? solutionName + "_" : "") + component.getName() + "_bounds"); //$NON-NLS-1$ //$NON-NLS-2$
 		if (bounds != null)
 		{
 			Rectangle r = PersistHelper.createRectangle(bounds);
@@ -453,9 +453,17 @@ public class Settings extends SortedProperties
 	}
 
 	/**
+	 * Load the bounds from a certain component
+	 */
+	public synchronized boolean loadBounds(Component component)
+	{
+		return loadBounds(component, null);
+	}
+
+	/**
 	 * Save the bounds from a certain component
 	 */
-	public synchronized void saveBounds(Component component)
+	public synchronized void saveBounds(Component component, String solutionName)
 	{
 		if (component == null || component.getName() == null) return;
 		if (component instanceof JFrame)
@@ -472,7 +480,12 @@ public class Settings extends SortedProperties
 		}
 		Point l = component.getLocation();
 		Debug.trace("location of " + component.getName() + " " + l); //$NON-NLS-1$ //$NON-NLS-2$
-		put("rect_" + component.getName() + "_bounds", PersistHelper.createRectangleString(component.getBounds())); //$NON-NLS-1$ //$NON-NLS-2$
+		put("rect_" + (solutionName != null ? solutionName + "_" : "") + component.getName() + "_bounds", PersistHelper.createRectangleString(component.getBounds())); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	public synchronized void saveBounds(Component component)
+	{
+		saveBounds(component, null);
 	}
 
 	public synchronized void deleteAllBounds()
