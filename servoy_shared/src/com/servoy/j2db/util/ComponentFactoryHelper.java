@@ -399,7 +399,7 @@ public class ComponentFactoryHelper
 								}
 								else
 								{
-									style.setProperty("border-style", "grooved"); //$NON-NLS-1$ //$NON-NLS-2$
+									style.setProperty("border-style", "groove"); //$NON-NLS-1$ //$NON-NLS-2$
 								}
 							}
 							else
@@ -422,7 +422,7 @@ public class ComponentFactoryHelper
 								}
 								else
 								{
-									style.setProperty("border-style", "grooved"); //$NON-NLS-1$ //$NON-NLS-2$
+									style.setProperty("border-style", "ridge"); //$NON-NLS-1$ //$NON-NLS-2$
 								}
 							}
 							return null;//TODO waht are the insets?
@@ -443,7 +443,7 @@ public class ComponentFactoryHelper
 					}
 					else if (type.equals(TITLED_BORDER))
 					{
-						style.setProperty("border-style", "grooved"); //$NON-NLS-1$ //$NON-NLS-2$
+						style.setProperty("border-style", "groove"); //$NON-NLS-1$ //$NON-NLS-2$
 						return null;//TODO waht are the insets?
 					}
 					else if (type.equals(MATTE_BORDER))
@@ -505,9 +505,13 @@ public class ComponentFactoryHelper
 							//ignore rounded
 							tk.nextToken();
 						}
-						if (tk.hasMoreTokens() && tk.nextToken().trim().length() != 0)
+						if (tk.hasMoreTokens())
 						{
-							style.setProperty("border-style", "dashed"); //$NON-NLS-1$ //$NON-NLS-2$
+							String dashPattern = tk.nextToken().trim();
+							if (dashPattern.length() > 0)
+							{
+								style.setProperty("border-style", dashPattern.equals("1.0;1.0") ? "dotted" : "dashed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+							}
 						}
 						return new Insets(Math.round(top), Math.round(left), Math.round(bottom), Math.round(right));
 					}

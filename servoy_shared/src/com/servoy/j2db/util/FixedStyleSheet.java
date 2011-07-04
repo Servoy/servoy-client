@@ -27,12 +27,15 @@ import javax.swing.BorderFactory;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.html.CSS;
 import javax.swing.text.html.CSS.Attribute;
 import javax.swing.text.html.StyleSheet;
 
+import com.servoy.j2db.util.gui.CustomBevelBorder;
+import com.servoy.j2db.util.gui.CustomEtchedBorder;
 import com.servoy.j2db.util.gui.SpecialMatteBorder;
 
 /**
@@ -46,11 +49,13 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 	private static final String BORDER_STYLE_DASHED = "dashed"; //$NON-NLS-1$
 	private static final String BORDER_STYLE_DOTTED = "dotted"; //$NON-NLS-1$
 	private static final String BORDER_STYLE_GROOVE = "groove"; //$NON-NLS-1$
+	private static final String BORDER_STYLE_RIDGE = "ridge"; //$NON-NLS-1$
 	private static final String BORDER_STYLE_INSET = "inset"; //$NON-NLS-1$
 	private static final String BORDER_STYLE_NONE = "none"; //$NON-NLS-1$
 	private static final String BORDER_STYLE_OUTSET = "outset"; //$NON-NLS-1$
 	private static final String BORDER_STYLE_SOLID = "solid"; //$NON-NLS-1$
-	private static final String[] BORDER_STYLES = new String[] { BORDER_STYLE_DASHED, BORDER_STYLE_DOTTED, BORDER_STYLE_GROOVE, BORDER_STYLE_INSET, BORDER_STYLE_NONE, BORDER_STYLE_OUTSET, BORDER_STYLE_SOLID };
+	private static final String BORDER_STYLE_DOUBLE = "double"; //$NON-NLS-1$
+	private static final String[] BORDER_STYLES = new String[] { BORDER_STYLE_DASHED, BORDER_STYLE_DOTTED, BORDER_STYLE_GROOVE, BORDER_STYLE_RIDGE, BORDER_STYLE_INSET, BORDER_STYLE_NONE, BORDER_STYLE_OUTSET, BORDER_STYLE_SOLID, BORDER_STYLE_DOUBLE };
 
 	public FixedStyleSheet()
 	{
@@ -155,34 +160,73 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 			{
 				int style = BevelBorder.LOWERED;
 				if (bstyle.equals(BORDER_STYLE_OUTSET)) style = BevelBorder.RAISED;
+
+				top = makeSizeSave(top);
+				right = makeSizeSave(right);
+				bottom = makeSizeSave(bottom);
+				left = makeSizeSave(left);
+				Insets customBorderInsets = new Insets((int)top, (int)left, (int)bottom, (int)right);
 				if (colors != null && colors.length > 0)
 				{
 					if (colors.length == 1)
 					{
 						// this tries to do the same thing as the web does..
-						b = BorderFactory.createBevelBorder(style, colors[0].brighter().brighter(), colors[0].darker().darker());
+						b = new CustomBevelBorder(style, colors[0].brighter().brighter(), colors[0].darker().darker(), customBorderInsets);
 					}
 					if (colors.length == 2)
 					{
-						b = BorderFactory.createBevelBorder(style, colors[0], colors[1]);
+						b = new CustomBevelBorder(style, colors[0], colors[1], customBorderInsets);
 					}
 					else if (colors.length > 3)
 					{
-						b = BorderFactory.createBevelBorder(style, colors[0], colors[1], colors[2], colors[3]);
+						b = new CustomBevelBorder(style, colors[0], colors[1], colors[2], colors[3], customBorderInsets);
 					}
 				}
 				else
 				{
-					b = BorderFactory.createBevelBorder(style);
+					b = new CustomBevelBorder(style, customBorderInsets);
 				}
 			}
 			else if (bstyle.equals(BORDER_STYLE_NONE))
 			{
 				b = BorderFactory.createEmptyBorder();
 			}
-			else if (bstyle.equals(BORDER_STYLE_GROOVE))
+			else if (bstyle.equals(BORDER_STYLE_DOUBLE))
 			{
-				b = BorderFactory.createEtchedBorder();
+				top = makeSizeSave(top);
+				right = makeSizeSave(right);
+				bottom = makeSizeSave(bottom);
+				left = makeSizeSave(left);
+
+				b = BorderFactory.createEmptyBorder((int)top, (int)left, (int)bottom, (int)right);
+			}
+			else if (bstyle.equals(BORDER_STYLE_GROOVE) || bstyle.equals(BORDER_STYLE_RIDGE))
+			{
+				int style = EtchedBorder.LOWERED;
+				if (bstyle.equals(BORDER_STYLE_RIDGE)) style = EtchedBorder.RAISED;
+
+				top = makeSizeSave(top);
+				right = makeSizeSave(right);
+				bottom = makeSizeSave(bottom);
+				left = makeSizeSave(left);
+				Insets customBorderInsets = new Insets((int)top, (int)left, (int)bottom, (int)right);
+
+				if (colors != null && colors.length > 0)
+				{
+					if (colors.length == 1)
+					{
+						// this tries to do the same thing as the web does..
+						b = new CustomEtchedBorder(style, colors[0].brighter().brighter(), colors[0].darker().darker(), customBorderInsets);
+					}
+					if (colors.length == 2)
+					{
+						b = new CustomEtchedBorder(style, colors[0], colors[1], customBorderInsets);
+					}
+				}
+				else
+				{
+					b = new CustomEtchedBorder(style, customBorderInsets);
+				}
 			}
 			else if (bstyle.equals(BORDER_STYLE_SOLID) || bstyle.equals(BORDER_STYLE_DOTTED) || bstyle.equals(BORDER_STYLE_DASHED))
 			{

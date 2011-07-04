@@ -36,6 +36,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.gui.ISupportCustomBorderInsets;
 
 /**
  * This class records the changes for wicket components/beans in ajax mode.
@@ -287,7 +288,19 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 			{
 				Insets marginInside = ((CompoundBorder)border).getInsideBorder().getBorderInsets(null);
 				borderMargin = TemplateGenerator.sumInsets(borderMargin, marginInside);
-				insets = ((CompoundBorder)border).getOutsideBorder().getBorderInsets(null);
+				Border ob = ((CompoundBorder)border).getOutsideBorder();
+				if (ob instanceof ISupportCustomBorderInsets)
+				{
+					insets = ((ISupportCustomBorderInsets)ob).getCustomBorderInsets();
+				}
+				else
+				{
+					insets = ob.getBorderInsets(null);
+				}
+			}
+			else if (border instanceof ISupportCustomBorderInsets)
+			{
+				insets = ((ISupportCustomBorderInsets)border).getCustomBorderInsets();
 			}
 			else
 			{
