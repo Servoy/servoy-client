@@ -47,6 +47,7 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	public static final int WEB_CLIENT = ClientInfo.WEB_CLIENT;
 	public static final int RUNTIME = ClientInfo.RUNTIME;
 	public static final int OFFLINE = ClientInfo.OFFLINE;
+	public static final int MOBILE = ClientInfo.MOBILE;
 	public static final int TYPES_COUNT = ClientInfo.TYPES_COUNT;
 
 	// UI properties defined/used by Servoy

@@ -46,7 +46,8 @@ public final class ClientInfo implements Serializable
 	public static final int WEB_CLIENT = 5;
 	public static final int RUNTIME = 6;
 	public static final int OFFLINE = 7;
-	public static final int TYPES_COUNT = 8;
+	public static final int MOBILE = 8;
+	public static final int TYPES_COUNT = 9;
 
 	private String clientId;
 	private String hostIdentifier;
