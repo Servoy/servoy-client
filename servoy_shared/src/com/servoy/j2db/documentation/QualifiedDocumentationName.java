@@ -185,13 +185,13 @@ public class QualifiedDocumentationName implements Comparable<QualifiedDocumenta
 	public Element toXML(String elementName)
 	{
 		Element root = DocumentHelper.createElement(elementName);
-		if (className != null) root.addAttribute(ATTR_OBJECT, className);
 		if (memberName != null)
 		{
 			root.addAttribute(ATTR_MEMBER, memberName);
 			String argsAsString = argumentsArray2String(argumentsTypes);
 //			if (argsAsString != null) root.addAttribute(ATTR_ARGUMENTSTYPES, argsAsString);
 		}
+		if (className != null) root.addAttribute(ATTR_OBJECT, className);
 		return root;
 	}
 
