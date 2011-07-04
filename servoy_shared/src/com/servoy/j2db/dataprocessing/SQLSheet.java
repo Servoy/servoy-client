@@ -81,13 +81,13 @@ public class SQLSheet
 	private final Map<String, SQLDescription> relatedForeignSQLAccess;
 
 	private Map<String, Integer> allCalculationsTypes; //dataproviderID -> type
-	private final IServiceProvider app;
+	private final IServiceProvider application;
 
 	public SQLSheet(IServiceProvider app, String connectionName, Table table)//for root
 	{
 		this.table = table;
 		this.connectionName = connectionName;
-		this.app = app;
+		this.application = app;
 		sql = new SafeArrayList<SQLDescription>();
 		nonGlobalRelatedSQLSheets = new ConcurrentHashMap<Relation, SQLSheet>();
 		relatedForeignSQLAccess = new ConcurrentHashMap<String, SQLDescription>();
@@ -186,7 +186,7 @@ public class SQLSheet
 		return table;
 	}
 
-	public Object[] getDuplicateRecordData(IServiceProvider application, Row toDuplicateRow)
+	public Object[] getDuplicateRecordData(IServiceProvider app, Row toDuplicateRow)
 	{
 		Object[] toDuplicate = toDuplicateRow.getRawColumnData();
 		SQLDescription desc = getSQLDescription(SELECT);
@@ -218,11 +218,11 @@ public class SQLSheet
 					}
 					else if (ci.hasSequence())
 					{
-						array[i] = c.getNewRecordValue(application);
+						array[i] = c.getNewRecordValue(app);
 					}
 					if (ci.hasSystemValue())
 					{
-						array[i] = c.getNewRecordValue(application);
+						array[i] = c.getNewRecordValue(app);
 					}
 				}
 			}
@@ -339,10 +339,10 @@ public class SQLSheet
 						Object obj = s.getValue(lookupDataProviderID);
 						if (lookupDataProviderID != null && lookupDataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX) && !s.has(lookupDataProviderID))
 						{
-							ScriptMethod globalScriptMethod = app.getFlattenedSolution().getScriptMethod(lookupDataProviderID);
+							ScriptMethod globalScriptMethod = application.getFlattenedSolution().getScriptMethod(lookupDataProviderID);
 							if (globalScriptMethod != null)
 							{
-								IExecutingEnviroment scriptEngine = app.getScriptEngine();
+								IExecutingEnviroment scriptEngine = application.getScriptEngine();
 								GlobalScope gscope = scriptEngine.getSolutionScope().getGlobalScope();
 								Object function = gscope.get(globalScriptMethod.getName());
 								if (function instanceof Function)
@@ -483,11 +483,14 @@ public class SQLSheet
 		}
 		if (defaultSort == null)
 		{
-			List<SortColumn> ds = new ArrayList<SortColumn>();
-			List< ? > l = table.getRowIdentColumns();
-			for (int i = 0; i < l.size(); i++)
+			List<SortColumn> ds = new ArrayList<SortColumn>(table.getRowIdentColumns().size());
+			// get key columns in db defined order
+			for (Column column : table.getColumns())
 			{
-				ds.add(new SortColumn((Column)l.get(i)));
+				if (table.getRowIdentColumns().contains(column))
+				{
+					ds.add(new SortColumn(column));
+				}
 			}
 			defaultSort = ds;
 		}
