@@ -538,7 +538,7 @@ public class SessionClient extends ClientState implements ISessionClient
 
 	//overridden ssl-rmi seems not to work localy
 	@Override
-	protected boolean startApplicationServer()
+	protected boolean startApplicationServerConnection()
 	{
 		try
 		{

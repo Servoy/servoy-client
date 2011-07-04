@@ -301,7 +301,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	protected boolean applicationServerInit() throws Exception
 	{
-		boolean b = startApplicationServer();
+		boolean b = startApplicationServerConnection();
 		bindUserClient();
 		registerClient(userClient);
 
@@ -352,7 +352,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	/**
 	 * @return success
 	 */
-	protected abstract boolean startApplicationServer();
+	protected abstract boolean startApplicationServerConnection();
 
 	protected abstract void bindUserClient();
 

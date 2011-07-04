@@ -1753,7 +1753,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	}
 
 	@Override
-	protected boolean startApplicationServer()
+	protected boolean startApplicationServerConnection()
 	{
 		try
 		{
