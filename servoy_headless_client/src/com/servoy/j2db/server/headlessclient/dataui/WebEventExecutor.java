@@ -542,6 +542,8 @@ public class WebEventExecutor extends BaseEventExecutor
 		{
 			final MainPage mainPage = ((MainPage)page);
 
+			WebClientSession.get().getWebClient().executeEvents();
+
 			// PageContributor installs focus/blur event handlers for changed/new components
 			target.addListener(mainPage.getPageContributor());
 
