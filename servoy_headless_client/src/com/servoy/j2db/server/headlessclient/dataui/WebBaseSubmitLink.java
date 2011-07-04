@@ -108,6 +108,10 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 	{
 		super(id);
 		this.application = application;
+
+		halign = ISupportTextSetup.LEFT; // default horizontal align
+		valign = ISupportTextSetup.CENTER; // default vertical align
+
 		setEscapeModelStrings(false);
 		add(StyleAttributeModifierModel.INSTANCE);
 		add(TooltipAttributeModifier.INSTANCE);

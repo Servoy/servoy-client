@@ -106,6 +106,9 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		this.scriptable = scriptable;
 		this.application = application;
 
+		halign = ISupportTextSetup.CENTER; // default horizontal align
+		valign = ISupportTextSetup.CENTER; // default vertical align
+
 		//we might have html on a button
 		setEscapeModelStrings(false);
 

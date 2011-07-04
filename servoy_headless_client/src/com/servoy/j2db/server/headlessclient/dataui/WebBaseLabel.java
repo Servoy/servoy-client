@@ -114,6 +114,10 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 		super(id);
 		this.application = application;
 		this.scriptable = scriptable;
+
+		halign = ISupportTextSetup.LEFT; // default horizontal align
+		valign = ISupportTextSetup.CENTER; // default vertical align
+
 		((ChangesRecorder)scriptable.getChangesRecorder()).setDefaultBorderAndPadding(null, TemplateGenerator.DEFAULT_LABEL_PADDING);
 		setEscapeModelStrings(false);
 		setOutputMarkupPlaceholderTag(true);
@@ -121,7 +125,6 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 		add(TooltipAttributeModifier.INSTANCE);
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		eventExecutor = new WebEventExecutor(this, useAJAX);
-		halign = ISupportTextSetup.LEFT; // default horizontal align
 	}
 
 	/**
