@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 import java.util.ArrayList;
@@ -117,6 +117,7 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 
 	public void setComment(String arg)
 	{
+		checkForChange(comment, arg);
 		this.comment = arg;
 	}
 
