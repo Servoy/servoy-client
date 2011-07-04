@@ -39,6 +39,7 @@ import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.form.SubmitLink;
+import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.convert.IConverter;
 
@@ -141,6 +142,22 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 	public final AbstractRuntimeBaseComponent< ? extends ILabel> getScriptObject()
 	{
 		return scriptable;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.wicket.Component#renderHead(org.apache.wicket.markup.html.internal.HtmlHeaderContainer)
+	 */
+	@SuppressWarnings("nls")
+	@Override
+	public void renderHead(HtmlHeaderContainer container)
+	{
+		super.renderHead(container);
+		if (valign == ISupportTextSetup.CENTER)
+		{
+			container.getHeaderResponse().renderOnDomReadyJavascript("Servoy.Utils.setLabelChildHeight('" + getMarkupId() + "')");
+		}
 	}
 
 	/**
