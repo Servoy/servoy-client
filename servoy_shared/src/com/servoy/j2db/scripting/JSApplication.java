@@ -1198,11 +1198,22 @@ public class JSApplication implements IReturnedTypesProvider
 	 * @param text New status text
 	 * @param tip optional Status tooltip text 
 	 */
-	public void js_setStatusText(Object[] args)
+	public void js_setStatusText(String text, String tooltip)
 	{
-		String txt = ((args.length >= 1 && args[0] != null) ? args[0].toString() : ""); //$NON-NLS-1$
-		String tip = ((args.length >= 2 && args[1] != null) ? args[1].toString() : null);
-		application.setStatusText(txt, tip);
+		application.setStatusText(text != null ? text : "", tooltip);//$NON-NLS-1$
+	}
+
+	/**
+	 * Set the status area value.
+	 *
+	 * @sample application.setStatusText('Your status text');
+	 *
+	 * @param text New status text
+	 * @param tip optional Status tooltip text 
+	 */
+	public void js_setStatusText(String text)
+	{
+		js_setStatusText(text, null);
 	}
 
 	/**
@@ -1967,12 +1978,6 @@ public class JSApplication implements IReturnedTypesProvider
 		return fp;
 	}
 
-	// For future implementation of case 286968 change
-//	 * // create and show a modal dialog with a title and an exact size/location
-//	 * var md = application.createWindow("modalDialogName", JSWindow.MODAL_DIALOG);
-//	 * md.setSize(200, 150);
-//	 * md.setLocation(400, 300);
-//	 * controller.show(md);
 	/**
 	 * Creates a new window that can be used for displaying forms. Initially the window is not visible.
 	 * If there is already a window with the given name, it will be closed and destroyed prior to creating the new window.
@@ -2037,25 +2042,36 @@ public class JSApplication implements IReturnedTypesProvider
 	 * @param name optional the name of the window. If not specified, the main application JSWindow will be returned.
 	 * @return the JSWindow with the specified name, or null if no such window exists.
 	 */
-	public JSWindow js_getWindow(Object[] args)
+	public JSWindow js_getWindow(String name)
 	{
-		if (args != null && args.length > 0)
+		if (name != null)
 		{
-			if (args.length == 1 && args[0] instanceof String)
-			{
-				RuntimeWindow jw = application.getRuntimeWindowManager().getWindow(replaceFailingCharacters((String)args[0]));
-				return jw != null ? jw.getJSWindow() : null;
-			}
-			else
-			{
-				throw new IllegalArgumentException("application.getWindow() should either be called with a string argument or without any arguments");
-			}
+			RuntimeWindow jw = application.getRuntimeWindowManager().getWindow(replaceFailingCharacters(name));
+			return jw != null ? jw.getJSWindow() : null;
 		}
 		else
 		{
 			// we must return the JSWindow wrapper for main application frame
 			return application.getRuntimeWindowManager().getWindow(null).getJSWindow();
 		}
+	}
+
+	/**
+	 * Get a window by window name. When not supplying a name, the main application window is grabbed.
+	 * 
+	 * @sample
+	 * // close and dispose window resources
+	 * var win = application.getWindow("someWindowName");
+	 * if (win != null) {
+	 * 	win.destroy();
+	 * }
+	 * 
+	 * @param name optional the name of the window. If not specified, the main application JSWindow will be returned.
+	 * @return the JSWindow with the specified name, or null if no such window exists.
+	 */
+	public JSWindow js_getWindow()
+	{
+		return js_getWindow(null);
 	}
 
 	/**
