@@ -89,13 +89,13 @@ import com.servoy.j2db.scripting.IScriptSupport;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.ITwoNativeJavaObject;
 import com.servoy.j2db.scripting.InstanceJavaMembers;
-import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.scripting.SelectedRecordScope;
 import com.servoy.j2db.scripting.SolutionScope;
+import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
@@ -930,10 +930,10 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * //Set the current form out of designmode (to normal browse mode)
 		 * %%prefix%%controller.setDesignMode(false);
 		 *
-		 * @param ondrag optional function onDrag method reference 
-		 * @param ondrop optional function onDrop method reference 
-		 * @param onselect optional function onSelect method reference
-		 * @param onresize optional function onResize method reference
+		 * @param ondrag optional org.mozilla.javascript.Function onDrag method reference 
+		 * @param ondrop optional org.mozilla.javascript.Function onDrop method reference 
+		 * @param onselect optional org.mozilla.javascript.Function onSelect method reference
+		 * @param onresize optional org.mozilla.javascript.Function onResize method reference
 		 */
 		public void jsFunction_setDesignMode(Object[] args)
 		{

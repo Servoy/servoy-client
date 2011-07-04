@@ -1062,7 +1062,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 	 *	return o;
 	 * }  	
 	 *  
-	 * @param rowComparator function used to compare two rows
+	 * @param rowComparator the function used to compare two rows
 	 * 
 	 */
 	public void js_sort(final Function rowComparator)
