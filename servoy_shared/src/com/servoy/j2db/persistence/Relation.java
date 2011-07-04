@@ -65,9 +65,9 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	{
 		isChanged = true;
 		IDataProvider[] dataproviders = getPrimaryDataProviders(dataProviderHandler);
-		int[] operators = getOperators();
+		int[] ops = getOperators();
 		Column[] columns = getForeignColumns();
-		createNewRelationItems(dataproviders, operators, columns);
+		createNewRelationItems(dataproviders, ops, columns);
 
 	}
 
@@ -216,9 +216,9 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	public void updateName(IValidateName validator, String arg) throws RepositoryException
 	{
-		if (arg != null) arg = Utils.toEnglishLocaleLowerCase(arg);
-		validator.checkName(arg, getID(), new ValidatorSearchContext(IRepository.RELATIONS), true);
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
+		String name = Utils.toEnglishLocaleLowerCase(arg);
+		validator.checkName(name, getID(), new ValidatorSearchContext(IRepository.RELATIONS), true);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, name);
 		getRootObject().getChangeHandler().fireIPersistChanged(this);
 	}
 
@@ -229,8 +229,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	 */
 	public void setName(String arg)
 	{
-		if (arg != null) arg = arg.toLowerCase();
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, Utils.toEnglishLocaleLowerCase(arg));
 	}
 
 	/**
@@ -765,13 +764,13 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 				}
 				else
 				{
-					if (exception == null) exception = new RepositoryException(Messages.getString("servoy.relation.error.dataproviderDoesntExist",
+					if (exception == null) exception = new RepositoryException(Messages.getString("servoy.relation.error.dataproviderDoesntExist", //$NON-NLS-1$
 						new Object[] { ri.getPrimaryDataProviderID(), ri.getForeignColumnName(), getName() }));
 				}
 			}
 			else
 			{
-				if (exception == null) exception = new RepositoryException(Messages.getString("servoy.relation.error.tableDoesntExist",
+				if (exception == null) exception = new RepositoryException(Messages.getString("servoy.relation.error.tableDoesntExist", //$NON-NLS-1$
 					new Object[] { getPrimaryTableName(), getForeignTableName(), getName() }));
 			}
 		}
@@ -918,7 +917,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 					continue; //allow number to integer mappings
 				}
 				if (foreignType == IColumnTypes.INTEGER && primary[i] instanceof AbstractBase &&
-					"Boolean".equals(((AbstractBase)primary[i]).getSerializableRuntimeProperty(IScriptProvider.TYPE)))
+					"Boolean".equals(((AbstractBase)primary[i]).getSerializableRuntimeProperty(IScriptProvider.TYPE))) //$NON-NLS-1$
 				{
 					continue; //allow boolean var to number mappings
 				}
@@ -966,23 +965,23 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	public String toHTML()
 	{
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append("<html>Name(solution): <b>"); //$NON-NLS-1$
 		sb.append(getName());
 		sb.append(" ("); //$NON-NLS-1$
 		sb.append(getRootObject().getName());
-		sb.append(")");
+		sb.append(')');
 		if (isGlobal())
 		{
 			sb.append("</b><br>Global relation <b>"); //$NON-NLS-1$
 		}
 		sb.append("</b><br><br>From: <b>"); //$NON-NLS-1$
 		sb.append(getPrimaryServerName());
-		sb.append(" - ");
+		sb.append(" - "); //$NON-NLS-1$
 		sb.append(getPrimaryTableName());
 		sb.append("</b><br>To: <b>"); //$NON-NLS-1$
 		sb.append(getForeignServerName());
-		sb.append(" - ");
+		sb.append(" - "); //$NON-NLS-1$
 		sb.append(getForeignTableName());
 		sb.append("</b><br>"); //$NON-NLS-1$
 		sb.append("<br>"); //$NON-NLS-1$
