@@ -8,12 +8,15 @@
 		<exclude name="ISmartClientApplication.java" />
 		<exclude name="ISessionClient.java" />
 		<exclude name="IWebClientApplication.java" />
-
+		<exclude name="ClientState.java" />
+		<exclude name="ClientStub.java" />
+		<exclude name="DesignModeCallbacks.java" />
+		<exclude name="IDesignerCallback.java" />
+		<exclude name="RuntimeWindowManager.java" />
+		
 		<exclude name="Messages*.java" />
 		<exclude name="LAFManager.java" />
 		<exclude name="BeanManager.java" />
-		<exclude name="util/JarManager.java" />
-		<exclude name="util/Ad.java" />
 		
 		<exclude name="dataprocessing/SQLGenerator.java" />
 		<exclude name="server/shared/IApplicationServerMessagesLoader.java" />
@@ -21,11 +24,30 @@
 		<exclude name="headlessclient/ISessionBean.java" />
 		<exclude name="plugins/IServerAccess.java" />
 		
-		<exclude name="util/visitor/**" />
+		<exclude name="dnd/**" />
+		<exclude name="scripting/**" />
+		<exclude name="documentation/**" />
+		
+		<exclude name="util/JarManager.java" />
+		<exclude name="util/Ad.java" />
+		<exclude name="util/XML*" />
+		<exclude name="util/gui/**" />
 		<exclude name="util/toolbar/**" />
 		<exclude name="util/xmlxport/**" />
 		<exclude name="util/rmi/**" />
 		<exclude name="util/serialize/**" />
+		<exclude name="util/UIUtils.java" />
+		<exclude name="util/Settings.java" />
+		<exclude name="util/SortedProperties.java" />
+		<exclude name="util/OpenProperties.java" />
 		<exclude name="util/SlidingWindowAppender.java" />
+		<exclude name="util/Log4JHTMLTableLayout.java" />
+		<exclude name="util/TableSorter.java" />
+		<exclude name="util/SwingHelper.java" />
+		<exclude name="util/*JSON*" />
+		<exclude name="util/SecuritySupport.java" />
+		<exclude name="util/ImageLoader.java" />
+		<exclude name="util/EnablePanel.java" />
+		<exclude name="util/Debug.java" />
 	</source>
 </module>
