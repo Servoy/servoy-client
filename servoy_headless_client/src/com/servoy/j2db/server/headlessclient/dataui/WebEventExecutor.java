@@ -1007,11 +1007,12 @@ public class WebEventExecutor extends BaseEventExecutor
 		{
 			scriptable = (IScriptRenderMethods)display;
 		}
-		scriptable.js_setBgcolor(PersistHelper.createColorString(renderDefaultBgColor));
+
+		if (isUseDefaultBackground()) scriptable.js_setBgcolor(PersistHelper.createColorString(renderDefaultBgColor));
 		if (renderDefaultBorder != null) scriptable.js_setBorder(ComponentFactoryHelper.createBorderString(renderDefaultBorder));
 		scriptable.js_setEnabled(renderDefaultEnabled);
-		scriptable.js_setFgcolor(PersistHelper.createColorString(renderDefaultFgColor));
-		scriptable.js_setFont(PersistHelper.createFontString(renderDefaultFont));
+		if (isUseDefaultForeground()) scriptable.js_setFgcolor(PersistHelper.createColorString(renderDefaultFgColor));
+		if (isUseDefaultFont()) scriptable.js_setFont(PersistHelper.createFontString(renderDefaultFont));
 		scriptable.js_setToolTipText(renderDefaultTooltipText);
 		if (isUseDefaultTransparent()) scriptable.js_setTransparent(!renderDefaultOpaque);
 		scriptable.js_setVisible(renderDefaultVisible);

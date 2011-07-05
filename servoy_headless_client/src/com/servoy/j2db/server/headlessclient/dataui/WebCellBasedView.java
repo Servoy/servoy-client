@@ -135,6 +135,7 @@ import com.servoy.j2db.ui.IPortalComponent;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptReadOnlyMethods;
+import com.servoy.j2db.ui.IScriptTransparentMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportEventExecutor;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
@@ -480,6 +481,18 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			setUpItem(listItem, true);
 		}
 
+		private boolean isRecordSelected(IRecordInternal rec)
+		{
+			IFoundSetInternal parentFoundSet = rec.getParentFoundSet();
+			if (parentFoundSet instanceof FoundSet)
+			{
+				FoundSet fs = (FoundSet)parentFoundSet;
+				return Arrays.binarySearch(fs.getSelectedIndexes(), fs.getRecordIndex(rec)) >= 0;
+			}
+
+			return parentFoundSet.getRecordIndex(rec) == parentFoundSet.getSelectedIndex();
+		}
+
 		private void setUpItem(final ListItem<IRecordInternal> listItem, boolean createComponents)
 		{
 			if (!createComponents)
@@ -493,11 +506,13 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			}
 
 			final IRecordInternal rec = listItem.getModelObject();
-			Object color = WebCellBasedView.this.getListItemBgColor(listItem, false);
+			boolean selected = isRecordSelected(rec);
+
+			Object color = WebCellBasedView.this.getListItemBgColor(listItem, selected);
 			if (color instanceof Undefined) color = null;
-			Object fgColor = WebCellBasedView.this.getListItemFgColor(listItem, false);
+			Object fgColor = WebCellBasedView.this.getListItemFgColor(listItem, selected);
 			if (fgColor instanceof Undefined) fgColor = null;
-			Object styleFont = WebCellBasedView.this.getListItemFont(listItem, false);
+			Object styleFont = WebCellBasedView.this.getListItemFont(listItem, selected);
 			if (styleFont instanceof Undefined) styleFont = null;
 
 			if (color == null && fgColor == null && styleFont == null)
@@ -593,31 +608,14 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			if (compColor != null)
 			{
 				MarkupContainer cellContainer = comp.getParent();
+				String compColorStr = compColor.toString();
 				if (cellContainer instanceof CellContainer)
 				{
-					cellContainer.add(new StyleAppendingModifier(new Model<String>("background-color: " + compColor.toString()))); //$NON-NLS-1$
-				}
-				comp.add(new StyleAppendingModifier(new Model<String>("background-color: " + compColor.toString()))); //$NON-NLS-1$
-			}
-
-			if (fgColor != null)
-			{
-				comp.add(new StyleAppendingModifier(new Model<String>("color: " + fgColor.toString()))); //$NON-NLS-1$
-			}
-
-			if (compFont != null)
-			{
-				Pair<String, String> fontProps[] = PersistHelper.createFontCSSProperties(compFont.toString());
-				for (Pair<String, String> fontProp : fontProps)
-				{
-					if (fontProp != null)
-					{
-						comp.add(new StyleAppendingModifier(new Model<String>(
-							new StringBuilder(fontProp.getLeft()).append(": ").append(fontProp.getRight()).toString()))); //$NON-NLS-1$
-					}
+					cellContainer.add(new StyleAppendingModifier(new Model<String>("background-color: " + compColorStr))); //$NON-NLS-1$
 				}
 			}
 
+			WebCellBasedView.this.applyStyleOnComponent(comp, compColor, fgColor, compFont);
 
 			if (scriptable.js_isReadOnly() && validationEnabled && comp instanceof IScriptableProvider &&
 				((IScriptableProvider)comp).getScriptObject() instanceof IScriptReadOnlyMethods) // if in find mode, the field should not be readonly
@@ -678,7 +676,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		@Override
 		protected void onBeforeRender()
 		{
-			updateComponentsRenderState(null, Arrays.binarySearch(getSelectedIndexes(), getIndex()) >= 0);
+			updateComponentsRenderState(null, null, null, null, Arrays.binarySearch(getSelectedIndexes(), getIndex()) >= 0);
 			super.onBeforeRender();
 			Iterator< ? extends Component> it = iterator();
 			while (it.hasNext())
@@ -696,7 +694,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			}
 		}
 
-		public void updateComponentsRenderState(AjaxRequestTarget target, boolean isSelected)
+		public void updateComponentsRenderState(AjaxRequestTarget target, String bgColor, String fgColor, String compFont, boolean isSelected)
 		{
 			Iterator< ? extends Component> it = iterator();
 			while (it.hasNext())
@@ -705,14 +703,20 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				if (component.isVisibleInHierarchy())
 				{
 					Object c = component instanceof CellContainer ? ((CellContainer)component).iterator().next() : component;
-					if (updateComponentRenderState(c, isSelected) && target != null && c instanceof Component)
+					if (c instanceof Component)
 					{
 						Component innerComponent = (Component)c;
-						target.addComponent(innerComponent);
-						WebEventExecutor.generateDragAttach(innerComponent, target.getHeaderResponse());
-						if (!innerComponent.isVisible())
+						WebCellBasedView.this.applyStyleOnComponent(innerComponent, bgColor, fgColor, compFont);
+						boolean innerComponentChanged = innerComponent instanceof IProviderStylePropertyChanges &&
+							((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges().isChanged();
+						if ((updateComponentRenderState(c, isSelected) || innerComponentChanged) && target != null)
 						{
-							((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges().setRendered();
+							target.addComponent(innerComponent);
+							WebEventExecutor.generateDragAttach(innerComponent, target.getHeaderResponse());
+							if (!innerComponent.isVisible())
+							{
+								((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges().setRendered();
+							}
 						}
 					}
 				}
@@ -2021,6 +2025,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	{
 		super.onRender(markupStream);
 		getStylePropertyChanges().setRendered();
+		hasOnRender = hasOnRender();
 	}
 
 	@Override
@@ -2867,6 +2872,39 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		return color;
 	}
 
+	private void applyStyleOnComponent(Component comp, Object bgColor, Object fgColor, Object compFont)
+	{
+		if (bgColor != null)
+		{
+			if (comp instanceof ISupportOnRenderCallback) ((ISupportOnRenderCallback)comp).getRenderEventExecutor().setUseDefaultBackground(false);
+			if (comp instanceof IScriptableProvider)
+			{
+				IScriptable s = ((IScriptableProvider)comp).getScriptObject();
+				if (s instanceof IScriptBaseMethods) ((IScriptBaseMethods)s).js_setBgcolor(bgColor.toString());
+			}
+		}
+
+		if (fgColor != null)
+		{
+			if (comp instanceof ISupportOnRenderCallback) ((ISupportOnRenderCallback)comp).getRenderEventExecutor().setUseDefaultForeground(false);
+			if (comp instanceof IScriptableProvider)
+			{
+				IScriptable s = ((IScriptableProvider)comp).getScriptObject();
+				if (s instanceof IScriptBaseMethods) ((IScriptBaseMethods)s).js_setFgcolor(fgColor.toString());
+			}
+		}
+
+		if (compFont != null)
+		{
+			if (comp instanceof ISupportOnRenderCallback) ((ISupportOnRenderCallback)comp).getRenderEventExecutor().setUseDefaultFont(false);
+			if (comp instanceof IScriptableProvider)
+			{
+				IScriptable s = ((IScriptableProvider)comp).getScriptObject();
+				if (s instanceof IScriptTransparentMethods) ((IScriptTransparentMethods)s).js_setFont(compFont.toString());
+			}
+		}
+	}
+
 	public int onDrag(JSDNDEvent event)
 	{
 		int onDragID = 0;
@@ -3124,20 +3162,41 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	{
 		super.renderHead(container);
 		selectedIndexes = null;
-		String rowSelectionScript = getRowSelectionScript();
 		updateRowComponentsRenderState(null);
-		if (rowSelectionScript != null) container.getHeaderResponse().renderOnDomReadyJavascript(rowSelectionScript);
 		String columnResizeScript = getColumnResizeScript();
 		if (columnResizeScript != null) container.getHeaderResponse().renderOnDomReadyJavascript(columnResizeScript);
+	}
 
+	private boolean hasOnRender;
+
+	private boolean hasOnRender()
+	{
+		if (dataRendererOnRenderWrapper.getRenderEventExecutor().hasRenderCallback())
+		{
+			return true;
+		}
+		else
+		{
+			Iterator<Component> compIte = elementToColumnIdentifierComponent.values().iterator();
+			Component comp;
+			while (compIte.hasNext())
+			{
+				comp = compIte.next();
+				if (comp instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)comp).getRenderEventExecutor().hasRenderCallback())
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	public String getRowSelectionScript()
 	{
 		if (currentData == null) return null;
 		List<Integer> indexToUpdate;
-		if (!dataRendererOnRenderWrapper.getRenderEventExecutor().hasRenderCallback() && (bgColorScript != null || getRowSelectedStyle() != null) &&
-			(indexToUpdate = getIndexToUpdate()) != null)
+		if (!hasOnRender && (bgColorScript != null || getRowSelectedStyle() != null) && (indexToUpdate = getIndexToUpdate()) != null)
 		{
 			int firstRow = table.getCurrentPage() * table.getRowsPerPage();
 			int lastRow = firstRow + table.getViewSize() - 1;
@@ -3215,7 +3274,15 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					ListItem<IRecordInternal> selectedListItem = (ListItem<IRecordInternal>)table.get(Integer.toString(rowIdx));
 					if (selectedListItem instanceof WebCellBasedViewListItem)
 					{
-						((WebCellBasedViewListItem)selectedListItem).updateComponentsRenderState(target, Arrays.binarySearch(newSelectedIndexes, rowIdx) >= 0);
+						boolean isSelected = Arrays.binarySearch(newSelectedIndexes, rowIdx) >= 0;
+						Object color = WebCellBasedView.this.getListItemBgColor(selectedListItem, isSelected);
+						String sColor = (color == null || color instanceof Undefined) ? null : color.toString();
+						Object fgColor = WebCellBasedView.this.getListItemFgColor(selectedListItem, isSelected);
+						String sFgColor = (fgColor == null || fgColor instanceof Undefined) ? null : fgColor.toString();
+						Object styleFont = WebCellBasedView.this.getListItemFont(selectedListItem, isSelected);
+						String sStyleFont = (styleFont == null || styleFont instanceof Undefined) ? null : styleFont.toString();
+
+						((WebCellBasedViewListItem)selectedListItem).updateComponentsRenderState(target, sColor, sFgColor, sStyleFont, isSelected);
 					}
 				}
 			}
