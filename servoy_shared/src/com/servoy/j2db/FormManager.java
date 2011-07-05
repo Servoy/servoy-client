@@ -18,22 +18,13 @@ package com.servoy.j2db;
 
 
 import java.applet.Applet;
-import java.applet.AppletContext;
-import java.applet.AppletStub;
-import java.applet.AudioClip;
 import java.awt.Dimension;
 import java.awt.Event;
-import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.print.PrinterJob;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -71,7 +62,9 @@ import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SafeArrayList;
+import com.servoy.j2db.util.UIUtils;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.gui.AppletController;
 
 /**
  * This class keeps track of all the forms and handles the window menu
@@ -1496,191 +1489,13 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 	{
 		try
 		{
-			String resourceName = applet.getClass().getName().replace('.', '/').concat(".class"); //$NON-NLS-1$
-
-			URL objectUrl = applet.getClass().getClassLoader().getResource(resourceName);
-			URL codeBase = null;
-			URL docBase = null;
-
-			String s = objectUrl.toExternalForm();
-			if (s.endsWith(resourceName))
-			{
-				int ix = s.length() - resourceName.length();
-				codeBase = new URL(s.substring(0, ix));
-				docBase = codeBase;
-
-				ix = s.lastIndexOf('/');
-
-				if (ix >= 0)
-				{
-					docBase = new URL(s.substring(0, ix + 1));
-				}
-			}
-
-			// Setup a default context and stub.
-			appletContext.add(applet);
-
-			AppletStub stub = new Stub(applet, appletContext, codeBase, docBase);
-			applet.setStub(stub);
-
-			if (initialSize != null) applet.setSize(initialSize.width, initialSize.height);
-			else applet.setSize(100, 100);
-			applet.init();
-
-			((Stub)stub).active = true;
+			UIUtils.initializeApplet(appletContext, applet, initialSize);
 		}
 		catch (Throwable e)
 		{
 			//its not made active
 			Debug.error(e);
 			applet.destroy();//call to leave invalid
-		}
-	}
-
-	static class AppletController implements AppletContext
-	{
-		private final IApplication app;
-		private Map<String, Applet> applets = new HashMap<String, Applet>();
-
-		//		private Map imageCache = new Hashtable();
-
-		AppletController(IApplication app)
-		{
-			this.app = app;
-		}
-
-		private void add(Applet a)
-		{
-			applets.put(a.getName(), a);
-		}
-
-		public void clear()
-		{
-			applets = new HashMap<String, Applet>();
-			//			imageCache = new Hashtable();
-		}
-
-		public AudioClip getAudioClip(URL url)
-		{
-			// We don't currently support audio clips in the Beans.instantiate
-			// applet context
-			return null;
-		}
-
-		public synchronized Image getImage(URL url)
-		{
-			//			Object o = imageCache.get(url);
-			//			if (o != null) {
-			//				return (Image) o;
-			//			}
-			//			try {
-			//				o = url.getContent();
-			//				if (o == null) {
-			//					return null;
-			//				}
-			//				if (o instanceof Image) {
-			//					imageCache.put(url, o);
-			//					return (Image) o;
-			//				}
-			//				// Otherwise it must be an ImageProducer.
-			//				Image img = target.createImage((java.awt.image.ImageProducer) o);
-			//				imageCache.put(url, img);
-			//				return img;
-			//
-			//			} catch (Exception ex) {
-			return null;
-			//			}
-		}
-
-		public Applet getApplet(String name)
-		{
-			return applets.get(name);
-		}
-
-		public Enumeration<Applet> getApplets()
-		{
-			return Collections.enumeration(applets.values());
-		}
-
-		public void showDocument(URL url)
-		{
-			app.showURL(url.toString(), null, null, 0, true);
-		}
-
-		public void showDocument(URL url, String target)
-		{
-			app.showURL(url.toString(), null, null, 0, true);
-		}
-
-		public void showStatus(String status)
-		{
-			app.setStatusText(status, null);
-		}
-
-		public void setStream(String key, InputStream stream) throws IOException
-		{
-			// We do nothing.
-		}
-
-		public InputStream getStream(String key)
-		{
-			// We do nothing.
-			return null;
-		}
-
-		public Iterator<String> getStreamKeys()
-		{
-			// We do nothing.
-			return null;
-		}
-	}
-
-	static class Stub implements AppletStub
-	{
-		transient boolean active;
-		transient Applet target;
-		transient AppletContext context;
-		transient URL codeBase;
-		transient URL docBase;
-
-		Stub(Applet target, AppletContext context, URL codeBase, URL docBase)
-		{
-			this.target = target;
-			this.context = context;
-			this.codeBase = codeBase;
-			this.docBase = docBase;
-		}
-
-		public boolean isActive()
-		{
-			return active;
-		}
-
-		public URL getDocumentBase()
-		{
-			// use the root directory of the applet's class-loader
-			return docBase;
-		}
-
-		public URL getCodeBase()
-		{
-			// use the directory where we found the class or serialized object.
-			return codeBase;
-		}
-
-		public String getParameter(String name)
-		{
-			return null;
-		}
-
-		public AppletContext getAppletContext()
-		{
-			return context;
-		}
-
-		public void appletResize(int width, int height)
-		{
-			// we do nothing.
 		}
 	}
 

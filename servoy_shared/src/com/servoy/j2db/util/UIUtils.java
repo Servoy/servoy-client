@@ -16,17 +16,23 @@
  */
 package com.servoy.j2db.util;
 
+import java.applet.Applet;
+import java.applet.AppletContext;
+import java.applet.AppletStub;
+import java.awt.Dimension;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
 import java.awt.event.InputEvent;
+import java.net.URL;
 
 import javax.swing.JComponent;
 import javax.swing.UIManager;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IScriptBaseMethods;
+import com.servoy.j2db.util.gui.AppletController;
 
 public class UIUtils
 {
@@ -94,6 +100,96 @@ public class UIUtils
 	public static boolean isCommandKeyDown(InputEvent e)
 	{
 		return Utils.isAppleMacOS() ? e.isMetaDown() : e.isControlDown();
+	}
+
+	/**
+	 * @param appletContext
+	 * @param applet
+	 * @param initialSize
+	 */
+	public static void initializeApplet(AppletController appletContext, Applet applet, Dimension initialSize) throws Exception
+	{
+		String resourceName = applet.getClass().getName().replace('.', '/').concat(".class"); //$NON-NLS-1$
+
+		URL objectUrl = applet.getClass().getClassLoader().getResource(resourceName);
+		URL codeBase = null;
+		URL docBase = null;
+
+		String s = objectUrl.toExternalForm();
+		if (s.endsWith(resourceName))
+		{
+			int ix = s.length() - resourceName.length();
+			codeBase = new URL(s.substring(0, ix));
+			docBase = codeBase;
+
+			ix = s.lastIndexOf('/');
+
+			if (ix >= 0)
+			{
+				docBase = new URL(s.substring(0, ix + 1));
+			}
+		}
+
+		// Setup a default context and stub.
+		appletContext.add(applet);
+
+		AppletStub stub = new Stub(applet, appletContext, codeBase, docBase);
+		applet.setStub(stub);
+
+		if (initialSize != null) applet.setSize(initialSize.width, initialSize.height);
+		else applet.setSize(100, 100);
+		applet.init();
+
+		((Stub)stub).active = true;
+	}
+
+	static class Stub implements AppletStub
+	{
+		transient boolean active;
+		transient Applet target;
+		transient AppletContext context;
+		transient URL codeBase;
+		transient URL docBase;
+
+		Stub(Applet target, AppletContext context, URL codeBase, URL docBase)
+		{
+			this.target = target;
+			this.context = context;
+			this.codeBase = codeBase;
+			this.docBase = docBase;
+		}
+
+		public boolean isActive()
+		{
+			return active;
+		}
+
+		public URL getDocumentBase()
+		{
+			// use the root directory of the applet's class-loader
+			return docBase;
+		}
+
+		public URL getCodeBase()
+		{
+			// use the directory where we found the class or serialized object.
+			return codeBase;
+		}
+
+		public String getParameter(String name)
+		{
+			return null;
+		}
+
+		public AppletContext getAppletContext()
+		{
+			return context;
+		}
+
+		public void appletResize(int width, int height)
+		{
+			// we do nothing.
+		}
 	}
 
 }
