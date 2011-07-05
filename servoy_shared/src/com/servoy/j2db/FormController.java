@@ -89,13 +89,13 @@ import com.servoy.j2db.scripting.IScriptSupport;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.ITwoNativeJavaObject;
 import com.servoy.j2db.scripting.InstanceJavaMembers;
+import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.scripting.SelectedRecordScope;
 import com.servoy.j2db.scripting.SolutionScope;
-import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
@@ -4036,7 +4036,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 							if (newArg instanceof JSEvent)
 							{
 								JSEvent event = (JSEvent)newArg;
-								if (event.js_getSource() instanceof IComponent && ((IComponent)event.js_getSource()).getName() != null)
+								if (formScope != null && event.js_getSource() instanceof IComponent && ((IComponent)event.js_getSource()).getName() != null)
 								{
 									Object elementScope = formScope.get("elements");
 									if (elementScope instanceof Scriptable)
