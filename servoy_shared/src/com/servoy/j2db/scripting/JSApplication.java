@@ -2594,7 +2594,7 @@ public class JSApplication implements IReturnedTypesProvider
 	@SuppressWarnings("nls")
 	public String js_getOSName()
 	{
-		return application.getOSName();
+		return application.getClientOSName();
 	}
 
 	/**

@@ -156,7 +156,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 
 	@Override
 	@SuppressWarnings("nls")
-	public String getOSName()
+	public String getClientOSName()
 	{
 		if (Session.exists())
 		{

@@ -107,7 +107,7 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 * 
 	 * @return the Operation System name where the client runs in.
 	 */
-	public String getOSName();
+	public String getClientOSName();
 
 	/**
 	 * Get the platform of the client, local platform for smart client, browser platform for web client.
