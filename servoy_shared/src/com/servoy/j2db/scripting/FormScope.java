@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeJavaArray;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
@@ -294,7 +295,10 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 			Object object = super.get(name, start);
 			if (object == Scriptable.NOT_FOUND && getFunctionParentScriptable() != null)
 			{
-				return getFunctionParentScriptable().get(name, start);
+				Object obj = getFunctionParentScriptable().get(name, start);
+				// only return form variables not functions, they should be resolved by the (compile)scope.
+				if (obj instanceof Function) return Scriptable.NOT_FOUND;
+				return obj;
 			}
 			return object;
 		}
