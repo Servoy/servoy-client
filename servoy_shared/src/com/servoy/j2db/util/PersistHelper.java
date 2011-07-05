@@ -29,15 +29,12 @@ import java.awt.print.Paper;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.Vector;
 
 import javax.swing.UIManager;
 
@@ -71,26 +68,6 @@ public class PersistHelper
 		basicCssColors.put("blue", "#0000FF");//$NON-NLS-1$ //$NON-NLS-2$
 		basicCssColors.put("teal", "#008080");//$NON-NLS-1$ //$NON-NLS-2$
 		basicCssColors.put("aqua", "#00FFFF");//$NON-NLS-1$ //$NON-NLS-2$
-	}
-
-	public static Object[] transVectorToArray(Vector vector)
-	{
-		Object[] fieldsToSave = new Object[vector.size()];
-		vector.copyInto(fieldsToSave);
-		return fieldsToSave;
-	}
-
-	public static Object[] transHashTableToArray(Hashtable table)
-	{
-		int x = 0;
-		Object[] fieldsToSave = new Object[table.size()];
-		Enumeration e = table.elements();
-		while (e.hasMoreElements())
-		{
-			fieldsToSave[x] = e.nextElement();
-			x++;
-		}
-		return fieldsToSave;
 	}
 
 	public static String createPageFormatString(PageFormat format)
@@ -311,42 +288,6 @@ public class PersistHelper
 			return null;
 		}
 		return new Rectangle(x, y, w, h);
-	}
-
-	public static byte[] transStringToUTF8Bytes(String data) throws java.io.IOException
-	{
-		if (data == null) return null;
-		byte[] retval = null;
-		java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
-		java.io.OutputStreamWriter osw = new java.io.OutputStreamWriter(baos, "UTF8"); //$NON-NLS-1$
-		osw.write(data);
-		osw.flush();
-		baos.flush();
-		retval = baos.toByteArray();
-		osw.close();
-		baos.close();
-		return retval;
-	}
-
-	//TODO change this mechanism (readline leaves out the newlines)!
-	public static String transUTF8BytesToString(byte[] data) throws java.io.IOException
-	{
-		if (data == null) return null;
-		StringBuffer retval = new StringBuffer();
-		java.io.ByteArrayInputStream bais = new java.io.ByteArrayInputStream(data);
-		java.io.InputStreamReader isr = new java.io.InputStreamReader(bais, "UTF8"); //$NON-NLS-1$
-		java.io.BufferedReader br = new java.io.BufferedReader(isr);
-		String line = br.readLine();
-		while (line != null)
-		{
-			retval.append(line);
-			retval.append("\n"); //$NON-NLS-1$
-			line = br.readLine();
-		}
-		br.close();
-		isr.close();
-		bais.close();
-		return retval.toString();
 	}
 
 	public static Color createColor(String s)
