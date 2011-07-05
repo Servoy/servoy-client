@@ -25,8 +25,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
@@ -1519,6 +1519,10 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 	@Override
 	public void put(java.lang.String name, Scriptable start, java.lang.Object value)
 	{
+		if (value instanceof Wrapper)
+		{
+			value = ((Wrapper)value).unwrap();
+		}
 		if ("rowIndex".equals(name)) //$NON-NLS-1$
 		{
 			js_setRowIndex(Utils.getAsInteger(value));
