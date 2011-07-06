@@ -433,8 +433,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		catch (RepositoryException e)
 		{
 			Debug.error("Could not load solution " + (solutionMetaData == null ? "<none>" : solutionMetaData.getName()), e); //$NON-NLS-1$ //$NON-NLS-2$
-			reportError(Messages.getString(
-				"servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>" : solutionMetaData.getName() }), e); //$NON-NLS-1$ //$NON-NLS-2$
+			reportError(
+				Messages.getString("servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>" : solutionMetaData.getName() }), e); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
@@ -1103,7 +1103,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			}
 
 			boolean autoSaveBlocked = false;
-			if (foundSetManager != null && foundSetManager.getEditRecordList().isEditing())
+			if (foundSetManager != null) // always call stopEditing, also when ERL is not editing so that prepareForSave is always called
 			{
 				// close solution is not a javaScript stop (do not save edited records if autoSave is off)
 				int stopEditing = foundSetManager.getEditRecordList().stopEditing(false);
@@ -1242,8 +1242,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 						function,
 						gscope,
 						gscope,
-						Utils.arrayMerge((new Object[] { new Boolean(force) }), Utils.parseJSExpressions(getSolution().getInstanceMethodArguments(
-							"onCloseMethodID"))), false, false)); //$NON-NLS-1$
+						Utils.arrayMerge((new Object[] { new Boolean(force) }),
+							Utils.parseJSExpressions(getSolution().getInstanceMethodArguments("onCloseMethodID"))), false, false)); //$NON-NLS-1$
 				}
 				catch (Exception e1)
 				{
