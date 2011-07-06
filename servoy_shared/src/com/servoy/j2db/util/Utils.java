@@ -70,13 +70,7 @@ import javax.print.attribute.standard.MediaSize;
 
 import org.apache.commons.codec.binary.Base64;
 import org.mozilla.javascript.CharSequenceBuffer;
-import org.mozilla.javascript.CompilerEnvirons;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.Parser;
-import org.mozilla.javascript.RhinoException;
-import org.mozilla.javascript.ScriptOrFnNode;
 import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.Token;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.Wrapper;
 
@@ -257,30 +251,6 @@ public class Utils
 		return mergedArgs;
 	}
 
-
-	/**
-	 * Filter an array for the items that are assignable from the given class.
-	 * 
-	 * @param array
-	 * @param clazz
-	 * @return array of type clazz[]
-	 */
-	public static <T> T[] filterArrayClass(Object[] array, Class<T> clazz)
-	{
-		if (array == null)
-		{
-			return (T[])Array.newInstance(clazz, 0);
-		}
-		List<T> lst = new ArrayList<T>(array.length);
-		for (Object o : array)
-		{
-			if (o == null || clazz.isAssignableFrom(o.getClass()))
-			{
-				lst.add((T)o);
-			}
-		}
-		return lst.toArray((T[])java.lang.reflect.Array.newInstance(clazz, lst.size()));
-	}
 
 	public static <T> List<T> asList(Iterator< ? extends T> it)
 	{
@@ -693,50 +663,31 @@ public class Utils
 	}
 
 	/**
-	 * Parse a javascript string into a java string, example parseJSString('Hello world') returns Hello World
+	 * Parse a javascript string into a java string, example parseJSString("'HelloWorld'") returns:HelloWorld
 	 * 
 	 * @param s
 	 * @return the result string
 	 */
 	public static Object parseJSExpression(String s)
 	{
-		Context context = Context.enter();
-		try
+		if (s != null)
 		{
-			CompilerEnvirons m_compilerEnv = new CompilerEnvirons();
-			m_compilerEnv.initFromContext(context);
-			Parser p = new Parser(m_compilerEnv, context.getErrorReporter());
-			ScriptOrFnNode tree = p.parse(s, null, 0);
-
-			if (tree == null || tree.getType() != Token.SCRIPT) return null;
-			if (tree.getFirstChild() == null || tree.getFirstChild().getType() != Token.EXPR_RESULT) return null;
-			if (tree.getFirstChild().getFirstChild() != null)
+			s = s.trim();
+			if ("true".equals(s)) return Boolean.TRUE;
+			if ("false".equals(s)) return Boolean.FALSE;
+			try
 			{
-				switch (tree.getFirstChild().getFirstChild().getType())
+				return Double.valueOf(s);
+			}
+			catch (NumberFormatException e)
+			{
+				if ((s.charAt(0) == '\'' && s.charAt(s.length() - 1) == '\'') || (s.charAt(0) == '"' && s.charAt(s.length() - 1) == '"'))
 				{
-					case Token.STRING :
-						return tree.getFirstChild().getFirstChild().getString();
-					case Token.NUMBER :
-						return new Double(tree.getFirstChild().getFirstChild().getDouble());
-					case Token.FALSE :
-						return Boolean.FALSE;
-					case Token.TRUE :
-						return Boolean.TRUE;
-
-					default :
-						break;
+					return s.substring(1, s.length() - 1);
 				}
 			}
-			return null;
 		}
-		catch (RhinoException e)
-		{
-			return null;
-		}
-		finally
-		{
-			Context.exit();
-		}
+		return null;
 	}
 
 	public static Object[] parseJSExpressions(List<Object> exprs)
