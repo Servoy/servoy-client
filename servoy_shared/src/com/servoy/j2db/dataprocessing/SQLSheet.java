@@ -483,13 +483,38 @@ public class SQLSheet
 		}
 		if (defaultSort == null)
 		{
-			List<SortColumn> ds = new ArrayList<SortColumn>(table.getRowIdentColumns().size());
-			// get key columns in db defined order
-			for (Column column : table.getColumns())
+			List<SortColumn> ds = null;
+
+			if (table.getRowIdentColumns().size() > 1)
 			{
-				if (table.getRowIdentColumns().contains(column))
+				// find a match with an index
+				List<SortColumn>[] indexes = table.getIndexes();
+				for (int i = 0; ds == null && indexes != null && i < indexes.length; i++)
 				{
-					ds.add(new SortColumn(column));
+					List<SortColumn> index = indexes[i];
+					List<Column> rowIdentColumnsCopy = new ArrayList<Column>(table.getRowIdentColumns());
+					boolean match = index.size() == rowIdentColumnsCopy.size();
+					for (int c = 0; match && c < index.size(); c++)
+					{
+						match = rowIdentColumnsCopy.remove(index.get(c).getColumn());
+					}
+					if (match)
+					{
+						ds = index;
+					}
+				}
+			}
+
+			if (ds == null) // no match on index
+			{
+				ds = new ArrayList<SortColumn>(table.getRowIdentColumns().size());
+				// get key columns in db defined order
+				for (Column column : table.getColumns())
+				{
+					if (table.getRowIdentColumns().contains(column))
+					{
+						ds.add(new SortColumn(column));
+					}
 				}
 			}
 			defaultSort = ds;

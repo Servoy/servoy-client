@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.Utils;
@@ -61,6 +62,8 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 	private String schema;
 
 	private String dataSource;
+
+	private List<SortColumn>[] indexes;
 
 /*
  * _____________________________________________________________ Declaration and definition of constructors
@@ -194,6 +197,22 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 	{
 		this.catalog = table_cat;
 		this.schema = table_schem;
+	}
+
+	/**
+	 * @param indexes
+	 */
+	public void setIndexes(List<SortColumn>[] indexes)
+	{
+		this.indexes = indexes;
+	}
+
+	/**
+	 * @return the indexes
+	 */
+	public List<SortColumn>[] getIndexes()
+	{
+		return indexes;
 	}
 
 	/**
@@ -546,5 +565,4 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 		}
 		return "<unknown>"; //$NON-NLS-1$
 	}
-
 }

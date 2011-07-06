@@ -37,6 +37,12 @@ public class SortColumn extends ColumnWrapper
 		super(c);
 	}
 
+	public SortColumn(IColumn c, int sortOrder)
+	{
+		super(c);
+		this.sortOrder = sortOrder;
+	}
+
 	public SortColumn(IColumn c, Relation[] relations)
 	{
 		super(c, relations);
