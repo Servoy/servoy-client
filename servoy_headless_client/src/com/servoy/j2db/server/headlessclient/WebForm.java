@@ -45,6 +45,7 @@ import javax.swing.border.Border;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
+import org.apache.wicket.Page;
 import org.apache.wicket.Session;
 import org.apache.wicket.behavior.IBehavior;
 import org.apache.wicket.markup.IMarkupCacheKeyProvider;
@@ -1360,6 +1361,11 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 
 	public MainPage getMainPage()
 	{
+		Page page = findPage();
+		if (page instanceof MainPage)
+		{
+			return (MainPage)page;
+		}
 		return mainPage;
 	}
 
