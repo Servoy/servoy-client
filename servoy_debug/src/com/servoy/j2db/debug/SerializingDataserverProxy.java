@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
@@ -71,6 +72,7 @@ public class SerializingDataserverProxy implements InvocationHandler
 		os.close();
 
 		ObjectInputStream is = new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray()));
+		@SuppressWarnings("unchecked")
 		T o2 = (T)is.readObject();
 		is.close();
 
@@ -82,7 +84,16 @@ public class SerializingDataserverProxy implements InvocationHandler
 	 */
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
 	{
-		return serializeAndDeserialize(method.invoke(dataServer, serializeAndDeserialize(args)));
+		Object[] serializedArgs = serializeAndDeserialize(args);
+		Object res;
+		try
+		{
+			res = method.invoke(dataServer, serializedArgs);
+		}
+		catch (InvocationTargetException e)
+		{
+			throw e.getCause();
+		}
+		return serializeAndDeserialize(res);
 	}
-
 }

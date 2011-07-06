@@ -43,6 +43,7 @@ import javax.swing.LookAndFeel;
 import javax.swing.UIManager;
 
 import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.NativeError;
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
@@ -1437,7 +1438,7 @@ public class JSApplication implements IReturnedTypesProvider
 	{
 		if (vargs == null || vargs.length == 0) return "";
 
-		StringBuffer output = new StringBuffer();
+		StringBuilder output = new StringBuilder();
 		try
 		{
 			List<String> cmdArgs = new ArrayList<String>();
@@ -1723,7 +1724,7 @@ public class JSApplication implements IReturnedTypesProvider
 	private String getScriptableString(Scriptable scriptable, HashSet<Scriptable> processed)
 	{
 		if (scriptable instanceof Record || scriptable instanceof FoundSet) return scriptable.toString();
-		if (scriptable instanceof XMLObject) return scriptable.toString();
+		if (scriptable instanceof XMLObject || scriptable instanceof NativeError) return scriptable.toString();
 		if (processed.contains(scriptable)) return scriptable.toString();
 		if (processed.size() > 10) return scriptable.toString();
 		processed.add(scriptable);
