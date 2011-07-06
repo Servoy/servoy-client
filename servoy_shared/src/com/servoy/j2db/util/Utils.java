@@ -69,7 +69,6 @@ import javax.print.attribute.Size2DSyntax;
 import javax.print.attribute.standard.MediaSize;
 
 import org.apache.commons.codec.binary.Base64;
-import org.mozilla.javascript.CharSequenceBuffer;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.Wrapper;
@@ -2273,7 +2272,7 @@ public class Utils
 		}
 	}
 
-	public static CharSequence getDotQualitfied(Object... tokens)
+	public static String getDotQualitfied(Object... tokens)
 	{
 		if (tokens == null)
 		{
@@ -2287,12 +2286,13 @@ public class Utils
 		{
 			return String.valueOf(tokens[0]);
 		}
-		CharSequence ptr = String.valueOf(tokens[1]);
-		for (int i = 2; i < tokens.length; i++)
+		StringBuilder ptr = new StringBuilder(String.valueOf(tokens[0]));
+		for (int i = 1; i < tokens.length; i++)
 		{
-			ptr = new CharSequenceBuffer(new CharSequenceBuffer(ptr, "."), String.valueOf(tokens[i])); //$NON-NLS-1$
+			ptr.append('.');
+			ptr.append(String.valueOf(tokens[i]));
 		}
-		return new CharSequenceBuffer(new CharSequenceBuffer(String.valueOf(tokens[0]), "."), ptr); //$NON-NLS-1$
+		return ptr.toString();
 	}
 
 	public static String toEnglishLocaleLowerCase(String text)
