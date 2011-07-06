@@ -110,7 +110,19 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 		setOutputMarkupPlaceholderTag(true);
 
 		add(selector);
-		add(new Label("text_" + id, "")); //$NON-NLS-1$ //$NON-NLS-2$
+		add(new Label("text_" + id, "")
+		{
+			@Override
+			protected void onComponentTag(ComponentTag tag)
+			{
+				super.onComponentTag(tag);
+				if (tag.getName().compareToIgnoreCase("label") == 0) //$NON-NLS-1$
+				{
+					tag.put("for", selector.getMarkupId()); //$NON-NLS-1$
+				}
+			}
+
+		}); //$NON-NLS-1$ //$NON-NLS-2$
 		setText(Text.processTags(text, null));
 
 		selector.add(new FocusIfInvalidAttributeModifier(selector));

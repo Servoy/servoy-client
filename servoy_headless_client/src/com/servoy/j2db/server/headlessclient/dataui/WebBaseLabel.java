@@ -940,6 +940,15 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 				}
 			}
 		}
+
+		if (tag.getName().compareToIgnoreCase("label") == 0) //$NON-NLS-1$
+		{
+			IFieldComponent labelFor = getLabelFor();
+			if (labelFor instanceof Component)
+			{
+				tag.put("for", ((Component)labelFor).getMarkupId()); //$NON-NLS-1$
+			}
+		}
 	}
 
 	public void onDoubleClick()

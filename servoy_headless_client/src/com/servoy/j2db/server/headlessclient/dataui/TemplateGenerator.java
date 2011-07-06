@@ -1880,9 +1880,7 @@ public class TemplateGenerator
 		{
 			if (labelForField != null)
 			{
-				html.append("<label for='");
-				html.append(ComponentFactory.getWebID(form, labelForField));
-				html.append("' ");
+				html.append("<label ");
 				// Needed for FF to accept a <div> inside a <label>.
 				styleObj.setProperty("display", "block");
 			}
@@ -2168,9 +2166,7 @@ public class TemplateGenerator
 						html.append("type='checkbox' ");
 					}
 					html.append("/>");
-					html.append("<label for='check_");
-					html.append(ComponentFactory.getWebID(form, field));
-					html.append("' style='border-width: 0px; padding-top: " + (isRadio ? "0px" : "2px") + "; margin: 0px;");
+					html.append("<label style='border-width: 0px; padding-top: " + (isRadio ? "0px" : "2px") + "; margin: 0px;");
 					html.append("' ");
 					html.append(getWicketIDParameter(form, field, "text_", ""));
 					html.append(">");
