@@ -23,8 +23,10 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
 
 import org.apache.wicket.AbortException;
+import org.apache.wicket.AccessStackPageMap;
 import org.apache.wicket.Application;
 import org.apache.wicket.Component;
+import org.apache.wicket.IPageMap;
 import org.apache.wicket.IRequestTarget;
 import org.apache.wicket.Page;
 import org.apache.wicket.Request;
@@ -485,7 +487,14 @@ public class WebClientsApplication extends WebApplication
 	@Override
 	protected ISessionStore newSessionStore()
 	{
-		return new HttpSessionStore(this);
+		return new HttpSessionStore(this)
+		{
+			@Override
+			public IPageMap createPageMap(String name)
+			{
+				return new ModifiedAccessStackPageMap(name);
+			}
+		};
 	}
 
 	/**
@@ -588,5 +597,18 @@ public class WebClientsApplication extends WebApplication
 				return super.onRuntimeException(page, e);
 			}
 		};
+	}
+
+	public class ModifiedAccessStackPageMap extends AccessStackPageMap
+	{
+		public ModifiedAccessStackPageMap(final String name)
+		{
+			super(name);
+		}
+
+		public void flagDirty()
+		{
+			super.dirty();
+		}
 	}
 }

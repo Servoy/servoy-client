@@ -60,6 +60,7 @@ import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.ServoyForm;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
+import com.servoy.j2db.server.headlessclient.WebClientsApplication.ModifiedAccessStackPageMap;
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.server.headlessclient.WrapperContainer;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataCalendar.DateField;
@@ -582,6 +583,11 @@ public class WebEventExecutor extends BaseEventExecutor
 
 			final MainPage mainPage = ((MainPage)page);
 
+			if (mainPage.getPageMap() instanceof ModifiedAccessStackPageMap)
+			{
+				// at every request mark the pagemap as dirty so lru eviction really works
+				((ModifiedAccessStackPageMap)mainPage.getPageMap()).flagDirty();
+			}
 			// PageContributor installs focus/blur event handlers for changed/new components
 			target.addListener(mainPage.getPageContributor());
 
