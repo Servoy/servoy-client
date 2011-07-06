@@ -254,6 +254,9 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 				// fix for issue 164656: we don't want single clicks to cause a form submit and block the double clicks.
 				if ((!eventExecutor.hasActionCmd()) && (eventExecutor.hasDoubleClickCmd())) tag.put("onclick", "return false;"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
+
+			char displayMnemonic = (char)getDisplayedMnemonic();
+			if (displayMnemonic > 0) tag.put("accesskey", Character.toString(displayMnemonic)); //$NON-NLS-1$
 		}
 	}
 
@@ -896,7 +899,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		}
 		else
 		{
-			instrumentedBodyText = instrumentBodyText(bodyText, halign, valign, false, false, margin, null);
+			instrumentedBodyText = instrumentBodyText(bodyText, halign, valign, false, false, margin, null, (char)getDisplayedMnemonic());
 		}
 		replaceComponentTagBody(markupStream, openTag, instrumentedBodyText);
 	}
@@ -1032,7 +1035,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	@SuppressWarnings("nls")
 	protected static String instrumentBodyText(CharSequence bodyText, int halign, int valign, boolean fullWidth, boolean fullHeight, Insets padding,
-		String cssid)
+		String cssid, char mnemonic)
 	{
 		// In order to vertically align the text inside the <button>, we wrap the text inside a <span>, and we absolutely
 		// position the <span> in the <button>. However, for centering vertically we drop this absolute positioning and
@@ -1076,7 +1079,22 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		}
 		instrumentedBodyText.append(">"); //$NON-NLS-1$
 
-		if (bodyText != null) instrumentedBodyText.append(bodyText);
+		if (bodyText != null)
+		{
+			CharSequence bodyTextValue = bodyText;
+			if (mnemonic > 0 && !HtmlUtils.startsWithHtml(bodyTextValue))
+			{
+				StringBuffer sbBodyText = new StringBuffer(bodyTextValue);
+				int mnemonicIdx = sbBodyText.indexOf(Character.toString(mnemonic));
+				if (mnemonicIdx != -1)
+				{
+					sbBodyText.insert(mnemonicIdx + 1, "</u>");
+					sbBodyText.insert(mnemonicIdx, "<u>");
+					bodyTextValue = sbBodyText.toString();
+				}
+			}
+			instrumentedBodyText.append(bodyTextValue);
+		}
 		instrumentedBodyText.append("</span>"); //$NON-NLS-1$
 		return instrumentedBodyText.toString();
 	}

@@ -900,7 +900,8 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 				padding = ((CompoundBorder)border).getInsideBorder().getBorderInsets(null);
 			}
 
-			instrumentedBodyText = WebBaseButton.instrumentBodyText(bodyText, halign, valign, fillAllSpace(), fillAllSpace(), padding, getMarkupId() + "_lb");
+			instrumentedBodyText = WebBaseButton.instrumentBodyText(bodyText, halign, valign, fillAllSpace(), fillAllSpace(), padding, getMarkupId() + "_lb",
+				(char)getDisplayedMnemonic());
 			// for vertical centering we need a table wrapper to have the possible <img> in the content centered
 			if (valign == ISupportTextSetup.CENTER && instrumentedBodyText.toLowerCase().indexOf("<img ") != -1) //$NON-NLS-1$
 			{

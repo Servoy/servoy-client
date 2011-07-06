@@ -941,12 +941,14 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 			}
 		}
 
-		if (tag.getName().compareToIgnoreCase("label") == 0) //$NON-NLS-1$
+		if (tag.getName().equalsIgnoreCase("label")) //$NON-NLS-1$
 		{
 			IFieldComponent labelFor = getLabelFor();
 			if (labelFor instanceof Component)
 			{
 				tag.put("for", ((Component)labelFor).getMarkupId()); //$NON-NLS-1$
+				char displayMnemonic = (char)getDisplayedMnemonic();
+				if (displayMnemonic > 0) tag.put("accesskey", Character.toString(displayMnemonic)); //$NON-NLS-1$
 			}
 		}
 	}
@@ -1013,7 +1015,8 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 			int height = size.height;
 			Insets paddingAndBorder = getPaddingAndBorder();
 			height -= paddingAndBorder.bottom + paddingAndBorder.top;
-			instrumentedBodyText = WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHTML, hasHTML, m, getMarkupId() + "_lb");
+			instrumentedBodyText = WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHTML, hasHTML, m, getMarkupId() + "_lb",
+				(char)getDisplayedMnemonic());
 			// for vertical centering we need a table wrapper to have the possible <img> in the content centered
 			if (valign == ISupportTextSetup.CENTER && instrumentedBodyText.toLowerCase().indexOf("<img ") != -1) //$NON-NLS-1$
 			{
