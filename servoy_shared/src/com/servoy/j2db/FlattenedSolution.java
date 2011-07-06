@@ -698,7 +698,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			return null;
 		}
 		Form form = (Form)persist.getAncestor(IRepository.FORMS);
-		if (form == null || form.getExtendsID() == 0)
+		if (form == null || form.getExtendsID() <= 0)
 		{
 			// no form or nothing to flatten
 			return form;
@@ -765,7 +765,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 						return true;
 					}
 				}
-				if (form instanceof FlattenedForm || f.getExtendsID() == 0)
+				if (form instanceof FlattenedForm || f.getExtendsID() <= 0)
 				{
 					// no (more) hierarchy to investigate
 					break;
@@ -1885,7 +1885,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		List<Form> formHierarchy = new ArrayList<Form>();
 		formHierarchy.add(form);
 		Form f = form;
-		while (f != null && f.getExtendsID() != 0)
+		while (f != null && f.getExtendsID() > 0)
 		{
 			f = getForm(f.getExtendsID());
 			if (f == null || formHierarchy.contains(f) /* prevent cycles */)

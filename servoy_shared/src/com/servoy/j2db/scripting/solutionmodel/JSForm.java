@@ -1293,7 +1293,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	private boolean testExtendFormForPart(int partType, int height)
 	{
-		Form superForm = application.getFlattenedSolution().getForm(form.getExtendsFormID());
+		Form superForm = application.getFlattenedSolution().getForm(form.getExtendsID());
 		if (superForm != null)
 		{
 			Iterator<Part> superParts = application.getFlattenedSolution().getFlattenedForm(superForm).getParts();
@@ -1513,7 +1513,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	{
 		List<JSPart> lst = new ArrayList<JSPart>();
 		Iterator<Part> parts = form.getParts();
-		if (form.getExtendsFormID() != 0 && returnInheritedElements)
+		if (form.getExtendsID() > 0 && returnInheritedElements)
 		{
 			try
 			{
@@ -2557,7 +2557,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSForm js_getExtendsForm()
 	{
-		int extendsFormID = form.getExtendsFormID();
+		int extendsFormID = form.getExtendsID();
 		if (extendsFormID > 0)
 		{
 			Form superForm = application.getFlattenedSolution().getForm(extendsFormID);
@@ -2907,7 +2907,7 @@ public class JSForm implements IJSParent, IConstantsObject
 		}
 		if (f == null)
 		{
-			form.setExtendsFormID(0);
+			form.setExtendsID(0);
 		}
 		else
 		{
@@ -2915,7 +2915,7 @@ public class JSForm implements IJSParent, IConstantsObject
 //			{
 //				throw new RuntimeException("Cant set an extends form with table: " + f.getTableName() + " on a form with table : " + form.getTableName());
 //			}
-			form.setExtendsFormID(f.getID());
+			form.setExtendsID(f.getID());
 		}
 	}
 
@@ -3677,9 +3677,9 @@ public class JSForm implements IJSParent, IConstantsObject
 				if (scriptMethod == null)
 				{
 					Form f = ((JSForm)parent).getForm();
-					while (f != null && f.getExtendsFormID() != 0 && scriptMethod == null)
+					while (f != null && f.getExtendsID() > 0 && scriptMethod == null)
 					{
-						f = application.getFlattenedSolution().getForm(f.getExtendsFormID());
+						f = application.getFlattenedSolution().getForm(f.getExtendsID());
 						if (f != null) scriptMethod = f.getScriptMethod(methodid);
 					}
 				}
@@ -3756,10 +3756,10 @@ public class JSForm implements IJSParent, IConstantsObject
 		else
 		{
 			// it could be a extends form
-			while (f != null && f.getExtendsFormID() != 0)
+			while (f != null && f.getExtendsID() > 0)
 			{
-				f = application.getFlattenedSolution().getForm(f.getExtendsFormID());
-				if (parent.getUUID().equals(f.getUUID()))
+				f = application.getFlattenedSolution().getForm(f.getExtendsID());
+				if (f != null && parent.getUUID().equals(f.getUUID()))
 				{
 					return method.getID();
 				}
