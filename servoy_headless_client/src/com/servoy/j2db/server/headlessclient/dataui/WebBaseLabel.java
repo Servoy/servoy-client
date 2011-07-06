@@ -161,7 +161,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	public void renderHead(HtmlHeaderContainer container)
 	{
 		super.renderHead(container);
-		if (valign == ISupportTextSetup.CENTER)
+		if (valign == ISupportTextSetup.CENTER && WebBaseButton.getImageDisplayURL(this) == null)
 		{
 			container.getHeaderResponse().renderOnDomReadyJavascript("Servoy.Utils.setLabelChildHeight('" + getMarkupId() + "')");
 		}
@@ -1012,17 +1012,8 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 				}
 			}
 
-			int height = size.height;
-			Insets paddingAndBorder = getPaddingAndBorder();
-			height -= paddingAndBorder.bottom + paddingAndBorder.top;
 			instrumentedBodyText = WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHTML, hasHTML, m, getMarkupId() + "_lb",
 				(char)getDisplayedMnemonic());
-			// for vertical centering we need a table wrapper to have the possible <img> in the content centered
-			if (valign == ISupportTextSetup.CENTER && instrumentedBodyText.toLowerCase().indexOf("<img ") != -1) //$NON-NLS-1$
-			{
-				instrumentedBodyText = (new StringBuffer(
-					"<table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" height=\"100%\"><tr><td style=\"vertical-align:middle;\">").append(instrumentedBodyText).append("</td></tr></table>")).toString(); //$NON-NLS-1$ //$NON-NLS-2$
-			}
 		}
 
 		replaceComponentTagBody(markupStream, openTag, instrumentedBodyText);
