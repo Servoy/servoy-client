@@ -890,18 +890,9 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	protected void instrumentAndReplaceBody(MarkupStream markupStream, ComponentTag openTag, CharSequence bodyText)
 	{
-		String instrumentedBodyText;
-		String imgURL = getImageDisplayURL(this);
-
-		if (imgURL != null)
-		{
-			instrumentedBodyText = "<img id=\"" + WebBaseButton.this.getMarkupId() + "_img\" src=\"" + imgURL + "\" align=\"middle\">&nbsp;" + bodyText; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		}
-		else
-		{
-			instrumentedBodyText = instrumentBodyText(bodyText, halign, valign, false, false, margin, null, (char)getDisplayedMnemonic());
-		}
-		replaceComponentTagBody(markupStream, openTag, instrumentedBodyText);
+		replaceComponentTagBody(markupStream, openTag,
+			instrumentBodyText(bodyText, halign, valign, false, false, margin, null, (char)getDisplayedMnemonic(), getMarkupId() + "_img", //$NON-NLS-1$
+				getImageDisplayURL(this)));
 	}
 
 	protected static String getImageDisplayURL(IImageDisplay imageDisplay)
@@ -1035,7 +1026,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	@SuppressWarnings("nls")
 	protected static String instrumentBodyText(CharSequence bodyText, int halign, int valign, boolean fullWidth, boolean fullHeight, Insets padding,
-		String cssid, char mnemonic)
+		String cssid, char mnemonic, String imgID, String imgURL)
 	{
 		// In order to vertically align the text inside the <button>, we wrap the text inside a <span>, and we absolutely
 		// position the <span> in the <button>. However, for centering vertically we drop this absolute positioning and
@@ -1093,6 +1084,13 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 					bodyTextValue = sbBodyText.toString();
 				}
 			}
+
+			if (imgURL != null)
+			{
+				bodyTextValue = new StringBuffer("<img id=\"").append(imgID).append("\" src=\"").append(imgURL).append("\" align=\"middle\">&nbsp;").append(
+					bodyTextValue);
+			}
+
 			instrumentedBodyText.append(bodyTextValue);
 		}
 		instrumentedBodyText.append("</span>"); //$NON-NLS-1$
