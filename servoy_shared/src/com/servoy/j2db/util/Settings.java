@@ -193,6 +193,17 @@ public class Settings extends SortedProperties
 		applySystemProperties();
 	}
 
+	public synchronized void loadFromURL(URL url) throws IOException
+	{
+		InputStream is = url.openStream();
+		if (is != null)
+		{
+			load(is);
+			is.close();
+			applySystemProperties();
+		}
+	}
+
 	public synchronized void loadFromFile(File file) throws IOException
 	{
 		this.file = file;

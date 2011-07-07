@@ -46,6 +46,7 @@ import javax.swing.border.Border;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Page;
+import org.apache.wicket.RequestCycle;
 import org.apache.wicket.Session;
 import org.apache.wicket.behavior.IBehavior;
 import org.apache.wicket.markup.IMarkupCacheKeyProvider;
@@ -57,6 +58,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
 import org.apache.wicket.request.ClientInfo;
+import org.apache.wicket.util.string.UrlUtils;
 import org.mozilla.javascript.JavaMembers;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
@@ -1671,23 +1673,25 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 
 	long lastModifiedTime = 0;
 
+	@SuppressWarnings("nls")
 	@Override
-	public void renderHead(HtmlHeaderContainer container)
+	public void renderHead(HtmlHeaderContainer headercontainer)
 	{
-		super.renderHead(container);
+		super.renderHead(headercontainer);
 		StringBuffer cssRef = new StringBuffer();
-		cssRef.append("\n<link rel='stylesheet' type='text/css' href='/servoy-webclient/formcss/"); //$NON-NLS-1$ 
+		cssRef.append("\n<link rel='stylesheet' type='text/css' href='");
+		cssRef.append(UrlUtils.rewriteToContextRelative("servoy-webclient/formcss/", RequestCycle.get().getRequest()));
 		cssRef.append(formController.getForm().getSolution().getName());
 		cssRef.append('/');
 		cssRef.append(formController.getName());
-		cssRef.append("_t"); //$NON-NLS-1$ 
+		cssRef.append("_t");
 		if (lastModifiedTime == 0 || isUIRecreated())
 		{
 			lastModifiedTime = System.currentTimeMillis();
 		}
 		cssRef.append(lastModifiedTime);
-		cssRef.append("t.css'/>\n"); //$NON-NLS-1$ 
-		container.getHeaderResponse().renderString(cssRef.toString());
+		cssRef.append("t.css'/>\n");
+		headercontainer.getHeaderResponse().renderString(cssRef.toString());
 	}
 
 	public boolean isDesignMode()

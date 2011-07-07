@@ -25,6 +25,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import javax.servlet.http.HttpServlet;
 
 import com.servoy.j2db.IBeanManager;
+import com.servoy.j2db.IBeanManagerInternal;
 import com.servoy.j2db.IDebugClientHandler;
 import com.servoy.j2db.ILAFManager;
 import com.servoy.j2db.dataprocessing.IDataServer;
@@ -67,7 +68,7 @@ public interface IApplicationServerSingleton
 
 	ILAFManager getLafManager();
 
-	IBeanManager getBeanManager();
+	IBeanManagerInternal getBeanManager();
 
 	IBeanManager createBeanManager(ClassLoader pluginClassloader);
 

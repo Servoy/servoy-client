@@ -19,6 +19,7 @@ package com.servoy.j2db.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Modifier;
 import java.net.URI;
 import java.net.URL;
@@ -36,6 +37,7 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 /**
  * @author jblok
@@ -65,7 +67,7 @@ public abstract class JarManager
 	}
 
 	@SuppressWarnings("unchecked")
-	private static void addCommonPackageToDefinitions(String fileName, List<String> workingClassNames, Map<String, Object> _loadedBeanDefs)
+	protected static void addCommonPackageToDefinitions(String fileName, List<String> workingClassNames, Map<String, Object> _loadedBeanDefs)
 	{
 		boolean matched = true;
 		int wantedLength = 3;
@@ -131,7 +133,7 @@ public abstract class JarManager
 
 	//searchURLs can be subset of all urls in classloader to speedup loading
 	@SuppressWarnings("unchecked")
-	public static <C> Class<C>[] getAssignableClasses(ExtendableURLClassLoader loader, Class<C> type, Map<URL, Pair<String, Long>> searchURLs)
+	public <C> Class<C>[] getAssignableClasses(ExtendableURLClassLoader loader, Class<C> type, Map<URL, Pair<String, Long>> searchURLs)
 	{
 		List<Class< ? >> classes = new ArrayList<Class< ? >>();
 		Extension[] exts = getExtensions(loader, type, searchURLs);
@@ -151,12 +153,24 @@ public abstract class JarManager
 		public URL jarUrl;
 		public String jarFileName;
 		public long jarFileModTime;
+
 //		public boolean enabled = true;
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.lang.Object#toString()
+		 */
+		@Override
+		public String toString()
+		{
+			return "Extension[" + jarFileName + '=' + jarUrl + ']'; //$NON-NLS-1$
+		}
 	}
 
 	//searchURLs: url->pair(jarname,jarmodtime)
 	//loader must know all the urls already
-	public static Extension[] getExtensions(ExtendableURLClassLoader loader, Class< ? > searchType, Map<URL, Pair<String, Long>> searchURLs)
+	public Extension[] getExtensions(ExtendableURLClassLoader loader, Class< ? > searchType, Map<URL, Pair<String, Long>> searchURLs)
 	{
 		List<Extension> extensions = new ArrayList<Extension>();
 		Iterator<Map.Entry<URL, Pair<String, Long>>> it = searchURLs.entrySet().iterator();
@@ -165,63 +179,134 @@ public abstract class JarManager
 			Map.Entry<URL, Pair<String, Long>> entry = it.next();
 
 			URL url = entry.getKey();
-			File file = null;
+			InputStream is = null;
+			boolean tryWithFiles = false;
 			try
 			{
-				file = new File(new URI(url.toExternalForm()));
+				is = url.openStream();
+				if (is != null)
+				{
+					final ZipInputStream zip = new ZipInputStream(is);
+					readZipEntries(loader, searchType, extensions, entry, url, new Enumeration<ZipEntry>()
+					{
+						private ZipEntry nextEntry = zip.getNextEntry();
+
+						public boolean hasMoreElements()
+						{
+							return nextEntry != null;
+						}
+
+						public ZipEntry nextElement()
+						{
+							ZipEntry retValue = nextEntry;
+							try
+							{
+								nextEntry = zip.getNextEntry();
+							}
+							catch (IOException e)
+							{
+								nextEntry = null;
+							}
+							return retValue;
+						}
+					});
+					zip.close();
+				}
+				else tryWithFiles = true;
+
+
 			}
-			catch (Exception e)
+			catch (IOException e1)
 			{
-				Debug.error("Error occured trying to load: " + url + ", error: " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
-				continue;
+				Debug.trace(e1);
+				tryWithFiles = true;
 			}
-			if (!file.isDirectory() && file.exists() && file.canRead())
+			finally
 			{
-				ZipFile zipFile = null;
+				if (is != null) try
+				{
+					is.close();
+				}
+				catch (IOException e)
+				{
+					// ignore
+				}
+			}
+			if (tryWithFiles)
+			{
+				File file = null;
 				try
 				{
-					zipFile = new ZipFile(file);
+					file = new File(new URI(url.toExternalForm()));
 				}
-				catch (Exception ex)
+				catch (Exception e)
 				{
-					Debug.error("Error occured trying to load: " + file.getAbsolutePath() + ", error: " + ex.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
+					Debug.error("Error occured trying to load: " + url + ", error: " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
 					continue;
 				}
-
-				Enumeration< ? extends ZipEntry> enumeration = zipFile.entries();
-				while (enumeration.hasMoreElements())
+				if (!file.isDirectory() && file.exists() && file.canRead())
 				{
-					Class< ? > cls = null;
-					String entryName = ((ZipEntry)enumeration.nextElement()).getName();
-					String className = Utils.changeFileNameToClassName(entryName);
-					if (className != null)
+					ZipFile zipFile = null;
+					try
 					{
-						try
-						{
-							cls = loader.loadClass(className);
-						}
-						catch (Throwable th)
-						{
-							Debug.trace(th.toString());
-						}
-						if (cls != null)
-						{
-							if (searchType.isAssignableFrom(cls) && !Modifier.isAbstract(cls.getModifiers()))
-							{
-								Extension ext = new Extension();
-								ext.jarFileName = entry.getValue().getLeft();
-								ext.jarFileModTime = entry.getValue().getRight().longValue();
-								ext.jarUrl = url;
-								ext.instanceClass = cls;
-								ext.searchType = searchType;
-								extensions.add(ext);
-							}
-						}
+						zipFile = new ZipFile(file);
+					}
+					catch (Exception ex)
+					{
+						Debug.error("Error occured trying to load: " + file.getAbsolutePath() + ", error: " + ex.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
+						continue;
+					}
+
+					Enumeration< ? extends ZipEntry> enumeration = zipFile.entries();
+					readZipEntries(loader, searchType, extensions, entry, url, enumeration);
+				}
+			}
+		}
+		System.err.println("Class: " + searchType + " === " + extensions);
+		return extensions.toArray(new Extension[extensions.size()]);
+	}
+
+	/**
+	 * @param loader
+	 * @param searchType
+	 * @param extensions
+	 * @param entry
+	 * @param url
+	 * @param enumeration
+	 */
+	private void readZipEntries(ExtendableURLClassLoader loader, Class< ? > searchType, List<Extension> extensions, Map.Entry<URL, Pair<String, Long>> entry,
+		URL url, Enumeration< ? extends ZipEntry> enumeration)
+	{
+		while (enumeration.hasMoreElements())
+		{
+			Class< ? > cls = null;
+			String entryName = ((ZipEntry)enumeration.nextElement()).getName();
+			String className = Utils.changeFileNameToClassName(entryName);
+			if (className != null)
+			{
+				try
+				{
+					cls = loader.loadClass(className);
+				}
+				catch (Throwable th)
+				{
+					Debug.trace(th.toString());
+				}
+				if (cls != null)
+				{
+					if (searchType.isAssignableFrom(cls) && !Modifier.isAbstract(cls.getModifiers()))
+					{
+						Extension ext = new Extension();
+						ext.jarFileName = entry.getValue().getLeft();
+						ext.jarFileModTime = entry.getValue().getRight().longValue();
+						ext.jarUrl = url;
+						ext.instanceClass = cls;
+						ext.searchType = searchType;
+						extensions.add(ext);
 					}
 				}
 			}
 		}
-		return extensions.toArray(new Extension[extensions.size()]);
 	}
 
 	public static Map<URL, Pair<String, Long>> loadLibs(File dir)
@@ -358,7 +443,7 @@ public abstract class JarManager
 
 	}
 
-	private static List<String> getBeanClassNames(Manifest mf)
+	protected static List<String> getBeanClassNames(Manifest mf)
 	{
 		HashMap<String, Boolean> beans = new HashMap<String, Boolean>();
 		Map<String, Attributes> entries = mf.getEntries();

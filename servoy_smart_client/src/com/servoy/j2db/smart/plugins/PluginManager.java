@@ -59,8 +59,8 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 {
 	private final File pluginDir;
 	private static ExtendableURLClassLoader _pluginsClassLoader;
-	private static Map<URL, Pair<String, Long>> supportLibUrls = new HashMap<URL, Pair<String, Long>>();
-	private static Map<URL, Pair<String, Long>> pluginUrls = new LinkedHashMap<URL, Pair<String, Long>>();
+	private final static Map<URL, Pair<String, Long>> supportLibUrls = new HashMap<URL, Pair<String, Long>>();
+	private final static Map<URL, Pair<String, Long>> pluginUrls = new LinkedHashMap<URL, Pair<String, Long>>();
 
 	private static Extension[] clientPluginInfo;
 
@@ -89,6 +89,20 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 			readDir(pluginDir, pluginUrls, supportLibUrls, null, false);
 		}
 	}
+
+	public PluginManager(Map<URL, Pair<String, Long>> pluginUrls, Map<URL, Pair<String, Long>> supportLibUrls)
+	{
+		super();
+		pluginDir = null;
+		PluginManager.pluginUrls.putAll(pluginUrls);
+		PluginManager.supportLibUrls.putAll(supportLibUrls);
+		List<URL> allUrls = new ArrayList<URL>(supportLibUrls.size() + pluginUrls.size());
+		allUrls.addAll(supportLibUrls.keySet());
+		allUrls.addAll(pluginUrls.keySet());
+		URL[] urls = allUrls.toArray(new URL[allUrls.size()]);
+		PluginManager._pluginsClassLoader = new ExtendableURLClassLoader(urls, getClass().getClassLoader());
+	}
+
 
 	public PluginManager(String pluginDirAsString)
 	{

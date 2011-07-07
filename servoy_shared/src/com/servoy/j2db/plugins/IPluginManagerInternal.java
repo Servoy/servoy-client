@@ -13,8 +13,10 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.plugins;
+
+import java.io.File;
 
 import com.servoy.j2db.dataprocessing.IColumnConverterManager;
 import com.servoy.j2db.dataprocessing.IColumnValidatorManager;
@@ -26,4 +28,6 @@ public interface IPluginManagerInternal extends IPluginManager
 	public IColumnValidatorManager getColumnValidatorManager();
 
 	public IPluginManagerInternal createEfficientCopy(Object prop_change_source);
+
+	public File getPluginDir();
 }

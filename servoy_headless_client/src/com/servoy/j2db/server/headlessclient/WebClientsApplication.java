@@ -565,8 +565,7 @@ public class WebClientsApplication extends WebApplication
 					}
 					else
 					{
-						throw new RestartResponseAtInterceptPageException(new ServoyBrowserInfoPage(getRequest().getRelativePathPrefixToContextRoot() +
-							getRequest().getURL()));
+						throw new RestartResponseAtInterceptPageException(new ServoyBrowserInfoPage(getRequest().getURL()));
 					}
 				}
 				return webClientInfo;

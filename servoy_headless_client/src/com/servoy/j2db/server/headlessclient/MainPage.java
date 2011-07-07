@@ -521,7 +521,8 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			{
 				if (main != null)
 				{
-					return "/servoy-webclient/templates/" + client.getUIProperty(WEBCONSTANTS.WEBCLIENT_TEMPLATES_DIR) + "/servoy_web_client_default.css"; //$NON-NLS-1$ //$NON-NLS-2$
+					return getRequest().getRelativePathPrefixToContextRoot() +
+						"servoy-webclient/templates/" + client.getUIProperty(WEBCONSTANTS.WEBCLIENT_TEMPLATES_DIR) + "/servoy_web_client_default.css"; //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				return null;
 			}
