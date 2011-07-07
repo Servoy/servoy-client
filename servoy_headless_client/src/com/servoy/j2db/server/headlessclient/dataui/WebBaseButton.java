@@ -1041,7 +1041,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		// position the <span> in the <button>. However, for centering vertically we drop this absolute positioning and
 		// rely on the fact that by default the <button> tag vertically centers its content.
 		StringBuffer instrumentedBodyText = new StringBuffer();
-		instrumentedBodyText.append("<span style='display: block;"); //$NON-NLS-1$
+		instrumentedBodyText.append("<span style='cursor: default; display: block;"); //$NON-NLS-1$
 		int top = 0;
 		int bottom = 0;
 		int left = 0;
