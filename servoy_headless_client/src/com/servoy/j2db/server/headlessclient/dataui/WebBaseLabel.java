@@ -161,7 +161,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	public void renderHead(HtmlHeaderContainer container)
 	{
 		super.renderHead(container);
-		if (valign == ISupportTextSetup.CENTER && WebBaseButton.getImageDisplayURL(this) == null)
+		if (valign == ISupportTextSetup.CENTER)
 		{
 			container.getHeaderResponse().renderOnDomReadyJavascript("Servoy.Utils.setLabelChildHeight('" + getMarkupId() + "')");
 		}
@@ -987,36 +987,27 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	@SuppressWarnings("nls")
 	protected void instrumentAndReplaceBody(MarkupStream markupStream, ComponentTag openTag, CharSequence bodyText, boolean hasHTML)
 	{
-		String instrumentedBodyText;
-		String imgURL = WebBaseButton.getImageDisplayURL(this);
-
-		if (imgURL != null)
+		Insets m = null;
+		// empty border gets handled as margin
+		if (border instanceof EmptyBorder)
 		{
-			instrumentedBodyText = "<img id=\"" + WebBaseLabel.this.getMarkupId() + "_img\" src=\"" + imgURL + "\" align=\"middle\">&nbsp;" + bodyText; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			m = border.getBorderInsets(null);
 		}
-		else
+		// empty border inside compound border gets handled as margin
+		else if (border instanceof CompoundBorder)
 		{
-			Insets m = null;
-			// empty border gets handled as margin
-			if (border instanceof EmptyBorder)
+			Border inside = ((CompoundBorder)border).getInsideBorder();
+			if (inside instanceof EmptyBorder)
 			{
-				m = border.getBorderInsets(null);
+				m = inside.getBorderInsets(null);
 			}
-			// empty border inside compound border gets handled as margin
-			else if (border instanceof CompoundBorder)
-			{
-				Border inside = ((CompoundBorder)border).getInsideBorder();
-				if (inside instanceof EmptyBorder)
-				{
-					m = inside.getBorderInsets(null);
-				}
-			}
-
-			instrumentedBodyText = WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHTML, hasHTML, m, getMarkupId() + "_lb",
-				(char)getDisplayedMnemonic());
 		}
 
-		replaceComponentTagBody(markupStream, openTag, instrumentedBodyText);
+		replaceComponentTagBody(
+			markupStream,
+			openTag,
+			WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHTML, hasHTML, m, getMarkupId() + "_lb", (char)getDisplayedMnemonic(), getMarkupId() +
+				"_img", WebBaseButton.getImageDisplayURL(this))); //$NON-NLS-1$
 	}
 
 	@Override
