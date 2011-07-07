@@ -1452,7 +1452,7 @@ public class TemplateGenerator
 
 
 		// default radio/check stuff
-		addDefaultCheckRadioStuff(css, "field");
+		//addDefaultCheckRadioStuff(css, "field"); (not needed anymore)
 		addDefaultCheckRadioStuff(css, "check");
 		addDefaultCheckRadioStuff(css, "radio");
 
