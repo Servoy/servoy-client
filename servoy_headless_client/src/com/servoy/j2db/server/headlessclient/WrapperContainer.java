@@ -178,6 +178,10 @@ public class WrapperContainer extends WebMarkupContainer implements IDelegate<Co
 		public void setRendered()
 		{
 			changed = false;
+			if (!wrappedComponent.isVisible() && wrappedComponent instanceof IProviderStylePropertyChanges)
+			{
+				((IProviderStylePropertyChanges)wrappedComponent).getStylePropertyChanges().setRendered();
+			}
 		}
 
 		/**
