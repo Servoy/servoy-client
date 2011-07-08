@@ -69,6 +69,7 @@ import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeBaseComponent;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.Text;
@@ -161,10 +162,10 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	public void renderHead(HtmlHeaderContainer container)
 	{
 		super.renderHead(container);
-//		if (valign == ISupportTextSetup.CENTER)
-//		{
-//			container.getHeaderResponse().renderOnDomReadyJavascript("Servoy.Utils.setLabelChildHeight('" + getMarkupId() + "')");
-//		}
+		if (valign == ISupportTextSetup.CENTER && hasHtml() && WebBaseButton.getImageDisplayURL(this) == null)
+		{
+			container.getHeaderResponse().renderOnDomReadyJavascript("Servoy.Utils.setLabelChildHeight('" + getMarkupId() + "')");
+		}
 	}
 
 	/**
@@ -1010,6 +1011,11 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 			openTag,
 			WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHTML, m, cssid, (char)getDisplayedMnemonic(),
 				getMarkupId() + "_img", WebBaseButton.getImageDisplayURL(this), size.height)); //$NON-NLS-1$
+	}
+
+	protected boolean hasHtml()
+	{
+		return HtmlUtils.startsWithHtml(getDefaultModelObject());
 	}
 
 	@Override

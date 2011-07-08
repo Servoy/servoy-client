@@ -158,6 +158,17 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 		instrumentAndReplaceBody(markupStream, openTag, bodyText, hasHTML);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.dataui.WebBaseLabel#hasHtml()
+	 */
+	@Override
+	protected boolean hasHtml()
+	{
+		return hasHTML;
+	}
+
 	/**
 	 * @see com.servoy.j2db.dataprocessing.IDisplayData#getValue()
 	 */
