@@ -1101,10 +1101,11 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		}
 		instrumentedBodyText.append("</span>"); //$NON-NLS-1$
 
-		if (valign == ISupportTextSetup.CENTER && imgURL != null)
+		if (imgURL != null)
 		{
+			String sValign = (valign == ISupportTextSetup.TOP) ? "top" : (valign == ISupportTextSetup.BOTTOM) ? "bottom" : "middle";
 			instrumentedBodyText = (new StringBuffer(
-				"<table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" height=\"100%\"><tr><td style=\"vertical-align:middle;\">").append(instrumentedBodyText).append("</td></tr></table>")); //$NON-NLS-1$ //$NON-NLS-2$
+				"<table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" height=\"100%\"><tr><td style=\"vertical-align:").append(sValign).append(";\">").append(instrumentedBodyText).append("</td></tr></table>")); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return instrumentedBodyText.toString();
 	}
