@@ -261,6 +261,17 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 		instrumentAndReplaceBody(markupStream, openTag, bodyText);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.dataui.WebBaseSubmitLink#getBodyText()
+	 */
+	@Override
+	protected CharSequence getBodyText()
+	{
+		return strippedText.getBodyTxt();
+	}
+
 	/**
 	 * @see wicket.markup.html.form.FormComponent#getInputName()
 	 */

@@ -169,6 +169,17 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 		return hasHTML;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.dataui.WebBaseLabel#getBodyText()
+	 */
+	@Override
+	protected CharSequence getBodyText()
+	{
+		return bodyText;
+	}
+
 	/**
 	 * @see com.servoy.j2db.dataprocessing.IDisplayData#getValue()
 	 */

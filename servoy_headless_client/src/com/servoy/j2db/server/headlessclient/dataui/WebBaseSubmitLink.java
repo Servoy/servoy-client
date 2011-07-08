@@ -42,6 +42,7 @@ import org.apache.wicket.markup.html.form.SubmitLink;
 import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.convert.IConverter;
+import org.apache.wicket.util.string.Strings;
 
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
@@ -145,7 +146,6 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 		return scriptable;
 	}
 
-	private final boolean shouldGenerateJSForCentering[] = { false };
 
 	/*
 	 * (non-Javadoc)
@@ -157,10 +157,28 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 	public void renderHead(HtmlHeaderContainer container)
 	{
 		super.renderHead(container);
-		if (valign == ISupportTextSetup.CENTER && shouldGenerateJSForCentering[0])
+		if (shouldCenterWithJS())
 		{
 			container.getHeaderResponse().renderOnDomReadyJavascript("Servoy.Utils.setLabelChildHeight('" + getMarkupId() + "')");
 		}
+	}
+
+	private boolean shouldCenterWithJS()
+	{
+		if (valign == ISupportTextSetup.CENTER)
+		{
+			if (hasHtml())
+			{
+				return !WebBaseButton.isHTMLWithOnlyImg(getBodyText());
+			}
+			return !Strings.isEmpty(getDefaultModelObjectAsString()) && WebBaseButton.getImageDisplayURL(this) != null;
+		}
+		return false;
+	}
+
+	protected CharSequence getBodyText()
+	{
+		return StripHTMLTagsConverter.convertBodyText(this, getDefaultModelObjectAsString(), application.getFlattenedSolution()).getBodyTxt();
 	}
 
 	/**
@@ -897,8 +915,8 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 		boolean hasHtml = hasHtml();
 		String cssid = hasHtml ? getMarkupId() + "_lb" : null;
 
-		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtml(), padding, cssid,
-			(char)getDisplayedMnemonic(), getMarkupId() + "_img", WebBaseButton.getImageDisplayURL(this), size.height, shouldGenerateJSForCentering)); //$NON-NLS-1$
+		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtml, padding, cssid,
+			(char)getDisplayedMnemonic(), getMarkupId() + "_img", WebBaseButton.getImageDisplayURL(this), size.height)); //$NON-NLS-1$
 	}
 
 	protected boolean hasHtml()
