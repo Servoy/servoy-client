@@ -32,6 +32,7 @@
 		<exclude name="util/Ad.java" />
 		<exclude name="util/XML*" />
 		<exclude name="util/gui/**" />
+		<exclude name="util/visitor/**" />
 		<exclude name="util/toolbar/**" />
 		<exclude name="util/xmlxport/**" />
 		<exclude name="util/rmi/**" />
