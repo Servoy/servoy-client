@@ -161,10 +161,10 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	public void renderHead(HtmlHeaderContainer container)
 	{
 		super.renderHead(container);
-		if (valign == ISupportTextSetup.CENTER)
-		{
-			container.getHeaderResponse().renderOnDomReadyJavascript("Servoy.Utils.setLabelChildHeight('" + getMarkupId() + "')");
-		}
+//		if (valign == ISupportTextSetup.CENTER)
+//		{
+//			container.getHeaderResponse().renderOnDomReadyJavascript("Servoy.Utils.setLabelChildHeight('" + getMarkupId() + "')");
+//		}
 	}
 
 	/**
@@ -1003,11 +1003,13 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 			}
 		}
 
+		String cssid = hasHTML ? getMarkupId() + "_lb" : null;
+
 		replaceComponentTagBody(
 			markupStream,
 			openTag,
-			WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHTML, hasHTML, m, getMarkupId() + "_lb", (char)getDisplayedMnemonic(), getMarkupId() +
-				"_img", WebBaseButton.getImageDisplayURL(this))); //$NON-NLS-1$
+			WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHTML, m, cssid, (char)getDisplayedMnemonic(),
+				getMarkupId() + "_img", WebBaseButton.getImageDisplayURL(this), size.height)); //$NON-NLS-1$
 	}
 
 	@Override
