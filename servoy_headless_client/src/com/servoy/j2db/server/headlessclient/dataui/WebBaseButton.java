@@ -891,8 +891,8 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	protected void instrumentAndReplaceBody(MarkupStream markupStream, ComponentTag openTag, CharSequence bodyText)
 	{
 		replaceComponentTagBody(markupStream, openTag,
-			instrumentBodyText(bodyText, halign, valign, false, false, margin, null, (char)getDisplayedMnemonic(), getMarkupId() + "_img", //$NON-NLS-1$
-				getImageDisplayURL(this)));
+			instrumentBodyText(bodyText, halign, valign, false, margin, null, (char)getDisplayedMnemonic(), getMarkupId() + "_img", //$NON-NLS-1$
+				getImageDisplayURL(this), size == null ? 0 : size.height));
 	}
 
 	protected static String getImageDisplayURL(IImageDisplay imageDisplay)
@@ -1025,8 +1025,8 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	}
 
 	@SuppressWarnings("nls")
-	protected static String instrumentBodyText(CharSequence bodyText, int halign, int valign, boolean fullWidth, boolean fullHeight, Insets padding,
-		String cssid, char mnemonic, String imgID, String imgURL)
+	protected static String instrumentBodyText(CharSequence bodyText, int halign, int valign, boolean isHtml, Insets padding, String cssid, char mnemonic,
+		String imgID, String imgURL, int height)
 	{
 		// In order to vertically align the text inside the <button>, we wrap the text inside a <span>, and we absolutely
 		// position the <span> in the <button>. However, for centering vertically we drop this absolute positioning and
@@ -1057,9 +1057,15 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		else if (valign == ISupportTextSetup.BOTTOM) instrumentedBodyText.append(" bottom: " + bottom + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		// Full width/height.
-		if (fullWidth || (valign == ISupportTextSetup.CENTER && cssid != null)) instrumentedBodyText.append(" width: 100%;"); //$NON-NLS-1$
-		if (fullHeight && valign != ISupportTextSetup.CENTER) instrumentedBodyText.append(" height: 100%;"); //$NON-NLS-1$
-		else if (cssid != null) instrumentedBodyText.append(" position: absolute;"); //$NON-NLS-1$
+		if (isHtml || (valign == ISupportTextSetup.CENTER && cssid != null)) instrumentedBodyText.append(" width: 100%;"); //$NON-NLS-1$
+		if (isHtml && valign != ISupportTextSetup.CENTER) instrumentedBodyText.append(" height: 100%;"); //$NON-NLS-1$
+		else if (cssid != null && !isHTMLWithOnlyImg(bodyText)) instrumentedBodyText.append(" position: absolute;"); //$NON-NLS-1$
+		else if (!isHtml && imgURL == null)
+		{
+			int innerHeight = height;
+			if (padding != null) innerHeight -= padding.top + padding.bottom;
+			instrumentedBodyText.append("line-height: " + innerHeight + "px;");
+		}
 
 		instrumentedBodyText.append("'"); //$NON-NLS-1$
 		if (cssid != null)
@@ -1070,7 +1076,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		}
 		instrumentedBodyText.append(">"); //$NON-NLS-1$
 
-		if (bodyText != null)
+		if (!Strings.isEmpty(bodyText))
 		{
 			CharSequence bodyTextValue = bodyText;
 			if (mnemonic > 0 && !HtmlUtils.startsWithHtml(bodyTextValue))
@@ -1087,14 +1093,58 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 			if (imgURL != null)
 			{
-				bodyTextValue = new StringBuffer("<img id=\"").append(imgID).append("\" src=\"").append(imgURL).append("\" align=\"middle\">&nbsp;").append(
-					bodyTextValue);
+				StringBuffer sb = new StringBuffer("<img id=\"").append(imgID).append("\" src=\"").append(imgURL).append("\" align=\"middle\">");
+				if (bodyText.toString().toLowerCase().indexOf("<br") == -1 && halign == ISupportTextSetup.LEFT)
+				{
+					int innerHeight = height;
+					if (padding != null) innerHeight -= padding.top + padding.bottom;
+					sb.append("<span style='position:absolute;height:");
+					sb.append(innerHeight);
+					sb.append("px;line-height:");
+					sb.append(innerHeight);
+					sb.append("px'>&nbsp;");
+					sb.append(bodyTextValue);
+					sb.append("</span>");
+				}
+				else
+				{
+					sb.append("&nbsp;");
+					sb.append(bodyTextValue);
+				}
+				bodyTextValue = sb;
 			}
 
 			instrumentedBodyText.append(bodyTextValue);
 		}
+		else if (imgURL != null)
+		{
+			instrumentedBodyText.append("<img id=\"");
+			instrumentedBodyText.append(imgID);
+			instrumentedBodyText.append("\" src=\"");
+			instrumentedBodyText.append(imgURL);
+			instrumentedBodyText.append("\" align=\"middle\">");
+		}
 		instrumentedBodyText.append("</span>"); //$NON-NLS-1$
+
+		if ((Strings.isEmpty(bodyText) && imgURL != null) || isHTMLWithOnlyImg(bodyText))
+		{
+			String sValign = (valign == ISupportTextSetup.TOP) ? "top" : (valign == ISupportTextSetup.BOTTOM) ? "bottom" : "middle";
+			instrumentedBodyText = (new StringBuffer(
+				"<table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" height=\"100%\"><tr><td style=\"vertical-align:").append(sValign).append(";\">").append(instrumentedBodyText).append("</td></tr></table>")); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+
 		return instrumentedBodyText.toString();
+	}
+
+	public static boolean isHTMLWithOnlyImg(CharSequence bodyText)
+	{
+		if (bodyText != null)
+		{
+			String sBodyText = bodyText.toString().trim().toLowerCase();
+			return sBodyText.startsWith("<img") && (sBodyText.indexOf('>') == sBodyText.length() - 1); //$NON-NLS-1$
+		}
+
+		return false;
 	}
 
 	/*

@@ -42,6 +42,7 @@ import org.apache.wicket.markup.html.form.SubmitLink;
 import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.convert.IConverter;
+import org.apache.wicket.util.string.Strings;
 
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
@@ -64,6 +65,7 @@ import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeBaseComponent;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.Text;
@@ -144,6 +146,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 		return scriptable;
 	}
 
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -154,10 +157,28 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 	public void renderHead(HtmlHeaderContainer container)
 	{
 		super.renderHead(container);
-		if (valign == ISupportTextSetup.CENTER)
+		if (shouldCenterWithJS())
 		{
 			container.getHeaderResponse().renderOnDomReadyJavascript("Servoy.Utils.setLabelChildHeight('" + getMarkupId() + "')");
 		}
+	}
+
+	private boolean shouldCenterWithJS()
+	{
+		if (valign == ISupportTextSetup.CENTER)
+		{
+			if (hasHtml())
+			{
+				return !WebBaseButton.isHTMLWithOnlyImg(getBodyText());
+			}
+			return !Strings.isEmpty(getDefaultModelObjectAsString()) && WebBaseButton.getImageDisplayURL(this) != null;
+		}
+		return false;
+	}
+
+	protected CharSequence getBodyText()
+	{
+		return StripHTMLTagsConverter.convertBodyText(this, getDefaultModelObjectAsString(), application.getFlattenedSolution()).getBodyTxt();
 	}
 
 	/**
@@ -891,13 +912,16 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 			padding = ((CompoundBorder)border).getInsideBorder().getBorderInsets(null);
 		}
 
-		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, fillAllSpace(), fillAllSpace(), padding,
-			getMarkupId() + "_lb", (char)getDisplayedMnemonic(), getMarkupId() + "_img", WebBaseButton.getImageDisplayURL(this))); //$NON-NLS-1$
+		boolean hasHtml = hasHtml();
+		String cssid = hasHtml ? getMarkupId() + "_lb" : null;
+
+		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtml, padding, cssid,
+			(char)getDisplayedMnemonic(), getMarkupId() + "_img", WebBaseButton.getImageDisplayURL(this), size.height)); //$NON-NLS-1$
 	}
 
-	protected boolean fillAllSpace()
+	protected boolean hasHtml()
 	{
-		return false;
+		return HtmlUtils.startsWithHtml(getDefaultModelObject());
 	}
 
 	@Override

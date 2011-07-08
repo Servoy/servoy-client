@@ -201,7 +201,7 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 	 * here we force the two attributes to be added.
 	 */
 	@Override
-	protected boolean fillAllSpace()
+	protected boolean hasHtml()
 	{
 		return true;
 	}
