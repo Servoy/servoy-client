@@ -1059,7 +1059,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		// Full width/height.
 		if (isHtml || (valign == ISupportTextSetup.CENTER && cssid != null)) instrumentedBodyText.append(" width: 100%;"); //$NON-NLS-1$
 		if (isHtml && valign != ISupportTextSetup.CENTER) instrumentedBodyText.append(" height: 100%;"); //$NON-NLS-1$
-		else if (cssid != null && imgURL == null) instrumentedBodyText.append(" position: absolute;"); //$NON-NLS-1$
+		else if (cssid != null && imgURL == null && !isHTMLWithOnlyImg(bodyText)) instrumentedBodyText.append(" position: absolute;"); //$NON-NLS-1$
 		else if (!isHtml && imgURL == null)
 		{
 			int innerHeight = height;
@@ -1106,13 +1106,24 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		}
 		instrumentedBodyText.append("</span>"); //$NON-NLS-1$
 
-		if (imgURL != null)
+		if (((bodyText == null || bodyText.length() == 0) && imgURL != null) || isHTMLWithOnlyImg(bodyText))
 		{
 			String sValign = (valign == ISupportTextSetup.TOP) ? "top" : (valign == ISupportTextSetup.BOTTOM) ? "bottom" : "middle";
 			instrumentedBodyText = (new StringBuffer(
 				"<table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" height=\"100%\"><tr><td style=\"vertical-align:").append(sValign).append(";\">").append(instrumentedBodyText).append("</td></tr></table>")); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return instrumentedBodyText.toString();
+	}
+
+	private static boolean isHTMLWithOnlyImg(CharSequence bodyText)
+	{
+		if (bodyText != null)
+		{
+			String sBodyText = bodyText.toString().trim().toLowerCase();
+			return sBodyText.startsWith("<img") && (sBodyText.indexOf('>') == sBodyText.length() - 1); //$NON-NLS-1$
+		}
+
+		return false;
 	}
 
 	/*
