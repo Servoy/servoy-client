@@ -1076,7 +1076,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		}
 		instrumentedBodyText.append(">"); //$NON-NLS-1$
 
-		if (bodyText != null)
+		if (!Strings.isEmpty(bodyText))
 		{
 			CharSequence bodyTextValue = bodyText;
 			if (mnemonic > 0 && !HtmlUtils.startsWithHtml(bodyTextValue))
@@ -1094,19 +1094,24 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			if (imgURL != null)
 			{
 				StringBuffer sb = new StringBuffer("<img id=\"").append(imgID).append("\" src=\"").append(imgURL).append("\" align=\"middle\">");
-				if (bodyTextValue.toString().trim().length() > 0)
-				{
-					sb.append("&nbsp;");
-					sb.append(bodyTextValue);
-				}
+				sb.append("&nbsp;");
+				sb.append(bodyTextValue);
 				bodyTextValue = sb;
 			}
 
 			instrumentedBodyText.append(bodyTextValue);
 		}
+		else if (imgURL != null)
+		{
+			instrumentedBodyText.append("<img id=\"");
+			instrumentedBodyText.append(imgID);
+			instrumentedBodyText.append("\" src=\"");
+			instrumentedBodyText.append(imgURL);
+			instrumentedBodyText.append("\" align=\"middle\">");
+		}
 		instrumentedBodyText.append("</span>"); //$NON-NLS-1$
 
-		if (((bodyText == null || bodyText.length() == 0) && imgURL != null) || isHTMLWithOnlyImg(bodyText))
+		if ((Strings.isEmpty(bodyText) && imgURL != null) || isHTMLWithOnlyImg(bodyText))
 		{
 			String sValign = (valign == ISupportTextSetup.TOP) ? "top" : (valign == ISupportTextSetup.BOTTOM) ? "bottom" : "middle";
 			instrumentedBodyText = (new StringBuffer(
