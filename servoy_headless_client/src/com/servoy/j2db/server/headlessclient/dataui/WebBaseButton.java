@@ -1093,8 +1093,13 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 			if (imgURL != null)
 			{
-				bodyTextValue = new StringBuffer("<img id=\"").append(imgID).append("\" src=\"").append(imgURL).append("\" align=\"middle\">&nbsp;").append(
-					bodyTextValue);
+				StringBuffer sb = new StringBuffer("<img id=\"").append(imgID).append("\" src=\"").append(imgURL).append("\" align=\"middle\">");
+				if (bodyTextValue.toString().trim().length() > 0)
+				{
+					sb.append("&nbsp;");
+					sb.append(bodyTextValue);
+				}
+				bodyTextValue = sb;
 			}
 
 			instrumentedBodyText.append(bodyTextValue);
