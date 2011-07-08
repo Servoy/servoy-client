@@ -35,6 +35,7 @@ import org.mozilla.javascript.IdScriptableObject;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeFunction;
 import org.mozilla.javascript.NativeObject;
+import org.mozilla.javascript.Undefined;
 
 import com.servoy.j2db.scripting.JSConvertedMap;
 
@@ -332,7 +333,14 @@ public class NativeObjectSerializer extends AbstractSerializer
 				}
 				try
 				{
-					clazz = Class.forName(classHint);
+					if (Undefined.class.getName().equals(classHint))
+					{
+						return Undefined.instance;
+					}
+					else
+					{
+						clazz = Class.forName(classHint);
+					}
 				}
 				catch (ClassNotFoundException ex)
 				{
