@@ -892,7 +892,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	{
 		replaceComponentTagBody(markupStream, openTag,
 			instrumentBodyText(bodyText, halign, valign, false, margin, null, (char)getDisplayedMnemonic(), getMarkupId() + "_img", //$NON-NLS-1$
-				getImageDisplayURL(this), size == null ? 0 : size.height));
+				getImageDisplayURL(this), size == null ? 0 : size.height, null));
 	}
 
 	protected static String getImageDisplayURL(IImageDisplay imageDisplay)
@@ -1026,8 +1026,10 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	@SuppressWarnings("nls")
 	protected static String instrumentBodyText(CharSequence bodyText, int halign, int valign, boolean isHtml, Insets padding, String cssid, char mnemonic,
-		String imgID, String imgURL, int height)
+		String imgID, String imgURL, int height, boolean[] shouldGenerateJSForCentering)
 	{
+		boolean bShouldGenerateJSForCentering = true;
+
 		// In order to vertically align the text inside the <button>, we wrap the text inside a <span>, and we absolutely
 		// position the <span> in the <button>. However, for centering vertically we drop this absolute positioning and
 		// rely on the fact that by default the <button> tag vertically centers its content.
@@ -1113,10 +1115,17 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 		if ((Strings.isEmpty(bodyText) && imgURL != null) || isHTMLWithOnlyImg(bodyText))
 		{
+			bShouldGenerateJSForCentering = false;
 			String sValign = (valign == ISupportTextSetup.TOP) ? "top" : (valign == ISupportTextSetup.BOTTOM) ? "bottom" : "middle";
 			instrumentedBodyText = (new StringBuffer(
 				"<table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" height=\"100%\"><tr><td style=\"vertical-align:").append(sValign).append(";\">").append(instrumentedBodyText).append("</td></tr></table>")); //$NON-NLS-1$ //$NON-NLS-2$
 		}
+
+		if (shouldGenerateJSForCentering != null && shouldGenerateJSForCentering.length > 0)
+		{
+			shouldGenerateJSForCentering[0] = bShouldGenerateJSForCentering;
+		}
+
 		return instrumentedBodyText.toString();
 	}
 

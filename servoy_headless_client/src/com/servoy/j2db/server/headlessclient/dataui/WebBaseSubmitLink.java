@@ -145,6 +145,8 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 		return scriptable;
 	}
 
+	private final boolean shouldGenerateJSForCentering[] = { false };
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -155,7 +157,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 	public void renderHead(HtmlHeaderContainer container)
 	{
 		super.renderHead(container);
-		if (valign == ISupportTextSetup.CENTER && hasHtml() && WebBaseButton.getImageDisplayURL(this) == null)
+		if (valign == ISupportTextSetup.CENTER && shouldGenerateJSForCentering[0])
 		{
 			container.getHeaderResponse().renderOnDomReadyJavascript("Servoy.Utils.setLabelChildHeight('" + getMarkupId() + "')");
 		}
@@ -896,7 +898,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 		String cssid = hasHtml ? getMarkupId() + "_lb" : null;
 
 		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtml(), padding, cssid,
-			(char)getDisplayedMnemonic(), getMarkupId() + "_img", WebBaseButton.getImageDisplayURL(this), size.height)); //$NON-NLS-1$
+			(char)getDisplayedMnemonic(), getMarkupId() + "_img", WebBaseButton.getImageDisplayURL(this), size.height, shouldGenerateJSForCentering)); //$NON-NLS-1$
 	}
 
 	protected boolean hasHtml()
