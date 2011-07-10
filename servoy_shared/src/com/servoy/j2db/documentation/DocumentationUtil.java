@@ -17,7 +17,8 @@
 
 package com.servoy.j2db.documentation;
 
-import com.servoy.j2db.documentation.scripting.docs.Function;
+import java.lang.reflect.Array;
+
 
 /**
  * Utility class for documentation management.
@@ -26,27 +27,70 @@ import com.servoy.j2db.documentation.scripting.docs.Function;
  */
 public class DocumentationUtil
 {
+	private static Class< ? > loadClassEx(ClassLoader loader, String type) throws ClassNotFoundException
+	{
+		Class< ? > c;
+		if (loader != null)
+		{
+			try
+			{
+				c = loader.loadClass(type);
+			}
+			catch (ClassNotFoundException e)
+			{
+				c = Class.forName(type);
+			}
+		}
+		else
+		{
+			c = Class.forName(type);
+		}
+		return c;
+	}
 
-	public static Class< ? > loadClass(String type) throws ClassNotFoundException
+	public static Class< ? > loadClass(ClassLoader loader, String type) throws ClassNotFoundException
 	{
 		if (type == null) return null;
-		if (Integer.TYPE.getName().equals(type)) return Integer.TYPE;
-		else if (Character.TYPE.getName().equals(type)) return Character.TYPE;
 		else if (Byte.TYPE.getName().equals(type)) return Byte.TYPE;
 		else if (Short.TYPE.getName().equals(type)) return Short.TYPE;
+		else if (Integer.TYPE.getName().equals(type)) return Integer.TYPE;
 		else if (Long.TYPE.getName().equals(type)) return Long.TYPE;
 		else if (Float.TYPE.getName().equals(type)) return Float.TYPE;
 		else if (Double.TYPE.getName().equals(type)) return Double.TYPE;
-		else if (Void.TYPE.getName().equals(type)) return Void.TYPE;
+		else if (Character.TYPE.getName().equals(type)) return Character.TYPE;
 		else if (Boolean.TYPE.getName().equals(type)) return Boolean.TYPE;
+		else if (Void.TYPE.getName().equals(type)) return Void.TYPE;
 		else
 		{
-			// special case for "function"
-			if (type.toLowerCase().trim().equals("function")) return Function.class; //$NON-NLS-1$
+			int dim = 0, i = 0;
+			while (type.charAt(i) == '[')
+			{
+				dim++;
+				i++;
+			}
+			if (dim > 0)
+			{
+				// If we have at least a '[' followed by an 'L', then it's a non-primitive type.
+				if (type.charAt(i) == 'L')
+				{
+					i++;
+					String baseType = type.substring(i, type.length() - 1);
+					Class< ? > clz = loadClassEx(loader, baseType);
+					for (i = 0; i < dim; i++)
+					{
+						clz = Array.newInstance(clz, 0).getClass();
+					}
+					return clz;
+				}
+				// If there is no 'L' after the '['s, then it's a primitive type.
+				else
+				{
+					return loadClassEx(loader, type);
+				}
+			}
 			else
 			{
-				Class< ? > c = Class.forName(type);
-				return c;
+				return loadClassEx(loader, type);
 			}
 		}
 	}

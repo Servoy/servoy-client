@@ -14,28 +14,24 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
+
 package com.servoy.j2db.documentation;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import java.util.SortedMap;
+
 
 /**
- * Annotation that is used to mark the classes that should participate
- * to the process of generating the documentation.
- * 
- * @author gerzse
+ * Documentation manager interface, implemented via extension point.
  */
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ServoyDocumented
+public interface IDocumentationManager
 {
-	public static final String PLUGINS = "plugins"; //$NON-NLS-1$
-	public static final String RUNTIME = "runtime"; //$NON-NLS-1$
-	public static final String DESIGNTIME = "designtime"; //$NON-NLS-1$
-	public static final String JSLIB = "jslib"; //$NON-NLS-1$
+	public void addObject(IObjectDocumentation object);
 
-	String category() default PLUGINS;
+	public SortedMap<String, IObjectDocumentation> getObjects();
 
-	String publicName() default "";
+	public IObjectDocumentation getObjectByQualifiedName(String qualifiedName);
 
-	String scriptingName() default "";
+	public IFunctionDocumentation createFunctionDocumentation(String mainName, Class< ? >[] argsTypes, Integer type, boolean deprecated, int state);
+
+	public IObjectDocumentation createObjectDocumentation(String category, String qualifiedName, String publicName, String scriptingName, String[] parentClasses);
 }

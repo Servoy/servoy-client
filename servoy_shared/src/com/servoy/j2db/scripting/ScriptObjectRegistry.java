@@ -31,6 +31,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
 import com.servoy.j2db.dataprocessing.DataException;
+import com.servoy.j2db.documentation.XMLScriptObjectAdapter;
 
 /**
  * @author jcompagner
@@ -46,6 +47,13 @@ public class ScriptObjectRegistry
 
 	public static void registerScriptObjectForClass(Class< ? > clz, IScriptable scriptobject)
 	{
+		// If there is already an XMLScriptObjectAdapter registered for this class, then
+		// don't allow it to be overwritten
+		if (scriptObjectRegistry.containsKey(clz))
+		{
+			IScriptable existing = scriptObjectRegistry.get(clz);
+			if (existing instanceof XMLScriptObjectAdapter) return;
+		}
 		scriptObjectRegistry.put(clz, scriptobject);
 	}
 
@@ -98,6 +106,26 @@ public class ScriptObjectRegistry
 		}
 		if (so instanceof IScriptObject) return (IScriptObject)so;
 		return null;
+	}
+
+	/** 
+	 * If there is an XMLScriptObject adapter in the registry, use that.
+	 * This means that the docs were loaded from an XML from the plugin jar. 
+	 * The real scriptobject will be hidden behind the XMLScriptObject adapter.
+	 */
+	public static IScriptObject getAdapterIfAny(IScriptObject scriptObject)
+	{
+		if (scriptObject == null) return null;
+		Class< ? > key = scriptObject.getClass();
+		if (scriptObjectRegistry.containsKey(key))
+		{
+			IScriptable existing = scriptObjectRegistry.get(key);
+			if (existing instanceof XMLScriptObjectAdapter)
+			{
+				return (XMLScriptObjectAdapter)existing;
+			}
+		}
+		return scriptObject;
 	}
 
 	public static Set<Class< ? >> getRegisteredClasses()
