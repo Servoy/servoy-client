@@ -74,4 +74,12 @@ public class ScriptMethod extends AbstractScriptProvider implements IPersistClon
 		int index = declaration.indexOf("*/");
 		return index != -1 && declaration.lastIndexOf("@private", index) != -1;
 	}
+
+	@SuppressWarnings("nls")
+	public boolean isProtected()
+	{
+		String declaration = getDeclaration();
+		int index = declaration.indexOf("*/");
+		return index != -1 && declaration.lastIndexOf("@protected", index) != -1;
+	}
 }
