@@ -1254,6 +1254,16 @@ public class TemplateGenerator
 		styleObj.setProperty("border-color", "#D4D0C8");
 		styleObj.setProperty("background-color", "#FFFFFF");
 
+		//default radio/check field stuff
+		styleObj = css.addStyle(".radioCheckField");
+		styleObj.setProperty("padding", createInsetsText(DEFAULT_FIELD_PADDING));
+		styleObj.setProperty("margin", "0");
+		styleObj.setProperty("border-style", "inset");
+		styleObj.setProperty("border-width", createInsetsText(DEFAULT_FIELD_BORDER_SIZE));
+		styleObj.setProperty("border-spacing", "0px 0px");
+		styleObj.setProperty("border-color", "transparent");
+		styleObj.setProperty("background-color", "#FFFFFF");
+
 		//default label stuff
 		styleObj = css.addStyle(".label");//input, select, textarea");
 		styleObj.setProperty("padding", createInsetsText(DEFAULT_LABEL_PADDING));
@@ -1452,7 +1462,7 @@ public class TemplateGenerator
 
 
 		// default radio/check stuff
-		addDefaultCheckRadioStuff(css, "field");
+		addDefaultCheckRadioStuff(css, "radioCheckField");
 		addDefaultCheckRadioStuff(css, "check");
 		addDefaultCheckRadioStuff(css, "radio");
 
@@ -2115,10 +2125,12 @@ public class TemplateGenerator
 				}
 				boolean addSingle = ComponentFactory.isSingleValue(valuelist, val);
 
+				// If we have multiple checkboxes, then the default is "field".
+				if (field.getValuelistID() > 0 && !addSingle && !isRadio) cssClass = "radioCheckField";
 				// If we have a style for the form, apply "check" class if present, default to "field" if "check" class is not present.
 				if (ss != null)
 				{
-					cssClass = "";
+					cssClass = "radioCheckField";
 					String lookUpValue = selector;
 					javax.swing.text.Style s = ss.getRule(lookUpValue);
 					if (s.getAttributeCount() == 0)
