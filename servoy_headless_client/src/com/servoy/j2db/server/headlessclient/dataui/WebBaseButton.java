@@ -892,7 +892,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	{
 		replaceComponentTagBody(markupStream, openTag,
 			instrumentBodyText(bodyText, halign, valign, false, margin, null, (char)getDisplayedMnemonic(), getMarkupId() + "_img", //$NON-NLS-1$
-				getImageDisplayURL(this), size == null ? 0 : size.height));
+				getImageDisplayURL(this), size == null ? 0 : size.height, true));
 	}
 
 	protected static String getImageDisplayURL(IImageDisplay imageDisplay)
@@ -1026,7 +1026,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	@SuppressWarnings("nls")
 	protected static String instrumentBodyText(CharSequence bodyText, int halign, int valign, boolean isHtml, Insets padding, String cssid, char mnemonic,
-		String imgID, String imgURL, int height)
+		String imgID, String imgURL, int height, boolean isButton)
 	{
 		// In order to vertically align the text inside the <button>, we wrap the text inside a <span>, and we absolutely
 		// position the <span> in the <button>. However, for centering vertically we drop this absolute positioning and
@@ -1056,11 +1056,14 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		if (valign == ISupportTextSetup.TOP) instrumentedBodyText.append(" top: " + top + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
 		else if (valign == ISupportTextSetup.BOTTOM) instrumentedBodyText.append(" bottom: " + bottom + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
 
+
+		boolean isOnlyImgDisplay = (Strings.isEmpty(bodyText) && imgURL != null) || isHTMLWithOnlyImg(bodyText);
+
 		// Full width/height.
 		if (isHtml || (valign == ISupportTextSetup.CENTER && cssid != null)) instrumentedBodyText.append(" width: 100%;"); //$NON-NLS-1$
 		if (isHtml && valign != ISupportTextSetup.CENTER) instrumentedBodyText.append(" height: 100%;"); //$NON-NLS-1$
-		else if (cssid != null && !isHTMLWithOnlyImg(bodyText)) instrumentedBodyText.append(" position: absolute;"); //$NON-NLS-1$
-		else if (!isHtml && imgURL == null)
+		else if ((cssid != null && !isHTMLWithOnlyImg(bodyText)) || (!isOnlyImgDisplay && valign != ISupportTextSetup.CENTER)) instrumentedBodyText.append(" position: absolute;"); //$NON-NLS-1$
+		else if (!isButton && !isHtml && imgURL == null)
 		{
 			int innerHeight = height;
 			if (padding != null) innerHeight -= padding.top + padding.bottom;
@@ -1126,7 +1129,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		}
 		instrumentedBodyText.append("</span>"); //$NON-NLS-1$
 
-		if ((Strings.isEmpty(bodyText) && imgURL != null) || isHTMLWithOnlyImg(bodyText))
+		if (isOnlyImgDisplay)
 		{
 			String sValign = (valign == ISupportTextSetup.TOP) ? "top" : (valign == ISupportTextSetup.BOTTOM) ? "bottom" : "middle";
 			instrumentedBodyText = (new StringBuffer(

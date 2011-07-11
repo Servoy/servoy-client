@@ -916,7 +916,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 		String cssid = hasHtml ? getMarkupId() + "_lb" : null;
 
 		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtml, padding, cssid,
-			(char)getDisplayedMnemonic(), getMarkupId() + "_img", WebBaseButton.getImageDisplayURL(this), size.height)); //$NON-NLS-1$
+			(char)getDisplayedMnemonic(), getMarkupId() + "_img", WebBaseButton.getImageDisplayURL(this), size.height, false)); //$NON-NLS-1$
 	}
 
 	protected boolean hasHtml()
