@@ -41,6 +41,7 @@ import sun.java2d.SunGraphics2D;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.component.IMarginAwareBorder;
 import com.servoy.j2db.component.INullableAware;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
@@ -66,7 +67,7 @@ import com.servoy.j2db.util.Utils;
  *
  */
 public class DataRadioButton extends JRadioButton implements IFieldComponent, IDisplayData, ISkinnable, INullableAware, ISupportCachedLocationAndSize,
-	ISupportValueList
+	ISupportValueList, IMarginAwareBorder
 {
 	private Object value;
 	protected IValueList onValue;

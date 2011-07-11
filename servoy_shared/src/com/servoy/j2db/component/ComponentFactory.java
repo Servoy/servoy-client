@@ -1213,6 +1213,7 @@ public class ComponentFactory
 		//apply any style
 		Insets style_margin = null;
 		int style_halign = -1;
+		boolean hasBorder = false;
 		Pair<FixedStyleSheet, javax.swing.text.Style> styleInfo = getStyleForBasicComponent(application, field, form);
 		if (styleInfo != null)
 		{
@@ -1222,6 +1223,7 @@ public class ComponentFactory
 			{
 				style_margin = ss.getMargin(s);
 				style_halign = ss.getHAlign(s);
+				hasBorder = ss.hasBorder(s);
 			}
 		}
 
@@ -1494,12 +1496,15 @@ public class ComponentFactory
 		if (m != null)
 		{
 			fl.setMargin(m);
-			if (fl instanceof IMarginAwareBorder && field.getBorderType() != null)
+			if (fl instanceof IMarginAwareBorder)
 			{
-				Border b = ComponentFactoryHelper.createBorder(field.getBorderType());
-				if (b != null)
+				if (field.getBorderType() != null || hasBorder)
 				{
-					fl.setBorder(BorderFactory.createCompoundBorder(b, BorderFactory.createEmptyBorder(m.top, m.left, m.bottom, m.right)));
+					Border b = fl.getBorder();
+					if (b != null)
+					{
+						fl.setBorder(BorderFactory.createCompoundBorder(b, BorderFactory.createEmptyBorder(m.top, m.left, m.bottom, m.right)));
+					}
 				}
 			}
 		}
