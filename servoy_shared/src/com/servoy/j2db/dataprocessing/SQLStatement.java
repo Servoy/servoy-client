@@ -27,7 +27,7 @@ import com.servoy.j2db.query.ISQLUpdate;
 import com.servoy.j2db.util.Utils;
 
 /**
- * SQLStatment object which can be serialized
+ * SQLStatement object which can be serialized
  * @author		jblok
  */
 public class SQLStatement implements ITrackingSQLStatement
