@@ -549,7 +549,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		if (maxLengthBehavior != null) remove(maxLengthBehavior);
 		if (maxLength > 0)
 		{
-			maxLengthBehavior = new FindModeDisabledSimpleAttributeModifier(getEventExecutor(), "maxlength", Integer.toString(maxLength)); //$NON-NLS-1$
+			maxLengthBehavior = new FindModeDisabledSimpleAttributeModifier(getEventExecutor(), "maxlength", Integer.toString(maxLength).intern()); //$NON-NLS-1$
 			add(maxLengthBehavior);
 		}
 	}
@@ -781,8 +781,8 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 				setType(String.class);
 				DecimalFormatSymbols dfs = RoundHalfUpDecimalFormat.getDecimalFormatSymbols(application.getLocale());
 				formatAttributeModifier = new FindModeDisabledSimpleAttributeModifier(getEventExecutor(), "onkeypress",
-					"return Servoy.Validation.numbersonly(event, true, '" + dfs.getDecimalSeparator() + "','" + dfs.getGroupingSeparator() + "','" +
-						dfs.getCurrencySymbol() + "','" + dfs.getPercent() + "');");
+					("return Servoy.Validation.numbersonly(event, true, '" + dfs.getDecimalSeparator() + "','" + dfs.getGroupingSeparator() + "','" +
+						dfs.getCurrencySymbol() + "','" + dfs.getPercent() + "');").intern());
 			}
 			else if (mappedType == IColumnTypes.TEXT)
 			{
