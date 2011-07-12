@@ -161,30 +161,38 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 				int style = BevelBorder.LOWERED;
 				if (bstyle.equals(BORDER_STYLE_OUTSET)) style = BevelBorder.RAISED;
 
-				top = makeSizeSave(top);
-				right = makeSizeSave(right);
-				bottom = makeSizeSave(bottom);
-				left = makeSizeSave(left);
-				Insets customBorderInsets = new Insets((int)top, (int)left, (int)bottom, (int)right);
+				Insets customBorderInsets = null;
+				if (top != -1.0 || right != -1.0 || bottom != -1.0 || left != -1.0)
+				{
+					top = makeSizeSave(top);
+					right = makeSizeSave(right);
+					bottom = makeSizeSave(bottom);
+					left = makeSizeSave(left);
+					customBorderInsets = new Insets((int)top, (int)left, (int)bottom, (int)right);
+				}
+
 				if (colors != null && colors.length > 0)
 				{
 					if (colors.length == 1)
 					{
 						// this tries to do the same thing as the web does..
-						b = new CustomBevelBorder(style, colors[0].brighter().brighter(), colors[0].darker().darker(), customBorderInsets);
+						b = customBorderInsets != null ? new CustomBevelBorder(style, colors[0].brighter().brighter(), colors[0].darker().darker(),
+							customBorderInsets) : new BevelBorder(style, colors[0].brighter().brighter(), colors[0].darker().darker());
 					}
 					if (colors.length == 2)
 					{
-						b = new CustomBevelBorder(style, colors[0], colors[1], customBorderInsets);
+						b = customBorderInsets != null ? new CustomBevelBorder(style, colors[0], colors[1], customBorderInsets) : new BevelBorder(style,
+							colors[0], colors[1]);
 					}
 					else if (colors.length > 3)
 					{
-						b = new CustomBevelBorder(style, colors[0], colors[1], colors[2], colors[3], customBorderInsets);
+						b = customBorderInsets != null ? new CustomBevelBorder(style, colors[0], colors[1], colors[2], colors[3], customBorderInsets)
+							: new BevelBorder(style, colors[0], colors[1], colors[2], colors[3]);
 					}
 				}
 				else
 				{
-					b = new CustomBevelBorder(style, customBorderInsets);
+					b = customBorderInsets != null ? new CustomBevelBorder(style, customBorderInsets) : new BevelBorder(style);
 				}
 			}
 			else if (bstyle.equals(BORDER_STYLE_NONE))
@@ -205,27 +213,33 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 				int style = EtchedBorder.LOWERED;
 				if (bstyle.equals(BORDER_STYLE_RIDGE)) style = EtchedBorder.RAISED;
 
-				top = makeSizeSave(top);
-				right = makeSizeSave(right);
-				bottom = makeSizeSave(bottom);
-				left = makeSizeSave(left);
-				Insets customBorderInsets = new Insets((int)top, (int)left, (int)bottom, (int)right);
+				Insets customBorderInsets = null;
+				if (top != -1.0 || right != -1.0 || bottom != -1.0 || left != -1.0)
+				{
+					top = makeSizeSave(top);
+					right = makeSizeSave(right);
+					bottom = makeSizeSave(bottom);
+					left = makeSizeSave(left);
+					customBorderInsets = new Insets((int)top, (int)left, (int)bottom, (int)right);
+				}
 
 				if (colors != null && colors.length > 0)
 				{
 					if (colors.length == 1)
 					{
 						// this tries to do the same thing as the web does..
-						b = new CustomEtchedBorder(style, colors[0].brighter().brighter(), colors[0].darker().darker(), customBorderInsets);
+						b = customBorderInsets != null ? new CustomEtchedBorder(style, colors[0].brighter().brighter(), colors[0].darker().darker(),
+							customBorderInsets) : new EtchedBorder(style, colors[0].brighter().brighter(), colors[0].darker().darker());
 					}
 					if (colors.length == 2)
 					{
-						b = new CustomEtchedBorder(style, colors[0], colors[1], customBorderInsets);
+						b = customBorderInsets != null ? new CustomEtchedBorder(style, colors[0], colors[1], customBorderInsets) : new EtchedBorder(style,
+							colors[0], colors[1]);
 					}
 				}
 				else
 				{
-					b = new CustomEtchedBorder(style, customBorderInsets);
+					b = customBorderInsets != null ? new CustomEtchedBorder(style, customBorderInsets) : new EtchedBorder(style);
 				}
 			}
 			else if (bstyle.equals(BORDER_STYLE_SOLID) || bstyle.equals(BORDER_STYLE_DOTTED) || bstyle.equals(BORDER_STYLE_DASHED))
