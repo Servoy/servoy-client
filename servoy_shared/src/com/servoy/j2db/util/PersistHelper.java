@@ -293,11 +293,17 @@ public class PersistHelper
 	public static Color createColor(String s)
 	{
 		Color retval = null;
-		if (s != null && s.length() == 7)
+
+		if (s != null && (s.length() == 4 || s.length() == 7))
 		{
+			String ss = s;
+			if (s.length() == 4) // abbreviated
+			{
+				ss = new String(new char[] { s.charAt(0), s.charAt(1), s.charAt(1), s.charAt(2), s.charAt(2), s.charAt(3), s.charAt(3) });
+			}
 			try
 			{
-				retval = Color.decode(s);
+				retval = Color.decode(ss);
 			}
 			catch (NumberFormatException e)
 			{
