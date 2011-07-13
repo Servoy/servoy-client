@@ -46,6 +46,7 @@ import org.apache.wicket.util.string.Strings;
 
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.MediaURLStreamHandler;
@@ -914,9 +915,14 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 
 		boolean hasHtml = hasHtml();
 		String cssid = hasHtml ? getMarkupId() + "_lb" : null;
-
+		boolean designMode = false;
+		IFormUIInternal< ? > formui = findParent(IFormUIInternal.class);
+		if (formui != null && formui.isDesignMode())
+		{
+			designMode = true;
+		}
 		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtml, padding, cssid,
-			(char)getDisplayedMnemonic(), getMarkupId() + "_img", WebBaseButton.getImageDisplayURL(this), size.height, false)); //$NON-NLS-1$
+			(char)getDisplayedMnemonic(), getMarkupId() + "_img", WebBaseButton.getImageDisplayURL(this), size.height, false, designMode)); //$NON-NLS-1$
 	}
 
 	protected boolean hasHtml()

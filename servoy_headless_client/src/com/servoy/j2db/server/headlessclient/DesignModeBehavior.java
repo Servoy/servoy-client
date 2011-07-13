@@ -19,6 +19,7 @@ package com.servoy.j2db.server.headlessclient;
 import java.awt.Insets;
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.Component.IVisitor;
@@ -38,6 +39,7 @@ import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.scripting.info.CLIENTDESIGN;
 import com.servoy.j2db.server.headlessclient.dataui.AbstractServoyDefaultAjaxBehavior;
+import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataCalendar;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataRenderer;
 import com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor;
@@ -139,7 +141,7 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 					((IScriptableProvider)component).getScriptObject() instanceof IScriptBaseMethods &&
 					needsWrapperDivForAnchoring(((IScriptBaseMethods)((IScriptableProvider)component).getScriptObject()).js_getElementType(), editable))
 				{
-					sb.append(component.getMarkupId() + "_wrapper");
+					sb.append(component.getMarkupId() + TemplateGenerator.WRAPPER_SUFFIX);
 				}
 				else
 				{
@@ -205,13 +207,13 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 		String id = extractId(request.getParameter(DraggableBehavior.PARAM_DRAGGABLE_ID));
 		if (id != null)
 		{
-			if (id.endsWith("_wrapper"))
+			if (id.endsWith(TemplateGenerator.WRAPPER_SUFFIX))
 			{
 				id = id.substring(0, id.length() - 8);
 			}
 			final String finalId = id;
 			MarkupContainer comp = (MarkupContainer)getComponent();
-			IScriptBaseMethods child = (IScriptBaseMethods)comp.visitChildren(IScriptBaseMethods.class, new IVisitor<Component>()
+			Component child = (Component)comp.visitChildren(Component.class, new IVisitor<Component>()
 			{
 				public Object component(Component component)
 				{
@@ -250,7 +252,7 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 								width += paddingAndBorder.left + paddingAndBorder.right;
 							}
 						}
-						child.js_setSize(width, height);
+						if (child instanceof IScriptableProvider) ((IScriptBaseMethods)((IScriptableProvider)child).getScriptObject()).js_setSize(width, height);
 						if (child instanceof IProviderStylePropertyChanges) ((IProviderStylePropertyChanges)child).getStylePropertyChanges().setRendered();
 					}
 					callback.executeOnResize(getJSEvent(EventType.onDrop, 0, new Point(x, y), new IComponent[] { (IComponent)child }));
@@ -274,14 +276,14 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 					{
 						if (x != -1 && y != -1)
 						{
-							child.js_setLocation(x, y);
+							((IScriptBaseMethods)((IScriptableProvider)child).getScriptObject()).js_setLocation(x, y);
 							if (child instanceof IProviderStylePropertyChanges)
 							{
 								// test if it is wrapped
-								if (((Component)child).getParent() instanceof WrapperContainer)
+								if ((child).getParent() instanceof WrapperContainer)
 								{
 									// call for the changes on the wrapper container so that it will copy the right values over
-									WrapperContainer wrapper = (WrapperContainer)((Component)child).getParent();
+									WrapperContainer wrapper = (WrapperContainer)(child).getParent();
 									wrapper.getStylePropertyChanges().getChanges();
 									wrapper.getStylePropertyChanges().setRendered();
 
@@ -314,7 +316,7 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 	private int stripUnitPart(String str)
 	{
 		if (str == null || str.trim().equals("") || "auto".equals(str)) return -1;
-		if (str.endsWith("px"))
+		if (str.endsWith("px") || str.endsWith("pt"))
 		{
 			return Integer.parseInt(str.substring(0, str.length() - 2));
 		}
@@ -343,7 +345,22 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 		event.setType(type);
 		event.setModifiers(modifiers);
 		event.setLocation(point);
-		event.setData(selected);
+		List<Object> selection = new ArrayList<Object>();
+		if (selected != null)
+		{
+			for (IComponent component : selected)
+			{
+				if (component instanceof IScriptableProvider)
+				{
+					selection.add(0, ((IScriptableProvider)component).getScriptObject());
+				}
+				else
+				{
+					selection.add(0, component);
+				}
+			}
+		}
+		event.setData(selection.toArray());
 		//event.setSource(e)
 		return event;
 	}

@@ -47,6 +47,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Page;
 import org.apache.wicket.Session;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.behavior.IBehavior;
 import org.apache.wicket.markup.IMarkupCacheKeyProvider;
 import org.apache.wicket.markup.Markup;
@@ -221,6 +222,23 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 				return null;
 			}
 		}));
+		add(new AttributeAppender("class", new Model<String>()
+		{
+			private static final long serialVersionUID = 1332637522687352873L;
+
+			@Override
+			public String getObject()
+			{
+				return "yui-skin-sam";
+			}
+		}, " ")
+		{
+			@Override
+			public boolean isEnabled(Component component)
+			{
+				return (component instanceof WebForm && ((WebForm)component).isDesignMode());
+			}
+		});
 		// set fixed markup id so that element can always be found by markup id
 		container.setOutputMarkupId(true);
 		container.setMarkupId("form_" + ComponentFactory.stripIllegalCSSChars(formController.getName())); // same as in template generator //$NON-NLS-1$

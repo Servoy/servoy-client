@@ -21,6 +21,7 @@ import java.util.Properties;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 
+import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.util.IDelegate;
@@ -192,5 +193,11 @@ public class WrapperContainer extends WebMarkupContainer implements IDelegate<Co
 			setChanged();
 		}
 
+	}
+
+	@Override
+	public String getMarkupId()
+	{
+		return wrappedComponent.getMarkupId() + TemplateGenerator.WRAPPER_SUFFIX;
 	}
 }

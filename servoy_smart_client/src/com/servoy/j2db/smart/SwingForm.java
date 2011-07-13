@@ -1942,7 +1942,19 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			event.setModifiers(e.getModifiers());
 			event.setLocation(e.getPoint());
 			Map<JComponent, int[][]> selectedComponents = selectionHandler.getSelectionForChange(this);
-			event.setData(selectedComponents.keySet().toArray());
+			List<Object> selection = new ArrayList<Object>();
+			for (JComponent component : selectedComponents.keySet())
+			{
+				if (component instanceof IScriptableProvider)
+				{
+					selection.add(0, ((IScriptableProvider)component).getScriptObject());
+				}
+				else
+				{
+					selection.add(0, component);
+				}
+			}
+			event.setData(selection.toArray());
 			//event.setSource(e)
 			return event;
 		}
