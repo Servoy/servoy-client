@@ -1089,7 +1089,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		if (!Strings.isEmpty(bodyText))
 		{
 			CharSequence bodyTextValue = bodyText;
-			if (mnemonic > 0 && !HtmlUtils.startsWithHtml(bodyTextValue))
+			if (mnemonic > 0 && !isHtml)
 			{
 				StringBuffer sbBodyText = new StringBuffer(bodyTextValue);
 				int mnemonicIdx = sbBodyText.indexOf(Character.toString(mnemonic));
