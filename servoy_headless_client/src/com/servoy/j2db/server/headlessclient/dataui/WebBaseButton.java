@@ -46,6 +46,7 @@ import org.apache.wicket.util.string.Strings;
 
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.J2DBGlobals;
@@ -890,9 +891,15 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	protected void instrumentAndReplaceBody(MarkupStream markupStream, ComponentTag openTag, CharSequence bodyText)
 	{
+		boolean designMode = false;
+		IFormUIInternal< ? > formui = findParent(IFormUIInternal.class);
+		if (formui != null && formui.isDesignMode())
+		{
+			designMode = true;
+		}
 		replaceComponentTagBody(markupStream, openTag,
 			instrumentBodyText(bodyText, halign, valign, false, margin, null, (char)getDisplayedMnemonic(), getMarkupId() + "_img", //$NON-NLS-1$
-				getImageDisplayURL(this), size == null ? 0 : size.height, true));
+				getImageDisplayURL(this), size == null ? 0 : size.height, true, designMode));
 	}
 
 	protected static String getImageDisplayURL(IImageDisplay imageDisplay)
@@ -1026,13 +1033,13 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	@SuppressWarnings("nls")
 	protected static String instrumentBodyText(CharSequence bodyText, int halign, int valign, boolean isHtml, Insets padding, String cssid, char mnemonic,
-		String imgID, String imgURL, int height, boolean isButton)
+		String imgID, String imgURL, int height, boolean isButton, boolean isDesignMode)
 	{
 		// In order to vertically align the text inside the <button>, we wrap the text inside a <span>, and we absolutely
 		// position the <span> in the <button>. However, for centering vertically we drop this absolute positioning and
 		// rely on the fact that by default the <button> tag vertically centers its content.
 		StringBuffer instrumentedBodyText = new StringBuffer();
-		instrumentedBodyText.append("<span style='cursor: default; display: block;"); //$NON-NLS-1$
+		instrumentedBodyText.append("<span style='" + (isDesignMode ? "" : "cursor: default; ") + "display: block;"); //$NON-NLS-1$
 		int top = 0;
 		int bottom = 0;
 		int left = 0;

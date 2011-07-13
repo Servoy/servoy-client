@@ -670,12 +670,14 @@ if (typeof(Servoy.DD) == "undefined")
 			Servoy.DD.isDragging = true;
 			Servoy.DD.isDragStarted = true;
 			Servoy.DD.isRestartTimerNeeded = false;
-			Servoy.DD.klEsc.enable();
+			if (Servoy.DD.klEsc)
+				Servoy.DD.klEsc.enable();
 		},
 	
 		dragStopped: function()
 		{
-			Servoy.DD.klEsc.disable();
+			if (Servoy.DD.klEsc)
+				Servoy.DD.klEsc.disable();
 			Servoy.DD.isDragging = false;			
 			if(window.restartTimer && Servoy.DD.isRestartTimerNeeded)
 			{
@@ -1832,11 +1834,14 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 			}
 			
 			//get enclosing wrapper to work on
-			if (elem.id && elem.parentNode && elem.parentNode.id && elem.parentNode.id.match(elem.id+'_wrapper'))
+			if (elem.id && elem.parentNode && elem.parentNode.id && elem.parentNode.id.indexOf('_wrapper')>0)
 			{
 				elem = elem.parentNode;
 			}
-			
+			if (!elem.id)
+			{
+				elem = elem.parentNode;
+			}
 			if (Servoy.ClientDesign.selectedResizeElement != null)
 			{
 				//deselect old yui elements

@@ -52,6 +52,7 @@ import org.apache.wicket.util.string.Strings;
 
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.MediaURLStreamHandler;
@@ -1025,12 +1026,17 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 		}
 
 		String cssid = hasHTML ? getMarkupId() + "_lb" : null;
-
+		boolean designMode = false;
+		IFormUIInternal< ? > formui = findParent(IFormUIInternal.class);
+		if (formui != null && formui.isDesignMode())
+		{
+			designMode = true;
+		}
 		replaceComponentTagBody(
 			markupStream,
 			openTag,
 			WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHTML, m, cssid, (char)getDisplayedMnemonic(),
-				getMarkupId() + "_img", WebBaseButton.getImageDisplayURL(this), size.height, false)); //$NON-NLS-1$
+				getMarkupId() + "_img", WebBaseButton.getImageDisplayURL(this), size.height, false, designMode)); //$NON-NLS-1$
 	}
 
 	protected boolean hasHtml()
