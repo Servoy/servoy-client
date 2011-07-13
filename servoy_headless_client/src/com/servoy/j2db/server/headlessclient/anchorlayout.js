@@ -15,14 +15,15 @@ function layoutOneElement(elementInfo, partHeight, formsInfo, formName, currentC
 
 	else if (/Label/.test(elementHint))
 	{
-		var imageURL = element.style.backgroundImage;
-		if (imageURL)
+		var imgEl = document.getElementById(element.id + "_img");
+		if (imgEl)
 		{
+			var imageURL = imgEl.src;
 			var originalImageURL = imageURL;
 			imageURL = imageURL.replace(/w=[\d]+/, "w=" + element.clientWidth);
 			imageURL = imageURL.replace(/h=[\d]+/, "h=" + element.clientHeight);
 			if (imageURL != originalImageURL)
-				element.style.backgroundImage = imageURL;
+				imgEl.src = imageURL;
 		}
 	}
 	if (/ImgField/.test(elementHint))
