@@ -23,7 +23,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * 
  *  @author lvostinar
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Rectangle")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeRectangle")
 public interface IScriptRectMethods extends IScriptTransparentMethods
 {
 

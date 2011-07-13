@@ -23,7 +23,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @author jcompagner
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Portal")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimePortal")
 public interface IScriptPortalComponentMethods extends IScriptBaseMethods, IScriptScrollableMethods, IScriptReadOnlyMethods
 {
 	/**

@@ -23,7 +23,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * 
  *  @author lvostinar
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Password")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimePassword")
 public interface IScriptDataPasswordMethods extends IScriptInputMethods
 {
 
