@@ -312,7 +312,8 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 					if (obj == null) continue;
 
 					String formatted = null;
-					if (format != null)
+					// use the formater if the object is not a string (same compare as in getListCellRenderer())
+					if (format != null && !(obj instanceof String))
 					{
 						try
 						{
