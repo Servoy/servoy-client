@@ -1103,25 +1103,9 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 			if (imgURL != null)
 			{
-				StringBuffer sb = new StringBuffer("<img id=\"").append(imgID).append("\" src=\"").append(imgURL).append("\" align=\"middle\">");
-				if (bodyText.toString().toLowerCase().indexOf("<br") == -1 && halign == ISupportTextSetup.LEFT)
-				{
-					int innerHeight = height;
-					if (padding != null) innerHeight -= padding.top + padding.bottom;
-					sb.append("<span style='position:absolute;height:");
-					sb.append(innerHeight);
-					sb.append("px;line-height:");
-					sb.append(innerHeight);
-					sb.append("px'>&nbsp;");
-					sb.append(bodyTextValue);
-					sb.append("</span>");
-				}
-				else
-				{
-					sb.append("&nbsp;");
-					sb.append(bodyTextValue);
-				}
-				bodyTextValue = sb;
+				StringBuffer sb = new StringBuffer("<img id=\"").append(imgID).append("\" src=\"").append(imgURL).append(
+					"\" style=\"vertical-align: middle;\">&nbsp;").append(bodyTextValue);
+				bodyTextValue = sb.toString();
 			}
 
 			instrumentedBodyText.append(bodyTextValue);
