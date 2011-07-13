@@ -23,7 +23,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * 
  *  @author lvostinar
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Calendar")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeCalendar")
 public interface IScriptDataCalendarMethods extends IScriptFormattedFieldMethods
 {
 
