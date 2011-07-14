@@ -806,14 +806,20 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 	{
 		FormController fp;
 		boolean hadFormPanels = false;
-		synchronized (leaseHistory)
+		// also first try to get the lock on this, because destroy() call can result in that. 
+		// Then a deadlock will happen, so first get it before the leasHistory.. 
+		synchronized (this)
 		{
-			hadFormPanels = leaseHistory.size() > 0;
-			while (leaseHistory.size() > 0)
+			synchronized (leaseHistory)
 			{
-				fp = leaseHistory.removeFirst();
-				fp.destroy();
+				hadFormPanels = leaseHistory.size() > 0;
+				while (leaseHistory.size() > 0)
+				{
+					fp = leaseHistory.removeFirst();
+					fp.destroy();
+				}
 			}
+
 		}
 		if (hadFormPanels)
 		{
