@@ -198,7 +198,6 @@ public class ComponentFactory
 	private static ConcurrentMap<Style, FixedStyleSheet> parsedStyles = new ConcurrentHashMap<Style, FixedStyleSheet>();
 
 	private static Boolean element_name_as_uid_prefix;
-	private static Boolean element_id_as_uid;
 
 
 	public static String getWebID(Form form, IPersist meta)
@@ -221,22 +220,9 @@ public class ComponentFactory
 			}
 		}
 
-		if (element_id_as_uid == null)
-		{
-			Settings s = Settings.getInstance();
-			element_id_as_uid = Boolean.valueOf(Utils.getAsBoolean(s.getProperty("servoy.webclient.templates.use_local_ids")));
-		}
-		String uid = null;
-		if (element_id_as_uid == Boolean.TRUE)
-		{
-			uid = Integer.toHexString(meta.getID());
-		}
-		else
-		{
-			prefix.append('_');
-			uid = meta.getUUID().toString();
-			uid = Utils.stringReplace(uid, "-", "_");
-		}
+		prefix.append('_');
+		String uid = meta.getUUID().toString();
+		uid = Utils.stringReplace(uid, "-", "_");
 
 		prefix.append(uid);
 		return prefix.toString();
