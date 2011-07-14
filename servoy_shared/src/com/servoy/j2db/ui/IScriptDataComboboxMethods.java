@@ -23,7 +23,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * 
  *  @author lvostinar
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeCombobox")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeCombobox", extendsComponent = "RuntimeComponent")
 public interface IScriptDataComboboxMethods extends IScriptFormattedFieldMethods, IScriptValuelistMethods
 {
 

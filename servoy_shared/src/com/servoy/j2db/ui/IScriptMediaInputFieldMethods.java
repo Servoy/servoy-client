@@ -23,7 +23,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @author jcompagner
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeMediaField")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeMediaField", extendsComponent = "RuntimeComponent")
 public interface IScriptMediaInputFieldMethods extends IScriptDataProviderMethods, IScriptReadOnlyMethods, IScriptScrollableMethods, IScriptTitleTextMethods
 {
 	/**

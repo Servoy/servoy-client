@@ -23,7 +23,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @author jcompagner
  * 
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeTabPanel")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeTabPanel", extendsComponent = "RuntimeComponent")
 public interface IDepricatedScriptTabPanelMethods extends IScriptTabPanelMethods
 {
 

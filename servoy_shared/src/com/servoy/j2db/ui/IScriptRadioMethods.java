@@ -25,7 +25,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @author jcompagner
  * @since 6.0
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeRadio")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeRadio", extendsComponent = "RuntimeComponent")
 public interface IScriptRadioMethods extends IScriptFocusMethods, IScriptValuelistMethods, IScriptReadOnlyMethods
 {
 

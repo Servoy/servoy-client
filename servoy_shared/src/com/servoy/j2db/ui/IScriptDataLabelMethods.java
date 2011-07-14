@@ -16,11 +16,14 @@
  */
 package com.servoy.j2db.ui;
 
+import com.servoy.j2db.documentation.ServoyDocumented;
+
 /***
  * Script interface for data label
  * 
  *  @author lvostinar
  */
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeDataLabel", extendsComponent = "RuntimeComponent")
 public interface IScriptDataLabelMethods extends IScriptHtmlSubmitLabelsMethods, IScriptLabelForMethods
 {
 

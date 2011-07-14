@@ -18,7 +18,7 @@ package com.servoy.j2db.ui;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeRtfArea, RuntimeHtmlArea")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeRtfArea, RuntimeHtmlArea", extendsComponent = "RuntimeComponent")
 public interface IScriptTextEditorMethods extends IScriptReadOnlyMethods, IScriptScrollableMethods, IScriptTextInputMethods
 {
 	/**

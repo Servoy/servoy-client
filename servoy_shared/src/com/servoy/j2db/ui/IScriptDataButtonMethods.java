@@ -16,11 +16,14 @@
  */
 package com.servoy.j2db.ui;
 
+import com.servoy.j2db.documentation.ServoyDocumented;
+
 /***
  * Script interface for data button
  * 
  *  @author lvostinar
  */
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeDataButton", extendsComponent = "RuntimeComponent")
 public interface IScriptDataButtonMethods extends IScriptButtonMethods
 {
 
