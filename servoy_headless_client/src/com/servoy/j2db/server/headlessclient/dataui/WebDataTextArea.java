@@ -302,7 +302,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 		if (maxLength > 0)
 		{
 			maxLengthBehavior = new FindModeDisabledSimpleAttributeModifier(getEventExecutor(),
-				"onkeyup", "Servoy.Validation.imposeMaxLength(this, " + +maxLength + ");"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				"onkeyup", ("Servoy.Validation.imposeMaxLength(this, " + +maxLength + ");").intern()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			add(maxLengthBehavior);
 		}
 	}

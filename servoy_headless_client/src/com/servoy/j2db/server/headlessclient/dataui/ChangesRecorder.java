@@ -19,6 +19,8 @@ package com.servoy.j2db.server.headlessclient.dataui;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
@@ -56,6 +58,8 @@ import com.servoy.j2db.util.gui.ISupportCustomBorderInsets;
  */
 public class ChangesRecorder implements IStylePropertyChangesRecorder
 {
+	private static final ConcurrentMap<Integer, String> SIZE_STRINGS = new ConcurrentHashMap<Integer, String>();
+
 	private final Properties changedProperties = new Properties();
 	private String bgcolor;
 	private Insets defaultBorder;
@@ -215,8 +219,8 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 	public void setLocation(int x, int y)
 	{
 		setChanged();
-		changedProperties.put("left", x + "px"); //$NON-NLS-1$ //$NON-NLS-2$
-		changedProperties.put("top", y + "px"); //$NON-NLS-1$ //$NON-NLS-2$
+		changedProperties.put("left", getSizeString(x)); //$NON-NLS-1$ 
+		changedProperties.put("top", getSizeString(y)); //$NON-NLS-1$ 
 	}
 
 	/**
@@ -243,8 +247,8 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 	{
 		if (properties != null)
 		{
-			properties.put("offsetWidth", width + "px"); //$NON-NLS-1$ //$NON-NLS-2$
-			properties.put("offsetHeight", height + "px"); //$NON-NLS-1$ //$NON-NLS-2$
+			properties.put("offsetWidth", getSizeString(width)); //$NON-NLS-1$ 
+			properties.put("offsetHeight", getSizeString(height)); //$NON-NLS-1$ 
 		}
 		Insets insets = getPaddingAndBorder(height, border, margin, fontSize, properties, isButton, valign);
 		int realWidth = width;
@@ -258,8 +262,8 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 
 		if (properties != null)
 		{
-			properties.put("width", realWidth + "px"); //$NON-NLS-1$//$NON-NLS-2$
-			properties.put("height", realheight + "px"); //$NON-NLS-1$ //$NON-NLS-2$
+			properties.put("width", getSizeString(realWidth)); //$NON-NLS-1$
+			properties.put("height", getSizeString(realheight)); //$NON-NLS-1$ 
 		}
 		return new Dimension(realWidth, realheight);
 	}
@@ -277,6 +281,7 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 	 * @param properties
 	 * @return
 	 */
+	@SuppressWarnings("nls")
 	public Insets getPaddingAndBorder(int height, Border border, Insets margin, int fontSize, Properties properties, boolean isButton, int valign)
 	{
 		Insets insets = null;
@@ -336,14 +341,14 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 				properties.put("padding-top", "0px");
 				properties.put("padding-right", "0px");
 				properties.put("padding-left", "0px");
-				properties.put("padding-bottom", bottomPaddingExtra + "px");
+				properties.put("padding-bottom", getSizeString(bottomPaddingExtra));
 			}
 			else
 			{
-				properties.put("padding-top", padding.top + "px");
-				properties.put("padding-right", padding.right + "px");
-				properties.put("padding-left", padding.left + "px");
-				properties.put("padding-bottom", (bottomPaddingExtra + padding.bottom) + "px");
+				properties.put("padding-top", getSizeString(padding.top));
+				properties.put("padding-right", getSizeString(padding.right));
+				properties.put("padding-left", getSizeString(padding.left));
+				properties.put("padding-bottom", getSizeString((bottomPaddingExtra + padding.bottom)));
 			}
 		}
 
@@ -473,5 +478,17 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 				valueChanged = true;
 			}
 		}
+	}
+
+	private static String getSizeString(int size)
+	{
+		Integer integer = Integer.valueOf(size);
+		String string = SIZE_STRINGS.get(integer);
+		if (string == null)
+		{
+			string = size + "px"; //$NON-NLS-1$
+			SIZE_STRINGS.put(integer, string);
+		}
+		return string;
 	}
 }
