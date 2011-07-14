@@ -38,4 +38,6 @@ public @interface ServoyDocumented
 	String publicName() default "";
 
 	String scriptingName() default "";
+
+	String extendsComponent() default "";
 }

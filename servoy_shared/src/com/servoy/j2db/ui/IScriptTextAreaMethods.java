@@ -23,7 +23,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @author jcompagner
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeTextArea")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeTextArea", extendsComponent = "RuntimeComponent")
 public interface IScriptTextAreaMethods extends IScriptTextInputMethods, IScriptReadOnlyMethods, IScriptScrollableMethods
 {
 }

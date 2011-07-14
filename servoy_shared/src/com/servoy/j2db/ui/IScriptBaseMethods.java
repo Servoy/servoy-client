@@ -16,11 +16,13 @@
  */
 package com.servoy.j2db.ui;
 
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IScriptable;
 
 /**
  * @author jcompagner
  */
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeComponent")
 @SuppressWarnings("nls")
 public interface IScriptBaseMethods extends IScriptable
 {

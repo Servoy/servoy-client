@@ -23,7 +23,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * 
  *  @author lvostinar
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeButton")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeButton", extendsComponent = "RuntimeComponent")
 public interface IScriptScriptButtonMethods extends IScriptButtonMethods, IScriptTextLabelMethods
 {
 

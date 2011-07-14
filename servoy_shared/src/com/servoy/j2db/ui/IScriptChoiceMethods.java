@@ -18,7 +18,7 @@ package com.servoy.j2db.ui;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeRadios")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeRadios, RuntimeChecks", extendsComponent = "RuntimeComponent")
 public interface IScriptChoiceMethods extends IScriptReadOnlyMethods, IScriptScrollableMethods, IScriptFocusMethods, IScriptValuelistMethods
 {
 	/**
