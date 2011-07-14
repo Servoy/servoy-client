@@ -878,11 +878,11 @@ if (typeof(Servoy.DD) == "undefined")
 									{
 										if(usedBorder == "border-left")
 										{
-											YAHOO.util.Dom.setStyle(Servoy.DD.hoverElContainer, "border-right", Servoy.DD.hoverElContainerBorder);
+											YAHOO.util.Dom.setStyle(Servoy.DD.hoverElContainer, "border-right", Servoy.DD.hoverElContainerBorder == null ? "" : Servoy.DD.hoverElContainerBorder);
 										}
 										else
 										{
-											YAHOO.util.Dom.setStyle(Servoy.DD.hoverElContainer, "border-left", null);
+											YAHOO.util.Dom.setStyle(Servoy.DD.hoverElContainer, "border-left", "");
 										}
 										
 										YAHOO.util.Dom.setStyle(Servoy.DD.hoverElContainer, usedBorder, moveBorderStyle);
@@ -890,8 +890,8 @@ if (typeof(Servoy.DD) == "undefined")
 								}
 								else
 								{
-									YAHOO.util.Dom.setStyle(Servoy.DD.hoverElContainer, "border-right", Servoy.DD.hoverElContainerBorder);
-									YAHOO.util.Dom.setStyle(Servoy.DD.hoverElContainer, "border-left", null);
+									YAHOO.util.Dom.setStyle(Servoy.DD.hoverElContainer, "border-right", Servoy.DD.hoverElContainerBorder == null ? "" : Servoy.DD.hoverElContainerBorder);
+									YAHOO.util.Dom.setStyle(Servoy.DD.hoverElContainer, "border-left", "");
 								}
 							}
 						}
@@ -987,8 +987,8 @@ if (typeof(Servoy.DD) == "undefined")
 			{
 				if(Servoy.DD.hoverEl)
 				{
-					YAHOO.util.Dom.setStyle(Servoy.DD.hoverElContainer, "border-left", null);
-					YAHOO.util.Dom.setStyle(Servoy.DD.hoverElContainer, "border-right", Servoy.DD.hoverElContainerBorder);						
+					YAHOO.util.Dom.setStyle(Servoy.DD.hoverElContainer, "border-left", "");
+					YAHOO.util.Dom.setStyle(Servoy.DD.hoverElContainer, "border-right", Servoy.DD.hoverElContainerBorder == null ? "" : Servoy.DD.hoverElContainerBorder);
 				}
 				Servoy.DD.hoverEl = el;
 				if(el)
