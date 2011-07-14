@@ -17,7 +17,6 @@
 package com.servoy.j2db.scripting;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import com.servoy.j2db.server.annotations.TerracottaInstrumentedClass;
@@ -53,7 +52,7 @@ public class StartupArguments extends HashMap<String, Object>
 	public StartupArguments(Map<String, Object> arguments)
 	{
 		super();
-		fillArguments(arguments);
+		putAll(arguments);
 	}
 
 	/**
@@ -79,32 +78,34 @@ public class StartupArguments extends HashMap<String, Object>
 		}
 	}
 
-	private void fillArguments(Map<String, Object> arguments)
+	@Override
+	public Object put(String key, Object value)
 	{
-		Iterator<String> paramsIte = arguments.keySet().iterator();
-		String paramKey;
-		Object paramValue;
-		while (paramsIte.hasNext())
+		Object keyValue = null;
+
+		if (value instanceof String)
 		{
-			paramKey = paramsIte.next();
-			paramValue = arguments.get(paramKey);
-			if (paramValue instanceof String)
-			{
-				put(paramKey, paramValue);
-			}
-			else if (paramValue instanceof String[] && ((String[])paramValue).length > 0)
-			{
-				String[] sParamValue = (String[])paramValue;
-				if (sParamValue.length > 1)
-				{
-					JSMap array = new JSMap("Array");
-					for (int i = 0; i < sParamValue.length; i++)
-						array.put(Integer.valueOf(i), sParamValue[i]);
-					put(paramKey, array);
-				}
-				else put(paramKey, sParamValue[0]);
-			}
+			keyValue = value;
 		}
+		else if (value instanceof String[] && ((String[])value).length > 0)
+		{
+			String[] sParamValue = (String[])value;
+			if (sParamValue.length > 1)
+			{
+				JSMap array = new JSMap("Array"); //$NON-NLS-1$
+				for (int i = 0; i < sParamValue.length; i++)
+					array.put(Integer.valueOf(i), sParamValue[i]);
+				keyValue = array;
+			}
+			else keyValue = sParamValue[0];
+		}
+
+		if (keyValue != null)
+		{
+			if (key == PARAM_KEY_ARGUMENT || key == PARAM_KEY_SHORT_ARGUMENT) jsMap = null; // force rebuild
+			return super.put(key, keyValue);
+		}
+		return null;
 	}
 
 	public void setSolutionName(String solutionName)
