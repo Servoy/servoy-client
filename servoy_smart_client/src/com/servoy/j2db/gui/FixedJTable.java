@@ -292,7 +292,11 @@ public class FixedJTable extends JTable
 		if (e instanceof MouseEvent && ((MouseEvent)e).getID() == MouseEvent.MOUSE_PRESSED &&
 			getSelectionModel().getSelectionMode() == ListSelectionModel.MULTIPLE_INTERVAL_SELECTION)
 		{
-			if (getSelectedRows().length != 1 || getSelectedRows()[0] != row) return false;
+			int modifiers = ((MouseEvent)e).getModifiersEx();
+			if ((modifiers & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK || (modifiers & InputEvent.SHIFT_DOWN_MASK) == InputEvent.SHIFT_DOWN_MASK)
+			{
+				return false;
+			}
 		}
 
 		return super.editCellAt(row, column, e);
@@ -622,7 +626,7 @@ public class FixedJTable extends JTable
 
 		if (this.getRowCount() <= 0 || this.getColumnCount() <= 0 ||
 		// this check prevents us from painting
-			// when the clip doesn't intersect our bounds at all
+		// when the clip doesn't intersect our bounds at all
 			!bounds.intersects(clip))
 		{
 			return;
