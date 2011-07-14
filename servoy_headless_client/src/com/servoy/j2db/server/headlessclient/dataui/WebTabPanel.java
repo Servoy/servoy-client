@@ -453,7 +453,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 	@Override
 	public void remove(Component component)
 	{
-		if (currentForm != null && component == currentForm.getWebForm())
+		if (currentForm != null && currentForm.isReady() && component == currentForm.getWebForm())
 		{
 			currentForm.setWebForm(null);
 			//replace(new Label("webform", new Model<String>("")));
