@@ -303,6 +303,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 				}
 			}
 
+			@SuppressWarnings("nls")
 			private int getExtendedWidth(JComboBox cmb)
 			{
 				int width = (int)cmb.getSize().getWidth();
@@ -312,7 +313,8 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 					if (obj == null) continue;
 
 					String formatted = null;
-					if (format != null)
+					// use the formater if the object is not a string (same compare as in getListCellRenderer())
+					if (format != null && !(obj instanceof String))
 					{
 						try
 						{
@@ -320,7 +322,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 						}
 						catch (IllegalArgumentException ex)
 						{
-							Debug.trace("Error formatting value for combobox " + dataProviderID + ", " + ex); //$NON-NLS-1$//$NON-NLS-2$
+							Debug.trace("Error formatting value for combobox " + dataProviderID + ", value: '" + obj + "', " + ex);
 						}
 					}
 					if (formatted == null)
