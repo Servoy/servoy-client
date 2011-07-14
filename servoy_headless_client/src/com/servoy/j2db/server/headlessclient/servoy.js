@@ -751,7 +751,6 @@ if (typeof(Servoy.DD) == "undefined")
 					}
 					
 					wicketAjaxGet(callback + '&a=aStart&xc=' + x + '&yc=' + y + '&draggableID=' + this.id);
-					this.style.background = '#FF0000';
 					Servoy.DD.dragStarted();
 					return true;
 				}, dd, true);				
@@ -928,7 +927,8 @@ if (typeof(Servoy.DD) == "undefined")
 
 			if(targetAncestor)
 			{
-				return YAHOO.util.DragDropMgr.isDragDrop(targetAncestor.id);
+				var ddByID = YAHOO.util.DragDropMgr.getDDById(targetAncestor.id);
+				return ddByID && !(ddByID instanceof YAHOO.util.DDTarget);
 			}
 
 			return false;
