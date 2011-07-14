@@ -98,10 +98,8 @@ import com.servoy.j2db.scripting.SelectedRecordScope;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
-import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.ISupportSecuritySettings;
-import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FixedStyleSheet;
@@ -1699,13 +1697,6 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			{
 				dr.setBackground(ss.getBackground(s));
 			}
-
-			ISupportOnRenderCallback drOnRenderComp = dr.getOnRenderComponent();
-			if (drOnRenderComp != null)
-			{
-				RenderEventExecutor ree = drOnRenderComp.getRenderEventExecutor();
-				if (ree != null && ree.hasRenderCallback()) ree.saveDefaultRenderProperties(drOnRenderComp);
-			}
 		}
 
 		tabSequence.clear();
@@ -1735,13 +1726,6 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			part_panels.put(bodyPart, dr);
 			application.getDataRenderFactory().completeRenderers(application, form, scriptExecuter, part_panels, form.getSize().width, false,
 				containerImpl.getUndoManager(), null);
-
-			ISupportOnRenderCallback drOnRenderComp = dr.getOnRenderComponent();
-			if (drOnRenderComp != null)
-			{
-				RenderEventExecutor ree = drOnRenderComp.getRenderEventExecutor();
-				if (ree != null && ree.hasRenderCallback()) ree.saveDefaultRenderProperties(drOnRenderComp);
-			}
 		}
 
 		//apply security

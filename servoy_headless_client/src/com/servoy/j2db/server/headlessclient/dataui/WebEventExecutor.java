@@ -74,12 +74,8 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptRenderMethods;
 import com.servoy.j2db.ui.ISupportEventExecutor;
-import com.servoy.j2db.ui.ISupportOnRenderCallback;
-import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -999,28 +995,5 @@ public class WebEventExecutor extends BaseEventExecutor
 	{
 		super.setRenderState(record, index, isSelected);
 		if (component instanceof IProviderStylePropertyChanges) ((IProviderStylePropertyChanges)component).getStylePropertyChanges().setChanged();
-	}
-
-	@Override
-	protected void setDefaultRenderProperties(ISupportOnRenderCallback display)
-	{
-		IScriptRenderMethods scriptable = null;
-		if (display instanceof IScriptableProvider)
-		{
-			scriptable = (IScriptRenderMethods)((IScriptableProvider)display).getScriptObject();
-		}
-		else
-		{
-			scriptable = (IScriptRenderMethods)display;
-		}
-
-		if (isUseDefaultBackground()) scriptable.js_setBgcolor(PersistHelper.createColorString(renderDefaultBgColor));
-		if (renderDefaultBorder != null) scriptable.js_setBorder(ComponentFactoryHelper.createBorderString(renderDefaultBorder));
-		scriptable.js_setEnabled(renderDefaultEnabled);
-		if (isUseDefaultForeground()) scriptable.js_setFgcolor(PersistHelper.createColorString(renderDefaultFgColor));
-		if (isUseDefaultFont()) scriptable.js_setFont(PersistHelper.createFontString(renderDefaultFont));
-		scriptable.js_setToolTipText(renderDefaultTooltipText);
-		if (isUseDefaultTransparent()) scriptable.js_setTransparent(!renderDefaultOpaque);
-		scriptable.js_setVisible(renderDefaultVisible);
 	}
 }

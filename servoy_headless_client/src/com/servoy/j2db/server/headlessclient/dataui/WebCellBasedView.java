@@ -2876,7 +2876,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	{
 		if (bgColor != null)
 		{
-			if (comp instanceof ISupportOnRenderCallback) ((ISupportOnRenderCallback)comp).getRenderEventExecutor().setUseDefaultBackground(false);
 			if (comp instanceof IScriptableProvider)
 			{
 				IScriptable s = ((IScriptableProvider)comp).getScriptObject();
@@ -2886,7 +2885,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		if (fgColor != null)
 		{
-			if (comp instanceof ISupportOnRenderCallback) ((ISupportOnRenderCallback)comp).getRenderEventExecutor().setUseDefaultForeground(false);
 			if (comp instanceof IScriptableProvider)
 			{
 				IScriptable s = ((IScriptableProvider)comp).getScriptObject();
@@ -2896,7 +2894,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		if (compFont != null)
 		{
-			if (comp instanceof ISupportOnRenderCallback) ((ISupportOnRenderCallback)comp).getRenderEventExecutor().setUseDefaultFont(false);
 			if (comp instanceof IScriptableProvider)
 			{
 				IScriptable s = ((IScriptableProvider)comp).getScriptObject();
