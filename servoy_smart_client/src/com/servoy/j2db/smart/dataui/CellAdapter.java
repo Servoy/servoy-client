@@ -399,9 +399,6 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				ISwingFoundSet foundset = (ISwingFoundSet)jtable.getModel();
 				IRecordInternal record = foundset != null ? foundset.getRecord(row) : null;
 				renderEventExecutor.setRenderState(record, row, isSelected);
-				renderEventExecutor.setUseDefaultBackground(bgColor == null);
-				renderEventExecutor.setUseDefaultForeground(fgColor == null);
-				renderEventExecutor.setUseDefaultFont(font == null);
 			}
 		}
 		return cellEditorComp;
@@ -520,10 +517,6 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				ISwingFoundSet foundset = (ISwingFoundSet)jtable.getModel();
 				IRecordInternal record = foundset != null ? foundset.getRecord(row) : null;
 				renderEventExecutor.setRenderState(record, row, isSelected);
-				renderEventExecutor.setUseDefaultTransparent(false);
-				renderEventExecutor.setUseDefaultBackground(bgColor == null);
-				renderEventExecutor.setUseDefaultForeground(fgColor == null);
-				renderEventExecutor.setUseDefaultFont(font == null);
 			}
 		}
 		return cellRendererComp;

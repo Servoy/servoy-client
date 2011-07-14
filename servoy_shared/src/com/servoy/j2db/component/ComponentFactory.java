@@ -128,7 +128,6 @@ import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISplitPane;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
-import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.ISupportSecuritySettings;
 import com.servoy.j2db.ui.ITabPanel;
@@ -322,12 +321,6 @@ public class ComponentFactory
 			{
 				Debug.error(e);
 			}
-		}
-
-		if (c instanceof ISupportOnRenderCallback)
-		{
-			RenderEventExecutor ree = ((ISupportOnRenderCallback)c).getRenderEventExecutor();
-			if (ree != null && ree.hasRenderCallback()) ree.saveDefaultRenderProperties((ISupportOnRenderCallback)c);
 		}
 
 		return c;

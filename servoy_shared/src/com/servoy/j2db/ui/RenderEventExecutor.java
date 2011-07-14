@@ -17,11 +17,6 @@
 
 package com.servoy.j2db.ui;
 
-import java.awt.Color;
-import java.awt.Font;
-
-import javax.swing.border.Border;
-
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
@@ -63,85 +58,6 @@ public class RenderEventExecutor implements IRenderEventExecutor
 		renderIsSelected = isSelected;
 	}
 
-	protected Color renderDefaultBgColor;
-	protected Border renderDefaultBorder;
-	protected boolean renderDefaultEnabled;
-	protected Color renderDefaultFgColor;
-	protected Font renderDefaultFont;
-	protected String renderDefaultTooltipText;
-	protected boolean renderDefaultOpaque;
-	protected boolean renderDefaultVisible;
-
-	private boolean useDefaultTransparent = true;
-	private boolean useDefaultBackround = true;
-	private boolean useDefaultForeground = true;
-	private boolean useDefaultFont = true;
-
-	public void saveDefaultRenderProperties(ISupportOnRenderCallback display)
-	{
-		renderDefaultBgColor = display.getBackground();
-		renderDefaultBorder = display.getBorder();
-		renderDefaultEnabled = display.isEnabled();
-		renderDefaultFgColor = display.getForeground();
-		renderDefaultFont = display.getFont();
-		renderDefaultTooltipText = display.getToolTipText();
-		renderDefaultOpaque = display.isOpaque();
-		renderDefaultVisible = display.isVisible();
-	}
-
-	public void setUseDefaultTransparent(boolean useDefaultTransparent)
-	{
-		this.useDefaultTransparent = useDefaultTransparent;
-	}
-
-	public boolean isUseDefaultTransparent()
-	{
-		return useDefaultTransparent;
-	}
-
-	public void setUseDefaultBackground(boolean useDefaultBackround)
-	{
-		this.useDefaultBackround = useDefaultBackround;
-	}
-
-	public boolean isUseDefaultBackground()
-	{
-		return useDefaultBackround;
-	}
-
-	public void setUseDefaultForeground(boolean useDefaultForeground)
-	{
-		this.useDefaultForeground = useDefaultForeground;
-	}
-
-	public boolean isUseDefaultForeground()
-	{
-		return useDefaultForeground;
-	}
-
-	public void setUseDefaultFont(boolean useDefaultFont)
-	{
-		this.useDefaultFont = useDefaultFont;
-	}
-
-	public boolean isUseDefaultFont()
-	{
-		return useDefaultFont;
-	}
-
-	protected void setDefaultRenderProperties(ISupportOnRenderCallback display)
-	{
-		if (isUseDefaultBackground()) display.setBackground(renderDefaultBgColor);
-		display.setBorder(renderDefaultBorder);
-		display.setComponentEnabled(renderDefaultEnabled);
-		if (isUseDefaultForeground()) display.setForeground(renderDefaultFgColor);
-		if (isUseDefaultFont()) display.setFont(renderDefaultFont);
-		display.setToolTipText(renderDefaultTooltipText);
-		if (isUseDefaultTransparent()) display.setOpaque(renderDefaultOpaque);
-		display.setComponentVisible(renderDefaultVisible);
-
-	}
-
 	private boolean isOnRenderRunningOnComponentPaint;
 
 	public boolean isOnRenderRunningOnComponentPaint()
@@ -169,7 +85,6 @@ public class RenderEventExecutor implements IRenderEventExecutor
 			event.setRecord(renderRecord);
 			event.setIndex(renderIndex);
 			event.setSelected(renderIsSelected);
-			setDefaultRenderProperties(display);
 			renderScriptExecuter.executeFunction(renderCallback, new Object[] { event }, false, display, false,
 				StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID.getPropertyName(), true);
 			isOnRenderRunningOnComponentPaint = false;
