@@ -44,6 +44,7 @@ import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.smart.dataui.CellAdapter;
 import com.servoy.j2db.util.IDelegate;
+import com.servoy.j2db.util.UIUtils;
 import com.servoy.j2db.util.model.AlwaysRowSelectedSelectionModel;
 
 /**
@@ -292,8 +293,8 @@ public class FixedJTable extends JTable
 		if (e instanceof MouseEvent && ((MouseEvent)e).getID() == MouseEvent.MOUSE_PRESSED &&
 			getSelectionModel().getSelectionMode() == ListSelectionModel.MULTIPLE_INTERVAL_SELECTION)
 		{
-			int modifiers = ((MouseEvent)e).getModifiersEx();
-			if ((modifiers & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK || (modifiers & InputEvent.SHIFT_DOWN_MASK) == InputEvent.SHIFT_DOWN_MASK)
+			MouseEvent me = (MouseEvent)e;
+			if (UIUtils.isCommandKeyDown((MouseEvent)e) || me.isShiftDown())
 			{
 				return false;
 			}
