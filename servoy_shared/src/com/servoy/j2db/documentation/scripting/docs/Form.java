@@ -25,7 +25,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * 
  * @author gerzse
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Form", scriptingName = "Form")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeForm", scriptingName = "Form")
 public class Form
 {
 	/**
