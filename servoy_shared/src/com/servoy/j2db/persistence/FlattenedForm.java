@@ -18,6 +18,7 @@ package com.servoy.j2db.persistence;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -148,6 +149,26 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 
 		setSize(checkParts(getParts(), getSize())); // recalculate height
 	}
+
+	@Override
+	public Iterator<IFormElement> getFormElementsSortedByFormIndex()
+	{
+		return new FormTypeIterator(getAllObjectsAsList(), new Comparator<IFormElement>()
+		{
+			public int compare(IFormElement element1, IFormElement element2)
+			{
+				Form form1 = (Form)element1.getParent();
+				Form form2 = (Form)element2.getParent();
+				// first sort on the hierarchy, elements of super-forms are sorted before elements of sub-forms
+				if (form1 != form2)
+				{
+					return flattenedSolution.getFormHierarchy(form1).contains(form2) ? 1 : -1;
+				}
+				return element1.getFormIndex() - element2.getFormIndex();
+			}
+		});
+	}
+
 
 	/**
 	 * Called only in develop time.
