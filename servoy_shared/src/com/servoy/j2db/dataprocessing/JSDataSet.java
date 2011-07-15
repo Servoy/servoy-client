@@ -262,9 +262,9 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 	 *
 	 * @param array row data
 	 */
-	public void js_addRow(Object[] row)
+	public void js_addRow(Object[] array)
 	{
-		js_addRow(js_getMaxRowIndex() + 1, row);
+		js_addRow(js_getMaxRowIndex() + 1, array);
 	}
 
 	/**
@@ -276,7 +276,6 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 	 * dataset.addRow(2, new Array(1,2,3,4,5,6,7,7)); //adds a row with 8 columns after row 2
 	 *
 	 * @param index index to add row (1-based)
-	 *
 	 * @param array row data
 	 */
 	public void js_addRow(int index, Object[] array)

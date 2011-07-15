@@ -436,7 +436,7 @@ public class JSUnitAssertFunctions implements IReturnedTypesProvider
 	 * 
 	 * @param instanceOfCallStack an internal JSUnit call stack. Use null for this if you want to get to the next optional parameter. Usually not specified.
 	 *
-	 * @param userMessage optional an user message. Usually not specified.
+	 * @param userMessage a user message. Usually not specified.
 	 */
 	public void js_fail(String message, Object instanceOfCallStack, String userMessage)
 	{

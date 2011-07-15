@@ -1194,10 +1194,10 @@ public class JSApplication implements IReturnedTypesProvider
 	/**
 	 * Set the status area value.
 	 *
-	 * @sample application.setStatusText('Your status text');
+	 * @sample application.setStatusText('Your status text','Your status tooltip text');
 	 *
 	 * @param text New status text
-	 * @param tip optional Status tooltip text 
+	 * @param tip Status tooltip text 
 	 */
 	public void js_setStatusText(String text, String tooltip)
 	{
@@ -1210,7 +1210,6 @@ public class JSApplication implements IReturnedTypesProvider
 	 * @sample application.setStatusText('Your status text');
 	 *
 	 * @param text New status text
-	 * @param tip optional Status tooltip text 
 	 */
 	public void js_setStatusText(String text)
 	{
@@ -2040,7 +2039,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 * 	win.destroy();
 	 * }
 	 * 
-	 * @param name optional the name of the window. If not specified, the main application JSWindow will be returned.
+	 * @param name the name of the window. If not specified, the main application JSWindow will be returned.
 	 * @return the JSWindow with the specified name, or null if no such window exists.
 	 */
 	public JSWindow js_getWindow(String name)
@@ -2058,17 +2057,13 @@ public class JSApplication implements IReturnedTypesProvider
 	}
 
 	/**
-	 * Get a window by window name. When not supplying a name, the main application window is grabbed.
+	 * Get the main application window.
 	 * 
 	 * @sample
 	 * // close and dispose window resources
-	 * var win = application.getWindow("someWindowName");
-	 * if (win != null) {
-	 * 	win.destroy();
-	 * }
+	 * var mainAppWindow = application.getWindow();
 	 * 
-	 * @param name optional the name of the window. If not specified, the main application JSWindow will be returned.
-	 * @return the JSWindow with the specified name, or null if no such window exists.
+	 * @return the main application JSWindow.
 	 */
 	public JSWindow js_getWindow()
 	{
