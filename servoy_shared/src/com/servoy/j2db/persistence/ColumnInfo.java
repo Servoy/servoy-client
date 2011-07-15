@@ -27,7 +27,7 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jblok
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Column")
+@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "ColumnInfo")
 public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 {
 	public static final long serialVersionUID = -6167880772070620512L;
