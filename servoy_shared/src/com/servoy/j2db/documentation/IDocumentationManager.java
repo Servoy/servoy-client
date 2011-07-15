@@ -33,5 +33,6 @@ public interface IDocumentationManager
 
 	public IFunctionDocumentation createFunctionDocumentation(String mainName, Class< ? >[] argsTypes, Integer type, boolean deprecated, int state);
 
-	public IObjectDocumentation createObjectDocumentation(String category, String qualifiedName, String publicName, String scriptingName, String[] parentClasses);
+	public IObjectDocumentation createObjectDocumentation(String category, String qualifiedName, String publicName, String scriptingName, String extendsComponent,
+		String[] parentClasses);
 }
