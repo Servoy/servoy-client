@@ -88,6 +88,7 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.ISupportEditProvider;
+import com.servoy.j2db.ui.ISupportFormatter;
 import com.servoy.j2db.ui.ISupportSpecialClientProperty;
 import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.RenderEventExecutor;
@@ -114,7 +115,7 @@ import com.servoy.j2db.util.gui.FixedMaskFormatter;
  * @author jblok, jcompagner
  */
 public class DataField extends JFormattedTextField implements IDisplayData, IFieldComponent, ISkinnable, ISupportCachedLocationAndSize,
-	ISupportDragNDropTextTransfer, ISupportEditProvider, ISupportValueList, ISupportSpecialClientProperty
+	ISupportDragNDropTextTransfer, ISupportEditProvider, ISupportValueList, ISupportSpecialClientProperty, ISupportFormatter
 {
 	private static final long serialVersionUID = 1L;
 
