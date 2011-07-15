@@ -704,7 +704,7 @@ public class JSSolutionModel
 	 * for (var i in forms)
 	 * 		application.output(forms[i].name)
 	 *
-	 * @param server the datasource or servername 
+	 * @param datasource the datasource or servername 
 	 * 
 	 * @return an array of JSForm type elements
 	 */

@@ -783,7 +783,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 * 	var label = form.newLabel('The text on the label', 140, 140, 50, 20);
 	 * 	forms['newForm1'].controller.show(); 
 	 *
-	 * @param text the specified text of the label object
+	 * @param txt the specified text of the label object
 	 *
 	 * @param x the horizontal "x" position of the label object in pixels
 	 *
@@ -808,7 +808,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 * 	var label = form.newLabel('The text on the label', 140, 140, 50, 20);
 	 * 	forms['newForm1'].controller.show(); 
 	 *
-	 * @param text the specified text of the label object
+	 * @param txt the specified text of the label object
 	 *
 	 * @param x the horizontal "x" position of the label object in pixels
 	 *
@@ -818,7 +818,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 *
 	 * @param height the height of the label object in pixels
 	 *
-	 * @param jsmethod the event action JSMethod of the label object
+	 * @param action the event action JSMethod of the label object
 	 * 
 	 * @return a JSLabel object
 	 */

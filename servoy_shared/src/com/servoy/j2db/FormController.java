@@ -928,10 +928,10 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * //Set the current form out of designmode (to normal browse mode)
 		 * %%prefix%%controller.setDesignMode(false);
 		 *
-		 * @param ondrag optional org.mozilla.javascript.Function onDrag method reference 
-		 * @param ondrop optional org.mozilla.javascript.Function onDrop method reference 
-		 * @param onselect optional org.mozilla.javascript.Function onSelect method reference
-		 * @param onresize optional org.mozilla.javascript.Function onResize method reference
+		 * @param ondrag org.mozilla.javascript.Function onDrag method reference 
+		 * @param ondrop org.mozilla.javascript.Function onDrop method reference 
+		 * @param onselect org.mozilla.javascript.Function onSelect method reference
+		 * @param onresize org.mozilla.javascript.Function onResize method reference
 		 */
 		public void jsFunction_setDesignMode(Object[] args)
 		{
