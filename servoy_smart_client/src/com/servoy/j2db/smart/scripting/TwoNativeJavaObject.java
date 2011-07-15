@@ -80,6 +80,7 @@ public class TwoNativeJavaObject extends NativeJavaObject
 		{
 			if (returnObject instanceof Function)
 			{
+				if ("replaceSelectedText".equals(name)) return returnObject; //$NON-NLS-1$
 				if (!"requestFocus".equals(name)) //$NON-NLS-1$
 				{
 					executingFunction = name;

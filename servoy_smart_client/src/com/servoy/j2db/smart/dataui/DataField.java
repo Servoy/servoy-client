@@ -1999,7 +1999,26 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 	public void js_replaceSelectedText(String s)
 	{
 		if (editProvider != null) editProvider.startEdit();
+		int selStart = getSelectionStart();
+		int selEnd = getSelectionEnd();
+		if (!hasFocus())
+		{
+			if (getFormatterFactory() instanceof DefaultFormatterFactory && ((DefaultFormatterFactory)getFormatterFactory()).getEditFormatter() != null)
+			{
+				DefaultFormatterFactory dff = (DefaultFormatterFactory)getFormatterFactory();
+				setFormatter(dff.getEditFormatter());
+				select(selStart, selEnd);
+			}
+		}
 		this.replaceSelection(s);
+		try
+		{
+			commitEdit();
+		}
+		catch (ParseException e)
+		{
+			Debug.error(e);
+		}
 		if (editProvider != null) editProvider.commitData();
 	}
 
