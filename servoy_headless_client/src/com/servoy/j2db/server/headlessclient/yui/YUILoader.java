@@ -40,6 +40,7 @@ public class YUILoader implements Serializable
 	public static final JavascriptResourceReference JS_ELEMENT = new JavascriptResourceReference(YUILoader.class, "element-min.js"); //$NON-NLS-1$
 	public static final JavascriptResourceReference JS_MENU = new JavascriptResourceReference(YUILoader.class, "menu-min.js"); //$NON-NLS-1$
 	public static final JavascriptResourceReference JS_CONTAINER = new JavascriptResourceReference(YUILoader.class, "container_core-min.js"); //$NON-NLS-1$
+	public static final JavascriptResourceReference JS_RESIZE = new JavascriptResourceReference(YUILoader.class, "resize-min.js"); //$NON-NLS-1$
 //	private static final JavascriptResourceReference ANIMATION = new JavascriptResourceReference(DesignModeBehavior.class, "yui/animation-min.js");
 
 
@@ -47,7 +48,7 @@ public class YUILoader implements Serializable
 	public static final JavascriptResourceReference JS_DOM_DEBUG = new JavascriptResourceReference(YUILoader.class, "dom-debug.js"); //$NON-NLS-1$
 	public static final JavascriptResourceReference JS_EVENT_DEBUG = new JavascriptResourceReference(YUILoader.class, "event-debug.js"); //$NON-NLS-1$
 	public static final JavascriptResourceReference JS_DRAGDROP_DEBUG = new JavascriptResourceReference(YUILoader.class, "dragdrop-debug.js"); //$NON-NLS-1$
-	public static final JavascriptResourceReference JS_RESIZE_DEBUG = new JavascriptResourceReference(YUILoader.class, "resize-debug-patched.js"); //$NON-NLS-1$
+	public static final JavascriptResourceReference JS_RESIZE_DEBUG = new JavascriptResourceReference(YUILoader.class, "resize-debug.js"); //$NON-NLS-1$
 
 	private YUILoader()
 	{
@@ -88,7 +89,7 @@ public class YUILoader implements Serializable
 			response.renderJavascriptReference(YUILoader.JS_YAHOO_DOM_EVENT);
 			response.renderJavascriptReference(YUILoader.JS_ELEMENT);
 			response.renderJavascriptReference(YUILoader.JS_DRAGDROP);
-			response.renderJavascriptReference(YUILoader.JS_RESIZE_DEBUG);
+			response.renderJavascriptReference(YUILoader.JS_RESIZE);
 		}
 	}
 
