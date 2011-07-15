@@ -45,6 +45,8 @@ public interface IObjectDocumentation
 
 	public String getQualifiedName();
 
+	public String getPublicName();
+
 	public String getCategory();
 
 	public String[] getParentClasses();
