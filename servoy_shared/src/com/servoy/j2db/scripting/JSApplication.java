@@ -1197,7 +1197,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 * @sample application.setStatusText('Your status text','Your status tooltip text');
 	 *
 	 * @param text New status text
-	 * @param tip Status tooltip text 
+	 * @param tooltip Status tooltip text 
 	 */
 	public void js_setStatusText(String text, String tooltip)
 	{
