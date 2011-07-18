@@ -736,6 +736,15 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 			theader.addMouseListener(new MouseAdapter()
 			{
 				@Override
+				public void mousePressed(MouseEvent e)
+				{
+					if (resizingColumn == null && draggingColumn == null && e.isPopupTrigger())
+					{
+						handleRightClick(e);
+					}
+				}
+
+				@Override
 				public void mouseReleased(MouseEvent e)
 				{
 					if (resizingColumn != null || draggingColumn != null)
@@ -755,25 +764,32 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 					}
 					else if (e.isPopupTrigger())
 					{
-						int column = columnAtPoint(e.getPoint());
-						CellAdapter ca = (CellAdapter)getColumnModel().getColumn(column);
-						String name = String.valueOf(ca.getIdentifier());
-						GraphicalComponent gc = (GraphicalComponent)labelsFor.get(name);
-						if (gc != null && gc.getOnRightClickMethodID() > 0)
-						{
-							JSEvent event = new JSEvent();
-							event.setType(JSEvent.EventType.rightClick);
-							event.setFormName(fc.getName());
-							event.setElementName(gc.getName());
-							event.setModifiers(e.getModifiers() == IEventExecutor.MODIFIERS_UNSPECIFIED ? 0 : e.getModifiers());
-							event.setLocation(e.getPoint());
-							scriptExecuter.executeFunction(String.valueOf(gc.getOnRightClickMethodID()), new Object[] { event }, true, e.getComponent(), false,
-								StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID.getPropertyName(), false);
-						}
+						handleRightClick(e);
 					}
 					resizingColumn = null;
 					draggingColumn = null;
 					tableColumnsBeforeDrag = null;
+				}
+
+				private void handleRightClick(MouseEvent e)
+				{
+					int column = columnAtPoint(e.getPoint());
+					CellAdapter ca = (CellAdapter)getColumnModel().getColumn(column);
+					String name = String.valueOf(ca.getIdentifier());
+					GraphicalComponent gc = (GraphicalComponent)labelsFor.get(name);
+					if (gc != null && gc.getOnRightClickMethodID() > 0)
+					{
+						Component editor = ca.getEditor();
+
+						JSEvent event = new JSEvent();
+						event.setType(JSEvent.EventType.rightClick);
+						event.setFormName(fc.getName());
+						event.setElementName(gc.getName());
+						event.setModifiers(e.getModifiers() == IEventExecutor.MODIFIERS_UNSPECIFIED ? 0 : e.getModifiers());
+						event.setLocation(editor != null ? new Point(e.getPoint().x - editor.getX(), e.getPoint().y) : e.getPoint());
+						scriptExecuter.executeFunction(String.valueOf(gc.getOnRightClickMethodID()), new Object[] { event }, true, e.getComponent(), false,
+							StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID.getPropertyName(), false);
+					}
 				}
 			});
 			theader.addMouseMotionListener(new MouseMotionAdapter()

@@ -259,14 +259,16 @@ public abstract class BaseEventExecutor extends RenderEventExecutor implements I
 
 		if (fName == null) fName = this.formName;
 
+		Object source = getSource(display);
+
 		JSEvent event = new JSEvent();
 		event.setType(type);
-		event.setSource(display);
+		event.setSource(source);
 		event.setFormName(fName);
 		event.setElementName(name);
 		event.setModifiers(modifiers == MODIFIERS_UNSPECIFIED ? 0 : modifiers);
 		if (mouseLocation != null) event.setLocation(mouseLocation);
-		return actionListener.executeFunction(cmd, Utils.arrayMerge(Utils.arrayJoin(args, new Object[] { event }), persistArgs), saveData, display, focusEvent,
+		return actionListener.executeFunction(cmd, Utils.arrayMerge(Utils.arrayJoin(args, new Object[] { event }), persistArgs), saveData, source, focusEvent,
 			null, executeWhenFieldValidationFailed);
 	}
 
@@ -284,5 +286,10 @@ public abstract class BaseEventExecutor extends RenderEventExecutor implements I
 			return ((IComponent)display).getName();
 		}
 		return null;
+	}
+
+	protected Object getSource(Object display)
+	{
+		return display;
 	}
 }
