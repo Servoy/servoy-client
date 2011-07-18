@@ -2108,7 +2108,8 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 						{
 							canMove = callback.executeOnDrag(getJSEvent(e, EventType.onDrag));
 						}
-						if (!(canMove instanceof Boolean && !((Boolean)canMove).booleanValue()))
+						if (!(canMove instanceof Boolean && !((Boolean)canMove).booleanValue()) &&
+							!(canMove instanceof Number && ((Number)canMove).intValue() == DRAGNDROP.NONE))
 						{
 							Map<JComponent, Rectangle> toUpdate = new HashMap<JComponent, Rectangle>(selectedComponents.size());
 							Iterator<JComponent> iterator = selectedComponents.keySet().iterator();
