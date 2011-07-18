@@ -322,10 +322,14 @@ public class BufferedDataSet implements IDataSet
 		}
 
 		String[] newColumns = Utils.arrayInsert(getColumnNames(), new String[] { columnName }, index, 1);
-		ColumnType[] newColumnTypes = Utils.arrayInsert(columnTypes, new ColumnType[] { ColumnType.getInstance(columnType, Integer.MAX_VALUE, 0) }, index, 1);
-
 		columnNames = newColumns;
-		columnTypes = newColumnTypes;
+
+		if (size == 0 || columnTypes != null)
+		{
+			ColumnType[] newColumnTypes = Utils.arrayInsert(columnTypes, new ColumnType[] { ColumnType.getInstance(columnType, Integer.MAX_VALUE, 0) },index,1);
+			columnTypes = newColumnTypes;
+		}
+
 		updateRowsWhenColumnAdded(index);
 		return true;
 	}
