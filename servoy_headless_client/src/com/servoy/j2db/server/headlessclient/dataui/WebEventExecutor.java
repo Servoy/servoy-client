@@ -408,7 +408,8 @@ public class WebEventExecutor extends BaseEventExecutor
 						fireDoubleclickCommand(false, comp, convertModifiers(webModifiers), mouseLocation);
 						break;
 					case rightClick :
-						fireRightclickCommand(false, comp, convertModifiers(webModifiers), mouseLocation);
+						// if right click, mark the meta flag as it is on the smart client
+						fireRightclickCommand(false, comp, convertModifiers(webModifiers | 8), mouseLocation);
 						break;
 					case none :
 					case dataChange :
@@ -988,6 +989,12 @@ public class WebEventExecutor extends BaseEventExecutor
 			name = ((SortableCellViewHeader)display).getName();
 		}
 		return name;
+	}
+
+	@Override
+	protected Object getSource(Object display)
+	{
+		return display instanceof SortableCellViewHeader ? null : super.getSource(display);
 	}
 
 	@Override
