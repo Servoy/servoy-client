@@ -73,6 +73,7 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.text.JTextComponent;
@@ -910,8 +911,11 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 							{
 								editCellAt(row, column, e);
 							}
-							((BaseEventExecutor)ee).fireRightclickCommand(true, editor, e.getModifiers(), fc.getName(),
-								new Point(e.getPoint().x - editor.getX(), e.getPoint().y - editor.getY()));
+							if (isCellEditorEnabled(row, column))
+							{
+								((BaseEventExecutor)ee).fireRightclickCommand(true, editor, e.getModifiers(), fc.getName(),
+									new Point(e.getPoint().x - editor.getX(), e.getPoint().y - editor.getY()));
+							}
 						}
 					}
 				}
@@ -1981,6 +1985,13 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 	public String getOnRenderToString()
 	{
 		return cellview.toString();
+	}
+
+	private boolean isCellEditorEnabled(int row, int column)
+	{
+		TableCellEditor tableCellEditor = getCellEditor(row, column);
+		Component c = tableCellEditor.getTableCellEditorComponent(this, getValueAt(row, column), isCellSelected(row, column), row, column);
+		return c.isEnabled();
 	}
 
 	@Override
