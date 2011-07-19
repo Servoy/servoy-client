@@ -20,7 +20,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.GraphicalComponent;
 
-@ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent")
 public class JSLabel extends JSGraphicalComponent
 {
 	/**

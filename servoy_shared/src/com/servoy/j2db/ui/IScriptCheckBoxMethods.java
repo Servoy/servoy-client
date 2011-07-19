@@ -23,7 +23,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @author jcompagner
  * 
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeCheckBox", extendsComponent = "RuntimeComponent")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeCheck", extendsComponent = "RuntimeComponent")
 public interface IScriptCheckBoxMethods extends IScriptFocusMethods, IScriptValuelistMethods, IScriptReadOnlyMethods
 {
 

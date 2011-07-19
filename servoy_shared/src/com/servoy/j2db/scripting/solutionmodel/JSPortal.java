@@ -39,7 +39,7 @@ import com.servoy.j2db.util.Utils;
 /**
  * @author jcompagner
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent")
 public class JSPortal extends JSComponent<Portal> implements IJSParent, IJavaScriptType
 {
 	private final IApplication application;

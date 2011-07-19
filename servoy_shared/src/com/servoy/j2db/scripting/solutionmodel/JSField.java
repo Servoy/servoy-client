@@ -27,7 +27,7 @@ import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.util.PersistHelper;
 
-@ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent")
 public class JSField extends JSComponent<Field> implements IConstantsObject
 {
 	/**

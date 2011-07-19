@@ -37,7 +37,7 @@ import com.servoy.j2db.persistence.TabPanel;
 /**
  * @author jcompagner
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent")
 public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent
 {
 	private final IApplication application;

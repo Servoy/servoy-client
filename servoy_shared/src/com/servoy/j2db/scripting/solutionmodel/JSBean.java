@@ -25,7 +25,7 @@ import com.servoy.j2db.scripting.IJavaScriptType;
  * @author lvostinar
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent")
 public class JSBean extends JSComponent<Bean> implements IJavaScriptType
 {
 
