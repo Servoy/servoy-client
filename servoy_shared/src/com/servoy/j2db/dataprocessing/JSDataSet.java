@@ -25,8 +25,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
@@ -110,7 +110,10 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 			}
 			this.set = new BufferedDataSet(cols, emptyRows);
 		}
-		setParentScope(application.getScriptEngine().getSolutionScope());
+		if (application != null)
+		{
+			setParentScope(application.getScriptEngine().getSolutionScope());
+		}
 	}
 
 	public JSDataSet(IDataSet set)
