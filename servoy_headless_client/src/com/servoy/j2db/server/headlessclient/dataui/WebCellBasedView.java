@@ -538,7 +538,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 							{
 								IScriptBaseMethods ic = (IScriptBaseMethods)scriptable;
 								ic.js_setSize(ic.js_getWidth(), ((IComponent)component).getSize().height);
-								ic.js_setLocation(ic.js_getLocationX(), visibleRowIndex * ic.js_getHeight());
 							}
 						}
 						cellToElement.put(comp, element);
@@ -630,6 +629,16 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			if (comp instanceof IDisplayRelatedData && record != null)
 			{
 				((IDisplayRelatedData)comp).setRecord(record, true);
+			}
+
+			if (comp instanceof IScriptableProvider)
+			{
+				IScriptable s = ((IScriptableProvider)comp).getScriptObject();
+				if (s instanceof IScriptBaseMethods)
+				{
+					IScriptBaseMethods sb = (IScriptBaseMethods)s;
+					sb.js_setLocation(sb.js_getLocationX(), visibleRowIndex * sb.js_getHeight());
+				}
 			}
 
 			MarkupContainer parent = comp.getParent();
