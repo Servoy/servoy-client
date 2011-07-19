@@ -414,9 +414,18 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent, IJavaScr
 			GraphicalComponent gc = getBaseComponent(true).createNewGraphicalComponent(new Point(js_getX() + x, js_getY()));
 			gc.setSize(new Dimension(width, height));
 			gc.setText(text);
-			int id = JSForm.getMethodId(action, gc, application);
-			gc.setOnActionMethodID(id);
-			return new JSButton(this, gc, application, true);
+			if (action instanceof JSMethod)
+			{
+				JSButton button = new JSButton(this, gc, application, true);
+				button.js_setOnAction((JSMethod)action);
+				return button;
+			}
+			else
+			{
+				int id = JSForm.getMethodId(action, gc, application);
+				gc.setOnActionMethodID(id);
+				return new JSButton(this, gc, application, true);
+			}
 		}
 		catch (RepositoryException e)
 		{
@@ -478,9 +487,18 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent, IJavaScr
 			GraphicalComponent gc = getBaseComponent(true).createNewGraphicalComponent(new Point(js_getX() + x, js_getY()));
 			gc.setSize(new Dimension(width, height));
 			gc.setText(text);
-			int id = JSForm.getMethodId(action, gc, application);
-			if (id != -1) gc.setOnActionMethodID(id);
-			return new JSLabel(this, gc, application, true);
+			if (action instanceof JSMethod)
+			{
+				JSLabel label = new JSLabel(this, gc, application, true);
+				label.js_setOnAction((JSMethod)action);
+				return label;
+			}
+			else
+			{
+				int id = JSForm.getMethodId(action, gc, application);
+				if (id != -1) gc.setOnActionMethodID(id);
+				return new JSLabel(this, gc, application, true);
+			}
 		}
 		catch (RepositoryException e)
 		{
