@@ -44,6 +44,7 @@ import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.smart.dataui.CellAdapter;
 import com.servoy.j2db.util.IDelegate;
+import com.servoy.j2db.util.UIUtils;
 import com.servoy.j2db.util.model.AlwaysRowSelectedSelectionModel;
 
 /**
@@ -292,7 +293,11 @@ public class FixedJTable extends JTable
 		if (e instanceof MouseEvent && ((MouseEvent)e).getID() == MouseEvent.MOUSE_PRESSED &&
 			getSelectionModel().getSelectionMode() == ListSelectionModel.MULTIPLE_INTERVAL_SELECTION)
 		{
-			if (getSelectedRows().length != 1 || getSelectedRows()[0] != row) return false;
+			MouseEvent me = (MouseEvent)e;
+			if (UIUtils.isCommandKeyDown((MouseEvent)e) || me.isShiftDown())
+			{
+				return false;
+			}
 		}
 
 		return super.editCellAt(row, column, e);
@@ -622,7 +627,7 @@ public class FixedJTable extends JTable
 
 		if (this.getRowCount() <= 0 || this.getColumnCount() <= 0 ||
 		// this check prevents us from painting
-			// when the clip doesn't intersect our bounds at all
+		// when the clip doesn't intersect our bounds at all
 			!bounds.intersects(clip))
 		{
 			return;
