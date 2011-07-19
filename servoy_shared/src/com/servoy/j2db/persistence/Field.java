@@ -197,13 +197,10 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 * The method that is executed when the component gains focus.
 	 * NOTE: Do not call methods that will influence the focus itself.
 	 *
-	 * @templatedescription Handle focus element gaining focus
+	 * @templatedescription  Handle focus gained event of the element
 	 * @templatename onFocusGained
-	 * @templatetype Boolean
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
-	 * @templatecode
-	 * return true
 	 */
 	public int getOnFocusGainedMethodID()
 	{
@@ -218,13 +215,10 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	/**
 	 * The method that is executed when the component looses focus.
 	 * 
-	 * @templatedescription Handle focus element loosing focus
+	 * @templatedescription  Handle focus lost event of the element
 	 * @templatename onFocusLost
-	 * @templatetype Boolean
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
-	 * @templatecode
-	 * return true
 	 */
 	public int getOnFocusLostMethodID()
 	{

@@ -2008,7 +2008,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	/**
 	 * The method that is triggered when focus is gained by a component inside the form.
 	 * 
-	 * @templatedescription Handle focus element gaining focus
+	 * @templatedescription Handle focus gained event of an element on the form. Return false when the focus gained event of the element itself shouldn't be triggered.
 	 * @templatename onElementFocusGained
 	 * @templatetype Boolean
 	 * @templateparam JSEvent event the event that triggered the action
@@ -2034,7 +2034,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	/**
 	 * The method that gets triggered when focus is lost by a component inside the form.
 	 * 
-	 * @templatedescription Handle focus element loosing focus
+	 * @templatedescription Handle focus lost event of an element on the form. Return false when the focus lost event of the element itself shouldn't be triggered.
 	 * @templatename onElementFocusLost
 	 * @templatetype Boolean
 	 * @templateparam JSEvent event the event that triggered the action
