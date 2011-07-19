@@ -395,8 +395,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 
 	public Object getValueObject()
 	{
-		//ignore.. pull models
-		return null;
+		return getDefaultModelObject();
 	}
 
 	public void setValueObject(Object value)

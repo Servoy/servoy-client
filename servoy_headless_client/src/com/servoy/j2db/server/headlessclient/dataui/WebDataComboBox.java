@@ -625,8 +625,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 
 	public Object getValueObject()
 	{
-		//ignore.. pull models
-		return null;
+		return getDefaultModelObject();
 	}
 
 	public void setValueObject(Object value)

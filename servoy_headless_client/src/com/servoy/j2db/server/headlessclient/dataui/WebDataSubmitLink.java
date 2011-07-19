@@ -295,8 +295,7 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 
 	public Object getValueObject()
 	{
-		//ignore.. pull models
-		return null;
+		return getDefaultModelObject();
 	}
 
 	public void setValueObject(Object value)

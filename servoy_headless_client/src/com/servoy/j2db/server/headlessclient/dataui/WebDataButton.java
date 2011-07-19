@@ -207,7 +207,7 @@ public class WebDataButton extends WebBaseButton implements IDisplayData, IDispl
 
 	public Object getValueObject()
 	{
-		return null;
+		return getDefaultModelObject();
 	}
 
 	public void setValueObject(Object value)
