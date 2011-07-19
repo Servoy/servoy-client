@@ -606,8 +606,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 
 	public Object getValueObject()
 	{
-		//ignore.. pull models
-		return null;
+		return getDefaultModelObject();
 	}
 
 	public void setValueObject(Object value)

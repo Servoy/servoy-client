@@ -827,8 +827,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 
 	public Object getValueObject()
 	{
-		//ignore.. pull models
-		return null;
+		return getDefaultModelObject();
 	}
 
 	public void setValueObject(Object value)

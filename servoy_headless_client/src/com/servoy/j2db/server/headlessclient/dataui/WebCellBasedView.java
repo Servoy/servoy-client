@@ -538,6 +538,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 							{
 								IScriptBaseMethods ic = (IScriptBaseMethods)scriptable;
 								ic.js_setSize(ic.js_getWidth(), ((IComponent)component).getSize().height);
+								ic.js_setLocation(ic.js_getLocationX(), visibleRowIndex * ic.js_getHeight());
 							}
 						}
 						cellToElement.put(comp, element);
