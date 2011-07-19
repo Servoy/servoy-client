@@ -63,6 +63,8 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 	protected ToolbarPanel toolbarPanel;
 	protected final ISmartClientApplication application;
 
+	private boolean boundsSet = false;
+
 	public SwingRuntimeWindow(ISmartClientApplication application, String windowName, int windowType, RuntimeWindow parentWindow)
 	{
 		super(application, windowName, windowType, parentWindow);
@@ -167,6 +169,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 	{
 		if (wrappedWindow == null)
 		{
+			boundsSet = true;
 			setInitialBounds(x, y, getWidth(), getHeight());
 		}
 		else if (canChangeBoundsThroughScripting())
@@ -188,6 +191,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 	{
 		if (wrappedWindow == null)
 		{
+			boundsSet = true;
 			setInitialBounds(getX(), getY(), width, height);
 		}
 		else if (canChangeBoundsThroughScripting())
@@ -836,10 +840,11 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 
 	public boolean restoreWindowBounds()
 	{
-		if (wrappedWindow instanceof FormWindow)
+		if (wrappedWindow instanceof FormWindow && !boundsSet)
 		{
 			return ((FormWindow)wrappedWindow).restoreBounds();
 		}
+		boundsSet = false;
 		return false;
 	}
 
