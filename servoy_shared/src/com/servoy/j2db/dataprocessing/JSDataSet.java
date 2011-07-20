@@ -129,7 +129,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 		{
 			setParentScope(application.getScriptEngine().getSolutionScope());
 		}
-		else if (J2DBGlobals.getServiceProvider() != null)
+		else if (J2DBGlobals.getServiceProvider() != null && J2DBGlobals.getServiceProvider().getScriptEngine() != null)
 		{
 			setParentScope(J2DBGlobals.getServiceProvider().getScriptEngine().getSolutionScope());
 		}
