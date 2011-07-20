@@ -1585,7 +1585,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			Collection<String> dataSourcesToRefresh = gt.rollback(queryForNewData);
 			if (infoListener != null) infoListener.showTransactionStatus(false);
 			performActionIfRequired();
-			if (dataSourcesToRefresh != null)
+			// refresh foundsets only if rollbackEdited is true, else the foundsets will even save/stopedit the record they where editing..
+			if (dataSourcesToRefresh != null && (rollbackEdited || getEditRecordList().getEditedRecords().length == 0))
 			{
 				refreshFoundsets(dataSourcesToRefresh);
 			}
