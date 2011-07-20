@@ -76,21 +76,6 @@ public class LAFManager extends JarManager implements ILAFManager
 		//load defaults
 		LookAndFeelInfo[] lafs = UIManager.getInstalledLookAndFeels();
 
-		boolean kunststoffInstalled = false;
-		for (LookAndFeelInfo lnf : lafs)
-		{
-			if (lnf.getClassName().equals("com.incors.plaf.kunststoff.KunststoffLookAndFeel")) //$NON-NLS-1$
-			{
-				kunststoffInstalled = true;
-				break;
-			}
-		}
-		if (!kunststoffInstalled)
-		{
-			UIManager.installLookAndFeel("KunststoffLookAndFeel", "com.incors.plaf.kunststoff.KunststoffLookAndFeel"); //$NON-NLS-1$ //$NON-NLS-2$
-			lafs = UIManager.getInstalledLookAndFeels();
-		}
-
 		for (LookAndFeelInfo info : lafs)
 		{
 			if (!lafInfos.contains(info))
