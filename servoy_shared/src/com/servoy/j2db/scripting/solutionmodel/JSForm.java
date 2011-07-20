@@ -765,9 +765,18 @@ public class JSForm implements IJSParent, IConstantsObject
 			GraphicalComponent gc = form.createNewGraphicalComponent(new Point(x, y));
 			gc.setSize(new Dimension(width, height));
 			gc.setText(txt);
-			int id = getMethodId(action, gc, application);
-			gc.setOnActionMethodID(id);
-			return new JSButton(this, gc, application, true);
+			if (action instanceof JSMethod)
+			{
+				JSButton button = new JSButton(this, gc, application, true);
+				button.js_setOnAction((JSMethod)action);
+				return button;
+			}
+			else
+			{
+				int id = getMethodId(action, gc, application);
+				gc.setOnActionMethodID(id);
+				return new JSButton(this, gc, application, true);
+			}
 		}
 		catch (RepositoryException e)
 		{
@@ -830,13 +839,22 @@ public class JSForm implements IJSParent, IConstantsObject
 			GraphicalComponent gc = form.createNewGraphicalComponent(new Point(x, y));
 			gc.setSize(new Dimension(width, height));
 			gc.setText(txt);
-			int methodId = getMethodId(action, gc, application);
-			if (methodId > 0)
+			if (action instanceof JSMethod)
 			{
-				gc.setOnActionMethodID(methodId);
-				gc.setShowClick(false);
+				JSLabel label = new JSLabel(this, gc, application, true);
+				label.js_setOnAction((JSMethod)action);
+				return label;
 			}
-			return new JSLabel(this, gc, application, true);
+			else
+			{
+				int methodId = getMethodId(action, gc, application);
+				if (methodId > 0)
+				{
+					gc.setOnActionMethodID(methodId);
+					gc.setShowClick(false);
+				}
+				return new JSLabel(this, gc, application, true);
+			}
 		}
 		catch (RepositoryException e)
 		{
