@@ -921,12 +921,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		/**
 		 * Sets this form in designmode with one or more callback methods. 
 		 *
-		 * @sample
-		 * //Set the current form in designmode with callbacks
-		 * %%prefix%%controller.setDesignMode(onDragMethod,onDropMethod,onSelectMethod,onResizeMethod);
-		 * 
-		 * //Set the current form out of designmode (to normal browse mode)
-		 * %%prefix%%controller.setDesignMode(false);
+		 * @sampleas jsFunction_setDesignMode(boolean)
 		 *
 		 * @param ondrag org.mozilla.javascript.Function onDrag method reference 
 		 * @param ondrop org.mozilla.javascript.Function onDrop method reference 
@@ -955,11 +950,17 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * Sets this form in designmode with param true, false will return to normal browse/edit mode.
 		 *
 		 * @sample
-		 * //Set the current form in designmode with no callbacks
-		 * %%prefix%%controller.setDesignMode(true);
-		 * 
+		 * var form = forms["selectedFormName"];
+		 * if (!form.controller.getDesignMode())
+		 * {
+		 * 		// Set the current form in designmode with no callbacks
+		 * 		form.controller.setDesignMode(true);
+		 * 		// Set the current form in designmode with callbacks
+		 * 		// where onDrag, onDrop, onSelect, onResize are names of form methods (not from "selectedFormName" form)
+		 * 		// form.controller.setDesignMode(onDrag, onDrop, onSelect, onResize);
+		 * }
 		 * //Set the current form out of designmode (to normal browse)
-		 * %%prefix%%controller.setDesignMode(false);
+		 * //form.controller.setDesignMode(false);
 		 *
 		 * @param designMode boolean sets form in design mode if true, false ends design mode.  
 		 */
