@@ -277,6 +277,10 @@ public class ScriptVariableScope extends LazyCompilationScope
 	@Override
 	public void put(String name, Scriptable arg1, Object value)
 	{
+		if (name.equals("foundset") && arg1 instanceof FormScope && value instanceof FoundSet) //$NON-NLS-1$
+		{
+			throw new WrappedException(new Throwable("Setting of foundset object is not possible.")); //$NON-NLS-1$
+		}
 		if (value instanceof Function)
 		{
 			super.put(name, arg1, value);
