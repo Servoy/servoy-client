@@ -18,6 +18,7 @@ package com.servoy.j2db.smart.dataui;
 
 import java.awt.Component;
 import java.awt.Point;
+import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
@@ -26,6 +27,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.Serializable;
 
+import javax.swing.JEditorPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
@@ -281,5 +283,53 @@ public class EventExecutor extends BaseEventExecutor implements MouseListener, F
 			}
 		}
 		return formName;
+	}
+
+	private static final FocusListener onRenderFocusListener = new FocusAdapter()
+	{
+		@Override
+		public void focusLost(FocusEvent e)
+		{
+			Component c = e.getComponent();
+			if (c instanceof JTextComponent)
+			{
+				JTextComponent textComponent = (JTextComponent)c;
+				if (textComponent.getDocument() == null || textComponent.getText() == null || textComponent.getText().length() == 0 ||
+					textComponent instanceof JEditorPane)
+				{
+					c.repaint();
+				}
+			}
+		}
+	};
+
+	@Override
+	public void setRenderCallback(String id)
+	{
+		super.setRenderCallback(id);
+		// if this is a text component, we need to force its repaint when
+		// it does not have content and is loosing focus
+		if (id != null)
+		{
+			if (component instanceof JTextComponent)
+			{
+				component.addFocusListener(onRenderFocusListener);
+			}
+			else if (enclosedComponent instanceof JTextComponent)
+			{
+				enclosedComponent.addFocusListener(onRenderFocusListener);
+			}
+		}
+		else
+		{
+			if (component instanceof JTextComponent)
+			{
+				component.removeFocusListener(onRenderFocusListener);
+			}
+			else if (enclosedComponent instanceof JTextComponent)
+			{
+				enclosedComponent.removeFocusListener(onRenderFocusListener);
+			}
+		}
 	}
 }

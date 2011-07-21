@@ -766,6 +766,16 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 		{
 			return textTransferHandler;
 		}
+
+		@Override
+		public void repaint(long tm, int x, int y, int width, int height)
+		{
+			super.repaint(tm, x, y, width, height);
+			// if we have onRender, we need to repaint the container as
+			// the border setting is applied on that
+			IEventExecutor ee = DataTextEditor.this.getEventExecutor();
+			if (ee != null && ee.hasRenderCallback()) DataTextEditor.this.repaint();
+		}
 	}
 
 	public JEditorPane getRealEditor()
@@ -1508,7 +1518,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 	@Override
 	protected void paintComponent(Graphics g)
 	{
-		if (eventExecutor != null) eventExecutor.fireOnRender(this, hasFocus());
+		if (eventExecutor != null) eventExecutor.fireOnRender(this, enclosedComponent.hasFocus());
 		super.paintComponent(g);
 	}
 
