@@ -911,7 +911,7 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 			IMainContainer currentContainer = ((FormManager)application.getFormManager()).getCurrentContainer();
 			if (currentContainer instanceof MainPage)
 			{
-				isFocused = this.equals(((MainPage)currentContainer).getFocusedComponent());
+				isFocused = field.equals(((MainPage)currentContainer).getFocusedComponent());
 			}
 			eventExecutor.fireOnRender(this, isFocused);
 		}

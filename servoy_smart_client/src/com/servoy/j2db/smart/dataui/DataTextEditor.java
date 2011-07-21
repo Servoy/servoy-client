@@ -1508,7 +1508,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 	@Override
 	protected void paintComponent(Graphics g)
 	{
-		if (eventExecutor != null) eventExecutor.fireOnRender(this, hasFocus());
+		if (eventExecutor != null) eventExecutor.fireOnRender(this, enclosedComponent.hasFocus());
 		super.paintComponent(g);
 	}
 

@@ -199,7 +199,7 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 
 	public IEventExecutor getEventExecutor()
 	{
-		return enclosedComponent.getEventExecutor();
+		return enclosedComponent != null ? enclosedComponent.getEventExecutor() : null;
 	}
 
 	public void setEnterCmds(String[] ids, Object[][] args)
