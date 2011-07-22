@@ -677,7 +677,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		@Override
 		protected void onBeforeRender()
 		{
-			updateComponentsRenderState(null, null, null, null, Arrays.binarySearch(getSelectedIndexes(), getIndex()) >= 0);
+			updateComponentsRenderState(null, Arrays.binarySearch(getSelectedIndexes(), getIndex()) >= 0);
 			super.onBeforeRender();
 			Iterator< ? extends Component> it = iterator();
 			while (it.hasNext())
@@ -695,7 +695,18 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			}
 		}
 
+		public void updateComponentsRenderState(AjaxRequestTarget target, boolean isSelected)
+		{
+			updateComponentsRenderState(target, null, null, null, isSelected, true);
+		}
+
 		public void updateComponentsRenderState(AjaxRequestTarget target, String bgColor, String fgColor, String compFont, boolean isSelected)
+		{
+			updateComponentsRenderState(target, bgColor, fgColor, compFont, isSelected, false);
+		}
+
+		private void updateComponentsRenderState(AjaxRequestTarget target, String bgColor, String fgColor, String compFont, boolean isSelected,
+			boolean ignoreStyles)
 		{
 			Iterator< ? extends Component> it = iterator();
 			while (it.hasNext())
@@ -707,7 +718,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					if (c instanceof Component)
 					{
 						Component innerComponent = (Component)c;
-						WebCellBasedView.this.applyStyleOnComponent(innerComponent, bgColor, fgColor, compFont);
+						if (!ignoreStyles) WebCellBasedView.this.applyStyleOnComponent(innerComponent, bgColor, fgColor, compFont);
 						boolean innerComponentChanged = innerComponent instanceof IProviderStylePropertyChanges &&
 							((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges().isChanged();
 						if ((updateComponentRenderState(c, isSelected) || innerComponentChanged) && target != null)
@@ -2875,31 +2886,22 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	private void applyStyleOnComponent(Component comp, Object bgColor, Object fgColor, Object compFont)
 	{
-		if (bgColor != null)
+		if (comp instanceof IScriptableProvider)
 		{
-			if (comp instanceof IScriptableProvider)
-			{
-				IScriptable s = ((IScriptableProvider)comp).getScriptObject();
-				if (s instanceof IScriptBaseMethods) ((IScriptBaseMethods)s).js_setBgcolor(bgColor.toString());
-			}
+			IScriptable s = ((IScriptableProvider)comp).getScriptObject();
+			if (s instanceof IScriptBaseMethods) ((IScriptBaseMethods)s).js_setBgcolor(bgColor != null ? bgColor.toString() : null);
 		}
 
-		if (fgColor != null)
+		if (comp instanceof IScriptableProvider)
 		{
-			if (comp instanceof IScriptableProvider)
-			{
-				IScriptable s = ((IScriptableProvider)comp).getScriptObject();
-				if (s instanceof IScriptBaseMethods) ((IScriptBaseMethods)s).js_setFgcolor(fgColor.toString());
-			}
+			IScriptable s = ((IScriptableProvider)comp).getScriptObject();
+			if (s instanceof IScriptBaseMethods) ((IScriptBaseMethods)s).js_setFgcolor(fgColor != null ? fgColor.toString() : null);
 		}
 
-		if (compFont != null)
+		if (comp instanceof IScriptableProvider)
 		{
-			if (comp instanceof IScriptableProvider)
-			{
-				IScriptable s = ((IScriptableProvider)comp).getScriptObject();
-				if (s instanceof IScriptTransparentMethods) ((IScriptTransparentMethods)s).js_setFont(compFont.toString());
-			}
+			IScriptable s = ((IScriptableProvider)comp).getScriptObject();
+			if (s instanceof IScriptTransparentMethods) ((IScriptTransparentMethods)s).js_setFont(compFont != null ? compFont.toString() : null);
 		}
 	}
 
