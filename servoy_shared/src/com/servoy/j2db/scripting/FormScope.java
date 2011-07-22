@@ -24,6 +24,7 @@ import java.util.List;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeJavaArray;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.WrappedException;
 import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.FormController;
@@ -327,6 +328,21 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 		{
 			return _fp;
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.scripting.ScriptVariableScope#put(java.lang.String, org.mozilla.javascript.Scriptable, java.lang.Object)
+	 */
+	@Override
+	public void put(String name, Scriptable arg1, Object value)
+	{
+		if (name.equals("foundset")) //$NON-NLS-1$
+		{
+			throw new WrappedException(new Throwable("Setting of foundset object is not possible.")); //$NON-NLS-1$
+		}
+		super.put(name, arg1, value);
 	}
 
 
