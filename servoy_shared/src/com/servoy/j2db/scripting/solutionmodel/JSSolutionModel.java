@@ -1077,7 +1077,7 @@ public class JSSolutionModel
 	 * // string arguments have to be quoted, they are interpreted before the method is called
 	 * var quotedString = "'"+utils.stringReplace(str, "'", "\\'")+"'"
 	 * // list all arguments the method has, use nulls for fixed arguments (like event)
-	 * button.onAction = solutionModel.wrapMethodWithArguments(method, null, true, 42, quotedString)
+	 * button.onAction = solutionModel.wrapMethodWithArguments(method, [null, true, 42, quotedString])
 	 * 
 	 * @param method JSMethod to be assigned to an event
 	 * 
