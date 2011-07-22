@@ -64,6 +64,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.ITagResolver;
+import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.StateFullSimpleDateFormat;
 import com.servoy.j2db.util.Utils;
 
@@ -597,7 +598,7 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 
 	public void setFont(Font f)
 	{
-		if (f != null && field != null) field.setFont(f);
+		if (f != null && field != null) field.getScriptObject().js_setFont(PersistHelper.createFontString(f));
 	}
 
 	private Color background;
@@ -620,7 +621,10 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 	public void setForeground(Color cfg)
 	{
 		this.foreground = cfg;
-		if (field != null) field.setForeground(cfg);
+		if (field != null)
+		{
+			field.getScriptObject().js_setFgcolor(PersistHelper.createColorString(cfg));
+		}
 	}
 
 	public Color getForeground()
