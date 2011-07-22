@@ -1828,7 +1828,7 @@ public class TemplateGenerator
 		// when the bg_repeat is set and it is no-repeat then the component will handle it as its media
 		// else the css should be used.
 		String repeat = styleObj.getProperty(CSS.Attribute.BACKGROUND_REPEAT.toString());
-		if (repeat != null && repeat.equals("no-repeat"))
+		if (repeat != null && repeat.equals("no-repeat") && styleObj.getProperty(CSS.Attribute.BACKGROUND_POSITION.toString()) == null)
 		{
 			styleObj.remove(CSS.Attribute.BACKGROUND_IMAGE.toString());
 			styleObj.remove(CSS.Attribute.BACKGROUND_REPEAT.toString());
