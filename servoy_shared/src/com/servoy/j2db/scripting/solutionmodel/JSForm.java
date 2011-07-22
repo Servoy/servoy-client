@@ -2628,8 +2628,12 @@ public class JSForm implements IJSParent, IConstantsObject
 	 * 	application.output(myListViewForm.navigator.name);
 	 *  
 	 */
-	public JSForm js_getNavigator()
+	public Object js_getNavigator()
 	{
+		if (form.getNavigatorID() <= 0)
+		{
+			return Integer.valueOf(form.getNavigatorID());
+		}
 		Form f = application.getFlattenedSolution().getForm(form.getNavigatorID());
 		if (f != null)
 		{
