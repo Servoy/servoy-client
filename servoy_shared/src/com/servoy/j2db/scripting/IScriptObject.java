@@ -22,7 +22,6 @@ package com.servoy.j2db.scripting;
  * 
  * @author jblok
  */
-@Deprecated
 public interface IScriptObject extends IReturnedTypesProvider, IScriptable
 {
 	/**
