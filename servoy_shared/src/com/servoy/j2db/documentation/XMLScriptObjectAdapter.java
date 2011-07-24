@@ -110,7 +110,8 @@ public class XMLScriptObjectAdapter implements ITypedScriptObject
 				boolean varargs = false;
 				if (params.length == argTypes.length && i == params.length - 1)
 				{
-					varargs = argTypes[i].isArray() && !argTypes[i].getComponentType().isPrimitive();
+//					varargs = argTypes[i].isArray() && !argTypes[i].getComponentType().isPrimitive();
+					varargs = fdoc.isVarargs();
 				}
 				params[i++] = new ScriptParameter(name, type, optional, varargs);
 			}
