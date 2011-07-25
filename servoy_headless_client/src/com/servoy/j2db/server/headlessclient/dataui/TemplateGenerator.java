@@ -1825,13 +1825,12 @@ public class TemplateGenerator
 		TextualStyle styleObj = css.addStyle(styleName + ComponentFactory.getWebID(form, label));
 		BorderAndPadding ins = applyBaseComponentProperties(label, form, styleObj, (Insets)DEFAULT_LABEL_PADDING.clone(), border, sp);
 		// fix the background img, see ComponentFactory.createGraphicalComponent
-		// when the bg_repeat is set and it is no-repeat then the component will handle it as its media
-		// else the css should be used.
-		String repeat = styleObj.getProperty(CSS.Attribute.BACKGROUND_REPEAT.toString());
-		if (repeat != null && repeat.equals("no-repeat"))
+		// background image through css will only be used when repeat or position are set. 
+		// if both are not specified then it is used as the MEDIA of the label/button, so bck_img is removed from the css.
+		if (styleObj.getProperty(CSS.Attribute.BACKGROUND_REPEAT.toString()) == null &&
+			styleObj.getProperty(CSS.Attribute.BACKGROUND_POSITION.toString()) == null)
 		{
 			styleObj.remove(CSS.Attribute.BACKGROUND_IMAGE.toString());
-			styleObj.remove(CSS.Attribute.BACKGROUND_REPEAT.toString());
 		}
 		applyTextProperties(label, styleObj);
 

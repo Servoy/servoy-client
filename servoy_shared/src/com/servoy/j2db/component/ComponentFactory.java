@@ -1573,12 +1573,11 @@ public class ComponentFactory
 				style_halign = ss.getHAlign(s);
 
 				boolean parseMedia = true;
-				// only parse and set the media id for the webclient when the background image is in no-repeat
-				// anything else then then the css through the templategenerator is used.
+				// only parse and set the media id for the webclient when both repeat and position properties are not specified
+				// anything else then then the css through the templategenerator is used. (See TemplateGenerator.createGraphicalComponentHTML)
 				if (application.getApplicationType() == IApplication.WEB_CLIENT)
 				{
-					Object repeat = s.getAttribute(CSS.Attribute.BACKGROUND_REPEAT);
-					parseMedia = repeat == null ? false : repeat.toString().equals("no-repeat");
+					parseMedia = s.getAttribute(CSS.Attribute.BACKGROUND_REPEAT) == null && s.getAttribute(CSS.Attribute.BACKGROUND_POSITION) == null;
 				}
 				if (parseMedia)
 				{
