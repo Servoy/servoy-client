@@ -302,7 +302,8 @@ public class LFPreferencePanel extends PreferencePanel implements ItemListener, 
 				if (_choosenFont != null)
 				{
 					JButton button = (JButton)evt.getSource();
-					button.setText(_choosenFont.getFontName() + _application.getI18NMessage("servoy.preference.lookandfeel.fontsize") + _choosenFont.getSize()); //$NON-NLS-1$
+					button.setText(_choosenFont.getName() +
+						" " + _application.getI18NMessage("servoy.preference.lookandfeel.fontsize") + _choosenFont.getSize()); //$NON-NLS-1$
 				}
 			}
 		}
