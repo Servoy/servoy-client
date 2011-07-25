@@ -1019,35 +1019,23 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 		return set != null && set.hadMoreRows();
 	}
 
-
 	/**
-	 * Sort the dataset on the given column in ascending or descending.
+	 * Sort the dataset on the given column in ascending or descending, or
+	 * sort the dataset using a comparator function.
+	 * 
+	 * If the first argument is a number, sort the dataset on the given column index (1-based),
+	 * using the second argument as sort order (true for ascending, false for descending)
+	 * 
+	 * If the first argument is a function, sort the dataset using the function as comparator.
+	 * The comparator function is called to compare two rows, that are passed as arguments, and
+	 * it will return -1/0/1 if the first row is less/equal/greater then the second row.
 	 *
 	 * @sample
+	 * // sort using column number
 	 * //assuming the variable dataset contains a dataset
 	 * dataset.sort(1,false)
 	 * 
-	 * @param col column number, 1-based
-	 * 
-	 * @param sort_direction boolean true for ascending, false for descending
-	 */
-	public void js_sort(int col, boolean sort_direction)
-	{
-		if (set != null && col > 0 && col <= set.getColumnCount())
-		{
-			set.sort(col - 1, sort_direction);
-		}
-	}
-
-	/**
-	 * Sort the dataset using a comparator function.
-	 * The comparator function is called to compare
-	 * two rows, that are passed as arguments, and
-	 * it will return -1/0/1 if the first row is less/equal/greater
-	 * then the second row.
-	 *
-	 * @sample
-	 * 
+	 * //sort using comparator
 	 * dataset.sort(mySortFunction);
 	 *  
 	 * function mySortFunction(r1, r2)
@@ -1062,12 +1050,37 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 	 *		o = 1;
 	 *	}
 	 *	return o;
-	 * }  	
-	 *  
-	 * @param rowComparator the function used to compare two rows
+	 * }  
 	 * 
+	 * @param col/comparator column number, 1-based or comparator function
+	 * 
+	 * @param sort_direction boolean used only if the first argument is a column number 
 	 */
-	public void js_sort(final Function rowComparator)
+	public void js_sort(Object[] vargs)
+	{
+		if (vargs == null || vargs.length == 0) return;
+		if (vargs[0] instanceof Function)
+		{
+			sort((Function)vargs[0]);
+		}
+		else if (vargs.length == 2)
+		{
+			int columnIndex = (int)ScriptRuntime.toInteger(vargs[0]);
+			boolean ascending = ScriptRuntime.toBoolean(vargs[1]);
+
+			sort(columnIndex, ascending);
+		}
+	}
+
+	public void sort(int col, boolean sort_direction)
+	{
+		if (set != null && col > 0 && col <= set.getColumnCount())
+		{
+			set.sort(col - 1, sort_direction);
+		}
+	}
+
+	public void sort(final Function rowComparator)
 	{
 		if (set != null && rowComparator != null)
 		{
@@ -1422,7 +1435,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 				break;
 			case Id_sort :
 				name = "sort"; //$NON-NLS-1$
-				arity = 2;
+				arity = 1;
 				break;
 			case Id_getAsText :
 				name = "getAsText"; //$NON-NLS-1$
@@ -1700,9 +1713,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 					dataset.js_setRowIndex(columnIndex);
 					return ScriptRuntime.NaNobj;
 				case Id_sort :
-					columnIndex = (int)ScriptRuntime.toInteger(args[0]);
-					boolean ascending = ScriptRuntime.toBoolean(args[1]);
-					dataset.js_sort(columnIndex, ascending);
+					dataset.js_sort(args);
 					return ScriptRuntime.NaNobj;
 				case Id_getRowAsArray :
 					rowIdx = (int)ScriptRuntime.toInteger(args[0]);
