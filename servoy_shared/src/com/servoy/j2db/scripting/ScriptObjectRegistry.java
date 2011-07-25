@@ -31,6 +31,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
 import com.servoy.j2db.dataprocessing.DataException;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.documentation.XMLScriptObjectAdapter;
 
 /**
@@ -219,6 +220,10 @@ public class ScriptObjectRegistry
 					}
 				}
 				map.put(clss, jm);
+			}
+			catch (Exception e)
+			{
+				Debug.error("Error creating java members returning null", e); //$NON-NLS-1$
 			}
 			finally
 			{
