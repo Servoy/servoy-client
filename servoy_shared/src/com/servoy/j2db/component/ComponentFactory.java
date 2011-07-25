@@ -1572,9 +1572,15 @@ public class ComponentFactory
 				style_valign = ss.getVAlign(s);
 				style_halign = ss.getHAlign(s);
 
-				// should we do it through css on the client side or throug the media property on the server side..
-				// doing it through the media property keeps the smart and web more the same, so keeping that as the current behavior for now.
-				//if (application.getApplicationType() != IApplication.WEB_CLIENT)
+				boolean parseMedia = true;
+				// only parse and set the media id for the webclient when the background image is in no-repeat
+				// anything else then then the css through the templategenerator is used.
+				if (application.getApplicationType() == IApplication.WEB_CLIENT)
+				{
+					Object repeat = s.getAttribute(CSS.Attribute.BACKGROUND_REPEAT);
+					parseMedia = repeat == null ? false : repeat.toString().equals("no-repeat");
+				}
+				if (parseMedia)
 				{
 					Object mediaUrl = s.getAttribute(CSS.Attribute.BACKGROUND_IMAGE);
 					if (mediaUrl != null && mediaUrl.toString() != null)
