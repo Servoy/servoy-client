@@ -2212,7 +2212,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * Create a new record in the foundset.
+	 * Create a new record in the foundset. Returns -1 if the record can't be made.
 	 *
 	 * @sample
 	 * // foreign key data is only filled in for equals (=) relation items 
@@ -2384,7 +2384,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * Get the record object at the index.
+	 * Get the record object at the index. 
 	 *
 	 * @sample var record = %%prefix%%foundset.getRecord(index);
 	 *
@@ -2399,7 +2399,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 
 	/**
-	 * Get the record index.
+	 * Get the record index. Will return -1 if the record can't be found.
 	 *
 	 * @sample var index = %%prefix%%foundset.getRecordIndex(record);
 	 *
@@ -2409,7 +2409,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public int js_getRecordIndex(IRecordInternal record)
 	{
-		return getRecordIndex(record) + 1;
+		int recordIndex = getRecordIndex(record);
+		if (recordIndex == -1) return -1;
+		return recordIndex + 1;
 	}
 
 	/**
@@ -4187,7 +4189,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 	}
 
-	protected void fireFoundSetEvent(@SuppressWarnings("unused") int firstRow, @SuppressWarnings("unused") int lastRow, int changeType)
+	protected void fireFoundSetEvent(@SuppressWarnings("unused")
+	int firstRow, @SuppressWarnings("unused")
+	int lastRow, int changeType)
 	{
 		if (foundSetEventListeners.size() > 0)
 		{
