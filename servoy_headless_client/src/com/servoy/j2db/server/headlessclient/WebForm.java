@@ -745,6 +745,11 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		}
 	}
 
+	public List<Component> getReadOnlyComponents()
+	{
+		return markedComponents;
+	}
+
 	/**
 	 * @see com.servoy.j2db.IFormUIInternal#updateFormUI()
 	 */
