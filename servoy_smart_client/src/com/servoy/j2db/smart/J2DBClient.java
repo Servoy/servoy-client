@@ -3705,8 +3705,11 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		{
 			if (rmiFactoryFactory != null)
 			{
-				Debug.error("Test exception, calling disconnect in thread: " + Thread.currentThread().getName(), (Exception)exception);
-				rmiFactoryFactory.disconnect();
+				if (!reconnecting)
+				{
+					Debug.error("Test exception, calling disconnect in thread: " + Thread.currentThread().getName(), (Exception)exception);
+					rmiFactoryFactory.disconnect();
+				}
 			}
 			else
 			{
