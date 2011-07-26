@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.plugins;
 
 
@@ -24,6 +24,13 @@ import java.util.Map;
  */
 public interface IServerPlugin extends IPlugin
 {
+	/**
+	 * Key to use to provide a link on the adminpage for server plugins via IPlugin.getProperties().
+	 * When this is used, IPlugin.DISPLAY_NAME key-value should also be provided as link-display text
+	 * The provided link value can be either relative or absolute  
+	 */
+	public static final String DISPLAY_ADMINPAGE_URL = "adminpage_url"; //$NON-NLS-1$
+
 	/**
 	 * Called on application startup after application started.
 	 */
