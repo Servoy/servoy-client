@@ -75,6 +75,7 @@ public final class ClientInfo implements Serializable
 	private transient long idleTimestamp = 0;
 	private transient String[] groups;
 
+	private int solutionReleaseNumber = -1;
 	private int openSolutionId = -1;
 	private List<String> infos = new ArrayList<String>();//to make it possible for developer to give a client a meaning full name/description in the admin page
 
@@ -330,12 +331,30 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
+	@TerracottaAutolockRead
+	public int getSolutionReleaseNumber()
+	{
+		synchronized (lock)
+		{
+			return solutionReleaseNumber;
+		}
+	}
+
 	@TerracottaAutolockWrite
 	public void setOpenSolutionId(int openSolutionId)
 	{
 		synchronized (lock)
 		{
 			this.openSolutionId = openSolutionId;
+		}
+	}
+
+	@TerracottaAutolockWrite
+	public void setSolutionReleaseNumber(int releaseNumber)
+	{
+		synchronized (lock)
+		{
+			this.solutionReleaseNumber = releaseNumber;
 		}
 	}
 
