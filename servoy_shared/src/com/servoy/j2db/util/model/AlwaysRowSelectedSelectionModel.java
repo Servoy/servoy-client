@@ -205,8 +205,6 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 	protected void fireValueChanged(int firstIndex, int lastIndex, boolean isAdjusting)
 	{
 		if (getSelectedRow() == -1 && firstIndex != lastIndex) return;
-
-		System.err.println(firstIndex + "::" + lastIndex + ":;" + isAdjusting + ":::" + getSelectedRow());
 		super.fireValueChanged(firstIndex, lastIndex, isAdjusting);
 	}
 
