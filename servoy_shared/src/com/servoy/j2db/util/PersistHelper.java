@@ -473,7 +473,7 @@ public class PersistHelper
 		{
 			Font f = (Font)it.next();
 
-			String fontName = f.getFontName();
+			String fontName = f.getName();
 			if (fontName.equalsIgnoreCase(aName)) return f;
 			if (fontName.equalsIgnoreCase(formatedName)) return f;
 			fontName = stringFormat(fontName);
