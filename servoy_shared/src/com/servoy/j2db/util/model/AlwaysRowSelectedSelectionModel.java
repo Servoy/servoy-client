@@ -104,13 +104,13 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 			if (getSelectionMode() == SINGLE_SELECTION)
 			{
 				int selectedRow = getSelectedRow();
-				super.removeIndexInterval(index0, index1);
 				if (selectedRow >= index0 && selectedRow <= index1)
 				{
 					// selected record was removed, set selection after the removed block or before (if at the end)
 					// note: default behaviour of DefaultListSelectionModel is to set selected index to -1 when selected was removed
 					setSelectedRow(Math.min(index0, foundset.getSize() - 1));
 				}
+				super.removeIndexInterval(index0, index1);
 			}
 			else
 			{
@@ -194,6 +194,20 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 				addSelectionInterval(rows[i], rows[i]);
 			fireValueChanged(false);
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.swing.DefaultListSelectionModel#fireValueChanged(int, int, boolean)
+	 */
+	@Override
+	protected void fireValueChanged(int firstIndex, int lastIndex, boolean isAdjusting)
+	{
+		if (getSelectedRow() == -1 && firstIndex != lastIndex) return;
+
+		System.err.println(firstIndex + "::" + lastIndex + ":;" + isAdjusting + ":::" + getSelectedRow());
+		super.fireValueChanged(firstIndex, lastIndex, isAdjusting);
 	}
 
 	public int[] getSelectedRows()
