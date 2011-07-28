@@ -1054,7 +1054,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 	 * 
 	 * @param col/comparator column number, 1-based or comparator function
 	 * 
-	 * @param sort_direction boolean used only if the first argument is a column number 
+	 * @param sort_direction optional boolean used only if the first argument is a column number 
 	 */
 	public void js_sort(Object[] vargs)
 	{
