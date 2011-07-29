@@ -103,7 +103,7 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 			{
 				lookupname += "." + f.getStyleClass(); //$NON-NLS-1$
 			}
-			javax.swing.text.Style style = ss.getStyle(lookupname);
+			javax.swing.text.Style style = ss.getRule(lookupname);
 			if (style != null)
 			{
 				if (border == null)
