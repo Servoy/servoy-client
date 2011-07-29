@@ -662,11 +662,20 @@ public abstract class AbstractBase implements IPersist
 	public IPersist cloneObj(ISupportChilds newParent, boolean deep, IValidateName validator, boolean changeName, boolean changeChildNames)
 		throws RepositoryException
 	{
-		if (getRootObject().getChangeHandler() == null)
+		ChangeHandler changeHandler = null;
+		if (newParent != null)
+		{
+			changeHandler = newParent.getRootObject().getChangeHandler();
+		}
+		else
+		{
+			changeHandler = getRootObject().getChangeHandler();
+		}
+		if (changeHandler == null)
 		{
 			throw new RepositoryException("cannot clone/copy without change handler");
 		}
-		AbstractBase clone = (AbstractBase)getRootObject().getChangeHandler().cloneObj(this, newParent);
+		AbstractBase clone = (AbstractBase)changeHandler.cloneObj(this, newParent);
 		if (changeName && clone instanceof ISupportUpdateableName && ((ISupportUpdateableName)clone).getName() != null)
 		{
 			int random = new Random().nextInt(1024);
