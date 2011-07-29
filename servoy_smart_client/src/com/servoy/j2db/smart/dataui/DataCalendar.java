@@ -110,6 +110,16 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 				// super uses scriptable
 				return "DataField for " + DataCalendar.this.toString(); //$NON-NLS-1$ 
 			}
+
+			@Override
+			public void repaint(long tm, int x, int y, int width, int height)
+			{
+				super.repaint(tm, x, y, width, height);
+				// if we have onRender, we need to repaint the container as
+				// the border setting is applied on that
+				IEventExecutor ee = DataCalendar.this.getEventExecutor();
+				if (ee != null && ee.hasRenderCallback()) DataCalendar.this.repaint();
+			}
 		};
 		enclosedComponent.setIgnoreOnRender(true);
 		enclosedComponent.setBorder(BorderFactory.createEmptyBorder());
