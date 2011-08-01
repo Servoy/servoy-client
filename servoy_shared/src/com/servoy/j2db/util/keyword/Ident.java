@@ -121,6 +121,7 @@ public class Ident
 	"allvariables", 
 	"exception", 
 	"jsunit", 
+	"servoyDeveloper", 
 	// New
 	"_super" }; 
 
