@@ -114,18 +114,23 @@ public class ColumnSortListener extends MouseAdapter
 			{
 				return;
 			}
-
-			lastSortAsc = lastColumnIndex.containsKey(columnModelIndex) ? !lastColumnIndex.get(columnModelIndex) : true;
-
-			if ((fc != null) && (column instanceof CellAdapter) && e.getClickCount() <= 1 && table.getModel() instanceof IFoundSetInternal)
+			if (lastColumnIndex.containsKey(columnModelIndex))
 			{
-				List<SortColumn> sortCols = ((IFoundSetInternal)table.getModel()).getSortColumns();
-				if (sortCols != null && sortCols.size() > 0)
+				lastSortAsc = !lastColumnIndex.get(columnModelIndex);
+			}
+			else
+			{
+				lastSortAsc = true;
+				if ((fc != null) && (column instanceof CellAdapter) && e.getClickCount() <= 1 && table.getModel() instanceof IFoundSetInternal)
 				{
-					for (SortColumn sc : sortCols)
+					List<SortColumn> sortCols = ((IFoundSetInternal)table.getModel()).getSortColumns();
+					if (sortCols != null && sortCols.size() > 0)
 					{
-						CellAdapter ca = (CellAdapter)column;
-						if (sc.getDataProviderID().equals(ca.getDataProviderID())) lastSortAsc = sc.getSortOrder() == SortColumn.DESCENDING;
+						for (SortColumn sc : sortCols)
+						{
+							CellAdapter ca = (CellAdapter)column;
+							if (sc.getDataProviderID().equals(ca.getDataProviderID())) lastSortAsc = sc.getSortOrder() == SortColumn.DESCENDING;
+						}
 					}
 				}
 			}
