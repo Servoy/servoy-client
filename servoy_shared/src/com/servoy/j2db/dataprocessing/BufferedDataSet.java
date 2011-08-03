@@ -124,6 +124,22 @@ public class BufferedDataSet implements IDataSet
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public IDataSet clone()
+	{
+		BufferedDataSet set = new BufferedDataSet();
+		set.columnNames = columnNames != null ? columnNames.clone() : null;
+		set.columnTypes = columnTypes != null ? columnTypes.clone() : null;
+		set.rows = rows != null ? new SafeArrayList<Object[]>(new ArrayList<Object[]>(rows)) : null;
+		set.hadMore = hadMore;
+		return set;
+	}
+
 	/**
 	 * Get the number of rows in this dataset
 	 */
