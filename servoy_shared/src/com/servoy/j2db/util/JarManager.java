@@ -443,7 +443,7 @@ public abstract class JarManager
 
 	}
 
-	protected static List<String> getBeanClassNames(Manifest mf)
+	public static List<String> getBeanClassNames(Manifest mf)
 	{
 		HashMap<String, Boolean> beans = new HashMap<String, Boolean>();
 		Map<String, Attributes> entries = mf.getEntries();
