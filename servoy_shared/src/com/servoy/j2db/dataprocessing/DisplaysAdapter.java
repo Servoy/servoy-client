@@ -157,10 +157,8 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 			if (value instanceof ISwingFoundSet)
 			{
 				currRecord = ((ISwingFoundSet)value).getRecord(((ISwingFoundSet)value).getSelectedIndex());
-				if (currRecord != null)
-				{
-					newRelated.add(currRecord);
-				}
+				if (currRecord == null) currRecord = ((ISwingFoundSet)value).getPrototypeState();
+				newRelated.add(currRecord);
 			}
 		}
 
