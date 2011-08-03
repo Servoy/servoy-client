@@ -75,10 +75,12 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IMediaFieldConstants;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
+import com.servoy.j2db.ui.IScriptRenderMethods;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.RenderEventExecutor;
+import com.servoy.j2db.ui.RenderableWrapper;
 import com.servoy.j2db.ui.scripting.RuntimeMediaField;
 import com.servoy.j2db.ui.scripting.RuntimeScriptButton;
 import com.servoy.j2db.util.Debug;
@@ -1181,5 +1183,20 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 	public RenderEventExecutor getRenderEventExecutor()
 	{
 		return eventExecutor;
+	}
+
+	private IScriptRenderMethods renderable;
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderable()
+	 */
+	public IScriptRenderMethods getRenderable()
+	{
+		if (renderable == null)
+		{
+			renderable = new RenderableWrapper(getScriptObject());
+		}
+
+		return renderable;
 	}
 }

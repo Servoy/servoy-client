@@ -56,14 +56,17 @@ import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.server.headlessclient.ByteArrayResource;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IButton;
+import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
+import com.servoy.j2db.ui.IScriptRenderMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportSecuritySettings;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.RenderEventExecutor;
+import com.servoy.j2db.ui.RenderableWrapper;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeBaseComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
@@ -957,6 +960,25 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 	public RenderEventExecutor getRenderEventExecutor()
 	{
 		return eventExecutor;
+	}
+
+	private IScriptRenderMethods renderable;
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderable()
+	 */
+	public IScriptRenderMethods getRenderable()
+	{
+		if (renderable == null)
+		{
+			AbstractRuntimeBaseComponent< ? extends IComponent> scriptObject = getScriptObject();
+			if (scriptObject instanceof IScriptRenderMethods)
+			{
+				renderable = new RenderableWrapper((IScriptRenderMethods)scriptObject);
+			}
+		}
+
+		return renderable;
 	}
 
 	public int getDisplayedMnemonic()

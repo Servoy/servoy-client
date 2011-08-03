@@ -260,6 +260,21 @@ public class DataRendererOnRenderWrapper implements ISupportOnRenderCallback, IS
 		return renderEventExecutor;
 	}
 
+	private IScriptRenderMethods renderable;
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderable()
+	 */
+	public IScriptRenderMethods getRenderable()
+	{
+		if (renderable == null)
+		{
+			renderable = new RenderableWrapper(this);
+		}
+
+		return renderable;
+	}
+
 	@Override
 	public String toString()
 	{

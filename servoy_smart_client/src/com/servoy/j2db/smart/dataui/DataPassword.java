@@ -51,8 +51,10 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
+import com.servoy.j2db.ui.IScriptRenderMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.RenderEventExecutor;
+import com.servoy.j2db.ui.RenderableWrapper;
 import com.servoy.j2db.ui.scripting.RuntimeDataPassword;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ITagResolver;
@@ -676,6 +678,21 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 	public RenderEventExecutor getRenderEventExecutor()
 	{
 		return eventExecutor;
+	}
+
+	private IScriptRenderMethods renderable;
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderable()
+	 */
+	public IScriptRenderMethods getRenderable()
+	{
+		if (renderable == null)
+		{
+			renderable = new RenderableWrapper(getScriptObject());
+		}
+
+		return renderable;
 	}
 
 	private TransferHandler textTransferHandler;

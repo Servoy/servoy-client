@@ -71,9 +71,11 @@ import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IMediaFieldConstants;
+import com.servoy.j2db.ui.IScriptRenderMethods;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.RenderEventExecutor;
+import com.servoy.j2db.ui.RenderableWrapper;
 import com.servoy.j2db.ui.scripting.RuntimeMediaField;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnableScrollPanel;
@@ -970,8 +972,8 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 						if (resolver instanceof DataAdapterList)
 						{
 							((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.FILENAME, file.getName());
-							((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.MIMETYPE, ImageLoader.getContentType(content,
-								file.getName()));
+							((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.MIMETYPE,
+								ImageLoader.getContentType(content, file.getName()));
 						}
 					}
 					catch (Exception e)
@@ -1275,6 +1277,21 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 	public RenderEventExecutor getRenderEventExecutor()
 	{
 		return eventExecutor;
+	}
+
+	private IScriptRenderMethods renderable;
+
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderable()
+	 */
+	public IScriptRenderMethods getRenderable()
+	{
+		if (renderable == null)
+		{
+			renderable = new RenderableWrapper(getScriptObject());
+		}
+
+		return renderable;
 	}
 
 	@Override
