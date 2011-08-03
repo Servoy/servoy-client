@@ -4108,11 +4108,20 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 		int oldSize = getSize();
 
-		queryForMorePKs(pksAndRecordsHolderCopy, rowCount, -1, false);
+		PKDataSet pks2 = null;
+		if (pksAndRecordsHolderCopy.getPks().hadMoreRows())
+		{
+			queryForMorePKs(pksAndRecordsHolderCopy, rowCount, -1, false);
+			pks2 = pksAndRecordsHolderCopy.getPks();
+		}
+		else
+		{
+			pks2 = pksAndRecordsHolderCopy.getPksClone();
+		}
+		pks2.sort(recordPKComparator);
 		synchronized (pksAndRecords)
 		{
-			pksAndRecordsHolderCopy.getPks().sort(recordPKComparator);
-			pksAndRecords.setPks(pksAndRecordsHolderCopy.getPks(), pksAndRecordsHolderCopy.getDbIndexLastPk());
+			pksAndRecords.setPks(pks2, pksAndRecordsHolderCopy.getDbIndexLastPk());
 		}
 
 		int newSize = getSize();
