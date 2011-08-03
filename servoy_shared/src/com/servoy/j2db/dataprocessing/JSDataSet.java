@@ -1844,6 +1844,17 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 			return foundSet;
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.lang.Object#clone()
+		 */
+		@Override
+		public FoundsetDataSet clone()
+		{
+			return new FoundsetDataSet(foundSet, dataSource);
+		}
+
 		public String getDataSource()
 		{
 			return dataSource;

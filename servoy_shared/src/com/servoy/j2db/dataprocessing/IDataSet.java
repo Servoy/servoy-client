@@ -22,9 +22,14 @@ import java.util.Comparator;
 
 /**
  * Dataset interface
+ * 
+ * <p>
+ * NOTE: do not implement this interface, it can change with new Servoy versions if new functionality is needed.
+ * </p>
+ *  
  * @author jblok
  */
-public interface IDataSet extends Serializable
+public interface IDataSet extends Serializable, Cloneable
 {
 	/**
 	 * Get the number of rows in this dataset.
@@ -130,4 +135,9 @@ public interface IDataSet extends Serializable
 	 * @return True only if successful; false otherwise
 	 */
 	public boolean removeColumn(int columnIndex);
+
+	/**
+	 * @return
+	 */
+	public IDataSet clone();
 }

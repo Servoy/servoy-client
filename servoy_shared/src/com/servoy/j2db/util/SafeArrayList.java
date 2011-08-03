@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util;
 
 
@@ -56,6 +56,18 @@ public class SafeArrayList<E> implements Collection<E>, List<E>, RandomAccess, C
 	{
 		list = new ArrayList<E>(c);
 		initialCapacity = (int)Math.min((c.size() * 110L) / 100, Integer.MAX_VALUE);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public SafeArrayList<E> clone()
+	{
+		return new SafeArrayList<E>((Collection< ? extends E>)list.clone());
 	}
 
 	public E get(int index)
