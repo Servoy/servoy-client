@@ -22,6 +22,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FocusTraversalPolicy;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -135,12 +136,14 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 	private final DocumentListener closePopupDocumentListener;
 	private int keyReleaseToBeIgnored = -1;
 	private final RuntimeDataCombobox scriptable;
+	private boolean showingPopup;
 
 	public DataComboBox(IApplication application, RuntimeDataCombobox scriptable, IValueList vl)
 	{
 		super();
 		setHorizontalAlignment(SwingConstants.LEFT);
 		hackDefaultPopupWidthBehavior();
+
 		this.application = application;
 		this.vl = vl;
 		eventExecutor = new EventExecutor(this);
@@ -271,91 +274,97 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		return scriptable;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.swing.JComboBox#setPopupVisible(boolean)
+	 */
+	@Override
+	public void setPopupVisible(boolean v)
+	{
+		if (v)
+		{
+			showingPopup = true;
+			int width = getWidth();
+			try
+			{
+				setSize(getExtendedWidth(), getHeight());
+				super.setPopupVisible(v);
+			}
+			finally
+			{
+				showingPopup = false;
+				setSize(width, getHeight());
+			}
+		}
+		else
+		{
+			super.setPopupVisible(v);
+		}
+	}
+
+	private int getExtendedWidth()
+	{
+		int width = (int)getSize().getWidth();
+		FontMetrics fontMetrics = getFontMetrics(getFont());
+		for (int i = 0; i < getItemCount(); i++)
+		{
+			Object obj = getItemAt(i);
+			if (obj == null) continue;
+
+			String formatted = null;
+			// use the formater if the object is not a string (same compare as in getListCellRenderer())
+			if (format != null && !(obj instanceof String))
+			{
+				try
+				{
+					formatted = format.format(obj);
+				}
+				catch (IllegalArgumentException ex)
+				{
+					Debug.trace("Error formatting value for combobox " + dataProviderID + ", value: '" + obj + "', " + ex);
+				}
+			}
+			if (formatted == null)
+			{
+				formatted = obj.toString();
+			}
+
+			int textWidth = fontMetrics.stringWidth(formatted);
+			width = Math.max(width, textWidth + 10); // add offset 10
+		}
+
+		return width;
+	}
+
 	private void hackDefaultPopupWidthBehavior()
 	{
-		// workaround to make popup width take into consideration the length of text in all items;
-		// the workaround was provided by Argos (Anuradha)
 		addPopupMenuListener(new PopupMenuListener()
 		{
-			//Popup state to prevent feedback
-			private boolean stateCmb = false;
-			private int defaultWidth = 0;
+			private boolean canceled = false;
 
-			//Extend JComboBox's length and reset it
 			public void popupMenuWillBecomeVisible(PopupMenuEvent e)
 			{
-				JComboBox cmb = (JComboBox)e.getSource();
-				if (cmb.getItemCount() > 0)
+				if (!showingPopup)
 				{
-					if (!stateCmb)
-					{
-						defaultWidth = cmb.getSize().width;
-					}
-					//Extend JComboBox
-					cmb.setSize(getExtendedWidth(cmb), cmb.getHeight());
-					//If it pops up now JPopupMenu will still be short
-					//Fire popupMenuCanceled...
-					if (!stateCmb)
-					{
-						cmb.firePopupMenuCanceled();
-					}
-					//Reset JComboBox and state
-					stateCmb = false;
-					cmb.setSize(defaultWidth, cmb.getHeight());
-				}
-			}
-
-			@SuppressWarnings("nls")
-			private int getExtendedWidth(JComboBox cmb)
-			{
-				int width = (int)cmb.getSize().getWidth();
-				for (int i = 0; i < cmb.getItemCount(); i++)
-				{
-					Object obj = cmb.getItemAt(i);
-					if (obj == null) continue;
-
-					String formatted = null;
-					// use the formater if the object is not a string (same compare as in getListCellRenderer())
-					if (format != null && !(obj instanceof String))
-					{
-						try
-						{
-							formatted = format.format(obj);
-						}
-						catch (IllegalArgumentException ex)
-						{
-							Debug.trace("Error formatting value for combobox " + dataProviderID + ", value: '" + obj + "', " + ex);
-						}
-					}
-					if (formatted == null)
-					{
-						formatted = obj.toString();
-					}
-
-					int textWidth = cmb.getFontMetrics(cmb.getFont()).stringWidth(formatted);
-					width = Math.max(width, textWidth + 10); // add offset 10
-				}
-
-				return width;
-			}
-
-			//Show extended JPopupMenu
-
-			public void popupMenuCanceled(PopupMenuEvent e)
-			{
-				JComboBox cmb = (JComboBox)e.getSource();
-				if (cmb.getItemCount() > 0)
-				{
-					stateCmb = true;
-					//JPopupMenu is long now, so repop
-					cmb.showPopup();
+					canceled = true;
+					firePopupMenuCanceled();
 				}
 			}
 
 			public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
 			{
-				stateCmb = false;
 			}
+
+			public void popupMenuCanceled(PopupMenuEvent e)
+			{
+				if (canceled)
+				{
+					canceled = false;
+					showPopup();
+				}
+			}
+
 		});
 	}
 
