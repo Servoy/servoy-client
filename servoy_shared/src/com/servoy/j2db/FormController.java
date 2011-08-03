@@ -2213,6 +2213,11 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	{
 		if (!isFormVisible || formModel == null) return;
 
+		// do call getSize() so that the form model is in queried state again
+		// this will be done by the getRecord() call below for the most part.
+		// Except if the selection == -1 and mustQuery = true. Then the only trigger is getSize()
+		formModel.getSize();
+
 		try
 		{
 			// Can't test for isAdjusting!! Table view fires first isAdjusting == false and then the editor (a button) will be fired then another event with true
