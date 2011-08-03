@@ -128,7 +128,6 @@ public class ServoyBrowserInfoPage extends WebPage
 			ClientProperties properties = clientInfo.getProperties();
 			propertiesBean.merge(properties);
 			session.setClientInfo(clientInfo);
-			System.err.println("continue: " + getRequest().getRelativePathPrefixToContextRoot() + continueTo + " current url: " + getRequest().getURL());
 			RequestCycle.get().setRequestTarget(new RedirectRequestTarget(getRequest().getRelativePathPrefixToContextRoot() + continueTo));
 		}
 
