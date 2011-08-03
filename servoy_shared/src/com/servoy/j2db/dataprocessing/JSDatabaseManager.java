@@ -1853,6 +1853,15 @@ public class JSDatabaseManager
 	 * //databaseManager.saveData(foundset.getRecord(1));//save specific record
 	 * //databaseManager.saveData(foundset);//save all records from foundset
 	 *
+	 * // when creating many records in a loop do a batch save on an interval as every 10 records (to save on memory and roundtrips)
+	 * // for (var recordIndex = 1; recordIndex <= 5000; recordIndex++) 
+	 * // {
+	 * //		currentcontroller.newRecord();
+	 * //		someColumn = recordIndex;
+	 * //		anotherColumn = "Index is: " + recordIndex;
+	 * //		if (recordIndex % 10 == 0) databaseManager.saveData();
+	 * // }
+	 * 
 	 * @param record/foundset optional The JSRecord to save.
 	 * 
 	 * @return true if the save was done without an error.
