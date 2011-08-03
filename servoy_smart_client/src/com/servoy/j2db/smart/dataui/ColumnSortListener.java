@@ -172,7 +172,6 @@ public class ColumnSortListener extends MouseAdapter
 								}
 								else if (fc != null && fc.getForm().getOnSortCmdMethodID() != 0)
 								{
-									System.err.println("calling sort with " + lastSortAsc);
 									// Also execute the on sort command on none data providers (like a label) then they can do there own sort.
 									fc.executeFunction(
 										String.valueOf(fc.getForm().getOnSortCmdMethodID()),
