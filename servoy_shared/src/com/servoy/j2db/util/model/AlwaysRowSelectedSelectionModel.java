@@ -104,13 +104,16 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 			if (getSelectionMode() == SINGLE_SELECTION)
 			{
 				int selectedRow = getSelectedRow();
-				super.removeIndexInterval(index0, index1);
 				if (selectedRow >= index0 && selectedRow <= index1)
 				{
 					// selected record was removed, set selection after the removed block or before (if at the end)
 					// note: default behaviour of DefaultListSelectionModel is to set selected index to -1 when selected was removed
-					setSelectedRow(Math.min(index0, foundset.getSize() - 1));
+					// i have to call the setSelectionInterval else our methods will test if the record is there, but it can be that a selection is set
+					// that will just fall out of the foundset size (== foundset size) but the super.removeIndexInterval will adjust this.
+					int selection = Math.min(index1 + 1, foundset.getSize());
+					if (selection != selectedRow) setSelectionInterval(selection, selection);
 				}
+				super.removeIndexInterval(index0, index1);
 			}
 			else
 			{
@@ -193,6 +196,26 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 			for (int i = 1; i < rows.length; i++)
 				addSelectionInterval(rows[i], rows[i]);
 			fireValueChanged(false);
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.swing.DefaultListSelectionModel#fireValueChanged(int, int, boolean)
+	 */
+	@Override
+	protected void fireValueChanged(int firstIndex, int lastIndex, boolean isAdjusting)
+	{
+		// make sure if the selection is still -1 but the size > 0 (and the SelectionModel wanted to fire because of the index added index changes)
+		// that we just set the selected row to the first index. (and that will do the real fire)
+		if (getSelectedRow() == -1 && firstIndex != lastIndex && foundset.getSize() > 0)
+		{
+			setSelectedRow(firstIndex);
+		}
+		else
+		{
+			super.fireValueChanged(firstIndex, lastIndex, isAdjusting);
 		}
 	}
 
