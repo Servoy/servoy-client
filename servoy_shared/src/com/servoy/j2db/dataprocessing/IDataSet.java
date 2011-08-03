@@ -22,6 +22,11 @@ import java.util.Comparator;
 
 /**
  * Dataset interface
+ * 
+ * <p>
+ * NOTE: do not implement this interface, it can change with new Servoy versions if new functionality is needed.
+ * </p>
+ *  
  * @author jblok
  */
 public interface IDataSet extends Serializable, Cloneable
