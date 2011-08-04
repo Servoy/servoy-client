@@ -90,6 +90,8 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	private String validatorProperties = null;
 	private String validatorName = null;
 	private String defaultFormat = null;
+	private Integer containsMetaData = null;
+
 	private int flags = 0;
 
 	public ColumnInfo(int columninfo_id, boolean storedPersistently)
@@ -698,6 +700,22 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	public void setElementTemplateProperties(String s)
 	{
 		element_template_properties = getNonEmptyValue(s);
+	}
+
+	/**
+	 * @return the containsMetaData
+	 */
+	public Integer getContainsMetaData()
+	{
+		return containsMetaData;
+	}
+
+	/**
+	 * @param containsMetaData the containsMetaData to set
+	 */
+	public void setContainsMetaData(Integer containsMetaData)
+	{
+		this.containsMetaData = containsMetaData;
 	}
 
 	/**
