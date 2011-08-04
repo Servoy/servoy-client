@@ -191,11 +191,11 @@
 	<target name="checkCompilationResults" if="compilation.error.occured">
 		<echo file="${compilation.problem.marker}" message="servoy_headless_client_6.1.0.1400${line.separator}compilation.error.occured=${compilation.error.occured}"/>
 		<eclipse.logCompileError bundle="servoy_headless_client_6.1.0.1400" log="${compilation.prereq.log}">
-			<include name="C:/Users/Administrator/trunk_workspace/org.eclipse.dltk.javascript.rhino/compilation.problem"/>
+			<include name="C:/Users/Administrator/dev_trunk/org.eclipse.dltk.javascript.rhino/compilation.problem"/>
 			<include name="${pluginTemp}/org.eclipse.dltk.javascript.rhino_6.1.0.1400/compilation.problem"/>
-			<include name="C:/Users/Administrator/trunk_workspace/servoy_shared/compilation.problem"/>
+			<include name="C:/Users/Administrator/dev_trunk/servoy_shared/compilation.problem"/>
 			<include name="${pluginTemp}/servoy_shared_6.1.0.1400/compilation.problem"/>
-			<include name="C:/Users/Administrator/trunk_workspace/servoy_smart_client/compilation.problem"/>
+			<include name="C:/Users/Administrator/dev_trunk/servoy_smart_client/compilation.problem"/>
 			<include name="${pluginTemp}/servoy_smart_client_6.1.0.1400/compilation.problem"/>
 		</eclipse.logCompileError>
 	</target>
@@ -292,7 +292,7 @@
 	</target>
 
 	<target name="refresh" depends="init" if="eclipse.running" description="Refresh this folder.">
-		<eclipse.convertPath fileSystemPath="C:/Users/Administrator/trunk_workspace/servoy_headless_client" property="resourcePath"/>
+		<eclipse.convertPath fileSystemPath="C:/Users/Administrator/dev_trunk/servoy_headless_client" property="resourcePath"/>
 		<eclipse.refreshLocal resource="${resourcePath}" depth="infinite"/>
 	</target>
 
