@@ -197,10 +197,10 @@
 		<eclipse.logCompileError bundle="servoy_debug_6.0.0.1217" log="${compilation.prereq.log}">
 			<include name="C:/Users/Administrator/dev_v60x_branch/org.eclipse.dltk.javascript.rhino/compilation.problem"/>
 			<include name="${pluginTemp}/org.eclipse.dltk.javascript.rhino_6.0.0.1217/compilation.problem"/>
-			<include name="C:/Users/Administrator/dev_v60x_branch/servoy_shared/compilation.problem"/>
-			<include name="${pluginTemp}/servoy_shared_6.0.0.1217/compilation.problem"/>
 			<include name="C:/Users/Administrator/dev_v60x_branch/servoy_smart_client/compilation.problem"/>
 			<include name="${pluginTemp}/servoy_smart_client_6.0.0.1217/compilation.problem"/>
+			<include name="C:/Users/Administrator/dev_v60x_branch/servoy_shared/compilation.problem"/>
+			<include name="${pluginTemp}/servoy_shared_6.0.0.1217/compilation.problem"/>
 			<include name="C:/Users/Administrator/dev_v60x_branch/servoy_headless_client/compilation.problem"/>
 			<include name="${pluginTemp}/servoy_headless_client_6.0.0.1217/compilation.problem"/>
 		</eclipse.logCompileError>
