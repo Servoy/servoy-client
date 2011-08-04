@@ -683,19 +683,45 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 	{
 		plainSQLName = name;
 		hasBadName = null; // clear notify, so checks are run again
-		dataprovider_id = null; // should be recalculated	
+		normalizedName = null; // should be recalculated	
 	}
 
 
-	private transient String dataprovider_id = null;//temp var
+	private transient String normalizedName = null;//temp var
+	private transient String dataProviderID = null;//temp var
 
 	public String getDataProviderID()//get the id
 	{
-		if (dataprovider_id == null)
+		if (columnInfo != null && columnInfo.getDataProviderID() != null)
 		{
-			dataprovider_id = Ident.generateNormalizedNonReservedName(plainSQLName);
+			return columnInfo.getDataProviderID();
 		}
-		return dataprovider_id;
+		if (dataProviderID != null)
+		{
+			return dataProviderID;
+		}
+		return getName();
+	}
+
+	void setDataProviderID(String dataProviderID)
+	{
+		if (columnInfo != null)
+		{
+			if (getName().equals(dataProviderID))
+			{
+				columnInfo.setDataProviderID(null);
+			}
+			else
+			{
+				columnInfo.setDataProviderID(dataProviderID);
+			}
+			this.dataProviderID = null;
+			columnInfo.flagChanged();
+		}
+		else
+		{
+			this.dataProviderID = dataProviderID;
+		}
 	}
 
 	public int getDataProviderType()
@@ -758,7 +784,11 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 
 	public String getName()
 	{
-		return getDataProviderID();
+		if (normalizedName == null)
+		{
+			normalizedName = Ident.generateNormalizedNonReservedName(plainSQLName);
+		}
+		return normalizedName;
 	}
 
 	public String getTitle()
@@ -788,6 +818,19 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 				throw e;
 			}
 		}
+	}
+
+	public void updateDataProviderID(IValidateName validator, String dataProviderID) throws RepositoryException
+	{
+		dataProviderID = Ident.generateNormalizedName(dataProviderID);
+		Column other = table.getColumn(dataProviderID);
+		if (other != null && other != this)
+		{
+			throw new RepositoryException("A column on table " + table.getName() + " with name/dataProviderID " + dataProviderID + " already exists"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		}
+		validator.checkName(dataProviderID, -1, new ValidatorSearchContext(this, IRepository.COLUMNS), true);
+		setDataProviderID(dataProviderID);
+		table.fireIColumnChanged(this);
 	}
 
 	public int getScale()
@@ -966,6 +1009,10 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 		if (sequenceType != ColumnInfo.NO_SEQUENCE_SELECTED) //delegate
 		{
 			setSequenceType(sequenceType);
+		}
+		if (dataProviderID != null)
+		{
+			setDataProviderID(dataProviderID);
 		}
 		if (oldColumnInfo == null) // for new columns (which have not yet column info)
 		{

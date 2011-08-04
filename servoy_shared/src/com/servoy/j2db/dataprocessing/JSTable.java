@@ -152,7 +152,7 @@ public class JSTable implements IReturnedTypesProvider, Wrapper, IJavaScriptType
 	}
 
 	/**
-	 * Returns a JSColumn for the named column.
+	 * Returns a JSColumn for the named column (or column dataproviderID).
 	 *
 	 * @sample
 	 * var jsTable = databaseManager.getTable('udm', 'campaigns')

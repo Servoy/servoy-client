@@ -300,7 +300,19 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 	public Column getColumn(String colname, boolean ignoreCase)
 	{
 		if (colname == null) return null;
-		return columns.get(ignoreCase ? Utils.toEnglishLocaleLowerCase(colname) : colname);
+		if (ignoreCase) colname = Utils.toEnglishLocaleLowerCase(colname);
+		if (columns.containsKey(colname))
+		{
+			return columns.get(colname);
+		}
+		for (Column column : getColumns())
+		{
+			if (colname.equals(column.getDataProviderID()))
+			{
+				return column;
+			}
+		}
+		return null;
 	}
 
 	public Collection<Column> getColumns()
@@ -370,7 +382,7 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 		{
 			if (columns.containsKey(Utils.toEnglishLocaleLowerCase(newName)))
 			{
-				throw new RepositoryException("A column on table " + getName() + " with name " + newName + " already exists"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				throw new RepositoryException("A column on table " + getName() + " with name/dataProviderID " + newName + " already exists"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			}
 
 			validator.checkName(newName, -1, new ValidatorSearchContext(this, IRepository.COLUMNS), true);

@@ -82,7 +82,7 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	}
 
 	/**
-	 * Get the data provider id (name) for this column.
+	 * Get the data provider id for this column (which is the same as name if not explicitly defined otherwise).
 	 *
 	 * @sample
 	 * var table = databaseManager.getTable('example_data', 'orders')

@@ -82,6 +82,7 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	private String defaultValue = null;
 	private String lookupValue = null;
 	private String titleText = null;
+	private String dataProviderID = null;
 	private String description = null;
 	private String converterProperties = null;
 	private String converterName = null;
@@ -318,6 +319,16 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	public void setTitleText(String s)
 	{
 		titleText = getNonEmptyValue(s);
+	}
+
+	public void setDataProviderID(String dataProviderID)
+	{
+		this.dataProviderID = dataProviderID;
+	}
+
+	public String getDataProviderID()
+	{
+		return dataProviderID;
 	}
 
 	/**
