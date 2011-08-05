@@ -3332,6 +3332,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		List<Integer> indexesToUpdate = new ArrayList<Integer>();
 		List<Integer> oldSelectedIndexes = new ArrayList<Integer>();
+		List<Integer> newSelectedIndexesA = new ArrayList<Integer>();
 		if (selectedIndexes != null)
 		{
 			for (int oldSelected : selectedIndexes)
@@ -3342,7 +3343,16 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		for (int sel : newSelectedIndexes)
 		{
 			Integer selection = new Integer(sel);
+			newSelectedIndexesA.add(selection);
+			// add new selection
 			if (oldSelectedIndexes.indexOf(selection) == -1) indexesToUpdate.add(selection);
+		}
+
+		for (int sel : oldSelectedIndexes)
+		{
+			Integer selection = new Integer(sel);
+			// add removed selection
+			if (newSelectedIndexesA.indexOf(selection) == -1) indexesToUpdate.add(selection);
 		}
 
 

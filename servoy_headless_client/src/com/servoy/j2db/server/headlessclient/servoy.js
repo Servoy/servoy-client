@@ -1578,7 +1578,8 @@ if (typeof(Servoy.Utils) == "undefined")
 		if(e.ctrlKey)	modifiers += 1
 		if(e.shiftKey)	modifiers += 2
 		if(e.altKey)	modifiers += 4
-		if(e.metaKey)	modifiers += 8
+		// in case of mouse event, right click is meta
+		if(e.metaKey || (e.which && e.which == 3) || (e.button && e.button == 2)) modifiers += 8
 
 		return modifiers;
 	  },  
