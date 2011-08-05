@@ -29,6 +29,11 @@ function layoutOneElement(elementInfo, partHeight, formsInfo, formName, currentC
 	if (/ImgField/.test(elementHint))
 	{
 		Servoy.Utils.fixMediaLocation(element.id,elementInfo[7]);
+	}
+	
+	if (/HTMLArea/.test(elementHint))
+	{
+		setTimeout(function(){Servoy.HTMLEdit.attach(element)}, 0);
 	}	
 }
 
