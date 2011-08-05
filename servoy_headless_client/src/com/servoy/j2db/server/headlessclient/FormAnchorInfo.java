@@ -25,13 +25,14 @@ import java.util.SortedSet;
 
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataButton;
+import com.servoy.j2db.server.headlessclient.dataui.WebDataHtmlArea;
+import com.servoy.j2db.server.headlessclient.dataui.WebDataImgMediaField.ImageDisplay;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataLabel;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataSubmitLink;
 import com.servoy.j2db.server.headlessclient.dataui.WebScriptButton;
 import com.servoy.j2db.server.headlessclient.dataui.WebScriptLabel;
 import com.servoy.j2db.server.headlessclient.dataui.WebScriptSubmitLink;
 import com.servoy.j2db.server.headlessclient.dataui.WebTabPanel;
-import com.servoy.j2db.server.headlessclient.dataui.WebDataImgMediaField.ImageDisplay;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -296,6 +297,10 @@ public final class FormAnchorInfo implements Comparable<FormAnchorInfo>
 			else if (ImageDisplay.class.equals(hintClass))
 			{
 				hint = "ImgField"; //$NON-NLS-1$
+			}
+			else if (WebDataHtmlArea.class.equals(hintClass))
+			{
+				hint = "HTMLArea"; //$NON-NLS-1$
 			}
 
 			ElementAnchorInfo elementInfo = new ElementAnchorInfo(webID, anchors, rectangle, hAlign, vAlign, hint);
