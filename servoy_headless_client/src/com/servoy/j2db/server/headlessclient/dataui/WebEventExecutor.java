@@ -506,46 +506,55 @@ public class WebEventExecutor extends BaseEventExecutor
 					index = fs.getRecordIndex(rec); // this is used only on "else", because a "plugins.rawSQL.flushAllClientsCache" could result in index = -1 although the record has not changed (but record & underlying row instances changed)
 				}
 
-				//set the selected record
-				ClientProperties clp = ((WebClientInfo)Session.get().getClientInfo()).getProperties();
-				String navPlatform = clp.getNavigatorPlatform();
-				int controlMask = (navPlatform != null && navPlatform.toLowerCase().indexOf("mac") != -1) ? Event.META_MASK : Event.CTRL_MASK;
-
-				boolean toggle = (modifiers != MODIFIERS_UNSPECIFIED) && ((modifiers & controlMask) != 0);
-				boolean extend = (modifiers != MODIFIERS_UNSPECIFIED) && ((modifiers & Event.SHIFT_MASK) != 0);
-				if ((toggle || extend) && fs instanceof FoundSet && ((FoundSet)fs).isMultiSelect())
+				if (fs instanceof FoundSet && ((FoundSet)fs).isMultiSelect())
 				{
-					if (bHandleMultiselect)
+					//set the selected record
+					ClientProperties clp = ((WebClientInfo)Session.get().getClientInfo()).getProperties();
+					String navPlatform = clp.getNavigatorPlatform();
+					int controlMask = (navPlatform != null && navPlatform.toLowerCase().indexOf("mac") != -1) ? Event.META_MASK : Event.CTRL_MASK;
+
+					boolean toggle = (modifiers != MODIFIERS_UNSPECIFIED) && ((modifiers & controlMask) != 0);
+					boolean extend = (modifiers != MODIFIERS_UNSPECIFIED) && ((modifiers & Event.SHIFT_MASK) != 0);
+					boolean meta = (modifiers != MODIFIERS_UNSPECIFIED) && ((modifiers & Event.META_MASK) != 0);
+
+					if (toggle || extend)
 					{
-						if (toggle)
+						if (bHandleMultiselect)
 						{
-							int[] selectedIndexes = ((FoundSet)fs).getSelectedIndexes();
-							ArrayList<Integer> selectedIndexesA = new ArrayList<Integer>();
-							Integer selectedIndex = new Integer(index);
-
-							for (int selected : selectedIndexes)
-								selectedIndexesA.add(new Integer(selected));
-							if (selectedIndexesA.indexOf(selectedIndex) != -1)
+							if (toggle)
 							{
-								if (selectedIndexesA.size() > 1) selectedIndexesA.remove(selectedIndex);
-							}
-							else selectedIndexesA.add(selectedIndex);
-							selectedIndexes = new int[selectedIndexesA.size()];
-							for (int i = 0; i < selectedIndexesA.size(); i++)
-								selectedIndexes[i] = selectedIndexesA.get(i).intValue();
-							((FoundSet)fs).setSelectedIndexes(selectedIndexes);
-						}
-						else if (extend)
-						{
-							int anchor = ((FoundSet)fs).getSelectedIndex();
-							int min = Math.min(anchor, index);
-							int max = Math.max(anchor, index);
+								int[] selectedIndexes = ((FoundSet)fs).getSelectedIndexes();
+								ArrayList<Integer> selectedIndexesA = new ArrayList<Integer>();
+								Integer selectedIndex = new Integer(index);
 
-							int[] newSelectedIndexes = new int[max - min + 1];
-							for (int i = min; i <= max; i++)
-								newSelectedIndexes[i - min] = i;
-							((FoundSet)fs).setSelectedIndexes(newSelectedIndexes);
+								for (int selected : selectedIndexes)
+									selectedIndexesA.add(new Integer(selected));
+								if (selectedIndexesA.indexOf(selectedIndex) != -1)
+								{
+									if (selectedIndexesA.size() > 1) selectedIndexesA.remove(selectedIndex);
+								}
+								else selectedIndexesA.add(selectedIndex);
+								selectedIndexes = new int[selectedIndexesA.size()];
+								for (int i = 0; i < selectedIndexesA.size(); i++)
+									selectedIndexes[i] = selectedIndexesA.get(i).intValue();
+								((FoundSet)fs).setSelectedIndexes(selectedIndexes);
+							}
+							else if (extend)
+							{
+								int anchor = ((FoundSet)fs).getSelectedIndex();
+								int min = Math.min(anchor, index);
+								int max = Math.max(anchor, index);
+
+								int[] newSelectedIndexes = new int[max - min + 1];
+								for (int i = min; i <= max; i++)
+									newSelectedIndexes[i - min] = i;
+								((FoundSet)fs).setSelectedIndexes(newSelectedIndexes);
+							}
 						}
+					}
+					else if (!meta) // if left click, just set the new selection
+					{
+						fs.setSelectedIndex(index);
 					}
 				}
 				else if (!isIndexSelected(fs, index)) fs.setSelectedIndex(index);
