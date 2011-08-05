@@ -28,13 +28,19 @@ import com.servoy.j2db.scripting.JSRenderEvent;
  * @author gboros
  *
  */
-public class RenderEventExecutor implements IRenderEventExecutor
+public class RenderEventExecutor
 {
+	private final ISupportOnRenderCallback onRenderComponent;
 	private String renderCallback;
 	private IScriptExecuter renderScriptExecuter;
 	private IRecordInternal renderRecord;
 	private int renderIndex;
 	private boolean renderIsSelected;
+
+	public RenderEventExecutor(ISupportOnRenderCallback onRenderComponent)
+	{
+		this.onRenderComponent = onRenderComponent;
+	}
 
 	public void setRenderCallback(String id)
 	{
@@ -56,6 +62,9 @@ public class RenderEventExecutor implements IRenderEventExecutor
 		renderRecord = record;
 		renderIndex = index;
 		renderIsSelected = isSelected;
+
+		Object component = onRenderComponent.getComponent();
+		if (component instanceof IProviderStylePropertyChanges) ((IProviderStylePropertyChanges)component).getStylePropertyChanges().setChanged();
 	}
 
 	private boolean isOnRenderRunningOnComponentPaint;
@@ -67,25 +76,30 @@ public class RenderEventExecutor implements IRenderEventExecutor
 
 	private boolean isFocused;
 
-	public void fireOnRender(ISupportOnRenderCallback display, boolean hasFocus)
+	public void fireOnRender(boolean hasFocus)
 	{
 		// don't fire if already is focused as no changes on component can happen
-		if (!hasFocus || (hasFocus != isFocused)) fireOnRender(display, hasFocus, true);
+		if (!hasFocus || (hasFocus != isFocused)) fireOnRender(hasFocus, true);
 		isFocused = hasFocus;
 	}
 
-	public void fireOnRender(ISupportOnRenderCallback display, boolean hasFocus, boolean isRunningOnComponentPaint)
+	public void fireOnRender(boolean hasFocus, boolean isRunningOnComponentPaint)
 	{
 		if (renderScriptExecuter != null && renderCallback != null)
 		{
 			isOnRenderRunningOnComponentPaint = isRunningOnComponentPaint;
+			IScriptRenderMethods renderable = onRenderComponent.getRenderable();
+			if (renderable instanceof RenderableWrapper) ((RenderableWrapper)renderable).resetProperties();
+
 			JSRenderEvent event = new JSRenderEvent();
-			event.setElement(display);
+			event.setElement(onRenderComponent);
 			event.setHasFocus(hasFocus);
 			event.setRecord(renderRecord);
 			event.setIndex(renderIndex);
 			event.setSelected(renderIsSelected);
-			renderScriptExecuter.executeFunction(renderCallback, new Object[] { event }, false, display, false,
+
+
+			renderScriptExecuter.executeFunction(renderCallback, new Object[] { event }, false, onRenderComponent.getComponent(), false,
 				StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID.getPropertyName(), true);
 			isOnRenderRunningOnComponentPaint = false;
 		}

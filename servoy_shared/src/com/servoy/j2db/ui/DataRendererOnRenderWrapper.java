@@ -29,7 +29,7 @@ import com.servoy.j2db.util.PersistHelper;
 /**
  * Wrapper used for data renderers for on render callback.
  * 
- * @author gabi
+ * @author gboros
  *
  */
 public class DataRendererOnRenderWrapper implements ISupportOnRenderCallback, IScriptRenderMethods
@@ -40,7 +40,7 @@ public class DataRendererOnRenderWrapper implements ISupportOnRenderCallback, IS
 	public DataRendererOnRenderWrapper(ISupportOnRenderWrapper onRenderComponent)
 	{
 		this.onRenderComponent = onRenderComponent;
-		renderEventExecutor = new RenderEventExecutor();
+		renderEventExecutor = new RenderEventExecutor(this);
 	}
 
 	/*
@@ -260,19 +260,20 @@ public class DataRendererOnRenderWrapper implements ISupportOnRenderCallback, IS
 		return renderEventExecutor;
 	}
 
-	private IScriptRenderMethods renderable;
-
 	/*
 	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderable()
 	 */
 	public IScriptRenderMethods getRenderable()
 	{
-		if (renderable == null)
-		{
-			renderable = new RenderableWrapper(this);
-		}
+		return this;
+	}
 
-		return renderable;
+	/*
+	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getComponent()
+	 */
+	public Object getComponent()
+	{
+		return onRenderComponent;
 	}
 
 	@Override

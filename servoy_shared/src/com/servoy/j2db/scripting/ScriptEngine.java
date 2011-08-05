@@ -74,6 +74,7 @@ import com.servoy.j2db.ui.IScriptScriptLabelMethods;
 import com.servoy.j2db.ui.IScriptSplitPaneMethods;
 import com.servoy.j2db.ui.IScriptTextAreaMethods;
 import com.servoy.j2db.ui.IScriptTextEditorMethods;
+import com.servoy.j2db.ui.RenderableWrapper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
@@ -214,6 +215,7 @@ public class ScriptEngine implements IScriptSupport
 			registerScriptObjectClass(ServoyException.class);
 
 			ScriptObjectRegistry.getJavaMembers(DataRendererOnRenderWrapper.class, toplevelScope);
+			ScriptObjectRegistry.getJavaMembers(RenderableWrapper.class, toplevelScope);
 
 			creator = new CreationalPrototype(tmpSolutionScope, application);
 			creator.setPrototype(null);

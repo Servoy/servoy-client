@@ -32,7 +32,7 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  * 
  */
-public abstract class BaseEventExecutor extends RenderEventExecutor implements IEventExecutor
+public abstract class BaseEventExecutor implements IEventExecutor
 {
 	protected IScriptExecuter actionListener;
 

@@ -71,11 +71,8 @@ import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IMediaFieldConstants;
-import com.servoy.j2db.ui.IScriptRenderMethods;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
-import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.ui.RenderableWrapper;
 import com.servoy.j2db.ui.scripting.RuntimeMediaField;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnableScrollPanel;
@@ -1267,31 +1264,8 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 	@Override
 	protected void paintComponent(Graphics g)
 	{
-		if (eventExecutor != null) eventExecutor.fireOnRender(this, hasFocus());
+		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
 		super.paintComponent(g);
-	}
-
-	/*
-	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderEventExecutor()
-	 */
-	public RenderEventExecutor getRenderEventExecutor()
-	{
-		return eventExecutor;
-	}
-
-	private IScriptRenderMethods renderable;
-
-	/*
-	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderable()
-	 */
-	public IScriptRenderMethods getRenderable()
-	{
-		if (renderable == null)
-		{
-			renderable = new RenderableWrapper(getScriptObject());
-		}
-
-		return renderable;
 	}
 
 	@Override

@@ -22,6 +22,9 @@ import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptRenderMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
+import com.servoy.j2db.ui.ISupportOnRenderCallback;
+import com.servoy.j2db.ui.RenderEventExecutor;
+import com.servoy.j2db.ui.RenderableWrapper;
 
 /**
  * Abstract scriptable label.
@@ -29,13 +32,15 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
  * @author lvostinar
  * @since 6.0
  */
-public abstract class AbstractRuntimeLabel<C extends ILabel> extends AbstractRuntimeBaseComponent<C> implements IScriptRenderMethods
+public abstract class AbstractRuntimeLabel<C extends ILabel> extends AbstractRuntimeBaseComponent<C> implements IScriptRenderMethods, ISupportOnRenderCallback
 {
 	private String i18nTT;
 
 	public AbstractRuntimeLabel(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
 		super(jsChangeRecorder, application);
+		renderable = new RenderableWrapper(this);
+		renderEventExecutor = new RenderEventExecutor(this);
 	}
 
 	public void js_setImageURL(String text_url)

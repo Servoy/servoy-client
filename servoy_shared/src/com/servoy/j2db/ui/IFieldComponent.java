@@ -26,7 +26,7 @@ import com.servoy.j2db.scripting.IScriptableProvider;
 /**
  * @author jblok
  */
-public interface IFieldComponent extends ISupportSecuritySettings, IComponent, ISupportEventExecutor, ISupportOnRenderCallback, IScriptableProvider
+public interface IFieldComponent extends ISupportSecuritySettings, IComponent, ISupportEventExecutor, IScriptableProvider
 {
 	public void setToolTipText(String tooltip);
 

@@ -22,7 +22,7 @@ import com.servoy.j2db.scripting.IScriptableProvider;
 /**
  * @author jcompagner,jblok
  */
-public interface ILabel extends IStandardLabel, ISupportSecuritySettings, ISupportEventExecutor, ISupportOnRenderCallback, IScriptableProvider
+public interface ILabel extends IStandardLabel, ISupportSecuritySettings, ISupportEventExecutor, IScriptableProvider
 {
 	public static int NONE = 0;
 	public static int CAPITALIZE = 1;

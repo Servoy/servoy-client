@@ -81,6 +81,7 @@ import com.servoy.j2db.dnd.FormDataTransferHandler;
 import com.servoy.j2db.dnd.ISupportDragNDropTextTransfer;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.printing.IFixedPreferredWidth;
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.smart.MainPanel;
 import com.servoy.j2db.smart.SwingForm;
 import com.servoy.j2db.smart.SwingRuntimeWindow;
@@ -90,12 +91,10 @@ import com.servoy.j2db.ui.IEditProvider;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
-import com.servoy.j2db.ui.IScriptRenderMethods;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.ISupportEditProvider;
-import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.ui.RenderableWrapper;
+import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeTextEditor;
 import com.servoy.j2db.util.Debug;
@@ -775,8 +774,11 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 			super.repaint(tm, x, y, width, height);
 			// if we have onRender, we need to repaint the container as
 			// the border setting is applied on that
-			IEventExecutor ee = DataTextEditor.this.getEventExecutor();
-			if (ee != null && ee.hasRenderCallback()) DataTextEditor.this.repaint();
+			IScriptable s = DataTextEditor.this.getScriptObject();
+			if (s instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)s).getRenderEventExecutor().hasRenderCallback())
+			{
+				DataTextEditor.this.repaint();
+			}
 		}
 	}
 
@@ -1520,31 +1522,8 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 	@Override
 	protected void paintComponent(Graphics g)
 	{
-		if (eventExecutor != null) eventExecutor.fireOnRender(this, enclosedComponent.hasFocus());
+		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(enclosedComponent.hasFocus());
 		super.paintComponent(g);
-	}
-
-	/*
-	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderEventExecutor()
-	 */
-	public RenderEventExecutor getRenderEventExecutor()
-	{
-		return eventExecutor;
-	}
-
-	private IScriptRenderMethods renderable;
-
-	/*
-	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderable()
-	 */
-	public IScriptRenderMethods getRenderable()
-	{
-		if (renderable == null)
-		{
-			renderable = new RenderableWrapper(getScriptObject());
-		}
-
-		return renderable;
 	}
 
 	/*

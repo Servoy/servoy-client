@@ -21,9 +21,11 @@ package com.servoy.j2db.ui;
  * Interface for components that support on render
  * @author gboros
  */
-public interface ISupportOnRenderCallback extends IRenderComponent
+public interface ISupportOnRenderCallback
 {
 	public RenderEventExecutor getRenderEventExecutor();
 
 	public IScriptRenderMethods getRenderable();
+
+	public Object getComponent();
 }

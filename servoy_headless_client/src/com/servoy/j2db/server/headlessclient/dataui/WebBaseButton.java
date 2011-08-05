@@ -59,11 +59,8 @@ import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IButton;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
-import com.servoy.j2db.ui.IScriptRenderMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportWebBounds;
-import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.ui.RenderableWrapper;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeButton;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
@@ -271,7 +268,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	{
 		super.onBeforeRender();
 
-		if (eventExecutor != null)
+		if (scriptable != null)
 		{
 			boolean isFocused = false;
 			IMainContainer currentContainer = ((FormManager)application.getFormManager()).getCurrentContainer();
@@ -279,7 +276,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			{
 				isFocused = this.equals(((MainPage)currentContainer).getFocusedComponent());
 			}
-			eventExecutor.fireOnRender(this, isFocused);
+			scriptable.getRenderEventExecutor().fireOnRender(isFocused);
 		}
 	}
 
@@ -1141,29 +1138,6 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		}
 
 		return false;
-	}
-
-	/*
-	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderEventExecutor()
-	 */
-	public RenderEventExecutor getRenderEventExecutor()
-	{
-		return eventExecutor;
-	}
-
-	private IScriptRenderMethods renderable;
-
-	/*
-	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderable()
-	 */
-	public IScriptRenderMethods getRenderable()
-	{
-		if (renderable == null)
-		{
-			renderable = new RenderableWrapper(getScriptObject());
-		}
-
-		return renderable;
 	}
 
 	public Object getLabelFor()

@@ -129,7 +129,6 @@ import com.servoy.j2db.server.headlessclient.dnd.DraggableBehavior;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
-import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IPortalComponent;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
@@ -137,12 +136,10 @@ import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptReadOnlyMethods;
 import com.servoy.j2db.ui.IScriptTransparentMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
-import com.servoy.j2db.ui.ISupportEventExecutor;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.PropertyCopy;
-import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.ui.scripting.RuntimePortal;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IAnchorConstants;
@@ -744,12 +741,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		private boolean updateComponentRenderState(Object component, boolean isSelected)
 		{
-			if (component instanceof ISupportEventExecutor && component instanceof IProviderStylePropertyChanges)
+			if (component instanceof IScriptableProvider && component instanceof IProviderStylePropertyChanges)
 			{
-				IEventExecutor ee = ((ISupportEventExecutor)component).getEventExecutor();
-				if (ee != null && ee.hasRenderCallback())
+				IScriptable s = ((IScriptableProvider)component).getScriptObject();
+				if (s instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)s).getRenderEventExecutor().hasRenderCallback())
 				{
-					((RenderEventExecutor)ee).setRenderState(getModelObject(), getIndex(), isSelected);
+					((ISupportOnRenderCallback)s).getRenderEventExecutor().setRenderState(getModelObject(), getIndex(), isSelected);
 					((IProviderStylePropertyChanges)component).getStylePropertyChanges().setChanged();
 					return true;
 				}
@@ -2138,7 +2135,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		if (dataRendererOnRenderWrapper.getRenderEventExecutor().hasRenderCallback())
 		{
 			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderState(null, -1, false);
-			dataRendererOnRenderWrapper.getRenderEventExecutor().fireOnRender(dataRendererOnRenderWrapper, false);
+			dataRendererOnRenderWrapper.getRenderEventExecutor().fireOnRender(false);
 		}
 		super.onBeforeRender();
 	}

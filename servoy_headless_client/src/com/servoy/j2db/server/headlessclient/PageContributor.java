@@ -52,6 +52,7 @@ import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
+import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.OrientationApplier;
 import com.servoy.j2db.util.Pair;
@@ -438,8 +439,9 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 			if (!(c instanceof WebDataRadioChoice || c instanceof WebDataCheckBoxChoice))
 			{
 				// always install a focus handler when in a table view to detect change of selectedIndex and test for record validation
-				if (((IFieldComponent)c).getEventExecutor().hasEnterCmds() || c.findParent(WebCellBasedView.class) != null ||
-					((IFieldComponent)c).getEventExecutor().hasRenderCallback())
+				if (((IFieldComponent)c).getEventExecutor().hasEnterCmds() ||
+					c.findParent(WebCellBasedView.class) != null ||
+					(((IFieldComponent)c).getScriptObject() instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)((IFieldComponent)c).getScriptObject()).getRenderEventExecutor().hasRenderCallback()))
 				{
 					focusGainedFields.add(c.getMarkupId());
 				}

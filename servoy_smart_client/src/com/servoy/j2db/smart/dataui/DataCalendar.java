@@ -55,15 +55,14 @@ import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.gui.JDateChooser;
 import com.servoy.j2db.persistence.ScriptVariable;
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.ui.BaseEventExecutor;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
-import com.servoy.j2db.ui.IScriptRenderMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
-import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.ui.RenderableWrapper;
+import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.scripting.RuntimeDataCalendar;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnablePanel;
@@ -119,8 +118,11 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 				super.repaint(tm, x, y, width, height);
 				// if we have onRender, we need to repaint the container as
 				// the border setting is applied on that
-				IEventExecutor ee = DataCalendar.this.getEventExecutor();
-				if (ee != null && ee.hasRenderCallback()) DataCalendar.this.repaint();
+				IScriptable s = DataCalendar.this.getScriptObject();
+				if (s instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)s).getRenderEventExecutor().hasRenderCallback())
+				{
+					DataCalendar.this.repaint();
+				}
 			}
 		};
 		enclosedComponent.setIgnoreOnRender(true);
@@ -693,32 +695,10 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 	@Override
 	protected void paintComponent(Graphics g)
 	{
-		if (enclosedComponent.eventExecutor != null) enclosedComponent.eventExecutor.fireOnRender(this, enclosedComponent.hasFocus());
+		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(enclosedComponent.hasFocus());
 		super.paintComponent(g);
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderEventExecutor()
-	 */
-	public RenderEventExecutor getRenderEventExecutor()
-	{
-		return enclosedComponent != null ? enclosedComponent.eventExecutor : null;
-	}
-
-	private IScriptRenderMethods renderable;
-
-	/*
-	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderable()
-	 */
-	public IScriptRenderMethods getRenderable()
-	{
-		if (renderable == null)
-		{
-			renderable = new RenderableWrapper(getScriptObject());
-		}
-
-		return renderable;
-	}
 
 	@Override
 	public void setTransferHandler(TransferHandler newHandler)

@@ -38,7 +38,10 @@ import com.servoy.j2db.ui.IScriptFocusMethods;
 import com.servoy.j2db.ui.IScriptReadOnlyMethods;
 import com.servoy.j2db.ui.IScriptRenderMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
+import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportSpecialClientProperty;
+import com.servoy.j2db.ui.RenderEventExecutor;
+import com.servoy.j2db.ui.RenderableWrapper;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.StringComparator;
 import com.servoy.j2db.util.Utils;
@@ -49,11 +52,13 @@ import com.servoy.j2db.util.Utils;
  * @author lvostinar
  */
 public abstract class AbstractRuntimeField<C extends IFieldComponent> extends AbstractRuntimeBaseComponent<C> implements IScriptRenderMethods,
-	IScriptFocusMethods, IScriptReadOnlyMethods
+	IScriptFocusMethods, IScriptReadOnlyMethods, ISupportOnRenderCallback
 {
 	public AbstractRuntimeField(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
 		super(jsChangeRecorder, application);
+		renderable = new RenderableWrapper(this);
+		renderEventExecutor = new RenderEventExecutor(this);
 	}
 
 	public String js_getDataProviderID()

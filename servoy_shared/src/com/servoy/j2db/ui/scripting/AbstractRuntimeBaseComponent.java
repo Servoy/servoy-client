@@ -34,10 +34,12 @@ import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IScriptBaseMethods;
+import com.servoy.j2db.ui.IScriptRenderMethods;
 import com.servoy.j2db.ui.IScriptTransparentMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.ISupportSecuritySettings;
+import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.PersistHelper;
 
@@ -53,6 +55,8 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 	private final IStylePropertyChangesRecorder jsChangeRecorder;
 	private Map<Object, Object> clientProperties;
 	protected final IApplication application;
+	protected IScriptRenderMethods renderable;
+	protected RenderEventExecutor renderEventExecutor;
 
 	public AbstractRuntimeBaseComponent(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
@@ -277,5 +281,15 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 	public String toString()
 	{
 		return toString(getComponent() == null ? null : getValueString());
+	}
+
+	public RenderEventExecutor getRenderEventExecutor()
+	{
+		return renderEventExecutor;
+	}
+
+	public IScriptRenderMethods getRenderable()
+	{
+		return renderable;
 	}
 }

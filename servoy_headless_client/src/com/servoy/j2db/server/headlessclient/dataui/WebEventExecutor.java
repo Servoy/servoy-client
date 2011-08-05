@@ -54,6 +54,7 @@ import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IFoundSet;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.JSEvent.EventType;
@@ -74,7 +75,7 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.ISupportEventExecutor;
+import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
@@ -364,10 +365,13 @@ public class WebEventExecutor extends BaseEventExecutor
 		WebClientSession.get().getWebClient().executeEvents(); // process model changes from web components
 
 		boolean compHasOnRender = false;
-		if (comp instanceof ISupportEventExecutor)
+		if (comp instanceof IScriptableProvider)
 		{
-			IEventExecutor ee = ((ISupportEventExecutor)comp).getEventExecutor();
-			compHasOnRender = ee != null && ee.hasRenderCallback();
+			IScriptable s = ((IScriptableProvider)comp).getScriptObject();
+			if (s instanceof ISupportOnRenderCallback)
+			{
+				compHasOnRender = ((ISupportOnRenderCallback)s).getRenderEventExecutor().hasRenderCallback();
+			}
 		}
 
 		if (compHasOnRender && comp instanceof IProviderStylePropertyChanges)
@@ -995,12 +999,5 @@ public class WebEventExecutor extends BaseEventExecutor
 	protected Object getSource(Object display)
 	{
 		return display instanceof SortableCellViewHeader ? null : super.getSource(display);
-	}
-
-	@Override
-	public void setRenderState(IRecordInternal record, int index, boolean isSelected)
-	{
-		super.setRenderState(record, index, isSelected);
-		if (component instanceof IProviderStylePropertyChanges) ((IProviderStylePropertyChanges)component).getStylePropertyChanges().setChanged();
 	}
 }

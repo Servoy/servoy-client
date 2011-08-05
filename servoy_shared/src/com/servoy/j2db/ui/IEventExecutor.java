@@ -22,7 +22,7 @@ package com.servoy.j2db.ui;
  * @author rgansevles
  * 
  */
-public interface IEventExecutor extends IRenderEventExecutor
+public interface IEventExecutor
 {
 	public static final int MODIFIERS_UNSPECIFIED = -1;
 	public static final String MODIFIERS_PARAMETER = "modifiers";

@@ -125,6 +125,7 @@ import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabSeqComparator;
 import com.servoy.j2db.persistence.Table;
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.smart.dataui.CellAdapter;
@@ -1954,7 +1955,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		if (dataRendererOnRenderWrapper.getRenderEventExecutor().hasRenderCallback())
 		{
 			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderState(null, -1, false);
-			dataRendererOnRenderWrapper.getRenderEventExecutor().fireOnRender(dataRendererOnRenderWrapper, false);
+			dataRendererOnRenderWrapper.getRenderEventExecutor().fireOnRender(false);
 		}
 		super.paintComponent(g);
 	}
@@ -1995,13 +1996,17 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 				Object value = getValueAt(row, column);
 				boolean isSelected = isCellSelected(row, column);
 				Component c = ((CellAdapter)o).getTableCellEditorComponent(this, value, isSelected, row, column);
-				if (c instanceof ISupportOnRenderCallback)
+				if (c instanceof IScriptableProvider)
 				{
-					RenderEventExecutor renderEventExecutor = ((ISupportOnRenderCallback)c).getRenderEventExecutor();
-					if (renderEventExecutor != null)
+					IScriptable scriptable = ((IScriptableProvider)c).getScriptObject();
+					if (scriptable instanceof ISupportOnRenderCallback)
 					{
-						renderEventExecutor.fireOnRender((ISupportOnRenderCallback)c, false);
-						isCellEditable = c.isEnabled();
+						RenderEventExecutor renderEventExecutor = ((ISupportOnRenderCallback)scriptable).getRenderEventExecutor();
+						if (renderEventExecutor != null)
+						{
+							renderEventExecutor.fireOnRender(false);
+							isCellEditable = c.isEnabled();
+						}
 					}
 				}
 			}

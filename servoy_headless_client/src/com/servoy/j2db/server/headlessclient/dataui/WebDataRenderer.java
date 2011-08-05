@@ -423,7 +423,7 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 				setBgcolor(parentViewBGColor);
 			}
 		}
-		dataRendererOnRenderWrapper.getRenderEventExecutor().fireOnRender(dataRendererOnRenderWrapper, false);
+		dataRendererOnRenderWrapper.getRenderEventExecutor().fireOnRender(false);
 	}
 
 	@Override

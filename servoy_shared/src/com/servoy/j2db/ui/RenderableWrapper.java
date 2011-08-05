@@ -317,4 +317,10 @@ public class RenderableWrapper implements IScriptRenderMethods
 		}
 		properties.clear();
 	}
+
+	@Override
+	public String toString()
+	{
+		return renderable.toString();
+	}
 }

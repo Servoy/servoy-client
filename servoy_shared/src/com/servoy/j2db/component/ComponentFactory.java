@@ -114,6 +114,7 @@ import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.ui.IButton;
@@ -128,6 +129,7 @@ import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISplitPane;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
+import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.ISupportSecuritySettings;
 import com.servoy.j2db.ui.ITabPanel;
@@ -1431,9 +1433,11 @@ public class ComponentFactory
 		if (onRenderMethodID <= 0) onRenderMethodID = form.getOnRenderMethodID();
 		if (onRenderMethodID > 0)
 		{
-			RenderEventExecutor renderEventExecutor = fl.getRenderEventExecutor();
-			if (renderEventExecutor != null)
+			IScriptable scriptable = fl.getScriptObject();
+
+			if (scriptable instanceof ISupportOnRenderCallback)
 			{
+				RenderEventExecutor renderEventExecutor = ((ISupportOnRenderCallback)scriptable).getRenderEventExecutor();
 				renderEventExecutor.setRenderCallback(Integer.toString(onRenderMethodID));
 
 				IForm rendererForm = application.getFormManager().getForm(form.getName());
@@ -1727,10 +1731,11 @@ public class ComponentFactory
 			if (onRenderMethodID <= 0) onRenderMethodID = form.getOnRenderMethodID();
 			if (onRenderMethodID > 0)
 			{
-				RenderEventExecutor renderEventExecutor = l.getRenderEventExecutor();
+				IScriptable scriptable = l.getScriptObject();
 
-				if (renderEventExecutor != null)
+				if (scriptable instanceof ISupportOnRenderCallback)
 				{
+					RenderEventExecutor renderEventExecutor = ((ISupportOnRenderCallback)scriptable).getRenderEventExecutor();
 					renderEventExecutor.setRenderCallback(Integer.toString(onRenderMethodID));
 
 					IForm rendererForm = application.getFormManager().getForm(form.getName());

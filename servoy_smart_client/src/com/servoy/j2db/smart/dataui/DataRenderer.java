@@ -67,6 +67,8 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ScriptVariable;
+import com.servoy.j2db.scripting.IScriptable;
+import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
@@ -826,7 +828,7 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 
 	private void fireDataRendererOnRender(boolean includeChildrenComponents, boolean runningOnPaint)
 	{
-		dataRendererOnRenderWrapper.getRenderEventExecutor().fireOnRender(dataRendererOnRenderWrapper, hasFocus(), runningOnPaint);
+		dataRendererOnRenderWrapper.getRenderEventExecutor().fireOnRender(hasFocus(), runningOnPaint);
 
 		if (includeChildrenComponents)
 		{
@@ -836,11 +838,15 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 			while (compIte.hasNext())
 			{
 				comp = compIte.next();
-				if (comp instanceof ISupportOnRenderCallback)
+				if (comp instanceof IScriptableProvider)
 				{
-					RenderEventExecutor rendererEventExecutor = ((ISupportOnRenderCallback)comp).getRenderEventExecutor();
-					boolean hasFocus = (comp instanceof Component) ? ((Component)comp).hasFocus() : false;
-					rendererEventExecutor.fireOnRender((ISupportOnRenderCallback)comp, hasFocus, runningOnPaint);
+					IScriptable scriptable = ((IScriptableProvider)comp).getScriptObject();
+					if (scriptable instanceof ISupportOnRenderCallback)
+					{
+						RenderEventExecutor rendererEventExecutor = ((ISupportOnRenderCallback)scriptable).getRenderEventExecutor();
+						boolean hasFocus = (comp instanceof Component) ? ((Component)comp).hasFocus() : false;
+						rendererEventExecutor.fireOnRender(hasFocus, runningOnPaint);
+					}
 				}
 			}
 		}

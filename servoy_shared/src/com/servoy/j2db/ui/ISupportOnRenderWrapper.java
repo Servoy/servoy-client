@@ -24,7 +24,7 @@ import javax.swing.border.Border;
 /**
  * Interface for components that needs to provider a wrapper for on render callback.
  * 
- * @author gabi
+ * @author gboros
  *
  */
 public interface ISupportOnRenderWrapper
