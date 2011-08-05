@@ -54,6 +54,9 @@ import com.servoy.j2db.util.Utils;
 public abstract class AbstractRuntimeField<C extends IFieldComponent> extends AbstractRuntimeBaseComponent<C> implements IScriptRenderMethods,
 	IScriptFocusMethods, IScriptReadOnlyMethods, ISupportOnRenderCallback
 {
+	protected IScriptRenderMethods renderable;
+	protected RenderEventExecutor renderEventExecutor;
+
 	public AbstractRuntimeField(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
 		super(jsChangeRecorder, application);
@@ -289,5 +292,15 @@ public abstract class AbstractRuntimeField<C extends IFieldComponent> extends Ab
 			}
 		}
 		return retval;
+	}
+
+	public RenderEventExecutor getRenderEventExecutor()
+	{
+		return renderEventExecutor;
+	}
+
+	public IScriptRenderMethods getRenderable()
+	{
+		return renderable;
 	}
 }

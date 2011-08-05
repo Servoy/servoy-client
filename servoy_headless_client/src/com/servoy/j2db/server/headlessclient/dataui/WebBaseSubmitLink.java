@@ -61,6 +61,7 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
+import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportSecuritySettings;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeBaseComponent;
@@ -933,7 +934,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 	protected void onBeforeRender()
 	{
 		super.onBeforeRender();
-		if (scriptable != null)
+		if (scriptable instanceof ISupportOnRenderCallback)
 		{
 			boolean isFocused = false;
 			IMainContainer currentContainer = ((FormManager)application.getFormManager()).getCurrentContainer();
@@ -941,7 +942,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 			{
 				isFocused = this.equals(((MainPage)currentContainer).getFocusedComponent());
 			}
-			scriptable.getRenderEventExecutor().fireOnRender(isFocused);
+			((ISupportOnRenderCallback)scriptable).getRenderEventExecutor().fireOnRender(isFocused);
 		}
 	}
 

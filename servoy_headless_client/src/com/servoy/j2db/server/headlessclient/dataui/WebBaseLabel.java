@@ -67,6 +67,7 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
+import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeBaseComponent;
 import com.servoy.j2db.util.Debug;
@@ -1051,7 +1052,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	protected void onBeforeRender()
 	{
 		super.onBeforeRender();
-		if (scriptable != null)
+		if (scriptable instanceof ISupportOnRenderCallback)
 		{
 			boolean isFocused = false;
 			IMainContainer currentContainer = ((FormManager)application.getFormManager()).getCurrentContainer();
@@ -1059,7 +1060,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 			{
 				isFocused = this.equals(((MainPage)currentContainer).getFocusedComponent());
 			}
-			scriptable.getRenderEventExecutor().fireOnRender(isFocused);
+			((ISupportOnRenderCallback)scriptable).getRenderEventExecutor().fireOnRender(isFocused);
 		}
 	}
 

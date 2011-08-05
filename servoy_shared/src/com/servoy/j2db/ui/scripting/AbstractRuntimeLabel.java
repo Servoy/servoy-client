@@ -35,6 +35,8 @@ import com.servoy.j2db.ui.RenderableWrapper;
 public abstract class AbstractRuntimeLabel<C extends ILabel> extends AbstractRuntimeBaseComponent<C> implements IScriptRenderMethods, ISupportOnRenderCallback
 {
 	private String i18nTT;
+	protected IScriptRenderMethods renderable;
+	protected RenderEventExecutor renderEventExecutor;
 
 	public AbstractRuntimeLabel(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
@@ -122,5 +124,15 @@ public abstract class AbstractRuntimeLabel<C extends ILabel> extends AbstractRun
 	public String js_getRolloverImageURL()
 	{
 		return getComponent().getRolloverImageURL();
+	}
+
+	public RenderEventExecutor getRenderEventExecutor()
+	{
+		return renderEventExecutor;
+	}
+
+	public IScriptRenderMethods getRenderable()
+	{
+		return renderable;
 	}
 }
