@@ -26,8 +26,8 @@ import javax.swing.JComponent;
 import javax.swing.RepaintManager;
 import javax.swing.SwingUtilities;
 
+import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
-import com.servoy.j2db.ui.ISupportOnRenderWrapper;
 import com.servoy.j2db.ui.RenderEventExecutor;
 
 /**
@@ -80,7 +80,7 @@ public class OverlapRepaintManager extends RepaintManager
 			if (componentOnRenderParent != null)
 			{
 				RenderEventExecutor ree = componentOnRenderParent.getRenderEventExecutor();
-				if (ree != null)
+				if (ree != null && ree.hasRenderCallback())
 				{
 					if (ree.isOnRenderRunningOnComponentPaint()) return;
 					else
@@ -117,8 +117,7 @@ public class OverlapRepaintManager extends RepaintManager
 	private ISupportOnRenderCallback getOnRenderParent(Component c)
 	{
 		if (c == null) return null;
-		if (c instanceof ISupportOnRenderCallback) return (ISupportOnRenderCallback)c;
-		else if (c instanceof ISupportOnRenderWrapper) return ((ISupportOnRenderWrapper)c).getOnRenderComponent();
+		if (c instanceof IScriptableProvider && ((IScriptableProvider)c).getScriptObject() instanceof ISupportOnRenderCallback) return (ISupportOnRenderCallback)((IScriptableProvider)c).getScriptObject();
 		else return getOnRenderParent(c.getParent());
 	}
 
