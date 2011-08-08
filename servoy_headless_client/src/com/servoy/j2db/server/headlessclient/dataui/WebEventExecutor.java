@@ -590,10 +590,12 @@ public class WebEventExecutor extends BaseEventExecutor
 	@SuppressWarnings("nls")
 	public static void generateResponse(final AjaxRequestTarget target, Page page)
 	{
-		if (target != null && page instanceof MainPage && WebClientSession.get().getWebClient().getSolution() != null)
+		WebClientSession webClientSession = WebClientSession.get();
+		if (target != null && page instanceof MainPage && webClientSession != null && webClientSession.getWebClient() != null &&
+			webClientSession.getWebClient().getSolution() != null)
 		{
 			// do executed the events for before generating the response.
-			WebClientSession.get().getWebClient().executeEvents();
+			webClientSession.getWebClient().executeEvents();
 
 			final MainPage mainPage = ((MainPage)page);
 
