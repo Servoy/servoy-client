@@ -389,7 +389,8 @@ public class WebEventExecutor extends BaseEventExecutor
 		}
 
 
-		if (type == EventType.focusLost || setSelectedIndex(comp, target, convertModifiers(webModifiers), type == EventType.focusGained))
+		if (type == EventType.focusLost ||
+			setSelectedIndex(comp, target, convertModifiers(webModifiers), type == EventType.focusGained || type == EventType.action))
 		{
 			if (skipFireFocusGainedCommand && type.equals(JSEvent.EventType.focusGained))
 			{
