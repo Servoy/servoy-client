@@ -2144,6 +2144,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			}
 			pagingNavigator.setVisible(showPageNavigator && table.getPageCount() > 1);
 		}
+		selectedIndexes = null;
+		updateRowComponentsRenderState(null);
 		if (dataRendererOnRenderWrapper.getRenderEventExecutor().hasRenderCallback())
 		{
 			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderState(null, -1, false);
@@ -3177,8 +3179,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	public void renderHead(HtmlHeaderContainer container)
 	{
 		super.renderHead(container);
-		selectedIndexes = null;
-		updateRowComponentsRenderState(null);
 		String columnResizeScript = getColumnResizeScript();
 		if (columnResizeScript != null) container.getHeaderResponse().renderOnDomReadyJavascript(columnResizeScript);
 	}
