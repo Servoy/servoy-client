@@ -128,6 +128,9 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	// does this client use the login solution when configured?
 	private boolean useLoginSolution = true;
 
+	// boolean set to true, right after the solution is closed (right after when the solution onclose method is called)
+	private volatile boolean solutionClosed;
+
 	protected ClientState()
 	{
 		//security check:all subclasses should be signed by same certificateS, this way unsigned subclasses are impossible to run
@@ -543,7 +546,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		// do nothing here
 	}
 
-	public void logout(@SuppressWarnings("unused") Object[] solution_to_open_args)
+	public void logout(@SuppressWarnings("unused")
+	Object[] solution_to_open_args)
 	{
 		String userUid = null;
 		try
@@ -670,6 +674,16 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	public Solution getSolution()
 	{
 		return solutionRoot.getSolution();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.IServiceProvider#isSolutionLoaded()
+	 */
+	public boolean isSolutionLoaded()
+	{
+		return solutionRoot.getSolution() != null && !solutionClosed;
 	}
 
 	public String getSolutionName()
@@ -1138,6 +1152,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 				return false;
 			}
 
+			solutionClosed = true;
 			if (autoSaveBlocked && foundSetManager != null)
 			{
 				// clear edited records so that they will not be auto-saved by the operations that follow
@@ -1206,6 +1221,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		finally
 		{
 			isClosing = false;
+			// just set the solutionClosed boolean to false again here, now the solution should be null.
+			solutionClosed = false;
 			if (dataServer instanceof DataServerProxy) dataServer = ((DataServerProxy)dataServer).getEnclosingDataServer();
 		}
 		return true;
@@ -1286,12 +1303,14 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		J2DBGlobals.removeAllPropertyChangeListeners(modeManager);
 	}
 
-	private void writeObject(@SuppressWarnings("unused") ObjectOutputStream stream) throws IOException
+	private void writeObject(@SuppressWarnings("unused")
+	ObjectOutputStream stream) throws IOException
 	{
 		//serialize is not implemented
 	}
 
-	private void readObject(@SuppressWarnings("unused") ObjectInputStream stream) throws IOException, ClassNotFoundException
+	private void readObject(@SuppressWarnings("unused")
+	ObjectInputStream stream) throws IOException, ClassNotFoundException
 	{
 		//serialize is not implemented
 	}
@@ -1603,7 +1622,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	public abstract void releaseGUI();
 
-	public void invokeLater(Runnable r, @SuppressWarnings("unused") boolean immediate)
+	public void invokeLater(Runnable r, @SuppressWarnings("unused")
+	boolean immediate)
 	{
 		invokeLater(r);
 	}

@@ -93,6 +93,14 @@ public interface IServiceProvider extends IEventDelegator
 	/**
 	 * FOR INTERNAL USE ONLY, DO NOT CALL.
 	 * 
+	 * @return boolean
+	 * @exclude
+	 */
+	public boolean isSolutionLoaded();
+
+	/**
+	 * FOR INTERNAL USE ONLY, DO NOT CALL.
+	 * 
 	 * @return Root
 	 * @exclude
 	 */

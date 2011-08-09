@@ -111,6 +111,9 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 
 	private final AppletController appletContext; //incase we use applets on form
 
+	private volatile boolean destroyed;
+
+
 	/*
 	 * _____________________________________________________________ Declaration and definition of constructors
 	 */
@@ -242,6 +245,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 	//initialize this manager for the solution
 	protected void makeSolutionSettings(Solution s)
 	{
+		destroyed = false;
 		Solution solution = s;
 
 		Iterator<Form> e = application.getFlattenedSolution().getForms(true);
@@ -396,6 +400,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 	//uninit
 	protected void destroySolutionSettings()
 	{
+		destroyed = true;
 		loginForm = null;
 		try
 		{
@@ -861,7 +866,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 	//for non graphical usage only
 	public synchronized FormController leaseFormPanel(String formName)
 	{
-		if (formName == null) return null;
+		if (formName == null || destroyed) return null;
 
 		String name = formName;
 		if (application.getApplicationType() == IApplication.WEB_CLIENT && Utils.getAsBoolean(application.getRuntimeProperties().get("isPrinting"))) //$NON-NLS-1$
