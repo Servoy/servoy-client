@@ -709,17 +709,12 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		addKeyListener(new KeyAdapter()
 		{
 			@Override
-			public void keyPressed(KeyEvent e)
+			public void keyReleased(KeyEvent e)
 			{
 				if (e.getKeyCode() == KeyEvent.VK_ENTER)
 				{
 					eventExecutor.actionPerformed(e.getModifiers());
 				}
-			}
-
-			@Override
-			public void keyReleased(KeyEvent e)
-			{
 				if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
 				{
 					restorePreviousValidValue();
