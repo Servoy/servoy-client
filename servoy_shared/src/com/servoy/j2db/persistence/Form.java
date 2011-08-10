@@ -1743,6 +1743,8 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * The calculation dataprovider used to add background color and highlight selected or alternate rows. 
 	 * The default is -none-. 
 	 * 
+	 * NOTE: This property has been deprecated and is kept visible for legacy purposes. Use CSS Row Styling & onRender event instead.
+	 * 
 	 * @templatedescription Calculate the row background color
 	 * @templatename rowBGColorCalculation
 	 * @templatetype String
@@ -1768,7 +1770,9 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	}
 
 	/**
-	 * Set the rowBGColorCalculation
+	 * Set the rowBGColorCalculation.
+	 * 
+	 * NOTE: This property has been deprecated and is kept visible for legacy purposes. Use CSS Row Styling & onRender event instead.
 	 * 
 	 * @param arg the rowBGColorCalculation
 	 */
