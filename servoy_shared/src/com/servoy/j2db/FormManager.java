@@ -741,7 +741,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 					public void run()
 					{
 						FormController fc = cachedContainer.getController();
-						if (fc != null && fc == fp)
+						if (fc != null && fc == fp && application.getSolution() != null)
 						{
 							//correct title
 							String titleText = title;
