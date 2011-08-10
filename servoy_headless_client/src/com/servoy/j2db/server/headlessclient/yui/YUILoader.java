@@ -72,7 +72,6 @@ public class YUILoader implements Serializable
 
 	public static void renderResize(IHeaderResponse response)
 	{
-		response.renderCSSReference(CSS_FONTS);
 		response.renderCSSReference(CSS_RESIZE);
 
 		if (Application.exists() && Application.get().getDebugSettings().isAjaxDebugModeEnabled())
