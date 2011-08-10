@@ -97,7 +97,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	private String rolloverUrl;
 	private ServoyAjaxEventBehavior rolloverBehavior;
 	private char mnemonic;
-	private final WebEventExecutor eventExecutor;
+	protected final WebEventExecutor eventExecutor;
 	private final AbstractRuntimeButton<IButton> scriptable;
 
 	public WebBaseButton(IApplication application, AbstractRuntimeButton<IButton> scriptable, String id)
@@ -1243,5 +1243,20 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	public String getRolloverUrl()
 	{
 		return rolloverUrl;
+	}
+
+	public int getDataType()
+	{
+		return 0;
+	}
+
+	public String getFormat()
+	{
+		return null;
+	}
+
+	public void setFormat(int dataType, String format)
+	{
+
 	}
 }

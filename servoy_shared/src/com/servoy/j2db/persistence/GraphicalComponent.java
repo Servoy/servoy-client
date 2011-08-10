@@ -34,7 +34,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Default value for the media options. Image will be reduced or enlarged while aspact ratio is kept. (the same as REDUCE|ENLARGE|KEEP_ASPECT)
+	 * Default value for the media options. Image will be reduced or enlarged while aspect ratio is kept. (the same as REDUCE|ENLARGE|KEEP_ASPECT)
 	 */
 	public static final int REDUCE_ENLARGE_KEEP_ASPECT = 0;
 
@@ -44,15 +44,15 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	public static final int CROP = 1;
 
 	/**
-	 * Media option Bit value to reduce the image. Can be used inconjunction with ENLARGE or KEEP_ASPECT.
+	 * Media option Bit value to reduce the image. Can be used in conjunction with ENLARGE or KEEP_ASPECT.
 	 */
 	public static final int REDUCE = 2;
 	/**
-	 * Media option Bit value to enlarge the image. Can be used inconjunction with REDUCE or KEEP_ASPECT.
+	 * Media option Bit value to enlarge the image. Can be used in conjunction with REDUCE or KEEP_ASPECT.
 	 */
 	public static final int ENLARGE = 4;
 	/**
-	 * Media option Bit value to keep the aspect ratio of the image. Must be used inconjunction with REDUCE and/or ENLARGE.
+	 * Media option Bit value to keep the aspect ratio of the image. Must be used in conjunction with REDUCE and/or ENLARGE.
 	 */
 	public static final int KEEP_ASPECT = 8;
 
@@ -507,4 +507,19 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_SHOWFOCUS, arg);
 	}
+
+	public void setFormat(String format)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_FORMAT, format);
+	}
+
+	/**
+	 * The format that should be applied when displaying data(using dataProviderID) in the label/button.
+	 * Some examples are "#%", "dd-MM-yyyy", "MM-dd-yyyy", etc.
+	 */
+	public String getFormat()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_FORMAT);
+	}
+
 }

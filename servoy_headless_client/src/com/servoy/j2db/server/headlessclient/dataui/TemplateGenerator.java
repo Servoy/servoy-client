@@ -2125,7 +2125,7 @@ public class TemplateGenerator
 				ValueList valuelist = null;
 				if (field.getValuelistID() > 0 && sp != null)
 				{
-					Pair<String, Integer> fieldFormat = ComponentFactory.getFieldFormat(field,
+					Pair<String, Integer> fieldFormat = ComponentFactory.getComponentFormat(field.getFormat(), field.getDataProviderID(),
 						sp.getFlattenedSolution().getDataproviderLookup(sp.getFoundSetManager(), form), sp);
 					valuelist = sp.getFlattenedSolution().getValueList(field.getValuelistID());
 					if (valuelist != null) val = ComponentFactory.getRealValueList(sp, valuelist, true, fieldFormat.getRight(), fieldFormat.getLeft(),

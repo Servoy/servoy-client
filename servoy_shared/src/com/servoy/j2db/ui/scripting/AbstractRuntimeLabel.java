@@ -126,6 +126,17 @@ public abstract class AbstractRuntimeLabel<C extends ILabel> extends AbstractRun
 		return getComponent().getRolloverImageURL();
 	}
 
+	public void js_setFormat(String format)
+	{
+		getComponent().setFormat(getComponent().getDataType(), application.getI18NMessageIfPrefixed(format));
+		getChangesRecorder().setChanged();
+	}
+
+	public String js_getFormat()
+	{
+		return getComponent().getFormat();
+	}
+
 	public RenderEventExecutor getRenderEventExecutor()
 	{
 		return renderEventExecutor;

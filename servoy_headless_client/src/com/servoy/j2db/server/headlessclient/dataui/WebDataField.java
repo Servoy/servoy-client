@@ -553,6 +553,97 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		}
 	}
 
+	public static IConverter getTextConverter(final FormatParser fp, final Locale l, final String name, final String dataProviderID)
+	{
+		if (fp.isAllUpperCase())
+		{
+			return new IConverter()
+			{
+				public String convertToString(Object value, Locale locale)
+				{
+					if (value == null) return "";
+					return value.toString().toUpperCase(l);
+				}
+
+				public Object convertToObject(String value, Locale locale)
+				{
+					if (value == null) return null;
+					return value.toUpperCase(l);
+				}
+			};
+		}
+		else if (fp.isAllLowerCase())
+		{
+			return new IConverter()
+			{
+				public String convertToString(Object value, Locale locale)
+				{
+					if (value == null) return "";
+					return value.toString().toLowerCase(l);
+				}
+
+				public Object convertToObject(String value, Locale locale)
+				{
+					if (value == null) return null;
+					return value.toLowerCase(l);
+				}
+			};
+		}
+		else if (fp.getDisplayFormat() != null)
+		{
+			try
+			{
+				final FixedMaskFormatter displayFormatter = new FixedMaskFormatter(fp.getDisplayFormat());
+				displayFormatter.setValueContainsLiteralCharacters(!fp.isRaw());
+				if (fp.getPlaceHolderString() != null) displayFormatter.setPlaceholder(fp.getPlaceHolderString());
+				else if (fp.getPlaceHolderCharacter() != 0) displayFormatter.setPlaceholderCharacter(fp.getPlaceHolderCharacter());
+
+				return new IConverter()
+				{
+					public String convertToString(Object value, Locale locale)
+					{
+						if (value == null) return ""; //$NON-NLS-1$
+						try
+						{
+							return displayFormatter.valueToString(value);
+						}
+						catch (ParseException e)
+						{
+							Debug.log(e);
+							return value.toString();
+						}
+					}
+
+					public Object convertToObject(String value, Locale locale)
+					{
+						if (value == null || "".equals(value.trim())) return null; //$NON-NLS-1$
+						try
+						{
+							return displayFormatter.parse(value);
+						}
+						catch (Exception e)
+						{
+							String extraMsg = ""; //$NON-NLS-1$
+							if (name != null)
+							{
+								extraMsg = " on component " + name; //$NON-NLS-1$
+							}
+							extraMsg += " with dataprovider: " + dataProviderID; //$NON-NLS-1$
+							throw new ConversionException(
+								"Can't convert from string '" + value + "' to object with format: " + fp.getEditFormat() + extraMsg, e).setConverter(this); //$NON-NLS-1$ //$NON-NLS-2$
+						}
+					}
+				};
+			}
+			catch (ParseException e)
+			{
+				Debug.error("format problem: " + fp.getDisplayFormat(), e); //$NON-NLS-1$
+				return null;
+			}
+		}
+		return null;
+	}
+
 	/**
 	 * @see wicket.Component#getConverter()
 	 */
@@ -566,94 +657,11 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		String displayFormat = parsedFormat.getDisplayFormat();
 		if (list == null && mappedType == IColumnTypes.TEXT)
 		{
-			if (parsedFormat.isAllUpperCase())
+			converter = getTextConverter(parsedFormat, getLocale(), getName(), getDataProviderID());
+			if (converter == null)
 			{
-				converter = new IConverter()
-				{
-					public String convertToString(Object value, Locale locale)
-					{
-						if (value == null) return "";
-						return value.toString().toUpperCase(getLocale());
-					}
-
-					public Object convertToObject(String value, Locale locale)
-					{
-						if (value == null) return null;
-						return value.toUpperCase(getLocale());
-					}
-				};
+				converter = super.getConverter(cls);
 			}
-			else if (parsedFormat.isAllLowerCase())
-			{
-				converter = new IConverter()
-				{
-					public String convertToString(Object value, Locale locale)
-					{
-						if (value == null) return "";
-						return value.toString().toLowerCase(getLocale());
-					}
-
-					public Object convertToObject(String value, Locale locale)
-					{
-						if (value == null) return null;
-						return value.toLowerCase(getLocale());
-					}
-				};
-			}
-			else if (displayFormat != null)
-			{
-				try
-				{
-					final FixedMaskFormatter displayFormatter = new FixedMaskFormatter(displayFormat);
-					displayFormatter.setValueContainsLiteralCharacters(!parsedFormat.isRaw());
-					if (parsedFormat.getPlaceHolderString() != null) displayFormatter.setPlaceholder(parsedFormat.getPlaceHolderString());
-					else if (parsedFormat.getPlaceHolderCharacter() != 0) displayFormatter.setPlaceholderCharacter(parsedFormat.getPlaceHolderCharacter());
-
-					converter = new IConverter()
-					{
-						public String convertToString(Object value, Locale locale)
-						{
-							if (value == null) return ""; //$NON-NLS-1$
-							try
-							{
-								return displayFormatter.valueToString(value);
-							}
-							catch (ParseException e)
-							{
-								Debug.log(e);
-								return value.toString();
-							}
-						}
-
-						public Object convertToObject(String value, Locale locale)
-						{
-							if (value == null || "".equals(value.trim())) return null; //$NON-NLS-1$
-							try
-							{
-								return displayFormatter.parse(value);
-							}
-							catch (Exception e)
-							{
-								String extraMsg = ""; //$NON-NLS-1$
-								if (getName() != null)
-								{
-									extraMsg = " on component " + getName(); //$NON-NLS-1$
-								}
-								extraMsg += " with dataprovider: " + getDataProviderID(); //$NON-NLS-1$
-								throw new ConversionException(
-									"Can't convert from string '" + value + "' to object with format: " + parsedFormat.getEditFormat() + extraMsg, e).setConverter(this); //$NON-NLS-1$ //$NON-NLS-2$
-							}
-						}
-					};
-				}
-				catch (ParseException e)
-				{
-					Debug.error("format problem: " + displayFormat, e); //$NON-NLS-1$
-					return super.getConverter(cls);
-				}
-
-			}
-			else converter = super.getConverter(cls);
 		}
 		else if (list != null)
 		{

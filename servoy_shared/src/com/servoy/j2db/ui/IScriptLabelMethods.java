@@ -102,5 +102,19 @@ public interface IScriptLabelMethods extends IScriptDataProviderMethods
 
 	public void js_setMnemonic(String mnemonic);
 
+	/**
+	 * Gets or sets the display formatting of a label/button that has dataProviderID; does not affect the actual value stored in the database column.
+	 *
+	 * @sample
+	 * //sets the display formatting of the label/button
+	 * %%prefix%%%%elementName%%.format = '###';
+	 * 
+	 * //gets the display formatting of the label/button
+	 * var format = %%prefix%%%%elementName%%.format;
+	 */
+	public String js_getFormat();
+
+	public void js_setFormat(String format);
+
 
 }

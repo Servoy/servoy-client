@@ -18,6 +18,7 @@ package com.servoy.j2db.smart.dataui;
 
 
 import java.awt.event.MouseEvent;
+import java.text.ParseException;
 
 import javax.swing.Icon;
 import javax.swing.text.Document;
@@ -28,6 +29,8 @@ import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.ui.IDisplayTagText;
 import com.servoy.j2db.ui.scripting.RuntimeDataButton;
+import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.FormatParser;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Text;
 
@@ -147,7 +150,16 @@ public class DataButton extends AbstractScriptButton implements IDisplayData, ID
 			{
 				if (dataProviderID != null)
 				{
-					setText(Text.processTags(obj != null ? TagResolver.formatObject(obj, application.getSettings()) : "", resolver));
+					try
+					{
+						setText(Text.processTags(
+							obj != null ? TagResolver.formatObject(obj, fp, (fp.getDisplayFormat() != null ? new ServoyMaskFormatter(fp.getDisplayFormat(),
+								true) : null)) : "", resolver));
+					}
+					catch (ParseException e)
+					{
+						Debug.error(e);
+					}
 				}
 				else
 				{
@@ -173,7 +185,14 @@ public class DataButton extends AbstractScriptButton implements IDisplayData, ID
 				}
 				else
 				{
-					setText(TagResolver.formatObject(obj, application.getSettings()));
+					try
+					{
+						setText(TagResolver.formatObject(obj, fp, (fp.getDisplayFormat() != null ? new ServoyMaskFormatter(fp.getDisplayFormat(), true) : null)));
+					}
+					catch (ParseException e)
+					{
+						Debug.error(e);
+					}
 				}
 			}
 			else
@@ -221,9 +240,10 @@ public class DataButton extends AbstractScriptButton implements IDisplayData, ID
 		//ignore
 	}
 
+	@Override
 	public String getFormat()
 	{
-		return null;//ignore
+		return fp.getFormat();
 	}
 
 	public void notifyLastNewValueWasChange(Object oldVal, Object newVal)
@@ -254,5 +274,21 @@ public class DataButton extends AbstractScriptButton implements IDisplayData, ID
 	public boolean stopUIEditing(boolean looseFocus)
 	{
 		return true;
+	}
+
+	private int dataType;
+	protected final FormatParser fp = new FormatParser();
+
+	@Override
+	public int getDataType()
+	{
+		return dataType;
+	}
+
+	@Override
+	public void setFormat(int dataType, String format)
+	{
+		this.dataType = dataType;
+		fp.setFormat(format);
 	}
 }

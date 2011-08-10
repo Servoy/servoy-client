@@ -109,7 +109,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	private ServoyAjaxEventBehavior rolloverBehavior;
 
 	protected IFieldComponent labelForComponent;
-	private final WebEventExecutor eventExecutor;
+	protected final WebEventExecutor eventExecutor;
 	private final AbstractRuntimeBaseComponent< ? extends IComponent> scriptable;
 
 	public WebBaseLabel(IApplication application, AbstractRuntimeBaseComponent< ? extends IComponent> scriptable, String id)
@@ -1152,5 +1152,20 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	public String getRolloverUrl()
 	{
 		return rolloverUrl;
+	}
+
+	public int getDataType()
+	{
+		return 0;
+	}
+
+	public String getFormat()
+	{
+		return null;
+	}
+
+	public void setFormat(int dataType, String format)
+	{
+
 	}
 }

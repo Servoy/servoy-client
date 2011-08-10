@@ -1081,19 +1081,18 @@ public class ComponentFactory
 		return vl;
 	}
 
-	public static Pair<String, Integer> getFieldFormat(Field field, IDataProviderLookup dataProviderLookup, IServiceProvider application)
+	public static Pair<String, Integer> getComponentFormat(String format, String dataProviderID, IDataProviderLookup dataProviderLookup,
+		IServiceProvider application)
 	{
-		String format = null;
 		int type = IColumnTypes.TEXT;
 		IDataProvider dp = null;
-		if (field.getDataProviderID() != null && dataProviderLookup != null)
+		if (dataProviderID != null && dataProviderLookup != null)
 		{
 			try
 			{
-				dp = dataProviderLookup.getDataProvider(field.getDataProviderID());
+				dp = dataProviderLookup.getDataProvider(dataProviderID);
 				if (dp != null)
 				{
-					format = field.getFormat();
 					type = dp.getDataProviderType();
 					IColumn c = null;
 					if (dp instanceof ColumnWrapper)
@@ -1174,7 +1173,7 @@ public class ComponentFactory
 	{
 		ValueList valuelist = null;
 		if (field.getValuelistID() > 0) valuelist = getValueList(application, field, dataProviderLookup);
-		Pair<String, Integer> fieldFormat = getFieldFormat(field, dataProviderLookup, application);
+		Pair<String, Integer> fieldFormat = getComponentFormat(field.getFormat(), field.getDataProviderID(), dataProviderLookup, application);
 		String format = fieldFormat.getLeft();
 		int type = fieldFormat.getRight();
 
@@ -1810,6 +1809,13 @@ public class ComponentFactory
 			}
 		}
 
+		if (label.getDataProviderID() != null)
+		{
+			Pair<String, Integer> fieldFormat = getComponentFormat(label.getFormat(), label.getDataProviderID(), dataProviderLookup, application);
+			String format = fieldFormat.getLeft();
+			int type = fieldFormat.getRight();
+			l.setFormat(type, format);
+		}
 		applyBasicComponentProperties(application, l, label, styleInfo);
 
 		Border border = null;

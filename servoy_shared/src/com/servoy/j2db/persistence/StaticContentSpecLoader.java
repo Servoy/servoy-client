@@ -748,6 +748,10 @@ public class StaticContentSpecLoader
 			cs.new Element(388, IRepository.SHAPES, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS);
 		}
 
+		if (old_repository_version < 41)
+		{
+			cs.new Element(389, IRepository.GRAPHICALCOMPONENTS, PROPERTY_FORMAT.getPropertyName(), IRepository.STRING);
+		}
 		//##add property adds here
 
 		/*

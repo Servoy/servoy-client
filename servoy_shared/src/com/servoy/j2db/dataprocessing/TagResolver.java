@@ -17,13 +17,18 @@
 package com.servoy.j2db.dataprocessing;
 
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
 
+import javax.swing.JFormattedTextField.AbstractFormatter;
+
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.persistence.IColumnTypes;
+import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.FormatParser;
 import com.servoy.j2db.util.ITagResolver;
 
 /**
@@ -76,6 +81,54 @@ public class TagResolver
 		return new RecordTagResolver(o);
 	}
 
+
+	public static String formatObject(Object value, FormatParser format, AbstractFormatter maskFormatter)
+	{
+		if (format == null || value == null || value == Scriptable.NOT_FOUND)
+		{
+			return null;
+		}
+
+		if (value instanceof String)
+		{
+			if (format.isAllLowerCase())
+			{
+				return value.toString().toLowerCase();
+			}
+			else if (format.isAllUpperCase())
+			{
+				return value.toString().toUpperCase();
+			}
+			else if (format.getDisplayFormat() != null)
+			{
+				try
+				{
+					return maskFormatter.valueToString(value);
+				}
+				catch (ParseException ex)
+				{
+					Debug.error(ex);
+				}
+			}
+		}
+
+		if (format.getDisplayFormat() == null)
+		{
+			return value.toString();
+		}
+
+		if (value instanceof Date)
+		{
+			return new SimpleDateFormat(format.getDisplayFormat()).format(value);
+		}
+
+		if (value instanceof Number)
+		{
+			return new DecimalFormat(format.getDisplayFormat()).format(value);
+		}
+
+		return value.toString();
+	}
 
 	public static String formatObject(Object value, Properties settings)
 	{

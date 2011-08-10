@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.server.headlessclient.dataui;
 
+import java.text.ParseException;
+
 import javax.swing.text.Document;
 
 import org.apache.wicket.markup.ComponentTag;
@@ -27,8 +29,11 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.TagResolver;
+import com.servoy.j2db.smart.dataui.ServoyMaskFormatter;
 import com.servoy.j2db.ui.IDisplayTagText;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeBaseComponent;
+import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.FormatParser;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Text;
@@ -92,13 +97,18 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 				{
 					setIcon(null);
 				}
-				else if (val instanceof String)
-				{
-					bodyText = Text.processTags((String)val, resolver);
-				}
 				else
 				{
-					bodyText = TagResolver.formatObject(val, application.getSettings());
+					try
+					{
+						bodyText = Text.processTags(
+							TagResolver.formatObject(val, fp, (fp.getDisplayFormat() != null ? new ServoyMaskFormatter(fp.getDisplayFormat(), true) : null)),
+							resolver);
+					}
+					catch (ParseException e)
+					{
+						Debug.error(e);
+					}
 				}
 			}
 			else
@@ -133,7 +143,15 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 			}
 			else
 			{
-				bodyText = TagResolver.formatObject(modelObject, application.getSettings());
+				try
+				{
+					bodyText = TagResolver.formatObject(modelObject, fp, (fp.getDisplayFormat() != null ? new ServoyMaskFormatter(fp.getDisplayFormat(), true)
+						: null));
+				}
+				catch (ParseException e)
+				{
+					Debug.error(e);
+				}
 				if (HtmlUtils.startsWithHtml(modelObject))
 				{
 					// ignore script/header contributions for now
@@ -251,10 +269,10 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 	/**
 	 * @see com.servoy.j2db.dataprocessing.IDisplayData#getFormat()
 	 */
+	@Override
 	public String getFormat()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return fp.getFormat();
 	}
 
 	/**
@@ -302,5 +320,21 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 	public String getTagText()
 	{
 		return tagText;
+	}
+
+	private int dataType;
+	protected final FormatParser fp = new FormatParser();
+
+	@Override
+	public int getDataType()
+	{
+		return dataType;
+	}
+
+	@Override
+	public void setFormat(int dataType, String format)
+	{
+		this.dataType = dataType;
+		fp.setFormat(format);
 	}
 }

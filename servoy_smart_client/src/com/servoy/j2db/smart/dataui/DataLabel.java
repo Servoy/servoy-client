@@ -18,6 +18,7 @@ package com.servoy.j2db.smart.dataui;
 
 
 import java.awt.event.MouseEvent;
+import java.text.ParseException;
 
 import javax.swing.text.Document;
 
@@ -28,6 +29,8 @@ import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.printing.IFixedPreferredWidth;
 import com.servoy.j2db.ui.IDisplayTagText;
 import com.servoy.j2db.ui.scripting.RuntimeDataLabel;
+import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.FormatParser;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Text;
 
@@ -160,7 +163,15 @@ public class DataLabel extends AbstractScriptLabel implements IDisplayData, IDis
 			{
 				if (dataProviderID != null)
 				{
-					txt = Text.processTags(TagResolver.formatObject(obj != null ? obj : "", application.getSettings()), resolver);
+					try
+					{
+						txt = Text.processTags(TagResolver.formatObject(obj != null ? obj : "", fp,
+							(fp.getDisplayFormat() != null ? new ServoyMaskFormatter(fp.getDisplayFormat(), true) : null)), resolver);
+					}
+					catch (ParseException e)
+					{
+						Debug.error(e);
+					}
 				}
 				else
 				{
@@ -192,7 +203,14 @@ public class DataLabel extends AbstractScriptLabel implements IDisplayData, IDis
 				}
 				else
 				{
-					setText(TagResolver.formatObject(obj, application.getSettings()));
+					try
+					{
+						setText(TagResolver.formatObject(obj, fp, (fp.getDisplayFormat() != null ? new ServoyMaskFormatter(fp.getDisplayFormat(), true) : null)));
+					}
+					catch (ParseException e)
+					{
+						Debug.error(e);
+					}
 				}
 			}
 			else
@@ -224,9 +242,10 @@ public class DataLabel extends AbstractScriptLabel implements IDisplayData, IDis
 		dataProviderID = id;
 	}
 
+	@Override
 	public String getFormat()
 	{
-		return null;//ignore
+		return fp.getFormat();
 	}
 
 	public void notifyLastNewValueWasChange(Object oldVal, Object newVal)
@@ -255,5 +274,21 @@ public class DataLabel extends AbstractScriptLabel implements IDisplayData, IDis
 	public boolean stopUIEditing(boolean looseFocus)
 	{
 		return true;
+	}
+
+	private int dataType;
+	protected final FormatParser fp = new FormatParser();
+
+	@Override
+	public int getDataType()
+	{
+		return dataType;
+	}
+
+	@Override
+	public void setFormat(int dataType, String format)
+	{
+		this.dataType = dataType;
+		fp.setFormat(format);
 	}
 }

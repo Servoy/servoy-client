@@ -66,75 +66,77 @@ public class FormatParser
 		String dFormat = format;
 		String eFormat = null;
 
-		int index = format.indexOf("|");
-		if (index != -1)
+		if (format != null)
 		{
-			dFormat = format.substring(0, index);
-			eFormat = format.substring(index + 1);
-			if (dFormat.length() == 0 && eFormat.length() == 1)
+			int index = format.indexOf("|");
+			if (index != -1)
 			{
-				if (eFormat.charAt(0) == 'U')
+				dFormat = format.substring(0, index);
+				eFormat = format.substring(index + 1);
+				if (dFormat.length() == 0 && eFormat.length() == 1)
 				{
-					allUpperCase = true;
-				}
-				else if (eFormat.charAt(0) == 'L')
-				{
-					allLowerCase = true;
-				}
-				else if (eFormat.charAt(0) == '#')
-				{
-					numberValidator = true;
-				}
-				dFormat = null;
-				eFormat = null;
-			}
-			else
-			{
-				String ml = eFormat;
-				index = ml.indexOf("|#(");
-				if (index != -1 && ml.endsWith(")"))
-				{
-					eFormat = ml.substring(0, index);
-					ml = ml.substring(index + 1);
-				}
-				if (ml.startsWith("#("))
-				{
-					try
+					if (eFormat.charAt(0) == 'U')
 					{
-						maxLength = Integer.valueOf(ml.substring(2, ml.length() - 1));
-						if (ml == eFormat)
+						allUpperCase = true;
+					}
+					else if (eFormat.charAt(0) == 'L')
+					{
+						allLowerCase = true;
+					}
+					else if (eFormat.charAt(0) == '#')
+					{
+						numberValidator = true;
+					}
+					dFormat = null;
+					eFormat = null;
+				}
+				else
+				{
+					String ml = eFormat;
+					index = ml.indexOf("|#(");
+					if (index != -1 && ml.endsWith(")"))
+					{
+						eFormat = ml.substring(0, index);
+						ml = ml.substring(index + 1);
+					}
+					if (ml.startsWith("#("))
+					{
+						try
 						{
-							eFormat = "";
+							maxLength = Integer.valueOf(ml.substring(2, ml.length() - 1));
+							if (ml == eFormat)
+							{
+								eFormat = "";
+							}
+						}
+						catch (Exception e)
+						{
+							Debug.log(e);
 						}
 					}
-					catch (Exception e)
-					{
-						Debug.log(e);
-					}
-				}
-				if (eFormat.endsWith("raw"))
-				{
-					raw = true;
-					eFormat = trim(eFormat.substring(0, eFormat.length() - "raw".length()));
-				}
-				if (eFormat.endsWith("mask"))
-				{
-					mask = true;
-					eFormat = trim(eFormat.substring(0, eFormat.length() - "mask".length()));
-					// re test raw
 					if (eFormat.endsWith("raw"))
 					{
 						raw = true;
 						eFormat = trim(eFormat.substring(0, eFormat.length() - "raw".length()));
 					}
+					if (eFormat.endsWith("mask"))
+					{
+						mask = true;
+						eFormat = trim(eFormat.substring(0, eFormat.length() - "mask".length()));
+						// re test raw
+						if (eFormat.endsWith("raw"))
+						{
+							raw = true;
+							eFormat = trim(eFormat.substring(0, eFormat.length() - "raw".length()));
+						}
+					}
+					else eFormat = trim(eFormat);
+
+					if (eFormat.equals("")) eFormat = null;
 				}
-				else eFormat = trim(eFormat);
-
-				if (eFormat.equals("")) eFormat = null;
 			}
+
 		}
-
-
 		this.displayFormat = dFormat;
 		this.editOrPlaceholder = eFormat;
 	}

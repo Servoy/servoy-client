@@ -346,6 +346,11 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 		getBaseComponent(true).setDataProviderID(arg);
 	}
 
+	public void js_setFormat(String arg)
+	{
+		getBaseComponent(true).setFormat(arg);
+	}
+
 	public void js_setDisplaysTags(boolean arg)
 	{
 		getBaseComponent(true).setDisplaysTags(arg);
@@ -561,6 +566,18 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	public JSMethod js_getOnRightClick()
 	{
 		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID.getPropertyName());
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getFormat()
+	 * 
+	 * @sample
+	 * var label = form.newLabel('', 10, 10, 100, 100);
+	 * label.format = '$#.00';
+	 */
+	public String js_getFormat()
+	{
+		return getBaseComponent(false).getFormat();
 	}
 
 }

@@ -153,6 +153,7 @@ public class PropertyCopy
 		{
 			((ILabel)copy).setMediaIcon(((ILabel)org).getMediaIcon());
 			((ILabel)copy).setText(((ILabel)org).getText());
+			((ILabel)copy).setFormat(((ILabel)org).getDataType(), ((ILabel)org).getFormat());
 		}
 
 		if (org instanceof IProviderStylePropertyChanges && copy instanceof IProviderStylePropertyChanges)
