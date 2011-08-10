@@ -41,16 +41,15 @@ public interface IScriptTransparentMethods extends IScriptBaseMethods
 	public String js_getToolTipText();
 
 	/**
-	 * Sets the font name, style, and size of an element. 
+	 * Gets or sets the font name, style, and size of an element. 
 	 * 
 	 * font name - the name of the font family.
 	 * style - the type of the font. (plain = 0; bold = 1; italic = 2; bold-italic = 3).
 	 * size - the size of the font (in points).
 	 * 
 	 * @sample
-	 * %%prefix%%%%elementName%%.setFont('Tahoma,1,11');
+	 * %%prefix%%%%elementName%%.font = 'Tahoma,1,11';
 	 *
-	 * @param spec the font name, style, size
 	 */
 	public String js_getFont();
 
