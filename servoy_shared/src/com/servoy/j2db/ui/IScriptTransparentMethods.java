@@ -50,7 +50,6 @@ public interface IScriptTransparentMethods extends IScriptBaseMethods
 	 * @sample
 	 * %%prefix%%%%elementName%%.font = 'Tahoma,1,11';
 	 *
-	 * @param spec the font name, style, size
 	 */
 	public String js_getFont();
 
