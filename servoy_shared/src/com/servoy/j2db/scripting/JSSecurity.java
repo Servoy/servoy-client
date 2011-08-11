@@ -1063,12 +1063,12 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	 * 	plugins.dialogs.showErrorDialog('Login failure',  'Already logged in? or no user_uid/groups specified?', 'OK')
 	 * }
 	 *
-	 * @param display_username the user display name, like 'James Webb'
+	 * @param username the username, like 'JamesWebb'
 	 * @param a_userUID the user UID to process login for
 	 * @param groups the groups array 
 	 * @return true if loggedin
 	 */
-	public boolean js_login(String display_username, Object a_userUID, String[] groups)
+	public boolean js_login(String username, Object a_userUID, String[] groups)
 	{
 		if (application.getUserManager() == null)
 		{
@@ -1078,7 +1078,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 
 		String userUID = normalizeUID(a_userUID);
 
-		if (groups == null || groups.length == 0 || display_username == null || display_username.length() == 0 || userUID == null || userUID.length() == 0) return false;
+		if (groups == null || groups.length == 0 || username == null || username.length() == 0 || userUID == null || userUID.length() == 0) return false;
 
 
 		// check if the groups all exist
@@ -1113,7 +1113,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 			return false;
 		}
 
-		ci.setUserName(display_username);
+		ci.setUserName(username);
 		ci.setUserUid(userUID);
 		ci.setUserGroups(groups);
 		if (application.getSolution().getSolutionType() != SolutionMetaData.AUTHENTICATOR)
