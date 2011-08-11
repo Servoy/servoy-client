@@ -1010,6 +1010,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 				editProvider.setAdjusting(false);
 			}
 		}
+		if (!isIgnoreOnRender && scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
 	}
 
 	// also used by datacalendar we than don't want the edit to be blocked by
@@ -2059,13 +2060,6 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		{
 			opaqueBackground = color;
 		}
-	}
-
-	@Override
-	protected void paintComponent(Graphics g)
-	{
-		if (!isIgnoreOnRender && scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
-		super.paintComponent(g);
 	}
 
 	private boolean isIgnoreOnRender;

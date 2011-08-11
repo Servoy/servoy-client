@@ -17,6 +17,9 @@
 
 package com.servoy.j2db.ui.scripting;
 
+import java.awt.Component;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -62,6 +65,29 @@ public abstract class AbstractRuntimeField<C extends IFieldComponent> extends Ab
 		super(jsChangeRecorder, application);
 		renderable = new RenderableWrapper(this);
 		renderEventExecutor = new RenderEventExecutor(this);
+	}
+
+	@Override
+	public void setComponent(final C component)
+	{
+		super.setComponent(component);
+		if (component instanceof Component)
+		{
+			((Component)component).addFocusListener(new FocusListener()
+			{
+				public void focusLost(FocusEvent e)
+				{
+					getRenderEventExecutor().setRenderStateChanged();
+					getRenderEventExecutor().fireOnRender(false);
+				}
+
+				public void focusGained(FocusEvent e)
+				{
+					getRenderEventExecutor().setRenderStateChanged();
+					getRenderEventExecutor().fireOnRender(component.isEditable());
+				}
+			});
+		}
 	}
 
 	public String js_getDataProviderID()
@@ -302,5 +328,10 @@ public abstract class AbstractRuntimeField<C extends IFieldComponent> extends Ab
 	public IScriptRenderMethods getRenderable()
 	{
 		return renderable;
+	}
+
+	public void setRenderableStateChanged()
+	{
+		getChangesRecorder().setChanged();
 	}
 }

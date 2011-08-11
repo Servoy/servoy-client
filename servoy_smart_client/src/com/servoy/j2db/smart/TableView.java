@@ -21,7 +21,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.dnd.DropTarget;
@@ -1623,6 +1622,12 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 			}
 			dal.setRecord(record, true);
 		}
+		if (dataRendererOnRenderWrapper.getRenderEventExecutor().hasRenderCallback())
+		{
+			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderState(null, -1, false);
+			dataRendererOnRenderWrapper.getRenderEventExecutor().fireOnRender(false);
+		}
+
 	}
 
 	public boolean isColumnIdentifierComponent(Component comp)
@@ -1947,17 +1952,6 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		{
 			startDrag = true;
 		}
-	}
-
-	@Override
-	public void paintComponent(Graphics g)
-	{
-		if (dataRendererOnRenderWrapper.getRenderEventExecutor().hasRenderCallback())
-		{
-			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderState(null, -1, false);
-			dataRendererOnRenderWrapper.getRenderEventExecutor().fireOnRender(false);
-		}
-		super.paintComponent(g);
 	}
 
 	/*

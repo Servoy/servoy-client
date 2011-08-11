@@ -23,7 +23,6 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Window;
@@ -55,14 +54,12 @@ import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.gui.JDateChooser;
 import com.servoy.j2db.persistence.ScriptVariable;
-import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.ui.BaseEventExecutor;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
-import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.scripting.RuntimeDataCalendar;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnablePanel;
@@ -110,19 +107,6 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 			{
 				// super uses scriptable
 				return "DataField for " + DataCalendar.this.toString(); //$NON-NLS-1$ 
-			}
-
-			@Override
-			public void repaint(long tm, int x, int y, int width, int height)
-			{
-				super.repaint(tm, x, y, width, height);
-				// if we have onRender, we need to repaint the container as
-				// the border setting is applied on that
-				IScriptable s = DataCalendar.this.getScriptObject();
-				if (s instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)s).getRenderEventExecutor().hasRenderCallback())
-				{
-					DataCalendar.this.repaint();
-				}
 			}
 		};
 		enclosedComponent.setIgnoreOnRender(true);
@@ -369,6 +353,7 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 	public void setValueObject(Object obj)
 	{
 		enclosedComponent.setValueObject(obj);
+		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(enclosedComponent.hasFocus());
 	}
 
 	public void setTagResolver(ITagResolver resolver)
@@ -691,14 +676,6 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 	{
 		return (String)getClientProperty("Id");
 	}
-
-	@Override
-	protected void paintComponent(Graphics g)
-	{
-		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(enclosedComponent.hasFocus());
-		super.paintComponent(g);
-	}
-
 
 	@Override
 	public void setTransferHandler(TransferHandler newHandler)

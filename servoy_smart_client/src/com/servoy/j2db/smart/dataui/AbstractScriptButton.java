@@ -73,7 +73,7 @@ public abstract class AbstractScriptButton extends JButton implements ISkinnable
 
 	private boolean specialPaint = false;
 	protected IApplication application;
-	private final AbstractRuntimeButton<IButton> scriptable;
+	protected final AbstractRuntimeButton<IButton> scriptable;
 	protected EventExecutor eventExecutor;
 
 	private MouseAdapter doubleclickMouseAdapter;
@@ -798,13 +798,6 @@ public abstract class AbstractScriptButton extends JButton implements ISkinnable
 		return eventExecutor;
 	}
 
-	@Override
-	protected void paintComponent(Graphics g)
-	{
-		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
-		super.paintComponent(g);
-	}
-
 	public String getParameterValue(String param)
 	{
 		return null;
@@ -839,5 +832,4 @@ public abstract class AbstractScriptButton extends JButton implements ISkinnable
 	{
 
 	}
-
 }

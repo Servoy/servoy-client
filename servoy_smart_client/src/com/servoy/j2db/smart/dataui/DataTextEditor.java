@@ -81,7 +81,6 @@ import com.servoy.j2db.dnd.FormDataTransferHandler;
 import com.servoy.j2db.dnd.ISupportDragNDropTextTransfer;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.printing.IFixedPreferredWidth;
-import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.smart.MainPanel;
 import com.servoy.j2db.smart.SwingForm;
 import com.servoy.j2db.smart.SwingRuntimeWindow;
@@ -94,7 +93,6 @@ import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.ISupportEditProvider;
-import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeTextEditor;
 import com.servoy.j2db.util.Debug;
@@ -767,19 +765,6 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 		{
 			return textTransferHandler;
 		}
-
-		@Override
-		public void repaint(long tm, int x, int y, int width, int height)
-		{
-			super.repaint(tm, x, y, width, height);
-			// if we have onRender, we need to repaint the container as
-			// the border setting is applied on that
-			IScriptable s = DataTextEditor.this.getScriptObject();
-			if (s instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)s).getRenderEventExecutor().hasRenderCallback())
-			{
-				DataTextEditor.this.repaint();
-			}
-		}
 	}
 
 	public JEditorPane getRealEditor()
@@ -1113,6 +1098,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 				enclosedComponent.setToolTipText(tooltip);
 			}
 		}
+		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(enclosedComponent.hasFocus());
 	}
 
 	public Object getValueObject()
@@ -1517,13 +1503,6 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 
 			return preferredSize;
 		}
-	}
-
-	@Override
-	protected void paintComponent(Graphics g)
-	{
-		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(enclosedComponent.hasFocus());
-		super.paintComponent(g);
 	}
 
 	/*

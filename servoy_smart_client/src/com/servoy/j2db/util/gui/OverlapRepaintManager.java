@@ -26,10 +26,6 @@ import javax.swing.JComponent;
 import javax.swing.RepaintManager;
 import javax.swing.SwingUtilities;
 
-import com.servoy.j2db.scripting.IScriptableProvider;
-import com.servoy.j2db.ui.ISupportOnRenderCallback;
-import com.servoy.j2db.ui.RenderEventExecutor;
-
 /**
  * This repaint manager makes sure that overlapping components inside a container are repainted properly.<BR>
  * 
@@ -72,30 +68,8 @@ public class OverlapRepaintManager extends RepaintManager
 		// this area paints over an overlapped component that should be on top of the current repainting one...
 		if (SwingUtilities.isEventDispatchThread())
 		{
-			int dX = x, dY = y, dW = w, dH = h;
-			// if its marked as dirty because of a change in fireOnRender that was run from paint
-			// ignore this as the changes are already painted - if not ignored, we will have
-			// a cycle calling of repaint -> paintComponent -> fireOnRender -> repaint 
-			ISupportOnRenderCallback componentOnRenderParent = getOnRenderParent(c);
-			if (componentOnRenderParent != null)
-			{
-				RenderEventExecutor ree = componentOnRenderParent.getRenderEventExecutor();
-				if (ree != null && ree.hasRenderCallback())
-				{
-					if (ree.isOnRenderRunningOnComponentPaint()) return;
-					else
-					{
-						// make the entire component dirty so changes made in onRender are applied
-						dX = 0;
-						dY = 0;
-						dW = c.getWidth();
-						dH = c.getHeight();
-					}
-				}
-			}
-
-			delegate.addDirtyRegion(c, dX, dY, dW, dH); // add the dirty region
-			searchOverlappingRegionsInHierarchy(c.getParent(), c, new Rectangle(dX, dY, dW, dH));
+			delegate.addDirtyRegion(c, x, y, w, h); // add the dirty region
+			searchOverlappingRegionsInHierarchy(c.getParent(), c, new Rectangle(x, y, w, h));
 		}
 		else
 		{
@@ -112,13 +86,6 @@ public class OverlapRepaintManager extends RepaintManager
 
 			SwingUtilities.invokeLater(run);
 		}
-	}
-
-	private ISupportOnRenderCallback getOnRenderParent(Component c)
-	{
-		if (c == null) return null;
-		if (c instanceof IScriptableProvider && ((IScriptableProvider)c).getScriptObject() instanceof ISupportOnRenderCallback) return (ISupportOnRenderCallback)((IScriptableProvider)c).getScriptObject();
-		else return getOnRenderParent(c.getParent());
 	}
 
 	private void searchOverlappingRegionsInHierarchy(Container parent, JComponent c, Rectangle repaintedArea)

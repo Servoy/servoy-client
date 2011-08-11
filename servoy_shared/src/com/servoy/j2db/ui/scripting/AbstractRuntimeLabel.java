@@ -17,6 +17,10 @@
 
 package com.servoy.j2db.ui.scripting;
 
+import java.awt.Component;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IScriptBaseMethods;
@@ -43,6 +47,29 @@ public abstract class AbstractRuntimeLabel<C extends ILabel> extends AbstractRun
 		super(jsChangeRecorder, application);
 		renderable = new RenderableWrapper(this);
 		renderEventExecutor = new RenderEventExecutor(this);
+	}
+
+	@Override
+	public void setComponent(C component)
+	{
+		super.setComponent(component);
+		if (component instanceof Component)
+		{
+			((Component)component).addFocusListener(new FocusListener()
+			{
+				public void focusLost(FocusEvent e)
+				{
+					getRenderEventExecutor().setRenderStateChanged();
+					getRenderEventExecutor().fireOnRender(false);
+				}
+
+				public void focusGained(FocusEvent e)
+				{
+					getRenderEventExecutor().setRenderStateChanged();
+					getRenderEventExecutor().fireOnRender(false);
+				}
+			});
+		}
 	}
 
 	public void js_setImageURL(String text_url)
@@ -145,5 +172,10 @@ public abstract class AbstractRuntimeLabel<C extends ILabel> extends AbstractRun
 	public IScriptRenderMethods getRenderable()
 	{
 		return renderable;
+	}
+
+	public void setRenderableStateChanged()
+	{
+		getChangesRecorder().setChanged();
 	}
 }

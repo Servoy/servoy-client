@@ -268,6 +268,11 @@ public class DataRendererOnRenderWrapper implements ISupportOnRenderCallback, IS
 		return this;
 	}
 
+	public void setRenderableStateChanged()
+	{
+		if (onRenderComponent instanceof IProviderStylePropertyChanges) ((IProviderStylePropertyChanges)onRenderComponent).getStylePropertyChanges().setChanged();
+	}
+
 	/*
 	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getComponent()
 	 */

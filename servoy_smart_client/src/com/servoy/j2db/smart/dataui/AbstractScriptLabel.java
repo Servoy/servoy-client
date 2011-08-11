@@ -86,7 +86,7 @@ public abstract class AbstractScriptLabel extends JLabel implements ISkinnable, 
 	protected IApplication application;
 	private boolean borderPainted = true;
 	protected EventExecutor eventExecutor;
-	private final AbstractHTMLSubmitRuntimeLabel<ILabel> scriptable;
+	protected final AbstractHTMLSubmitRuntimeLabel<ILabel> scriptable;
 
 	private MouseAdapter actionMouseAdapter = null;
 	private MouseAdapter doubleClickMouseAdapter = null;
@@ -135,7 +135,6 @@ public abstract class AbstractScriptLabel extends JLabel implements ISkinnable, 
 	@Override
 	protected void paintComponent(Graphics g)
 	{
-		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
 		boolean isPrinting = Utils.getAsBoolean(application.getRuntimeProperties().get("isPrinting")); //$NON-NLS-1$
 		if (isPrinting && getText() != null && !HtmlUtils.startsWithHtml(getText()) && isEnabled() && getIcon() == null && !isOpaque() &&
 			isEmptyBorder(getBorder()))

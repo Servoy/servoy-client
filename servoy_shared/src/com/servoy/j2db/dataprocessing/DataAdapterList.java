@@ -50,6 +50,8 @@ import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.scripting.IScriptable;
+import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
@@ -895,13 +897,17 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 			while (compIte.hasNext())
 			{
 				comp = compIte.next();
-				if (comp instanceof ISupportOnRenderCallback)
+				if (comp instanceof IScriptableProvider)
 				{
-					RenderEventExecutor rendererEventExecutor = ((ISupportOnRenderCallback)comp).getRenderEventExecutor();
-					if (rendererEventExecutor != null && rendererEventExecutor.hasRenderCallback())
+					IScriptable scriptable = ((IScriptableProvider)comp).getScriptObject();
+					if (scriptable instanceof ISupportOnRenderCallback)
 					{
-						if (recordStatus == null) recordStatus = getRecordIndexAndSelectStatus(rec);
-						rendererEventExecutor.setRenderState(rec, ((Integer)recordStatus[0]).intValue(), ((Boolean)recordStatus[1]).booleanValue());
+						RenderEventExecutor rendererEventExecutor = ((ISupportOnRenderCallback)scriptable).getRenderEventExecutor();
+						if (rendererEventExecutor != null && rendererEventExecutor.hasRenderCallback())
+						{
+							if (recordStatus == null) recordStatus = getRecordIndexAndSelectStatus(rec);
+							rendererEventExecutor.setRenderState(rec, ((Integer)recordStatus[0]).intValue(), ((Boolean)recordStatus[1]).booleanValue());
+						}
 					}
 				}
 			}

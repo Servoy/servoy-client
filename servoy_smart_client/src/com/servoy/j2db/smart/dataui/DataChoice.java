@@ -720,6 +720,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		{
 			if (editProvider != null) editProvider.setAdjusting(false);
 		}
+		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
 	}
 
 	public boolean needEditListener()
@@ -1191,12 +1192,5 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 				super.paint(g);
 			}
 		}
-	}
-
-	@Override
-	protected void paintComponent(Graphics g)
-	{
-		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
-		super.paintComponent(g);
 	}
 }

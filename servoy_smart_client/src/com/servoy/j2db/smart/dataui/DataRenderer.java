@@ -56,6 +56,7 @@ import com.servoy.j2db.dataprocessing.DataAdapterList;
 import com.servoy.j2db.dataprocessing.FindState;
 import com.servoy.j2db.dataprocessing.IDisplay;
 import com.servoy.j2db.dataprocessing.IDisplayData;
+import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.PrototypeState;
@@ -371,13 +372,6 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
  * public Dimension getPreferredSize() { return new Dimension(form.getSize().width, body_end - body_start); //form.getSize(); }
  */
 
-	@Override
-	protected void paintComponent(Graphics g)
-	{
-		fireDataRendererOnRender(false, true);
-		super.paintComponent(g);
-	}
-
 	/*
 	 * @see javax.swing.JComponent#paintChildren(java.awt.Graphics)
 	 */
@@ -397,17 +391,6 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 		{
 			Debug.error(e);
 		}
-	}
-
-
-	@Override
-	public void repaint()
-	{
-		// if repaint was requested because of a change in fireOnRender that was run from paint
-		// ignore this repaint as the changes are already painted - if not ignored, we will have
-		// a cycle calling of repaint -> paintComponent -> fireOnRender -> repaint 
-		if (dataRendererOnRenderWrapper != null && dataRendererOnRenderWrapper.getRenderEventExecutor().isOnRenderRunningOnComponentPaint()) return;
-		super.repaint();
 	}
 
 	private String strRowBGColorProvider = null;
@@ -538,8 +521,6 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 					}
 				}
 			}
-			DataAdapterList.setDataRendererComponentsRenderState(this, (IRecordInternal)value);
-			if (!isRenderer() || isShowing()) fireDataRendererOnRender(true, false);
 		}
 
 		if (rendererParentCanBeNull != null)
@@ -638,11 +619,12 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 
 	public void refreshRecord(IRecordInternal record)
 	{
+		DataAdapterList.setDataRendererComponentsRenderState(this, record);
 		if (dataAdapterList != null)
 		{
 			dataAdapterList.setRecord(record, true);
 		}
-		DataAdapterList.setDataRendererComponentsRenderState(this, record);
+		fireDataRendererOnRender();
 	}
 
 	public String getId()
@@ -826,27 +808,24 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 		return dataAdapterList != null ? dataAdapterList.getFormController().getForm().toString() : super.toString();
 	}
 
-	private void fireDataRendererOnRender(boolean includeChildrenComponents, boolean runningOnPaint)
+	private void fireDataRendererOnRender()
 	{
-		dataRendererOnRenderWrapper.getRenderEventExecutor().fireOnRender(hasFocus(), runningOnPaint);
+		dataRendererOnRenderWrapper.getRenderEventExecutor().fireOnRender(hasFocus());
 
-		if (includeChildrenComponents)
+		@SuppressWarnings("rawtypes")
+		Iterator compIte = getComponentIterator();
+		Object comp;
+		while (compIte.hasNext())
 		{
-			@SuppressWarnings("rawtypes")
-			Iterator compIte = getComponentIterator();
-			Object comp;
-			while (compIte.hasNext())
+			comp = compIte.next();
+			if (comp instanceof IScriptableProvider && !(comp instanceof IDisplayData) && !(comp instanceof IDisplayRelatedData))
 			{
-				comp = compIte.next();
-				if (comp instanceof IScriptableProvider)
+				IScriptable scriptable = ((IScriptableProvider)comp).getScriptObject();
+				if (scriptable instanceof ISupportOnRenderCallback)
 				{
-					IScriptable scriptable = ((IScriptableProvider)comp).getScriptObject();
-					if (scriptable instanceof ISupportOnRenderCallback)
-					{
-						RenderEventExecutor rendererEventExecutor = ((ISupportOnRenderCallback)scriptable).getRenderEventExecutor();
-						boolean hasFocus = (comp instanceof Component) ? ((Component)comp).hasFocus() : false;
-						rendererEventExecutor.fireOnRender(hasFocus, runningOnPaint);
-					}
+					RenderEventExecutor rendererEventExecutor = ((ISupportOnRenderCallback)scriptable).getRenderEventExecutor();
+					boolean hasFocus = (comp instanceof Component) ? ((Component)comp).hasFocus() : false;
+					rendererEventExecutor.fireOnRender(hasFocus);
 				}
 			}
 		}

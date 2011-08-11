@@ -28,4 +28,6 @@ public interface ISupportOnRenderCallback
 	public IScriptRenderMethods getRenderable();
 
 	public Object getComponent();
+
+	public void setRenderableStateChanged();
 }

@@ -208,6 +208,8 @@ public class DataButton extends AbstractScriptButton implements IDisplayData, ID
 			}
 			this.value = obj;
 		}
+
+		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
 	}
 
 	public Object getValueObject()

@@ -230,6 +230,8 @@ public class DataLabel extends AbstractScriptLabel implements IDisplayData, IDis
 				super.setToolTipText(tooltip);
 			}
 		}
+
+		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
 	}
 
 	public String getDataProviderID()

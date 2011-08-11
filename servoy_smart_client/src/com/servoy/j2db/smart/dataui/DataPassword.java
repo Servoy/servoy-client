@@ -21,7 +21,6 @@ import java.awt.AWTEvent;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -312,6 +311,7 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 		{
 			if (editProvider != null) editProvider.setAdjusting(false);
 		}
+		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
 	}
 
 	public Object getValueObject()
@@ -660,13 +660,6 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 	public String getId()
 	{
 		return (String)getClientProperty("Id"); //$NON-NLS-1$
-	}
-
-	@Override
-	protected void paintComponent(Graphics g)
-	{
-		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
-		super.paintComponent(g);
 	}
 
 	private TransferHandler textTransferHandler;

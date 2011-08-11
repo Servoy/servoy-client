@@ -23,7 +23,6 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FocusTraversalPolicy;
 import java.awt.FontMetrics;
-import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -1409,6 +1408,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 			adjusting = false;
 			if (editProvider != null) editProvider.setAdjusting(false);
 		}
+		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
 	}
 
 	public boolean needEditListener()
@@ -2034,12 +2034,5 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		void setEditable(boolean editable);
 
 		void setLabelsEnabled(boolean labelsEnabled);
-	}
-
-	@Override
-	protected void paintComponent(Graphics g)
-	{
-		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
-		super.paintComponent(g);
 	}
 }

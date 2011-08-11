@@ -36,6 +36,7 @@ public class RenderEventExecutor
 	private IRecordInternal renderRecord;
 	private int renderIndex;
 	private boolean renderIsSelected;
+	private boolean isRenderStateChanged;
 
 	public RenderEventExecutor(ISupportOnRenderCallback onRenderComponent)
 	{
@@ -62,32 +63,19 @@ public class RenderEventExecutor
 		renderRecord = record;
 		renderIndex = index;
 		renderIsSelected = isSelected;
-
-		Object component = onRenderComponent.getComponent();
-		if (component instanceof IProviderStylePropertyChanges) ((IProviderStylePropertyChanges)component).getStylePropertyChanges().setChanged();
+		setRenderStateChanged();
 	}
 
-	private boolean isOnRenderRunningOnComponentPaint;
-
-	public boolean isOnRenderRunningOnComponentPaint()
+	public void setRenderStateChanged()
 	{
-		return isOnRenderRunningOnComponentPaint;
+		isRenderStateChanged = true;
+		onRenderComponent.setRenderableStateChanged();
 	}
-
-	private boolean isFocused;
 
 	public void fireOnRender(boolean hasFocus)
 	{
-		// don't fire if already is focused as no changes on component can happen
-		if (!hasFocus || (hasFocus != isFocused)) fireOnRender(hasFocus, true);
-		isFocused = hasFocus;
-	}
-
-	public void fireOnRender(boolean hasFocus, boolean isRunningOnComponentPaint)
-	{
-		if (renderScriptExecuter != null && renderCallback != null)
+		if (isRenderStateChanged && renderScriptExecuter != null && renderCallback != null)
 		{
-			isOnRenderRunningOnComponentPaint = isRunningOnComponentPaint;
 			IScriptRenderMethods renderable = onRenderComponent.getRenderable();
 			if (renderable instanceof RenderableWrapper) ((RenderableWrapper)renderable).resetProperties();
 
@@ -101,7 +89,7 @@ public class RenderEventExecutor
 
 			renderScriptExecuter.executeFunction(renderCallback, new Object[] { event }, false, onRenderComponent.getComponent(), false,
 				StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID.getPropertyName(), true);
-			isOnRenderRunningOnComponentPaint = false;
+			isRenderStateChanged = false;
 		}
 	}
 }

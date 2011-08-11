@@ -456,6 +456,7 @@ public class DataRadioButton extends JRadioButton implements IFieldComponent, ID
 		{
 			if (editProvider != null) editProvider.setAdjusting(false);
 		}
+		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
 	}
 
 
@@ -770,12 +771,5 @@ public class DataRadioButton extends JRadioButton implements IFieldComponent, ID
 				super.paint(g);
 			}
 		}
-	}
-
-	@Override
-	protected void paintComponent(Graphics g)
-	{
-		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
-		super.paintComponent(g);
 	}
 }

@@ -477,6 +477,7 @@ public class DataCheckBox extends JCheckBox implements IFieldComponent, IDisplay
 		{
 			if (editProvider != null) editProvider.setAdjusting(false);
 		}
+		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
 	}
 
 
@@ -790,12 +791,5 @@ public class DataCheckBox extends JCheckBox implements IFieldComponent, IDisplay
 				super.paint(g);
 			}
 		}
-	}
-
-	@Override
-	protected void paintComponent(Graphics g)
-	{
-		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
-		super.paintComponent(g);
 	}
 }

@@ -76,6 +76,7 @@ import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
+import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
@@ -364,30 +365,27 @@ public class WebEventExecutor extends BaseEventExecutor
 		Page page = form.getPage(); // JS might change the page this form belongs to... so remember it now
 		WebClientSession.get().getWebClient().executeEvents(); // process model changes from web components
 
-		boolean compHasOnRender = false;
 		if (comp instanceof IScriptableProvider)
 		{
 			IScriptable s = ((IScriptableProvider)comp).getScriptObject();
 			if (s instanceof ISupportOnRenderCallback)
 			{
-				compHasOnRender = ((ISupportOnRenderCallback)s).getRenderEventExecutor().hasRenderCallback();
+				RenderEventExecutor renderEventExecutor = ((ISupportOnRenderCallback)s).getRenderEventExecutor();
+				if (renderEventExecutor.hasRenderCallback())
+				{
+					if (type == EventType.focusGained && page instanceof MainPage)
+					{
+						((MainPage)page).setFocusedComponent(comp);
+						renderEventExecutor.setRenderStateChanged();
+					}
+					else if (type == EventType.focusLost)
+					{
+						((MainPage)page).setFocusedComponent(null);
+						renderEventExecutor.setRenderStateChanged();
+					}
+				}
 			}
 		}
-
-		if (compHasOnRender && comp instanceof IProviderStylePropertyChanges)
-		{
-			if (type == EventType.focusGained && page instanceof MainPage)
-			{
-				((MainPage)page).setFocusedComponent(comp);
-				((IProviderStylePropertyChanges)comp).getStylePropertyChanges().setChanged();
-			}
-			else if (type == EventType.focusLost)
-			{
-				((MainPage)page).setFocusedComponent(null);
-				((IProviderStylePropertyChanges)comp).getStylePropertyChanges().setChanged();
-			}
-		}
-
 
 		if (type == EventType.focusLost ||
 			setSelectedIndex(comp, target, convertModifiers(webModifiers), type == EventType.focusGained || type == EventType.action))

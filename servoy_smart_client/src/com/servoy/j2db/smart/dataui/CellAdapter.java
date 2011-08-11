@@ -60,6 +60,7 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
+import javax.swing.text.JTextComponent;
 import javax.swing.text.Style;
 import javax.swing.text.html.CSS;
 import javax.swing.text.html.StyleSheet;
@@ -94,6 +95,7 @@ import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.dataui.IServoyAwareBean;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.ScriptVariable;
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.smart.J2DBClient;
 import com.servoy.j2db.smart.ListView;
@@ -386,27 +388,6 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 	 */
 	public Component getTableCellEditorComponent(JTable jtable, Object value, boolean isSelected, int row, int column)
 	{
-		Color bgColor = getBgColor(jtable, isSelected, row, true);
-		Color fgColor = getFgColor(jtable, isSelected, row);
-		Font font = getFont(jtable, isSelected, row);
-
-		Component cellEditorComp = getTableCellEditorComponentEx(jtable, value, isSelected, row, column, bgColor, fgColor, font);
-		if (cellEditorComp instanceof ISupportOnRenderCallback)
-		{
-			RenderEventExecutor renderEventExecutor = ((ISupportOnRenderCallback)cellEditorComp).getRenderEventExecutor();
-			if (renderEventExecutor != null && renderEventExecutor.hasRenderCallback())
-			{
-				ISwingFoundSet foundset = (ISwingFoundSet)jtable.getModel();
-				IRecordInternal record = foundset != null ? foundset.getRecord(row) : null;
-				renderEventExecutor.setRenderState(record, row, isSelected);
-			}
-		}
-		return cellEditorComp;
-	}
-
-	private Component getTableCellEditorComponentEx(JTable jtable, Object value, boolean isSelected, int row, int column, Color bgColorParam,
-		Color fgColorParam, Font fontParam)
-	{
 		if (editor == null || !editor.isVisible() || !(jtable.getModel() instanceof IFoundSetInternal))
 		{
 			return empty;
@@ -416,7 +397,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 
 		if (isSelected)
 		{
-			Color bgColor = bgColorParam;
+			Color bgColor = getBgColor(jtable, isSelected, row, true);
 			if (bgColor == null)
 			{
 				bgColor = unselectedBackground; // unselected background is the default background color of the editor.
@@ -425,7 +406,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			editor.setBackground(bgColor);
 
 
-			Color fgColor = fgColorParam;
+			Color fgColor = getFgColor(jtable, isSelected, row);
 			if (fgColor == null)
 			{
 				fgColor = unselectedForeground; // unselected foreground is the default foreground color of the editor.
@@ -433,7 +414,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			lastEditorFgColor = fgColor;
 			editor.setForeground(fgColor);
 
-			Font font = fontParam;
+			Font font = getFont(jtable, isSelected, row);
 			if (font == null)
 			{
 				font = unselectedFont; // unselected font is the default font of the editor.
@@ -457,6 +438,18 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 
 		if (currentEditingState != null)
 		{
+			if (editor instanceof IScriptableProvider)
+			{
+				IScriptable scriptable = ((IScriptableProvider)editor).getScriptObject();
+				if (scriptable instanceof ISupportOnRenderCallback)
+				{
+					RenderEventExecutor renderEventExecutor = ((ISupportOnRenderCallback)scriptable).getRenderEventExecutor();
+					if (renderEventExecutor != null && renderEventExecutor.hasRenderCallback())
+					{
+						renderEventExecutor.setRenderState(currentEditingState, row, isSelected);
+					}
+				}
+			}
 			// if not enabled or not editable do not start the edit
 			if (editor instanceof IDisplay && ((IDisplay)editor).isEnabled() && !((IDisplay)editor).isReadOnly())
 			{
@@ -494,6 +487,18 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			{
 				((IServoyAwareBean)editor).setSelectedRecord(new ServoyBeanState(currentEditingState, dal.getFormScope()));
 			}
+			if (editor instanceof IScriptableProvider && !(editor instanceof IDisplayData) && !(editor instanceof IDisplayRelatedData))
+			{
+				IScriptable scriptable = ((IScriptableProvider)editor).getScriptObject();
+				if (scriptable instanceof ISupportOnRenderCallback)
+				{
+					RenderEventExecutor renderEventExecutor = ((ISupportOnRenderCallback)scriptable).getRenderEventExecutor();
+					if (renderEventExecutor != null && renderEventExecutor.hasRenderCallback())
+					{
+						renderEventExecutor.fireOnRender(editor instanceof JTextComponent ? ((JTextComponent)editor).isEditable() : false);
+					}
+				}
+			}
 		}
 		return editor;
 	}
@@ -501,29 +506,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 	/*
 	 * @see TableCellRenderer#getTableCellRendererComponent(JTable, Object, boolean, boolean, int, int)
 	 */
-
 	public Component getTableCellRendererComponent(JTable jtable, Object value, boolean isSelected, boolean hasFocus, final int row, final int column)
-	{
-		Color bgColor = getBgColor(jtable, isSelected, row, false);
-		Color fgColor = getFgColor(jtable, isSelected, row);
-		Font font = getFont(jtable, isSelected, row);
-
-		Component cellRendererComp = getTableCellRendererComponentEx(jtable, value, isSelected, hasFocus, row, column, bgColor, fgColor, font);
-		if (cellRendererComp instanceof ISupportOnRenderCallback)
-		{
-			RenderEventExecutor renderEventExecutor = ((ISupportOnRenderCallback)cellRendererComp).getRenderEventExecutor();
-			if (renderEventExecutor != null && renderEventExecutor.hasRenderCallback())
-			{
-				ISwingFoundSet foundset = (ISwingFoundSet)jtable.getModel();
-				IRecordInternal record = foundset != null ? foundset.getRecord(row) : null;
-				renderEventExecutor.setRenderState(record, row, isSelected);
-			}
-		}
-		return cellRendererComp;
-	}
-
-	private Component getTableCellRendererComponentEx(JTable jtable, Object value, boolean isSelected, boolean hasFocus, final int row, final int column,
-		Color bgColor, Color fgColor, Font font)
 	{
 		if (renderer == null || !renderer.isVisible() || !(jtable.getModel() instanceof IFoundSetInternal))
 		{
@@ -541,6 +524,10 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			Debug.error("Error getting row ", re); //$NON-NLS-1$
 			return empty;
 		}
+
+		Color bgColor = getBgColor(jtable, isSelected, row, false);
+		Color fgColor = getFgColor(jtable, isSelected, row);
+		Font font = getFont(jtable, isSelected, row);
 
 		// set the sizes of the to render component also in the editor if the editor is not used.
 		// so that getLocation and getWidth in scripting on tableviews do work.
@@ -652,6 +639,18 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		}
 
 		boolean printing = Utils.getAsBoolean(application.getRuntimeProperties().get("isPrinting")); //$NON-NLS-1$
+		if (renderer instanceof IScriptableProvider)
+		{
+			IScriptable scriptable = ((IScriptableProvider)renderer).getScriptObject();
+			if (scriptable instanceof ISupportOnRenderCallback)
+			{
+				RenderEventExecutor renderEventExecutor = ((ISupportOnRenderCallback)scriptable).getRenderEventExecutor();
+				if (renderEventExecutor != null && renderEventExecutor.hasRenderCallback())
+				{
+					renderEventExecutor.setRenderState(state, row, isSelected);
+				}
+			}
+		}
 		if (renderer instanceof IDisplayRelatedData)
 		{
 			IDisplayRelatedData drd = (IDisplayRelatedData)renderer;
@@ -748,6 +747,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				{
 					data = ((DbIdentValue)data).getPkValue();
 				}
+
 				((IDisplayData)renderer).setValueObject(data);
 			}
 		}
@@ -755,7 +755,18 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		{
 			((IServoyAwareBean)renderer).setSelectedRecord(new ServoyBeanState(state, dal.getFormScope()));
 		}
-
+		if (renderer instanceof IScriptableProvider && !(renderer instanceof IDisplayData) && !(renderer instanceof IDisplayRelatedData))
+		{
+			IScriptable scriptable = ((IScriptableProvider)renderer).getScriptObject();
+			if (scriptable instanceof ISupportOnRenderCallback)
+			{
+				RenderEventExecutor renderEventExecutor = ((ISupportOnRenderCallback)scriptable).getRenderEventExecutor();
+				if (renderEventExecutor != null && renderEventExecutor.hasRenderCallback())
+				{
+					renderEventExecutor.fireOnRender(false);
+				}
+			}
+		}
 		return renderer;
 	}
 

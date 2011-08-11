@@ -503,6 +503,11 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 			}
 		}
 		scriptable.setFoundset(currentData);
+		if (list != null && list.getOnRender().getRenderEventExecutor().hasRenderCallback())
+		{
+			list.getOnRender().getRenderEventExecutor().setRenderState(null, -1, false);
+			list.getOnRender().getRenderEventExecutor().fireOnRender(false);
+		}
 	}
 
 	public String getSelectedRelationName()
@@ -1101,6 +1106,11 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 			}
 		}
 
+		public ISupportOnRenderCallback getOnRender()
+		{
+			return dataRendererOnRenderWrapper;
+		}
+
 		/*
 		 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#setStyles(javax.swing.text.html.StyleSheet, javax.swing.text.Style, javax.swing.text.Style)
 		 */
@@ -1118,17 +1128,6 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 		public StyleSheet getRowStyleSheet()
 		{
 			return ss;
-		}
-
-		@Override
-		public void paintComponent(Graphics g)
-		{
-			if (dataRendererOnRenderWrapper.getRenderEventExecutor().hasRenderCallback())
-			{
-				dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderState(null, -1, false);
-				dataRendererOnRenderWrapper.getRenderEventExecutor().fireOnRender(false);
-			}
-			super.paintComponent(g);
 		}
 
 		/*
