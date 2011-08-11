@@ -572,6 +572,8 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 	class DividerListCellRenderer implements ListCellRenderer
 	{
 		ListCellRenderer dividerRenderer;
+		JLabel cachedLabel;
+		Border cachedBorder;
 
 		public DividerListCellRenderer(ListCellRenderer renderer)
 		{
@@ -599,6 +601,10 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 						Debug.error("Error formatting value for combobox " + dataProviderID + ", " + ex); //$NON-NLS-1$//$NON-NLS-2$
 					}
 				}
+				if (cachedLabel != null)
+				{
+					cachedLabel.setBorder(cachedBorder);
+				}
 				Component comp = dividerRenderer.getListCellRendererComponent(jlist, formattedValue, index, isSelected, cellHasFocus);
 //nothing does work we cannot get the collapst combobox transparent				
 //				if (comp instanceof JComponent)
@@ -610,9 +616,19 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 				if (comp instanceof JLabel)
 				{
 					((JLabel)comp).setHorizontalAlignment(getHorizontalAlignment());
+
 					if (marginBorder != null)
 					{
-						((JLabel)comp).setBorder(marginBorder);
+						cachedLabel = (JLabel)comp;
+						cachedBorder = cachedLabel.getBorder();
+						if (index >= 0)
+						{
+							((JLabel)comp).setBorder(marginBorder);
+						}
+						else
+						{
+							((JLabel)comp).setBorder(BorderFactory.createCompoundBorder(((JLabel)comp).getBorder(), marginBorder));
+						}
 					}
 				}
 				return comp;
