@@ -560,6 +560,10 @@ public class RepositoryHelper
 
 	public static String getDisplayName(String displayName, Class< ? > persistClass)
 	{
+		if (displayName.equals("extendsID") && Form.class.isAssignableFrom(persistClass)) //$NON-NLS-1$
+		{
+			return "extendsForm"; //$NON-NLS-1$
+		}
 		if (displayName.endsWith("CmdMethodID")) //$NON-NLS-1$
 		{
 			return displayName.substring(0, displayName.length() - 11);
