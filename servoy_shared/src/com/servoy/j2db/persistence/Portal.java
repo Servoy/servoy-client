@@ -370,6 +370,8 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	/**
 	 * The calculation dataprovider (such as servoy_row_bgcolor) used to add background 
 	 * color and highlight selected or alternate portal rows. 
+	 * 
+	 * NOTE: This property has been deprecated and is kept visible for legacy purposes. Use CSS Row Styling & onRender event instead.
 	 */
 	public String getRowBGColorCalculation()
 	{
@@ -377,7 +379,9 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	}
 
 	/**
-	 * Set the name of the bgcolorcalc
+	 * Set the name of the bgcolorcalc. 
+	 * 
+	 * NOTE: This property has been deprecated and is kept visible for legacy purposes. Use CSS Row Styling & onRender event instead.
 	 * 
 	 * @param arg the bgcolorcalc name
 	 */
