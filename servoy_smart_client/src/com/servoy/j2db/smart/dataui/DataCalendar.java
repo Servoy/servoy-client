@@ -79,7 +79,7 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 	private final DataField enclosedComponent;
 	private String dataProviderID;
 	private final JButton showCal;
-	private final ISmartClientApplication application;
+	private final IApplication application;
 	private List<ILabel> labels;
 
 	private MouseAdapter rightclickMouseAdapter = null;
@@ -87,7 +87,7 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 
 	public DataCalendar(IApplication app, RuntimeDataCalendar scriptable)
 	{
-		application = (ISmartClientApplication)app;
+		this.application = app;
 		setLayout(new BorderLayout());
 		enclosedComponent = new DataField(app, null)
 		{
@@ -298,7 +298,7 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 			}
 			return;
 		}
-		JDateChooser chooser = (JDateChooser)application.getWindow("JDateChooser"); //$NON-NLS-1$
+		JDateChooser chooser = (JDateChooser)((ISmartClientApplication)application).getWindow("JDateChooser"); //$NON-NLS-1$
 		Window windowParent = SwingUtilities.getWindowAncestor(this);
 		if (chooser == null || SwingUtilities.getWindowAncestor(chooser) != windowParent)
 		{
@@ -306,7 +306,7 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 			{
 				chooser.dispose();
 				chooser = null;
-				application.registerWindow("JDateChooser", chooser); //$NON-NLS-1$
+				((ISmartClientApplication)application).registerWindow("JDateChooser", chooser); //$NON-NLS-1$
 			}
 			String dateFormat = TagResolver.getFormatString(Date.class, application.getSettings());
 			if (windowParent instanceof JFrame)
@@ -317,7 +317,7 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 			{
 				chooser = new JDateChooser((JDialog)windowParent, application.getI18NMessage("servoy.dateChooser.selectDate"), dateFormat); //$NON-NLS-1$
 			}
-			application.registerWindow("JDateChooser", chooser); //$NON-NLS-1$
+			((ISmartClientApplication)application).registerWindow("JDateChooser", chooser); //$NON-NLS-1$
 		}
 
 		enclosedComponent.requestFocus();
