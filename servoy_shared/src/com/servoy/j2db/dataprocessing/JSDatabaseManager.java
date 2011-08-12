@@ -452,9 +452,8 @@ public class JSDatabaseManager
 					IDataProvider dp = application.getFlattenedSolution().getDataProviderForTable(table, dpnames[i]);
 
 
-					dptypes[i] = dp == null ? ColumnType.getInstance(0, 0, 0) : ColumnType.getInstance(
-						dp instanceof Column ? ((Column)dp).getType() : dp.getDataProviderType(), dp.getLength(),
-						dp instanceof Column ? ((Column)dp).getScale() : 0);
+					dptypes[i] = dp == null ? ColumnType.getInstance(0, 0, 0) : ColumnType.getInstance(dp instanceof Column ? ((Column)dp).getType()
+						: dp.getDataProviderType(), dp.getLength(), dp instanceof Column ? ((Column)dp).getScale() : 0);
 					if (getInOneQuery)
 					{
 						// only columns and data we can get from the foundset (calculations only when stored)
@@ -2553,6 +2552,12 @@ public class JSDatabaseManager
 		return false;
 	}
 
+	@Deprecated
+	public boolean js_copyMatchingColumns(Object[] values) throws ServoyException
+	{
+		return js_copyMatchingFields(values);
+	}
+
 	/**
 	 * Copies all matching non empty columns (if overwrite boolean is given all columns except pk/ident, if array then all columns except pk and array names).
 	 * returns true if no error did happen.
@@ -2570,17 +2575,17 @@ public class JSDatabaseManager
 	 * //saves any outstanding changes to the dest foundset
 	 * controller.saveData();
 	 *
-	 * @param src_record The source record to be copied.
+	 * @param src The source record or object to be copied.
 	 * @param dest_record The destination record to copy to.
 	 * @param overwrite/array_of_names_not_overwritten optional true (default false) if everything can be overwritten or an array of names that shouldnt be overwritten.
 	 * 
 	 * @return true if no errors happend.
 	 */
-	public boolean js_copyMatchingColumns(Object[] values) throws ServoyException
+	public boolean js_copyMatchingFields(Object[] values) throws ServoyException
 	{
 		checkAuthorized();
-		Object src_record = values[0];
-		Object dest_record = values[1];
+		Object src = values[0];
+		Object dest = values[1];
 		List<Object> al = new ArrayList<Object>();
 		boolean overwrite = false;
 		if (values.length > 2)
@@ -2594,16 +2599,16 @@ public class JSDatabaseManager
 				al = Arrays.asList((Object[])values[2]);
 			}
 		}
-		if (src_record instanceof IRecordInternal && dest_record instanceof IRecordInternal)
+		if (dest instanceof IRecordInternal)
 		{
 			try
 			{
-				IRecordInternal src_rec = (IRecordInternal)src_record;
-				IRecordInternal dest_rec = (IRecordInternal)dest_record;
-
+				IRecordInternal dest_rec = (IRecordInternal)dest;
 				SQLSheet destSheet = dest_rec.getParentFoundSet().getSQLSheet();
 				Table dest_table = destSheet.getTable();
 				boolean wasEditing = dest_rec.isEditing();
+				Map<String, Method> getters = new HashMap<String, Method>();
+
 				if (dest_rec.startEditing())
 				{
 					Iterator<Column> it = dest_table.getColumns().iterator();
@@ -2626,14 +2631,28 @@ public class JSDatabaseManager
 						if (dval == null ||
 							(!dest_table.getRowIdentColumns().contains(c) && (overwrite || (al.size() > 0 && !al.contains(c.getDataProviderID())))))
 						{
-							int index = src_rec.getParentFoundSet().getSQLSheet().getColumnIndex(c.getDataProviderID());
-							if (index != -1)
+							if (src instanceof IRecordInternal)
 							{
-								Object sval = src_rec.getValue(c.getDataProviderID());
-								dest_rec.setValue(c.getDataProviderID(), sval);
+								IRecordInternal src_rec = (IRecordInternal)src;
+								int index = src_rec.getParentFoundSet().getSQLSheet().getColumnIndex(c.getDataProviderID());
+								if (index != -1)
+								{
+									Object sval = src_rec.getValue(c.getDataProviderID());
+									dest_rec.setValue(c.getDataProviderID(), sval);
+								}
+							}
+							else if (src != null)
+							{
+								Method m = getMethod(src, c.getDataProviderID(), getters);
+								if (m != null)
+								{
+									Object sval = m.invoke(src, (Object[])null);
+									dest_rec.setValue(c.getDataProviderID(), sval);
+								}
 							}
 						}
 					}
+
 					if (!wasEditing)
 					{
 						dest_rec.stopEditing();
