@@ -133,8 +133,7 @@ public class RecordingScriptable implements Scriptable, IDelegate<Scriptable>, W
 	{
 		if (o instanceof Scriptable && o != Scriptable.NOT_FOUND
 		// eval is a special case, cannot be called directly
-			&& !(o instanceof IdFunctionObject && "eval".equals(((IdFunctionObject)o).getFunctionName())) //$NON-NLS-1$
-		)
+			&& !(o instanceof IdFunctionObject && "eval".equals(((IdFunctionObject)o).getFunctionName())) && !"Object".equals(name))
 		{
 			if (o instanceof Function)
 			{
