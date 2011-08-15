@@ -909,7 +909,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	}
 
 	//commit all user data
-	public void close(IActiveSolutionHandler handler) throws IOException
+	public void close(IActiveSolutionHandler handler)
 	{
 		flushAllCachedData();
 
