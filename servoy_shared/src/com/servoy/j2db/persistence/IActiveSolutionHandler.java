@@ -16,7 +16,6 @@
  */
 package com.servoy.j2db.persistence;
 
-import java.io.IOException;
 import java.rmi.RemoteException;
 
 import com.servoy.j2db.server.shared.IApplicationServer;
@@ -37,5 +36,5 @@ public interface IActiveSolutionHandler
 
 	public Solution[] loadLoginSolutionAndModules(SolutionMetaData solutionDef) throws RepositoryException, RemoteException;
 
-	public void saveActiveSolution(Solution solution) throws IOException;
+	public void saveActiveSolution(Solution solution);
 }

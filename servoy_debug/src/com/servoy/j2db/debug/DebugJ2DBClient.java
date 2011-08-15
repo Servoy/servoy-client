@@ -28,7 +28,6 @@ import java.awt.event.KeyEvent;
 import java.beans.DefaultPersistenceDelegate;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLStreamHandler;
@@ -871,7 +870,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		return new RemoteActiveSolutionHandler(this)
 		{
 			@Override
-			public void saveActiveSolution(Solution solution) throws IOException
+			public void saveActiveSolution(Solution solution)
 			{
 				// no solution saving in debugger
 			}

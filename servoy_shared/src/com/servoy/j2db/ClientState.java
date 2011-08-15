@@ -1173,7 +1173,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			catch (Exception e)
 			{
 				// ignore any error
-				Debug.trace(e);
+				Debug.error(e);
 			}
 
 			// Notify server!

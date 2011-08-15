@@ -21,7 +21,6 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Insets;
 import java.awt.Point;
-import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -357,13 +356,7 @@ public class TemplateGenerator
 					{
 						if (fs != null)
 						{
-							try
-							{
-								fs.close(null);
-							}
-							catch (IOException e)
-							{
-							}
+							fs.close(null);
 						}
 					}
 				}

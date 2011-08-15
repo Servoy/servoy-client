@@ -204,7 +204,7 @@ public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 	}
 
 	@Override
-	public void saveActiveSolution(Solution solution) throws IOException
+	public void saveActiveSolution(Solution solution)
 	{
 		URL url = getServiceProvider().getServerURL();
 		String name = (url.getHost() + '_' + url.getPort()) + '_' + solution.getName();
@@ -220,13 +220,26 @@ public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 			solution.setServerProxies(null);//clear
 			solution.setRepository(null);//clear
 
-			FileOutputStream fis = new FileOutputStream(file);
-			BufferedOutputStream bis = new BufferedOutputStream(fis);
-			GZIPOutputStream zip = new GZIPOutputStream(bis);
-			ObjectOutputStream ois = new ObjectOutputStream(zip);
-			ois.writeLong(asus.longValue());
-			ois.writeObject(solution);
-			ois.close();
+			FileOutputStream fis = null;
+			try
+			{
+				fis = new FileOutputStream(file);
+				BufferedOutputStream bis = new BufferedOutputStream(fis);
+				GZIPOutputStream zip = new GZIPOutputStream(bis);
+				ObjectOutputStream ois = new ObjectOutputStream(zip);
+				ois.writeLong(asus.longValue());
+				ois.writeObject(solution);
+				ois.close();
+				fis = null;
+			}
+			catch (IOException e)
+			{
+				Debug.error(e);
+			}
+			finally
+			{
+				Utils.closeOutputStream(fis);
+			}
 		}
 	}
 

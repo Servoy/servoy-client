@@ -596,15 +596,8 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		if (credentials.getUserName() == null || credentials.getPassword() == null)
 		{
 			String solutionName = solutionRoot.getSolution() != null ? solutionRoot.getSolution().getName() : null;
-			try
-			{
-				// close the solution, webclient can't handle a "half" open solution.
-				solutionRoot.close(getActiveSolutionHandler());
-			}
-			catch (IOException e)
-			{
-				Debug.error(e);
-			}
+			// close the solution, webclient can't handle a "half" open solution.
+			solutionRoot.close(getActiveSolutionHandler());
 			Map<String, Object> map = new HashMap<String, Object>();
 			if (getPreferedSolutionNameToLoadOnInit() != null)
 			{
