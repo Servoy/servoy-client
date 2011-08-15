@@ -42,6 +42,7 @@ import javax.swing.AbstractAction;
 import javax.swing.LookAndFeel;
 import javax.swing.UIManager;
 
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeError;
 import org.mozilla.javascript.NativeJavaMethod;
@@ -840,7 +841,8 @@ public class JSApplication implements IReturnedTypesProvider
 				IValueList valuelist = ComponentFactory.getRealValueList(application, vl, true, Types.OTHER, null, null);
 				if (valuelist != null)
 				{
-					NativeArray retval = new NativeArray();
+					// TODO check if this works
+					NativeArray retval = (NativeArray)Context.getCurrentContext().newArray(application.getScriptEngine().getSolutionScope(), 0);
 					retval.setPrototype(ScriptableObject.getClassPrototype(application.getScriptEngine().getSolutionScope(), "Array"));
 					for (int i = 0; i < valuelist.getSize(); i++)
 					{
