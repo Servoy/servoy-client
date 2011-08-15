@@ -3202,7 +3202,6 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		switch (mode)
 		{
 			case IModeManager.FIND_MODE :
-				Context.setDispatchingEventsEnabled(false);
 				formModel.setFindMode();
 				break;
 
@@ -3218,7 +3217,6 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 						application.handleException(application.getI18NMessage("servoy.formPanel.error.searchFailed"), e); //$NON-NLS-1$
 					}
 				}
-				Context.setDispatchingEventsEnabled(true);
 				break;
 		}
 		return true;
