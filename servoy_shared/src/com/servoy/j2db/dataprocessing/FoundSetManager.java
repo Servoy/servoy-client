@@ -55,7 +55,6 @@ import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.Table;
-import com.servoy.j2db.query.BooleanCondition;
 import com.servoy.j2db.query.IQueryElement;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.QueryAggregate;
@@ -2054,32 +2053,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	 * 
 	 * @return
 	 */
-	public boolean testClientDataSources()
+	public boolean hasClientDataSources()
 	{
 		// in-memory data sources
-		Iterator<ITable> tempTables = inMemDataSources.values().iterator();
-		IDataServer ds = application.getDataServer();
-
-		try
-		{
-			while (tempTables.hasNext())
-			{
-				Table tempTable = (Table)tempTables.next();
-
-				// select 1 from temptable where 1 = 2
-				QuerySelect testSelect = new QuerySelect(new QueryTable(tempTable.getSQLName(), tempTable.getCatalog(), tempTable.getSchema()));
-				testSelect.addColumn(new QueryColumnValue(Integer.valueOf(1), "tst", true)); //$NON-NLS-1$
-				testSelect.addCondition("test", BooleanCondition.FALSE_CONDITION); //$NON-NLS-1$
-				ds.performQuery(application.getClientID(), tempTable.getServerName(), null, testSelect, null, false, 0, 1, IDataServer.FIND_BROWSER_QUERY);
-			}
-		}
-		catch (Exception e)
-		{
-			Debug.error(e);
-			return false;
-		}
-
-		return true;
+		return inMemDataSources.size() > 0;
 	}
 
 	/**
