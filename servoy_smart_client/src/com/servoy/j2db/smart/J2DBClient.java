@@ -3855,6 +3855,15 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 					if (((FoundSetManager)getFoundSetManager()).hasLocks(null) || ((FoundSetManager)getFoundSetManager()).hasTransaction() ||
 						!((FoundSetManager)getFoundSetManager()).testClientDataSources())
 					{
+						try
+						{
+							getDataServer().logMessage("Client reconnected with id " + getClientID() + " from id " + prevClientId + ", client needs to restart");
+						}
+						catch (Exception ex)
+						{
+							// ignore
+						}
+
 						invokeLater(new Runnable()
 						{
 							public void run()
@@ -3871,6 +3880,8 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 								}
 								disconnectDialog.setVisible(false);
 								closeSolution(true, null);
+								// logout to make sure the login solution is reloaded in case the main solution needs state from the login solution
+								logout(null);
 							}
 						});
 						return;
