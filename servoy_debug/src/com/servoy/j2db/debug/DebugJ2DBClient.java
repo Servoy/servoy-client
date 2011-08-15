@@ -31,6 +31,8 @@ import java.beans.Introspector;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLStreamHandler;
+import java.rmi.Remote;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -656,6 +658,18 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	@Override
 	protected void bindUserClient()
 	{
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.smart.J2DBClient#exportObject(java.rmi.Remote)
+	 */
+	@Override
+	public synchronized int exportObject(Remote object) throws RemoteException
+	{
+		// don't export in debug client
+		return -1;
 	}
 
 	@Override
