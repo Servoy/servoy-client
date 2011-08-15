@@ -19,20 +19,18 @@ package com.servoy.j2db.scripting;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.JavaMembers;
-import org.mozilla.javascript.MemberBox;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
 import com.servoy.j2db.dataprocessing.DataException;
-import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.documentation.XMLScriptObjectAdapter;
+import com.servoy.j2db.util.Debug;
 
 /**
  * @author jcompagner
@@ -192,18 +190,17 @@ public class ScriptObjectRegistry
 							}
 						}
 
+						/*
+						 * (non-Javadoc)
+						 * 
+						 * @see com.servoy.j2db.scripting.InstanceJavaMembers#isJsMethod(java.lang.String)
+						 */
 						@Override
-						protected void reflectMethod(Hashtable ht, String name, Scriptable scope, MemberBox[] methodBoxes)
+						protected boolean isJsMethod(String name)
 						{
-							if ((name.startsWith("js_") || name.startsWith("jsFunction_")) && !"js_isServoyException".equals(name)) //$NON-NLS-1$ //$NON-NLS-2$
-							{
-								super.reflectMethod(ht, name, scope, methodBoxes);
-							}
-							else
-							{
-								ht.remove(name);
-							}
+							return (name.startsWith("js_") || name.startsWith("jsFunction_")) && !"js_isServoyException".equals(name);
 						}
+
 					};
 				}
 				jm = ijm;

@@ -20,14 +20,15 @@ package com.servoy.j2db.scripting;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.mozilla.javascript.ClassCache;
 import org.mozilla.javascript.JavaMembers;
-import org.mozilla.javascript.MemberBox;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.util.keyword.Ident;
@@ -63,21 +64,29 @@ public class InstanceJavaMembers extends JavaMembers
 		}
 	}
 
-	/**
-	 * @see JavaMembers#reflectMethod(Scriptable, Method)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mozilla.javascript.JavaMembers#discoverAccessibleMethods(java.lang.Class, boolean, boolean)
 	 */
 	@Override
-	protected void reflectMethod(Hashtable ht, String name, Scriptable scope, MemberBox[] methodBoxes)
+	protected final Method[] discoverAccessibleMethods(Class< ? > clazz, boolean includeProtected, boolean includePrivate)
 	{
-		if (name.startsWith("js_") || name.startsWith("jsFunction_")) //$NON-NLS-1$ //$NON-NLS-2$
+		Method[] discoverAccessibleMethods = super.discoverAccessibleMethods(clazz, includeProtected, includePrivate);
+		List<Method> lst = new ArrayList<Method>(discoverAccessibleMethods.length);
+		for (Method discoverAccessibleMethod : discoverAccessibleMethods)
 		{
-			super.reflectMethod(ht, name, scope, methodBoxes);
+			if (isJsMethod(discoverAccessibleMethod.getName()))
+			{
+				lst.add(discoverAccessibleMethod);
+			}
 		}
-		else
-		{
-			ht.remove(name);
-		}
-		//ignore the rest
+		return lst.toArray(new Method[lst.size()]);
+	}
+
+	protected boolean isJsMethod(String name)
+	{
+		return name.startsWith("js_") || name.startsWith("jsFunction_");
 	}
 
 	/**
@@ -86,35 +95,54 @@ public class InstanceJavaMembers extends JavaMembers
 	@Override
 	protected void makeBeanProperties(boolean isStatic)
 	{
-		Hashtable ht = isStatic ? staticMembers : members;
-		Enumeration enumeration = ht.keys();
-		while (enumeration.hasMoreElements())
+		Map<String, Object> ht = isStatic ? staticMembers : members;
+		Map<String, Object> copy = new HashMap<String, Object>(ht);
+		Iterator<String> enumeration = ht.keySet().iterator();
+		while (enumeration.hasNext())
 		{
-			String name = (String)enumeration.nextElement();
+			String name = enumeration.next();
 			if (name.startsWith("js_")) //$NON-NLS-1$
 			{
 				String newName = name.substring(3);
 				if (!Ident.checkIfKeyword(newName))
 				{
-					Object value = ht.remove(name);
-					ht.put(newName, value);
+					Object value = copy.remove(name);
+					copy.put(newName, value);
 				}
 			}
 		}
-		super.makeBeanProperties(isStatic);
-		enumeration = ht.keys();
-		while (enumeration.hasMoreElements())
+		ht = copy;
+		if (isStatic)
 		{
-			String name = (String)enumeration.nextElement();
+			staticMembers = ht;
+		}
+		else
+		{
+			members = ht;
+		}
+		super.makeBeanProperties(isStatic);
+		copy = new HashMap<String, Object>(ht);
+		enumeration = ht.keySet().iterator();
+		while (enumeration.hasNext())
+		{
+			String name = enumeration.next();
 			if (name.startsWith("jsFunction_")) //$NON-NLS-1$
 			{
 				String newName = name.substring(11);
 				if (!Ident.checkIfKeyword(newName))
 				{
-					Object value = ht.remove(name);
-					ht.put(newName, value);
+					Object value = copy.remove(name);
+					copy.put(newName, value);
 				}
 			}
+		}
+		if (isStatic)
+		{
+			staticMembers = copy;
+		}
+		else
+		{
+			members = copy;
 		}
 	}
 
@@ -143,7 +171,7 @@ public class InstanceJavaMembers extends JavaMembers
 	static void registerClass(Scriptable scope, Class< ? > cls, InstanceJavaMembers ijm)
 	{
 		ClassCache cache = ClassCache.get(scope);
-		Hashtable ct = cache.getClassTable();
+		Map<Class< ? >, JavaMembers> ct = cache.getClassCacheMap();
 
 		ct.put(cls, ijm);
 	}
@@ -151,7 +179,7 @@ public class InstanceJavaMembers extends JavaMembers
 	public static void deRegisterClass(Scriptable scope)
 	{
 		ClassCache cache = ClassCache.get(scope);
-		cache.getClassTable().clear();
+		cache.getClassCacheMap().clear();
 		cache = null;
 
 	}
