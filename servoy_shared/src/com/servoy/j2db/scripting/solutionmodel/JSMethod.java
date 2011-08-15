@@ -22,9 +22,9 @@ import org.mozilla.javascript.CompilerEnvirons;
 import org.mozilla.javascript.EcmaError;
 import org.mozilla.javascript.ErrorReporter;
 import org.mozilla.javascript.EvaluatorException;
-import org.mozilla.javascript.FunctionNode;
 import org.mozilla.javascript.Parser;
-import org.mozilla.javascript.ScriptOrFnNode;
+import org.mozilla.javascript.ast.AstRoot;
+import org.mozilla.javascript.ast.FunctionNode;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -239,13 +239,13 @@ public class JSMethod implements IJavaScriptType
 		Parser parser = new Parser(cenv, new JSErrorReporter());
 		try
 		{
-			ScriptOrFnNode parse = parser.parse(new CharArrayReader(content.toCharArray()), "", 0); //$NON-NLS-1$
+			AstRoot parse = parser.parse(new CharArrayReader(content.toCharArray()), "", 0); //$NON-NLS-1$
 
 			int functionCount = parse.getFunctionCount();
 			if (functionCount != 1) throw new RuntimeException("Only 1 function is allowed, found: " + functionCount + " when setting code of a method"); //$NON-NLS-1$ //$NON-NLS-2$
 
 			FunctionNode functionNode = parse.getFunctionNode(0);
-			String name = functionNode.getFunctionName();
+			String name = functionNode.getFunctionName().getIdentifier();
 			return name;
 		}
 		catch (Exception e)
