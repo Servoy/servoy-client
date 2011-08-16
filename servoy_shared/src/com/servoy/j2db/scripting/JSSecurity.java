@@ -1054,8 +1054,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	 * Example: Group names may be received from LDAP (Lightweight Directory Access Protocol) - a standard protocol used in web browsers and email applications to enable lookup queries that access a directory listing. 
 	 *
 	 * @sample
-	 * var groups = new Array()
-	 * groups[0] = 'Administrators'; //normally these groups are for example received from LDAP
+	 * var groups = ['Administrators']; //normally these groups are for example received from LDAP
 	 * var user_uid = globals.email; //also this uid might be received from external authentication method
 	 * var ok =  security.login(globals.username, user_uid , groups)
 	 * if (!ok)
