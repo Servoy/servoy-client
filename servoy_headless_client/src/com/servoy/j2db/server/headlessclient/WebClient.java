@@ -127,9 +127,9 @@ public class WebClient extends SessionClient implements IWebClientApplication
 					String hostname = clientInfo.getProperties().getHostname();
 					try
 					{
-						if (hostname.startsWith("http://"))
+						if (hostname.startsWith("http"))
 						{
-							int index = hostname.indexOf('/', "http:// ".length());
+							int index = hostname.indexOf('/', 8); //8 is to skip http:// or https://
 							if (index == -1)
 							{
 								return new URL(hostname);
@@ -877,8 +877,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		}
 	}
 
-	public void onEndRequest(@SuppressWarnings("unused")
-	WebClientSession webClientSession)
+	public void onEndRequest(@SuppressWarnings("unused") WebClientSession webClientSession)
 	{
 	}
 
