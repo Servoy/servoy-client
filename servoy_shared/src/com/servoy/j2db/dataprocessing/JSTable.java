@@ -212,4 +212,31 @@ public class JSTable implements IReturnedTypesProvider, Wrapper, IJavaScriptType
 	{
 		return server;
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (obj instanceof JSTable)
+		{
+			return table.equals(((JSTable)obj).table);
+
+		}
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode()
+	{
+		return table.hashCode();
+	}
 }
