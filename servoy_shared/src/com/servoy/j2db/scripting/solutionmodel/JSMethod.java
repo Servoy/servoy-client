@@ -22,6 +22,7 @@ import org.mozilla.javascript.CompilerEnvirons;
 import org.mozilla.javascript.EcmaError;
 import org.mozilla.javascript.ErrorReporter;
 import org.mozilla.javascript.EvaluatorException;
+import org.mozilla.javascript.IRFactory;
 import org.mozilla.javascript.Parser;
 import org.mozilla.javascript.ast.AstRoot;
 import org.mozilla.javascript.ast.FunctionNode;
@@ -240,6 +241,7 @@ public class JSMethod implements IJavaScriptType
 		try
 		{
 			AstRoot parse = parser.parse(new CharArrayReader(content.toCharArray()), "", 0); //$NON-NLS-1$
+			new IRFactory(cenv, new JSErrorReporter()).transformTree(parse);
 
 			int functionCount = parse.getFunctionCount();
 			if (functionCount != 1) throw new RuntimeException("Only 1 function is allowed, found: " + functionCount + " when setting code of a method"); //$NON-NLS-1$ //$NON-NLS-2$
