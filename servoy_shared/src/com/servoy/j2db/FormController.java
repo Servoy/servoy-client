@@ -1848,6 +1848,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			executeFormMethod(form.getOnUnLoadMethodID(), args, "onUnLoadMethodID", true, true); //$NON-NLS-1$
 			containerImpl.destroy();
 
+			application.getFoundSetManager().getEditRecordList().removePrepareForSave(this);
 			((FoundSetManager)application.getFoundSetManager()).removeFoundSetListener(this);
 
 			if (fm != null) fm.removeFormPanel(this);
