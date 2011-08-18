@@ -25,8 +25,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
@@ -36,7 +36,6 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.IdFunctionObject;
 import org.mozilla.javascript.IdScriptableObject;
 import org.mozilla.javascript.NativeJavaArray;
-import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
@@ -1678,7 +1677,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 					dataset.js_addHTMLProperty(rowIdx, columnIndex, ScriptRuntime.toString(args[2]), ScriptRuntime.toString(args[3]));
 					return ScriptRuntime.NaNobj;
 				case Id_getAsTableModel :
-					return dataset.js_getAsTableModel();
+					return cx.getWrapFactory().wrap(cx, scope, dataset.js_getAsTableModel(), null);
 				case Id_createDataSource :
 					return dataset.js_createDataSource(ScriptRuntime.toString(args[0]), args.length > 1 ? args[1] : null);
 				case Id_getAsHTML :
@@ -1688,7 +1687,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 						ScriptRuntime.toBoolean(args[3]));
 				case Id_getColumnAsArray :
 					columnIndex = (int)ScriptRuntime.toInteger(args[0]);
-					return NativeJavaObject.wrap(scope, dataset.js_getColumnAsArray(columnIndex), Object[].class);
+					return cx.getWrapFactory().wrap(cx, scope, dataset.js_getColumnAsArray(columnIndex), Object[].class);
 				case Id_getColumnName :
 					columnIndex = (int)ScriptRuntime.toInteger(args[0]);
 					return dataset.js_getColumnName(columnIndex);
@@ -1705,7 +1704,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 				case Id_getValue :
 					rowIdx = (int)ScriptRuntime.toInteger(args[0]);
 					columnIndex = (int)ScriptRuntime.toInteger(args[1]);
-					return dataset.js_getValue(rowIdx, columnIndex);
+					return cx.getWrapFactory().wrap(cx, scope, dataset.js_getValue(rowIdx, columnIndex), null);
 				case Id_hadMoreData :
 					return dataset.js_hadMoreData() ? Boolean.TRUE : Boolean.FALSE;
 				case Id_setRowIndex :
@@ -1717,7 +1716,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 					return ScriptRuntime.NaNobj;
 				case Id_getRowAsArray :
 					rowIdx = (int)ScriptRuntime.toInteger(args[0]);
-					return NativeJavaObject.wrap(scope, dataset.js_getRowAsArray(rowIdx), Object[].class);
+					return cx.getWrapFactory().wrap(cx, scope, dataset.js_getRowAsArray(rowIdx), Object[].class);
 				case Id_removeRow :
 					rowIdx = (int)ScriptRuntime.toInteger(args[0]);
 					dataset.js_removeRow(rowIdx);
