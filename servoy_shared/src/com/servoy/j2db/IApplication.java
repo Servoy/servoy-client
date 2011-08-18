@@ -376,4 +376,9 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 * Loose the focus, helpfull to get an cursor out of the fields.
 	 */
 	public void looseFocus();
+
+	/**
+	 * @param time
+	 */
+	public void updateUI(int time);
 }

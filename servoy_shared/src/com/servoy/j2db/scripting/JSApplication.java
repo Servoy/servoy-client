@@ -2546,43 +2546,13 @@ public class JSApplication implements IReturnedTypesProvider
 	 */
 	public void js_updateUI(Object[] args)
 	{
-		FormController currentForm = (FormController)application.getFormManager().getCurrentForm();
-		if (currentForm != null)
-		{
-			currentForm.getFormUI().updateFormUI();
-		}
 		int time = 100;
 		if (args != null && args.length > 0)
 		{
 			time = Utils.getAsInteger(args[0]);
 			if (time < 100) time = 100;
 		}
-		long endTime = System.currentTimeMillis() + time;
-		try
-		{
-			do
-			{
-				SwingHelper.dispatchEvents(time);
-				if (System.currentTimeMillis() > endTime)
-				{
-					break;
-				}
-				try
-				{
-					Thread.sleep(100);
-					time = (int)(endTime - System.currentTimeMillis());
-				}
-				catch (InterruptedException e)
-				{
-					// ignore
-				}
-			}
-			while (time > 0);
-		}
-		catch (Exception ex)
-		{
-			Debug.error(ex);
-		}
+		application.updateUI(time);
 
 	}
 

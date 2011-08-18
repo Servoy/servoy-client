@@ -363,6 +363,46 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		return "Servoy Client"; //$NON-NLS-1$
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.IApplication#updateUI(int)
+	 */
+	public void updateUI(int time)
+	{
+		FormController currentForm = (FormController)getFormManager().getCurrentForm();
+		if (currentForm != null)
+		{
+			currentForm.getFormUI().updateFormUI();
+		}
+		long endTime = System.currentTimeMillis() + time;
+		try
+		{
+			do
+			{
+				SwingHelper.dispatchEvents(time);
+				if (System.currentTimeMillis() > endTime)
+				{
+					break;
+				}
+				try
+				{
+					Thread.sleep(100);
+					time = (int)(endTime - System.currentTimeMillis());
+				}
+				catch (InterruptedException e)
+				{
+					// ignore
+				}
+			}
+			while (time > 0);
+		}
+		catch (Exception ex)
+		{
+			Debug.error(ex);
+		}
+	}
+
 	public String getDisplayApplicationName()
 	{
 		String appName = getApplicationName();

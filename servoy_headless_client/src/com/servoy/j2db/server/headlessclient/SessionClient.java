@@ -293,6 +293,16 @@ public class SessionClient extends ClientState implements ISessionClient
 		// Note that getSolution() may return null at this point if the security.closeSolution() or security.logout() was called in onSolutionOpen
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.IApplication#updateUI(int)
+	 */
+	public void updateUI(int time)
+	{
+		// no use for session/webclients/headless clients
+	}
+
 
 	@Override
 	protected SolutionMetaData showSolutionSelection(SolutionMetaData[] solutions)
