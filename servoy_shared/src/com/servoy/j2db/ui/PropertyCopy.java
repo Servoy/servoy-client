@@ -106,6 +106,16 @@ public class PropertyCopy
 		copy.setOpaque(org.isOpaque());
 		copy.setFont(org.getFont());
 
+		if (org instanceof IFieldComponent && copy instanceof IFieldComponent)
+		{
+			((IFieldComponent)copy).setFormat((((IFieldComponent)org).getDataType()), (((IFieldComponent)org).getFormat()));
+		}
+		if (org instanceof ILabel && copy instanceof ILabel)
+		{
+			((ILabel)copy).setMediaIcon(((ILabel)org).getMediaIcon());
+			((ILabel)copy).setText(((ILabel)org).getText());
+		}
+
 		if (org instanceof IScriptableProvider && copy instanceof IScriptableProvider)
 		{
 			IScriptable source = ((IScriptableProvider)org).getScriptObject();
@@ -144,16 +154,6 @@ public class PropertyCopy
 			}
 		}
 
-
-		if (org instanceof IFieldComponent && copy instanceof IFieldComponent)
-		{
-			((IFieldComponent)copy).setFormat((((IFieldComponent)org).getDataType()), (((IFieldComponent)org).getFormat()));
-		}
-		if (org instanceof ILabel && copy instanceof ILabel)
-		{
-			((ILabel)copy).setMediaIcon(((ILabel)org).getMediaIcon());
-			((ILabel)copy).setText(((ILabel)org).getText());
-		}
 
 		if (org instanceof IProviderStylePropertyChanges && copy instanceof IProviderStylePropertyChanges)
 		{
