@@ -1660,7 +1660,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 
 	public void setComponentVisible(boolean b_visible)
 	{
-		if (viewable)
+		if (viewable || !b_visible)
 		{
 			setVisible(b_visible);
 		}

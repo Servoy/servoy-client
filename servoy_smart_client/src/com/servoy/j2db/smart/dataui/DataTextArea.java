@@ -847,7 +847,7 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 
 	public void setComponentVisible(boolean b_visible)
 	{
-		if (viewable)
+		if (viewable || !b_visible)
 		{
 			setVisible(b_visible);
 		}
@@ -890,7 +890,7 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 
 	public void setComponentEnabled(final boolean b)
 	{
-		if (accessible)
+		if (accessible || !b)
 		{
 			super.setEnabled(b);
 			if (labels != null)

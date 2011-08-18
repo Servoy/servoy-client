@@ -1131,7 +1131,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	 */
 	public void setComponentVisible(boolean visible)
 	{
-		if (viewable)
+		if (viewable || !visible)
 		{
 			setVisible(visible);
 			if (labels != null)
@@ -1159,7 +1159,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 
 	public void setComponentEnabled(final boolean b)
 	{
-		if (accessible)
+		if (accessible || !b)
 		{
 			super.setEnabled(b);
 			getStylePropertyChanges().setChanged();

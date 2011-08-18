@@ -287,13 +287,16 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 	@Override
 	public void setComponentVisible(boolean visible)
 	{
-		super.setComponentVisible(visible);
-		if (labels != null)
+		if (isViewable() || !visible)
 		{
-			for (int i = 0; i < labels.size(); i++)
+			super.setComponentVisible(visible);
+			if (labels != null)
 			{
-				ILabel label = labels.get(i);
-				label.setComponentVisible(visible);
+				for (int i = 0; i < labels.size(); i++)
+				{
+					ILabel label = labels.get(i);
+					label.setComponentVisible(visible);
+				}
 			}
 		}
 	}
@@ -301,9 +304,9 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 	@Override
 	public void setComponentEnabled(final boolean b)
 	{
-		super.setComponentEnabled(b);
-		if (accessible)
+		if (accessible || !b)
 		{
+			super.setComponentEnabled(b);
 			if (labels != null)
 			{
 				for (int i = 0; i < labels.size(); i++)

@@ -1184,7 +1184,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 
 	public void setComponentVisible(boolean b_visible)
 	{
-		if (viewable)
+		if (viewable || !b_visible)
 		{
 			setVisible(b_visible);
 		}
@@ -1226,7 +1226,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 
 	public void setComponentEnabled(final boolean b)
 	{
-		if (accessible)
+		if (accessible || !b)
 		{
 			super.setEnabled(b);
 			if (labels != null)

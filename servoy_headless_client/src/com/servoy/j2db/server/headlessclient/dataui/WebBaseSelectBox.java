@@ -702,7 +702,7 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 	 */
 	public void setComponentVisible(boolean visible)
 	{
-		if (viewable)
+		if (viewable || !visible)
 		{
 			setVisible(visible);
 			if (labels != null)
@@ -729,7 +729,7 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 
 	public void setComponentEnabled(final boolean b)
 	{
-		if (accessible)
+		if (accessible || !b)
 		{
 			editState = b;
 			super.setEnabled(b);

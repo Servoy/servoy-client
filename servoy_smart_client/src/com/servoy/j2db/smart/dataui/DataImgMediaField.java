@@ -1182,7 +1182,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 
 	public void setComponentEnabled(final boolean b)
 	{
-		if (accessible)
+		if (accessible || !b)
 		{
 			super.setEnabled(b);
 			if (labels != null)
@@ -1229,7 +1229,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 
 	public void setComponentVisible(boolean b_visible)
 	{
-		if (viewable)
+		if (viewable || !b_visible)
 		{
 			setVisible(b_visible);
 		}

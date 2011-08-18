@@ -483,7 +483,7 @@ public class DataCheckBox extends JCheckBox implements IFieldComponent, IDisplay
 
 	public void setComponentEnabled(final boolean b)
 	{
-		if (accessible)
+		if (accessible || !b)
 		{
 			editState = b;
 			enabled = b;
@@ -570,7 +570,7 @@ public class DataCheckBox extends JCheckBox implements IFieldComponent, IDisplay
 
 	public void setComponentVisible(boolean b_visible)
 	{
-		if (viewable)
+		if (viewable || !b_visible)
 		{
 			setVisible(b_visible);
 		}

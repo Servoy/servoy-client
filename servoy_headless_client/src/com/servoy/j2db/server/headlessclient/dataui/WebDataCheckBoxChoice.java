@@ -816,7 +816,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 	 */
 	public void setComponentVisible(boolean visible)
 	{
-		if (viewable)
+		if (viewable || !visible)
 		{
 			setVisible(visible);
 			if (labels != null)

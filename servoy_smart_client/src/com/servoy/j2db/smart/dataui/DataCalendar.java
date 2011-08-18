@@ -436,7 +436,7 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 
 	public void setComponentVisible(boolean b_visible)
 	{
-		if (viewable)
+		if (viewable || !b_visible)
 		{
 			setVisible(b_visible);
 		}
@@ -464,7 +464,7 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 
 	public void setComponentEnabled(final boolean b)
 	{
-		if (accessible)
+		if (accessible || !b)
 		{
 			super.setEnabled(b);
 			if (b && readOnly) showCal.setEnabled(false);
