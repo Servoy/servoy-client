@@ -492,6 +492,7 @@ public class SQLKeywords
 
 		// PostgreSQL
 	"domains", 
+	"offset", 
 
 		// Oracle
 	"uid", 
