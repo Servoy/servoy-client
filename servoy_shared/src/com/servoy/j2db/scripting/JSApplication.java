@@ -1857,21 +1857,48 @@ public class JSApplication implements IReturnedTypesProvider
 	 * var uuid_object1 = application.getUUID(new_uuid_object.toString()); // convert a string representing an uuid to an uuid object
 	 * var uuid_object2 = application.getUUID(new_uuid_object.toBytes());  // convert a byte array representing an uuid to an uuid object
 	 *
-	 * @param uuidStringOrByteArray optional String or byte array representing an uuid
+	 * @return The new UUID object
+	 */
+	public UUID js_getUUID()
+	{
+		return Utils.getAsUUID(UUID.randomUUID().toString(), false);
+	}
+
+
+	/**
+	 * Get a new UUID object (also known as GUID) or convert the parameter (that can be string or byte array) to an UUID object. A table column marked as UUID will work with such objects.
+	 *
+	 * @sample
+	 * var new_uuid_object = application.getUUID(); // generate new uuid object
+	 * var uuid_object1 = application.getUUID(new_uuid_object.toString()); // convert a string representing an uuid to an uuid object
+	 * var uuid_object2 = application.getUUID(new_uuid_object.toBytes());  // convert a byte array representing an uuid to an uuid object
+	 *
+	 * @param uuidString String representing an uuid
 	 * 
 	 * @return The new UUID object
 	 */
-	public UUID js_getUUID(Object... args)
+	public UUID js_getUUID(String uuidString)
 	{
-		Object value = null;
-		if (args != null && args.length > 0) value = args[0];
-		UUID uuid = null;
-		if (value == null)
-		{
-			value = UUID.randomUUID().toString();
-		}
-		uuid = Utils.getAsUUID(value, false);
-		return uuid;
+		if (uuidString == null) return js_getUUID();
+		return Utils.getAsUUID(uuidString, false);
+	}
+
+	/**
+	 * Get a new UUID object (also known as GUID) or convert the parameter (that can be string or byte array) to an UUID object. A table column marked as UUID will work with such objects.
+	 *
+	 * @sample
+	 * var new_uuid_object = application.getUUID(); // generate new uuid object
+	 * var uuid_object1 = application.getUUID(new_uuid_object.toString()); // convert a string representing an uuid to an uuid object
+	 * var uuid_object2 = application.getUUID(new_uuid_object.toBytes());  // convert a byte array representing an uuid to an uuid object
+	 *
+	 * @param byteArray Byte array representing an uuid
+	 * 
+	 * @return The new UUID object
+	 */
+	public UUID js_getUUID(byte[] byteArray)
+	{
+		if (byteArray == null) return js_getUUID();
+		return Utils.getAsUUID(byteArray, false);
 	}
 
 	/**
