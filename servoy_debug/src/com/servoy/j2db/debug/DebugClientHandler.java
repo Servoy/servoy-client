@@ -352,7 +352,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	{
 		if (jsunitJ2DBClient == null)
 		{
-			jsunitJ2DBClient = createDebugSmartClient();
+			jsunitJ2DBClient = createJSUnitClient();
 			jsunitJ2DBClient.setUnitTestMode(true);
 		}
 		return jsunitJ2DBClient;
@@ -443,6 +443,124 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 			Debug.error(ex);
 		}
 		return client[0];
+	}
+
+	private DebugJ2DBClient createJSUnitClient()
+	{
+		if (!ApplicationServerSingleton.waitForInstanceStarted())
+		{
+			return null;
+		}
+		final DebugJ2DBClient[] client = new DebugJ2DBClient[1];
+		try
+		{
+			Runnable run = new Runnable()
+			{
+				public void run()
+				{
+					try
+					{
+						synchronized (ApplicationServerSingleton.get())
+						{
+							if (client[0] == null)
+							{
+								try
+								{
+									if (Utils.isAppleMacOS())
+									{
+										// added a small sleep time to fix blank screens on macs for the smart debug client.
+										// this occurred when starting the smart client triggers another action (like switching
+										// perspective) that keeps the SWT thread busy while creating the JFrame for the client
+										Thread.sleep(3000);
+									}
+									// wait for servoy model to be initialised
+									// Note: this is needed on the mac! Without it the
+									// debug smart client sometimes does not paint in serclipse (The swt main
+									// thread must not be busy when the debug smart client is created).
+									modelInitialised.await(30, TimeUnit.SECONDS);
+								}
+								catch (InterruptedException e)
+								{
+									Debug.log(e);
+								}
+
+								client[0] = new DebugJ2DBClient(DebugClientHandler.this)
+								{
+									private final List<Runnable> events = new ArrayList<Runnable>();
+
+									@Override
+									public void updateUI(int time)
+									{
+										runEvents();
+										super.updateUI(time);
+									}
+
+									/**
+									 * 
+									 */
+									private void runEvents()
+									{
+										if (events.size() == 0) return;
+										Runnable[] runnables = events.toArray(new Runnable[events.size()]);
+										events.clear();
+										for (Runnable runnable : runnables)
+										{
+											runnable.run();
+										}
+										runEvents();
+									};
+
+									@Override
+									public void invokeAndWait(Runnable r)
+									{
+										super.invokeAndWait(r);
+									};
+
+									@Override
+									public void invokeLater(Runnable r, boolean immediate)
+									{
+										invokeLater(r);
+									};
+
+									@Override
+									public void invokeLater(Runnable r)
+									{
+										events.add(r);
+										super.invokeLater(new Runnable()
+										{
+
+											public void run()
+											{
+												runEvents();
+											}
+										});
+									};
+								};
+								client[0].setCurrent(currentSolution);
+							}
+						}
+					}
+					catch (Exception e)
+					{
+						Debug.error("Cannot create DebugJ2DBClient", e);
+					}
+				}
+			};
+			if (SwingUtilities.isEventDispatchThread())
+			{
+				run.run();
+			}
+			else
+			{
+				SwingUtilities.invokeAndWait(run);
+			}
+		}
+		catch (Exception ex)
+		{
+			Debug.error(ex);
+		}
+		return client[0];
+
 	}
 
 	/**
