@@ -388,13 +388,13 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		return false;
 	}
 
-	synchronized List<Row> getRows(IDataSet pks, int row, int sizeHint) throws ServoyException
+	synchronized List<Row> getRows(IDataSet pks, int row, int sizeHint, boolean queryAll) throws ServoyException
 	{
 		List<Row> retval = new SafeArrayList<Row>();
 		if (row >= pks.getRowCount()) return retval;
 
 		Object[] pk = pks.getRow(row);
-		Row rowData = getCachedRow(pk).getLeft();
+		Row rowData = queryAll ? null : getCachedRow(pk).getLeft();
 		if (rowData == null)
 		{
 			String transaction_id = null;

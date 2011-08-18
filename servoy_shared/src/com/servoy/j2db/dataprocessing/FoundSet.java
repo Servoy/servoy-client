@@ -2523,7 +2523,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				sizeHint = ((cachedRecords.get(row + 1) != null || pks.getRowCount() == 1) ? 1 : a_sizeHint);
 			}
 			int oldSize = pks.getRowCount();
-			List<Row> rows = rowManager.getRows(pks, startRow, sizeHint);
+			List<Row> rows = rowManager.getRows(pks, startRow, sizeHint, false);
 			//construct States
 			for (int r = rows.size(); --r >= 0;)
 			{
@@ -2545,7 +2545,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			retval = (Record)cachedRecords.get(row);
 			if (retval == null)
 			{
-				rows = rowManager.getRows(pks, row, 1);
+				rows = rowManager.getRows(pks, row, 1, false);
 				if (rows.size() == 1)
 				{
 					Row rowData = rows.get(0);

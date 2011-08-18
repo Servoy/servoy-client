@@ -1726,7 +1726,11 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				// in this case the insert notification is probably triggered by rawSQL; so we need to read the new rows from DB to get correct newly inserted content
 				try
 				{
-					insertedRows = rm.getRows(pks, 0, pks.getRowCount());
+					insertedRows = rm.getRows(pks, 0, pks.getRowCount(), false);
+					if (insertedRows.size() != pks.getRowCount())
+					{
+						insertedRows = rm.getRows(pks, 0, pks.getRowCount(), true);
+					}
 				}
 				catch (ServoyException e)
 				{
