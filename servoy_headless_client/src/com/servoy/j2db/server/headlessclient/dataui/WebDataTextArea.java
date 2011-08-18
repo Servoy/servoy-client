@@ -694,7 +694,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	 */
 	public void setComponentVisible(boolean visible)
 	{
-		if (viewable)
+		if (viewable || !visible)
 		{
 			setVisible(visible);
 			if (labels != null)
@@ -723,7 +723,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 
 	public void setComponentEnabled(final boolean b)
 	{
-		if (accessible)
+		if (accessible || !b)
 		{
 			super.setEnabled(b);
 			((ChangesRecorder)getStylePropertyChanges()).setChanged();

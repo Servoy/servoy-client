@@ -868,7 +868,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	 */
 	public void setComponentVisible(boolean visible)
 	{
-		if (viewable)
+		if (viewable || !visible)
 		{
 			setVisible(visible);
 			if (labels != null)
@@ -900,7 +900,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 
 	public void setComponentEnabled(boolean b, boolean setLabels, boolean readOnly)
 	{
-		if (accessible)
+		if (accessible || !b)
 		{
 			enabledState = b;
 			super.setEnabled(b && !readOnly);

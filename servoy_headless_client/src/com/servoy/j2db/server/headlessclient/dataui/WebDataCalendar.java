@@ -637,7 +637,7 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 	 */
 	public void setComponentVisible(boolean visible)
 	{
-		if (viewable)
+		if (viewable || !visible)
 		{
 			setVisible(visible);
 			if (labels != null)
@@ -664,7 +664,7 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 
 	public void setComponentEnabled(final boolean b)
 	{
-		if (accessible)
+		if (accessible || !b)
 		{
 			super.setEnabled(b);
 			field.setEnabled(b);

@@ -404,7 +404,7 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 
 	public void setComponentVisible(boolean b_visible)
 	{
-		if (viewable)
+		if (viewable || !b_visible)
 		{
 			setVisible(b_visible);
 		}
@@ -437,7 +437,7 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 
 	public void setComponentEnabled(final boolean b)
 	{
-		if (accessible)
+		if (accessible || !b)
 		{
 			super.setEnabled(b);
 			if (labels != null)
