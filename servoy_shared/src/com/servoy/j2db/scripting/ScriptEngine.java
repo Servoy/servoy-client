@@ -482,6 +482,11 @@ public class ScriptEngine implements IScriptSupport
 	public Object executeFunction(Function f, Scriptable scope, Scriptable thisObject, Object[] args, boolean focusEvent, boolean throwException)
 		throws Exception
 	{
+		if (!application.isSolutionLoaded())
+		{
+			return null;
+		}
+
 		//find function
 		Object retValue = null;
 		if (f != null)
