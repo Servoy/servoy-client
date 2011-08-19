@@ -155,7 +155,7 @@ public class JSMethod implements IJavaScriptType
 		{
 			try
 			{
-				sm.updateName(new ScriptNameValidator(form.getApplication().getFlattenedSolution()), name);
+				sm.updateName(new ScriptNameValidator(application.getFlattenedSolution()), name);
 			}
 			catch (RepositoryException e)
 			{
