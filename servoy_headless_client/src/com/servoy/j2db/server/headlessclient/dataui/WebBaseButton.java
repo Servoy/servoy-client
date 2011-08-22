@@ -1103,7 +1103,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			if (imgURL != null)
 			{
 				StringBuffer sb = new StringBuffer("<img id=\"").append(imgID).append("\" src=\"").append(imgURL).append(
-					"\" style=\"vertical-align: middle;\">&nbsp;").append(bodyTextValue);
+					"\" style=\"vertical-align: middle;\"/>&nbsp;").append(bodyTextValue);
 				bodyTextValue = sb.toString();
 			}
 
@@ -1115,7 +1115,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			instrumentedBodyText.append(imgID);
 			instrumentedBodyText.append("\" src=\"");
 			instrumentedBodyText.append(imgURL);
-			instrumentedBodyText.append("\" align=\"middle\">");
+			instrumentedBodyText.append("\" align=\"middle\"/>");
 		}
 		instrumentedBodyText.append("</span>"); //$NON-NLS-1$
 
