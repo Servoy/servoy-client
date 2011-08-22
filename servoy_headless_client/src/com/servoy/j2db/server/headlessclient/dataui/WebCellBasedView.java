@@ -655,7 +655,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				{
 					return new FindStateItemModel(r);
 				}
-				else
+				else if (r != null)
 				{
 					return new FoundsetRecordItemModel(this, r, index);
 				}
