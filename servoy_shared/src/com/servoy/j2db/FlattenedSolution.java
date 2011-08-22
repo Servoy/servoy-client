@@ -16,7 +16,6 @@
  */
 package com.servoy.j2db;
 
-import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -640,7 +639,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		}
 	}
 
-	public void clearLoginSolution(IActiveSolutionHandler handler) throws IOException
+	public void clearLoginSolution(IActiveSolutionHandler handler)
 	{
 		if (loginFlattenedSolution != null)
 		{
@@ -1960,14 +1959,10 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				}
 			}
 		}
+
 		//remove the deleted calculation from the deletedPersists
-		for (ScriptCalculation sc : scriptCalculations)
-		{
-			if (removedPersist.contains(sc))
-			{
-				scriptCalculations.remove(sc);
-			}
-		}
+		scriptCalculations.removeAll(removedPersist);
+
 		return scriptCalculations.iterator();
 	}
 

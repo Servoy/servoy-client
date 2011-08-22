@@ -16,7 +16,6 @@
  */
 package com.servoy.j2db;
 
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -373,7 +372,6 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	 * @param userUidBefore
 	 * @param userUidAfter
 	 */
-	@SuppressWarnings("nls")
 	public void handleClientUserUidChanged(String userUidBefore, String userUidAfter)
 	{
 		if (userUidBefore == null && userUidAfter == null) return;
@@ -397,14 +395,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		else if (!userUidAfter.equals(userUidBefore))
 		{
 			// user logged in or switched user
-			try
-			{
-				solutionRoot.clearLoginSolution(getActiveSolutionHandler());
-			}
-			catch (IOException e)
-			{
-				Debug.error("Error clearing login solution", e);
-			}
+			solutionRoot.clearLoginSolution(getActiveSolutionHandler());
 		}
 
 		// open the solution previously selected or show solution selection
@@ -546,8 +537,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		// do nothing here
 	}
 
-	public void logout(@SuppressWarnings("unused")
-	Object[] solution_to_open_args)
+	public void logout(@SuppressWarnings("unused") Object[] solution_to_open_args)
 	{
 		String userUid = null;
 		try
@@ -1303,14 +1293,12 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		J2DBGlobals.removeAllPropertyChangeListeners(modeManager);
 	}
 
-	private void writeObject(@SuppressWarnings("unused")
-	ObjectOutputStream stream) throws IOException
+	private void writeObject(@SuppressWarnings("unused") ObjectOutputStream stream)
 	{
 		//serialize is not implemented
 	}
 
-	private void readObject(@SuppressWarnings("unused")
-	ObjectInputStream stream) throws IOException, ClassNotFoundException
+	private void readObject(@SuppressWarnings("unused") ObjectInputStream stream)
 	{
 		//serialize is not implemented
 	}
@@ -1622,8 +1610,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	public abstract void releaseGUI();
 
-	public void invokeLater(Runnable r, @SuppressWarnings("unused")
-	boolean immediate)
+	public void invokeLater(Runnable r, @SuppressWarnings("unused") boolean immediate)
 	{
 		invokeLater(r);
 	}
