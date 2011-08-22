@@ -1960,14 +1960,10 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				}
 			}
 		}
+
 		//remove the deleted calculation from the deletedPersists
-		for (ScriptCalculation sc : scriptCalculations)
-		{
-			if (removedPersist.contains(sc))
-			{
-				scriptCalculations.remove(sc);
-			}
-		}
+		scriptCalculations.removeAll(removedPersist);
+
 		return scriptCalculations.iterator();
 	}
 
