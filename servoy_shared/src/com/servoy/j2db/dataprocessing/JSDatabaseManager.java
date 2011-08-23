@@ -452,8 +452,9 @@ public class JSDatabaseManager
 					IDataProvider dp = application.getFlattenedSolution().getDataProviderForTable(table, dpnames[i]);
 
 
-					dptypes[i] = dp == null ? ColumnType.getInstance(0, 0, 0) : ColumnType.getInstance(dp instanceof Column ? ((Column)dp).getType()
-						: dp.getDataProviderType(), dp.getLength(), dp instanceof Column ? ((Column)dp).getScale() : 0);
+					dptypes[i] = dp == null ? ColumnType.getInstance(0, 0, 0) : ColumnType.getInstance(
+						dp instanceof Column ? ((Column)dp).getType() : dp.getDataProviderType(), dp.getLength(),
+						dp instanceof Column ? ((Column)dp).getScale() : 0);
 					if (getInOneQuery)
 					{
 						// only columns and data we can get from the foundset (calculations only when stored)
@@ -2552,6 +2553,30 @@ public class JSDatabaseManager
 		return false;
 	}
 
+	/**
+	 * Copies all matching non empty columns (if overwrite boolean is given all columns except pk/ident, if array then all columns except pk and array names).
+	 * returns true if no error did happen.
+	 * 
+	 * NOTE: This function could be used to store a copy of records in an archive table. Use the getRecord() function to get the record as an object. 
+	 *
+	 * @sample
+	 * for( var i = 1 ; i <= foundset.getSize() ; i++ )
+	 * {
+	 * 	var srcRecord = foundset.getRecord(i);
+	 * 	var destRecord = otherfoundset.getRecord(i);
+	 * 	if (srcRecord == null || destRecord == null) break;
+	 * 	databaseManager.copyMatchingColumns(srcRecord,destRecord,true)
+	 * }
+	 * //saves any outstanding changes to the dest foundset
+	 * controller.saveData();
+	 *
+	 * @param src The source record or object to be copied.
+	 * @param dest_record The destination record to copy to.
+	 * @param overwrite/array_of_names_not_overwritten optional true (default false) if everything can be overwritten or an array of names that shouldnt be overwritten.
+	 * 
+	 * @return true if no errors happend.
+	 * @deprecated see {@link #js_copyMatchingFields(Object[])}
+	 */
 	@Deprecated
 	public boolean js_copyMatchingColumns(Object[] values) throws ServoyException
 	{
