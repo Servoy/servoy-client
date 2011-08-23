@@ -262,7 +262,6 @@ public abstract class JarManager
 				}
 			}
 		}
-		System.err.println("Class: " + searchType + " === " + extensions);
 		return extensions.toArray(new Extension[extensions.size()]);
 	}
 
