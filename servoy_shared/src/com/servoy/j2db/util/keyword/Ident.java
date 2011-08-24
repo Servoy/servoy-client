@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util.keyword;
 
 import com.servoy.j2db.util.Utils;
@@ -26,102 +26,102 @@ import com.servoy.j2db.util.Utils;
 public class Ident
 {
 	public final static String[] keywords = new String[] { //Java or JS Related
-	"abstract", 
-	"double", 
-	"int", 
-	"strictfp", 
-	"boolean", 
-	"else", 
-	"interface", 
-	"super", 
-	"break", 
-	"extends", 
-	"long", 
-	"switch", 
-	"byte", 
-	"final", 
-	"native", 
-	"synchronized", 
-	"case", 
-	"finally", 
-	"new", 
-	"this", 
-	"catch", 
-	"float", 
-	"package", 
-	"throw", 
-	"char", 
-	"for", 
-	"private", 
-	"throws", 
-	"class", 
-	"goto", 
-	"protected", 
-	"transient", 
-	"const", 
-	"if", 
-	"public", 
-	"try", 
-	"continue", 
-	"implements", 
-	"return", 
-	"void", 
-	"default", 
-	"import", 
-	"short", 
-	"volatile", 
-	"do", 
-	"instanceof", 
-	"static", 
-	"while", 
+	"abstract", // 
+	"double", // 
+	"int", // 
+	"strictfp", // 
+	"boolean", // 
+	"else", // 
+	"interface", // 
+	"super", // 
+	"break", // 
+	"extends", // 
+	"long", // 
+	"switch", // 
+	"byte", // 
+	"final", // 
+	"native", // 
+	"synchronized", // 
+	"case", // 
+	"finally", // 
+	"new", // 
+	"this", // 
+	"catch", // 
+	"float", // 
+	"package", // 
+	"throw", // 
+	"char", // 
+	"for", // 
+	"private", // 
+	"throws", // 
+	"class", // 
+	"goto", // 
+	"protected", // 
+	"transient", // 
+	"const", // 
+	"if", // 
+	"public", // 
+	"try", // 
+	"continue", // 
+	"implements", // 
+	"return", // 
+	"void", // 
+	"default", // 
+	"import", // 
+	"short", // 
+	"volatile", // 
+	"do", // 
+	"instanceof", // 
+	"static", // 
+	"while", // 
 
-	//JS Related
-	"null", 
-	"export", 
-	"undefined", 
-	"constant", 
-	"function", 
-	"debugger", 
-	"in", 
-	"typeof", 
-	"native", 
-	"var", 
-	"enum", 
-	"export", 
-	"with", 
-	"delete", 
-	"date",//to prevent Date 
-	"array",//to prevent Array 
-	"arguments",//to prevent an dataprovider with the name arguments 
+		//JS Related
+	"null", // 
+	"export", // 
+	"undefined", // 
+	"constant", // 
+	"function", // 
+	"debugger", // 
+	"in", // 
+	"typeof", // 
+	"native", // 
+	"var", // 
+	"enum", // 
+	"export", // 
+	"with", // 
+	"delete", // 
+	"date", // to prevent Date 
+	"array", // to prevent Array 
+	"arguments", // to prevent an dataprovider with the name arguments 
 
-	//Standard j2db DOM things
-	"databaseManager", 
-	"application", 
-	"currentform", 
-	"currentcontroller", 
-	"currentRecordIndex", 
-	"history", 
-	"math", 
-	"form", 
-	"controller", 
-	"elements", 
-	"length", 
-	"globals", 
-	"plugins", 
-	"forms", 
-	"foundset", 
-	"model", 
-	"utils", 
-	"security", 
-	"recordIndex", 
-	"allnames", 
-	"allmethods", 
-	"allrelations", 
-	"allvariables", 
-	"exception", 
-	"jsunit", 
+		//Standard j2db DOM things
+	"databaseManager", // 
+	"application", // 
+	"currentform", // 
+	"currentcontroller", // 
+	"currentRecordIndex", // 
+	"history", // 
+	"math", // 
+	"form", // 
+	"controller", // 
+	"elements", // 
+	"length", // 
+	"globals", // 
+	"plugins", // 
+	"forms", // 
+	"foundset", // 
+	"model", // 
+	"utils", // 
+	"security", // 
+	"recordIndex", // 
+	"allnames", // 
+	"allmethods", // 
+	"allrelations", // 
+	"allvariables", // 
+	"exception", // 
+	"jsunit", // 
 	// New
-	"_super" }; 
+	"_super" };
 
 	public static boolean checkIfKeyword(String name)
 	{
@@ -140,10 +140,35 @@ public class Ident
 	public static String generateNormalizedName(String plainSQLName)
 	{
 		if (plainSQLName == null) return null;
+
 		String name = Utils.toEnglishLocaleLowerCase(plainSQLName.trim());//to lower case because the not all databases support camelcasing and jdbc drivers comeback with all to upper or lower
-		name = Utils.stringReplace(name, " ", "_");//$NON-NLS-1$ //$NON-NLS-2$
-		name = Utils.stringReplace(name, "-", "_");//$NON-NLS-1$ //$NON-NLS-2$
-		return name;
+		char[] chars = name.toCharArray();
+		boolean replaced = false;
+		for (int i = 0; i < chars.length; i++)
+		{
+			switch (chars[i])
+			{
+				// not allowed in windows
+				case '/' :
+				case '\\' :
+				case '?' :
+				case '%' :
+				case '*' :
+				case ':' :
+				case '|' :
+				case '"' :
+				case '<' :
+				case '>' :
+					// not allowed in scripting
+				case ' ' :
+				case '-' :
+					chars[i] = '_';
+					replaced = true;
+					break;
+			}
+		}
+
+		return replaced ? new String(chars) : name;
 	}
 
 	public static final String RESERVED_NAME_PREFIX = "_"; //$NON-NLS-1$
