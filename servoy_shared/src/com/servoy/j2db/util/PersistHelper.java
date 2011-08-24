@@ -408,6 +408,22 @@ public class PersistHelper
 					Class< ? > fontManager = Class.forName("sun.font.FontManager"); //$NON-NLS-1$
 					getCompositeFontMethod = fontManager.getMethod("getCompositeFontUIResource", new Class[] { Font.class }); //$NON-NLS-1$
 				}
+			}
+			catch (Exception e)
+			{
+				try
+				{
+					Class< ? > fontManager = Class.forName("sun.font.FontUtilities"); //$NON-NLS-1$
+					getCompositeFontMethod = fontManager.getMethod("getCompositeFontUIResource", new Class[] { Font.class }); //$NON-NLS-1$
+				}
+				catch (Exception e1)
+				{
+					getCompositeFontMethod = Boolean.FALSE;
+					Debug.trace("Couldn't create composite font for " + retval, e); //$NON-NLS-1$
+				}
+			}
+			try
+			{
 				if (getCompositeFontMethod instanceof Method)
 				{
 					Object compositeFont = ((Method)getCompositeFontMethod).invoke(null, retval);
@@ -421,9 +437,10 @@ public class PersistHelper
 			}
 			catch (Exception e)
 			{
-				Debug.trace("Couldn't create composite font for " + retval, e); //$NON-NLS-1$
 				getCompositeFontMethod = Boolean.FALSE;
+				Debug.trace("Couldn't create composite font for " + retval, e); //$NON-NLS-1$
 			}
+
 		}
 		return retval;
 	}
