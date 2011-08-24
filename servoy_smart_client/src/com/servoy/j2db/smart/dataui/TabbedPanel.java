@@ -123,6 +123,12 @@ public class TabbedPanel extends EnableTabPanel implements ITabPaneAlike
 
 	public Component getLastFocusableField()
 	{
+		Component cc = this.getSelectedComponent();
+		if ((cc instanceof FormLookupPanel) && ((FormLookupPanel)cc).isReady())
+		{
+			FormLookupPanel flp = (FormLookupPanel)cc;
+			return (Component)flp.getFormPanel().getFormUI();
+		}
 		return null;
 	}
 }
