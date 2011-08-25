@@ -56,6 +56,7 @@ import com.servoy.j2db.ui.scripting.RuntimeDataField;
 import com.servoy.j2db.ui.scripting.RuntimeDataLabel;
 import com.servoy.j2db.ui.scripting.RuntimeDataLookupField;
 import com.servoy.j2db.ui.scripting.RuntimeDataPassword;
+import com.servoy.j2db.ui.scripting.RuntimeListBox;
 import com.servoy.j2db.ui.scripting.RuntimeMediaField;
 import com.servoy.j2db.ui.scripting.RuntimePortal;
 import com.servoy.j2db.ui.scripting.RuntimeRectangle;
@@ -324,5 +325,16 @@ public class WebItemFactory implements ItemFactory
 	public IStylePropertyChangesRecorder createChangesRecorder()
 	{
 		return new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE, TemplateGenerator.DEFAULT_FIELD_PADDING);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ItemFactory#createListBox(com.servoy.j2db.ui.scripting.RuntimeListBox, java.lang.String,
+	 * com.servoy.j2db.dataprocessing.IValueList, boolean)
+	 */
+	public IFieldComponent createListBox(RuntimeListBox scriptable, String name, IValueList list, boolean multiSelect)
+	{
+		return new WebDataListBox(application, scriptable, name, list, multiSelect);
 	}
 }

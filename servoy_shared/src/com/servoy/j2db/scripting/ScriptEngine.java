@@ -66,6 +66,7 @@ import com.servoy.j2db.ui.IScriptDataComboboxMethods;
 import com.servoy.j2db.ui.IScriptDataLabelMethods;
 import com.servoy.j2db.ui.IScriptDataPasswordMethods;
 import com.servoy.j2db.ui.IScriptFieldMethods;
+import com.servoy.j2db.ui.IScriptListBoxMethods;
 import com.servoy.j2db.ui.IScriptMediaInputFieldMethods;
 import com.servoy.j2db.ui.IScriptPortalComponentMethods;
 import com.servoy.j2db.ui.IScriptRadioMethods;
@@ -170,6 +171,7 @@ public class ScriptEngine implements IScriptSupport
 			toplevelScope.put("RuntimeTabPanel", toplevelScope, new InstanceOfScope("RuntimeTabPanel", IDepricatedScriptTabPanelMethods.class));
 			toplevelScope.put("RuntimeSplitPane", toplevelScope, new InstanceOfScope("RuntimeSplitPane", IScriptSplitPaneMethods.class));
 			toplevelScope.put("RuntimePortal", toplevelScope, new InstanceOfScope("RuntimePortal", IScriptPortalComponentMethods.class));
+			toplevelScope.put("RuntimeListBox", toplevelScope, new InstanceOfScope("RuntimeListBox", IScriptListBoxMethods.class));
 
 			ScriptObjectRegistry.getJavaMembers(FormController.JSForm.class, toplevelScope);
 			toplevelScope.setPrototype(null);

@@ -559,6 +559,48 @@ public class JSForm implements IJSParent, IConstantsObject
 	}
 
 	/**
+	 * Creates a new JSField object on the form with the displayType of LIST_BOX - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
+	 *  
+	 * @sample
+	 * 	var form = solutionModel.newForm('newForm1', 'myServer', 'myTable', null, true, 800, 600);
+	 * 	var calendar = form.newListBox(myDataProvider, 100, 100, 200, 200);
+	 * 	forms['newForm1'].controller.show();
+	 * 
+	 * @param dataprovidername/jsvariable the specified dataprovider name/JSVariable of the JSField object
+	 * @param x the horizontal "x" position of the JSfield object in pixels
+	 * @param y the vertical "y" position of the JSField object in pixels
+	 * @param width the width of the JSField object in pixels
+	 * @param height the height of the JSField object in pixels
+	 * 
+	 * @return a new JSField object on the form with the displayType of LIST_BOX
+	 */
+	public JSField js_newListBox(Object dataprovider, int x, int y, int width, int height)
+	{
+		return js_newField(dataprovider, Field.LIST_BOX, x, y, width, height);
+	}
+
+	/**
+	 * Creates a new JSField object on the form with the displayType of MULTI_SELECTION_LIST_BOX - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
+	 *  
+	 * @sample
+	 * 	var form = solutionModel.newForm('newForm1', 'myServer', 'myTable', null, true, 800, 600);
+	 * 	var calendar = form.newMultiSelectionListBox(myDataProvider, 100, 100, 200, 200);
+	 * 	forms['newForm1'].controller.show();
+	 * 
+	 * @param dataprovidername/jsvariable the specified dataprovider name/JSVariable of the JSField object
+	 * @param x the horizontal "x" position of the JSfield object in pixels
+	 * @param y the vertical "y" position of the JSField object in pixels
+	 * @param width the width of the JSField object in pixels
+	 * @param height the height of the JSField object in pixels
+	 * 
+	 * @return a new JSField object on the form with the displayType of MULTI_SELECTION_LIST_BOX
+	 */
+	public JSField js_newMultiSelectionListBox(Object dataprovider, int x, int y, int width, int height)
+	{
+		return js_newField(dataprovider, Field.MULTI_SELECTION_LIST_BOX, x, y, width, height);
+	}
+
+	/**
 	 * Creates a new JSField object on the form with the displayType of RADIOS (radio buttons) - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
 	 * 
 	 * @sample	

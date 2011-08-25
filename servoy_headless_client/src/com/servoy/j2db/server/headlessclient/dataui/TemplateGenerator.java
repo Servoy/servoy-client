@@ -1298,6 +1298,7 @@ public class TemplateGenerator
 				a_style_name = Utils.stringReplaceExact(a_style_name, "field", ".field");
 				a_style_name = Utils.stringReplaceExact(a_style_name, "check", ".check");
 				a_style_name = Utils.stringReplaceExact(a_style_name, "radio", ".radio");
+				a_style_name = Utils.stringReplaceExact(a_style_name, "listbox", ".listbox");
 				// hack if previous command replaced label_field with label_.field
 				a_style_name = Utils.stringReplace(a_style_name, "..field", ".field");
 
@@ -2014,8 +2015,8 @@ public class TemplateGenerator
 	{
 		// this needs to be in sync with DesignModeBehavior.needsWrapperDivForAnchoring(String type)
 		return (field.getDisplayType() == Field.PASSWORD) || (field.getDisplayType() == Field.TEXT_AREA) || (field.getDisplayType() == Field.COMBOBOX) ||
-			(field.getDisplayType() == Field.TYPE_AHEAD) || (field.getDisplayType() == Field.TEXT_FIELD) ||
-			(field.getDisplayType() == Field.HTML_AREA && field.getEditable());
+			(field.getDisplayType() == Field.TYPE_AHEAD) || (field.getDisplayType() == Field.TEXT_FIELD) || (field.getDisplayType() == Field.LIST_BOX) ||
+			(field.getDisplayType() == Field.MULTI_SELECTION_LIST_BOX) || (field.getDisplayType() == Field.HTML_AREA && field.getEditable());
 	}
 
 	private static void createFieldHTML(Field field, Form form, StringBuffer html, TextualCSS css, int startY, int endY, boolean enableAnchoring,
@@ -2044,7 +2045,7 @@ public class TemplateGenerator
 		Insets padding = (Insets)DEFAULT_FIELD_PADDING.clone();
 		Insets border = (Insets)DEFAULT_FIELD_BORDER_SIZE.clone();
 
-		if (field.getDisplayType() == Field.COMBOBOX /* || (field.getDisplayType() == Field.CHECKS && field.getValuelistID() == 0) */)
+		if (field.getDisplayType() == Field.COMBOBOX || field.getDisplayType() == Field.LIST_BOX || field.getDisplayType() == Field.MULTI_SELECTION_LIST_BOX)
 		{
 			padding = DEFAULT_LABEL_PADDING;
 		}
@@ -2200,6 +2201,21 @@ public class TemplateGenerator
 				html.append(getDataProviderIDParameter(field));
 				html.append(getCSSClassParameter("field"));
 				html.append(">Combobox</select>");
+			}
+				break;
+			case Field.MULTI_SELECTION_LIST_BOX :
+			case Field.LIST_BOX :
+			{
+				ins = null;
+				html.append("<select ");
+				if (field.getDisplayType() == Field.MULTI_SELECTION_LIST_BOX)
+				{
+					html.append("multiple=\"multiple\"");
+				}
+				html.append(getWicketIDParameter(form, field));
+				html.append(getDataProviderIDParameter(field));
+				html.append(getCSSClassParameter("listbox"));
+				html.append(">Listbox</select>");
 			}
 				break;
 			case Field.CALENDAR :

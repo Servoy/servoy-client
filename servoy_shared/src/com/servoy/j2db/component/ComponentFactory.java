@@ -147,6 +147,7 @@ import com.servoy.j2db.ui.scripting.RuntimeDataLabel;
 import com.servoy.j2db.ui.scripting.RuntimeDataLookupField;
 import com.servoy.j2db.ui.scripting.RuntimeDataPassword;
 import com.servoy.j2db.ui.scripting.RuntimeHTMLArea;
+import com.servoy.j2db.ui.scripting.RuntimeListBox;
 import com.servoy.j2db.ui.scripting.RuntimeMediaField;
 import com.servoy.j2db.ui.scripting.RuntimePortal;
 import com.servoy.j2db.ui.scripting.RuntimeRTFArea;
@@ -577,7 +578,7 @@ public class ComponentFactory
 		return pair;
 	}
 
-	public static final String[] LOOKUP_NAMES = { "button", "check", "combobox", ISupportRowStyling.CLASS_EVEN, "field", "form", "label", ISupportRowStyling.CLASS_ODD, "portal", "radio", ISupportRowStyling.CLASS_SELECTED, "tabpanel" };
+	public static final String[] LOOKUP_NAMES = { "button", "check", "combobox", ISupportRowStyling.CLASS_EVEN, "field", "form", "label", "listbox", ISupportRowStyling.CLASS_ODD, "portal", "radio", ISupportRowStyling.CLASS_SELECTED, "tabpanel" };
 
 	/**
 	 * @param bc
@@ -596,6 +597,10 @@ public class ComponentFactory
 					break;
 				case Field.RADIOS :
 					lookupName = "radio";
+					break;
+				case Field.LIST_BOX :
+				case Field.MULTI_SELECTION_LIST_BOX :
+					lookupName = "listbox";
 					break;
 				case Field.COMBOBOX :
 					lookupName = "combobox";
@@ -1347,7 +1352,18 @@ public class ComponentFactory
 					scriptable.setComponent(fl);
 					break;
 				}
-				//$FALL-THROUGH$ else treat as the default case: TEXT_FIELD
+				//$FALL-THROUGH$
+			case Field.LIST_BOX :
+			case Field.MULTI_SELECTION_LIST_BOX :
+			{
+				boolean multiSelect = (field.getDisplayType() == Field.MULTI_SELECTION_LIST_BOX);
+				RuntimeListBox scriptable = new RuntimeListBox(jsChangeRecorder, application, multiSelect);
+				IValueList list = getRealValueList(application, valuelist, true, type, format, field.getDataProviderID());
+				fl = application.getItemFactory().createListBox(scriptable, getWebID(form, field), list, multiSelect);
+				scriptable.setComponent(fl);
+			}
+				break;
+			//$FALL-THROUGH$ else treat as the default case: TEXT_FIELD
 			default ://Field.TEXT_FIELD 
 				if (field.getValuelistID() > 0)
 				{

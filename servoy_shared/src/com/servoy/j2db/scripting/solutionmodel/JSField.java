@@ -146,6 +146,30 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 */
 	public static final int TYPE_AHEAD = Field.TYPE_AHEAD;
 
+	/**
+	 * Constant for specifying the display type of a JSField. Sets the display type of the
+	 * field to list box. The field will show a selection list with single choice selection.
+	 * 
+	 * @sample
+	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
+	 * vlist.customValues = "one\ntwo\nthree\nfour";
+	 * var radio = form.newField('my_table_list', JSField.LIST_BOX, 10, 280, 100, 50);
+	 * radio.valuelist = vlist;
+	 */
+	public static final int LIST_BOX = Field.LIST_BOX;
+
+	/**
+	 * Constant for specifying the display type of a JSField. Sets the display type of the
+	 * field to list box. The field will show a selection list with multiple choice selection.
+	 * 
+	 * @sample
+	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
+	 * vlist.customValues = "one\ntwo\nthree\nfour";
+	 * var radio = form.newField('my_table_options', JSField.MULTI_SELECTION_LIST_BOX, 10, 280, 100, 50);
+	 * radio.valuelist = vlist;
+	 */
+	public static final int MULTI_SELECTION_LIST_BOX = Field.MULTI_SELECTION_LIST_BOX;
+
 	private final IApplication application;
 
 	// support constants

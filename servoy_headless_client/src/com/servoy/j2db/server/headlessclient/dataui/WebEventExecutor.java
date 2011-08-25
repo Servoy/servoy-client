@@ -105,7 +105,8 @@ public class WebEventExecutor extends BaseEventExecutor
 			{
 				component.add(new ServoyFormComponentUpdatingBehavior("onclick", component, this)); //$NON-NLS-1$
 			}
-			else if (component instanceof WebDataLookupField || component instanceof WebDataComboBox || component instanceof DateField) // these fields can change contents without having focus or should generate dataProvider update without loosing focus; for example calendar might modify field content without field having focus
+			else if (component instanceof WebDataLookupField || component instanceof WebDataComboBox || component instanceof DateField ||
+				component instanceof WebDataListBox) // these fields can change contents without having focus or should generate dataProvider update without loosing focus; for example calendar might modify field content without field having focus
 			{
 				component.add(new ServoyFormComponentUpdatingBehavior("onchange", component, this)); //$NON-NLS-1$
 			}

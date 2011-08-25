@@ -39,6 +39,7 @@ import com.servoy.j2db.ui.scripting.RuntimeDataField;
 import com.servoy.j2db.ui.scripting.RuntimeDataLabel;
 import com.servoy.j2db.ui.scripting.RuntimeDataLookupField;
 import com.servoy.j2db.ui.scripting.RuntimeDataPassword;
+import com.servoy.j2db.ui.scripting.RuntimeListBox;
 import com.servoy.j2db.ui.scripting.RuntimeMediaField;
 import com.servoy.j2db.ui.scripting.RuntimePortal;
 import com.servoy.j2db.ui.scripting.RuntimeRectangle;
@@ -170,6 +171,9 @@ public interface ItemFactory
 	 */
 	IFieldComponent createDataChoice(AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent> scriptable, String name, IValueList list,
 		boolean b);
+
+
+	IFieldComponent createListBox(RuntimeListBox scriptable, String name, IValueList list, boolean multiSelect);
 
 	/**
 	 * @param name TODO

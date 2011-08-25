@@ -27,6 +27,7 @@ import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.LookupValueList;
+import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.Portal;
@@ -52,6 +53,7 @@ import com.servoy.j2db.ui.scripting.RuntimeDataField;
 import com.servoy.j2db.ui.scripting.RuntimeDataLabel;
 import com.servoy.j2db.ui.scripting.RuntimeDataLookupField;
 import com.servoy.j2db.ui.scripting.RuntimeDataPassword;
+import com.servoy.j2db.ui.scripting.RuntimeListBox;
 import com.servoy.j2db.ui.scripting.RuntimeMediaField;
 import com.servoy.j2db.ui.scripting.RuntimePortal;
 import com.servoy.j2db.ui.scripting.RuntimeRectangle;
@@ -254,9 +256,9 @@ public class SwingItemFactory implements ItemFactory
 	 * @see com.servoy.j2db.ItemFactory#createDataChoice(com.servoy.j2db.dataprocessing.IValueList, boolean)
 	 */
 	public IFieldComponent createDataChoice(AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent> scriptable, String name, IValueList list,
-		boolean b)
+		boolean isRadio)
 	{
-		DataChoice dc = new DataChoice(application, scriptable, list, b);
+		DataChoice dc = new DataChoice(application, scriptable, list, isRadio ? Field.RADIOS : Field.CHECKS);
 		dc.setName(name);
 		return dc;
 	}
@@ -382,5 +384,12 @@ public class SwingItemFactory implements ItemFactory
 	public IStylePropertyChangesRecorder createChangesRecorder()
 	{
 		return DummyChangesRecorder.INSTANCE;
+	}
+
+	public IFieldComponent createListBox(RuntimeListBox scriptable, String name, IValueList list, boolean multiSelect)
+	{
+		DataChoice dc = new DataChoice(application, scriptable, list, multiSelect ? Field.MULTI_SELECTION_LIST_BOX : Field.LIST_BOX);
+		dc.setName(name);
+		return dc;
 	}
 }

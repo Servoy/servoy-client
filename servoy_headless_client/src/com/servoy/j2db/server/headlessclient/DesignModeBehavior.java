@@ -193,7 +193,8 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 		// and TemplateGenerator.isButton(GraphicalComponent label)
 		return IScriptBaseMethods.PASSWORD.equals(type) || IScriptBaseMethods.TEXT_AREA.equals(type) || IScriptBaseMethods.COMBOBOX.equals(type) ||
 			IScriptBaseMethods.TYPE_AHEAD.equals(type) || IScriptBaseMethods.TEXT_FIELD.equals(type) ||
-			(IScriptBaseMethods.HTML_AREA.equals(type) && editable) || IScriptBaseMethods.BUTTON.equals(type);
+			(IScriptBaseMethods.HTML_AREA.equals(type) && editable) || (IScriptBaseMethods.LIST_BOX.equals(type)) ||
+			(IScriptBaseMethods.MULTI_SELECTION_LIST_BOX.equals(type)) || IScriptBaseMethods.BUTTON.equals(type);
 	}
 
 	/**

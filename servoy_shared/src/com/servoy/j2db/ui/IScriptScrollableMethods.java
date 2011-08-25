@@ -13,15 +13,15 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.ui;
 
 public interface IScriptScrollableMethods
 {
 	/**
-	 * Returns the x scroll location of the current portal or specified portal - only for a portal where the height of the portal is greater than the height of the portal field(s).
+	 * Returns the x scroll location of specified element - only for an element where height of element is less than the height of element content.
 	 * 
-	 * NOTE: getScrollX() can be used with getScrollY() to set the scroll location of a portal using the setScroll function. For Example:
+	 * NOTE: getScrollX() can be used with getScrollY() to set the scroll location of an element using the setScroll function. For Example:
 	 * 
 	 * //returns the X and Y scroll coordinates
 	 * var x = forms.company.elements.portal50.getScrollX();
@@ -38,9 +38,9 @@ public interface IScriptScrollableMethods
 	public int js_getScrollX();
 
 	/**
-	 * Returns the y scroll location of the current portal or specified portal - only for a portal where the height of the portal is greater than the height of the portal field(s).
+	 * Returns the y scroll location of specified element - only for an element where height of element is less than the height of element content.
 	 * 
-	 * NOTE: getScrollY() can be used with getScrollX() to set the scroll location of a portal using the setScroll function. For Example:
+	 * NOTE: getScrollY() can be used with getScrollX() to set the scroll location of an element using the setScroll function. For Example:
 	 * 
 	 * //returns the X and Y scroll coordinates
 	 * var x = forms.company.elements.portal50.getScrollX();
@@ -57,9 +57,9 @@ public interface IScriptScrollableMethods
 	public int js_getScrollY();
 
 	/**
-	 * Sets the scroll location of a portal. It takes as input the X (horizontal) and Y (vertical) coordinates - starting from the TOP LEFT side of the screen - only for a portal where the height of the portal is greater than the height of the portal filed(s).
+	 * Sets the scroll location of an element. It takes as input the X (horizontal) and Y (vertical) coordinates - starting from the TOP LEFT side of the screen - only for an element where the height of the element is greater than the height of element content
 	 * 
-	 * NOTE: getScrollX() can be used with getScrollY() to return the current scroll location of a portal; then use the X and Y coordinates with the setScroll function to set a new scroll location. For Example:
+	 * NOTE: getScrollX() can be used with getScrollY() to return the current scroll location of an element; then use the X and Y coordinates with the setScroll function to set a new scroll location. For Example:
 	 *  
 	 * //returns the X and Y coordinates
 	 * var x = forms.company.elements.portal50.getScrollX();

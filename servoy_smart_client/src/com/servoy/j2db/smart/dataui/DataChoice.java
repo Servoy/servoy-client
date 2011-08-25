@@ -30,19 +30,25 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
 import javax.swing.AbstractCellEditor;
+import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JRadioButton;
 import javax.swing.JToggleButton;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import javax.swing.text.Document;
@@ -60,6 +66,7 @@ import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.gui.editlist.JNavigableEditList;
 import com.servoy.j2db.gui.editlist.NavigableCellEditor;
 import com.servoy.j2db.gui.editlist.NavigableCellRenderer;
+import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
@@ -73,6 +80,7 @@ import com.servoy.j2db.util.EnableScrollPanel;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Text;
+import com.servoy.j2db.util.UIUtils;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.editlist.IEditListEditor;
 import com.servoy.j2db.util.editlist.JEditList;
@@ -88,42 +96,52 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 	private String dataProviderID;
 	private final ComboModelListModelWrapper list;
 	private final JEditList enclosedComponent;
-	private JToggleButton rendererComponent;
-	private JToggleButton editorComponent;
+	private JComponent rendererComponent;
+	private JComponent editorComponent;
 	private String tooltip;
 	private Insets margin;
 	private int halign;
 	private final EventExecutor eventExecutor;
 	private final IApplication application;
-	private final boolean isRadioList;
+	private final int choiceType;
 	private MouseAdapter rightclickMouseAdapter = null;
 	private IValueList vl;
 	private final AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent> scriptable;
 
-	public DataChoice(IApplication app, AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent> scriptable, IValueList vl, boolean isRadioList)
+	public DataChoice(IApplication app, AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent> scriptable, IValueList vl, int choiceType)
 	{
 		super();
 		setHorizontalAlignment(SwingConstants.LEFT);
 		setBorder(null);
 		application = app;
 		this.vl = vl;
-		this.isRadioList = isRadioList;
+		this.choiceType = choiceType;
 		list = new ComboModelListModelWrapper(vl, true);
 		enclosedComponent = new JNavigableEditList();
 		eventExecutor = new EventExecutor(this, enclosedComponent);
 		enclosedComponent.addKeyListener(eventExecutor);
 		enclosedComponent.setModel(list);
-
-		if (isRadioList)
+		if (choiceType == Field.RADIOS)
 		{
 			enclosedComponent.setCellRenderer(new NavigableCellRenderer(new RadioCell()));
 			enclosedComponent.setCellEditor(new NavigableCellEditor(new RadioCell()));
+		}
+		else if (choiceType == Field.CHECKS)
+		{
+			enclosedComponent.setCellRenderer(new NavigableCellRenderer(new CheckBoxCell()));
+			enclosedComponent.setCellEditor(new NavigableCellEditor(new CheckBoxCell()));
+		}
+		else
+		{
+			enclosedComponent.setCellRenderer(new LabelCell());
+			enclosedComponent.setCellEditor(new LabelCell());
+		}
+		if (choiceType == Field.RADIOS || choiceType == Field.LIST_BOX)
+		{
 			list.setMultiValueSelect(false);
 		}
 		else
 		{
-			enclosedComponent.setCellRenderer(new NavigableCellRenderer(new CheckBoxCell()));
-			enclosedComponent.setCellEditor(new NavigableCellEditor(new CheckBoxCell()));
 			list.setMultiValueSelect(true);
 		}
 		this.scriptable = scriptable;
@@ -383,16 +401,83 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		return null;
 	}
 
-	public class RadioCell extends AbstractCellEditor implements IEditListEditor, ListCellRenderer, ActionListener
+	public abstract class AbstractCell extends AbstractCellEditor implements IEditListEditor, ListCellRenderer, ActionListener
 	{
-//		private JRadioButton rendererComponent;
-//		private JRadioButton editorComponent;
+		protected void createRenderer()
+		{
+			rendererComponent.setOpaque(false);
+			((JToggleButton)rendererComponent).setMargin(margin);
+			((JToggleButton)rendererComponent).setHorizontalAlignment(halign);
+		}
+
+		protected void createEditor()
+		{
+			editorComponent.setOpaque(false);
+			((JToggleButton)editorComponent).addActionListener(this);
+			((JToggleButton)editorComponent).setMargin(margin);
+			((JToggleButton)editorComponent).setHorizontalAlignment(halign);
+		}
+
+		public Component getListCellEditorComponent(JEditList editList, Object value, boolean isSelected, int index)
+		{
+			ComboModelListModelWrapper model = (ComboModelListModelWrapper)editList.getModel();
+			if (editorComponent == null) createEditor();
+			editorComponent.setFont(editList.getFont());
+			((JToggleButton)editorComponent).setSelected(model.isRowSelected(index));
+			editorComponent.setForeground(editList.getForeground());
+//			editorComponent.setBackground(editList.getBackground()); 
+			if (value == null)
+			{
+				((JToggleButton)editorComponent).setText(""); //$NON-NLS-1$
+			}
+			else
+			{
+				((JToggleButton)editorComponent).setText(resolver != null ? Text.processTags(value.toString(), resolver) : value.toString());
+			}
+			return editorComponent;
+		}
+
+		public Object getCellEditorValue()
+		{
+			return new Boolean(((JToggleButton)editorComponent).isSelected());
+		}
+
+		public Component getListCellRendererComponent(JList editList, Object value, int index, boolean isSelected, boolean cellHasFocus)
+		{
+			ComboModelListModelWrapper model = (ComboModelListModelWrapper)editList.getModel();
+			if (rendererComponent == null) createRenderer();
+			((JToggleButton)rendererComponent).setSelected(model.isRowSelected(index));
+			rendererComponent.setFont(editList.getFont());
+			rendererComponent.setEnabled(editList.isEnabled());
+			rendererComponent.setForeground(editList.getForeground());
+//			rendererComponent.setBackground(editList.getBackground());
+			if (value == null)
+			{
+				((JToggleButton)rendererComponent).setText(""); //$NON-NLS-1$
+			}
+			else
+			{
+				((JToggleButton)rendererComponent).setText(resolver != null ? Text.processTags(value.toString(), resolver) : value.toString());
+			}
+			return rendererComponent;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			stopCellEditing();
+		}
+
+	}
+
+	public class RadioCell extends AbstractCell
+	{
 		public RadioCell()
 		{
 			super();
 		}
 
-		private void createRenderer()
+		@Override
+		protected void createRenderer()
 		{
 			rendererComponent = new JRadioButton()
 			{
@@ -408,12 +493,11 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 					return Color.red;
 				}
 			};
-			rendererComponent.setOpaque(false);
-			rendererComponent.setMargin(margin);
-			rendererComponent.setHorizontalAlignment(halign);
+			super.createRenderer();
 		}
 
-		private void createEditor()
+		@Override
+		protected void createEditor()
 		{
 			editorComponent = new JRadioButton()
 			{
@@ -429,72 +513,25 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 					return Color.red;
 				}
 			};
-			editorComponent.setOpaque(false);
-			editorComponent.addActionListener(this);
-			editorComponent.setMargin(margin);
-			editorComponent.setHorizontalAlignment(halign);
+			super.createEditor();
 		}
 
-		public Component getListCellEditorComponent(JEditList editList, Object value, boolean isSelected, int index)
-		{
-			ComboModelListModelWrapper model = (ComboModelListModelWrapper)editList.getModel();
-			if (editorComponent == null) createEditor();
-			editorComponent.setFont(editList.getFont());
-			editorComponent.setSelected(model.isRowSelected(index));
-			editorComponent.setForeground(editList.getForeground());
-//			editorComponent.setBackground(editList.getBackground()); 
-			if (value == null)
-			{
-				editorComponent.setText(""); //$NON-NLS-1$
-			}
-			else
-			{
-				editorComponent.setText(resolver != null ? Text.processTags(value.toString(), resolver) : value.toString());
-			}
-			return editorComponent;
-		}
-
-		public Object getCellEditorValue()
-		{
-			return new Boolean(editorComponent.isSelected());
-		}
-
-		public Component getListCellRendererComponent(JList editList, Object value, int index, boolean isSelected, boolean cellHasFocus)
-		{
-			ComboModelListModelWrapper model = (ComboModelListModelWrapper)editList.getModel();
-			if (rendererComponent == null) createRenderer();
-			rendererComponent.setSelected(model.isRowSelected(index));
-			rendererComponent.setFont(editList.getFont());
-			rendererComponent.setEnabled(editList.isEnabled());
-			rendererComponent.setForeground(editList.getForeground());
-//			rendererComponent.setBackground(editList.getBackground());
-			if (value == null)
-			{
-				rendererComponent.setText(""); //$NON-NLS-1$
-			}
-			else
-			{
-				rendererComponent.setText(resolver != null ? Text.processTags(value.toString(), resolver) : value.toString());
-			}
-			return rendererComponent;
-		}
-
+		@Override
 		public void actionPerformed(ActionEvent e)
 		{
 			stopCellEditing();
 		}
 	}
 
-	public class CheckBoxCell extends AbstractCellEditor implements IEditListEditor, ListCellRenderer, ActionListener
+	public class CheckBoxCell extends AbstractCell
 	{
-//		private JCheckBox rendererComponent;
-//		private JCheckBox editorComponent;
 		public CheckBoxCell()
 		{
 			super();
 		}
 
-		private void createRenderer()
+		@Override
+		protected void createRenderer()
 		{
 			rendererComponent = new JCheckBox()
 			{
@@ -510,12 +547,11 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 					return Color.red;
 				}
 			};
-			rendererComponent.setOpaque(false);
-			rendererComponent.setMargin(margin);
-			rendererComponent.setHorizontalAlignment(halign);
+			super.createRenderer();
 		}
 
-		private void createEditor()
+		@Override
+		protected void createEditor()
 		{
 			editorComponent = new JCheckBox()
 			{
@@ -531,57 +567,196 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 					return Color.red;
 				}
 			};
-			editorComponent.setOpaque(false);
-			editorComponent.addActionListener(this);
-			editorComponent.setMargin(margin);
-			editorComponent.setHorizontalAlignment(halign);
+			super.createEditor();
+		}
+	}
+
+	public class LabelCell extends AbstractCell implements MouseListener
+	{
+		private Border marginBorder;
+
+		public LabelCell()
+		{
+			super();
 		}
 
+		@Override
+		protected void createRenderer()
+		{
+			rendererComponent = new JLabel()
+			{
+				private final boolean initialized = true;
+
+				@Override
+				public Color getForeground()
+				{
+					if (initialized && DataChoice.this.isValueValid())
+					{
+						return super.getForeground();
+					}
+					return Color.red;
+				}
+			};
+			if (margin != null)
+			{
+				marginBorder = BorderFactory.createEmptyBorder(margin.top, margin.left, margin.bottom, margin.right);
+				((JLabel)rendererComponent).setBorder(marginBorder);
+			}
+			((JLabel)rendererComponent).setHorizontalAlignment(halign);
+		}
+
+		@Override
+		protected void createEditor()
+		{
+			editorComponent = new JLabel()
+			{
+				private final boolean initialized = true;
+
+				@Override
+				public Color getForeground()
+				{
+					if (initialized && DataChoice.this.isValueValid())
+					{
+						return super.getForeground();
+					}
+					return Color.red;
+				}
+			};
+			editorComponent.addMouseListener(this);
+			if (margin != null) ((JLabel)editorComponent).setBorder(marginBorder);
+			((JLabel)editorComponent).setHorizontalAlignment(halign);
+		}
+
+		@Override
 		public Component getListCellEditorComponent(JEditList editList, Object value, boolean isSelected, int index)
 		{
-			ComboModelListModelWrapper model = (ComboModelListModelWrapper)editList.getModel();
 			if (editorComponent == null) createEditor();
 			editorComponent.setFont(editList.getFont());
-			editorComponent.setSelected(model.isRowSelected(index));
-			editorComponent.setForeground(editList.getForeground());
-			if (value == null)
+			ComboModelListModelWrapper model = (ComboModelListModelWrapper)editList.getModel();
+			if (model.isRowSelected(index))
 			{
-				editorComponent.setText(""); //$NON-NLS-1$
+				((JLabel)editorComponent).setBackground(editList.getSelectionBackground());
+				editorComponent.setOpaque(true);
 			}
 			else
 			{
-				editorComponent.setText(resolver != null ? Text.processTags(value.toString(), resolver) : value.toString());
+				((JLabel)editorComponent).setBackground(editList.getBackground());
+				editorComponent.setOpaque(false);
+			}
+			editorComponent.setForeground(editList.getForeground());
+
+			if (value == null)
+			{
+				((JLabel)editorComponent).setText(""); //$NON-NLS-1$
+			}
+			else
+			{
+				((JLabel)editorComponent).setText(resolver != null ? Text.processTags(value.toString(), resolver) : value.toString());
 			}
 			return editorComponent;
 		}
 
+		@Override
 		public Object getCellEditorValue()
 		{
-			return new Boolean(editorComponent.isSelected());
+			return editorComponent.getBackground().equals(enclosedComponent.getSelectionBackground());
 		}
 
+		@Override
 		public Component getListCellRendererComponent(JList editList, Object value, int index, boolean isSelected, boolean cellHasFocus)
 		{
-			ComboModelListModelWrapper model = (ComboModelListModelWrapper)editList.getModel();
 			if (rendererComponent == null) createRenderer();
+			ComboModelListModelWrapper model = (ComboModelListModelWrapper)editList.getModel();
+			if (model.isRowSelected(index))
+			{
+				((JLabel)rendererComponent).setBackground(editList.getSelectionBackground());
+				rendererComponent.setOpaque(true);
+			}
+			else
+			{
+				((JLabel)rendererComponent).setBackground(editList.getBackground());
+				rendererComponent.setOpaque(false);
+			}
 			rendererComponent.setFont(editList.getFont());
-			rendererComponent.setSelected(model.isRowSelected(index));
 			rendererComponent.setEnabled(editList.isEnabled());
 			rendererComponent.setForeground(editList.getForeground());
 			if (value == null)
 			{
-				rendererComponent.setText(""); //$NON-NLS-1$
+				((JLabel)rendererComponent).setText(""); //$NON-NLS-1$
 			}
 			else
 			{
-				rendererComponent.setText(resolver != null ? Text.processTags(value.toString(), resolver) : value.toString());
+				((JLabel)rendererComponent).setText(resolver != null ? Text.processTags(value.toString(), resolver) : value.toString());
+			}
+			rendererComponent.setBorder(marginBorder);
+			if (cellHasFocus)
+			{
+				Border border = null;
+				if (isSelected)
+				{
+					border = UIManager.getBorder("List.focusSelectedCellHighlightBorder");
+				}
+				if (border == null)
+				{
+					border = UIManager.getBorder("List.focusCellHighlightBorder");
+				}
+				if (margin != null)
+				{
+					rendererComponent.setBorder(BorderFactory.createCompoundBorder(marginBorder, border));
+				}
+				else
+				{
+					rendererComponent.setBorder(border);
+				}
 			}
 			return rendererComponent;
 		}
 
-		public void actionPerformed(ActionEvent e)
+		public void mouseClicked(MouseEvent e)
 		{
-			stopCellEditing();
+		}
+
+		public void mousePressed(MouseEvent e)
+		{
+			if (SwingUtilities.isLeftMouseButton(e))
+			{
+				ComboModelListModelWrapper model = (ComboModelListModelWrapper)enclosedComponent.getModel();
+				boolean selected = model.isRowSelected(enclosedComponent.getEditingRow());
+				if (!UIUtils.isCommandKeyDown(e) && choiceType == Field.MULTI_SELECTION_LIST_BOX)
+				{
+					model.setMultiValueSelect(false);
+				}
+				if (selected)
+				{
+					if (!UIUtils.isCommandKeyDown(e) && choiceType == Field.MULTI_SELECTION_LIST_BOX && model.getSelectedRows().size() > 1)
+					{
+						// clear the selection list
+						model.setElementAt(Boolean.FALSE, enclosedComponent.getEditingRow());
+					}
+					else
+					{
+						((JLabel)editorComponent).setBackground(enclosedComponent.getBackground());
+					}
+				}
+				else
+				{
+					((JLabel)editorComponent).setBackground(enclosedComponent.getSelectionBackground());
+				}
+				stopCellEditing();
+				model.setMultiValueSelect(choiceType == Field.MULTI_SELECTION_LIST_BOX);
+			}
+		}
+
+		public void mouseReleased(MouseEvent e)
+		{
+		}
+
+		public void mouseEntered(MouseEvent e)
+		{
+		}
+
+		public void mouseExited(MouseEvent e)
+		{
 		}
 	}
 
@@ -637,7 +812,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 			objs[i] = list.getRealElementAt(((Integer)rows[i]).intValue());
 		}
 
-		return getScriptObject().getChoiceValue(objs, isRadioList);
+		return getScriptObject().getChoiceValue(objs, choiceType == Field.RADIOS || choiceType == Field.LIST_BOX);
 	}
 
 	private Object previousValue;
@@ -877,7 +1052,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 
 	public void setComponentVisible(boolean b_visible)
 	{
-		if (viewable)
+		if (viewable || !b_visible)
 		{
 			setVisible(b_visible);
 		}
@@ -944,7 +1119,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 
 	public void setComponentEnabled(final boolean b)
 	{
-		if (accessible)
+		if (accessible || !b)
 		{
 			super.setEnabled(b);
 			enclosedComponent.setEnabled(b);
