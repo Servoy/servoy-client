@@ -143,7 +143,8 @@ public class RepositoryHelper
 	public static void initClone(IPersist clone, IPersist original)
 	{
 		((AbstractBase)clone).copyPropertiesMap(((AbstractBase)original).getPropertiesMap(), false);
-		if (((AbstractBase)clone).isOverrideElement())
+		// reset the extendsid except for Forms those are 'real' properties
+		if (((AbstractBase)clone).isOverrideElement() && !(clone instanceof Form))
 		{
 			((AbstractBase)clone).clearProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName());
 		}
