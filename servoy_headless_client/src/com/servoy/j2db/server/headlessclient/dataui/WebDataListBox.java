@@ -27,6 +27,7 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.StringTokenizer;
 
 import javax.swing.JComponent;
 import javax.swing.border.Border;
@@ -111,6 +112,7 @@ public class WebDataListBox extends ListMultipleChoice implements IDisplayData, 
 		setOutputMarkupPlaceholderTag(true);
 
 		list = new WebComboModelListModelWrapper(vl, true);
+		list.setMultiValueSelect(multiSelection);
 		setChoices(list);
 
 		setChoiceRenderer(new IChoiceRenderer()
@@ -417,6 +419,22 @@ public class WebDataListBox extends ListMultipleChoice implements IDisplayData, 
 
 	public void setValueObject(Object value)
 	{
+		// add this code in order for js_getSelectedItems to work
+		if (value instanceof String)
+		{
+			String delim = (eventExecutor.getValidationEnabled() ? "\n" : "%\n"); //$NON-NLS-1$//$NON-NLS-2$
+			StringTokenizer tk = new StringTokenizer(value.toString(), delim);
+			while (tk.hasMoreTokens())
+			{
+				int row = list.realValueIndexOf(tk.nextToken());
+				if (row >= 0) list.setElementAt(Boolean.TRUE, row);
+			}
+		}
+		else
+		{
+			int row = list.realValueIndexOf(value);
+			if (row >= 0) list.setElementAt(Boolean.TRUE, row);
+		}
 		((ChangesRecorder)getStylePropertyChanges()).testChanged(this, value);
 		if (getStylePropertyChanges().isChanged())
 		{
