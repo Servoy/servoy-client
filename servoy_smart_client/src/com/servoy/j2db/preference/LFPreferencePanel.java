@@ -101,7 +101,14 @@ public class LFPreferencePanel extends PreferencePanel implements ItemListener, 
 			}
 		}
 
-		_selectedFont = PersistHelper.createFont(_application.getSettings().getProperty("font")); //$NON-NLS-1$
+		String font = _application.getSettings().getProperty("font");
+		if (WebStart.isRunningWebStart())
+		{
+			URL webstartbase = _application.getServerURL();
+			font = _application.getSettings().getProperty(webstartbase.getHost() + webstartbase.getPort() + "_font", font);
+		}
+
+		_selectedFont = PersistHelper.createFont(font);
 		lnfBox = new JComboBox(_dcbm);
 		String msg = getFontButtonText();
 		if (msg == null) msg = _application.getI18NMessage("servoy.preference.lookandfeel.msg.undefined"); //$NON-NLS-1$
