@@ -2114,6 +2114,7 @@ public class TemplateGenerator
 			case Field.RADIOS :
 				boolean isRadio = (field.getDisplayType() == Field.RADIOS);
 				String selector = (isRadio ? "radio" : "check");
+				cssClass = (isRadio ? "radio" : "check");
 				IValueList val = null;
 				ValueList valuelist = null;
 				if (field.getValuelistID() > 0 && sp != null)
