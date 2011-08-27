@@ -25,44 +25,49 @@ import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.util.ITagResolver;
+import com.servoy.j2db.util.Settings;
 
 /**
+ * Resolver class for tags in text
  * @author rgansevles
- * 
  */
 public class TagResolver
 {
 
-	/**
-	 * @author rgansevles
-	 * 
-	 */
 	private static class RecordTagResolver implements ITagResolver
 	{
 
 		private final IRecordInternal record;
 
-		/**
-		 * @param record2
-		 */
 		public RecordTagResolver(IRecordInternal record)
 		{
 			this.record = record;
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.servoy.j2db.util.ITagResolver#getStringValue(java.lang.String)
-		 */
 		public String getStringValue(String dataProviderID)
 		{
 			if (record == null) return null;
 			Object value = record.getValue(dataProviderID);
 			return formatObject(value, (value == null) ? null : record.getParentFoundSet().getFoundSetManager().getApplication().getSettings());
 		}
+	}
 
+	private static class ScriptableTagResolver implements ITagResolver
+	{
 
+		private final Scriptable scriptobj;
+
+		public ScriptableTagResolver(Scriptable obj)
+		{
+			this.scriptobj = obj;
+		}
+
+		public String getStringValue(String dataProviderID)
+		{
+			if (scriptobj == null) return null;
+			Object value = scriptobj.get(dataProviderID, scriptobj);
+			return formatObject(value, (value == null) ? null : Settings.getInstance());
+		}
 	}
 
 	/**
@@ -74,6 +79,17 @@ public class TagResolver
 	public static ITagResolver createResolver(IRecordInternal o)
 	{
 		return new RecordTagResolver(o);
+	}
+
+	/**
+	 * Factory method to create a resolver.
+	 * 
+	 * @param o
+	 * @return resolver
+	 */
+	public static ITagResolver createResolver(Scriptable o)
+	{
+		return new ScriptableTagResolver(o);
 	}
 
 

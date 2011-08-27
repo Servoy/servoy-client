@@ -30,7 +30,7 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 
 import org.mozilla.javascript.ScriptRuntime;
-import org.mozilla.javascript.UniqueTag;
+import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
@@ -42,6 +42,7 @@ import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ITagResolver;
+import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
@@ -117,38 +118,39 @@ public class JSUtils
 	 * //var otherExample = utils.stringReplaceTags("The amount of the related order line %%amount%% ", order_to_orderdetails);
 	 * //var recordExample = utils.stringReplaceTags("The amount of the related order line %%amount%% ", order_to_orderdetails.getRecord(i);
 	 * //Next line places a string in variable y, whereby the tag(%%TAG%%) is filled with the value of the form variable 'x' of the form named 'main'.
-	 * var y = utils.stringReplaceTags("The value of form variable is %%x%% ", forms.main);
+	 * //var y = utils.stringReplaceTags("The value of form variable is %%x%% ", forms.main);
+	 * //The next sample shows the use of a javascript object
+	 * //var obj = new Object();//create a javascript object
+	 * //obj['x'] = 'test';//assign an named value
+	 * //var y = utils.stringReplaceTags("The value of object variable is %%x%% ", obj);//use the named value in a tag
 	 * @param text the text tags to work with
-	 * @param foundset_or_record_or_form the foundset or record or form to be used to fill in the tags
+	 * @param scriptable the javascript object or foundset,record,form to be used to fill in the tags
 	 * @return the text with replaced tags
 	 */
-	public String js_stringReplaceTags(Object text, Object foundset_or_record_or_form)
+	public String js_stringReplaceTags(Object text, Object scriptable)
 	{
 		if (text != null)
 		{
 			ITagResolver tagResolver = null;
 			Properties settings = null;
-			if (foundset_or_record_or_form instanceof FoundSet)
+			if (scriptable instanceof FoundSet)
 			{
-				IRecordInternal record = ((FoundSet)foundset_or_record_or_form).getRecord(((FoundSet)foundset_or_record_or_form).getSelectedIndex());
+				IRecordInternal record = ((FoundSet)scriptable).getRecord(((FoundSet)scriptable).getSelectedIndex());
 				if (record != null)
 				{
 					settings = record.getParentFoundSet().getFoundSetManager().getApplication().getSettings();
 					tagResolver = TagResolver.createResolver(record);
 				}
 			}
-			else if (foundset_or_record_or_form instanceof IRecordInternal)
+			else if (scriptable instanceof IRecordInternal)
 			{
-				IRecordInternal record = (IRecordInternal)foundset_or_record_or_form;
-				if (record != null)
-				{
-					settings = record.getParentFoundSet().getFoundSetManager().getApplication().getSettings();
-					tagResolver = TagResolver.createResolver(record);
-				}
+				IRecordInternal record = (IRecordInternal)scriptable;
+				settings = record.getParentFoundSet().getFoundSetManager().getApplication().getSettings();
+				tagResolver = TagResolver.createResolver(record);
 			}
-			else if (foundset_or_record_or_form instanceof FormController)
+			else if (scriptable instanceof FormController)
 			{
-				final FormController fc = (FormController)foundset_or_record_or_form;
+				final FormController fc = (FormController)scriptable;
 				IFoundSetInternal fs = fc.getFoundSet();
 				final ITagResolver defaultTagResolver = (fs != null) ? TagResolver.createResolver(fs.getRecord(fs.getSelectedIndex())) : null;
 				settings = fc.getApplication().getSettings();
@@ -157,13 +159,19 @@ public class JSUtils
 					public String getStringValue(String name)
 					{
 						Object value = fc.getFormScope().get(name);
-						if (value == null || value == UniqueTag.NOT_FOUND)
+						if (value == null || value == Scriptable.NOT_FOUND)
 						{
 							value = defaultTagResolver != null ? defaultTagResolver.getStringValue(name) : null;
 						}
 						return value != null ? value.toString() : ""; //$NON-NLS-1$
 					}
 				};
+			}
+			else if (scriptable instanceof Scriptable)
+			{
+				Scriptable scriptObject = (Scriptable)scriptable;
+				settings = Settings.getInstance();
+				tagResolver = TagResolver.createResolver(scriptObject);
 			}
 
 			if (tagResolver != null && settings != null)
