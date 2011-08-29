@@ -21,6 +21,7 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.StringTokenizer;
 
 import javax.swing.BorderFactory;
@@ -152,9 +153,27 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 		if (a.isDefined(CSS.Attribute.BORDER_BOTTOM_WIDTH)) bottom = getLength(a.getAttribute(CSS.Attribute.BORDER_BOTTOM_WIDTH));
 		if (a.isDefined(CSS.Attribute.BORDER_LEFT_WIDTH)) left = getLength(a.getAttribute(CSS.Attribute.BORDER_LEFT_WIDTH));
 
+		if (borderStyle == null)
+		{
+			// java 7 expands the complete border:
+			Enumeration< ? > attributes = a.getAttributeNames();
+			while (attributes.hasMoreElements())
+			{
+				Object element = attributes.nextElement();
+				if (element instanceof CSS.Attribute)
+				{
+					String elementName = element.toString();
+					if (elementName.startsWith("border-top-style"))
+					{
+						borderStyle = a.getAttribute(element);
+						break;
+					}
+				}
+			}
+		}
 		if (borderStyle != null)
 		{
-			Color[] colors = getBorderColor(borderColor);
+			Color[] colors = getBorderColor(borderColor, a);
 			String bstyle = borderStyle.toString();
 			if (bstyle.equals(BORDER_STYLE_INSET) || bstyle.equals(BORDER_STYLE_OUTSET))
 			{
@@ -342,19 +361,65 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 	 * is not inherited), or it will default to the color attribute
 	 * (which is inherited).
 	 */
-	private Color[] getBorderColor(Object obj)
+	@SuppressWarnings("nls")
+	private Color[] getBorderColor(Object obj, AttributeSet a)
 	{
 		if (obj != null)
 		{
-			ArrayList colors = new ArrayList();
+			ArrayList<Color> colors = new ArrayList<Color>();
 			String val = obj.toString();
-			StringTokenizer tk = new StringTokenizer(val, " "); //$NON-NLS-1$
+			StringTokenizer tk = new StringTokenizer(val, " ");
 			while (tk.hasMoreTokens())
 			{
 				String token = tk.nextToken();
 				colors.add(PersistHelper.createColor(token));
 			}
-			return (Color[])colors.toArray(new Color[colors.size()]);
+			return colors.toArray(new Color[colors.size()]);
+		}
+		else
+		{
+			Color top = null;
+			Color right = null;
+			Color bottom = null;
+			Color left = null;
+			// java 7 expands the complete border:
+			Enumeration< ? > attributes = a.getAttributeNames();
+			while (attributes.hasMoreElements())
+			{
+				Object element = attributes.nextElement();
+				if (element instanceof CSS.Attribute)
+				{
+					if (element.toString().equals("border-top-color"))
+					{
+						top = PersistHelper.createColor(a.getAttribute(element).toString());
+					}
+					else if (element.toString().equals("border-right-color"))
+					{
+						right = PersistHelper.createColor(a.getAttribute(element).toString());
+					}
+					else if (element.toString().equals("border-bottom-color"))
+					{
+						bottom = PersistHelper.createColor(a.getAttribute(element).toString());
+					}
+					else if (element.toString().equals("border-left-color"))
+					{
+						left = PersistHelper.createColor(a.getAttribute(element).toString());
+					}
+				}
+			}
+			if (top != null && right != null && bottom != null && left != null)
+			{
+				return new Color[] { top, right, bottom, left };
+			}
+			else
+			{
+				ArrayList<Color> colors = new ArrayList<Color>();
+				if (top != null) colors.add(top);
+				if (right != null) colors.add(right);
+				if (bottom != null) colors.add(bottom);
+				if (left != null) colors.add(left);
+				if (colors.size() > 0) return colors.toArray(new Color[colors.size()]);
+			}
 		}
 		return null;
 	}
