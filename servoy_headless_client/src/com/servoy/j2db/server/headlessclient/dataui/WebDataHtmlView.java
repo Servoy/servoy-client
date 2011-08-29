@@ -335,4 +335,15 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 	{
 
 	}
+
+	@Override
+	public void setTitleText(String title)
+	{
+		super.setTitleText(title);
+		//	see ComponentFactory createField	
+		if (needEntireState() && getDataProviderID() == null)
+		{
+			setTagText(application.getI18NMessageIfPrefixed(title));
+		}
+	}
 }
