@@ -28,6 +28,7 @@ import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Page;
 import org.apache.wicket.Resource;
 import org.apache.wicket.ResourceReference;
+import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.ComponentTag;
@@ -56,6 +57,8 @@ import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.TabIndexHelper;
+import com.servoy.j2db.server.headlessclient.WebClient;
+import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.BorderAndPadding;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.server.headlessclient.dnd.DraggableBehavior;
@@ -189,6 +192,9 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 							{
 								text = "&nbsp;"; //$NON-NLS-1$
 							}
+
+							WebClient webClient = ((WebClientSession)Session.get()).getWebClient();
+							text = StripHTMLTagsConverter.convertMediaReferences(text, webClient.getSolutionName(), new ResourceReference("media"), "").toString(); //$NON-NLS-1$ //$NON-NLS-2$
 
 							Label headerText = new Label("headertext", text); //$NON-NLS-1$
 							if (width > -1)
