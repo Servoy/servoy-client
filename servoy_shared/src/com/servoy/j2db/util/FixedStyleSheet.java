@@ -281,19 +281,19 @@ public class FixedStyleSheet extends StyleSheet
 				{
 					if (element.toString().equals("border-top-color"))
 					{
-						top = Color.decode(a.getAttribute(element).toString());
+						top = PersistHelper.createColor(a.getAttribute(element).toString());
 					}
 					else if (element.toString().equals("border-right-color"))
 					{
-						right = Color.decode(a.getAttribute(element).toString());
+						right = PersistHelper.createColor(a.getAttribute(element).toString());
 					}
 					else if (element.toString().equals("border-bottom-color"))
 					{
-						bottom = Color.decode(a.getAttribute(element).toString());
+						bottom = PersistHelper.createColor(a.getAttribute(element).toString());
 					}
 					else if (element.toString().equals("border-left-color"))
 					{
-						left = Color.decode(a.getAttribute(element).toString());
+						left = PersistHelper.createColor(a.getAttribute(element).toString());
 					}
 				}
 			}
