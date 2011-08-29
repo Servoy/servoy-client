@@ -20,6 +20,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Insets;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.StringTokenizer;
 
 import javax.swing.BorderFactory;
@@ -88,6 +89,25 @@ public class FixedStyleSheet extends StyleSheet
 		//TODO: how should we handle unexpandedBorder... is flaw in cssparser 
 
 		Object o = a.getAttribute(CSS.Attribute.BORDER_STYLE);
+
+		if (o == null)
+		{
+			// java 7 expands the complete border:
+			Enumeration< ? > attributes = a.getAttributeNames();
+			while (attributes.hasMoreElements())
+			{
+				Object element = attributes.nextElement();
+				if (element instanceof CSS.Attribute)
+				{
+					String elementName = element.toString();
+					if (elementName.startsWith("border-top-style"))
+					{
+						o = a.getAttribute(element);
+						break;
+					}
+				}
+			}
+		}
 		if (o != null)
 		{
 			Color[] colors = getBorderColor(a);
@@ -230,20 +250,66 @@ public class FixedStyleSheet extends StyleSheet
 	 * is not inherited), or it will default to the color attribute
 	 * (which is inherited).
 	 */
+	@SuppressWarnings("nls")
 	Color[] getBorderColor(AttributeSet a)
 	{
 		Object obj = a.getAttribute(CSS.Attribute.BORDER_COLOR);
 		if (obj != null)
 		{
-			ArrayList colors = new ArrayList();
+			ArrayList<Color> colors = new ArrayList<Color>();
 			String val = obj.toString();
-			StringTokenizer tk = new StringTokenizer(val, " "); //$NON-NLS-1$
+			StringTokenizer tk = new StringTokenizer(val, " ");
 			while (tk.hasMoreTokens())
 			{
 				String token = tk.nextToken();
 				colors.add(PersistHelper.createColor(token));
 			}
-			return (Color[])colors.toArray(new Color[colors.size()]);
+			return colors.toArray(new Color[colors.size()]);
+		}
+		else
+		{
+			Color top = null;
+			Color right = null;
+			Color bottom = null;
+			Color left = null;
+			// java 7 expands the complete border:
+			Enumeration< ? > attributes = a.getAttributeNames();
+			while (attributes.hasMoreElements())
+			{
+				Object element = attributes.nextElement();
+				if (element instanceof CSS.Attribute)
+				{
+					if (element.toString().equals("border-top-color"))
+					{
+						top = Color.decode(a.getAttribute(element).toString());
+					}
+					else if (element.toString().equals("border-right-color"))
+					{
+						right = Color.decode(a.getAttribute(element).toString());
+					}
+					else if (element.toString().equals("border-bottom-color"))
+					{
+						bottom = Color.decode(a.getAttribute(element).toString());
+					}
+					else if (element.toString().equals("border-left-color"))
+					{
+						left = Color.decode(a.getAttribute(element).toString());
+					}
+				}
+			}
+			if (top != null && right != null && bottom != null && left != null)
+			{
+				return new Color[] { top, right, bottom, left };
+			}
+			else
+			{
+				ArrayList<Color> colors = new ArrayList<Color>();
+				if (top != null) colors.add(top);
+				if (right != null) colors.add(right);
+				if (bottom != null) colors.add(bottom);
+				if (left != null) colors.add(left);
+				if (colors.size() > 0) return colors.toArray(new Color[colors.size()]);
+			}
 		}
 		return null;
 	}
