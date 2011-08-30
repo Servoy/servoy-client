@@ -831,7 +831,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	{
 		try
 		{
-			return applicationServer.getRegisteredService(name);
+			return applicationServer.getRemoteService(name);
 		}
 		catch (RemoteException e)
 		{

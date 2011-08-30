@@ -53,7 +53,7 @@ public interface IApplicationServer extends Remote
 
 	public ClientLogin login(Credentials credentials) throws RemoteException, RepositoryException;
 
-	public Remote getRegisteredService(String name) throws RemoteException;
+	public Remote getRemoteService(String rmiLookupName) throws RemoteException;
 
 	/**
 	 * Retrieve an client id, if user_uid and password is correct for use in Servoy team provider.

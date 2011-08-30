@@ -36,14 +36,6 @@ import com.servoy.j2db.util.ServoyException;
 public interface IServerAccess extends IPluginAccess
 {
 	/**
-	 * Register a RMI remote object in the application server.
-	 * 
-	 * @param rmiLookupName do start your rmiLookupName with your pluginname, like 'my_pluginName.myRMIservice'.
-	 * @param obj
-	 */
-	public void registerRMIService(String rmiLookupName, Remote obj) throws RemoteException;
-
-	/**
 	 * Register a webservice in the application web server Note on the server 'init(servletConfig)' is never called, only 'init()'. The service comes available
 	 * as http://<host>[:port]/servoy-service/<webServiceName>
 	 * 
@@ -51,6 +43,36 @@ public interface IServerAccess extends IPluginAccess
 	 * @param service_servlet
 	 */
 	public void registerWebService(String webServiceName, HttpServlet service_servlet);
+
+	/**
+	 * Register a RMI remote object in the application server.
+	 * 
+	 * @param rmiLookupName do start your rmiLookupName with your pluginname, like 'my_pluginName.myRMIservice'.
+	 * @param obj
+	 * @deprecated
+	 */
+	@Deprecated
+	public void registerRMIService(String rmiLookupName, Remote obj) throws RemoteException;
+
+	/**
+	 * Register a RMI remote object in the application server.
+	 * 
+	 * @param rmiLookupName do start your rmiLookupName with your pluginname, like 'my_pluginName.myRMIservice'.
+	 * @param obj
+	 */
+	public void registerRemoteService(String rmiLookupName, Remote obj) throws RemoteException;
+
+	/**
+	 * Get a remote server service, will not work in the Servoy Runtime product!
+	 */
+	public Remote getRemoteService(String rmiLookupName) throws Exception;
+
+	/**
+	 * Get the clientID which is local to the server, should only be used when NO client is present!
+	 * 
+	 * @return String the server local client id.
+	 */
+	public String getServerLocalClientID();
 
 	/**
 	 * Get a pooled and reserved jdbc connection, do not forget to close() if done with it (leave commit/rollback to starter of transaction).

@@ -330,6 +330,11 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 		return application.getServerService(name);
 	}
 
+	public Remote getRemoteService(String name) throws Exception
+	{
+		return application.getServerService(name);
+	}
+
 	/*
 	 * @see com.servoy.j2db.plugins.IClientPluginAccess#setStatusText(java.lang.String)
 	 */
@@ -514,9 +519,8 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 							catch (Exception e)
 							{
 								retval = e;
-								if (async) application.handleException(
-									"Exception calling global method '" + methodname + "' with arguments " + Arrays.toString(arguments) +
-										" in async mode on solution " + getSolutionName(), e);
+								if (async) application.handleException("Exception calling global method '" + methodname + "' with arguments " +
+									Arrays.toString(arguments) + " in async mode on solution " + getSolutionName(), e);
 
 							}
 						}
@@ -552,9 +556,8 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 						catch (Exception e)
 						{
 							retval = e;
-							if (async) application.handleException(
-								"Exception calling form method '" + methodname + "' with arguments " + Arrays.toString(arguments) + " on form '" + context +
-									"'in async mode on solution " + getSolutionName(), e);
+							if (async) application.handleException("Exception calling form method '" + methodname + "' with arguments " +
+								Arrays.toString(arguments) + " on form '" + context + "'in async mode on solution " + getSolutionName(), e);
 
 						}
 					}
