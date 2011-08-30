@@ -266,7 +266,10 @@ public class JSEvent implements IConstantsObject
 	 * If it has a name the getElementName() is the name of this component.
 	 *
 	 * @sample
-	 * var sourceDataProvider = event.getSource().getDataProviderID();
+	 * // cast to runtime text field (change to anoter kind of type if you know the type)
+	 * /** @type {RuntimeTextField} *&#47;
+	 * var source = event.getSource();
+	 * var sourceDataProvider = source.getDataProviderID();
 	 * 
 	 * @return an Object representing the source of this event.
 	 */
