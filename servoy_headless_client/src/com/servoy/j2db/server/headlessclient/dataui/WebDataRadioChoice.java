@@ -32,14 +32,12 @@ import javax.swing.border.Border;
 import javax.swing.event.ListDataListener;
 import javax.swing.text.Document;
 
-import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Page;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.RadioChoice;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
@@ -109,15 +107,6 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 		setChoices(list);
 
 		setChoiceRenderer(new WebChoiceRenderer(null, list)); // null because this component does not use a converter (for date/number formats)
-
-		add(new AttributeModifier("readonly", true, new Model<String>() //$NON-NLS-1$
-			{
-				@Override
-				public String getObject()
-				{
-					return (isEnabled() ? AttributeModifier.VALUELESS_ATTRIBUTE_REMOVE : AttributeModifier.VALUELESS_ATTRIBUTE_ADD);
-				}
-			}));
 
 		add(StyleAttributeModifierModel.INSTANCE);
 		add(TooltipAttributeModifier.INSTANCE);
@@ -607,6 +596,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 	}
 
 	private boolean editState;
+	private boolean editable = true;
 
 	public void setReadOnly(boolean b)
 	{
@@ -624,7 +614,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 	public void setEditable(boolean b)
 	{
 		editState = b;
-		setEnabled(b);
+		editable = b;
 	}
 
 	public boolean isEditable()
@@ -634,7 +624,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 
 	public boolean isReadOnly()
 	{
-		return !isEnabled();
+		return !editable;
 	}
 
 
@@ -956,5 +946,11 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 	public RenderEventExecutor getRenderEventExecutor()
 	{
 		return eventExecutor;
+	}
+
+	@Override
+	protected boolean isDisabled(Object object, int index, String selected)
+	{
+		return isReadOnly();
 	}
 }
