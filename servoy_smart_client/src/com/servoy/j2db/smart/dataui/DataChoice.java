@@ -112,7 +112,10 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 	{
 		super();
 		setHorizontalAlignment(SwingConstants.LEFT);
-		setBorder(null);
+		if (choiceType == Field.RADIOS || choiceType == Field.CHECKS)
+		{
+			setBorder(null);
+		}
 		application = app;
 		this.vl = vl;
 		this.choiceType = choiceType;
