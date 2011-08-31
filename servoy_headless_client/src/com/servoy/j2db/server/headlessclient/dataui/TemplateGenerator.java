@@ -1247,6 +1247,15 @@ public class TemplateGenerator
 		styleObj.setProperty("border-color", "#D4D0C8");
 		styleObj.setProperty("background-color", "#FFFFFF");
 
+		styleObj = css.addStyle(".listbox");//listbox"); 
+		styleObj.setProperty("padding", createInsetsText(DEFAULT_FIELD_PADDING));
+		styleObj.setProperty("margin", "0");
+		styleObj.setProperty("border-style", "inset");
+		styleObj.setProperty("border-width", createInsetsText(DEFAULT_FIELD_BORDER_SIZE));
+		styleObj.setProperty("border-spacing", "0px 0px");
+		styleObj.setProperty("border-color", "#D4D0C8");
+		styleObj.setProperty("background-color", "#FFFFFF");
+
 		//default radio/check field stuff
 		styleObj = css.addStyle(".radioCheckField");
 		styleObj.setProperty("padding", createInsetsText(DEFAULT_FIELD_PADDING));
