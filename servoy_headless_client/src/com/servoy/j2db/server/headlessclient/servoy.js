@@ -1164,13 +1164,41 @@ var tipInitialTimeout, tipTimeout;
 
 function showtip(e,message,initialDelay, dismissDelay)
 {
+	var m = document.getElementById('mktipmsg');
+
+	m.innerHTML = message;
+	m.style.zIndex = 203;
+	m.style.width = "";
+	m.style.overflow = "hidden";
+	
+	if(!e)
+	{
+		tipmousemouveEvent = window.event;
+	}
+	else
+	{
+		tipmousemouveEvent = e;
+	}
+	window.addEventListener('mousemove', tipmousemove, false);
+	tipInitialTimeout = setTimeout("adjustAndShowTooltip("+dismissDelay+");", initialDelay);
+}
+
+function adjustAndShowTooltip(dismissDelay)
+{
+	var e = tipmousemouveEvent;
 	var x = 0;
 	var y = 0;
-	var m;
+	if(e.pageX || e.pageY)
+	{
+		x = e.pageX;
+		y = e.pageY;
+	}
+	else if(e.clientX || e.clientY)
+	{
+		x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+		y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+	}
 
-	if(!e)
-		var e = window.event;
-		
 	var wWidth = 0, wHeight = 0;
   	if( typeof( window.innerWidth ) == 'number' )
   	{
@@ -1189,33 +1217,11 @@ function showtip(e,message,initialDelay, dismissDelay)
     	//IE 4 compatible
     	wWidth = document.body.clientWidth;
     	wHeight = document.body.clientHeight;
-  	}		
-		
-	if(e.pageX || e.pageY)
-	{
-		x = e.pageX;
-		y = e.pageY;
-	}
-	else
-		if(e.clientX || e.clientY)
-		{
-			x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-			y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
-		}
-	m = document.getElementById('mktipmsg');
+  	}
 
-	m.innerHTML = message;
+	m = document.getElementById('mktipmsg');
 	m.style.left = x + 20  + "px";	
 	m.style.top = y - 4 + "px";		
-	m.style.zIndex = 203;
-	m.style.width = "";
-	m.style.overflow = "hidden";
-	tipInitialTimeout = setTimeout("adjustAndShowTooltip("+x+","+wWidth +","+y+","+wHeight+","+dismissDelay+");", initialDelay);
-}
-
-function adjustAndShowTooltip(x, wWidth, y, wHeight, dismissDelay)
-{
-	m = document.getElementById('mktipmsg');
 	m.style.display = "block";
 	var tooltipOffsetWidth = x + 20 + m.offsetWidth; 
 
@@ -1241,11 +1247,18 @@ function adjustAndShowTooltip(x, wWidth, y, wHeight, dismissDelay)
 
 function hidetip()
 {
+	window.removeEventListener('mousemove', tipmousemove, false);
 	clearTimeout(tipInitialTimeout);
 	clearTimeout(tipTimeout);
 	var m;
 	m = document.getElementById('mktipmsg');
 	m.style.display = "none";
+}
+
+var tipmousemouveEvent;
+function tipmousemove(e)
+{
+	tipmousemouveEvent = e;
 }
 
 var previousText;
