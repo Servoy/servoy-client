@@ -32,6 +32,7 @@ public class Template extends StringResource implements Serializable
 	public static final String PROP_ELEMENTS = "elements"; //$NON-NLS-1$
 	public static final String PROP_LOCATION = "location"; //$NON-NLS-1$
 	public static final String PROP_SIZE = "size"; //$NON-NLS-1$
+	public static final String PROP_GROUPING = "grouping"; //$NON-NLS-1$
 
 	Template(IRepository repository, RootObjectMetaData metaData)
 	{
