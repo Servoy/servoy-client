@@ -60,7 +60,7 @@ public class SelectedRecordScope implements Scriptable
 	 */
 	public Scriptable getParentScope()
 	{
-		return null;
+		return prototype == null ? null : prototype.getParentScope();
 	}
 
 	/**
