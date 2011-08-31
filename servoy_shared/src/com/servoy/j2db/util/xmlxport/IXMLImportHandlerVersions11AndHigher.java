@@ -56,6 +56,8 @@ public interface IXMLImportHandlerVersions11AndHigher
 	void importBlobs(JarFile jarFile, List<String> blobs, ImportInfo importInfo, Map<String, byte[]> digestMap) throws IOException, RepositoryException,
 		NoSuchAlgorithmException;
 
+	void checkDatabaseInfo(ImportInfo importInfo, ImportTransactable importTransactable) throws RepositoryException;
+
 	void importDatabaseInfo(ImportInfo importInfo, ImportTransactable importTransactable) throws Exception;
 
 	void importUserInfo(Set<UserInfo> userInfoSet);
