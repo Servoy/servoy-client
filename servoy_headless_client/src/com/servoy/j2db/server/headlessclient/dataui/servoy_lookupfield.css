@@ -3,12 +3,5 @@ div.wicket-aa-container {
     border-color: #cccccc;
     border-style: solid;
 } 
-div.wicket-aa { 
-	font-family: "Lucida Grande","Lucida Sans Unicode",Tahoma,Verdana;
-	font-size: 12px;
-	background-color: white;
-	padding: 2px;
-	text-align:left;
-} 
 div.wicket-aa ul { list-style:none; padding: 2px; margin:0; }
 div.wicket-aa ul li.selected { background-color: #FFFF00; padding: 2px; margin:0; }

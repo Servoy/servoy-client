@@ -132,9 +132,21 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 		{
 			private static final long serialVersionUID = 1L;
 
+			@SuppressWarnings("nls")
 			public void renderHead(IHeaderResponse response)
 			{
 				response.renderCSSReference(new CompressedResourceReference(WebDataLookupField.class, "servoy_lookupfield.css")); //$NON-NLS-1$
+
+				StringBuffer headerStyle = new StringBuffer();
+				headerStyle.append("<style type=\"text/css\"> ");
+				headerStyle.append("#" + getMarkupId() + "-autocomplete.wicket-aa" + " { ");
+				headerStyle.append("font-family: \"Lucida Grande\",\"Lucida Sans Unicode\",Tahoma,Verdana; ");
+				headerStyle.append("font-size: " + getFont().getSize() + "px; ");
+				headerStyle.append("background-color: white; ");
+				headerStyle.append("padding: 2px; ");
+				headerStyle.append("text-align:left; } ");
+				headerStyle.append("</style>");
+				response.renderString(headerStyle.toString());
 			}
 		})
 		{
