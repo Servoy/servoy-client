@@ -574,6 +574,8 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 				jlist.setCellRenderer(new FixedListCellRenderer());
 				jlist.addMouseListener(new ListMouseListener());
 
+				jlist.setFont(getFont());
+
 				jlist.setFocusable(false);
 				jlist.addListSelectionListener(new ListSelectionListener()
 				{
