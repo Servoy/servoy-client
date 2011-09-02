@@ -451,6 +451,7 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 				{
 					jlist.setModel(dlm);
 					jlist.setSelectedValue(txt, true);
+					jlist.setFont(getFont());
 				}
 				showPopup();
 			}
