@@ -26,6 +26,7 @@ import com.servoy.j2db.util.UUID;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Method")
+@SuppressWarnings("nls")
 public class ScriptMethod extends AbstractScriptProvider implements IPersistCloneable, ICloneable
 {
 	/**
@@ -49,11 +50,6 @@ public class ScriptMethod extends AbstractScriptProvider implements IPersistClon
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_SHOWINMENU).booleanValue();
 	}
 
-	@Override
-	public String toString()
-	{
-		return "ScriptMethod[name:" + getName() + ", inmenu:" + getShowInMenu() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-	}
 
 	public String getPrefixedName()
 	{
@@ -67,19 +63,25 @@ public class ScriptMethod extends AbstractScriptProvider implements IPersistClon
 	/**
 	 * @return
 	 */
-	@SuppressWarnings("nls")
 	public boolean isPrivate()
 	{
 		String declaration = getDeclaration();
+		if (declaration == null) return false;
 		int index = declaration.indexOf("*/");
 		return index != -1 && declaration.lastIndexOf("@private", index) != -1;
 	}
 
-	@SuppressWarnings("nls")
 	public boolean isProtected()
 	{
 		String declaration = getDeclaration();
+		if (declaration == null) return false;
 		int index = declaration.indexOf("*/");
 		return index != -1 && declaration.lastIndexOf("@protected", index) != -1;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "ScriptMethod[name:" + getName() + ", inmenu:" + getShowInMenu() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 }
