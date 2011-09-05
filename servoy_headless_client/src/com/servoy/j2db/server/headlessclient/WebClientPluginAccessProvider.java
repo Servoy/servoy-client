@@ -37,35 +37,36 @@ public class WebClientPluginAccessProvider extends ClientPluginAccessProvider im
 		super(client);
 	}
 
-	public WebClient getClient()
+	@Override
+	public WebClient getApplication()
 	{
-		return (WebClient)application;
+		return (WebClient)super.getApplication();
 	}
 
 	public boolean showURL(String url, String target, String target_options)
 	{
-		return getClient().showURL(url, target, target_options, 0, true);
+		return getApplication().showURL(url, target, target_options, 0, true);
 	}
 
 	public boolean showURL(String url, String target, String target_options, int timeout)
 	{
-		return getClient().showURL(url, target, target_options, timeout, true);
+		return getApplication().showURL(url, target, target_options, timeout, true);
 	}
 
 	public boolean showURL(String url, String target, String target_options, int timeout, boolean closeDialogs)
 	{
-		return getClient().showURL(url, target, target_options, timeout, closeDialogs);
+		return getApplication().showURL(url, target, target_options, timeout, closeDialogs);
 	}
 
 	public IPageContributor getPageContributor()
 	{
-		MainPage mp = getClient().getMainPage();
+		MainPage mp = getApplication().getMainPage();
 		return mp.getPageContributor();
 	}
 
 	public String serveResource(String filename, byte[] bs, String mimetype)
 	{
-		MainPage mp = getClient().getMainPage();
+		MainPage mp = getApplication().getMainPage();
 		return mp.serveResource(filename, bs, mimetype);
 	}
 
@@ -84,7 +85,7 @@ public class WebClientPluginAccessProvider extends ClientPluginAccessProvider im
 	@Override
 	public void showFileOpenDialog(IMediaUploadCallback callback, String fileNameHint, boolean multiSelect, String[] filter, int selection, String dialogTitle)
 	{
-		MainPage mp = getClient().getMainPage();
+		MainPage mp = getApplication().getMainPage();
 		mp.showOpenFileDialog(callback, multiSelect, dialogTitle);
 	}
 
@@ -92,9 +93,9 @@ public class WebClientPluginAccessProvider extends ClientPluginAccessProvider im
 	public Object executeMethod(String context, String methodname, Object[] arguments, final boolean async) throws Exception
 	{
 		// execute outstanding events first
-		if (getClient().isEventDispatchThread())
+		if (getApplication().isEventDispatchThread())
 		{
-			getClient().executeEvents();
+			getApplication().executeEvents();
 		}
 		return super.executeMethod(context, methodname, arguments, async);
 	}

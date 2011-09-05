@@ -37,7 +37,6 @@ import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.plugins.IMediaUploadCallback;
 import com.servoy.j2db.plugins.IUploadData;
 import com.servoy.j2db.smart.ISmartClientPluginAccess;
-import com.servoy.j2db.smart.J2DBClient;
 import com.servoy.j2db.util.FileChooserUtils;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.toolbar.IToolbarPanel;
@@ -49,12 +48,15 @@ import com.servoy.j2db.util.toolbar.IToolbarPanel;
  */
 public class SmartClientPluginAccessProvider extends ClientPluginAccessProvider implements ISmartClientPluginAccess
 {
-	private final ISmartClientApplication application;
-
-	public SmartClientPluginAccessProvider(J2DBClient client)
+	public SmartClientPluginAccessProvider(ISmartClientApplication client)
 	{
 		super(client);
-		this.application = client;
+	}
+
+	@Override
+	public ISmartClientApplication getApplication()
+	{
+		return (ISmartClientApplication)super.getApplication();
 	}
 
 	/**
@@ -63,7 +65,7 @@ public class SmartClientPluginAccessProvider extends ClientPluginAccessProvider 
 	@Override
 	public void exportObject(Remote object) throws RemoteException
 	{
-		application.exportObject(object);
+		getApplication().exportObject(object);
 	}
 
 	/**
@@ -75,7 +77,7 @@ public class SmartClientPluginAccessProvider extends ClientPluginAccessProvider 
 	@Override
 	public void registerURLStreamHandler(String protocolName, URLStreamHandler handler)
 	{
-		application.addURLStreamHandler(protocolName, handler);
+		getApplication().addURLStreamHandler(protocolName, handler);
 	}
 
 	/**
@@ -84,16 +86,16 @@ public class SmartClientPluginAccessProvider extends ClientPluginAccessProvider 
 	@Override
 	public URLStreamHandler getMediaURLStreamHandler()
 	{
-		return new MediaURLStreamHandler(application);
+		return new MediaURLStreamHandler(getApplication());
 	}
 
 	@Override
 	@Deprecated
 	public Window getWindow(String windowName)
 	{
-		if (windowName == null) return application.getMainApplicationFrame();
+		if (windowName == null) return getApplication().getMainApplicationFrame();
 
-		Object window = application.getRuntimeWindowManager().getWindowWrappedObject(windowName);
+		Object window = getApplication().getRuntimeWindowManager().getWindowWrappedObject(windowName);
 		if ((window instanceof Window) && ((Window)window).isVisible())
 		{
 			return (Window)window;
@@ -108,40 +110,40 @@ public class SmartClientPluginAccessProvider extends ClientPluginAccessProvider 
 	@Deprecated
 	public Window getCurrentWindow()
 	{
-		Object window = application.getRuntimeWindowManager().getCurrentWindowWrappedObject();
+		Object window = getApplication().getRuntimeWindowManager().getCurrentWindowWrappedObject();
 		if ((window instanceof Window) && ((Window)window).isVisible())
 		{
 			return (Window)window;
 		}
 		else
 		{
-			return application.getMainApplicationFrame();
+			return getApplication().getMainApplicationFrame();
 		}
 	}
 
 	@Override
 	public IToolbarPanel getToolbarPanel()
 	{
-		return application.getToolbarPanel();
+		return getApplication().getToolbarPanel();
 	}
 
 	@Override
 	public JMenu getImportMenu()
 	{
-		return application.getImportMenu();
+		return getApplication().getImportMenu();
 	}
 
 	@Override
 	public JMenu getExportMenu()
 	{
-		return application.getExportMenu();
+		return getApplication().getExportMenu();
 	}
 
 	@Deprecated
 	@Override
 	public JFrame getMainApplicationFrame()
 	{
-		return application.getMainApplicationFrame();
+		return getApplication().getMainApplicationFrame();
 	}
 
 	@Override

@@ -36,6 +36,7 @@ import javax.swing.JMenu;
 import org.mozilla.javascript.Function;
 
 import com.servoy.j2db.ClientVersion;
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
@@ -67,7 +68,7 @@ import com.servoy.j2db.util.toolbar.IToolbarPanel;
  */
 public class ClientPluginAccessProvider implements IClientPluginAccess
 {
-	protected IApplication application;
+	private final IApplication application;
 
 	public ClientPluginAccessProvider(IApplication app)
 	{
@@ -628,8 +629,13 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 	 */
 	public IStyleSheet getStyleSheet(String name)
 	{
+		FlattenedSolution flattenedSolution = application.getFlattenedSolution();
+		if (flattenedSolution == null)
+		{
+			return null; // when called before flattened solution is set.
+		}
 		String style_name = ComponentFactory.getOverriddenStyleName(application, name);
-		Style s = application.getFlattenedSolution().getStyle(style_name);
+		Style s = flattenedSolution.getStyle(style_name);
 		return ComponentFactory.getCSSStyle(application, s);
 	}
 
