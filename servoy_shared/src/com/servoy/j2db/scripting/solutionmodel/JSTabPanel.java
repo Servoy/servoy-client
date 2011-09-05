@@ -334,7 +334,7 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 	 * @clonedesc com.servoy.j2db.persistence.TabPanel#getOnTabChangeMethodID()
 	 *
 	 * @sample 
-	 * var onTabChangeMethod = form.newFormMethod('function onTabChange(previousIndex, event) { application.output("Tab changed from previous index " + previousIndex + " at " + event.getTimestamp()); }');
+	 * var onTabChangeMethod = form.newMethod('function onTabChange(previousIndex, event) { application.output("Tab changed from previous index " + previousIndex + " at " + event.getTimestamp()); }');
 	 * var tabPanel = form.newTabPanel('tabs', 10, 10, 620, 460);
 	 * tabPanel.newTab('tab1', 'Child Two', childOne);
 	 * tabPanel.newTab('tab2', 'Child Two', childTwo);
@@ -350,7 +350,7 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 	 * @clonedesc com.servoy.j2db.persistence.TabPanel#getOnChangeMethodID()
 	 *
 	 * @sample 
-	 * var onChangeMethod = form.newFormMethod('function onTabChange(previousIndex, event) { application.output("Tab changed from previous index " + previousIndex + " at " + event.getTimestamp()); }');
+	 * var onChangeMethod = form.newMethod('function onTabChange(previousIndex, event) { application.output("Tab changed from previous index " + previousIndex + " at " + event.getTimestamp()); }');
 	 * var tabPanel = form.newTabPanel('tabs', 10, 10, 620, 460);
 	 * tabPanel.newTab('tab1', 'Child Two', childOne);
 	 * tabPanel.newTab('tab2', 'Child Two', childTwo);

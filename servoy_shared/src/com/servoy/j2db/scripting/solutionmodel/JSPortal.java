@@ -390,7 +390,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	 * Creates a new button on the portal with the given text, place, size and JSMethod as the onClick action.
 	 *
 	 * @sample 
-	 * var clickMethod = form.newFormMethod('function clickMe() { application.output("I was clicked!"); }');
+	 * var clickMethod = form.newMethod('function clickMe() { application.output("I was clicked!"); }');
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_child', 10, 10, 620, 460);
 	 * childrenPortal.newButton('Click me!', 400, 100, 20, clickMethod);
 	 *
@@ -436,7 +436,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	 * Creates a new label on the form, with the given text, place and size.
 	 *
 	 * @sample
-	 * var clickMethod = form.newFormMethod('function clickMe() { application.output("I was clicked!"); }');
+	 * var clickMethod = form.newMethod('function clickMe() { application.output("I was clicked!"); }');
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_my_table', 10, 10, 1180, 780);
 	 * var calLabel = childrenPortal.newLabel('Date', 120, 60, 20); 
 	 * // This will result in a button being actually created, because we specify an action.
@@ -461,7 +461,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	 * Creates a new label on the form, with the given text, place, size and an JSMethod as the onClick action.
 	 *
 	 * @sample
-	 * var clickMethod = form.newFormMethod('function clickMe() { application.output("I was clicked!"); }');
+	 * var clickMethod = form.newMethod('function clickMe() { application.output("I was clicked!"); }');
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_my_table', 10, 10, 1180, 780);
 	 * var calLabel = childrenPortal.newLabel('Date', 120, 60, 20); 
 	 * // This will result in a button being actually created, because we specify an action.
@@ -564,7 +564,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	 * Retrieves a button from the portal based on the name of the button.
 	 * 
 	 * @sample
-	 * var clickMethod = form.newFormMethod('function clickMe() { application.output("I was clicked!"); }');
+	 * var clickMethod = form.newMethod('function clickMe() { application.output("I was clicked!"); }');
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_child', 10, 10, 620, 460);
 	 * var btn = childrenPortal.newButton('Click me!', 400, 100, 20, clickMethod);
 	 * btn.name = 'clickMeBtn'; // Give a name to the button, so we can retrieve it by name later.
@@ -1026,7 +1026,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	 * @clonedesc com.servoy.j2db.persistence.Portal#getOnRenderMethodID()
 	 * 
 	 * @sample
-	 * portal.onRender = form.newFormMethod('function onRender(event) { event.getElement().bgcolor = \'#00ff00\' }');
+	 * portal.onRender = form.newMethod('function onRender(event) { event.getElement().bgcolor = \'#00ff00\' }');
 	 */
 	public JSMethod js_getOnRender()
 	{
@@ -1042,10 +1042,10 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	 * @clonedesc com.servoy.j2db.persistence.Portal#getOnDragMethodID()
 	 * 
 	 * @sample
-	 * form.onDrag = form.newFormMethod('function onDrag(event) { application.output("onDrag intercepted from " + event.getSource()); }');
-	 * form.onDragEnd = form.newFormMethod('function onDragEnd(event) { application.output("onDragEnd intercepted from " + event.getSource()); }');
-	 * form.onDragOver = form.newFormMethod('function onDragOver(event) { application.output("onDragOver intercepted from " + event.getSource()); }');
-	 * form.onDrop = form.newFormMethod('function onDrop(event) { application.output("onDrop intercepted from " + event.getSource()); }');
+	 * form.onDrag = form.newMethod('function onDrag(event) { application.output("onDrag intercepted from " + event.getSource()); }');
+	 * form.onDragEnd = form.newMethod('function onDragEnd(event) { application.output("onDragEnd intercepted from " + event.getSource()); }');
+	 * form.onDragOver = form.newMethod('function onDragOver(event) { application.output("onDragOver intercepted from " + event.getSource()); }');
+	 * form.onDrop = form.newMethod('function onDrop(event) { application.output("onDrop intercepted from " + event.getSource()); }');
 	 */
 	public JSMethod js_getOnDrag()
 	{

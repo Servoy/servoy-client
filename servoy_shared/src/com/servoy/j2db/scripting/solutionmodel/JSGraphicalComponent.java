@@ -179,7 +179,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getMnemonic()
 	 * 
 	 * @sample
-	 * var m = form.newFormMethod('function onClick() { application.output("I was clicked."); }');
+	 * var m = form.newMethod('function onClick() { application.output("I was clicked."); }');
 	 * var btn = form.newButton('I am a button', 10, 40, 200, 20, m);
 	 * btn.mnemonic = 'B'; // When ALT-B is pressed the mouse will respond as if clicked.
 	 * var labelOne = form.newLabel('Label One', 10, 10, 100, 20);
@@ -231,7 +231,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getRotation()
 	 * 
 	 * @sample
-	 * var m = form.newFormMethod('function onClick() { application.output("I was clicked."); }');
+	 * var m = form.newMethod('function onClick() { application.output("I was clicked."); }');
 	 * var label = form.newLabel('I am a label', 10, 10, 200, 200, m);
 	 * label.rotation = 90;
 	 * var btn = form.newButton('And I am a button', 10, 220, 200, 20, m);
@@ -247,7 +247,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * 
 	 * @sample
 	 * // Create a form method.
-	 * var m = form.newFormMethod('function onClick() { application.output("I was clicked."); }');
+	 * var m = form.newMethod('function onClick() { application.output("I was clicked."); }');
 	 * // Create a label with the method attached to its onClick event.
 	 * var label = form.newLabel('I am a label', 10, 10, 200, 20, m);
 	 * // By default the label does not visually react to clicks, but we can enable this.
@@ -268,7 +268,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getShowFocus()
 	 * 
 	 * @sample
-	 * var m = form.newFormMethod('function onClick() { application.output("I was clicked."); }');
+	 * var m = form.newMethod('function onClick() { application.output("I was clicked."); }');
 	 * var label = form.newLabel('I am a label', 10, 10, 200, 20, m);
 	 * label.showFocus = false;
 	 * var btn = form.newButton('And I am a button', 10, 40, 200, 20, m);
@@ -507,10 +507,10 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getOnActionMethodID()
 	 * 
 	 * @sample
-	 * var doNothingMethod = form.newFormMethod('function doNothing() { application.output("Doing nothing."); }');
-	 * var onClickMethod = form.newFormMethod('function onClick(event) { application.output("I was clicked at " + event.getTimestamp()); }');
-	 * var onDoubleClickMethod = form.newFormMethod('function onDoubleClick(event) { application.output("I was double-clicked at " + event.getTimestamp()); }');
-	 * var onRightClickMethod = form.newFormMethod('function onRightClick(event) { application.output("I was right-clicked at " + event.getTimestamp()); }');
+	 * var doNothingMethod = form.newMethod('function doNothing() { application.output("Doing nothing."); }');
+	 * var onClickMethod = form.newMethod('function onClick(event) { application.output("I was clicked at " + event.getTimestamp()); }');
+	 * var onDoubleClickMethod = form.newMethod('function onDoubleClick(event) { application.output("I was double-clicked at " + event.getTimestamp()); }');
+	 * var onRightClickMethod = form.newMethod('function onRightClick(event) { application.output("I was right-clicked at " + event.getTimestamp()); }');
 	 * // At creation the button has the 'doNothing' method as onClick handler, but we'll change that later.
 	 * var btn = form.newButton('I am a button', 10, 40, 200, 20, doNothingMethod);
 	 * btn.onAction = onClickMethod;
@@ -546,7 +546,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getOnRenderMethodID()
 	 * 
 	 * @sample
-	 * label.onRender = form.newFormMethod('function onRender(event) { event.getElement().bgcolor = \'#00ff00\' }');
+	 * label.onRender = form.newMethod('function onRender(event) { event.getElement().bgcolor = \'#00ff00\' }');
 	 */
 	public JSMethod js_getOnRender()
 	{

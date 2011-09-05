@@ -106,7 +106,7 @@ public class JSMethod implements IJavaScriptType
 	 * @clonedesc com.servoy.j2db.persistence.AbstractScriptProvider#getDeclaration()
 	 * 
 	 * @sample
-	 * var method = form.newFormMethod('function original() { application.output("Original function."); }');
+	 * var method = form.newMethod('function original() { application.output("Original function."); }');
 	 * application.output('original method name: ' + method.getName());
 	 * application.output('original method code: ' + method.code);
 	 * method.code = 'function changed() { application.output("This is another function."); }';
@@ -274,7 +274,7 @@ public class JSMethod implements IJavaScriptType
 	 * Returns the UUID of the method object
 	 * 
 	 * @sample
-	 * var method = form.newFormMethod('function original() { application.output("Original function."); }');
+	 * var method = form.newMethod('function original() { application.output("Original function."); }');
 	 * application.output(method.getUUID().toString());
 	 */
 	public UUID js_getUUID()

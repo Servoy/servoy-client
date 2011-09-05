@@ -535,7 +535,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 * 
 	 * @sample
 	 * var form = solutionModel.newForm('someForm', 'example_data', 'parent_table', 'null', false, 620, 300);
-	 * var onDataChangeMethod = form.newFormMethod('function onDataChange(oldValue, newValue, event) { application.output("Data changed from " + oldValue + " to " + newValue + " at " + event.getTimestamp()); }');
+	 * var onDataChangeMethod = form.newMethod('function onDataChange(oldValue, newValue, event) { application.output("Data changed from " + oldValue + " to " + newValue + " at " + event.getTimestamp()); }');
 	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
 	 * field.onDataChange = onDataChangeMethod;
 	 * forms['someForm'].controller.show();
@@ -554,7 +554,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 * @clonedesc com.servoy.j2db.persistence.Field#getOnRenderMethodID()
 	 * 
 	 * @sample
-	 * field.onRender = form.newFormMethod('function onRender(event) { event.getElement().bgcolor = \'#00ff00\' }');
+	 * field.onRender = form.newMethod('function onRender(event) { event.getElement().bgcolor = \'#00ff00\' }');
 	 */
 	public JSMethod js_getOnRender()
 	{
@@ -585,8 +585,8 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 * 
 	 * @sample
 	 * var form = solutionModel.newForm('someForm', 'example_data', 'parent_table', 'null', false, 620, 300);
-	 * var onFocusLostMethod = form.newFormMethod('function onFocusLost(event) { application.output("Focus lost at " + event.getTimestamp()); }');
-	 * var onFocusGainedMethod = form.newFormMethod('function onFocusGained(event) { application.output("Focus gained at " + event.getTimestamp()); }');
+	 * var onFocusLostMethod = form.newMethod('function onFocusLost(event) { application.output("Focus lost at " + event.getTimestamp()); }');
+	 * var onFocusGainedMethod = form.newMethod('function onFocusGained(event) { application.output("Focus gained at " + event.getTimestamp()); }');
 	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
 	 * field.onFocusGained = onFocusGainedMethod;
 	 * field.onFocusLost = onFocusLostMethod;
