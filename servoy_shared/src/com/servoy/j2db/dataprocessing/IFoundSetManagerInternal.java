@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.util.ServoyException;
@@ -108,4 +109,10 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	 * @return map of tracking info  
 	 */
 	public HashMap<String, Object> getTrackingInfo();
+
+	/**
+	 * @param dataSource
+	 * @param persist
+	 */
+	public void reloadFoundsetMethod(String dataSource, IScriptProvider scriptMethod);
 }

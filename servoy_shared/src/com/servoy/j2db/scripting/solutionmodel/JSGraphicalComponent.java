@@ -38,9 +38,9 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	/**
 	 * @param gc
 	 */
-	public JSGraphicalComponent(IJSParent form, GraphicalComponent gc, IApplication application, boolean isNew)
+	public JSGraphicalComponent(IJSParent< ? > parent, GraphicalComponent gc, IApplication application, boolean isNew)
 	{
-		super(form, gc, isNew);
+		super(parent, gc, isNew);
 		this.application = application;
 	}
 
@@ -500,7 +500,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 
 	public void js_setOnAction(JSMethod method)
 	{
-		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID.getPropertyName(), method);
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID, method);
 	}
 
 	/**
@@ -519,12 +519,12 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 */
 	public JSMethod js_getOnAction()
 	{
-		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID.getPropertyName());
+		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID);
 	}
 
 	public void js_setOnDoubleClick(JSMethod method)
 	{
-		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDOUBLECLICKMETHODID.getPropertyName(), method);
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDOUBLECLICKMETHODID, method);
 	}
 
 	/**
@@ -534,12 +534,12 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 */
 	public JSMethod js_getOnDoubleClick()
 	{
-		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDOUBLECLICKMETHODID.getPropertyName());
+		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDOUBLECLICKMETHODID);
 	}
 
 	public void js_setOnRender(JSMethod method)
 	{
-		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID.getPropertyName(), method);
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID, method);
 	}
 
 	/**
@@ -550,12 +550,12 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 */
 	public JSMethod js_getOnRender()
 	{
-		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID.getPropertyName());
+		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID);
 	}
 
 	public void js_setOnRightClick(JSMethod method)
 	{
-		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID.getPropertyName(), method);
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID, method);
 	}
 
 	/**
@@ -565,7 +565,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 */
 	public JSMethod js_getOnRightClick()
 	{
-		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID.getPropertyName());
+		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID);
 	}
 
 	/**

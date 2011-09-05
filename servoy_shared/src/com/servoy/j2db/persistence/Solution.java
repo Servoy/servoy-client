@@ -30,6 +30,8 @@ import java.util.StringTokenizer;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.FilteredIterator;
+import com.servoy.j2db.util.IFilter;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -467,37 +469,54 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 		return retval;
 	}
 
-	public ScriptCalculation createNewScriptCalculation(IValidateName validator, Table table, String name) throws RepositoryException
+	public TableNode getOrCreateTableNode(String dataSource) throws RepositoryException
 	{
-		TableNode tableNode = null;
-		Iterator<TableNode> it = getTableNodes(table);
-		if (!it.hasNext())
+		Iterator<TableNode> it = getTableNodes(dataSource);
+		if (it.hasNext())
 		{
-			//create
-			tableNode = createNewTableNode(table.getDataSource());
+			return it.next();
 		}
-		else
-		{
-			tableNode = it.next();
-		}
-		return tableNode.createNewScriptCalculation(validator, name);
+		//create
+		return createNewTableNode(dataSource);
 	}
 
-	public AggregateVariable createNewAggregateVariable(IValidateName validator, Table table, String name, int aggType, String dataProviderIDToAggregate)
-		throws RepositoryException
+	public ScriptCalculation createNewScriptCalculation(IValidateName validator, String dataSource, String name) throws RepositoryException
 	{
-		TableNode tableNode = null;
-		Iterator<TableNode> it = getTableNodes(table);
-		if (!it.hasNext())
+		return getOrCreateTableNode(dataSource).createNewScriptCalculation(validator, name);
+	}
+
+	public ScriptMethod createNewFoundsetMethod(IValidateName validator, String dataSource, String name) throws RepositoryException
+	{
+		return getOrCreateTableNode(dataSource).createNewFoundsetMethod(validator, name);
+	}
+
+	public static List<ScriptMethod> getFoundsetMethods(Iterator<TableNode> tablenodes, boolean sort)
+	{
+		List<ScriptMethod> retval = null;
+		if (sort)
 		{
-			//create
-			tableNode = createNewTableNode(table.getDataSource());
+			retval = new SortedList<ScriptMethod>(NameComparator.INSTANCE);
 		}
 		else
 		{
-			tableNode = it.next();
+			retval = new ArrayList<ScriptMethod>();
 		}
-		return tableNode.createNewAggregateVariable(validator, name, aggType, dataProviderIDToAggregate);
+		while (tablenodes.hasNext())
+		{
+			TableNode tableNode = tablenodes.next();
+			Iterator<ScriptMethod> methods = tableNode.getFoundsetMethods(false);
+			while (methods.hasNext())
+			{
+				retval.add(methods.next());
+			}
+		}
+		return retval;
+	}
+
+	public AggregateVariable createNewAggregateVariable(IValidateName validator, String dataSource, String name, int aggType, String dataProviderIDToAggregate)
+		throws RepositoryException
+	{
+		return getOrCreateTableNode(dataSource).createNewAggregateVariable(validator, name, aggType, dataProviderIDToAggregate);
 	}
 
 	public Iterator<AggregateVariable> getAggregateVariables(Table basedOnTable, boolean sort) throws RepositoryException
@@ -530,6 +549,26 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 		return getTableNodes(getRepository(), getAllObjectsAsList(), table);
 	}
 
+	public Iterator<TableNode> getTableNodes(String dataSource)
+	{
+		return getTableNodes(getAllObjectsAsList(), dataSource);
+	}
+
+	public static Iterator<TableNode> getTableNodes(List<IPersist> childs, final String dataSource)
+	{
+		if (dataSource == null)
+		{
+			return Collections.<TableNode> emptyList().iterator();
+		}
+		return new FilteredIterator<TableNode>(new TypeIterator<TableNode>(childs, IRepository.TABLENODES), new IFilter<TableNode>()
+		{
+			public boolean match(Object o)
+			{
+				return dataSource.equals(((TableNode)o).getDataSource());
+			}
+		});
+	}
+
 	public static Iterator<TableNode> getTableNodes(IRepository repository, List<IPersist> childs, ITable table) throws RepositoryException
 	{
 		List<TableNode> retval = new ArrayList<TableNode>();
@@ -537,7 +576,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 		{
 			List<String> dataSources = getTableDataSources(repository, table);
 
-			Iterator<TableNode> it1 = new TypeIterator(childs, IRepository.TABLENODES);
+			Iterator<TableNode> it1 = new TypeIterator<TableNode>(childs, IRepository.TABLENODES);
 			while (it1.hasNext())
 			{
 				TableNode node = it1.next();
@@ -549,7 +588,6 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 		}
 		return retval.iterator();
 	}
-
 
 	public TableNode createNewTableNode(String dataSource) throws RepositoryException
 	{
@@ -758,7 +796,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 	 * @param alreadyKnownSolutions, can be null or a map (name -> solution)
 	 * @return a list of RootObjectReference
 	 */
-	public List<RootObjectReference> getReferencedModules(Map alreadyKnownSolutions) throws RepositoryException
+	public List<RootObjectReference> getReferencedModules(Map<String, Solution> alreadyKnownSolutions) throws RepositoryException
 	{
 		List<RootObjectReference> referencedModules = new ArrayList<RootObjectReference>();
 		String moduleNames = getModulesNames();

@@ -89,7 +89,7 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 		application.output(msg, level);
 	}
 
-	public Map getRuntimeProperties()
+	public Map<Object, Object> getRuntimeProperties()
 	{
 		return application.getRuntimeProperties();
 	}
@@ -519,8 +519,9 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 							catch (Exception e)
 							{
 								retval = e;
-								if (async) application.handleException("Exception calling global method '" + methodname + "' with arguments " +
-									Arrays.toString(arguments) + " in async mode on solution " + getSolutionName(), e);
+								if (async) application.handleException(
+									"Exception calling global method '" + methodname + "' with arguments " + Arrays.toString(arguments) +
+										" in async mode on solution " + getSolutionName(), e);
 
 							}
 						}
@@ -550,14 +551,15 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 									Debug.error(ex);
 									application.handleException(application.getI18NMessage("servoy.formPanel.error.formData"), ex); //$NON-NLS-1$
 								}
-								retval = fp.executeFunction(methodname, arguments, true, null, true, null, false, true);
+								retval = fp.executeFunction(methodname, arguments, true, null, true, null, true, false, true);
 							}
 						}
 						catch (Exception e)
 						{
 							retval = e;
-							if (async) application.handleException("Exception calling form method '" + methodname + "' with arguments " +
-								Arrays.toString(arguments) + " on form '" + context + "'in async mode on solution " + getSolutionName(), e);
+							if (async) application.handleException(
+								"Exception calling form method '" + methodname + "' with arguments " + Arrays.toString(arguments) + " on form '" + context +
+									"'in async mode on solution " + getSolutionName(), e);
 
 						}
 					}

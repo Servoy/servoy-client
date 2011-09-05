@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.smart.scripting;
 
 
@@ -25,13 +25,18 @@ import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.Messages;
+import com.servoy.j2db.persistence.AbstractBase;
+import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.scripting.LazyCompilationScope;
 import com.servoy.j2db.smart.J2DBClient;
+import com.servoy.j2db.util.Debug;
 
 /**
  * @author jcompagner
@@ -67,10 +72,44 @@ public class ScriptMenuItem extends JMenuItem implements ActionListener
 	public void actionPerformed(ActionEvent e)
 	{
 		final String name = getText();
-		final LazyCompilationScope scope = (formController == null ? application.getScriptEngine().getGlobalScope() : formController.getFormScope());
-		final Function function = scope.getFunctionByName(name);
-		if (function != null)
+		Scriptable sc;
+		Object fn;
+		if (formController == null)
 		{
+			sc = application.getScriptEngine().getGlobalScope();
+			fn = ((LazyCompilationScope)sc).getFunctionByName(name);
+		}
+		else
+		{
+			sc = formController.getFormScope();
+			fn = ((LazyCompilationScope)sc).getFunctionByName(name);
+
+			if (fn == null && formController.getFormModel() != null)
+			{
+				// try foundset method
+				ScriptMethod scriptMethod;
+				try
+				{
+					scriptMethod = AbstractBase.selectByName(
+						application.getFlattenedSolution().getFoundsetMethods(formController.getTable(), false).iterator(), name);
+				}
+				catch (RepositoryException ex)
+				{
+					Debug.error(ex);
+					return;
+				}
+				if (scriptMethod != null)
+				{
+					sc = formController.getFormModel();
+					fn = sc.getPrototype().get(scriptMethod.getName(), sc);
+				}
+			}
+		}
+
+		if (fn instanceof Function)
+		{
+			final Function function = (Function)fn;
+			final Scriptable scope = sc;
 			application.invokeLater(new Runnable()
 			{
 				public void run()
@@ -79,7 +118,7 @@ public class ScriptMenuItem extends JMenuItem implements ActionListener
 					{
 						if (formController != null)
 						{
-							formController.executeFunction(function, null, true);
+							formController.executeFunction(function, null, scope, true);
 						}
 						else
 						{

@@ -37,23 +37,26 @@ import com.servoy.j2db.util.UUID;
 public class JSCalculation implements IJavaScriptType
 {
 	private ScriptCalculation scriptCalculation;
-	private boolean copy;
 	private final IApplication application;
+	private boolean isCopy;
+	private final JSDataSourceNode parent;
 
-	public JSCalculation(ScriptCalculation scriptCalculation, boolean copy, IApplication application)
+	public JSCalculation(JSDataSourceNode parent, ScriptCalculation scriptCalculation, IApplication application, boolean isNew)
 	{
+		this.parent = parent;
 		this.scriptCalculation = scriptCalculation;
-		this.copy = copy;
 		this.application = application;
+		this.isCopy = isNew;
 	}
 
 	private void checkModification()
 	{
-		if (!copy)
+		if (!isCopy)
 		{
 			try
 			{
-				TableNode tableNode = application.getFlattenedSolution().getSolutionCopyTableNode(scriptCalculation.getTable());
+
+				TableNode tableNode = application.getFlattenedSolution().getSolutionCopyTableNode(parent.getDataSource());
 				ScriptCalculation sc = tableNode.getScriptCalculation(scriptCalculation.getName());
 				if (sc == null)
 				{
@@ -61,7 +64,7 @@ public class JSCalculation implements IJavaScriptType
 					tableNode.addChild(sc);
 					scriptCalculation = sc;
 				}
-				copy = true;
+				isCopy = true;
 			}
 			catch (RepositoryException e)
 			{
@@ -178,11 +181,6 @@ public class JSCalculation implements IJavaScriptType
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString()
 	{
@@ -200,4 +198,5 @@ public class JSCalculation implements IJavaScriptType
 	{
 		return scriptCalculation.getUUID();
 	}
+
 }

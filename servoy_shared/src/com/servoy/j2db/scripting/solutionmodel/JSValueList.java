@@ -575,7 +575,7 @@ public class JSValueList implements IConstantsObject
 			ScriptMethod scriptMethod = application.getFlattenedSolution().getScriptMethod(values.substring(ScriptVariable.GLOBAL_DOT_PREFIX.length()));
 			if (scriptMethod != null)
 			{
-				return new JSMethod(application, scriptMethod, true);
+				return new JSMethod(scriptMethod, application, true);
 			}
 		}
 		return null;
@@ -591,7 +591,7 @@ public class JSValueList implements IConstantsObject
 		}
 		catch (RepositoryException e)
 		{
-			Debug.error("Failed to update name of valuelist to '" + arg + "'.", e);
+			Debug.error("Failed to update name of valuelist to '" + arg + "'.", e); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 

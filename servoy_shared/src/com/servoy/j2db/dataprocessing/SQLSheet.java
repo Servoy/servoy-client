@@ -111,18 +111,11 @@ public class SQLSheet
 			allCalculationsTypes = new HashMap<String, Integer>(8);
 			if (table != null)
 			{
-				try
+				Iterator< ? > it4 = app.getFlattenedSolution().getScriptCalculations(table, false);
+				while (it4.hasNext())
 				{
-					Iterator< ? > it4 = app.getFlattenedSolution().getScriptCalculations(table, false);
-					while (it4.hasNext())
-					{
-						ScriptCalculation sp = (ScriptCalculation)it4.next();
-						allCalculationsTypes.put(sp.getDataProviderID(), new Integer(sp.getDataProviderType()));
-					}
-				}
-				catch (RepositoryException e)
-				{
-					Debug.error(e);
+					ScriptCalculation sp = (ScriptCalculation)it4.next();
+					allCalculationsTypes.put(sp.getDataProviderID(), new Integer(sp.getDataProviderType()));
 				}
 			}
 		}
@@ -707,7 +700,7 @@ public class SQLSheet
 	@Override
 	public String toString()
 	{
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append("SQLSheet [" + sheetID + "]\n"); //$NON-NLS-1$ //$NON-NLS-2$
 		int type = 0;
 		Iterator<SQLDescription> it = sql.iterator();
@@ -766,7 +759,7 @@ public class SQLSheet
 		@Override
 		public String toString()
 		{
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			sb.append(getSQLQuery());
 			sb.append(" ["); //$NON-NLS-1$
 			sb.append((dataProviderIDsDilivery != null ? dataProviderIDsDilivery.size() : 0));

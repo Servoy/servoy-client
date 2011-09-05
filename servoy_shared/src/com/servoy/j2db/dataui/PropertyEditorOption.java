@@ -38,6 +38,10 @@ public enum PropertyEditorOption
 	 */
 	includeGlobal,
 	/**
+	 * Boolean option to include foundset methods in the available values, default: Boolean.TRUE
+	 */
+	includeFoundset,
+	/**
 	 * Boolean option to include columns in the available values. default: Boolean.TRUE
 	 */
 	includeColumns,

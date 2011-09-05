@@ -53,7 +53,7 @@ public abstract class AbstractBase implements IPersist
 	/**
 	 * 
 	 */
-	private static final String[] OVERRIDE_PATH = new String[] { "override" };
+	private static final String[] OVERRIDE_PATH = new String[] { "override" }; //$NON-NLS-1$
 	/*
 	 * Attributes for IPersist
 	 */
@@ -333,6 +333,10 @@ public abstract class AbstractBase implements IPersist
 		propertiesMap.remove(property.getPropertyName());
 	}
 
+	public boolean isEmpty()
+	{
+		return propertiesMap.size() == 0;
+	}
 
 	/*
 	 * _____________________________________________________________ Methods from IPersist
@@ -572,7 +576,7 @@ public abstract class AbstractBase implements IPersist
 			{
 				if (oldValue == null)
 				{
-					setRuntimeProperty(NameChangeProperty, "");
+					setRuntimeProperty(NameChangeProperty, ""); //$NON-NLS-1$
 				}
 				else
 				{
@@ -673,7 +677,7 @@ public abstract class AbstractBase implements IPersist
 		}
 		if (changeHandler == null)
 		{
-			throw new RepositoryException("cannot clone/copy without change handler");
+			throw new RepositoryException("cannot clone/copy without change handler"); //$NON-NLS-1$
 		}
 		AbstractBase clone = (AbstractBase)changeHandler.cloneObj(this, newParent);
 		if (changeName && clone instanceof ISupportUpdateableName && ((ISupportUpdateableName)clone).getName() != null)
@@ -749,14 +753,19 @@ public abstract class AbstractBase implements IPersist
 		return null;
 	}
 
-	public static <T extends ISupportName> T selectByName(Iterator<T> iterator, String name)
+	public static <T> T selectByName(Iterator<T> iterator, String name)
 	{
-		if (name == null || name.trim().length() == 0) return null;
+		return selectByProperty(iterator, StaticContentSpecLoader.PROPERTY_NAME, name);
+	}
+
+	public static <T, P> T selectByProperty(Iterator<T> iterator, TypedProperty<P> property, P value)
+	{
+		if (value == null || (value instanceof String && ((String)value).trim().length() == 0)) return null;
 
 		while (iterator.hasNext())
 		{
 			T n = iterator.next();
-			if (n != null && name.equals(n.getName()))
+			if (n instanceof AbstractBase && value.equals(((AbstractBase)n).getProperty(property.getPropertyName())))
 			{
 				return n;
 			}
@@ -893,7 +902,7 @@ public abstract class AbstractBase implements IPersist
 	{
 		if (methodKey != null)
 		{
-			return (List<Object>)getCustomProperty(new String[] { "methods", methodKey, "arguments" });
+			return (List<Object>)getCustomProperty(new String[] { "methods", methodKey, "arguments" }); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return null;
 	}
@@ -902,7 +911,7 @@ public abstract class AbstractBase implements IPersist
 	{
 		if (methodKey != null)
 		{
-			return (List<Object>)putCustomProperty(new String[] { "methods", methodKey, "arguments" }, args == null ? null : Collections.unmodifiableList(args));
+			return (List<Object>)putCustomProperty(new String[] { "methods", methodKey, "arguments" }, args == null ? null : Collections.unmodifiableList(args)); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return null;
 	}

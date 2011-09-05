@@ -30,7 +30,6 @@ import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDeveloperRepository;
 import com.servoy.j2db.persistence.IPersist;
-import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RelationItem;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -47,7 +46,7 @@ import com.servoy.j2db.util.UUID;
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class JSRelation implements IJSParent, IConstantsObject
+public class JSRelation implements IJSParent<Relation>, IConstantsObject
 {
 
 	static
@@ -93,7 +92,7 @@ public class JSRelation implements IJSParent, IConstantsObject
 	/**
 	 * @see com.servoy.j2db.scripting.solutionmodel.IJSParent#getSupportChild()
 	 */
-	public ISupportChilds getSupportChild()
+	public Relation getSupportChild()
 	{
 		return relation;
 	}
@@ -101,7 +100,7 @@ public class JSRelation implements IJSParent, IConstantsObject
 	/**
 	 * @see com.servoy.j2db.scripting.solutionmodel.IJSParent#getJSParent()
 	 */
-	public IJSParent getJSParent()
+	public IJSParent< ? > getJSParent()
 	{
 		return null;
 	}
@@ -471,7 +470,7 @@ public class JSRelation implements IJSParent, IConstantsObject
 			}
 			catch (URISyntaxException e)
 			{
-				throw new RuntimeException("Invalid dataSource URI: '" + arg + "' :" + e.getMessage());
+				throw new RuntimeException("Invalid dataSource URI: '" + arg + "' :" + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 		checkModification();
@@ -528,7 +527,7 @@ public class JSRelation implements IJSParent, IConstantsObject
 			}
 			catch (URISyntaxException e)
 			{
-				throw new RuntimeException("Invalid dataSource URI: '" + arg + "' :" + e.getMessage());
+				throw new RuntimeException("Invalid dataSource URI: '" + arg + "' :" + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 		checkModification();
@@ -566,14 +565,6 @@ public class JSRelation implements IJSParent, IConstantsObject
 	public String toString()
 	{
 		return "JSRelation[name:" + relation.getName() + ",items:" + Arrays.toString(js_getRelationItems()) + ']';
-	}
-
-	/**
-	 * 
-	 */
-	Relation getRelation()
-	{
-		return relation;
 	}
 
 	/**

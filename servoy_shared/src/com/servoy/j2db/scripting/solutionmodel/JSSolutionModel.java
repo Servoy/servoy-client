@@ -30,29 +30,24 @@ import javax.swing.border.TitledBorder;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IServer;
-import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptNameValidator;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.Style;
 import com.servoy.j2db.persistence.Table;
-import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
-import com.servoy.j2db.scripting.TableScope;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.ImageLoader;
@@ -74,7 +69,7 @@ public class JSSolutionModel
 			@SuppressWarnings("deprecation")
 			public Class< ? >[] getAllReturnedTypes()
 			{
-				return new Class< ? >[] { ALIGNMENT.class, ANCHOR.class, BEVELTYPE.class, CURSOR.class, DEFAULTS.class, DISPLAYTYPE.class, FONTSTYLE.class, JOINTYPE.class, MEDIAOPTION.class, PAGEORIENTATION.class, PARTS.class, PRINTSLIDING.class, SCROLLBAR.class, TITLEJUSTIFICATION.class, TITLEPOSITION.class, UNITS.class, VALUELIST.class, VARIABLETYPE.class, VIEW.class, JSForm.class, JSField.class, JSBean.class, JSButton.class, JSCalculation.class, JSComponent.class, JSLabel.class, JSMethod.class, JSPortal.class, JSPart.class, JSRelation.class, JSRelationItem.class, JSStyle.class, JSTabPanel.class, JSTab.class, JSMedia.class, JSValueList.class, JSVariable.class };
+				return new Class< ? >[] { ALIGNMENT.class, ANCHOR.class, BEVELTYPE.class, CURSOR.class, DEFAULTS.class, DISPLAYTYPE.class, FONTSTYLE.class, JOINTYPE.class, MEDIAOPTION.class, PAGEORIENTATION.class, PARTS.class, PRINTSLIDING.class, SCROLLBAR.class, TITLEJUSTIFICATION.class, TITLEPOSITION.class, UNITS.class, VALUELIST.class, VARIABLETYPE.class, VIEW.class, JSForm.class, JSDataSourceNode.class, JSField.class, JSBean.class, JSButton.class, JSCalculation.class, JSComponent.class, JSLabel.class, JSMethod.class, JSPortal.class, JSPart.class, JSRelation.class, JSRelationItem.class, JSStyle.class, JSTabPanel.class, JSTab.class, JSMedia.class, JSValueList.class, JSVariable.class };
 			}
 		});
 	}
@@ -199,10 +194,10 @@ public class JSSolutionModel
 		try
 		{
 			Form form = fs.getSolutionCopy().createNewForm(new ScriptNameValidator(fs), null, name, null, superForm.js_getShowInMenu(),
-				superForm.getForm().getSize());
+				superForm.getSupportChild().getSize());
 			form.clearProperty(StaticContentSpecLoader.PROPERTY_DATASOURCE.getPropertyName());
 			((FormManager)application.getFormManager()).addForm(form, false);
-			form.setExtendsFormID(superForm.getForm().getID());
+			form.setExtendsID(superForm.getSupportChild().getID());
 			return new JSForm(application, form, true);
 		}
 		catch (RepositoryException e)
@@ -290,7 +285,7 @@ public class JSSolutionModel
 	public JSForm js_cloneForm(String newName, JSForm jsForm)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
-		Form clone = fs.clonePersist(jsForm.getForm(), newName, fs.getSolutionCopy());
+		Form clone = fs.clonePersist(jsForm.getSupportChild(), newName, fs.getSolutionCopy());
 		((FormManager)application.getFormManager()).addForm(clone, false);
 		return new JSForm(application, clone, true);
 	}
@@ -349,7 +344,7 @@ public class JSSolutionModel
 			parent = (JSForm)component.getJSParent();
 		}
 		parent.checkModification();
-		Form form = parent.getForm();
+		Form form = parent.getSupportChild();
 		FlattenedSolution fs = application.getFlattenedSolution();
 		fs.clonePersist(component.getBaseComponent(false), newName, form);
 		return parent.js_getComponent(newName);
@@ -602,38 +597,12 @@ public class JSSolutionModel
 	 * @param datasource the datasource the calculation belongs to
 	 * 
 	 * @return true if the removal was successful, false otherwise
+	 * @deprecated
 	 */
+	@Deprecated
 	public boolean js_removeCalculation(String name, String datasource)
 	{
-		try
-		{
-			ITable table = application.getFoundSetManager().getTable(datasource);
-			if (table == null) throw new RuntimeException("No table found for datasource: " + datasource);
-
-			FlattenedSolution fs = application.getFlattenedSolution();
-			TableNode tablenode = fs.getSolutionCopyTableNode(table);
-			ScriptCalculation sc = tablenode.getScriptCalculation(name);
-			if (sc != null)
-			{
-				tablenode.removeChild(sc);
-				return true;
-			}
-			else
-			{
-				//it is a design time calculation, therefore we "hide" it
-				sc = fs.getScriptCalculation(name, table);
-				if (sc != null)
-				{
-					fs.addToRemovedPersists(sc);
-					return true;
-				}
-			}
-			return false;
-		}
-		catch (Exception e)
-		{
-			throw new RuntimeException(e);
-		}
+		return js_getDataSourceNode(datasource).js_removeCalculation(name);
 	}
 
 	/**
@@ -764,6 +733,37 @@ public class JSSolutionModel
 			list.add(new JSForm(application, forms.next(), false));
 		}
 		return list.toArray(new JSForm[list.size()]);
+	}
+
+
+	/**
+	 * Gets the specified data source node and returns information about the form (see JSDataSourceNode node).
+	 * The JSDataSourceNode holds all calculations and foundset methods.
+	 *
+	 * @sample
+	 * var dsnode = solutionModel.getDataSourceNode('db:/example_data/customers');
+	 * var c = dsnode.getCalculation("myCalculation");
+	 * application.output("Name: " + c.getName() + ", Stored: " + c.isStored());
+	 *
+	 * @param dataSource table data source
+	 * 
+	 * @return a JSDataSourceNode
+	 */
+	public JSDataSourceNode js_getDataSourceNode(String dataSource)
+	{
+		try
+		{
+			if (application.getFoundSetManager().getTable(dataSource) == null)
+			{
+				throw new RuntimeException("No table found for datasource: " + dataSource);
+			}
+
+			return new JSDataSourceNode(application, dataSource);
+		}
+		catch (RepositoryException e)
+		{
+			throw new RuntimeException(e);
+		}
 	}
 
 
@@ -1036,7 +1036,8 @@ public class JSSolutionModel
 			ScriptMethod method = fs.getSolutionCopy().createNewGlobalScriptMethod(new ScriptNameValidator(application.getFlattenedSolution()), name);
 			method.setDeclaration(code);
 			application.getScriptEngine().getGlobalScope().put(method, method);
-			return new JSMethod(application, method, true);
+			JSMethod jsMethod = new JSMethod(method, application, true);
+			return jsMethod;
 		}
 		catch (RepositoryException e)
 		{
@@ -1061,7 +1062,7 @@ public class JSSolutionModel
 		ScriptMethod sm = fs.getScriptMethod(name);
 		if (sm != null)
 		{
-			return new JSMethod(application, sm, false);
+			return new JSMethod(sm, application, false);
 		}
 		return null;
 	}
@@ -1113,7 +1114,7 @@ public class JSSolutionModel
 		Iterator<ScriptMethod> scriptMethods = fs.getScriptMethods(true);
 		while (scriptMethods.hasNext())
 		{
-			methods.add(new JSMethod(application, scriptMethods.next(), false));
+			methods.add(new JSMethod(scriptMethods.next(), application, false));
 		}
 		return methods.toArray(new JSMethod[methods.size()]);
 	}
@@ -1337,30 +1338,13 @@ public class JSSolutionModel
 	 * @param datasource The datasource the calculations belong to.
 	 * 
 	 * @sampleas js_newCalculation(String, int, String)
-	 * 
+	 * @deprecated
 	 */
+	@Deprecated
 	public JSCalculation[] js_getCalculations(String datasource)
 	{
-		try
-		{
-			ITable table = application.getFoundSetManager().getTable(datasource);
-			if (table == null) throw new RuntimeException("No table found for datasource: " + datasource);
-
-			List<JSCalculation> calculations = new ArrayList<JSCalculation>();
-			FlattenedSolution fs = application.getFlattenedSolution();
-			Iterator<ScriptCalculation> scriptCalculations = fs.getScriptCalculations(table, true);
-			while (scriptCalculations.hasNext())
-			{
-				calculations.add(new JSCalculation(scriptCalculations.next(), false, application));
-			}
-			return calculations.toArray(new JSCalculation[calculations.size()]);
-		}
-		catch (RepositoryException e)
-		{
-			throw new RuntimeException(e);
-		}
+		return js_getDataSourceNode(datasource).js_getCalculations();
 	}
-
 
 	/**
 	 * Get an existing calculation for the given name and datasource.
@@ -1369,25 +1353,12 @@ public class JSSolutionModel
 	 * @param datasource The datasource the calculation belongs to.
 	 * 
 	 * @sampleas js_newCalculation(String, int, String)
-	 * 
+	 * @deprecated
 	 */
+	@Deprecated
 	public JSCalculation js_getCalculation(String name, String datasource)
 	{
-		try
-		{
-			ITable table = application.getFoundSetManager().getTable(datasource);
-
-			ScriptCalculation scriptCalculation = application.getFlattenedSolution().getScriptCalculation(name, table);
-			if (scriptCalculation != null)
-			{
-				return new JSCalculation(scriptCalculation, false, application);
-			}
-			return null;
-		}
-		catch (RepositoryException e)
-		{
-			throw new RuntimeException(e);
-		}
+		return js_getDataSourceNode(datasource).js_getCalculation(name);
 	}
 
 
@@ -1399,8 +1370,9 @@ public class JSSolutionModel
 	 * @param datasource The datasource this calculation belongs to. 
 	 * 
 	 * @sampleas js_newCalculation(String, int, String)
-	 * 
+	 * @deprecated
 	 */
+	@Deprecated
 	public JSCalculation js_newCalculation(String code, String datasource)
 	{
 		return js_newCalculation(code, IColumnTypes.TEXT, datasource);
@@ -1425,36 +1397,12 @@ public class JSSolutionModel
 	 * for (var i = 0; i < allCalcs.length; i++) {
 	 * 	application.output(allCalcs[i]);
 	 * }
-	 * 
+	 * @deprecated
 	 */
+	@Deprecated
 	public JSCalculation js_newCalculation(String code, int type, String datasource)
 	{
-		try
-		{
-			ITable table = application.getFoundSetManager().getTable(datasource);
-			if (table == null) throw new RuntimeException("No table found for datasource: " + datasource);
-
-			FlattenedSolution fs = application.getFlattenedSolution();
-			TableNode tablenode = fs.getSolutionCopyTableNode(table);
-			if (tablenode == null) throw new RuntimeException("Couldnt create calculation for datasource: " + datasource);
-
-			String name = JSMethod.parseName(code);
-			ScriptCalculation scriptCalculation = tablenode.createNewScriptCalculation(new ScriptNameValidator(fs), name);
-			scriptCalculation.setDeclaration(code);
-			scriptCalculation.setTypeAndCheck(type);
-			TableScope tableScope = (TableScope)application.getScriptEngine().getTableScope(scriptCalculation.getTable());
-			if (tableScope != null)
-			{
-				tableScope.put(scriptCalculation, scriptCalculation);
-				((FoundSetManager)application.getFoundSetManager()).flushSQLSheet(datasource);
-			}
-
-			return new JSCalculation(scriptCalculation, true, application);
-		}
-		catch (Exception e)
-		{
-			throw new RuntimeException(e);
-		}
+		return js_getDataSourceNode(datasource).js_newCalculation(code, type);
 	}
 
 	/**

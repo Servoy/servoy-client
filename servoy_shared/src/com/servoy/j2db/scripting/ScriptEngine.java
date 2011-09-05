@@ -20,7 +20,6 @@ package com.servoy.j2db.scripting;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.regex.Pattern;
 
 import org.mozilla.javascript.Context;
@@ -239,6 +238,7 @@ public class ScriptEngine implements IScriptSupport
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	private void registerScriptObjectClass(Class< ? > cls)
 	{
 		IScriptObject scriptObjectForClass = ScriptObjectRegistry.getScriptObjectForClass(cls);
@@ -384,22 +384,12 @@ public class ScriptEngine implements IScriptSupport
 					{
 						public Iterator< ? extends IScriptProvider> getScriptMethods(boolean sort)
 						{
-							try
-							{
-								return application.getFlattenedSolution().getScriptCalculations(table, false);
-							}
-							catch (RepositoryException e)
-							{
-								Debug.error(e);
-							}
-							List<ScriptCalculation> emptyList = Collections.emptyList();
-							return emptyList.iterator();
+							return application.getFlattenedSolution().getScriptCalculations(table, false);
 						}
 
 						public Iterator<ScriptVariable> getScriptVariables(boolean b)
 						{
-							List<ScriptVariable> emptyList = Collections.emptyList();
-							return emptyList.iterator();
+							return Collections.<ScriptVariable> emptyList().iterator();
 						}
 
 						public ScriptMethod getScriptMethod(int methodId)

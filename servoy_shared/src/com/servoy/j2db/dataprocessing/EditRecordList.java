@@ -29,22 +29,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.mozilla.javascript.EcmaError;
-import org.mozilla.javascript.Function;
-import org.mozilla.javascript.JavaScriptException;
-
 import com.servoy.j2db.ApplicationException;
-import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IPrepareForSave;
 import com.servoy.j2db.dataprocessing.ValueFactory.BlobMarkerValue;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IRepository;
-import com.servoy.j2db.persistence.ScriptMethod;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.Table;
-import com.servoy.j2db.persistence.TableNode;
-import com.servoy.j2db.scripting.GlobalScope;
-import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IntHashMap;
 import com.servoy.j2db.util.ServoyException;
@@ -427,7 +419,9 @@ public class EditRecordList
 							editRecordsLock.unlock();
 							try
 							{
-								if (!testTableEvents(record)) // throws ServoyException when trigger method throws exception
+								if (!((FoundSet)record.getParentFoundSet()).executeFoundsetTriggerBreakOnFalse(new Object[] { record },
+									record.existInDataSource() ? StaticContentSpecLoader.PROPERTY_ONUPDATEMETHODID
+										: StaticContentSpecLoader.PROPERTY_ONINSERTMETHODID)) // throws ServoyException when trigger method throws exception
 								{
 									// just directly return if one returns false.
 									return ISaveConstants.VALIDATION_FAILED;
@@ -738,7 +732,9 @@ public class EditRecordList
 			{
 				try
 				{
-					executeAfterUpdateOrInsertTrigger(rowUpdateInfo.getRecord(), rowUpdateInfo.getISQLStatement().getAction() == ISQLActionTypes.INSERT_ACTION);
+					((FoundSet)rowUpdateInfo.getRecord().getParentFoundSet()).executeFoundsetTrigger(new Object[] { rowUpdateInfo.getRecord() },
+						rowUpdateInfo.getISQLStatement().getAction() == ISQLActionTypes.INSERT_ACTION ? StaticContentSpecLoader.PROPERTY_ONAFTERINSERTMETHODID
+							: StaticContentSpecLoader.PROPERTY_ONAFTERUPDATEMETHODID);
 				}
 				catch (ServoyException e)
 				{
@@ -831,53 +827,6 @@ public class EditRecordList
 		}
 	}
 
-	void executeAfterUpdateOrInsertTrigger(Record record, boolean wasInsert) throws ServoyException
-	{
-		Table table = (Table)record.getParentFoundSet().getTable();
-		FlattenedSolution solution = fsm.getApplication().getFlattenedSolution();
-		Iterator<TableNode> tableNodes = solution.getTableNodes(table);
-		while (tableNodes.hasNext())
-		{
-			TableNode tn = tableNodes.next();
-			int methodId;
-			String methodKey;
-			if (!wasInsert)
-			{
-				methodId = tn.getOnAfterUpdateMethodID();
-				methodKey = "onAfterUpdateMethodID"; //$NON-NLS-1$
-			}
-			else
-			{
-				methodId = tn.getOnAfterInsertMethodID();
-				methodKey = "onAfterInsertMethodID"; //$NON-NLS-1$
-			}
-			if (methodId > 0)
-			{
-				ScriptMethod globalScriptMethod = solution.getScriptMethod(methodId);
-				if (globalScriptMethod != null)
-				{
-					IExecutingEnviroment scriptEngine = fsm.getApplication().getScriptEngine();
-					GlobalScope gscope = scriptEngine.getSolutionScope().getGlobalScope();
-					Object function = gscope.get(globalScriptMethod.getName());
-					if (function instanceof Function)
-					{
-						Object[] methodArgs = new Object[] { record };
-						try
-						{
-							scriptEngine.executeFunction(((Function)function), gscope, gscope,
-								Utils.arrayMerge(methodArgs, Utils.parseJSExpressions(tn.getInstanceMethodArguments(methodKey))), false, false);
-						}
-						catch (Exception e)
-						{
-							Debug.error(e);
-							throw new ServoyException(ServoyException.SAVE_FAILED, new Object[] { e.getMessage() });
-						}
-					}
-				}
-			}
-		}
-	}
-
 	public int prepareForSave(boolean looseFocus)
 	{
 		if (preparingForSave)
@@ -899,72 +848,6 @@ public class EditRecordList
 		{
 			preparingForSave = false;
 		}
-	}
-
-	/**
-	 * @param record
-	 * @return
-	 */
-	private boolean testTableEvents(Record record) throws ServoyException
-	{
-		Table table = (Table)record.getParentFoundSet().getTable();
-		FlattenedSolution solution = fsm.getApplication().getFlattenedSolution();
-		Iterator<TableNode> tableNodes = solution.getTableNodes(table);
-		while (tableNodes.hasNext())
-		{
-			TableNode tn = tableNodes.next();
-			int methodId;
-			String methodKey;
-			if (record.existInDataSource())
-			{
-				methodId = tn.getOnUpdateMethodID();
-				methodKey = "onUpdateMethodID"; //$NON-NLS-1$
-			}
-			else
-			{
-				methodId = tn.getOnInsertMethodID();
-				methodKey = "onInsertMethodID"; //$NON-NLS-1$
-			}
-			if (methodId > 0)
-			{
-				ScriptMethod globalScriptMethod = solution.getScriptMethod(methodId);
-				if (globalScriptMethod != null)
-				{
-					IExecutingEnviroment scriptEngine = fsm.getApplication().getScriptEngine();
-					GlobalScope gscope = scriptEngine.getSolutionScope().getGlobalScope();
-					Object function = gscope.get(globalScriptMethod.getName());
-					if (function instanceof Function)
-					{
-						Object[] methodArgs = new Object[] { record };
-						try
-						{
-							Object retval = scriptEngine.executeFunction(((Function)function), gscope, gscope,
-								Utils.arrayMerge(methodArgs, Utils.parseJSExpressions(tn.getInstanceMethodArguments(methodKey))), false, true);
-							if (Boolean.FALSE.equals(retval))
-							{
-								// update or insert method returned false. should block the save.
-								return false;
-							}
-						}
-						catch (JavaScriptException e)
-						{
-							// update or insert method threw exception.
-							throw new DataException(ServoyException.RECORD_VALIDATION_FAILED, e.getValue());
-						}
-						catch (EcmaError e)
-						{
-							throw new ApplicationException(ServoyException.SAVE_FAILED, e);
-						}
-						catch (Exception e)
-						{
-							Debug.error(e);
-							throw new ServoyException(ServoyException.SAVE_FAILED, new Object[] { e.getMessage() });
-						}
-					}
-				}
-			}
-		}
-		return true;
 	}
 
 	/*
@@ -1212,8 +1095,8 @@ public class EditRecordList
 		Object[] array = prepareForSaveListeners.toArray();
 		for (Object element : array)
 		{
-			IPrepareForSave listner = (IPrepareForSave)element;
-			if (!listner.recordEditStart(record))
+			IPrepareForSave listener = (IPrepareForSave)element;
+			if (!listener.recordEditStart(record))
 			{
 				return false;
 			}
@@ -1240,8 +1123,8 @@ public class EditRecordList
 		Object[] array = editListeners.toArray();
 		for (Object element : array)
 		{
-			IGlobalEditListener listner = (IGlobalEditListener)element;
-			listner.editChange(e);
+			IGlobalEditListener listener = (IGlobalEditListener)element;
+			listener.editChange(e);
 		}
 
 		if (editRecordsSize == 0)
@@ -1303,8 +1186,8 @@ public class EditRecordList
 		Object[] array = prepareForSaveListeners.toArray();
 		for (Object element : array)
 		{
-			IPrepareForSave listner = (IPrepareForSave)element;
-			if (!listner.prepareForSave(looseFocus))
+			IPrepareForSave listener = (IPrepareForSave)element;
+			if (!listener.prepareForSave(looseFocus))
 			{
 				return false;
 			}

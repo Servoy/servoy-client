@@ -294,12 +294,12 @@ public class SwingFormManager extends FormManager implements ISwingFormManager, 
 		FlattenedSolution sol = getApplication().getFlattenedSolution();
 		if (sol.getSolution() == null) return;
 
-		List globalMenus = new ArrayList();
+		List<ScriptMenuItem> globalMenus = new ArrayList<ScriptMenuItem>();
 		int menuCount = 1;
-		Iterator globalMethods = sol.getScriptMethods(true);
+		Iterator<ScriptMethod> globalMethods = sol.getScriptMethods(true);
 		while (globalMethods.hasNext())
 		{
-			ScriptMethod sm = (ScriptMethod)globalMethods.next();
+			ScriptMethod sm = globalMethods.next();
 			ScriptMenuItem item = getScriptMenuItem(sm, null, menuCount);
 			if (item != null)
 			{
@@ -323,10 +323,10 @@ public class SwingFormManager extends FormManager implements ISwingFormManager, 
 			globalMenu = new JMenu(Messages.getString("servoy.formManager.menuGlobalMethods"));
 			menu.add(globalMenu);
 		}
-		Iterator it = globalMenus.iterator();
+		Iterator<ScriptMenuItem> it = globalMenus.iterator();
 		while (it.hasNext())
 		{
-			ScriptMenuItem item = (ScriptMenuItem)it.next();
+			ScriptMenuItem item = it.next();
 			globalMenu.add(item);
 		}
 		boolean insertSeparator = menu.getMenuComponentCount() > 0;
@@ -334,6 +334,7 @@ public class SwingFormManager extends FormManager implements ISwingFormManager, 
 		FormController fp = getCurrentMainShowingFormController();
 		if (fp != null)
 		{
+			int nformmethods = 0;
 			Iterator<ScriptMethod> formMethods = fp.getForm().getScriptMethods(true);
 			while (formMethods.hasNext())
 			{
@@ -346,19 +347,33 @@ public class SwingFormManager extends FormManager implements ISwingFormManager, 
 						menu.add(new JSeparator());
 						insertSeparator = false;
 					}
+					nformmethods++;
 					menu.add(item);
+				}
+			}
+
+			if (fp.getDataSource() != null)
+			{
+				insertSeparator |= nformmethods > 0;
+				Iterator<ScriptMethod> foundsetMethods = fp.getApplication().getFlattenedSolution().getFoundsetMethods(fp.getDataSource(), true);
+				while (foundsetMethods.hasNext())
+				{
+					ScriptMethod sm = foundsetMethods.next();
+					ScriptMenuItem item = getScriptMenuItem(sm, fp, -1);
+					if (item != null)
+					{
+						if (insertSeparator)
+						{
+							menu.add(new JSeparator());
+							insertSeparator = false;
+						}
+						menu.add(item);
+					}
 				}
 			}
 		}
 
-		if (menu.getMenuComponentCount() == 0)
-		{
-			menu.setEnabled(false);
-		}
-		else
-		{
-			menu.setEnabled(true);
-		}
+		menu.setEnabled(menu.getMenuComponentCount() > 0);
 	}
 
 	/**

@@ -23,6 +23,7 @@ import java.rmi.RemoteException;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Enumeration;
@@ -34,6 +35,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.mozilla.javascript.EcmaError;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.JavaScriptException;
 import org.mozilla.javascript.MemberBox;
@@ -44,12 +46,16 @@ import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.AggregateVariable;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.IScriptProvider;
+import com.servoy.j2db.persistence.ISupportScriptProviders;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RelationItem;
@@ -57,6 +63,8 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.query.AbstractBaseQuery;
@@ -80,6 +88,7 @@ import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.SetCondition;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.scripting.LazyCompilationScope;
 import com.servoy.j2db.scripting.TableScope;
 import com.servoy.j2db.scripting.UsedDataProviderTracker;
 import com.servoy.j2db.util.Debug;
@@ -784,7 +793,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			{
 				reduceSearch = ((Boolean)vargs[1]).booleanValue();
 			}
-			return performFind(clearLastResults, reduceSearch, true);
+			int nfound = performFind(clearLastResults, reduceSearch, true);
+			return nfound < 0 ? /* blocked */0 : nfound;
 		}
 		return 0;
 	}
@@ -883,9 +893,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 		}
 
-		if (isInFindMode())
+		if (isInFindMode() && performFind(false, true, true) < 0 /* blocked */)
 		{
-			performFind(false, true, true);
+			return false;
 		}
 
 		loadAllRecords();
@@ -3233,7 +3243,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					try
 					{
 						// see EditRecordList.stopEditing
-						if (!testTableEvents(state))
+						if (!executeFoundsetTriggerBreakOnFalse(new Object[] { state }, StaticContentSpecLoader.PROPERTY_ONDELETEMETHODID))
 						{
 							// trigger returned false
 							Debug.log("Delete not granted for the table " + getTable()); //$NON-NLS-1$
@@ -3252,7 +3262,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				Row data = state.getRawData();
 				rowManager.deleteRow(this, data, hasAccess(IRepository.TRACKING), partOfBiggerDelete);
 
-				executeAfterDeleteTrigger(state);
+				executeFoundsetTrigger(new Object[] { state }, StaticContentSpecLoader.PROPERTY_ONAFTERDELETEMETHODID);
 			}
 		}
 
@@ -3260,92 +3270,92 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * @param record
+	 * Execute the foundset trigger for specified TableNode property.
+	 * When multiple tiggers exist, stop when 1 returns false.
+	 * 
+	 * @param args
+	 * @param property TableNode property
 	 * @return
+	 * @throws ServoyException
 	 */
-	private boolean testTableEvents(IRecordInternal record) throws ServoyException
+	boolean executeFoundsetTriggerBreakOnFalse(Object[] args, TypedProperty<Integer> property) throws ServoyException
+	{
+		return executeFoundsetTriggerInternal(args, property, true);
+	}
+
+	/**
+	 * Execute the foundset trigger for specified TableNode property.
+	 * 
+	 * @param args
+	 * @param property TableNode property
+	 * @return
+	 * @throws ServoyException
+	 */
+	void executeFoundsetTrigger(Object[] args, TypedProperty<Integer> property) throws ServoyException
+	{
+		executeFoundsetTriggerInternal(args, property, false);
+	}
+
+	private boolean executeFoundsetTriggerInternal(Object[] args, TypedProperty<Integer> property, boolean breakOnFalse) throws ServoyException
 	{
 		FlattenedSolution solutionRoot = fsm.getApplication().getFlattenedSolution();
 		Iterator<TableNode> tableNodes = solutionRoot.getTableNodes(getTable());
 		while (tableNodes.hasNext())
 		{
 			TableNode tn = tableNodes.next();
-			int methodId = tn.getOnDeleteMethodID();
+			int methodId = ((Integer)tn.getProperty(property.getPropertyName())).intValue();
 			if (methodId > 0)
 			{
-				ScriptMethod globalScriptMethod = solutionRoot.getScriptMethod(methodId);
-				if (globalScriptMethod != null)
+				IExecutingEnviroment scriptEngine = fsm.getApplication().getScriptEngine();
+				Object function = null;
+				Scriptable scope = null;
+				ScriptMethod scriptMethod = solutionRoot.getScriptMethod(methodId);
+				if (scriptMethod != null)
 				{
-					IExecutingEnviroment scriptEngine = fsm.getApplication().getScriptEngine();
-					GlobalScope gscope = scriptEngine.getSolutionScope().getGlobalScope();
-					Object function = gscope.get(globalScriptMethod.getName());
-					if (function instanceof Function)
+					// global method
+					scope = scriptEngine.getSolutionScope().getGlobalScope();
+					function = ((GlobalScope)scope).get(scriptMethod.getName());
+				}
+				else
+				{
+					scriptMethod = AbstractBase.selectById(solutionRoot.getFoundsetMethods(getTable(), false).iterator(), methodId);
+					if (scriptMethod != null)
 					{
-						try
+						// foundset method
+						scope = this;
+						function = scope.getPrototype().get(scriptMethod.getName(), scope);
+					}
+				}
+				if (function instanceof Function)
+				{
+					try
+					{
+						if (Boolean.FALSE.equals(scriptEngine.executeFunction(((Function)function), scope, scope,
+							Utils.arrayMerge(args, Utils.parseJSExpressions(tn.getInstanceMethodArguments(property.getPropertyName()))), false, false)) &&
+							breakOnFalse)
 						{
-							Object retval = scriptEngine.executeFunction(
-								((Function)function),
-								gscope,
-								gscope,
-								Utils.arrayMerge((new Object[] { record }), Utils.parseJSExpressions(tn.getInstanceMethodArguments("onDeleteMethodID"))), false, true); //$NON-NLS-1$
-							if (Boolean.FALSE.equals(retval))
-							{
-								// delete method returned false. should block the delete.
-								return false;
-							}
+							// break on false return, do not execute remaining triggers.
+							return false;
 						}
-						catch (JavaScriptException e)
-						{
-							// delete method threw exception. should block the delete.
-							throw new DataException(ServoyException.RECORD_VALIDATION_FAILED, e.getValue());
-						}
-						catch (Exception e)
-						{
-							Debug.error(e);
-							throw new ServoyException(ServoyException.SAVE_FAILED, new Object[] { e.getMessage() });
-						}
+					}
+					catch (JavaScriptException e)
+					{
+						// update or insert method threw exception.
+						throw new DataException(ServoyException.RECORD_VALIDATION_FAILED, e.getValue());
+					}
+					catch (EcmaError e)
+					{
+						throw new ApplicationException(ServoyException.SAVE_FAILED, e);
+					}
+					catch (Exception e)
+					{
+						Debug.error(e);
+						throw new ServoyException(ServoyException.SAVE_FAILED, new Object[] { e.getMessage() });
 					}
 				}
 			}
 		}
 		return true;
-	}
-
-	private void executeAfterDeleteTrigger(IRecordInternal record) throws ServoyException
-	{
-		FlattenedSolution solutionRoot = fsm.getApplication().getFlattenedSolution();
-		Iterator<TableNode> tableNodes = solutionRoot.getTableNodes(getTable());
-		while (tableNodes.hasNext())
-		{
-			TableNode tn = tableNodes.next();
-			int methodId = tn.getOnAfterDeleteMethodID();
-			if (methodId > 0)
-			{
-				ScriptMethod globalScriptMethod = solutionRoot.getScriptMethod(methodId);
-				if (globalScriptMethod != null)
-				{
-					IExecutingEnviroment scriptEngine = fsm.getApplication().getScriptEngine();
-					GlobalScope gscope = scriptEngine.getSolutionScope().getGlobalScope();
-					Object function = gscope.get(globalScriptMethod.getName());
-					if (function instanceof Function)
-					{
-						try
-						{
-							scriptEngine.executeFunction(
-								((Function)function),
-								gscope,
-								gscope,
-								Utils.arrayMerge((new Object[] { record }), Utils.parseJSExpressions(tn.getInstanceMethodArguments("onAfterDeleteMethodID"))), false, false); //$NON-NLS-1$
-						}
-						catch (Exception e)
-						{
-							Debug.error(e);
-							throw new ServoyException(ServoyException.SAVE_FAILED, new Object[] { e.getMessage() });
-						}
-					}
-				}
-			}
-		}
 	}
 
 	private boolean tableHasOnDeleteMethods()
@@ -3354,16 +3364,17 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			FlattenedSolution solutionRoot = fsm.getApplication().getFlattenedSolution();
 			Iterator<TableNode> tableNodes = solutionRoot.getTableNodes(getTable());
+			List<ScriptMethod> foundsetMethods = solutionRoot.getFoundsetMethods(getTable(), false);
 			while (tableNodes.hasNext())
 			{
 				TableNode node = tableNodes.next();
 				int methodId = node.getOnDeleteMethodID();
-				if (methodId > 0 && solutionRoot.getScriptMethod(methodId) != null)
+				if (methodId > 0 && solutionRoot.getScriptMethod(methodId) != null || AbstractBase.selectById(foundsetMethods.iterator(), methodId) != null)
 				{
 					return true;
 				}
 				methodId = node.getOnAfterDeleteMethodID();
-				if (methodId > 0 && solutionRoot.getScriptMethod(methodId) != null)
+				if (methodId > 0 && solutionRoot.getScriptMethod(methodId) != null || AbstractBase.selectById(foundsetMethods.iterator(), methodId) != null)
 				{
 					return true;
 				}
@@ -3621,21 +3632,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	private IRecordInternal getNewRecord(Row rowData) throws ApplicationException
 	{
-		IRecordInternal newRecord;
-		if (findMode)
+		if (rowData == null || findMode)
 		{
-			if (pksAndRecords.getCachedRecords().size() > fsm.pkChunkSize) return null;//limit to 200
-			newRecord = new FindState(this);
+			return createRecord();
 		}
-		else if (rowData == null)
-		{
-			newRecord = createRecord();
-		}
-		else
-		{
-			newRecord = new Record(this, rowData);
-		}
-		return newRecord;
+		return new Record(this, rowData);
 	}
 
 	protected int newRecord(Row rowData, int indexToAdd, boolean changeSelection) throws ServoyException
@@ -3742,9 +3743,31 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 		}
 
+		try
+		{
+			if (!executeFoundsetTriggerBreakOnFalse(null, StaticContentSpecLoader.PROPERTY_ONCREATEMETHODID))
+			{
+				Debug.trace("New record creation was denied by onCreateRecord method");
+				return null;
+			}
+		}
+		catch (ServoyException e)
+		{
+			Debug.error(e);
+			return null;
+		}
+
 		Object[] data = sheet.getNewRecordData(fsm.getApplication(), this);
 		IRecordInternal newRecord = new Record(this, rowManager.createNotYetExistInDBRowObject(data, true));
 		sheet.processCopyValues(newRecord);
+		try
+		{
+			executeFoundsetTrigger(new Object[] { newRecord }, StaticContentSpecLoader.PROPERTY_ONAFTERCREATEMETHODID);
+		}
+		catch (ServoyException e)
+		{
+			Debug.error(e);
+		}
 		return newRecord;
 	}
 
@@ -3798,6 +3821,21 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			return;
 		}
+
+		try
+		{
+			if (!executeFoundsetTriggerBreakOnFalse(null, StaticContentSpecLoader.PROPERTY_ONFINDMETHODID))
+			{
+				Debug.trace("Find mode switch was denied by onFind method");
+				return;
+			}
+		}
+		catch (ServoyException e)
+		{
+			Debug.error(e);
+			return;
+		}
+
 		fireSelectionAdjusting();
 
 		int oldSize = getSize();
@@ -3813,11 +3851,20 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		try
 		{
-			newRecord(false);
+			newRecord(null, Integer.MAX_VALUE, true);
 		}
 		catch (Exception ex)
 		{
 			Debug.error(ex);
+		}
+
+		try
+		{
+			executeFoundsetTrigger(null, StaticContentSpecLoader.PROPERTY_ONAFTERFINDMETHODID);
+		}
+		catch (ServoyException e)
+		{
+			Debug.error(e);
 		}
 	}
 
@@ -3826,9 +3873,33 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return performFind(clearLastResult, reduceSearch, clearIfZero, null);
 	}
 
+	/**
+	 * Execute the find sql, returns the number of records found, returns -1 when the call was blocked by a trigger
+	 * @param clearLastResult
+	 * @param reduceSearch
+	 * @param clearIfZero
+	 * @param returnInvalidRangeConditions
+	 * @return
+	 * @throws ServoyException
+	 */
 	public int performFind(boolean clearLastResult, boolean reduceSearch, boolean clearIfZero, List<String> returnInvalidRangeConditions)
 		throws ServoyException//perform the find
 	{
+		try
+		{
+			if (!executeFoundsetTriggerBreakOnFalse(new Object[] { Boolean.valueOf(clearLastResult), Boolean.valueOf(reduceSearch) },
+				StaticContentSpecLoader.PROPERTY_ONSEARCHMETHODID))
+			{
+				Debug.trace("Foundset search was denied by onSearchFoundset method");
+				return -1; // blocked
+			}
+		}
+		catch (ServoyException e)
+		{
+			Debug.error(e);
+			return -1; // blocked
+		}
+
 		if (clearLastResult) removeLastFound();
 
 		int numberOfFindStates = getSize();
@@ -3884,7 +3955,18 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 
 			fireDifference(numberOfFindStates, getSize());
-			return findPKs.getRowCount();
+
+			int nfound = findPKs.getRowCount();
+			try
+			{
+				executeFoundsetTrigger(null, StaticContentSpecLoader.PROPERTY_ONAFTERSEARCHMETHODID);
+			}
+			catch (ServoyException e)
+			{
+				Debug.error(e);
+			}
+
+			return nfound;
 		}
 		catch (ServoyException e)
 		{
@@ -4198,9 +4280,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 	}
 
-	protected void fireFoundSetEvent(@SuppressWarnings("unused")
-	int firstRow, @SuppressWarnings("unused")
-	int lastRow, int changeType)
+	protected void fireFoundSetEvent(@SuppressWarnings("unused") int firstRow, @SuppressWarnings("unused") int lastRow, int changeType)
 	{
 		if (foundSetEventListeners.size() > 0)
 		{
@@ -4575,7 +4655,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		if (isToplevelKeyword(name)) return Scriptable.NOT_FOUND;
 		if (name.equals("multiSelect")) //$NON-NLS-1$
 		{
-			return new Boolean(isMultiSelect());
+			return Boolean.valueOf(isMultiSelect());
 		}
 		if ("alldataproviders".equals(name)) //$NON-NLS-1$
 		{
@@ -4652,14 +4732,25 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				}
 			}
 		}
+
 		if (name.startsWith("record_")) //$NON-NLS-1$
 		{
 			int recordIndex = Integer.parseInt(name.substring("record_".length())); //$NON-NLS-1$
-			IRecordInternal record = pksAndRecords.getCachedRecords().get(recordIndex - 1);
-			if (record == null) return null; //return "<record " + recordIndex + " not loaded>"; 
-			return record;
+			return pksAndRecords.getCachedRecords().get(recordIndex - 1);
 		}
 		return Scriptable.NOT_FOUND;
+	}
+
+	/**
+	 * @param scriptMethod
+	 */
+	public void reloadFoundsetMethod(IScriptProvider scriptMethod)
+	{
+		if (prototypeScope instanceof LazyCompilationScope)
+		{
+			((LazyCompilationScope)prototypeScope).remove(scriptMethod);
+			((LazyCompilationScope)prototypeScope).put(scriptMethod, scriptMethod);
+		}
 	}
 
 	public Object get(int index, Scriptable start)
@@ -4759,6 +4850,63 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	public Scriptable getPrototype()
 	{
+		if (prototypeScope == null)
+		{
+			LazyCompilationScope scope = new LazyCompilationScope(this, fsm.getApplication().getScriptEngine(), new ISupportScriptProviders()
+			{
+				public Iterator< ? extends IScriptProvider> getScriptMethods(boolean sort)
+				{
+					List<ScriptMethod> methods = null;
+					try
+					{
+						Iterator<TableNode> tableNodes = fsm.getApplication().getFlattenedSolution().getTableNodes(getTable());
+						while (tableNodes.hasNext())
+						{
+							TableNode tn = tableNodes.next();
+							Iterator<ScriptMethod> fsMethods = tn.getFoundsetMethods(sort);
+							if (methods == null)
+							{
+								if (!tableNodes.hasNext())
+								{
+									// just 1
+									return fsMethods;
+								}
+								methods = new ArrayList<ScriptMethod>();
+							}
+							while (fsMethods.hasNext())
+							{
+								methods.add(fsMethods.next());
+							}
+						}
+					}
+					catch (RepositoryException e)
+					{
+						Debug.error(e);
+					}
+					return methods == null ? Collections.<ScriptMethod> emptyList().iterator() : methods.iterator();
+				}
+
+				public Iterator<ScriptVariable> getScriptVariables(boolean b)
+				{
+					return Collections.<ScriptVariable> emptyList().iterator();
+				}
+
+				public ScriptMethod getScriptMethod(int methodId)
+				{
+					return null; // not called by LCS
+				}
+			})
+			{
+				@Override
+				public String getClassName()
+				{
+					return "FoundSetScope"; //$NON-NLS-1$
+				}
+			};
+			scope.setFunctionParentScriptable(this); // make sure functions like getSize cannot be overridden
+			prototypeScope = scope;
+		}
+
 		return prototypeScope;
 	}
 
@@ -5372,4 +5520,5 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		return mustQueryForUpdates;
 	}
+
 }

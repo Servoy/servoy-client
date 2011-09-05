@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2011 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -14,30 +14,20 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
+
 package com.servoy.j2db.scripting.solutionmodel;
 
-import com.servoy.j2db.IApplication;
-import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.persistence.GraphicalComponent;
+import com.servoy.j2db.persistence.IScriptProvider;
+import com.servoy.j2db.persistence.ISupportChilds;
+import com.servoy.j2db.persistence.RepositoryException;
 
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent")
-public class JSButton extends JSGraphicalComponent
+/**
+ * Solution model interface for parents of methods.
+ * 
+ * @author rgansevles
+ *
+ */
+public interface IJSScriptParent<T extends ISupportChilds> extends IJSParent<T>
 {
-	/**
-	 * @param gc
-	 */
-	public JSButton(IJSParent< ? > parent, GraphicalComponent gc, IApplication application, boolean isNew)
-	{
-		super(parent, gc, application, isNew);
-	}
-
-	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSComponent#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		return "Button: " + getBaseComponent(false).getName(); //$NON-NLS-1$
-	}
-
+	<S extends IScriptProvider> S getScriptCopy(S script) throws RepositoryException;
 }

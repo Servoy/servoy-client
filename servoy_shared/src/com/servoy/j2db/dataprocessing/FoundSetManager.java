@@ -46,6 +46,7 @@ import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.IDataProvider;
+import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Relation;
@@ -80,7 +81,7 @@ import com.servoy.j2db.util.visitor.IVisitor;
 public class FoundSetManager implements IFoundSetManagerInternal
 {
 	private final IServiceProvider application;
-	private Map<IFoundSetListener, FoundSet> separateFoundSets; //FoundSetListner -> FoundSet ... 1 foundset per listener
+	private Map<IFoundSetListener, FoundSet> separateFoundSets; //FoundSetListener -> FoundSet ... 1 foundset per listener
 	private Map<String, FoundSet> sharedDataSourceFoundSet; //dataSource -> FoundSet ... 1 foundset per data source
 	private Set<FoundSet> foundSets;
 	private WeakReference<IFoundSetInternal> noTableFoundSet;
@@ -316,6 +317,96 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			getEditRecordList().fireEvents();
 		}
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.dataprocessing.IFoundSetManagerInternal#reloadFoundsetMethod(java.lang.String, com.servoy.j2db.persistence.IScriptProvider)
+	 */
+	public void reloadFoundsetMethod(String dataSource, IScriptProvider scriptMethod)
+	{
+		if (dataSource == null)
+		{
+			return;
+		}
+
+		for (Object element : sharedDataSourceFoundSet.values().toArray())
+		{
+			FoundSet fs = (FoundSet)element;
+			try
+			{
+				if (dataSource.equals(fs.getDataSource()))
+				{
+					fs.reloadFoundsetMethod(scriptMethod);
+				}
+			}
+			catch (Exception e)
+			{
+				Debug.error(e);
+			}
+		}
+
+		for (Object element : separateFoundSets.values().toArray())
+		{
+			FoundSet fs = (FoundSet)element;
+			try
+			{
+				if (dataSource.equals(fs.getDataSource()))
+				{
+					fs.reloadFoundsetMethod(scriptMethod);
+				}
+			}
+			catch (Exception e)
+			{
+				Debug.error(e);
+			}
+		}
+
+		for (Object element : foundSets.toArray())
+		{
+			FoundSet fs = (FoundSet)element;
+			try
+			{
+				if (dataSource.equals(fs.getDataSource()))
+				{
+					fs.reloadFoundsetMethod(scriptMethod);
+				}
+			}
+			catch (Exception e)
+			{
+				Debug.error(e);
+			}
+		}
+
+		for (Map<String, SoftReference<RelatedFoundSet>> map : cachedSubStates.values())
+		{
+			Map.Entry<String, SoftReference<RelatedFoundSet>>[] array = map.entrySet().toArray(new Map.Entry[map.size()]);
+			for (Map.Entry<String, SoftReference<RelatedFoundSet>> entry : array)
+			{
+				SoftReference<RelatedFoundSet> sr = entry.getValue();
+				RelatedFoundSet element = sr.get();
+				if (element != null)
+				{
+					try
+					{
+						if (dataSource.equals(element.getDataSource()))
+						{
+							element.reloadFoundsetMethod(scriptMethod);
+						}
+					}
+					catch (Exception e)
+					{
+						Debug.error(e);
+					}
+				}
+				else
+				{
+					map.remove(entry.getKey());
+				}
+			}
+		}
+	}
+
 
 	public void init()
 	{
@@ -1171,7 +1262,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	public static String getSortColumnsAsString(List<SortColumn> list)
 	{
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		if (list != null)
 		{
 			for (int i = 0; i < list.size(); i++)

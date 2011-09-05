@@ -23,6 +23,12 @@ package com.servoy.j2db.scripting.solutionmodel;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.ScriptMethod;
 
+/**
+ * JSMethod extended with arguments to be used in event handler calls.
+ * 
+ * @author rgansevles
+ *
+ */
 
 public class JSMethodWithArguments extends JSMethod
 {
@@ -33,13 +39,13 @@ public class JSMethodWithArguments extends JSMethod
 	 */
 	public JSMethodWithArguments(JSMethod jsMethod, Object[] args)
 	{
-		super(jsMethod.application, jsMethod.form, jsMethod.sm, jsMethod.isCopy);
+		super(jsMethod.parent, jsMethod.sm, jsMethod.application, jsMethod.isCopy);
 		this.arguments = args;
 	}
 
-	public JSMethodWithArguments(IApplication application, JSForm form, ScriptMethod sm, boolean isNew, Object[] args)
+	public JSMethodWithArguments(IApplication application, IJSScriptParent< ? > parent, ScriptMethod sm, boolean isNew, Object[] args)
 	{
-		super(application, form, sm, isNew);
+		super(parent, sm, application, isNew);
 		this.arguments = args;
 	}
 

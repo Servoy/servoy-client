@@ -18,6 +18,7 @@ package com.servoy.j2db.persistence;
 
 
 import java.rmi.RemoteException;
+import java.util.Iterator;
 import java.util.List;
 
 import com.servoy.j2db.J2DBGlobals;
@@ -69,6 +70,24 @@ public class TableNode extends AbstractBase implements ISupportChilds
 		return obj;
 	}
 
+	public ScriptMethod createNewFoundsetMethod(IValidateName validator, String methodName) throws RepositoryException
+	{
+		String name = methodName == null ? "untitled" : methodName; //$NON-NLS-1$
+
+		//check if name is in use
+		ValidatorSearchContext ft = new ValidatorSearchContext(getTable(), IRepository.METHODS);
+		validator.checkName(name, 0, ft, false);
+
+		ScriptMethod obj = (ScriptMethod)getRootObject().getChangeHandler().createNewObject(this, IRepository.METHODS);
+		//set all the required properties
+
+		obj.setName(name);
+		MethodTemplate template = MethodTemplate.getTemplate(ScriptMethod.class, null);
+		obj.setDeclaration(template.getMethodDeclaration(name, null));
+		addChild(obj);
+		return obj;
+	}
+
 	/*
 	 * _____________________________________________________________ Methods for AggregateVariable handling
 	 */
@@ -95,6 +114,16 @@ public class TableNode extends AbstractBase implements ISupportChilds
 		obj.setDataProviderIDToAggregate(dataProviderIDToAggregate);
 		addChild(obj);
 		return obj;
+	}
+
+	public Iterator<ScriptMethod> getFoundsetMethods(boolean sort)
+	{
+		return Solution.getScriptMethods(getAllObjectsAsList(), sort);
+	}
+
+	public ScriptMethod getFoundsetMethod(int methodId)
+	{
+		return Solution.getScriptMethod(getFoundsetMethods(false), methodId);
 	}
 
 /*
@@ -180,6 +209,9 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	public String toString()
 	{
 		StringBuilder sb = new StringBuilder();
+		sb.append("TableNode{"); //$NON-NLS-1$
+		sb.append(getDataSource());
+		sb.append("}\n"); //$NON-NLS-1$
 		for (IPersist obj : getAllObjectsAsList())
 		{
 			sb.append(obj);
@@ -335,21 +367,135 @@ public class TableNode extends AbstractBase implements ISupportChilds
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERDELETEMETHODID, arg);
 	}
 
-	public boolean isEmpty()
+	/**
+	 * A method that is executed before a record is created. The method can block the creation by returning false.
+	 * 
+	 * @templatedescription 
+	 * Record pre-create trigger
+	 * When false is returned the record a record not be created in the foundset.
+	 * @templatename onRecordCreate
+	 * @templatetype Boolean
+	 * @templateaddtodo
+	 * @templatecode
+	 */
+	public int getOnCreateMethodID()
 	{
-		return (!getAllObjects().hasNext() && getOnInsertMethodID() == 0 && getOnUpdateMethodID() == 0 && getOnDeleteMethodID() == 0 &&
-			getOnAfterInsertMethodID() == 0 && getOnAfterUpdateMethodID() == 0 && getOnAfterDeleteMethodID() == 0);
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONCREATEMETHODID).intValue();
+	}
+
+	public void setOnCreateMethodID(int arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONCREATEMETHODID, arg);
+	}
+
+	/**
+	 * A method that is executed before a foundset is going into find mode. The method can block the mode change.
+	 * 
+	 * @templatedescription 
+	 * Foundset pre-find trigger
+	 * When false is returned the foundset will not go into find mode.
+	 * @templatename onFoundsetFind
+	 * @templatetype Boolean
+	 * @templateaddtodo
+	 * @templatecode
+	 */
+	public int getOnFindMethodID()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONFINDMETHODID).intValue();
+	}
+
+	public void setOnFindMethodID(int arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONFINDMETHODID, arg);
+	}
+
+	/**
+	 * A method that is executed after a foundset has switched to find mode.
+	 * 
+	 * @templatedescription 
+	 * Foundset post-find trigger
+	 * @templatename onFoundsetAfterFind
+	 * @templateaddtodo
+	 * @templatecode
+	 */
+	public int getOnAfterFindMethodID()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERFINDMETHODID).intValue();
+	}
+
+	public void setOnAfterFindMethodID(int arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERFINDMETHODID, arg);
+	}
+
+	/**
+	 * A method that is executed before search() is called on a foundset in find mode. The method can block the search (foundset will stay in find mode).
+	 * 
+	 * @templatedescription 
+	 * Foundset pre-search trigger
+	 * When false is returned the search will not be executed and the foundset will stay in find mode.
+	 * @templatename onFoundsetSearch
+	 * @templateparam Boolean clearLastResults
+	 * @templateparam Boolean reduceSearch
+	 * @templatetype Boolean
+	 * @templateaddtodo
+	 * @templatecode
+	 */
+	public int getOnSearchMethodID()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONSEARCHMETHODID).intValue();
+	}
+
+	public void setOnSearchMethodID(int arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONSEARCHMETHODID, arg);
+	}
+
+	/**
+	 * A method that is executed after a search is executed for a foundset.
+	 * @templatedescription 
+	 * Foundset post-search trigger
+	 * @templatename onFoundsetAfterSearch
+	 * @templateaddtodo
+	 * @templatecode
+	 */
+	public int getOnAfterSearchMethodID()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERSEARCHMETHODID).intValue();
+	}
+
+	public void setOnAfterSearchMethodID(int arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERSEARCHMETHODID, arg);
+	}
+
+	/**
+	 * A method that is executed after a new record is created.
+	 * 
+	 * @templatedescription Record after-create trigger
+	 * @templatename afterRecordCreate
+	 * @templateparam JSRecord record record that is created
+	 * @templateaddtodo
+	 */
+	public int getOnAfterCreateMethodID()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERCREATEMETHODID).intValue();
+	}
+
+	public void setOnAfterCreateMethodID(int arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERCREATEMETHODID, arg);
 	}
 
 	public ScriptCalculation getScriptCalculation(String name)
 	{
 		if (name == null) return null;
-		List<ScriptCalculation> scriptCalculations = getScriptCalculations();
-		for (ScriptCalculation scriptCalculation : scriptCalculations)
-		{
-			if (name.equals(scriptCalculation.getName())) return scriptCalculation;
-		}
-		return null;
+		return (ScriptCalculation)AbstractBase.selectByName(SortedTypeIterator.createFilteredIterator(getAllObjects(), IRepository.SCRIPTCALCULATIONS), name);
+	}
 
+	public ScriptMethod getFoundsetMethod(String name)
+	{
+		if (name == null) return null;
+		return (ScriptMethod)AbstractBase.selectByName(SortedTypeIterator.createFilteredIterator(getAllObjects(), IRepository.METHODS), name);
 	}
 }

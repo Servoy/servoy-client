@@ -385,20 +385,9 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		return copySolution;
 	}
 
-	public TableNode getSolutionCopyTableNode(ITable table)
+	public TableNode getSolutionCopyTableNode(String dataSource) throws RepositoryException
 	{
-		try
-		{
-			Solution solutionCopy = getSolutionCopy();
-			Iterator<TableNode> tableNodes = solutionCopy.getTableNodes(table);
-			if (tableNodes.hasNext()) return tableNodes.next();
-			return solutionCopy.createNewTableNode(table.getDataSource());
-		}
-		catch (Exception e)
-		{
-			Debug.error(e);
-		}
-		return null;
+		return getSolutionCopy().getOrCreateTableNode(dataSource);
 	}
 
 
@@ -1788,6 +1777,11 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		return null;
 	}
 
+	public Iterator<TableNode> getTableNodes(String dataSource)
+	{
+		return Solution.getTableNodes(getAllObjectsAsList(), dataSource);
+	}
+
 	public Iterator<TableNode> getTableNodes(ITable table) throws RepositoryException
 	{
 		return Solution.getTableNodes(getRepository(), getAllObjectsAsList(), table);
@@ -1861,6 +1855,11 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	public Form getForm(String name)
 	{
+		if (name == null)
+		{
+			return null;
+		}
+
 		if (formCacheByName == null)
 		{
 			formCacheByName = new ConcurrentHashMap<String, Form>(64, 0.9f, 16);
@@ -1918,28 +1917,35 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		return Solution.getAggregateVariables(getTableNodes(basedOnTable), sort);
 	}
 
-	public ScriptCalculation getScriptCalculation(String name, ITable basedOnTable) throws RepositoryException
+	public ScriptCalculation getScriptCalculation(String name, ITable basedOnTable)
 	{
-		ScriptCalculation calc = null;
-		Iterator<ScriptCalculation> it = getScriptCalculations(basedOnTable, false);
-		while (it.hasNext())
+		if (basedOnTable == null)
 		{
-			ScriptCalculation tempCalc = it.next();
-			if (tempCalc.getName() != null && tempCalc.getName().equals(name))
-			{
-				calc = tempCalc;
-				break;
-			}
+			return null;
 		}
-		return calc;
+		return getScriptCalculation(name, basedOnTable.getDataSource());
 	}
 
-	public Iterator<ScriptCalculation> getScriptCalculations(ITable basedOnTable, boolean sort) throws RepositoryException
+	public ScriptCalculation getScriptCalculation(String name, String basedOnDataSource)
 	{
-		List<ScriptCalculation> scriptCalculations = Solution.getScriptCalculations(getTableNodes(basedOnTable), sort);
+		return AbstractBase.selectByName(getScriptCalculations(basedOnDataSource, false), name);
+	}
+
+	public Iterator<ScriptCalculation> getScriptCalculations(ITable basedOnTable, boolean sort)
+	{
+		if (basedOnTable == null)
+		{
+			return Collections.<ScriptCalculation> emptyList().iterator();
+		}
+		return getScriptCalculations(basedOnTable.getDataSource(), sort);
+	}
+
+	public Iterator<ScriptCalculation> getScriptCalculations(String basedOnDataSource, boolean sort)
+	{
+		List<ScriptCalculation> scriptCalculations = Solution.getScriptCalculations(getTableNodes(basedOnDataSource), sort);
 		if (copySolution != null)
 		{
-			Iterator<TableNode> tableNodes = copySolution.getTableNodes(basedOnTable);
+			Iterator<TableNode> tableNodes = copySolution.getTableNodes(basedOnDataSource);
 			// if there is a copy solution with a tablenode on that table
 			if (tableNodes.hasNext())
 			{
@@ -1963,7 +1969,95 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		//remove the deleted calculation from the deletedPersists
 		scriptCalculations.removeAll(removedPersist);
 
+
 		return scriptCalculations.iterator();
+	}
+
+	public ScriptMethod getFoundsetMethod(String name, String basedOnDataSource)
+	{
+		return AbstractBase.selectByName(getFoundsetMethods(basedOnDataSource, false), name);
+	}
+
+	public Iterator<ScriptMethod> getFoundsetMethods(String basedOnDatasource, boolean sort)
+	{
+		if (basedOnDatasource == null)
+		{
+			return Collections.<ScriptMethod> emptyList().iterator();
+		}
+
+		List<ScriptMethod> foundsetMethods = Solution.getFoundsetMethods(getTableNodes(basedOnDatasource), sort);
+		if (copySolution != null)
+		{
+			Iterator<TableNode> tableNodes = copySolution.getTableNodes(basedOnDatasource);
+			// if there is a copy solution with a tablenode on that table
+			if (tableNodes.hasNext())
+			{
+				//  remove all script methods with the same name as the method which isnt the copy method itself.
+				Iterator<ScriptMethod> copyMethods = tableNodes.next().getFoundsetMethods(false);
+				while (copyMethods.hasNext())
+				{
+					ScriptMethod copyMethod = copyMethods.next();
+					for (int i = foundsetMethods.size(); i-- != 0;)
+					{
+						ScriptMethod method = foundsetMethods.get(i);
+						if (copyMethod.getName().equals(method.getName()) && copyMethod != method)
+						{
+							foundsetMethods.remove(i);
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		//remove the deleted methods from the deletedPersists
+		for (ScriptMethod method : foundsetMethods)
+		{
+			if (removedPersist.contains(method))
+			{
+				foundsetMethods.remove(method);
+			}
+		}
+
+		return foundsetMethods.iterator();
+	}
+
+	public List<ScriptMethod> getFoundsetMethods(ITable basedOnTable, boolean sort) throws RepositoryException
+	{
+		List<ScriptMethod> foundsetMethods = Solution.getFoundsetMethods(getTableNodes(basedOnTable), sort);
+		if (copySolution != null)
+		{
+			Iterator<TableNode> tableNodes = copySolution.getTableNodes(basedOnTable);
+			// if there is a copy solution with a tablenode on that table
+			if (tableNodes.hasNext())
+			{
+				//  remove all script methods with the same name as the method which isnt the copy method itself.
+				Iterator<ScriptMethod> copyMethods = tableNodes.next().getFoundsetMethods(false);
+				while (copyMethods.hasNext())
+				{
+					ScriptMethod copyMethod = copyMethods.next();
+					for (int i = foundsetMethods.size(); i-- != 0;)
+					{
+						ScriptMethod scriptCalculation = foundsetMethods.get(i);
+						if (copyMethod.getName().equals(scriptCalculation.getName()) && copyMethod != scriptCalculation)
+						{
+							foundsetMethods.remove(i);
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		//remove the deleted calculation from the deletedPersists
+		for (ScriptMethod method : foundsetMethods)
+		{
+			if (removedPersist.contains(method))
+			{
+				foundsetMethods.remove(method);
+			}
+		}
+		return foundsetMethods;
 	}
 
 	public Iterator<Media> getMedias(boolean sort)
@@ -2205,5 +2299,4 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			this.instances = new HashSet<String>(instances);
 		}
 	}
-
 }

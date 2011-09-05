@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db;
 
 
@@ -23,14 +23,13 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
+import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.FoundSet;
-import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
-import com.servoy.j2db.dataprocessing.SQLSheet;
-import com.servoy.j2db.persistence.IServer;
-import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.ImageLoader;
@@ -238,13 +237,13 @@ public class MediaURLStreamHandler extends URLStreamHandler
 		}
 	}
 
-	public Media getMedia(String name, IServiceProvider application)
+	public Media getMedia(String name, IServiceProvider app)
 	{
-		if (application == null)
+		if (app == null)
 		{
 			return null;
 		}
-		FlattenedSolution s = application.getFlattenedSolution();
+		FlattenedSolution s = app.getFlattenedSolution();
 		if (s != null)
 		{
 			return s.getMedia(name);
@@ -256,14 +255,15 @@ public class MediaURLStreamHandler extends URLStreamHandler
 	{
 		if (application.getSolution() == null) return null;//cannot work without a solution
 
+		String datasource = null;
 		String serverName = null;
-		String table = null;
+		String tableName = null;
 		try
 		{
 			if (urlQueryPart == null) return null;
 
 			String dataProvider = null;
-			SafeArrayList pks = new SafeArrayList();
+			List<String> pks = new SafeArrayList<String>();
 			StringTokenizer tk = new StringTokenizer(urlQueryPart, "?&"); //$NON-NLS-1$
 			while (tk.hasMoreTokens())
 			{
@@ -276,38 +276,29 @@ public class MediaURLStreamHandler extends URLStreamHandler
 					{
 						return (byte[])obj;
 					}
-					else if (obj instanceof String)
+					if (obj instanceof String)
 					{
 						// TODO check can we always just convert to the default encoding of this machine (server if web)
 						return ((String)obj).getBytes();
 					}
 					return null;
 				}
-				else if (token.startsWith("servername=")) //$NON-NLS-1$
+
+				if (token.startsWith("servername=")) //$NON-NLS-1$
 				{
 					serverName = token.substring("servername=".length()); //$NON-NLS-1$
 				}
 				else if (token.startsWith("tablename=")) //$NON-NLS-1$
 				{
-					table = token.substring("tablename=".length()); //$NON-NLS-1$
+					tableName = token.substring("tablename=".length()); //$NON-NLS-1$
 				}
 				else if (token.startsWith("datasource=")) //$NON-NLS-1$
 				{
-					String datasource = token.substring("datasource=".length()); //$NON-NLS-1$
-					String[] serverAndTableNames = DataSourceUtils.getDBServernameTablename(datasource);
-					if (serverAndTableNames != null)
-					{
-						serverName = serverAndTableNames[0];
-						table = serverAndTableNames[1];
-					}
+					datasource = token.substring("datasource=".length()); //$NON-NLS-1$
 				}
 				else if (token.startsWith("dataprovider=")) //$NON-NLS-1$
 				{
 					dataProvider = token.substring("dataprovider=".length()); //$NON-NLS-1$
-				}
-				else if (token.startsWith("mimedataprovider=")) //$NON-NLS-1$
-				{
-					//mimedataProvider = token.substring("mimedataprovider=".length()); //$NON-NLS-1$
 				}
 				else if (token.startsWith("rowid")) //$NON-NLS-1$
 				{
@@ -322,48 +313,45 @@ public class MediaURLStreamHandler extends URLStreamHandler
 					}
 				}
 			}
-			IServer server = application.getSolution().getServer(serverName);
-			if (server != null)
+			if (datasource == null && serverName != null && tableName != null)
 			{
-				ITable tableObj = server.getTable(table);
-				if (tableObj != null)
-				{
-					IFoundSetInternal fs = application.getFoundSetManager().getNewFoundSet(tableObj, null);
-					if (fs == null) return null;
+				datasource = DataSourceUtils.createDBTableDataSource(serverName, tableName);
+			}
 
-					((FoundSet)fs).setFindMode();
-					IRecordInternal frec = fs.getRecord(0);
-					SQLSheet sheet = fs.getSQLSheet();
-					String[] pkColumns = sheet.getPKColumnDataProvidersAsArray();
-					for (int j = 0; j < Math.min(pkColumns.length, pks.size()); j++)
-					{
-						frec.setValue(pkColumns[j], pks.get(j));
-					}
-					//TODO: we should optimize this in foundset if is pk exact query, and retrieve from row cache directly (without doing a pk query)
-					int count = ((FoundSet)fs).performFind(true, true, true);
-					if (count > 0)
-					{
-						IRecordInternal rec = fs.getRecord(0);
-						Object blob_value = rec.getValue(dataProvider);
-						if (blob_value instanceof byte[])
-						{
-							return (byte[])blob_value;
-						}
-						else if (blob_value instanceof String)
-						{
-							// TODO check can we always just convert to the default encoding of this machine (server if web)
-							return ((String)blob_value).getBytes();
-						}
-					}
-				}
+			if (application.getFoundSetManager().getTable(datasource) == null)
+			{
+				throw new IOException(Messages.getString("servoy.exception.serverAndTableNotFound", DataSourceUtils.getDBServernameTablename(datasource))); //$NON-NLS-1$	
+			}
+			FoundSet fs = (FoundSet)application.getFoundSetManager().getNewFoundSet(datasource);
+
+			List<Object[]> rows = new ArrayList<Object[]>(1); // use mutable list here, elements are overwritten with Column.getAsRightType equivalent
+			rows.add(pks.toArray());
+			if (!fs.loadExternalPKList(new BufferedDataSet(null, null, rows)))
+			{
 				return null;
+			}
+			IRecordInternal rec = fs.getRecord(0);
+			if (rec == null)
+			{
+				return null;
+			}
+			Object blob_value = rec.getValue(dataProvider);
+			if (blob_value instanceof byte[])
+			{
+				return (byte[])blob_value;
+			}
+			if (blob_value instanceof String)
+			{
+				// TODO check can we always just convert to the default encoding of this machine (server if web)
+				return ((String)blob_value).getBytes();
 			}
 		}
 		catch (Exception e)
 		{
 			throw new IOException(e.getMessage());
 		}
-		throw new IOException(Messages.getString("servoy.exception.serverAndTableNotFound", new String[] { serverName, table })); //$NON-NLS-1$		
+
+		return null;
 	}
 
 	public static String getBlobLoaderMimeType(String urlQueryPart)

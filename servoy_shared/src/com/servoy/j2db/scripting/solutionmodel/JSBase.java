@@ -31,7 +31,7 @@ import com.servoy.j2db.util.UUID;
 public class JSBase<T extends AbstractBase>
 {
 	private T baseComponent;
-	private final IJSParent parent;
+	private final IJSParent< ? > parent;
 	private boolean isCopy;
 
 	/**
@@ -39,7 +39,7 @@ public class JSBase<T extends AbstractBase>
 	 * @param isNew
 	 * 
 	 */
-	public JSBase(IJSParent parent, T baseComponent, boolean isNew)
+	public JSBase(IJSParent< ? > parent, T baseComponent, boolean isNew)
 	{
 		this.parent = parent;
 		this.baseComponent = baseComponent;
@@ -55,7 +55,7 @@ public class JSBase<T extends AbstractBase>
 		return baseComponent;
 	}
 
-	public IJSParent getJSParent()
+	public IJSParent< ? > getJSParent()
 	{
 		return parent;
 	}
@@ -74,14 +74,14 @@ public class JSBase<T extends AbstractBase>
 		}
 		if (tempPersist != null && tempPersist.getAncestor(IRepository.FORMS) != null)
 		{
-			IJSParent parent = getJSParent();
-			while (parent != null)
+			IJSParent< ? > jsparent = getJSParent();
+			while (jsparent != null)
 			{
-				if (parent.getSupportChild() instanceof Form) break;
-				parent = parent.getJSParent();
+				if (jsparent.getSupportChild() instanceof Form) break;
+				jsparent = jsparent.getJSParent();
 			}
-			if (parent != null && parent.getSupportChild() instanceof Form &&
-				!parent.getSupportChild().getUUID().equals(tempPersist.getAncestor(IRepository.FORMS).getUUID()))
+			if (jsparent != null && jsparent.getSupportChild() instanceof Form &&
+				!jsparent.getSupportChild().getUUID().equals(tempPersist.getAncestor(IRepository.FORMS).getUUID()))
 			{
 				// inherited persist
 				try
@@ -118,7 +118,7 @@ public class JSBase<T extends AbstractBase>
 		if (this == obj) return true;
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
-		JSBase other = (JSBase)obj;
+		JSBase< ? > other = (JSBase< ? >)obj;
 		if (baseComponent == null)
 		{
 			if (other.baseComponent != null) return false;

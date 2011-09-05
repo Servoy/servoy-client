@@ -38,6 +38,7 @@ import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.Style;
+import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.LazyCompilationScope;
@@ -78,6 +79,11 @@ public class DebugUtils
 					scope.remove((IScriptProvider)persist);
 					scope.put((IScriptProvider)persist, (IScriptProvider)persist);
 				}
+				else if (persist.getParent() instanceof TableNode)
+				{
+					clientState.getFoundSetManager().reloadFoundsetMethod(((TableNode)persist.getParent()).getDataSource(), (IScriptProvider)persist);
+				}
+				
 				if (clientState instanceof DebugJ2DBClient)
 				{
 //					((DebugJ2DBClient)clientState).clearUserWindows();  no need for this as window API was refactored and it allows users to clean up dialogs

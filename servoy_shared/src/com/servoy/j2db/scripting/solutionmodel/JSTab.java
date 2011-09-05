@@ -222,7 +222,7 @@ public class JSTab extends JSBase<Tab> implements IJavaScriptType
 		}
 		else
 		{
-			getBaseComponent(true).setContainsFormID(form.getForm().getID());
+			getBaseComponent(true).setContainsFormID(form.getSupportChild().getID());
 		}
 	}
 

@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 
@@ -22,6 +22,10 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
+
+import com.servoy.j2db.util.FilteredIterator;
+import com.servoy.j2db.util.IFilter;
 
 /**
  * Enum for one type of Repository types
@@ -40,7 +44,6 @@ public class SortedTypeIterator<T extends IPersist> implements Iterator<T>
  * _____________________________________________________________ Declaration and definition of constructors
  */
 
-	@SuppressWarnings("unchecked")
 	public SortedTypeIterator(List<IPersist> list, int type, Comparator c)
 	{
 		if (type > 0)
@@ -75,6 +78,10 @@ public class SortedTypeIterator<T extends IPersist> implements Iterator<T>
 	@SuppressWarnings("unchecked")
 	public T next()
 	{
+		if (!hasNext())
+		{
+			throw new NoSuchElementException();
+		}
 		T obj = (T)internalList.get(index);
 		index++;
 		return obj;
@@ -105,5 +112,16 @@ public class SortedTypeIterator<T extends IPersist> implements Iterator<T>
 			}
 		}
 		return array;
+	}
+
+	public static <T extends IPersist> Iterator<T> createFilteredIterator(final Iterator<IPersist> it, final int type)
+	{
+		return new FilteredIterator<T>(it, new IFilter<T>()
+		{
+			public boolean match(Object o)
+			{
+				return o instanceof IPersist && ((IPersist)o).getTypeID() == type;
+			}
+		});
 	}
 }

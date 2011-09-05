@@ -23,6 +23,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.ISupportName;
+import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.PersistHelper;
@@ -34,7 +35,7 @@ import com.servoy.j2db.util.PersistHelper;
 public class JSComponent<T extends BaseComponent> extends JSBase<T> implements IJavaScriptType
 {
 
-	protected JSComponent(IJSParent parent, T baseComponent, boolean isNew)
+	protected JSComponent(IJSParent< ? > parent, T baseComponent, boolean isNew)
 	{
 		super(parent, baseComponent, isNew);
 	}
@@ -42,17 +43,17 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	/**
 	 * Set the event handler for the method key, JSMethod may contain arguments.
 	 */
-	protected void setEventHandler(IApplication application, String methodKey, JSMethod method)
+	protected void setEventHandler(IApplication application, TypedProperty<Integer> methodProperty, JSMethod method)
 	{
-		JSForm.setEventHandler(application, getBaseComponent(true), methodKey, method);
+		JSForm.setEventHandler(application, getBaseComponent(true), methodProperty, method);
 	}
 
 	/**
 	 * Get the event handler for the method key, JSMethod may contain arguments.
 	 */
-	protected JSMethod getEventHandler(IApplication application, String methodKey)
+	protected JSMethod getEventHandler(IApplication application, TypedProperty<Integer> methodProperty)
 	{
-		return JSForm.getEventHandler(application, getBaseComponent(false), methodKey, getJSParent());
+		return JSForm.getEventHandler(application, getBaseComponent(false), methodProperty, getJSParent());
 	}
 
 

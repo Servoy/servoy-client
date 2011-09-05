@@ -26,9 +26,9 @@ public class JSLabel extends JSGraphicalComponent
 	/**
 	 * @param gc
 	 */
-	public JSLabel(IJSParent form, GraphicalComponent gc, IApplication application, boolean isNew)
+	public JSLabel(IJSParent< ? > parent, GraphicalComponent gc, IApplication application, boolean isNew)
 	{
-		super(form, gc, application, isNew);
+		super(parent, gc, application, isNew);
 	}
 
 }

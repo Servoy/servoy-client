@@ -181,7 +181,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	/**
 	 * @param field
 	 */
-	public JSField(IJSParent parent, Field field, IApplication application, boolean isNew)
+	public JSField(IJSParent< ? > parent, Field field, IApplication application, boolean isNew)
 	{
 		super(parent, field, isNew);
 		this.application = application;
@@ -514,7 +514,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 
 	public void js_setOnAction(JSMethod method)
 	{
-		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID.getPropertyName(), method);
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID, method);
 	}
 
 	/**
@@ -522,12 +522,12 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 */
 	public JSMethod js_getOnAction()
 	{
-		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID.getPropertyName());
+		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID);
 	}
 
 	public void js_setOnDataChange(JSMethod method)
 	{
-		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName(), method);
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID, method);
 	}
 
 	/**
@@ -542,12 +542,12 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 */
 	public JSMethod js_getOnDataChange()
 	{
-		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName());
+		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID);
 	}
 
 	public void js_setOnRender(JSMethod method)
 	{
-		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID.getPropertyName(), method);
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID, method);
 	}
 
 	/**
@@ -558,13 +558,13 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 */
 	public JSMethod js_getOnRender()
 	{
-		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID.getPropertyName());
+		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID);
 	}
 
 
 	public void js_setOnRightClick(JSMethod method)
 	{
-		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID.getPropertyName(), method);
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID, method);
 	}
 
 	/**
@@ -572,12 +572,12 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 */
 	public JSMethod js_getOnRightClick()
 	{
-		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID.getPropertyName());
+		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID);
 	}
 
 	public void js_setOnFocusGained(JSMethod method)
 	{
-		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName(), method);
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID, method);
 	}
 
 	/**
@@ -594,12 +594,12 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 */
 	public JSMethod js_getOnFocusGained()
 	{
-		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName());
+		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID);
 	}
 
 	public void js_setOnFocusLost(JSMethod method)
 	{
-		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName(), method);
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID, method);
 	}
 
 	/**
@@ -609,7 +609,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 */
 	public JSMethod js_getOnFocusLost()
 	{
-		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName());
+		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID);
 	}
 
 

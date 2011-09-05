@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting.solutionmodel;
 
 import com.servoy.j2db.persistence.ISupportChilds;
@@ -22,15 +22,15 @@ import com.servoy.j2db.persistence.ISupportChilds;
  * @author jcompagner
  * 
  */
-public interface IJSParent
+public interface IJSParent<T extends ISupportChilds>
 {
 	public void checkModification();
 
 	/**
 	 * @return
 	 */
-	public ISupportChilds getSupportChild();
+	public T getSupportChild();
 
 
-	public IJSParent getJSParent();
+	public IJSParent< ? > getJSParent();
 }

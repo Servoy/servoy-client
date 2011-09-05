@@ -69,6 +69,7 @@ import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.ArgumentType;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IDataProvider;
@@ -79,7 +80,10 @@ import com.servoy.j2db.persistence.MethodArgument;
 import com.servoy.j2db.persistence.MethodTemplate;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.scripting.CreationalPrototype;
 import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.FormScope;
@@ -752,7 +756,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			{
 				reduceSearch = Utils.getAsBoolean(vargs[1]);
 			}
-			return formController.performFindImpl(clearLastResults, reduceSearch, false);
+			int nfound = formController.performFindImpl(clearLastResults, reduceSearch, false);
+			return nfound < 0 ? 0/* blocked */: nfound;
 		}
 
 		/**
@@ -1844,8 +1849,10 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			{
 				setDesignMode(null);
 			}
-			Object[] args = new Object[] { getJSEvent(formScope) };
-			executeFormMethod(form.getOnUnLoadMethodID(), args, "onUnLoadMethodID", true, true); //$NON-NLS-1$
+			if (form.getOnUnLoadMethodID() > 0)
+			{
+				executeFormMethod(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID, new Object[] { getJSEvent(formScope) }, true, true, true);
+			}
 			containerImpl.destroy();
 
 			application.getFoundSetManager().getEditRecordList().removePrepareForSave(this);
@@ -2118,7 +2125,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 		else
 		{
-			executeFormMethod(form.getOnShowAllRecordsCmdMethodID(), null, "onShowAllRecordsCmdMethodID", false, true); //$NON-NLS-1$
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONSHOWALLRECORDSCMDMETHODID, null, false, true, true);
 		}
 	}
 
@@ -2135,9 +2142,9 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			}
 		}
 
-		if (formModel.isInFindMode())
+		if (formModel.isInFindMode() && performFindImpl(false, true, false) < 0 /* search blocked */)
 		{
-			performFindImpl(false, true, false);
+			return false;
 		}
 
 		if (formModel.getRelationName() == null && !form.getUseSeparateFoundSet() && !((FoundSetManager)application.getFoundSetManager()).isShared(formModel))
@@ -2338,7 +2345,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 		else
 		{
-			executeFormMethod(form.getOnSortCmdMethodID(), null, "onSortCmdMethodID", true, true); //$NON-NLS-1$
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONSORTCMDMETHODID, null, true, true, true);
 		}
 	}
 
@@ -2481,7 +2488,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 		else
 		{
-			executeFormMethod(form.getOnShowOmittedRecordsCmdMethodID(), null, "onShowOmittedRecordsCmdMethodID", true, true); //$NON-NLS-1$
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONSHOWOMITTEDRECORDSCMDMETHODID, null, true, true, true);
 		}
 	}
 
@@ -2515,7 +2522,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 		else
 		{
-			executeFormMethod(form.getOnInvertRecordsCmdMethodID(), null, "onInvertRecordsCmdMethodID", true, true); //$NON-NLS-1$
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONINVERTRECORDSCMDMETHODID, null, true, true, true);
 		}
 	}
 
@@ -2550,7 +2557,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 		else
 		{
-			executeFormMethod(form.getOnOmitRecordCmdMethodID(), null, "onOmitRecordCmdMethodID", true, true); //$NON-NLS-1$
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONOMITRECORDCMDMETHODID, null, true, true, true);
 		}
 	}
 
@@ -2578,16 +2585,9 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			{
 				application.handleException(application.getI18NMessage("servoy.formPanel.error.deleteRecord"), ex); //$NON-NLS-1$
 			}
+			return true;
 		}
-		else
-		{
-			Object o = executeFormMethod(form.getOnDeleteRecordCmdMethodID(), null, "onDeleteRecordCmdMethodID", true, true); //$NON-NLS-1$
-			if (Boolean.FALSE.equals(o))
-			{
-				return false;
-			}
-		}
-		return true;
+		return !Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONDELETERECORDCMDMETHODID, null, true, true, true));
 	}
 
 	private boolean deleteRecordImpl() throws ServoyException
@@ -2631,7 +2631,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 		else
 		{
-			executeFormMethod(form.getOnDeleteAllRecordsCmdMethodID(), null, "onDeleteAllRecordsCmdMethodID", true, true); //$NON-NLS-1$
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONDELETEALLRECORDSCMDMETHODID, null, true, true, true);
 		}
 		return false;
 	}
@@ -2664,7 +2664,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 		else
 		{
-			executeFormMethod(form.getOnNewRecordCmdMethodID(), null, "onNewRecordCmdMethodID", true, true); //$NON-NLS-1$
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONNEWRECORDCMDMETHODID, null, true, true, true);
 		}
 	}
 
@@ -2708,7 +2708,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 		else
 		{
-			executeFormMethod(form.getOnDuplicateRecordCmdMethodID(), null, "onDuplicateRecordCmdMethodID", true, true); //$NON-NLS-1$
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONDUPLICATERECORDCMDMETHODID, null, true, true, true);
 		}
 	}
 
@@ -2784,7 +2784,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 		else
 		{
-			executeFormMethod(form.getOnFindCmdMethodID(), null, "onFindCmdMethodID", true, true); //$NON-NLS-1$
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONFINDCMDMETHODID, null, true, true, true);
 		}
 	}
 
@@ -2890,7 +2890,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 		else
 		{
-			executeFormMethod(form.getOnPrintPreviewCmdMethodID(), null, "onPrintPreviewCmdMethodID", true, true); //$NON-NLS-1$
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONPRINTPREVIEWCMDMETHODID, null, true, true, true);
 		}
 	}
 
@@ -3279,8 +3279,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 		else if (isInFindMode())
 		{
-			Object o = executeFormMethod(form.getOnSearchCmdMethodID(), new Object[] { new Boolean(clear), new Boolean(reduce) }, "onSearchCmdMethodID", false, //$NON-NLS-1$
-				true);
+			Object o = executeFormMethod(StaticContentSpecLoader.PROPERTY_ONSEARCHCMDMETHODID,
+				new Object[] { Boolean.valueOf(clear), Boolean.valueOf(reduce) }, false, true, true);
 			if (o instanceof Number)
 			{
 				return ((Number)o).intValue();
@@ -3320,7 +3320,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			application.getFoundSetManager().getEditRecordList().prepareForSave(true);
 			try
 			{
-				ArrayList<String> invalidRangeConditions = null;
+				List<String> invalidRangeConditions = null;
 				count = formModel.performFind(clearLastResult, reduceSearch, !showDialogOnNoResults, showDialogOnNoResults
 					? invalidRangeConditions = new ArrayList<String>() : null);
 				if (application.getCmdManager() instanceof ICmdManagerInternal)
@@ -3329,10 +3329,10 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				}
 				if (count == 0 && showDialogOnNoResults)
 				{
-					StringBuffer invalidRangeFieldTxt = null;
+					StringBuilder invalidRangeFieldTxt = null;
 					if (invalidRangeConditions.size() > 0)
 					{
-						invalidRangeFieldTxt = new StringBuffer();
+						invalidRangeFieldTxt = new StringBuilder();
 						invalidRangeFieldTxt.append(application.getI18NMessage("servoy.formPanel.search.invalidRange")); //$NON-NLS-1$
 						for (String invalidRangeField : invalidRangeConditions)
 						{
@@ -3361,7 +3361,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 						focusFirstField();
 					}
 				}
-				else
+				else if (count >= 0) // not blocked
 				{
 					//model is already out of find
 					exitFindMode();
@@ -3382,7 +3382,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				// TODO should we report this as a real error to the developer??
 			}
 		}
-		return count;
+		return count; // -1 when blocked
 	}
 
 	public Color getBackground()
@@ -3708,7 +3708,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		public Object executeFunction(String cmd, Object[] args, boolean saveData, Object src, boolean focusEvent, String methodKey,
 			boolean executeWhenFieldValidationFailed)
 		{
-			if (delegate != null) return delegate.executeFunction(cmd, args, saveData, src, focusEvent, methodKey, executeWhenFieldValidationFailed);
+			if (delegate != null) return delegate.executeFunction(cmd, args, saveData, src, focusEvent, methodKey, true, executeWhenFieldValidationFailed);
 			return null;
 		}
 
@@ -3837,23 +3837,22 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		return getApplication().getScriptEngine().eval(formScope, eval_string);
 	}
 
-	//also handles the scopes
-	public Object executeFunction(Function f, Object[] args, boolean saveData) throws Exception
+	public Object executeFunction(Function f, Object[] args, Scriptable scope, boolean saveData) throws Exception
 	{
-		return executeFunction(f, args, formScope, formScope, saveData, null, true, false, null, false, false, false);
+		return executeFunction(f, args, scope, scope, saveData, null, true, false, null, false, false, false);
 	}
 
 	public Object executeFunction(String cmd, Object[] args, boolean saveData, Object src, boolean focusEvent, String methodKey)
 	{
-		return executeFunction(cmd, args, saveData, src, focusEvent, methodKey, false);
+		return executeFunction(cmd, args, saveData, src, focusEvent, methodKey, true, false);
 	}
 
-	public Object executeFunction(String cmd, Object[] args, boolean saveData, Object src, boolean focusEvent, String methodKey,
+	public Object executeFunction(String cmd, Object[] args, boolean saveData, Object src, boolean focusEvent, String methodKey, boolean allowFoundsetMethods,
 		boolean executeWhenFieldValidationFailed)
 	{
 		try
 		{
-			return executeFunction(cmd, args, saveData, src, focusEvent, methodKey, executeWhenFieldValidationFailed, false);
+			return executeFunction(cmd, args, saveData, src, focusEvent, methodKey, allowFoundsetMethods, executeWhenFieldValidationFailed, false);
 		}
 		catch (ApplicationException ex)
 		{
@@ -3887,12 +3886,11 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	 * @param cmd be the the id from the method or the name
 	 * @param methodKey 
 	 */
-	public Object executeFunction(String cmd, Object[] args, boolean saveData, Object src, boolean focusEvent, String methodKey,
+	public Object executeFunction(String cmd, Object[] args, boolean saveData, Object src, boolean focusEvent, String methodKey, boolean allowFoundsetMethods,
 		boolean executeWhenFieldValidationFailed, boolean throwException) throws Exception
 	{
-		Function f = null;
+		Object function = null;
 		Scriptable scope = formScope;
-		Scriptable thisObject = formScope;
 
 		String name = cmd;
 		int id = Utils.getAsInteger(cmd);
@@ -3907,46 +3905,62 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 		else
 		{
-			f = formScope.getFunctionByName(name);
+			function = formScope.getFunctionByName(name);
 		}
 
-		if (f == null)
+		if (allowFoundsetMethods && function == null && formModel != null)
+		{
+			// try foundset method
+			ScriptMethod scriptMethod;
+			if (id > 0)
+			{
+				scriptMethod = AbstractBase.selectById(application.getFlattenedSolution().getFoundsetMethods(getTable(), false).iterator(), id);
+				if (scriptMethod != null)
+				{
+					name = scriptMethod.getName();
+				}
+			}
+			if (name != null)
+			{
+				scope = formModel;
+				function = scope.getPrototype().get(name, scope);
+			}
+		}
+
+		if (function == null)
 		{
 			GlobalScope globalScope = application.getScriptEngine().getSolutionScope().getGlobalScope();
 			scope = globalScope;
-			thisObject = globalScope;
 			if (id > 0)
 			{
 				name = globalScope.getFunctionName(new Integer(id));
 			}
-			f = globalScope.getFunctionByName(name);
+			function = globalScope.getFunctionByName(name);
 		}
 
+
+		Function f = function instanceof Function ? (Function)function : null;
 		if (throwException)
 		{
-			return executeFunction(f, args, scope, thisObject, saveData, src, f == null || !Utils.getAsBoolean(f.get("_AllowToRunInFind_", f)), //$NON-NLS-1$
+			return executeFunction(f, args, scope, scope, saveData, src, f == null || !Utils.getAsBoolean(f.get("_AllowToRunInFind_", f)), //$NON-NLS-1$
 				focusEvent, methodKey, executeWhenFieldValidationFailed, false, true);
 		}
-		else
+		try
 		{
-			try
-			{
-				return executeFunction(f, args, scope, thisObject, saveData, src, f == null || !Utils.getAsBoolean(f.get("_AllowToRunInFind_", f)), //$NON-NLS-1$
-					focusEvent, methodKey, executeWhenFieldValidationFailed, false, false);
-			}
-			catch (ApplicationException ex)
-			{
-				application.reportError(ex.getMessage(), null);
-			}
-			catch (Exception ex)
-			{
-				this.requestFocus();
-				application.reportError(application.getI18NMessage("servoy.formPanel.error.executingMethod", new Object[] { getName() + "." + name }), ex); //$NON-NLS-1$ //$NON-NLS-2$				
-			}
+			return executeFunction(f, args, scope, scope, saveData, src, f == null || !Utils.getAsBoolean(f.get("_AllowToRunInFind_", f)), //$NON-NLS-1$
+				focusEvent, methodKey, executeWhenFieldValidationFailed, false, true);
+		}
+		catch (ApplicationException ex)
+		{
+			application.reportError(ex.getMessage(), null);
+		}
+		catch (Exception ex)
+		{
+			this.requestFocus();
+			application.reportError(application.getI18NMessage("servoy.formPanel.error.executingMethod", new Object[] { getName() + "." + name }), ex); //$NON-NLS-1$ //$NON-NLS-2$				
 		}
 		return null;
 	}
-
 
 	@SuppressWarnings("nls")
 	private Object executeFunction(Function f, Object[] args, Scriptable scope, Scriptable thisObject, boolean saveData, Object src, boolean testFindMode,
@@ -4222,17 +4236,20 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		if (!didOnload)
 		{
 			didOnload = true;
-			// Set this boolean on true while executing the onload so that 
-			// an onload method won't trigger the notify visible before it is finished itself.
-			executingOnLoad = true;
-			try
+			if (form.getOnLoadMethodID() > 0)
 			{
-				Object[] args = new Object[] { getJSEvent(formScope) };
-				executeFormMethod(form.getOnLoadMethodID(), args, "onLoadMethodID", false, true); //$NON-NLS-1$
-			}
-			finally
-			{
-				executingOnLoad = false;
+				// Set this boolean on true while executing the onload so that 
+				// an onload method won't trigger the notify visible before it is finished itself.
+				executingOnLoad = true;
+				try
+				{
+					Object[] args = new Object[] { getJSEvent(formScope) };
+					executeFormMethod(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID, args, false, true, false /* foundset is not yet initialized */);
+				}
+				finally
+				{
+					executingOnLoad = false;
+				}
 			}
 		}
 	}
@@ -4241,14 +4258,12 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 	private void executeOnShowMethod()
 	{
-		if (executingOnLoad) return;
-
-		int id = form.getOnShowMethodID();
-		if (id <= 0) return;//nothing attached do not the arguments creates
-
-		Object[] args = new Object[] { Boolean.valueOf(!didOnShowOnce), getJSEvent(formScope) };//isFirstTime
-		didOnShowOnce = true;
-		executeFormMethod(id, args, "onShowMethodID", true, true); //$NON-NLS-1$
+		if (!executingOnLoad && form.getOnShowMethodID() > 0)
+		{
+			Object[] args = new Object[] { Boolean.valueOf(!didOnShowOnce), getJSEvent(formScope) };//isFirstTime
+			didOnShowOnce = true;
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONSHOWMETHODID, args, true, true, true);
+		}
 	}
 
 	/**
@@ -4257,13 +4272,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	 */
 	private boolean executeOnHideMethod()
 	{
-		Object[] args = new Object[] { getJSEvent(formScope) };
-		Object o = executeFormMethod(form.getOnHideMethodID(), args, "onHideMethodID", true, true); //$NON-NLS-1$
-		if (o instanceof Boolean)
-		{
-			return ((Boolean)o).booleanValue();
-		}
-		return true;
+		return form.getOnHideMethodID() == 0 ||
+			!Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID, new Object[] { getJSEvent(formScope) }, true, true, true));
 	}
 
 	private boolean runningExecuteOnRecordEditStop;
@@ -4275,8 +4285,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			try
 			{
 				runningExecuteOnRecordEditStop = true;
-				Object object = executeFormMethod(form.getOnRecordEditStopMethodID(), new Object[] { record }, "onRecordEditStopMethodID", true, true); //$NON-NLS-1$
-				boolean ret = (object instanceof Boolean) ? ((Boolean)object).booleanValue() : true;
+				boolean ret = !Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTOPMETHODID, new Object[] { record }, true,
+					true, true));
 				if (ret)
 				{
 					// for this record, record edit saved is called successfully shouldn't happen the second time.
@@ -4307,70 +4317,77 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		if (containerImpl.getUndoManager() != null) containerImpl.getUndoManager().discardAllEdits();
 		if (isFormVisible)//this is added because many onrecordSelect actions are display dependent (in that case you only want the visible forms to be set) or data action which are likely on the same table so obsolete any way.
 		{
-			executeFormMethod(form.getOnRecordSelectionMethodID(), null, "onRecordSelectionMethodID", true, true); //$NON-NLS-1$
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONRECORDSELECTIONMETHODID, null, true, true, true);
 		}
 	}
 
 	private boolean executeOnRecordEditStart()
 	{
-		if (isFormVisible())//should only work on visible form, onXXXX means user event which are only possible when visible
+		if (!isFormVisible())//should only work on visible form, onXXXX means user event which are only possible when visible
 		{
-			// saveData is false because otherwise focus is lost on stopUIEditing in ListView
-			// see issue 154845
-			Object object = executeFormMethod(form.getOnRecordEditStartMethodID(), null, "onRecordEditStartMethodID", true, false); //$NON-NLS-1$
-			if (object instanceof Boolean)
-			{
-				return ((Boolean)object).booleanValue();
-			}
+			return true;
 		}
-		return true;
+		// saveData is false because otherwise focus is lost on stopUIEditing in ListView
+		// see issue 154845
+		return !Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTARTMETHODID, null, true, false, true));
 	}
 
 	private void executeOnResize()
 	{
-		if (isFormVisible() && form.getOnResizeMethodID() > 0)
+		if (isFormVisible())
 		{
-			executeFormMethod(form.getOnResizeMethodID(), null, "onResizeMethodID", true, true); //$NON-NLS-1$
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONRESIZEMETHODID, null, true, true, true);
 		}
 	}
 
-	private Object executeFormMethod(int id, Object[] args, String methodKey, boolean testFindMode, boolean saveData)
+	public Object executeFormMethod(TypedProperty<Integer> methodProperty, Object[] args, boolean testFindMode, boolean saveData, boolean allowFoundsetMethods)
 	{
 		Object ret = null;
-		if (id > 0 && formScope != null)
+		Integer id = ((Integer)form.getProperty(methodProperty.getPropertyName()));
+		if (id.intValue() > 0 && formScope != null)
 		{
 			String sName = null;
 			try
 			{
-				Function f = null;
+				Object function = null;
 				Scriptable scope = formScope;
-				Scriptable thisObject = formScope;
 
-				if (id > 0)
+				// try form method
+				sName = formScope.getFunctionName(id);
+				if (sName != null)
 				{
-					sName = formScope.getFunctionName(new Integer(id));
-					if (sName != null)
-					{
-						f = formScope.getFunctionByName(sName);
-					}
+					function = formScope.getFunctionByName(sName);
 				}
 
-				if (f == null)
+				if (!(function instanceof Function))
 				{
+					// try global method
 					GlobalScope globalScope = application.getScriptEngine().getSolutionScope().getGlobalScope();
 					scope = globalScope;
-					thisObject = globalScope;
-					sName = globalScope.getFunctionName(new Integer(id));
+					sName = globalScope.getFunctionName(id);
 					if (sName != null)
 					{
-						f = globalScope.getFunctionByName(sName);
+						function = globalScope.getFunctionByName(sName);
 					}
 				}
 
-				if (f != null)
+				if (allowFoundsetMethods && !(function instanceof Function) && formModel != null)
 				{
-					ret = executeFunction(f, Utils.arrayMerge(args, Utils.parseJSExpressions(form.getInstanceMethodArguments(methodKey))), scope, thisObject,
-						saveData, null, testFindMode, false, methodKey, false, true, false);
+					// try foundset method
+					ScriptMethod scriptMethod = AbstractBase.selectById(application.getFlattenedSolution().getFoundsetMethods(getTable(), false).iterator(),
+						id.intValue());
+					if (scriptMethod != null)
+					{
+						scope = formModel;
+						function = scope.getPrototype().get(scriptMethod.getName(), scope);
+					}
+				}
+
+				if (function instanceof Function)
+				{
+					ret = executeFunction((Function)function,
+						Utils.arrayMerge(args, Utils.parseJSExpressions(form.getInstanceMethodArguments(methodProperty.getPropertyName()))), scope, scope,
+						saveData, null, testFindMode, false, methodProperty.getPropertyName(), false, true, false);
 				}
 			}
 			catch (Exception ex)
@@ -4459,7 +4476,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 		else
 		{
-			executeFormMethod(form.getOnNextRecordCmdMethodID(), null, "onNextRecordCmdMethodID", true, true); //$NON-NLS-1$
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONNEXTRECORDCMDMETHODID, null, true, true, true);
 		}
 	}
 
@@ -4497,7 +4514,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 		else
 		{
-			executeFormMethod(form.getOnPreviousRecordCmdMethodID(), null, "onPreviousRecordCmdMethodID", true, true); //$NON-NLS-1$
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONPREVIOUSRECORDCMDMETHODID, null, true, true, true);
 		}
 	}
 

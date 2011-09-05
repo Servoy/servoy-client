@@ -27,7 +27,6 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.IPersist;
-import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
@@ -38,7 +37,7 @@ import com.servoy.j2db.persistence.TabPanel;
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent")
-public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent
+public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPanel>
 {
 	private final IApplication application;
 
@@ -55,7 +54,7 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent
 	/**
 	 * @see com.servoy.j2db.scripting.solutionmodel.IJSParent#getSupportChild()
 	 */
-	public ISupportChilds getSupportChild()
+	public TabPanel getSupportChild()
 	{
 		return getBaseComponent(false);
 	}
@@ -146,7 +145,7 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent
 				// invalid relation
 				return null;
 			}
-			Tab newTab = getBaseComponent(true).createNewTab(text, relationName, form.getForm());
+			Tab newTab = getBaseComponent(true).createNewTab(text, relationName, form.getSupportChild());
 			newTab.setName(name);
 			return new JSTab(this, newTab, application, true);
 		}
@@ -328,7 +327,7 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent
 
 	public void js_setOnChange(JSMethod method)
 	{
-		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID.getPropertyName(), method);
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID, method);
 	}
 
 	/**
@@ -359,7 +358,7 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent
 	 */
 	public JSMethod js_getOnChange()
 	{
-		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID.getPropertyName());
+		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID);
 	}
 
 	public void js_setScrollTabs(boolean arg)

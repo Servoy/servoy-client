@@ -24,7 +24,6 @@ import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;
-import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.query.IQuerySelectValue;
@@ -323,16 +322,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 
 	private boolean checkIfCalc(String dp)
 	{
-		if (dp == null) return false;
-		try
-		{
-			return (application.getFlattenedSolution().getScriptCalculation(dp, table) != null);
-		}
-		catch (RepositoryException e)
-		{
-			Debug.error(e);
-			return false;
-		}
+		return dp != null && application.getFlattenedSolution().getScriptCalculation(dp, table) != null;
 	}
 
 	public static IQuerySelectValue getQuerySelectValue(Table table, QueryTable queryTable, String dataprovider)

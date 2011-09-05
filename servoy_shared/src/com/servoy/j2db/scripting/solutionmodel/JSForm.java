@@ -18,7 +18,6 @@ package com.servoy.j2db.scripting.solutionmodel;
 
 import java.awt.Dimension;
 import java.awt.Point;
-import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -42,6 +41,7 @@ import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.FormEncapsulation;
 import com.servoy.j2db.persistence.GraphicalComponent;
+import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.Portal;
@@ -50,7 +50,10 @@ import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptNameValidator;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.persistence.TabPanel;
+import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
@@ -60,7 +63,7 @@ import com.servoy.j2db.util.UUID;
  */
 @SuppressWarnings("nls")
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class JSForm implements IJSParent, IConstantsObject
+public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 {
 	public static ScriptMethod getScriptMethod(Function function, FlattenedSolution fs)
 	{
@@ -199,10 +202,17 @@ public class JSForm implements IJSParent, IConstantsObject
 		application.getFlattenedSolution().registerChangedForm(form);
 	}
 
+	@SuppressWarnings("unchecked")
+	public <T extends IScriptProvider> T getScriptCopy(T script)
+	{
+		checkModification();
+		return (T)form.getChild(script.getUUID());
+	}
+
 	/**
 	 * @see com.servoy.j2db.scripting.solutionmodel.IJSParent#getJSParent()
 	 */
-	public IJSParent getJSParent()
+	public IJSParent< ? > getJSParent()
 	{
 		return null;
 	}
@@ -210,7 +220,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	/**
 	 * @see com.servoy.j2db.scripting.solutionmodel.IJSParent#getBaseComponent()
 	 */
-	public ISupportChilds getSupportChild()
+	public Form getSupportChild()
 	{
 		return form;
 	}
@@ -348,7 +358,7 @@ public class JSForm implements IJSParent, IConstantsObject
 		{
 			ScriptMethod method = form.createNewScriptMethod(new ScriptNameValidator(application.getFlattenedSolution()), name);
 			method.setDeclaration(code);
-			return new JSMethod(application, this, method, true);
+			return new JSMethod(this, method, application, true);
 		}
 		catch (RepositoryException e)
 		{
@@ -373,7 +383,7 @@ public class JSForm implements IJSParent, IConstantsObject
 		ScriptMethod sm = application.getFlattenedSolution().getFlattenedForm(form).getScriptMethod(name);
 		if (sm != null)
 		{
-			return new JSMethod(application, this, sm, false);
+			return new JSMethod(this, sm, application, false);
 		}
 		return null;
 	}
@@ -400,7 +410,7 @@ public class JSForm implements IJSParent, IConstantsObject
 				Iterator<ScriptMethod> scriptMethods = application.getFlattenedSolution().getFlattenedForm(form).getScriptMethods(true);
 				while (scriptMethods.hasNext())
 				{
-					methods.add(new JSMethod(application, this, scriptMethods.next(), false));
+					methods.add(new JSMethod(this, scriptMethods.next(), application, false));
 				}
 			}
 			catch (Exception ex)
@@ -413,7 +423,7 @@ public class JSForm implements IJSParent, IConstantsObject
 			Iterator<ScriptMethod> scriptMethods = form.getScriptMethods(true);
 			while (scriptMethods.hasNext())
 			{
-				methods.add(new JSMethod(application, this, scriptMethods.next(), false));
+				methods.add(new JSMethod(this, scriptMethods.next(), application, false));
 			}
 		}
 		return methods.toArray(new JSMethod[methods.size()]);
@@ -2963,7 +2973,7 @@ public class JSForm implements IJSParent, IConstantsObject
 		Form f = null;
 		if (superForm instanceof JSForm)
 		{
-			f = ((JSForm)superForm).getForm();
+			f = ((JSForm)superForm).getSupportChild();
 		}
 		else if (superForm instanceof String)
 		{
@@ -3000,7 +3010,7 @@ public class JSForm implements IJSParent, IConstantsObject
 		int id = 0;
 		if (navigator instanceof JSForm)
 		{
-			id = ((JSForm)navigator).getForm().getID();
+			id = ((JSForm)navigator).getSupportChild().getID();
 		}
 		else if (navigator instanceof String)
 		{
@@ -3684,14 +3694,6 @@ public class JSForm implements IJSParent, IConstantsObject
 		form.setWidth(width);
 	}
 
-	/**
-	 * @return
-	 */
-	Form getForm()
-	{
-		return form;
-	}
-
 	private static Form getFormParent(AbstractBase baseComponent)
 	{
 		if (baseComponent instanceof Form) return (Form)baseComponent;
@@ -3703,9 +3705,9 @@ public class JSForm implements IJSParent, IConstantsObject
 		return (Form)parent;
 	}
 
-	private static JSForm getJSFormParent(IJSParent parent)
+	private static JSForm getJSFormParent(IJSParent< ? > parent)
 	{
-		IJSParent form = parent;
+		IJSParent< ? > form = parent;
 		while (!(form instanceof JSForm) && form != null)
 		{
 			form = form.getJSParent();
@@ -3713,34 +3715,24 @@ public class JSForm implements IJSParent, IConstantsObject
 		return (JSForm)form;
 	}
 
-	protected JSMethod getEventHandler(String methodKey)
+	protected JSMethod getEventHandler(TypedProperty<Integer> methodProperty)
 	{
-		return getEventHandler(application, form, methodKey, this);
+		return getEventHandler(application, form, methodProperty, this);
 	}
 
-	static <T extends AbstractBase> JSMethod getEventHandler(IApplication application, T persist, String methodKey, IJSParent parent)
+	static <T extends AbstractBase> JSMethod getEventHandler(IApplication application, T persist, TypedProperty<Integer> methodProperty, IJSParent< ? > parent)
 	{
-		int methodid;
-		try
-		{
-			Method getter = persist.getClass().getMethod("get" + Character.toUpperCase(methodKey.charAt(0)) + methodKey.substring(1)); //$NON-NLS-1$
-			methodid = ((Integer)getter.invoke(persist)).intValue();
-		}
-		catch (Exception e)
-		{
-			// should not happen
-			throw new RuntimeException(e);
-		}
-
+		int methodid = ((Integer)persist.getProperty(methodProperty.getPropertyName())).intValue();
 		if (methodid > 0)
 		{
 			ScriptMethod scriptMethod = null;
 			if (parent instanceof JSForm)
 			{
-				scriptMethod = ((JSForm)parent).getForm().getScriptMethod(methodid);
+				// form method
+				scriptMethod = ((JSForm)parent).getSupportChild().getScriptMethod(methodid);
 				if (scriptMethod == null)
 				{
-					Form f = ((JSForm)parent).getForm();
+					Form f = ((JSForm)parent).getSupportChild();
 					while (f != null && f.getExtendsID() > 0 && scriptMethod == null)
 					{
 						f = application.getFlattenedSolution().getForm(f.getExtendsID());
@@ -3748,61 +3740,74 @@ public class JSForm implements IJSParent, IConstantsObject
 					}
 				}
 			}
+
+			if (scriptMethod == null && parent instanceof JSDataSourceNode)
+			{
+				// foundset method
+				scriptMethod = ((JSDataSourceNode)parent).getSupportChild().getFoundsetMethod(methodid);
+			}
+
 			if (scriptMethod == null)
 			{
+				// global method
 				scriptMethod = application.getFlattenedSolution().getScriptMethod(methodid);
 			}
+
 			if (scriptMethod != null)
 			{
-				JSForm form = scriptMethod.getParent() instanceof Solution ? null : getJSFormParent(parent);
-				List<Object> arguments = persist.getInstanceMethodArguments(methodKey);
-				if (arguments == null || arguments.size() == 0)
+				IJSScriptParent< ? > scriptParent;
+				if (scriptMethod.getParent() instanceof TableNode && parent instanceof JSDataSourceNode)
 				{
-					return new JSMethod(application, form, scriptMethod, false);
+					scriptParent = (JSDataSourceNode)parent;
+				}
+				else if (scriptMethod.getParent() instanceof Solution)
+				{
+					// global
+					scriptParent = null;
 				}
 				else
 				{
-					return new JSMethodWithArguments(application, form, scriptMethod, false, arguments.toArray());
+					// form method
+					scriptParent = getJSFormParent(parent);
+				}
+				List<Object> arguments = persist.getInstanceMethodArguments(methodProperty.getPropertyName());
+				if (arguments == null || arguments.size() == 0)
+				{
+					return new JSMethod(scriptParent, scriptMethod, application, false);
+				}
+				else
+				{
+					return new JSMethodWithArguments(application, scriptParent, scriptMethod, false, arguments.toArray());
 				}
 			}
 		}
-		else if (methodid == 0 && BaseComponent.isCommandProperty(methodKey))
+		else if (methodid == 0 && BaseComponent.isCommandProperty(methodProperty.getPropertyName()))
 		{
 			return DEFAULTS.COMMAND_DEFAULT;
 		}
 		return null;
 	}
 
-	static <T extends AbstractBase> void setEventHandler(IApplication application, T persist, String methodKey, JSMethod method)
+	static <T extends AbstractBase> void setEventHandler(IApplication application, T persist, TypedProperty<Integer> methodProperty, JSMethod method)
 	{
-		try
-		{
-			Method setter = persist.getClass().getMethod("set" + Character.toUpperCase(methodKey.charAt(0)) + methodKey.substring(1), int.class); //$NON-NLS-1$
-			setter.invoke(persist, new Integer(getMethodId(application, persist, method)));
-		}
-		catch (Exception e)
-		{
-			// should not happen
-			throw new RuntimeException(e);
-		}
-		persist.putInstanceMethodArguments(methodKey, method instanceof JSMethodWithArguments ? Arrays.asList(((JSMethodWithArguments)method).getArguments())
-			: null);
+		persist.setProperty(methodProperty.getPropertyName(), new Integer(getMethodId(application, persist, method)));
+		persist.putInstanceMethodArguments(methodProperty.getPropertyName(),
+			method instanceof JSMethodWithArguments ? Arrays.asList(((JSMethodWithArguments)method).getArguments()) : null);
 	}
 
 	/**
 	 * Set the event handler for the method key, JSMethod may contain arguments.
 	 */
-	protected void setEventHandler(String methodKey, JSMethod method)
+	protected void setEventHandler(TypedProperty<Integer> methodProperty, JSMethod method)
 	{
 		checkModification();
-		setEventHandler(application, form, methodKey, method);
+		setEventHandler(application, form, methodProperty, method);
 	}
 
 
 	static int getMethodId(IApplication application, AbstractBase base, JSMethod method)
 	{
-		if (method == null) return 0;
-		if (method == DEFAULTS.COMMAND_DEFAULT) return 0;
+		if (method == null || method == DEFAULTS.COMMAND_DEFAULT) return 0;
 		if (method == DEFAULTS.COMMAND_NONE) return -1;
 		return getMethodId(application, base, method.getScriptMethod());
 	}
@@ -3817,19 +3822,28 @@ public class JSForm implements IJSParent, IConstantsObject
 		{
 			return method.getID();
 		}
-		else
+
+		// it could be a extends form
+		while (f != null && f.getExtendsID() > 0)
 		{
-			// it could be a extends form
-			while (f != null && f.getExtendsID() > 0)
+			f = application.getFlattenedSolution().getForm(f.getExtendsID());
+			if (f != null && parent.getUUID().equals(f.getUUID()))
 			{
-				f = application.getFlattenedSolution().getForm(f.getExtendsID());
-				if (f != null && parent.getUUID().equals(f.getUUID()))
-				{
-					return method.getID();
-				}
+				return method.getID();
 			}
-			throw new RuntimeException("Method " + method.getName() + " must be a solution method or a forms own method"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
+
+		// or a foundset method
+		Iterator<ScriptMethod> foundsetMethods = application.getFlattenedSolution().getFoundsetMethods(f.getDataSource(), false);
+		while (foundsetMethods.hasNext())
+		{
+			if (foundsetMethods.next().getID() == method.getID())
+			{
+				return method.getID();
+			}
+		}
+
+		throw new RuntimeException("Method " + method.getName() + " must be a solution method, foundset method or a forms own method"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
@@ -3839,7 +3853,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnDeleteAllRecordsCmd()
 	{
-		return getEventHandler("onDeleteAllRecordsCmdMethodID");
+		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONDELETEALLRECORDSCMDMETHODID);
 	}
 
 	/**
@@ -3849,7 +3863,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnDeleteRecordCmd()
 	{
-		return getEventHandler("onDeleteRecordCmdMethodID");
+		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONDELETERECORDCMDMETHODID);
 	}
 
 	/**
@@ -3863,7 +3877,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnDrag()
 	{
-		return getEventHandler("onDragMethodID");
+		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID);
 	}
 
 	/**
@@ -3873,7 +3887,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnDragEnd()
 	{
-		return getEventHandler("onDragEndMethodID");
+		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID);
 	}
 
 	/**
@@ -3883,7 +3897,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnDragOver()
 	{
-		return getEventHandler("onDragOverMethodID");
+		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID);
 	}
 
 	/**
@@ -3893,7 +3907,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnDrop()
 	{
-		return getEventHandler("onDropMethodID");
+		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONDROPMETHODID);
 	}
 
 	/**
@@ -3905,7 +3919,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnElementFocusGained()
 	{
-		return getEventHandler("onElementFocusGainedMethodID");
+		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSGAINEDMETHODID);
 	}
 
 	/**
@@ -3915,7 +3929,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnElementFocusLost()
 	{
-		return getEventHandler("onElementFocusLostMethodID");
+		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSLOSTMETHODID);
 	}
 
 	/**
@@ -3925,7 +3939,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnDuplicateRecordCmd()
 	{
-		return getEventHandler("onDuplicateRecordCmdMethodID");
+		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONDUPLICATERECORDCMDMETHODID);
 	}
 
 	/**
@@ -3938,7 +3952,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnFindCmd()
 	{
-		return getEventHandler("onFindCmdMethodID");
+		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONFINDCMDMETHODID);
 	}
 
 	/**
@@ -3948,7 +3962,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnHide()
 	{
-		return getEventHandler("onHideMethodID");
+		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID);
 	}
 
 	/**
@@ -3958,7 +3972,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnInvertRecordsCmd()
 	{
-		return getEventHandler("onInvertRecordsCmdMethodID");
+		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONINVERTRECORDSCMDMETHODID);
 	}
 
 	/**
@@ -3970,7 +3984,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnLoad()
 	{
-		return getEventHandler("onLoadMethodID");
+		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID);
 	}
 
 	/**
@@ -3984,7 +3998,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnNewRecordCmd()
 	{
-		return getEventHandler("onNewRecordCmdMethodID");
+		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONNEWRECORDCMDMETHODID);
 	}
 
 	/**
@@ -3994,7 +4008,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnNextRecordCmd()
 	{
-		return getEventHandler("onNextRecordCmdMethodID");
+		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONNEXTRECORDCMDMETHODID);
 	}
 
 	/**
@@ -4007,7 +4021,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnOmitRecordCmd()
 	{
-		return getEventHandler("onOmitRecordCmdMethodID");
+		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONOMITRECORDCMDMETHODID);
 	}
 
 	/**
@@ -4019,7 +4033,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnPreviousRecordCmd()
 	{
-		return getEventHandler("onPreviousRecordCmdMethodID");
+		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONPREVIOUSRECORDCMDMETHODID);
 	}
 
 	/**
@@ -4030,7 +4044,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnPrintPreviewCmd()
 	{
-		return getEventHandler("onPrintPreviewCmdMethodID");
+		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONPRINTPREVIEWCMDMETHODID);
 	}
 
 	/**
@@ -4043,7 +4057,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnRecordEditStart()
 	{
-		return getEventHandler("onRecordEditStartMethodID");
+		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTARTMETHODID);
 	}
 
 	/**
@@ -4053,7 +4067,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnRecordEditStop()
 	{
-		return getEventHandler("onRecordEditStopMethodID");
+		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTOPMETHODID);
 	}
 
 	/**
@@ -4063,7 +4077,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnRecordSelection()
 	{
-		return getEventHandler("onRecordSelectionMethodID");
+		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONRECORDSELECTIONMETHODID);
 	}
 
 	/**
@@ -4073,7 +4087,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnSearchCmd()
 	{
-		return getEventHandler("onSearchCmdMethodID");
+		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONSEARCHCMDMETHODID);
 	}
 
 	/**
@@ -4083,7 +4097,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnShowAllRecordsCmd()
 	{
-		return getEventHandler("onShowAllRecordsCmdMethodID");
+		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONSHOWALLRECORDSCMDMETHODID);
 	}
 
 	/**
@@ -4095,7 +4109,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnShow()
 	{
-		return getEventHandler("onShowMethodID");
+		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONSHOWMETHODID);
 	}
 
 	/**
@@ -4105,7 +4119,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnShowOmittedRecordsCmd()
 	{
-		return getEventHandler("onShowOmittedRecordsCmdMethodID");
+		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONSHOWOMITTEDRECORDSCMDMETHODID);
 	}
 
 	/**
@@ -4116,7 +4130,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnSortCmd()
 	{
-		return getEventHandler("onSortCmdMethodID");
+		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONSORTCMDMETHODID);
 	}
 
 	/**
@@ -4126,7 +4140,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnUnLoad()
 	{
-		return getEventHandler("onUnLoadMethodID");
+		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID);
 	}
 
 	/**
@@ -4137,7 +4151,7 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnResize()
 	{
-		return getEventHandler("onResizeMethodID");
+		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONRESIZEMETHODID);
 	}
 
 	/**
@@ -4148,154 +4162,153 @@ public class JSForm implements IJSParent, IConstantsObject
 	 */
 	public JSMethod js_getOnRender()
 	{
-		return getEventHandler("onRenderMethodID");
+		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID);
 	}
 
 	public void js_setOnDeleteAllRecordsCmd(JSMethod method)
 	{
-		setEventHandler("onDeleteAllRecordsCmdMethodID", method);
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONDELETEALLRECORDSCMDMETHODID, method);
 	}
 
 	public void js_setOnDeleteRecordCmd(JSMethod method)
 	{
-		setEventHandler("onDeleteRecordCmdMethodID", method);
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONDELETERECORDCMDMETHODID, method);
 	}
 
 	public void js_setOnDrag(JSMethod method)
 	{
-		setEventHandler("onDragMethodID", method);
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID, method);
 	}
 
 	public void js_setOnDragEnd(JSMethod method)
 	{
-		setEventHandler("onDragEndMethodID", method);
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID, method);
 	}
 
 	public void js_setOnDragOver(JSMethod method)
 	{
-		setEventHandler("onDragOverMethodID", method);
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID, method);
 	}
 
 	public void js_setOnDrop(JSMethod method)
 	{
-		setEventHandler("onDropMethodID", method);
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONDROPMETHODID, method);
 	}
 
 	public void js_setOnElementFocusGained(JSMethod method)
 	{
-		setEventHandler("onElementFocusGainedMethodID", method);
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSGAINEDMETHODID, method);
 	}
 
 	public void js_setOnElementFocusLost(JSMethod method)
 	{
-		setEventHandler("onElementFocusLostMethodID", method);
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSLOSTMETHODID, method);
 	}
 
 	public void js_setOnDuplicateRecordCmd(JSMethod method)
 	{
-		setEventHandler("onDuplicateRecordCmdMethodID", method);
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONDUPLICATERECORDCMDMETHODID, method);
 	}
 
 	public void js_setOnFindCmd(JSMethod method)
 	{
-		setEventHandler("onFindCmdMethodID", method);
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONFINDCMDMETHODID, method);
 	}
 
 	public void js_setOnHide(JSMethod method)
 	{
-		setEventHandler("onHideMethodID", method);
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID, method);
 	}
 
 	public void js_setOnInvertRecordsCmd(JSMethod method)
 	{
-		setEventHandler("onInvertRecordsCmdMethodID", method);
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONINVERTRECORDSCMDMETHODID, method);
 	}
 
 	public void js_setOnLoad(JSMethod method)
 	{
-		setEventHandler("onLoadMethodID", method);
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID, method);
 	}
 
 	public void js_setOnNewRecordCmd(JSMethod method)
 	{
-		setEventHandler("onNewRecordCmdMethodID", method);
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONNEWRECORDCMDMETHODID, method);
 	}
 
 	public void js_setOnNextRecordCmd(JSMethod method)
 	{
-		setEventHandler("onNextRecordCmdMethodID", method);
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONNEXTRECORDCMDMETHODID, method);
 	}
 
 	public void js_setOnOmitRecordCmd(JSMethod method)
 	{
-		setEventHandler("onOmitRecordCmdMethodID", method);
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONOMITRECORDCMDMETHODID, method);
 	}
 
 	public void js_setOnPreviousRecordCmd(JSMethod method)
 	{
-		setEventHandler("onPreviousRecordCmdMethodID", method);
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONPREVIOUSRECORDCMDMETHODID, method);
 	}
 
 	public void js_setOnPrintPreviewCmd(JSMethod method)
 	{
-		setEventHandler("onPrintPreviewCmdMethodID", method);
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONPRINTPREVIEWCMDMETHODID, method);
 	}
 
 	public void js_setOnRecordEditStart(JSMethod method)
 	{
-		setEventHandler("onRecordEditStartMethodID", method);
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTARTMETHODID, method);
 	}
 
 	public void js_setOnRecordEditStop(JSMethod method)
 	{
-		setEventHandler("onRecordEditStopMethodID", method);
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTOPMETHODID, method);
 	}
 
 	public void js_setOnRecordSelection(JSMethod method)
 	{
-		setEventHandler("onRecordSelectionMethodID", method);
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONRECORDSELECTIONMETHODID, method);
 	}
 
 	public void js_setOnSearchCmd(JSMethod method)
 	{
-		setEventHandler("onSearchCmdMethodID", method);
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONSEARCHCMDMETHODID, method);
 	}
 
 	public void js_setOnShowAllRecordsCmd(JSMethod method)
 	{
-		setEventHandler("onShowAllRecordsCmdMethodID", method);
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONSHOWALLRECORDSCMDMETHODID, method);
 	}
 
 	public void js_setOnShow(JSMethod method)
 	{
-		setEventHandler("onShowMethodID", method);
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONSHOWMETHODID, method);
 	}
 
 	public void js_setOnShowOmittedRecordsCmd(JSMethod method)
 	{
-		setEventHandler("onShowOmittedRecordsCmdMethodID", method);
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONSHOWOMITTEDRECORDSCMDMETHODID, method);
 	}
 
 	public void js_setOnSortCmd(JSMethod method)
 	{
-		setEventHandler("onSortCmdMethodID", method);
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONSORTCMDMETHODID, method);
 	}
 
 	public void js_setOnUnLoad(JSMethod method)
 	{
-		setEventHandler("onUnLoadMethodID", method);
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID, method);
 	}
 
 	public void js_setOnRender(JSMethod method)
 	{
-		setEventHandler("onRenderMethodID", method);
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID, method);
 	}
 
 	public void js_setOnResize(JSMethod method)
 	{
-		setEventHandler("onResizeMethodID", method);
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONRESIZEMETHODID, method);
 	}
-
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getEncapsulation()

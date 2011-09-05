@@ -86,10 +86,14 @@ public class StaticContentSpecLoader
 	public static final TypedProperty<Integer> PROPERTY_MEDIAOPTIONS = new TypedProperty<Integer>("mediaOptions"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_NAVIGATORID = new TypedProperty<Integer>("navigatorID"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_ONACTIONMETHODID = new TypedProperty<Integer>("onActionMethodID"); //$NON-NLS-1$
+	public static final TypedProperty<Integer> PROPERTY_ONAFTERCREATEMETHODID = new TypedProperty<Integer>("onAfterCreateMethodID"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_ONAFTERDELETEMETHODID = new TypedProperty<Integer>("onAfterDeleteMethodID"); //$NON-NLS-1$
+	public static final TypedProperty<Integer> PROPERTY_ONAFTERFINDMETHODID = new TypedProperty<Integer>("onAfterFindMethodID"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_ONAFTERINSERTMETHODID = new TypedProperty<Integer>("onAfterInsertMethodID"); //$NON-NLS-1$
+	public static final TypedProperty<Integer> PROPERTY_ONAFTERSEARCHMETHODID = new TypedProperty<Integer>("onAfterSearchMethodID"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_ONAFTERUPDATEMETHODID = new TypedProperty<Integer>("onAfterUpdateMethodID"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_ONCLOSEMETHODID = new TypedProperty<Integer>("onCloseMethodID"); //$NON-NLS-1$
+	public static final TypedProperty<Integer> PROPERTY_ONCREATEMETHODID = new TypedProperty<Integer>("onCreateMethodID"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_ONDATABROADCASTMETHODID = new TypedProperty<Integer>("onDataBroadcastMethodID"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_ONDATACHANGEMETHODID = new TypedProperty<Integer>("onDataChangeMethodID"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_ONDELETEALLRECORDSCMDMETHODID = new TypedProperty<Integer>("onDeleteAllRecordsCmdMethodID"); //$NON-NLS-1$
@@ -105,6 +109,7 @@ public class StaticContentSpecLoader
 	public static final TypedProperty<Integer> PROPERTY_ONELEMENTFOCUSLOSTMETHODID = new TypedProperty<Integer>("onElementFocusLostMethodID"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_ONERRORMETHODID = new TypedProperty<Integer>("onErrorMethodID"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_ONFINDCMDMETHODID = new TypedProperty<Integer>("onFindCmdMethodID"); //$NON-NLS-1$
+	public static final TypedProperty<Integer> PROPERTY_ONFINDMETHODID = new TypedProperty<Integer>("onFindMethodID"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_ONFOCUSGAINEDMETHODID = new TypedProperty<Integer>("onFocusGainedMethodID"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_ONFOCUSLOSTMETHODID = new TypedProperty<Integer>("onFocusLostMethodID"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_ONHIDEMETHODID = new TypedProperty<Integer>("onHideMethodID"); //$NON-NLS-1$
@@ -125,6 +130,7 @@ public class StaticContentSpecLoader
 	public static final TypedProperty<Integer> PROPERTY_ONRESIZEMETHODID = new TypedProperty<Integer>("onResizeMethodID"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_ONRIGHTCLICKMETHODID = new TypedProperty<Integer>("onRightClickMethodID"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_ONSEARCHCMDMETHODID = new TypedProperty<Integer>("onSearchCmdMethodID"); //$NON-NLS-1$
+	public static final TypedProperty<Integer> PROPERTY_ONSEARCHMETHODID = new TypedProperty<Integer>("onSearchMethodID"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_ONSHOWALLRECORDSCMDMETHODID = new TypedProperty<Integer>("onShowAllRecordsCmdMethodID"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_ONSHOWMETHODID = new TypedProperty<Integer>("onShowMethodID"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_ONSHOWOMITTEDRECORDSCMDMETHODID = new TypedProperty<Integer>("onShowOmittedRecordsCmdMethodID"); //$NON-NLS-1$
@@ -427,7 +433,7 @@ public class StaticContentSpecLoader
 			cs.new Element(166, IRepository.VALUELISTS, PROPERTY_SEPARATOR.getPropertyName(), IRepository.STRING);
 			cs.new Element(167, IRepository.VALUELISTS, PROPERTY_SORTOPTIONS.getPropertyName(), IRepository.STRING);
 			cs.new Element(168, IRepository.SCRIPTVARIABLES, PROPERTY_NAME.getPropertyName(), IRepository.STRING);
-			cs.new Element(169, IRepository.SCRIPTVARIABLES, PROPERTY_VARIABLETYPE.getPropertyName(), IRepository.INTEGER, IColumnTypes.TEXT);
+			cs.new Element(169, IRepository.SCRIPTVARIABLES, PROPERTY_VARIABLETYPE.getPropertyName(), IRepository.INTEGER, Integer.valueOf(IColumnTypes.TEXT));
 			cs.new Element(170, IRepository.AGGREGATEVARIABLES, PROPERTY_NAME.getPropertyName(), IRepository.STRING);
 			cs.new Element(171, IRepository.AGGREGATEVARIABLES, PROPERTY_TYPE.getPropertyName(), IRepository.INTEGER);
 			cs.new Element(172, IRepository.AGGREGATEVARIABLES, PROPERTY_DATAPROVIDERIDTOAGGREGATE.getPropertyName(), IRepository.STRING);
@@ -751,14 +757,16 @@ public class StaticContentSpecLoader
 		if (old_repository_version < 41)
 		{
 			cs.new Element(389, IRepository.GRAPHICALCOMPONENTS, PROPERTY_FORMAT.getPropertyName(), IRepository.STRING);
+
+			cs.new Element(390, IRepository.TABLENODES, PROPERTY_ONCREATEMETHODID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(391, IRepository.TABLENODES, PROPERTY_ONAFTERCREATEMETHODID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(392, IRepository.TABLENODES, PROPERTY_ONFINDMETHODID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(393, IRepository.TABLENODES, PROPERTY_ONAFTERFINDMETHODID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(394, IRepository.TABLENODES, PROPERTY_ONSEARCHMETHODID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(395, IRepository.TABLENODES, PROPERTY_ONAFTERSEARCHMETHODID.getPropertyName(), IRepository.ELEMENTS);
 		}
 		//##add property adds here
 
-		/*
-		 * cs.new Element(262,IRepository.PARTS,"styleClass",IRepository.STRING); Element(267,IRepository.FORMS,"viewOptions",IRepository.String); //maybe put
-		 * in existing view property Element(269,IRepository.GRAPHICALCOMPONENTS,"fontOptions",IRepository.STRING));//condensed,strike
-		 * trough,underline,outline,drop shadow
-		 */
 		return cs;
 	}
 
@@ -774,6 +782,12 @@ public class StaticContentSpecLoader
 		public String getPropertyName()
 		{
 			return name;
+		}
+
+		@Override
+		public String toString()
+		{
+			return "Property(" + name + ')'; //$NON-NLS-1$
 		}
 	}
 }

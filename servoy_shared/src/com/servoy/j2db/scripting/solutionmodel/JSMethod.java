@@ -29,12 +29,12 @@ import org.mozilla.javascript.ast.FunctionNode;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptNameValidator;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.IJavaScriptType;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
 
 /**
@@ -44,7 +44,7 @@ import com.servoy.j2db.util.UUID;
 public class JSMethod implements IJavaScriptType
 {
 	protected final IApplication application;
-	protected final JSForm form;
+	protected final IJSScriptParent< ? > parent;
 	protected ScriptMethod sm;
 	protected boolean isCopy;
 
@@ -53,47 +53,51 @@ public class JSMethod implements IJavaScriptType
 	 */
 	JSMethod()
 	{
-		form = null;
+		parent = null;
 		application = null;
 		sm = null;
 		isCopy = true;
 	}
 
-	public JSMethod(IApplication application, ScriptMethod sm, boolean isNew)
+	public JSMethod(ScriptMethod sm, IApplication application, boolean isNew)
 	{
 		this.application = application;
 		this.sm = sm;
-		this.form = null;
+		this.parent = null;
 		this.isCopy = isNew;
 	}
 
-	public JSMethod(IApplication application, JSForm form, ScriptMethod sm, boolean isNew)
+	public JSMethod(IJSScriptParent< ? > parent, ScriptMethod sm, IApplication application, boolean isNew)
 	{
 		this.sm = sm;
 		this.application = application;
-		this.form = form;
+		this.parent = parent;
 		this.isCopy = isNew;
 	}
 
 	void checkModification()
 	{
-		if (sm == null) return; // if a default constant
-
-		if (form != null)
+		if (sm != null && !isCopy)
 		{
-			form.checkModification();
-			// make copy if needed
-			if (!isCopy)
+			if (parent != null)
+			{
+				// make copy if needed
+				// then get the replace the item with the item of the copied relation.
+				try
+				{
+					sm = parent.getScriptCopy(sm);
+				}
+				catch (RepositoryException e)
+				{
+					Debug.error(e);
+					throw new RuntimeException("Can't alter script method " + sm.getName() + ", clone failed", e); //$NON-NLS-1$ //$NON-NLS-2$
+				}
+			}
+			else
 			{
 				// then get the replace the item with the item of the copied relation.
-				sm = (ScriptMethod)form.getForm().getChild(sm.getUUID());
-				isCopy = true;
+				sm = application.getFlattenedSolution().createPersistCopy(sm);
 			}
-		}
-		else if (!isCopy)
-		{
-			// then get the replace the item with the item of the copied relation.
-			sm = application.getFlattenedSolution().createPersistCopy(sm);
 			isCopy = true;
 		}
 	}
@@ -112,12 +116,6 @@ public class JSMethod implements IJavaScriptType
 	public String js_getCode()
 	{
 		if (sm == null) return null; // if a default constant
-//		String code = sm.getDeclaration();
-//
-//		if (code != null && !code.startsWith("function")) //$NON-NLS-1$
-//		{
-//			code = "function " + sm.getName() + "()\n{\n" + code + "\n}"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-//		}
 		return sm.getDeclaration();
 	}
 
@@ -164,8 +162,14 @@ public class JSMethod implements IJavaScriptType
 		}
 		sm.setDeclaration(content);
 
-		if (form == null)
+		if (parent instanceof JSDataSourceNode)
 		{
+			// foundset method
+			application.getFoundSetManager().reloadFoundsetMethod(((JSDataSourceNode)parent).getSupportChild().getDataSource(), sm);
+		}
+		else if (parent == null)
+		{
+			// global method
 			application.getScriptEngine().getGlobalScope().put(sm, sm);
 		}
 	}
@@ -194,13 +198,6 @@ public class JSMethod implements IJavaScriptType
 		return null;
 	}
 
-//	public void js_setName(String arg)
-//	{
-//		if (sm == null) return; // if a default constant
-//		checkModification();
-//		sm.setName(arg);
-//	}
-
 	public void js_setShowInMenu(boolean arg)
 	{
 		if (sm == null) return; // if a default constant
@@ -223,15 +220,11 @@ public class JSMethod implements IJavaScriptType
 			if (this == DEFAULTS.COMMAND_NONE) return "JSMethod[NONE]";
 			return "JSMethod";
 		}
-		if (sm.getParent() instanceof Form)
-		{
-			return "JSMethod[name:" + sm.getName() + ",form:" + ((Form)sm.getParent()).getName() + ']';
-		}
-		else if (sm.getParent() instanceof Solution)
+		if (parent == null)
 		{
 			return "JSMethod[name:" + sm.getName() + ",global, solution:" + ((Solution)sm.getParent()).getName() + ']';
 		}
-		return "JSMethod[name:" + sm.getName() + ']';
+		return "JSMethod[name:" + sm.getName() + ",parent:" + parent.toString() + ']';
 	}
 
 	static String parseName(String content)

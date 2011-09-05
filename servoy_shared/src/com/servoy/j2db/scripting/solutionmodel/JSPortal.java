@@ -28,7 +28,6 @@ import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IPersist;
-import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
@@ -40,7 +39,7 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent")
-public class JSPortal extends JSComponent<Portal> implements IJSParent, IJavaScriptType
+public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, IJavaScriptType
 {
 	private final IApplication application;
 
@@ -56,7 +55,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent, IJavaScr
 	/**
 	 * @see com.servoy.j2db.scripting.solutionmodel.IJSParent#getBaseComponent()
 	 */
-	public ISupportChilds getSupportChild()
+	public Portal getSupportChild()
 	{
 		return getBaseComponent(false);
 	}
@@ -1031,12 +1030,12 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent, IJavaScr
 	 */
 	public JSMethod js_getOnRender()
 	{
-		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID.getPropertyName());
+		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID);
 	}
 
 	public void js_setOnRender(JSMethod method)
 	{
-		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID.getPropertyName(), method);
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID, method);
 	}
 
 	/**
@@ -1050,7 +1049,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent, IJavaScr
 	 */
 	public JSMethod js_getOnDrag()
 	{
-		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID.getPropertyName());
+		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID);
 	}
 
 	/**
@@ -1060,7 +1059,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent, IJavaScr
 	 */
 	public JSMethod js_getOnDragEnd()
 	{
-		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID.getPropertyName());
+		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID);
 	}
 
 	/**
@@ -1070,7 +1069,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent, IJavaScr
 	 */
 	public JSMethod js_getOnDragOver()
 	{
-		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID.getPropertyName());
+		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID);
 	}
 
 	/**
@@ -1080,26 +1079,26 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent, IJavaScr
 	 */
 	public JSMethod js_getOnDrop()
 	{
-		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDROPMETHODID.getPropertyName());
+		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDROPMETHODID);
 	}
 
 	public void js_setOnDrag(JSMethod method)
 	{
-		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID.getPropertyName(), method);
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID, method);
 	}
 
 	public void js_setOnDragEnd(JSMethod method)
 	{
-		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID.getPropertyName(), method);
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID, method);
 	}
 
 	public void js_setOnDragOver(JSMethod method)
 	{
-		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID.getPropertyName(), method);
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID, method);
 	}
 
 	public void js_setOnDrop(JSMethod method)
 	{
-		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDROPMETHODID.getPropertyName(), method);
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDROPMETHODID, method);
 	}
 }

@@ -114,7 +114,7 @@ public class JSVariable implements IConstantsObject
 			if (!isCopy)
 			{
 				// then get the replace the item with the item of the copied relation.
-				variable = (ScriptVariable)form.getForm().getChild(variable.getUUID());
+				variable = (ScriptVariable)form.getSupportChild().getChild(variable.getUUID());
 				isCopy = true;
 			}
 		}

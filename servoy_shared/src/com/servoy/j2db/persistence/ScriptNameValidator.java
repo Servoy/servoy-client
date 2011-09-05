@@ -67,21 +67,21 @@ public class ScriptNameValidator implements IValidateName
 			{
 				throw new RepositoryException("The variable with name '" + nameToCheck + "' already exists"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
-			else
-			{
-				throw new RepositoryException("The name '" + nameToCheck + "' already exist as a global variable"); //$NON-NLS-1$ //$NON-NLS-2$
-			}
+			throw new RepositoryException("The name '" + nameToCheck + "' already exist as a global variable"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		if (obj instanceof ScriptMethod)
 		{
 			if (searchContext.getObject() instanceof Form)
 			{
-				throw new RepositoryException("The method with name '" + nameToCheck + "' already exists"); //$NON-NLS-1$ //$NON-NLS-2$
+				throw new RepositoryException(
+					"The method with name '" + nameToCheck + "' already exists for form " + ((Form)searchContext.getObject()).getName()); //$NON-NLS-1$ //$NON-NLS-2$
 			}
-			else
+			if (searchContext.getObject() instanceof TableNode)
 			{
-				throw new RepositoryException("The name '" + nameToCheck + "' already exists as a global method"); //$NON-NLS-1$ //$NON-NLS-2$
+				throw new RepositoryException(
+					"The method with name '" + nameToCheck + "' already exists as a foundset method for data source " + ((TableNode)searchContext.getObject()).getDataSource()); //$NON-NLS-1$ //$NON-NLS-2$
 			}
+			throw new RepositoryException("The name '" + nameToCheck + "' already exists as a global method"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		if (obj instanceof Form)
 		{

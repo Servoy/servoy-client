@@ -20,6 +20,7 @@ package com.servoy.j2db.scripting;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.dltk.rhino.dbgp.LazyInitScope;
@@ -64,7 +65,6 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 		}
 	}
 
-
 	/**
 	 * @return the scriptLookup
 	 */
@@ -95,13 +95,13 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 	public void put(IScriptProvider sm, Object function)
 	{
 		remove(sm);
-		Object removed = allVars.put(sm.getDataProviderID(), function);
-		idVars.put(sm.getID(), sm.getDataProviderID());
+		allVars.put(sm.getDataProviderID(), function);
+		idVars.put(new Integer(sm.getID()), sm.getDataProviderID());
 	}
 
 	public Object remove(IScriptProvider sm)
 	{
-		String sName = idVars.remove(sm.getID());
+		String sName = idVars.remove(new Integer(sm.getID()));
 		if (sName != null)
 		{
 			Object o = allVars.remove(sName);
@@ -167,7 +167,6 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 			{
 				o = null;
 				Debug.error(e);
-				o = null;
 			}
 			if (o == null) o = Scriptable.NOT_FOUND;
 		}
@@ -188,9 +187,9 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 	 */
 	public Object[] getInitializedIds()
 	{
-		ArrayList array = new ArrayList(allVars.size() + allIndex.size() + 2);
-		array.add("allnames");
-		array.add("length");
+		List<Object> array = new ArrayList<Object>(allVars.size() + allIndex.size() + 2);
+		array.add("allnames"); //$NON-NLS-1$
+		array.add("length"); //$NON-NLS-1$
 
 		for (Object element : allVars.keySet())
 		{
@@ -236,7 +235,7 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 	 */
 	public void reload()
 	{
-		Iterator it = allVars.values().iterator();
+		Iterator<Object> it = allVars.values().iterator();
 		while (it.hasNext())
 		{
 			Object object = it.next();
@@ -247,15 +246,8 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 		}
 
 		idVars.clear();
-
-		Iterator< ? extends IScriptProvider> itSp = scriptLookup.getScriptMethods(false);
-		while (itSp.hasNext())
-		{
-			IScriptProvider sm = itSp.next();
-			put(sm, sm);
-		}
+		createScriptProviders();
 	}
-
 
 	/**
 	 * @see java.lang.Object#toString()
@@ -263,7 +255,7 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 	@Override
 	public String toString()
 	{
-		return "LazyCompilationScope parent '" + (getParentScope() == this ? "this" : getParentScope()) + "', scriptLookup: " + scriptLookup; //$NON-NLS-1$ 
+		return "LazyCompilationScope parent '" + (getParentScope() == this ? "this" : getParentScope()) + "', scriptLookup: " + scriptLookup; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 	}
 
 	@Override
