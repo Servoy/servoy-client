@@ -213,7 +213,11 @@ public class ImageLoader
 			}
 		}
 
-		if (c1 == 0x41 && c2 == 0x43)
+		/**
+		 * According to http://www.opendesign.com/files/guestdownloads/OpenDesign_Specification_for_.dwg_files.pdf
+		 * first 6 bytes are of type "AC1018" (for example) and the next 5 bytes are 0x00.
+		 */
+		if ((c1 == 0x41 && c2 == 0x43) && (c7 == 0x00 && c8 == 0x00 && c9 == 0x00 && c10 == 0x00 && c11 == 0x00))
 		{
 			return "application/acad";
 		}
