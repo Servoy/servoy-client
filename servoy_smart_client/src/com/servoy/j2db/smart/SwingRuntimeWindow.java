@@ -242,8 +242,15 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 			}
 			else if (wrappedWindow instanceof JFrame) // for main app. frame
 			{
-				title = application.getI18NMessageIfPrefixed(title);
-				((JFrame)wrappedWindow).setTitle(title);
+				final String t = application.getI18NMessageIfPrefixed(title);
+				application.invokeLater(new Runnable()
+				{
+					public void run()
+					{
+						// see FormManager showFormInMainPanel, title is set delayed, have to delay here also
+						((JFrame)wrappedWindow).setTitle(t);
+					}
+				});
 			}
 		} // else no use setting title as the tags can't be processed (if there is no form open)
 	}
