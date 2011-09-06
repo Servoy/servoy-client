@@ -144,6 +144,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 				headerStyle.append("font-size: " + (getFont() == null ? "12" : new Integer(getFont().getSize())) + "px; ");
 				headerStyle.append("background-color: white; ");
 				headerStyle.append("padding: 2px; ");
+				headerStyle.append("min-width: " + (getSize().width - 6) + "px; "); // extract padding and border
 				headerStyle.append("text-align:left; } ");
 				headerStyle.append("</style>");
 				response.renderString(headerStyle.toString());
