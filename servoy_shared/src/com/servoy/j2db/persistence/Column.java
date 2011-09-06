@@ -844,7 +844,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 	public void setFlags(int f)
 	{
 		int newFlags;
-		if ((getFlags() & PK_COLUMN) != 0 && (f & PK_COLUMN) == 0)
+		if (dbPK && (f & PK_COLUMN) == 0)
 		{
 			// if defined as PK do not override
 			newFlags = PK_COLUMN | (f & ~USER_ROWID_COLUMN);
