@@ -98,7 +98,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 
 	public String toHTML()
 	{
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append("<html>"); //$NON-NLS-1$
 		sb.append("<b>"); //$NON-NLS-1$
 		sb.append(getSQLName());
@@ -395,7 +395,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 					}
 					if (throwOnFail)
 					{
-						throw new RuntimeException(Messages.getString("servoy.conversion.error.date", new Object[] { obj }));
+						throw new RuntimeException(Messages.getString("servoy.conversion.error.date", new Object[] { obj })); //$NON-NLS-1$
 					}
 					return null;
 
@@ -406,7 +406,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 					}
 					if (throwOnFail)
 					{
-						throw new RuntimeException(Messages.getString("servoy.conversion.error.date", new Object[] { obj }));
+						throw new RuntimeException(Messages.getString("servoy.conversion.error.date", new Object[] { obj })); //$NON-NLS-1$
 					}
 					return null;
 
@@ -422,7 +422,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 					}
 					if (throwOnFail)
 					{
-						throw new RuntimeException(Messages.getString("servoy.conversion.error.date", new Object[] { obj }));
+						throw new RuntimeException(Messages.getString("servoy.conversion.error.date", new Object[] { obj })); //$NON-NLS-1$
 					}
 					return null;
 			}
@@ -444,7 +444,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 					{
 						if (Debug.tracing())
 						{
-							Debug.trace("String trimmed to length: " + l + ", " + str);
+							Debug.trace("String trimmed to length: " + l + ", " + str); //$NON-NLS-1$ //$NON-NLS-2$
 						}
 						str = str.substring(0, l);
 					}
@@ -590,12 +590,10 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 						{
 							return ds.getNextSequence(getTable().getServerName(), getTable().getName(), getName(), ci.getID());
 						}
-						else
-						{
-							return new Integer(0);
-						}
+						return Integer.valueOf(0);
 					}
 
+					//$FALL-THROUGH$
 				case ColumnInfo.CUSTOM_VALUE_AUTO_ENTER :
 					String val = ci.getDefaultValue();
 					switch (mapToDefaultType(type))
@@ -820,16 +818,16 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 		}
 	}
 
-	public void updateDataProviderID(IValidateName validator, String dataProviderID) throws RepositoryException
+	public void updateDataProviderID(IValidateName validator, String dpid) throws RepositoryException
 	{
-		dataProviderID = Ident.generateNormalizedName(dataProviderID);
-		Column other = table.getColumn(dataProviderID);
+		String ndpid = Ident.generateNormalizedName(dpid);
+		Column other = table.getColumn(ndpid);
 		if (other != null && other != this)
 		{
-			throw new RepositoryException("A column on table " + table.getName() + " with name/dataProviderID " + dataProviderID + " already exists"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			throw new RepositoryException("A column on table " + table.getName() + " with name/dataProviderID " + ndpid + " already exists"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
-		validator.checkName(dataProviderID, -1, new ValidatorSearchContext(this, IRepository.COLUMNS), true);
-		setDataProviderID(dataProviderID);
+		validator.checkName(ndpid, -1, new ValidatorSearchContext(this, IRepository.COLUMNS), true);
+		setDataProviderID(ndpid);
 		table.fireIColumnChanged(this);
 	}
 
@@ -887,7 +885,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 	public void setFlags(int f)
 	{
 		int newFlags;
-		if ((getFlags() & PK_COLUMN) != 0 && (f & PK_COLUMN) == 0)
+		if (dbPK && (f & PK_COLUMN) == 0)
 		{
 			// if defined as PK do not override
 			newFlags = PK_COLUMN | (f & ~USER_ROWID_COLUMN);
@@ -1003,7 +1001,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
  */
 	public void setColumnInfo(ColumnInfo ci)
 	{
-		if (ci == null) throw new NullPointerException("Column info cannot be set null");
+		if (ci == null) throw new NullPointerException("Column info cannot be set null"); //$NON-NLS-1$
 		ColumnInfo oldColumnInfo = columnInfo;
 		columnInfo = ci;
 		if (sequenceType != ColumnInfo.NO_SEQUENCE_SELECTED) //delegate
@@ -1118,11 +1116,11 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 	 */
 	public static String getFlagsString(int flags)
 	{
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		if ((flags & USER_ROWID_COLUMN) != 0) sb.append(" row_ident"); //$NON-NLS-1$
-		if ((flags & PK_COLUMN) != 0) sb.append(" pk");
-		if ((flags & UUID_COLUMN) != 0) sb.append(" uuid");
-		if ((flags & EXCLUDED_COLUMN) != 0) sb.append(" excluded");
+		if ((flags & PK_COLUMN) != 0) sb.append(" pk"); //$NON-NLS-1$
+		if ((flags & UUID_COLUMN) != 0) sb.append(" uuid"); //$NON-NLS-1$
+		if ((flags & EXCLUDED_COLUMN) != 0) sb.append(" excluded"); //$NON-NLS-1$
 		return sb.toString().trim();
 	}
 
@@ -1135,7 +1133,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 	{
 		if (hasBadName == null)
 		{
-			List notes = new ArrayList();
+			List<String> notes = new ArrayList<String>();
 
 			if (Ident.checkIfKeyword(getName()) || SQLKeywords.checkIfKeyword(getName()))
 			{
@@ -1147,7 +1145,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 			}
 			if (notes.size() > 0)
 			{
-				StringBuffer sb = new StringBuffer();
+				StringBuilder sb = new StringBuilder();
 				for (int i = 0; i < notes.size(); i++)
 				{
 					sb.append(notes.get(i));
@@ -1155,7 +1153,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 				note = sb.toString();
 			}
 
-			hasBadName = new Boolean(notes.size() > 0);
+			hasBadName = Boolean.valueOf(notes.size() > 0);
 		}
 		return hasBadName.booleanValue();
 	}
