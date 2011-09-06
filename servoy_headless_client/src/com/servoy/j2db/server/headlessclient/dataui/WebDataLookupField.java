@@ -141,7 +141,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 				headerStyle.append("<style type=\"text/css\"> ");
 				headerStyle.append("#" + getMarkupId() + "-autocomplete.wicket-aa" + " { ");
 				headerStyle.append("font-family: \"Lucida Grande\",\"Lucida Sans Unicode\",Tahoma,Verdana; ");
-				headerStyle.append("font-size: " + getFont().getSize() + "px; ");
+				headerStyle.append("font-size: " + (getFont() == null ? "12" : new Integer(getFont().getSize())) + "px; ");
 				headerStyle.append("background-color: white; ");
 				headerStyle.append("padding: 2px; ");
 				headerStyle.append("text-align:left; } ");
