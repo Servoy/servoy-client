@@ -1252,4 +1252,14 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	{
 		return browserLauncher != null ? browserLauncher.showURL(url) : super.showURL(url, target, target_options, timeout_ms, closeDialogs);
 	}
+
+	@Override
+	protected void exitHard(int status)
+	{
+		// Do not exit developer
+		if (!isShutDown())
+		{
+			shutDown(true);
+		}
+	}
 }

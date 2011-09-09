@@ -67,11 +67,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Stack;
 import java.util.TimeZone;
-import java.util.Map.Entry;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.security.auth.Subject;
@@ -95,6 +95,8 @@ import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JFormattedTextField.AbstractFormatter;
+import javax.swing.JFormattedTextField.AbstractFormatterFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
@@ -114,10 +116,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
-import javax.swing.WindowConstants;
-import javax.swing.JFormattedTextField.AbstractFormatter;
-import javax.swing.JFormattedTextField.AbstractFormatterFactory;
 import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.WindowConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.plaf.FontUIResource;
@@ -1349,14 +1349,14 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			public void run()
 			{
 				// Exit really hard here!!
-				exitHard();
+				exitHard(0);
 			}
 		});
 	}
 
-	protected void exitHard()
+	protected void exitHard(int status)
 	{
-		System.exit(0);
+		System.exit(status);
 	}
 
 	@Override
@@ -3373,18 +3373,18 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 					{
 						JOptionPane.showMessageDialog(frame, Messages.getString("servoy.license.notrialleft"), Messages.getString("servoy.license.label"),
 							JOptionPane.ERROR_MESSAGE);
-						System.exit(1);
+						exitHard(1);
 					}
 					else if (e.getErrorCode() == ServoyException.MAINTENANCE_MODE)
 					{
 						JOptionPane.showMessageDialog(frame, Messages.getString("servoy.maintenance.clientRegisterForbidden"), //$NON-NLS-1$
 							Messages.getString("servoy.maintenance.label"), JOptionPane.ERROR_MESSAGE);
-						System.exit(1);
+						exitHard(1);
 					}
 					else if (e.getErrorCode() == ServoyException.InternalCodes.INVALID_RMI_SERVER_CONNECTION)
 					{
 						JOptionPane.showMessageDialog(frame, e.getMessage(), Messages.getString("servoy.general.error"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
-						System.exit(1);
+						exitHard(1);
 					}
 				}
 			});
@@ -3679,7 +3679,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			if (option == JOptionPane.YES_OPTION)
 			{
 				saveSettings();
-				System.exit(1);
+				exitHard(1);
 			}
 		}
 	}
@@ -3847,7 +3847,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 								{
 									JOptionPane.showMessageDialog(getMainApplicationFrame(), Messages.getString("servoy.client.message.error.registerclient"),
 										Messages.getString("servoy.client.message.clientregister"), JOptionPane.ERROR_MESSAGE);
-									System.exit(1);
+									exitHard(1);
 								}
 							});
 						}
@@ -3917,7 +3917,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 								{
 									JOptionPane.showMessageDialog(getMainApplicationFrame(), Messages.getString("servoy.client.message.error.registerclient"),
 										Messages.getString("servoy.client.message.clientregister"), JOptionPane.ERROR_MESSAGE);
-									System.exit(1);
+									exitHard(1);
 								}
 							});
 						}
