@@ -62,17 +62,18 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 	private final String schema;
 	private int maxActive;
 	private int maxIdle;
-	private int maxPreparedStatementsIdle;
+	private final int maxPreparedStatementsIdle;
 	private final int connectionValidationType;
 	private final String validationQuery;
 	private final String dataModelCloneFrom;
 	private final boolean enabled;
 	private final boolean skipSysTables;
+	private int idleTimeout;
 	private final String dialectClass;
 
 	public ServerConfig(String serverName, String userName, String password, String serverUrl, Map<String, String> connectionProperties, String driver,
 		String catalog, String schema, int maxActive, int maxIdle, int maxPreparedStatementsIdle, int connectionValidationType, String validationQuery,
-		String dataModelCloneFrom, boolean enabled, boolean skipSysTables, String dialectClass)
+		String dataModelCloneFrom, boolean enabled, boolean skipSysTables, int idleTimeout, String dialectClass)
 	{
 		this.serverName = Utils.toEnglishLocaleLowerCase(serverName);//safety for when stored in columnInfo
 		this.userName = userName;
@@ -88,6 +89,7 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		this.dataModelCloneFrom = Utils.toEnglishLocaleLowerCase(dataModelCloneFrom);
 		this.enabled = enabled;
 		this.skipSysTables = skipSysTables;
+		this.idleTimeout = idleTimeout;
 		this.dialectClass = dialectClass;
 
 		if (driver == null || serverUrl == null)
@@ -108,21 +110,21 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		String catalog, String schema, boolean enabled, boolean skipSysTables, String dialectClass)
 	{
 		this(serverName, userName, password, serverUrl, connectionProperties, driver, catalog, schema, MAX_ACTIVE_DEFAULT, MAX_IDLE_DEFAULT,
-			MAX_PREPSTATEMENT_IDLE_DEFAULT, VALIDATION_TYPE_DEFAULT, null, null, enabled, skipSysTables, dialectClass);
+			MAX_PREPSTATEMENT_IDLE_DEFAULT, VALIDATION_TYPE_DEFAULT, null, null, enabled, skipSysTables, -1, dialectClass);
 	}
 
 	public ServerConfig getNamedCopy(String newServerName)
 	{
 		if (serverName.equals(newServerName)) return this;
 		return new ServerConfig(newServerName, userName, password, serverUrl, connectionProperties, driver, catalog, schema, maxActive, maxIdle,
-			maxPreparedStatementsIdle, connectionValidationType, validationQuery, dataModelCloneFrom, enabled, skipSysTables, dialectClass);
+			maxPreparedStatementsIdle, connectionValidationType, validationQuery, dataModelCloneFrom, enabled, skipSysTables, idleTimeout, dialectClass);
 	}
 
 	public ServerConfig getEnabledCopy(boolean newEnabled)
 	{
 		if (enabled == newEnabled) return this;
 		return new ServerConfig(serverName, userName, password, serverUrl, connectionProperties, driver, catalog, schema, maxActive, maxIdle,
-			maxPreparedStatementsIdle, connectionValidationType, validationQuery, dataModelCloneFrom, newEnabled, skipSysTables, dialectClass);
+			maxPreparedStatementsIdle, connectionValidationType, validationQuery, dataModelCloneFrom, newEnabled, skipSysTables, idleTimeout, dialectClass);
 	}
 
 	public String getServerName()
@@ -175,6 +177,11 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		return maxIdle;
 	}
 
+	public int getIdleTimeout()
+	{
+		return idleTimeout;
+	}
+
 	public int getMaxPreparedStatementsIdle()
 	{
 		return maxPreparedStatementsIdle;
@@ -210,19 +217,28 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		return dialectClass;
 	}
 
+	/**
+	 * Should only be called from Server so that exiting connection data source gets updated as well
+	 */
 	public void setMaxActive(int maxActive)
 	{
 		this.maxActive = maxActive;
 	}
 
+	/**
+	 * Should only be called from Server so that exiting connection data source gets updated as well
+	 */
 	public void setMaxIdle(int maxIdle)
 	{
 		this.maxIdle = maxIdle;
 	}
 
-	public void setMaxPreparedStatementsIdle(int maxPreparedStatementsIdle)
+	/**
+	 * Should only be called from Server so that exiting connection data source gets updated as well
+	 */
+	public void setIdleTimeout(int idleTimeout)
 	{
-		this.maxPreparedStatementsIdle = maxPreparedStatementsIdle;
+		this.idleTimeout = idleTimeout;
 	}
 
 	// used for sorting in ServerManager (TreeMap)
@@ -244,6 +260,7 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		result = prime * result + ((dialectClass == null) ? 0 : dialectClass.hashCode());
 		result = prime * result + ((driver == null) ? 0 : driver.hashCode());
 		result = prime * result + (enabled ? 1231 : 1237);
+		result = prime * result + idleTimeout;
 		result = prime * result + maxActive;
 		result = prime * result + maxIdle;
 		result = prime * result + maxPreparedStatementsIdle;
@@ -291,6 +308,7 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		}
 		else if (!driver.equals(other.driver)) return false;
 		if (enabled != other.enabled) return false;
+		if (idleTimeout != other.idleTimeout) return false;
 		if (maxActive != other.maxActive) return false;
 		if (maxIdle != other.maxIdle) return false;
 		if (maxPreparedStatementsIdle != other.maxPreparedStatementsIdle) return false;
