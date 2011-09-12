@@ -82,7 +82,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 //	private boolean showFocus;
 	private int halign;
 	private int valign;
-//	private Cursor cursor;
+	private Cursor cursor;
 	private String inputId;
 	private Insets margin;
 	protected MediaResource icon;
@@ -490,7 +490,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	public void setCursor(Cursor cursor)
 	{
-		//this.cursor = cursor;
+		this.cursor = cursor;
 	}
 
 	public void setRolloverEnabled(boolean b)
@@ -899,7 +899,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		}
 		replaceComponentTagBody(markupStream, openTag,
 			instrumentBodyText(bodyText, halign, valign, false, margin, null, (char)getDisplayedMnemonic(), getMarkupId() + "_img", //$NON-NLS-1$
-				getImageDisplayURL(this), size == null ? 0 : size.height, true, designMode));
+				getImageDisplayURL(this), size == null ? 0 : size.height, true, designMode ? null : cursor));
 	}
 
 	protected static String getImageDisplayURL(IImageDisplay imageDisplay)
@@ -1033,13 +1033,13 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	@SuppressWarnings("nls")
 	protected static String instrumentBodyText(CharSequence bodyText, int halign, int valign, boolean isHtml, Insets padding, String cssid, char mnemonic,
-		String imgID, String imgURL, int height, boolean isButton, boolean isDesignMode)
+		String imgID, String imgURL, int height, boolean isButton, Cursor bodyCursor)
 	{
 		// In order to vertically align the text inside the <button>, we wrap the text inside a <span>, and we absolutely
 		// position the <span> in the <button>. However, for centering vertically we drop this absolute positioning and
 		// rely on the fact that by default the <button> tag vertically centers its content.
 		StringBuffer instrumentedBodyText = new StringBuffer();
-		instrumentedBodyText.append("<span style='" + (isDesignMode ? "" : "cursor: default; ") + "display: block;"); //$NON-NLS-1$
+		instrumentedBodyText.append("<span style='" + (bodyCursor == null ? "" : "cursor: " + (bodyCursor.getType() == Cursor.HAND_CURSOR ? "pointer" : "default") + "; ") + "display: block;"); //$NON-NLS-1$
 		int top = 0;
 		int bottom = 0;
 		int left = 0;
