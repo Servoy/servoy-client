@@ -922,7 +922,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 			designMode = true;
 		}
 		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtml, padding, cssid,
-			(char)getDisplayedMnemonic(), getMarkupId() + "_img", WebBaseButton.getImageDisplayURL(this), size.height, false, designMode)); //$NON-NLS-1$
+			(char)getDisplayedMnemonic(), getMarkupId() + "_img", WebBaseButton.getImageDisplayURL(this), size.height, false, designMode ? null : cursor)); //$NON-NLS-1$
 	}
 
 	protected boolean hasHtml()
