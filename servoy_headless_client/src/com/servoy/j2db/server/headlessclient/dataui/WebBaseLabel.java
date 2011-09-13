@@ -1007,7 +1007,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	}
 
 	@SuppressWarnings("nls")
-	protected void instrumentAndReplaceBody(MarkupStream markupStream, ComponentTag openTag, CharSequence bodyText, boolean hasHTML)
+	protected void instrumentAndReplaceBody(MarkupStream markupStream, ComponentTag openTag, CharSequence bodyText)
 	{
 		Insets m = null;
 		// empty border gets handled as margin
@@ -1025,7 +1025,10 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 			}
 		}
 
-		String cssid = hasHTML ? getMarkupId() + "_lb" : null;
+		boolean hasHtml = hasHtml();
+		if (!hasHtml) hasHtml = !Strings.isEmpty(getDefaultModelObjectAsString()) && WebBaseButton.getImageDisplayURL(this) != null;
+
+		String cssid = hasHtml ? getMarkupId() + "_lb" : null;
 		boolean designMode = false;
 		IFormUIInternal< ? > formui = findParent(IFormUIInternal.class);
 		if (formui != null && formui.isDesignMode())
@@ -1035,7 +1038,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 		replaceComponentTagBody(
 			markupStream,
 			openTag,
-			WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHTML, m, cssid, (char)getDisplayedMnemonic(),
+			WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtml, m, cssid, (char)getDisplayedMnemonic(),
 				getMarkupId() + "_img", WebBaseButton.getImageDisplayURL(this), size.height, false, designMode ? null : cursor)); //$NON-NLS-1$
 	}
 

@@ -18,7 +18,6 @@ package com.servoy.j2db.server.headlessclient.dataui;
 
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
-import org.apache.wicket.util.string.Strings;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.scripting.RuntimeScriptLabel;
@@ -52,17 +51,12 @@ public class WebScriptLabel extends WebBaseLabel
 		CharSequence bodyText = getDefaultModelObjectAsString();
 
 		Object modelObject = getDefaultModelObject();
-		boolean hasHTML = false;
 		if (HtmlUtils.startsWithHtml(modelObject))
 		{
 			// ignore script/header contributions for now			
 			bodyText = StripHTMLTagsConverter.convertBodyText(this, bodyText, application.getFlattenedSolution()).getBodyTxt();
-			hasHTML = true;
 		}
-		else
-		{
-			hasHTML = !Strings.isEmpty(getDefaultModelObjectAsString()) && WebBaseButton.getImageDisplayURL(this) != null;
-		}
-		instrumentAndReplaceBody(markupStream, openTag, bodyText, hasHTML);
+
+		instrumentAndReplaceBody(markupStream, openTag, bodyText);
 	}
 }
