@@ -173,7 +173,7 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 	@Override
 	protected void onComponentTagBody(MarkupStream markupStream, ComponentTag openTag)
 	{
-		instrumentAndReplaceBody(markupStream, openTag, bodyText, hasHTML);
+		instrumentAndReplaceBody(markupStream, openTag, bodyText);
 	}
 
 	/*

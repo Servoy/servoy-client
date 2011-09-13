@@ -914,6 +914,8 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 		}
 
 		boolean hasHtml = hasHtml();
+		if (!hasHtml) hasHtml = !Strings.isEmpty(getDefaultModelObjectAsString()) && WebBaseButton.getImageDisplayURL(this) != null;
+
 		String cssid = hasHtml ? getMarkupId() + "_lb" : null;
 		boolean designMode = false;
 		IFormUIInternal< ? > formui = findParent(IFormUIInternal.class);
