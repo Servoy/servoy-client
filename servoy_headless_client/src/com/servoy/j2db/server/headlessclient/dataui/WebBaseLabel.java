@@ -174,11 +174,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	{
 		if (valign == ISupportTextSetup.CENTER)
 		{
-			if (hasHtml())
-			{
-				return !WebBaseButton.isHTMLWithOnlyImg(getBodyText());
-			}
-			return !Strings.isEmpty(getDefaultModelObjectAsString()) && WebBaseButton.getImageDisplayURL(this) != null;
+			return hasHtml();
 		}
 		return false;
 	}
@@ -1026,7 +1022,6 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 		}
 
 		boolean hasHtml = hasHtml();
-		if (!hasHtml) hasHtml = !Strings.isEmpty(getDefaultModelObjectAsString()) && WebBaseButton.getImageDisplayURL(this) != null;
 
 		String cssid = hasHtml ? getMarkupId() + "_lb" : null;
 		boolean designMode = false;
