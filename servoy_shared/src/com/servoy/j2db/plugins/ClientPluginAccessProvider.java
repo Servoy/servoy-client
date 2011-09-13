@@ -42,6 +42,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IBeanManager;
 import com.servoy.j2db.IFormManager;
 import com.servoy.j2db.J2DBGlobals;
+import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.cmd.ICmdManager;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.IDataServer;
@@ -279,13 +280,13 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 	}
 
 	/**
-	 * @deprecated
+	 * @see com.servoy.j2db.plugins.IClientPluginAccess#getMediaURLStreamHandler()
 	 */
-	@Deprecated
 	public URLStreamHandler getMediaURLStreamHandler()
 	{
-		return null;
+		return new MediaURLStreamHandler(application);
 	}
+
 
 	/**
 	 * Get a server interface by name.
