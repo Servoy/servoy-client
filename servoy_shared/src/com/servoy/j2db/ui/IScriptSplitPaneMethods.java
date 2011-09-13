@@ -25,7 +25,7 @@ import com.servoy.j2db.scripting.FormScope;
  * @author gboros
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeSplitPane", extendsComponent = "RuntimeComponent")
-public interface IScriptSplitPaneMethods extends IScriptTransparentMethods, IScriptReadOnlyMethods
+public interface IScriptSplitPaneMethods extends IScriptReadOnlyMethods
 {
 
 	/**

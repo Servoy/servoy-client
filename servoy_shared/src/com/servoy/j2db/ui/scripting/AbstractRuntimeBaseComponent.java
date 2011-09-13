@@ -34,7 +34,6 @@ import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptTransparentMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.ISupportSecuritySettings;
@@ -47,7 +46,7 @@ import com.servoy.j2db.util.PersistHelper;
  * @author lvostinar
  * @since 6.0
  */
-public abstract class AbstractRuntimeBaseComponent<C extends IComponent> implements IScriptable, IScriptBaseMethods, IScriptTransparentMethods, Wrapper
+public abstract class AbstractRuntimeBaseComponent<C extends IComponent> implements IScriptable, IScriptBaseMethods, Wrapper
 {
 	private C component;
 	private final IStylePropertyChangesRecorder jsChangeRecorder;
@@ -185,8 +184,9 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 		}
 	}
 
-	public void js_setSize(int x, int y)
+	protected void setComponentSize(int x, int y)
 	{
+		// sets the component, changes recorder is not called here
 		if (getComponent() instanceof ISupportCachedLocationAndSize)
 		{
 			((ISupportCachedLocationAndSize)getComponent()).setCachedSize(new Dimension(x, y));
@@ -248,6 +248,17 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 	{
 		getComponent().setBorder(ComponentFactoryHelper.createBorder(spec));
 		getChangesRecorder().setBorder(spec);
+	}
+
+	public String js_getToolTipText()
+	{
+		return getComponent().getToolTipText();
+	}
+
+	public void js_setToolTipText(String tooltip)
+	{
+		getComponent().setToolTipText(tooltip);
+		getChangesRecorder().setChanged();
 	}
 
 	public String getValueString()

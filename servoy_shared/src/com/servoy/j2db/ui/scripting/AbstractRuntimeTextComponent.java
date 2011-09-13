@@ -153,10 +153,7 @@ public abstract class AbstractRuntimeTextComponent<C extends IFieldComponent, T 
 		{
 			return textComponent.getToolTipText();
 		}
-		else
-		{
-			return super.js_getToolTipText();
-		}
+		return super.js_getToolTipText();
 	}
 
 }

@@ -47,10 +47,9 @@ public abstract class AbstractHTMLSubmitRuntimeLabel<C extends ILabel> extends A
 	/*
 	 * size---------------------------------------------------
 	 */
-	@Override
 	public void js_setSize(int x, int y)
 	{
-		super.js_setSize(x, y);
+		setComponentSize(x, y);
 		Border b = getComponent().getBorder();
 		Insets m = null;
 		// empty border gets handled as margin

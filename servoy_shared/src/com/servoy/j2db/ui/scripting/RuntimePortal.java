@@ -19,7 +19,6 @@ package com.servoy.j2db.ui.scripting;
 
 import java.awt.Insets;
 import java.awt.Rectangle;
-import java.util.List;
 
 import javax.swing.JComponent;
 
@@ -71,16 +70,10 @@ public class RuntimePortal extends AbstractRuntimeBaseComponent<IPortalComponent
 		StringBuilder sb = new StringBuilder();
 		if (foundset != null)
 		{
-			List lst = foundset.getSortColumns();
-			if (lst.size() > 0)
+			for (SortColumn sc : foundset.getSortColumns())
 			{
-				for (int i = 0; i < lst.size(); i++)
-				{
-					SortColumn sc = (SortColumn)lst.get(i);
-					sb.append(sc.toString());
-					sb.append(", "); //$NON-NLS-1$
-				}
-				sb.setLength(sb.length() - 2);
+				if (sb.length() > 0) sb.append(", "); //$NON-NLS-1$
+				sb.append(sc.toString());
 			}
 		}
 		return sb.toString();
@@ -146,6 +139,7 @@ public class RuntimePortal extends AbstractRuntimeBaseComponent<IPortalComponent
 	public void js_setReadOnly(boolean b)
 	{
 		getComponent().setReadOnly(b);
+		getChangesRecorder().setChanged();
 	}
 
 	public int js_getAbsoluteFormLocationY()
@@ -191,7 +185,7 @@ public class RuntimePortal extends AbstractRuntimeBaseComponent<IPortalComponent
 		{
 			try
 			{
-				int i = foundset.newRecord(addOnTop);
+				int i = foundset.newRecord(addOnTop ? 0 : Integer.MAX_VALUE, true);
 				getComponent().setRecordIndex(i);
 			}
 			catch (Exception ex)
@@ -212,7 +206,7 @@ public class RuntimePortal extends AbstractRuntimeBaseComponent<IPortalComponent
 		{
 			try
 			{
-				int i = foundset.duplicateRecord(foundset.getSelectedIndex(), addOnTop);
+				int i = foundset.duplicateRecord(foundset.getSelectedIndex(), addOnTop ? 0 : Integer.MAX_VALUE);
 				getComponent().setRecordIndex(i);
 			}
 			catch (Exception ex)
@@ -222,26 +216,14 @@ public class RuntimePortal extends AbstractRuntimeBaseComponent<IPortalComponent
 		}
 	}
 
-	@Override
 	public void js_setSize(int x, int y)
 	{
-		super.js_setSize(x, y);
+		setComponentSize(x, y);
 		getChangesRecorder().setSize(getComponent().getSize().width, getComponent().getSize().height, getComponent().getBorder(), new Insets(0, 0, 0, 0), 0);
 	}
 
 	public boolean js_isReadOnly()
 	{
 		return getComponent().isReadOnly();
-	}
-
-	public String js_getToolTipText()
-	{
-		return getComponent().getToolTipText();
-	}
-
-	public void js_setToolTipText(String tooltip)
-	{
-		getComponent().setToolTipText(tooltip);
-		getChangesRecorder().setChanged();
 	}
 }

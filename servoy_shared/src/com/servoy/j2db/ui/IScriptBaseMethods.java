@@ -325,4 +325,54 @@ public interface IScriptBaseMethods extends IScriptable
 
 	public void js_setBorder(String spec);
 
+	public void js_setToolTipText(String tooltip);
+
+	/**
+	 *  Gets or sets the tool tip text of an element; text displays when the mouse cursor hovers over an element. 
+	 *  
+	 *  NOTE: HTML should be used for multi-line tooltips; you can also use any valid HTML tags to format tooltip text.
+	 *
+	 * @sample
+	 * //gets the tooltip text of the element
+	 * var toolTip = %%prefix%%%%elementName%%.toolTipText;
+	 * 
+	 * //sets the tooltip text of the element
+	 * %%prefix%%%%elementName%%.toolTipText = "New tip";
+	 * %%prefix%%%%elementName%%.toolTipText = "<html>This includes <b>bolded text</b> and <font color='blue'>BLUE</font> text as well.";
+	 */
+	public String js_getToolTipText();
+
+	/**
+	 * Gets or sets the font name, style, and size of an element. 
+	 * 
+	 * font name - the name of the font family.
+	 * style - the type of the font. (plain = 0; bold = 1; italic = 2; bold-italic = 3).
+	 * size - the size of the font (in points).
+	 * 
+	 * @sample
+	 * %%prefix%%%%elementName%%.font = 'Tahoma,1,11';
+	 *
+	 */
+	public String js_getFont();
+
+	public void js_setFont(String spec);
+
+	/**
+	 * Gets or sets the transparency of an element; true - transparent; false - not transparent.
+	 *  
+	 * NOTE: transparency can be inverted using ! operator: elements.elementName.transparent = !elements.elementName.transparent;
+	 * 
+	 * NOTE: transparency will be mostly used for background color, a transparent element will receive the background of the element "beneath" it, a non transparent one will use its own background color
+	 *
+	 * @sample
+	 * //gets the transparency of the element
+	 * var currentState = %%prefix%%%%elementName%%.transparent;
+	 * 
+	 * //sets the transparency of the element
+	 * %%prefix%%%%elementName%%.transparent = !currentState;
+	 */
+	public boolean js_isTransparent();
+
+	public void js_setTransparent(boolean b);
+
 }

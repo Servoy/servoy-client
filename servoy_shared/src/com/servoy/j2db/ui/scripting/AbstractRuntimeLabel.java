@@ -75,11 +75,13 @@ public abstract class AbstractRuntimeLabel<C extends ILabel> extends AbstractRun
 	public void js_setImageURL(String text_url)
 	{
 		getComponent().setImageURL(text_url);
+		getChangesRecorder().setChanged();
 	}
 
 	public void js_setRolloverImageURL(String imageUrl)
 	{
 		getComponent().setRolloverImageURL(imageUrl);
+		getChangesRecorder().setChanged();
 	}
 
 	public String js_getElementType()
@@ -103,43 +105,46 @@ public abstract class AbstractRuntimeLabel<C extends ILabel> extends AbstractRun
 		return getComponent().getAbsoluteFormLocationY();
 	}
 
+	@Override
 	public void js_setToolTipText(String text)
 	{
-		if (text != null && text.startsWith("i18n:")) //$NON-NLS-1$
+		String tooltip = text;
+		if (tooltip != null && tooltip.startsWith("i18n:")) //$NON-NLS-1$
 		{
-			i18nTT = text;
-			text = application.getI18NMessage(text);
+			i18nTT = tooltip;
+			tooltip = application.getI18NMessage(tooltip);
 		}
 		else
 		{
 			i18nTT = null;
 		}
-		getComponent().setToolTipText(text);
-		getChangesRecorder().setChanged();
+		super.js_setToolTipText(tooltip);
 	}
 
 	/**
 	 * @see com.servoy.j2db.ui.IScriptLabelMethods#js_getToolTipText()
 	 */
+	@Override
 	public String js_getToolTipText()
 	{
 		if (i18nTT != null) return i18nTT;
-		return getComponent().getToolTipText();
+		return super.js_getToolTipText();
 	}
 
 	public String js_getMnemonic()
 	{
 		int i = getComponent().getDisplayedMnemonic();
-		if (i == 0) return "";
+		if (i == 0) return ""; //$NON-NLS-1$
 		return new Character((char)i).toString();
 	}
 
-	public void js_setMnemonic(String mnemonic)
+	public void js_setMnemonic(String m)
 	{
-		mnemonic = application.getI18NMessageIfPrefixed(mnemonic);
+		String mnemonic = application.getI18NMessageIfPrefixed(m);
 		if (mnemonic != null && mnemonic.length() > 0)
 		{
 			getComponent().setDisplayedMnemonic(mnemonic.charAt(0));
+			getChangesRecorder().setChanged();
 		}
 	}
 

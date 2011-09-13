@@ -595,7 +595,6 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 				}
 			}
 		}
-		scriptable.getChangesRecorder().setChanged();
 	}
 
 	public String getImageURL()
@@ -960,7 +959,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 				protected CharSequence generateCallbackScript(CharSequence partialCall)
 				{
 					String solutionName = J2DBGlobals.getServiceProvider().getSolution().getName();
-					String url = "";
+					String url = ""; //$NON-NLS-1$
 					if (imageDisplay.getRolloverIconReference() != null && imageDisplay.getRolloverMedia() != null)
 					{
 						if (imageDisplay.getMediaOptions() != 0 && imageDisplay.getMediaOptions() != 1)

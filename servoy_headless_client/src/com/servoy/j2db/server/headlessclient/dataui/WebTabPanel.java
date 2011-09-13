@@ -268,7 +268,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 							}
 							if (holder.getIcon() != null)
 							{
-								style += "; padding-left: 3px";
+								style += "; padding-left: 3px"; //$NON-NLS-1$
 							}
 							return style;
 						}
@@ -806,7 +806,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 	{
 	}
 
-	public boolean addTab(Object form, String name, String tabText, String tooltip, String iconURL, String fg, String bg, Object relation, int tabIndex,
+	public boolean addTab(Object form, String tabname, String tabText, String tabtooltip, String iconURL, String fg, String bg, Object relation, int idx,
 		boolean readOnly)
 	{
 		if (form instanceof FormController)
@@ -839,20 +839,21 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 			String relationName = relation instanceof RelatedFoundSet ? ((RelatedFoundSet)relation).getRelationName() : (String)relation;
 			RelatedFoundSet relatedFs = relation instanceof RelatedFoundSet ? (RelatedFoundSet)relation : null;
 
-			WebTabFormLookup flp = (WebTabFormLookup)createFormLookupPanel(name, relationName, fName);
+			WebTabFormLookup flp = (WebTabFormLookup)createFormLookupPanel(tabname, relationName, fName);
 			if (form instanceof FormController) flp.setReadOnly(readOnly);
 			byte[] iconData = null;
 			//TODO handle icon
 
 			int count = allTabs.size();
+			int tabIndex = idx;
 			if (tabIndex == -1 || tabIndex >= count)
 			{
 				tabIndex = count;
-				addTab(application.getI18NMessageIfPrefixed(tabText), iconData, flp, application.getI18NMessageIfPrefixed(tooltip));
+				addTab(application.getI18NMessageIfPrefixed(tabText), iconData, flp, application.getI18NMessageIfPrefixed(tabtooltip));
 			}
 			else
 			{
-				insertTab(application.getI18NMessageIfPrefixed(tabText), iconData, flp, application.getI18NMessageIfPrefixed(tooltip), tabIndex);
+				insertTab(application.getI18NMessageIfPrefixed(tabText), iconData, flp, application.getI18NMessageIfPrefixed(tabtooltip), tabIndex);
 			}
 			if (fg != null) setTabForegroundAt(tabIndex, PersistHelper.createColor(fg));
 			if (bg != null) setTabBackgroundAt(tabIndex, PersistHelper.createColor(bg));
@@ -979,7 +980,6 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 	{
 		WebTabHolder holder = allTabs.get(i);
 		holder.setEnabled(b);
-		getStylePropertyChanges().setChanged();
 	}
 
 	public void setTabIndex(Object arg)
@@ -1084,11 +1084,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 
 	public void setToolTipText(String tooltip)
 	{
-		if (Utils.stringIsEmpty(tooltip))
-		{
-			tooltip = null;
-		}
-		this.tooltip = tooltip;
+		this.tooltip = Utils.stringIsEmpty(tooltip) ? null : tooltip;
 	}
 
 	/**
@@ -1334,27 +1330,27 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 			this.holder = holder;
 			add(new StyleAppendingModifier(new Model<String>()
 			{
+				@SuppressWarnings("nls")
 				@Override
 				public String getObject()
 				{
-					String result = ""; //$NON-NLS-1$
+					StringBuilder result = new StringBuilder();
 					if (holder.getIcon() != null)
 					{
-						result += "width: " + holder.getIcon().getWidth() + "px; height: " + holder.getIcon().getHeight() + "px";
-						result += "; background-image: url(";
-						CharSequence url = urlFor(IResourceListener.INTERFACE) + "&r=" + Math.random(); //$NON-NLS-1$
-						result += getResponse().encodeURL(url);
-						result += ")";
+						result.append("width: ").append(holder.getIcon().getWidth()).append("px; height: ").append(holder.getIcon().getHeight()).append("px");
+						result.append("; background-image: url(");
+						result.append(getResponse().encodeURL(urlFor(IResourceListener.INTERFACE) + "&r=" + Math.random()));
+						result.append(')');
 						if (!scriptable.js_isEnabled())
 						{
-							result += "; filter:alpha(opacity=50);-moz-opacity:.50;opacity:.50"; //$NON-NLS-1$
+							result.append("; filter:alpha(opacity=50);-moz-opacity:.50;opacity:.50");
 						}
 					}
 					else
 					{
-						result += "width: 0px; height: 0px";
+						result.append("width: 0px; height: 0px");
 					}
-					return result;
+					return result.toString();
 				}
 			}));
 		}

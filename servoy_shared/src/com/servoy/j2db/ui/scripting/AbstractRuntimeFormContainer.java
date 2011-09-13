@@ -52,6 +52,7 @@ public abstract class AbstractRuntimeFormContainer<C extends IComponent, E exten
 		this.enclosingComponent = enclosingComponent;
 	}
 
+	@Override
 	public void js_setToolTipText(String txt)
 	{
 		if (enclosingComponent != null)
@@ -65,13 +66,14 @@ public abstract class AbstractRuntimeFormContainer<C extends IComponent, E exten
 		getChangesRecorder().setChanged();
 	}
 
+	@Override
 	public String js_getToolTipText()
 	{
 		if (enclosingComponent != null)
 		{
 			return enclosingComponent.getToolTipText();
 		}
-		return getComponent().getToolTipText();
+		return super.js_getToolTipText();
 	}
 
 	@Override
@@ -148,10 +150,9 @@ public abstract class AbstractRuntimeFormContainer<C extends IComponent, E exten
 		}
 	}
 
-	@Override
 	public void js_setSize(int x, int y)
 	{
-		super.js_setSize(x, y);
+		setComponentSize(x, y);
 		if (getComponent() instanceof JComponent)
 		{
 			((JComponent)getComponent()).repaint();

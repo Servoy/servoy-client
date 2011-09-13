@@ -88,8 +88,8 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 {
 	private static final long serialVersionUID = 1L;
 
-	private int rotation;
-	private boolean showFocus;
+//	private int rotation;
+//	private boolean showFocus;
 	private int halign;
 	private int valign;
 	private Cursor cursor;
@@ -101,7 +101,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	private ResourceReference rolloverIconReference;
 	private String iconUrl;
 	private Media media;
-	private Dimension mediaSize;
+//	private Dimension mediaSize;
 	private Media rolloverMedia;
 	protected final IApplication application;
 	private String text_url;
@@ -200,24 +200,24 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	 */
 	public void onResourceRequested()
 	{
-		String media = RequestCycle.get().getRequest().getParameter("media"); //$NON-NLS-1$
-		if (media != null)
+		String mediaParameter = RequestCycle.get().getRequest().getParameter("media"); //$NON-NLS-1$
+		if (mediaParameter != null)
 		{
 			Media m;
 			try
 			{
-				m = application.getFlattenedSolution().getMedia(media);
+				m = application.getFlattenedSolution().getMedia(mediaParameter);
 				byte[] bytes = m.getMediaData();
 				new ByteArrayResource(ImageLoader.getContentType(bytes), bytes, null).onResourceRequested();
 			}
 			catch (Exception ex)
 			{
-				Debug.error("Error serving media: " + media, ex); //$NON-NLS-1$
+				Debug.error("Error serving media: " + mediaParameter, ex); //$NON-NLS-1$
 			}
 		}
 		else if (getRequest().getParameter(MediaURLStreamHandler.MEDIA_URL_BLOBLOADER) != null)
 		{
-			String url = getRequest().getRelativeURL();
+			String url = getRequest().getURL();
 			try
 			{
 				byte[] bytes = MediaURLStreamHandler.getBlobLoaderMedia(application, url);
@@ -302,7 +302,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	public void setIcon(final byte[] bs)
 	{
 		media = null;
-		mediaSize = null;
+//		mediaSize = null;
 		iconReference = null;
 		if (bs != null && bs.length != 0)
 		{
@@ -365,17 +365,17 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 			remove(enabledStyle);
 			enabledStyle = null;
 		}
-		mediaSize = null;
+//		mediaSize = null;
 	}
 
 	public void setRotation(int rotation)
 	{
-		this.rotation = rotation;
+//		this.rotation = rotation;
 	}
 
 	public void setFocusPainted(boolean showFocus)
 	{
-		this.showFocus = showFocus;
+//		this.showFocus = showFocus;
 	}
 
 	public void setHorizontalAlignment(int c)
@@ -487,7 +487,6 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 				}
 			}
 		}
-		scriptable.getChangesRecorder().setChanged();
 	}
 
 	public String getImageURL()
@@ -518,7 +517,6 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 			}
 		}
 		addRolloverBehaviors();
-		scriptable.getChangesRecorder().setChanged();
 	}
 
 
@@ -913,12 +911,12 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	}
 
 	// Searches for a parent form, up the hierarchy of controls in the page.
-	private Form getForm()
+	private Form< ? > getForm()
 	{
 		Component c = this;
 		while ((c != null) && !(c instanceof Form))
 			c = c.getParent();
-		return (Form)c;
+		return (Form< ? >)c;
 	}
 
 	@Override
@@ -929,13 +927,13 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		if (useAJAX)
 		{
-			Object oe = scriptable.js_getClientProperty("ajax.enabled");
+			Object oe = scriptable.js_getClientProperty("ajax.enabled"); //$NON-NLS-1$
 			if (oe != null) useAJAX = Utils.getAsBoolean(oe);
 		}
 
 		if (!useAJAX)
 		{
-			Form f = getForm();
+			Form< ? > f = getForm();
 			if (f != null)
 			{
 				if (eventExecutor.hasActionCmd())
@@ -973,7 +971,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 
 	public void onDoubleClick()
 	{
-		Form f = getForm();
+		Form< ? > f = getForm();
 		if (f != null)
 		{
 			// If form validation fails, we don't execute the method.
@@ -983,7 +981,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 
 	public void onRightClick()
 	{
-		Form f = getForm();
+		Form< ? > f = getForm();
 		if (f != null)
 		{
 			// If form validation fails, we don't execute the method.

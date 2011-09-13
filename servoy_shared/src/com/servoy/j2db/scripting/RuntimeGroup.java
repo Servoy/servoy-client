@@ -24,7 +24,6 @@ import java.util.List;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptReadOnlyMethods;
-import com.servoy.j2db.ui.IScriptTransparentMethods;
 
 /**
  * Script object for a group of scriptables, delegates a fixed list of properties to all the enclosed scriptables.
@@ -34,7 +33,7 @@ import com.servoy.j2db.ui.IScriptTransparentMethods;
  * @since 5.0
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class RuntimeGroup implements IScriptTransparentMethods, IScriptReadOnlyMethods
+public class RuntimeGroup implements IScriptReadOnlyMethods
 {
 	private static final Rectangle NO_BOUNDS = new Rectangle(0, 0, 0, 0);
 
@@ -210,10 +209,7 @@ public class RuntimeGroup implements IScriptTransparentMethods, IScriptReadOnlyM
 	{
 		for (IScriptBaseMethods obj : scriptBaseObjects)
 		{
-			if (obj instanceof IScriptTransparentMethods)
-			{
-				((IScriptTransparentMethods)obj).js_setToolTipText(tooltip);
-			}
+			obj.js_setToolTipText(tooltip);
 		}
 	}
 
@@ -221,13 +217,10 @@ public class RuntimeGroup implements IScriptTransparentMethods, IScriptReadOnlyM
 	{
 		for (IScriptBaseMethods obj : scriptBaseObjects)
 		{
-			if (obj instanceof IScriptTransparentMethods)
+			String tooltip = obj.js_getToolTipText();
+			if (tooltip != null)
 			{
-				String tooltip = ((IScriptTransparentMethods)obj).js_getToolTipText();
-				if (tooltip != null)
-				{
-					return tooltip;
-				}
+				return tooltip;
 			}
 		}
 		return null;
@@ -237,10 +230,7 @@ public class RuntimeGroup implements IScriptTransparentMethods, IScriptReadOnlyM
 	{
 		for (IScriptBaseMethods obj : scriptBaseObjects)
 		{
-			if (obj instanceof IScriptTransparentMethods)
-			{
-				((IScriptTransparentMethods)obj).js_setFont(spec);
-			}
+			obj.js_setFont(spec);
 		}
 	}
 
@@ -248,13 +238,10 @@ public class RuntimeGroup implements IScriptTransparentMethods, IScriptReadOnlyM
 	{
 		for (IScriptBaseMethods obj : scriptBaseObjects)
 		{
-			if (obj instanceof IScriptTransparentMethods)
+			String spec = obj.js_getFont();
+			if (spec != null)
 			{
-				String spec = ((IScriptTransparentMethods)obj).js_getFont();
-				if (spec != null)
-				{
-					return spec;
-				}
+				return spec;
 			}
 		}
 		return null;
@@ -264,7 +251,7 @@ public class RuntimeGroup implements IScriptTransparentMethods, IScriptReadOnlyM
 	{
 		for (IScriptBaseMethods obj : scriptBaseObjects)
 		{
-			if (obj instanceof IScriptTransparentMethods && !((IScriptTransparentMethods)obj).js_isTransparent())
+			if (!obj.js_isTransparent())
 			{
 				return false;
 			}
@@ -276,10 +263,7 @@ public class RuntimeGroup implements IScriptTransparentMethods, IScriptReadOnlyM
 	{
 		for (IScriptBaseMethods obj : scriptBaseObjects)
 		{
-			if (obj instanceof IScriptTransparentMethods)
-			{
-				((IScriptTransparentMethods)obj).js_setTransparent(b);
-			}
+			obj.js_setTransparent(b);
 		}
 	}
 

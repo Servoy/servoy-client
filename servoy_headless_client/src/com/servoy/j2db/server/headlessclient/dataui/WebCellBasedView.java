@@ -134,7 +134,6 @@ import com.servoy.j2db.ui.IPortalComponent;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptReadOnlyMethods;
-import com.servoy.j2db.ui.IScriptTransparentMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowStyling;
@@ -157,7 +156,7 @@ import com.servoy.j2db.util.Utils;
 public class WebCellBasedView extends WebMarkupContainer implements IView, IPortalComponent, IDataRenderer, IProviderStylePropertyChanges, TableModelListener,
 	ListSelectionListener, ISupportWebBounds, ISupportWebTabSeq, ISupportRowStyling
 {
-	private static final int SCROLLBAR_SIZE = 17;
+//	private static final int SCROLLBAR_SIZE = 17;
 	private static final long serialVersionUID = 1L;
 
 	private final LinkedHashMap<IPersist, Component> elementToColumnIdentifierComponent = new LinkedHashMap<IPersist, Component>(); // IPersist -> column identifier components - used by JavaScript
@@ -211,18 +210,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	 */
 	private final class ServoyTableResizeBehavior extends AbstractServoyDefaultAjaxBehavior implements IIgnoreDisabledComponentBehavior
 	{
-		/**
-		 * 
-		 */
-		private final int startY;
-		/**
-		 * 
-		 */
-		private final int endY;
-		/**
-		 * 
-		 */
-		private final AbstractBase cellview;
+		private final int resizeStartY;
+		private final int resizeEndY;
+		private final AbstractBase resizeCellview;
 		private boolean responded = false;
 
 		/**
@@ -232,9 +222,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		 */
 		private ServoyTableResizeBehavior(int startY, int endY, AbstractBase cellview)
 		{
-			this.startY = startY;
-			this.endY = endY;
-			this.cellview = cellview;
+			this.resizeStartY = startY;
+			this.resizeEndY = endY;
+			this.resizeCellview = cellview;
 		}
 
 		@SuppressWarnings("nls")
@@ -282,8 +272,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			WebTabPanel tabPanel = findParent(WebTabPanel.class);
 			if (tabPanel != null)
 			{
-				int bodyDesignHeight = endY - startY;
-				int otherPartsHeight = (cellview instanceof Portal) ? 0 : formDesignHeight - bodyDesignHeight;
+				int bodyDesignHeight = resizeEndY - resizeStartY;
+				int otherPartsHeight = (resizeCellview instanceof Portal) ? 0 : formDesignHeight - bodyDesignHeight;
 				tabPanel.setTabSize(new Dimension(Integer.parseInt(sBodyWidthHint), bodyHeightHint + otherPartsHeight));
 			}
 			WebCellBasedView.this.setVisibilityAllowed(true);
@@ -369,21 +359,21 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	private class WebCellBasedViewListView extends PageableListView<IRecordInternal>
 	{
-		private final AbstractBase cellview;
+		private final AbstractBase listCellview;
 		private final IDataProviderLookup dataProviderLookup;
 		private final IScriptExecuter el;
-		private final int startY, endY;
+		private final int listStartY, listEndY;
 		private final Form form;
 
 		public WebCellBasedViewListView(String id, IModel<FoundSetListWrapper> model, int rowsPerPage, AbstractBase cellview,
 			IDataProviderLookup dataProviderLookup, IScriptExecuter el, int startY, int endY, Form form)
 		{
 			super(id, model, rowsPerPage);
-			this.cellview = cellview;
+			this.listCellview = cellview;
 			this.dataProviderLookup = dataProviderLookup;
 			this.el = el;
-			this.startY = startY;
-			this.endY = endY;
+			this.listStartY = startY;
+			this.listEndY = endY;
 			this.form = form;
 		}
 
@@ -523,7 +513,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				final Object compColor = color;
 				final Object compFgColor = fgColor;
 				final Object compFont = styleFont;
-				createComponents(application, form, cellview, dataProviderLookup, el, startY, endY, new ItemAdd()
+				createComponents(application, form, listCellview, dataProviderLookup, el, listStartY, listEndY, new ItemAdd()
 				{
 					public void add(IPersist element, final Component comp)
 					{
@@ -567,7 +557,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					Component child = CellContainer.getContentsForCell(children.next());
 					// re-initialize :) it - apply js_ user changes applied on the column identifier component
 					// and other initializations...
-					initializeComponent(child, cellview, cellToElement.get(child));
+					initializeComponent(child, listCellview, cellToElement.get(child));
 					setUpComponent(child, rec, color, fgColor, styleFont, visibleRowIndex);
 				}
 			}
@@ -655,7 +645,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				{
 					return new FindStateItemModel(r);
 				}
-				else if (r != null)
+				if (r != null)
 				{
 					return new FoundsetRecordItemModel(this, r, index);
 				}
@@ -1136,7 +1126,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					{
 						Portal p = (Portal)cellview;
 						String relation = p.getRelationName();
-						int lastDot = relation.lastIndexOf(".");
+						int lastDot = relation.lastIndexOf("."); //$NON-NLS-1$
 						if (lastDot >= 0)
 						{
 							relation = relation.substring(lastDot + 1);
@@ -1819,7 +1809,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	Map<String, IPersist> labelsFor = new HashMap<String, IPersist>();
 
 	private void createComponents(final IApplication app, final Form form, final AbstractBase view, final IDataProviderLookup dataProviderLookup,
-		final IScriptExecuter el, final int viewStartY, final int endY, final ItemAdd output)
+		final IScriptExecuter el, final int viewStartY, final int viewEndY, final ItemAdd output)
 	{
 		List<IPersist> elements = ComponentFactory.sortElementsOnPositionAndGroup(view.getAllObjectsAsList());
 		int startX = 0;
@@ -1841,7 +1831,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					continue; // unknown where to add
 				}
 
-				if (l.y >= viewStartY && l.y < endY)
+				if (l.y >= viewStartY && l.y < viewEndY)
 				{
 					IComponent c = ComponentFactory.createComponent(app, form, element, dataProviderLookup, el, false);
 
@@ -2002,7 +1992,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 							{
 								boolean descending = sc.getSortOrder() == SortColumn.DESCENDING;
 								sortableCellViewHeader.setResizeImage(descending ? SortableCellViewHeader.R_ARROW_UP : SortableCellViewHeader.R_ARROW_DOWN);
-								sortMap.put(comp.getMarkupId(), !descending);
+								sortMap.put(comp.getMarkupId(), Boolean.valueOf(!descending));
 							}
 						}
 					}
@@ -2907,7 +2897,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		if (comp instanceof IScriptableProvider)
 		{
 			IScriptable s = ((IScriptableProvider)comp).getScriptObject();
-			if (s instanceof IScriptTransparentMethods) ((IScriptTransparentMethods)s).js_setFont(compFont != null ? compFont.toString() : null);
+			if (s instanceof IScriptBaseMethods) ((IScriptBaseMethods)s).js_setFont(compFont != null ? compFont.toString() : null);
 		}
 	}
 
@@ -3508,14 +3498,14 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		int stretchedElementsCount = 0;
 		for (IPersist element : elementToColumnIdentifierComponent.keySet())
 		{
-			Object scriptable = elementToColumnIdentifierComponent.get(element);
-			if (scriptable instanceof IScriptableProvider)
+			Object scriptobject = elementToColumnIdentifierComponent.get(element);
+			if (scriptobject instanceof IScriptableProvider)
 			{
-				scriptable = ((IScriptableProvider)scriptable).getScriptObject();
+				scriptobject = ((IScriptableProvider)scriptobject).getScriptObject();
 			}
-			if (scriptable instanceof IScriptBaseMethods)
+			if (scriptobject instanceof IScriptBaseMethods)
 			{
-				int width = ((IScriptBaseMethods)scriptable).js_getWidth();
+				int width = ((IScriptBaseMethods)scriptobject).js_getWidth();
 				totalDefaultWidth += width;
 				if (element instanceof ISupportAnchors)
 				{

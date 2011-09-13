@@ -85,8 +85,8 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 	private int halign;
 	private int valign;
 	private int mediaOptions;
-	private int rotation;
-	private boolean showFocus;
+//	private int rotation;
+//	private boolean showFocus;
 	private Cursor cursor;
 	private Insets margin;
 	private String inputId;
@@ -94,7 +94,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 	protected MediaResource icon;
 	private AttributeModifier enabledStyle;
 	private Media media;
-	private Dimension mediaSize;
+//	private Dimension mediaSize;
 	private Media rolloverMedia;
 	private String iconUrl;
 	private ResourceReference iconReference;
@@ -266,7 +266,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 		}
 		else if (getRequest().getParameter(MediaURLStreamHandler.MEDIA_URL_BLOBLOADER) != null)
 		{
-			String url = getRequest().getRelativeURL();
+			String url = getRequest().getURL();
 			try
 			{
 				byte[] bytes = MediaURLStreamHandler.getBlobLoaderMedia(application, url);
@@ -353,7 +353,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 	public void setIcon(byte[] bs)
 	{
 		media = null;
-		mediaSize = null;
+//		mediaSize = null;
 		iconReference = null;
 		if (bs != null && bs.length != 0)
 		{
@@ -417,17 +417,17 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 			remove(enabledStyle);
 			enabledStyle = null;
 		}
-		mediaSize = null;
+//		mediaSize = null;
 	}
 
 	public void setRotation(int rotation)
 	{
-		this.rotation = rotation;
+//		this.rotation = rotation;
 	}
 
 	public void setFocusPainted(boolean showFocus)
 	{
-		this.showFocus = showFocus;
+//		this.showFocus = showFocus;
 	}
 
 	public void setHorizontalAlignment(int c)
@@ -546,7 +546,6 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 				}
 			}
 		}
-		scriptable.getChangesRecorder().setChanged();
 	}
 
 	public String getImageURL()
@@ -577,7 +576,6 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 			}
 		}
 		addRolloverBehaviors();
-		scriptable.getChangesRecorder().setChanged();
 	}
 
 	public byte[] getThumbnailJPGImage(Object[] args)
@@ -911,7 +909,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 
 		boolean hasHtml = hasHtml();
 
-		String cssid = hasHtml ? getMarkupId() + "_lb" : null;
+		String cssid = hasHtml ? getMarkupId() + "_lb" : null; //$NON-NLS-1$
 		boolean designMode = false;
 		IFormUIInternal< ? > formui = findParent(IFormUIInternal.class);
 		if (formui != null && formui.isDesignMode())

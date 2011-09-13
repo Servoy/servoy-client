@@ -109,21 +109,21 @@ public interface IScriptRenderMethods
 	public void js_setBorder(String spec);
 
 	/**
-	 * @sameas com.servoy.j2db.ui.IScriptTransparentMethods#js_getToolTipText()
+	 * @sameas com.servoy.j2db.ui.IScriptBaseMethods#js_getToolTipText()
 	 */
 	public String js_getToolTipText();
 
 	public void js_setToolTipText(String tooltip);
 
 	/**
-	 * @sameas com.servoy.j2db.ui.IScriptTransparentMethods#js_getFont()
+	 * @sameas com.servoy.j2db.ui.IScriptBaseMethods#js_getFont()
 	 */
 	public String js_getFont();
 
 	public void js_setFont(String spec);
 
 	/**
-	 * @sameas com.servoy.j2db.ui.IScriptTransparentMethods#js_isTransparent()
+	 * @sameas com.servoy.j2db.ui.IScriptBaseMethods#js_isTransparent()
 	 */
 	public boolean js_isTransparent();
 

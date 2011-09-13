@@ -50,7 +50,7 @@ public abstract class AbstractRuntimeButton<C extends IButton> extends AbstractR
 	@Override
 	public void js_putClientProperty(Object key, Object value)
 	{
-		if (getComponent() instanceof JComponent && "contentAreaFilled".equals(key) && value instanceof Boolean)
+		if (getComponent() instanceof JComponent && "contentAreaFilled".equals(key) && value instanceof Boolean) //$NON-NLS-1$
 		{
 			((AbstractButton)getComponent()).setContentAreaFilled(((Boolean)value).booleanValue());
 		}
@@ -61,10 +61,9 @@ public abstract class AbstractRuntimeButton<C extends IButton> extends AbstractR
 
 	}
 
-	@Override
 	public void js_setSize(int width, int height)
 	{
-		super.js_setSize(width, height);
+		setComponentSize(width, height);
 		getChangesRecorder().setSize(width, height, getComponent().getBorder(), getComponent().getMargin(), 0, true, getComponent().getVerticalAlignment());
 	}
 

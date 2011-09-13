@@ -92,7 +92,6 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 	private String tooltip;
 	private boolean opaque;
 	private boolean accessible = true;
-	private Map<Object, Object> clientProperties;
 	private final List<ISwingFoundSet> related = new ArrayList<ISwingFoundSet>();
 	private double dividerLocation;
 	private int dividerSize = 5;
@@ -123,18 +122,18 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 			if (sizeChanged)
 			{
 				sizeChanged = false;
-				response.renderOnLoadJavascript("wicketAjaxGet('" + getCallbackUrl() + "&anchor=true')");
+				response.renderOnLoadJavascript("wicketAjaxGet('" + getCallbackUrl() + "&anchor=true')"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 
 		@Override
 		protected void respond(AjaxRequestTarget target)
 		{
-			if (getComponent().getRequest().getParameter("location") != null)
+			if (getComponent().getRequest().getParameter("location") != null) //$NON-NLS-1$
 			{
 				setDividerLocation(Utils.getAsInteger(getComponent().getRequest().getParameter("location"))); //$NON-NLS-1$ 
 			}
-			if (getComponent().getRequest().getParameter("changed") != null)
+			if (getComponent().getRequest().getParameter("changed") != null) //$NON-NLS-1$
 			{
 				// rerender for tableview header
 				WebSplitPane.this.visitChildren(WebCellBasedView.class, new Component.IVisitor<WebCellBasedView>()
@@ -146,18 +145,18 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 					}
 				});
 			}
-			if (getComponent().getRequest().getParameter("anchor") != null)
+			if (getComponent().getRequest().getParameter("anchor") != null) //$NON-NLS-1$
 			{
 				Page page = findPage();
 				if (page instanceof MainPage && ((MainPage)page).getController() != null)
 				{
-					if (Utils.getAsBoolean(((MainPage)page).getController().getApplication().getRuntimeProperties().get("enableAnchors")))
+					if (Utils.getAsBoolean(((MainPage)page).getController().getApplication().getRuntimeProperties().get("enableAnchors"))) //$NON-NLS-1$
 					{
-						target.appendJavascript("layoutEntirePage();");
+						target.appendJavascript("layoutEntirePage();"); //$NON-NLS-1$
 					}
 				}
 
-				target.appendJavascript("Servoy.Resize.onWindowResize();");
+				target.appendJavascript("Servoy.Resize.onWindowResize();"); //$NON-NLS-1$
 			}
 		}
 
@@ -328,11 +327,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 	public void setToolTipText(String tooltip)
 	{
-		if (Utils.stringIsEmpty(tooltip))
-		{
-			tooltip = null;
-		}
-		this.tooltip = tooltip;
+		this.tooltip = Utils.stringIsEmpty(tooltip) ? null : tooltip;
 	}
 
 	public String[] getAllRelationNames()
@@ -595,7 +590,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		resizeScript.append("YAHOO.util.Dom.setStyle(right, '").append(pos).append("', newDividerLocation + dividerSize + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$ 
 		resizeScript.append("YAHOO.util.Dom.setStyle(right, 'overflow-x', '").append(rightPanelOverflow.get("overflow-x")).append("');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 		resizeScript.append("YAHOO.util.Dom.setStyle(right, 'overflow-y', '").append(rightPanelOverflow.get("overflow-y")).append("');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		resizeScript.append("var resize = new YAHOO.util.Resize(splitter, { min").append(dim).append(": ").append(dividerSize + leftFormMinSize).append(", max").append(dim).append(": splitter.offsetParent.offset").append(dim).append(" - ").append(rightFormMinSize).append(", ").append(continuousLayout ? "" : "proxy: true, "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ 
+		resizeScript.append("var resize = new YAHOO.util.Resize(splitter, { min").append(dim).append(": ").append(dividerSize + leftFormMinSize).append(", max").append(dim).append(": splitter.offsetParent.offset").append(dim).append(" - ").append(rightFormMinSize).append(", ").append(continuousLayout ? "" : "proxy: true, "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ 
 		resizeScript.append("handles: ['").append(orient == TabPanel.SPLIT_HORIZONTAL ? "r" : "b").append("']});"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		resizeScript.append("YAHOO.util.Dom.setStyle(splitter, '").append(dim_o).append("', '');"); //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -663,7 +658,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		resizeScript.append("resize.on('endResize', function(ev) {"); //$NON-NLS-1$ 
 		resizeScript.append("var newLeftSize = parseInt(YAHOO.util.Dom.getStyle(splitter, '").append(dim).append("'), 10);"); //$NON-NLS-1$ //$NON-NLS-2$
 		resizeScript.append("YAHOO.util.Dom.setStyle(splitter, '").append(dim_o).append("', '');"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("wicketAjaxGet('").append(dividerUpdater.getCallbackUrl()).append("&anchor=true").append("&changed=true").append("&location=' + (newLeftSize - ").append(dividerSize).append("));"); //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		resizeScript.append("wicketAjaxGet('").append(dividerUpdater.getCallbackUrl()).append("&anchor=true").append("&changed=true").append("&location=' + (newLeftSize - ").append(dividerSize).append("));"); //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		resizeScript.append("});"); //$NON-NLS-1$
 
 		boolean useAnchors = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")); //$NON-NLS-1$
@@ -772,9 +767,9 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		return webTabs[1] != null ? webTabs[1].getPanel() : null;
 	}
 
-	public IFormLookupPanel createFormLookupPanel(String name, String relationName, String formName)
+	public IFormLookupPanel createFormLookupPanel(String tabname, String relationName, String formName)
 	{
-		return new WebTabFormLookup(name, relationName, formName, this, application);
+		return new WebTabFormLookup(tabname, relationName, formName, this, application);
 	}
 
 	public FormScope getForm(boolean bLeftForm)
@@ -801,7 +796,6 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 	{
 		if (locationPos < 0) return;
 		setDividerLocation(locationPos);
-		getStylePropertyChanges().setChanged();
 		sizeChanged = true;
 	}
 
@@ -813,7 +807,6 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 	public void setDividerSize(int size)
 	{
 		dividerSize = size < 0 ? 0 : size;
-		getStylePropertyChanges().setChanged();
 		sizeChanged = true;
 	}
 
@@ -830,7 +823,6 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 	public void setResizeWeight(double resizeWeight)
 	{
 		this.resizeWeight = resizeWeight;
-		getStylePropertyChanges().setChanged();
 	}
 
 	public boolean getContinuousLayout()
@@ -841,7 +833,6 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 	public void setContinuousLayout(boolean b)
 	{
 		continuousLayout = b;
-		getStylePropertyChanges().setChanged();
 	}
 
 	public void setFormMinSize(boolean bLeftForm, int minSize)
@@ -854,7 +845,6 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		{
 			rightFormMinSize = minSize;
 		}
-		getStylePropertyChanges().setChanged();
 	}
 
 	public int getFormMinSize(boolean bLeftForm)
@@ -882,7 +872,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		if (form instanceof String) fName = (String)form;
 		if (fName != null)
 		{
-			String name = fName;
+			String tabname = fName;
 
 			RelatedFoundSet relatedFs = null;
 			String relationName = null;
@@ -916,7 +906,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 				if (!bNotifyVisibleForm) return false;
 			}
 
-			WebTabFormLookup flp = (WebTabFormLookup)createFormLookupPanel(name, relationName, fName);
+			WebTabFormLookup flp = (WebTabFormLookup)createFormLookupPanel(tabname, relationName, fName);
 			if (f != null) flp.setReadOnly(readOnly);
 
 			if (bLeftForm) setLeftForm(flp);

@@ -95,17 +95,6 @@ public abstract class AbstractRuntimeField<C extends IFieldComponent> extends Ab
 		return getComponent() instanceof IDisplayData ? ((IDisplayData)getComponent()).getDataProviderID() : null;
 	}
 
-	public void js_setToolTipText(String txt)
-	{
-		getComponent().setToolTipText(txt);
-		getChangesRecorder().setChanged();
-	}
-
-	public String js_getToolTipText()
-	{
-		return getComponent().getToolTipText();
-	}
-
 	public String[] js_getLabelForElementNames()
 	{
 		List<ILabel> labels = getComponent().getLabelsFor();
@@ -187,9 +176,9 @@ public abstract class AbstractRuntimeField<C extends IFieldComponent> extends Ab
 	public void js_putClientProperty(Object key, Object value)
 	{
 		super.js_putClientProperty(key, value);
-		if (getComponent() instanceof IDelegate && ((IDelegate)getComponent()).getDelegate() instanceof JComponent)
+		if (getComponent() instanceof IDelegate && ((IDelegate< ? >)getComponent()).getDelegate() instanceof JComponent)
 		{
-			((JComponent)((IDelegate)getComponent()).getDelegate()).putClientProperty(key, value);
+			((JComponent)((IDelegate< ? >)getComponent()).getDelegate()).putClientProperty(key, value);
 		}
 		if (getComponent() instanceof ISupportSpecialClientProperty)
 		{
@@ -197,10 +186,9 @@ public abstract class AbstractRuntimeField<C extends IFieldComponent> extends Ab
 		}
 	}
 
-	@Override
 	public void js_setSize(int x, int y)
 	{
-		super.js_setSize(x, y);
+		setComponentSize(x, y);
 		getChangesRecorder().setSize(x, y, getComponent().getBorder(), getComponent().getMargin(), 0);
 	}
 
