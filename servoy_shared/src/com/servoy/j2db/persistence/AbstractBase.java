@@ -379,7 +379,7 @@ public abstract class AbstractBase implements IPersist
 		parent = null;
 	}
 
-	void setParent(ISupportChilds parent)
+	public void setParent(ISupportChilds parent)
 	{
 		this.parent = parent;
 	}
