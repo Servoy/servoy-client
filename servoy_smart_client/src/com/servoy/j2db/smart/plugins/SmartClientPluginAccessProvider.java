@@ -31,7 +31,6 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 
 import com.servoy.j2db.ISmartClientApplication;
-import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.plugins.ClientPluginAccessProvider;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.plugins.IMediaUploadCallback;
@@ -78,15 +77,6 @@ public class SmartClientPluginAccessProvider extends ClientPluginAccessProvider 
 	public void registerURLStreamHandler(String protocolName, URLStreamHandler handler)
 	{
 		getApplication().addURLStreamHandler(protocolName, handler);
-	}
-
-	/**
-	 * @see com.servoy.j2db.plugins.IClientPluginAccess#getMediaURLStreamHandler()
-	 */
-	@Override
-	public URLStreamHandler getMediaURLStreamHandler()
-	{
-		return new MediaURLStreamHandler(getApplication());
 	}
 
 	@Override
