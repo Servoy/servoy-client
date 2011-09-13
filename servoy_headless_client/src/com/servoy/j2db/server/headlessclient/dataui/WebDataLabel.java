@@ -166,7 +166,7 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 	@Override
 	protected boolean hasHtml()
 	{
-		return hasHTML;
+		return hasHTML || super.hasHtml();
 	}
 
 	/*

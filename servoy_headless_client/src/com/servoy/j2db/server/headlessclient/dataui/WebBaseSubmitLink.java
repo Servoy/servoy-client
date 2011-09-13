@@ -168,11 +168,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 	{
 		if (valign == ISupportTextSetup.CENTER)
 		{
-			if (hasHtml())
-			{
-				return !WebBaseButton.isHTMLWithOnlyImg(getBodyText());
-			}
-			return !Strings.isEmpty(getDefaultModelObjectAsString()) && WebBaseButton.getImageDisplayURL(this) != null;
+			return hasHtml();
 		}
 		return false;
 	}
@@ -914,7 +910,6 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 		}
 
 		boolean hasHtml = hasHtml();
-		if (!hasHtml) hasHtml = !Strings.isEmpty(getDefaultModelObjectAsString()) && WebBaseButton.getImageDisplayURL(this) != null;
 
 		String cssid = hasHtml ? getMarkupId() + "_lb" : null;
 		boolean designMode = false;
@@ -929,7 +924,11 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 
 	protected boolean hasHtml()
 	{
-		return HtmlUtils.startsWithHtml(getDefaultModelObject());
+		if (!HtmlUtils.startsWithHtml(getDefaultModelObject()))
+		{
+			return !Strings.isEmpty(getDefaultModelObjectAsString()) && WebBaseButton.getImageDisplayURL(this) != null;
+		}
+		return true;
 	}
 
 	@Override
