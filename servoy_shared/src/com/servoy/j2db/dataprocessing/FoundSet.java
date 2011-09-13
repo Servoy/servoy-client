@@ -46,7 +46,6 @@ import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.AbstractBase;
@@ -102,10 +101,10 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jblok
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSFoundset")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSFoundSet")
 public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scriptable, Cloneable //, Wrapper
 {
-	public static final String JS_FOUNDSET = "JSFoundset"; //$NON-NLS-1$
+	public static final String JS_FOUNDSET = "JSFoundSet"; //$NON-NLS-1$
 
 	/*
 	 * _____________________________________________________________ JavaScript stuff
@@ -4280,7 +4279,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 	}
 
-	protected void fireFoundSetEvent(@SuppressWarnings("unused") int firstRow, @SuppressWarnings("unused") int lastRow, int changeType)
+	protected void fireFoundSetEvent(@SuppressWarnings("unused")
+	int firstRow, @SuppressWarnings("unused")
+	int lastRow, int changeType)
 	{
 		if (foundSetEventListeners.size() > 0)
 		{
