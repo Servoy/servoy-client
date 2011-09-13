@@ -185,8 +185,9 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 		}
 	}
 
-	public void js_setSize(int x, int y)
+	protected void setComponentSize(int x, int y)
 	{
+		// sets the component, changes recorder is not called here
 		if (getComponent() instanceof ISupportCachedLocationAndSize)
 		{
 			((ISupportCachedLocationAndSize)getComponent()).setCachedSize(new Dimension(x, y));

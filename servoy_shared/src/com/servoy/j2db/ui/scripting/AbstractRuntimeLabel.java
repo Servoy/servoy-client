@@ -41,11 +41,13 @@ public abstract class AbstractRuntimeLabel<C extends ILabel> extends AbstractRun
 	public void js_setImageURL(String text_url)
 	{
 		getComponent().setImageURL(text_url);
+		getChangesRecorder().setChanged();
 	}
 
 	public void js_setRolloverImageURL(String imageUrl)
 	{
 		getComponent().setRolloverImageURL(imageUrl);
+		getChangesRecorder().setChanged();
 	}
 
 	public String js_getElementType()
@@ -106,6 +108,7 @@ public abstract class AbstractRuntimeLabel<C extends ILabel> extends AbstractRun
 		if (mnemonic != null && mnemonic.length() > 0)
 		{
 			getComponent().setDisplayedMnemonic(mnemonic.charAt(0));
+			getChangesRecorder().setChanged();
 		}
 	}
 

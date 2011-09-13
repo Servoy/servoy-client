@@ -163,10 +163,9 @@ public abstract class AbstractRuntimeField<C extends IFieldComponent> extends Ab
 		}
 	}
 
-	@Override
 	public void js_setSize(int x, int y)
 	{
-		super.js_setSize(x, y);
+		setComponentSize(x, y);
 		getChangesRecorder().setSize(x, y, getComponent().getBorder(), getComponent().getMargin(), 0);
 	}
 

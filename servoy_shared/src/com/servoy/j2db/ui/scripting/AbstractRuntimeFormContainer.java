@@ -148,10 +148,9 @@ public abstract class AbstractRuntimeFormContainer<C extends IComponent, E exten
 		}
 	}
 
-	@Override
 	public void js_setSize(int x, int y)
 	{
-		super.js_setSize(x, y);
+		setComponentSize(x, y);
 		if (getComponent() instanceof JComponent)
 		{
 			((JComponent)getComponent()).repaint();

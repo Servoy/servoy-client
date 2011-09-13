@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.ui.scripting;
 
+import java.awt.Insets;
+
 import javax.swing.JComponent;
 
 import com.servoy.j2db.IApplication;
@@ -48,9 +50,16 @@ public class RuntimeRectangle extends AbstractRuntimeBaseComponent<IRect> implem
 		return IScriptBaseMethods.RECTANGLE;
 	}
 
+	public void js_setSize(int x, int y)
+	{
+		setComponentSize(x, y);
+		getChangesRecorder().setSize(getComponent().getSize().width, getComponent().getSize().height, getComponent().getBorder(), new Insets(0, 0, 0, 0), 0);
+	}
+
 	public void js_setToolTipText(String txt)
 	{
 		getComponent().setToolTipText(txt);
+		getChangesRecorder().setChanged();
 	}
 
 	public String js_getToolTipText()

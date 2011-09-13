@@ -146,6 +146,7 @@ public class RuntimePortal extends AbstractRuntimeBaseComponent<IPortalComponent
 	public void js_setReadOnly(boolean b)
 	{
 		getComponent().setReadOnly(b);
+		getChangesRecorder().setChanged();
 	}
 
 	public int js_getAbsoluteFormLocationY()
@@ -222,10 +223,9 @@ public class RuntimePortal extends AbstractRuntimeBaseComponent<IPortalComponent
 		}
 	}
 
-	@Override
 	public void js_setSize(int x, int y)
 	{
-		super.js_setSize(x, y);
+		setComponentSize(x, y);
 		getChangesRecorder().setSize(getComponent().getSize().width, getComponent().getSize().height, getComponent().getBorder(), new Insets(0, 0, 0, 0), 0);
 	}
 

@@ -116,6 +116,7 @@ public class RuntimeSplitPane extends AbstractRuntimeFormContainer<ISplitPane, J
 	public void js_setResizeWeight(double resizeWeight)
 	{
 		getComponent().setResizeWeight(resizeWeight);
+		getChangesRecorder().setChanged();
 	}
 
 	public double js_getDividerLocation()
@@ -126,6 +127,7 @@ public class RuntimeSplitPane extends AbstractRuntimeFormContainer<ISplitPane, J
 	public void js_setDividerLocation(double location)
 	{
 		getComponent().setRuntimeDividerLocation(location);
+		getChangesRecorder().setChanged();
 	}
 
 	public int js_getDividerSize()
@@ -136,6 +138,7 @@ public class RuntimeSplitPane extends AbstractRuntimeFormContainer<ISplitPane, J
 	public void js_setDividerSize(int size)
 	{
 		getComponent().setDividerSize(size);
+		getChangesRecorder().setChanged();
 	}
 
 	public double js_getResizeWeight()
@@ -151,6 +154,7 @@ public class RuntimeSplitPane extends AbstractRuntimeFormContainer<ISplitPane, J
 	public void js_setContinuousLayout(boolean b)
 	{
 		getComponent().setContinuousLayout(b);
+		getChangesRecorder().setChanged();
 	}
 
 	public int js_getRightFormMinSize()
@@ -161,6 +165,7 @@ public class RuntimeSplitPane extends AbstractRuntimeFormContainer<ISplitPane, J
 	public void js_setRightFormMinSize(int minSize)
 	{
 		getComponent().setFormMinSize(false, minSize);
+		getChangesRecorder().setChanged();
 	}
 
 	public int js_getLeftFormMinSize()
@@ -171,5 +176,6 @@ public class RuntimeSplitPane extends AbstractRuntimeFormContainer<ISplitPane, J
 	public void js_setLeftFormMinSize(int minSize)
 	{
 		getComponent().setFormMinSize(true, minSize);
+		getChangesRecorder().setChanged();
 	}
 }

@@ -61,10 +61,9 @@ public abstract class AbstractRuntimeButton<C extends IButton> extends AbstractR
 
 	}
 
-	@Override
 	public void js_setSize(int width, int height)
 	{
-		super.js_setSize(width, height);
+		setComponentSize(width, height);
 		getChangesRecorder().setSize(width, height, getComponent().getBorder(), getComponent().getMargin(), 0, true, getComponent().getVerticalAlignment());
 	}
 
