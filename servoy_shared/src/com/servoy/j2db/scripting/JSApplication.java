@@ -1841,7 +1841,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 *
 	 * @sample var new_uuid = application.getNewUUID();
 	 * 
-	 * @see com.servoy.j2db.scripting.JSApplication#js_getUUID(Object...)
+	 * @see com.servoy.j2db.scripting.JSApplication#js_getUUID()
 	 */
 	@Deprecated
 	public String js_getNewUUID()

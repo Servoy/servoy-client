@@ -208,8 +208,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * //show the form in the main window
 		 * //%%prefix%%controller.show(null);
 		 * 
-		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(Object[])
-		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(Object[])
+		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
+		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
 		 *
 		 * @param window optional the window in which this form should be shown. If it is unspecified the current window will be used.
 		 */
@@ -252,8 +252,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * var w = application.getWindow("mydialog"); // use null name for main app. window
 		 * %%prefix%%controller.showRecords(foundset, w);
 		 * 
-		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(Object[])
-		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(Object[])
+		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
+		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
 		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(Object[])
 		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object[])
 		 * 

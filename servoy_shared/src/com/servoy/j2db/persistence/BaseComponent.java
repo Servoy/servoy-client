@@ -219,7 +219,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	/**
 	 * The visible property of the component, default true.
 	 * 
-	 * @return
+	 * @return visible property
 	 */
 	public boolean getVisible()
 	{
@@ -234,7 +234,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	/**
 	 * The enable state of the component, default true.
 	 * 
-	 * @return
+	 * @return enabled state
 	 */
 	public boolean getEnabled()
 	{
