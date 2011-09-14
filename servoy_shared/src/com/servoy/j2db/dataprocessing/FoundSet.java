@@ -730,9 +730,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 
 	 * @return true if the foundset is now in find mode, false otherwise.
 	 * 
-	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_search()
+	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_search(Object[])
 	 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_setAutoSave(boolean)
-	 * @see com.servoy.j2db.FormController$JSForm#js_find(Object[])
+	 * @see com.servoy.j2db.FormController$JSForm#js_find()
 	 * @see com.servoy.j2db.FormController$JSForm#js_search(Object[])
 	 */
 	public boolean js_find()
@@ -4279,9 +4279,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 	}
 
-	protected void fireFoundSetEvent(@SuppressWarnings("unused")
-	int firstRow, @SuppressWarnings("unused")
-	int lastRow, int changeType)
+	protected void fireFoundSetEvent(@SuppressWarnings("unused") int firstRow, @SuppressWarnings("unused") int lastRow, int changeType)
 	{
 		if (foundSetEventListeners.size() > 0)
 		{
