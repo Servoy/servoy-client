@@ -19,6 +19,7 @@ package com.servoy.j2db.dataprocessing;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.ColumnInfo;
 import com.servoy.j2db.persistence.IServer;
 
 /**
@@ -51,8 +52,6 @@ public class JSColumnObject extends JSColumn
 	 * For a primary key column, the allowNull flag will be always off, for other columns the flag is set by default.
 	 * 
 	 * @sampleas com.servoy.j2db.dataprocessing.JSTableObject#js_createNewColumn(Object[])
-	 * 
-	 * @param allowNull
 	 */
 	@Override
 	public boolean js_getAllowNull() // override for jsdoc 
@@ -63,8 +62,6 @@ public class JSColumnObject extends JSColumn
 	/**
 	 * Set or clear a flag of a new column.
 	 * The flags are a bit pattern consisting of 1 or more of the following bits:
-	 *  - JSColumn.PK_COLUMN;
-	 *  - JSColumn.USER_ROWID_COLUMN;
 	 *  - JSColumn.UUID_COLUMN;
 	 *  - JSColumn.EXCLUDED_COLUMN;
 	 *  
@@ -80,13 +77,33 @@ public class JSColumnObject extends JSColumn
 
 	public void js_setSequenceType(int sequenceType)
 	{
-		getColumn().setSequenceType(sequenceType);
+		int colseqtype;
+		switch (sequenceType)
+		// JSColumn constants differ from ColumnInfo constants
+		{
+			case JSColumn.SERVOY_SEQUENCE :
+				colseqtype = ColumnInfo.SERVOY_SEQUENCE;
+				break;
+			case JSColumn.DATABASE_SEQUENCE :
+				colseqtype = ColumnInfo.DATABASE_SEQUENCE;
+				break;
+			case JSColumn.DATABASE_IDENTITY :
+				colseqtype = ColumnInfo.DATABASE_IDENTITY;
+				break;
+			case JSColumn.UUID_GENERATOR :
+				colseqtype = ColumnInfo.UUID_GENERATOR;
+				break;
+			default :
+				colseqtype = ColumnInfo.NO_SEQUENCE_SELECTED;
+		}
+
+		getColumn().setSequenceType(colseqtype);
 	}
 
 	/**
-	 * Set the sequence type of the column.
+	 * Get or set the sequence type of the column.
 	 * The sequence type is one of:
-	 *  - JSColumn.NO_SEQUENCE_SELECTED
+	 *  - JSColumn.NONE
 	 *  - JSColumn.SERVOY_SEQUENCE
 	 *  - JSColumn.DATABASE_SEQUENCE
 	 *  - JSColumn.DATABASE_IDENTITY
@@ -101,7 +118,7 @@ public class JSColumnObject extends JSColumn
 	 * 	if (table)
 	 * 	{
 	 * 		var pk = table.createNewColumn("id", JSColumn.MEDIA, 16); // can also use <JSColumn.TEXT, 36> for UUIDs)
-	 * 		pk.setFlag(JSColumn.PK_COLUMN, true);
+	 * 		pk.rowIdentifierType = JSColumn.PK_COLUMN;
 	 * 		pk.setFlag(JSColumn.UUID_COLUMN, true)
 	 * 		pk.sequenceType = JSColumn.UUID_GENERATOR
 	 * 		table.createNewColumn("name", JSColumn.TEXT, 100);
@@ -115,7 +132,7 @@ public class JSColumnObject extends JSColumn
 	 * 	if (table)
 	 * 	{
 	 * 		pk = table.createNewColumn("id", JSColumn.INTEGER, 0);
-	 * 		pk.setFlag(JSColumn.PK_COLUMN, true);
+	 * 		pk.rowIdentifierType = JSColumn.PK_COLUMN;
 	 * 		pk.sequenceType = JSColumn.DATABASE_SEQUENCE
 	 * 		pk.setDatabaseSequenceName('mygroupsequence')
 	 * 		table.createNewColumn("name", JSColumn.TEXT, 100);
@@ -124,8 +141,6 @@ public class JSColumnObject extends JSColumn
 	 * 		else application.output("Table groups not created.");
 	 * 	}
 	 * }
-	 * 
-	 * @param sequenceType
 	 */
 	@Override
 	public int js_getSequenceType() // override for jsdoc 
@@ -133,12 +148,31 @@ public class JSColumnObject extends JSColumn
 		return super.js_getSequenceType();
 	}
 
+	public void js_setRowIdentifierType(int type)
+	{
+		getColumn().setFlag(Column.PK_COLUMN, type == JSColumn.PK_COLUMN);
+		getColumn().setFlag(Column.USER_ROWID_COLUMN, type == JSColumn.ROWID_COLUMN);
+	}
+
+	/**
+	 * Get or set the row identifier type of the column.
+	 * The sequence type is one of:
+	 *  - JSColumn.PK_COLUMN
+	 *  - JSColumn.ROWID_COLUMN
+	 *  - JSColumn.NONE
+	 *
+	 * @sampleas js_getSequenceType()
+	 */
+	@Override
+	public int js_getRowIdentifierType() // override for jsdoc
+	{
+		return super.js_getRowIdentifierType();
+	}
+
 	/**
 	 * Set the database sequence name of the column, used for columns with sequence type JSColumn.DATABASE_SEQUENCE.
 	 *
 	 * @sampleas js_getSequenceType()
-	 * 
-	 * @param sequenceName
 	 */
 	public void js_setDatabaseSequenceName(String sequenceName)
 	{

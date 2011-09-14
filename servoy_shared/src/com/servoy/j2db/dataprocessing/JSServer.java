@@ -62,7 +62,7 @@ public class JSServer
 	 * 	var table = server.createNewTable("new_table");
 	 * 	if (table) {
 	 * 		var pk = table.createNewColumn("new_table_id", JSColumn.INTEGER, 0);
-	 *		pk.setFlag(JSColumn.PK_COLUMN, true);
+	 *		pk.rowIdentifierType = JSColumn.PK_COLUMN;
 	 * 		if (server.synchronizeWithDB(table))
 	 * 			application.output("New table created in the database.");
 	 * 		else
