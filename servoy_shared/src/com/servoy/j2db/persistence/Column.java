@@ -98,7 +98,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 
 	public String toHTML()
 	{
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append("<html>"); //$NON-NLS-1$
 		sb.append("<b>"); //$NON-NLS-1$
 		sb.append(getSQLName());
@@ -395,7 +395,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 					}
 					if (throwOnFail)
 					{
-						throw new RuntimeException(Messages.getString("servoy.conversion.error.date", new Object[] { obj }));
+						throw new RuntimeException(Messages.getString("servoy.conversion.error.date", new Object[] { obj })); //$NON-NLS-1$
 					}
 					return null;
 
@@ -406,7 +406,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 					}
 					if (throwOnFail)
 					{
-						throw new RuntimeException(Messages.getString("servoy.conversion.error.date", new Object[] { obj }));
+						throw new RuntimeException(Messages.getString("servoy.conversion.error.date", new Object[] { obj })); //$NON-NLS-1$
 					}
 					return null;
 
@@ -422,7 +422,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 					}
 					if (throwOnFail)
 					{
-						throw new RuntimeException(Messages.getString("servoy.conversion.error.date", new Object[] { obj }));
+						throw new RuntimeException(Messages.getString("servoy.conversion.error.date", new Object[] { obj })); //$NON-NLS-1$
 					}
 					return null;
 			}
@@ -590,12 +590,10 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 						{
 							return ds.getNextSequence(getTable().getServerName(), getTable().getName(), getName(), ci.getID());
 						}
-						else
-						{
-							return new Integer(0);
-						}
+						return Integer.valueOf(0);
 					}
 
+					//$FALL-THROUGH$
 				case ColumnInfo.CUSTOM_VALUE_AUTO_ENTER :
 					String val = ci.getDefaultValue();
 					switch (mapToDefaultType(type))
@@ -871,11 +869,12 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 				columnInfo.setFlags(newFlags);
 				columnInfo.flagChanged();
 			}
+			this.flags = -1; // clear local
 		}
 		else
 		{
-			// this should never happen
 			dbPK = ((newFlags & PK_COLUMN) != 0);
+			this.flags = newFlags;
 		}
 	}
 
@@ -883,6 +882,10 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 	{
 		if (columnInfo == null)
 		{
+			if (flags != -1)
+			{
+				return flags;
+			}
 			return dbPK ? Column.PK_COLUMN : 0;
 		}
 		return columnInfo.getFlags();
@@ -966,6 +969,14 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 		if (sequenceType != ColumnInfo.NO_SEQUENCE_SELECTED) //delegate
 		{
 			setSequenceType(sequenceType);
+			if (databaseSequenceName != null)
+			{
+				setDatabaseSequenceName(databaseSequenceName);
+			}
+		}
+		if (flags != -1)
+		{
+			setFlags(flags);
 		}
 		if (oldColumnInfo == null) // for new columns (which have not yet column info)
 		{
@@ -1043,13 +1054,14 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 		{
 			return columnInfo.getAutoEnterSubType();
 		}
-		else
-		{
-			return sequenceType;
-		}
+		return sequenceType;
 	}
 
 	private transient int sequenceType = ColumnInfo.NO_SEQUENCE_SELECTED;
+	private transient String databaseSequenceName;
+
+	private transient int flags = -1;
+
 
 	public void setSequenceType(int i)
 	{
@@ -1066,13 +1078,27 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 		}
 	}
 
+	public void setDatabaseSequenceName(String databaseSequenceName)
+	{
+		if (columnInfo != null)
+		{
+			columnInfo.setDatabaseSequenceName(databaseSequenceName);
+			columnInfo.flagChanged();
+			this.databaseSequenceName = null; // clear local
+		}
+		else
+		{
+			this.databaseSequenceName = databaseSequenceName;
+		}
+	}
+
 	/**
 	 * @param flags
 	 */
 	public static String getFlagsString(int flags)
 	{
-		StringBuffer sb = new StringBuffer();
-		if ((flags & USER_ROWID_COLUMN) != 0) sb.append(" row_ident"); //$NON-NLS-1$
+		StringBuilder sb = new StringBuilder();
+		if ((flags & USER_ROWID_COLUMN) != 0) sb.append(" row_ident");
 		if ((flags & PK_COLUMN) != 0) sb.append(" pk");
 		if ((flags & UUID_COLUMN) != 0) sb.append(" uuid");
 		if ((flags & EXCLUDED_COLUMN) != 0) sb.append(" excluded");
@@ -1088,7 +1114,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 	{
 		if (hasBadName == null)
 		{
-			List notes = new ArrayList();
+			List<String> notes = new ArrayList<String>();
 
 			if (Ident.checkIfKeyword(getName()) || SQLKeywords.checkIfKeyword(getName()))
 			{
@@ -1100,7 +1126,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 			}
 			if (notes.size() > 0)
 			{
-				StringBuffer sb = new StringBuffer();
+				StringBuilder sb = new StringBuilder();
 				for (int i = 0; i < notes.size(); i++)
 				{
 					sb.append(notes.get(i));
@@ -1108,7 +1134,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 				note = sb.toString();
 			}
 
-			hasBadName = new Boolean(notes.size() > 0);
+			hasBadName = Boolean.valueOf(notes.size() > 0);
 		}
 		return hasBadName.booleanValue();
 	}

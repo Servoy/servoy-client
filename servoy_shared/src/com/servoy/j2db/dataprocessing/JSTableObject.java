@@ -42,10 +42,11 @@ public class JSTableObject extends JSTable
 	/**
 	 * Creates a new column in this table. The name, type and length of the new column must be specified. For specifying the
 	 * type of the column, use the JSColumn constants. The column is not actually created in the database until this
-	 * table is synchronized with the database using the JSServer.synchronizeWithDB method. The "allowNull" optional argument specifies if the
-	 * column accepts null values (by default it does). The "pkColumn" optional argument specifies if the column is a primary key column (by default it is not).
+	 * table is synchronized with the database using the JSServer.synchronizeWithDB method. 
+	 * 
 	 * The method returns a JSColumn instance that corresponds to the newly created column. If any error occurs and the column cannot be created, then the method
 	 * returns null.
+	 * @see JSColumnObject
 	 *
 	 * @sample
 	 * var server = plugins.maintenance.getServer("example_data");
@@ -54,8 +55,12 @@ public class JSTableObject extends JSTable
 	 * 	var table = server.createNewTable("users");
 	 * 	if (table)
 	 * 	{
-	 * 		table.createNewColumn("id", JSColumn.INTEGER, 0, false, true);
-	 * 		table.createNewColumn("name", JSColumn.TEXT, 100);
+	 * 		var pk = table.createNewColumn("id", JSColumn.MEDIA, 16); // can also use (JSColumn.TEXT, 36) for UUIDs
+	 * 		pk.setFlag(JSColumn.PK_COLUMN, true);
+	 * 		pk.setFlag(JSColumn.UUID_COLUMN, true)
+	 * 		pk.sequenceType = JSColumn.UUID_GENERATOR
+	 * 		var c = table.createNewColumn("name", JSColumn.TEXT, 100);
+	 * 		c.allowNull = false
 	 * 		table.createNewColumn("age", JSColumn.INTEGER, 0);
 	 * 		table.createNewColumn("last_login", JSColumn.DATETIME, 0);
 	 * 		var result = server.synchronizeWithDB(table);
@@ -67,10 +72,8 @@ public class JSTableObject extends JSTable
 	 * @param columnName 
 	 * @param type 
 	 * @param length 
-	 * @param allowNull 
-	 * @param pkColumn 
 	 */
-	public JSColumn js_createNewColumn(Object[] args)
+	public JSColumnObject js_createNewColumn(Object[] args)
 	{
 		if (args.length < 3) return null;
 		String columnName = args[0].toString();
@@ -83,7 +86,7 @@ public class JSTableObject extends JSTable
 		try
 		{
 			Column c = ((Table)getTable()).createNewColumn(DummyValidator.INSTANCE, columnName, type, length, allowNull, pkColumn);
-			return new JSColumn(c, getServer());
+			return new JSColumnObject(c, getServer());
 		}
 		catch (RepositoryException e)
 		{
