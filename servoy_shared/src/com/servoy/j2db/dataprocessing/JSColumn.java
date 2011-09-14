@@ -61,28 +61,24 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	public static final int MEDIA = IColumnTypes.MEDIA;
 
 	/**
-	 * Constant used when setting or getting the flags of columns.
-	 * This flag identifies columns that are defined as primary key in the database.
+	 * Constant for column information indicating unset values.
+	 */
+	public static final int NONE = 0;
+	/**
+	 * Constant used when setting or getting the row identifier type of columns.
+	 * This value identifies columns that are defined as primary key in the database.
 	 * 
-	 * @sampleas js_hasFlag()
+	 * @sampleas js_getRowIdentifierType()
 	 */
 	public static final int PK_COLUMN = Column.PK_COLUMN;
 
 	/**
-	 * Constant used when setting or getting the flags of columns.
-	 * This flag identifies columns that are marked as primary key by the developer (but not in the database).
+	 * Constant used when setting or getting the row identifier type of columns.
+	 * This value identifies columns that are defined as primary key by the developer (but not in the database).
 	 * 
-	 * @sampleas js_hasFlag()
+	 * @sampleas js_getRowIdentifierType()
 	 */
-	public static final int USER_ROWID_COLUMN = Column.USER_ROWID_COLUMN;
-
-	/**
-	 * Constant used when setting or getting the flags of columns.
-	 * This constant is for checking if JSColumn.PK_COLUMN or JSColumn.USER_ROWID_COLUMN flag is set.
-	 * 
-	 * @sampleas js_hasFlag()
-	 */
-	public static final int ROWID_COLUMN = Column.PK_COLUMN | Column.USER_ROWID_COLUMN;
+	public static final int ROWID_COLUMN = Column.USER_ROWID_COLUMN;
 
 	/**
 	 * Constant used when setting or getting the flags of columns.
@@ -105,23 +101,19 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	 * 
 	 * @sampleas js_getSequenceType()
 	 */
-	public static final int NO_SEQUENCE_SELECTED = ColumnInfo.NO_SEQUENCE_SELECTED;
+	public static final int SERVOY_SEQUENCE = ColumnInfo.SERVOY_SEQUENCE + 1; // added 1 to prevent clash with NONE
 	/**
-	 * @sameas NO_SEQUENCE_SELECTED
+	 * @sameas SERVOY_SEQUENCE
 	 */
-	public static final int SERVOY_SEQUENCE = ColumnInfo.SERVOY_SEQUENCE;
+	public static final int DATABASE_SEQUENCE = ColumnInfo.DATABASE_SEQUENCE + 1;
 	/**
-	 * @sameas NO_SEQUENCE_SELECTED
+	 * @sameas SERVOY_SEQUENCE
 	 */
-	public static final int DATABASE_SEQUENCE = ColumnInfo.DATABASE_SEQUENCE;
+	public static final int DATABASE_IDENTITY = ColumnInfo.DATABASE_IDENTITY + 1;
 	/**
-	 * @sameas NO_SEQUENCE_SELECTED
+	 * @sameas SERVOY_SEQUENCE
 	 */
-	public static final int DATABASE_IDENTITY = ColumnInfo.DATABASE_IDENTITY;
-	/**
-	 * @sameas NO_SEQUENCE_SELECTED
-	 */
-	public static final int UUID_GENERATOR = ColumnInfo.UUID_GENERATOR;
+	public static final int UUID_GENERATOR = ColumnInfo.UUID_GENERATOR + 1;
 
 
 	private Column column;
@@ -293,12 +285,8 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 
 	/** Check a flag of the column.
 	 * The flags are a bit pattern consisting of 1 or more of the following bits:
-	 *  - JSColumn.PK_COLUMN
-	 *  - JSColumn.USER_ROWID_COLUMN
 	 *  - JSColumn.UUID_COLUMN
 	 *  - JSColumn.EXCLUDED_COLUMN
-	 *  
-	 *  JSColumn.ROWID_COLUMN is a combination of JSColumn.PK_COLUMN and JSColumn.USER_ROWID_COLUMN.
 	 *  
 	 * @sample
 	 * var table = databaseManager.getTable('example_data', 'orders')
@@ -306,10 +294,6 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	 * if (column.hasFlag(JSColumn.UUID_COLUMN))
 	 * {
 	 *    // handle uuid column
-	 * }
-	 * if (column.hasFlag(JSColumn.ROWID_COLUMN))
-	 * {
-	 *    // handle primary key column
 	 * }
 	 * 
 	 * @param flag
@@ -324,7 +308,7 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	/**
 	 * Get the sequence type of the column.
 	 * The sequence type is one of:
-	 *  - JSColumn.NO_SEQUENCE_SELECTED
+	 *  - JSColumn.NONE
 	 *  - JSColumn.SERVOY_SEQUENCE
 	 *  - JSColumn.DATABASE_SEQUENCE
 	 *  - JSColumn.DATABASE_IDENTITY
@@ -335,7 +319,7 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	 * var column = table.getColumn('customerid')
 	 * switch (column.getSequenceType())
 	 * {
-	 * case JSColumn.NO_SEQUENCE_SELECTED:
+	 * case JSColumn.NONE:
 	 *	// handle column with no sequence
 	 * break;
 	 * 
@@ -348,7 +332,20 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	 */
 	public int js_getSequenceType()
 	{
-		return getColumn().getSequenceType();
+		switch (getColumn().getSequenceType())
+		// JSColumn constants differ from ColumnInfo constants
+		{
+			case ColumnInfo.SERVOY_SEQUENCE :
+				return SERVOY_SEQUENCE;
+			case ColumnInfo.DATABASE_SEQUENCE :
+				return DATABASE_SEQUENCE;
+			case ColumnInfo.DATABASE_IDENTITY :
+				return DATABASE_IDENTITY;
+			case ColumnInfo.UUID_GENERATOR :
+				return UUID_GENERATOR;
+			default :
+				return NONE;
+		}
 	}
 
 	/**
@@ -403,17 +400,51 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	}
 
 	/**
-	 * Use column.hasFlag(JSColumm.ROWID_COLUMN) instead.
+	 * Use column.getRowIdentifierType() != JSColumn.NONE instead.
 	 * @deprecated
 	 */
 	@Deprecated
 	public boolean js_isRowIdentifier()
 	{
-		return js_hasFlag(ROWID_COLUMN);
+		return js_getRowIdentifierType() != NONE;
 	}
 
 	/**
-	 * Use column.hasFlag(JSColumm.UUID_COLUMN) instead.
+	 * Get the row identifier type of the column.
+	 * The sequence type is one of:
+	 *  - JSColumn.PK_COLUMN
+	 *  - JSColumn.ROWID_COLUMN
+	 *  - JSColumn.NONE
+	 *
+	 * @sample
+	 * var table = databaseManager.getTable('example_data', 'orders')
+	 * var column = table.getColumn('customerid')
+	 * switch (column.getRowIdentifierType())
+	 * {
+	 * case JSColumn.NONE:
+	 *	// handle normal column
+	 * break;
+	 * 
+	 * case JSColumn.PK_COLUMN:
+	 *	// handle database pk column
+	 * break;
+	 * 
+	 * case JSColumn.ROWID_COLUMN:
+	 *	// handle developer defined pk column
+	 * break;
+	 * }
+	 *
+	 * @return int row identifier type.
+	 */
+	public int js_getRowIdentifierType()
+	{
+		return column.hasFlag(Column.PK_COLUMN) ? PK_COLUMN //
+			: column.hasFlag(Column.USER_ROWID_COLUMN) ? ROWID_COLUMN //
+				: NONE;
+	}
+
+	/**
+	 * Use column.hasFlag(JSColumn.UUID_COLUMN) instead.
 	 * @deprecated
 	 */
 	@Deprecated

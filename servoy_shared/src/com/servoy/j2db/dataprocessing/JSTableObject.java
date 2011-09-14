@@ -56,7 +56,7 @@ public class JSTableObject extends JSTable
 	 * 	if (table)
 	 * 	{
 	 * 		var pk = table.createNewColumn("id", JSColumn.MEDIA, 16); // can also use (JSColumn.TEXT, 36) for UUIDs
-	 * 		pk.setFlag(JSColumn.PK_COLUMN, true);
+	 * 		pk.rowIdentifierType = JSColumn.PK_COLUMN;
 	 * 		pk.setFlag(JSColumn.UUID_COLUMN, true)
 	 * 		pk.sequenceType = JSColumn.UUID_GENERATOR
 	 * 		var c = table.createNewColumn("name", JSColumn.TEXT, 100);
