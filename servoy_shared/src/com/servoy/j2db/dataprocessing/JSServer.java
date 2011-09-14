@@ -61,7 +61,8 @@ public class JSServer
 	 * {
 	 * 	var table = server.createNewTable("new_table");
 	 * 	if (table) {
-	 * 		table.createNewColumn("new_table_id", JSColumn.INTEGER, 0, false, true);
+	 * 		var pk = table.createNewColumn("new_table_id", JSColumn.INTEGER, 0);
+	 *		pk.setFlag(JSColumn.PK_COLUMN, true);
 	 * 		if (server.synchronizeWithDB(table))
 	 * 			application.output("New table created in the database.");
 	 * 		else
@@ -282,7 +283,7 @@ public class JSServer
 		}
 	}
 
-	public String getDataModelCloneFrom() throws RemoteException
+	public String getDataModelCloneFrom()
 	{
 		if (server instanceof IServerInternal)
 		{

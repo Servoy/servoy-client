@@ -912,11 +912,12 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 				columnInfo.setFlags(newFlags);
 				columnInfo.flagChanged();
 			}
+			this.flags = -1; // clear local
 		}
 		else
 		{
-			// this should never happen
 			dbPK = ((newFlags & PK_COLUMN) != 0);
+			this.flags = newFlags;
 		}
 	}
 
@@ -924,6 +925,10 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 	{
 		if (columnInfo == null)
 		{
+			if (flags != -1)
+			{
+				return flags;
+			}
 			return dbPK ? Column.PK_COLUMN : 0;
 		}
 		return columnInfo.getFlags();
@@ -1007,6 +1012,14 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 		if (sequenceType != ColumnInfo.NO_SEQUENCE_SELECTED) //delegate
 		{
 			setSequenceType(sequenceType);
+			if (databaseSequenceName != null)
+			{
+				setDatabaseSequenceName(databaseSequenceName);
+			}
+		}
+		if (flags != -1)
+		{
+			setFlags(flags);
 		}
 		if (dataProviderID != null)
 		{
@@ -1088,13 +1101,14 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 		{
 			return columnInfo.getAutoEnterSubType();
 		}
-		else
-		{
-			return sequenceType;
-		}
+		return sequenceType;
 	}
 
 	private transient int sequenceType = ColumnInfo.NO_SEQUENCE_SELECTED;
+	private transient String databaseSequenceName;
+
+	private transient int flags = -1;
+
 
 	public void setSequenceType(int i)
 	{
@@ -1108,6 +1122,20 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 		else
 		{
 			sequenceType = i;
+		}
+	}
+
+	public void setDatabaseSequenceName(String databaseSequenceName)
+	{
+		if (columnInfo != null)
+		{
+			columnInfo.setDatabaseSequenceName(databaseSequenceName);
+			columnInfo.flagChanged();
+			this.databaseSequenceName = null; // clear local
+		}
+		else
+		{
+			this.databaseSequenceName = databaseSequenceName;
 		}
 	}
 
