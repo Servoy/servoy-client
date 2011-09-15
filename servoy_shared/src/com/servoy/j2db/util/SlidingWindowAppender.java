@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util;
 
 import java.util.LinkedList;
@@ -30,7 +30,7 @@ public class SlidingWindowAppender extends AppenderSkeleton
 	private boolean locationInfo = false;
 
 	protected LinkedList eventWindow;
-	
+
 	protected Object eventWindowLock = new Object();
 
 	public SlidingWindowAppender()
@@ -38,6 +38,7 @@ public class SlidingWindowAppender extends AppenderSkeleton
 		eventWindow = new LinkedList();
 	}
 
+	@Override
 	public void append(LoggingEvent event)
 	{
 		if (!checkEntryConditions())
@@ -46,6 +47,7 @@ public class SlidingWindowAppender extends AppenderSkeleton
 		}
 		event.getThreadName();
 		event.getNDC();
+		event.getMDCCopy();
 		if (locationInfo)
 		{
 			event.getLocationInformation();
@@ -86,12 +88,11 @@ public class SlidingWindowAppender extends AppenderSkeleton
 		{
 			StringBuffer buffer = new StringBuffer();
 			String header = layout.getHeader();
-			if (header != null)
-				buffer.append(header);
+			if (header != null) buffer.append(header);
 			ListIterator iterator = eventWindow.listIterator(ascending ? 0 : eventWindow.size());
 			while (ascending ? iterator.hasNext() : iterator.hasPrevious())
 			{
-				LoggingEvent event = (LoggingEvent) (ascending ? iterator.next() : iterator.previous());
+				LoggingEvent event = (LoggingEvent)(ascending ? iterator.next() : iterator.previous());
 				int accept = Filter.NEUTRAL;
 				Filter currentFilter = filter;
 				while (currentFilter != null && accept == Filter.NEUTRAL)
@@ -105,8 +106,7 @@ public class SlidingWindowAppender extends AppenderSkeleton
 				}
 			}
 			String footer = layout.getFooter();
-			if (footer != null)
-				buffer.append(footer);
+			if (footer != null) buffer.append(footer);
 			return buffer.toString();
 		}
 	}
