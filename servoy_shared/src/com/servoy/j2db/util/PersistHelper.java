@@ -77,7 +77,7 @@ public class PersistHelper
 			return null;
 		}
 		Paper paper = format.getPaper();
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append(format.getOrientation());
 		sb.append(";"); //$NON-NLS-1$
 		sb.append(paper.getWidth());
@@ -130,7 +130,7 @@ public class PersistHelper
 	public static String createDimensionString(Dimension d)
 	{
 		if (d == null) return null;
-		StringBuffer retval = new StringBuffer();
+		StringBuilder retval = new StringBuilder();
 		retval.append(d.width);
 		retval.append(","); //$NON-NLS-1$
 		retval.append(d.height);
@@ -159,7 +159,7 @@ public class PersistHelper
 	public static String createPointString(Point d)
 	{
 		if (d == null) return null;
-		StringBuffer retval = new StringBuffer();
+		StringBuilder retval = new StringBuilder();
 		retval.append(d.x);
 		retval.append(","); //$NON-NLS-1$
 		retval.append(d.y);
@@ -188,7 +188,7 @@ public class PersistHelper
 	public static String createLocaleString(Locale loc)
 	{
 		if (loc == null) return null;
-		StringBuffer retval = new StringBuffer();
+		StringBuilder retval = new StringBuilder();
 		retval.append(loc.getLanguage());
 		retval.append(","); //$NON-NLS-1$
 		retval.append(loc.getCountry());
@@ -221,7 +221,7 @@ public class PersistHelper
 	public static String createInsetsString(Insets ins)
 	{
 		if (ins == null) return null;
-		StringBuffer retval = new StringBuffer();
+		StringBuilder retval = new StringBuilder();
 		retval.append(ins.top);
 		retval.append(","); //$NON-NLS-1$
 		retval.append(ins.left);
@@ -258,7 +258,7 @@ public class PersistHelper
 	public static String createRectangleString(Rectangle rect)
 	{
 		if (rect == null) return null;
-		StringBuffer retval = new StringBuffer();
+		StringBuilder retval = new StringBuilder();
 		Point p = rect.getLocation();
 		retval.append(createPointString(p));
 		retval.append(","); //$NON-NLS-1$
@@ -342,20 +342,8 @@ public class PersistHelper
 		return retval;
 	}
 
-	private static void main(String[] args)
-	{
-		Font f = createFont("TimesNewRoamanPS-BoldItalicMT,0,12"); //$NON-NLS-1$
-		System.out.println(f.getFamily());
-		System.out.println(f.getName());
-		System.out.println(f.getFontName());
-
-		f = createFont("CourierNewPS-BoldItalicMT,0,12"); //$NON-NLS-1$
-		System.out.println(f.getFamily());
-		System.out.println(f.getName());
-		System.out.println(f.getFontName());
-	}
-
-	private static Map allFonts = new HashMap();
+	private static Map<String, Font> allFonts = new HashMap<String, Font>();
+	private static Map<String, Object> guessedFonts;
 
 	private synchronized static void initFonts() // it can be called by multiple concurrent threads in case of web-client startup; because HashMap is not synchronized it can end up (and it did) in a situation where iterators.next() and map.put() will do infinite loops => 100% CPU
 	{
@@ -366,10 +354,11 @@ public class PersistHelper
 			{
 				allFonts.put(Utils.stringReplace(element.getName(), " ", "").toLowerCase(), element); //$NON-NLS-1$ //$NON-NLS-2$
 			}
+			guessedFonts = new HashMap<String, Object>();
 		}
 	}
 
-	private static Map allCreatedFonts = new HashMap();
+	private static Map<String, Font> allCreatedFonts = new HashMap<String, Font>();
 	private static Object getCompositeFontMethod;
 
 	public static Font createFont(String name, int style, int size)
@@ -377,7 +366,6 @@ public class PersistHelper
 		if (name == null) return null;
 
 		if (size <= 0) size = 1;
-
 
 		Font retval = new Font(name, style, size);
 		String specialName = Utils.stringReplace(name, " ", "").toLowerCase(); //$NON-NLS-1$ //$NON-NLS-2$
@@ -451,7 +439,7 @@ public class PersistHelper
 
 		if (allCreatedFonts.containsKey(s))
 		{
-			return (Font)allCreatedFonts.get(s);//also nulls are returned
+			return allCreatedFonts.get(s);//also nulls are returned
 		}
 
 		StringTokenizer tk = new StringTokenizer(s, ","); //$NON-NLS-1$
@@ -479,16 +467,34 @@ public class PersistHelper
 
 	private static Font guessFont(String aName)
 	{
-		if (aName == null) return null;
-		if (aName.length() == 0) return null;
+		if (aName == null || aName.length() == 0) return null;
+
+		Object cached = guessedFonts.get(aName);
+		if (cached != null)
+		{
+			if (cached instanceof Font)
+			{
+				return (Font)cached;
+			}
+			// else not found previous call
+			return null;
+		}
+
+		Font guessFont = doGuessFont(aName);
+		guessedFonts.put(aName, guessFont == null ? Boolean.FALSE : guessFont);
+		return guessFont;
+	}
+
+	private static Font doGuessFont(String aName)
+	{
 		String formatedName = stringFormat(aName);
 		Font guessFont = null;
 		int maxPieces = 0, minMissingPieces = 999;
 		initFonts();
-		Iterator it = allFonts.values().iterator();
+		Iterator<Font> it = allFonts.values().iterator();
 		while (it.hasNext())
 		{
-			Font f = (Font)it.next();
+			Font f = it.next();
 
 			String fontName = f.getName();
 			if (fontName.equalsIgnoreCase(aName)) return f;
@@ -497,7 +503,7 @@ public class PersistHelper
 			if (fontName.equalsIgnoreCase(aName)) return f;
 			if (fontName.equalsIgnoreCase(formatedName)) return f;
 
-			List pieceList = new ArrayList();
+			List<String> pieceList = new ArrayList<String>();
 			StringTokenizer tk = new StringTokenizer(fontName, " "); //$NON-NLS-1$
 			while (tk.hasMoreElements())
 			{
@@ -509,7 +515,7 @@ public class PersistHelper
 			int missingPieces = 0;
 			for (int j = 0; j < pieceList.size(); j++)
 			{
-				String piece = (String)pieceList.get(j);
+				String piece = pieceList.get(j);
 				if (piece.length() <= 2) continue; // do not match 'a' or 'in'
 				if (aName.indexOf(piece) >= 0)
 				{
@@ -554,17 +560,17 @@ public class PersistHelper
 		return false;
 	}
 
-	private static String stringFormat(String fn)
+	private static String stringFormat(String fontName)
 	{
-		if (fn == null) return null;
-		if (fn.length() == 0) return fn;
+		if (fontName == null || fontName.length() == 0) return fontName;
 
+		String fn = fontName;
 		fn = Utils.stringReplace(fn, "MT", ""); //$NON-NLS-1$ //$NON-NLS-2$
 		fn = Utils.stringReplace(fn, "MS", ""); //$NON-NLS-1$ //$NON-NLS-2$
 		fn = Utils.stringReplace(fn, "LT", ""); //$NON-NLS-1$ //$NON-NLS-2$
 		fn = Utils.stringReplace(fn, "PS", ""); //$NON-NLS-1$ //$NON-NLS-2$
 		fn = Utils.stringReplace(fn, "-", " "); //$NON-NLS-1$ //$NON-NLS-2$
-		StringBuffer stringResult = new StringBuffer();
+		StringBuilder stringResult = new StringBuilder();
 		for (int i = 0; i < fn.length(); i++)
 		{
 			char ch1 = fn.charAt(i);
@@ -584,7 +590,7 @@ public class PersistHelper
 	public static String createFontString(Font f)
 	{
 		if (f == null) return null;
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append(f.getName());
 		sb.append(","); //$NON-NLS-1$
 		sb.append(f.getStyle());
@@ -598,20 +604,20 @@ public class PersistHelper
 	public static String createFontCssString(Font f)
 	{
 		if (f == null) return null;
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		if (f.isBold())
 		{
-			sb.append("bold ");
+			sb.append("bold "); //$NON-NLS-1$
 		}
 		if (f.isItalic())
 		{
-			sb.append("italic ");
+			sb.append("italic "); //$NON-NLS-1$
 		}
 		sb.append(f.getSize());
-		sb.append("pt ");
-		sb.append("\"");
+		sb.append("pt "); //$NON-NLS-1$
+		sb.append("\""); //$NON-NLS-1$
 		sb.append(f.getName());
-		sb.append("\"");
+		sb.append("\""); //$NON-NLS-1$
 		return sb.toString();
 	}
 
@@ -645,4 +651,5 @@ public class PersistHelper
 		}
 		return null;
 	}
+
 }
