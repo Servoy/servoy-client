@@ -373,7 +373,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templatedescription 
 	 * Record pre-create trigger
 	 * When false is returned the record a record not be created in the foundset.
-	 * @templatename onRecordCreate
+	 * @templatename onFoundSetRecordCreate
 	 * @templatetype Boolean
 	 * @templateaddtodo
 	 * @templatecode
@@ -394,7 +394,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templatedescription 
 	 * Foundset pre-find trigger
 	 * When false is returned the foundset will not go into find mode.
-	 * @templatename onFoundsetFind
+	 * @templatename onFoundSetFind
 	 * @templatetype Boolean
 	 * @templateaddtodo
 	 * @templatecode
@@ -414,7 +414,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * 
 	 * @templatedescription 
 	 * Foundset post-find trigger
-	 * @templatename onFoundsetAfterFind
+	 * @templatename onFoundSetAfterFind
 	 * @templateaddtodo
 	 * @templatecode
 	 */
@@ -434,7 +434,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templatedescription 
 	 * Foundset pre-search trigger
 	 * When false is returned the search will not be executed and the foundset will stay in find mode.
-	 * @templatename onFoundsetSearch
+	 * @templatename onFoundSetSearch
 	 * @templateparam Boolean clearLastResults
 	 * @templateparam Boolean reduceSearch
 	 * @templatetype Boolean
@@ -455,7 +455,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * A method that is executed after a search is executed for a foundset.
 	 * @templatedescription 
 	 * Foundset post-search trigger
-	 * @templatename onFoundsetAfterSearch
+	 * @templatename onFoundSetAfterSearch
 	 * @templateaddtodo
 	 * @templatecode
 	 */
