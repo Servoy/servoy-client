@@ -355,7 +355,8 @@ public class PersistHelper
 		System.out.println(f.getFontName());
 	}
 
-	private static Map allFonts = new HashMap();
+	private static Map<String, Font> allFonts = new HashMap<String, Font>();
+	private static Map<String, Object> guessedFonts;
 
 	private synchronized static void initFonts() // it can be called by multiple concurrent threads in case of web-client startup; because HashMap is not synchronized it can end up (and it did) in a situation where iterators.next() and map.put() will do infinite loops => 100% CPU
 	{
@@ -366,6 +367,7 @@ public class PersistHelper
 			{
 				allFonts.put(Utils.stringReplace(element.getName(), " ", "").toLowerCase(), element); //$NON-NLS-1$ //$NON-NLS-2$
 			}
+			guessedFonts = new HashMap<String, Object>();
 		}
 	}
 
@@ -479,8 +481,26 @@ public class PersistHelper
 
 	private static Font guessFont(String aName)
 	{
-		if (aName == null) return null;
-		if (aName.length() == 0) return null;
+		if (aName == null || aName.length() == 0) return null;
+
+		Object cached = guessedFonts.get(aName);
+		if (cached != null)
+		{
+			if (cached instanceof Font)
+			{
+				return (Font)cached;
+			}
+			// else not found previous call
+			return null;
+		}
+
+		Font guessFont = doGuessFont(aName);
+		guessedFonts.put(aName, guessFont == null ? Boolean.FALSE : guessFont);
+		return guessFont;
+	}
+
+	private static Font doGuessFont(String aName)
+	{
 		String formatedName = stringFormat(aName);
 		Font guessFont = null;
 		int maxPieces = 0, minMissingPieces = 999;
@@ -645,4 +665,5 @@ public class PersistHelper
 		}
 		return null;
 	}
+
 }

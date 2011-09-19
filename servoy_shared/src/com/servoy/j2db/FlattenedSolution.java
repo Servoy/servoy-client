@@ -369,6 +369,10 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	public Solution getSolutionCopy()
 	{
+		if (mainSolution == null && loginFlattenedSolution != null)
+		{
+			return loginFlattenedSolution.getSolutionCopy();
+		}
 		if (mainSolution == null || copySolution != null) return copySolution;
 
 		try
