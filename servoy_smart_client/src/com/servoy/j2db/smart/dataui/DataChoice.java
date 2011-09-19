@@ -639,14 +639,15 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 			if (model.isRowSelected(index))
 			{
 				((JLabel)editorComponent).setBackground(editList.getSelectionBackground());
+				editorComponent.setForeground(editList.getSelectionForeground());
 				editorComponent.setOpaque(true);
 			}
 			else
 			{
 				((JLabel)editorComponent).setBackground(editList.getBackground());
+				editorComponent.setForeground(editList.getForeground());
 				editorComponent.setOpaque(false);
 			}
-			editorComponent.setForeground(editList.getForeground());
 
 			if (value == null)
 			{
@@ -673,16 +674,17 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 			if (model.isRowSelected(index))
 			{
 				((JLabel)rendererComponent).setBackground(editList.getSelectionBackground());
+				rendererComponent.setForeground(editList.getSelectionForeground());
 				rendererComponent.setOpaque(true);
 			}
 			else
 			{
 				((JLabel)rendererComponent).setBackground(editList.getBackground());
+				rendererComponent.setForeground(editList.getForeground());
 				rendererComponent.setOpaque(false);
 			}
 			rendererComponent.setFont(editList.getFont());
 			rendererComponent.setEnabled(editList.isEnabled());
-			rendererComponent.setForeground(editList.getForeground());
 			if (value == null)
 			{
 				((JLabel)rendererComponent).setText(""); //$NON-NLS-1$
