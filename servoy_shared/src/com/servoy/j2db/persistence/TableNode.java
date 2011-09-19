@@ -414,7 +414,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * 
 	 * @templatedescription 
 	 * Foundset post-find trigger
-	 * @templatename onFoundSetAfterFind
+	 * @templatename afterFoundSetFind
 	 * @templateaddtodo
 	 * @templatecode
 	 */
@@ -455,7 +455,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * A method that is executed after a search is executed for a foundset.
 	 * @templatedescription 
 	 * Foundset post-search trigger
-	 * @templatename onFoundSetAfterSearch
+	 * @templatename afterFoundSetSearch
 	 * @templateaddtodo
 	 * @templatecode
 	 */
@@ -473,7 +473,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * A method that is executed after a new record is created.
 	 * 
 	 * @templatedescription Record after-create trigger
-	 * @templatename afterRecordCreate
+	 * @templatename afterFoundSetRecordCreate
 	 * @templateparam JSRecord record record that is created
 	 * @templateaddtodo
 	 */
