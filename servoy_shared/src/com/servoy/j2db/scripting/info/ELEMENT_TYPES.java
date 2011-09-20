@@ -258,6 +258,19 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 */
 	public static final String TYPE_AHEAD = IScriptBaseMethods.TYPE_AHEAD;
 
+	/**
+	 * Constant representing a form element.
+	 *
+	 * @sample
+	 * //the return value for an element of the Form type, as returned by the following code
+	 * var renderElementType = event.getRenderable().getElementType();
+	 * if (renderElementType == ELEMENT_TYPES.FORM)
+	 * {
+	 *      // element is a type form element
+	 * }
+	 */
+	public static final String FORM = IScriptBaseMethods.FORM;
+
 	public String getPrefix()
 	{
 		return "ELEMENT_TYPES";

@@ -45,6 +45,7 @@ public interface IScriptBaseMethods extends IScriptable
 	public String HTML_AREA = "HTML_AREA";
 	public String RTF_AREA = "RTF_AREA";
 	public String TYPE_AHEAD = "TYPE_AHEAD";
+	public String FORM = "FORM";
 
 	/**
 	 * Gets or sets the background color of a field. The color has to be set using the hexadecimal RGB value as used in HTML.

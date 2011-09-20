@@ -55,6 +55,7 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.scripting.JSEvent.EventType;
+import com.servoy.j2db.scripting.info.ELEMENT_TYPES;
 import com.servoy.j2db.server.headlessclient.dnd.DraggableBehavior;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IComponent;
@@ -762,7 +763,7 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 	 */
 	public String getOnRenderElementType()
 	{
-		return "FORM"; //$NON-NLS-1$
+		return ELEMENT_TYPES.FORM;
 	}
 
 	/*

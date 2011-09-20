@@ -128,6 +128,7 @@ import com.servoy.j2db.persistence.TabSeqComparator;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent;
+import com.servoy.j2db.scripting.info.ELEMENT_TYPES;
 import com.servoy.j2db.smart.dataui.CellAdapter;
 import com.servoy.j2db.smart.dataui.ColumnSortListener;
 import com.servoy.j2db.smart.dataui.DataCheckBox;
@@ -1976,7 +1977,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 	 */
 	public String getOnRenderElementType()
 	{
-		return cellview instanceof Portal ? "PORTAL" : "FORM"; //$NON-NLS-1$ //$NON-NLS-2$
+		return cellview instanceof Portal ? ELEMENT_TYPES.PORTAL : ELEMENT_TYPES.FORM;
 	}
 
 	/*
