@@ -70,6 +70,7 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
+import com.servoy.j2db.scripting.info.ELEMENT_TYPES;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
@@ -797,7 +798,7 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 	 */
 	public String getOnRenderElementType()
 	{
-		return "FORM"; //$NON-NLS-1$
+		return ELEMENT_TYPES.FORM;
 	}
 
 	/*

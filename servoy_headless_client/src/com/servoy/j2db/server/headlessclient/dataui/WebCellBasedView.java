@@ -122,6 +122,7 @@ import com.servoy.j2db.persistence.TabSeqComparator;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent.EventType;
+import com.servoy.j2db.scripting.info.ELEMENT_TYPES;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.TabIndexHelper;
 import com.servoy.j2db.server.headlessclient.WebForm;
@@ -3551,7 +3552,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	 */
 	public String getOnRenderElementType()
 	{
-		return cellview instanceof Portal ? "PORTAL" : "FORM"; //$NON-NLS-1$ //$NON-NLS-2$
+		return cellview instanceof Portal ? ELEMENT_TYPES.PORTAL : ELEMENT_TYPES.FORM;
 	}
 
 	/*

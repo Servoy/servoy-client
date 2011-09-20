@@ -284,6 +284,19 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 */
 	public static final String MULTI_SELECTION_LIST_BOX = IScriptBaseMethods.MULTI_SELECTION_LIST_BOX;
 
+	/**
+	 * Constant representing a form element.
+	 *
+	 * @sample
+	 * //the return value for an element of the Form type, as returned by the following code
+	 * var renderElementType = event.getRenderable().getElementType();
+	 * if (renderElementType == ELEMENT_TYPES.FORM)
+	 * {
+	 *      // element is a type form element
+	 * }
+	 */
+	public static final String FORM = IScriptBaseMethods.FORM;
+
 	public String getPrefix()
 	{
 		return "ELEMENT_TYPES";
