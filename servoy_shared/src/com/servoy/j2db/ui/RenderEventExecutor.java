@@ -72,6 +72,11 @@ public class RenderEventExecutor
 		onRenderComponent.setRenderableStateChanged();
 	}
 
+	public boolean isRenderStateChanged()
+	{
+		return isRenderStateChanged;
+	}
+
 	public void fireOnRender(boolean hasFocus)
 	{
 		if (isRenderStateChanged && renderScriptExecuter != null && renderCallback != null)

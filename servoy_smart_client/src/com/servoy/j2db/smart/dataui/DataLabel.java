@@ -194,7 +194,12 @@ public class DataLabel extends AbstractScriptLabel implements IDisplayData, IDis
 		{
 			if (obj != null)
 			{
-				if (obj.equals(value)) return;
+				if (obj.equals(value))
+				{
+					if (scriptable != null && scriptable.getRenderEventExecutor().isRenderStateChanged()) scriptable.getRenderEventExecutor().fireOnRender(
+						hasFocus());
+					return;
+				}
 
 				if (obj instanceof byte[])
 				{
