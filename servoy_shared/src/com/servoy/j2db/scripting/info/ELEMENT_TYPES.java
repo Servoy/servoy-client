@@ -258,6 +258,32 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 */
 	public static final String TYPE_AHEAD = IScriptBaseMethods.TYPE_AHEAD;
 
+	/**
+	 * Constant representing a listbox element.
+	 *
+	 * @sample
+	 * //the return value for an element of the TextField type, as returned by the following code
+	 * var etype = elements.elementName.getElementType();
+	 * if (etype == ELEMENT_TYPES.LIST_BOX)
+	 * {
+	 *      // element is a LIST_BOX element
+	 * }
+	 */
+	public static final String LIST_BOX = IScriptBaseMethods.LIST_BOX;
+
+	/**
+	 * Constant representing a multi selection listbox element.
+	 *
+	 * @sample
+	 * //the return value for an element of the TextField type, as returned by the following code
+	 * var etype = elements.elementName.getElementType();
+	 * if (etype == ELEMENT_TYPES.MULTI_SELECTION_LIST_BOX)
+	 * {
+	 *      // element is a MULTI_SELECTION_LIST_BOX element
+	 * }
+	 */
+	public static final String MULTI_SELECTION_LIST_BOX = IScriptBaseMethods.MULTI_SELECTION_LIST_BOX;
+
 	public String getPrefix()
 	{
 		return "ELEMENT_TYPES";
