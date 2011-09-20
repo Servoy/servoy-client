@@ -48,6 +48,7 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.RequestCycle;
+import org.apache.wicket.ResourceReference;
 import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.IBehavior;
@@ -163,6 +164,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 {
 	private static final int SCROLLBAR_SIZE = 17;
 	private static final long serialVersionUID = 1L;
+
+	public final ResourceReference R_ARROW_OFF = new ResourceReference(IApplication.class, "images/arrow_off.png"); //$NON-NLS-1$
+	public final ResourceReference R_ARROW_DOWN = new ResourceReference(IApplication.class, "images/arrow_down.png"); //$NON-NLS-1$
+	public final ResourceReference R_ARROW_UP = new ResourceReference(IApplication.class, "images/arrow_up.png"); //$NON-NLS-1$
 
 	private final LinkedHashMap<IPersist, Component> elementToColumnIdentifierComponent = new LinkedHashMap<IPersist, Component>(); // IPersist -> column identifier components - used by JavaScript
 	private final HashMap<IPersist, Integer> elementTabIndexes = new HashMap<IPersist, Integer>();
@@ -2000,7 +2005,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				for (IPersist persist : elementToColumnHeader.keySet())
 				{
 					SortableCellViewHeader sortableCellViewHeader = (SortableCellViewHeader)elementToColumnHeader.get(persist);
-					sortableCellViewHeader.setResizeImage(SortableCellViewHeader.R_ARROW_OFF);
+					sortableCellViewHeader.setResizeImage(R_ARROW_OFF);
 				}
 				for (SortColumn sc : sortCols)
 				{
@@ -2014,7 +2019,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 							if (sc.getDataProviderID().equals(dispComp.getDataProviderID()))
 							{
 								boolean descending = sc.getSortOrder() == SortColumn.DESCENDING;
-								sortableCellViewHeader.setResizeImage(descending ? SortableCellViewHeader.R_ARROW_UP : SortableCellViewHeader.R_ARROW_DOWN);
+								sortableCellViewHeader.setResizeImage(descending ? R_ARROW_UP : R_ARROW_DOWN);
 								sortMap.put(comp.getMarkupId(), !descending);
 							}
 						}
@@ -2274,7 +2279,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		scriptable.setFoundset(currentData);
 		for (Object header : getHeaderComponents())
 		{
-			((SortableCellViewHeader)header).setResizeImage(SortableCellViewHeader.R_ARROW_OFF);
+			((SortableCellViewHeader)header).setResizeImage(R_ARROW_OFF);
 		}
 	}
 
