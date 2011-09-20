@@ -72,10 +72,6 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 {
 	private static final long serialVersionUID = 1L;
 
-	public static final ResourceReference R_ARROW_OFF = new ResourceReference(IApplication.class, "images/arrow_off.png"); //$NON-NLS-1$
-	private static final ResourceReference R_ARROW_DOWN = new ResourceReference(IApplication.class, "images/arrow_down.png"); //$NON-NLS-1$
-	private static final ResourceReference R_ARROW_UP = new ResourceReference(IApplication.class, "images/arrow_up.png"); //$NON-NLS-1$
-
 	public static final int ARROW_WIDTH = 7 + 2; // width of the arrow image in px; we leave 1px space on the left and 1px space on the right
 
 	private final AbstractBase cellview;
@@ -129,12 +125,11 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 					sortableCellViewHeader = (SortableCellViewHeader)header;
 					if (sortableCellViewHeader.equals(SortableCellViewHeader.this))
 					{
-						sortableCellViewHeader.setResizeImage(group.getSortDirection() == SortColumn.DESCENDING ? SortableCellViewHeader.R_ARROW_UP
-							: SortableCellViewHeader.R_ARROW_DOWN);
+						sortableCellViewHeader.setResizeImage(group.getSortDirection() == SortColumn.DESCENDING ? view.R_ARROW_UP : view.R_ARROW_DOWN);
 					}
 					else
 					{
-						sortableCellViewHeader.setResizeImage(SortableCellViewHeader.R_ARROW_OFF);
+						sortableCellViewHeader.setResizeImage(view.R_ARROW_OFF);
 					}
 				}
 
@@ -322,7 +317,7 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 		}
 		else
 		{
-			resizeBar = new Image("resizeBar", SortableCellViewHeader.R_ARROW_OFF);
+			resizeBar = new Image("resizeBar", view.R_ARROW_OFF);
 		}
 
 		if (!blockResize && (!(cellview instanceof Portal) || ((Portal)cellview).getResizeble()) && useAJAX)
@@ -423,7 +418,7 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 		Boolean dir = group.get(id);
 		if (dir != null)
 		{
-			setResizeImage(dir ? SortableCellViewHeader.R_ARROW_DOWN : SortableCellViewHeader.R_ARROW_UP);
+			setResizeImage(dir ? view.R_ARROW_DOWN : view.R_ARROW_UP);
 		}
 	}
 
