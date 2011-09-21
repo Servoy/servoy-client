@@ -55,12 +55,12 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.scripting.JSEvent.EventType;
-import com.servoy.j2db.scripting.info.ELEMENT_TYPES;
 import com.servoy.j2db.server.headlessclient.dnd.DraggableBehavior;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
+import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowStyling;
@@ -763,7 +763,7 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 	 */
 	public String getOnRenderElementType()
 	{
-		return ELEMENT_TYPES.FORM;
+		return IScriptBaseMethods.FORM;
 	}
 
 	/*

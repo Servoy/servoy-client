@@ -80,11 +80,11 @@ import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.printing.ISupportXMLOutput;
 import com.servoy.j2db.printing.XMLPrintHelper;
-import com.servoy.j2db.scripting.info.ELEMENT_TYPES;
 import com.servoy.j2db.smart.TableView;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IPortalComponent;
+import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportOnRenderWrapper;
@@ -1161,7 +1161,7 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 		 */
 		public String getOnRenderElementType()
 		{
-			return ELEMENT_TYPES.PORTAL;
+			return IScriptBaseMethods.PORTAL;
 		}
 
 		/*

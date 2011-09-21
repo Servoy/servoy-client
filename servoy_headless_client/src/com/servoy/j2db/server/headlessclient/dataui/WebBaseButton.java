@@ -1078,7 +1078,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		}
 
 		instrumentedBodyText.append("'"); //$NON-NLS-1$
-		if (cssid != null)
+		if (cssid != null && valign == ISupportTextSetup.CENTER)
 		{
 			instrumentedBodyText.append(" id='"); //$NON-NLS-1$
 			instrumentedBodyText.append(cssid); //$NON-NLS-1$

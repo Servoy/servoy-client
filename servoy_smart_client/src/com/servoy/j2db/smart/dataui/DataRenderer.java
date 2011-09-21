@@ -67,10 +67,10 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ScriptVariable;
-import com.servoy.j2db.scripting.info.ELEMENT_TYPES;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
+import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowBGColorScript;
 import com.servoy.j2db.ui.ISupportRowStyling;
@@ -814,7 +814,7 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 	 */
 	public String getOnRenderElementType()
 	{
-		return ELEMENT_TYPES.FORM;
+		return IScriptBaseMethods.FORM;
 	}
 
 	/*
