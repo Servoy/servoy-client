@@ -80,10 +80,10 @@ import org.apache.wicket.version.undo.Change;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
+import com.servoy.j2db.FormManager.History;
 import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.Messages;
-import com.servoy.j2db.FormManager.History;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.dataprocessing.TagResolver;
@@ -98,10 +98,10 @@ import com.servoy.j2db.server.headlessclient.dataui.IFormLayoutProvider;
 import com.servoy.j2db.server.headlessclient.dataui.ISupportWebTabSeq;
 import com.servoy.j2db.server.headlessclient.dataui.StartEditOnFocusGainedEventBehavior;
 import com.servoy.j2db.server.headlessclient.dataui.StyleAppendingModifier;
+import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor;
 import com.servoy.j2db.server.headlessclient.dataui.WebSplitPane;
 import com.servoy.j2db.server.headlessclient.dataui.WebTabPanel;
-import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.server.headlessclient.yui.YUILoader;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IEventExecutor;
@@ -325,7 +325,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				@Override
 				protected CharSequence getFailureScript()
 				{
-					return "onAjaxError();"; //$NON-NLS-1$
+					return "onAjaxError();restartTimer();"; //$NON-NLS-1$
 				}
 
 				@Override
