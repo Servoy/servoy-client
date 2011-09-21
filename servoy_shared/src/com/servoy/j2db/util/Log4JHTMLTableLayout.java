@@ -88,7 +88,7 @@ public class Log4JHTMLTableLayout extends Layout
 		buffer.append(dateFormat.format(new Date(event.timeStamp)));
 		buffer.append("</td>" + Layout.LINE_SEP);
 
-		buffer.append("<td title=\"" + event.getThreadName() + " thread\">");
+		buffer.append("<td title=\"" + event.getThreadName() + " thread\" nowrap>");
 		buffer.append(Transform.escapeTags(event.getThreadName()));
 		buffer.append("</td>" + Layout.LINE_SEP);
 
@@ -128,6 +128,18 @@ public class Log4JHTMLTableLayout extends Layout
 		buffer.append("<td title=\"Message\">");
 		buffer.append(Transform.escapeTags(event.getRenderedMessage()));
 		buffer.append("</td>" + Layout.LINE_SEP);
+
+		Object clientid = event.getMDC("clientid");
+		if (clientid == null) clientid = "&nbsp;";
+		buffer.append("<td bgcolor=\"#EEEEEE\" style=\"font-size : xx-small;\" title=\"ClientId\">");
+		buffer.append(clientid);
+		buffer.append("</td>");
+		Object solutionName = event.getMDC("solution");
+		if (solutionName == null) solutionName = "&nbsp;";
+		buffer.append("<td bgcolor=\"#EEEEEE\" style=\"font-size : xx-small;\" title=\"Solution Name\">");
+		buffer.append(solutionName);
+		buffer.append("</td>");
+
 		buffer.append("</tr>" + Layout.LINE_SEP);
 
 		if (event.getNDC() != null)
@@ -141,7 +153,7 @@ public class Log4JHTMLTableLayout extends Layout
 		{
 			if (event.getThrowableInformation().getThrowable() instanceof IOException)
 			{
-				buffer.append("<tr><td bgcolor=\"#FF9900\" style=\"color:White; font-size : xx-small;\" colspan=\"6\">");
+				buffer.append("<tr><td bgcolor=\"#FF9900\" style=\"color:White; font-size : xx-small;\" colspan=\"7\">");
 				buffer.append("I/O exception, see log for full details: ");
 				buffer.append(event.getThrowableInformation().getThrowable().getMessage());
 				buffer.append("</td></tr>" + Layout.LINE_SEP);
@@ -153,7 +165,7 @@ public class Log4JHTMLTableLayout extends Layout
 				String[] s = stringWriter.getBuffer().toString().split("\n");
 				if (s != null)
 				{
-					buffer.append("<tr><td bgcolor=\"#993300\" style=\"color:White; font-size : xx-small;\" colspan=\"6\">");
+					buffer.append("<tr><td bgcolor=\"#993300\" style=\"color:White; font-size : xx-small;\" colspan=\"7\">");
 					appendThrowableAsHTML(s, buffer);
 					buffer.append("</td></tr>" + Layout.LINE_SEP);
 				}
@@ -163,7 +175,7 @@ public class Log4JHTMLTableLayout extends Layout
 				String[] s = event.getThrowableStrRep();
 				if (s != null)
 				{
-					buffer.append("<tr><td bgcolor=\"#993300\" style=\"color:White; font-size : xx-small;\" colspan=\"6\">");
+					buffer.append("<tr><td bgcolor=\"#993300\" style=\"color:White; font-size : xx-small;\" colspan=\"7\">");
 					appendThrowableAsHTML(s, buffer);
 					buffer.append("</td></tr>" + Layout.LINE_SEP);
 				}
@@ -189,6 +201,7 @@ public class Log4JHTMLTableLayout extends Layout
 		}
 	}
 
+	@SuppressWarnings("nls")
 	@Override
 	public String getHeader()
 	{
@@ -205,6 +218,8 @@ public class Log4JHTMLTableLayout extends Layout
 			buffer.append("<th>File:Line</th>" + Layout.LINE_SEP);
 		}
 		buffer.append("<th>Message</th>" + Layout.LINE_SEP);
+		buffer.append("<th>ClientId</th>" + Layout.LINE_SEP);
+		buffer.append("<th>Solution Name</th>" + Layout.LINE_SEP);
 		buffer.append("</tr>" + Layout.LINE_SEP);
 		return buffer.toString();
 	}

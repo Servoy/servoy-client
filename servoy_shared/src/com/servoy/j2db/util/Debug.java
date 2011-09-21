@@ -19,6 +19,10 @@ package com.servoy.j2db.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.MDC;
+
+import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.J2DBGlobals;
 
 public class Debug
 {
@@ -109,6 +113,22 @@ public class Debug
 		}
 	}
 
+	@SuppressWarnings("nls")
+	private static Object insertClientInfo(Object message)
+	{
+		IServiceProvider serviceProvider = J2DBGlobals.getServiceProvider();
+		if (serviceProvider != null && serviceProvider.getSolution() != null)
+		{
+			MDC.put("clientid", serviceProvider.getClientID());
+			MDC.put("solution", serviceProvider.getSolution().getName());
+		}
+		else
+		{
+			MDC.clear();
+		}
+		return message;
+	}
+
 	public static void trace(String message, Throwable throwable)
 	{
 		if (log == null) return;
@@ -121,7 +141,7 @@ public class Debug
 		}
 		else
 		{
-			log.trace(message, throwable);
+			log.trace(insertClientInfo(message), throwable);
 		}
 	}
 
@@ -139,11 +159,11 @@ public class Debug
 		{
 			if (s instanceof Throwable)
 			{
-				log.trace("Throwable", (Throwable)s);
+				log.trace(insertClientInfo("Throwable"), (Throwable)s);
 			}
 			else
 			{
-				log.trace(s);
+				log.trace(insertClientInfo(s));
 			}
 		}
 
@@ -182,7 +202,7 @@ public class Debug
 	{
 		initIfFirstTime();
 		if (log == null) return;
-		log.error(message, s);
+		log.error(insertClientInfo(message), s);
 	}
 
 	public static void error(Object s)
@@ -191,11 +211,11 @@ public class Debug
 		if (log == null) return;
 		if (s instanceof Throwable)
 		{
-			log.error("Throwable", (Throwable)s);
+			log.error(insertClientInfo("Throwable"), (Throwable)s);
 		}
 		else
 		{
-			log.error(s);
+			log.error(insertClientInfo(s));
 		}
 	}
 
@@ -204,11 +224,11 @@ public class Debug
 		if (log == null) return;
 		if (throwable != null)
 		{
-			log.warn(message, throwable);
+			log.warn(insertClientInfo(message), throwable);
 		}
 		else
 		{
-			log.info(message);
+			log.info(insertClientInfo(message));
 		}
 	}
 
@@ -217,11 +237,11 @@ public class Debug
 		if (log == null) return;
 		if (s instanceof Throwable)
 		{
-			log.warn("Throwable", (Throwable)s);
+			log.warn(insertClientInfo("Throwable"), (Throwable)s);
 		}
 		else
 		{
-			log.info(s);
+			log.info(insertClientInfo(s));
 		}
 	}
 
@@ -234,21 +254,21 @@ public class Debug
 	{
 		initIfFirstTime();
 		if (log == null) return;
-		log.warn(s);
+		log.warn(insertClientInfo(s));
 	}
 
 	public static void fatal(Object s)
 	{
 		initIfFirstTime();
 		if (log == null) return;
-		log.fatal(s);
+		log.fatal(insertClientInfo(s));
 	}
 
 	public static void debug(Object s)
 	{
 		initIfFirstTime();
 		if (log == null) return;
-		log.debug(s);
+		log.debug(insertClientInfo(s));
 	}
 
 	private static void initIfFirstTime()
