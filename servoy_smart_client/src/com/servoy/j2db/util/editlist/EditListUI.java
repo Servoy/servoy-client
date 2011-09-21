@@ -400,35 +400,38 @@ public class EditListUI extends BasicListUI
 					if (row >= 0)
 					{
 						Component comp = editor.getListCellEditorComponent(lst, lst.getModel().getElementAt(row), true, row);
-						Rectangle recOldBounds = comp.getBounds();
-						comp.setBounds(lst.getCellBounds(row, row));
-						boolean componentAdded = false;
-						if (comp.getParent() != lst)
+						if (comp != null)
 						{
-							lst.add(comp);
-							componentAdded = true;
-						}
-						comp.doLayout();
-						Point p2 = SwingUtilities.convertPoint(lst, p, comp);
-						Component dispatchComponent = null;
-						if (comp instanceof Container)
-						{
-							dispatchComponent = ((Container)comp).findComponentAt(p2.x, p2.y);
-						}
-						else
-						{
-							dispatchComponent = SwingUtilities.getDeepestComponentAt(comp, p2.x, p2.y);
-						}
-						if (isFormElement(dispatchComponent))
-						{
-							Point p3 = SwingUtilities.convertPoint(comp, p2, dispatchComponent);
-							MouseEvent e2 = new MouseEvent(dispatchComponent, e.getID(), e.getWhen(), e.getModifiers(), p3.x, p3.y, e.getClickCount(),
-								e.isPopupTrigger());
-							dispatchComponent.dispatchEvent(e2);
-						}
-						if (componentAdded)
-						{
-							lst.remove(comp);
+							Rectangle recOldBounds = comp.getBounds();
+							comp.setBounds(lst.getCellBounds(row, row));
+							boolean componentAdded = false;
+							if (comp.getParent() != lst)
+							{
+								lst.add(comp);
+								componentAdded = true;
+							}
+							comp.doLayout();
+							Point p2 = SwingUtilities.convertPoint(lst, p, comp);
+							Component dispatchComponent = null;
+							if (comp instanceof Container)
+							{
+								dispatchComponent = ((Container)comp).findComponentAt(p2.x, p2.y);
+							}
+							else
+							{
+								dispatchComponent = SwingUtilities.getDeepestComponentAt(comp, p2.x, p2.y);
+							}
+							if (isFormElement(dispatchComponent))
+							{
+								Point p3 = SwingUtilities.convertPoint(comp, p2, dispatchComponent);
+								MouseEvent e2 = new MouseEvent(dispatchComponent, e.getID(), e.getWhen(), e.getModifiers(), p3.x, p3.y, e.getClickCount(),
+									e.isPopupTrigger());
+								dispatchComponent.dispatchEvent(e2);
+							}
+							if (componentAdded)
+							{
+								lst.remove(comp);
+							}
 						}
 					}
 				}

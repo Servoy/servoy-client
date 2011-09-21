@@ -41,6 +41,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.form.ListMultipleChoice;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.util.string.AppendingStringBuffer;
 
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
@@ -122,7 +123,12 @@ public class WebDataListBox extends ListMultipleChoice implements IDisplayData, 
 
 			public Object getDisplayValue(Object object)
 			{
-				return String.valueOf(list.getElementAt(list.indexOf(object)));
+				Object value = list.getElementAt(list.indexOf(object));
+				if (IValueList.SEPARATOR.equals(value))
+				{
+					return value;
+				}
+				return String.valueOf(value);
 			}
 		});
 
@@ -981,4 +987,24 @@ public class WebDataListBox extends ListMultipleChoice implements IDisplayData, 
 		return isReadOnly();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.wicket.markup.html.form.AbstractChoice#appendOptionHtml(org.apache.wicket.util.string.AppendingStringBuffer, java.lang.Object, int,
+	 * java.lang.String)
+	 */
+	@Override
+	protected void appendOptionHtml(AppendingStringBuffer buffer, Object choice, int index, String selected)
+	{
+		Object displayValue = getChoiceRenderer().getDisplayValue(choice);
+		if (IValueList.SEPARATOR.equals(displayValue))
+		{
+			// create a separator
+			buffer.append("\n<optgroup label=\" \" style=\"border-top: 1px solid gray; margin-top: 7px; margin-bottom: 7px;\"></optgroup>");
+		}
+		else
+		{
+			super.appendOptionHtml(buffer, choice, index, selected);
+		}
+	}
 }

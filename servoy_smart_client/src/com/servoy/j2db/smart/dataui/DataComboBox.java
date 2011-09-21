@@ -637,7 +637,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 	/**
 	 * A JSeparator substitute that is able to take up more then two pixels of space and draw the separator graphics in the middle of the occupied space.
 	 */
-	class VariableSizeJSeparator extends JPanel
+	public static class VariableSizeJSeparator extends JPanel
 	{
 
 		private final int space;

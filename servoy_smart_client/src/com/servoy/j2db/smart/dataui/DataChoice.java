@@ -67,6 +67,7 @@ import com.servoy.j2db.gui.editlist.JNavigableEditList;
 import com.servoy.j2db.gui.editlist.NavigableCellEditor;
 import com.servoy.j2db.gui.editlist.NavigableCellRenderer;
 import com.servoy.j2db.persistence.Field;
+import com.servoy.j2db.smart.dataui.DataComboBox.VariableSizeJSeparator;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
@@ -633,6 +634,10 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		@Override
 		public Component getListCellEditorComponent(JEditList editList, Object value, boolean isSelected, int index)
 		{
+			if (IValueList.SEPARATOR.equals(value))
+			{
+				return null;
+			}
 			if (editorComponent == null) createEditor();
 			editorComponent.setFont(editList.getFont());
 			ComboModelListModelWrapper model = (ComboModelListModelWrapper)editList.getModel();
@@ -670,6 +675,10 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		public Component getListCellRendererComponent(JList editList, Object value, int index, boolean isSelected, boolean cellHasFocus)
 		{
 			if (rendererComponent == null) createRenderer();
+			if (IValueList.SEPARATOR.equals(value))
+			{
+				return new VariableSizeJSeparator(SwingConstants.HORIZONTAL, 15);
+			}
 			ComboModelListModelWrapper model = (ComboModelListModelWrapper)editList.getModel();
 			if (model.isRowSelected(index))
 			{
