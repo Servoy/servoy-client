@@ -48,6 +48,7 @@ import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderHandler;
 import com.servoy.j2db.persistence.IDataProviderLookup;
+import com.servoy.j2db.persistence.IMediaProvider;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IPersistListener;
 import com.servoy.j2db.persistence.IPersistVisitor;
@@ -91,7 +92,7 @@ import com.servoy.j2db.util.keyword.Ident;
  * 
  * @author jcompagner,jblok
  */
-public class FlattenedSolution implements IPersistListener, IDataProviderHandler, IRelationProvider, ISupportScriptProviders
+public class FlattenedSolution implements IPersistListener, IDataProviderHandler, IRelationProvider, ISupportScriptProviders, IMediaProvider
 {
 	private static RuntimeProperty<AbstractBase> CLONE_PROPERTY = new RuntimeProperty<AbstractBase>()
 	{

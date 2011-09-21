@@ -42,7 +42,7 @@ import com.servoy.j2db.util.Utils;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
-public class Solution extends AbstractRootObject implements ISupportChilds, ISupportScriptProviders, ICloneable, ISupportUpdateableName
+public class Solution extends AbstractRootObject implements ISupportChilds, ISupportScriptProviders, ICloneable, ISupportUpdateableName, IMediaProvider
 {
 	// iterating & changing this map's contents will happen in synchronize blocks (the easier way would
 	// be using the ConcurrentHashMap as before, but a bug in Terracotta does not allow ConcurrentHashMaps to be serialized/deserialized); when the bug is solved
