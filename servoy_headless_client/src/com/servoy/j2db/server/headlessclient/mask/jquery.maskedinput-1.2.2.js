@@ -126,7 +126,7 @@
 				
 				function getPlaceHolder(i)
 				{
-					return settings.placeholder.length > 1?settings.placeholder[i]:settings.placeholder;
+					return settings.placeholder.length > 1?settings.placeholder.charAt(i):settings.placeholder;
 				};
 
 				function shiftL(pos) {
@@ -289,7 +289,7 @@
 							}
 							if (pos > test.length)
 								break;
-						} else if (buffer[i] == test[pos] && i!=partialPosition) {
+						} else if (buffer[i] == test.charAt(pos) && i!=partialPosition) {
 							pos++;
 //							lastMatch = i;
 						} 
