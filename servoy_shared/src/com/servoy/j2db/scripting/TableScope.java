@@ -131,12 +131,8 @@ public class TableScope extends LazyCompilationScope
 		Object o = super.get(name, start);
 		if (o instanceof Function)
 		{
-			if (table.getColumnInfoID(name) != -1)
-			{
-				// get stored calcs via the Record (parent scope), if the value changes it will be saved in the record
-				return Scriptable.NOT_FOUND;
-			}
-			return getCalculationValue((Function)o, name);
+			// get all calcs via the Record (parent scope), if the value changes it will be saved/cached in the record
+			return Scriptable.NOT_FOUND;
 		}
 		return o;
 	}
