@@ -35,6 +35,7 @@ import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IDebugWebClient;
 import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.IFormManager;
+import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
@@ -386,5 +387,21 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 	public void onEndRequest(WebClientSession webClientSession)
 	{
 		removeEventDispatchThread();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ClientState#createDataServer()
+	 */
+	@Override
+	protected IDataServer createDataServer()
+	{
+		IDataServer dataServer = super.createDataServer();
+		if (dataServer != null)
+		{
+			dataServer = new ProfileDataServer(dataServer);
+		}
+		return dataServer;
 	}
 }
