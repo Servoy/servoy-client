@@ -1422,13 +1422,28 @@ if (typeof(Servoy.Utils) == "undefined")
 			}		
 		},
 		
-		setLabelChildHeight: function(elemid) 
+		setLabelChildHeight: function(elemid, valign) 
 		{
 		  var elem = document.getElementById(elemid);
 		  var elemHeight =  elem.clientHeight;
 		  var child = document.getElementById(elemid + "_lb");
 		  var childHeight = child.clientHeight;
-		  var top = Math.floor((elemHeight - childHeight)/2);
+
+		  var top; 
+
+		  if(valign == 1)		// ISupportTextSetup.TOP
+		  {
+		  	top = 0;
+		  }
+		  else if(valign == 3)	// ISupportTextSetup.BOTTOM
+		  {
+		  	top = elemHeight - childHeight;
+		  }
+		  else					// ISupportTextSetup.CENTER
+		  {
+			top = Math.floor((elemHeight - childHeight)/2);
+		  } 
+
 		  child.style.top = top + "px";
 		},
 		

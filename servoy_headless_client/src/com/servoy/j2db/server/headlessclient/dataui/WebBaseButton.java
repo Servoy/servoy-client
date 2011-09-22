@@ -1060,15 +1060,18 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		else instrumentedBodyText.append(" text-align: center;"); //$NON-NLS-1$
 
 		// Vertical alignment and anchoring.
-		if (valign == ISupportTextSetup.TOP) instrumentedBodyText.append(" top: " + top + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
-		else if (valign == ISupportTextSetup.BOTTOM) instrumentedBodyText.append(" bottom: " + bottom + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
+		if (cssid == null)
+		{
+			if (valign == ISupportTextSetup.TOP) instrumentedBodyText.append(" top: " + top + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
+			else if (valign == ISupportTextSetup.BOTTOM) instrumentedBodyText.append(" bottom: " + bottom + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 
 
 		boolean isOnlyImgDisplay = (Strings.isEmpty(bodyText) && imgURL != null) || isHTMLWithOnlyImg(bodyText);
 
 		// Full width/height.
 		if (isHtml || (valign == ISupportTextSetup.CENTER && cssid != null)) instrumentedBodyText.append(" width: 100%;"); //$NON-NLS-1$
-		if (isHtml && valign != ISupportTextSetup.CENTER) instrumentedBodyText.append(" height: 100%;"); //$NON-NLS-1$
+		if (isHtml && valign != ISupportTextSetup.CENTER && cssid == null) instrumentedBodyText.append(" height: 100%;"); //$NON-NLS-1$
 		else if ((cssid != null && !isHTMLWithOnlyImg(bodyText)) || (!isOnlyImgDisplay && valign != ISupportTextSetup.CENTER)) instrumentedBodyText.append(" position: absolute;"); //$NON-NLS-1$
 		else if (!isButton && !isHtml && imgURL == null)
 		{

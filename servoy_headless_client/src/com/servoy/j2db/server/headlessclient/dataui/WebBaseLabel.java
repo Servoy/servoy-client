@@ -164,21 +164,11 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	public void renderHead(HtmlHeaderContainer container)
 	{
 		super.renderHead(container);
-		if (shouldCenterWithJS())
+		if (hasHtml())
 		{
-			container.getHeaderResponse().renderOnDomReadyJavascript("Servoy.Utils.setLabelChildHeight('" + getMarkupId() + "')");
+			container.getHeaderResponse().renderOnDomReadyJavascript("Servoy.Utils.setLabelChildHeight('" + getMarkupId() + "', " + valign + ")");
 		}
 	}
-
-	private boolean shouldCenterWithJS()
-	{
-		if (valign == ISupportTextSetup.CENTER)
-		{
-			return hasHtml();
-		}
-		return false;
-	}
-
 
 	protected CharSequence getBodyText()
 	{
