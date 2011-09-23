@@ -243,14 +243,14 @@ public class Row
 
 	Object getDbIdentValue()
 	{
-		int[] indexes = parent.getSQLSheet().getPKIndexes();
-		if (indexes.length == 1)
+		int identindex = parent.getSQLSheet().getIdentIndex();
+		if (identindex >= 0)
 		{
-			Object o = columndata[indexes[0]];
+			Object o = columndata[identindex];
 			if (o == null)
 			{
 				o = ValueFactory.createDbIdentValue().setRow(this);
-				columndata[indexes[0]] = o;
+				columndata[identindex] = o;
 			}
 			if (o instanceof DbIdentValue)
 			{
