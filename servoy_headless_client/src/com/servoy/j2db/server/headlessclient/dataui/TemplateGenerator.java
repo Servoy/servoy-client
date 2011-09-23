@@ -1582,7 +1582,11 @@ public class TemplateGenerator
 				break;
 
 			default :
-				Debug.trace("ComponentFactory:unkown type " + meta.getTypeID());
+				Debug.error("ComponentFactory:unkown type " + meta.getTypeID() + ", uuid: " + meta.getUUID() + ", parent:" + meta.getParent());
+				html.append("<label ");
+				html.append(getWicketIDParameter(form, meta));
+				html.append(">ComponentFactory:unkown type " + meta.getTypeID() + ", uuid: " + meta.getUUID() + ", parent:" + meta.getParent());
+				html.append("</label>");
 		}
 	}
 
