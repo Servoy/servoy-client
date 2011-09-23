@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient;
 
 import java.io.IOException;
@@ -26,6 +26,7 @@ import java.util.Set;
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.application.IClassResolver;
 
+import com.servoy.j2db.ClientState;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 
 /**
@@ -40,12 +41,24 @@ public class ServoyClassResolver implements IClassResolver
 	 */
 	public Class resolveClass(String classname)
 	{
+		ClassLoader classLoader = ApplicationServerSingleton.get().getBeanManager().getClassLoader();
 		try
 		{
-			return ApplicationServerSingleton.get().getBeanManager().getClassLoader().loadClass(classname);
+			return classLoader.loadClass(classname);
 		}
 		catch (ClassNotFoundException ex)
 		{
+			if (ClientState.class.getClassLoader() != classLoader)
+			{
+				try
+				{
+					return ClientState.class.getClassLoader().loadClass(classname);
+				}
+				catch (ClassNotFoundException e)
+				{
+					// ignore, runtime exception below will be thrown.
+				}
+			}
 			throw new RuntimeException("Class " + classname + " couldn't be loaded through the bean/plugin classloader", ex); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
@@ -59,8 +72,15 @@ public class ServoyClassResolver implements IClassResolver
 		try
 		{
 			// Try the classloader for the wicket jar/bundle
-			Enumeration<URL> resources = ApplicationServerSingleton.get().getBeanManager().getClassLoader().getResources(name);
+			ClassLoader classLoader = ApplicationServerSingleton.get().getBeanManager().getClassLoader();
+			Enumeration<URL> resources = classLoader.getResources(name);
 			loadResources(resources, loadedFiles);
+			if (classLoader != ClientState.class.getClassLoader())
+			{
+				resources = ClientState.class.getClassLoader().getResources(name);
+				loadResources(resources, loadedFiles);
+			}
+
 
 		}
 		catch (IOException e)
