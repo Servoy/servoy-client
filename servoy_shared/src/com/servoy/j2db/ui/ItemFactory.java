@@ -66,7 +66,7 @@ public interface ItemFactory
 	 * @param stringIfPrefix
 	 * @return
 	 */
-	IStandardLabel createLabel(String text, String string);
+	IStandardLabel createLabel(String name, String text);
 
 	/**
 	 * @param obj
