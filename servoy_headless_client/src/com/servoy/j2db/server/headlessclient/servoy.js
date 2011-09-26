@@ -251,9 +251,12 @@ function rearrageTabsInTabPanel(tabPanelId)
 						var tab = tabHolder.childNodes[j];
 						if (tab.nodeName.toLowerCase() == "div") {
 							var thisAnch = tab.getElementsByTagName("a")[0];
-							if (thisAnch.getAttribute("firsttab") == "true")
-								markedFirstTab = tab;
-							allTabsTogether.unshift(tab);
+							if (thisAnch)
+							{
+								if (thisAnch.getAttribute("firsttab") == "true")
+									markedFirstTab = tab;
+								allTabsTogether.unshift(tab);
+							}
 						}
 					}
 				}
