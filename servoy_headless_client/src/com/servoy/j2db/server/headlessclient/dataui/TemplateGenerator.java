@@ -41,8 +41,8 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.html.CSS;
 import javax.swing.text.html.CSS.Attribute;
 
-import org.apache.wicket.Component.IVisitor;
 import org.apache.wicket.ResourceReference;
+import org.apache.wicket.Component.IVisitor;
 
 import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
@@ -2596,19 +2596,19 @@ public class TemplateGenerator
 		}
 	}
 
-//	private static String getVerticalAlignValue(int va)
-//	{
-//		switch (va)
-//		{
-//			case ISupportTextSetup.CENTER :
-//				return "middle";  
-//			case ISupportTextSetup.TOP :
-//				return "top";  
-//			case ISupportTextSetup.BOTTOM :
-//			default :
-//				return "bottom";  
-//		}
-//	}
+	public static String getVerticalAlignValue(int va)
+	{
+		switch (va)
+		{
+			case ISupportTextSetup.CENTER :
+				return "middle";
+			case ISupportTextSetup.TOP :
+				return "top";
+			case ISupportTextSetup.BOTTOM :
+			default :
+				return "bottom";
+		}
+	}
 
 	protected static BorderAndPadding applyBaseComponentProperties(BaseComponent component, Form form, TextualStyle styleObj, Insets defaultPadding,
 		Insets defaultBorder, IServiceProvider sp)
