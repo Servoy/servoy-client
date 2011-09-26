@@ -19,7 +19,7 @@ package com.servoy.j2db.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.MDC;
+import org.slf4j.MDC;
 
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
@@ -113,8 +113,34 @@ public class Debug
 		}
 	}
 
+	private static Boolean HASMDC = null;
+
 	@SuppressWarnings("nls")
 	private static Object insertClientInfo(Object message)
+	{
+		if (HASMDC == null)
+		{
+			try
+			{
+				Class.forName("org.slf4j.MDC");
+				HASMDC = Boolean.TRUE;
+			}
+			catch (Exception e)
+			{
+				HASMDC = Boolean.FALSE;
+			}
+		}
+		if (!HASMDC.booleanValue()) return message;
+
+		return insetClientInfoWithMDC(message);
+	}
+
+	/**
+	 * @param message
+	 * @return
+	 */
+	@SuppressWarnings("nls")
+	private static Object insetClientInfoWithMDC(Object message)
 	{
 		IServiceProvider serviceProvider = J2DBGlobals.getServiceProvider();
 		if (serviceProvider != null && serviceProvider.getSolution() != null)
@@ -124,7 +150,8 @@ public class Debug
 		}
 		else
 		{
-			MDC.clear();
+			MDC.remove("clientid");
+			MDC.remove("solution");
 		}
 		return message;
 	}
