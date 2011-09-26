@@ -2115,6 +2115,15 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * @templatename onRender
 	 * @templateparam JSRenderEvent event the render event
 	 * @templateaddtodo
+	 * @templatecode
+	 * 
+	 * // NOTE: a property set on the renderable, will be keept on the element only during onRender
+	 * if (event.isRecordSelected()) {
+	 * 	event.getRenderable().fgcolor = '#00ff00';
+	 * } else if (event.getRecordIndex() % 2) {
+	 * 	event.getRenderable().fgcolor = '#ff0000';
+	 * }
+	 * 
 	 */
 	public int getOnRenderMethodID()
 	{
