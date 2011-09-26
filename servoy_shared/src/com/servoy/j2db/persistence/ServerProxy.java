@@ -17,8 +17,10 @@
 package com.servoy.j2db.persistence;
 
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.rmi.RemoteException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,12 +40,29 @@ public class ServerProxy implements IServer, Serializable
 	//local cache
 	private String serverName;
 	private String databaseProductName;
-	private final Map<String, ITable> tables = new ConcurrentHashMap<String, ITable>();
+	// handle serialization of ConcurrentHashMap in writeObject/readObject (tables transient) because in a terracotta environment serialization of 
+	// ConcurrentHashMap is broken, See http://jira.terracotta.org/jira/browse/CDV-1377
+	private volatile transient Map<String, ITable> tables = new ConcurrentHashMap<String, ITable>();
 
 	public ServerProxy(IServer a_server)
 	{
 		server = a_server;
 		// we cannot load all tables with columns from database, it to slow on big databases (1000+ tables)		
+	}
+
+	private void writeObject(java.io.ObjectOutputStream s) throws IOException
+	{
+		s.defaultWriteObject();
+		s.writeObject(new HashMap<String, ITable>(tables));
+	}
+
+	@SuppressWarnings("unchecked")
+	private void readObject(java.io.ObjectInputStream s) throws IOException, ClassNotFoundException
+	{
+		s.defaultReadObject();
+
+		tables = new ConcurrentHashMap<String, ITable>();
+		tables.putAll((Map< ? extends String, ? extends ITable>)s.readObject());
 	}
 
 	public ITable getTable(String tableName) throws RepositoryException, RemoteException
