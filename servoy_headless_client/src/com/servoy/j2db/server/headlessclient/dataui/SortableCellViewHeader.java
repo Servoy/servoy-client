@@ -52,6 +52,7 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportAnchors;
 import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.ISupportText;
+import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -65,8 +66,10 @@ import com.servoy.j2db.server.headlessclient.dnd.DraggableBehavior;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.FixedStyleSheet;
 import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.ImageLoader;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
@@ -392,7 +395,7 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 				IPersist element = it2.next();
 				if (id.equals(ComponentFactory.getWebID(form, element)))
 				{
-					GraphicalComponent gc = (GraphicalComponent)view.labelsFor.get(((ISupportName)element).getName());
+					final GraphicalComponent gc = (GraphicalComponent)view.labelsFor.get(((ISupportName)element).getName());
 					if (gc != null && gc.getImageMediaID() > 0)
 					{
 						final int media_id = gc.getImageMediaID();
@@ -429,6 +432,40 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 					{
 						tooltip = application.getI18NMessageIfPrefixed(gc.getToolTipText());
 						add(TooltipAttributeModifier.INSTANCE);
+					}
+					if (gc != null)
+					{
+						int style_valign = -1;
+						Pair<FixedStyleSheet, javax.swing.text.Style> styleInfo = ComponentFactory.getStyleForBasicComponent(application, gc, form);
+						if (styleInfo != null)
+						{
+							FixedStyleSheet ss = styleInfo.getLeft();
+							javax.swing.text.Style s = styleInfo.getRight();
+							if (ss != null && s != null)
+							{
+								style_valign = ss.getVAlign(s);
+							}
+						}
+						final int styleValign = style_valign;
+						add(new StyleAppendingModifier(new Model<String>()
+						{
+							private static final long serialVersionUID = 1L;
+
+							@Override
+							public String getObject()
+							{
+								int valign = ISupportTextSetup.CENTER;
+								if (gc.getVerticalAlignment() >= 0)
+								{
+									valign = gc.getVerticalAlignment();
+								}
+								else if (styleValign >= 0)
+								{
+									valign = styleValign;
+								}
+								return "vertical-align:" + TemplateGenerator.getVerticalAlignValue(valign) + ";"; //$NON-NLS-1$//$NON-NLS-2$
+							}
+						}));
 					}
 					if (gc != null && gc.getOnRightClickMethodID() > 0)
 					{
