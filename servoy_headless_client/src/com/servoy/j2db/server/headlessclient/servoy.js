@@ -1176,30 +1176,40 @@ function showtip(e,message,initialDelay, dismissDelay)
 	
 	if(!e)
 	{
-		tipmousemouveEvent = window.event;
+		tipmousemove(window.event);
 	}
 	else
 	{
-		tipmousemouveEvent = e;
+		tipmousemove(e);
 	}
-	window.addEventListener('mousemove', tipmousemove, false);
+	if(window.addEventListener)
+	{
+		document.addEventListener('mousemove', tipmousemove, false);
+	}
+	else
+	{
+		document.attachEvent('mousemove', tipmousemove);
+	}
 	tipInitialTimeout = setTimeout("adjustAndShowTooltip("+dismissDelay+");", initialDelay);
 }
 
 function adjustAndShowTooltip(dismissDelay)
 {
-	var e = tipmousemouveEvent;
 	var x = 0;
 	var y = 0;
-	if(e.pageX || e.pageY)
+		
+	if(tipmousemouveEventX || tipmousemouveEventY)
 	{
-		x = e.pageX;
-		y = e.pageY;
-	}
-	else if(e.clientX || e.clientY)
-	{
-		x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-		y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+		if(tipmousemouveEventIsPage)
+		{
+			x = tipmousemouveEventX;
+			y = tipmousemouveEventY;
+		}
+		else
+		{
+			x = tipmousemouveEventX + document.body.scrollLeft + document.documentElement.scrollLeft;
+			y = tipmousemouveEventY + document.body.scrollTop + document.documentElement.scrollTop;
+		}
 	}
 
 	var wWidth = 0, wHeight = 0;
@@ -1250,7 +1260,14 @@ function adjustAndShowTooltip(dismissDelay)
 
 function hidetip()
 {
-	window.removeEventListener('mousemove', tipmousemove, false);
+	if(window.removeEventListener)
+	{
+		window.removeEventListener('mousemove', tipmousemove, false);
+	}
+	else
+	{
+		window.detachEvent('mousemove', tipmousemove);
+	}
 	clearTimeout(tipInitialTimeout);
 	clearTimeout(tipTimeout);
 	var m;
@@ -1258,10 +1275,21 @@ function hidetip()
 	m.style.display = "none";
 }
 
-var tipmousemouveEvent;
+var tipmousemouveEventX, tipmousemouveEventY, tipmousemouveEventIsPage;
 function tipmousemove(e)
 {
-	tipmousemouveEvent = e;
+	if(e.pageX || e.pageY)
+	{
+		tipmousemouveEventIsPage = true;
+		tipmousemouveEventX = e.pageX;
+		tipmousemouveEventY = e.pageY;
+	}
+	else if(e.clientX || e.clientY)
+	{
+		tipmousemouveEventIsPage = false;
+		tipmousemouveEventX = e.clientX;
+		tipmousemouveEventY = e.clientY;
+	}	
 }
 
 var previousText;
