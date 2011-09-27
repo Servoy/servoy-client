@@ -22,6 +22,10 @@ public interface IParameter
 
 	String getType();
 
+	Class< ? > getRealType();
+
+	String getDescription();
+
 	boolean isOptional();
 
 	boolean isVarArgs();

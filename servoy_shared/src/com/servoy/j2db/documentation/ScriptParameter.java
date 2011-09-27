@@ -20,13 +20,22 @@ public class ScriptParameter implements IParameter
 {
 	private final String name;
 	private final String type;
+	private final Class< ? > realType;
+	private final String description;
 	private final boolean optional;
 	private final boolean vararg;
 
-	public ScriptParameter(String name, String type, boolean optional, boolean vararg)
+	public ScriptParameter(String name, String type, Class< ? > realType, boolean optional, boolean vararg)
+	{
+		this(name, type, realType, null, optional, vararg);
+	}
+
+	public ScriptParameter(String name, String type, Class< ? > realType, String description, boolean optional, boolean vararg)
 	{
 		this.name = name;
 		this.type = type;
+		this.realType = realType;
+		this.description = description;
 		this.optional = optional;
 		this.vararg = vararg;
 	}
@@ -54,6 +63,16 @@ public class ScriptParameter implements IParameter
 	public boolean isVarArgs()
 	{
 		return vararg;
+	}
+
+	public String getDescription()
+	{
+		return description;
+	}
+
+	public Class< ? > getRealType()
+	{
+		return realType;
 	}
 
 }
