@@ -103,6 +103,13 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 			((MainPage)currContainer).setShowPageInDialogDelayed(false);
 		}
 		if (getTitle() != null) setTitle(getTitle());
+
+		if (windowType == JSWindow.MODAL_DIALOG && application.getScriptEngine() instanceof IFunctionExecutor)
+		{
+			IFunctionExecutor executor = (IFunctionExecutor)application.getScriptEngine();
+			executor.suspend(this);
+
+		}
 	}
 
 	private IMainContainer getParentContainerForShow(FormManager fm)
@@ -149,11 +156,33 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 		else return 0;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.scripting.RuntimeWindow#hide(boolean)
+	 */
+//	@Override
+//	public boolean hide(boolean closeAll)
+//	{
+//		boolean hide = super.hide(closeAll);
+//		if (hide && (windowType == JSWindow.MODAL_DIALOG))
+//		{
+//			IFunctionExecutor executor = (IFunctionExecutor)application.getScriptEngine();
+//			executor.resume(this);
+//		}
+//		return hide;
+//	}
+
 	@Override
 	public void hideUI()
 	{
 		MainPage mp = getMainPage();
 		if (mp != null) mp.close();
+		if (windowType == JSWindow.MODAL_DIALOG)
+		{
+			IFunctionExecutor executor = (IFunctionExecutor)application.getScriptEngine();
+			executor.resume(this);
+		}
 	}
 
 	@Override

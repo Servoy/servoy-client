@@ -22,7 +22,6 @@ import java.util.Enumeration;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
 
-import org.apache.wicket.AbortException;
 import org.apache.wicket.AccessStackPageMap;
 import org.apache.wicket.Application;
 import org.apache.wicket.Component;
@@ -32,27 +31,21 @@ import org.apache.wicket.Page;
 import org.apache.wicket.Request;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.Response;
-import org.apache.wicket.RestartResponseAtInterceptPageException;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.Session;
 import org.apache.wicket.application.IComponentOnBeforeRenderListener;
 import org.apache.wicket.markup.html.PackageResource;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.protocol.http.ClientProperties;
 import org.apache.wicket.protocol.http.HttpSessionStore;
 import org.apache.wicket.protocol.http.MockServletContext;
 import org.apache.wicket.protocol.http.PageExpiredException;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.protocol.http.WebRequest;
-import org.apache.wicket.protocol.http.WebRequestCycle;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.protocol.http.WicketFilter;
 import org.apache.wicket.protocol.http.request.CryptedUrlWebRequestCodingStrategy;
-import org.apache.wicket.protocol.http.request.InvalidUrlException;
-import org.apache.wicket.protocol.http.request.WebClientInfo;
 import org.apache.wicket.protocol.http.request.urlcompressing.UrlCompressingWebCodingStrategy;
 import org.apache.wicket.protocol.http.request.urlcompressing.UrlCompressingWebRequestProcessor;
-import org.apache.wicket.request.ClientInfo;
 import org.apache.wicket.request.IRequestCodingStrategy;
 import org.apache.wicket.request.IRequestCycleProcessor;
 import org.apache.wicket.request.RequestParameters;
@@ -67,7 +60,6 @@ import org.apache.wicket.util.lang.Bytes;
 import org.apache.wicket.util.time.Duration;
 
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.component.ServoyBeanState;
 import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.dataui.IServoyAwareBean;
@@ -504,98 +496,7 @@ public class WebClientsApplication extends WebApplication
 	public RequestCycle newRequestCycle(Request request, Response response)
 	{
 		// Respond to request
-		return new WebRequestCycle(this, (WebRequest)request, (WebResponse)response)
-		{
-			/**
-			 * @see wicket.RequestCycle#onBeginRequest()
-			 */
-			@Override
-			protected void onBeginRequest()
-			{
-				WebClientSession webClientSession = (WebClientSession)getSession();
-				WebClient webClient = webClientSession.getWebClient();
-				if (webClient != null)
-				{
-					J2DBGlobals.setServiceProvider(webClient);
-					webClient.onBeginRequest(webClientSession);
-				}
-			}
-
-			/**
-			 * @see wicket.RequestCycle#onEndRequest()
-			 */
-			@Override
-			protected void onEndRequest()
-			{
-				J2DBGlobals.setServiceProvider(null);
-				WebClientSession webClientSession = (WebClientSession)getSession();
-				WebClient webClient = webClientSession.getWebClient();
-				if (webClient != null)
-				{
-					webClient.onEndRequest(webClientSession);
-				}
-			}
-
-			/**
-			 * @see org.apache.wicket.protocol.http.WebRequestCycle#newClientInfo()
-			 */
-			@Override
-			protected ClientInfo newClientInfo()
-			{
-				// We will always do a redirect here. The servoy browser info has to make one.
-				WebClientInfo webClientInfo = new WebClientInfo(this);
-				ClientProperties cp = webClientInfo.getProperties();
-				if (cp.isBrowserInternetExplorer() || cp.isBrowserMozilla() || cp.isBrowserKonqueror() || cp.isBrowserOpera() || cp.isBrowserSafari() ||
-					cp.isBrowserChrome())
-				{
-					if (cp.isBrowserInternetExplorer() && cp.getBrowserVersionMajor() != -1 && cp.getBrowserVersionMajor() < 7)
-					{
-						// IE6 is no longer supported when anchoring is enabled.
-						boolean enableAnchoring = Utils.getAsBoolean(Settings.getInstance().getProperty(
-							"servoy.webclient.enableAnchors", Boolean.TRUE.toString())); //$NON-NLS-1$ 
-						if (enableAnchoring)
-						{
-							throw new RestartResponseException(new UnsupportedBrowserPage("Internet Explorer 6")); //$NON-NLS-1$
-						}
-					}
-					Page page = getResponsePage();
-					if (page != null)
-					{
-						throw new RestartResponseAtInterceptPageException(new ServoyBrowserInfoPage(urlFor(page).toString().replaceAll("../", ""))); //$NON-NLS-1$ //$NON-NLS-2$
-					}
-					else
-					{
-						throw new RestartResponseAtInterceptPageException(new ServoyBrowserInfoPage(getRequest().getURL()));
-					}
-				}
-				return webClientInfo;
-			}
-
-			/**
-			 * @see org.apache.wicket.RequestCycle#onRuntimeException(org.apache.wicket.Page, java.lang.RuntimeException)
-			 */
-			@Override
-			public Page onRuntimeException(Page page, RuntimeException e)
-			{
-				if (e instanceof PageExpiredException || e instanceof InvalidUrlException)
-				{
-					if (((WebRequest)RequestCycle.get().getRequest()).isAjax())
-					{
-						Debug.log("ajax request with exception aborted ", e); //$NON-NLS-1$
-						throw new AbortException();
-					}
-				}
-				if (page instanceof MainPage && ((MainPage)page).getController() != null)
-				{
-					Debug.error("Error rendering the page " + ((MainPage)page).getController().getName(), e); //$NON-NLS-1$
-				}
-				else
-				{
-					Debug.error("Error rendering the page " + page, e); //$NON-NLS-1$
-				}
-				return super.onRuntimeException(page, e);
-			}
-		};
+		return new ServoyRequestCycle(this, (WebRequest)request, (WebResponse)response);
 	}
 
 	public class ModifiedAccessStackPageMap extends AccessStackPageMap

@@ -63,6 +63,7 @@ import com.servoy.j2db.dataprocessing.IUserClient;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.Style;
 import com.servoy.j2db.plugins.IClientPluginAccess;
+import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.IScriptSupport;
 import com.servoy.j2db.scripting.info.WEBCONSTANTS;
 import com.servoy.j2db.server.headlessclient.MainPage.ShowUrlInfo;
@@ -711,7 +712,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 					}
 					else
 					{
-						if (Session.exists())
+						if (Session.exists() && RequestCycle.get() != null)
 						{
 							if (getPreferedSolutionNameToLoadOnInit() == null)
 							{
@@ -762,6 +763,17 @@ public class WebClient extends SessionClient implements IWebClientApplication
 			closing = false;
 		}
 	}
+
+	@Override
+	protected IExecutingEnviroment createScriptEngine()
+	{
+		if (Boolean.parseBoolean(getSettings().getProperty("servoy.webclient.startscriptthread", "false")))
+		{
+			return new WebScriptEngine(this);
+		}
+		return super.createScriptEngine();
+	}
+
 
 	@Override
 	protected IFormManager createFormManager()
@@ -877,7 +889,8 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		}
 	}
 
-	public void onEndRequest(@SuppressWarnings("unused") WebClientSession webClientSession)
+	public void onEndRequest(@SuppressWarnings("unused")
+	WebClientSession webClientSession)
 	{
 	}
 

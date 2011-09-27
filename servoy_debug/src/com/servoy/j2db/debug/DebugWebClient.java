@@ -206,12 +206,20 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 	@Override
 	protected IExecutingEnviroment createScriptEngine()
 	{
-		RemoteDebugScriptEngine engine = new RemoteDebugScriptEngine(this);
-
+		RemoteDebugScriptEngine engine = null;
+		if (Boolean.parseBoolean(getSettings().getProperty("servoy.webclient.startscriptthread", "false")))
+		{
+			engine = new WebRemoteDebugScriptEngine(this);
+		}
+		else
+		{
+			engine = new RemoteDebugScriptEngine(this);
+		}
 		if (designerCallBack != null)
 		{
 			designerCallBack.addScriptObjects(this, engine.getSolutionScope());
 		}
+
 		return engine;
 	}
 
