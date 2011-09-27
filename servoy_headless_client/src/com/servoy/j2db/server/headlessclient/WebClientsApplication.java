@@ -65,6 +65,7 @@ import org.apache.wicket.request.target.resource.SharedResourceRequestTarget;
 import org.apache.wicket.session.ISessionStore;
 import org.apache.wicket.util.lang.Bytes;
 import org.apache.wicket.util.time.Duration;
+import org.slf4j.MDC;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.J2DBGlobals;
@@ -501,6 +502,7 @@ public class WebClientsApplication extends WebApplication
 	 * @see org.apache.wicket.protocol.http.WebApplication#newRequestCycle(org.apache.wicket.Request, org.apache.wicket.Response)
 	 */
 	@Override
+	@SuppressWarnings("nls")
 	public RequestCycle newRequestCycle(Request request, Response response)
 	{
 		// Respond to request
@@ -516,8 +518,15 @@ public class WebClientsApplication extends WebApplication
 				WebClient webClient = webClientSession.getWebClient();
 				if (webClient != null)
 				{
+					if (webClient.getSolution() != null)
+					{
+						MDC.put("clientid", webClient.getClientID());
+						MDC.put("solution", webClient.getSolution().getName());
+					}
+
 					J2DBGlobals.setServiceProvider(webClient);
 					webClient.onBeginRequest(webClientSession);
+
 				}
 			}
 
@@ -532,7 +541,15 @@ public class WebClientsApplication extends WebApplication
 				WebClient webClient = webClientSession.getWebClient();
 				if (webClient != null)
 				{
-					webClient.onEndRequest(webClientSession);
+					try
+					{
+						webClient.onEndRequest(webClientSession);
+					}
+					finally
+					{
+						MDC.remove("clientid");
+						MDC.remove("solution");
+					}
 				}
 			}
 
