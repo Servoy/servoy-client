@@ -165,6 +165,12 @@ public class TooltipAttributeModifier extends AttributeModifier
 
 						tooltip = tooltip.replace("\r\n", isHTMLText ? " " : "<br>");
 						tooltip = tooltip.replace("\n", isHTMLText ? " " : "<br>");
+
+						if (!isHTMLText)
+						{
+							tooltip = "<html><span style='white-space:nowrap'>" + tooltip + "</span></html>";
+						}
+
 						tooltip = tooltip.replace("\\", "\\\\");
 						tooltip = tooltip.replace("\'", "\\\'");
 
