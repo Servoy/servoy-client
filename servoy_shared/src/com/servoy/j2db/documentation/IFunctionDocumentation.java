@@ -99,4 +99,10 @@ public interface IFunctionDocumentation
 	public QualifiedDocumentationName getCloneDescRedirect();
 
 	public boolean isDocumented();
+
+	public String getReturnDescription();
+
+	public String getSince();
+
+	public String getUntil();
 }

@@ -169,6 +169,46 @@ public class XMLScriptObjectAdapter implements ITypedScriptObject
 		return null;
 	}
 
+	public Class< ? > getReturnedType(String methodName, Class< ? >[] argTypes)
+	{
+		IFunctionDocumentation fdoc = objDoc.getFunction(methodName, argTypes);
+		if (fdoc != null)
+		{
+			return fdoc.getReturnedType();
+		}
+		return null;
+	}
+
+	public String getReturnDescription(String methodName, Class< ? >[] argTypes)
+	{
+		IFunctionDocumentation fdoc = objDoc.getFunction(methodName, argTypes);
+		if (fdoc != null)
+		{
+			return fdoc.getReturnDescription();
+		}
+		return null;
+	}
+
+	public String getSince(String methodName, Class< ? >[] argTypes)
+	{
+		IFunctionDocumentation fdoc = objDoc.getFunction(methodName, argTypes);
+		if (fdoc != null)
+		{
+			return fdoc.getSince();
+		}
+		return null;
+	}
+
+	public String getUntil(String methodName, Class< ? >[] argTypes)
+	{
+		IFunctionDocumentation fdoc = objDoc.getFunction(methodName, argTypes);
+		if (fdoc != null)
+		{
+			return fdoc.getUntil();
+		}
+		return null;
+	}
+
 	public boolean isDeprecated(String methodName)
 	{
 		IFunctionDocumentation fdoc = objDoc.getFunction(methodName);
