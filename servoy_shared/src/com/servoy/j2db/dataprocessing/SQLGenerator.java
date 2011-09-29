@@ -900,7 +900,10 @@ public class SQLGenerator
 														// found a like operator, use backslash as escape in like,
 														// use unmodified value, db will use escape backslash from like expression
 														operator = ISQLCondition.LIKE_OPERATOR;
-														value2 = "\\"; // escape char  //$NON-NLS-1$
+														if (data.indexOf('\\') >= 0)
+														{
+															value2 = "\\"; // escape char, put escape in sql when seen in string  //$NON-NLS-1$
+														}
 														break;
 													}
 													dataBuf.append(d);
