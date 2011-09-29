@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2011 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -14,6 +14,7 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
+
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import java.awt.Color;
@@ -30,12 +31,9 @@ import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
-import org.apache.wicket.IResourceListener;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Page;
-import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
@@ -46,9 +44,9 @@ import org.apache.wicket.markup.html.list.Loop;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.protocol.http.ClientProperties;
-import org.apache.wicket.protocol.http.request.WebClientInfo;
 import org.apache.wicket.version.undo.Change;
+import org.odlabs.wiquery.ui.accordion.Accordion;
+import org.odlabs.wiquery.ui.accordion.AccordionAnimated;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
@@ -64,36 +62,38 @@ import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabPanel;
-import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.TabIndexHelper;
 import com.servoy.j2db.server.headlessclient.WebForm;
+import com.servoy.j2db.server.headlessclient.dataui.WebTabPanel.ServoyTabIcon;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IFormLookupPanel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
-import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportSecuritySettings;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.ITabPanel;
-import com.servoy.j2db.ui.scripting.RuntimeTabPanel;
-import com.servoy.j2db.util.IAnchorConstants;
+import com.servoy.j2db.ui.scripting.RuntimeAccordionPanel;
 import com.servoy.j2db.util.ITagResolver;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
 /**
- * Represents a tabpanel in the webbrowser.
+ * Represents an accordion panel in the webbrowser.
  * 
- * @author jcompagner
+ * @author lvostinar
+ * @since 6.1
+ *
  */
-public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDisplayRelatedData, IProviderStylePropertyChanges, ISupportSecuritySettings,
+public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, IDisplayRelatedData, IProviderStylePropertyChanges, ISupportSecuritySettings,
 	ISupportWebBounds, ISupportWebTabSeq, ListSelectionListener
 {
 	private static final long serialVersionUID = 1L;
 
 	private final IApplication application;
 	private WebTabFormLookup currentForm;
+	private Accordion accordion;
 	protected IRecordInternal parentData;
 	private final List<String> allRelationNames = new ArrayList<String>(5);
 	protected final List<WebTabHolder> allTabs = new ArrayList<WebTabHolder>(5);
@@ -104,23 +104,20 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 	private String onTabChangeMethodCmd;
 	private Object[] onTabChangeArgs;
 
-	protected final int orient;
 	private int tabSequenceIndex = ISupportWebTabSeq.DEFAULT;
-	private Dimension tabSize;
-	private final RuntimeTabPanel scriptable;
+	private final RuntimeAccordionPanel scriptable;
 
-	public WebTabPanel(IApplication application, final RuntimeTabPanel scriptable, String name, int orient, boolean oneTab)
+	public WebAccordionPanel(IApplication application, final RuntimeAccordionPanel scriptable, String name)
 	{
 		super(name);
 		this.application = application;
-		this.orient = orient;
 
-		final boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		setOutputMarkupPlaceholderTag(true);
-
-		if (orient != TabPanel.SPLIT_HORIZONTAL && orient != TabPanel.SPLIT_VERTICAL) add(new Label("webform", new Model<String>("")));//temporary add, in case the tab panel does not contain any tabs //$NON-NLS-1$ //$NON-NLS-2$
-
-		// TODO check ignore orient and oneTab??
+		accordion = new Accordion("accordion_" + name); //$NON-NLS-1$
+		add(accordion);
+		// disable animation, see http://forum.jquery.com/topic/jquery-accordion-not-work-on-ie-7
+		accordion.setAnimated(new AccordionAnimated(Boolean.FALSE));
+		accordion.setFillSpace(true);
 		IModel<Integer> tabsModel = new AbstractReadOnlyModel<Integer>()
 		{
 			private static final long serialVersionUID = 1L;
@@ -131,227 +128,129 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 				return new Integer(allTabs.size());
 			}
 		};
+		final boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 
-		if (orient != TabPanel.HIDE && orient != TabPanel.SPLIT_HORIZONTAL && orient != TabPanel.SPLIT_VERTICAL && !(orient == TabPanel.DEFAULT && oneTab))
+		accordion.add(new Loop("tabs", tabsModel) //$NON-NLS-1$
 		{
-			add(new Loop("tablinks", tabsModel) //$NON-NLS-1$
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void populateItem(final LoopItem item)
 			{
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				protected void populateItem(LoopItem item)
+				item.setRenderBodyOnly(true);
+				final WebTabHolder holder = allTabs.get(item.getIteration());
+				ServoySubmitLink link = new ServoySubmitLink("tablink", useAJAX)//$NON-NLS-1$
 				{
-					final WebTabHolder holder = allTabs.get(item.getIteration());
-					MarkupContainer link = null;
-					link = new ServoySubmitLink("tablink", useAJAX) //$NON-NLS-1$
+					@Override
+					public void onClick(AjaxRequestTarget target)
 					{
-						private static final long serialVersionUID = 1L;
-
-						/**
-						 * @see wicket.ajax.markup.html.AjaxFallbackLink#onClick(wicket.ajax.AjaxRequestTarget)
-						 */
-						@Override
-						public void onClick(AjaxRequestTarget target)
+						Page page = findPage();
+						if (page != null)
 						{
-							Page page = findPage();
-							if (page != null)
+							setActiveTabPanel(holder.getPanel());
+							if (target != null)
 							{
-								setActiveTabPanel(holder.getPanel());
-								if (target != null)
-								{
-									if (currentForm != null) addFormForFullAnchorRendering(currentForm.getWebForm(), (MainPage)page);
-									relinkAtTabPanel(WebTabPanel.this);
-									WebEventExecutor.generateResponse(target, page);
-								}
+								relinkFormIfNeeded();
+								accordion.activate(target, item.getIteration());
+								WebEventExecutor.generateResponse(target, page);
 							}
 						}
+					}
 
-						private void addFormForFullAnchorRendering(WebForm form, final MainPage mainPage)
-						{
-							mainPage.addFormForFullAnchorRendering(form);
-							form.visitChildren(WebTabPanel.class, new IVisitor<WebTabPanel>()
-							{
-								public Object component(WebTabPanel tabPanel)
-								{
-									if (tabPanel.currentForm != null) addFormForFullAnchorRendering(tabPanel.currentForm.getWebForm(), mainPage);
-									return IVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
-								}
-							});
-						}
-
-						private void relinkAtForm(WebForm form)
-						{
-							form.visitChildren(WebTabPanel.class, new IVisitor<WebTabPanel>()
-							{
-								public Object component(WebTabPanel wtp)
-								{
-									relinkAtTabPanel(wtp);
-									return IVisitor.CONTINUE_TRAVERSAL;
-								}
-							});
-						}
-
-						private void relinkAtTabPanel(WebTabPanel wtp)
-						{
-							wtp.relinkFormIfNeeded();
-							wtp.visitChildren(WebForm.class, new IVisitor<WebForm>()
-							{
-								public Object component(WebForm form)
-								{
-									relinkAtForm(form);
-									return IVisitor.CONTINUE_TRAVERSAL;
-								}
-							});
-						}
-
-						@Override
-						protected void disableLink(final ComponentTag tag)
-						{
-							// if the tag is an anchor proper
-							if (tag.getName().equalsIgnoreCase("a") || tag.getName().equalsIgnoreCase("link") || tag.getName().equalsIgnoreCase("area")) //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-							{
-								// Remove any href from the old link
-								tag.remove("href"); //$NON-NLS-1$
-								tag.remove("onclick"); //$NON-NLS-1$
-							}
-						}
-
-					};
-					TabIndexHelper.setUpTabIndexAttributeModifier(link, tabSequenceIndex);
-
-					if (item.getIteration() == 0) link.add(new AttributeModifier("firsttab", true, new Model<Boolean>(Boolean.TRUE))); //$NON-NLS-1$
-					link.setEnabled(holder.isEnabled() && WebTabPanel.this.isEnabled());
-
-					ServoyTabIcon tabIcon = new ServoyTabIcon("icon", holder, scriptable); //$NON-NLS-1$
-					link.add(tabIcon);
-
-					Label label = new Label("linktext", new Model<String>(holder.getText())); //$NON-NLS-1$
-					label.setEscapeModelStrings(false);
-					link.add(label);
-					item.add(link);
-					IModel<String> selectedOrDisabledClass = new AbstractReadOnlyModel<String>()
+					@Override
+					protected void disableLink(ComponentTag tag)
 					{
-						private static final long serialVersionUID = 1L;
+						// do nothing here
+					}
+				};
+				link.setEnabled(holder.isEnabled() && WebAccordionPanel.this.isEnabled());
+				if (holder.getIcon() != null)
+				{
+					accordion.hideIcons();
+				}
+				if (holder.getTooltip() != null)
+				{
+					link.setMetaData(TooltipAttributeModifier.TOOLTIP_METADATA, holder.getTooltip());
+				}
+				TabIndexHelper.setUpTabIndexAttributeModifier(link, tabSequenceIndex);
+				link.add(TooltipAttributeModifier.INSTANCE);
 
+				Label label = new Label("linktext", new Model<String>(holder.getText())); //$NON-NLS-1$
+				label.setEscapeModelStrings(false);
+				link.add(label);
+				ServoyTabIcon icon = new ServoyTabIcon("icon", holder, scriptable); //$NON-NLS-1$
+				if (holder.getIcon() != null)
+				{
+					icon.add(new StyleAppendingModifier(new Model<String>()
+					{
 						@Override
 						public String getObject()
 						{
-							if (!holder.isEnabled() || !WebTabPanel.this.isEnabled())
-							{
-								if (currentForm == holder.getPanel())
-								{
-									return "disabled_selected_tab"; //$NON-NLS-1$
-								}
-								return "disabled_tab"; //$NON-NLS-1$
-							}
-							else
-							{
-								if (currentForm == holder.getPanel())
-								{
-									return "selected_tab"; //$NON-NLS-1$
-								}
-								return "deselected_tab"; //$NON-NLS-1$
-							}
-						}
-					};
-					item.add(new AttributeModifier("class", true, selectedOrDisabledClass)); //$NON-NLS-1$
-					label.add(new StyleAppendingModifier(new Model<String>()
-					{
-						private static final long serialVersionUID = 1L;
-
-						@Override
-						public String getObject()
-						{
-							String style = "white-space: nowrap;"; //$NON-NLS-1$
-							if (foreground != null)
-							{
-								style += " color:" + PersistHelper.createColorString(foreground); //$NON-NLS-1$
-							}
-							if (holder.getIcon() != null)
-							{
-								style += "; padding-left: 3px"; //$NON-NLS-1$
-							}
-							return style;
+							return "float: left;"; //$NON-NLS-1$
 						}
 					}));
 				}
-			});
-
-			// All tab panels get their tabs rearranged after they make it to the browser.
-			// On Chrome & Safari the tab rearrangement produces an ugly flicker effect, because
-			// initially the tabs are not visible and then they are made visible. By
-			// sending the tab as invisible and turning it to visible only after the tabs
-			// are arranged, this jumping/flickering effect is gone. However a small delay can now be
-			// noticed in Chrome & Safari, which should also be eliminated somehow.
-			// The tab panel is set to visible in function "rearrageTabsInTabPanel" from "servoy.js".
-			add(new StyleAppendingModifier(new Model<String>()
-			{
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public String getObject()
+				link.add(icon);
+				item.add(link);
+				item.add(new Label("webform", new Model<String>(""))); // temporary add  //$NON-NLS-1$//$NON-NLS-2$
+				label.add(new StyleAppendingModifier(new Model<String>()
 				{
-					return "visibility: hidden;"; //$NON-NLS-1$
-				}
-			}));
+					private static final long serialVersionUID = 1L;
 
-			add(new AbstractServoyDefaultAjaxBehavior()
-			{
-
-				@Override
-				protected void respond(AjaxRequestTarget target)
-				{
-				}
-
-				@Override
-				public void renderHead(IHeaderResponse response)
-				{
-					super.renderHead(response);
-					boolean dontRearrangeHere = false;
-
-					if (!(getRequestCycle().getRequestTarget() instanceof AjaxRequestTarget) &&
-						Utils.getAsBoolean(((MainPage)getPage()).getController().getApplication().getRuntimeProperties().get("enableAnchors"))) //$NON-NLS-1$
+					@Override
+					public String getObject()
 					{
-						Component parentForm = getParent();
-						while ((parentForm != null) && !(parentForm instanceof WebForm))
-							parentForm = parentForm.getParent();
-						if (parentForm != null)
+						String style = "white-space: nowrap;"; //$NON-NLS-1$
+						if (font != null)
 						{
-							int anch = ((WebForm)parentForm).getAnchors(WebTabPanel.this.getMarkupId());
-							if (anch != 0 && anch != IAnchorConstants.DEFAULT) dontRearrangeHere = true;
+							Pair<String, String>[] fontPropetiesPair = PersistHelper.createFontCSSProperties(PersistHelper.createFontString(font));
+							for (Pair<String, String> element : fontPropetiesPair)
+							{
+								style += element.getLeft() + ": " + element.getRight() + ";"; //$NON-NLS-1$ //$NON-NLS-2$
+							}
 						}
+						if (holder.getForeground() != null)
+						{
+							style += " color:" + PersistHelper.createColorString(holder.getForeground()); //$NON-NLS-1$
+						}
+						else if (foreground != null)
+						{
+							style += " color:" + PersistHelper.createColorString(foreground); //$NON-NLS-1$
+						}
+						return style;
 					}
-					if (!dontRearrangeHere)
-					{
-						String jsCall = "rearrageTabsInTabPanel('" + WebTabPanel.this.getMarkupId() + "');"; //$NON-NLS-1$ //$NON-NLS-2$
-						// Safari and Konqueror have some problems with the "domready" event, so for those 
-						// browsers we'll use the "load" event. Otherwise use "domready", it reduces the flicker
-						// effect when rearranging the tabs.
-						ClientProperties clp = ((WebClientInfo)Session.get().getClientInfo()).getProperties();
-						if (clp.isBrowserKonqueror() || clp.isBrowserSafari()) response.renderOnLoadJavascript(jsCall);
-						else response.renderOnDomReadyJavascript(jsCall);
-					}
+				}));
+			}
+		});
+		add(new AbstractServoyDefaultAjaxBehavior()
+		{
+			@Override
+			protected void respond(AjaxRequestTarget target)
+			{
+				Integer index = Utils.getAsInteger(getTabIndex());
+				if (index != null && index > 0)
+				{
+					accordion.activate(target, index - 1);
 				}
 
-			});
-		}
+			}
+
+			@Override
+			public void renderHead(IHeaderResponse response)
+			{
+				super.renderHead(response);
+				response.renderOnDomReadyJavascript(getCallbackScript().toString());
+			}
+		});
+
 		add(StyleAttributeModifierModel.INSTANCE);
-		add(TooltipAttributeModifier.INSTANCE);
 		this.scriptable = scriptable;
 		((ChangesRecorder)scriptable.getChangesRecorder()).setDefaultBorderAndPadding(null, TemplateGenerator.DEFAULT_LABEL_PADDING);
 	}
 
-	public final RuntimeTabPanel getScriptObject()
+	public final RuntimeAccordionPanel getScriptObject()
 	{
 		return scriptable;
-	}
-
-	/**
-	 * @return the orient
-	 */
-	public int getOrient()
-	{
-		return orient;
 	}
 
 	public IStylePropertyChanges getStylePropertyChanges()
@@ -412,10 +311,6 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		}
 	}
 
-	/**
-	 * @param fl
-	 * @param previousIndex
-	 */
 	private void setCurrentForm(WebTabFormLookup fl, int previousIndex, List<Runnable> invokeLaterRunnables)
 	{
 		if (fl != null && !fl.isFormReady()) return;
@@ -430,16 +325,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		// Test if current one is there
 		if (currentForm.isReady())
 		{
-			if (WebTabPanel.this.get(currentForm.getWebForm().getId()) != null)
-			{
-				// replace it
-				WebTabPanel.this.replace(currentForm.getWebForm());
-			}
-			else
-			{
-				// else add it
-				WebTabPanel.this.add(currentForm.getWebForm());
-			}
+			addCurrentFormComponent();
 			recomputeTabSequence();
 			boolean visible = true;
 			WebForm webform = findParent(WebForm.class);
@@ -453,6 +339,31 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 			{
 				scriptExecutor.executeFunction(onTabChangeMethodCmd, Utils.arrayMerge((new Object[] { new Integer(previousIndex + 1) }), onTabChangeArgs),
 					true, this, false, StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID.getPropertyName(), false);
+			}
+		}
+	}
+
+	private void addCurrentFormComponent()
+	{
+		if (currentForm.isReady())
+		{
+			Integer index = Utils.getAsInteger(getTabIndex());
+			if (index != null && index > 0)
+			{
+				MarkupContainer parent = (MarkupContainer)((MarkupContainer)accordion.get(0)).get(index - 1);
+				if (parent != null)
+				{
+					if (parent.get(currentForm.getWebForm().getId()) != null)
+					{
+						// replace it
+						parent.replace(currentForm.getWebForm());
+					}
+					else
+					{
+						// else add it
+						parent.add(currentForm.getWebForm());
+					}
+				}
 			}
 		}
 	}
@@ -492,10 +403,16 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		getStylePropertyChanges().setRendered();
 	}
 
+	@Override
+	protected void onBeforeRender()
+	{
+		//tab has to be initialized now.. see also MainPage.listview.onBeforRender..
+		initalizeFirstTab();
+		super.onBeforeRender();
+		relinkFormIfNeeded();
 
-	/**
-	 * @return
-	 */
+	}
+
 	public void initalizeFirstTab()
 	{
 		if (currentForm == null && allTabs.size() > 0)
@@ -516,39 +433,12 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		return;
 	}
 
-
 	private void relinkFormIfNeeded()
 	{
-		if (currentForm != null && isVisibleInHierarchy() && currentForm.getWebForm().getParent() != this)
+		if (currentForm != null && isVisibleInHierarchy() && currentForm.getWebForm().findParent(ITabPanel.class) != this)
 		{
-			if (get(currentForm.getWebForm().getId()) != null)
-			{
-				// replace it
-				replace(currentForm.getWebForm());
-			}
-			else
-			{
-				// else add it
-				add(currentForm.getWebForm());
-			}
+			addCurrentFormComponent();
 		}
-	}
-
-	/**
-	 * @see wicket.Component#onAttach()
-	 */
-	@Override
-	protected void onBeforeRender()
-	{
-		if (orient != TabPanel.SPLIT_HORIZONTAL && orient != TabPanel.SPLIT_VERTICAL)
-		{
-			//tab has to be initialized now.. see also MainPage.listview.onBeforRender..
-			initalizeFirstTab();
-			super.onBeforeRender();
-			relinkFormIfNeeded();
-		}
-		else super.onBeforeRender();
-
 	}
 
 	public void setTabLayoutPolicy(int scroll_tab_layout)
@@ -588,16 +478,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 				// Test if current one is there
 				if (currentForm.isReady())
 				{
-					if (WebTabPanel.this.get(currentForm.getWebForm().getId()) != null)
-					{
-						// replace it
-						WebTabPanel.this.replace(currentForm.getWebForm());
-					}
-					else
-					{
-						// else add it
-						WebTabPanel.this.add(currentForm.getWebForm());
-					}
+					addCurrentFormComponent();
 					recomputeTabSequence();
 				}
 			}
@@ -648,10 +529,6 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		}
 	}
 
-	/**
-	 * @param parentState
-	 * @return
-	 */
 	private ITagResolver getTagResolver(IRecordInternal parentState)
 	{
 		ITagResolver resolver;
@@ -778,9 +655,6 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		//TODO should deregister related foundsets??
 	}
 
-	/*
-	 * tab support----------------------------------------------------------------------------
-	 */
 	public void addTab(String text, int iconMediaId, IFormLookupPanel flp, String tip)
 	{
 		byte[] iconData = ComponentFactory.loadIcon(application.getFlattenedSolution(), new Integer(iconMediaId));
@@ -801,6 +675,11 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 
 	public void setTabForegroundAt(int index, Color fg)
 	{
+		if (index >= 0 && index < allTabs.size())
+		{
+			WebTabHolder holder = allTabs.get(index);
+			holder.setForeground(fg);
+		}
 	}
 
 	public void setTabBackgroundAt(int index, Color bg)
@@ -964,16 +843,6 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		//safety
 		currentForm = null;
 
-		if (WebTabPanel.this.get("webform") != null) //$NON-NLS-1$
-		{
-			// replace it
-			WebTabPanel.this.replace(new Label("webform", new Model<String>("")));//temporary add; //$NON-NLS-1$ //$NON-NLS-2$
-		}
-		else
-		{
-			// else add it
-			WebTabPanel.this.add(new Label("webform", new Model<String>("")));//temporary add; //$NON-NLS-1$ //$NON-NLS-2$
-		}
 		return true;
 	}
 
@@ -1013,7 +882,6 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		WebTabHolder holder = allTabs.get(i);
 		holder.setText(TemplateGenerator.getSafeText(s));
 	}
-
 
 	/*
 	 * readonly---------------------------------------------------
@@ -1112,7 +980,6 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		return font;
 	}
 
-
 	private Color background;
 
 	public void setBackground(Color cbg)
@@ -1150,11 +1017,13 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		}
 	}
 
+
 	public void setComponentEnabled(final boolean b)
 	{
 		if (accessible)
 		{
 			super.setEnabled(b);
+			accordion.setDisabled(!b);
 			visitChildren(IComponent.class, new IVisitor<Component>()
 			{
 				public Object component(Component component)
@@ -1276,10 +1145,6 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		this.tabSequenceIndex = tabIndex;
 	}
 
-	/**
-	 * @param current
-	 * @return
-	 */
 	public int getTabIndex(WebForm current)
 	{
 		if (currentForm != null && currentForm.getWebForm() == current)
@@ -1310,63 +1175,8 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		}
 	}
 
-	public void setTabSize(Dimension tabSize)
-	{
-		this.tabSize = tabSize;
-	}
-
-	public Dimension getTabSize()
-	{
-		return tabSize;
-	}
-
 	public void setHorizontalAlignment(int alignment)
 	{
 
 	}
-
-	public static class ServoyTabIcon extends Label implements IResourceListener
-	{
-		private final WebTabHolder holder;
-
-		public ServoyTabIcon(String id, final WebTabHolder holder, final IScriptBaseMethods scriptable)
-		{
-			super(id);
-			this.holder = holder;
-			add(new StyleAppendingModifier(new Model<String>()
-			{
-				@SuppressWarnings("nls")
-				@Override
-				public String getObject()
-				{
-					StringBuilder result = new StringBuilder();
-					if (holder.getIcon() != null)
-					{
-						result.append("width: ").append(holder.getIcon().getWidth()).append("px; height: ").append(holder.getIcon().getHeight()).append("px");
-						result.append("; background-image: url(");
-						result.append(getResponse().encodeURL(urlFor(IResourceListener.INTERFACE) + "&r=" + Math.random()));
-						result.append(')');
-						if (!scriptable.js_isEnabled())
-						{
-							result.append("; filter:alpha(opacity=50);-moz-opacity:.50;opacity:.50");
-						}
-					}
-					else
-					{
-						result.append("width: 0px; height: 0px");
-					}
-					return result.toString();
-				}
-			}));
-		}
-
-		public void onResourceRequested()
-		{
-			if (holder.getIcon() != null)
-			{
-				holder.getIcon().onResourceRequested();
-			}
-		}
-	}
-
 }

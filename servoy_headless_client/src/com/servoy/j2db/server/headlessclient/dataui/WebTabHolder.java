@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.server.headlessclient.dataui;
 
+import java.awt.Color;
+
 import com.servoy.j2db.ui.IFormLookupPanel;
 import com.servoy.j2db.util.Utils;
 
@@ -33,6 +35,7 @@ public class WebTabHolder
 	private String text;
 	private String tagText;
 	private boolean enabled;
+	private Color foreground = null;
 
 	WebTabHolder(String t, IFormLookupPanel panel, byte[] iconData, String tooltip)
 	{
@@ -88,5 +91,29 @@ public class WebTabHolder
 	public MediaResource getIcon()
 	{
 		return icon;
+	}
+
+	/**
+	 * @return the foreground
+	 */
+	public Color getForeground()
+	{
+		return foreground;
+	}
+
+	/**
+	 * @param foreground the foreground to set
+	 */
+	public void setForeground(Color foreground)
+	{
+		this.foreground = foreground;
+	}
+
+	/**
+	 * @return the tooltip
+	 */
+	public String getTooltip()
+	{
+		return tooltip;
 	}
 }

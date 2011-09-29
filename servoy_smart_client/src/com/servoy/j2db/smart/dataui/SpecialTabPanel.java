@@ -56,7 +56,7 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IFormLookupPanel;
 import com.servoy.j2db.ui.ISupportSecuritySettings;
 import com.servoy.j2db.ui.ITabPanel;
-import com.servoy.j2db.ui.scripting.RuntimeTabPanel;
+import com.servoy.j2db.ui.scripting.RuntimeAccordionPanel;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnablePanel;
 import com.servoy.j2db.util.IFocusCycleRoot;
@@ -96,14 +96,14 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 
 	private final List<Component> tabSeqComponentList = new ArrayList<Component>();
 	private boolean transferFocusBackwards = false;
-	private final RuntimeTabPanel scriptable;
+	private final RuntimeAccordionPanel scriptable;
 
-	public SpecialTabPanel(IApplication app, RuntimeTabPanel scriptable, int orient, boolean oneTab)
+	public SpecialTabPanel(IApplication app, RuntimeAccordionPanel scriptable, int orient, boolean oneTab)
 	{
 		this(app, scriptable, orient, oneTab, null);
 	}
 
-	protected SpecialTabPanel(IApplication app, RuntimeTabPanel scriptable, int orient, boolean oneTab, ITabPaneAlike enclosingComponent)
+	protected SpecialTabPanel(IApplication app, RuntimeAccordionPanel scriptable, int orient, boolean oneTab, ITabPaneAlike enclosingComponent)
 	{
 		super();
 		application = app;
@@ -116,6 +116,12 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 			{
 				this.enclosingComponent = new TablessPanel(application);
 				setFocusTraversalPolicy(ServoyFocusTraversalPolicy.datarenderPolicy);
+			}
+			else if (orient == TabPanel.ACCORDION_PANEL)
+			{
+				this.enclosingComponent = new AccordionPanel(application);
+				ToolTipManager.sharedInstance().registerComponent((JComponent)this.enclosingComponent);
+				setFocusTraversalPolicy(ServoyFocusTraversalPolicy.defaultPolicy);
 			}
 			else
 			{
@@ -142,7 +148,7 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 		scriptable.setEnclosingComponent((JComponent)this.enclosingComponent);
 	}
 
-	public final RuntimeTabPanel getScriptObject()
+	public final RuntimeAccordionPanel getScriptObject()
 	{
 		return scriptable;
 	}
@@ -822,6 +828,15 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 			currentForm.getFormPanel();//make sure the flp is ready
 			showFoundSet(currentForm, parentData, currentForm.getDefaultSort());
 		}
+	}
+
+	public void setHorizontalAlignment(int alignment)
+	{
+		if (enclosingComponent instanceof AccordionPanel)
+		{
+			((AccordionPanel)enclosingComponent).setAllTabsAlignment(alignment);
+		}
+
 	}
 
 }

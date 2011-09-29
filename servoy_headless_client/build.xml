@@ -122,6 +122,8 @@
 			
 			<pathelement path="../servoy_shared/lib/wicket.jar"/>
 			
+			<pathelement path="../servoy_shared/lib/wiquery.jar"/>
+			
 			<pathelement path="../servoy_shared/lib/commons-pool.jar"/>
 			
 			<pathelement path="../servoy_shared/lib/activation.jar"/>

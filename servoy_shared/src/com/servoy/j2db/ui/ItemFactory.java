@@ -32,6 +32,7 @@ import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeScrollableValuelistComponent;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeTextEditor;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeValuelistComponent;
+import com.servoy.j2db.ui.scripting.RuntimeAccordionPanel;
 import com.servoy.j2db.ui.scripting.RuntimeDataButton;
 import com.servoy.j2db.ui.scripting.RuntimeDataCalendar;
 import com.servoy.j2db.ui.scripting.RuntimeDataCombobox;
@@ -46,7 +47,6 @@ import com.servoy.j2db.ui.scripting.RuntimeRectangle;
 import com.servoy.j2db.ui.scripting.RuntimeScriptButton;
 import com.servoy.j2db.ui.scripting.RuntimeScriptLabel;
 import com.servoy.j2db.ui.scripting.RuntimeSplitPane;
-import com.servoy.j2db.ui.scripting.RuntimeTabPanel;
 import com.servoy.j2db.ui.scripting.RuntimeTextArea;
 
 /**
@@ -95,7 +95,7 @@ public interface ItemFactory
 	 * @param b
 	 * @return
 	 */
-	ITabPanel createTabPanel(RuntimeTabPanel scriptable, String name, int orient, boolean b);
+	ITabPanel createTabPanel(RuntimeAccordionPanel scriptable, String name, int orient, boolean b);
 
 	/**
 	 * @param name TODO

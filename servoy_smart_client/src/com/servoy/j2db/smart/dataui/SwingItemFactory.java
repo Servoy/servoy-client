@@ -46,6 +46,7 @@ import com.servoy.j2db.ui.ItemFactory;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeScrollableValuelistComponent;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeTextEditor;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeValuelistComponent;
+import com.servoy.j2db.ui.scripting.RuntimeAccordionPanel;
 import com.servoy.j2db.ui.scripting.RuntimeDataButton;
 import com.servoy.j2db.ui.scripting.RuntimeDataCalendar;
 import com.servoy.j2db.ui.scripting.RuntimeDataCombobox;
@@ -60,7 +61,6 @@ import com.servoy.j2db.ui.scripting.RuntimeRectangle;
 import com.servoy.j2db.ui.scripting.RuntimeScriptButton;
 import com.servoy.j2db.ui.scripting.RuntimeScriptLabel;
 import com.servoy.j2db.ui.scripting.RuntimeSplitPane;
-import com.servoy.j2db.ui.scripting.RuntimeTabPanel;
 import com.servoy.j2db.ui.scripting.RuntimeTextArea;
 
 /**
@@ -117,7 +117,7 @@ public class SwingItemFactory implements ItemFactory
 	 * 
 	 * @see com.servoy.j2db.ItemFactory#createTabPanel(int, boolean)
 	 */
-	public ITabPanel createTabPanel(RuntimeTabPanel scriptable, String name, int orient, boolean oneTab)
+	public ITabPanel createTabPanel(RuntimeAccordionPanel scriptable, String name, int orient, boolean oneTab)
 	{
 		ITabPanel tabPanel = new SpecialTabPanel(application, scriptable, orient, oneTab);
 		tabPanel.setName(name);

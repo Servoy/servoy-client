@@ -16,9 +16,12 @@
  */
 package com.servoy.j2db.server.headlessclient.dataui;
 
+import java.io.Serializable;
+
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.IResourceListener;
+import org.apache.wicket.MetaDataKey;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.Session;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
@@ -50,6 +53,11 @@ public class TooltipAttributeModifier extends AttributeModifier
 	 */
 	public static final TooltipAttributeModifier INSTANCE = new TooltipAttributeModifier();
 
+	public static final MetaDataKey<Serializable> TOOLTIP_METADATA = new MetaDataKey<Serializable>()
+	{
+		private static final long serialVersionUID = 1L;
+	};
+
 	/**
 	 * Construct.
 	 * 
@@ -70,7 +78,7 @@ public class TooltipAttributeModifier extends AttributeModifier
 			@Override
 			public boolean isEnabled(Component component)
 			{
-				if (component instanceof IComponent || component instanceof SortableCellViewHeader)
+				if (component instanceof IComponent || component instanceof SortableCellViewHeader || component.getMetaData(TOOLTIP_METADATA) != null)
 				{
 					String tooltip = null;
 					if (component instanceof IComponent)
@@ -80,6 +88,10 @@ public class TooltipAttributeModifier extends AttributeModifier
 					if (component instanceof SortableCellViewHeader)
 					{
 						tooltip = ((SortableCellViewHeader)component).getToolTipText();
+					}
+					if (tooltip == null)
+					{
+						tooltip = (String)component.getMetaData(TOOLTIP_METADATA);
 					}
 					if (tooltip == null)
 					{
@@ -124,7 +136,8 @@ public class TooltipAttributeModifier extends AttributeModifier
 			@Override
 			public Object getObject()
 			{
-				if (!WebClient.isMobile() && (component instanceof IComponent || component instanceof SortableCellViewHeader))
+				if (!WebClient.isMobile() &&
+					(component instanceof IComponent || component instanceof SortableCellViewHeader || component.getMetaData(TOOLTIP_METADATA) != null))
 				{
 					String tooltip = null;
 					if (component instanceof IComponent)
@@ -134,6 +147,10 @@ public class TooltipAttributeModifier extends AttributeModifier
 					if (component instanceof SortableCellViewHeader)
 					{
 						tooltip = ((SortableCellViewHeader)component).getToolTipText();
+					}
+					if (tooltip == null)
+					{
+						tooltip = (String)component.getMetaData(TOOLTIP_METADATA);
 					}
 					if (tooltip != null)
 					{

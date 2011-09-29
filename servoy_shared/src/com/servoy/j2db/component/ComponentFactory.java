@@ -137,6 +137,7 @@ import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.ui.scripting.AbstractHTMLSubmitRuntimeLabel;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeButton;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeValuelistComponent;
+import com.servoy.j2db.ui.scripting.RuntimeAccordionPanel;
 import com.servoy.j2db.ui.scripting.RuntimeCheckBoxChoice;
 import com.servoy.j2db.ui.scripting.RuntimeCheckbox;
 import com.servoy.j2db.ui.scripting.RuntimeDataButton;
@@ -1971,7 +1972,15 @@ public class ComponentFactory
 			UIManager.put("TabbedPane.selected", meta.getSelectedTabColor());
 		}
 		int orient = meta.getTabOrientation();
-		RuntimeTabPanel scriptable = new RuntimeTabPanel(application.getItemFactory().createChangesRecorder(), application);
+		RuntimeAccordionPanel scriptable = null;
+		if (meta.getTabOrientation() == TabPanel.ACCORDION_PANEL)
+		{
+			scriptable = new RuntimeAccordionPanel(application.getItemFactory().createChangesRecorder(), application);
+		}
+		else
+		{
+			scriptable = new RuntimeTabPanel(application.getItemFactory().createChangesRecorder(), application);
+		}
 		ITabPanel tabs = application.getItemFactory().createTabPanel(scriptable, getWebID(form, meta), orient, meta.hasOneTab());
 		scriptable.setComponent(tabs);
 		if (meta.getScrollTabs())
@@ -1991,6 +2000,12 @@ public class ComponentFactory
 		}
 
 		applyBasicComponentProperties(application, tabs, meta, getStyleForBasicComponent(application, meta, form));
+
+		if (meta.getHorizontalAlignment() >= 0)
+		{
+			tabs.setHorizontalAlignment(meta.getHorizontalAlignment());
+		}
+
 		//HACK:restore so not all tabpanel get that color!
 		if (meta.getSelectedTabColor() != null) UIManager.put("TabbedPane.selected", oldColor);
 

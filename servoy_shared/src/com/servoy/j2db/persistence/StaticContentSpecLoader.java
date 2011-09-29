@@ -757,13 +757,13 @@ public class StaticContentSpecLoader
 		if (old_repository_version < 41)
 		{
 			cs.new Element(389, IRepository.GRAPHICALCOMPONENTS, PROPERTY_FORMAT.getPropertyName(), IRepository.STRING);
-
 			cs.new Element(390, IRepository.TABLENODES, PROPERTY_ONCREATEMETHODID.getPropertyName(), IRepository.ELEMENTS);
 			cs.new Element(391, IRepository.TABLENODES, PROPERTY_ONAFTERCREATEMETHODID.getPropertyName(), IRepository.ELEMENTS);
 			cs.new Element(392, IRepository.TABLENODES, PROPERTY_ONFINDMETHODID.getPropertyName(), IRepository.ELEMENTS);
 			cs.new Element(393, IRepository.TABLENODES, PROPERTY_ONAFTERFINDMETHODID.getPropertyName(), IRepository.ELEMENTS);
 			cs.new Element(394, IRepository.TABLENODES, PROPERTY_ONSEARCHMETHODID.getPropertyName(), IRepository.ELEMENTS);
 			cs.new Element(395, IRepository.TABLENODES, PROPERTY_ONAFTERSEARCHMETHODID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(396, IRepository.TABPANELS, PROPERTY_HORIZONTALALIGNMENT.getPropertyName(), IRepository.INTEGER, ContentSpec.MINUS_ONE);
 		}
 		//##add property adds here
 

@@ -35,6 +35,7 @@ public class TabPanel extends BaseComponent implements ISupportChilds, ISupportT
 	public static final int HIDE = -1;
 	public static final int SPLIT_HORIZONTAL = -2;
 	public static final int SPLIT_VERTICAL = -3;
+	public static final int ACCORDION_PANEL = -4;
 
 	/**
 	 * Constructor I
@@ -194,6 +195,16 @@ public class TabPanel extends BaseComponent implements ISupportChilds, ISupportT
 	public int getTabSeq()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TABSEQ).intValue();
+	}
+
+	public void setHorizontalAlignment(int arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_HORIZONTALALIGNMENT, arg);
+	}
+
+	public int getHorizontalAlignment()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_HORIZONTALALIGNMENT).intValue();
 	}
 
 	@Override

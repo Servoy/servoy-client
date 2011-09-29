@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting.solutionmodel;
 
 import javax.swing.SwingConstants;
@@ -102,6 +102,15 @@ public class ALIGNMENT implements IPrefixedConstantsObject
 	 * splitPane.tabOrientation = SM_ALIGNMENT.SPLIT_VERTICAL;
 	 */
 	public static final int SPLIT_VERTICAL = -3;
+
+	/**
+	 * Constant used for creating accordion panel from tab panel, by setting its tabOrientation.
+	 * 
+	 * @sample
+	 * var accordion = myForm.newTabPanel('accordion', 10, 10, 620, 460);
+	 * accordion.tabOrientation = SM_ALIGNMENT.ACCORDION_PANEL;
+	 */
+	public static final int ACCORDION_PANEL = -3;
 
 	/**
 	 * @see com.servoy.j2db.scripting.IPrefixedConstantsObject#getPrefix()

@@ -207,6 +207,19 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	public static final String SPLITPANE = IScriptBaseMethods.SPLITPANE;
 
 	/**
+	 * Constant representing a accordionpanel element.
+	 *
+	 * @sample
+	 * //the return value for an element type, as returned by the following code
+	 * var etype = elements.elementName.getElementType();
+	 * if (etype == ELEMENT_TYPES.ACCORDIONPANEL)
+	 * {
+	 *      // element is a accordion panel element
+	 * }
+	 */
+	public static final String ACCORDIONPANEL = IScriptBaseMethods.ACCORDIONPANEL;
+
+	/**
 	 * Constant representing a rectangle element.
 	 *
 	 * @sample

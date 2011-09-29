@@ -48,6 +48,7 @@ public interface IScriptBaseMethods extends IScriptable
 	public String LIST_BOX = "LIST_BOX";
 	public String MULTI_SELECTION_LIST_BOX = "MULTI_SELECTION_LIST_BOX";
 	public String FORM = "FORM";
+	public String ACCORDIONPANEL = "ACCORDIONPANEL";
 
 	/**
 	 * Gets or sets the background color of a field. The color has to be set using the hexadecimal RGB value as used in HTML.

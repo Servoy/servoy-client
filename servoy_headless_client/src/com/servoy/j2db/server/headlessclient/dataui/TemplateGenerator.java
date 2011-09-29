@@ -41,8 +41,8 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.html.CSS;
 import javax.swing.text.html.CSS.Attribute;
 
-import org.apache.wicket.ResourceReference;
 import org.apache.wicket.Component.IVisitor;
+import org.apache.wicket.ResourceReference;
 
 import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
@@ -1666,8 +1666,9 @@ public class TemplateGenerator
 		html.append(">\n");
 
 //		int yoffset = 0;
-		if (tabPanel.getTabOrientation() != TabPanel.HIDE && tabPanel.getTabOrientation() != TabPanel.SPLIT_HORIZONTAL &&
-			tabPanel.getTabOrientation() != TabPanel.SPLIT_VERTICAL && !(tabPanel.getTabOrientation() == TabPanel.DEFAULT && tabPanel.hasOneTab()))
+		if (tabPanel.getTabOrientation() != TabPanel.HIDE && tabPanel.getTabOrientation() != TabPanel.ACCORDION_PANEL &&
+			tabPanel.getTabOrientation() != TabPanel.SPLIT_HORIZONTAL && tabPanel.getTabOrientation() != TabPanel.SPLIT_VERTICAL &&
+			!(tabPanel.getTabOrientation() == TabPanel.DEFAULT && tabPanel.hasOneTab()))
 		{
 //			yoffset = 20;
 //			html.append("\t<thead><tr valign='bottom'><th height=20>\n");
@@ -1717,7 +1718,46 @@ public class TemplateGenerator
 		{
 			ComponentFactoryHelper.createBorderCSSProperties(tabPanel.getBorderType(), styleObj);
 		}
-		if (tabPanel.getTabOrientation() == TabPanel.SPLIT_HORIZONTAL || tabPanel.getTabOrientation() == TabPanel.SPLIT_VERTICAL)
+		if (tabPanel.getTabOrientation() == TabPanel.ACCORDION_PANEL)
+		{
+			for (Attribute att : FixedStyleSheet.fontAttributes)
+			{
+				styleObj.remove(att.toString());
+			}
+			int alignment = ISupportTextSetup.LEFT;
+			String styleAlignment = null;
+			if (tabPanel.getHorizontalAlignment() >= 0)
+			{
+				alignment = tabPanel.getHorizontalAlignment();
+			}
+			else if (styleObj.containsKey(CSS.Attribute.TEXT_ALIGN.toString()))
+			{
+				styleAlignment = (String)styleObj.get(CSS.Attribute.TEXT_ALIGN.toString());
+			}
+			if (styleAlignment == null)
+			{
+				styleAlignment = getHorizontalAlignValue(alignment);
+			}
+			styleObj.remove(CSS.Attribute.TEXT_ALIGN.toString());
+			String tabPanelMarkupId = ComponentFactory.getWebID(form, tabPanel);
+			Iterator<IPersist> it = tabPanel.getAllObjects();
+			String text = "";
+			if (it.hasNext())
+			{
+				Tab tab = (Tab)it.next();
+				text = tab.getText();
+			}
+			html.append("\t\t<div id='accordion_").append(tabPanelMarkupId).append("'servoy:id='accordion_").append(tabPanelMarkupId).append(
+				"'><div servoy:id='tabs'");
+			html.append("><h3 style='text-align:");
+			html.append(styleAlignment);
+			html.append(";'><a servoy:id='tablink' href='#'><div servoy:id='icon'></div><span style=\"white-space: nowrap;\" servoy:id='linktext'>");
+			html.append(getSafeText(text));
+			html.append("</span></a></h3><div servoy:id='webform' ");
+			//html.append(getCSSClassParameter("webform"));
+			html.append("></div></div></div>\n");
+		}
+		else if (tabPanel.getTabOrientation() == TabPanel.SPLIT_HORIZONTAL || tabPanel.getTabOrientation() == TabPanel.SPLIT_VERTICAL)
 		{
 			String tabPanelMarkupId = ComponentFactory.getWebID(form, tabPanel);
 

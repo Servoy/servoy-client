@@ -71,4 +71,6 @@ public interface ITabPanel extends IComponent, IScriptableProvider
 	public Object getTabIndex();
 
 	public int getMaxTabIndex();
+
+	public void setHorizontalAlignment(int alignment);
 }

@@ -538,7 +538,7 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 
 	public static Attribute[] borderAttributes = new Attribute[] { CSS.Attribute.BORDER, CSS.Attribute.BORDER_BOTTOM, CSS.Attribute.BORDER_BOTTOM_WIDTH, CSS.Attribute.BORDER_COLOR, CSS.Attribute.BORDER_LEFT, CSS.Attribute.BORDER_LEFT_WIDTH, CSS.Attribute.BORDER_RIGHT, CSS.Attribute.BORDER_RIGHT_WIDTH, CSS.Attribute.BORDER_STYLE, CSS.Attribute.BORDER_TOP, CSS.Attribute.BORDER_TOP_WIDTH, CSS.Attribute.BORDER_WIDTH };
 	private static Attribute[] marginAttributes = new Attribute[] { CSS.Attribute.MARGIN, CSS.Attribute.MARGIN_BOTTOM, CSS.Attribute.MARGIN_LEFT, CSS.Attribute.MARGIN_RIGHT, CSS.Attribute.MARGIN_TOP };
-	private static Attribute[] fontAttributes = new Attribute[] { CSS.Attribute.FONT, CSS.Attribute.FONT_FAMILY, CSS.Attribute.FONT_SIZE, CSS.Attribute.FONT_STYLE, CSS.Attribute.FONT_VARIANT, CSS.Attribute.FONT_WEIGHT };
+	public static Attribute[] fontAttributes = new Attribute[] { CSS.Attribute.FONT, CSS.Attribute.FONT_FAMILY, CSS.Attribute.FONT_SIZE, CSS.Attribute.FONT_STYLE, CSS.Attribute.FONT_VARIANT, CSS.Attribute.FONT_WEIGHT };
 
 	public boolean hasBorder(AttributeSet s)
 	{
