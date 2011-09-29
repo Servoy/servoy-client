@@ -152,7 +152,7 @@ public abstract class RuntimeWindow implements IRuntimeWindow
 
 	public void destroy()
 	{
-		if (isVisible()) hide();
+		if (isVisible() && !hide()) return;
 		application.getRuntimeWindowManager().removeWindow(windowName);
 		destroyed = true;
 	}
