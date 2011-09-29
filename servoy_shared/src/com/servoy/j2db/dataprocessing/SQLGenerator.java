@@ -884,9 +884,8 @@ public class SQLGenerator
 										if (operator == ISQLCondition.EQUALS_OPERATOR)
 										{
 											//count the amount of percents based upon the amount we decide what to do
-											int percentCount = 0;
 											char[] chars = data.toCharArray();
-											StringBuffer dataBuf = new StringBuffer();
+											StringBuilder dataBuf = new StringBuilder();
 											boolean escapeNext = false;
 											for (char d : chars)
 											{
@@ -896,20 +895,29 @@ public class SQLGenerator
 												}
 												else
 												{
-													if (!escapeNext && d == '%') percentCount++;
+													if (!escapeNext && d == '%')
+													{
+														// found a like operator, use backslash as escape in like,
+														// use unmodified value, db will use escape backslash from like expression
+														operator = ISQLCondition.LIKE_OPERATOR;
+														value2 = "\\"; // escape char  //$NON-NLS-1$
+														break;
+													}
 													dataBuf.append(d);
 													escapeNext = false;
 												}
 											}
-											data = dataBuf.toString();
-
-											if (percentCount > 0)
+											if (operator == ISQLCondition.EQUALS_OPERATOR)
 											{
-												operator = ISQLCondition.LIKE_OPERATOR;
+												data = dataBuf.toString();
 											}
+											// else escape in db will handle escape. use original data
+										}
+										else
+										{
+											value2 = data2;
 										}
 										value = data;
-										value2 = data2;
 										break;
 
 									default :
@@ -920,17 +928,17 @@ public class SQLGenerator
 								// create the condition
 								if (value != null)
 								{
-									if (operator == ISQLCondition.BETWEEN_OPERATOR)
+									Object operand2;
+									// for like, value2 may be the escape character
+									if (value2 != null && (operator == ISQLCondition.BETWEEN_OPERATOR || operator == ISQLCondition.LIKE_OPERATOR))
 									{
-										if (value2 != null)
-										{
-											condition = new CompareCondition(operator | modifier, qCol, new Object[] { value, value2 });
-										}
+										operand2 = new Object[] { value, value2 };
 									}
 									else
 									{
-										condition = new CompareCondition(operator | modifier, qCol, value);
+										operand2 = value;
 									}
+									condition = new CompareCondition(operator | modifier, qCol, operand2);
 								}
 							}
 
