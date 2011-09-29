@@ -178,6 +178,21 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 */
 	public static final String LEAVE_FIELDS_READONLY_IN_FIND_MODE = IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE;
 
+	/**
+	 * Property than can be set using application.setUIProperty().
+	 * 
+	 * If set to true, table views in web client are scrollable by default
+	 * If set to false, table views in web client are not scrollable, but pageable by default
+	 * 
+	 * The value can be true/false
+	 * DEFAULT: false 
+	 * 
+	 * @sample
+	 * application.setUIProperty(APP_UI_PROPERTY.TABLEVIEW_WC__DEFAULT_SCROLLABLE, true)
+	 */
+	public static final String TABLEVIEW_WC_DEFAULT_SCROLLABLE = IApplication.TABLEVIEW_WC_DEFAULT_SCROLLABLE;
+
+
 	public String getPrefix()
 	{
 		return "APP_UI_PROPERTY"; //$NON-NLS-1$

@@ -91,6 +91,10 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 * When Boolean.TRUE, fields that are read-only won't be editable in find mode
 	 */
 	public static final String LEAVE_FIELDS_READONLY_IN_FIND_MODE = "leaveFieldsReadOnlyInFindMode"; //$NON-NLS-1$
+	/**
+	 * When Boolean.TRUE, table views in web client are by default scrollables
+	 */
+	public static final String TABLEVIEW_WC_DEFAULT_SCROLLABLE = "webClientTableViewScrollable"; //$NON-NLS-1$
 
 
 	public static final String APP_WINDOW_NAME = "Application_frame";

@@ -658,6 +658,29 @@ if (typeof(Servoy.TableView) == "undefined")
 			var tableEl = document.getElementById(table);
 			if(tableEl)
 				Servoy.TableView.setTableColumnWidthEl(tableEl, classid, width);
+		},
+		
+		isAppendingRows: false,
+		
+		appendRows: function(rowContainerId, rows)
+		{	
+			$('#' + rowContainerId + ' > tbody:last').append(rows);
+			Servoy.TableView.isAppendingRows = false;
+		},
+		
+		needToUpdateRowsBuffer: function(viewId, rowContainerId)
+		{
+			if(Servoy.TableView.isAppendingRows)
+				return false;
+
+			var viewEl = document.getElementById(viewId);
+			var viewClientHeight = viewEl.clientHeight;
+			var viewScrollTop = viewEl.scrollTop;
+			var rowContainerScrollHeight = document.getElementById(rowContainerId).scrollHeight;
+			var bufferedRows = rowContainerScrollHeight - viewScrollTop - viewClientHeight;
+			
+			Servoy.TableView.isAppendingRows = bufferedRows < viewClientHeight;			
+			return Servoy.TableView.isAppendingRows;
 		}
 	};
 }

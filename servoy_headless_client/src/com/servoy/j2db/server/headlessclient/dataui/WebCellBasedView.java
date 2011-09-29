@@ -47,10 +47,14 @@ import javax.swing.text.html.StyleSheet;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
+import org.apache.wicket.Page;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ResourceReference;
+import org.apache.wicket.Response;
 import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.IAjaxCallDecorator;
+import org.apache.wicket.ajax.calldecorator.AjaxPostprocessingCallDecorator;
 import org.apache.wicket.behavior.IBehavior;
 import org.apache.wicket.behavior.IIgnoreDisabledComponentBehavior;
 import org.apache.wicket.markup.ComponentTag;
@@ -71,6 +75,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
 import org.apache.wicket.request.ClientInfo;
+import org.apache.wicket.response.StringResponse;
 import org.apache.wicket.util.string.AppendingStringBuffer;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
@@ -127,6 +132,7 @@ import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.TabIndexHelper;
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.server.headlessclient.dnd.DraggableBehavior;
+import com.servoy.j2db.server.headlessclient.jquery.JQueryLoader;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
@@ -174,6 +180,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	private List<SortColumn> defaultSort = null;
 
 	private SortableCellViewHeaders headers;
+	private final WebMarkupContainer tableContainer;
 	private final WebCellBasedViewListView table;
 	private final IModel<FoundSetListWrapper> data = new Model<FoundSetListWrapper>();
 	private PagingNavigator pagingNavigator;
@@ -208,6 +215,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	private String lastRenderedPath;
 	private boolean isAnchored;
 	private final RuntimePortal scriptable;
+
+	private boolean isScrollMode;
+	private int maxRowsPerPage;
 
 	/**
 	 * @author jcompagner
@@ -1197,10 +1207,13 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 
 		// Add the table
+		tableContainer = new WebMarkupContainer("rowsContainer"); //$NON-NLS-1$
+		tableContainer.setOutputMarkupId(true);
 		table = new WebCellBasedViewListView("rows", data, 1, cellview, //$NON-NLS-1$
 			dataProviderLookup, el, startY, endY, form);
 		table.setReuseItems(true);
-		add(table);
+		tableContainer.add(table);
+		add(tableContainer);
 
 		final LinkedHashMap<String, IDataAdapter> dataadapters = new LinkedHashMap<String, IDataAdapter>();
 		final SortedList<IPersist> columnTabSequence = new SortedList<IPersist>(TabSeqComparator.INSTANCE); // in fact ISupportTabSeq persists
@@ -1270,7 +1283,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						WebCellBasedView.this.registerHeader(matchingElement, headerComponent);
 					}
 				});
-			add(headers);
+			tableContainer.add(headers);
 		}
 
 		// Add a table navigator
@@ -1333,6 +1346,119 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			Debug.error(ex);
 		}
+
+
+		add(new ServoyAjaxEventBehavior("onscroll") //$NON-NLS-1$
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onEvent(AjaxRequestTarget target)
+			{
+				if (table.getPageCount() > 1)
+				{
+					int rowsPerPage = table.getRowsPerPage();
+					table.setRowsPerPage(1);
+
+					StringBuffer rowsBuffer = new StringBuffer();
+					for (int i = 1; i < maxRowsPerPage; i++)
+					{
+						rowsPerPage++;
+						if (rowsPerPage > table.getPageCount()) break;
+						table.setCurrentPage(rowsPerPage);
+						rowsBuffer.append(renderComponent(getResponse(), table));
+					}
+
+					table.setRowsPerPage(rowsPerPage);
+					table.setCurrentPage(1);
+
+					target.appendJavascript("Servoy.TableView.appendRows('" + WebCellBasedView.this.tableContainer.getMarkupId() + "','" + //$NON-NLS-1$//$NON-NLS-2$
+						rowsBuffer.toString() + "');"); //$NON-NLS-1$
+				}
+			}
+
+			@Override
+			protected IAjaxCallDecorator getAjaxCallDecorator()
+			{
+				return new AjaxPostprocessingCallDecorator(null)
+				{
+					private static final long serialVersionUID = 1L;
+
+					@SuppressWarnings("nls")
+					@Override
+					public CharSequence postDecorateScript(CharSequence script)
+					{
+						return "if (Servoy.TableView.needToUpdateRowsBuffer('" + WebCellBasedView.this.getMarkupId() + "','" +
+							WebCellBasedView.this.tableContainer.getMarkupId() + "')) { " + script + "};";
+					}
+				};
+			}
+
+			private CharSequence renderComponent(Response response, Component component)
+			{
+				StringResponse stringResponse = new StringResponse();
+
+				RequestCycle.get().setResponse(stringResponse);
+
+				// Initialize temporary variables
+				final Page page = component.findParent(Page.class);
+				if (page == null)
+				{
+//					// dont throw an exception but just ignore this component, somehow
+//					// it got removed from the page.
+//					log.debug("component: " + component + " with markupid: " + markupId +
+//						" not rendered because it was already removed from page");
+					return null;
+				}
+
+				page.startComponentRender(component);
+
+				try
+				{
+					component.prepareForRender();
+				}
+				catch (RuntimeException e)
+				{
+					try
+					{
+						component.afterRender();
+					}
+					catch (RuntimeException e2)
+					{
+						// ignore this one could be a result off.
+					}
+					// Restore original response
+					RequestCycle.get().setResponse(response);
+					throw e;
+				}
+
+				try
+				{
+					component.renderComponent();
+				}
+				catch (RuntimeException e)
+				{
+					RequestCycle.get().setResponse(response);
+					throw e;
+				}
+
+				page.endComponentRender(component);
+
+				// Restore original response
+				RequestCycle.get().setResponse(response);
+
+				String s = stringResponse.getBuffer().toString();
+				s = s.replace("\r", ""); //$NON-NLS-1$ //$NON-NLS-2$
+				s = s.replace("\n", ""); //$NON-NLS-1$ //$NON-NLS-2$
+				s = s.replace("\t", ""); //$NON-NLS-1$ //$NON-NLS-2$
+				s = s.replace("\\", "\\\\"); //$NON-NLS-1$ //$NON-NLS-2$
+				s = s.replace("\'", "\\\'"); //$NON-NLS-1$ //$NON-NLS-2$
+
+				return s;
+			}
+		});
+
+		setScrollMode(Boolean.TRUE.equals(application.getUIProperty(IApplication.TABLEVIEW_WC_DEFAULT_SCROLLABLE)));
 	}
 
 	public final RuntimePortal getScriptObject()
@@ -1968,7 +2094,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 		else
 		{
-			getStylePropertyChanges().setChanged();
+			if (!isScrollMode()) getStylePropertyChanges().setChanged();
 		}
 
 		// We try to detect when a sort has been done on the foundset, and we update the arrows in the header accordingly.
@@ -2109,8 +2235,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				int oldRowsPerPage = table.getRowsPerPage();
 
 				Pair<Boolean, Pair<Integer, Integer>> rowsCalculation = needsMoreThanOnePage(bodyHeightHint);
-				int maxRows = rowsCalculation.getRight().getLeft().intValue();
-				table.setRowsPerPage(maxRows);
+				maxRowsPerPage = rowsCalculation.getRight().getLeft().intValue();
+				table.setRowsPerPage(isScrollMode() ? 2 * maxRowsPerPage : maxRowsPerPage);
 
 				// set headers width according to cell's width
 				setHeadersWidth();
@@ -2122,10 +2248,11 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 				// if rowPerPage changed & the selected was visible, switch to the page so it remain visible
 				int currentPage = table.getCurrentPage();
-				if (maxRows != oldRowsPerPage && currentPage * oldRowsPerPage <= firstSelectedIndex && (currentPage + 1) * oldRowsPerPage > firstSelectedIndex) table.setCurrentPage(firstSelectedIndex < 1
-					? 0 : firstSelectedIndex / maxRows);
+				if (maxRowsPerPage != oldRowsPerPage && currentPage * oldRowsPerPage <= firstSelectedIndex &&
+					(currentPage + 1) * oldRowsPerPage > firstSelectedIndex) table.setCurrentPage(firstSelectedIndex < 1 ? 0 : firstSelectedIndex /
+					maxRowsPerPage);
 			}
-			pagingNavigator.setVisible(showPageNavigator && table.getPageCount() > 1);
+			pagingNavigator.setVisible(!isScrollMode() && showPageNavigator && table.getPageCount() > 1);
 		}
 		selectedIndexes = null;
 		updateRowComponentsRenderState(null);
@@ -3164,6 +3291,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		super.renderHead(container);
 		String columnResizeScript = getColumnResizeScript();
 		if (columnResizeScript != null) container.getHeaderResponse().renderOnDomReadyJavascript(columnResizeScript);
+		JQueryLoader.render(container.getHeaderResponse());
 	}
 
 	private boolean hasOnRender;
@@ -3608,6 +3736,16 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	public Style getRowSelectedStyle()
 	{
 		return selectedStyle;
+	}
+
+	public void setScrollMode(boolean scrollMode)
+	{
+		this.isScrollMode = scrollMode;
+	}
+
+	public boolean isScrollMode()
+	{
+		return isScrollMode;
 	}
 }
 

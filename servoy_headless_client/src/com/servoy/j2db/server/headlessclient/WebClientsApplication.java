@@ -65,6 +65,7 @@ import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.dataui.IServoyAwareBean;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.server.headlessclient.dataui.RecordItemModel;
+import com.servoy.j2db.server.headlessclient.jquery.JQueryLoader;
 import com.servoy.j2db.server.headlessclient.mask.MaskBehavior;
 import com.servoy.j2db.server.headlessclient.yui.YUILoader;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
@@ -294,6 +295,7 @@ public class WebClientsApplication extends WebApplication
 		getSharedResources().putClassAlias(Application.class, "servoy"); //$NON-NLS-1$
 		getSharedResources().putClassAlias(org.wicketstuff.calendar.markup.html.form.DatePicker.class, "datepicker"); //$NON-NLS-1$
 		getSharedResources().putClassAlias(YUILoader.class, "yui"); //$NON-NLS-1$
+		getSharedResources().putClassAlias(JQueryLoader.class, "jquery"); //$NON-NLS-1$
 		getSharedResources().putClassAlias(org.apache.wicket.markup.html.WicketEventReference.class, "wicketevent"); //$NON-NLS-1$
 		getSharedResources().putClassAlias(org.apache.wicket.ajax.WicketAjaxReference.class, "wicketajax"); //$NON-NLS-1$
 		getSharedResources().putClassAlias(MainPage.class, "servoyjs"); //$NON-NLS-1$

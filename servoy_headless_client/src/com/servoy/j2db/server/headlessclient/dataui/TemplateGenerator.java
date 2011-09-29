@@ -540,7 +540,7 @@ public class TemplateGenerator
 				html.append("><span servoy:id='info'></span>\n<table cellpadding='0' cellspacing='0' class='portal'>\n");//$NON-NLS-1$ 
 			}
 			css.addCSSBoundsHandler(NoLocationCSSBoundsHandler.INSTANCE);
-			html.append("<tr><td height='99%'><table border=0 cellpadding=0 cellspacing=0 width='100%'>\n");
+			html.append("<tr><td height='99%'><table servoy:id='rowsContainer' border=0 cellpadding=0 cellspacing=0 width='100%'>\n");
 			int totalWidth = 0;
 			if (addHeaders)
 			{
