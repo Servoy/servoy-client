@@ -41,8 +41,11 @@ public final class ScriptExecutor implements Runnable
 
 	private volatile boolean exit = false;
 
+	private volatile Thread scriptThread = null;
+
 	public void run()
 	{
+		scriptThread = Thread.currentThread();
 		while (!exit)
 		{
 			dispatch();
@@ -94,19 +97,26 @@ public final class ScriptExecutor implements Runnable
 	 */
 	public void addEvent(FunctionEvent event)
 	{
-		synchronized (events)
+		if (scriptThread == Thread.currentThread())
 		{
-			events.add(event);
-			events.notifyAll();
-			while (!event.isExecuted())
+			event.execute();
+		}
+		else
+		{
+			synchronized (events)
 			{
-				try
+				events.add(event);
+				events.notifyAll();
+				while (!(event.isExecuted() || event.isSuspended()))
 				{
-					events.wait();
-				}
-				catch (InterruptedException e)
-				{
-					Debug.error(e);
+					try
+					{
+						events.wait();
+					}
+					catch (InterruptedException e)
+					{
+						Debug.error(e);
+					}
 				}
 			}
 		}

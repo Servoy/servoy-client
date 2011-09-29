@@ -52,6 +52,9 @@ public class FunctionEvent implements IExecuteEvent
 	private volatile Object returnValue;
 	private volatile Exception exception;
 	private volatile boolean executed;
+	private volatile boolean suspended;
+	private volatile boolean resetThreadLocals = true;
+
 	private final List<IClusterable> dirtyObjectsList;
 	private final List<Page> touchedPages;
 	private final Thread currentThread;
@@ -93,10 +96,15 @@ public class FunctionEvent implements IExecuteEvent
 	{
 		try
 		{
-			ServoyRequestCycle.set(requestCycle);
-			Session.set(session);
-			Application.set(application);
-			session.moveUsedPage(currentThread, Thread.currentThread());
+			resetThreadLocals = RequestCycle.get() == null;
+			if (resetThreadLocals)
+			{
+				ServoyRequestCycle.set(requestCycle);
+				Session.set(session);
+				Application.set(application);
+
+				session.moveUsedPage(currentThread, Thread.currentThread());
+			}
 
 			returnValue = functionExecutor.execute(function, scope, thisObject, args, focusEvent, throwException);
 		}
@@ -106,6 +114,7 @@ public class FunctionEvent implements IExecuteEvent
 		}
 		finally
 		{
+			executed = true;
 			cleanup();
 		}
 	}
@@ -115,31 +124,32 @@ public class FunctionEvent implements IExecuteEvent
 	 */
 	private void cleanup()
 	{
-		executed = true;
-
-		List<IClusterable> lst = session.getDirtyObjectsList();
-		for (IClusterable dirtyObject : lst)
+		if (resetThreadLocals)
 		{
-			if (!dirtyObjectsList.contains(dirtyObject))
+			List<IClusterable> lst = session.getDirtyObjectsList();
+			for (IClusterable dirtyObject : lst)
 			{
-				dirtyObjectsList.add(dirtyObject);
+				if (!dirtyObjectsList.contains(dirtyObject))
+				{
+					dirtyObjectsList.add(dirtyObject);
+				}
 			}
-		}
 
-		List<Page> pages = session.getTouchedPages();
-		for (Page page : pages)
-		{
-			if (!touchedPages.contains(page))
+			List<Page> pages = session.getTouchedPages();
+			for (Page page : pages)
 			{
-				touchedPages.add(page);
+				if (!touchedPages.contains(page))
+				{
+					touchedPages.add(page);
+				}
 			}
+
+			session.moveUsedPage(Thread.currentThread(), currentThread);
+
+			ServoyRequestCycle.set(null);
+			Session.unset();
+			Application.unset();
 		}
-
-		session.moveUsedPage(Thread.currentThread(), currentThread);
-
-		ServoyRequestCycle.set(null);
-		Session.unset();
-		Application.unset();
 	}
 
 	/**
@@ -167,11 +177,20 @@ public class FunctionEvent implements IExecuteEvent
 	}
 
 	/**
+	 * @return the suspended
+	 */
+	public boolean isSuspended()
+	{
+		return suspended;
+	}
+
+	/**
 	 * 
 	 */
 	public void willSuspend()
 	{
 		cleanup();
+		suspended = true;
 	}
 
 	/**
@@ -179,7 +198,7 @@ public class FunctionEvent implements IExecuteEvent
 	 */
 	public void willResume()
 	{
-		executed = false;
+		suspended = false;
 		if (RequestCycle.get() == null) ServoyRequestCycle.set(requestCycle);
 		if (Session.exists()) Session.set(session);
 		if (Application.exists()) Application.set(application);
