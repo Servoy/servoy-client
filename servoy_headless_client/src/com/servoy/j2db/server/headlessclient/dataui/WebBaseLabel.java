@@ -166,7 +166,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 		super.renderHead(container);
 		if (hasHtml())
 		{
-			container.getHeaderResponse().renderOnDomReadyJavascript("Servoy.Utils.setLabelChildHeight('" + getMarkupId() + "', " + valign + ")");
+			container.getHeaderResponse().renderOnLoadJavascript("Servoy.Utils.setLabelChildHeight('" + getMarkupId() + "', " + valign + ")");
 		}
 	}
 
