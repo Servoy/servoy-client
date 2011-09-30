@@ -160,7 +160,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 		super.renderHead(container);
 		if (hasHtml())
 		{
-			container.getHeaderResponse().renderOnDomReadyJavascript("Servoy.Utils.setLabelChildHeight('" + getMarkupId() + "', " + valign + ")");
+			container.getHeaderResponse().renderOnLoadJavascript("Servoy.Utils.setLabelChildHeight('" + getMarkupId() + "', " + valign + ")");
 		}
 	}
 
