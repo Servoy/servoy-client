@@ -1413,13 +1413,22 @@ public class JSDatabaseManager
 					Object[] retval = new Object[dataSet.getRowCount()];
 					for (int i = 0; i < retval.length; i++)
 					{
-						Object value = dataSet.getRow(i)[0];
-						if (column.hasFlag(Column.UUID_COLUMN))
+						Object[] dataSetRow = dataSet.getRow(i);
+						if (dataSetRow == null)
 						{
-							// this is a UUID column, first convert to UUID (could be string or byte array (media)) - so we can get/use it as a valid uuid string
-							value = Utils.getAsUUID(value, false);
+							Debug.warn("js_getFoundSetDataProviderAsArray - null row at index: " + i + " when getting dataprovider: " + dataprovider + " from foundset: " + foundset); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+							retval[i] = null;
 						}
-						retval[i] = value;
+						else
+						{
+							Object value = dataSetRow[0];
+							if (column.hasFlag(Column.UUID_COLUMN))
+							{
+								// this is a UUID column, first convert to UUID (could be string or byte array (media)) - so we can get/use it as a valid uuid string
+								value = Utils.getAsUUID(value, false);
+							}
+							retval[i] = value;
+						}
 					}
 					return retval;
 				}
