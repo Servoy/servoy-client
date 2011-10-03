@@ -3899,7 +3899,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			name = formScope.getFunctionName(new Integer(id));
 		}
 
-		if (id <= 0 && name != null && name.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+		boolean global = name != null && name.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX);
+		if (id <= 0 && global)
 		{
 			name = name.substring(ScriptVariable.GLOBAL_DOT_PREFIX.length());
 		}
@@ -3908,7 +3909,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			function = formScope.getFunctionByName(name);
 		}
 
-		if (allowFoundsetMethods && function == null && formModel != null)
+		if (allowFoundsetMethods && !global && function == null && formModel != null)
 		{
 			// try foundset method
 			ScriptMethod scriptMethod;
