@@ -22,6 +22,7 @@ import java.util.Iterator;
 
 import javax.swing.ImageIcon;
 
+import org.apache.wicket.Application;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
@@ -499,7 +500,7 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 
 	public void setResizeImage(ResourceReference resourceReference)
 	{
-		if (resizeBar instanceof Image)
+		if (resizeBar instanceof Image && Application.exists())
 		{
 			((Image)resizeBar).setImageResourceReference(resourceReference);
 		}
