@@ -265,12 +265,6 @@ public class ScriptVariableScope extends LazyCompilationScope
 		return allVars.keySet().toArray();
 	}
 
-	@Override
-	public String getClassName()
-	{
-		return "ScriptVariableScope"; //$NON-NLS-1$
-	}
-
 	/*
 	 * @see Scriptable#put(String, Scriptable, Object)
 	 */

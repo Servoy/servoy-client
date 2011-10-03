@@ -53,15 +53,6 @@ public class TableScope extends LazyCompilationScope
 		setFunctionParentScriptable(new RecordingScriptable(null, this));
 	}
 
-	/**
-	 * @see org.mozilla.javascript.Scriptable#getClassName()
-	 */
-	@Override
-	public String getClassName()
-	{
-		return "TableScope"; //$NON-NLS-1$
-	}
-
 	ThreadLocal<Object[]> values = new ThreadLocal<Object[]>();
 	private final ThreadLocal<UsedDataProviderTracker> usedDataProviderTracker = new ThreadLocal<UsedDataProviderTracker>();
 

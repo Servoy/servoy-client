@@ -156,12 +156,6 @@ public class GlobalScope extends ScriptVariableScope
 	}
 
 	@Override
-	public String getClassName()
-	{
-		return "GlobalScope"; //$NON-NLS-1$
-	}
-
-	@Override
 	public void destroy()
 	{
 		this.application = null;

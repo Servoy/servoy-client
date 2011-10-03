@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2011 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -14,35 +14,24 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
-package com.servoy.j2db.scripting;
 
+package com.servoy.j2db.scripting.annotations;
 
-import org.mozilla.javascript.Scriptable;
-
-import com.servoy.j2db.persistence.ScriptVariable;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * @author jcompagner
+ * An annotation that marks a Java method as a read-only javascript property.
+ * 
+ * @author rgansevles
  */
-public class SolutionScope extends DefaultScope
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface JSReadonlyProperty
 {
-	private GlobalScope gs;
-
-	public SolutionScope(Scriptable parent)
-	{
-		super(parent);
-	}
-
-	public GlobalScope getGlobalScope()
-	{
-		return gs;
-	}
-
-	public void setGlobalScope(GlobalScope gs)
-	{
-		this.gs = gs;
-		put(ScriptVariable.GLOBAL_PREFIX, this, gs);
-		gs.setParentScope(this);
-	}
-
+	String property() default "";
 }

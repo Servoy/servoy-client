@@ -56,15 +56,6 @@ public class PluginScope extends DefaultScope
 	}
 
 	/**
-	 * @see org.mozilla.javascript.Scriptable#getClassName()
-	 */
-	@Override
-	public String getClassName()
-	{
-		return "PluginScope"; //$NON-NLS-1$
-	}
-
-	/**
 	 * @see com.servoy.j2db.scripting.DefaultScope#get(java.lang.String, org.mozilla.javascript.Scriptable)
 	 */
 	@Override

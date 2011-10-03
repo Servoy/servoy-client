@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2011 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -14,35 +14,30 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
-package com.servoy.j2db.scripting;
 
+package com.servoy.j2db.querybuilder;
 
-import org.mozilla.javascript.Scriptable;
-
-import com.servoy.j2db.persistence.ScriptVariable;
+import com.servoy.j2db.query.ISQLJoin;
 
 /**
- * @author jcompagner
+ * Interface for building Servoy Query Objects.
+ * 
+ * @author rgansevles
+ *
+ * @since 6.1
  */
-public class SolutionScope extends DefaultScope
+
+public interface IQueryBuilderJoin extends IQueryBuilderTableClause
 {
-	private GlobalScope gs;
+	public static final int INNER_JOIN = ISQLJoin.INNER_JOIN;
+	public static final int LEFT_OUTER_JOIN = ISQLJoin.LEFT_OUTER_JOIN;
+	public static final int FULL_JOIN = ISQLJoin.FULL_JOIN;
+	public static final int RIGHT_OUTER_JOIN = ISQLJoin.RIGHT_OUTER_JOIN;
 
-	public SolutionScope(Scriptable parent)
-	{
-		super(parent);
-	}
+	IQueryBuilderTableClause getParent();
 
-	public GlobalScope getGlobalScope()
-	{
-		return gs;
-	}
+	IQueryBuilder getRoot();
 
-	public void setGlobalScope(GlobalScope gs)
-	{
-		this.gs = gs;
-		put(ScriptVariable.GLOBAL_PREFIX, this, gs);
-		gs.setParentScope(this);
-	}
+	IQueryBuilderLogicalCondition on();
 
 }

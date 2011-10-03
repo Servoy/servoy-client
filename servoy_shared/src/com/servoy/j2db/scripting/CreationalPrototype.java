@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting;
 
 
@@ -74,15 +74,6 @@ public class CreationalPrototype extends DefaultScope implements LazyInitScope
 		if (objects.length > 0) sb.setCharAt(sb.length() - 1, ']');
 		else sb.append("]"); //$NON-NLS-1$
 		return sb.toString();
-	}
-
-	/**
-	 * Returns the name of this JavaScript class
-	 */
-	@Override
-	public String getClassName()
-	{
-		return "CreationalPrototype"; //$NON-NLS-1$
 	}
 
 	/**

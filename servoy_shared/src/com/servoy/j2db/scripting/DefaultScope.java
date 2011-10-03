@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting;
 
 
@@ -28,6 +28,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.WrappedException;
 
 import com.servoy.j2db.Messages;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author jcompagner
@@ -52,7 +53,10 @@ public abstract class DefaultScope implements Scriptable
 	/**
 	 * @see org.mozilla.javascript.Scriptable#getClassName()
 	 */
-	public abstract String getClassName();
+	public String getClassName()
+	{
+		return getClass().getSimpleName();
+	}
 
 	/**
 	 * @see org.mozilla.javascript.Scriptable#get(java.lang.String, org.mozilla.javascript.Scriptable)
@@ -209,14 +213,19 @@ public abstract class DefaultScope implements Scriptable
 		return array;
 	}
 
+	protected Object[] getValues()
+	{
+		return Utils.arrayJoin(allVars.values().toArray(), allIndex.values().toArray());
+	}
+
 	/**
 	 * @see org.mozilla.javascript.Scriptable#getDefaultValue(java.lang.Class)
 	 */
-	public Object getDefaultValue(Class typeHint)
+	public Object getDefaultValue(Class< ? > typeHint)
 	{
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append(getClassName());
-		sb.append("["); //$NON-NLS-1$
+		sb.append('[');
 
 		Object[] objects = getIds();
 		for (Object element : objects)
@@ -225,7 +234,7 @@ public abstract class DefaultScope implements Scriptable
 			sb.append(","); //$NON-NLS-1$
 		}
 		if (objects.length > 0) sb.setCharAt(sb.length() - 1, ']');
-		else sb.append("]"); //$NON-NLS-1$
+		else sb.append(']');
 		return sb.toString();
 	}
 

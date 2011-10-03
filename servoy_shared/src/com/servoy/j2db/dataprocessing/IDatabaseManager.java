@@ -17,7 +17,8 @@
 package com.servoy.j2db.dataprocessing;
 
 import com.servoy.j2db.persistence.ITable;
-import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.ITableProvider;
+import com.servoy.j2db.querybuilder.IQueryBuilderFactory;
 import com.servoy.j2db.util.ServoyException;
 
 /**
@@ -25,7 +26,7 @@ import com.servoy.j2db.util.ServoyException;
  * 
  * @author jblok
  */
-public interface IDatabaseManager extends ISaveConstants
+public interface IDatabaseManager extends ISaveConstants, ITableProvider
 {
 	/**
 	 * Start a transaction
@@ -56,14 +57,6 @@ public interface IDatabaseManager extends ISaveConstants
 	public String getTransactionID(String serverName) throws ServoyException;
 
 	/**
-	 * Get a table object interface for a datasource
-	 * 
-	 * @param dataSource the datasource
-	 * @return the table interface
-	 */
-	public ITable getTable(String dataSource) throws RepositoryException;
-
-	/**
 	 * Get a datasource for a table object interface
 	 * 
 	 * @param table the table
@@ -78,4 +71,9 @@ public interface IDatabaseManager extends ISaveConstants
 	 * @return a constant
 	 */
 	public int saveData();
+
+	/**
+	 * @return
+	 */
+	public IQueryBuilderFactory getQueryFactory();
 }

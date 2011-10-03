@@ -23,14 +23,18 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.mozilla.javascript.ClassCache;
 import org.mozilla.javascript.JavaMembers;
+import org.mozilla.javascript.MemberBox;
+import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.keyword.Ident;
 
 /**
@@ -76,7 +80,7 @@ public class InstanceJavaMembers extends JavaMembers
 		List<Method> lst = new ArrayList<Method>(discoverAccessibleMethods.length);
 		for (Method discoverAccessibleMethod : discoverAccessibleMethods)
 		{
-			if (isJsMethod(discoverAccessibleMethod.getName()))
+			if (isJsMethod(discoverAccessibleMethod))
 			{
 				lst.add(discoverAccessibleMethod);
 			}
@@ -84,9 +88,10 @@ public class InstanceJavaMembers extends JavaMembers
 		return lst.toArray(new Method[lst.size()]);
 	}
 
-	protected boolean isJsMethod(String name)
+	protected boolean isJsMethod(Method method)
 	{
-		return name.startsWith("js_") || name.startsWith("jsFunction_");
+		return method.getName().startsWith("js_") || method.getName().startsWith("jsFunction_") || method.isAnnotationPresent(JSReadonlyProperty.class) ||
+			method.isAnnotationPresent(JSFunction.class);
 	}
 
 	/**
@@ -97,20 +102,70 @@ public class InstanceJavaMembers extends JavaMembers
 	{
 		Map<String, Object> ht = isStatic ? staticMembers : members;
 		Map<String, Object> copy = new HashMap<String, Object>(ht);
-		Iterator<String> enumeration = ht.keySet().iterator();
-		while (enumeration.hasNext())
+		for (Entry<String, Object> entry : ht.entrySet())
 		{
-			String name = enumeration.next();
+			String name = entry.getKey();
+			String newName = null;
 			if (name.startsWith("js_")) //$NON-NLS-1$
 			{
-				String newName = name.substring(3);
-				if (!Ident.checkIfKeyword(newName))
+				newName = name.substring(3);
+			}
+			else
+			{
+				Object member = entry.getValue();
+				if (member instanceof NativeJavaMethod)
 				{
-					Object value = copy.remove(name);
-					copy.put(newName, value);
+					if (((NativeJavaMethod)member).getMethods().length == 1)
+					{
+						MemberBox mb = ((NativeJavaMethod)member).getMethods()[0];
+						if (mb.isMethod() && mb.method().isAnnotationPresent(JSReadonlyProperty.class))
+						{
+							newName = mb.method().getAnnotation(JSReadonlyProperty.class).property();
+							if (newName == null || newName.length() == 0 && (entry.getKey().startsWith("get") || entry.getKey().startsWith("is")))
+							{
+								newName = entry.getKey().substring(entry.getKey().startsWith("get") ? 3 : 2);
+
+								// Make the bean property name.
+								char ch0 = newName.charAt(0);
+								if (Character.isUpperCase(ch0))
+								{
+									if (newName.length() == 1)
+									{
+										newName = newName.toLowerCase();
+									}
+									else
+									{
+										char ch1 = newName.charAt(1);
+										if (!Character.isUpperCase(ch1))
+										{
+											newName = Character.toLowerCase(ch0) + newName.substring(1);
+										}
+									}
+								}
+							}
+						}
+					}
+					for (MemberBox mb : ((NativeJavaMethod)member).getMethods())
+					{
+						if (mb.isMethod() && mb.method().isAnnotationPresent(JSFunction.class))
+						{
+							String funcName = mb.method().getAnnotation(JSFunction.class).value();
+							if (funcName == null || funcName.length() == 0)
+							{
+								funcName = entry.getKey();
+							}
+							newName = "jsFunction_".concat(funcName); //$NON-NLS-1$
+							break;
+						}
+					}
 				}
 			}
+			if (newName != null && newName.length() > 0 && !newName.equals(name) && !Ident.checkIfKeyword(newName))
+			{
+				copy.put(newName, copy.remove(name));
+			}
 		}
+
 		ht = copy;
 		if (isStatic)
 		{
@@ -121,18 +176,30 @@ public class InstanceJavaMembers extends JavaMembers
 			members = ht;
 		}
 		super.makeBeanProperties(isStatic);
+
 		copy = new HashMap<String, Object>(ht);
-		enumeration = ht.keySet().iterator();
-		while (enumeration.hasNext())
+		for (Entry<String, Object> entry : ht.entrySet())
 		{
-			String name = enumeration.next();
+			String name = entry.getKey();
 			if (name.startsWith("jsFunction_")) //$NON-NLS-1$
 			{
 				String newName = name.substring(11);
 				if (!Ident.checkIfKeyword(newName))
 				{
-					Object value = copy.remove(name);
-					copy.put(newName, value);
+					copy.put(newName, copy.remove(name));
+				}
+			}
+			else
+			{
+				Object member = entry.getValue();
+				if (member instanceof NativeJavaMethod && ((NativeJavaMethod)member).getMethods().length == 1)
+				{
+					MemberBox mb = ((NativeJavaMethod)member).getMethods()[0];
+					if (mb.isMethod() && mb.method().isAnnotationPresent(JSReadonlyProperty.class))
+					{
+						// make bean property
+						copy.put(name, new BeanProperty(mb, null, null));
+					}
 				}
 			}
 		}
@@ -145,7 +212,6 @@ public class InstanceJavaMembers extends JavaMembers
 			members = copy;
 		}
 	}
-
 
 	/**
 	 * @see JavaMembers#shouldDeleteGetAndSetMethods()

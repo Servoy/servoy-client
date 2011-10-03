@@ -255,15 +255,6 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 	}
 
 	/**
-	 * @see org.mozilla.javascript.Scriptable#getClassName()
-	 */
-	@Override
-	public String getClassName()
-	{
-		return "FormScope"; //$NON-NLS-1$
-	}
-
-	/**
 	 * @see org.mozilla.javascript.Scriptable#has(String, Scriptable)
 	 */
 	@Override
@@ -301,12 +292,6 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 				return obj;
 			}
 			return object;
-		}
-
-		@Override
-		public String getClassName()
-		{
-			return "ExtendsScope"; //$NON-NLS-1$
 		}
 
 		/**

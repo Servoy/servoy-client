@@ -17,6 +17,7 @@
 package com.servoy.j2db.scripting;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Date;
 import java.util.Map;
@@ -196,9 +197,9 @@ public class ScriptObjectRegistry
 						 * @see com.servoy.j2db.scripting.InstanceJavaMembers#isJsMethod(java.lang.String)
 						 */
 						@Override
-						protected boolean isJsMethod(String name)
+						protected boolean isJsMethod(Method method)
 						{
-							return (name.startsWith("js_") || name.startsWith("jsFunction_")) && !"js_isServoyException".equals(name);
+							return super.isJsMethod(method) && !"js_isServoyException".equals(method.getName());
 						}
 
 					};
