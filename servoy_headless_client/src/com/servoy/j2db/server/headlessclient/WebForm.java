@@ -201,6 +201,21 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		});
 
 		container = new WebMarkupContainer("servoywebform"); //$NON-NLS-1$
+		container.add(new StyleAppendingModifier(new Model<String>()
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public String getObject()
+			{
+				WebTabPanel tabpanel = findParent(WebTabPanel.class);
+				if (tabpanel != null)
+				{
+					return "min-width:0px;min-height:0px;";
+				}
+				return null;
+			}
+		}));
 		// we need to explicitly make the form transparent, to override the
 		// white color from the default CSS (the #webform class)
 		// case 349263
