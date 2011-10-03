@@ -17,7 +17,6 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
-import org.doomdark.uuid.UUID;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.persistence.RepositoryException;
@@ -28,6 +27,7 @@ import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.querybuilder.IQueryBuilderJoin;
 import com.servoy.j2db.querybuilder.IQueryBuilderJoins;
 import com.servoy.j2db.scripting.DefaultScope;
+import com.servoy.j2db.util.UUID;
 
 /**
  * @author rgansevles
