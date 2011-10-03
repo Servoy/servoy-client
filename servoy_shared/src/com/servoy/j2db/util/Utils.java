@@ -180,11 +180,11 @@ public class Utils
 	 */
 	public static <T> T[] arrayJoin(T[] array1, Object[] array2)
 	{
-		if (array1 == null)
+		if (array1 == null || (array1.length == 0 && array2 != null))
 		{
 			return (T[])array2;
 		}
-		if (array2 == null)
+		if (array2 == null || array2.length == 0)
 		{
 			return array1;
 		}
