@@ -1560,7 +1560,6 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				}
 				if (firstShow)
 				{
-					divDialog.setCookieBoundsOnShow(bounds);
 					divDialog.setInitialHeight(bounds.height);
 					divDialog.setInitialWidth(bounds.width);
 				}
@@ -1661,6 +1660,14 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			{
 				// this is a non-modal browser window; close it through JS
 				appendJavaScriptChanges("if (!self.closed) self.close();"); //$NON-NLS-1$
+			}
+			if (isShowingInDialog())
+			{
+				ServoyDivDialog divDialog = callingContainer.divDialogs.get(getPageMapName());
+				if (divDialog != null)
+				{
+					appendJavaScriptChanges(divDialog.getSaveBoundsJS());
+				}
 			}
 			callingContainer.closeChildWindow(getPageMapName());
 		}
