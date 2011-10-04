@@ -1377,6 +1377,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			// create a query with the different parts as custom elements
 			sqlSelect.clearJoins();
+			sqlSelect.setDistinct(false); // not needed when you have no joins and may conflict with order by
 
 			String tables;
 			int where_index = sql_lowercase.indexOf("where"); //$NON-NLS-1$
@@ -1526,6 +1527,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 		sqlSelect.clearJoins();
 		sqlSelect.clearSorts();
+		sqlSelect.setDistinct(false); // not needed when you have no joins and may conflict with order by
 		//not possible to keep related, can limit the just supplied pkset, which would awkward
 		SQLGenerator.addSorts(fsm.getApplication(), sqlSelect, sqlSelect.getTable(), this, sheet.getTable(), lastSortColumns, false);
 		clearOmit(sqlSelect);
