@@ -104,6 +104,7 @@ public class WebClientsApplication extends WebApplication
 			this.defaultStrategy = defaultStrategy;
 		}
 
+		@SuppressWarnings("nls")
 		@Override
 		protected String decodeURL(String url)
 		{
@@ -113,6 +114,7 @@ public class WebClientsApplication extends WebApplication
 			}
 			catch (Exception ex)
 			{
+				Debug.log("Unable to decode the url: '" + url + "' most likely because the session expired", ex);
 				// just ignore this more gracefully and redirect once to main page.
 				WebClientSession webClientSession = (WebClientSession)Session.get();
 				WebClient webClient = webClientSession.getWebClient();
