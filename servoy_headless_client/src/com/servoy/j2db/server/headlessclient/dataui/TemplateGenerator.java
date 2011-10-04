@@ -1987,7 +1987,7 @@ public class TemplateGenerator
 				html.append("type='password' "); //$NON-NLS-1$ 
 				if (field.getSelectOnEnter())
 				{
-					html.append("onfocus='var x= this;setTimeout(function(){x.select();},0)'"); //$NON-NLS-1$ 
+					html.append("onfocus='Servoy.Utils.doSelect(this)'"); //$NON-NLS-1$ 
 				}
 				html.append("/>"); //$NON-NLS-1$ 
 			}
@@ -2261,7 +2261,7 @@ public class TemplateGenerator
 				html.append("type='text' "); //$NON-NLS-1$ 
 				if (field.getSelectOnEnter())
 				{
-					html.append("onfocus='var x= this;setTimeout(function(){x.select();},0)'"); //$NON-NLS-1$ 
+					html.append("onfocus='Servoy.Utils.doSelect(this)'"); //$NON-NLS-1$ 
 				}
 				html.append("/>"); //$NON-NLS-1$ 
 			}

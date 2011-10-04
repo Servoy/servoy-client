@@ -1058,6 +1058,21 @@ if (typeof(Servoy.Utils) == "undefined")
 	       oField.selectionEnd = iCaretPos;
 	       oField.focus ();
 	     }
+	  },
+	  
+	  isChrome : navigator.userAgent.toLowerCase().indexOf('chrome') > -1,
+	  
+	  doSelect: function(el) 
+	  {
+	  	if(Servoy.Utils.isChrome)
+	  	{
+	  		var x= el;
+	  		setTimeout(function(){x.select();},0);
+	  	}
+	  	else
+	  	{
+	  		el.select();
+	  	}
 	  }
 	}
 }
