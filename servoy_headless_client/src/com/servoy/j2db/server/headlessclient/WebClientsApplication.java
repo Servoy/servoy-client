@@ -33,9 +33,11 @@ import org.apache.wicket.RequestCycle;
 import org.apache.wicket.Response;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.Session;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.application.IComponentOnBeforeRenderListener;
 import org.apache.wicket.markup.html.PackageResource;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.protocol.http.AjaxEnclosureListener;
 import org.apache.wicket.protocol.http.HttpSessionStore;
 import org.apache.wicket.protocol.http.MockServletContext;
 import org.apache.wicket.protocol.http.PageExpiredException;
@@ -491,6 +493,19 @@ public class WebClientsApplication extends WebApplication
 				return new ModifiedAccessStackPageMap(name);
 			}
 		};
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.wicket.protocol.http.WebApplication#newAjaxRequestTarget(org.apache.wicket.Page)
+	 */
+	@Override
+	public AjaxRequestTarget newAjaxRequestTarget(Page page)
+	{
+		AjaxRequestTarget target = new CloseableAjaxRequestTarget(page);
+		target.addListener(new AjaxEnclosureListener());
+		return target;
 	}
 
 	/**

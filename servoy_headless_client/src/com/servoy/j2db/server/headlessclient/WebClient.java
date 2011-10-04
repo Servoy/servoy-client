@@ -63,7 +63,6 @@ import com.servoy.j2db.dataprocessing.IUserClient;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.Style;
 import com.servoy.j2db.plugins.IClientPluginAccess;
-import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.IScriptSupport;
 import com.servoy.j2db.scripting.info.WEBCONSTANTS;
 import com.servoy.j2db.server.headlessclient.MainPage.ShowUrlInfo;
@@ -571,6 +570,9 @@ public class WebClient extends SessionClient implements IWebClientApplication
 			executeEvents();
 
 			super.shutDown(force);
+
+			if (executor != null) executor.destroy();
+
 			if (RequestCycle.get() != null && WebClientSession.get() != null) WebClientSession.get().logout(); //valueUnbound will do real shutdown
 			else if (session != null)
 			{
@@ -765,17 +767,6 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	}
 
 	@Override
-	protected IExecutingEnviroment createScriptEngine()
-	{
-		if (Boolean.parseBoolean(getSettings().getProperty("servoy.webclient.startscriptthread", "false")))
-		{
-			return new WebScriptEngine(this);
-		}
-		return super.createScriptEngine();
-	}
-
-
-	@Override
 	protected IFormManager createFormManager()
 	{
 		WebFormManager fm = new WebFormManager(this, getMainPage());
@@ -923,5 +914,32 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		}
 
 		return isMobile;
+	}
+
+
+	private IEventDispatcher executor;
+
+	/**
+	 * 
+	 */
+	@SuppressWarnings("nls")
+	public final synchronized IEventDispatcher getEventDispatcher()
+	{
+		if (executor == null && Boolean.parseBoolean(Settings.getInstance().getProperty("servoy.webclient.startscriptthread", "false")))
+		{
+			executor = createDispatcher();
+			Thread thread = new Thread(executor, "Executor,clientid:" + getClientID());
+			thread.setDaemon(true);
+			thread.start();
+		}
+		return executor;
+	}
+
+	/**
+	 * Method to create the {@link IEventDispatcher} runnable
+	 */
+	protected IEventDispatcher createDispatcher()
+	{
+		return new EventDispatcher();
 	}
 }

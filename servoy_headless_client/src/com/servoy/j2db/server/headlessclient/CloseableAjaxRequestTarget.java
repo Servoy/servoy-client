@@ -17,38 +17,45 @@
 
 package com.servoy.j2db.server.headlessclient;
 
-import org.mozilla.javascript.Function;
-import org.mozilla.javascript.Scriptable;
+import org.apache.wicket.Page;
+import org.apache.wicket.RequestCycle;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 
 /**
- * ScriptEngines that have a separate Thread to execute scripts should implement this interface.
- * 
  * @author jcompagner
- * 
- * @since 6.1
+ *
  */
-public interface IFunctionExecutor
+public class CloseableAjaxRequestTarget extends AjaxRequestTarget
 {
 
-	/**
-	 * @param function
-	 * @param scope
-	 * @param thisObject
-	 * @param args
-	 * @param focusEvent
-	 * @param throwException
-	 * @return
-	 */
-	Object execute(Function function, Scriptable scope, Scriptable thisObject, Object[] args, boolean focusEvent, boolean throwException) throws Exception;
+	private boolean closed;
 
 	/**
-	 * @param webRuntimeWindow
+	 * @param page
 	 */
-	void suspend(Object object);
+	public CloseableAjaxRequestTarget(Page page)
+	{
+		super(page);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.wicket.ajax.AjaxRequestTarget#detach(org.apache.wicket.RequestCycle)
+	 */
+	@Override
+	public void detach(RequestCycle requestCycle)
+	{
+		super.detach(requestCycle);
+		closed = true;
+	}
 
 	/**
-	 * @param webRuntimeWindow
+	 * @return the closed
 	 */
-	void resume(Object object);
+	public boolean isClosed()
+	{
+		return closed;
+	}
 
 }

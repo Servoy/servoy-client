@@ -26,18 +26,18 @@ import java.util.concurrent.ConcurrentMap;
 import com.servoy.j2db.util.Debug;
 
 /**
- * Runnable of the ScriptThread that executes {@link IExecuteEvent} objects.
+ * Runnable of the ScriptThread that executes {@link IEvent} objects.
  * 
  * @author jcompagner
  * 
  * @since 6.1
  */
-public final class ScriptExecutor implements Runnable
+public class EventDispatcher implements Runnable, IEventDispatcher
 {
-	private final ConcurrentMap<Object, IExecuteEvent> suspendedEvents = new ConcurrentHashMap<Object, IExecuteEvent>();
+	private final ConcurrentMap<Object, IEvent> suspendedEvents = new ConcurrentHashMap<Object, IEvent>();
 
-	private final List<IExecuteEvent> events = new ArrayList<IExecuteEvent>();
-	private final LinkedList<IExecuteEvent> stack = new LinkedList<IExecuteEvent>();
+	private final List<IEvent> events = new ArrayList<IEvent>();
+	private final LinkedList<IEvent> stack = new LinkedList<IEvent>();
 
 	private volatile boolean exit = false;
 
@@ -59,7 +59,7 @@ public final class ScriptExecutor implements Runnable
 	{
 		try
 		{
-			IExecuteEvent event = null;
+			IEvent event = null;
 			synchronized (events)
 			{
 				while (event == null)
@@ -95,7 +95,7 @@ public final class ScriptExecutor implements Runnable
 	/**
 	 * @param event
 	 */
-	public void addEvent(FunctionEvent event)
+	public void addEvent(IEvent event)
 	{
 		if (scriptThread == Thread.currentThread())
 		{
@@ -128,8 +128,12 @@ public final class ScriptExecutor implements Runnable
 	public void suspend(Object object)
 	{
 		// TODO should this one be called in the execute event thread, should an check be done??
-
-		IExecuteEvent event = stack.getLast();
+		if (Thread.currentThread() != scriptThread)
+		{
+			Debug.error("suspend called in another thread then the script thread: " + Thread.currentThread(), new RuntimeException());
+			return;
+		}
+		IEvent event = stack.getLast();
 		if (event != null)
 		{
 			suspendedEvents.put(object, event);
@@ -149,12 +153,11 @@ public final class ScriptExecutor implements Runnable
 
 	public void resume(Object object)
 	{
-		IExecuteEvent event = suspendedEvents.remove(object);
+		IEvent event = suspendedEvents.remove(object);
 		if (event != null)
 		{
 			addEmptyEvent();
 		}
-
 	}
 
 	/**
@@ -165,7 +168,7 @@ public final class ScriptExecutor implements Runnable
 		synchronized (events)
 		{
 			// add a nop event so that the dispatcher is triggered.
-			events.add(new IExecuteEvent()
+			events.add(new IEvent()
 			{
 				public void willSuspend()
 				{
@@ -177,6 +180,16 @@ public final class ScriptExecutor implements Runnable
 
 				public void execute()
 				{
+				}
+
+				public boolean isExecuted()
+				{
+					return true;
+				}
+
+				public boolean isSuspended()
+				{
+					return false;
 				}
 			});
 			events.notifyAll();

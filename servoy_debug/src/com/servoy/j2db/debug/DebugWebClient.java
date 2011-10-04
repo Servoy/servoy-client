@@ -42,7 +42,9 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.server.headlessclient.IEventDispatcher;
 import com.servoy.j2db.server.headlessclient.MainPage;
+import com.servoy.j2db.server.headlessclient.EventDispatcher;
 import com.servoy.j2db.server.headlessclient.WebClient;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.WebCredentials;
@@ -206,21 +208,33 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 	@Override
 	protected IExecutingEnviroment createScriptEngine()
 	{
-		RemoteDebugScriptEngine engine = null;
-		if (Boolean.parseBoolean(getSettings().getProperty("servoy.webclient.startscriptthread", "false")))
-		{
-			engine = new WebRemoteDebugScriptEngine(this);
-		}
-		else
-		{
-			engine = new RemoteDebugScriptEngine(this);
-		}
+		RemoteDebugScriptEngine engine = new RemoteDebugScriptEngine(this);
 		if (designerCallBack != null)
 		{
 			designerCallBack.addScriptObjects(this, engine.getSolutionScope());
 		}
 
 		return engine;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.WebClient#createDispatcher()
+	 */
+	@Override
+	protected IEventDispatcher createDispatcher()
+	{
+		return new EventDispatcher()
+		{
+			@Override
+			public void run()
+			{
+				// just add this thread to the dispatchers.
+				addEventDispatchThread();
+				super.run();
+			}
+		};
 	}
 
 	/**

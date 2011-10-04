@@ -25,35 +25,27 @@ import org.apache.wicket.Page;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.Session;
 import org.mozilla.javascript.Function;
-import org.mozilla.javascript.Scriptable;
+
+import com.servoy.j2db.util.Debug;
 
 /**
- * An implementation of {@link IExecuteEvent} that executes {@link Function} when {@link #execute()} is called.
+ * An implementation of {@link IEvent} that executes {@link Function} when {@link #execute()} is called.
  * Will set and reset all the wicket thread locals from the creation thread (the http thread) to the execution thread.
  * 
  * @author jcompagner
  * 
  * @since 6.1
  */
-public class FunctionEvent implements IExecuteEvent
+public abstract class WicketExecuteEvent implements IEvent
 {
-	private final IFunctionExecutor functionExecutor;
-	private final Function function;
-	private final Scriptable scope;
-	private final Scriptable thisObject;
-	private final Object[] args;
-	private final boolean focusEvent;
-	private final boolean throwException;
-
 	private final RequestCycle requestCycle;
 	private final Session session;
 	private final Application application;
 
-	private volatile Object returnValue;
-	private volatile Exception exception;
 	private volatile boolean executed;
 	private volatile boolean suspended;
 	private volatile boolean resetThreadLocals = true;
+	private volatile Exception exception;
 
 	private final List<IClusterable> dirtyObjectsList;
 	private final List<Page> touchedPages;
@@ -68,17 +60,8 @@ public class FunctionEvent implements IExecuteEvent
 	 * @param throwException
 	 * @param scriptEngine TODO
 	 */
-	public FunctionEvent(IFunctionExecutor functionExecutor, Function function, Scriptable scope, Scriptable thisObject, Object[] args, boolean focusEvent,
-		boolean throwException)
+	public WicketExecuteEvent()
 	{
-		this.functionExecutor = functionExecutor;
-		this.function = function;
-		this.scope = scope;
-		this.thisObject = thisObject;
-		this.args = args;
-		this.focusEvent = focusEvent;
-		this.throwException = throwException;
-
 		requestCycle = RequestCycle.get();
 		session = Session.get();
 		application = Application.get();
@@ -92,24 +75,25 @@ public class FunctionEvent implements IExecuteEvent
 	 * 
 	 * @see com.servoy.j2db.server.headlessclient.IExecuteEvent#execute()
 	 */
-	public void execute()
+	public final void execute()
 	{
 		try
 		{
-			resetThreadLocals = RequestCycle.get() == null;
-			if (resetThreadLocals)
-			{
-				ServoyRequestCycle.set(requestCycle);
-				Session.set(session);
-				Application.set(application);
+//			resetThreadLocals = RequestCycle.get() == null;
+//			if (resetThreadLocals)
+//			{
+			ServoyRequestCycle.set(requestCycle);
+			Session.set(session);
+			Application.set(application);
 
-				session.moveUsedPage(currentThread, Thread.currentThread());
-			}
+			session.moveUsedPage(currentThread, Thread.currentThread());
+//			}
 
-			returnValue = functionExecutor.execute(function, scope, thisObject, args, focusEvent, throwException);
+			run();
 		}
 		catch (Exception e)
 		{
+			Debug.error(e);
 			exception = e;
 		}
 		finally
@@ -118,6 +102,8 @@ public class FunctionEvent implements IExecuteEvent
 			cleanup();
 		}
 	}
+
+	public abstract void run();
 
 	/**
 	 * 
@@ -146,18 +132,10 @@ public class FunctionEvent implements IExecuteEvent
 
 			session.moveUsedPage(Thread.currentThread(), currentThread);
 
-			ServoyRequestCycle.set(null);
-			Session.unset();
-			Application.unset();
+//			ServoyRequestCycle.set(null);
+//			Session.unset();
+//			Application.unset();
 		}
-	}
-
-	/**
-	 * @return the returnValue
-	 */
-	public Object getReturnValue()
-	{
-		return returnValue;
 	}
 
 	/**
@@ -199,9 +177,9 @@ public class FunctionEvent implements IExecuteEvent
 	public void willResume()
 	{
 		suspended = false;
-		if (RequestCycle.get() == null) ServoyRequestCycle.set(requestCycle);
-		if (Session.exists()) Session.set(session);
-		if (Application.exists()) Application.set(application);
+//		if (RequestCycle.get() == null) ServoyRequestCycle.set(requestCycle);
+//		if (Session.exists()) Session.set(session);
+//		if (Application.exists()) Application.set(application);
 	}
 
 }

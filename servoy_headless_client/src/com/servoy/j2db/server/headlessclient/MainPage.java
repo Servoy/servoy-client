@@ -38,6 +38,7 @@ import javax.swing.border.Border;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.IPageMap;
+import org.apache.wicket.IRequestTarget;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageMap;
@@ -677,7 +678,22 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 				// temporary set the dialog container as the current container (the close event is processed by the main container, not the dialog)
 				fm.setCurrentContainer(divDialogContainer, divDialogContainer.getContainerName());
-				client.getRuntimeWindowManager().closeFormInWindow(divDialog.getPageMapName(), divDialog.getCloseAll());
+
+				if (client.getEventDispatcher() != null)
+				{
+					client.getEventDispatcher().addEvent(new WicketExecuteEvent()
+					{
+						@Override
+						public void run()
+						{
+							client.getRuntimeWindowManager().closeFormInWindow(divDialog.getPageMapName(), divDialog.getCloseAll());
+						}
+					});
+				}
+				else
+				{
+					client.getRuntimeWindowManager().closeFormInWindow(divDialog.getPageMapName(), divDialog.getCloseAll());
+				}
 
 				// reset current container again
 				fm.setCurrentContainer(currentContainer, currentContainer.getContainerName());
@@ -1671,6 +1687,15 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				}
 			}
 			callingContainer.closeChildWindow(getPageMapName());
+			if (isShowingInDialog())
+			{
+				IRequestTarget requestTarget = getRequestCycle().getRequestTarget();
+				if (requestTarget instanceof AjaxRequestTarget)
+				{
+					// force a ajax update so that parent dialogs are really closed.
+					((AjaxRequestTarget)requestTarget).appendJavascript("Wicket.DivWindow.refreshWindows(window.top);"); //$NON-NLS-1$
+				}
+			}
 		}
 		showingInWindow = false;
 		showingInDialog = false;

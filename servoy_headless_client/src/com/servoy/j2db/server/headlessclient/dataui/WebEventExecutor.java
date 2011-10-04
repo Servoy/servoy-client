@@ -58,11 +58,14 @@ import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.JSEvent.EventType;
+import com.servoy.j2db.server.headlessclient.CloseableAjaxRequestTarget;
+import com.servoy.j2db.server.headlessclient.IEventDispatcher;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.ServoyForm;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.WebClientsApplication.ModifiedAccessStackPageMap;
 import com.servoy.j2db.server.headlessclient.WebForm;
+import com.servoy.j2db.server.headlessclient.WicketExecuteEvent;
 import com.servoy.j2db.server.headlessclient.WrapperContainer;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataCalendar.DateField;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataRadioButton.MyRadioButton;
@@ -355,7 +358,7 @@ public class WebEventExecutor extends BaseEventExecutor
 		onEvent(type, target, comp, webModifiers, null);
 	}
 
-	public void onEvent(EventType type, AjaxRequestTarget target, Component comp, int webModifiers, Point mouseLocation)
+	public void onEvent(final EventType type, final AjaxRequestTarget target, final Component comp, final int webModifiers, final Point mouseLocation)
 	{
 		ServoyForm form = comp.findParent(ServoyForm.class);
 		if (form == null)
@@ -363,7 +366,40 @@ public class WebEventExecutor extends BaseEventExecutor
 			return;
 		}
 
-		Page page = form.getPage(); // JS might change the page this form belongs to... so remember it now
+		final Page page = form.getPage(); // JS might change the page this form belongs to... so remember it now
+
+		IEventDispatcher eventDispatcher = WebClientSession.get().getWebClient().getEventDispatcher();
+		if (eventDispatcher != null)
+		{
+			eventDispatcher.addEvent(new WicketExecuteEvent()
+			{
+				@Override
+				public void run()
+				{
+					handleEvent(type, target, comp, webModifiers, mouseLocation, page);
+				}
+			});
+		}
+		else
+		{
+			handleEvent(type, target, comp, webModifiers, mouseLocation, page);
+		}
+		if (target != null)
+		{
+			generateResponse(target, page);
+		}
+	}
+
+	/**
+	 * @param type
+	 * @param target
+	 * @param comp
+	 * @param webModifiers
+	 * @param mouseLocation
+	 * @param page
+	 */
+	private void handleEvent(EventType type, AjaxRequestTarget target, Component comp, int webModifiers, Point mouseLocation, Page page)
+	{
 		WebClientSession.get().getWebClient().executeEvents(); // process model changes from web components
 
 		if (comp instanceof IScriptableProvider)
@@ -423,10 +459,6 @@ public class WebEventExecutor extends BaseEventExecutor
 					case onDrop :
 				}
 			}
-		}
-		if (target != null)
-		{
-			generateResponse(target, page);
 		}
 	}
 
@@ -593,6 +625,10 @@ public class WebEventExecutor extends BaseEventExecutor
 		if (target != null && page instanceof MainPage && webClientSession != null && webClientSession.getWebClient() != null &&
 			webClientSession.getWebClient().getSolution() != null)
 		{
+			if (target instanceof CloseableAjaxRequestTarget && ((CloseableAjaxRequestTarget)target).isClosed())
+			{
+				return;
+			}
 			// do executed the events for before generating the response.
 			webClientSession.getWebClient().executeEvents();
 

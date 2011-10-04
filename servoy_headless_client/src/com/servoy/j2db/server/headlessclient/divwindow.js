@@ -342,6 +342,23 @@ Wicket.Object.extendClass(Wicket.DivWindow.Mask, Wicket.Window.Mask, {
 Wicket.DivWindow.currentModalWindow = null;
 Wicket.DivWindow.openWindows = { }; // windowId: DivWindow object pairs
 
+Wicket.DivWindow.refreshWindows = function(startWindow) {
+	 if (typeof(startWindow) == "undefined" || startWindow == null) {
+	   startWindow = window;
+	 }
+   try {
+		startWindow.triggerAjaxUpdate();
+   } catch(ignore){alert(ignore);}
+   var openWindows = startWindow.Wicket.DivWindow.openWindows;
+   for (w in openWindows) {
+      if (typeof(w) != "undefined" && w != null) {
+        try {
+			openWindows[w].content.contentWindow.Wicket.DivWindow.refreshWindows(openWindows[w].content.contentWindow);
+		} catch(ignore){alert("2:" + ignore);}
+	}
+   } 
+}
+
 Wicket.DivWindow.create = function(settings, windowId, currenWindowIsInIframe) {
 	var win = Wicket.DivWindow.get(currenWindowIsInIframe);
 	// create and return instance

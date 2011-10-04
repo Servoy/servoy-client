@@ -463,21 +463,37 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		protected void respond(AjaxRequestTarget target)
+		protected void respond(final AjaxRequestTarget target)
 		{
 			if (Debug.tracing()) Debug.trace("Event response callback " + getRequestCycle().getRequest().getURL()); //$NON-NLS-1$
-			String markupId = getRequestCycle().getRequest().getParameter("id"); //$NON-NLS-1$
-			String event = getRequestCycle().getRequest().getParameter("event"); //$NON-NLS-1$
+			final String markupId = getRequestCycle().getRequest().getParameter("id"); //$NON-NLS-1$
+			final String event = getRequestCycle().getRequest().getParameter("event"); //$NON-NLS-1$
 			if (markupId != null && event != null)
 			{
-				IEventCallback callback = eventCallback.get(event);
+				final IEventCallback callback = eventCallback.get(event);
 				if (callback == null)
 				{
 					Debug.trace("Callback handler not found, event=" + event + " id=" + markupId); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				else
 				{
-					callback.respond(target, event, markupId);
+					IEventDispatcher eventDispatcher = ((WebClient)application).getEventDispatcher();
+					if (eventDispatcher != null)
+					{
+						eventDispatcher.addEvent(new WicketExecuteEvent()
+						{
+							@Override
+							public void run()
+							{
+								callback.respond(target, event, markupId);
+							}
+						});
+						WebEventExecutor.generateResponse(target, getPage());
+					}
+					else
+					{
+						callback.respond(target, event, markupId);
+					}
 				}
 			}
 			else

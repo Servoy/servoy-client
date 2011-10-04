@@ -104,11 +104,9 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 		}
 		if (getTitle() != null) setTitle(getTitle());
 
-		if (windowType == JSWindow.MODAL_DIALOG && application.getScriptEngine() instanceof IFunctionExecutor)
+		if (windowType == JSWindow.MODAL_DIALOG && ((WebClient)application).getEventDispatcher() != null)
 		{
-			IFunctionExecutor executor = (IFunctionExecutor)application.getScriptEngine();
-			executor.suspend(this);
-
+			((WebClient)application).getEventDispatcher().suspend(this);
 		}
 	}
 
@@ -178,10 +176,9 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 	{
 		MainPage mp = getMainPage();
 		if (mp != null) mp.close();
-		if (windowType == JSWindow.MODAL_DIALOG)
+		if (windowType == JSWindow.MODAL_DIALOG && ((WebClient)application).getEventDispatcher() != null)
 		{
-			IFunctionExecutor executor = (IFunctionExecutor)application.getScriptEngine();
-			executor.resume(this);
+			((WebClient)application).getEventDispatcher().resume(this);
 		}
 	}
 
