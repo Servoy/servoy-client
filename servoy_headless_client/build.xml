@@ -122,8 +122,6 @@
 			
 			<pathelement path="../servoy_shared/lib/wicket.jar"/>
 			
-			<pathelement path="../servoy_shared/lib/wiquery.jar"/>
-			
 			<pathelement path="../servoy_shared/lib/commons-pool.jar"/>
 			
 			<pathelement path="../servoy_shared/lib/activation.jar"/>
@@ -141,6 +139,10 @@
 			<pathelement path="../servoy_shared/lib/httpmime.jar"/>
 			
 			<pathelement path="../servoy_shared/lib/antlr.jar"/>
+			
+			<pathelement path="../servoy_shared/lib/l2fprod-common-outlookbar.jar"/>
+			
+			<pathelement path="../servoy_shared/lib/wiquery.jar"/>
 			
 			<pathelement path="../servoy_smart_client/bin/"/>
 			
@@ -215,10 +217,10 @@
 		<eclipse.logCompileError bundle="servoy_headless_client_6.1.0.1400" log="${compilation.prereq.log}">
 			<include name="C:/Users/Administrator/dev_trunk/org.eclipse.dltk.javascript.rhino/compilation.problem"/>
 			<include name="${pluginTemp}/org.eclipse.dltk.javascript.rhino_6.1.0.1400/compilation.problem"/>
-			<include name="C:/Users/Administrator/dev_trunk/servoy_shared/compilation.problem"/>
-			<include name="${pluginTemp}/servoy_shared_6.1.0.1400/compilation.problem"/>
 			<include name="C:/Users/Administrator/dev_trunk/servoy_smart_client/compilation.problem"/>
 			<include name="${pluginTemp}/servoy_smart_client_6.1.0.1400/compilation.problem"/>
+			<include name="C:/Users/Administrator/dev_trunk/servoy_shared/compilation.problem"/>
+			<include name="${pluginTemp}/servoy_shared_6.1.0.1400/compilation.problem"/>
 		</eclipse.logCompileError>
 	</target>
 

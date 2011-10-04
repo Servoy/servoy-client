@@ -138,6 +138,8 @@
 			
 			<pathelement path="../servoy_shared/lib/l2fprod-common-outlookbar.jar"/>
 			
+			<pathelement path="../servoy_shared/lib/wiquery.jar"/>
+			
 			<pathelement path="../org.eclipse.dltk.javascript.rhino/bin/"/>
 			
 			<pathelement path="${build.result.folder}/../org.eclipse.dltk.javascript.rhino/@dot"/>
