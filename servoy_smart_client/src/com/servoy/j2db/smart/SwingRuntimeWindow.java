@@ -810,9 +810,12 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 			{
 				textToolbar = new TextToolbar(application);
 			}
-			toolbarPanel = new ToolbarPanel(Settings.INITIAL_CLIENT_WIDTH - 200);
-			toolbarPanel.addToolbar(textToolbar, 0);
-			window.getContentPane().add(toolbarPanel, BorderLayout.NORTH);
+			if (toolbarPanel == null)
+			{
+				toolbarPanel = new ToolbarPanel(Settings.INITIAL_CLIENT_WIDTH - 200);
+				toolbarPanel.addToolbar(textToolbar, 0);
+				window.getContentPane().add(toolbarPanel, BorderLayout.NORTH);
+			}
 		}
 		else
 		{
