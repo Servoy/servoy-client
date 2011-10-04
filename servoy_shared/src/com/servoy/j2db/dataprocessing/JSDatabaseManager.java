@@ -2604,10 +2604,21 @@ public class JSDatabaseManager
 	 * 	var srcRecord = foundset.getRecord(i);
 	 * 	var destRecord = otherfoundset.getRecord(i);
 	 * 	if (srcRecord == null || destRecord == null) break;
-	 * 	databaseManager.copyMatchingColumns(srcRecord,destRecord,true)
+	 * 	databaseManager.copyMatchingFields(srcRecord,destRecord,true)
 	 * }
 	 * //saves any outstanding changes to the dest foundset
 	 * controller.saveData();
+	 * 
+	 * //copying from a MailMessage JavaScript object
+	 * //var _msg = plugins.mail.receiveMail(login, password, true, 0, null, properties);
+	 * //if (_msg != null)
+	 * //{
+	 * //	controller.newRecord();
+	 * //	var srcObject = _msg[0];
+	 * //	var destRecord = foundset.getSelectedRecord();
+	 * //	databaseManager.copyMatchingFields(srcObject, destRecord, true);
+	 * //	controller.saveData();
+	 * //} 
 	 *
 	 * @param src The source record or object to be copied.
 	 * @param dest_record The destination record to copy to.
