@@ -35,6 +35,8 @@ public interface IQueryBuilderResult
 	 */
 	IQueryBuilder getParent();
 
+	IQueryBuilderResult addPk() throws RepositoryException;
+
 	IQueryBuilderResult add(String columnName) throws RepositoryException;
 
 	IQueryBuilderResult add(IQueryBuilderColumn column) throws RepositoryException;

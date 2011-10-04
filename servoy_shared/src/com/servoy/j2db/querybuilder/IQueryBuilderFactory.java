@@ -29,13 +29,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 
 public interface IQueryBuilderFactory
 {
-
-	IQueryBuilder createPKSelect(String dataSource, String alias) throws RepositoryException;
-
-	IQueryBuilder createPKSelect(String dataSource) throws RepositoryException;
-
 	IQueryBuilder createSelect(String dataSource) throws RepositoryException;
 
 	IQueryBuilder createSelect(String dataSource, String alias) throws RepositoryException;
-
 }

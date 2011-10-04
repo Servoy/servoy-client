@@ -70,7 +70,7 @@ public class QueryBuilderJoins extends DefaultScope implements IQueryBuilderJoin
 		QueryJoin queryJoin = new QueryJoin(alias, parent.getQueryTable(), new QueryTable(foreignTable.getSQLName(), foreignTable.getCatalog(),
 			foreignTable.getSchema()), new AndCondition(), joinType);
 		root.getQuery().addJoin(queryJoin);
-		QueryBuilderJoin join = new QueryBuilderJoin(root, parent, dataSource, queryJoin);
+		QueryBuilderJoin join = new QueryBuilderJoin(root, parent, dataSource, queryJoin, alias);
 		put(alias == null ? new UUID().toString() : alias, getParentScope(), join);
 		return join;
 	}

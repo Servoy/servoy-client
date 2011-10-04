@@ -17,11 +17,8 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
-import java.util.Iterator;
-
 import org.mozilla.javascript.Scriptable;
 
-import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.ITableProvider;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.querybuilder.IQueryBuilderFactory;
@@ -48,45 +45,15 @@ public class QueryBuilderFactory implements IQueryBuilderFactory
 		this.scriptableParent = scriptableParent;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.querybuilder.IQueryFactory#createPKSelect(java.lang.String, java.lang.String)
-	 */
-	public QueryBuilder createPKSelect(String dataSource, String alias)
+	public QueryBuilder createSelect(String dataSource, String alias) throws RepositoryException
 	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public QueryBuilder createPKSelect(String dataSource) throws RepositoryException
-	{
-		QueryBuilder query = createSelect(dataSource);
-		ITable table = query.getTable();
-		Iterator<String> rowIdentColumnNames = table.getRowIdentColumnNames();
-		while (rowIdentColumnNames.hasNext())
-		{
-			query.result().add(query.getColumn(rowIdentColumnNames.next()));
-		}
-		return query;
-	}
-
-	public QueryBuilder createSelect(String dataSource) throws RepositoryException
-	{
-		QueryBuilder queryBuilder = new QueryBuilder(tableProvider, dataSource);
+		QueryBuilder queryBuilder = new QueryBuilder(tableProvider, dataSource, alias);
 		queryBuilder.setScriptableParent(scriptableParent);
 		return queryBuilder;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.querybuilder.IQueryFactory#createSelect(java.lang.String, java.lang.String)
-	 */
-	public QueryBuilder createSelect(String dataSource, String alias)
+	public QueryBuilder createSelect(String dataSource) throws RepositoryException
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return createSelect(dataSource, null);
 	}
-
 }

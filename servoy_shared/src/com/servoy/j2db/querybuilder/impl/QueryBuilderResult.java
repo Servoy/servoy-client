@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import java.util.Iterator;
+
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.persistence.RepositoryException;
@@ -48,15 +50,25 @@ public class QueryBuilderResult implements IQueryBuilderResult
 	}
 
 	@JSFunction
+	public QueryBuilderResult addPk() throws RepositoryException
+	{
+		Iterator<String> rowIdentColumnNames = getParent().getTable().getRowIdentColumnNames();
+		while (rowIdentColumnNames.hasNext())
+		{
+			add(rowIdentColumnNames.next());
+		}
+		return this;
+	}
+
+	@JSFunction
 	public QueryBuilderResult add(String columnName) throws RepositoryException
 	{
 		return add(parent.getColumn(columnName));
 	}
 
-	@JSFunction
-	public QueryBuilderResult add(QueryBuilderColumn column) throws RepositoryException
+	public QueryBuilderResult js_add(QueryBuilderColumn column) throws RepositoryException
 	{
-		return add((IQueryBuilderColumn)column);
+		return add(column);
 	}
 
 	public QueryBuilderResult add(IQueryBuilderColumn column) throws RepositoryException

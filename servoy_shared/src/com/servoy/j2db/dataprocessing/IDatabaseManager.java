@@ -73,7 +73,9 @@ public interface IDatabaseManager extends ISaveConstants, ITableProvider
 	public int saveData();
 
 	/**
-	 * @return
+	 * Get a query factory for building queries.
+	 * 
+	 * @return a query factory
 	 */
 	public IQueryBuilderFactory getQueryFactory();
 }

@@ -52,14 +52,19 @@ public class QueryBuilder extends QueryBuilderTableClause implements IQueryBuild
 
 	private Scriptable scriptableParent;
 
-	/**
-	 * @param tableProvider
-	 * @param dataSource
-	 */
-	QueryBuilder(ITableProvider tableProvider, String dataSource)
+	QueryBuilder(ITableProvider tableProvider, String dataSource, String alias)
 	{
-		super(dataSource);
+		super(dataSource, alias);
 		this.tableProvider = tableProvider;
+	}
+
+	/**
+	 * @param querySelect
+	 */
+	QueryBuilder(QuerySelect querySelect)
+	{
+		this(null, null, null);
+		this.query = querySelect;
 	}
 
 	public QuerySelect build()
@@ -85,6 +90,10 @@ public class QueryBuilder extends QueryBuilderTableClause implements IQueryBuild
 
 	Table getTable(String dataSource) throws RepositoryException
 	{
+		if (dataSource == null)
+		{
+			throw new RepositoryException("Cannot access table in query without dataSource");
+		}
 		ITable tbl = tableProvider.getTable(dataSource);
 		if (!(tbl instanceof Table))
 		{
@@ -137,7 +146,7 @@ public class QueryBuilder extends QueryBuilderTableClause implements IQueryBuild
 			((IQueryBuilderConditionInternal)cond).getQueryCondition().negate());
 	}
 
-	QuerySelect getQuery() throws RepositoryException
+	public QuerySelect getQuery() throws RepositoryException
 	{
 		if (query == null)
 		{

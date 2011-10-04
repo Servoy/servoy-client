@@ -60,6 +60,16 @@ import com.servoy.j2db.query.QueryJoin;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.QueryUpdate;
+import com.servoy.j2db.querybuilder.impl.QueryBuilder;
+import com.servoy.j2db.querybuilder.impl.QueryBuilderColumn;
+import com.servoy.j2db.querybuilder.impl.QueryBuilderColumns;
+import com.servoy.j2db.querybuilder.impl.QueryBuilderCondition;
+import com.servoy.j2db.querybuilder.impl.QueryBuilderFactory;
+import com.servoy.j2db.querybuilder.impl.QueryBuilderJoin;
+import com.servoy.j2db.querybuilder.impl.QueryBuilderJoins;
+import com.servoy.j2db.querybuilder.impl.QueryBuilderLogicalCondition;
+import com.servoy.j2db.querybuilder.impl.QueryBuilderResult;
+import com.servoy.j2db.querybuilder.impl.QueryBuilderTableClause;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
@@ -84,7 +94,9 @@ public class JSDatabaseManager
 		{
 			public Class< ? >[] getAllReturnedTypes()
 			{
-				return new Class< ? >[] { COLUMNTYPE.class, SQL_ACTION_TYPES.class, JSColumn.class, JSDataSet.class, JSFoundSetUpdater.class, JSTable.class };
+				return new Class< ? >[] { COLUMNTYPE.class, SQL_ACTION_TYPES.class, JSColumn.class, JSDataSet.class, JSFoundSetUpdater.class, JSTable.class, //
+				QueryBuilder.class, QueryBuilderColumn.class, QueryBuilderColumns.class, QueryBuilderCondition.class, QueryBuilderFactory.class, QueryBuilderJoin.class, //
+				QueryBuilderJoins.class, QueryBuilderLogicalCondition.class, QueryBuilderResult.class, QueryBuilderTableClause.class };
 			}
 		});
 	}
@@ -2779,6 +2791,26 @@ public class JSDatabaseManager
 			Debug.log(e);
 		}
 		return false;
+	}
+
+	/**
+	 * Create a QueryBuilder object for a datasource.
+	 * @sample
+	 * 
+	 * var q = databaseManager.createSelect('db:/example_data/book_nodes')
+	 * q.result.addPk()
+	 * q.where.add(q.columns.label_text.not.isin(null))
+	 * databaseManager.getFoundSet('db:/example_data/book_nodes').loadRecords(q)
+	 *
+	 * @param dataSource The data source to build a query for.
+	 * 
+	 * @return query builder
+	 */
+	public QueryBuilder js_createSelect(String dataSource) throws ServoyException
+	{
+		QueryBuilderFactory factory = new QueryBuilderFactory(application.getFoundSetManager());
+		factory.setScriptableParent(application.getScriptEngine().getSolutionScope());
+		return factory.createSelect(dataSource);
 	}
 
 	/**

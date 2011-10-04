@@ -85,6 +85,8 @@ import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QuerySort;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.SetCondition;
+import com.servoy.j2db.querybuilder.impl.QueryBuilder;
+import com.servoy.j2db.querybuilder.impl.QueryBuilderFactory;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.LazyCompilationScope;
@@ -1042,6 +1044,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			return loadByQuery((String)data, args);
 		}
+		if (data instanceof QueryBuilder)
+		{
+			return loadByQuery(((QueryBuilder)data).build());
+		}
 		if (data instanceof Number || data instanceof UUID)
 		{
 			List<Column> pkColumns = sheet.getTable() == null ? null : sheet.getTable().getRowIdentColumns();
@@ -1260,6 +1266,60 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return false;
 	}
 
+	public boolean loadByQuery(QuerySelect query) throws ServoyException
+	{
+		if (initialized && (getFoundSetManager().getEditRecordList().stopIfEditing(this) != ISaveConstants.STOPPED))
+		{
+			Debug.log("couldn't load dataset because foundset had editted records but couldn't save it"); //$NON-NLS-1$
+			fsm.getApplication().reportJSError("couldn't load dataset because foundset had editted records but couldn't save it", null); //$NON-NLS-1$
+			return false;
+		}
+
+		int sizeBefore = getSize();
+		if (sizeBefore > 1)
+		{
+			fireSelectionAdjusting();
+		}
+
+		QuerySelect sqlSelect = query;
+		clearOmit(sqlSelect);
+
+		// check if this query is on our base table, otherwise use as subselect
+		if (!Utils.stringSafeEquals(getTable().getSQLName(), sqlSelect.getTable().getName()) || //
+			!Utils.stringSafeEquals(getTable().getSchema(), sqlSelect.getTable().getSchemaName()) || //
+			!Utils.stringSafeEquals(getTable().getCatalog(), sqlSelect.getTable().getCatalogName()))
+		{
+			QueryBuilder builder = new QueryBuilderFactory(getFoundSetManager()).createSelect(getDataSource()).result().addPk().getParent();
+			builder.where().getQueryCondition().addCondition(
+				new SetCondition(ISQLCondition.EQUALS_OPERATOR, builder.getQuery().getColumns().toArray(
+					new IQuerySelectValue[builder.getQuery().getColumns().size()]), sqlSelect, true));
+			sqlSelect = builder.build();
+		}
+
+		//do query with sqlSelect
+		String transaction_id = fsm.getTransactionID(sheet);
+		IDataSet pk_data;
+		try
+		{
+			pk_data = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, sqlSelect,
+				fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), !sqlSelect.isUnique(), 0, fsm.pkChunkSize, IDataServer.CUSTOM_QUERY);
+		}
+		catch (RemoteException e)
+		{
+			clear();
+			throw new RepositoryException(e);
+		}
+
+		if (pk_data.getRowCount() > 0 && pk_data.getColumnCount() != sheet.getPKIndexes().length) throw new IllegalArgumentException(
+			fsm.getApplication().getI18NMessage("servoy.foundSet.query.error.incorrectNumberOfPKS")); //$NON-NLS-1$
+
+		pksAndRecords.setPksAndQuery(pk_data, pk_data.getRowCount(), sqlSelect);
+		clearInternalState(true);
+
+		fireDifference(sizeBefore, getSize());
+		return true;
+	}
+
 	public boolean loadByQuery(String query, Object[] args) throws ServoyException
 	{
 		if (query == null || sheet.getTable() == null) return false;
@@ -1293,12 +1353,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			Debug.log("couldn't load dataset because foundset had editted records but couldn't save it"); //$NON-NLS-1$
 			fsm.getApplication().reportJSError("couldn't load dataset because foundset had editted records but couldn't save it", null); //$NON-NLS-1$
 			return false;
-		}
-
-		int sizeBefore = getSize();
-		if (sizeBefore > 1)
-		{
-			fireSelectionAdjusting();
 		}
 
 		QuerySelect originalQuery = pksAndRecords.getQuerySelectForReading();
@@ -1516,30 +1570,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			sqlSelect.setSorts(sorts);
 		}
 
-		clearOmit(sqlSelect);
-
-		//do query with sqlSelect
-		String transaction_id = fsm.getTransactionID(sheet);
-		IDataSet pk_data;
-		try
-		{
-			pk_data = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, sqlSelect,
-				fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), !sqlSelect.isUnique(), 0, fsm.pkChunkSize, IDataServer.CUSTOM_QUERY);
-		}
-		catch (RemoteException e)
-		{
-			clear();
-			throw new RepositoryException(e);
-		}
-
-		if (pk_data.getRowCount() > 0 && pk_data.getColumnCount() != sheet.getPKIndexes().length) throw new IllegalArgumentException(
-			fsm.getApplication().getI18NMessage("servoy.foundSet.query.error.incorrectNumberOfPKS")); //$NON-NLS-1$
-
-		pksAndRecords.setPksAndQuery(pk_data, pk_data.getRowCount(), sqlSelect);
-		clearInternalState(true);
-
-		fireDifference(sizeBefore, getSize());
-		return true;
+		return loadByQuery(sqlSelect);
 	}
 
 	public boolean loadExternalPKList(IDataSet ds) throws ServoyException

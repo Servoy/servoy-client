@@ -38,6 +38,8 @@ import com.servoy.j2db.util.ServoyException;
 public abstract class QueryBuilderTableClause implements IQueryBuilderTableClause
 {
 	private final String dataSource;
+	private final String tableAlias;
+
 	private final QueryBuilder root;
 	private final QueryBuilderTableClause parent;
 
@@ -48,18 +50,20 @@ public abstract class QueryBuilderTableClause implements IQueryBuilderTableClaus
 	private final Map<String, QueryBuilderColumn> columns = new HashMap<String, QueryBuilderColumn>();
 	private QueryBuilderColumns builderColumns;
 
-	QueryBuilderTableClause(String dataSource)
+	QueryBuilderTableClause(String dataSource, String tableAlias)
 	{
+		this.tableAlias = tableAlias;
 		this.root = (QueryBuilder)this;
 		this.parent = this;
 		this.dataSource = dataSource;
 	}
 
-	QueryBuilderTableClause(QueryBuilder root, QueryBuilderTableClause parent, String dataSource)
+	QueryBuilderTableClause(QueryBuilder root, QueryBuilderTableClause parent, String dataSource, String tableAlias)
 	{
 		this.root = root;
 		this.parent = parent;
 		this.dataSource = dataSource;
+		this.tableAlias = tableAlias;
 	}
 
 	abstract QueryTable getQueryTable() throws RepositoryException;
@@ -122,12 +126,16 @@ public abstract class QueryBuilderTableClause implements IQueryBuilderTableClaus
 	}
 
 	@JSFunction
-	public QueryBuilderColumn getColumn(String tableAlias, String name) throws RepositoryException
+	public QueryBuilderColumn getColumn(String columnTableAlias, String name) throws RepositoryException
 	{
-		QueryBuilderTableClause queryBuilderTableClause = getRoot().findQueryBuilderTableClause(tableAlias);
+		if (columnTableAlias == null)
+		{
+			throw new IllegalArgumentException("null tableAlias for getColumn");
+		}
+		QueryBuilderTableClause queryBuilderTableClause = getRoot().findQueryBuilderTableClause(columnTableAlias);
 		if (queryBuilderTableClause == null)
 		{
-			throw new RepositoryException("Cannot find table(alias) '" + tableAlias + "'");
+			throw new RepositoryException("Cannot find table(alias) '" + columnTableAlias + "'");
 		}
 		return queryBuilderTableClause.getColumn(name);
 	}
@@ -141,15 +149,15 @@ public abstract class QueryBuilderTableClause implements IQueryBuilderTableClaus
 		return table;
 	}
 
-	QueryBuilderTableClause findQueryBuilderTableClause(String tableAlias)
+	QueryBuilderTableClause findQueryBuilderTableClause(String columnTableAlias)
 	{
-		if (tableAlias == null)
+		if (tableAlias != null && tableAlias.equals(columnTableAlias))
 		{
 			return this;
 		}
 		if (joins != null)
 		{
-			return joins.findQueryBuilderTableClause(tableAlias);
+			return joins.findQueryBuilderTableClause(columnTableAlias);
 		}
 		return null;
 	}

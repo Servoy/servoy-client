@@ -33,9 +33,9 @@ public class QueryBuilderJoin extends QueryBuilderTableClause implements IQueryB
 
 	private QueryBuilderLogicalCondition on;
 
-	QueryBuilderJoin(QueryBuilder root, QueryBuilderTableClause parent, String dataSource, QueryJoin join)
+	QueryBuilderJoin(QueryBuilder root, QueryBuilderTableClause parent, String dataSource, QueryJoin join, String alias)
 	{
-		super(root, parent, dataSource);
+		super(root, parent, dataSource, alias);
 		this.join = join;
 	}
 
