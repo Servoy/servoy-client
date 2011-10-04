@@ -2072,7 +2072,7 @@ public class TemplateGenerator
 				html.append("type='password' ");
 				if (field.getSelectOnEnter())
 				{
-					html.append("onfocus='var x= this;setTimeout(function(){x.select();},0)'");
+					html.append("onfocus='Servoy.Utils.doSelect(this)'"); //$NON-NLS-1$ 
 				}
 				html.append("/>");
 			}
@@ -2325,7 +2325,7 @@ public class TemplateGenerator
 				html.append("type='text' ");
 				if (field.getSelectOnEnter())
 				{
-					html.append("onfocus='this.select()'");
+					html.append("onfocus='Servoy.Utils.doSelect(this)'"); //$NON-NLS-1$ 
 				}
 				html.append("/>");
 			}

@@ -1601,6 +1601,7 @@ if (typeof(Servoy.Utils) == "undefined")
 	       oField.focus ();
 	     }
 	  },
+	  
 	  fixMediaLocation: function(elementId,horizontalAlignment){
 		var element = document.getElementById(elementId);
 		if (element.childNodes.length > 0)
@@ -1674,6 +1675,21 @@ if (typeof(Servoy.Utils) == "undefined")
 			}
 		}
 		window.location = url;
+	  },
+	  
+	  isChrome : navigator.userAgent.toLowerCase().indexOf('chrome') > -1,
+	  
+	  doSelect: function(el) 
+	  {
+	  	if(Servoy.Utils.isChrome)
+	  	{
+	  		var x= el;
+	  		setTimeout(function(){x.select();},0);
+	  	}
+	  	else
+	  	{
+	  		el.select();
+	  	}
 	  }
 	}
 }
