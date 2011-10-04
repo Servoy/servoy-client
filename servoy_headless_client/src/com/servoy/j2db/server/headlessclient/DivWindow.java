@@ -135,7 +135,6 @@ public class DivWindow extends ModalWindow
 	private boolean modal = true;
 	protected boolean isInsideIFrame;
 	private String jsId;
-	private Rectangle initialCookieBounds = null;
 	private ResizeCallback resizeCallback = null;
 	private MoveCallback moveCallback = null;
 	private int boundEventsDelay = 300;
@@ -332,20 +331,7 @@ public class DivWindow extends ModalWindow
 	protected Object getShowJavascript()
 	{
 		// we assume this gets called inside the window that will open this new div window; isInsideIFrame refers to current window
-		String s = "var win = Wicket.DivWindow.create(settings, \"" + getJSId() + "\", " + isInsideIFrame + ");\n";
-		if (initialCookieBounds != null)
-		{
-			if (initialCookieBounds.x < 0 && initialCookieBounds.y < 0)
-			{
-				s = s + "win.findPositionString(true);"; // delete cookie initial bounds so that window is centered and values set with setInitialHeight() and setInitialWidth() are used
-			}
-			else
-			{
-				s = s + "win.savePositionAs('" + initialCookieBounds.x + "px', '" + initialCookieBounds.y + "px', '" + initialCookieBounds.width + "px', '" +
-					initialCookieBounds.height + "px');\n";
-			}
-		}
-		s = s + "win.show();";
+		String s = "var win = Wicket.DivWindow.create(settings, \"" + getJSId() + "\", " + isInsideIFrame + ");\nwin.show();"; //$NON-NLS-1$ //$NON-NLS-2$
 		return s;
 	}
 
@@ -363,12 +349,6 @@ public class DivWindow extends ModalWindow
 		return getActionJavascript(".close");
 	}
 
-	public void setCookieBoundsOnShow(Rectangle initialCookieBounds)
-	{
-		// we rely on ModalWindow cookie mechanism to simulate initial bounds behaviour (so if we set the correct cookie contents before showing the window, it should use them)
-		this.initialCookieBounds = initialCookieBounds;
-	}
-
 	public String getChangeBoundsJS(int x, int y, int width, int height)
 	{
 		return "var win; try { win = window.parent.Wicket.DivWindow; } catch (ignore) {}; if (typeof(win) == \"undefined\" || typeof(win.openWindows[\"" +
@@ -379,6 +359,14 @@ public class DivWindow extends ModalWindow
 			((width >= 0) ? ("'" + width + "px'") : "win.openWindows[\"" + getJSId() + "\"].window.style.width") + "," +
 			((height >= 0) ? ("'" + height + "px'") : "win.openWindows[\"" + getJSId() + "\"].content.style.height") + "); win.openWindows[\"" + getJSId() +
 			"\"].loadPosition();}";
+	}
+
+	public String getSaveBoundsJS()
+	{
+		return "var win; try { win = window.parent.Wicket.DivWindow; } catch (ignore) {}; if (typeof(win) == \"undefined\" || typeof(win.openWindows[\"" +
+			getJSId() + "\"]) == \"undefined\") { try { win = window.Wicket.DivWindow; } catch (ignore) {} }; " +
+			" if (typeof(win) != \"undefined\" && typeof(win.openWindows[\"" + getJSId() + "\"]) != \"undefined\") { win.openWindows[\"" + getJSId() +
+			"\"].savePosition();}";
 	}
 
 	public void toFront(AjaxRequestTarget target)
