@@ -2497,7 +2497,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		if (Math.abs(row - lastRecordCreatedIndex) > 30 && cachedRecords.get(row - 1) == null && cachedRecords.get(row + 1) == null)
 		{
-			removeRecords(row, false, cachedRecords);
+			synchronized (pksAndRecords)
+			{
+				removeRecords(row, false, cachedRecords);
+			}
 		}
 		lastRecordCreatedIndex = row;
 		Record retval = null;
@@ -2572,7 +2575,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			{
 				fireDifference(oldSize, newSize);
 			}
-			removeRecords(row, true, cachedRecords);
+			synchronized (pksAndRecords)
+			{
+				removeRecords(row, true, cachedRecords);
+			}
 		}
 		catch (ServoyException ex)
 		{
@@ -4200,7 +4206,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 	}
 
-	protected void fireFoundSetEvent(@SuppressWarnings("unused") int firstRow, @SuppressWarnings("unused") int lastRow, int changeType)
+	protected void fireFoundSetEvent(@SuppressWarnings("unused")
+	int firstRow, @SuppressWarnings("unused")
+	int lastRow, int changeType)
 	{
 		if (foundSetEventListeners.size() > 0)
 		{
