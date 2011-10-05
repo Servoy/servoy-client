@@ -27,6 +27,7 @@ import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.querybuilder.IQueryBuilderJoin;
 import com.servoy.j2db.querybuilder.IQueryBuilderJoins;
 import com.servoy.j2db.scripting.DefaultScope;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.UUID;
 
 /**
@@ -43,6 +44,18 @@ public class QueryBuilderJoins extends DefaultScope implements IQueryBuilderJoin
 		super(root.getScriptableParent());
 		this.root = root;
 		this.parent = parent;
+	}
+
+	@JSReadonlyProperty
+	public QueryBuilderTableClause getParent()
+	{
+		return parent;
+	}
+
+	@JSReadonlyProperty
+	public QueryBuilder getRoot()
+	{
+		return root;
 	}
 
 	@JSFunction

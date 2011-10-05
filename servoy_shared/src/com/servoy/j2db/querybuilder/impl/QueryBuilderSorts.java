@@ -24,76 +24,60 @@ import org.mozilla.javascript.annotations.JSFunction;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
-import com.servoy.j2db.querybuilder.IQueryBuilderResult;
-import com.servoy.j2db.querybuilder.internal.IQueryBuilderColumnInternal;
+import com.servoy.j2db.querybuilder.IQueryBuilderSort;
+import com.servoy.j2db.querybuilder.IQueryBuilderSorts;
+import com.servoy.j2db.querybuilder.internal.IQueryBuilderColumnSortInternal;
 
 /**
  * @author rgansevles
  *
  */
-public class QueryBuilderResult extends AbstractQueryBuilderPart<QueryBuilder> implements IQueryBuilderResult
+public class QueryBuilderSorts extends AbstractQueryBuilderPart<QueryBuilder> implements IQueryBuilderSorts
 {
 	/**
 	 * @param queryBuilder
 	 */
-	QueryBuilderResult(QueryBuilder parent)
+	QueryBuilderSorts(QueryBuilder parent)
 	{
 		super(parent, parent);
 	}
 
 	@JSFunction
-	public QueryBuilderResult addPk() throws RepositoryException
+	public QueryBuilderSorts addPk() throws RepositoryException
 	{
 		Iterator<String> rowIdentColumnNames = getParent().getTable().getRowIdentColumnNames();
 		while (rowIdentColumnNames.hasNext())
 		{
-			add(rowIdentColumnNames.next());
+			add(getParent().getColumn(rowIdentColumnNames.next()).asc());
 		}
 		return this;
 	}
 
-	@JSFunction
-	public QueryBuilderResult add(String columnName) throws RepositoryException
+	public QueryBuilderSorts js_add(QueryBuilderSort sort) throws RepositoryException
 	{
-		return add(getParent().getColumn(columnName));
+		return add(sort);
 	}
 
-	public QueryBuilderResult js_add(QueryBuilderColumn column) throws RepositoryException
+	public QueryBuilderSorts add(IQueryBuilderSort sort) throws RepositoryException
 	{
-		return add(column);
-	}
-
-	public QueryBuilderResult add(IQueryBuilderColumn column) throws RepositoryException
-	{
-		getParent().getQuery().addColumn(((IQueryBuilderColumnInternal)column).getQuerySelectValue());
+		getParent().getQuery().addSort(((IQueryBuilderColumnSortInternal)sort).getQueryQuerySort());
 		return this;
 	}
 
-	public QueryBuilderResult js_add(QueryBuilderAggregate aggregate) throws RepositoryException
+	public QueryBuilderSorts js_add(QueryBuilderColumn columnSortAsc) throws RepositoryException
 	{
-		return add(aggregate);
+		return add(columnSortAsc);
+	}
+
+	public QueryBuilderSorts add(IQueryBuilderColumn columnSortAsc) throws RepositoryException
+	{
+		return add(columnSortAsc.asc());
 	}
 
 	@JSFunction
-	public QueryBuilderResult addValue(Object value) throws RepositoryException
+	public QueryBuilderSorts addValue(Object value) throws RepositoryException
 	{
 		getParent().getQuery().addColumn(new QueryColumnValue(value, null, value instanceof Integer));
-		return this;
-	}
-
-	public void js_setDistinct(boolean distinct) throws RepositoryException
-	{
-		setDistinct(distinct);
-	}
-
-	public boolean js_isDistinct() throws RepositoryException
-	{
-		return getParent().getQuery().isDistinct();
-	}
-
-	public QueryBuilderResult setDistinct(boolean distinct) throws RepositoryException
-	{
-		getParent().getQuery().setDistinct(distinct);
 		return this;
 	}
 

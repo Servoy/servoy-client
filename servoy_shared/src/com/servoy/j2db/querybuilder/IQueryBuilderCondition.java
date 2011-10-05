@@ -26,9 +26,6 @@ package com.servoy.j2db.querybuilder;
  * @since 6.1
  */
 
-public interface IQueryBuilderCondition
+public interface IQueryBuilderCondition extends IQueryBuilderPart
 {
-	IQueryBuilderTableClause getParent();
-
-	IQueryBuilder getRoot();
 }

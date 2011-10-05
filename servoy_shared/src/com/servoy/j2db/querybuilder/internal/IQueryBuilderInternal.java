@@ -17,10 +17,11 @@
 
 package com.servoy.j2db.querybuilder.internal;
 
+import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 
 public interface IQueryBuilderInternal extends IQueryBuilder
 {
-	public ISQLSelect build();
+	public ISQLSelect build() throws RepositoryException;
 }

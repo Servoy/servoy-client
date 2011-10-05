@@ -17,10 +17,10 @@
 
 package com.servoy.j2db.querybuilder.internal;
 
-import com.servoy.j2db.query.QueryColumn;
+import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 
 public interface IQueryBuilderColumnInternal extends IQueryBuilderColumn
 {
-	QueryColumn getQueryColumn();
+	IQuerySelectValue getQuerySelectValue();
 }

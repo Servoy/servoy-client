@@ -27,41 +27,11 @@ import com.servoy.j2db.persistence.RepositoryException;
  * @since 6.1
  */
 
-public interface IQueryBuilderColumn extends IQueryBuilderPart
+public interface IQueryBuilderSorts extends IQueryBuilderPart
 {
-	IQueryBuilderCondition gt(Object value);
+	IQueryBuilderSorts addPk() throws RepositoryException;
 
-	IQueryBuilderCondition lt(Object value);
+	IQueryBuilderSorts add(IQueryBuilderSort columnSort) throws RepositoryException;
 
-	IQueryBuilderCondition ge(Object value);
-
-	IQueryBuilderCondition le(Object value);
-
-	IQueryBuilderCondition between(Object value1, Object value2);
-
-	IQueryBuilderCondition in(IQueryBuilder query) throws RepositoryException;
-
-	IQueryBuilderCondition isNull();
-
-	IQueryBuilderCondition eq(Object value);
-
-	IQueryBuilderCondition like(String pattern);
-
-	IQueryBuilderCondition like(String pattern, char escape);
-
-	IQueryBuilderColumn not();
-
-	IQueryBuilderSort asc();
-
-	IQueryBuilderSort desc();
-
-	IQueryBuilderAggregate count();
-
-	IQueryBuilderAggregate max();
-
-	IQueryBuilderAggregate min();
-
-	IQueryBuilderAggregate avg();
-
-	IQueryBuilderAggregate sum();
+	IQueryBuilderSorts add(IQueryBuilderColumn columnSortAsc) throws RepositoryException;
 }

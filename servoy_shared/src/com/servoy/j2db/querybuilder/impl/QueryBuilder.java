@@ -26,9 +26,13 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.AndCondition;
+import com.servoy.j2db.query.ExistsCondition;
+import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.OrCondition;
+import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
+import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilderLogicalCondition;
 import com.servoy.j2db.querybuilder.internal.IQueryBuilderConditionInternal;
@@ -46,6 +50,8 @@ public class QueryBuilder extends QueryBuilderTableClause implements IQueryBuild
 	private final ITableProvider tableProvider;
 
 	private QueryBuilderResult result;
+	private QueryBuilderSorts sort;
+	private QueryBuilderGroupBy groupBy;
 	private QuerySelect query;
 	private QueryBuilderLogicalCondition where;
 	private QueryTable queryTable;
@@ -67,9 +73,9 @@ public class QueryBuilder extends QueryBuilderTableClause implements IQueryBuild
 		this.query = querySelect;
 	}
 
-	public QuerySelect build()
+	public QuerySelect build() throws RepositoryException
 	{
-		return AbstractBaseQuery.deepClone(query);
+		return AbstractBaseQuery.deepClone(getQuery());
 	}
 
 	/**
@@ -103,14 +109,14 @@ public class QueryBuilder extends QueryBuilderTableClause implements IQueryBuild
 	}
 
 	@JSReadonlyProperty
-	public QueryBuilderLogicalCondition where()
+	public QueryBuilderLogicalCondition where() throws RepositoryException
 	{
 		if (where == null)
 		{
-			AndCondition c = query.getCondition(QueryBuilder.CONDITION_WHERE);
+			AndCondition c = getQuery().getCondition(QueryBuilder.CONDITION_WHERE);
 			if (c == null)
 			{
-				query.setCondition(QueryBuilder.CONDITION_WHERE, c = new AndCondition());
+				getQuery().setCondition(QueryBuilder.CONDITION_WHERE, c = new AndCondition());
 			}
 			where = new QueryBuilderLogicalCondition(this, this, c);
 		}
@@ -125,6 +131,26 @@ public class QueryBuilder extends QueryBuilderTableClause implements IQueryBuild
 			result = new QueryBuilderResult(this);
 		}
 		return result;
+	}
+
+	@JSReadonlyProperty
+	public QueryBuilderSorts sort()
+	{
+		if (sort == null)
+		{
+			sort = new QueryBuilderSorts(this);
+		}
+		return sort;
+	}
+
+	@JSReadonlyProperty
+	public QueryBuilderGroupBy groupBy()
+	{
+		if (groupBy == null)
+		{
+			groupBy = new QueryBuilderGroupBy(this);
+		}
+		return groupBy;
 	}
 
 	@JSReadonlyProperty
@@ -144,6 +170,18 @@ public class QueryBuilder extends QueryBuilderTableClause implements IQueryBuild
 	{
 		return new QueryBuilderCondition(this, ((IQueryBuilderConditionInternal)cond).getParent(),
 			((IQueryBuilderConditionInternal)cond).getQueryCondition().negate());
+	}
+
+	@JSFunction
+	public QueryBuilderCondition exists(IQueryBuilder q) throws RepositoryException
+	{
+		ISQLSelect select = ((IQueryBuilderInternal)q).build();
+		if (select instanceof QuerySelect && ((QuerySelect)select).getColumns() == null)
+		{
+			// no columns, add 'select 1'
+			((QuerySelect)select).addColumn(new QueryColumnValue(Integer.valueOf(1), null, true));
+		}
+		return new QueryBuilderCondition(this, this, new ExistsCondition(select, true));
 	}
 
 	public QuerySelect getQuery() throws RepositoryException
@@ -169,7 +207,7 @@ public class QueryBuilder extends QueryBuilderTableClause implements IQueryBuild
 	{
 		if (value instanceof QueryBuilderColumn)
 		{
-			return ((QueryBuilderColumn)value).getQueryColumn();
+			return ((QueryBuilderColumn)value).getQuerySelectValue();
 		}
 		return value;
 	}

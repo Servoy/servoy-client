@@ -17,25 +17,27 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
-import com.servoy.j2db.query.ISQLCondition;
-import com.servoy.j2db.querybuilder.internal.IQueryBuilderConditionInternal;
+import com.servoy.j2db.query.QuerySort;
+import com.servoy.j2db.querybuilder.internal.IQueryBuilderColumnSortInternal;
 
 /**
  * @author rgansevles
  *
  */
-public class QueryBuilderCondition extends AbstractQueryBuilderPart<QueryBuilderTableClause> implements IQueryBuilderConditionInternal
+public class QueryBuilderSort extends AbstractQueryBuilderPart<QueryBuilder> implements IQueryBuilderColumnSortInternal
 {
-	private final ISQLCondition queryCondition;
+	private final boolean ascending;
+	private final QueryBuilderColumn queryBuilderColumn;
 
-	QueryBuilderCondition(QueryBuilder root, QueryBuilderTableClause parent, ISQLCondition queryCondition)
+	public QueryBuilderSort(QueryBuilder parent, QueryBuilderColumn queryBuilderColumn, boolean ascending)
 	{
-		super(root, parent);
-		this.queryCondition = queryCondition;
+		super(parent, parent);
+		this.queryBuilderColumn = queryBuilderColumn;
+		this.ascending = ascending;
 	}
 
-	public ISQLCondition getQueryCondition()
+	public QuerySort getQueryQuerySort()
 	{
-		return queryCondition;
+		return new QuerySort(queryBuilderColumn.getQuerySelectValue(), ascending);
 	}
 }

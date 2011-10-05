@@ -61,14 +61,18 @@ import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.QueryUpdate;
 import com.servoy.j2db.querybuilder.impl.QueryBuilder;
+import com.servoy.j2db.querybuilder.impl.QueryBuilderAggregate;
 import com.servoy.j2db.querybuilder.impl.QueryBuilderColumn;
 import com.servoy.j2db.querybuilder.impl.QueryBuilderColumns;
 import com.servoy.j2db.querybuilder.impl.QueryBuilderCondition;
 import com.servoy.j2db.querybuilder.impl.QueryBuilderFactory;
+import com.servoy.j2db.querybuilder.impl.QueryBuilderGroupBy;
 import com.servoy.j2db.querybuilder.impl.QueryBuilderJoin;
 import com.servoy.j2db.querybuilder.impl.QueryBuilderJoins;
 import com.servoy.j2db.querybuilder.impl.QueryBuilderLogicalCondition;
 import com.servoy.j2db.querybuilder.impl.QueryBuilderResult;
+import com.servoy.j2db.querybuilder.impl.QueryBuilderSort;
+import com.servoy.j2db.querybuilder.impl.QueryBuilderSorts;
 import com.servoy.j2db.querybuilder.impl.QueryBuilderTableClause;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.IScriptable;
@@ -95,8 +99,9 @@ public class JSDatabaseManager
 			public Class< ? >[] getAllReturnedTypes()
 			{
 				return new Class< ? >[] { COLUMNTYPE.class, SQL_ACTION_TYPES.class, JSColumn.class, JSDataSet.class, JSFoundSetUpdater.class, JSTable.class, //
-				QueryBuilder.class, QueryBuilderColumn.class, QueryBuilderColumns.class, QueryBuilderCondition.class, QueryBuilderFactory.class, QueryBuilderJoin.class, //
-				QueryBuilderJoins.class, QueryBuilderLogicalCondition.class, QueryBuilderResult.class, QueryBuilderTableClause.class };
+				QueryBuilder.class, QueryBuilderAggregate.class, QueryBuilderColumn.class, QueryBuilderColumns.class, QueryBuilderCondition.class, //
+				QueryBuilderGroupBy.class, QueryBuilderJoin.class, QueryBuilderJoins.class, QueryBuilderLogicalCondition.class, QueryBuilderResult.class, //
+				QueryBuilderSort.class, QueryBuilderSorts.class, QueryBuilderTableClause.class, };
 			}
 		});
 	}

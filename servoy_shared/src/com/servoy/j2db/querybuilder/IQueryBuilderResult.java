@@ -27,12 +27,8 @@ import com.servoy.j2db.persistence.RepositoryException;
  * @since 6.1
  */
 
-public interface IQueryBuilderResult
+public interface IQueryBuilderResult extends IQueryBuilderPart
 {
-	/**
-	 * 
-	 * @return the parent query
-	 */
 	IQueryBuilder getParent();
 
 	IQueryBuilderResult addPk() throws RepositoryException;
@@ -41,4 +37,7 @@ public interface IQueryBuilderResult
 
 	IQueryBuilderResult add(IQueryBuilderColumn column) throws RepositoryException;
 
+	IQueryBuilderResult addValue(Object value) throws RepositoryException;
+
+	IQueryBuilderResult setDistinct(boolean distinct) throws RepositoryException;
 }

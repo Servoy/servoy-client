@@ -47,7 +47,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 	private HashMap<String, AndCondition> conditions = null; // Map of AndCondition objects
 	private ArrayList<ISQLJoin> joins;
 	private ArrayList<IQuerySort> sorts;
-	private ArrayList<QueryColumn> groupBy;
+	private ArrayList<IQuerySelectValue> groupBy;
 	private HashMap<String, AndCondition> having = null; // Map of AndCondition objects
 	private int lockMode = LOCK_MODE_NONE;
 
@@ -133,7 +133,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		}
 	}
 
-	public void setGroupBy(ArrayList<QueryColumn> gb)
+	public void setGroupBy(ArrayList< ? extends IQuerySelectValue> gb)
 	{
 		int i;
 		for (i = 0; gb != null && i < gb.size(); i++)
@@ -144,7 +144,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 				throw new IllegalArgumentException("Unknown group by class " + sort.getClass().getName()); //$NON-NLS-1$
 			}
 		}
-		groupBy = i == 0 ? null : gb;
+		groupBy = i == 0 ? null : new ArrayList<IQuerySelectValue>(gb);
 	}
 
 	public void setCondition(String name, ISQLCondition c)
@@ -266,7 +266,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		sorts.add(s);
 	}
 
-	public void addGroupBy(QueryColumn c)
+	public void addGroupBy(IQuerySelectValue c)
 	{
 		if (c == null)
 		{
@@ -274,7 +274,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		}
 		if (groupBy == null)
 		{
-			groupBy = new ArrayList<QueryColumn>();
+			groupBy = new ArrayList<IQuerySelectValue>();
 		}
 		groupBy.add(c);
 	}
@@ -346,7 +346,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		return deepClone(columns);
 	}
 
-	public ArrayList<QueryColumn> getGroupByClone()
+	public ArrayList<IQuerySelectValue> getGroupByClone()
 	{
 		return deepClone(groupBy);
 	}
@@ -361,7 +361,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		return sorts;
 	}
 
-	public ArrayList<QueryColumn> getGroupBy()
+	public ArrayList<IQuerySelectValue> getGroupBy()
 	{
 		return groupBy;
 	}
@@ -797,7 +797,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		this.having = (HashMap<String, AndCondition>)members[i++];
 		this.joins = (ArrayList<ISQLJoin>)members[i++];
 		this.sorts = (ArrayList<IQuerySort>)members[i++];
-		this.groupBy = (ArrayList<QueryColumn>)members[i++];
+		this.groupBy = (ArrayList<IQuerySelectValue>)members[i++];
 	}
 
 }

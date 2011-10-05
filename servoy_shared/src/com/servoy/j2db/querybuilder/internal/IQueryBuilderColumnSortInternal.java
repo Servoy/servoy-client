@@ -15,27 +15,12 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.querybuilder.impl;
+package com.servoy.j2db.querybuilder.internal;
 
-import com.servoy.j2db.query.ISQLCondition;
-import com.servoy.j2db.querybuilder.internal.IQueryBuilderConditionInternal;
+import com.servoy.j2db.query.QuerySort;
+import com.servoy.j2db.querybuilder.IQueryBuilderSort;
 
-/**
- * @author rgansevles
- *
- */
-public class QueryBuilderCondition extends AbstractQueryBuilderPart<QueryBuilderTableClause> implements IQueryBuilderConditionInternal
+public interface IQueryBuilderColumnSortInternal extends IQueryBuilderSort
 {
-	private final ISQLCondition queryCondition;
-
-	QueryBuilderCondition(QueryBuilder root, QueryBuilderTableClause parent, ISQLCondition queryCondition)
-	{
-		super(root, parent);
-		this.queryCondition = queryCondition;
-	}
-
-	public ISQLCondition getQueryCondition()
-	{
-		return queryCondition;
-	}
+	QuerySort getQueryQuerySort();
 }

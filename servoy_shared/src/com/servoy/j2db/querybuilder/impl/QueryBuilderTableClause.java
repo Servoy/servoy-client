@@ -35,16 +35,12 @@ import com.servoy.j2db.util.ServoyException;
  * @author rgansevles
  *
  */
-public abstract class QueryBuilderTableClause implements IQueryBuilderTableClause
+public abstract class QueryBuilderTableClause extends AbstractQueryBuilderPart<QueryBuilderTableClause> implements IQueryBuilderTableClause
 {
 	private final String dataSource;
 	private final String tableAlias;
 
-	private final QueryBuilder root;
-	private final QueryBuilderTableClause parent;
-
 	private QueryBuilderJoins joins;
-
 
 	private Table table;
 	private final Map<String, QueryBuilderColumn> columns = new HashMap<String, QueryBuilderColumn>();
@@ -52,33 +48,20 @@ public abstract class QueryBuilderTableClause implements IQueryBuilderTableClaus
 
 	QueryBuilderTableClause(String dataSource, String tableAlias)
 	{
+		super();
 		this.tableAlias = tableAlias;
-		this.root = (QueryBuilder)this;
-		this.parent = this;
 		this.dataSource = dataSource;
 	}
 
 	QueryBuilderTableClause(QueryBuilder root, QueryBuilderTableClause parent, String dataSource, String tableAlias)
 	{
-		this.root = root;
-		this.parent = parent;
+		super(root, parent);
 		this.dataSource = dataSource;
 		this.tableAlias = tableAlias;
 	}
 
 	abstract QueryTable getQueryTable() throws RepositoryException;
 
-	@JSReadonlyProperty
-	public QueryBuilder getRoot()
-	{
-		return root;
-	}
-
-	@JSReadonlyProperty
-	public QueryBuilderTableClause getParent()
-	{
-		return parent;
-	}
 
 	@JSReadonlyProperty
 	public QueryBuilderColumns columns() throws ServoyException

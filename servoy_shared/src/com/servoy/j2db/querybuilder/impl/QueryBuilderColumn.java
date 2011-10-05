@@ -19,9 +19,11 @@ package com.servoy.j2db.querybuilder.impl;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLCondition;
+import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.SetCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
@@ -33,38 +35,35 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * @author rgansevles
  *
  */
-public class QueryBuilderColumn implements IQueryBuilderColumnInternal
+public class QueryBuilderColumn extends AbstractQueryBuilderPart<QueryBuilderTableClause> implements IQueryBuilderColumnInternal
 {
-	private final QueryBuilderTableClause parent;
 	private final QueryColumn queryColumn;
 	private final boolean negate;
-	private final QueryBuilder root;
 
 	QueryBuilderColumn(QueryBuilder root, QueryBuilderTableClause queryBuilderTableClause, QueryColumn queryColumn)
 	{
 		this(root, queryBuilderTableClause, queryColumn, false);
 	}
 
-	QueryBuilderColumn(QueryBuilder root, QueryBuilderTableClause queryBuilderTableClause, QueryColumn queryColumn, boolean negate)
+	QueryBuilderColumn(QueryBuilder root, QueryBuilderTableClause parent, QueryColumn queryColumn, boolean negate)
 	{
-		this.root = root;
-		this.parent = queryBuilderTableClause;
+		super(root, parent);
 		this.queryColumn = queryColumn;
 		this.negate = negate;
 	}
 
 	QueryBuilderCondition createCompareCondition(int operator, Object value)
 	{
-		return createCondition(new CompareCondition(operator, this.getQueryColumn(), QueryBuilder.createOperand(value)));
+		return createCondition(new CompareCondition(operator, this.getQuerySelectValue(), QueryBuilder.createOperand(value)));
 	}
 
 	QueryBuilderCondition createCondition(ISQLCondition queryCondition)
 	{
-		return new QueryBuilderCondition(root, parent, negate ? queryCondition.negate() : queryCondition);
+		return new QueryBuilderCondition(getRoot(), getParent(), negate ? queryCondition.negate() : queryCondition);
 	}
 
 
-	public QueryColumn getQueryColumn()
+	public IQuerySelectValue getQuerySelectValue()
 	{
 		return queryColumn;
 	}
@@ -100,9 +99,9 @@ public class QueryBuilderColumn implements IQueryBuilderColumnInternal
 	}
 
 	@JSFunction(value = "isin")
-	public QueryBuilderCondition in(IQueryBuilder query)
+	public QueryBuilderCondition in(IQueryBuilder query) throws RepositoryException
 	{
-		return createCondition(new SetCondition(ISQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { getQueryColumn() },
+		return createCondition(new SetCondition(ISQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { getQuerySelectValue() },
 			((IQueryBuilderInternal)query).build(), true));
 	}
 
@@ -133,6 +132,48 @@ public class QueryBuilderColumn implements IQueryBuilderColumnInternal
 	@JSReadonlyProperty
 	public QueryBuilderColumn not()
 	{
-		return new QueryBuilderColumn(root, parent, queryColumn, !negate);
+		return new QueryBuilderColumn(getRoot(), getParent(), queryColumn, !negate);
+	}
+
+	@JSReadonlyProperty
+	public QueryBuilderSort asc()
+	{
+		return new QueryBuilderSort(getRoot(), this, true);
+	}
+
+	@JSReadonlyProperty
+	public QueryBuilderSort desc()
+	{
+		return new QueryBuilderSort(getRoot(), this, false);
+	}
+
+	@JSReadonlyProperty
+	public QueryBuilderAggregate count()
+	{
+		return new QueryBuilderAggregate(getRoot(), getParent(), queryColumn, QueryAggregate.COUNT);
+	}
+
+	@JSReadonlyProperty
+	public QueryBuilderAggregate avg()
+	{
+		return new QueryBuilderAggregate(getRoot(), getParent(), queryColumn, QueryAggregate.AVG);
+	}
+
+	@JSReadonlyProperty
+	public QueryBuilderAggregate max()
+	{
+		return new QueryBuilderAggregate(getRoot(), getParent(), queryColumn, QueryAggregate.MAX);
+	}
+
+	@JSReadonlyProperty
+	public QueryBuilderAggregate min()
+	{
+		return new QueryBuilderAggregate(getRoot(), getParent(), queryColumn, QueryAggregate.MIN);
+	}
+
+	@JSReadonlyProperty
+	public QueryBuilderAggregate sum()
+	{
+		return new QueryBuilderAggregate(getRoot(), getParent(), queryColumn, QueryAggregate.SUM);
 	}
 }

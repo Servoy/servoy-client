@@ -17,7 +17,6 @@
 
 package com.servoy.j2db.querybuilder;
 
-import com.servoy.j2db.persistence.RepositoryException;
 
 /**
  * Interface for building Servoy Query Objects.
@@ -27,41 +26,9 @@ import com.servoy.j2db.persistence.RepositoryException;
  * @since 6.1
  */
 
-public interface IQueryBuilderColumn extends IQueryBuilderPart
+public interface IQueryBuilderPart
 {
-	IQueryBuilderCondition gt(Object value);
+	IQueryBuilderTableClause getParent();
 
-	IQueryBuilderCondition lt(Object value);
-
-	IQueryBuilderCondition ge(Object value);
-
-	IQueryBuilderCondition le(Object value);
-
-	IQueryBuilderCondition between(Object value1, Object value2);
-
-	IQueryBuilderCondition in(IQueryBuilder query) throws RepositoryException;
-
-	IQueryBuilderCondition isNull();
-
-	IQueryBuilderCondition eq(Object value);
-
-	IQueryBuilderCondition like(String pattern);
-
-	IQueryBuilderCondition like(String pattern, char escape);
-
-	IQueryBuilderColumn not();
-
-	IQueryBuilderSort asc();
-
-	IQueryBuilderSort desc();
-
-	IQueryBuilderAggregate count();
-
-	IQueryBuilderAggregate max();
-
-	IQueryBuilderAggregate min();
-
-	IQueryBuilderAggregate avg();
-
-	IQueryBuilderAggregate sum();
+	IQueryBuilder getRoot();
 }

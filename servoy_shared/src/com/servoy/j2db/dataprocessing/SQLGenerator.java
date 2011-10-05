@@ -304,10 +304,10 @@ public class SQLGenerator
 						List<IQuerySelectValue> columns = sqlSelect.getColumns();
 						for (IQuerySelectValue selectVal : columns)
 						{
-							List<QueryColumn> groupBy = sqlSelect.getGroupBy();
+							List<IQuerySelectValue> groupBy = sqlSelect.getGroupBy();
 							if (selectVal instanceof QueryColumn && (groupBy == null || !groupBy.contains(selectVal)))
 							{
-								sqlSelect.addGroupBy((QueryColumn)selectVal);
+								sqlSelect.addGroupBy(selectVal);
 							}
 						}
 					}

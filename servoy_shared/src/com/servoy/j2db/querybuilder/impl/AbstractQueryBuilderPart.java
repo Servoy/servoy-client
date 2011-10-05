@@ -17,25 +17,42 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
-import com.servoy.j2db.query.ISQLCondition;
-import com.servoy.j2db.querybuilder.internal.IQueryBuilderConditionInternal;
+import com.servoy.j2db.querybuilder.IQueryBuilderPart;
+import com.servoy.j2db.querybuilder.IQueryBuilderTableClause;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+
 
 /**
  * @author rgansevles
  *
  */
-public class QueryBuilderCondition extends AbstractQueryBuilderPart<QueryBuilderTableClause> implements IQueryBuilderConditionInternal
+public abstract class AbstractQueryBuilderPart<P extends IQueryBuilderTableClause> implements IQueryBuilderPart
 {
-	private final ISQLCondition queryCondition;
+	private final QueryBuilder root;
+	private final P parent;
 
-	QueryBuilderCondition(QueryBuilder root, QueryBuilderTableClause parent, ISQLCondition queryCondition)
+	@SuppressWarnings("unchecked")
+	AbstractQueryBuilderPart()
 	{
-		super(root, parent);
-		this.queryCondition = queryCondition;
+		this.root = (QueryBuilder)this;
+		this.parent = (P)this;
 	}
 
-	public ISQLCondition getQueryCondition()
+	AbstractQueryBuilderPart(QueryBuilder root, P parent)
 	{
-		return queryCondition;
+		this.root = root;
+		this.parent = parent;
+	}
+
+	@JSReadonlyProperty
+	final public P getParent()
+	{
+		return parent;
+	}
+
+	@JSReadonlyProperty
+	final public QueryBuilder getRoot()
+	{
+		return root;
 	}
 }

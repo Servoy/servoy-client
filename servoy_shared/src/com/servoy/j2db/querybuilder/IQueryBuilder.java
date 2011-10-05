@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.querybuilder;
 
+import com.servoy.j2db.persistence.RepositoryException;
+
 
 /**
  * Interface for building Servoy Query Objects.
@@ -74,11 +76,17 @@ package com.servoy.j2db.querybuilder;
  */
 public interface IQueryBuilder extends IQueryBuilderTableClause
 {
-	IQueryBuilderLogicalCondition where();
+	IQueryBuilderLogicalCondition where() throws RepositoryException;
 
 	IQueryBuilderResult result();
+
+	IQueryBuilderSorts sort();
 
 	IQueryBuilderLogicalCondition or();
 
 	IQueryBuilderCondition not(IQueryBuilderCondition cond);
+
+	IQueryBuilderCondition exists(IQueryBuilder query) throws RepositoryException;
+
+	IQueryBuilderGroupby groupBy();
 }

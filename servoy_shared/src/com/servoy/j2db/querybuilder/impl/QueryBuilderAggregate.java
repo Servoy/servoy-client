@@ -17,25 +17,29 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
-import com.servoy.j2db.query.ISQLCondition;
-import com.servoy.j2db.querybuilder.internal.IQueryBuilderConditionInternal;
+import com.servoy.j2db.query.IQuerySelectValue;
+import com.servoy.j2db.query.QueryAggregate;
+import com.servoy.j2db.query.QueryColumn;
+import com.servoy.j2db.querybuilder.IQueryBuilderAggregate;
 
 /**
  * @author rgansevles
  *
  */
-public class QueryBuilderCondition extends AbstractQueryBuilderPart<QueryBuilderTableClause> implements IQueryBuilderConditionInternal
+public class QueryBuilderAggregate extends QueryBuilderColumn implements IQueryBuilderAggregate
 {
-	private final ISQLCondition queryCondition;
+	private final int aggregateType;
 
-	QueryBuilderCondition(QueryBuilder root, QueryBuilderTableClause parent, ISQLCondition queryCondition)
+	QueryBuilderAggregate(QueryBuilder root, QueryBuilderTableClause queryBuilderTableClause, QueryColumn queryColumn, int aggregateType)
 	{
-		super(root, parent);
-		this.queryCondition = queryCondition;
+		super(root, queryBuilderTableClause, queryColumn);
+		this.aggregateType = aggregateType;
 	}
 
-	public ISQLCondition getQueryCondition()
+	@Override
+	public IQuerySelectValue getQuerySelectValue()
 	{
-		return queryCondition;
+		return new QueryAggregate(aggregateType, super.getQuerySelectValue(), null);
 	}
+
 }

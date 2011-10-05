@@ -26,7 +26,7 @@ import com.servoy.j2db.persistence.RepositoryException;
  *
  * @since 6.1
  */
-public interface IQueryBuilderTableClause
+public interface IQueryBuilderTableClause extends IQueryBuilderPart
 {
 	IQueryBuilderColumn getColumn(String name) throws RepositoryException;
 

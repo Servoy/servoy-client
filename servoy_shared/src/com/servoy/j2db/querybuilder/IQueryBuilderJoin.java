@@ -34,10 +34,5 @@ public interface IQueryBuilderJoin extends IQueryBuilderTableClause
 	public static final int FULL_JOIN = ISQLJoin.FULL_JOIN;
 	public static final int RIGHT_OUTER_JOIN = ISQLJoin.RIGHT_OUTER_JOIN;
 
-	IQueryBuilderTableClause getParent();
-
-	IQueryBuilder getRoot();
-
 	IQueryBuilderLogicalCondition on();
-
 }

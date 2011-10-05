@@ -27,7 +27,7 @@ import com.servoy.j2db.persistence.RepositoryException;
  *
  * @since 6.1
  */
-public interface IQueryBuilderJoins
+public interface IQueryBuilderJoins extends IQueryBuilderPart
 {
 	IQueryBuilderJoin add(String dataSource, int joinType) throws RepositoryException;
 

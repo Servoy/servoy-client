@@ -15,53 +15,41 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.querybuilder;
+package com.servoy.j2db.querybuilder.impl;
+
+import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
+import com.servoy.j2db.querybuilder.IQueryBuilderGroupby;
+import com.servoy.j2db.querybuilder.internal.IQueryBuilderColumnInternal;
 
 /**
- * Interface for building Servoy Query Objects.
- * 
  * @author rgansevles
  *
- * @since 6.1
  */
-
-public interface IQueryBuilderColumn extends IQueryBuilderPart
+public class QueryBuilderGroupBy extends AbstractQueryBuilderPart<QueryBuilder> implements IQueryBuilderGroupby
 {
-	IQueryBuilderCondition gt(Object value);
+	QueryBuilderGroupBy(QueryBuilder parent)
+	{
+		super(parent, parent);
+	}
 
-	IQueryBuilderCondition lt(Object value);
+	@JSFunction
+	public IQueryBuilderGroupby add(String columnName) throws RepositoryException
+	{
+		return add(getParent().getColumn(columnName));
+	}
 
-	IQueryBuilderCondition ge(Object value);
+	public QueryBuilderGroupBy js_add(QueryBuilderColumn column) throws RepositoryException
+	{
+		return add(column);
+	}
 
-	IQueryBuilderCondition le(Object value);
+	public QueryBuilderGroupBy add(IQueryBuilderColumn column) throws RepositoryException
+	{
+		getParent().getQuery().addGroupBy(((IQueryBuilderColumnInternal)column).getQuerySelectValue());
+		return this;
+	}
 
-	IQueryBuilderCondition between(Object value1, Object value2);
-
-	IQueryBuilderCondition in(IQueryBuilder query) throws RepositoryException;
-
-	IQueryBuilderCondition isNull();
-
-	IQueryBuilderCondition eq(Object value);
-
-	IQueryBuilderCondition like(String pattern);
-
-	IQueryBuilderCondition like(String pattern, char escape);
-
-	IQueryBuilderColumn not();
-
-	IQueryBuilderSort asc();
-
-	IQueryBuilderSort desc();
-
-	IQueryBuilderAggregate count();
-
-	IQueryBuilderAggregate max();
-
-	IQueryBuilderAggregate min();
-
-	IQueryBuilderAggregate avg();
-
-	IQueryBuilderAggregate sum();
 }
