@@ -1446,7 +1446,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 			return false;
 		}
 
-		if (eventExecutor.mustFireFocusLostCommand())
+		if (looseFocus && eventExecutor.mustFireFocusLostCommand())
 		{
 			eventExecutor.skipNextFocusLost();
 			eventExecutor.fireLeaveCommands(this, false, IEventExecutor.MODIFIERS_UNSPECIFIED);

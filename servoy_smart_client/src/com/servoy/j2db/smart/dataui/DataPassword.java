@@ -642,7 +642,7 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 			return false;
 		}
 
-		if (eventExecutor.mustFireFocusLostCommand())
+		if (looseFocus && eventExecutor.mustFireFocusLostCommand())
 		{
 			eventExecutor.skipNextFocusLost();
 			eventExecutor.fireLeaveCommands(this, false, IEventExecutor.MODIFIERS_UNSPECIFIED);

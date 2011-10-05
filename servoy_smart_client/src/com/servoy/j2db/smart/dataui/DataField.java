@@ -2011,7 +2011,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 			return false;
 		}
 
-		if (eventExecutor.mustFireFocusLostCommand())
+		if (looseFocus && eventExecutor.mustFireFocusLostCommand())
 		{
 			eventExecutor.skipNextFocusLost();
 			eventExecutor.fireLeaveCommands(this, false, IEventExecutor.MODIFIERS_UNSPECIFIED);
