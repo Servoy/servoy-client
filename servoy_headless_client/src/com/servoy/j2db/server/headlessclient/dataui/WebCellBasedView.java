@@ -180,7 +180,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	private List<SortColumn> defaultSort = null;
 
 	private SortableCellViewHeaders headers;
-	private final WebMarkupContainer tableContainer;
+	private final WebMarkupContainer tableContainerBody;
 	private final WebCellBasedViewListView table;
 	private final IModel<FoundSetListWrapper> data = new Model<FoundSetListWrapper>();
 	private PagingNavigator pagingNavigator;
@@ -1207,13 +1207,17 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 
 		// Add the table
-		tableContainer = new WebMarkupContainer("rowsContainer"); //$NON-NLS-1$
-		tableContainer.setOutputMarkupId(true);
+		tableContainerBody = new WebMarkupContainer("rowsContainerBody"); //$NON-NLS-1$ 
+		tableContainerBody.setOutputMarkupId(true);
+
+
 		table = new WebCellBasedViewListView("rows", data, 1, cellview, //$NON-NLS-1$
 			dataProviderLookup, el, startY, endY, form);
 		table.setReuseItems(true);
-		tableContainer.add(table);
-		add(tableContainer);
+
+
+		tableContainerBody.add(table);
+		add(tableContainerBody);
 
 		final LinkedHashMap<String, IDataAdapter> dataadapters = new LinkedHashMap<String, IDataAdapter>();
 		final SortedList<IPersist> columnTabSequence = new SortedList<IPersist>(TabSeqComparator.INSTANCE); // in fact ISupportTabSeq persists
@@ -1283,7 +1287,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						WebCellBasedView.this.registerHeader(matchingElement, headerComponent);
 					}
 				});
-			tableContainer.add(headers);
+			add(headers);
 		}
 
 		// Add a table navigator
@@ -1347,118 +1351,131 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			Debug.error(ex);
 		}
 
+		setScrollMode(Boolean.TRUE.equals(application.getUIProperty(IApplication.TABLEVIEW_WC_DEFAULT_SCROLLABLE)));
 
-		add(new ServoyAjaxEventBehavior("onscroll") //$NON-NLS-1$
+		if (isScrollMode())
 		{
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onEvent(AjaxRequestTarget target)
+			tableContainerBody.add(new StyleAppendingModifier(new Model<String>()
 			{
-				if (table.getPageCount() > 1)
-				{
-					int rowsPerPage = table.getRowsPerPage();
-					table.setRowsPerPage(1);
+				private static final long serialVersionUID = 1L;
 
-					StringBuffer rowsBuffer = new StringBuffer();
-					for (int i = 1; i < maxRowsPerPage; i++)
+				@Override
+				public String getObject()
+				{
+					return "overflow-x: hidden; overflow-y: auto; position: absolute; left: 0px; bottom: 0px; border-spacing: 0px;"; //$NON-NLS-1$
+				}
+			}));
+
+			tableContainerBody.add(new ServoyAjaxEventBehavior("onscroll") //$NON-NLS-1$
+			{
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				protected void onEvent(AjaxRequestTarget target)
+				{
+					if (table.getPageCount() > 1)
 					{
-						rowsPerPage++;
-						if (rowsPerPage > table.getPageCount()) break;
-						table.setCurrentPage(rowsPerPage);
-						rowsBuffer.append(renderComponent(getResponse(), table));
+						int rowsPerPage = table.getRowsPerPage();
+						table.setRowsPerPage(1);
+
+						StringBuffer rowsBuffer = new StringBuffer();
+						for (int i = 1; i < maxRowsPerPage; i++)
+						{
+							rowsPerPage++;
+							if (rowsPerPage > table.getPageCount()) break;
+							table.setCurrentPage(rowsPerPage);
+							rowsBuffer.append(renderComponent(getResponse(), table));
+						}
+
+						table.setRowsPerPage(rowsPerPage);
+						table.setCurrentPage(1);
+
+						target.appendJavascript("Servoy.TableView.appendRows('" + WebCellBasedView.this.tableContainerBody.getMarkupId() + "','" + //$NON-NLS-1$//$NON-NLS-2$
+							rowsBuffer.toString() + "');"); //$NON-NLS-1$					
+					}
+				}
+
+				@Override
+				protected IAjaxCallDecorator getAjaxCallDecorator()
+				{
+					return new AjaxPostprocessingCallDecorator(null)
+					{
+						private static final long serialVersionUID = 1L;
+
+						@SuppressWarnings("nls")
+						@Override
+						public CharSequence postDecorateScript(CharSequence script)
+						{
+							return "if (Servoy.TableView.needToUpdateRowsBuffer('" + WebCellBasedView.this.tableContainerBody.getMarkupId() + "')) { " +
+								script + "};";
+						}
+					};
+				}
+
+				private CharSequence renderComponent(Response response, Component component)
+				{
+					StringResponse stringResponse = new StringResponse();
+
+					RequestCycle.get().setResponse(stringResponse);
+
+					// Initialize temporary variables
+					final Page page = component.findParent(Page.class);
+					if (page == null)
+					{
+						//					// dont throw an exception but just ignore this component, somehow
+						//					// it got removed from the page.
+						//					log.debug("component: " + component + " with markupid: " + markupId +
+						//						" not rendered because it was already removed from page");
+						return null;
 					}
 
-					table.setRowsPerPage(rowsPerPage);
-					table.setCurrentPage(1);
+					page.startComponentRender(component);
 
-					target.appendJavascript("Servoy.TableView.appendRows('" + WebCellBasedView.this.tableContainer.getMarkupId() + "','" + //$NON-NLS-1$//$NON-NLS-2$
-						rowsBuffer.toString() + "');"); //$NON-NLS-1$
-				}
-			}
-
-			@Override
-			protected IAjaxCallDecorator getAjaxCallDecorator()
-			{
-				return new AjaxPostprocessingCallDecorator(null)
-				{
-					private static final long serialVersionUID = 1L;
-
-					@SuppressWarnings("nls")
-					@Override
-					public CharSequence postDecorateScript(CharSequence script)
-					{
-						return "if (Servoy.TableView.needToUpdateRowsBuffer('" + WebCellBasedView.this.getMarkupId() + "','" +
-							WebCellBasedView.this.tableContainer.getMarkupId() + "')) { " + script + "};";
-					}
-				};
-			}
-
-			private CharSequence renderComponent(Response response, Component component)
-			{
-				StringResponse stringResponse = new StringResponse();
-
-				RequestCycle.get().setResponse(stringResponse);
-
-				// Initialize temporary variables
-				final Page page = component.findParent(Page.class);
-				if (page == null)
-				{
-//					// dont throw an exception but just ignore this component, somehow
-//					// it got removed from the page.
-//					log.debug("component: " + component + " with markupid: " + markupId +
-//						" not rendered because it was already removed from page");
-					return null;
-				}
-
-				page.startComponentRender(component);
-
-				try
-				{
-					component.prepareForRender();
-				}
-				catch (RuntimeException e)
-				{
 					try
 					{
-						component.afterRender();
+						component.prepareForRender();
 					}
-					catch (RuntimeException e2)
+					catch (RuntimeException e)
 					{
-						// ignore this one could be a result off.
+						try
+						{
+							component.afterRender();
+						}
+						catch (RuntimeException e2)
+						{
+							// ignore this one could be a result off.
+						}
+						// Restore original response
+						RequestCycle.get().setResponse(response);
+						throw e;
 					}
+
+					try
+					{
+						component.renderComponent();
+					}
+					catch (RuntimeException e)
+					{
+						RequestCycle.get().setResponse(response);
+						throw e;
+					}
+
+					page.endComponentRender(component);
+
 					// Restore original response
 					RequestCycle.get().setResponse(response);
-					throw e;
+
+					String s = stringResponse.getBuffer().toString();
+					s = s.replace("\r", ""); //$NON-NLS-1$ //$NON-NLS-2$
+					s = s.replace("\n", ""); //$NON-NLS-1$ //$NON-NLS-2$
+					s = s.replace("\t", ""); //$NON-NLS-1$ //$NON-NLS-2$
+					s = s.replace("\\", "\\\\"); //$NON-NLS-1$ //$NON-NLS-2$
+					s = s.replace("\'", "\\\'"); //$NON-NLS-1$ //$NON-NLS-2$
+
+					return s;
 				}
-
-				try
-				{
-					component.renderComponent();
-				}
-				catch (RuntimeException e)
-				{
-					RequestCycle.get().setResponse(response);
-					throw e;
-				}
-
-				page.endComponentRender(component);
-
-				// Restore original response
-				RequestCycle.get().setResponse(response);
-
-				String s = stringResponse.getBuffer().toString();
-				s = s.replace("\r", ""); //$NON-NLS-1$ //$NON-NLS-2$
-				s = s.replace("\n", ""); //$NON-NLS-1$ //$NON-NLS-2$
-				s = s.replace("\t", ""); //$NON-NLS-1$ //$NON-NLS-2$
-				s = s.replace("\\", "\\\\"); //$NON-NLS-1$ //$NON-NLS-2$
-				s = s.replace("\'", "\\\'"); //$NON-NLS-1$ //$NON-NLS-2$
-
-				return s;
-			}
-		});
-
-		setScrollMode(Boolean.TRUE.equals(application.getUIProperty(IApplication.TABLEVIEW_WC_DEFAULT_SCROLLABLE)));
+			});
+		}
 	}
 
 	public final RuntimePortal getScriptObject()
@@ -3291,7 +3308,33 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		super.renderHead(container);
 		String columnResizeScript = getColumnResizeScript();
 		if (columnResizeScript != null) container.getHeaderResponse().renderOnDomReadyJavascript(columnResizeScript);
-		JQueryLoader.render(container.getHeaderResponse());
+		if (isScrollMode())
+		{
+			JQueryLoader.render(container.getHeaderResponse());
+			String top, scrollPadding;
+			if (headers != null)
+			{
+				top = "$('#" + headers.getMarkupId() + "').height() + 'px'";
+			}
+			else
+			{
+				top = "'0px'";
+			}
+
+			ClientInfo info = Session.get().getClientInfo();
+			if (info instanceof WebClientInfo && ((WebClientInfo)info).getProperties().isBrowserInternetExplorer())
+			{
+				scrollPadding = "'0px'";
+			}
+			else
+			{
+				scrollPadding = "'12px'";
+			}
+
+			StringBuffer tbodyStyle = new StringBuffer("$('#").append(tableContainerBody.getMarkupId()).append("').css('top',").append(top).append(");");
+			tbodyStyle.append("$('#").append(tableContainerBody.getMarkupId()).append("').css('padding-right',").append(scrollPadding).append(");");
+			container.getHeaderResponse().renderOnDomReadyJavascript(tbodyStyle.toString());
+		}
 	}
 
 	private boolean hasOnRender;

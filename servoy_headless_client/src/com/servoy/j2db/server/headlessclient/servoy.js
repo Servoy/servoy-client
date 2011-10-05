@@ -661,27 +661,32 @@ if (typeof(Servoy.TableView) == "undefined")
 		},
 		
 		isAppendingRows: false,
-		
-		appendRows: function(rowContainerId, rows)
+
+		appendRows: function(rowContainerBodyId, rows)
 		{	
-			$('#' + rowContainerId + ' > tbody:last').append(rows);
+			var rowContainerBodyEl = document.getElementById(rowContainerBodyId);
+			var scrollTop = rowContainerBodyEl.scrollTop;
+			
+			$('#' + rowContainerBodyId).append(rows);
+			$('#' + rowContainerBodyId).scrollTop(scrollTop);
+
 			Servoy.TableView.isAppendingRows = false;
 		},
-		
-		needToUpdateRowsBuffer: function(viewId, rowContainerId)
+
+		needToUpdateRowsBuffer: function(rowContainerBodyId)
 		{
 			if(Servoy.TableView.isAppendingRows)
 				return false;
 
-			var viewEl = document.getElementById(viewId);
-			var viewClientHeight = viewEl.clientHeight;
-			var viewScrollTop = viewEl.scrollTop;
-			var rowContainerScrollHeight = document.getElementById(rowContainerId).scrollHeight;
-			var bufferedRows = rowContainerScrollHeight - viewScrollTop - viewClientHeight;
-			
-			Servoy.TableView.isAppendingRows = bufferedRows < viewClientHeight;			
+			var rowContainerBodyEl = document.getElementById(rowContainerBodyId);
+			var clientHeight = rowContainerBodyEl.clientHeight;
+			var scrollTop = rowContainerBodyEl.scrollTop;
+			var scrollHeight = rowContainerBodyEl.scrollHeight;
+			var bufferedRows = scrollHeight - scrollTop - clientHeight;
+
+			Servoy.TableView.isAppendingRows = bufferedRows < clientHeight;			
 			return Servoy.TableView.isAppendingRows;
-		}
+		}		
 	};
 }
 
