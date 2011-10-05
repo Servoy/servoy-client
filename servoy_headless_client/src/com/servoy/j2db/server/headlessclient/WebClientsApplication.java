@@ -60,6 +60,8 @@ import org.apache.wicket.request.target.resource.SharedResourceRequestTarget;
 import org.apache.wicket.session.ISessionStore;
 import org.apache.wicket.util.lang.Bytes;
 import org.apache.wicket.util.time.Duration;
+import org.odlabs.wiquery.core.commons.IWiQuerySettings;
+import org.odlabs.wiquery.core.commons.WiQuerySettings;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.component.ServoyBeanState;
@@ -82,7 +84,7 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jblok
  */
-public class WebClientsApplication extends WebApplication
+public class WebClientsApplication extends WebApplication implements IWiQuerySettings
 {
 	/**
 	 * @author jcompagner
@@ -516,6 +518,20 @@ public class WebClientsApplication extends WebApplication
 	{
 		// Respond to request
 		return new ServoyRequestCycle(this, (WebRequest)request, (WebResponse)response);
+	}
+
+	public WiQuerySettings getWiQuerySettings()
+	{
+		WiQuerySettings settings = new WiQuerySettings();
+		if (getDebugSettings().isAjaxDebugModeEnabled())
+		{
+			settings.setJQueryCoreResourceReference(JQueryLoader.JS_JQUERY_DEBUG);
+		}
+		else
+		{
+			settings.setJQueryCoreResourceReference(JQueryLoader.JS_JQUERY);
+		}
+		return settings;
 	}
 
 	public class ModifiedAccessStackPageMap extends AccessStackPageMap
