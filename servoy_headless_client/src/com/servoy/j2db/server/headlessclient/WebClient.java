@@ -461,23 +461,39 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		}
 		if (runnables != null)
 		{
-			for (Runnable runnable : runnables)
+			final Runnable[] toExecute = runnables;
+			IEvent run = new WicketExecuteEvent()
 			{
-				try
+				@Override
+				public void run()
 				{
-					runnable.run();
+					for (Runnable runnable : toExecute)
+					{
+						try
+						{
+							runnable.run();
+						}
+						catch (Throwable e)
+						{
+							Debug.error("error executing event " + runnable, e);
+						}
+						synchronized (runnable)
+						{
+							runnable.notifyAll();
+						}
+					}
+					// look if those did add new events in the mean time.
+					executeEvents();
 				}
-				catch (Throwable e)
-				{
-					Debug.error("error executing event " + runnable, e);
-				}
-				synchronized (runnable)
-				{
-					runnable.notifyAll();
-				}
+			};
+			if (getEventDispatcher() != null)
+			{
+				getEventDispatcher().addEvent(run);
 			}
-			// look if those did add new events in the mean time.
-			executeEvents();
+			else
+			{
+				run.execute();
+			}
 		}
 		return;
 	}
