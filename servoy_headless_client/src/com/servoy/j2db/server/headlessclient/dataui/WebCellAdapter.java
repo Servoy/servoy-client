@@ -21,6 +21,9 @@ import java.util.Iterator;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
+import org.apache.wicket.Page;
+import org.apache.wicket.RequestCycle;
+import org.apache.wicket.Session;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.model.IModel;
 
@@ -31,6 +34,7 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ModificationEvent;
 import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView.CellContainer;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -81,6 +85,19 @@ public class WebCellAdapter implements IDataAdapter
 
 	public void valueChanged(ModificationEvent e)
 	{
+		if (RequestCycle.get() != null)
+		{
+			try
+			{
+				// lock the page of the view
+				Page page = view.getPage();
+				Session.get().getPage(page.getPageMapName(), page.getPath(), Page.LATEST_VERSION);
+			}
+			catch (Exception ex)
+			{
+				Debug.trace(ex);
+			}
+		}
 		IRecord record = e.getRecord();
 		Iterator iterator = ((MarkupContainer)view.get("rows")).iterator(); //$NON-NLS-1$
 		while (iterator.hasNext())
