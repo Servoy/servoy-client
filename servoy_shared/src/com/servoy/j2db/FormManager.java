@@ -1946,4 +1946,11 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		return false;
 	}
 
+	/**
+	 * @param name
+	 */
+	public void removeContainer(String name)
+	{
+		containers.remove(name);
+	}
 }

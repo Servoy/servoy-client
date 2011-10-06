@@ -23,8 +23,10 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
 
 import org.apache.wicket.AbortException;
+import org.apache.wicket.AccessStackPageMap;
 import org.apache.wicket.Application;
 import org.apache.wicket.Component;
+import org.apache.wicket.IPageMap;
 import org.apache.wicket.IRequestTarget;
 import org.apache.wicket.Page;
 import org.apache.wicket.Request;
@@ -61,9 +63,11 @@ import org.apache.wicket.request.target.coding.HybridUrlCodingStrategy;
 import org.apache.wicket.request.target.component.listener.BehaviorRequestTarget;
 import org.apache.wicket.request.target.resource.SharedResourceRequestTarget;
 import org.apache.wicket.session.ISessionStore;
+import org.apache.wicket.session.pagemap.IPageMapEntry;
 import org.apache.wicket.util.lang.Bytes;
 import org.apache.wicket.util.time.Duration;
 
+import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.component.ServoyBeanState;
@@ -466,7 +470,14 @@ public class WebClientsApplication extends WebApplication
 	@Override
 	protected ISessionStore newSessionStore()
 	{
-		return new HttpSessionStore(this);
+		return new HttpSessionStore(this)
+		{
+			@Override
+			public IPageMap createPageMap(String name)
+			{
+				return new ModifiedAccessStackPageMap(name);
+			}
+		};
 	}
 
 	/**
@@ -570,4 +581,27 @@ public class WebClientsApplication extends WebApplication
 			}
 		};
 	}
+
+	public class ModifiedAccessStackPageMap extends AccessStackPageMap
+	{
+		public ModifiedAccessStackPageMap(final String name)
+		{
+			super(name);
+		}
+
+		public void flagDirty()
+		{
+			super.dirty();
+		}
+
+		@Override
+		public void removeEntry(IPageMapEntry entry)
+		{
+			WebClient webClient = WebClientSession.get().getWebClient();
+			((FormManager)webClient.getFormManager()).removeContainer(getName());
+			super.removeEntry(entry);
+		}
+
+	}
+
 }
