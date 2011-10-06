@@ -1054,7 +1054,7 @@ public class SessionClient extends ClientState implements ISessionClient
 		synchronized (messages)
 		{
 			properties = messages.get(loc);
-			if (properties == null)
+			if (properties == null && getClientInfo() != null)
 			{
 				properties = new Properties();
 				Messages.invalidConnection = false;
