@@ -629,7 +629,23 @@ public abstract class AbstractScriptButton extends JButton implements ISkinnable
 	}
 
 	private Timer clickTimer;
-	private final static int clickInterval = ((Integer)Toolkit.getDefaultToolkit().getDesktopProperty("awt.multiClickInterval")).intValue();
+
+	private int getClickInterval()
+	{
+		int clickInterval = 200;
+		try
+		{
+			if (Toolkit.getDefaultToolkit() != null && Toolkit.getDefaultToolkit().getDesktopProperty("awt.multiClickInterval") instanceof Integer)
+			{
+				clickInterval = ((Integer)Toolkit.getDefaultToolkit().getDesktopProperty("awt.multiClickInterval")).intValue();
+			}
+		}
+		catch (Exception ex)
+		{
+			Debug.error(ex);
+		}
+		return clickInterval;
+	}
 
 	/**
 	 * @see com.servoy.j2db.ui.ILabel#setActionCommand(java.lang.String, Object[])
@@ -645,7 +661,7 @@ public abstract class AbstractScriptButton extends JButton implements ISkinnable
 				{
 					if (doubleclickMouseAdapter != null)
 					{
-						clickTimer = new Timer(clickInterval, new ActionListener()
+						clickTimer = new Timer(getClickInterval(), new ActionListener()
 						{
 							public void actionPerformed(ActionEvent ev)
 							{
@@ -759,7 +775,7 @@ public abstract class AbstractScriptButton extends JButton implements ISkinnable
 				}
 			};
 			addMouseListener(doubleclickMouseAdapter);
-			setMultiClickThreshhold(clickInterval);
+			setMultiClickThreshhold(getClickInterval());
 		}
 	}
 
