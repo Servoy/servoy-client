@@ -63,10 +63,12 @@ import org.apache.wicket.request.target.coding.HybridUrlCodingStrategy;
 import org.apache.wicket.request.target.component.listener.BehaviorRequestTarget;
 import org.apache.wicket.request.target.resource.SharedResourceRequestTarget;
 import org.apache.wicket.session.ISessionStore;
+import org.apache.wicket.session.pagemap.IPageMapEntry;
 import org.apache.wicket.util.lang.Bytes;
 import org.apache.wicket.util.time.Duration;
 import org.slf4j.MDC;
 
+import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.component.ServoyBeanState;
@@ -629,5 +631,14 @@ public class WebClientsApplication extends WebApplication
 		{
 			super.dirty();
 		}
+
+		@Override
+		public void removeEntry(IPageMapEntry entry)
+		{
+			WebClient webClient = WebClientSession.get().getWebClient();
+			((FormManager)webClient.getFormManager()).removeContainer(getName());
+			super.removeEntry(entry);
+		}
+
 	}
 }
