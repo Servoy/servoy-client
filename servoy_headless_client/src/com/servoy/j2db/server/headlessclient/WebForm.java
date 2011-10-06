@@ -270,6 +270,17 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		return container.getMarkupId();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.wicket.MarkupContainer#hasAssociatedMarkup()
+	 */
+	@Override
+	public boolean hasAssociatedMarkup()
+	{
+		return true;
+	}
+
 	/**
 	 * @see com.servoy.j2db.IFormUI#getFormContext()
 	 */
