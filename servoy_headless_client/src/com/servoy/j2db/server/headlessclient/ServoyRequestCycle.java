@@ -31,6 +31,7 @@ import org.apache.wicket.protocol.http.WebRequestCycle;
 import org.apache.wicket.protocol.http.request.InvalidUrlException;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
 import org.apache.wicket.request.ClientInfo;
+import org.slf4j.MDC;
 
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.util.Debug;
@@ -65,6 +66,7 @@ public final class ServoyRequestCycle extends WebRequestCycle
 	/**
 	 * @see wicket.RequestCycle#onBeginRequest()
 	 */
+	@SuppressWarnings("nls")
 	@Override
 	protected void onBeginRequest()
 	{
@@ -72,6 +74,11 @@ public final class ServoyRequestCycle extends WebRequestCycle
 		WebClient webClient = webClientSession.getWebClient();
 		if (webClient != null)
 		{
+			if (webClient.getSolution() != null)
+			{
+				MDC.put("clientid", webClient.getClientID());
+				MDC.put("solution", webClient.getSolution().getName());
+			}
 			J2DBGlobals.setServiceProvider(webClient);
 			webClient.onBeginRequest(webClientSession);
 		}
@@ -80,6 +87,7 @@ public final class ServoyRequestCycle extends WebRequestCycle
 	/**
 	 * @see wicket.RequestCycle#onEndRequest()
 	 */
+	@SuppressWarnings("nls")
 	@Override
 	protected void onEndRequest()
 	{
@@ -88,7 +96,15 @@ public final class ServoyRequestCycle extends WebRequestCycle
 		WebClient webClient = webClientSession.getWebClient();
 		if (webClient != null)
 		{
-			webClient.onEndRequest(webClientSession);
+			try
+			{
+				webClient.onEndRequest(webClientSession);
+			}
+			finally
+			{
+				MDC.remove("clientid");
+				MDC.remove("solution");
+			}
 		}
 	}
 
