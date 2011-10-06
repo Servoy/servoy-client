@@ -372,7 +372,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 				MainPage page = (MainPage)((WebFormManager)getFormManager()).getMainContainer(null);
 				throw new RestartResponseException(page);
 			}
-			synchronized (webClientSession)
+			synchronized (webClientSession.getWebClient())
 			{
 				executeEvents();
 			}
