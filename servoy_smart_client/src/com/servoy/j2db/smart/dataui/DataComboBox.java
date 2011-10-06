@@ -58,6 +58,7 @@ import javax.swing.JSeparator;
 import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
@@ -337,14 +338,23 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 	{
 		addPopupMenuListener(new PopupMenuListener()
 		{
-			private boolean canceled = false;
-
 			public void popupMenuWillBecomeVisible(PopupMenuEvent e)
 			{
+				// if not show through our setPopupVisible method.. (but by a mouse click in the ui classes)
 				if (!showingPopup)
 				{
-					canceled = true;
 					firePopupMenuCanceled();
+					// show the popup again a bit later
+					SwingUtilities.invokeLater(new Runnable()
+					{
+						public void run()
+						{
+							// first close the one that was just being shown, but only through the ui classes
+							setPopupVisible(false);
+							// then show the popup through our own method so that the size is correct.
+							setPopupVisible(true);
+						}
+					});
 				}
 			}
 
@@ -354,11 +364,6 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 
 			public void popupMenuCanceled(PopupMenuEvent e)
 			{
-				if (canceled)
-				{
-					canceled = false;
-					showPopup();
-				}
 			}
 
 		});
