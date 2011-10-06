@@ -365,8 +365,8 @@ public class ComponentFactory
 				break;
 
 			default :
-				comp = application.getItemFactory().createLabel((meta instanceof ISupportName ? ((ISupportName)meta).getName() : null),
-					"ComponentFactory:unkown type " + meta.getTypeID());
+				Debug.error("ComponentFactory:unkown type " + meta.getTypeID() + ", uuid: " + meta.getUUID() + ", parent:" + meta.getParent());
+				comp = application.getItemFactory().createLabel(getWebID(form, meta), "ComponentFactory:unkown type " + meta.getTypeID());
 		}
 
 		if (comp instanceof JComponent)
