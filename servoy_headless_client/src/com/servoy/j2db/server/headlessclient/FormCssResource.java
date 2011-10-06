@@ -142,8 +142,11 @@ public class FormCssResource extends WebResource
 							form = solution.getForm(formInstanceName);
 						}
 					}
-					Pair<String, String> formHTMLAndCSS = TemplateGenerator.getFormHTMLAndCSS(solution, form, sp, formInstanceName);
-					css = formHTMLAndCSS.getRight();
+					if (form != null)
+					{
+						Pair<String, String> formHTMLAndCSS = TemplateGenerator.getFormHTMLAndCSS(solution, form, sp, formInstanceName);
+						css = formHTMLAndCSS.getRight();
+					}
 				}
 				catch (Exception e)
 				{
