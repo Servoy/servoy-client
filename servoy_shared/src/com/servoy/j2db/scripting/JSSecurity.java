@@ -322,6 +322,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	 * 	application.output("user:" + dsUsers.getValue(i,2));
 	 * 
 	 * 	//set p to the user group for the current user
+	 * 	/** @type {JSDataSet} *&#47; 
 	 * 	var p = security.getUserGroups(dsUsers.getValue(i,1));
 	 * 
 	 * 	for(k=1;k<=p.getMaxRowIndex();k++)
@@ -359,6 +360,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	 * 	application.output("user:" + dsUsers.getValue(i,2));
 	 * 
 	 * 	//set p to the user group for the current user
+	 *  /** @type {JSDataSet} *&#47;
 	 * 	var p = security.getUserGroups(dsUsers.getValue(i,1));
 	 * 
 	 * 	for(k=1;k<=p.getMaxRowIndex();k++)
