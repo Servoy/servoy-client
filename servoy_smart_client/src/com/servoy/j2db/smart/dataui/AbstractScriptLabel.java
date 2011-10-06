@@ -866,7 +866,7 @@ public abstract class AbstractScriptLabel extends JLabel implements ISkinnable, 
 
 	private Timer clickTimer;
 
-	private int getClickInterval()
+	public static int getClickInterval()
 	{
 		int clickInterval = 200;
 		try
