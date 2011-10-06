@@ -55,7 +55,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.TableModelEvent;
-import javax.swing.plaf.ColorUIResource;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -335,9 +334,13 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		if (!editor.isOpaque() && editor instanceof JComponent)
 		{
 			((JComponent)editor).setOpaque(true);
+			unselectedBackground = editor.getBackground();
+			((JComponent)editor).setOpaque(false);
 		}
-
-		unselectedBackground = editor.getBackground();
+		else
+		{
+			unselectedBackground = editor.getBackground();
+		}
 		unselectedForeground = editor.getForeground();
 		unselectedFont = editor.getFont();
 
@@ -558,10 +561,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 
 			renderer.setForeground(fgColor != null ? fgColor : tableSelectionColor);
 			renderer.setBackground((bgColor != null ? bgColor : jtable.getSelectionBackground()));
-			if (!renderer.isOpaque() && renderer instanceof JComponent)
-			{
-				((JComponent)renderer).setOpaque(true);
-			}
+
 			if (font != null) renderer.setFont(font);
 		}
 		else
@@ -590,11 +590,6 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			}
 			Color currentColor = (bgColor != null ? bgColor : (unselectedBackground != null) ? unselectedBackground : jtable.getBackground());
 			renderer.setBackground(currentColor);
-			boolean currentOpaque = opaque || !(currentColor == null || currentColor instanceof ColorUIResource);
-			if (renderer.isOpaque() != currentOpaque && renderer instanceof JComponent)
-			{
-				((JComponent)renderer).setOpaque(currentOpaque);
-			}
 
 			Font currentFont = (font != null ? font : (unselectedFont != null) ? unselectedFont : jtable.getFont());
 			renderer.setFont(currentFont);
