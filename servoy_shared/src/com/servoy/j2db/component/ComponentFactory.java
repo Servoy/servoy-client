@@ -128,6 +128,7 @@ import com.servoy.j2db.ui.IRect;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISplitPane;
+import com.servoy.j2db.ui.IStandardLabel;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowStyling;
@@ -366,7 +367,9 @@ public class ComponentFactory
 
 			default :
 				Debug.error("ComponentFactory:unkown type " + meta.getTypeID() + ", uuid: " + meta.getUUID() + ", parent:" + meta.getParent());
-				comp = application.getItemFactory().createLabel(getWebID(form, meta), "ComponentFactory:unkown type " + meta.getTypeID());
+				IStandardLabel label = application.getItemFactory().createLabel(getWebID(form, meta), "ComponentFactory:unkown type " + meta.getTypeID());
+				label.setSize(new Dimension(200, 20));
+				comp = label;
 		}
 
 		if (comp instanceof JComponent)
