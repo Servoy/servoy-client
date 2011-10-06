@@ -99,7 +99,7 @@ public class WebCellAdapter implements IDataAdapter
 			}
 		}
 		IRecord record = e.getRecord();
-		Iterator iterator = ((MarkupContainer)view.get("rows")).iterator(); //$NON-NLS-1$
+		Iterator iterator = ((MarkupContainer)view.getTable()).iterator();
 		while (iterator.hasNext())
 		{
 			Object next = iterator.next();
