@@ -1092,6 +1092,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * Note: can't be called in onload, because no context is yet available at this time.
 		 *
 		 * @sample
+		 * /** @type {JSDataSet} *&#47; 
 		 * var dataset = %%prefix%%controller.getFormContext();
 		 * if (dataset.getMaxRowIndex() > 1) 
 		 * {
