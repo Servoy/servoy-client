@@ -58,11 +58,13 @@ import org.apache.wicket.request.target.coding.HybridUrlCodingStrategy;
 import org.apache.wicket.request.target.component.listener.BehaviorRequestTarget;
 import org.apache.wicket.request.target.resource.SharedResourceRequestTarget;
 import org.apache.wicket.session.ISessionStore;
+import org.apache.wicket.session.pagemap.IPageMapEntry;
 import org.apache.wicket.util.lang.Bytes;
 import org.apache.wicket.util.time.Duration;
 import org.odlabs.wiquery.core.commons.IWiQuerySettings;
 import org.odlabs.wiquery.core.commons.WiQuerySettings;
 
+import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.component.ServoyBeanState;
 import com.servoy.j2db.dataprocessing.IRecord;
@@ -545,5 +547,14 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 		{
 			super.dirty();
 		}
+
+		@Override
+		public void removeEntry(IPageMapEntry entry)
+		{
+			WebClient webClient = WebClientSession.get().getWebClient();
+			((FormManager)webClient.getFormManager()).removeContainer(getName());
+			super.removeEntry(entry);
+		}
+
 	}
 }
