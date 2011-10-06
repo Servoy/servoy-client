@@ -25,7 +25,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -628,7 +627,6 @@ public abstract class AbstractScriptButton extends JButton implements ISkinnable
 	}
 
 	private Timer clickTimer;
-	private final static int clickInterval = ((Integer)Toolkit.getDefaultToolkit().getDesktopProperty("awt.multiClickInterval")).intValue();
 
 	/**
 	 * @see com.servoy.j2db.ui.ILabel#setActionCommand(java.lang.String, Object[])
@@ -644,7 +642,7 @@ public abstract class AbstractScriptButton extends JButton implements ISkinnable
 				{
 					if (doubleclickMouseAdapter != null)
 					{
-						clickTimer = new Timer(clickInterval, new ActionListener()
+						clickTimer = new Timer(AbstractScriptLabel.getClickInterval(), new ActionListener()
 						{
 							public void actionPerformed(ActionEvent ev)
 							{
@@ -758,7 +756,7 @@ public abstract class AbstractScriptButton extends JButton implements ISkinnable
 				}
 			};
 			addMouseListener(doubleclickMouseAdapter);
-			setMultiClickThreshhold(clickInterval);
+			setMultiClickThreshhold(AbstractScriptLabel.getClickInterval());
 		}
 	}
 
