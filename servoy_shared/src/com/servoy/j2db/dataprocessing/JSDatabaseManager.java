@@ -1902,14 +1902,14 @@ public class JSDatabaseManager
 	 * record.emp_name = 'John'
 	 * databaseManager.saveData()
 	 *
-	 * @param serverNameOrDataSource The datasource or server name to get a JSFoundset for.
+	 * @param serverName The servername to get a JSFoundset for.
 	 * @param tableName The tablename for that server
 	 * 
 	 * @return A new JSFoundset for that datasource.
 	 */
-	public FoundSet js_getFoundSet(String serverNameOrDataSource, String tableName) throws ServoyException
+	public FoundSet js_getFoundSet(String serverName, String tableName) throws ServoyException
 	{
-		return js_getFoundSet(DataSourceUtils.createDBTableDataSource(serverNameOrDataSource, tableName));
+		return js_getFoundSet(DataSourceUtils.createDBTableDataSource(serverName, tableName));
 	}
 
 	/**
@@ -1924,22 +1924,22 @@ public class JSDatabaseManager
 	 * record.emp_name = 'John'
 	 * databaseManager.saveData()
 	 *
-	 * @param serverNameOrDataSource The datasource or server name to get a JSFoundset for.
+	 * @param dataSource The datasource to get a JSFoundset for.
 	 * 
 	 * @return A new JSFoundset for that datasource.
 	 */
-	public FoundSet js_getFoundSet(String serverNameOrDataSource) throws ServoyException
+	public FoundSet js_getFoundSet(String dataSource) throws ServoyException
 	{
 		checkAuthorized();
 		try
 		{
-			IFoundSetInternal fs = application.getFoundSetManager().getNewFoundSet(serverNameOrDataSource, null);
+			IFoundSetInternal fs = application.getFoundSetManager().getNewFoundSet(dataSource, null);
 			fs.clear();//have to deliver a initialized foundset, user might call new record as next call on this one
 			return (FoundSet)fs;
 		}
 		catch (Exception e)
 		{
-			throw new RuntimeException("Can't get new foundset for: " + serverNameOrDataSource, e); //$NON-NLS-1$
+			throw new RuntimeException("Can't get new foundset for: " + dataSource, e); //$NON-NLS-1$
 		}
 	}
 
