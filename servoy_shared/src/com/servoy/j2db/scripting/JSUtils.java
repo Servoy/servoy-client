@@ -18,6 +18,7 @@ package com.servoy.j2db.scripting;
 
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -42,6 +43,7 @@ import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ITagResolver;
+import com.servoy.j2db.util.RoundHalfUpDecimalFormat;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
@@ -698,7 +700,7 @@ public class JSUtils
 	}
 
 	/**
-	 * Filters characters out of from a string and leaves digits, returns the number.
+	 * Filters characters out of from a string and leaves digits, returns the number. Uses locale decimal separator.
 	 *
 	 * @sample 
 	 * //returns '65567'
@@ -712,6 +714,8 @@ public class JSUtils
 		if (textString instanceof Number) return ((Number)textString).doubleValue();
 		if (textString != null)
 		{
+			DecimalFormatSymbols dfs = RoundHalfUpDecimalFormat.getDecimalFormatSymbols(application.getLocale());
+			String decimalSeparator = String.valueOf(dfs.getDecimalSeparator());
 			int flag = 0;
 			StringBuffer sb = new StringBuffer();
 			char[] array = textString.toString().toCharArray();
@@ -723,7 +727,7 @@ public class JSUtils
 				{
 					sb.append(element);
 				}
-				else if (cc != null && cc.equals(".") && flag == 0) //$NON-NLS-1$
+				else if (cc != null && cc.equals(decimalSeparator) && flag == 0)
 				{
 					sb.append(element);
 					flag = 1;
