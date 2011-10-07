@@ -108,7 +108,22 @@ public abstract class ServoyAjaxEventBehavior extends AjaxEventBehavior implemen
 	@Override
 	protected CharSequence getPreconditionScript()
 	{
+		WebClientSession webClientSession = WebClientSession.get();
+		if (webClientSession != null && webClientSession.blockRequest()) return "onABC();" + super.getPreconditionScript(); //$NON-NLS-1$
 		return "onAjaxCall();" + super.getPreconditionScript(); //$NON-NLS-1$
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.wicket.ajax.AbstractDefaultAjaxBehavior#getSuccessScript()
+	 */
+	@Override
+	protected CharSequence getSuccessScript()
+	{
+		WebClientSession webClientSession = WebClientSession.get();
+		if (webClientSession != null && webClientSession.blockRequest()) return "wicketHide('blocker');"; //$NON-NLS-1$
+		return null;
 	}
 
 	/**

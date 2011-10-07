@@ -25,6 +25,7 @@ import org.apache.wicket.markup.html.IHeaderResponse;
 
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent.EventType;
+import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IScriptReadOnlyMethods;
 import com.servoy.j2db.util.Utils;
@@ -123,6 +124,27 @@ public class ServoyActionEventBehavior extends ServoyAjaxFormComponentUpdatingBe
 	{
 		super.onError(target, e);
 		eventExecutor.onError(target, component);
+	}
+
+	@Override
+	protected String getPreconditionAjaxCall()
+	{
+		WebClientSession webClientSession = WebClientSession.get();
+		if (webClientSession != null && webClientSession.blockRequest()) return "onABC();"; //$NON-NLS-1$
+		return super.getPreconditionAjaxCall();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.wicket.ajax.AbstractDefaultAjaxBehavior#getSuccessScript()
+	 */
+	@Override
+	protected CharSequence getSuccessScript()
+	{
+		WebClientSession webClientSession = WebClientSession.get();
+		if (webClientSession != null && webClientSession.blockRequest()) return "wicketHide('blocker');"; //$NON-NLS-1$
+		return null;
 	}
 
 	/**

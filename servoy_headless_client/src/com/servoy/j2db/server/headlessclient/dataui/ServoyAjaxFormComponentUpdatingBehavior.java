@@ -57,9 +57,14 @@ public abstract class ServoyAjaxFormComponentUpdatingBehavior extends AjaxFormCo
 	 * @see org.apache.wicket.ajax.AbstractDefaultAjaxBehavior#getPreconditionScript()
 	 */
 	@Override
-	protected CharSequence getPreconditionScript()
+	protected final CharSequence getPreconditionScript()
 	{
-		return "onAjaxCall();" + super.getPreconditionScript(); //$NON-NLS-1$
+		return getPreconditionAjaxCall() + super.getPreconditionScript();
+	}
+
+	protected String getPreconditionAjaxCall()
+	{
+		return "onAjaxCall();"; //$NON-NLS-1$
 	}
 
 	/**
