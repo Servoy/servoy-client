@@ -27,41 +27,39 @@ import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.SetCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
-import com.servoy.j2db.querybuilder.internal.IQueryBuilderColumnInternal;
-import com.servoy.j2db.querybuilder.internal.IQueryBuilderInternal;
+import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
  * @author rgansevles
  *
  */
-public class QueryBuilderColumn extends AbstractQueryBuilderPart<QueryBuilderTableClause> implements IQueryBuilderColumnInternal
+public class QBColumn extends AbstractQueryBuilderPart implements IQueryBuilderColumn
 {
 	private final QueryColumn queryColumn;
 	private final boolean negate;
 
-	QueryBuilderColumn(QueryBuilder root, QueryBuilderTableClause queryBuilderTableClause, QueryColumn queryColumn)
+	QBColumn(QBSelect root, QBTableClause queryBuilderTableClause, QueryColumn queryColumn)
 	{
 		this(root, queryBuilderTableClause, queryColumn, false);
 	}
 
-	QueryBuilderColumn(QueryBuilder root, QueryBuilderTableClause parent, QueryColumn queryColumn, boolean negate)
+	QBColumn(QBSelect root, QBTableClause parent, QueryColumn queryColumn, boolean negate)
 	{
 		super(root, parent);
 		this.queryColumn = queryColumn;
 		this.negate = negate;
 	}
 
-	QueryBuilderCondition createCompareCondition(int operator, Object value)
+	protected QBCondition createCompareCondition(int operator, Object value)
 	{
-		return createCondition(new CompareCondition(operator, this.getQuerySelectValue(), QueryBuilder.createOperand(value)));
+		return createCondition(new CompareCondition(operator, this.getQuerySelectValue(), QBSelect.createOperand(value)));
 	}
 
-	QueryBuilderCondition createCondition(ISQLCondition queryCondition)
+	protected QBCondition createCondition(ISQLCondition queryCondition)
 	{
-		return new QueryBuilderCondition(getRoot(), getParent(), negate ? queryCondition.negate() : queryCondition);
+		return new QBCondition(getRoot(), getParent(), negate ? queryCondition.negate() : queryCondition);
 	}
-
 
 	public IQuerySelectValue getQuerySelectValue()
 	{
@@ -69,111 +67,111 @@ public class QueryBuilderColumn extends AbstractQueryBuilderPart<QueryBuilderTab
 	}
 
 	@JSFunction
-	public QueryBuilderCondition gt(Object value)
+	public QBCondition gt(Object value)
 	{
 		return createCompareCondition(ISQLCondition.GT_OPERATOR, value);
 	}
 
 	@JSFunction
-	public QueryBuilderCondition lt(Object value)
+	public QBCondition lt(Object value)
 	{
 		return createCompareCondition(ISQLCondition.LT_OPERATOR, value);
 	}
 
 	@JSFunction
-	public QueryBuilderCondition ge(Object value)
+	public QBCondition ge(Object value)
 	{
 		return createCompareCondition(ISQLCondition.GTE_OPERATOR, value);
 	}
 
 	@JSFunction
-	public QueryBuilderCondition le(Object value)
+	public QBCondition le(Object value)
 	{
 		return createCompareCondition(ISQLCondition.LTE_OPERATOR, value);
 	}
 
 	@JSFunction
-	public QueryBuilderCondition between(Object value1, Object value2)
+	public QBCondition between(Object value1, Object value2)
 	{
 		return createCompareCondition(ISQLCondition.BETWEEN_OPERATOR, new Object[] { value1, value2 });
 	}
 
 	@JSFunction(value = "isin")
-	public QueryBuilderCondition in(IQueryBuilder query) throws RepositoryException
+	public QBCondition in(IQueryBuilder query) throws RepositoryException
 	{
-		return createCondition(new SetCondition(ISQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { getQuerySelectValue() },
-			((IQueryBuilderInternal)query).build(), true));
+		return createCondition(new SetCondition(ISQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { getQuerySelectValue() }, ((QBSelect)query).build(),
+			true));
 	}
 
 	@JSReadonlyProperty
-	public QueryBuilderCondition isNull()
+	public QBCondition isNull()
 	{
 		return eq(null);
 	}
 
 	@JSFunction
-	public QueryBuilderCondition eq(Object value)
+	public QBCondition eq(Object value)
 	{
 		return createCompareCondition(ISQLCondition.EQUALS_OPERATOR, value);
 	}
 
 	@JSFunction
-	public QueryBuilderCondition like(String pattern)
+	public QBCondition like(String pattern)
 	{
 		return createCompareCondition(ISQLCondition.LIKE_OPERATOR, pattern);
 	}
 
 	@JSFunction
-	public QueryBuilderCondition like(String pattern, char escape)
+	public QBCondition like(String pattern, char escape)
 	{
 		return createCompareCondition(ISQLCondition.LIKE_OPERATOR, new Object[] { pattern, String.valueOf(escape) });
 	}
 
 	@JSReadonlyProperty
-	public QueryBuilderColumn not()
+	public QBColumn not()
 	{
-		return new QueryBuilderColumn(getRoot(), getParent(), queryColumn, !negate);
+		return new QBColumn(getRoot(), getParent(), queryColumn, !negate);
 	}
 
 	@JSReadonlyProperty
-	public QueryBuilderSort asc()
+	public QBSort asc()
 	{
-		return new QueryBuilderSort(getRoot(), this, true);
+		return new QBSort(getRoot(), this, true);
 	}
 
 	@JSReadonlyProperty
-	public QueryBuilderSort desc()
+	public QBSort desc()
 	{
-		return new QueryBuilderSort(getRoot(), this, false);
+		return new QBSort(getRoot(), this, false);
 	}
 
 	@JSReadonlyProperty
-	public QueryBuilderAggregate count()
+	public QBAggregate count()
 	{
-		return new QueryBuilderAggregate(getRoot(), getParent(), queryColumn, QueryAggregate.COUNT);
+		return new QBAggregate(getRoot(), getParent(), queryColumn, QueryAggregate.COUNT);
 	}
 
 	@JSReadonlyProperty
-	public QueryBuilderAggregate avg()
+	public QBAggregate avg()
 	{
-		return new QueryBuilderAggregate(getRoot(), getParent(), queryColumn, QueryAggregate.AVG);
+		return new QBAggregate(getRoot(), getParent(), queryColumn, QueryAggregate.AVG);
 	}
 
 	@JSReadonlyProperty
-	public QueryBuilderAggregate max()
+	public QBAggregate max()
 	{
-		return new QueryBuilderAggregate(getRoot(), getParent(), queryColumn, QueryAggregate.MAX);
+		return new QBAggregate(getRoot(), getParent(), queryColumn, QueryAggregate.MAX);
 	}
 
 	@JSReadonlyProperty
-	public QueryBuilderAggregate min()
+	public QBAggregate min()
 	{
-		return new QueryBuilderAggregate(getRoot(), getParent(), queryColumn, QueryAggregate.MIN);
+		return new QBAggregate(getRoot(), getParent(), queryColumn, QueryAggregate.MIN);
 	}
 
 	@JSReadonlyProperty
-	public QueryBuilderAggregate sum()
+	public QBAggregate sum()
 	{
-		return new QueryBuilderAggregate(getRoot(), getParent(), queryColumn, QueryAggregate.SUM);
+		return new QBAggregate(getRoot(), getParent(), queryColumn, QueryAggregate.SUM);
 	}
 }

@@ -26,24 +26,31 @@ import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 import com.servoy.j2db.querybuilder.IQueryBuilderSort;
 import com.servoy.j2db.querybuilder.IQueryBuilderSorts;
-import com.servoy.j2db.querybuilder.internal.IQueryBuilderColumnSortInternal;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
  * @author rgansevles
  *
  */
-public class QueryBuilderSorts extends AbstractQueryBuilderPart<QueryBuilder> implements IQueryBuilderSorts
+public class QBSorts extends AbstractQueryBuilderPart implements IQueryBuilderSorts
 {
 	/**
 	 * @param queryBuilder
 	 */
-	QueryBuilderSorts(QueryBuilder parent)
+	QBSorts(QBSelect parent)
 	{
 		super(parent, parent);
 	}
 
+	@Override
+	@JSReadonlyProperty
+	public final QBSelect getParent()
+	{
+		return (QBSelect)super.getParent();
+	}
+
 	@JSFunction
-	public QueryBuilderSorts addPk() throws RepositoryException
+	public QBSorts addPk() throws RepositoryException
 	{
 		Iterator<String> rowIdentColumnNames = getParent().getTable().getRowIdentColumnNames();
 		while (rowIdentColumnNames.hasNext())
@@ -53,29 +60,29 @@ public class QueryBuilderSorts extends AbstractQueryBuilderPart<QueryBuilder> im
 		return this;
 	}
 
-	public QueryBuilderSorts js_add(QueryBuilderSort sort) throws RepositoryException
+	public QBSorts js_add(QBSort sort) throws RepositoryException
 	{
 		return add(sort);
 	}
 
-	public QueryBuilderSorts add(IQueryBuilderSort sort) throws RepositoryException
+	public QBSorts add(IQueryBuilderSort sort) throws RepositoryException
 	{
-		getParent().getQuery().addSort(((IQueryBuilderColumnSortInternal)sort).getQueryQuerySort());
+		getParent().getQuery().addSort(((QBSort)sort).getQueryQuerySort());
 		return this;
 	}
 
-	public QueryBuilderSorts js_add(QueryBuilderColumn columnSortAsc) throws RepositoryException
+	public QBSorts js_add(QBColumn columnSortAsc) throws RepositoryException
 	{
 		return add(columnSortAsc);
 	}
 
-	public QueryBuilderSorts add(IQueryBuilderColumn columnSortAsc) throws RepositoryException
+	public QBSorts add(IQueryBuilderColumn columnSortAsc) throws RepositoryException
 	{
 		return add(columnSortAsc.asc());
 	}
 
 	@JSFunction
-	public QueryBuilderSorts addValue(Object value) throws RepositoryException
+	public QBSorts addValue(Object value) throws RepositoryException
 	{
 		getParent().getQuery().addColumn(new QueryColumnValue(value, null, value instanceof Integer));
 		return this;

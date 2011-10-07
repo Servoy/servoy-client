@@ -25,24 +25,31 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 import com.servoy.j2db.querybuilder.IQueryBuilderResult;
-import com.servoy.j2db.querybuilder.internal.IQueryBuilderColumnInternal;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
  * @author rgansevles
  *
  */
-public class QueryBuilderResult extends AbstractQueryBuilderPart<QueryBuilder> implements IQueryBuilderResult
+public class QBResult extends AbstractQueryBuilderPart implements IQueryBuilderResult
 {
 	/**
 	 * @param queryBuilder
 	 */
-	QueryBuilderResult(QueryBuilder parent)
+	QBResult(QBSelect parent)
 	{
 		super(parent, parent);
 	}
 
+	@Override
+	@JSReadonlyProperty
+	public QBSelect getParent()
+	{
+		return (QBSelect)super.getParent();
+	}
+
 	@JSFunction
-	public QueryBuilderResult addPk() throws RepositoryException
+	public QBResult addPk() throws RepositoryException
 	{
 		Iterator<String> rowIdentColumnNames = getParent().getTable().getRowIdentColumnNames();
 		while (rowIdentColumnNames.hasNext())
@@ -53,29 +60,29 @@ public class QueryBuilderResult extends AbstractQueryBuilderPart<QueryBuilder> i
 	}
 
 	@JSFunction
-	public QueryBuilderResult add(String columnName) throws RepositoryException
+	public QBResult add(String columnName) throws RepositoryException
 	{
 		return add(getParent().getColumn(columnName));
 	}
 
-	public QueryBuilderResult js_add(QueryBuilderColumn column) throws RepositoryException
+	public QBResult js_add(QBColumn column) throws RepositoryException
 	{
 		return add(column);
 	}
 
-	public QueryBuilderResult add(IQueryBuilderColumn column) throws RepositoryException
+	public QBResult add(IQueryBuilderColumn column) throws RepositoryException
 	{
-		getParent().getQuery().addColumn(((IQueryBuilderColumnInternal)column).getQuerySelectValue());
+		getParent().getQuery().addColumn(((QBColumn)column).getQuerySelectValue());
 		return this;
 	}
 
-	public QueryBuilderResult js_add(QueryBuilderAggregate aggregate) throws RepositoryException
+	public QBResult js_add(QBAggregate aggregate) throws RepositoryException
 	{
 		return add(aggregate);
 	}
 
 	@JSFunction
-	public QueryBuilderResult addValue(Object value) throws RepositoryException
+	public QBResult addValue(Object value) throws RepositoryException
 	{
 		getParent().getQuery().addColumn(new QueryColumnValue(value, null, value instanceof Integer));
 		return this;
@@ -88,13 +95,17 @@ public class QueryBuilderResult extends AbstractQueryBuilderPart<QueryBuilder> i
 
 	public boolean js_isDistinct() throws RepositoryException
 	{
+		return isDistinct();
+	}
+
+	public boolean isDistinct() throws RepositoryException
+	{
 		return getParent().getQuery().isDistinct();
 	}
 
-	public QueryBuilderResult setDistinct(boolean distinct) throws RepositoryException
+	public QBResult setDistinct(boolean distinct) throws RepositoryException
 	{
 		getParent().getQuery().setDistinct(distinct);
 		return this;
 	}
-
 }

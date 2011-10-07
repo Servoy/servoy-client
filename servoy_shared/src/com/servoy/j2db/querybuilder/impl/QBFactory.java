@@ -17,39 +17,43 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
-import org.mozilla.javascript.annotations.JSFunction;
+import org.mozilla.javascript.Scriptable;
 
+import com.servoy.j2db.persistence.ITableProvider;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
-import com.servoy.j2db.querybuilder.IQueryBuilderGroupby;
-import com.servoy.j2db.querybuilder.internal.IQueryBuilderColumnInternal;
+import com.servoy.j2db.querybuilder.IQueryBuilderFactory;
 
 /**
  * @author rgansevles
  *
  */
-public class QueryBuilderGroupBy extends AbstractQueryBuilderPart<QueryBuilder> implements IQueryBuilderGroupby
+public class QBFactory implements IQueryBuilderFactory
 {
-	QueryBuilderGroupBy(QueryBuilder parent)
+	private Scriptable scriptableParent;
+	private final ITableProvider tableProvider;
+
+	public QBFactory(ITableProvider tableProvider)
 	{
-		super(parent, parent);
+		this.tableProvider = tableProvider;
 	}
 
-	@JSFunction
-	public IQueryBuilderGroupby add(String columnName) throws RepositoryException
+	/**
+	 * @param scriptableParent the scriptableParent to set
+	 */
+	public void setScriptableParent(Scriptable scriptableParent)
 	{
-		return add(getParent().getColumn(columnName));
+		this.scriptableParent = scriptableParent;
 	}
 
-	public QueryBuilderGroupBy js_add(QueryBuilderColumn column) throws RepositoryException
+	public QBSelect createSelect(String dataSource, String alias) throws RepositoryException
 	{
-		return add(column);
+		QBSelect queryBuilder = new QBSelect(tableProvider, dataSource, alias);
+		queryBuilder.setScriptableParent(scriptableParent);
+		return queryBuilder;
 	}
 
-	public QueryBuilderGroupBy add(IQueryBuilderColumn column) throws RepositoryException
+	public QBSelect createSelect(String dataSource) throws RepositoryException
 	{
-		getParent().getQuery().addGroupBy(((IQueryBuilderColumnInternal)column).getQuerySelectValue());
-		return this;
+		return createSelect(dataSource, null);
 	}
-
 }

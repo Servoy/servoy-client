@@ -18,6 +18,7 @@
 package com.servoy.j2db.querybuilder;
 
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.query.ISQLSelect;
 
 
 /**
@@ -89,4 +90,10 @@ public interface IQueryBuilder extends IQueryBuilderTableClause
 	IQueryBuilderCondition exists(IQueryBuilder query) throws RepositoryException;
 
 	IQueryBuilderGroupby groupBy();
+
+	/**
+	 * Build the query for performing query in the db
+	 * @throws RepositoryException 
+	 */
+	ISQLSelect build() throws RepositoryException;
 }

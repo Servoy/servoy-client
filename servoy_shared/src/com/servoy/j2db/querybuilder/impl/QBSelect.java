@@ -17,6 +17,9 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import java.sql.Timestamp;
+import java.util.Date;
+
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
 
@@ -35,30 +38,28 @@ import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilderLogicalCondition;
-import com.servoy.j2db.querybuilder.internal.IQueryBuilderConditionInternal;
-import com.servoy.j2db.querybuilder.internal.IQueryBuilderInternal;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
  * @author rgansevles
  *
  */
-public class QueryBuilder extends QueryBuilderTableClause implements IQueryBuilderInternal
+public class QBSelect extends QBTableClause implements IQueryBuilder
 {
 	public static final String CONDITION_WHERE = "WHERE";
 
 	private final ITableProvider tableProvider;
 
-	private QueryBuilderResult result;
-	private QueryBuilderSorts sort;
-	private QueryBuilderGroupBy groupBy;
+	private QBResult result;
+	private QBSorts sort;
+	private QBGroupBy groupBy;
 	private QuerySelect query;
-	private QueryBuilderLogicalCondition where;
+	private QBLogicalCondition where;
 	private QueryTable queryTable;
 
 	private Scriptable scriptableParent;
 
-	QueryBuilder(ITableProvider tableProvider, String dataSource, String alias)
+	QBSelect(ITableProvider tableProvider, String dataSource, String alias)
 	{
 		super(dataSource, alias);
 		this.tableProvider = tableProvider;
@@ -67,7 +68,7 @@ public class QueryBuilder extends QueryBuilderTableClause implements IQueryBuild
 	/**
 	 * @param querySelect
 	 */
-	QueryBuilder(QuerySelect querySelect)
+	QBSelect(QuerySelect querySelect)
 	{
 		this(null, null, null);
 		this.query = querySelect;
@@ -109,79 +110,78 @@ public class QueryBuilder extends QueryBuilderTableClause implements IQueryBuild
 	}
 
 	@JSReadonlyProperty
-	public QueryBuilderLogicalCondition where() throws RepositoryException
+	public QBLogicalCondition where() throws RepositoryException
 	{
 		if (where == null)
 		{
-			AndCondition c = getQuery().getCondition(QueryBuilder.CONDITION_WHERE);
+			AndCondition c = getQuery().getCondition(QBSelect.CONDITION_WHERE);
 			if (c == null)
 			{
-				getQuery().setCondition(QueryBuilder.CONDITION_WHERE, c = new AndCondition());
+				getQuery().setCondition(QBSelect.CONDITION_WHERE, c = new AndCondition());
 			}
-			where = new QueryBuilderLogicalCondition(this, this, c);
+			where = new QBLogicalCondition(this, this, c);
 		}
 		return where;
 	}
 
 	@JSReadonlyProperty
-	public QueryBuilderResult result()
+	public QBResult result()
 	{
 		if (result == null)
 		{
-			result = new QueryBuilderResult(this);
+			result = new QBResult(this);
 		}
 		return result;
 	}
 
 	@JSReadonlyProperty
-	public QueryBuilderSorts sort()
+	public QBSorts sort()
 	{
 		if (sort == null)
 		{
-			sort = new QueryBuilderSorts(this);
+			sort = new QBSorts(this);
 		}
 		return sort;
 	}
 
 	@JSReadonlyProperty
-	public QueryBuilderGroupBy groupBy()
+	public QBGroupBy groupBy()
 	{
 		if (groupBy == null)
 		{
-			groupBy = new QueryBuilderGroupBy(this);
+			groupBy = new QBGroupBy(this);
 		}
 		return groupBy;
 	}
 
 	@JSReadonlyProperty
-	public QueryBuilderLogicalCondition or()
+	public QBLogicalCondition or()
 	{
-		return new QueryBuilderLogicalCondition(getRoot(), this, new OrCondition());
+		return new QBLogicalCondition(getRoot(), this, new OrCondition());
 	}
 
 	@JSFunction
-	public QueryBuilderCondition not(IQueryBuilderLogicalCondition cond)
+	public QBCondition not(IQueryBuilderLogicalCondition cond)
 	{
-		return new QueryBuilderCondition(getRoot(), cond.getParent(), ((IQueryBuilderConditionInternal)cond).getQueryCondition().negate());
+		return new QBCondition(getRoot(), (QBTableClause)cond.getParent(), ((QBLogicalCondition)cond).getQueryCondition().negate());
 	}
 
 	@JSFunction
-	public QueryBuilderCondition not(IQueryBuilderCondition cond)
+	public QBCondition not(IQueryBuilderCondition cond)
 	{
-		return new QueryBuilderCondition(this, ((IQueryBuilderConditionInternal)cond).getParent(),
-			((IQueryBuilderConditionInternal)cond).getQueryCondition().negate());
+		return new QBCondition(this, ((QBCondition)cond).getParent(), ((QBCondition)cond).getQueryCondition().negate());
 	}
 
 	@JSFunction
-	public QueryBuilderCondition exists(IQueryBuilder q) throws RepositoryException
+	public QBCondition exists(IQueryBuilder q) throws RepositoryException
 	{
-		ISQLSelect select = ((IQueryBuilderInternal)q).build();
+		ISQLSelect select = ((QBSelect)q).build();
 		if (select instanceof QuerySelect && ((QuerySelect)select).getColumns() == null)
 		{
 			// no columns, add 'select 1'
 			((QuerySelect)select).addColumn(new QueryColumnValue(Integer.valueOf(1), null, true));
 		}
-		return new QueryBuilderCondition(this, this, new ExistsCondition(select, true));
+		return new QBCondition(this, this, new ExistsCondition(select, true));
 	}
 
 	public QuerySelect getQuery() throws RepositoryException
@@ -205,9 +205,13 @@ public class QueryBuilder extends QueryBuilderTableClause implements IQueryBuild
 
 	static Object createOperand(Object value)
 	{
-		if (value instanceof QueryBuilderColumn)
+		if (value instanceof QBColumn)
 		{
-			return ((QueryBuilderColumn)value).getQuerySelectValue();
+			return ((QBColumn)value).getQuerySelectValue();
+		}
+		if (value instanceof Date && !(value instanceof Timestamp))
+		{
+			return new Timestamp(((Date)value).getTime());
 		}
 		return value;
 	}

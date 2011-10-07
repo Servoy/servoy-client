@@ -60,20 +60,20 @@ import com.servoy.j2db.query.QueryJoin;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.QueryUpdate;
-import com.servoy.j2db.querybuilder.impl.QueryBuilder;
-import com.servoy.j2db.querybuilder.impl.QueryBuilderAggregate;
-import com.servoy.j2db.querybuilder.impl.QueryBuilderColumn;
-import com.servoy.j2db.querybuilder.impl.QueryBuilderColumns;
-import com.servoy.j2db.querybuilder.impl.QueryBuilderCondition;
-import com.servoy.j2db.querybuilder.impl.QueryBuilderFactory;
-import com.servoy.j2db.querybuilder.impl.QueryBuilderGroupBy;
-import com.servoy.j2db.querybuilder.impl.QueryBuilderJoin;
-import com.servoy.j2db.querybuilder.impl.QueryBuilderJoins;
-import com.servoy.j2db.querybuilder.impl.QueryBuilderLogicalCondition;
-import com.servoy.j2db.querybuilder.impl.QueryBuilderResult;
-import com.servoy.j2db.querybuilder.impl.QueryBuilderSort;
-import com.servoy.j2db.querybuilder.impl.QueryBuilderSorts;
-import com.servoy.j2db.querybuilder.impl.QueryBuilderTableClause;
+import com.servoy.j2db.querybuilder.impl.QBSelect;
+import com.servoy.j2db.querybuilder.impl.QBAggregate;
+import com.servoy.j2db.querybuilder.impl.QBColumn;
+import com.servoy.j2db.querybuilder.impl.QBColumns;
+import com.servoy.j2db.querybuilder.impl.QBCondition;
+import com.servoy.j2db.querybuilder.impl.QBFactory;
+import com.servoy.j2db.querybuilder.impl.QBGroupBy;
+import com.servoy.j2db.querybuilder.impl.QBJoin;
+import com.servoy.j2db.querybuilder.impl.QBJoins;
+import com.servoy.j2db.querybuilder.impl.QBLogicalCondition;
+import com.servoy.j2db.querybuilder.impl.QBResult;
+import com.servoy.j2db.querybuilder.impl.QBSort;
+import com.servoy.j2db.querybuilder.impl.QBSorts;
+import com.servoy.j2db.querybuilder.impl.QBTableClause;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
@@ -99,9 +99,9 @@ public class JSDatabaseManager
 			public Class< ? >[] getAllReturnedTypes()
 			{
 				return new Class< ? >[] { COLUMNTYPE.class, SQL_ACTION_TYPES.class, JSColumn.class, JSDataSet.class, JSFoundSetUpdater.class, JSTable.class, //
-				QueryBuilder.class, QueryBuilderAggregate.class, QueryBuilderColumn.class, QueryBuilderColumns.class, QueryBuilderCondition.class, //
-				QueryBuilderGroupBy.class, QueryBuilderJoin.class, QueryBuilderJoins.class, QueryBuilderLogicalCondition.class, QueryBuilderResult.class, //
-				QueryBuilderSort.class, QueryBuilderSorts.class, QueryBuilderTableClause.class, };
+				QBSelect.class, QBAggregate.class, QBColumn.class, QBColumns.class, QBCondition.class, //
+				QBGroupBy.class, QBJoin.class, QBJoins.class, QBLogicalCondition.class, QBResult.class, //
+				QBSort.class, QBSorts.class, QBTableClause.class, };
 			}
 		});
 	}
@@ -2811,9 +2811,9 @@ public class JSDatabaseManager
 	 * 
 	 * @return query builder
 	 */
-	public QueryBuilder js_createSelect(String dataSource) throws ServoyException
+	public QBSelect js_createSelect(String dataSource) throws ServoyException
 	{
-		QueryBuilderFactory factory = new QueryBuilderFactory(application.getFoundSetManager());
+		QBFactory factory = new QBFactory(application.getFoundSetManager());
 		factory.setScriptableParent(application.getScriptEngine().getSolutionScope());
 		return factory.createSelect(dataSource);
 	}

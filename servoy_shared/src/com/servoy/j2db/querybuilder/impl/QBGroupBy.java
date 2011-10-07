@@ -17,27 +17,46 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
-import com.servoy.j2db.query.QuerySort;
-import com.servoy.j2db.querybuilder.internal.IQueryBuilderColumnSortInternal;
+import org.mozilla.javascript.annotations.JSFunction;
+
+import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
+import com.servoy.j2db.querybuilder.IQueryBuilderGroupby;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
  * @author rgansevles
  *
  */
-public class QueryBuilderSort extends AbstractQueryBuilderPart<QueryBuilder> implements IQueryBuilderColumnSortInternal
+public class QBGroupBy extends AbstractQueryBuilderPart implements IQueryBuilderGroupby
 {
-	private final boolean ascending;
-	private final QueryBuilderColumn queryBuilderColumn;
-
-	public QueryBuilderSort(QueryBuilder parent, QueryBuilderColumn queryBuilderColumn, boolean ascending)
+	QBGroupBy(QBSelect parent)
 	{
 		super(parent, parent);
-		this.queryBuilderColumn = queryBuilderColumn;
-		this.ascending = ascending;
 	}
 
-	public QuerySort getQueryQuerySort()
+	@Override
+	@JSReadonlyProperty
+	public QBSelect getParent()
 	{
-		return new QuerySort(queryBuilderColumn.getQuerySelectValue(), ascending);
+		return (QBSelect)super.getParent();
 	}
+
+	@JSFunction
+	public IQueryBuilderGroupby add(String columnName) throws RepositoryException
+	{
+		return add(getParent().getColumn(columnName));
+	}
+
+	public QBGroupBy js_add(QBColumn column) throws RepositoryException
+	{
+		return add(column);
+	}
+
+	public QBGroupBy add(IQueryBuilderColumn column) throws RepositoryException
+	{
+		getParent().getQuery().addGroupBy(((QBColumn)column).getQuerySelectValue());
+		return this;
+	}
+
 }

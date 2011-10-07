@@ -15,12 +15,36 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.querybuilder.internal;
+package com.servoy.j2db.querybuilder.impl;
 
-import com.servoy.j2db.query.QuerySort;
-import com.servoy.j2db.querybuilder.IQueryBuilderSort;
+import org.mozilla.javascript.annotations.JSFunction;
 
-public interface IQueryBuilderColumnSortInternal extends IQueryBuilderSort
+import com.servoy.j2db.query.AndOrCondition;
+import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
+import com.servoy.j2db.querybuilder.IQueryBuilderLogicalCondition;
+
+/**
+ * @author rgansevles
+ *
+ */
+public class QBLogicalCondition extends QBCondition implements IQueryBuilderLogicalCondition
 {
-	QuerySort getQueryQuerySort();
+	QBLogicalCondition(QBSelect root, QBTableClause parent, AndOrCondition queryCondition)
+	{
+		super(root, parent, queryCondition);
+	}
+
+	@Override
+	public AndOrCondition getQueryCondition()
+	{
+		return (AndOrCondition)super.getQueryCondition();
+	}
+
+	@JSFunction
+	public QBLogicalCondition add(IQueryBuilderCondition condition)
+	{
+		getQueryCondition().addCondition(((QBCondition)condition).getQueryCondition());
+		return this;
+	}
+
 }

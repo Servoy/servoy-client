@@ -64,7 +64,7 @@ import com.servoy.j2db.query.QueryCustomSelect;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.querybuilder.IQueryBuilderFactory;
-import com.servoy.j2db.querybuilder.impl.QueryBuilderFactory;
+import com.servoy.j2db.querybuilder.impl.QBFactory;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.util.DataSourceUtils;
@@ -2217,6 +2217,6 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	public IQueryBuilderFactory getQueryFactory()
 	{
-		return new QueryBuilderFactory(this);
+		return new QBFactory(this);
 	}
 }

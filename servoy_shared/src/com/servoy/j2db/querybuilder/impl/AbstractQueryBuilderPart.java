@@ -18,7 +18,6 @@
 package com.servoy.j2db.querybuilder.impl;
 
 import com.servoy.j2db.querybuilder.IQueryBuilderPart;
-import com.servoy.j2db.querybuilder.IQueryBuilderTableClause;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 
@@ -26,32 +25,31 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * @author rgansevles
  *
  */
-public abstract class AbstractQueryBuilderPart<P extends IQueryBuilderTableClause> implements IQueryBuilderPart
+public abstract class AbstractQueryBuilderPart implements IQueryBuilderPart
 {
-	private final QueryBuilder root;
-	private final P parent;
+	private final QBSelect root;
+	private final QBTableClause parent;
 
-	@SuppressWarnings("unchecked")
 	AbstractQueryBuilderPart()
 	{
-		this.root = (QueryBuilder)this;
-		this.parent = (P)this;
+		this.root = (QBSelect)this;
+		this.parent = (QBTableClause)this;
 	}
 
-	AbstractQueryBuilderPart(QueryBuilder root, P parent)
+	AbstractQueryBuilderPart(QBSelect root, QBTableClause parent)
 	{
 		this.root = root;
 		this.parent = parent;
 	}
 
 	@JSReadonlyProperty
-	final public P getParent()
+	public QBTableClause getParent()
 	{
 		return parent;
 	}
 
 	@JSReadonlyProperty
-	final public QueryBuilder getRoot()
+	public QBSelect getRoot()
 	{
 		return root;
 	}

@@ -35,25 +35,25 @@ import com.servoy.j2db.util.ServoyException;
  * @author rgansevles
  *
  */
-public abstract class QueryBuilderTableClause extends AbstractQueryBuilderPart<QueryBuilderTableClause> implements IQueryBuilderTableClause
+public abstract class QBTableClause extends AbstractQueryBuilderPart implements IQueryBuilderTableClause
 {
 	private final String dataSource;
 	private final String tableAlias;
 
-	private QueryBuilderJoins joins;
+	private QBJoins joins;
 
 	private Table table;
-	private final Map<String, QueryBuilderColumn> columns = new HashMap<String, QueryBuilderColumn>();
-	private QueryBuilderColumns builderColumns;
+	private final Map<String, QBColumn> columns = new HashMap<String, QBColumn>();
+	private QBColumns builderColumns;
 
-	QueryBuilderTableClause(String dataSource, String tableAlias)
+	QBTableClause(String dataSource, String tableAlias)
 	{
 		super();
 		this.tableAlias = tableAlias;
 		this.dataSource = dataSource;
 	}
 
-	QueryBuilderTableClause(QueryBuilder root, QueryBuilderTableClause parent, String dataSource, String tableAlias)
+	QBTableClause(QBSelect root, QBTableClause parent, String dataSource, String tableAlias)
 	{
 		super(root, parent);
 		this.dataSource = dataSource;
@@ -64,11 +64,11 @@ public abstract class QueryBuilderTableClause extends AbstractQueryBuilderPart<Q
 
 
 	@JSReadonlyProperty
-	public QueryBuilderColumns columns() throws ServoyException
+	public QBColumns columns() throws ServoyException
 	{
 		if (builderColumns == null)
 		{
-			builderColumns = new QueryBuilderColumns(getRoot().getScriptableParent());
+			builderColumns = new QBColumns(getRoot().getScriptableParent());
 			for (String columnName : getTable().getColumnNames())
 			{
 				builderColumns.put(columnName, getRoot().getScriptableParent(), getColumn(columnName));
@@ -80,19 +80,19 @@ public abstract class QueryBuilderTableClause extends AbstractQueryBuilderPart<Q
 
 
 	@JSReadonlyProperty
-	public QueryBuilderJoins joins()
+	public QBJoins joins()
 	{
 		if (joins == null)
 		{
-			joins = new QueryBuilderJoins(getRoot(), this);
+			joins = new QBJoins(getRoot(), this);
 		}
 		return joins;
 	}
 
 	@JSFunction
-	public QueryBuilderColumn getColumn(String name) throws RepositoryException
+	public QBColumn getColumn(String name) throws RepositoryException
 	{
-		QueryBuilderColumn builderColumn = columns.get(name);
+		QBColumn builderColumn = columns.get(name);
 		if (builderColumn == null)
 		{
 			Column col = getTable().getColumn(name);
@@ -100,22 +100,21 @@ public abstract class QueryBuilderTableClause extends AbstractQueryBuilderPart<Q
 			{
 				throw new RepositoryException("Cannot find column '" + name + "' in data source '" + dataSource + "'");
 			}
-			columns.put(
-				name,
-				builderColumn = new QueryBuilderColumn(getRoot(), this, new QueryColumn(getQueryTable(), col.getID(), col.getSQLName(), col.getType(),
-					col.getLength(), col.getScale(), false)));
+			columns.put(name,
+				builderColumn = new QBColumn(getRoot(), this, new QueryColumn(getQueryTable(), col.getID(), col.getSQLName(), col.getType(), col.getLength(),
+					col.getScale(), false)));
 		}
 		return builderColumn;
 	}
 
 	@JSFunction
-	public QueryBuilderColumn getColumn(String columnTableAlias, String name) throws RepositoryException
+	public QBColumn getColumn(String columnTableAlias, String name) throws RepositoryException
 	{
 		if (columnTableAlias == null)
 		{
 			throw new IllegalArgumentException("null tableAlias for getColumn");
 		}
-		QueryBuilderTableClause queryBuilderTableClause = getRoot().findQueryBuilderTableClause(columnTableAlias);
+		QBTableClause queryBuilderTableClause = getRoot().findQueryBuilderTableClause(columnTableAlias);
 		if (queryBuilderTableClause == null)
 		{
 			throw new RepositoryException("Cannot find table(alias) '" + columnTableAlias + "'");
@@ -132,7 +131,7 @@ public abstract class QueryBuilderTableClause extends AbstractQueryBuilderPart<Q
 		return table;
 	}
 
-	QueryBuilderTableClause findQueryBuilderTableClause(String columnTableAlias)
+	QBTableClause findQueryBuilderTableClause(String columnTableAlias)
 	{
 		if (tableAlias != null && tableAlias.equals(columnTableAlias))
 		{

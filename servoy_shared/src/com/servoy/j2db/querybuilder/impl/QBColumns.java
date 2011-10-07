@@ -17,25 +17,19 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
-import com.servoy.j2db.query.ISQLCondition;
-import com.servoy.j2db.querybuilder.internal.IQueryBuilderConditionInternal;
+import org.mozilla.javascript.Scriptable;
+
+import com.servoy.j2db.scripting.DefaultScope;
 
 /**
  * @author rgansevles
  *
  */
-public class QueryBuilderCondition extends AbstractQueryBuilderPart<QueryBuilderTableClause> implements IQueryBuilderConditionInternal
+public class QBColumns extends DefaultScope
 {
-	private final ISQLCondition queryCondition;
-
-	QueryBuilderCondition(QueryBuilder root, QueryBuilderTableClause parent, ISQLCondition queryCondition)
+	QBColumns(Scriptable scriptParent)
 	{
-		super(root, parent);
-		this.queryCondition = queryCondition;
+		super(scriptParent);
 	}
 
-	public ISQLCondition getQueryCondition()
-	{
-		return queryCondition;
-	}
 }

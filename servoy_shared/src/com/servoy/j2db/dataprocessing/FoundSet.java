@@ -85,8 +85,8 @@ import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QuerySort;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.SetCondition;
-import com.servoy.j2db.querybuilder.impl.QueryBuilder;
-import com.servoy.j2db.querybuilder.impl.QueryBuilderFactory;
+import com.servoy.j2db.querybuilder.impl.QBSelect;
+import com.servoy.j2db.querybuilder.impl.QBFactory;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.LazyCompilationScope;
@@ -1044,9 +1044,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			return loadByQuery((String)data, args);
 		}
-		if (data instanceof QueryBuilder)
+		if (data instanceof QBSelect)
 		{
-			return loadByQuery(((QueryBuilder)data).build());
+			return loadByQuery(((QBSelect)data).build());
 		}
 		if (data instanceof Number || data instanceof UUID)
 		{
@@ -1289,7 +1289,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			!Utils.stringSafeEquals(getTable().getSchema(), sqlSelect.getTable().getSchemaName()) || //
 			!Utils.stringSafeEquals(getTable().getCatalog(), sqlSelect.getTable().getCatalogName()))
 		{
-			QueryBuilder builder = new QueryBuilderFactory(getFoundSetManager()).createSelect(getDataSource()).result().addPk().getParent();
+			QBSelect builder = new QBFactory(getFoundSetManager()).createSelect(getDataSource()).result().addPk().getParent();
 			builder.where().getQueryCondition().addCondition(
 				new SetCondition(ISQLCondition.EQUALS_OPERATOR, builder.getQuery().getColumns().toArray(
 					new IQuerySelectValue[builder.getQuery().getColumns().size()]), sqlSelect, true));

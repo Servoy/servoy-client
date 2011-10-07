@@ -17,7 +17,6 @@
 
 package com.servoy.j2db.querybuilder;
 
-import com.servoy.j2db.querybuilder.internal.IQueryBuilderConditionInternal;
 
 /**
  * Interface for building Servoy Query Objects.
@@ -27,7 +26,7 @@ import com.servoy.j2db.querybuilder.internal.IQueryBuilderConditionInternal;
  * @since 6.1
  */
 
-public interface IQueryBuilderLogicalCondition extends IQueryBuilderConditionInternal
+public interface IQueryBuilderLogicalCondition extends IQueryBuilderCondition
 {
 	IQueryBuilderLogicalCondition add(IQueryBuilderCondition condition);
 

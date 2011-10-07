@@ -34,12 +34,12 @@ import com.servoy.j2db.util.UUID;
  * @author rgansevles
  *
  */
-public class QueryBuilderJoins extends DefaultScope implements IQueryBuilderJoins
+public class QBJoins extends DefaultScope implements IQueryBuilderJoins
 {
-	private final QueryBuilder root;
-	private final QueryBuilderTableClause parent;
+	private final QBSelect root;
+	private final QBTableClause parent;
 
-	QueryBuilderJoins(QueryBuilder root, QueryBuilderTableClause parent)
+	QBJoins(QBSelect root, QBTableClause parent)
 	{
 		super(root.getScriptableParent());
 		this.root = root;
@@ -47,43 +47,43 @@ public class QueryBuilderJoins extends DefaultScope implements IQueryBuilderJoin
 	}
 
 	@JSReadonlyProperty
-	public QueryBuilderTableClause getParent()
+	public QBTableClause getParent()
 	{
 		return parent;
 	}
 
 	@JSReadonlyProperty
-	public QueryBuilder getRoot()
+	public QBSelect getRoot()
 	{
 		return root;
 	}
 
 	@JSFunction
-	public QueryBuilderJoin add(String dataSource, int joinType) throws RepositoryException
+	public QBJoin add(String dataSource, int joinType) throws RepositoryException
 	{
 		return add(dataSource, joinType, null);
 	}
 
 	@JSFunction
-	public QueryBuilderJoin add(String dataSource, String alias) throws RepositoryException
+	public QBJoin add(String dataSource, String alias) throws RepositoryException
 	{
 		return add(dataSource, IQueryBuilderJoin.LEFT_OUTER_JOIN, alias);
 	}
 
 	@JSFunction
-	public QueryBuilderJoin add(String dataSource) throws RepositoryException
+	public QBJoin add(String dataSource) throws RepositoryException
 	{
 		return add(dataSource, IQueryBuilderJoin.LEFT_OUTER_JOIN, null);
 	}
 
 	@JSFunction
-	public QueryBuilderJoin add(String dataSource, int joinType, String alias) throws RepositoryException
+	public QBJoin add(String dataSource, int joinType, String alias) throws RepositoryException
 	{
 		Table foreignTable = root.getTable(dataSource);
 		QueryJoin queryJoin = new QueryJoin(alias, parent.getQueryTable(), new QueryTable(foreignTable.getSQLName(), foreignTable.getCatalog(),
 			foreignTable.getSchema()), new AndCondition(), joinType);
 		root.getQuery().addJoin(queryJoin);
-		QueryBuilderJoin join = new QueryBuilderJoin(root, parent, dataSource, queryJoin, alias);
+		QBJoin join = new QBJoin(root, parent, dataSource, queryJoin, alias);
 		put(alias == null ? new UUID().toString() : alias, getParentScope(), join);
 		return join;
 	}
@@ -92,19 +92,19 @@ public class QueryBuilderJoins extends DefaultScope implements IQueryBuilderJoin
 	 * @param tableAlias
 	 * @return
 	 */
-	public QueryBuilderTableClause findQueryBuilderTableClause(String tableAlias)
+	public QBTableClause findQueryBuilderTableClause(String tableAlias)
 	{
 		Object get = get(tableAlias, getParentScope());
-		if (get instanceof QueryBuilderTableClause)
+		if (get instanceof QBTableClause)
 		{
-			return (QueryBuilderTableClause)get;
+			return (QBTableClause)get;
 		}
 		// not a direct child, try recursive
 		for (Object val : getValues())
 		{
-			if (val instanceof QueryBuilderTableClause)
+			if (val instanceof QBTableClause)
 			{
-				QueryBuilderTableClause found = ((QueryBuilderTableClause)val).findQueryBuilderTableClause(tableAlias);
+				QBTableClause found = ((QBTableClause)val).findQueryBuilderTableClause(tableAlias);
 				if (found != null)
 				{
 					return found;

@@ -17,41 +17,29 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
-import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.query.QueryJoin;
-import com.servoy.j2db.query.QueryTable;
-import com.servoy.j2db.querybuilder.IQueryBuilderJoin;
-import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+import com.servoy.j2db.query.IQuerySelectValue;
+import com.servoy.j2db.query.QueryAggregate;
+import com.servoy.j2db.query.QueryColumn;
+import com.servoy.j2db.querybuilder.IQueryBuilderAggregate;
 
 /**
  * @author rgansevles
  *
  */
-public class QueryBuilderJoin extends QueryBuilderTableClause implements IQueryBuilderJoin
+public class QBAggregate extends QBColumn implements IQueryBuilderAggregate
 {
-	private final QueryJoin join;
+	private final int aggregateType;
 
-	private QueryBuilderLogicalCondition on;
-
-	QueryBuilderJoin(QueryBuilder root, QueryBuilderTableClause parent, String dataSource, QueryJoin join, String alias)
+	QBAggregate(QBSelect root, QBTableClause queryBuilderTableClause, QueryColumn queryColumn, int aggregateType)
 	{
-		super(root, parent, dataSource, alias);
-		this.join = join;
+		super(root, queryBuilderTableClause, queryColumn);
+		this.aggregateType = aggregateType;
 	}
 
 	@Override
-	QueryTable getQueryTable() throws RepositoryException
+	public IQuerySelectValue getQuerySelectValue()
 	{
-		return join.getForeignTable();
+		return new QueryAggregate(aggregateType, super.getQuerySelectValue(), null);
 	}
 
-	@JSReadonlyProperty
-	public QueryBuilderLogicalCondition on()
-	{
-		if (on == null)
-		{
-			on = new QueryBuilderLogicalCondition(getRoot(), this, join.getCondition());
-		}
-		return on;
-	}
 }

@@ -40,4 +40,6 @@ public interface IQueryBuilderResult extends IQueryBuilderPart
 	IQueryBuilderResult addValue(Object value) throws RepositoryException;
 
 	IQueryBuilderResult setDistinct(boolean distinct) throws RepositoryException;
+
+	boolean isDistinct() throws RepositoryException;
 }

@@ -15,12 +15,27 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.querybuilder.internal;
+package com.servoy.j2db.querybuilder.impl;
 
-import com.servoy.j2db.query.IQuerySelectValue;
-import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
+import com.servoy.j2db.query.ISQLCondition;
+import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
 
-public interface IQueryBuilderColumnInternal extends IQueryBuilderColumn
+/**
+ * @author rgansevles
+ *
+ */
+public class QBCondition extends AbstractQueryBuilderPart implements IQueryBuilderCondition
 {
-	IQuerySelectValue getQuerySelectValue();
+	private final ISQLCondition queryCondition;
+
+	QBCondition(QBSelect root, QBTableClause parent, ISQLCondition queryCondition)
+	{
+		super(root, parent);
+		this.queryCondition = queryCondition;
+	}
+
+	public ISQLCondition getQueryCondition()
+	{
+		return queryCondition;
+	}
 }

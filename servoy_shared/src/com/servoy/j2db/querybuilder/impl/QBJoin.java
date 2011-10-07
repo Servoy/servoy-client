@@ -17,19 +17,41 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
-import org.mozilla.javascript.Scriptable;
-
-import com.servoy.j2db.scripting.DefaultScope;
+import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.query.QueryJoin;
+import com.servoy.j2db.query.QueryTable;
+import com.servoy.j2db.querybuilder.IQueryBuilderJoin;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
  * @author rgansevles
  *
  */
-public class QueryBuilderColumns extends DefaultScope
+public class QBJoin extends QBTableClause implements IQueryBuilderJoin
 {
-	QueryBuilderColumns(Scriptable scriptParent)
+	private final QueryJoin join;
+
+	private QBLogicalCondition on;
+
+	QBJoin(QBSelect root, QBTableClause parent, String dataSource, QueryJoin join, String alias)
 	{
-		super(scriptParent);
+		super(root, parent, dataSource, alias);
+		this.join = join;
 	}
 
+	@Override
+	QueryTable getQueryTable() throws RepositoryException
+	{
+		return join.getForeignTable();
+	}
+
+	@JSReadonlyProperty
+	public QBLogicalCondition on()
+	{
+		if (on == null)
+		{
+			on = new QBLogicalCondition(getRoot(), this, join.getCondition());
+		}
+		return on;
+	}
 }

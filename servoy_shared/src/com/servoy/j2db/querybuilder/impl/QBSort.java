@@ -15,13 +15,37 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.querybuilder.internal;
+package com.servoy.j2db.querybuilder.impl;
 
-import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.query.ISQLSelect;
-import com.servoy.j2db.querybuilder.IQueryBuilder;
+import com.servoy.j2db.query.QuerySort;
+import com.servoy.j2db.querybuilder.IQueryBuilderSort;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
-public interface IQueryBuilderInternal extends IQueryBuilder
+/**
+ * @author rgansevles
+ *
+ */
+public class QBSort extends AbstractQueryBuilderPart implements IQueryBuilderSort
 {
-	public ISQLSelect build() throws RepositoryException;
+	private final boolean ascending;
+	private final QBColumn queryBuilderColumn;
+
+	public QBSort(QBSelect parent, QBColumn queryBuilderColumn, boolean ascending)
+	{
+		super(parent, parent);
+		this.queryBuilderColumn = queryBuilderColumn;
+		this.ascending = ascending;
+	}
+
+	@Override
+	@JSReadonlyProperty
+	public QBSelect getParent()
+	{
+		return (QBSelect)super.getParent();
+	}
+
+	public QuerySort getQueryQuerySort()
+	{
+		return new QuerySort(queryBuilderColumn.getQuerySelectValue(), ascending);
+	}
 }
