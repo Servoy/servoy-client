@@ -2912,19 +2912,25 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		if (comp instanceof IScriptableProvider)
 		{
 			IScriptable s = ((IScriptableProvider)comp).getScriptObject();
-			if (s instanceof IScriptBaseMethods) ((IScriptBaseMethods)s).js_setBgcolor(bgColor != null ? bgColor.toString() : null);
-		}
+			if (s instanceof IScriptBaseMethods)
+			{
+				IScriptBaseMethods sbm = (IScriptBaseMethods)s;
+				String currentBgColor = sbm.js_getBgcolor();
+				String newBgColor = bgColor != null ? bgColor.toString() : null;
+				if ((currentBgColor == null && newBgColor != null) || (currentBgColor != null && !currentBgColor.equals(newBgColor))) sbm.js_setBgcolor(newBgColor);
 
-		if (comp instanceof IScriptableProvider)
-		{
-			IScriptable s = ((IScriptableProvider)comp).getScriptObject();
-			if (s instanceof IScriptBaseMethods) ((IScriptBaseMethods)s).js_setFgcolor(fgColor != null ? fgColor.toString() : null);
-		}
+				String currentFgColor = sbm.js_getFgcolor();
+				String newFgColor = fgColor != null ? fgColor.toString() : null;
+				if ((currentFgColor == null && newFgColor != null) || (currentFgColor != null && !currentFgColor.equals(newFgColor))) sbm.js_setFgcolor(newFgColor);
+			}
 
-		if (comp instanceof IScriptableProvider)
-		{
-			IScriptable s = ((IScriptableProvider)comp).getScriptObject();
-			if (s instanceof IScriptTransparentMethods) ((IScriptTransparentMethods)s).js_setFont(compFont != null ? compFont.toString() : null);
+			if (s instanceof IScriptTransparentMethods)
+			{
+				IScriptTransparentMethods stm = (IScriptTransparentMethods)s;
+				String currentCompFont = stm.js_getFont();
+				String newCompFont = compFont != null ? compFont.toString() : null;
+				if ((currentCompFont == null && newCompFont != null) || (currentCompFont != null && !currentCompFont.equals(newCompFont))) stm.js_setFont(newCompFont);
+			}
 		}
 	}
 
