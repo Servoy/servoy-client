@@ -188,7 +188,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * DEFAULT: false 
 	 * 
 	 * @sample
-	 * application.setUIProperty(APP_UI_PROPERTY.TABLEVIEW_WC__DEFAULT_SCROLLABLE, true)
+	 * application.setUIProperty(APP_UI_PROPERTY.TABLEVIEW_WC_DEFAULT_SCROLLABLE, true)
 	 */
 	public static final String TABLEVIEW_WC_DEFAULT_SCROLLABLE = IApplication.TABLEVIEW_WC_DEFAULT_SCROLLABLE;
 
