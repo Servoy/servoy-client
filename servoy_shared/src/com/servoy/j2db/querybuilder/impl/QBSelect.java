@@ -23,6 +23,7 @@ import java.util.Date;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.ITableProvider;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -45,6 +46,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * @author rgansevles
  *
  */
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBSelect extends QBTableClause implements IQueryBuilder
 {
 	public static final String CONDITION_WHERE = "WHERE";

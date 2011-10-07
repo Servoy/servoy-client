@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.QueryJoin;
 import com.servoy.j2db.query.QueryTable;
@@ -27,6 +28,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * @author rgansevles
  *
  */
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBJoin extends QBTableClause implements IQueryBuilderJoin
 {
 	private final QueryJoin join;

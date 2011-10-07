@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
@@ -35,6 +36,7 @@ import com.servoy.j2db.util.ServoyException;
  * @author rgansevles
  *
  */
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public abstract class QBTableClause extends AbstractQueryBuilderPart implements IQueryBuilderTableClause
 {
 	private final String dataSource;

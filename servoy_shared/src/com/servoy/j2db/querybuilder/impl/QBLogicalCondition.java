@@ -19,6 +19,7 @@ package com.servoy.j2db.querybuilder.impl;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.query.AndOrCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilderLogicalCondition;
@@ -27,6 +28,7 @@ import com.servoy.j2db.querybuilder.IQueryBuilderLogicalCondition;
  * @author rgansevles
  *
  */
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBLogicalCondition extends QBCondition implements IQueryBuilderLogicalCondition
 {
 	QBLogicalCondition(QBSelect root, QBTableClause parent, AndOrCondition queryCondition)

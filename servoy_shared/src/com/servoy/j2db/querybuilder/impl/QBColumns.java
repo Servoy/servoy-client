@@ -19,12 +19,14 @@ package com.servoy.j2db.querybuilder.impl;
 
 import org.mozilla.javascript.Scriptable;
 
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.DefaultScope;
 
 /**
  * @author rgansevles
  *
  */
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBColumns extends DefaultScope
 {
 	QBColumns(Scriptable scriptParent)

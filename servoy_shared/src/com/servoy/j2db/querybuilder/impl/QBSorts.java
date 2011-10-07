@@ -21,6 +21,7 @@ import java.util.Iterator;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
@@ -32,6 +33,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * @author rgansevles
  *
  */
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBSorts extends AbstractQueryBuilderPart implements IQueryBuilderSorts
 {
 	/**

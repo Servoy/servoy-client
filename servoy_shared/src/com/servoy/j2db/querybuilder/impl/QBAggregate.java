@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.query.QueryColumn;
@@ -26,6 +27,7 @@ import com.servoy.j2db.querybuilder.IQueryBuilderAggregate;
  * @author rgansevles
  *
  */
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBAggregate extends QBColumn implements IQueryBuilderAggregate
 {
 	private final int aggregateType;
