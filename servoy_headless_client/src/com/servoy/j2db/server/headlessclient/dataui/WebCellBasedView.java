@@ -3034,19 +3034,21 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		if (comp instanceof IScriptableProvider)
 		{
 			IScriptable s = ((IScriptableProvider)comp).getScriptObject();
-			if (s instanceof IScriptBaseMethods) ((IScriptBaseMethods)s).js_setBgcolor(bgColor != null ? bgColor.toString() : null);
-		}
+			if (s instanceof IScriptBaseMethods)
+			{
+				IScriptBaseMethods sbm = (IScriptBaseMethods)s;
+				String currentBgColor = sbm.js_getBgcolor();
+				String newBgColor = bgColor != null ? bgColor.toString() : null;
+				if ((currentBgColor == null && newBgColor != null) || (currentBgColor != null && !currentBgColor.equals(newBgColor))) sbm.js_setBgcolor(newBgColor);
 
-		if (comp instanceof IScriptableProvider)
-		{
-			IScriptable s = ((IScriptableProvider)comp).getScriptObject();
-			if (s instanceof IScriptBaseMethods) ((IScriptBaseMethods)s).js_setFgcolor(fgColor != null ? fgColor.toString() : null);
-		}
+				String currentFgColor = sbm.js_getFgcolor();
+				String newFgColor = fgColor != null ? fgColor.toString() : null;
+				if ((currentFgColor == null && newFgColor != null) || (currentFgColor != null && !currentFgColor.equals(newFgColor))) sbm.js_setFgcolor(newFgColor);
 
-		if (comp instanceof IScriptableProvider)
-		{
-			IScriptable s = ((IScriptableProvider)comp).getScriptObject();
-			if (s instanceof IScriptBaseMethods) ((IScriptBaseMethods)s).js_setFont(compFont != null ? compFont.toString() : null);
+				String currentCompFont = sbm.js_getFont();
+				String newCompFont = compFont != null ? compFont.toString() : null;
+				if ((currentCompFont == null && newCompFont != null) || (currentCompFont != null && !currentCompFont.equals(newCompFont))) sbm.js_setFont(newCompFont);
+			}
 		}
 	}
 
@@ -3311,7 +3313,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		if (isScrollMode())
 		{
 			JQueryLoader.render(container.getHeaderResponse());
-			String top, scrollPadding;
+			String top, scrollPadding, right = null;
 			if (headers != null)
 			{
 				top = "$('#" + headers.getMarkupId() + "').height() + 'px'";
@@ -3331,8 +3333,14 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				scrollPadding = "'12px'";
 			}
 
+			if (!(cellview instanceof Portal))
+			{
+				right = "'0px'";
+			}
+
 			StringBuffer tbodyStyle = new StringBuffer("$('#").append(tableContainerBody.getMarkupId()).append("').css('top',").append(top).append(");");
 			tbodyStyle.append("$('#").append(tableContainerBody.getMarkupId()).append("').css('padding-right',").append(scrollPadding).append(");");
+			if (right != null) tbodyStyle.append("$('#").append(tableContainerBody.getMarkupId()).append("').css('right',").append(right).append(");");
 			container.getHeaderResponse().renderOnDomReadyJavascript(tbodyStyle.toString());
 		}
 	}
