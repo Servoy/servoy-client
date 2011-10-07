@@ -1367,7 +1367,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 * // Open a file with a specific application (on MacOS).
 	 * application.executeProgramInBackground("open", "-a", "OpenOffice.org.app", "filename.doc"); 
 	 * 
-	 * @param programName(fullpath) Name of the program to execute
+	 * @param programName Name (fullpath) of the program to execute
 	 * @param arg1 optional Argument
 	 * @param arg2 optional Argument
 	 * @param argN optional Argument
@@ -1423,7 +1423,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 * // Open a file with a specific application (on MacOS).
 	 * application.executeProgram("open", "-a", "OpenOffice.org.app", "filename.doc");
 	 *
-	 * @param programName(fullpath) Name of the program to execute
+	 * @param programName Name (fullpath) of the program to execute
 	 * @param arg1 optional Argument
 	 * @param arg2 optional Argument
 	 * @param argN optional Argument
