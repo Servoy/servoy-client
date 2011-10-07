@@ -77,23 +77,86 @@ import com.servoy.j2db.query.ISQLSelect;
  */
 public interface IQueryBuilder extends IQueryBuilderTableClause
 {
+	/**
+	 * Get the where-part of the query, used to add conditions.
+	 * The conditions added here are AND-ed.
+	 * <pre>
+	 * query.where().add(query.getColumn("flag").eq(new Integer(1)).add(query.getColumn("foo").isNull(); // where flag = 1 and foo is null
+	 * </pre>
+	 */
 	IQueryBuilderLogicalCondition where() throws RepositoryException;
 
+	/**
+	 * Get the result part of the query, used to add result columns or values.
+	 * <pre>
+	 * query.result().add(query.getColumn("id")).add.query.getColumn("note"); // select id, note from tab
+	 * </pre>
+	 */
 	IQueryBuilderResult result();
 
+	/**
+	 * Get the sorting part of the query.
+	 * <pre>
+	 * query.sort().add(query.getColumn("note").desc()).add(query.getColumn("id")); // order by note desc, id asc
+	 * </pre>
+	 * @see IQueryBuilderColumn#asc()
+	 */
 	IQueryBuilderSorts sort();
 
-	IQueryBuilderLogicalCondition or();
-
-	IQueryBuilderCondition not(IQueryBuilderCondition cond);
-
-	IQueryBuilderCondition exists(IQueryBuilder query) throws RepositoryException;
-
+	/**
+	 * Get the group by clause from a query
+	 * <pre>
+	 * // SELECT val2, COUNT(val2) FROM tab GROUP BY val2 ORDER BY COUNT(val2) DESC
+	 * query.result().add(query.getColumn(val2.getName())).add(query.getColumn(val2.getName()).count())
+	 *   .getParent().groupBy().add(val2.getName())
+	 *   .getParent().sort().add(query.getColumn(val2.getName()).count().desc());
+	 * </pre>
+	 */
 	IQueryBuilderGroupby groupBy();
 
 	/**
+	 * Create an OR-condition to add conditions to.
+	 * <pre>
+	 * // where custid = ? and (order_date is null or order_date > ?)
+	 * query.where().add(query.getColumn("custid").eq(new Integer(200)))
+	 *     .add(
+	 *       query.or()
+	 *          .add(query.getColumn("order_date").isNull())
+	 *          .add(query.getColumn("order_date").gt(new Date()))
+	 *     );
+	 * </pre>
+	 */
+	IQueryBuilderLogicalCondition or();
+
+	/**
+	 * Create an negated condition.
+	 * <pre>
+	 * // where not (order_date is null or order_date > ?)
+	 *   query.where().add(query.not(
+	 *	       query.or()
+	 *	          .add(query.getColumn("order_date").isNull())
+	 *	          .add(query.getColumn("order_date").gt(new Date()))
+	 *	     )
+	 *	   );
+	 * </pre>
+	 */
+	IQueryBuilderCondition not(IQueryBuilderCondition cond);
+
+	/**
+	 * Get an exists-condition from a subquery
+	 * <pre>
+	 *  // where exists (select 1 from tab where flag = ?)
+	 *  query.where().add(query.exists(subQuery.result().addValue(new Integer(1)).getParent().where().add(subQuery.getColumn("flag").eq("T")).getRoot()));
+	 *  
+	 *  // or simple variant: adds 'select 1' and calls getRoot()
+	 *  query.where().add(query.exists(subQuery.where().add(subQuery.getColumn("flag").eq("T"))));
+	 * </pre>
+	 */
+	IQueryBuilderCondition exists(IQueryBuilderPart query) throws RepositoryException;
+
+
+	/**
 	 * Build the query for performing query in the db
-	 * @throws RepositoryException 
 	 */
 	ISQLSelect build() throws RepositoryException;
 }

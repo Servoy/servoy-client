@@ -29,24 +29,72 @@ import com.servoy.j2db.persistence.RepositoryException;
 
 public interface IQueryBuilderColumn extends IQueryBuilderPart
 {
+	/**
+	 * Compare column with a value or another column.
+	 * Operator: greaterThen
+	 * <pre>
+	 * query.where().add(query.getColumn("value").gt(new Integer(100));
+	 * </pre>
+	 */
 	IQueryBuilderCondition gt(Object value);
 
+	/**
+	 * Operator: lessThan
+	 * @see #gt
+	 */
 	IQueryBuilderCondition lt(Object value);
 
+	/**
+	 * Operator: greaterThanOrEqual
+	 * @see #gt
+	 */
 	IQueryBuilderCondition ge(Object value);
 
+	/**
+	 * Operator: lessThanOrEqual
+	 * @see #gt
+	 */
 	IQueryBuilderCondition le(Object value);
 
+	/**
+	 * Compare column to between 2 values or other columns.
+	 * <pre>
+	 * query.where().add(query.getColumn("value").between(new Integer(1), new Integer(99));
+	 * </pre>
+	 */
 	IQueryBuilderCondition between(Object value1, Object value2);
 
-	IQueryBuilderCondition in(IQueryBuilder query) throws RepositoryException;
+	/**
+	 * Compare column with subquery result.
+	 * <pre>
+	 * query.where().add(query.getColumn("value").in(subQuery.result().add(query.getColumn("code")).getParent().where().add(subQuery.getColumn("flag").eq("T"))));
+	 * </pre>
+	 */
+	IQueryBuilderCondition in(IQueryBuilderPart query) throws RepositoryException;
 
+	/**
+	 * Operator: isNull
+	 * @see #gt
+	 */
 	IQueryBuilderCondition isNull();
 
+	/**
+	 * Operator: equals
+	 * When compared to null, results in isNull
+	 * @see #gt
+	 */
 	IQueryBuilderCondition eq(Object value);
 
+	/**
+	 * Operator: like
+	 * @see #gt
+	 */
 	IQueryBuilderCondition like(String pattern);
 
+	/**
+	 * Operator: like, with escape character
+	 * @see #gt
+	 */
 	IQueryBuilderCondition like(String pattern, char escape);
 
 	IQueryBuilderColumn not();

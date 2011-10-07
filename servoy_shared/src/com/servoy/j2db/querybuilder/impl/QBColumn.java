@@ -26,8 +26,8 @@ import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.SetCondition;
-import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
+import com.servoy.j2db.querybuilder.IQueryBuilderPart;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
@@ -97,10 +97,10 @@ public class QBColumn extends AbstractQueryBuilderPart implements IQueryBuilderC
 	}
 
 	@JSFunction(value = "isin")
-	public QBCondition in(IQueryBuilder query) throws RepositoryException
+	public QBCondition in(IQueryBuilderPart query) throws RepositoryException
 	{
-		return createCondition(new SetCondition(ISQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { getQuerySelectValue() }, ((QBSelect)query).build(),
-			true));
+		return createCondition(new SetCondition(ISQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { getQuerySelectValue() },
+			((QBSelect)query.getRoot()).build(), true));
 	}
 
 	@JSReadonlyProperty

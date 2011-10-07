@@ -38,6 +38,7 @@ import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilderLogicalCondition;
+import com.servoy.j2db.querybuilder.IQueryBuilderPart;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
@@ -173,9 +174,9 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	}
 
 	@JSFunction
-	public QBCondition exists(IQueryBuilder q) throws RepositoryException
+	public QBCondition exists(IQueryBuilderPart q) throws RepositoryException
 	{
-		ISQLSelect select = ((QBSelect)q).build();
+		ISQLSelect select = ((QBSelect)q.getRoot()).build();
 		if (select instanceof QuerySelect && ((QuerySelect)select).getColumns() == null)
 		{
 			// no columns, add 'select 1'
