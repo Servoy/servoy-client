@@ -18,7 +18,7 @@
 package com.servoy.j2db.querybuilder;
 
 /**
- * Interface for building Servoy Query Objects.
+ * Aggregate column used in Servoy Query Objects.
  * 
  * @author rgansevles
  *

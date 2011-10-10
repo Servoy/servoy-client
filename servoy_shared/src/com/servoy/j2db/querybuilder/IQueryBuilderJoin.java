@@ -20,7 +20,7 @@ package com.servoy.j2db.querybuilder;
 import com.servoy.j2db.query.ISQLJoin;
 
 /**
- * Interface for building Servoy Query Objects.
+ * Join clause in Servoy Query Objects.
  * 
  * @author rgansevles
  *
@@ -29,10 +29,36 @@ import com.servoy.j2db.query.ISQLJoin;
 
 public interface IQueryBuilderJoin extends IQueryBuilderTableClause
 {
-	public static final int INNER_JOIN = ISQLJoin.INNER_JOIN;
-	public static final int LEFT_OUTER_JOIN = ISQLJoin.LEFT_OUTER_JOIN;
-	public static final int FULL_JOIN = ISQLJoin.FULL_JOIN;
-	public static final int RIGHT_OUTER_JOIN = ISQLJoin.RIGHT_OUTER_JOIN;
+	/**
+	 * Constant for join types.
+	 * @see #on()
+	 */
+	static final int INNER_JOIN = ISQLJoin.INNER_JOIN;
 
+	/**
+	 * Constant for join types.
+	 * @see #on()
+	 */
+	static final int LEFT_OUTER_JOIN = ISQLJoin.LEFT_OUTER_JOIN;
+
+	/**
+	 * Constant for join types.
+	 * @see #on()
+	 */
+	static final int FULL_JOIN = ISQLJoin.FULL_JOIN;
+
+	/**
+	 * Constant for join types.
+	 * @see #on()
+	 */
+	static final int RIGHT_OUTER_JOIN = ISQLJoin.RIGHT_OUTER_JOIN;
+
+	/**
+	 * Get the on clause for the join.
+	 * <pre>
+	 * query.joins().add(detailDataSource,  IQueryBuilderJoin.LEFT_OUTER_JOIN, "detail")
+	 *     .on().add(query.getColumn("pk").eq(query.getColumn("detail", "fk")));
+	 * </pre>
+	 */
 	IQueryBuilderLogicalCondition on();
 }

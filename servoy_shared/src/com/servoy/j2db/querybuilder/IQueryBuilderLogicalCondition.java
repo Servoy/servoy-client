@@ -19,7 +19,7 @@ package com.servoy.j2db.querybuilder;
 
 
 /**
- * Interface for building Servoy Query Objects.
+ * Logical condirion (AND or OR clause) for building Servoy Query Objects.
  * 
  * @author rgansevles
  *
@@ -28,6 +28,12 @@ package com.servoy.j2db.querybuilder;
 
 public interface IQueryBuilderLogicalCondition extends IQueryBuilderCondition
 {
+	/**
+	 * Add a condition to the AND or OR condition list.
+	 * <pre>
+	 * query.where().add(query.getColumn("flag").eq(new Integer(1))).add(query.getColumn("value").isNull());
+	 * </pre>
+	 */
 	IQueryBuilderLogicalCondition add(IQueryBuilderCondition condition);
 
 }

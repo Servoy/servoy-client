@@ -19,7 +19,7 @@ package com.servoy.j2db.querybuilder;
 
 
 /**
- * Interface for building Servoy Query Objects.
+ * Base interface for parts in Servoy Query Objects.
  * 
  * @author rgansevles
  *
@@ -28,7 +28,13 @@ package com.servoy.j2db.querybuilder;
 
 public interface IQueryBuilderPart
 {
+	/**
+	 * Get query builder parent table clause, this may be a query or a join clause.
+	 */
 	IQueryBuilderTableClause getParent();
 
+	/**
+	 * Get query builder parent.
+	 */
 	IQueryBuilder getRoot();
 }

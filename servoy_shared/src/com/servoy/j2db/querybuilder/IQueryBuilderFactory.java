@@ -20,7 +20,10 @@ package com.servoy.j2db.querybuilder;
 import com.servoy.j2db.persistence.RepositoryException;
 
 /**
- * Interface for building Servoy Query Objects.
+ * Factory for creating Servoy Query Objects builders.
+ * <pre>
+ * IQueryBuilder query = pluginAccess.getDatabaseManager().getQueryFactory().createSelect(dataSource);
+ * </pre>
  * 
  * @author rgansevles
  *
@@ -29,7 +32,14 @@ import com.servoy.j2db.persistence.RepositoryException;
 
 public interface IQueryBuilderFactory
 {
+	/**
+	 * Create a query builder for a data source.
+	 */
 	IQueryBuilder createSelect(String dataSource) throws RepositoryException;
 
+	/**
+	 * Create a query builder for a data source.
+	 * <p>The main table will have specified alias.
+	 */
 	IQueryBuilder createSelect(String dataSource, String alias) throws RepositoryException;
 }

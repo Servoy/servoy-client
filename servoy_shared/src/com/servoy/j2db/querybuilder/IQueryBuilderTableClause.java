@@ -20,7 +20,8 @@ package com.servoy.j2db.querybuilder;
 import com.servoy.j2db.persistence.RepositoryException;
 
 /**
- * Interface for building Servoy Query Objects.
+ * Common interface for table based clauses in a Servoy Query Objects builder.
+ * <p>Current instances: {@link IQueryBuilder}: query and {@link IQueryBuilderJoin} join.
  * 
  * @author rgansevles
  *
@@ -28,9 +29,20 @@ import com.servoy.j2db.persistence.RepositoryException;
  */
 public interface IQueryBuilderTableClause extends IQueryBuilderPart
 {
+	/**
+	 * Get a column from the table.
+	 */
 	IQueryBuilderColumn getColumn(String name) throws RepositoryException;
 
+	/**
+	 * Get a column from the table with given alias.
+	 * <p>The alias may be of the main table or any level deep joined table.
+	 */
 	IQueryBuilderColumn getColumn(String tableAlias, String name) throws RepositoryException;
 
+	/**
+	 * Get the joins clause of this table based clause.
+	 * <p>Joins added to this clause will be based on this table clauses table.
+	 */
 	IQueryBuilderJoins joins() throws RepositoryException;
 }

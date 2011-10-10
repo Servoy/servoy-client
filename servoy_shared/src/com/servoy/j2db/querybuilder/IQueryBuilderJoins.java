@@ -21,7 +21,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 
 
 /**
- * Interface for building Servoy Query Objects.
+ * Joins section in a Servoy Query Objects builder.
  * 
  * @author rgansevles
  *
@@ -29,11 +29,37 @@ import com.servoy.j2db.persistence.RepositoryException;
  */
 public interface IQueryBuilderJoins extends IQueryBuilderPart
 {
+	/**
+	 * Add a join clause from the parent query builder part to the specified data source.
+	 * @param dataSource data source
+	 * @param joinType join type, one of {@link IQueryBuilderJoin#LEFT_OUTER_JOIN}, {@link IQueryBuilderJoin#INNER_JOIN}, {@link IQueryBuilderJoin#RIGHT_OUTER_JOIN}, {@link IQueryBuilderJoin#FULL_JOIN}
+	 * @param alias alias for joining table
+	 *  <pre>
+	 * query.joins().add(detailDataSource,  IQueryBuilderJoin.LEFT_OUTER_JOIN, "detail")
+	 *     .on().add(query.getColumn("pk").eq(query.getColumn("detail", "fk")));
+	 * </pre>
+	 */
+	IQueryBuilderJoin add(String dataSource, int joinType, String alias) throws RepositoryException;
+
+	/**
+	 * Add a join with no alias for the joining table.
+	 * 
+	 * @see #add(String, int, String)
+	 */
 	IQueryBuilderJoin add(String dataSource, int joinType) throws RepositoryException;
 
+	/**
+	 * Add a join with join type {@link IQueryBuilderJoin#LEFT_OUTER_JOIN}.
+	 * 
+	 * @see #add(String, int, String)
+	 */
 	IQueryBuilderJoin add(String dataSource, String alias) throws RepositoryException;
 
+	/**
+	 * Add a join with join type {@link IQueryBuilderJoin#LEFT_OUTER_JOIN} and no alias for the joining table.
+	 * 
+	 * @see #add(String, int, String)
+	 */
 	IQueryBuilderJoin add(String dataSource) throws RepositoryException;
 
-	IQueryBuilderJoin add(String dataSource, int joinType, String alias) throws RepositoryException;
 }

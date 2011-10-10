@@ -19,7 +19,7 @@ package com.servoy.j2db.querybuilder;
 
 
 /**
- * Interface for building Servoy Query Objects.
+ * A sorting column in Servoy Query Objects.
  * 
  * @author rgansevles
  *

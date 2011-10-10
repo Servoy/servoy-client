@@ -20,7 +20,7 @@ package com.servoy.j2db.querybuilder;
 import com.servoy.j2db.persistence.RepositoryException;
 
 /**
- * Interface for building Servoy Query Objects.
+ * Column in Servoy Query Objects.
  * 
  * @author rgansevles
  *
@@ -31,32 +31,43 @@ public interface IQueryBuilderColumn extends IQueryBuilderPart
 {
 	/**
 	 * Compare column with a value or another column.
-	 * Operator: greaterThen
+	 * Operator: equals
 	 * <pre>
-	 * query.where().add(query.getColumn("value").gt(new Integer(100));
+	 * query.where().add(query.getColumn("value").eq(new Integer(100));
 	 * </pre>
+	 */
+	IQueryBuilderCondition eq(Object value);
+
+	/**
+	 * Compare column with a value or another column.
+	 * Operator: greaterThan
+	 * @see #eq
 	 */
 	IQueryBuilderCondition gt(Object value);
 
 	/**
+	 * Compare column with a value or another column.
 	 * Operator: lessThan
-	 * @see #gt
+	 * @see #eq
 	 */
 	IQueryBuilderCondition lt(Object value);
 
 	/**
+	 * Compare column with a value or another column.
 	 * Operator: greaterThanOrEqual
-	 * @see #gt
+	 * @see #eq
 	 */
 	IQueryBuilderCondition ge(Object value);
 
 	/**
+	 * Compare column with a value or another column.
 	 * Operator: lessThanOrEqual
-	 * @see #gt
+	 * @see #eq
 	 */
 	IQueryBuilderCondition le(Object value);
 
 	/**
+	 * Compare column with a value or another column.
 	 * Compare column to between 2 values or other columns.
 	 * <pre>
 	 * query.where().add(query.getColumn("value").between(new Integer(1), new Integer(99));
@@ -73,43 +84,86 @@ public interface IQueryBuilderColumn extends IQueryBuilderPart
 	IQueryBuilderCondition in(IQueryBuilderPart query) throws RepositoryException;
 
 	/**
+	 * Compare column with a value or another column.
 	 * Operator: isNull
-	 * @see #gt
+	 * @see #eq
 	 */
 	IQueryBuilderCondition isNull();
 
 	/**
-	 * Operator: equals
-	 * When compared to null, results in isNull
-	 * @see #gt
-	 */
-	IQueryBuilderCondition eq(Object value);
-
-	/**
+	 * Compare column with a value or another column.
 	 * Operator: like
-	 * @see #gt
+	 * @see #eq
 	 */
 	IQueryBuilderCondition like(String pattern);
 
 	/**
+	 * Compare column with a value or another column.
 	 * Operator: like, with escape character
-	 * @see #gt
+	 * @see #eq
 	 */
 	IQueryBuilderCondition like(String pattern, char escape);
 
+	/**
+	 * Create a negated condition.
+	 * <pre>
+	 * query.where().add(query.getColumn("value").not().eq(new Integer(100));
+	 * </pre>
+	 * @return
+	 */
 	IQueryBuilderColumn not();
 
+	/**
+	 * Create an ascending sort expression
+	 * <pre>
+	 * query.sort().add(query.getColumn("value").asc());
+	 * </pre>
+	 */
 	IQueryBuilderSort asc();
 
+	/**
+	 * Create an descending sort expression
+	 * @see #asc
+	 */
 	IQueryBuilderSort desc();
 
+	/**
+	 * Create an aggregate expression.
+	 * Aggregate: count
+	 * <pre>
+	 * // select value, count(value) from tab group by value order by count(value) desc 
+	 * query.result().add(query.getColumn("value")).add(query.getColumn("value").count())
+	 *     .getParent().groupBy().add("value")
+	 *     .getParent().sort().add(query.getColumn("value").count().desc());
+	 * </pre>
+	 */
 	IQueryBuilderAggregate count();
 
+	/**
+	 * Create an aggregate expression.
+	 * Aggregate: max
+	 * @see #count
+	 */
 	IQueryBuilderAggregate max();
 
+	/**
+	 * Create an aggregate expression.
+	 * Aggregate: min
+	 * @see #count
+	 */
 	IQueryBuilderAggregate min();
 
+	/**
+	 * Create an aggregate expression.
+	 * Aggregate: avg
+	 * @see #count
+	 */
 	IQueryBuilderAggregate avg();
 
+	/**
+	 * Create an aggregate expression.
+	 * Aggregate: sum
+	 * @see #count
+	 */
 	IQueryBuilderAggregate sum();
 }

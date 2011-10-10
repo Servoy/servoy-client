@@ -20,7 +20,7 @@ package com.servoy.j2db.querybuilder;
 import com.servoy.j2db.persistence.RepositoryException;
 
 /**
- * Interface for building Servoy Query Objects.
+ * The sorts (ordering) section of Servoy Query Objects.
  * 
  * @author rgansevles
  *
@@ -29,9 +29,20 @@ import com.servoy.j2db.persistence.RepositoryException;
 
 public interface IQueryBuilderSorts extends IQueryBuilderPart
 {
+	/**
+	 * Add the tables' primary pk columns in alphabetical order to the query sort.
+	 */
 	IQueryBuilderSorts addPk() throws RepositoryException;
 
+	/**
+	 * Ad a sorting on a column to the query sort.
+	 * @see IQueryBuilderColumn#asc()
+	 * @see IQueryBuilderColumn#desc()
+	 */
 	IQueryBuilderSorts add(IQueryBuilderSort columnSort) throws RepositoryException;
 
+	/**
+	 * Ad an ascending sorting on a column to the query sort.
+	 */
 	IQueryBuilderSorts add(IQueryBuilderColumn columnSortAsc) throws RepositoryException;
 }
