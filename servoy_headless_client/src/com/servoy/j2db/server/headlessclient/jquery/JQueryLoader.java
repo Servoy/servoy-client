@@ -19,7 +19,9 @@ package com.servoy.j2db.server.headlessclient.jquery;
 import java.io.Serializable;
 
 import org.apache.wicket.Application;
+import org.apache.wicket.ResourceReference;
 import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.html.resources.CompressedResourceReference;
 import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
 
 import com.servoy.j2db.server.headlessclient.MainPage;
@@ -38,6 +40,7 @@ public class JQueryLoader implements Serializable
 	// this should be compatible with jquery-ui from accordion
 	public static final JavascriptResourceReference JS_JQUERY = new JavascriptResourceReference(MainPage.class, "jquery/jquery-1.5.2.min.js"); //$NON-NLS-1$
 	public static final JavascriptResourceReference JS_JQUERY_DEBUG = new JavascriptResourceReference(MainPage.class, "jquery/jquery-1.5.2.js"); //$NON-NLS-	
+	public static final ResourceReference CSS_UI = new CompressedResourceReference(MainPage.class, "jquery/jquery-ui.css"); //$NON-NLS-1$
 
 	private JQueryLoader()
 	{
