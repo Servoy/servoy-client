@@ -185,7 +185,15 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 	 */
 	public void valueChanged(ModificationEvent e)
 	{
-		fill(parentState);
+		valueListChanging = true;
+		try
+		{
+			fill(parentState);
+		}
+		finally
+		{
+			valueListChanging = false;
+		}
 	}
 
 	/**
