@@ -79,7 +79,7 @@ public class JSServer
 	{
 		try
 		{
-			Table t = ((IServerInternal)server).createNewTable(null, tableName);
+			Table t = ((IServerInternal)server).createNewTable(null, tableName, false);
 			if (t != null)
 			{
 				return new JSTableObject(t, server);
