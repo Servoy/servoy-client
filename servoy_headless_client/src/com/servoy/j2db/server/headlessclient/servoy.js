@@ -1461,7 +1461,19 @@ if (typeof(Servoy.Utils) == "undefined")
 			}		
 		},
 		
-		setLabelChildHeight: function(elemid, valign) 
+		setLabelChildHeight: function(elemid, valign)
+		{
+			if(Servoy.Utils.isFirefox)
+			{
+				setTimeout(function(){Servoy.Utils.setLabelChildHeightEx(elemid, valign);},50);
+			}
+			else
+			{
+				Servoy.Utils.setLabelChildHeightEx(elemid, valign);
+			}
+		},
+		
+		setLabelChildHeightEx: function(elemid, valign) 
 		{
 		  var elem = document.getElementById(elemid);
 		  var elemHeight =  elem.clientHeight;
@@ -1686,6 +1698,8 @@ if (typeof(Servoy.Utils) == "undefined")
 	  },
 	  
 	  isChrome : navigator.userAgent.toLowerCase().indexOf('chrome') > -1,
+	  
+	  isFirefox : navigator.userAgent.toLowerCase().indexOf('firefox') > -1,
 	  
 	  doSelect: function(el) 
 	  {
