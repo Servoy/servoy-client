@@ -87,6 +87,7 @@ public interface IDatabaseManager extends ISaveConstants, ITableProvider
 
 	/**
 	 * Get a new foundset for the query.
+	 * @since 6.1
 	 */
 	public IFoundSet getFoundSet(IQueryBuilder query) throws ServoyException;
 }

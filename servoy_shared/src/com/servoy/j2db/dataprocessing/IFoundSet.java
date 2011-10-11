@@ -204,12 +204,14 @@ public interface IFoundSet extends IFoundSetDeprecated, IGlobalValueEntry
 	public void setSort(String sortString) throws ServoyException;
 
 	/**
-	 * Set the PK query for this foundset.
-	 */
-	public boolean loadByQuery(IQueryBuilder query) throws ServoyException;
-
-	/**
 	 * Get the query for this foundset.
+	 * @since 6.1
 	 */
 	public IQueryBuilder getQuery();
+
+	/**
+	 * Set the PK query for this foundset.
+	 * @since 6.1
+	 */
+	public boolean loadByQuery(IQueryBuilder query) throws ServoyException;
 }
