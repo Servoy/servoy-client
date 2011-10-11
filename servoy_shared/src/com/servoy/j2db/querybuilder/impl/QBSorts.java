@@ -34,7 +34,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class QBSorts extends AbstractQueryBuilderPart implements IQueryBuilderSorts
+public class QBSorts extends QBPart implements IQueryBuilderSorts
 {
 	/**
 	 * @param queryBuilder

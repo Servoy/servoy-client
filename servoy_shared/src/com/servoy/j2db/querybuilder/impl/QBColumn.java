@@ -36,7 +36,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class QBColumn extends AbstractQueryBuilderPart implements IQueryBuilderColumn
+public class QBColumn extends QBPart implements IQueryBuilderColumn
 {
 	private final QueryColumn queryColumn;
 	private final boolean negate;
@@ -98,7 +98,11 @@ public class QBColumn extends AbstractQueryBuilderPart implements IQueryBuilderC
 		return createCompareCondition(ISQLCondition.BETWEEN_OPERATOR, new Object[] { value1, value2 });
 	}
 
-	@JSFunction(value = "isin")
+	public QBCondition js_isin(QBPart query) throws RepositoryException
+	{
+		return in(query);
+	}
+
 	public QBCondition in(IQueryBuilderPart query) throws RepositoryException
 	{
 		return createCondition(new SetCondition(ISQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { getQuerySelectValue() },

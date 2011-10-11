@@ -17,8 +17,6 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
-import org.mozilla.javascript.annotations.JSFunction;
-
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.query.AndOrCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
@@ -42,7 +40,11 @@ public class QBLogicalCondition extends QBCondition implements IQueryBuilderLogi
 		return (AndOrCondition)super.getQueryCondition();
 	}
 
-	@JSFunction
+	public QBLogicalCondition js_add(QBCondition condition)
+	{
+		return add(condition);
+	}
+
 	public QBLogicalCondition add(IQueryBuilderCondition condition)
 	{
 		getQueryCondition().addCondition(((QBCondition)condition).getQueryCondition());

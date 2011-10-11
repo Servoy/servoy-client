@@ -30,7 +30,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class QBGroupBy extends AbstractQueryBuilderPart implements IQueryBuilderGroupby
+public class QBGroupBy extends QBPart implements IQueryBuilderGroupby
 {
 	QBGroupBy(QBSelect parent)
 	{

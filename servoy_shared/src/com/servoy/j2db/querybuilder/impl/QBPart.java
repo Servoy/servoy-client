@@ -25,18 +25,18 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * @author rgansevles
  *
  */
-public abstract class AbstractQueryBuilderPart implements IQueryBuilderPart
+public abstract class QBPart implements IQueryBuilderPart
 {
 	private final QBSelect root;
 	private final QBTableClause parent;
 
-	AbstractQueryBuilderPart()
+	QBPart()
 	{
 		this.root = (QBSelect)this;
 		this.parent = (QBTableClause)this;
 	}
 
-	AbstractQueryBuilderPart(QBSelect root, QBTableClause parent)
+	QBPart(QBSelect root, QBTableClause parent)
 	{
 		this.root = root;
 		this.parent = parent;

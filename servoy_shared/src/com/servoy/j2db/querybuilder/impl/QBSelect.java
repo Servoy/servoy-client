@@ -49,7 +49,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBSelect extends QBTableClause implements IQueryBuilder
 {
-	public static final String CONDITION_WHERE = "WHERE";
+	public static final String CONDITION_WHERE = "SQ:WHERE";
 
 	private final ITableProvider tableProvider;
 

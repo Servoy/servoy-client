@@ -37,7 +37,7 @@ import com.servoy.j2db.util.ServoyException;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public abstract class QBTableClause extends AbstractQueryBuilderPart implements IQueryBuilderTableClause
+public abstract class QBTableClause extends QBPart implements IQueryBuilderTableClause
 {
 	private final String dataSource;
 	private final String tableAlias;
