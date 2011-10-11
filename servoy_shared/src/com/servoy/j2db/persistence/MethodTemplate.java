@@ -37,9 +37,9 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class MethodTemplate implements IMethodTemplate
 {
-	public static final int PUBLIC_TAG = 0;
-	public static final int PROTECTED_TAG = 1;
-	public static final int PRIVATE_TAG = 2;
+	public static final int PUBLIC_TAG = 1;
+	public static final int PROTECTED_TAG = 2;
+	public static final int PRIVATE_TAG = 4;
 
 	private static final String TAG_METHODTEMPLATE = "methodtemplate";
 	private static final String ATTR_NAME = "name";
@@ -384,7 +384,7 @@ public class MethodTemplate implements IMethodTemplate
 		if (!root.getName().equals(TAG_METHODTEMPLATE)) return null;
 
 		String name = root.attributeValue(ATTR_NAME);
-		boolean addTodo = Boolean.TRUE.toString().equals(root.attributeValue(ATTR_ADDTODO));
+		boolean addTodo = Boolean.parseBoolean(root.attributeValue(ATTR_ADDTODO));
 		String typeStr = root.attributeValue(ATTR_TYPE);
 		ArgumentType type = null;
 		if (typeStr != null) type = ArgumentType.valueOf(typeStr);
@@ -396,10 +396,10 @@ public class MethodTemplate implements IMethodTemplate
 		if (argsRoot != null)
 		{
 			List<MethodArgument> argsList = new ArrayList<MethodArgument>();
-			Iterator argsIter = argsRoot.elementIterator();
+			Iterator<Element> argsIter = argsRoot.elementIterator();
 			while (argsIter.hasNext())
 			{
-				Element argsElem = (Element)argsIter.next();
+				Element argsElem = argsIter.next();
 				MethodArgument arg = MethodArgument.fromXML(argsElem);
 				if (arg != null) argsList.add(arg);
 			}
@@ -408,7 +408,7 @@ public class MethodTemplate implements IMethodTemplate
 		}
 
 		MethodTemplate mtempl = new MethodTemplate(descr, new MethodArgument(name, type, null), arguments, code, addTodo);
-		if (Boolean.TRUE.toString().equals(root.attributeValue(ATTR_PRIVATE))) mtempl.setPrivateMethod(true);
+		if (Boolean.parseBoolean(root.attributeValue(ATTR_PRIVATE))) mtempl.setPrivateMethod(true);
 		return mtempl;
 	}
 }
