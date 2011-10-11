@@ -115,6 +115,15 @@ public interface IQueryBuilder extends IQueryBuilderTableClause
 	IQueryBuilderGroupby groupBy();
 
 	/**
+	 * Get or create a parameter for the query, this used to parameterize queries.
+	 * <pre>
+	 * query.where().add(query.getColumn("flag").eq(query.getParameter("myvar"));
+	 * query.getParameter("myvar").setvalue(new Integer(1));
+	 * </pre>
+	 */
+	IQueryBuilderParameter getParameter(String name) throws RepositoryException;
+
+	/**
 	 * Create an OR-condition to add conditions to.
 	 * <pre>
 	 * // where custid = ? and (order_date is null or order_date > ?)

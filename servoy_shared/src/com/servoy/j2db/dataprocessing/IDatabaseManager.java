@@ -77,11 +77,13 @@ public interface IDatabaseManager extends ISaveConstants, ITableProvider
 	 * Get a query factory for building queries.
 	 * 
 	 * @return a query factory
+	 * @since 6.1
 	 */
 	public IQueryBuilderFactory getQueryFactory();
 
 	/**
 	 * Get a new foundset for the data source.
+	 * @since 6.1
 	 */
 	public IFoundSet getFoundSet(String dataSource) throws ServoyException;
 

@@ -33,6 +33,8 @@ import com.servoy.j2db.query.AndCondition;
 import com.servoy.j2db.query.ExistsCondition;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.OrCondition;
+import com.servoy.j2db.query.Placeholder;
+import com.servoy.j2db.query.PlaceholderKey;
 import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
@@ -56,9 +58,11 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	private QBResult result;
 	private QBSorts sort;
 	private QBGroupBy groupBy;
-	private QuerySelect query;
+	protected QuerySelect query;
 	private QBLogicalCondition where;
 	private QueryTable queryTable;
+
+	private QBParameters params;
 
 	private Scriptable scriptableParent;
 
@@ -159,6 +163,22 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	}
 
 	@JSReadonlyProperty
+	public QBParameters params()
+	{
+		if (params == null)
+		{
+			params = new QBParameters(getScriptableParent(), this);
+		}
+		return params;
+	}
+
+	@JSFunction
+	public QBParameter getParameter(String name) throws RepositoryException
+	{
+		return params().getParameter(name);
+	}
+
+	@JSReadonlyProperty
 	public QBLogicalCondition or()
 	{
 		return new QBLogicalCondition(getRoot(), this, new OrCondition());
@@ -214,11 +234,25 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		return queryTable;
 	}
 
-	static Object createOperand(Object value)
+	Object createOperand(Object value)
 	{
 		if (value instanceof QBColumn)
 		{
 			return ((QBColumn)value).getQuerySelectValue();
+		}
+		if (value instanceof QBParameter)
+		{
+			PlaceholderKey key = ((QBParameter)value).getPlaceholderKey();
+			Placeholder placeholder = null;
+			if (query != null)
+			{
+				placeholder = query.getPlaceholder(key);
+			}
+			if (placeholder == null)
+			{
+				placeholder = new Placeholder(key);
+			}
+			return placeholder;
 		}
 		if (value instanceof Date && !(value instanceof Timestamp))
 		{
@@ -226,5 +260,4 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		}
 		return value;
 	}
-
 }

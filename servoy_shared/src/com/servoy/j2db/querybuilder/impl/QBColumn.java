@@ -55,7 +55,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 
 	protected QBCondition createCompareCondition(int operator, Object value)
 	{
-		return createCondition(new CompareCondition(operator, this.getQuerySelectValue(), QBSelect.createOperand(value)));
+		return createCondition(new CompareCondition(operator, this.getQuerySelectValue(), getRoot().createOperand(value)));
 	}
 
 	protected QBCondition createCondition(ISQLCondition queryCondition)
