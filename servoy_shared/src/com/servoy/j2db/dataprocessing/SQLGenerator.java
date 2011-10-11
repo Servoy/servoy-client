@@ -125,6 +125,7 @@ public class SQLGenerator
 		if (oldSQLQuery != null)
 		{
 			retval = AbstractBaseQuery.deepClone(oldSQLQuery);
+			retval.clearSorts(); // will be generated based on foundset sorting
 			// remove all servoy conditions, except filter, search and relation
 			for (String conditionName : retval.getConditionNames())
 			{
