@@ -62,6 +62,14 @@ public abstract class QBTableClause extends AbstractQueryBuilderPart implements 
 		this.tableAlias = tableAlias;
 	}
 
+	/**
+	 * @return the dataSource
+	 */
+	public String getDataSource()
+	{
+		return dataSource;
+	}
+
 	abstract QueryTable getQueryTable() throws RepositoryException;
 
 

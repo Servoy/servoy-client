@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 import java.util.List;
@@ -26,10 +26,13 @@ import com.servoy.j2db.util.ServoyException;
  */
 public interface IFoundSetFactory
 {
-	public IFoundSetInternal createFoundSet(IFoundSetManagerInternal fsm,SQLSheet sheet,List initalSortColumns) throws ServoyException;
+	public IFoundSetInternal createFoundSet(IFoundSetManagerInternal fsm, SQLSheet sheet, QuerySelect pkSelect, List<SortColumn> initalSortColumns)
+		throws ServoyException;
 
-	public IFoundSetInternal createRelatedFoundSet(IDataSet data, QuerySelect querySelect, IFoundSetManagerInternal fsm, IRecordInternal parentRecord, String relationName, SQLSheet childSheet, List initalSortColumns, QuerySelect aggregateSelect, IDataSet aggregateData) throws ServoyException;
-	
-	public IFoundSetInternal createRelatedFindFoundSet(IFoundSetManagerInternal fsm,IRecordInternal parentRecord,String relationName,SQLSheet childSheet) throws ServoyException;
+	public IFoundSetInternal createRelatedFoundSet(IDataSet data, QuerySelect querySelect, IFoundSetManagerInternal fsm, IRecordInternal parentRecord,
+		String relationName, SQLSheet childSheet, List<SortColumn> initalSortColumns, QuerySelect aggregateSelect, IDataSet aggregateData)
+		throws ServoyException;
+
+	public IFoundSetInternal createRelatedFindFoundSet(IFoundSetManagerInternal fsm, IRecordInternal parentRecord, String relationName, SQLSheet childSheet)
+		throws ServoyException;
 }
-

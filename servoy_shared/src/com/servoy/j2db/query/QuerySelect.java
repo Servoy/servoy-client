@@ -17,6 +17,8 @@
 package com.servoy.j2db.query;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -301,6 +303,15 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 			return null;
 		}
 		return conditions.get(name);
+	}
+
+	public Collection<String> getConditionNames()
+	{
+		if (conditions == null)
+		{
+			return Collections.emptySet();
+		}
+		return Collections.unmodifiableCollection(conditions.keySet());
 	}
 
 	public AndCondition getConditionClone(String name)

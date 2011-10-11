@@ -355,7 +355,7 @@ public class FormPreviewPanel extends JPanel implements IPrintInfo
 				QuerySelect sqlString = ((FoundSet)formData).getSqlSelect();
 				Table table = formData.getSQLSheet().getTable();
 
-				FoundSet fs = (FoundSet)((FoundSetManager)application.getFoundSetManager()).getNewFoundSet(table, sortColumns);
+				FoundSet fs = (FoundSet)((FoundSetManager)application.getFoundSetManager()).getNewFoundSet(table, null, sortColumns);
 
 				// in case the foundset is based on an empty query (foundset.clear() or databaseManager.setStartWithEmptyFoundsets())
 				// then loadAllRecords, otherwise we would have no records to print; print single record would not have empty query

@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 
@@ -24,6 +24,7 @@ import javax.swing.event.ListDataListener;
 import javax.swing.event.TableModelListener;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.model.AlwaysRowSelectedSelectionModel;
 
@@ -37,15 +38,16 @@ public class SwingFoundSet extends FoundSet implements ISwingFoundSet, Cloneable
 	protected transient AlwaysRowSelectedSelectionModel selectionModel;
 	private transient TableAndListEventDelegate tableAndListEventDelegate;
 
-	SwingFoundSet(IFoundSetManagerInternal app, SQLSheet sheet, List defaultSortColumns) throws ServoyException
+	SwingFoundSet(IFoundSetManagerInternal app, SQLSheet sheet, QuerySelect pkSelect, List<SortColumn> defaultSortColumns) throws ServoyException
 	{
-		this(app, null, sheet, defaultSortColumns);
+		this(app, null, sheet, pkSelect, defaultSortColumns);
 	}
 
 	//must be used by subclasses
-	protected SwingFoundSet(IFoundSetManagerInternal app, IRecordInternal a_parent, SQLSheet sheet, List defaultSortColumns) throws ServoyException
+	protected SwingFoundSet(IFoundSetManagerInternal app, IRecordInternal a_parent, SQLSheet sheet, QuerySelect pkSelect, List<SortColumn> defaultSortColumns)
+		throws ServoyException
 	{
-		super(app, a_parent, null, sheet, defaultSortColumns);
+		super(app, a_parent, null, sheet, pkSelect, defaultSortColumns);
 		createSelectionModel();
 	}
 

@@ -24,6 +24,7 @@ import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.util.ServoyException;
 
 /**
@@ -50,11 +51,12 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	 * Get a new uninitialized foundset for some data source not being attached to any Form.
 	 * 
 	 * @param dataSource
+	 * @param pkSelect set pk query, may be null to generate the default pk select
 	 * @param defaultSortColumns may be null
 	 * @return IFoundSet
 	 * @throws ServoyException
 	 */
-	public IFoundSetInternal getNewFoundSet(String dataSource, List<SortColumn> defaultSortColumns) throws ServoyException;
+	public IFoundSetInternal getNewFoundSet(String dataSource, QuerySelect pkSelect, List<SortColumn> defaultSortColumns) throws ServoyException;
 
 	/**
 	 * Get a new uninitialized foundset for some table not being attached to any Form.
@@ -64,7 +66,7 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	 * @return IFoundSet
 	 * @throws ServoyException
 	 */
-	public IFoundSetInternal getNewFoundSet(ITable table, List<SortColumn> defaultSortColumns) throws ServoyException;
+	public IFoundSetInternal getNewFoundSet(ITable table, QuerySelect pkSelect, List<SortColumn> defaultSortColumns) throws ServoyException;
 
 	/**
 	 * Get sortColumns for table and sortoptions.

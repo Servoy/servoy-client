@@ -27,6 +27,7 @@ import com.servoy.j2db.persistence.AggregateVariable;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Table;
+import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.scripting.UsedDataProviderTracker;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
@@ -553,7 +554,15 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 
 	public void sort(Comparator<Object[]> recordPKComparator)
 	{
-		// TODO Auto-generated method stub
+	}
 
+	public boolean loadByQuery(IQueryBuilder query) throws ServoyException
+	{
+		return false;
+	}
+
+	public IQueryBuilder getQuery()
+	{
+		return null;
 	}
 }

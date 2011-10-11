@@ -60,7 +60,6 @@ import com.servoy.j2db.query.QueryJoin;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.QueryUpdate;
-import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.querybuilder.impl.QBAggregate;
 import com.servoy.j2db.querybuilder.impl.QBColumn;
 import com.servoy.j2db.querybuilder.impl.QBColumns;
@@ -71,6 +70,7 @@ import com.servoy.j2db.querybuilder.impl.QBJoin;
 import com.servoy.j2db.querybuilder.impl.QBJoins;
 import com.servoy.j2db.querybuilder.impl.QBLogicalCondition;
 import com.servoy.j2db.querybuilder.impl.QBResult;
+import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.querybuilder.impl.QBSort;
 import com.servoy.j2db.querybuilder.impl.QBSorts;
 import com.servoy.j2db.querybuilder.impl.QBTableClause;
@@ -360,7 +360,7 @@ public class JSDatabaseManager
 				}
 
 				Table ft = relation.getForeignTable();
-				FoundSet fs_new = (FoundSet)application.getFoundSetManager().getNewFoundSet(ft, null);
+				FoundSet fs_new = (FoundSet)application.getFoundSetManager().getNewFoundSet(ft, null, null);
 
 				QuerySelect sql = fs_old.getPksAndRecords().getQuerySelectForModification();
 				SQLSheet sheet_new = fs_old.getSQLSheet().getRelatedSheet(relation, ((FoundSetManager)application.getFoundSetManager()).getSQLGenerator());
@@ -1950,13 +1950,40 @@ public class JSDatabaseManager
 		checkAuthorized();
 		try
 		{
-			IFoundSetInternal fs = application.getFoundSetManager().getNewFoundSet(dataSource, null);
-			fs.clear();//have to deliver a initialized foundset, user might call new record as next call on this one
-			return (FoundSet)fs;
+			return (FoundSet)application.getFoundSetManager().getFoundSet(dataSource);
 		}
 		catch (Exception e)
 		{
 			throw new RuntimeException("Can't get new foundset for: " + dataSource, e); //$NON-NLS-1$
+		}
+	}
+
+	/**
+	 * Returns a foundset object for a specified pk query. 
+	 *
+	 * @sample
+	 * // type the foundset returned from the call with JSDoc, fill in the right server/tablename
+	 * /** @type {JSFoundset<db:/servername/tablename>} *&#47;
+	 * var fs = databaseManager.getFoundSet(controller.getDataSource())
+	 * var ridx = fs.newRecord()
+	 * var record = fs.getRecord(ridx)
+	 * record.emp_name = 'John'
+	 * databaseManager.saveData()
+	 *
+	 * @param dataSource The datasource to get a JSFoundset for.
+	 * 
+	 * @return A new JSFoundset for that datasource.
+	 */
+	public FoundSet js_getFoundSet(QBSelect query) throws ServoyException
+	{
+		checkAuthorized();
+		try
+		{
+			return (FoundSet)application.getFoundSetManager().getFoundSet(query);
+		}
+		catch (Exception e)
+		{
+			throw new RuntimeException("Can't get new foundset for: " + query, e); //$NON-NLS-1$
 		}
 	}
 

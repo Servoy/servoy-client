@@ -85,8 +85,8 @@ import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QuerySort;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.SetCondition;
+import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
-import com.servoy.j2db.querybuilder.impl.QBFactory;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.LazyCompilationScope;
@@ -185,8 +185,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	//must be used by subclasses
-	protected FoundSet(IFoundSetManagerInternal app, IRecordInternal a_parent, String relation_name, SQLSheet sheet, List<SortColumn> defaultSortColumns)
-		throws ServoyException
+	protected FoundSet(IFoundSetManagerInternal app, IRecordInternal a_parent, String relation_name, SQLSheet sheet, QuerySelect pkSelect,
+		List<SortColumn> defaultSortColumns) throws ServoyException
 	{
 		if (sheet == null)
 		{
@@ -213,9 +213,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 		lastSortColumns = defaultSort;
 
-		if (sheet.getTable() != null)
+		if (sheet.getTable() != null && pkSelect == null)
 		{
 			creationSqlSelect = fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), null, null, true, null, lastSortColumns, false);
+		}
+		else
+		{
+			creationSqlSelect = AbstractBaseQuery.deepClone(pkSelect);
 		}
 
 		pksAndRecords.setPksAndQuery(new BufferedDataSet(), 0, AbstractBaseQuery.deepClone(creationSqlSelect));
@@ -1046,7 +1050,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 		if (data instanceof QBSelect)
 		{
-			return loadByQuery(((QBSelect)data).build());
+			return loadByQuery((QBSelect)data);
 		}
 		if (data instanceof Number || data instanceof UUID)
 		{
@@ -1266,7 +1270,42 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return false;
 	}
 
-	public boolean loadByQuery(QuerySelect query) throws ServoyException
+	public boolean loadByQuery(IQueryBuilder query) throws ServoyException
+	{
+		QuerySelect sqlSelect = ((QBSelect)query).build();
+
+		// check if this query is on our base table
+		if (!Utils.stringSafeEquals(getTable().getSQLName(), sqlSelect.getTable().getName()) || //
+			!Utils.stringSafeEquals(getTable().getSchema(), sqlSelect.getTable().getSchemaName()) || //
+			!Utils.stringSafeEquals(getTable().getCatalog(), sqlSelect.getTable().getCatalogName()))
+		{
+			throw new RepositoryException("Cannot load foundset with query based on another table (" + getTable() + '/' + sqlSelect.getTable() + ')');
+		}
+
+		return loadByQuery(sqlSelect);
+	}
+
+	/**
+	 * Get the query that the foundset is currently using.
+	 *
+	 * @sample
+	 * var q = foundset.getQuery()
+	 * q.where.add(q.columns.x.eq(100))
+	 * foundset.loadRecords(q);
+	 *
+	 * @return query.
+	 */
+	public QBSelect js_getQuery()
+	{
+		return getQuery();
+	}
+
+	public QBSelect getQuery()
+	{
+		return new QBSelect(getFoundSetManager(), getDataSource(), getPksAndRecords().getQuerySelectForModification());
+	}
+
+	public boolean loadByQuery(QuerySelect sqlSelect) throws ServoyException
 	{
 		if (initialized && (getFoundSetManager().getEditRecordList().stopIfEditing(this) != ISaveConstants.STOPPED))
 		{
@@ -1281,19 +1320,15 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			fireSelectionAdjusting();
 		}
 
-		QuerySelect sqlSelect = query;
 		clearOmit(sqlSelect);
 
-		// check if this query is on our base table, otherwise use as subselect
+		// check if this query is on our base table
 		if (!Utils.stringSafeEquals(getTable().getSQLName(), sqlSelect.getTable().getName()) || //
 			!Utils.stringSafeEquals(getTable().getSchema(), sqlSelect.getTable().getSchemaName()) || //
 			!Utils.stringSafeEquals(getTable().getCatalog(), sqlSelect.getTable().getCatalogName()))
 		{
-			QBSelect builder = new QBFactory(getFoundSetManager()).createSelect(getDataSource()).result().addPk().getParent();
-			builder.where().getQueryCondition().addCondition(
-				new SetCondition(ISQLCondition.EQUALS_OPERATOR, builder.getQuery().getColumns().toArray(
-					new IQuerySelectValue[builder.getQuery().getColumns().size()]), sqlSelect, true));
-			sqlSelect = builder.build();
+			// should not happen here (was already checked with all callers)
+			throw new RuntimeException("Table mismatch: " + getTable() + '/' + sqlSelect.getTable() + ')');
 		}
 
 		//do query with sqlSelect
@@ -4318,9 +4353,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 	}
 
-	protected void fireFoundSetEvent(@SuppressWarnings("unused")
-	int firstRow, @SuppressWarnings("unused")
-	int lastRow, int changeType)
+	protected void fireFoundSetEvent(@SuppressWarnings("unused") int firstRow, @SuppressWarnings("unused") int lastRow, int changeType)
 	{
 		if (foundSetEventListeners.size() > 0)
 		{
@@ -5221,8 +5254,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		if (sheet.getTable() == null) return this;
 
-		FoundSet fs = (FoundSet)fsm.getNewFoundSet(sheet.getTable(), lastSortColumns);
-		fs.creationSqlSelect = AbstractBaseQuery.deepClone(creationSqlSelect);
+		FoundSet fs = (FoundSet)fsm.getNewFoundSet(sheet.getTable(), creationSqlSelect, lastSortColumns);
 		if (foundSetFilters != null)
 		{
 			fs.foundSetFilters = new ArrayList<TableFilter>(foundSetFilters);

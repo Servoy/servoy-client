@@ -76,7 +76,7 @@ public abstract class RelatedFoundSet extends FoundSet
 	protected RelatedFoundSet(IDataSet data, QuerySelect select, IFoundSetManagerInternal app, IRecordInternal parent, String relationName, SQLSheet sheet,
 		List<SortColumn> defaultSortColumns, QuerySelect aggregateSelect, IDataSet aggregateData) throws ServoyException
 	{
-		super(app, parent, relationName, sheet, defaultSortColumns);
+		super(app, parent, relationName, sheet, null, defaultSortColumns);
 
 		if (data == null)
 		{
@@ -127,7 +127,7 @@ public abstract class RelatedFoundSet extends FoundSet
 	//can only used by findState
 	protected RelatedFoundSet(IFoundSetManagerInternal app, IRecordInternal parent, String relationName, SQLSheet sheet) throws ServoyException
 	{
-		super(app, parent, relationName, sheet, null);
+		super(app, parent, relationName, sheet, null, null);
 		getPksAndRecords().setPksAndQuery(new BufferedDataSet(), 0, null);
 		initialized = true;
 	}

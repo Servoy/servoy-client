@@ -63,8 +63,10 @@ import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryCustomSelect;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
+import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderFactory;
 import com.servoy.j2db.querybuilder.impl.QBFactory;
+import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.util.DataSourceUtils;
@@ -1093,7 +1095,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		if (foundset == null)
 		{
 			SQLSheet sheet = getSQLGenerator().getCachedTableSQLSheet(l.getDataSource());
-			foundset = (FoundSet)foundsetfactory.createFoundSet(this, sheet, defaultSortColumns);
+			foundset = (FoundSet)foundsetfactory.createFoundSet(this, sheet, null, defaultSortColumns);
 			if (createEmptyFoundsets) foundset.clear();
 			separateFoundSets.put(l, foundset);
 			// inform global foundset event listeners that a new foundset has been created
@@ -1113,7 +1115,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		if (foundset == null)
 		{
 			SQLSheet sheet = getSQLGenerator().getCachedTableSQLSheet(dataSource);
-			foundset = (FoundSet)foundsetfactory.createFoundSet(this, sheet, defaultSortColumns);
+			foundset = (FoundSet)foundsetfactory.createFoundSet(this, sheet, null, defaultSortColumns);
 			if (createEmptyFoundsets) foundset.clear();
 			sharedDataSourceFoundSet.put(dataSource, foundset);
 			// inform global foundset event listeners that a new foundset has been created
@@ -1128,7 +1130,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		if (foundSet == null)
 		{
 			SQLSheet sheet = getSQLGenerator().getCachedTableSQLSheet(null);
-			foundSet = foundsetfactory.createFoundSet(this, sheet, null);
+			foundSet = foundsetfactory.createFoundSet(this, sheet, null, null);
 			noTableFoundSet = new WeakReference<IFoundSetInternal>(foundSet);
 		}
 		return foundSet;
@@ -1141,22 +1143,22 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	public IFoundSet getNewFoundSet(String dataSource) throws ServoyException
 	{
-		return getNewFoundSet(dataSource, null);
+		return getNewFoundSet(dataSource, null, null);
 	}
 
-	public IFoundSetInternal getNewFoundSet(ITable table, List defaultSortColumns) throws ServoyException
+	public IFoundSetInternal getNewFoundSet(ITable table, QuerySelect pkSelect, List<SortColumn> defaultSortColumns) throws ServoyException
 	{
-		return getNewFoundSet(getDataSource(table), defaultSortColumns);
+		return getNewFoundSet(getDataSource(table), pkSelect, defaultSortColumns);
 	}
 
-	public IFoundSetInternal getNewFoundSet(String dataSource, List defaultSortColumns) throws ServoyException
+	public IFoundSetInternal getNewFoundSet(String dataSource, QuerySelect pkSelect, List<SortColumn> defaultSortColumns) throws ServoyException
 	{
 		if (dataSource == null)
 		{
 			return getNoTableFoundSet();
 		}
 		SQLSheet sheet = getSQLGenerator().getCachedTableSQLSheet(dataSource);
-		FoundSet foundset = (FoundSet)foundsetfactory.createFoundSet(this, sheet, defaultSortColumns);
+		FoundSet foundset = (FoundSet)foundsetfactory.createFoundSet(this, sheet, pkSelect, defaultSortColumns);
 		if (createEmptyFoundsets) foundset.clear();
 		foundSets.add(foundset);
 		// inform global foundset event listeners that a new foundset has been created
@@ -1885,7 +1887,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	public FoundSet getEmptyFoundSet(IFoundSetListener panel) throws ServoyException
 	{
-		FoundSet set = (FoundSet)getNewFoundSet(getTable(panel), panel.getDefaultSortColumns());
+		FoundSet set = (FoundSet)getNewFoundSet(getTable(panel), null, panel.getDefaultSortColumns());
 		set.clear();
 		return set;
 	}
@@ -2219,4 +2221,20 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	{
 		return new QBFactory(this);
 	}
+
+	public IFoundSetInternal getFoundSet(String dataSource) throws ServoyException
+	{
+		IFoundSetInternal fs = getNewFoundSet(dataSource, null, null);
+		fs.clear();//have to deliver a initialized foundset, user might call new record as next call on this one
+		return fs;
+	}
+
+	public IFoundSet getFoundSet(IQueryBuilder query) throws ServoyException
+	{
+		QBSelect select = (QBSelect)query;
+		IFoundSet fs = getNewFoundSet(select.getDataSource(), select.getQuery(), null);
+		fs.loadAllRecords();
+		return fs;
+	}
+
 }

@@ -86,11 +86,12 @@ public class SQLGenerator
 	public static final String PLACEHOLDER_RELATION_KEY = "RK"; //$NON-NLS-1$
 	public static final String PLACEHOLDER_INSERT_KEY = "INSERT"; //$NON-NLS-1$
 
-	public static final String CONDITION_FILTER = "FILTER"; //$NON-NLS-1$
-	public static final String CONDITION_OMIT = "OMIT"; //$NON-NLS-1$
-	public static final String CONDITION_RELATION = "RELATION"; //$NON-NLS-1$
-	public static final String CONDITION_SEARCH = "SEARCH"; //$NON-NLS-1$
-	public static final String CONDITION_LOCK = "LOCK"; //$NON-NLS-1$
+	public static final String SERVOY_CONDITION_PREFIX = "SV:"; //$NON-NLS-1$
+	public static final String CONDITION_FILTER = SERVOY_CONDITION_PREFIX + 'F';
+	public static final String CONDITION_OMIT = SERVOY_CONDITION_PREFIX + 'O';
+	public static final String CONDITION_RELATION = SERVOY_CONDITION_PREFIX + 'R';
+	public static final String CONDITION_SEARCH = SERVOY_CONDITION_PREFIX + 'S';
+	public static final String CONDITION_LOCK = SERVOY_CONDITION_PREFIX + 'L';
 
 /*
  * _____________________________________________________________ Declaration of attributes
@@ -123,11 +124,16 @@ public class SQLGenerator
 		QuerySelect retval;
 		if (oldSQLQuery != null)
 		{
-			retval = new QuerySelect(oldSQLQuery.getTable());
-			retval.setCondition(CONDITION_FILTER, oldSQLQuery.getConditionClone(CONDITION_FILTER));
-			retval.setCondition(CONDITION_SEARCH, oldSQLQuery.getConditionClone(CONDITION_SEARCH));
-			retval.setCondition(CONDITION_RELATION, oldSQLQuery.getConditionClone(CONDITION_RELATION));
-			retval.setJoins(oldSQLQuery.getJoinsClone());
+			retval = AbstractBaseQuery.deepClone(oldSQLQuery);
+			// remove all servoy conditions, except filter, search and relation
+			for (String conditionName : retval.getConditionNames())
+			{
+				if (conditionName.startsWith(SERVOY_CONDITION_PREFIX) &&
+					!(CONDITION_FILTER.equals(conditionName) || CONDITION_SEARCH.equals(conditionName) || CONDITION_RELATION.equals(conditionName)))
+				{
+					retval.setCondition(conditionName, null);
+				}
+			}
 		}
 		else
 		{

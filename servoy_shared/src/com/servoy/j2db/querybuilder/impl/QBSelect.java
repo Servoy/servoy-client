@@ -71,9 +71,10 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	/**
 	 * @param querySelect
 	 */
-	QBSelect(QuerySelect querySelect)
+	public QBSelect(ITableProvider tableProvider, String dataSource, QuerySelect querySelect)
 	{
-		this(null, null, null);
+		super(dataSource, null);
+		this.tableProvider = tableProvider;
 		this.query = querySelect;
 	}
 
@@ -201,7 +202,14 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	{
 		if (queryTable == null)
 		{
-			queryTable = new QueryTable(getTable().getSQLName(), getTable().getCatalog(), getTable().getSchema());
+			if (query != null)
+			{
+				queryTable = query.getTable();
+			}
+			else
+			{
+				queryTable = new QueryTable(getTable().getSQLName(), getTable().getCatalog(), getTable().getSchema());
+			}
 		}
 		return queryTable;
 	}

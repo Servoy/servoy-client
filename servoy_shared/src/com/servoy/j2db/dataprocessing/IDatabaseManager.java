@@ -18,6 +18,7 @@ package com.servoy.j2db.dataprocessing;
 
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.ITableProvider;
+import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderFactory;
 import com.servoy.j2db.util.ServoyException;
 
@@ -78,4 +79,14 @@ public interface IDatabaseManager extends ISaveConstants, ITableProvider
 	 * @return a query factory
 	 */
 	public IQueryBuilderFactory getQueryFactory();
+
+	/**
+	 * Get a new foundset for the data source.
+	 */
+	public IFoundSet getFoundSet(String dataSource) throws ServoyException;
+
+	/**
+	 * Get a new foundset for the query.
+	 */
+	public IFoundSet getFoundSet(IQueryBuilder query) throws ServoyException;
 }

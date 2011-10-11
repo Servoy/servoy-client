@@ -13,10 +13,11 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.util.ServoyException;
 
 
@@ -201,4 +202,14 @@ public interface IFoundSet extends IFoundSetDeprecated, IGlobalValueEntry
 	 * @param sortString
 	 */
 	public void setSort(String sortString) throws ServoyException;
+
+	/**
+	 * Set the PK query for this foundset.
+	 */
+	public boolean loadByQuery(IQueryBuilder query) throws ServoyException;
+
+	/**
+	 * Get the query for this foundset.
+	 */
+	public IQueryBuilder getQuery();
 }
