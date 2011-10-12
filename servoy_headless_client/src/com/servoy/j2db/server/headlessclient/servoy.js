@@ -661,31 +661,78 @@ if (typeof(Servoy.TableView) == "undefined")
 		},
 		
 		isAppendingRows: false,
+		currentScrollTop: 0,
 
-		appendRows: function(rowContainerBodyId, rows)
+		appendRows: function(rowContainerBodyId, rows, newRowsCount, rowsCountToRemove, scrollDiff)
 		{	
 			var rowContainerBodyEl = document.getElementById(rowContainerBodyId);
 			var scrollTop = rowContainerBodyEl.scrollTop;
 			
-			$('#' + rowContainerBodyId).append(rows);
+			var row, rowHeight = 0;
+			if(scrollDiff > 0)
+			{
+				for(var i = 0; i < rowsCountToRemove; i++)
+				{ 
+					row = $('#' + rowContainerBodyId).children('tr:first');
+					if(rowHeight == 0) rowHeight = row.height(); 
+					scrollTop -= rowHeight;
+					row.remove();
+				}
+				
+				if(newRowsCount > 0) $('#' + rowContainerBodyId).append(rows);
+			}
+			else
+			{
+				for(var i = 0; i < rowsCountToRemove; i++)
+				{ 
+					row = $('#' + rowContainerBodyId).children('tr:last');
+					row.remove();
+				}
+			
+				if(newRowsCount > 0)
+				{
+					$('#' + rowContainerBodyId).prepend(rows);
+					row = $('#' + rowContainerBodyId).children('tr:first');
+					rowHeight = row.height();
+					scrollTop += rowHeight * newRowsCount;
+				}
+			}
+			
 			$('#' + rowContainerBodyId).scrollTop(scrollTop);
-
+			
+			Servoy.TableView.currentScrollTop = 0;
 			Servoy.TableView.isAppendingRows = false;
 		},
 
 		needToUpdateRowsBuffer: function(rowContainerBodyId)
 		{
 			if(Servoy.TableView.isAppendingRows)
-				return false;
+				return 0;
 
 			var rowContainerBodyEl = document.getElementById(rowContainerBodyId);
-			var clientHeight = rowContainerBodyEl.clientHeight;
 			var scrollTop = rowContainerBodyEl.scrollTop;
+			if(Servoy.TableView.currentScrollTop == 0)
+			{
+				Servoy.TableView.currentScrollTop = scrollTop
+			}
+			var scrollDiff = scrollTop - Servoy.TableView.currentScrollTop;
+			if(scrollDiff == 0) return 0;
+			Servoy.TableView.currentScrollTop = scrollTop;
+			
+			var clientHeight = rowContainerBodyEl.clientHeight;
 			var scrollHeight = rowContainerBodyEl.scrollHeight;
 			var bufferedRows = scrollHeight - scrollTop - clientHeight;
 
-			Servoy.TableView.isAppendingRows = bufferedRows < clientHeight;			
-			return Servoy.TableView.isAppendingRows;
+			if(scrollDiff > 0)
+			{
+				Servoy.TableView.isAppendingRows = bufferedRows < clientHeight;
+			}
+			else
+			{
+				Servoy.TableView.isAppendingRows = scrollTop < clientHeight;
+			}
+						
+			return Servoy.TableView.isAppendingRows ? scrollDiff : 0;
 		}		
 	};
 }

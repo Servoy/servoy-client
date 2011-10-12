@@ -68,7 +68,6 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.markup.html.list.PageableListView;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
 import org.apache.wicket.markup.resolver.IComponentResolver;
 import org.apache.wicket.model.IModel;
@@ -372,7 +371,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 	}
 
-	private class WebCellBasedViewListView extends PageableListView<IRecordInternal>
+	private class WebCellBasedViewListView extends ServoyListView<IRecordInternal>
 	{
 		private final AbstractBase listCellview;
 		private final IDataProviderLookup dataProviderLookup;
@@ -1352,7 +1351,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 
 		setScrollMode(Boolean.TRUE.equals(application.getUIProperty(IApplication.TABLEVIEW_WC_DEFAULT_SCROLLABLE)));
-
+		table.setPageabeMode(!isScrollMode());
 		if (isScrollMode())
 		{
 			tableContainerBody.add(new StyleAppendingModifier(new Model<String>()
@@ -1366,115 +1365,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 			}));
 
-			tableContainerBody.add(new ServoyAjaxEventBehavior("onscroll") //$NON-NLS-1$
-			{
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				protected void onEvent(AjaxRequestTarget target)
-				{
-					if (table.getPageCount() > 1)
-					{
-						int rowsPerPage = table.getRowsPerPage();
-						table.setRowsPerPage(1);
-
-						StringBuffer rowsBuffer = new StringBuffer();
-						for (int i = 1; i < maxRowsPerPage; i++)
-						{
-							rowsPerPage++;
-							if (rowsPerPage > table.getPageCount()) break;
-							table.setCurrentPage(rowsPerPage);
-							rowsBuffer.append(renderComponent(getResponse(), table));
-						}
-
-						table.setRowsPerPage(rowsPerPage);
-						table.setCurrentPage(1);
-
-						target.appendJavascript("Servoy.TableView.appendRows('" + WebCellBasedView.this.tableContainerBody.getMarkupId() + "','" + //$NON-NLS-1$//$NON-NLS-2$
-							rowsBuffer.toString() + "');"); //$NON-NLS-1$					
-					}
-				}
-
-				@Override
-				protected IAjaxCallDecorator getAjaxCallDecorator()
-				{
-					return new AjaxPostprocessingCallDecorator(null)
-					{
-						private static final long serialVersionUID = 1L;
-
-						@SuppressWarnings("nls")
-						@Override
-						public CharSequence postDecorateScript(CharSequence script)
-						{
-							return "if (Servoy.TableView.needToUpdateRowsBuffer('" + WebCellBasedView.this.tableContainerBody.getMarkupId() + "')) { " +
-								script + "};";
-						}
-					};
-				}
-
-				private CharSequence renderComponent(Response response, Component component)
-				{
-					StringResponse stringResponse = new StringResponse();
-
-					RequestCycle.get().setResponse(stringResponse);
-
-					// Initialize temporary variables
-					final Page page = component.findParent(Page.class);
-					if (page == null)
-					{
-						//					// dont throw an exception but just ignore this component, somehow
-						//					// it got removed from the page.
-						//					log.debug("component: " + component + " with markupid: " + markupId +
-						//						" not rendered because it was already removed from page");
-						return null;
-					}
-
-					page.startComponentRender(component);
-
-					try
-					{
-						component.prepareForRender();
-					}
-					catch (RuntimeException e)
-					{
-						try
-						{
-							component.afterRender();
-						}
-						catch (RuntimeException e2)
-						{
-							// ignore this one could be a result off.
-						}
-						// Restore original response
-						RequestCycle.get().setResponse(response);
-						throw e;
-					}
-
-					try
-					{
-						component.renderComponent();
-					}
-					catch (RuntimeException e)
-					{
-						RequestCycle.get().setResponse(response);
-						throw e;
-					}
-
-					page.endComponentRender(component);
-
-					// Restore original response
-					RequestCycle.get().setResponse(response);
-
-					String s = stringResponse.getBuffer().toString();
-					s = s.replace("\r", ""); //$NON-NLS-1$ //$NON-NLS-2$
-					s = s.replace("\n", ""); //$NON-NLS-1$ //$NON-NLS-2$
-					s = s.replace("\t", ""); //$NON-NLS-1$ //$NON-NLS-2$
-					s = s.replace("\\", "\\\\"); //$NON-NLS-1$ //$NON-NLS-2$
-					s = s.replace("\'", "\\\'"); //$NON-NLS-1$ //$NON-NLS-2$
-
-					return s;
-				}
-			});
+			tableContainerBody.add(new ScrollBehavior("onscroll")); //$NON-NLS-1$
 		}
 	}
 
@@ -2253,7 +2144,14 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 				Pair<Boolean, Pair<Integer, Integer>> rowsCalculation = needsMoreThanOnePage(bodyHeightHint);
 				maxRowsPerPage = rowsCalculation.getRight().getLeft().intValue();
-				table.setRowsPerPage(isScrollMode() ? 2 * maxRowsPerPage : maxRowsPerPage);
+				if (isScrollMode())
+				{
+					table.setViewSize(2 * maxRowsPerPage);
+				}
+				else
+				{
+					table.setRowsPerPage(maxRowsPerPage);
+				}
 
 				// set headers width according to cell's width
 				setHeadersWidth();
@@ -2291,7 +2189,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		return elementToColumnHeader.values().toArray();
 	}
 
-	public PageableListView<IRecordInternal> getTable()
+	public ListView<IRecordInternal> getTable()
 	{
 		return this.table;
 	}
@@ -3797,6 +3695,170 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	public boolean isScrollMode()
 	{
 		return isScrollMode;
+	}
+
+	private class ScrollBehavior extends ServoyAjaxEventBehavior
+	{
+		public ScrollBehavior(String event)
+		{
+			super(event);
+		}
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		protected void onEvent(AjaxRequestTarget target)
+		{
+			int scrollDiff = Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("scrollDiff")); //$NON-NLS-1$
+
+			StringBuffer rowsBuffer = new StringBuffer();
+			int newRowsCount = 0, rowsToRemove = 0;
+			int viewStartIdx = table.getStartIndex();
+			int viewSize = table.getViewSize();
+			if (scrollDiff > 0)
+			{
+				int tableSize = table.getList().size();
+
+				if (viewStartIdx + viewSize < tableSize)
+				{
+					newRowsCount = Math.min(maxRowsPerPage, tableSize - (viewStartIdx + viewSize));
+					if (viewSize > 3 * maxRowsPerPage) rowsToRemove = maxRowsPerPage;
+
+					table.setStartIndex(viewStartIdx + viewSize);
+					table.setViewSize(newRowsCount);
+
+					rowsBuffer.append(renderComponent(getResponse(), table));
+
+					table.setStartIndex(viewStartIdx + rowsToRemove);
+					table.setViewSize(viewSize + newRowsCount - rowsToRemove);
+				}
+			}
+			else
+			{
+				if (viewStartIdx > 0)
+				{
+					newRowsCount = Math.min(maxRowsPerPage, viewStartIdx);
+					if (viewSize > 3 * maxRowsPerPage) rowsToRemove = maxRowsPerPage;
+
+					table.setStartIndex(viewStartIdx - newRowsCount);
+					table.setViewSize(newRowsCount);
+					rowsBuffer.append(renderComponent(getResponse(), table));
+
+					table.setViewSize(viewSize + newRowsCount - rowsToRemove);
+				}
+			}
+
+
+			target.appendJavascript("Servoy.TableView.appendRows('" + WebCellBasedView.this.tableContainerBody.getMarkupId() + "','" + //$NON-NLS-1$//$NON-NLS-2$
+				rowsBuffer.toString() + "'," + newRowsCount + "," + rowsToRemove + "," + scrollDiff + ");"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+//			if (table.getPageCount() > 1)
+//			{
+//				int rowsPerPage = table.getRowsPerPage();
+//				table.setRowsPerPage(1);
+//
+//				StringBuffer rowsBuffer = new StringBuffer();
+//				for (int i = 1; i < maxRowsPerPage; i++)
+//				{
+//					rowsPerPage++;
+//					if (rowsPerPage > table.getPageCount()) break;
+//					table.setCurrentPage(rowsPerPage);
+//					rowsBuffer.append(renderComponent(getResponse(), table));
+//				}
+//
+//				table.setRowsPerPage(rowsPerPage);
+//				table.setCurrentPage(1);
+//
+//				target.appendJavascript("Servoy.TableView.appendRows('" + WebCellBasedView.this.tableContainerBody.getMarkupId() + "','" + //$NON-NLS-1$//$NON-NLS-2$
+//					rowsBuffer.toString() + "');"); //$NON-NLS-1$					
+//			}
+		}
+
+		@Override
+		protected CharSequence generateCallbackScript(final CharSequence partialCall)
+		{
+			return super.generateCallbackScript(partialCall + "+'&scrollDiff='+scrollDiff"); //$NON-NLS-1$
+		}
+
+		@Override
+		protected IAjaxCallDecorator getAjaxCallDecorator()
+		{
+			return new AjaxPostprocessingCallDecorator(null)
+			{
+				private static final long serialVersionUID = 1L;
+
+				@SuppressWarnings("nls")
+				@Override
+				public CharSequence postDecorateScript(CharSequence script)
+				{
+					return "var scrollDiff = Servoy.TableView.needToUpdateRowsBuffer('" + WebCellBasedView.this.tableContainerBody.getMarkupId() +
+						"'); if (scrollDiff != 0) { " + script + "};";
+				}
+			};
+		}
+
+		private CharSequence renderComponent(Response response, Component component)
+		{
+			StringResponse stringResponse = new StringResponse();
+
+			RequestCycle.get().setResponse(stringResponse);
+
+			// Initialize temporary variables
+			final Page page = component.findParent(Page.class);
+			if (page == null)
+			{
+				//					// dont throw an exception but just ignore this component, somehow
+				//					// it got removed from the page.
+				//					log.debug("component: " + component + " with markupid: " + markupId +
+				//						" not rendered because it was already removed from page");
+				return null;
+			}
+
+			page.startComponentRender(component);
+
+			try
+			{
+				component.prepareForRender();
+			}
+			catch (RuntimeException e)
+			{
+				try
+				{
+					component.afterRender();
+				}
+				catch (RuntimeException e2)
+				{
+					// ignore this one could be a result off.
+				}
+				// Restore original response
+				RequestCycle.get().setResponse(response);
+				throw e;
+			}
+
+			try
+			{
+				component.renderComponent();
+			}
+			catch (RuntimeException e)
+			{
+				RequestCycle.get().setResponse(response);
+				throw e;
+			}
+
+			page.endComponentRender(component);
+
+			// Restore original response
+			RequestCycle.get().setResponse(response);
+
+			String s = stringResponse.getBuffer().toString();
+			s = s.replace("\r", ""); //$NON-NLS-1$ //$NON-NLS-2$
+			s = s.replace("\n", ""); //$NON-NLS-1$ //$NON-NLS-2$
+			s = s.replace("\t", ""); //$NON-NLS-1$ //$NON-NLS-2$
+			s = s.replace("\\", "\\\\"); //$NON-NLS-1$ //$NON-NLS-2$
+			s = s.replace("\'", "\\\'"); //$NON-NLS-1$ //$NON-NLS-2$
+
+			return s;
+		}
 	}
 }
 

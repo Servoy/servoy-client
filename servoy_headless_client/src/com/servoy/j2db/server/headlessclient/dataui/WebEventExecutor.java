@@ -42,7 +42,7 @@ import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.list.PageableListView;
+import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.protocol.http.ClientProperties;
 import org.apache.wicket.protocol.http.RequestUtils;
@@ -938,7 +938,7 @@ public class WebEventExecutor extends BaseEventExecutor
 					if (hasDragEvent) sbAttachDrag.append('\'').append(component.getMarkupId()).append("',");
 					if (hasDropEvent) sbAttachDrop.append('\'').append(component.getMarkupId()).append("',");
 
-					PageableListView<IRecordInternal> table = ((WebCellBasedView)component).getTable();
+					ListView<IRecordInternal> table = ((WebCellBasedView)component).getTable();
 					table.visitChildren(new IVisitor<Component>()
 					{
 						public Object component(Component comp)

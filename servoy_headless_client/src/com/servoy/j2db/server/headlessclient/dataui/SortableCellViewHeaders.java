@@ -28,7 +28,6 @@ import org.apache.wicket.markup.MarkupElement;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.WicketTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.list.PageableListView;
 import org.apache.wicket.markup.resolver.IComponentResolver;
 
 import com.servoy.j2db.IApplication;
@@ -73,8 +72,8 @@ public class SortableCellViewHeaders extends WebMarkupContainer implements IProv
 	 * @param headerManager the object who's headers will be populated with (IPersist, Component) pairs according to the header components that represent each
 	 *            column - column given by the IPersist.
 	 */
-	public SortableCellViewHeaders(Form form, WebCellBasedView view, String id, final PageableListView listView, AbstractBase cellview,
-		IApplication application, Map<String, Boolean> initialSortMap, IHeaders headerManager)
+	public SortableCellViewHeaders(Form form, WebCellBasedView view, String id, final ServoyListView listView, AbstractBase cellview, IApplication application,
+		Map<String, Boolean> initialSortMap, IHeaders headerManager)
 	{
 		super(id);//id is normally 'header'
 		this.setOutputMarkupId(true);

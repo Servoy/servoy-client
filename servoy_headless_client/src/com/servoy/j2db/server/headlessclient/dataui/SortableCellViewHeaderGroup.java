@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.markup.html.list.PageableListView;
 import org.apache.wicket.model.AbstractWrapModel;
 import org.apache.wicket.model.IComponentAssignedModel;
 import org.apache.wicket.model.IModel;
@@ -62,11 +61,11 @@ public class SortableCellViewHeaderGroup extends Model implements IComponentAssi
 	private static final long serialVersionUID = 1L;
 
 	final private Map<String, Boolean> sorted = new HashMap<String, Boolean>();
-	final private PageableListView listView;
+	final private ServoyListView listView;
 	final private AbstractBase cellview;
 	final private Form form;
 
-	public SortableCellViewHeaderGroup(Form form, final PageableListView listView, AbstractBase cellview)
+	public SortableCellViewHeaderGroup(Form form, final ServoyListView listView, AbstractBase cellview)
 	{
 		this.listView = listView;
 		this.cellview = cellview;
