@@ -530,30 +530,17 @@ class RadioRenderer extends DefaultCellEditor implements TableCellRenderer, Acti
 		}
 
 //		use color that won't get overridden again by laf
-		Color foreground = new Color(table.getForeground().getRGB());
-		Color background = new Color(table.getBackground().getRGB());
+		Color foreground = table.getForeground();
+		Color background = table.getBackground();
 		if (!hasFocus && isSelected)
 		{
-			foreground = new Color(table.getSelectionForeground().getRGB());
-			background = new Color(table.getSelectionBackground().getRGB());
+			foreground = table.getSelectionForeground();
+			background = table.getSelectionBackground();
 		}
 		editorComponent.setBackground(background);
 		r1.setForeground(foreground);
 		r2.setForeground(foreground);
 
-//		Border border = null;
-//		if (hasFocus)
-//		{
-//			if (isSelected)
-//			{
-//				border = DefaultLookup.getBorder(editorComponent, ((JPanel)editorComponent).getUI(), "Table.focusSelectedCellHighlightBorder");
-//			}
-//			if (border == null)
-//			{
-//				border = DefaultLookup.getBorder(editorComponent, ((JPanel)editorComponent).getUI(), "Table.focusCellHighlightBorder");
-//			}
-//		}
-//		editorComponent.setBorder(border);
 		return editorComponent;
 	}
 
