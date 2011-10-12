@@ -129,10 +129,12 @@ public class ScriptEngine implements IScriptSupport
 			public void contextCreated(Context cx)
 			{
 				cx.setWrapFactory(new ServoyWrapFactory(application));
+				cx.setApplicationClassLoader(application.getBeanManager().getClassLoader());
 			}
 
 			public void contextReleased(Context cx)
 			{
+				cx.setApplicationClassLoader(null);
 			}
 		};
 		ContextFactory.getGlobal().addListener(contextListener);
