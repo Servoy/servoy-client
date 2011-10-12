@@ -173,7 +173,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	private PrototypeState proto = null;
 
-	protected boolean mustQueryForUpdates;
+	protected int mustQueryForUpdates = NO_UPDATE_QUERY;
+	public final static int NO_UPDATE_QUERY = -1;
+	public final static int UPDATE_MINIMAL_SIZE = 0;
+	public final static int UPDATE_OLD_SIZE = 1;
 
 	public PrototypeState getPrototypeState()
 	{
@@ -270,7 +273,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	public void browseAll(boolean flushRelatedFS, boolean clearOmit) throws ServoyException
 	{
-		if (!findMode && initialized && !mustQueryForUpdates && !pksAndRecords.getQuerySelectForReading().hasAnyCondition() && getSize() > 0)
+		if (!findMode && initialized && !mustQueryForUpdates() && !pksAndRecords.getQuerySelectForReading().hasAnyCondition() && getSize() > 0)
 		{
 			return;//optimize
 		}
@@ -1865,7 +1868,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			fireAggregateChangeWithEvents(null);
 		}
-		mustQueryForUpdates = false;
+		mustQueryForUpdates = NO_UPDATE_QUERY;
 	}
 
 	public void browseAll(QuerySelect otherSQLSelect) throws ServoyException //ONLY used by printing
@@ -4490,7 +4493,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					}
 					else
 					{
-						mustQueryForUpdates = true;
+						mustQueryForUpdates = UPDATE_MINIMAL_SIZE;
 						clearAggregates();
 					}
 				}
@@ -4572,8 +4575,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			// then make sure that mustQuery is false for a little while so that getRecord/getSize
 			// in this call will not do the query to the database. because that should be done after 
 			// fireAggregate method  
-			boolean tmp = mustQueryForUpdates;
-			mustQueryForUpdates = false;
+			int tmp = mustQueryForUpdates;
+			mustQueryForUpdates = NO_UPDATE_QUERY;
 			try
 			{
 				IRecordInternal r = getRecord(getSelectedIndex());
@@ -5590,7 +5593,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	boolean mustQueryForUpdates()
 	{
-		return mustQueryForUpdates;
+		return mustQueryForUpdates == UPDATE_MINIMAL_SIZE || mustQueryForUpdates == UPDATE_OLD_SIZE;
 	}
 
 }

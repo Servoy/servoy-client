@@ -556,7 +556,7 @@ public abstract class RelatedFoundSet extends FoundSet
 							{
 								if (hasForeignColumn(e.getChangedColumnNames()))
 								{
-									invalidateFoundset();
+									invalidateFoundset(FoundSet.UPDATE_MINIMAL_SIZE);
 									getFoundSetManager().getEditRecordList().fireEvents();
 								}
 								return;//make sure processing stops here
@@ -617,7 +617,7 @@ public abstract class RelatedFoundSet extends FoundSet
 	private boolean notifyChange_checkForUpdate(Row r, boolean updateTest)
 	{
 		// if already in state for new query then don't test anything.
-		if (mustQueryForUpdates)
+		if (mustQueryForUpdates())
 		{
 			return false;
 		}
@@ -811,7 +811,7 @@ public abstract class RelatedFoundSet extends FoundSet
 	private void notifyChange_checkForNewRow(Row row)
 	{
 		// if already in state for new query then don't test anything.
-		if (mustQueryForUpdates)
+		if (mustQueryForUpdates())
 		{
 			return;
 		}
@@ -855,7 +855,7 @@ public abstract class RelatedFoundSet extends FoundSet
 
 				if (doCheck)
 				{
-					invalidateFoundset();
+					invalidateFoundset(UPDATE_OLD_SIZE);
 					getFoundSetManager().getEditRecordList().fireEvents();
 				}
 			}
@@ -866,13 +866,13 @@ public abstract class RelatedFoundSet extends FoundSet
 		}
 	}
 
-	protected void invalidateFoundset()
+	protected void invalidateFoundset(int requeryType)
 	{
-		if (!mustQueryForUpdates)
+		if (!mustQueryForUpdates())
 		{
 			int size = getCorrectedSizeForFires();
 			IRecordInternal record = getRecord(getSelectedIndex());
-			mustQueryForUpdates = true;
+			mustQueryForUpdates = requeryType;
 			Map<FoundSet, int[]> parentToIndexen = getFoundSetManager().getEditRecordList().getFoundsetEventMap();
 			if (size >= 0)
 			{
@@ -893,7 +893,7 @@ public abstract class RelatedFoundSet extends FoundSet
 		// AND if it doesn't have edited records. These records should first be saved before
 		// doing a query for pks. Else those records could be removed from this related foundset 
 		// and never return again (or the next mustQuery comes around)
-		if (mustQueryForUpdates && !fsm.getEditRecordList().hasEditedRecords(this))
+		if (mustQueryForUpdates() && !fsm.getEditRecordList().hasEditedRecords(this))
 		{
 			try
 			{
@@ -902,7 +902,8 @@ public abstract class RelatedFoundSet extends FoundSet
 				String transaction_id = fsm.getTransactionID(sheet);
 				QuerySelect sqlSelect = getPksAndRecords().getQuerySelectForReading();
 				IDataSet pks = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, sqlSelect,
-					fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), !sqlSelect.isUnique(), 0, fsm.chunkSize * 2, IDataServer.FOUNDSET_LOAD_QUERY);
+					fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), !sqlSelect.isUnique(), 0,
+					mustQueryForUpdates == UPDATE_MINIMAL_SIZE ? fsm.chunkSize * 2 : oldSize + 1, IDataServer.FOUNDSET_LOAD_QUERY);
 				if (Debug.tracing())
 				{
 					Debug.trace(Thread.currentThread().getName() +
@@ -915,11 +916,11 @@ public abstract class RelatedFoundSet extends FoundSet
 					if (sqlSelect != getPksAndRecords().getQuerySelectForReading())
 					{
 						Debug.trace("checkQueryForUpdates: query was changed during refresh, not resetting old query"); //$NON-NLS-1$
-						mustQueryForUpdates = false;
+						mustQueryForUpdates = NO_UPDATE_QUERY;
 						return;
 					}
 					getPksAndRecords().setPksAndQuery(pks, pks.getRowCount(), sqlSelect);
-					mustQueryForUpdates = false;
+					mustQueryForUpdates = NO_UPDATE_QUERY;
 				}
 				//do kind of browseAll/refresh from db.
 				// differences: selected record isn't tried to keep in sync with pk, new records are handled different.
@@ -937,7 +938,7 @@ public abstract class RelatedFoundSet extends FoundSet
 				throw new RuntimeException("Error quering for new pks in relatedfoundset", ex); //$NON-NLS-1$
 			}
 		}
-		else if (mustQueryForUpdates)
+		else if (mustQueryForUpdates())
 		{
 			Debug.trace("checkQueryForUpdates: skipping because there were edited records"); //$NON-NLS-1$
 		}

@@ -304,7 +304,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 								// this call is somewhat different then a complete refresh from db.
 								// The selection isn't tried to keep on the same pk
 								// new records are really being flushed..
-								element.invalidateFoundset();
+								element.invalidateFoundset(FoundSet.UPDATE_MINIMAL_SIZE);
 							}
 						}
 						catch (Exception e)
@@ -440,7 +440,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					{
 						if (!element.creationSqlSelect.equals(element.getSqlSelect()))
 						{
-							element.invalidateFoundset();
+							element.invalidateFoundset(FoundSet.UPDATE_MINIMAL_SIZE);
 						}
 					}
 					catch (Exception e)
