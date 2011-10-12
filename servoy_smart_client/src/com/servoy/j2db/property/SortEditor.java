@@ -17,10 +17,11 @@
 package com.servoy.j2db.property;
 
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
-import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -41,7 +42,6 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
@@ -493,17 +493,16 @@ class RadioRenderer extends DefaultCellEditor implements TableCellRenderer, Acti
 	{
 		super(new JCheckBox());
 
-		editorComponent = new JPanel();
-		editorComponent.setLayout(new GridLayout(1, 2));
-		r1 = new JRadioButton("asc"); //$NON-NLS-1$
-		r1.setHorizontalAlignment(SwingConstants.CENTER);
+		editorComponent = new JPanel(new FlowLayout(FlowLayout.CENTER, 4, 0));
+		r1 = new JRadioButton("asc"); //$NON-NLS-1$ 
 		r1.setMargin(new Insets(0, 0, 0, 0));
-		r1.setPreferredSize(new Dimension(50, 15));
+		r1.setOpaque(false);
+		r1.setFocusable(false);
 		r1.addActionListener(this);
-		r2 = new JRadioButton("desc"); //$NON-NLS-1$
-		r2.setHorizontalAlignment(SwingConstants.CENTER);
+		r2 = new JRadioButton("desc"); //$NON-NLS-1$ 
 		r2.setMargin(new Insets(0, 0, 0, 0));
-		r2.setPreferredSize(new Dimension(50, 15));
+		r2.setOpaque(false);
+		r2.setFocusable(false);
 		r2.addActionListener(this);
 		ButtonGroup group = new ButtonGroup();
 		group.add(r1);
@@ -529,6 +528,32 @@ class RadioRenderer extends DefaultCellEditor implements TableCellRenderer, Acti
 		{
 			r1.setSelected(true);
 		}
+
+//		use color that won't get overridden again by laf
+		Color foreground = new Color(table.getForeground().getRGB());
+		Color background = new Color(table.getBackground().getRGB());
+		if (!hasFocus && isSelected)
+		{
+			foreground = new Color(table.getSelectionForeground().getRGB());
+			background = new Color(table.getSelectionBackground().getRGB());
+		}
+		editorComponent.setBackground(background);
+		r1.setForeground(foreground);
+		r2.setForeground(foreground);
+
+//		Border border = null;
+//		if (hasFocus)
+//		{
+//			if (isSelected)
+//			{
+//				border = DefaultLookup.getBorder(editorComponent, ((JPanel)editorComponent).getUI(), "Table.focusSelectedCellHighlightBorder");
+//			}
+//			if (border == null)
+//			{
+//				border = DefaultLookup.getBorder(editorComponent, ((JPanel)editorComponent).getUI(), "Table.focusCellHighlightBorder");
+//			}
+//		}
+//		editorComponent.setBorder(border);
 		return editorComponent;
 	}
 
