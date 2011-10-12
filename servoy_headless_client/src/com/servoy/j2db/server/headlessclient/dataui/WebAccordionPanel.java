@@ -204,9 +204,13 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 						if (font != null)
 						{
 							Pair<String, String>[] fontPropetiesPair = PersistHelper.createFontCSSProperties(PersistHelper.createFontString(font));
-							for (Pair<String, String> element : fontPropetiesPair)
+							if (fontPropetiesPair != null)
 							{
-								style += element.getLeft() + ": " + element.getRight() + ";"; //$NON-NLS-1$ //$NON-NLS-2$
+								for (Pair<String, String> element : fontPropetiesPair)
+								{
+									if (element == null) continue;
+									style += element.getLeft() + ": " + element.getRight() + ";"; //$NON-NLS-1$ //$NON-NLS-2$
+								}
 							}
 						}
 						if (holder.getForeground() != null)
