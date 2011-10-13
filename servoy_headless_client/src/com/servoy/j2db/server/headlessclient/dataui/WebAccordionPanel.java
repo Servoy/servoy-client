@@ -231,21 +231,34 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 			@Override
 			protected void respond(AjaxRequestTarget target)
 			{
-				Integer index = Utils.getAsInteger(getTabIndex());
-				if (index != null && index > 0)
-				{
-					accordion.activate(target, index - 1);
-				}
-
 			}
 
 			@Override
 			public void renderHead(IHeaderResponse response)
 			{
 				super.renderHead(response);
-				response.renderOnDomReadyJavascript(getCallbackScript().toString());
+				Integer index = Utils.getAsInteger(getTabIndex());
+				if (index != null && index > 1)// first tab will be activated by default
+				{
+					response.renderOnDomReadyJavascript(accordion.activate(index - 1).getStatement().toString());
+				}
+				// avoid flickering, see also tabpanel
+				response.renderOnDomReadyJavascript("var accordion = document.getElementById('" + WebAccordionPanel.this.getMarkupId() +
+					"');if (accordion){accordion.style.visibility = 'visible';}");
 			}
 		});
+
+		add(new StyleAppendingModifier(new Model<String>()
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public String getObject()
+			{
+				return "visibility: hidden;"; //$NON-NLS-1$
+			}
+		}));
+
 
 		add(StyleAttributeModifierModel.INSTANCE);
 		this.scriptable = scriptable;
