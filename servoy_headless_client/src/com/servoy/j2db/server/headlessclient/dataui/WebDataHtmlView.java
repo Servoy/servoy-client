@@ -207,6 +207,12 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 	}
 
 	@Override
+	protected String getCSSId()
+	{
+		return null;
+	}
+
+	@Override
 	public IEventExecutor getEventExecutor()
 	{
 		return null;
