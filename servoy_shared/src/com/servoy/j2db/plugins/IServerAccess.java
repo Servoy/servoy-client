@@ -43,7 +43,8 @@ public interface IServerAccess extends IPluginAccess
 	 */
 	public void registerRMIService(String rmiLookupName, Remote obj) throws RemoteException;
 
-	public Remote getRemoteService(String rmiLookupName) throws Exception;
+	@Deprecated
+	public Remote getRemoteService(String rmiLookupName);
 
 	/**
 	 * Register a webservice in the application web server Note on the server 'init(servletConfig)' is never called, only 'init()'. The service comes available
