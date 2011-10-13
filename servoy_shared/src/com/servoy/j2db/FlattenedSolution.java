@@ -840,8 +840,10 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	private void fillList(List<IPersist> copyInto, Solution s)
 	{
 		List<IPersist> allObjectsAsList = s.getAllObjectsAsList();
-		for (IPersist persist : allObjectsAsList)
+		// do not make this a foreach iterable loop, concurrent mod can happen then.
+		for (int i = 0; i < allObjectsAsList.size(); i++)
 		{
+			IPersist persist = allObjectsAsList.get(i);
 			if (copySolution == null || copySolution == s || copySolution.getChild(persist.getUUID()) == null)
 			{
 				copyInto.add(persist);
