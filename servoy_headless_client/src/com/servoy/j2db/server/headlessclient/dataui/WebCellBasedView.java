@@ -2146,6 +2146,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				maxRowsPerPage = rowsCalculation.getRight().getLeft().intValue();
 				if (isScrollMode())
 				{
+					table.setStartIndex(0);
 					table.setViewSize(2 * maxRowsPerPage);
 				}
 				else
@@ -2305,7 +2306,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	public void valueChanged(ListSelectionEvent e)
 	{
 		//test if selection did move to another page
-		if (currentData != null && !e.getValueIsAdjusting())
+		if (currentData != null && !e.getValueIsAdjusting() && !isScrollMode())
 		{
 			int newSelectedIndex = currentData.getSelectedIndex();
 			int newPageIndex = newSelectedIndex / table.getRowsPerPage();
@@ -3707,6 +3708,17 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		private static final long serialVersionUID = 1L;
 
 		@Override
+		public void renderHead(IHeaderResponse response)
+		{
+			super.renderHead(response);
+			StringBuffer sb = new StringBuffer();
+			sb.append("Servoy.TableView.currentScrollTop['").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("'] = 0;"); //$NON-NLS-1$ //$NON-NLS-2$
+			sb.append("Servoy.TableView.hasTopBuffer['").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("'] = false;"); //$NON-NLS-1$ //$NON-NLS-2$
+			sb.append("Servoy.TableView.hasBottomBuffer['").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("'] = true;"); //$NON-NLS-1$ //$NON-NLS-2$
+			response.renderOnLoadJavascript(sb.toString());
+		}
+
+		@Override
 		protected void onEvent(AjaxRequestTarget target)
 		{
 			int scrollDiff = Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("scrollDiff")); //$NON-NLS-1$
@@ -3748,30 +3760,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 			}
 
+			boolean hasTopBuffer = table.getStartIndex() > 0;
+			boolean hasBottomBuffer = table.getStartIndex() + table.getViewSize() < table.getList().size();
 
 			target.appendJavascript("Servoy.TableView.appendRows('" + WebCellBasedView.this.tableContainerBody.getMarkupId() + "','" + //$NON-NLS-1$//$NON-NLS-2$
-				rowsBuffer.toString() + "'," + newRowsCount + "," + rowsToRemove + "," + scrollDiff + ");"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				rowsBuffer.toString() + "'," + newRowsCount + "," + rowsToRemove + "," + scrollDiff + ", " + hasTopBuffer + "," + hasBottomBuffer + ");"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
 
-//			if (table.getPageCount() > 1)
-//			{
-//				int rowsPerPage = table.getRowsPerPage();
-//				table.setRowsPerPage(1);
-//
-//				StringBuffer rowsBuffer = new StringBuffer();
-//				for (int i = 1; i < maxRowsPerPage; i++)
-//				{
-//					rowsPerPage++;
-//					if (rowsPerPage > table.getPageCount()) break;
-//					table.setCurrentPage(rowsPerPage);
-//					rowsBuffer.append(renderComponent(getResponse(), table));
-//				}
-//
-//				table.setRowsPerPage(rowsPerPage);
-//				table.setCurrentPage(1);
-//
-//				target.appendJavascript("Servoy.TableView.appendRows('" + WebCellBasedView.this.tableContainerBody.getMarkupId() + "','" + //$NON-NLS-1$//$NON-NLS-2$
-//					rowsBuffer.toString() + "');"); //$NON-NLS-1$					
-//			}
 		}
 
 		@Override
@@ -3791,8 +3785,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				@Override
 				public CharSequence postDecorateScript(CharSequence script)
 				{
-					return "var scrollDiff = Servoy.TableView.needToUpdateRowsBuffer('" + WebCellBasedView.this.tableContainerBody.getMarkupId() +
-						"'); if (scrollDiff != 0) { " + script + "};";
+					return "clearTimeout(Servoy.TableView.appendRowsTimer); Servoy.TableView.appendRowsTimer = setTimeout(\"var scrollDiff = Servoy.TableView.needToUpdateRowsBuffer('" +
+						WebCellBasedView.this.tableContainerBody.getMarkupId() + "'); if (scrollDiff != 0) { " + script + "};\", 500);";
 				}
 			};
 		}
