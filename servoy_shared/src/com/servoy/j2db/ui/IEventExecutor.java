@@ -26,6 +26,7 @@ public interface IEventExecutor
 {
 	public static final int MODIFIERS_UNSPECIFIED = -1;
 	public static final String MODIFIERS_PARAMETER = "modifiers";
+	public static final String ACTION_COMMAND_NONE = ""; //$NON-NLS-1$
 
 	boolean hasChangeCmd();
 

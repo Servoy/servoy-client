@@ -246,7 +246,7 @@ public abstract class BaseEventExecutor implements IEventExecutor
 	public Object fireEventCommand(EventType type, String cmd, Object[] args, Object[] persistArgs, boolean saveData, Object display, boolean focusEvent,
 		int modifiers, String formName, boolean executeWhenFieldValidationFailed, Point mouseLocation)
 	{
-		if (actionListener == null)
+		if (actionListener == null || (type == EventType.action && ACTION_COMMAND_NONE.equals(cmd)))
 		{
 			return null;
 		}
