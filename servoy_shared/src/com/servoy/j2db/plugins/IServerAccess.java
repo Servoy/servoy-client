@@ -65,7 +65,7 @@ public interface IServerAccess extends IPluginAccess
 	/**
 	 * Get a remote server service, will not work in the Servoy Runtime product!
 	 */
-	public Remote getRemoteService(String rmiLookupName) throws Exception;
+	public Remote getRemoteService(String rmiLookupName);
 
 	/**
 	 * Get the clientID which is local to the server, should only be used when NO client is present!
