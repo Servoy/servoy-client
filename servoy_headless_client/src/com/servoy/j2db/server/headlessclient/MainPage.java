@@ -1948,7 +1948,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 						{
 							final String width = params.get(key)[0];
 							final String height = params.get("sfh_window")[0]; //$NON-NLS-1$
-							((WebClient)page.getController().getApplication()).setWindowBounds(page.getPageMapName() /* null for initial main page */,
+							WebClientSession.get().getWebClient().setWindowBounds(page.getPageMapName() /* null for initial main page */,
 								new Rectangle(Utils.getAsInteger(width), Utils.getAsInteger(height)));
 						}
 						catch (Exception ex)
