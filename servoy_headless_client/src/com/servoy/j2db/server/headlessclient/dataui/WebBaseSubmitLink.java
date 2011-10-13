@@ -900,7 +900,8 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 
 		boolean hasHtml = hasHtml();
 
-		String cssid = hasHtml ? getMarkupId() + "_lb" : null; //$NON-NLS-1$
+		String cssid = getCSSId();
+
 		boolean designMode = false;
 		IFormUIInternal< ? > formui = findParent(IFormUIInternal.class);
 		if (formui != null && formui.isDesignMode())
@@ -909,6 +910,11 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 		}
 		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtml, padding, cssid,
 			(char)getDisplayedMnemonic(), getMarkupId() + "_img", WebBaseButton.getImageDisplayURL(this), size.height, false, designMode ? null : cursor)); //$NON-NLS-1$
+	}
+
+	protected String getCSSId()
+	{
+		return hasHtml() ? getMarkupId() + "_lb" : null;
 	}
 
 	protected boolean hasHtml()
