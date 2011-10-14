@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.server.headlessclient.dataui;
 
+import java.awt.Dimension;
 import java.awt.Event;
 import java.awt.Insets;
 import java.util.Iterator;
@@ -56,6 +57,7 @@ import com.servoy.j2db.persistence.ISupportText;
 import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Portal;
+import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.TabIndexHelper;
@@ -390,19 +392,25 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 
 		try
 		{
-			Iterator<IPersist> it2 = cellview.getAllObjects();
+			Iterator<IPersist> it2 = cellview.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
+			int height = -1;
 			while (it2.hasNext())
 			{
 				IPersist element = it2.next();
 				if (id.equals(ComponentFactory.getWebID(form, element)))
 				{
 					final GraphicalComponent gc = (GraphicalComponent)view.labelsFor.get(((ISupportName)element).getName());
+					if (gc != null && height < 0)
+					{
+						height = gc.getSize().height;
+					}
 					if (gc != null && gc.getImageMediaID() > 0)
 					{
 						final int media_id = gc.getImageMediaID();
 						final Media media = application.getFlattenedSolution().getMedia(media_id);
 						if (media != null)
 						{
+							final int headerHeight = height;
 							add(new StyleAppendingModifier(new Model<String>()
 							{
 								@Override
@@ -416,7 +424,9 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 										protected Resource newResource()
 										{
 											BufferedDynamicImageResource imgRes = new BufferedDynamicImageResource();
-											ImageIcon icon = new ImageIcon(media.getMediaData());
+											MediaResource tempIcon = new MediaResource(media.getMediaData(), gc.getMediaOptions());
+											(tempIcon).checkResize(new Dimension(width, headerHeight));
+											ImageIcon icon = new ImageIcon(tempIcon.resized);
 											imgRes.setImage(ImageLoader.imageToBufferedImage((icon).getImage()));
 
 											return imgRes;

@@ -44,6 +44,7 @@ import com.servoy.j2db.util.FixedStyleSheet;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.gui.MyImageIcon;
 
 /***
  * Header renderer for table component(tableview or portal); used for normal header and labelfor header
@@ -124,7 +125,15 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 			int mediaId = gc.getImageMediaID();
 			if (mediaId > 0)
 			{
-				Icon icon = ImageLoader.getIcon(ComponentFactory.loadIcon(app.getFlattenedSolution(), new Integer(mediaId)), 0, 0, true);
+				Icon icon = null;
+				if (gc.getMediaOptions() != 1)
+				{
+					icon = new MyImageIcon(app, this, ComponentFactory.loadIcon(app.getFlattenedSolution(), new Integer(mediaId)), gc.getMediaOptions());
+				}
+				else
+				{
+					icon = ImageLoader.getIcon(ComponentFactory.loadIcon(app.getFlattenedSolution(), new Integer(mediaId)), 0, 0, true);
+				}
 				if (icon != null) setIcon(icon);
 			}
 			if (gc != null && gc.getText() != null && gc.getText().length() > 0)
