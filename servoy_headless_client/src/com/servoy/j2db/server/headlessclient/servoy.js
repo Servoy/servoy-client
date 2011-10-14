@@ -420,6 +420,11 @@ function addListeners(strEvent, callbackUrl, ids, post)
 							{
 								if(Wicket.Focus.getFocusedElement() == thisEl)
 								{
+									if(modifiers > 0)
+									{
+										Wicket.Focus.lastFocusId = null;
+										thisEl.blur();
+									}
 									var wcall=wicketAjaxGet
 									(
 										callbackUrl+'&nopostdata=true&event='+strEvent+'&id='+thisEl.id+'&modifiers='+modifiers,
@@ -437,6 +442,11 @@ function addListeners(strEvent, callbackUrl, ids, post)
 						{
 							if(Wicket.Focus.getFocusedElement() == thisEl)
 							{
+								if(modifiers > 0)
+								{
+									Wicket.Focus.lastFocusId = null;
+									thisEl.blur();
+								}
 								var wcall=wicketAjaxPost
 								(
 									callbackUrl+'&event='+strEvent+'&id='+thisEl.id+'&modifiers='+modifiers,
@@ -495,22 +505,27 @@ function addListeners(strEvent, callbackUrl, ids, post)
 					{
 						clearTimeout(focusCallbackTimeout);
 						modifiers = onFocusModifiers;
-						onFocusModifiers = 0;
-						var thisEl = this;
+						onFocusModifiers = 0;					
+						var thisEl = this;			
 						focusCallbackTimeout = setTimeout(function()
 							{
 								if(Wicket.Focus.getFocusedElement() == thisEl)
 								{
+									if(modifiers > 0)
+									{
+										Wicket.Focus.lastFocusId = null;
+										thisEl.blur();
+									} 
 									var wcall=wicketAjaxGet
 									(					
 										callbackUrl+'&event='+strEvent+'&id='+thisEl.id+'&modifiers='+modifiers,
 										null,
 										function() { onAjaxError(); }.bind(thisEl),
 										function() { return Wicket.$(thisEl.id) != null; }.bind(thisEl)
-									);
+									);									
 								}
 								focusCallbackTimeout = null;
-							}, 200);
+							}, 200);							
 						return false;
 					}
 					else
