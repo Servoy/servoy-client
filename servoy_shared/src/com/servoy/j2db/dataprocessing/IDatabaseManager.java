@@ -17,7 +17,7 @@
 package com.servoy.j2db.dataprocessing;
 
 import com.servoy.j2db.persistence.ITable;
-import com.servoy.j2db.persistence.ITableProvider;
+import com.servoy.j2db.persistence.ITableAndRelationProvider;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderFactory;
 import com.servoy.j2db.util.ServoyException;
@@ -27,7 +27,7 @@ import com.servoy.j2db.util.ServoyException;
  * 
  * @author jblok
  */
-public interface IDatabaseManager extends ISaveConstants, ITableProvider
+public interface IDatabaseManager extends ISaveConstants, ITableAndRelationProvider
 {
 	/**
 	 * Start a transaction

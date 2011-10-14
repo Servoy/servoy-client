@@ -49,11 +49,15 @@ public interface IQueryBuilderJoins extends IQueryBuilderPart
 	IQueryBuilderJoin add(String dataSource, int joinType) throws RepositoryException;
 
 	/**
-	 * Add a join with join type {@link IQueryBuilderJoin#LEFT_OUTER_JOIN}.
+	 * Add a join based on relation or add a manual join.
+	 * <p>When dataSourceOrRelation is a relation name, a join will be added based on the relation.
+	 * <br>When dataSourceOrRelation is a data source, an empty join will be added with join type {@link IQueryBuilderJoin#LEFT_OUTER_JOIN}.
+	 * @param dataSourceOrRelation add join based on relation or data source
+	 * @param alias alias, when null default is used
 	 * 
 	 * @see #add(String, int, String)
 	 */
-	IQueryBuilderJoin add(String dataSource, String alias) throws RepositoryException;
+	IQueryBuilderJoin add(String dataSourceOrRelation, String alias) throws RepositoryException;
 
 	/**
 	 * Add a join with join type {@link IQueryBuilderJoin#LEFT_OUTER_JOIN} and no alias for the joining table.

@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util;
 
 import java.util.ArrayList;
@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.util.keyword.Ident;
 
 
@@ -38,7 +39,7 @@ public class DataSourceUtils
 	public static final String DB_DATASOURCE_SCHEME = "db"; //$NON-NLS-1$
 	public static final String DB_DATASOURCE_SCHEME_COLON_SLASH = DB_DATASOURCE_SCHEME + ":/"; //$NON-NLS-1$
 	public static final int DB_DATASOURCE_SCHEME_COLON_SLASH_LENGTH = DB_DATASOURCE_SCHEME_COLON_SLASH.length();
-	public static final String INMEM_DATASOURCE_SCHEME = "mem"; //$NON-NLS-1$
+	public static final String INMEM_DATASOURCE_SCHEME_COLON = "mem:"; //$NON-NLS-1$
 
 	private DataSourceUtils()
 	{
@@ -53,18 +54,14 @@ public class DataSourceUtils
 	public static String[] getDBServernameTablename(String dataSource)
 	{
 		// db:/srv/tab
-		if (dataSource != null)
+		if (dataSource != null && dataSource.startsWith(DB_DATASOURCE_SCHEME_COLON_SLASH))
 		{
-			if (dataSource.startsWith(DataSourceUtils.DB_DATASOURCE_SCHEME_COLON_SLASH))
-			{
-				int slash = dataSource.indexOf('/', DataSourceUtils.DB_DATASOURCE_SCHEME_COLON_SLASH_LENGTH);
-				return new String[] {
+			int slash = dataSource.indexOf('/', DB_DATASOURCE_SCHEME_COLON_SLASH_LENGTH);
+			return new String[] {
 				// serverName
-				(slash <= DataSourceUtils.DB_DATASOURCE_SCHEME_COLON_SLASH_LENGTH) ? null : dataSource.substring(
-					DataSourceUtils.DB_DATASOURCE_SCHEME_COLON_SLASH_LENGTH, slash),
+			(slash <= DB_DATASOURCE_SCHEME_COLON_SLASH_LENGTH) ? null : dataSource.substring(DB_DATASOURCE_SCHEME_COLON_SLASH_LENGTH, slash),
 				// tableName
-				(slash < 0 || slash == dataSource.length() - 1) ? null : dataSource.substring(slash + 1) };
-			}
+			(slash < 0 || slash == dataSource.length() - 1) ? null : dataSource.substring(slash + 1) };
 		}
 		return null;
 	}
@@ -83,7 +80,7 @@ public class DataSourceUtils
 			return null;
 		}
 		StringBuilder sb = new StringBuilder();
-		sb.append(DataSourceUtils.DB_DATASOURCE_SCHEME_COLON_SLASH);
+		sb.append(DB_DATASOURCE_SCHEME_COLON_SLASH);
 		if (serverName != null)
 		{
 			sb.append(serverName);
@@ -107,7 +104,38 @@ public class DataSourceUtils
 	public static String createInmemDataSource(String name)
 	{
 		if (name == null) return null;
-		return new StringBuilder().append(DataSourceUtils.INMEM_DATASOURCE_SCHEME).append(':').append(name).toString();
+		return new StringBuilder().append(INMEM_DATASOURCE_SCHEME_COLON).append(name).toString();
+	}
+
+	/**
+	 * Get the server and table name from the datasource (when is is a db datasource)
+	 * 
+	 * @param dataSource the dataSource
+	 * @return the server and table name (or null if not a db datasource)
+	 */
+	public static String getInmemDataSourceName(String dataSource)
+	{
+		// mem:name
+		if (dataSource != null && dataSource.startsWith(INMEM_DATASOURCE_SCHEME_COLON))
+		{
+			return dataSource.substring(INMEM_DATASOURCE_SCHEME_COLON.length());
+		}
+		return null;
+	}
+
+	public static String getDataSourceServerName(String dataSource)
+	{
+		if (dataSource == null) return null;
+		String[] stn = getDBServernameTablename(dataSource);
+		if (stn != null && stn[0] != null)
+		{
+			return stn[0];
+		}
+		if (dataSource.startsWith(INMEM_DATASOURCE_SCHEME_COLON))
+		{
+			return IServer.INMEM_SERVER;
+		}
+		return null;
 	}
 
 	/**
@@ -121,10 +149,10 @@ public class DataSourceUtils
 		SortedSet<String> serverNames = new TreeSet<String>();
 		for (String ds : dataSources)
 		{
-			String[] stn = DataSourceUtils.getDBServernameTablename(ds);
-			if (stn != null && stn[0] != null)
+			String serverName = getDataSourceServerName(ds);
+			if (serverName != null)
 			{
-				serverNames.add(stn[0]);
+				serverNames.add(serverName);
 			}
 		}
 		return serverNames;
@@ -141,7 +169,7 @@ public class DataSourceUtils
 		List<String> tableNames = new ArrayList<String>();
 		for (String ds : dataSources)
 		{
-			String[] stn = DataSourceUtils.getDBServernameTablename(ds);
+			String[] stn = getDBServernameTablename(ds);
 			if (stn != null && serverName.equals(stn[0]))
 			{
 				tableNames.add(stn[1]);

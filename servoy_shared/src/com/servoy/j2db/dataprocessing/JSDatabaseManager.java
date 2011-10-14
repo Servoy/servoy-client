@@ -54,7 +54,10 @@ import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLCondition;
+import com.servoy.j2db.query.ISQLQuery;
+import com.servoy.j2db.query.Placeholder;
 import com.servoy.j2db.query.QueryColumn;
+import com.servoy.j2db.query.QueryCustomSelect;
 import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QueryJoin;
 import com.servoy.j2db.query.QuerySelect;
@@ -87,6 +90,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
  * Scriptable database manager object
@@ -737,6 +741,48 @@ public class JSDatabaseManager
 		return true;
 	}
 
+	private boolean validateQueryArguments(ISQLQuery select)
+	{
+		if (select != null)
+		{
+			final List<Placeholder> placeHolders = new ArrayList<Placeholder>();
+			AbstractBaseQuery.acceptVisitor(select, new IVisitor()
+			{
+				public Object visit(Object o)
+				{
+					if (o instanceof Placeholder)
+					{
+						placeHolders.add((Placeholder)o);
+					}
+					return o;
+				}
+			});
+
+			for (Placeholder placeholder : placeHolders)
+			{
+				if (!placeholder.isSet())
+				{
+					Debug.log("Custom query: " + select + //$NON-NLS-1$
+						" not executed because not all arguments have been set: " + placeholder.getKey()); //$NON-NLS-1$
+					return false;
+				}
+				if (placeholder.getValue() instanceof DbIdentValue && ((DbIdentValue)placeholder.getValue()).getPkValue() == null)
+				{
+					Debug.log("Custom query: " + select + //$NON-NLS-1$
+						" not executed because the arguments have a database ident value that is null, from a not yet saved record"); //$NON-NLS-1$
+					return false;
+				}
+
+				if (placeholder.getValue() instanceof java.util.Date)
+				{
+					placeholder.setValue(new Timestamp(((java.util.Date)placeholder.getValue()).getTime()));
+				}
+			}
+		}
+
+		return true;
+	}
+
 	/**  
 	 * Performs a sql query on the specified server, saves the the result in a datasource.
 	 * Will throw an exception if anything went wrong when executing the query.
@@ -767,17 +813,74 @@ public class JSDatabaseManager
 	{
 		checkAuthorized();
 		if (server_name == null) throw new RuntimeException(new ServoyException(ServoyException.InternalCodes.SERVER_NOT_FOUND, new Object[] { "<null>" })); //$NON-NLS-1$
-		if (sql_query == null || sql_query.trim().length() == 0) throw new RuntimeException(new DataException(ServoyException.BAD_SQL_SYNTAX,
-			new SQLException(), sql_query));
 
-		if (!validateQueryArguments(arguments, sql_query))
+		if (!checkQueryForSelect(sql_query))
+		{
+			throw new RuntimeException(new DataException(ServoyException.BAD_SQL_SYNTAX, new SQLException(), sql_query));
+		}
+		if (name == null || !checkQueryForSelect(sql_query) || !validateQueryArguments(arguments, sql_query))
 		{
 			return null;
 		}
 
 		try
 		{
-			return ((FoundSetManager)application.getFoundSetManager()).createDataSourceFromQuery(name, server_name, sql_query, arguments, max_returned_rows);
+			return ((FoundSetManager)application.getFoundSetManager()).createDataSourceFromQuery(name, server_name,
+				new QueryCustomSelect(sql_query, arguments), max_returned_rows);
+		}
+		catch (ServoyException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**  
+	 * Performs a query on the specified server, saves the the result in a datasource.
+	 * Will throw an exception if anything went wrong when executing the query.
+	 * Column types in the datasource are inferred from the query result.
+	 * 
+	 * <br>Table filters on the involved tables in the query are applied.
+	 *
+	 * @sample
+	 * // select customer data for order 1234
+	 * 	/** @type {QBSelect<db:/example_data/customers>} &#47;
+	 * var q = databaseManager.createSelect("db:/example_data/customers")
+	 * q.result.add(q.columns.address).add(q.columns.city).add(q.columns.country)
+	 * q.where.add(q.joins.customers_to_orders.columns.orderid.eq(1234))
+	 * var uri = databaseManager.createDataSourceByQuery('mydata', q, 999); // the uri can be used to create a form using solution model
+	 * 
+	 * // the uri can be used to create a form using solution model
+	 * var myForm = solutionModel.newForm('newForm', uri, 'myStyleName', false, 800, 600)
+	 * myForm.newTextField('city', 140, 20, 140,20)
+	 * 
+	 * // the uri can be used to acces a foundset directly
+	 * var fs = databaseManager.getFoundSet(uri)
+	 * fs.loadAllRecords();
+	 *
+	 * @param name data source name
+	 * @param query The query builder to be executed.
+	 * @param max_returned_rows The maximum number of rows returned by the query.  
+	 * 
+	 * @return datasource containing the results of the query or null if the parameters are wrong. 
+	 */
+	public String js_createDataSourceByQuery(String name, QBSelect query, int max_returned_rows) throws ServoyException
+	{
+		checkAuthorized();
+
+		String serverName = DataSourceUtils.getDataSourceServerName(query.getDataSource());
+
+		if (serverName == null) throw new RuntimeException(new ServoyException(ServoyException.InternalCodes.SERVER_NOT_FOUND,
+			new Object[] { query.getDataSource() }));
+
+		QuerySelect select = query.build();
+		if (!validateQueryArguments(select))
+		{
+			return null;
+		}
+
+		try
+		{
+			return ((FoundSetManager)application.getFoundSetManager()).createDataSourceFromQuery(name, serverName, select, max_returned_rows);
 		}
 		catch (ServoyException e)
 		{
@@ -825,9 +928,11 @@ public class JSDatabaseManager
 	{
 		checkAuthorized();
 		if (server_name == null) throw new RuntimeException(new ServoyException(ServoyException.InternalCodes.SERVER_NOT_FOUND, new Object[] { "<null>" })); //$NON-NLS-1$
-		if (sql_query == null || sql_query.trim().length() == 0) throw new RuntimeException(new DataException(ServoyException.BAD_SQL_SYNTAX,
-			new SQLException(), sql_query));
 
+		if (!checkQueryForSelect(sql_query))
+		{
+			throw new RuntimeException(new DataException(ServoyException.BAD_SQL_SYNTAX, new SQLException(), sql_query));
+		}
 		if (!validateQueryArguments(arguments, sql_query))
 		{
 			return new JSDataSet(application);
@@ -835,8 +940,73 @@ public class JSDatabaseManager
 
 		try
 		{
-			return new JSDataSet(application, ((FoundSetManager)application.getFoundSetManager()).getDataSetByQuery(server_name, sql_query, arguments,
-				max_returned_rows));
+			return new JSDataSet(application, ((FoundSetManager)application.getFoundSetManager()).getDataSetByQuery(server_name, new QueryCustomSelect(
+				sql_query, arguments), max_returned_rows));
+		}
+		catch (ServoyException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+	private boolean checkQueryForSelect(String sql)
+	{
+		if (sql == null) return false;
+
+		String lowerCaseSql = sql.trim().toLowerCase();
+		int withIndex = lowerCaseSql.indexOf("with"); //$NON-NLS-1$
+		int selectIndex = lowerCaseSql.indexOf("select"); //$NON-NLS-1$
+		int callIndex = lowerCaseSql.indexOf("call"); //$NON-NLS-1$
+		return ((selectIndex != -1 && selectIndex < 4) || (callIndex != -1 && callIndex < 4) || (withIndex != -1 && withIndex < 4));
+	}
+
+
+	/**
+	 * Performs a sql query with a query builder object.
+	 * Will throw an exception if anything did go wrong when executing the query.
+	 *
+	 * <br>Table filters on the involved tables in the query are applied.
+	 * 
+	 * @sample
+	 * // use the query froma foundset and add a condition
+	 * 	/** @type {QBSelect<db:/example_data/orders>} *&#47;
+	 *  var q = foundset.getQuery()
+	 *  q.where.add(q.joins.orders_to_order_details.columns.discount.eq(2))
+	 *  var maxReturnedRows = 10;//useful to limit number of rows
+	 *  var ds = databaseManager.getDataSetByQuery(q, maxReturnedRows);
+	 *  
+	 *  // query: select PK from example.book_nodes where parent = 111 and(note_date is null or note_date > now)
+	 *  /** @type {QBSelect<db:/example_data/book_nodes>} *&#47;
+	 *  var query = databaseManager.createSelect('db:/example_data/book_nodes').result.addPk().root
+	 *  query.where.add(query.columns.parent_id.eq(111))
+	 *  .add(query.or
+	 *  .add(query.columns.note_date.isNull)
+	 *  .add(query.columns.note_date.gt(new Date())))
+	 *  databaseManager.getDataSetByQuery(q, max_returned_rows)
+	 *  
+	 * @param query QBSelect query.
+	 * @param max_returned_rows The maximum number of rows returned by the query.  
+	 * 
+	 * @return The JSDataSet containing the results of the query.
+	 */
+	public JSDataSet js_getDataSetByQuery(QBSelect query, int max_returned_rows) throws ServoyException
+	{
+		checkAuthorized();
+
+		String serverName = DataSourceUtils.getDataSourceServerName(query.getDataSource());
+
+		if (serverName == null) throw new RuntimeException(new ServoyException(ServoyException.InternalCodes.SERVER_NOT_FOUND,
+			new Object[] { query.getDataSource() }));
+		QuerySelect select = query.build();
+
+		if (!validateQueryArguments(select))
+		{
+			return new JSDataSet(application);
+		}
+
+		try
+		{
+			return new JSDataSet(application, ((FoundSetManager)application.getFoundSetManager()).getDataSetByQuery(serverName, select, max_returned_rows));
 		}
 		catch (ServoyException e)
 		{
@@ -2843,7 +3013,8 @@ public class JSDatabaseManager
 	 */
 	public QBSelect js_createSelect(String dataSource) throws ServoyException
 	{
-		QBFactory factory = new QBFactory(application.getFoundSetManager());
+		QBFactory factory = new QBFactory(application.getFoundSetManager(), application.getFoundSetManager().getGlobalScopeProvider(),
+			application.getFlattenedSolution());
 		factory.setScriptableParent(application.getScriptEngine().getSolutionScope());
 		return factory.createSelect(dataSource);
 	}

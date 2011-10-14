@@ -17,9 +17,15 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.j2db.dataprocessing.SQLGenerator;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.IRelation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.AndCondition;
@@ -29,6 +35,7 @@ import com.servoy.j2db.querybuilder.IQueryBuilderJoin;
 import com.servoy.j2db.querybuilder.IQueryBuilderJoins;
 import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
 
 /**
@@ -40,6 +47,8 @@ public class QBJoins extends DefaultScope implements IQueryBuilderJoins
 {
 	private final QBSelect root;
 	private final QBTableClause parent;
+
+	private final Map<String, QBJoin> joins = new HashMap<String, QBJoin>();
 
 	QBJoins(QBSelect root, QBTableClause parent)
 	{
@@ -60,6 +69,64 @@ public class QBJoins extends DefaultScope implements IQueryBuilderJoins
 		return root;
 	}
 
+	@Override
+	public Object get(String name, Scriptable start)
+	{
+		QBJoin join = getOrAddRelation(root.getRelation(name), name, null);
+		if (join == null)
+		{
+			return Scriptable.NOT_FOUND;
+		}
+		return join;
+	}
+
+	private QBJoin getOrAddRelation(IRelation relation, String relationName, String alias)
+	{
+		if (relation == null || !parent.getDataSource().equals(relation.getPrimaryDataSource()))
+		{
+			if (relation == null)
+			{
+				Debug.log("relation '" + relationName + "' not found");
+			}
+			else
+			{
+				Debug.log("relation '" + relationName + "' does not match parent data source: " + parent.getDataSource() + '/' +
+					relation.getPrimaryDataSource());
+			}
+			return null;
+		}
+
+		String name = alias == null ? relationName : alias;
+		QBJoin join = joins.get(name);
+		if (join == null)
+		{
+			try
+			{
+				Table foreignTable = root.getTable(relation.getForeignDataSource());
+				if (foreignTable == null)
+				{
+					Debug.log("foreign table for relation '" + relationName + "' not found");
+					return null;
+				}
+
+				join = addJoin(SQLGenerator.createJoin(root.getDataProviderHandler(), relation, parent.getQueryTable(),
+					new QueryTable(foreignTable.getSQLName(), foreignTable.getCatalog(), foreignTable.getSchema()), root.getGlobalScopeProvider()),
+					relation.getForeignDataSource(), name);
+			}
+			catch (RepositoryException e)
+			{
+				Debug.error("could not load relation '" + relationName + "'", e);
+			}
+		}
+		return join;
+	}
+
+	@Override
+	public void put(String name, Scriptable start, Object value)
+	{
+		// ignore
+	}
+
 	@JSFunction
 	public QBJoin add(String dataSource, int joinType) throws RepositoryException
 	{
@@ -67,9 +134,19 @@ public class QBJoins extends DefaultScope implements IQueryBuilderJoins
 	}
 
 	@JSFunction
-	public QBJoin add(String dataSource, String alias) throws RepositoryException
+	public QBJoin add(String dataSourceOrRelation, String alias) throws RepositoryException
 	{
-		return add(dataSource, IQueryBuilderJoin.LEFT_OUTER_JOIN, alias);
+		IRelation relation = root.getRelation(dataSourceOrRelation);
+		if (relation != null)
+		{
+			return getOrAddRelation(relation, dataSourceOrRelation, alias);
+		}
+		if (dataSourceOrRelation.indexOf(':') < 0) // all data sources have a colon somewhere
+		{
+			throw new RepositoryException("Cannot find relation '" + dataSourceOrRelation + "'");
+		}
+		// a data source
+		return add(dataSourceOrRelation, IQueryBuilderJoin.LEFT_OUTER_JOIN, alias);
 	}
 
 	@JSFunction
@@ -81,12 +158,33 @@ public class QBJoins extends DefaultScope implements IQueryBuilderJoins
 	@JSFunction
 	public QBJoin add(String dataSource, int joinType, String alias) throws RepositoryException
 	{
-		Table foreignTable = root.getTable(dataSource);
-		QueryJoin queryJoin = new QueryJoin(alias, parent.getQueryTable(), new QueryTable(foreignTable.getSQLName(), foreignTable.getCatalog(),
-			foreignTable.getSchema()), new AndCondition(), joinType);
+		String name;
+		QBJoin join;
+		if (alias == null)
+		{
+			name = new UUID().toString();
+			join = null;
+		}
+		else
+		{
+			name = alias;
+			join = joins.get(name);
+		}
+		if (join == null)
+		{
+			Table foreignTable = root.getTable(dataSource);
+			join = addJoin(
+				new QueryJoin(name, parent.getQueryTable(), new QueryTable(foreignTable.getSQLName(), foreignTable.getCatalog(), foreignTable.getSchema()),
+					new AndCondition(), joinType), dataSource, name);
+		}
+		return join;
+	}
+
+	private QBJoin addJoin(QueryJoin queryJoin, String dataSource, String name) throws RepositoryException
+	{
+		QBJoin join = new QBJoin(root, parent, dataSource, queryJoin, name);
 		root.getQuery().addJoin(queryJoin);
-		QBJoin join = new QBJoin(root, parent, dataSource, queryJoin, alias);
-		put(alias == null ? new UUID().toString() : alias, getParentScope(), join);
+		joins.put(name, join);
 		return join;
 	}
 
@@ -96,21 +194,19 @@ public class QBJoins extends DefaultScope implements IQueryBuilderJoins
 	 */
 	public QBTableClause findQueryBuilderTableClause(String tableAlias)
 	{
-		Object get = get(tableAlias, getParentScope());
-		if (get instanceof QBTableClause)
+		QBJoin join = joins.get(tableAlias);
+		if (join != null)
 		{
-			return (QBTableClause)get;
+			return join;
 		}
+
 		// not a direct child, try recursive
-		for (Object val : getValues())
+		for (QBJoin j : joins.values())
 		{
-			if (val instanceof QBTableClause)
+			QBTableClause found = ((QBTableClause)j).findQueryBuilderTableClause(tableAlias);
+			if (found != null)
 			{
-				QBTableClause found = ((QBTableClause)val).findQueryBuilderTableClause(tableAlias);
-				if (found != null)
-				{
-					return found;
-				}
+				return found;
 			}
 		}
 		// not found

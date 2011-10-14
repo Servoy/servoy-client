@@ -17,13 +17,13 @@
 package com.servoy.j2db.persistence;
 
 /**
- * Table lookup.
+ * Table and relation lookup.
  * 
  * @author rgansevles
  * 
  * @since 6.1
  */
-public interface ITableProvider
+public interface ITableAndRelationProvider
 {
 	/**
 	 * Get a table object interface for a datasource
@@ -32,4 +32,11 @@ public interface ITableProvider
 	 * @return the table interface
 	 */
 	public ITable getTable(String dataSource) throws RepositoryException;
+
+	/**
+	 * Get relation by name for current solution
+	 * @param relationName
+	 * @return
+	 */
+	public IRelation getRelation(String relationName);
 }

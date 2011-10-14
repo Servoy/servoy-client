@@ -1282,6 +1282,23 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			throw new RepositoryException("Cannot load foundset with query based on another table (" + getTable() + '/' + sqlSelect.getTable() + ')');
 		}
 
+		if (sqlSelect.getColumns() == null)
+		{
+			// no columns, add pk
+			// note that QBSelect.build() already returns a clone
+			Iterator<Column> pkIt = ((Table)getTable()).getRowIdentColumns().iterator();
+			if (!pkIt.hasNext())
+			{
+				throw new RepositoryException(ServoyException.InternalCodes.PRIMARY_KEY_NOT_FOUND, new Object[] { getTable().getName() });
+			}
+
+			while (pkIt.hasNext())
+			{
+				Column c = pkIt.next();
+				sqlSelect.addColumn(new QueryColumn(sqlSelect.getTable(), c.getID(), c.getSQLName(), c.getType(), c.getLength()));
+			}
+		}
+
 		return loadByQuery(sqlSelect);
 	}
 
@@ -1302,7 +1319,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	public QBSelect getQuery()
 	{
-		return new QBSelect(getFoundSetManager(), getDataSource(), getPksAndRecords().getQuerySelectForModification());
+		return new QBSelect(getFoundSetManager(), getFoundSetManager().getGlobalScopeProvider(), getFoundSetManager().getApplication().getFlattenedSolution(),
+			getDataSource(), getPksAndRecords().getQuerySelectForModification());
 	}
 
 	public boolean loadByQuery(QuerySelect sqlSelect) throws ServoyException
@@ -5592,5 +5610,4 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		return mustQueryForUpdates;
 	}
-
 }

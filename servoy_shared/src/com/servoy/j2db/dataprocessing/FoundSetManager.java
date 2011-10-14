@@ -58,9 +58,9 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.IQueryElement;
 import com.servoy.j2db.query.ISQLCondition;
+import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.query.QueryColumnValue;
-import com.servoy.j2db.query.QueryCustomSelect;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
@@ -921,6 +921,11 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return table.getDataSource();
 	}
 
+	public Relation getRelation(String relationName)
+	{
+		return getApplication().getFlattenedSolution().getRelation(relationName);
+	}
+
 	public void addFoundSetListener(IFoundSetListener l) throws ServoyException
 	{
 		giveMeFoundSet(l);
@@ -1711,36 +1716,20 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return null;
 	}
 
-	private boolean checkQueryForSelect(String sql)
+	public IDataSet getDataSetByQuery(String serverName, ISQLSelect sqlSelect, int maxNumberOfRowsToRetrieve) throws ServoyException
 	{
-		if (sql == null) return false;
-
-		String lowerCaseSql = sql.trim().toLowerCase();
-		int withIndex = lowerCaseSql.indexOf("with"); //$NON-NLS-1$
-		int selectIndex = lowerCaseSql.indexOf("select"); //$NON-NLS-1$
-		int callIndex = lowerCaseSql.indexOf("call"); //$NON-NLS-1$
-		return ((selectIndex != -1 && selectIndex < 4) || (callIndex != -1 && callIndex < 4) || (withIndex != -1 && withIndex < 4));
-	}
-
-	public IDataSet getDataSetByQuery(String serverName, String sql, Object[] args, int maxNumberOfRowsToRetrieve) throws ServoyException
-	{
-		if (!checkQueryForSelect(sql))
-		{
-			return null;
-		}
-
 		IDataServer ds = application.getDataServer();
 		String transaction_id = getTransactionID(serverName);
 		IDataSet set = null;
 		try
 		{
 			long time = System.currentTimeMillis();
-			set = ds.performCustomQuery(application.getClientID(), serverName, "<user_query>", transaction_id, sql, args, 0, maxNumberOfRowsToRetrieve); //$NON-NLS-1$
+			set = ds.performQuery(application.getClientID(), serverName, transaction_id, sqlSelect, getTableFilterParams(serverName, sqlSelect), false, 0,
+				maxNumberOfRowsToRetrieve, IDataServer.CUSTOM_QUERY);
 			if (Debug.tracing())
 			{
-				Debug.trace("Custom query, time: " + (System.currentTimeMillis() - time) + " thread: " + Thread.currentThread().getName() + " SQL: " + sql); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+				Debug.trace("Custom query, time: " + (System.currentTimeMillis() - time) + " thread: " + Thread.currentThread().getName() + " SQL: " + sqlSelect); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 			}
-
 		}
 		catch (RemoteException e)
 		{
@@ -1749,9 +1738,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return set;
 	}
 
-	public String createDataSourceFromQuery(String name, String serverName, String sql, Object[] args, int maxNumberOfRowsToRetrieve) throws ServoyException
+	public String createDataSourceFromQuery(String name, String serverName, ISQLSelect sqlSelect, int maxNumberOfRowsToRetrieve) throws ServoyException
 	{
-		if (name == null || !checkQueryForSelect(sql))
+		if (name == null)
 		{
 			return null;
 		}
@@ -1784,9 +1773,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				targetTid = gt.getTransactionID(table == null ? IServer.INMEM_SERVER : table.getServerName());
 			}
 
-			table = application.getDataServer().insertQueryResult(application.getClientID(), serverName, queryTid, new QueryCustomSelect(sql, args), null,
-				false, 0, maxNumberOfRowsToRetrieve, IDataServer.CUSTOM_QUERY, dataSource, table == null ? IServer.INMEM_SERVER : table.getServerName(),
-				table == null ? null : table.getName() /* create temp table when null */, targetTid);
+			table = application.getDataServer().insertQueryResult(application.getClientID(), serverName, queryTid, sqlSelect,
+				getTableFilterParams(serverName, sqlSelect), false, 0, maxNumberOfRowsToRetrieve, IDataServer.CUSTOM_QUERY, dataSource,
+				table == null ? IServer.INMEM_SERVER : table.getServerName(), table == null ? null : table.getName() /* create temp table when null */,
+				targetTid);
 			if (table != null)
 			{
 				inMemDataSources.put(dataSource, table);
@@ -2219,7 +2209,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	public IQueryBuilderFactory getQueryFactory()
 	{
-		return new QBFactory(this);
+		return new QBFactory(this, getGlobalScopeProvider(), getApplication().getFlattenedSolution());
 	}
 
 	public IFoundSetInternal getFoundSet(String dataSource) throws ServoyException

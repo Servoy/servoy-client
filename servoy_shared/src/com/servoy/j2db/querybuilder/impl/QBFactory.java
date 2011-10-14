@@ -19,7 +19,9 @@ package com.servoy.j2db.querybuilder.impl;
 
 import org.mozilla.javascript.Scriptable;
 
-import com.servoy.j2db.persistence.ITableProvider;
+import com.servoy.j2db.dataprocessing.IGlobalValueEntry;
+import com.servoy.j2db.persistence.IDataProviderHandler;
+import com.servoy.j2db.persistence.ITableAndRelationProvider;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.querybuilder.IQueryBuilderFactory;
 
@@ -30,11 +32,15 @@ import com.servoy.j2db.querybuilder.IQueryBuilderFactory;
 public class QBFactory implements IQueryBuilderFactory
 {
 	private Scriptable scriptableParent;
-	private final ITableProvider tableProvider;
+	private final ITableAndRelationProvider tableProvider;
+	private final IGlobalValueEntry globalScopeProvider;
+	private final IDataProviderHandler dataProviderHandler;
 
-	public QBFactory(ITableProvider tableProvider)
+	public QBFactory(ITableAndRelationProvider tableProvider, IGlobalValueEntry globalScopeProvider, IDataProviderHandler dataProviderHandler)
 	{
 		this.tableProvider = tableProvider;
+		this.globalScopeProvider = globalScopeProvider;
+		this.dataProviderHandler = dataProviderHandler;
 	}
 
 	/**
@@ -47,7 +53,7 @@ public class QBFactory implements IQueryBuilderFactory
 
 	public QBSelect createSelect(String dataSource, String alias) throws RepositoryException
 	{
-		QBSelect queryBuilder = new QBSelect(tableProvider, dataSource, alias);
+		QBSelect queryBuilder = new QBSelect(tableProvider, globalScopeProvider, dataProviderHandler, dataSource, alias);
 		queryBuilder.setScriptableParent(scriptableParent);
 		return queryBuilder;
 	}

@@ -34,4 +34,8 @@ public interface IRelation extends ISupportName
 	int[] getOperators();
 
 	int getJoinType();
+
+	String getPrimaryDataSource();
+
+	String getForeignDataSource();
 }

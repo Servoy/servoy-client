@@ -23,9 +23,12 @@ import java.util.Date;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.j2db.dataprocessing.IGlobalValueEntry;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.IDataProviderHandler;
+import com.servoy.j2db.persistence.IRelation;
 import com.servoy.j2db.persistence.ITable;
-import com.servoy.j2db.persistence.ITableProvider;
+import com.servoy.j2db.persistence.ITableAndRelationProvider;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.AbstractBaseQuery;
@@ -53,7 +56,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 {
 	public static final String CONDITION_WHERE = "SQ:WHERE";
 
-	private final ITableProvider tableProvider;
+	private final ITableAndRelationProvider tableProvider;
 
 	private QBResult result;
 	private QBSorts sort;
@@ -66,19 +69,28 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 
 	private Scriptable scriptableParent;
 
-	QBSelect(ITableProvider tableProvider, String dataSource, String alias)
+	private final IGlobalValueEntry globalScopeProvider;
+
+	private final IDataProviderHandler dataProviderHandler;
+
+	QBSelect(ITableAndRelationProvider tableProvider, IGlobalValueEntry globalScopeProvider, IDataProviderHandler dataProviderHandler, String dataSource, String alias)
 	{
 		super(dataSource, alias);
 		this.tableProvider = tableProvider;
+		this.globalScopeProvider = globalScopeProvider;
+		this.dataProviderHandler = dataProviderHandler;
 	}
 
 	/**
 	 * @param querySelect
 	 */
-	public QBSelect(ITableProvider tableProvider, String dataSource, QuerySelect querySelect)
+	public QBSelect(ITableAndRelationProvider tableProvider, IGlobalValueEntry globalScopeProvider, IDataProviderHandler dataProviderHandler, String dataSource,
+		QuerySelect querySelect)
 	{
 		super(dataSource, null);
 		this.tableProvider = tableProvider;
+		this.globalScopeProvider = globalScopeProvider;
+		this.dataProviderHandler = dataProviderHandler;
 		this.query = querySelect;
 	}
 
@@ -115,6 +127,21 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 			throw new RepositoryException("Cannot resolve datasource '" + dataSource + "'");
 		}
 		return (Table)tbl;
+	}
+
+	IRelation getRelation(String name)
+	{
+		return tableProvider.getRelation(name);
+	}
+
+	IGlobalValueEntry getGlobalScopeProvider()
+	{
+		return globalScopeProvider;
+	}
+
+	IDataProviderHandler getDataProviderHandler()
+	{
+		return dataProviderHandler;
 	}
 
 	@JSReadonlyProperty
