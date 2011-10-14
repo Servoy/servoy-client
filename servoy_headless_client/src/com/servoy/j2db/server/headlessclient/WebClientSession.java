@@ -20,6 +20,7 @@ package com.servoy.j2db.server.headlessclient;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -64,9 +65,7 @@ public class WebClientSession extends WebSession
 
 	private final WebCredentials credentials = new WebCredentials();
 
-	private String serveName;
-	private String serveMime;
-	private byte[] serveData;
+	private Object[] serveInfo;
 
 	private transient final DNDSessionInfo dndSessionInfo = new DNDSessionInfo();
 
@@ -266,9 +265,7 @@ public class WebClientSession extends WebSession
 
 	public void serveResource(String fname, byte[] bs, String mimetype)
 	{
-		serveName = fname;
-		serveData = bs;
-		serveMime = mimetype;
+		serveInfo = new Object[] { fname, bs, mimetype };
 	}
 
 	/**
@@ -277,13 +274,13 @@ public class WebClientSession extends WebSession
 	public DynamicWebResource.ResourceState getResourceState()
 	{
 		DynamicWebResource.ResourceState resourceState = null;
-		if (serveName != null && serveData != null)
+		if (serveInfo[0] != null && serveInfo[1] != null)
 		{
-			((WebResponse)RequestCycle.get().getResponse()).setHeader("Content-disposition", "attachment; filename=\"" + serveName + "\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			((WebResponse)RequestCycle.get().getResponse()).setHeader("Content-disposition", "attachment; filename=\"" + serveInfo[0] + "\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			resourceState = new DynamicWebResource.ResourceState()
 			{
-				private final String mime = serveMime;
-				private final byte[] data = serveData;
+				private final byte[] data = (byte[])serveInfo[1];
+				private final String mime = (String)serveInfo[2];
 
 				@Override
 				public int getLength()
@@ -308,7 +305,6 @@ public class WebClientSession extends WebSession
 		{
 			resourceState = new ResourceState()
 			{
-
 				@Override
 				public byte[] getData()
 				{
@@ -322,10 +318,28 @@ public class WebClientSession extends WebSession
 				}
 			};
 		}
-		// clear after one serve
-		serveName = null;
-		serveData = null;
-		serveMime = null;
+
+		class ServeClearer implements Runnable
+		{
+			private Object[] toClear;
+
+			ServeClearer(Object[] ref)
+			{
+				toClear = ref;
+			}
+
+			public void run()
+			{
+				toClear[0] = null;//clear
+				toClear[1] = null;//clear
+				toClear[2] = null;//clear
+				toClear = null;//clear
+			}
+		}
+
+		// clear after one minute
+		getWebClient().getScheduledExecutor().schedule(new ServeClearer(serveInfo), 60, TimeUnit.SECONDS);
+
 		return resourceState;
 	}
 
