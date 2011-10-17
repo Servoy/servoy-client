@@ -2849,6 +2849,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			StyleSheet ss = getRowStyleSheet();
 			Style style = isSelected ? getRowSelectedStyle() : null;
+			if (style != null && style.getAttributeCount() == 0) style = null;
 			if (style == null)
 			{
 				style = (listItem.getIndex() % 2 == 0) ? getRowOddStyle() : getRowEvenStyle(); // because index = 0 means record = 1
@@ -3285,7 +3286,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	{
 		if (currentData == null) return null;
 		List<Integer> indexToUpdate;
-		if (!hasOnRender && (bgColorScript != null || getRowSelectedStyle() != null) && (indexToUpdate = getIndexToUpdate()) != null)
+		if (!hasOnRender && (bgColorScript != null || (getRowSelectedStyle() != null && getRowSelectedStyle().getAttributeCount() > 0)) &&
+			(indexToUpdate = getIndexToUpdate()) != null)
 		{
 			int firstRow = table.getCurrentPage() * table.getRowsPerPage();
 			int lastRow = firstRow + table.getViewSize() - 1;

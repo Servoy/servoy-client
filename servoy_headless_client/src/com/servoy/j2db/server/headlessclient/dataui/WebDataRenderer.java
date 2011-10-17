@@ -512,6 +512,7 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 					ISupportRowStyling parentViewWithRowStyling = (ISupportRowStyling)parentView;
 					StyleSheet ss = parentViewWithRowStyling.getRowStyleSheet();
 					Style style = isSelected ? parentViewWithRowStyling.getRowSelectedStyle() : null;
+					if (style != null && style.getAttributeCount() == 0) style = null;
 					if (style == null)
 					{
 						style = (recIndex % 2 == 0) ? parentViewWithRowStyling.getRowEvenStyle() : parentViewWithRowStyling.getRowOddStyle();
