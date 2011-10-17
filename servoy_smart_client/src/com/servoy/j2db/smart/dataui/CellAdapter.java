@@ -772,6 +772,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 
 				StyleSheet ss = oddEvenStyling.getRowStyleSheet();
 				Style style = isSelected ? oddEvenStyling.getRowSelectedStyle() : null;
+				if (style != null && style.getAttributeCount() == 0) style = null;
 				if (style == null)
 				{
 					style = (row % 2 == 0) ? oddEvenStyling.getRowOddStyle() : oddEvenStyling.getRowEvenStyle(); // because index = 0 means record = 1	

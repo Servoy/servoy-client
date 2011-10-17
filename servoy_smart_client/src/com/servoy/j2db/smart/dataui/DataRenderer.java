@@ -521,6 +521,7 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 					ISupportRowStyling oddEvenStyling = (ISupportRowStyling)rendererParentCanBeNull;
 					StyleSheet ss = oddEvenStyling.getRowStyleSheet();
 					Style style = isSelected ? oddEvenStyling.getRowSelectedStyle() : null;
+					if (style != null && style.getAttributeCount() == 0) style = null;
 					if (style == null)
 					{
 						style = (index % 2 == 0) ? oddEvenStyling.getRowOddStyle() : oddEvenStyling.getRowEvenStyle(); // because index = 0 means record = 1
