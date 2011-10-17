@@ -1692,7 +1692,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				Form form = forms.next();
 				tmp.put(form.getName(), form);
 			}
-			tmp = formCacheByName;
+			formCacheByName = tmp;
 		}
 		return tmp.get(name);
 	}
