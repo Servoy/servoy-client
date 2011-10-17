@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONException;
 
@@ -475,7 +476,7 @@ public abstract class AbstractBase implements IPersist
 	{
 		if (allobjects == null)
 		{
-			allobjects = new ArrayList<IPersist>(3);
+			allobjects = Collections.synchronizedList(new ArrayList<IPersist>(3));
 		}
 		allobjects.add(obj);
 		if (allobjectsMap != null && obj != null)
@@ -514,7 +515,7 @@ public abstract class AbstractBase implements IPersist
 	{
 		if (allobjectsMap == null && allobjects != null && allobjects.size() > 0)
 		{
-			allobjectsMap = new HashMap<UUID, IPersist>(allobjects.size(), 0.9f);
+			allobjectsMap = new ConcurrentHashMap<UUID, IPersist>(allobjects.size(), 0.9f, 16);
 			for (IPersist persist : allobjects)
 			{
 				if (persist != null)
@@ -630,7 +631,7 @@ public abstract class AbstractBase implements IPersist
 			cloned.copyPropertiesMap(getPropertiesMap(), true);
 			if (cloned.allobjects != null)
 			{
-				cloned.allobjects = new ArrayList<IPersist>(allobjects.size());
+				cloned.allobjects = Collections.synchronizedList(new ArrayList<IPersist>(allobjects.size()));
 				for (IPersist persist : allobjects)
 				{
 					if (persist instanceof ICloneable)
@@ -687,7 +688,7 @@ public abstract class AbstractBase implements IPersist
 			clone.allobjectsMap = null;
 			if (deep && allobjects != null)
 			{
-				clone.allobjects = new ArrayList<IPersist>(allobjects.size());
+				clone.allobjects = Collections.synchronizedList(new ArrayList<IPersist>(allobjects.size()));
 				Iterator<IPersist> it = this.getAllObjects();
 				while (it.hasNext())
 				{
