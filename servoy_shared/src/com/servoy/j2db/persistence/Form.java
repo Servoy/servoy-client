@@ -1180,7 +1180,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * @templatedescription Callback method form when editing is stopped
 	 * @templatename onRecordEditStop
 	 * @templatetype Boolean
-	 * @templateparam JSRecord record record being saved
+	 * @templateparam JSRecord<${dataSource}> record record being saved
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 * @templatecode
@@ -1753,7 +1753,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * @templateparam String elementType element type (not supported in webclient)
 	 * @templateparam String dataProviderID element data provider (not supported in webclient)
 	 * @templateparam String formName form name
-	 * @templateparam JSRecord record selected record
+	 * @templateparam JSRecord<${dataSource}> record selected record
 	 * @templateparam Boolean edited is the record edited
 	 * @templateaddtodo
 	 * @templatecode

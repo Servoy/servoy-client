@@ -22,6 +22,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -165,17 +167,17 @@ public class MethodTemplate implements IMethodTemplate
 
 	public String getMethodDeclaration(CharSequence name, CharSequence methodCode)
 	{
-		return getMethodDeclaration(name, methodCode, PUBLIC_TAG);
+		return getMethodDeclaration(name, methodCode, PUBLIC_TAG, null);
 	}
 
 	/**
 	 * 
 	 * @param name
 	 * @param methodCode
-	 * @param outputPrivateTag 0: public, 1: protected 2: private
+	 * @param tagToOutput PUBLIC_TAG/PROTECTED_TAG/PRIVATE_TAG
 	 * @return
 	 */
-	public String getMethodDeclaration(CharSequence name, CharSequence methodCode, int tagToOutput)
+	public String getMethodDeclaration(CharSequence name, CharSequence methodCode, int tagToOutput, Map<String, String> substitutions)
 	{
 		StringBuilder sb = new StringBuilder();
 		if (description != null && description.length() > 0)
@@ -263,7 +265,21 @@ public class MethodTemplate implements IMethodTemplate
 			}
 		}
 		sb.append("\n}\n"); //$NON-NLS-1$
-		return sb.toString();
+		String declaration = sb.toString();
+
+		// replace ${key} with substitutions(key)
+		Matcher matcher = Pattern.compile("\\$\\{(\\w+)\\}").matcher(declaration);
+		StringBuffer stringBuffer = new StringBuffer(declaration.length());
+		while (matcher.find())
+		{
+			String key = matcher.group(1);
+			String value = substitutions == null ? null : substitutions.get(key);
+			matcher.appendReplacement(stringBuffer, value == null ? "??" + key + "??" : value);
+		}
+		matcher.appendTail(stringBuffer);
+		declaration = stringBuffer.toString();
+
+		return declaration;
 	}
 
 	/**
@@ -303,23 +319,23 @@ public class MethodTemplate implements IMethodTemplate
 		return new MethodTemplate(template.description, template.signature, Utils.arrayMerge(template.args, formalArguments), null, true)
 		{
 			@Override
-			public String getMethodDeclaration(CharSequence name, CharSequence methodCode, int tagToOutput)
+			public String getMethodDeclaration(CharSequence name, CharSequence methodCode, int tagToOutput, Map<String, String> substitutions)
 			{
 				CharSequence body;
 				if (methodCode == null)
 				{
 					StringBuilder sb = new StringBuilder();
-					sb.append("return _super.").append(name);//$NON-NLS-1$
+					sb.append("return _super.").append(name);
 					if (getArguments() == null || getArguments().length == 0)
 					{
-						sb.append(".apply(this, arguments); // try to pass the arguments as a normal method call: _super." + name + "(arg1,arg2)"); //$NON-NLS-1$
+						sb.append(".apply(this, arguments); // try to pass the arguments as a normal method call: _super." + name + "(arg1,arg2)");
 					}
 					else
 					{
 						sb.append('(');
 						for (int i = 0; getArguments() != null && i < getArguments().length; i++)
 						{
-							if (i > 0) sb.append(", "); //$NON-NLS-1$
+							if (i > 0) sb.append(", ");
 							sb.append(getArguments()[i].getName());
 						}
 						sb.append(')');
@@ -330,7 +346,7 @@ public class MethodTemplate implements IMethodTemplate
 				{
 					body = methodCode;
 				}
-				return super.getMethodDeclaration(name, body, tagToOutput);
+				return super.getMethodDeclaration(name, body, tagToOutput, substitutions);
 			}
 		};
 	}

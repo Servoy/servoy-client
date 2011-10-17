@@ -231,7 +231,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * the thrown exception can be retrieved via record.exception.getValue().
 	 * @templatename onRecordInsert
 	 * @templatetype Boolean
-	 * @templateparam JSRecord record record that will be inserted
+	 * @templateparam JSRecord<${dataSource}> record record that will be inserted
 	 * @templateaddtodo
 	 * @templatecode
 	 * 
@@ -262,7 +262,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * the thrown exception can be retrieved via record.exception.getValue().
 	 * @templatename onRecordUpdate
 	 * @templatetype Boolean
-	 * @templateparam JSRecord record record that will be updated
+	 * @templateparam JSRecord<${dataSource}> record record that will be updated
 	 * @templateaddtodo
 	 * @templatecode
 	 * 
@@ -293,7 +293,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * the thrown exception can be retrieved via record.exception.getValue().
 	 * @templatename onRecordDelete
 	 * @templatetype Boolean
-	 * @templateparam JSRecord record record that will be deleted
+	 * @templateparam JSRecord<${dataSource}> record record that will be deleted
 	 * @templateaddtodo
 	 * @templatecode
 	 * 
@@ -318,7 +318,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * 
 	 * @templatedescription Record after-insert trigger
 	 * @templatename afterRecordInsert
-	 * @templateparam JSRecord record record that is inserted
+	 * @templateparam JSRecord<${dataSource}> record record that is inserted
 	 * @templateaddtodo
 	 */
 	public int getOnAfterInsertMethodID()
@@ -336,7 +336,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * 
 	 * @templatedescription Record after-update trigger
 	 * @templatename afterRecordUpdate
-	 * @templateparam JSRecord record record that is updated
+	 * @templateparam JSRecord<${dataSource}> record record that is updated
 	 * @templateaddtodo
 	 */
 	public int getOnAfterUpdateMethodID()
@@ -354,7 +354,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * 
 	 * @templatedescription Record after-delete trigger
 	 * @templatename afterRecordDelete
-	 * @templateparam JSRecord record record that is deleted
+	 * @templateparam JSRecord<${dataSource}> record record that is deleted
 	 * @templateaddtodo
 	 */
 	public int getOnAfterDeleteMethodID()
@@ -474,7 +474,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * 
 	 * @templatedescription Record after-create trigger
 	 * @templatename afterFoundSetRecordCreate
-	 * @templateparam JSRecord record record that is created
+	 * @templateparam JSRecord<${dataSource}> record record that is created
 	 * @templateaddtodo
 	 */
 	public int getOnAfterCreateMethodID()
