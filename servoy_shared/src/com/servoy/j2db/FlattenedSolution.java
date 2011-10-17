@@ -107,14 +107,16 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	private Map<String, IDataProvider> globalProviders = null; //global -> dp ,runtime var
 
 
-	private Map<String, Relation> relationCacheByName = null;
-	private Map<String, ScriptMethod> scriptMethodCacheByName = null;
-	private Map<String, Form> formCacheByName = null;
-	private Map<String, ScriptVariable> scriptVariableCacheByName = null;
-	private Map<String, ValueList> valuelistCacheByName = null;
-	private final List<IPersist> removedPersist = new ArrayList<IPersist>(3);
+	private volatile Map<String, Relation> relationCacheByName = null;
+	private volatile Map<String, ScriptMethod> scriptMethodCacheByName = null;
+	private volatile Map<String, Form> formCacheByName = null;
+	private volatile Map<String, ScriptVariable> scriptVariableCacheByName = null;
+	private volatile Map<String, ValueList> valuelistCacheByName = null;
 
-	private Map<Bean, Object> beanDesignInstances;
+	private volatile Map<Bean, Object> beanDesignInstances;
+
+	private final List<IPersist> removedPersist = Collections.synchronizedList(new ArrayList<IPersist>(3));
+
 
 	private final Map<String, Set<String>> liveForms = new HashMap<String, Set<String>>();
 	private final Map<String, ChangedFormData> changedForms = new HashMap<String, ChangedFormData>();
@@ -729,11 +731,20 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	private void fillList(List<IPersist> copyInto, Solution s)
 	{
 		List<IPersist> allObjectsAsList = s.getAllObjectsAsList();
-		for (IPersist persist : allObjectsAsList)
+		if (copySolution == null || copySolution == s)
 		{
-			if (copySolution == null || copySolution == s || copySolution.getChild(persist.getUUID()) == null)
+			copyInto.addAll(allObjectsAsList);
+		}
+		else
+		{
+			Object[] copy = allObjectsAsList.toArray();
+			for (Object o : copy)
 			{
-				copyInto.add(persist);
+				IPersist persist = (IPersist)o;
+				if (copySolution.getChild(persist.getUUID()) == null)
+				{
+					copyInto.add(persist);
+				}
 			}
 		}
 	}
@@ -1174,28 +1185,6 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		return modules;
 	}
 
-	private void createRelationCache()
-	{
-		try
-		{
-			relationCacheByName = new HashMap<String, Relation>();
-
-			Iterator<Relation> it = getRelations(false);
-			while (it.hasNext())
-			{
-				Relation r = it.next();
-				if (r != null)
-				{
-					relationCacheByName.put(r.getName(), r);
-				}
-			}
-		}
-		catch (RepositoryException ex)
-		{
-			Debug.error(ex);
-		}
-	}
-
 	public synchronized Relation getRelation(String name)
 	{
 		if (name.indexOf('.') >= 0)
@@ -1204,11 +1193,29 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			Debug.log("Unexpected relation name lookup", new Exception(name)); //$NON-NLS-1$
 			return null;
 		}
-		if (relationCacheByName == null)
+		Map<String, Relation> tmp = relationCacheByName;
+		if (tmp == null)
 		{
-			createRelationCache();
+			try
+			{
+				tmp = new HashMap<String, Relation>();
+				Iterator<Relation> it = getRelations(false);
+				while (it.hasNext())
+				{
+					Relation r = it.next();
+					if (r != null)
+					{
+						tmp.put(r.getName(), r);
+					}
+				}
+				relationCacheByName = tmp;
+			}
+			catch (RepositoryException ex)
+			{
+				Debug.error(ex);
+			}
 		}
-		return relationCacheByName.get(name);
+		return tmp.get(name);
 	}
 
 	/**
@@ -1261,7 +1268,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		scriptMethodCacheByName = null;
 	}
 
-	private void flushScriptVariables()
+	private synchronized void flushScriptVariables()
 	{
 		scriptVariableCacheByName = null;
 		globalProviders = null;
@@ -1557,18 +1564,19 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		{
 			methodName = methodName.toString().substring(ScriptVariable.GLOBAL_DOT_PREFIX.length());
 		}
-		if (scriptMethodCacheByName == null)
+		Map<String, ScriptMethod> tmp = scriptMethodCacheByName;
+		if (tmp == null)
 		{
-			scriptMethodCacheByName = new HashMap<String, ScriptMethod>();
+			tmp = new HashMap<String, ScriptMethod>();
 			Iterator<ScriptMethod> scriptMethods = getScriptMethods(false);
 			while (scriptMethods.hasNext())
 			{
 				ScriptMethod scriptMethod = scriptMethods.next();
-				scriptMethodCacheByName.put(scriptMethod.getName(), scriptMethod);
+				tmp.put(scriptMethod.getName(), scriptMethod);
 			}
-
+			scriptMethodCacheByName = tmp;
 		}
-		return scriptMethodCacheByName.get(methodName);
+		return tmp.get(methodName);
 	}
 
 	public Iterator<ScriptVariable> getScriptVariables(boolean sort)
@@ -1578,18 +1586,19 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	public ScriptVariable getScriptVariable(String variableName)
 	{
-		if (scriptVariableCacheByName == null)
+		Map<String, ScriptVariable> tmp = scriptVariableCacheByName;
+		if (tmp == null)
 		{
-			scriptVariableCacheByName = new HashMap<String, ScriptVariable>();
+			tmp = new HashMap<String, ScriptVariable>();
 			Iterator<ScriptVariable> scriptVariable = getScriptVariables(false);
 			while (scriptVariable.hasNext())
 			{
 				ScriptVariable scriptMethod = scriptVariable.next();
-				scriptVariableCacheByName.put(scriptMethod.getName(), scriptMethod);
+				tmp.put(scriptMethod.getName(), scriptMethod);
 			}
-
+			scriptVariableCacheByName = tmp;
 		}
-		return scriptVariableCacheByName.get(variableName);
+		return tmp.get(variableName);
 	}
 
 	protected IRepository getRepository()
@@ -1631,20 +1640,22 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		return AbstractBase.selectById(getValueLists(false), id);
 	}
 
-	public synchronized ValueList getValueList(String name)
+	public ValueList getValueList(String name)
 	{
-		if (valuelistCacheByName == null)
+		Map<String, ValueList> tmp = valuelistCacheByName;
+		if (tmp == null)
 		{
-			valuelistCacheByName = new HashMap<String, ValueList>();
+			tmp = new HashMap<String, ValueList>();
 
 			Iterator<ValueList> valuelists = getValueLists(false);
 			while (valuelists.hasNext())
 			{
 				ValueList valuelist = valuelists.next();
-				valuelistCacheByName.put(valuelist.getName(), valuelist);
+				tmp.put(valuelist.getName(), valuelist);
 			}
+			valuelistCacheByName = tmp;
 		}
-		return valuelistCacheByName.get(name);
+		return tmp.get(name);
 	}
 
 	public Iterator<Form> getForms(ITable basedOnTable, boolean sort)
@@ -1670,18 +1681,20 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	public Form getForm(String name)
 	{
-		if (formCacheByName == null)
+		Map<String, Form> tmp = formCacheByName;
+		if (tmp == null)
 		{
-			formCacheByName = new HashMap<String, Form>();
+			tmp = new HashMap<String, Form>();
 
 			Iterator<Form> forms = getForms(false);
 			while (forms.hasNext())
 			{
 				Form form = forms.next();
-				formCacheByName.put(form.getName(), form);
+				tmp.put(form.getName(), form);
 			}
+			tmp = formCacheByName;
 		}
-		return formCacheByName.get(name);
+		return tmp.get(name);
 	}
 
 	/**
