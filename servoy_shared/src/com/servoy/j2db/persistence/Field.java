@@ -142,8 +142,8 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 * @templatedescription Handle changed data
 	 * @templatename onDataChange
 	 * @templatetype Boolean
-	 * @templateparam Object oldValue old value
-	 * @templateparam Object newValue new value
+	 * @templateparam ${dataproviderType} oldValue old value
+	 * @templateparam ${dataproviderType} newValue new value
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 * @templatecode
