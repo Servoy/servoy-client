@@ -319,7 +319,7 @@ public interface IScriptBaseMethods extends IScriptable
 	 * //sets the border type to "LineBorder"
 	 * //sets a 1 px line width for the bottom and left side of the border
 	 * //sets the hexadecimal color of the border to "#ccffcc"
-	 * var b = %%prefix%%%%elementName%%.setBorder('LineBorder,1,#ccffcc');
+	 * %%prefix%%%%elementName%%.border = 'LineBorder,1,#ccffcc';
 	 *
 	 * @param spec the border attributes
 	 */
