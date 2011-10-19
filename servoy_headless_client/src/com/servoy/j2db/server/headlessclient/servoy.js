@@ -1316,8 +1316,23 @@ if (typeof(Servoy.DD) == "undefined")
 
 var tipInitialTimeout, tipTimeout;
 
-function showtip(e,message,initialDelay, dismissDelay)
+function showtip(event,message,initialDelay, dismissDelay)
 {
+	var e = event;
+	if(!e) e = window.event;
+	
+	var targ;
+	if(e.target) targ = e.target;
+	else if (e.srcElement) targ = e.srcElement;
+	if(targ.nodeType == 3) // defeat Safari bug
+		targ = targ.parentNode;
+
+	if(targ.tagName.toLowerCase() == "option")	// stop tooltip if over option element
+	{
+		hidetip();
+		return;
+	}
+
 	var m = document.getElementById('mktipmsg');
 
 	m.innerHTML = message;
@@ -1325,14 +1340,8 @@ function showtip(e,message,initialDelay, dismissDelay)
 	m.style.width = "";
 	m.style.overflow = "hidden";
 	
-	if(!e)
-	{
-		tipmousemove(window.event);
-	}
-	else
-	{
-		tipmousemove(e);
-	}
+	tipmousemove(e);
+
 	if(window.addEventListener)
 	{
 		document.addEventListener('mousemove', tipmousemove, false);
