@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.query;
 
 import java.util.concurrent.atomic.AtomicLong;
@@ -32,6 +32,7 @@ public final class QueryTable implements IQueryElement, Immutable
 {
 	private final String name;
 	private final String alias;
+	private final boolean needsQuoting;
 	private transient String catalogName;
 	private transient String schemaName;
 	private final transient boolean generatedAlias;
@@ -44,9 +45,18 @@ public final class QueryTable implements IQueryElement, Immutable
 	 */
 	public QueryTable(String name, String catalogName, String schemaName)
 	{
+		this(name, catalogName, schemaName, true);
+	}
+
+	/**
+	 * @param name table name as used in sql, may be quoted
+	 */
+	public QueryTable(String name, String catalogName, String schemaName, boolean needsQuoting)
+	{
 		this.name = name;
 		this.catalogName = catalogName;
 		this.schemaName = schemaName;
+		this.needsQuoting = needsQuoting;
 		this.alias = generateAlias(name);
 		this.generatedAlias = true;
 		this.isComplete = true;
@@ -54,10 +64,16 @@ public final class QueryTable implements IQueryElement, Immutable
 
 	public QueryTable(String name, String catalogName, String schemaName, String alias)
 	{
+		this(name, catalogName, schemaName, alias, true);
+	}
+
+	public QueryTable(String name, String catalogName, String schemaName, String alias, boolean needsQuoting)
+	{
 		this.name = name;
 		this.catalogName = catalogName;
 		this.schemaName = schemaName;
 		this.alias = alias;
+		this.needsQuoting = needsQuoting;
 		this.generatedAlias = false;
 		this.isComplete = true;
 	}
@@ -113,6 +129,11 @@ public final class QueryTable implements IQueryElement, Immutable
 	public boolean isAliasGenerated()
 	{
 		return generatedAlias;
+	}
+
+	public boolean needsQuoting()
+	{
+		return needsQuoting;
 	}
 
 	public boolean isComplete()
@@ -199,7 +220,8 @@ public final class QueryTable implements IQueryElement, Immutable
 		// just need to serialize the name, the alias can be regenerated.
 		// Note: this only works if the query object was packed before serialization!
 		// catalogName and schemaName will be regenerated on the server
-		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), generatedAlias ? (Object)name : new Object[] { name, alias });
+		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), generatedAlias ? (needsQuoting ? (Object)name : new Object[] { name })
+			: new Object[] { name, alias, Boolean.valueOf(needsQuoting) });
 	}
 
 	public QueryTable(ReplacedObject s)
@@ -207,19 +229,32 @@ public final class QueryTable implements IQueryElement, Immutable
 		Object o = s.getObject();
 		if (o instanceof Object[])
 		{
-			// [name, alias]
 			Object[] members = (Object[])o;
 			int i = 0;
 			name = (String)members[i++];
-			alias = (String)members[i++];
-			generatedAlias = false;
+			if (members.length == 1)
+			{
+				// [name], needsQuoting = false
+				needsQuoting = false;
+				alias = generateAlias(name);
+				generatedAlias = true;
+			}
+			else
+			{
+				// [name, alias, needsQuoting]
+				alias = (String)members[i++];
+				needsQuoting = ((Boolean)members[i++]).booleanValue();
+				generatedAlias = false;
+			}
 		}
 		else
 		{ // name
 			name = (String)o;
+			needsQuoting = true;
 			alias = generateAlias(name);
 			generatedAlias = true;
 		}
+
 		// catalogName and schemaName will be regenerated on the server
 		isComplete = false;
 		catalogName = null;
