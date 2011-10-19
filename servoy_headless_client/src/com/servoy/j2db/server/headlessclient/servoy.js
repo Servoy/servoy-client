@@ -1491,26 +1491,30 @@ if (typeof(Servoy.Utils) == "undefined")
 		setLabelChildHeightEx: function(elemid, valign) 
 		{
 		  var elem = document.getElementById(elemid);
-		  var elemHeight =  elem.clientHeight;
 		  var child = document.getElementById(elemid + "_lb");
-		  var childHeight = child.clientHeight;
-
-		  var top; 
-
-		  if(valign == 1)		// ISupportTextSetup.TOP
+		  
+		  if(elem && child)
 		  {
-		  	top = 0;
+			var elemHeight =  elem.clientHeight;
+			var childHeight = child.clientHeight;
+	
+			var top; 
+	
+			if(valign == 1)			// ISupportTextSetup.TOP
+			{
+				top = 0;
+			}
+			else if(valign == 3)	// ISupportTextSetup.BOTTOM
+			{
+				top = elemHeight - childHeight;
+			}
+			else					// ISupportTextSetup.CENTER
+			{
+				top = Math.floor((elemHeight - childHeight)/2);
+			} 
+	
+			child.style.top = top + "px";
 		  }
-		  else if(valign == 3)	// ISupportTextSetup.BOTTOM
-		  {
-		  	top = elemHeight - childHeight;
-		  }
-		  else					// ISupportTextSetup.CENTER
-		  {
-			top = Math.floor((elemHeight - childHeight)/2);
-		  } 
-
-		  child.style.top = top + "px";
 		},
 		
 		stopClickTimer: function()
