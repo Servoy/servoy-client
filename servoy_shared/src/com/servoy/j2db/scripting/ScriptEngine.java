@@ -55,6 +55,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
+import com.servoy.j2db.scripting.solutionmodel.JSMethodWithArguments;
 import com.servoy.j2db.scripting.solutionmodel.JSSolutionModel;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IDepricatedScriptTabPanelMethods;
@@ -143,8 +144,9 @@ public class ScriptEngine implements IScriptSupport
 		{
 			toplevelScope = new ImporterTopLevel(cx);
 
-			ScriptObjectRegistry.getJavaMembers(UUID.class, null);
-			ScriptObjectRegistry.getJavaMembers(DbIdentValue.class, null);
+			ScriptObjectRegistry.getJavaMembers(UUID.class, toplevelScope);
+			ScriptObjectRegistry.getJavaMembers(JSMethodWithArguments.class, toplevelScope);
+			ScriptObjectRegistry.getJavaMembers(DbIdentValue.class, toplevelScope);
 
 			toplevelScope.put(Record.JS_RECORD, toplevelScope, new InstanceOfScope(Record.JS_RECORD, Record.class));
 			toplevelScope.put(FoundSet.JS_FOUNDSET, toplevelScope, new InstanceOfScope(FoundSet.JS_FOUNDSET, FoundSet.class));
