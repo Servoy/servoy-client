@@ -691,7 +691,11 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 	@Override
 	protected void paintComponent(Graphics g)
 	{
-		if (enclosedComponent.eventExecutor != null) enclosedComponent.eventExecutor.fireOnRender(this, enclosedComponent.hasFocus());
+		if (enclosedComponent.eventExecutor != null)
+		{
+			enclosedComponent.eventExecutor.fireOnRender(this, enclosedComponent.hasFocus());
+			if (!isVisible()) return;
+		}
 		super.paintComponent(g);
 	}
 

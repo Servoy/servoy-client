@@ -2061,7 +2061,11 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 	@Override
 	protected void paintComponent(Graphics g)
 	{
-		if (eventExecutor != null) eventExecutor.fireOnRender(this, hasFocus());
+		if (eventExecutor != null)
+		{
+			eventExecutor.fireOnRender(this, hasFocus());
+			if (!isVisible()) return;
+		}
 		super.paintComponent(g);
 	}
 

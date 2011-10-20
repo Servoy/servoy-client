@@ -2065,7 +2065,11 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 	@Override
 	protected void paintComponent(Graphics g)
 	{
-		if (!isIgnoreOnRender && eventExecutor != null) eventExecutor.fireOnRender(this, hasFocus());
+		if (!isIgnoreOnRender && eventExecutor != null)
+		{
+			eventExecutor.fireOnRender(this, hasFocus());
+			if (!isVisible()) return;
+		}
 		super.paintComponent(g);
 	}
 

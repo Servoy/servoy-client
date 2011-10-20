@@ -776,7 +776,11 @@ public class DataRadioButton extends JRadioButton implements IFieldComponent, ID
 	@Override
 	protected void paintComponent(Graphics g)
 	{
-		if (eventExecutor != null) eventExecutor.fireOnRender(this, hasFocus());
+		if (eventExecutor != null)
+		{
+			eventExecutor.fireOnRender(this, hasFocus());
+			if (!isVisible()) return;
+		}
 		super.paintComponent(g);
 	}
 

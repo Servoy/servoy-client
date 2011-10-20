@@ -407,7 +407,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 	private Component getTableCellEditorComponentEx(JTable jtable, Object value, boolean isSelected, int row, int column, Color bgColorParam,
 		Color fgColorParam, Font fontParam)
 	{
-		if (editor == null || !editor.isVisible() || !(jtable.getModel() instanceof IFoundSetInternal))
+		if (editor == null || !isVisible(editor) || !(jtable.getModel() instanceof IFoundSetInternal))
 		{
 			return empty;
 		}
@@ -522,10 +522,28 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		return cellRendererComp;
 	}
 
+	private boolean isVisible(Component comp)
+	{
+		boolean isVisible = false;
+		if (comp != null)
+		{
+			if (comp instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)comp).getRenderEventExecutor().hasRenderCallback())
+			{
+				isVisible = true;
+			}
+			else
+			{
+				isVisible = comp.isVisible();
+			}
+		}
+
+		return isVisible;
+	}
+
 	private Component getTableCellRendererComponentEx(JTable jtable, Object value, boolean isSelected, boolean hasFocus, final int row, final int column,
 		Color bgColor, Color fgColor, Font font)
 	{
-		if (renderer == null || !renderer.isVisible() || !(jtable.getModel() instanceof IFoundSetInternal))
+		if (renderer == null || !isVisible(renderer) || !(jtable.getModel() instanceof IFoundSetInternal))
 		{
 			return empty;
 		}

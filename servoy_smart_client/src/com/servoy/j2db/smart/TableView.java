@@ -1959,6 +1959,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		{
 			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderState(null, -1, false);
 			dataRendererOnRenderWrapper.getRenderEventExecutor().fireOnRender(dataRendererOnRenderWrapper, false);
+			if (!dataRendererOnRenderWrapper.isVisible()) return;
 		}
 		super.paintComponent(g);
 	}

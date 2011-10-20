@@ -1197,7 +1197,11 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 	@Override
 	protected void paintComponent(Graphics g)
 	{
-		if (eventExecutor != null) eventExecutor.fireOnRender(this, hasFocus());
+		if (eventExecutor != null)
+		{
+			eventExecutor.fireOnRender(this, hasFocus());
+			if (!isVisible()) return;
+		}
 		super.paintComponent(g);
 	}
 

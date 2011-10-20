@@ -1203,6 +1203,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 	@Override
 	public void setVisible(boolean flag)
 	{
+		if (enclosedComponent != null) enclosedComponent.setVisible(flag);
 		super.setVisible(flag);
 		if (labels != null)
 		{
@@ -1518,7 +1519,11 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 	@Override
 	protected void paintComponent(Graphics g)
 	{
-		if (eventExecutor != null) eventExecutor.fireOnRender(this, enclosedComponent.hasFocus());
+		if (eventExecutor != null)
+		{
+			eventExecutor.fireOnRender(this, enclosedComponent.hasFocus());
+			if (!isVisible()) return;
+		}
 		super.paintComponent(g);
 	}
 
