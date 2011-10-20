@@ -494,7 +494,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * Clears the foundset.
 	 *
-	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_clear()
+	 * @deprecated As of release 3.1, replaced by {@link #clear()}.
 	 */
 	@Deprecated
 	public void js_clearFoundSet()
@@ -807,7 +807,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * Gets the name of the table used.
 	 *
-	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_getDataSource()
+	 * @deprecated As of release 5.0, replaced by {@link #getDataSource()}.
 	 */
 	@Deprecated
 	public String js_getTableName()
@@ -819,7 +819,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * Gets the name of the server used.
 	 *
-	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_getDataSource()
+	 * @deprecated As of release 5.0, replaced by {@link #getDataSource()}.
 	 */
 	@Deprecated
 	public String js_getServerName()
@@ -2450,7 +2450,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 	//do some action per record
 	 * }
 	 *
-	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_getSize()
+	 * @deprecated As of release 3.1, replaced by {@link #getSize()}.
 	 */
 	@Deprecated
 	public int js_getMaxRecordIndex()

@@ -401,7 +401,8 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 
 	/**
 	 * Use column.getRowIdentifierType() != JSColumn.NONE instead.
-	 * @deprecated
+	 * 
+	 * @deprecated As of release 6.0, replaced by {@link #getRowIdentifierType()}. 
 	 */
 	@Deprecated
 	public boolean js_isRowIdentifier()
@@ -445,7 +446,9 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 
 	/**
 	 * Use column.hasFlag(JSColumn.UUID_COLUMN) instead.
-	 * @deprecated
+	 * 
+	 * @deprecated As of release 6.0, replaced by {@link #hasFlag()}.
+	 * 
 	 */
 	@Deprecated
 	public boolean js_isUUID()

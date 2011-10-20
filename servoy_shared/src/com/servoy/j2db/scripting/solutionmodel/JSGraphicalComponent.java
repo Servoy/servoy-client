@@ -395,7 +395,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#js_getOnAction() 
+	 * @deprecated As of release 4.1, replaced by {@link #setOnAction(JSMethod)}.
 	 */
 	@Deprecated
 	public void js_setOnActionMethod(Function function)
@@ -412,7 +412,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#js_getOnDoubleClick() 
+	 * @deprecated As of release 4.1, replaced by {@link #setOnDoubleClick(JSMethod)}. 
 	 */
 	@Deprecated
 	public void js_setOnDoubleClickMethod(Function function)
@@ -430,7 +430,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#js_getOnRightClick() 
+	 * @deprecated As of release 4.1, replaced by {@link #setOnRightClick(JSMethod)}.
 	 */
 	@Deprecated
 	public void js_setOnRightClickMethod(Function function)

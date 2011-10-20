@@ -487,12 +487,13 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 	/**
 	 * Returns the dataset as a Swing tablemodel.
 	 *
+	 * @deprecated As of release 5.0, replaced by {@link #createDataSource(String, Object)}
+	 * 
 	 * @sample
 	 * //assuming the variable dataset contains a dataset
 	 * var model = dataset.getAsTableModel() //gets a Java/Swing tablemodel to be used in beans
 	 * elements.inmemDatagridBean.setModel(model)
-
-	 * @see com.servoy.j2db.dataprocessing.JSDataSet#js_createDataSource(String, Object)
+	 * 
 	 */
 	@Deprecated
 	public TableModel js_getAsTableModel()
@@ -800,7 +801,9 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 
 	/**
 	 * returns the contents of the database error message if an error occurred
-	 *
+	 * 
+	 * @deprecated As of release 5.0, replaced by {@link #getException()}
+	 * 
 	 * @sample 
 	 */
 	@Deprecated

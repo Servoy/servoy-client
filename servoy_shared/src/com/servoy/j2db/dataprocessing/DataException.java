@@ -57,6 +57,7 @@ public class DataException extends ServoyException
 	// THIS METHOD IS REMOVED FROM InstanceJavaMethod WITH A HACK to keep compatibility with old ways :) - when ServoyException was not using js_...
 	/**
 	 * @sameas com.servoy.j2db.util.ServoyException#js_isServoyException()
+	 * 
 	 * @deprecated Use "typeof" operator instead.
 	 */
 	@Deprecated
@@ -69,6 +70,8 @@ public class DataException extends ServoyException
 	/**
 	 * This method will always return true; it makes the distinction between DataException and ServoyException.
 	 *
+	 * @deprecated Use "typeof" operator instead.
+	 * 
 	 * @sample
 	 * var record = array[i];
 	 * application.output(record.exception);
@@ -79,7 +82,7 @@ public class DataException extends ServoyException
 	 * 	application.output("VendorErrorCode: " + record.exception.getVendorErrorCode());
 	 * }
 	 * @return true.
-	 * @deprecated Use "typeof" operator instead.
+	
 	 */
 	@Deprecated
 	public boolean js_isDataException()

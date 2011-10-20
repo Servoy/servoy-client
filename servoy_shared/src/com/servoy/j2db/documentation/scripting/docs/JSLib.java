@@ -142,6 +142,8 @@ public class JSLib
 	/**
 	 * Returns the hexadecimal encoding of a given string.
 	 * 
+	 * @deprecated Not needed anymore, use native javascript methods (escape(string)).
+	 * 
 	 * @sample
 	 * var encoded = escape("Hello World!");
 	 * application.output(encoded); // prints: Hello%20World%21
@@ -236,6 +238,8 @@ public class JSLib
 
 	/**
 	 * Returns the ASCII encoding of a string that was previously encoded with escape or another similar routine.
+	 * 
+	 * @deprecated Not needed anymore, use native javascript methods (unescape(string)).
 	 * 
 	 * @sample
 	 * var encoded = escape("Hello World!");

@@ -1121,7 +1121,9 @@ public class JSSolutionModel
 
 	/**
 	 * Creates a new JSRelation Object with a specified name; includes the primary server and table name, foreign server and table name, and the type of join for the new relation.
-	 *
+	 * 
+	 * @deprecated  As of release 6.0, deprecated because of ambigous parameters.
+	 * 
 	 * @sample 
 	 * var rel = solutionModel.newRelation('myRelation','myPrimaryServerName','myPrimaryTableName','myForeignServerName','myForeignTableName',JSRelation.INNER_JOIN);
 	 * application.output(rel.getRelationItems()); 
@@ -1165,7 +1167,6 @@ public class JSSolutionModel
 	 * @param join_type the type of join for the new relation; JSRelation.INNER_JOIN, JSRelation.LEFT_OUTER_JOIN
 	 * 
 	 * @return a JSRelation object
-	 * @deprecated
 	 */
 	@Deprecated
 	public JSRelation js_newRelation(String name, String primaryDataSourceOrServer, String primaryTableNameOrForeignServer, String foreignDataSourceOrTable,

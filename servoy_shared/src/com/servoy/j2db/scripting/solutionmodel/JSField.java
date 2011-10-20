@@ -299,8 +299,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSField#js_getDataProviderID()
-	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_getDataProviderValue(String)
+	 * @deprecated  As of release 4.1, replaced by {@link #getTitleText()}
 	 */
 	@Deprecated
 	public String js_getText()
@@ -395,7 +394,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	}
 
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#js_setOnActionMethod(Function)
+	 * @deprecated  As of release 4.1, replaced by {@link #setOnAction(JSMethod)}.
 	 */
 	@Deprecated
 	public void js_setOnActionMethod(Function function)
@@ -412,7 +411,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSField#js_getOnDataChange() 
+	 * @deprecated  As of release 4.1, replaced by {@link #setOnDataChange(JSMethod)}.
 	 */
 	@Deprecated
 	public void js_setOnDataChangeMethod(Function function)
@@ -429,7 +428,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSField#js_getOnFocusGained()
+	 * @deprecated  As of release 4.1, replaced by {@link #setOnFocusGained(JSMethod)}.
 	 */
 	@Deprecated
 	public void js_setOnFocusGainedMethod(Function function)
@@ -446,7 +445,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSField#js_getOnFocusLost() 
+	 * @deprecated  As of release 4.1, replaced by {@link #setOnFocusLost(JSMethod)}.
 	 */
 	@Deprecated
 	public void js_setOnFocusLostMethod(Function function)

@@ -169,7 +169,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.JSSecurity#js_getUserUID(Object[])
+	 * @deprecated  As of release 3.0, replaced by {@link #getUserUID(Object[])}.
 	 */
 	@Deprecated
 	public Object js_getUserId(Object[] args) throws ServoyException
@@ -180,7 +180,9 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	//group id's are meaningless pk's (not stable across repositories); don't expose
 	/**
 	 * Returns the Group ID for the specified group (name)
-	 *
+	 * 
+	 * @deprecated Deprecated as of release 3.0, not supported anymore.
+	 * 
 	 * @sample 
 	 * //returns the groupid for the admin group in the variable
 	 * //var groupIDForAdmin = security.getGroupId('admin')
@@ -446,7 +448,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.JSSecurity#js_setUserUID(Object, String)
+	 * @deprecated  As of release 3.0, replaced by {@link #setUserUID(Object,String)}.
 	 */
 	@Deprecated
 	public void js_setUserId(Object userUID, String newUserUID) throws ServoyException

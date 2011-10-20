@@ -26,6 +26,8 @@ public interface IScriptHtmlSubmitLabelsMethods extends IScriptLabelMethods
 	/**
 	 * Gets the http request parameter for a submit within html label.
 	 * 
+	 * @deprecated As of release 6.0, the method is obsolete.
+	 * 
 	 * @sample
 	 * var param = %%prefix%%%%elementName%%.getParameterValue('my_parameter');
 	 * 
@@ -33,7 +35,6 @@ public interface IScriptHtmlSubmitLabelsMethods extends IScriptLabelMethods
 	 * 
 	 * @return The parameter value as String.
 	 * 
-	 * @deprecated
 	 */
 	@Deprecated
 	public String js_getParameterValue(String param);

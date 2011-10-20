@@ -319,6 +319,8 @@ public class JSWindow implements IConstantsObject
 	 * Closes (hides) the window. It can be shown again using window.show(), controller.show() or controller.showRecords().
 	 * The main application window cannot be closed.
 	 * 
+	 * @deprecated  As of release 6.0, replaced by {@link #hide()}
+	 * 
 	 * @sample
 	 * //creates and shows a window for 3 seconds before closing it
 	 * var win = application.createWindow("someWindowName", JSWindow.WINDOW, null);
@@ -328,7 +330,6 @@ public class JSWindow implements IConstantsObject
 	 * win.close();
 	 * 
 	 * @return Boolean true if the window was successfully closed and false otherwise.
-	 * @deprecated use hide()
 	 */
 	@Deprecated
 	public boolean js_close()

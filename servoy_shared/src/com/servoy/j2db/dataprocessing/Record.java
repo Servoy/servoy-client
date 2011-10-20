@@ -902,11 +902,12 @@ public class Record implements Scriptable, IRecordInternal
 
 	/**
 	 * Delete this record from the Foundset and the underlying datasource.
-	 *
+	 * 
+	 * @deprecated
+	 * 
 	 * @sample
 	 * var record= %%prefix%%foundset.getRecord(index);
 	 * record.deleteRecord();
-	 * @deprecated
 	 */
 	@Deprecated
 	public void js_deleteRecord()
@@ -945,12 +946,13 @@ public class Record implements Scriptable, IRecordInternal
 	/**
 	 * Saves this record to the datasource if it had changes.
 	 * 
+	 * @deprecated
+	 * 
 	 * @sample
 	 * var record= %%prefix%%foundset.getSelectedRecord();
 	 * record.save();
 	 * 
 	 * @return true if the save was done without an error.
-	 * @deprecated
 	 */
 	@Deprecated
 	public boolean js_save()
@@ -1015,8 +1017,7 @@ public class Record implements Scriptable, IRecordInternal
 		return row.getLastException();
 	}
 
-	public void js_setException(@SuppressWarnings("unused")
-	Exception ex)
+	public void js_setException(@SuppressWarnings("unused") Exception ex)
 	{
 		//ignore
 	}
@@ -1047,8 +1048,7 @@ public class Record implements Scriptable, IRecordInternal
 		return parent;
 	}
 
-	public void js_setFoundset(@SuppressWarnings("unused")
-	IFoundSetInternal foundset)
+	public void js_setFoundset(@SuppressWarnings("unused") IFoundSetInternal foundset)
 	{
 		//ignore
 	}

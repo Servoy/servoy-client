@@ -290,6 +290,8 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject
 	/**
 	 * The name of the server where the foreign table is located.
 	 * 
+	 * @deprecated As of release 5.1, replaced by {@link #getForeignDataSource()}.
+	 *  
 	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSRelation#js_getPrimaryServerName()
 	 */
 	@Deprecated
@@ -300,6 +302,8 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject
 
 	/**
 	 * The name of the foreign table.
+	 * 
+	 * @deprecated As of release 5.1, replaced by {@link #getForeignDataSource()}.
 	 * 
 	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSRelation#js_getPrimaryServerName()
 	 */
@@ -358,6 +362,8 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject
 	/**
 	 * The name of the server where the primary table is located.
 	 * 
+	 * @deprecated As of release 5.1, replaced by {@link #getPrimaryDataSource()}.
+	 * 
 	 * @sample
 	 * var relation = solutionModel.newRelation('parentToChild', 'example_data', 'parent_table', 'example_data', 'child_table', JSRelation.INNER_JOIN);
 	 * relation.primaryTableName = 'another_parent_table';
@@ -373,6 +379,8 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject
 
 	/**
 	 * The name of the primary table.
+	 * 
+	 * @deprecated As of release 5.1, replaced by {@link #getPrimaryDataSource()}.
 	 * 
 	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSRelation#js_getPrimaryServerName()
 	 */

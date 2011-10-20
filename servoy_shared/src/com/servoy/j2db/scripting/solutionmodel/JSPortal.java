@@ -767,12 +767,14 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Portal#getResizeble()
 	 * 
+	 * @deprecated As of release 6.0, replaced by {@link #getResizable()}.
+	 * 
 	 * @sample
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_child', 10, 10, 620, 460);
 	 * childrenPortal.newTextField('child_table_id', 0, 100, 20);
 	 * childrenPortal.newTextField('child_table_text',150,100,20);
 	 * childrenPortal.newTextField('child_table_parent_id', 300, 100, 20);
-	 * // Make the columns resizeable. By default they are not resizeable.
+	 * // Make the columns resizable. By default they are not resizable.
 	 * childrenPortal.resizeble = true;
 	 */
 	@Deprecated
@@ -800,6 +802,8 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Portal#getRowBGColorCalculation()
 	 * 
+	 * @deprecated As of release 6.0, replaced by onRender event.
+	 * 
 	 * @sample
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_child', 10, 10, 620, 460);
 	 * childrenPortal.newTextField('child_table_id', 0, 100, 20);
@@ -809,9 +813,6 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	 * // exists in the table.
 	 * childrenPortal.rowBGColorCalculation = 'row_color';
 	 * 
-	 * @deprecated
-	 *
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSPortal#js_getOnRender()
 	 */
 	@Deprecated
 	public String js_getRowBGColorCalculation()

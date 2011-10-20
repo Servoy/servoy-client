@@ -177,7 +177,9 @@ public class JSApplication implements IReturnedTypesProvider
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.JSApplication#js_getActiveClientCount(boolean)
+	 * Get the active user count on the server (can be limited to current solution).
+	 *  
+	 * @deprecated As of release 2.x, replaced by {@link #getActiveClientCount(boolean)}.
 	 */
 	@Deprecated
 	public int js_getActiveUserCount(boolean currentSolutionOnly)
@@ -224,6 +226,8 @@ public class JSApplication implements IReturnedTypesProvider
 	 * It returns an array with 2 elements, a string that is the startup argument and a map containing all named startup arguments, or
 	 * null if there is no argument passed
 	 * 
+	 * @deprecated As of release 6.0, method was deprecated because startup arguments are received as arguments to solution onOpen event. 
+	 * 
 	 * @sample
 	 * var args_array = application.getStartupArguments();
 	 * // the first element in the array is the 'argument' value from the startup
@@ -255,7 +259,7 @@ public class JSApplication implements IReturnedTypesProvider
 	/**
 	 * Get the current date (with hour/minutes/seconds set to zero).
 	 *
-	 * @see com.servoy.j2db.scripting.JSUtils#js_timestampToDate(Object)
+	 * @deprecated As of release 5.0, replaced by {@link utils#timestampToDate(Object)}.
 	 */
 	@Deprecated
 	public Date js_getDateStamp()
@@ -357,7 +361,7 @@ public class JSApplication implements IReturnedTypesProvider
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.JSEvent
+	 * @deprecated As of release 5.0, replaced by JSEvent functionality; event object is received as parameter to event method.
 	 */
 	@Deprecated
 	public String js_getMethodTriggerElementName()
@@ -371,7 +375,7 @@ public class JSApplication implements IReturnedTypesProvider
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.JSEvent
+	 * @deprecated As of release 5.0, replaced by JSEvent functionality; event object is received as parameter to event method.
 	 */
 	@Deprecated
 	public String js_getMethodTriggerFormName()
@@ -382,7 +386,7 @@ public class JSApplication implements IReturnedTypesProvider
 	/**
 	 * Returns true if the solution is running in the developer.
 	 *
-	 * @see com.servoy.j2db.scripting.JSApplication#js_isInDeveloper()
+	 * @deprecated As of release 3.0, replaced by {@link #isInDeveloper()}.
 	 */
 	@Deprecated
 	public boolean js_isRunningInDeveloper()
@@ -770,7 +774,7 @@ public class JSApplication implements IReturnedTypesProvider
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.JSApplication#js_getValueListDisplayValue(String, Object)
+	 * @deprecated As of release 3.0, replaced by {@link #getValueListDisplayValue(String, Object)}.
 	 */
 	@Deprecated
 	public Object js_getValuelistDisplayValue(String name, Object realValue)
@@ -1006,7 +1010,8 @@ public class JSApplication implements IReturnedTypesProvider
 	/**
 	 * Get the window X location in pixels. If windowName is not specified or null, it will use either the default dialog (if it is shown) or the main application window.
 	 *
-	 * @deprecated dialogs/windows API has been rewritten (based in JSWindow objects)
+	 * @deprecated As of release 6.0, dialogs/windows API has been rewritten (based in JSWindow objects).
+	 * 
 	 * @sample var x = application.getWindowX('customerDialog');
 	 *
 	 * @param windowName optional Window name 
@@ -1031,7 +1036,8 @@ public class JSApplication implements IReturnedTypesProvider
 	/**
 	 * Get the window Y location in pixels. If windowName is not specified or null, it will use either the default dialog (if it is shown) or the main application window.
 	 *
-	 * @deprecated dialogs/windows API has been rewritten (based in JSWindow objects)
+	 * @deprecated As of release 6.0, dialogs/windows API has been rewritten (based in JSWindow objects).
+	 * 
 	 * @sample var y = application.getWindowY('customerDialog');
 	 *
 	 * @param windowName optional Name of the window
@@ -1056,7 +1062,8 @@ public class JSApplication implements IReturnedTypesProvider
 	/**
 	 * Get the window width in pixels. If windowName is not specified or null, it will use either the default dialog (if it is shown) or the main application window.
 	 *
-	 * @deprecated dialogs/windows API has been rewritten (based in JSWindow objects)
+	 * @deprecated As of release 6.0, dialogs/windows API has been rewritten (based in JSWindow objects).
+	 * 
 	 * @sample var width = application.getWindowWidth('customerDialog');
 	 *
 	 * @param windowName optional Name of the window
@@ -1080,7 +1087,8 @@ public class JSApplication implements IReturnedTypesProvider
 	/**
 	 * Get the window height in pixels. If windowName is not specified or null, it will use either the default dialog (if it is shown) or the main application window.
 	 *
-	 * @deprecated dialogs/windows API has been rewritten (based in JSWindow objects)
+	 * @deprecated As of release 6.0, dialogs/windows API has been rewritten (based in JSWindow objects).
+	 * 
 	 * @sample var height = application.getWindowHeight('customerDialog');
 	 *
 	 * @param windowName optional Name of the window
@@ -1104,7 +1112,8 @@ public class JSApplication implements IReturnedTypesProvider
 	/**
 	 * Set the window size. If windowName is not specified or null, it will resize either the default dialog (if it is shown) or the main application window.
 	 *
-	 * @deprecated dialogs/windows API has been rewritten (based in JSWindow objects)
+	 * @deprecated As of release 6.0, dialogs/windows API has been rewritten (based in JSWindow objects).
+	 * 
 	 * @sample application.setWindowSize(400,400,'customerDialog');
 	 *
 	 * @param width Window new width
@@ -1150,7 +1159,8 @@ public class JSApplication implements IReturnedTypesProvider
 	/**
 	 * Set the window location. If windowName is not specified or null, it will use either the default dialog (if it is shown) or the main application window.
 	 *
-	 * @deprecated dialogs/windows API has been rewritten (based in JSWindow objects)
+	 * @deprecated As of release 6.0, dialogs/windows API has been rewritten (based in JSWindow objects).
+	 * 
 	 * @sample application.setWindowLocation(10,10,'customerDialog');
 	 *
 	 * @param x Window new X location
@@ -1300,7 +1310,7 @@ public class JSApplication implements IReturnedTypesProvider
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.JSSecurity#js_logout(Object[])
+	 * @deprecated As of release 3.0, replaced by {@link security#logout(Object[])}.
 	 */
 	@Deprecated
 	public void js_logout()
@@ -1582,7 +1592,7 @@ public class JSApplication implements IReturnedTypesProvider
 	}
 
 	/**
-	 * @see com.servoy.extensions.plugins.mail.MailProvider#js_sendMail(Object[])
+	 * @deprecated As of release 2.x, replaced by {@link plugins.mail#sendMail(Object[])}.
 	 */
 	@Deprecated
 	public boolean js_sendMail(Object[] args)
@@ -1843,7 +1853,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 *
 	 * @sample var new_uuid = application.getNewUUID();
 	 * 
-	 * @see com.servoy.j2db.scripting.JSApplication#js_getUUID()
+	 * @deprecated As of release 5.0, replaced by {@link #getUUID()}.
 	 */
 	@Deprecated
 	public String js_getNewUUID()
@@ -1950,6 +1960,8 @@ public class JSApplication implements IReturnedTypesProvider
 	/**
 	 * Test if the form is currently showing in a window.
 	 * 
+	 * @deprecated As of release 6.0, dialogs/windows API has been rewritten (based in JSWindow objects).
+	 *  
 	 * @sample
 	 * if(application.isFormInWindow(forms.formname))
 	 * {
@@ -1959,7 +1971,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 * @param form Form object or name
 	 * 
 	 * @return Boolean (true) if the form is showing in a window, (false) otherwise
-	 * @deprecated controller.getWindow()
+	 * 
 	 */
 	@Deprecated
 	public boolean js_isFormInWindow(Object form)
@@ -1976,8 +1988,7 @@ public class JSApplication implements IReturnedTypesProvider
 	}
 
 	/**
-	 * @deprecated
-	 * @see com.servoy.j2db.scripting.JSApplication#js_isFormInWindow(Object form)
+	 * @deprecated As of release 6.0, dialogs/windows API has been rewritten (based in JSWindow objects).
 	 */
 	@Deprecated
 	public boolean js_isFormInDialog(Object form)
@@ -2109,7 +2120,8 @@ public class JSApplication implements IReturnedTypesProvider
 	 * x, y, width and height coordinates are only applied the first time the specified dialog is shown.
 	 * Use APP_UI_PROPERTY.DIALOG_FULL_SCREEN for these values when the dialog should be full-screen.
 	 *
-	 * @deprecated dialogs/windows API has been rewritten (based in JSWindow objects)
+	 * @deprecated As of release 6.0, dialogs/windows API has been rewritten (based in JSWindow objects)
+	 * 
 	 * @sample
 	 * //Show the specified form in a modal dialog, on default initial location and size (x,y,w,h)
 	 * //application.showFormInDialog(forms.contacts);
@@ -2229,7 +2241,8 @@ public class JSApplication implements IReturnedTypesProvider
 	 * x, y, width and height coordinates are only applied the first time the specified window is shown.
 	 * Use APP_UI_PROPERTY.FULL_SCREEN for these values when the window should be full-screen.
 	 *
-	 * @deprecated dialogs/windows API has been rewritten (based in JSWindow objects)
+	 * @deprecated As of release 6.0, dialogs/windows API has been rewritten (based in JSWindow objects)
+	 * 
 	 * @sample
 	 * //Show the specified form in a window, on default initial location and size
 	 * //application.showFormInWindow(forms.contacts);
@@ -2347,7 +2360,8 @@ public class JSApplication implements IReturnedTypesProvider
 	/**
 	 * Close the dialog with the given name (call this method to hide the form shown with 'showFormInDialog'). If (true) is passed, then all the windows will be closed. If the name is missing or null, the default dialog will be closed.
 	 *
-	 * @deprecated dialogs/windows API has been rewritten (based in JSWindow objects)
+	 * @deprecated As of release 6.0, dialogs/windows API has been rewritten (based in JSWindow objects).
+	 * 
 	 * @sample
 	 * application.closeFormDialog(); // closes the current dialog
 	 * //application.closeFormDialog('dialogname'); //closes the dialog with the specific name
@@ -2365,7 +2379,8 @@ public class JSApplication implements IReturnedTypesProvider
 	/**
 	 * Close the dialog/window with the given name (call this method to hide the form shown with 'showFormInDialog' or 'showFormInWindow'). If (true) is passed, then all the windows/dialogs will be closed. If the name is missing or null, the default dialog/window will be closed.
 	 *
-	 * @deprecated dialogs/windows API has been rewritten (based in JSWindow objects)
+	 * @deprecated As of release 6.0, dialogs/windows API has been rewritten (based in JSWindow objects).
+	 * 
 	 * @sample
 	 * application.closeForm(); // closes the current dialog/window
 	 * //application.closeForm('windowOrDialogName'); //closes the dialog/window with this specific name
@@ -2517,7 +2532,7 @@ public class JSApplication implements IReturnedTypesProvider
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.JSApplication#js_createJPGImage(Object, int, int)
+	 * @deprecated As of release 3.0, replaced by {@link plugins.images#getImage(Object)}.
 	 */
 	@Deprecated
 	public byte[] js_createThumbnailJPGImage(Object obj, int width, int height)
@@ -2526,7 +2541,7 @@ public class JSApplication implements IReturnedTypesProvider
 	}
 
 	/**
-	 * @see com.servoy.extensions.plugins.images.ImageProvider#js_getImage(Object)
+	 * @deprecated As of release 3.0, replaced by {@link plugins.images#getImage(Object)}.
 	 */
 	@Deprecated
 	public byte[] js_createJPGImage(Object obj, int width, int height)
@@ -2561,7 +2576,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 *
 	 * @sample var uname = application.getUserName();
 	 * 
-	 * @see com.servoy.j2db.scripting.JSSecurity#js_getUserName(Object[])
+	 * @deprecated As of release 2.0, replaced by {@link security#getUserName(Object[])}.
 	 */
 	@Deprecated
 	public String js_getUserName()
@@ -2612,7 +2627,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 *
 	 * @sample application.setFocusLostSaveEnabled(false);
 	 * 
-	 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_getAutoSave()
+	 * @deprecated  As of release 3.0, replaced by {@link databaseManager#setAutoSave(boolean)}.
 	 */
 	@Deprecated
 	public void js_setFocusLostSaveEnabled(boolean b)
@@ -2687,7 +2702,7 @@ public class JSApplication implements IReturnedTypesProvider
 	}
 
 	/** 
-	 * @see com.servoy.extensions.plugins.file.FileProvider#js_createTempFile(String, String)
+	 * @deprecated  As of release 2.x, replaced by {@link plugins.file#createTempFile(String, String)}.
 	 */
 	@Deprecated
 	public Object js_createTempFile(String prefix, String suffix)
@@ -2717,7 +2732,7 @@ public class JSApplication implements IReturnedTypesProvider
 	}
 
 	/**
-	 * @see com.servoy.extensions.plugins.file.FileProvider#js_writeTXTFile(Object[])
+	* @deprecated  As of release 2.x, replaced by {@link plugins.file#writeTXTFile(Object[])}.
 	 */
 	@Deprecated
 	public boolean js_writeTXTFile(Object[] args)
@@ -2747,7 +2762,7 @@ public class JSApplication implements IReturnedTypesProvider
 	}
 
 	/**
-	 * @see com.servoy.extensions.plugins.file.FileProvider#js_writeXMLFile(Object, String)
+	 * @deprecated  As of release 2.x, replaced by {@link plugins.file#writeXMLFile(Object, String)}.
 	 */
 	@Deprecated
 	public boolean js_writeXMLFile(String fileName, String xml)
@@ -2777,7 +2792,7 @@ public class JSApplication implements IReturnedTypesProvider
 	}
 
 	/**
-	 * @see com.servoy.extensions.plugins.file.FileProvider#js_writeFile(Object, byte[])
+	 * @deprecated  As of release 2.x, replaced by {@link plugins.file#writeFile(Object, byte[])}. 
 	 */
 	@Deprecated
 	public boolean js_writeFile(String fileName, byte[] data)
@@ -2807,7 +2822,7 @@ public class JSApplication implements IReturnedTypesProvider
 	}
 
 	/**
-	 * @see com.servoy.extensions.plugins.file.FileProvider#js_readTXTFile(Object[])
+	 * @deprecated  As of release 2.x, replaced by {@link plugins.file#readTXTFile(Object[])}.
 	 */
 	@Deprecated
 	public String js_readTXTFile(Object[] args)
@@ -2837,7 +2852,7 @@ public class JSApplication implements IReturnedTypesProvider
 	}
 
 	/**
-	 * @see com.servoy.extensions.plugins.file.FileProvider#js_showFileOpenDialog(Object[])
+	 * @deprecated  As of release 2.x, replaced by {@link plugins.file#showFileOpenDialog(Object[])}.
 	 */
 	@Deprecated
 	public String js_showFileOpenDialog()
@@ -2867,7 +2882,7 @@ public class JSApplication implements IReturnedTypesProvider
 	}
 
 	/**
-	 * @see com.servoy.extensions.plugins.file.FileProvider#js_showFileSaveDialog(Object[])
+	 * @deprecated  As of release 2.x, replaced by {@link plugins.file#showFileSaveDialog(Object[])}.
 	 */
 	@Deprecated
 	public String js_showFileSaveDialog(Object[] args)
@@ -2897,7 +2912,7 @@ public class JSApplication implements IReturnedTypesProvider
 	}
 
 	/**
-	 * @see com.servoy.extensions.plugins.file.FileProvider#js_showDirectorySelectDialog(Object[])
+	 * @deprecated  As of release 2.x, replaced by {@link plugins.file#showDirectorySelectDialog(Object[])}.
 	 */
 	@Deprecated
 	public String js_showDirectorySelectDialog(Object[] args)
@@ -2927,7 +2942,7 @@ public class JSApplication implements IReturnedTypesProvider
 	}
 
 	/**
-	 * @see com.servoy.extensions.plugins.file.FileProvider#js_readFile(Object[])
+	 * @deprecated  As of release 2.x, replaced by {@link plugins.file#readFile(Object[])}.
 	 */
 	@Deprecated
 	public byte[] js_readFile(Object[] args)
@@ -2964,6 +2979,8 @@ public class JSApplication implements IReturnedTypesProvider
 	/**
 	 * Returns the last key modifiers of last action (shift = 1,ctrl = 2,meta = 4,alt = 8)
 	 *
+	 * @deprecated As of release 5.0, replaced by JSEvent functionality; event object is received as parameter to event method.
+	 * 
 	 * @sample
 	 * //get the last key modifiers of last user action (shift = 1,ctrl = 2,meta = 4,alt = 8)
 	 * var m = application.getLastKeyModifiers();
@@ -2972,7 +2989,6 @@ public class JSApplication implements IReturnedTypesProvider
 	 * 	//do shift action
 	 * }
 	 * 
-	 * @see com.servoy.j2db.scripting.JSEvent
 	 */
 	@Deprecated
 	public int js_getLastKeyModifiers()
@@ -3027,6 +3043,8 @@ public class JSApplication implements IReturnedTypesProvider
 	/**
 	 * Returns the last error code or 0 if no error has happend, calling also clears errorCode
 	 *
+	 * @deprecated As of release 3.0, replaced by onError solution event.
+	 * 
 	 * @sample
 	 * var error = application.getLastErrorCode();
 	 * //if (error != 0) showErrorDialog();
@@ -3042,6 +3060,8 @@ public class JSApplication implements IReturnedTypesProvider
 	/**
 	 * Enable or disable the error capture, if enabled you can use getLastErrorCode()
 	 *
+	 * @deprecated As of release 3.0, replaced by onError solution event.
+	 * 
 	 * @sample
 	 * //turn on error capture
 	 * application.setErrorCapture(true);

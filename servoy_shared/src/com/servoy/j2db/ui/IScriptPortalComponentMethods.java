@@ -29,7 +29,7 @@ public interface IScriptPortalComponentMethods extends IScriptBaseMethods, IScri
 	/**
 	 * Get record index.
 	 * 
-	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_getSelectedIndex()
+	 * @deprecated As of release 3.0, replaced by {@link foundset#getSelectedIndex()}.
 	 */
 	@Deprecated
 	public int js_getRecordIndex();
@@ -61,7 +61,7 @@ public interface IScriptPortalComponentMethods extends IScriptBaseMethods, IScri
 	public void jsFunction_setSelectedIndex(int index);
 
 	/**
-	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_getSize()
+	 * @deprecated As of release 5.x, replaced by {@link foundset#getSize()}.
 	 */
 	@Deprecated
 	public int js_getMaxRecordIndex();

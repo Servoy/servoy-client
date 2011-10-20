@@ -303,7 +303,7 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSTabPanel#js_getOnTabChange() 
+	 * @deprecated As of release 5.0, replaced by {@link #setOnChange(JSMethod)}.
 	 */
 	@Deprecated
 	public void js_setOnTabChangeMethod(Function function)
@@ -333,6 +333,8 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.TabPanel#getOnTabChangeMethodID()
 	 *
+	 * @deprecated As of release 5.0, replaced by {@link #getOnChange()}.
+	 * 
 	 * @sample 
 	 * var onTabChangeMethod = form.newMethod('function onTabChange(previousIndex, event) { application.output("Tab changed from previous index " + previousIndex + " at " + event.getTimestamp()); }');
 	 * var tabPanel = form.newTabPanel('tabs', 10, 10, 620, 460);

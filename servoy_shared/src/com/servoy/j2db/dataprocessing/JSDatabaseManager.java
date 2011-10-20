@@ -1015,7 +1015,7 @@ public class JSDatabaseManager
 	}
 
 	/**
-	 * @see com.servoy.extensions.plugins.rawSQL.RawSQLProvider#js_executeStoredProcedure(String, String, Object[], int[], int)
+	 * @deprecated As of release 3.5, replaced by {@link plugins.rawSQL#executeStoredProcedure(String, String, Object[], int[], int)}.
 	 */
 	@Deprecated
 	public Object js_executeStoredProcedure(String serverName, String procedureDeclaration, Object[] args, int[] inOutType, int maxNumberOfRowsToRetrieve)
@@ -1046,7 +1046,7 @@ public class JSDatabaseManager
 	}
 
 	/**
-	 * @deprecated
+	 * @deprecated No longer supported.
 	 */
 	@Deprecated
 	public String js_getLastDatabaseMessage()//for last unspecified db warning and errors
@@ -1293,7 +1293,9 @@ public class JSDatabaseManager
 	 * Returns a dataset with outstanding (not saved) changed data on a record
 	 * 
 	 * NOTE: To return an array of records with oustanding changed data, see the function databaseManager.getEditedRecords(). 
-	 *
+	 * 
+	 * @deprecated As of release 5.0, replaced by {@link Record#getChangedData()}.
+	 * 
 	 * @sample
 	 * var dataset = databaseManager.getChangedRecordData(record)
 	 * for( var i = 1 ; i <= dataset.getMaxRowIndex() ; i++ )
@@ -1530,8 +1532,8 @@ public class JSDatabaseManager
 	 * @sample
 	 * var dataSet = databaseManager.convertToDataSet(foundset,['order_id']);
 	 * 
-	 * @deprecated use com.servoy.j2db.dataprocessing.JSDatabaseManager#js_convertToDataSet(Object[])
-	 *
+	 * @deprecated As of release 6.0, replaced by {@link #convertToDataSet(Object[])}.
+	 * 
 	 * @param foundset The foundset
 	 * @param dataprovider The dataprovider for the values of the array. 
 	 * 
@@ -2784,7 +2786,9 @@ public class JSDatabaseManager
 	 * returns true if no error did happen.
 	 * 
 	 * NOTE: This function could be used to store a copy of records in an archive table. Use the getRecord() function to get the record as an object. 
-	 *
+	 * 
+	 * @deprecated  As of release 6.0, replaced by {@link #copyMatchingFields(Object[])}
+	 * 
 	 * @sample
 	 * for( var i = 1 ; i <= foundset.getSize() ; i++ )
 	 * {
@@ -2801,7 +2805,6 @@ public class JSDatabaseManager
 	 * @param overwrite/array_of_names_not_overwritten optional true (default false) if everything can be overwritten or an array of names that shouldnt be overwritten.
 	 * 
 	 * @return true if no errors happend.
-	 * @deprecated see {@link #js_copyMatchingFields(Object[])}
 	 */
 	@Deprecated
 	public boolean js_copyMatchingColumns(Object[] values) throws ServoyException
@@ -2947,7 +2950,7 @@ public class JSDatabaseManager
 
 
 	/**
-	 * @see com.servoy.j2db.dataprocessing.JSDataSet#js_createDataSource(String, Object)
+	 * @deprecated  As of release 5.0, replaced by {@link JSDataSet#createDataSource(String, Object)}
 	 */
 	@Deprecated
 	public String js_createDataSource(Object[] args) throws ServoyException
@@ -2979,7 +2982,9 @@ public class JSDatabaseManager
 
 	/**
 	 * Free resources allocated for a previously created data source
-	 *
+	 * 
+	 * @deprecated Deprecated as of release 5.0, not needed anymore.
+	 * 
 	 * @sample databaseManager.removeDataSource(uri);
 	 *
 	 * @param uri 

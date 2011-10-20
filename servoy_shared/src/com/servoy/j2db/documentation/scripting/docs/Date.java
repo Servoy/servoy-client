@@ -380,7 +380,9 @@ public class Date
 
 	/**
 	 * Gets the year of the date.
-	 *
+	 * 
+	 * @deprecated Obsolete method, replaced by {@link #getFullYear())}.
+	 * 
 	 * @sample date.getYear();
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getYear
@@ -606,7 +608,9 @@ public class Date
 
 	/**
 	 * Sets the year of the date.
-	 *
+	 * 
+	 * @deprecated Obsolete method, replaced by {@link #setFullYear())}.
+	 * 
 	 * @sample date.setYear(integer);
 	 * 
 	 * @param yearValue 

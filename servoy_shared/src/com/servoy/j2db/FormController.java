@@ -235,7 +235,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 		/**
 		 * @throws ServoyException
-		 * @deprecated
+		 * 
+		 * @deprecated Obsolete method, use foundset object instead.
 		 */
 		@Deprecated
 		public void js_showRelatedRecords(Object[] args) throws ServoyException//obsolete,will not show in script editor
@@ -280,7 +281,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		/**
 		 * Show all records in database.
 		 *
-		 * @see com.servoy.j2db.dataprocessing.FoundSet#js_loadAllRecords()
+		 * @deprecated Obsolete method, use foundset object instead.
 		 */
 		@Deprecated
 		public void js_showAllRecords() throws ServoyException//obsolete,will not show in script editor
@@ -435,9 +436,9 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 		/**
 		 * Get the name of the window/dialog this form is displayed in.
-		 * @deprecated dialogs/windows API has been rewritten (based in JSWindow objects). Use {@link #js_getWindow()} instead.
-		 * @see com.servoy.j2db.scripting.JSApplication#js_showFormInDialog(Object[])
-		 * @see com.servoy.j2db.scripting.JSApplication#js_showFormInWindow(Object[])
+		 * 
+		 * @deprecated As of release 6.0, dialogs/windows API has been rewritten (based in JSWindow objects). Use {@link #getWindow()} instead.
+		 * 
 		 * @sample
 		 * 	var dialogOrWindowName = %%prefix%%controller.getContainerName();
 		 * 	if (dialogOrWindowName != null) {
@@ -454,7 +455,9 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 		/**
 		 * Get the name of the table used.
-		 *
+		 * 
+		 * @deprecated  As of release 5.0, replaced by {@link #getDataSource()}
+		 * 
 		 * @see com.servoy.j2db.dataprocessing.FoundSet#js_getDataSource()
 		 */
 		@Deprecated
@@ -479,7 +482,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		/**
 		 * Get the name of the server used.
 		 *
-		 * @see com.servoy.j2db.dataprocessing.FoundSet#js_getDataSource()
+		 * @deprecated  As of release 5.0, replaced by {@link #getDataSource()}
+		 * 
 		 */
 		@Deprecated
 		public String js_getServerName()
@@ -511,7 +515,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @see com.servoy.j2db.dataprocessing.FoundSet#js_getSelectedIndex()
+		 * @deprecated  As of release 3.0, replaced by {@link foundset#getSelectedIndex()}
 		 */
 		@Deprecated
 		public int js_getRecordIndex()
@@ -761,7 +765,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @see com.servoy.j2db.FormController$JSForm#js_showPrintPreview(Object[])
+		 * @deprecated  As of release 5.0, replaced by {@link #showPrintPreview(Object[])}
 		 */
 		@Deprecated
 		public void js_printPreview(Object[] vargs) //obsolete,will not show in script editor
@@ -876,7 +880,9 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 		/**
 		 * Get duplicate of current foundset, can be used by loadRecords again
-		 *
+		 * 
+		 * @deprecated  As of release 3.0, replaced by {@link foundset#duplicateFoundSet()}
+		 * 
 		 * @sample
 		 * var dupFoundset = %%prefix%%controller.duplicateFoundSet();
 		 * %%prefix%%controller.find();
@@ -888,7 +894,6 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * 	controller.loadRecords(dupFoundset);
 		 * }
 		 *
-		 * @see com.servoy.j2db.dataprocessing.FoundSet#js_duplicateFoundSet()
 		 */
 		@Deprecated
 		public Object js_duplicateFoundSet() throws ServoyException//can be used by loadRecords Again
@@ -1024,7 +1029,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_saveData(Object[])
+		 * @deprecated  As of release 3.0, replaced by {@link databaseManager#saveData(Object[])}
 		 */
 		@Deprecated
 		public boolean js_saveData()
@@ -1132,7 +1137,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @see com.servoy.j2db.dataprocessing.FoundSet#js_loadOmittedRecords()
+		 * @deprecated  As of release 3.0, replaced by {@link foundset#loadOmittedRecords()}
 		 */
 		@Deprecated
 		public boolean js_showOmittedRecords() throws ServoyException//obsolete,will not show in script editor
@@ -1167,7 +1172,9 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 		/**
 		 * Copy current record to variable and clipboard.
-		 *
+		 * 
+		 * @deprecated As of release 3.0, replaced by {@link application#setClipboardContent(Object)}.
+		 * 
 		 * @sample var recorddata = %%prefix%%controller.copyRecord();
 		 */
 		@Deprecated
@@ -1179,7 +1186,9 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 		/**
 		 * Copy all records from foundset to variable and clipboard
-		 *
+		 * 
+		 * @deprecated As of release 3.0, replaced by {@link application#setClipboardContent(Object)}.
+		 * 
 		 * @sample var recorddata = %%prefix%%controller.copyAllRecords();
 		 */
 		@Deprecated
@@ -1235,7 +1244,9 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 		/**
 		 * Add a filter parameter to limit the foundset permanently
-		 *
+		 * 
+		 * @deprecated As of release 3.0, replaced by {@link foundset#addFoundSetFilterParam(String, String, Object, String)}.
+		 * 
 		 * @sample
 		 * var success = %%prefix%%controller.addFoundSetFilterParam('customerid', '=', 'BLONP');//possible to add multiple
 		 * %%prefix%%controller.loadAllRecords();//to make param(s) effective
@@ -1244,7 +1255,6 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * @param operator 
 		 * @param value 
 		 *
-		 * @see com.servoy.j2db.dataprocessing.FoundSet#js_addFoundSetFilterParam(String, String, Object, String)
 		 */
 		@Deprecated
 		public boolean js_addFoundSetFilterParam(String dataprovider, String operator, Object value)

@@ -28,26 +28,32 @@ public interface IDepricatedScriptTabPanelMethods extends IScriptTabPanelMethods
 {
 
 	/**
-	 * @see com.servoy.j2db.ui.IScriptTabPanelMethods#js_isTabEnabledAt(int)
+	 * @deprecated As of release 3.x, replaced by {@link #isTabEnabledAt(int)}.
 	 */
 	@Deprecated
 	public abstract boolean js_isTabEnabled(int i);
 
 	/**
-	 * @see com.servoy.j2db.ui.IScriptTabPanelMethods#js_getTabFormNameAt(int)
+	 * @deprecated As of release 3.x, replaced by {@link #getTabFormNameAt(int)}.
 	 */
 	@Deprecated
 	public abstract String js_getSelectedTabFormName();
 
 	/**
-	 * @see com.servoy.j2db.ui.IScriptTabPanelMethods#js_setTabEnabledAt(int, boolean)
+	 * @deprecated As of release 3.x, replaced by {@link #setTabEnabledAt(int, boolean)}.
 	 */
 	@Deprecated
 	public abstract void js_setTabEnabled(int i, boolean b);
 
+	/**
+	 * @deprecated As of release 5.0, method is obsolete.
+	 */
 	@Deprecated
 	public String js_getTabBGColorAt(int i);
 
+	/**
+	 *  @deprecated As of release 5.0, method is obsolete.
+	 */
 	@Deprecated
 	public void js_setTabBGColorAt(int i, String s);
 }

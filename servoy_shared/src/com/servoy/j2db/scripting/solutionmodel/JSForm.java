@@ -2799,7 +2799,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSPart#js_getHeight()
+	 * @deprecated  As of release 4.1, replaced by {@link JSPart#getHeight()}.
 	 */
 	@Deprecated
 	public int js_getHeight()
@@ -2908,7 +2908,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#js_getOnDeleteAllRecordsCmd()
+	 * @deprecated  As of release 4.1, replaced by {@link #setOnDeleteAllRecordsCmd(JSMethod)}.
 	 */
 	@Deprecated
 	public void js_setOnDeleteAllRecordsCmdMethod(Object functionOrInteger)
@@ -2934,7 +2934,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#js_getOnDeleteRecordCmd()
+	 * @deprecated  As of release 4.1, replaced by {@link #setOnDeleteRecordCmd(JSMethod)}.
 	 */
 	@Deprecated
 	public void js_setOnDeleteRecordCmdMethod(Object functionOrInteger)
@@ -2960,7 +2960,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#js_getOnDuplicateRecordCmd()
+	 * @deprecated  As of release 4.1, replaced by {@link #setOnDuplicateRecordCmd(JSMethod)}.
 	 */
 	@Deprecated
 	public void js_setOnDuplicateRecordCmdMethod(Object functionOrInteger)
@@ -2986,7 +2986,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#js_getOnFindCmd()
+	 * @deprecated  As of release 4.1, replaced by {@link #setOnFindCmd(JSMethod)}.
 	 */
 	@Deprecated
 	public void js_setOnFindCmdMethod(Object functionOrInteger)
@@ -3012,7 +3012,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#js_getOnHide()
+	 * @deprecated  As of release 4.1, replaced by {@link #setOnHideCmd(JSMethod)}.
 	 */
 	@Deprecated
 	public void js_setOnHideMethod(Object functionOrInteger)
@@ -3038,7 +3038,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#js_getOnInvertRecordsCmd()
+	 * @deprecated  As of release 4.1, replaced by {@link #setOnInvertRecordsCmd(JSMethod)}.
 	 */
 	@Deprecated
 	public void js_setOnInvertRecordsCmdMethod(Object functionOrInteger)
@@ -3064,7 +3064,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#js_getOnLoad()
+	 * @deprecated As of release 4.1, replaced by {@link #setOnLoad(JSMethod)}.
 	 */
 	@Deprecated
 	public void js_setOnLoadMethod(Object functionOrInteger)
@@ -3090,7 +3090,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#js_getOnNewRecordCmd()
+	 * @deprecated As of release 4.1, replaced by {@link #setOnNewRecordCmd(JSMethod)}.
 	 */
 	@Deprecated
 	public void js_setOnNewRecordCmdMethod(Object functionOrInteger)
@@ -3116,7 +3116,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#js_getOnNextRecordCmd()
+	 * @deprecated As of release 4.1, replaced by {@link #setOnNextRecordCmd(JSMethod)}.
 	 */
 	@Deprecated
 	public void js_setOnNextRecordCmdMethod(Object functionOrInteger)
@@ -3142,7 +3142,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#js_getOnOmitRecordCmd()
+	 * @deprecated As of release 4.1, replaced by {@link #setOnOmitRecordCmd(JSMethod)}.
 	 */
 	@Deprecated
 	public void js_setOnOmitRecordCmdMethod(Object functionOrInteger)
@@ -3168,7 +3168,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#js_getOnPreviousRecordCmd()
+	 * @deprecated As of release 4.1, replaced by {@link #setOnPreviousRecordCmd(JSMethod)}.
 	 */
 	@Deprecated
 	public void js_setOnPreviousRecordCmdMethod(Object functionOrInteger)
@@ -3194,7 +3194,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#js_getOnPrintPreviewCmd()
+	 * @deprecated As of release 4.1, replaced by {@link #setOnPrintPreviewCmd(JSMethod)}.
 	 */
 	@Deprecated
 	public void js_setOnPrintPreviewCmdMethod(Object functionOrInteger)
@@ -3220,7 +3220,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#js_getOnRecordEditStart()
+	 * @deprecated As of release 4.1, replaced by {@link #setOnRecordEditStart(JSMethod)}.
 	 */
 	@Deprecated
 	public void js_setOnRecordEditStartMethod(Object functionOrInteger)
@@ -3246,7 +3246,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#js_getOnRecordEditStop()
+	 * @deprecated As of release 4.1, replaced by {@link #setOnRecordEditStop(JSMethod)}.
 	 */
 	@Deprecated
 	public void js_setOnRecordEditStopMethod(Object functionOrInteger)
@@ -3272,7 +3272,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#js_getOnRecordSelection()
+	 * @deprecated As of release 4.1, replaced by {@link #setOnRecordSelection(JSMethod)}.
 	 */
 	@Deprecated
 	public void js_setOnRecordSelectionMethod(Object functionOrInteger)
@@ -3298,7 +3298,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#js_getOnSearchCmd()
+	 * @deprecated As of release 4.1, replaced by {@link #setOnSearchCmd(JSMethod)}.
 	 */
 	@Deprecated
 	public void js_setOnSearchCmdMethod(Object functionOrInteger)
@@ -3324,7 +3324,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#js_getOnShowAllRecordsCmd()
+	 * @deprecated As of release 4.1, replaced by {@link #setOnShowAllRecordsCmd(JSMethod)}.
 	 */
 	@Deprecated
 	public void js_setOnShowAllRecordsCmdMethod(Object functionOrInteger)
@@ -3350,7 +3350,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#js_getOnShow()
+	 * @deprecated As of release 4.1, replaced by {@link #setOnShow(JSMethod)}.
 	 */
 	@Deprecated
 	public void js_setOnShowMethod(Object functionOrInteger)
@@ -3376,7 +3376,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#js_getOnShowOmittedRecordsCmd()
+	 * @deprecated As of release 4.1, replaced by {@link #setOnShowOmittedRecordsCmd(JSMethod)}.
 	 */
 	@Deprecated
 	public void js_setOnShowOmittedRecordsCmdMethod(Object functionOrInteger)
@@ -3402,7 +3402,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#js_getOnSortCmd()
+	 * @deprecated As of release 4.1, replaced by {@link #setOnSortCmd(JSMethod)}.
 	 */
 	@Deprecated
 	public void js_setOnSortCmdMethod(Object functionOrInteger)
@@ -3428,7 +3428,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#js_getOnUnLoad()
+	 * @deprecated As of release 4.1, replaced by {@link #setOnUnLoad(JSMethod)}.
 	 */
 	@Deprecated
 	public void js_setOnUnLoadMethod(Object functionOrInteger)
