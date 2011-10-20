@@ -386,12 +386,31 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		if (table != null && !table.isEditing()) currentEditingState = null;
 	}
 
+	private boolean isVisible(Component comp)
+	{
+		boolean isVisible = false;
+		if (comp != null)
+		{
+			if (comp instanceof IScriptableProvider && ((IScriptableProvider)comp).getScriptObject() instanceof ISupportOnRenderCallback &&
+				((ISupportOnRenderCallback)((IScriptableProvider)comp).getScriptObject()).getRenderEventExecutor().hasRenderCallback())
+			{
+				isVisible = true;
+			}
+			else
+			{
+				isVisible = comp.isVisible();
+			}
+		}
+
+		return isVisible;
+	}
+
 	/*
 	 * @see TableCellEditor#getTableCellEditorComponent(JTable, Object, boolean, int, int)
 	 */
 	public Component getTableCellEditorComponent(JTable jtable, Object value, boolean isSelected, int row, int column)
 	{
-		if (editor == null || !editor.isVisible() || !(jtable.getModel() instanceof IFoundSetInternal))
+		if (editor == null || !isVisible(editor) || !(jtable.getModel() instanceof IFoundSetInternal))
 		{
 			return empty;
 		}
@@ -503,7 +522,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				}
 			}
 		}
-		return editor;
+		return editor.isVisible() ? editor : empty;
 	}
 
 	/*
@@ -511,7 +530,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 	 */
 	public Component getTableCellRendererComponent(JTable jtable, Object value, boolean isSelected, boolean hasFocus, final int row, final int column)
 	{
-		if (renderer == null || !renderer.isVisible() || !(jtable.getModel() instanceof IFoundSetInternal))
+		if (renderer == null || !isVisible(renderer) || !(jtable.getModel() instanceof IFoundSetInternal))
 		{
 			return empty;
 		}
@@ -666,7 +685,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 								drd.getDefaultSort(), null);
 							app.getScheduledExecutor().execute(r);
 						}
-						return renderer;
+						return renderer.isVisible() ? renderer : empty;
 					}
 				}
 				drd.setRecord(state, true);
@@ -699,7 +718,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 										null, restName);
 									app.getScheduledExecutor().execute(r);
 								}
-								return renderer;
+								return renderer.isVisible() ? renderer : empty;
 							}
 							IFoundSetInternal rfs = state.getRelatedFoundSet(relationName, null);
 							if (rfs != null)
@@ -762,7 +781,8 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				}
 			}
 		}
-		return renderer;
+
+		return renderer.isVisible() ? renderer : empty;
 	}
 
 	private Object getStyleAttributeForRow(JTable jtable, boolean isSelected, int row, ISupportRowStyling.ATTRIBUTE rowStyleAttribute)
