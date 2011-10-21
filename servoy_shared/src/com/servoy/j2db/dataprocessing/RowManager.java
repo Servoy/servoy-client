@@ -17,6 +17,7 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import java.lang.ref.ReferenceQueue;
 import java.rmi.RemoteException;
 import java.sql.Types;
 import java.util.ArrayList;
@@ -70,6 +71,7 @@ import com.servoy.j2db.util.Utils;
 public class RowManager implements IModificationListener, IFoundSetEventListener
 {
 	private final FoundSetManager fsm;
+	private final ReferenceQueue<Row> referenceQueue;
 	private final Map<String, SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>> pkRowMap; // pkString -> SoftReference(Row)
 	private final SQLSheet sheet;
 	private final WeakHashMap<IRowListener, Object> listeners;
@@ -85,6 +87,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		this.fsm = fsm;
 		this.sheet = sheet;
 		pkRowMap = new ConcurrentHashMap<String, SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>>(64);
+		referenceQueue = new ReferenceQueue<Row>();
 		listeners = new WeakHashMap<IRowListener, Object>(10);
 		lockedRowPKs = Collections.synchronizedSet(new HashSet<NamedLock>());//my locks
 	}
@@ -213,7 +216,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			{
 				rowData = createExistInDBRowObject(columndata);
 				SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>> sr = new SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>(
-					rowData);
+					rowData, referenceQueue);
 				pkRowMap.put(rowData.getPKHashKey(), sr);
 				if (data != null)
 				{
@@ -246,7 +249,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		Row row = new Row(this, data, sheet.getAllUnstoredCalculationNamesWithNoValue(), existInDB);
 		if (addToMap)
 		{
-			pkRowMap.put(row.getPKHashKey(), new SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>(row));
+			pkRowMap.put(row.getPKHashKey(), new SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>(row,
+				referenceQueue));
 			clearAndCheckCache();
 		}
 		return row;
@@ -362,7 +366,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 					synchronized (this)
 					{
 						SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>> sr = new SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>(
-							rowData);
+							rowData, referenceQueue);
 						if (cachedRow.getRight() != null)
 						{
 							sr.setData(cachedRow.getRight());
@@ -795,7 +799,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		if (!oldKey.equals(newKey))
 		{
 			final SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>> srOld = pkRowMap.get(oldKey);
-			pkRowMap.put(newKey, new SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>(row));// (over)write new
+			pkRowMap.put(newKey, new SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>(row, referenceQueue));// (over)write new
 			if (srOld != null)
 			{
 				// run fires later
@@ -814,7 +818,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		{
 			if (!pkRowMap.containsKey(newKey))
 			{
-				pkRowMap.put(newKey, new SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>(row));
+				pkRowMap.put(newKey, new SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>(row,
+					referenceQueue));
 				clearAndCheckCache();
 			}
 		}
@@ -822,9 +827,11 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 
 	void clearAndCheckCache()
 	{
-		if (pkRowMap.size() % 400 == 0)
+		if (referenceQueue.poll() != null)
 		{
-			// if they are gone over a 400 size boundary
+			// quicly clear the whole queue, so that it is empty for the next time.
+			while (referenceQueue.poll() != null) {}
+
 			// test the hashmap for empty  Softreferences
 			Iterator<Entry<String, SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>>> it = pkRowMap.entrySet().iterator();
 			while (it.hasNext())

@@ -13,9 +13,10 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util;
 
+import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
 
 /**
@@ -30,9 +31,9 @@ public class SoftReferenceWithData<R, D> extends SoftReference<R>
 {
 	private D data;
 
-	public SoftReferenceWithData(R ref)
+	public SoftReferenceWithData(R ref, ReferenceQueue< ? super R> q)
 	{
-		super(ref);
+		super(ref, q);
 	}
 
 	public D getData()
