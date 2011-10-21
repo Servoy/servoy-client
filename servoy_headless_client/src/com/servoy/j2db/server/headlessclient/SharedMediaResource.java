@@ -134,17 +134,18 @@ public final class SharedMediaResource extends DynamicWebResource
 
 							if (fs == null)
 							{
+								SolutionMetaData solutionMetaData = (SolutionMetaData)repository.getRootObjectMetaData(solutionName, IRepository.SOLUTIONS);
+								if (solutionMetaData == null) return new byte[0];
 								closeFS = true;
-								fs = new FlattenedSolution((SolutionMetaData)repository.getRootObjectMetaData(solutionName, IRepository.SOLUTIONS),
-									new AbstractActiveSolutionHandler()
+								fs = new FlattenedSolution(solutionMetaData, new AbstractActiveSolutionHandler()
+								{
+									@Override
+									public IRepository getRepository()
 									{
-										@Override
-										public IRepository getRepository()
-										{
-											return repository;
-										}
+										return repository;
+									}
 
-									});
+								});
 							}
 
 							Media m = fs.getMedia(iconId);
