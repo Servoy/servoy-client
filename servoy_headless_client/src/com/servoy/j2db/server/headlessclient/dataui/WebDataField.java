@@ -62,6 +62,7 @@ import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
+import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.MainPage;
@@ -155,7 +156,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	private boolean needEntireState;
 	private int dataType;
 	private Insets margin;
-//	private int horizontalAlignment;
+	private int horizontalAlignment;
 
 	private final WebEventExecutor eventExecutor;
 	private String inputId;
@@ -175,6 +176,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	{
 		this(application, scriptable, id);
 		this.list = list;
+		this.horizontalAlignment = ISupportTextSetup.LEFT;
 	}
 
 	/**
@@ -183,6 +185,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	public WebDataField(IApplication application, AbstractRuntimeField<IFieldComponent> scriptable, String id)
 	{
 		super(id);
+		this.horizontalAlignment = ISupportTextSetup.LEFT;
 		this.parsedFormat = new FormatParser();
 		this.application = application;
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
@@ -819,12 +822,17 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		this.margin = margin;
 	}
 
+	public int getHorizontalAlignment()
+	{
+		return this.horizontalAlignment;
+	}
+	
 	/**
 	 * @see com.servoy.j2db.ui.IFieldComponent#setHorizontalAlignment(int)
 	 */
 	public void setHorizontalAlignment(int horizontalAlignment)
 	{
-//		this.horizontalAlignment = horizontalAlignment;
+		this.horizontalAlignment = horizontalAlignment;
 	}
 
 	public void setCursor(Cursor cursor)

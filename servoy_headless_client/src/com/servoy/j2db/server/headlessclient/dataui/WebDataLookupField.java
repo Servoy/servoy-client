@@ -202,7 +202,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 				headerStyle = appendPadding(headerStyle);
 
 				headerStyle.append("min-width:" + (getSize().width - 6) + "px; "); // extract padding and border
-				headerStyle.append("text-align:left; } ");
+				headerStyle.append("text-align:" + TemplateGenerator.getHorizontalAlignValue(getHorizontalAlignment()) + "; } ");
 
 				headerStyle = appendPaddingAndMarginsToComponent(headerStyle, "-autocomplete.wicket-aa ul");
 

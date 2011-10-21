@@ -2626,7 +2626,7 @@ public class TemplateGenerator
 		return pad.toString();
 	}
 
-	private static String getHorizontalAlignValue(int ha)
+	public static String getHorizontalAlignValue(int ha)
 	{
 		switch (ha)
 		{
