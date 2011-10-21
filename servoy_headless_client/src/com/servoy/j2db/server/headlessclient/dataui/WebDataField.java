@@ -1264,6 +1264,11 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		return ((ChangesRecorder)getStylePropertyChanges()).getPaddingAndBorder(size.height, border, margin, 0, null);
 	}
 
+	public Insets getPadding()
+	{
+		return ((ChangesRecorder)getStylePropertyChanges()).getPadding(border, margin);
+	}
+
 	public void setSize(Dimension size)
 	{
 		this.size = size;

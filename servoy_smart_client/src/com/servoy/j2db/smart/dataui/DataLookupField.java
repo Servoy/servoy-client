@@ -452,6 +452,8 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 					jlist.setModel(dlm);
 					jlist.setSelectedValue(txt, true);
 					jlist.setFont(getFont());
+					jlist.setBackground(getBackground());
+					jlist.setForeground(getForeground());
 				}
 				showPopup();
 			}
@@ -575,6 +577,8 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 				jlist.addMouseListener(new ListMouseListener());
 
 				jlist.setFont(getFont());
+				jlist.setBackground(getBackground());
+				jlist.setForeground(getForeground());
 
 				jlist.setFocusable(false);
 				jlist.addListSelectionListener(new ListSelectionListener()

@@ -360,6 +360,21 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 		return insets;
 	}
 
+
+	public Insets getPadding(Border border, Insets margin)
+	{
+		Insets borderMargin = margin;
+		if (border != null)
+		{
+			if (border instanceof CompoundBorder)
+			{
+				Insets marginInside = ((CompoundBorder)border).getInsideBorder().getBorderInsets(null);
+				borderMargin = TemplateGenerator.sumInsets(borderMargin, marginInside);
+			}
+		}
+		return (borderMargin == null ? defaultPadding : borderMargin);
+	}
+
 	/**
 	 * @param spec
 	 */
