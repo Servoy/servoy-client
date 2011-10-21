@@ -88,7 +88,7 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  */
 public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDisplayRelatedData, IProviderStylePropertyChanges, ISupportSecuritySettings,
-	ISupportWebBounds, ISupportWebTabSeq, ListSelectionListener
+	ISupportWebBounds, ISupportWebTabSeq, ListSelectionListener, IWebFormContainer
 {
 	private static final long serialVersionUID = 1L;
 

@@ -62,6 +62,7 @@ import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabPanel;
+import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.TabIndexHelper;
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.server.headlessclient.dataui.WebTabPanel.ServoyTabIcon;
@@ -87,7 +88,7 @@ import com.servoy.j2db.util.Utils;
  *
  */
 public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, IDisplayRelatedData, IProviderStylePropertyChanges, ISupportSecuritySettings,
-	ISupportWebBounds, ISupportWebTabSeq, ListSelectionListener
+	ISupportWebBounds, ISupportWebTabSeq, ListSelectionListener, IWebFormContainer
 {
 	private static final long serialVersionUID = 1L;
 
@@ -147,9 +148,21 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 						Page page = findPage();
 						if (page != null)
 						{
+							boolean needsRelayout = false;
+							if (currentForm != null && currentForm != holder.getPanel() && currentForm.getFormName().equals(holder.getPanel().getFormName()))
+							{
+								needsRelayout = true;
+							}
 							setActiveTabPanel(holder.getPanel());
 							if (target != null)
 							{
+								if (needsRelayout && page instanceof MainPage && ((MainPage)page).getController() != null)
+								{
+									if (Utils.getAsBoolean(((MainPage)page).getController().getApplication().getRuntimeProperties().get("enableAnchors"))) //$NON-NLS-1$
+									{
+										target.appendJavascript("layoutEntirePage();"); //$NON-NLS-1$
+									}
+								}
 								relinkFormIfNeeded();
 								accordion.activate(target, item.getIteration());
 								WebEventExecutor.generateResponse(target, page);
@@ -258,8 +271,6 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 				return "visibility: hidden;"; //$NON-NLS-1$
 			}
 		}));
-
-
 		add(StyleAttributeModifierModel.INSTANCE);
 		this.scriptable = scriptable;
 		((ChangesRecorder)scriptable.getChangesRecorder()).setDefaultBorderAndPadding(null, TemplateGenerator.DEFAULT_LABEL_PADDING);

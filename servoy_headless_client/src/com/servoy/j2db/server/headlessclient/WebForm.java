@@ -100,9 +100,11 @@ import com.servoy.j2db.server.headlessclient.dataui.ChangesRecorder;
 import com.servoy.j2db.server.headlessclient.dataui.FormLayoutProviderFactory;
 import com.servoy.j2db.server.headlessclient.dataui.IFormLayoutProvider;
 import com.servoy.j2db.server.headlessclient.dataui.ISupportWebTabSeq;
+import com.servoy.j2db.server.headlessclient.dataui.IWebFormContainer;
 import com.servoy.j2db.server.headlessclient.dataui.RecordItemModel;
 import com.servoy.j2db.server.headlessclient.dataui.StyleAppendingModifier;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
+import com.servoy.j2db.server.headlessclient.dataui.WebAccordionPanel;
 import com.servoy.j2db.server.headlessclient.dataui.WebBeanHolder;
 import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataRenderer;
@@ -198,7 +200,8 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			@Override
 			public boolean isEnabled(Component component)
 			{
-				return (component.findParent(WebTabPanel.class) != null) || (component.findParent(WebSplitPane.class) != null);
+				// jquery accordion will handle the layout styling, cannot set our style
+				return ((component.findParent(IWebFormContainer.class) != null) && !(component.findParent(IWebFormContainer.class) instanceof WebAccordionPanel));
 			}
 		});
 
@@ -287,7 +290,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 	public JSDataSet getFormContext()
 	{
 		WebForm current = this;
-		WebTabPanel currentTabPanel = null;
+		ITabPanel currentTabPanel = null;
 		String currentBeanName = null;
 		WebSplitPane currentSplitPane = null;
 		IDataSet set = new BufferedDataSet(
@@ -296,9 +299,9 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		MarkupContainer parent = getParent();
 		while (parent != null)
 		{
-			if (parent instanceof WebTabPanel)
+			if (parent instanceof ITabPanel)
 			{
-				currentTabPanel = (WebTabPanel)parent;
+				currentTabPanel = (ITabPanel)parent;
 			}
 			else if (parent instanceof WebSplitPane)
 			{
@@ -314,7 +317,14 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 				{
 					int index = -1;
 					String tabName = null;
-					index = currentTabPanel.getTabIndex(current);
+					if (currentTabPanel instanceof WebTabPanel)
+					{
+						index = ((WebTabPanel)currentTabPanel).getTabIndex(current);
+					}
+					else
+					{
+						index = ((WebAccordionPanel)currentTabPanel).getTabIndex(current);
+					}
 					if (index != -1)
 					{
 						tabName = currentTabPanel.getTabNameAt(index); // js method so +1

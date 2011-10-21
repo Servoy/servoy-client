@@ -1060,18 +1060,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			@Override
 			public String getObject()
 			{
-				WebTabPanel tabpanel = findParent(WebTabPanel.class);
-				if (tabpanel != null)
+				if (findParent(IWebFormContainer.class) != null)
 				{
-					return ""; //$NON-NLS-1$
-				}
-				else
-				{
-					WebSplitPane splitPane = findParent(WebSplitPane.class);
-					if (splitPane != null)
-					{
-						return ""; //$NON-NLS-1$
-					}
+					return "";
 				}
 				return "overflow: auto;"; //$NON-NLS-1$
 			}

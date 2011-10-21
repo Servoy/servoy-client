@@ -894,7 +894,7 @@ public class WebEventExecutor extends BaseEventExecutor
 					while (dataRendererIte.hasNext())
 					{
 						dataRendererChild = dataRendererIte.next();
-						if (dataRendererChild instanceof WebTabPanel || dataRendererChild instanceof WebSplitPane) continue;
+						if (dataRendererChild instanceof IWebFormContainer) continue;
 						if (dataRendererChild instanceof WrapperContainer) dataRendererChild = ((WrapperContainer)dataRendererChild).getDelegate();
 						if (dataRendererChild instanceof IComponent && ((IComponent)dataRendererChild).isEnabled())
 						{

@@ -97,6 +97,7 @@ import com.servoy.j2db.server.headlessclient.dataui.AbstractServoyDefaultAjaxBeh
 import com.servoy.j2db.server.headlessclient.dataui.FormLayoutProviderFactory;
 import com.servoy.j2db.server.headlessclient.dataui.IFormLayoutProvider;
 import com.servoy.j2db.server.headlessclient.dataui.ISupportWebTabSeq;
+import com.servoy.j2db.server.headlessclient.dataui.IWebFormContainer;
 import com.servoy.j2db.server.headlessclient.dataui.StartEditOnFocusGainedEventBehavior;
 import com.servoy.j2db.server.headlessclient.dataui.StyleAppendingModifier;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
@@ -580,6 +581,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 						@Override
 						public boolean isEnabled(Component component)
 						{
+							// Laurian: looks like bogus condition, shouldn't this be || as in WebForm ?
 							return (component.findParent(WebTabPanel.class) == null) && (component.findParent(WebSplitPane.class) == null);
 						}
 					});
@@ -2231,19 +2233,11 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 						webForm.clearFormWidthHeightChangedFlag();
 					}
 				}
-				page.visitChildren(WebTabPanel.class, new Component.IVisitor<Component>()
+				page.visitChildren(IWebFormContainer.class, new Component.IVisitor<Component>()
 				{
 					public Object component(Component component)
 					{
-						((WebTabPanel)component).notifyResized();
-						return IVisitor.CONTINUE_TRAVERSAL;
-					}
-				});
-				page.visitChildren(WebSplitPane.class, new Component.IVisitor<Component>()
-				{
-					public Object component(Component component)
-					{
-						((WebSplitPane)component).notifyResized();
+						((IWebFormContainer)component).notifyResized();
 						return IVisitor.CONTINUE_TRAVERSAL;
 					}
 				});

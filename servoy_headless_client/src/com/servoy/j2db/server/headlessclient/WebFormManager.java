@@ -34,12 +34,10 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.dataprocessing.FoundSet;
-import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.scripting.JSWindow;
-import com.servoy.j2db.server.headlessclient.dataui.WebSplitPane;
-import com.servoy.j2db.server.headlessclient.dataui.WebTabPanel;
+import com.servoy.j2db.server.headlessclient.dataui.IWebFormContainer;
 import com.servoy.j2db.smart.SwingForm;
 import com.servoy.j2db.util.Utils;
 
@@ -154,19 +152,19 @@ public class WebFormManager extends FormManager
 
 				fp.destroy();
 
-				while (wfParent != null && !(wfParent instanceof WebTabPanel) && !(wfParent instanceof WebSplitPane) &&
-					!(wfParent.getParent() instanceof MainPage) && !(wfParent.getParent() instanceof WebForm))
+				while (wfParent != null && !(wfParent instanceof IWebFormContainer) && !(wfParent.getParent() instanceof MainPage) &&
+					!(wfParent.getParent() instanceof WebForm))
 				{
 					wfParent = wfParent.getParent();
 				}
 
-				if (wfParent instanceof WebTabPanel || wfParent instanceof WebSplitPane)
+				if (wfParent instanceof IWebFormContainer)
 				{
 					if (formVisible)
 					{
 						leaseFormPanel(fp.getName()).loadData(foundset, null);
 						List<Runnable> runnables = new ArrayList<Runnable>();
-						((IDisplayRelatedData)wfParent).notifyVisible(true, runnables);
+						((IWebFormContainer)wfParent).notifyVisible(true, runnables);
 						Utils.invokeLater(getApplication(), runnables);
 					}
 				}

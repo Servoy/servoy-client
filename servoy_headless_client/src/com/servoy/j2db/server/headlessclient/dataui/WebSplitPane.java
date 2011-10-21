@@ -78,7 +78,7 @@ import com.servoy.j2db.util.Utils;
  * @author gboros
  */
 public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDisplayRelatedData, IProviderStylePropertyChanges, ISupportSecuritySettings,
-	ISupportWebBounds, ISupportWebTabSeq, ListSelectionListener
+	ISupportWebBounds, ISupportWebTabSeq, ListSelectionListener, IWebFormContainer
 {
 	private final IApplication application;
 	private final int orient;
