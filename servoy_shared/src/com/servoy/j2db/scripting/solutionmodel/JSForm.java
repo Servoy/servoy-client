@@ -87,13 +87,13 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * 	var myLockedListViewForm = solutionModel.newForm('newForm2', 'myServer', 'myTable', 'myStyleName', false, 800, 600);	
 	 * 	myLockedListViewForm.view = JSForm.LOCKED_LIST_VIEW;
-	 * 	
+	 * 
 	 * 	var myLockedRecordViewForm = solutionModel.newForm('newForm3', 'myServer', 'myTable', 'myStyleName', false, 800, 600);
 	 * 	myLockedRecordViewForm.view = JSForm.LOCKED_RECORD_VIEW;
 	 * 
 	 * 	var myLockedTableViewForm = solutionModel.newForm('newForm4', 'myServer', 'myTable', 'myStyleName', false, 800, 600);
 	 * 	myLockedTableViewForm.view = JSForm.LOCKED_TABLE_VIEW;
-	 * 	
+	 * 
 	 * 	var myRecordViewForm = solutionModel.newForm('newForm5', 'myServer', 'myTable', 'myStyleName', false, 800, 600);
 	 * 	myRecordViewForm.view = JSForm.RECORD_VIEW;
 	 */
@@ -587,7 +587,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 
 	/**
 	 * Creates a new JSField object on the form with the displayType of COMBOBOX - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
-	 *  
+	 * 
 	 * @sample
 	 * 	var form = solutionModel.newForm('newForm1', 'myServer', 'myTable', null, true, 800, 600);
 	 * 	var calendar = form.newComboBox(myDataProvider, 100, 100, 200, 200);
@@ -608,7 +608,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 
 	/**
 	 * Creates a new JSField object on the form with the displayType of LIST_BOX - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
-	 *  
+	 * 
 	 * @sample
 	 * 	var form = solutionModel.newForm('newForm1', 'myServer', 'myTable', null, true, 800, 600);
 	 * 	var calendar = form.newListBox(myDataProvider, 100, 100, 200, 200);
@@ -629,7 +629,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 
 	/**
 	 * Creates a new JSField object on the form with the displayType of MULTI_SELECTION_LIST_BOX - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
-	 *  
+	 * 
 	 * @sample
 	 * 	var form = solutionModel.newForm('newForm1', 'myServer', 'myTable', null, true, 800, 600);
 	 * 	var calendar = form.newMultiSelectionListBox(myDataProvider, 100, 100, 200, 200);
@@ -694,7 +694,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 
 	/**
 	 * Creates a new JSField object on the form with the displayType of CALENDAR - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
-	 *  
+	 * 
 	 * @sample
 	 * 	var form = solutionModel.newForm('newForm1', 'myServer', 'myTable', null, true, 800, 600);
 	 * 	var calendar = form.newCalendar(myDataProvider, 100, 100, 200, 200);
@@ -2558,7 +2558,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 	aNavigator.navigator = SM_DEFAULTS.NONE; // Hide the navigator on the form. 
 	 * 	myListViewForm.navigator = aNavigator;
 	 * 	application.output(myListViewForm.navigator.name);
-	 *  
+	 * 
 	 */
 	public Object js_getNavigator()
 	{

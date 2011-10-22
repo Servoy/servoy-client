@@ -1039,7 +1039,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 	 * 
 	 * //sort using comparator
 	 * dataset.sort(mySortFunction);
-	 *  
+	 * 
 	 * function mySortFunction(r1, r2)
 	 * {
 	 *	var o = 0;

@@ -974,7 +974,7 @@ public class JSDatabaseManager
 	 *  q.where.add(q.joins.orders_to_order_details.columns.discount.eq(2))
 	 *  var maxReturnedRows = 10;//useful to limit number of rows
 	 *  var ds = databaseManager.getDataSetByQuery(q, maxReturnedRows);
-	 *  
+	 * 
 	 *  // query: select PK from example.book_nodes where parent = 111 and(note_date is null or note_date > now)
 	 *  /** @type {QBSelect<db:/example_data/book_nodes>} *&#47;
 	 *  var query = databaseManager.createSelect('db:/example_data/book_nodes').result.addPk().root
@@ -983,7 +983,7 @@ public class JSDatabaseManager
 	 *  .add(query.columns.note_date.isNull)
 	 *  .add(query.columns.note_date.gt(new Date())))
 	 *  databaseManager.getDataSetByQuery(q, max_returned_rows)
-	 *  
+	 * 
 	 * @param query QBSelect query.
 	 * @param max_returned_rows The maximum number of rows returned by the query.  
 	 * 

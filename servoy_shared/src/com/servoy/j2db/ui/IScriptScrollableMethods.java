@@ -60,7 +60,7 @@ public interface IScriptScrollableMethods
 	 * Sets the scroll location of an element. It takes as input the X (horizontal) and Y (vertical) coordinates - starting from the TOP LEFT side of the screen - only for an element where the height of the element is greater than the height of element content
 	 * 
 	 * NOTE: getScrollX() can be used with getScrollY() to return the current scroll location of an element; then use the X and Y coordinates with the setScroll function to set a new scroll location. For Example:
-	 *  
+	 * 
 	 * //returns the X and Y coordinates
 	 * var x = forms.company.elements.portal50.getScrollX();
 	 * var y = forms.company.elements.portal50.getScrollY();

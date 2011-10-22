@@ -125,7 +125,7 @@ public interface IScriptBaseMethods extends IScriptable
 	 * //returns the X and Y coordinates
 	 * var x = forms.company.elements.faxBtn.getLocationX();
 	 * var y = forms.company.elements.faxBtn.getLocationY();
-	 *  
+	 * 
 	 * //sets the new location 10 px to the right; 10 px down from the current location
 	 * forms.company.elements.faxBtn.setLocation(x+10,y+10);
 	 *
@@ -170,12 +170,12 @@ public interface IScriptBaseMethods extends IScriptable
 	 * 
 	 * NOTE: getLocationX() can be used with getLocationY() to return the current location of an element; then use the X and Y coordinates with the setLocation function to set a new location. For Example:
 	 * 
-	 *  //returns the X and Y coordinates
-	 *  var x = forms.company.elements.faxBtn.getLocationX();
-	 *  var y = forms.company.elements.faxBtn.getLocationY();
-	 *  
-	 *  //sets the new location 10 px to the right; 10 px down from the current location
-	 *  forms.company.elements.faxBtn.setLocation(x+10,y+10);
+	 * //returns the X and Y coordinates
+	 * var x = forms.company.elements.faxBtn.getLocationX();
+	 * var y = forms.company.elements.faxBtn.getLocationY();
+	 * 
+	 * //sets the new location 10 px to the right; 10 px down from the current location
+	 * forms.company.elements.faxBtn.setLocation(x+10,y+10);
 	 *
 	 * @sample
 	 * %%prefix%%%%elementName%%.setLocation(200,200);
@@ -210,7 +210,7 @@ public interface IScriptBaseMethods extends IScriptable
 	 * the width of the element in pixels.
 	 *
 	 * @param height
-	 *  the height of the element in pixels. 
+	 * the height of the element in pixels. 
 	 */
 	public void js_setSize(int width, int height);
 
@@ -219,15 +219,15 @@ public interface IScriptBaseMethods extends IScriptable
 	 * 
 	 * NOTE: getWidth() can be used with getHeight() to set the size of an element using the setSize function. For Example:
 	 * 
-	 *  //returns the width (w) and height (h)
-	 *  var w = forms.company.elements.faxBtn.getWidth();
-	 *  var h = forms.company.elements.faxBtn.getHeight();
-	 *  
-	 *  //sets the new size
-	 *  forms.company.elements.faxBtn.setSize(w,h);
-	 *  
-	 *  //sets the new size and adds 1 px to both the width and height
-	 *  forms.company.elements.faxBtn.setSize(w+1,h+1);
+	 * //returns the width (w) and height (h)
+	 * var w = forms.company.elements.faxBtn.getWidth();
+	 * var h = forms.company.elements.faxBtn.getHeight();
+	 * 
+	 * //sets the new size
+	 * forms.company.elements.faxBtn.setSize(w,h);
+	 * 
+	 * //sets the new size and adds 1 px to both the width and height
+	 * forms.company.elements.faxBtn.setSize(w+1,h+1);
 	 *
 	 * @sample
 	 * var w = %%prefix%%%%elementName%%.getWidth();
@@ -243,7 +243,7 @@ public interface IScriptBaseMethods extends IScriptable
 	 * //returns the width (w) and height (h)
 	 * var w = forms.company.elements.faxBtn.getWidth();
 	 * var h = forms.company.elements.faxBtn.getHeight();
-	 *  
+	 * 
 	 * //sets the new size
 	 * forms.company.elements.faxBtn.setSize(w,h);
 	 * 
@@ -330,9 +330,9 @@ public interface IScriptBaseMethods extends IScriptable
 	public void js_setToolTipText(String tooltip);
 
 	/**
-	 *  Gets or sets the tool tip text of an element; text displays when the mouse cursor hovers over an element. 
-	 *  
-	 *  NOTE: HTML should be used for multi-line tooltips; you can also use any valid HTML tags to format tooltip text.
+	 * Gets or sets the tool tip text of an element; text displays when the mouse cursor hovers over an element. 
+	 * 
+	 * NOTE: HTML should be used for multi-line tooltips; you can also use any valid HTML tags to format tooltip text.
 	 *
 	 * @sample
 	 * //gets the tooltip text of the element
@@ -361,7 +361,7 @@ public interface IScriptBaseMethods extends IScriptable
 
 	/**
 	 * Gets or sets the transparency of an element; true - transparent; false - not transparent.
-	 *  
+	 * 
 	 * NOTE: transparency can be inverted using ! operator: elements.elementName.transparent = !elements.elementName.transparent;
 	 * 
 	 * NOTE: transparency will be mostly used for background color, a transparent element will receive the background of the element "beneath" it, a non transparent one will use its own background color

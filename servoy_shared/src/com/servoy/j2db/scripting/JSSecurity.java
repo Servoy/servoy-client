@@ -1182,7 +1182,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	 * {
 	 * 	plugins.dialogs.showErrorDialog('Login failed', 'OK')
 	 * }
-	 * 	
+	 * 
 	 * // if no authenticator name is used, the credentials are checked using the Servoy built-in user management
 	 * ok = security.authenticate(null, null, [globals.userName, globals.passWord])
 	 *

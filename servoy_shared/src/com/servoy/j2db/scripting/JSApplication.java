@@ -178,7 +178,7 @@ public class JSApplication implements IReturnedTypesProvider
 
 	/**
 	 * Get the active user count on the server (can be limited to current solution).
-	 *  
+	 * 
 	 * @deprecated As of release 2.x, replaced by {@link #getActiveClientCount(boolean)}.
 	 */
 	@Deprecated
@@ -236,7 +236,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 * var startupArgumentObj = args_array[1];
 	 * var arg1 = startupArgumentObj['arg1_name'];
 	 * var arg2 = startupArgumentObj['arg2_name'];
-	 *  
+	 * 
 	 * @return Array with 2 elements, a string that is the startup argument and a map containing all named startup arguments,
 	 * or null if there is no argument passed
 	 */
@@ -1042,7 +1042,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 *
 	 * @param windowName optional Name of the window
 	 * 
-	 *  @return Window Y location
+	 * @return Window Y location
 	 */
 	@Deprecated
 	public int js_getWindowY(Object[] args)
@@ -1961,7 +1961,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 * Test if the form is currently showing in a window.
 	 * 
 	 * @deprecated As of release 6.0, dialogs/windows API has been rewritten (based in JSWindow objects).
-	 *  
+	 * 
 	 * @sample
 	 * if(application.isFormInWindow(forms.formname))
 	 * {
@@ -2349,7 +2349,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 * 	application.closeAllWindows();
 	 *  controller.show(null);
 	 * }
-	 *  
+	 * 
 	 * @return Boolean true if all windows were closed and false otherwise.
 	 */
 	public boolean js_closeAllWindows()
