@@ -224,4 +224,14 @@ public class XMLScriptObjectAdapter implements ITypedScriptObject
 		if (original != null) return original.isDeprecated(methodName);
 		return false;
 	}
+
+	public String getDeprecatedText(String methodName, Class< ? >[] argTypes)
+	{
+		IFunctionDocumentation fdoc = objDoc.getFunction(methodName, argTypes);
+		if (fdoc != null)
+		{
+			return fdoc.getDeprecatedText();
+		}
+		return null;
+	}
 }

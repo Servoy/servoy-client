@@ -16,8 +16,6 @@
  */
 package com.servoy.j2db.documentation.scripting.docs;
 
-import org.mozilla.javascript.annotations.JSFunction;
-
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
@@ -43,8 +41,8 @@ public class SpecialOperators
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Operators/Special_Operators/typeof_Operator
 	 */
-	@JSFunction
-	public void typeof()
+//	@JSFunction
+	public void js_typeof()
 	{
 	}
 }

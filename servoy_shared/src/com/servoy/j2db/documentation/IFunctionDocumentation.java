@@ -78,6 +78,8 @@ public interface IFunctionDocumentation
 
 	public boolean isDeprecated();
 
+	public String getDeprecatedText();
+
 	public boolean isVarargs();
 
 	public void addArgument(IParameterDocumentation argDoc);
