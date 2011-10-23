@@ -29,6 +29,7 @@ import java.lang.annotation.RetentionPolicy;
 public @interface ServoyDocumented
 {
 	public static final String PLUGINS = "plugins"; //$NON-NLS-1$
+	public static final String BEANS = "beans"; //$NON-NLS-1$
 	public static final String RUNTIME = "runtime"; //$NON-NLS-1$
 	public static final String DESIGNTIME = "designtime"; //$NON-NLS-1$
 	public static final String JSLIB = "jslib"; //$NON-NLS-1$
