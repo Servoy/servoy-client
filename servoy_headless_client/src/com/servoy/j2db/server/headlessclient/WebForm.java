@@ -1769,6 +1769,12 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		//((ServoyMarkupCache)Application.get().getMarkupSettings().getMarkupCache()).removeFromCache(this);
 		markup = null;
 		uiRecreated = true;
+
+		WebTabPanel tabpanel = findParent(WebTabPanel.class);
+		if (tabpanel != null && tabpanel.getCurrentForm() == this)
+		{
+			tabpanel.recomputeTabSequence();
+		}
 	}
 
 	public boolean isUIRecreated()

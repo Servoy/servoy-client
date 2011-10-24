@@ -476,7 +476,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		else super.remove(component);
 	}
 
-	private void recomputeTabSequence()
+	public void recomputeTabSequence()
 	{
 		FormController fc = currentForm.getWebForm().getController();
 		fc.recomputeTabSequence(tabSequenceIndex);
