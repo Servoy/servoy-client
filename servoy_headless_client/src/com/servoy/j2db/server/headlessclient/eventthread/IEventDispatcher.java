@@ -15,43 +15,39 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.server.headlessclient;
+package com.servoy.j2db.server.headlessclient.eventthread;
+
+import com.servoy.j2db.server.headlessclient.WebClient;
 
 
 /**
- * Events that want to be executed by {@link IEventDispatcher} in a script thread needs to implement this interface.
+ * {@link WebClient#getEventDispatcher()} returns an implementation for this to execute events in a separate thread.
  * 
  * @author jcompagner
  * 
  * @since 6.1
- *
  */
-public interface IEvent
+public interface IEventDispatcher extends Runnable
 {
+	/**
+	 * @param object The Object that is the suspend 'lock'
+	 */
+	void suspend(Object object);
 
 	/**
-	 * Called by the script thread to execute itself. 
+	 * @param object The Object that holds an suspend 'lock' to resume it. 
 	 */
-	public abstract void execute();
+	void resume(Object object);
+
+	public IEventProgressMonitor getEventProgressMonitor();
 
 	/**
-	 * Called when this event will be suspended.
+	 * @param runnable
 	 */
-	public abstract void willSuspend();
+	void addEvent(Runnable runnable);
 
 	/**
-	 * Called when this event will be resumed.
+	 * destroys this event dispatcher thread.
 	 */
-	public abstract void willResume();
-
-	/**
-	 * @return
-	 */
-	public abstract boolean isExecuted();
-
-	/**
-	 * @return
-	 */
-	public abstract boolean isSuspended();
-
+	public void destroy();
 }

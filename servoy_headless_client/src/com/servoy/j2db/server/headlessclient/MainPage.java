@@ -98,8 +98,10 @@ import com.servoy.j2db.server.headlessclient.dataui.FormLayoutProviderFactory;
 import com.servoy.j2db.server.headlessclient.dataui.IFormLayoutProvider;
 import com.servoy.j2db.server.headlessclient.dataui.ISupportWebTabSeq;
 import com.servoy.j2db.server.headlessclient.dataui.IWebFormContainer;
+import com.servoy.j2db.server.headlessclient.dataui.PageContributorRepeatingView;
 import com.servoy.j2db.server.headlessclient.dataui.StartEditOnFocusGainedEventBehavior;
 import com.servoy.j2db.server.headlessclient.dataui.StyleAppendingModifier;
+import com.servoy.j2db.server.headlessclient.dataui.StylePropertyChangeMarkupContainer;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor;
 import com.servoy.j2db.server.headlessclient.dataui.WebSplitPane;
@@ -428,6 +430,12 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		pageContributor = new PageContributor(client, "contribution");
 		body.add(pageContributor);
 
+		StylePropertyChangeMarkupContainer container = new StylePropertyChangeMarkupContainer("externaldivsparent");
+		body.add(container); //$NON-NLS-1$
+		PageContributorRepeatingView repeatingView = new PageContributorRepeatingView("externaldivs", container);
+		container.add(repeatingView);
+		pageContributor.addRepeatingView(repeatingView);
+
 		Label loadingIndicator = new Label("loading_indicator", sc.getI18NMessage("servoy.general.loading"));
 		loadingIndicator.add(new SimpleAttributeModifier("style", "display:none;"));
 
@@ -683,9 +691,8 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 				if (client.getEventDispatcher() != null)
 				{
-					client.getEventDispatcher().addEvent(new WicketExecuteEvent()
+					client.getEventDispatcher().addEvent(new Runnable()
 					{
-						@Override
 						public void run()
 						{
 							client.getRuntimeWindowManager().closeFormInWindow(divDialog.getPageMapName(), divDialog.getCloseAll());

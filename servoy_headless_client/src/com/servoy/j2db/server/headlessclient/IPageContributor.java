@@ -13,11 +13,13 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient;
 
 
 import org.apache.wicket.behavior.IBehavior;
+
+import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 
 /**
  * Interface to add behaviours to webclient.
@@ -25,7 +27,7 @@ import org.apache.wicket.behavior.IBehavior;
  * @author jcompagner,jblok
  * @since 3.5
  */
-public interface IPageContributor
+public interface IPageContributor extends IProviderStylePropertyChanges
 {
 	/**
 	 * Get a behaviour with a name
@@ -49,6 +51,9 @@ public interface IPageContributor
 	 * @param name the name
 	 */
 	public void removeBehavior(String name);
+
+
+	public IRepeatingView getRepeatingView();
 
 	/**
 	 * Execute some dynamic JavaScript in the web client

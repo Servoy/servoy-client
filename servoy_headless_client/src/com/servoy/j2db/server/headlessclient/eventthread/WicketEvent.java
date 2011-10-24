@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.server.headlessclient;
+package com.servoy.j2db.server.headlessclient.eventthread;
 
 import java.util.List;
 
@@ -26,30 +26,31 @@ import org.apache.wicket.RequestCycle;
 import org.apache.wicket.Session;
 import org.mozilla.javascript.Function;
 
+import com.servoy.j2db.server.headlessclient.ServoyRequestCycle;
 import com.servoy.j2db.util.Debug;
 
 /**
- * An implementation of {@link IEvent} that executes {@link Function} when {@link #execute()} is called.
+ * An implementation of {@link Event} that executes {@link Function} when {@link #execute()} is called.
  * Will set and reset all the wicket thread locals from the creation thread (the http thread) to the execution thread.
  * 
  * @author jcompagner
  * 
  * @since 6.1
  */
-public abstract class WicketExecuteEvent implements IEvent
+final class WicketEvent extends Event
 {
 	private final RequestCycle requestCycle;
 	private final Session session;
 	private final Application application;
 
 	private volatile boolean executed;
-	private volatile boolean suspended;
 	private volatile boolean resetThreadLocals = true;
 	private volatile Exception exception;
 
 	private final List<IClusterable> dirtyObjectsList;
 	private final List<Page> touchedPages;
 	private final Thread currentThread;
+	private final Runnable runable;
 
 	/**
 	 * @param f
@@ -60,8 +61,9 @@ public abstract class WicketExecuteEvent implements IEvent
 	 * @param throwException
 	 * @param scriptEngine TODO
 	 */
-	public WicketExecuteEvent()
+	public WicketEvent(Runnable runable)
 	{
+		this.runable = runable;
 		requestCycle = RequestCycle.get();
 		session = Session.get();
 		application = Application.get();
@@ -75,6 +77,7 @@ public abstract class WicketExecuteEvent implements IEvent
 	 * 
 	 * @see com.servoy.j2db.server.headlessclient.IExecuteEvent#execute()
 	 */
+	@Override
 	public final void execute()
 	{
 		try
@@ -89,7 +92,7 @@ public abstract class WicketExecuteEvent implements IEvent
 			session.moveUsedPage(currentThread, Thread.currentThread());
 //			}
 
-			run();
+			runable.run();
 		}
 		catch (Exception e)
 		{
@@ -102,8 +105,6 @@ public abstract class WicketExecuteEvent implements IEvent
 			cleanup();
 		}
 	}
-
-	public abstract void run();
 
 	/**
 	 * 
@@ -149,37 +150,31 @@ public abstract class WicketExecuteEvent implements IEvent
 	/**
 	 * @return the executed
 	 */
+	@Override
 	public boolean isExecuted()
 	{
 		return executed;
 	}
 
 	/**
-	 * @return the suspended
-	 */
-	public boolean isSuspended()
-	{
-		return suspended;
-	}
-
-	/**
 	 * 
 	 */
+	@Override
 	public void willSuspend()
 	{
 		cleanup();
-		suspended = true;
+		super.willSuspend();
 	}
 
-	/**
+	/*
+	 * (non-Javadoc)
 	 * 
+	 * @see com.servoy.j2db.server.headlessclient.eventthread.Event#executeInBackground()
 	 */
-	public void willResume()
+	@Override
+	public void executeInBackground()
 	{
-		suspended = false;
-//		if (RequestCycle.get() == null) ServoyRequestCycle.set(requestCycle);
-//		if (Session.exists()) Session.set(session);
-//		if (Application.exists()) Application.set(application);
+		cleanup();
+		super.executeInBackground();
 	}
-
 }

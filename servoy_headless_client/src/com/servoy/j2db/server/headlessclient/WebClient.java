@@ -66,6 +66,8 @@ import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.scripting.IScriptSupport;
 import com.servoy.j2db.scripting.info.WEBCONSTANTS;
 import com.servoy.j2db.server.headlessclient.MainPage.ShowUrlInfo;
+import com.servoy.j2db.server.headlessclient.eventthread.IEventDispatcher;
+import com.servoy.j2db.server.headlessclient.eventthread.WicketEventDispatcher;
 import com.servoy.j2db.util.Ad;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
@@ -462,9 +464,8 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		if (runnables != null)
 		{
 			final Runnable[] toExecute = runnables;
-			IEvent run = new WicketExecuteEvent()
+			Runnable run = new Runnable()
 			{
-				@Override
 				public void run()
 				{
 					for (Runnable runnable : toExecute)
@@ -492,7 +493,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 			}
 			else
 			{
-				run.execute();
+				run.run();
 			}
 		}
 		return;
@@ -956,6 +957,6 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	 */
 	protected IEventDispatcher createDispatcher()
 	{
-		return new EventDispatcher();
+		return new WicketEventDispatcher();
 	}
 }

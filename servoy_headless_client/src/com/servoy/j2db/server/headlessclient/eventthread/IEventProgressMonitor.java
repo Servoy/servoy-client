@@ -15,35 +15,15 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.server.headlessclient;
-
+package com.servoy.j2db.server.headlessclient.eventthread;
 
 /**
- * {@link WebClient#getEventDispatcher()} returns an implementation for this to execute events in a separate thread.
- * 
  * @author jcompagner
- * 
- * @since 6.1
+ *
  */
-public interface IEventDispatcher extends Runnable
+public interface IEventProgressMonitor
 {
-	/**
-	 * @param object The Object that is the suspend 'lock'
-	 */
-	void suspend(Object object);
+	public boolean isExecuting();
 
-	/**
-	 * @param object The Object that holds an suspend 'lock' to resume it. 
-	 */
-	void resume(Object object);
-
-	/**
-	 * @param executeEvent
-	 */
-	void addEvent(IEvent executeEvent);
-
-	/**
-	 * destroys this event dispatcher thread.
-	 */
-	public void destroy();
+	public void runInBackground();
 }

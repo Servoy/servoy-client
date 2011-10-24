@@ -50,6 +50,7 @@ import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataCheckBoxChoice;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataRadioChoice;
 import com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor;
+import com.servoy.j2db.server.headlessclient.eventthread.IEventDispatcher;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
@@ -70,7 +71,10 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 	private static final long serialVersionUID = 1L;
 	public static final ResourceReference anchorlayout = new JavascriptResourceReference(PageContributor.class, "anchorlayout.js"); //$NON-NLS-1$
 
+	private IRepeatingView repeatingView;
+
 	private final Map<String, IBehavior> behaviors = new HashMap<String, IBehavior>();
+
 	private final EventCallbackBehavior eventCallbackBehavior;
 
 	private StringBuffer dynamicJS;
@@ -482,9 +486,8 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 					IEventDispatcher eventDispatcher = ((WebClient)application).getEventDispatcher();
 					if (eventDispatcher != null)
 					{
-						eventDispatcher.addEvent(new WicketExecuteEvent()
+						eventDispatcher.addEvent(new Runnable()
 						{
-							@Override
 							public void run()
 							{
 								callback.respond(target, event, markupId);
@@ -587,5 +590,23 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		{
 			return new DelayedDialog(type, formName, r, title, resizeble, showTextToolbar, closeAll, modal, dialogName);
 		}
+	}
+
+	/**
+	 * @param container
+	 */
+	public void addRepeatingView(IRepeatingView rp)
+	{
+		this.repeatingView = rp;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.IPageContributor#getRepeatingView()
+	 */
+	public IRepeatingView getRepeatingView()
+	{
+		return repeatingView;
 	}
 }

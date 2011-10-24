@@ -59,17 +59,16 @@ import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.server.headlessclient.CloseableAjaxRequestTarget;
-import com.servoy.j2db.server.headlessclient.IEventDispatcher;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.ServoyForm;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.WebClientsApplication.ModifiedAccessStackPageMap;
 import com.servoy.j2db.server.headlessclient.WebForm;
-import com.servoy.j2db.server.headlessclient.WicketExecuteEvent;
 import com.servoy.j2db.server.headlessclient.WrapperContainer;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataCalendar.DateField;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataRadioButton.MyRadioButton;
 import com.servoy.j2db.server.headlessclient.dnd.DraggableBehavior;
+import com.servoy.j2db.server.headlessclient.eventthread.IEventDispatcher;
 import com.servoy.j2db.ui.BaseEventExecutor;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
@@ -371,9 +370,8 @@ public class WebEventExecutor extends BaseEventExecutor
 		IEventDispatcher eventDispatcher = WebClientSession.get().getWebClient().getEventDispatcher();
 		if (eventDispatcher != null)
 		{
-			eventDispatcher.addEvent(new WicketExecuteEvent()
+			eventDispatcher.addEvent(new Runnable()
 			{
-				@Override
 				public void run()
 				{
 					handleEvent(type, target, comp, webModifiers, mouseLocation, page);

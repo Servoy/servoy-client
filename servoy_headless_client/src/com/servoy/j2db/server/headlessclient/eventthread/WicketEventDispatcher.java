@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.server.headlessclient;
+package com.servoy.j2db.server.headlessclient.eventthread;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -26,18 +26,18 @@ import java.util.concurrent.ConcurrentMap;
 import com.servoy.j2db.util.Debug;
 
 /**
- * Runnable of the ScriptThread that executes {@link IEvent} objects.
+ * Runnable of the ScriptThread that executes {@link Event} objects.
  * 
  * @author jcompagner
  * 
  * @since 6.1
  */
-public class EventDispatcher implements Runnable, IEventDispatcher
+public class WicketEventDispatcher implements Runnable, IEventDispatcher
 {
-	private final ConcurrentMap<Object, IEvent> suspendedEvents = new ConcurrentHashMap<Object, IEvent>();
+	private final ConcurrentMap<Object, Event> suspendedEvents = new ConcurrentHashMap<Object, Event>();
 
-	private final List<IEvent> events = new ArrayList<IEvent>();
-	private final LinkedList<IEvent> stack = new LinkedList<IEvent>();
+	private final List<Event> events = new ArrayList<Event>();
+	private final LinkedList<Event> stack = new LinkedList<Event>();
 
 	private volatile boolean exit = false;
 
@@ -59,7 +59,7 @@ public class EventDispatcher implements Runnable, IEventDispatcher
 	{
 		try
 		{
-			IEvent event = null;
+			Event event = null;
 			synchronized (events)
 			{
 				while (event == null)
@@ -95,8 +95,9 @@ public class EventDispatcher implements Runnable, IEventDispatcher
 	/**
 	 * @param event
 	 */
-	public void addEvent(IEvent event)
+	public void addEvent(Runnable runnable)
 	{
+		WicketEvent event = new WicketEvent(runnable);
 		if (scriptThread == Thread.currentThread())
 		{
 			event.execute();
@@ -107,7 +108,7 @@ public class EventDispatcher implements Runnable, IEventDispatcher
 			{
 				events.add(event);
 				events.notifyAll();
-				while (!(event.isExecuted() || event.isSuspended()))
+				while (!(event.isExecuted() || event.isSuspended() || event.isExecutingInBackground()))
 				{
 					try
 					{
@@ -133,7 +134,7 @@ public class EventDispatcher implements Runnable, IEventDispatcher
 			Debug.error("suspend called in another thread then the script thread: " + Thread.currentThread(), new RuntimeException());
 			return;
 		}
-		IEvent event = stack.getLast();
+		Event event = stack.getLast();
 		if (event != null)
 		{
 			suspendedEvents.put(object, event);
@@ -153,10 +154,45 @@ public class EventDispatcher implements Runnable, IEventDispatcher
 
 	public void resume(Object object)
 	{
-		IEvent event = suspendedEvents.remove(object);
+		Event event = suspendedEvents.remove(object);
 		if (event != null)
 		{
 			addEmptyEvent();
+		}
+	}
+
+	public IEventProgressMonitor getEventProgressMonitor()
+	{
+		// TODO should this one be called in the execute event thread, should an check be done??
+		if (Thread.currentThread() != scriptThread)
+		{
+			Debug.error("run in background called in another thread then the script thread: " + Thread.currentThread(), new RuntimeException());
+			return null;
+		}
+
+		final Event event = stack.getLast();
+		if (event != null)
+		{
+			return new IEventProgressMonitor()
+			{
+				public boolean isExecuting()
+				{
+					return !event.isExecuted();
+				}
+
+				public void runInBackground()
+				{
+					event.executeInBackground();
+					synchronized (events)
+					{
+						events.notifyAll();
+					}
+				}
+			};
+		}
+		else
+		{
+			throw new IllegalStateException("No current event to run in the background");
 		}
 	}
 
@@ -168,30 +204,7 @@ public class EventDispatcher implements Runnable, IEventDispatcher
 		synchronized (events)
 		{
 			// add a nop event so that the dispatcher is triggered.
-			events.add(new IEvent()
-			{
-				public void willSuspend()
-				{
-				}
-
-				public void willResume()
-				{
-				}
-
-				public void execute()
-				{
-				}
-
-				public boolean isExecuted()
-				{
-					return true;
-				}
-
-				public boolean isSuspended()
-				{
-					return false;
-				}
-			});
+			events.add(new Event());
 			events.notifyAll();
 		}
 	}

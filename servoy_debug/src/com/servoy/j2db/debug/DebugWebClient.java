@@ -42,13 +42,13 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
-import com.servoy.j2db.server.headlessclient.IEventDispatcher;
 import com.servoy.j2db.server.headlessclient.MainPage;
-import com.servoy.j2db.server.headlessclient.EventDispatcher;
 import com.servoy.j2db.server.headlessclient.WebClient;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.WebCredentials;
 import com.servoy.j2db.server.headlessclient.WebFormManager;
+import com.servoy.j2db.server.headlessclient.eventthread.IEventDispatcher;
+import com.servoy.j2db.server.headlessclient.eventthread.WicketEventDispatcher;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -225,7 +225,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 	@Override
 	protected IEventDispatcher createDispatcher()
 	{
-		return new EventDispatcher()
+		return new WicketEventDispatcher()
 		{
 			@Override
 			public void run()
