@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.querybuilder.IQueryBuilderPart;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
@@ -25,6 +26,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * @author rgansevles
  *
  */
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public abstract class QBPart implements IQueryBuilderPart
 {
 	private final QBSelect root;
