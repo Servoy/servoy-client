@@ -71,6 +71,8 @@ public class WebClientSession extends WebSession
 
 	private String keepCredentialsSolutionName;
 
+	private final boolean blockInput;
+
 	public static WebClientSession get()
 	{
 		if (exists())
@@ -84,6 +86,7 @@ public class WebClientSession extends WebSession
 	{
 		super(request);
 		setTemplateDirectoryName("default"); //$NON-NLS-1$
+		blockInput = Boolean.valueOf(Settings.getInstance().getProperty("servoy.webclient.blockinputonrequest", "false")).booleanValue(); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@SuppressWarnings("nls")
@@ -354,5 +357,14 @@ public class WebClientSession extends WebSession
 	public void keepCredentials(String solutionName)
 	{
 		this.keepCredentialsSolutionName = solutionName;
+	}
+
+
+	/**
+	 * @return
+	 */
+	public boolean blockRequest()
+	{
+		return blockInput;
 	}
 }

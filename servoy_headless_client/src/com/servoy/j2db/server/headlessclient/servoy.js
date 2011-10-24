@@ -1468,6 +1468,14 @@ function onAjaxError()
 	}
 	clickedElementId = null;	
 	wicketShow('indicator');
+	wicketHide('blocker');
+}
+
+function onABC() {
+	wicketShow('blocker');
+	var e=wicketGet('blocker');
+	if (e != null) e.focus();
+	onAjaxCall();
 }
 
 function onAjaxCall()
