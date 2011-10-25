@@ -1707,19 +1707,15 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				dependencies.add(new CalculationDependency(dependingDataSource, dependingPkHashKey, dependingCalc));
 			}
 
-			// inform depending rowmanager as well
-			if (!pkHashKey.equals(dependingPkHashKey) || !fsm.getDataSource(sheet.getTable()).equals(dependingDataSource))// always get dataSource via FSM, it could be an inmem table
+			// inform depending rowmanager as well (including its own)
+			try
 			{
-				// we are not depending on the same row
-				try
-				{
-					getFoundsetManager().getRowManager(dependingDataSource).addCalculationDependencyBackReference(
-						new RowReference(fsm.getDataSource(sheet.getTable()), dataproviderId, pkHashKey), dependingPkHashKey, dependingCalc);
-				}
-				catch (ServoyException e)
-				{
-					Debug.error(e);
-				}
+				getFoundsetManager().getRowManager(dependingDataSource).addCalculationDependencyBackReference(
+					new RowReference(fsm.getDataSource(sheet.getTable()), dataproviderId, pkHashKey), dependingPkHashKey, dependingCalc);
+			}
+			catch (ServoyException e)
+			{
+				Debug.error(e);
 			}
 		}
 	}
@@ -1878,6 +1874,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				']');
 			return builder.toString();
 		}
+
 	}
 
 	public static class RelationDependency
