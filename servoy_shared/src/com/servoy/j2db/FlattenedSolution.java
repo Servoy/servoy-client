@@ -85,6 +85,7 @@ import com.servoy.j2db.server.shared.IFlattenedSolutionDebugListener;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
+import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.keyword.Ident;
 
 /**
@@ -618,7 +619,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			}
 		}
 
-		modules = modulesMap.values().toArray(new Solution[modulesMap.size()]);
+		modules = getDependencyGraphOrderedModules(modulesMap.values());
 
 		for (Solution s : modules)
 		{
@@ -636,6 +637,38 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			if (s.getChangeHandler() != null)
 			{
 				s.getChangeHandler().addIPersistListener(this);
+			}
+		}
+	}
+
+	private Solution[] getDependencyGraphOrderedModules(Collection<Solution> modules)
+	{
+		List<Solution> orderedSolutions = new ArrayList<Solution>();
+		buildOrderedList(modules, orderedSolutions, mainSolution);
+		return orderedSolutions.toArray(new Solution[] { });
+	}
+
+	private void buildOrderedList(Collection<Solution> modules, List<Solution> orderedSolutions, Solution solution)
+	{
+		if (solution != null && solution.getModulesNames() != null)
+		{
+			String[] moduleNames = Utils.getTokenElements(solution.getModulesNames(), ",", true);
+			for (String moduleName : moduleNames)
+			{
+				Solution module = null;
+				for (Solution sol : modules)
+				{
+					if (sol.getName().equals(moduleName))
+					{
+						module = sol;
+						break;
+					}
+				}
+				if (module != null && !orderedSolutions.contains(module))
+				{
+					orderedSolutions.add(module);
+					buildOrderedList(modules, orderedSolutions, module);
+				}
 			}
 		}
 	}
@@ -842,7 +875,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		List<IPersist> allObjectsAsList = s.getAllObjectsAsList();
 		if (copySolution == null || copySolution == s)
 		{
-			copyInto.addAll(allObjectsAsList);
+			copyInto.addAll(0, allObjectsAsList);
 		}
 		else
 		{
@@ -852,7 +885,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				IPersist persist = (IPersist)o;
 				if (copySolution.getChild(persist.getUUID()) == null)
 				{
-					copyInto.add(persist);
+					copyInto.add(0, persist);
 				}
 			}
 		}

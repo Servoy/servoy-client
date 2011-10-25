@@ -2397,4 +2397,28 @@ public class Utils
 		cal.set(Calendar.MILLISECOND, 999);
 	}
 
+	public static String[] getTokenElements(String value, String delim, boolean trim)
+	{
+		if (value == null)
+		{
+			return new String[] { };
+		}
+	
+		List<String> lst = new ArrayList<String>();
+		StringTokenizer tokemizer = new StringTokenizer(value, delim);
+		while (tokemizer.hasMoreElements())
+		{
+			String token = tokemizer.nextToken();
+			if (trim)
+			{
+				lst.add(token.trim());
+			}
+			else
+			{
+				lst.add(token);
+			}
+		}
+		return lst.toArray(new String[lst.size()]);
+	}
+
 }
