@@ -131,8 +131,6 @@ public class Record implements Scriptable, IRecordInternal
 
 		SQLSheet sheet = parent.getSQLSheet();
 		List<String> storedCalcs = sheet.getStoredCalculationNames();
-		row.getRowManager().flagRowCalcsForRecalculation(row.getPKHashKey(), storedCalcs);
-
 		//recalc all stored calcs (requered due to use of plugin methods in calc)
 		for (String calc : storedCalcs)
 		{
@@ -1018,7 +1016,8 @@ public class Record implements Scriptable, IRecordInternal
 		return row.getLastException();
 	}
 
-	public void js_setException(@SuppressWarnings("unused") Exception ex)
+	public void js_setException(@SuppressWarnings("unused")
+	Exception ex)
 	{
 		//ignore
 	}
@@ -1049,7 +1048,8 @@ public class Record implements Scriptable, IRecordInternal
 		return parent;
 	}
 
-	public void js_setFoundset(@SuppressWarnings("unused") IFoundSetInternal foundset)
+	public void js_setFoundset(@SuppressWarnings("unused")
+	IFoundSetInternal foundset)
 	{
 		//ignore
 	}

@@ -830,7 +830,9 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		if (referenceQueue.poll() != null)
 		{
 			// quicly clear the whole queue, so that it is empty for the next time.
-			while (referenceQueue.poll() != null) {}
+			while (referenceQueue.poll() != null)
+			{
+			}
 
 			// test the hashmap for empty  Softreferences
 			Iterator<Entry<String, SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>>> it = pkRowMap.entrySet().iterator();
@@ -1707,19 +1709,15 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				dependencies.add(new CalculationDependency(dependingDataSource, dependingPkHashKey, dependingCalc));
 			}
 
-			// inform depending rowmanager as well
-			if (!pkHashKey.equals(dependingPkHashKey) || !fsm.getDataSource(sheet.getTable()).equals(dependingDataSource))// always get dataSource via FSM, it could be an inmem table
+			// inform depending rowmanager as well (including its own)
+			try
 			{
-				// we are not depending on the same row
-				try
-				{
-					getFoundsetManager().getRowManager(dependingDataSource).addCalculationDependencyBackReference(
-						new RowReference(fsm.getDataSource(sheet.getTable()), dataproviderId, pkHashKey), dependingPkHashKey, dependingCalc);
-				}
-				catch (ServoyException e)
-				{
-					Debug.error(e);
-				}
+				getFoundsetManager().getRowManager(dependingDataSource).addCalculationDependencyBackReference(
+					new RowReference(fsm.getDataSource(sheet.getTable()), dataproviderId, pkHashKey), dependingPkHashKey, dependingCalc);
+			}
+			catch (ServoyException e)
+			{
+				Debug.error(e);
 			}
 		}
 	}
@@ -1757,6 +1755,14 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 									iterator.remove();
 								}
 							}
+							if (list.size() == 0)
+							{
+								deps.remove(dataproviderId);
+							}
+						}
+						if (deps.size() == 0)
+						{
+							data.setLeft(null);
 						}
 					}
 				}
@@ -1878,6 +1884,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				']');
 			return builder.toString();
 		}
+
 	}
 
 	public static class RelationDependency
