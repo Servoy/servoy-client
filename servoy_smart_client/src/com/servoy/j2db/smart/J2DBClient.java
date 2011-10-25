@@ -1925,7 +1925,8 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 				try
 				{
 					blockGUI(Messages.getString("servoy.client.status.initializing.solution")); //$NON-NLS-1$
-					frame.setTitle(getApplicationName() + " - " + solution.getName()); //$NON-NLS-1$
+					frame.setTitle(getApplicationName() +
+						" - " + ((solution.getTitleText() != null) ? getI18NMessageIfPrefixed(solution.getTitleText()) : solution.getName())); //$NON-NLS-1$
 					J2DBGlobals.firePropertyChange(J2DBClient.this, "solution", null, solution); //$NON-NLS-1$
 					handleArguments(null); // clear the loaded solution names.
 				}
