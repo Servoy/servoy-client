@@ -974,6 +974,7 @@ public class Record implements Scriptable, IRecordInternal
 	 * NOTE: To return an array of records with outstanding changed data, see the function databaseManager.getEditedRecords(). 
 	 *
 	 * @sample
+	 * /** @type {JSDataSet} *&#47;
 	 * var dataset = record.getChangedData()
 	 * for( var i = 1 ; i <= dataset.getMaxRowIndex() ; i++ )
 	 * {
