@@ -139,7 +139,13 @@ public abstract class AbstractScriptLabel extends JLabel implements ISkinnable, 
 		if (eventExecutor != null)
 		{
 			eventExecutor.fireOnRender(this, hasFocus());
-			if (!isVisible()) return;
+			if (!isVisible())
+			{
+				// it has been made invisible in on render, make it visible again
+				// so, the onRender will be called next time
+				setVisible(true);
+				return;
+			}
 		}
 		boolean isPrinting = Utils.getAsBoolean(application.getRuntimeProperties().get("isPrinting")); //$NON-NLS-1$
 		if (isPrinting && getText() != null && !HtmlUtils.startsWithHtml(getText()) && isEnabled() && getIcon() == null && !isOpaque() &&

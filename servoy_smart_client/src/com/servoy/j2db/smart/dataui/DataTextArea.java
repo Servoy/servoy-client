@@ -1234,7 +1234,13 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 		if (eventExecutor != null)
 		{
 			eventExecutor.fireOnRender(this, enclosedComponent.hasFocus());
-			if (!isVisible()) return;
+			if (!isVisible())
+			{
+				// it has been made invisible in on render, make it visible again
+				// so, the onRender will be called next time
+				setVisible(true);
+				return;
+			}
 		}
 		super.paintComponent(g);
 	}

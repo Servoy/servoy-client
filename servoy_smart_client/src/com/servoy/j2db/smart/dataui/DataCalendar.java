@@ -694,7 +694,13 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 		if (enclosedComponent.eventExecutor != null)
 		{
 			enclosedComponent.eventExecutor.fireOnRender(this, enclosedComponent.hasFocus());
-			if (!isVisible()) return;
+			if (!isVisible())
+			{
+				// it has been made invisible in on render, make it visible again
+				// so, the onRender will be called next time
+				setVisible(true);
+				return;
+			}
 		}
 		super.paintComponent(g);
 	}

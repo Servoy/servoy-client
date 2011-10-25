@@ -1200,7 +1200,13 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		if (eventExecutor != null)
 		{
 			eventExecutor.fireOnRender(this, hasFocus());
-			if (!isVisible()) return;
+			if (!isVisible())
+			{
+				// it has been made invisible in on render, make it visible again
+				// so, the onRender will be called next time
+				setVisible(true);
+				return;
+			}
 		}
 		super.paintComponent(g);
 	}

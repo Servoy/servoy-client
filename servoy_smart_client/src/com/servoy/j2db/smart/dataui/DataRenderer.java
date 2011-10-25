@@ -559,7 +559,7 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 			}
 		}
 
-//		setFont(list.getFont());
+		//setFont(list.getFont());
 
 		//System.out.println(this);
 
