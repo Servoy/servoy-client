@@ -634,6 +634,10 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	{
 		List<Solution> orderedSolutions = new ArrayList<Solution>();
 		buildOrderedList(modules, orderedSolutions, mainSolution);
+		if (orderedSolutions.size() > 1)
+		{
+			Collections.reverse(orderedSolutions);
+		}
 		return orderedSolutions.toArray(new Solution[] { });
 	}
 
@@ -823,8 +827,8 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			{
 				fillList(retval, copySolution);
 			}
-			fillList(retval, mainSolution);
 			getAllModuleObjects(retval);
+			fillList(retval, mainSolution);
 			if (loginFlattenedSolution != null)
 			{
 				List<IPersist> elements = loginFlattenedSolution.getAllObjectsAsList();
@@ -864,7 +868,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		List<IPersist> allObjectsAsList = s.getAllObjectsAsList();
 		if (copySolution == null || copySolution == s)
 		{
-			copyInto.addAll(0, allObjectsAsList);
+			copyInto.addAll(allObjectsAsList);
 		}
 		else
 		{
@@ -874,7 +878,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				IPersist persist = (IPersist)o;
 				if (copySolution.getChild(persist.getUUID()) == null)
 				{
-					copyInto.add(0, persist);
+					copyInto.add(persist);
 				}
 			}
 		}
