@@ -220,8 +220,10 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 		}
 	}
 
-	@Override
-	public void paint(Graphics g)
+	/**
+	 * Created this method in order to not remove this piece of code, but make it take into account rotation.
+	 */
+	private void superModifiedPaint(Graphics g)
 	{
 		if (application.getModeManager().getMode() == IModeManager.PREVIEW_MODE)
 		{
@@ -231,13 +233,19 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 			View htmlView = getViewThatIsAbleToWrap();
 			if (htmlView != null)
 			{
-				Rectangle r = getTextBoundsForSize(getSize());
+				Rectangle r = getTextBoundsForSize(new Dimension(getWidth(), getHeight())); // these will take into account rotation because of the getHeight/getWidth methods
 				htmlView.setSize(r.width, r.height);
 			}
 		}
+		super.paint(g);
+	}
+
+	@Override
+	public void paint(Graphics g)
+	{
 		if (rotation == 0)
 		{
-			super.paint(g);
+			superModifiedPaint(g);
 		}
 		else
 		{
@@ -264,7 +272,7 @@ public class AbstractScriptLabel extends JLabel implements ISkinnable, ILabel, I
 					at.rotate(Math.toRadians(rotation), h / 2, h / 2);
 				}
 				((Graphics2D)g).setTransform(at);
-				super.paint(g);
+				superModifiedPaint(g);
 			}
 			finally
 			{

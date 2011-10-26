@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.printing;
 
 
@@ -493,7 +493,15 @@ public class PrintPreview extends JPanel implements ActionListener, ItemListener
 						DocPrintJob job = service.createPrintJob();
 						DocAttributeSet das = new HashDocAttributeSet();
 						Doc doc = new SimpleDoc(pageable, flavor, das);
-						job.print(doc, pras);
+						if (job != null)
+						{
+							job.print(doc, pras);
+						}
+						else
+						{
+							// for example if the print service cancels (e.g. print to pdf and then user cancel when choosing save location)
+							application.reportWarning(application.getI18NMessage("servoy.print.error.cannotPrintDocument")); //$NON-NLS-1$
+						}
 					}
 				}
 				else
