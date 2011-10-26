@@ -243,12 +243,32 @@ public abstract class AbstractScriptLabel extends JLabel implements ISkinnable, 
 		}
 	}
 
+	/**
+	 * Created this method in order to not remove this piece of code, but make it take into account rotation.
+	 */
+	private void superModifiedPaint(Graphics g)
+	{
+		if (application.getModeManager().getMode() == IModeManager.PREVIEW_MODE)
+		{
+			// don't remember what this code is suppose to fix (why is condition based on PREVIEW_MODE and not on application.getRuntimeProperty("isprinting"));
+			// also it seems that super.paint(g) would call this "htmlView.setSize(r.width, r.height)" anyway if needed so this entire "if" statement could be unnecessary;
+			// however, if there was a problem on some OS/java version/L&F, it might be that the condition needs to be changed to "isprinting"
+			View htmlView = getViewThatIsAbleToWrap();
+			if (htmlView != null)
+			{
+				Rectangle r = getTextBoundsForSize(new Dimension(getWidth(), getHeight())); // these will take into account rotation because of the getHeight/getWidth methods
+				htmlView.setSize(r.width, r.height);
+			}
+		}
+		super.paint(g);
+	}
+
 	@Override
 	public void paint(Graphics g)
 	{
 		if (rotation == 0)
 		{
-			super.paint(g);
+			superModifiedPaint(g);
 		}
 		else
 		{
@@ -275,7 +295,7 @@ public abstract class AbstractScriptLabel extends JLabel implements ISkinnable, 
 					at.rotate(Math.toRadians(rotation), h / 2, h / 2);
 				}
 				((Graphics2D)g).setTransform(at);
-				super.paint(g);
+				superModifiedPaint(g);
 			}
 			finally
 			{
