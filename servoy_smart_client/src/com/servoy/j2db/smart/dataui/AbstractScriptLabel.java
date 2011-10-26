@@ -246,18 +246,6 @@ public abstract class AbstractScriptLabel extends JLabel implements ISkinnable, 
 	@Override
 	public void paint(Graphics g)
 	{
-		if (application.getModeManager().getMode() == IModeManager.PREVIEW_MODE)
-		{
-			// don't remember what this code is suppose to fix (why is condition based on PREVIEW_MODE and not on application.getRuntimeProperty("isprinting"));
-			// also it seems that super.paint(g) would call this "htmlView.setSize(r.width, r.height)" anyway if needed so this entire "if" statement could be unnecessary;
-			// however, if there was a problem on some OS/java version/L&F, it might be that the condition needs to be changed to "isprinting"
-			View htmlView = getViewThatIsAbleToWrap();
-			if (htmlView != null)
-			{
-				Rectangle r = getTextBoundsForSize(getSize());
-				htmlView.setSize(r.width, r.height);
-			}
-		}
 		if (rotation == 0)
 		{
 			super.paint(g);
