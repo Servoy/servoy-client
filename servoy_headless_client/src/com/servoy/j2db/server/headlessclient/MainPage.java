@@ -430,12 +430,6 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		pageContributor = new PageContributor(client, "contribution");
 		body.add(pageContributor);
 
-		StylePropertyChangeMarkupContainer container = new StylePropertyChangeMarkupContainer("externaldivsparent");
-		body.add(container); //$NON-NLS-1$
-		PageContributorRepeatingView repeatingView = new PageContributorRepeatingView("externaldivs", container);
-		container.add(repeatingView);
-		pageContributor.addRepeatingView(repeatingView);
-
 		Label loadingIndicator = new Label("loading_indicator", sc.getI18NMessage("servoy.general.loading"));
 		loadingIndicator.add(new SimpleAttributeModifier("style", "display:none;"));
 
@@ -633,6 +627,13 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		WebMarkupContainer defaultButton = new WebMarkupContainer("defaultsubmitbutton", new Model()); //$NON-NLS-1$
 		defaultButton.setVisible(!useAJAX);
 		form.add(defaultButton);
+
+		StylePropertyChangeMarkupContainer container = new StylePropertyChangeMarkupContainer("externaldivsparent");
+		form.add(container); //$NON-NLS-1$
+		PageContributorRepeatingView repeatingView = new PageContributorRepeatingView("externaldivs", container);
+		container.add(repeatingView);
+		pageContributor.addRepeatingView(repeatingView);
+
 		body.add(form);
 	}
 
