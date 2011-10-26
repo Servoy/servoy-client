@@ -496,7 +496,15 @@ public class PrintPreview extends JPanel implements ActionListener, ItemListener
 						DocPrintJob job = service.createPrintJob();
 						DocAttributeSet das = new HashDocAttributeSet();
 						Doc doc = new SimpleDoc(pageable, flavor, das);
-						job.print(doc, pras);
+						if (job != null)
+						{
+							job.print(doc, pras);
+						}
+						else
+						{
+							// for example if the print service cancels (e.g. print to pdf and then user cancel when choosing save location)
+							application.reportWarning(application.getI18NMessage("servoy.print.error.cannotPrintDocument")); //$NON-NLS-1$
+						}
 					}
 				}
 				else

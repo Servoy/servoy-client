@@ -255,11 +255,11 @@ public class DataRendererDefinition implements Cloneable //cloneable for page bo
 					}
 					finally
 					{
+						tempRemoveFromParent(renderParent);
 						for (int i = restrainedComponents.size() - 1; i >= 0; i--)
 						{
 							((IFixedPreferredWidth)restrainedComponents.get(i)).setPreferredWidth(-1);
 						}
-						tempRemoveFromParent(renderParent);
 					}
 				}
 				else
