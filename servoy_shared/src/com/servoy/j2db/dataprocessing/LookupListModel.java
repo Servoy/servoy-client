@@ -25,6 +25,7 @@ import javax.swing.AbstractListModel;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.CustomValueList.DisplayString;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -405,6 +406,13 @@ public class LookupListModel extends AbstractListModel
 				tableFilterParams.add(nameFilter);
 			}
 
+			if (foundSetManager.getEditRecordList().hasAccess(table, IRepository.TRACKING_VIEWS))
+			{
+				SQLStatement trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, table.getServerName(), qTable.getName(), null, null);
+				trackingInfo.setTrackingData(select.getColumnNames(), new Object[][] { }, new Object[][] { }, application.getUserUID(),
+					foundSetManager.getTrackingInfo(), application.getClientID());
+				select.setTrackingInfo(trackingInfo);
+			}
 			IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, select,
 				tableFilterParams, true, 0, 100, IDataServer.VALUELIST_QUERY);
 			for (int i = 0; i < set.getRowCount(); i++)
@@ -524,7 +532,13 @@ public class LookupListModel extends AbstractListModel
 				}
 				tableFilterParams.add(nameFilter);
 			}
-
+			if (foundSetManager.getEditRecordList().hasAccess(table, IRepository.TRACKING_VIEWS))
+			{
+				SQLStatement trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, table.getServerName(), table.getName(), null, null);
+				trackingInfo.setTrackingData(sqlParts.getColumnNames(), new Object[][] { }, new Object[][] { }, application.getUserUID(),
+					foundSetManager.getTrackingInfo(), application.getClientID());
+				sqlParts.setTrackingInfo(trackingInfo);
+			}
 			IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, sqlParts,
 				tableFilterParams, !sqlParts.isUnique(), 0, 100, IDataServer.VALUELIST_QUERY);
 			for (int i = 0; i < set.getRowCount(); i++)
@@ -580,6 +594,13 @@ public class LookupListModel extends AbstractListModel
 				tableFilterParams.add(nameFilter);
 			}
 
+			if (foundSetManager.getEditRecordList().hasAccess(table, IRepository.TRACKING_VIEWS))
+			{
+				SQLStatement trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, table.getServerName(), table.getName(), null, null);
+				trackingInfo.setTrackingData(sqlParts.getColumnNames(), new Object[][] { }, new Object[][] { }, application.getUserUID(),
+					foundSetManager.getTrackingInfo(), application.getClientID());
+				sqlParts.setTrackingInfo(trackingInfo);
+			}
 			IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, sqlParts,
 				tableFilterParams, !sqlParts.isUnique(), 0, 100, IDataServer.VALUELIST_QUERY);
 			for (int i = 0; i < set.getRowCount(); i++)

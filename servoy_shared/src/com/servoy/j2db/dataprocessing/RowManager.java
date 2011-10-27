@@ -40,6 +40,7 @@ import com.servoy.j2db.dataprocessing.ValueFactory.BlobMarkerValue;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ColumnInfo;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
@@ -460,6 +461,13 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			long time = System.currentTimeMillis();
 			try
 			{
+				if (fsm.getEditRecordList().hasAccess(sheet.getTable(), IRepository.TRACKING_VIEWS))
+				{
+					SQLStatement trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, sheet.getServerName(), sheet.getTable().getName(), pks, null);
+					trackingInfo.setTrackingData(sheet.getColumnNames(), new Object[][] { }, new Object[][] { }, fsm.getApplication().getUserUID(),
+						fsm.getTrackingInfo(), fsm.getApplication().getClientID());
+					select.setTrackingInfo(trackingInfo);
+				}
 				formdata = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, select,
 					fsm.getTableFilterParams(sheet.getServerName(), select), false, 0, nvals, IDataServer.FOUNDSET_LOAD_QUERY);
 				if (Debug.tracing())
@@ -756,8 +764,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			statement.setIdentityColumn(dbPKReturnValues.size() == 0 ? null : dbPKReturnValues.get(0));
 			if (tracking || usesLobs)
 			{
-				statement.setTrackingData(sheet.getColumnNames(), row.getRawOldColumnData(), row.getRawColumnData(), fsm.getApplication().getUserUID(),
-					fsm.getTrackingInfo(), fsm.getApplication().getClientID());
+				statement.setTrackingData(sheet.getColumnNames(), new Object[][] { row.getRawOldColumnData() }, new Object[][] { row.getRawColumnData() },
+					fsm.getApplication().getUserUID(), fsm.getTrackingInfo(), fsm.getApplication().getClientID());
 			}
 			return new RowUpdateInfo(row, statement, dbPKReturnValues, aggregatesToRemove);
 		}
@@ -830,7 +838,9 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		if (referenceQueue.poll() != null)
 		{
 			// quicly clear the whole queue, so that it is empty for the next time.
-			while (referenceQueue.poll() != null) {}
+			while (referenceQueue.poll() != null)
+			{
+			}
 
 			// test the hashmap for empty  Softreferences
 			Iterator<Entry<String, SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>>> it = pkRowMap.entrySet().iterator();
@@ -893,8 +903,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			stats_a[0] = statement;
 			if (tracking)
 			{
-				statement.setTrackingData(sheet.getColumnNames(), r.getRawColumnData(), null, fsm.getApplication().getUserUID(), fsm.getTrackingInfo(),
-					fsm.getApplication().getClientID());
+				statement.setTrackingData(sheet.getColumnNames(), new Object[][] { r.getRawColumnData() }, null, fsm.getApplication().getUserUID(),
+					fsm.getTrackingInfo(), fsm.getApplication().getClientID());
 			}
 
 			try

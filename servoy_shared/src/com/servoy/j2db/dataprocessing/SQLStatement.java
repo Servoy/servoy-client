@@ -17,7 +17,6 @@
 package com.servoy.j2db.dataprocessing;
 
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -45,8 +44,8 @@ public class SQLStatement implements ITrackingSQLStatement
 	private final String transactionID;
 
 	private String[] column_names;
-	private Object[] oldTrackingData;
-	private Object[] newTrackingData;
+	private Object[][] oldTrackingData;
+	private Object[][] newTrackingData;
 	private int expectedUpdateCount = -1;
 
 	private String user_uid;
@@ -97,7 +96,7 @@ public class SQLStatement implements ITrackingSQLStatement
 		return this.oracleFix;
 	}
 
-	public void setTrackingData(String[] column_names, Object[] oldData, Object[] newData, String user_uid, HashMap<String, Object> trackingInfo,
+	public void setTrackingData(String[] column_names, Object[][] oldData, Object[][] newData, String user_uid, HashMap<String, Object> trackingInfo,
 		String clientId)
 	{
 		// TODO filter all data that is not changed out of the 3 arrays.
@@ -105,22 +104,28 @@ public class SQLStatement implements ITrackingSQLStatement
 
 		if (oldData == null)
 		{
-			oldTrackingData = new Object[newData.length];
+			oldTrackingData = new Object[newData.length][(newData.length > 0 ? newData[0].length : 0)];
 		}
 		else
 		{
-			oldTrackingData = new Object[oldData.length];
-			System.arraycopy(oldData, 0, oldTrackingData, 0, oldData.length);
+			oldTrackingData = new Object[oldData.length][(oldData.length > 0 ? oldData[0].length : 0)];
+			for (int i = 0; i < oldData.length; i++)
+			{
+				System.arraycopy(oldData[i], 0, oldTrackingData[i], 0, oldData[i].length);
+			}
 		}
 
 		if (newData == null)
 		{
-			newTrackingData = new Object[oldData.length];
+			newTrackingData = new Object[oldData.length][(oldData.length > 0 ? oldData[0].length : 0)];
 		}
 		else
 		{
-			newTrackingData = new Object[newData.length];
-			System.arraycopy(newData, 0, newTrackingData, 0, newData.length);
+			newTrackingData = new Object[newData.length][(newData.length > 0 ? newData[0].length : 0)];
+			for (int i = 0; i < newData.length; i++)
+			{
+				System.arraycopy(newData[i], 0, newTrackingData[i], 0, newData[i].length);
+			}
 		}
 
 		this.column_names = column_names;
@@ -131,37 +136,40 @@ public class SQLStatement implements ITrackingSQLStatement
 		//optimize wire transfer
 		for (int i = 0; i < oldTrackingData.length; i++)
 		{
-			if (oldTrackingData[i] instanceof ValueFactory.BlobMarkerValue)
+			for (int j = 0; j < oldTrackingData[i].length; j++)
 			{
-				oldTrackingData[i] = ((ValueFactory.BlobMarkerValue)oldTrackingData[i]).getCachedData();
-			}
-			if (oldTrackingData[i] instanceof ValueFactory.NullValue)
-			{
-				oldTrackingData[i] = null;
-			}
-			if (oldTrackingData[i] instanceof byte[])
-			{
-				oldTrackingData[i] = oldTrackingData[i].toString();
-			}
+				if (oldTrackingData[i][j] instanceof ValueFactory.BlobMarkerValue)
+				{
+					oldTrackingData[i][j] = ((ValueFactory.BlobMarkerValue)oldTrackingData[i][j]).getCachedData();
+				}
+				if (oldTrackingData[i][j] instanceof ValueFactory.NullValue)
+				{
+					oldTrackingData[i][j] = null;
+				}
+				if (oldTrackingData[i][j] instanceof byte[])
+				{
+					oldTrackingData[i][j] = oldTrackingData[i][j].toString();
+				}
 
-			if (newTrackingData[i] instanceof ValueFactory.BlobMarkerValue)
-			{
-				newTrackingData[i] = ((ValueFactory.BlobMarkerValue)newTrackingData[i]).getCachedData();
-			}
-			if (newTrackingData[i] instanceof ValueFactory.NullValue)
-			{
-				newTrackingData[i] = null;
-			}
-			// Don't do toString()
-			if (newTrackingData[i] instanceof byte[])
-			{
-				newTrackingData[i] = newTrackingData[i];
-			}
+				if (newTrackingData[i][j] instanceof ValueFactory.BlobMarkerValue)
+				{
+					newTrackingData[i][j] = ((ValueFactory.BlobMarkerValue)newTrackingData[i][j]).getCachedData();
+				}
+				if (newTrackingData[i][j] instanceof ValueFactory.NullValue)
+				{
+					newTrackingData[i][j] = null;
+				}
+				// Don't do toString()
+				if (newTrackingData[i][j] instanceof byte[])
+				{
+					newTrackingData[i][j] = newTrackingData[i][j];
+				}
 
-			if (Utils.equalObjects(oldTrackingData[i], newTrackingData[i]))
-			{
-				oldTrackingData[i] = null;
-				newTrackingData[i] = null;
+				if (Utils.equalObjects(oldTrackingData[i][j], newTrackingData[i][j]))
+				{
+					oldTrackingData[i][j] = null;
+					newTrackingData[i][j] = null;
+				}
 			}
 		}
 	}
@@ -211,12 +219,12 @@ public class SQLStatement implements ITrackingSQLStatement
 		return column_names;
 	}
 
-	public Serializable getOldTrackingData()
+	public Object[][] getOldTrackingData()
 	{
 		return oldTrackingData;
 	}
 
-	public Object[] getNewTrackingData()
+	public Object[][] getNewTrackingData()
 	{
 		return newTrackingData;
 	}

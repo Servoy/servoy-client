@@ -41,6 +41,7 @@ import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ColumnInfo;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IDataProvider;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.QuerySet;
@@ -490,7 +491,14 @@ public class JSDatabaseManager
 					{
 						SQLSheet sheet = fs.getSQLSheet();
 						IColumnConverterManager columnConverterManager = ((FoundSetManager)fs.getFoundSetManager()).getColumnConverterManager();
-
+						if (fsm.getEditRecordList().hasAccess(sheet.getTable(), IRepository.TRACKING_VIEWS))
+						{
+							SQLStatement trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, sheet.getServerName(), sheet.getTable().getName(),
+								null, null);
+							trackingInfo.setTrackingData(sqlSelect.getColumnNames(), new Object[][] { }, new Object[][] { }, fsm.getApplication().getUserUID(),
+								fsm.getTrackingInfo(), fsm.getApplication().getClientID());
+							sqlSelect.setTrackingInfo(trackingInfo);
+						}
 						IDataSet dataSet = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(),
 							fsm.getTransactionID(sheet), sqlSelect, fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), false, 0, -1,
 							IDataServer.FOUNDSET_LOAD_QUERY);
@@ -1367,6 +1375,14 @@ public class JSDatabaseManager
 					ArrayList<IQuerySelectValue> cols = new ArrayList<IQuerySelectValue>(1);
 					cols.add(new QueryColumn(sqlSelect.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength()));
 					sqlSelect.setColumns(cols);
+					if (fsm.getEditRecordList().hasAccess(sheet.getTable(), IRepository.TRACKING_VIEWS))
+					{
+						SQLStatement trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, sheet.getServerName(), sheet.getTable().getName(), null,
+							null);
+						trackingInfo.setTrackingData(new String[] { column.getSQLName() }, new Object[][] { }, new Object[][] { },
+							fsm.getApplication().getUserUID(), fsm.getTrackingInfo(), fsm.getApplication().getClientID());
+						sqlSelect.setTrackingInfo(trackingInfo);
+					}
 					try
 					{
 						dataSet = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), fsm.getTransactionID(sheet),

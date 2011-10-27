@@ -28,6 +28,7 @@ import javax.swing.event.ListDataListener;
 
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.dataprocessing.CustomValueList.DisplayString;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -388,6 +389,13 @@ public class LookupValueList implements IValueList
 			}
 			tableFilterParams.add(new TableFilter("lookupValueList.nameFilter", table.getServerName(), table.getName(), table.getSQLName(), //$NON-NLS-1$
 				DBValueList.NAME_COLUMN, ISQLCondition.EQUALS_OPERATOR, valueList.getName()));
+		}
+		if (foundSetManager.getEditRecordList().hasAccess(table, IRepository.TRACKING_VIEWS))
+		{
+			SQLStatement trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, table.getServerName(), table.getName(), null, null);
+			trackingInfo.setTrackingData(select.getColumnNames(), new Object[][] { }, new Object[][] { }, application.getUserUID(),
+				foundSetManager.getTrackingInfo(), application.getClientID());
+			select.setTrackingInfo(trackingInfo);
 		}
 		IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, select, tableFilterParams,
 			!select.isUnique(), 0, ((FoundSetManager)application.getFoundSetManager()).pkChunkSize * 4, IDataServer.VALUELIST_QUERY);

@@ -22,6 +22,7 @@ import java.util.List;
 
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -257,6 +258,13 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 							ISQLCondition.EQUALS_OPERATOR, valueList.getName()));
 					}
 					String transaction_id = foundSetManager.getTransactionID(table.getServerName());
+					if (foundSetManager.getEditRecordList().hasAccess(table, IRepository.TRACKING_VIEWS))
+					{
+						SQLStatement trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, table.getServerName(), table.getName(), null, null);
+						trackingInfo.setTrackingData(creationSQLParts.getColumnNames(), new Object[][] { }, new Object[][] { }, application.getUserUID(),
+							foundSetManager.getTrackingInfo(), application.getClientID());
+						creationSQLParts.setTrackingInfo(trackingInfo);
+					}
 					IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, creationSQLParts,
 						tableFilterParams, !creationSQLParts.isUnique(), 0, MAX_VALUELIST_ROWS, IDataServer.VALUELIST_QUERY);
 					if (set.getRowCount() >= MAX_VALUELIST_ROWS)

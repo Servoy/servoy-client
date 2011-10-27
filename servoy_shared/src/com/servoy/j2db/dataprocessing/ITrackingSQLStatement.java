@@ -17,7 +17,6 @@
 package com.servoy.j2db.dataprocessing;
 
 
-import java.io.Serializable;
 import java.util.HashMap;
 
 /**
@@ -26,14 +25,14 @@ import java.util.HashMap;
  */
 public interface ITrackingSQLStatement extends ISQLStatement
 {
-	public void setTrackingData(String[] column_names, Object[] olddata, Object[] newdata, String user_uid, HashMap<String, Object> trackingInfo,
+	public void setTrackingData(String[] column_names, Object[][] olddata, Object[][] newdata, String user_uid, HashMap<String, Object> trackingInfo,
 		String clientId);
 
 	public String[] getColumnNames();
 
-	public Serializable getOldTrackingData();
+	public Object[][] getOldTrackingData();
 
-	public Object[] getNewTrackingData();
+	public Object[][] getNewTrackingData();
 
 	public String getUserUID();
 

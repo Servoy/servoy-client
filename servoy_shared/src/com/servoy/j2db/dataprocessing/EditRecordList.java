@@ -1213,7 +1213,7 @@ public class EditRecordList
 				return false;
 			}
 		}
-		if (access.intValue() == -1 && flag == IRepository.TRACKING) //deny tracking if security not is specified
+		if (access.intValue() == -1 && (flag == IRepository.TRACKING || flag == IRepository.TRACKING_VIEWS)) //deny tracking if security not is specified
 		{
 			return false;
 		}

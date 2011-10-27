@@ -92,11 +92,18 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	 */
 	public static final int DELETE = IRepository.DELETE;
 	/**
-	 * Constant representing the tracking flag for table security.
+	 * Constant representing the tracking flag for table security (tracks sql insert/update/delete).
 	 *
 	 * @sampleas js_setSecuritySettings(Object)
 	 */
 	public static final int TRACKING = IRepository.TRACKING;
+
+	/**
+	 * Constant representing the tracking flag for table security (tracks sql select).
+	 *
+	 * @sampleas js_setSecuritySettings(Object)
+	 */
+	public static final int TRACKING_VIEWS = IRepository.TRACKING_VIEWS;
 
 	/**
 	 * Constant representing the viewable flag for form security.
