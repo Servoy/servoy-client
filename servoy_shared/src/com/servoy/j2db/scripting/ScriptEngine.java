@@ -273,7 +273,7 @@ public class ScriptEngine implements IScriptSupport
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
 	 */
-	public void registerScriptObjectReturnTypes(IReturnedTypesProvider scriptObject)
+	public void registerScriptObjectReturnTypes(IReturnedTypesProvider scriptObject, IScriptableAddition scriptableAddition)
 	{
 		if (scriptObject == null) return;
 		Class< ? >[] allReturnedTypes = scriptObject.getAllReturnedTypes();
@@ -290,6 +290,10 @@ public class ScriptEngine implements IScriptSupport
 				{
 					IPrefixedConstantsObject constants = (IPrefixedConstantsObject)element.newInstance();
 					toplevelScope.put(constants.getPrefix(), toplevelScope, new NativeJavaClass(toplevelScope, element));
+					if (scriptableAddition != null)
+					{
+						scriptableAddition.addVar(constants.getPrefix(), new NativeJavaClass(scriptableAddition, element));
+					}
 				}
 				catch (Exception e)
 				{
@@ -301,6 +305,10 @@ public class ScriptEngine implements IScriptSupport
 				try
 				{
 					toplevelScope.put(element.getSimpleName(), toplevelScope, new NativeJavaClass(toplevelScope, element));
+					if (scriptableAddition != null)
+					{
+						scriptableAddition.addVar(element.getSimpleName(), new NativeJavaClass(scriptableAddition, element));
+					}
 				}
 				catch (Exception e)
 				{
@@ -308,6 +316,11 @@ public class ScriptEngine implements IScriptSupport
 				}
 			}
 		}
+	}
+
+	public void registerScriptObjectReturnTypes(IReturnedTypesProvider scriptObject)
+	{
+		registerScriptObjectReturnTypes(scriptObject, null);
 	}
 
 	public void destroy()

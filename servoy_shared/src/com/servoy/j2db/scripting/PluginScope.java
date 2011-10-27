@@ -23,7 +23,6 @@ import java.util.List;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaArray;
-import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.IApplication;
@@ -126,19 +125,19 @@ public class PluginScope extends DefaultScope
 			{
 				// first register the script object itself
 				ScriptObjectRegistry.registerScriptObjectForClass(tocall.getClass(), tocall);
-				Scriptable s_tocall = null;
+				ServoyNativeJavaObject s_tocall = null;
 				Context.enter();
 				try
 				{
 					InstanceJavaMembers ijm = new InstanceJavaMembers(this, tocall.getClass());
-					s_tocall = new NativeJavaObject(this, tocall, ijm);
+					s_tocall = new ServoyNativeJavaObject(this, tocall, ijm);
 					setLocked(false);
 					put(realName, this, s_tocall);//save so we do not all this again
 					setLocked(true);
 					IExecutingEnviroment scriptEngine = application.getScriptEngine();
 					if (scriptEngine != null && tocall instanceof IReturnedTypesProvider)
 					{
-						scriptEngine.registerScriptObjectReturnTypes((IReturnedTypesProvider)tocall);
+						scriptEngine.registerScriptObjectReturnTypes((IReturnedTypesProvider)tocall, s_tocall);
 					}
 				}
 				finally
