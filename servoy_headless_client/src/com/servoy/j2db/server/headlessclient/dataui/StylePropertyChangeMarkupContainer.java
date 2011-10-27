@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.server.headlessclient.dataui;
 
+import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
@@ -49,6 +50,18 @@ public class StylePropertyChangeMarkupContainer extends WebMarkupContainer imple
 	public IStylePropertyChanges getStylePropertyChanges()
 	{
 		return changeRecorder;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.wicket.MarkupContainer#onRender(org.apache.wicket.markup.MarkupStream)
+	 */
+	@Override
+	protected void onRender(MarkupStream markupStream)
+	{
+		super.onRender(markupStream);
+		changeRecorder.setRendered();
 	}
 
 }
