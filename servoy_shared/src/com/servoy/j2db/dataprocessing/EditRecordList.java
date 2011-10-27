@@ -178,7 +178,15 @@ public class EditRecordList
 
 	public boolean hasEditedRecords(IFoundSetInternal foundset)
 	{
-		removeUnChangedRecords(false, false);
+		return hasEditedRecords(foundset, true);
+	}
+
+	public boolean hasEditedRecords(IFoundSetInternal foundset, boolean testForRemoves)
+	{
+		if (testForRemoves)
+		{
+			removeUnChangedRecords(false, false, foundset);
+		}
 		editRecordsLock.lock();
 		try
 		{
@@ -1001,6 +1009,11 @@ public class EditRecordList
 
 	public void removeUnChangedRecords(boolean checkCalcValues, boolean doActualRemove)
 	{
+		removeUnChangedRecords(checkCalcValues, doActualRemove, null);
+	}
+
+	public void removeUnChangedRecords(boolean checkCalcValues, boolean doActualRemove, IFoundSetInternal foundset)
+	{
 		if (preparingForSave) return;
 		// Test the edited records if they are changed or not.
 		Object[] editedRecordsArray = null;
@@ -1016,7 +1029,7 @@ public class EditRecordList
 		for (Object element : editedRecordsArray)
 		{
 			IRecordInternal record = (IRecordInternal)element;
-			if (!testIfRecordIsChanged(record, checkCalcValues))
+			if ((foundset == null || record.getParentFoundSet() == foundset) && !testIfRecordIsChanged(record, checkCalcValues))
 			{
 				if (doActualRemove)
 				{

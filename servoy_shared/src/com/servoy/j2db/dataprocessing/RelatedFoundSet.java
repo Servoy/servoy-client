@@ -893,7 +893,7 @@ public abstract class RelatedFoundSet extends FoundSet
 		// AND if it doesn't have edited records. These records should first be saved before
 		// doing a query for pks. Else those records could be removed from this related foundset 
 		// and never return again (or the next mustQuery comes around)
-		if (mustQueryForUpdates && !fsm.getEditRecordList().hasEditedRecords(this))
+		if (mustQueryForUpdates && !fsm.getEditRecordList().hasEditedRecords(this, false))
 		{
 			try
 			{
