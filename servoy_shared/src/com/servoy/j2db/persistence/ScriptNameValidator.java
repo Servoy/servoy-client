@@ -354,7 +354,7 @@ public class ScriptNameValidator implements IValidateName
 		while (it.hasNext())
 		{
 			Relation r = it.next();
-			if (r.getName().equals(name) && r.getID() != id)
+			if (r.getName().equalsIgnoreCase(name) && r.getID() != id) // relations with mixed name casing are allowed at runtime with solution model but to avoid confusions do not allow names equalIgnoreCase in this case either
 			{
 				return r;
 			}
