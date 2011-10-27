@@ -35,6 +35,7 @@ import org.mozilla.javascript.Scriptable;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.AbstractBaseQuery;
@@ -235,10 +236,19 @@ public abstract class RelatedFoundSet extends FoundSet
 				}
 				else
 				{
+					ISQLSelect selectStatement = AbstractBaseQuery.deepClone((ISQLSelect)sqlSelect);
 					// Note: put a clone of sqlSelect in the queryDatas list, we will compress later over multiple queries using pack().
 					// Clone is needed because packed queries may not be save to manipulate.
-					queryDatas.add(new QueryData(sheet.getServerName(), transactionID, AbstractBaseQuery.deepClone((ISQLSelect)sqlSelect), sqlFilters,
-						!sqlSelect.isUnique(), 0, fsm.initialRelatedChunkSize, IDataServer.RELATION_QUERY));
+					if (fsm.getEditRecordList().hasAccess(sheet.getTable(), IRepository.TRACKING_VIEWS) && selectStatement instanceof QuerySelect)
+					{
+						SQLStatement trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, sheet.getServerName(), sheet.getTable().getName(), null,
+							null);
+						trackingInfo.setTrackingData(sheet.getColumnNames(), new Object[][] { }, new Object[][] { }, fsm.getApplication().getUserUID(),
+							fsm.getTrackingInfo(), fsm.getApplication().getClientID());
+						((QuerySelect)selectStatement).setTrackingInfo(trackingInfo);
+					}
+					queryDatas.add(new QueryData(sheet.getServerName(), transactionID, selectStatement, sqlFilters, !sqlSelect.isUnique(), 0,
+						fsm.initialRelatedChunkSize, IDataServer.RELATION_QUERY));
 					queryIndex.add(new Integer(i));
 
 					QuerySelect aggregateSelect = FoundSet.getAggregateSelect(sheet, sqlSelect);

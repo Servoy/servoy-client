@@ -57,6 +57,8 @@ public interface IRepository
 	public static final int UPDATE = 4;
 	public static final int DELETE = 8;
 	public static final int TRACKING = 16;
+	public static final int TRACKING_VIEWS = 32;
+
 	/**
 	 * Default access rights for a table.
 	 */

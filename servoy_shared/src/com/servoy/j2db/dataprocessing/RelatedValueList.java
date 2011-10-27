@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
@@ -334,6 +335,13 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 
 		// perform the query
 		String serverName = relations[0].getForeignServerName();
+		if (foundSetManager.getEditRecordList().hasAccess(relations[relations.length - 1].getForeignTable(), IRepository.TRACKING_VIEWS))
+		{
+			SQLStatement trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, serverName, pair.getRight().getName(), null, null);
+			trackingInfo.setTrackingData(select.getColumnNames(), new Object[][] { }, new Object[][] { }, application.getUserUID(),
+				foundSetManager.getTrackingInfo(), application.getClientID());
+			select.setTrackingInfo(trackingInfo);
+		}
 		IDataSet dataSet = application.getDataServer().performQuery(application.getClientID(), serverName, foundSetManager.getTransactionID(serverName),
 			select, foundSetManager.getTableFilterParams(serverName, select), !select.isUnique(), 0, DBValueList.MAX_VALUELIST_ROWS,
 			IDataServer.VALUELIST_QUERY);
