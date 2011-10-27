@@ -30,7 +30,6 @@ import com.servoy.j2db.query.ISQLJoin;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
-import com.servoy.j2db.util.Utils;
 
 /**
  * A relation (between 2 tables on one or more key column pairs)
@@ -214,9 +213,8 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		return getName();
 	}
 
-	public void updateName(IValidateName validator, String arg) throws RepositoryException
+	public void updateName(IValidateName validator, String name) throws RepositoryException
 	{
-		String name = Utils.toEnglishLocaleLowerCase(arg);
 		validator.checkName(name, getID(), new ValidatorSearchContext(IRepository.RELATIONS), true);
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, name);
 		getRootObject().getChangeHandler().fireIPersistChanged(this);
@@ -229,7 +227,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	 */
 	public void setName(String arg)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, Utils.toEnglishLocaleLowerCase(arg));
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 	}
 
 	/**

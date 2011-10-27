@@ -354,7 +354,7 @@ public class ScriptNameValidator implements IValidateName
 		while (it.hasNext())
 		{
 			Relation r = it.next();
-			if (r.getName().equals(name) && r.getID() != id)
+			if (r.getName().equalsIgnoreCase(name) && r.getID() != id)
 			{
 				return r;
 			}

@@ -32,7 +32,6 @@ import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.UUID;
-import com.servoy.j2db.util.Utils;
 
 /**
  * A solution also root object for meta data
@@ -309,7 +308,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 
 	public Relation createNewRelation(IValidateName validator, String relationName, int joinType) throws RepositoryException
 	{
-		String name = relationName == null ? "untitled" : Utils.toEnglishLocaleLowerCase(relationName); //$NON-NLS-1$
+		String name = relationName == null ? "untitled" : relationName; //$NON-NLS-1$
 		//check if name is in use
 		validator.checkName(name, 0, new ValidatorSearchContext(IRepository.RELATIONS), true);
 		Relation obj = (Relation)getChangeHandler().createNewObject(this, IRepository.RELATIONS);
