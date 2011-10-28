@@ -491,17 +491,16 @@ public class JSDatabaseManager
 					{
 						SQLSheet sheet = fs.getSQLSheet();
 						IColumnConverterManager columnConverterManager = ((FoundSetManager)fs.getFoundSetManager()).getColumnConverterManager();
+						SQLStatement trackingInfo = null;
 						if (fsm.getEditRecordList().hasAccess(sheet.getTable(), IRepository.TRACKING_VIEWS))
 						{
-							SQLStatement trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, sheet.getServerName(), sheet.getTable().getName(),
-								null, null);
+							trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, sheet.getServerName(), sheet.getTable().getName(), null, null);
 							trackingInfo.setTrackingData(sqlSelect.getColumnNames(), new Object[][] { }, new Object[][] { }, fsm.getApplication().getUserUID(),
 								fsm.getTrackingInfo(), fsm.getApplication().getClientID());
-							sqlSelect.setTrackingInfo(trackingInfo);
 						}
 						IDataSet dataSet = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(),
 							fsm.getTransactionID(sheet), sqlSelect, fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), false, 0, -1,
-							IDataServer.FOUNDSET_LOAD_QUERY);
+							IDataServer.FOUNDSET_LOAD_QUERY, trackingInfo);
 
 						lst = new ArrayList<Object[]>(dataSet.getRowCount());
 						for (int i = 0; i < dataSet.getRowCount(); i++)
@@ -1375,18 +1374,17 @@ public class JSDatabaseManager
 					ArrayList<IQuerySelectValue> cols = new ArrayList<IQuerySelectValue>(1);
 					cols.add(new QueryColumn(sqlSelect.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength()));
 					sqlSelect.setColumns(cols);
+					SQLStatement trackingInfo = null;
 					if (fsm.getEditRecordList().hasAccess(sheet.getTable(), IRepository.TRACKING_VIEWS))
 					{
-						SQLStatement trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, sheet.getServerName(), sheet.getTable().getName(), null,
-							null);
+						trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, sheet.getServerName(), sheet.getTable().getName(), null, null);
 						trackingInfo.setTrackingData(new String[] { column.getSQLName() }, new Object[][] { }, new Object[][] { },
 							fsm.getApplication().getUserUID(), fsm.getTrackingInfo(), fsm.getApplication().getClientID());
-						sqlSelect.setTrackingInfo(trackingInfo);
 					}
 					try
 					{
 						dataSet = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), fsm.getTransactionID(sheet),
-							sqlSelect, fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), false, 0, -1, IDataServer.FOUNDSET_LOAD_QUERY);
+							sqlSelect, fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), false, 0, -1, IDataServer.FOUNDSET_LOAD_QUERY, trackingInfo);
 					}
 					catch (RemoteException e)
 					{

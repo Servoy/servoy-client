@@ -335,16 +335,16 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 
 		// perform the query
 		String serverName = relations[0].getForeignServerName();
+		SQLStatement trackingInfo = null;
 		if (foundSetManager.getEditRecordList().hasAccess(relations[relations.length - 1].getForeignTable(), IRepository.TRACKING_VIEWS))
 		{
-			SQLStatement trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, serverName, pair.getRight().getName(), null, null);
+			trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, serverName, pair.getRight().getName(), null, null);
 			trackingInfo.setTrackingData(select.getColumnNames(), new Object[][] { }, new Object[][] { }, application.getUserUID(),
 				foundSetManager.getTrackingInfo(), application.getClientID());
-			select.setTrackingInfo(trackingInfo);
 		}
 		IDataSet dataSet = application.getDataServer().performQuery(application.getClientID(), serverName, foundSetManager.getTransactionID(serverName),
 			select, foundSetManager.getTableFilterParams(serverName, select), !select.isUnique(), 0, DBValueList.MAX_VALUELIST_ROWS,
-			IDataServer.VALUELIST_QUERY);
+			IDataServer.VALUELIST_QUERY, trackingInfo);
 		try
 		{
 			startBundlingEvents();

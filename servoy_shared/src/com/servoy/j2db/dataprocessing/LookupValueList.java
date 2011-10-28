@@ -390,15 +390,15 @@ public class LookupValueList implements IValueList
 			tableFilterParams.add(new TableFilter("lookupValueList.nameFilter", table.getServerName(), table.getName(), table.getSQLName(), //$NON-NLS-1$
 				DBValueList.NAME_COLUMN, ISQLCondition.EQUALS_OPERATOR, valueList.getName()));
 		}
+		SQLStatement trackingInfo = null;
 		if (foundSetManager.getEditRecordList().hasAccess(table, IRepository.TRACKING_VIEWS))
 		{
-			SQLStatement trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, table.getServerName(), table.getName(), null, null);
+			trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, table.getServerName(), table.getName(), null, null);
 			trackingInfo.setTrackingData(select.getColumnNames(), new Object[][] { }, new Object[][] { }, application.getUserUID(),
 				foundSetManager.getTrackingInfo(), application.getClientID());
-			select.setTrackingInfo(trackingInfo);
 		}
 		IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, select, tableFilterParams,
-			!select.isUnique(), 0, ((FoundSetManager)application.getFoundSetManager()).pkChunkSize * 4, IDataServer.VALUELIST_QUERY);
+			!select.isUnique(), 0, ((FoundSetManager)application.getFoundSetManager()).pkChunkSize * 4, IDataServer.VALUELIST_QUERY, trackingInfo);
 		for (int i = 0; i < set.getRowCount(); i++)
 		{
 			Object[] row = CustomValueList.processRow(set.getRow(i), showValues, returnValues);

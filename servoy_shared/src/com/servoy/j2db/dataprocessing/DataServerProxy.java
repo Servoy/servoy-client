@@ -145,6 +145,13 @@ public class DataServerProxy implements IDataServer
 		return ds.performQuery(client_id, getMappedServerName(serverName), transaction_id, sqlSelect, filters, distinctInMemory, startRow, rowsToRetrieve, type);
 	}
 
+	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList filters,
+		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo) throws ServoyException, RemoteException
+	{
+		return ds.performQuery(client_id, getMappedServerName(server_name), transaction_id, sqlSelect, filters, distinctInMemory, startRow, rowsToRetrieve,
+			type, trackingInfo);
+	}
+
 	/**
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#performQuery(com.servoy.j2db.dataprocessing.QueryData[])
 	 */
@@ -274,4 +281,5 @@ public class DataServerProxy implements IDataServer
 	{
 		return ds.getSQLQuerySet(serverName, sqlQuery, filters, startRow, rowsToRetrieve, forceQualifyColumns);
 	}
+
 }

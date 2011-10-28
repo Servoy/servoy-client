@@ -258,15 +258,15 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 							ISQLCondition.EQUALS_OPERATOR, valueList.getName()));
 					}
 					String transaction_id = foundSetManager.getTransactionID(table.getServerName());
+					SQLStatement trackingInfo = null;
 					if (foundSetManager.getEditRecordList().hasAccess(table, IRepository.TRACKING_VIEWS))
 					{
-						SQLStatement trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, table.getServerName(), table.getName(), null, null);
+						trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, table.getServerName(), table.getName(), null, null);
 						trackingInfo.setTrackingData(creationSQLParts.getColumnNames(), new Object[][] { }, new Object[][] { }, application.getUserUID(),
 							foundSetManager.getTrackingInfo(), application.getClientID());
-						creationSQLParts.setTrackingInfo(trackingInfo);
 					}
 					IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, creationSQLParts,
-						tableFilterParams, !creationSQLParts.isUnique(), 0, MAX_VALUELIST_ROWS, IDataServer.VALUELIST_QUERY);
+						tableFilterParams, !creationSQLParts.isUnique(), 0, MAX_VALUELIST_ROWS, IDataServer.VALUELIST_QUERY, trackingInfo);
 					if (set.getRowCount() >= MAX_VALUELIST_ROWS)
 					{
 						application.reportJSError("Valuelist " + getName() + " fully loaded with 500 rows, more rows are discarded!!", null);

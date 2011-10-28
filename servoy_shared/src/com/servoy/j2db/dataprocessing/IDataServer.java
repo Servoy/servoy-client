@@ -79,6 +79,9 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList filters,
 		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type) throws ServoyException, RemoteException;
 
+	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList filters,
+		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo) throws ServoyException, RemoteException;
+
 	public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql, Object[] questiondata,
 		int startRow, int rowsToRetrieve, int type) throws ServoyException, RemoteException;
 
