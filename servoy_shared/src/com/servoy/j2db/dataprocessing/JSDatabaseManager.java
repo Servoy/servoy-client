@@ -850,7 +850,7 @@ public class JSDatabaseManager
 	 *
 	 * @sample
 	 * // select customer data for order 1234
-	 * 	/** @type {QBSelect<db:/example_data/customers>} &#47;
+	 * 	/** @type {QBSelect<db:/example_data/customers>} *&#47;
 	 * var q = databaseManager.createSelect("db:/example_data/customers")
 	 * q.result.add(q.columns.address).add(q.columns.city).add(q.columns.country)
 	 * q.where.add(q.joins.customers_to_orders.columns.orderid.eq(1234))
