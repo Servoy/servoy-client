@@ -3342,7 +3342,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		List<Integer> indexToUpdate;
 		if ((indexToUpdate = getIndexToUpdate()) != null)
 		{
-			int firstRow = table.getCurrentPage() * table.getRowsPerPage();
+			int firstRow = table.isPageableMode() ? table.getCurrentPage() * table.getRowsPerPage() : table.getStartIndex();
 			int lastRow = firstRow + table.getViewSize() - 1;
 			int[] newSelectedIndexes = getSelectedIndexes();
 
@@ -3725,7 +3725,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			int scrollDiff = Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("scrollDiff")); //$NON-NLS-1$
 
-			StringBuffer rowsBuffer = new StringBuffer();
+			StringBuffer rowsBuffer = null;
 			int newRowsCount = 0, rowsToRemove = 0;
 			int viewStartIdx = table.getStartIndex();
 			int viewSize = table.getViewSize();
@@ -3738,13 +3738,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					newRowsCount = Math.min(maxRowsPerPage, tableSize - (viewStartIdx + viewSize));
 					if (viewSize > 3 * maxRowsPerPage) rowsToRemove = maxRowsPerPage;
 
-					table.setStartIndex(viewStartIdx + viewSize);
-					table.setViewSize(newRowsCount);
-
-					rowsBuffer.append(renderComponent(getResponse(), table));
-
 					table.setStartIndex(viewStartIdx + rowsToRemove);
 					table.setViewSize(viewSize + newRowsCount - rowsToRemove);
+					rowsBuffer = renderRows(getResponse(), table, viewStartIdx + viewSize, newRowsCount);
 				}
 			}
 			else
@@ -3755,18 +3751,19 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					if (viewSize > 3 * maxRowsPerPage) rowsToRemove = maxRowsPerPage;
 
 					table.setStartIndex(viewStartIdx - newRowsCount);
-					table.setViewSize(newRowsCount);
-					rowsBuffer.append(renderComponent(getResponse(), table));
-
 					table.setViewSize(viewSize + newRowsCount - rowsToRemove);
+					rowsBuffer = renderRows(getResponse(), table, viewStartIdx - newRowsCount, newRowsCount);
 				}
 			}
 
-			boolean hasTopBuffer = table.getStartIndex() > 0;
-			boolean hasBottomBuffer = table.getStartIndex() + table.getViewSize() < table.getList().size();
+			if (rowsBuffer != null)
+			{
+				boolean hasTopBuffer = table.getStartIndex() > 0;
+				boolean hasBottomBuffer = table.getStartIndex() + table.getViewSize() < table.getList().size();
 
-			target.appendJavascript("Servoy.TableView.appendRows('" + WebCellBasedView.this.tableContainerBody.getMarkupId() + "','" + //$NON-NLS-1$//$NON-NLS-2$
-				rowsBuffer.toString() + "'," + newRowsCount + "," + rowsToRemove + "," + scrollDiff + ", " + hasTopBuffer + "," + hasBottomBuffer + ");"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+				target.appendJavascript("Servoy.TableView.appendRows('" + WebCellBasedView.this.tableContainerBody.getMarkupId() + "','" + //$NON-NLS-1$//$NON-NLS-2$
+					rowsBuffer.toString() + "'," + newRowsCount + "," + rowsToRemove + "," + scrollDiff + ", " + hasTopBuffer + "," + hasBottomBuffer + ");"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+			}
 
 		}
 
@@ -3791,6 +3788,20 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						WebCellBasedView.this.tableContainerBody.getMarkupId() + "'); if (scrollDiff != 0) { " + script + "};\", 500);";
 				}
 			};
+		}
+
+		private StringBuffer renderRows(Response response, ServoyListView<IRecordInternal> listView, int startIdx, int rowsCount)
+		{
+			StringBuffer rows = new StringBuffer();
+			int endIdx = startIdx + rowsCount;
+			ListItem< ? > listItem;
+			for (int i = startIdx; i < endIdx; i++)
+			{
+				listItem = listView.getOrCreateListItem(i);
+				rows.append(renderComponent(response, listItem));
+			}
+
+			return rows;
 		}
 
 		private CharSequence renderComponent(Response response, Component component)

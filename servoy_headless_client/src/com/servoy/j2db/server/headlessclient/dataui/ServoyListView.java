@@ -18,6 +18,7 @@ package com.servoy.j2db.server.headlessclient.dataui;
 
 import java.util.List;
 
+import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.navigation.paging.IPageable;
 import org.apache.wicket.model.IModel;
@@ -181,6 +182,25 @@ public abstract class ServoyListView<T> extends ListView<T> implements IPageable
 	public boolean isPageableMode()
 	{
 		return isPageableMode;
+	}
+
+	public ListItem<T> getOrCreateListItem(int index)
+	{
+		ListItem<T> listItem = index < size() ? (ListItem<T>)get(index) : null;
+		if (listItem == null)
+		{
+			// Create item for index
+			listItem = newItem(index);
+
+			// Add list item
+			add(listItem);
+
+			// Populate the list item
+			onBeginPopulateItem(listItem);
+			populateItem(listItem);
+		}
+
+		return listItem;
 	}
 
 	/**
