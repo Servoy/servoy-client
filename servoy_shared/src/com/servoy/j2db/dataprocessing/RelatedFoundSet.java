@@ -239,16 +239,15 @@ public abstract class RelatedFoundSet extends FoundSet
 					ISQLSelect selectStatement = AbstractBaseQuery.deepClone((ISQLSelect)sqlSelect);
 					// Note: put a clone of sqlSelect in the queryDatas list, we will compress later over multiple queries using pack().
 					// Clone is needed because packed queries may not be save to manipulate.
-					if (fsm.getEditRecordList().hasAccess(sheet.getTable(), IRepository.TRACKING_VIEWS) && selectStatement instanceof QuerySelect)
+					SQLStatement trackingInfo = null;
+					if (fsm.getEditRecordList().hasAccess(sheet.getTable(), IRepository.TRACKING_VIEWS))
 					{
-						SQLStatement trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, sheet.getServerName(), sheet.getTable().getName(), null,
-							null);
+						trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, sheet.getServerName(), sheet.getTable().getName(), null, null);
 						trackingInfo.setTrackingData(sheet.getColumnNames(), new Object[][] { }, new Object[][] { }, fsm.getApplication().getUserUID(),
 							fsm.getTrackingInfo(), fsm.getApplication().getClientID());
-						((QuerySelect)selectStatement).setTrackingInfo(trackingInfo);
 					}
 					queryDatas.add(new QueryData(sheet.getServerName(), transactionID, selectStatement, sqlFilters, !sqlSelect.isUnique(), 0,
-						fsm.initialRelatedChunkSize, IDataServer.RELATION_QUERY));
+						fsm.initialRelatedChunkSize, IDataServer.RELATION_QUERY, trackingInfo));
 					queryIndex.add(new Integer(i));
 
 					QuerySelect aggregateSelect = FoundSet.getAggregateSelect(sheet, sqlSelect);
@@ -256,7 +255,7 @@ public abstract class RelatedFoundSet extends FoundSet
 					{
 						// Note: see note about clone above.
 						queryDatas.add(new QueryData(sheet.getServerName(), transactionID, AbstractBaseQuery.deepClone((ISQLSelect)aggregateSelect),
-							fsm.getTableFilterParams(sheet.getServerName(), aggregateSelect), false, 0, 1, IDataServer.AGGREGATE_QUERY));
+							fsm.getTableFilterParams(sheet.getServerName(), aggregateSelect), false, 0, 1, IDataServer.AGGREGATE_QUERY, null));
 						queryIndex.add(new Integer(i)); // same index for aggregates
 						aggregateSelects[i] = aggregateSelect;
 					}

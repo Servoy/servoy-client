@@ -27,6 +27,7 @@ import com.servoy.j2db.dataprocessing.Blob;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.ISQLStatement;
+import com.servoy.j2db.dataprocessing.ITrackingSQLStatement;
 import com.servoy.j2db.dataprocessing.QueryData;
 import com.servoy.j2db.dataprocessing.TableFilter;
 import com.servoy.j2db.persistence.ITable;
@@ -269,10 +270,17 @@ public class ProfileDataServer implements IDataServer
 	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList filters,
 		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type) throws ServoyException, RemoteException
 	{
+		return performQuery(client_id, server_name, transaction_id, sqlSelect, filters, distinctInMemory, startRow, rowsToRetrieve, type, null);
+	}
+
+	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList filters,
+		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo) throws ServoyException, RemoteException
+	{
 		long startTime = System.currentTimeMillis();
 		try
 		{
-			return dataserver.performQuery(client_id, server_name, transaction_id, sqlSelect, filters, distinctInMemory, startRow, rowsToRetrieve, type);
+			return dataserver.performQuery(client_id, server_name, transaction_id, sqlSelect, filters, distinctInMemory, startRow, rowsToRetrieve, type,
+				trackingInfo);
 		}
 		finally
 		{

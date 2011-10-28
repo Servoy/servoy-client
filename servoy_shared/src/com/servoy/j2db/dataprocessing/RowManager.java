@@ -461,15 +461,15 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			long time = System.currentTimeMillis();
 			try
 			{
+				SQLStatement trackingInfo = null;
 				if (fsm.getEditRecordList().hasAccess(sheet.getTable(), IRepository.TRACKING_VIEWS))
 				{
-					SQLStatement trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, sheet.getServerName(), sheet.getTable().getName(), pks, null);
+					trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, sheet.getServerName(), sheet.getTable().getName(), pks, null);
 					trackingInfo.setTrackingData(sheet.getColumnNames(), new Object[][] { }, new Object[][] { }, fsm.getApplication().getUserUID(),
 						fsm.getTrackingInfo(), fsm.getApplication().getClientID());
-					select.setTrackingInfo(trackingInfo);
 				}
 				formdata = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, select,
-					fsm.getTableFilterParams(sheet.getServerName(), select), false, 0, nvals, IDataServer.FOUNDSET_LOAD_QUERY);
+					fsm.getTableFilterParams(sheet.getServerName(), select), false, 0, nvals, IDataServer.FOUNDSET_LOAD_QUERY, trackingInfo);
 				if (Debug.tracing())
 				{
 					Debug.trace(Thread.currentThread().getName() + ": getting RowData time: " + (System.currentTimeMillis() - time) + ", SQL: " + //$NON-NLS-1$ //$NON-NLS-2$

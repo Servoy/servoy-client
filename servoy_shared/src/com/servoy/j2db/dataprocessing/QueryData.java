@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 import java.io.Serializable;
@@ -41,6 +41,7 @@ public class QueryData implements Serializable, IVisitable
 	private final int startRow;
 	private final int rowsToRetrieve;
 	private final int type;
+	private final ITrackingSQLStatement trackingInfo;
 
 	public static String DATAPROCESSING_SERIALIZE_DOMAIN = "D"; //$NON-NLS-1$
 
@@ -71,7 +72,7 @@ public class QueryData implements Serializable, IVisitable
 	 * @param relationQuery
 	 */
 	public QueryData(String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList filters, boolean distinctInMemory, int startRow,
-		int rowsToRetrieve, int type)
+		int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo)
 	{
 		this.server_name = server_name;
 		this.transaction_id = transaction_id;
@@ -81,6 +82,7 @@ public class QueryData implements Serializable, IVisitable
 		this.startRow = startRow;
 		this.rowsToRetrieve = rowsToRetrieve;
 		this.type = type;
+		this.trackingInfo = trackingInfo;
 	}
 
 	/**
@@ -156,6 +158,14 @@ public class QueryData implements Serializable, IVisitable
 	}
 
 	/**
+	 * @return the trackingInfo
+	 */
+	public ITrackingSQLStatement getTrackingInfo()
+	{
+		return trackingInfo;
+	}
+
+	/**
 	 * {@link IVisitable}
 	 */
 	public void acceptVisitor(IVisitor visitor)
@@ -169,8 +179,10 @@ public class QueryData implements Serializable, IVisitable
 
 	public Object writeReplace()
 	{
-		return new ReplacedObject(DATAPROCESSING_SERIALIZE_DOMAIN, getClass(),
-			new Object[] { server_name, transaction_id, sqlSelect, filters, new int[] { distinctInMemory ? 1 : 0, startRow, rowsToRetrieve, type } });
+		return new ReplacedObject(
+			DATAPROCESSING_SERIALIZE_DOMAIN,
+			getClass(),
+			new Object[] { server_name, transaction_id, sqlSelect, filters, new int[] { distinctInMemory ? 1 : 0, startRow, rowsToRetrieve, type }, trackingInfo });
 	}
 
 	public QueryData(ReplacedObject s)
@@ -187,6 +199,6 @@ public class QueryData implements Serializable, IVisitable
 		startRow = numbers[1];
 		rowsToRetrieve = numbers[2];
 		type = numbers[3];
+		trackingInfo = (ITrackingSQLStatement)members[i++];
 	}
-
 }

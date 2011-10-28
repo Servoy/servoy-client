@@ -406,15 +406,15 @@ public class LookupListModel extends AbstractListModel
 				tableFilterParams.add(nameFilter);
 			}
 
+			SQLStatement trackingInfo = null;
 			if (foundSetManager.getEditRecordList().hasAccess(table, IRepository.TRACKING_VIEWS))
 			{
-				SQLStatement trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, table.getServerName(), qTable.getName(), null, null);
+				trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, table.getServerName(), qTable.getName(), null, null);
 				trackingInfo.setTrackingData(select.getColumnNames(), new Object[][] { }, new Object[][] { }, application.getUserUID(),
 					foundSetManager.getTrackingInfo(), application.getClientID());
-				select.setTrackingInfo(trackingInfo);
 			}
 			IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, select,
-				tableFilterParams, true, 0, 100, IDataServer.VALUELIST_QUERY);
+				tableFilterParams, true, 0, 100, IDataServer.VALUELIST_QUERY, trackingInfo);
 			for (int i = 0; i < set.getRowCount(); i++)
 			{
 				Object[] row = CustomValueList.processRow(set.getRow(i), showValues, returnValues);
@@ -532,15 +532,15 @@ public class LookupListModel extends AbstractListModel
 				}
 				tableFilterParams.add(nameFilter);
 			}
+			SQLStatement trackingInfo = null;
 			if (foundSetManager.getEditRecordList().hasAccess(table, IRepository.TRACKING_VIEWS))
 			{
-				SQLStatement trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, table.getServerName(), table.getName(), null, null);
+				trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, table.getServerName(), table.getName(), null, null);
 				trackingInfo.setTrackingData(sqlParts.getColumnNames(), new Object[][] { }, new Object[][] { }, application.getUserUID(),
 					foundSetManager.getTrackingInfo(), application.getClientID());
-				sqlParts.setTrackingInfo(trackingInfo);
 			}
 			IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, sqlParts,
-				tableFilterParams, !sqlParts.isUnique(), 0, 100, IDataServer.VALUELIST_QUERY);
+				tableFilterParams, !sqlParts.isUnique(), 0, 100, IDataServer.VALUELIST_QUERY,trackingInfo);
 			for (int i = 0; i < set.getRowCount(); i++)
 			{
 				Object[] row = CustomValueList.processRow(set.getRow(i), showValues, returnValues);
@@ -594,15 +594,15 @@ public class LookupListModel extends AbstractListModel
 				tableFilterParams.add(nameFilter);
 			}
 
+			SQLStatement trackingInfo = null;
 			if (foundSetManager.getEditRecordList().hasAccess(table, IRepository.TRACKING_VIEWS))
 			{
-				SQLStatement trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, table.getServerName(), table.getName(), null, null);
+				trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, table.getServerName(), table.getName(), null, null);
 				trackingInfo.setTrackingData(sqlParts.getColumnNames(), new Object[][] { }, new Object[][] { }, application.getUserUID(),
 					foundSetManager.getTrackingInfo(), application.getClientID());
-				sqlParts.setTrackingInfo(trackingInfo);
 			}
 			IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, sqlParts,
-				tableFilterParams, !sqlParts.isUnique(), 0, 100, IDataServer.VALUELIST_QUERY);
+				tableFilterParams, !sqlParts.isUnique(), 0, 100, IDataServer.VALUELIST_QUERY, trackingInfo);
 			for (int i = 0; i < set.getRowCount(); i++)
 			{
 				Object[] row = set.getRow(i);

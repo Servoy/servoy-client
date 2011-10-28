@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.servoy.j2db.dataprocessing.ITrackingSQLStatement;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.IVisitor;
 import com.servoy.j2db.util.visitor.ObjectCountVisitor;
@@ -53,7 +52,6 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 	private ArrayList<IQuerySelectValue> groupBy;
 	private HashMap<String, AndCondition> having = null; // Map of AndCondition objects
 	private int lockMode = LOCK_MODE_NONE;
-	private ITrackingSQLStatement trackingInfo;
 
 	private static final long serialVersionUID = 1L;
 
@@ -71,11 +69,14 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 	public String[] getColumnNames()
 	{
 		List<String> names = new ArrayList<String>();
-		for (IQuerySelectValue column : getColumns())
+		if (getColumns() != null)
 		{
-			names.add(column.getColumn().getName());
+			for (IQuerySelectValue column : getColumns())
+			{
+				names.add(column.getColumn().getName());
+			}
 		}
-		return names.toArray(new String[] { });
+		return names.toArray(new String[names.size()]);
 	}
 
 	public void addColumn(IQuerySelectValue c)
@@ -801,7 +802,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 	public Object writeReplace()
 	{
 		return new ReplacedObject(QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { table, columns, new Byte((byte)(distinct ? 1 : 0 +
-			(plain_pk_select ? 2 : 0) + (4 * lockMode))), conditions, having, joins, sorts, groupBy, trackingInfo });
+			(plain_pk_select ? 2 : 0) + (4 * lockMode))), conditions, having, joins, sorts, groupBy });
 	}
 
 	@SuppressWarnings("unchecked")
@@ -820,25 +821,5 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		this.joins = (ArrayList<ISQLJoin>)members[i++];
 		this.sorts = (ArrayList<IQuerySort>)members[i++];
 		this.groupBy = (ArrayList<IQuerySelectValue>)members[i++];
-		this.trackingInfo = (ITrackingSQLStatement)members[i++];
 	}
-
-
-	/**
-	 * @param trackingInfo the trackingInfo to set
-	 */
-	public void setTrackingInfo(ITrackingSQLStatement trackingInfo)
-	{
-		this.trackingInfo = trackingInfo;
-	}
-
-
-	/**
-	 * @return the trackingInfo
-	 */
-	public ITrackingSQLStatement getTrackingInfo()
-	{
-		return trackingInfo;
-	}
-
 }
