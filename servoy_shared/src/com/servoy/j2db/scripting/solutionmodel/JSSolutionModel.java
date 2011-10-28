@@ -651,11 +651,25 @@ public class JSSolutionModel
 	 */
 	public JSForm js_getForm(String name)
 	{
+		if (name == null) return null;
 		Form form = ((FormManager)application.getFormManager()).getPossibleForm(name);
+
 		if (form == null)
 		{
 			FlattenedSolution fs = application.getFlattenedSolution();
 			form = fs.getForm(name);
+			if (form == null)
+			{
+				// search ignoring case
+				Iterator<Form> forms = fs.getForms(false);
+				String lowerCaseName = Utils.toEnglishLocaleLowerCase(name);
+				Form f;
+				while (forms.hasNext() && form == null)
+				{
+					f = forms.next();
+					if (Utils.toEnglishLocaleLowerCase(f.getName()).equals(lowerCaseName)) form = f;
+				}
+			}
 		}
 
 		if (form != null)
@@ -1262,8 +1276,28 @@ public class JSSolutionModel
 	 */
 	public JSRelation js_getRelation(String name)
 	{
+		if (name == null) return null;
 		FlattenedSolution fs = application.getFlattenedSolution();
 		Relation relation = fs.getRelation(name);
+		if (relation == null)
+		{
+			// search ignoring case
+			try
+			{
+				Iterator<Relation> relations = fs.getRelations(false);
+				String lowerCaseName = Utils.toEnglishLocaleLowerCase(name);
+				Relation r;
+				while (relations.hasNext() && relation == null)
+				{
+					r = relations.next();
+					if (Utils.toEnglishLocaleLowerCase(r.getName()).equals(lowerCaseName)) relation = r;
+				}
+			}
+			catch (RepositoryException e)
+			{
+				// not found then
+			}
+		}
 		if (relation != null)
 		{
 			return new JSRelation(relation, application, false);
