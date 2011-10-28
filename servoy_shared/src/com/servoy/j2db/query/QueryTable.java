@@ -53,13 +53,7 @@ public final class QueryTable implements IQueryElement, Immutable
 	 */
 	public QueryTable(String name, String catalogName, String schemaName, boolean needsQuoting)
 	{
-		this.name = name;
-		this.catalogName = catalogName;
-		this.schemaName = schemaName;
-		this.needsQuoting = needsQuoting;
-		this.alias = generateAlias(name);
-		this.generatedAlias = true;
-		this.isComplete = true;
+		this(name, catalogName, schemaName, null, needsQuoting);
 	}
 
 	public QueryTable(String name, String catalogName, String schemaName, String alias)
@@ -72,9 +66,9 @@ public final class QueryTable implements IQueryElement, Immutable
 		this.name = name;
 		this.catalogName = catalogName;
 		this.schemaName = schemaName;
-		this.alias = alias;
+		this.generatedAlias = alias == null;
+		this.alias = this.generatedAlias ? generateAlias(name) : alias;
 		this.needsQuoting = needsQuoting;
-		this.generatedAlias = false;
 		this.isComplete = true;
 	}
 
