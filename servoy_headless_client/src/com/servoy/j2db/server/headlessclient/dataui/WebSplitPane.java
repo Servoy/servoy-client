@@ -689,7 +689,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 
 		ClientProperties clp = ((WebClientInfo)Session.get().getClientInfo()).getProperties();
-		if (clp.isBrowserKonqueror() || clp.isBrowserSafari() || clp.isBrowserChrome()) headerResponse.renderOnLoadJavascript(resizeScript.toString());
+		if (clp.isBrowserKonqueror() || clp.isBrowserSafari() || clp.isBrowserChrome() || clp.isBrowserInternetExplorer()) headerResponse.renderOnLoadJavascript(resizeScript.toString());
 		else headerResponse.renderOnDomReadyJavascript(resizeScript.toString());
 	}
 
