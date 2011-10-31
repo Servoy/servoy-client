@@ -25,6 +25,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -128,6 +129,7 @@ import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.server.headlessclient.MainPage;
+import com.servoy.j2db.server.headlessclient.PageContributor;
 import com.servoy.j2db.server.headlessclient.TabIndexHelper;
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.server.headlessclient.dnd.DraggableBehavior;
@@ -1346,7 +1348,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			Debug.error(ex);
 		}
 
-		setScrollMode(Boolean.TRUE.equals(application.getUIProperty(IApplication.TABLEVIEW_WC_DEFAULT_SCROLLABLE)));
+		Object defaultScrollable = application.getUIProperty(IApplication.TABLEVIEW_WC_DEFAULT_SCROLLABLE);
+		setScrollMode(defaultScrollable == null || Boolean.TRUE.equals(defaultScrollable));
 		table.setPageabeMode(!isScrollMode());
 		if (isScrollMode())
 		{
@@ -3725,6 +3728,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			int scrollDiff = Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("scrollDiff")); //$NON-NLS-1$
 
+			Collection<ListItem< ? >> newRows = null;
 			StringBuffer rowsBuffer = null;
 			int newRowsCount = 0, rowsToRemove = 0;
 			int viewStartIdx = table.getStartIndex();
@@ -3740,7 +3744,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 					table.setStartIndex(viewStartIdx + rowsToRemove);
 					table.setViewSize(viewSize + newRowsCount - rowsToRemove);
-					rowsBuffer = renderRows(getResponse(), table, viewStartIdx + viewSize, newRowsCount);
+					newRows = getRows(table, viewStartIdx + viewSize, newRowsCount);
+					rowsBuffer = renderRows(getResponse(), newRows);
 				}
 			}
 			else
@@ -3752,7 +3757,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 					table.setStartIndex(viewStartIdx - newRowsCount);
 					table.setViewSize(viewSize + newRowsCount - rowsToRemove);
-					rowsBuffer = renderRows(getResponse(), table, viewStartIdx - newRowsCount, newRowsCount);
+					newRows = getRows(table, viewStartIdx - newRowsCount, newRowsCount);
+					rowsBuffer = renderRows(getResponse(), newRows);
 				}
 			}
 
@@ -3761,10 +3767,28 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				boolean hasTopBuffer = table.getStartIndex() > 0;
 				boolean hasBottomBuffer = table.getStartIndex() + table.getViewSize() < table.getList().size();
 
-				target.appendJavascript("Servoy.TableView.appendRows('" + WebCellBasedView.this.tableContainerBody.getMarkupId() + "','" + //$NON-NLS-1$//$NON-NLS-2$
-					rowsBuffer.toString() + "'," + newRowsCount + "," + rowsToRemove + "," + scrollDiff + ", " + hasTopBuffer + "," + hasBottomBuffer + ");"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
-			}
+				StringBuffer sb = new StringBuffer();
+				sb.append("Servoy.TableView.appendRows('"); //$NON-NLS-1$
+				sb.append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("','"); //$NON-NLS-1$
+				sb.append(rowsBuffer.toString()).append("',"); //$NON-NLS-1$
+				sb.append(newRowsCount).append(","); //$NON-NLS-1$
+				sb.append(rowsToRemove).append(","); //$NON-NLS-1$
+				sb.append(scrollDiff).append(", "); //$NON-NLS-1$
+				sb.append(hasTopBuffer).append(","); //$NON-NLS-1$
+				sb.append(hasBottomBuffer).append(");"); //$NON-NLS-1$
 
+				if (newRows != null)
+				{
+					Page page = findPage();
+					if (page instanceof MainPage)
+					{
+						PageContributor pc = (PageContributor)((MainPage)page).getPageContributor();
+						sb.append(pc.getListenersScript(getRowsComponents(newRows)));
+					}
+				}
+
+				target.appendJavascript(sb.toString());
+			}
 		}
 
 		@Override
@@ -3790,18 +3814,62 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			};
 		}
 
-		private StringBuffer renderRows(Response response, ServoyListView<IRecordInternal> listView, int startIdx, int rowsCount)
+
+		private Collection<Component> getRowsComponents(Collection<ListItem< ? >> rows)
 		{
-			StringBuffer rows = new StringBuffer();
+			ArrayList<Component> rowsComponents = new ArrayList<Component>();
+
+			Iterator<ListItem< ? >> rowsIte = rows.iterator();
+			while (rowsIte.hasNext())
+			{
+				rowsComponents.addAll(getRowComponents(rowsIte.next()));
+			}
+
+			return rowsComponents;
+		}
+
+		private Collection<Component> getRowComponents(ListItem< ? > row)
+		{
+			final ArrayList<Component> rowComponents = new ArrayList<Component>();
+
+			row.visitChildren(IComponent.class, new IVisitor<Component>()
+			{
+
+				public Object component(Component component)
+				{
+					rowComponents.add(component);
+					return IVisitor.CONTINUE_TRAVERSAL;
+				}
+
+			});
+			return rowComponents;
+		}
+
+		private Collection<ListItem< ? >> getRows(ServoyListView<IRecordInternal> listView, int startIdx, int rowsCount)
+		{
+			ArrayList<ListItem< ? >> rows = new ArrayList<ListItem< ? >>();
+
 			int endIdx = startIdx + rowsCount;
 			ListItem< ? > listItem;
 			for (int i = startIdx; i < endIdx; i++)
 			{
 				listItem = listView.getOrCreateListItem(i);
-				rows.append(renderComponent(response, listItem));
+				rows.add(listItem);
 			}
 
 			return rows;
+		}
+
+		private StringBuffer renderRows(Response response, Collection<ListItem< ? >> rows)
+		{
+			StringBuffer output = new StringBuffer();
+			Iterator<ListItem< ? >> rowsIte = rows.iterator();
+			while (rowsIte.hasNext())
+			{
+				output.append(renderComponent(response, rowsIte.next()));
+			}
+
+			return output;
 		}
 
 		private CharSequence renderComponent(Response response, Component component)

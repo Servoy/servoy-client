@@ -19,6 +19,7 @@ package com.servoy.j2db.server.headlessclient;
 import java.awt.Rectangle;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -388,12 +389,17 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 	 */
 	public void onAfterRespond(Map<String, Component> map, IJavascriptResponse response)
 	{
+		response.addJavascript(getListenersScript(map.values()));
+	}
+
+	public String getListenersScript(Collection<Component> components)
+	{
 		// find all field components that will be re-rendered, look for children because some may have been added during 
 		// rendering (for example, extra rows in table view)
 		final List<String> focusGainedFields = new ArrayList<String>();
 		final List<String> focusLostFields = new ArrayList<String>();
 
-		for (Object comp : map.values())
+		for (Object comp : components)
 		{
 			for (Component c : getVisibleChildren((Component)comp, false))
 			{
@@ -409,12 +415,13 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		markupIdMap.put("blur", new Pair<List<String>, Boolean>(focusLostFields, Boolean.TRUE /* handle changed data */)); //$NON-NLS-1$
 
 		String js = eventCallbackBehavior.getAddListsenersScript(markupIdMap);
-		if (map.values().size() > 0 && map.values().iterator().next().findParent(WebCellBasedView.class) != null)
+		if (components.size() > 0 && components.iterator().next().findParent(WebCellBasedView.class) != null)
 		{
 			// in tableview non changed fields can be replaced with ajax causing focus event to come twice
 			js = "setTimeout(function(){" + js + "},100)";
 		}
-		response.addJavascript(js);
+
+		return js;
 	}
 
 	public void onBeforeRespond(Map<String, Component> map, AjaxRequestTarget target)
