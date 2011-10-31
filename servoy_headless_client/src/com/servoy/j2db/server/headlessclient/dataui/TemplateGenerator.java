@@ -108,6 +108,7 @@ public class TemplateGenerator
 	 */
 	private static class FormCache
 	{
+		private volatile boolean stop = false;
 
 		private FormCache(boolean monitorCache)
 		{
@@ -119,11 +120,18 @@ public class TemplateGenerator
 					public void run()
 					{
 						long sleepTime = 4 * 60 * 60 * 1000;
-						while (true)
+						while (!stop)
 						{
 							try
 							{
-								Thread.sleep(sleepTime); // sleep for 4 hours
+								synchronized (formCache)
+								{
+									formCache.wait(sleepTime); // sleep for 4 hours
+									if (stop)
+									{
+										return;
+									}
+								}
 
 								long time = System.currentTimeMillis();
 								Iterator<CacheItem> it = cache.values().iterator();
@@ -150,7 +158,9 @@ public class TemplateGenerator
 				};
 				try
 				{
-					new Thread(r, "FormCache Monitor").start();
+					Thread thread = new Thread(r, "FormCache Monitor");
+					thread.setDaemon(true);
+					thread.start();
 				}
 				catch (Exception e)
 				{
@@ -2819,5 +2829,17 @@ public class TemplateGenerator
 	private static String getWicketIDParameter(Form form, IPersist meta, String prefix, String suffix)
 	{
 		return "servoy:id='" + prefix + ComponentFactory.getWebID(form, meta) + suffix + "' ";
+	}
+
+	/**
+	 * 
+	 */
+	public static void stopCacheMonitor()
+	{
+		synchronized (formCache)
+		{
+			formCache.stop = true;
+			formCache.notifyAll();
+		}
 	}
 }
