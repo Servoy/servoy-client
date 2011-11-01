@@ -34,7 +34,6 @@ import javax.swing.event.ListSelectionListener;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
-import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.IHeaderResponse;
@@ -42,8 +41,6 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.protocol.http.ClientProperties;
-import org.apache.wicket.protocol.http.request.WebClientInfo;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
@@ -682,10 +679,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 			resizeScript.append("}\n"); //$NON-NLS-1$			
 		}
 
-
-		ClientProperties clp = ((WebClientInfo)Session.get().getClientInfo()).getProperties();
-		if (clp.isBrowserKonqueror() || clp.isBrowserSafari() || clp.isBrowserChrome()) headerResponse.renderOnLoadJavascript(resizeScript.toString());
-		else headerResponse.renderOnDomReadyJavascript(resizeScript.toString());
+		headerResponse.renderOnLoadJavascript(resizeScript.toString());
 	}
 
 	private Map<String, String> getFormOverflowStyle(IFormLookupPanel formLookup)
