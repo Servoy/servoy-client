@@ -489,7 +489,7 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 
 		public MethodExecutor(String context, String methodname, Object[] arguments, boolean async)
 		{
-			this.context = context;
+			this.context = context == null ? ScriptVariable.SCOPES_DOT_PREFIX + ScriptVariable.GLOBAL_SCOPE : context;
 			this.methodname = methodname;
 			this.arguments = arguments;
 			this.async = async;
@@ -510,7 +510,7 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 				{
 					if (context.startsWith(ScriptVariable.SCOPES_DOT_PREFIX))
 					{
-						String scopename = context.substring(0, ScriptVariable.SCOPES_DOT_PREFIX.length());
+						String scopename = context.substring(ScriptVariable.SCOPES_DOT_PREFIX.length());
 						GlobalScope gs = application.getScriptEngine().getScopesScope().getGlobalScope(scopename);
 						Object function = gs == null ? null : gs.get(methodname);
 						if (function instanceof Function)
