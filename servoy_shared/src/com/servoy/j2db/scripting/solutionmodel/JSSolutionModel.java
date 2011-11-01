@@ -984,7 +984,7 @@ public class JSSolutionModel
 	@Deprecated
 	public JSVariable js_newGlobalVariable(String name, int type)
 	{
-		return js_newGlobalVariable(name, null, type);
+		return js_newGlobalVariable(null, name, type);
 	}
 
 	/**
