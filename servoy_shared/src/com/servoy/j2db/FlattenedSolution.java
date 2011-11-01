@@ -1032,44 +1032,38 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	{
 		if (id == null) return null;
 
-		if (!ScopesUtils.isVariableScope(id) /* no global scope */)
+		Pair<String, String> scope = ScopesUtils.getVariableScope(id);
+		if (scope.getLeft() != null /* global scope */)
 		{
-			int indx = id.lastIndexOf('.'); // in case of multi-level relations we have more that 1 dot
-			if (indx > 0)
-			{
-				String rel_name = id.substring(0, indx);
-				String col = id.substring(indx + 1);
-
-				Relation[] relations = getRelationSequence(rel_name);
-				if (relations == null)
-				{
-					return null;
-				}
-
-				Relation r = relations[relations.length - 1];
-				Column[] cols = r.getForeignColumns();
-				if (cols == null || cols.length == 0) return null;
-
-				IDataProvider c = getDataProviderForTable(r.getForeignTable(), col);
-
-				if (r != null && c instanceof IColumn)
-				{
-					return new ColumnWrapper((IColumn)c, relations);
-				}
-				return c;
-			}
+			//search all objects,will return globals
+			return AbstractBase.selectByName(getScriptVariables(scope.getLeft(), false), scope.getRight());
 		}
 
-		//search all objects,will return globals
-		Iterator<ScriptVariable> it = getScriptVariables(false);
-		while (it.hasNext())
+		int indx = id.lastIndexOf('.'); // in case of multi-level relations we have more that 1 dot
+		if (indx > 0)
 		{
-			IPersist p = it.next();
-			if (p instanceof IDataProvider && ((IDataProvider)p).getDataProviderID().equals(id))
+			String rel_name = id.substring(0, indx);
+			String col = id.substring(indx + 1);
+
+			Relation[] relations = getRelationSequence(rel_name);
+			if (relations == null)
 			{
-				return (IDataProvider)p;
+				return null;
 			}
+
+			Relation r = relations[relations.length - 1];
+			Column[] cols = r.getForeignColumns();
+			if (cols == null || cols.length == 0) return null;
+
+			IDataProvider c = getDataProviderForTable(r.getForeignTable(), col);
+
+			if (r != null && c instanceof IColumn)
+			{
+				return new ColumnWrapper((IColumn)c, relations);
+			}
+			return c;
 		}
+
 		return null;
 	}
 
