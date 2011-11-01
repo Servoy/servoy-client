@@ -69,12 +69,13 @@ public class LookupValueList implements IValueList
 	private boolean concatShowValues;
 	private IRecordInternal parentState;
 	private IFoundSetInternal relatedFoundset;
-	private LookupValueList secondLookup;
+	private final IValueList secondLookup;
 
-	public LookupValueList(ValueList list, IServiceProvider application) throws Exception
+	public LookupValueList(ValueList list, IServiceProvider application, IValueList fallback) throws Exception
 	{
 		this.valueList = list;
 		this.application = application;
+		this.secondLookup = fallback;
 
 		String serverName = null;
 		String tableName = null;
@@ -134,18 +135,6 @@ public class LookupValueList implements IValueList
 			catch (RepositoryException e)
 			{
 				Debug.error("Error registering table", e); //$NON-NLS-1$
-			}
-		}
-		if (valueList.getFallbackValueListID() > 0 && valueList.getFallbackValueListID() != valueList.getID())
-		{
-			ValueList fallbackValueList = application.getFlattenedSolution().getValueList(valueList.getFallbackValueListID());
-			try
-			{
-				secondLookup = new LookupValueList(fallbackValueList, application);
-			}
-			catch (Exception e)
-			{
-				Debug.error("Error creating fallback lookup list", e); //$NON-NLS-1$
 			}
 		}
 	}

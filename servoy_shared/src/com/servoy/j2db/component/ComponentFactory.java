@@ -1532,10 +1532,10 @@ public class ComponentFactory
 			scriptable = new RuntimeDataLookupField(jsChangeRecorder, application);
 			if (valuelist.getValueListType() == ValueList.DATABASE_VALUES)
 			{
-				LookupValueList lookupValueList = null;
 				try
 				{
-					lookupValueList = new LookupValueList(valuelist, application);
+					IValueList secondLookup = getFallbackValueList(application, field, type, format, valuelist);
+					LookupValueList lookupValueList = new LookupValueList(valuelist, application, secondLookup);
 					fl = application.getItemFactory().createDataLookupField((RuntimeDataLookupField)scriptable, getWebID(form, field), lookupValueList);
 				}
 				catch (Exception e1)
@@ -1556,6 +1556,39 @@ public class ComponentFactory
 		}
 		scriptable.setComponent(fl);
 		return fl;
+	}
+
+	/**
+	 * @param application
+	 * @param field
+	 * @param type
+	 * @param format
+	 * @param valuelist
+	 * @return
+	 */
+	private static IValueList getFallbackValueList(IApplication application, Field field, int type, String format, ValueList valuelist)
+	{
+		IValueList valueList = null;
+		if (valuelist.getFallbackValueListID() > 0 && valuelist.getFallbackValueListID() != valuelist.getID())
+		{
+			ValueList fallbackValueList = application.getFlattenedSolution().getValueList(valuelist.getFallbackValueListID());
+			if (fallbackValueList.getValueListType() == ValueList.DATABASE_VALUES)
+			{
+				try
+				{
+					valueList = new LookupValueList(fallbackValueList, application, getFallbackValueList(application, field, type, format, fallbackValueList));
+				}
+				catch (Exception e)
+				{
+					Debug.error("Error creating fallback lookup list", e); //$NON-NLS-1$
+				}
+			}
+			else
+			{
+				valueList = getRealValueList(application, fallbackValueList, true, type, format, field.getDataProviderID());
+			}
+		}
+		return valueList;
 	}
 
 	private static IComponent createGraphicalComponent(IApplication application, Form form, GraphicalComponent label, IScriptExecuter el,
