@@ -116,7 +116,8 @@ public class JSRenderEvent implements IJavaScriptType
 	 */
 	public int js_getRecordIndex()
 	{
-		return index;
+		if (index == -1) return -1;
+		return index + 1;
 	}
 
 	public void setSelected(boolean isSelected)
@@ -140,6 +141,6 @@ public class JSRenderEvent implements IJavaScriptType
 	@Override
 	public String toString()
 	{
-		return "JSRenderEvent(element = " + element + ", hasFocus = " + hasFocus + ", isSelected = " + isSelected + ", index = " + index + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+		return "JSRenderEvent(element = " + element + ", hasFocus = " + hasFocus + ", isSelected = " + isSelected + ", index = " + js_getRecordIndex() + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 	}
 }
