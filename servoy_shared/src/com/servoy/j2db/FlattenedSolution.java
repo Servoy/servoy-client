@@ -611,7 +611,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			}
 		}
 
-		modules = getDependencyGraphOrderedModules(modulesMap.values());
+		modules = getDependencyGraphOrderedModules(modulesMap.values(), mainSolution);
 
 		for (Solution s : modules)
 		{
@@ -633,33 +633,23 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		}
 	}
 
-	private Solution[] getDependencyGraphOrderedModules(Collection<Solution> modules)
+	private static Solution[] getDependencyGraphOrderedModules(Collection<Solution> modules, Solution solution)
 	{
-		List<Solution> orderedSolutions = new ArrayList<Solution>();
-		buildOrderedList(modules, orderedSolutions, mainSolution);
+		List<Solution> orderedSolutions = buildOrderedList(modules, new ArrayList<Solution>(), solution);
 		if (orderedSolutions.size() > 1)
 		{
 			Collections.reverse(orderedSolutions);
 		}
-		return orderedSolutions.toArray(new Solution[] { });
+		return orderedSolutions.toArray(new Solution[orderedSolutions.size()]);
 	}
 
-	private void buildOrderedList(Collection<Solution> modules, List<Solution> orderedSolutions, Solution solution)
+	private static List<Solution> buildOrderedList(Collection<Solution> modules, List<Solution> orderedSolutions, Solution solution)
 	{
 		if (solution != null && solution.getModulesNames() != null)
 		{
-			String[] moduleNames = Utils.getTokenElements(solution.getModulesNames(), ",", true);
-			for (String moduleName : moduleNames)
+			for (String moduleName : Utils.getTokenElements(solution.getModulesNames(), ",", true)) //$NON-NLS-1$
 			{
-				Solution module = null;
-				for (Solution sol : modules)
-				{
-					if (sol.getName().equals(moduleName))
-					{
-						module = sol;
-						break;
-					}
-				}
+				Solution module = AbstractBase.selectByName(modules.iterator(), moduleName);
 				if (module != null && !orderedSolutions.contains(module))
 				{
 					orderedSolutions.add(module);
@@ -667,6 +657,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				}
 			}
 		}
+		return orderedSolutions;
 	}
 
 	public void clearLoginSolution(IActiveSolutionHandler handler)
@@ -1041,8 +1032,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	{
 		if (id == null) return null;
 
-		Pair<String, String> scope = ScopesUtils.getVariableScope(id);
-		if (scope.getLeft() == null /* no global scope */)
+		if (!ScopesUtils.isVariableScope(id) /* no global scope */)
 		{
 			int indx = id.lastIndexOf('.'); // in case of multi-level relations we have more that 1 dot
 			if (indx > 0)
@@ -1071,7 +1061,16 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		}
 
 		//search all objects,will return globals
-		return AbstractBase.selectByName(getScriptVariables(scope.getLeft(), false), scope.getRight());
+		Iterator<ScriptVariable> it = getScriptVariables(false);
+		while (it.hasNext())
+		{
+			IPersist p = it.next();
+			if (p instanceof IDataProvider && ((IDataProvider)p).getDataProviderID().equals(id))
+			{
+				return (IDataProvider)p;
+			}
+		}
+		return null;
 	}
 
 	/**
