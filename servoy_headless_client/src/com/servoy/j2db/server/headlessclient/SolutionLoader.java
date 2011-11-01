@@ -30,7 +30,6 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.request.target.coding.HybridUrlCodingStrategy;
-import org.mozilla.javascript.Function;
 
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IMainContainer;
@@ -40,7 +39,6 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
-import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.util.Debug;
@@ -144,13 +142,8 @@ public class SolutionLoader extends WebPage
 						{
 							try
 							{
-								GlobalScope gscope = sc.getScriptEngine().getSolutionScope().getGlobalScope();
-								Object function = gscope.get(method, gscope);
-								if (function instanceof Function)
-								{
-									sc.getScriptEngine().executeFunction((Function)function, gscope, gscope,
-										(firstArgument == null ? null : new Object[] { firstArgument, argumentsScope.toJSMap() }), false, false);
-								}
+								sc.getScriptEngine().getScopesScope().executeGlobalFunction(null, method,
+									(firstArgument == null ? null : new Object[] { firstArgument, argumentsScope.toJSMap() }), false, false);
 							}
 							catch (Exception e1)
 							{

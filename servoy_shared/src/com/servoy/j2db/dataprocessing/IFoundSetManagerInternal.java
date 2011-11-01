@@ -97,7 +97,7 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 
 	public void rollbackTransaction(boolean rollbackEdited, boolean queryForNewData);
 
-	public IGlobalValueEntry getGlobalScopeProvider();
+	public IGlobalValueEntry getScopesScopeProvider();
 
 	/**
 	 * add tracking info used for logging  

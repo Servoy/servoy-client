@@ -34,6 +34,7 @@ import com.servoy.j2db.util.FilteredIterator;
 import com.servoy.j2db.util.IFilter;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.UUID;
+import com.servoy.j2db.util.Utils;
 
 /**
  * A solution also root object for meta data
@@ -41,7 +42,7 @@ import com.servoy.j2db.util.UUID;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
-public class Solution extends AbstractRootObject implements ISupportChilds, ISupportScriptProviders, ICloneable, ISupportUpdateableName, IMediaProvider
+public class Solution extends AbstractRootObject implements ISupportChilds, ICloneable, ISupportUpdateableName, IMediaProvider
 {
 	// iterating & changing this map's contents will happen in synchronize blocks (the easier way would
 	// be using the ConcurrentHashMap as before, but a bug in Terracotta does not allow ConcurrentHashMaps to be serialized/deserialized); when the bug is solved
@@ -92,32 +93,20 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 			basedOnTable == null ? null : DataSourceUtils.createDBTableDataSource(basedOnTable.getServerName(), basedOnTable.getName()), sort);
 	}
 
-	public static Iterator<Form> getForms(List<IPersist> childs, String datasource, boolean sort)
+	public static Iterator<Form> getForms(List<IPersist> childs, final String datasource, boolean sort)
 	{
-		Iterator<Form> retval = null;
+		Iterator<Form> retval = new TypeIterator<Form>(childs, IRepository.FORMS, new IFilter<Form>()
+		{
+			public boolean match(Object f)
+			{
+				return datasource == null || (f instanceof Form && datasource.equals(((Form)f).getDataSource()));
+			}
+		});
 		if (sort)
 		{
-			retval = new SortedTypeIterator<Form>(childs, IRepository.FORMS, NameComparator.INSTANCE);
+			return Utils.asSortedIterator(retval, NameComparator.INSTANCE);
 		}
-		else
-		{
-			retval = new TypeIterator<Form>(childs, IRepository.FORMS);
-		}
-
-		if (datasource == null)
-		{
-			return retval;
-		}
-		List<Form> filtered = new ArrayList<Form>();
-		while (retval.hasNext())
-		{
-			Form f = retval.next();
-			if (datasource.equals(f.getDataSource()))
-			{
-				filtered.add(f);
-			}
-		}
-		return filtered.iterator();
+		return retval;
 	}
 
 	public Form getForm(String name)
@@ -172,11 +161,12 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 	 */
 	public static Iterator<Relation> getRelations(List<IPersist> childs, boolean sort)
 	{
+		Iterator<Relation> rels = new TypeIterator<Relation>(childs, IRepository.RELATIONS);
 		if (sort)
 		{
-			return new SortedTypeIterator<Relation>(childs, IRepository.RELATIONS, NameComparator.INSTANCE);
+			return Utils.asSortedIterator(rels, NameComparator.INSTANCE);
 		}
-		return new TypeIterator<Relation>(childs, IRepository.RELATIONS);
+		return rels;
 	}
 
 	/**
@@ -341,14 +331,12 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 
 	public static Iterator<ValueList> getValueLists(List<IPersist> childs, boolean sort)
 	{
+		Iterator<ValueList> vls = new TypeIterator<ValueList>(childs, IRepository.VALUELISTS);
 		if (sort)
 		{
-			return new SortedTypeIterator<ValueList>(childs, IRepository.VALUELISTS, NameComparator.INSTANCE);
+			return Utils.asSortedIterator(vls, NameComparator.INSTANCE);
 		}
-		else
-		{
-			return new TypeIterator<ValueList>(childs, IRepository.VALUELISTS);
-		}
+		return vls;
 	}
 
 	public ValueList getValueList(int id)
@@ -382,36 +370,36 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 	 */
 	public Iterator<ScriptVariable> getScriptVariables(boolean sort)
 	{
-		return getScriptVariables(getAllObjectsAsList(), sort);
+		return getScriptVariables(getAllObjectsAsList(), null, sort);
 	}
 
-	public static Iterator<ScriptVariable> getScriptVariables(List<IPersist> childs, boolean sort)
+	public Iterator<ScriptVariable> getScriptVariables(String scopeName, boolean sort)
 	{
+		return getScriptVariables(getAllObjectsAsList(), scopeName, sort);
+	}
+
+	public static Iterator<ScriptVariable> getScriptVariables(List<IPersist> childs, final String scopeName, boolean sort)
+	{
+		Iterator<ScriptVariable> vars = new TypeIterator<ScriptVariable>(childs, IRepository.SCRIPTVARIABLES, new IFilter<ScriptVariable>()
+		{
+			public boolean match(Object o)
+			{
+				return scopeName == null || (o instanceof ISupportScope && scopeName.equals(((ISupportScope)o).getScopeName()));
+			}
+		});
 		if (sort)
 		{
-			return new SortedTypeIterator<ScriptVariable>(childs, IRepository.SCRIPTVARIABLES, NameComparator.INSTANCE);
+			return Utils.asSortedIterator(vars, NameComparator.INSTANCE);
 		}
-		else
-		{
-			return new TypeIterator<ScriptVariable>(childs, IRepository.SCRIPTVARIABLES);
-		}
+		return vars;
 	}
 
-	public ScriptVariable getScriptVariable(String name)
+	public ScriptVariable getScriptVariable(String scopeName, String name)
 	{
-		Iterator<ScriptVariable> it = getScriptVariables(false);
-		while (it.hasNext())
-		{
-			ScriptVariable f = it.next();
-			if (f.getName().equals(name))
-			{
-				return f;
-			}
-		}
-		return null;
+		return selectByName(getScriptVariables(scopeName, false), name);
 	}
 
-	public ScriptVariable createNewScriptVariable(IValidateName validator, String varName, int variableType) throws RepositoryException
+	public ScriptVariable createNewScriptVariable(IValidateName validator, String scopeName, String varName, int variableType) throws RepositoryException
 	{
 		String name = varName == null ? "untitled" : varName; //$NON-NLS-1$
 
@@ -430,16 +418,16 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 			throw new RepositoryException("unknow variable type: " + variableType); //$NON-NLS-1$
 		}
 		//check if name is in use
-		validator.checkName(name, 0, new ValidatorSearchContext(this, IRepository.SCRIPTVARIABLES), false);
+		validator.checkName(name, 0, new ValidatorSearchContext(scopeName, IRepository.SCRIPTVARIABLES), false);
 		ScriptVariable obj = (ScriptVariable)getChangeHandler().createNewObject(this, IRepository.SCRIPTVARIABLES);
 		//set all the required properties
 
 		obj.setName(name);
 		obj.setVariableType(variableType);
+		obj.setScopeName(scopeName);
 		addChild(obj);
 		return obj;
 	}
-
 
 	/*
 	 * _____________________________________________________________ Methods for ScriptCalculation/TableNode handling
@@ -463,7 +451,11 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 		while (tablenodes.hasNext())
 		{
 			TableNode tableNode = tablenodes.next();
-			retval.addAll(tableNode.getScriptCalculations());
+			Iterator<ScriptCalculation> scriptCalculations = tableNode.getScriptCalculations();
+			while (scriptCalculations.hasNext())
+			{
+				retval.add(scriptCalculations.next());
+			}
 		}
 		return retval;
 	}
@@ -537,7 +529,11 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 		while (tableNodes.hasNext())
 		{
 			TableNode tableNode = tableNodes.next();
-			retval.addAll(tableNode.getAggregateVariables());
+			Iterator<AggregateVariable> aggregateVariables = tableNode.getAggregateVariables();
+			while (aggregateVariables.hasNext())
+			{
+				retval.add(aggregateVariables.next());
+			}
 		}
 		return retval.iterator();
 	}
@@ -627,66 +623,45 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 
 	public ScriptMethod getScriptMethod(int id)
 	{
-		return getScriptMethod(getScriptMethods(false), id);
+		return selectById(getScriptMethods(null, false), id);
 	}
 
-	public static ScriptMethod getScriptMethod(Iterator<ScriptMethod> it, int id)
+	public ScriptMethod getScriptMethod(String scopeName, String name)
 	{
-		while (it.hasNext())
+		return selectByName(getScriptMethods(scopeName, false), name);
+	}
+
+	public Iterator<ScriptMethod> getScriptMethods(String scopeName, boolean sort)
+	{
+		return getScriptMethods(getAllObjectsAsList(), scopeName, sort);
+	}
+
+	public static Iterator<ScriptMethod> getScriptMethods(List<IPersist> childs, final String scopeName, boolean sort)
+	{
+		Iterator<ScriptMethod> methods = new TypeIterator<ScriptMethod>(childs, IRepository.METHODS, new IFilter<ScriptMethod>()
 		{
-			ScriptMethod sm = it.next();
-			if (sm.getID() == id)
+			public boolean match(Object o)
 			{
-				return sm;
+				return scopeName == null || (o instanceof ISupportScope && scopeName.equals(((ISupportScope)o).getScopeName()));
 			}
-		}
-		return null;
-	}
-
-	public ScriptMethod getScriptMethod(String name)
-	{
-		return getScriptMethod(getScriptMethods(false), name);
-	}
-
-	public static ScriptMethod getScriptMethod(Iterator<ScriptMethod> it, String name)
-	{
-		while (it.hasNext())
-		{
-			ScriptMethod sm = it.next();
-			if (sm.getName().equals(name))
-			{
-				return sm;
-			}
-		}
-		return null;
-	}
-
-	public Iterator<ScriptMethod> getScriptMethods(boolean sort)
-	{
-		return getScriptMethods(getAllObjectsAsList(), sort);
-	}
-
-	public static Iterator<ScriptMethod> getScriptMethods(List<IPersist> childs, boolean sort)
-	{
+		});
 		if (sort)
 		{
-			return new SortedTypeIterator<ScriptMethod>(childs, IRepository.METHODS, NameComparator.INSTANCE);
+			return Utils.asSortedIterator(methods, NameComparator.INSTANCE);
 		}
-		else
-		{
-			return new TypeIterator<ScriptMethod>(childs, IRepository.METHODS);
-		}
+		return methods;
 	}
 
-	public ScriptMethod createNewGlobalScriptMethod(IValidateName validator, String scriptName) throws RepositoryException
+	public ScriptMethod createNewGlobalScriptMethod(IValidateName validator, String scopeName, String scriptName) throws RepositoryException
 	{
 		String name = scriptName == null ? "untitled" : scriptName; //$NON-NLS-1$
-		validator.checkName(name, 0, new ValidatorSearchContext(IRepository.METHODS), false);
+		validator.checkName(name, 0, new ValidatorSearchContext(scopeName, IRepository.METHODS), false);
 
 		ScriptMethod obj = (ScriptMethod)getChangeHandler().createNewObject(this, IRepository.METHODS);
 
 		//set all the required properties
 		obj.setName(name);
+		obj.setScopeName(scopeName);
 		addChild(obj);
 		return obj;
 	}
@@ -765,14 +740,12 @@ public class Solution extends AbstractRootObject implements ISupportChilds, ISup
 
 	public static Iterator<Media> getMedias(List<IPersist> childs, boolean sort)
 	{
+		Iterator<Media> medias = new TypeIterator<Media>(childs, IRepository.MEDIA);
 		if (sort)
 		{
-			return new SortedTypeIterator<Media>(childs, IRepository.MEDIA, NameComparator.INSTANCE);
+			return Utils.asSortedIterator(medias, NameComparator.INSTANCE);
 		}
-		else
-		{
-			return new TypeIterator<Media>(childs, IRepository.MEDIA);
-		}
+		return medias;
 	}
 
 	public Media getMedia(int media_id)

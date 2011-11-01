@@ -60,7 +60,6 @@ import com.servoy.j2db.persistence.ISupportTabSeq;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.PositionComparator;
-import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.smart.J2DBClient;
 import com.servoy.j2db.smart.SwingForm;
 import com.servoy.j2db.ui.IDataRenderer;
@@ -69,6 +68,7 @@ import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.EnableScrollPanel;
 import com.servoy.j2db.util.ISupplyFocusChildren;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.TabSequenceHelper;
 import com.servoy.j2db.util.gui.AnchorLayout;
@@ -305,7 +305,7 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 							{
 								IDisplayData da = (IDisplayData)newComp;
 								String id = da.getDataProviderID();
-								if (id != null && !id.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+								if (id != null && !ScopesUtils.isVariableScope(id))
 								{
 									int index = id.lastIndexOf('.');
 									//TODO:check if part before . is same as relation name (objToRender.getRelationID() )

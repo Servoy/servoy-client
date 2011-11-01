@@ -99,7 +99,7 @@ public class ScriptEngine implements IScriptSupport
 	//scopes
 	protected Scriptable toplevelScope;
 	protected SolutionScope solutionScope;
-	protected GlobalScope globalScope;
+	protected ScopesScope scopesScope;
 	private PluginScope pluginScope;
 	private CreationalPrototype creator;
 
@@ -229,8 +229,8 @@ public class ScriptEngine implements IScriptSupport
 
 			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_FORMS, tmpSolutionScope, creator);
 
-			globalScope = new GlobalScope(tmpSolutionScope, this, app);
-			tmpSolutionScope.setGlobalScope(globalScope);
+			scopesScope = new ScopesScope(tmpSolutionScope, this, app);
+			tmpSolutionScope.setScopesScope(scopesScope);
 
 			solutionScope = tmpSolutionScope;
 		}
@@ -329,7 +329,7 @@ public class ScriptEngine implements IScriptSupport
 		ContextFactory.getGlobal().removeListener(contextListener);
 
 		jsApplication.destroy();
-		globalScope.destroy();
+		scopesScope.destroy();
 		jsdbm.destroy();
 		jssec.destroy();
 		jsUtils.destroy();
@@ -360,9 +360,9 @@ public class ScriptEngine implements IScriptSupport
 		return null;
 	}
 
-	public GlobalScope getGlobalScope()
+	public ScopesScope getScopesScope()
 	{
-		return globalScope;
+		return scopesScope;
 	}
 
 	/**
@@ -483,6 +483,10 @@ public class ScriptEngine implements IScriptSupport
 		Function f = cx.compileFunction(scope, declaration, sourceName, sp.getLineNumberOffset(), null);
 		if (!(sp instanceof ScriptCalculation))
 		{
+			if (sp.getScopeName() != null)
+			{
+				f.put("_scopename_", f, sp.getScopeName()); //$NON-NLS-1$				
+			}
 			f.put("_methodname_", f, sp.getDataProviderID()); //$NON-NLS-1$
 			f.put(
 				"_AllowToRunInFind_", f, Boolean.valueOf(sp.getDeclaration().indexOf("@AllowToRunInFind") != -1 || declaration.indexOf(".search") != -1 || declaration.indexOf("controller.loadAllRecords") != -1)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -665,9 +669,9 @@ public class ScriptEngine implements IScriptSupport
 	 */
 	public void reload()
 	{
-		globalScope = new GlobalScope(solutionScope, this, application);
-		solutionScope.setGlobalScope(globalScope);
-		globalScope.createVars();
+		scopesScope = new ScopesScope(solutionScope, this, application);
+		solutionScope.setScopesScope(scopesScope);
+		scopesScope.createScopes();
 	}
 
 	public boolean isAWTSuspendedRunningScript()

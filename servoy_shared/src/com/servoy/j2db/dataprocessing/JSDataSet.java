@@ -602,7 +602,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 	 * 
 	 * //assigns the dataset to a field and sets the display type to HTML_AREA
 	 * //assuming the html_field is a global text variable
-	 * globals.html_field = '<html>'+dataset.getAsHTML()+'</html>';
+	 * scopes.globals.html_field = '<html>'+dataset.getAsHTML()+'</html>';
 	 *
 	 * //Note: To display an HTML_AREA field as an HTML page, add HTML tags at the beginning '<html>' and at the end '</html>'. 
 	 *
@@ -888,7 +888,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 	 * //adds a specific cell property (to TD tag)
 	 * dataset.addHTMLProperty(2,4,'color','blue');
 	 * 
-	 * globals.html_field = '<html>'+dataset.getAsHTML()+'</html>';
+	 * scopes.globals.html_field = '<html>'+dataset.getAsHTML()+'</html>';
 	 *
 	 * @param row row number
 	 *

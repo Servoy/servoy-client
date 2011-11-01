@@ -32,6 +32,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.JSONWrapperMap;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.UUID;
+import com.servoy.j2db.util.Utils;
 
 /**
  * A normal Servoy form
@@ -459,7 +460,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public Iterator<Part> getParts()
 	{
-		return new SortedTypeIterator<Part>(getAllObjectsAsList(), IRepository.PARTS, partComparator);
+		return Utils.asSortedIterator(new TypeIterator<Part>(getAllObjectsAsList(), IRepository.PARTS), partComparator);
 	}
 
 	/**
@@ -729,14 +730,12 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public static Iterator<ScriptVariable> getScriptVariables(List<IPersist> childs, boolean sort)
 	{
+		Iterator<ScriptVariable> vars = new TypeIterator<ScriptVariable>(childs, IRepository.SCRIPTVARIABLES);
 		if (sort)
 		{
-			return new SortedTypeIterator<ScriptVariable>(childs, IRepository.SCRIPTVARIABLES, NameComparator.INSTANCE);
+			return Utils.asSortedIterator(vars, NameComparator.INSTANCE);
 		}
-		else
-		{
-			return new TypeIterator<ScriptVariable>(childs, IRepository.SCRIPTVARIABLES);
-		}
+		return vars;
 	}
 
 	/**
@@ -922,14 +921,12 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public Iterator<ScriptMethod> getScriptMethods(boolean sort)
 	{
-		if (!sort)
+		Iterator<ScriptMethod> methods = new TypeIterator<ScriptMethod>(getAllObjectsAsList(), IRepository.METHODS);
+		if (sort)
 		{
-			return getObjects(IRepository.METHODS);
+			return Utils.asSortedIterator(methods, NameComparator.INSTANCE);
 		}
-		else
-		{
-			return new SortedTypeIterator<ScriptMethod>(getAllObjectsAsList(), IRepository.METHODS, NameComparator.INSTANCE);
-		}
+		return methods;
 	}
 
 	/**

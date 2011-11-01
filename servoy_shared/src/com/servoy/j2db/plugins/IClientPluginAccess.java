@@ -294,7 +294,7 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 	 * 
 	 * @see com.servoy.j2db.scripting.FunctionDefinition
 	 * 
-	 * @param context This is the form name or null if the method is a global method.
+	 * @param context This is the form name or the scope name for a global method (when null 'scopes.globals' is assumed.
 	 * @param methodname The method name to be executed
 	 * @param arguments The arguments that the method will get.
 	 * @param async Execute the method asynchronously or not. If true this method will return immediately with null.

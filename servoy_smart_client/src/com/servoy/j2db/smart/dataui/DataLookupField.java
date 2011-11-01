@@ -66,11 +66,11 @@ import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.dataprocessing.SortColumn;
-import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.ui.ISupportVisibleChangeListener;
 import com.servoy.j2db.ui.IVisibleChangeListener;
 import com.servoy.j2db.ui.scripting.RuntimeDataLookupField;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.UIUtils;
 import com.servoy.j2db.util.Utils;
 
@@ -703,7 +703,7 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 			Object o = getValue();
 
 			int index = -1;
-			if (!dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+			if (!ScopesUtils.isVariableScope(dataProviderID))
 			{
 				index = dataProviderID.lastIndexOf('.');
 			}
@@ -775,7 +775,7 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 	public void setValidationEnabled(boolean b)
 	{
 		if (eventExecutor.getValidationEnabled() == b) return;
-		if (dataProviderID != null && dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX)) return;
+		if (dataProviderID != null && ScopesUtils.isVariableScope(dataProviderID)) return;
 
 		if (list != null && list.getFallbackValueList() != null)
 		{

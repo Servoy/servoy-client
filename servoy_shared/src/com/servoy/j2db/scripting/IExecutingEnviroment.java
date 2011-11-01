@@ -22,6 +22,7 @@ import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.ScriptVariable;
 
 /**
  * Interface to script executor
@@ -42,8 +43,10 @@ public interface IExecutingEnviroment
 	public final static String TOPLEVEL_SERVOY_EXCEPTION = "ServoyException"; //$NON-NLS-1$
 	public final static String TOPLEVEL_FORMS = "forms"; //$NON-NLS-1$
 	public final static String TOPLEVEL_JSUNIT = "jsunit"; //$NON-NLS-1$ // IMPORTANT: if you change this, you MUST change it also in Ident.java
+	public final static String TOPLEVEL_SCOPES = ScriptVariable.SCOPES;
 
-	public final static String[] TOPLEVEL_KEYWORDS = { TOPLEVEL_HISTORY, TOPLEVEL_PLUGINS, TOPLEVEL_APPLICATION, TOPLEVEL_UTILS, TOPLEVEL_SECURITY, TOPLEVEL_DATABASE_MANAGER, TOPLEVEL_I18N, TOPLEVEL_SERVOY_EXCEPTION, TOPLEVEL_FORMS, TOPLEVEL_JSUNIT };
+	public final static String[] TOPLEVEL_KEYWORDS = { TOPLEVEL_HISTORY, TOPLEVEL_PLUGINS, TOPLEVEL_APPLICATION, TOPLEVEL_UTILS, //
+	TOPLEVEL_SECURITY, TOPLEVEL_DATABASE_MANAGER, TOPLEVEL_I18N, TOPLEVEL_SERVOY_EXCEPTION, TOPLEVEL_FORMS, TOPLEVEL_JSUNIT, TOPLEVEL_SCOPES };
 
 	/**
 	 * FOR INTERNAL USE ONLY, DO NOT CALL. Get the top level scope
@@ -57,7 +60,7 @@ public interface IExecutingEnviroment
 	 * 
 	 * @exclude
 	 */
-	public GlobalScope getGlobalScope();
+	public ScopesScope getScopesScope();
 
 	/**
 	 * FOR INTERNAL USE ONLY, DO NOT CALL. Get the table scope for calculations and to set State as prototype

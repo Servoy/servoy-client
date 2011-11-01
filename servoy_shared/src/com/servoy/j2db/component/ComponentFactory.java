@@ -2368,7 +2368,7 @@ public class ComponentFactory
 		{
 			for (Class< ? > clz : ((IReturnedTypesProvider)beanInstance).getAllReturnedTypes())
 			{
-				ScriptObjectRegistry.getJavaMembers(clz, application.getScriptEngine().getGlobalScope());
+				ScriptObjectRegistry.getJavaMembers(clz, application.getScriptEngine().getScopesScope());
 			}
 		}
 	}

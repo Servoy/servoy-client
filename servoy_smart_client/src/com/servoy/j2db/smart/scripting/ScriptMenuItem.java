@@ -28,12 +28,13 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.FormController;
+import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
-import com.servoy.j2db.persistence.ScriptVariable;
+import com.servoy.j2db.scripting.FunctionDefinition;
 import com.servoy.j2db.scripting.LazyCompilationScope;
 import com.servoy.j2db.smart.J2DBClient;
 import com.servoy.j2db.util.Debug;
@@ -47,18 +48,18 @@ public class ScriptMenuItem extends JMenuItem implements ActionListener
 	private static final long serialVersionUID = 1L;
 
 	private final IApplication application;
-	private final FormController formController; //is global method when null
+	private final FunctionDefinition functionDefinition;
 
 	/**
 	 * Constructor for ScriptMenuItem.
 	 * 
 	 * @param text
 	 */
-	public ScriptMenuItem(IApplication application, FormController formController, String text, int autoSortcut)
+	public ScriptMenuItem(IApplication application, FunctionDefinition functionDefinition, String text, int autoSortcut)
 	{
 		super(text);
 		this.application = application;
-		this.formController = formController;
+		this.functionDefinition = functionDefinition;
 		if (autoSortcut >= 0 && autoSortcut <= 9)
 		{
 			setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_0 + autoSortcut, J2DBClient.menuShortcutKeyMask));
@@ -71,49 +72,56 @@ public class ScriptMenuItem extends JMenuItem implements ActionListener
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
-		final String name = getText();
-		Scriptable sc;
-		Object fn;
-		if (formController == null)
+		application.invokeLater(new Runnable()
 		{
-			sc = application.getScriptEngine().getGlobalScope();
-			fn = ((LazyCompilationScope)sc).getFunctionByName(name);
-		}
-		else
-		{
-			sc = formController.getFormScope();
-			fn = ((LazyCompilationScope)sc).getFunctionByName(name);
-
-			if (fn == null && formController.getFormModel() != null)
+			public void run()
 			{
-				// try foundset method
-				ScriptMethod scriptMethod;
-				try
+				Scriptable sc = null;
+				Object fn = null;
+				String scopeName = functionDefinition.getScopeName();
+				FormController formController = null;
+				if (scopeName != null)
 				{
-					scriptMethod = AbstractBase.selectByName(
-						application.getFlattenedSolution().getFoundsetMethods(formController.getTable(), false).iterator(), name);
+					// global method
+					sc = application.getScriptEngine().getScopesScope().getGlobalScope(scopeName);
+					fn = sc == null ? null : ((LazyCompilationScope)sc).getFunctionByName(functionDefinition.getMethodName());
 				}
-				catch (RepositoryException ex)
+				else
 				{
-					Debug.error(ex);
-					return;
+					// form/foundset method
+					formController = ((FormManager)application.getFormManager()).leaseFormPanel(functionDefinition.getContextName());
+					if (formController != null)
+					{
+						sc = formController.getFormScope();
+						fn = ((LazyCompilationScope)sc).getFunctionByName(functionDefinition.getMethodName());
+						if (fn == null && formController.getFormModel() != null)
+						{
+							// try foundset method
+							ScriptMethod scriptMethod;
+							try
+							{
+								scriptMethod = AbstractBase.selectByName(
+									application.getFlattenedSolution().getFoundsetMethods(formController.getTable(), false).iterator(),
+									functionDefinition.getMethodName());
+							}
+							catch (RepositoryException ex)
+							{
+								Debug.error(ex);
+								return;
+							}
+							if (scriptMethod != null)
+							{
+								sc = formController.getFormModel();
+								fn = sc.getPrototype().get(scriptMethod.getName(), sc);
+							}
+						}
+					}
 				}
-				if (scriptMethod != null)
-				{
-					sc = formController.getFormModel();
-					fn = sc.getPrototype().get(scriptMethod.getName(), sc);
-				}
-			}
-		}
 
-		if (fn instanceof Function)
-		{
-			final Function function = (Function)fn;
-			final Scriptable scope = sc;
-			application.invokeLater(new Runnable()
-			{
-				public void run()
+				if (fn instanceof Function)
 				{
+					final Function function = (Function)fn;
+					final Scriptable scope = sc;
 					try
 					{
 						if (formController != null)
@@ -126,13 +134,9 @@ public class ScriptMenuItem extends JMenuItem implements ActionListener
 							FormController fc = (FormController)application.getFormManager().getCurrentForm();
 							if (fc != null)
 							{
-								//there for we need to add the prefix to pass though formcontroller
-								String globalName = name;
-								if (!globalName.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
-								{
-									globalName = ScriptVariable.GLOBAL_DOT_PREFIX + globalName;
-								}
-								fc.executeFunction(globalName, null, true, null, false, null);
+								// there for we need to add the prefix to pass through formcontroller
+								fc.executeFunction(functionDefinition.getContextName() + '.' + functionDefinition.getMethodName(), null, true, null, false,
+									null);
 							}
 							else
 							{
@@ -143,10 +147,11 @@ public class ScriptMenuItem extends JMenuItem implements ActionListener
 					}
 					catch (Exception e1)
 					{
-						application.reportError(Messages.getString("servoy.formPanel.error.executingMethod", new Object[] { name }), e1); //$NON-NLS-1$ 
+						application.reportError(
+							Messages.getString("servoy.formPanel.error.executingMethod", new Object[] { functionDefinition.getMethodName() }), e1); //$NON-NLS-1$ 
 					}
 				}
-			});
-		}
+			}
+		});
 	}
 }

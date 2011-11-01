@@ -33,8 +33,8 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptNameValidator;
-import com.servoy.j2db.persistence.SortedTypeIterator;
 import com.servoy.j2db.persistence.TableNode;
+import com.servoy.j2db.persistence.TypeIterator;
 import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.scripting.TableScope;
 
@@ -69,7 +69,7 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 	public <T extends IScriptProvider> T getScriptCopy(T script) throws RepositoryException
 	{
 		TableNode tableNode = application.getFlattenedSolution().getSolutionCopyTableNode(dataSource);
-		T sc = (T)AbstractBase.selectByName(SortedTypeIterator.createFilteredIterator(tableNode.getAllObjects(), script.getTypeID()), script.getName());
+		T sc = AbstractBase.selectByName(new TypeIterator<T>(tableNode.getAllObjects(), script.getTypeID()), script.getName());
 		if (sc == null)
 		{
 			sc = (T)((ICloneable)script).clonePersist();

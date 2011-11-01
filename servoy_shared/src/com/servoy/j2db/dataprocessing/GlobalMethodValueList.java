@@ -21,10 +21,11 @@ import java.sql.Types;
 import org.mozilla.javascript.Function;
 
 import com.servoy.j2db.IServiceProvider;
-import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.scripting.GlobalScope;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SafeArrayList;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -34,7 +35,7 @@ import com.servoy.j2db.util.Utils;
 public class GlobalMethodValueList extends CustomValueList
 {
 
-	private final String globalFunction;
+	private final Pair<String, String> globalFunction;
 	private final ValueList vl;
 	private IRecordInternal record;
 	private String displayString;
@@ -50,22 +51,23 @@ public class GlobalMethodValueList extends CustomValueList
 		super(application, vl.getName());
 		this.vl = vl;
 		setType(Types.OTHER);
-		String function = vl.getCustomValues();
-		if (vl.getValueListType() != ValueList.GLOBAL_METHOD_VALUES || !function.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+		Pair<String, String> scope = ScopesUtils.getVariableScope(vl.getCustomValues());
+		if (vl.getValueListType() != ValueList.GLOBAL_METHOD_VALUES || scope == null || scope.getLeft() == null)
 		{
-			throw new RuntimeException("GlobalMethodValueList couldnt be made for: " + function); //$NON-NLS-1$
+			throw new RuntimeException("GlobalMethodValueList couldnt be made for: " + ScopesUtils.getScopeString(scope)); //$NON-NLS-1$
 		}
 		if (vl.getAddEmptyValue() == ValueList.EMPTY_VALUE_ALWAYS)
 		{
 			allowEmptySelection = true;
 		}
-		globalFunction = function.substring(ScriptVariable.GLOBAL_DOT_PREFIX.length());
+		globalFunction = scope;
 		if (application.getScriptEngine() != null)
 		{
-			Function func = application.getScriptEngine().getGlobalScope().getFunctionByName(globalFunction);
+			GlobalScope gs = application.getScriptEngine().getScopesScope().getGlobalScope(globalFunction.getLeft());
+			Function func = gs == null ? null : gs.getFunctionByName(globalFunction.getRight());
 			if (func == null)
 			{
-				throw new RuntimeException("global Function not found for: " + function); //$NON-NLS-1$
+				throw new RuntimeException("global Function not found for: " + ScopesUtils.getScopeString(scope)); //$NON-NLS-1$
 			}
 		}
 	}
@@ -98,86 +100,89 @@ public class GlobalMethodValueList extends CustomValueList
 				this.record = state;
 				super.fill(state);
 
-				GlobalScope globalScope = application.getScriptEngine().getGlobalScope();
-				Function function = application.getScriptEngine().getGlobalScope().getFunctionByName(globalFunction);
-				try
+				GlobalScope globalScope = application.getScriptEngine().getScopesScope().getGlobalScope(globalFunction.getLeft());
+				if (globalScope != null)
 				{
-					if (real == null || "".equals(real)) //$NON-NLS-1$
+					Function function = globalScope.getFunctionByName(globalFunction.getRight());
+					try
 					{
+						if (real == null || "".equals(real)) //$NON-NLS-1$
+						{
+							application.invokeAndWait(new Runnable()
+							{
+								public void run()
+								{
+									realValues = new SafeArrayList<Object>();
+									removeAllElements();
+								}
+							});
+						}
+						else if (realValues == null)
+						{
+							realValues = new SafeArrayList<Object>();
+						}
+
+
+						Object[] args = null;
+						if (display != null && !"".equals(display)) //$NON-NLS-1$
+						{
+							args = new Object[] { display, null, state, vl.getName(), Boolean.valueOf(state instanceof FindState) };
+						}
+						else if (real != null && !"".equals(real)) //$NON-NLS-1$
+						{
+							args = new Object[] { null, real, state, vl.getName(), Boolean.valueOf(state instanceof FindState) };
+						}
+						else
+						{
+							args = new Object[] { null, null, state, vl.getName(), Boolean.valueOf(state instanceof FindState) };
+						}
+
+						final Object retValue = application.getScriptEngine().executeFunction(function, globalScope, globalScope, args, false, true);
+
 						application.invokeAndWait(new Runnable()
 						{
 							public void run()
 							{
-								realValues = new SafeArrayList<Object>();
-								removeAllElements();
+								//add empty row
+								if (vl.getAddEmptyValue() == ValueList.EMPTY_VALUE_ALWAYS)
+								{
+									addElement(""); //$NON-NLS-1$
+									realValues.add(null);
+								}
+								if (retValue instanceof IDataSet && ((IDataSet)retValue).getRowCount() > 0)
+								{
+									startBundlingEvents();
+									try
+									{
+										hasRealValue = false;
+										IDataSet dataSet = (IDataSet)retValue;
+										for (int i = 0; i < dataSet.getRowCount(); i++)
+										{
+											Object[] row = dataSet.getRow(i);
+											if (row.length == 1)
+											{
+												realValues.add(CustomValueList.handleRowData(vl, false, 1, row, application));
+											}
+											else
+											{
+												hasRealValue = true;
+												realValues.add(CustomValueList.handleRowData(vl, false, 2, row, application));
+											}
+											addElement(CustomValueList.handleRowData(vl, false, 1, row, application));
+										}
+									}
+									finally
+									{
+										stopBundlingEvents();
+									}
+								}
 							}
 						});
 					}
-					else if (realValues == null)
+					catch (Exception e)
 					{
-						realValues = new SafeArrayList<Object>();
+						application.reportError("error getting data from global method valuelist", e); //$NON-NLS-1$
 					}
-
-
-					Object[] args = null;
-					if (display != null && !"".equals(display)) //$NON-NLS-1$
-					{
-						args = new Object[] { display, null, state, vl.getName(), Boolean.valueOf(state instanceof FindState) };
-					}
-					else if (real != null && !"".equals(real)) //$NON-NLS-1$
-					{
-						args = new Object[] { null, real, state, vl.getName(), Boolean.valueOf(state instanceof FindState) };
-					}
-					else
-					{
-						args = new Object[] { null, null, state, vl.getName(), Boolean.valueOf(state instanceof FindState) };
-					}
-
-					final Object retValue = application.getScriptEngine().executeFunction(function, globalScope, globalScope, args, false, true);
-
-					application.invokeAndWait(new Runnable()
-					{
-						public void run()
-						{
-							//add empty row
-							if (vl.getAddEmptyValue() == ValueList.EMPTY_VALUE_ALWAYS)
-							{
-								addElement(""); //$NON-NLS-1$
-								realValues.add(null);
-							}
-							if (retValue instanceof IDataSet && ((IDataSet)retValue).getRowCount() > 0)
-							{
-								startBundlingEvents();
-								try
-								{
-									hasRealValue = false;
-									IDataSet dataSet = (IDataSet)retValue;
-									for (int i = 0; i < dataSet.getRowCount(); i++)
-									{
-										Object[] row = dataSet.getRow(i);
-										if (row.length == 1)
-										{
-											realValues.add(CustomValueList.handleRowData(vl, false, 1, row, application));
-										}
-										else
-										{
-											hasRealValue = true;
-											realValues.add(CustomValueList.handleRowData(vl, false, 2, row, application));
-										}
-										addElement(CustomValueList.handleRowData(vl, false, 1, row, application));
-									}
-								}
-								finally
-								{
-									stopBundlingEvents();
-								}
-							}
-						}
-					});
-				}
-				catch (Exception e)
-				{
-					application.reportError("error getting data from global method valuelist", e); //$NON-NLS-1$
 				}
 			}
 		}

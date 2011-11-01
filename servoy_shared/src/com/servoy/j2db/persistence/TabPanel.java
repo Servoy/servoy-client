@@ -21,6 +21,7 @@ import java.util.Iterator;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.UUID;
+import com.servoy.j2db.util.Utils;
 
 /**
  * A normal tabpanel
@@ -73,7 +74,7 @@ public class TabPanel extends BaseComponent implements ISupportChilds, ISupportT
 	 */
 	public Iterator<IPersist> getTabs()
 	{
-		return new SortedTypeIterator<IPersist>(getAllObjectsAsList(), IRepository.TABS, PositionComparator.XY_PERSIST_COMPARATOR);
+		return Utils.asSortedIterator(new TypeIterator<IPersist>(getAllObjectsAsList(), IRepository.TABS), PositionComparator.XY_PERSIST_COMPARATOR);
 	}
 
 	public Tab createNewTab(String text, String relationName, Form f) throws RepositoryException

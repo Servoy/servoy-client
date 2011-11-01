@@ -21,7 +21,7 @@ package com.servoy.j2db.persistence;
  * Interface to handle script object in a simular way
  * @author jblok
  */
-public interface IScriptProvider extends IPersist, ISupportName
+public interface IScriptProvider extends IPersist, ISupportName, ISupportScope
 {
 	public static final SerializableRuntimeProperty<String> FILENAME = new SerializableRuntimeProperty<String>()
 	{

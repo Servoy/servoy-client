@@ -34,12 +34,12 @@ import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RelationItem;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptNameValidator;
-import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.ISQLJoin;
 import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.UUID;
 
 /**
@@ -158,7 +158,7 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject
 		try
 		{
 			IDataProvider primaryDataProvider = null;
-			if (dataprovider.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+			if (ScopesUtils.isVariableScope(dataprovider))
 			{
 				primaryDataProvider = application.getFlattenedSolution().getGlobalDataProvider(dataprovider);
 			}

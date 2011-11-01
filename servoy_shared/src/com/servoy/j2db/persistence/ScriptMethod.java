@@ -17,6 +17,7 @@
 package com.servoy.j2db.persistence;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.UUID;
 
 
@@ -55,7 +56,7 @@ public class ScriptMethod extends AbstractScriptProvider implements IPersistClon
 	{
 		if (getParent() instanceof Solution)
 		{
-			return ScriptVariable.GLOBAL_DOT_PREFIX + getName();
+			return ScopesUtils.getScopeString(this);
 		}
 		return getName();
 	}

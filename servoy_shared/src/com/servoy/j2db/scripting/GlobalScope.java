@@ -25,10 +25,14 @@ import org.mozilla.javascript.NativeJavaArray;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.persistence.IScriptProvider;
+import com.servoy.j2db.persistence.ISupportScriptProviders;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.ScopesUtils;
 
 /**
  * @author jcompagner
@@ -37,21 +41,43 @@ import com.servoy.j2db.util.Debug;
 public class GlobalScope extends ScriptVariableScope
 {
 	private volatile IServiceProvider application;
+	private final String scopeName;
 
-	public GlobalScope(Scriptable parent, IExecutingEnviroment scriptEngine, IServiceProvider application)
+	public GlobalScope(Scriptable parent, final String scopeName, IExecutingEnviroment scriptEngine, final IServiceProvider application)
 	{
-		super(parent, scriptEngine, application.getFlattenedSolution());
+		super(parent, scriptEngine, new ISupportScriptProviders()
+		{
+			public Iterator< ? extends IScriptProvider> getScriptMethods(boolean sort)
+			{
+				return application.getFlattenedSolution().getScriptMethods(scopeName, sort);
+			}
+
+			public Iterator<ScriptVariable> getScriptVariables(boolean sort)
+			{
+				return application.getFlattenedSolution().getScriptVariables(scopeName, sort);
+			}
+
+			public ScriptMethod getScriptMethod(int methodId)
+			{
+				return null; // is not used in lazy compilation scope 
+			}
+		});
+		this.scopeName = scopeName;
 		this.application = application;
+	}
+
+	public String getScopeName()
+	{
+		return scopeName;
 	}
 
 	public void createVars()
 	{
 		//put all vars in scope
-		Iterator<ScriptVariable> it = this.application.getFlattenedSolution().getScriptVariables(false);
+		Iterator<ScriptVariable> it = getScriptLookup().getScriptVariables(false);
 		while (it.hasNext())
 		{
-			ScriptVariable var = it.next();
-			put(var);
+			put(it.next());
 		}
 	}
 
@@ -59,6 +85,18 @@ public class GlobalScope extends ScriptVariableScope
 	{
 		createVars();
 		createScriptProviders();
+	}
+
+	@Override
+	public void put(ScriptVariable var, boolean overwriteInitialValue)
+	{
+		Pair<String, String> scope = ScopesUtils.getVariableScope(var.getDataProviderID());
+		if (scope.getLeft() != null && !scope.getLeft().equals(scopeName))
+		{
+			// this global does not belong here!
+			throw new RuntimeException("ScriptVariable was set in global scope '" + scopeName + "'");
+		}
+		putScriptVariable(scope.getRight(), var, overwriteInitialValue);
 	}
 
 	/*
@@ -75,6 +113,7 @@ public class GlobalScope extends ScriptVariableScope
 			}
 			return Scriptable.NOT_FOUND;
 		}
+
 		if ("allrelations".equals(name)) //$NON-NLS-1$
 		{
 			List<String> al = new ArrayList<String>();
@@ -92,13 +131,14 @@ public class GlobalScope extends ScriptVariableScope
 			}
 			return new NativeJavaArray(this, al.toArray(new String[al.size()]));
 		}
-		else if ("allmethods".equals(name)) //$NON-NLS-1$
+
+		if ("allmethods".equals(name)) //$NON-NLS-1$
 		{
 			List<String> al = new ArrayList<String>();
 
 			try
 			{
-				Iterator<ScriptMethod> iterator = application.getFlattenedSolution().getScriptMethods(true);
+				Iterator< ? extends IScriptProvider> iterator = getScriptLookup().getScriptMethods(true);
 				while (iterator.hasNext())
 				{
 					al.add(iterator.next().getName());
@@ -110,13 +150,14 @@ public class GlobalScope extends ScriptVariableScope
 			}
 			return new NativeJavaArray(this, al.toArray(new String[al.size()]));
 		}
-		else if ("allvariables".equals(name)) //$NON-NLS-1$
+
+		if ("allvariables".equals(name)) //$NON-NLS-1$
 		{
 			List<String> al = new ArrayList<String>();
 
 			try
 			{
-				Iterator<ScriptVariable> iterator = application.getFlattenedSolution().getScriptVariables(true);
+				Iterator<ScriptVariable> iterator = getScriptLookup().getScriptVariables(true);
 				while (iterator.hasNext())
 				{
 					al.add(iterator.next().getName());
@@ -128,6 +169,7 @@ public class GlobalScope extends ScriptVariableScope
 			}
 			return new NativeJavaArray(this, al.toArray(new String[al.size()]));
 		}
+
 		Object o = super.get(name, start);
 		if (o == Scriptable.NOT_FOUND)
 		{
@@ -152,7 +194,7 @@ public class GlobalScope extends ScriptVariableScope
 	@Override
 	protected String getDataproviderEventName(String name)
 	{
-		return ScriptVariable.GLOBAL_DOT_PREFIX + name; // TODO Auto-generated method stub
+		return ScopesUtils.getScopeString(scopeName, name);
 	}
 
 	@Override

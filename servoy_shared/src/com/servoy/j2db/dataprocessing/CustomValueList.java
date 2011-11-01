@@ -28,10 +28,10 @@ import java.util.StringTokenizer;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
-import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SafeArrayList;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.model.OptimizedDefaultListModel;
 
@@ -265,11 +265,10 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 							if (!"^".equals(str[1]) && str[1] != null)
 							{
 								String sRealValue = str[1];
-								if (sRealValue.toLowerCase().startsWith("%%" + ScriptVariable.GLOBAL_DOT_PREFIX) && sRealValue.endsWith("%%")) //$NON-NLS-1$//$NON-NLS-2$
+								if (sRealValue.startsWith("%%") && ScopesUtils.isVariableScope(sRealValue.substring(2)) && sRealValue.endsWith("%%")) //$NON-NLS-1$//$NON-NLS-2$
 								{
-									sRealValue = sRealValue.substring(2, sRealValue.length() - 2);
-									IGlobalValueEntry gsp = application.getFoundSetManager().getGlobalScopeProvider();
-									realValue = gsp.getDataProviderValue(sRealValue);
+									realValue = application.getFoundSetManager().getScopesScopeProvider().getDataProviderValue(
+										sRealValue.substring(2, sRealValue.length() - 2));
 								}
 								else
 								{

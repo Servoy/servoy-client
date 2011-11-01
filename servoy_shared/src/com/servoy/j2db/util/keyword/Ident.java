@@ -107,6 +107,7 @@ public class Ident
 	"elements", //  
 	"length", //  
 	"globals", //  
+	"scopes", //  
 	"plugins", //  
 	"forms", //  
 	"foundset", //  

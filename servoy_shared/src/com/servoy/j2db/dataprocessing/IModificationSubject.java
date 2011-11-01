@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2011 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -14,34 +14,23 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
-package com.servoy.j2db.scripting;
 
-
-import org.mozilla.javascript.Scriptable;
-
-import com.servoy.j2db.persistence.ScriptVariable;
+package com.servoy.j2db.dataprocessing;
 
 /**
- * @author jcompagner
+ * Interface for Subjects to which {@link IModificationListener} can (de)register for modifications.
+ * 
+ * @author rgansevles
+ *
+ * @since 6.1
  */
-public class SolutionScope extends DefaultScope
+public interface IModificationSubject
 {
-	private ScopesScope ss;
+	void addModificationListener(IModificationListener listener);
 
-	public SolutionScope(Scriptable parent)
-	{
-		super(parent);
-	}
+	void removeModificationListener(IModificationListener listener);
 
-	public ScopesScope getScopesScope()
-	{
-		return ss;
-	}
+	boolean hasListeners();
 
-	public void setScopesScope(ScopesScope ss)
-	{
-		this.ss = ss;
-		put(ScriptVariable.SCOPES, this, ss);
-		ss.setParentScope(this);
-	}
+	void fireModificationEvent(ModificationEvent event);
 }

@@ -67,9 +67,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 {
 	public static ScriptMethod getScriptMethod(Function function, FlattenedSolution fs)
 	{
-		String name = (String)function.get("_methodname_", function); //$NON-NLS-1$
-		ScriptMethod scriptMethod = fs.getScriptMethod(name);
-		return scriptMethod;
+		return fs.getScriptMethod((String)function.get("_scopename_", function), (String)function.get("_methodname_", function));
 	}
 
 	/**
@@ -539,7 +537,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 *	//choose the dataprovider or jsvariable you want for the Text Field
 	 * 	var x = null;
 	 * 	//global jsvariable as the dataprovider 
-	 *  //x = solutionModel.newGlobalVariable('myGlobal',JSVariable.TEXT);
+	 *  //x = solutionModel.newGlobalVariable('globals', 'myGlobal',JSVariable.TEXT);
 	 * 	//x.defaultValue = "'Text from a global variable'";
 	 * 	//or a form jsvariable as the dataprovider 
 	 * 	//x = form.newVariable('myFormVar',JSVariable.TEXT);
@@ -567,7 +565,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @sample
 	 * 	var form = solutionModel.newForm('newForm1','myServer','myTable',null,true,800,600);
-	 * 	var globalVar = solutionModel.newGlobalVariable('myGlobal',JSVariable.TEXT);
+	 * 	var globalVar = solutionModel.newGlobalVariable('globals', 'myGlobal',JSVariable.TEXT);
 	 * 	globalVar.defaultValue = "'Type your text in here'";
 	 * 	var textArea = form.newTextArea(globalVar,100,100,300,150);
 	 * 	forms['newForm1'].controller.show();
@@ -808,7 +806,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @sample
 	 * 	var form = solutionModel.newForm('newForm1', 'myServer', 'myTable', null, true, 800, 600);
-	 *  var pass = form.newPassword(globals.aVariable, 100, 100, 70, 30);
+	 *  var pass = form.newPassword(scopes.globals.aVariable, 100, 100, 70, 30);
 	 *  forms['newForm1'].controller.show();
 	 * 
 	 * @param dataprovidername/jsvariable the specified dataprovider name/JSVariable of the JSField object
@@ -1641,7 +1639,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * // get the start offset of the body
 	 * var height = form.getPartYOffset(JSPart.BODY);
 	 * // place a new button based on the start offset.
-	 * form.newButton('mybutton',50,50+height,80,20,solutionModel.getGlobalMethod('test'));
+	 * form.newButton('mybutton',50,50+height,80,20,solutionModel.getGlobalMethod('globals', 'test'));
 	 *
 	 * @param type The type of the part whose Y offset will be returned.
 	 *
@@ -1663,7 +1661,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * // get the start offset of the body
 	 * var height = form.getPartYOffset(JSPart.BODY);
 	 * // place a new button based on the start offset.
-	 * form.newButton('mybutton',50,50+height,80,20,solutionModel.getGlobalMethod('test'));
+	 * form.newButton('mybutton',50,50+height,80,20,solutionModel.getGlobalMethod('globals', 'test'));
 	 *
 	 * @param type The type of the part whose Y offset will be returned.
 	 *
@@ -1902,7 +1900,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 *
 	 * @sample 
 	 * var form = solutionModel.newForm('newFormX','myServer','myTable',null,true,800,600);
-	 * var jsfield = form.newField(globals.myGlobalVariable,JSField.TEXT_FIELD,100,300,200,50);
+	 * var jsfield = form.newField(scopes.globals.myGlobalVariable,JSField.TEXT_FIELD,100,300,200,50);
 	 * jsfield.name = 'jsf';
 	 * var jsmethod = form.newMethod("function removeMe(event) { var form = solutionModel.getForm('newFormX');\n if (form.removeComponent('jsf') == true) application.output('Field has been removed ok'); else application.output('Field could not be deleted'); forms['newFormX'].controller.recreateUI();}");
 	 * var removerButton = form.newButton('Click here to remove the field',450,500,250,50,jsmethod);
@@ -2277,7 +2275,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * jslabel.name = 'jsl';
 	 * jslabel.transparent = false;
 	 * jslabel.background = 'green';
-	 * var jsfield = form.newField('globals.myGlobalVariable',JSField.TEXT_FIELD,100,300,200,50);
+	 * var jsfield = form.newField('scopes.globals.myGlobalVariable',JSField.TEXT_FIELD,100,300,200,50);
 	 * jsfield.name = 'jsf';
 	 * var relation = solutionModel.newRelation('parentToChild','myServer','parentTable','myServer','childTable',JSRelation.INNER_JOIN);
 	 * relation.newRelationItem('parent_table_id', '=', 'child_table_id');
@@ -2594,7 +2592,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * @sample
 	 * var form = solutionModel.newForm('myForm','myServer','myTable',null,true,800,600);
 	 * //assign the global method as a string. Or use a calculation name as the string.
-	 * form.rowBGColorCalculation = "globals.calculationDataProvider";
+	 * form.rowBGColorCalculation = "scopes.globals.calculationDataProvider";
 	 * 
 	 * @deprecated
 	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#js_getOnRender()

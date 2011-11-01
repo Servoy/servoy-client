@@ -120,7 +120,6 @@ import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabSeqComparator;
 import com.servoy.j2db.persistence.Table;
@@ -152,6 +151,7 @@ import com.servoy.j2db.util.EnablePanel;
 import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.UIUtils;
 
@@ -594,7 +594,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 						{
 							dataProviderID = ((IDisplayData)editor).getDataProviderID();
 						}
-						if (cellview instanceof Portal && dataProviderID != null && !dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+						if (cellview instanceof Portal && dataProviderID != null && !ScopesUtils.isVariableScope(dataProviderID))
 						{
 							if (dataProviderID.startsWith(((Portal)cellview).getRelationName() + '.'))
 							{

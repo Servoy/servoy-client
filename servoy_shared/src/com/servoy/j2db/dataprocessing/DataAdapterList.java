@@ -44,7 +44,6 @@ import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.scripting.FormScope;
@@ -52,6 +51,7 @@ import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
+import com.servoy.j2db.scripting.ScopesScope;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
@@ -59,6 +59,8 @@ import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDestroyable;
 import com.servoy.j2db.util.ITagResolver;
+import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.ScopesUtils;
 
 /**
  * This class encapsulates all the dataproviders for a form part (mainly the body) ,it does the creation and setup of dataAdapters<br>
@@ -144,7 +146,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 				String dataProviderID = display.getDataProviderID();
 				if (dataProviderID != null)
 				{
-					int idx = dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX) ? -1 : dataProviderID.lastIndexOf('.');
+					int idx = ScopesUtils.isVariableScope(dataProviderID) ? -1 : dataProviderID.lastIndexOf('.');
 					if (idx != -1) //handle related fields
 					{
 						Relation[] relations = application.getFlattenedSolution().getRelationSequence(dataProviderID.substring(0, idx));
@@ -210,7 +212,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 				if (ci != null && ci.getAutoEnterType() == ColumnInfo.LOOKUP_VALUE_AUTO_ENTER)
 				{
 					String lookup = ci.getLookupValue();
-					if (lookup != null && lookup.length() != 0 && !lookup.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+					if (lookup != null && lookup.length() != 0 && !ScopesUtils.isVariableScope(lookup))
 					{
 						int index = lookup.lastIndexOf('.');
 						if (index != -1)
@@ -238,7 +240,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 											for (IDataProvider dp : dps)
 											{
 												String dataProviderID;
-												if (dp.getDataProviderID().startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+												if (ScopesUtils.isVariableScope(dp.getDataProviderID()))
 												{
 													dataProviderID = dp.getDataProviderID();
 												}
@@ -287,8 +289,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 		//add listener for var changes
 		if (formController != null) // can happen for a design component
 		{
-			formController.getFormScope().addModificationListener(this);
-			application.getScriptEngine().getGlobalScope().addModificationListener(this);
+			formController.getFormScope().getModificationSubject().addModificationListener(this);
+			application.getScriptEngine().getScopesScope().getModificationSubject().addModificationListener(this);
 		}
 	}
 
@@ -315,7 +317,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 					prefix.append('.');
 				}
 				String dataProviderID;
-				if (dp.getDataProviderID().startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+				if (ScopesUtils.isVariableScope(dp.getDataProviderID()))
 				{
 					dataProviderID = dp.getDataProviderID();
 				}
@@ -707,10 +709,10 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 			SolutionScope ss = er.getSolutionScope();
 			if (ss != null)
 			{
-				GlobalScope gs = ss.getGlobalScope();
+				ScopesScope gs = ss.getScopesScope();
 				if (gs != null)
 				{
-					gs.removeModificationListener(this);
+					gs.getModificationSubject().removeModificationListener(this);
 				}
 			}
 		}
@@ -810,13 +812,13 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 		if (dataProviderID == null) return null;
 
 		Object value = null;
-		if (dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+		Pair<String, String> scope = ScopesUtils.getVariableScope(dataProviderID);
+		if (scope.getLeft() != null)
 		{
 			try
 			{
-				String restName = dataProviderID.substring(ScriptVariable.GLOBAL_DOT_PREFIX.length());
-				GlobalScope gs = fs.getFormController().getApplication().getScriptEngine().getSolutionScope().getGlobalScope();
-				value = gs.get(restName);
+				GlobalScope gs = fs.getFormController().getApplication().getScriptEngine().getScopesScope().getGlobalScope(scope.getLeft());
+				value = gs == null ? null : gs.get(scope.getRight());
 			}
 			catch (Exception e)
 			{
@@ -838,21 +840,18 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 	{
 		if (dataProviderID == null) return null;
 
-		if (dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+		Pair<String, String> scope = ScopesUtils.getVariableScope(dataProviderID);
+		if (scope.getLeft() != null)
 		{
 			try
 			{
 				if (record == null)
 				{
-					String restName = dataProviderID.substring(ScriptVariable.GLOBAL_DOT_PREFIX.length());
-					GlobalScope gs = fs.getFormController().getApplication().getScriptEngine().getSolutionScope().getGlobalScope();
-					return gs.put(restName, obj);
+					return fs.getFormController().getApplication().getScriptEngine().getScopesScope().getOrCreateGlobalScope(scope.getLeft()).put(
+						scope.getRight(), obj);
 				}
-				else
-				{
-					//does an additional fire in foundset!
-					return record.getParentFoundSet().setDataProviderValue(dataProviderID, obj);
-				}
+				//does an additional fire in foundset!
+				return record.getParentFoundSet().setDataProviderValue(dataProviderID, obj);
 			}
 			catch (Exception e)
 			{

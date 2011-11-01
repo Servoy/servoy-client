@@ -13,14 +13,14 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import com.servoy.j2db.persistence.ScriptVariable;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.Utils;
 
 
@@ -52,7 +52,7 @@ public class DataAdapter implements IDataAdapter
 		if (state != null && !(state instanceof PrototypeState || state instanceof FindState))
 		{
 			// TODO: test here if the dataprovider == relation or a calculation before adding it to the thread pool?
-			if (dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+			if (ScopesUtils.isVariableScope(dataProviderID))
 			{
 				oldVal = state.getValue(dataProviderID);
 			}

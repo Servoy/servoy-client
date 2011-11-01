@@ -1479,7 +1479,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		}
 		if (first)
 		{
-			fsm.getApplication().getScriptEngine().getSolutionScope().getGlobalScope().addModificationListener(this);
+			fsm.getApplication().getScriptEngine().getScopesScope().getModificationSubject().addModificationListener(this);
 		}
 	}
 

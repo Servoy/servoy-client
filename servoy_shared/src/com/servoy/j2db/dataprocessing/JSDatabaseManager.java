@@ -3032,7 +3032,7 @@ public class JSDatabaseManager
 	 */
 	public QBSelect js_createSelect(String dataSource) throws ServoyException
 	{
-		QBFactory factory = new QBFactory(application.getFoundSetManager(), application.getFoundSetManager().getGlobalScopeProvider(),
+		QBFactory factory = new QBFactory(application.getFoundSetManager(), application.getFoundSetManager().getScopesScopeProvider(),
 			application.getFlattenedSolution());
 		factory.setScriptableParent(application.getScriptEngine().getSolutionScope());
 		return factory.createSelect(dataSource);

@@ -66,6 +66,7 @@ import com.servoy.j2db.util.EnablePanel;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.ITagResolver;
+import com.servoy.j2db.util.ScopesUtils;
 
 /**
  * Runtime swing calendar field
@@ -399,7 +400,7 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 	public void setValidationEnabled(boolean b)
 	{
 		enclosedComponent.setValidationEnabled(b);
-		if (dataProviderID != null && dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX)) return;
+		if (dataProviderID != null && ScopesUtils.isVariableScope(dataProviderID)) return;
 		if (b)
 		{
 			showCal.setEnabled(!readOnly && isEnabled());

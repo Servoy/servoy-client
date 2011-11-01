@@ -13,91 +13,53 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
+
+import com.servoy.j2db.util.FilteredIterator;
+import com.servoy.j2db.util.IFilter;
 
 /**
  * Enum for one type of Repository types
  * 
  * @author jblok
  */
-public class TypeIterator<T extends IPersist> implements Iterator<T>
+public class TypeIterator<T extends IPersist> extends FilteredIterator<T>
 {
-/*
- * _____________________________________________________________ Declaration of attributes
- */
-	private final List<IPersist> internalList;
-	private int type = 0;
-	private int index = 0;
 
-/*
- * _____________________________________________________________ Declaration and definition of constructors
- */
-	public TypeIterator(List<IPersist> list, int type)
+	public TypeIterator(List<IPersist> list, final int type)
 	{
-		internalList = list;
-		this.type = type;
-		prepareNext();//prepare first
+		this(list.iterator(), type, null);
 	}
 
-/*
- * _____________________________________________________________ The methods below override methods from superclass <classname>
- */
-
-
-/*
- * _____________________________________________________________ The methods below belong to interface <interfacename>
- */
-
-	public boolean hasNext()
+	public TypeIterator(List<IPersist> list, final int type, final IFilter<T> extraFilter)
 	{
-		return (index != -1);
+		this(list.iterator(), type, extraFilter);
 	}
 
-
-	private void prepareNext()
+	public TypeIterator(Iterator<IPersist> iterator, final int type)
 	{
-		if (index == -1) return; //is already done
+		this(iterator, type, null);
+	}
 
-		for (int i = index; i < internalList.size(); i++)
+	public TypeIterator(Iterator<IPersist> iterator, final int type, final IFilter<T> extraFilter)
+	{
+		super(iterator, new IFilter<T>()
 		{
-			IPersist p = internalList.get(i);
-			if (p != null && p.getTypeID() == type)
+			public boolean match(Object p)
 			{
-				index = i;
-				return;
+				return p instanceof IPersist && ((IPersist)p).getTypeID() == type && (extraFilter == null || extraFilter.match(p));
 			}
-		}
-
-		index = -1; //done
+		});
 	}
 
-	@SuppressWarnings("unchecked")
-	public T next()
-	{
-		if (index == -1)
-		{
-			throw new NoSuchElementException();
-		}
-		T obj = (T)internalList.get(index);
-
-		index++;//skip current
-		prepareNext();
-
-		return obj;
-	}
-
+	@Override
 	public void remove()
 	{
 		throw new UnsupportedOperationException();
 	}
-
-/*
- * _____________________________________________________________ The methods below belong to this class
- */
 }

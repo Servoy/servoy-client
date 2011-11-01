@@ -47,10 +47,10 @@ import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.dataprocessing.SortColumn;
-import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.ui.scripting.RuntimeDataLookupField;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.UIUtils;
 import com.servoy.j2db.util.Utils;
 
@@ -432,7 +432,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 		if (list instanceof LookupValueList || list instanceof GlobalMethodValueList)
 		{
 			int index = -1;
-			if (!getDataProviderID().startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+			if (!ScopesUtils.isVariableScope(getDataProviderID()))
 			{
 				index = getDataProviderID().lastIndexOf('.');
 			}

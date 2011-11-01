@@ -387,7 +387,7 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 
 		FoundSetManager foundSetManager = (FoundSetManager)application.getFoundSetManager();
 		SQLGenerator sqlGenerator = foundSetManager.getSQLGenerator();
-		IGlobalValueEntry globalScopeProvider = foundSetManager.getGlobalScopeProvider();
+		IGlobalValueEntry scopesScopeProvider = foundSetManager.getScopesScopeProvider();
 
 		SQLSheet childSheet = sqlGenerator.getCachedTableSQLSheet(relations[0].getPrimaryDataSource());
 		// this returns quickly if it already has a sheet for that relation, but optimize further?
@@ -413,13 +413,13 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 		{
 			foreignTable = relations[i].getForeignTable();
 			QueryJoin join = SQLGenerator.createJoin(application.getFlattenedSolution(), relations[i], lastTable, new QueryTable(foreignTable.getSQLName(),
-				foreignTable.getCatalog(), foreignTable.getSchema()), globalScopeProvider);
+				foreignTable.getCatalog(), foreignTable.getSchema()), scopesScopeProvider);
 			select.addJoin(join);
 			lastTable = join.getForeignTable();
 		}
 
 		List<SortColumn> defaultSort = foundSetManager.getSortColumns(relations[relations.length - 1].getForeignDataSource(), valueList.getSortOptions());
-		SQLGenerator.addSorts(application, select, lastTable, globalScopeProvider, foreignTable, defaultSort, true);
+		SQLGenerator.addSorts(application, select, lastTable, scopesScopeProvider, foreignTable, defaultSort, true);
 
 		int showValues = valueList.getShowDataProviders();
 		int returnValues = valueList.getReturnDataProviders();

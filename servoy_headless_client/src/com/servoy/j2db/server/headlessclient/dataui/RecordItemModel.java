@@ -37,13 +37,13 @@ import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
-import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.scripting.FormScope;
-import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ITagResolver;
+import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
@@ -243,14 +243,13 @@ public abstract class RecordItemModel extends LoadableDetachableModel implements
 		FormScope fs = webForm.getController().getFormScope();
 		try
 		{
-
-			if (dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+			Pair<String, String> scope = ScopesUtils.getVariableScope(dataProviderID);
+			if (scope.getLeft() != null)
 			{
 				if (record == null)
 				{
-					String restName = dataProviderID.substring(ScriptVariable.GLOBAL_DOT_PREFIX.length());
-					GlobalScope gs = webForm.getController().getApplication().getScriptEngine().getSolutionScope().getGlobalScope();
-					prevValue = gs.put(restName, obj);
+					webForm.getController().getApplication().getScriptEngine().getSolutionScope().getScopesScope().getOrCreateGlobalScope(scope.getLeft()).put(
+						scope.getRight(), obj);
 				}
 				else
 				{
@@ -335,11 +334,9 @@ public abstract class RecordItemModel extends LoadableDetachableModel implements
 		WebForm webForm = component.findParent(WebForm.class);
 		FormScope fs = webForm.getController().getFormScope();
 		IRecord record = (IRecord)RecordItemModel.this.getObject();
-		if (dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+		if (ScopesUtils.isVariableScope(dataProviderID))
 		{
-			String restName = dataProviderID.substring(ScriptVariable.GLOBAL_DOT_PREFIX.length());
-			GlobalScope gs = webForm.getController().getApplication().getScriptEngine().getSolutionScope().getGlobalScope();
-			value = gs.get(restName);
+			value = webForm.getController().getApplication().getScriptEngine().getSolutionScope().getScopesScope().get(null, dataProviderID);
 		}
 		else if (record != null)
 		{

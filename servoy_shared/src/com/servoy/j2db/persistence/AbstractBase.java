@@ -533,7 +533,7 @@ public abstract class AbstractBase implements IPersist
 
 	public Iterator<IPersist> getAllObjects(Comparator<IPersist> c)
 	{
-		return new SortedTypeIterator<IPersist>(getAllObjectsAsList(), -1, c);
+		return Utils.asSortedIterator(getAllObjects(), c);
 	}
 
 	/**

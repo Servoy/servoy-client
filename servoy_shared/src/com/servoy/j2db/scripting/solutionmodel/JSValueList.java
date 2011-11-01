@@ -25,11 +25,11 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptNameValidator;
-import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.UUID;
 
 /**
@@ -362,9 +362,9 @@ public class JSValueList implements IConstantsObject
 	 * var vl2 = solutionModel.newValueList("customid",JSValueList.CUSTOM_VALUES);
 	 * vl2.customValues = "customvalue1|1\ncustomvalue2|2";
 	 * var form = solutionModel.newForm("customvaluelistform",controller.getDataSource(),null,true,300,300);
-	 * var combo1 = form.newComboBox("globals.text",10,10,120,20);
+	 * var combo1 = form.newComboBox("scopes.globals.text",10,10,120,20);
 	 * combo1.valuelist = vl1;
-	 * var combo2 = form.newComboBox("globals.id",10,60,120,20);
+	 * var combo2 = form.newComboBox("scopes.globals.id",10,60,120,20);
 	 * combo2.valuelist = vl2;
 	 */
 	public String js_getCustomValues()
@@ -524,7 +524,7 @@ public class JSValueList implements IConstantsObject
 			ScriptMethod scriptMethod = method.getScriptMethod();
 			if (scriptMethod.getParent() instanceof Solution)
 			{
-				valuelist.setCustomValues(ScriptVariable.GLOBAL_DOT_PREFIX + scriptMethod.getName());
+				valuelist.setCustomValues(scriptMethod.getPrefixedName());
 				valuelist.setValueListType(ValueList.GLOBAL_METHOD_VALUES);
 			}
 			else
@@ -546,7 +546,7 @@ public class JSValueList implements IConstantsObject
 	 * In find mode the record with be the FindRecord which is just like a normal JSRecord (DataRecord) it has the same properties (column/dataproviders) but doesnt have its methods (like isEditing())
 	 * 
 	 * @sample
-	 * var listProvider = solutionModel.newGlobalMethod('function getDataSetForValueList(displayValue, realValue, record, valueListName, findMode) {' +
+	 * var listProvider = solutionModel.newGlobalMethod('globals', 'function getDataSetForValueList(displayValue, realValue, record, valueListName, findMode) {' +
 	 *		'	' +
 	 *		'if (displayValue == null && realValue == null) {' +
 	 *		'  // TODO think about caching this result. can be called often!' +
@@ -570,9 +570,9 @@ public class JSValueList implements IConstantsObject
 	public JSMethod js_getGlobalMethod()
 	{
 		String values = valuelist.getCustomValues();
-		if (values != null && values.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+		if (ScopesUtils.isVariableScope(values))
 		{
-			ScriptMethod scriptMethod = application.getFlattenedSolution().getScriptMethod(values.substring(ScriptVariable.GLOBAL_DOT_PREFIX.length()));
+			ScriptMethod scriptMethod = application.getFlattenedSolution().getScriptMethod(null, values);
 			if (scriptMethod != null)
 			{
 				return new JSMethod(scriptMethod, application, true);
@@ -580,7 +580,6 @@ public class JSValueList implements IConstantsObject
 		}
 		return null;
 	}
-
 
 	public void js_setName(String arg)
 	{

@@ -209,6 +209,7 @@ public class StaticContentSpecLoader
 	public static final TypedProperty<String> PROPERTY_PRIMARYDATASOURCE = new TypedProperty<String>("primaryDataSource"); //$NON-NLS-1$
 	public static final TypedProperty<String> PROPERTY_RELATIONNAME = new TypedProperty<String>("relationName"); //$NON-NLS-1$
 	public static final TypedProperty<String> PROPERTY_ROWBGCOLORCALCULATION = new TypedProperty<String>("rowBGColorCalculation"); //$NON-NLS-1$
+	public static final TypedProperty<String> PROPERTY_SCOPENAME = new TypedProperty<String>("scopeName"); //$NON-NLS-1$
 	public static final TypedProperty<String> PROPERTY_SEPARATOR = new TypedProperty<String>("separator"); //$NON-NLS-1$
 	public static final TypedProperty<String> PROPERTY_SORTOPTIONS = new TypedProperty<String>("sortOptions"); //$NON-NLS-1$
 	public static final TypedProperty<String> PROPERTY_STYLECLASS = new TypedProperty<String>("styleClass"); //$NON-NLS-1$
@@ -249,12 +250,12 @@ public class StaticContentSpecLoader
 	@SuppressWarnings("nls")
 	public static ContentSpec getContentSpecChanges(int old_repository_version)
 	{
-		ContentSpec cs = csMap.get(old_repository_version);
+		ContentSpec cs = csMap.get(Integer.valueOf(old_repository_version));
 		if (cs != null) return cs;
 
 		cs = new ContentSpec();
 
-		csMap.put(old_repository_version, cs);
+		csMap.put(Integer.valueOf(old_repository_version), cs);
 		//begin property creation
 		if (old_repository_version == 0)
 		{
@@ -476,7 +477,7 @@ public class StaticContentSpecLoader
 			cs.new Element(209, IRepository.PORTALS, PROPERTY_INITIALSORT.getPropertyName(), IRepository.STRING);
 			cs.new Element(210, IRepository.FORMS, PROPERTY_ONRECORDEDITSTARTMETHODID.getPropertyName(), IRepository.ELEMENTS);
 			cs.new Element(211, IRepository.FIELDS, PROPERTY_TEXT.getPropertyName(), IRepository.STRING);
-			//is int becouse maybe we want in future 'add empty value:' PROPERTY_NEVER.getPropertyName(),"always","only by new Record"
+			//is int because maybe we want in future 'add empty value:' PROPERTY_NEVER.getPropertyName(),"always","only by new Record"
 			cs.new Element(212, IRepository.VALUELISTS, PROPERTY_ADDEMPTYVALUE.getPropertyName(), IRepository.INTEGER);
 		}
 
@@ -764,6 +765,8 @@ public class StaticContentSpecLoader
 			cs.new Element(394, IRepository.TABLENODES, PROPERTY_ONSEARCHMETHODID.getPropertyName(), IRepository.ELEMENTS);
 			cs.new Element(395, IRepository.TABLENODES, PROPERTY_ONAFTERSEARCHMETHODID.getPropertyName(), IRepository.ELEMENTS);
 			cs.new Element(396, IRepository.TABPANELS, PROPERTY_HORIZONTALALIGNMENT.getPropertyName(), IRepository.INTEGER, ContentSpec.MINUS_ONE);
+			cs.new Element(397, IRepository.SCRIPTVARIABLES, PROPERTY_SCOPENAME.getPropertyName(), IRepository.STRING);
+			cs.new Element(398, IRepository.METHODS, PROPERTY_SCOPENAME.getPropertyName(), IRepository.STRING);
 		}
 		//##add property adds here
 

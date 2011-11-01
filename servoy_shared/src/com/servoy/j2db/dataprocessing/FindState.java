@@ -31,7 +31,6 @@ import com.servoy.j2db.Messages;
 import com.servoy.j2db.persistence.IRelation;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.ISQLJoin;
 import com.servoy.j2db.query.QueryJoin;
@@ -39,6 +38,7 @@ import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDelegate;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
@@ -129,44 +129,37 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 		{
 			return columndata.get(dataProviderID);
 		}
-		else
-		{
-			int index = dataProviderID.indexOf('.');
-			if (index > 0)
-			{
-				String partName = dataProviderID.substring(0, index);
-				String restName = dataProviderID.substring(index + 1);
-				if (partName.equals(ScriptVariable.GLOBAL_PREFIX))
-				{
-					// Do return the global values, needed for global relations. 
-					return parent.getDataProviderValue(dataProviderID);
-				}
 
-				IFoundSetInternal foundSet = getRelatedFoundSet(partName);//check substate, will return null if not found
-				if (foundSet != null)
-				{
-					IRecordInternal state = foundSet.getRecord(0);
-					if (state != null)
-					{
-						return state.getValue(restName);
-					}
-					return null;
-				}
-				else
-				{
-					return null;
-				}
-			}
-			else
-			{
-				IFoundSetInternal fs = getRelatedFoundSet(dataProviderID, null);
-				if (fs != null)
-				{
-					return fs;
-				}
-				return Scriptable.NOT_FOUND;
-			}
+		if (ScopesUtils.isVariableScope(dataProviderID))
+		{
+			// Do return the global values, needed for global relations. 
+			return parent.getDataProviderValue(dataProviderID);
 		}
+
+		int index = dataProviderID.indexOf('.');
+		if (index > 0)
+		{
+			String partName = dataProviderID.substring(0, index);
+			String restName = dataProviderID.substring(index + 1);
+
+			IFoundSetInternal foundSet = getRelatedFoundSet(partName);//check substate, will return null if not found
+			if (foundSet != null)
+			{
+				IRecordInternal state = foundSet.getRecord(0);
+				if (state != null)
+				{
+					return state.getValue(restName);
+				}
+			}
+			return null;
+		}
+
+		IFoundSetInternal fs = getRelatedFoundSet(dataProviderID, null);
+		if (fs != null)
+		{
+			return fs;
+		}
+		return Scriptable.NOT_FOUND;
 	}
 
 	public Object setValue(String dataProviderID, Object value)
@@ -191,17 +184,18 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 			return columndata.put(dataProviderID, Utils.mapToNullIfUnmanageble(value));
 		}
 
+		if (ScopesUtils.isVariableScope(dataProviderID))
+		{
+			// do set the global in the global scope so that globals just work in find mode for global relations
+			return parent.setDataProviderValue(dataProviderID, value);
+		}
+
 		//check if is related value request
 		int index = dataProviderID.indexOf('.');
 		if (index > 0)
 		{
 			String partName = dataProviderID.substring(0, index);
 			String restName = dataProviderID.substring(index + 1);
-			if (partName.equals(ScriptVariable.GLOBAL_PREFIX))
-			{
-				// do set the global in the global scope so that globals just work in find mode for global relations
-				return parent.setDataProviderValue(dataProviderID, value);
-			}
 			IFoundSetInternal foundSet = getRelatedFoundSet(partName);//check substate, will return null if not found
 			if (foundSet != null)
 			{
@@ -550,7 +544,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 
 	public void setFormat(String dataProviderID, String fmt)
 	{
-		if (fmt == null || dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX)) return;
+		if (fmt == null || ScopesUtils.isVariableScope(dataProviderID)) return;
 
 		String format;
 		int index = fmt.indexOf("|"); //$NON-NLS-1$

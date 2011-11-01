@@ -81,7 +81,6 @@ import com.servoy.j2db.persistence.MethodTemplate;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
-import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.scripting.CreationalPrototype;
@@ -108,7 +107,9 @@ import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FixedStyleSheet;
 import com.servoy.j2db.util.ITagResolver;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.TabSequenceHelper;
 import com.servoy.j2db.util.UUID;
@@ -3879,7 +3880,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				name = formScope.getFunctionName(new Integer(id));
 			}
 
-			if (id <= 0 && name != null && name.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+			if (id <= 0 && ScopesUtils.isVariableScope(name))
 			{
 				application.reportError(application.getI18NMessage("servoy.formPanel.error.executingMethod", new Object[] { name }), ex); //$NON-NLS-1$ 
 			}
@@ -3910,10 +3911,11 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			name = formScope.getFunctionName(new Integer(id));
 		}
 
-		boolean global = name != null && name.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX);
+		Pair<String, String> nameScope = ScopesUtils.getVariableScope(name);
+		boolean global = nameScope != null && nameScope.getLeft() != null;
 		if (id <= 0 && global)
 		{
-			name = name.substring(ScriptVariable.GLOBAL_DOT_PREFIX.length());
+			name = nameScope.getRight();
 		}
 		else
 		{
@@ -3941,15 +3943,25 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 		if (function == null)
 		{
-			GlobalScope globalScope = application.getScriptEngine().getSolutionScope().getGlobalScope();
-			scope = globalScope;
+			GlobalScope globalScope = null;
 			if (id > 0)
 			{
-				name = globalScope.getFunctionName(new Integer(id));
+				globalScope = application.getScriptEngine().getScopesScope().getGlobalScopeForFunction(new Integer(id));
 			}
-			function = globalScope.getFunctionByName(name);
+			else if (nameScope != null && nameScope.getLeft() != null)
+			{
+				globalScope = application.getScriptEngine().getScopesScope().getGlobalScope(nameScope.getLeft());
+			}
+			if (globalScope != null)
+			{
+				scope = globalScope;
+				if (id > 0)
+				{
+					name = globalScope.getFunctionName(new Integer(id));
+				}
+				function = globalScope.getFunctionByName(name);
+			}
 		}
-
 
 		Function f = function instanceof Function ? (Function)function : null;
 		if (throwException)
@@ -4374,7 +4386,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				if (!(function instanceof Function))
 				{
 					// try global method
-					GlobalScope globalScope = application.getScriptEngine().getSolutionScope().getGlobalScope();
+					GlobalScope globalScope = application.getScriptEngine().getScopesScope().getGlobalScopeForFunction(id);
 					scope = globalScope;
 					sName = globalScope.getFunctionName(id);
 					if (sName != null)

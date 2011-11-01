@@ -93,7 +93,9 @@ import com.servoy.j2db.scripting.LazyCompilationScope;
 import com.servoy.j2db.scripting.TableScope;
 import com.servoy.j2db.scripting.UsedDataProviderTracker;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SafeArrayList;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -1319,7 +1321,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	public QBSelect getQuery()
 	{
-		return new QBSelect(getFoundSetManager(), getFoundSetManager().getGlobalScopeProvider(), getFoundSetManager().getApplication().getFlattenedSolution(),
+		return new QBSelect(getFoundSetManager(), getFoundSetManager().getScopesScopeProvider(), getFoundSetManager().getApplication().getFlattenedSolution(),
 			getDataSource(), getPksAndRecords().getQuerySelectForModification());
 	}
 
@@ -2829,15 +2831,15 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			return true;//deprecated
 		}
-		else if ("selectedIndex".equals(dataProviderID)) //$NON-NLS-1$
+		if ("selectedIndex".equals(dataProviderID)) //$NON-NLS-1$
 		{
 			return true;
 		}
-		else if ("maxRecordIndex".equals(dataProviderID)) //$NON-NLS-1$
+		if ("maxRecordIndex".equals(dataProviderID)) //$NON-NLS-1$
 		{
 			return true;
 		}
-		else if ("serverURL".equals(dataProviderID)) //$NON-NLS-1$
+		if ("serverURL".equals(dataProviderID)) //$NON-NLS-1$
 		{
 			return true;
 		}
@@ -2845,10 +2847,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		try
 		{
 			// have to test for a global prefix. because setDataProviderId does check for this.
-			if (dataProviderID.length() > ScriptVariable.GLOBAL_DOT_PREFIX.length() && dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+			Pair<String, String> scope = ScopesUtils.getVariableScope(dataProviderID);
+			if (scope.getLeft() != null)
 			{
-				Scriptable sol_scope = fsm.getScriptEngine().getSolutionScope().getGlobalScope();
-				return sol_scope.has(dataProviderID.substring(ScriptVariable.GLOBAL_DOT_PREFIX.length()), sol_scope);
+				GlobalScope gs = fsm.getScriptEngine().getScopesScope().getGlobalScope(scope.getLeft());
+				return gs != null && gs.has(scope.getRight(), gs);
 			}
 		}
 		catch (Exception e)
@@ -2886,14 +2889,15 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		try
 		{
-			if (dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+			Pair<String, String> scope = ScopesUtils.getVariableScope(dataProviderID);
+			if (scope.getLeft() != null)
 			{
-				String global = dataProviderID.substring(ScriptVariable.GLOBAL_DOT_PREFIX.length());
-				GlobalScope g_scope = fsm.getScriptEngine().getSolutionScope().getGlobalScope();
-				if (g_scope.has(global, g_scope))
+				GlobalScope g_scope = fsm.getScriptEngine().getScopesScope().getGlobalScope(scope.getLeft());
+				if (g_scope != null && g_scope.has(scope.getRight(), g_scope))
 				{
-					return g_scope.get(global);
+					return g_scope.get(scope.getRight());
 				}
+				return null;
 			}
 		}
 		catch (Exception e)
@@ -2954,13 +2958,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				return getDataProviderValue(dataProviderID);
 			}
 
-			if (dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+			Pair<String, String> scope = ScopesUtils.getVariableScope(dataProviderID);
+			if (scope.getLeft() != null)
 			{
-				GlobalScope gscope = fsm.getScriptEngine().getSolutionScope().getGlobalScope();
-				String global = dataProviderID.substring(ScriptVariable.GLOBAL_DOT_PREFIX.length());
-				if (gscope.has(global, gscope))
+				GlobalScope gscope = fsm.getScriptEngine().getScopesScope().getGlobalScope(scope.getLeft());
+				if (gscope != null && gscope.has(scope.getRight(), gscope))
 				{
-					Object oldVal = gscope.put(global, value);
+					Object oldVal = gscope.put(scope.getRight(), value);
 					if (!Utils.equalObjects(oldVal, value))
 					{
 						fireFoundSetEvent(0, getSize() - 1, FoundSetEvent.CHANGE_UPDATE);
@@ -3404,8 +3408,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				if (scriptMethod != null)
 				{
 					// global method
-					scope = scriptEngine.getSolutionScope().getGlobalScope();
-					function = ((GlobalScope)scope).get(scriptMethod.getName());
+					GlobalScope gs = scriptEngine.getScopesScope().getGlobalScope(scriptMethod.getScopeName());
+					if (gs != null)
+					{
+						scope = gs;
+						function = gs.get(scriptMethod.getName());
+					}
 				}
 				else
 				{
@@ -4895,11 +4903,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		if (jsFunctions.containsKey(name)) return;//dont allow to set  
 
-		if (name.length() > ScriptVariable.GLOBAL_DOT_PREFIX.length() && name.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+		Pair<String, String> scope = ScopesUtils.getVariableScope(name);
+		if (scope.getLeft() != null)
 		{
-			String global = name.substring(ScriptVariable.GLOBAL_DOT_PREFIX.length());
-			Scriptable sol_scope = fsm.getScriptEngine().getSolutionScope().getGlobalScope();
-			sol_scope.put(global, start, value);
+			fsm.getScriptEngine().getScopesScope().getOrCreateGlobalScope(scope.getLeft()).put(scope.getRight(), start, value);
 		}
 		else
 		{

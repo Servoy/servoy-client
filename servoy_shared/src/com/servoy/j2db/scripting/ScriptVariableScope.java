@@ -18,11 +18,8 @@ package com.servoy.j2db.scripting;
 
 
 import java.sql.Types;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.mozilla.javascript.Context;
@@ -39,9 +36,10 @@ import org.mozilla.javascript.xml.XMLObject;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IDataSet;
-import com.servoy.j2db.dataprocessing.IModificationListener;
+import com.servoy.j2db.dataprocessing.IModificationSubject;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ModificationEvent;
+import com.servoy.j2db.dataprocessing.ModificationSubject;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IScriptProvider;
@@ -49,6 +47,7 @@ import com.servoy.j2db.persistence.ISupportScriptProviders;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDelegate;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -81,10 +80,15 @@ public class ScriptVariableScope extends LazyCompilationScope
 	 */
 	public void put(ScriptVariable var, boolean overwriteInitialValue)
 	{
-		String name = var.getDataProviderID();
-		if (name.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+		putScriptVariable(var.getDataProviderID(), var, overwriteInitialValue);
+	}
+
+	protected void putScriptVariable(String name, ScriptVariable var, boolean overwriteInitialValue)
+	{
+		if (ScopesUtils.isVariableScope(name))
 		{
-			name = name.substring(ScriptVariable.GLOBAL_DOT_PREFIX.length());
+			// global variable: name should have been stripped in GlobalScope
+			throw new RuntimeException("Trying to set variable '" + name + "' in non-global scope " + this);
 		}
 
 		int prevType = 0;
@@ -413,30 +417,21 @@ public class ScriptVariableScope extends LazyCompilationScope
 /*
  * _____________________________________________________________ JavaScriptModificationListener
  */
-	private final List<IModificationListener> listeners = Collections.synchronizedList(new ArrayList<IModificationListener>());
+	private final IModificationSubject modificationSubject = new ModificationSubject();
 
-	public void addModificationListener(IModificationListener listener)
+	/**
+	 * @return the modificationSubject
+	 */
+	public IModificationSubject getModificationSubject()
 	{
-		listeners.add(listener);
-	}
-
-	public void removeModificationListener(IModificationListener listener)
-	{
-		listeners.remove(listener);
+		return modificationSubject;
 	}
 
 	private void fireModificationEvent(String name, Object value)
 	{
-		ModificationEvent e = null;
-		Object[] array = listeners.toArray();
-		for (Object element : array)
+		if (modificationSubject.hasListeners())
 		{
-			if (e == null)
-			{
-				e = new ModificationEvent(getDataproviderEventName(name), unwrap(value), this);
-			}
-			IModificationListener listener = (IModificationListener)element;
-			listener.valueChanged(e);
+			modificationSubject.fireModificationEvent(new ModificationEvent(getDataproviderEventName(name), unwrap(value), this));
 		}
 	}
 

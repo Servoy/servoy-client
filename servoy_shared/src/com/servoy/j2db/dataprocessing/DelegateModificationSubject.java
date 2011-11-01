@@ -14,34 +14,20 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
-package com.servoy.j2db.scripting;
+package com.servoy.j2db.dataprocessing;
 
 
-import org.mozilla.javascript.Scriptable;
-
-import com.servoy.j2db.persistence.ScriptVariable;
 
 /**
- * @author jcompagner
+ * Delegating modification listener.
+ * 
+ * @author rgansevless
+ * @since Servoy 6.1
  */
-public class SolutionScope extends DefaultScope
+public class DelegateModificationSubject extends ModificationSubject implements IModificationListener
 {
-	private ScopesScope ss;
-
-	public SolutionScope(Scriptable parent)
+	public void valueChanged(ModificationEvent event)
 	{
-		super(parent);
-	}
-
-	public ScopesScope getScopesScope()
-	{
-		return ss;
-	}
-
-	public void setScopesScope(ScopesScope ss)
-	{
-		this.ss = ss;
-		put(ScriptVariable.SCOPES, this, ss);
-		ss.setParentScope(this);
+		fireModificationEvent(event);
 	}
 }

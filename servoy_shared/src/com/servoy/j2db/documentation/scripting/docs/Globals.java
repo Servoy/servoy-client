@@ -31,7 +31,7 @@ public class Globals
 	 * Get all global script names of the current solution.
 	 * 
 	 * @sample
-	 * var allMethodNames = globals.allmethods;
+	 * var allMethodNames = scopes.globals.allmethods;
 	 * application.output("There are " + allMethodNames.length + " global methods.");
 	 * for (var i=0; i<allMethodNames.length; i++)
 	 * 	application.output(allMethodNames[i]);
@@ -71,7 +71,7 @@ public class Globals
 	 * Get all global relation names of the current solution.
 	 * 
 	 * @sample
-	 * var allRelationNames = globals.allrelations;
+	 * var allRelationNames = scopes.globals.allrelations;
 	 * application.output("There are " + allRelationNames.length + " global relations.");
 	 * for (var i=0; i<allRelationNames.length; i++)
 	 * 	application.output(allRelationNames[i]);

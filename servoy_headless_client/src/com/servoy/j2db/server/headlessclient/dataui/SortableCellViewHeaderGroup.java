@@ -45,10 +45,10 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportDataProviderID;
 import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.Portal;
-import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -120,7 +120,7 @@ public class SortableCellViewHeaderGroup extends Model implements IComponentAssi
 							String id = ((ISupportDataProviderID)element).getDataProviderID();
 							if (id != null)
 							{
-								if (cellview instanceof Portal && !id.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+								if (cellview instanceof Portal && !ScopesUtils.isVariableScope(id))
 								{
 									int idx = id.lastIndexOf('.');
 									if (idx > 0)

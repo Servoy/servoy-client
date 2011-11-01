@@ -49,7 +49,6 @@ import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
-import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IEventExecutor;
@@ -61,6 +60,7 @@ import com.servoy.j2db.ui.ISupportInputSelection;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
 import com.servoy.j2db.util.ITagResolver;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
@@ -426,7 +426,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	public void setValidationEnabled(boolean b)
 	{
 		if (eventExecutor.getValidationEnabled() == b) return;
-		if (dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX)) return;
+		if (ScopesUtils.isVariableScope(dataProviderID)) return;
 
 		eventExecutor.setValidationEnabled(b);
 

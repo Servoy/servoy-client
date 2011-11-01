@@ -26,6 +26,7 @@ import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
@@ -37,12 +38,14 @@ import com.servoy.j2db.util.Utils;
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Variable")
 public class ScriptVariable extends AbstractBase implements IVariable, IDataProvider, ISupportUpdateableName, ISupportHTMLToolTipText, ISupportContentEquals,
-	IPersistCloneable, ICloneable
+	IPersistCloneable, ICloneable, ISupportScope
 {
 	private String prefixedName = null;
 
-	public static final String GLOBAL_PREFIX = "globals"; //$NON-NLS-1$
-	public static final String GLOBAL_DOT_PREFIX = GLOBAL_PREFIX + '.';
+	public static final String GLOBAL_SCOPE = "globals"; //$NON-NLS-1$ 
+	public static final String GLOBALS_DOT_PREFIX = GLOBAL_SCOPE + '.';
+	public static final String SCOPES = "scopes"; //$NON-NLS-1$
+	public static final String SCOPES_DOT_PREFIX = SCOPES + '.';
 
 	/**
 	 * Constructor I
@@ -96,6 +99,16 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 	public void setComment(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_COMMENT, arg);
+	}
+
+	public String getScopeName()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_SCOPENAME);
+	}
+
+	public void setScopeName(String scopeName)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_SCOPENAME, scopeName);
 	}
 
 	/**
@@ -236,7 +249,7 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 		{
 			if (getParent() instanceof Solution)
 			{
-				prefixedName = GLOBAL_DOT_PREFIX + getName();
+				prefixedName = ScopesUtils.getScopeString(this);
 			}
 			else
 			{

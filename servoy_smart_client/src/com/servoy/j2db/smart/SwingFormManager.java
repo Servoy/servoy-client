@@ -45,8 +45,10 @@ import com.servoy.j2db.cmd.ICmdManager;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.ScriptMethod;
+import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.printing.PrintPreview;
+import com.servoy.j2db.scripting.FunctionDefinition;
 import com.servoy.j2db.smart.cmd.MenuMethodsAction;
 import com.servoy.j2db.smart.scripting.ScriptMenuItem;
 import com.servoy.j2db.util.SwingHelper;
@@ -300,7 +302,7 @@ public class SwingFormManager extends FormManager implements ISwingFormManager, 
 		while (globalMethods.hasNext())
 		{
 			ScriptMethod sm = globalMethods.next();
-			ScriptMenuItem item = getScriptMenuItem(sm, null, menuCount);
+			ScriptMenuItem item = getScriptMenuItem(sm, new FunctionDefinition(ScriptVariable.SCOPES_DOT_PREFIX + sm.getScopeName(), sm.getName()), menuCount);
 			if (item != null)
 			{
 				globalMenus.add(item);
@@ -312,13 +314,13 @@ public class SwingFormManager extends FormManager implements ISwingFormManager, 
 				{
 					menuCount = -1;
 				}
-				// just break after 50, doesnt make sense to have more in the menu..
+				// just break after 50, doesn't make sense to have more in the menu..
 				if (globalMenus.size() > 50) break;
 			}
 		}
 
 		JMenu globalMenu = menu;
-		if (globalMenus.size() > 20)//if big create sub menu vor global methods
+		if (globalMenus.size() > 20)// if big create sub menu for global methods
 		{
 			globalMenu = new JMenu(Messages.getString("servoy.formManager.menuGlobalMethods"));
 			menu.add(globalMenu);
@@ -335,11 +337,12 @@ public class SwingFormManager extends FormManager implements ISwingFormManager, 
 		if (fp != null)
 		{
 			int nformmethods = 0;
-			Iterator<ScriptMethod> formMethods = fp.getForm().getScriptMethods(true);
+			Form form = fp.getForm();
+			Iterator<ScriptMethod> formMethods = form.getScriptMethods(true);
 			while (formMethods.hasNext())
 			{
 				ScriptMethod sm = formMethods.next();
-				ScriptMenuItem item = getScriptMenuItem(sm, fp, -1);
+				ScriptMenuItem item = getScriptMenuItem(sm, new FunctionDefinition(form.getName(), sm.getName()), -1);
 				if (item != null)
 				{
 					if (insertSeparator)
@@ -352,14 +355,14 @@ public class SwingFormManager extends FormManager implements ISwingFormManager, 
 				}
 			}
 
-			if (fp.getDataSource() != null)
+			if (form.getDataSource() != null)
 			{
 				insertSeparator |= nformmethods > 0;
 				Iterator<ScriptMethod> foundsetMethods = fp.getApplication().getFlattenedSolution().getFoundsetMethods(fp.getDataSource(), true);
 				while (foundsetMethods.hasNext())
 				{
 					ScriptMethod sm = foundsetMethods.next();
-					ScriptMenuItem item = getScriptMenuItem(sm, fp, -1);
+					ScriptMenuItem item = getScriptMenuItem(sm, new FunctionDefinition(form.getName(), sm.getName()), -1);
 					if (item != null)
 					{
 						if (insertSeparator)
@@ -382,11 +385,11 @@ public class SwingFormManager extends FormManager implements ISwingFormManager, 
 	 * @param sm
 	 * @return boolean
 	 */
-	protected ScriptMenuItem getScriptMenuItem(ScriptMethod sm, FormController fp, int autoSortcut)
+	protected ScriptMenuItem getScriptMenuItem(ScriptMethod sm, FunctionDefinition functionDefinition, int autoSortcut)
 	{
 		if (sm.getShowInMenu())
 		{
-			return new ScriptMenuItem(getApplication(), fp, sm.getName(), autoSortcut);
+			return new ScriptMenuItem(getApplication(), functionDefinition, sm.getName(), autoSortcut);
 		}
 		return null;
 	}

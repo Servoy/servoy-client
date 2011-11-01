@@ -29,7 +29,6 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.mozilla.javascript.Function;
 import org.mozilla.javascript.JavaScriptException;
 import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Scriptable;
@@ -52,7 +51,6 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.plugins.IPluginAccess;
 import com.servoy.j2db.plugins.IPluginManagerInternal;
-import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
@@ -850,7 +848,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 				if (scriptEngine == null && solutionRoot.getSolution() != null)
 				{
 					scriptEngine = createScriptEngine();
-					scriptEngine.getGlobalScope().createVars();
+					scriptEngine.getScopesScope().createScopes();
 				}
 			}
 		}
@@ -1239,23 +1237,17 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 		if (sm != null)
 		{
-			GlobalScope gscope = getScriptEngine().getSolutionScope().getGlobalScope();
-			Function function = gscope.getFunctionByName(sm.getName());
-			if (function != null)
+			try
 			{
-				try
-				{
-					return !Boolean.FALSE.equals(getScriptEngine().executeFunction(
-						function,
-						gscope,
-						gscope,
-						Utils.arrayMerge((new Object[] { new Boolean(force) }),
-							Utils.parseJSExpressions(getSolution().getInstanceMethodArguments("onCloseMethodID"))), false, false)); //$NON-NLS-1$
-				}
-				catch (Exception e1)
-				{
-					reportError(Messages.getString("servoy.client.error.executing.method", new Object[] { sm.getName() }), e1); //$NON-NLS-1$
-				}
+				return !Boolean.FALSE.equals(getScriptEngine().getSolutionScope().getScopesScope().executeGlobalFunction(
+					sm.getScopeName(),
+					sm.getName(),
+					Utils.arrayMerge((new Object[] { Boolean.valueOf(force) }),
+						Utils.parseJSExpressions(getSolution().getInstanceMethodArguments("onCloseMethodID"))), false, false)); //$NON-NLS-1$
+			}
+			catch (Exception e1)
+			{
+				reportError(Messages.getString("servoy.client.error.executing.method", new Object[] { sm.getName() }), e1); //$NON-NLS-1$
 			}
 		}
 		return true;
@@ -1462,7 +1454,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 			refreshI18NMessages();
 
-			getScriptEngine().getGlobalScope().reloadVariablesAndScripts(); // add variables for new solution
+			getScriptEngine().getScopesScope().reloadVariablesAndScripts(); // add variables for new solution
 
 			// These lines must be before other solutionLoaded call implementations, because a long running process 
 			// (solution startup method) will never update the status.
@@ -1561,17 +1553,12 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 				try
 				{
 					isHandlingError = true;
-					GlobalScope gscope = getScriptEngine().getSolutionScope().getGlobalScope();
-					Object function = gscope.get(sm.getName());
-					if (function instanceof Function)
+					Object retval = getScriptEngine().getScopesScope().executeGlobalFunction(sm.getScopeName(), sm.getName(),
+						Utils.arrayMerge((new Object[] { scriptException }), Utils.parseJSExpressions(s.getInstanceMethodArguments("onErrorMethodID"))), //$NON-NLS-1$
+						false, false);
+					if (Utils.getAsBoolean(retval))
 					{
-						Object retval = getScriptEngine().executeFunction(((Function)function), gscope, gscope,
-							Utils.arrayMerge((new Object[] { scriptException }), Utils.parseJSExpressions(s.getInstanceMethodArguments("onErrorMethodID"))), //$NON-NLS-1$
-							false, false);
-						if (Utils.getAsBoolean(retval))
-						{
-							reportError(msg, e);//error handler cannot handle this error
-						}
+						reportError(msg, e);//error handler cannot handle this error
 					}
 				}
 				catch (Exception e1)

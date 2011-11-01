@@ -50,6 +50,7 @@ import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IDatabaseManager;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Style;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IScriptSupport;
@@ -411,7 +412,7 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 			{
 				// When application != J2DBGlobals.getServiceProvider() the method is called from client a to another (headless) client b.
 				// Method execution has to be done in a separate thread to prevent mixing thread locals from client a and b.
-				// This happens when the weblient uses the headless client plugin to call a method in the HC in the server-side of the plugin,
+				// This happens when the webclient uses the headless client plugin to call a method in the HC in the server-side of the plugin,
 				// since this is all server-side code the HC call is executed in the same thread.
 				if (application.isEventDispatchThread() && !async && application == J2DBGlobals.getServiceProvider())
 				{
@@ -507,10 +508,11 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 				//solution can be closed in the mean time.
 				if (application.isSolutionLoaded())
 				{
-					if (context == null)
+					if (context.startsWith(ScriptVariable.SCOPES_DOT_PREFIX))
 					{
-						GlobalScope gs = application.getScriptEngine().getSolutionScope().getGlobalScope();
-						Object function = gs.get(methodname);
+						String scopename = context.substring(0, ScriptVariable.SCOPES_DOT_PREFIX.length());
+						GlobalScope gs = application.getScriptEngine().getScopesScope().getGlobalScope(scopename);
+						Object function = gs == null ? null : gs.get(methodname);
 						if (function instanceof Function)
 						{
 							try

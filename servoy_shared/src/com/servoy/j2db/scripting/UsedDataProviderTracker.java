@@ -29,8 +29,8 @@ import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ScopesUtils;
 
 /**
  * Keep track of used data when calculating a calculation value.
@@ -65,7 +65,7 @@ public class UsedDataProviderTracker
 
 	public void usedName(Scriptable scriptable, String name)
 	{
-		if (name.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+		if (ScopesUtils.isVariableScope(name))
 		{
 			// global
 			usedGlobal(name);
@@ -117,7 +117,7 @@ public class UsedDataProviderTracker
 					for (IDataProvider prim : primaryDataProviders)
 					{
 						String primdp = prim.getDataProviderID();
-						if (primdp.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+						if (ScopesUtils.isVariableScope(primdp))
 						{
 							// global
 							usedGlobal(primdp);

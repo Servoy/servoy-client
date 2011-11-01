@@ -68,7 +68,7 @@ public interface IDebugClientHandler
 
 	void reloadAllStyles();
 
-	void executeMethod(ISupportChilds persist, String methodname);
+	void executeMethod(ISupportChilds persist, String scopeName, String methodname);
 
 	void showInDebugClients(Form form);
 

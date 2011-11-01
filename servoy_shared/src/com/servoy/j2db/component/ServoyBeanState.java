@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.component;
 
 import java.util.List;
@@ -68,13 +68,13 @@ public class ServoyBeanState implements IRecord
 	public void addModificationListener(IModificationListener l)
 	{
 		record.addModificationListener(l);
-		formScope.addModificationListener(l);
+		formScope.getModificationSubject().addModificationListener(l);
 	}
 
 	public void addModificationListner(IModificationListener l)
 	{
 		record.addModificationListener(l);
-		formScope.addModificationListener(l);
+		formScope.getModificationSubject().addModificationListener(l);
 	}
 
 	public boolean existInDataSource()
@@ -120,13 +120,13 @@ public class ServoyBeanState implements IRecord
 	public void removeModificationListener(IModificationListener l)
 	{
 		record.removeModificationListener(l);
-		formScope.removeModificationListener(l);
+		formScope.getModificationSubject().removeModificationListener(l);
 	}
 
 	public void removeModificationListner(IModificationListener l)
 	{
 		record.removeModificationListener(l);
-		formScope.removeModificationListener(l);
+		formScope.getModificationSubject().removeModificationListener(l);
 	}
 
 	public Object setValue(String dataProviderID, Object value)

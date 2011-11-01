@@ -37,11 +37,12 @@ import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.Relation;
-import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDestroyable;
+import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
@@ -75,7 +76,7 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 		displays = new ArrayList<IDisplayData>(1);//normally one, this is first display
 		addDisplay(display);
 		this.dataProviderID = dataProviderID;
-		if (dataProviderID == null || dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX) || dataProviderID.indexOf('.') < 0)
+		if (dataProviderID == null || ScopesUtils.isVariableScope(dataProviderID) || dataProviderID.indexOf('.') < 0)
 		{
 			relatedData = null; // not related
 		}
@@ -97,10 +98,11 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 		Object obj = null;
 		if (dataProviderID != null)
 		{
-			if (dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+			Pair<String, String> scope = ScopesUtils.getVariableScope(dataProviderID);
+			if (scope.getLeft() != null)
 			{
-				GlobalScope gs = application.getScriptEngine().getSolutionScope().getGlobalScope();
-				obj = gs.get(dataProviderID.substring(ScriptVariable.GLOBAL_DOT_PREFIX.length()));
+				GlobalScope gs = application.getScriptEngine().getScopesScope().getGlobalScope(scope.getLeft());
+				obj = gs == null ? null : gs.get(scope.getRight());
 			}
 			else if (relatedData != null)
 			{
@@ -217,7 +219,7 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 			if (!findMode && value == null && display instanceof IFieldComponent && display instanceof INullableAware &&
 				!((INullableAware)display).getAllowNull() && Column.mapToDefaultType(((IFieldComponent)display).getDataType()) == IColumnTypes.INTEGER &&
 				display.getDataProviderID() != null && record != null && record.startEditing() &&
-				!(record instanceof PrototypeState && !display.getDataProviderID().startsWith(ScriptVariable.GLOBAL_PREFIX))) // ignore PrototypeState if not global
+				!(record instanceof PrototypeState && !ScopesUtils.isVariableScope(display.getDataProviderID()))) // ignore PrototypeState if not global
 			{
 				record.setValue(display.getDataProviderID(), new Integer(0));
 			}
@@ -244,7 +246,7 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 		if (display instanceof IDisplayData)
 		{
 			String dataProviderID = ((IDisplayData)display).getDataProviderID();
-			isGlobal = (dataProviderID != null && dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX));
+			isGlobal = dataProviderID != null && ScopesUtils.isVariableScope(dataProviderID);
 
 			if (!isGlobal && dataProviderID != null)
 			{
@@ -316,16 +318,15 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 
 		Object prevValue = null;
 		Object obj = display.getValueObject();
-		if (dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+		Pair<String, String> scope = ScopesUtils.getVariableScope(dataProviderID);
+		if (scope.getLeft() != null)
 		{
 			adjusting = true;
 			try
 			{
 				if (record == null)
 				{
-					String restName = dataProviderID.substring(ScriptVariable.GLOBAL_DOT_PREFIX.length());
-					GlobalScope gs = application.getScriptEngine().getSolutionScope().getGlobalScope();
-					prevValue = gs.put(restName, obj);
+					prevValue = application.getScriptEngine().getScopesScope().getOrCreateGlobalScope(scope.getLeft()).put(scope.getRight(), obj);
 				}
 				else
 				{

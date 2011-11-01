@@ -93,7 +93,6 @@ import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.dataui.IServoyAwareBean;
 import com.servoy.j2db.persistence.PositionComparator;
-import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.smart.J2DBClient;
@@ -108,6 +107,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
@@ -703,7 +703,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 					{
 						String partName = dataProviderID.substring(0, index);
 						final String restName = dataProviderID.substring(index + 1);
-						if (!partName.equals(ScriptVariable.GLOBAL_PREFIX))
+						if (!ScopesUtils.isVariableScope(partName))
 						{
 							String relationName = partName;
 							if (relationName != null && !(state.isRelatedFoundSetLoaded(relationName, restName)))
@@ -1373,7 +1373,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		{
 			adjusting = true;
 			// ignore globals in a cell adapter, will be handled by the row manager
-			if (!table.isEditing() && e.getName().startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+			if (!table.isEditing() && ScopesUtils.isVariableScope(e.getName()))
 			{
 				// test if it is a related 
 				if (dataProviderID != null && dataProviderID.indexOf('.') != -1)

@@ -65,7 +65,6 @@ import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.dnd.FormDataTransferHandler;
 import com.servoy.j2db.dnd.ISupportDragNDropTextTransfer;
-import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.printing.IFixedPreferredWidth;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEditProvider;
@@ -82,6 +81,7 @@ import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ISkinnable;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.ITagResolver;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.docvalidator.LengthDocumentValidator;
@@ -271,7 +271,7 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 	public void setValidationEnabled(boolean b)
 	{
 		if (eventExecutor.getValidationEnabled() == b) return;
-		if (dataProviderID != null && dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX)) return;
+		if (dataProviderID != null && ScopesUtils.isVariableScope(dataProviderID)) return;
 
 		eventExecutor.setValidationEnabled(b);
 

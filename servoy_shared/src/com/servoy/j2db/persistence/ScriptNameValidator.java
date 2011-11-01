@@ -164,7 +164,8 @@ public class ScriptNameValidator implements IValidateName
 			while (vars.hasNext())
 			{
 				ScriptVariable sgv = vars.next();
-				if (nameToCheck.equals(sgv.getName()) && sgv.getID() != skip_element_id)
+				if (nameToCheck.equals(sgv.getName()) && sgv.getID() != skip_element_id &&
+					(!(searchContext.getObject() instanceof String) || searchContext.getObject().equals(sgv.getScopeName()))) // search context string is scopeName
 				{
 					return sgv;
 				}
@@ -173,7 +174,8 @@ public class ScriptNameValidator implements IValidateName
 			while (scripts.hasNext())
 			{
 				ScriptMethod sm = scripts.next();
-				if (nameToCheck.equals(sm.getName()) && sm.getID() != skip_element_id)
+				if (nameToCheck.equals(sm.getName()) && sm.getID() != skip_element_id &&
+					(!(searchContext.getObject() instanceof String) || searchContext.getObject().equals(sm.getScopeName()))) // search context string is scopeName
 				{
 					return sm;
 				}

@@ -90,14 +90,12 @@ import com.servoy.j2db.dataprocessing.RelatedValueList;
 import com.servoy.j2db.dataprocessing.SwingFoundSetFactory;
 import com.servoy.j2db.persistence.InfoChannel;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.plugins.ClientPluginAccessProvider;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.scripting.FormScope;
-import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.scripting.StartupArguments;
@@ -114,6 +112,7 @@ import com.servoy.j2db.util.LocalhostRMIRegistry;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.RendererParentWrapper;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.ServoyScheduledExecutor;
 import com.servoy.j2db.util.Settings;
@@ -686,11 +685,9 @@ public class SessionClient extends ClientState implements ISessionClient
 		try
 		{
 			Object value = null;
-			if (dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+			if (ScopesUtils.isVariableScope(dataProviderID))
 			{
-				String restName = dataProviderID.substring(ScriptVariable.GLOBAL_DOT_PREFIX.length());
-				GlobalScope gs = getScriptEngine().getSolutionScope().getGlobalScope();
-				value = gs.get(restName);
+				value = getScriptEngine().getSolutionScope().getScopesScope().get(null, dataProviderID);
 			}
 			else
 			{
@@ -815,11 +812,10 @@ public class SessionClient extends ClientState implements ISessionClient
 	private Object setDataProviderValue(Pair<IRecordInternal, FormScope> p, String dataProviderID, Object obj)
 	{
 		Object prevValue = null;
-		if (dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+		Pair<String, String> scope = ScopesUtils.getVariableScope(dataProviderID);
+		if (scope.getLeft() != null)
 		{
-			String restName = dataProviderID.substring(ScriptVariable.GLOBAL_DOT_PREFIX.length());
-			GlobalScope gs = getScriptEngine().getSolutionScope().getGlobalScope();
-			prevValue = gs.put(restName, obj);
+			getScriptEngine().getScopesScope().getOrCreateGlobalScope(scope.getLeft()).put(scope.getRight(), obj);
 		}
 		else if (p != null)
 		{

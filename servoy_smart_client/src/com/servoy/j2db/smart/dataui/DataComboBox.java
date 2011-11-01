@@ -82,7 +82,6 @@ import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
-import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
@@ -97,6 +96,7 @@ import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ISkinnable;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.RoundHalfUpDecimalFormat;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.StateFullSimpleDateFormat;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.UIUtils;
@@ -523,7 +523,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 	public void setValidationEnabled(boolean b)
 	{
 		if (eventExecutor.getValidationEnabled() == b) return;
-		if (dataProviderID != null && dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX)) return;
+		if (dataProviderID != null && ScopesUtils.isVariableScope(dataProviderID)) return;
 		eventExecutor.setValidationEnabled(b);
 
 		if (vl.getFallbackValueList() != null)

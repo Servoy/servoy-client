@@ -27,8 +27,8 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.dataprocessing.IRecordInternal;
-import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.util.IDelegate;
+import com.servoy.j2db.util.ScopesUtils;
 
 /**
  * Scriptable for recording access to delegate scriptable. Used to determine dependencies for calculations.
@@ -116,7 +116,7 @@ public class RecordingScriptable implements Scriptable, IDelegate<Scriptable>, W
 			{
 				if (scriptable instanceof GlobalScope)
 				{
-					tracker.usedGlobal(ScriptVariable.GLOBAL_DOT_PREFIX + name);
+					tracker.usedGlobal(ScopesUtils.getScopeString(((GlobalScope)scriptable).getScopeName(), name));
 				}
 				else
 				{

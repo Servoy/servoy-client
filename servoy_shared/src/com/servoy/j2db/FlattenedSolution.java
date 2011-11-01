@@ -54,9 +54,11 @@ import com.servoy.j2db.persistence.IPersistListener;
 import com.servoy.j2db.persistence.IPersistVisitor;
 import com.servoy.j2db.persistence.IRelationProvider;
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.IRootObject;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.ISupportName;
+import com.servoy.j2db.persistence.ISupportScope;
 import com.servoy.j2db.persistence.ISupportScriptProviders;
 import com.servoy.j2db.persistence.ISupportUpdateableName;
 import com.servoy.j2db.persistence.ITable;
@@ -84,6 +86,8 @@ import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.shared.IFlattenedSolutionDebugListener;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.keyword.Ident;
@@ -113,9 +117,8 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	// concurrent caches.
 	private volatile Map<String, Relation> relationCacheByName = null;
-	private volatile Map<String, ScriptMethod> scriptMethodCacheByName = null;
+	private volatile Map<String, Map<String, ISupportScope>> scopeCacheByName = null;
 	private volatile Map<String, Form> formCacheByName = null;
-	private volatile Map<String, ScriptVariable> scriptVariableCacheByName = null;
 	private volatile Map<String, ValueList> valuelistCacheByName = null;
 
 	private final List<IPersist> removedPersist = Collections.synchronizedList(new ArrayList<IPersist>(3));
@@ -884,6 +887,29 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		}
 	}
 
+	public Collection<Pair<String, IRootObject>> getScopes()
+	{
+		Map<String, Pair<String, IRootObject>> scopes = new HashMap<String, Pair<String, IRootObject>>();
+
+		// should have at least globals scope
+		scopes.put(ScriptVariable.GLOBAL_SCOPE, new Pair<String, IRootObject>(ScriptVariable.GLOBAL_SCOPE, getSolution()));
+
+		for (IPersist persist : getAllObjectsAsList())
+		{
+			if (persist instanceof ISupportScope)
+			{
+				String scopeName = ((ISupportScope)persist).getScopeName();
+				if (!scopes.containsKey(scopeName))
+				{
+					// TODO: check if same scope exists with different modules
+					scopes.put(scopeName, new Pair<String, IRootObject>(scopeName, persist.getRootObject()));
+				}
+			}
+		}
+
+		return scopes.values();
+	}
+
 	public void addSecurityAccess(Map<Object, Integer> sp)
 	{
 		addSecurityAccess(sp, true);
@@ -1000,56 +1026,52 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		if (globalProviders == null) globalProviders = new ConcurrentHashMap<String, IDataProvider>(64, 9f, 16);
 
 		IDataProvider retval = globalProviders.get(id);
-		if (retval != null)
+		if (retval == null)
 		{
-			return retval;
+			retval = getGlobalDataProviderEx(id);
+			if (retval != null)
+			{
+				globalProviders.put(id, retval);
+			}
 		}
+		return retval;
+	}
 
-		int indx = id.lastIndexOf('.'); // in case of multi-level relations we have more that 1 dot
-		if (indx > 0 && !id.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+	private IDataProvider getGlobalDataProviderEx(String id) throws RepositoryException
+	{
+		if (id == null) return null;
+
+		Pair<String, String> scope = ScopesUtils.getVariableScope(id);
+		if (scope.getLeft() == null /* no global scope */)
 		{
-			String rel_name = id.substring(0, indx);
-			String col = id.substring(indx + 1);
-
-			Relation[] relations = getRelationSequence(rel_name);
-			if (relations == null)
+			int indx = id.lastIndexOf('.'); // in case of multi-level relations we have more that 1 dot
+			if (indx > 0)
 			{
-				return null;
-			}
+				String rel_name = id.substring(0, indx);
+				String col = id.substring(indx + 1);
 
-			Relation r = relations[relations.length - 1];
-			Column[] cols = r.getForeignColumns();
-			if (cols == null || cols.length == 0) return null;
+				Relation[] relations = getRelationSequence(rel_name);
+				if (relations == null)
+				{
+					return null;
+				}
 
-			IDataProvider c = getDataProviderForTable(r.getForeignTable(), col);
+				Relation r = relations[relations.length - 1];
+				Column[] cols = r.getForeignColumns();
+				if (cols == null || cols.length == 0) return null;
 
-			if (c == null) return null;
+				IDataProvider c = getDataProviderForTable(r.getForeignTable(), col);
 
-			if (r != null && c instanceof IColumn)
-			{
-				ColumnWrapper rc = new ColumnWrapper((IColumn)c, relations);
-				globalProviders.put(id, rc);
-				return rc;
-			}
-			else
-			{
-				globalProviders.put(id, c);
+				if (r != null && c instanceof IColumn)
+				{
+					return new ColumnWrapper((IColumn)c, relations);
+				}
 				return c;
 			}
 		}
 
 		//search all objects,will return globals
-		Iterator<ScriptVariable> it = getScriptVariables(false);
-		while (it.hasNext())
-		{
-			IPersist p = it.next();
-			if (p instanceof IDataProvider && ((IDataProvider)p).getDataProviderID().equals(id))
-			{
-				globalProviders.put(((IDataProvider)p).getDataProviderID(), (IDataProvider)p);
-				retval = (IDataProvider)p;
-			}
-		}
-		return retval;
+		return AbstractBase.selectByName(getScriptVariables(scope.getLeft(), false), scope.getRight());
 	}
 
 	/**
@@ -1166,8 +1188,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		globalProviders = null;
 		allProvidersForTable = null;
 		relationCacheByName = null;
-		scriptVariableCacheByName = null;
-		scriptMethodCacheByName = null;
+		scopeCacheByName = null;
 		formCacheByName = null;
 		valuelistCacheByName = null;
 		dataProviderLookups = null;
@@ -1324,6 +1345,21 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		return modules;
 	}
 
+	public boolean hasModule(String moduleName)
+	{
+		if (modules != null)
+		{
+			for (Solution module : modules)
+			{
+				if (module.getName().equals(moduleName))
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	public synchronized Relation getRelation(String name)
 	{
 		if (name.indexOf('.') >= 0)
@@ -1402,14 +1438,14 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		formCacheByName = null;
 	}
 
-	private void flushScriptMethods()
+	private void flushScopes()
 	{
-		scriptMethodCacheByName = null;
+		scopeCacheByName = null;
 	}
 
 	private synchronized void flushScriptVariables()
 	{
-		scriptVariableCacheByName = null;
+		scopeCacheByName = null;
 		globalProviders = null;
 	}
 
@@ -1524,7 +1560,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		if (persist instanceof Relation) flushRelations();
 		if (persist instanceof ValueList) flushValuelists();
 		if (persist instanceof Form) flushForms();
-		if (persist instanceof ScriptMethod) flushScriptMethods();
+		if (persist instanceof ScriptMethod) flushScopes();
 		if (persist instanceof ScriptVariable) flushScriptVariables();
 		flushDataProvidersForPersist(persist);
 		flushDataProviderLookups(persist);
@@ -1756,57 +1792,119 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		return beanDesignInstances == null ? null : beanDesignInstances.get(b);
 	}
 
+	public Iterator<ScriptMethod> getScriptMethods(String scopeName, boolean sort)
+	{
+		return Solution.getScriptMethods(getAllObjectsAsList(), scopeName, sort);
+	}
+
 	public Iterator<ScriptMethod> getScriptMethods(boolean sort)
 	{
-		return Solution.getScriptMethods(getAllObjectsAsList(), sort);
+		return Solution.getScriptMethods(getAllObjectsAsList(), null, sort);
 	}
 
 	public ScriptMethod getScriptMethod(int methodId)
 	{
-		return Solution.getScriptMethod(getScriptMethods(false), methodId);
+		if (methodId <= 0) return null;
+		return AbstractBase.selectById(getScriptMethods(null, false), methodId);
 	}
 
-	public ScriptMethod getScriptMethod(String methodName)
+	/**
+	 * Get global script method.
+	 * Scope name may be in methodName (globals.x, scopes.globals.x or scopes.myscope.x) or may be supplied in arg scopeName.
+	 */
+	public ScriptMethod getScriptMethod(String scopeName, String methodName)
 	{
-		if (methodName != null && methodName.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+		ISupportScope elem = getGlobalScopeElement(scopeName, methodName);
+		if (elem instanceof ScriptMethod)
 		{
-			methodName = methodName.toString().substring(ScriptVariable.GLOBAL_DOT_PREFIX.length());
+			return (ScriptMethod)elem;
 		}
-		Map<String, ScriptMethod> tmp = scriptMethodCacheByName;
+		return null;
+	}
+
+	private ISupportScope getGlobalScopeElement(String sc, String elementName)
+	{
+		if (elementName == null)
+		{
+			return null;
+		}
+		String scopeName = sc;
+		String baseName = elementName;
+		if (sc == null)
+		{
+			Pair<String, String> scope = ScopesUtils.getVariableScope(elementName);
+			scopeName = scope.getLeft();
+			baseName = scope.getRight();
+			if (scopeName == null)
+			{
+				scopeName = ScriptVariable.GLOBAL_SCOPE;
+			}
+		}
+		else
+		{
+			baseName = ScopesUtils.getVariableScope(elementName).getRight();
+		}
+
+		Map<String, ISupportScope> scopeMap = getGlobalScopeCache().get(scopeName);
+		if (scopeMap == null)
+		{
+			return null;
+		}
+
+		return scopeMap.get(baseName);
+	}
+
+	private Map<String, Map<String, ISupportScope>> getGlobalScopeCache()
+	{
+		Map<String, Map<String, ISupportScope>> tmp = scopeCacheByName;
 		if (tmp == null)
 		{
-			tmp = new HashMap<String, ScriptMethod>(32, 0.9f);
-			Iterator<ScriptMethod> scriptMethods = getScriptMethods(false);
-			while (scriptMethods.hasNext())
+			tmp = new HashMap<String, Map<String, ISupportScope>>();
+			for (IPersist persist : getAllObjectsAsList())
 			{
-				ScriptMethod scriptMethod = scriptMethods.next();
-				tmp.put(scriptMethod.getName(), scriptMethod);
+				if (persist instanceof ISupportScope)
+				{
+					String scopeName = ((ISupportScope)persist).getScopeName();
+					if (scopeName == null)
+					{
+						scopeName = ScriptVariable.GLOBAL_SCOPE;
+					}
+					Map<String, ISupportScope> scopeMap = tmp.get(scopeName);
+					if (scopeMap == null)
+					{
+						tmp.put(scopeName, scopeMap = new HashMap<String, ISupportScope>());
+					}
+					scopeMap.put(((ISupportScope)persist).getName(), (ISupportScope)persist);
+				}
 			}
-			scriptMethodCacheByName = tmp;
+			scopeCacheByName = tmp;
 		}
-		return tmp.get(methodName);
+
+		return tmp;
 	}
 
 	public Iterator<ScriptVariable> getScriptVariables(boolean sort)
 	{
-		return Solution.getScriptVariables(getAllObjectsAsList(), sort);
+		return Solution.getScriptVariables(getAllObjectsAsList(), null, sort);
 	}
 
-	public ScriptVariable getScriptVariable(String variableName)
+	public Iterator<ScriptVariable> getScriptVariables(String scopeName, boolean sort)
 	{
-		Map<String, ScriptVariable> tmp = scriptVariableCacheByName;
-		if (tmp == null)
+		return Solution.getScriptVariables(getAllObjectsAsList(), scopeName, sort);
+	}
+
+	/**
+	 * Get global script variable.
+	 * Scope name may be in variable (globals.x, scopes.globals.x or scopes.myscope.x) or may be supplied in arg scopeName.
+	 */
+	public ScriptVariable getScriptVariable(String scopeName, String variableName)
+	{
+		ISupportScope elem = getGlobalScopeElement(scopeName, variableName);
+		if (elem instanceof ScriptVariable)
 		{
-			tmp = new HashMap<String, ScriptVariable>(32, 0.9f);
-			Iterator<ScriptVariable> scriptVariable = getScriptVariables(false);
-			while (scriptVariable.hasNext())
-			{
-				ScriptVariable scriptMethod = scriptVariable.next();
-				tmp.put(scriptMethod.getName(), scriptMethod);
-			}
-			scriptVariableCacheByName = tmp;
+			return (ScriptVariable)elem;
 		}
-		return tmp.get(variableName);
+		return null;
 	}
 
 	protected IRepository getRepository()
@@ -2000,9 +2098,10 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			if (tableNodes.hasNext())
 			{
 				//  remove all script calcs with the same name as the calc which isnt the copy calc itself.
-				List<ScriptCalculation> copyCalcs = tableNodes.next().getScriptCalculations();
-				for (ScriptCalculation copyCalc : copyCalcs)
+				Iterator<ScriptCalculation> copyCalcs = tableNodes.next().getScriptCalculations();
+				while (copyCalcs.hasNext())
 				{
+					ScriptCalculation copyCalc = copyCalcs.next();
 					for (int i = scriptCalculations.size(); i-- != 0;)
 					{
 						ScriptCalculation scriptCalculation = scriptCalculations.get(i);

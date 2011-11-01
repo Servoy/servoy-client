@@ -31,7 +31,6 @@ import org.apache.wicket.RequestCycle;
 import org.apache.wicket.protocol.http.WebRequestCycle;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.protocol.http.WebSession;
-import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.ClientState;
@@ -50,7 +49,6 @@ import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
-import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.server.headlessclient.EmptyRequest;
 import com.servoy.j2db.server.headlessclient.SessionClient;
@@ -162,7 +160,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	 * @param persist
 	 * @param elementName
 	 */
-	public void executeMethod(final ISupportChilds persist, final String methodname)
+	public void executeMethod(final ISupportChilds persist, final String scopeName, final String methodname)
 	{
 		final IApplication serviceProvider = getDebugReadyClient();
 		if (serviceProvider != null)
@@ -171,21 +169,15 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 			{
 				public void run()
 				{
-
 					if (persist instanceof Solution)
 					{
-						GlobalScope gs = serviceProvider.getScriptEngine().getSolutionScope().getGlobalScope();
-						Object function = gs.get(methodname);
-						if (function instanceof Function)
+						try
 						{
-							try
-							{
-								serviceProvider.getScriptEngine().executeFunction((Function)function, gs, gs, null, false, false);
-							}
-							catch (Exception e)
-							{
-
-							}
+							serviceProvider.getScriptEngine().getScopesScope().executeGlobalFunction(scopeName, methodname, null, false, false);
+						}
+						catch (Exception e)
+						{
+							Debug.log(e);
 						}
 					}
 					else if (persist instanceof Form)
@@ -203,6 +195,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 						}
 						catch (Exception e)
 						{
+							Debug.log(e);
 						}
 					}
 				}

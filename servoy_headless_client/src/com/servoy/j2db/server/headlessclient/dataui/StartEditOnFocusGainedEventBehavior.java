@@ -23,8 +23,8 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
-import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.ui.IEventExecutor;
+import com.servoy.j2db.util.ScopesUtils;
 
 /**
  * Behavior for focus gained events.
@@ -76,7 +76,7 @@ public class StartEditOnFocusGainedEventBehavior extends ServoyAjaxEventBehavior
 	public static boolean startEditing(Component component, int modifiers, AjaxRequestTarget target)
 	{
 		if (component instanceof IDisplayData && ((IDisplayData)component).getDataProviderID() != null &&
-			!((IDisplayData)component).getDataProviderID().startsWith(ScriptVariable.GLOBAL_DOT_PREFIX) && !((IDisplayData)component).isReadOnly())
+			!ScopesUtils.isVariableScope(((IDisplayData)component).getDataProviderID()) && !((IDisplayData)component).isReadOnly())
 		{
 			Object record = component.getInnermostModel().getObject();
 			if (record instanceof IRecordInternal)

@@ -57,6 +57,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -265,6 +266,13 @@ public class Utils
 	{
 		List<T> lst = asList(it);
 		return lst.toArray((T[])java.lang.reflect.Array.newInstance(clazz, lst.size()));
+	}
+
+	public static <T> Iterator<T> asSortedIterator(Iterator< ? extends T> it, Comparator< ? super T> comparator)
+	{
+		Object[] array = asList(it).toArray();
+		Arrays.sort(array, (Comparator<Object>)comparator);
+		return (Iterator<T>)Arrays.asList(array).iterator();
 	}
 
 	/**

@@ -35,7 +35,6 @@ import java.util.Map.Entry;
 import javax.swing.Action;
 
 import org.mozilla.javascript.Context;
-import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
@@ -59,9 +58,12 @@ import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.InstanceJavaMembers;
 import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
+import com.servoy.j2db.scripting.ScopesScope;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SafeArrayList;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.UIUtils;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.AppletController;
@@ -318,14 +320,9 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		{
 			try
 			{
-				GlobalScope gscope = application.getScriptEngine().getSolutionScope().getGlobalScope();
-				Object function = gscope.get(sm.getName());
-				if (function instanceof Function)
-				{
-					application.getScriptEngine().executeFunction(((Function)function), gscope, gscope,
-						Utils.arrayMerge(solutionOpenMethodArgs, Utils.parseJSExpressions(solution.getInstanceMethodArguments("onOpenMethodID"))), false, false); //$NON-NLS-1$
-					if (application.getSolution() == null) return;
-				}
+				application.getScriptEngine().getScopesScope().executeGlobalFunction(sm.getScopeName(), sm.getName(),
+					Utils.arrayMerge(solutionOpenMethodArgs, Utils.parseJSExpressions(solution.getInstanceMethodArguments("onOpenMethodID"))), false, false);
+				if (application.getSolution() == null) return;
 			}
 			catch (Exception e1)
 			{
@@ -374,16 +371,11 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 				// avoid stack overflows when an execute method URL is used to open the solution, and that method does call JSSecurity login
 				((ClientState)application).resetPreferedSolutionMethodNameToCall();
 
-				GlobalScope gscope = application.getScriptEngine().getSolutionScope().getGlobalScope();
-				Object function = gscope.get(preferedSolutionMethodName, gscope);
-				if (function instanceof Function)
+				Pair<String, String> scope = ScopesUtils.getVariableScope(preferedSolutionMethodName);
+				Object result = application.getScriptEngine().getScopesScope().executeGlobalFunction(scope.getLeft(), scope.getRight(), args, false, false);
+				if (application.getSolution().getSolutionType() == SolutionMetaData.AUTHENTICATOR)
 				{
-					int solutionType = application.getSolution().getSolutionType();
-					Object result = application.getScriptEngine().executeFunction(((Function)function), gscope, gscope, args, false, false);
-					if (solutionType == SolutionMetaData.AUTHENTICATOR)
-					{
-						application.getRuntimeProperties().put(IServiceProvider.RT_OPEN_METHOD_RESULT, result);
-					}
+					application.getRuntimeProperties().put(IServiceProvider.RT_OPEN_METHOD_RESULT, result);
 				}
 			}
 			catch (Exception e1)
@@ -393,7 +385,6 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 			}
 		}
 	}
-
 
 	private IMainContainer lastModalContainer;
 
@@ -966,8 +957,8 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		}
 
 		//  cannot be deleted if a global var has a ref
-		GlobalScope globalScope = application.getScriptEngine().getGlobalScope();
-		if (hasReferenceInScriptable(globalScope, fp))
+		ScopesScope scopesScope = application.getScriptEngine().getScopesScope();
+		if (hasReferenceInScriptable(scopesScope, fp))
 		{
 			return false;
 		}
@@ -988,7 +979,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		{
 			return ((FormScope)scriptVar).getFormController().equals(fc);
 		}
-		else if (scriptVar instanceof GlobalScope || scriptVar instanceof NativeArray) // if(o instanceof Scriptable) for all scriptable ?
+		if (scriptVar instanceof GlobalScope || scriptVar instanceof ScopesScope || scriptVar instanceof NativeArray) // if(o instanceof Scriptable) for all scriptable ?
 		{
 			Object[] propertyIDs = scriptVar.getIds();
 			if (propertyIDs != null)
@@ -998,11 +989,23 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 				{
 					if (element != null)
 					{
-						if (element instanceof Integer) propertyValue = scriptVar.get(((Integer)element).intValue(), scriptVar);
-						else propertyValue = scriptVar.get(element.toString(), scriptVar);
+						if (element instanceof Integer)
+						{
+							propertyValue = scriptVar.get(((Integer)element).intValue(), scriptVar);
+						}
+						else
+						{
+							propertyValue = scriptVar.get(element.toString(), scriptVar);
+						}
 
-						if (propertyValue != null && propertyValue.equals(fc)) return true;
-						else if (propertyValue instanceof Scriptable && hasReferenceInScriptable((Scriptable)propertyValue, fc)) return true;
+						if (propertyValue != null && propertyValue.equals(fc))
+						{
+							return true;
+						}
+						if (propertyValue instanceof Scriptable && hasReferenceInScriptable((Scriptable)propertyValue, fc))
+						{
+							return true;
+						}
 					}
 				}
 			}

@@ -271,7 +271,7 @@ public class MediaURLStreamHandler extends URLStreamHandler
 				if (token.startsWith("global=")) //$NON-NLS-1$
 				{
 					String globalName = token.substring("global=".length()); //$NON-NLS-1$
-					Object obj = application.getScriptEngine().getGlobalScope().get(globalName);
+					Object obj = application.getScriptEngine().getScopesScope().get(null, globalName);
 					if (obj instanceof byte[])
 					{
 						return (byte[])obj;

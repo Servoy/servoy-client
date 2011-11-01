@@ -166,7 +166,7 @@ public abstract class RelatedFoundSet extends FoundSet
 			sortColumns = defaultSortColumns;
 		}
 
-		QuerySelect cleanSelect = fsm.getSQLGenerator().getPKSelectSqlSelect(fsm.getGlobalScopeProvider(), sheet.getTable(), null, null, true, null,
+		QuerySelect cleanSelect = fsm.getSQLGenerator().getPKSelectSqlSelect(fsm.getScopesScopeProvider(), sheet.getTable(), null, null, true, null,
 			sortColumns, false);
 
 		QuerySelect relationSelect = (QuerySelect)sheet.getRelatedSQLDescription(relation.getName()).getSQLQuery();

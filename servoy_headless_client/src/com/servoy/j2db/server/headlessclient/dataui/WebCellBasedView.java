@@ -123,7 +123,6 @@ import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.TabSeqComparator;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
@@ -154,6 +153,7 @@ import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.Utils;
 
@@ -1894,12 +1894,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		if (view instanceof Portal && c instanceof IDisplayData) // Don't know any other place for this
 		{
 			String id = ((IDisplayData)c).getDataProviderID();
-			if (id != null && !id.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+			if (id != null && !ScopesUtils.isVariableScope(id) && id.startsWith(((Portal)view).getRelationName() + '.'))
 			{
-				if (id.startsWith(((Portal)view).getRelationName() + '.'))
-				{
-					((IDisplayData)c).setDataProviderID(id.substring(((Portal)cellview).getRelationName().length() + 1));
-				}
+				((IDisplayData)c).setDataProviderID(id.substring(((Portal)cellview).getRelationName().length() + 1));
 			}
 		}
 		if (c instanceof WebDataCheckBox)

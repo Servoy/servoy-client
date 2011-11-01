@@ -51,7 +51,6 @@ import com.servoy.j2db.persistence.ISupportPrinting;
 import com.servoy.j2db.persistence.ISupportTabSeq;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.Portal;
-import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.server.headlessclient.TabIndexHelper;
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.server.headlessclient.WrapperContainer;
@@ -63,6 +62,7 @@ import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.OrientationApplier;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.TabSequenceHelper;
 import com.servoy.j2db.util.Utils;
 
@@ -207,7 +207,7 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 						if (form.getOnRecordEditStartMethodID() > 0 && comp instanceof IFieldComponent)
 						{
 							if (useAJAX && comp instanceof IDisplayData && ((IDisplayData)comp).getDataProviderID() != null &&
-								!((IDisplayData)comp).getDataProviderID().startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+								!ScopesUtils.isVariableScope(((IDisplayData)comp).getDataProviderID()))
 							{
 								StartEditOnFocusGainedEventBehavior.addNewBehaviour(comp);
 							}

@@ -22,6 +22,7 @@ import org.mozilla.javascript.Scriptable;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.plugins.ClientPluginAccessProvider;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 
@@ -34,7 +35,7 @@ import com.servoy.j2db.plugins.IClientPluginAccess;
  */
 public class FunctionDefinition
 {
-	private String formName;
+	private String contextName; // form name or sopes.scopeName
 	private String methodName;
 
 	public FunctionDefinition() // for bean xml serialization
@@ -42,8 +43,8 @@ public class FunctionDefinition
 	}
 
 	/**
-	 * Create FunctionDefinition from [formname|globals].method string.
-	 * @param methodString
+	 * Create FunctionDefinition from method string.
+	 * @param methodString formname.methodname or globals.methodname or scopes.scopename.methodname
 	 * @since 5.0
 	 */
 	public FunctionDefinition(String methodString)
@@ -55,22 +56,37 @@ public class FunctionDefinition
 			{
 				// global method
 				methodName = split[0];
+				contextName = ScriptVariable.SCOPES_DOT_PREFIX + ScriptVariable.GLOBAL_SCOPE;
 			}
-			else
+			else if (split.length <= 3)
 			{
-				if (!"globals".equals(split[0])) //$NON-NLS-1$
+				if (split.length == 2 && ScriptVariable.GLOBAL_SCOPE.equals(split[0]))
+				{
+					contextName = ScriptVariable.SCOPES_DOT_PREFIX + ScriptVariable.GLOBAL_SCOPE;
+				}
+				else if (split.length == 3 && ScriptVariable.SCOPES.equals(split[0]))
+				{
+					contextName = ScriptVariable.SCOPES_DOT_PREFIX + split[1];
+				}
+				else
 				{
 					// form method
-					formName = split[0];
+					contextName = split[0];
 				}
-				methodName = split[1];
+				methodName = split[split.length - 1];
 			}
 		}
 	}
 
-	public FunctionDefinition(String formName, String methodName)
+	/**
+	 * Create FunctionDefinition from context and method name.
+	 * @param contextName form name or scopes.scopename
+	 * @param methodName
+	 * @since 6.1
+	 */
+	public FunctionDefinition(String contextName, String methodName)
 	{
-		this.formName = formName;
+		this.contextName = contextName == null ? ScriptVariable.SCOPES_DOT_PREFIX + ScriptVariable.GLOBAL_SCOPE : contextName;
 		this.methodName = methodName;
 	}
 
@@ -80,8 +96,24 @@ public class FunctionDefinition
 		{
 			throw new IllegalArgumentException("Method/Function is null"); //$NON-NLS-1$
 		}
-		Object formNameObj = f.getParentScope().get("_formname_", f.getParentScope()); //$NON-NLS-1$
-		this.formName = (formNameObj == null || formNameObj.equals(Scriptable.NOT_FOUND)) ? null : formNameObj.toString();
+
+		Object scopeNameObj = f.get("_scopename_", f); //$NON-NLS-1$
+		if (scopeNameObj == null || scopeNameObj.equals(Scriptable.NOT_FOUND))
+		{
+			Object formNameObj = f.getParentScope().get("_formname_", f.getParentScope()); //$NON-NLS-1$
+			if (formNameObj == null || formNameObj.equals(Scriptable.NOT_FOUND))
+			{
+				this.contextName = ScriptVariable.SCOPES_DOT_PREFIX + ScriptVariable.GLOBAL_SCOPE;
+			}
+			else
+			{
+				this.contextName = formNameObj.toString();
+			}
+		}
+		else
+		{
+			this.contextName = ScriptVariable.SCOPES_DOT_PREFIX + scopeNameObj.toString();
+		}
 
 		Object methodNameObj = f.get("_methodname_", f); //$NON-NLS-1$
 		this.methodName = (methodNameObj == null || methodNameObj.equals(Scriptable.NOT_FOUND)) ? null : methodNameObj.toString();
@@ -92,33 +124,76 @@ public class FunctionDefinition
 		}
 	}
 
+	/**
+	 * Get the scope name of this FunctionDefinition when the context is defined for a global method.
+	 * Otherwise returns null.
+	 * @since 6.1
+	 */
+	public String getScopeName()
+	{
+		return contextName.startsWith(ScriptVariable.SCOPES_DOT_PREFIX) ? contextName.substring(ScriptVariable.SCOPES_DOT_PREFIX.length()) : null;
+	}
+
+	/**
+	 * Get the context of this function definition.
+	 * <p>The context name is either the form name or scopes.scopeName.
+	 * @since 6.1
+	 */
+	public String getContextName()
+	{
+		return contextName;
+	}
+
+	/**
+	 * Set the context of this function definition.
+	 * <p>The context name is either the form name or scopes.scopeName.
+	 * @since 6.1
+	 */
+	public void setContextName(String contextName)
+	{
+		this.contextName = contextName;
+	}
+
+	/**
+	 * @deprecated see {@link #getContextName()}.
+	 */
+	@Deprecated
 	public String getFormName()
 	{
-		return formName;
+		return contextName.startsWith(ScriptVariable.SCOPES_DOT_PREFIX) ? null : contextName;
 	}
 
+	/**
+	 * @deprecated see {@link #setContextName(String)}.
+	 */
+	@Deprecated
 	public void setFormName(String formName)
 	{
-		this.formName = formName;
+		this.contextName = formName == null ? ScriptVariable.SCOPES_DOT_PREFIX + ScriptVariable.GLOBAL_SCOPE : formName;
 	}
 
+	/**
+	 * Get the method name of this function definition.
+	 */
 	public String getMethodName()
 	{
 		return methodName;
 	}
 
+	/**
+	 * Set the method name of this function definition.
+	 */
 	public void setMethodName(String methodName)
 	{
 		this.methodName = methodName;
 	}
 
+	/**
+	 * Get the method name plus scope.
+	 */
 	public String toMethodString()
 	{
-		if (formName == null)
-		{
-			return "globals." + methodName; //$NON-NLS-1$
-		}
-		return formName + '.' + methodName;
+		return contextName + '.' + methodName;
 	}
 
 	public enum Exist
@@ -142,17 +217,18 @@ public class FunctionDefinition
 				{
 					if (application.getSolution() != null)
 					{
-						if (formName == null)
+						if (contextName.startsWith(ScriptVariable.SCOPES_DOT_PREFIX))
 						{
-							GlobalScope gs = application.getScriptEngine().getSolutionScope().getGlobalScope();
-							if (gs.get(methodName) instanceof Function)
+							GlobalScope gs = application.getScriptEngine().getScopesScope().getGlobalScope(
+								contextName.substring(ScriptVariable.SCOPES_DOT_PREFIX.length()));
+							if (gs != null && gs.get(methodName) instanceof Function)
 							{
 								retVal[0] = Exist.METHOD_FOUND;
 							}
 						}
 						else
 						{
-							FormController fp = ((FormManager)application.getFormManager()).leaseFormPanel(formName);
+							FormController fp = ((FormManager)application.getFormManager()).leaseFormPanel(contextName);
 							if (fp == null)
 							{
 								retVal[0] = Exist.FORM_NOT_FOUND;
@@ -215,12 +291,12 @@ public class FunctionDefinition
 	{
 		try
 		{
-			return access.executeMethod(formName, methodName, arguments, async);
+			return access.executeMethod(contextName, methodName, arguments, async);
 		}
 		catch (Exception e)
 		{
 			access.handleException(
-				"Failed to execute the method of context " + formName + " and name " + methodName + " on the solution " + access.getSolutionName(), e);
+				"Failed to execute the method of context " + contextName + " and name " + methodName + " on the solution " + access.getSolutionName(), e);
 		}
 		return null;
 	}

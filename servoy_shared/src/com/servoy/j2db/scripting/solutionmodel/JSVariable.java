@@ -35,9 +35,9 @@ public class JSVariable implements IConstantsObject
 	 * Constant to be used when the type of a variable needs to be specified.
 	 * 
 	 * @sample
-	 * var dateVar = solutionModel.newGlobalVariable('gDate', JSVariable.DATETIME);
+	 * var dateVar = solutionModel.newGlobalVariable('globals', 'gDate', JSVariable.DATETIME);
 	 * dateVar.defaultValue = 'now';
-	 * application.output(globals.gDate); // Prints the current date and time.
+	 * application.output(scopes.globals.gDate); // Prints the current date and time.
 	 */
 	public static final int DATETIME = IColumnTypes.DATETIME;
 
@@ -45,9 +45,9 @@ public class JSVariable implements IConstantsObject
 	 * @clonedesc DATETIME
 	 * 
 	 * @sample
-	 * var txtVar = solutionModel.newGlobalVariable('gText', JSVariable.TEXT);
+	 * var txtVar = solutionModel.newGlobalVariable('globals', 'gText', JSVariable.TEXT);
 	 * txtVar.defaultValue = '"some text"'; // Use two pairs of quotes if you want to assing a String as default value.
-	 * application.output(globals.gText); // Prints 'some text' (without quotes).
+	 * application.output(scopes.globals.gText); // Prints 'some text' (without quotes).
 	 */
 	public static final int TEXT = IColumnTypes.TEXT;
 
@@ -55,9 +55,9 @@ public class JSVariable implements IConstantsObject
 	 * @clonedesc DATETIME
 	 * 
 	 * @sample
-	 * var numberVar = solutionModel.newGlobalVariable('gNumber', JSVariable.NUMBER);
+	 * var numberVar = solutionModel.newGlobalVariable('globals', 'gNumber', JSVariable.NUMBER);
 	 * numberVar.defaultValue = 192.334;
-	 * application.output(globals.gNumber); // Prints 192.334
+	 * application.output(scopes.globals.gNumber); // Prints 192.334
 	 */
 	public static final int NUMBER = IColumnTypes.NUMBER;
 
@@ -65,9 +65,9 @@ public class JSVariable implements IConstantsObject
 	 * @clonedesc DATETIME
 	 * 
 	 * @sample
-	 * var intVar = solutionModel.newGlobalVariable('gInt', JSVariable.INTEGER);
+	 * var intVar = solutionModel.newGlobalVariable('globals', 'gInt', JSVariable.INTEGER);
 	 * intVar.defaultValue = 997;
-	 * application.output(globals.gInt); // Prints 997
+	 * application.output(scopes.globals.gInt); // Prints 997
 	 */
 	public static final int INTEGER = IColumnTypes.INTEGER;
 
@@ -75,9 +75,9 @@ public class JSVariable implements IConstantsObject
 	 * @clonedesc DATETIME
 	 * 
 	 * @sample
-	 * var mediaVar = solutionModel.newGlobalVariable('gMedia', JSVariable.MEDIA);
+	 * var mediaVar = solutionModel.newGlobalVariable('globals', 'gMedia', JSVariable.MEDIA);
 	 * mediaVar.defaultValue = 'new Array(1, 2, 3, 4)';
-	 * application.output(globals.gMedia); // Prints out the array with four elements.
+	 * application.output(scopes.globals.gMedia); // Prints out the array with four elements.
 	 */
 	public static final int MEDIA = IColumnTypes.MEDIA;
 
@@ -130,21 +130,21 @@ public class JSVariable implements IConstantsObject
 	 * @clonedesc com.servoy.j2db.persistence.ScriptVariable#getDefaultValue()
 	 *
 	 * @sample 
-	 * var intVar = solutionModel.newGlobalVariable('gInt', JSVariable.INTEGER);
+	 * var intVar = solutionModel.newGlobalVariable('globals', 'gInt', JSVariable.INTEGER);
 	 * intVar.defaultValue = 997;
-	 * application.output(globals.gInt); // Prints 997
-	 * var numberVar = solutionModel.newGlobalVariable('gNumber', JSVariable.NUMBER);
+	 * application.output(scopes.globals.gInt); // Prints 997
+	 * var numberVar = solutionModel.newGlobalVariable('globals', 'gNumber', JSVariable.NUMBER);
 	 * numberVar.defaultValue = 192.334;
-	 * application.output(globals.gNumber); // Prints 192.334
-	 * var dateVar = solutionModel.newGlobalVariable('gDate', JSVariable.DATETIME);
+	 * application.output(scopes.globals.gNumber); // Prints 192.334
+	 * var dateVar = solutionModel.newGlobalVariable('globals', 'gDate', JSVariable.DATETIME);
 	 * dateVar.defaultValue = 'now';
-	 * application.output(globals.gDate); // Prints the current date and time.
-	 * var txtVar = solutionModel.newGlobalVariable('gText', JSVariable.TEXT);
+	 * application.output(scopes.globals.gDate); // Prints the current date and time.
+	 * var txtVar = solutionModel.newGlobalVariable('globals', 'gText', JSVariable.TEXT);
 	 * txtVar.defaultValue = '"some text"'; // Use two pairs of quotes if you want to assing a String as default value.
-	 * application.output(globals.gText); // Prints 'some text' (without quotes).
-	 * var mediaVar = solutionModel.newGlobalVariable('gMedia', JSVariable.MEDIA);
+	 * application.output(scopes.globals.gText); // Prints 'some text' (without quotes).
+	 * var mediaVar = solutionModel.newGlobalVariable('globals', 'gMedia', JSVariable.MEDIA);
 	 * mediaVar.defaultValue = 'new Array(1, 2, 3, 4)';
-	 * application.output(globals.gMedia); // Prints out the array with four elements.
+	 * application.output(scopes.globals.gMedia); // Prints out the array with four elements.
 	 */
 	public String js_getDefaultValue()
 	{
@@ -155,12 +155,12 @@ public class JSVariable implements IConstantsObject
 	 * @clonedesc com.servoy.j2db.persistence.ScriptVariable#getName()
 	 *
 	 * @sample 
-	 * var gVar = solutionModel.newGlobalVariable('gtext', JSVariable.TEXT);
+	 * var gVar = solutionModel.newGlobalVariable('globals', 'gtext', JSVariable.TEXT);
 	 * gVar.name = 'anotherName';
 	 * gVar.defaultValue = '"default text"';
 	 * // The next two lines will print the same output.
-	 * application.output(globals[gVar.name]);
-	 * application.output(globals.anotherName);
+	 * application.output(scopes.globals[gVar.name]);
+	 * application.output(scopes.globals.anotherName);
 	 */
 	public String js_getName()
 	{
@@ -168,13 +168,26 @@ public class JSVariable implements IConstantsObject
 	}
 
 	/**
+	 * @clonedesc com.servoy.j2db.persistence.ISupportScope#getScopeName()
+	 * 
+	 * @sample 
+	 * 	var globalVariables = solutionModel.getGlobalVariables();
+	 * 	for (var i in globalVariables)
+	 * 		application.output(globalVariables[i].name + ' is defined in scope ' + globalVariables[i].getScopeName());
+	 */
+	public String js_getScopeName()
+	{
+		return variable.getScopeName();
+	}
+
+	/**
 	 * @clonedesc com.servoy.j2db.persistence.ScriptVariable#getVariableType()
 	 *
 	 * @sample 
-	 * var g = solutionModel.newGlobalVariable('gtext',JSVariable.TEXT);
-	 * globals.gtext = 'some text';
+	 * var g = solutionModel.newGlobalVariable('globals', 'gtext',JSVariable.TEXT);
+	 * scopes.globals.gtext = 'some text';
 	 * g.variableType = JSVariable.DATETIME;
-	 * globals.gtext = 'another text'; // This will raise an error now, because the variable is not longer of type text.
+	 * scopes.globals.gtext = 'another text'; // This will raise an error now, because the variable is not longer of type text.
 	 */
 	public int js_getVariableType()
 	{
@@ -187,7 +200,7 @@ public class JSVariable implements IConstantsObject
 		variable.setDefaultValue(arg);
 		if (form == null)
 		{
-			application.getScriptEngine().getGlobalScope().put(variable, true);
+			application.getScriptEngine().getScopesScope().getOrCreateGlobalScope(variable.getScopeName()).put(variable, true);
 		}
 	}
 
@@ -202,7 +215,7 @@ public class JSVariable implements IConstantsObject
 				variable.updateName(new ScriptNameValidator(application.getFlattenedSolution()), name);
 				if (form == null)
 				{
-					application.getScriptEngine().getGlobalScope().put(variable, false);
+					application.getScriptEngine().getScopesScope().getOrCreateGlobalScope(variable.getScopeName()).put(variable, false);
 				}
 			}
 			catch (RepositoryException e)
@@ -219,7 +232,7 @@ public class JSVariable implements IConstantsObject
 
 		if (form == null)
 		{
-			application.getScriptEngine().getGlobalScope().put(variable, true);
+			application.getScriptEngine().getScopesScope().getOrCreateGlobalScope(variable.getScopeName()).put(variable, true);
 		}
 
 	}
@@ -236,7 +249,7 @@ public class JSVariable implements IConstantsObject
 	 * Returns the UUID of the variable
 	 * 
 	 * @sample
-	 * var dateVar = solutionModel.newGlobalVariable('gDate', JSVariable.DATETIME);
+	 * var dateVar = solutionModel.newGlobalVariable('globals', 'gDate', JSVariable.DATETIME);
 	 * application.output(dateVar.getUUID().toString());
 	 */
 	public UUID js_getUUID()

@@ -29,7 +29,6 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.query.AbstractBaseQuery;
@@ -44,6 +43,7 @@ import com.servoy.j2db.query.QuerySort;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
@@ -307,7 +307,7 @@ public class LookupListModel extends AbstractListModel
 
 		String txt = (filter == null || firstTime) ? "" : filter.toLowerCase(); //$NON-NLS-1$
 
-		if (dataProviderID != null && !dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+		if (dataProviderID != null && !ScopesUtils.isVariableScope(dataProviderID))
 		{
 			int index = dataProviderID.lastIndexOf('.');
 			if (index != -1 && realState != null)

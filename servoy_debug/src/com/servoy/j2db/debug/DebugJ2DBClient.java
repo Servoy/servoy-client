@@ -86,6 +86,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
+import com.servoy.j2db.scripting.FunctionDefinition;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.IScriptSupport;
 import com.servoy.j2db.scripting.RuntimeWindow;
@@ -194,9 +195,9 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		// fill the scripts menu
 		@SuppressWarnings("nls")
 		@Override
-		protected ScriptMenuItem getScriptMenuItem(ScriptMethod sm, FormController fp, int autoSortcut)
+		protected ScriptMenuItem getScriptMenuItem(ScriptMethod sm, FunctionDefinition functionDefinition, int autoSortcut)
 		{
-			ScriptMenuItem item = new ScriptMenuItem(getApplication(), fp, sm.getName(), autoSortcut);
+			ScriptMenuItem item = new ScriptMenuItem(getApplication(), functionDefinition, sm.getName(), autoSortcut);
 			if (sm.getShowInMenu())
 			{
 				item.setIcon(getApplication().loadImage("showinmenuform.gif"));

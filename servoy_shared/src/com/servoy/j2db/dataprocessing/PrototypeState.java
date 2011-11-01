@@ -22,7 +22,7 @@ import java.util.List;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.persistence.Relation;
-import com.servoy.j2db.persistence.ScriptVariable;
+import com.servoy.j2db.util.ScopesUtils;
 
 /**
  * Dummy state to prevent the J(Edit)List to retrieve all the rows in the formmodel(=foundset)
@@ -86,7 +86,7 @@ public class PrototypeState extends Record
 		if (dataProviderID == null || parent == null) return null;
 
 		//check if is related value request
-		if (dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+		if (ScopesUtils.isVariableScope(dataProviderID))
 		{
 			return parent.getDataProviderValue(dataProviderID);
 		}
@@ -136,7 +136,7 @@ public class PrototypeState extends Record
 	public Object setValue(String dataProviderID, Object value)
 	{
 		//check if is related value request
-		if (dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+		if (ScopesUtils.isVariableScope(dataProviderID))
 		{
 			return parent.setDataProviderValue(dataProviderID, value);
 		}

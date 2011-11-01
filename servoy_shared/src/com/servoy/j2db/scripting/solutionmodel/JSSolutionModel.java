@@ -20,6 +20,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.print.PageFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -34,6 +35,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IColumnTypes;
+import com.servoy.j2db.persistence.IRootObject;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Part;
@@ -51,6 +53,7 @@ import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.ImageLoader;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.SpecialMatteBorder;
@@ -408,27 +411,37 @@ public class JSSolutionModel
 	}
 
 	/**
+	 * @deprecated Replaced by {@link #removeGlobalMethod(String,String)}
+	 */
+	@Deprecated
+	public boolean js_removeGlobalMethod(String name)
+	{
+		return js_removeGlobalMethod(null, name);
+	}
+
+	/**
 	 * Removes the specified global method.
 	 * 
 	 * @sample
-	 * var m1 = solutionModel.newGlobalMethod('function myglobalmethod1(){application.output("Global Method 1");}');
-	 * var m2 = solutionModel.newGlobalMethod('function myglobalmethod2(){application.output("Global Method 2");}');
+	 * var m1 = solutionModel.newGlobalMethod('globals', 'function myglobalmethod1(){application.output("Global Method 1");}');
+	 * var m2 = solutionModel.newGlobalMethod('globals', 'function myglobalmethod2(){application.output("Global Method 2");}');
 	 * 
-	 * var success = solutionModel.removeGlobalMethod("myglobalmethod1");
-	 * if (success == false) application.output("!!! myglobalmethod1 could not be removed !!!");
+	 * var success = solutionModel.removeGlobalMethod('globals', 'myglobalmethod1');
+	 * if (success == false) application.output('!!! myglobalmethod1 could not be removed !!!');
 	 * 
-	 * var list = solutionModel.getGlobalMethods();
+	 * var list = solutionModel.getGlobalMethods('globals');
 	 * for (var i = 0; i < list.length; i++) { 
 	 * 		application.output(list[i].code);
 	 * }
 	 * 
+	 * @param scopeName the scope in which the method is declared
 	 * @param name the name of the global method to be removed
 	 * @return true if the removal was successful, false otherwise
 	 */
-	public boolean js_removeGlobalMethod(String name)
+	public boolean js_removeGlobalMethod(String scopeName, String name)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
-		ScriptMethod sm = fs.getScriptMethod(name);
+		ScriptMethod sm = fs.getScriptMethod(scopeName, name);
 		if (sm != null)
 		{
 			fs.deletePersistCopy(sm, false);
@@ -439,27 +452,37 @@ public class JSSolutionModel
 	}
 
 	/**
+	 * @deprecated Replaced by {@link #removeGlobalVariable(String,String)}
+	 */
+	@Deprecated
+	public boolean js_removeGlobalVariable(String name)
+	{
+		return js_removeGlobalVariable(null, name);
+	}
+
+	/**
 	 * Removes the specified global variable.
 	 * 
 	 * @sample
-	 * var v1 = solutionModel.newGlobalVariable("globalVar1",JSVariable.INTEGER);
-	 * var v2 = solutionModel.newGlobalVariable("globalVar2",JSVariable.TEXT);
+	 * var v1 = solutionModel.newGlobalVariable('globals', 'globalVar1', JSVariable.INTEGER);
+	 * var v2 = solutionModel.newGlobalVariable('globals', 'globalVar2', JSVariable.TEXT);
 	 * 
-	 * var success = solutionModel.removeGlobalVariable("globalVar1");
-	 * if (success == false) application.output("!!! globalVar1 could not be removed !!!");
+	 * var success = solutionModel.removeGlobalVariable('globals', 'globalVar1');
+	 * if (success == false) application.output('!!! globalVar1 could not be removed !!!');
 	 * 
-	 * var list = solutionModel.getGlobalVariables();
+	 * var list = solutionModel.getGlobalVariables('globals');
 	 * for (var i = 0; i < list.length; i++) {
-	 * 		application.output(list[i].name + "[ " + list[i].variableType + "]: " + list[i].variableType);
+	 * 		application.output(list[i].name + '[ ' + list[i].variableType + ']: ' + list[i].variableType);
 	 * }
 	 * 
+	 * @param scopeName the scope in which the variable is declared
 	 * @param name the name of the global variable to be removed 
 	 * @return true if the removal was successful, false otherwise
 	 */
-	public boolean js_removeGlobalVariable(String name)
+	public boolean js_removeGlobalVariable(String scopeName, String name)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
-		ScriptVariable sv = fs.getScriptVariable(name);
+		ScriptVariable sv = fs.getScriptVariable(scopeName, name);
 		if (sv != null)
 		{
 			fs.deletePersistCopy(sv, false);
@@ -924,9 +947,9 @@ public class JSSolutionModel
 	 * var vl2 = solutionModel.newValueList("customid",JSValueList.CUSTOM_VALUES);
 	 * vl2.customValues = "customvalue1|1\ncustomvalue2|2";
 	 * var form = solutionModel.newForm("customValueListForm",controller.getDataSource(),null,true,300,300);
-	 * var combo1 = form.newComboBox("globals.text",10,10,120,20);
+	 * var combo1 = form.newComboBox("scopes.globals.text",10,10,120,20);
 	 * combo1.valuelist = vl1;
-	 * var combo2 = form.newComboBox("globals.id",10,60,120,20);
+	 * var combo2 = form.newComboBox("scopes.globals.id",10,60,120,20);
 	 * combo2.valuelist = vl2;
 	 *
 	 * @param name the specified name for the valuelist
@@ -956,27 +979,39 @@ public class JSSolutionModel
 	}
 
 	/**
+	 * @deprecated Replaced by {@link #newGlobalVariable(String,String,int)}
+	 */
+	@Deprecated
+	public JSVariable js_newGlobalVariable(String name, int type)
+	{
+		return js_newGlobalVariable(name, null, type);
+	}
+
+	/**
 	 * Creates a new global variable with the specified name and number type.
 	 * 
 	 * NOTE: The global variable number type is based on the value assigned from the SolutionModel-JSVariable node; for example: JSVariable.INTEGER.
 	 *
 	 * @sample 
-	 *	var myGlobalVariable = solutionModel.newGlobalVariable('newGlobalVariable',JSVariable.INTEGER); 
+	 *	var myGlobalVariable = solutionModel.newGlobalVariable('globals', 'newGlobalVariable', JSVariable.INTEGER); 
 	 *	myGlobalVariable.defaultValue = 12;
 	 *
+	 * @param scopeName the scope in which the variable is created
 	 * @param name the specified name for the global variable 
 	 *
 	 * @param type the specified number type for the global variable
 	 * 
 	 * @return a JSVariable object
 	 */
-	public JSVariable js_newGlobalVariable(String name, int type)
+	public JSVariable js_newGlobalVariable(String scopeName, String name, int type)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
 		try
 		{
-			ScriptVariable variable = fs.getSolutionCopy().createNewScriptVariable(new ScriptNameValidator(application.getFlattenedSolution()), name, type);
-			application.getScriptEngine().getGlobalScope().put(variable);
+			String scope = scopeName == null ? ScriptVariable.GLOBAL_SCOPE : scopeName;
+			ScriptVariable variable = fs.getSolutionCopy().createNewScriptVariable(new ScriptNameValidator(application.getFlattenedSolution()), scope, name,
+				type);
+			application.getScriptEngine().getScopesScope().getOrCreateGlobalScope(scope).put(variable);
 			return new JSVariable(application, variable, true);
 		}
 		catch (RepositoryException e)
@@ -986,20 +1021,30 @@ public class JSSolutionModel
 	}
 
 	/**
+	 * @deprecated Replaced by {@link #getGlobalVariable(String,String)}
+	 */
+	@Deprecated
+	public JSVariable js_getGlobalVariable(String name)
+	{
+		return js_getGlobalVariable(null, name);
+	}
+
+	/**
 	 * Gets an existing global variable by the specified name.
 	 *
 	 * @sample 
-	 * 	var globalVariable = solutionModel.getGlobalVariable('globalVariableName');
+	 * 	var globalVariable = solutionModel.getGlobalVariable('globals', 'globalVariableName');
 	 * 	application.output(globalVariable.name + " has the default value of " + globalVariable.defaultValue);
 	 * 
+	 * @param scopeName the scope in which the variable is searched
 	 * @param name the specified name of the global variable
 	 * 
 	 * @return a JSVariable 
 	 */
-	public JSVariable js_getGlobalVariable(String name)
+	public JSVariable js_getGlobalVariable(String scopeName, String name)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
-		ScriptVariable variable = fs.getScriptVariable(name);
+		ScriptVariable variable = fs.getScriptVariable(scopeName, name);
 		if (variable != null)
 		{
 			return new JSVariable(application, variable, false);
@@ -1008,21 +1053,45 @@ public class JSSolutionModel
 	}
 
 	/**
+	 * Gets an array of all scope names used.
+	 * 
+	 * @sample
+	 * 	var scopeNames = solutionModel.getScopeNames();
+	 * 	for (var name in scopeNames)
+	 * 		application.output(name);
+	 * 
+	 * @return an array of String scope names
+	 */
+	public String[] js_getScopeNames()
+	{
+		Collection<Pair<String, IRootObject>> scopes = application.getFlattenedSolution().getScopes();
+		String[] scopeNames = new String[scopes.size()];
+		int i = 0;
+		for (Pair<String, IRootObject> scope : scopes)
+		{
+			scopeNames[i++] = scope.getLeft();
+		}
+		return scopeNames;
+	}
+
+	/**
 	 * Gets an array of all global variables.
 	 * 
 	 * @sample
-	 * 	var globalVariables = solutionModel.getGlobalVariables();
+	 * 	var globalVariables = solutionModel.getGlobalVariables('globals');
 	 * 	for (var i in globalVariables)
 	 * 		application.output(globalVariables[i].name + " has the default value of " + globalVariables[i].defaultValue);
+	 * 
+	 * @param scopeName optional limit to global vars of specified scope name
 	 * 
 	 * @return an array of JSVariable type elements
 	 * 
 	 */
-	public JSVariable[] js_getGlobalVariables()
+	public JSVariable[] js_getGlobalVariables(Object[] args)
 	{
-		FlattenedSolution fs = application.getFlattenedSolution();
-		ArrayList<JSVariable> variables = new ArrayList<JSVariable>();
-		Iterator<ScriptVariable> scriptVariables = fs.getScriptVariables(true);
+		String scopeName = args == null || args.length == 0 && args[0] == null ? null : args[0].toString();
+		List<JSVariable> variables = new ArrayList<JSVariable>();
+		Iterator<ScriptVariable> scriptVariables = application.getFlattenedSolution().getScriptVariables(scopeName, true);
 		while (scriptVariables.hasNext())
 		{
 			variables.add(new JSVariable(application, scriptVariables.next(), false));
@@ -1031,25 +1100,36 @@ public class JSSolutionModel
 	}
 
 	/**
-	 * Creates a new global method with the specified code.
+	 * @deprecated Replaced by {@link #newGlobalMethod(String,String)}
+	 */
+	@Deprecated
+	public JSMethod js_newGlobalMethod(String code)
+	{
+		return js_newGlobalMethod(null, code);
+	}
+
+	/**
+	 * Creates a new global method with the specified code in a scope.
 	 *
 	 * @sample 
-	 *  var method = solutionModel.newGlobalMethod('function myglobalmethod(){currentcontroller.newRecord()}')
+	 *  var method = solutionModel.newGlobalMethod('globals', 'function myglobalmethod(){currentcontroller.newRecord()}')
 	 *
+	 * @param scopeName the scope in which the method is created
 	 * @param code the specified code for the global method
 	 * 
 	 * @return a JSMethod object
 	 */
-	public JSMethod js_newGlobalMethod(String code)
+	public JSMethod js_newGlobalMethod(String scopeName, String code)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
 		String name = JSMethod.parseName(code);
 
 		try
 		{
-			ScriptMethod method = fs.getSolutionCopy().createNewGlobalScriptMethod(new ScriptNameValidator(application.getFlattenedSolution()), name);
+			String scope = scopeName == null ? ScriptVariable.GLOBAL_SCOPE : scopeName;
+			ScriptMethod method = fs.getSolutionCopy().createNewGlobalScriptMethod(new ScriptNameValidator(application.getFlattenedSolution()), scope, name);
 			method.setDeclaration(code);
-			application.getScriptEngine().getGlobalScope().put(method, method);
+			application.getScriptEngine().getScopesScope().getOrCreateGlobalScope(scope).put(method, method);
 			JSMethod jsMethod = new JSMethod(method, application, true);
 			return jsMethod;
 		}
@@ -1060,20 +1140,30 @@ public class JSSolutionModel
 	}
 
 	/**
+	 * @deprecated Replaced by {@link #getGlobalMethod(String,String)}
+	 */
+	@Deprecated
+	public JSMethod js_getGlobalMethod(String name)
+	{
+		return js_getGlobalMethod(null, name);
+	}
+
+	/**
 	 * Gets an existing global method by the specified name.
 	 *
 	 * @sample 
-	 * 	var method = solutionModel.getGlobalMethod("nameOfGlobalMethod"); 
+	 * 	var method = solutionModel.getGlobalMethod('globals', 'nameOfGlobalMethod'); 
 	 * 	if (method != null) application.output(method.code);
 	 * 
+	 * @param scopeName the scope in which the method is searched
 	 * @param name the name of the specified global method
 	 * 
 	 * @return a JSMethod
 	 */
-	public JSMethod js_getGlobalMethod(String name)
+	public JSMethod js_getGlobalMethod(String scopeName, String name)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
-		ScriptMethod sm = fs.getScriptMethod(name);
+		ScriptMethod sm = fs.getScriptMethod(scopeName, name);
 		if (sm != null)
 		{
 			return new JSMethod(sm, application, false);
@@ -1113,19 +1203,20 @@ public class JSSolutionModel
 	 * The list of all global methods.
 	 * 
 	 * @sample
-	 * 	var methods = solutionModel.getGlobalMethods(); 
-	 * 	if (methods != null)
-	 * 		for (var x in methods) 
-	 * 			application.output(methods[x].getName());
+	 * 	var methods = solutionModel.getGlobalMethods('globals'); 
+	 * 	for (var x in methods) 
+	 * 		application.output(methods[x].getName());
+	 * 
+	 * @param scopeName optional limit to global methods of specified scope name
 	 * 
 	 * @return an array of JSMethod type elements
 	 * 
 	 */
-	public JSMethod[] js_getGlobalMethods()
+	public JSMethod[] js_getGlobalMethods(Object[] args)
 	{
-		FlattenedSolution fs = application.getFlattenedSolution();
-		ArrayList<JSMethod> methods = new ArrayList<JSMethod>();
-		Iterator<ScriptMethod> scriptMethods = fs.getScriptMethods(true);
+		String scopeName = args == null || args.length == 0 && args[0] == null ? null : args[0].toString();
+		List<JSMethod> methods = new ArrayList<JSMethod>();
+		Iterator<ScriptMethod> scriptMethods = application.getFlattenedSolution().getScriptMethods(scopeName, true);
 		while (scriptMethods.hasNext())
 		{
 			methods.add(new JSMethod(scriptMethods.next(), application, false));

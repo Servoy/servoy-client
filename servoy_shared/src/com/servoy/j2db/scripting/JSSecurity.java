@@ -1066,8 +1066,8 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	 *
 	 * @sample
 	 * var groups = ['Administrators']; //normally these groups are for example received from LDAP
-	 * var user_uid = globals.email; //also this uid might be received from external authentication method
-	 * var ok =  security.login(globals.username, user_uid , groups)
+	 * var user_uid = scopes.globals.email; //also this uid might be received from external authentication method
+	 * var ok =  security.login(scopes.globals.username, user_uid , groups)
 	 * if (!ok)
 	 * {
 	 * 	plugins.dialogs.showErrorDialog('Login failure',  'Already logged in? or no user_uid/groups specified?', 'OK')
@@ -1149,14 +1149,14 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	 * 
 	 * @sample
 	 * // create the credentials object as expected by the authenticator solution
-	 * var ok =  security.authenticate('myldap_authenticator', 'login', [globals.userName, globals.passWord])
+	 * var ok =  security.authenticate('myldap_authenticator', 'login', [scopes.globals.userName, scopes.globals.passWord])
 	 * if (!ok)
 	 * {
 	 * 	plugins.dialogs.showErrorDialog('Login failed', 'OK')
 	 * }
 	 * 
 	 * // if no authenticator name is used, the credentials are checked using the Servoy built-in user management
-	 * ok = security.authenticate(null, null, [globals.userName, globals.passWord])
+	 * ok = security.authenticate(null, null, [scopes.globals.userName, scopes.globals.passWord])
 	 *
 	 * @param authenticator_solution authenticator solution installed on the Servoy Server, null for servoy built-in authentication
 	 * @param method authenticator method, null for servoy built-in authentication
@@ -1184,14 +1184,14 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	 * 
 	 * @sample
 	 * // create the credentials object as expected by the authenticator solution
-	 * var ok =  security.authenticate('myldap_authenticator', 'login', [globals.userName, globals.passWord])
+	 * var ok =  security.authenticate('myldap_authenticator', 'login', [scopes.globals.userName, scopes.globals.passWord])
 	 * if (!ok)
 	 * {
 	 * 	plugins.dialogs.showErrorDialog('Login failed', 'OK')
 	 * }
 	 * 
 	 * // if no authenticator name is used, the credentials are checked using the Servoy built-in user management
-	 * ok = security.authenticate(null, null, [globals.userName, globals.passWord])
+	 * ok = security.authenticate(null, null, [scopes.globals.userName, scopes.globals.passWord])
 	 *
 	 * @param authenticator_solution authenticator solution installed on the Servoy Server, null for servoy built-in authentication
 	 * @param method authenticator method, null for servoy built-in authentication

@@ -19,7 +19,9 @@ package com.servoy.j2db.persistence;
 
 import java.rmi.RemoteException;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
@@ -29,6 +31,8 @@ import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.ISQLJoin;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.UUID;
 
 /**
@@ -139,6 +143,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		operators = ops; //faster
 		isGlobal = null;
 		valid = null;
+		usedScopes = null;
 	}
 
 
@@ -165,6 +170,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		operators = null;
 		isGlobal = null;
 		valid = null;
+		usedScopes = null;
 
 		return obj;
 	}
@@ -685,7 +691,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 			String pdp = ri.getPrimaryDataProviderID();
 			IDataProvider pc = null;
 
-			if (pdp.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+			if (ScopesUtils.isVariableScope(pdp))
 			{
 				pc = dataProviderHandler.getGlobalDataProvider(pdp);
 				if (pc != null)
@@ -788,7 +794,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 			try
 			{
 				IServer server = getForeignServer();
-				valid = server != null && server.isValid() && getForeignTable() != null ? Boolean.TRUE : Boolean.FALSE;
+				valid = Boolean.valueOf(server != null && server.isValid() && getForeignTable() != null);
 			}
 			catch (Exception e)
 			{
@@ -796,21 +802,21 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 			}
 		}
 		// default to true
-		if (valid == null) return true;
-		return valid.booleanValue();
+		return valid == null || valid.booleanValue();
 	}
 
 	public Boolean valid = null;
 
 	public void setValid(boolean b)
 	{
-		valid = b ? Boolean.TRUE : Boolean.FALSE;
+		valid = Boolean.valueOf(b);
 		if (b)//clear so they are checked again
 		{
 			primary = null;
 			foreign = null;
 			operators = null;
 			isGlobal = null;
+			usedScopes = null;
 		}
 	}
 
@@ -949,16 +955,43 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 		List<IPersist> allobjects = getAllObjectsAsList();
 		if (allobjects.size() == 0) return false;
-		for (int pos = 0; pos < allobjects.size(); pos++)
+		for (IPersist ri : allobjects)
 		{
-			RelationItem ri = (RelationItem)allobjects.get(pos);
-			String pdp = ri.getPrimaryDataProviderID();
-			if (!pdp.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+			if (!ScopesUtils.isVariableScope(((RelationItem)ri).getPrimaryDataProviderID()))
 			{
 				return false;
 			}
 		}
 		return true;
+	}
+
+	private transient Set<String> usedScopes;
+
+	public boolean usesScope(String scopeName)
+	{
+		if (!isGlobal())
+		{
+			// scopes are only for global relations
+			return false;
+		}
+
+		Set<String> tmp = usedScopes;
+		if (tmp == null)
+		{
+			List<IPersist> allobjects = getAllObjectsAsList();
+			if (allobjects.size() == 0) return false;
+			tmp = new HashSet<String>();
+			for (IPersist ri : allobjects)
+			{
+				Pair<String, String> scope = ScopesUtils.getVariableScope(((RelationItem)ri).getPrimaryDataProviderID());
+				if (scope.getLeft() != null)
+				{
+					tmp.add(scope.getLeft());
+				}
+			}
+			usedScopes = tmp;
+		}
+		return tmp.contains(scopeName);
 	}
 
 	public String toHTML()

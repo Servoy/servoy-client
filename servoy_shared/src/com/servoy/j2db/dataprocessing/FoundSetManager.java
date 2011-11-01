@@ -36,7 +36,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 
@@ -67,7 +66,6 @@ import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderFactory;
 import com.servoy.j2db.querybuilder.impl.QBFactory;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
-import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
@@ -739,7 +737,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		createEmptyFoundsets = false;
 		initMembers();
 		sqlGenerator = null;
-		globalScopeProvider = null;
+		scopesScopeProvider = null;
 		editRecordList.init();
 	}
 
@@ -790,15 +788,15 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		}
 	}
 
-	private GlobalScopeProvider globalScopeProvider;
+	private ScopesScopeProvider scopesScopeProvider;
 
-	public IGlobalValueEntry getGlobalScopeProvider()
+	public IGlobalValueEntry getScopesScopeProvider()
 	{
-		if (globalScopeProvider == null)
+		if (scopesScopeProvider == null)
 		{
-			globalScopeProvider = new GlobalScopeProvider(application.getScriptEngine().getGlobalScope());
+			scopesScopeProvider = new ScopesScopeProvider(application.getScriptEngine().getScopesScope());
 		}
-		return globalScopeProvider;
+		return scopesScopeProvider;
 	}
 
 	public SQLGenerator getSQLGenerator()
@@ -1840,22 +1838,19 @@ public class FoundSetManager implements IFoundSetManagerInternal
 						ScriptMethod sm = application.getFlattenedSolution().getScriptMethod(solution.getOnDataBroadcastMethodID());
 						if (sm != null)
 						{
-							Object[] args = new Object[] { ds, new Integer(action), new JSDataSet(application, pks), Boolean.valueOf(didHaveDataCached) };
 							try
 							{
-								GlobalScope gscope = application.getScriptEngine().getSolutionScope().getGlobalScope();
-								Object function = gscope.get(sm.getName());
-								if (function instanceof Function)
-								{
-									application.getScriptEngine().executeFunction(((Function)function), gscope, gscope,
-										Utils.arrayMerge(args, Utils.parseJSExpressions(solution.getInstanceMethodArguments("onDataBroadcastMethodID"))),
-										false, false);
-								}
+								application.getScriptEngine().getScopesScope().executeGlobalFunction(
+									sm.getScopeName(),
+									sm.getName(),
+									Utils.arrayMerge(
+										new Object[] { ds, new Integer(action), new JSDataSet(application, pks), Boolean.valueOf(didHaveDataCached) },
+										Utils.parseJSExpressions(solution.getInstanceMethodArguments("onDataBroadcastMethodID"))), false, false); //$NON-NLS-1$
 							}
 							catch (Exception e1)
 							{
 								application.reportError(
-									Messages.getString("servoy.foundsetManager.error.ExecutingDataBroadcastMethod", new Object[] { sm.getName() }), e1);
+									Messages.getString("servoy.foundsetManager.error.ExecutingDataBroadcastMethod", new Object[] { sm.getName() }), e1); //$NON-NLS-1$
 							}
 						}
 					}
@@ -2209,7 +2204,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	public IQueryBuilderFactory getQueryFactory()
 	{
-		return new QBFactory(this, getGlobalScopeProvider(), getApplication().getFlattenedSolution());
+		return new QBFactory(this, getScopesScopeProvider(), getApplication().getFlattenedSolution());
 	}
 
 	public IFoundSetInternal getFoundSet(String dataSource) throws ServoyException

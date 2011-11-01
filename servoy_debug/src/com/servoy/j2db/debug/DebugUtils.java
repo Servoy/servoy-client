@@ -75,7 +75,7 @@ public class DebugUtils
 				}
 				else if (persist.getParent() instanceof Solution)
 				{
-					LazyCompilationScope scope = clientState.getScriptEngine().getSolutionScope().getGlobalScope();
+					LazyCompilationScope scope = clientState.getScriptEngine().getScopesScope().getOrCreateGlobalScope(((ScriptMethod)persist).getScopeName());
 					scope.remove((IScriptProvider)persist);
 					scope.put((IScriptProvider)persist, (IScriptProvider)persist);
 				}
@@ -83,7 +83,7 @@ public class DebugUtils
 				{
 					clientState.getFoundSetManager().reloadFoundsetMethod(((TableNode)persist.getParent()).getDataSource(), (IScriptProvider)persist);
 				}
-				
+
 				if (clientState instanceof DebugJ2DBClient)
 				{
 //					((DebugJ2DBClient)clientState).clearUserWindows();  no need for this as window API was refactored and it allows users to clean up dialogs
@@ -95,7 +95,7 @@ public class DebugUtils
 				ScriptVariable sv = (ScriptVariable)persist;
 				if (persist.getParent() instanceof Solution)
 				{
-					clientState.getScriptEngine().getSolutionScope().getGlobalScope().put(sv);
+					clientState.getScriptEngine().getScopesScope().getOrCreateGlobalScope(sv.getScopeName()).put(sv);
 				}
 				if (persist.getParent() instanceof Form)
 				{

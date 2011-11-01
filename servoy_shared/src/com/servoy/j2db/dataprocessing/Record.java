@@ -41,7 +41,6 @@ import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Relation;
-import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.scripting.UsedDataProviderTracker;
 import com.servoy.j2db.scripting.UsedDataProviderTracker.UsedAggregate;
@@ -49,6 +48,7 @@ import com.servoy.j2db.scripting.UsedDataProviderTracker.UsedDataProvider;
 import com.servoy.j2db.scripting.UsedDataProviderTracker.UsedRelation;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDelegate;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -197,7 +197,7 @@ public class Record implements Scriptable, IRecordInternal
 		{
 			return parent.getDataProviderValue(dataProviderID);
 		}
-		if (dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+		if (ScopesUtils.isVariableScope(dataProviderID))
 		{
 			return Utils.mapToNullIfUnmanageble(parent.getDataProviderValue(dataProviderID));
 		}
@@ -271,16 +271,17 @@ public class Record implements Scriptable, IRecordInternal
 			return parent.setDataProviderValue(dataProviderID, managebleValue);
 		}
 
+		if (ScopesUtils.isVariableScope(dataProviderID))
+		{
+			return parent.setDataProviderValue(dataProviderID, managebleValue);
+		}
+
 		//check if is related value request
 		int index = dataProviderID.indexOf('.');
 		if (index > 0)
 		{
 			String partName = dataProviderID.substring(0, index);
 			String restName = dataProviderID.substring(index + 1);
-			if (partName.equals(ScriptVariable.GLOBAL_PREFIX))
-			{
-				return parent.setDataProviderValue(dataProviderID, managebleValue);
-			}
 			IFoundSetInternal foundSet = getRelatedFoundSet(partName);//check substate, will return null if not found
 			if (foundSet != null)
 			{

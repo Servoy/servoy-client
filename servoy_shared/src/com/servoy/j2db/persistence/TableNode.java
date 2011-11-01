@@ -19,7 +19,6 @@ package com.servoy.j2db.persistence;
 
 import java.rmi.RemoteException;
 import java.util.Iterator;
-import java.util.List;
 
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
@@ -47,9 +46,9 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * _____________________________________________________________ Methods for ScriptCalculation handling
 	 */
 
-	public List<ScriptCalculation> getScriptCalculations()
+	public Iterator<ScriptCalculation> getScriptCalculations()
 	{
-		return SortedTypeIterator.createFilteredList(getAllObjectsAsList(), IRepository.SCRIPTCALCULATIONS);
+		return getObjects(IRepository.SCRIPTCALCULATIONS);
 	}
 
 	public ScriptCalculation createNewScriptCalculation(IValidateName validator, String calcName) throws RepositoryException
@@ -92,9 +91,9 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * _____________________________________________________________ Methods for AggregateVariable handling
 	 */
 
-	public List<AggregateVariable> getAggregateVariables()
+	public Iterator<AggregateVariable> getAggregateVariables()
 	{
-		return SortedTypeIterator.createFilteredList(getAllObjectsAsList(), IRepository.AGGREGATEVARIABLES);
+		return getObjects(IRepository.AGGREGATEVARIABLES);
 	}
 
 	AggregateVariable createNewAggregateVariable(IValidateName validator, String calcName, int atype, String dataProviderIDToAggregate)
@@ -118,12 +117,12 @@ public class TableNode extends AbstractBase implements ISupportChilds
 
 	public Iterator<ScriptMethod> getFoundsetMethods(boolean sort)
 	{
-		return Solution.getScriptMethods(getAllObjectsAsList(), sort);
+		return Solution.getScriptMethods(getAllObjectsAsList(), null, sort);
 	}
 
 	public ScriptMethod getFoundsetMethod(int methodId)
 	{
-		return Solution.getScriptMethod(getFoundsetMethods(false), methodId);
+		return AbstractBase.selectById(getFoundsetMethods(false), methodId);
 	}
 
 /*
@@ -490,12 +489,12 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	public ScriptCalculation getScriptCalculation(String name)
 	{
 		if (name == null) return null;
-		return (ScriptCalculation)AbstractBase.selectByName(SortedTypeIterator.createFilteredIterator(getAllObjects(), IRepository.SCRIPTCALCULATIONS), name);
+		return AbstractBase.selectByName(new TypeIterator<ScriptCalculation>(getAllObjects(), IRepository.SCRIPTCALCULATIONS), name);
 	}
 
 	public ScriptMethod getFoundsetMethod(String name)
 	{
 		if (name == null) return null;
-		return (ScriptMethod)AbstractBase.selectByName(SortedTypeIterator.createFilteredIterator(getAllObjects(), IRepository.METHODS), name);
+		return AbstractBase.selectByName(new TypeIterator<ScriptMethod>(getAllObjects(), IRepository.METHODS), name);
 	}
 }

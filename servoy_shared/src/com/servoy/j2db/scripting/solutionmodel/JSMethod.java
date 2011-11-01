@@ -133,6 +133,20 @@ public class JSMethod implements IJavaScriptType
 	}
 
 	/**
+	 * @clonedesc com.servoy.j2db.persistence.ISupportScope#getScopeName()
+	 * 
+	 * @sample 
+	 * 	var methods = solutionModel.getGlobalMethods(); 
+	 * 	for (var x in methods) 
+	 * 		application.output(methods[x].getName() + ' is defined in scope ' + methods[x].getScopeName());
+	 */
+	public String js_getScopeName()
+	{
+		if (sm == null) return null; // if a default constant
+		return sm.getScopeName();
+	}
+
+	/**
 	 * @clonedesc com.servoy.j2db.persistence.ScriptMethod#getShowInMenu()
 	 * 
 	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSMethod#js_getCode()
@@ -170,7 +184,7 @@ public class JSMethod implements IJavaScriptType
 		else if (parent == null)
 		{
 			// global method
-			application.getScriptEngine().getGlobalScope().put(sm, sm);
+			application.getScriptEngine().getScopesScope().getOrCreateGlobalScope(sm.getScopeName()).put(sm, sm);
 		}
 	}
 
