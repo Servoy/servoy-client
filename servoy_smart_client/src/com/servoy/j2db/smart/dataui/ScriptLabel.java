@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.smart.dataui;
 
+import java.awt.Graphics;
+
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.scripting.RuntimeScriptLabel;
 
@@ -30,6 +32,23 @@ public class ScriptLabel extends AbstractScriptLabel
 	public ScriptLabel(IApplication app, RuntimeScriptLabel scriptable)
 	{
 		super(app, scriptable);
+	}
+
+	@Override
+	public void paintComponent(Graphics g)
+	{
+		if (scriptable != null)
+		{
+			scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
+			if (!isVisible())
+			{
+				// it has been made invisible in on render, make it visible again
+				// so, the onRender will be called next time
+				setVisible(true);
+				return;
+			}
+		}
+		super.paintComponent(g);
 	}
 
 }

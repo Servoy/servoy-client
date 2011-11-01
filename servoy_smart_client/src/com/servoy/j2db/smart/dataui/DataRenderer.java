@@ -431,6 +431,11 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 		if (value instanceof IRecordInternal)
 		{
 			IRecordInternal val = (IRecordInternal)value;
+			// if in list view, we need to set the render state for each list item here
+			if (rendererParentCanBeNull != null)
+			{
+				DataAdapterList.setDataRendererComponentsRenderState(this, val);
+			}
 			dataAdapterList.setRecord(val, !isRenderer);
 //			setOpaque(true);
 			if (index != -1)
