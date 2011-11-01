@@ -649,7 +649,15 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		{
 			for (String moduleName : Utils.getTokenElements(solution.getModulesNames(), ",", true)) //$NON-NLS-1$
 			{
-				Solution module = AbstractBase.selectByName(modules.iterator(), moduleName);
+				Solution module = null;
+				for (Solution sol : modules)
+				{
+					if (sol.getName().equals(moduleName))
+					{
+						module = sol;
+						break;
+					}
+				}
 				if (module != null && !orderedSolutions.contains(module))
 				{
 					orderedSolutions.add(module);
