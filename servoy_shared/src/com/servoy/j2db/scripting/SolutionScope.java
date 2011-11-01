@@ -38,6 +38,17 @@ public class SolutionScope extends DefaultScope
 		return ss;
 	}
 
+	@Override
+	public Object get(String name, Scriptable start)
+	{
+		// legacy globals.x -> scopes.globals.x
+		if (ScriptVariable.GLOBAL_SCOPE.equals(name))
+		{
+			return ss.get(name, start);
+		}
+		return super.get(name, start);
+	}
+
 	public void setScopesScope(ScopesScope ss)
 	{
 		this.ss = ss;
