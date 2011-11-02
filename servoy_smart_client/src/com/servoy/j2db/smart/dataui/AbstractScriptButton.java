@@ -291,6 +291,18 @@ public abstract class AbstractScriptButton extends JButton implements ISkinnable
 	@Override
 	public void paint(Graphics g)
 	{
+		if (eventExecutor != null)
+		{
+			eventExecutor.fireOnRender(this, hasFocus());
+			if (!isVisible())
+			{
+				// it has been made invisible in on render, make it visible again
+				// so, the onRender will be called next time
+				setVisible(true);
+				return;
+			}
+		}
+
 		if (rotation == 0)
 		{
 			super.paint(g);
@@ -795,23 +807,6 @@ public abstract class AbstractScriptButton extends JButton implements ISkinnable
 	public IEventExecutor getEventExecutor()
 	{
 		return eventExecutor;
-	}
-
-	@Override
-	protected void paintComponent(Graphics g)
-	{
-		if (eventExecutor != null)
-		{
-			eventExecutor.fireOnRender(this, hasFocus());
-			if (!isVisible())
-			{
-				// it has been made invisible in on render, make it visible again
-				// so, the onRender will be called next time
-				setVisible(true);
-				return;
-			}
-		}
-		super.paintComponent(g);
 	}
 
 	/*

@@ -2063,7 +2063,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 	}
 
 	@Override
-	protected void paintComponent(Graphics g)
+	public void paint(Graphics g)
 	{
 		if (!isIgnoreOnRender && eventExecutor != null)
 		{
@@ -2076,7 +2076,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 				return;
 			}
 		}
-		super.paintComponent(g);
+		super.paint(g);
 	}
 
 	/*

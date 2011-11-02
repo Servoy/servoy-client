@@ -1953,7 +1953,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 	}
 
 	@Override
-	public void paintComponent(Graphics g)
+	public void paint(Graphics g)
 	{
 		if (dataRendererOnRenderWrapper.getRenderEventExecutor().hasRenderCallback())
 		{
@@ -1967,7 +1967,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 				return;
 			}
 		}
-		super.paintComponent(g);
+		super.paint(g);
 	}
 
 	/*

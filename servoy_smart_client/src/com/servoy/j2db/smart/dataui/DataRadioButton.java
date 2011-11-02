@@ -740,6 +740,18 @@ public class DataRadioButton extends JRadioButton implements IFieldComponent, ID
 	@Override
 	public void paint(Graphics g)
 	{
+		if (eventExecutor != null)
+		{
+			eventExecutor.fireOnRender(this, hasFocus());
+			if (!isVisible())
+			{
+				// it has been made invisible in on render, make it visible again
+				// so, the onRender will be called next time
+				setVisible(true);
+				return;
+			}
+		}
+
 		// If we have regular SunGraphics2D object, just forward to superclass.
 		if (g instanceof SunGraphics2D)
 		{
@@ -771,23 +783,6 @@ public class DataRadioButton extends JRadioButton implements IFieldComponent, ID
 				super.paint(g);
 			}
 		}
-	}
-
-	@Override
-	protected void paintComponent(Graphics g)
-	{
-		if (eventExecutor != null)
-		{
-			eventExecutor.fireOnRender(this, hasFocus());
-			if (!isVisible())
-			{
-				// it has been made invisible in on render, make it visible again
-				// so, the onRender will be called next time
-				setVisible(true);
-				return;
-			}
-		}
-		super.paintComponent(g);
 	}
 
 	/*

@@ -1122,7 +1122,7 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 		}
 
 		@Override
-		public void paintComponent(Graphics g)
+		public void paint(Graphics g)
 		{
 			if (dataRendererOnRenderWrapper.getRenderEventExecutor().hasRenderCallback())
 			{
@@ -1136,7 +1136,7 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 					return;
 				}
 			}
-			super.paintComponent(g);
+			super.paint(g);
 		}
 
 		/*

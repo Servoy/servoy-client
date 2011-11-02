@@ -1517,7 +1517,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 	}
 
 	@Override
-	protected void paintComponent(Graphics g)
+	public void paint(Graphics g)
 	{
 		if (eventExecutor != null)
 		{
@@ -1530,7 +1530,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 				return;
 			}
 		}
-		super.paintComponent(g);
+		super.paint(g);
 	}
 
 	/*

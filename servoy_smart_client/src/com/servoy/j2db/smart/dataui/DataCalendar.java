@@ -689,7 +689,7 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 	}
 
 	@Override
-	protected void paintComponent(Graphics g)
+	public void paint(Graphics g)
 	{
 		if (enclosedComponent.eventExecutor != null)
 		{
@@ -702,7 +702,7 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 				return;
 			}
 		}
-		super.paintComponent(g);
+		super.paint(g);
 	}
 
 	/*

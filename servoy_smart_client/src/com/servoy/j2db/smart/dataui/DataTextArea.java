@@ -1229,7 +1229,7 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 	}
 
 	@Override
-	protected void paintComponent(Graphics g)
+	public void paint(Graphics g)
 	{
 		if (eventExecutor != null)
 		{
@@ -1242,7 +1242,7 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 				return;
 			}
 		}
-		super.paintComponent(g);
+		super.paint(g);
 	}
 
 	/*

@@ -664,7 +664,7 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 	}
 
 	@Override
-	protected void paintComponent(Graphics g)
+	public void paint(Graphics g)
 	{
 		if (eventExecutor != null)
 		{
@@ -677,7 +677,7 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 				return;
 			}
 		}
-		super.paintComponent(g);
+		super.paint(g);
 	}
 
 	/*

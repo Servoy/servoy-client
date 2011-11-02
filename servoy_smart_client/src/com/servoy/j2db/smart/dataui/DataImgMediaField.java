@@ -1263,7 +1263,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 	}
 
 	@Override
-	protected void paintComponent(Graphics g)
+	public void paint(Graphics g)
 	{
 		if (eventExecutor != null)
 		{
@@ -1276,7 +1276,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 				return;
 			}
 		}
-		super.paintComponent(g);
+		super.paint(g);
 	}
 
 	/*
