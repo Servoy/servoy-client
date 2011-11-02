@@ -35,7 +35,7 @@ public class ScriptLabel extends AbstractScriptLabel
 	}
 
 	@Override
-	public void paintComponent(Graphics g)
+	public void paint(Graphics g)
 	{
 		if (scriptable != null)
 		{
@@ -48,7 +48,7 @@ public class ScriptLabel extends AbstractScriptLabel
 				return;
 			}
 		}
-		super.paintComponent(g);
+		super.paint(g);
 	}
 
 }
