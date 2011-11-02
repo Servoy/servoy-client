@@ -20,7 +20,8 @@ import java.util.Arrays;
 
 import com.servoy.j2db.dataprocessing.Record;
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.scripting.JSEvent;
+import com.servoy.j2db.scripting.JSBaseEvent;
+import com.servoy.j2db.scripting.JSEvent.EventType;
 
 /**
  * JSDNDEvent, used as argument to drag and drop callbacks.
@@ -28,8 +29,62 @@ import com.servoy.j2db.scripting.JSEvent;
  * @author gboros
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class JSDNDEvent extends JSEvent
+public class JSDNDEvent extends JSBaseEvent
 {
+	/**
+	 * Constant returned by JSEvent.getType() in a method that is attached to an onDrag event.
+	 *
+	 * @sample
+	 * if (event.getType() == JSEvent.ONDRAG) 
+	 * {
+	 *    // its an ondrag event
+	 *    if (event.getElementName() == 'todragelement')
+	 *    	return DRAGNDROP.COPY
+	 * }
+	 */
+	public static final String ONDRAG = EventType.onDrag.toString();
+
+	/**
+	 * Constant returned by JSEvent.getType() in a method that is attached to an onDrop event.
+	 *
+	 * @sample
+	 * if (event.getType() == JSEvent.ONDROP) 
+	 * {
+	 *    // its a on drop event.
+	 *    var element = elements[event.getElementName()];
+	 *    // do drop on element
+	 *    return true;
+	 * }
+	 */
+	public static final String ONDROP = EventType.onDrop.toString();
+
+	/**
+	 * Constant returned by JSEvent.getType() in a method that is attached to an onDragOver event.
+	 *
+	 * @sample
+	 * if (event.getType() == JSEvent.ONDRAGOVER) 
+	 * {
+	 *    // its an on drag over event.
+	 *    // return true if it over the right element.
+	 *    return event.getElementName() == 'candroponelement';
+	 * }
+	 */
+	public static final String ONDRAGOVER = EventType.onDragOver.toString();
+
+	/**
+	 * Constant returned by JSEvent.getType() in a method that is attached to an onDragEnd event.
+	 *
+	 * @sample
+	 * if (event.getType() == JSEvent.ONDRAGEND) 
+	 * {
+	 *    // its an on drag end event.
+	 *    // return true if the drop has been completed successfully
+	 *    return event.isDropSuccess(); 
+	 * }
+	 */
+	public static final String ONDRAGEND = EventType.onDragEnd.toString();
+
+
 	private int dragResult;
 	private Record record;
 	private String dataMimeType;
@@ -159,7 +214,6 @@ public class JSDNDEvent extends JSEvent
 	/**
 	 * @see com.servoy.j2db.scripting.IPrefixedConstantsObject#getPrefix()
 	 */
-	@Override
 	public String getPrefix()
 	{
 		return "JSDNDEvent"; //$NON-NLS-1$

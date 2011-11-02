@@ -17,13 +17,10 @@
 package com.servoy.j2db.scripting;
 
 import java.awt.Event;
-import java.awt.Point;
 import java.util.Arrays;
-import java.util.Date;
 
 import org.mozilla.javascript.Wrapper;
 
-import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
@@ -34,12 +31,22 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @since 5.0
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class JSEvent implements IConstantsObject
+public class JSEvent extends JSBaseEvent
 {
 	public enum EventType
 	{
 		action, focusGained, focusLost, doubleClick, rightClick, onDrag, onDrop, onDragOver, onDragEnd, form, dataChange, none
 	}
+
+	/**
+	 * Constant returned by JSEvent.getType() if the event is not used in a known event or command.
+	 * @sample
+	 * if (event.getType() == JSEvent.NONE) 
+	 * {
+	 *    // type is not set.
+	 * }
+	 */
+	public static final String NONE = EventType.none.toString();
 
 	/**
 	 * Constant returned by JSEvent.getType() in a method that is attached to an onAction event. 
@@ -96,58 +103,6 @@ public class JSEvent implements IConstantsObject
 	 */
 	public static final String RIGHTCLICK = EventType.rightClick.toString();
 
-	/**
-	 * Constant returned by JSEvent.getType() in a method that is attached to an onDrag event.
-	 *
-	 * @sample
-	 * if (event.getType() == JSEvent.ONDRAG) 
-	 * {
-	 *    // its an ondrag event
-	 *    if (event.getElementName() == 'todragelement')
-	 *    	return DRAGNDROP.COPY
-	 * }
-	 */
-	public static final String ONDRAG = EventType.onDrag.toString();
-
-	/**
-	 * Constant returned by JSEvent.getType() in a method that is attached to an onDrop event.
-	 *
-	 * @sample
-	 * if (event.getType() == JSEvent.ONDROP) 
-	 * {
-	 *    // its a on drop event.
-	 *    var element = elements[event.getElementName()];
-	 *    // do drop on element
-	 *    return true;
-	 * }
-	 */
-	public static final String ONDROP = EventType.onDrop.toString();
-
-	/**
-	 * Constant returned by JSEvent.getType() in a method that is attached to an onDragOver event.
-	 *
-	 * @sample
-	 * if (event.getType() == JSEvent.ONDRAGOVER) 
-	 * {
-	 *    // its an on drag over event.
-	 *    // return true if it over the right element.
-	 *    return event.getElementName() == 'candroponelement';
-	 * }
-	 */
-	public static final String ONDRAGOVER = EventType.onDragOver.toString();
-
-	/**
-	 * Constant returned by JSEvent.getType() in a method that is attached to an onDragEnd event.
-	 *
-	 * @sample
-	 * if (event.getType() == JSEvent.ONDRAGEND) 
-	 * {
-	 *    // its an on drag end event.
-	 *    // return true if the drop has been completed successfully
-	 *    return event.isDropSuccess(); 
-	 * }
-	 */
-	public static final String ONDRAGEND = EventType.onDragEnd.toString();
 
 	/**
 	 * Constant returned by JSEvent.getType() in a method that is attached to an onDataChange event.
@@ -170,16 +125,6 @@ public class JSEvent implements IConstantsObject
 	 * }
 	 */
 	public static final String FORM = EventType.form.toString();
-
-	/**
-	 * Constant returned by JSEvent.getType() if the event is not used in a known event or command.
-	 * @sample
-	 * if (event.getType() == JSEvent.NONE) 
-	 * {
-	 *    // type is not set.
-	 * }
-	 */
-	public static final String NONE = EventType.none.toString();
 
 	/**
 	 * Constant for the SHIFT modifier that can be returned by JSEvent.getModifiers();
@@ -216,239 +161,6 @@ public class JSEvent implements IConstantsObject
 	 * @see com.servoy.j2db.scripting.JSEvent#js_getModifiers()
 	 */
 	public static final int MODIFIER_ALT = Event.ALT_MASK;
-
-	protected String type = NONE;
-	protected Date timestamp;
-	protected Object source;
-	protected String formName;
-	protected String elementName;
-	protected int modifiers;
-	protected Object data;
-	protected int x;
-	protected int y;
-
-	public JSEvent()
-	{
-		timestamp = new Date();
-	}
-
-	/**
-	 * returns the event type see the JSEvents constants what it can return.
-	 * Plugins can create events with there own types.
-	 *
-	 * @sample
-	 * if (event.getType() == JSEvent.ACTION) 
-	 * {
-	 *    // its an action event.
-	 * }	
-	 * 
-	 * @return a String representing the type of this event.
-	 */
-	public String js_getType()
-	{
-		return type;
-	}
-
-	/**
-	 * Returns the time the event occurred.
-	 *
-	 * @sample event.getTimestamp();
-	 * 
-	 * @return a Date when this event happened.
-	 */
-	public Date js_getTimestamp()
-	{
-		return timestamp;
-	}
-
-	/**
-	 * returns the source component/element of the event.
-	 * If it has a name the getElementName() is the name of this component.
-	 *
-	 * @sample
-	 * // cast to runtime text field (change to anoter kind of type if you know the type)
-	 * /** @type {RuntimeTextField} *&#47;
-	 * var source = event.getSource();
-	 * var sourceDataProvider = source.getDataProviderID();
-	 * 
-	 * @return an Object representing the source of this event.
-	 */
-	public Object js_getSource()
-	{
-		return source;
-	}
-
-	/**
-	 * returns the name of the form the element was placed on.
-	 *
-	 * @sample
-	 * forms[event.getFormName()].myFormMethod();
-	 * 
-	 * @return a String representing the form name.
-	 */
-	public String js_getFormName()
-	{
-		return formName;
-	}
-
-	/**
-	 * returns the name of the element, can be null if the form was the source of the event. 
-	 * 
-	 * @sample
-	 * if (event.getElementName() == 'myElement')
-	 * {
-	 *     elements[event.getElementName()].bgcolor = '#ff0000';
-	 * }
-	 * 
-	 * @return a String representing the element name.
-	 */
-	public String js_getElementName()
-	{
-		return elementName;
-	}
-
-	/**
-	 * Returns the modifiers of the event, see JSEvent.MODIFIER_XXXX for the modifiers that can be returned.
-	 *
-	 * @sample
-	 * //test if the SHIFT modifier is used.
-	 * if (event.getModifiers() & JSEvent.MODIFIER_SHIFT)
-	 * {
-	 * 	//do shift action
-	 * }
-	 * 
-	 * @return an int which holds the modifiers as a bitset.
-	 */
-	public int js_getModifiers()
-	{
-		return modifiers;
-	}
-
-	/**
-	 * Returns the x position of the event, relative to the component that fired it, if applicable.
-	 * For example drag'n'drop events will set the x,y positions.
-	 * 
-	 * @sample
-	 * var x = event.getX();
-	 * var xPrevious = previousEvent.getX();
-	 * var movedXPixels = x -xPrevious;
-	 * 
-	 * @return an int representing the X position.
-	 */
-	public int js_getX()
-	{
-		return x;
-	}
-
-	/**
-	 * Returns the y position of the event, relative to the component that fired it, if applicable.
-	 * For example drag'n'drop events will set the x,y positions.
-	 * 
-	 * @sample
-	 * var y = event.getY();
-	 * var yPrevious = previousEvent.getY();
-	 * var movedYPixels = y -yPrevious;
-	 * 
-	 * @return an int representing the Y position.
-	 */
-	public int js_getY()
-	{
-		return y;
-	}
-
-	/**
-	 * A data object that specific events can set, a user can set data back to the system for events that supports this.
-	 *
-	 * @sample
-	 * // A client design method that handles ondrag
-	 * if (event.getType() == JSEvent.ONDRAG)
-	 * {
-	 *      // the data is the selected elements array
-	 *      var elements = event.data;
-	 *      // only start a client design drag when there is 1 element
-	 *      if (elements.length == 1)
-	 *      {
-	 *      	return true;
-	 *      }
-	 * }
-	 * 
-	 * // code for a data drag method
-	 * event.data = "drag me!";
-	 * return DRAGNDROP.COPY;
-	 * 
-	 * // code for a data drop method
-	 * var data = event.data;
-	 * elemements[event.getElementName()].setText(data);
-	 * return true;
-	 * 
-	 */
-	public Object js_getData()
-	{
-		return data;
-	}
-
-	public void js_setData(Object object)
-	{
-		this.data = object;
-	}
-
-	public void setType(String type)
-	{
-		this.type = type;
-	}
-
-	public void setType(EventType type)
-	{
-		this.type = type == null ? null : type.toString();
-	}
-
-	public void setTimestamp(Date timestamp)
-	{
-		this.timestamp = timestamp;
-	}
-
-	public void setSource(Object source)
-	{
-		this.source = source;
-	}
-
-	public void setFormName(String formName)
-	{
-		this.formName = formName;
-	}
-
-	public void setElementName(String elementName)
-	{
-		if (elementName != null && !elementName.startsWith(ComponentFactory.WEB_ID_PREFIX))
-		{
-			this.elementName = elementName;
-		}
-		else
-		{
-			this.elementName = null;
-		}
-	}
-
-	public void setModifiers(int modifiers)
-	{
-		this.modifiers = modifiers;
-	}
-
-	public void setLocation(Point point)
-	{
-		this.x = point.x;
-		this.y = point.y;
-	}
-
-	public Object getData()
-	{
-		return data;
-	}
-
-	public void setData(Object object)
-	{
-		this.data = object;
-	}
 
 	@Override
 	public String toString()
