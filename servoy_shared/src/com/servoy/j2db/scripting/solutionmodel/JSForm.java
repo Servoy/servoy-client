@@ -2750,6 +2750,22 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	}
 
 	/**
+	 * Returns the value of the form's selectionMode property.<br>
+	 * Selection type is applied when necessary to the foundset used by the form (through it's multiselect property), even if the foundset changes.<br>
+	 * If two or more forms with non-default and different selectionMode values share the same foundset, the first form that applies it's selectionMode wins.
+	 * Can be one of SM_SELECTION.DEFAULT, SM_SELECTION.SINGLE or SM_SELECTION.MULTI.
+	 * 
+	 * @since 6.1
+	 * @sample
+	 * var myForm = solutionModel.getForm('my_form_name');
+	 * if (myForm.selectionMode == SM_SELECTION.MULTI) myForm.selectionMode = SM_SELECTION.DEFAULT;
+	 */
+	public int js_getSelectionMode()
+	{
+		return form.getSelectionMode();
+	}
+
+	/**
 	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#js_getNamedFoundSet()
 	 */
 	@Deprecated
@@ -3534,6 +3550,15 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	{
 		checkModification();
 		form.setTransparent(arg);
+	}
+
+	/**
+	 * @since 6.1
+	 */
+	public void js_setSelectionMode(int arg)
+	{
+		checkModification();
+		form.setSelectionMode(arg);
 	}
 
 	@Deprecated

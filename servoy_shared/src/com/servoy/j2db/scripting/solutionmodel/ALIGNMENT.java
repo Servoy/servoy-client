@@ -19,6 +19,7 @@ package com.servoy.j2db.scripting.solutionmodel;
 import javax.swing.SwingConstants;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.ContentSpec;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
@@ -27,6 +28,16 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class ALIGNMENT implements IPrefixedConstantsObject
 {
+
+	/**
+	 * Constant used for setting horizontal and vertical alignment. DEFAULT value makes the alignment behave as if it was not changed before.
+	 * 
+	 * @sample
+	 * var hLabel = myJSForm.getLabel('label_name');
+	 * if (hLabel.horizontalAlignment == SM_ALIGNMENT.LEFT) hLabel.horizontalAlignment = SM_ALIGNMENT.DEFAULT;
+	 */
+	public static final int DEFAULT = ContentSpec.MINUS_ONE.intValue();
+
 	/**
 	 * Constant used for setting horizontal and vertical alignment
 	 * for components. If used for horizontal alignment,

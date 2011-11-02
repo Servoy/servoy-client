@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 
@@ -276,7 +276,11 @@ public class SwingRelatedFoundSet extends RelatedFoundSet implements ISwingFound
 	public void setMultiSelect(boolean isMultiSelect)
 	{
 		if (selectionModel == null) createSelectionModel();
-		selectionModel.setSelectionMode(isMultiSelect ? ListSelectionModel.MULTIPLE_INTERVAL_SELECTION : ListSelectionModel.SINGLE_SELECTION);
+		if (!multiSelectPinned && isMultiSelect != isMultiSelect())
+		{
+			selectionModel.setSelectionMode(isMultiSelect ? ListSelectionModel.MULTIPLE_INTERVAL_SELECTION : ListSelectionModel.SINGLE_SELECTION);
+			fireSelectionModeChange();
+		}
 	}
 
 	/**

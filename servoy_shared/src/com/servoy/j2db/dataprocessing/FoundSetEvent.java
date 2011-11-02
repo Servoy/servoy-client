@@ -48,6 +48,11 @@ public class FoundSetEvent extends EventObject
 	public static final int FOUNDSET_INVALIDATED = 13;
 
 	/**
+	 * The foundset's multiSelect property changed.
+	 */
+	public static final int SELECTION_MODE_CHANGE = 14;
+
+	/**
 	 * Change type data is inserted when type is CONTENTS_CHANGED.
 	 */
 	public static final int CHANGE_INSERT = 1;

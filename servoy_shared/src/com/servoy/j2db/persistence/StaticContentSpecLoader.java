@@ -65,6 +65,7 @@ public class StaticContentSpecLoader
 	public static final TypedProperty<Boolean> PROPERTY_VISIBLE = new TypedProperty<Boolean>("visible"); //$NON-NLS-1$
 	public static final TypedProperty<Dimension> PROPERTY_INTERCELLSPACING = new TypedProperty<Dimension>("intercellSpacing"); //$NON-NLS-1$
 	public static final TypedProperty<Insets> PROPERTY_MARGIN = new TypedProperty<Insets>("margin"); //$NON-NLS-1$
+	public static final TypedProperty<Integer> PROPERTY_SELECTIONMODE = new TypedProperty<Integer>("selectionMode"); //$NON-NLS-1$ //
 	public static final TypedProperty<Integer> PROPERTY_ENCAPSULATION = new TypedProperty<Integer>("encapsulation"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_ADDEMPTYVALUE = new TypedProperty<Integer>("addEmptyValue"); //$NON-NLS-1$
 	public static final TypedProperty<Integer> PROPERTY_ANCHORS = new TypedProperty<Integer>("anchors"); //$NON-NLS-1$
@@ -767,6 +768,7 @@ public class StaticContentSpecLoader
 			cs.new Element(396, IRepository.TABPANELS, PROPERTY_HORIZONTALALIGNMENT.getPropertyName(), IRepository.INTEGER, ContentSpec.MINUS_ONE);
 			cs.new Element(397, IRepository.SCRIPTVARIABLES, PROPERTY_SCOPENAME.getPropertyName(), IRepository.STRING);
 			cs.new Element(398, IRepository.METHODS, PROPERTY_SCOPENAME.getPropertyName(), IRepository.STRING);
+			cs.new Element(399, IRepository.FORMS, PROPERTY_SELECTIONMODE.getPropertyName(), IRepository.INTEGER);
 		}
 		//##add property adds here
 

@@ -26,6 +26,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import com.servoy.j2db.IForm;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
@@ -1866,6 +1867,27 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	public boolean getTransparent()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TRANSPARENT).booleanValue();
+	}
+
+	/**
+	 * Set selectionMode. Selection type is applied when necessary to the foundset used by the form (through it's multiselect property), even if the foundset changes.
+	 * 
+	 * @param arg can be one of {@link IForm#SELECTION_MODE_DEFAULT}, {@link IForm#SELECTION_MODE_SINGLE} and {@link IForm#SELECTION_MODE_MULTI}.
+	 */
+	public void setSelectionMode(int arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_SELECTIONMODE, arg);
+	}
+
+	/**
+	 * Returns the value of the selectionMode property.
+	 * 
+	 * @return one of {@link IForm#SELECTION_MODE_DEFAULT}, {@link IForm#SELECTION_MODE_SINGLE} and {@link IForm#SELECTION_MODE_MULTI}.
+	 * @see #setSelectionMode(int)
+	 */
+	public int getSelectionMode()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_SELECTIONMODE).intValue();
 	}
 
 	/**

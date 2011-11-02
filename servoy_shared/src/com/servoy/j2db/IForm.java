@@ -20,6 +20,7 @@ package com.servoy.j2db;
 import java.awt.print.PrinterJob;
 
 import com.servoy.j2db.dataprocessing.IFoundSet;
+import com.servoy.j2db.persistence.ContentSpec;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.ui.IFormUI;
 import com.servoy.j2db.util.ServoyException;
@@ -31,6 +32,22 @@ import com.servoy.j2db.util.ServoyException;
  */
 public interface IForm
 {
+
+	/**
+	 * Constant used for form selectionMode property. It means that the foundset's multiSelect property is used.
+	 */
+	public static final int SELECTION_MODE_DEFAULT = ContentSpec.ZERO.intValue();
+
+	/**
+	 * Constant used for form selectionMode property. It means that the form will force multiSelect to false on the foundset it uses.
+	 */
+	public static final int SELECTION_MODE_SINGLE = 1;
+
+	/**
+	 * Constant used for form selectionMode property. It means that the form will force multiSelect to true on the foundset it uses.
+	 */
+	public static final int SELECTION_MODE_MULTI = 2;
+
 	/**
 	 * Constant for method setView(...) to show in recordview.
 	 */

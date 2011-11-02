@@ -177,6 +177,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	protected boolean mustQueryForUpdates;
 
+	protected boolean multiSelectPinned = false; // forms might force their foundset to remain at a certain value; while this is true, multiSelect should not be changeable
+
 	public PrototypeState getPrototypeState()
 	{
 		if (proto == null)
@@ -2578,6 +2580,21 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		setMultiSelect(multiSelect);
 	}
 
+	public void pinMultiSelect()
+	{
+		multiSelectPinned = true;
+	}
+
+	public void unpinMultiSelect()
+	{
+		multiSelectPinned = false;
+	}
+
+	public boolean isMultiSelectPinned()
+	{
+		return multiSelectPinned;
+	}
+
 	public abstract void setMultiSelect(boolean isMultiSelect);
 
 	public abstract boolean isMultiSelect();
@@ -4379,7 +4396,27 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 	}
 
-	protected void fireFoundSetEvent(@SuppressWarnings("unused") int firstRow, @SuppressWarnings("unused") int lastRow, int changeType)
+	public void fireSelectionModeChange()
+	{
+		if (foundSetEventListeners.size() > 0)
+		{
+			IFoundSetEventListener[] array;
+			synchronized (foundSetEventListeners)
+			{
+				array = foundSetEventListeners.toArray(new IFoundSetEventListener[foundSetEventListeners.size()]);
+			}
+
+			FoundSetEvent e = new FoundSetEvent(this, FoundSetEvent.SELECTION_MODE_CHANGE, FoundSetEvent.CHANGE_UPDATE);
+			for (IFoundSetEventListener element : array)
+			{
+				element.foundSetChanged(e);
+			}
+		}
+	}
+
+	protected void fireFoundSetEvent(@SuppressWarnings("unused")
+	int firstRow, @SuppressWarnings("unused")
+	int lastRow, int changeType)
 	{
 		if (foundSetEventListeners.size() > 0)
 		{
@@ -5617,4 +5654,5 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		return mustQueryForUpdates;
 	}
+
 }

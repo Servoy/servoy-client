@@ -1462,6 +1462,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	private int currentViewType = -1;
 	private IView view; //shows data (trough renderer(s))
 	private FoundSet formModel; //performs the queries and passes stateobjects
+	private boolean formModelSelectionModePinned = false; // remember if this form forces the current foundset to a specific selectionMode
 
 	private final IDataRenderer[] dataRenderers = new IDataRenderer[Part.PART_ARRAY_SIZE]; //0 position == body_renderer
 	public static final int FORM_EDITOR = Part.BODY;
@@ -4616,18 +4617,35 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			// change UI to reflect form find state... that is really determined by the find state of the foundset 
 			propagateFindMode(((FoundSet)e.getSource()).isInFindMode());
 		}
+		else if (e.getType() == FoundSetEvent.SELECTION_MODE_CHANGE)
+		{
+			applySelectionModeIfNecessary(); // make sure the new selection mode is not in conflict with form selectionMode
+		}
 	}
 
 	private void setFormModelInternal(FoundSet newModel)
 	{
 		if (formModel == newModel) return;
 		boolean isInFind = false;
+		FoundSet mustUnpinModel = null;
 		if (formModel != null)
 		{
 			formModel.removeFoundSetEventListener(this);
 			isInFind = formModel.isInFindMode();
+			if (formModelSelectionModePinned)
+			{
+				formModelSelectionModePinned = false;
+				mustUnpinModel = formModel;
+			}
 		}
 		formModel = newModel;
+
+		if (mustUnpinModel != null)
+		{
+			mustUnpinModel.unpinMultiSelect();
+			mustUnpinModel.fireSelectionModeChange(); // this allows any other forms that might be currently using the formModel to apply their own selectionMode to it
+		}
+
 		// form model change set it on -2 so that we know that we shouldnt update the selection before it is tested 
 		lastSelectedIndex = -2;
 		if (formModel != null)
@@ -4637,7 +4655,26 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			{
 				propagateFindMode(formModel.isInFindMode());
 			}
+			applySelectionModeIfNecessary();
 		}
+	}
+
+	private void applySelectionModeIfNecessary()
+	{
+		int selectionMode = form.getSelectionMode();
+		if (selectionMode != SELECTION_MODE_DEFAULT && formModel != null && !formModel.isMultiSelectPinned())
+		{
+			formModelSelectionModePinned = true;
+			if (selectionMode == SELECTION_MODE_SINGLE)
+			{
+				formModel.setMultiSelect(false); // form enforces single selection on the foundsets it uses
+			}
+			else if (selectionMode == SELECTION_MODE_MULTI)
+			{
+				formModel.setMultiSelect(true); // form enforces multi selection on the foundsets it uses
+			}
+			formModel.pinMultiSelect();
+		} // else this form model's multiSelect is already forced by a form (can even be this exact form) or this form has default non-forcing behavior
 	}
 
 	public Serializable getComponentProperty(Object component, String key)

@@ -279,7 +279,11 @@ public class SwingFoundSet extends FoundSet implements ISwingFoundSet, Cloneable
 	public void setMultiSelect(boolean isMultiSelect)
 	{
 		if (selectionModel == null) createSelectionModel();
-		selectionModel.setSelectionMode(isMultiSelect ? ListSelectionModel.MULTIPLE_INTERVAL_SELECTION : ListSelectionModel.SINGLE_SELECTION);
+		if (!multiSelectPinned && isMultiSelect != isMultiSelect())
+		{
+			selectionModel.setSelectionMode(isMultiSelect ? ListSelectionModel.MULTIPLE_INTERVAL_SELECTION : ListSelectionModel.SINGLE_SELECTION);
+			fireSelectionModeChange();
+		}
 	}
 
 	/**
