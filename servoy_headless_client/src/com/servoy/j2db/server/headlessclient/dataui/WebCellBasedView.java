@@ -274,7 +274,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			distributeExtraSpace();
 
-			WebTabPanel tabPanel = findParent(WebTabPanel.class);
+			WebTabPanel tabPanel = getFirstContainer(WebCellBasedView.this);
 			if (tabPanel != null)
 			{
 				int bodyDesignHeight = endY - startY;
@@ -1892,7 +1892,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	@Override
 	protected void onBeforeRender()
 	{
-		WebTabPanel tabPanel = findParent(WebTabPanel.class);
+		WebTabPanel tabPanel = getFirstContainer(WebCellBasedView.this);
 		Dimension tabSize = null;
 		if (tabPanel != null)
 		{
@@ -3406,6 +3406,28 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		int bodyDesignHeight = endY - startY;
 		int otherPartsHeight = (cellview instanceof Portal) ? 0 : formDesignHeight - bodyDesignHeight;
 		return otherPartsHeight;
+	}
+
+	private WebTabPanel getFirstContainer(Component component)
+	{
+		if (component != null)
+		{
+			MarkupContainer current = component.getParent();
+
+			while (current != null)
+			{
+				if (current instanceof WebTabPanel)
+				{
+					return (WebTabPanel)current;
+				}
+				if (current instanceof WebSplitPane)
+				{
+					return null;
+				}
+				current = current.getParent();
+			}
+		}
+		return null;
 	}
 }
 
