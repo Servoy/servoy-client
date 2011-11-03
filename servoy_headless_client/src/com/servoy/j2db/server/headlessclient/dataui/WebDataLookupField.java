@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.wicket.Component;
 import org.apache.wicket.IRequestTarget;
 import org.apache.wicket.RequestCycle;
+import org.apache.wicket.Response;
 import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.HeaderContributor;
@@ -49,6 +50,7 @@ import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.ui.scripting.RuntimeDataLookupField;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.UIUtils;
 import com.servoy.j2db.util.Utils;
 
@@ -187,6 +189,16 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 				String str = (object == null ? "" : object.toString()); //$NON-NLS-1$
 				if (str.trim().equals("")) str = "&nbsp;"; //$NON-NLS-1$//$NON-NLS-2$
 				return str;
+			}
+
+			@Override
+			protected void renderChoice(Object object, Response response, String criteria)
+			{
+				if (object instanceof String && !HtmlUtils.hasHtmlTag((String)object))
+				{
+					object = HtmlUtils.escapeMarkup((String)object, true, false);
+				}
+				super.renderChoice(object, response, criteria);
 			}
 		};
 		AutoCompleteBehavior<Object> beh = new AutoCompleteBehavior<Object>(renderer, behSettings)
