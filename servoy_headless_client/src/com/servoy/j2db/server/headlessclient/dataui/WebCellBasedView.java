@@ -286,12 +286,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			distributeExtraSpace();
 
-			WebTabPanel tabPanel = findParent(WebTabPanel.class);
-			if (tabPanel != null)
+			IWebFormContainer tabPanel = findParent(IWebFormContainer.class);
+			if (tabPanel instanceof WebTabPanel)
 			{
 				int bodyDesignHeight = resizeEndY - resizeStartY;
 				int otherPartsHeight = (resizeCellview instanceof Portal) ? 0 : formDesignHeight - bodyDesignHeight;
-				tabPanel.setTabSize(new Dimension(Integer.parseInt(sBodyWidthHint), bodyHeightHint + otherPartsHeight));
+				((WebTabPanel)tabPanel).setTabSize(new Dimension(Integer.parseInt(sBodyWidthHint), bodyHeightHint + otherPartsHeight));
 			}
 			WebCellBasedView.this.setVisibilityAllowed(true);
 			WebCellBasedView.this.getStylePropertyChanges().setChanged();
@@ -2079,11 +2079,11 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	@Override
 	protected void onBeforeRender()
 	{
-		WebTabPanel tabPanel = findParent(WebTabPanel.class);
+		IWebFormContainer tabPanel = findParent(IWebFormContainer.class);
 		Dimension tabSize = null;
-		if (tabPanel != null)
+		if (tabPanel instanceof WebTabPanel)
 		{
-			tabSize = tabPanel.getTabSize();
+			tabSize = ((WebTabPanel)tabPanel).getTabSize();
 		}
 
 		boolean canRenderView = true;
