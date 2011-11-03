@@ -368,7 +368,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 		if (IValueList.SEPARATOR.equals(displayValue))
 		{
 			// create a separator
-			buffer.append("\n<optgroup label=\" \" style=\"border-top: 1px solid gray; margin-top: 7px; margin-bottom: 7px;\"></optgroup>");
+			buffer.append("\n<optgroup class=\"separator\" label=\" \" ></optgroup>");
 		}
 		else
 		{

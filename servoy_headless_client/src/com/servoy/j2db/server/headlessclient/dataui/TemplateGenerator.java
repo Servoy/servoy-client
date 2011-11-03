@@ -1257,6 +1257,20 @@ public class TemplateGenerator
 		styleObj.setProperty("border-color", "#D4D0C8");
 		styleObj.setProperty("background-color", "#FFFFFF");
 
+		// default list separator stuff
+		styleObj = css.addStyle("optgroup.separator"); // combobox, listbox
+		// trying to make a gray horizontal line here with style - but <optgroup> element is very restricted on most browsers (couldn't make IE/FF/Opera work here)
+//		styleObj.setProperty("background-image", "url('/images/grayDot.gif')");
+//		styleObj.setProperty("background-repeat", "repeat-x");
+//		styleObj.setProperty("background-position", "0% 50%");
+//		styleObj.setProperty("height", "1px");
+//		styleObj.setProperty("margin-top", "7px");
+//		styleObj.setProperty("margin-bottom", "7px");
+		// or the same effect only works in FF
+		styleObj.setProperty("border-top", "1px solid gray");
+		styleObj.setProperty("margin-top", "7px");
+		styleObj.setProperty("margin-bottom", "7px");
+
 		//default radio/check field stuff
 		styleObj = css.addStyle(".radioCheckField");
 		styleObj.setProperty("padding", createInsetsText(DEFAULT_FIELD_PADDING));

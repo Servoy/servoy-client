@@ -35,6 +35,8 @@ import javax.swing.event.ListDataListener;
 import javax.swing.text.Document;
 
 import org.apache.wicket.Page;
+import org.apache.wicket.RequestCycle;
+import org.apache.wicket.ResourceReference;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.form.Form;
@@ -1000,7 +1002,8 @@ public class WebDataListBox extends ListMultipleChoice implements IDisplayData, 
 		if (IValueList.SEPARATOR.equals(displayValue))
 		{
 			// create a separator
-			buffer.append("\n<optgroup label=\" \" style=\"border-top: 1px solid gray; margin-top: 7px; margin-bottom: 7px;\"></optgroup>");
+			CharSequence url = RequestCycle.get().urlFor(new ResourceReference(WebDataListBox.class, "grayDot.gif"));
+			buffer.append("\n<optgroup class=\"separator\" label=\" \"></optgroup>");
 		}
 		else
 		{
