@@ -764,8 +764,9 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			statement.setIdentityColumn(dbPKReturnValues.size() == 0 ? null : dbPKReturnValues.get(0));
 			if (tracking || usesLobs)
 			{
-				statement.setTrackingData(sheet.getColumnNames(), new Object[][] { row.getRawOldColumnData() }, new Object[][] { row.getRawColumnData() },
-					fsm.getApplication().getUserUID(), fsm.getTrackingInfo(), fsm.getApplication().getClientID());
+				statement.setTrackingData(sheet.getColumnNames(), row.getRawOldColumnData() != null ? new Object[][] { row.getRawOldColumnData() } : null,
+					row.getRawColumnData() != null ? new Object[][] { row.getRawColumnData() } : null, fsm.getApplication().getUserUID(),
+					fsm.getTrackingInfo(), fsm.getApplication().getClientID());
 			}
 			return new RowUpdateInfo(row, statement, dbPKReturnValues, aggregatesToRemove);
 		}
@@ -903,8 +904,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			stats_a[0] = statement;
 			if (tracking)
 			{
-				statement.setTrackingData(sheet.getColumnNames(), new Object[][] { r.getRawColumnData() }, null, fsm.getApplication().getUserUID(),
-					fsm.getTrackingInfo(), fsm.getApplication().getClientID());
+				statement.setTrackingData(sheet.getColumnNames(), r.getRawColumnData() != null ? new Object[][] { r.getRawColumnData() } : null, null,
+					fsm.getApplication().getUserUID(), fsm.getTrackingInfo(), fsm.getApplication().getClientID());
 			}
 
 			try

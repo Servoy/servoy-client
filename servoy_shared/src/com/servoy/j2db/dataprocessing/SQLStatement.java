@@ -104,11 +104,11 @@ public class SQLStatement implements ITrackingSQLStatement
 
 		if (oldData == null)
 		{
-			oldTrackingData = new Object[newData.length][(newData.length > 0 ? newData[0].length : 0)];
+			oldTrackingData = new Object[newData.length][(newData.length > 0 ? (newData[0] != null ? newData[0].length : 0) : 0)];
 		}
 		else
 		{
-			oldTrackingData = new Object[oldData.length][(oldData.length > 0 ? oldData[0].length : 0)];
+			oldTrackingData = new Object[oldData.length][(oldData.length > 0 ? (oldData[0] != null ? oldData[0].length : 0) : 0)];
 			for (int i = 0; i < oldData.length; i++)
 			{
 				System.arraycopy(oldData[i], 0, oldTrackingData[i], 0, oldData[i].length);
@@ -117,11 +117,11 @@ public class SQLStatement implements ITrackingSQLStatement
 
 		if (newData == null)
 		{
-			newTrackingData = new Object[oldData.length][(oldData.length > 0 ? oldData[0].length : 0)];
+			newTrackingData = new Object[oldData.length][(oldData.length > 0 ? (oldData[0] != null ? oldData[0].length : 0) : 0)];
 		}
 		else
 		{
-			newTrackingData = new Object[newData.length][(newData.length > 0 ? newData[0].length : 0)];
+			newTrackingData = new Object[newData.length][(newData.length > 0 ? (newData[0] != null ? newData[0].length : 0) : 0)];
 			for (int i = 0; i < newData.length; i++)
 			{
 				System.arraycopy(newData[i], 0, newTrackingData[i], 0, newData[i].length);
