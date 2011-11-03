@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util;
 
 
@@ -103,6 +103,19 @@ public class HtmlUtils
 		{
 			return false;
 		}
+	}
+
+	public static boolean hasHtmlTag(String content)
+	{
+		if (content != null)
+		{
+			if (!content.contains("<")) return false; //$NON-NLS-1$
+			for (String tag : tags)
+			{
+				if (content.contains(tag)) return true;
+			}
+		}
+		return false;
 	}
 
 	/**
