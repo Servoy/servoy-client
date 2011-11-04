@@ -2585,6 +2585,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		multiSelectPinned = true;
 	}
 
+	/**
+	 * As a guideline, only the one who pinned the multiSelect should unpin it.
+	 */
 	public void unpinMultiSelect()
 	{
 		multiSelectPinned = false;
@@ -4380,47 +4383,25 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	protected void fireFindModeChange()
 	{
-		if (foundSetEventListeners.size() > 0)
-		{
-			IFoundSetEventListener[] array;
-			synchronized (foundSetEventListeners)
-			{
-				array = foundSetEventListeners.toArray(new IFoundSetEventListener[foundSetEventListeners.size()]);
-			}
-
-			FoundSetEvent e = new FoundSetEvent(this, FoundSetEvent.FIND_MODE_CHANGE, FoundSetEvent.CHANGE_UPDATE);
-			for (IFoundSetEventListener element : array)
-			{
-				element.foundSetChanged(e);
-			}
-		}
+		fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.FIND_MODE_CHANGE, FoundSetEvent.CHANGE_UPDATE));
 	}
 
 	public void fireSelectionModeChange()
 	{
-		if (foundSetEventListeners.size() > 0)
-		{
-			IFoundSetEventListener[] array;
-			synchronized (foundSetEventListeners)
-			{
-				array = foundSetEventListeners.toArray(new IFoundSetEventListener[foundSetEventListeners.size()]);
-			}
-
-			FoundSetEvent e = new FoundSetEvent(this, FoundSetEvent.SELECTION_MODE_CHANGE, FoundSetEvent.CHANGE_UPDATE);
-			for (IFoundSetEventListener element : array)
-			{
-				element.foundSetChanged(e);
-			}
-		}
+		fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.SELECTION_MODE_CHANGE, FoundSetEvent.CHANGE_UPDATE));
 	}
 
 	protected void fireFoundSetEvent(@SuppressWarnings("unused")
 	int firstRow, @SuppressWarnings("unused")
 	int lastRow, int changeType)
 	{
+		fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.CONTENTS_CHANGED, changeType));
+	}
+
+	private void fireFoundSetEvent(FoundSetEvent e)
+	{
 		if (foundSetEventListeners.size() > 0)
 		{
-			FoundSetEvent e = new FoundSetEvent(this, FoundSetEvent.CONTENTS_CHANGED, changeType);
 			IFoundSetEventListener[] array;
 			synchronized (foundSetEventListeners)
 			{
