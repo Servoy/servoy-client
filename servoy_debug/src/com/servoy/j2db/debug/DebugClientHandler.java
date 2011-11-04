@@ -42,6 +42,7 @@ import com.servoy.j2db.IDebugWebClient;
 import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.component.ComponentFactory;
+import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
@@ -49,6 +50,7 @@ import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
+import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.server.headlessclient.EmptyRequest;
 import com.servoy.j2db.server.headlessclient.SessionClient;
@@ -133,6 +135,30 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		if (jsunitJ2DBClient != null && jsunitJ2DBClient.getSolution() != null) jsunitJ2DBClient.refreshPersists(changes);
 		if (debugWebClient != null && debugWebClient.getSolution() != null) debugWebClient.refreshPersists(changes);
 		if (debugHeadlessClient != null && debugHeadlessClient.getSolution() != null) debugHeadlessClient.refreshPersists(changes);
+	}
+
+	public void refreshDebugClients(Table table)
+	{
+		if (debugJ2DBClient != null && debugJ2DBClient.getSolution() != null)
+		{
+			String dataSource = debugJ2DBClient.getFoundSetManager().getDataSource(table);
+			((FoundSetManager)debugJ2DBClient.getFoundSetManager()).flushSQLSheet(dataSource);
+		}
+		if (jsunitJ2DBClient != null && jsunitJ2DBClient.getSolution() != null)
+		{
+			String dataSource = jsunitJ2DBClient.getFoundSetManager().getDataSource(table);
+			((FoundSetManager)jsunitJ2DBClient.getFoundSetManager()).flushSQLSheet(dataSource);
+		}
+		if (debugWebClient != null && debugWebClient.getSolution() != null)
+		{
+			String dataSource = debugWebClient.getFoundSetManager().getDataSource(table);
+			((FoundSetManager)debugWebClient.getFoundSetManager()).flushSQLSheet(dataSource);
+		}
+		if (debugHeadlessClient != null && debugHeadlessClient.getSolution() != null)
+		{
+			String dataSource = debugHeadlessClient.getFoundSetManager().getDataSource(table);
+			((FoundSetManager)debugHeadlessClient.getFoundSetManager()).flushSQLSheet(dataSource);
+		}
 	}
 
 	public IApplication getDebugReadyClient()
