@@ -35,6 +35,7 @@ import java.util.Stack;
 import java.util.TreeMap;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.border.Border;
 import javax.swing.text.StyleConstants;
@@ -108,64 +109,40 @@ public class TemplateGenerator
 	 */
 	private static class FormCache
 	{
-		private volatile boolean stop = false;
-
 		private FormCache(boolean monitorCache)
 		{
 			if (monitorCache)
 			{
 				Runnable r = new Runnable()
 				{
-
 					public void run()
 					{
 						long sleepTime = 4 * 60 * 60 * 1000;
-						while (!stop)
+						try
 						{
-							try
+							long time = System.currentTimeMillis();
+							Iterator<CacheItem> it = cache.values().iterator();
+							while (it.hasNext())
 							{
-								synchronized (formCache)
+								CacheItem item = it.next();
+								if ((time - item.lasttouched) > sleepTime)
 								{
-									formCache.wait(sleepTime); // sleep for 4 hours
-									if (stop)
+									if (Debug.tracing())
 									{
-										return;
+										Debug.trace("Removing cache item: " + item.content);
 									}
+									it.remove();
 								}
-
-								long time = System.currentTimeMillis();
-								Iterator<CacheItem> it = cache.values().iterator();
-								while (it.hasNext())
-								{
-									CacheItem item = it.next();
-									if ((time - item.lasttouched) > sleepTime)
-									{
-										if (Debug.tracing())
-										{
-											Debug.trace("Removing cache item: " + item.content);
-										}
-										it.remove();
-									}
-								}
-
 							}
-							catch (Exception e)
-							{
-								Debug.error("error in FormCacheMonitor", e);
-							}
+
+						}
+						catch (Exception e)
+						{
+							Debug.error("error in FormCacheMonitor", e);
 						}
 					}
 				};
-				try
-				{
-					Thread thread = new Thread(r, "FormCache Monitor");
-					thread.setDaemon(true);
-					thread.start();
-				}
-				catch (Exception e)
-				{
-					Debug.error(e);
-				}
+				ApplicationServerSingleton.get().getExecutor().scheduleWithFixedDelay(r, 4 * 60 * 60, 4 * 60 * 60, TimeUnit.SECONDS);
 			}
 		}
 
@@ -2843,17 +2820,5 @@ public class TemplateGenerator
 	private static String getWicketIDParameter(Form form, IPersist meta, String prefix, String suffix)
 	{
 		return "servoy:id='" + prefix + ComponentFactory.getWebID(form, meta) + suffix + "' ";
-	}
-
-	/**
-	 * 
-	 */
-	public static void stopCacheMonitor()
-	{
-		synchronized (formCache)
-		{
-			formCache.stop = true;
-			formCache.notifyAll();
-		}
 	}
 }
