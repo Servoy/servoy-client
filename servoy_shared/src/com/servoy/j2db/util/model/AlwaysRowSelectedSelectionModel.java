@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.swing.DefaultListSelectionModel;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
@@ -266,4 +267,14 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 		removeIndexInterval(e.getIndex0(), e.getIndex1());
 	}
 
+	@Override
+	public void setSelectionMode(int selectionMode)
+	{
+		int oldSelection = getSelectionMode();
+		super.setSelectionMode(selectionMode);
+		if (selectionMode == ListSelectionModel.SINGLE_SELECTION && selectionMode != oldSelection)
+		{
+			setSelectedRow(getSelectedRow(), false, true);
+		}
+	}
 }
