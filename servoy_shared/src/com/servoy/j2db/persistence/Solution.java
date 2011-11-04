@@ -78,10 +78,15 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		return this;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.persistence.AbstractBase#internalAddChild(com.servoy.j2db.persistence.IPersist)
+	 */
 	@Override
-	public void addChild(IPersist obj)
+	public void internalAddChild(IPersist obj)
 	{
-		super.addChild(obj);
+		super.internalAddChild(obj);
 		if (obj instanceof ISupportScope && ((ISupportScope)obj).getScopeName() == null)
 		{
 			// globals from imports that have no scope name yet
