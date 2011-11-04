@@ -3973,7 +3973,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		try
 		{
 			return executeFunction(f, args, scope, scope, saveData, src, f == null || !Utils.getAsBoolean(f.get("_AllowToRunInFind_", f)), //$NON-NLS-1$
-				focusEvent, methodKey, executeWhenFieldValidationFailed, false, true);
+				focusEvent, methodKey, executeWhenFieldValidationFailed, false, false);
 		}
 		catch (ApplicationException ex)
 		{
