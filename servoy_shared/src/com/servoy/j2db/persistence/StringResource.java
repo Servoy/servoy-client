@@ -64,11 +64,6 @@ public abstract class StringResource extends AbstractRootObject implements Seria
 
 	public void loadFromFile(File f)
 	{
-		loadFromFile(f, Charset.defaultCharset());
-	}
-
-	public void loadFromFile(File f, Charset encoding)
-	{
-		setContent(Utils.getTXTFileContent(f, encoding));
+		setContent(Utils.getTXTFileContent(f, Charset.forName("UTF8")));
 	}
 }
