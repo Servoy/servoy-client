@@ -19,6 +19,7 @@ package com.servoy.j2db.persistence;
 
 import java.io.File;
 import java.io.Serializable;
+import java.nio.charset.Charset;
 
 import com.servoy.j2db.util.Utils;
 
@@ -63,7 +64,11 @@ public abstract class StringResource extends AbstractRootObject implements Seria
 
 	public void loadFromFile(File f)
 	{
-		setContent(Utils.getTXTFileContent(f));
+		loadFromFile(f, Charset.defaultCharset());
 	}
 
+	public void loadFromFile(File f, Charset encoding)
+	{
+		setContent(Utils.getTXTFileContent(f, encoding));
+	}
 }
