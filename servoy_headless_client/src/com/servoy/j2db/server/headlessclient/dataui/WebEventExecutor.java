@@ -48,6 +48,7 @@ import org.apache.wicket.protocol.http.ClientProperties;
 import org.apache.wicket.protocol.http.RequestUtils;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
 
+import com.servoy.j2db.FormController;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IDisplay;
 import com.servoy.j2db.dataprocessing.IDisplayData;
@@ -474,6 +475,21 @@ public class WebEventExecutor extends BaseEventExecutor
 	@SuppressWarnings("nls")
 	public static boolean setSelectedIndex(Component component, AjaxRequestTarget target, int modifiers, boolean bHandleMultiselect)
 	{
+		WebForm parentForm = component.findParent(WebForm.class);
+		if (parentForm != null)
+		{
+			int parentFormViewType = parentForm.getController().getForm().getView();
+			if (parentFormViewType == FormController.TABLE_VIEW || parentFormViewType == FormController.LOCKED_TABLE_VIEW)
+			{
+				WebCellBasedView tableView = component.findParent(WebCellBasedView.class);
+				if (tableView == null)
+				{
+					// the component is not part of the table view (it is on other form part), so ignore selection change
+					return true;
+				}
+			}
+		}
+
 		//search for recordItem model
 		Component recordItemModelComponent = component;
 		IModel< ? > someModel = recordItemModelComponent.getDefaultModel();
