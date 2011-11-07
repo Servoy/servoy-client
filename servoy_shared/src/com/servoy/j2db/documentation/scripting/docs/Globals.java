@@ -51,7 +51,7 @@ public class Globals
 	 * Get all global variable names of the current solution.
 	 * 
 	 * @sample
-	 * var allVarNames = globals.allvariables;
+	 * var allVarNames = scopes.globals.allvariables;
 	 * application.output("There are " + allVarNames.length + " global variables.");
 	 * for (var i=0; i<allVarNames.length; i++)
 	 * 	application.output(allVarNames[i]);

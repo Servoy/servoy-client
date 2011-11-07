@@ -2647,7 +2647,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 *
 	 * @sample
 	 * //attached this method to onShow on the form being shown after printpreview
-	 * //set a global called globals.showPrintPreview to 1 in the onPrintPreview method
+	 * //set a global called scopes.globals.showPrintPreview to 1 in the onPrintPreview method
 	 * if (scopes.globals.showPrintPreview == 1)
 	 * {
 	 * scopes.globals.showPrintPreview = 0;//clear for next time
