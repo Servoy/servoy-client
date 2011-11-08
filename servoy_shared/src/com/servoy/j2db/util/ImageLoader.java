@@ -581,6 +581,10 @@ public class ImageLoader
 		String contentType = ImageLoader.getContentType(imageData);
 		if (contentType == null || contentType.toLowerCase().indexOf("gif") != -1) contentType = "image/png";
 		ImageIcon icon = ImageLoader.getIcon(imageData, width, height, aspect);
+		if (icon == null)
+		{
+			return null;
+		}
 		java.awt.Image image = icon.getImage();
 		BufferedImage bufImage = null;
 		if (image instanceof BufferedImage)
