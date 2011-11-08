@@ -4206,9 +4206,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 	}
 
-	protected void fireFoundSetEvent(@SuppressWarnings("unused")
-	int firstRow, @SuppressWarnings("unused")
-	int lastRow, int changeType)
+	protected void fireFoundSetEvent(@SuppressWarnings("unused") int firstRow, @SuppressWarnings("unused") int lastRow, int changeType)
 	{
 		if (foundSetEventListeners.size() > 0)
 		{
@@ -4609,6 +4607,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					while (scriptIt.hasNext())
 					{
 						ScriptCalculation sc = scriptIt.next();
+						if (al.contains(sc.getDataProviderID())) al.remove(sc.getDataProviderID());
 						al.add(sc.getDataProviderID());
 					}
 				}
