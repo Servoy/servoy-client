@@ -26,7 +26,7 @@ import com.servoy.j2db.scripting.JSEvent;
  * @author lvostinar
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "ValidationFailedException", scriptingName = "ValidationFailedException")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class ValidationFailedException extends ApplicationException
 {
 	private Object oldValue;
