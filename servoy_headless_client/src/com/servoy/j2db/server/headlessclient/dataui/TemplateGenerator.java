@@ -272,6 +272,8 @@ public class TemplateGenerator
 
 	private static FormCache formCache = new FormCache(true);
 
+	private static final String[] DEFAULT_FONT_ELEMENTS = { "input", "button", "select", "td", "th", "textarea" };
+
 	private static HashMap<String, String> getWebFormIDToMarkupIDMap(WebForm wf, final ArrayList<String> ids)
 	{
 		final HashMap<String, String> webFormIDToMarkupIDMap = new HashMap<String, String>();
@@ -280,7 +282,15 @@ public class TemplateGenerator
 			public Object component(org.apache.wicket.Component c)
 			{
 				String id = "#" + c.getId();
-				if (ids.indexOf(id) != -1 && !webFormIDToMarkupIDMap.containsKey(id)) webFormIDToMarkupIDMap.put(id, "#" + c.getMarkupId());
+				if (ids.indexOf(id) != -1 && !webFormIDToMarkupIDMap.containsKey(id))
+				{
+					webFormIDToMarkupIDMap.put(id, "#" + c.getMarkupId());
+					for (String dfe : DEFAULT_FONT_ELEMENTS)
+					{
+						String dfeSelector = id + " " + dfe;
+						if (ids.indexOf(dfeSelector) != -1) webFormIDToMarkupIDMap.put(dfeSelector, "#" + c.getMarkupId() + " " + dfe);
+					}
+				}
 				return IVisitor.CONTINUE_TRAVERSAL;
 			}
 		});
@@ -1448,7 +1458,14 @@ public class TemplateGenerator
 
 
 		//default font stuff
-		styleObj = css.addStyle("body, input, button, select, td, th, textarea");
+		StringBuilder defaultFontElements = new StringBuilder();
+		defaultFontElements.append("body");
+		for (String dfe : DEFAULT_FONT_ELEMENTS)
+		{
+			defaultFontElements.append(", ");
+			defaultFontElements.append(dfe);
+		}
+		styleObj = css.addStyle(defaultFontElements.toString());
 		styleObj.setProperty("font-family", "Tahoma, Arial, Helvetica, sans-serif");
 		styleObj.setProperty("font-size", DEFAULT_FONT_SIZE + "px");
 //			styleObj.setProperty("-moz-box-sizing", "content-box");
@@ -2096,6 +2113,18 @@ public class TemplateGenerator
 					//html.append(getJavaScriptIDParameter(field));
 					html.append(getCSSClassParameter("field"));
 					html.append(">non editable HTML field</div>");
+
+					boolean hasFontFamily = styleObj.containsKey("font-family");
+					boolean hasFontSize = styleObj.containsKey("font-size");
+					if (hasFontFamily || hasFontSize)
+					{
+						for (String dfe : DEFAULT_FONT_ELEMENTS)
+						{
+							TextualStyle htmlAreaFont = css.addStyle('#' + ComponentFactory.getWebID(form, field) + " " + dfe);
+							if (hasFontFamily) htmlAreaFont.setProperty("font-family", styleObj.getProperty("font-family"));
+							if (hasFontSize) htmlAreaFont.setProperty("font-size", styleObj.getProperty("font-size"));
+						}
+					}
 					break;
 				}
 				//$FALL-THROUGH$
