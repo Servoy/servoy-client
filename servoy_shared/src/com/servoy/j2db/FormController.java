@@ -3581,6 +3581,11 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		return !form.getUseSeparateFoundSet();
 	}
 
+	public String getGlobalRelationNamedFoundset()
+	{
+		return form.getGlobalRelationNamedFoundset();
+	}
+
 	public boolean wantEmptyFoundSet()
 	{
 		return form.getUseEmptyFoundSet();

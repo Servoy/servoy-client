@@ -1174,7 +1174,15 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		IFoundSetInternal set = null;
 		if (l.getDataSource() == null || inMemDataSources.get(l.getDataSource()) != null || l.wantSharedFoundSet())
 		{
-			set = getSharedFoundSet(l.getDataSource(), l.getDefaultSortColumns());// check If FoundSet Exists
+			String wantedGlobalRelationName = l.getGlobalRelationNamedFoundset(); // form is set on using a global relation through namedFoundset property
+			if (wantedGlobalRelationName != null)
+			{
+				set = getGlobalRelatedFoundSet(wantedGlobalRelationName);
+			}
+			else
+			{
+				set = getSharedFoundSet(l.getDataSource(), l.getDefaultSortColumns());// check If FoundSet Exists
+			}
 		}
 		else
 		{

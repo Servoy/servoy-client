@@ -60,14 +60,21 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	public static final int NAVIGATOR_IGNORE = -2;
 
 	/**
-	 * 	Flag which indicates if this form uses a separate foundSet.
+	 * Constant used for form namedFoundset property. The form that uses empty namedFoundset will initially have an empty (cleared) foundset.
 	 */
-	public static final String SEPARATE_FLAG = "separate"; //$NON-NLS-1$
+	public static final String NAMED_FOUNDSET_EMPTY = "empty"; //$NON-NLS-1$
 
 	/**
-	 * 	Flag which indicates if this form's foundset will load the default data.
+	 * Constant used for form namedFoundset property. The form that uses a separate namedFoundset will initially have an separate (not shared with other forms) foundset.
 	 */
-	public static final String EMPTY_FLAG = "empty"; //$NON-NLS-1$
+	public static final String NAMED_FOUNDSET_SEPARATE = "separate"; //$NON-NLS-1$
+
+	/**
+	 * Constant used for prefixing the namedFoundset property. Prefixes global relations within the namedFoundset property.
+	 */
+	public static final String NAMED_FOUNDSET_GLOBAL_RELATION_PREFIX = "gr_"; //$NON-NLS-1$
+
+	public static final int NAMED_FOUNDSET_GLOBAL_RELATION_PREFIX_LENGTH = NAMED_FOUNDSET_GLOBAL_RELATION_PREFIX.length();
 
 	public transient Form extendsForm;
 
@@ -1655,7 +1662,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public boolean getUseSeparateFoundSet()
 	{
-		return SEPARATE_FLAG.equals(getNamedFoundSet());
+		return NAMED_FOUNDSET_SEPARATE.equals(getNamedFoundSet());
 	}
 
 	/**
@@ -1664,7 +1671,20 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public boolean getUseEmptyFoundSet()
 	{
-		return EMPTY_FLAG.equals(getNamedFoundSet());
+		return NAMED_FOUNDSET_EMPTY.equals(getNamedFoundSet());
+	}
+
+	public String getGlobalRelationNamedFoundset()
+	{
+		String nfs = getNamedFoundSet();
+		if (nfs == null || !nfs.startsWith(NAMED_FOUNDSET_GLOBAL_RELATION_PREFIX))
+		{
+			return null;
+		}
+		else
+		{
+			return nfs.substring(NAMED_FOUNDSET_GLOBAL_RELATION_PREFIX_LENGTH);
+		}
 	}
 
 	/**
@@ -1715,7 +1735,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public void setUseSeparateFoundSet(boolean b)
 	{
-		setNamedFoundSet(b ? SEPARATE_FLAG : null);
+		setNamedFoundSet(b ? NAMED_FOUNDSET_SEPARATE : null);
 	}
 
 	/**

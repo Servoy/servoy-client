@@ -45,6 +45,7 @@ import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.Portal;
+import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptNameValidator;
@@ -57,6 +58,7 @@ import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author jcompagner
@@ -2777,6 +2779,9 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getNamedFoundSet()
+	 * The namedFoundset can be based on a global relation; in this case namedFoundset is the relation's name.
+	 * You can also set the namedFoundset to a JSRelation object directly. The global relation needs to be compatible with the form's dataprovider.
+	 * Do not use relations named "empty" or "separate" to avoid confusions.
 	 * 
 	 * @sample
 	 *	// form with separate foundset
@@ -2784,20 +2789,30 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 *	frmSeparate.newLabel("Separate FoundSet",10,10,200,20);
 	 *	frmSeparate.newField('categoryid',JSField.TEXT_FIELD,10,40,200,20);
 	 *	frmSeparate.newField('productname',JSField.TEXT_FIELD,10,70,200,20);
-	 *	frmSeparate.namedFoundSet = 'separate';
+	 *	frmSeparate.namedFoundSet = SM_NAMEDFOUNDSET.SEPARATE;
 	 *	forms['products_separate'].controller.find();
 	 *	forms['products_separate'].categoryid = '=2';
 	 *	forms['products_separate'].controller.search();
+	 *
 	 *	// form with empty foundset
 	 *	var frmEmpty = solutionModel.newForm('products_empty', 'example_data', 'products', null, true, 640, 480);
 	 *	frmEmpty.newLabel("Empty FoundSet",10,10,200,20);
 	 *	frmEmpty.newField('categoryid',JSField.TEXT_FIELD,10,40,200,20);
 	 *	frmEmpty.newField('productname',JSField.TEXT_FIELD,10,70,200,20);
-	 *	frmEmpty.namedFoundSet = 'empty';
+	 *	frmEmpty.namedFoundSet = SM_NAMEDFOUNDSET.EMPTY;
+	 *
+	 *  // form with an initial foundset base on a global relation
+	 *  var frmGlobalRel = solutionModel.newForm("categories_related", solutionModel.getForm("categories"));
+	 *  frmGlobalRel.namedFoundSet = "g2_to_category_name";
 	 */
 	public String js_getNamedFoundSet()
 	{
-		return form.getNamedFoundSet();
+		String namedFoundset = form.getNamedFoundSet();
+		if (namedFoundset != null && namedFoundset.startsWith(Form.NAMED_FOUNDSET_GLOBAL_RELATION_PREFIX))
+		{
+			return namedFoundset.substring(Form.NAMED_FOUNDSET_GLOBAL_RELATION_PREFIX_LENGTH);
+		}
+		return namedFoundset;
 	}
 
 	/**
@@ -3572,7 +3587,71 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	public void js_setNamedFoundSet(String arg)
 	{
 		checkModification();
-		form.setNamedFoundSet(arg);
+		if (arg == null || Form.NAMED_FOUNDSET_EMPTY.equals(arg) || Form.NAMED_FOUNDSET_SEPARATE.equals(arg))
+		{
+			form.setNamedFoundSet(arg);
+		}
+		else
+		{
+			// see if it is intended as a global relation
+			setNamedFoundSet(application.getFlattenedSolution().getRelation(arg));
+		}
+	}
+
+	/**
+	 * Tells this form to initially load a global relation based foundset.
+	 * @param globalRelation the global relation's foreign datasource must match the form's datasource.
+	 * 
+	 * @sample
+	 *  // form with an initial foundset base on a global relation
+	 *  var frmGlobalRel = solutionModel.newForm("categories_related", solutionModel.getForm("categories"));
+	 *  // frmGlobalRel.setNamedFoundSet(solutionModel.getRelation("g1_to_categories"));
+	 */
+	public void js_setNamedFoundSet(JSRelation globalRelation)
+	{
+		checkModification();
+		if (globalRelation != null)
+		{
+			setNamedFoundSet(globalRelation.getSupportChild());
+		}
+		else
+		{
+			form.setNamedFoundSet(null);
+		}
+	}
+
+	private void setNamedFoundSet(Relation relation)
+	{
+		// check to see if the relation is compatible with the datasource (must be a global relation on the appropriate table)
+		if (relation == null || !relation.isGlobal()) form.setNamedFoundSet(null); // should we throw an exception here instead - relation not found?
+		else
+		{
+			if (Utils.stringSafeEquals(relation.getForeignDataSource(), form.getDataSource()))
+			{
+				form.setNamedFoundSet(Form.NAMED_FOUNDSET_GLOBAL_RELATION_PREFIX + relation.getName());
+			}
+			else
+			{
+				// check other datasources of the same table
+				List<String> compatibleDataSources = null;
+				try
+				{
+					compatibleDataSources = Solution.getTableDataSources(application.getRepository(), form.getTable()); // null when table is null
+				}
+				catch (RepositoryException e)
+				{
+					Debug.trace(e);
+				}
+				if (compatibleDataSources != null && compatibleDataSources.contains(relation.getForeignDataSource()))
+				{
+					form.setNamedFoundSet(Form.NAMED_FOUNDSET_GLOBAL_RELATION_PREFIX + relation.getName());
+				}
+				else
+				{
+					form.setNamedFoundSet(null); // should we throw an exception here instead - invalid relation for namedFoundset?
+				}
+			}
+		}
 	}
 
 	public void js_setView(int arg)
