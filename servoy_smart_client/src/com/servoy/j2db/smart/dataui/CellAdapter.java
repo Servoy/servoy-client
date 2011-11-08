@@ -67,10 +67,10 @@ import javax.swing.text.html.StyleSheet;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 
-import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IView;
+import com.servoy.j2db.ValidationFailedException;
 import com.servoy.j2db.component.ServoyBeanState;
 import com.servoy.j2db.dataprocessing.DataAdapterList;
 import com.servoy.j2db.dataprocessing.DisplaysAdapter;
@@ -95,9 +95,11 @@ import com.servoy.j2db.dataui.IServoyAwareBean;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
+import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.smart.J2DBClient;
 import com.servoy.j2db.smart.ListView;
 import com.servoy.j2db.smart.TableView;
+import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
@@ -1209,7 +1211,14 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 					{
 						Debug.trace(e);
 						displayData.setValueValid(false, oldVal);
-						application.handleException(null, new ApplicationException(ServoyException.INVALID_INPUT, e));
+						JSEvent event = new JSEvent();
+						if (displayData instanceof IComponent)
+						{
+							event.setSource(displayData);
+							event.setElementName(((IComponent)displayData).getName());
+						}
+						event.setFormName(dal.getFormController().getName());
+						application.handleException(null, new ValidationFailedException(ServoyException.INVALID_INPUT, e, oldVal, obj, event));
 
 						Object stateValue = null;
 						try

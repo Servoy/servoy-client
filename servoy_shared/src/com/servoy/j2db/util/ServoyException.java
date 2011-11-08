@@ -21,6 +21,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 
 import com.servoy.j2db.Messages;
+import com.servoy.j2db.ValidationFailedException;
 import com.servoy.j2db.dataprocessing.DataException;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IConstantsObject;
@@ -535,6 +536,16 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * 		}
 	 * 		return false
 	 * 	}
+	 *  if (ex instanceof ValidationFailedException)
+	 *  {
+	 * 		/** @type {ValidationFailedException} *&#47;
+	 *  	var validationException = ex;
+	 *  	application.output('Old value: '+ validationException.getOldValue())
+	 * 		application.output('New value: '+ validationException.getNewValue())
+	 * 		application.output('Element name: '+ validationException.getEvent().getElementName())
+	 * 		application.output('Form name: '+ validationException.getEvent().getFormName())
+	 * 		return false;
+	 *  }
 	 * }
 	 * //if returns false or no return, error is not reported to client; if returns true error is reported
 	 * //by default error report means logging the error, in smart client an error dialog will also show up
@@ -575,7 +586,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 */
 	public Class< ? >[] getAllReturnedTypes()
 	{
-		return new Class[] { DataException.class };
+		return new Class[] { DataException.class, ValidationFailedException.class };
 	}
 
 	/**

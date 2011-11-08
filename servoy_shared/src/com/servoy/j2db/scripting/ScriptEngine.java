@@ -41,6 +41,7 @@ import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager.HistoryProvider;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ISmartClientApplication;
+import com.servoy.j2db.ValidationFailedException;
 import com.servoy.j2db.dataprocessing.DataException;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
@@ -177,6 +178,8 @@ public class ScriptEngine implements IScriptSupport
 			toplevelScope.put("RuntimePortal", toplevelScope, new InstanceOfScope("RuntimePortal", IScriptPortalComponentMethods.class));
 			toplevelScope.put("RuntimeListBox", toplevelScope, new InstanceOfScope("RuntimeListBox", IScriptListBoxMethods.class));
 			toplevelScope.put("RuntimeAccordionPanel", toplevelScope, new InstanceOfScope("RuntimeAccordionPanel", IScriptAccordionPanelMethods.class));
+			toplevelScope.put("DataException", toplevelScope, new InstanceOfScope("DataException", DataException.class));
+			toplevelScope.put("ValidationFailedException", toplevelScope, new InstanceOfScope("ValidationFailedException", ValidationFailedException.class));
 
 			ScriptObjectRegistry.getJavaMembers(FormController.JSForm.class, toplevelScope);
 			toplevelScope.setPrototype(null);
@@ -218,6 +221,7 @@ public class ScriptEngine implements IScriptSupport
 			ScriptObjectRegistry.getJavaMembers(ApplicationException.class, toplevelScope);
 			ScriptObjectRegistry.getJavaMembers(ServoyException.class, toplevelScope);
 			ScriptObjectRegistry.getJavaMembers(DataException.class, toplevelScope);
+			ScriptObjectRegistry.getJavaMembers(ValidationFailedException.class, toplevelScope);
 			toplevelScope.put(IExecutingEnviroment.TOPLEVEL_SERVOY_EXCEPTION, toplevelScope, new NativeJavaClass(toplevelScope, ServoyException.class));
 			registerScriptObjectClass(ServoyException.class);
 

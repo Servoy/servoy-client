@@ -29,6 +29,7 @@ import org.mozilla.javascript.JavaMembers;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
+import com.servoy.j2db.ValidationFailedException;
 import com.servoy.j2db.dataprocessing.DataException;
 import com.servoy.j2db.documentation.XMLScriptObjectAdapter;
 import com.servoy.j2db.util.Debug;
@@ -172,7 +173,7 @@ public class ScriptObjectRegistry
 			{
 				Context.enter();
 				InstanceJavaMembers ijm;
-				if (clss != DataException.class)
+				if (clss != DataException.class && clss != ValidationFailedException.class)
 				{
 					ijm = new InstanceJavaMembers(scope, clss);
 				}
