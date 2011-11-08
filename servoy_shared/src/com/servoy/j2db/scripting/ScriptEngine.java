@@ -163,7 +163,7 @@ public class ScriptEngine implements IScriptSupport
 			toplevelScope.put("RuntimeRtfArea", toplevelScope, new InstanceOfScope("RuntimeRtfArea", IScriptTextEditorMethods.class));
 			toplevelScope.put("RuntimeTextArea", toplevelScope, new InstanceOfScope("RuntimeTextArea", IScriptTextAreaMethods.class));
 			toplevelScope.put("RuntimeChecks", toplevelScope, new InstanceOfScope("RuntimeChecks", IScriptChoiceMethods.class));
-			toplevelScope.put("RuntimeCheckBox", toplevelScope, new InstanceOfScope("RuntimeCheckBox", IScriptCheckBoxMethods.class));
+			toplevelScope.put("RuntimeCheck", toplevelScope, new InstanceOfScope("RuntimeCheck", IScriptCheckBoxMethods.class));
 			toplevelScope.put("RuntimeRadios", toplevelScope, new InstanceOfScope("RuntimeRadios", IScriptChoiceMethods.class));
 			toplevelScope.put("RuntimeRadio", toplevelScope, new InstanceOfScope("RuntimeRadio", IScriptRadioMethods.class));
 			toplevelScope.put("RuntimeComboBox", toplevelScope, new InstanceOfScope("RuntimeComboBox", IScriptDataComboboxMethods.class));
