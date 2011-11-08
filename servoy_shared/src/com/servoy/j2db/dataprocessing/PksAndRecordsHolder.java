@@ -210,4 +210,16 @@ public class PksAndRecordsHolder
 			}
 		}
 	}
+
+	public synchronized void rowPkUpdated(String oldPkHash, Row row)
+	{
+		for (int i = 0; pks != null && i < pks.getRowCount(); i++)
+		{
+			if (oldPkHash.equals(RowManager.createPKHashKey(pks.getRow(i))))
+			{
+				pks.setRow(i, row.getPK());
+				return;
+			}
+		}
+	}
 }

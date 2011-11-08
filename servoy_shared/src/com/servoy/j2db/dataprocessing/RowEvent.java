@@ -19,26 +19,29 @@ package com.servoy.j2db.dataprocessing;
 
 import java.util.EventObject;
 
+import javax.swing.event.TableModelEvent;
+
 /**
  * Row event object
  * @author jblok
  */
 class RowEvent extends EventObject
 {
-	public static final int INSERT = 1;
-	public static final int UPDATE = 0;
-	public static final int DELETE = -1;
+	public static final int INSERT = TableModelEvent.INSERT; // 1
+	public static final int UPDATE = TableModelEvent.UPDATE; // 0
+	public static final int DELETE = TableModelEvent.DELETE; // -1
+	public static final int PK_UPDATED = 2;
 
 	private final Row row;
 	private final int type;
-	private final Object[] changedColumnNames;
+	private final Object data;
 
-	RowEvent(Object source, Row r, int tableModelEventConstant, Object[] changedColumnNames)
+	RowEvent(Object source, Row row, int type, Object data)
 	{
 		super(source);
-		row = r;
-		type = tableModelEventConstant;
-		this.changedColumnNames = changedColumnNames;
+		this.row = row;
+		this.type = type;
+		this.data = data;
 	}
 
 	/**
@@ -62,10 +65,19 @@ class RowEvent extends EventObject
 	}
 
 	/**
-	 * Which colums have been updated, only used with UPDATE events
+	 * Get old pk hash, only used with PK_UPDATED events
+	 * @return
+	 */
+	public String getOldPkHash()
+	{
+		return type == PK_UPDATED && data instanceof String ? (String)data : null;
+	}
+
+	/**
+	 * Which columns have been updated, only used with UPDATE events
 	 */
 	public Object[] getChangedColumnNames()
 	{
-		return changedColumnNames;
+		return (type == UPDATE || type == PK_UPDATED) && data instanceof Object[] ? (Object[])data : null;
 	}
 }

@@ -672,10 +672,6 @@ public class EditRecordList
 					editRecordsLock.unlock();
 				}
 
-				if (!row.existInDB())
-				{
-					foundSet.updatePk(record);
-				}
 				try
 				{
 					row.getRowManager().rowUpdated(row, oldKey, foundSet, fires);

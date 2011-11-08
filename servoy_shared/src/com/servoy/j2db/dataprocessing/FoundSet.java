@@ -1283,7 +1283,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			!Utils.stringSafeEquals(getTable().getSchema(), sqlSelect.getTable().getSchemaName()) || //
 			!Utils.stringSafeEquals(getTable().getCatalog(), sqlSelect.getTable().getCatalogName()))
 		{
-			throw new RepositoryException("Cannot load foundset with query based on another table (" + getTable() + '/' + sqlSelect.getTable() + ')');
+			throw new RepositoryException("Cannot load foundset with query based on another table (" + getTable() + '/' + sqlSelect.getTable() + ')'); //$NON-NLS-1$
 		}
 
 		if (sqlSelect.getColumns() == null)
@@ -1350,7 +1350,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			!Utils.stringSafeEquals(getTable().getCatalog(), sqlSelect.getTable().getCatalogName()))
 		{
 			// should not happen here (was already checked with all callers)
-			throw new RuntimeException("Table mismatch: " + getTable() + '/' + sqlSelect.getTable() + ')');
+			throw new RuntimeException("Table mismatch: " + getTable() + '/' + sqlSelect.getTable() + ')'); //$NON-NLS-1$
 		}
 
 		//do query with sqlSelect
@@ -1657,7 +1657,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 			if (set.getColumnCount() < pkColumns.size())
 			{
-				throw new RuntimeException("Dataset column count (" + set.getColumnCount() + ") does not match table pk size (" + pkColumns.size() + ")");
+				throw new RuntimeException("Dataset column count (" + set.getColumnCount() + ") does not match table pk size (" + pkColumns.size() + ')'); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 
 			if (set.getColumnCount() > pkColumns.size())
@@ -3222,7 +3222,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 						throw aex;
 					}
 					// a record was locked by another client, try per-record
-					Debug.log("Could not delete all records in 1 statement (a record may be locked), trying per-record");
+					Debug.log("Could not delete all records in 1 statement (a record may be locked), trying per-record"); //$NON-NLS-1$
 				}
 				catch (RemoteException e)
 				{
@@ -3866,7 +3866,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			if (!executeFoundsetTriggerBreakOnFalse(null, StaticContentSpecLoader.PROPERTY_ONCREATEMETHODID))
 			{
-				Debug.trace("New record creation was denied by onCreateRecord method");
+				Debug.trace("New record creation was denied by onCreateRecord method"); //$NON-NLS-1$
 				return null;
 			}
 		}
@@ -3945,7 +3945,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			if (!executeFoundsetTriggerBreakOnFalse(null, StaticContentSpecLoader.PROPERTY_ONFINDMETHODID))
 			{
-				Debug.trace("Find mode switch was denied by onFind method");
+				Debug.trace("Find mode switch was denied by onFind method"); //$NON-NLS-1$
 				return;
 			}
 		}
@@ -4009,7 +4009,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			if (!executeFoundsetTriggerBreakOnFalse(new Object[] { Boolean.valueOf(clearLastResult), Boolean.valueOf(reduceSearch) },
 				StaticContentSpecLoader.PROPERTY_ONSEARCHMETHODID))
 			{
-				Debug.trace("Foundset search was denied by onSearchFoundset method");
+				Debug.trace("Foundset search was denied by onSearchFoundset method"); //$NON-NLS-1$
 				return -1; // blocked
 			}
 		}
@@ -4465,7 +4465,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 				SafeArrayList<IRecordInternal> cachedRecords;
 				IDataSet pks;
-
 				synchronized (pksAndRecords)
 				{
 					cachedRecords = pksAndRecords.getCachedRecords();
@@ -4473,97 +4472,108 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				}
 
 				// ROW CAN BE NULL
-				Row r = e.getRow();
+				Row row = e.getRow();
 
-				if (e.getType() == RowEvent.INSERT)
+				switch (e.getType())
 				{
-					Debug.trace("Row inserted notify"); //$NON-NLS-1$
-					if (!pksAndRecords.getQuerySelectForReading().hasAnyCondition() && pks != null && !pks.hadMoreRows() && r != null &&
-						fsm.getTableFilterParams(sheet.getServerName(), pksAndRecords.getQuerySelectForReading()) == null)//does show all records, if so show record .. if not we whould have to go to the database to verify if the record does match our SQL
-					{
-						Object[] pk = r.getPK();
-						//check if im in new record
-						int newRec = -1;
-						int size;
-						synchronized (pksAndRecords)
+					case RowEvent.INSERT :
+						Debug.trace("Row inserted notify"); //$NON-NLS-1$
+						if (!pksAndRecords.getQuerySelectForReading().hasAnyCondition() && pks != null && !pks.hadMoreRows() && row != null &&
+							fsm.getTableFilterParams(sheet.getServerName(), pksAndRecords.getQuerySelectForReading()) == null)//does show all records, if so show record .. if not we whould have to go to the database to verify if the record does match our SQL
 						{
-							for (int i = 0; i < pks.getRowCount(); i++)
+							Object[] pk = row.getPK();
+							//check if im in new record
+							int newRec = -1;
+							int size;
+							synchronized (pksAndRecords)
 							{
-								Object[] pksRow = pks.getRow(i);
-								if (pk != null && pksRow != null && pk.length == pksRow.length)
+								for (int i = 0; i < pks.getRowCount(); i++)
 								{
-									boolean equal = true;
-									for (int p = 0; equal && p < pk.length; p++)
+									Object[] pksRow = pks.getRow(i);
+									if (pk != null && pksRow != null && pk.length == pksRow.length)
 									{
-										Object pkval = pksRow[p];
-										if (pkval instanceof DbIdentValue)
+										boolean equal = true;
+										for (int p = 0; equal && p < pk.length; p++)
 										{
-											pkval = ((DbIdentValue)pkval).getPkValue();
-											if (pkval != null)
+											Object pkval = pksRow[p];
+											if (pkval instanceof DbIdentValue)
 											{
-												// update ident value in pksAndRecords
-												pksRow[p] = pkval;
+												pkval = ((DbIdentValue)pkval).getPkValue();
+												if (pkval != null)
+												{
+													// update ident value in pksAndRecords
+													pksRow[p] = pkval;
+												}
 											}
+											equal = Utils.equalObjects(pk[p], pkval);
 										}
-										equal = Utils.equalObjects(pk[p], pkval);
+										if (equal)
+										{
+											newRec = i;
+											break;
+										}
 									}
-									if (equal)
+								}
+								if (newRec != -1 && cachedRecords != null)
+								{
+									IRecordInternal rec = cachedRecords.get(newRec);
+									if (rec != null && rec.getRawData() == row)
 									{
-										newRec = i;
-										break;
+										return;//do nothing is my own row via self join used in lookup 
 									}
 								}
-							}
-							if (newRec != -1 && cachedRecords != null)
-							{
-								IRecordInternal rec = cachedRecords.get(newRec);
-								if (rec != null && rec.getRawData() == r)
-								{
-									return;//do nothing is my own row via self join used in lookup 
-								}
-							}
 
-							pks.addRow(pk);
-							size = getCorrectedSizeForFires();
+								pks.addRow(pk);
+								size = getCorrectedSizeForFires();
 
+							}
+							clearAggregates();
+							fireFoundSetEvent(size, size, FoundSetEvent.CHANGE_INSERT);
 						}
-						clearAggregates();
-						fireFoundSetEvent(size, size, FoundSetEvent.CHANGE_INSERT);
-					}
-					else
-					{
-						mustQueryForUpdates = true;
-						clearAggregates();
-					}
-				}
-				else
-				{
-					if (pks != null && r != null)
-					{
-						String pkHash = r.getPKHashKey();
-						for (int i = pks.getRowCount() - 1; i >= 0; i--)
+						else
 						{
-							Object[] pk = pks.getRow(i);
-							if (RowManager.createPKHashKey(pk).equals(pkHash))
+							mustQueryForUpdates = true;
+							clearAggregates();
+						}
+						break;
+
+					case RowEvent.UPDATE :
+					case RowEvent.DELETE :
+						if (pks != null && row != null)
+						{
+							String pkHash = row.getPKHashKey();
+							for (int i = pks.getRowCount() - 1; i >= 0; i--)
 							{
-								if (e.getType() == RowEvent.UPDATE)
+								Object[] pk = pks.getRow(i);
+								if (RowManager.createPKHashKey(pk).equals(pkHash))
 								{
-									clearAggregates();
-									fireFoundSetEvent(i, i, FoundSetEvent.CHANGE_UPDATE);
+									if (e.getType() == RowEvent.UPDATE)
+									{
+										clearAggregates();
+										fireFoundSetEvent(i, i, FoundSetEvent.CHANGE_UPDATE);
+									}
+									else if (e.getType() == RowEvent.DELETE)
+									{
+										removeRecordInternal(i);//does fireIntervalRemoved(this,i,i);
+									}
+									break;
 								}
-								else if (e.getType() == RowEvent.DELETE)
-								{
-									removeRecordInternal(i);//does fireIntervalRemoved(this,i,i);
-								}
-								break;
 							}
 						}
-					}
-					else if (r == null && getSize() > 0)
-					{
-						clearAggregates();
-						fireFoundSetEvent(0, getSize() - 1, FoundSetEvent.CHANGE_UPDATE);
-					}
+						else if (row == null && getSize() > 0)
+						{
+							clearAggregates();
+							fireFoundSetEvent(0, getSize() - 1, FoundSetEvent.CHANGE_UPDATE);
+						}
+						break;
+
+					case RowEvent.PK_UPDATED :
+						// row pk updated, adjust pksAndRecords admin
+						if (e.getOldPkHash() != null)
+						{
+							// oldPkHash iks only set when row was updated by this client
+							pksAndRecords.rowPkUpdated(e.getOldPkHash(), row);
+						}
 				}
 			}
 			finally
@@ -4579,22 +4589,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	public ITable getTable()
 	{
 		return sheet.getTable();
-	}
-
-	protected void updatePk(Record state)
-	{
-		synchronized (pksAndRecords)
-		{
-			SafeArrayList<IRecordInternal> cachedRecords = pksAndRecords.getCachedRecords();
-			IDataSet pks = pksAndRecords.getPks();
-			int index = cachedRecords.indexOf(state);
-			if (index != -1) //deleted without an update being done
-			{
-				Object[] pk = state.getRawData().getPK();
-				if (pk == null) pk = new Object[] { "invalid" };//prevent crashing pks (must stay in sync)  //$NON-NLS-1$
-				pks.setRow(index, pk);
-			}
-		}
 	}
 
 	public void fireAggregateChangeWithEvents(IRecordInternal record)

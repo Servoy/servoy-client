@@ -24,8 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import javax.swing.event.TableModelEvent;
-
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.SQLSheet.VariableInfo;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
@@ -458,12 +456,7 @@ public class Row
 		if (column != null && (column.getFlags() & Column.IDENT_COLUMNS) != 0)
 		{
 			// PK update, recalc hash, update calculation dependencies and fire depending calcs
-			List<Runnable> runnables = new ArrayList<Runnable>(1);
-			getRowManager().pkUpdated(this, getPKHashKey(), runnables);
-			for (Runnable runnable : runnables)
-			{
-				runnable.run();
-			}
+			getRowManager().fireDependingCalcsForPKUpdate(this, getPKHashKey());
 		}
 		else
 		{
@@ -672,7 +665,7 @@ public class Row
 		if (fire)
 		{
 			parent.fireDependingCalcs(getPKHashKey(), null, null);
-			parent.fireNotifyChange(null, this, null, TableModelEvent.UPDATE);
+			parent.fireNotifyChange(null, this, null, RowEvent.UPDATE);
 		}
 	}
 

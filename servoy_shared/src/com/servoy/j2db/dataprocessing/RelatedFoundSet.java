@@ -27,8 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import javax.swing.event.TableModelEvent;
-
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
 
@@ -299,13 +297,12 @@ public abstract class RelatedFoundSet extends FoundSet
 			}
 			catch (RepositoryException re)
 			{
-				testException(app, clientID, re);
+				testException(clientID, re);
 				throw re;
-
 			}
 			catch (RemoteException e)
 			{
-				testException(app, clientID, e.getCause());
+				testException(clientID, e.getCause());
 				throw new RepositoryException(e);
 			}
 		}
@@ -333,7 +330,7 @@ public abstract class RelatedFoundSet extends FoundSet
 			else
 			{
 				data = new BufferedDataSet();
-				Row row = cachedRows.get(new Integer(i));
+				Row row = cachedRows.get(Integer.valueOf(i));
 				if (row != null)
 				{
 					// cached
@@ -360,9 +357,9 @@ public abstract class RelatedFoundSet extends FoundSet
 	}
 
 
-	private static void testException(IFoundSetManagerInternal app, String clientID, Throwable t)
+	private static void testException(String clientID, Throwable t)
 	{
-		if (t instanceof RepositoryException)
+		if (Debug.tracing() && t instanceof RepositoryException)
 		{
 			RepositoryException re = (RepositoryException)t;
 			if (re.getErrorCode() == ServoyException.InternalCodes.CLIENT_NOT_REGISTERED)
@@ -371,10 +368,7 @@ public abstract class RelatedFoundSet extends FoundSet
 			}
 			else
 			{
-				if (Debug.tracing())
-				{
-					Debug.trace("Error getting related foundsets for clientID: " + clientID, re); //$NON-NLS-1$
-				}
+				Debug.trace("Error getting related foundsets for clientID: " + clientID, re); //$NON-NLS-1$
 			}
 		}
 	}
@@ -472,7 +466,7 @@ public abstract class RelatedFoundSet extends FoundSet
 	{
 		if ("recordIndex".equals(name)) //$NON-NLS-1$
 		{
-			return new Integer(getSelectedIndex() + 1);
+			return Integer.valueOf(getSelectedIndex() + 1);
 		}
 		else if ("getMaxRecordIndex".equals(name)) //adding a method here must also  be added in Ident.java //$NON-NLS-1$
 		{
@@ -550,15 +544,18 @@ public abstract class RelatedFoundSet extends FoundSet
 
 				// ROW CAN BE NULL ON UPDATE
 				Row r = e.getRow();
-				if (e.getType() == TableModelEvent.INSERT)
+				if (e.getType() == RowEvent.INSERT)
 				{
 					notifyChange_checkForNewRow(r);
 				}
 				else
 				{
-					if (e.getType() == TableModelEvent.UPDATE && getPksAndRecords().getPks() != null)
+					if ((e.getType() == RowEvent.UPDATE //
+						|| (e.getType() == RowEvent.PK_UPDATED && e.getOldPkHash() == null)) // pk was updated by another client (oldpkhash is filled when updated by self)
+						&&
+						getPksAndRecords().getPks() != null)
 					{
-						if (r == null)
+						if (r == null || (e.getType() == RowEvent.PK_UPDATED && e.getOldPkHash() == null))
 						{
 							// cached row was not found, check if a column was updated that the relation depends on
 							if (e.getChangedColumnNames() != null)
@@ -951,5 +948,12 @@ public abstract class RelatedFoundSet extends FoundSet
 		{
 			Debug.trace("checkQueryForUpdates: skipping because there were edited records"); //$NON-NLS-1$
 		}
+	}
+
+	@Override
+	public String toString()
+	{
+		String str = super.toString();
+		return "Related" + str.substring(0, str.length() - 1) + ", Args: " + getWhereArgsHash() + ']'; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

@@ -21,6 +21,7 @@ import java.lang.ref.ReferenceQueue;
 import java.rmi.RemoteException;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,8 +33,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
-
-import javax.swing.event.TableModelEvent;
 
 import com.servoy.j2db.dataprocessing.RowManager.RowFireNotifyChange.CalculationDependencyData;
 import com.servoy.j2db.dataprocessing.ValueFactory.BlobMarkerValue;
@@ -257,47 +256,54 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		return row;
 	}
 
-	void rollbackFromDB(Row r, boolean doFires, boolean overwrite) throws ServoyException
+	/**
+	 * Rollback data from db, return whether the data was found
+	 * @param row
+	 * @param doFires
+	 * @param overwrite
+	 * @return
+	 * @throws ServoyException
+	 */
+	boolean rollbackFromDB(Row row, boolean doFires, boolean overwrite) throws ServoyException
 	{
-		if (r.existInDB())
+		if (!row.existInDB())
 		{
-			Object[] pk = r.getPK();
-			QuerySelect select = (QuerySelect)AbstractBaseQuery.deepClone(sheet.getSQL(SQLSheet.SELECT));
-			if (!select.setPlaceholderValue(new PlaceholderKey(select.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pk))
-			{
-				Debug.error(new RuntimeException("Could not set placeholder " + new PlaceholderKey(select.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + //$NON-NLS-1$
-					" in query " + select + "-- continuing")); //$NON-NLS-1$//$NON-NLS-2$
-			}
-			IDataSet formdata;
-			try
-			{
-				String transaction_id = null;
-				GlobalTransaction gt = fsm.getGlobalTransaction();
-				if (gt != null)
-				{
-					transaction_id = gt.getTransactionID(sheet.getServerName());
-				}
-				formdata = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, select,
-					fsm.getTableFilterParams(sheet.getServerName(), select), false, 0, 1, false);
-			}
-			catch (RemoteException e)
-			{
-				throw new RepositoryException(e);
-			}
-
-			//construct Rows
-			if (formdata.getRowCount() >= 1)
-			{
-				Object[] columndata = formdata.getRow(0);
-				r.setRollbackData(columndata, overwrite);
-				if (doFires) fireNotifyChange(null, r, null, TableModelEvent.UPDATE);
-			}
-			else
-			{
-				//whoa, row is deleted !
-				if (doFires) fireNotifyChange(null, r, null, TableModelEvent.DELETE);
-			}
+			return false;
 		}
+		Object[] pk = row.getPK();
+		QuerySelect select = (QuerySelect)AbstractBaseQuery.deepClone(sheet.getSQL(SQLSheet.SELECT));
+		if (!select.setPlaceholderValue(new PlaceholderKey(select.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pk))
+		{
+			Debug.error(new RuntimeException("Could not set placeholder " + new PlaceholderKey(select.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + //$NON-NLS-1$
+				" in query " + select + "-- continuing")); //$NON-NLS-1$//$NON-NLS-2$
+		}
+		IDataSet formdata;
+		try
+		{
+			String transaction_id = null;
+			GlobalTransaction gt = fsm.getGlobalTransaction();
+			if (gt != null)
+			{
+				transaction_id = gt.getTransactionID(sheet.getServerName());
+			}
+			formdata = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, select,
+				fsm.getTableFilterParams(sheet.getServerName(), select), false, 0, 1, false);
+		}
+		catch (RemoteException e)
+		{
+			throw new RepositoryException(e);
+		}
+
+		// construct Rows
+		boolean found = formdata.getRowCount() >= 1;
+		if (found)
+		{
+			row.setRollbackData(formdata.getRow(0), overwrite);
+		}
+		// else // whoa, row is deleted or pk is updated!
+
+		if (doFires) fireNotifyChange(null, row, null, found ? RowEvent.UPDATE : RowEvent.DELETE);
+		return found;
 	}
 
 	private final ThreadLocal<String> adjustingForChangeByOtherPKHashKey = new ThreadLocal<String>();
@@ -317,25 +323,41 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			{
 				if (action == ISQLActionTypes.DELETE_ACTION)
 				{
-					fireNotifyChange(null, rowData, null, TableModelEvent.DELETE);
+					fireNotifyChange(null, rowData, null, RowEvent.DELETE);
 				}
-				else
+				else if (action == ISQLActionTypes.UPDATE_ACTION && !lockedByMyself(rowData))
 				{
-					if (!lockedByMyself(rowData))
+					try
 					{
-						try
+						adjustingForChangeByOtherPKHashKey.set(rowData.getPKHashKey());
+						boolean found = rollbackFromDB(rowData, false, false);
+						int eventType = RowEvent.UPDATE;
+						if (!found && rowData.existInDB())
 						{
-							adjustingForChangeByOtherPKHashKey.set(rowData.getPKHashKey());
-							rollbackFromDB(rowData, true, false);
+							// row was not found, check if the pk was updated
+							eventType = RowEvent.DELETE;
+							if (insertColumnDataOrChangedColumns != null)
+							{
+								List<String> pkdps = Arrays.asList(sheet.getPKColumnDataProvidersAsArray());
+								for (Object changedColumnName : insertColumnDataOrChangedColumns)
+								{
+									if (pkdps.contains(changedColumnName))
+									{
+										eventType = RowEvent.PK_UPDATED;
+										break;
+									}
+								}
+							}
 						}
-						catch (Exception e)
-						{
-							Debug.error(e);//what can we do here
-						}
-						finally
-						{
-							adjustingForChangeByOtherPKHashKey.remove();
-						}
+						fireNotifyChange(null, rowData, insertColumnDataOrChangedColumns, eventType);
+					}
+					catch (Exception e)
+					{
+						Debug.error(e);//what can we do here
+					}
+					finally
+					{
+						adjustingForChangeByOtherPKHashKey.remove();
 					}
 				}
 				return true;
@@ -348,7 +370,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		{
 			if (insertedRow != null)
 			{
-				fireNotifyChange(null, insertedRow, null, TableModelEvent.INSERT);
+				fireNotifyChange(null, insertedRow, null, RowEvent.INSERT);
 				if (!insertedRow.hasListeners() && canRemove(pkRowMap.get(pkHashKey))) //new row is not in use
 				{
 					removeRowReferences(pkHashKey, null);
@@ -360,7 +382,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			else if (insertColumnDataOrChangedColumns != null && insertColumnDataOrChangedColumns.length == sheet.getColumnNames().length) //last test is just to make sure
 			{
 				rowData = createExistInDBRowObject(insertColumnDataOrChangedColumns);
-				fireNotifyChange(null, rowData, null, TableModelEvent.INSERT);
+				fireNotifyChange(null, rowData, null, RowEvent.INSERT);
 				if (rowData.hasListeners())//new row is in use
 				{
 					boolean fireCalcs = false;
@@ -386,7 +408,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		else if (action == ISQLActionTypes.UPDATE_ACTION && insertColumnDataOrChangedColumns != null)
 		{
 			// update of row that is not cached by this client
-			fireNotifyChange(null, null, insertColumnDataOrChangedColumns, TableModelEvent.UPDATE);
+			fireNotifyChange(null, null, insertColumnDataOrChangedColumns, RowEvent.UPDATE);
 		}
 
 		//we did not have row cached in memory no update is need, we will get the change if we query for row when needed
@@ -525,11 +547,11 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		return retval;
 	}
 
-	void fireNotifyChange(IRowListener skip, Row r, Object[] changedColumns, int tableModelEventConstant)
+	void fireNotifyChange(IRowListener skip, Row r, Object[] changedColumns, int eventType)
 	{
 		if (listeners.size() > 0)
 		{
-			RowEvent e = new RowEvent(this, r, tableModelEventConstant, changedColumns);
+			RowEvent e = new RowEvent(this, r, eventType, changedColumns);
 
 			// First copy it to a array list for concurrent mod...			
 			Object[] array = null;
@@ -545,6 +567,26 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			}
 		}
 		fsm.notifyChange(sheet.getTable());
+	}
+
+	void firePKUpdated(Row row, String oldKeyHash)
+	{
+		if (listeners.size() > 0)
+		{
+			RowEvent e = new RowEvent(this, row, RowEvent.PK_UPDATED, oldKeyHash);
+
+			// First copy it to a array list for concurrent mod...			
+			Object[] array = null;
+			synchronized (listeners)
+			{
+				array = listeners.keySet().toArray();
+			}
+
+			for (Object listener : array)
+			{
+				((IRowListener)listener).notifyChange(e);
+			}
+		}
 	}
 
 	RowUpdateInfo getRowUpdateInfo(Row row, boolean tracking) throws ServoyException
@@ -776,39 +818,62 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		}
 	}
 
-	void rowUpdated(final Row row, String oldKey, final IRowListener src, List<Runnable> runnables) throws ServoyException
+	void rowUpdated(final Row row, final String oldKeyHash, final IRowListener src, List<Runnable> runnables)
 	{
 		final boolean doesExistInDB = row.existInDB();
 		row.flagExistInDB();//always needed flushes stuff
+
+		String newKeyHash = row.recalcPKHashKey();
+		if (!oldKeyHash.equals(newKeyHash))
+		{
+			// fire pk updated to IRowListeners
+			runnables.add(new Runnable()
+			{
+				public void run()
+				{
+					firePKUpdated(row, oldKeyHash);
+				}
+			});
+		}
 
 		// run fires later (add this runnable here first because the runnables in EditRecordList are processed in reverse order)
 		runnables.add(new Runnable()
 		{
 			public void run()
 			{
-				fireNotifyChange(src, row, null, doesExistInDB ? TableModelEvent.UPDATE : TableModelEvent.INSERT);
+				fireNotifyChange(src, row, null, doesExistInDB ? RowEvent.UPDATE : RowEvent.INSERT);
 			}
 		});
 
 		// may add fires for depending calcs
-		pkUpdated(row, oldKey, runnables);
+		fireDependingCalcsForPKUpdate(row, oldKeyHash, runnables);
+	}
 
+	void fireDependingCalcsForPKUpdate(Row row, String oldKeyHash)
+	{
+		List<Runnable> runnables = new ArrayList<Runnable>(1);
+		fireDependingCalcsForPKUpdate(row, oldKeyHash, runnables);
+		for (Runnable runnable : runnables)
+		{
+			runnable.run();
+		}
 	}
 
 	/**
 	 * PK of a row may have been updated, the row may not have been saved yet.
 	 * @param row
-	 * @param oldKey pkhash
+	 * @param oldKeyHash pkhash
 	 * @param runnables
 	 */
-	synchronized void pkUpdated(final Row row, final String oldKey, List<Runnable> runnables)
+	synchronized void fireDependingCalcsForPKUpdate(final Row row, final String oldKeyHash, List<Runnable> runnables)
 	{
-		//do recalcPKHashKey incase its called before and pk did not yet exist
-		String newKey = row.recalcPKHashKey();
-		if (!oldKey.equals(newKey))
+		// do recalcPKHashKey incase its called before and pk did not yet exist
+		String newKeyHash = row.recalcPKHashKey();
+		if (!oldKeyHash.equals(newKeyHash))
 		{
-			final SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>> srOld = pkRowMap.get(oldKey);
-			pkRowMap.put(newKey, new SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>(row, referenceQueue));// (over)write new
+			final SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>> srOld = pkRowMap.get(oldKeyHash);
+			pkRowMap.put(newKeyHash, new SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>(row,
+				referenceQueue));// (over)write new
 			if (srOld != null)
 			{
 				// run fires later
@@ -818,16 +883,16 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 					{
 						// calcs depending on old pk are invalid
 						fireDependingCalcs(srOld, null, null);
-						pkRowMap.remove(oldKey);//remove old
+						pkRowMap.remove(oldKeyHash);//remove old
 					}
 				});
 			}
 		}
 		else
 		{
-			if (!pkRowMap.containsKey(newKey))
+			if (!pkRowMap.containsKey(newKeyHash))
 			{
-				pkRowMap.put(newKey, new SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>(row,
+				pkRowMap.put(newKeyHash, new SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>(row,
 					referenceQueue));
 				clearAndCheckCache();
 			}
@@ -932,7 +997,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			fireDependingCalcs(removed, null, null);
 		}
 
-		fireNotifyChange(src, r, null, TableModelEvent.DELETE);
+		fireNotifyChange(src, r, null, RowEvent.DELETE);
 	}
 
 	boolean lockedByMyself(Row r)
@@ -971,7 +1036,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 					if (!Utils.equalObjects(data, currentData))
 					{
 						rowData.setRollbackData(data, false);
-						fireNotifyChange(null, rowData, null, TableModelEvent.UPDATE);
+						fireNotifyChange(null, rowData, null, RowEvent.UPDATE);
 					}
 				}
 				return true;
@@ -1073,7 +1138,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			pkValues[k] = new Object[] { pk[k] };
 		}
 
-		blobSelect.addCondition("blobselect", new SetCondition(ISQLCondition.EQUALS_OPERATOR, pkQuerycolumns, pkValues, true));
+		blobSelect.addCondition("blobselect", new SetCondition(ISQLCondition.EQUALS_OPERATOR, pkQuerycolumns, pkValues, true)); //$NON-NLS-1$
 
 		String serverName = sheet.getServerName();
 		String transaction_id = null;
@@ -1221,7 +1286,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 						if (fires.size() > 0)
 						{
 							fireRowNotifyChanges(fires);
-							fireNotifyChange(null, null, null, TableModelEvent.UPDATE);
+							fireNotifyChange(null, null, null, RowEvent.UPDATE);
 						}
 					}
 				}
@@ -1249,7 +1314,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				if (fires.size() > 0)
 				{
 					fireRowNotifyChanges(fires);
-					fireNotifyChange(source, null, null, TableModelEvent.UPDATE);
+					fireNotifyChange(source, null, null, RowEvent.UPDATE);
 				}
 			}
 			finally
@@ -1940,7 +2005,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		@Override
 		public String toString()
 		{
-			return "RelationDependency [relationName=" + relationName + ", whereArgsHash=" + whereArgsHash + ']'; //$NON-NLS-1$
+			return "RelationDependency [relationName=" + relationName + ", whereArgsHash=" + whereArgsHash + ']'; //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
