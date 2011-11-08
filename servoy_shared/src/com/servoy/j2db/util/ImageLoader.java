@@ -583,8 +583,7 @@ public class ImageLoader
 		ImageIcon icon = ImageLoader.getIcon(imageData, width, height, aspect);
 		if (icon == null)
 		{
-			Debug.warn("Cannot resize image, returning original image; check the log for errors");
-			return imageData;
+			return null;
 		}
 		java.awt.Image image = icon.getImage();
 		BufferedImage bufImage = null;
