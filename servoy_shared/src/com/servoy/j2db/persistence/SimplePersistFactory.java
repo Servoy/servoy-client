@@ -31,7 +31,7 @@ public class SimplePersistFactory extends AbstractPersistFactory
 		last_element_id = startElementId;
 	}
 
-	public Solution createDummyCopy(Solution sol)
+	public static Solution createDummyCopy(Solution sol)
 	{
 		Solution copy = new Solution(sol.getRepository(), sol.getSolutionMetaData());
 		copy.setReleaseNumber(sol.getReleaseNumber());
