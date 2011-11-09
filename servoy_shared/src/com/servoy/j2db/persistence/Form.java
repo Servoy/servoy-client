@@ -1922,7 +1922,9 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 
 	/**
 	 * Property that tells the form to use a named foundset instead of the default foundset.
-	 * When "separate" as special value is specified the form will always create a copy of assigned foundset and therefor become separated from other foundsets
+	 * When "separate" as special value is specified the form will always create a copy of assigned foundset and therefor become separated from other foundsets.
+	 * When "empty" it will initially load an empty foundset.
+	 * When a global relation name it will load the a related foundset.
 	 */
 	public String getNamedFoundSet()
 	{

@@ -176,6 +176,62 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	public static final int HIDE_ELEMENTS_ENCAPSULATION = FormEncapsulation.HIDE_ELEMENTS;
 
 
+	/**
+	 * @clonedesc com.servoy.j2db.Form#NAMED_FOUNDSET_EMPTY
+	 * 
+	 * @sample
+	 *	// form with empty foundset
+	 *	var frmEmpty = solutionModel.newForm('products_empty', 'example_data', 'products', null, true, 640, 480);
+	 *	frmEmpty.newLabel("Empty FoundSet",10,10,200,20);
+	 *	frmEmpty.newField('categoryid',JSField.TEXT_FIELD,10,40,200,20);
+	 *	frmEmpty.newField('productname',JSField.TEXT_FIELD,10,70,200,20);
+	 *	frmEmpty.namedFoundSet = JSForm.EMPTY_FOUNDSET;
+	 */
+	public static final String EMPTY_FOUNDSET = Form.NAMED_FOUNDSET_EMPTY;
+
+	/**
+	 * @clonedesc com.servoy.j2db.Form#NAMED_FOUNDSET_SEPARATE
+	 * 
+	 * @sample
+	 *	// form with separate foundset
+	 *	var frmSeparate = solutionModel.newForm('products_separate', 'example_data', 'products', null, true, 640, 480);
+	 *	frmSeparate.newLabel("Separate FoundSet",10,10,200,20);
+	 *	frmSeparate.newField('categoryid',JSField.TEXT_FIELD,10,40,200,20);
+	 *	frmSeparate.newField('productname',JSField.TEXT_FIELD,10,70,200,20);
+	 *	frmSeparate.namedFoundSet = JSForm.SEPARATE_FOUNDSET;
+	 *	forms['products_separate'].controller.find();
+	 *	forms['products_separate'].categoryid = '=2';
+	 *	forms['products_separate'].controller.search();
+	 */
+	public static final String SEPARATE_FOUNDSET = Form.NAMED_FOUNDSET_SEPARATE;
+
+	/**
+	 * @clonedesc com.servoy.j2db.IForm#SELECTION_MODE_DEFAULT
+	 * 
+	 * @sample
+	 * var myForm = solutionModel.getForm('my_form_name');
+	 * myForm.selectionMode = JSForm.SELECTION_MODE_DEFAULT;
+	 */
+	public static final int SELECTION_MODE_DEFAULT = IForm.SELECTION_MODE_DEFAULT;
+
+	/**
+	 * @clonedesc com.servoy.j2db.IForm#SELECTION_MODE_SINGLE
+	 * 
+	 * @sample
+	 * var myForm = solutionModel.getForm('my_form_name');
+	 * myForm.selectionMode = JSForm.SELECTION_MODE_SINGLE;
+	 */
+	public static final int SELECTION_MODE_SINGLE = IForm.SELECTION_MODE_SINGLE;
+
+	/**
+	 * @clonedesc com.servoy.j2db.IForm#SELECTION_MODE_MULTI
+	 * 
+	 * @sample
+	 * var myForm = solutionModel.getForm('my_form_name');
+	 * myForm.selectionMode = JSForm.SELECTION_MODE_MULTI;
+	 */
+	public static final int SELECTION_MODE_MULTI = IForm.SELECTION_MODE_MULTI;
+
 	private Form form;
 	private final IApplication application;
 	private boolean isCopy;
@@ -2756,12 +2812,12 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * Selection mode is applied when necessary to the foundset used by the form (through it's multiSelect property), even if the foundset changes.
 	 * If two or more forms with non-default and different selectionMode values share the same foundset, the first form that applies it's selectionMode wins.
 	 * 
-	 * Can be one of SM_SELECTION.DEFAULT, SM_SELECTION.SINGLE or SM_SELECTION.MULTI.
+	 * Can be one of SELECTION_MODE_DEFAULT, SELECTION_MODE_SINGLE or SELECTION_MODE_MULTI.
 	 * 
 	 * @since 6.1
 	 * @sample
 	 * var myForm = solutionModel.getForm('my_form_name');
-	 * if (myForm.selectionMode == SM_SELECTION.MULTI) myForm.selectionMode = SM_SELECTION.DEFAULT;
+	 * if (myForm.selectionMode == JSForm.SELECTION_MODE_MULTI) myForm.selectionMode = JSForm.SELECTION_MODE_DEFAULT;
 	 */
 	public int js_getSelectionMode()
 	{
@@ -2778,9 +2834,14 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getNamedFoundSet()
+	 * Property that tells the form to use a named foundset instead of the default foundset.
+	 * When JSForm.SEPARATE_FOUNDSET is specified the form will always create a copy of assigned foundset and therefore become separated from other foundsets.
+	 * When JSForm.EMPTY_FOUNDSET, the form will have an initially empty foundset.
+	 * 
 	 * The namedFoundset can be based on a global relation; in this case namedFoundset is the relation's name.
-	 * You can also set the namedFoundset to a JSRelation object directly. The global relation needs to be compatible with the form's dataprovider.
+	 * You can also set the namedFoundset to a JSRelation object directly.
+	 * It will tell this form to initially load a global relation based foundset.
+	 * The global relation's foreign datasource must match the form's datasource.
 	 * Do not use relations named "empty" or "separate" to avoid confusions.
 	 * 
 	 * @sample
@@ -2789,7 +2850,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 *	frmSeparate.newLabel("Separate FoundSet",10,10,200,20);
 	 *	frmSeparate.newField('categoryid',JSField.TEXT_FIELD,10,40,200,20);
 	 *	frmSeparate.newField('productname',JSField.TEXT_FIELD,10,70,200,20);
-	 *	frmSeparate.namedFoundSet = SM_NAMEDFOUNDSET.SEPARATE;
+	 *	frmSeparate.namedFoundSet = JSForm.SEPARATE_FOUNDSET;
 	 *	forms['products_separate'].controller.find();
 	 *	forms['products_separate'].categoryid = '=2';
 	 *	forms['products_separate'].controller.search();
@@ -2799,11 +2860,15 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 *	frmEmpty.newLabel("Empty FoundSet",10,10,200,20);
 	 *	frmEmpty.newField('categoryid',JSField.TEXT_FIELD,10,40,200,20);
 	 *	frmEmpty.newField('productname',JSField.TEXT_FIELD,10,70,200,20);
-	 *	frmEmpty.namedFoundSet = SM_NAMEDFOUNDSET.EMPTY;
+	 *	frmEmpty.namedFoundSet = JSForm.EMPTY_FOUNDSET;
 	 *
-	 *  // form with an initial foundset base on a global relation
+	 *  // form with an initial foundset based on a global relation
 	 *  var frmGlobalRel = solutionModel.newForm("categories_related", solutionModel.getForm("categories"));
 	 *  frmGlobalRel.namedFoundSet = "g2_to_category_name";
+	 *  
+	 *  // form with an initial foundset based on a global relation
+	 *  var frmGlobalRel = solutionModel.newForm("categories_related", solutionModel.getForm("categories"));
+	 *  frmGlobalRel.namedFoundSet = solutionModel.getRelation("g1_to_categories");
 	 */
 	public String js_getNamedFoundSet()
 	{
@@ -2889,8 +2954,15 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 		{
 			f = application.getFlattenedSolution().getForm((String)superForm);
 		}
+
 		if (f == null)
 		{
+			if (superForm != null)
+			{
+				// this kind of argument is not supported or wrong
+				throw new RuntimeException("extendsForm must receive either null, a JSForm object or a valid form name");
+			}
+
 			form.setExtendsID(0);
 		}
 		else
@@ -2929,11 +3001,20 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 			{
 				id = f.getID();
 			}
+			else
+			{
+				throw new RuntimeException("cannot find form with name '" + (String)navigator + "'");
+			}
 		}
 		else if (navigator instanceof Number)
 		{
 			id = ((Number)navigator).intValue();
 		}
+		else if (navigator != null)
+		{
+			throw new RuntimeException("cannot get navigator form from given object '" + navigator.toString() + "'");
+		}
+
 		form.setNavigatorID(id);
 	}
 
@@ -3584,7 +3665,23 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 		form.setUseSeparateFoundSet(b);
 	}
 
-	public void js_setNamedFoundSet(String arg)
+	public void js_setNamedFoundSet(Object arg)
+	{
+		if (arg == null || arg instanceof String)
+		{
+			setNamedFoundSet((String)arg);
+		}
+		else if (arg instanceof JSRelation)
+		{
+			setNamedFoundSet((JSRelation)arg);
+		}
+		else
+		{
+			throw new RuntimeException("object type is incompatible with namedFoundset property");
+		}
+	}
+
+	private void setNamedFoundSet(String arg)
 	{
 		checkModification();
 		if (arg == null || Form.NAMED_FOUNDSET_EMPTY.equals(arg) || Form.NAMED_FOUNDSET_SEPARATE.equals(arg))
@@ -3594,25 +3691,16 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 		else
 		{
 			// see if it is intended as a global relation
-			setNamedFoundSet(application.getFlattenedSolution().getRelation(arg));
+			setNamedFoundSetAsGlobalRelation(application.getFlattenedSolution().getRelation(arg));
 		}
 	}
 
-	/**
-	 * Tells this form to initially load a global relation based foundset.
-	 * @param globalRelation the global relation's foreign datasource must match the form's datasource.
-	 * 
-	 * @sample
-	 *  // form with an initial foundset base on a global relation
-	 *  var frmGlobalRel = solutionModel.newForm("categories_related", solutionModel.getForm("categories"));
-	 *  // frmGlobalRel.setNamedFoundSet(solutionModel.getRelation("g1_to_categories"));
-	 */
-	public void js_setNamedFoundSet(JSRelation globalRelation)
+	private void setNamedFoundSet(JSRelation globalRelation)
 	{
 		checkModification();
 		if (globalRelation != null)
 		{
-			setNamedFoundSet(globalRelation.getSupportChild());
+			setNamedFoundSetAsGlobalRelation(globalRelation.getSupportChild());
 		}
 		else
 		{
@@ -3620,10 +3708,13 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 		}
 	}
 
-	private void setNamedFoundSet(Relation relation)
+	private void setNamedFoundSetAsGlobalRelation(Relation relation)
 	{
 		// check to see if the relation is compatible with the datasource (must be a global relation on the appropriate table)
-		if (relation == null || !relation.isGlobal()) form.setNamedFoundSet(null); // should we throw an exception here instead - relation not found?
+		if (relation == null || !relation.isGlobal())
+		{
+			throw new RuntimeException("relation not found or invalid; namedFoundset only supports global relations");
+		}
 		else
 		{
 			if (Utils.stringSafeEquals(relation.getForeignDataSource(), form.getDataSource()))
@@ -3648,7 +3739,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 				}
 				else
 				{
-					form.setNamedFoundSet(null); // should we throw an exception here instead - invalid relation for namedFoundset?
+					throw new RuntimeException("(namedFoundset) relation '" + relation.getName() + "' is incompatible with form dataSource");
 				}
 			}
 		}
