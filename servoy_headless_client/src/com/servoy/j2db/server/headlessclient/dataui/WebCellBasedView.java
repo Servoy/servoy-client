@@ -219,6 +219,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	private final RuntimePortal scriptable;
 
 	private boolean isScrollMode;
+	private ScrollBehavior scrollBehavior;
 	private int maxRowsPerPage;
 
 	/**
@@ -1364,7 +1365,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 			}));
 
-			tableContainerBody.add(new ScrollBehavior("onscroll")); //$NON-NLS-1$
+			tableContainerBody.add(scrollBehavior = new ScrollBehavior("onscroll")); //$NON-NLS-1$
 		}
 	}
 
@@ -2005,7 +2006,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 		else
 		{
-			if (!isScrollMode()) getStylePropertyChanges().setChanged();
+			if (!isScrollMode() || !(scrollBehavior != null && scrollBehavior.isGettingRows())) getStylePropertyChanges().setChanged();
 		}
 
 		// We try to detect when a sort has been done on the foundset, and we update the arrows in the header accordingly.
@@ -3702,12 +3703,19 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	private class ScrollBehavior extends ServoyAjaxEventBehavior
 	{
+		private boolean isGettingRows;
+
 		public ScrollBehavior(String event)
 		{
 			super(event);
 		}
 
 		private static final long serialVersionUID = 1L;
+
+		boolean isGettingRows()
+		{
+			return isGettingRows;
+		}
 
 		@Override
 		public void renderHead(IHeaderResponse response)
@@ -3848,11 +3856,13 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			int endIdx = startIdx + rowsCount;
 			ListItem< ? > listItem;
+			isGettingRows = true;
 			for (int i = startIdx; i < endIdx; i++)
 			{
 				listItem = listView.getOrCreateListItem(i);
 				rows.add(listItem);
 			}
+			isGettingRows = false;
 
 			return rows;
 		}
