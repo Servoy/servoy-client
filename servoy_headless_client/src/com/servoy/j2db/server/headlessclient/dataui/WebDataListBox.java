@@ -140,6 +140,8 @@ public class WebDataListBox extends ListMultipleChoice implements IDisplayData, 
 		this.multiSelection = multiSelection;
 		this.scriptable = scriptable;
 		scriptable.setList(list);
+		((ChangesRecorder)scriptable.getChangesRecorder()).setDefaultBorderAndPadding(TemplateGenerator.DEFAULT_LABEL_PADDING,
+			TemplateGenerator.DEFAULT_LABEL_PADDING);
 	}
 
 	public final AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent> getScriptObject()
