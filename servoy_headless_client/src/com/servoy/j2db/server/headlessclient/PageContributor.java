@@ -493,7 +493,7 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 			// if it's ajax request it is already sent via onAfterRespond
 			if (!((WebRequest)RequestCycle.get().getRequest()).isAjax() && !eventMarkupIds.isEmpty())
 			{
-				response.renderOnDomReadyJavascript(getAddListsenersScript(eventMarkupIds));
+				response.renderOnLoadJavascript(getAddListsenersScript(eventMarkupIds));
 				eventMarkupIds.clear();
 			}
 		}
