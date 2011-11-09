@@ -47,6 +47,7 @@ import javax.swing.text.html.StyleSheet;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
+import org.apache.wicket.Page;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.Session;
@@ -2295,6 +2296,15 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			int newPageIndex = newSelectedIndex / table.getRowsPerPage();
 			if (table.getCurrentPage() != newPageIndex)
 			{
+				// try to lock the page of this cellbasedview, so that concurrent rendering can't or won't happen.
+				if (Session.exists() && RequestCycle.get() != null)
+				{
+					MainPage page = table.findParent(MainPage.class);
+					if (page != null)
+					{
+						Session.get().getPage(page.getPageMapName(), page.getPath(), Page.LATEST_VERSION);
+					}
+				}
 				table.setCurrentPage(newPageIndex);
 				// if table row selection color must work then this must be outside this if. 
 				getStylePropertyChanges().setChanged();
