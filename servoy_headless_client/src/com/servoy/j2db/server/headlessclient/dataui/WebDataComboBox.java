@@ -197,7 +197,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 						return 0;
 					}
 					int index = super.realValueIndexOf(obj);
-					if (index != -1) return index + 1;
+					if (index != -1) return index + (index >= 0 ? 1 : 0);
 					return -1;
 				}
 				else
