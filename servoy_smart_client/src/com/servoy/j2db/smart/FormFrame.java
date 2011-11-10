@@ -203,7 +203,7 @@ public class FormFrame extends JFrame implements FormWindow
 
 	public void storeBounds()
 	{
-		Settings.getInstance().saveBounds(this, application.getSolutionName());
+		if (this.isResizable()) Settings.getInstance().saveBounds(this, application.getSolutionName());
 	}
 
 
