@@ -23,6 +23,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedSet;
 
+import org.apache.wicket.Component;
+
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataButton;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataHtmlArea;
@@ -138,6 +140,31 @@ public final class FormAnchorInfo implements Comparable<FormAnchorInfo>
 		sb.append("\n\treturn designinfo;\n");
 		sb.append("}\n");
 		return sb.toString();
+	}
+
+	public static String generateAnchoringParams(SortedSet<FormAnchorInfo> formAnchorInfos, Component component)
+	{
+		Iterator<FormAnchorInfo> it = formAnchorInfos.iterator();
+		FormAnchorInfo fai;
+		String webId = component.getMarkupId();
+		while (it.hasNext())
+		{
+			fai = it.next();
+			if (fai.parts != null)
+			{
+				for (FormPartAnchorInfo p : fai.parts.values())
+				{
+					if (p.elementAnchorInfo != null && p.elementAnchorInfo.containsKey(webId))
+					{
+						// found it
+						StringBuffer sb = new StringBuffer();
+						p.appendElementAnchoringCode(webId, p.elementAnchorInfo.get(webId), sb);
+						return sb.toString();
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -318,18 +345,9 @@ public final class FormAnchorInfo implements Comparable<FormAnchorInfo>
 				while (eit.hasNext())
 				{
 					Map.Entry<String, ElementAnchorInfo> entry = eit.next();
-					ElementAnchorInfo ei = entry.getValue();
-					sb.append("\t").append(ANCHOR_INFO_VAR).append(".push(new Array('").append(entry.getKey()).append("', ");
-					sb.append(ei.getAnchors());
-					sb.append(",");
-					sb.append(PersistHelper.createRectangleString(ei.getBounds()));
-					sb.append(",");
-					sb.append("'").append(ei.getHint()).append("'");
-					sb.append(",");
-					sb.append(ei.getHorizontalAlign());
-					sb.append(",");
-					sb.append(ei.getVerticalAlign());
-					sb.append("));");
+					sb.append("\t").append(ANCHOR_INFO_VAR).append(".push(");
+					appendElementAnchoringCode(entry.getKey(), entry.getValue(), sb);
+					sb.append(");");
 					sb.append("\n");
 				}
 
@@ -351,6 +369,21 @@ public final class FormAnchorInfo implements Comparable<FormAnchorInfo>
 				sb.append(NON_BODY_PARTS_IDS_VAR).append("['").append(webID).append("']");
 				sb.append(" = true;\n");
 			}
+		}
+
+		private void appendElementAnchoringCode(String webId, ElementAnchorInfo ei, StringBuffer sb)
+		{
+			sb.append("new Array('").append(webId).append("', ");
+			sb.append(ei.getAnchors());
+			sb.append(",");
+			sb.append(PersistHelper.createRectangleString(ei.getBounds()));
+			sb.append(",");
+			sb.append("'").append(ei.getHint()).append("'");
+			sb.append(",");
+			sb.append(ei.getHorizontalAlign());
+			sb.append(",");
+			sb.append(ei.getVerticalAlign());
+			sb.append(")");
 		}
 
 		/**
@@ -394,4 +427,5 @@ public final class FormAnchorInfo implements Comparable<FormAnchorInfo>
 			return sb.toString();
 		}
 	}
+
 }

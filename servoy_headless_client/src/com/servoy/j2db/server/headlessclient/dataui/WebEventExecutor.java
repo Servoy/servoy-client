@@ -700,6 +700,11 @@ public class WebEventExecutor extends BaseEventExecutor
 								{
 									((IProviderStylePropertyChanges)component).getStylePropertyChanges().setRendered();
 								}
+								else
+								{
+									// some components need to perform js layout tasks when their markup is replaced when using anchored layout
+									mainPage.getPageContributor().markComponentForAnchorLayoutIfNeeded(component);
+								}
 							}
 							return IVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
 						}

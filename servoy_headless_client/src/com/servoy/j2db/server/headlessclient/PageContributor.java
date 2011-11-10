@@ -79,6 +79,7 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 	private final List<Component> tablesToRender = new ArrayList<Component>();
 	private SortedSet<FormAnchorInfo> formAnchorInfos;
 	private boolean anchorInfoChanged = false;
+	private StringBuffer componentsThatNeedAnchorRelayout;
 	private boolean isResizing = false;
 	private final Map<String, Pair<List<String>, Boolean>> eventMarkupIds = new HashMap<String, Pair<List<String>, Boolean>>();
 	private final Map<String, IEventCallback> eventCallback = new HashMap<String, IEventCallback>();
@@ -205,20 +206,35 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		}
 
 
-		if (formAnchorInfos != null && formAnchorInfos.size() != 0 && anchorInfoChanged &&
-			Utils.getAsBoolean(((MainPage)page).getController().getApplication().getRuntimeProperties().get("enableAnchors"))) //$NON-NLS-1$ 
+		if (formAnchorInfos != null && formAnchorInfos.size() != 0 &&
+			Utils.getAsBoolean(((MainPage)page).getController().getApplication().getRuntimeProperties().get("enableAnchors"))) //$NON-NLS-1$
 		{
-			response.renderJavascriptReference(anchorlayout);
-			response.renderOnLoadJavascript("setTimeout(\"layoutEntirePage();\", 10);"); // setTimeout is important here, to let the browser apply CSS styles during Ajax calls //$NON-NLS-1$
-			String orientation = OrientationApplier.getHTMLContainerOrientation(application.getLocale(), application.getSolution().getTextOrientation());
-			if (orientation.equals(AttributeModifier.VALUELESS_ATTRIBUTE_REMOVE)) orientation = "ltr"; //$NON-NLS-1$
-			String sb = FormAnchorInfo.generateAnchoringFunctions(formAnchorInfos, orientation);
-			response.renderJavascript(sb, null);
-			anchorInfoChanged = false;
+			if (anchorInfoChanged)
+			{
+				response.renderJavascriptReference(anchorlayout);
+				response.renderOnLoadJavascript("setTimeout(\"layoutEntirePage();\", 10);"); // setTimeout is important here, to let the browser apply CSS styles during Ajax calls //$NON-NLS-1$
+				String sb = FormAnchorInfo.generateAnchoringFunctions(formAnchorInfos, getOrientation());
+				response.renderJavascript(sb, null);
+				anchorInfoChanged = false;
+			}
+			else if (componentsThatNeedAnchorRelayout != null && componentsThatNeedAnchorRelayout.length() > 0)
+			{
+				response.renderJavascriptReference(anchorlayout);
+				response.renderOnLoadJavascript("setTimeout(\"layoutSpecificElements();\", 10);");
+				response.renderJavascript("executeLayoutSpecificElements = function()\n{\n" + componentsThatNeedAnchorRelayout.append("\n}"), null);
+			}
 		}
+		if (componentsThatNeedAnchorRelayout != null) componentsThatNeedAnchorRelayout.setLength(0);
 
 		// Enable this for Firebug debugging under IE/Safari/etc.
 		//response.renderJavascriptReference("http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js"); //$NON-NLS-1$
+	}
+
+	private String getOrientation()
+	{
+		String orientation = OrientationApplier.getHTMLContainerOrientation(application.getLocale(), application.getSolution().getTextOrientation());
+		if (orientation.equals(AttributeModifier.VALUELESS_ATTRIBUTE_REMOVE)) orientation = "ltr"; //$NON-NLS-1$
+		return orientation;
 	}
 
 	public void setFormAnchorInfos(SortedSet<FormAnchorInfo> infos, boolean onlyChanged)
@@ -234,6 +250,21 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 			{
 				if (!isResizing) getStylePropertyChanges().setChanged();
 				formAnchorInfos = infos;
+			}
+		}
+	}
+
+	public void markComponentForAnchorLayoutIfNeeded(Component component)
+	{
+		if (formAnchorInfos != null && formAnchorInfos.size() != 0)
+		{
+			// see if this component is actually affected by layout or not and generate anchoring properties for it if it is
+			String s = FormAnchorInfo.generateAnchoringParams(formAnchorInfos, component);
+			if (s != null)
+			{
+				if (componentsThatNeedAnchorRelayout == null) componentsThatNeedAnchorRelayout = new StringBuffer();
+				componentsThatNeedAnchorRelayout.append("layoutOneElement(").append(s).append(");\n");
+				getStylePropertyChanges().setChanged();
 			}
 		}
 	}
@@ -570,4 +601,5 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 			return new DelayedDialog(type, formName, r, title, resizeble, showTextToolbar, closeAll, modal, dialogName);
 		}
 	}
+
 }

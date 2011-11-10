@@ -38,4 +38,6 @@ public interface IPageContributorInternal extends IPageContributor, IProviderSty
 	 * @param b
 	 */
 	public abstract void setResizing(boolean b);
+
+	void markComponentForAnchorLayoutIfNeeded(Component component);
 }
