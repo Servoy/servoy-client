@@ -44,8 +44,7 @@ function layoutOneContainer(formsInfo, formName, isBrowserWindow)
 	{
 		for (var i=0; i<formInfo.bodyPart.length; i++)
 		{
-			var elementInfo = formInfo.bodyPart[i];
-			layoutOneElement(elementInfo);
+			layoutOneElement(formInfo.bodyPart[i]);
 		}
 	}
 
@@ -55,8 +54,7 @@ function layoutOneContainer(formsInfo, formName, isBrowserWindow)
 		var partElements = formInfo.nonBodyParts[id];
 		for (var i=0; i<partElements.length; i++)
 		{
-			var elementInfo = partElements[i];
-			layoutOneElement(elementInfo);
+			layoutOneElement(partElements[i]);
 		}
 	}
 }
