@@ -192,11 +192,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	protected FoundSet(IFoundSetManagerInternal app, IRecordInternal a_parent, String relation_name, SQLSheet sheet, QuerySelect pkSelect,
 		List<SortColumn> defaultSortColumns) throws ServoyException
 	{
+		fsm = (FoundSetManager)app;
 		if (sheet == null)
 		{
 			throw new IllegalArgumentException(fsm.getApplication().getI18NMessage("servoy.foundSet.error.sqlsheet")); //$NON-NLS-1$
 		}
-		fsm = (FoundSetManager)app;
 		pksAndRecords = new PksAndRecordsHolder(fsm.chunkSize);
 		relationName = relation_name;
 		this.sheet = sheet;
@@ -366,7 +366,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				{
 					int newRecordIndex = cachedRecords.indexOf(editingRecord);
 					if (newRecordIndex == -1) newRecordIndex = 0;//incase some has called startEdit before new/duplicateRecords was completed.
-					newRecords.put(new Integer(newRecordIndex), editingRecord);
+					newRecords.put(Integer.valueOf(newRecordIndex), editingRecord);
 					cachedRecords.set(newRecordIndex, null);
 				}
 			}
@@ -1230,12 +1230,14 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				int[] newSelectedIndexes = new int[selectedIndexes.length + 1];
 				int i = 0;
 				for (int selectedIdx : selectedIndexes)
+				{
 					if (index == selectedIdx)
 					{
 						indexAlreadySelected = true;
 						continue;
 					}
-					else newSelectedIndexes[i++] = selectedIdx;
+					newSelectedIndexes[i++] = selectedIdx;
+				}
 				if (indexAlreadySelected)
 				{
 					if (selectedIndexes.length > 1) // only deselect if there are at least 2 selected, so we always have a selection
@@ -1244,13 +1246,22 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 						System.arraycopy(newSelectedIndexes, 0, newSelectedIndexesTrimed, 0, newSelectedIndexes.length - 2);
 						newSelectedIndexes = newSelectedIndexesTrimed;
 					}
-					else return true;
+					else
+					{
+						return true;
+					}
 				}
-				else newSelectedIndexes[i] = index;
+				else
+				{
+					newSelectedIndexes[i] = index;
+				}
 
 				setSelectedIndexes(newSelectedIndexes);
 			}
-			else setSelectedIndex(index);
+			else
+			{
+				setSelectedIndex(index);
+			}
 			return true;
 		}
 		return false;
@@ -2433,7 +2444,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		Integer i;
 		for (Object index : indexes)
 		{
-			i = new Integer(Utils.getAsInteger(index));
+			i = Integer.valueOf(Utils.getAsInteger(index));
 			if (selectedIndexes.indexOf(i) == -1) selectedIndexes.add(i);
 		}
 		int[] iSelectedIndexes = new int[selectedIndexes.size()];
@@ -2800,7 +2811,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				obj = tableScope.getCalculationValue(dataProviderID, tableScope);
 				if (obj instanceof Byte)//fix for postgress
 				{
-					obj = new Integer(((Byte)obj).intValue());
+					obj = Integer.valueOf(((Byte)obj).intValue());
 				}
 				else
 				{
@@ -2892,17 +2903,17 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		if ("recordIndex".equals(dataProviderID)) //$NON-NLS-1$
 		{
-			return new Integer(getSelectedIndex() + 1);//deprecated
+			return Integer.valueOf(getSelectedIndex() + 1);//deprecated
 		}
-		else if ("selectedIndex".equals(dataProviderID)) //$NON-NLS-1$
+		if ("selectedIndex".equals(dataProviderID)) //$NON-NLS-1$
 		{
-			return new Integer(getSelectedIndex() + 1);
+			return Integer.valueOf(getSelectedIndex() + 1);
 		}
-		else if ("maxRecordIndex".equals(dataProviderID) || "lazyMaxRecordIndex".equals(dataProviderID)) //$NON-NLS-1$ //$NON-NLS-2$
+		if ("maxRecordIndex".equals(dataProviderID) || "lazyMaxRecordIndex".equals(dataProviderID)) //$NON-NLS-1$ //$NON-NLS-2$
 		{
-			return new Integer(getSize());
+			return Integer.valueOf(getSize());
 		}
-		else if ("serverURL".equals(dataProviderID)) //$NON-NLS-1$
+		if ("serverURL".equals(dataProviderID)) //$NON-NLS-1$
 		{
 			return getFoundSetManager().getApplication().getScriptEngine().getSystemConstant("serverURL"); //$NON-NLS-1$
 		}
@@ -4346,7 +4357,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			return true;//findmode is always editable, when having read permission
 		}
-		else if (hasAccess(IRepository.UPDATE))
+		if (hasAccess(IRepository.UPDATE))
 		{
 			IRecordInternal rec = getRecord(rowIndex);
 			if (rec != null)
@@ -4591,6 +4602,22 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return sheet.getTable();
 	}
 
+	protected void updatePk(Record state)
+	{
+		synchronized (pksAndRecords)
+		{
+			SafeArrayList<IRecordInternal> cachedRecords = pksAndRecords.getCachedRecords();
+			IDataSet pks = pksAndRecords.getPks();
+			int index = cachedRecords.indexOf(state);
+			if (index != -1) //deleted without an update being done
+			{
+				Object[] pk = state.getRawData().getPK();
+				if (pk == null) pk = new Object[] { "invalid" };//prevent crashing pks (must stay in sync)  //$NON-NLS-1$
+				pks.setRow(index, pk);
+			}
+		}
+	}
+
 	public void fireAggregateChangeWithEvents(IRecordInternal record)
 	{
 		fireAggregateChange(record);
@@ -4679,12 +4706,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					indexen[1] = Math.max(indexen[1], recordIndex);
 				}
 			}
-			else
+			else if (Debug.tracing())
 			{
-				if (Debug.tracing())
-				{
-					Debug.trace("record index -1 for the record " + record + " already out of the foundset: " + this); //$NON-NLS-1$ //$NON-NLS-2$
-				}
+				Debug.trace("record index -1 for the record " + record + " already out of the foundset: " + this); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 	}

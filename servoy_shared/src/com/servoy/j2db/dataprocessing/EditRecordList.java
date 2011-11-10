@@ -672,6 +672,11 @@ public class EditRecordList
 					editRecordsLock.unlock();
 				}
 
+				if (!row.existInDB())
+				{
+					// when row was not saved yet row pkhash will be with new value, pksAndRecordsHolder will have initial value
+					foundSet.updatePk(record);
+				}
 				try
 				{
 					row.getRowManager().rowUpdated(row, oldKey, foundSet, fires);
@@ -1077,12 +1082,12 @@ public class EditRecordList
 				{
 					String cname = it.next();
 					//access is based on columns, but we don't yet use that fine grained level, its table only
-					access = new Integer(fsm.getApplication().getFlattenedSolution().getSecurityAccess(
+					access = Integer.valueOf(fsm.getApplication().getFlattenedSolution().getSecurityAccess(
 						Utils.getDotQualitfied(table.getServerName(), table.getName(), cname)));
 				}
 				else
 				{
-					access = new Integer(-2);
+					access = Integer.valueOf(-2);
 				}
 				accessMap.put(table, access);
 			}
@@ -1414,7 +1419,7 @@ public class EditRecordList
 	 * 
 	 * @author acostescu
 	 */
-	private class AllowListModificationIterator<T> implements Iterator<T>
+	private static class AllowListModificationIterator<T> implements Iterator<T>
 	{
 
 		private final Map<T, Boolean> alreadyProcessed = new HashMap<T, Boolean>();
