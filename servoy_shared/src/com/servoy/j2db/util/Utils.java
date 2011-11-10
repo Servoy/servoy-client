@@ -51,7 +51,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -607,7 +606,7 @@ public class Utils
 	 */
 	public static String formatNumber(Locale locale, double param, int digits)
 	{
-		NumberFormat nf = NumberFormat.getNumberInstance(locale);
+		RoundHalfUpDecimalFormat nf = new RoundHalfUpDecimalFormat(locale);
 		int digits_nr = digits;
 		nf.setMaximumFractionDigits(digits_nr);
 		nf.setMinimumFractionDigits(digits_nr);

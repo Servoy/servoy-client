@@ -17,9 +17,7 @@
 package com.servoy.j2db.scripting;
 
 
-import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -843,8 +841,7 @@ public class JSUtils
 			}
 			else if (digitsOrFormat instanceof String)
 			{
-				NumberFormat df = NumberFormat.getNumberInstance(application.getLocale());
-				((DecimalFormat)df).applyPattern((String)digitsOrFormat);
+				RoundHalfUpDecimalFormat df = new RoundHalfUpDecimalFormat((String)digitsOrFormat, application.getLocale());
 				return df.format(Utils.getAsDouble(number));
 			}
 			return number.toString();
