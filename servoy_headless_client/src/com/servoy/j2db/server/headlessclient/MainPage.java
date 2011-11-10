@@ -1691,7 +1691,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			if (isShowingInDialog())
 			{
 				ServoyDivDialog divDialog = callingContainer.divDialogs.get(getPageMapName());
-				if (divDialog != null)
+				if (divDialog != null && divDialog.isResizable())
 				{
 					appendJavaScriptChanges(divDialog.getSaveBoundsJS());
 				}
