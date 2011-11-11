@@ -21,8 +21,8 @@ import java.io.StringWriter;
 import java.io.Writer;
 
 import com.servoy.j2db.Messages;
-import com.servoy.j2db.ValidationFailedException;
 import com.servoy.j2db.dataprocessing.DataException;
+import com.servoy.j2db.dataprocessing.ValidationFailedException;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;

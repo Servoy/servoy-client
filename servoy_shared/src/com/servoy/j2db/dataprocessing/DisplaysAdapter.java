@@ -32,7 +32,6 @@ import org.mozilla.javascript.Scriptable;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ISmartClientApplication;
-import com.servoy.j2db.ValidationFailedException;
 import com.servoy.j2db.component.INullableAware;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.Column;

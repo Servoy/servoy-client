@@ -28,7 +28,6 @@ import org.apache.wicket.model.IWrapModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.mozilla.javascript.Scriptable;
 
-import com.servoy.j2db.ValidationFailedException;
 import com.servoy.j2db.dataprocessing.DataAdapterList;
 import com.servoy.j2db.dataprocessing.FindState;
 import com.servoy.j2db.dataprocessing.IDisplay;
@@ -36,6 +35,7 @@ import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.TagResolver;
+import com.servoy.j2db.dataprocessing.ValidationFailedException;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.JSEvent;
