@@ -1965,7 +1965,7 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 			}
 			
 			//get enclosing wrapper to work on
-			if (elem.id && elem.parentNode && elem.parentNode.id && elem.parentNode.id.indexOf('_wrapper')>0)
+			if (elem.id && elem.parentNode && elem.parentNode.id && (elem.parentNode.id.indexOf('_wrapper')>0 || elem.id.indexOf('_lb')>0))
 			{
 				elem = elem.parentNode;
 			}
