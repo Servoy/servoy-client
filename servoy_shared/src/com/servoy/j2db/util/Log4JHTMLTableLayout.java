@@ -132,7 +132,7 @@ public class Log4JHTMLTableLayout extends Layout
 		Object clientid = event.getMDC("clientid");
 		if (clientid == null) clientid = "&nbsp;";
 		buffer.append("<td bgcolor=\"#EEEEEE\" style=\"font-size : xx-small;\" title=\"ClientId\">");
-		buffer.append(clientid);
+		buffer.append("<a href =\"/servoy-admin/clients/info/" + clientid + "\">" + clientid + "</a>");
 		buffer.append("</td>");
 		Object solutionName = event.getMDC("solution");
 		if (solutionName == null) solutionName = "&nbsp;";
