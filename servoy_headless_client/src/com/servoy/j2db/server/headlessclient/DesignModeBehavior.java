@@ -61,6 +61,7 @@ import com.servoy.j2db.util.Utils;
 public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 {
 	public static final String ACTION_RESIZE = "aResize";
+	public static final String ACTION_SELECT = "aSelect";
 	public static final String PARAM_RESIZE_HEIGHT = "resizeHeight";
 	public static final String PARAM_RESIZE_WIDTH = "resizeWidth";
 
@@ -207,11 +208,7 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 		String id = extractId(request.getParameter(DraggableBehavior.PARAM_DRAGGABLE_ID));
 		if (id != null)
 		{
-			if (id.endsWith(TemplateGenerator.WRAPPER_SUFFIX))
-			{
-				id = id.substring(0, id.length() - 8);
-			}
-			final String finalId = id;
+			final String finalId = id.endsWith(TemplateGenerator.WRAPPER_SUFFIX) ? id.substring(0, id.length() - 8) : id;
 			MarkupContainer comp = (MarkupContainer)getComponent();
 			Component child = (Component)comp.visitChildren(Component.class, new IVisitor<Component>()
 			{
@@ -228,16 +225,25 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 				int width = stripUnitPart(request.getParameter(PARAM_RESIZE_WIDTH));
 				int x = stripUnitPart(request.getParameter(DraggableBehavior.PARAM_X));
 				int y = stripUnitPart(request.getParameter(DraggableBehavior.PARAM_Y));
-				if (child != onSelectComponent)
+
+
+				if (action.equals(ACTION_SELECT))
 				{
-					onSelectComponent = (IComponent)child;
 					Object ret = callback.executeOnSelect(getJSEvent(EventType.rightClick, 0, new Point(x, y), new IComponent[] { (IComponent)child }));
 					if (ret instanceof Boolean && !((Boolean)ret).booleanValue())
 					{
 						onSelectComponent = null;
-						return;
 					}
+					else
+					{
+						target.appendJavascript("Servoy.ClientDesign.attachElement(document.getElementById('" + id + "'));");
+					}
+					return;
+				}
 
+				if (child != onSelectComponent)
+				{
+					onSelectComponent = (IComponent)child;
 				}
 				if (action.equals(ACTION_RESIZE))
 				{

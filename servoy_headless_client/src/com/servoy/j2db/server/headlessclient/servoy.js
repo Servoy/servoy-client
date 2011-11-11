@@ -1982,7 +1982,7 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 			
 			if (elem.id)
 			{
-				Servoy.ClientDesign.attachElement(elem);
+				wicketAjaxGet(Servoy.ClientDesign.callbackurl+'&a=aSelect&xc=' + elem.style.left + '&yc=' + elem.style.top + '&draggableID=' + elem.id);
 			}
 		},
 		
