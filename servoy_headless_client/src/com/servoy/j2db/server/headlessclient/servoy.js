@@ -2101,7 +2101,7 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 			}
 			
 			//get enclosing wrapper to work on
-			if (elem.id && elem.parentNode && elem.parentNode.id && elem.parentNode.id.indexOf('_wrapper')>0)
+			if (elem.id && elem.parentNode && elem.parentNode.id && (elem.parentNode.id.indexOf('_wrapper')>0 || elem.id.indexOf('_lb')>0))
 			{
 				elem = elem.parentNode;
 			}
@@ -2118,7 +2118,7 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 			
 			if (elem.id)
 			{
-				Servoy.ClientDesign.attachElement(elem);
+				wicketAjaxGet(Servoy.ClientDesign.callbackurl+'&a=aSelect&xc=' + elem.style.left + '&yc=' + elem.style.top + '&draggableID=' + elem.id);
 			}
 		},
 		
