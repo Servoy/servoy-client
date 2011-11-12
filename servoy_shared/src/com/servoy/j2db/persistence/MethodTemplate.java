@@ -18,15 +18,15 @@ package com.servoy.j2db.persistence;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import com.servoy.j2db.util.Utils;
 
@@ -376,55 +376,91 @@ public class MethodTemplate implements IMethodTemplate
 		this.privateMethod = privateMethod;
 	}
 
-	public Element toXML()
+	public Element toXML(Document doc)
 	{
-		Element root = DocumentHelper.createElement(TAG_METHODTEMPLATE);
-		root.addAttribute(ATTR_NAME, signature.getName());
-		if (signature.getType() != null) root.addAttribute(ATTR_TYPE, signature.getType().getName());
-		if (addTodoBlock) root.addAttribute(ATTR_ADDTODO, Boolean.TRUE.toString());
-		if (privateMethod) root.addAttribute(ATTR_PRIVATE, Boolean.TRUE.toString());
+		Element root = doc.createElement(TAG_METHODTEMPLATE);
+		root.setAttribute(ATTR_NAME, signature.getName());
+		if (signature.getType() != null) root.setAttribute(ATTR_TYPE, signature.getType().getName());
+		if (addTodoBlock) root.setAttribute(ATTR_ADDTODO, Boolean.TRUE.toString());
+		if (privateMethod) root.setAttribute(ATTR_PRIVATE, Boolean.TRUE.toString());
 
-		if (description != null) root.addElement(TAG_DESCRIPTION).addCDATA(description);
-		if (defaultMethodCode != null) root.addElement(TAG_CODE).addCDATA(defaultMethodCode);
+		if (description != null)
+		{
+			Element descrEl = doc.createElement(TAG_DESCRIPTION);
+			descrEl.appendChild(doc.createCDATASection(description));
+			root.appendChild(descrEl);
+		}
+		if (defaultMethodCode != null)
+		{
+			Element defMetEl = doc.createElement(TAG_CODE);
+			defMetEl.appendChild(doc.createCDATASection(defaultMethodCode));
+			root.appendChild(defMetEl);
+		}
 		if (args != null)
 		{
-			Element argsRoot = root.addElement(TAG_ARGUMENTS);
+			Element argsRoot = doc.createElement(TAG_ARGUMENTS);
+			root.appendChild(argsRoot);
 			for (MethodArgument marg : args)
-				argsRoot.add(marg.toXML());
+			{
+				argsRoot.appendChild(marg.toXML(doc));
+			}
 		}
 		return root;
 	}
 
 	public static MethodTemplate fromXML(Element root)
 	{
-		if (!root.getName().equals(TAG_METHODTEMPLATE)) return null;
+		if (!root.getNodeName().equals(TAG_METHODTEMPLATE)) return null;
 
-		String name = root.attributeValue(ATTR_NAME);
-		boolean addTodo = Boolean.parseBoolean(root.attributeValue(ATTR_ADDTODO));
-		String typeStr = root.attributeValue(ATTR_TYPE);
+		String name = root.getAttribute(ATTR_NAME);
+		boolean addTodo = Boolean.parseBoolean(root.getAttribute(ATTR_ADDTODO));
+		String typeStr = root.getAttribute(ATTR_TYPE);
 		ArgumentType type = null;
 		if (typeStr != null) type = ArgumentType.valueOf(typeStr);
-		String descr = root.elementText(TAG_DESCRIPTION);
-		String code = root.elementText(TAG_CODE);
 
-		Element argsRoot = root.element(TAG_ARGUMENTS);
-		MethodArgument[] arguments = null;
-		if (argsRoot != null)
+		NodeList nodes = root.getElementsByTagName(TAG_DESCRIPTION);
+		String descr = null;
+		if (nodes != null && nodes.getLength() > 0)
 		{
-			List<MethodArgument> argsList = new ArrayList<MethodArgument>();
-			Iterator<Element> argsIter = argsRoot.elementIterator();
-			while (argsIter.hasNext())
+			Element el = (Element)nodes.item(0);
+			descr = el.getTextContent();
+
+		}
+
+		String code = null;
+		nodes = root.getElementsByTagName(TAG_CODE);
+		if (nodes != null && nodes.getLength() > 0)
+		{
+			Element el = (Element)nodes.item(0);
+			code = el.getTextContent();
+		}
+
+		MethodArgument[] arguments = null;
+		nodes = root.getElementsByTagName(TAG_ARGUMENTS);
+		if (nodes != null && nodes.getLength() > 0)
+		{
+			Element elArgs = (Element)nodes.item(0);
+			NodeList argNodes = elArgs.getElementsByTagName(MethodArgument.TAG_METHODARGUMENT);
+			if (argNodes != null && argNodes.getLength() > 0)
 			{
-				Element argsElem = argsIter.next();
-				MethodArgument arg = MethodArgument.fromXML(argsElem);
-				if (arg != null) argsList.add(arg);
+				List<MethodArgument> argsList = new ArrayList<MethodArgument>();
+				for (int i = 0; i < argNodes.getLength(); i++)
+				{
+					Element argsElem = (Element)argNodes.item(i);
+					MethodArgument arg = MethodArgument.fromXML(argsElem);
+					if (arg != null) argsList.add(arg);
+				}
+				arguments = new MethodArgument[argsList.size()];
+				argsList.toArray(arguments);
 			}
-			arguments = new MethodArgument[argsList.size()];
-			argsList.toArray(arguments);
 		}
 
 		MethodTemplate mtempl = new MethodTemplate(descr, new MethodArgument(name, type, null), arguments, code, addTodo);
-		if (Boolean.parseBoolean(root.attributeValue(ATTR_PRIVATE))) mtempl.setPrivateMethod(true);
+		String attrPriv = root.getAttribute(ATTR_PRIVATE);
+		if (attrPriv != null && Boolean.parseBoolean(attrPriv))
+		{
+			mtempl.setPrivateMethod(true);
+		}
 		return mtempl;
 	}
 }

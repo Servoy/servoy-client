@@ -16,8 +16,8 @@
  */
 package com.servoy.j2db.persistence;
 
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * @author jcompagner
@@ -26,7 +26,7 @@ import org.dom4j.Element;
 @SuppressWarnings("nls")
 public class MethodArgument implements IMethodArgument
 {
-	private static final String TAG_METHODARGUMENT = "methodargument";
+	public static final String TAG_METHODARGUMENT = "methodargument";
 	private static final String ATTR_NAME = "name";
 	private static final String ATTR_TYPE = "type";
 
@@ -67,22 +67,22 @@ public class MethodArgument implements IMethodArgument
 		return name + ':' + type.getName() + " (" + (description == null ? "" : description) + ')';
 	}
 
-	public Element toXML()
+	public Element toXML(Document doc)
 	{
-		Element root = DocumentHelper.createElement(TAG_METHODARGUMENT);
-		root.addAttribute(ATTR_NAME, name);
-		root.addAttribute(ATTR_TYPE, type.toString());
-		root.addCDATA(description);
+		Element root = doc.createElement(TAG_METHODARGUMENT);
+		root.setAttribute(ATTR_NAME, name);
+		root.setAttribute(ATTR_TYPE, type.toString());
+		root.appendChild(doc.createCDATASection(description));
 		return root;
 	}
 
 	public static MethodArgument fromXML(Element root)
 	{
-		if (!root.getName().equals(TAG_METHODARGUMENT)) return null;
-		String name = root.attributeValue(ATTR_NAME);
-		String typeStr = root.attributeValue(ATTR_TYPE);
+		if (!root.getNodeName().equals(TAG_METHODARGUMENT)) return null;
+		String name = root.getAttribute(ATTR_NAME);
+		String typeStr = root.getAttribute(ATTR_TYPE);
 		ArgumentType type = ArgumentType.valueOf(typeStr);
-		String description = root.getText();
+		String description = root.getTextContent();
 		MethodArgument marg = new MethodArgument(name, type, description);
 		return marg;
 	}
