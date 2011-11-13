@@ -286,9 +286,6 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_HORIZONTALALIGNMENT, arg);
 	}
 
-	/**
-	 * @sameas com.servoy.j2db.persistence.GraphicalComponent#getHorizontalAlignment()
-	 */
 	public int getHorizontalAlignment()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_HORIZONTALALIGNMENT).intValue();
@@ -304,11 +301,6 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_VERTICALALIGNMENT, arg);
 	}
 
-	/**
-	 * Get the verticalAlignment
-	 * 
-	 * @return the verticalAlignment
-	 */
 	public int getVerticalAlignment()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_VERTICALALIGNMENT).intValue();

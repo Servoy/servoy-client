@@ -67,7 +67,7 @@ public class ArgumentType
 	{
 		if (type == null || Object.getName().equals(type)) return Object;
 		if (String.getName().equals(type)) return String;
-		if (Number.equals(type)) return Number;
+		if (Number.getName().equals(type)) return Number;
 		if (Boolean.getName().equals(type)) return Boolean;
 		if (Color.getName().equals(type)) return Color;
 		if (Exception.getName().equals(type)) return Exception;
