@@ -101,6 +101,9 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_COMMENT, arg);
 	}
 
+	/**
+	 * The name of the scope.
+	 */
 	public String getScopeName()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_SCOPENAME);

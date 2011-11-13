@@ -193,6 +193,9 @@ public abstract class AbstractScriptProvider extends AbstractBase implements ISc
 		methodCode = null;
 	}
 
+	/**
+	 * The name of the scope.
+	 */
 	public String getScopeName()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_SCOPENAME);
