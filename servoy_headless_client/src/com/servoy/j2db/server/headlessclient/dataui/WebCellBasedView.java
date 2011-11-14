@@ -132,7 +132,6 @@ import com.servoy.j2db.server.headlessclient.PageContributor;
 import com.servoy.j2db.server.headlessclient.TabIndexHelper;
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.server.headlessclient.dnd.DraggableBehavior;
-import com.servoy.j2db.server.headlessclient.jquery.JQueryLoader;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
@@ -3213,7 +3212,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		if (columnResizeScript != null) container.getHeaderResponse().renderOnDomReadyJavascript(columnResizeScript);
 		if (isScrollMode())
 		{
-			JQueryLoader.render(container.getHeaderResponse());
 			String top, scrollPadding, right = null;
 			if (headers != null)
 			{

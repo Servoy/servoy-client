@@ -41,6 +41,8 @@ public class JQueryLoader implements Serializable
 	public static final JavascriptResourceReference JS_JQUERY = new JavascriptResourceReference(MainPage.class, "jquery/jquery-1.5.2.min.js"); //$NON-NLS-1$
 	public static final JavascriptResourceReference JS_JQUERY_DEBUG = new JavascriptResourceReference(MainPage.class, "jquery/jquery-1.5.2.js"); //$NON-NLS-	
 	public static final ResourceReference CSS_UI = new CompressedResourceReference(MainPage.class, "jquery/jquery-ui.css"); //$NON-NLS-1$
+	public static final JavascriptResourceReference JS_JQUERY_NUMPAD_DECIMAL = new JavascriptResourceReference(MainPage.class,
+		"jquery/jquery.numpadDecSeparator-1.1.2.js"); //$NON-NLS-1$
 
 	private JQueryLoader()
 	{
@@ -56,5 +58,7 @@ public class JQueryLoader implements Serializable
 		{
 			response.renderJavascriptReference(JQueryLoader.JS_JQUERY);
 		}
+		response.renderJavascriptReference(JQueryLoader.JS_JQUERY_NUMPAD_DECIMAL);
 	}
+
 }

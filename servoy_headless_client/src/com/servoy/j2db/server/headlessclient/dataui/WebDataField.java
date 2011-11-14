@@ -426,6 +426,8 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 				}
 			});
 		}
+		container.getHeaderResponse().renderOnDomReadyJavascript(
+			"$(function(){$(\"#" + getMarkupId() + "\").numpadDecSeparator({useRegionalSettings: true});});"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	}
 
@@ -826,7 +828,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	{
 		return this.horizontalAlignment;
 	}
-	
+
 	/**
 	 * @see com.servoy.j2db.ui.IFieldComponent#setHorizontalAlignment(int)
 	 */

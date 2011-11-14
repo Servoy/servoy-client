@@ -36,6 +36,7 @@ import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextArea;
+import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.IModelComparator;
 import org.apache.wicket.model.Model;
@@ -187,6 +188,14 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 				}
 			}
 		}
+	}
+
+	@Override
+	public void renderHead(final HtmlHeaderContainer container)
+	{
+		super.renderHead(container);
+		container.getHeaderResponse().renderOnDomReadyJavascript(
+			"$(function(){$(\"#" + getMarkupId() + "\").numpadDecSeparator({useRegionalSettings: true});});"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@Override
