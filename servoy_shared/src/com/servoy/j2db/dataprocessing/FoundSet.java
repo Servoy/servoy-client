@@ -1661,39 +1661,42 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			fireSelectionAdjusting();
 		}
 
-		IDataSet set = ds;
-		if (set != null && set.getRowCount() > 0)
+		IDataSet set;
+		if (ds != null && ds.getRowCount() > 0)
 		{
 			List<Column> pkColumns = sheet.getTable().getRowIdentColumns();
 
-			if (set.getColumnCount() < pkColumns.size())
+			if (ds.getColumnCount() < pkColumns.size())
 			{
-				throw new RuntimeException("Dataset column count (" + set.getColumnCount() + ") does not match table pk size (" + pkColumns.size() + ')'); //$NON-NLS-1$ //$NON-NLS-2$
+				throw new RuntimeException("Dataset column count (" + ds.getColumnCount() + ") does not match table pk size (" + pkColumns.size() + ')'); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 
-			if (set.getColumnCount() > pkColumns.size())
+			Set<String> pkhashes = new HashSet<String>(ds.getRowCount());
+			List<Object[]> pkRows = new ArrayList<Object[]>(ds.getRowCount());
+			for (int i = 0; i < ds.getRowCount(); i++)
 			{
-				int[] columns = new int[pkColumns.size()];
-				for (int i = 0; i < pkColumns.size(); i++)
-				{
-					columns[i] = i;
-				}
-				set = new BufferedDataSet(set, columns);
-			}
-
-			for (int i = 0; i < set.getRowCount(); i++)
-			{
-				Object[] row = set.getRow(i);
+				Object[] row = ds.getRow(i);
+				Object[] pkrow = new Object[pkColumns.size()];
 				for (int j = 0; j < pkColumns.size(); j++)
 				{
-					row[j] = pkColumns.get(j).getAsRightType(row[j], true);
+					pkrow[j] = pkColumns.get(j).getAsRightType(row[j], true);
 				}
-				set.setRow(i, row);
+				if (pkhashes.add(RowManager.createPKHashKey(pkrow))) // check for duplicate pks
+				{
+					pkRows.add(pkrow);
+				}
 			}
+
+			set = new BufferedDataSet(null, pkRows);
+		}
+		else
+		{
+			set = new BufferedDataSet(null);
 		}
 
+
 		QuerySelect sqlSelect = pksAndRecords.getQuerySelectForModification();
-		if (set != null && set.getRowCount() > 0)
+		if (set.getRowCount() > 0)
 		{
 			// only generate the sql select when there is really data.
 			// else it is just clear()
@@ -1709,11 +1712,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		//not possible to keep related, can limit the just supplied pkset, which would awkward
 		SQLGenerator.addSorts(fsm.getApplication(), sqlSelect, sqlSelect.getTable(), this, sheet.getTable(), lastSortColumns, false);
 		clearOmit(sqlSelect);
-		int sizeAfter = (set == null) ? 0 : set.getRowCount();
-		pksAndRecords.setPksAndQuery((set == null ? new BufferedDataSet(set) : set), sizeAfter, sqlSelect);
+		int sizeAfter = set.getRowCount();
+		pksAndRecords.setPksAndQuery(set, sizeAfter, sqlSelect);
 		clearInternalState(true);
 
-		if (fsm.getTableFilterParams(sheet.getServerName(), sqlSelect) != null && set != null && set.getRowCount() > 0)
+		if (fsm.getTableFilterParams(sheet.getServerName(), sqlSelect) != null && set.getRowCount() > 0)
 		{
 			fireDifference(sizeBefore, sizeAfter);
 			refreshFromDBInternal(null, false, true, set.getRowCount(), true); // some PKs in the set may not be valid for the current filters
