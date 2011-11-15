@@ -50,10 +50,42 @@ import com.servoy.j2db.util.Utils;
  */
 public class WebFormManager extends FormManager
 {
+	private final ThreadLocal<IMainContainer> currentContainerTL = new ThreadLocal<IMainContainer>();
+
 	public WebFormManager(IApplication app, IMainContainer mainp)
 	{
 		super(app, mainp);
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.FormManager#setCurrentContainer(com.servoy.j2db.IMainContainer, java.lang.String)
+	 */
+	@Override
+	public void setCurrentContainer(IMainContainer mainContainer, String name)
+	{
+		super.setCurrentContainer(mainContainer, name);
+		currentContainerTL.set(mainContainer);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.FormManager#getCurrentContainer()
+	 */
+	@Override
+	public IMainContainer getCurrentContainer()
+	{
+		if (currentContainerTL.get() != null) return currentContainerTL.get();
+		return super.getCurrentContainer();
+	}
+
+	public void clearCurrentContainer()
+	{
+		currentContainerTL.remove();
+	}
+
 
 	@Override
 	public IFormUIInternal getFormUI(FormController formController)
@@ -190,8 +222,9 @@ public class WebFormManager extends FormManager
 			}
 		}
 
-		FormController previousMainShowingForm = (currentContainer != null ? currentContainer.getController() : null);
-		currentContainer.setFormController(null);
+		IMainContainer currContainer = getCurrentContainer();
+		FormController previousMainShowingForm = (currContainer != null ? currContainer.getController() : null);
+		currContainer.setFormController(null);
 		if (previousMainShowingForm != null)
 		{
 			showFormInMainPanel(previousMainShowingForm.getName());
@@ -293,7 +326,7 @@ public class WebFormManager extends FormManager
 	protected void destroySolutionSettings()
 	{
 		super.destroySolutionSettings();
+		currentContainerTL.remove();
 		Session.get().setMetaData(Session.PAGEMAP_ACCESS_MDK, null); // reset all pagemap accesses. 
 	}
-
 }

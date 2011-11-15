@@ -287,11 +287,12 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 				return; //stop and recall this method from security.login(...)!
 			}
 		}
+		IMainContainer curContainer = getCurrentContainer();
 		if (solution.getLoginFormID() > 0 && solution.getMustAuthenticate() && application.getUserUID() != null && loginForm != null)
 		{
-			if (currentContainer.getController() != null && loginForm.getName().equals(currentContainer.getController().getForm().getName()))
+			if (curContainer.getController() != null && loginForm.getName().equals(curContainer.getController().getForm().getName()))
 			{
-				currentContainer.setFormController(null);
+				curContainer.setFormController(null);
 			}
 			if (mainContainer.getController() != null && loginForm.getName().equals(mainContainer.getController().getForm().getName()))
 			{
@@ -335,10 +336,9 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 
 		showSolutionLoading(false);
 
-		if (first != null && currentContainer != null && currentContainer.getController() != null &&
-			currentContainer.getController().getName().equals(first.getName()))
+		if (first != null && curContainer != null && curContainer.getController() != null && curContainer.getController().getName().equals(first.getName()))
 		{
-			currentContainer.setFormController(null);
+			curContainer.setFormController(null);
 		}
 
 		IMainContainer modalContainer = getModalDialogContainer(); // onOpen event might have opened a modal popup with another form
@@ -346,9 +346,9 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		{
 			if (modalContainer != mainContainer)
 			{
-				currentContainer.setComponentVisible(true);
+				curContainer.setComponentVisible(true);
 				setCurrentContainer(modalContainer, null); // if we had a modal dialog displayed, it must remain the current container
-				if (currentContainer.getController() == null)
+				if (curContainer.getController() == null)
 				{
 					showFormInCurrentContainer(first.getName());
 				}
@@ -363,7 +363,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 			}
 		}
 
-		currentContainer.setComponentVisible(true);
+		curContainer.setComponentVisible(true);
 
 		if (preferedSolutionMethodName != null && application.getFlattenedSolution().isMainSolutionLoaded())
 		{
@@ -573,12 +573,13 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 
 		FormController currentMainShowingForm = null;
 
-		if (currentContainer != null)
+		IMainContainer currContainer = getCurrentContainer();
+		if (currContainer != null)
 		{
 			currentMainShowingForm = container.getController();
 		}
 
-		boolean containerSwitch = container != currentContainer;
+		boolean containerSwitch = container != currContainer;
 
 		if (currentMainShowingForm != null && formName.equals(currentMainShowingForm.getName()) && !containerSwitch && !design) return leaseFormPanel(currentMainShowingForm.getName());
 
@@ -640,7 +641,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 			final FormController fp = leaseFormPanel(formName);
 			currentMainShowingForm = fp;
 
-			currentContainer = container;
+			currContainer = container;
 
 			if (fp != null)
 			{
@@ -654,7 +655,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 					container.add(fp.getFormUI(), formName);
 				}
 				// this code must be below the checkAndUpdateUser because setFormController can already set the formui
-				currentContainer.setFormController(fp);
+				currContainer.setFormController(fp);
 				SolutionScope ss = application.getScriptEngine().getSolutionScope();
 				Context.enter();
 				try
@@ -676,11 +677,11 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 				// if this is first show and we have to mimic the legacy 3.1 behavior of dialogs (show all in 1 window), allow 100 forms
 				if (!container.isVisible() && !closeAll)
 				{
-					((FormManager)application.getFormManager()).getHistory(currentContainer).clear(100);
+					((FormManager)application.getFormManager()).getHistory(currContainer).clear(100);
 				}
 
 				//add to history
-				getHistory(currentContainer).add(fp.getName());
+				getHistory(currContainer).add(fp.getName());
 
 				//check for programatic change
 				selectFormMenuItem(f);
@@ -694,7 +695,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 				// Command should rightly enabled for the forms
 				enableCmds(true);
 
-				final IMainContainer cachedContainer = currentContainer;
+				final IMainContainer cachedContainer = currContainer;
 				Runnable title_focus = new Runnable()
 				{
 					public void run()
@@ -715,8 +716,8 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 
 				if (isNewUser)
 				{
-					final IMainContainer showContainer = currentContainer;
-					currentContainer.showBlankPanel();//to overcome paint problem in swing...
+					final IMainContainer showContainer = currContainer;
+					currContainer.showBlankPanel();//to overcome paint problem in swing...
 					invokeLaterRunnables.add(new Runnable()
 					{
 						public void run()
@@ -733,7 +734,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 				}
 				else
 				{
-					currentContainer.show(fp.getName());
+					currContainer.show(fp.getName());
 					application.getRuntimeWindowManager().setCurrentWindowName(dialogName);
 				}
 				invokeLaterRunnables.add(title_focus);
@@ -741,7 +742,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 			}
 			else
 			{
-				currentContainer.setFormController(null);
+				currContainer.setFormController(null);
 			}
 			J2DBGlobals.firePropertyChange(this, "form", tmpForm, currentMainShowingForm); //$NON-NLS-1$
 
@@ -761,7 +762,8 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 
 	public FormController getCurrentMainShowingFormController()
 	{
-		if (currentContainer != null) return currentContainer.getController();
+		IMainContainer cc = getCurrentContainer();
+		if (cc != null) return cc.getController();
 		return null;
 	}
 
@@ -774,7 +776,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 	public FormController getFormController(String formName, Object parent)
 	{
 		if (formName == null || parent == null) return null;
-		IMainContainer container = currentContainer;
+		IMainContainer container = getCurrentContainer();
 		if (parent instanceof IMainContainer) container = (IMainContainer)parent;
 		if (container.getController() != null && formName == container.getController().getName()) return null;//savety for circular reference: from A has tabpanel Showing Form B which has tabpanel showing A
 
@@ -1101,9 +1103,10 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		IMainContainer c = container;
 		if (c == null)
 		{
-			if (currentContainer != null)
+			IMainContainer curContainer = getCurrentContainer();
+			if (curContainer != null)
 			{
-				c = currentContainer;
+				c = curContainer;
 			}
 			else
 			{
