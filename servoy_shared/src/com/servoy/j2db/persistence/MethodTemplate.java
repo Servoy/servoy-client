@@ -42,6 +42,7 @@ public class MethodTemplate implements IMethodTemplate
 	public static final int PUBLIC_TAG = 1;
 	public static final int PROTECTED_TAG = 2;
 	public static final int PRIVATE_TAG = 4;
+	public static final int ALL_TAGS = PUBLIC_TAG | PROTECTED_TAG | PRIVATE_TAG;
 
 	private static final String TAG_METHODTEMPLATE = "methodtemplate";
 	private static final String ATTR_NAME = "name";

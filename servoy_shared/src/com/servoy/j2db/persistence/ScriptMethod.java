@@ -30,6 +30,9 @@ import com.servoy.j2db.util.UUID;
 @SuppressWarnings("nls")
 public class ScriptMethod extends AbstractScriptProvider implements IPersistCloneable, ICloneable
 {
+	private transient Boolean isPrivate;
+	private transient Boolean isProtected;
+
 	/**
 	 * Constructor I
 	 */
@@ -61,23 +64,56 @@ public class ScriptMethod extends AbstractScriptProvider implements IPersistClon
 		return getName();
 	}
 
+	@Override
+	public void setDeclaration(String declaration)
+	{
+		super.setDeclaration(declaration);
+		isPrivate = null;
+		isProtected = null;
+	}
+
 	/**
 	 * @return
 	 */
 	public boolean isPrivate()
 	{
-		String declaration = getDeclaration();
-		if (declaration == null) return false;
-		int index = declaration.indexOf("*/");
-		return index != -1 && declaration.lastIndexOf("@private", index) != -1;
+		Boolean priv = isPrivate;
+		if (priv == null)
+		{
+			String declaration = getDeclaration();
+			if (declaration == null)
+			{
+				priv = Boolean.FALSE;
+			}
+			else
+			{
+				int index = declaration.indexOf("*/");
+				priv = Boolean.valueOf(index != -1 && declaration.lastIndexOf("@private", index) != -1);
+			}
+			isPrivate = priv;
+		}
+		return priv.booleanValue();
 	}
 
 	public boolean isProtected()
 	{
-		String declaration = getDeclaration();
-		if (declaration == null) return false;
-		int index = declaration.indexOf("*/");
-		return index != -1 && declaration.lastIndexOf("@protected", index) != -1;
+		if (isPrivate()) return false;
+		Boolean prot = isProtected;
+		if (prot == null)
+		{
+			String declaration = getDeclaration();
+			if (declaration == null)
+			{
+				prot = Boolean.FALSE;
+			}
+			else
+			{
+				int index = declaration.indexOf("*/");
+				prot = Boolean.valueOf(index != -1 && declaration.lastIndexOf("@protected", index) != -1);
+			}
+			isProtected = prot;
+		}
+		return prot.booleanValue();
 	}
 
 	@Override
