@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util.gui;
 
 import java.awt.BasicStroke;
@@ -22,8 +22,11 @@ import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.Stroke;
+import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.RoundRectangle2D;
@@ -131,6 +134,7 @@ public class SpecialMatteBorder extends AbstractBorder
 		{
 			if (roundingRadius > 0)
 			{
+				((Graphics2D)g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 				float lineWidth = top;
 				if (dashPattern == null)
 				{
@@ -141,19 +145,26 @@ public class SpecialMatteBorder extends AbstractBorder
 					((Graphics2D)g).setStroke(new BasicStroke(lineWidth, line_cap, line_join, 1f, dashPattern, 0f));
 				}
 
-				g.setColor(topColor);
 				float halfLW = lineWidth / 2f;
+				Shape shape = null;
 				if (roundingRadius == 100f)
 				{
-					Ellipse2D.Float oval = new Ellipse2D.Float(halfLW, halfLW, width - lineWidth, height - lineWidth);
-					((Graphics2D)g).draw(oval);
+					shape = new Ellipse2D.Float(halfLW, halfLW, width - lineWidth, height - lineWidth);
+
 				}
 				else
 				{
-					RoundRectangle2D.Float rect = new RoundRectangle2D.Float(halfLW, halfLW, width - lineWidth, height - lineWidth, roundingRadius,
-						roundingRadius);
-					((Graphics2D)g).draw(rect);
+					shape = new RoundRectangle2D.Float(halfLW, halfLW, width - lineWidth, height - lineWidth, roundingRadius, roundingRadius);
 				}
+				if (c.isOpaque() && c.getBackground() != null)
+				{
+					Area area = new Area(new Rectangle(width, height));
+					area.subtract(new Area(shape));
+					g.setColor(c.getParent().getBackground());
+					((Graphics2D)g).fill(area);
+				}
+				g.setColor(topColor);
+				((Graphics2D)g).draw(shape);
 			}
 			// Does not work correctly on macos java 1.5.0_07, left and right lines are shifted 1 pixel to the right......
 //			else if (top == left && top == bottom && top == right &&
