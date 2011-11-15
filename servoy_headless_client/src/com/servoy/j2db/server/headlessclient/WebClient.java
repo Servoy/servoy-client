@@ -878,10 +878,8 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		}
 	}
 
-	public void onEndRequest(@SuppressWarnings("unused")
-	WebClientSession webClientSession)
+	public void onEndRequest(@SuppressWarnings("unused") WebClientSession webClientSession)
 	{
-		((WebFormManager)getFormManager()).clearCurrentContainer();
 	}
 
 	private void writeObject(ObjectOutputStream stream) throws IOException
