@@ -669,9 +669,9 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				IMainContainer divDialogContainer = fm.getMainContainer(divDialog.getPageMapName());
 				IMainContainer currentContainer = fm.getCurrentContainer();
 				// get a lock on the dialog container
-				if (divDialogContainer instanceof MainPage && RequestCycle.get() != null)
+				if (divDialogContainer instanceof MainPage)
 				{
-					Session.get().getPage(divDialog.getPageMapName(), ((MainPage)divDialogContainer).getPath(), LATEST_VERSION);
+					((MainPage)divDialogContainer).touch();
 				}
 
 				// temporary set the dialog container as the current container (the close event is processed by the main container, not the dialog)
@@ -1419,12 +1419,16 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		return history;
 	}
 
+	private final ThreadLocal<Boolean> skipAttach = new ThreadLocal<Boolean>();
+
 	/**
 	 * @see org.apache.wicket.Component#onAttach()
 	 */
 	@Override
 	public void onPageAttached()
 	{
+		if (skipAttach.get() != null) return;
+
 		// between requests a page is not versionable
 		setVersioned(true);
 		String ignore = RequestCycle.get().getRequest().getParameter("ignoremp"); //$NON-NLS-1$
@@ -1444,6 +1448,22 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			}
 		}
 		super.onPageAttached();
+	}
+
+	public void touch()
+	{
+		if (Session.exists() && RequestCycle.get() != null)
+		{
+			skipAttach.set(Boolean.TRUE);
+			try
+			{
+				Session.get().getPage(getPageMapName(), getPath(), Page.LATEST_VERSION);
+			}
+			finally
+			{
+				skipAttach.remove();
+			}
+		}
 	}
 
 	@Override
@@ -1590,10 +1610,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 	private void closeChildWindow(String popupName)
 	{
 		// first touch this page so that it is locked if this is a normal request
-		if (RequestCycle.get() != null)
-		{
-			Session.get().getPage(getPageMapName(), getPath(), LATEST_VERSION);
-		}
+		touch();
 
 		ServoyDivDialog divDialog = divDialogs.remove(popupName);
 		if (divDialog != null)
@@ -1646,10 +1663,8 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 	public void close()
 	{
 		// first touch this page so that it is locked if this is a normal request
-		if (RequestCycle.get() != null)
-		{
-			Session.get().getPage(getPageMapName(), getPath(), LATEST_VERSION);
-		}
+		touch();
+
 		setWindowSize(null);
 		setShowPageInDialogDelayed(false);
 		pageContributor.showNoDialog();
