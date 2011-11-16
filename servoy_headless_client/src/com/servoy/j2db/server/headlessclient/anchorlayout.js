@@ -1,4 +1,4 @@
-function layoutOneElement(elementInfo, partHeight, formsInfo, formName, currentContainer) 
+function layoutOneElement(elementInfo) 
 {
 	var element = document.getElementById(elementInfo[0]);
 	if (!element)
@@ -6,7 +6,6 @@ function layoutOneElement(elementInfo, partHeight, formsInfo, formName, currentC
 		Wicket.Log.info("Could not find element '" + elementInfo[0] + "' while anchoring page.");
 		return;
 	}
-	var formInfo = formsInfo[formName];
 	var elementHint = elementInfo[6];
 	if (/TabPanel/.test(elementHint))
 	{
@@ -45,8 +44,7 @@ function layoutOneContainer(formsInfo, formName, isBrowserWindow)
 	{
 		for (var i=0; i<formInfo.bodyPart.length; i++)
 		{
-			var elementInfo = formInfo.bodyPart[i];
-			layoutOneElement(elementInfo, formInfo.heights[formInfo.bodyPartId], formsInfo, formName, bodyPart);
+			layoutOneElement(formInfo.bodyPart[i]);
 		}
 	}
 
@@ -56,8 +54,7 @@ function layoutOneContainer(formsInfo, formName, isBrowserWindow)
 		var partElements = formInfo.nonBodyParts[id];
 		for (var i=0; i<partElements.length; i++)
 		{
-			var elementInfo = partElements[i];
-			layoutOneElement(elementInfo, formInfo.heights[id], formsInfo, formName, part);
+			layoutOneElement(partElements[i]);
 		}
 	}
 }
@@ -175,4 +172,14 @@ function layoutEntirePage()
 	if (layoutTimeout)
 		clearTimeout(layoutTimeout);
 	layoutTimeout = setTimeout("layoutEntirePageWorker();", 200);
+}
+
+function layoutSpecificElements()
+{
+	if (doingAnchorLayout)
+	{
+		Wicket.Log.info("Already doing anchoring, exiting.");
+		return;
+	}
+	executeLayoutSpecificElements();
 }
