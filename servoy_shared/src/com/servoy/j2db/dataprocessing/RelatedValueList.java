@@ -360,7 +360,7 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 			}
 			for (int i = 0; i < dataSet.getRowCount(); i++)
 			{
-				Object[] row = dataSet.getRow(i);
+				Object[] row = CustomValueList.processRow(dataSet.getRow(i), showValues, returnValues);
 
 				Object element = CustomValueList.handleRowData(valueList, concatShowValues, showValues, row, application);
 				if (showAndReturnAreSame && indexOf(element) != -1) continue;
