@@ -1608,6 +1608,10 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 				divDialog.setTitle(titleStr);
 				divDialogActionBuffer.show(divDialog, windowName);
+				if (firstShow && !resizeable)
+				{
+					appendJavaScriptChanges(divDialog.getChangeBoundsJS(-1, -1, bounds.width, bounds.height));
+				}
 				triggerBrowserRequestIfNeeded();
 			}
 
@@ -1712,7 +1716,6 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		showingInWindow = false;
 		showingInDialog = false;
 	}
-
 
 	public void setFocusedComponent(Component component)
 	{
