@@ -1147,7 +1147,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			// if the editor is not enable or is readonly dont try to set any value.
 			if (!displayData.isEnabled() || displayData.isReadOnly()) return obj;
 			// then make sure the current state is in edit, if not, try to start it else just return.
-			// this can happen when toggeling with readonly. case 233226 or 232188 
+			// this can happen when toggling with readonly. case 233226 or 232188 
 			if (!currentEditingState.isEditing() && !currentEditingState.startEditing()) return obj;
 
 			try
