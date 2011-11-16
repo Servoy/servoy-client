@@ -134,6 +134,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 	private int keyReleaseToBeIgnored = -1;
 	private final RuntimeDataCombobox scriptable;
 	private boolean showingPopup;
+	private static final int MAXIMUM_ROWS = 20;
 
 	public DataComboBox(IApplication application, RuntimeDataCombobox scriptable, IValueList vl)
 	{
@@ -177,7 +178,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 
 //DISABLED:for 1.4			
 //		setPrototypeDisplayValue(new Integer(0));
-		setMaximumRowCount(20);
+		setMaximumRowCount(MAXIMUM_ROWS);
 //		addPopupMenuListener(this);
 //		setLightWeightPopupEnabled(false);
 
@@ -328,7 +329,18 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 			}
 
 			int textWidth = fontMetrics.stringWidth(formatted);
-			width = Math.max(width, textWidth + 10); // add offset 10
+			int addedWidth = 10;
+			if (getItemCount() > MAXIMUM_ROWS)
+			{
+				// for scrollbars
+				addedWidth += 20;
+				if (Utils.isAppleMacOS())
+				{
+					// for checkbox
+					addedWidth += 25;
+				}
+			}
+			width = Math.max(width, textWidth + addedWidth); // add offset 10
 		}
 
 		return width;
