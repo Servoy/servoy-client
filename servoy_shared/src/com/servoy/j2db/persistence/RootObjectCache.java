@@ -180,6 +180,30 @@ public class RootObjectCache
 		return null;
 	}
 
+	public synchronized boolean isRootObjectCached(String name, int objectTypeId, int release) throws RepositoryException
+	{
+		RootObjectMetaData rod = getRootObjectMetaData(name, objectTypeId);
+		if (rod != null)
+		{
+			CacheRecord cacheRecord = getCacheRecord(rod.getRootObjectId());
+			if (cacheRecord != null)
+			{
+				if (release == 0)
+				{
+					release = cacheRecord.rootObjectMetaData.getActiveRelease();
+				}
+				else if (release == -1)
+				{
+					release = cacheRecord.rootObjectMetaData.getLatestRelease();
+				}
+				Integer key = new Integer(release);
+				IRootObject rootObject = (IRootObject)cacheRecord.rootObjects.get(key);
+				return rootObject != null;
+			}
+		}
+		return false;
+	}
+
 	synchronized IRootObject getRootObject(int rootObjectId, int release) throws RepositoryException
 	{
 		CacheRecord cacheRecord = getCacheRecord(rootObjectId);
