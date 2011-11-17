@@ -117,7 +117,7 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 			}
 			catch (Exception ex)
 			{
-				Debug.log("Unable to decode the url: '" + url + "' most likely because the session expired", ex);
+				Debug.trace("Unable to decode the url: '" + url + "' most likely because the session expired", ex);
 				// just ignore this more gracefully and redirect once to main page.
 				WebClientSession webClientSession = (WebClientSession)Session.get();
 				WebClient webClient = webClientSession.getWebClient();
