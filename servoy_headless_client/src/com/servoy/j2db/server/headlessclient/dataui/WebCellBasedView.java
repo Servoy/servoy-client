@@ -2315,6 +2315,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			int newPageIndex = newSelectedIndex / table.getRowsPerPage();
 			if (table.getCurrentPage() != newPageIndex)
 			{
+				// try to lock the page of this cellbasedview, so that concurrent rendering can't or won't happen.
+				MainPage mp = table.findParent(MainPage.class);
+				if (mp != null) mp.touch();
 				table.setCurrentPage(newPageIndex);
 				// if table row selection color must work then this must be outside this if. 
 				getStylePropertyChanges().setChanged();
