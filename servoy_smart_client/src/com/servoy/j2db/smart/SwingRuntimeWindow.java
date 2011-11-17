@@ -683,13 +683,6 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 			}
 			else if (!getResizable())
 			{
-				// quickly set the form to visible if not visible.
-				boolean visible = fp.getFormUI().isVisible();
-				if (!visible)
-				{
-					((Component)fp.getFormUI()).setVisible(true);
-				}
-
 				if (!FormManager.FULL_SCREEN.equals(initialBounds))
 				{
 					wrappedWindow.setBounds(getX(), getY(), initialBounds.width, initialBounds.height);
