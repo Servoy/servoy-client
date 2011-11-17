@@ -288,7 +288,7 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 				Object value = getValue();
 				commitSelectedValue();
 				super.processKeyEvent(e);
-				if (!eventExecutor.getValidationEnabled() && !Utils.equalObjects(value, getValue()))
+				if (!eventExecutor.getValidationEnabled() && !Utils.equalObjects(value, getValue()) && popup != null && popup.isVisible())
 				{
 					// consume the enter release key in find mode.
 					consumeEnterReleased = true;
