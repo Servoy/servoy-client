@@ -386,7 +386,6 @@ function rearrageTabsInTabPanel(tabPanelId)
 }
 
 var onFocusModifiers = 0;
-var focusCallbackTimeout = null;
 function addListeners(strEvent, callbackUrl, ids, post)
 {
 	if (ids)
@@ -401,63 +400,47 @@ function addListeners(strEvent, callbackUrl, ids, post)
 				{
 					if(strEvent == "blur")
 					{
-						if(focusCallbackTimeout) return false;	// on focuse delayed, so it is a quick switch, ignore the blur
 						ignoreFocusGained = null;
 					}
 					if(Wicket.Focus.refocusLastFocusedComponentAfterResponse && !Wicket.Focus.focusSetFromServer) return true;
 					if(!e) e = window.event;
 					var modifiers;
 					if(strEvent == "focus")
-					{					
-						clearTimeout(focusCallbackTimeout);
+					{
 						modifiers = onFocusModifiers;
 						onFocusModifiers = 0;
-						var thisEl = this;
+
 						// if it has display/editvalues then test if the current value is the displayValue. if so only a get instead of a post. 
 						if (Wicket.$(this.id).displayValue && Wicket.$(this.id).value == Wicket.$(this.id).displayValue)
 						{
-							focusCallbackTimeout = setTimeout(function()
+							if(modifiers > 0)
 							{
-								if(Wicket.Focus.getFocusedElement() == thisEl)
-								{
-									if(modifiers > 0)
-									{
-										Wicket.Focus.lastFocusId = null;
-										thisEl.blur();
-									}
-									var wcall=wicketAjaxGet
-									(
-										callbackUrl+'&nopostdata=true&event='+strEvent+'&id='+thisEl.id+'&modifiers='+modifiers,
-										null,
-										function() { onAjaxError(); }.bind(thisEl),
-										function() { onAjaxCall(); return Wicket.$(thisEl.id) != null; }.bind(thisEl)
-									);
-								}
-								focusCallbackTimeout = null;
-							}, 200);
+								Wicket.Focus.lastFocusId = null;
+								this.blur();
+							}
+							var wcall=wicketAjaxGet
+							(
+								callbackUrl+'&nopostdata=true&event='+strEvent+'&id='+this.id+'&modifiers='+modifiers,
+								null,
+								function() { onAjaxError(); }.bind(this),
+								function() { onAjaxCall(); return Wicket.$(this.id) != null; }.bind(this)
+							);
 							return false;
 						}
 						
-						focusCallbackTimeout = setTimeout(function()
+						if(modifiers > 0)
 						{
-							if(Wicket.Focus.getFocusedElement() == thisEl)
-							{
-								if(modifiers > 0)
-								{
-									Wicket.Focus.lastFocusId = null;
-									thisEl.blur();
-								}
-								var wcall=wicketAjaxPost
-								(
-									callbackUrl+'&event='+strEvent+'&id='+thisEl.id+'&modifiers='+modifiers,
-									wicketSerialize(Wicket.$(thisEl.id)),
-									null,
-									function() { onAjaxError(); }.bind(thisEl),
-									function() { onAjaxCall(); return Wicket.$(thisEl.id) != null; }.bind(thisEl)
-								);
-							}
-							focusCallbackTimeout = null;
-						}, 200);						
+							Wicket.Focus.lastFocusId = null;
+							this.blur();
+						}
+						var wcall=wicketAjaxPost
+						(
+							callbackUrl+'&event='+strEvent+'&id='+this.id+'&modifiers='+modifiers,
+							wicketSerialize(Wicket.$(this.id)),
+							null,
+							function() { onAjaxError(); }.bind(this),
+							function() { onAjaxCall(); return Wicket.$(this.id) != null; }.bind(this)
+						);
 						return false;
 					}
 					else
@@ -490,8 +473,7 @@ function addListeners(strEvent, callbackUrl, ids, post)
 			else
 			{
 				callback = function(e)
-				{
-					if(strEvent == "blur" && focusCallbackTimeout) return false; // on focuse delayed, so it is a quick switch, ignore the blur	
+				{	
 					if(Wicket.Focus.refocusLastFocusedComponentAfterResponse && !Wicket.Focus.focusSetFromServer) return true;
 					if (ignoreFocusGained && ignoreFocusGained == this.id)
 					{
@@ -503,29 +485,21 @@ function addListeners(strEvent, callbackUrl, ids, post)
 					
 					if(strEvent == "focus")
 					{
-						clearTimeout(focusCallbackTimeout);
 						modifiers = onFocusModifiers;
-						onFocusModifiers = 0;					
-						var thisEl = this;			
-						focusCallbackTimeout = setTimeout(function()
-							{
-								if(Wicket.Focus.getFocusedElement() == thisEl)
-								{
-									if(modifiers > 0)
-									{
-										Wicket.Focus.lastFocusId = null;
-										thisEl.blur();
-									} 
-									var wcall=wicketAjaxGet
-									(					
-										callbackUrl+'&event='+strEvent+'&id='+thisEl.id+'&modifiers='+modifiers,
-										null,
-										function() { onAjaxError(); }.bind(thisEl),
-										function() { return Wicket.$(thisEl.id) != null; }.bind(thisEl)
-									);									
-								}
-								focusCallbackTimeout = null;
-							}, 200);							
+						onFocusModifiers = 0;			
+
+						if(modifiers > 0)
+						{
+							Wicket.Focus.lastFocusId = null;
+							this.blur();
+						} 
+						var wcall=wicketAjaxGet
+						(					
+							callbackUrl+'&event='+strEvent+'&id='+this.id+'&modifiers='+modifiers,
+							null,
+							function() { onAjaxError(); }.bind(this),
+							function() { return Wicket.$(this.id) != null; }.bind(this)
+						);
 						return false;
 					}
 					else
