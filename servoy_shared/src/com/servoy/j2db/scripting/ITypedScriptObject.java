@@ -27,4 +27,6 @@ public interface ITypedScriptObject extends IScriptObject
 	public String getToolTip(String methodName, Class< ? >[] argTypes);
 
 	public boolean isDeprecated(String methodName, Class< ? >[] argTypes);
+
+	public String getDeprecatedText(String methodName, Class< ? >[] argTypes);
 }
