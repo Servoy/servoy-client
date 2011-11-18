@@ -1596,22 +1596,14 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				divDialog.setResizable(resizeable);
 				divDialog.setUseInitialHeight(true);
 				divDialog.setModal(modal);
-				Rectangle bounds;
+				Rectangle bounds = r2;
 				if (FormManager.FULL_SCREEN.equals(r2))
 				{
-					firstShow = true; // always apply initial bounds if full-screen (to keep it the same as in SC)
 					// get the size of the browser window (that will contain the div window)
 					bounds = new Rectangle(0, 0, getWidth(), getHeight() - 45); // it is a bit too high, why? Because windowBounds is size of what the div should occupy, while modalWindow.setInitialHeight() is only applied to the contents (without frame)  
 				}
-				else
-				{
-					bounds = r2;
-				}
-				if (firstShow)
-				{
-					divDialog.setInitialHeight(bounds.height);
-					divDialog.setInitialWidth(bounds.width);
-				}
+				divDialog.setInitialHeight(bounds.height);
+				divDialog.setInitialWidth(bounds.width);
 				divDialog.setCloseAll(closeAll);
 
 				FormController fp = dialogContainer.getController();
