@@ -901,19 +901,22 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			final MarkupStream markupStream = main.getAssociatedMarkupStream(false);
 			if (markupStream != null)
 			{
-				markupStream.setCurrentIndex(0);//not sure if this is needed
+//				markupStream.setCurrentIndex(0); // this doesn't seem to be needed
 				MarkupElement m = markupStream.get();
-				String docType = m.toString().trim();
-				if (m != null && docType.toUpperCase().startsWith("<!DOCTYPE"))
+				if (m != null)
 				{
-					int index = docType.indexOf('>');
-					if (index != -1)
+					String docType = m.toString().trim();
+					if (docType.toUpperCase().startsWith("<!DOCTYPE"))
 					{
-						response.write(docType.substring(0, index + 1));//delegate form doctype to be the mainpage doctype
-					}
-					else
-					{
-						response.write(docType);//delegate form doctype to be the mainpage doctype
+						int index = docType.indexOf('>');
+						if (index != -1)
+						{
+							response.write(docType.substring(0, index + 1));//delegate form doctype to be the mainpage doctype
+						}
+						else
+						{
+							response.write(docType);//delegate form doctype to be the mainpage doctype
+						}
 					}
 				}
 			}
