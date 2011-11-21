@@ -19,13 +19,13 @@ package com.servoy.j2db.persistence;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IDataSet;
+import com.servoy.j2db.dataprocessing.ISQLActionTypes;
 import com.servoy.j2db.dataprocessing.ISQLStatement;
 import com.servoy.j2db.dataprocessing.SQLStatement;
 import com.servoy.j2db.query.CompareCondition;
@@ -61,7 +61,7 @@ public class I18NUtil
 
 		public String getLanguageKey()
 		{
-			return language + "." + key;
+			return language + '.' + key;
 		}
 
 		public String getLanguage()
@@ -102,12 +102,7 @@ public class I18NUtil
 			}
 			if (i18NTable != null)
 			{
-				Column pkColumn = null;
-				List<Column> list = i18NTable.getRowIdentColumns();
-				if (list.size() > 0)
-				{
-					pkColumn = list.get(0);
-				}
+				Column pkColumn = i18NTable.getRowIdentColumns().get(0); // runtime exception when no ident columns
 
 				QueryTable messagesTable = new QueryTable(i18NTable.getSQLName(), i18NTable.getCatalog(), i18NTable.getSchema());
 				QueryColumn pkCol = new QueryColumn(messagesTable, pkColumn.getID(), pkColumn.getSQLName(), pkColumn.getType(), pkColumn.getLength());
@@ -155,16 +150,16 @@ public class I18NUtil
 							if (lang == null) insert.setColumnValues(new QueryColumn[] { msgKey, msgVal }, new Object[] { messageKey, value });
 							else insert.setColumnValues(new QueryColumn[] { msgKey, msgLang, msgVal }, new Object[] { messageKey, lang, value });
 						}
-						updateStatements.add(new SQLStatement(ISQLStatement.INSERT_ACTION, i18NServerName, i18NTableName, null, insert));
+						updateStatements.add(new SQLStatement(ISQLActionTypes.INSERT_ACTION, i18NServerName, i18NTableName, null, insert));
 					}
-					else if (!remoteMessages.get(key).equals(value) && !noUpdates) // update
+					else if (!remoteMessages.get(key).getValue().equals(value) && !noUpdates) // update
 					{
 						QueryUpdate update = new QueryUpdate(messagesTable);
 						update.addValue(msgVal, value);
 						update.addCondition(new CompareCondition(ISQLCondition.EQUALS_OPERATOR, msgKey, messageKey));
 						update.addCondition(new CompareCondition(ISQLCondition.EQUALS_OPERATOR, msgLang, lang));
 
-						updateStatements.add(new SQLStatement(ISQLStatement.UPDATE_ACTION, i18NServerName, i18NTableName, null, update));
+						updateStatements.add(new SQLStatement(ISQLActionTypes.UPDATE_ACTION, i18NServerName, i18NTableName, null, update));
 					}
 				}
 
@@ -187,7 +182,7 @@ public class I18NUtil
 							delete.addCondition(new CompareCondition(ISQLCondition.EQUALS_OPERATOR, msgKey, messageKey));
 							delete.addCondition(new CompareCondition(ISQLCondition.EQUALS_OPERATOR, msgLang, lang));
 
-							updateStatements.add(new SQLStatement(ISQLStatement.DELETE_ACTION, i18NServerName, i18NTableName, null, delete));
+							updateStatements.add(new SQLStatement(ISQLActionTypes.DELETE_ACTION, i18NServerName, i18NTableName, null, delete));
 
 						}
 					}
