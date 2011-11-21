@@ -28,6 +28,9 @@ public class PerformanceTiming
 {
 	private final String action;
 	private long total_ms;
+	private long min_ms;
+	private long max_ms;
+	private long s2; // used for running calculation of standard deviation
 	private int count;
 	private final int type;
 
@@ -40,6 +43,9 @@ public class PerformanceTiming
 	public void updateTime(long time_ms)
 	{
 		total_ms += time_ms;
+		min_ms = count == 0 ? time_ms : Math.min(min_ms, time_ms);
+		max_ms = count == 0 ? time_ms : Math.max(max_ms, time_ms);
+		s2 += (time_ms * time_ms);
 		count++;
 	}
 
@@ -107,6 +113,30 @@ public class PerformanceTiming
 	public long getTotalTimeMS()
 	{
 		return total_ms;
+	}
+
+	public long getMinTimeMS()
+	{
+		return min_ms;
+	}
+
+	public long getMaxTimeMS()
+	{
+		return max_ms;
+	}
+
+	public double getStandardDeviation()
+	{
+		if (count <= 1) return 0;
+
+		// see http://en.wikipedia.org/wiki/Standard_deviation for calculating standard deviation
+		// see http://easycalculation.com/statistics/standard-deviation.php for calculating stdev
+
+		// Population Standard deviation
+//		return Math.sqrt((count * s2) - (total_ms * total_ms)) / count;
+
+		// Standard deviation
+		return Math.sqrt((((double)((count * s2) - (total_ms * total_ms)))) / (count * (count - 1)));
 	}
 
 	public int getCount()
