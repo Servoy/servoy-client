@@ -287,9 +287,14 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 						((WebBaseSubmitLink)entry.getKey()).setLabelFor(component);
 					}
 					(component).addLabelFor((ILabel)entry.getKey());
-					// we need to make sure the label has same visibility and enablement as component
-					component.setComponentVisible(component.isVisible());
-					component.setComponentEnabled(component.isEnabled());
+					if (!component.isVisible())
+					{
+						component.setComponentVisible(component.isVisible());
+					}
+					if (!component.isEnabled())
+					{
+						component.setComponentEnabled(component.isEnabled());
+					}
 				}
 			}
 		}
