@@ -371,9 +371,14 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 						if (component instanceof IFieldComponent)
 						{
 							((IFieldComponent)component).addLabelFor((ILabel)entry.getKey());
-							// we need to make sure the label has same visibility and enablement as component
-							((IFieldComponent)component).setComponentVisible(((IFieldComponent)component).isVisible());
-							((IFieldComponent)component).setComponentEnabled(((IFieldComponent)component).isEnabled());
+							if (!((IFieldComponent)component).isVisible())
+							{
+								((IFieldComponent)component).setComponentVisible(((IFieldComponent)component).isVisible());
+							}
+							if (!((IFieldComponent)component).isEnabled())
+							{
+								((IFieldComponent)component).setComponentEnabled(((IFieldComponent)component).isEnabled());
+							}
 						}
 					}
 				}
