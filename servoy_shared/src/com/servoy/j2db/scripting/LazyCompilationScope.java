@@ -89,7 +89,7 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 	@Override
 	public boolean has(int index, Scriptable start)
 	{
-		return idVars.containsKey(new Integer(index));
+		return idVars.containsKey(Integer.valueOf(index));
 	}
 
 	public void put(IScriptProvider sm, Object function)
@@ -217,17 +217,6 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 		if (name == null) return null;
 		Object o = getImpl(name, this);
 		return (o instanceof Function ? (Function)o : null);
-	}
-
-	@Override
-	public boolean has(String name, Scriptable start)
-	{
-		boolean has = super.has(name, start);
-		if (!has)
-		{
-			return idVars.containsKey(name);
-		}
-		return has;
 	}
 
 	/**
