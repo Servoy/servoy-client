@@ -1093,12 +1093,12 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 *
 		 * @sample
 		 * /** @type {JSDataSet} *&#47; 
+		 * //dataset columns: [containername(1),formname(2),tabpanel or beanname(3),tabname(4),tabindex(5)]
+		 * //dataset rows: mainform(1) -> parent(2)  -> current form(3) (when 3 forms deep)
 		 * var dataset = %%prefix%%controller.getFormContext();
 		 * if (dataset.getMaxRowIndex() > 1) 
 		 * {
 		 * 	// form is in a tabpanel
-		 * 	//dataset columns: [containername(1),formname(2),tabpanel or beanname(3),tabname(4),tabindex(5)]
-		 * 	//dataset rows: mainform(1) -> parent(2)  -> current form(3) (when 3 forms deep)
 		 * 	var parentFormName = dataset.getValue(1,2)
 		 * }
 		 * @return the dataset with form context
