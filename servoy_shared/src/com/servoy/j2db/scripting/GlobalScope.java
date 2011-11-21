@@ -57,8 +57,8 @@ public class GlobalScope extends ScriptVariableScope
 
 	public void reloadVariablesAndScripts()
 	{
-		createVars();
 		createScriptProviders();
+		createVars();
 	}
 
 	/*
