@@ -408,30 +408,22 @@ public class ProfileDataServer implements IDataServer
 		}
 	}
 
-	/**
-	 * @param client_id
-	 * @param array
-	 * @return
-	 * @throws ServoyException
-	 * @throws RemoteException
-	 * @see com.servoy.j2db.dataprocessing.IDataServer#performQuery(java.lang.String, com.servoy.j2db.dataprocessing.QueryData[])
-	 */
-	public IDataSet[] performQuery(String client_id, QueryData[] array) throws ServoyException, RemoteException
+	public IDataSet[] performQuery(String client_id, String server_name, String transaction_id, QueryData[] array) throws ServoyException, RemoteException
 	{
 		long startTime = System.currentTimeMillis();
 		try
 		{
-			return dataserver.performQuery(client_id, array);
+			return dataserver.performQuery(client_id, server_name, transaction_id, array);
 		}
 		finally
 		{
 			int counter = 0;
 			for (QueryData queryData : array)
 			{
-				QuerySet set = getSQLQuerySet(queryData.getServerName(), queryData.getSqlSelect(), queryData.getFilters(), queryData.getStartRow(),
+				QuerySet set = getSQLQuerySet(server_name, queryData.getSqlSelect(), queryData.getFilters(), queryData.getStartRow(),
 					queryData.getRowsToRetrieve(), false);
 				informListeners(PerformanceTiming.getTypeString(queryData.getType()) + " Combined Query[" + (counter++) + '/' + array.length + ']',
-					queryData.getServerName(), set.getSelect().getSql(), queryData.getTransactionId(), startTime, set.getSelect().getParameters());
+					server_name, set.getSelect().getSql(), transaction_id, startTime, set.getSelect().getParameters());
 			}
 		}
 	}

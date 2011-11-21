@@ -155,16 +155,9 @@ public class DataServerProxy implements IDataServer
 	/**
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#performQuery(com.servoy.j2db.dataprocessing.QueryData[])
 	 */
-	public IDataSet[] performQuery(String client_id, QueryData[] array) throws ServoyException, RemoteException
+	public IDataSet[] performQuery(String client_id, String server_name, String transaction_id, QueryData[] array) throws ServoyException, RemoteException
 	{
-		if (array != null)
-		{
-			for (QueryData element : array)
-			{
-				element.setServerName(getMappedServerName(element.getServerName()));
-			}
-		}
-		return ds.performQuery(client_id, array);
+		return ds.performQuery(client_id, getMappedServerName(server_name), transaction_id, array);
 	}
 
 
