@@ -30,6 +30,7 @@ import com.servoy.j2db.query.ISQLQuery;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.ISQLUpdate;
 import com.servoy.j2db.query.QuerySelect;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 
 /**
@@ -148,8 +149,20 @@ public class DataServerProxy implements IDataServer
 	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList filters,
 		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo) throws ServoyException, RemoteException
 	{
-		return ds.performQuery(client_id, getMappedServerName(server_name), transaction_id, sqlSelect, filters, distinctInMemory, startRow, rowsToRetrieve,
-			type, trackingInfo);
+		long time = System.currentTimeMillis();
+		try
+		{
+			return ds.performQuery(client_id, getMappedServerName(server_name), transaction_id, sqlSelect, filters, distinctInMemory, startRow, rowsToRetrieve,
+				type, trackingInfo);
+		}
+		finally
+		{
+			if (Debug.tracing())
+			{
+				Debug.trace(type +
+					", perform query time: " + (System.currentTimeMillis() - time) + " thread: " + Thread.currentThread().getName() + " SQL: " + sqlSelect); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+			}
+		}
 	}
 
 	/**
