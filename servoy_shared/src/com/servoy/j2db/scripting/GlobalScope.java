@@ -81,12 +81,6 @@ public class GlobalScope extends ScriptVariableScope
 		}
 	}
 
-	public void reloadVariablesAndScripts()
-	{
-		createVars();
-		createScriptProviders();
-	}
-
 	@Override
 	public void put(ScriptVariable var, boolean overwriteInitialValue)
 	{
