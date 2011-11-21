@@ -102,8 +102,8 @@ public class ScopesScope extends DefaultScope
 
 	public void reloadVariablesAndScripts()
 	{
-		createScopes();
 		createScriptProviders();
+		createScopes();
 	}
 
 	/**
