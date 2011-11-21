@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.WeakHashMap;
 
 import javax.swing.AbstractAction;
@@ -261,7 +262,14 @@ public class ToolbarPanel extends EnablePanel implements IToolbarPanel
 			actions.remove(name);
 			Toolbar tb = toolbars.remove(name);
 			if (tb != null) tb.setVisible(false);
-			invisibleToolbars.remove(name);
+			Iterator<Entry<ToolbarConstraints, Integer>> it = invisibleToolbars.entrySet().iterator();
+			while (it.hasNext())
+			{
+				if (it.next().getKey().getName().equals(name))
+				{
+					it.remove();
+				}
+			}
 
 			if (tc.destroy()) checkToolbarRows();
 		}
