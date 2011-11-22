@@ -18,9 +18,9 @@ package com.servoy.j2db;
 
 import java.rmi.RemoteException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.servoy.j2db.persistence.AbstractRootObject;
 import com.servoy.j2db.persistence.IRepository;
@@ -42,7 +42,7 @@ public class ClientRepository implements IRepository, IDelegate<IRepository>
 {
 	private IRepository repository;
 	// lots of unneeded RMI calls are made if not for this cache - and that meant lots and lots of lag
-	private final Map<String, String[]> duplicateServerNamesCache = new HashMap<String, String[]>();
+	private final Map<String, String[]> duplicateServerNamesCache = new ConcurrentHashMap<String, String[]>();
 
 	public ClientRepository(IRepository repository /* may be null and filled when repository access is there */)
 	{
