@@ -970,6 +970,10 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 		@Override
 		public Component getListCellRendererComponent(JList lst, Object value, int index, boolean isSelected, boolean cellHasFocus)
 		{
+			if (IValueList.SEPARATOR_DESIGN_VALUE.equals(value))
+			{
+				return super.getListCellRendererComponent(lst, null, index, isSelected, cellHasFocus);
+			}
 			if (value instanceof String && ((String)value).trim().length() == 0)
 			{
 				setText("A"); //$NON-NLS-1$
