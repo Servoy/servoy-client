@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.wicket.Component;
 import org.apache.wicket.IRequestTarget;
 import org.apache.wicket.RequestCycle;
+import org.apache.wicket.Response;
 import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.HeaderContributor;
@@ -253,7 +254,15 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 				if (str.trim().equals("")) str = "&nbsp;"; //$NON-NLS-1$//$NON-NLS-2$
 				return str;
 			}
+
+			@Override
+			protected void renderChoice(Object object, Response response, String criteria)
+			{
+				if (IValueList.SEPARATOR_DESIGN_VALUE.equals(object)) return;
+				super.renderChoice(object, response, criteria);
+			}
 		};
+
 		AutoCompleteBehavior<Object> beh = new AutoCompleteBehavior<Object>(renderer, behSettings)
 		{
 			private static final long serialVersionUID = 1L;
