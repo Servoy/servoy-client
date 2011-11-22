@@ -13,11 +13,12 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db;
 
 import java.rmi.RemoteException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,6 +41,8 @@ import com.servoy.j2db.util.UUID;
 public class ClientRepository implements IRepository, IDelegate<IRepository>
 {
 	private IRepository repository;
+	// lots of unneeded RMI calls are made if not for this cache - and that meant lots and lots of lag
+	private final Map<String, String[]> duplicateServerNamesCache = new HashMap<String, String[]>();
 
 	public ClientRepository(IRepository repository /* may be null and filled when repository access is there */)
 	{
@@ -79,8 +82,20 @@ public class ClientRepository implements IRepository, IDelegate<IRepository>
 
 	public String[] getDuplicateServerNames(String name) throws RemoteException, RepositoryException
 	{
-		if (repository == null) return new String[0];
-		return repository.getDuplicateServerNames(name);
+		String[] result = null;
+		if (repository != null)
+		{
+			if (duplicateServerNamesCache.containsKey(name))
+			{
+				result = duplicateServerNamesCache.get(name);
+			}
+			else
+			{
+				result = repository.getDuplicateServerNames(name);
+				duplicateServerNamesCache.put(name, result);
+			}
+		}
+		return result;
 	}
 
 	public Map<String, IServer> getServerProxies(RootObjectMetaData[] metas) throws RemoteException, RepositoryException
