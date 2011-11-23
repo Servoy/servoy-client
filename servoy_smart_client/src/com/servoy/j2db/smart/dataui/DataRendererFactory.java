@@ -307,7 +307,7 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 								String id = da.getDataProviderID();
 								if (id != null && !ScopesUtils.isVariableScope(id))
 								{
-									int index = id.lastIndexOf('.');
+									int index = id.indexOf('.'); // only cut first relation (so you can have relation chain inside portal)
 									//TODO:check if part before . is same as relation name (objToRender.getRelationID() )
 									if (index > 0)
 									{
