@@ -206,6 +206,15 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 										return "width: " + LabelResolverLink.this.width + "px";
 									}
 								}));
+
+								headerText.add(new StyleAppendingModifier(new Model<String>()
+								{
+									@Override
+									public String getObject()
+									{
+										return "position: relative";
+									}
+								}));
 							}
 							headerText.setEscapeModelStrings(false);
 							autoAdd(headerText);
