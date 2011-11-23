@@ -548,12 +548,24 @@ function addListeners(strEvent, callbackUrl, ids, post)
 	}
 }
 
+var lastStyleSheetsNumber = false;
+
 function testStyleSheets()
 {
-	if(document.styleSheets.length >= 29)
-	{
-		window.location.reload();
-	}
+ 	if(document.styleSheets.length >= 29)
+ 	{
+ 		// prevent infinite cycles
+  		if (!lastStyleSheetsNumber )
+  		{
+  			Wicket.Log.info("Too many stylesheets loaded, IE doesn't support this.");
+  			return;
+  		}
+  		window.location.reload();
+ 	} 
+ 	else 
+ 	{
+  		lastStyleSheetsNumber = true;
+ 	}
 }
 
 function setStatusText(str)
