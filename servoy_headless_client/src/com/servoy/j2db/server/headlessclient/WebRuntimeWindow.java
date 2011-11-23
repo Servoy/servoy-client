@@ -54,9 +54,9 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 	protected void doOldShow(String formName, boolean closeAll, boolean legacyV3Behavior)
 	{
 		FormManager fm = (FormManager)application.getFormManager();
-		IMainContainer currContainer = getParentContainerForShow(fm);
-		if (((WebRequestCycle)RequestCycle.get()).getWebRequest().isAjax() && !((MainPage)currContainer).isShowPageInDialogDelayed() &&
-			!((MainPage)currContainer).isPopupClosing())
+		IMainContainer parentContainer = getParentContainerForShow(fm);
+		if (((WebRequestCycle)RequestCycle.get()).getWebRequest().isAjax() && !((MainPage)parentContainer).isShowPageInDialogDelayed() &&
+			!((MainPage)parentContainer).isPopupClosing())
 		{
 			IMainContainer dialogContainer = fm.getOrCreateMainContainer(windowName);
 			// In case this modal dialog wants to show another modal dialog during onStart event, we make sure it
@@ -66,7 +66,7 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 			if (formName != null)
 			{
 				final FormController fp = fm.showFormInMainPanel(formName, dialogContainer, title, closeAll || !legacyV3Behavior, windowName);
-				if (fp != null && fp.getName().equals(formName) && dialogContainer != currContainer)
+				if (fp != null && fp.getName().equals(formName) && dialogContainer != parentContainer)
 				{
 					Rectangle r2;
 					if (FormManager.FULL_SCREEN.equals(initialBounds))
@@ -84,11 +84,11 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 
 					if (windowType == JSWindow.WINDOW)
 					{
-						((MainPage)currContainer).showPopupWindow((MainPage)dialogContainer, title, r2, resizable, closeAll || !legacyV3Behavior);
+						((MainPage)parentContainer).showPopupWindow((MainPage)dialogContainer, title, r2, resizable, closeAll || !legacyV3Behavior);
 					}
 					else
 					{
-						((MainPage)currContainer).showPopupDiv((MainPage)dialogContainer, title, r2, resizable, closeAll || !legacyV3Behavior,
+						((MainPage)parentContainer).showPopupDiv((MainPage)dialogContainer, title, r2, resizable, closeAll || !legacyV3Behavior,
 							(windowType == JSWindow.MODAL_DIALOG), firstShow);
 						firstShow = false;
 					}
@@ -97,10 +97,10 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 		}
 		else
 		{
-			((MainPage)currContainer).getPageContributor().showFormInDialogDelayed(windowType, formName, initialBounds, title, resizable, showTextToolbar,
+			((MainPage)parentContainer).getPageContributor().showFormInDialogDelayed(windowType, formName, initialBounds, title, resizable, showTextToolbar,
 				closeAll, (windowType == JSWindow.MODAL_DIALOG), windowName);
 			// Now we need to disable the delayed show, otherwise the modal child would be continuously postponed.
-			((MainPage)currContainer).setShowPageInDialogDelayed(false);
+			((MainPage)parentContainer).setShowPageInDialogDelayed(false);
 		}
 		if (getTitle() != null) setTitle(getTitle());
 
@@ -113,7 +113,7 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 	private IMainContainer getParentContainerForShow(FormManager fm)
 	{
 		IMainContainer parentContainer = null;
-		if (initialParentWindow != null) parentContainer = fm.getMainContainer(initialParentWindow.getName());
+		if (initialParentWindow != null && initialParentWindow.isVisible()) parentContainer = fm.getMainContainer(initialParentWindow.getName());
 		if (parentContainer == null) parentContainer = fm.getCurrentContainer();
 		return parentContainer;
 	}

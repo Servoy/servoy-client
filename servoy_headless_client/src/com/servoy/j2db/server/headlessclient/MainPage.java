@@ -1581,7 +1581,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 	{
 		// all iframe div window main pages will be shown by a browser window main page and will have it as callingContainer;
 		// this is in order to avoid situations where some main pages need to reference each other in browser JS, but some div windows in the chain between them
-		// has already been closed; so this way references to all iframe div windows will not be lost as long as the browser window that contains the iframes remains open
+		// have already been closed; so this way references to all iframe div windows will not be lost as long as the browser window that contains the iframes remains open
 		// see also triggerBrowserRequestIfNeeded() that uses these references
 		if (isShowingInDialog() && callingContainer != null) callingContainer.showPopupDiv(dialogContainer, titleString, r2, resizeable, closeAll, modal,
 			firstShow);
@@ -1664,6 +1664,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 	private String getModalPageMapName()
 	{
+		// TODO: what happens when there is more then 1 modal open? how do we choose the right one?
 		Iterator<ServoyDivDialog> it = divDialogs.values().iterator();
 		while (it.hasNext())
 		{

@@ -74,17 +74,17 @@ public abstract class RuntimeWindowManager
 			win.destroy();
 		}
 
-		RuntimeWindow currentWindow = null;
-		if (type == JSWindow.DIALOG || type == JSWindow.MODAL_DIALOG)
-		{
-			RuntimeWindow pw = application.getRuntimeWindowManager().getCurrentWindow();
-			if (pw != null)
-			{
-				currentWindow = pw.getJSWindow().getImpl();
-			}
-		}
+//		RuntimeWindow currentWindow = null;
+//		if (type == JSWindow.DIALOG || type == JSWindow.MODAL_DIALOG)
+//		{
+//			RuntimeWindow pw = application.getRuntimeWindowManager().getCurrentWindow();
+//			if (pw != null)
+//			{
+//				currentWindow = pw.getJSWindow().getImpl();
+//			}
+//		}
 
-		win = createWindowInternal(windowName, type, parent != null ? parent.getImpl() : currentWindow);
+		win = createWindowInternal(windowName, type, parent != null ? parent.getImpl() : null); // was : currentWindow, but why use fixed parent if it was not specified in JS? better decide each time the window/dialog is shown, so null should be better
 		if (win != null) windows.put(windowName, win);
 		return win;
 	}
