@@ -548,11 +548,21 @@ function addListeners(strEvent, callbackUrl, ids, post)
 	}
 }
 
+var lastStyleSheetsNumber = 0;
+
 function testStyleSheets()
 {
 	if(document.styleSheets.length >= 29)
 	{
-		window.location.reload();
+		if(lastStyleSheetsNumber != document.styleSheets.length)
+		{ 
+			window.location.reload();
+		}
+		lastStyleSheetsNumber = document.styleSheets.length;
+	}
+	else
+	{
+		lastStyleSheetsNumber = 0;
 	}
 }
 

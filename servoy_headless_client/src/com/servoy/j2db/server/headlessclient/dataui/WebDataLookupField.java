@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.wicket.Component;
 import org.apache.wicket.IRequestTarget;
 import org.apache.wicket.RequestCycle;
+import org.apache.wicket.Response;
 import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.HeaderContributor;
@@ -137,17 +138,6 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			public void renderHead(IHeaderResponse response)
 			{
 				response.renderCSSReference(new CompressedResourceReference(WebDataLookupField.class, "servoy_lookupfield.css")); //$NON-NLS-1$
-
-				StringBuffer headerStyle = new StringBuffer();
-				headerStyle.append("<style type=\"text/css\"> ");
-				headerStyle.append("#" + getMarkupId() + "-autocomplete.wicket-aa" + " { ");
-				headerStyle.append("font-family: \"Lucida Grande\",\"Lucida Sans Unicode\",Tahoma,Verdana; ");
-				headerStyle.append("font-size: " + (getFont() == null ? "12" : new Integer(getFont().getSize())) + "px; ");
-				headerStyle.append("background-color: white; ");
-				headerStyle.append("padding: 2px; ");
-				headerStyle.append("text-align:left; } ");
-				headerStyle.append("</style>");
-				response.renderString(headerStyle.toString());
 			}
 		})
 		{
@@ -189,6 +179,21 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 				if (!HtmlUtils.hasHtmlTag(str)) str = HtmlUtils.escapeMarkup(str, true, false).toString();
 				if (str.trim().equals("")) str = "&nbsp;"; //$NON-NLS-1$//$NON-NLS-2$
 				return str;
+			}
+
+			@Override
+			protected void renderChoice(Object object, Response response, String criteria)
+			{
+				int fontSize = (getFont() == null ? 12 : getFont().getSize());
+				if (fontSize != 12)
+				{
+					response.write("<font style='font-size: " + fontSize + "px'>");
+				}
+				super.renderChoice(object, response, criteria);
+				if (fontSize != 12)
+				{
+					response.write("</font>");
+				}
 			}
 		};
 		AutoCompleteBehavior<Object> beh = new AutoCompleteBehavior<Object>(renderer, behSettings)
