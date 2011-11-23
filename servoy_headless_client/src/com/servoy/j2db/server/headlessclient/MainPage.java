@@ -1213,7 +1213,8 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 	public void setShowURLCMD(String url, String target, String target_options, int timeout, boolean closeDialogs)
 	{
-		showUrlInfo = new ShowUrlInfo(url, target, target_options, timeout, closeDialogs);
+		showUrlInfo = new ShowUrlInfo(url, target, target_options, timeout, closeDialogs, url.equals(urlFor(serveResourceReference)) ? target == null ||
+			target.equals("_self") ? true : false : false); //$NON-NLS-1$
 	}
 
 	/**
@@ -1224,46 +1225,47 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		return showUrlInfo;
 	}
 
+	@SuppressWarnings("nls")
 	public static String getShowUrlScript(ShowUrlInfo showUrlInfo)
 	{
 		if (showUrlInfo != null)
 		{
-			if (showUrlInfo.target.equalsIgnoreCase("_close")) //$NON-NLS-1$
+			if (showUrlInfo.target.equalsIgnoreCase("_close"))
 			{
-				return "window.close();window.opener.location.reload(true)"; //$NON-NLS-1$
+				return "window.close();window.opener.location.reload(true)";
 			}
-			else if (showUrlInfo.target.equalsIgnoreCase("_self")) //$NON-NLS-1$
+			else if (showUrlInfo.target.equalsIgnoreCase("_self"))
 			{
-				return "showurl('" + showUrlInfo.url + "'," + showUrlInfo.timeout + "," + showUrlInfo.closeDialogs + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				return "showurl('" + showUrlInfo.url + "'," + showUrlInfo.timeout + "," + showUrlInfo.closeDialogs + "," + showUrlInfo.useIFrame + ");";
 			}
-			else if (showUrlInfo.target.equalsIgnoreCase("_top")) //$NON-NLS-1$
+			else if (showUrlInfo.target.equalsIgnoreCase("_top"))
 			{
-				String script = "window.top.location.href='" + showUrlInfo.url + "';"; //$NON-NLS-1$ //$NON-NLS-2$
-				return "window.setTimeout(\"" + script + "\"," + showUrlInfo.timeout + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				String script = "window.top.location.href='" + showUrlInfo.url + "';";
+				return "window.setTimeout(\"" + script + "\"," + showUrlInfo.timeout + ");";
 			}
 			else
 			{
 				StringBuilder script = new StringBuilder();
-				if (!"_blank".equals(showUrlInfo.target)) //$NON-NLS-1$
+				if (!"_blank".equals(showUrlInfo.target))
 				{
-					script.append("if (top.window.frames['" + showUrlInfo.target + "'])"); //$NON-NLS-1$ //$NON-NLS-2$
-					script.append("{top.window.frames['" + showUrlInfo.target + "'].document.location.href = '" + showUrlInfo.url + "';}else{"); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+					script.append("if (top.window.frames['" + showUrlInfo.target + "'])");
+					script.append("{top.window.frames['" + showUrlInfo.target + "'].document.location.href = '" + showUrlInfo.url + "';}else{");
 				}
 				if (showUrlInfo.target_options != null)
 				{
-					script.append("window.open('" + showUrlInfo.url + "','" + showUrlInfo.target + "','" + showUrlInfo.target_options + "');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+					script.append("window.open('" + showUrlInfo.url + "','" + showUrlInfo.target + "','" + showUrlInfo.target_options + "');");
 				}
 				else
 				{
-					script.append("window.open('" + showUrlInfo.url + "','" + showUrlInfo.target + "');"); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+					script.append("window.open('" + showUrlInfo.url + "','" + showUrlInfo.target + "');");
 				}
-				if (!"_blank".equals(showUrlInfo.target)) //$NON-NLS-1$
+				if (!"_blank".equals(showUrlInfo.target))
 				{
-					script.append("}"); //$NON-NLS-1$
+					script.append("}");
 				}
 				if (showUrlInfo.timeout != 0)
 				{
-					return "window.setTimeout(\"" + script + "\"," + showUrlInfo.timeout + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					return "window.setTimeout(\"" + script + "\"," + showUrlInfo.timeout + ");";
 				}
 				return script.toString();
 			}
@@ -1788,16 +1790,19 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		private final String target_options;
 		private final int timeout;
 		private final boolean closeDialogs;
+		private final boolean useIFrame;
 
 		/**
 		 * @param url
 		 * @param target
 		 * @param target_options
 		 * @param timeout
+		 * @param b 
 		 */
-		public ShowUrlInfo(String url, String target, String target_options, int timeout, boolean closeDialogs)
+		public ShowUrlInfo(String url, String target, String target_options, int timeout, boolean closeDialogs, boolean useIFrame)
 		{
 			this.url = url;
+			this.useIFrame = useIFrame;
 			this.target = target == null ? "_blank" : target; //$NON-NLS-1$
 			this.target_options = target_options;
 			this.timeout = timeout * 1000;
