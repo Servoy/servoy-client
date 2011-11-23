@@ -548,23 +548,26 @@ function addListeners(strEvent, callbackUrl, ids, post)
 	}
 }
 
-var lastStyleSheetsNumber = 0;
+var lastStyleSheetsNumber = false;
 
 function testStyleSheets()
 {
-	if(document.styleSheets.length >= 29)
-	{
-		if(lastStyleSheetsNumber != document.styleSheets.length)
-		{ 
-			window.location.reload();
-		}
-		lastStyleSheetsNumber = document.styleSheets.length;
-	}
-	else
-	{
-		lastStyleSheetsNumber = 0;
-	}
+ 	if(document.styleSheets.length >= 29)
+ 	{
+ 		// prevent infinite cycles
+  		if (!lastStyleSheetsNumber )
+  		{
+  			Wicket.Log.info("Too many stylesheets loaded, IE doesn't support this.");
+  			return;
+  		}
+  		window.location.reload();
+ 	} 
+ 	else 
+ 	{
+  		lastStyleSheetsNumber = true;
+ 	}
 }
+
 
 function setStatusText(str)
 {
