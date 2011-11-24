@@ -48,9 +48,9 @@ public class FoundSetEvent extends EventObject
 	public static final int FOUNDSET_INVALIDATED = 13;
 
 	/**
-	 * The foundset's multiSelect property changed.
+	 * Change related to multiSelect property.
 	 */
-	public static final int SELECTION_MODE_CHANGE = 14;
+	public static final int SELECTION_MODE_CHANGE = 14; // currently only used to broadcast foundset multiselect unpin/lower pinLevel events, but can be extended with change type if needed
 
 	/**
 	 * Change type data is inserted when type is CONTENTS_CHANGED.

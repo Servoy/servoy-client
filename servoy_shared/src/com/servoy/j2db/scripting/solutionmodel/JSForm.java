@@ -2810,7 +2810,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	/**
 	 * Returns the value of the form's selectionMode property.
 	 * Selection mode is applied when necessary to the foundset used by the form (through it's multiSelect property), even if the foundset changes.
-	 * If two or more forms with non-default and different selectionMode values share the same foundset, the first form that applies it's selectionMode wins.
+	 * If two or more forms with non-default and different selectionMode values share the same foundset, the visible one decides.
+	 * If two or more non-visible forms with non-default and different selectionMode values share the same foundset, one of them (always the same from a set of forms) decides.
+	 * If two or more visible forms with non-default and different selectionMode values share the same foundset, one of them (always the same from a set of forms) decides what the
+	 * foundset's selectionMode should be.
 	 * 
 	 * Can be one of SELECTION_MODE_DEFAULT, SELECTION_MODE_SINGLE or SELECTION_MODE_MULTI.
 	 * 
