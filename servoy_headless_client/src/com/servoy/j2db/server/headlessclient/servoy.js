@@ -1479,7 +1479,7 @@ function onAjaxCall()
 		}
 	}
 }
-function showurl(url,timeout,closeDialog)
+function showurl(url,timeout,closeDialog, useIFrame)
 {
 	var win;
 	var mywindow = window;
@@ -1507,8 +1507,24 @@ function showurl(url,timeout,closeDialog)
 			}
 		}
 	}
-
-	mywindow.setTimeout(mywindow.document.location.href=url,timeout)
+	
+	if (useIFrame) {
+		var ifrm = mywindow.frames['srv_downloadframe'];
+		if (ifrm) {
+			ifrm.location = url;
+		}
+		else {
+			ifrm = document.createElement("IFRAME"); 
+		   ifrm.setAttribute("src", url); 
+		   ifrm.setAttribute('id', 'srv_downloadframe');
+		   ifrm.setAttribute('name', 'srv_downloadframe');
+		   ifrm.style.width = 0+"px"; 
+		   ifrm.style.height = 0+"px"; 
+		   mywindow.document.body.appendChild(ifrm);
+		} 
+	} else {
+	  mywindow.setTimeout(mywindow.document.location.href=url,timeout);
+	}
 }
 
 function getPreferredTableSize(startElementId)
