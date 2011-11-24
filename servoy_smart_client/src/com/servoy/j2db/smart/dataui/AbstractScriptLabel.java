@@ -937,26 +937,23 @@ public abstract class AbstractScriptLabel extends JLabel implements ISkinnable, 
 				@Override
 				public void mouseReleased(final MouseEvent e)
 				{
-					if (SwingUtilities.isLeftMouseButton(e) && isEnabled())
+					if (SwingUtilities.isLeftMouseButton(e) && isEnabled() && armed)
 					{
-						if (armed && e.getClickCount() == 1)
+						if (doubleClickMouseAdapter != null && e.getClickCount() == 1)
 						{
-							if (doubleClickMouseAdapter != null)
+							clickTimer = new Timer(getClickInterval(), new ActionListener()
 							{
-								clickTimer = new Timer(getClickInterval(), new ActionListener()
+								public void actionPerformed(ActionEvent ev)
 								{
-									public void actionPerformed(ActionEvent ev)
-									{
-										eventExecutor.fireActionCommand(true, AbstractScriptLabel.this, e.getModifiers(), e.getPoint());
-									}
-								});
-								clickTimer.setRepeats(false); //after expiring once, stop the timer
-								clickTimer.start();
-							}
-							else
-							{
-								eventExecutor.fireActionCommand(true, AbstractScriptLabel.this, e.getModifiers(), e.getPoint());
-							}
+									eventExecutor.fireActionCommand(true, AbstractScriptLabel.this, e.getModifiers(), e.getPoint());
+								}
+							});
+							clickTimer.setRepeats(false); //after expiring once, stop the timer
+							clickTimer.start();
+						}
+						else
+						{
+							eventExecutor.fireActionCommand(true, AbstractScriptLabel.this, e.getModifiers(), e.getPoint());
 						}
 					}
 				}
