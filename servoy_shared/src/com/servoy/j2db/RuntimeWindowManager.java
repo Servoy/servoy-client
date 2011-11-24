@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.servoy.j2db.FormManager.History;
+import com.servoy.j2db.plugins.IPlugin;
 import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.util.Utils;
@@ -109,7 +110,7 @@ public abstract class RuntimeWindowManager
 	{
 		String oldName = this.currentWindowName;
 		this.currentWindowName = currentWindowName;
-		J2DBGlobals.firePropertyChange(application, "currentWindow", oldName, currentWindowName); //$NON-NLS-1$
+		J2DBGlobals.firePropertyChange(application, IPlugin.PROPERTY_CURRENT_WINDOW, oldName, currentWindowName);
 	}
 
 	public RuntimeWindow getCurrentWindow()
