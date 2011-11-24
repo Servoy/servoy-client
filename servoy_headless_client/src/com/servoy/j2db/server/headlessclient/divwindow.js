@@ -226,6 +226,18 @@ Wicket.Object.extendClass(Wicket.DivWindow, Wicket.Window, {
 		// do close the window
 		this._super.close.call(this, force);
 	},
+	
+	loadPosition: function() {
+		this._super.loadPosition.call(this);
+
+		var w = window.innerWidth || document.body.offsetWidth;
+		var h = window.innerHeight || document.body.offsetHeight
+		
+		if ( (parseInt(this.window.style.left) + parseInt(this.window.style.width)) > parseInt(w) ||
+		 (parseInt(this.window.style.top) + parseInt(this.content.style.height)) > parseInt(h) ) {
+			this.center();
+		}
+	},
 
 	// override
 	adjustOpenWindowsStatusAndZIndexesOnClose: function() {
