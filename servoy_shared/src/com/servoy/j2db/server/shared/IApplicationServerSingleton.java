@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServlet;
 import com.servoy.j2db.IBeanManager;
 import com.servoy.j2db.IBeanManagerInternal;
 import com.servoy.j2db.IDebugClientHandler;
-import com.servoy.j2db.ILAFManager;
+import com.servoy.j2db.ILAFManagerInternal;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.persistence.AbstractRepository;
 import com.servoy.j2db.persistence.IDeveloperRepository;
@@ -67,7 +67,7 @@ public interface IApplicationServerSingleton
 
 	IPluginManagerInternal getPluginManager();
 
-	ILAFManager getLafManager();
+	ILAFManagerInternal getLafManager();
 
 	IBeanManagerInternal getBeanManager();
 
