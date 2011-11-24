@@ -135,8 +135,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	public final String NO_RECORD;
 	public final String NO_ACCESS;
 
-	protected FoundSetManager fsm;
-	protected RowManager rowManager;
+	protected final FoundSetManager fsm;
+	protected final RowManager rowManager;
 	protected boolean findMode = false;
 	private List<IFoundSetEventListener> foundSetEventListeners = new ArrayList<IFoundSetEventListener>();
 	private List<IModificationListener> aggregateModificationListeners = new ArrayList<IModificationListener>();
@@ -180,7 +180,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		if (sheet == null)
 		{
-			throw new IllegalArgumentException(fsm.getApplication().getI18NMessage("servoy.foundSet.error.sqlsheet")); //$NON-NLS-1$
+			throw new IllegalArgumentException(app.getApplication().getI18NMessage("servoy.foundSet.error.sqlsheet")); //$NON-NLS-1$
 		}
 		fsm = (FoundSetManager)app;
 		pksAndRecords = new PksAndRecordsHolder(fsm.chunkSize);
@@ -4209,7 +4209,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 	}
 
-	protected void fireFoundSetEvent(@SuppressWarnings("unused") int firstRow, @SuppressWarnings("unused") int lastRow, int changeType)
+	protected void fireFoundSetEvent(@SuppressWarnings("unused")
+	int firstRow, @SuppressWarnings("unused")
+	int lastRow, int changeType)
 	{
 		if (foundSetEventListeners.size() > 0)
 		{
