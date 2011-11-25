@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting.solutionmodel;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -32,7 +32,7 @@ public class PRINTSLIDING implements IPrefixedConstantsObject
 	 * maintain its designtime location and size.
 	 * 
 	 * @sample
-	 * var form = solutionModel.newForm('printForm', 'example_data', 'parent_table', 'null', false, 400, 300);
+	 * var form = solutionModel.newForm('printForm', 'db:/example_data/parent_table', null, false, 400, 300);
 	 * var noSlidingLabel = form.newLabel('No sliding -- long text', 10, 10, 30, 20);
 	 * noSlidingLabel.printSliding = SM_PRINT_SLIDING.NO_SLIDING;
 	 * noSlidingLabel.background = 'red';
@@ -58,7 +58,7 @@ public class PRINTSLIDING implements IPrefixedConstantsObject
 	 * if that left neighbor moves or increases/decreases its size.
 	 * 
 	 * @sample
-	 * var form = solutionModel.newForm('printForm', 'example_data', 'parent_table', 'null', false, 400, 300);
+	 * var form = solutionModel.newForm('printForm', 'db:/example_data/parent_table', null, false, 400, 300);
 	 * var growHorizLabel = form.newLabel('Grow horizontal -- long text', 10, 30, 30, 20);
 	 * growHorizLabel.printSliding = SM_PRINT_SLIDING.GROW_WIDTH;
 	 * growHorizLabel.background = 'blue';
@@ -93,7 +93,7 @@ public class PRINTSLIDING implements IPrefixedConstantsObject
 	 * if that neighbor moves or increases/decreases its size.
 	 * 
 	 * @sample
-	 * var form = solutionModel.newForm('printForm', 'example_data', 'parent_table', 'null', false, 400, 300);
+	 * var form = solutionModel.newForm('printForm', 'db:/example_data/parent_table', null, false, 400, 300);
 	 * var growVertLabel = form.newLabel('Grow vertical', 10, 70, 100, 5);
 	 * growVertLabel.printSliding = SM_PRINT_SLIDING.GROW_HEIGHT;
 	 * growVertLabel.background = 'orange';
@@ -116,7 +116,7 @@ public class PRINTSLIDING implements IPrefixedConstantsObject
 	 * content is too large.
 	 * 
 	 * @sample
-	 * var form = solutionModel.newForm('printForm', 'example_data', 'parent_table', 'null', false, 400, 300);
+	 * var form = solutionModel.newForm('printForm', 'db:/example_data/parent_table', null, false, 400, 300);
 	 * var growHorizLabel = form.newLabel('Grow horizontal -- long text', 10, 30, 30, 20);
 	 * growHorizLabel.printSliding = SM_PRINT_SLIDING.GROW_WIDTH;
 	 * growHorizLabel.background = 'blue';
@@ -130,7 +130,7 @@ public class PRINTSLIDING implements IPrefixedConstantsObject
 	 * content is too small.
 	 * 
 	 * @sample
-	 * var form = solutionModel.newForm('printForm', 'example_data', 'parent_table', 'null', false, 400, 300);
+	 * var form = solutionModel.newForm('printForm', 'db:/example_data/parent_table', null, false, 400, 300);
 	 * var shrinkHorizLabel = form.newLabel('Short', 10, 50, 100, 20);
 	 * shrinkHorizLabel.printSliding = SM_PRINT_SLIDING.SHRINK_WIDTH;
 	 * shrinkHorizLabel.background = 'green';
@@ -144,7 +144,7 @@ public class PRINTSLIDING implements IPrefixedConstantsObject
 	 * the content is too large.
 	 * 
 	 * @sample
-	 * var form = solutionModel.newForm('printForm', 'example_data', 'parent_table', 'null', false, 400, 300);
+	 * var form = solutionModel.newForm('printForm', 'db:/example_data/parent_table', null, false, 400, 300);
 	 * var growVertLabel = form.newLabel('Grow vertical', 10, 70, 100, 5);
 	 * growVertLabel.printSliding = SM_PRINT_SLIDING.GROW_HEIGHT;
 	 * growVertLabel.background = 'orange';
@@ -158,7 +158,7 @@ public class PRINTSLIDING implements IPrefixedConstantsObject
 	 * the content is too small.
 	 * 
 	 * @sample
-	 * var form = solutionModel.newForm('printForm', 'example_data', 'parent_table', 'null', false, 400, 300);
+	 * var form = solutionModel.newForm('printForm', 'db:/example_data/parent_table', null, false, 400, 300);
 	 * var shrinkVertLabel = form.newLabel('Shrink vertical', 10, 110, 100, 40);
 	 * shrinkVertLabel.printSliding = SM_PRINT_SLIDING.SHRINK_HEIGHT;
 	 * shrinkVertLabel.background = 'yellow';

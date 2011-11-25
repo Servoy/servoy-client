@@ -53,7 +53,7 @@ public class JSRelationItem extends JSBase<RelationItem> implements IJavaScriptT
 	 * @clonedesc com.servoy.j2db.persistence.RelationItem#getForeignColumnName()
 	 * 
 	 * @sample
-	 * 	var relation = solutionModel.newRelation('parentToChild', 'example_data', 'parent_table', 'example_data', 'child_table', JSRelation.INNER_JOIN);
+	 * 	var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * var criteria = relation.newRelationItem('parent_table_id', '=', 'child_table_parent_id');
 	 * criteria.primaryDataProviderID = 'parent_table_text';
 	 * criteria.foreignColumnName = 'child_table_text';

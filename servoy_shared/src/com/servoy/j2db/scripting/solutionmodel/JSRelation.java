@@ -65,7 +65,7 @@ public class JSRelation implements IJSParent, IConstantsObject
 	 * Constant for set/get the joinType of a JSRelation. It is also used in solutionModel.newRelation(...).
 	 *
 	 * @sample 
-	 * var relation = solutionModel.newRelation('parentToChild', 'example_data', 'parent_table', 'example_data', 'child_table', JSRelation.INNER_JOIN);
+	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * relation.joinType = JSRelation.LEFT_OUTER_JOIN;
 	 */
 	public static final int INNER_JOIN = ISQLJoin.INNER_JOIN;
@@ -142,7 +142,7 @@ public class JSRelation implements IJSParent, IConstantsObject
 	 * and one relation operators (like '=' '!=' '>' '<') must be provided.
 	 *
 	 * @sample 
-	 * var relation = solutionModel.newRelation('parentToChild', 'example_data', 'parent_table', 'example_data', 'child_table', JSRelation.INNER_JOIN);
+	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * relation.newRelationItem('another_parent_table_id', '=', 'another_child_table_parent_id');
 	 *
 	 * @param dataprovider The name of the primary dataprovider. 
@@ -200,7 +200,7 @@ public class JSRelation implements IJSParent, IConstantsObject
 	 * Removes the desired relation item from the specified relation.
 	 * 
 	 * @sample
-	 * var relation = solutionModel.newRelation('myRelation', 'myServer', 'parentTable', 'myServer', 'childTable', JSRelation.INNER_JOIN);
+	 * var relation = solutionModel.newRelation('myRelation', 'db:/myServer/parentTable', 'db:/myServer/childTable', JSRelation.INNER_JOIN);
 	 * relation.newRelationItem('someColumn1', '=', 'someColumn2');
 	 * relation.newRelationItem('anotherColumn', '=', 'someOtherColumn');
 	 * relation.removeRelationItem('someColumn1', '=', 'someColumn2');
@@ -250,7 +250,7 @@ public class JSRelation implements IJSParent, IConstantsObject
 	 * @clonedesc com.servoy.j2db.persistence.Relation#getAllowCreationRelatedRecords()
 	 * 
 	 * @sample
-	 * var relation = solutionModel.newRelation('parentToChild', 'example_data', 'parent_table', 'example_data', 'child_table', JSRelation.INNER_JOIN);
+	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * relation.allowCreationRelatedRecords = true;
 	 */
 	public boolean js_getAllowCreationRelatedRecords()
@@ -262,7 +262,7 @@ public class JSRelation implements IJSParent, IConstantsObject
 	 * @clonedesc com.servoy.j2db.persistence.Relation#getAllowParentDeleteWhenHavingRelatedRecords()
 	 * 
 	 * @sample
-	 * var relation = solutionModel.newRelation('parentToChild', 'example_data', 'parent_table', 'example_data', 'child_table', JSRelation.INNER_JOIN);
+	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * relation.allowParentDeleteWhenHavingRelatedRecords = false;
 	 */
 	public boolean js_getAllowParentDeleteWhenHavingRelatedRecords()
@@ -274,7 +274,7 @@ public class JSRelation implements IJSParent, IConstantsObject
 	 * @clonedesc com.servoy.j2db.persistence.Relation#getDeleteRelatedRecords()
 	 * 
 	 * @sample
-	 * var relation = solutionModel.newRelation('parentToChild', 'example_data', 'parent_table', 'example_data', 'child_table', JSRelation.INNER_JOIN);
+	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * relation.deleteRelatedRecords = true;
 	 */
 	public boolean js_getDeleteRelatedRecords()
@@ -324,7 +324,7 @@ public class JSRelation implements IJSParent, IConstantsObject
 	 * @clonedesc com.servoy.j2db.persistence.Relation#getInitialSort()
 	 * 
 	 * @sample
-	 * var relation = solutionModel.newRelation('parentToChild', 'example_data', 'parent_table', 'example_data', 'child_table', JSRelation.INNER_JOIN);
+	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * relation.initialSort = 'another_child_table_text asc';
 	 */
 	public String js_getInitialSort()
@@ -346,7 +346,7 @@ public class JSRelation implements IJSParent, IConstantsObject
 	 * @clonedesc com.servoy.j2db.persistence.Relation#getName()
 	 * 
 	 * @sample
-	 * var relation = solutionModel.newRelation('parentToChild', 'example_data', 'parent_table', 'example_data', 'child_table', JSRelation.INNER_JOIN);
+	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * relation.name = 'anotherName';
 	 * var firstTab = tabs.newTab('firstTab', 'Child Form', childForm, relation);
 	 * firstTab.relationName = relation.name;
@@ -360,7 +360,7 @@ public class JSRelation implements IJSParent, IConstantsObject
 	 * The name of the server where the primary table is located.
 	 * 
 	 * @sample
-	 * var relation = solutionModel.newRelation('parentToChild', 'example_data', 'parent_table', 'example_data', 'child_table', JSRelation.INNER_JOIN);
+	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * relation.primaryTableName = 'another_parent_table';
 	 * relation.primaryServerName = 'user_data';
 	 * relation.foreignTableName = 'another_child_table';
@@ -387,7 +387,7 @@ public class JSRelation implements IJSParent, IConstantsObject
 	 * @clonedesc com.servoy.j2db.persistence.Relation#getPrimaryDataSource()
 	 * 
 	 * @sample
-	 * 	var relation = solutionModel.newRelation('parentToChild', 'example_data', 'parent_table', 'example_data', 'child_table', JSRelation.INNER_JOIN);
+	 * 	var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * relation.primaryDataSource = 'db:/user_data/another_parent_table';
 	 * relation.foreignDataSource = 'db:/user_data/another_child_table';
 	 */
@@ -580,7 +580,7 @@ public class JSRelation implements IJSParent, IConstantsObject
 	 * Returns the UUID of the relation object
 	 * 
 	 * @sample
-	 * var relation = solutionModel.newRelation('parentToChild', 'example_data', 'parent_table', 'example_data', 'child_table', JSRelation.INNER_JOIN);
+	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * application.output(relation.getUUID().toString())
 	 */
 	public UUID js_getUUID()

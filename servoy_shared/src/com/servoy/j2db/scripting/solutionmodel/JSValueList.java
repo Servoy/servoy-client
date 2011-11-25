@@ -58,8 +58,7 @@ public class JSValueList implements IConstantsObject
 	 * @sample 
 	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
 	 * vlist.valueListType = JSValueList.DATABASE_VALUES; // Change the type to database values.
-	 * vlist.serverName = 'example_data';
-	 * vlist.tableName = 'parent_table';
+	 * vlist.dataSource = 'db:/example_data/parent_table';
 	 * vlist.setDisplayDataProviderIds('parent_table_text');
 	 * vlist.setReturnDataProviderIds('parent_table_text', 'parent_table_id');
 	 * vlist.separator = ' ## ';
@@ -386,12 +385,11 @@ public class JSValueList implements IConstantsObject
 	 * @clonedesc com.servoy.j2db.persistence.ValueList#getRelationName()
 	 * 
 	 * @sample
-	 * var rel = solutionModel.newRelation('parent_to_child', 'example_data', 'parent_table', 'example_data', 'child_table', JSRelation.INNER_JOIN);
+	 * var rel = solutionModel.newRelation('parent_to_child', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * rel.newRelationItem('parent_table_id', '=', 'child_table_parent_id');
 	 *
 	 * var vlist = solutionModel.newValueList('options', JSValueList.DATABASE_VALUES);
-	 * vlist.serverName = 'example_data';
-	 * vlist.tableName = 'parent_table';
+	 * vlist.dataSource = 'db:/example_data/parent_table';
 	 * vlist.relationName = 'parent_to_child';
 	 * vlist.setDisplayDataProviderIds('child_table_text');
 	 * vlist.setReturnDataProviderIds('child_table_text');
@@ -466,8 +464,7 @@ public class JSValueList implements IConstantsObject
 	 * 
 	 * @sample
 	 * var vlist = solutionModel.newValueList('options', JSValueList.DATABASE_VALUES);
-	 * vlist.serverName = 'example_data';
-	 * vlist.tableName = 'valuelists';
+	 * vlist.dataSource = 'db:/example_data/valuelists';
 	 * vlist.setDisplayDataProviderIds('valuelist_data');
 	 * vlist.setReturnDataProviderIds('valuelist_data');
 	 * vlist.useTableFilter = true;

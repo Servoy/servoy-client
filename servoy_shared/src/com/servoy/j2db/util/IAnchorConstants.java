@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util;
 
 public interface IAnchorConstants
@@ -29,7 +29,7 @@ public interface IAnchorConstants
 	 * This constant is used also for setting tab orientation on tab panels.
 	 * 
 	 * @sample
-	 * var form = solutionModel.newForm('mediaForm', 'example_data', 'parent_table', 'null', false, 400, 300);
+	 * var form = solutionModel.newForm('mediaForm', 'db:/example_data/parent_table', null, false, 400, 300);
 	 * var strechVerticallyLabel = form.newLabel('Strech vertically', 10, 10, 190, 280);
 	 * strechVerticallyLabel.background = 'green';
 	 * strechVerticallyLabel.anchors = SM_ANCHOR.WEST | SM_ANCHOR.NORTH | SM_ANCHOR.SOUTH;
@@ -50,7 +50,7 @@ public interface IAnchorConstants
 	 * This constant is used also for setting tab orientation on tab panels.
 	 * 
 	 * @sample
-	 * var form = solutionModel.newForm('mediaForm', 'example_data', 'parent_table', 'null', false, 400, 300);
+	 * var form = solutionModel.newForm('mediaForm', 'db:/example_data/parent_table', null, false, 400, 300);
 	 * var strechHorizontallyLabel = form.newLabel('Strech horizontally', 10, 10, 380, 140);
 	 * strechHorizontallyLabel.background = 'blue';
 	 * strechHorizontallyLabel.anchors = SM_ANCHOR.NORTH | SM_ANCHOR.WEST | SM_ANCHOR.EAST;
@@ -71,7 +71,7 @@ public interface IAnchorConstants
 	 * This constant is used also for setting tab orientation on tab panels.
 	 * 
 	 * @sample
-	 * var form = solutionModel.newForm('mediaForm', 'example_data', 'parent_table', 'null', false, 400, 300);
+	 * var form = solutionModel.newForm('mediaForm', 'db:/example_data/parent_table', null, false, 400, 300);
 	 * var strechVerticallyLabel = form.newLabel('Strech vertically', 10, 10, 190, 280);
 	 * strechVerticallyLabel.background = 'green';
 	 * strechVerticallyLabel.anchors = SM_ANCHOR.WEST | SM_ANCHOR.NORTH | SM_ANCHOR.SOUTH;
@@ -92,7 +92,7 @@ public interface IAnchorConstants
 	 * This constant is used also for setting tab orientation on tab panels.
 	 * 
 	 * @sample
-	 * var form = solutionModel.newForm('mediaForm', 'example_data', 'parent_table', 'null', false, 400, 300);
+	 * var form = solutionModel.newForm('mediaForm', 'db:/example_data/parent_table', null, false, 400, 300);
 	 * var strechHorizontallyLabel = form.newLabel('Strech horizontally', 10, 10, 380, 140);
 	 * strechHorizontallyLabel.background = 'blue';
 	 * strechHorizontallyLabel.anchors = SM_ANCHOR.NORTH | SM_ANCHOR.WEST | SM_ANCHOR.EAST;
@@ -107,7 +107,7 @@ public interface IAnchorConstants
 	 * It is equivalent to a combination of NORTH and WEST anchoring.
 	 * 
 	 * @sample
-	 * var form = solutionModel.newForm('mediaForm', 'example_data', 'parent_table', 'null', false, 400, 300);
+	 * var form = solutionModel.newForm('mediaForm', 'db:/example_data/parent_table', null, false, 400, 300);
 	 * var stickToTopLeftCornerLabel = form.newLabel('Stick to top-left corner', 10, 10, 200, 100);
 	 * stickToTopLeftCornerLabel.background = 'orange';
 	 * stickToTopLeftCornerLabel.anchors = SM_ANCHOR.DEFAULT;
@@ -121,7 +121,7 @@ public interface IAnchorConstants
 	 * of the window and will grow/shrink as the window is resized.
 	 * 
 	 * @sample
-	 * var form = solutionModel.newForm('mediaForm', 'example_data', 'parent_table', 'null', false, 400, 300);
+	 * var form = solutionModel.newForm('mediaForm', 'db:/example_data/parent_table', null, false, 400, 300);
 	 * var strechAllDirectionsLabel = form.newLabel('Strech all directions', 10, 10, 380, 280);
 	 * strechAllDirectionsLabel.background = 'red';
 	 * strechAllDirectionsLabel.anchors = SM_ANCHOR.ALL;	

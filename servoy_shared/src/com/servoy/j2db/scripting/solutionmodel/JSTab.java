@@ -60,8 +60,8 @@ public class JSTab extends JSBase<Tab> implements IJavaScriptType
 	 * @clonedesc com.servoy.j2db.persistence.Tab#getContainsFormID()
 	 * 
 	 * @sample
-	 * var childForm = solutionModel.newForm('childForm', 'example_data', 'child_table', 'null', false, 400, 300);
-	 * var anotherChildForm = solutionModel.newForm('anotherChildForm', 'example_data', 'child_table', 'null', false, 400, 300);
+	 * var childForm = solutionModel.newForm('childForm', 'db:/example_data/child_table', null, false, 400, 300);
+	 * var anotherChildForm = solutionModel.newForm('anotherChildForm', 'db:/example_data/child_table', null, false, 400, 300);
 	 * var firstTab = tabs.newTab('firstTab', 'Child Form', childForm, relation);
 	 * firstTab.containsForm = anotherChildForm;
 	 */

@@ -65,15 +65,15 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent
 	 *
 	 * @sample 
 	 * // Create a parent form.
-	 * var form = solutionModel.newForm('parentForm', 'example_data', 'parent_table', 'null', false, 640, 480);
+	 * var form = solutionModel.newForm('parentForm', 'db:/example_data/parent_table', null, false, 640, 480);
 	 * // Create a first child form.
-	 * var childOne = solutionModel.newForm('childOne', 'example_data', 'child_table', 'null', false, 400, 300);
+	 * var childOne = solutionModel.newForm('childOne', 'db:/example_data/child_table', null, false, 400, 300);
 	 * childOne.newField('child_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
 	 * // Create a relation to link the parent form to the first child form.
-	 * var parentToChild = solutionModel.newRelation('parentToChild','example_data','parent_table','example_data','child_table',JSRelation.INNER_JOIN);
+	 * var parentToChild = solutionModel.newRelation('parentToChild','db:/example_data/parent_table','db:/example_data/child_table',JSRelation.INNER_JOIN);
 	 * parentToChild.newRelationItem('parent_table_id','=','child_table_parent_id');
 	 * // Create a second child form.
-	 * var childTwo = solutionModel.newForm('childTwo', 'example_data', 'my_table', 'null', false, 400, 300);
+	 * var childTwo = solutionModel.newForm('childTwo', 'db:/example_data/my_table', null, false, 400, 300);
 	 * childTwo.newField('my_table_image', JSField.IMAGE_MEDIA, 10, 10, 100, 100);
 	 * // Create a tab panel and add two tabs to it, with the two child forms.
 	 * var tabPanel = form.newTabPanel('tabs', 10, 10, 620, 460);
@@ -98,15 +98,15 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent
 	 *
 	 * @sample 
 	 * // Create a parent form.
-	 * var form = solutionModel.newForm('parentForm', 'example_data', 'parent_table', 'null', false, 640, 480);
+	 * var form = solutionModel.newForm('parentForm', 'db:/example_data/parent_table', null, false, 640, 480);
 	 * // Create a first child form.
-	 * var childOne = solutionModel.newForm('childOne', 'example_data', 'child_table', 'null', false, 400, 300);
+	 * var childOne = solutionModel.newForm('childOne', 'db:/example_data/child_table', null, false, 400, 300);
 	 * childOne.newField('child_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
 	 * // Create a relation to link the parent form to the first child form.
-	 * var parentToChild = solutionModel.newRelation('parentToChild','example_data','parent_table','example_data','child_table',JSRelation.INNER_JOIN);
+	 * var parentToChild = solutionModel.newRelation('parentToChild','db:/example_data/parent_table','db:/example_data/child_table',JSRelation.INNER_JOIN);
 	 * parentToChild.newRelationItem('parent_table_id','=','child_table_parent_id');
 	 * // Create a second child form.
-	 * var childTwo = solutionModel.newForm('childTwo', 'example_data', 'my_table', 'null', false, 400, 300);
+	 * var childTwo = solutionModel.newForm('childTwo', 'db:/example_data/my_table', null, false, 400, 300);
 	 * childTwo.newField('my_table_image', JSField.IMAGE_MEDIA, 10, 10, 100, 100);
 	 * // Create a tab panel and add two tabs to it, with the two child forms.
 	 * var tabPanel = form.newTabPanel('tabs', 10, 10, 620, 460);

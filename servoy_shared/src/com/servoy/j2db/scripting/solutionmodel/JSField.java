@@ -288,7 +288,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 * @clonedesc com.servoy.j2db.persistence.Field#getText()
 	 * 
 	 * @sample
-	 * var form = solutionModel.newForm('someForm', 'example_data', 'my_table', 'null', false, 640, 480);
+	 * var form = solutionModel.newForm('someForm', 'db:/example_data/my_table', null, false, 640, 480);
 	 * var field = form.newField('my_table_number', JSField.TEXT_FIELD, 10, 10, 100, 20);
 	 * field.titleText = 'Column Title';
 	 * form.view = JSForm.LOCKED_TABLE_VIEW;
@@ -510,7 +510,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 * @clonedesc com.servoy.j2db.persistence.Field#getOnDataChangeMethodID()
 	 * 
 	 * @sample
-	 * var form = solutionModel.newForm('someForm', 'example_data', 'parent_table', 'null', false, 620, 300);
+	 * var form = solutionModel.newForm('someForm', 'db:/example_data/parent_table', null, false, 620, 300);
 	 * var onDataChangeMethod = form.newFormMethod('function onDataChange(oldValue, newValue, event) { application.output("Data changed from " + oldValue + " to " + newValue + " at " + event.getTimestamp()); }');
 	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
 	 * field.onDataChange = onDataChangeMethod;
@@ -560,7 +560,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 * @clonedesc com.servoy.j2db.persistence.Field#getOnFocusGainedMethodID()
 	 * 
 	 * @sample
-	 * var form = solutionModel.newForm('someForm', 'example_data', 'parent_table', 'null', false, 620, 300);
+	 * var form = solutionModel.newForm('someForm', 'db:/example_data'/parent_table', null, false, 620, 300);
 	 * var onFocusLostMethod = form.newFormMethod('function onFocusLost(event) { application.output("Focus lost at " + event.getTimestamp()); }');
 	 * var onFocusGainedMethod = form.newFormMethod('function onFocusGained(event) { application.output("Focus gained at " + event.getTimestamp()); }');
 	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
