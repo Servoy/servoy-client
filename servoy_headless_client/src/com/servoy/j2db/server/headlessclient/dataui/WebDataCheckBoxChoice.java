@@ -36,7 +36,6 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.border.Border;
 import javax.swing.text.Document;
 
-import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.markup.ComponentTag;
@@ -45,7 +44,6 @@ import org.apache.wicket.markup.html.form.CheckBoxMultipleChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
@@ -134,14 +132,6 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 			}
 		});
 
-		add(new AttributeModifier("readonly", true, new Model<String>() //$NON-NLS-1$
-			{
-				@Override
-				public String getObject()
-				{
-					return (isEnabled() ? AttributeModifier.VALUELESS_ATTRIBUTE_REMOVE : AttributeModifier.VALUELESS_ATTRIBUTE_ADD);
-				}
-			}));
 		add(StyleAttributeModifierModel.INSTANCE);
 		add(TooltipAttributeModifier.INSTANCE);
 
@@ -366,7 +356,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 	public void setEditable(boolean b)
 	{
 		editState = b;
-		setEnabled(b);
+		editable = b;
 	}
 
 	/**
@@ -753,6 +743,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 	}
 
 	private boolean editState;
+	private boolean editable = true;
 
 	public void js_setReadOnly(boolean b)
 	{
@@ -770,7 +761,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 
 	public boolean isReadOnly()
 	{
-		return !isEnabled();
+		return !editable;
 	}
 
 
@@ -1070,7 +1061,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 
 	public void setComponentEnabled(final boolean b)
 	{
-		if (accessible)
+		if (accessible || !b)
 		{
 			super.setEnabled(b);
 			jsChangeRecorder.setChanged();
@@ -1221,5 +1212,16 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 			// If form validation fails, we don't execute the method.
 			if (f.process()) eventExecutor.onEvent(JSEvent.EventType.rightClick, null, this, IEventExecutor.MODIFIERS_UNSPECIFIED);
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.wicket.markup.html.form.AbstractChoice#isDisabled(java.lang.Object, int, java.lang.String)
+	 */
+	@Override
+	protected boolean isDisabled(Object object, int index, String selected)
+	{
+		return isReadOnly();
 	}
 }
