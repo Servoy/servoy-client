@@ -90,7 +90,7 @@ public class JSSolutionModel
 	 * NOTE: See the JSForm node for more information about form objects that can be added to the new form. 
 	 *
 	 * @sample
-	 * var myForm = solutionModel.newForm('newForm', 'myServer', 'myTable', 'myStyleName', false, 800, 600)
+	 * var myForm = solutionModel.newForm('newForm', 'my_server', 'my_table', 'myStyleName', false, 800, 600)
 	 * //With only a datasource:
 	 * //var myForm = solutionModel.newForm('newForm', datasource, 'myStyleName', false, 800, 600)
 	 * //now you can add stuff to the form (under JSForm node)
@@ -127,7 +127,7 @@ public class JSSolutionModel
 	 * NOTE: See the JSForm node for more information about form objects that can be added to the new form. 
 	 *
 	 * @sample
-	 * var myForm = solutionModel.newForm('newForm', 'myServer', 'myTable', 'myStyleName', false, 800, 600)
+	 * var myForm = solutionModel.newForm('newForm', 'db:/my_server/my_table', 'myStyleName', false, 800, 600)
 	 * //now you can add stuff to the form (under JSForm node)
 	 * //add a label
 	 * myForm.newLabel('Name', 20, 20, 120, 30)
@@ -174,7 +174,7 @@ public class JSSolutionModel
 	 * 
 	 * @sample
 	 * //creates 2 forms with elements on them; shows the parent form, waits 2 seconds and shows the child form
-	 * var mySuperForm = solutionModel.newForm('mySuperForm', 'myServerName', 'myTableName', null, false, 800, 600);
+	 * var mySuperForm = solutionModel.newForm('mySuperForm', 'db:/my_server/my_table', null, false, 800, 600);
 	 * var label1 = mySuperForm.newLabel('LabelName', 20, 20, 120, 30);
 	 * label1.text = 'DataProvider';
 	 * label1.background = 'red';
@@ -236,7 +236,7 @@ public class JSSolutionModel
 	 * NOTE: Will throw an exception if a style with that name already exists.  
 	 * 
 	 * @sample
-	 * 	var form = solutionModel.newForm('myForm','myServer','myTable',null,true,1000,800);
+	 * 	var form = solutionModel.newForm('myForm','db:/my_server/my_table',null,true,1000,800);
 	 * 	if (form.transparent == false)
 	 * 	{
 	 * 		var style = solutionModel.newStyle('myStyle','form { background-color: yellow; }');
@@ -1230,7 +1230,7 @@ public class JSSolutionModel
 	 * @deprecated  As of release 6.0, deprecated because of ambigous parameters.
 	 * 
 	 * @sample 
-	 * var rel = solutionModel.newRelation('myRelation','myPrimaryServerName','myPrimaryTableName','myForeignServerName','myForeignTableName',JSRelation.INNER_JOIN);
+	 * var rel = solutionModel.newRelation('myRelation', myPrimaryServerName, myPrimaryTableName, myForeignServerName, myForeignTableName, JSRelation.INNER_JOIN);
 	 * application.output(rel.getRelationItems()); 
 	 *
 	 * @param name the specified name of the new relation
@@ -1261,7 +1261,7 @@ public class JSSolutionModel
 	 * @deprecated  As of release 6.0, deprecated because of ambigous parameters.
 	 * 
 	 * @sample 
-	 * var rel = solutionModel.newRelation('myRelation','myPrimaryServerName','myPrimaryTableName','myForeignServerName','myForeignTableName',JSRelation.INNER_JOIN);
+	 * var rel = solutionModel.newRelation('myRelation', myPrimaryServerName, myPrimaryTableName, myForeignServerName, myForeignTableName, JSRelation.INNER_JOIN);
 	 * application.output(rel.getRelationItems()); 
 	 *
 	 * @param name the specified name of the new relation
@@ -1285,11 +1285,8 @@ public class JSSolutionModel
 			return js_newRelation(name, DataSourceUtils.createDBTableDataSource(primaryDataSourceOrServer, primaryTableNameOrForeignServer),
 				foreignDataSourceOrTable, joinType);
 		}
-		else
-		{
-			return js_newRelation(name, primaryDataSourceOrServer,
-				DataSourceUtils.createDBTableDataSource(primaryTableNameOrForeignServer, foreignDataSourceOrTable), joinType);
-		}
+		return js_newRelation(name, primaryDataSourceOrServer,
+			DataSourceUtils.createDBTableDataSource(primaryTableNameOrForeignServer, foreignDataSourceOrTable), joinType);
 	}
 
 
@@ -1297,7 +1294,7 @@ public class JSSolutionModel
 	 * Creates a new JSRelation Object with a specified name; includes the primary datasource, foreign datasource and the type of join for the new relation.
 	 *
 	 * @sample 
-	 * var rel = solutionModel.newRelation('myRelation','myPrimaryDataSource','myForeignDataSource',JSRelation.INNER_JOIN);
+	 * var rel = solutionModel.newRelation('myRelation', myPrimaryDataSource, myForeignDataSource, JSRelation.INNER_JOIN);
 	 * application.output(rel.getRelationItems()); 
 	 *
 	 * @param name the specified name of the new relation

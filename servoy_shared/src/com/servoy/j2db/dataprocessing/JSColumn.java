@@ -157,7 +157,7 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	 * Get the data provider id for this column (which is the same as name if not explicitly defined otherwise).
 	 *
 	 * @sample
-	 * var table = databaseManager.getTable('example_data', 'orders')
+	 * var table = databaseManager.getTable('db:/example_data/orders')
 	 * var column = table.getColumn('customerid')
 	 * var dataProviderId = column.getDataProviderID()
 	 * 
@@ -172,7 +172,7 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	 * Get the name of the column as known by the database.
 	 *
 	 * @sample
-	 * var table = databaseManager.getTable('example_data', 'orders')
+	 * var table = databaseManager.getTable('db:/example_data/orders')
 	 * var column = table.getColumn('customerid')
 	 * var sqlName = column.getSQLName()
 	 * 
@@ -188,7 +188,7 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	 * The name is quoted, if necessary, as defined by the actual database used.
 	 * 
 	 * @sample
-	 * var table = databaseManager.getTable('example_data', 'orders')
+	 * var table = databaseManager.getTable('db:/example_data/orders')
 	 * var column = table.getColumn('customerid')
 	 * var qualifiedSqlName = column.getQualifiedName()
 	 * 
@@ -244,7 +244,7 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	 *  - JSColumn.MEDIA
 	 *
 	 * @sample
-	 * var table = databaseManager.getTable('example_data', 'orders')
+	 * var table = databaseManager.getTable('db:/example_data/orders')
 	 * var column = table.getColumn('customerid')
 	 * switch (column.getType())
 	 * {
@@ -272,7 +272,7 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	 * @see com.servoy.j2db.dataprocessing.JSColumn#js_getType()
 	 *
 	 * @sample
-	 * var table = databaseManager.getTable('example_data', 'orders')
+	 * var table = databaseManager.getTable('db:/example_data/orders')
 	 * var column = table.getColumn('customerid')
 	 * var typeName = column.getTypeAsString()
 	 * 
@@ -289,7 +289,7 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	 *  - JSColumn.EXCLUDED_COLUMN
 	 *  
 	 * @sample
-	 * var table = databaseManager.getTable('example_data', 'orders')
+	 * var table = databaseManager.getTable('db:/example_data/orders')
 	 * var column = table.getColumn('customerid')
 	 * if (column.hasFlag(JSColumn.UUID_COLUMN))
 	 * {
@@ -315,7 +315,7 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	 *  - JSColumn.UUID_GENERATOR;
 	 *
 	 * @sample
-	 * var table = databaseManager.getTable('example_data', 'orders')
+	 * var table = databaseManager.getTable('db:/example_data/orders')
 	 * var column = table.getColumn('customerid')
 	 * switch (column.getSequenceType())
 	 * {
@@ -352,7 +352,7 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	 * Get the allow-null flag of the column.
 	 * 
 	 * @sample
-	 * var table = databaseManager.getTable('example_data', 'orders')
+	 * var table = databaseManager.getTable('db:/example_data/orders')
 	 * var column = table.getColumn('customerid')
 	 * if (!column.getAllowNull())
 	 * {
@@ -370,7 +370,7 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	 * Get the length of the column as reported by the JDBC driver.
 	 * 
 	 * @sample
-	 * var table = databaseManager.getTable('example_data', 'orders')
+	 * var table = databaseManager.getTable('db:/example_data/orders')
 	 * var column = table.getColumn('customername')
 	 * if (column.getLength() < 10)
 	 * {
@@ -388,7 +388,7 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	 * Get the scale of the column as reported by the JDBC driver.
 	 * 
 	 * @sample
-	 * var table = databaseManager.getTable('example_data', 'orders')
+	 * var table = databaseManager.getTable('db:/example_data/orders')
 	 * var column = table.getColumn('customername')
 	 * var scale = column.getScale()
 	 * 
@@ -418,7 +418,7 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	 *  - JSColumn.NONE
 	 *
 	 * @sample
-	 * var table = databaseManager.getTable('example_data', 'orders')
+	 * var table = databaseManager.getTable('db:/example_data/orders')
 	 * var column = table.getColumn('customerid')
 	 * switch (column.getRowIdentifierType())
 	 * {
@@ -463,7 +463,7 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_mergeRecords(Object[])
 	 *
 	 * @sample
-	 * var table = databaseManager.getTable('example_data', 'orders')
+	 * var table = databaseManager.getTable('db:/example_data/orders')
 	 * var column = table.getColumn('customerid')
 	 * var foreignType = column.getForeignType()
 	 * if (foreignType != null)
@@ -483,7 +483,7 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	 * Get the title property of the column.
 	 * 
 	 * @sample
-	 * var table = databaseManager.getTable('example_data', 'orders')
+	 * var table = databaseManager.getTable('db:/example_data/orders')
 	 * var column = table.getColumn('customername')
 	 * var title = column.getTitle()
 	 * 
@@ -498,7 +498,7 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	 * Get the description property of the column.
 	 * 
 	 * @sample
-	 * var table = databaseManager.getTable('example_data', 'orders')
+	 * var table = databaseManager.getTable('db:/example_data/orders')
 	 * var column = table.getColumn('customername')
 	 * var desc = column.getDescription()
 	 * 

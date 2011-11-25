@@ -118,7 +118,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getPrintSliding()
 	 * 
 	 * @sample
-	 * var form = solutionModel.newForm('printForm', 'example_data', 'parent_table', 'null', false, 400, 300);
+	 * var form = solutionModel.newForm('printForm', 'db:/example_data/parent_table', null, false, 400, 300);
 	 * var slidingLabel = form.newLabel('Some long text here', 10, 10, 5, 5);
 	 * slidingLabel.printSliding = SM_PRINT_SLIDING.GROW_HEIGHT | SM_PRINT_SLIDING.GROW_WIDTH;
 	 * slidingLabel.background = 'gray';
@@ -134,7 +134,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getStyleClass()
 	 * 
 	 * @sample
-	 * var form = solutionModel.newForm('printForm', 'example_data', 'parent_table', 'null', false, 400, 300);
+	 * var form = solutionModel.newForm('printForm', 'db:/example_data/parent_table', null, false, 400, 300);
 	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
 	 * var style = solutionModel.newStyle('myStyle','field.fancy { background-color: yellow; }');
 	 * form.styleName = 'myStyle'; // First set the style on the form.
@@ -170,7 +170,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getAnchors()
 	 * 
 	 * @sample
-	 * var form = solutionModel.newForm('mediaForm', 'example_data', 'parent_table', 'null', false, 400, 300);
+	 * var form = solutionModel.newForm('mediaForm', 'db:/example_data/parent_table', null, false, 400, 300);
 	 * var strechAllDirectionsLabel = form.newLabel('Strech all directions', 10, 10, 380, 280);
 	 * strechAllDirectionsLabel.background = 'red';
 	 * strechAllDirectionsLabel.anchors = SM_ANCHOR.ALL;	
@@ -247,7 +247,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getName()
 	 * 
 	 * @sample
-	 * var form = solutionModel.newForm('someForm', 'example_data', 'parent_table', 'null', false, 620, 300);
+	 * var form = solutionModel.newForm('someForm', 'db:/example_data/parent_table', null, false, 620, 300);
 	 * var label = form.newLabel('Label', 10, 10, 150, 150);
 	 * label.name = 'myLabel'; // Give a name to the component.
 	 * forms['someForm'].controller.show()
@@ -263,7 +263,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getPrintable()
 	 * 
 	 * @sample
-	 * var form = solutionModel.newForm('printForm', 'example_data', 'parent_table', 'null', false, 400, 300);
+	 * var form = solutionModel.newForm('printForm', 'db:/example_data/parent_table', null, false, 400, 300);
 	 * var printedField = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
 	 * var notPrintedField = form.newField('parent_table_id', JSField.TEXT_FIELD, 10, 40, 100, 20);
 	 * notPrintedField.printable = false; // This field won't show up in print preview and won't be printed.
@@ -278,7 +278,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getEnabled()
 	 * 
 	 * @sample
-	 * var form = solutionModel.newForm('printForm', 'example_data', 'parent_table', 'null', false, 400, 300);
+	 * var form = solutionModel.newForm('printForm', 'db:/example_data/parent_table', null, false, 400, 300);
 	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
 	 * field.enabled = false;
 	 */
@@ -291,7 +291,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getVisible()
 	 * 
 	 * @sample
-	 * var form = solutionModel.newForm('printForm', 'example_data', 'parent_table', 'null', false, 400, 300);
+	 * var form = solutionModel.newForm('printForm', 'db:/example_data/parent_table', null, false, 400, 300);
 	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
 	 * field.visible = false;
 	 */
@@ -335,7 +335,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * The group id should be a javascript compatible identifier to allow access of the group in scripting.
 	 *
 	 * @sample 
-	 * var form = solutionModel.newForm('someForm', 'example_data', 'parent_table', 'null', false, 400, 300);
+	 * var form = solutionModel.newForm('someForm', 'db:/example_data/parent_table', null, false, 400, 300);
 	 * var label = form.newLabel('Green', 10, 10, 100, 20);
 	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 40, 100, 20);
 	 * label.groupID = 'someGroup';

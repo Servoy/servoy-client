@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting.solutionmodel;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -29,7 +29,7 @@ public class DEFAULTS implements IPrefixedConstantsObject
 	 * Constant used in various places to set properties to their default value.
 	 * 
 	 * @sample
-	 * var form = solutionModel.newForm('parentForm', 'example_data', 'parent_table', 'null', false, 1200, 800);
+	 * var form = solutionModel.newForm('parentForm', 'db:/example_data/parent_table', null, false, 1200, 800);
 	 * form.navigator = SM_DEFAULTS.DEFAULT; // Show the default navigator on the form.
 	 */
 	public static final int DEFAULT = 0;
@@ -38,7 +38,7 @@ public class DEFAULTS implements IPrefixedConstantsObject
 	 * Constant used in various places to set properties to "none".
 	 * 
 	 * @sample
-	 * var form = solutionModel.newForm('parentForm', 'example_data', 'parent_table', 'null', false, 1200, 800);
+	 * var form = solutionModel.newForm('parentForm', 'db:/example_data/parent_table', null, false, 1200, 800);
 	 * form.navigator = SM_DEFAULTS.NONE; // Hide the navigator on the form.
 	 */
 	public static final int NONE = -1;
@@ -64,7 +64,7 @@ public class DEFAULTS implements IPrefixedConstantsObject
 	 * Constants used for setting commands to "default".
 	 * 
 	 * @sample
-	 * var form = solutionModel.newForm('parentForm', 'example_data', 'parent_table', 'null', false, 1200, 800);
+	 * var form = solutionModel.newForm('parentForm', 'db:/example_data/parent_table', null, false, 1200, 800);
 	 * form.onFindCmd = SM_DEFAULTS.COMMAND_DEFAULT; // This makes the find work like it does by default.
 	 */
 	public static final JSMethod COMMAND_DEFAULT = new JSMethod();
@@ -73,7 +73,7 @@ public class DEFAULTS implements IPrefixedConstantsObject
 	 * Constant used for setting commands to "none".
 	 * 
 	 * @sample
-	 * var form = solutionModel.newForm('parentForm', 'example_data', 'parent_table', 'null', false, 1200, 800);
+	 * var form = solutionModel.newForm('parentForm', 'db:/example_data/parent_table', null, false, 1200, 800);
 	 * form.onFindCmd = SM_DEFAULTS.COMMAND_NONE; // This disables the find on the form.
 	 */
 	public static final JSMethod COMMAND_NONE = new JSMethod();
