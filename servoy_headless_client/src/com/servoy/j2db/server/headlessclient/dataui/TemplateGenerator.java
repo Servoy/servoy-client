@@ -702,6 +702,11 @@ public class TemplateGenerator
 										// make sure all border attributes are removed
 										styleObj.remove(att.toString());
 									}
+									for (String extendedStyleAttribute : FixedStyleSheet.borderAttributesExtensions)
+									{
+										// make sure all border attributes are removed
+										styleObj.remove(extendedStyleAttribute);
+									}
 								}
 							}
 							else
