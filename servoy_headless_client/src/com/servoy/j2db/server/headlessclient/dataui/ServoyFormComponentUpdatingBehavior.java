@@ -93,7 +93,8 @@ public class ServoyFormComponentUpdatingBehavior extends ServoyAjaxFormComponent
 	{
 		if (super.isEnabled(comp))
 		{
-			if (!eventExecutor.hasLeaveCmds() || component instanceof DateField || component instanceof CheckBox || component instanceof WebDataComboBox)
+			if (!eventExecutor.hasLeaveCmds() || component instanceof DateField || component instanceof CheckBox || component instanceof WebDataComboBox ||
+				component instanceof WebDataLookupField)
 			{
 				if (comp instanceof IScriptableProvider && ((IScriptableProvider)comp).getScriptObject() instanceof IScriptReadOnlyMethods)
 				{
