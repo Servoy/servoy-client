@@ -438,7 +438,9 @@ public class JSApplication implements IReturnedTypesProvider
 	 * // display all user properties
 	 * allPropertyNames = application.getUserPropertyNames();
 	 * for(var i = 0; i < allPropertyNames.length; i++)
-	 * 		application.output(allPropertyNames[i] + " = " + application.getUserProperty(allPropertyNames[i]));
+	 * {
+	 * 	application.output(allPropertyNames[i] + " = " + application.getUserProperty(allPropertyNames[i]));
+	 * }
 	 * 
 	 * @return Array of all user property names
 	 */
@@ -483,7 +485,6 @@ public class JSApplication implements IReturnedTypesProvider
 	 * application.setUIProperty('ToolTip.hideAccelerator', true)
 	 * //To change the comboboxes selection background color, do this:
 	 * application.setUIProperty('ComboBox.selectionBackground', new Packages.javax.swing.plaf.ColorUIResource(java.awt.Color.RED)) 
-	 * 
 	 * 
 	 * //In web client, use this to change the template directory.
 	 * //To change the default dir of templates/default to templates/green_skin, do this:
@@ -736,7 +737,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 * global_total = 0;
 	 * for( var i = 1 ; i <= dataset.getMaxRowIndex() ; i++ )
 	 * {
-	 * 		global_total = global_total + dataset.getValue(i,1);
+	 * 	global_total = global_total + dataset.getValue(i,1);
 	 * }
 	 * //example to assign to dataprovider
 	 * //employee_salary = dataset.getValue(1,1)
@@ -2347,7 +2348,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 * var qdialog = plugins.dialogs.showQuestionDialog("QuestionDialog","Do you want to close the windows?","Yes","No");
 	 * if (qdialog == "Yes") {
 	 * 	application.closeAllWindows();
-	 *  controller.show(null);
+	 * 	controller.show(null);
 	 * }
 	 * 
 	 * @return Boolean true if all windows were closed and false otherwise.
@@ -2650,7 +2651,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 * //set a global called scopes.globals.showPrintPreview to 1 in the onPrintPreview method
 	 * if (scopes.globals.showPrintPreview == 1)
 	 * {
-	 * scopes.globals.showPrintPreview = 0;//clear for next time
+	 * 	scopes.globals.showPrintPreview = 0;//clear for next time
 	 * 	if (application.isLastPrintPreviewPrinted())
 	 * 	{
 	 * 		plugins.dialogs.showInfoDialog('Alert',  'There is printed in printpreview',  'OK')

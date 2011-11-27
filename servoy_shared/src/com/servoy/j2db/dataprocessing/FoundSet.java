@@ -736,7 +736,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * if (%%prefix%%foundset.find()) //find will fail if autosave is disabled and there are unsaved records
 	 * {
 	 * 	columnTextDataProvider = 'a search value'
-	 *  // for numbers you have to make sure to format it correctly so that the decimal point is in your locales notation (. or ,)
+	 * 	// for numbers you have to make sure to format it correctly so that the decimal point is in your locales notation (. or ,)
 	 * 	columnNumberDataProvider = '>' + utils.numberFormat(anumber, '####.00');
 	 * 	columnDateDataProvider = '31-12-2010|dd-MM-yyyy'
 	 * 	%%prefix%%foundset.search()
@@ -2489,10 +2489,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * var nrRecords = %%prefix%%foundset.getSize()
 	 * 
 	 * // to loop over foundset, recalculate size for each record
-	 * 	for (var i = 1; i <= %%prefix%%foundset.getSize(); i++)
-	 * 	{
-	 * 		var rec = %%prefix%%foundset.getRecord(i);
-	 * 	}
+	 * for (var i = 1; i <= %%prefix%%foundset.getSize(); i++)
+	 * {
+	 * 	var rec = %%prefix%%foundset.getRecord(i);
+	 * }
+	 * 
 	 * @return int current size.
 	 */
 	public int js_getSize()
@@ -4449,9 +4450,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.SELECTION_MODE_CHANGE, FoundSetEvent.CHANGE_UPDATE));
 	}
 
-	protected void fireFoundSetEvent(@SuppressWarnings("unused")
-	int firstRow, @SuppressWarnings("unused")
-	int lastRow, int changeType)
+	protected void fireFoundSetEvent(@SuppressWarnings("unused") int firstRow, @SuppressWarnings("unused") int lastRow, int changeType)
 	{
 		fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.CONTENTS_CHANGED, changeType));
 	}

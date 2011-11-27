@@ -54,7 +54,7 @@ public class JSBaseEvent implements IConstantsObject
 	 * @sample
 	 * if (event.getType() == JSEvent.ACTION) 
 	 * {
-	 *    // its an action event.
+	 * 	// its an action event.
 	 * }	
 	 * 
 	 * @return a String representing the type of this event.

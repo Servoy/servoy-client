@@ -171,9 +171,9 @@ public class JSVariable implements IConstantsObject
 	 * @clonedesc com.servoy.j2db.persistence.ISupportScope#getScopeName()
 	 * 
 	 * @sample 
-	 * 	var globalVariables = solutionModel.getGlobalVariables();
-	 * 	for (var i in globalVariables)
-	 * 		application.output(globalVariables[i].name + ' is defined in scope ' + globalVariables[i].getScopeName());
+	 * var globalVariables = solutionModel.getGlobalVariables();
+	 * for (var i in globalVariables)
+	 * 	application.output(globalVariables[i].name + ' is defined in scope ' + globalVariables[i].getScopeName());
 	 */
 	public String js_getScopeName()
 	{

@@ -227,7 +227,7 @@ public class JSLib
 	/**
 	 * Makes a integer from the starting numbers in a given string in the base specified.
 	 *
-	 * @sample parseInt( 'string' [, base] )
+	 * @sample parseInt('0774' , 8)
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Guide/Predefined_Functions/parseInt_and_parseFloat_Functions
 	 */

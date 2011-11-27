@@ -368,10 +368,10 @@ public class JSWindow implements IConstantsObject
 	 * getWindow.destroy();
 	 * getWindow = application.getWindow("someWindowName");
 	 * if (getWindow == null) {
-	 * 		application.output("Window has been destroyed");
-	 * 	} else { 
-	 * 		application.output("Window could not be destroyed");
-	 * 	}
+	 * 	application.output("Window has been destroyed");
+	 * } else { 
+	 * 	application.output("Window could not be destroyed");
+	 * }
 	 */
 	public void js_destroy()
 	{

@@ -282,7 +282,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	 * //check whatever user is part of the Administrators group
 	 * if(security.isUserMemberOfGroup('Administrators', security.getUserUID('admin')))
 	 * {
-	 * 		// do administration stuff
+	 * 	// do administration stuff
 	 * }
 	 * 
 	 * @param groupName name of the group to check
@@ -302,7 +302,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	 * //check whatever user is part of the Administrators group
 	 * if(security.isUserMemberOfGroup('Administrators', security.getUserUID('admin')))
 	 * {
-	 * 		// do administration stuff
+	 * 	// do administration stuff
 	 * }
 	 * 
 	 * @param groupName name of the group to check
@@ -331,7 +331,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	 * 	application.output("user:" + dsUsers.getValue(i,2));
 	 * 
 	 * 	//set p to the user group for the current user
-	 *  /** @type {JSDataSet} *&#47;
+	 * 	/** @type {JSDataSet} *&#47;
 	 * 	var p = security.getUserGroups(dsUsers.getValue(i,1));
 	 * 
 	 * 	for(k=1;k<=p.getMaxRowIndex();k++)
@@ -369,7 +369,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	 * 	application.output("user:" + dsUsers.getValue(i,2));
 	 * 
 	 * 	//set p to the user group for the current user
-	 *  /** @type {JSDataSet} *&#47;
+	 * 	/** @type {JSDataSet} *&#47;
 	 * 	var p = security.getUserGroups(dsUsers.getValue(i,1));
 	 * 
 	 * 	for(k=1;k<=p.getMaxRowIndex();k++)
@@ -882,13 +882,13 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	 * An alternative option to close a solution and to open another solution, while keeping the user logged in, is application.closeSolution().
 	 *
 	 * @sample
-	 *  //Set the url to go to after logout.
-	 *  //application.showURL('http://www.servoy.com', '_self');  //Web Client only
-	 *  security.logout();
-	 * 	//security.logout('solution_name');//log out and close current solution and open solution 'solution_name'
-	 * 	//security.logout('solution_name','global_method_name','my_argument');//log out, close current solution, open solution 'solution_name', call global method 'global_method_name' with argument 'my_argument'
-	 * 	//Note: specifying a solution will not work in the Developer due to debugger dependencies
-	 *  //specified solution should be of compatible type with client (normal type or client specific(Smart client only/Web client only) type )
+	 * //Set the url to go to after logout.
+	 * //application.showURL('http://www.servoy.com', '_self');  //Web Client only
+	 * security.logout();
+	 * //security.logout('solution_name');//log out and close current solution and open solution 'solution_name'
+	 * //security.logout('solution_name','global_method_name','my_argument');//log out, close current solution, open solution 'solution_name', call global method 'global_method_name' with argument 'my_argument'
+	 * //Note: specifying a solution will not work in the Developer due to debugger dependencies
+	 * //specified solution should be of compatible type with client (normal type or client specific(Smart client only/Web client only) type )
 	 *
 	 * @param solutionToLoad optional the solution to load after logout
 	 * @param method optional the method to run in the solution to load

@@ -299,7 +299,7 @@ public class Math
 	/**
 	 * Returns the greater of two (or more) numbers.
 	 *
-	 * @sample Math.max(number,number[,number])
+	 * @sample Math.max(number,number,number)
 	 * 
 	 * @param value1 
 	 * @param value2 
@@ -307,7 +307,7 @@ public class Math
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Math/max
 	 */
-	public Number js_max(Number value1, Number value2, Number valueN)
+	public Number js_max(Number value1, Number value2, Number... valueN)
 	{
 		return null;
 	}
@@ -315,7 +315,7 @@ public class Math
 	/**
 	 * Returns the lesser of two (or more) numbers.
 	 *
-	 * @sample Math.min(number,number[,number])
+	 * @sample Math.min(number,number,number)
 	 * 
 	 * @param value1 
 	 * @param value2 
@@ -323,7 +323,7 @@ public class Math
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Math/min
 	 */
-	public Number js_min(Number value1, Number value2, Number valueN)
+	public Number js_min(Number value1, Number value2, Number... valueN)
 	{
 		return null;
 	}

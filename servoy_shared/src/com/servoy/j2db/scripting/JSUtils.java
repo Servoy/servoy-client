@@ -192,7 +192,7 @@ public class JSUtils
 	 * @sample
 	 * if(utils.isMondayFirstDayOfWeek())
 	 * {
-	 * //a date calculation
+	 * 	//a date calculation
 	 * }
 	 * @return true if Monday is first day of the week in current locale
 	 */

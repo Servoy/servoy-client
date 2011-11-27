@@ -28,18 +28,18 @@ public interface ISQLActionTypes
 	 * Constant expressing that no SQL action took place.
 	 * 
 	 * @sample
-	 * 	if (action == SQL_ACTION_TYPES.INSERT_ACTION)
-	 * 		application.output("it was an insert");
-	 * 	else if (action == SQL_ACTION_TYPES.DELETE_ACTION)
-	 * 		application.output("it was a delete");
-	 * 	else if (action == SQL_ACTION_TYPES.UPDATE_ACTION)
-	 * 		application.output("it was an update");
-	 * 	else if (action == SQL_ACTION_TYPES.SELECT_ACTION)
-	 * 		application.output("it was a select");
-	 * 	else if (action == SQL_ACTION_TYPES.NO_ACTION)
-	 * 		application.output("it was nothing");
-	 * 	else
-	 * 		application.output("what was this?");
+	 * if (action == SQL_ACTION_TYPES.INSERT_ACTION)
+	 * 	application.output("it was an insert");
+	 * else if (action == SQL_ACTION_TYPES.DELETE_ACTION)
+	 * 	application.output("it was a delete");
+	 * else if (action == SQL_ACTION_TYPES.UPDATE_ACTION)
+	 * 	application.output("it was an update");
+	 * else if (action == SQL_ACTION_TYPES.SELECT_ACTION)
+	 * 	application.output("it was a select");
+	 * else if (action == SQL_ACTION_TYPES.NO_ACTION)
+	 * 	application.output("it was nothing");
+	 * else
+	 * 	application.output("what was this?");
 	 */
 	public static final int NO_ACTION = 0;
 

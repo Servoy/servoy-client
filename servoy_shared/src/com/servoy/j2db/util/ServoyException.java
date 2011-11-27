@@ -509,47 +509,48 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * application.output('MSG: '+ex.getMessage())
 	 * if (ex instanceof ServoyException)
 	 * {
-	 *  /** @type {ServoyException} *&#47;
-	 *  var servoyException = ex;
+	 * 	/** @type {ServoyException} *&#47;
+	 * 	var servoyException = ex;
 	 * 	application.output("is a ServoyException")
 	 * 	application.output("Errorcode: "+servoyException.getErrorCode())
-	 *  var trace = "";
-	 *  if (ex.getScriptStackTrace) trace = servoyException.getScriptStackTrace();
-	 *  else if (servoyException.getStackTrace)  trace = servoyException.getStackTrace();
+	 * 	var trace = "";
+	 * 	if (ex.getScriptStackTrace) trace = servoyException.getScriptStackTrace();
+	 * 	else if (servoyException.getStackTrace)  trace = servoyException.getStackTrace();
 	 * 	if (servoyException.getErrorCode() == ServoyException.SAVE_FAILED)
 	 * 	{
-	 *  		plugins.dialogs.showErrorDialog( 'Error',  'It seems you did not fill in a required field', 'OK');
-	 *  		//Get the failed records after a save
-	 *  		var array = databaseManager.getFailedRecords()
-	 *  		for( var i = 0 ; i < array.length ; i++ )
-	 *  		{
-	 * 			  var record = array[i];
-	 * 			  application.output(record.exception);
-	 * 			  if (record.exception instanceof DataException)
-	 * 			  {
-	 *              /** @type {DataException} *&#47;
-	 *              var dataException = record.exception;
+	 * 		plugins.dialogs.showErrorDialog( 'Error',  'It seems you did not fill in a required field', 'OK');
+	 * 		//Get the failed records after a save
+	 * 		var array = databaseManager.getFailedRecords()
+	 * 		for( var i = 0 ; i < array.length ; i++ )
+	 * 		{
+	 * 			var record = array[i];
+	 * 			application.output(record.exception);
+	 * 			if (record.exception instanceof DataException)
+	 * 			{
+	 * 				/** @type {DataException} *&#47;
+	 * 				var dataException = record.exception;
 	 * 				application.output('SQL: '+dataException.getSQL())
 	 * 				application.output('SQLState: '+dataException.getSQLState())
 	 * 				application.output('VendorErrorCode: '+dataException.getVendorErrorCode())
-	 * 			  }
+	 * 			}
 	 * 		}
 	 * 		return false
 	 * 	}
-	 *  if (ex instanceof ValidationFailedException)
-	 *  {
+	 * 	if (ex instanceof ValidationFailedException)
+	 * 	{
 	 * 		/** @type {ValidationFailedException} *&#47;
-	 *  	var validationException = ex;
-	 *  	application.output('Old value: '+ validationException.getOldValue())
+	 * 		var validationException = ex;
+	 * 		application.output('Old value: '+ validationException.getOldValue())
 	 * 		application.output('New value: '+ validationException.getNewValue())
 	 * 		application.output('Element name: '+ validationException.getEvent().getElementName())
 	 * 		application.output('Form name: '+ validationException.getEvent().getFormName())
 	 * 		return false;
-	 *  }
+	 * 	}
 	 * }
 	 * //if returns false or no return, error is not reported to client; if returns true error is reported
 	 * //by default error report means logging the error, in smart client an error dialog will also show up
 	 * return true
+	 * 
 	 * @return the error code for this ServoyException. Can be one of the constants declared in ServoyException.
 	 */
 	public int js_getErrorCode()

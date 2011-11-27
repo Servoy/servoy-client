@@ -96,7 +96,7 @@ public class String
 	/**
 	 * returns a character of the string.
 	 *
-	 * @sample string.charAt(integer position);
+	 * @sample string.charAt(integer_position);
 	 * 
 	 * @param index 
 	 * 
@@ -110,7 +110,7 @@ public class String
 	/**
 	 * returns a decimal code of the char in the string.
 	 *
-	 * @sample string.charCodeAt(integer position);
+	 * @sample string.charCodeAt(integer_position);
 	 * 
 	 * @param index 
 	 * 
@@ -314,7 +314,7 @@ public class String
 	/**
 	 * returns a substring of the string.
 	 *
-	 * @sample string.slice(start [,end]);
+	 * @sample string.slice(start,end);
 	 * 
 	 * @param beginSlice 
 	 * @param endSlice optional
@@ -341,7 +341,7 @@ public class String
 	/**
 	 * returns an array of objects whose elements are segments of the current string.
 	 *
-	 * @sample string.split(delimiter [,limitInteger]);
+	 * @sample string.split(delimiter,limitInteger);
 	 * 
 	 * @param separator 
 	 * @param limit 
@@ -380,7 +380,7 @@ public class String
 	/**
 	 * returns a substring of the string from the start with the number of chars specified.
 	 *
-	 * @sample string.substr(start [,number of chars]);
+	 * @sample string.substr(start, number_of_chars);
 	 * 
 	 * @param start 
 	 * @param length optional
@@ -395,7 +395,7 @@ public class String
 	/**
 	 * Returns a substring of the string from the start index until the end index.
 	 *
-	 * @sample string.substring(start [,end]);
+	 * @sample string.substring(start, end);
 	 * 
 	 * @param indexA 
 	 * @param indexB optional

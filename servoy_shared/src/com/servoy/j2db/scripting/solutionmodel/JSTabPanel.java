@@ -377,8 +377,6 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 	/**
 	 * sets the tab orientation, use one of the ALIGNMENT constants: SM_ALIGNMENT.TOP,BOTTOM,LEFT,RIGHT
 	 * or use SM_DEFAULTS.NONE to hide the tabs.
-	 *
-	 * @sample 
 	 */
 	public void js_setTabOrientation(int arg)
 	{

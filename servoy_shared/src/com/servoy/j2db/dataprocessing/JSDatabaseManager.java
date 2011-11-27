@@ -152,7 +152,7 @@ public class JSDatabaseManager
 	 * var success = databaseManager.acquireLock(Cust_to_Orders,-1);
 	 * if(!success)
 	 * {
-	 *   plugins.dialogs.showWarningDialog('Alert','Failed to get a lock','OK');
+	 * 	plugins.dialogs.showWarningDialog('Alert','Failed to get a lock','OK');
 	 * }
 	 *
 	 * @param foundset The JSFoundset to get the lock for
@@ -796,8 +796,8 @@ public class JSDatabaseManager
 	 * Column types in the datasource are inferred from the query result.
 	 *
 	 * @sample
-	 *  var query = 'select address, city, country  from customers';
-	 *  var uri = databaseManager.createDataSourceByQuery('mydata', 'example_data', query, null, 999);
+	 * var query = 'select address, city, country  from customers';
+	 * var uri = databaseManager.createDataSourceByQuery('mydata', 'example_data', query, null, 999);
 	 * 
 	 * // the uri can be used to create a form using solution model
 	 * var myForm = solutionModel.newForm('newForm', uri, 'myStyleName', false, 800, 600)
@@ -850,7 +850,7 @@ public class JSDatabaseManager
 	 *
 	 * @sample
 	 * // select customer data for order 1234
-	 * 	/** @type {QBSelect<db:/example_data/customers>} *&#47;
+	 * /** @type {QBSelect<db:/example_data/customers>} *&#47;
 	 * var q = databaseManager.createSelect("db:/example_data/customers")
 	 * q.result.add(q.columns.address).add(q.columns.city).add(q.columns.country)
 	 * q.where.add(q.joins.customers_to_orders.columns.orderid.eq(1234))
@@ -976,20 +976,20 @@ public class JSDatabaseManager
 	 * 
 	 * @sample
 	 * // use the query froma foundset and add a condition
-	 * 	/** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 *  var q = foundset.getQuery()
-	 *  q.where.add(q.joins.orders_to_order_details.columns.discount.eq(2))
-	 *  var maxReturnedRows = 10;//useful to limit number of rows
-	 *  var ds = databaseManager.getDataSetByQuery(q, maxReturnedRows);
+	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
+	 * var q = foundset.getQuery()
+	 * q.where.add(q.joins.orders_to_order_details.columns.discount.eq(2))
+	 * var maxReturnedRows = 10;//useful to limit number of rows
+	 * var ds = databaseManager.getDataSetByQuery(q, maxReturnedRows);
 	 * 
-	 *  // query: select PK from example.book_nodes where parent = 111 and(note_date is null or note_date > now)
-	 *  /** @type {QBSelect<db:/example_data/book_nodes>} *&#47;
-	 *  var query = databaseManager.createSelect('db:/example_data/book_nodes').result.addPk().root
-	 *  query.where.add(query.columns.parent_id.eq(111))
-	 *  .add(query.or
-	 *  .add(query.columns.note_date.isNull)
-	 *  .add(query.columns.note_date.gt(new Date())))
-	 *  databaseManager.getDataSetByQuery(q, max_returned_rows)
+	 * // query: select PK from example.book_nodes where parent = 111 and(note_date is null or note_date > now)
+	 * /** @type {QBSelect<db:/example_data/book_nodes>} *&#47;
+	 * var query = databaseManager.createSelect('db:/example_data/book_nodes').result.addPk().root
+	 * query.where.add(query.columns.parent_id.eq(111))
+	 * 	.add(query.or
+	 * 	.add(query.columns.note_date.isNull)
+	 * 	.add(query.columns.note_date.gt(new Date())))
+	 * databaseManager.getDataSetByQuery(q, max_returned_rows)
 	 * 
 	 * @param query QBSelect query.
 	 * @param max_returned_rows The maximum number of rows returned by the query.  
@@ -1175,10 +1175,10 @@ public class JSDatabaseManager
 	 * 		var thrown = record.exception.getValue()
 	 * 		application.output("Record validation failed: "+thrown)
 	 * 	}
-	 *  // find out the table of the record (similar to getEditedRecords)
-	 *  var jstable = databaseManager.getTable(record);
-	 *  var tableSQLName = jstable.getSQLName();
-	 *  application.output('Table:'+tableSQLName+' in server:'+jstable.getServerName()+' failed to save.')
+	 * 	// find out the table of the record (similar to getEditedRecords)
+	 * 	var jstable = databaseManager.getTable(record);
+	 * 	var tableSQLName = jstable.getSQLName();
+	 * 	application.output('Table:'+tableSQLName+' in server:'+jstable.getServerName()+' failed to save.')
 	 * }
 	 * 
 	 * @return Array of failed JSRecords
@@ -1203,10 +1203,10 @@ public class JSDatabaseManager
 	 * 		var thrown = record.exception.getValue()
 	 * 		application.output("Record validation failed: "+thrown)
 	 * 	}
-	 *  // find out the table of the record (similar to getEditedRecords)
-	 *  var jstable = databaseManager.getTable(record);
-	 *  var tableSQLName = jstable.getSQLName();
-	 *  application.output('Table:'+tableSQLName+' in server:'+jstable.getServerName()+' failed to save.')
+	 * 	// find out the table of the record (similar to getEditedRecords)
+	 * 	var jstable = databaseManager.getTable(record);
+	 * 	var tableSQLName = jstable.getSQLName();
+	 * 	application.output('Table:'+tableSQLName+' in server:'+jstable.getServerName()+' failed to save.')
 	 * }
 	 * 
 	 * @param foundset return failed records in the foundset only.
@@ -2434,7 +2434,7 @@ public class JSDatabaseManager
 	 * //when data has been entered do a commit or rollback if the data entry is canceld or the the commit did fail.  
 	 * if (cancel || !databaseManager.commitTransaction())
 	 * {
-	 *   databaseManager.rollbackTransaction();
+	 * 	databaseManager.rollbackTransaction();
 	 * }
 	 */
 	public void js_startTransaction() throws ServoyException
@@ -2720,17 +2720,17 @@ public class JSDatabaseManager
 	 *
 	 * @sample
 	 * var fs = databaseManager.getFoundSet(databaseManager.getDataSourceServerName(controller.getDataSource()),'employees');
-	 * 	databaseManager.startTransaction();
-	 * 	var ridx = fs.newRecord();
-	 * 	var record = fs.getRecord(ridx);
-	 * 	record.emp_name = 'John';
-	 * 	if (databaseManager.hasNewRecords(fs)) {
-	 * 		application.output("new records");
-	 * 	} else {
-	 * 		application.output("no new records");
-	 * 	}
-	 * 	databaseManager.saveData();
-	 * 	databaseManager.commitTransaction();
+	 * databaseManager.startTransaction();
+	 * var ridx = fs.newRecord();
+	 * var record = fs.getRecord(ridx);
+	 * record.emp_name = 'John';
+	 * if (databaseManager.hasNewRecords(fs)) {
+	 * 	application.output("new records");
+	 * } else {
+	 * 	application.output("no new records");
+	 * }
+	 * databaseManager.saveData();
+	 * databaseManager.commitTransaction();
 	 *
 	 * @param foundset/record The JSFoundset or JSRecord to test.
 	 * @param foundset_index optional The record index in the foundset to test (not specified means has the foundset any new records)

@@ -229,12 +229,12 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 	 * solutionModel.getDataSourceNode("db:/example_data/customers").removeCalculation("myCalculation1");
 	 * c = solutionModel.getDataSourceNode("db:/example_data/customers").getCalculation("myCalculation1");
 	 * if (c != null) {
-	 * 		application.output("myCalculation could not be removed.");
+	 * 	application.output("myCalculation could not be removed.");
 	 * }
 	 * 
 	 * var allCalcs = solutionModel.getDataSourceNode("db:/example_data/customers").getCalculations();
 	 * for (var i = 0; i < allCalcs.length; i++) {
-	 * 		application.output(allCalcs[i]);
+	 * 	application.output(allCalcs[i]);
 	 * }
 	 * 
 	 * @param name the name of the calculation to be removed
@@ -275,7 +275,7 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 	 * Creates a new foundset method with the specified code.
 	 *
 	 * @sample 
-	 * var method = solutionModel.getDataSourceNode("db:/example_data/orders").newMethod("function doubleSize() { return 2*getSize(); }"),
+	 * var method = solutionModel.getDataSourceNode("db:/example_data/orders").newMethod("function doubleSize() { return 2*getSize(); }");
 	 * 
 	 * application.output('Doubled orders for this customer: '+customers_to_orders.doubleSize())
 	 *
@@ -355,7 +355,7 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 	 * var allMethods = solutionModel.getDataSourceNode("db:/example_data/customers").getMethod();
 	 * for (var i = 0; i < allMethods; i++)
 	 * {
-	 *     application.output(allMethods[i]);
+	 * 	application.output(allMethods[i]);
 	 * }
 	 * 
 	 * @param name the name of the method to be removed

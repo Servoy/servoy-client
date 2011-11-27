@@ -509,14 +509,14 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 	 * Create a data source from the data set with specified name and using specified types.
 	 *
 	 * @sample
-	 *  ds.addColumn('my_id'); // note: use regular javascript identifiers so they can be used in scripting
-	 * 	ds.addColumn('my_label');
-	 * 	var uri = ds.createDataSource('mydata', [JSColumn.INTEGER, JSColumn.TEXT]);
-	 * 	var jsform = solutionModel.newForm(fname, uri, null, true, 300, 300);
+	 * ds.addColumn('my_id'); // note: use regular javascript identifiers so they can be used in scripting
+	 * ds.addColumn('my_label');
+	 * var uri = ds.createDataSource('mydata', [JSColumn.INTEGER, JSColumn.TEXT]);
+	 * var jsform = solutionModel.newForm(fname, uri, null, true, 300, 300);
 	 * 
-	 *  var query = 'select customerid, address, city, country  from customers';
-	 *  var ds2 = databaseManager.getDataSetByQuery('example_data', query, null, 999);
-	 *  var uri2 = ds2.createDataSource('mydata2'); // types are inferred from query result
+	 * var query = 'select customerid, address, city, country  from customers';
+	 * var ds2 = databaseManager.getDataSetByQuery('example_data', query, null, 999);
+	 * var uri2 = ds2.createDataSource('mydata2'); // types are inferred from query result
 	 *
 	 * @param name data source name
 	 * 
@@ -565,14 +565,14 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 	 * The types are inferred from the data if possible.
 	 *
 	 * @sample
-	 *  ds.addColumn('my_id'); // note: use regular javascript identifiers so they can be used in scripting
-	 * 	ds.addColumn('my_label');
-	 * 	var uri = ds.createDataSource('mydata', [JSColumn.INTEGER, JSColumn.TEXT]);
-	 * 	var jsform = solutionModel.newForm(fname, uri, null, true, 300, 300);
+	 * ds.addColumn('my_id'); // note: use regular javascript identifiers so they can be used in scripting
+	 * ds.addColumn('my_label');
+	 * var uri = ds.createDataSource('mydata', [JSColumn.INTEGER, JSColumn.TEXT]);
+	 * var jsform = solutionModel.newForm(fname, uri, null, true, 300, 300);
 	 * 
-	 *  var query = 'select customerid, address, city, country  from customers';
-	 *  var ds2 = databaseManager.getDataSetByQuery('example_data', query, null, 999);
-	 *  var uri2 = ds2.createDataSource('mydata2'); // types are inferred from query result
+	 * var query = 'select customerid, address, city, country  from customers';
+	 * var ds2 = databaseManager.getDataSetByQuery('example_data', query, null, 999);
+	 * var uri2 = ds2.createDataSource('mydata2'); // types are inferred from query result
 	 *
 	 * @param name data source name
 	 * 

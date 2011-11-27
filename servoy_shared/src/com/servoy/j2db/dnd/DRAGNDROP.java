@@ -66,11 +66,11 @@ public class DRAGNDROP implements IPrefixedConstantsObject, IReturnedTypesProvid
 	 * 
 	 * @sample
 	 * if (event.dataMimeType == DRAGNDROP.MIME_TYPE_SERVOY || event.dataMimeType == DRAGNDROP.MIME_TYPE_SERVOY_RECORD) {
-	 * 		application.output("Dropping is allowed" );
-	 * 		return true;
+	 * 	application.output("Dropping is allowed" );
+	 * 	return true;
 	 * } else { 
-	 * 		application.output("Dropping is not allowed" );
-	 * 		return false;
+	 * 	application.output("Dropping is not allowed" );
+	 * 	return false;
 	 * }
 	 * 
 	 */

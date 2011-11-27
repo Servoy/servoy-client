@@ -201,7 +201,7 @@ public class JSServer
 	 * 	if (result)
 	 * 		application.output("Table dropped.");
 	 * 	else
-	 * 	application.output("Table not dropped.");
+	 * 		application.output("Table not dropped.");
 	 * }
 	 *
 	 * @param tableName The name of the table to drop.
@@ -236,7 +236,7 @@ public class JSServer
 	 * 	application.output("There are " + tableNames.length + " tables.");
 	 * 	for (var i=0; i<tableNames.length; i++)
 	 * 		application.output("Table " + i + ": " + tableNames[i]);
-	 * 	}
+	 * }
 	 * else {
 	 * 	plugins.dialogs.showInfoDialog("Attention","Server 'example_data' cannot be found.","OK");
 	 * }
@@ -265,7 +265,7 @@ public class JSServer
 	 * @sample
 	 * var server = plugins.maintenance.getServer("example_data");
 	 * if (!server.isValid()) {
-	 * 			application.output("Server not valid!");
+	 * 	application.output("Server not valid!");
 	 * }
 	 * 
 	 * @return boolean valid state.

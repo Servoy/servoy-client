@@ -213,8 +213,8 @@ public class JSSolutionModel
 	 * Gets the style specified by the given name.
 	 * 
 	 * @sample
-	 * 	var style = solutionModel.getStyle('my_existing_style')
-	 * 	style.content = 'combobox { color: #0000ff;font: italic 10pt "Verdana";}'
+	 * var style = solutionModel.getStyle('my_existing_style')
+	 * style.content = 'combobox { color: #0000ff;font: italic 10pt "Verdana";}'
 	 * 
 	 * @param name the specified name of the style
 	 * 
@@ -236,15 +236,15 @@ public class JSSolutionModel
 	 * NOTE: Will throw an exception if a style with that name already exists.  
 	 * 
 	 * @sample
-	 * 	var form = solutionModel.newForm('myForm','db:/my_server/my_table',null,true,1000,800);
-	 * 	if (form.transparent == false)
-	 * 	{
-	 * 		var style = solutionModel.newStyle('myStyle','form { background-color: yellow; }');
-	 * 		style.text = style.text + 'field { background-color: blue; }';
-	 * 		form.styleName = 'myStyle';
-	 * 	}
-	 * 	var field = form.newField('columnTextDataProvider',JSField.TEXT_FIELD,100,100,100,50);
-	 * 	forms['myForm'].controller.show();
+	 * var form = solutionModel.newForm('myForm','db:/my_server/my_table',null,true,1000,800);
+	 * if (form.transparent == false)
+	 * {
+	 * 	var style = solutionModel.newStyle('myStyle','form { background-color: yellow; }');
+	 * 	style.text = style.text + 'field { background-color: blue; }';
+	 * 	form.styleName = 'myStyle';
+	 * }
+	 * var field = form.newField('columnTextDataProvider',JSField.TEXT_FIELD,100,100,100,50);
+	 * forms['myForm'].controller.show();
 	 *
 	 * @param name the name of the new style
 	 * 
@@ -431,7 +431,7 @@ public class JSSolutionModel
 	 * 
 	 * var list = solutionModel.getGlobalMethods('globals');
 	 * for (var i = 0; i < list.length; i++) { 
-	 * 		application.output(list[i].code);
+	 * 	application.output(list[i].code);
 	 * }
 	 * 
 	 * @param scopeName the scope in which the method is declared
@@ -472,7 +472,7 @@ public class JSSolutionModel
 	 * 
 	 * var list = solutionModel.getGlobalVariables('globals');
 	 * for (var i = 0; i < list.length; i++) {
-	 * 		application.output(list[i].name + '[ ' + list[i].variableType + ']: ' + list[i].variableType);
+	 * 	application.output(list[i].name + '[ ' + list[i].variableType + ']: ' + list[i].variableType);
 	 * }
 	 * 
 	 * @param scopeName the scope in which the variable is declared
@@ -514,7 +514,7 @@ public class JSSolutionModel
 	 * 
 	 * var mediaList = solutionModel.getMediaList();
 	 * for (var i = 0; i < mediaList.length; i++) {
-	 * 		application.output(mediaList[i].getName() + ":" + mediaList[i].mimeType);
+	 * 	application.output(mediaList[i].getName() + ":" + mediaList[i].mimeType);
 	 * }
 	 * 
 	 * @param name the name of the media item to be removed
@@ -608,12 +608,12 @@ public class JSSolutionModel
 	 * solutionModel.removeCalculation("myCalculation1", "db:/example_data/customers");
 	 * c = solutionModel.getCalculation("myCalculation1", "db:/example_data/customers");
 	 * if (c != null) {
-	 * 		application.output("myCalculation could not be removed.");
+	 * 	application.output("myCalculation could not be removed.");
 	 * }
 	 * 
 	 * var allCalcs = solutionModel.getCalculations("db:/example_data/customers");
 	 * for (var i = 0; i < allCalcs.length; i++) {
-	 * 		application.output(allCalcs[i]);
+	 * 	application.output(allCalcs[i]);
 	 * }
 	 * 
 	 * @param name the name of the calculation to be removed
@@ -634,12 +634,12 @@ public class JSSolutionModel
 	 * NOTE: Make sure you call history.remove first in your Servoy method (script) or call form.controller.recreateUI() before the script ends.
 	 *
 	 * @sample
-	 *  // revert the form to the original solution form, removing any changes done to it through the solution model.
-	 *  var revertedForm = solutionModel.revertForm('myForm')
-	 *  // add a label on a random place.
-	 *  revertedForm.newLabel("MyLabel",Math.random()*100,Math.random()*100,80,20);
-	 *  // make sure that the ui is up to date.
-	 *  forms.myForm.controller.recreateUI();
+	 * // revert the form to the original solution form, removing any changes done to it through the solution model.
+	 * var revertedForm = solutionModel.revertForm('myForm')
+	 * // add a label on a random place.
+	 * revertedForm.newLabel("MyLabel",Math.random()*100,Math.random()*100,80,20);
+	 * // make sure that the ui is up to date.
+	 * forms.myForm.controller.recreateUI();
 	 *
 	 * @param name the specified name of the form to revert
 	 * 
@@ -708,7 +708,7 @@ public class JSSolutionModel
 	 * @sample
 	 * var forms = solutionModel.getForms(datasource)
 	 * for (var i in forms)
-	 * 		application.output(forms[i].name)
+	 * 	application.output(forms[i].name)
 	 *
 	 * @param datasource the datasource or servername 
 	 * 
@@ -726,7 +726,7 @@ public class JSSolutionModel
 	 * @sample
 	 * var forms = solutionModel.getForms(datasource,tablename)
 	 * for (var i in forms)
-	 * 		application.output(forms[i].name)
+	 * 	application.output(forms[i].name)
 	 *
 	 * @param server the datasource or servername 
 	 * 
@@ -745,7 +745,7 @@ public class JSSolutionModel
 	 * @sample
 	 * var forms = solutionModel.getForms()
 	 * for (var i in forms)
-	 * 		application.output(forms[i].name)
+	 * 	application.output(forms[i].name)
 	 *
 	 * @return an array of JSForm type elements
 	 */
@@ -866,12 +866,12 @@ public class JSSolutionModel
 	 * Gets the list of all media objects.
 	 * 
 	 * @sample
-	 * 	var mediaList = solutionModel.getMediaList();
-	 * 	if (mediaList.length != 0 && mediaList != null) {
-	 * 		for (var x in mediaList) {
-	 * 			application.output(mediaList[x]);
-	 * 		}
+	 * var mediaList = solutionModel.getMediaList();
+	 * if (mediaList.length != 0 && mediaList != null) {
+	 * 	for (var x in mediaList) {
+	 * 		application.output(mediaList[x]);
 	 * 	}
+	 * }
 	 * 
 	 * 	@return a list with all the media objects.
 	 * 	
@@ -917,10 +917,10 @@ public class JSSolutionModel
 	 * Gets an array of all valuelists for the currently active solution.
 	 *
 	 * @sample 
-	 * 	var valueLists = solutionModel.getValueLists();
-	 * 	if (valueLists != null && valueLists.length != 0)
-	 * 		for (var i in valueLists)
-	 * 			application.output(valueLists[i].name); 
+	 * var valueLists = solutionModel.getValueLists();
+	 * if (valueLists != null && valueLists.length != 0)
+	 * 	for (var i in valueLists)
+	 * 		application.output(valueLists[i].name); 
 	 * 
 	 * @return an array of JSValueList objects
 	 */
@@ -993,8 +993,8 @@ public class JSSolutionModel
 	 * NOTE: The global variable number type is based on the value assigned from the SolutionModel-JSVariable node; for example: JSVariable.INTEGER.
 	 *
 	 * @sample 
-	 *	var myGlobalVariable = solutionModel.newGlobalVariable('globals', 'newGlobalVariable', JSVariable.INTEGER); 
-	 *	myGlobalVariable.defaultValue = 12;
+	 * var myGlobalVariable = solutionModel.newGlobalVariable('globals', 'newGlobalVariable', JSVariable.INTEGER); 
+	 * myGlobalVariable.defaultValue = 12;
 	 *
 	 * @param scopeName the scope in which the variable is created
 	 * @param name the specified name for the global variable 
@@ -1033,8 +1033,8 @@ public class JSSolutionModel
 	 * Gets an existing global variable by the specified name.
 	 *
 	 * @sample 
-	 * 	var globalVariable = solutionModel.getGlobalVariable('globals', 'globalVariableName');
-	 * 	application.output(globalVariable.name + " has the default value of " + globalVariable.defaultValue);
+	 * var globalVariable = solutionModel.getGlobalVariable('globals', 'globalVariableName');
+	 * application.output(globalVariable.name + " has the default value of " + globalVariable.defaultValue);
 	 * 
 	 * @param scopeName the scope in which the variable is searched
 	 * @param name the specified name of the global variable
@@ -1056,9 +1056,9 @@ public class JSSolutionModel
 	 * Gets an array of all scope names used.
 	 * 
 	 * @sample
-	 * 	var scopeNames = solutionModel.getScopeNames();
-	 * 	for (var name in scopeNames)
-	 * 		application.output(name);
+	 * var scopeNames = solutionModel.getScopeNames();
+	 * for (var name in scopeNames)
+	 * 	application.output(name);
 	 * 
 	 * @return an array of String scope names
 	 */
@@ -1078,9 +1078,9 @@ public class JSSolutionModel
 	 * Gets an array of all global variables.
 	 * 
 	 * @sample
-	 * 	var globalVariables = solutionModel.getGlobalVariables('globals');
-	 * 	for (var i in globalVariables)
-	 * 		application.output(globalVariables[i].name + " has the default value of " + globalVariables[i].defaultValue);
+	 * var globalVariables = solutionModel.getGlobalVariables('globals');
+	 * for (var i in globalVariables)
+	 * 	application.output(globalVariables[i].name + " has the default value of " + globalVariables[i].defaultValue);
 	 * 
 	 * @param scopeName optional limit to global vars of specified scope name
 	 * 
@@ -1112,7 +1112,7 @@ public class JSSolutionModel
 	 * Creates a new global method with the specified code in a scope.
 	 *
 	 * @sample 
-	 *  var method = solutionModel.newGlobalMethod('globals', 'function myglobalmethod(){currentcontroller.newRecord()}')
+	 * var method = solutionModel.newGlobalMethod('globals', 'function myglobalmethod(){currentcontroller.newRecord()}')
 	 *
 	 * @param scopeName the scope in which the method is created
 	 * @param code the specified code for the global method
@@ -1152,8 +1152,8 @@ public class JSSolutionModel
 	 * Gets an existing global method by the specified name.
 	 *
 	 * @sample 
-	 * 	var method = solutionModel.getGlobalMethod('globals', 'nameOfGlobalMethod'); 
-	 * 	if (method != null) application.output(method.code);
+	 * var method = solutionModel.getGlobalMethod('globals', 'nameOfGlobalMethod'); 
+	 * if (method != null) application.output(method.code);
 	 * 
 	 * @param scopeName the scope in which the method is searched
 	 * @param name the name of the specified global method
@@ -1203,9 +1203,9 @@ public class JSSolutionModel
 	 * The list of all global methods.
 	 * 
 	 * @sample
-	 * 	var methods = solutionModel.getGlobalMethods('globals'); 
-	 * 	for (var x in methods) 
-	 * 		application.output(methods[x].getName());
+	 * var methods = solutionModel.getGlobalMethods('globals'); 
+	 * for (var x in methods) 
+	 * 	application.output(methods[x].getName());
 	 * 
 	 * @param scopeName optional limit to global methods of specified scope name
 	 * 
@@ -1352,11 +1352,11 @@ public class JSSolutionModel
 	 * Gets an existing relation by the specified name and returns a JSRelation Object.
 	 * 
 	 * @sample 
-	 * 	var relation = solutionModel.getRelation('name');
-	 *	application.output("The primary server name is " + relation.primaryServerName);
-	 * 	application.output("The primary table name is " + relation.primaryTableName); 
-	 * 	application.output("The foreign table name is " + relation.foreignTableName); 
-	 * 	application.output("The relation items are " + relation.getRelationItems());
+	 * var relation = solutionModel.getRelation('name');
+	 * application.output("The primary server name is " + relation.primaryServerName);
+	 * application.output("The primary table name is " + relation.primaryTableName); 
+	 * application.output("The foreign table name is " + relation.foreignTableName); 
+	 * application.output("The relation items are " + relation.getRelationItems());
 	 * 
 	 * @param name the specified name of the relation
 	 * 
@@ -1398,10 +1398,10 @@ public class JSSolutionModel
 	 * Gets an array of all relations; or an array of all global relations if the specified table is NULL.
 	 *
 	 * @sample 
-	 * 	var relations = solutionModel.getRelations('server_name','table_name');
-	 * 	if (relations.length != 0)
-	 * 		for (var i in relations)
-	 * 			application.output(relations[i].name);
+	 * var relations = solutionModel.getRelations('server_name','table_name');
+	 * if (relations.length != 0)
+	 * 	for (var i in relations)
+	 * 		application.output(relations[i].name);
 	 *
 	 * @param primary_server_name/primary_data_source optional the specified name of the server or datasource for the specified table
 	 *

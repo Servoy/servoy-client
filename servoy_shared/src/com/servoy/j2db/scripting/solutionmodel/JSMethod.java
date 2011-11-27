@@ -136,9 +136,9 @@ public class JSMethod implements IJavaScriptType
 	 * @clonedesc com.servoy.j2db.persistence.ISupportScope#getScopeName()
 	 * 
 	 * @sample 
-	 * 	var methods = solutionModel.getGlobalMethods(); 
-	 * 	for (var x in methods) 
-	 * 		application.output(methods[x].getName() + ' is defined in scope ' + methods[x].getScopeName());
+	 * var methods = solutionModel.getGlobalMethods(); 
+	 * for (var x in methods) 
+	 * 	application.output(methods[x].getName() + ' is defined in scope ' + methods[x].getScopeName());
 	 */
 	public String js_getScopeName()
 	{
@@ -194,16 +194,16 @@ public class JSMethod implements IJavaScriptType
 	 * for that you need to create a new object through solutionModel.newMethodWithArguments(..) and assign it again.
 	 * 
 	 * @sample 
-	 * 	var frm = solutionModel.getForm("myForm");
-	 * 	var button = frm.getButton("button");
-	 *  // get the arguments from the button.
-	 *  // NOTE: string arguments will be returned with quotes (comp.onAction.getArguments()[0] == '\'foo\' evals to true)
-	 * 	var arguments = button.onAction.getArguments();
-	 *  if (arguments && arguments.length > 1 && arguments[1] == 10) { 
-	 *    // change the value and assign it back to the onAction.
-	 *    arguments[1] = 50;
-	 *    button.onAction = solutionModel.newMethodWithArguments(button.onAction,arguments);
-	 *  }
+	 * var frm = solutionModel.getForm("myForm");
+	 * var button = frm.getButton("button");
+	 * // get the arguments from the button.
+	 * // NOTE: string arguments will be returned with quotes (comp.onAction.getArguments()[0] == '\'foo\' evals to true)
+	 * var arguments = button.onAction.getArguments();
+	 * if (arguments && arguments.length > 1 && arguments[1] == 10) { 
+	 * 	// change the value and assign it back to the onAction.
+	 * 	arguments[1] = 50;
+	 * 	button.onAction = solutionModel.newMethodWithArguments(button.onAction,arguments);
+	 * }
 	 * 
 	 * @return Array of the arguments, null if not specified.
 	 */

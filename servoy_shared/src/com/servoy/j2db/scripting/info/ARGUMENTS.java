@@ -28,9 +28,12 @@ public class ARGUMENTS implements IPrefixedConstantsObject
 	 * 
 	 * @sample
 	 * function addNumbers(x, y) {
-	 * 		if (arguments.length == addNumbers.length) {
-	 * 			return (x + y);
-	 * 		} else return 0;
+	 * 	if (arguments.length == addNumbers.length) {
+	 * 		return (x + y);
+	 * 	} 
+	 * 	else {
+	 * 		return 0;
+	 * 	}
 	 * }
 	 * var result = addNumbers(3, 4, 5);
 	 * application.output(result); // returns 0
@@ -49,12 +52,12 @@ public class ARGUMENTS implements IPrefixedConstantsObject
 	 * 
 	 * @sample
 	 * function makeFactorialFunc() {
-	 * 		application.output('making a factorial function!');
-	 * 		return function(x) {
-	 * 			if (x <= 1)
-	 * 				return 1;
-	 * 			return x * arguments.callee(x - 1);
-	 * 		};
+	 * 	application.output('making a factorial function!');
+	 * 	return function(x) {
+	 * 		if (x <= 1)
+	 * 			return 1;
+	 * 		return x * arguments.callee(x - 1);
+	 * 	};
 	 * }
 	 * var result = makeFactorialFunc()(5); // returns 120 (5 * 4 * 3 * 2 * 1)
 	 * application.output("Result = " + result);

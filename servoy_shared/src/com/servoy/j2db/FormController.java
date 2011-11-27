@@ -170,12 +170,12 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * @sample
 		 * var currentWindow = controller.getWindow();
 		 * if (currentWindow != null) {
-		 * 		currentWindow.title = 'We have a new title';
+		 * 	currentWindow.title = 'We have a new title';
 		 * } else {
-		 * 		currentWindow = application.createWindow("Window Name", JSWindow.WINDOW, null);
-		 * 		currentWindow(650, 700, 450, 350);
-		 * 		currentWindow = "Window Title";
-		 * 		controller.show(currentWindow);
+		 * 	currentWindow = application.createWindow("Window Name", JSWindow.WINDOW, null);
+		 * 	currentWindow(650, 700, 450, 350);
+		 * 	currentWindow = "Window Title";
+		 * 	controller.show(currentWindow);
 		 * }
 		 * 
 		 * @return the JSWindow that the form is shown in, or null if the form is not currently showing in a window.
@@ -441,10 +441,11 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * @deprecated As of release 6.0, dialogs/windows API has been rewritten (based in JSWindow objects). Use {@link #getWindow()} instead.
 		 * 
 		 * @sample
-		 * 	var dialogOrWindowName = %%prefix%%controller.getContainerName();
-		 * 	if (dialogOrWindowName != null) {
-		 * 		application.closeForm(dialogOrWindowName);
-		 * 	}
+		 * var dialogOrWindowName = %%prefix%%controller.getContainerName();
+		 * if (dialogOrWindowName != null) {
+		 * 	application.closeForm(dialogOrWindowName);
+		 * }
+		 * 
 		 * @return the name of the window/dialog this form is displayed in. If the form is not showing in a window or dialog (other then main application frame), it returns null.
 		 */
 		@Deprecated
@@ -964,11 +965,11 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * var form = forms["selectedFormName"];
 		 * if (!form.controller.getDesignMode())
 		 * {
-		 * 		// Set the current form in designmode with no callbacks
-		 * 		form.controller.setDesignMode(true);
-		 * 		// Set the current form in designmode with callbacks
-		 * 		// where onDrag, onDrop, onSelect, onResize are names of form methods (not from "selectedFormName" form)
-		 * 		// form.controller.setDesignMode(onDrag, onDrop, onSelect, onResize);
+		 * 	// Set the current form in designmode with no callbacks
+		 * 	form.controller.setDesignMode(true);
+		 * 	// Set the current form in designmode with callbacks
+		 * 	// where onDrag, onDrop, onSelect, onResize are names of form methods (not from "selectedFormName" form)
+		 * 	// form.controller.setDesignMode(onDrag, onDrop, onSelect, onResize);
 		 * }
 		 * //Set the current form out of designmode (to normal browse)
 		 * //form.controller.setDesignMode(false);

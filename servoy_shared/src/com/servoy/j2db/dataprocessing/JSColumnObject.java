@@ -127,7 +127,7 @@ public class JSColumnObject extends JSColumn
 	 * 		else application.output("Table users not created.");
 	 * 	}
 	 * 
-	 *  // groups has database sequence pk
+	 * 	// groups has database sequence pk
 	 * 	table = server.createNewTable("groups");
 	 * 	if (table)
 	 * 	{

@@ -293,7 +293,7 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	 * var column = table.getColumn('customerid')
 	 * if (column.hasFlag(JSColumn.UUID_COLUMN))
 	 * {
-	 *    // handle uuid column
+	 * 	// handle uuid column
 	 * }
 	 * 
 	 * @param flag

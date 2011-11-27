@@ -37,9 +37,9 @@ public class JSDNDEvent extends JSBaseEvent
 	 * @sample
 	 * if (event.getType() == JSEvent.ONDRAG) 
 	 * {
-	 *    // its an ondrag event
-	 *    if (event.getElementName() == 'todragelement')
-	 *    	return DRAGNDROP.COPY
+	 * 	// its an ondrag event
+	 * 	if (event.getElementName() == 'todragelement')
+	 * 		return DRAGNDROP.COPY
 	 * }
 	 */
 	public static final String ONDRAG = EventType.onDrag.toString();
@@ -50,10 +50,10 @@ public class JSDNDEvent extends JSBaseEvent
 	 * @sample
 	 * if (event.getType() == JSEvent.ONDROP) 
 	 * {
-	 *    // its a on drop event.
-	 *    var element = elements[event.getElementName()];
-	 *    // do drop on element
-	 *    return true;
+	 * 	// its a on drop event.
+	 * 	var element = elements[event.getElementName()];
+	 * 	// do drop on element
+	 * 	return true;
 	 * }
 	 */
 	public static final String ONDROP = EventType.onDrop.toString();
@@ -64,9 +64,9 @@ public class JSDNDEvent extends JSBaseEvent
 	 * @sample
 	 * if (event.getType() == JSEvent.ONDRAGOVER) 
 	 * {
-	 *    // its an on drag over event.
-	 *    // return true if it over the right element.
-	 *    return event.getElementName() == 'candroponelement';
+	 * 	// its an on drag over event.
+	 * 	// return true if it over the right element.
+	 * 	return event.getElementName() == 'candroponelement';
 	 * }
 	 */
 	public static final String ONDRAGOVER = EventType.onDragOver.toString();
@@ -77,9 +77,9 @@ public class JSDNDEvent extends JSBaseEvent
 	 * @sample
 	 * if (event.getType() == JSEvent.ONDRAGEND) 
 	 * {
-	 *    // its an on drag end event.
-	 *    // return true if the drop has been completed successfully
-	 *    return event.isDropSuccess(); 
+	 * 	// its an on drag end event.
+	 * 	// return true if the drop has been completed successfully
+	 * 	return event.isDropSuccess(); 
 	 * }
 	 */
 	public static final String ONDRAGEND = EventType.onDragEnd.toString();
@@ -105,19 +105,19 @@ public class JSDNDEvent extends JSBaseEvent
 	 * @sample
 	 * function onDragEnd(event)
 	 * {
-	 * 		var dragResult = event.getDragResult();
-	 * 		if(dragResult == DRAGNDROP.NONE)
-	 * 		{
-	 * 			// the drag was canceled
-	 * 		}
-	 * 		else if(dragResult == DRAGNDROP.COPY)
-	 * 		{
-	 * 			// the drag ended with a copy action
-	 * 		}
-	 * 		else if(dragResult == DRAGNDROP.MOVE)
-	 * 		{
-	 * 			// the drag ended with a move action
-	 * 		}
+	 * 	var dragResult = event.getDragResult();
+	 * 	if(dragResult == DRAGNDROP.NONE)
+	 * 	{
+	 * 		// the drag was canceled
+	 * 	}
+	 * 	else if(dragResult == DRAGNDROP.COPY)
+	 * 	{
+	 * 		// the drag ended with a copy action
+	 * 	}
+	 * 	else if(dragResult == DRAGNDROP.MOVE)
+	 * 	{
+	 * 		// the drag ended with a move action
+	 * 	}
 	 * }
 	 * @return a DRAGNDROP constant, representing the result of the drag action
 	 */
@@ -155,8 +155,8 @@ public class JSDNDEvent extends JSBaseEvent
 	 * // only accept drag if data is a servoy record 
 	 * function onDragOver(event)
 	 * {
-	 *		if(event.dataMimeType.indexOf("application/x-servoy-record-object") == 0) return true;
-	 *		else return false;
+	 * 	if(event.dataMimeType.indexOf("application/x-servoy-record-object") == 0) return true;
+	 * 	else return false;
 	 * } 
 	 */
 	public String js_getDataMimeType()

@@ -153,7 +153,7 @@ public class Function
 	 * 
 	 * @sample
 	 * function printHello() {
-	 * 		return "Hello";
+	 * 	return "Hello";
 	 * }
 	 * application.output(printHello.toString()); 
 	 * 

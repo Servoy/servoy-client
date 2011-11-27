@@ -43,7 +43,7 @@ public class JSEvent extends JSBaseEvent
 	 * @sample
 	 * if (event.getType() == JSEvent.NONE) 
 	 * {
-	 *    // type is not set.
+	 * 	// type is not set.
 	 * }
 	 */
 	public static final String NONE = EventType.none.toString();
@@ -54,7 +54,7 @@ public class JSEvent extends JSBaseEvent
 	 * @sample
 	 * if (event.getType() == JSEvent.ACTION) 
 	 * {
-	 *    // its an action event.
+	 * 	// its an action event.
 	 * }
 	 */
 	public static final String ACTION = EventType.action.toString();
@@ -65,7 +65,7 @@ public class JSEvent extends JSBaseEvent
 	 * @sample 
 	 * if (event.getType() == JSEvent.FOCUSGAINED) 
 	 * {
-	 *    // its a focus gained event.
+	 * 	// its a focus gained event.
 	 * }
 	 */
 	public static final String FOCUSGAINED = EventType.focusGained.toString();
@@ -76,7 +76,7 @@ public class JSEvent extends JSBaseEvent
 	 * @sample 
 	 * if (event.getType() == JSEvent.FOCUSLOST) 
 	 * {
-	 *    // its a focus lost event.
+	 * 	// its a focus lost event.
 	 * }
 	 */
 	public static final String FOCUSLOST = EventType.focusLost.toString();
@@ -87,7 +87,7 @@ public class JSEvent extends JSBaseEvent
 	 * @sample 
 	 * if (event.getType() == JSEvent.DOUBLECLICK) 
 	 * {
-	 *    // its a double click event.
+	 * 	// its a double click event.
 	 * }
 	 */
 	public static final String DOUBLECLICK = EventType.doubleClick.toString();
@@ -98,7 +98,7 @@ public class JSEvent extends JSBaseEvent
 	 * @sample
 	 * if (event.getType() == JSEvent.RIGHTCLICK) 
 	 * {
-	 *    // its a right click event.
+	 * 	// its a right click event.
 	 * }
 	 */
 	public static final String RIGHTCLICK = EventType.rightClick.toString();
@@ -110,7 +110,7 @@ public class JSEvent extends JSBaseEvent
 	 * @sample
 	 * if (event.getType() == JSEvent.DATACHANGE) 
 	 * {
-	 *    // its a data change event
+	 * 	// its a data change event
 	 * }
 	 */
 	public static final String DATACHANGE = EventType.dataChange.toString();
@@ -121,7 +121,7 @@ public class JSEvent extends JSBaseEvent
 	 * @sample
 	 * if (event.getType() == JSEvent.FORM) 
 	 * {
-	 *    // its a form event or command
+	 * 	// its a form event or command
 	 * }
 	 */
 	public static final String FORM = EventType.form.toString();

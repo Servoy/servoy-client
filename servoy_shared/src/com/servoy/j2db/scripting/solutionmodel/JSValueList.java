@@ -487,8 +487,6 @@ public class JSValueList implements IConstantsObject
 
 	/**
 	 * Property if an empty value must be shown, set one of the JSValueList.EMPTY_VALUE_ALWAYS or JSValueList.EMPTY_VALUE_NEVER constants
-	 *
-	 * @sample 
 	 */
 	public void js_setAddEmptyValue(int arg)
 	{
@@ -505,8 +503,6 @@ public class JSValueList implements IConstantsObject
 	/**
 	 * Sets the global method for this valuelist, this method will then be called to get the values for this valuelist.
 	 * It should return a JSDataSet with 2 columns: display|real
-	 * 
-	 * @sample
 	 */
 	public void js_setGlobalMethod(JSMethod method)
 	{
@@ -544,23 +540,23 @@ public class JSValueList implements IConstantsObject
 	 * 
 	 * @sample
 	 * var listProvider = solutionModel.newGlobalMethod('globals', 'function getDataSetForValueList(displayValue, realValue, record, valueListName, findMode) {' +
-	 *		'	' +
-	 *		'if (displayValue == null && realValue == null) {' +
-	 *		'  // TODO think about caching this result. can be called often!' +
-	 *		'  // return the complete list' +
-	 *		'  return databaseManager.getDataSetByQuery("example_data", "select firstname || ' ' || lastname, employeeid from employees", null, 100);' +
-	 *		'} else if (displayValue != null) {' +
-	 *		'  // TYPE_AHEAD filter call, return a filtered list' +
-	 *		'  var args = [displayValue + "%", displayValue + "%"]' +
-	 *		'  return databaseManager.getDataSetByQuery("example_data", "select firstname || ' ' || lastname, employeeid from employees where firstname like ? or lastname like ?", args, 100);' +
-	 *		'} else if (realValue != null) {' +
-	 *		'  // TODO think about caching this result. can be called often!' +
-	 *		'  // real object not found in the current list, return 1 row with display,realvalue that will be added to the current list' +
-	 *		'  // dont return a complete list in this mode because that will be added to the list that is already there' +
-	 *		'  args = [realValue];' +
-	 *		'  return databaseManager.getDataSetByQuery("example_data", "select firstname || ' ' || lastname, employeeid from employees where employeeid = ?", args, 1);' +
-	 *		'}' +
-	 *	'}');
+	 * 		'	' +
+	 * 		'if (displayValue == null && realValue == null) {' +
+	 * 		'  // TODO think about caching this result. can be called often!' +
+	 * 		'  // return the complete list' +
+	 * 		'  return databaseManager.getDataSetByQuery("example_data", "select firstname || \' \' || lastname, employeeid from employees", null, 100);' +
+	 * 		'} else if (displayValue != null) {' +
+	 * 		'  // TYPE_AHEAD filter call, return a filtered list' +
+	 * 		'  var args = [displayValue + "%", displayValue + "%"]' +
+	 * 		'  return databaseManager.getDataSetByQuery("example_data", "select firstname || \' \' || lastname, employeeid from employees where firstname like ? or lastname like ?", args, 100);' +
+	 * 		'} else if (realValue != null) {' +
+	 * 		'  // TODO think about caching this result. can be called often!' +
+	 * 		'  // real object not found in the current list, return 1 row with display,realvalue that will be added to the current list' +
+	 * 		'  // dont return a complete list in this mode because that will be added to the list that is already there' +
+	 * 		'  args = [realValue];' +
+	 * 		'  return databaseManager.getDataSetByQuery("example_data", "select firstname || \' \' || lastname, employeeid from employees where employeeid = ?", args, 1);' +
+	 * 		'}' +
+	 * 		'}');
 	 * var vlist = solutionModel.newValueList('vlist', JSValueList.CUSTOM_VALUES);
 	 * vlist.globalMethod = listProvider;
 	 */
