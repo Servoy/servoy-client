@@ -275,7 +275,7 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 	 * Creates a new foundset method with the specified code.
 	 *
 	 * @sample 
-	 * var method = solutionModel.getDataSourceNode("db:/example_data/orders").newMethod("function doubleSize() { return 2*getSize(); }",
+	 * var method = solutionModel.getDataSourceNode("db:/example_data/orders").newMethod("function doubleSize() { return 2*getSize(); }"),
 	 * 
 	 * application.output('Doubled orders for this customer: '+customers_to_orders.doubleSize())
 	 *

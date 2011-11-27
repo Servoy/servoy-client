@@ -803,8 +803,6 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 	 * returns the contents of the database error message if an error occurred
 	 * 
 	 * @deprecated As of release 5.0, replaced by {@link #getException()}
-	 * 
-	 * @sample 
 	 */
 	@Deprecated
 	public String js_getExceptionMsg()

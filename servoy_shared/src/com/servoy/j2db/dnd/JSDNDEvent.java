@@ -118,6 +118,7 @@ public class JSDNDEvent extends JSBaseEvent
 	 * 		{
 	 * 			// the drag ended with a move action
 	 * 		}
+	 * }
 	 * @return a DRAGNDROP constant, representing the result of the drag action
 	 */
 	public int js_getDragResult()

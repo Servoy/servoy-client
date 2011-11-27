@@ -122,8 +122,8 @@ public class JSCalculation implements IJavaScriptType
 	 * 
 	 * @sample
 	 * var calc = solutionModel.newCalculation("function myCalculation() { return 123; }", JSVariable.INTEGER, "db:/example_data/customers");
-	 * if (calc.isStored()) application.output("The calculation is stored").
-	 * else application.output("The calculation is not stored").
+	 * if (calc.isStored()) application.output("The calculation is stored");
+	 * else application.output("The calculation is not stored");
 	 * 
 	 * @return true if the calculation is stored, false otherwise
 	 */
