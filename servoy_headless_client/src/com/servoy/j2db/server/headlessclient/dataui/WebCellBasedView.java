@@ -3372,13 +3372,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			if (newSelectedIndexesA.indexOf(selection) == -1) indexesToUpdate.add(selection);
 		}
 
-
-		if (indexesToUpdate.size() > 0)
-		{
-			indexesToUpdate.addAll(oldSelectedIndexes);
-			return indexesToUpdate;
-		}
-		else return null;
+		return (indexesToUpdate.size() > 0) ? indexesToUpdate : null;
 	}
 
 	private int[] getSelectedIndexes()
