@@ -491,8 +491,7 @@ public class Settings extends SortedProperties
 		}
 		Point l = component.getLocation();
 		Debug.trace("location of " + component.getName() + " " + l); //$NON-NLS-1$ //$NON-NLS-2$
-		put(
-			"rect_" + (solutionName != null ? solutionName + "_" : "") + component.getName() + "_bounds", PersistHelper.createRectangleString(component.getBounds())); //$NON-NLS-1$ //$NON-NLS-2$
+		put("rect_" + (solutionName != null ? solutionName + "_" : "") + component.getName() + "_bounds", PersistHelper.createRectangleString(component.getBounds())); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public synchronized void saveBounds(Component component)
@@ -597,6 +596,14 @@ public class Settings extends SortedProperties
 				}
 			}
 		}
+	}
+
+	/**
+	 * 
+	 */
+	public File getFile()
+	{
+		return file;
 	}
 
 }
