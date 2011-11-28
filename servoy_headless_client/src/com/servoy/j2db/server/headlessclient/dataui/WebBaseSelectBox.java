@@ -65,6 +65,7 @@ import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
+import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Text;
@@ -98,7 +99,7 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 	protected final FormComponent< ? > selector;
 	private final AbstractRuntimeField<IFieldComponent> scriptable;
 
-	public WebBaseSelectBox(IApplication application, AbstractRuntimeField<IFieldComponent> scriptable, String id, String text)
+	public WebBaseSelectBox(final IApplication application, AbstractRuntimeField<IFieldComponent> scriptable, String id, String text)
 	{
 		super(id);
 		this.scriptable = scriptable;
@@ -119,6 +120,18 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 				if (tag.getName().compareToIgnoreCase("label") == 0) //$NON-NLS-1$
 				{
 					tag.put("for", selector.getMarkupId()); //$NON-NLS-1$
+				}
+			}
+
+			@Override
+			protected void onBeforeRender()
+			{
+				super.onBeforeRender();
+				String txt = getDefaultModelObjectAsString();
+				if (HtmlUtils.startsWithHtml(txt))
+				{
+					txt = StripHTMLTagsConverter.convertBodyText(this, txt, application.getFlattenedSolution()).getBodyTxt().toString();
+					setDefaultModelObject(txt);
 				}
 			}
 
@@ -148,6 +161,7 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 		{
 			c.setDefaultModelObject(txt);
 			c.setVisible(true);
+			c.setEscapeModelStrings(false);
 		}
 	}
 
