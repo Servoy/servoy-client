@@ -22,11 +22,9 @@ import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
-import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.Stroke;
-import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.RoundRectangle2D;
@@ -156,13 +154,7 @@ public class SpecialMatteBorder extends AbstractBorder
 				{
 					shape = new RoundRectangle2D.Float(halfLW, halfLW, width - lineWidth, height - lineWidth, roundingRadius, roundingRadius);
 				}
-				if (c.isOpaque() && c.getBackground() != null)
-				{
-					Area area = new Area(new Rectangle(width, height));
-					area.subtract(new Area(shape));
-					g.setColor(c.getParent().getBackground());
-					((Graphics2D)g).fill(area);
-				}
+
 				g.setColor(topColor);
 				((Graphics2D)g).draw(shape);
 			}
