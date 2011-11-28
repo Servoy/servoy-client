@@ -21,6 +21,7 @@ import java.beans.IntrospectionException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -88,4 +89,6 @@ public interface IXMLImportHandlerVersions11AndHigher
 	int getObjectId(boolean b, String string) throws RepositoryException;
 
 	void setAskForImportServerName(boolean askForImportServerName);
+
+	void checkMovedObjects(ImportInfo importInfo) throws RepositoryException, SQLException;
 }
