@@ -176,7 +176,6 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			protected String getTextValue(Object object)
 			{
 				String str = (object == null ? "" : object.toString()); //$NON-NLS-1$
-				if (!HtmlUtils.hasHtmlTag(str)) str = HtmlUtils.escapeMarkup(str, true, false).toString();
 				if (str.trim().equals("")) str = "&nbsp;"; //$NON-NLS-1$//$NON-NLS-2$
 				return str;
 			}
@@ -189,7 +188,11 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 				{
 					response.write("<font style='font-size: " + fontSize + "px'>");
 				}
-				super.renderChoice(object, response, criteria);
+
+				String renderedObject = (object == null) ? "" : object.toString();
+				if (!HtmlUtils.hasHtmlTag(renderedObject)) renderedObject = HtmlUtils.escapeMarkup(renderedObject, true, false).toString();
+
+				super.renderChoice(renderedObject, response, criteria);
 				if (fontSize != 12)
 				{
 					response.write("</font>");
