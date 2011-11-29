@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.query;
 
 import java.util.List;
@@ -27,7 +27,7 @@ import com.servoy.j2db.util.visitor.IVisitor;
  * @author rgansevles
  * 
  */
-public final class QueryJoin implements ISQLJoin
+public final class QueryJoin implements ISQLTableJoin
 {
 	private String name;
 	private QueryTable primaryTable;
@@ -85,11 +85,6 @@ public final class QueryJoin implements ISQLJoin
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.query.ISQLJoin#getName()
-	 */
 	public String getName()
 	{
 		return name;
@@ -108,6 +103,11 @@ public final class QueryJoin implements ISQLJoin
 	public void setJoinType(int joinType)
 	{
 		this.joinType = joinType;
+	}
+
+	public boolean hasInnerJoin()
+	{
+		return joinType == INNER_JOIN;
 	}
 
 	/*
@@ -234,7 +234,7 @@ public final class QueryJoin implements ISQLJoin
 	public Object writeReplace()
 	{
 		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(),
-			new Object[] { name, primaryTable, foreignTable, condition, new Integer(joinType) });
+			new Object[] { name, primaryTable, foreignTable, condition, Integer.valueOf(joinType) });
 	}
 
 	public QueryJoin(ReplacedObject s)

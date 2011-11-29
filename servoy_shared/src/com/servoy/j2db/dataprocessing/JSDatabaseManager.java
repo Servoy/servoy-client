@@ -56,11 +56,11 @@ import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.ISQLQuery;
+import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.query.Placeholder;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryCustomSelect;
 import com.servoy.j2db.query.QueryDelete;
-import com.servoy.j2db.query.QueryJoin;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.QueryUpdate;
@@ -375,7 +375,7 @@ public class JSDatabaseManager
 				if (sheet_new != null)
 				{
 					QueryTable oldTable = sql.getTable();
-					QueryJoin join = (QueryJoin)sql.getJoin(oldTable, relation.getName());
+					ISQLTableJoin join = (ISQLTableJoin)sql.getJoin(oldTable, relation.getName());
 					if (join == null)
 					{
 						join = SQLGenerator.createJoin(application.getFlattenedSolution(), relation, oldTable, new QueryTable(ft.getSQLName(), ft.getCatalog(),

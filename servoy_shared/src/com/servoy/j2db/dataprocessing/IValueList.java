@@ -72,4 +72,7 @@ public interface IValueList extends ListModel
 	public void setFallbackValueList(IValueList list);
 
 	public IValueList getFallbackValueList();
+
+	public ValueList getValueList();
+
 }

@@ -37,6 +37,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.EventObject;
@@ -85,6 +86,7 @@ import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IView;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.component.ISupportAsyncLoading;
+import com.servoy.j2db.dataprocessing.DBValueList;
 import com.servoy.j2db.dataprocessing.DataAdapterList;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
@@ -145,6 +147,7 @@ import com.servoy.j2db.ui.ISupportEventExecutor;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.ISupportSecuritySettings;
+import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnablePanel;
@@ -588,7 +591,6 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 						{
 							setRowHeight(renderer.getHeight());
 						}
-//						Debug.trace("create element "+obj+" renderer "+renderer); //$NON-NLS-1$ //$NON-NLS-2$
 						String dataProviderID = null;
 						if (editor instanceof IDisplayData)
 						{
@@ -620,8 +622,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 
 						if (cellview instanceof Form && obj instanceof ISupportTabSeq && editor instanceof JComponent && ((ISupportTabSeq)obj).getTabSeq() >= 0)
 						{
-							ISupportTabSeq o = (ISupportTabSeq)obj;
-							columnTabSequence.add(new Pair<ISupportTabSeq, TableColumn>(o, ca));
+							columnTabSequence.add(new Pair<ISupportTabSeq, TableColumn>((ISupportTabSeq)obj, ca));
 						}
 
 						//set size behaviour
@@ -688,7 +689,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 						CellAdapter ca = (CellAdapter)tcm.getColumn(i);
 						if (ca.getDataProviderID() != null && ca.getDataProviderID().equals(col.getDataProviderID()))
 						{
-							currentSortCol.put(new Integer(i), new Boolean((col.getSortOrder() == SortColumn.ASCENDING)));
+							currentSortCol.put(Integer.valueOf(i), Boolean.valueOf((col.getSortOrder() == SortColumn.ASCENDING)));
 						}
 					}
 				}
@@ -1182,7 +1183,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 	{
 		if (sortCol >= 0)
 		{
-			currentSortCol.put(new Integer(sortCol), new Boolean(sortAsc));
+			currentSortCol.put(Integer.valueOf(sortCol), Boolean.valueOf(sortAsc));
 		}
 		else
 		{
@@ -1206,15 +1207,51 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 						if (tc instanceof CellAdapter)
 						{
 							CellAdapter ca = (CellAdapter)tc;
-							if (ca.getDataProviderID() != null && ca.getDataProviderID().equals(sc.getDataProviderID()))
+							if (ca.getDataProviderID() != null)
 							{
-								if (!found)
+								List<String> sortingProviders = null;
+								Component renderer = ca.getRenderer();
+								if (renderer instanceof ISupportValueList && ((ISupportValueList)renderer).getValueList() != null)
 								{
-									// clear old sort
-									updateSortStatus(-1, true);
+									try
+									{
+										sortingProviders = DBValueList.getShowDataproviders(((ISupportValueList)renderer).getValueList().getValueList(),
+											(Table)foundset.getTable(), ca.getDataProviderID(), application.getFoundSetManager());
+									}
+									catch (RepositoryException ex)
+									{
+										Debug.error(ex);
+									}
 								}
-								found = true;
-								updateSortStatus(ca.getModelIndex(), sc.getSortOrder() == SortColumn.ASCENDING);
+
+								if (sortingProviders == null)
+								{
+									// no related sort, use sort on dataProviderID instead
+									sortingProviders = Collections.singletonList(ca.getDataProviderID());
+								}
+								for (String sortingProvider : sortingProviders)
+								{
+									SortColumn existingSc;
+									try
+									{
+										existingSc = ((FoundSetManager)foundset.getFoundSetManager()).getSortColumn(foundset.getTable(), sortingProvider);
+									}
+									catch (Exception e)
+									{
+										Debug.error(e);
+										continue;
+									}
+									if (sc.equalsIgnoreSortorder(existingSc))
+									{
+										if (!found)
+										{
+											// clear old sort
+											updateSortStatus(-1, true);
+										}
+										found = true;
+										updateSortStatus(ca.getModelIndex(), sc.getSortOrder() == SortColumn.ASCENDING);
+									}
+								}
 							}
 						}
 					}

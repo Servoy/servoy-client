@@ -20,7 +20,7 @@ package com.servoy.j2db.querybuilder.impl;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.Placeholder;
-import com.servoy.j2db.query.PlaceholderKey;
+import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.querybuilder.IQueryBuilderParameter;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
@@ -31,17 +31,17 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBParameter extends QBPart implements IQueryBuilderParameter
 {
-	private final PlaceholderKey key;
+	private final TablePlaceholderKey key;
 	private boolean isSet = false;
 	private Object value;
 
 	public QBParameter(QBSelect parent, String name) throws RepositoryException
 	{
 		super(parent, parent);
-		this.key = new PlaceholderKey(parent.getQueryTable(), name);
+		this.key = new TablePlaceholderKey(parent.getQueryTable(), name);
 	}
 
-	PlaceholderKey getPlaceholderKey()
+	TablePlaceholderKey getPlaceholderKey()
 	{
 		return key;
 	}

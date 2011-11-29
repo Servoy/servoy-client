@@ -195,14 +195,14 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 		super.setDocument(doc);
 	}
 
-	private LookupDocumentListener listner;
+	private LookupDocumentListener listener;
 
 	@Override
 	protected void processFocusEvent(FocusEvent e)
 	{
-		if (listner == null) //only needed on renderers
+		if (listener == null) //only needed on renderers
 		{
-			getDocument().addDocumentListener(listner = new LookupDocumentListener());
+			getDocument().addDocumentListener(listener = new LookupDocumentListener());
 		}
 
 		focusGainedOrValidationChange = true;

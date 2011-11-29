@@ -47,11 +47,11 @@ import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.IQuerySort;
 import com.servoy.j2db.query.ISQLCondition;
+import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.query.Placeholder;
-import com.servoy.j2db.query.PlaceholderKey;
+import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.query.QueryColumn;
-import com.servoy.j2db.query.QueryJoin;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QuerySort;
 import com.servoy.j2db.query.QueryTable;
@@ -207,7 +207,7 @@ public class PartNode
 				{
 					for (Relation relation : relations)
 					{
-						QueryJoin join = (QueryJoin)sqlString.getJoin(queryTable, relation.getName());
+						ISQLTableJoin join = (ISQLTableJoin)sqlString.getJoin(queryTable, relation.getName());
 						if (join == null)
 						{
 							Debug.log("Missing relation " + relation.getName() + " in join condition for form on table " + table.getName()); //$NON-NLS-1$ //$NON-NLS-2$
@@ -252,7 +252,7 @@ public class PartNode
 			{
 				QueryColumn sc = (QueryColumn)(sortbyCols.get(i)).getColumn();
 				newSQLString.addCondition(SQLGenerator.CONDITION_SEARCH, new CompareCondition(ISQLCondition.EQUALS_OPERATOR, sc, new Placeholder(
-					new PlaceholderKey(sc.getTable(), '#' + sc.getName()))));
+					new TablePlaceholderKey(sc.getTable(), '#' + sc.getName()))));
 			}
 
 			int count = newSet.getSize();
@@ -269,7 +269,7 @@ public class PartNode
 					for (int i = 0; i < sortbyCols.size(); i++)
 					{
 						QueryColumn sc = (QueryColumn)(sortbyCols.get(i)).getColumn();
-						PlaceholderKey placeholderKey = new PlaceholderKey(sc.getTable(), '#' + sc.getName());
+						TablePlaceholderKey placeholderKey = new TablePlaceholderKey(sc.getTable(), '#' + sc.getName());
 						if (!newSQLStringCopy.setPlaceholderValue(placeholderKey, data.getRow(ii)[i]))
 						{
 							Debug.error(new RuntimeException("Could not set placeholder " + placeholderKey + " in query " + newSQLStringCopy + "-- continuing")); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$

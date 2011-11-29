@@ -1435,9 +1435,9 @@ public class JSSolutionModel
 			if (servername != null && tablename != null)
 			{
 				IServer primaryServer = fs.getSolution().getServer(servername);
-				if (primaryServer == null) throw new RuntimeException("cant create relation, primary server not found: " + servername);
+				if (primaryServer == null) throw new RuntimeException("can't list relations, primary server not found: " + servername);
 				primaryTable = (Table)primaryServer.getTable(tablename);
-				if (primaryTable == null) throw new RuntimeException("cant create relation, primary table not found: " + tablename);
+				if (primaryTable == null) throw new RuntimeException("can't list relations, primary table not found: " + tablename);
 			}
 
 			List<JSRelation> relations = new ArrayList<JSRelation>();
@@ -1445,7 +1445,7 @@ public class JSSolutionModel
 			while (iterator.hasNext())
 			{
 				Relation relation = iterator.next();
-				if ((primaryTable == null && relation.isGlobal()) || (primaryTable != null && !relation.isGlobal()))
+				if (((primaryTable == null) == relation.isGlobal()) && !relation.isInternal())
 				{
 					relations.add(new JSRelation(relation, application, false));
 				}

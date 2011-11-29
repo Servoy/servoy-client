@@ -18,6 +18,7 @@ package com.servoy.j2db.server.headlessclient.dataui;
 
 import java.awt.Event;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -32,6 +33,7 @@ import org.apache.wicket.model.Model;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.component.ComponentFactory;
+import com.servoy.j2db.dataprocessing.DBValueList;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.FoundSetListWrapper;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
@@ -45,6 +47,8 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportDataProviderID;
 import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.Portal;
+import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.util.Debug;
@@ -155,27 +159,44 @@ public class SortableCellViewHeaderGroup extends Model implements IComponentAssi
 										String.valueOf(labelForOnActionMethodId),
 										Utils.arrayMerge((new Object[] { event }), Utils.parseJSExpressions(gc.getInstanceMethodArguments("onActionMethodID"))), true, null, false, "onActionMethodID"); //$NON-NLS-1$ //$NON-NLS-2$
 								}
-								else if (cellview instanceof Portal || (fc == null || fc.getForm().getOnSortCmdMethodID() == 0))
+								else if (cellview instanceof Portal || fc == null || fc.getForm().getOnSortCmdMethodID() == 0)
 								{
-									SortColumn sc = ((FoundSetManager)fs.getFoundSetManager()).getSortColumn(fs.getTable(), dataProvider == null ? id
-										: dataProvider.getDataProviderID());
-									if (sc != null && sc.getColumn().getDataProviderType() != IColumnTypes.MEDIA)
+									List<String> sortingProviders = null;
+									try
 									{
-										List<SortColumn> list = new ArrayList<SortColumn>();
-										if ((modifiers & Event.SHIFT_MASK) != 0)
+										sortingProviders = DBValueList.getShowDataproviders(
+											fs.getFoundSetManager().getApplication().getFlattenedSolution().getValueList(
+												((ISupportDataProviderID)element).getValuelistID()), (Table)fs.getTable(), dataProvider == null ? id
+												: dataProvider.getDataProviderID(), fs.getFoundSetManager());
+									}
+									catch (RepositoryException ex)
+									{
+										Debug.error(ex);
+									}
+
+									if (sortingProviders == null)
+									{
+										// no related sort, use sort on dataProviderID instead
+										sortingProviders = Collections.singletonList(dataProvider == null ? id : dataProvider.getDataProviderID());
+									}
+
+									List<SortColumn> list = (modifiers & Event.SHIFT_MASK) != 0 ? fs.getSortColumns() : new ArrayList<SortColumn>();
+									for (String sortingProvider : sortingProviders)
+									{
+										SortColumn sc = ((FoundSetManager)fs.getFoundSetManager()).getSortColumn(fs.getTable(), sortingProvider);
+										if (sc != null && sc.getColumn().getDataProviderType() != IColumnTypes.MEDIA)
 										{
-											list = fs.getSortColumns();
 											for (SortColumn oldColumn : list)
 											{
-												if (oldColumn.getDataProviderID().equals(sc.getDataProviderID()))
+												if (oldColumn.equalsIgnoreSortorder(sc))
 												{
 													sc = oldColumn;
 													break;
 												}
 											}
+											if (!list.contains(sc)) list.add(sc);
+											sc.setSortOrder(direction ? SortColumn.ASCENDING : SortColumn.DESCENDING);
 										}
-										sc.setSortOrder(direction ? SortColumn.ASCENDING : SortColumn.DESCENDING);
-										if (!list.contains(sc)) list.add(sc);
 										fs.sort(list, false);
 									}
 								}

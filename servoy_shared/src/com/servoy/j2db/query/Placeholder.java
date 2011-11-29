@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.query;
 
 import com.servoy.j2db.util.serialize.ReplacedObject;
@@ -28,14 +28,14 @@ import com.servoy.j2db.util.visitor.IVisitor;
  */
 public class Placeholder implements IQueryElement
 {
-	private PlaceholderKey key;
+	private IPlaceholderKey key;
 	private Object value = null;
 	boolean set = false;
 
 	/**
 	 * @param name
 	 */
-	public Placeholder(PlaceholderKey key)
+	public Placeholder(IPlaceholderKey key)
 	{
 		this.key = key;
 	}
@@ -68,7 +68,7 @@ public class Placeholder implements IQueryElement
 
 	public void acceptVisitor(IVisitor visitor)
 	{
-		key = (PlaceholderKey)AbstractBaseQuery.acceptVisitor(key, visitor);
+		key = AbstractBaseQuery.acceptVisitor(key, visitor);
 	}
 
 	public boolean isSet()
@@ -76,7 +76,7 @@ public class Placeholder implements IQueryElement
 		return set;
 	}
 
-	public PlaceholderKey getKey()
+	public IPlaceholderKey getKey()
 	{
 		return key;
 	}
@@ -137,7 +137,7 @@ public class Placeholder implements IQueryElement
 	{
 		Object[] members = (Object[])s.getObject();
 		int i = 0;
-		key = (PlaceholderKey)members[i++];
+		key = (IPlaceholderKey)members[i++];
 		value = members[i++];
 		set = ((Boolean)members[i++]).booleanValue();
 	}

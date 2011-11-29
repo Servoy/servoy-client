@@ -30,10 +30,10 @@ import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.IQuerySelectValue;
-import com.servoy.j2db.query.PlaceholderKey;
-import com.servoy.j2db.query.QueryJoin;
+import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
+import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SafeArrayList;
@@ -88,7 +88,6 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 			catch (RepositoryException e)
 			{
 				Debug.error(e);
-				valueList = null;
 			}
 		}
 		registered = false;
@@ -400,7 +399,7 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 		{
 			return null;
 		}
-		PlaceholderKey placeHolderKey = SQLGenerator.createRelationKeyPlaceholderKey(select.getTable(), relations[0].getName());
+		TablePlaceholderKey placeHolderKey = SQLGenerator.createRelationKeyPlaceholderKey(select.getTable(), relations[0].getName());
 		if (!select.setPlaceholderValue(placeHolderKey, relationWhereArgs))
 		{
 			Debug.error(new RuntimeException("Could not set relation placeholder " + placeHolderKey + " in query " + select)); //$NON-NLS-1$//$NON-NLS-2$ 
@@ -412,7 +411,7 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 		for (int i = 1; i < relations.length; i++)
 		{
 			foreignTable = relations[i].getForeignTable();
-			QueryJoin join = SQLGenerator.createJoin(application.getFlattenedSolution(), relations[i], lastTable, new QueryTable(foreignTable.getSQLName(),
+			ISQLTableJoin join = SQLGenerator.createJoin(application.getFlattenedSolution(), relations[i], lastTable, new QueryTable(foreignTable.getSQLName(),
 				foreignTable.getCatalog(), foreignTable.getSchema()), scopesScopeProvider);
 			select.addJoin(join);
 			lastTable = join.getForeignTable();

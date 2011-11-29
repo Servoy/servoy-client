@@ -28,35 +28,27 @@ public class ValueListFactory
 {
 	public static IValueList createRealValueList(IServiceProvider app, ValueList vl, int type, String format)
 	{
-		if (vl == null) return new CustomValueList(app, "<unknown>", "", false, type, format); //$NON-NLS-1$ //$NON-NLS-2$
+		if (vl == null) return new CustomValueList(app, null, "", false, type, format); //$NON-NLS-1$ 
 
-		IValueList retval = null;
 		if (vl.getValueListType() == ValueList.GLOBAL_METHOD_VALUES)
 		{
-			retval = new GlobalMethodValueList(app, vl);
+			return new GlobalMethodValueList(app, vl);
 		}
-		else if (vl.getValueListType() == ValueList.CUSTOM_VALUES)
+		if (vl.getValueListType() == ValueList.CUSTOM_VALUES)
 		{
-			retval = new CustomValueList(app, vl.getName(), vl.getCustomValues(), (vl.getAddEmptyValue() == ValueList.EMPTY_VALUE_ALWAYS), type, format);
+			return new CustomValueList(app, vl, vl.getCustomValues(), (vl.getAddEmptyValue() == ValueList.EMPTY_VALUE_ALWAYS), type, format);
 		}
-		else
+		if (vl.getDatabaseValuesType() == ValueList.RELATED_VALUES)
 		{
-			if (vl.getDatabaseValuesType() == ValueList.RELATED_VALUES)
-			{
-				retval = new RelatedValueList(app, vl);
-			}
-			else
-			{
-				retval = new DBValueList(app, vl);
-			}
+			return new RelatedValueList(app, vl);
 		}
-		return retval;
+		return new DBValueList(app, vl);
 	}
 
 	public static IValueList fillRealValueList(IServiceProvider app, ValueList vl, int type, String format, int valueType, Object data)
 	{
 		IValueList newVl = ValueListFactory.createRealValueList(app, vl, type, format);
-		if (newVl instanceof CustomValueList) ((CustomValueList)newVl).setType(valueType);
+		if (newVl instanceof CustomValueList) ((CustomValueList)newVl).setValueType(valueType);
 		if (data instanceof JSDataSet || data instanceof IDataSet)
 		{
 			IDataSet set = null;

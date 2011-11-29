@@ -549,7 +549,7 @@ public class JSApplication implements IReturnedTypesProvider
 			{
 				continue;
 			}
-			if ((realValues[i] instanceof Number) || !Utils.equalObjects(new Long(Utils.getAsLong(realValues[i])), realValues[i]))
+			if ((realValues[i] instanceof Number) || !Utils.equalObjects(Long.valueOf(Utils.getAsLong(realValues[i])), realValues[i]))
 			{
 				return Types.OTHER;
 			}
@@ -607,7 +607,7 @@ public class JSApplication implements IReturnedTypesProvider
 							int guessedType = guessValuelistType((Object[])vargs[1]);
 							if (guessedType != Types.OTHER)
 							{
-								((CustomValueList)valuelist).setType(guessedType);
+								((CustomValueList)valuelist).setValueType(guessedType);
 							}
 						}
 						((CustomValueList)valuelist).fillWithArrayValues((Object[])vargs[1]);
@@ -620,7 +620,7 @@ public class JSApplication implements IReturnedTypesProvider
 							int guessedType = guessValuelistType((Object[])vargs[2]);
 							if (guessedType != Types.OTHER)
 							{
-								((CustomValueList)valuelist).setType(guessedType);
+								((CustomValueList)valuelist).setValueType(guessedType);
 							}
 						}
 						if (vargs[2] != null)
@@ -656,7 +656,7 @@ public class JSApplication implements IReturnedTypesProvider
 								int guessedType = guessValuelistType(displayValues);
 								if (guessedType != Types.OTHER)
 								{
-									((CustomValueList)valuelist).setType(guessedType);
+									((CustomValueList)valuelist).setValueType(guessedType);
 								}
 							}
 							((CustomValueList)valuelist).fillWithArrayValues(displayValues);
@@ -676,7 +676,7 @@ public class JSApplication implements IReturnedTypesProvider
 								int guessedType = guessValuelistType(realValues);
 								if (guessedType != Types.OTHER)
 								{
-									((CustomValueList)valuelist).setType(guessedType);
+									((CustomValueList)valuelist).setValueType(guessedType);
 								}
 							}
 							((CustomValueList)valuelist).fillWithArrayValues(displayValues, realValues);

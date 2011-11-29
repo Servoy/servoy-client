@@ -36,7 +36,6 @@ public class GlobalMethodValueList extends CustomValueList
 {
 
 	private final Pair<String, String> globalFunction;
-	private final ValueList vl;
 	private IRecordInternal record;
 	private String displayString;
 	private Object realObject;
@@ -48,9 +47,8 @@ public class GlobalMethodValueList extends CustomValueList
 	 */
 	public GlobalMethodValueList(IServiceProvider application, ValueList vl)
 	{
-		super(application, vl.getName());
-		this.vl = vl;
-		setType(Types.OTHER);
+		super(application, vl);
+		setValueType(Types.OTHER);
 		Pair<String, String> scope = ScopesUtils.getVariableScope(vl.getCustomValues());
 		if (vl.getValueListType() != ValueList.GLOBAL_METHOD_VALUES || scope == null || scope.getLeft() == null)
 		{
@@ -126,15 +124,15 @@ public class GlobalMethodValueList extends CustomValueList
 						Object[] args = null;
 						if (display != null && !"".equals(display)) //$NON-NLS-1$
 						{
-							args = new Object[] { display, null, state, vl.getName(), Boolean.valueOf(state instanceof FindState) };
+							args = new Object[] { display, null, state, valueList.getName(), Boolean.valueOf(state instanceof FindState) };
 						}
 						else if (real != null && !"".equals(real)) //$NON-NLS-1$
 						{
-							args = new Object[] { null, real, state, vl.getName(), Boolean.valueOf(state instanceof FindState) };
+							args = new Object[] { null, real, state, valueList.getName(), Boolean.valueOf(state instanceof FindState) };
 						}
 						else
 						{
-							args = new Object[] { null, null, state, vl.getName(), Boolean.valueOf(state instanceof FindState) };
+							args = new Object[] { null, null, state, valueList.getName(), Boolean.valueOf(state instanceof FindState) };
 						}
 
 						final Object retValue = application.getScriptEngine().executeFunction(function, globalScope, globalScope, args, false, true);
@@ -144,7 +142,7 @@ public class GlobalMethodValueList extends CustomValueList
 							public void run()
 							{
 								//add empty row
-								if (vl.getAddEmptyValue() == ValueList.EMPTY_VALUE_ALWAYS)
+								if (valueList.getAddEmptyValue() == ValueList.EMPTY_VALUE_ALWAYS)
 								{
 									addElement(""); //$NON-NLS-1$
 									realValues.add(null);
@@ -161,14 +159,14 @@ public class GlobalMethodValueList extends CustomValueList
 											Object[] row = dataSet.getRow(i);
 											if (row.length == 1)
 											{
-												realValues.add(CustomValueList.handleRowData(vl, false, 1, row, application));
+												realValues.add(CustomValueList.handleRowData(valueList, false, 1, row, application));
 											}
 											else
 											{
 												hasRealValue = true;
-												realValues.add(CustomValueList.handleRowData(vl, false, 2, row, application));
+												realValues.add(CustomValueList.handleRowData(valueList, false, 2, row, application));
 											}
-											addElement(CustomValueList.handleRowData(vl, false, 1, row, application));
+											addElement(CustomValueList.handleRowData(valueList, false, 1, row, application));
 										}
 									}
 									finally

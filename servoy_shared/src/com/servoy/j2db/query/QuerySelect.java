@@ -543,13 +543,13 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 			for (int i = 0; i < njoins && !updated; i++)
 			{
 				ISQLJoin join = joins.get(i);
-				if (!(join instanceof QueryJoin) || (keepInnerjoins && ((QueryJoin)join).getJoinType() == ISQLJoin.INNER_JOIN))
+				if (!(join instanceof ISQLTableJoin) || (keepInnerjoins && ((ISQLTableJoin)join).hasInnerJoin()))
 				{
 					// count may depend on related records
 					continue;
 				}
 
-				QueryTable joinTable = ((QueryJoin)join).getForeignTable();
+				QueryTable joinTable = ((ISQLTableJoin)join).getForeignTable();
 				ObjectCountVisitor selectCounter = new ObjectCountVisitor(joinTable, true);
 				ObjectCountVisitor joinCounter = new ObjectCountVisitor(joinTable, true);
 				acceptVisitor(selectCounter);

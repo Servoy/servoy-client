@@ -19,7 +19,7 @@ package com.servoy.j2db.querybuilder.impl;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.query.QueryJoin;
+import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.querybuilder.IQueryBuilderJoin;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
@@ -31,11 +31,11 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBJoin extends QBTableClause implements IQueryBuilderJoin
 {
-	private final QueryJoin join;
+	private final ISQLTableJoin join;
 
 	private QBLogicalCondition on;
 
-	QBJoin(QBSelect root, QBTableClause parent, String dataSource, QueryJoin join, String alias)
+	QBJoin(QBSelect root, QBTableClause parent, String dataSource, ISQLTableJoin join, String alias)
 	{
 		super(root, parent, dataSource, alias);
 		this.join = join;

@@ -17,10 +17,12 @@
 package com.servoy.j2db.smart.dataui;
 
 
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,15 +34,19 @@ import javax.swing.table.TableColumnModel;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.dataprocessing.DBValueList;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.ISaveConstants;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.gui.LFAwareSortableHeaderRenderer;
 import com.servoy.j2db.persistence.IColumnTypes;
+import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.smart.TableView;
 import com.servoy.j2db.ui.IEventExecutor;
+import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
@@ -114,22 +120,63 @@ public class ColumnSortListener extends MouseAdapter
 			{
 				return;
 			}
-			if (lastColumnIndex.containsKey(columnModelIndex))
+			Integer columnIndex = Integer.valueOf(columnModelIndex);
+			if (lastColumnIndex.containsKey(columnIndex))
 			{
-				lastSortAsc = !lastColumnIndex.get(columnModelIndex);
+				lastSortAsc = !lastColumnIndex.get(columnIndex).booleanValue();
 			}
 			else
 			{
 				lastSortAsc = true;
-				if ((fc != null) && (column instanceof CellAdapter) && e.getClickCount() <= 1 && table.getModel() instanceof IFoundSetInternal)
+				if (fc != null && column instanceof CellAdapter && ((CellAdapter)column).getDataProviderID() != null && e.getClickCount() <= 1 &&
+					table.getModel() instanceof IFoundSetInternal)
 				{
-					List<SortColumn> sortCols = ((IFoundSetInternal)table.getModel()).getSortColumns();
+					IFoundSetInternal foundset = (IFoundSetInternal)table.getModel();
+					List<SortColumn> sortCols = foundset.getSortColumns();
 					if (sortCols != null && sortCols.size() > 0)
 					{
-						for (SortColumn sc : sortCols)
+						CellAdapter ca = (CellAdapter)column;
+						List<String> sortingProviders = null;
+						Component renderer = ca.getRenderer();
+						if (renderer instanceof ISupportValueList && ((ISupportValueList)renderer).getValueList() != null)
 						{
-							CellAdapter ca = (CellAdapter)column;
-							if (sc.getDataProviderID().equals(ca.getDataProviderID())) lastSortAsc = sc.getSortOrder() == SortColumn.DESCENDING;
+							try
+							{
+								sortingProviders = DBValueList.getShowDataproviders(((ISupportValueList)renderer).getValueList().getValueList(),
+									(Table)foundset.getTable(), ca.getDataProviderID(), application.getFoundSetManager());
+							}
+							catch (RepositoryException ex)
+							{
+								Debug.error(ex);
+							}
+						}
+
+						if (sortingProviders == null)
+						{
+							// no related sort, use sort on dataProviderID instead
+							sortingProviders = Collections.singletonList(ca.getDataProviderID());
+						}
+
+						for (String sortingProvider : sortingProviders)
+						{
+							SortColumn existingSc;
+							try
+							{
+								existingSc = ((FoundSetManager)foundset.getFoundSetManager()).getSortColumn(foundset.getTable(), sortingProvider);
+							}
+							catch (Exception ex)
+							{
+								Debug.error(ex);
+								continue;
+							}
+
+							for (SortColumn sc : sortCols)
+							{
+								if (sc.equalsIgnoreSortorder(existingSc))
+								{
+									lastSortAsc = sc.getSortOrder() == SortColumn.DESCENDING;
+								}
+							}
 						}
 					}
 				}
@@ -140,7 +187,7 @@ public class ColumnSortListener extends MouseAdapter
 				// clear previous data
 				lastColumnIndex.clear();
 			}
-			lastColumnIndex.put(columnModelIndex, lastSortAsc);
+			lastColumnIndex.put(columnIndex, Boolean.valueOf(lastSortAsc));
 
 			if (column instanceof CellAdapter && table.getModel() instanceof IFoundSetInternal)
 			{
@@ -176,32 +223,51 @@ public class ColumnSortListener extends MouseAdapter
 									fc.executeFunction(
 										String.valueOf(fc.getForm().getOnSortCmdMethodID()),
 										Utils.arrayMerge(
-											(new Object[] { dataProviderID, new Boolean(lastSortAsc), getJavaScriptEvent(e, JSEvent.EventType.none, null) }),
+											(new Object[] { dataProviderID, Boolean.valueOf(lastSortAsc), getJavaScriptEvent(e, JSEvent.EventType.none, null) }),
 											Utils.parseJSExpressions(fc.getForm().getInstanceMethodArguments("onSortCmdMethodID"))), true, null, false, "onSortCmdMethodID"); //$NON-NLS-1$//$NON-NLS-2$
 								}
 								else if (dataProviderID != null)
 								{
+									List<String> sortingProviders = null;
+									IFoundSetInternal model = (IFoundSetInternal)table.getModel();
+									Component renderer = ((CellAdapter)column).getRenderer();
+									if (renderer instanceof ISupportValueList && ((ISupportValueList)renderer).getValueList() != null)
+									{
+										try
+										{
+											sortingProviders = DBValueList.getShowDataproviders(((ISupportValueList)renderer).getValueList().getValueList(),
+												(Table)model.getTable(), dataProviderID, application.getFoundSetManager());
+										}
+										catch (RepositoryException ex)
+										{
+											Debug.error(ex);
+										}
+									}
+
+									if (sortingProviders == null)
+									{
+										// no related sort, use sort on dataProviderID instead
+										sortingProviders = Collections.singletonList(dataProviderID);
+									}
 									try
 									{
-										IFoundSetInternal model = (IFoundSetInternal)table.getModel();
-										SortColumn sc = ((FoundSetManager)model.getFoundSetManager()).getSortColumn(model.getTable(), dataProviderID);
-										if (sc != null && sc.getColumn().getDataProviderType() != IColumnTypes.MEDIA)
+										List<SortColumn> list = e.isShiftDown() ? model.getSortColumns() : new ArrayList<SortColumn>();
+										for (String sortingProvider : sortingProviders)
 										{
-											List<SortColumn> list = new ArrayList<SortColumn>();
-											if (e.isShiftDown())
+											SortColumn sc = ((FoundSetManager)model.getFoundSetManager()).getSortColumn(model.getTable(), sortingProvider);
+											if (sc != null && sc.getColumn().getDataProviderType() != IColumnTypes.MEDIA)
 											{
-												list = model.getSortColumns();
 												for (SortColumn oldColumn : list)
 												{
-													if (oldColumn.getDataProviderID().equals(dataProviderID))
+													if (oldColumn.equalsIgnoreSortorder(sc))
 													{
 														sc = oldColumn;
 														break;
 													}
 												}
+												if (!list.contains(sc)) list.add(sc);
+												sc.setSortOrder(lastSortAsc ? SortColumn.ASCENDING : SortColumn.DESCENDING);
 											}
-											sc.setSortOrder(lastSortAsc ? SortColumn.ASCENDING : SortColumn.DESCENDING);
-											if (!list.contains(sc)) list.add(sc);
 											model.sort(list, false);
 										}
 									}

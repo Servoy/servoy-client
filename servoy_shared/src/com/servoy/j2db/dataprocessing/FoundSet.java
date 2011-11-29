@@ -73,18 +73,18 @@ import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.IQuerySort;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.ISQLJoin;
+import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.query.Placeholder;
-import com.servoy.j2db.query.PlaceholderKey;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryCustomJoin;
 import com.servoy.j2db.query.QueryCustomSelect;
 import com.servoy.j2db.query.QueryCustomSort;
 import com.servoy.j2db.query.QueryDelete;
-import com.servoy.j2db.query.QueryJoin;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QuerySort;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.SetCondition;
+import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.scripting.GlobalScope;
@@ -276,14 +276,24 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		browseAll(flushRelatedFS, false);
 	}
 
+	/**
+	 * Check for a condition, either in the query or in the filters
+	 * @return
+	 */
+	protected boolean currentQueryHasAnyCondition()
+	{
+		QuerySelect query = pksAndRecords.getQuerySelectForReading();
+		return query.hasAnyCondition() || (sheet != null && fsm.getTableFilterParams(sheet.getServerName(), query) != null);
+	}
+
 	public void browseAll(boolean flushRelatedFS, boolean clearOmit) throws ServoyException
 	{
-		if (!findMode && initialized && !mustQueryForUpdates && !pksAndRecords.getQuerySelectForReading().hasAnyCondition() && getSize() > 0)
+		if (sheet == null || sheet.getTable() == null) return;
+
+		if (!findMode && initialized && !mustQueryForUpdates && !currentQueryHasAnyCondition() && getSize() > 0)
 		{
 			return;//optimize
 		}
-
-		if (sheet == null || sheet.getTable() == null) return;
 
 		if (clearOmit)
 		{
@@ -1546,9 +1556,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					{
 						for (ISQLJoin ijoin : joins)
 						{
-							if (!found && ijoin instanceof QueryJoin)
+							if (!found && ijoin instanceof ISQLTableJoin)
 							{
-								QueryJoin join = (QueryJoin)ijoin;
+								ISQLTableJoin join = (ISQLTableJoin)ijoin;
 								if (table.equals(join.getForeignTable()))
 								{
 									// have to add this join
@@ -4537,8 +4547,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				{
 					case RowEvent.INSERT :
 						Debug.trace("Row inserted notify"); //$NON-NLS-1$
-						if (!pksAndRecords.getQuerySelectForReading().hasAnyCondition() && pks != null && !pks.hadMoreRows() && row != null &&
-							fsm.getTableFilterParams(sheet.getServerName(), pksAndRecords.getQuerySelectForReading()) == null)//does show all records, if so show record .. if not we whould have to go to the database to verify if the record does match our SQL
+						if (!currentQueryHasAnyCondition() && pks != null && !pks.hadMoreRows() && row != null)//does show all records, if so show record .. if not we whould have to go to the database to verify if the record does match our SQL
 						{
 							Object[] pk = row.getPK();
 							//check if im in new record
@@ -5334,10 +5343,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					if (row != null && row.existInDB())
 					{
 						Object[] pk = row.getPK();
-						if (!fs_sqlSelect.setPlaceholderValue(new PlaceholderKey(fs_sqlSelect.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pk))
+						if (!fs_sqlSelect.setPlaceholderValue(new TablePlaceholderKey(fs_sqlSelect.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pk))
 						{
 							Debug.error(new RuntimeException(
-								"Could not set placeholder " + new PlaceholderKey(fs_sqlSelect.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + " in query " + fs_sqlSelect + "-- continuing")); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+								"Could not set placeholder " + new TablePlaceholderKey(fs_sqlSelect.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + " in query " + fs_sqlSelect + "-- continuing")); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 						}
 						fs.pksAndRecords.getPks().setRow(0, pk);
 						fs.setSelectedIndex(0);

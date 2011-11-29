@@ -964,10 +964,10 @@ public class ComponentFactory
 			{
 				if (application instanceof IApplication && ((IApplication)application).isInDeveloper())
 				{
-					int currentType = ((CustomValueList)list).getType();
+					int currentType = ((CustomValueList)list).getValueType();
 					if (currentType == Types.OTHER)
 					{
-						((CustomValueList)list).setType(type);
+						((CustomValueList)list).setValueType(type);
 						if (dataprovider != null)
 						{
 							((CustomValueList)list).addDataProvider(dataprovider);
@@ -978,7 +978,7 @@ public class ComponentFactory
 						List<String> lst = ((CustomValueList)list).getDataProviders();
 
 						StringBuffer message = new StringBuffer("The valuelist was already created for type: " +
-							Column.getDisplayTypeString(((CustomValueList)list).getType()));
+							Column.getDisplayTypeString(((CustomValueList)list).getValueType()));
 						message.append("\n for the dataproviders: ");
 						for (int i = 0; i < lst.size(); i++)
 						{
@@ -1348,7 +1348,7 @@ public class ComponentFactory
 					fl = createTypeAheadWithValueList(application, form, field, dataProviderLookup, type, format, jsChangeRecorder);
 					break;
 				}
-				else if (dp != null && dp.getColumnWrapper() != null && dp.getColumnWrapper().getRelations() == null)//only allow plain columns
+				if (dp != null && dp.getColumnWrapper() != null && dp.getColumnWrapper().getRelations() == null)//only allow plain columns
 				{
 					RuntimeDataLookupField scriptable = new RuntimeDataLookupField(jsChangeRecorder, application);
 					fl = application.getItemFactory().createDataLookupField(scriptable, getWebID(form, field), form.getServerName(), form.getTableName(),

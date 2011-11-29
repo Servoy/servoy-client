@@ -85,7 +85,7 @@ import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.Placeholder;
-import com.servoy.j2db.query.PlaceholderKey;
+import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QueryInsert;
@@ -758,8 +758,8 @@ public class I18NPanel extends JPanel implements DocumentListener
 				// do type/length count in this constructor? (we do not know them...)
 				filterCol = new QueryColumn(messagesTable, -1, filterColumn, Types.VARCHAR, 2000);
 			}
-			PlaceholderKey langPlaceholderKey = new PlaceholderKey(messagesTable, "LANGUAGE"); //$NON-NLS-1$
-			PlaceholderKey valuePlaceholderKey = new PlaceholderKey(messagesTable, "VALUE"); //$NON-NLS-1$
+			TablePlaceholderKey langPlaceholderKey = new TablePlaceholderKey(messagesTable, "LANGUAGE"); //$NON-NLS-1$
+			TablePlaceholderKey valuePlaceholderKey = new TablePlaceholderKey(messagesTable, "VALUE"); //$NON-NLS-1$
 
 			QuerySelect selectSQL = new QuerySelect(messagesTable);
 			selectSQL.addColumn(pkCol);

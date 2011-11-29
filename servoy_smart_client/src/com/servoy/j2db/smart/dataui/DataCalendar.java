@@ -53,7 +53,6 @@ import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.gui.JDateChooser;
-import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.ui.BaseEventExecutor;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
@@ -189,10 +188,8 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 		return super.getFont();
 	}
 
-//	private IScriptExecuter actionListner;//allow only one!
 	public void addScriptExecuter(IScriptExecuter el)
 	{
-//		actionListner = el;
 		enclosedComponent.addScriptExecuter(el);
 	}
 
@@ -668,7 +665,7 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 	/**
 	 * @param adapter
 	 */
-	public void addActionListner(ActionListener adapter)
+	public void addActionListener(ActionListener adapter)
 	{
 		showCal.addActionListener(adapter);
 	}

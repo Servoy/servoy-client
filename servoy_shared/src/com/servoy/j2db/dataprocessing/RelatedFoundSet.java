@@ -42,9 +42,9 @@ import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.Placeholder;
-import com.servoy.j2db.query.PlaceholderKey;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QuerySelect;
+import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.ServoyException;
@@ -175,7 +175,7 @@ public abstract class RelatedFoundSet extends FoundSet
 		cleanSelect.setCondition(SQLGenerator.CONDITION_RELATION,
 			AbstractBaseQuery.relinkTable(relationSelect.getTable(), cleanSelect.getTable(), relationSelect.getConditionClone(SQLGenerator.CONDITION_RELATION)));
 
-		PlaceholderKey placeHolderKey = SQLGenerator.createRelationKeyPlaceholderKey(cleanSelect.getTable(), relation.getName());
+		TablePlaceholderKey placeHolderKey = SQLGenerator.createRelationKeyPlaceholderKey(cleanSelect.getTable(), relation.getName());
 
 		QuerySelect[] sqlSelects = new QuerySelect[whereArsgLists.length]; // all queries
 		QuerySelect[] aggregateSelects = new QuerySelect[whereArsgLists.length]; // all aggregates
@@ -230,7 +230,7 @@ public abstract class RelatedFoundSet extends FoundSet
 					{
 						Debug.trace(Thread.currentThread().getName() + ": Found cached FK record"); //$NON-NLS-1$
 					}
-					cachedRows.put(new Integer(i), cachedRow);
+					cachedRows.put(Integer.valueOf(i), cachedRow);
 				}
 				else
 				{
@@ -246,7 +246,7 @@ public abstract class RelatedFoundSet extends FoundSet
 					}
 					queryDatas.add(new QueryData(selectStatement, sqlFilters, !sqlSelect.isUnique(), 0, fsm.initialRelatedChunkSize,
 						IDataServer.RELATION_QUERY, trackingInfo));
-					queryIndex.add(new Integer(i));
+					queryIndex.add(Integer.valueOf(i));
 
 					QuerySelect aggregateSelect = FoundSet.getAggregateSelect(sheet, sqlSelect);
 					if (aggregateSelect != null)
@@ -254,7 +254,7 @@ public abstract class RelatedFoundSet extends FoundSet
 						// Note: see note about clone above.
 						queryDatas.add(new QueryData(AbstractBaseQuery.deepClone((ISQLSelect)aggregateSelect), fsm.getTableFilterParams(sheet.getServerName(),
 							aggregateSelect), false, 0, 1, IDataServer.AGGREGATE_QUERY, null));
-						queryIndex.add(new Integer(i)); // same index for aggregates
+						queryIndex.add(Integer.valueOf(i)); // same index for aggregates
 						aggregateSelects[i] = aggregateSelect;
 					}
 				}

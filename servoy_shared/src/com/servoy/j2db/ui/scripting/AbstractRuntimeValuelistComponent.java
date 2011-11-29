@@ -71,7 +71,7 @@ public abstract class AbstractRuntimeValuelistComponent<C extends IFieldComponen
 					if (list instanceof CustomValueList)
 					{
 						format = ((CustomValueList)list).getFormat();
-						type = ((CustomValueList)list).getType();
+						type = ((CustomValueList)list).getValueType();
 					}
 					IValueList newVl = ValueListFactory.fillRealValueList(application, valuelist, ValueList.CUSTOM_VALUES, format, type, value);
 					((ISupportValueList)getComponent()).setValueList(newVl);

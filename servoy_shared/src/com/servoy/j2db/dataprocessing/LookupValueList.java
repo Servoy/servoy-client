@@ -29,7 +29,6 @@ import javax.swing.event.ListDataListener;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.dataprocessing.CustomValueList.DisplayString;
 import com.servoy.j2db.persistence.IRepository;
-import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
@@ -61,12 +60,12 @@ public class LookupValueList implements IValueList
 	private final ValueList valueList;
 	private final IServiceProvider application;
 	private boolean dontQuery;
-	private Table table;
+	private final Table table;
 
 	private final int showValues;
 	private final int returnValues;
-	private boolean concatReturnValues;
-	private boolean concatShowValues;
+	private final boolean concatReturnValues;
+	private final boolean concatShowValues;
 	private IRecordInternal parentState;
 	private IFoundSetInternal relatedFoundset;
 	private final IValueList secondLookup;
@@ -77,44 +76,29 @@ public class LookupValueList implements IValueList
 		this.application = application;
 		this.secondLookup = fallback;
 
-		String serverName = null;
-		String tableName = null;
+		String dataSource = null;
 		Relation[] relations = null;
 		if (list.getDatabaseValuesType() == ValueList.TABLE_VALUES)
 		{
-			serverName = list.getServerName();
-			tableName = list.getTableName();
+			dataSource = list.getDataSource();
 		}
 		else
 		{
 			relations = application.getFlattenedSolution().getRelationSequence(list.getRelationName());
 			if (relations != null)
 			{
-				serverName = relations[relations.length - 1].getForeignServerName();
-				tableName = relations[relations.length - 1].getForeignTableName();
+				dataSource = relations[relations.length - 1].getForeignDataSource();
 			}
 		}
 
-		IServer s = application.getSolution().getServer(serverName);
-		if (s != null)
-		{
-			table = (Table)s.getTable(tableName);
-		}
+		table = (Table)application.getFoundSetManager().getTable(dataSource);
 
 		showValues = list.getShowDataProviders();
 		returnValues = list.getReturnDataProviders();
 
 		//more than one value -> concat
-		concatShowValues = false;
-		if ((showValues != 1) && (showValues != 2) && (showValues != 4))
-		{
-			concatShowValues = true;
-		}
-		concatReturnValues = false;
-		if ((returnValues != 1) && (returnValues != 2) && (returnValues != 4))
-		{
-			concatReturnValues = true;
-		}
+		concatShowValues = ((showValues != 1) && (showValues != 2) && (showValues != 4));
+		concatReturnValues = ((returnValues != 1) && (returnValues != 2) && (returnValues != 4));
 
 		if (table != null && showValues != returnValues && tableListener == null)
 		{
@@ -567,4 +551,5 @@ public class LookupValueList implements IValueList
 	{
 		listeners.remove(l);
 	}
+
 }

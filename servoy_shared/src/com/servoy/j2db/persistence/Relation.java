@@ -29,6 +29,7 @@ import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.ISQLJoin;
+import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
@@ -44,6 +45,13 @@ import com.servoy.j2db.util.UUID;
 public class Relation extends AbstractBase implements ISupportChilds, ISupportUpdateableName, ISupportHTMLToolTipText, ISupportContentEquals, ICloneable,
 	IRelation
 {
+	public static final String INTERNAL_PREFIX = "-int-";
+
+	public static RuntimeProperty<ISQLTableJoin> RELATION_JOIN = new RuntimeProperty<ISQLTableJoin>()
+	{
+	};
+
+
 	/*
 	 * All 1-n providers for this class
 	 */
@@ -963,6 +971,12 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 			}
 		}
 		return true;
+	}
+
+	public boolean isInternal()
+	{
+		String name = getName();
+		return name != null && name.startsWith(INTERNAL_PREFIX);
 	}
 
 	private transient Set<String> usedScopes;

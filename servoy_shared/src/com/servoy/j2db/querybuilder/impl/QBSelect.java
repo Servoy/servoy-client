@@ -37,7 +37,7 @@ import com.servoy.j2db.query.ExistsCondition;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.OrCondition;
 import com.servoy.j2db.query.Placeholder;
-import com.servoy.j2db.query.PlaceholderKey;
+import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
@@ -269,7 +269,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		}
 		if (value instanceof QBParameter)
 		{
-			PlaceholderKey key = ((QBParameter)value).getPlaceholderKey();
+			TablePlaceholderKey key = ((QBParameter)value).getPlaceholderKey();
 			Placeholder placeholder = null;
 			if (query != null)
 			{

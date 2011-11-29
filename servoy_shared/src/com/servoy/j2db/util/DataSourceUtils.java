@@ -177,4 +177,22 @@ public class DataSourceUtils
 		}
 		return tableNames;
 	}
+
+
+	/**
+	 * @param dataSource1
+	 * @param dataSource2
+	 * @return
+	 */
+	public static boolean isSameServer(String dataSource1, String dataSource2)
+	{
+		if (dataSource1 == null || dataSource2 == null)
+		{
+			return false;
+		}
+		String server1 = getDataSourceServerName(dataSource1);
+		return server1 != null && server1.equals(getDataSourceServerName(dataSource2));
+	}
+
+
 }

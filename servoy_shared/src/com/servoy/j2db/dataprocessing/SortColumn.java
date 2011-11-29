@@ -63,6 +63,26 @@ public class SortColumn extends ColumnWrapper
 		sortOrder = o;
 	}
 
+	public boolean equalsIgnoreSortorder(Object obj)
+	{
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		return equalColumnWrapper((SortColumn)obj);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return super.hashCode() + (sortOrder * 6);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		return equalsIgnoreSortorder(obj) && (sortOrder == ((SortColumn)obj).sortOrder);
+	}
+
 	@Override
 	public String toString()
 	{

@@ -30,7 +30,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import com.servoy.j2db.dataprocessing.DBValueList;
 import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
+import com.servoy.j2db.dataprocessing.IGlobalValueEntry;
+import com.servoy.j2db.dataprocessing.SQLGenerator;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.AbstractRepository;
 import com.servoy.j2db.persistence.AggregateVariable;
@@ -83,6 +86,17 @@ import com.servoy.j2db.persistence.Style;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.persistence.ValueList;
+import com.servoy.j2db.query.AndCondition;
+import com.servoy.j2db.query.CompareCondition;
+import com.servoy.j2db.query.ISQLCondition;
+import com.servoy.j2db.query.ISQLJoin;
+import com.servoy.j2db.query.ISQLTableJoin;
+import com.servoy.j2db.query.ObjectPlaceholderKey;
+import com.servoy.j2db.query.Placeholder;
+import com.servoy.j2db.query.QueryColumn;
+import com.servoy.j2db.query.QueryCompositeJoin;
+import com.servoy.j2db.query.QueryJoin;
+import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.server.shared.IFlattenedSolutionDebugListener;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
@@ -379,7 +393,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		{
 			SimplePersistFactory factory = getPersistFactory();
 
-			copySolution = factory.createDummyCopy(mainSolution);
+			copySolution = SimplePersistFactory.createDummyCopy(mainSolution);
 			copySolution.setChangeHandler(new ChangeHandler(factory));
 			copySolution.getChangeHandler().addIPersistListener(this);
 		}
@@ -1412,8 +1426,8 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		for (int i = 0; i < parts.length; i++)
 		{
 			Relation relation = getRelation(parts[i]);
-			if (relation == null || prev != null &&
-				(prev.getForeignDataSource() == null || !prev.getForeignDataSource().equals(relation.getPrimaryDataSource())))
+			if (relation == null ||
+				(prev != null && (prev.getForeignDataSource() == null || !prev.getForeignDataSource().equals(relation.getPrimaryDataSource()))))
 			{
 				return null;
 			}
@@ -1954,6 +1968,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	public ValueList getValueList(int id)
 	{
+		if (id <= 0) return null;
 		return AbstractBase.selectById(getValueLists(false), id);
 	}
 
@@ -2217,12 +2232,198 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	public Media getMedia(int id)
 	{
+		if (id <= 0) return null;
 		return AbstractBase.selectById(getMedias(false), id);
 	}
 
 	public Media getMedia(String name)
 	{
 		return AbstractBase.selectByName(getMedias(false), name);
+	}
+
+	/**
+	 * Get the internal relation that can be used to sort on this value list using the display values.
+	 * @param valueList
+	 * @param callingTable
+	 * @param dataProviderID
+	 * @param foundSetManager
+	 * @return
+	 * @throws RepositoryException
+	 */
+	public Relation getValuelistSortRelation(ValueList valueList, Table callingTable, String dataProviderID, IFoundSetManagerInternal foundSetManager)
+		throws RepositoryException
+	{
+		if (callingTable == null || valueList == null)
+		{
+			return null;
+		}
+
+		String destDataSource;
+		Relation[] relationSequence;
+		String relationPrefix;
+		switch (valueList.getDatabaseValuesType())
+		{
+			case ValueList.TABLE_VALUES :
+				// create an internal relation
+				relationSequence = null;
+				relationPrefix = ""; //$NON-NLS-1$
+				destDataSource = valueList.getDataSource();
+				break;
+
+			case ValueList.RELATED_VALUES :
+				// replace the last relation in the sequence with an internal relation
+				relationSequence = getRelationSequence(valueList.getRelationName());
+				if (relationSequence == null)
+				{
+					return null;
+				}
+				StringBuilder sb = new StringBuilder();
+				for (Relation r : relationSequence)
+				{
+					sb.append('-').append(r.getName());
+				}
+				relationPrefix = sb.toString();
+
+				destDataSource = relationSequence[relationSequence.length - 1].getForeignDataSource();
+				break;
+
+			default :
+				return null;
+		}
+
+		if (destDataSource == null || !DataSourceUtils.isSameServer(callingTable.getDataSource(), destDataSource))
+		{
+			// do not create a cross-server relation
+			return null;
+		}
+
+		Table destTable = (Table)foundSetManager.getTable(destDataSource);
+		if (destTable == null)
+		{
+			return null;
+		}
+
+		String relationName = Relation.INTERNAL_PREFIX +
+			"VL-" + callingTable.getDataSource() + '-' + dataProviderID + relationPrefix + '-' + valueList.getName() + '-'; //$NON-NLS-1$
+
+		synchronized (this)
+		{
+			Relation relation = getRelation(relationName);
+			if (relation == null)
+			{
+				// create in internal relation
+				String dp;
+				int returnValues = valueList.getReturnDataProviders();
+				if ((returnValues & 1) != 0)
+				{
+					dp = valueList.getDataProviderID1();
+				}
+				else if ((returnValues & 2) != 0)
+				{
+					dp = valueList.getDataProviderID2();
+				}
+				else if ((returnValues & 4) != 0)
+				{
+					dp = valueList.getDataProviderID3();
+				}
+				else
+				{
+					return null;
+				}
+
+				Column callingColumn = callingTable.getColumn(dataProviderID);
+				Column destColumn = destTable.getColumn(dp);
+				if (callingColumn == null || destColumn == null)
+				{
+					return null;
+				}
+
+				// create internal value list relation
+				QueryTable callingQTable = new QueryTable(callingTable.getSQLName(), callingTable.getCatalog(), callingTable.getSchema());
+				QueryTable destQTable = new QueryTable(destTable.getSQLName(), destTable.getCatalog(), destTable.getSchema());
+
+				List<ISQLTableJoin> joins = new ArrayList<ISQLTableJoin>();
+				ISQLTableJoin lastJoin = null;
+				if (relationSequence == null)
+				{
+					// table values
+					joins.add(lastJoin = new QueryJoin(relationName, callingQTable, destQTable, new AndCondition(), ISQLJoin.LEFT_OUTER_JOIN));
+
+					if (valueList.getUseTableFilter()) //apply name as filter on column valuelist_name
+					{
+						lastJoin.getCondition().addCondition(
+							new CompareCondition(ISQLCondition.EQUALS_OPERATOR, new QueryColumn(destQTable, DBValueList.NAME_COLUMN), valueList.getName()));
+					}
+				}
+				else
+				{
+					// related values
+					QueryTable primaryQTable = callingQTable;
+					for (int i = 0; i < relationSequence.length; i++)
+					{
+						Relation r = relationSequence[i];
+						QueryTable foreignQTable;
+						if (i == relationSequence.length - 1)
+						{
+							// last one
+							foreignQTable = destQTable;
+						}
+						else
+						{
+							Table relForeignTable = r.getForeignTable();
+							if (relForeignTable == null)
+							{
+								return null;
+							}
+							foreignQTable = new QueryTable(relForeignTable.getSQLName(), relForeignTable.getCatalog(), relForeignTable.getSchema());
+						}
+						lastJoin = SQLGenerator.createJoin(this, r, primaryQTable, foreignQTable, new IGlobalValueEntry()
+						{
+							public Object setDataProviderValue(String dpid, Object value)
+							{
+								return null;
+							}
+
+							public Object getDataProviderValue(String dpid)
+							{
+								// A value will be added when the relation is used, see SQLGenerator.createJoin
+								return new Placeholder(new ObjectPlaceholderKey<int[]>(null, dpid));
+							}
+
+							public boolean containsDataProvider(String dpid)
+							{
+								return false;
+							}
+						});
+						joins.add(lastJoin);
+						primaryQTable = foreignQTable;
+					}
+				}
+
+				// add condition for return dp id
+				lastJoin.getCondition().addCondition(
+					new CompareCondition(ISQLCondition.EQUALS_OPERATOR, new QueryColumn(destQTable, destColumn.getID(), destColumn.getSQLName(),
+						destColumn.getType(), destColumn.getLength()), new QueryColumn(callingQTable, callingColumn.getID(), callingColumn.getSQLName(),
+						callingColumn.getType(), callingColumn.getLength())));
+
+				relation = getSolutionCopy().createNewRelation(new ScriptNameValidator(this), relationName, callingTable.getDataSource(), destDataSource,
+					ISQLJoin.LEFT_OUTER_JOIN);
+
+				ISQLTableJoin join;
+				if (joins.size() == 1)
+				{
+					join = lastJoin;
+				}
+				else
+				{
+					// combine joins
+					join = new QueryCompositeJoin(relationName, joins);
+				}
+				relation.setRuntimeProperty(Relation.RELATION_JOIN, join);
+			}
+
+			return relation;
+		}
 	}
 
 	/**

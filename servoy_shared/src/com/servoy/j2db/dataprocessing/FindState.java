@@ -33,7 +33,7 @@ import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.ISQLJoin;
-import com.servoy.j2db.query.QueryJoin;
+import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.util.Debug;
@@ -647,7 +647,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 				IFoundSetInternal set = relatedStates.get(relation.getName());
 				if (set != null && set.getSize() > 0)
 				{
-					QueryJoin existingJoin = (QueryJoin)sqlSelect.getJoin(selectTable, relation.getName());
+					ISQLTableJoin existingJoin = (ISQLTableJoin)sqlSelect.getJoin(selectTable, relation.getName());
 					QueryTable foreignQTable;
 					if (existingJoin == null)
 					{
@@ -676,7 +676,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 						}
 						if (existingJoin == null)
 						{
-							QueryJoin join = SQLGenerator.createJoin(parent.getFoundSetManager().getApplication().getFlattenedSolution(), relation,
+							ISQLTableJoin join = SQLGenerator.createJoin(parent.getFoundSetManager().getApplication().getFlattenedSolution(), relation,
 								selectTable, foreignQTable, provider);
 							// override join type to left outer join, a related OR-search should not make the result set smaller
 							join.setJoinType(ISQLJoin.LEFT_OUTER_JOIN);

@@ -47,7 +47,7 @@ import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.ISQLUpdate;
-import com.servoy.j2db.query.PlaceholderKey;
+import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QueryInsert;
@@ -272,9 +272,9 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		}
 		Object[] pk = row.getPK();
 		QuerySelect select = (QuerySelect)AbstractBaseQuery.deepClone(sheet.getSQL(SQLSheet.SELECT));
-		if (!select.setPlaceholderValue(new PlaceholderKey(select.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pk))
+		if (!select.setPlaceholderValue(new TablePlaceholderKey(select.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pk))
 		{
-			Debug.error(new RuntimeException("Could not set placeholder " + new PlaceholderKey(select.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + //$NON-NLS-1$
+			Debug.error(new RuntimeException("Could not set placeholder " + new TablePlaceholderKey(select.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + //$NON-NLS-1$
 				" in query " + select + "-- continuing")); //$NON-NLS-1$//$NON-NLS-2$
 		}
 		IDataSet formdata;
@@ -474,9 +474,9 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				values[c] = valueLists[c].toArray();
 			}
 
-			if (!select.setPlaceholderValue(new PlaceholderKey(select.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), values))
+			if (!select.setPlaceholderValue(new TablePlaceholderKey(select.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), values))
 			{
-				Debug.error(new RuntimeException("Could not set placeholder " + new PlaceholderKey(select.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + //$NON-NLS-1$
+				Debug.error(new RuntimeException("Could not set placeholder " + new TablePlaceholderKey(select.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + //$NON-NLS-1$
 					" in query " + select + "-- continuing")); //$NON-NLS-1$//$NON-NLS-2$
 			}
 
@@ -708,7 +708,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 					pkValues[j] = row.getOldRequiredValue(dataProviderID);
 				}
 
-				AbstractBaseQuery.setPlaceholderValue(sqlUpdate, new PlaceholderKey(((QueryUpdate)sqlUpdate).getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY),
+				AbstractBaseQuery.setPlaceholderValue(sqlUpdate, new TablePlaceholderKey(((QueryUpdate)sqlUpdate).getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY),
 					pkValues);
 			}
 			else
@@ -772,7 +772,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 						}
 					}
 				}
-				AbstractBaseQuery.setPlaceholderValue(sqlUpdate, new PlaceholderKey(((QueryInsert)sqlUpdate).getTable(), SQLGenerator.PLACEHOLDER_INSERT_KEY),
+				AbstractBaseQuery.setPlaceholderValue(sqlUpdate, new TablePlaceholderKey(((QueryInsert)sqlUpdate).getTable(), SQLGenerator.PLACEHOLDER_INSERT_KEY),
 					argsArray.toArray());
 			}
 			Object[] pk = row.getPK();
@@ -788,10 +788,10 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			if (mustRequeryRow)
 			{
 				requerySelect = (QuerySelect)AbstractBaseQuery.deepClone(sheet.getSQL(SQLSheet.SELECT));
-				if (!requerySelect.setPlaceholderValue(new PlaceholderKey(requerySelect.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pk))
+				if (!requerySelect.setPlaceholderValue(new TablePlaceholderKey(requerySelect.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pk))
 				{
 					Debug.error(new RuntimeException(
-						"Could not set placeholder " + new PlaceholderKey(requerySelect.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + //$NON-NLS-1$
+						"Could not set placeholder " + new TablePlaceholderKey(requerySelect.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + //$NON-NLS-1$
 							" in query " + requerySelect + "-- continuing")); //$NON-NLS-1$//$NON-NLS-2$
 				}
 			}
@@ -947,9 +947,9 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		{
 			QueryDelete sqlDelete = AbstractBaseQuery.deepClone((QueryDelete)sheet.getSQLDescription(SQLSheet.DELETE).getSQLQuery());
 			Object[] pk = r.getPK();
-			if (!sqlDelete.setPlaceholderValue(new PlaceholderKey(sqlDelete.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pk))
+			if (!sqlDelete.setPlaceholderValue(new TablePlaceholderKey(sqlDelete.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pk))
 			{
-				Debug.error(new RuntimeException("Could not set placeholder " + new PlaceholderKey(sqlDelete.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + //$NON-NLS-1$
+				Debug.error(new RuntimeException("Could not set placeholder " + new TablePlaceholderKey(sqlDelete.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + //$NON-NLS-1$
 					" in query " + sqlDelete + "-- continuing")); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 

@@ -87,6 +87,7 @@ import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IView;
 import com.servoy.j2db.component.ComponentFactory;
+import com.servoy.j2db.dataprocessing.DBValueList;
 import com.servoy.j2db.dataprocessing.DataAdapterList;
 import com.servoy.j2db.dataprocessing.FindState;
 import com.servoy.j2db.dataprocessing.FoundSet;
@@ -124,6 +125,7 @@ import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.TabSeqComparator;
+import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent.EventType;
@@ -144,6 +146,7 @@ import com.servoy.j2db.ui.IScriptReadOnlyMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowStyling;
+import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.PropertyCopy;
 import com.servoy.j2db.ui.scripting.RuntimePortal;
@@ -2027,14 +2030,48 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					{
 						Component comp = elementToColumnIdentifierComponent.get(persist);
 						SortableCellViewHeader sortableCellViewHeader = (SortableCellViewHeader)elementToColumnHeader.get(persist);
-						if (comp instanceof IDisplayData)
+						if (comp instanceof IDisplayData && ((IDisplayData)comp).getDataProviderID() != null)
 						{
 							IDisplayData dispComp = (IDisplayData)comp;
-							if (sc.getDataProviderID().equals(dispComp.getDataProviderID()))
+							List<String> sortingProviders = null;
+							if (dispComp instanceof ISupportValueList && ((ISupportValueList)dispComp).getValueList() != null)
 							{
-								boolean descending = sc.getSortOrder() == SortColumn.DESCENDING;
-								sortableCellViewHeader.setResizeImage(descending ? R_ARROW_UP : R_ARROW_DOWN);
-								sortMap.put(comp.getMarkupId(), Boolean.valueOf(!descending));
+								try
+								{
+									sortingProviders = DBValueList.getShowDataproviders(((ISupportValueList)dispComp).getValueList().getValueList(),
+										(Table)currentData.getTable(), dispComp.getDataProviderID(), currentData.getFoundSetManager());
+								}
+								catch (RepositoryException ex)
+								{
+									Debug.error(ex);
+								}
+							}
+
+							if (sortingProviders == null)
+							{
+								// no related sort, use sort on dataProviderID instead
+								sortingProviders = Collections.singletonList(dispComp.getDataProviderID());
+							}
+
+							for (String sortingProvider : sortingProviders)
+							{
+								SortColumn existingSc;
+								try
+								{
+									existingSc = ((FoundSetManager)currentData.getFoundSetManager()).getSortColumn(currentData.getTable(), sortingProvider);
+								}
+								catch (RepositoryException ex)
+								{
+									Debug.error(ex);
+									continue;
+								}
+
+								if (sc.equalsIgnoreSortorder(existingSc))
+								{
+									boolean descending = sc.getSortOrder() == SortColumn.DESCENDING;
+									sortableCellViewHeader.setResizeImage(descending ? R_ARROW_UP : R_ARROW_DOWN);
+									sortMap.put(comp.getMarkupId(), Boolean.valueOf(!descending));
+								}
 							}
 						}
 					}
@@ -2261,7 +2298,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	public void setModel(IFoundSetInternal fs)
 	{
-		if (currentData == fs) return;// if is same changes are seen by model listner
+		if (currentData == fs) return;// if is same changes are seen by model listener
 
 		if (currentData instanceof ISwingFoundSet)
 		{

@@ -36,6 +36,7 @@ import com.servoy.j2db.dataprocessing.IModificationListener;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.ModificationEvent;
+import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.util.ScopesUtils;
 
 /**
@@ -269,18 +270,13 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 		return size();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.swing.ListModel#getElementAt(int)
-	 */
 	public E getElementAt(int index)
 	{
 		int idx = index;
 		if (hideFirstValue) idx++;
 
 		if (idx < listModel.getSize()) return (E)listModel.getElementAt(idx);
-		else return null;
+		return null;
 	}
 
 	public boolean isCellEditable(int rowIndex)
@@ -460,7 +456,7 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 	{
 		if (listModel.getWrapped() instanceof CustomValueList)
 		{
-			return ((CustomValueList)listModel.getWrapped()).getType();
+			return ((CustomValueList)listModel.getWrapped()).getValueType();
 		}
 		return 0;
 	}
@@ -697,9 +693,9 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 			wrapped.deregister();
 		}
 
-		public void fill(IRecordInternal parentState)
+		public void fill(IRecordInternal rec)
 		{
-			wrapped.fill(parentState);
+			wrapped.fill(rec);
 		}
 
 		public boolean getAllowEmptySelection()
@@ -717,6 +713,10 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 			return wrapped.getName();
 		}
 
+		public ValueList getValueList()
+		{
+			return wrapped.getValueList();
+		}
 	}
 
 }

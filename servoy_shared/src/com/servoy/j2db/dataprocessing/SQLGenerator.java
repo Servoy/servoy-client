@@ -31,6 +31,7 @@ import java.util.Map;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.dataprocessing.FindState.RelatedFindState;
+import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.AggregateVariable;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ColumnInfo;
@@ -52,9 +53,10 @@ import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.IQuerySort;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.ISQLSelect;
+import com.servoy.j2db.query.ISQLTableJoin;
+import com.servoy.j2db.query.ObjectPlaceholderKey;
 import com.servoy.j2db.query.OrCondition;
 import com.servoy.j2db.query.Placeholder;
-import com.servoy.j2db.query.PlaceholderKey;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryColumnValue;
@@ -68,9 +70,11 @@ import com.servoy.j2db.query.QuerySort;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.QueryUpdate;
 import com.servoy.j2db.query.SetCondition;
+import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
  * This class is used to generate the (in repository stored?) SQL(Prepared)Statements and to generate te sql for the user find
@@ -280,7 +284,7 @@ public class SQLGenerator
 					{
 						// join must be re-created as it is possible to have globals involved;
 						// first remove, then create it
-						QueryJoin join = (QueryJoin)sqlSelect.getJoin(primaryQtable, relation.getName());
+						ISQLTableJoin join = (ISQLTableJoin)sqlSelect.getJoin(primaryQtable, relation.getName());
 						if (join != null) sqlSelect.getJoins().remove(join);
 
 						if (join == null)
@@ -350,9 +354,45 @@ public class SQLGenerator
 	/**
 	 * Join clause for this relation.
 	 */
-	public static QueryJoin createJoin(IDataProviderHandler flattenedSolution, IRelation relation, QueryTable primaryTable, QueryTable foreignTable,
-		IGlobalValueEntry provider) throws RepositoryException
+	public static ISQLTableJoin createJoin(IDataProviderHandler flattenedSolution, IRelation relation, QueryTable primaryTable, QueryTable foreignTable,
+		final IGlobalValueEntry provider) throws RepositoryException
 	{
+		if (relation instanceof AbstractBase)
+		{
+			ISQLTableJoin queryJoin = ((AbstractBase)relation).getRuntimeProperty(Relation.RELATION_JOIN);
+			if (queryJoin != null)
+			{
+				// a query join was defined for this relation, just relink the tables for the first and last in the joins
+				queryJoin = AbstractBaseQuery.deepClone(queryJoin);
+				queryJoin = AbstractBaseQuery.relinkTable(queryJoin.getPrimaryTable(), primaryTable, queryJoin);
+				queryJoin = AbstractBaseQuery.relinkTable(queryJoin.getForeignTable(), foreignTable, queryJoin);
+
+				// update the placeholders for globals
+				queryJoin.acceptVisitor(new IVisitor()
+				{
+					public Object visit(Object o)
+					{
+						if (o instanceof Placeholder && ((Placeholder)o).getKey() instanceof ObjectPlaceholderKey)
+						{
+							Object value = provider.getDataProviderValue(((ObjectPlaceholderKey<int[]>)((Placeholder)o).getKey()).getName());
+							int[] args = ((ObjectPlaceholderKey<int[]>)((Placeholder)o).getKey()).getObject();
+							int dataProviderType = args[0];
+							int flags = args[1];
+							if (value == null)
+							{
+								return ValueFactory.createNullValue(dataProviderType);
+							}
+							return Column.getAsRightType(dataProviderType, flags, value, Integer.MAX_VALUE, false);
+						}
+						return o;
+					}
+				});
+
+				return queryJoin;
+			}
+		}
+
+		// build a join from the relation items
 		IDataProvider[] primary = relation.getPrimaryDataProviders(flattenedSolution);
 		Column[] foreign = relation.getForeignColumns();
 		int[] operators = relation.getOperators();
@@ -383,6 +423,13 @@ public class SQLGenerator
 				{
 					value = ValueFactory.createNullValue(primary[x].getDataProviderType());
 				}
+				else if (value instanceof Placeholder)
+				{
+					if (((Placeholder)value).getKey() instanceof ObjectPlaceholderKey< ? >)
+					{
+						((ObjectPlaceholderKey)((Placeholder)value).getKey()).setObject(new int[] { primary[x].getDataProviderType(), primary[x].getFlags() });
+					}
+				}
 				else
 				{
 					value = Column.getAsRightType(primary[x].getDataProviderType(), primary[x].getFlags(), value, Integer.MAX_VALUE, false);
@@ -404,7 +451,6 @@ public class SQLGenerator
 		}
 		return new QueryJoin(relation.getName(), primaryTable, foreignTable, joinCondition, relation.getJoinType());
 	}
-
 
 	static SetCondition createSetConditionFromPKs(int operator, QueryColumn[] pkQuerycolumns, List<Column> pkColumns, IDataSet pks)
 	{
@@ -736,7 +782,7 @@ public class SQLGenerator
 									{
 										case IColumnTypes.INTEGER :
 										case IColumnTypes.NUMBER :
-											compareEmpty = new CompareCondition(ISQLCondition.EQUALS_OPERATOR, qCol, new Integer(0));
+											compareEmpty = new CompareCondition(ISQLCondition.EQUALS_OPERATOR, qCol, Integer.valueOf(0));
 											break;
 
 										case IColumnTypes.TEXT :
@@ -1043,8 +1089,7 @@ public class SQLGenerator
 		{
 			Table foreignTable = relation.getForeignTable();
 			QueryTable foreignQtable = new QueryTable(foreignTable.getSQLName(), foreignTable.getCatalog(), foreignTable.getSchema());
-			QueryJoin join = createJoin(flattenedSolution, relation, prevTable, foreignQtable, provider);
-			existsSelect.addJoin(join);
+			existsSelect.addJoin(createJoin(flattenedSolution, relation, prevTable, foreignQtable, provider));
 
 			prevTable = foreignQtable;
 		}
@@ -1184,7 +1229,7 @@ public class SQLGenerator
 		Iterator<Column> it2 = columns.iterator();
 		select.setColumns(makeQueryColumns(it2, queryTable, insert));
 		SetCondition pkSelect = new SetCondition(ISQLCondition.EQUALS_OPERATOR, pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]),
-			new Placeholder(new PlaceholderKey(queryTable, PLACEHOLDER_PRIMARY_KEY)), true);
+			new Placeholder(new TablePlaceholderKey(queryTable, PLACEHOLDER_PRIMARY_KEY)), true);
 
 		select.setCondition(CONDITION_SEARCH, pkSelect);
 		delete.setCondition(AbstractBaseQuery.deepClone(pkSelect));
@@ -1204,7 +1249,6 @@ public class SQLGenerator
 		retval.addUpdate(update, dataProviderIDsDilivery, requiredDataProviderIDs);
 
 		//related stuff
-		//makeRelatedSQL(retval, relProvider.getRelations(table, true, false));
 		createAggregates(retval, queryTable);
 
 		return retval;
@@ -1214,46 +1258,10 @@ public class SQLGenerator
 	/**
 	 * Create place holder name for PR (Relation Key)
 	 */
-	public static PlaceholderKey createRelationKeyPlaceholderKey(QueryTable foreignTable, String relationName)
+	public static TablePlaceholderKey createRelationKeyPlaceholderKey(QueryTable foreignTable, String relationName)
 	{
-		return new PlaceholderKey(foreignTable, PLACEHOLDER_RELATION_KEY + ':' + relationName);
+		return new TablePlaceholderKey(foreignTable, PLACEHOLDER_RELATION_KEY + ':' + relationName);
 	}
-
-//	/*
-//	 * only used in developer to regenerate the relations.
-//	 */
-//	void makeRelatedSQL(SQLSheet retval) throws ServoyException
-//	{
-//		makeRelatedSQL(retval, relProvider.getRelations(retval.getTable(), true, false));
-//	}
-//
-//	private void makeRelatedSQL(SQLSheet retval, Iterator<Relation> relations) throws ServoyException
-//	{
-//		//make related selects
-//		//relatedselect (=data for portal and related fields)
-//		//3)select relatedfield1,relatedfield2 from relatedtablename1 where relationfield1 = relationfield1data  (sub statement, assign in repository to Portal,Tabs)
-//		while (relations.hasNext())
-//		{
-//			//skip on errors or invalid data otherwise all sql generation fails
-//			Relation r = relations.next();
-//			Table ft = r.getForeignTable();
-//			if (ft == null)
-//			{
-//				continue;
-//			}
-//
-//			SQLSheet relatedSheet = null;
-//			if (r.isGlobal()) //no need to have global relations in each sheet
-//			{
-//				relatedSheet = getCachedTableSQLSheet(ft);
-//			}
-//			else
-//			{
-//				relatedSheet = retval.getRelatedSQLSheet(r, this);
-//			}
-//			makeRelatedSQL(retval, r);
-//		}
-//	}
 
 	synchronized void makeRelatedSQL(SQLSheet relatedSheet, Relation r)
 	{
@@ -1521,7 +1529,7 @@ public class SQLGenerator
 
 		if (insert != null)
 		{
-			insert.setColumnValues(insertColumns.toArray(new QueryColumn[insertColumns.size()]), new Placeholder(new PlaceholderKey(queryTable,
+			insert.setColumnValues(insertColumns.toArray(new QueryColumn[insertColumns.size()]), new Placeholder(new TablePlaceholderKey(queryTable,
 				PLACEHOLDER_INSERT_KEY)));
 		}
 		return queryColumns;

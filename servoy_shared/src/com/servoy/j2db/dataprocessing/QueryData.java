@@ -33,8 +33,8 @@ import com.servoy.j2db.util.visitor.IVisitor;
  */
 public class QueryData implements Serializable, IVisitable
 {
-	private final ISQLSelect sqlSelect;
-	private final ArrayList filters;
+	private ISQLSelect sqlSelect;
+	private ArrayList filters;
 	private final boolean distinctInMemory;
 	private final int startRow;
 	private final int rowsToRetrieve;
@@ -45,10 +45,10 @@ public class QueryData implements Serializable, IVisitable
 
 	static
 	{
-		Map classMapping = new HashMap();
+		Map<String, Short> classMapping = new HashMap<String, Short>();
 
-		classMapping.put("com.servoy.j2db.dataprocessing.QueryData", Short.valueOf((short)1)); //$NON-NLS-1$
-		classMapping.put("com.servoy.j2db.dataprocessing.TableFilter", Short.valueOf((short)2)); //$NON-NLS-1$
+		classMapping.put(QueryData.class.getName(), Short.valueOf((short)1));
+		classMapping.put(TableFilter.class.getName(), Short.valueOf((short)2));
 
 		ReplacedObject.installClassMapping(DATAPROCESSING_SERIALIZE_DOMAIN, classMapping);
 	}
@@ -142,8 +142,8 @@ public class QueryData implements Serializable, IVisitable
 	 */
 	public void acceptVisitor(IVisitor visitor)
 	{
-		sqlSelect.acceptVisitor(visitor);
-		AbstractBaseQuery.acceptVisitor(filters, visitor);
+		sqlSelect = AbstractBaseQuery.acceptVisitor(sqlSelect, visitor);
+		filters = AbstractBaseQuery.acceptVisitor(filters, visitor);
 	}
 
 

@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.query;
 
 import java.util.ArrayList;
@@ -27,8 +27,8 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.DeepCloneVisitor;
 import com.servoy.j2db.util.visitor.IVisitable;
 import com.servoy.j2db.util.visitor.IVisitor;
-import com.servoy.j2db.util.visitor.ReplaceVisitor;
 import com.servoy.j2db.util.visitor.IVisitor.VistorResult;
+import com.servoy.j2db.util.visitor.ReplaceVisitor;
 
 /**
  * Base class for all DML classes.
@@ -46,32 +46,34 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 	{
 		Map<String, Short> classMapping = new HashMap<String, Short>();
 
-		classMapping.put("com.servoy.j2db.query.AndCondition", new Short((short)1)); //$NON-NLS-1$
-		classMapping.put("com.servoy.j2db.query.BooleanCondition", new Short((short)2)); //$NON-NLS-1$
-		classMapping.put("com.servoy.j2db.query.ColumnType", new Short((short)3)); //$NON-NLS-1$
-		classMapping.put("com.servoy.j2db.query.CompareCondition", new Short((short)4)); //$NON-NLS-1$
-		classMapping.put("com.servoy.j2db.query.CustomCondition", new Short((short)5)); //$NON-NLS-1$
-		classMapping.put("com.servoy.j2db.query.OrCondition", new Short((short)6)); //$NON-NLS-1$
-		classMapping.put("com.servoy.j2db.query.Placeholder", new Short((short)7)); //$NON-NLS-1$
-		classMapping.put("com.servoy.j2db.query.PlaceholderKey", new Short((short)8)); //$NON-NLS-1$
-		classMapping.put("com.servoy.j2db.query.QueryAggregate", new Short((short)9)); //$NON-NLS-1$
-		classMapping.put("com.servoy.j2db.query.QueryColumn", new Short((short)10)); //$NON-NLS-1$
-		classMapping.put("com.servoy.j2db.query.QueryColumnValue", new Short((short)11)); //$NON-NLS-1$
-		classMapping.put("com.servoy.j2db.query.QueryCustomElement", new Short((short)12)); //$NON-NLS-1$
-		classMapping.put("com.servoy.j2db.query.QueryCustomJoin", new Short((short)13)); //$NON-NLS-1$
-		classMapping.put("com.servoy.j2db.query.QueryCustomSelect", new Short((short)14)); //$NON-NLS-1$
-		classMapping.put("com.servoy.j2db.query.QueryCustomSort", new Short((short)15)); //$NON-NLS-1$
-		classMapping.put("com.servoy.j2db.query.QueryCustomUpdate", new Short((short)16)); //$NON-NLS-1$
-		classMapping.put("com.servoy.j2db.query.QueryDelete", new Short((short)17)); //$NON-NLS-1$
-		classMapping.put("com.servoy.j2db.query.QueryFunction", new Short((short)18)); //$NON-NLS-1$
-		classMapping.put("com.servoy.j2db.query.QueryInsert", new Short((short)19)); //$NON-NLS-1$
-		classMapping.put("com.servoy.j2db.query.QueryJoin", new Short((short)20)); //$NON-NLS-1$
-		classMapping.put("com.servoy.j2db.query.QuerySelect", new Short((short)21)); //$NON-NLS-1$
-		classMapping.put("com.servoy.j2db.query.QuerySort", new Short((short)22)); //$NON-NLS-1$
-		classMapping.put("com.servoy.j2db.query.QueryTable", new Short((short)23)); //$NON-NLS-1$
-		classMapping.put("com.servoy.j2db.query.QueryUpdate", new Short((short)24)); //$NON-NLS-1$
-		classMapping.put("com.servoy.j2db.query.SetCondition", new Short((short)25)); //$NON-NLS-1$
-		classMapping.put("com.servoy.j2db.query.ExistsCondition", new Short((short)26)); //$NON-NLS-1$
+		classMapping.put(AndCondition.class.getName(), Short.valueOf((short)1));
+		classMapping.put(BooleanCondition.class.getName(), Short.valueOf((short)2));
+		classMapping.put(ColumnType.class.getName(), Short.valueOf((short)3));
+		classMapping.put(CompareCondition.class.getName(), Short.valueOf((short)4));
+		classMapping.put(CustomCondition.class.getName(), Short.valueOf((short)5));
+		classMapping.put(OrCondition.class.getName(), Short.valueOf((short)6));
+		classMapping.put(Placeholder.class.getName(), Short.valueOf((short)7));
+		classMapping.put(TablePlaceholderKey.class.getName(), Short.valueOf((short)8));
+		classMapping.put(QueryAggregate.class.getName(), Short.valueOf((short)9));
+		classMapping.put(QueryColumn.class.getName(), Short.valueOf((short)10));
+		classMapping.put(QueryColumnValue.class.getName(), Short.valueOf((short)11));
+		classMapping.put(QueryCustomElement.class.getName(), Short.valueOf((short)12));
+		classMapping.put(QueryCustomJoin.class.getName(), Short.valueOf((short)13));
+		classMapping.put(QueryCustomSelect.class.getName(), Short.valueOf((short)14));
+		classMapping.put(QueryCustomSort.class.getName(), Short.valueOf((short)15));
+		classMapping.put(QueryCustomUpdate.class.getName(), Short.valueOf((short)16));
+		classMapping.put(QueryDelete.class.getName(), Short.valueOf((short)17));
+		classMapping.put(QueryFunction.class.getName(), Short.valueOf((short)18));
+		classMapping.put(QueryInsert.class.getName(), Short.valueOf((short)19));
+		classMapping.put(QueryJoin.class.getName(), Short.valueOf((short)20));
+		classMapping.put(QuerySelect.class.getName(), Short.valueOf((short)21));
+		classMapping.put(QuerySort.class.getName(), Short.valueOf((short)22));
+		classMapping.put(QueryTable.class.getName(), Short.valueOf((short)23));
+		classMapping.put(QueryUpdate.class.getName(), Short.valueOf((short)24));
+		classMapping.put(SetCondition.class.getName(), Short.valueOf((short)25));
+		classMapping.put(ExistsCondition.class.getName(), Short.valueOf((short)26));
+		classMapping.put(ObjectPlaceholderKey.class.getName(), Short.valueOf((short)27));
+		classMapping.put(QueryCompositeJoin.class.getName(), Short.valueOf((short)28));
 
 		ReplacedObject.installClassMapping(QUERY_SERIALIZE_DOMAIN, classMapping);
 	}
@@ -351,12 +353,12 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 	}
 
 
-	public Placeholder getPlaceholder(PlaceholderKey key)
+	public Placeholder getPlaceholder(TablePlaceholderKey key)
 	{
 		return getPlaceholder(this, key);
 	}
 
-	public static Placeholder getPlaceholder(IVisitable visitable, PlaceholderKey key)
+	public static Placeholder getPlaceholder(IVisitable visitable, TablePlaceholderKey key)
 	{
 		PlaceHolderFinder phf = new PlaceHolderFinder(key);
 		visitable.acceptVisitor(phf);
@@ -368,12 +370,12 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 		return (Placeholder)placeHolders.get(0);
 	}
 
-	public boolean setPlaceholderValue(PlaceholderKey key, Object value)
+	public boolean setPlaceholderValue(TablePlaceholderKey key, Object value)
 	{
 		return setPlaceholderValue(this, key, value);
 	}
 
-	public static boolean setPlaceholderValue(IVisitable visitable, PlaceholderKey key, Object value)
+	public static boolean setPlaceholderValue(IVisitable visitable, TablePlaceholderKey key, Object value)
 	{
 		PlaceHolderSetter phs = new PlaceHolderSetter(key, value);
 		visitable.acceptVisitor(phs);
@@ -426,10 +428,10 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 	 */
 	public static class PlaceHolderFinder implements IVisitor
 	{
-		private final PlaceholderKey key;
+		private final TablePlaceholderKey key;
 		private final List<Object> placeHolders = new ArrayList<Object>();
 
-		PlaceHolderFinder(PlaceholderKey key)
+		PlaceHolderFinder(TablePlaceholderKey key)
 		{
 			this.key = key;
 		}
@@ -492,7 +494,7 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 	 */
 	public static class PlaceHolderSetter implements IVisitor
 	{
-		private final PlaceholderKey key;
+		private final TablePlaceholderKey key;
 		private final Object value;
 		private boolean hasUpdated = false;
 
@@ -500,7 +502,7 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 		 * @param key
 		 * @param value
 		 */
-		public PlaceHolderSetter(PlaceholderKey key, Object value)
+		public PlaceHolderSetter(TablePlaceholderKey key, Object value)
 		{
 			this.key = key;
 			this.value = value;

@@ -20,11 +20,14 @@ package com.servoy.j2db.dataprocessing;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.Relation;
+import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.query.IQuerySelectValue;
@@ -47,7 +50,6 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 	public static final int MAX_VALUELIST_ROWS = 500;
 	public static final String NAME_COLUMN = "valuelist_name"; //$NON-NLS-1$
 
-	protected ValueList valueList;
 	protected List<SortColumn> defaultSort = null;
 	private Table table;
 	private boolean containsCalculation = false;
@@ -58,8 +60,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
  */
 	public DBValueList(IServiceProvider app, ValueList vl)
 	{
-		super(app, vl.getName());
-		this.valueList = vl;
+		super(app, vl);
 
 		if (vl.getAddEmptyValue() == ValueList.EMPTY_VALUE_ALWAYS)
 		{
@@ -412,5 +413,46 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 		select.setSorts(orderColumns);
 
 		return select;
+	}
+
+	public static List<String> getShowDataproviders(ValueList valueList, Table table, String dataProviderID, IFoundSetManagerInternal foundSetManager)
+		throws RepositoryException
+	{
+		if (valueList == null)
+		{
+			return null;
+		}
+
+		// first try fallback value list,
+		FlattenedSolution flattenedSolution = foundSetManager.getApplication().getFlattenedSolution();
+		ValueList usedValueList = flattenedSolution.getValueList(valueList.getFallbackValueListID());
+		Relation valuelistSortRelation = flattenedSolution.getValuelistSortRelation(usedValueList, table, dataProviderID, foundSetManager);
+		if (valuelistSortRelation == null)
+		{
+			// then try regular value list
+			usedValueList = valueList;
+			valuelistSortRelation = flattenedSolution.getValuelistSortRelation(usedValueList, table, dataProviderID, foundSetManager);
+		}
+
+		if (valuelistSortRelation == null)
+		{
+			return null;
+		}
+
+		List<String> showDataproviders = new ArrayList<String>(3);
+		int showValues = usedValueList.getShowDataProviders();
+		if ((showValues & 1) != 0)
+		{
+			showDataproviders.add(valuelistSortRelation.getName() + '.' + usedValueList.getDataProviderID1());
+		}
+		if ((showValues & 2) != 0)
+		{
+			showDataproviders.add(valuelistSortRelation.getName() + '.' + usedValueList.getDataProviderID2());
+		}
+		if ((showValues & 4) != 0)
+		{
+			showDataproviders.add(valuelistSortRelation.getName() + '.' + usedValueList.getDataProviderID3());
+		}
+		return showDataproviders;
 	}
 }

@@ -140,7 +140,6 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 	private IRecordInternal currentEditingState;
 	private DataAdapterList dal;
 	private final TableView table;
-	private boolean opaque = true;
 
 	private Border noFocusBorder = new EmptyBorder(1, 1, 1, 1);
 
@@ -221,7 +220,6 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				{
 				}
 			});
-			opaque = renderer.isOpaque();
 			if (renderer instanceof JComponent)
 			{
 				Border rBorder = ((JComponent)renderer).getBorder();
@@ -295,7 +293,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		}
 		else if (editor instanceof DataCalendar)
 		{
-			((DataCalendar)editor).addActionListner(this);
+			((DataCalendar)editor).addActionListener(this);
 			((DataCalendar)editor).addEditListener(this);
 		}
 		else if (editor instanceof DataField)
@@ -1322,7 +1320,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				{
 					return false;
 				}
-				CellEditorListener l = listner;
+				CellEditorListener l = listener;
 				if (l != null)
 				{
 					l.editingStopped(new ChangeEvent(this));
@@ -1345,17 +1343,17 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 	 */
 	public void cancelCellEditing()
 	{
-		if (listner != null) listner.editingCanceled(new ChangeEvent(this));
+		if (listener != null) listener.editingCanceled(new ChangeEvent(this));
 	}
 
-	private CellEditorListener listner = null; // allow only one
+	private CellEditorListener listener = null; // allow only one
 
 	/*
 	 * @see CellEditor#addCellEditorListener(CellEditorListener)
 	 */
 	public void addCellEditorListener(CellEditorListener l)
 	{
-		listner = l;
+		listener = l;
 	}
 
 	/*
@@ -1363,7 +1361,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 	 */
 	public void removeCellEditorListener(CellEditorListener l)
 	{
-		listner = null;
+		listener = null;
 	}
 
 	public void displayValueChanged(ModificationEvent event)
@@ -1372,7 +1370,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 	}
 
 	/*
-	 * @see JSModificationListner#valueChanged(ModificationEvent)
+	 * @see JSModificationListener#valueChanged(ModificationEvent)
 	 */
 	public void valueChanged(ModificationEvent e)
 	{

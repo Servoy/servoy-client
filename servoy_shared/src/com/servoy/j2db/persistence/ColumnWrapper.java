@@ -111,42 +111,6 @@ public class ColumnWrapper implements IDataProvider, Serializable
 		return getName();
 	}
 
-
-/*
- * _____________________________________________________________ The methods below belong to interface <interfacename>
- */
-	@Override
-	public int hashCode()
-	{
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((column == null) ? 0 : column.hashCode());
-		if (relatonList != null) result = prime * result + relatonList.hashCode();
-		else result = prime * result + Arrays.hashCode(relations);
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj)
-	{
-		if (this == obj) return true;
-		if (obj == null) return false;
-		if (getClass() != obj.getClass()) return false;
-		final ColumnWrapper other = (ColumnWrapper)obj;
-		if (column == null)
-		{
-			if (other.column != null) return false;
-		}
-		else if (!column.equals(other.column)) return false;
-		// relation data is either stored in relations or in relationList
-		if (relatonList != null && other.relatonList != null)
-		{
-			return relatonList.equals(other.relatonList);
-
-		}
-		return Arrays.equals(getRelations(), other.getRelations());
-	}
-
 	public String getDataProviderID()//get the id
 	{
 		return prefixRelation(column.getDataProviderID());
@@ -195,6 +159,42 @@ public class ColumnWrapper implements IDataProvider, Serializable
 	public int getFlags()
 	{
 		return column.getFlags();
+	}
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((column == null) ? 0 : column.hashCode());
+		if (relatonList != null) result = prime * result + relatonList.hashCode();
+		else result = prime * result + Arrays.hashCode(relations);
+		return result;
+	}
+
+	protected boolean equalColumnWrapper(ColumnWrapper other)
+	{
+		if (column == null)
+		{
+			if (other.column != null) return false;
+		}
+		else if (!column.equals(other.column)) return false;
+		// relation data is either stored in relations or in relationList
+		if (relatonList != null && other.relatonList != null)
+		{
+			return relatonList.equals(other.relatonList);
+
+		}
+		return Arrays.equals(getRelations(), other.getRelations());
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		return equalColumnWrapper((ColumnWrapper)obj);
 	}
 
 }

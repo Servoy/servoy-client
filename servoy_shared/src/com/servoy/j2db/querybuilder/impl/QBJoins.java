@@ -29,6 +29,7 @@ import com.servoy.j2db.persistence.IRelation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.AndCondition;
+import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.query.QueryJoin;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.querybuilder.IQueryBuilderJoin;
@@ -180,7 +181,7 @@ public class QBJoins extends DefaultScope implements IQueryBuilderJoins
 		return join;
 	}
 
-	private QBJoin addJoin(QueryJoin queryJoin, String dataSource, String name) throws RepositoryException
+	private QBJoin addJoin(ISQLTableJoin queryJoin, String dataSource, String name) throws RepositoryException
 	{
 		QBJoin join = new QBJoin(root, parent, dataSource, queryJoin, name);
 		root.getQuery().addJoin(queryJoin);
