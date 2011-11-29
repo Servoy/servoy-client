@@ -43,7 +43,6 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.text.Style;
 import javax.swing.text.html.CSS;
-import javax.swing.text.html.StyleSheet;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
@@ -150,7 +149,9 @@ import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.PropertyCopy;
 import com.servoy.j2db.ui.scripting.RuntimePortal;
+import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.FixedStyleSheet;
 import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.Pair;
@@ -210,8 +211,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	private Component resizedComponent; // the component that has been resized because of a column resize
 
 	private final ISupportOnRenderCallback dataRendererOnRenderWrapper;
-	private StyleSheet styleSheet;
-	private Style oddStyle, evenStyle, selectedStyle;
+	private FixedStyleSheet styleSheet;
+	private Style oddStyle, evenStyle, selectedStyle, headerStyle;
 
 	private ServoyTableResizeBehavior tableResizeBehavior;
 	private boolean bodySizeHintSetFromClient;
@@ -521,8 +522,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			if (fgColor instanceof Undefined) fgColor = null;
 			Object styleFont = WebCellBasedView.this.getListItemFont(listItem, selected);
 			if (styleFont instanceof Undefined) styleFont = null;
+			Object styleBorder = WebCellBasedView.this.getListItemBorder(listItem, selected);
 
-			if (color == null && fgColor == null && styleFont == null)
+			if (color == null && fgColor == null && styleFont == null && styleBorder == null)
 			{
 				listItem.add(new AttributeModifier("class", new Model<String>((listItem.getIndex() % 2) == 0 ? "even" : "odd"))); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 			}
@@ -533,6 +535,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				final Object compColor = color;
 				final Object compFgColor = fgColor;
 				final Object compFont = styleFont;
+				final Object compBorder = styleBorder;
 				createComponents(application, form, listCellview, dataProviderLookup, el, listStartY, listEndY, new ItemAdd()
 				{
 					public void add(IPersist element, final Component comp)
@@ -564,7 +567,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						}
 
 						listItem.add(listItemChild);
-						setUpComponent(comp, rec, compColor, compFgColor, compFont, visibleRowIndex);
+						setUpComponent(comp, rec, compColor, compFgColor, compFont, compBorder, visibleRowIndex);
 					}
 				});
 			}
@@ -578,7 +581,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					// re-initialize :) it - apply js_ user changes applied on the column identifier component
 					// and other initializations...
 					initializeComponent(child, listCellview, cellToElement.get(child));
-					setUpComponent(child, rec, color, fgColor, styleFont, visibleRowIndex);
+					setUpComponent(child, rec, color, fgColor, styleFont, styleBorder, visibleRowIndex);
 				}
 			}
 
@@ -586,7 +589,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			enableChildrenInContainer(this, isEnabled());
 		}
 
-		private void setUpComponent(Component comp, IRecordInternal record, Object compColor, Object fgColor, Object compFont, int visibleRowIndex)
+		private void setUpComponent(Component comp, IRecordInternal record, Object compColor, Object fgColor, Object compFont, Object compBorder,
+			int visibleRowIndex)
 		{
 			// set correct tab index
 			if (tabIndex < 0)
@@ -623,7 +627,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 			}
 
-			WebCellBasedView.this.applyStyleOnComponent(comp, compColor, fgColor, compFont);
+			WebCellBasedView.this.applyStyleOnComponent(comp, compColor, fgColor, compFont, compBorder);
 
 			if (scriptable.js_isReadOnly() && validationEnabled && comp instanceof IScriptableProvider &&
 				((IScriptableProvider)comp).getScriptObject() instanceof IScriptReadOnlyMethods) // if in find mode, the field should not be readonly
@@ -651,6 +655,31 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			{
 				// apply properties that need to be applied to <td> tag instead
 				parent.setVisible(comp.isVisible());
+			}
+
+			if (compBorder != null)
+			{
+				Object elem = WebCellBasedView.this.cellToElement.get(comp);
+				Object colId = WebCellBasedView.this.elementToColumnIdentifierComponent.get(elem);
+				final int idx = WebCellBasedView.this.visibleColummIdentifierComponents.indexOf(colId);
+
+				comp.add(new StyleAppendingModifier(new Model<String>()
+				{
+					@Override
+					public String getObject()
+					{
+						if (idx == 0)
+						{
+							return "border-right: none"; //$NON-NLS-1$
+						}
+						else if (idx == WebCellBasedView.this.visibleColummIdentifierComponents.size() - 1)
+						{
+							return "border-left: none"; //$NON-NLS-1$
+						}
+
+						return "border-left:none; border-right:none;"; //$NON-NLS-1$
+					}
+				}));
 			}
 		}
 
@@ -711,16 +740,16 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		public void updateComponentsRenderState(AjaxRequestTarget target, boolean isSelected)
 		{
-			updateComponentsRenderState(target, null, null, null, isSelected, true);
+			updateComponentsRenderState(target, null, null, null, null, isSelected, true);
 		}
 
-		public void updateComponentsRenderState(AjaxRequestTarget target, String bgColor, String fgColor, String compFont, boolean isSelected)
+		public void updateComponentsRenderState(AjaxRequestTarget target, String bgColor, String fgColor, String compFont, String compBorder, boolean isSelected)
 		{
-			updateComponentsRenderState(target, bgColor, fgColor, compFont, isSelected, false);
+			updateComponentsRenderState(target, bgColor, fgColor, compFont, compBorder, isSelected, false);
 		}
 
-		private void updateComponentsRenderState(AjaxRequestTarget target, String bgColor, String fgColor, String compFont, boolean isSelected,
-			boolean ignoreStyles)
+		private void updateComponentsRenderState(AjaxRequestTarget target, String bgColor, String fgColor, String compFont, String compBorder,
+			boolean isSelected, boolean ignoreStyles)
 		{
 			Iterator< ? extends Component> it = iterator();
 			while (it.hasNext())
@@ -732,7 +761,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					if (c instanceof Component)
 					{
 						Component innerComponent = (Component)c;
-						if (!ignoreStyles) WebCellBasedView.this.applyStyleOnComponent(innerComponent, bgColor, fgColor, compFont);
+						if (!ignoreStyles) WebCellBasedView.this.applyStyleOnComponent(innerComponent, bgColor, fgColor, compFont, compBorder);
 						boolean innerComponentChanged = innerComponent instanceof IProviderStylePropertyChanges &&
 							((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges().isChanged();
 						if ((updateComponentRenderState(c, isSelected)) && target != null)
@@ -2878,34 +2907,60 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		if (rec != null && rec.getRawData() != null)
 		{
-			StyleSheet ss = getRowStyleSheet();
 			Style style = isSelected ? getRowSelectedStyle() : null;
 			if (style != null && style.getAttributeCount() == 0) style = null;
 			if (style == null)
 			{
 				style = (listItem.getIndex() % 2 == 0) ? getRowOddStyle() : getRowEvenStyle(); // because index = 0 means record = 1
 			}
-			if (ss != null && style != null)
-			{
-				switch (rowStyleAttribute)
-				{
-					case BGCOLOR :
-						listItemAttrValue = style.getAttribute(CSS.Attribute.BACKGROUND_COLOR) != null
-							? PersistHelper.createColorString(ss.getBackground(style)) : null;
-						break;
-					case FGCOLOR :
-						listItemAttrValue = style.getAttribute(CSS.Attribute.COLOR) != null ? PersistHelper.createColorString(ss.getForeground(style)) : null;
-						break;
-					case FONT :
-						listItemAttrValue = style.getAttribute(CSS.Attribute.FONT) != null || style.getAttribute(CSS.Attribute.FONT_FAMILY) != null ||
-							style.getAttribute(CSS.Attribute.FONT_SIZE) != null || style.getAttribute(CSS.Attribute.FONT_STYLE) != null ||
-							style.getAttribute(CSS.Attribute.FONT_VARIANT) != null || style.getAttribute(CSS.Attribute.FONT_WEIGHT) != null
-							? PersistHelper.createFontString(ss.getFont(style)) : null;
-				}
-			}
+
+			listItemAttrValue = getStyleAttributeValue(style, rowStyleAttribute);
 		}
 
 		return listItemAttrValue;
+	}
+
+	private String getStyleAttributeValue(Style style, ISupportRowStyling.ATTRIBUTE styleAttribute)
+	{
+		FixedStyleSheet ss = getRowStyleSheet();
+		if (ss != null && style != null)
+		{
+			switch (styleAttribute)
+			{
+				case BGCOLOR :
+					return style.getAttribute(CSS.Attribute.BACKGROUND_COLOR) != null ? PersistHelper.createColorString(ss.getBackground(style)) : null;
+				case FGCOLOR :
+					return style.getAttribute(CSS.Attribute.COLOR) != null ? PersistHelper.createColorString(ss.getForeground(style)) : null;
+				case FONT :
+					return style.getAttribute(CSS.Attribute.FONT) != null || style.getAttribute(CSS.Attribute.FONT_FAMILY) != null ||
+						style.getAttribute(CSS.Attribute.FONT_SIZE) != null || style.getAttribute(CSS.Attribute.FONT_STYLE) != null ||
+						style.getAttribute(CSS.Attribute.FONT_VARIANT) != null || style.getAttribute(CSS.Attribute.FONT_WEIGHT) != null
+						? PersistHelper.createFontString(ss.getFont(style)) : null;
+				case BORDER :
+					return style.getAttribute(CSS.Attribute.BORDER) != null ? ComponentFactoryHelper.createBorderString(ss.getBorder(style)) : null;
+			}
+		}
+		return null;
+	}
+
+	protected String getHeaderBgColor()
+	{
+		return getStyleAttributeValue(getHeaderStyle(), ISupportRowStyling.ATTRIBUTE.BGCOLOR);
+	}
+
+	protected String getHeaderFgColor()
+	{
+		return getStyleAttributeValue(getHeaderStyle(), ISupportRowStyling.ATTRIBUTE.FGCOLOR);
+	}
+
+	protected String getHeaderFont()
+	{
+		return getStyleAttributeValue(getHeaderStyle(), ISupportRowStyling.ATTRIBUTE.FONT);
+	}
+
+	protected String getHeaderBorder()
+	{
+		return getStyleAttributeValue(getHeaderStyle(), ISupportRowStyling.ATTRIBUTE.BORDER);
 	}
 
 	private Object getListItemFgColor(ListItem<IRecordInternal> listItem, boolean isSelected)
@@ -2916,6 +2971,11 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	private Object getListItemFont(ListItem<IRecordInternal> listItem, boolean isSelected)
 	{
 		return getStyleAttributeForListItem(listItem, isSelected, ISupportRowStyling.ATTRIBUTE.FONT);
+	}
+
+	private Object getListItemBorder(ListItem<IRecordInternal> listItem, boolean isSelected)
+	{
+		return getStyleAttributeForListItem(listItem, isSelected, ISupportRowStyling.ATTRIBUTE.BORDER);
 	}
 
 	private Object getListItemBgColor(ListItem<IRecordInternal> listItem, boolean isSelected)
@@ -2972,7 +3032,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		return color;
 	}
 
-	private void applyStyleOnComponent(Component comp, Object bgColor, Object fgColor, Object compFont)
+	private void applyStyleOnComponent(Component comp, Object bgColor, Object fgColor, Object compFont, Object compBorder)
 	{
 		if (comp instanceof IScriptableProvider)
 		{
@@ -2988,6 +3048,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 				String newCompFont = compFont != null ? compFont.toString() : null;
 				sbm.js_setFont(newCompFont);
+
+				String newBorder = compBorder != null ? compBorder.toString() : null;
+				if (newBorder != null) sbm.js_setBorder(newBorder);
 			}
 		}
 	}
@@ -3333,6 +3396,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						Object selectedColor = getListItemBgColor(selectedListItem, isSelected);
 						Object selectedFgColor = getListItemFgColor(selectedListItem, isSelected);
 						Object selectedFont = getListItemFont(selectedListItem, isSelected);
+						Object selectedBorder = getListItemBorder(selectedListItem, isSelected);
 						selectedColor = (selectedColor == null ? "" : selectedColor.toString()); //$NON-NLS-1$
 						selectedFgColor = (selectedFgColor == null) ? "" : selectedFgColor.toString(); //$NON-NLS-1$
 						String fstyle = "", fweight = "", fsize = "", ffamily = ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -3357,6 +3421,19 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 								}
 							}
 						}
+						String bstyle = "", bwidth = "", bcolor = ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						if (selectedBorder != null)
+						{
+							Properties borderProperties = new Properties();
+							ComponentFactoryHelper.createBorderCSSProperties(selectedBorder.toString(), borderProperties);
+							bstyle = borderProperties.getProperty("border-style"); //$NON-NLS-1$
+							if (bstyle == null) bstyle = ""; //$NON-NLS-1$
+							bwidth = borderProperties.getProperty("border-width"); //$NON-NLS-1$
+							if (bwidth == null) bwidth = ""; //$NON-NLS-1$
+							bcolor = borderProperties.getProperty("border-color"); //$NON-NLS-1$
+							if (bcolor == null) bcolor = ""; //$NON-NLS-1$
+						}
+
 						sab.append("Servoy.TableView.setRowStyle('"). //$NON-NLS-1$
 						append(selectedId).append("', '"). //$NON-NLS-1$
 						append(selectedColor).append("', '"). //$NON-NLS-1$
@@ -3364,7 +3441,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						append(fstyle).append("', '"). //$NON-NLS-1$
 						append(fweight).append("', '"). //$NON-NLS-1$
 						append(fsize).append("', '"). //$NON-NLS-1$
-						append(ffamily).append("');\n"); //$NON-NLS-1$
+						append(ffamily).append("', '"). //$NON-NLS-1$
+						append(bstyle).append("', '"). //$NON-NLS-1$
+						append(bwidth).append("', '"). //$NON-NLS-1$
+						append(bcolor).append("');\n"); //$NON-NLS-1$
 					}
 				}
 			}
@@ -3399,8 +3479,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						String sFgColor = (fgColor == null || fgColor instanceof Undefined) ? null : fgColor.toString();
 						Object styleFont = WebCellBasedView.this.getListItemFont(selectedListItem, isSelected);
 						String sStyleFont = (styleFont == null || styleFont instanceof Undefined) ? null : styleFont.toString();
+						Object styleBorder = WebCellBasedView.this.getListItemBorder(selectedListItem, isSelected);
+						String sStyleBorder = (styleBorder == null || styleBorder instanceof Undefined) ? null : styleBorder.toString();
 
-						((WebCellBasedViewListItem)selectedListItem).updateComponentsRenderState(target, sColor, sFgColor, sStyleFont, isSelected);
+						((WebCellBasedViewListItem)selectedListItem).updateComponentsRenderState(target, sColor, sFgColor, sStyleFont, sStyleBorder, isSelected);
 					}
 				}
 			}
@@ -3457,13 +3539,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			if (newSelectedIndexesA.indexOf(selection) == -1) indexesToUpdate.add(selection);
 		}
 
-
-		if (indexesToUpdate.size() > 0)
-		{
-			indexesToUpdate.addAll(oldSelectedIndexes);
-			return indexesToUpdate;
-		}
-		else return null;
+		return (indexesToUpdate.size() > 0) ? indexesToUpdate : null;
 	}
 
 	private int[] getSelectedIndexes()
@@ -3705,18 +3781,19 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	/*
 	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#setStyles(javax.swing.text.html.StyleSheet, javax.swing.text.Style, javax.swing.text.Style)
 	 */
-	public void setRowStyles(StyleSheet styleSheet, Style oddStyle, Style evenStyle, Style selectedStyle)
+	public void setRowStyles(FixedStyleSheet styleSheet, Style oddStyle, Style evenStyle, Style selectedStyle, Style headerStyle)
 	{
 		this.styleSheet = styleSheet;
 		this.oddStyle = oddStyle;
 		this.evenStyle = evenStyle;
 		this.selectedStyle = selectedStyle;
+		this.headerStyle = headerStyle;
 	}
 
 	/*
 	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getStyleSheet()
 	 */
-	public StyleSheet getRowStyleSheet()
+	public FixedStyleSheet getRowStyleSheet()
 	{
 		return styleSheet;
 	}
@@ -3727,6 +3804,11 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	public Style getRowSelectedStyle()
 	{
 		return selectedStyle;
+	}
+
+	public Style getHeaderStyle()
+	{
+		return headerStyle;
 	}
 
 	public void setScrollMode(boolean scrollMode)

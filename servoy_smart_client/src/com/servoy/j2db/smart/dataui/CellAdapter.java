@@ -22,6 +22,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -33,6 +34,7 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.geom.Area;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -62,7 +64,6 @@ import javax.swing.table.TableModel;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.Style;
 import javax.swing.text.html.CSS;
-import javax.swing.text.html.StyleSheet;
 
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
@@ -106,6 +107,7 @@ import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.FixedStyleSheet;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.PersistHelper;
@@ -616,40 +618,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 
 		if (renderer instanceof JComponent)
 		{
-			JComponent borderOwner = (JComponent)renderer;
-			Border adjustedBorder = null;
-			if (!hasFocus) adjustedBorder = noFocusBorder;
-			else
-			{
-				adjustedBorder = UIManager.getBorder("Table.focusCellHighlightBorder"); //$NON-NLS-1$
-				if (noFocusBorder != null)
-				{
-					if (noFocusBorder instanceof CompoundBorder)
-					{
-						Border insideBorder = ((CompoundBorder)noFocusBorder).getInsideBorder();
-						Border outsideBorder = ((CompoundBorder)noFocusBorder).getOutsideBorder();
-						if (outsideBorder instanceof SpecialMatteBorder) adjustedBorder = new CompoundBorder(adjustedBorder, noFocusBorder);
-						else adjustedBorder = new CompoundBorder(adjustedBorder, insideBorder);
-					}
-					else if (noFocusBorder instanceof SpecialMatteBorder)
-					{
-						adjustedBorder = new CompoundBorder(adjustedBorder, noFocusBorder);
-					}
-					else
-					{
-						// keep the renderer content at the same position,
-						// create a focus border with the same border insets
-						Insets noFocusBorderInsets = noFocusBorder.getBorderInsets(borderOwner);
-						Insets adjustedBorderInsets = adjustedBorder.getBorderInsets(borderOwner);
-						EmptyBorder emptyInsideBorder = new EmptyBorder(Math.max(0, noFocusBorderInsets.top - adjustedBorderInsets.top), Math.max(0,
-							noFocusBorderInsets.left - adjustedBorderInsets.left), Math.max(0, noFocusBorderInsets.bottom - adjustedBorderInsets.bottom),
-							Math.max(0, noFocusBorderInsets.right - adjustedBorderInsets.right));
-
-						adjustedBorder = new CompoundBorder(adjustedBorder, emptyInsideBorder);
-					}
-				}
-			}
-			borderOwner.setBorder(adjustedBorder);
+			applyRowBorder((JComponent)renderer, jtable, isSelected, row, column, hasFocus);
 		}
 
 		boolean printing = Utils.getAsBoolean(application.getRuntimeProperties().get("isPrinting")); //$NON-NLS-1$
@@ -796,7 +765,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			{
 				ISupportRowStyling oddEvenStyling = (ISupportRowStyling)jtable;
 
-				StyleSheet ss = oddEvenStyling.getRowStyleSheet();
+				FixedStyleSheet ss = oddEvenStyling.getRowStyleSheet();
 				Style style = isSelected ? oddEvenStyling.getRowSelectedStyle() : null;
 				if (style != null && style.getAttributeCount() == 0) style = null;
 				if (style == null)
@@ -804,27 +773,52 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 					style = (row % 2 == 0) ? oddEvenStyling.getRowOddStyle() : oddEvenStyling.getRowEvenStyle(); // because index = 0 means record = 1	
 				}
 
-				if (ss != null && style != null)
-				{
-					switch (rowStyleAttribute)
-					{
-						case BGCOLOR :
-							rowStyleAttrValue = style.getAttribute(CSS.Attribute.BACKGROUND_COLOR) != null ? ss.getBackground(style) : null;
-							break;
-						case FGCOLOR :
-							rowStyleAttrValue = style.getAttribute(CSS.Attribute.COLOR) != null ? ss.getForeground(style) : null;
-							break;
-						case FONT :
-							rowStyleAttrValue = style.getAttribute(CSS.Attribute.FONT) != null || style.getAttribute(CSS.Attribute.FONT_FAMILY) != null ||
-								style.getAttribute(CSS.Attribute.FONT_SIZE) != null || style.getAttribute(CSS.Attribute.FONT_STYLE) != null ||
-								style.getAttribute(CSS.Attribute.FONT_VARIANT) != null || style.getAttribute(CSS.Attribute.FONT_WEIGHT) != null
-								? ss.getFont(style) : null;
-					}
-				}
+				rowStyleAttrValue = getStyleAttribute(ss, style, rowStyleAttribute);
 			}
 		}
 
 		return rowStyleAttrValue;
+	}
+
+	private Object getStyleAttribute(FixedStyleSheet styleSheet, Style style, ISupportRowStyling.ATTRIBUTE styleAttribute)
+	{
+		if (styleSheet != null && style != null)
+		{
+			switch (styleAttribute)
+			{
+				case BGCOLOR :
+					return style.getAttribute(CSS.Attribute.BACKGROUND_COLOR) != null ? styleSheet.getBackground(style) : null;
+				case FGCOLOR :
+					return style.getAttribute(CSS.Attribute.COLOR) != null ? styleSheet.getForeground(style) : null;
+				case FONT :
+					return styleSheet.hasFont(style) ? styleSheet.getFont(style) : null;
+				case BORDER :
+					return styleSheet.hasBorder(style) ? styleSheet.getBorder(style) : null;
+
+			}
+		}
+
+		return null;
+	}
+
+	public Color getHeaderBgColor(ISupportRowStyling rowStyling)
+	{
+		return (Color)getStyleAttribute(rowStyling.getRowStyleSheet(), rowStyling.getHeaderStyle(), ISupportRowStyling.ATTRIBUTE.BGCOLOR);
+	}
+
+	public Color getHeaderFgColor(ISupportRowStyling rowStyling)
+	{
+		return (Color)getStyleAttribute(rowStyling.getRowStyleSheet(), rowStyling.getHeaderStyle(), ISupportRowStyling.ATTRIBUTE.FGCOLOR);
+	}
+
+	public Font getHeaderFont(ISupportRowStyling rowStyling)
+	{
+		return (Font)getStyleAttribute(rowStyling.getRowStyleSheet(), rowStyling.getHeaderStyle(), ISupportRowStyling.ATTRIBUTE.FONT);
+	}
+
+	public Border getHeaderBorder(ISupportRowStyling rowStyling)
+	{
+		return (Border)getStyleAttribute(rowStyling.getRowStyleSheet(), rowStyling.getHeaderStyle(), ISupportRowStyling.ATTRIBUTE.BORDER);
 	}
 
 	private Color getFgColor(JTable jtable, boolean isSelected, int row)
@@ -835,6 +829,11 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 	private Font getFont(JTable jtable, boolean isSelected, int row)
 	{
 		return (Font)getStyleAttributeForRow(jtable, isSelected, row, ISupportRowStyling.ATTRIBUTE.FONT);
+	}
+
+	private Border getBorder(JTable jtable, boolean isSelected, int row)
+	{
+		return (Border)getStyleAttributeForRow(jtable, isSelected, row, ISupportRowStyling.ATTRIBUTE.BORDER);
 	}
 
 	private Color getBgColor(JTable jtable, boolean isSelected, int row, boolean isEdited)
@@ -907,6 +906,67 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			}
 		}
 		return bgColor;
+	}
+
+	private void applyRowBorder(JComponent component, JTable jtable, boolean isSelected, int row, int column, boolean hasFocus)
+	{
+		Border styleBorder = getBorder(jtable, isSelected, row);
+		if (styleBorder != null)
+		{
+			if (column == 0)
+			{
+				styleBorder = new ReducedBorder(styleBorder, ReducedBorder.RIGHT);
+			}
+			else if (column == jtable.getColumnCount() - 1)
+			{
+				styleBorder = new ReducedBorder(styleBorder, ReducedBorder.LEFT);
+			}
+			else
+			{
+				styleBorder = new ReducedBorder(styleBorder, ReducedBorder.LEFT | ReducedBorder.RIGHT);
+			}
+			//styleBorder = new CompoundBorder(styleBorder, noFocusBorder);
+		}
+		else
+		{
+			styleBorder = noFocusBorder;
+		}
+
+		Border adjustedBorder = null;
+
+		if (!hasFocus) adjustedBorder = styleBorder;
+		else
+		{
+			adjustedBorder = UIManager.getBorder("Table.focusCellHighlightBorder"); //$NON-NLS-1$
+			if (styleBorder != null)
+			{
+				if (styleBorder instanceof CompoundBorder)
+				{
+					Border insideBorder = ((CompoundBorder)styleBorder).getInsideBorder();
+					Border outsideBorder = ((CompoundBorder)styleBorder).getOutsideBorder();
+					if (outsideBorder instanceof SpecialMatteBorder) adjustedBorder = new CompoundBorder(adjustedBorder, styleBorder);
+					else adjustedBorder = new CompoundBorder(adjustedBorder, insideBorder);
+				}
+				else if (styleBorder instanceof SpecialMatteBorder)
+				{
+					adjustedBorder = new CompoundBorder(adjustedBorder, styleBorder);
+				}
+				else
+				{
+					// keep the renderer content at the same position,
+					// create a focus border with the same border insets
+					Insets noFocusBorderInsets = styleBorder.getBorderInsets(component);
+					Insets adjustedBorderInsets = adjustedBorder.getBorderInsets(component);
+					EmptyBorder emptyInsideBorder = new EmptyBorder(Math.max(0, noFocusBorderInsets.top - adjustedBorderInsets.top), Math.max(0,
+						noFocusBorderInsets.left - adjustedBorderInsets.left), Math.max(0, noFocusBorderInsets.bottom - adjustedBorderInsets.bottom), Math.max(
+						0, noFocusBorderInsets.right - adjustedBorderInsets.right));
+
+					adjustedBorder = new CompoundBorder(adjustedBorder, emptyInsideBorder);
+				}
+			}
+		}
+
+		component.setBorder(adjustedBorder);
 	}
 
 	private boolean testCalc(final String possibleCalcDataprovider, final IRecordInternal state, final int row, final int column, final ISwingFoundSet foundset)
@@ -1562,5 +1622,75 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 	public void startEdit(IDisplayData e)
 	{
 		// ignore
+	}
+
+	class ReducedBorder implements Border
+	{
+		public static final int LEFT = 2;
+		public static final int RIGHT = 4;
+		public static final int TOP = 8;
+		public static final int BOTTOM = 16;
+
+		private final Border sourceBorder;
+		private final int hideMask;
+
+		ReducedBorder(Border sourceBorder, int hideMask)
+		{
+			this.sourceBorder = sourceBorder;
+			this.hideMask = hideMask;
+		}
+
+		/*
+		 * @see javax.swing.border.Border#paintBorder(java.awt.Component, java.awt.Graphics, int, int, int, int)
+		 */
+		public void paintBorder(Component c, Graphics g, int x, int y, int width, int height)
+		{
+			Insets sourceBorderInsets = sourceBorder.getBorderInsets(c);
+			Area borderClip = new Area(new Rectangle(x, y, width, height));
+			if ((hideMask & LEFT) != 0)
+			{
+				borderClip.subtract(new Area(new Rectangle(x, y + sourceBorderInsets.top, sourceBorderInsets.left, height - sourceBorderInsets.top -
+					sourceBorderInsets.bottom)));
+			}
+			if ((hideMask & RIGHT) != 0)
+			{
+				borderClip.subtract(new Area(new Rectangle(x + width - sourceBorderInsets.right, y + sourceBorderInsets.top, sourceBorderInsets.right, height -
+					sourceBorderInsets.top - sourceBorderInsets.bottom)));
+			}
+			if ((hideMask & TOP) != 0)
+			{
+				borderClip.subtract(new Area(new Rectangle(x + sourceBorderInsets.left, y, width - sourceBorderInsets.left - sourceBorderInsets.right,
+					sourceBorderInsets.top)));
+			}
+			if ((hideMask & BOTTOM) != 0)
+			{
+				borderClip.subtract(new Area(new Rectangle(x + sourceBorderInsets.left, y + height - sourceBorderInsets.bottom, width -
+					sourceBorderInsets.left - sourceBorderInsets.right, sourceBorderInsets.bottom)));
+			}
+			g.setClip(borderClip);
+			sourceBorder.paintBorder(c, g, x, y, width, height);
+		}
+
+		/*
+		 * @see javax.swing.border.Border#getBorderInsets(java.awt.Component)
+		 */
+		public Insets getBorderInsets(Component c)
+		{
+			Insets sourceBorderInsets = sourceBorder.getBorderInsets(c);
+			int left = (hideMask & LEFT) != 0 ? 0 : sourceBorderInsets.left;
+			int right = (hideMask & RIGHT) != 0 ? 0 : sourceBorderInsets.right;
+			int top = (hideMask & TOP) != 0 ? 0 : sourceBorderInsets.top;
+			int bottom = (hideMask & BOTTOM) != 0 ? 0 : sourceBorderInsets.bottom;
+
+			return new Insets(top, left, bottom, right);
+		}
+
+		/*
+		 * @see javax.swing.border.Border#isBorderOpaque()
+		 */
+		public boolean isBorderOpaque()
+		{
+			return sourceBorder.isBorderOpaque();
+		}
 	}
 }

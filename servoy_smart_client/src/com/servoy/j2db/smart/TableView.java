@@ -77,7 +77,6 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.Style;
-import javax.swing.text.html.StyleSheet;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormWindow;
@@ -151,6 +150,7 @@ import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnablePanel;
+import com.servoy.j2db.util.FixedStyleSheet;
 import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.Pair;
@@ -188,8 +188,8 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 	private boolean layoutChangingByJavascript = false;
 
 	private final ISupportOnRenderCallback dataRendererOnRenderWrapper;
-	private StyleSheet styleSheet;
-	private Style oddStyle, evenStyle, selectedStyle;
+	private FixedStyleSheet styleSheet;
+	private Style oddStyle, evenStyle, selectedStyle, headerStyle;
 
 	public TableView(IApplication app, final FormController fc, Form formForStyles, final AbstractBase cellview, final IScriptExecuter scriptExecuter,
 		IDataRenderer headerComp, IDataRenderer leadingGrandSummaryComp, boolean printing)
@@ -707,7 +707,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 				ca.setDataAdapterList(dal);
 				String name = String.valueOf(ca.getIdentifier());
 				GraphicalComponent gc = (GraphicalComponent)labelsFor.get(name);
-				LFAwareSortableHeaderRenderer tcr = new LFAwareSortableHeaderRenderer(app, this, ca.getModelIndex(), arrowUp, arrowDown, gc, formForStyles);
+				LFAwareSortableHeaderRenderer tcr = new LFAwareSortableHeaderRenderer(app, this, ca, arrowUp, arrowDown, gc, formForStyles);
 				if (gc != null) ComponentFactory.applyBasicComponentProperties(app, tcr, gc, ComponentFactory.getStyleForBasicComponent(app, gc, formForStyles));
 				ca.setHeaderRenderer(tcr);
 			}
@@ -2049,12 +2049,13 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 	/*
 	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#setStyles(javax.swing.text.html.StyleSheet, javax.swing.text.Style, javax.swing.text.Style)
 	 */
-	public void setRowStyles(StyleSheet styleSheet, Style oddStyle, Style evenStyle, Style selectedStyle)
+	public void setRowStyles(FixedStyleSheet styleSheet, Style oddStyle, Style evenStyle, Style selectedStyle, Style headerStyle)
 	{
 		this.styleSheet = styleSheet;
 		this.oddStyle = oddStyle;
 		this.evenStyle = evenStyle;
 		this.selectedStyle = selectedStyle;
+		this.headerStyle = headerStyle;
 	}
 
 	/*
@@ -2077,7 +2078,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 	/*
 	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getStyleSheet()
 	 */
-	public StyleSheet getRowStyleSheet()
+	public FixedStyleSheet getRowStyleSheet()
 	{
 		return styleSheet;
 	}
@@ -2088,6 +2089,11 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 	public Style getRowSelectedStyle()
 	{
 		return selectedStyle;
+	}
+
+	public Style getHeaderStyle()
+	{
+		return headerStyle;
 	}
 
 	@Override

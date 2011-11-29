@@ -18,7 +18,8 @@
 package com.servoy.j2db.ui;
 
 import javax.swing.text.Style;
-import javax.swing.text.html.StyleSheet;
+
+import com.servoy.j2db.util.FixedStyleSheet;
 
 /**
  * Interface for components that support css row styling
@@ -29,19 +30,22 @@ public interface ISupportRowStyling
 	String CLASS_ODD = "odd"; //$NON-NLS-1$
 	String CLASS_EVEN = "even"; //$NON-NLS-1$
 	String CLASS_SELECTED = "selected"; //$NON-NLS-1$
+	String CLASS_HEADER = "header"; //$NON-NLS-1$
 
 	enum ATTRIBUTE
 	{
-		BGCOLOR, FGCOLOR, FONT
+		BGCOLOR, FGCOLOR, FONT, BORDER
 	}
 
-	public void setRowStyles(StyleSheet styleSheet, Style oddStyle, Style evenStyle, Style selectedStyle);
+	public void setRowStyles(FixedStyleSheet styleSheet, Style oddStyle, Style evenStyle, Style selectedStyle, Style headerStyle);
 
-	public StyleSheet getRowStyleSheet();
+	public FixedStyleSheet getRowStyleSheet();
 
 	public Style getRowOddStyle();
 
 	public Style getRowEvenStyle();
 
 	public Style getRowSelectedStyle();
+
+	public Style getHeaderStyle();
 }

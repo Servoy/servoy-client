@@ -1946,7 +1946,8 @@ public class ComponentFactory
 				lookupname += '.' + meta.getStyleClass();
 			}
 			portalComponent.setRowStyles(ss, ss.getRule(lookupname + " " + ISupportRowStyling.CLASS_ODD),
-				ss.getRule(lookupname + " " + ISupportRowStyling.CLASS_EVEN), ss.getRule(lookupname + " " + ISupportRowStyling.CLASS_SELECTED));
+				ss.getRule(lookupname + " " + ISupportRowStyling.CLASS_EVEN), ss.getRule(lookupname + " " + ISupportRowStyling.CLASS_SELECTED),
+				ss.getRule(lookupname + " " + ISupportRowStyling.CLASS_HEADER));
 		}
 		return portalComponent;
 	}

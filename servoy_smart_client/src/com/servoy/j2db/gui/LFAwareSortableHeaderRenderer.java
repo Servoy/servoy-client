@@ -39,6 +39,7 @@ import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.smart.TableView;
+import com.servoy.j2db.smart.dataui.CellAdapter;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.util.FixedStyleSheet;
 import com.servoy.j2db.util.ImageLoader;
@@ -54,6 +55,7 @@ import com.servoy.j2db.util.gui.MyImageIcon;
 public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer implements IComponent, UIResource
 {
 	private final TableView parentTable;
+	private final CellAdapter cellAdapter;
 	private final int columnIndex;
 
 	private ImageIcon arrowDown = null;
@@ -67,13 +69,14 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 	private Border border;
 	private Insets margin;
 
-	public LFAwareSortableHeaderRenderer(IApplication app, TableView parentTable, int columnIndex, ImageIcon arrowUp, ImageIcon arrowDown,
+	public LFAwareSortableHeaderRenderer(IApplication app, TableView parentTable, CellAdapter cellAdapter, ImageIcon arrowUp, ImageIcon arrowDown,
 		GraphicalComponent gc, Form formForStyles)
 	{
 		super();
 		setBorder(null);
 		this.parentTable = parentTable;
-		this.columnIndex = columnIndex;
+		this.cellAdapter = cellAdapter;
+		this.columnIndex = cellAdapter.getModelIndex();
 
 		this.arrowUp = arrowUp;
 		this.arrowDown = arrowDown;
@@ -179,6 +182,19 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 			{
 				// cache value, this is an expensive operation into the look and feel renderer.
 				lfComponent = lfAwareRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+				Color styleBgColor = cellAdapter.getHeaderBgColor(parentTable);
+				if (styleBgColor != null) lfComponent.setBackground(styleBgColor);
+				Color styleFgColor = cellAdapter.getHeaderFgColor(parentTable);
+				if (styleFgColor != null) lfComponent.setForeground(styleFgColor);
+				Font styleFont = cellAdapter.getHeaderFont(parentTable);
+				if (styleFont != null) lfComponent.setFont(styleFont);
+				if (lfComponent instanceof JLabel)
+				{
+					Border styleBorder = cellAdapter.getHeaderBorder(parentTable);
+					if (styleBorder != null) ((JLabel)lfComponent).setBorder(styleBorder);
+				}
+
 				lfValue = value;
 			}
 			if (defaultFgColor == null) defaultFgColor = ((JLabel)lfComponent).getForeground();

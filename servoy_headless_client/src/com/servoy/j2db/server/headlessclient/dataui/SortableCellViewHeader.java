@@ -20,6 +20,8 @@ import java.awt.Dimension;
 import java.awt.Event;
 import java.awt.Insets;
 import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.Properties;
 
 import javax.swing.ImageIcon;
 
@@ -281,6 +283,34 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 		headerColumnTable = new WebMarkupContainer("headerColumnTable"); //$NON-NLS-1$
 		headerColumnTable.add(labelResolver = new LabelResolverLink("sortLink", useAJAX, group, id)); //$NON-NLS-1$
 		labelResolver.add(new AttributeModifier("class", true, group)); //$NON-NLS-1$
+
+		ChangesRecorder changesRecorder = new ChangesRecorder();
+		changesRecorder.setBgcolor(view.getHeaderBgColor());
+		changesRecorder.setFgcolor(view.getHeaderFgColor());
+		changesRecorder.setFont(view.getHeaderFont());
+		changesRecorder.setBorder(view.getHeaderBorder());
+
+		final Properties changes = changesRecorder.getChanges();
+
+		if (changes.size() > 0)
+		{
+			labelResolver.add(new StyleAppendingModifier(new Model<String>()
+			{
+				@Override
+				public String getObject()
+				{
+					StringBuilder headerStyle = new StringBuilder();
+					Iterator<Entry<Object, Object>> headerStyleIte = changes.entrySet().iterator();
+					Entry<Object, Object> headerStyleEntry;
+					while (headerStyleIte.hasNext())
+					{
+						headerStyleEntry = headerStyleIte.next();
+						headerStyle.append(headerStyleEntry.getKey()).append(":").append(headerStyleEntry.getValue()).append(";");
+					}
+					return headerStyle.toString();
+				}
+			}));
+		}
 
 		boolean blockResize = false;
 

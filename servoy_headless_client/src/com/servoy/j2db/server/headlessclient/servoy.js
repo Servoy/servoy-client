@@ -593,7 +593,7 @@ if (typeof(Servoy.TableView) == "undefined")
 {
 	Servoy.TableView = 
 	{
-		setRowStyleEl: function(el, bgcolor, fgcolor, fontStyle, fontWeight, fontSize, fontFamily, inDepth)
+		setRowStyleEl: function(el, bgcolor, fgcolor, fontStyle, fontWeight, fontSize, fontFamily, borderStyle, borderWidth, borderColor, inDepth)
 		{
 			var elChildren = el.childNodes;
 			var elChildrenLen = elChildren.length;
@@ -609,6 +609,15 @@ if (typeof(Servoy.TableView) == "undefined")
 					el.style.fontWeight = fontWeight;
 					el.style.fontSize = fontSize;
 					el.style.fontFamily = fontFamily;
+					
+					if(el.tagName.toLowerCase() != "td")
+					{
+						el.style.borderStyle =  borderStyle;
+						el.style.borderWidth = borderWidth;
+						el.style.borderColor = borderColor;
+						el.style.borderLeft = borderStyle == '' ? '' : 'none';
+						el.style.borderRight = borderStyle == '' ? '' : 'none';
+					}
 				}
 			}
 			if (inDepth)
@@ -616,25 +625,29 @@ if (typeof(Servoy.TableView) == "undefined")
 				var continueInDepth = (el.className != 'tableviewcell');
 				for(var i = 0; i < elChildrenLen; i++)
 				{
-					if(elChildren[i].tagName)			
-						Servoy.TableView.setRowStyleEl(elChildren[i], bgcolor, fgcolor, fontStyle, fontWeight, fontSize, fontFamily, continueInDepth);
+					if(elChildren[i].tagName)
+					{	
+						Servoy.TableView.setRowStyleEl(elChildren[i], bgcolor, fgcolor, fontStyle, fontWeight, fontSize, fontFamily, borderStyle, borderWidth, borderColor, continueInDepth);
+					}
 				}
 			}
 		},
 
-		setRowStyle: function(rowId, bgcolor, fgcolor, fontStyle, fontWeight, fontSize, fontFamily)
+		setRowStyle: function(rowId, bgcolor, fgcolor, fontStyle, fontWeight, fontSize, fontFamily, borderStyle, borderWidth, borderColor)
 		{
 			var rowEl = document.getElementById(rowId);
 			if(rowEl)
 			{
 				var rowChildren = rowEl.childNodes;
 				var rowChildrenLen = rowChildren.length;
-				
+
 				for(var i = 0; i < rowChildrenLen; i++)
 				{
-					if(rowChildren[i].tagName)			
-						Servoy.TableView.setRowStyleEl(rowChildren[i], bgcolor, fgcolor, fontStyle, fontWeight, fontSize, fontFamily, true);
-				}
+					if(rowChildren[i].tagName)
+					{
+						Servoy.TableView.setRowStyleEl(rowChildren[i], bgcolor, fgcolor, fontStyle, fontWeight, fontSize, fontFamily, borderStyle, borderWidth, borderColor, true);
+					}
+				}				
 			}
 		},
 

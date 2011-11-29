@@ -1554,7 +1554,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	}
 
 	private FixedStyleSheet ss = null;
-	private javax.swing.text.Style s = null, styleOdd = null, styleEven = null, styleSelected = null;
+	private javax.swing.text.Style s = null, styleOdd = null, styleEven = null, styleSelected = null, styleHeader = null;
+
 
 	void init()
 	{
@@ -1593,6 +1594,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			styleOdd = ss.getRule(lookupname + " " + ISupportRowStyling.CLASS_ODD); //$NON-NLS-1$
 			styleEven = ss.getRule(lookupname + " " + ISupportRowStyling.CLASS_EVEN); //$NON-NLS-1$
 			styleSelected = ss.getRule(lookupname + " " + ISupportRowStyling.CLASS_SELECTED); //$NON-NLS-1$
+			styleHeader = ss.getRule(lookupname + " " + ISupportRowStyling.CLASS_HEADER); //$NON-NLS-1$
 			if (s != null)
 			{
 				if (border == null)
@@ -3497,7 +3499,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			view.setModel(formModel);
 		}
 		view.setRowBGColorScript(form.getRowBGColorCalculation(), form.getInstanceMethodArguments("rowBGColorCalculation")); //$NON-NLS-1$
-		if (view instanceof ISupportRowStyling) ((ISupportRowStyling)view).setRowStyles(ss, styleOdd, styleEven, styleSelected);
+		if (view instanceof ISupportRowStyling) ((ISupportRowStyling)view).setRowStyles(ss, styleOdd, styleEven, styleSelected, styleHeader);
 
 		if (formReadOnly)
 		{

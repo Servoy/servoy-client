@@ -31,7 +31,6 @@ import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
 import javax.swing.text.Style;
-import javax.swing.text.html.StyleSheet;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IView;
@@ -42,6 +41,7 @@ import com.servoy.j2db.smart.dataui.DataCalendar;
 import com.servoy.j2db.smart.dataui.DataRenderer;
 import com.servoy.j2db.ui.IScriptReadOnlyMethods;
 import com.servoy.j2db.ui.ISupportRowStyling;
+import com.servoy.j2db.util.FixedStyleSheet;
 import com.servoy.j2db.util.editlist.EmptyEditListModel;
 import com.servoy.j2db.util.editlist.JEditList;
 import com.servoy.j2db.util.model.IEditListModel;
@@ -57,8 +57,8 @@ public class ListView extends JEditList implements IView, ISupportRowStyling
 	private String rowBGColorScript;
 	private List<Object> rowBGColorArgs;
 	private int keyReleaseToBeIgnored;
-	private StyleSheet styleSheet;
-	private Style oddStyle, evenStyle, selectedStyle;
+	private FixedStyleSheet styleSheet;
+	private Style oddStyle, evenStyle, selectedStyle, headerStyle;
 
 	public ListView()
 	{
@@ -282,7 +282,7 @@ public class ListView extends JEditList implements IView, ISupportRowStyling
 	/*
 	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getStyleSheet()
 	 */
-	public StyleSheet getRowStyleSheet()
+	public FixedStyleSheet getRowStyleSheet()
 	{
 		return styleSheet;
 	}
@@ -291,12 +291,13 @@ public class ListView extends JEditList implements IView, ISupportRowStyling
 	 * @see com.servoy.j2db.ui.ISupportRowStyling#setStyles(javax.swing.text.html.StyleSheet, javax.swing.text.Style, javax.swing.text.Style,
 	 * javax.swing.text.Style)
 	 */
-	public void setRowStyles(StyleSheet styleSheet, Style oddStyle, Style evenStyle, Style selectedStyle)
+	public void setRowStyles(FixedStyleSheet styleSheet, Style oddStyle, Style evenStyle, Style selectedStyle, Style headerStyle)
 	{
 		this.styleSheet = styleSheet;
 		this.oddStyle = oddStyle;
 		this.evenStyle = evenStyle;
 		this.selectedStyle = selectedStyle;
+		this.headerStyle = headerStyle;
 	}
 
 	/*
@@ -305,6 +306,11 @@ public class ListView extends JEditList implements IView, ISupportRowStyling
 	public Style getRowSelectedStyle()
 	{
 		return selectedStyle;
+	}
+
+	public Style getHeaderStyle()
+	{
+		return headerStyle;
 	}
 
 	public void setVisibleRect(Rectangle scrollPosition)
