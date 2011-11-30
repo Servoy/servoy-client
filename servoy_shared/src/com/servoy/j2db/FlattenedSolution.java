@@ -2277,6 +2277,18 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				{
 					return null;
 				}
+				if (relationSequence.length > 1)
+				{
+					for (Relation r : relationSequence)
+					{
+						if (r.getJoinType() != ISQLJoin.INNER_JOIN)
+						{
+							// disabled related vl sorting for muti-level related VLs,
+							// outer join on the intermediate tables causes extra results that influence the sorting result 
+							return null;
+						}
+					}
+				}
 				StringBuilder sb = new StringBuilder();
 				for (Relation r : relationSequence)
 				{
