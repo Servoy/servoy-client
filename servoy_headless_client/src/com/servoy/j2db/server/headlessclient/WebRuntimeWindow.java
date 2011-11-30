@@ -42,6 +42,7 @@ import com.servoy.j2db.server.headlessclient.dataui.WebDefaultRecordNavigator;
 public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 {
 	protected final IWebClientApplication application;
+	boolean firstShow = true;
 
 	public WebRuntimeWindow(IWebClientApplication application, String windowName, int windowType, RuntimeWindow parentWindow)
 	{
@@ -88,7 +89,8 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 					else
 					{
 						((MainPage)parentContainer).showPopupDiv((MainPage)dialogContainer, title, r2, resizable, closeAll || !legacyV3Behavior,
-							(windowType == JSWindow.MODAL_DIALOG));
+							(windowType == JSWindow.MODAL_DIALOG), firstShow);
+						firstShow = false;
 					}
 				}
 			}

@@ -681,6 +681,13 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 					setWindowBounds(initialBounds, legacyV3Behavior);
 				}
 			}
+			else if (!getResizable())
+			{
+				if (!FormManager.FULL_SCREEN.equals(initialBounds))
+				{
+					wrappedWindow.setBounds(getX(), getY(), initialBounds.width, initialBounds.height);
+				}
+			}
 
 			boolean findModeSet = false;
 

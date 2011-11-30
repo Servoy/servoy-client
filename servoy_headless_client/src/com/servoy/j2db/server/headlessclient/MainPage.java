@@ -1550,13 +1550,14 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		}
 	}
 
-	public void showPopupDiv(MainPage dialogContainer, String titleString, Rectangle r2, boolean resizeable, boolean closeAll, boolean modal)
+	public void showPopupDiv(MainPage dialogContainer, String titleString, Rectangle r2, boolean resizeable, boolean closeAll, boolean modal, boolean firstShow)
 	{
 		// all iframe div window main pages will be shown by a browser window main page and will have it as callingContainer;
 		// this is in order to avoid situations where some main pages need to reference each other in browser JS, but some div windows in the chain between them
 		// have already been closed; so this way references to all iframe div windows will not be lost as long as the browser window that contains the iframes remains open
 		// see also triggerBrowserRequestIfNeeded() that uses these references
-		if (isShowingInDialog() && callingContainer != null) callingContainer.showPopupDiv(dialogContainer, titleString, r2, resizeable, closeAll, modal);
+		if (isShowingInDialog() && callingContainer != null) callingContainer.showPopupDiv(dialogContainer, titleString, r2, resizeable, closeAll, modal,
+			firstShow);
 		else
 		{
 			if (useAJAX)
@@ -1596,6 +1597,10 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 				divDialog.setTitle(titleStr);
 				divDialogActionBuffer.show(divDialog, windowName);
+				if (firstShow && !resizeable)
+				{
+					appendJavaScriptChanges(divDialog.getChangeBoundsJS(-1, -1, bounds.width, bounds.height));
+				}
 				triggerBrowserRequestIfNeeded();
 			}
 
@@ -1677,7 +1682,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			if (isShowingInDialog())
 			{
 				ServoyDivDialog divDialog = callingContainer.divDialogs.get(getPageMapName());
-				if (divDialog != null)
+				if (divDialog != null && divDialog.isResizable())
 				{
 					appendJavaScriptChanges(divDialog.getSaveBoundsJS());
 				}
@@ -1687,7 +1692,6 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		showingInWindow = false;
 		showingInDialog = false;
 	}
-
 
 	public void setFocusedComponent(Component component)
 	{
