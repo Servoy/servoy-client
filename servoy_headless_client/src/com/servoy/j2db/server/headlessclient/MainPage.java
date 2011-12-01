@@ -92,6 +92,7 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.plugins.IMediaUploadCallback;
 import com.servoy.j2db.plugins.IUploadData;
 import com.servoy.j2db.scripting.JSEvent;
+import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.info.WEBCONSTANTS;
 import com.servoy.j2db.server.headlessclient.dataui.AbstractServoyDefaultAjaxBehavior;
 import com.servoy.j2db.server.headlessclient.dataui.FormLayoutProviderFactory;
@@ -1808,9 +1809,29 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		this.showPageInDialogDelayed = showDelayed;
 	}
 
+	public void setShowPageInDialogDelayed(int windowType, String formName, Rectangle initialBounds, String title, boolean resizable, boolean showTextToolbar,
+		boolean closeAll, String dialogName)
+	{
+		if (isShowingInDialog() && callingContainer != null) callingContainer.setShowPageInDialogDelayed(windowType, formName, initialBounds, title, resizable,
+			showTextToolbar, closeAll, dialogName);
+		else
+		{
+			getPageContributor().showFormInDialogDelayed(windowType, formName, initialBounds, title, resizable, showTextToolbar, closeAll,
+				(windowType == JSWindow.MODAL_DIALOG), dialogName);
+			// Now we need to disable the delayed show, otherwise the modal child would be continuously postponed.
+			this.showPageInDialogDelayed = false;
+		}
+	}
+
+
 	public boolean isPopupClosing()
 	{
-		return divDialogActionBuffer.isClosing();
+		if (!divDialogActionBuffer.isClosing())
+		{
+			if (isShowingInDialog() && callingContainer != null) return callingContainer.isPopupClosing();
+			return false;
+		}
+		return true;
 	}
 
 	public void renderJavascriptChanges(final AjaxRequestTarget target)

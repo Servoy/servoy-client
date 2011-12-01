@@ -97,10 +97,7 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 		}
 		else
 		{
-			((MainPage)parentContainer).getPageContributor().showFormInDialogDelayed(windowType, formName, initialBounds, title, resizable, showTextToolbar,
-				closeAll, (windowType == JSWindow.MODAL_DIALOG), windowName);
-			// Now we need to disable the delayed show, otherwise the modal child would be continuously postponed.
-			((MainPage)parentContainer).setShowPageInDialogDelayed(false);
+			((MainPage)parentContainer).setShowPageInDialogDelayed(windowType, formName, initialBounds, title, resizable, showTextToolbar, closeAll, windowName);
 		}
 		if (getTitle() != null) setTitle(getTitle());
 
