@@ -292,7 +292,8 @@ public class WebClient extends SessionClient implements IWebClientApplication
 			return;
 		}
 		getDefaultUserProperties().remove(name);
-		Cookie[] cookies = ((WebRequestCycle)RequestCycle.get()).getWebRequest().getCookies();
+		WebRequest webRequest = ((WebRequestCycle)RequestCycle.get()).getWebRequest();
+		Cookie[] cookies = webRequest.getCookies();
 		if (cookies != null)
 		{
 			for (Cookie element : cookies)
@@ -304,10 +305,43 @@ public class WebClient extends SessionClient implements IWebClientApplication
 				}
 			}
 		}
+
 		if (value != null)
 		{
 			Cookie cookie = new Cookie(name, encodeCookieValue(value));
 			cookie.setMaxAge(Integer.MAX_VALUE);
+
+			// calculate the base path (servlet path)
+			// it can be /path/ or /context/path/ or even just / if it is virtual hosted so try to get it from the url. 
+			String url = webRequest.getHttpServletRequest().getRequestURL().toString();
+			// first try to get to the first / of the root path, strip off http://domain:port
+			int index = url.indexOf("//");
+			if (index > 0)
+			{
+				url = url.substring(index + 2);
+			}
+			index = url.indexOf('/');
+			if (index > 0)
+			{
+				url = url.substring(index);
+			}
+			else
+			{
+				url = "/";
+			}
+			String path = webRequest.getPath();
+			if (path.length() == 0) path = "?";
+			index = url.indexOf(path);
+			if (index > 0)
+			{
+				path = url.substring(0, index);
+			}
+			else
+			{
+				path = url;
+			}
+			if (!path.startsWith("/")) path = "/" + path;
+			cookie.setPath(path);
 			// Add the cookie
 			((WebRequestCycle)RequestCycle.get()).getWebResponse().addCookie(cookie);
 		}
