@@ -16,8 +16,6 @@
  */
 package com.servoy.j2db.server.headlessclient.dataui;
 
-import java.awt.Font;
-import java.awt.Insets;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -132,86 +130,14 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 
 	private void init()
 	{
+
 		add(new HeaderContributor(new IHeaderContributor()
 		{
 			private static final long serialVersionUID = 1L;
 
-			@SuppressWarnings("nls")
-			private StringBuffer appendPadding(StringBuffer sb)
-			{
-				Insets padding = getPadding();
-				if (padding != null) sb.append("padding:" + padding.top + "px " + padding.right + "px " + padding.bottom + "px " + padding.left + "px; ");
-				else sb.append("padding:2px; ");
-				return sb;
-			}
-
-			@SuppressWarnings("nls")
-			private StringBuffer appendMargins(StringBuffer sb)
-			{
-				Insets marginz = getMargin();
-				if (marginz != null) sb.append("margin:" + marginz.top + "px " + marginz.right + "px " + marginz.bottom + "px " + marginz.left + "px;  ");
-				else sb.append("margin:0; ");
-				return sb;
-			}
-
-			@SuppressWarnings("nls")
-			private StringBuffer appendPaddingAndMarginsToComponent(StringBuffer sb, String who)
-			{
-				sb.append("#" + getMarkupId() + who + " { ");
-				sb.append(appendMargins(appendPadding(sb)));
-				sb.append("} ");
-				return sb;
-			}
-
-			@SuppressWarnings("nls")
 			public void renderHead(IHeaderResponse response)
 			{
 				response.renderCSSReference(new CompressedResourceReference(WebDataLookupField.class, "servoy_lookupfield.css")); //$NON-NLS-1$
-
-				StringBuffer headerStyle = new StringBuffer();
-				headerStyle.append("<style type=\"text/css\"> ");
-				headerStyle.append("#" + getMarkupId() + "-autocomplete.wicket-aa" + " { ");
-
-				String fontFamily = "\"Lucida Grande\",\"Lucida Sans Unicode\",Tahoma,Verdana";
-				if (getFont() != null)
-				{
-					if (getFont().getFamily() != null) fontFamily = "\"" + getFont().getFamily() + "\",Tahoma,Verdana";
-
-					int style = getFont().getStyle();
-					if ((style & Font.ITALIC) == Font.ITALIC) headerStyle.append("font-style:italic; ");
-					if ((style & Font.BOLD) == Font.BOLD) headerStyle.append("font-weight:bold; ");
-				}
-				headerStyle.append("font-family:" + fontFamily + "; ");
-
-				headerStyle.append("font-size:" + (getFont() == null ? "12" : new Integer(getFont().getSize())) + "px; ");
-
-				String bgcolor = "#ffffff";//default background color to white
-				if (getBackground() != null)
-				{
-					bgcolor = Integer.toHexString(getBackground().getRGB());
-					bgcolor = "#" + bgcolor.substring(2, bgcolor.length());
-				}
-				headerStyle.append("background-color:" + bgcolor + "; ");
-
-				String fgcolor = "#000000";//default foreground color to black
-				if (getForeground() != null)
-				{
-					fgcolor = Integer.toHexString(getForeground().getRGB());
-					fgcolor = "#" + fgcolor.substring(2, fgcolor.length());
-				}
-				headerStyle.append("color: " + fgcolor + "; ");
-
-				headerStyle = appendPadding(headerStyle);
-
-				headerStyle.append("min-width:" + (getSize().width - 6) + "px; "); // extract padding and border
-				headerStyle.append("text-align:" + TemplateGenerator.getHorizontalAlignValue(getHorizontalAlignment()) + "; } ");
-
-				headerStyle = appendPaddingAndMarginsToComponent(headerStyle, "-autocomplete.wicket-aa ul");
-
-				headerStyle = appendPaddingAndMarginsToComponent(headerStyle, "-autocomplete.wicket-aa ul li.selected");
-
-				headerStyle.append("</style>");
-				response.renderString(headerStyle.toString());
 			}
 		})
 		{
@@ -259,7 +185,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			{
 				if (IValueList.SEPARATOR_DESIGN_VALUE.equals(object)) return;
 
-				String renderedObject = (object == null) ? "" : object.toString();
+				String renderedObject = (object == null) ? "" : object.toString();//$NON-NLS-1$
 				if (!HtmlUtils.hasHtmlTag(renderedObject)) renderedObject = HtmlUtils.escapeMarkup(renderedObject, true, false).toString();
 
 				super.renderChoice(renderedObject, response, criteria);
