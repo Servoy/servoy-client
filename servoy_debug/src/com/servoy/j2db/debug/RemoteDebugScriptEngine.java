@@ -26,8 +26,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.wicket.RequestCycle;
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
-import org.eclipse.dltk.rhino.dbgp.DBGPStackManager;
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugger.ITerminationListener;
+import org.eclipse.dltk.rhino.dbgp.DBGPStackManager;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.EcmaError;
@@ -41,6 +41,7 @@ import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.ScriptCalculation;
+import com.servoy.j2db.scripting.LazyCompilationScope;
 import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ExtendableURLClassLoader;
@@ -319,12 +320,11 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 		try
 		{
 			Scriptable tableScope = getExistingTableScrope(sc.getTable());
-			if (tableScope != null)
+			if (tableScope instanceof LazyCompilationScope)
 			{
 				try
 				{
-					Function f = compileFunction(sc, tableScope);
-					tableScope.put(sc.getDataProviderID(), tableScope, f);
+					((LazyCompilationScope)tableScope).put(sc, sc);
 					return true;
 				}
 				catch (Exception ex)
