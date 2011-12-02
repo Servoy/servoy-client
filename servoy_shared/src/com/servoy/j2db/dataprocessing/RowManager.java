@@ -1581,7 +1581,6 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				}
 			}
 		}
-
 		if (deps != null && deps.size() > 0)
 		{
 			List<RowFireNotifyChange> myFires;
@@ -1733,7 +1732,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 							while (iterator.hasNext())
 							{
 								CalculationDependency dep = iterator.next();
-								if (dep.pkHashKey.equals(dependingPkHashKey))
+								if (dep.pkHashKey.equals(dependingPkHashKey) && dep.calc.equals(dependingCalc))
 								{
 									iterator.remove();
 								}
