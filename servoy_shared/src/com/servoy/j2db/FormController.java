@@ -2222,7 +2222,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 	private void refreshAllPartRenderers(IRecordInternal[] records)
 	{
-		if (!isFormVisible) return;
+		if (!isFormVisible || application.isShutDown()) return;
 		boolean executeOnRecordSelect = false;
 		IRecordInternal[] state = records;
 		if (state == null)
