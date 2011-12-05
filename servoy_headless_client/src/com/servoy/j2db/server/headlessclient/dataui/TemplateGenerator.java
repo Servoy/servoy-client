@@ -19,7 +19,6 @@ package com.servoy.j2db.server.headlessclient.dataui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.Font;
 import java.awt.Insets;
 import java.awt.Point;
 import java.rmi.RemoteException;
@@ -2410,42 +2409,6 @@ public class TemplateGenerator
 				break;
 			case Field.TYPE_AHEAD :
 			{
-				TextualStyle styleAutcomplete = css.addStyle("#" + ComponentFactory.getWebID(form, field) + "-autocomplete.wicket-aa");
-
-				String fFamily = "\"Lucida Grande\",\"Lucida Sans Unicode\",Tahoma,Verdana";
-				String bgColor = "#ffffff";
-				String fgColor = "#000000";
-				String fSize = "0px";
-				if (field.getFontType() != null)
-				{
-					Font f = PersistHelper.createFont(field.getFontType());
-					if (f != null)
-					{
-						if (f.getFamily() != null)
-						{
-							fFamily = f.getFamily();
-							if (fFamily.contains(" ")) fFamily = "\"" + fFamily + "\"";
-						}
-						if (f.getName() != null)
-						{
-							String fName = f.getName();
-							if (fName.contains(" ")) fName = "\"" + fName + "\"";
-							fFamily = fName + "," + fFamily;
-						}
-						if (f.isBold()) styleAutcomplete.setProperty("font-weight", "bold");
-						if (f.isItalic()) styleAutcomplete.setProperty("font-style", "italic");
-						if (field.getBackground() != null) bgColor = PersistHelper.createColorString(field.getBackground());
-						if (field.getForeground() != null) fgColor = PersistHelper.createColorString(field.getForeground());
-						fSize = Integer.toString(f.getSize()) + "px";
-					}
-				}
-				styleAutcomplete.setProperty("font-family", fFamily);
-				styleAutcomplete.setProperty("background-color", bgColor);
-				styleAutcomplete.setProperty("color", fgColor);
-				styleAutcomplete.setProperty("font-size", fSize);
-				styleAutcomplete.setProperty("min-width", (field.getSize().width - 6) + "px"); // extract padding and border
-				styleAutcomplete.setProperty("text-align", getHorizontalAlignValue(field.getHorizontalAlignment()));
-
 				String fieldPadding = "0px";
 				if (ins != null && ins.getPadding() != null) fieldPadding = ins.getPadding().top + "px " + ins.getPadding().right + "px " +
 					ins.getPadding().bottom + "px " + ins.getPadding().left + "px";
@@ -2453,6 +2416,7 @@ public class TemplateGenerator
 				if (field.getMargin() != null) fieldMargins = field.getMargin().top + "px " + field.getMargin().right + "px " + field.getMargin().bottom +
 					"px " + field.getMargin().left + "px";
 
+				TextualStyle styleAutcomplete = css.addStyle("#" + ComponentFactory.getWebID(form, field) + "-autocomplete.wicket-aa");
 				styleAutcomplete.setProperty("padding", fieldPadding);
 
 				TextualStyle styleUl = css.addStyle("#" + ComponentFactory.getWebID(form, field) + "-autocomplete.wicket-aa ul");

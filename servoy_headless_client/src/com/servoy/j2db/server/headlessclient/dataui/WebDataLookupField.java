@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.server.headlessclient.dataui;
 
+import java.awt.Font;
+import java.awt.Insets;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -27,9 +29,9 @@ import org.apache.wicket.Response;
 import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.HeaderContributor;
-import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AbstractAutoCompleteTextRenderer;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteBehavior;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteSettings;
+import org.apache.wicket.extensions.ajax.markup.html.autocomplete.IAutoCompleteRenderer;
 import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.resources.CompressedResourceReference;
@@ -170,9 +172,9 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			behSettings.setUseHideShowCoveredIEFix(true);
 		}
 		behSettings.setThrottleDelay(500);
-		AbstractAutoCompleteTextRenderer<Object> renderer = new AbstractAutoCompleteTextRenderer<Object>()
+
+		IAutoCompleteRenderer<Object> renderer = new IAutoCompleteRenderer<Object>()
 		{
-			@Override
 			protected String getTextValue(Object object)
 			{
 				String str = (object == null ? "" : object.toString()); //$NON-NLS-1$
@@ -180,15 +182,109 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 				return str;
 			}
 
-			@Override
 			protected void renderChoice(Object object, Response response, String criteria)
 			{
 				if (IValueList.SEPARATOR_DESIGN_VALUE.equals(object)) return;
-
 				String renderedObject = (object == null) ? "" : object.toString();//$NON-NLS-1$
 				if (!HtmlUtils.hasHtmlTag(renderedObject)) renderedObject = HtmlUtils.escapeMarkup(renderedObject, true, false).toString();
+				response.write(getTextValue(object));
+			}
 
-				super.renderChoice(renderedObject, response, criteria);
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see org.apache.wicket.extensions.ajax.markup.html.autocomplete.IAutoCompleteRenderer#render(java.lang.Object, org.apache.wicket.Response,
+			 * java.lang.String)
+			 */
+			public void render(Object object, Response response, String criteria)
+			{
+				String textValue = getTextValue(object);
+				if (textValue == null)
+				{
+					throw new IllegalStateException("A call to textValue(Object) returned an illegal value: null for object: " + object.toString());
+				}
+				textValue = textValue.replaceAll("\\\"", "&quot;");
+
+				response.write("<li textvalue=\"" + textValue + "\"");
+				response.write(">");
+				renderChoice(object, response, criteria);
+				response.write("</li>");
+			}
+
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see org.apache.wicket.extensions.ajax.markup.html.autocomplete.IAutoCompleteRenderer#renderHeader(org.apache.wicket.Response)
+			 */
+			@SuppressWarnings("nls")
+			public void renderHeader(Response response)
+			{
+				StringBuffer listStyle = new StringBuffer();
+				listStyle.append("style=\"");
+
+				String fFamily = "'Lucida Grande','Lucida Sans Unicode',Tahoma,Verdana";
+				String bgColor = "#ffffff";
+				String fgColor = "#000000";
+				String fSize = "12px";
+				String padding = "2px";
+				String margin = "0px";
+				if (getFont() != null)
+				{
+					Font f = getFont();
+					if (f != null)
+					{
+						if (f.getFamily() != null)
+						{
+							fFamily = f.getFamily();
+							if (fFamily.contains(" ")) fFamily = "'" + fFamily + "'";
+						}
+						if (f.getName() != null)
+						{
+							String fName = f.getName();
+							if (fName.contains(" ")) fName = "'" + fName + "'";
+							fFamily = fName + "," + fFamily;
+						}
+						if (f.isBold()) listStyle.append("font-weight:bold; ");
+						if (f.isItalic()) listStyle.append("font-style:italic; ");
+						if (getBackground() != null)
+						{
+							bgColor = Integer.toHexString(getBackground().getRGB());
+							bgColor = "#" + bgColor.substring(2, bgColor.length());
+						}
+						if (getForeground() != null)
+						{
+							fgColor = Integer.toHexString(getForeground().getRGB());
+							fgColor = "#" + fgColor.substring(2, fgColor.length());
+						}
+						fSize = Integer.toString(f.getSize()) + "px";
+						Insets _padding = getPadding();
+						if (getPadding() != null) padding = "padding:" + _padding.top + "px " + _padding.right + "px " + _padding.bottom + "px " +
+							_padding.left + "px";
+						Insets _margin = getMargin();
+						if (_margin != null) margin = "margin:" + _margin.top + "px " + _margin.right + "px " + _margin.bottom + "px " + _margin.left + "px ";
+					}
+				}
+				listStyle.append("font-family:" + fFamily + "; ");
+				listStyle.append("background-color: " + bgColor + "; ");
+				listStyle.append("color: " + fgColor + "; ");
+				listStyle.append("font-size:" + fSize + "; ");
+				listStyle.append("min-width:" + (getSize().width - 6) + "px; "); // extract padding and border
+				listStyle.append("margin: " + margin + "; ");
+				listStyle.append("padding: " + padding + "; ");
+				listStyle.append("text-align:" + TemplateGenerator.getHorizontalAlignValue(getHorizontalAlignment()));
+				listStyle.append("\"");
+
+				response.write("<ul " + listStyle + ">");
+			}
+
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see org.apache.wicket.extensions.ajax.markup.html.autocomplete.IAutoCompleteRenderer#renderFooter(org.apache.wicket.Response)
+			 */
+			public void renderFooter(Response response)
+			{
+				response.write("</ul>"); //$NON-NLS-1$
 			}
 		};
 
