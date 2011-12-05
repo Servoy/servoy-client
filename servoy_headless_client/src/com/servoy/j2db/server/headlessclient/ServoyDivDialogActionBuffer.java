@@ -17,6 +17,7 @@
 package com.servoy.j2db.server.headlessclient;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -107,40 +108,59 @@ public class ServoyDivDialogActionBuffer
 		closePopup = false;
 		for (Action a : buffer)
 		{
-			ServoyDivDialog divDialog = a.getDivDialog();
-			switch (a.getOperation())
-			{
-				case Action.OP_SHOW :
-					if (!divDialog.isShown())
-					{
-						divDialog.setPageMapName((String)a.getParameters()[0]);
-						divDialog.show(target);
-					}
-					break;
-				case Action.OP_CLOSE :
-					if (divDialog.isShown())
-					{
-						divDialog.close(target);
-					}
-					break;
-				case Action.OP_TO_FRONT :
-					if (divDialog.getPageMapName() != null && divDialog.isShown())
-					{
-						divDialog.toFront(target);
-					}
-					break;
-				case Action.OP_TO_BACK :
-					if (divDialog.getPageMapName() != null && divDialog.isShown())
-					{
-						divDialog.toBack(target);
-					}
-					break;
-				case Action.OP_DIALOG_ADDED_OR_REMOVED :
-					target.addComponent((WebMarkupContainer)a.getParameters()[0]);
-					break;
-			}
+			executeOperation(target, a);
 		}
 		buffer.clear();
+	}
+
+	public void apply(AjaxRequestTarget target, String pageMapName)
+	{
+		Iterator<Action> it = buffer.iterator();
+		while (it.hasNext())
+		{
+			Action a = it.next();
+			if (a.getDivDialog().getName().equals(pageMapName))
+			{
+				executeOperation(target, a);
+				it.remove();
+			}
+		}
+	}
+
+	private void executeOperation(AjaxRequestTarget target, Action a)
+	{
+		ServoyDivDialog divDialog = a.getDivDialog();
+		switch (a.getOperation())
+		{
+			case Action.OP_SHOW :
+				if (!divDialog.isShown())
+				{
+					divDialog.setPageMapName((String)a.getParameters()[0]);
+					divDialog.show(target);
+				}
+				break;
+			case Action.OP_CLOSE :
+				if (divDialog.isShown())
+				{
+					divDialog.close(target);
+				}
+				break;
+			case Action.OP_TO_FRONT :
+				if (divDialog.getPageMapName() != null && divDialog.isShown())
+				{
+					divDialog.toFront(target);
+				}
+				break;
+			case Action.OP_TO_BACK :
+				if (divDialog.getPageMapName() != null && divDialog.isShown())
+				{
+					divDialog.toBack(target);
+				}
+				break;
+			case Action.OP_DIALOG_ADDED_OR_REMOVED :
+				target.addComponent((WebMarkupContainer)a.getParameters()[0]);
+				break;
+		}
 	}
 
 	public boolean hasActions()
