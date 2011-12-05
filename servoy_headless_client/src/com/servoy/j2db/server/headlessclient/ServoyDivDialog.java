@@ -29,15 +29,18 @@ public class ServoyDivDialog extends DivWindow
 {
 
 	private boolean closeAll = false; // for legacy modal dialog behavior (when multiple forms were shown in same dialog and close would either close one at a time or all)
+	private final String name;
 
-	public ServoyDivDialog(String id, boolean isInsideIFrame)
+	public ServoyDivDialog(String id, boolean isInsideIFrame, String name)
 	{
 		super(id, isInsideIFrame);
+		this.name = name;
 	}
 
-	public ServoyDivDialog(String id, IModel< ? > model, boolean isInsideIFrame)
+	public ServoyDivDialog(String id, IModel< ? > model, boolean isInsideIFrame, String name)
 	{
 		super(id, model, isInsideIFrame);
+		this.name = name;
 	}
 
 	public void setCloseAll(boolean closeAll)
@@ -80,5 +83,10 @@ public class ServoyDivDialog extends DivWindow
 		buffer.append("settings.onCloseButton = function() { if(!cb) { cb=this.caption.getElementsByTagName('a')[0];Wicket.Event.add(cb, 'blur', function() {setTimeout(userOnCloseButton, 500); }); } cb.focus();cb.blur();};\n");
 		buffer.append("}");
 		return buffer;
+	}
+
+	public String getName()
+	{
+		return name;
 	}
 }

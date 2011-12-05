@@ -480,7 +480,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			divDialogRepeater = new RepeatingView(DIV_DIALOG_REPEATER_ID);
 			divDialogsParent.add(divDialogRepeater);
 
-			fileUploadWindow = new ServoyDivDialog(FILE_UPLOAD_DIALOG_ID, isShowingInDialog());
+			fileUploadWindow = new ServoyDivDialog(FILE_UPLOAD_DIALOG_ID, isShowingInDialog(), "dialog_fileupload");
 			body.add(fileUploadWindow);
 			fileUploadWindow.setModal(true);
 			fileUploadWindow.setPageMapName(null);
@@ -641,7 +641,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 	private ServoyDivDialog createDivDialog(String name)
 	{
-		final ServoyDivDialog divDialog = new ServoyDivDialog(divDialogRepeater.newChildId(), isShowingInDialog());
+		final ServoyDivDialog divDialog = new ServoyDivDialog(divDialogRepeater.newChildId(), isShowingInDialog(), name);
 		divDialog.setPageMapName(null);
 		divDialog.setCookieName("dialog_" + name);
 		divDialog.setModal(true);
@@ -664,7 +664,14 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			public void onClose(AjaxRequestTarget target)
 			{
 				divDialogRepeater.remove(divDialog);
-				divDialogActionBuffer.remove(divDialog, divDialogsParent);
+				if (divDialogs.size() == 0)
+				{
+					divDialogsParent.setVisible(false);
+				}
+				else
+				{
+					divDialogActionBuffer.remove(divDialog, divDialogsParent);
+				}
 				divDialog.setPageMapName(null);
 				WebEventExecutor.generateResponse(target, findPage());
 			}
@@ -1648,7 +1655,6 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		{
 			divDialogActionBuffer.close(divDialog);
 			triggerBrowserRequestIfNeeded();
-			if (divDialogs.size() == 0) divDialogsParent.setVisible(false);
 		}
 
 		// set new current container
@@ -1841,6 +1847,11 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		{
 			target.appendJavascript(javaScriptChanges);
 			javaScriptChanges = null;
+		}
+		if (callingContainer != null && callingContainer.divDialogActionBuffer.isClosing())
+		{
+			// execute the actions regarding this dialog
+			callingContainer.divDialogActionBuffer.apply(target, getPageMapName());
 		}
 	}
 
