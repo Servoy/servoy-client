@@ -1022,7 +1022,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 			markupStream,
 			openTag,
 			WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtml, m, cssid, (char)getDisplayedMnemonic(),
-				getMarkupId() + "_img", WebBaseButton.getImageDisplayURL(this), size.height, false, designMode ? null : cursor)); //$NON-NLS-1$
+				getMarkupId() + "_img", WebBaseButton.getImageDisplayURL(this), size.height, false, designMode ? null : cursor, false)); //$NON-NLS-1$
 	}
 
 	protected boolean hasHtml()

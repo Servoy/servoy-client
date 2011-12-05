@@ -213,6 +213,12 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 	}
 
 	@Override
+	protected boolean isAnchored()
+	{
+		return Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")); //$NON-NLS-1$
+	}
+
+	@Override
 	public IEventExecutor getEventExecutor()
 	{
 		return null;
@@ -253,6 +259,7 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 	{
 	}
 
+	@Override
 	public void setFormat(int type, String format)
 	{
 		dataType = type;
@@ -262,6 +269,7 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 	private String format;
 	private int dataType;
 
+	@Override
 	public int getDataType()
 	{
 		return dataType;
