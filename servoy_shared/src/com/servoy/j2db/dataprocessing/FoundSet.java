@@ -1609,7 +1609,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			String mainTable = sheet.getTable().getName();
 			StringBuilder otherTables = new StringBuilder();
 			StringTokenizer tok = new StringTokenizer(tables, ","); //$NON-NLS-1$
-			String mainTableAlias = null;
+			String mainTableAlias = mainTable; // default alias to table name
 			String whitespace = "\\s+"; //$NON-NLS-1$
 			while (tok.hasMoreElements())
 			{
