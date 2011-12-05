@@ -213,6 +213,12 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 	}
 
 	@Override
+	protected boolean isAnchored()
+	{
+		return Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")); //$NON-NLS-1$
+	}
+
+	@Override
 	public IEventExecutor getEventExecutor()
 	{
 		return null;

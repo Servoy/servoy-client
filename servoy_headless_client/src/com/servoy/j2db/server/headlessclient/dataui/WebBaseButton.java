@@ -899,7 +899,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		}
 		replaceComponentTagBody(markupStream, openTag,
 			instrumentBodyText(bodyText, halign, valign, false, margin, null, (char)getDisplayedMnemonic(), getMarkupId() + "_img", //$NON-NLS-1$
-				getImageDisplayURL(this), size == null ? 0 : size.height, true, designMode ? null : cursor));
+				getImageDisplayURL(this), size == null ? 0 : size.height, true, designMode ? null : cursor, false));
 	}
 
 	protected static String getImageDisplayURL(IImageDisplay imageDisplay)
@@ -1033,7 +1033,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	@SuppressWarnings("nls")
 	protected static String instrumentBodyText(CharSequence bodyText, int halign, int valign, boolean isHtml, Insets padding, String cssid, char mnemonic,
-		String imgID, String imgURL, int height, boolean isButton, Cursor bodyCursor)
+		String imgID, String imgURL, int height, boolean isButton, Cursor bodyCursor, boolean isAnchored)
 	{
 		// In order to vertically align the text inside the <button>, we wrap the text inside a <span>, and we absolutely
 		// position the <span> in the <button>. However, for centering vertically we drop this absolute positioning and
@@ -1079,7 +1079,10 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			if (padding != null) innerHeight -= padding.top + padding.bottom;
 			instrumentedBodyText.append("line-height: " + innerHeight + "px;");
 		}
-
+		if (isAnchored)
+		{
+			instrumentedBodyText.append(" position: absolute;"); //$NON-NLS-1$
+		}
 		instrumentedBodyText.append("'"); //$NON-NLS-1$
 		if (cssid != null)
 		{
