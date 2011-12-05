@@ -2237,7 +2237,9 @@ public class Utils
 
 	public static boolean isValidEmailAddress(String email)
 	{
-		return (Pattern.compile("^[_a-z0-9-+]+(\\.[_a-z0-9-+]+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*(\\.[a-z]{2,3})$", Pattern.CASE_INSENSITIVE).matcher(email).matches());
+		return (email != null
+			? (Pattern.compile("^[_a-z0-9-+]+(\\.[_a-z0-9-+]+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*(\\.[a-z]{2,3})$", Pattern.CASE_INSENSITIVE).matcher(email).matches()) //$NON-NLS-1$
+			: false);
 	}
 
 	public static int getPlatform()
