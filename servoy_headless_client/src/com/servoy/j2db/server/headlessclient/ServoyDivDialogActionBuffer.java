@@ -119,7 +119,7 @@ public class ServoyDivDialogActionBuffer
 		while (it.hasNext())
 		{
 			Action a = it.next();
-			if (a.getDivDialog().getName().equals(pageMapName))
+			if (a.getDivDialog().getPageMapName().equals(pageMapName))
 			{
 				executeOperation(target, a);
 				it.remove();

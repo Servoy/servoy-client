@@ -475,7 +475,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			divDialogRepeater = new RepeatingView(DIV_DIALOG_REPEATER_ID);
 			divDialogsParent.add(divDialogRepeater);
 
-			fileUploadWindow = new ServoyDivDialog(FILE_UPLOAD_DIALOG_ID, isShowingInDialog(), "dialog_fileupload");
+			fileUploadWindow = new ServoyDivDialog(FILE_UPLOAD_DIALOG_ID, isShowingInDialog());
 			body.add(fileUploadWindow);
 			fileUploadWindow.setModal(true);
 			fileUploadWindow.setPageMapName(null);
@@ -627,7 +627,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 	private ServoyDivDialog createDivDialog(String name)
 	{
-		final ServoyDivDialog divDialog = new ServoyDivDialog(divDialogRepeater.newChildId(), isShowingInDialog(), name);
+		final ServoyDivDialog divDialog = new ServoyDivDialog(divDialogRepeater.newChildId(), isShowingInDialog());
 		divDialog.setPageMapName(null);
 		divDialog.setCookieName("dialog_" + name);
 		divDialog.setModal(true);
@@ -650,7 +650,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			public void onClose(AjaxRequestTarget target)
 			{
 				divDialogRepeater.remove(divDialog);
-				divDialogs.remove(divDialog.getName());
+				divDialogs.remove(divDialog.getPageMapName());
 				if (divDialogs.size() == 0)
 				{
 					divDialogsParent.setVisible(false);
