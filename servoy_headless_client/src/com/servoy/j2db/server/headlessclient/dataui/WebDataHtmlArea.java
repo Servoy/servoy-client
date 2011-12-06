@@ -51,13 +51,16 @@ public class WebDataHtmlArea extends WebDataTextArea
 		super.renderHead(container);
 		IHeaderResponse response = container.getHeaderResponse();
 		YUILoader.renderHTMLEdit(response);
+		//YUI edit is not supported on mobile webkit browsers, so do not decorate the textarea, but leave plain
+		String script = "if (!(/iphone|ipad|ipod|android|blackberry|mini|windows\\sce|palm/i.test(navigator.userAgent.toLowerCase()))) Servoy.HTMLEdit.attach(document.getElementById('" +
+			getMarkupId() + "'));";
 		if (findParent(WebTabPanel.class) != null)
 		{
-			response.renderOnDomReadyJavascript("setTimeout(function(){Servoy.HTMLEdit.attach(document.getElementById('" + getMarkupId() + "'))}, 0);");
+			response.renderOnDomReadyJavascript("setTimeout(function(){" + script + "}, 0);");
 		}
 		else
 		{
-			response.renderOnDomReadyJavascript("Servoy.HTMLEdit.attach(document.getElementById('" + getMarkupId() + "'))");
+			response.renderOnDomReadyJavascript(script);
 		}
 	}
 
