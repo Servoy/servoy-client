@@ -29,6 +29,7 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Page;
+import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.AjaxRequestTarget.IJavascriptResponse;
@@ -39,6 +40,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.protocol.http.WebRequest;
 
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
@@ -497,7 +499,8 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		public void renderHead(IHeaderResponse response)
 		{
 			super.renderHead(response);
-			if (!eventMarkupIds.isEmpty())
+			// if it's ajax request it is already sent via onAfterRespond
+			if (!((WebRequest)RequestCycle.get().getRequest()).isAjax() && !eventMarkupIds.isEmpty())
 			{
 				response.renderOnDomReadyJavascript(getAddListsenersScript(eventMarkupIds));
 				eventMarkupIds.clear();

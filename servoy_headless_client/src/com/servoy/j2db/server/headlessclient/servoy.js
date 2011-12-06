@@ -409,6 +409,12 @@ function addListeners(strEvent, callbackUrl, ids, post)
 						// skip onFocus callback if the component has been re-focused after a response					
 						modifiers = onFocusModifiers;
 						onFocusModifiers = 0;
+						
+						if(modifiers > 0)
+						{
+							Wicket.Focus.lastFocusId = null;
+							this.blur();
+						}
 					}
 					else
 					{
@@ -454,6 +460,12 @@ function addListeners(strEvent, callbackUrl, ids, post)
 						// skip onFocus callback if the component has been re-focused after a response
 						modifiers = onFocusModifiers;
 						onFocusModifiers = 0;
+						
+						if(modifiers > 0)
+						{
+							Wicket.Focus.lastFocusId = null;
+							this.blur();
+						}						
 					}
 					else
 					{
