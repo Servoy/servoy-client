@@ -664,6 +664,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			public void onClose(AjaxRequestTarget target)
 			{
 				divDialogRepeater.remove(divDialog);
+				divDialogs.remove(divDialog.getName());
 				if (divDialogs.size() == 0)
 				{
 					divDialogsParent.setVisible(false);
