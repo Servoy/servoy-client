@@ -24,7 +24,11 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.Stroke;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.RoundRectangle2D;
 
 import javax.swing.JComponent;
 import javax.swing.UIDefaults;
@@ -45,6 +49,7 @@ public class Rect extends JComponent implements IRect
 {
 	protected IApplication application;
 	protected int radius = 16;
+
 	protected int lineWidth = 0;
 	protected int type;
 	private final RuntimeRectangle scriptable;
@@ -132,28 +137,36 @@ public class Rect extends JComponent implements IRect
 		}
 		else if (type == RectShape.ROUNDED_RECTANGLE)
 		{
+			((Graphics2D)g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			Shape shape = new RoundRectangle2D.Float(_x + halfLW, _y + halfLW, _w - lineWidth, _h - lineWidth, radius, radius);
+
 			if (_filled && _fillColor != null)
 			{
 				g.setColor(_fillColor);
-				g.fillRoundRect(_x + halfLW, _y + halfLW, _w - (lineWidth), _h - (lineWidth)/* _x, _y, _w, _h */, radius, radius);
+				((Graphics2D)g).fill(shape);
 			}
 			if (lineWidth > 0 && _lineColor != null)
 			{
 				g.setColor(_lineColor);
-				g.drawRoundRect(_x + halfLW, _y + halfLW, _w - (lineWidth), _h - (lineWidth), radius, radius);
+				((Graphics2D)g).draw(shape);
 			}
 		}
 		else if (type == RectShape.OVAL)
 		{
+			Shape shape = null;
+			((Graphics2D)g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
 			if (_filled && _fillColor != null)
 			{
 				g.setColor(_fillColor);
-				g.fillOval(_x, _y, _w, _h);
+				shape = new Ellipse2D.Float(_x, _y, _w, _h);
+				((Graphics2D)g).fill(shape);
 			}
 			if (lineWidth > 0 && _lineColor != null)
 			{
 				g.setColor(_lineColor);
-				g.drawOval(_x + halfLW, _y + halfLW, _w - (lineWidth), _h - (lineWidth));
+				shape = new Ellipse2D.Float(_x + halfLW, _y + halfLW, _w - lineWidth, _h - lineWidth);
+				((Graphics2D)g).draw(shape);
 			}
 		}
 		else
