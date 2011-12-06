@@ -246,16 +246,16 @@ public abstract class RelatedFoundSet extends FoundSet
 						trackingInfo.setTrackingData(sheet.getColumnNames(), new Object[][] { }, new Object[][] { }, fsm.getApplication().getUserUID(),
 							fsm.getTrackingInfo(), fsm.getApplication().getClientID());
 					}
-					queryDatas.add(new QueryData(sheet.getServerName(), transactionID, selectStatement, sqlFilters, !sqlSelect.isUnique(), 0,
-						fsm.initialRelatedChunkSize, IDataServer.RELATION_QUERY, trackingInfo));
+					queryDatas.add(new QueryData(selectStatement, sqlFilters, !sqlSelect.isUnique(), 0, fsm.initialRelatedChunkSize,
+						IDataServer.RELATION_QUERY, trackingInfo));
 					queryIndex.add(new Integer(i));
 
 					QuerySelect aggregateSelect = FoundSet.getAggregateSelect(sheet, sqlSelect);
 					if (aggregateSelect != null)
 					{
 						// Note: see note about clone above.
-						queryDatas.add(new QueryData(sheet.getServerName(), transactionID, AbstractBaseQuery.deepClone((ISQLSelect)aggregateSelect),
-							fsm.getTableFilterParams(sheet.getServerName(), aggregateSelect), false, 0, 1, IDataServer.AGGREGATE_QUERY, null));
+						queryDatas.add(new QueryData(AbstractBaseQuery.deepClone((ISQLSelect)aggregateSelect), fsm.getTableFilterParams(sheet.getServerName(),
+							aggregateSelect), false, 0, 1, IDataServer.AGGREGATE_QUERY, null));
 						queryIndex.add(new Integer(i)); // same index for aggregates
 						aggregateSelects[i] = aggregateSelect;
 					}
@@ -290,7 +290,7 @@ public abstract class RelatedFoundSet extends FoundSet
 				}
 
 				long time = System.currentTimeMillis();
-				dataSets = fsm.getDataServer().performQuery(clientID, qDatas);
+				dataSets = fsm.getDataServer().performQuery(clientID, sheet.getServerName(), transactionID, qDatas);
 				if (Debug.tracing())
 				{
 					Debug.trace(Thread.currentThread().getName() + ": Relation query: " + relation.getName() + " with: " + qDatas.length + //$NON-NLS-1$ //$NON-NLS-2$
@@ -358,7 +358,6 @@ public abstract class RelatedFoundSet extends FoundSet
 
 		return foundsets;
 	}
-
 
 	private static void testException(IFoundSetManagerInternal app, String clientID, Throwable t)
 	{

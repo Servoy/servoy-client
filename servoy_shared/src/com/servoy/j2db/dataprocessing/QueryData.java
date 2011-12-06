@@ -33,8 +33,6 @@ import com.servoy.j2db.util.visitor.IVisitor;
  */
 public class QueryData implements Serializable, IVisitable
 {
-	private String server_name;
-	private final String transaction_id;
 	private final ISQLSelect sqlSelect;
 	private final ArrayList filters;
 	private final boolean distinctInMemory;
@@ -49,8 +47,8 @@ public class QueryData implements Serializable, IVisitable
 	{
 		Map classMapping = new HashMap();
 
-		classMapping.put("com.servoy.j2db.dataprocessing.QueryData", new Short((short)1)); //$NON-NLS-1$
-		classMapping.put("com.servoy.j2db.dataprocessing.TableFilter", new Short((short)2)); //$NON-NLS-1$
+		classMapping.put("com.servoy.j2db.dataprocessing.QueryData", Short.valueOf((short)1)); //$NON-NLS-1$
+		classMapping.put("com.servoy.j2db.dataprocessing.TableFilter", Short.valueOf((short)2)); //$NON-NLS-1$
 
 		ReplacedObject.installClassMapping(DATAPROCESSING_SERIALIZE_DOMAIN, classMapping);
 	}
@@ -62,20 +60,18 @@ public class QueryData implements Serializable, IVisitable
 
 
 	/**
-	 * @param clientID
-	 * @param serverName
-	 * @param transactionID
+	 * 
 	 * @param sqlSelect
-	 * @param b
-	 * @param i
-	 * @param j
-	 * @param relationQuery
+	 * @param filters
+	 * @param distinctInMemory
+	 * @param startRow
+	 * @param rowsToRetrieve
+	 * @param type
+	 * @param trackingInfo
 	 */
-	public QueryData(String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList filters, boolean distinctInMemory, int startRow,
-		int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo)
+	public QueryData(ISQLSelect sqlSelect, ArrayList filters, boolean distinctInMemory, int startRow, int rowsToRetrieve, int type,
+		ITrackingSQLStatement trackingInfo)
 	{
-		this.server_name = server_name;
-		this.transaction_id = transaction_id;
 		this.sqlSelect = sqlSelect;
 		this.filters = filters;
 		this.distinctInMemory = distinctInMemory;
@@ -83,30 +79,6 @@ public class QueryData implements Serializable, IVisitable
 		this.rowsToRetrieve = rowsToRetrieve;
 		this.type = type;
 		this.trackingInfo = trackingInfo;
-	}
-
-	/**
-	 * @return the server_name
-	 */
-	public String getServerName()
-	{
-		return this.server_name;
-	}
-
-	/**
-	 * set the server_name
-	 */
-	public void setServerName(String server_name)
-	{
-		this.server_name = server_name;
-	}
-
-	/**
-	 * @return the transaction_id
-	 */
-	public String getTransactionId()
-	{
-		return this.transaction_id;
 	}
 
 	/**
@@ -179,18 +151,14 @@ public class QueryData implements Serializable, IVisitable
 
 	public Object writeReplace()
 	{
-		return new ReplacedObject(
-			DATAPROCESSING_SERIALIZE_DOMAIN,
-			getClass(),
-			new Object[] { server_name, transaction_id, sqlSelect, filters, new int[] { distinctInMemory ? 1 : 0, startRow, rowsToRetrieve, type }, trackingInfo });
+		return new ReplacedObject(DATAPROCESSING_SERIALIZE_DOMAIN, getClass(),
+			new Object[] { sqlSelect, filters, new int[] { distinctInMemory ? 1 : 0, startRow, rowsToRetrieve, type }, trackingInfo });
 	}
 
 	public QueryData(ReplacedObject s)
 	{
 		Object[] members = (Object[])s.getObject();
 		int i = 0;
-		server_name = (String)members[i++];
-		transaction_id = (String)members[i++];
 		sqlSelect = (ISQLSelect)members[i++];
 		filters = (ArrayList)members[i++];
 
