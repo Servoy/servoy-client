@@ -27,26 +27,15 @@ import com.servoy.j2db.dataprocessing.IDataServer;
 public class PerformanceTiming
 {
 	private final String action;
-	private long total_ms;
-	private long min_ms;
-	private long max_ms;
-	private long s2; // used for running calculation of standard deviation
-	private int count;
+	private final long start_ms;
 	private final int type;
+	private long interval_ms;
 
-	public PerformanceTiming(String action, int type)
+	public PerformanceTiming(String action, int type, long start_ms)
 	{
 		this.action = action;
 		this.type = type;
-	}
-
-	public void updateTime(long time_ms)
-	{
-		total_ms += time_ms;
-		min_ms = count == 0 ? time_ms : Math.min(min_ms, time_ms);
-		max_ms = count == 0 ? time_ms : Math.max(max_ms, time_ms);
-		s2 += (time_ms * time_ms);
-		count++;
+		this.start_ms = start_ms;
 	}
 
 	public String getAction()
@@ -104,48 +93,23 @@ public class PerformanceTiming
 		return "Unknown"; //$NON-NLS-1$
 	}
 
-	public long getAverageTimeMS()
+	public long getStartTimeMS()
 	{
-		if (count == 0) return total_ms;
-		return (total_ms / count);
-	}
-
-	public long getTotalTimeMS()
-	{
-		return total_ms;
-	}
-
-	public long getMinTimeMS()
-	{
-		return min_ms;
-	}
-
-	public long getMaxTimeMS()
-	{
-		return max_ms;
-	}
-
-	public double getStandardDeviation()
-	{
-		if (count <= 1) return 0;
-
-		// see http://en.wikipedia.org/wiki/Standard_deviation for calculating standard deviation
-		// see http://easycalculation.com/statistics/standard-deviation.php for calculating stdev
-
-		// Population Standard deviation
-//		return Math.sqrt((count * s2) - (total_ms * total_ms)) / count;
-
-		// Standard deviation
-		return Math.sqrt((((double)((count * s2) - (total_ms * total_ms)))) / (count * (count - 1)));
-	}
-
-	public int getCount()
-	{
-		return count;
+		return start_ms;
 	}
 
 	public long getRunningTimeMS()
 	{
-		return (System.currentTimeMillis() - total_ms);
+		return System.currentTimeMillis() - start_ms;
+	}
+
+	public long getIntervalTimeMS()
+	{
+		return (interval_ms == 0 ? System.currentTimeMillis() : interval_ms) - start_ms;
+	}
+
+	public void setIntervalTime()
+	{
+		interval_ms = System.currentTimeMillis();
 	}
 }

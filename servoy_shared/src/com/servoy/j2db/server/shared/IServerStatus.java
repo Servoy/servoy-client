@@ -32,7 +32,7 @@ public interface IServerStatus
 {
 	IClient getClient(String clientId);
 
-	PerformanceTiming[] getPerformanceData();
+	PerformanceTimingAggregate[] getPerformanceData();
 
 	void clearPerformanceData();
 
