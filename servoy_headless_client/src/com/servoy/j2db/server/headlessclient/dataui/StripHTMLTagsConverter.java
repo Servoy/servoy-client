@@ -228,7 +228,7 @@ public class StripHTMLTagsConverter implements IConverter
 					{
 						String end = "\n";
 						if (me.isOpen()) end = "</link>\n";
-						st.getLinkTags().add(me.toXmlString(null) + end);
+						st.getLinkTags().add(convertMediaReferences(me.toXmlString(null) + end, solutionName, rr, ""));
 					}
 					me = (XmlTag)parser.nextTag();
 					continue;
