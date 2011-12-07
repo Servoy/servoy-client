@@ -1891,10 +1891,6 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 
 		public void addRow(int index, Object[] array)
 		{
-			if (index != -1)
-			{
-				Debug.log("Warning: addRow index paramer after createDataSource call is ignored on data set"); //$NON-NLS-1$
-			}
 			int newIndex;
 			try
 			{
@@ -1904,6 +1900,10 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 			{
 				Debug.log(e);
 				return;
+			}
+			if (index != -1 && index != newIndex)
+			{
+				Debug.log("Warning: addRow index paramer after createDataSource call is ignored on data set"); //$NON-NLS-1$
 			}
 			setRow(newIndex, array);
 		}
