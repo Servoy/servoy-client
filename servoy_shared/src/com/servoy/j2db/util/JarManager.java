@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
+import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -395,6 +396,45 @@ public abstract class JarManager
 			}
 		}
 		return foundBeanClassNames;
+	}
+
+	public static List<String> getManifestClassPath(URL jarUrl)
+	{
+		ArrayList<String> lst = new ArrayList<String>();
+		InputStream is = null;
+		try
+		{
+			is = (InputStream)jarUrl.getContent(new Class[] { InputStream.class });
+			if (is != null)
+			{
+				JarInputStream jis = new JarInputStream(is, false);
+				Manifest mf = jis.getManifest();
+				String classpath = mf.getMainAttributes().getValue(Attributes.Name.CLASS_PATH);
+				if (classpath != null)
+				{
+					StringTokenizer st = new StringTokenizer(classpath, " "); //$NON-NLS-1$
+					while (st.hasMoreTokens())
+					{
+						lst.add(st.nextToken());
+					}
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+		}
+		finally
+		{
+			try
+			{
+				is.close();
+			}
+			catch (Exception e2)
+			{
+			}
+		}
+		return lst;
 	}
 
 	public static Map<String, File> getManifestClassPath(File jarFile, File contextDir)
