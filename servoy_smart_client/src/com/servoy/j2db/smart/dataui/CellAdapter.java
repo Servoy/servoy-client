@@ -940,7 +940,11 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			adjustedBorder = UIManager.getBorder("Table.focusCellHighlightBorder"); //$NON-NLS-1$
 			if (styleBorder != null)
 			{
-				if (styleBorder instanceof CompoundBorder)
+				if (styleBorder instanceof ReducedBorder)
+				{
+					adjustedBorder = new CompoundBorder(styleBorder, adjustedBorder);
+				}
+				else if (styleBorder instanceof CompoundBorder)
 				{
 					Border insideBorder = ((CompoundBorder)styleBorder).getInsideBorder();
 					Border outsideBorder = ((CompoundBorder)styleBorder).getOutsideBorder();

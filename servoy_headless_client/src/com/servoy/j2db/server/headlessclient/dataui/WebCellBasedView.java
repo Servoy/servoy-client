@@ -657,8 +657,38 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				parent.setVisible(comp.isVisible());
 			}
 
+			Properties borderProperties = new Properties();
 			if (compBorder != null)
 			{
+				ComponentFactoryHelper.createBorderCSSProperties((String)compBorder, borderProperties);
+			}
+			else
+			{
+				if (comp instanceof IComponent)
+				{
+					Border cBorder = ((IComponent)comp).getBorder();
+					if (cBorder != null)
+					{
+						ComponentFactoryHelper.createBorderCSSProperties(ComponentFactoryHelper.createBorderString(cBorder), borderProperties);
+					}
+					else
+					{
+						borderProperties.put("border-width", "");
+						borderProperties.put("border-style", "");
+						borderProperties.put("border-color", "");
+					}
+				}
+			}
+
+			if (borderProperties.size() > 0)
+			{
+				String borderWidth = getFirstToken(borderProperties.getProperty("border-width"));
+				String borderStyle = borderProperties.getProperty("border-style");
+				if (borderStyle == null) borderStyle = "";
+				String borderColor = getFirstToken(borderProperties.getProperty("border-color"));
+
+				final String borderDef = new StringBuilder(borderWidth).append(" ").append(borderStyle).append(" ").append(borderColor).toString();
+
 				Object elem = WebCellBasedView.this.cellToElement.get(comp);
 				Object colId = WebCellBasedView.this.elementToColumnIdentifierComponent.get(elem);
 				final int idx = WebCellBasedView.this.visibleColummIdentifierComponents.indexOf(colId);
@@ -668,16 +698,17 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					@Override
 					public String getObject()
 					{
+						StringBuilder style = new StringBuilder("border-top:").append(borderDef).append("; border-bottom:").append(borderDef);
 						if (idx == 0)
 						{
-							return "border-right: none"; //$NON-NLS-1$
+							style.append("; border-left:").append(borderDef);
 						}
 						else if (idx == WebCellBasedView.this.visibleColummIdentifierComponents.size() - 1)
 						{
-							return "border-left: none"; //$NON-NLS-1$
+							style.append("; border-right:").append(borderDef);
 						}
 
-						return "border-left:none; border-right:none;"; //$NON-NLS-1$
+						return style.toString();
 					}
 				}));
 			}
@@ -3049,8 +3080,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				String newCompFont = compFont != null ? compFont.toString() : null;
 				sbm.js_setFont(newCompFont);
 
-				String newBorder = compBorder != null ? compBorder.toString() : null;
-				if (newBorder != null) sbm.js_setBorder(newBorder);
+//				String newBorder = compBorder != null ? compBorder.toString() : null;
+//				if (newBorder != null) sbm.js_setBorder(newBorder);
 			}
 		}
 	}
@@ -3429,9 +3460,13 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 							bstyle = borderProperties.getProperty("border-style"); //$NON-NLS-1$
 							if (bstyle == null) bstyle = ""; //$NON-NLS-1$
 							bwidth = borderProperties.getProperty("border-width"); //$NON-NLS-1$
-							if (bwidth == null) bwidth = ""; //$NON-NLS-1$
+							bwidth = getFirstToken(bwidth);
 							bcolor = borderProperties.getProperty("border-color"); //$NON-NLS-1$
-							if (bcolor == null) bcolor = ""; //$NON-NLS-1$
+							bcolor = getFirstToken(bcolor);
+						}
+						else
+						{
+
 						}
 
 						sab.append("Servoy.TableView.setRowStyle('"). //$NON-NLS-1$
@@ -3819,6 +3854,16 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	public boolean isScrollMode()
 	{
 		return isScrollMode;
+	}
+
+	private static String getFirstToken(String s)
+	{
+		if (s != null)
+		{
+			StringTokenizer st = new StringTokenizer(s);
+			if (st.hasMoreTokens()) return st.nextToken();
+		}
+		return "";
 	}
 
 	private class ScrollBehavior extends ServoyAjaxEventBehavior

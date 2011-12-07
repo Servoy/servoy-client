@@ -286,31 +286,17 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 
 		ChangesRecorder changesRecorder = new ChangesRecorder();
 		changesRecorder.setBgcolor(view.getHeaderBgColor());
-		changesRecorder.setFgcolor(view.getHeaderFgColor());
-		changesRecorder.setFont(view.getHeaderFont());
 		changesRecorder.setBorder(view.getHeaderBorder());
 
 		final Properties changes = changesRecorder.getChanges();
+		if (changes.size() > 0) applyStyleChanges(headerColumnTable, changes);
 
-		if (changes.size() > 0)
-		{
-			labelResolver.add(new StyleAppendingModifier(new Model<String>()
-			{
-				@Override
-				public String getObject()
-				{
-					StringBuilder headerStyle = new StringBuilder();
-					Iterator<Entry<Object, Object>> headerStyleIte = changes.entrySet().iterator();
-					Entry<Object, Object> headerStyleEntry;
-					while (headerStyleIte.hasNext())
-					{
-						headerStyleEntry = headerStyleIte.next();
-						headerStyle.append(headerStyleEntry.getKey()).append(":").append(headerStyleEntry.getValue()).append(";");
-					}
-					return headerStyle.toString();
-				}
-			}));
-		}
+		ChangesRecorder textChangesRecorder = new ChangesRecorder();
+		textChangesRecorder.setFgcolor(view.getHeaderFgColor());
+		textChangesRecorder.setFont(view.getHeaderFont());
+
+		final Properties textChanges = textChangesRecorder.getChanges();
+		if (textChanges.size() > 0) applyStyleChanges(labelResolver, textChanges);
 
 		boolean blockResize = false;
 
@@ -535,6 +521,45 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 		{
 			setResizeImage(dir ? view.R_ARROW_DOWN : view.R_ARROW_UP);
 		}
+	}
+
+	private void applyStyleChanges(Component c, final Properties changes)
+	{
+		StyleAppendingModifier headerStyles = new StyleAppendingModifier(new Model<String>()
+		{
+			@Override
+			public String getObject()
+			{
+				StringBuilder headerStyle = new StringBuilder();
+				Iterator<Entry<Object, Object>> headerStyleIte = changes.entrySet().iterator();
+				Entry<Object, Object> headerStyleEntry;
+				while (headerStyleIte.hasNext())
+				{
+					headerStyleEntry = headerStyleIte.next();
+					headerStyle.append(headerStyleEntry.getKey()).append(":").append(headerStyleEntry.getValue()).append(";");
+				}
+				return headerStyle.toString();
+			}
+		})
+		{
+			@Override
+			public boolean isEnabled(Component c)
+			{
+				Iterator<IPersist> it2 = SortableCellViewHeader.this.cellview.getAllObjects();
+				while (it2.hasNext())
+				{
+					IPersist element = it2.next();
+					if (SortableCellViewHeader.this.id.equals(ComponentFactory.getWebID(SortableCellViewHeader.this.form, element)) &&
+						SortableCellViewHeader.this.view.labelsFor.get(((ISupportName)element).getName()) != null)
+					{
+						return false;
+					}
+				}
+				return true;
+			}
+		};
+
+		c.add(headerStyles);
 	}
 
 	public boolean isUnmovable()

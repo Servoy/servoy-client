@@ -182,21 +182,9 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 			{
 				// cache value, this is an expensive operation into the look and feel renderer.
 				lfComponent = lfAwareRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-
-				Color styleBgColor = cellAdapter.getHeaderBgColor(parentTable);
-				if (styleBgColor != null) lfComponent.setBackground(styleBgColor);
-				Color styleFgColor = cellAdapter.getHeaderFgColor(parentTable);
-				if (styleFgColor != null) lfComponent.setForeground(styleFgColor);
-				Font styleFont = cellAdapter.getHeaderFont(parentTable);
-				if (styleFont != null) lfComponent.setFont(styleFont);
-				if (lfComponent instanceof JLabel)
-				{
-					Border styleBorder = cellAdapter.getHeaderBorder(parentTable);
-					if (styleBorder != null) ((JLabel)lfComponent).setBorder(styleBorder);
-				}
-
 				lfValue = value;
 			}
+
 			if (defaultFgColor == null) defaultFgColor = ((JLabel)lfComponent).getForeground();
 			if (defaultBgColor == null) defaultBgColor = ((JLabel)lfComponent).getBackground();
 			if (defaultFont == null) defaultFont = ((JLabel)lfComponent).getFont();
@@ -208,9 +196,18 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 			// Usually the returned component is a JLabel.
 			if (gc == null)
 			{
-				lfComponent.setForeground(defaultFgColor);
-				lfComponent.setBackground(defaultBgColor);
-				lfComponent.setFont(defaultFont);
+				Color styleBgColor = cellAdapter.getHeaderBgColor(parentTable);
+				if (styleBgColor != null) lfComponent.setBackground(styleBgColor);
+				else lfComponent.setBackground(defaultBgColor);
+
+				Color styleFgColor = cellAdapter.getHeaderFgColor(parentTable);
+				if (styleFgColor != null) lfComponent.setForeground(styleFgColor);
+				else lfComponent.setForeground(defaultFgColor);
+
+				Font styleFont = cellAdapter.getHeaderFont(parentTable);
+				if (styleFont != null) lfComponent.setFont(styleFont);
+				else lfComponent.setFont(defaultFont);
+
 				if (lfComponent instanceof JLabel)
 				{
 					JLabel label = (JLabel)lfComponent;
@@ -269,7 +266,9 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 				label.setVerticalAlignment(getVerticalAlignment());
 				if (border == null)
 				{
-					border = (getBorder() != null) ? getBorder() : defaultBorder;
+					Border styleBorder = cellAdapter.getHeaderBorder(parentTable);
+					if (styleBorder != null) ((JLabel)lfComponent).setBorder(styleBorder);
+					border = (getBorder() != null) ? getBorder() : (styleBorder != null && gc == null ? styleBorder : defaultBorder);
 
 					if (margin != null)
 					{

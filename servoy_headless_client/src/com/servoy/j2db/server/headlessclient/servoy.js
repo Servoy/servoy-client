@@ -592,7 +592,7 @@ function showInfoPanel(url,w,h,t,closeText)
 if (typeof(Servoy.TableView) == "undefined")
 {
 	Servoy.TableView = 
-	{
+	{	
 		setRowStyleEl: function(el, bgcolor, fgcolor, fontStyle, fontWeight, fontSize, fontFamily, borderStyle, borderWidth, borderColor, inDepth)
 		{
 			var elChildren = el.childNodes;
@@ -612,11 +612,22 @@ if (typeof(Servoy.TableView) == "undefined")
 					
 					if(el.tagName.toLowerCase() != "td")
 					{
-						el.style.borderStyle =  borderStyle;
-						el.style.borderWidth = borderWidth;
-						el.style.borderColor = borderColor;
-						el.style.borderLeft = borderStyle == '' ? '' : 'none';
-						el.style.borderRight = borderStyle == '' ? '' : 'none';
+						var bStyle = '';
+						if(borderWidth != '' || borderStyle != '' || borderColor != '')
+						{
+							bStyle = borderWidth + " " + borderStyle + " " + borderColor;
+						}
+						el.style.borderTop = bStyle;
+						el.style.borderBottom = bStyle;
+						
+						if(Servoy.TableView.isInFirstTD(el))
+						{
+							el.style.borderLeft = bStyle;
+						}
+						else if(Servoy.TableView.isInLastTD(el))
+						{
+							el.style.borderRight = bStyle;
+						}
 					}
 				}
 			}
@@ -808,7 +819,47 @@ if (typeof(Servoy.TableView) == "undefined")
 			}
 						
 			return Servoy.TableView.isAppendingRows ? scrollDiff : 0;
-		}		
+		},
+		
+		isInFirstTD: function(el)
+		{
+			var targetTD = YAHOO.util.Dom.getAncestorBy (el , function(el)
+			{
+				return el.tagName.toLowerCase() == "td";
+			});				
+		
+			if(targetTD)
+			{
+				var nextTD = YAHOO.util.Dom.getPreviousSiblingBy(targetTD, function(el)
+				{
+					return el.tagName.toLowerCase() == "td";
+				});
+				
+				if(!nextTD) return true;
+			}
+		
+			return false;
+		},
+		
+		isInLastTD: function(el)
+		{
+			var targetTD = YAHOO.util.Dom.getAncestorBy (el , function(el)
+			{
+				return el.tagName.toLowerCase() == "td";
+			});				
+		
+			if(targetTD)
+			{
+				var nextTD = YAHOO.util.Dom.getNextSiblingBy(targetTD, function(el)
+				{
+					return el.tagName.toLowerCase() == "td" && el.id;
+				});
+				
+				if(!nextTD) return true;
+			}
+		
+			return false;
+		}
 	};
 }
 
