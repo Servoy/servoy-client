@@ -180,6 +180,11 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	@SuppressWarnings("unchecked")
 	public <T extends AbstractBase> T createPersistCopy(T persist)
 	{
+		if (mainSolution == null && loginFlattenedSolution != null)
+		{
+			return loginFlattenedSolution.createPersistCopy(persist);
+		}
+
 		T copy = (T)getSolutionCopy().getChild(persist.getUUID());
 		if (copy != null) return copy;
 
@@ -275,6 +280,12 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	 */
 	public void deletePersistCopy(AbstractBase persist, boolean revertToOriginal)
 	{
+		if (mainSolution == null && loginFlattenedSolution != null)
+		{
+			loginFlattenedSolution.deletePersistCopy(persist, revertToOriginal);
+			return;
+		}
+
 		if (copySolution != null)
 		{
 			copySolution.removeChild(persist);
@@ -318,11 +329,22 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	public boolean hasCopy(IPersist persist)
 	{
+		if (mainSolution == null && loginFlattenedSolution != null)
+		{
+			return loginFlattenedSolution.hasCopy(persist);
+		}
+
 		return copySolution != null && copySolution.getChild(persist.getUUID()) != null;
 	}
 
 	public void updatePersistInSolutionCopy(final IPersist persist)
 	{
+		if (mainSolution == null && loginFlattenedSolution != null)
+		{
+			loginFlattenedSolution.updatePersistInSolutionCopy(persist);
+			return;
+		}
+
 		if (copySolution == null) return;
 
 		IPersist copyPersist = (IPersist)copySolution.acceptVisitor(new IPersistVisitor()
@@ -387,7 +409,16 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	public Solution getSolutionCopy()
 	{
-		if (mainSolution == null || copySolution != null) return copySolution;
+		if (mainSolution == null)
+		{
+			if (loginFlattenedSolution != null)
+			{
+				return loginFlattenedSolution.getSolutionCopy();
+			}
+			return null;
+		}
+
+		if (copySolution != null) return copySolution;
 
 		try
 		{
@@ -836,6 +867,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			}
 			return Collections.emptyList();
 		}
+
 		if (allObjectscache == null)
 		{
 			List<IPersist> retval = new ArrayList<IPersist>(allObjectsSize);
