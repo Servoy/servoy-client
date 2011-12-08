@@ -17,6 +17,8 @@
 package com.servoy.j2db.plugins;
 
 
+import java.io.InputStream;
+import java.net.URL;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.sql.Connection;
@@ -286,4 +288,14 @@ public interface IServerAccess extends IPluginAccess
 	 * @since 5.2
 	 */
 	public String[] getUserGroups(String userUid) throws ServoyException;
+
+	/**
+	 * @param filename The filename to get an {@link URL} reference to.
+	 */
+	public URL getResource(String filename);
+
+	/**
+	 * @param filename The filename to get an {@link InputStream} to.
+	 */
+	public InputStream getResourceAsStream(String filename);
 }
