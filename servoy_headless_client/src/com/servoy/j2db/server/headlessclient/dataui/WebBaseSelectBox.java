@@ -838,7 +838,7 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 	public void setRightClickCommand(String rightClickCmd, Object[] args)
 	{
 		eventExecutor.setRightClickCmd(rightClickCmd, args);
-		add(new ServoyAjaxEventBehavior("oncontextmenu") //$NON-NLS-1$
+		add(new ServoyAjaxEventBehavior("oncontextmenu", "SelectBox", true) //$NON-NLS-1$
 		{
 			@Override
 			protected void onEvent(AjaxRequestTarget target)

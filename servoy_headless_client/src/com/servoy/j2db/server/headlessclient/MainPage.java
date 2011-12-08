@@ -883,7 +883,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		}
 
 		response.renderJavascriptReference(servoy_js);
-		YUILoader.renderDragNDrop(response);
+		YUILoader.renderYUI(response);
 		JQueryLoader.render(response);
 	}
 

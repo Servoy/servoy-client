@@ -30,6 +30,7 @@ import com.servoy.j2db.dnd.DRAGNDROP;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.dataui.AbstractServoyDefaultAjaxBehavior;
 import com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor;
+import com.servoy.j2db.server.headlessclient.yui.YUILoader;
 import com.servoy.j2db.ui.IComponent;
 
 /**
@@ -343,6 +344,7 @@ public abstract class DraggableBehavior extends AbstractServoyDefaultAjaxBehavio
 	public void renderHead(IHeaderResponse response)
 	{
 		super.renderHead(response);
+		YUILoader.renderDragNDrop(response);
 		if (isRenderOnHead) WebEventExecutor.generateDragAttach(getComponent(), response);
 	}
 

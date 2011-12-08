@@ -54,6 +54,20 @@ public class YUILoader implements Serializable
 	{
 	}
 
+	public static void renderYUI(IHeaderResponse response)
+	{
+		if (Application.exists() && Application.get().getDebugSettings().isAjaxDebugModeEnabled())
+		{
+			response.renderJavascriptReference(YUILoader.JS_YAHOO_DEBUG);
+			response.renderJavascriptReference(YUILoader.JS_DOM_DEBUG);
+			response.renderJavascriptReference(YUILoader.JS_EVENT_DEBUG);
+		}
+		else
+		{
+			response.renderJavascriptReference(YUILoader.JS_YAHOO_DOM_EVENT);
+		}
+	}
+
 	public static void renderDragNDrop(IHeaderResponse response)
 	{
 		if (Application.exists() && Application.get().getDebugSettings().isAjaxDebugModeEnabled())

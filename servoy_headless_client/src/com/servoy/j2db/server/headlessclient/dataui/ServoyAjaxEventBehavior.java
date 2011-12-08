@@ -36,6 +36,7 @@ public abstract class ServoyAjaxEventBehavior extends AjaxEventBehavior implemen
 {
 	private boolean designMode;
 	private String sharedName;
+	private boolean disableDefaultBehavior;
 
 	/**
 	 * @param event
@@ -47,8 +48,14 @@ public abstract class ServoyAjaxEventBehavior extends AjaxEventBehavior implemen
 
 	public ServoyAjaxEventBehavior(String event, String sharedName)
 	{
+		this(event, sharedName, false);
+	}
+
+	public ServoyAjaxEventBehavior(String event, String sharedName, boolean disableDefaultBehavior)
+	{
 		super(event);
 		this.sharedName = sharedName;
+		this.disableDefaultBehavior = disableDefaultBehavior;
 	}
 
 	private boolean isRenderHead;
@@ -83,7 +90,8 @@ public abstract class ServoyAjaxEventBehavior extends AjaxEventBehavior implemen
 		}
 		else
 		{
-			return getJSEventName() + "(event, '" + getCallbackUrl(false) + "', '" + getComponent().getMarkupId() + "')"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			return getJSEventName() +
+				"(event, '" + getCallbackUrl(false) + "', '" + getComponent().getMarkupId() + "')" + (disableDefaultBehavior ? ";return false;" : ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		}
 	}
 

@@ -106,12 +106,12 @@ public class WebEventExecutor extends BaseEventExecutor
 			}
 			else if (component instanceof CheckBox || component instanceof MyRadioButton)
 			{
-				component.add(new ServoyFormComponentUpdatingBehavior("onclick", component, this)); //$NON-NLS-1$
+				component.add(new ServoyFormComponentUpdatingBehavior("onclick", component, this, "FormUpdate")); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			else if (component instanceof WebDataLookupField || component instanceof WebDataComboBox || component instanceof DateField ||
 				component instanceof WebDataListBox) // these fields can change contents without having focus or should generate dataProvider update without loosing focus; for example calendar might modify field content without field having focus
 			{
-				component.add(new ServoyFormComponentUpdatingBehavior("onchange", component, this)); //$NON-NLS-1$
+				component.add(new ServoyFormComponentUpdatingBehavior("onchange", component, this, "FormUpdate")); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			else if (!(component instanceof FormComponent< ? >)) // updating FormComponent is handled in focusLost event handler in PageContributor
 			{
@@ -302,7 +302,7 @@ public class WebEventExecutor extends BaseEventExecutor
 		{
 			if (component instanceof ILabel || component instanceof IFieldComponent || component instanceof SortableCellViewHeader)
 			{
-				component.add(new ServoyAjaxEventBehavior("oncontextmenu") //$NON-NLS-1$
+				component.add(new ServoyAjaxEventBehavior("oncontextmenu", "Cmd", true) //$NON-NLS-1$ //$NON-NLS-2$
 				{
 					@Override
 					protected void onEvent(AjaxRequestTarget target)

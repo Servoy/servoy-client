@@ -28,6 +28,7 @@ import org.apache.wicket.markup.MarkupElement;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.WicketTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 import org.apache.wicket.markup.resolver.IComponentResolver;
 
 import com.servoy.j2db.IApplication;
@@ -38,10 +39,14 @@ import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.ISupportAnchors;
 import com.servoy.j2db.persistence.ISupportName;
+import com.servoy.j2db.persistence.Portal;
+import com.servoy.j2db.server.headlessclient.yui.YUILoader;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -84,6 +89,40 @@ public class SortableCellViewHeaders extends WebMarkupContainer implements IProv
 		this.headerManager = headerManager;
 		group = new SortableCellViewHeaderGroup(form, listView, cellview);
 		if (initialSortMap != null) group.recordSort(initialSortMap);
+	}
+
+	@Override
+	public void renderHead(HtmlHeaderContainer headerContainer)
+	{
+		super.renderHead(headerContainer);
+		if (isReorderableOrResizable()) YUILoader.renderDragNDrop(headerContainer.getHeaderResponse());
+	}
+
+	private boolean isReorderableOrResizable()
+	{
+		if (Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX"))) //$NON-NLS-1$
+		{
+			boolean isReorderable = false;
+			boolean isResizable = false;
+
+			Iterator<IPersist> iter = cellview.getAllObjects();
+			while (iter.hasNext())
+			{
+				IPersist element = iter.next();
+				if (element instanceof ISupportAnchors)
+				{
+					int anchors = ((ISupportAnchors)element).getAnchors();
+					isResizable = ((anchors & IAnchorConstants.EAST) == IAnchorConstants.EAST) && ((anchors & IAnchorConstants.WEST) == IAnchorConstants.WEST);
+					isResizable = isResizable && (!(cellview instanceof Portal) || ((Portal)cellview).getResizable());
+					if (isResizable) return true;
+					isReorderable = !(((anchors & IAnchorConstants.NORTH) == IAnchorConstants.NORTH) && ((anchors & IAnchorConstants.SOUTH) == IAnchorConstants.SOUTH));
+					isReorderable = isReorderable && (!(cellview instanceof Portal) || ((Portal)cellview).getReorderable());
+					if (isReorderable) return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	private boolean resolve(MarkupStream markupStream, ComponentTag tag, String id)

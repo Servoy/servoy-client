@@ -44,9 +44,9 @@ public class ServoyFormComponentUpdatingBehavior extends ServoyAjaxFormComponent
 	 * @param event
 	 * @param eventExecutor
 	 */
-	public ServoyFormComponentUpdatingBehavior(String event, Component component, WebEventExecutor eventExecutor)
+	public ServoyFormComponentUpdatingBehavior(String event, Component component, WebEventExecutor eventExecutor, String sharedName)
 	{
-		super(event);
+		super(event, sharedName);
 		this.component = component;
 		this.eventExecutor = eventExecutor;
 	}

@@ -37,7 +37,7 @@ public class ConsumeEnterAttributeModifier extends ServoyActionEventBehavior
 
 	public ConsumeEnterAttributeModifier(Component component, WebEventExecutor eventExecutor)
 	{
-		super("onKeyDown", component, eventExecutor);
+		super("onKeyDown", component, eventExecutor, "ConsumeEnter"); //$NON-NLS-2$
 	}
 
 	/**

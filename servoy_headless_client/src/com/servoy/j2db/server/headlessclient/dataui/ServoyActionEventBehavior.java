@@ -21,7 +21,6 @@ import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.calldecorator.AjaxCallDecorator;
-import org.apache.wicket.markup.html.IHeaderResponse;
 
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent.EventType;
@@ -43,8 +42,6 @@ public class ServoyActionEventBehavior extends ServoyAjaxFormComponentUpdatingBe
 	protected final Component component;
 	protected final WebEventExecutor eventExecutor;
 
-	private String sharedName;
-
 	/**
 	 * @param event
 	 * @param eventExecutor
@@ -58,34 +55,11 @@ public class ServoyActionEventBehavior extends ServoyAjaxFormComponentUpdatingBe
 
 	public ServoyActionEventBehavior(String event, Component component, WebEventExecutor eventExecutor, String sharedName)
 	{
-		super(event);
+		super(event, sharedName);
 		this.component = component;
 		this.eventExecutor = eventExecutor;
-		this.sharedName = sharedName;
 	}
 
-	private boolean isRenderHead;
-
-	@Override
-	public void renderHead(IHeaderResponse response)
-	{
-		isRenderHead = true;
-		super.renderHead(response);
-
-		if (sharedName != null)
-		{
-			CharSequence eh = getEventHandler();
-			CharSequence callbackUrl = getCallbackUrl(false);
-			String compId = getComponent().getMarkupId();
-			String newEh = Utils.stringReplace(eh.toString(), "'" + callbackUrl + "'", "callback"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			newEh = Utils.stringReplace(newEh, "'" + compId + "'", "componentId"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-
-			response.renderJavascript("function " + getJSEventName() + "(event, callback, componentId ) { " + newEh + "}", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				getJSEventName());
-
-		}
-		isRenderHead = false;
-	}
 
 	@Override
 	protected CharSequence generateCallbackScript(CharSequence partialCall)
@@ -96,7 +70,7 @@ public class ServoyActionEventBehavior extends ServoyAjaxFormComponentUpdatingBe
 		}
 		else
 		{
-			return getJSEventName() + "(event, '" + getCallbackUrl(false) + "', '" + getComponent().getMarkupId() + "')"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			return super.generateCallbackScript(partialCall);
 		}
 	}
 
@@ -196,9 +170,10 @@ public class ServoyActionEventBehavior extends ServoyAjaxFormComponentUpdatingBe
 		return "indicator"; //$NON-NLS-1$
 	}
 
-	private String getJSEventName()
+	@Override
+	protected String getJSEventName()
 	{
-		String eventName = getEvent() + sharedName;
+		String eventName = super.getJSEventName();
 		if (getComponent() instanceof WebDataTextArea) eventName += "TextArea"; //$NON-NLS-1$
 		return eventName;
 	}
