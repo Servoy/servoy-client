@@ -826,7 +826,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 		{
 			throw new RepositoryException("A column on table " + table.getName() + " with name/dataProviderID " + ndpid + " already exists"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
-		validator.checkName(ndpid, -1, new ValidatorSearchContext(this, IRepository.COLUMNS), true);
+		validator.checkName(ndpid, -1, new ValidatorSearchContext(this, IRepository.COLUMNS), false);
 		setDataProviderID(ndpid);
 		table.fireIColumnChanged(this);
 	}
