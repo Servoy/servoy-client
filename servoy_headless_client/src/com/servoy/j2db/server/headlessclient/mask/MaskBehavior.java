@@ -23,7 +23,10 @@ import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
 
+import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataField;
+import com.servoy.j2db.ui.IScriptBaseMethods;
+import com.servoy.j2db.ui.IScriptInputMethods;
 import com.servoy.j2db.ui.ISupportEventExecutor;
 
 /**
@@ -73,6 +76,10 @@ public class MaskBehavior extends AbstractBehavior
 	@Override
 	public boolean isEnabled(Component component)
 	{
+		Object scriptable = component;
+		if (component instanceof IScriptableProvider) scriptable = ((IScriptableProvider)component).getScriptObject();
+		if (scriptable instanceof IScriptBaseMethods && !((IScriptBaseMethods)scriptable).js_isEnabled()) return false;
+		if (scriptable instanceof IScriptInputMethods && !((IScriptInputMethods)scriptable).js_isEditable()) return false;
 		if (component instanceof ISupportEventExecutor) return ((ISupportEventExecutor)component).getEventExecutor().getValidationEnabled();
 		return true;
 	}
