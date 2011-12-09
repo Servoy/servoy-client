@@ -53,9 +53,6 @@ public class WebDataHtmlArea extends WebDataTextArea
 		IHeaderResponse response = container.getHeaderResponse();
 		YUILoader.renderHTMLEdit(response);
 
-		//YUI edit is not supported on mobile webkit browsers, so do not decorate the textarea, leave plain
-		String mobilecheck = "if (!(/iphone|ipad|ipod|android|blackberry|mini|windows\\sce|palm/i.test(navigator.userAgent.toLowerCase())))";
-
 		String script = "Servoy.HTMLEdit.attach(document.getElementById('" + getMarkupId() + "'));";
 		if (findParent(WebTabPanel.class) != null)
 		{
