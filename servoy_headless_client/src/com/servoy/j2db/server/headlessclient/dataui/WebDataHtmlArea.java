@@ -32,10 +32,11 @@ import com.servoy.j2db.ui.scripting.AbstractRuntimeTextEditor;
  * html editor component, bound to YUI editor
  * @author jblok
  */
+@SuppressWarnings("nls")
 public class WebDataHtmlArea extends WebDataTextArea
 {
-	public static final String htmlTextStartTags = "<html><body>"; //$NON-NLS-1$
-	public static final String htmlTextEndTags = "</body></html>"; //$NON-NLS-1$
+	public static final String htmlTextStartTags = "<html><body>";
+	public static final String htmlTextEndTags = "</body></html>";
 
 	public WebDataHtmlArea(IApplication application, AbstractRuntimeTextEditor<IFieldComponent, JEditorPane> scriptable, String id)
 	{
@@ -51,9 +52,11 @@ public class WebDataHtmlArea extends WebDataTextArea
 		super.renderHead(container);
 		IHeaderResponse response = container.getHeaderResponse();
 		YUILoader.renderHTMLEdit(response);
-		//YUI edit is not supported on mobile webkit browsers, so do not decorate the textarea, but leave plain
-		String script = "if (!(/iphone|ipad|ipod|android|blackberry|mini|windows\\sce|palm/i.test(navigator.userAgent.toLowerCase()))) Servoy.HTMLEdit.attach(document.getElementById('" +
-			getMarkupId() + "'));";
+
+		//YUI edit is not supported on mobile webkit browsers, so do not decorate the textarea, leave plain
+		String mobilecheck = "if (!(/iphone|ipad|ipod|android|blackberry|mini|windows\\sce|palm/i.test(navigator.userAgent.toLowerCase())))";
+
+		String script = "Servoy.HTMLEdit.attach(document.getElementById('" + getMarkupId() + "'));";
 		if (findParent(WebTabPanel.class) != null)
 		{
 			response.renderOnDomReadyJavascript("setTimeout(function(){" + script + "}, 0);");
