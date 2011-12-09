@@ -37,6 +37,7 @@ import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.Types4;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.dataprocessing.ValueFactory.NullValue;
+import com.servoy.j2db.util.AliasKeyMap.ISupportAlias;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -49,7 +50,7 @@ import com.servoy.j2db.util.keyword.SQLKeywords;
  * 
  * @author jblok
  */
-public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
+public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, ISupportAlias<String>
 {
 	public static final long serialVersionUID = -2730015162348120893L;
 	public static final int MAX_SQL_OBJECT_NAME_LENGTH = 30; // max length of table names, column names, etc; 30 seen by oracle, 31 seen by firebird
@@ -701,18 +702,17 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 		return getName();
 	}
 
+	public String getAlias()
+	{
+		return getDataProviderID();
+	}
+
 	void setDataProviderID(String dataProviderID)
 	{
+		String oldDataProviderID = getDataProviderID();
 		if (columnInfo != null)
 		{
-			if (getName().equals(dataProviderID))
-			{
-				columnInfo.setDataProviderID(null);
-			}
-			else
-			{
-				columnInfo.setDataProviderID(dataProviderID);
-			}
+			columnInfo.setDataProviderID(getName().equals(dataProviderID) ? null : dataProviderID);
 			this.dataProviderID = null;
 			columnInfo.flagChanged();
 		}
@@ -720,6 +720,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 		{
 			this.dataProviderID = dataProviderID;
 		}
+		table.columnDataProviderIDChanged(oldDataProviderID);
 	}
 
 	public int getDataProviderType()
@@ -990,23 +991,12 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 		return columnInfo != null ? columnInfo.getDatabaseDefaultValue() : databaseDefaultValue;
 	}
 
-/*
- * String getLocalColumnTypeDescription() throws RepositoryException { try { String retval = null;
- * 
- * IServer server = getTable().getServer(); Server.DataType dataType = ((Server)server).getDataType(type); if (dataType != null) { retval =
- * dataType.getTypeAsDatabaseDependentString(); if (retval.indexOf('(') == -1 && ( (dataType.getParams() != null && !"".equals(dataType.getParams())) ||
- * dataType.getTypeCode() == Types.VARCHAR ))//last test fix for oracle { retval+="("+getLength()+")"; //result: varchar(50) } } else { //try to use normilized
- * type, for example if 'tiny int' is used map to 'int' type = mapToDefaultType(type);
- * 
- * dataType = ((Server)server).getDataType(type); if (dataType != null) { retval = dataType.getTypeAsDatabaseDependentString(); if (retval.indexOf('(') == -1 &&
- * ( (dataType.getParams() != null && !"".equals(dataType.getParams())) || dataType.getTypeCode() == Types.VARCHAR ))//last test fix for oracle {
- * retval+="("+getLength()+")"; //result: varchar(50) } } else { throw new RepositoryException("Unkown column type "+type+", not supported by this db"); } }
- * 
- * return retval; } catch(SQLException ex) { throw new RepositoryException(ex); } }
- */
 	public void setColumnInfo(ColumnInfo ci)
 	{
 		if (ci == null) throw new NullPointerException("Column info cannot be set null"); //$NON-NLS-1$
+
+		String oldDataProviderID = getDataProviderID();
+
 		ColumnInfo oldColumnInfo = columnInfo;
 		columnInfo = ci;
 		if (sequenceType != ColumnInfo.NO_SEQUENCE_SELECTED) //delegate
@@ -1040,6 +1030,8 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText
 		// The database default value only gets set once, via the column itself and never via the column info.
 		// Thus the version in the column is always the correct one and should override anything in column info.
 		setDatabaseDefaultValue(databaseDefaultValue);
+
+		table.columnDataProviderIDChanged(oldDataProviderID);
 	}
 
 	public void removeColumnInfo()//only called when column is deleted...

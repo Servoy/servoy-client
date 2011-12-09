@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.servoy.j2db.dataprocessing.SortColumn;
+import com.servoy.j2db.util.AliasKeyMap;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.Utils;
@@ -51,7 +52,7 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 	private final String plainSQLName;
 	private final int tableType;
 
-	private final LinkedHashMap<String, Column> columns = new LinkedHashMap<String, Column>();
+	private final AliasKeyMap<String, String, Column> columns = new AliasKeyMap<String, String, Column>(new LinkedHashMap<String, Column>());
 	private final List<Column> keyColumns = new ArrayList<Column>();
 
 	// listeners
@@ -300,19 +301,7 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 	public Column getColumn(String colname, boolean ignoreCase)
 	{
 		if (colname == null) return null;
-		if (ignoreCase) colname = Utils.toEnglishLocaleLowerCase(colname);
-		if (columns.containsKey(colname))
-		{
-			return columns.get(colname);
-		}
-		for (Column column : getColumns())
-		{
-			if (colname.equals(column.getDataProviderID()))
-			{
-				return column;
-			}
-		}
-		return null;
+		return columns.get(ignoreCase ? Utils.toEnglishLocaleLowerCase(colname) : colname);
 	}
 
 	public Collection<Column> getColumns()
@@ -395,6 +384,14 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 				fireIColumnChanged(c);
 			}
 		}
+	}
+
+	/**
+	 * @param oldDataProviderID
+	 */
+	public void columnDataProviderIDChanged(String oldDataProviderID)
+	{
+		columns.updateAlias(oldDataProviderID);
 	}
 
 	private transient List<Column> deleteColumns;
