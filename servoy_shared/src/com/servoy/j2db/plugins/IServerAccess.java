@@ -290,12 +290,12 @@ public interface IServerAccess extends IPluginAccess
 	public String[] getUserGroups(String userUid) throws ServoyException;
 
 	/**
-	 * @param filename The filename to get an {@link URL} reference to.
+	 * @param filename The filename to get an {@link URL} reference to, filename must start with a / 
 	 */
 	public URL getResource(String filename);
 
 	/**
-	 * @param filename The filename to get an {@link InputStream} to.
+	 * @param filename The filename to get an {@link InputStream} to, filename must start with a / 
 	 */
 	public InputStream getResourceAsStream(String filename);
 }
