@@ -103,10 +103,22 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 		return in(query);
 	}
 
+
 	public QBCondition in(IQueryBuilderPart query) throws RepositoryException
 	{
 		return createCondition(new SetCondition(ISQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { getQuerySelectValue() },
 			((QBSelect)query.getRoot()).build(), true));
+	}
+
+	public QBCondition js_isin(Object[] values)
+	{
+		return in(values);
+	}
+
+	public QBCondition in(Object[] values)
+	{
+		return createCondition(new SetCondition(ISQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { getQuerySelectValue() },
+			new Object[][] { values == null ? new Object[0] : values }, true));
 	}
 
 	@JSReadonlyProperty

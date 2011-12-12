@@ -84,6 +84,14 @@ public interface IQueryBuilderColumn extends IQueryBuilderPart
 	IQueryBuilderCondition in(IQueryBuilderPart query) throws RepositoryException;
 
 	/**
+	 * Compare column with values.
+	 * <pre>
+	 * query.where().add(query.getColumn("value").in(subQuery.result().add(new Object[]{Integer.valueOf(1), Integer.valueof(100)});
+	 * </pre>
+	 */
+	IQueryBuilderCondition in(Object[] values);
+
+	/**
 	 * Compare column with a value or another column.
 	 * Operator: isNull
 	 * @see #eq
