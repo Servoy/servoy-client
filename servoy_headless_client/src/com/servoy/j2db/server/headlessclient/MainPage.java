@@ -617,6 +617,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		Form form = new ServoyForm("servoy_dataform"); //$NON-NLS-1$
 
 		form.add(new SimpleAttributeModifier("autocomplete", "off")); //$NON-NLS-1$ //$NON-NLS-2$
+		if (useAJAX) form.add(new SimpleAttributeModifier("onsubmit", "return false;")); //$NON-NLS-1$ //$NON-NLS-2$
 
 		form.add(listview);
 		WebMarkupContainer defaultButton = new WebMarkupContainer("defaultsubmitbutton", new Model()); //$NON-NLS-1$
