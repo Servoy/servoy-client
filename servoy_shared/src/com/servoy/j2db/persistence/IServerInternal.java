@@ -113,8 +113,6 @@ public interface IServerInternal
 
 	Table createNewTable(IValidateName nameValidator, Table selectedTable, String tableName) throws RepositoryException;
 
-	boolean isTableListLoaded();
-
 	boolean isTableLoaded(String tableName);
 
 	void reloadTableColumnInfo(Table t) throws RepositoryException;
