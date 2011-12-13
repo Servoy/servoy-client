@@ -1848,7 +1848,15 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 			if (scriptEngine != null)
 			{
 				SolutionScope ss = scriptEngine.getSolutionScope();
-				ss.put("currentcontroller", ss, formController.initForJSUsage()); //$NON-NLS-1$
+				Context.enter();
+				try
+				{
+					ss.put("currentcontroller", ss, new NativeJavaObject(ss, formController.initForJSUsage(), new InstanceJavaMembers(ss, JSForm.class))); //$NON-NLS-1$
+				}
+				finally
+				{
+					Context.exit();
+				}
 			}
 		}
 		application.setCurrentWindowName(name);
