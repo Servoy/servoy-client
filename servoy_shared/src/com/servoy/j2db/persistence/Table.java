@@ -51,6 +51,8 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 	private final String plainSQLName;
 	private final int tableType;
 
+	private boolean hiddenInDeveloper = false;
+
 	private final LinkedHashMap<String, Column> columns = new LinkedHashMap<String, Column>();
 	private final List<Column> keyColumns = new ArrayList<Column>();
 
@@ -177,6 +179,25 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 		return this.tableType;
 	}
 
+	/**
+	 * NOTE: use {@link IServerInternal#isTableHiddenInDeveloper(String)} if you do not want to load (init) table columns from DB by getting the Table object.<br><br>
+	 * 
+	 * Only used in developer. Some tables should be hidden from use if specified.<BR>
+	 * Solutions might want to deprecate certain tables or just not use the whole data model.
+	 */
+	public boolean isHiddenInDeveloper()
+	{
+		return hiddenInDeveloper;
+	}
+
+	/**
+	 * Use {@link IServerInternal#setTableHiddenInDeveloper(Table, boolean)} instead.
+	 * This should not be called directly, but be managed by the server object.
+	 */
+	public void setHiddenInDeveloperInternal(boolean hidden)
+	{
+		hiddenInDeveloper = hidden;
+	}
 
 	public String getCatalog()
 	{

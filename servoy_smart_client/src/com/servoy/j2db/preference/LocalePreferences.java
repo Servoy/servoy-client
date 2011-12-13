@@ -46,6 +46,7 @@ import javax.swing.event.ChangeListener;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.IServer;
+import com.servoy.j2db.persistence.IServerInternal;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.smart.J2DBClient;
@@ -232,7 +233,7 @@ public class LocalePreferences extends PreferencePanel implements ItemListener, 
 		{
 			List al = new ArrayList();
 			al.add(SELECTION_NONE);
-			List lst = server.getTableAndViewNames(true);
+			List lst = ((IServerInternal)server).getTableAndViewNames(true, true);
 			for (int i = 0; i < lst.size(); i++)
 			{
 				String tableName = (String)lst.get(i);

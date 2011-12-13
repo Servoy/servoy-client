@@ -22,5 +22,9 @@ package com.servoy.j2db.persistence;
  */
 public interface IColumnInfoProvider
 {
+
 	public void loadAllColumnInfo(Table t) throws RepositoryException;
+
+	public boolean isHiddenInDeveloper(IServerInternal server, String tableName);
+
 }

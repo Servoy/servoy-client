@@ -43,6 +43,13 @@ public interface ITableListener
 	void tablesRemoved(IServer server, Table[] tables, boolean deleted);
 
 	/**
+	 * This happens when the hiddenInDeveloper flag of a Table changes value.
+	 * @param server the server that contains that table.
+	 * @param table the table that has been hidden/unhidden.
+	 */
+	void hiddenTableChanged(IServer server, Table table);
+
+	/**
 	 * @param oldValue bit-mask showing the old state. For example (oldValue & ENABLED) == ENABLED means enabled = true.
 	 * @param newValue bit-mask showing the new state. For example (oldValue & VALID) == VALID means valid = true.
 	 */
