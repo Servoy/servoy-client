@@ -113,6 +113,8 @@ public interface IServerInternal
 
 	Table createNewTable(IValidateName nameValidator, Table selectedTable, String tableName) throws RepositoryException;
 
+	boolean isTableListLoaded();
+
 	boolean isTableLoaded(String tableName);
 
 	void reloadTableColumnInfo(Table t) throws RepositoryException;
@@ -139,4 +141,24 @@ public interface IServerInternal
 	String getIndexCreateString(Connection connection, Table t, String indexName, Column[] indexColumns, boolean unique) throws SQLException;
 
 	Connection getRawConnection() throws SQLException, RepositoryException;
+
+	/**
+	 * Marks a table as being 'hidden' (or not) in developer.
+	 * Hidden tables will not be suggested to the developer and warning problem markers will be created if they are used.
+	 * @param tableName the name of the table.
+	 * @param hiddenInDeveloper if it should be hidden or not.
+	 */
+	void setTableHiddenInDeveloper(String tableName, boolean hiddenInDeveloper);
+
+	/**
+	 * Tells if a table is marked as 'hidden' in developer.
+	 * If the table's structure has not yet been read from DB this will not need to load it.
+	 * 
+	 * @param tableName the name of the table
+	 * @return if it is hidden or not.
+	 */
+	boolean isTableHiddenInDeveloper(String tableName);
+
+	List<String> getTableAndViewNames(boolean hideTempTables, boolean hideHiddenInDeveloper) throws RepositoryException;
+
 }

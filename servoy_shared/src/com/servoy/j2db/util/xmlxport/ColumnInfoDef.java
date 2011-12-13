@@ -22,6 +22,32 @@ import com.servoy.j2db.persistence.ColumnInfo;
 
 public final class ColumnInfoDef implements Serializable
 {
+
+	public static final String FLAGS = "flags"; //$NON-NLS-1$
+	public static final String ELEMENT_TEMPLATE_PROPERTIES = "elementTemplateProperties"; //$NON-NLS-1$
+	public static final String DEFAULT_FORMAT = "defaultFormat"; //$NON-NLS-1$
+	public static final String VALIDATOR_NAME = "validatorName"; //$NON-NLS-1$
+	public static final String VALIDATOR_PROPERTIES = "validatorProperties"; //$NON-NLS-1$
+	public static final String CONVERTER_PROPERTIES = "converterProperties"; //$NON-NLS-1$
+	public static final String CONVERTER_NAME = "converterName"; //$NON-NLS-1$
+	public static final String FOREIGN_TYPE = "foreignType"; //$NON-NLS-1$
+	public static final String DESCRIPTION = "description"; //$NON-NLS-1$
+	public static final String TITLE_TEXT = "titleText"; //$NON-NLS-1$
+	public static final String DATABASE_SEQUENCE_NAME = "databaseSequenceName"; //$NON-NLS-1$
+	public static final String LOOKUP_VALUE = "lookupValue"; //$NON-NLS-1$
+	public static final String DEFAULT_VALUE = "defaultValue"; //$NON-NLS-1$
+	public static final String POST_SEQUENCE_CHARS = "postSequenceChars"; //$NON-NLS-1$
+	public static final String PRE_SEQUENCE_CHARS = "preSequenceChars"; //$NON-NLS-1$
+	public static final String SEQUENCE_STEP_SIZE = "sequenceStepSize"; //$NON-NLS-1$
+	public static final String AUTO_ENTER_SUB_TYPE = "autoEnterSubType"; //$NON-NLS-1$
+	public static final String AUTO_ENTER_TYPE = "autoEnterType"; //$NON-NLS-1$
+	public static final String ALLOW_NULL = "allowNull"; //$NON-NLS-1$
+	public static final String LENGTH = "length"; //$NON-NLS-1$
+	public static final String DATA_TYPE = "dataType"; //$NON-NLS-1$
+	public static final String CREATION_ORDER_INDEX = "creationOrderIndex"; //$NON-NLS-1$
+	public static final String DATA_PROVIDER_ID = "dataProviderID"; //$NON-NLS-1$
+	public static final String CONTAINS_META_DATA = "containsMetaData"; //$NON-NLS-1$
+
 	public String name = null;
 	public int datatype = 0;
 	public int length = 0;
