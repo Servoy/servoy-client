@@ -59,6 +59,8 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ILogLevel;
 import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.ITaskExecuter;
+import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.ServoyScheduledExecutor;
 import com.servoy.j2db.util.toolbar.IToolbarPanel;
@@ -489,8 +491,22 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 
 		public MethodExecutor(String context, String methodname, Object[] arguments, boolean async)
 		{
-			this.context = context == null ? ScriptVariable.SCOPES_DOT_PREFIX + ScriptVariable.GLOBAL_SCOPE : context;
-			this.methodname = methodname;
+			if (methodname == null)
+			{
+				throw new IllegalArgumentException("null methodname");
+			}
+			if (context == null)
+			{
+				// derive context from name (scopes.myscope.mymethod)
+				Pair<String, String> variableScope = ScopesUtils.getVariableScope(methodname);
+				this.context = ScriptVariable.SCOPES_DOT_PREFIX + (variableScope.getLeft() == null ? ScriptVariable.GLOBAL_SCOPE : variableScope.getLeft());
+				this.methodname = variableScope.getRight();
+			}
+			else
+			{
+				this.context = context;
+				this.methodname = methodname;
+			}
 			this.arguments = arguments;
 			this.async = async;
 		}
