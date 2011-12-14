@@ -197,7 +197,7 @@ public class MethodTemplate implements IMethodTemplate
 			for (MethodArgument element : args)
 			{
 				sb.append(" * @param "); //$NON-NLS-1$
-				if (element.getType() != null && element.getType() != ArgumentType.Object)
+				if (element.getType() != null)
 				{
 					sb.append('{').append(element.getType()).append("} "); //$NON-NLS-1$
 				}
