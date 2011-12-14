@@ -130,7 +130,24 @@ public class FixedJTable extends JTable
 				}
 			}
 		}
-		super.processMouseEvent(e);
+
+		MouseEvent me = e;
+
+		if (e.isAltDown())
+		{
+			me = new MouseEvent(e.getComponent(), e.getID(), e.getWhen(), e.getModifiers() | e.getModifiersEx(), e.getX(), e.getY(), e.getClickCount(),
+				e.isPopupTrigger())
+			{
+				@Override
+				public int getModifiers()
+				{
+					return (super.getModifiers() | super.getModifiersEx());
+				}
+			};
+		}
+
+
+		super.processMouseEvent(me);
 	}
 
 	/**
@@ -615,7 +632,7 @@ public class FixedJTable extends JTable
 
 		if (this.getRowCount() <= 0 || this.getColumnCount() <= 0 ||
 		// this check prevents us from painting
-			// when the clip doesn't intersect our bounds at all
+		// when the clip doesn't intersect our bounds at all
 			!bounds.intersects(clip))
 		{
 			return;
