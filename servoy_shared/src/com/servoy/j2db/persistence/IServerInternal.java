@@ -119,6 +119,8 @@ public interface IServerInternal
 
 	void reloadTableColumnInfo(Table t) throws RepositoryException;
 
+	void reloadServerInfo();
+
 	boolean isValid();
 
 	ITransactionConnection getConnection() throws SQLException, RepositoryException;
