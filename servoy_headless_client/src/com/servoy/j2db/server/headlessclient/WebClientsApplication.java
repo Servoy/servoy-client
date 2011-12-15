@@ -635,8 +635,11 @@ public class WebClientsApplication extends WebApplication
 		@Override
 		public void removeEntry(IPageMapEntry entry)
 		{
-			WebClient webClient = WebClientSession.get().getWebClient();
-			((FormManager)webClient.getFormManager()).removeContainer(getName());
+			if (entry instanceof MainPage)
+			{
+				WebClient webClient = WebClientSession.get().getWebClient();
+				((FormManager)webClient.getFormManager()).removeContainer(getName());
+			}
 			super.removeEntry(entry);
 		}
 
