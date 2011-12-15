@@ -108,7 +108,6 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 	protected IMainContainer mainContainer;
 
 	protected Map<String, Form> possibleForms; // formName -> Form
-	protected List<String> runtimeCreatedForms;
 	protected Map<String, FormController> createdFormControllers; // formName -> FormController
 	protected LinkedList<FormController> leaseHistory;
 
@@ -130,7 +129,6 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		leaseHistory = new LinkedList<FormController>();
 		createdFormControllers = new HashMap<String, FormController>();
 		possibleForms = new HashMap<String, Form>();
-		runtimeCreatedForms = new ArrayList<String>();
 		appletContext = new AppletController(app);
 	}
 
@@ -202,14 +200,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 
 	public void addForm(Form form, boolean selected)
 	{
-		addForm(form, selected, false);
-	}
-
-	public void addForm(Form form, boolean selected, boolean isRuntimeCreated)
-	{
 		Form f = possibleForms.put(form.getName(), form);
-
-		if (isRuntimeCreated) runtimeCreatedForms.add(form.getName());
 
 		if (f != null && form != f)
 		{
@@ -232,7 +223,6 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		if (removed)
 		{
 			possibleForms.remove(form.getName());
-			runtimeCreatedForms.remove(form.getName());
 		}
 		return removed;
 	}
@@ -430,7 +420,6 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		leaseHistory = new LinkedList<FormController>();
 		createdFormControllers = new HashMap<String, FormController>();
 		possibleForms = new HashMap<String, Form>();
-		runtimeCreatedForms = new ArrayList<String>();
 	}
 
 	protected void destroyContainer(IMainContainer container)
@@ -1634,7 +1623,6 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		if (f != null && test == null)
 		{
 			possibleForms.put(newInstanceScriptName, f);
-			runtimeCreatedForms.add(newInstanceScriptName);
 			return true;
 		}
 		return false;
@@ -1660,7 +1648,6 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 			if (!test.getName().equals(formName))
 			{
 				possibleForms.remove(formName);
-				runtimeCreatedForms.remove(formName);
 			}
 			setFormReadOnly(formName, false);
 			return true;
@@ -1727,10 +1714,5 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 	public void removeContainer(String name)
 	{
 		containers.remove(name);
-	}
-
-	public boolean isRuntimeCreatedForm(String formName)
-	{
-		return runtimeCreatedForms.indexOf(formName) != -1;
 	}
 }

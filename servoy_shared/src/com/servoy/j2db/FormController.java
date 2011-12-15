@@ -81,6 +81,7 @@ import com.servoy.j2db.persistence.MethodTemplate;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.scripting.CreationalPrototype;
@@ -4696,9 +4697,10 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		return ComponentFactory.getComponentProperty(application, component, key);
 	}
 
-	public boolean isRuntimeCreatedForm()
+	public boolean isFormModified()
 	{
-		return fm.isRuntimeCreatedForm(form.getName());
+		Solution solutionCopy = application.getFlattenedSolution().getSolutionCopy();
+		return solutionCopy.getForm(form.getName()) != null;
 	}
 
 }

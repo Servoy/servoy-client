@@ -160,7 +160,7 @@ public class JSSolutionModel
 			}
 			Form form = fs.getSolutionCopy().createNewForm(new ScriptNameValidator(fs), style, name, dataSource, show_in_menu, new Dimension(width, height));
 			form.createNewPart(Part.BODY, height);
-			((FormManager)application.getFormManager()).addForm(form, false, true);
+			((FormManager)application.getFormManager()).addForm(form, false);
 			return new JSForm(application, form, true);
 		}
 		catch (RepositoryException e)
@@ -199,7 +199,7 @@ public class JSSolutionModel
 			Form form = fs.getSolutionCopy().createNewForm(new ScriptNameValidator(fs), null, name, null, superForm.js_getShowInMenu(),
 				superForm.getSupportChild().getSize());
 			form.clearProperty(StaticContentSpecLoader.PROPERTY_DATASOURCE.getPropertyName());
-			((FormManager)application.getFormManager()).addForm(form, false, true);
+			((FormManager)application.getFormManager()).addForm(form, false);
 			form.setExtendsID(superForm.getSupportChild().getID());
 			return new JSForm(application, form, true);
 		}
@@ -289,7 +289,7 @@ public class JSSolutionModel
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
 		Form clone = fs.clonePersist(jsForm.getSupportChild(), newName, fs.getSolutionCopy());
-		((FormManager)application.getFormManager()).addForm(clone, false, true);
+		((FormManager)application.getFormManager()).addForm(clone, false);
 		return new JSForm(application, clone, true);
 	}
 

@@ -1745,7 +1745,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		cssRef.append(formController.getName());
 		cssRef.append("_t");
 
-		if (isUIRecreated() || (formController.getApplication().isInDeveloper() && lastModifiedTime == 0) || formController.isRuntimeCreatedForm())
+		if (formController.isFormModified() || (formController.getApplication().isInDeveloper() && lastModifiedTime == 0))
 		{
 			lastModifiedTime = System.currentTimeMillis();
 		}

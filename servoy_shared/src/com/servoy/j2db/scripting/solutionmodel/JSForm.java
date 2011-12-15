@@ -249,7 +249,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 		if (!isCopy)
 		{
 			form = application.getFlattenedSolution().createPersistCopy(form);
-			((FormManager)application.getFormManager()).addForm(form, false, true);
+			((FormManager)application.getFormManager()).addForm(form, false);
 
 			isCopy = true;
 		}
@@ -3597,9 +3597,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 		checkModification();
 		form.setShowInMenu(arg);
 		FormManager formManager = (FormManager)application.getFormManager();
-		boolean isRuntimeCreated = formManager.isRuntimeCreatedForm(form.getName());
 		formManager.removeForm(form);
-		formManager.addForm(form, false, isRuntimeCreated);
+		formManager.addForm(form, false);
 	}
 
 	public void js_setStyleClass(String arg)
