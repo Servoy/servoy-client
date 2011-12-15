@@ -172,7 +172,8 @@ public class FormCssResource extends WebResource
 				// test if this can be converted to a String.
 				try
 				{
-					time = new Long(tst);
+					// if the time contains the release number, that is the 'r', set the time to 0
+					time = (tst.indexOf('r') != -1) ? Long.valueOf(0) : new Long(tst);
 					name = name.substring(0, index2);
 				}
 				catch (RuntimeException re)

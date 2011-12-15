@@ -4696,4 +4696,9 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		return ComponentFactory.getComponentProperty(application, component, key);
 	}
 
+	public boolean isRuntimeCreatedForm()
+	{
+		return fm.isRuntimeCreatedForm(form.getName());
+	}
+
 }
