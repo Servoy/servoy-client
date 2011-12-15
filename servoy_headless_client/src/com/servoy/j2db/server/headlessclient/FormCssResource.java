@@ -55,6 +55,8 @@ public class FormCssResource extends WebResource
 {
 	private final ServletContext context;
 
+	private final static long DEFAULT_MODIFICATION_TIME = System.currentTimeMillis();
+
 	/**
 	 * 
 	 */
@@ -173,7 +175,7 @@ public class FormCssResource extends WebResource
 				try
 				{
 					// if the time contains the release number, that is the 'r', set the time to 0
-					time = (tst.indexOf('r') != -1) ? Long.valueOf(0) : new Long(tst);
+					time = (tst.indexOf('r') != -1) ? Long.valueOf(DEFAULT_MODIFICATION_TIME) : new Long(tst);
 					name = name.substring(0, index2);
 				}
 				catch (RuntimeException re)
