@@ -143,7 +143,7 @@ public class Debug
 	private static Object insetClientInfoWithMDC(Object message)
 	{
 		IServiceProvider serviceProvider = J2DBGlobals.getServiceProvider();
-		if (serviceProvider != null && serviceProvider.getSolution() != null)
+		if (serviceProvider != null && serviceProvider.getSolution() != null && serviceProvider.getClientID() != null)
 		{
 			MDC.put("clientid", serviceProvider.getClientID());
 			MDC.put("solution", serviceProvider.getSolution().getName());
