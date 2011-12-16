@@ -394,7 +394,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 		try
 		{
 			// this is the &nbsp character we set for empty value
-			if ("\u00A0".equals(trimmed)) trimmed = "";
+			if ("\u00A0".equals(trimmed) || trimmed.length() == 0) return trimmed;
 			// Grab all values that start with the value entered by the user.
 			String result = matchValueListValue(trimmed, false);
 			if (result == null)
@@ -414,7 +414,8 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 						IRequestTarget requestTarget = RequestCycle.get().getRequestTarget();
 						if (requestTarget instanceof AjaxRequestTarget)
 						{
-							((AjaxRequestTarget)requestTarget).appendJavascript("document.getElementById('" + getMarkupId() + "').value='" + displayValue + "'");
+							((AjaxRequestTarget)requestTarget).appendJavascript("if (document.getElementById('" + getMarkupId() + "').value == '" + value +
+								"') document.getElementById('" + getMarkupId() + "').value='" + displayValue + "'");
 						}
 					}
 				}
