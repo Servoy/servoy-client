@@ -422,9 +422,10 @@ public class Record implements Scriptable, IRecordInternal
 		{
 			return new NativeJavaObject(this, o, ScriptObjectRegistry.getJavaMembers(o.getClass(), null));
 		}
-		if (o != null && Context.getCurrentContext() != null && o != Scriptable.NOT_FOUND)
+		if (o != null && o != Scriptable.NOT_FOUND && !(o instanceof Scriptable))
 		{
-			return Context.getCurrentContext().getWrapFactory().wrap(Context.getCurrentContext(), start, o, o.getClass());
+			Context context = Context.getCurrentContext();
+			if (context != null) o = context.getWrapFactory().wrap(context, start, o, o.getClass());
 		}
 		return o;
 	}

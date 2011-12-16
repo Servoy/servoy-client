@@ -137,10 +137,9 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 	 */
 	protected final Object getImpl(String name, Scriptable start)
 	{
-		Object o = super.get(name, start);
-		if (o instanceof IScriptProvider)
+		IScriptProvider sp = getScriptProvider(name);
+		if (sp != null)
 		{
-			IScriptProvider sp = (IScriptProvider)o;
 			try
 			{
 				Scriptable compileScope = functionParent;
@@ -160,18 +159,25 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 					compileScope.put("_formname_", compileScope, functionParent.get("_formname_", functionParent)); //$NON-NLS-1$ //$NON-NLS-2$
 					compileScope.put("_super", compileScope, functionSuper); //$NON-NLS-1$
 				}
-				o = scriptEngine.compileFunction(sp, compileScope);
-				put(name, start, o);//replace to prevent more compiles
+				Function function = scriptEngine.compileFunction(sp, compileScope);
+				put(name, start, function);//replace to prevent more compiles
 			}
 			catch (Exception e)
 			{
-				o = null;
 				Debug.error(e);
-				o = null;
 			}
-			if (o == null) o = Scriptable.NOT_FOUND;
 		}
-		return o;
+		return super.get(name, start);
+	}
+
+	/**
+	 * @param name
+	 */
+	private IScriptProvider getScriptProvider(String name)
+	{
+		Object o = allVars.get(name);
+		if (o instanceof IScriptProvider) return (IScriptProvider)o;
+		return null;
 	}
 
 	/**
