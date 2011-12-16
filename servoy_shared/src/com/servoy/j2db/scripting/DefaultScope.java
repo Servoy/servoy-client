@@ -24,11 +24,14 @@ import java.util.Iterator;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaArray;
+import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.WrappedException;
 
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
+import com.servoy.j2db.util.UUID;
 
 /**
  * @author jcompagner
@@ -91,7 +94,19 @@ public abstract class DefaultScope implements Scriptable
 		{
 			o = new NativeJavaArray(this, o);
 		}
+		else if (o instanceof DbIdentValue || o instanceof UUID)
+		{
+			o = new NativeJavaObject(this, o, ScriptObjectRegistry.getJavaMembers(o.getClass(), null));
+		}
+
 		if (o == null && !has(name, start)) return Scriptable.NOT_FOUND;
+
+		if (o != null && o != Scriptable.NOT_FOUND && !(o instanceof Scriptable))
+		{
+			Context context = Context.getCurrentContext();
+			if (context != null) o = context.getWrapFactory().wrap(context, start, o, o.getClass());
+		}
+
 		return o;
 	}
 
