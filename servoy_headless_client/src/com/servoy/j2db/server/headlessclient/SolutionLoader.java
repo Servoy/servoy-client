@@ -29,6 +29,7 @@ import org.apache.wicket.Session;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.protocol.http.WebRequest;
+import org.apache.wicket.request.target.basic.RedirectRequestTarget;
 import org.apache.wicket.request.target.coding.HybridUrlCodingStrategy;
 
 import com.servoy.j2db.FormManager;
@@ -40,6 +41,7 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.StartupArguments;
+import com.servoy.j2db.server.headlessclient.MainPage.ShowUrlInfo;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
@@ -181,7 +183,17 @@ public class SolutionLoader extends WebPage
 						if (p instanceof MainPage)
 						{
 							page = p;
+							ShowUrlInfo urlScript = ((MainPage)p).getShowUrlInfo();
+							if (urlScript != null && "_self".equals(urlScript.getTarget()))
+							{
+								// a redirect was found to it self, just redirect directly to that one.
+								// clear the current main pages show url script first.
+								((MainPage)p).getShowUrlScript();
+								RequestCycle.get().setRequestTarget(new RedirectRequestTarget(urlScript.getUrl()));
+								return;
+							}
 						}
+
 						HybridUrlCodingStrategy.setInitialPageParameters(page, pp);
 						setResponsePage(page);
 						setRedirect(true);

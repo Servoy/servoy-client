@@ -1892,6 +1892,14 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			return url;
 		}
 
+		/**
+		 * @return
+		 */
+		public String getTarget()
+		{
+			return target;
+		}
+
 	}
 
 	/**
