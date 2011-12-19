@@ -65,7 +65,7 @@ public final class ServoyWrapFactory extends WrapFactory
 		}
 		if (obj instanceof DbIdentValue || obj instanceof UUID)
 		{
-			return new NativeJavaObject(scope, obj, ScriptObjectRegistry.getJavaMembers(staticType, null));
+			return new NativeJavaObject(scope, obj, ScriptObjectRegistry.getJavaMembers(obj.getClass(), null));
 		}
 		if (obj instanceof JSConvertedMap< ? , ? > && cx != null)
 		{
