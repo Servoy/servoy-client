@@ -2040,7 +2040,7 @@ if (typeof(Servoy.Validation) == "undefined")
 			var k = e.keyCode || e.charCode || e.which;
 			if (e.ctrlKey || e.altKey || e.metaKey) {//Ignore
 				return true;
-			} else if ((k >= 41 && k <= 125) || k > 186) {//typeable characters
+			} else if ((k >= 97 && k <= 122) || k > 186) {//letter characters
 			
 				var c = String.fromCharCode(k);
 				var buffer = element.value.split("");
