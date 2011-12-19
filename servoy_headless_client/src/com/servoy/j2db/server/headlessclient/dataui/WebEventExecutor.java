@@ -49,6 +49,7 @@ import org.apache.wicket.protocol.http.RequestUtils;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
 
 import com.servoy.j2db.FormController;
+import com.servoy.j2db.IForm;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IDisplay;
 import com.servoy.j2db.dataprocessing.IDisplayData;
@@ -512,7 +513,8 @@ public class WebEventExecutor extends BaseEventExecutor
 		if (parentForm != null)
 		{
 			int parentFormViewType = parentForm.getController().getForm().getView();
-			if (parentFormViewType == FormController.TABLE_VIEW || parentFormViewType == FormController.LOCKED_TABLE_VIEW)
+			if (parentFormViewType == FormController.TABLE_VIEW || parentFormViewType == FormController.LOCKED_TABLE_VIEW ||
+				parentFormViewType == IForm.LIST_VIEW || parentFormViewType == FormController.LOCKED_LIST_VIEW)
 			{
 				WebCellBasedView tableView = component.findParent(WebCellBasedView.class);
 				if (tableView == null)
