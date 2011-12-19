@@ -108,4 +108,8 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	 * @return map of tracking info  
 	 */
 	public HashMap<String, Object> getTrackingInfo();
+
+	public IColumnValidatorManager getColumnValidatorManager();
+
+	public IColumnConverterManager getColumnConverterManager();
 }
