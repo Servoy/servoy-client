@@ -273,12 +273,14 @@ public class FormDialog extends JEscapeDialog implements FormWindow
 
 	public boolean restoreBounds()
 	{
-		return Settings.getInstance().loadBounds(this, application.getSolutionName());
+		if (isResizable()) return Settings.getInstance().loadBounds(this, application.getSolutionName());
+		else return Settings.getInstance().loadLocation(this, application.getSolutionName());
 	}
 
 	public void storeBounds()
 	{
-		Settings.getInstance().saveBounds(this, application.getSolutionName());
+		if (isResizable()) Settings.getInstance().saveBounds(this, application.getSolutionName());
+		else Settings.getInstance().saveLocation(this, application.getSolutionName());
 	}
 
 	public void setPreviousMainContainer(IMainContainer previousModalContainer, IMainContainer previousMainContainer)

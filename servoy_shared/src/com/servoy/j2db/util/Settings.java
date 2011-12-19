@@ -478,6 +478,10 @@ public class Settings extends SortedProperties
 			{
 			}
 		}
+
+		//in case of having a previously saved property 'point', delete it
+		remove("point_" + (solutionName != null ? solutionName + "_" : "") + component.getName() + "_location");
+
 		Point l = component.getLocation();
 		Debug.trace("location of " + component.getName() + " " + l); //$NON-NLS-1$ //$NON-NLS-2$
 		put("rect_" + (solutionName != null ? solutionName + "_" : "") + component.getName() + "_bounds", PersistHelper.createRectangleString(component.getBounds())); //$NON-NLS-1$ //$NON-NLS-2$
@@ -486,6 +490,60 @@ public class Settings extends SortedProperties
 	public synchronized void saveBounds(Component component)
 	{
 		saveBounds(component, null);
+	}
+
+	public synchronized boolean loadLocation(Component component, String solutionName)
+	{
+		if (component == null || component.getName() == null) return false;
+
+		String location = getProperty("point_" + (solutionName != null ? solutionName + "_" : "") + component.getName() + "_location"); //$NON-NLS-1$ //$NON-NLS-2$
+		if (location != null)
+		{
+			Point l = PersistHelper.createPoint(location);
+
+			try
+			{
+				Rectangle r = new Rectangle(l.x, l.y, 1, 1);
+				if (UIUtils.isOnScreen(r))
+				{
+					component.setLocation(l);
+					return true;
+				} // else falls of the screens
+
+			}
+			catch (Exception e)
+			{
+				Debug.error(e);//just in case isOnScreen() its called and fails in headless env.
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Load the location from a certain component
+	 */
+	public synchronized boolean loadLocation(Component component)
+	{
+		return loadLocation(component, null);
+	}
+
+
+	public synchronized void saveLocation(Component component, String solutionName)
+	{
+		if (component == null || component.getName() == null) return;
+
+		//in case of having a previously saved property 'rect', delete it
+		remove("rect_" + (solutionName != null ? solutionName + "_" : "") + component.getName() + "_bounds");
+
+		Point l = component.getLocation();
+		Debug.trace("location of " + component.getName() + " " + l); //$NON-NLS-1$ //$NON-NLS-2$
+		put("point_" + (solutionName != null ? solutionName + "_" : "") + component.getName() + "_location", PersistHelper.createPointString(l)); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	public synchronized void saveLocation(Component component)
+	{
+		saveLocation(component, null);
 	}
 
 	public synchronized void deleteAllBounds()

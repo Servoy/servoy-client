@@ -227,8 +227,64 @@ Wicket.Object.extendClass(Wicket.DivWindow, Wicket.Window, {
 		this._super.close.call(this, force);
 	},
 	
+	setPosition: function(x, y, width, height) {
+		this.window.style.left = x;
+		this.window.style.top = y;
+		this.window.style.width = width;
+		this.content.style.height = height;
+		savePosition(x,y,width,height);
+	},
+	
+	savePositionAs: function(x, y, width, height) {
+		if (typeof(this.settings.cookieId) != "undefined" &&  this.settings.cookieId != null) {
+	
+			this.findPositionString(true);
+			
+			if (cookie == null || cookie.length == 0)
+				cookie = "";
+			else
+				cookie = cookie + "|";
+			
+			var cookie = this.settings.cookieId;
+			cookie += "::";
+			
+			cookie += x + ",";
+			cookie += y;
+			if (this.settings.resizable) {
+				cookie += "," + width + ",";
+				cookie += height;
+			}
+					
+			var rest = Wicket.Cookie.get(this.cookieKey);
+			if (rest != null) {
+				cookie += "|" + rest;
+			}
+			Wicket.Cookie.set(this.cookieKey, cookie, this.cookieExp);
+			
+		};
+	},
+	
 	loadPosition: function() {
-		this._super.loadPosition.call(this);
+		if (typeof(this.settings.cookieId) != "undefined" && this.settings.cookieId != null) {
+			
+			var string = this.findPositionString(false);
+			
+			if (string != null) {
+				var array = string.split("::");
+				var positions = array[1].split(",");
+				if (positions.length == 4) {					
+					this.window.style.left = positions[0];
+					this.window.style.top = positions[1];
+					if (this.settings.resizable) {
+						this.window.style.width = positions[2];
+						this.content.style.height = positions[3];
+					}
+				} else if (positions.length == 2) {
+					this.window.style.left = positions[0];
+					this.window.style.top = positions[1];
+				}
+			}
+		}
 
 		var w = window.innerWidth || document.body.offsetWidth;
 		var h = window.innerHeight || document.body.offsetHeight

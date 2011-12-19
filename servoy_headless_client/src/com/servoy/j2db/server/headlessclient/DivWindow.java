@@ -354,11 +354,10 @@ public class DivWindow extends ModalWindow
 		return "var win; try { win = window.parent.Wicket.DivWindow; } catch (ignore) {}; if (typeof(win) == \"undefined\" || typeof(win.openWindows[\"" +
 			getJSId() + "\"]) == \"undefined\") { try { win = window.Wicket.DivWindow; } catch (ignore) {} }; " +
 			" if (typeof(win) != \"undefined\" && typeof(win.openWindows[\"" + getJSId() + "\"]) != \"undefined\") { win.openWindows[\"" + getJSId() +
-			"\"].savePositionAs(" + ((x >= 0) ? ("'" + x + "px'") : "win.openWindows[\"" + getJSId() + "\"].window.style.left") + "," +
+			"\"].setPosition(" + ((x >= 0) ? ("'" + x + "px'") : "win.openWindows[\"" + getJSId() + "\"].window.style.left") + "," +
 			((y >= 0) ? ("'" + y + "px'") : "win.openWindows[\"" + getJSId() + "\"].window.style.top") + "," +
 			((width >= 0) ? ("'" + width + "px'") : "win.openWindows[\"" + getJSId() + "\"].window.style.width") + "," +
-			((height >= 0) ? ("'" + height + "px'") : "win.openWindows[\"" + getJSId() + "\"].content.style.height") + "); win.openWindows[\"" + getJSId() +
-			"\"].loadPosition();}";
+			((height >= 0) ? ("'" + height + "px'") : "win.openWindows[\"" + getJSId() + "\"].content.style.height") + ");}";
 	}
 
 	public String getSaveBoundsJS()

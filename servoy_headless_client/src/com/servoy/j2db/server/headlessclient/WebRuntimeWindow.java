@@ -42,7 +42,9 @@ import com.servoy.j2db.server.headlessclient.dataui.WebDefaultRecordNavigator;
 public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 {
 	protected final IWebClientApplication application;
-	boolean firstShow = true;
+
+	//protected Point location;
+
 
 	public WebRuntimeWindow(IWebClientApplication application, String windowName, int windowType, RuntimeWindow parentWindow)
 	{
@@ -88,9 +90,13 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 					}
 					else
 					{
+						//	if (!resizable && location != null)
+						//	{
+						//		r2.x = location.x;
+						//		r2.y = location.y;
+						//	}
 						((MainPage)parentContainer).showPopupDiv((MainPage)dialogContainer, title, r2, resizable, closeAll || !legacyV3Behavior,
-							(windowType == JSWindow.MODAL_DIALOG), firstShow);
-						firstShow = false;
+							(windowType == JSWindow.MODAL_DIALOG));
 					}
 				}
 			}
@@ -150,6 +156,14 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 	public void hideUI()
 	{
 		MainPage mp = getMainPage();
+		//save current location
+//		int x = getX();
+//		int y = getY();
+//		if (x != 0 || y != 0)
+//		{
+//			location = new Point(x, y);
+//		}
+//		else location = null;
 		if (mp != null) mp.close();
 	}
 
