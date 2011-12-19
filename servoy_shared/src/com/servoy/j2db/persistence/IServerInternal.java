@@ -148,7 +148,7 @@ public interface IServerInternal
 	 * @param tableName the name of the table.
 	 * @param hiddenInDeveloper if it should be hidden or not.
 	 */
-	void setTableHiddenInDeveloper(String tableName, boolean hiddenInDeveloper);
+	void setTableMarkedAsHiddenInDeveloper(String tableName, boolean hiddenInDeveloper);
 
 	/**
 	 * Tells if a table is marked as 'hidden' in developer.
@@ -157,7 +157,7 @@ public interface IServerInternal
 	 * @param tableName the name of the table
 	 * @return if it is hidden or not.
 	 */
-	boolean isTableHiddenInDeveloper(String tableName);
+	boolean isTableMarkedAsHiddenInDeveloper(String tableName);
 
 	List<String> getTableAndViewNames(boolean hideTempTables, boolean hideHiddenInDeveloper) throws RepositoryException;
 

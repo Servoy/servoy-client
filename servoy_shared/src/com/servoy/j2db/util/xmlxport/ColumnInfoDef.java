@@ -20,31 +20,32 @@ import java.io.Serializable;
 
 import com.servoy.j2db.persistence.ColumnInfo;
 
+@SuppressWarnings("nls")
 public final class ColumnInfoDef implements Serializable
 {
 
-	public static final String FLAGS = "flags"; //$NON-NLS-1$
-	public static final String ELEMENT_TEMPLATE_PROPERTIES = "elementTemplateProperties"; //$NON-NLS-1$
-	public static final String DEFAULT_FORMAT = "defaultFormat"; //$NON-NLS-1$
-	public static final String VALIDATOR_NAME = "validatorName"; //$NON-NLS-1$
-	public static final String VALIDATOR_PROPERTIES = "validatorProperties"; //$NON-NLS-1$
-	public static final String CONVERTER_PROPERTIES = "converterProperties"; //$NON-NLS-1$
-	public static final String CONVERTER_NAME = "converterName"; //$NON-NLS-1$
-	public static final String FOREIGN_TYPE = "foreignType"; //$NON-NLS-1$
-	public static final String DESCRIPTION = "description"; //$NON-NLS-1$
-	public static final String TITLE_TEXT = "titleText"; //$NON-NLS-1$
-	public static final String DATABASE_SEQUENCE_NAME = "databaseSequenceName"; //$NON-NLS-1$
-	public static final String LOOKUP_VALUE = "lookupValue"; //$NON-NLS-1$
-	public static final String DEFAULT_VALUE = "defaultValue"; //$NON-NLS-1$
-	public static final String POST_SEQUENCE_CHARS = "postSequenceChars"; //$NON-NLS-1$
-	public static final String PRE_SEQUENCE_CHARS = "preSequenceChars"; //$NON-NLS-1$
-	public static final String SEQUENCE_STEP_SIZE = "sequenceStepSize"; //$NON-NLS-1$
-	public static final String AUTO_ENTER_SUB_TYPE = "autoEnterSubType"; //$NON-NLS-1$
-	public static final String AUTO_ENTER_TYPE = "autoEnterType"; //$NON-NLS-1$
-	public static final String ALLOW_NULL = "allowNull"; //$NON-NLS-1$
-	public static final String LENGTH = "length"; //$NON-NLS-1$
-	public static final String DATA_TYPE = "dataType"; //$NON-NLS-1$
-	public static final String CREATION_ORDER_INDEX = "creationOrderIndex"; //$NON-NLS-1$
+	public static final String FLAGS = "flags";
+	public static final String ELEMENT_TEMPLATE_PROPERTIES = "elementTemplateProperties";
+	public static final String DEFAULT_FORMAT = "defaultFormat";
+	public static final String VALIDATOR_NAME = "validatorName";
+	public static final String VALIDATOR_PROPERTIES = "validatorProperties";
+	public static final String CONVERTER_PROPERTIES = "converterProperties";
+	public static final String CONVERTER_NAME = "converterName";
+	public static final String FOREIGN_TYPE = "foreignType";
+	public static final String DESCRIPTION = "description";
+	public static final String TITLE_TEXT = "titleText";
+	public static final String DATABASE_SEQUENCE_NAME = "databaseSequenceName";
+	public static final String LOOKUP_VALUE = "lookupValue";
+	public static final String DEFAULT_VALUE = "defaultValue";
+	public static final String POST_SEQUENCE_CHARS = "postSequenceChars";
+	public static final String PRE_SEQUENCE_CHARS = "preSequenceChars";
+	public static final String SEQUENCE_STEP_SIZE = "sequenceStepSize";
+	public static final String AUTO_ENTER_SUB_TYPE = "autoEnterSubType";
+	public static final String AUTO_ENTER_TYPE = "autoEnterType";
+	public static final String ALLOW_NULL = "allowNull";
+	public static final String LENGTH = "length";
+	public static final String DATA_TYPE = "dataType";
+	public static final String CREATION_ORDER_INDEX = "creationOrderIndex";
 
 	public String name = null;
 	public int datatype = 0;
@@ -93,6 +94,6 @@ public final class ColumnInfoDef implements Serializable
 	@Override
 	public String toString()
 	{
-		return "ColumnInfoDef[" + name + "," + datatype + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return "ColumnInfoDef[" + name + "," + datatype + "]";
 	}
 }
