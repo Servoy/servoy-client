@@ -24,13 +24,10 @@ import java.util.Iterator;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaArray;
-import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.WrappedException;
 
 import com.servoy.j2db.Messages;
-import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
-import com.servoy.j2db.util.UUID;
 
 /**
  * @author jcompagner
@@ -84,15 +81,7 @@ public abstract class DefaultScope implements Scriptable
 		Object o = allVars.get(name);
 		if (o instanceof Date)
 		{
-			o = new Date(((Date)o).getTime());//make copy so changes are seen (date is mutable and whould bypass equals)
-		}
-		else if (o != null && o.getClass().isArray() && !o.getClass().getComponentType().isPrimitive())
-		{
-			o = new NativeJavaArray(this, o);
-		}
-		else if (o instanceof DbIdentValue || o instanceof UUID)
-		{
-			o = new NativeJavaObject(this, o, ScriptObjectRegistry.getJavaMembers(o.getClass(), null));
+			return new Date(((Date)o).getTime());//make copy so changes are seen (date is mutable and would bypass equals)
 		}
 
 		if (o == null && !has(name, start)) return Scriptable.NOT_FOUND;

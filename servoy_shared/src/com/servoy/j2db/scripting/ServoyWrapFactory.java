@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.WrapFactory;
@@ -30,7 +31,9 @@ import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
+import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.UUID;
 
 /**
  * @author jcompagner
@@ -59,6 +62,10 @@ public final class ServoyWrapFactory extends WrapFactory
 			obj instanceof Boolean)
 		{
 			return obj;
+		}
+		if (obj instanceof DbIdentValue || obj instanceof UUID)
+		{
+			return new NativeJavaObject(scope, obj, ScriptObjectRegistry.getJavaMembers(staticType, null));
 		}
 		if (obj instanceof JSConvertedMap< ? , ? > && cx != null)
 		{
