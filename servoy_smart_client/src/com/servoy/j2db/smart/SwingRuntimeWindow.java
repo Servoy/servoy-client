@@ -869,17 +869,6 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 		return false;
 	}
 
-//	public boolean restoreWindowLocation()
-//	{
-//		if (wrappedWindow instanceof FormWindow && !boundsSet)
-//		{
-//			return ((FormWindow)wrappedWindow).restoreLocation();
-//		}
-//		boundsSet = false;
-//		return false;
-//	}
-
-
 	/*
 	 * (non-Javadoc)
 	 * 
