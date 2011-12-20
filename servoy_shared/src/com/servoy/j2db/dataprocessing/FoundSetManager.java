@@ -1178,15 +1178,20 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			if (wantedGlobalRelationName != null)
 			{
 				set = getGlobalRelatedFoundSet(wantedGlobalRelationName);
+				if (set == null)
+				{
+					throw new RepositoryException("Cannot create global relation namedFoundset '" + wantedGlobalRelationName + //$NON-NLS-1$
+						"' - please check relation"); //$NON-NLS-1$
+				}
 			}
 			else
 			{
-				set = getSharedFoundSet(l.getDataSource(), l.getDefaultSortColumns());// check If FoundSet Exists
+				set = getSharedFoundSet(l.getDataSource(), l.getDefaultSortColumns());
 			}
 		}
 		else
 		{
-			set = getSeparateFoundSet(l, l.getDefaultSortColumns());// check If FoundSet Exists
+			set = getSeparateFoundSet(l, l.getDefaultSortColumns());
 		}
 		l.newValue(new FoundSetEvent(set, FoundSetEvent.NEW_FOUNDSET, FoundSetEvent.CHANGE_UPDATE));
 	}
