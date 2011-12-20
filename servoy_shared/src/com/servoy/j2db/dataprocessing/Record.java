@@ -31,17 +31,14 @@ import java.util.Set;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.MemberBox;
 import org.mozilla.javascript.NativeJavaMethod;
-import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.WrappedException;
 import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.ApplicationException;
-import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Relation;
-import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.scripting.UsedDataProviderTracker;
 import com.servoy.j2db.scripting.UsedDataProviderTracker.UsedAggregate;
 import com.servoy.j2db.scripting.UsedDataProviderTracker.UsedDataProvider;
@@ -50,7 +47,6 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;
-import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -416,10 +412,6 @@ public class Record implements Scriptable, IRecordInternal
 		if (o instanceof Date)
 		{
 			return new Date(((Date)o).getTime());//make copy so changes are seen (date is mutable and would bypass equals)
-		}
-		if (o instanceof DbIdentValue || o instanceof UUID)
-		{
-			return new NativeJavaObject(this, o, ScriptObjectRegistry.getJavaMembers(o.getClass(), null));
 		}
 		if (o != null && o != Scriptable.NOT_FOUND && !(o instanceof Scriptable))
 		{
