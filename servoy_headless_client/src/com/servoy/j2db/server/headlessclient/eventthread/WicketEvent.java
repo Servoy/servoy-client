@@ -26,6 +26,8 @@ import org.apache.wicket.RequestCycle;
 import org.apache.wicket.Session;
 import org.mozilla.javascript.Function;
 
+import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.server.headlessclient.ServoyRequestCycle;
 import com.servoy.j2db.util.Debug;
 
@@ -51,6 +53,7 @@ final class WicketEvent extends Event
 	private final List<Page> touchedPages;
 	private final Thread currentThread;
 	private final Runnable runable;
+	private final IServiceProvider serviceProvider;
 
 	/**
 	 * @param f
@@ -66,6 +69,7 @@ final class WicketEvent extends Event
 		this.runable = runable;
 		requestCycle = RequestCycle.get();
 		session = Session.get();
+		serviceProvider = J2DBGlobals.getServiceProvider();
 		application = Application.get();
 		dirtyObjectsList = session.getDirtyObjectsList();
 		touchedPages = session.getTouchedPages();
@@ -88,6 +92,7 @@ final class WicketEvent extends Event
 			ServoyRequestCycle.set(requestCycle);
 			Session.set(session);
 			Application.set(application);
+			J2DBGlobals.setServiceProvider(serviceProvider);
 
 			session.moveUsedPage(currentThread, Thread.currentThread());
 //			}
