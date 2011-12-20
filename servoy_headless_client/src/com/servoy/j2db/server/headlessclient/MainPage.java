@@ -1248,7 +1248,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			else if (showUrlInfo.target.equalsIgnoreCase("_self"))
 			{
 				String url = showUrlInfo.url;
-				if (showUrlInfo.closeDialogs && showUrlInfo.useIFrame)
+				if (showUrlInfo.useIFrame)
 				{
 					url = RequestUtils.toAbsolutePath(url);
 				}

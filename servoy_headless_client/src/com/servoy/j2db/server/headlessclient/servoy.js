@@ -1350,7 +1350,7 @@ function showurl(url,timeout,closeDialog, useIFrame, exit)
 	var win;
 	var mywindow = window;
 
-	if(closeDialog)
+	if(closeDialog || useIFrame)
 	{
 		while (typeof(mywindow.parent)!= "undefined" && mywindow != mywindow.parent)
 		{
@@ -1360,11 +1360,13 @@ function showurl(url,timeout,closeDialog, useIFrame, exit)
 			}
 			
 			if (typeof(win) != "undefined" && typeof(win.current) != "undefined") {
-				// we can't call close directly, because it will delete our window,
-				// so we will schedule it as timeout for parent's window
-				window.parent.setTimeout(function() {
-					win.current.close();			
-				}, 0);
+				if (closeDialog) {
+					// we can't call close directly, because it will delete our window,
+					// so we will schedule it as timeout for parent's window
+					window.parent.setTimeout(function() {
+						win.current.close();			
+					}, 0);
+				}
 				mywindow = mywindow.parent
 			}
 			else
