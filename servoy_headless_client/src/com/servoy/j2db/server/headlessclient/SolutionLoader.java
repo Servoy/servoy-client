@@ -19,6 +19,8 @@ package com.servoy.j2db.server.headlessclient;
 import java.rmi.RemoteException;
 import java.util.Iterator;
 
+import javax.servlet.http.HttpSession;
+
 import org.apache.wicket.AbortException;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
@@ -108,18 +110,19 @@ public class SolutionLoader extends WebPage
 					//signin first
 					throw new RestartResponseAtInterceptPageException(SignIn.class);
 				}
-				WebClientSession session = null;
+				WebClientSession session;
+				HttpSession httpSession;
 				synchronized (sol)
 				{
 					// create the http session
-					((WebRequest)RequestCycle.get().getRequest()).getHttpServletRequest().getSession();
+					httpSession = ((WebRequest)RequestCycle.get().getRequest()).getHttpServletRequest().getSession();
 					Session.unset();
 					session = (WebClientSession)getSession();
 					session.bind();
-				}
-				synchronized (session)
-				{
 					session.getClientInfo();
+				}
+				synchronized (httpSession)
+				{
 					IWebClientApplication sc = session.getWebClient();
 					if (sc != null && sc.getSolution() != null && sc.getFlattenedSolution().getMainSolutionMetaData().getName().equals(solutionName))
 					{
