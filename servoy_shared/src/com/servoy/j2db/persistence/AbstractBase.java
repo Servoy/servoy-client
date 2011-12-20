@@ -273,7 +273,7 @@ public abstract class AbstractBase implements IPersist
 	{
 		// fix for elements that don't have this property (methods,vars)
 		Integer extendsId = getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID);
-		if (extendsId == null) return -1;
+		if (extendsId == null) return Form.NAVIGATOR_NONE;
 		return extendsId.intValue();
 	}
 
