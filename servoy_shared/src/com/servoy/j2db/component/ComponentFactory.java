@@ -70,8 +70,8 @@ import com.servoy.j2db.IServoyBeanFactory;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.dataprocessing.CustomValueList;
-import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.IColumnConverter;
+import com.servoy.j2db.dataprocessing.IColumnConverterManager;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.ITypedColumnConverter;
 import com.servoy.j2db.dataprocessing.IValueList;
@@ -1126,34 +1126,7 @@ public class ComponentFactory
 									format = ci.getDefaultFormat();
 								}
 							}
-							if (ci.getConverterName() != null && ci.getConverterName().trim().length() != 0)
-							{
-								IColumnConverter converter = ((FoundSetManager)application.getFoundSetManager()).getColumnConverterManager().getConverter(
-									ci.getConverterName());
-								if (converter instanceof ITypedColumnConverter)
-								{
-									try
-									{
-										OpenProperties props = new OpenProperties();
-										if (ci.getConverterProperties() != null) props.load(new StringReader(ci.getConverterProperties()));
-										type = ((ITypedColumnConverter)converter).getToObjectType(props);
-										if (type == Integer.MAX_VALUE)
-										{
-											type = c.getDataProviderType();
-										}
-										else
-										{
-											type = Column.mapToDefaultType(type);
-										}
-									}
-									catch (IOException e)
-									{
-										Debug.error(
-											"Exception loading properties for converter " + converter.getName() + ", properties: " +
-												ci.getConverterProperties(), e);
-									}
-								}
-							}
+							type = getConvertedType(application.getFoundSetManager().getColumnConverterManager(), ci, type);
 						}
 
 					}
@@ -1175,6 +1148,44 @@ public class ComponentFactory
 			}
 		}
 		return new Pair<String, Integer>(format, type);
+	}
+
+	/**
+	 * @param application
+	 * @param type
+	 * @param c
+	 * @param ci
+	 * @return
+	 */
+	public static int getConvertedType(IColumnConverterManager converterManager, ColumnInfo ci, int defaultType)
+	{
+		int type = defaultType;
+		if (ci != null && ci.getConverterName() != null && ci.getConverterName().trim().length() != 0)
+		{
+			IColumnConverter converter = converterManager.getConverter(ci.getConverterName());
+			if (converter instanceof ITypedColumnConverter)
+			{
+				try
+				{
+					OpenProperties props = new OpenProperties();
+					if (ci.getConverterProperties() != null) props.load(new StringReader(ci.getConverterProperties()));
+					type = ((ITypedColumnConverter)converter).getToObjectType(props);
+					if (type == Integer.MAX_VALUE)
+					{
+						type = defaultType;
+					}
+					else
+					{
+						type = Column.mapToDefaultType(type);
+					}
+				}
+				catch (IOException e)
+				{
+					Debug.error("Exception loading properties for converter " + converter.getName() + ", properties: " + ci.getConverterProperties(), e);
+				}
+			}
+		}
+		return type;
 	}
 
 	private static IComponent createField(IApplication application, Form form, Field field, IDataProviderLookup dataProviderLookup, IScriptExecuter el,
