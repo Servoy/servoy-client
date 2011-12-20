@@ -72,6 +72,7 @@ import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.protocol.http.ClientProperties;
+import org.apache.wicket.protocol.http.RequestUtils;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
 import org.apache.wicket.util.time.Duration;
@@ -322,7 +323,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				@Override
 				protected CharSequence getPreconditionScript()
 				{
-					return "onAjaxCall(); if(Servoy.DD.isDragging) Servoy.DD.isRestartTimerNeeded=true; return !Servoy.DD.isDragging;"; //$NON-NLS-1$
+					return "onAjaxCall(); if(Servoy.DD.isDragging) Servoy.DD.isRestartTimerNeeded=true; return !Servoy.DD.isDragging && !showurlCalled;"; //$NON-NLS-1$
 				}
 
 				/**
@@ -1275,7 +1276,13 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			}
 			else if (showUrlInfo.target.equalsIgnoreCase("_self"))
 			{
-				return "showurl('" + showUrlInfo.url + "'," + showUrlInfo.timeout + "," + showUrlInfo.closeDialogs + "," + showUrlInfo.useIFrame + ");";
+				String url = showUrlInfo.url;
+				if (showUrlInfo.useIFrame)
+				{
+					url = RequestUtils.toAbsolutePath(url);
+				}
+				return "showurl('" + url + "'," + showUrlInfo.timeout + "," + showUrlInfo.closeDialogs + "," + showUrlInfo.useIFrame + "," + showUrlInfo.exit +
+					");";
 			}
 			else if (showUrlInfo.target.equalsIgnoreCase("_top"))
 			{
@@ -1866,6 +1873,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		private final int timeout;
 		private final boolean closeDialogs;
 		private final boolean useIFrame;
+		private boolean exit;
 
 		/**
 		 * @param url
@@ -1876,12 +1884,18 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		 */
 		public ShowUrlInfo(String url, String target, String target_options, int timeout, boolean closeDialogs, boolean useIFrame)
 		{
+			this(url, target, target_options, timeout, closeDialogs, useIFrame, false);
+		}
+
+		public ShowUrlInfo(String url, String target, String target_options, int timeout, boolean closeDialogs, boolean useIFrame, boolean exit)
+		{
 			this.url = url;
 			this.useIFrame = useIFrame;
 			this.target = target == null ? "_blank" : target; //$NON-NLS-1$
 			this.target_options = target_options;
 			this.timeout = timeout * 1000;
 			this.closeDialogs = closeDialogs;
+			this.exit = exit;
 		}
 
 		/**
@@ -1898,6 +1912,14 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		public String getTarget()
 		{
 			return target;
+		}
+
+		/**
+		 * @param b
+		 */
+		public void setExit(boolean exit)
+		{
+			this.exit = exit;
 		}
 
 	}
