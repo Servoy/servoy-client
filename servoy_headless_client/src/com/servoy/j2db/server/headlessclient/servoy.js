@@ -1343,7 +1343,9 @@ function onAjaxCall()
 		}
 	}
 }
-function showurl(url,timeout,closeDialog, useIFrame)
+
+var showurlCalled = false;
+function showurl(url,timeout,closeDialog, useIFrame, exit)
 {
 	var win;
 	var mywindow = window;
@@ -1387,7 +1389,10 @@ function showurl(url,timeout,closeDialog, useIFrame)
 		   mywindow.document.body.appendChild(ifrm);
 		} 
 	} else {
-	  mywindow.setTimeout(mywindow.document.location.href=url,timeout);
+	  if(!showurlCalled) {
+	    showurlCalled = exit;
+	  	mywindow.setTimeout(mywindow.document.location.href=url,timeout);
+	  }
 	}
 }
 

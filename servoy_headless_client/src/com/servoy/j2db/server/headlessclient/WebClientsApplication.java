@@ -23,6 +23,7 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
 
 import org.apache.wicket.AbortException;
+import org.apache.wicket.AbstractRestartResponseException;
 import org.apache.wicket.AccessStackPageMap;
 import org.apache.wicket.Application;
 import org.apache.wicket.Component;
@@ -136,14 +137,17 @@ public class WebClientsApplication extends WebApplication
 				}
 				else
 				{
-//					if (((WebRequest)RequestCycle.get().getRequest()).isAjax())
-//					{
-//						throw new AbortException();
-//					}
-//					else
-//					{
-					throw new RestartResponseException(getApplicationSettings().getPageExpiredErrorPage());
-//					}
+					if (((WebRequest)RequestCycle.get().getRequest()).isAjax())
+					{
+						RequestCycle.get().setRequestTarget(new RedirectAjaxRequestTarget(getApplicationSettings().getPageExpiredErrorPage()));
+						throw new AbstractRestartResponseException()
+						{
+						};
+					}
+					else
+					{
+						throw new RestartResponseException(getApplicationSettings().getPageExpiredErrorPage());
+					}
 				}
 			}
 		}

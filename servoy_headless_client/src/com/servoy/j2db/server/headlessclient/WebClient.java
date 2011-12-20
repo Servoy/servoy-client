@@ -737,6 +737,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 						}
 						if (rc.getRequestTarget() instanceof AjaxRequestTarget)
 						{
+							showUrlInfo.setExit(true);
 							String show = MainPage.getShowUrlScript(showUrlInfo);
 							if (show != null)
 							{
@@ -758,7 +759,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 								{
 									CharSequence urlFor = getMainPage().urlFor(SelectSolution.class, null);
 									((AjaxRequestTarget)rc.getRequestTarget()).appendJavascript(MainPage.getShowUrlScript(new ShowUrlInfo(urlFor.toString(),
-										"_self", null, 0, true, false)));
+										"_self", null, 0, true, false, true)));
 								}
 								else
 								{
@@ -783,7 +784,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 								{
 									CharSequence urlFor = getMainPage().urlFor(SolutionLoader.class, new PageParameters(map));
 									((AjaxRequestTarget)rc.getRequestTarget()).appendJavascript(MainPage.getShowUrlScript(new ShowUrlInfo(urlFor.toString(),
-										"_self", null, 0, true, false)));
+										"_self", null, 0, true, false, true)));
 								}
 								else
 								{
