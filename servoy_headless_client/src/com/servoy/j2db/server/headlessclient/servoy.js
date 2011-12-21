@@ -2174,10 +2174,22 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 			}
 			
 			//get enclosing wrapper to work on
-			if (elem.id && elem.parentNode && elem.parentNode.id && (elem.parentNode.id.indexOf('_wrapper')>0 || elem.id.indexOf('_lb')>0))
+			if (elem.id && elem.parentNode && elem.parentNode.id && elem.parentNode.id.indexOf('_wrapper')>0)
 			{
 				elem = elem.parentNode;
 			}
+			
+			// get the parent label for label span & img tags
+			if(elem.id && (elem.id.indexOf('_lb')>0 || elem.id.indexOf('_img')>0))
+			{
+				var lbElem = elem;
+				while(lbElem && lbElem.className != 'label')
+				{
+					lbElem = lbElem.parentNode;
+				}
+				if(lbElem && lbElem.className == 'label') elem = lbElem;
+			}
+			
 			if (!elem.id)
 			{
 				elem = elem.parentNode;
