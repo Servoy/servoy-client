@@ -45,6 +45,7 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ColumnInfo;
 import com.servoy.j2db.persistence.ColumnWrapper;
@@ -341,10 +342,10 @@ public class DataProviderEditor extends JPanel implements IOptimizedPropertyEdit
 				}
 				if (table != null)
 				{
-					Iterator it = table.getColumnsSortedByName();
+					Iterator<Column> it = table.getColumnsSortedByName();
 					while (it.hasNext())
 					{
-						Column c = (Column)it.next();
+						Column c = it.next();
 
 						ColumnInfo ci = c.getColumnInfo();
 						if (ci != null && ci.isExcluded())
@@ -352,9 +353,14 @@ public class DataProviderEditor extends JPanel implements IOptimizedPropertyEdit
 							continue;
 						}
 
-						if (hideMediaColumns && Column.mapToDefaultType(c.getType()) == IColumnTypes.MEDIA)
+						if (hideMediaColumns)
 						{
-							continue;
+							// use dataprovider type as defined by column converter
+							ComponentFormat componentFormat = ComponentFormat.getComponentFormat(null, c, application);
+							if (componentFormat.dpType == IColumnTypes.MEDIA)
+							{
+								continue;
+							}
 						}
 						model.addElement(c);
 					}

@@ -117,9 +117,13 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	 * @param persist
 	 */
 	public void reloadFoundsetMethod(String dataSource, IScriptProvider scriptMethod);
-	
-	
+
+
 	public IColumnValidatorManager getColumnValidatorManager();
 
-	public IColumnConverterManager getColumnConverterManager();
+	public IConverterManager<IUIConverter> getUIConverterManager();
+
+	public IConverterManager<IColumnConverter> getColumnConverterManager();
+
+
 }

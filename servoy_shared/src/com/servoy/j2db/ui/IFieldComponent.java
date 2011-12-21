@@ -60,12 +60,6 @@ public interface IFieldComponent extends ISupportSecuritySettings, IComponent, I
 
 	public void setHorizontalAlignment(int horizontalAlignment);
 
-	public int getDataType();
-
-	public String getFormat();
-
-	public void setFormat(int dataType, String format);
-
 	public void addLabelFor(ILabel label);
 
 	public List<ILabel> getLabelsFor();

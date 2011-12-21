@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2011 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -16,22 +16,31 @@
  */
 package com.servoy.j2db.dataprocessing;
 
+import java.util.Map;
+
+import com.servoy.j2db.persistence.IColumnTypes;
 
 /**
- * Public interface for a converter, this one is deprecated from 5.0 on Please use {@link ITypedColumnConverter} from 5.0 on so that the converter will return
- * its to object type.
+ * The interface to create ui converters with, when the converter converts from 1 type to the other.
  * 
- * @author jblok
+ * @author rgansevles
  * 
- * @see {@link ITypedColumnConverter}
+ * @since 6.1
  */
-public interface IColumnConverter extends IBaseConverter
+public interface IUIConverter extends IBaseConverter
 {
 	/**
-	 * Get the database output types on which this converter can work.
+	 * Get the dataprovider types on which this converter can work.
 	 * 
 	 * @return the types
 	 */
-	public int[] getSupportedColumnTypes();
+	public int[] getSupportedDataproviderTypes();
 
+	/**
+	 * returns the type the converter converts to, should be one of the {@link IColumnTypes}
+	 * 
+	 * this should return {@link Integer#MAX_VALUE} if the type is unknown, or when the default column type should be used.
+	 * 
+	 */
+	public int getToObjectType(Map<String, String> props);
 }

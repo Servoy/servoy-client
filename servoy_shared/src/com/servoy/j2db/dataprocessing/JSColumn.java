@@ -262,7 +262,7 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	 */
 	public int js_getType()
 	{
-		return Column.mapToDefaultType(column.getType());
+		return column.getDataProviderType();
 	}
 
 	/**

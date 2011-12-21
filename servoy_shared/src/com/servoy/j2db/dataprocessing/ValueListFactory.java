@@ -19,6 +19,7 @@ package com.servoy.j2db.dataprocessing;
 
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.persistence.ValueList;
+import com.servoy.j2db.util.FormatParser.ParsedFormat;
 
 /**
  * Value list factory, to create different types of value lists
@@ -26,9 +27,9 @@ import com.servoy.j2db.persistence.ValueList;
  */
 public class ValueListFactory
 {
-	public static IValueList createRealValueList(IServiceProvider app, ValueList vl, int type, String format)
+	public static IValueList createRealValueList(IServiceProvider app, ValueList vl, int valueType, ParsedFormat format)
 	{
-		if (vl == null) return new CustomValueList(app, null, "", false, type, format); //$NON-NLS-1$ 
+		if (vl == null) return new CustomValueList(app, null, "", false, valueType, format); //$NON-NLS-1$ 
 
 		if (vl.getValueListType() == ValueList.GLOBAL_METHOD_VALUES)
 		{
@@ -36,7 +37,7 @@ public class ValueListFactory
 		}
 		if (vl.getValueListType() == ValueList.CUSTOM_VALUES)
 		{
-			return new CustomValueList(app, vl, vl.getCustomValues(), (vl.getAddEmptyValue() == ValueList.EMPTY_VALUE_ALWAYS), type, format);
+			return new CustomValueList(app, vl, vl.getCustomValues(), (vl.getAddEmptyValue() == ValueList.EMPTY_VALUE_ALWAYS), valueType, format);
 		}
 		if (vl.getDatabaseValuesType() == ValueList.RELATED_VALUES)
 		{
@@ -45,7 +46,7 @@ public class ValueListFactory
 		return new DBValueList(app, vl);
 	}
 
-	public static IValueList fillRealValueList(IServiceProvider app, ValueList vl, int type, String format, int valueType, Object data)
+	public static IValueList fillRealValueList(IServiceProvider app, ValueList vl, int type, ParsedFormat format, int valueType, Object data)
 	{
 		IValueList newVl = ValueListFactory.createRealValueList(app, vl, type, format);
 		if (newVl instanceof CustomValueList) ((CustomValueList)newVl).setValueType(valueType);

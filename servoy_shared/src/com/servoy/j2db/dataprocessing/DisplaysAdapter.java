@@ -32,15 +32,17 @@ import org.mozilla.javascript.Scriptable;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ISmartClientApplication;
+import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.component.INullableAware;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
-import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.scripting.GlobalScope;
+import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IFieldComponent;
+import com.servoy.j2db.ui.scripting.IRuntimeFormatComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDestroyable;
 import com.servoy.j2db.util.Pair;
@@ -121,7 +123,7 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 
 			// if display value is null but is for count/avg/sum aggregate set it to 0, as
 			// it means that the foundset has no records, so count/avg/sum is 0;
-			if (obj == null && dal.isCountOrAvgOrSumAggregateDataProvider(this)) obj = new Integer(0);
+			if (obj == null && dal.isCountOrAvgOrSumAggregateDataProvider(this)) obj = Integer.valueOf(0);
 		}
 		if (obj == Scriptable.NOT_FOUND)
 		{
@@ -195,9 +197,8 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 			val = ((DbIdentValue)val).getPkValue();
 		}
 
-		for (int d = 0; d < displays.size(); d++)
+		for (IDisplayData display : displays)
 		{
-			IDisplayData display = displays.get(d);
 			Object value = null;
 			if (display.needEntireState())
 			{
@@ -211,6 +212,13 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 			{
 				value = val;
 			}
+
+			if (!findMode)
+			{
+				// use UI converter to convert from record value to UI value
+				value = ComponentFormat.applyUIConverterToObject(display, value, dataProviderID, application.getFoundSetManager());
+			}
+
 			display.setValueObject(value);
 
 			// when the data-provider for this check box is a non-null integer column,
@@ -218,12 +226,18 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 			// in some cases we do not have a editProvider (table view - renderer component)
 			// and we use the explicitly set "record" to commit the changed value;
 			// similar code exists for web client check boxes
-			if (!findMode && value == null && display instanceof IFieldComponent && display instanceof INullableAware &&
-				!((INullableAware)display).getAllowNull() && Column.mapToDefaultType(((IFieldComponent)display).getDataType()) == IColumnTypes.INTEGER &&
+			if (!findMode && value == null && display instanceof INullableAware && !((INullableAware)display).getAllowNull() &&
+				display instanceof IFieldComponent && ((IFieldComponent)display).getScriptObject() instanceof IRuntimeFormatComponent &&
+				((IRuntimeFormatComponent)((IFieldComponent)display).getScriptObject()).getComponentFormat() != null &&
+				((IRuntimeFormatComponent)((IFieldComponent)display).getScriptObject()).getComponentFormat().dpType == IColumnTypes.INTEGER &&
 				display.getDataProviderID() != null && record != null && record.startEditing() &&
 				!(record instanceof PrototypeState && !ScopesUtils.isVariableScope(display.getDataProviderID()))) // ignore PrototypeState if not global
 			{
-				record.setValue(display.getDataProviderID(), new Integer(0));
+				// NOTE: when a UI converter is defined, the converter should handle this
+				if (((IRuntimeFormatComponent)((IFieldComponent)display).getScriptObject()).getComponentFormat().parsedFormat.getUIConverterName() == null)
+				{
+					record.setValue(display.getDataProviderID(), Integer.valueOf(0));
+				}
 			}
 		}
 	}
@@ -320,6 +334,13 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 
 		Object prevValue = null;
 		Object obj = display.getValueObject();
+
+		if (!findMode)
+		{
+			// use UI converter to convert from UI value to record value
+			obj = ComponentFormat.applyUIConverterFromObject(display, obj, dataProviderID, application.getFoundSetManager());
+		}
+
 		Pair<String, String> scope = ScopesUtils.getVariableScope(dataProviderID);
 		if (scope.getLeft() != null)
 		{
@@ -398,7 +419,13 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 
 			if (record instanceof FindState)
 			{
-				((FindState)record).setFormat(dataProviderID, display.getFormat());
+				if (display instanceof IScriptableProvider && ((IScriptableProvider)display).getScriptObject() instanceof IRuntimeFormatComponent &&
+					((IRuntimeFormatComponent)((IScriptableProvider)display).getScriptObject()).getComponentFormat() != null)
+				{
+					((FindState)record).setFormat(dataProviderID,
+						((IRuntimeFormatComponent)((IScriptableProvider)display).getScriptObject()).getComponentFormat().parsedFormat);
+				}
+
 				// findstate doesn't inform others...
 				if (!Utils.equalObjects(prevValue, obj))
 				{
@@ -447,12 +474,14 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 	public void setFindMode(boolean b)
 	{
 		findMode = b;
-		for (int d = 0; d < displays.size(); d++)
+		for (IDisplayData display : displays)
 		{
-			IDisplayData display = displays.get(d);
-			if (dal.getFormScope() != null && display.getDataProviderID() != null &&
-				dal.getFormScope().get(display.getDataProviderID()) != Scriptable.NOT_FOUND) continue; // skip form variables
-			display.setValidationEnabled(!b);
+			// skip form variables
+			if (dal.getFormScope() == null || display.getDataProviderID() == null ||
+				dal.getFormScope().get(display.getDataProviderID()) == Scriptable.NOT_FOUND)
+			{
+				display.setValidationEnabled(!b);
+			}
 		}
 	}
 
@@ -499,11 +528,6 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 	public String getDataProviderID()
 	{
 		return dataProviderID;
-	}
-
-	public Iterator<IDisplayData> getDisplays()
-	{
-		return displays.iterator();
 	}
 
 	public void displayValueChanged(ModificationEvent event)

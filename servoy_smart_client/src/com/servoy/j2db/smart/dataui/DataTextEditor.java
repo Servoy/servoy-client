@@ -412,26 +412,6 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 
 	//_____________________________________________________________
 
-	public int getDataType()
-	{
-		return dataType;
-	}
-
-	private int dataType;
-
-	private String format;
-
-	public void setFormat(int dataType, String format)
-	{
-		this.dataType = dataType;
-		this.format = format;
-	}
-
-	public String getFormat()
-	{
-		return format;
-	}
-
 	@Override
 	public void setFont(Font f)
 	{

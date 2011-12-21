@@ -74,12 +74,6 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 		//ignore, we don't want a model as created in super class, but data from record
 	}
 
-	public String getFormat()
-	{
-		//ignore
-		return null;
-	}
-
 	@Override
 	protected IModel< ? > initModel()
 	{
@@ -310,7 +304,6 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 
 	public void addEditListener(IEditListener l)
 	{
-		// TODO Auto-generated method stub
 	}
 
 	public boolean needEntireState()
@@ -361,7 +354,6 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 
 	public void setValidationEnabled(boolean b)
 	{
-		// TODO Auto-generated method stub
 	}
 
 	/*

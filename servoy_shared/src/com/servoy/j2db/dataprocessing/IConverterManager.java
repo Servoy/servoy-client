@@ -14,24 +14,20 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
-package com.servoy.j2db.plugins;
+package com.servoy.j2db.dataprocessing;
 
-import java.io.File;
+import java.util.Map;
 
-import com.servoy.j2db.dataprocessing.IColumnConverter;
-import com.servoy.j2db.dataprocessing.IColumnValidatorManager;
-import com.servoy.j2db.dataprocessing.IConverterManager;
-import com.servoy.j2db.dataprocessing.IUIConverter;
-
-public interface IPluginManagerInternal extends IPluginManager
+/**
+ * Manages converters
+ * 
+ * @author jblok
+ */
+public interface IConverterManager<T extends IBaseConverter>
 {
-	public IConverterManager<IColumnConverter> getColumnConverterManager();
+	public void registerConvertor(T validator);
 
-	public IConverterManager<IUIConverter> getUIConverterManager();
+	public T getConverter(String name);
 
-	public IColumnValidatorManager getColumnValidatorManager();
-
-	public IPluginManagerInternal createEfficientCopy(Object prop_change_source);
-
-	public File getPluginDir();
+	public Map<String, T> getConverters();
 }

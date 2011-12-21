@@ -379,27 +379,6 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 		super.setHorizontalScrollBarPolicy(policy);
 	}
 
-	public int getDataType()
-	{
-		return dataType;
-	}
-
-	private int dataType;
-
-
-	private String format;
-
-	public void setFormat(int dataType, String format)
-	{
-		this.dataType = dataType;
-		this.format = format;
-	}
-
-	public String getFormat()
-	{
-		return format;
-	}
-
 	public void setHorizontalAlignment(int a)
 	{
 		//not supported by textarea

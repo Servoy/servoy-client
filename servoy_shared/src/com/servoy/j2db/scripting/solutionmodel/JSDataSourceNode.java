@@ -200,7 +200,7 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 			String name = JSMethod.parseName(code);
 			ScriptCalculation scriptCalculation = tablenode.createNewScriptCalculation(new ScriptNameValidator(fs), name);
 			scriptCalculation.setDeclaration(code);
-			scriptCalculation.setTypeAndCheck(type);
+			scriptCalculation.setTypeAndCheck(type, application);
 			TableScope tableScope = (TableScope)application.getScriptEngine().getTableScope(scriptCalculation.getTable());
 			if (tableScope != null)
 			{

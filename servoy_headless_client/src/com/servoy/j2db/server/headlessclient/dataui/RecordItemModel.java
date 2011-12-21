@@ -28,6 +28,7 @@ import org.apache.wicket.model.IWrapModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.mozilla.javascript.Scriptable;
 
+import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.DataAdapterList;
 import com.servoy.j2db.dataprocessing.FindState;
 import com.servoy.j2db.dataprocessing.IDisplay;
@@ -38,10 +39,12 @@ import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.dataprocessing.ValidationFailedException;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.scripting.FormScope;
+import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.ui.IComponent;
+import com.servoy.j2db.ui.scripting.IRuntimeFormatComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Pair;
@@ -154,7 +157,6 @@ public abstract class RecordItemModel extends LoadableDetachableModel implements
 				//						}
 			}
 
-
 			if (component instanceof IResolveObject)
 			{
 				value = ((IResolveObject)component).resolveDisplayValue(value);
@@ -240,8 +242,16 @@ public abstract class RecordItemModel extends LoadableDetachableModel implements
 		{
 			obj = ((IResolveObject)component).resolveRealValue(obj);
 		}
-		IRecordInternal record = (IRecordInternal)RecordItemModel.this.getObject();
+
 		WebForm webForm = component.findParent(WebForm.class);
+		IRecordInternal record = (IRecordInternal)RecordItemModel.this.getObject();
+
+		// use UI converter to convert from UI value to record value
+		if (!(record instanceof FindState))
+		{
+			obj = ComponentFormat.applyUIConverterFromObject(component, obj, dataProviderID, webForm.getController().getApplication().getFoundSetManager());
+		}
+
 		FormScope fs = webForm.getController().getFormScope();
 		try
 		{
@@ -310,9 +320,12 @@ public abstract class RecordItemModel extends LoadableDetachableModel implements
 						return;
 					}
 
-					if (ownComponentsValue && record instanceof FindState)
+					if (ownComponentsValue && record instanceof FindState && component instanceof IScriptableProvider &&
+						((IScriptableProvider)component).getScriptObject() instanceof IRuntimeFormatComponent &&
+						((IRuntimeFormatComponent)((IScriptableProvider)component).getScriptObject()).getComponentFormat() != null)
 					{
-						((FindState)record).setFormat(dataProviderID, ((IDisplayData)component).getFormat());
+						((FindState)record).setFormat(dataProviderID,
+							((IRuntimeFormatComponent)((IScriptableProvider)component).getScriptObject()).getComponentFormat().parsedFormat);
 					}
 				}
 			}
@@ -377,6 +390,11 @@ public abstract class RecordItemModel extends LoadableDetachableModel implements
 		if (value == Scriptable.NOT_FOUND)
 		{
 			value = null;
+		}
+		else if (!(record instanceof FindState))
+		{
+			// use UI converter to convert from record value to UI value
+			value = ComponentFormat.applyUIConverterToObject(component, value, dataProviderID, webForm.getController().getApplication().getFoundSetManager());
 		}
 
 		return value;

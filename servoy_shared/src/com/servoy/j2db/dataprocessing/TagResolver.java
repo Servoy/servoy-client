@@ -28,7 +28,7 @@ import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.FormatParser;
+import com.servoy.j2db.util.FormatParser.ParsedFormat;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Settings;
 
@@ -98,7 +98,7 @@ public class TagResolver
 	}
 
 
-	public static String formatObject(Object value, FormatParser format, AbstractFormatter maskFormatter)
+	public static String formatObject(Object value, ParsedFormat format, AbstractFormatter maskFormatter)
 	{
 		if (format == null || value == null || value == Scriptable.NOT_FOUND)
 		{

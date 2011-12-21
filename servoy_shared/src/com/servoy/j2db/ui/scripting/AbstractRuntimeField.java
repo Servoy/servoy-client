@@ -17,9 +17,6 @@
 
 package com.servoy.j2db.ui.scripting;
 
-import java.awt.Component;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -39,12 +36,8 @@ import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptFocusMethods;
 import com.servoy.j2db.ui.IScriptReadOnlyMethods;
-import com.servoy.j2db.ui.IScriptRenderMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
-import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportSpecialClientProperty;
-import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.ui.RenderableWrapper;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.StringComparator;
 import com.servoy.j2db.util.Utils;
@@ -54,40 +47,13 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author lvostinar
  */
-public abstract class AbstractRuntimeField<C extends IFieldComponent> extends AbstractRuntimeBaseComponent<C> implements IScriptRenderMethods,
-	IScriptFocusMethods, IScriptReadOnlyMethods, ISupportOnRenderCallback
+public abstract class AbstractRuntimeField<C extends IFieldComponent> extends AbstractRuntimeRendersupportComponent<C> implements IScriptFocusMethods,
+	IScriptReadOnlyMethods
 {
-	protected IScriptRenderMethods renderable;
-	protected RenderEventExecutor renderEventExecutor;
 
 	public AbstractRuntimeField(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
 		super(jsChangeRecorder, application);
-		renderable = new RenderableWrapper(this);
-		renderEventExecutor = new RenderEventExecutor(this);
-	}
-
-	@Override
-	public void setComponent(final C component)
-	{
-		super.setComponent(component);
-		if (component instanceof Component)
-		{
-			((Component)component).addFocusListener(new FocusListener()
-			{
-				public void focusLost(FocusEvent e)
-				{
-					getRenderEventExecutor().setRenderStateChanged();
-					getRenderEventExecutor().fireOnRender(false);
-				}
-
-				public void focusGained(FocusEvent e)
-				{
-					getRenderEventExecutor().setRenderStateChanged();
-					getRenderEventExecutor().fireOnRender(component.isEditable());
-				}
-			});
-		}
 	}
 
 	public String js_getDataProviderID()
@@ -307,20 +273,5 @@ public abstract class AbstractRuntimeField<C extends IFieldComponent> extends Ab
 			}
 		}
 		return retval;
-	}
-
-	public RenderEventExecutor getRenderEventExecutor()
-	{
-		return renderEventExecutor;
-	}
-
-	public IScriptRenderMethods getRenderable()
-	{
-		return renderable;
-	}
-
-	public void setRenderableStateChanged()
-	{
-		getChangesRecorder().setChanged();
 	}
 }

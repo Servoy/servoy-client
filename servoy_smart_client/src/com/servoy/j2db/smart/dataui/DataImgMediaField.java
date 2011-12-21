@@ -889,25 +889,6 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 		}
 	}
 
-	public int getDataType()
-	{
-		return dataType;
-	}
-
-	private int dataType;
-	private String format;
-
-	public void setFormat(int dataType, String format)
-	{
-		this.dataType = dataType;
-		this.format = format;
-	}
-
-	public String getFormat()
-	{
-		return format;
-	}
-
 	public void setMaxLength(int i)
 	{
 		//ignore

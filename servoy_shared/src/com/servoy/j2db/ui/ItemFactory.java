@@ -31,8 +31,8 @@ import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeScrollableValuelistComponent;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeTextEditor;
-import com.servoy.j2db.ui.scripting.AbstractRuntimeValuelistComponent;
 import com.servoy.j2db.ui.scripting.RuntimeAccordionPanel;
+import com.servoy.j2db.ui.scripting.RuntimeCheckbox;
 import com.servoy.j2db.ui.scripting.RuntimeDataButton;
 import com.servoy.j2db.ui.scripting.RuntimeDataCalendar;
 import com.servoy.j2db.ui.scripting.RuntimeDataCombobox;
@@ -43,6 +43,7 @@ import com.servoy.j2db.ui.scripting.RuntimeDataPassword;
 import com.servoy.j2db.ui.scripting.RuntimeListBox;
 import com.servoy.j2db.ui.scripting.RuntimeMediaField;
 import com.servoy.j2db.ui.scripting.RuntimePortal;
+import com.servoy.j2db.ui.scripting.RuntimeRadioButton;
 import com.servoy.j2db.ui.scripting.RuntimeRectangle;
 import com.servoy.j2db.ui.scripting.RuntimeScriptButton;
 import com.servoy.j2db.ui.scripting.RuntimeScriptLabel;
@@ -161,7 +162,15 @@ public interface ItemFactory
 	 * @param stringIfPrefix
 	 * @return
 	 */
-	IFieldComponent createSelectBox(AbstractRuntimeValuelistComponent<IFieldComponent> scriptable, String name, String text, IValueList list, boolean isRadio);
+	IFieldComponent createRadioButton(RuntimeRadioButton scriptable, String name, String text, IValueList list);
+
+	/**
+	 * @param name TODO
+	 * @param list
+	 * @param stringIfPrefix
+	 * @return
+	 */
+	IFieldComponent createCheckBox(RuntimeCheckbox scriptable, String name, String text, IValueList list);
 
 	/**
 	 * @param name TODO

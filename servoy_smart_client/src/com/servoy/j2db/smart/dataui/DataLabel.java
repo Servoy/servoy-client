@@ -23,6 +23,7 @@ import java.text.ParseException;
 import javax.swing.text.Document;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.TagResolver;
@@ -30,7 +31,6 @@ import com.servoy.j2db.printing.IFixedPreferredWidth;
 import com.servoy.j2db.ui.IDisplayTagText;
 import com.servoy.j2db.ui.scripting.RuntimeDataLabel;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.FormatParser;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Text;
 
@@ -165,8 +165,9 @@ public class DataLabel extends AbstractScriptLabel implements IDisplayData, IDis
 				{
 					try
 					{
-						txt = Text.processTags(TagResolver.formatObject(obj != null ? obj : "", fp,
-							(fp.getDisplayFormat() != null ? new ServoyMaskFormatter(fp.getDisplayFormat(), true) : null)), resolver);
+						ComponentFormat fp = getScriptObject().getComponentFormat();
+						txt = Text.processTags(TagResolver.formatObject(obj != null ? obj : "", fp.parsedFormat, (fp.parsedFormat.getDisplayFormat() != null
+							? new ServoyMaskFormatter(fp.parsedFormat.getDisplayFormat(), true) : null)), resolver);
 					}
 					catch (ParseException e)
 					{
@@ -210,7 +211,9 @@ public class DataLabel extends AbstractScriptLabel implements IDisplayData, IDis
 				{
 					try
 					{
-						setText(TagResolver.formatObject(obj, fp, (fp.getDisplayFormat() != null ? new ServoyMaskFormatter(fp.getDisplayFormat(), true) : null)));
+						ComponentFormat fp = getScriptObject().getComponentFormat();
+						setText(TagResolver.formatObject(obj, fp.parsedFormat, (fp.parsedFormat.getDisplayFormat() != null ? new ServoyMaskFormatter(
+							fp.parsedFormat.getDisplayFormat(), true) : null)));
 					}
 					catch (ParseException e)
 					{
@@ -249,12 +252,6 @@ public class DataLabel extends AbstractScriptLabel implements IDisplayData, IDis
 		dataProviderID = id;
 	}
 
-	@Override
-	public String getFormat()
-	{
-		return fp.getFormat();
-	}
-
 	public void notifyLastNewValueWasChange(Object oldVal, Object newVal)
 	{
 		//ignore
@@ -281,21 +278,5 @@ public class DataLabel extends AbstractScriptLabel implements IDisplayData, IDis
 	public boolean stopUIEditing(boolean looseFocus)
 	{
 		return true;
-	}
-
-	private int dataType;
-	protected final FormatParser fp = new FormatParser();
-
-	@Override
-	public int getDataType()
-	{
-		return dataType;
-	}
-
-	@Override
-	public void setFormat(int dataType, String format)
-	{
-		this.dataType = dataType;
-		fp.setFormat(format);
 	}
 }

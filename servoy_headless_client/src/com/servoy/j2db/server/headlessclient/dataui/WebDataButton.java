@@ -30,6 +30,7 @@ import org.apache.wicket.model.IWrapModel;
 import org.apache.wicket.util.convert.IConverter;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.TagResolver;
@@ -38,7 +39,6 @@ import com.servoy.j2db.smart.dataui.ServoyMaskFormatter;
 import com.servoy.j2db.ui.IDisplayTagText;
 import com.servoy.j2db.ui.scripting.RuntimeDataButton;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.FormatParser;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Text;
@@ -69,12 +69,6 @@ public class WebDataButton extends WebBaseButton implements IDisplayData, IDispl
 	public void setText(String txt)
 	{
 		//ignore, we don't want a model as created in super class, but data from record
-	}
-
-	@Override
-	public String getFormat()
-	{
-		return fp.getFormat();
 	}
 
 	@Override
@@ -140,9 +134,9 @@ public class WebDataButton extends WebBaseButton implements IDisplayData, IDispl
 				{
 					try
 					{
-						bodyText = Text.processTags(
-							TagResolver.formatObject(val, fp, (fp.getDisplayFormat() != null ? new ServoyMaskFormatter(fp.getDisplayFormat(), true) : null)),
-							resolver);
+						ComponentFormat fp = getScriptObject().getComponentFormat();
+						bodyText = Text.processTags(TagResolver.formatObject(val, fp.parsedFormat, (fp.parsedFormat.getDisplayFormat() != null
+							? new ServoyMaskFormatter(fp.parsedFormat.getDisplayFormat(), true) : null)), resolver);
 					}
 					catch (ParseException e)
 					{
@@ -174,10 +168,11 @@ public class WebDataButton extends WebBaseButton implements IDisplayData, IDispl
 			}
 			else
 			{
+				ComponentFormat fp = getScriptObject().getComponentFormat();
 				try
 				{
-					bodyText = TagResolver.formatObject(modelObject, fp, (fp.getDisplayFormat() != null ? new ServoyMaskFormatter(fp.getDisplayFormat(), true)
-						: null));
+					bodyText = TagResolver.formatObject(modelObject, fp.parsedFormat, (fp.parsedFormat.getDisplayFormat() != null ? new ServoyMaskFormatter(
+						fp.parsedFormat.getDisplayFormat(), true) : null));
 				}
 				catch (ParseException e)
 				{
@@ -307,21 +302,5 @@ public class WebDataButton extends WebBaseButton implements IDisplayData, IDispl
 	public String getTagText()
 	{
 		return tagText;
-	}
-
-	private int dataType;
-	protected final FormatParser fp = new FormatParser();
-
-	@Override
-	public int getDataType()
-	{
-		return dataType;
-	}
-
-	@Override
-	public void setFormat(int dataType, String format)
-	{
-		this.dataType = dataType;
-		fp.setFormat(format);
 	}
 }

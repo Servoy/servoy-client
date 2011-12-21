@@ -17,7 +17,7 @@
 package com.servoy.j2db.dataprocessing;
 
 
-import java.io.StringReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.Messages;
+import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ColumnInfo;
@@ -45,7 +46,6 @@ import com.servoy.j2db.query.QueryInsert;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryUpdate;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.OpenProperties;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.ScopesUtils;
@@ -362,7 +362,7 @@ public class SQLSheet
 	 * @param columnConverterManager
 	 * @return
 	 */
-	Object convertValueToObject(Object val, int columnIndex, IColumnConverterManager columnConverterManager)
+	Object convertValueToObject(Object val, int columnIndex, IConverterManager<IColumnConverter> columnConverterManager)
 	{
 		Object value = val;
 
@@ -378,7 +378,7 @@ public class SQLSheet
 				value = Utils.getAsUUID(value, false);
 			}
 
-			Pair<String, String> converterInfo = getColumnConverterInfo(columnIndex);
+			Pair<String, Map<String, String>> converterInfo = getColumnConverterInfo(columnIndex);
 			if (converterInfo != null)
 			{
 				IColumnConverter conv = columnConverterManager.getConverter(converterInfo.getLeft());
@@ -386,9 +386,7 @@ public class SQLSheet
 				{
 					try
 					{
-						OpenProperties props = new OpenProperties();
-						if (converterInfo.getRight() != null) props.load(new StringReader(converterInfo.getRight()));
-						value = conv.convertToObject(props, variableInfo.type, value);
+						value = conv.convertToObject(converterInfo.getRight(), variableInfo.type, value);
 					}
 					catch (Exception e)
 					{
@@ -821,17 +819,17 @@ public class SQLSheet
 		return retval;
 	}
 
-	private Pair<String, String>[] converterInfos;
+	private Pair<String, Map<String, String>>[] converterInfos;
 
 
-	public Pair<String, String> getColumnConverterInfo(int columnIndex)
+	public Pair<String, Map<String, String>> getColumnConverterInfo(int columnIndex)
 	{
 		if (converterInfos == null)
 		{
 			SQLDescription desc = sql.get(SELECT);
 			List< ? > dataProviderIDsDilivery = desc.getDataProviderIDsDilivery();
 			@SuppressWarnings("unchecked")
-			Pair<String, String>[] cis = new Pair[dataProviderIDsDilivery.size()];
+			Pair<String, Map<String, String>>[] cis = new Pair[dataProviderIDsDilivery.size()];
 			int i = 0;
 			Iterator< ? > it = dataProviderIDsDilivery.iterator();
 			while (it.hasNext())
@@ -841,7 +839,17 @@ public class SQLSheet
 				ColumnInfo ci = c.getColumnInfo();
 				if (ci != null && ci.getConverterName() != null && ci.getConverterName().trim().length() != 0)
 				{
-					cis[i] = new Pair<String, String>(ci.getConverterName(), ci.getConverterProperties());
+					Map<String, String> props = null;
+					try
+					{
+						props = ComponentFactory.<String> parseJSonProperties(ci.getConverterProperties());
+					}
+					catch (IOException e)
+					{
+						Debug.error("Could not parse column converter properties", e);
+					}
+
+					cis[i] = new Pair<String, Map<String, String>>(ci.getConverterName(), props);
 				}
 				i++;
 			}
@@ -851,17 +859,17 @@ public class SQLSheet
 		return converterInfos[columnIndex];
 	}
 
-	private Pair<String, String>[] validatorInfos;
+	private Pair<String, Map<String, String>>[] validatorInfos;
 
 
-	public Pair<String, String> getColumnValidatorInfo(int columnIndex)
+	public Pair<String, Map<String, String>> getColumnValidatorInfo(int columnIndex)
 	{
 		if (validatorInfos == null)
 		{
 			SQLDescription desc = sql.get(SELECT);
 			List< ? > dataProviderIDsDilivery = desc.getDataProviderIDsDilivery();
 			@SuppressWarnings("unchecked")
-			Pair<String, String>[] vis = new Pair[dataProviderIDsDilivery.size()];
+			Pair<String, Map<String, String>>[] vis = new Pair[dataProviderIDsDilivery.size()];
 			int i = 0;
 			Iterator< ? > it = dataProviderIDsDilivery.iterator();
 			while (it.hasNext())
@@ -871,7 +879,16 @@ public class SQLSheet
 				ColumnInfo ci = c.getColumnInfo();
 				if (ci != null && ci.getValidatorName() != null && ci.getValidatorName().trim().length() != 0)
 				{
-					vis[i] = new Pair<String, String>(ci.getValidatorName(), ci.getValidatorProperties());
+					Map<String, String> parsedValidatorProperties = null;
+					try
+					{
+						parsedValidatorProperties = ComponentFactory.parseJSonProperties(ci.getValidatorProperties());
+					}
+					catch (IOException e)
+					{
+						Debug.error(e);
+					}
+					vis[i] = new Pair<String, Map<String, String>>(ci.getValidatorName(), parsedValidatorProperties);
 				}
 				i++;
 			}

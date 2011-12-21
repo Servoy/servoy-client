@@ -45,7 +45,6 @@ import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.dnd.FormDataTransferHandler;
 import com.servoy.j2db.dnd.ISupportDragNDropTextTransfer;
-import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
@@ -63,8 +62,7 @@ import com.servoy.j2db.util.docvalidator.ValidatingDocument;
  * Runtime swing password field 
  * @author jblok
  */
-public class DataPassword extends JPasswordField implements IFieldComponent, IDisplayData, ISupportCachedLocationAndSize, ISupportDragNDropTextTransfer,
-	IScriptableProvider
+public class DataPassword extends JPasswordField implements IFieldComponent, IDisplayData, ISupportCachedLocationAndSize, ISupportDragNDropTextTransfer
 {
 	private String dataProviderID;
 	private final EventExecutor eventExecutor;
@@ -252,11 +250,7 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 
 	public void notifyLastNewValueWasChange(Object oldVal, Object newVal)
 	{
-		if (previousValidValue != null)
-		{
-			oldVal = previousValidValue;
-		}
-		eventExecutor.fireChangeCommand(oldVal, newVal, false, this);
+		eventExecutor.fireChangeCommand(previousValidValue != null ? previousValidValue : oldVal, newVal, false, this);
 	}
 
 	//_____________________________________________________________
@@ -357,35 +351,13 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 		this.dataProviderID = dataProviderID;
 	}
 
-	public int getDataType()
-	{
-		return dataType;
-	}
-
-	private int dataType;
-
-
-	private String format;
-
-	public void setFormat(int dataType, String format)
-	{
-		this.dataType = dataType;
-		this.format = format;
-	}
-
-	public String getFormat()
-	{
-		return format;
-	}
-
-
 	public boolean needEntireState()
 	{
 		return needEntireState;
 	}
 
 	private boolean needEntireState;
-	private ArrayList labels;
+	private List<ILabel> labels;
 
 	public void setNeedEntireState(boolean b)
 	{
@@ -415,9 +387,8 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 		super.setVisible(flag);
 		if (labels != null)
 		{
-			for (int i = 0; i < labels.size(); i++)
+			for (ILabel label : labels)
 			{
-				ILabel label = (ILabel)labels.get(i);
 				label.setComponentVisible(flag);
 			}
 		}
@@ -425,7 +396,7 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 
 	public void addLabelFor(ILabel label)
 	{
-		if (labels == null) labels = new ArrayList(3);
+		if (labels == null) labels = new ArrayList<ILabel>(3);
 		labels.add(label);
 	}
 
@@ -441,9 +412,8 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 			super.setEnabled(b);
 			if (labels != null)
 			{
-				for (int i = 0; i < labels.size(); i++)
+				for (ILabel label : labels)
 				{
-					ILabel label = (ILabel)labels.get(i);
 					label.setComponentEnabled(b);
 				}
 			}

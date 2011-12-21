@@ -18,9 +18,12 @@
 package com.servoy.j2db.ui.scripting;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.component.ComponentFormat;
+import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.ui.IFieldComponent;
-import com.servoy.j2db.ui.IScriptFormattedFieldMethods;
+import com.servoy.j2db.ui.IFormattingComponent;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
+import com.servoy.j2db.util.FormatParser;
 
 /**
  * Abstract scriptable valuelist component.
@@ -29,22 +32,13 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
  * @since 6.0
  */
 public abstract class AbstractRuntimeFormattedValuelistComponent<C extends IFieldComponent> extends AbstractRuntimeValuelistComponent<C> implements
-	IScriptFormattedFieldMethods
+	IRuntimeFormatComponent
 {
+	private ComponentFormat componentFormat;
+
 	public AbstractRuntimeFormattedValuelistComponent(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
 		super(jsChangeRecorder, application);
-	}
-
-	public void js_setFormat(String format)
-	{
-		getComponent().setFormat(getComponent().getDataType(), application.getI18NMessageIfPrefixed(format));
-		getChangesRecorder().setChanged();
-	}
-
-	public String js_getFormat()
-	{
-		return getComponent().getFormat();
 	}
 
 	public boolean js_isEditable()
@@ -57,4 +51,34 @@ public abstract class AbstractRuntimeFormattedValuelistComponent<C extends IFiel
 		getComponent().setEditable(b);
 		getChangesRecorder().setChanged();
 	}
+
+	public void js_setFormat(String formatString)
+	{
+		setComponentFormat(new ComponentFormat(FormatParser.parseFormatString(application.getI18NMessageIfPrefixed(formatString), componentFormat == null
+			? null : componentFormat.parsedFormat.getUIConverterName(),
+			componentFormat == null ? null : componentFormat.parsedFormat.getUIConverterProperties()), componentFormat == null ? IColumnTypes.TEXT
+			: componentFormat.dpType, componentFormat == null ? IColumnTypes.TEXT : componentFormat.uiType));
+		getChangesRecorder().setChanged();
+	}
+
+	public String js_getFormat()
+	{
+		return componentFormat == null ? null : componentFormat.parsedFormat.getFormatString();
+	}
+
+	public void setComponentFormat(ComponentFormat componentFormat)
+	{
+		this.componentFormat = componentFormat;
+		if (componentFormat != null && getComponent() instanceof IFormattingComponent)
+		{
+			((IFormattingComponent)getComponent()).installFormat(componentFormat.uiType, componentFormat.parsedFormat.getFormatString());
+		}
+	}
+
+	public ComponentFormat getComponentFormat()
+	{
+		return componentFormat;
+	}
+
+
 }

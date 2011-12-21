@@ -96,7 +96,7 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 
 	protected final IApplication application;
 	protected final FormComponent< ? > selector;
-	private final AbstractRuntimeField<IFieldComponent> scriptable;
+	protected final AbstractRuntimeField<IFieldComponent> scriptable;
 
 	public WebBaseSelectBox(final IApplication application, AbstractRuntimeField<IFieldComponent> scriptable, String id, String text)
 	{
@@ -140,11 +140,6 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 		selector.add(new FocusIfInvalidAttributeModifier(selector));
 		add(StyleAttributeModifierModel.INSTANCE);
 		add(TooltipAttributeModifier.INSTANCE);
-	}
-
-	public final AbstractRuntimeField<IFieldComponent> getScriptObject()
-	{
-		return scriptable;
 	}
 
 	protected abstract FormComponent< ? > getSelector(String id);
@@ -471,25 +466,6 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 		{
 			((MainPage)currentContainer).componentToFocus(selector);
 		}
-	}
-
-	protected int dataType;
-	private String format;
-
-	public void setFormat(int type, String format)
-	{
-		this.dataType = type;
-		this.format = format;
-	}
-
-	public String getFormat()
-	{
-		return format;
-	}
-
-	public int getDataType()
-	{
-		return dataType;
 	}
 
 	public void setName(String n)

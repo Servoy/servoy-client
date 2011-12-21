@@ -59,6 +59,8 @@ import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.html.CSS;
 
+import org.json.JSONException;
+
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
@@ -70,25 +72,18 @@ import com.servoy.j2db.IServoyBeanFactory;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.dataprocessing.CustomValueList;
-import com.servoy.j2db.dataprocessing.IColumnConverter;
-import com.servoy.j2db.dataprocessing.IColumnConverterManager;
 import com.servoy.j2db.dataprocessing.IDisplayData;
-import com.servoy.j2db.dataprocessing.ITypedColumnConverter;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.LookupValueList;
-import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.dataprocessing.ValueListFactory;
 import com.servoy.j2db.dataui.IServoyAwareBean;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.persistence.Column;
-import com.servoy.j2db.persistence.ColumnInfo;
-import com.servoy.j2db.persistence.ColumnWrapper;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
-import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderLookup;
@@ -114,7 +109,6 @@ import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
-import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.ui.IButton;
@@ -130,14 +124,16 @@ import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISplitPane;
 import com.servoy.j2db.ui.IStandardLabel;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
-import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.ISupportSecuritySettings;
 import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.ui.scripting.AbstractHTMLSubmitRuntimeLabel;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeButton;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeLabel;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeValuelistComponent;
+import com.servoy.j2db.ui.scripting.IRuntimeFormatComponent;
 import com.servoy.j2db.ui.scripting.RuntimeAccordionPanel;
 import com.servoy.j2db.ui.scripting.RuntimeCheckBoxChoice;
 import com.servoy.j2db.ui.scripting.RuntimeCheckbox;
@@ -164,11 +160,13 @@ import com.servoy.j2db.ui.scripting.RuntimeTextArea;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FixedStyleSheet;
-import com.servoy.j2db.util.FormatParser;
+import com.servoy.j2db.util.FormatParser.ParsedFormat;
+import com.servoy.j2db.util.JSONWrapperMap;
 import com.servoy.j2db.util.OpenProperties;
 import com.servoy.j2db.util.OrientationApplier;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.XMLDecoder;
@@ -893,14 +891,14 @@ public class ComponentFactory
 	}
 
 	@SuppressWarnings("unchecked")
-	public static IValueList getRealValueList(IServiceProvider application, ValueList valuelist, boolean useSoftCacheForCustom, int type, String format,
+	public static IValueList getRealValueList(IServiceProvider application, ValueList valuelist, boolean useSoftCacheForCustom, int type, ParsedFormat format,
 		String dataprovider)
 	{
 		if (application == null)
 		{
 			application = J2DBGlobals.getServiceProvider();
 		}
-		String displayFormat = format == null ? null : new FormatParser(format).getDisplayFormat();
+		String displayFormat = format == null ? null : format.getDisplayFormat();
 		IValueList list = null;
 		if (valuelist != null &&
 			(valuelist.getValueListType() == ValueList.CUSTOM_VALUES || (valuelist.getValueListType() == ValueList.DATABASE_VALUES && valuelist.getDatabaseValuesType() == ValueList.TABLE_VALUES)))//reuse,those are static,OTHERS not!
@@ -935,12 +933,12 @@ public class ComponentFactory
 
 			if (list == null)
 			{
-				list = ValueListFactory.createRealValueList(application, valuelist, type, displayFormat);
+				list = ValueListFactory.createRealValueList(application, valuelist, type, format);
 				if (valuelist.getFallbackValueListID() > 0 && valuelist.getFallbackValueListID() != valuelist.getID())
 				{
 					ValueList vl = application.getFlattenedSolution().getValueList(valuelist.getFallbackValueListID());
 					vl.setDisplayValueType(valuelist.getDisplayValueType());
-					list.setFallbackValueList(getRealValueList(application, vl, useSoftCacheForCustom, type, displayFormat, dataprovider));
+					list.setFallbackValueList(getRealValueList(application, vl, useSoftCacheForCustom, type, format, dataprovider));
 				}
 				if (!useSoftCacheForCustom && valuelist.getValueListType() == ValueList.CUSTOM_VALUES)
 				{
@@ -996,12 +994,12 @@ public class ComponentFactory
 		}
 		else
 		{
-			list = ValueListFactory.createRealValueList(application, valuelist, type, displayFormat);
+			list = ValueListFactory.createRealValueList(application, valuelist, type, format);
 			if (valuelist != null && valuelist.getFallbackValueListID() > 0 && valuelist.getFallbackValueListID() != valuelist.getID())
 			{
 				ValueList vl = application.getFlattenedSolution().getValueList(valuelist.getFallbackValueListID());
 				vl.setDisplayValueType(valuelist.getDisplayValueType());
-				list.setFallbackValueList(getRealValueList(application, vl, useSoftCacheForCustom, type, displayFormat, dataprovider));
+				list.setFallbackValueList(getRealValueList(application, vl, useSoftCacheForCustom, type, format, dataprovider));
 			}
 		}
 		return list;
@@ -1090,102 +1088,31 @@ public class ComponentFactory
 		return vl;
 	}
 
-	public static Pair<String, Integer> getComponentFormat(String format, String dataProviderID, IDataProviderLookup dataProviderLookup,
-		IServiceProvider application)
+	public static <T> Map<String, T> parseJSonProperties(String properties) throws IOException
 	{
-		int type = IColumnTypes.TEXT;
-		IDataProvider dp = null;
-		if (dataProviderID != null && dataProviderLookup != null)
+		if (properties == null || properties.length() <= 0)
 		{
+			return null;
+		}
+
+		if (properties.startsWith("{"))
+		{
+			// new format: json
 			try
 			{
-				dp = dataProviderLookup.getDataProvider(dataProviderID);
-				if (dp != null)
-				{
-					type = dp.getDataProviderType();
-					IColumn c = null;
-					if (dp instanceof ColumnWrapper)
-					{
-						c = ((ColumnWrapper)dp).getColumn();
-					}
-					else if (dp instanceof Column)
-					{
-						c = (IColumn)dp;
-					}
-
-
-					if (c instanceof Column)
-					{
-						ColumnInfo ci = ((Column)c).getColumnInfo();
-						if (ci != null)
-						{
-							if (format == null || format.length() == 0)
-							{
-								if (ci.getDefaultFormat() != null && ci.getDefaultFormat().length() > 0)
-								{
-									format = ci.getDefaultFormat();
-								}
-							}
-							type = getConvertedType(application.getFoundSetManager().getColumnConverterManager(), ci, type);
-						}
-
-					}
-					if (format == null || format.length() == 0)
-					{
-						format = TagResolver.getDefaultFormatForType(application.getSettings(), type);
-					}
-					if ("converter".equals(format))
-					{
-						format = null;
-						type = IColumnTypes.TEXT;
-					}
-
-				}
+				return new JSONWrapperMap<T>(new ServoyJSONObject(properties, false, true, false));
 			}
-			catch (RepositoryException e)
+			catch (JSONException e)
 			{
 				Debug.error(e);
+				throw new IOException();
 			}
 		}
-		return new Pair<String, Integer>(format, type);
-	}
 
-	/**
-	 * @param application
-	 * @param type
-	 * @param c
-	 * @param ci
-	 * @return
-	 */
-	public static int getConvertedType(IColumnConverterManager converterManager, ColumnInfo ci, int defaultType)
-	{
-		int type = defaultType;
-		if (ci != null && ci.getConverterName() != null && ci.getConverterName().trim().length() != 0)
-		{
-			IColumnConverter converter = converterManager.getConverter(ci.getConverterName());
-			if (converter instanceof ITypedColumnConverter)
-			{
-				try
-				{
-					OpenProperties props = new OpenProperties();
-					if (ci.getConverterProperties() != null) props.load(new StringReader(ci.getConverterProperties()));
-					type = ((ITypedColumnConverter)converter).getToObjectType(props);
-					if (type == Integer.MAX_VALUE)
-					{
-						type = defaultType;
-					}
-					else
-					{
-						type = Column.mapToDefaultType(type);
-					}
-				}
-				catch (IOException e)
-				{
-					Debug.error("Exception loading properties for converter " + converter.getName() + ", properties: " + ci.getConverterProperties(), e);
-				}
-			}
-		}
-		return type;
+		// old format: OpenProperties
+		OpenProperties props = new OpenProperties();
+		props.load(new StringReader(properties));
+		return (Map<String, T>)props;
 	}
 
 	private static IComponent createField(IApplication application, Form form, Field field, IDataProviderLookup dataProviderLookup, IScriptExecuter el,
@@ -1193,9 +1120,7 @@ public class ComponentFactory
 	{
 		ValueList valuelist = null;
 		if (field.getValuelistID() > 0) valuelist = getValueList(application, field, dataProviderLookup);
-		Pair<String, Integer> fieldFormat = getComponentFormat(field.getFormat(), field.getDataProviderID(), dataProviderLookup, application);
-		String format = fieldFormat.getLeft();
-		int type = fieldFormat.getRight();
+		ComponentFormat fieldFormat = ComponentFormat.getComponentFormat(field.getFormat(), field.getDataProviderID(), dataProviderLookup, application);
 
 		IDataProvider dp = null;
 		if (field.getDataProviderID() != null && dataProviderLookup != null)
@@ -1229,65 +1154,74 @@ public class ComponentFactory
 
 		IStylePropertyChangesRecorder jsChangeRecorder = application.getItemFactory().createChangesRecorder();
 
-		IFieldComponent fl = null;
+		IFieldComponent fl;
+		AbstractRuntimeField< ? extends IFieldComponent> scriptable;
 		switch (field.getDisplayType())
 		{
 			case Field.PASSWORD :
 			{
-				RuntimeDataPassword scriptable = new RuntimeDataPassword(jsChangeRecorder, application);
-				fl = application.getItemFactory().createDataPassword(scriptable, getWebID(form, field));
-				scriptable.setComponent(fl);
+				RuntimeDataPassword so;
+				scriptable = so = new RuntimeDataPassword(jsChangeRecorder, application);
+				fl = application.getItemFactory().createDataPassword(so, getWebID(form, field));
+				so.setComponent(fl);
 			}
 				break;
+
 			case Field.RTF_AREA :
 			{
-				RuntimeRTFArea scriptable = new RuntimeRTFArea(jsChangeRecorder, application);
-				fl = application.getItemFactory().createDataTextEditor(scriptable, getWebID(form, field), RTF_AREA, field.getEditable());
-				scriptable.setComponent(fl);
+				RuntimeRTFArea so;
+				scriptable = so = new RuntimeRTFArea(jsChangeRecorder, application);
+				fl = application.getItemFactory().createDataTextEditor(so, getWebID(form, field), RTF_AREA, field.getEditable());
+				so.setComponent(fl);
 				if (fl instanceof IScrollPane)
 				{
 					applyScrollBarsProperty((IScrollPane)fl, field);
 				}
 			}
 				break;
+
 			case Field.HTML_AREA :
 			{
-				RuntimeHTMLArea scriptable = new RuntimeHTMLArea(jsChangeRecorder, application);
-				fl = application.getItemFactory().createDataTextEditor(scriptable, getWebID(form, field), HTML_AREA, field.getEditable());
-				scriptable.setComponent(fl);
+				RuntimeHTMLArea so;
+				scriptable = so = new RuntimeHTMLArea(jsChangeRecorder, application);
+				fl = application.getItemFactory().createDataTextEditor(so, getWebID(form, field), HTML_AREA, field.getEditable());
+				so.setComponent(fl);
 				if (fl instanceof IScrollPane)
 				{
 					applyScrollBarsProperty((IScrollPane)fl, field);
 				}
 			}
 				break;
+
 			case Field.TEXT_AREA :
 			{
-				RuntimeTextArea scriptable = new RuntimeTextArea(jsChangeRecorder, application);
-				fl = application.getItemFactory().createDataTextArea(scriptable, getWebID(form, field));
-				scriptable.setComponent(fl);
+				RuntimeTextArea so;
+				scriptable = so = new RuntimeTextArea(jsChangeRecorder, application);
+				fl = application.getItemFactory().createDataTextArea(so, getWebID(form, field));
+				so.setComponent(fl);
 				if (fl instanceof IScrollPane)
 				{
 					applyScrollBarsProperty((IScrollPane)fl, field);
 				}
 			}
 				break;
+
 			case Field.CHECKS :
 			{
-				AbstractRuntimeValuelistComponent<IFieldComponent> scriptable;
+				AbstractRuntimeValuelistComponent<IFieldComponent> so;
 				if (valuelist != null)
 				{
-					IValueList list = getRealValueList(application, valuelist, true, type, format, field.getDataProviderID());
+					IValueList list = getRealValueList(application, valuelist, true, fieldFormat.dpType, fieldFormat.parsedFormat, field.getDataProviderID());
 					if (isSingleValue(valuelist, list))
 					{
-						scriptable = new RuntimeCheckbox(jsChangeRecorder, application);
-						fl = application.getItemFactory().createSelectBox(scriptable, getWebID(form, field),
-							application.getI18NMessageIfPrefixed(field.getText()), list, false);
+						scriptable = so = new RuntimeCheckbox(jsChangeRecorder, application);
+						fl = application.getItemFactory().createCheckBox((RuntimeCheckbox)so, getWebID(form, field),
+							application.getI18NMessageIfPrefixed(field.getText()), list);
 					}
 					else
 					{
-						scriptable = new RuntimeCheckBoxChoice(jsChangeRecorder, application);
-						fl = application.getItemFactory().createDataChoice((RuntimeCheckBoxChoice)scriptable, getWebID(form, field), list, false);
+						scriptable = so = new RuntimeCheckBoxChoice(jsChangeRecorder, application);
+						fl = application.getItemFactory().createDataChoice((RuntimeCheckBoxChoice)so, getWebID(form, field), list, false);
 						if (fl instanceof IScrollPane)
 						{
 							applyScrollBarsProperty((IScrollPane)fl, field);
@@ -1296,101 +1230,117 @@ public class ComponentFactory
 				}
 				else
 				{
-					scriptable = new RuntimeCheckbox(jsChangeRecorder, application);
-					fl = application.getItemFactory().createSelectBox(scriptable, getWebID(form, field), application.getI18NMessageIfPrefixed(field.getText()),
-						null, false);
+					scriptable = so = new RuntimeCheckbox(jsChangeRecorder, application);
+					fl = application.getItemFactory().createCheckBox((RuntimeCheckbox)so, getWebID(form, field),
+						application.getI18NMessageIfPrefixed(field.getText()), null);
 				}
-				scriptable.setComponent(fl);
+				so.setComponent(fl);
 			}
 				break;
+
 			case Field.RADIOS :
 			{
-				AbstractRuntimeValuelistComponent<IFieldComponent> scriptable;
-				IValueList list = getRealValueList(application, valuelist, true, type, format, field.getDataProviderID());
+				AbstractRuntimeValuelistComponent<IFieldComponent> so;
+				IValueList list = getRealValueList(application, valuelist, true, fieldFormat.dpType, fieldFormat.parsedFormat, field.getDataProviderID());
 				if (isSingleValue(valuelist, list))
 				{
-					scriptable = new RuntimeRadioButton(jsChangeRecorder, application);
-					fl = application.getItemFactory().createSelectBox(scriptable, getWebID(form, field), application.getI18NMessageIfPrefixed(field.getText()),
-						list, true);
+					scriptable = so = new RuntimeRadioButton(jsChangeRecorder, application);
+					fl = application.getItemFactory().createRadioButton((RuntimeRadioButton)so, getWebID(form, field),
+						application.getI18NMessageIfPrefixed(field.getText()), list);
 				}
 				else
 				{
-					scriptable = new RuntimeRadioChoice(jsChangeRecorder, application);
-					fl = application.getItemFactory().createDataChoice((RuntimeRadioChoice)scriptable, getWebID(form, field), list, true);
+					scriptable = so = new RuntimeRadioChoice(jsChangeRecorder, application);
+					fl = application.getItemFactory().createDataChoice((RuntimeRadioChoice)so, getWebID(form, field), list, true);
 					if (fl instanceof IScrollPane)
 					{
 						applyScrollBarsProperty((IScrollPane)fl, field);
 					}
 				}
-				scriptable.setComponent(fl);
+				so.setComponent(fl);
 			}
 				break;
+
 			case Field.COMBOBOX :
 			{
-				RuntimeDataCombobox scriptable = new RuntimeDataCombobox(jsChangeRecorder, application);
-				IValueList list = getRealValueList(application, valuelist, true, type, format, field.getDataProviderID());
-				fl = application.getItemFactory().createDataComboBox(scriptable, getWebID(form, field), list);
-				scriptable.setComponent(fl);
+				RuntimeDataCombobox so;
+				scriptable = so = new RuntimeDataCombobox(jsChangeRecorder, application);
+				IValueList list = getRealValueList(application, valuelist, true, fieldFormat.dpType, fieldFormat.parsedFormat, field.getDataProviderID());
+				fl = application.getItemFactory().createDataComboBox(so, getWebID(form, field), list);
+				so.setComponent(fl);
 			}
 				break;
 
 			case Field.CALENDAR :
 			{
-				RuntimeDataCalendar scriptable = new RuntimeDataCalendar(jsChangeRecorder, application);
-				fl = application.getItemFactory().createDataCalendar(scriptable, getWebID(form, field));
-				scriptable.setComponent(fl);
+				RuntimeDataCalendar so;
+				scriptable = so = new RuntimeDataCalendar(jsChangeRecorder, application);
+				fl = application.getItemFactory().createDataCalendar(so, getWebID(form, field));
+				so.setComponent(fl);
 			}
 				break;
 
 			case Field.IMAGE_MEDIA :
 			{
-				RuntimeMediaField scriptable = new RuntimeMediaField(jsChangeRecorder, application);
-				fl = application.getItemFactory().createDataImgMediaField(scriptable, getWebID(form, field));
+				RuntimeMediaField so;
+				scriptable = so = new RuntimeMediaField(jsChangeRecorder, application);
+				fl = application.getItemFactory().createDataImgMediaField(so, getWebID(form, field));
 				if (fl instanceof IScrollPane)
 				{
 					applyScrollBarsProperty((IScrollPane)fl, field);
 				}
-				scriptable.setComponent(fl);
+				so.setComponent(fl);
 			}
 				break;
+
 			case Field.TYPE_AHEAD :
 				if (field.getValuelistID() > 0)
 				{
-					fl = createTypeAheadWithValueList(application, form, field, dataProviderLookup, type, format, jsChangeRecorder);
+					fl = createTypeAheadWithValueList(application, form, field, dataProviderLookup, fieldFormat.dpType, fieldFormat.parsedFormat,
+						jsChangeRecorder);
+					if (fl == null) return null;
+					scriptable = (AbstractRuntimeField< ? extends IFieldComponent>)fl.getScriptObject();
 					break;
 				}
 				if (dp != null && dp.getColumnWrapper() != null && dp.getColumnWrapper().getRelations() == null)//only allow plain columns
 				{
-					RuntimeDataLookupField scriptable = new RuntimeDataLookupField(jsChangeRecorder, application);
-					fl = application.getItemFactory().createDataLookupField(scriptable, getWebID(form, field), form.getServerName(), form.getTableName(),
+					RuntimeDataLookupField so;
+					scriptable = so = new RuntimeDataLookupField(jsChangeRecorder, application);
+					fl = application.getItemFactory().createDataLookupField(so, getWebID(form, field), form.getServerName(), form.getTableName(),
 						dp == null ? field.getDataProviderID() : dp.getDataProviderID());
-					scriptable.setComponent(fl);
+					so.setComponent(fl);
 					break;
 				}
+
 				//$FALL-THROUGH$
 			case Field.LIST_BOX :
 			case Field.MULTI_SELECTION_LIST_BOX :
 			{
 				boolean multiSelect = (field.getDisplayType() == Field.MULTI_SELECTION_LIST_BOX);
-				RuntimeListBox scriptable = new RuntimeListBox(jsChangeRecorder, application, multiSelect);
-				IValueList list = getRealValueList(application, valuelist, true, type, format, field.getDataProviderID());
-				fl = application.getItemFactory().createListBox(scriptable, getWebID(form, field), list, multiSelect);
-				scriptable.setComponent(fl);
+				RuntimeListBox so;
+				scriptable = so = new RuntimeListBox(jsChangeRecorder, application, multiSelect);
+				IValueList list = getRealValueList(application, valuelist, true, fieldFormat.dpType, fieldFormat.parsedFormat, field.getDataProviderID());
+				fl = application.getItemFactory().createListBox(so, getWebID(form, field), list, multiSelect);
+				so.setComponent(fl);
 			}
 				break;
-			//$FALL-THROUGH$ else treat as the default case: TEXT_FIELD
+
+			// else treat as the default case: TEXT_FIELD
 			default ://Field.TEXT_FIELD 
 				if (field.getValuelistID() > 0)
 				{
-					fl = createTypeAheadWithValueList(application, form, field, dataProviderLookup, type, format, jsChangeRecorder);
+					fl = createTypeAheadWithValueList(application, form, field, dataProviderLookup, fieldFormat.dpType, fieldFormat.parsedFormat,
+						jsChangeRecorder);
+					if (fl == null) return null;
+					scriptable = (AbstractRuntimeField< ? extends IFieldComponent>)fl.getScriptObject();
 				}
 				else
 				{
-					RuntimeDataField scriptable = new RuntimeDataField(jsChangeRecorder, application);
-					fl = application.getItemFactory().createDataField(scriptable, getWebID(form, field));
-					scriptable.setComponent(fl);
+					RuntimeDataField so;
+					scriptable = so = new RuntimeDataField(jsChangeRecorder, application);
+					fl = application.getItemFactory().createDataField(so, getWebID(form, field));
+					so.setComponent(fl);
 				}
-				break;
 		}
 
 		if (fl instanceof ISupportAsyncLoading)
@@ -1420,13 +1370,16 @@ public class ComponentFactory
 		fl.setDataProviderID(dp == null ? field.getDataProviderID() : dp.getDataProviderID());
 		if (field.getDataProviderID() != null && dataProviderLookup != null)
 		{
-			fl.setFormat(type, application.getI18NMessageIfPrefixed(format));
+			if (scriptable instanceof IRuntimeFormatComponent)
+			{
+				((IRuntimeFormatComponent)scriptable).setComponentFormat(fieldFormat);
+			}
 
 			if (dp != null)
 			{
 				//if (valuelist != null && valuelist.getValueListType() != ValueList.CUSTOM_VALUES) type = valuelist.getDisplayValueType();
 				int l = dp.getLength();
-				int defaultType = Column.mapToDefaultType(type);
+				int defaultType = Column.mapToDefaultType(fieldFormat.dpType);
 				if (l > 0 && (defaultType == IColumnTypes.TEXT || defaultType == IColumnTypes.MEDIA))
 				{
 					fl.setMaxLength(l);
@@ -1463,17 +1416,12 @@ public class ComponentFactory
 		if (onRenderMethodID <= 0) onRenderMethodID = form.getOnRenderMethodID();
 		if (onRenderMethodID > 0)
 		{
-			IScriptable scriptable = fl.getScriptObject();
+			RenderEventExecutor renderEventExecutor = scriptable.getRenderEventExecutor();
+			renderEventExecutor.setRenderCallback(Integer.toString(onRenderMethodID));
 
-			if (scriptable instanceof ISupportOnRenderCallback)
-			{
-				RenderEventExecutor renderEventExecutor = ((ISupportOnRenderCallback)scriptable).getRenderEventExecutor();
-				renderEventExecutor.setRenderCallback(Integer.toString(onRenderMethodID));
-
-				IForm rendererForm = application.getFormManager().getForm(form.getName());
-				IScriptExecuter rendererScriptExecuter = rendererForm instanceof FormController ? ((FormController)rendererForm).getScriptExecuter() : null;
-				renderEventExecutor.setRenderScriptExecuter(rendererScriptExecuter);
-			}
+			IForm rendererForm = application.getFormManager().getForm(form.getName());
+			IScriptExecuter rendererScriptExecuter = rendererForm instanceof FormController ? ((FormController)rendererForm).getScriptExecuter() : null;
+			renderEventExecutor.setRenderScriptExecuter(rendererScriptExecuter);
 		}
 
 
@@ -1548,7 +1496,7 @@ public class ComponentFactory
 	 * @return
 	 */
 	private static IFieldComponent createTypeAheadWithValueList(IApplication application, Form form, Field field, IDataProviderLookup dataProviderLookup,
-		int type, String format, IStylePropertyChangesRecorder jsChangeRecorder)
+		int type, ParsedFormat format, IStylePropertyChangesRecorder jsChangeRecorder)
 	{
 		RuntimeDataField scriptable;
 		IFieldComponent fl;
@@ -1597,7 +1545,7 @@ public class ComponentFactory
 	 * @param valuelist
 	 * @return
 	 */
-	private static IValueList getFallbackValueList(IApplication application, Field field, int type, String format, ValueList valuelist)
+	private static IValueList getFallbackValueList(IApplication application, Field field, int type, ParsedFormat format, ValueList valuelist)
 	{
 		IValueList valueList = null;
 		if (valuelist.getFallbackValueListID() > 0 && valuelist.getFallbackValueListID() != valuelist.getID())
@@ -1689,10 +1637,10 @@ public class ComponentFactory
 		}
 
 		ILabel l;
+		AbstractRuntimeLabel< ? extends ILabel> scriptable;
 		IStylePropertyChangesRecorder jsChangeRecorder = application.getItemFactory().createChangesRecorder();
 		if (label.getOnActionMethodID() != 0 && label.getShowClick())
 		{
-			AbstractRuntimeButton<IButton> scriptable;
 			IButton button;
 			if (label.getDataProviderID() == null && !label.getDisplaysTags())
 			{
@@ -1716,7 +1664,7 @@ public class ComponentFactory
 				((IDisplayTagText)button).setTagText(application.getI18NMessageIfPrefixed(label.getText()));
 				((IDisplayData)button).setNeedEntireState(label.getDisplaysTags());
 			}
-			scriptable.setComponent(button);
+			((AbstractRuntimeButton<IButton>)scriptable).setComponent(button);
 			button.setMediaOption(label.getMediaOptions());
 			if (label.getRolloverImageMediaID() > 0)
 			{
@@ -1734,7 +1682,6 @@ public class ComponentFactory
 		}
 		else
 		{
-			AbstractHTMLSubmitRuntimeLabel<ILabel> scriptable;
 			if (label.getDataProviderID() == null && !label.getDisplaysTags())
 			{
 				scriptable = new RuntimeScriptLabel(jsChangeRecorder, application);
@@ -1757,7 +1704,7 @@ public class ComponentFactory
 				((IDisplayTagText)l).setTagText(application.getI18NMessageIfPrefixed(label.getText()));
 				((IDisplayData)l).setNeedEntireState(label.getDisplaysTags());
 			}
-			scriptable.setComponent(l);
+			((AbstractHTMLSubmitRuntimeLabel<ILabel>)scriptable).setComponent(l);
 			l.setMediaOption(label.getMediaOptions());
 			if (label.getRolloverImageMediaID() > 0)
 			{
@@ -1794,17 +1741,12 @@ public class ComponentFactory
 			if (onRenderMethodID <= 0) onRenderMethodID = form.getOnRenderMethodID();
 			if (onRenderMethodID > 0)
 			{
-				IScriptable scriptable = l.getScriptObject();
+				RenderEventExecutor renderEventExecutor = scriptable.getRenderEventExecutor();
+				renderEventExecutor.setRenderCallback(Integer.toString(onRenderMethodID));
 
-				if (scriptable instanceof ISupportOnRenderCallback)
-				{
-					RenderEventExecutor renderEventExecutor = ((ISupportOnRenderCallback)scriptable).getRenderEventExecutor();
-					renderEventExecutor.setRenderCallback(Integer.toString(onRenderMethodID));
-
-					IForm rendererForm = application.getFormManager().getForm(form.getName());
-					IScriptExecuter rendererScriptExecuter = rendererForm instanceof FormController ? ((FormController)rendererForm).getScriptExecuter() : null;
-					renderEventExecutor.setRenderScriptExecuter(rendererScriptExecuter);
-				}
+				IForm rendererForm = application.getFormManager().getForm(form.getName());
+				IScriptExecuter rendererScriptExecuter = rendererForm instanceof FormController ? ((FormController)rendererForm).getScriptExecuter() : null;
+				renderEventExecutor.setRenderScriptExecuter(rendererScriptExecuter);
 			}
 		}
 
@@ -1875,11 +1817,9 @@ public class ComponentFactory
 
 		if (label.getDataProviderID() != null)
 		{
-			Pair<String, Integer> fieldFormat = getComponentFormat(label.getFormat(), label.getDataProviderID(), dataProviderLookup, application);
-			String format = fieldFormat.getLeft();
-			int type = fieldFormat.getRight();
-			l.setFormat(type, format);
+			scriptable.setComponentFormat(ComponentFormat.getComponentFormat(label.getFormat(), label.getDataProviderID(), dataProviderLookup, application));
 		}
+
 		applyBasicComponentProperties(application, l, label, styleInfo);
 
 		Border border = null;
@@ -2420,16 +2360,13 @@ public class ComponentFactory
 
 	public static boolean isSingleValue(ValueList valuelist, IValueList list)
 	{
-		if (list != null && valuelist != null)
-		{
-			return !(valuelist.getValueListType() == ValueList.DATABASE_VALUES && valuelist.getDatabaseValuesType() == ValueList.RELATED_VALUES) &&
-				(list.getSize() == 1) && (valuelist.getAddEmptyValue() != ValueList.EMPTY_VALUE_ALWAYS);
-		}
-		return false;
+		return list != null && valuelist != null &&
+			!(valuelist.getValueListType() == ValueList.DATABASE_VALUES && valuelist.getDatabaseValuesType() == ValueList.RELATED_VALUES) &&
+			list.getSize() == 1 && valuelist.getAddEmptyValue() != ValueList.EMPTY_VALUE_ALWAYS;
 	}
 
 	public static boolean isButton(GraphicalComponent label)
 	{
-		return (label.getOnActionMethodID() != 0) && label.getShowClick();
+		return label.getOnActionMethodID() != 0 && label.getShowClick();
 	}
 }

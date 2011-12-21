@@ -24,13 +24,13 @@ import javax.swing.Icon;
 import javax.swing.text.Document;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.ui.IDisplayTagText;
 import com.servoy.j2db.ui.scripting.RuntimeDataButton;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.FormatParser;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Text;
 
@@ -152,9 +152,10 @@ public class DataButton extends AbstractScriptButton implements IDisplayData, ID
 				{
 					try
 					{
+						ComponentFormat cf = getScriptObject().getComponentFormat();
 						setText(Text.processTags(
-							obj != null ? TagResolver.formatObject(obj, fp, (fp.getDisplayFormat() != null ? new ServoyMaskFormatter(fp.getDisplayFormat(),
-								true) : null)) : "", resolver));
+							obj != null ? TagResolver.formatObject(obj, cf.parsedFormat, (cf.parsedFormat.getDisplayFormat() != null ? new ServoyMaskFormatter(
+								cf.parsedFormat.getDisplayFormat(), true) : null)) : "", resolver));
 					}
 					catch (ParseException e)
 					{
@@ -185,9 +186,11 @@ public class DataButton extends AbstractScriptButton implements IDisplayData, ID
 				}
 				else
 				{
+					ComponentFormat cf = getScriptObject().getComponentFormat();
 					try
 					{
-						setText(TagResolver.formatObject(obj, fp, (fp.getDisplayFormat() != null ? new ServoyMaskFormatter(fp.getDisplayFormat(), true) : null)));
+						setText(TagResolver.formatObject(obj, cf.parsedFormat, (cf.parsedFormat.getDisplayFormat() != null ? new ServoyMaskFormatter(
+							cf.parsedFormat.getDisplayFormat(), true) : null)));
 					}
 					catch (ParseException e)
 					{
@@ -242,12 +245,6 @@ public class DataButton extends AbstractScriptButton implements IDisplayData, ID
 		//ignore
 	}
 
-	@Override
-	public String getFormat()
-	{
-		return fp.getFormat();
-	}
-
 	public void notifyLastNewValueWasChange(Object oldVal, Object newVal)
 	{
 		//ignore
@@ -276,21 +273,5 @@ public class DataButton extends AbstractScriptButton implements IDisplayData, ID
 	public boolean stopUIEditing(boolean looseFocus)
 	{
 		return true;
-	}
-
-	private int dataType;
-	protected final FormatParser fp = new FormatParser();
-
-	@Override
-	public int getDataType()
-	{
-		return dataType;
-	}
-
-	@Override
-	public void setFormat(int dataType, String format)
-	{
-		this.dataType = dataType;
-		fp.setFormat(format);
 	}
 }

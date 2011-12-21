@@ -45,8 +45,8 @@ import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.ui.ItemFactory;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeScrollableValuelistComponent;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeTextEditor;
-import com.servoy.j2db.ui.scripting.AbstractRuntimeValuelistComponent;
 import com.servoy.j2db.ui.scripting.RuntimeAccordionPanel;
+import com.servoy.j2db.ui.scripting.RuntimeCheckbox;
 import com.servoy.j2db.ui.scripting.RuntimeDataButton;
 import com.servoy.j2db.ui.scripting.RuntimeDataCalendar;
 import com.servoy.j2db.ui.scripting.RuntimeDataCombobox;
@@ -57,6 +57,7 @@ import com.servoy.j2db.ui.scripting.RuntimeDataPassword;
 import com.servoy.j2db.ui.scripting.RuntimeListBox;
 import com.servoy.j2db.ui.scripting.RuntimeMediaField;
 import com.servoy.j2db.ui.scripting.RuntimePortal;
+import com.servoy.j2db.ui.scripting.RuntimeRadioButton;
 import com.servoy.j2db.ui.scripting.RuntimeRectangle;
 import com.servoy.j2db.ui.scripting.RuntimeScriptButton;
 import com.servoy.j2db.ui.scripting.RuntimeScriptLabel;
@@ -228,26 +229,18 @@ public class SwingItemFactory implements ItemFactory
 		return dta;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.ItemFactory#createDataCheckBox(java.lang.String, com.servoy.j2db.dataprocessing.IValueList)
-	 */
-	public IFieldComponent createSelectBox(AbstractRuntimeValuelistComponent<IFieldComponent> scriptable, String name, String text, IValueList list,
-		boolean isRadio)
+	public IFieldComponent createRadioButton(RuntimeRadioButton scriptable, String name, String text, IValueList list)
 	{
-		if (isRadio)
-		{
-			DataRadioButton rb = new DataRadioButton(application, scriptable, text, list);
-			rb.setName(name);
-			return rb;
-		}
-		else
-		{
-			DataCheckBox dcb = new DataCheckBox(application, scriptable, text, list);
-			dcb.setName(name);
-			return dcb;
-		}
+		DataRadioButton rb = new DataRadioButton(application, scriptable, text, list);
+		rb.setName(name);
+		return rb;
+	}
+
+	public IFieldComponent createCheckBox(RuntimeCheckbox scriptable, String name, String text, IValueList list)
+	{
+		DataCheckBox dcb = new DataCheckBox(application, scriptable, text, list);
+		dcb.setName(name);
+		return dcb;
 	}
 
 	/*

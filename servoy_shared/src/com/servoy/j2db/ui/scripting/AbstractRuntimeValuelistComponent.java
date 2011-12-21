@@ -28,6 +28,7 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IScriptValuelistMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.ISupportValueList;
+import com.servoy.j2db.util.FormatParser.ParsedFormat;
 
 /**
  * Abstract scriptable component with valuelist support.
@@ -66,7 +67,7 @@ public abstract class AbstractRuntimeValuelistComponent<C extends IFieldComponen
 				ValueList valuelist = application.getFlattenedSolution().getValueList(name);
 				if (valuelist != null && valuelist.getValueListType() == ValueList.CUSTOM_VALUES)
 				{
-					String format = null;
+					ParsedFormat format = null;
 					int type = 0;
 					if (list instanceof CustomValueList)
 					{

@@ -18,7 +18,9 @@
 package com.servoy.j2db.ui.scripting;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.ui.IFieldComponent;
+import com.servoy.j2db.ui.IFormattingComponent;
 import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptCheckBoxMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
@@ -29,8 +31,10 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
  * @author lvostinar	
  * @since 6.0
  */
-public class RuntimeCheckbox extends AbstractRuntimeValuelistComponent<IFieldComponent> implements IScriptCheckBoxMethods
+public class RuntimeCheckbox extends AbstractRuntimeValuelistComponent<IFieldComponent> implements IScriptCheckBoxMethods, IRuntimeFormatComponent
 {
+	private ComponentFormat componentFormat;
+
 	public RuntimeCheckbox(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
 		super(jsChangeRecorder, application);
@@ -39,5 +43,19 @@ public class RuntimeCheckbox extends AbstractRuntimeValuelistComponent<IFieldCom
 	public String js_getElementType()
 	{
 		return IScriptBaseMethods.CHECK;
+	}
+
+	public void setComponentFormat(ComponentFormat componentFormat)
+	{
+		this.componentFormat = componentFormat;
+		if (componentFormat != null && getComponent() instanceof IFormattingComponent)
+		{
+			((IFormattingComponent)getComponent()).installFormat(componentFormat.uiType, componentFormat.parsedFormat.getFormatString());
+		}
+	}
+
+	public ComponentFormat getComponentFormat()
+	{
+		return componentFormat;
 	}
 }

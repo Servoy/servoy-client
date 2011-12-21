@@ -815,19 +815,4 @@ public abstract class AbstractScriptButton extends JButton implements ISkinnable
 	{
 		return getMnemonic();
 	}
-
-	public int getDataType()
-	{
-		return 0;
-	}
-
-	public String getFormat()
-	{
-		return null;
-	}
-
-	public void setFormat(int dataType, String format)
-	{
-
-	}
 }

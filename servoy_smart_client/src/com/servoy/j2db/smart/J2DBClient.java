@@ -1114,7 +1114,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 				getPluginManager().init();
 				((PluginManager)getPluginManager()).initClientPlugins(J2DBClient.this, (IClientPluginAccess)getPluginAccess());
 				((FoundSetManager)getFoundSetManager()).setColumnManangers(getPluginManager().getColumnValidatorManager(),
-					getPluginManager().getColumnConverterManager());
+					getPluginManager().getColumnConverterManager(), getPluginManager().getUIConverterManager());
 			}
 		});
 	}

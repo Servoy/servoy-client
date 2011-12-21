@@ -49,8 +49,8 @@ import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.ui.ItemFactory;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeScrollableValuelistComponent;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeTextEditor;
-import com.servoy.j2db.ui.scripting.AbstractRuntimeValuelistComponent;
 import com.servoy.j2db.ui.scripting.RuntimeAccordionPanel;
+import com.servoy.j2db.ui.scripting.RuntimeCheckbox;
 import com.servoy.j2db.ui.scripting.RuntimeDataButton;
 import com.servoy.j2db.ui.scripting.RuntimeDataCalendar;
 import com.servoy.j2db.ui.scripting.RuntimeDataCombobox;
@@ -61,6 +61,7 @@ import com.servoy.j2db.ui.scripting.RuntimeDataPassword;
 import com.servoy.j2db.ui.scripting.RuntimeListBox;
 import com.servoy.j2db.ui.scripting.RuntimeMediaField;
 import com.servoy.j2db.ui.scripting.RuntimePortal;
+import com.servoy.j2db.ui.scripting.RuntimeRadioButton;
 import com.servoy.j2db.ui.scripting.RuntimeRectangle;
 import com.servoy.j2db.ui.scripting.RuntimeScriptButton;
 import com.servoy.j2db.ui.scripting.RuntimeScriptLabel;
@@ -158,17 +159,14 @@ public class WebItemFactory implements ItemFactory
 		return new WebDataCalendar(application, scriptable, name);
 	}
 
-	public IFieldComponent createSelectBox(AbstractRuntimeValuelistComponent<IFieldComponent> scriptable, String name, String text, IValueList list,
-		boolean isRadio)
+	public IFieldComponent createCheckBox(RuntimeCheckbox scriptable, String name, String text, IValueList list)
 	{
-		if (isRadio)
-		{
-			return new WebDataRadioButton(application, scriptable, name, text, list);
-		}
-		else
-		{
-			return new WebDataCheckBox(application, scriptable, name, text, list);
-		}
+		return new WebDataCheckBox(application, scriptable, name, text, list);
+	}
+
+	public IFieldComponent createRadioButton(RuntimeRadioButton scriptable, String name, String text, IValueList list)
+	{
+		return new WebDataRadioButton(application, scriptable, name, text, list);
 	}
 
 	public IFieldComponent createDataChoice(AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent> scriptable, String name, IValueList list,

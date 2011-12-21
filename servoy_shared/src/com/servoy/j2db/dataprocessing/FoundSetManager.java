@@ -2036,23 +2036,31 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		}
 	}
 
-	public void setColumnManangers(IColumnValidatorManager columnValidatorManager, IColumnConverterManager columnConverterManager)
+	public void setColumnManangers(IColumnValidatorManager columnValidatorManager, IConverterManager<IColumnConverter> columnConverterManager,
+		IConverterManager<IUIConverter> uiConverterManager)
 	{
 		this.columnValidatorManager = columnValidatorManager;
 		this.columnConverterManager = columnConverterManager;
+		this.uiConverterManager = uiConverterManager;
 	}
 
 	private IColumnValidatorManager columnValidatorManager;
-	private IColumnConverterManager columnConverterManager;
+	private IConverterManager<IColumnConverter> columnConverterManager;
+	private IConverterManager<IUIConverter> uiConverterManager;
 
 	public IColumnValidatorManager getColumnValidatorManager()
 	{
 		return columnValidatorManager;
 	}
 
-	public IColumnConverterManager getColumnConverterManager()
+	public IConverterManager<IColumnConverter> getColumnConverterManager()
 	{
 		return columnConverterManager;
+	}
+
+	public IConverterManager<IUIConverter> getUIConverterManager()
+	{
+		return uiConverterManager;
 	}
 
 	private boolean nullColumnValidatorEnabled = true;

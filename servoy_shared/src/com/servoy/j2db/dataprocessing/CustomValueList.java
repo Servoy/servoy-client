@@ -30,6 +30,7 @@ import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.FormatParser.ParsedFormat;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.Utils;
@@ -155,7 +156,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 	protected boolean allowEmptySelection = false;
 	private int valueType;
 	private List<String> dataproviders;
-	private String format;
+	private ParsedFormat format;
 
 	protected IValueList fallbackValueList;
 
@@ -173,7 +174,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 		return allowEmptySelection;
 	}
 
-	public CustomValueList(IServiceProvider application, ValueList valueList, String values, boolean addEmpty, int valueType, String format)
+	public CustomValueList(IServiceProvider application, ValueList valueList, String values, boolean addEmpty, int valueType, ParsedFormat format)
 	{
 		this(application, valueList);
 		this.valueType = valueType;
@@ -277,7 +278,8 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 
 								try
 								{
-									realValue = Column.getAsRightType(valueType, Column.NORMAL_COLUMN, realValue, format, Integer.MAX_VALUE, null, true);
+									realValue = Column.getAsRightType(valueType, Column.NORMAL_COLUMN, realValue,
+										format == null ? null : format.getDisplayFormat(), Integer.MAX_VALUE, null, true);
 								}
 								catch (RuntimeException ex)
 								{
@@ -310,7 +312,8 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 									Object value;
 									try
 									{
-										value = Column.getAsRightType(valueType, Column.NORMAL_COLUMN, strval, format, Integer.MAX_VALUE, null, true);
+										value = Column.getAsRightType(valueType, Column.NORMAL_COLUMN, strval,
+											format == null ? null : format.getDisplayFormat(), Integer.MAX_VALUE, null, true);
 									}
 									catch (Exception e)
 									{
@@ -381,7 +384,8 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 					}
 					if (realValues == null)
 					{
-						o = Column.getAsRightType(valueType, Column.NORMAL_COLUMN, o, format, Integer.MAX_VALUE, null, true);
+						o = Column.getAsRightType(valueType, Column.NORMAL_COLUMN, o, format == null ? null : format.getDisplayFormat(), Integer.MAX_VALUE,
+							null, true);
 					}
 					super.addElement(o);
 				}
@@ -408,7 +412,8 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 		{
 			if (valueType != Types.OTHER && Column.mapToDefaultType(valueType) != IColumnTypes.MEDIA)
 			{
-				obj = Column.getAsRightType(valueType, Column.NORMAL_COLUMN, obj, format, Integer.MAX_VALUE, null, false);
+				obj = Column.getAsRightType(valueType, Column.NORMAL_COLUMN, obj, format == null ? null : format.getDisplayFormat(), Integer.MAX_VALUE, null,
+					false);
 			}
 			newRrealValues.add(obj);
 		}
@@ -446,7 +451,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 		{
 			if (obj instanceof Date && format != null && valueType == IColumnTypes.DATETIME)
 			{
-				SimpleDateFormat sfsd = new SimpleDateFormat(format);
+				SimpleDateFormat sfsd = new SimpleDateFormat(format.getDisplayFormat());
 				String selectedFormat = sfsd.format(obj);
 				for (int i = 0; i < size(); i++)
 				{
@@ -699,7 +704,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 		return valueList == null ? "<unknown>" : valueList.getName();
 	}
 
-	public String getFormat()
+	public ParsedFormat getFormat()
 	{
 		return format;
 	}

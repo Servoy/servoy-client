@@ -48,19 +48,19 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.SortColumn;
-import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
-import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
+import com.servoy.j2db.ui.IFormattingComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
@@ -68,7 +68,6 @@ import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.scripting.RuntimeDataCombobox;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.FormatParser;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.RoundHalfUpDecimalFormat;
 import com.servoy.j2db.util.ScopesUtils;
@@ -83,7 +82,7 @@ import com.servoy.j2db.util.Utils;
  */
 @SuppressWarnings("nls")
 public class WebDataComboBox extends DropDownChoice implements IFieldComponent, IDisplayData, IDisplayRelatedData, IProviderStylePropertyChanges,
-	ISupportWebBounds, IRightClickListener, IScriptableProvider, ISupportValueList
+	ISupportWebBounds, IRightClickListener, ISupportValueList, IFormattingComponent
 {
 	private static final long serialVersionUID = 1L;
 
@@ -92,9 +91,6 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	private final WebComboModelListModelWrapper list;
 	private final WebEventExecutor eventExecutor;
 
-	private int dataType;
-
-	private final FormatParser parsedFormat;
 //	private String completeFormat;
 //	protected String displayFormat;
 	protected IConverter converter;
@@ -118,7 +114,6 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	public WebDataComboBox(IApplication application, RuntimeDataCombobox scriptable, String name, IValueList valueList)
 	{
 		super(name);
-		this.parsedFormat = new FormatParser();
 		this.application = application;
 		this.valueList = valueList;
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
@@ -811,21 +806,22 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	{
 		if (converter != null) return converter;
 
-		int mappedDataType = Column.mapToDefaultType(dataType);
-		if (mappedDataType == IColumnTypes.DATETIME)
+		ComponentFormat cf = getScriptObject().getComponentFormat();
+		switch (cf.uiType)
 		{
-			StateFullSimpleDateFormat displayFormatter = new StateFullSimpleDateFormat(parsedFormat.getDisplayFormat(), /* getClientTimeZone() */null,
-				application.getLocale(), true);
-			converter = new FormatConverter(this, eventExecutor, displayFormatter, parsedFormat);
-		}
-		else if (mappedDataType == IColumnTypes.INTEGER || mappedDataType == IColumnTypes.NUMBER)
-		{
-			RoundHalfUpDecimalFormat displayFormatter = new RoundHalfUpDecimalFormat(parsedFormat.getDisplayFormat(), application.getLocale());
-			converter = new FormatConverter(this, eventExecutor, displayFormatter, parsedFormat);
-		}
-		else
-		{
-			return super.getConverter(cls);
+			case IColumnTypes.DATETIME :
+				converter = new FormatConverter(this, eventExecutor, new StateFullSimpleDateFormat(cf.parsedFormat.getDisplayFormat(), /* getClientTimeZone() */
+				null, application.getLocale(), true), cf.parsedFormat);
+				break;
+
+			case IColumnTypes.INTEGER :
+			case IColumnTypes.NUMBER :
+				converter = new FormatConverter(this, eventExecutor, new RoundHalfUpDecimalFormat(cf.parsedFormat.getDisplayFormat(), application.getLocale()),
+					cf.parsedFormat);
+				break;
+
+			default :
+				return super.getConverter(cls);
 		}
 		return converter;
 	}
@@ -833,34 +829,19 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	/*
 	 * format---------------------------------------------------
 	 */
-	public void setFormat(int type, String format)
+	public void installFormat(int type, String format)
 	{
-		this.dataType = type;
-
-		getStylePropertyChanges().setChanged();
 		converter = null;
 		if (format != null && format.length() != 0)
 		{
-			parsedFormat.setFormat(format);
-			if (parsedFormat.hasEditFormat())
+			if (getScriptObject().getComponentFormat().parsedFormat.hasEditFormat())
 			{
 				Debug.log("WARNING Display and Edit formats are not used in browser comboboxes. Such browser controls do not support editing"); //$NON-NLS-1$
 			}
 		}
 	}
 
-	public String getFormat()
-	{
-		return parsedFormat.getFormat();
-	}
-
 	private List<ILabel> labels;
-
-	public int getDataType()
-	{
-		return dataType;
-	}
-
 
 	/*
 	 * visible---------------------------------------------------

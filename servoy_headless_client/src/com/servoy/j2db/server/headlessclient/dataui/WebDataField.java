@@ -63,12 +63,12 @@ import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.ISupportTextSetup;
-import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.mask.MaskBehavior;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
+import com.servoy.j2db.ui.IFormattingComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
@@ -80,6 +80,7 @@ import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
 import com.servoy.j2db.ui.scripting.RuntimeDataField;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FormatParser;
+import com.servoy.j2db.util.FormatParser.ParsedFormat;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.RoundHalfUpDecimalFormat;
 import com.servoy.j2db.util.StateFullSimpleDateFormat;
@@ -94,7 +95,7 @@ import com.servoy.j2db.util.gui.FixedMaskFormatter;
  * @author jcompagner
  */
 public class WebDataField extends TextField<Object> implements IFieldComponent, IDisplayData, IProviderStylePropertyChanges, ISupportWebBounds,
-	IRightClickListener, ISupportValueList, ISupportInputSelection, ISupportSpecialClientProperty, IScriptableProvider
+	IRightClickListener, ISupportValueList, ISupportInputSelection, ISupportSpecialClientProperty, IFormattingComponent
 {
 	/**
 	 * @author jcompagner
@@ -127,7 +128,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 			sb.append("','");
 			sb.append(dfs.getPercent());
 			sb.append("',this,");
-			sb.append((parsedFormat.getMaxLength() == null ? -1 : parsedFormat.getMaxLength().intValue()));
+			sb.append(parsedFormat.getMaxLength() == null ? -1 : parsedFormat.getMaxLength().intValue());
 			sb.append(");");
 			return sb;
 		}
@@ -161,7 +162,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	private final WebEventExecutor eventExecutor;
 	private String inputId;
 
-	protected final FormatParser parsedFormat;
+	protected ParsedFormat parsedFormat = FormatParser.parseFormatString(null, null, null);
 
 //	private String completeFormat;
 //	private String editFormat;
@@ -186,7 +187,6 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	{
 		super(id);
 		this.horizontalAlignment = ISupportTextSetup.LEFT;
-		this.parsedFormat = new FormatParser();
 		this.application = application;
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		eventExecutor = new WebEventExecutor(this, useAJAX);
@@ -558,7 +558,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		}
 	}
 
-	public static IConverter getTextConverter(final FormatParser fp, final Locale l, final String name, final String dataProviderID)
+	public static IConverter getTextConverter(final ParsedFormat fp, final Locale l, final String name, final String dataProviderID)
 	{
 		if (fp.isAllUpperCase())
 		{
@@ -577,7 +577,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 				}
 			};
 		}
-		else if (fp.isAllLowerCase())
+		if (fp.isAllLowerCase())
 		{
 			return new IConverter()
 			{
@@ -594,7 +594,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 				}
 			};
 		}
-		else if (fp.getDisplayFormat() != null)
+		if (fp.getDisplayFormat() != null)
 		{
 			try
 			{
@@ -680,10 +680,9 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		{
 			boolean lenient = Boolean.TRUE.equals(UIUtils.getUIProperty(this.getScriptObject(), application, IApplication.DATE_FORMATTERS_LENIENT, Boolean.TRUE));
 			StateFullSimpleDateFormat displayFormatter = new StateFullSimpleDateFormat(displayFormat, null, application.getLocale(), lenient);
-			String eFormat = parsedFormat.getEditFormat();
 			if (!parsedFormat.isMask() && parsedFormat.getEditFormat() != null) //$NON-NLS-1$
 			{
-				StateFullSimpleDateFormat editFormatter = new StateFullSimpleDateFormat(eFormat, null, application.getLocale(), lenient);
+				StateFullSimpleDateFormat editFormatter = new StateFullSimpleDateFormat(parsedFormat.getEditFormat(), null, application.getLocale(), lenient);
 				converter = new FormatConverter(this, eventExecutor, displayFormatter, editFormatter, parsedFormat);
 			}
 			else
@@ -716,11 +715,6 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		return converter;
 	}
 
-	public int getDataType()
-	{
-		return this.dataType;
-	}
-
 	/**
 	 * @see org.apache.wicket.markup.html.form.FormComponent#shouldTrimInput()
 	 */
@@ -732,7 +726,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	}
 
 	@SuppressWarnings("nls")
-	public void setFormat(int type, String format)
+	public void installFormat(int type, String format)
 	{
 		int mappedType = Column.mapToDefaultType(type);
 		// only add type validators the first time (not when format is set through script)
@@ -769,7 +763,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		converter = null;
 		if (format != null && format.length() != 0)
 		{
-			parsedFormat.setFormat(format);
+			parsedFormat = FormatParser.parseFormatString(format, null, null);
 			if (formatAttributeModifier != null) remove(formatAttributeModifier);
 			if (parsedFormat.isAllUpperCase())
 			{
@@ -779,7 +773,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 			{
 				formatAttributeModifier = new ReadOnlyAndEnableTestAttributeModifier("onkeypress", "return Servoy.Validation.changeCase(this,event,false);");
 			}
-			else if (mappedType == IColumnTypes.DATETIME && parsedFormat.isMask()) //$NON-NLS-1$
+			else if (mappedType == IColumnTypes.DATETIME && parsedFormat.isMask())
 			{
 				String maskPattern = parsedFormat.getDateMask();
 				setType(Date.class);
@@ -807,11 +801,6 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 			if (formatAttributeModifier != null) add(formatAttributeModifier);
 
 		}
-	}
-
-	public String getFormat()
-	{
-		return parsedFormat.getFormat();
 	}
 
 	public Insets getMargin()

@@ -315,25 +315,6 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 		}
 	}
 
-	public void setFormat(int type, String format)
-	{
-		this.dataType = type;
-		this.format = format;
-	}
-
-	private int dataType;
-	private String format;
-
-	public String getFormat()
-	{
-		return format;
-	}
-
-	public int getDataType()
-	{
-		return dataType;
-	}
-
 	/**
 	 * @see com.servoy.j2db.ui.IFieldComponent#setMargin(java.awt.Insets)
 	 */

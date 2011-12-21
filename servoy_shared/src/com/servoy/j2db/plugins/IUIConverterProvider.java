@@ -14,20 +14,23 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
-package com.servoy.j2db.dataprocessing;
+package com.servoy.j2db.plugins;
 
-import java.util.Map;
+import com.servoy.j2db.dataprocessing.IUIConverter;
 
 /**
- * Manages converters
+ * Public interface for client plugins, implement if wanting to provide converters
  * 
- * @author jblok
+ * @author rgansevles
+ * 
+ * @since 6.1
  */
-public interface IColumnConverterManager
+public interface IUIConverterProvider
 {
-	public void registerConvertor(IColumnConverter validator);
-
-	public IColumnConverter getConverter(String name);
-
-	public Map<String, IColumnConverter> getConverters();
+	/**
+	 * Get all the defined converters
+	 * 
+	 * @return the converters
+	 */
+	IUIConverter[] getUIConverters();
 }

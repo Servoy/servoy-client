@@ -572,28 +572,6 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 
 	}
 
-	/*
-	 * format---------------------------------------------------
-	 */
-	public void setFormat(int type, String format)
-	{
-		this.dataType = type;
-		this.format = format;
-	}
-
-	public String getFormat()
-	{
-		return format;
-	}
-
-	private int dataType;
-	private String format;
-
-	public int getDataType()
-	{
-		return dataType;
-	}
-
 	private boolean editState;
 	private boolean editable = true;
 

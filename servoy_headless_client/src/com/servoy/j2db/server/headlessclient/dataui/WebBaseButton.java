@@ -87,7 +87,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	protected MediaResource icon;
 	private AttributeModifier enabledStyle;
 	private Media media;
-	private Dimension mediaSize;
+//	private Dimension mediaSize;
 	private Media rolloverMedia;
 	private String iconUrl;
 	private ResourceReference iconReference;
@@ -361,7 +361,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	public void setIcon(byte[] bs)
 	{
 		media = null;
-		mediaSize = null;
+//		mediaSize = null;
 		iconReference = null;
 		if (bs != null && bs.length != 0)
 		{
@@ -420,7 +420,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			remove(enabledStyle);
 			enabledStyle = null;
 		}
-		mediaSize = null;
+//		mediaSize = null;
 	}
 
 	/**
@@ -1248,20 +1248,5 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	public String getRolloverUrl()
 	{
 		return rolloverUrl;
-	}
-
-	public int getDataType()
-	{
-		return 0;
-	}
-
-	public String getFormat()
-	{
-		return null;
-	}
-
-	public void setFormat(int dataType, String format)
-	{
-
 	}
 }

@@ -30,10 +30,12 @@ import java.util.Map;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.J2DBGlobals;
+import com.servoy.j2db.dataprocessing.IBaseConverter;
 import com.servoy.j2db.dataprocessing.IColumnConverter;
-import com.servoy.j2db.dataprocessing.IColumnConverterManager;
 import com.servoy.j2db.dataprocessing.IColumnValidator;
 import com.servoy.j2db.dataprocessing.IColumnValidatorManager;
+import com.servoy.j2db.dataprocessing.IConverterManager;
+import com.servoy.j2db.dataprocessing.IUIConverter;
 import com.servoy.j2db.persistence.NameComparator;
 import com.servoy.j2db.plugins.IClientPlugin;
 import com.servoy.j2db.plugins.IClientPluginAccess;
@@ -43,6 +45,7 @@ import com.servoy.j2db.plugins.IPlugin;
 import com.servoy.j2db.plugins.IPluginManagerInternal;
 import com.servoy.j2db.plugins.IServerAccess;
 import com.servoy.j2db.plugins.IServerPlugin;
+import com.servoy.j2db.plugins.IUIConverterProvider;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ExtendableURLClassLoader;
 import com.servoy.j2db.util.JarManager;
@@ -318,36 +321,38 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 				}
 			}
 
-			columnConverterManager = new ColumnConverterManager();
+			columnConverterManager = new ConverterManager<IColumnConverter>();
+			uiConverterManager = new ConverterManager<IUIConverter>();
 			columnValidatorManager = new ColumnValidatorManager();
-			checkForConvertersAndValidators(columnConverterManager, columnValidatorManager);
+			checkForConvertersAndValidators(columnConverterManager, uiConverterManager, columnValidatorManager);
 		}
 	}
 
-	private IColumnConverterManager columnConverterManager;
+	private ConverterManager<IColumnConverter> columnConverterManager;
+	private ConverterManager<IUIConverter> uiConverterManager;
 	private IColumnValidatorManager columnValidatorManager;
 
-	public static class ColumnConverterManager implements IColumnConverterManager
+	public static class ConverterManager<T extends IBaseConverter> implements IConverterManager<T>
 	{
-		private final Map<String, IColumnConverter> converters = new HashMap<String, IColumnConverter>();//name -> converter
+		private final Map<String, T> converters = new HashMap<String, T>();//name -> converter
 
-		public IColumnConverter getConverter(String name)
+		public T getConverter(String name)
 		{
 			return converters.get(name);
 		}
 
-		public void registerConvertor(IColumnConverter converter)
+		public void registerConvertor(T converter)
 		{
 			Object obj = converters.put(converter.getName(), converter);
 			if (obj != null) Debug.log("Duplicate converter found: " + converter.getName()); //$NON-NLS-1$
 		}
 
-		public Map<String, IColumnConverter> getConverters()
+		public Map<String, T> getConverters()
 		{
 			return converters;
 		}
-
 	}
+
 	public static class ColumnValidatorManager implements IColumnValidatorManager
 	{
 		private final Map<String, IColumnValidator> validators = new HashMap<String, IColumnValidator>();//name -> validator
@@ -371,9 +376,14 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 
 	}
 
-	public IColumnConverterManager getColumnConverterManager()
+	public IConverterManager<IColumnConverter> getColumnConverterManager()
 	{
 		return columnConverterManager;
+	}
+
+	public IConverterManager<IUIConverter> getUIConverterManager()
+	{
+		return uiConverterManager;
 	}
 
 	public IColumnValidatorManager getColumnValidatorManager()
@@ -414,7 +424,8 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 		}
 	}
 
-	private void checkForConvertersAndValidators(IColumnConverterManager converterManager, IColumnValidatorManager validatorManager)
+	private void checkForConvertersAndValidators(IConverterManager<IColumnConverter> columnConverterMgr, IConverterManager<IUIConverter> uiConverterMgr,
+		IColumnValidatorManager validatorManager)
 	{
 		synchronized (initLock)
 		{
@@ -426,15 +437,31 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 				try
 				{
 					long now = System.currentTimeMillis();
-					if (plugin instanceof IColumnConverterProvider && converterManager != null)
+					if (plugin instanceof IColumnConverterProvider && columnConverterMgr != null)
 					{
 						IColumnConverter[] cons = ((IColumnConverterProvider)plugin).getColumnConverters();
 						if (cons != null)
 						{
 							for (IColumnConverter element2 : cons)
 							{
-								if (element2 == null) continue;
-								converterManager.registerConvertor(element2);
+								if (element2 != null)
+								{
+									columnConverterMgr.registerConvertor(element2);
+								}
+							}
+						}
+					}
+					if (plugin instanceof IUIConverterProvider && uiConverterMgr != null)
+					{
+						IUIConverter[] cons = ((IUIConverterProvider)plugin).getUIConverters();
+						if (cons != null)
+						{
+							for (IUIConverter element2 : cons)
+							{
+								if (element2 != null)
+								{
+									uiConverterMgr.registerConvertor(element2);
+								}
 							}
 						}
 					}
@@ -445,8 +472,10 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 						{
 							for (IColumnValidator element2 : vals)
 							{
-								if (element2 == null) continue;
-								validatorManager.registerValidator(element2);
+								if (element2 != null)
+								{
+									validatorManager.registerValidator(element2);
+								}
 							}
 						}
 					}

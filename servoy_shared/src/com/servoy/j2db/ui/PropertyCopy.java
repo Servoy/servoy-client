@@ -23,6 +23,7 @@ import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
+import com.servoy.j2db.ui.scripting.IRuntimeFormatComponent;
 
 /**
  * @author jblok
@@ -106,10 +107,6 @@ public class PropertyCopy
 		copy.setOpaque(org.isOpaque());
 		copy.setFont(org.getFont());
 
-		if (org instanceof IFieldComponent && copy instanceof IFieldComponent)
-		{
-			((IFieldComponent)copy).setFormat((((IFieldComponent)org).getDataType()), (((IFieldComponent)org).getFormat()));
-		}
 		if (org instanceof ILabel && copy instanceof ILabel)
 		{
 			((ILabel)copy).setMediaIcon(((ILabel)org).getMediaIcon());
@@ -120,6 +117,12 @@ public class PropertyCopy
 		{
 			IScriptable source = ((IScriptableProvider)org).getScriptObject();
 			IScriptable destination = ((IScriptableProvider)copy).getScriptObject();
+
+			if (source instanceof IRuntimeFormatComponent && destination instanceof IRuntimeFormatComponent)
+			{
+				((IRuntimeFormatComponent)destination).setComponentFormat(((IRuntimeFormatComponent)source).getComponentFormat());
+			}
+
 			//should we use another interface here for readonly set/get?
 			if (source instanceof IScriptReadOnlyMethods && destination instanceof IScriptReadOnlyMethods)
 			{

@@ -83,7 +83,7 @@ public class JSCalculation implements IJavaScriptType
 	{
 		if (js_isStored()) throw new RuntimeException("Can't alter variable type of the stored calculation " + scriptCalculation.getName());
 		checkModification();
-		scriptCalculation.setTypeAndCheck(type);
+		scriptCalculation.setTypeAndCheck(type, application);
 
 		TableScope tableScope;
 		try

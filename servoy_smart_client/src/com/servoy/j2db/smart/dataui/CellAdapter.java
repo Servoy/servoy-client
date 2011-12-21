@@ -106,6 +106,7 @@ import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.RenderEventExecutor;
+import com.servoy.j2db.ui.scripting.IRuntimeFormatComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FixedStyleSheet;
 import com.servoy.j2db.util.IDelegate;
@@ -1235,12 +1236,16 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			}
 			if (currentEditingState instanceof FindState)
 			{
-				((FindState)currentEditingState).setFormat(dataProviderID, displayData.getFormat());
+				if (displayData instanceof IScriptableProvider && ((IScriptableProvider)displayData).getScriptObject() instanceof IRuntimeFormatComponent &&
+					((IRuntimeFormatComponent)((IScriptableProvider)displayData).getScriptObject()).getComponentFormat() != null)
+				{
+					((FindState)currentEditingState).setFormat(dataProviderID,
+						((IRuntimeFormatComponent)((IScriptableProvider)displayData).getScriptObject()).getComponentFormat().parsedFormat);
+				}
 				currentEditingState.setValue(dataProviderID, obj);
 			}
 			else
 			{
-
 				if (!displayData.isValueValid() && Utils.equalObjects(lastInvalidValue, obj))
 				{
 					// already validated

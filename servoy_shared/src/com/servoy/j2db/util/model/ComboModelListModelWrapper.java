@@ -443,15 +443,6 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 		return listModel.getName();
 	}
 
-	public String getFormat()
-	{
-		if (listModel.getWrapped() instanceof CustomValueList)
-		{
-			return ((CustomValueList)listModel.getWrapped()).getFormat();
-		}
-		return null;
-	}
-
 	public int getValueType()
 	{
 		if (listModel.getWrapped() instanceof CustomValueList)

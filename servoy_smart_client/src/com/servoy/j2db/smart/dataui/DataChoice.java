@@ -381,25 +381,6 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		return super.getFont();
 	}
 
-	public int getDataType()
-	{
-		return dataType;
-	}
-
-	private int dataType;
-	private String format;
-
-	public void setFormat(int dataType, String format)
-	{
-		this.dataType = dataType;
-		this.format = format;
-	}
-
-	public String getFormat()
-	{
-		return format;
-	}
-
 	public Document getDocument()
 	{
 		return null;

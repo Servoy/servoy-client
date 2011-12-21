@@ -50,8 +50,6 @@ public interface IDisplayData extends IDisplay//for a dataprovider!
 
 	public Document getDocument();//for undo listener
 
-	public String getFormat();//needed to be able to format searches
-
 	public void notifyLastNewValueWasChange(Object oldVal, Object newVal);//to trigger onChangeMethod (not all displays have own property change impl)
 
 	public void setValueValid(boolean valid, Object oldVal); //should request focus and again during stopedit if valid == false

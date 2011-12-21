@@ -35,8 +35,7 @@ import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.server.headlessclient.MainPage;
-import com.servoy.j2db.ui.IFieldComponent;
-import com.servoy.j2db.ui.scripting.AbstractRuntimeValuelistComponent;
+import com.servoy.j2db.ui.scripting.RuntimeRadioButton;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Utils;
 
@@ -50,15 +49,20 @@ public class WebDataRadioButton extends WebBaseSelectBox
 {
 	private final IConverter converter = new RadioButtonConverter();
 
-	public WebDataRadioButton(IApplication application, AbstractRuntimeValuelistComponent<IFieldComponent> scriptable, String id, String text, IValueList list)
+	public WebDataRadioButton(IApplication application, RuntimeRadioButton scriptable, String id, String text, IValueList list)
 	{
 		this(application, scriptable, id, text);
 		onValue = list;
 	}
 
-	public WebDataRadioButton(IApplication application, AbstractRuntimeValuelistComponent<IFieldComponent> scriptable, String id, String text)
+	public WebDataRadioButton(IApplication application, RuntimeRadioButton scriptable, String id, String text)
 	{
 		super(application, scriptable, id, text);
+	}
+
+	public final RuntimeRadioButton getScriptObject()
+	{
+		return (RuntimeRadioButton)scriptable;
 	}
 
 	@Override
@@ -88,7 +92,6 @@ public class WebDataRadioButton extends WebBaseSelectBox
 	public final class MyRadioButton extends FormComponent<Boolean> implements IDisplayData
 	{
 		private static final long serialVersionUID = 1L;
-		protected ITagResolver resolver;
 
 		private MyRadioButton(String id)
 		{
@@ -212,7 +215,6 @@ public class WebDataRadioButton extends WebBaseSelectBox
 
 		public void setTagResolver(ITagResolver resolver)
 		{
-			this.resolver = resolver;
 		}
 
 		/**
@@ -285,14 +287,6 @@ public class WebDataRadioButton extends WebBaseSelectBox
 		public Document getDocument()
 		{
 			return WebDataRadioButton.this.getDocument();
-		}
-
-		/**
-		 * @see com.servoy.j2db.dataprocessing.IDisplayData#getFormat()
-		 */
-		public String getFormat()
-		{
-			return WebDataRadioButton.this.getFormat();
 		}
 
 		/**

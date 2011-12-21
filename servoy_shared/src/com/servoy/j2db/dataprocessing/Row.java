@@ -17,8 +17,6 @@
 package com.servoy.j2db.dataprocessing;
 
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +28,6 @@ import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.OpenProperties;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.StringComparator;
@@ -284,28 +281,23 @@ public class Row
 		{
 			if (columnIndex >= 0)
 			{
-				Pair<String, String> converterInfo = sheet.getColumnConverterInfo(columnIndex);
+				Pair<String, Map<String, String>> converterInfo = sheet.getColumnConverterInfo(columnIndex);
 				if (converterInfo != null)
 				{
 					IColumnConverter conv = parent.getFoundsetManager().getColumnConverterManager().getConverter(converterInfo.getLeft());
-					if (conv != null)
-					{
-						try
-						{
-							OpenProperties props = new OpenProperties();
-							if (converterInfo.getRight() != null) props.load(new StringReader(converterInfo.getRight()));
-							convertedValue = conv.convertFromObject(props, variableInfo.type, convertedValue);
-						}
-						catch (Exception e)
-						{
-							throw new IllegalArgumentException(
-								Messages.getString(
-									"servoy.record.error.settingDataprovider", new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type), convertedValue }), e); //$NON-NLS-1$
-						}
-					}
-					else
+					if (conv == null)
 					{
 						throw new IllegalStateException(Messages.getString("servoy.error.converterNotFound", new Object[] { converterInfo.getLeft() })); //$NON-NLS-1$
+					}
+					try
+					{
+						convertedValue = conv.convertFromObject(converterInfo.getRight(), variableInfo.type, convertedValue);
+					}
+					catch (Exception e)
+					{
+						throw new IllegalArgumentException(
+							Messages.getString(
+								"servoy.record.error.settingDataprovider", new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type), convertedValue }), e); //$NON-NLS-1$
 					}
 
 					int valueLen = Column.getObjectSize(convertedValue, variableInfo.type);
@@ -317,35 +309,24 @@ public class Row
 					}
 				}
 
-				Pair<String, String> validatorInfo = sheet.getColumnValidatorInfo(columnIndex);
+				Pair<String, Map<String, String>> validatorInfo = sheet.getColumnValidatorInfo(columnIndex);
 				if (validatorInfo != null)
 				{
 					IColumnValidator validator = parent.getFoundsetManager().getColumnValidatorManager().getValidator(validatorInfo.getLeft());
-					if (validator != null)
-					{
-						OpenProperties props = new OpenProperties();
-						try
-						{
-							if (validatorInfo.getRight() != null) props.load(new StringReader(validatorInfo.getRight()));
-						}
-						catch (IOException e)
-						{
-							Debug.error(e);
-						}
-						try
-						{
-							validator.validate(props, convertedValue);
-						}
-						catch (IllegalArgumentException e)
-						{
-							String msg = Messages.getString("servoy.record.error.validation", new Object[] { dataProviderID, convertedValue }); //$NON-NLS-1$
-							if (e.getMessage() != null && e.getMessage().length() != 0) msg += ' ' + e.getMessage();
-							throw new IllegalArgumentException(msg);
-						}
-					}
-					else
+					if (validator == null)
 					{
 						throw new IllegalStateException(Messages.getString("servoy.error.validatorNotFound", new Object[] { validatorInfo.getLeft() })); //$NON-NLS-1$
+					}
+
+					try
+					{
+						validator.validate(validatorInfo.getRight(), convertedValue);
+					}
+					catch (IllegalArgumentException e)
+					{
+						String msg = Messages.getString("servoy.record.error.validation", new Object[] { dataProviderID, convertedValue }); //$NON-NLS-1$
+						if (e.getMessage() != null && e.getMessage().length() != 0) msg += ' ' + e.getMessage();
+						throw new IllegalArgumentException(msg);
 					}
 				}
 

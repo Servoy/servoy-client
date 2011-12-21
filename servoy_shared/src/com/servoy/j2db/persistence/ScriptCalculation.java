@@ -17,6 +17,8 @@
 package com.servoy.j2db.persistence;
 
 
+import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
 
@@ -143,8 +145,9 @@ public class ScriptCalculation extends AbstractScriptProvider implements IDataPr
 	 * 
 	 * @param type The type to set
 	 */
-	public void setTypeAndCheck(int arg)
+	public void setTypeAndCheck(int arg, IServiceProvider application)
 	{
+		int dpType = arg;
 		try
 		//if stored calc type is enforced to be the same 
 		{
@@ -154,8 +157,9 @@ public class ScriptCalculation extends AbstractScriptProvider implements IDataPr
 				Column c = table.getColumn(getName());
 				if (c != null)
 				{
-					setType(c.getDataProviderType());
-					return;
+					// use dataprovider type as defined by converter
+					ComponentFormat componentFormat = ComponentFormat.getComponentFormat(null, c, application);
+					dpType = componentFormat.dpType;
 				}
 			}
 		}
@@ -163,6 +167,6 @@ public class ScriptCalculation extends AbstractScriptProvider implements IDataPr
 		{
 			Debug.error(e);
 		}
-		setType(arg);
+		setType(dpType);
 	}
 }

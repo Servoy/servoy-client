@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util;
 
 import java.util.AbstractMap;
@@ -30,7 +30,7 @@ import org.json.JSONObject;
  * @author rgansevles
  * 
  */
-public class JSONWrapperMap extends AbstractMap<String, Object>
+public class JSONWrapperMap<T> extends AbstractMap<String, T>
 {
 	// original source, will be cleared when json object is touched
 	protected String source;
@@ -85,13 +85,13 @@ public class JSONWrapperMap extends AbstractMap<String, Object>
 	}
 
 	@Override
-	public Set<java.util.Map.Entry<String, Object>> entrySet()
+	public Set<java.util.Map.Entry<String, T>> entrySet()
 	{
-		Set<java.util.Map.Entry<String, Object>> set = new HashSet<java.util.Map.Entry<String, Object>>();
+		Set<java.util.Map.Entry<String, T>> set = new HashSet<java.util.Map.Entry<String, T>>();
 		Iterator<String> keys = getJson().keys();
 		while (keys.hasNext())
 		{
-			set.add(new JSONWrapperMapEntry(keys.next(), getJson()));
+			set.add((java.util.Map.Entry<String, T>)new JSONWrapperMapEntry(keys.next(), getJson()));
 		}
 		return set;
 	}
@@ -107,33 +107,33 @@ public class JSONWrapperMap extends AbstractMap<String, Object>
 	}
 
 	@Override
-	public Object get(Object key)
+	public T get(Object key)
 	{
 		if (key instanceof String)
 		{
-			return ServoyJSONObject.toJava(getJson().opt((String)key));
+			return (T)ServoyJSONObject.toJava(getJson().opt((String)key));
 		}
 		return null;
 	}
 
 	@Override
-	public Object remove(Object key)
+	public T remove(Object key)
 	{
 		if (key instanceof String)
 		{
-			return ServoyJSONObject.toJava(getJson().remove((String)key));
+			return (T)ServoyJSONObject.toJava(getJson().remove((String)key));
 		}
 		return null;
 	}
 
 	@Override
-	public Object put(String key, Object value)
+	public T put(String key, T value)
 	{
 		try
 		{
 			Object old = getJson().opt(key);
 			getJson().put(key, value);
-			return ServoyJSONObject.toJava(old);
+			return (T)ServoyJSONObject.toJava(old);
 		}
 		catch (JSONException e)
 		{
@@ -211,7 +211,7 @@ public class JSONWrapperMap extends AbstractMap<String, Object>
 	 * @param map2
 	 * @return
 	 */
-	public static JSONWrapperMap mergeMaps(JSONWrapperMap map1, JSONWrapperMap map2)
+	public static <T> JSONWrapperMap< ? > mergeMaps(JSONWrapperMap< ? extends T> map1, JSONWrapperMap< ? extends T> map2)
 	{
 		if (map1 == null)
 		{
@@ -222,16 +222,16 @@ public class JSONWrapperMap extends AbstractMap<String, Object>
 			return map1;
 		}
 
-		JSONWrapperMap merged = new JSONWrapperMap(new JSONObject());
+		JSONWrapperMap<T> merged = new JSONWrapperMap<T>(new JSONObject());
 		for (String key2 : map2.keySet())
 		{
-			Object val1 = map2.get(key2);
+			T val1 = map2.get(key2);
 			if (map1.containsKey(key2))
 			{
 				Object val2 = map1.get(key2);
 				if (val1 instanceof JSONWrapperMap && val2 instanceof JSONWrapperMap)
 				{
-					merged.put(key2, mergeMaps((JSONWrapperMap)val1, (JSONWrapperMap)val2));
+					merged.put(key2, (T)mergeMaps((JSONWrapperMap< ? >)val1, (JSONWrapperMap< ? >)val2));
 					continue;
 				}
 			}

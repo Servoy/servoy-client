@@ -29,7 +29,7 @@ import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.FormatParser;
+import com.servoy.j2db.util.FormatParser.ParsedFormat;
 import com.servoy.j2db.util.StateFullSimpleDateFormat;
 import com.servoy.j2db.util.Utils;
 
@@ -46,10 +46,10 @@ final class FormatConverter implements IConverter
 	private final Format displayFormatter;
 	private final Format editFormatter;
 	private final WebEventExecutor eventExecutor;
-	private final FormatParser format;
+	private final ParsedFormat format;
 
 
-	FormatConverter(FormComponent field, WebEventExecutor eventExecutor, Format displayFormatter, FormatParser format)
+	FormatConverter(FormComponent field, WebEventExecutor eventExecutor, Format displayFormatter, ParsedFormat format)
 	{
 		this.formComponent = field;
 		this.eventExecutor = eventExecutor;
@@ -58,7 +58,7 @@ final class FormatConverter implements IConverter
 		this.format = format;
 	}
 
-	FormatConverter(FormComponent field, WebEventExecutor eventExecutor, Format displayFormatter, Format editFormatter, FormatParser format)
+	FormatConverter(FormComponent field, WebEventExecutor eventExecutor, Format displayFormatter, Format editFormatter, ParsedFormat format)
 	{
 		this.formComponent = field;
 		this.eventExecutor = eventExecutor;
@@ -72,7 +72,7 @@ final class FormatConverter implements IConverter
 	 */
 	public Object convertToObject(String value, Locale locale)
 	{
-		if (value == null) return null;
+		if (format == null || value == null) return null;
 
 		try
 		{

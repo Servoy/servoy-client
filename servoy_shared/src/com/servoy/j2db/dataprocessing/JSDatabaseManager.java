@@ -514,7 +514,7 @@ public class JSDatabaseManager
 					try
 					{
 						SQLSheet sheet = fs.getSQLSheet();
-						IColumnConverterManager columnConverterManager = ((FoundSetManager)fs.getFoundSetManager()).getColumnConverterManager();
+						IConverterManager<IColumnConverter> columnConverterManager = ((FoundSetManager)fs.getFoundSetManager()).getColumnConverterManager();
 						SQLStatement trackingInfo = null;
 						if (fsm.getEditRecordList().hasAccess(sheet.getTable(), IRepository.TRACKING_VIEWS))
 						{

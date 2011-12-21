@@ -90,10 +90,4 @@ public interface ILabel extends IStandardLabel, ISupportSecuritySettings, ISuppo
 	public int getFontSize();
 
 	public Object getLabelFor();
-
-	public int getDataType();
-
-	public String getFormat();
-
-	public void setFormat(int dataType, String format);
 }

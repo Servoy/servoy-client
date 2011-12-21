@@ -37,6 +37,7 @@ import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.FormatParser.ParsedFormat;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;
@@ -540,24 +541,13 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 		return null;
 	}
 
-	private final HashMap<String, String> formats = new HashMap<String, String>();
+	private final HashMap<String, ParsedFormat> formats = new HashMap<String, ParsedFormat>();
 
-	public void setFormat(String dataProviderID, String fmt)
+	public void setFormat(String dataProviderID, ParsedFormat format)
 	{
-		if (fmt == null || ScopesUtils.isVariableScope(dataProviderID)) return;
+		if (format == null || format.getDisplayFormat() == null || ScopesUtils.isVariableScope(dataProviderID)) return;
 
-		String format;
-		int index = fmt.indexOf("|"); //$NON-NLS-1$
-		if (index == -1)
-		{
-			format = fmt;
-		}
-		else
-		{
-			format = fmt.substring(index + 1);
-		}
-
-		index = dataProviderID.lastIndexOf('.');
+		int index = dataProviderID.lastIndexOf('.');
 		if (index > 0)
 		{
 			String partName = dataProviderID.substring(0, index);
@@ -579,7 +569,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 		}
 	}
 
-	public String getFormat(String dataProviderID)
+	public ParsedFormat getFormat(String dataProviderID)
 	{
 		return formats.get(dataProviderID);
 	}

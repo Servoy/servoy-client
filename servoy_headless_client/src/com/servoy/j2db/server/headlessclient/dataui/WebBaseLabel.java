@@ -1139,19 +1139,4 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	{
 		return rolloverUrl;
 	}
-
-	public int getDataType()
-	{
-		return 0;
-	}
-
-	public String getFormat()
-	{
-		return null;
-	}
-
-	public void setFormat(int dataType, String format)
-	{
-
-	}
 }

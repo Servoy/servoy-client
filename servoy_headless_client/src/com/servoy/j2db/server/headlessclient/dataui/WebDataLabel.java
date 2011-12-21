@@ -26,14 +26,16 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.util.convert.IConverter;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.smart.dataui.ServoyMaskFormatter;
+import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDisplayTagText;
-import com.servoy.j2db.ui.scripting.AbstractRuntimeBaseComponent;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeRendersupportComponent;
+import com.servoy.j2db.ui.scripting.IRuntimeFormatComponent;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.FormatParser;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Text;
@@ -54,7 +56,7 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 	private boolean needEntireState;
 	private boolean hasHTML;
 
-	public WebDataLabel(IApplication application, AbstractRuntimeBaseComponent< ? > scriptable, String id)
+	public WebDataLabel(IApplication application, AbstractRuntimeRendersupportComponent< ? extends IComponent> scriptable, String id)
 	{
 		super(application, scriptable, id);
 	}
@@ -72,6 +74,15 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 	public void setTagResolver(ITagResolver resolver)
 	{
 		this.resolver = resolver;
+	}
+
+	protected ComponentFormat getComponentFormat()
+	{
+		if (getScriptObject() instanceof IRuntimeFormatComponent)
+		{
+			return ((IRuntimeFormatComponent)getScriptObject()).getComponentFormat();
+		}
+		return null;
 	}
 
 	/**
@@ -99,15 +110,22 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 				}
 				else
 				{
-					try
+					ComponentFormat cf = getComponentFormat();
+					if (cf == null)
 					{
-						bodyText = Text.processTags(
-							TagResolver.formatObject(val, fp, (fp.getDisplayFormat() != null ? new ServoyMaskFormatter(fp.getDisplayFormat(), true) : null)),
-							resolver);
+						bodyText = Text.processTags(tagText, resolver);
 					}
-					catch (ParseException e)
+					else
 					{
-						Debug.error(e);
+						try
+						{
+							bodyText = Text.processTags(TagResolver.formatObject(val, cf.parsedFormat, (cf.parsedFormat.getDisplayFormat() != null
+								? new ServoyMaskFormatter(cf.parsedFormat.getDisplayFormat(), true) : null)), resolver);
+						}
+						catch (ParseException e)
+						{
+							Debug.error(e);
+						}
 					}
 				}
 			}
@@ -143,14 +161,22 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 			}
 			else
 			{
-				try
+				ComponentFormat cf = getComponentFormat();
+				if (cf == null)
 				{
-					bodyText = TagResolver.formatObject(modelObject, fp, (fp.getDisplayFormat() != null ? new ServoyMaskFormatter(fp.getDisplayFormat(), true)
-						: null));
+					bodyText = Text.processTags(tagText, resolver);
 				}
-				catch (ParseException e)
+				else
 				{
-					Debug.error(e);
+					try
+					{
+						bodyText = TagResolver.formatObject(modelObject, cf.parsedFormat, (cf.parsedFormat.getDisplayFormat() != null
+							? new ServoyMaskFormatter(cf.parsedFormat.getDisplayFormat(), true) : null));
+					}
+					catch (ParseException e)
+					{
+						Debug.error(e);
+					}
 				}
 				if (HtmlUtils.startsWithHtml(modelObject))
 				{
@@ -244,8 +270,6 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 	 */
 	public void addEditListener(IEditListener l)
 	{
-		// TODO Auto-generated method stub
-
 	}
 
 	public String getDataProviderID()
@@ -267,15 +291,6 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 	}
 
 	/**
-	 * @see com.servoy.j2db.dataprocessing.IDisplayData#getFormat()
-	 */
-	@Override
-	public String getFormat()
-	{
-		return fp.getFormat();
-	}
-
-	/**
 	 * @see com.servoy.j2db.dataprocessing.IDisplayData#notifyLastNewValueWasChange(java.lang.Object)
 	 */
 	public void notifyLastNewValueWasChange(Object oldVal, Object newVal)
@@ -285,8 +300,6 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 
 	public void setValidationEnabled(boolean b)
 	{
-		// TODO Auto-generated method stub
-
 	}
 
 	public boolean isValueValid()
@@ -304,7 +317,6 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 		return true;
 	}
 
-
 	/**
 	 * @see com.servoy.j2db.ui.IDisplayTagText#setTagText(java.lang.String)
 	 */
@@ -313,28 +325,11 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 		this.tagText = tagText;
 	}
 
-
 	/**
 	 * @see com.servoy.j2db.ui.IDisplayTagText#getTagText()
 	 */
 	public String getTagText()
 	{
 		return tagText;
-	}
-
-	private int dataType;
-	protected final FormatParser fp = new FormatParser();
-
-	@Override
-	public int getDataType()
-	{
-		return dataType;
-	}
-
-	@Override
-	public void setFormat(int dataType, String format)
-	{
-		this.dataType = dataType;
-		fp.setFormat(format);
 	}
 }

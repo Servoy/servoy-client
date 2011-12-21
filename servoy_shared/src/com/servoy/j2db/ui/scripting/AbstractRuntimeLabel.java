@@ -17,18 +17,14 @@
 
 package com.servoy.j2db.ui.scripting;
 
-import java.awt.Component;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.component.ComponentFormat;
+import com.servoy.j2db.persistence.IColumnTypes;
+import com.servoy.j2db.ui.IFormattingComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptRenderMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
-import com.servoy.j2db.ui.ISupportOnRenderCallback;
-import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.ui.RenderableWrapper;
+import com.servoy.j2db.util.FormatParser;
 
 /**
  * Abstract scriptable label.
@@ -36,41 +32,17 @@ import com.servoy.j2db.ui.RenderableWrapper;
  * @author lvostinar
  * @since 6.0
  */
-public abstract class AbstractRuntimeLabel<C extends ILabel> extends AbstractRuntimeBaseComponent<C> implements IScriptRenderMethods, ISupportOnRenderCallback
+public abstract class AbstractRuntimeLabel<C extends ILabel> extends AbstractRuntimeRendersupportComponent<C> implements IRuntimeFormatComponent
 {
 	private String i18nTT;
-	protected IScriptRenderMethods renderable;
-	protected RenderEventExecutor renderEventExecutor;
+
+	protected ComponentFormat componentFormat;
 
 	public AbstractRuntimeLabel(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
 		super(jsChangeRecorder, application);
-		renderable = new RenderableWrapper(this);
-		renderEventExecutor = new RenderEventExecutor(this);
 	}
 
-	@Override
-	public void setComponent(C component)
-	{
-		super.setComponent(component);
-		if (component instanceof Component)
-		{
-			((Component)component).addFocusListener(new FocusListener()
-			{
-				public void focusLost(FocusEvent e)
-				{
-					getRenderEventExecutor().setRenderStateChanged();
-					getRenderEventExecutor().fireOnRender(false);
-				}
-
-				public void focusGained(FocusEvent e)
-				{
-					getRenderEventExecutor().setRenderStateChanged();
-					getRenderEventExecutor().fireOnRender(false);
-				}
-			});
-		}
-	}
 
 	public void js_setImageURL(String text_url)
 	{
@@ -158,29 +130,32 @@ public abstract class AbstractRuntimeLabel<C extends ILabel> extends AbstractRun
 		return getComponent().getRolloverImageURL();
 	}
 
-	public void js_setFormat(String format)
+	public void js_setFormat(String formatString)
 	{
-		getComponent().setFormat(getComponent().getDataType(), application.getI18NMessageIfPrefixed(format));
+		setComponentFormat(new ComponentFormat(FormatParser.parseFormatString(application.getI18NMessageIfPrefixed(formatString), componentFormat == null
+			? null : componentFormat.parsedFormat.getUIConverterName(),
+			componentFormat == null ? null : componentFormat.parsedFormat.getUIConverterProperties()), componentFormat == null ? IColumnTypes.TEXT
+			: componentFormat.dpType, componentFormat == null ? IColumnTypes.TEXT : componentFormat.uiType));
 		getChangesRecorder().setChanged();
 	}
 
 	public String js_getFormat()
 	{
-		return getComponent().getFormat();
+		return componentFormat == null ? null : componentFormat.parsedFormat.getFormatString();
 	}
 
-	public RenderEventExecutor getRenderEventExecutor()
+	public void setComponentFormat(ComponentFormat componentFormat)
 	{
-		return renderEventExecutor;
+		this.componentFormat = componentFormat;
+		if (componentFormat != null && getComponent() instanceof IFormattingComponent)
+		{
+			((IFormattingComponent)getComponent()).installFormat(componentFormat.uiType, componentFormat.parsedFormat.getFormatString());
+		}
 	}
 
-	public IScriptRenderMethods getRenderable()
+	public ComponentFormat getComponentFormat()
 	{
-		return renderable;
+		return componentFormat;
 	}
 
-	public void setRenderableStateChanged()
-	{
-		getChangesRecorder().setChanged();
-	}
 }

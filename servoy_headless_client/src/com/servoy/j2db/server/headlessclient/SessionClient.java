@@ -560,7 +560,8 @@ public class SessionClient extends ClientState implements ISessionClient
 		pluginManager = ApplicationServerSingleton.get().getPluginManager().createEfficientCopy(this);
 		pluginManager.init();
 		((PluginManager)pluginManager).initClientPlugins(this, (IClientPluginAccess)(pluginAccess = createClientPluginAccess()));
-		((FoundSetManager)getFoundSetManager()).setColumnManangers(pluginManager.getColumnValidatorManager(), pluginManager.getColumnConverterManager());
+		((FoundSetManager)getFoundSetManager()).setColumnManangers(pluginManager.getColumnValidatorManager(), pluginManager.getColumnConverterManager(),
+			pluginManager.getUIConverterManager());
 	}
 
 	@Override

@@ -583,29 +583,6 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 		setSuffix("</div>"); //$NON-NLS-1$
 	}
 
-	/*
-	 * format---------------------------------------------------
-	 */
-	public void setFormat(int type, String format)
-	{
-		this.dataType = type;
-		this.format = format;
-	}
-
-	public String getFormat()
-	{
-		return format;
-	}
-
-	private int dataType;
-	private String format;
-
-	public int getDataType()
-	{
-		return dataType;
-	}
-
-
 	public void requestFocus(Object[] vargs)
 	{
 		if (vargs != null && vargs.length >= 1 && !Utils.getAsBoolean(vargs[0]))

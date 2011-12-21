@@ -34,8 +34,7 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.server.headlessclient.MainPage;
-import com.servoy.j2db.ui.IFieldComponent;
-import com.servoy.j2db.ui.scripting.AbstractRuntimeValuelistComponent;
+import com.servoy.j2db.ui.scripting.RuntimeCheckbox;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Utils;
 
@@ -47,16 +46,21 @@ import com.servoy.j2db.util.Utils;
 public class WebDataCheckBox extends WebBaseSelectBox
 {
 
-	public WebDataCheckBox(IApplication application, AbstractRuntimeValuelistComponent<IFieldComponent> scriptable, String id, String text, IValueList list)
+	public WebDataCheckBox(IApplication application, RuntimeCheckbox scriptable, String id, String text, IValueList list)
 	{
 		this(application, scriptable, id, text);
 		onValue = list;
 	}
 
 
-	public WebDataCheckBox(IApplication application, AbstractRuntimeValuelistComponent<IFieldComponent> scriptable, String id, String text)
+	public WebDataCheckBox(IApplication application, RuntimeCheckbox scriptable, String id, String text)
 	{
 		super(application, scriptable, id, text);
+	}
+
+	public final RuntimeCheckbox getScriptObject()
+	{
+		return (RuntimeCheckbox)scriptable;
 	}
 
 
@@ -66,22 +70,24 @@ public class WebDataCheckBox extends WebBaseSelectBox
 		return new MyCheckBox(id);
 	}
 
-
 	// if this check box is linked to a integer non-null table column,
 	// we must change null to "0" by default (as the user sees the check-box
 	// unchecked - and when he tries to save he will not have null content problems)
 	private void changeNullTo0IfNeeded()
 	{
-		IRecordInternal record = null;
-		IModel model = getInnermostModel();
+		IModel< ? > model = getInnermostModel();
 		if (model instanceof RecordItemModel)
 		{
-			record = ((RecordItemModel)model).getRecord();
-		}
-		if ((!allowNull) && record != null && !(record instanceof FindState) && record.getValue(dataProviderID) == null && dataType == IColumnTypes.INTEGER &&
-			record.startEditing())
-		{
-			record.setValue(dataProviderID, new Integer(0));
+			IRecordInternal record = ((RecordItemModel)model).getRecord();
+			if (!allowNull && record != null && !(record instanceof FindState) && record.getValue(dataProviderID) == null &&
+				getScriptObject().getComponentFormat().dpType == IColumnTypes.INTEGER && record.startEditing())
+			{
+				// NOTE: when a UI converter is defined, the converter should handle this
+				if (getScriptObject().getComponentFormat().parsedFormat.getUIConverterName() == null)
+				{
+					record.setValue(dataProviderID, Integer.valueOf(0));
+				}
+			}
 		}
 	}
 
@@ -107,7 +113,6 @@ public class WebDataCheckBox extends WebBaseSelectBox
 	private final class MyCheckBox extends CheckBox implements IResolveObject, IDisplayData
 	{
 		private static final long serialVersionUID = 1L;
-		protected ITagResolver resolver;
 
 		private MyCheckBox(String id)
 		{
@@ -176,28 +181,16 @@ public class WebDataCheckBox extends WebBaseSelectBox
 				Object real = onValue.getRealElementAt(0);
 				if (real == null)
 				{
-					return new Boolean(realVal == null);
+					return Boolean.valueOf(realVal == null);
 				}
-				else
-				{
-					return new Boolean(real.equals(realVal));
-				}
+				return Boolean.valueOf(real.equals(realVal));
 			}
-			else
+
+			if (realVal instanceof Number)
 			{
-				if (realVal instanceof Number)
-				{
-					return new Boolean(((Number)realVal).intValue() >= 1);
-				}
-				else if (realVal == null)
-				{
-					return new Boolean(false);
-				}
-				else
-				{
-					return new Boolean("1".equals(realVal.toString()));
-				}
+				return Boolean.valueOf(((Number)realVal).intValue() >= 1);
 			}
+			return Boolean.valueOf(realVal != null && "1".equals(realVal.toString()));
 		}
 
 		@Override
@@ -209,7 +202,6 @@ public class WebDataCheckBox extends WebBaseSelectBox
 
 		public void setTagResolver(ITagResolver resolver)
 		{
-			this.resolver = resolver;
 		}
 
 		public Object resolveRealValue(Object displayVal)
@@ -226,7 +218,7 @@ public class WebDataCheckBox extends WebBaseSelectBox
 //					{
 //						return null;
 //					}
-				return new Integer((Utils.getAsBoolean(displayVal) ? 1 : 0));
+				return Integer.valueOf((Utils.getAsBoolean(displayVal) ? 1 : 0));
 			}
 		}
 
@@ -300,14 +292,6 @@ public class WebDataCheckBox extends WebBaseSelectBox
 		public Document getDocument()
 		{
 			return WebDataCheckBox.this.getDocument();
-		}
-
-		/**
-		 * @see com.servoy.j2db.dataprocessing.IDisplayData#getFormat()
-		 */
-		public String getFormat()
-		{
-			return WebDataCheckBox.this.getFormat();
 		}
 
 		/**

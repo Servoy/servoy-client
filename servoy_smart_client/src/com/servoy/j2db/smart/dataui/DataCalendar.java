@@ -57,6 +57,7 @@ import com.servoy.j2db.ui.BaseEventExecutor;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
+import com.servoy.j2db.ui.IFormattingComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.scripting.RuntimeDataCalendar;
@@ -72,7 +73,7 @@ import com.servoy.j2db.util.ScopesUtils;
  * @author jblok
  */
 public class DataCalendar extends EnablePanel implements IFieldComponent, IDisplayData, ActionListener, IDelegate, ISupplyFocusChildren<Component>,
-	ISupportCachedLocationAndSize
+	ISupportCachedLocationAndSize, IFormattingComponent
 {
 	private final DataField enclosedComponent;
 	private String dataProviderID;
@@ -87,28 +88,7 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 	{
 		this.application = app;
 		setLayout(new BorderLayout());
-		enclosedComponent = new DataField(app, null)
-		{
-			@Override
-			public void setFormat(int dataType, String format)
-			{
-				// calendar field always works with dates (even if it is attached to a dataprovider of another type
-				// - for example it could work with a text column that has a Date <-> String converter)
-				if (format == null || format.length() == 0)
-				{
-					// use default locale short date/time format
-					format = new SimpleDateFormat().toPattern();
-				}
-				super.setFormat(Types.DATE, format);
-			}
-
-			@Override
-			public String toString()
-			{
-				// super uses scriptable
-				return "DataField for " + DataCalendar.this.toString(); //$NON-NLS-1$ 
-			}
-		};
+		enclosedComponent = new DataField(app, scriptable);
 		enclosedComponent.setIgnoreOnRender(true);
 		enclosedComponent.setBorder(BorderFactory.createEmptyBorder());
 		enclosedComponent.setOpaque(false);
@@ -159,6 +139,18 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 	{
 		super.setName(name);
 		enclosedComponent.setName(name);
+	}
+
+	public void installFormat(int dataType, String format)
+	{
+		// calendar field always works with dates (even if it is attached to a dataprovider of another type
+		// - for example it could work with a text column that has a Date <-> String converter)
+		if (format == null || format.length() == 0)
+		{
+			// use default locale short date/time format
+			format = new SimpleDateFormat().toPattern();
+		}
+		enclosedComponent.installFormat(Types.DATE, format);
 	}
 
 	public void setMargin(Insets i)
@@ -389,11 +381,6 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 		enclosedComponent.setDataProviderID(id);
 	}
 
-	public int getDataType()
-	{
-		return enclosedComponent.getDataType();
-	}
-
 	public void setValidationEnabled(boolean b)
 	{
 		enclosedComponent.setValidationEnabled(b);
@@ -409,19 +396,6 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 				setReadOnly(false);
 			}
 		}
-	}
-
-	/*
-	 * format---------------------------------------------------
-	 */
-	public String getFormat()
-	{
-		return enclosedComponent.getFormat();
-	}
-
-	public void setFormat(int dataType, String format)
-	{
-		enclosedComponent.setFormat(dataType, format);
 	}
 
 	@Override

@@ -53,6 +53,7 @@ import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
+import com.servoy.j2db.ui.IFormattingComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
@@ -73,7 +74,7 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  */
 public class WebDataCalendar extends WebMarkupContainer implements IFieldComponent, IDisplayData, IDelegate, ISupportWebBounds, IRightClickListener,
-	IProviderStylePropertyChanges, ISupplyFocusChildren<Component>
+	IProviderStylePropertyChanges, ISupplyFocusChildren<Component>, IFormattingComponent
 {
 	private static final long serialVersionUID = 1L;
 
@@ -467,19 +468,9 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 	/*
 	 * format---------------------------------------------------
 	 */
-	public void setFormat(int type, String format)
+	public void installFormat(int type, String format)
 	{
-		if (format != null) field.setFormat(type, format);
-	}
-
-	public String getFormat()
-	{
-		return field.getFormat();
-	}
-
-	public int getDataType()
-	{
-		return field.getDataType();
+		if (format != null) field.installFormat(type, format);
 	}
 
 	public boolean isEditable()

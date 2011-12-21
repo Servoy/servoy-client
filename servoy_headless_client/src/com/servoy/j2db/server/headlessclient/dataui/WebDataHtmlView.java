@@ -259,30 +259,7 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 	{
 	}
 
-	@Override
-	public void setFormat(int type, String format)
-	{
-		dataType = type;
-		this.format = format;
-	}
-
-	private String format;
-	private int dataType;
-
-	@Override
-	public int getDataType()
-	{
-		return dataType;
-	}
-
-	@Override
-	public String getFormat()
-	{
-		return format;
-	}
-
-
-	private ArrayList<ILabel> labels;
+	private List<ILabel> labels;
 
 	public void addLabelFor(ILabel label)
 	{

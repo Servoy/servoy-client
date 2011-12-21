@@ -84,15 +84,17 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEditProvider;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
+import com.servoy.j2db.ui.IFormattingComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.ISupportEditProvider;
 import com.servoy.j2db.ui.ISupportFormatter;
 import com.servoy.j2db.ui.ISupportSpecialClientProperty;
 import com.servoy.j2db.ui.ISupportValueList;
-import com.servoy.j2db.ui.scripting.RuntimeDataField;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FormatParser;
+import com.servoy.j2db.util.FormatParser.ParsedFormat;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ISkinnable;
 import com.servoy.j2db.util.ITagResolver;
@@ -114,7 +116,7 @@ import com.servoy.j2db.util.gui.FixedMaskFormatter;
  * @author jblok, jcompagner
  */
 public class DataField extends JFormattedTextField implements IDisplayData, IFieldComponent, ISkinnable, ISupportCachedLocationAndSize,
-	ISupportDragNDropTextTransfer, ISupportEditProvider, ISupportValueList, ISupportSpecialClientProperty, ISupportFormatter
+	ISupportDragNDropTextTransfer, ISupportEditProvider, ISupportValueList, ISupportSpecialClientProperty, ISupportFormatter, IFormattingComponent
 {
 	private static final long serialVersionUID = 1L;
 
@@ -125,7 +127,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 	// when a parse error occurred the value should always be set in setValue(), otherwise unsaved data is displayed in the field
 	private boolean parseErrorOccurred = false;
 	private MouseAdapter rightclickMouseAdapter = null;
-	private final RuntimeDataField scriptable;
+	private final AbstractRuntimeField<IFieldComponent> scriptable;
 
 	/**
 	 * @author jcompagner
@@ -671,13 +673,13 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 	private boolean toggleOverwrite = true;
 
-	DataField(IApplication application, RuntimeDataField scriptable, IValueList list)
+	DataField(IApplication application, AbstractRuntimeField<IFieldComponent> scriptable, IValueList list)
 	{
 		this(application, scriptable);
 		this.list = list;
 	}
 
-	public DataField(IApplication application, RuntimeDataField scriptable)
+	public DataField(IApplication application, AbstractRuntimeField<IFieldComponent> scriptable)
 	{
 		super();// new InternationalFormatter()); //why is InternationalFormatter
 		// needed, causes trouble on date objects??
@@ -729,7 +731,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		setDragEnabledEx(true);
 	}
 
-	public final RuntimeDataField getScriptObject()
+	public final AbstractRuntimeField<IFieldComponent> getScriptObject()
 	{
 		return scriptable;
 	}
@@ -1205,16 +1207,9 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 	private int dataType;
 
-	public int getDataType()
-	{
-		return dataType;
-	}
-
-
 	/*
 	 * format---------------------------------------------------
 	 */
-	private String completeFormat;
 	protected String displayFormat;
 	protected String editFormat;
 	private AbstractFormatterFactory saveFormatter;
@@ -1224,20 +1219,19 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 	public String getFormat()
 	{
-		return fp.getFormat();
+		return fp == null ? null : fp.getFormatString();
 	}
 
-	protected final FormatParser fp = new FormatParser();
+	protected ParsedFormat fp;
 
-	public void setFormat(int dataType, String format)
+	public void installFormat(int dataType, String format)
 	{
 		this.dataType = dataType;
-		this.completeFormat = format;
 		this.displayFormat = format;
 		this.editFormat = format;
 		if (format != null && format.length() != 0)
 		{
-			fp.setFormat(format);
+			fp = FormatParser.parseFormatString(format, null, null);
 
 			displayFormat = fp.getDisplayFormat();
 			editFormat = fp.getEditFormat();
@@ -1266,7 +1260,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 			else
 			{
 				int maxLength = fp.getMaxLength() == null ? -1 : fp.getMaxLength().intValue();
-				// if there is no display format, but the max lenght is set, then generate a display format.
+				// if there is no display format, but the max length is set, then generate a display format.
 				if (maxLength != -1 && (displayFormat == null || displayFormat.length() == 0))
 				{
 					char[] chars = new char[maxLength];

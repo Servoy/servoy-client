@@ -1080,19 +1080,4 @@ public abstract class AbstractScriptLabel extends JLabel implements ISkinnable, 
 	{
 		return 0;
 	}
-
-	public int getDataType()
-	{
-		return 0;
-	}
-
-	public String getFormat()
-	{
-		return null;
-	}
-
-	public void setFormat(int dataType, String format)
-	{
-
-	}
 }

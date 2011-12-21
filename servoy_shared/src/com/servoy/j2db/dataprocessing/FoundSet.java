@@ -2877,7 +2877,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					if (column != null)
 					{
 						// stored calculation
-						if (column.getScale() > 0 && Column.mapToDefaultType(column.getType()) == IColumnTypes.NUMBER && obj != null)
+						// TODO: check case with stored calc on column with column converter
+						if (column.getScale() > 0 && column.getDataProviderType() == IColumnTypes.NUMBER && obj != null)
 						{
 							// round the calculation to the column scale.
 							// if rounding results in the old value we do not have to save.

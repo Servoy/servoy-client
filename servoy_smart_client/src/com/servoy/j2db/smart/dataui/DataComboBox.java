@@ -85,6 +85,7 @@ import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
+import com.servoy.j2db.ui.IFormattingComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.ISupportSpecialClientProperty;
@@ -108,7 +109,7 @@ import com.servoy.j2db.util.model.ComboModelListModelWrapper;
  * @author jblok
  */
 public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRelatedData, IFieldComponent, ISkinnable, ItemListener,
-	ISupportCachedLocationAndSize, ISupportSpecialClientProperty, ISupportValueList
+	ISupportCachedLocationAndSize, ISupportSpecialClientProperty, ISupportValueList, IFormattingComponent
 {
 	private String dataProviderID;
 	private final ComboModelListModelWrapper list;
@@ -1025,14 +1026,9 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		super.setName(name);
 	}
 
-	public int getDataType()
-	{
-		return dataType;
-	}
-
 	private int dataType;
 
-	public void setFormat(int dataType, String formatString)
+	public void installFormat(int dataType, String formatString)
 	{
 		this.dataType = dataType;
 		if (isEditable())
@@ -1042,7 +1038,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		}
 		if (formatString != null && formatString.length() != 0)
 		{
-			String displayFormat = new FormatParser(formatString).getDisplayFormat();
+			String displayFormat = FormatParser.parseFormatString(formatString, null, null).getDisplayFormat();
 			try
 			{
 				switch (Column.mapToDefaultType(dataType))
@@ -1068,16 +1064,6 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 				Debug.error(ex);
 			}
 		}
-	}
-
-	public String getFormat()
-	{
-		if (isEditable())
-		{
-			FormattedComboBoxEditor ed = (FormattedComboBoxEditor)getEditor();
-			return ed.getFormat();
-		}
-		return null;
 	}
 
 	private int halign;
@@ -1901,12 +1887,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 
 		public void setFormat(int type, String format)
 		{
-			editor.setFormat(type, format);
-		}
-
-		public String getFormat()
-		{
-			return editor.getFormat();
+			editor.installFormat(type, format);
 		}
 
 		public void setHorizontalAlignment(int a)

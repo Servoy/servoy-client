@@ -289,25 +289,6 @@ public class DataRadioButton extends JRadioButton implements IFieldComponent, ID
 		//ignore
 	}
 
-	public int getDataType()
-	{
-		return dataType;
-	}
-
-	private int dataType;
-	private String format;
-
-	public void setFormat(int dataType, String format)
-	{
-		this.dataType = dataType;
-		this.format = format;
-	}
-
-	public String getFormat()
-	{
-		return format;
-	}
-
 	private boolean needEntireState;
 
 	public boolean needEntireState()

@@ -850,30 +850,6 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 
 	private boolean editable;
 
-
-	/*
-	 * format---------------------------------------------------
-	 */
-	public void setFormat(int type, String format)
-	{
-		dataType = type;
-		this.format = format;
-	}
-
-	private String format;
-	private int dataType;
-
-	public int getDataType()
-	{
-		return dataType;
-	}
-
-	public String getFormat()
-	{
-		return format;
-	}
-
-
 	/*
 	 * dataprovider---------------------------------------------------
 	 */

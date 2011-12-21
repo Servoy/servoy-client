@@ -72,6 +72,7 @@ import com.servoy.j2db.query.QueryUpdate;
 import com.servoy.j2db.query.SetCondition;
 import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.FormatParser.ParsedFormat;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.visitor.IVisitor;
@@ -621,10 +622,19 @@ public class SQLGenerator
 					continue;
 				}
 
-				String format = state.getFormat(dataProviderID);
-				if (Utils.stringIsEmpty(format))
+				ParsedFormat format = state.getFormat(dataProviderID);
+				String formatString = null;
+				if (format != null)
 				{
-					format = TagResolver.getDefaultFormatForType(application.getSettings(), c.getDataProviderType());
+					formatString = format.getEditFormat();
+					if (formatString == null)
+					{
+						formatString = format.getDisplayFormat();
+					}
+				}
+				if (Utils.stringIsEmpty(formatString))
+				{
+					formatString = TagResolver.getDefaultFormatForType(application.getSettings(), c.getDataProviderType());
 				}
 
 				ISQLCondition or = null;
@@ -634,7 +644,7 @@ public class SQLGenerator
 					Object[] elements = new Object[length];
 					for (int e = 0; e < length; e++)
 					{
-						elements[e] = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), ((Object[])raw)[e], format, c.getLength(), null, false);
+						elements[e] = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), ((Object[])raw)[e], formatString, c.getLength(), null, false);
 					}
 					// where qCol in (e1, e2, ..., en)
 					or = new SetCondition(ISQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { qCol }, new Object[][] { elements }, true);
@@ -658,7 +668,7 @@ public class SQLGenerator
 								int pipe_index = data.indexOf('|');
 								if (pipe_index != -1)//the format is speced from within javascript '1-1-2003...30-1-2003|dd-MM-yyyy'
 								{
-									format = data.substring(pipe_index + 1);
+									formatString = data.substring(pipe_index + 1);
 									data = data.substring(0, pipe_index);
 								}
 							}
@@ -806,8 +816,8 @@ public class SQLGenerator
 									case IColumnTypes.INTEGER :
 									case IColumnTypes.NUMBER :
 										Object initialObj = raw instanceof String ? data : raw;
-										Object objRightType = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), initialObj, format, c.getLength(),
-											null, false);
+										Object objRightType = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), initialObj, formatString,
+											c.getLength(), null, false);
 										// Now get asRightType with RAW and not with the string. 
 										// Because if it is already a Number then it shouldn't be converted to String and then back
 										if (initialObj != null && objRightType == null)
@@ -823,7 +833,8 @@ public class SQLGenerator
 										// parse data2 (between)
 										if (data2 != null)
 										{
-											value2 = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), data2, format, c.getLength(), null, false);
+											value2 = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), data2, formatString, c.getLength(), null,
+												false);
 											if (value2 == null)
 											{
 												Debug.log("Cannot convert (" + data2.getClass().getSimpleName() + ") " + data2 + " to a number/int."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -850,12 +861,12 @@ public class SQLGenerator
 											// Now get asRightType with RAW and not with the string. 
 											// Because if it is already a Date then it shouldn't be converted to String and then back
 											Object initialObj1 = ((raw instanceof String) ? data : raw);
-											Object tst = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), initialObj1, format, c.getLength(), null,
-												false);
+											Object tst = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), initialObj1, formatString, c.getLength(),
+												null, false);
 											if (tst == null && initialObj1 != null)
 											{
 												// Format failed.. Reporting that to the user
-												Debug.log("Cannot parse " + initialObj1 + " using format " + format + '.'); //$NON-NLS-1$ //$NON-NLS-2$
+												Debug.log("Cannot parse " + initialObj1 + " using format " + formatString + '.'); //$NON-NLS-1$ //$NON-NLS-2$
 												date = null;
 											}
 											else
@@ -904,15 +915,15 @@ public class SQLGenerator
 											}
 											else
 											{
-												Object dt = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), data2, format, c.getLength(), null,
-													false);
+												Object dt = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), data2, formatString, c.getLength(),
+													null, false);
 												if (dt instanceof Date)
 												{
 													date = (Date)dt;
 												}
 												else
 												{
-													Debug.log("Cannot parse '" + data2 + "' using format " + format + '.'); //$NON-NLS-1$ //$NON-NLS-2$
+													Debug.log("Cannot parse '" + data2 + "' using format " + formatString + '.'); //$NON-NLS-1$ //$NON-NLS-2$
 													date = null;
 												}
 											}
@@ -979,7 +990,7 @@ public class SQLGenerator
 
 									default :
 										operator = ISQLCondition.LIKE_OPERATOR;
-										value = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), data, format, c.getLength() + 2, null, false);//+2 for %...%
+										value = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), data, formatString, c.getLength() + 2, null, false);//+2 for %...%
 								}
 
 								// create the condition

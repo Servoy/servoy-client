@@ -125,11 +125,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 			table = dataProviderLookup.getTable();
 		}
 		//add
-		Iterator<IPersist> it = formObjects.keySet().iterator();
-		while (it.hasNext())
+		for (Object obj : formObjects.values())
 		{
-			IPersist persist = it.next();
-			Object obj = formObjects.get(persist);
 			if (obj instanceof IDisplayData)
 			{
 				IDisplayData display = (IDisplayData)obj;
@@ -144,9 +141,9 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 				IDataAdapter da = null;
 
 				String dataProviderID = display.getDataProviderID();
-				if (dataProviderID != null)
+				if (dataProviderID != null && !ScopesUtils.isVariableScope(dataProviderID))
 				{
-					int idx = ScopesUtils.isVariableScope(dataProviderID) ? -1 : dataProviderID.lastIndexOf('.');
+					int idx = dataProviderID.lastIndexOf('.');
 					if (idx != -1) //handle related fields
 					{
 						Relation[] relations = application.getFlattenedSolution().getRelationSequence(dataProviderID.substring(0, idx));
@@ -168,13 +165,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 							rfh.addDisplay(display);
 						}
 					}
-
-					da = this.dataAdapters.get(dataProviderID);
 				}
-				else
-				{
-					da = this.dataAdapters.get(null);
-				}
+				da = this.dataAdapters.get(dataProviderID);
 
 				if (da == null)
 				{
@@ -204,10 +196,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 		//see if relookup listeners must be added
 		if (table != null)
 		{
-			Iterator<Column> it44 = table.getColumns().iterator();
-			while (it44.hasNext())
+			for (Column c : table.getColumns())
 			{
-				Column c = it44.next();
 				ColumnInfo ci = c.getColumnInfo();
 				if (ci != null && ci.getAutoEnterType() == ColumnInfo.LOOKUP_VALUE_AUTO_ENTER)
 				{
@@ -230,7 +220,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 										IDataAdapter la = this.dataAdapters.get("LA:" + lookup); //$NON-NLS-1$
 										if (la == null)
 										{
-											StringBuffer prefix = new StringBuffer();
+											StringBuilder prefix = new StringBuilder();
 											for (int r = 0; r < relations.length - 1; r++)
 											{
 												prefix.append(relations[r].getName());
@@ -310,7 +300,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 		{
 			for (IDataProvider dp : dps)
 			{
-				StringBuffer prefix = new StringBuffer();
+				StringBuilder prefix = new StringBuilder();
 				for (int r = 0; r < rel; r++)
 				{
 					prefix.append(relations[r].getName());
