@@ -46,7 +46,7 @@ import com.servoy.j2db.util.gui.SpecialMatteBorder;
  */
 public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 {
-	private static final String BORDER_COLOR_TRANSPARENT = "transparent"; //$NON-NLS-1$
+	public static final String COLOR_TRANSPARENT = "transparent"; //$NON-NLS-1$
 	private static final String BORDER_STYLE_DASHED = "dashed"; //$NON-NLS-1$
 	private static final String BORDER_STYLE_DOTTED = "dotted"; //$NON-NLS-1$
 	private static final String BORDER_STYLE_GROOVE = "groove"; //$NON-NLS-1$
@@ -131,9 +131,9 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 					borderStyle = tok;
 				}
 				// If "transparent" then transparent.
-				else if (tok.equals(BORDER_COLOR_TRANSPARENT))
+				else if (tok.equals(COLOR_TRANSPARENT))
 				{
-					borderColor = BORDER_COLOR_TRANSPARENT;
+					borderColor = COLOR_TRANSPARENT;
 				}
 				// Otherwise assume it is a color.
 				else
@@ -271,7 +271,7 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 //				Object obj = a.getAttribute(CSS.Attribute.BORDER_WIDTH);
 				if (bstyle.equals(BORDER_STYLE_SOLID))
 				{
-					if (borderColor != null && BORDER_COLOR_TRANSPARENT.equals(borderColor.toString()))
+					if (borderColor != null && COLOR_TRANSPARENT.equals(borderColor.toString()))
 					{
 						top = makeSizeSave(top);
 						right = makeSizeSave(right);
@@ -518,7 +518,7 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 	public void addCSSAttribute(MutableAttributeSet attr, CSS.Attribute key, String value)
 	{
 		String newValue = expandColorValue(key, value);
-		if (key == CSS.Attribute.BACKGROUND_COLOR && BORDER_COLOR_TRANSPARENT.equalsIgnoreCase(newValue)) attr.addAttribute(key, newValue);
+		if (key == CSS.Attribute.BACKGROUND_COLOR && COLOR_TRANSPARENT.equalsIgnoreCase(newValue)) attr.addAttribute(key, newValue);
 		else super.addCSSAttribute(attr, key, newValue);
 	}
 
@@ -563,5 +563,19 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 			if (s.getAttribute(a) != null) return true;
 		}
 		return false;
+	}
+
+	@Override
+	public Color getBackground(AttributeSet a)
+	{
+		Object sbackground_color = a.getAttribute(CSS.Attribute.BACKGROUND_COLOR);
+		if (sbackground_color != null)
+		{
+			if (!COLOR_TRANSPARENT.equals(sbackground_color.toString()))
+			{
+				return super.getBackground(a);
+			}
+		}
+		return null;
 	}
 }

@@ -476,12 +476,12 @@ public class ComponentFactory
 		return repos_style;
 	}
 
-	public static Pair<FixedStyleSheet, javax.swing.text.Style> getStyleForBasicComponent(IServiceProvider sp, BaseComponent bc, Form form)
+	public static Pair<FixedStyleSheet, javax.swing.text.Style> getStyleForBasicComponent(IServiceProvider sp, AbstractBase bc, Form form)
 	{
 		return getStyleForBasicComponentInternal(sp, bc, form, new HashSet<Integer>());
 	}
 
-	public static Pair<FixedStyleSheet, javax.swing.text.Style> getStyleForBasicComponentInternal(IServiceProvider sp, BaseComponent bc, Form form,
+	private static Pair<FixedStyleSheet, javax.swing.text.Style> getStyleForBasicComponentInternal(IServiceProvider sp, AbstractBase bc, Form form,
 		Set<Integer> visited)
 	{
 		if (bc == null || sp == null) return null;
@@ -499,51 +499,65 @@ public class ComponentFactory
 
 			String lookupName = getLookupName(bc);
 
-			String formLookup = "";
-			ISupportChilds parent = bc.getParent();
-			if (parent instanceof Form)
+			if (lookupName != null)
 			{
-				String styleClass = ((Form)parent).getStyleClass();
-				if (styleClass != null && styleClass.length() != 0)
-				{
-					formLookup = "form." + styleClass;
-				}
-				else
-				{
-					formLookup = "form";
-				}
-			}
-			else if (parent instanceof Portal)
-			{
-				String styleClass = ((Portal)parent).getStyleClass();
-				if (styleClass != null && styleClass.length() != 0)
-				{
-					formLookup = "portal." + styleClass;
-				}
-				else
-				{
-					formLookup = "portal";
-				}
-				parent = ((Portal)parent).getParent();
+
+				String formLookup = "";
+				ISupportChilds parent = bc.getParent();
 				if (parent instanceof Form)
 				{
-					styleClass = ((Form)parent).getStyleClass();
+					String styleClass = ((Form)parent).getStyleClass();
 					if (styleClass != null && styleClass.length() != 0)
 					{
-						formLookup = "form." + styleClass + ' ' + formLookup;
+						formLookup = "form." + styleClass;
 					}
 					else
 					{
-						formLookup = "form " + formLookup;
+						formLookup = "form";
 					}
 				}
-			}
+				else if (parent instanceof Portal)
+				{
+					String styleClass = ((Portal)parent).getStyleClass();
+					if (styleClass != null && styleClass.length() != 0)
+					{
+						formLookup = "portal." + styleClass;
+					}
+					else
+					{
+						formLookup = "portal";
+					}
+					parent = ((Portal)parent).getParent();
+					if (parent instanceof Form)
+					{
+						styleClass = ((Form)parent).getStyleClass();
+						if (styleClass != null && styleClass.length() != 0)
+						{
+							formLookup = "form." + styleClass + ' ' + formLookup;
+						}
+						else
+						{
+							formLookup = "form " + formLookup;
+						}
+					}
+				}
 
 
-			javax.swing.text.Style s = null;
-			String styleClass = bc.getStyleClass();
-			if (lookupName.equals("check") || lookupName.equals("combobox") || "radio".equals(lookupName))
-			{
+				javax.swing.text.Style s = null;
+				String styleClass = (bc instanceof BaseComponent) ? ((BaseComponent)bc).getStyleClass() : null;
+				if (lookupName.equals("check") || lookupName.equals("combobox") || "radio".equals(lookupName))
+				{
+					if (styleClass != null && styleClass.length() != 0)
+					{
+						lookupName += '.' + styleClass;
+					}
+					lookupName = formLookup + ' ' + lookupName;
+					s = ss.getRule(lookupName);
+
+					if (s.getAttributeCount() > 0) return new Pair<FixedStyleSheet, javax.swing.text.Style>(ss, s);
+					else lookupName = "field";
+				}
+
 				if (styleClass != null && styleClass.length() != 0)
 				{
 					lookupName += '.' + styleClass;
@@ -551,19 +565,9 @@ public class ComponentFactory
 				lookupName = formLookup + ' ' + lookupName;
 				s = ss.getRule(lookupName);
 
-				if (s.getAttributeCount() > 0) return new Pair<FixedStyleSheet, javax.swing.text.Style>(ss, s);
-				else lookupName = "field";
+				pair = new Pair<FixedStyleSheet, javax.swing.text.Style>(ss, s);
+				//see BoxPainter for getBorder/getInsets/getLength examples
 			}
-
-			if (styleClass != null && styleClass.length() != 0)
-			{
-				lookupName += '.' + styleClass;
-			}
-			lookupName = formLookup + ' ' + lookupName;
-			s = ss.getRule(lookupName);
-
-			pair = new Pair<FixedStyleSheet, javax.swing.text.Style>(ss, s);
-			//see BoxPainter for getBorder/getInsets/getLength examples
 		}
 		if ((pair == null || pair.getRight() == null || (pair.getRight()).getAttributeCount() == 0))
 		{
@@ -580,13 +584,27 @@ public class ComponentFactory
 		return pair;
 	}
 
-	public static final String[] LOOKUP_NAMES = { "button", "check", "combobox", ISupportRowStyling.CLASS_EVEN, "field", "form", "label", "listbox", ISupportRowStyling.CLASS_ODD, "portal", "radio", ISupportRowStyling.CLASS_SELECTED, "tabpanel" };
+	public static Color getPartBackground(IServiceProvider sp, Part part, Form form)
+	{
+		if (part != null && form != null)
+		{
+			if (part.getBackground() != null) return part.getBackground();
+			Pair<FixedStyleSheet, javax.swing.text.Style> pair = getStyleForBasicComponent(sp, part, form);
+			if (pair != null)
+			{
+				return pair.getLeft().getBackground(pair.getRight());
+			}
+		}
+		return null;
+	}
+
+	public static final String[] LOOKUP_NAMES = { "body", "button", "check", "combobox", ISupportRowStyling.CLASS_EVEN, "field", "footer", "form", "header", "label", "listbox", ISupportRowStyling.CLASS_ODD, "portal", "radio", ISupportRowStyling.CLASS_SELECTED, "tabpanel", "title_header", "title_footer" };
 
 	/**
 	 * @param bc
 	 * @return
 	 */
-	public static String getLookupName(BaseComponent bc)
+	public static String getLookupName(AbstractBase bc)
 	{
 		String lookupName = "root";
 		if (bc instanceof Field)
@@ -635,6 +653,10 @@ public class ComponentFactory
 		{
 			lookupName = "label";
 		}
+		else if (bc instanceof Part)
+		{
+			lookupName = Part.getCSSSelector(((Part)bc).getPartType());
+		}
 		return lookupName;
 	}
 
@@ -660,7 +682,7 @@ public class ComponentFactory
 				Object sbackground_color = s.getAttribute(CSS.Attribute.BACKGROUND_COLOR);
 				if (sbackground_color != null)
 				{
-					if ("transparent".equals(sbackground_color.toString()))
+					if (FixedStyleSheet.COLOR_TRANSPARENT.equals(sbackground_color.toString()))
 					{
 						c.setOpaque(false);
 					}

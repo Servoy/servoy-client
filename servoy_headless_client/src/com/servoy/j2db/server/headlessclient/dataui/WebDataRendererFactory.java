@@ -96,7 +96,7 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 		while (e2.hasNext())
 		{
 			Part part = (Part)e2.next();
-			Color bg = part.getBackground();
+			Color bg = ComponentFactory.getPartBackground(application, part, form);
 			if (form.getTransparent()) bg = null;
 			if (bg == null && printing) bg = Color.white;
 

@@ -1683,7 +1683,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			if (part.getPartType() == Part.BODY)
 			{
 				bodyPart = part;
-				bgColor = part.getBackground();
+				bgColor = ComponentFactory.getPartBackground(application, part, form);
 				if (bgColor == null && ss != null)
 				{
 					if (s != null)

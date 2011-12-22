@@ -339,6 +339,30 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 		}
 	}
 
+	public static String getCSSSelector(int type)
+	{
+		switch (type)
+		{
+			case TITLE_HEADER :
+				return "title_header"; //$NON-NLS-1$
+
+			case HEADER :
+				return "header"; //$NON-NLS-1$
+
+			case BODY :
+				return "body"; //$NON-NLS-1$
+
+			case FOOTER :
+				return "footer"; //$NON-NLS-1$
+
+			case TITLE_FOOTER :
+				return "title_footer"; //$NON-NLS-1$
+
+			default :
+				return null;
+		}
+	}
+
 	@Override
 	public String toString()
 	{

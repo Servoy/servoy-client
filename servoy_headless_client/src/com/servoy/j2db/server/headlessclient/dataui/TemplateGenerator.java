@@ -1278,7 +1278,7 @@ public class TemplateGenerator
 		styleObj.setProperty("border-style", "inset");
 		styleObj.setProperty("border-width", createInsetsText(DEFAULT_FIELD_BORDER_SIZE));
 		styleObj.setProperty("border-spacing", "0px 0px");
-		styleObj.setProperty("border-color", "transparent");
+		styleObj.setProperty("border-color", FixedStyleSheet.COLOR_TRANSPARENT);
 		styleObj.setProperty("background-color", "#FFFFFF");
 
 		//default label stuff
@@ -2331,7 +2331,7 @@ public class TemplateGenerator
 				html.append("><input type='text' servoy:id='datefield' ");
 				inline = new TextualStyle();
 				inline.setProperty("border-style", "none");
-				inline.setProperty("background-color", "transparent");
+				inline.setProperty("background-color", FixedStyleSheet.COLOR_TRANSPARENT);
 				inline.setProperty("height", "100%");
 				inline.setProperty("width", "100%");
 				inline.setProperty("margin", "0px");
@@ -2845,7 +2845,7 @@ public class TemplateGenerator
 
 		if (component.getTransparent())
 		{
-			styleObj.setProperty("background-color", "transparent");
+			styleObj.setProperty("background-color", FixedStyleSheet.COLOR_TRANSPARENT);
 		}
 		else if (component.getBackground() != null)
 		{

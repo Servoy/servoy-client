@@ -240,9 +240,10 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 
 	private void fillPartStyle(TextualStyle partStyle, Part part)
 	{
-		if (part.getBackground() != null && !f.getTransparent())
+		Color background = ComponentFactory.getPartBackground(sp, part, f);
+		if (background != null && !f.getTransparent())
 		{
-			partStyle.setProperty("background-color", PersistHelper.createColorString(part.getBackground())); //$NON-NLS-1$ 
+			partStyle.setProperty("background-color", PersistHelper.createColorString(background)); //$NON-NLS-1$ 
 		}
 
 		if (part.getPartType() == Part.BODY)
@@ -287,9 +288,10 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 		if (defaultNavigatorShift != 0)
 		{
 			TextualStyle navigatorStyle = new TextualStyle();
-			if (bodyPart.getBackground() != null && !f.getTransparent())
+			Color background = ComponentFactory.getPartBackground(sp, bodyPart, f);
+			if (background != null && !f.getTransparent())
 			{
-				navigatorStyle.setProperty("background-color", PersistHelper.createColorString(bodyPart.getBackground())); //$NON-NLS-1$ 
+				navigatorStyle.setProperty("background-color", PersistHelper.createColorString(background)); //$NON-NLS-1$ 
 			}
 			navigatorStyle.setProperty("overflow", "auto"); //$NON-NLS-1$ //$NON-NLS-2$
 			navigatorStyle.setProperty("position", "absolute"); //$NON-NLS-1$ //$NON-NLS-2$

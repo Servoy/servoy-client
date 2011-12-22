@@ -218,7 +218,7 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 		while (e2.hasNext())
 		{
 			Part part = (Part)e2.next();
-			Color bg = part.getBackground();
+			Color bg = ComponentFactory.getPartBackground(app, part, form);
 			if (bg == null && printing) bg = Color.white;
 
 			DataRenderer panel = (DataRenderer)emptyDataRenderers.get(part);
