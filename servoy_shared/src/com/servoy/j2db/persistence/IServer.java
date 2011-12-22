@@ -20,6 +20,7 @@ package com.servoy.j2db.persistence;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Remote interface to a database server
@@ -37,6 +38,8 @@ public interface IServer extends Remote
 	public List<String> getTableAndViewNames(boolean hideTemporary) throws RepositoryException, RemoteException;
 
 	public List<String> getTableNames(boolean hideTempTables) throws RepositoryException, RemoteException;
+
+	public Map<String, ITable> getTables(boolean hideTempTables) throws RepositoryException, RemoteException;
 
 	public List<String> getViewNames(boolean hideTempViews) throws RepositoryException, RemoteException;
 
