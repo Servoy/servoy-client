@@ -96,7 +96,17 @@ public class Settings extends SortedProperties
 	public synchronized void loadFromServer(URL base) throws Exception
 	{
 		loadedFromServer = true;
-		URL configfile = new URL(base, FILE_NAME);
+		URL configfile = null;
+		String profileName = System.getProperty("servoy.profilename"); //$NON-NLS-1$
+		if (profileName != null)
+		{
+			configfile = new URL(base, FILE_NAME + "?profilename=" + profileName); //$NON-NLS-1$
+		}
+		else
+		{
+			configfile = new URL(base, FILE_NAME);
+		}
+
 
 		//load from local
 		file = new File(System.getProperty("user.home"), J2DBGlobals.CLIENT_LOCAL_DIR + CLIENT_LOCAL_FILE_NAME); //$NON-NLS-1$
