@@ -729,8 +729,8 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 //					}
 // repaint the modal window (the contents may have changed)
 					target.addComponent(divDialog);
-					WebEventExecutor.generateResponse(target, (MainPage)currentContainer);
 				}
+				WebEventExecutor.generateResponse(target, divDialog.getPage());
 
 				return false;
 			}
