@@ -179,6 +179,19 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 		return this.tableType;
 	}
 
+	public boolean isInitialized()
+	{
+		acquireReadLock();
+		try
+		{
+			return getColumnCount() != 0;
+		}
+		finally
+		{
+			releaseReadLock();
+		}
+	}
+
 	/**
 	 * NOTE: use {@link IServerInternal#isTableMarkedAsHiddenInDeveloper(String)} if you do not want to load (init) table columns from DB by getting the Table object.<br><br>
 	 * 

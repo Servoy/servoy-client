@@ -39,7 +39,7 @@ public interface IServer extends Remote
 
 	public List<String> getTableNames(boolean hideTempTables) throws RepositoryException, RemoteException;
 
-	public Map<String, ITable> getTables(boolean hideTempTables) throws RepositoryException, RemoteException;
+	public Map<String, ITable> getInitializedTables() throws RepositoryException, RemoteException;
 
 	public List<String> getViewNames(boolean hideTempViews) throws RepositoryException, RemoteException;
 

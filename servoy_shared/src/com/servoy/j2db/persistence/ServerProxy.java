@@ -74,12 +74,13 @@ public class ServerProxy implements IServer, Serializable
 		ITable table = tables.get(lcname);
 		if (table == null)
 		{
-			// table is not found, now just first load all the (none temp) tables from the server
-			// so that it doesn't go one by one.
-			tables.putAll(getTables(false));
+			// table is not found, now just first load all initialized tables from the server
+			// so that it doesn't go one by one. The first client will not find anything, but it will slowly be filled.
+			tables.putAll(getInitializedTables());
 			table = tables.get(lcname);
 			if (table == null)
 			{
+				// table still not found, now try to get it and initialize it (so that it will be found the next time in getInitializedTables())
 				table = server.getTable(tableName);
 				if (table != null)
 				{
@@ -99,9 +100,9 @@ public class ServerProxy implements IServer, Serializable
 	 * 
 	 * @see com.servoy.j2db.persistence.IServer#getTables(boolean)
 	 */
-	public Map<String, ITable> getTables(boolean hideTempTables) throws RepositoryException, RemoteException
+	public Map<String, ITable> getInitializedTables() throws RepositoryException, RemoteException
 	{
-		return server.getTables(hideTempTables);
+		return server.getInitializedTables();
 	}
 
 	public List<String> getTableAndViewNames(boolean hideTemporary) throws RepositoryException, RemoteException
