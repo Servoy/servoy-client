@@ -65,6 +65,7 @@ public class ServerProxy implements IServer, Serializable
 		tables.putAll((Map< ? extends String, ? extends ITable>)s.readObject());
 	}
 
+	@SuppressWarnings("nls")
 	public ITable getTable(String tableName) throws RepositoryException, RemoteException
 	{
 		if (tableName == null) return null;
@@ -77,6 +78,10 @@ public class ServerProxy implements IServer, Serializable
 			if (table != null)
 			{
 				tables.put(lcname, table);
+			}
+			else
+			{
+				Debug.trace("Table " + tableName + " name not found on server: " + getName());
 			}
 		}
 		return table;

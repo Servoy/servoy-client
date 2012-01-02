@@ -1827,7 +1827,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				if (offset == 0 && startRow > 0)
 				{
 					// not found, reselect from start
-					Debug.warn("Could not connect next foundset chunk, re-loading entire PK set"); //$NON-NLS-1$
+					Debug.warn("Could not connect next foundset chunk (" + startRow + "," + correctedMaxResult + "), re-loading entire PK set of datasource: " + getDataSource()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					pks.createPKCache(); // out-of-sync detected, this also flags that new PKS need to be matched against existing ones
 					startRow = 0;
 					time = System.currentTimeMillis();
