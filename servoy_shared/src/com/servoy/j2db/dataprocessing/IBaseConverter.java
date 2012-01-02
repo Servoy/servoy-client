@@ -22,6 +22,7 @@ import com.servoy.j2db.persistence.IColumnTypes;
 
 /**
  * Public base interface for a converter.
+ * This interface is not intended to be implemented, implement sub-interfaces instead.
  * 
  * @see IColumnConverter
  * @see IUIConverter
