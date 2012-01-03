@@ -27,4 +27,6 @@ public interface ISupportInputSelection
 	public void selectAll();
 
 	public void replaceSelectedText(String s);
+
+	public String getSelectedText();
 }
