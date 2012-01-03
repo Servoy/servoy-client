@@ -129,6 +129,10 @@ public abstract class AbstractRuntimeTextComponent<C extends IFieldComponent, T 
 		{
 			return textComponent.getSelectedText();
 		}
+		if (getComponent() instanceof ISupportInputSelection)
+		{
+			return ((ISupportInputSelection)getComponent()).getSelectedText();
+		}
 		return null;
 	}
 

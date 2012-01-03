@@ -1541,6 +1541,24 @@ if (typeof(Servoy.Utils) == "undefined")
 			Servoy.Utils.clickTimerRunning = false;
 		},
 		
+		getSelectedText: function(id)
+		{
+			// code for IE
+		    var textarea = document.getElementById(id);
+		    var sel = null;
+		    if (document.selection) {
+				textarea.focus();
+				sel = document.selection.createRange();
+		    }
+		    else {
+				// code for Mozilla
+				var start = textarea.selectionStart;
+				var end = textarea.selectionEnd;
+				sel = textarea.value.substring(start, end);
+			}
+			return sel;
+		},
+		
 		getSelection: function(oField){
 		 // Initialize
 	     var begin = 0;

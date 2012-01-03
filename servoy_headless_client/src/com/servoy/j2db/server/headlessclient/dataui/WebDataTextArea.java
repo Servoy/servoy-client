@@ -32,6 +32,7 @@ import javax.swing.text.Document;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Page;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.form.Form;
@@ -107,6 +108,22 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 					return (editable ? AttributeModifier.VALUELESS_ATTRIBUTE_REMOVE : AttributeModifier.VALUELESS_ATTRIBUTE_ADD);
 				}
 			}));
+
+		add(new ServoyAjaxEventBehavior("onselect", "GetTextCmd")
+		{
+			@Override
+			protected void onEvent(AjaxRequestTarget target)
+			{
+				setSelectedText(getComponent().getRequest().getParameter("st"));
+			}
+
+			@Override
+			public CharSequence getCallbackUrl(final boolean onlyTargetActivePage)
+			{
+				CharSequence callbackURL = super.getCallbackUrl(onlyTargetActivePage);
+				return callbackURL.toString() + "&st=' + Servoy.Utils.getSelectedText('" + getMarkupId() + "') + '";
+			}
+		});
 
 		add(StyleAttributeModifierModel.INSTANCE);
 		add(TooltipAttributeModifier.INSTANCE);
@@ -498,6 +515,24 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 		{
 			((MainPage)page).getPageContributor().addDynamicJavaScript("Servoy.Utils.replaceSelectedText('" + getMarkupId() + "','" + s + "');");
 		}
+	}
+
+	private String textSelection;
+
+	public void setSelectedText(String sel)
+	{
+		textSelection = sel;
+	}
+
+	public String getSelectedText()
+	{
+		if (textSelection != null)
+		{
+			String sel = textSelection;
+			setSelectedText(null);
+			return sel;
+		}
+		return null;
 	}
 
 	/*

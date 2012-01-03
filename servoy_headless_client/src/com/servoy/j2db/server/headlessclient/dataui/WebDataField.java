@@ -910,6 +910,11 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		}
 	}
 
+	public String getSelectedText()
+	{
+		return null;
+	}
+
 	public IValueList getValueList()
 	{
 		return list;
