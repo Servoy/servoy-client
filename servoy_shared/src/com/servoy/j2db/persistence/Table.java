@@ -51,7 +51,7 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 	private final String plainSQLName;
 	private final int tableType;
 
-	private boolean hiddenInDeveloper = false;
+	private volatile boolean hiddenInDeveloper = false;
 
 	private final LinkedHashMap<String, Column> columns = new LinkedHashMap<String, Column>();
 	private final List<Column> keyColumns = new ArrayList<Column>();
