@@ -52,7 +52,7 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 	private final String plainSQLName;
 	private final int tableType;
 
-	private boolean hiddenInDeveloper = false;
+	private volatile boolean hiddenInDeveloper = false;
 
 	private final AliasKeyMap<String, String, Column> columns = new AliasKeyMap<String, String, Column>(new LinkedHashMap<String, Column>());
 	private final List<Column> keyColumns = new ArrayList<Column>();
