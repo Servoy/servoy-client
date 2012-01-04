@@ -2261,7 +2261,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * @param location optional a boolean or number when true the new record is added as the topmost record, when a number, the new record is added at specified index ; defaults to 1.
 	 * @param changeSelection optional boolean when true the selection is changed to the duplicated record; defaults to true.
 	 *  
-	 * @return true if succesful
+	 * @return 0 if record was not created or the record index if it was created.
 	 */
 	public int js_duplicateRecord(Object[] vargs) throws ServoyException
 	{
