@@ -134,7 +134,7 @@ public class MediaUploadPage extends WebPage
 				else if (mfuf != null)
 				{
 					Collection<FileUpload> uploads = mfuf.getModelObject();
-					if (uploads != null && uploads.size() > 0)
+					if (uploads != null)
 					{
 						IUploadData[] data = new IUploadData[uploads.size()];
 						int counter = 0;
