@@ -141,6 +141,7 @@ import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportEventExecutor;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowStyling;
+import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.PropertyCopy;
 import com.servoy.j2db.ui.RenderEventExecutor;
@@ -1962,6 +1963,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				return result.trim();
 			}
 		});
+
+		if (c instanceof ISupportValueList)
+		{
+			ISupportValueList idVl = (ISupportValueList)elementToColumnIdentifierComponent.get(element);
+			if (idVl != null) ((ISupportValueList)c).setValueList(idVl.getValueList());
+		}
 	}
 
 	/**
