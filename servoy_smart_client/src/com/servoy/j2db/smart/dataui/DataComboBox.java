@@ -261,7 +261,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 					}
 					//Reset JComboBox and state
 					stateCmb = false;
-					cmb.setSize(defaultWidth, cmb.getHeight());
+					if (defaultWidth > 0) cmb.setSize(defaultWidth, cmb.getHeight());
 				}
 			}
 
