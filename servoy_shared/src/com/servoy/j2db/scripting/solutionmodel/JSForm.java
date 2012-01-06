@@ -2966,7 +2966,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 				throw new RuntimeException("extendsForm must receive either null, a JSForm object or a valid form name");
 			}
 
-			form.setExtendsID(Form.NAVIGATOR_DEFAULT);
+			form.setExtendsID(AbstractBase.DEFAULT_INT);
 		}
 		else
 		{

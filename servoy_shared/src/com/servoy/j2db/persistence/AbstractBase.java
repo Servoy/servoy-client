@@ -51,10 +51,10 @@ import com.servoy.j2db.util.Utils;
  */
 public abstract class AbstractBase implements IPersist
 {
-	/**
-	 * 
-	 */
+
 	private static final String[] OVERRIDE_PATH = new String[] { "override" }; //$NON-NLS-1$
+	public static final int DEFAULT_INT = ContentSpec.ZERO.intValue(); // == ContentSpec.getJavaClassMemberDefaultValue(IRepository.INTEGER)
+
 	/*
 	 * Attributes for IPersist
 	 */
@@ -274,7 +274,7 @@ public abstract class AbstractBase implements IPersist
 	{
 		// fix for elements that don't have this property (methods,vars)
 		Integer extendsId = getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID);
-		if (extendsId == null) return Form.NAVIGATOR_DEFAULT; // this code might seem to not be reacheable, but it is reached as extendsID is not declared in content spec for all abstract base types (for example ScriptMethod)
+		if (extendsId == null) return DEFAULT_INT; // this code might seem to not be reacheable, but it is reached as extendsID is not declared in content spec for all abstract base types (for example ScriptMethod)
 		return extendsId.intValue();
 	}
 
