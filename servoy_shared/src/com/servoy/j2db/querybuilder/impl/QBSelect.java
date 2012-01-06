@@ -37,10 +37,10 @@ import com.servoy.j2db.query.ExistsCondition;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.OrCondition;
 import com.servoy.j2db.query.Placeholder;
-import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
+import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilderLogicalCondition;
@@ -73,7 +73,8 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 
 	private final IDataProviderHandler dataProviderHandler;
 
-	QBSelect(ITableAndRelationProvider tableProvider, IGlobalValueEntry globalScopeProvider, IDataProviderHandler dataProviderHandler, String dataSource, String alias)
+	QBSelect(ITableAndRelationProvider tableProvider, IGlobalValueEntry globalScopeProvider, IDataProviderHandler dataProviderHandler, String dataSource,
+		String alias)
 	{
 		super(dataSource, alias);
 		this.tableProvider = tableProvider;
@@ -84,8 +85,8 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	/**
 	 * @param querySelect
 	 */
-	public QBSelect(ITableAndRelationProvider tableProvider, IGlobalValueEntry globalScopeProvider, IDataProviderHandler dataProviderHandler, String dataSource,
-		QuerySelect querySelect)
+	public QBSelect(ITableAndRelationProvider tableProvider, IGlobalValueEntry globalScopeProvider, IDataProviderHandler dataProviderHandler,
+		String dataSource, QuerySelect querySelect)
 	{
 		super(dataSource, null);
 		this.tableProvider = tableProvider;
@@ -209,6 +210,12 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	public QBLogicalCondition or()
 	{
 		return new QBLogicalCondition(getRoot(), this, new OrCondition());
+	}
+
+	@JSReadonlyProperty
+	public QBLogicalCondition and()
+	{
+		return new QBLogicalCondition(getRoot(), this, new AndCondition());
 	}
 
 	@JSFunction

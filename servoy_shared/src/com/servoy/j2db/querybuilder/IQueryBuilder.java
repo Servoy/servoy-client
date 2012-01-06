@@ -138,6 +138,27 @@ public interface IQueryBuilder extends IQueryBuilderTableClause
 	IQueryBuilderLogicalCondition or();
 
 	/**
+	 * Create an AND-condition to add conditions to.
+	 * <pre>
+	 * // where (flag = ? and order_date is null) or (flag = ? and order_date > ?)
+	 *	query.where().add(
+	 *	  query.or()
+	 *	    .add(
+	 *	      query.and()
+	 *		    .add(query.getColumn("flag").eq(new Integer(1)))
+	 *		    .add(query.getColumn("order_date").isNull())
+	 *		 )
+	 *	    .add(
+	 *	      query.and()
+	 *	        .add(query.getColumn("flag").eq(new Integer(2)))
+	 *	        .add(query.getColumn("order_date").gt(new Date()))
+	 *	     )
+	 *	);	
+	 * </pre>
+	 */
+	IQueryBuilderLogicalCondition and();
+
+	/**
 	 * Create an negated condition.
 	 * <pre>
 	 * // where not (order_date is null or order_date > ?)
