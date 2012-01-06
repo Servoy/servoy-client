@@ -34,5 +34,7 @@
 	<classpathentry kind="lib" path="lib/httpclient-cache.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/l2fprod-common-outlookbar.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/wiquery.jar" sourcepath="libsrc/wiquery-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/core-parser.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/core-commons.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

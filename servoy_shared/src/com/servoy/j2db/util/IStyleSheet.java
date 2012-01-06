@@ -20,6 +20,7 @@ package com.servoy.j2db.util;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Insets;
+import java.util.List;
 
 import javax.swing.border.Border;
 import javax.swing.text.AttributeSet;
@@ -35,62 +36,91 @@ import com.servoy.j2db.plugins.IClientPluginAccess;
  */
 public interface IStyleSheet
 {
+	public static final String COLOR_TRANSPARENT = "transparent"; //$NON-NLS-1$
+
+	public static final String BORDER_STYLE_DASHED = "dashed"; //$NON-NLS-1$
+	public static final String BORDER_STYLE_DOTTED = "dotted"; //$NON-NLS-1$
+	public static final String BORDER_STYLE_GROOVE = "groove"; //$NON-NLS-1$
+	public static final String BORDER_STYLE_RIDGE = "ridge"; //$NON-NLS-1$
+	public static final String BORDER_STYLE_INSET = "inset"; //$NON-NLS-1$
+	public static final String BORDER_STYLE_NONE = "none"; //$NON-NLS-1$
+	public static final String BORDER_STYLE_OUTSET = "outset"; //$NON-NLS-1$
+	public static final String BORDER_STYLE_SOLID = "solid"; //$NON-NLS-1$
+	public static final String BORDER_STYLE_DOUBLE = "double"; //$NON-NLS-1$
+	public static final String[] BORDER_STYLES = new String[] { BORDER_STYLE_SOLID, BORDER_STYLE_NONE, BORDER_STYLE_DASHED, BORDER_STYLE_DOTTED, BORDER_STYLE_GROOVE, BORDER_STYLE_RIDGE, BORDER_STYLE_INSET, BORDER_STYLE_OUTSET, BORDER_STYLE_DOUBLE };
+
 	/**
 	 * Get the attributes for a style selector.
 	 * From the attributes values can be retrieved via for example: getAttribute(CSS.Attribute.HEIGHT)
 	 * @param selector the class
 	 * @return The attributes
 	 * @see CSS.Attribute.HEIGHT
+	 * @deprecated As of 6.1 release, deprecated because of reference to swing CSS parser.
 	 */
+	@Deprecated
 	public AttributeSet getRule(String selector);
 
 	/**
 	 * Helper method, get the font from supplied attributes.
 	 * @param a the attributes
 	 * @return the font or null if not defined
+	 * @deprecated As of 6.1 release, deprecated because of reference to swing CSS parser.
 	 */
+	@Deprecated
 	public Font getFont(AttributeSet a);
 
 	/**
 	 * Helper method, get the margin from supplied attributes.
 	 * @param a the attributes
 	 * @return the margin or null if not defined
+	 * @deprecated As of 6.1 release, deprecated because of reference to swing CSS parser.
 	 */
+	@Deprecated
 	public Insets getMargin(AttributeSet a);
 
 	/**
 	 * Helper method, get the border from supplied attributes.
 	 * @param a the attributes
 	 * @return the border or null if not defined
+	 * @deprecated As of 6.1 release, deprecated because of reference to swing CSS parser.
 	 */
+	@Deprecated
 	public Border getBorder(AttributeSet a);
 
 	/**
 	 * Helper method, get the horizontal align from supplied attributes.
 	 * @param a the attributes
 	 * @return the align or -1 if not defined
+	 * @deprecated As of 6.1 release, deprecated because of reference to swing CSS parser.
 	 */
+	@Deprecated
 	public int getHAlign(AttributeSet a);
 
 	/**
 	 * Helper method, get the vertical align from supplied attributes.
 	 * @param a the attributes
 	 * @return the align or -1 if not defined
+	 * @deprecated As of 6.1 release, deprecated because of reference to swing CSS parser.
 	 */
+	@Deprecated
 	public int getVAlign(AttributeSet a);
 
 	/**
 	 * Helper method, get the foreground color from supplied attributes.
 	 * @param a the attributes
 	 * @return the foreground color
+	 * @deprecated As of 6.1 release, deprecated because of reference to swing CSS parser.
 	 */
+	@Deprecated
 	public Color getForeground(AttributeSet a);
 
 	/**
 	 * Helper method, get the background color from supplied attributes.
 	 * @param a the attributes
 	 * @return the background color
+	 * @deprecated As of 6.1 release, deprecated because of reference to swing CSS parser.
 	 */
+	@Deprecated
 	public Color getBackground(AttributeSet a);
 
 
@@ -98,20 +128,112 @@ public interface IStyleSheet
 	 * Check whatever the supplied attributes have border attribute
 	 * @param a the attributes
 	 * @return true if the attributes have border attribute, false otherwise
+	 * @deprecated As of 6.1 release, deprecated because of reference to swing CSS parser.
 	 */
+	@Deprecated
 	public boolean hasBorder(AttributeSet s);
 
 	/**
 	 * Check whatever the supplied attributes have margin attribute
 	 * @param a the attributes
 	 * @return true if the attributes have margin attribute, false otherwise
+	 * @deprecated As of 6.1 release, deprecated because of reference to swing CSS parser.
 	 */
+	@Deprecated
 	public boolean hasMargin(AttributeSet s);
 
 	/**
 	 * Check whatever the supplied attributes have font attribute
 	 * @param a the attributes
 	 * @return true if the attributes have font attribute, false otherwise
+	 * @deprecated As of 6.1 release, deprecated because of reference to swing CSS parser.
 	 */
+	@Deprecated
 	public boolean hasFont(AttributeSet s);
+
+	/**
+	 * Get the attributes for a style selector.
+	 * From the attributes values can be retrieved via for example: getAttribute("height")
+	 * @param selector the class
+	 * @return The attributes
+	 */
+	public IStyleRule getCSSRule(String selector);
+
+	/**
+	 * Helper method, get the font from supplied attributes.
+	 * @param a the attributes
+	 * @return the font or null if not defined
+	 */
+	public Font getFont(IStyleRule a);
+
+	/**
+	 * Helper method, get the margin from supplied attributes.
+	 * @param a the attributes
+	 * @return the margin or null if not defined
+	 */
+	public Insets getMargin(IStyleRule a);
+
+	/**
+	 * Helper method, get the border from supplied attributes.
+	 * @param a the attributes
+	 * @return the border or null if not defined
+	 */
+	public Border getBorder(IStyleRule a);
+
+	/**
+	 * Helper method, get the horizontal align from supplied attributes.
+	 * @param a the attributes
+	 * @return the align or -1 if not defined
+	 */
+	public int getHAlign(IStyleRule a);
+
+	/**
+	 * Helper method, get the vertical align from supplied attributes.
+	 * @param a the attributes
+	 * @return the align or -1 if not defined
+	 */
+	public int getVAlign(IStyleRule a);
+
+	/**
+	 * Helper method, get the foreground color from supplied attributes.
+	 * @param a the attributes
+	 * @return the foreground color
+	 */
+	public Color getForeground(IStyleRule a);
+
+	/**
+	 * Helper method, get the background color from supplied attributes.
+	 * @param a the attributes
+	 * @return the background color
+	 */
+	public Color getBackground(IStyleRule a);
+
+
+	/**
+	 * Check whatever the supplied attributes have border attribute
+	 * @param a the attributes
+	 * @return true if the attributes have border attribute, false otherwise
+	 */
+	public boolean hasBorder(IStyleRule s);
+
+	/**
+	 * Check whatever the supplied attributes have margin attribute
+	 * @param a the attributes
+	 * @return true if the attributes have margin attribute, false otherwise
+	 */
+	public boolean hasMargin(IStyleRule s);
+
+	/**
+	 * Check whatever the supplied attributes have font attribute
+	 * @param a the attributes
+	 * @return true if the attributes have font attribute, false otherwise
+	 */
+	public boolean hasFont(IStyleRule s);
+
+	/**
+	 * Get all the style names from this stylesheet.
+	 * 
+	 * @return all styles(rule) names
+	 */
+	public List<String> getStyleNames();
 }

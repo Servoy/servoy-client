@@ -56,6 +56,7 @@ import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.gui.RoundedBorder;
 import com.servoy.j2db.util.gui.SpecialMatteBorder;
 
 /**
@@ -1745,6 +1746,38 @@ public class JSSolutionModel
 			PersistHelper.createColor(right_color), PersistHelper.createColor(bottom_color), PersistHelper.createColor(left_color));
 		border.setRoundingRadius(rounding_radius);
 		if (dash_pattern != null) border.setDashPattern(dash_pattern);
+		return ComponentFactoryHelper.createBorderString(border);
+	}
+
+	/**
+	 * Create a special matte border string.
+	 * 
+	 * @sample
+	 * var form = solutionModel.getForm("someForm");
+	 * // create a rectangle border (no rounded corners) and continous line
+	 * form.borderType = solutionModel.createSpecialMatteBorder(1,1,1,1,"#00ff00","#00ff00","#00ff00","#00ff00",0,null);
+	 * // create a border with rounded corners and dashed line (25 pixels drawn, then 25 pixels skipped)
+	 * // rounding_radius is an array of up to 8 numbers, order is: top-left,top-right,bottom-right,bottom-left (repetead twice - for width and height)
+	 * // form.borderType = solutionModel.createSpecialMatteBorder(1,1,1,1,"#00ff00","#00ff00","#00ff00","#00ff00",new Array(10,10,10,10),new Array(25,25));
+	 * 
+	 * @param top_width top width of matte border in pixels
+	 * @param right_width right width of matte border in pixels
+	 * @param bottom_width bottom width of matte border in pixels
+	 * @param left_width left width of matte border in pixels
+	 * @param top_color top border color
+	 * @param right_color right border color
+	 * @param bottom_color bottom border color
+	 * @param left_color left border color
+	 * @param rounding_radius array with width/height of the arc to round the corners
+	 * @param border_style the border styles for the four margins(top/left/bottom/left)
+	 */
+	public String js_createRoundedBorder(int top_width, int right_width, int bottom_width, int left_width, String top_color, String right_color,
+		String bottom_color, String left_color, float[] rounding_radius, String[] border_style)
+	{
+		RoundedBorder border = new RoundedBorder(top_width, left_width, bottom_width, right_width, PersistHelper.createColor(top_color),
+			PersistHelper.createColor(right_color), PersistHelper.createColor(bottom_color), PersistHelper.createColor(left_color));
+		border.setRoundingRadius(rounding_radius);
+		if (border_style != null) border.setBorderStyles(border_style);
 		return ComponentFactoryHelper.createBorderString(border);
 	}
 

@@ -1,0 +1,348 @@
+package com.servoy.j2db.util;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Insets;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.swing.border.Border;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.html.CSS;
+import javax.swing.text.html.CSS.Attribute;
+
+import org.xhtmlrenderer.css.constants.CSSName;
+import org.xhtmlrenderer.css.newmatch.Matcher;
+import org.xhtmlrenderer.css.newmatch.Selector;
+import org.xhtmlrenderer.css.parser.CSSErrorHandler;
+import org.xhtmlrenderer.css.parser.CSSParser;
+import org.xhtmlrenderer.css.parser.PropertyValue;
+import org.xhtmlrenderer.css.sheet.PropertyDeclaration;
+import org.xhtmlrenderer.css.sheet.Ruleset;
+import org.xhtmlrenderer.css.sheet.Stylesheet;
+
+
+public class ServoyStyleSheet implements IStyleSheet
+{
+	private final CSSName[] BORDER_CSS = new CSSName[] { CSSName.BORDER_BOTTOM_COLOR, CSSName.BORDER_BOTTOM_SHORTHAND, CSSName.BORDER_BOTTOM_STYLE, CSSName.BORDER_BOTTOM_WIDTH, CSSName.BORDER_TOP_COLOR, CSSName.BORDER_TOP_SHORTHAND, CSSName.BORDER_TOP_STYLE, CSSName.BORDER_TOP_WIDTH, CSSName.BORDER_LEFT_COLOR, CSSName.BORDER_LEFT_SHORTHAND, CSSName.BORDER_LEFT_STYLE, CSSName.BORDER_LEFT_WIDTH, CSSName.BORDER_RIGHT_COLOR, CSSName.BORDER_RIGHT_SHORTHAND, CSSName.BORDER_RIGHT_STYLE, CSSName.BORDER_RIGHT_WIDTH, CSSName.BORDER_COLOR_SHORTHAND, CSSName.BORDER_SHORTHAND, CSSName.BORDER_TOP_SHORTHAND, CSSName.BORDER_LEFT_SHORTHAND, CSSName.BORDER_BOTTOM_SHORTHAND, CSSName.BORDER_RIGHT_SHORTHAND };
+	private final CSSName[] MARGIN_CSS = new CSSName[] { CSSName.MARGIN_BOTTOM, CSSName.MARGIN_TOP, CSSName.MARGIN_LEFT, CSSName.MARGIN_RIGHT, CSSName.MARGIN_SHORTHAND };
+	static Attribute[] marginAttributes = new Attribute[] { CSS.Attribute.MARGIN, CSS.Attribute.MARGIN_BOTTOM, CSS.Attribute.MARGIN_LEFT, CSS.Attribute.MARGIN_RIGHT, CSS.Attribute.MARGIN_TOP };
+	public static Attribute[] fontAttributes = new Attribute[] { CSS.Attribute.FONT, CSS.Attribute.FONT_FAMILY, CSS.Attribute.FONT_SIZE, CSS.Attribute.FONT_STYLE, CSS.Attribute.FONT_VARIANT, CSS.Attribute.FONT_WEIGHT };
+	public static String[] borderAttributesExtensions = new String[] { "border-left-style", "border-right-style", "border-top-style", "border-bottom-style", "border-left-color", "border-right-color", "border-top-color", "border-bottom-color", "border-radius", "border-top-left-radius", "border-top-right-radius", "border-bottom-right-radius", "border-bottom-left-radius" };
+	public static Attribute[] borderAttributes = new Attribute[] { CSS.Attribute.BORDER, CSS.Attribute.BORDER_BOTTOM, CSS.Attribute.BORDER_BOTTOM_WIDTH, CSS.Attribute.BORDER_COLOR, CSS.Attribute.BORDER_LEFT, CSS.Attribute.BORDER_LEFT_WIDTH, CSS.Attribute.BORDER_RIGHT, CSS.Attribute.BORDER_RIGHT_WIDTH, CSS.Attribute.BORDER_STYLE, CSS.Attribute.BORDER_TOP, CSS.Attribute.BORDER_TOP_WIDTH, CSS.Attribute.BORDER_WIDTH };
+
+	private final CSSErrorHandler errorHandler;
+	private Stylesheet styleSheet;
+	private final FixedStyleSheet ss;
+
+	public ServoyStyleSheet(String cssContent)
+	{
+		this.errorHandler = new CSSErrorHandler()
+		{
+
+			public void error(String uri, String message)
+			{
+				Debug.error("Error at css parsing, " + uri + ":" + message); //$NON-NLS-1$//$NON-NLS-2$
+			}
+		};
+		CSSParser parser = new CSSParser(errorHandler);
+		try
+		{
+			styleSheet = parser.parseStylesheet(null, 0, new StringReader(cssContent));
+		}
+		catch (IOException e)
+		{
+			Debug.error(e);
+		}
+		ss = new FixedStyleSheet();
+		try
+		{
+			ss.addRule(cssContent);
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+		}
+	}
+
+	@Deprecated
+	public AttributeSet getRule(String selector)
+	{
+		return ss.getRule(selector);
+	}
+
+	@Deprecated
+	public Font getFont(AttributeSet a)
+	{
+		return ss.getFont(a);
+	}
+
+	@Deprecated
+	public Insets getMargin(AttributeSet a)
+	{
+		return ss.getMargin(a);
+	}
+
+	@Deprecated
+	public Border getBorder(AttributeSet a)
+	{
+		return ss.getBorder(a);
+	}
+
+	@Deprecated
+	public int getHAlign(AttributeSet a)
+	{
+		return ss.getHAlign(a);
+	}
+
+	@Deprecated
+	public int getVAlign(AttributeSet a)
+	{
+		return ss.getVAlign(a);
+	}
+
+	@Deprecated
+	public Color getForeground(AttributeSet a)
+	{
+		return ss.getForeground(a);
+	}
+
+	@Deprecated
+	public Color getBackground(AttributeSet a)
+	{
+		return ss.getBackground(a);
+	}
+
+	@Deprecated
+	public boolean hasBorder(AttributeSet s)
+	{
+		return ss.hasBorder(s);
+	}
+
+	@Deprecated
+	public boolean hasMargin(AttributeSet s)
+	{
+		return ss.hasMargin(s);
+	}
+
+	@Deprecated
+	public boolean hasFont(AttributeSet s)
+	{
+		return ss.hasFont(s);
+	}
+
+	public IStyleRule getCSSRule(String selector)
+	{
+		Matcher matcher = new Matcher(new ServoyTreeResolver(), new ServoyAttributeResolver(), new ServoyStylesheetFactor(errorHandler),
+			Arrays.asList(styleSheet), null);
+		return new ServoyStyleRule(matcher.getCascadedStyle(selector, true));
+	}
+
+	public Font getFont(IStyleRule a)
+	{
+		if (hasFont(a))
+		{
+			String family = "SansSerif"; //$NON-NLS-1$
+			int size = 12;
+			int style = Font.PLAIN;
+			ServoyStyleRule rule = (ServoyStyleRule)a;
+			if (a.hasAttribute(CSSName.FONT_FAMILY.toString()))
+			{
+				PropertyDeclaration declaration = rule.getPropertyDeclaration(CSSName.FONT_FAMILY.toString());
+				if (declaration != null)
+				{
+					family = ((PropertyValue)declaration.getValue()).getStringArrayValue()[0];
+				}
+			}
+			if (a.hasAttribute(CSSName.FONT_WEIGHT.toString()))
+			{
+				PropertyDeclaration declaration = rule.getPropertyDeclaration(CSSName.FONT_WEIGHT.toString());
+				if (declaration != null)
+				{
+					if (declaration.getValue().getCssText().contains("bold") || Utils.getAsFloat(declaration.getValue().getCssText()) > 400) //$NON-NLS-1$
+					{
+						style |= Font.BOLD;
+					}
+				}
+			}
+			if (a.hasAttribute(CSSName.FONT_STYLE.toString()))
+			{
+				PropertyDeclaration declaration = rule.getPropertyDeclaration(CSSName.FONT_STYLE.toString());
+				if (declaration != null)
+				{
+					if (declaration.getValue().getCssText().contains("italic")) //$NON-NLS-1$
+					{
+						style |= Font.ITALIC;
+					}
+				}
+			}
+			if (a.hasAttribute(CSSName.FONT_SIZE.toString()))
+			{
+				PropertyDeclaration declaration = rule.getPropertyDeclaration(CSSName.FONT_SIZE.toString());
+				if (declaration != null)
+				{
+					float fontSize = ss.getLength(declaration.getValue().getCssText());
+					if (fontSize > 0)
+					{
+						if (declaration.getValue().getCssText().endsWith("px")) //$NON-NLS-1$
+						{
+							fontSize = 4 * fontSize / 3;
+						}
+						size = Math.round(fontSize);
+					}
+
+				}
+			}
+			return PersistHelper.createFont(family, style, size);
+		}
+		return null;
+	}
+
+	public Insets getMargin(IStyleRule a)
+	{
+		if (hasMargin(a))
+		{
+			float top = ss.getLength(a.getValue(CSS.Attribute.MARGIN_TOP.toString()));
+			float bottom = ss.getLength(a.getValue(CSS.Attribute.MARGIN_BOTTOM.toString()));
+			float left = ss.getLength(a.getValue(CSS.Attribute.MARGIN_LEFT.toString()));
+			float right = ss.getLength(a.getValue(CSS.Attribute.MARGIN_RIGHT.toString()));
+
+			return new Insets(top < 0 ? 0 : (int)top, left < 0 ? 0 : (int)left, bottom < 0 ? 0 : (int)bottom, right < 0 ? 0 : (int)right);
+		}
+		return null;
+	}
+
+	public Border getBorder(final IStyleRule a)
+	{
+		return ss.getBorder(new AttributeSet()
+		{
+
+			public boolean isEqual(AttributeSet attr)
+			{
+				return false;
+			}
+
+			public boolean isDefined(Object attrName)
+			{
+				return a.hasAttribute(attrName.toString());
+			}
+
+			public AttributeSet getResolveParent()
+			{
+				return null;
+			}
+
+			public Enumeration< ? > getAttributeNames()
+			{
+				final Iterator<String> it = a.getAttributeNames().iterator();
+				return new Enumeration()
+				{
+					public boolean hasMoreElements()
+					{
+						return it.hasNext();
+					}
+
+					public Object nextElement()
+					{
+						return it.next();
+					}
+				};
+			}
+
+			public int getAttributeCount()
+			{
+				return a.getAttributeCount();
+			}
+
+			public Object getAttribute(Object key)
+			{
+				return a.getValue(key.toString());
+			}
+
+			public AttributeSet copyAttributes()
+			{
+				return null;
+			}
+
+			public boolean containsAttributes(AttributeSet attributes)
+			{
+				return false;
+			}
+
+			public boolean containsAttribute(Object name, Object value)
+			{
+				return false;
+			}
+		});
+	}
+
+	public int getHAlign(IStyleRule a)
+	{
+		return ss.getHAlign(a.getValue(CSSName.TEXT_ALIGN.toString()));
+	}
+
+	public int getVAlign(IStyleRule a)
+	{
+		return ss.getVAlign(a.getValue(CSSName.VERTICAL_ALIGN.toString()));
+	}
+
+	public Color getForeground(IStyleRule a)
+	{
+		return PersistHelper.createColor(a.getValue(CSSName.COLOR.toString()));
+	}
+
+	public Color getBackground(IStyleRule a)
+	{
+		return PersistHelper.createColor(a.getValue(CSSName.BACKGROUND_COLOR.toString()));
+	}
+
+	private boolean hasProperty(IStyleRule s, CSSName[] names)
+	{
+		for (CSSName name : names)
+		{
+			if (s.hasAttribute(name.toString())) return true;
+		}
+		return false;
+	}
+
+	public boolean hasBorder(IStyleRule s)
+	{
+		return hasProperty(s, BORDER_CSS);
+	}
+
+	public boolean hasMargin(IStyleRule s)
+	{
+		return hasProperty(s, MARGIN_CSS);
+	}
+
+	public boolean hasFont(IStyleRule s)
+	{
+		return s.hasAttribute(CSSName.FONT_FAMILY.toString()) || s.hasAttribute(CSSName.FONT_SHORTHAND.toString()) ||
+			s.hasAttribute(CSSName.FONT_SIZE.toString()) || s.hasAttribute(CSSName.FONT_STYLE.toString()) || s.hasAttribute(CSSName.FONT_VARIANT.toString()) ||
+			s.hasAttribute(CSSName.FONT_WEIGHT.toString());
+	}
+
+	public List<String> getStyleNames()
+	{
+		List<String> list = new ArrayList<String>();
+		for (Object ruleset : styleSheet.getContents())
+		{
+			if (ruleset instanceof Ruleset)
+			{
+				for (Object selector : ((Ruleset)ruleset).getFSSelectors())
+				{
+					if (selector instanceof Selector)
+					{
+						list.add(((Selector)selector).getSelectorText());
+					}
+				}
+			}
+		}
+		return list;
+	}
+}

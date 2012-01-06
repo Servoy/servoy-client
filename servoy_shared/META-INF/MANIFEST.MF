@@ -33,7 +33,9 @@ Bundle-ClassPath: .,
  lib/httpmime.jar,
  lib/antlr.jar,
  lib/l2fprod-common-outlookbar.jar,
- lib/wiquery.jar
+ lib/wiquery.jar,
+ lib/core-parser.jar,
+ lib/core-commons.jar
 Require-Bundle: org.eclipse.dltk.javascript.rhino
 Export-Package: antlr,
  antlr.ASdebug,

@@ -35,29 +35,21 @@ import javax.swing.text.html.CSS;
 import javax.swing.text.html.CSS.Attribute;
 import javax.swing.text.html.StyleSheet;
 
+import org.xhtmlrenderer.css.constants.CSSName;
+
 import com.servoy.j2db.util.gui.CustomBevelBorder;
 import com.servoy.j2db.util.gui.CustomEtchedBorder;
+import com.servoy.j2db.util.gui.RoundedBorder;
 import com.servoy.j2db.util.gui.SpecialMatteBorder;
 
 /**
  * @author jblok
- *
+ * @deprecated only keep for backwards compatibility of plugins
  * Enhanced/fixed subclass for proper behaviour.
  */
-public class FixedStyleSheet extends StyleSheet implements IStyleSheet
+@Deprecated
+public class FixedStyleSheet extends StyleSheet
 {
-	public static final String COLOR_TRANSPARENT = "transparent"; //$NON-NLS-1$
-	private static final String BORDER_STYLE_DASHED = "dashed"; //$NON-NLS-1$
-	private static final String BORDER_STYLE_DOTTED = "dotted"; //$NON-NLS-1$
-	private static final String BORDER_STYLE_GROOVE = "groove"; //$NON-NLS-1$
-	private static final String BORDER_STYLE_RIDGE = "ridge"; //$NON-NLS-1$
-	private static final String BORDER_STYLE_INSET = "inset"; //$NON-NLS-1$
-	private static final String BORDER_STYLE_NONE = "none"; //$NON-NLS-1$
-	private static final String BORDER_STYLE_OUTSET = "outset"; //$NON-NLS-1$
-	private static final String BORDER_STYLE_SOLID = "solid"; //$NON-NLS-1$
-	private static final String BORDER_STYLE_DOUBLE = "double"; //$NON-NLS-1$
-	private static final String[] BORDER_STYLES = new String[] { BORDER_STYLE_DASHED, BORDER_STYLE_DOTTED, BORDER_STYLE_GROOVE, BORDER_STYLE_RIDGE, BORDER_STYLE_INSET, BORDER_STYLE_NONE, BORDER_STYLE_OUTSET, BORDER_STYLE_SOLID, BORDER_STYLE_DOUBLE };
-
 	public FixedStyleSheet()
 	{
 		super();
@@ -126,14 +118,14 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 					top = right = bottom = left = getLength(tok);
 				}
 				// If it is a border style keyword, use it accordingly. 
-				else if (Arrays.asList(BORDER_STYLES).contains(tok))
+				else if (Arrays.asList(IStyleSheet.BORDER_STYLES).contains(tok))
 				{
 					borderStyle = tok;
 				}
 				// If "transparent" then transparent.
-				else if (tok.equals(COLOR_TRANSPARENT))
+				else if (tok.equals(IStyleSheet.COLOR_TRANSPARENT))
 				{
-					borderColor = COLOR_TRANSPARENT;
+					borderColor = IStyleSheet.COLOR_TRANSPARENT;
 				}
 				// Otherwise assume it is a color.
 				else
@@ -161,25 +153,42 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 			while (attributes.hasMoreElements())
 			{
 				Object element = attributes.nextElement();
-				if (element instanceof CSS.Attribute)
+				if (element != null && element.toString().startsWith("border-top-style"))
 				{
-					String elementName = element.toString();
-					if (elementName.startsWith("border-top-style"))
-					{
-						borderStyle = a.getAttribute(element);
-						break;
-					}
+					borderStyle = a.getAttribute(element);
+					break;
 				}
 			}
+		}
+		if (borderStyle == null && (borderColor != null || top >= 0 || right >= 0 || bottom >= 0 || left >= 0))
+		{
+			borderStyle = IStyleSheet.BORDER_STYLE_SOLID;
 		}
 		if (borderStyle != null)
 		{
 			Color[] colors = getBorderColor(borderColor, a);
 			String bstyle = borderStyle.toString();
-			if (bstyle.equals(BORDER_STYLE_INSET) || bstyle.equals(BORDER_STYLE_OUTSET))
+			if (a.isDefined(CSSName.BORDER_TOP_LEFT_RADIUS.toString()))
+			{
+				top = makeSizeSave(top);
+				right = makeSizeSave(right);
+				bottom = makeSizeSave(bottom);
+				left = makeSizeSave(left);
+				colors = expandColors(colors);
+				b = new RoundedBorder(top, left, bottom, right, colors[0], colors[3], colors[2], colors[1]);
+
+				float[] radius = new float[8];
+				parseCornerBorderRadius(a, radius, 0, CSSName.BORDER_TOP_LEFT_RADIUS.toString());
+				parseCornerBorderRadius(a, radius, 1, CSSName.BORDER_TOP_RIGHT_RADIUS.toString());
+				parseCornerBorderRadius(a, radius, 2, CSSName.BORDER_BOTTOM_RIGHT_RADIUS.toString());
+				parseCornerBorderRadius(a, radius, 3, CSSName.BORDER_BOTTOM_LEFT_RADIUS.toString());
+				((RoundedBorder)b).setRoundingRadius(radius);
+				((RoundedBorder)b).setBorderStyles(new String[] { (String)a.getAttribute(CSSName.BORDER_TOP_STYLE.toString()), (String)a.getAttribute(CSSName.BORDER_LEFT_STYLE.toString()), (String)a.getAttribute(CSSName.BORDER_BOTTOM_STYLE.toString()), (String)a.getAttribute(CSSName.BORDER_RIGHT_STYLE.toString()) });
+			}
+			else if (bstyle.equals(IStyleSheet.BORDER_STYLE_INSET) || bstyle.equals(IStyleSheet.BORDER_STYLE_OUTSET))
 			{
 				int style = BevelBorder.LOWERED;
-				if (bstyle.equals(BORDER_STYLE_OUTSET)) style = BevelBorder.RAISED;
+				if (bstyle.equals(IStyleSheet.BORDER_STYLE_OUTSET)) style = BevelBorder.RAISED;
 
 				Insets customBorderInsets = null;
 				if (top != -1.0 || right != -1.0 || bottom != -1.0 || left != -1.0)
@@ -215,11 +224,11 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 					b = customBorderInsets != null ? new CustomBevelBorder(style, customBorderInsets) : new BevelBorder(style);
 				}
 			}
-			else if (bstyle.equals(BORDER_STYLE_NONE))
+			else if (bstyle.equals(IStyleSheet.BORDER_STYLE_NONE))
 			{
 				b = BorderFactory.createEmptyBorder();
 			}
-			else if (bstyle.equals(BORDER_STYLE_DOUBLE))
+			else if (bstyle.equals(IStyleSheet.BORDER_STYLE_DOUBLE))
 			{
 				top = makeSizeSave(top);
 				right = makeSizeSave(right);
@@ -228,10 +237,10 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 
 				b = BorderFactory.createEmptyBorder((int)top, (int)left, (int)bottom, (int)right);
 			}
-			else if (bstyle.equals(BORDER_STYLE_GROOVE) || bstyle.equals(BORDER_STYLE_RIDGE))
+			else if (bstyle.equals(IStyleSheet.BORDER_STYLE_GROOVE) || bstyle.equals(IStyleSheet.BORDER_STYLE_RIDGE))
 			{
 				int style = EtchedBorder.LOWERED;
-				if (bstyle.equals(BORDER_STYLE_RIDGE)) style = EtchedBorder.RAISED;
+				if (bstyle.equals(IStyleSheet.BORDER_STYLE_RIDGE)) style = EtchedBorder.RAISED;
 
 				Insets customBorderInsets = null;
 				if (top != -1.0 || right != -1.0 || bottom != -1.0 || left != -1.0)
@@ -262,16 +271,17 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 					b = customBorderInsets != null ? new CustomEtchedBorder(style, customBorderInsets) : new EtchedBorder(style);
 				}
 			}
-			else if (bstyle.equals(BORDER_STYLE_SOLID) || bstyle.equals(BORDER_STYLE_DOTTED) || bstyle.equals(BORDER_STYLE_DASHED))
+			else if (bstyle.equals(IStyleSheet.BORDER_STYLE_SOLID) || bstyle.equals(IStyleSheet.BORDER_STYLE_DOTTED) ||
+				bstyle.equals(IStyleSheet.BORDER_STYLE_DASHED))
 			{
 //				int bw = (int) getLength(CSS.Attribute.BORDER_WIDTH, a);
 
 //				int colorCount = (colors == null ? 0 : colors.length);
 				colors = expandColors(colors);
 //				Object obj = a.getAttribute(CSS.Attribute.BORDER_WIDTH);
-				if (bstyle.equals(BORDER_STYLE_SOLID))
+				if (bstyle.equals(IStyleSheet.BORDER_STYLE_SOLID))
 				{
-					if (borderColor != null && COLOR_TRANSPARENT.equals(borderColor.toString()))
+					if (borderColor != null && IStyleSheet.COLOR_TRANSPARENT.equals(borderColor.toString()))
 					{
 						top = makeSizeSave(top);
 						right = makeSizeSave(right);
@@ -299,7 +309,7 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 						}
 					}
 				}
-				else if (bstyle.equals(BORDER_STYLE_DASHED))
+				else if (bstyle.equals(IStyleSheet.BORDER_STYLE_DASHED))
 				{
 					if (top <= 0 && left <= 0 && bottom <= 0 && right <= 0)
 					{
@@ -308,7 +318,7 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 					b = new SpecialMatteBorder(top, left, bottom, right, colors[0], colors[3], colors[2], colors[1]);
 					((SpecialMatteBorder)b).setDashPattern(new float[] { 3, 3 });
 				}
-				else if (bstyle.equals(BORDER_STYLE_DOTTED))
+				else if (bstyle.equals(IStyleSheet.BORDER_STYLE_DOTTED))
 				{
 					if (top <= 0 && left <= 0 && bottom <= 0 && right <= 0)
 					{
@@ -320,6 +330,17 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 			}
 		}
 		return b;
+	}
+
+	private void parseCornerBorderRadius(AttributeSet a, float[] values, int index, String attributeName)
+	{
+		String value = a.getAttribute(attributeName).toString().trim();
+		StringTokenizer tokenizer = new StringTokenizer(value, " ");
+		if (tokenizer.countTokens() == 2)
+		{
+			values[index] = getLength(tokenizer.nextElement());
+			values[index + 4] = getLength(tokenizer.nextElement());
+		}
 	}
 
 	private float makeSizeSave(float f)
@@ -389,24 +410,21 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 			while (attributes.hasMoreElements())
 			{
 				Object element = attributes.nextElement();
-				if (element instanceof CSS.Attribute)
+				if (element.toString().equals("border-top-color"))
 				{
-					if (element.toString().equals("border-top-color"))
-					{
-						top = PersistHelper.createColor(a.getAttribute(element).toString());
-					}
-					else if (element.toString().equals("border-right-color"))
-					{
-						right = PersistHelper.createColor(a.getAttribute(element).toString());
-					}
-					else if (element.toString().equals("border-bottom-color"))
-					{
-						bottom = PersistHelper.createColor(a.getAttribute(element).toString());
-					}
-					else if (element.toString().equals("border-left-color"))
-					{
-						left = PersistHelper.createColor(a.getAttribute(element).toString());
-					}
+					top = PersistHelper.createColor(a.getAttribute(element).toString());
+				}
+				else if (element.toString().equals("border-right-color"))
+				{
+					right = PersistHelper.createColor(a.getAttribute(element).toString());
+				}
+				else if (element.toString().equals("border-bottom-color"))
+				{
+					bottom = PersistHelper.createColor(a.getAttribute(element).toString());
+				}
+				else if (element.toString().equals("border-left-color"))
+				{
+					left = PersistHelper.createColor(a.getAttribute(element).toString());
 				}
 			}
 			if (top != null && right != null && bottom != null && left != null)
@@ -427,7 +445,7 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 	}
 
 	/**
-	 * Get the length/width in px
+	 * Get the length/width in px/pt
 	 * @param key
 	 * @param a
 	 * @return -1 if undefined
@@ -437,7 +455,7 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 		if (obj != null)
 		{
 			String val = obj.toString();
-			if (val.endsWith("px")) //$NON-NLS-1$
+			if (val.endsWith("px") || val.endsWith("pt")) //$NON-NLS-1$ //$NON-NLS-2$
 			{
 				val = val.substring(0, val.length() - 2);
 			}
@@ -449,25 +467,26 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 	public int getHAlign(AttributeSet a)
 	{
 		Object obj = a.getAttribute(CSS.Attribute.TEXT_ALIGN);
-		if (obj != null)
+		return getHAlign((String)obj);
+	}
+
+	public int getHAlign(String val)
+	{
+		if ("left".equals(val)) //$NON-NLS-1$
 		{
-			String val = obj.toString();
-			if ("left".equals(val)) //$NON-NLS-1$
-			{
-				return SwingConstants.LEFT;
-			}
-			else if ("center".equals(val)) //$NON-NLS-1$
-			{
-				return SwingConstants.CENTER;
-			}
-			else if ("right".equals(val)) //$NON-NLS-1$
-			{
-				return SwingConstants.RIGHT;
-			}
-			else if ("justify".equals(val)) //$NON-NLS-1$
-			{
-				return SwingConstants.CENTER;
-			}
+			return SwingConstants.LEFT;
+		}
+		else if ("center".equals(val)) //$NON-NLS-1$
+		{
+			return SwingConstants.CENTER;
+		}
+		else if ("right".equals(val)) //$NON-NLS-1$
+		{
+			return SwingConstants.RIGHT;
+		}
+		else if ("justify".equals(val)) //$NON-NLS-1$
+		{
+			return SwingConstants.CENTER;
 		}
 		return -1;
 	}
@@ -475,41 +494,42 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 	public int getVAlign(AttributeSet a)
 	{
 		Object obj = a.getAttribute(CSS.Attribute.VERTICAL_ALIGN);
-		if (obj != null)
+		return getVAlign((String)obj);
+	}
+
+	public int getVAlign(String val)
+	{
+		if ("top".equals(val)) //$NON-NLS-1$
 		{
-			String val = obj.toString();
-			if ("top".equals(val)) //$NON-NLS-1$
-			{
-				return SwingConstants.TOP;
-			}
-			else if ("text-top".equals(val)) //$NON-NLS-1$
-			{
-				return SwingConstants.TOP;
-			}
-			else if ("super".equals(val)) //$NON-NLS-1$
-			{
-				return SwingConstants.TOP;
-			}
-			else if ("middle".equals(val)) //$NON-NLS-1$
-			{
-				return SwingConstants.CENTER;
-			}
-			else if ("baseline".equals(val)) //$NON-NLS-1$
-			{
-				return SwingConstants.CENTER;
-			}
-			else if ("bottom".equals(val)) //$NON-NLS-1$
-			{
-				return SwingConstants.BOTTOM;
-			}
-			else if ("text-bottom".equals(val)) //$NON-NLS-1$
-			{
-				return SwingConstants.BOTTOM;
-			}
-			else if ("sub".equals(val)) //$NON-NLS-1$
-			{
-				return SwingConstants.BOTTOM;
-			}
+			return SwingConstants.TOP;
+		}
+		else if ("text-top".equals(val)) //$NON-NLS-1$
+		{
+			return SwingConstants.TOP;
+		}
+		else if ("super".equals(val)) //$NON-NLS-1$
+		{
+			return SwingConstants.TOP;
+		}
+		else if ("middle".equals(val)) //$NON-NLS-1$
+		{
+			return SwingConstants.CENTER;
+		}
+		else if ("baseline".equals(val)) //$NON-NLS-1$
+		{
+			return SwingConstants.CENTER;
+		}
+		else if ("bottom".equals(val)) //$NON-NLS-1$
+		{
+			return SwingConstants.BOTTOM;
+		}
+		else if ("text-bottom".equals(val)) //$NON-NLS-1$
+		{
+			return SwingConstants.BOTTOM;
+		}
+		else if ("sub".equals(val)) //$NON-NLS-1$
+		{
+			return SwingConstants.BOTTOM;
 		}
 		return -1;
 	}
@@ -518,7 +538,7 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 	public void addCSSAttribute(MutableAttributeSet attr, CSS.Attribute key, String value)
 	{
 		String newValue = expandColorValue(key, value);
-		if (key == CSS.Attribute.BACKGROUND_COLOR && COLOR_TRANSPARENT.equalsIgnoreCase(newValue)) attr.addAttribute(key, newValue);
+		if (key == CSS.Attribute.BACKGROUND_COLOR && IStyleSheet.COLOR_TRANSPARENT.equalsIgnoreCase(newValue)) attr.addAttribute(key, newValue);
 		else super.addCSSAttribute(attr, key, newValue);
 	}
 
@@ -536,24 +556,19 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 		else return value;
 	}
 
-	public static Attribute[] borderAttributes = new Attribute[] { CSS.Attribute.BORDER, CSS.Attribute.BORDER_BOTTOM, CSS.Attribute.BORDER_BOTTOM_WIDTH, CSS.Attribute.BORDER_COLOR, CSS.Attribute.BORDER_LEFT, CSS.Attribute.BORDER_LEFT_WIDTH, CSS.Attribute.BORDER_RIGHT, CSS.Attribute.BORDER_RIGHT_WIDTH, CSS.Attribute.BORDER_STYLE, CSS.Attribute.BORDER_TOP, CSS.Attribute.BORDER_TOP_WIDTH, CSS.Attribute.BORDER_WIDTH };
-	public static String[] borderAttributesExtensions = new String[] { "border-left-style", "border-right-style", "border-top-style", "border-bottom-style", "border-left-color", "border-right-color", "border-top-color", "border-bottom-color" };
-	private static Attribute[] marginAttributes = new Attribute[] { CSS.Attribute.MARGIN, CSS.Attribute.MARGIN_BOTTOM, CSS.Attribute.MARGIN_LEFT, CSS.Attribute.MARGIN_RIGHT, CSS.Attribute.MARGIN_TOP };
-	public static Attribute[] fontAttributes = new Attribute[] { CSS.Attribute.FONT, CSS.Attribute.FONT_FAMILY, CSS.Attribute.FONT_SIZE, CSS.Attribute.FONT_STYLE, CSS.Attribute.FONT_VARIANT, CSS.Attribute.FONT_WEIGHT };
-
 	public boolean hasBorder(AttributeSet s)
 	{
-		return hasAttributes(s, borderAttributes);
+		return hasAttributes(s, ServoyStyleSheet.borderAttributes);
 	}
 
 	public boolean hasMargin(AttributeSet s)
 	{
-		return hasAttributes(s, marginAttributes);
+		return hasAttributes(s, ServoyStyleSheet.marginAttributes);
 	}
 
 	public boolean hasFont(AttributeSet s)
 	{
-		return hasAttributes(s, fontAttributes);
+		return hasAttributes(s, ServoyStyleSheet.fontAttributes);
 	}
 
 	private boolean hasAttributes(AttributeSet s, Attribute[] attrs)
@@ -571,7 +586,7 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 		Object sbackground_color = a.getAttribute(CSS.Attribute.BACKGROUND_COLOR);
 		if (sbackground_color != null)
 		{
-			if (!COLOR_TRANSPARENT.equals(sbackground_color.toString()))
+			if (!IStyleSheet.COLOR_TRANSPARENT.equals(sbackground_color.toString()))
 			{
 				return super.getBackground(a);
 			}

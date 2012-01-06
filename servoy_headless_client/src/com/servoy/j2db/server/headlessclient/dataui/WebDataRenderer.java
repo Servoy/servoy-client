@@ -28,8 +28,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import javax.swing.border.Border;
-import javax.swing.text.Style;
-import javax.swing.text.html.StyleSheet;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -66,6 +64,8 @@ import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDelegate;
+import com.servoy.j2db.util.IStyleRule;
+import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 
@@ -510,8 +510,8 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 				if (parentView instanceof ISupportRowStyling)
 				{
 					ISupportRowStyling parentViewWithRowStyling = (ISupportRowStyling)parentView;
-					StyleSheet ss = parentViewWithRowStyling.getRowStyleSheet();
-					Style style = isSelected ? parentViewWithRowStyling.getRowSelectedStyle() : null;
+					IStyleSheet ss = parentViewWithRowStyling.getRowStyleSheet();
+					IStyleRule style = isSelected ? parentViewWithRowStyling.getRowSelectedStyle() : null;
 					if (style != null && style.getAttributeCount() == 0) style = null;
 					if (style == null)
 					{

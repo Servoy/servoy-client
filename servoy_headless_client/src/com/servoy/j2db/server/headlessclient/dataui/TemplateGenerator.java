@@ -38,7 +38,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.border.Border;
-import javax.swing.text.StyleConstants;
 import javax.swing.text.html.CSS;
 import javax.swing.text.html.CSS.Attribute;
 
@@ -91,8 +90,11 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FixedStyleSheet;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.IAnchorConstants;
+import com.servoy.j2db.util.IStyleRule;
+import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.ServoyStyleSheet;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
@@ -638,22 +640,23 @@ public class TemplateGenerator
 								html.append(' ');
 								BorderAndPadding ins = applyBaseComponentProperties(label, form, styleObj, (Insets)DEFAULT_LABEL_PADDING.clone(), null, sp);
 								// some css attributes were not applied
-								Pair<FixedStyleSheet, javax.swing.text.Style> styleInfo = ComponentFactory.getStyleForBasicComponent(sp, label, form);
+								Pair<IStyleSheet, IStyleRule> styleInfo = ComponentFactory.getStyleForBasicComponent(sp, label, form);
 								Border cssBorder = null;
 								if (styleInfo != null)
 								{
-									javax.swing.text.Style s = styleInfo.getRight();
-									FixedStyleSheet ss = styleInfo.getLeft();
+									IStyleRule s = styleInfo.getRight();
+									IStyleSheet ss = styleInfo.getLeft();
 									if (ss != null && s != null)
 									{
-										addAttributeToStyle(styleObj, CSS.Attribute.COLOR.toString(), s.getAttribute(CSS.Attribute.COLOR));
-										addAttributeToStyle(styleObj, CSS.Attribute.BACKGROUND_COLOR.toString(), s.getAttribute(CSS.Attribute.BACKGROUND_COLOR));
-										addAttributeToStyle(styleObj, CSS.Attribute.FONT.toString(), s.getAttribute(CSS.Attribute.FONT));
-										addAttributeToStyle(styleObj, CSS.Attribute.FONT_FAMILY.toString(), s.getAttribute(CSS.Attribute.FONT_FAMILY));
-										addAttributeToStyle(styleObj, CSS.Attribute.FONT_SIZE.toString(), s.getAttribute(CSS.Attribute.FONT_SIZE));
-										addAttributeToStyle(styleObj, CSS.Attribute.FONT_STYLE.toString(), s.getAttribute(CSS.Attribute.FONT_STYLE));
-										addAttributeToStyle(styleObj, CSS.Attribute.FONT_VARIANT.toString(), s.getAttribute(CSS.Attribute.FONT_VARIANT));
-										addAttributeToStyle(styleObj, CSS.Attribute.FONT_WEIGHT.toString(), s.getAttribute(CSS.Attribute.FONT_WEIGHT));
+										addAttributeToStyle(styleObj, CSS.Attribute.COLOR.toString(), s.getValue(CSS.Attribute.COLOR.toString()));
+										addAttributeToStyle(styleObj, CSS.Attribute.BACKGROUND_COLOR.toString(),
+											s.getValue(CSS.Attribute.BACKGROUND_COLOR.toString()));
+										addAttributeToStyle(styleObj, CSS.Attribute.FONT.toString(), s.getValue(CSS.Attribute.FONT.toString()));
+										addAttributeToStyle(styleObj, CSS.Attribute.FONT_FAMILY.toString(), s.getValue(CSS.Attribute.FONT_FAMILY.toString()));
+										addAttributeToStyle(styleObj, CSS.Attribute.FONT_SIZE.toString(), s.getValue(CSS.Attribute.FONT_SIZE.toString()));
+										addAttributeToStyle(styleObj, CSS.Attribute.FONT_STYLE.toString(), s.getValue(CSS.Attribute.FONT_STYLE.toString()));
+										addAttributeToStyle(styleObj, CSS.Attribute.FONT_VARIANT.toString(), s.getValue(CSS.Attribute.FONT_VARIANT.toString()));
+										addAttributeToStyle(styleObj, CSS.Attribute.FONT_WEIGHT.toString(), s.getValue(CSS.Attribute.FONT_WEIGHT.toString()));
 
 										cssBorder = ss.getBorder(s);
 									}
@@ -696,12 +699,12 @@ public class TemplateGenerator
 								}
 								if (cssBorder != null || label.getBorderType() != null)
 								{
-									for (Attribute att : FixedStyleSheet.borderAttributes)
+									for (Attribute att : ServoyStyleSheet.borderAttributes)
 									{
 										// make sure all border attributes are removed
 										styleObj.remove(att.toString());
 									}
-									for (String extendedStyleAttribute : FixedStyleSheet.borderAttributesExtensions)
+									for (String extendedStyleAttribute : ServoyStyleSheet.borderAttributesExtensions)
 									{
 										// make sure all border attributes are removed
 										styleObj.remove(extendedStyleAttribute);
@@ -1320,7 +1323,7 @@ public class TemplateGenerator
 		styleObj.setProperty("border-style", "inset");
 		styleObj.setProperty("border-width", createInsetsText(DEFAULT_FIELD_BORDER_SIZE));
 		styleObj.setProperty("border-spacing", "0px 0px");
-		styleObj.setProperty("border-color", FixedStyleSheet.COLOR_TRANSPARENT);
+		styleObj.setProperty("border-color", IStyleSheet.COLOR_TRANSPARENT);
 		styleObj.setProperty("background-color", "#FFFFFF");
 
 		//default label stuff
@@ -1797,7 +1800,7 @@ public class TemplateGenerator
 		}
 		if (tabPanel.getTabOrientation() == TabPanel.ACCORDION_PANEL)
 		{
-			for (Attribute att : FixedStyleSheet.fontAttributes)
+			for (Attribute att : ServoyStyleSheet.fontAttributes)
 			{
 				styleObj.remove(att.toString());
 			}
@@ -1963,11 +1966,11 @@ public class TemplateGenerator
 
 		int labelHAlign = label.getHorizontalAlignment();
 		int labelVAlign = label.getVerticalAlignment();
-		Pair<FixedStyleSheet, javax.swing.text.Style> styleInfo = ComponentFactory.getStyleForBasicComponent(sp, label, form);
+		Pair<IStyleSheet, IStyleRule> styleInfo = ComponentFactory.getStyleForBasicComponent(sp, label, form);
 		if (styleInfo != null)
 		{
-			FixedStyleSheet ss = styleInfo.getLeft();
-			javax.swing.text.Style s = styleInfo.getRight();
+			IStyleSheet ss = styleInfo.getLeft();
+			IStyleRule s = styleInfo.getRight();
 			if (labelHAlign == -1) labelHAlign = ss.getHAlign(s);
 			if (labelVAlign == -1) labelVAlign = ss.getVAlign(s);
 		}
@@ -2168,7 +2171,7 @@ public class TemplateGenerator
 		}
 		BorderAndPadding ins = applyBaseComponentProperties(field, form, styleObj, padding, border, sp);
 
-		FixedStyleSheet ss = ComponentFactory.getCSSStyleForForm(sp, form);
+		IStyleSheet ss = ComponentFactory.getCSSStyleForForm(sp, form);
 		String cssClass = ""; // By default no css class applied.  
 		switch (field.getDisplayType())
 		{
@@ -2264,13 +2267,13 @@ public class TemplateGenerator
 				{
 					cssClass = "radioCheckField";
 					String lookUpValue = selector;
-					javax.swing.text.Style s = ss.getRule(lookUpValue);
+					IStyleRule s = ss.getCSSRule(lookUpValue);
 					if (s.getAttributeCount() == 0)
 					{
 						if ((field.getStyleClass() != null) && (field.getStyleClass().trim().length() > 0))
 						{
 							lookUpValue += '.' + field.getStyleClass().trim();
-							s = ss.getRule(lookUpValue);
+							s = ss.getCSSRule(lookUpValue);
 							if (s.getAttributeCount() > 0) cssClass = selector;
 						}
 					}
@@ -2373,7 +2376,7 @@ public class TemplateGenerator
 				html.append("><input type='text' servoy:id='datefield' ");
 				inline = new TextualStyle();
 				inline.setProperty("border-style", "none");
-				inline.setProperty("background-color", FixedStyleSheet.COLOR_TRANSPARENT);
+				inline.setProperty("background-color", IStyleSheet.COLOR_TRANSPARENT);
 				inline.setProperty("height", "100%");
 				inline.setProperty("width", "100%");
 				inline.setProperty("margin", "0px");
@@ -2762,7 +2765,7 @@ public class TemplateGenerator
 		Insets defaultBorder, IServiceProvider sp)
 	{
 
-		Pair<FixedStyleSheet, javax.swing.text.Style> styleInfo = ComponentFactory.getStyleForBasicComponent(sp, component, form);
+		Pair<IStyleSheet, IStyleRule> styleInfo = ComponentFactory.getStyleForBasicComponent(sp, component, form);
 
 		Insets insetsBorder = null;
 		if (component.getBorderType() != null)
@@ -2778,25 +2781,21 @@ public class TemplateGenerator
 
 		if (styleInfo != null)
 		{
-			FixedStyleSheet ss = styleInfo.getLeft();
-			javax.swing.text.Style s = styleInfo.getRight();
+			IStyleSheet ss = styleInfo.getLeft();
+			IStyleRule s = styleInfo.getRight();
 			if (ss != null && s != null)
 			{
-				Enumeration< ? > attributeNames = s.getAttributeNames();
-				while (attributeNames.hasMoreElements())
+				List<String> attributeNames = s.getAttributeNames();
+				for (String s_attr : attributeNames)
 				{
-					Object name = attributeNames.nextElement();
-					if (name == StyleConstants.NameAttribute) continue;
-
-					String s_attr = name.toString();
 					// Skip margin related attributes. Margin is computed separately below, and rendered as padding.
 					if (s_attr.toLowerCase().contains("margin")) continue;
 					// do not add any border attributes if set on component
 					if (s_attr.toLowerCase().contains("border") && component.getBorderType() != null) continue;
-					Object val = s.getAttribute(name);
+					String val = s.getValue(s_attr);
 					if (s_attr.equals("font-size"))
 					{
-						String tmp = val.toString();
+						String tmp = val;
 						if (tmp.endsWith("px"))
 						{
 							int size = Utils.getAsInteger(tmp.substring(0, tmp.length() - 2));
@@ -2887,7 +2886,7 @@ public class TemplateGenerator
 
 		if (component.getTransparent())
 		{
-			styleObj.setProperty("background-color", FixedStyleSheet.COLOR_TRANSPARENT);
+			styleObj.setProperty("background-color", IStyleSheet.COLOR_TRANSPARENT);
 		}
 		else if (component.getBackground() != null)
 		{

@@ -41,7 +41,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.text.Style;
 import javax.swing.text.html.CSS;
 
 import org.apache.wicket.AttributeModifier;
@@ -152,8 +151,9 @@ import com.servoy.j2db.ui.PropertyCopy;
 import com.servoy.j2db.ui.scripting.RuntimePortal;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.FixedStyleSheet;
 import com.servoy.j2db.util.IAnchorConstants;
+import com.servoy.j2db.util.IStyleRule;
+import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
@@ -212,8 +212,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	private Component resizedComponent; // the component that has been resized because of a column resize
 
 	private final ISupportOnRenderCallback dataRendererOnRenderWrapper;
-	private FixedStyleSheet styleSheet;
-	private Style oddStyle, evenStyle, selectedStyle, headerStyle;
+	private IStyleSheet styleSheet;
+	private IStyleRule oddStyle, evenStyle, selectedStyle, headerStyle;
 
 	private ServoyTableResizeBehavior tableResizeBehavior;
 	private boolean bodySizeHintSetFromClient;
@@ -2957,7 +2957,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		if (rec != null && rec.getRawData() != null)
 		{
-			Style style = isSelected ? getRowSelectedStyle() : null;
+			IStyleRule style = isSelected ? getRowSelectedStyle() : null;
 			if (style != null && style.getAttributeCount() == 0) style = null;
 			if (style == null)
 			{
@@ -2970,24 +2970,21 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		return listItemAttrValue;
 	}
 
-	private String getStyleAttributeValue(Style style, ISupportRowStyling.ATTRIBUTE styleAttribute)
+	private String getStyleAttributeValue(IStyleRule style, ISupportRowStyling.ATTRIBUTE styleAttribute)
 	{
-		FixedStyleSheet ss = getRowStyleSheet();
+		IStyleSheet ss = getRowStyleSheet();
 		if (ss != null && style != null)
 		{
 			switch (styleAttribute)
 			{
 				case BGCOLOR :
-					return style.getAttribute(CSS.Attribute.BACKGROUND_COLOR) != null ? PersistHelper.createColorString(ss.getBackground(style)) : null;
+					return style.getValue(CSS.Attribute.BACKGROUND_COLOR.toString()) != null ? PersistHelper.createColorString(ss.getBackground(style)) : null;
 				case FGCOLOR :
-					return style.getAttribute(CSS.Attribute.COLOR) != null ? PersistHelper.createColorString(ss.getForeground(style)) : null;
+					return style.getValue(CSS.Attribute.COLOR.toString()) != null ? PersistHelper.createColorString(ss.getForeground(style)) : null;
 				case FONT :
-					return style.getAttribute(CSS.Attribute.FONT) != null || style.getAttribute(CSS.Attribute.FONT_FAMILY) != null ||
-						style.getAttribute(CSS.Attribute.FONT_SIZE) != null || style.getAttribute(CSS.Attribute.FONT_STYLE) != null ||
-						style.getAttribute(CSS.Attribute.FONT_VARIANT) != null || style.getAttribute(CSS.Attribute.FONT_WEIGHT) != null
-						? PersistHelper.createFontString(ss.getFont(style)) : null;
+					return ss.hasFont(style) ? PersistHelper.createFontString(ss.getFont(style)) : null;
 				case BORDER :
-					return style.getAttribute(CSS.Attribute.BORDER) != null ? ComponentFactoryHelper.createBorderString(ss.getBorder(style)) : null;
+					return ss.hasBorder(style) ? ComponentFactoryHelper.createBorderString(ss.getBorder(style)) : null;
 			}
 		}
 		return null;
@@ -3820,7 +3817,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	/*
 	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getOddStyle()
 	 */
-	public Style getRowOddStyle()
+	public IStyleRule getRowOddStyle()
 	{
 		return oddStyle;
 	}
@@ -3828,15 +3825,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	/*
 	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getEvenStyle()
 	 */
-	public Style getRowEvenStyle()
+	public IStyleRule getRowEvenStyle()
 	{
 		return evenStyle;
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#setStyles(javax.swing.text.html.StyleSheet, javax.swing.text.Style, javax.swing.text.Style)
-	 */
-	public void setRowStyles(FixedStyleSheet styleSheet, Style oddStyle, Style evenStyle, Style selectedStyle, Style headerStyle)
+	public void setRowStyles(IStyleSheet styleSheet, IStyleRule oddStyle, IStyleRule evenStyle, IStyleRule selectedStyle, IStyleRule headerStyle)
 	{
 		this.styleSheet = styleSheet;
 		this.oddStyle = oddStyle;
@@ -3848,7 +3842,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	/*
 	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getStyleSheet()
 	 */
-	public FixedStyleSheet getRowStyleSheet()
+	public IStyleSheet getRowStyleSheet()
 	{
 		return styleSheet;
 	}
@@ -3856,12 +3850,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	/*
 	 * @see com.servoy.j2db.ui.ISupportRowStyling#getSelectedStyle()
 	 */
-	public Style getRowSelectedStyle()
+	public IStyleRule getRowSelectedStyle()
 	{
 		return selectedStyle;
 	}
 
-	public Style getHeaderStyle()
+	public IStyleRule getHeaderStyle()
 	{
 		return headerStyle;
 	}

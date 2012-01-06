@@ -55,7 +55,6 @@ import javax.swing.plaf.ComponentUI;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
-import javax.swing.text.Style;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IScriptExecuter;
@@ -92,10 +91,11 @@ import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.ui.scripting.RuntimePortal;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnableScrollPanel;
-import com.servoy.j2db.util.FixedStyleSheet;
 import com.servoy.j2db.util.IDestroyable;
 import com.servoy.j2db.util.IFocusCycleRoot;
 import com.servoy.j2db.util.ISkinnable;
+import com.servoy.j2db.util.IStyleRule;
+import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.ISupportFocusTransfer;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.editlist.AbstractEditListModel;
@@ -1016,16 +1016,16 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 		}
 	}
 
-	private FixedStyleSheet styleSheet;
-	private Style oddStyle;
-	private Style evenStyle;
-	private Style selectedStyle;
-	private Style headerStyle;
+	private IStyleSheet styleSheet;
+	private IStyleRule oddStyle;
+	private IStyleRule evenStyle;
+	private IStyleRule selectedStyle;
+	private IStyleRule headerStyle;
 
 	/*
 	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#setStyles(javax.swing.text.html.StyleSheet, javax.swing.text.Style, javax.swing.text.Style)
 	 */
-	public void setRowStyles(FixedStyleSheet styleSheet, Style oddStyle, Style evenStyle, Style selectedStyle, Style headerStyle)
+	public void setRowStyles(IStyleSheet styleSheet, IStyleRule oddStyle, IStyleRule evenStyle, IStyleRule selectedStyle, IStyleRule headerStyle)
 	{
 		this.styleSheet = styleSheet;
 		this.oddStyle = oddStyle;
@@ -1054,39 +1054,27 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 		}
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getStyleSheet()
-	 */
-	public FixedStyleSheet getRowStyleSheet()
+	public IStyleSheet getRowStyleSheet()
 	{
 		return styleSheet;
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getOddStyle()
-	 */
-	public Style getRowOddStyle()
+	public IStyleRule getRowOddStyle()
 	{
 		return oddStyle;
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getEvenStyle()
-	 */
-	public Style getRowEvenStyle()
+	public IStyleRule getRowEvenStyle()
 	{
 		return evenStyle;
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.ISupportRowStyling#getSelectedStyle()
-	 */
-	public Style getRowSelectedStyle()
+	public IStyleRule getRowSelectedStyle()
 	{
 		return selectedStyle;
 	}
 
-	public Style getHeaderStyle()
+	public IStyleRule getHeaderStyle()
 	{
 		return headerStyle;
 	}
@@ -1097,11 +1085,11 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 		private final ISupportOnRenderCallback dataRendererOnRenderWrapper;
 		private final Portal portal;
 
-		private FixedStyleSheet ss;
-		private Style oStyle;
-		private Style eStyle;
-		private Style sStyle;
-		private Style hStyle;
+		private IStyleSheet ss;
+		private IStyleRule oStyle;
+		private IStyleRule eStyle;
+		private IStyleRule sStyle;
+		private IStyleRule hStyle;
 
 		PortalMultilineList(Portal portal, IScriptExecuter se)
 		{
@@ -1120,10 +1108,7 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 			return dataRendererOnRenderWrapper;
 		}
 
-		/*
-		 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#setStyles(javax.swing.text.html.StyleSheet, javax.swing.text.Style, javax.swing.text.Style)
-		 */
-		public void setRowStyles(FixedStyleSheet styleSheet, Style oddStyle, Style evenStyle, Style selectedStyle, Style headerStyle)
+		public void setRowStyles(IStyleSheet styleSheet, IStyleRule oddStyle, IStyleRule evenStyle, IStyleRule selectedStyle, IStyleRule headerStyle)
 		{
 			this.ss = styleSheet;
 			this.oStyle = oddStyle;
@@ -1132,26 +1117,17 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 			this.hStyle = headerStyle;
 		}
 
-		/*
-		 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getStyleSheet()
-		 */
-		public FixedStyleSheet getRowStyleSheet()
+		public IStyleSheet getRowStyleSheet()
 		{
 			return ss;
 		}
 
-		/*
-		 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getOddStyle()
-		 */
-		public Style getRowOddStyle()
+		public IStyleRule getRowOddStyle()
 		{
 			return oStyle;
 		}
 
-		/*
-		 * @see com.servoy.j2db.ui.ISupportOddEvenStyling#getEvenStyle()
-		 */
-		public Style getRowEvenStyle()
+		public IStyleRule getRowEvenStyle()
 		{
 			return eStyle;
 		}
@@ -1183,12 +1159,12 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 		/*
 		 * @see com.servoy.j2db.ui.ISupportRowStyling#getSelectedStyle()
 		 */
-		public Style getRowSelectedStyle()
+		public IStyleRule getRowSelectedStyle()
 		{
 			return sStyle;
 		}
 
-		public Style getHeaderStyle()
+		public IStyleRule getHeaderStyle()
 		{
 			return hStyle;
 		}

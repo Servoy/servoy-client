@@ -35,7 +35,7 @@ import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.FixedStyleSheet;
+import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
@@ -199,7 +199,7 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 		setChanged();
 		if (transparent)
 		{
-			changedProperties.put("background-color", FixedStyleSheet.COLOR_TRANSPARENT); //$NON-NLS-1$ 
+			changedProperties.put("background-color", IStyleSheet.COLOR_TRANSPARENT); //$NON-NLS-1$ 
 		}
 		else if (bgcolor != null)
 		{

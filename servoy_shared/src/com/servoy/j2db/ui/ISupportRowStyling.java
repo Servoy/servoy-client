@@ -17,9 +17,9 @@
 
 package com.servoy.j2db.ui;
 
-import javax.swing.text.Style;
+import com.servoy.j2db.util.IStyleRule;
+import com.servoy.j2db.util.IStyleSheet;
 
-import com.servoy.j2db.util.FixedStyleSheet;
 
 /**
  * Interface for components that support css row styling
@@ -37,15 +37,15 @@ public interface ISupportRowStyling
 		BGCOLOR, FGCOLOR, FONT, BORDER
 	}
 
-	public void setRowStyles(FixedStyleSheet styleSheet, Style oddStyle, Style evenStyle, Style selectedStyle, Style headerStyle);
+	public void setRowStyles(IStyleSheet styleSheet, IStyleRule oddStyle, IStyleRule evenStyle, IStyleRule selectedStyle, IStyleRule headerStyle);
 
-	public FixedStyleSheet getRowStyleSheet();
+	public IStyleSheet getRowStyleSheet();
 
-	public Style getRowOddStyle();
+	public IStyleRule getRowOddStyle();
 
-	public Style getRowEvenStyle();
+	public IStyleRule getRowEvenStyle();
 
-	public Style getRowSelectedStyle();
+	public IStyleRule getRowSelectedStyle();
 
-	public Style getHeaderStyle();
+	public IStyleRule getHeaderStyle();
 }

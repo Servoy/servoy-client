@@ -144,6 +144,10 @@
 			
 			<pathelement path="lib/wiquery.jar"/>
 			
+			<pathelement path="lib/core-parser.jar"/>
+			
+			<pathelement path="lib/core-commons.jar"/>
+			
 		</path>
 		<!-- compile the source code -->
 		<javac destdir="${build.result.folder}/@dot" failonerror="${javacFailOnError}" verbose="${javacVerbose}" debug="${javacDebugInfo}" includeAntRuntime="no" bootclasspath="${bundleBootClasspath}" source="${bundleJavacSource}" target="${bundleJavacTarget}"		>
@@ -268,6 +272,8 @@
 				<include name="lib/slf4j-log4j.jar"/>
 				<include name="lib/l2fprod-common-outlookbar.jar"/>
 				<include name="lib/wiquery.jar"/>
+				<include name="lib/core-commons.jar"/>
+				<include name="lib/core-parser.jar"/>
 			</fileset>
 		</copy>
 		<antcall target="apitools.generation">

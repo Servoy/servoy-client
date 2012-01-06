@@ -62,7 +62,6 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import javax.swing.text.JTextComponent;
-import javax.swing.text.Style;
 import javax.swing.text.html.CSS;
 
 import org.mozilla.javascript.Scriptable;
@@ -108,8 +107,9 @@ import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.ui.scripting.IRuntimeFormatComponent;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.FixedStyleSheet;
 import com.servoy.j2db.util.IDelegate;
+import com.servoy.j2db.util.IStyleRule;
+import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ScopesUtils;
@@ -766,8 +766,8 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			{
 				ISupportRowStyling oddEvenStyling = (ISupportRowStyling)jtable;
 
-				FixedStyleSheet ss = oddEvenStyling.getRowStyleSheet();
-				Style style = isSelected ? oddEvenStyling.getRowSelectedStyle() : null;
+				IStyleSheet ss = oddEvenStyling.getRowStyleSheet();
+				IStyleRule style = isSelected ? oddEvenStyling.getRowSelectedStyle() : null;
 				if (style != null && style.getAttributeCount() == 0) style = null;
 				if (style == null)
 				{
@@ -781,16 +781,16 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		return rowStyleAttrValue;
 	}
 
-	private Object getStyleAttribute(FixedStyleSheet styleSheet, Style style, ISupportRowStyling.ATTRIBUTE styleAttribute)
+	private Object getStyleAttribute(IStyleSheet styleSheet, IStyleRule style, ISupportRowStyling.ATTRIBUTE styleAttribute)
 	{
 		if (styleSheet != null && style != null)
 		{
 			switch (styleAttribute)
 			{
 				case BGCOLOR :
-					return style.getAttribute(CSS.Attribute.BACKGROUND_COLOR) != null ? styleSheet.getBackground(style) : null;
+					return style.getValue(CSS.Attribute.BACKGROUND_COLOR.toString()) != null ? styleSheet.getBackground(style) : null;
 				case FGCOLOR :
-					return style.getAttribute(CSS.Attribute.COLOR) != null ? styleSheet.getForeground(style) : null;
+					return style.getValue(CSS.Attribute.COLOR.toString()) != null ? styleSheet.getForeground(style) : null;
 				case FONT :
 					return styleSheet.hasFont(style) ? styleSheet.getFont(style) : null;
 				case BORDER :

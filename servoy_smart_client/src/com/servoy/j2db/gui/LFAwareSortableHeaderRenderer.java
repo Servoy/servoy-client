@@ -41,7 +41,8 @@ import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.smart.TableView;
 import com.servoy.j2db.smart.dataui.CellAdapter;
 import com.servoy.j2db.ui.IComponent;
-import com.servoy.j2db.util.FixedStyleSheet;
+import com.servoy.j2db.util.IStyleRule;
+import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Utils;
@@ -91,11 +92,11 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 		{
 			int style_halign = -1;
 			int style_valign = -1;
-			Pair<FixedStyleSheet, javax.swing.text.Style> styleInfo = ComponentFactory.getStyleForBasicComponent(app, gc, formForStyles);
+			Pair<IStyleSheet, IStyleRule> styleInfo = ComponentFactory.getStyleForBasicComponent(app, gc, formForStyles);
 			if (styleInfo != null)
 			{
-				FixedStyleSheet ss = styleInfo.getLeft();
-				javax.swing.text.Style s = styleInfo.getRight();
+				IStyleSheet ss = styleInfo.getLeft();
+				IStyleRule s = styleInfo.getRight();
 				if (ss != null && s != null)
 				{
 					style_valign = ss.getVAlign(s);

@@ -71,8 +71,9 @@ import com.servoy.j2db.server.headlessclient.dnd.DraggableBehavior;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.FixedStyleSheet;
 import com.servoy.j2db.util.IAnchorConstants;
+import com.servoy.j2db.util.IStyleRule;
+import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Text;
@@ -472,11 +473,11 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 					if (gc != null)
 					{
 						int style_valign = -1;
-						Pair<FixedStyleSheet, javax.swing.text.Style> styleInfo = ComponentFactory.getStyleForBasicComponent(application, gc, form);
+						Pair<IStyleSheet, IStyleRule> styleInfo = ComponentFactory.getStyleForBasicComponent(application, gc, form);
 						if (styleInfo != null)
 						{
-							FixedStyleSheet ss = styleInfo.getLeft();
-							javax.swing.text.Style s = styleInfo.getRight();
+							IStyleSheet ss = styleInfo.getLeft();
+							IStyleRule s = styleInfo.getRight();
 							if (ss != null && s != null)
 							{
 								style_valign = ss.getVAlign(s);

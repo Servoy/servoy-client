@@ -337,20 +337,21 @@ public class SpecialMatteBorder extends AbstractBorder
 	@Override
 	public Insets getBorderInsets(Component c, Insets insets)
 	{
-		return applySpaceToInsets(insets);
+		return applySpaceToInsets(insets, c);
 	}
 
 	@Override
 	public Insets getBorderInsets(Component c)
 	{
 		Insets retval = new Insets(0, 0, 0, 0);
-		applySpaceToInsets(retval);
+		applySpaceToInsets(retval, c);
 		return retval;
 	}
 
-	private Insets applySpaceToInsets(Insets i)
+	private Insets applySpaceToInsets(Insets i, Component c)
 	{
-		float halfRadius = roundingRadius / 8f;
+		// if c is null we are probably in wc
+		float halfRadius = (c != null) ? roundingRadius / 8f : 0f;
 		i.top = (int)Math.ceil(top + halfRadius);
 		i.left = (int)Math.ceil(left + halfRadius);
 		i.bottom = (int)Math.ceil(bottom + halfRadius);

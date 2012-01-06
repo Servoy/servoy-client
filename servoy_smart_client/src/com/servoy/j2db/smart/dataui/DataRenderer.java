@@ -43,8 +43,6 @@ import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import javax.swing.plaf.ColorUIResource;
-import javax.swing.text.Style;
-import javax.swing.text.html.StyleSheet;
 
 import org.mozilla.javascript.Undefined;
 
@@ -80,6 +78,8 @@ import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnablePanel;
+import com.servoy.j2db.util.IStyleRule;
+import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 
@@ -509,8 +509,8 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 				if (rendererParentCanBeNull instanceof ISupportRowStyling && !specialStateCase && !bgRowColorSet)
 				{
 					ISupportRowStyling oddEvenStyling = (ISupportRowStyling)rendererParentCanBeNull;
-					StyleSheet ss = oddEvenStyling.getRowStyleSheet();
-					Style style = isSelected ? oddEvenStyling.getRowSelectedStyle() : null;
+					IStyleSheet ss = oddEvenStyling.getRowStyleSheet();
+					IStyleRule style = isSelected ? oddEvenStyling.getRowSelectedStyle() : null;
 					if (style != null && style.getAttributeCount() == 0) style = null;
 					if (style == null)
 					{

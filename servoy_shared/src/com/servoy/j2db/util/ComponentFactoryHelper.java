@@ -32,7 +32,10 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
 import javax.swing.border.TitledBorder;
 
+import org.xhtmlrenderer.css.constants.CSSName;
+
 import com.servoy.j2db.J2DBGlobals;
+import com.servoy.j2db.util.gui.RoundedBorder;
 import com.servoy.j2db.util.gui.SpecialMatteBorder;
 
 /**
@@ -49,6 +52,7 @@ public class ComponentFactoryHelper
 	public static final String TITLED_BORDER = "TitledBorder"; //$NON-NLS-1$
 	public static final String MATTE_BORDER = "MatteBorder"; //$NON-NLS-1$
 	public static final String SPECIAL_MATTE_BORDER = "SpecialMatteBorder"; //$NON-NLS-1$
+	public static final String ROUNDED_BORDER = "RoundedBorder"; //$NON-NLS-1$
 	public static final String EMPTY_BORDER = "EmptyBorder"; //$NON-NLS-1$
 
 	public static String createBorderString(Object currentBorder)
@@ -120,13 +124,22 @@ public class ComponentFactoryHelper
 			else if (currentBorder instanceof SpecialMatteBorder)
 			{
 				SpecialMatteBorder border = (SpecialMatteBorder)currentBorder;
-				retval = SPECIAL_MATTE_BORDER + "," + border.getTop() + "," + border.getRight() + "," + border.getBottom() + "," + border.getLeft(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				retval = ((border instanceof RoundedBorder) ? ROUNDED_BORDER : SPECIAL_MATTE_BORDER) +
+					"," + border.getTop() + "," + border.getRight() + "," + border.getBottom() + "," + border.getLeft(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 				retval += "," + PersistHelper.createColorString(border.getTopColor()); //$NON-NLS-1$
 				retval += "," + PersistHelper.createColorString(border.getRightColor()); //$NON-NLS-1$
 				retval += "," + PersistHelper.createColorString(border.getBottomColor()); //$NON-NLS-1$
 				retval += "," + PersistHelper.createColorString(border.getLeftColor()); //$NON-NLS-1$
-				retval += "," + border.getRoundingRadius(); //$NON-NLS-1$
-				retval += "," + SpecialMatteBorder.createDashString(border.getDashPattern()); //$NON-NLS-1$
+				if (border instanceof RoundedBorder)
+				{
+					retval += "," + ((RoundedBorder)border).getRoundingRadiusString(); //$NON-NLS-1$
+					retval += "," + ((RoundedBorder)border).getBorderStylesString(); //$NON-NLS-1$
+				}
+				else
+				{
+					retval += "," + border.getRoundingRadius(); //$NON-NLS-1$
+					retval += "," + SpecialMatteBorder.createDashString(border.getDashPattern()); //$NON-NLS-1$
+				}
 			}
 			else if (currentBorder instanceof MatteBorder)
 			{
@@ -273,7 +286,7 @@ public class ComponentFactoryHelper
 						if (tk.hasMoreElements()) color = PersistHelper.createColor(tk.nextToken());
 						currentBorder = BorderFactory.createMatteBorder(top, left, bottom, right, color);
 					}
-					else if (type.equals(SPECIAL_MATTE_BORDER))
+					else if (type.equals(SPECIAL_MATTE_BORDER) || type.equals(ROUNDED_BORDER))
 					{
 						float top = Utils.getAsFloat(tk.nextToken());
 						float right = Utils.getAsFloat(tk.nextToken());
@@ -283,14 +296,35 @@ public class ComponentFactoryHelper
 						Color rightColor = PersistHelper.createColor(tk.nextToken());
 						Color bottomColor = PersistHelper.createColor(tk.nextToken());
 						Color leftColor = PersistHelper.createColor(tk.nextToken());
-						currentBorder = new SpecialMatteBorder(top, left, bottom, right, topColor, leftColor, bottomColor, rightColor);
-						if (tk.hasMoreTokens())
+						if (type.equals(SPECIAL_MATTE_BORDER))
 						{
-							((SpecialMatteBorder)currentBorder).setRoundingRadius(Utils.getAsFloat(tk.nextToken()));
+							currentBorder = new SpecialMatteBorder(top, left, bottom, right, topColor, leftColor, bottomColor, rightColor);
+						}
+						else
+						{
+							currentBorder = new RoundedBorder(top, left, bottom, right, topColor, leftColor, bottomColor, rightColor);
 						}
 						if (tk.hasMoreTokens())
 						{
-							((SpecialMatteBorder)currentBorder).setDashPattern(SpecialMatteBorder.createDash(tk.nextToken()));
+							if (type.equals(SPECIAL_MATTE_BORDER))
+							{
+								((SpecialMatteBorder)currentBorder).setRoundingRadius(Utils.getAsFloat(tk.nextToken()));
+							}
+							else
+							{
+								((RoundedBorder)currentBorder).setRoundingRadius(tk.nextToken());
+							}
+						}
+						if (tk.hasMoreTokens())
+						{
+							if (type.equals(SPECIAL_MATTE_BORDER))
+							{
+								((SpecialMatteBorder)currentBorder).setDashPattern(SpecialMatteBorder.createDash(tk.nextToken()));
+							}
+							else
+							{
+								((RoundedBorder)currentBorder).setBorderStyles(tk.nextToken());
+							}
 						}
 					}
 					else
@@ -468,7 +502,7 @@ public class ComponentFactoryHelper
 						style.setProperty("border-color", PersistHelper.createColorString(c)); //$NON-NLS-1$
 						return new Insets(top, left, bottom, right);
 					}
-					else if (type.equals(SPECIAL_MATTE_BORDER))
+					else if (type.equals(SPECIAL_MATTE_BORDER) || type.equals(ROUNDED_BORDER))
 					{
 						float top = Utils.getAsFloat(tk.nextToken());
 						float right = Utils.getAsFloat(tk.nextToken());
@@ -502,15 +536,38 @@ public class ComponentFactoryHelper
 						style.setProperty("border-style", "solid"); //$NON-NLS-1$ //$NON-NLS-2$
 						if (tk.hasMoreTokens())
 						{
-							//ignore rounded
-							tk.nextToken();
+							String roundedBorder = tk.nextToken();
+							String[] styles = new String[4];
+							int index = 0;
+							StringTokenizer roundedTokenizer = new StringTokenizer(roundedBorder, ";"); //$NON-NLS-1$
+							while (roundedTokenizer.hasMoreTokens())
+							{
+								int width = Utils.getAsInteger(roundedTokenizer.nextToken());
+								styles[index] = (styles[index] != null ? (styles[index] + " " + width + "px") : (width + "px")); //$NON-NLS-1$
+								index = (index + 1) % 4;
+							}
+							addRoundedBorderProperties(style, CSSName.BORDER_TOP_LEFT_RADIUS.toString(), styles[0]);
+							addRoundedBorderProperties(style, CSSName.BORDER_TOP_RIGHT_RADIUS.toString(), styles[1] != null ? styles[1] : styles[0]);
+							addRoundedBorderProperties(style, CSSName.BORDER_BOTTOM_RIGHT_RADIUS.toString(), styles[2] != null ? styles[2] : styles[0]);
+							addRoundedBorderProperties(style, CSSName.BORDER_BOTTOM_LEFT_RADIUS.toString(), styles[3] != null ? styles[3] : styles[0]);
 						}
 						if (tk.hasMoreTokens())
 						{
-							String dashPattern = tk.nextToken().trim();
-							if (dashPattern.length() > 0)
+							String borderStyle = tk.nextToken().trim();
+							if (borderStyle.length() > 0)
 							{
-								style.setProperty("border-style", dashPattern.equals("1.0;1.0") ? "dotted" : "dashed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+								if (type.equals(SPECIAL_MATTE_BORDER))
+								{
+									style.setProperty("border-style", borderStyle.equals("1.0;1.0") ? "dotted" : "dashed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+								}
+								else
+								{
+									String[] styles = RoundedBorder.createBorderStyles(borderStyle);
+									style.setProperty("border-top-style", styles[0]); //$NON-NLS-1$
+									style.setProperty("border-left-style", styles[1]); //$NON-NLS-1$
+									style.setProperty("border-bottom-style", styles[2]); //$NON-NLS-1$
+									style.setProperty("border-right-style", styles[3]); //$NON-NLS-1$
+								}
 							}
 						}
 						return new Insets(Math.round(top), Math.round(left), Math.round(bottom), Math.round(right));
@@ -530,6 +587,16 @@ public class ComponentFactoryHelper
 			{
 				return null;
 			}
+		}
+	}
+
+	private static void addRoundedBorderProperties(Properties style, String styleName, String value)
+	{
+		if (value != null)
+		{
+			style.setProperty("-webkit-" + styleName, value);
+			style.setProperty("-moz-" + styleName, value);
+			style.setProperty(styleName, value);
 		}
 	}
 }

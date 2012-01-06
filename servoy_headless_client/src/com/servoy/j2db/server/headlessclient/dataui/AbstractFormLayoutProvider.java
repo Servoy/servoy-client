@@ -33,7 +33,8 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualCSS;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.util.ComponentFactoryHelper;
-import com.servoy.j2db.util.FixedStyleSheet;
+import com.servoy.j2db.util.IStyleRule;
+import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.OrientationApplier;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
@@ -95,7 +96,7 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 		}
 
 		// Look into styles.
-		FixedStyleSheet ss = ComponentFactory.getCSSStyleForForm(sp, f);
+		IStyleSheet ss = ComponentFactory.getCSSStyleForForm(sp, f);
 		if (ss != null)
 		{
 			String lookupname = "form"; //$NON-NLS-1$
@@ -103,7 +104,7 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 			{
 				lookupname += "." + f.getStyleClass(); //$NON-NLS-1$
 			}
-			javax.swing.text.Style style = ss.getRule(lookupname);
+			IStyleRule style = ss.getCSSRule(lookupname);
 			if (style != null)
 			{
 				if (border == null)

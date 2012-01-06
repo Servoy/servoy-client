@@ -159,14 +159,16 @@ import com.servoy.j2db.ui.scripting.RuntimeTabPanel;
 import com.servoy.j2db.ui.scripting.RuntimeTextArea;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.FixedStyleSheet;
 import com.servoy.j2db.util.FormatParser.ParsedFormat;
+import com.servoy.j2db.util.IStyleRule;
+import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.JSONWrapperMap;
 import com.servoy.j2db.util.OpenProperties;
 import com.servoy.j2db.util.OrientationApplier;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyJSONObject;
+import com.servoy.j2db.util.ServoyStyleSheet;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.XMLDecoder;
@@ -197,7 +199,7 @@ public class ComponentFactory
 	{
 	};
 	private static final String PARSED_STYLES = "parsedStyles";
-	private static ConcurrentMap<Style, FixedStyleSheet> parsedStyles = new ConcurrentHashMap<Style, FixedStyleSheet>();
+	private static ConcurrentMap<Style, IStyleSheet> parsedStyles = new ConcurrentHashMap<Style, IStyleSheet>();
 
 	private static Boolean element_name_as_uid_prefix;
 
@@ -377,18 +379,18 @@ public class ComponentFactory
 		return comp;
 	}
 
-	public static FixedStyleSheet getCSSStyle(IServiceProvider sp, Style s)
+	public static IStyleSheet getCSSStyle(IServiceProvider sp, Style s)
 	{
 		if (s == null) return null;
 
-		Map<Style, FixedStyleSheet> parsedStylesMap;
+		Map<Style, IStyleSheet> parsedStylesMap;
 		if (sp != null && Boolean.TRUE.equals(s.getRuntimeProperty(MODIFIED_BY_CLIENT)))
 		{
 			// style changed by client, cache parsed style per client.
-			parsedStylesMap = (ConcurrentMap<Style, FixedStyleSheet>)sp.getRuntimeProperties().get(PARSED_STYLES);
+			parsedStylesMap = (ConcurrentMap<Style, IStyleSheet>)sp.getRuntimeProperties().get(PARSED_STYLES);
 			if (parsedStylesMap == null)
 			{
-				parsedStylesMap = new ConcurrentHashMap<Style, FixedStyleSheet>();
+				parsedStylesMap = new ConcurrentHashMap<Style, IStyleSheet>();
 				sp.getRuntimeProperties().put(PARSED_STYLES, parsedStylesMap);
 			}
 		}
@@ -398,24 +400,16 @@ public class ComponentFactory
 			parsedStylesMap = parsedStyles;
 		}
 
-		FixedStyleSheet ss = parsedStylesMap.get(s);
+		IStyleSheet ss = parsedStylesMap.get(s);
 		if (ss == null)
 		{
-			ss = new FixedStyleSheet();
-			try
-			{
-				ss.addRule(s.getCSSText());
-			}
-			catch (Exception e)
-			{
-				Debug.error(e);//parsing can fail in java 1.5
-			}
+			ss = new ServoyStyleSheet(s.getCSSText());
 			parsedStylesMap.put(s, ss);
 		}
 		return ss;
 	}
 
-	public static FixedStyleSheet getCSSStyleForForm(IServiceProvider sp, Form form)
+	public static IStyleSheet getCSSStyleForForm(IServiceProvider sp, Form form)
 	{
 		return getCSSStyle(sp, getStyleForForm(sp, form));
 	}
@@ -476,13 +470,12 @@ public class ComponentFactory
 		return repos_style;
 	}
 
-	public static Pair<FixedStyleSheet, javax.swing.text.Style> getStyleForBasicComponent(IServiceProvider sp, AbstractBase bc, Form form)
+	public static Pair<IStyleSheet, IStyleRule> getStyleForBasicComponent(IServiceProvider sp, AbstractBase bc, Form form)
 	{
 		return getStyleForBasicComponentInternal(sp, bc, form, new HashSet<Integer>());
 	}
 
-	private static Pair<FixedStyleSheet, javax.swing.text.Style> getStyleForBasicComponentInternal(IServiceProvider sp, AbstractBase bc, Form form,
-		Set<Integer> visited)
+	public static Pair<IStyleSheet, IStyleRule> getStyleForBasicComponentInternal(IServiceProvider sp, AbstractBase bc, Form form, Set<Integer> visited)
 	{
 		if (bc == null || sp == null) return null;
 
@@ -491,11 +484,11 @@ public class ComponentFactory
 		visited.add(new Integer(form.getID()));
 
 		Style repos_style = getStyleForForm(sp, form);
-		Pair<FixedStyleSheet, javax.swing.text.Style> pair = null;
+		Pair<IStyleSheet, IStyleRule> pair = null;
 
 		if (repos_style != null)
 		{
-			FixedStyleSheet ss = getCSSStyle(sp, repos_style);
+			IStyleSheet ss = getCSSStyle(sp, repos_style);
 
 			String lookupName = getLookupName(bc);
 
@@ -543,7 +536,7 @@ public class ComponentFactory
 				}
 
 
-				javax.swing.text.Style s = null;
+				IStyleRule s = null;
 				String styleClass = (bc instanceof BaseComponent) ? ((BaseComponent)bc).getStyleClass() : null;
 				if (lookupName.equals("check") || lookupName.equals("combobox") || "radio".equals(lookupName))
 				{
@@ -552,9 +545,9 @@ public class ComponentFactory
 						lookupName += '.' + styleClass;
 					}
 					lookupName = formLookup + ' ' + lookupName;
-					s = ss.getRule(lookupName);
+					s = ss.getCSSRule(lookupName);
 
-					if (s.getAttributeCount() > 0) return new Pair<FixedStyleSheet, javax.swing.text.Style>(ss, s);
+					if (s.getAttributeCount() > 0) return new Pair<IStyleSheet, IStyleRule>(ss, s);
 					else lookupName = "field";
 				}
 
@@ -563,9 +556,9 @@ public class ComponentFactory
 					lookupName += '.' + styleClass;
 				}
 				lookupName = formLookup + ' ' + lookupName;
-				s = ss.getRule(lookupName);
+				s = ss.getCSSRule(lookupName);
 
-				pair = new Pair<FixedStyleSheet, javax.swing.text.Style>(ss, s);
+				pair = new Pair<IStyleSheet, IStyleRule>(ss, s);
 				//see BoxPainter for getBorder/getInsets/getLength examples
 			}
 		}
@@ -589,7 +582,7 @@ public class ComponentFactory
 		if (part != null && form != null)
 		{
 			if (part.getBackground() != null) return part.getBackground();
-			Pair<FixedStyleSheet, javax.swing.text.Style> pair = getStyleForBasicComponent(sp, part, form);
+			Pair<IStyleSheet, IStyleRule> pair = getStyleForBasicComponent(sp, part, form);
 			if (pair != null)
 			{
 				return pair.getLeft().getBackground(pair.getRight());
@@ -660,8 +653,7 @@ public class ComponentFactory
 		return lookupName;
 	}
 
-	public static void applyBasicComponentProperties(IApplication application, IComponent c, BaseComponent bc,
-		Pair<FixedStyleSheet, javax.swing.text.Style> styleInfo)
+	public static void applyBasicComponentProperties(IApplication application, IComponent c, BaseComponent bc, Pair<IStyleSheet, IStyleRule> styleInfo)
 	{
 		// flag for border set by style config
 		boolean isBorderStyle = false;
@@ -670,19 +662,19 @@ public class ComponentFactory
 		//apply any style
 		if (styleInfo != null)
 		{
-			FixedStyleSheet ss = styleInfo.getLeft();
-			javax.swing.text.Style s = styleInfo.getRight();
+			IStyleSheet ss = styleInfo.getLeft();
+			IStyleRule s = styleInfo.getRight();
 			if (ss != null && s != null)
 			{
-				if (s.getAttribute(CSS.Attribute.COLOR) != null)
+				if (s.hasAttribute(CSS.Attribute.COLOR.toString()))
 				{
 					Color cfg = ss.getForeground(s);
 					if (cfg != null) c.setForeground(cfg);
 				}
-				Object sbackground_color = s.getAttribute(CSS.Attribute.BACKGROUND_COLOR);
+				Object sbackground_color = s.getValue(CSS.Attribute.BACKGROUND_COLOR.toString());
 				if (sbackground_color != null)
 				{
-					if (FixedStyleSheet.COLOR_TRANSPARENT.equals(sbackground_color.toString()))
+					if (IStyleSheet.COLOR_TRANSPARENT.equals(sbackground_color.toString()))
 					{
 						c.setOpaque(false);
 					}
@@ -1161,11 +1153,11 @@ public class ComponentFactory
 		Insets style_margin = null;
 		int style_halign = -1;
 		boolean hasBorder = false;
-		Pair<FixedStyleSheet, javax.swing.text.Style> styleInfo = getStyleForBasicComponent(application, field, form);
+		Pair<IStyleSheet, IStyleRule> styleInfo = getStyleForBasicComponent(application, field, form);
 		if (styleInfo != null)
 		{
-			FixedStyleSheet ss = styleInfo.getLeft();
-			javax.swing.text.Style s = styleInfo.getRight();
+			IStyleSheet ss = styleInfo.getLeft();
+			IStyleRule s = styleInfo.getRight();
 			if (ss != null && s != null)
 			{
 				style_margin = ss.getMargin(s);
@@ -1599,11 +1591,11 @@ public class ComponentFactory
 		int style_valign = -1;
 		int textTransform = 0;
 		int mediaid = 0;
-		Pair<FixedStyleSheet, javax.swing.text.Style> styleInfo = getStyleForBasicComponent(application, label, form);
+		Pair<IStyleSheet, IStyleRule> styleInfo = getStyleForBasicComponent(application, label, form);
 		if (styleInfo != null)
 		{
-			FixedStyleSheet ss = styleInfo.getLeft();
-			javax.swing.text.Style s = styleInfo.getRight();
+			IStyleSheet ss = styleInfo.getLeft();
+			IStyleRule s = styleInfo.getRight();
 			if (ss != null && s != null)
 			{
 				style_valign = ss.getVAlign(s);
@@ -1614,11 +1606,12 @@ public class ComponentFactory
 				// anything else then then the css through the templategenerator is used. (See TemplateGenerator.createGraphicalComponentHTML)
 				if (application.getApplicationType() == IApplication.WEB_CLIENT)
 				{
-					parseMedia = s.getAttribute(CSS.Attribute.BACKGROUND_REPEAT) == null && s.getAttribute(CSS.Attribute.BACKGROUND_POSITION) == null;
+					parseMedia = s.getValue(CSS.Attribute.BACKGROUND_REPEAT.toString()) == null &&
+						s.getValue(CSS.Attribute.BACKGROUND_POSITION.toString()) == null;
 				}
 				if (parseMedia)
 				{
-					Object mediaUrl = s.getAttribute(CSS.Attribute.BACKGROUND_IMAGE);
+					Object mediaUrl = s.getValue(CSS.Attribute.BACKGROUND_IMAGE.toString());
 					if (mediaUrl != null && mediaUrl.toString() != null)
 					{
 						String mediaUrlString = mediaUrl.toString();
@@ -1638,7 +1631,7 @@ public class ComponentFactory
 				}
 
 
-				String transform = (String)s.getAttribute(CSS.getAttribute("text-transform"));
+				String transform = s.getValue(CSS.Attribute.TEXT_TRANSFORM.toString());
 				if (transform != null)
 				{
 					if ("uppercase".equals(transform))
@@ -1858,8 +1851,8 @@ public class ComponentFactory
 
 		if (styleInfo != null && (border == null || insets == null))
 		{
-			FixedStyleSheet ss = styleInfo.getLeft();
-			javax.swing.text.Style s = styleInfo.getRight();
+			IStyleSheet ss = styleInfo.getLeft();
+			IStyleRule s = styleInfo.getRight();
 			if (ss != null && s != null)
 			{
 				if (border == null && ss.hasBorder(s))
@@ -1910,7 +1903,7 @@ public class ComponentFactory
 		RuntimePortal scriptable = new RuntimePortal(application.getItemFactory().createChangesRecorder(), application);
 		IPortalComponent portalComponent = application.getItemFactory().createPortalComponent(scriptable, meta, form, dataProviderLookup, el, printing);
 		scriptable.setComponent(portalComponent);
-		FixedStyleSheet ss = ComponentFactory.getCSSStyleForForm(application, form);
+		IStyleSheet ss = ComponentFactory.getCSSStyleForForm(application, form);
 		if (ss != null)
 		{
 			String lookupname = "portal";
@@ -1918,9 +1911,9 @@ public class ComponentFactory
 			{
 				lookupname += '.' + meta.getStyleClass();
 			}
-			portalComponent.setRowStyles(ss, ss.getRule(lookupname + " " + ISupportRowStyling.CLASS_ODD),
-				ss.getRule(lookupname + " " + ISupportRowStyling.CLASS_EVEN), ss.getRule(lookupname + " " + ISupportRowStyling.CLASS_SELECTED),
-				ss.getRule(lookupname + " " + ISupportRowStyling.CLASS_HEADER));
+			portalComponent.setRowStyles(ss, ss.getCSSRule(lookupname + " " + ISupportRowStyling.CLASS_ODD),
+				ss.getCSSRule(lookupname + " " + ISupportRowStyling.CLASS_EVEN), ss.getCSSRule(lookupname + " " + ISupportRowStyling.CLASS_SELECTED),
+				ss.getCSSRule(lookupname + " " + ISupportRowStyling.CLASS_HEADER));
 		}
 		return portalComponent;
 	}
@@ -2051,10 +2044,10 @@ public class ComponentFactory
 
 	public static void flushStyle(IServiceProvider sp, Style style)
 	{
-		Map<Style, FixedStyleSheet> parsedStylesMap;
+		Map<Style, IStyleSheet> parsedStylesMap;
 		if (sp != null && Boolean.TRUE.equals(style.getRuntimeProperty(MODIFIED_BY_CLIENT)))
 		{
-			parsedStylesMap = (ConcurrentMap<Style, FixedStyleSheet>)sp.getRuntimeProperties().get(PARSED_STYLES);
+			parsedStylesMap = (ConcurrentMap<Style, IStyleSheet>)sp.getRuntimeProperties().get(PARSED_STYLES);
 		}
 		else
 		{
@@ -2081,7 +2074,7 @@ public class ComponentFactory
 	@SuppressWarnings("unchecked")
 	public static void flushCachedItems()
 	{
-		parsedStyles = new ConcurrentHashMap<Style, FixedStyleSheet>();
+		parsedStyles = new ConcurrentHashMap<Style, IStyleSheet>();
 		J2DBGlobals.getServiceProvider().getRuntimeProperties().put(IServiceProvider.RT_VALUELIST_CACHE, null);
 		J2DBGlobals.getServiceProvider().getRuntimeProperties().put(IServiceProvider.RT_OVERRIDESTYLE_CACHE, null);
 

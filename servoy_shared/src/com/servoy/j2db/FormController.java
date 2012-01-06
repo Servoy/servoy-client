@@ -106,7 +106,8 @@ import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.ISupportSecuritySettings;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.FixedStyleSheet;
+import com.servoy.j2db.util.IStyleRule;
+import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
@@ -1554,9 +1555,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 	}
 
-	private FixedStyleSheet ss = null;
-	private javax.swing.text.Style s = null, styleOdd = null, styleEven = null, styleSelected = null, styleHeader = null;
-
+	private IStyleSheet ss = null;
+	private IStyleRule s = null, styleOdd = null, styleEven = null, styleSelected = null, styleHeader = null;
 
 	void init()
 	{
@@ -1591,11 +1591,11 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				String formStyleClass = form.getStyleClass();
 				lookupname += '.' + formStyleClass;
 			}
-			s = ss.getRule(lookupname);
-			styleOdd = ss.getRule(lookupname + " " + ISupportRowStyling.CLASS_ODD); //$NON-NLS-1$
-			styleEven = ss.getRule(lookupname + " " + ISupportRowStyling.CLASS_EVEN); //$NON-NLS-1$
-			styleSelected = ss.getRule(lookupname + " " + ISupportRowStyling.CLASS_SELECTED); //$NON-NLS-1$
-			styleHeader = ss.getRule(lookupname + " " + ISupportRowStyling.CLASS_HEADER); //$NON-NLS-1$
+			s = ss.getCSSRule(lookupname);
+			styleOdd = ss.getCSSRule(lookupname + " " + ISupportRowStyling.CLASS_ODD); //$NON-NLS-1$
+			styleEven = ss.getCSSRule(lookupname + " " + ISupportRowStyling.CLASS_EVEN); //$NON-NLS-1$
+			styleSelected = ss.getCSSRule(lookupname + " " + ISupportRowStyling.CLASS_SELECTED); //$NON-NLS-1$
+			styleHeader = ss.getCSSRule(lookupname + " " + ISupportRowStyling.CLASS_HEADER); //$NON-NLS-1$
 			if (s != null)
 			{
 				if (border == null)
