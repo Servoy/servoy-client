@@ -621,8 +621,8 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		shuttingDown = true;
 		try
 		{
-			// first just execute all events that are waiting..
-			executeEvents();
+			// first just execute all events that are waiting, but only when we are in request cycle 
+			if (RequestCycle.get() != null) executeEvents();
 
 			super.shutDown(force);
 
@@ -936,8 +936,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		}
 	}
 
-	public void onEndRequest(@SuppressWarnings("unused")
-	WebClientSession webClientSession)
+	public void onEndRequest(@SuppressWarnings("unused") WebClientSession webClientSession)
 	{
 	}
 
