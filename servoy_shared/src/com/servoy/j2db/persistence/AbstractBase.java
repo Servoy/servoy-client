@@ -269,10 +269,12 @@ public abstract class AbstractBase implements IPersist
 		return false;
 	}
 
+	// TODO maybe this should be moved to a new class that would be a common ancestor of all persists for which extending makes sense
 	public int getExtendsID()
 	{
 		// fix for elements that don't have this property (methods,vars)
 		Integer extendsId = getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID);
+		if (extendsId == null) return Form.NAVIGATOR_NONE; // this code might seem to not be reacheable, but it is reached as extendsID is not declared in content spec for all abstract base types (for example ScriptMethod)
 		return extendsId.intValue();
 	}
 
