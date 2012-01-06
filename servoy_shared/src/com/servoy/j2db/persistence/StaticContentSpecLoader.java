@@ -744,16 +744,16 @@ public class StaticContentSpecLoader
 		if (old_repository_version < 40)
 		{
 			cs.new Element(378, IRepository.SHAPES, PROPERTY_ANCHORS.getPropertyName(), IRepository.INTEGER);
-			cs.new Element(379, IRepository.FORMS, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS, ContentSpec.MINUS_ONE);
-			cs.new Element(380, IRepository.BEANS, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS, ContentSpec.MINUS_ONE);
-			cs.new Element(381, IRepository.FIELDS, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS, ContentSpec.MINUS_ONE);
-			cs.new Element(382, IRepository.GRAPHICALCOMPONENTS, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS, ContentSpec.MINUS_ONE);
-			cs.new Element(383, IRepository.PARTS, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS, ContentSpec.MINUS_ONE);
-			cs.new Element(384, IRepository.PORTALS, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS, ContentSpec.MINUS_ONE);
-			cs.new Element(385, IRepository.TABS, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS, ContentSpec.MINUS_ONE);
-			cs.new Element(386, IRepository.TABPANELS, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS, ContentSpec.MINUS_ONE);
-			cs.new Element(387, IRepository.RECTSHAPES, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS, ContentSpec.MINUS_ONE);
-			cs.new Element(388, IRepository.SHAPES, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS, ContentSpec.MINUS_ONE);
+			cs.new Element(379, IRepository.FORMS, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(380, IRepository.BEANS, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(381, IRepository.FIELDS, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(382, IRepository.GRAPHICALCOMPONENTS, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(383, IRepository.PARTS, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(384, IRepository.PORTALS, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(385, IRepository.TABS, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(386, IRepository.TABPANELS, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(387, IRepository.RECTSHAPES, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(388, IRepository.SHAPES, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS);
 		}
 
 		if (old_repository_version < 41)
