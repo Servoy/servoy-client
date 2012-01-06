@@ -79,6 +79,11 @@ public abstract class DraggableBehavior extends AbstractServoyDefaultAjaxBehavio
 	 */
 	public static final String PARAM_Y = "yc";
 
+	/**
+	 * Modifiers parameter name.
+	 */
+	public static final String PARAM_MODIFIERS = "m";
+
 	private boolean bUseProxy;
 	private boolean bResizeProxyFrame;
 	private boolean bXConstraint;
@@ -312,30 +317,31 @@ public abstract class DraggableBehavior extends AbstractServoyDefaultAjaxBehavio
 		Request componentRequest = getComponent().getRequest();
 		String action = componentRequest.getParameter(PARAM_ACTION);
 		String id = componentRequest.getParameter(PARAM_DRAGGABLE_ID);
+		int modifiers = WebEventExecutor.convertModifiers(Integer.parseInt(componentRequest.getParameter(PARAM_MODIFIERS)));
 
 		if (ACTION_DRAG_START.equals(action))
 		{
 			boolean dragStartReturn = onDragStart(id, Integer.parseInt(componentRequest.getParameter(PARAM_X)),
-				Integer.parseInt(componentRequest.getParameter(PARAM_Y)), ajaxRequestTarget);
+				Integer.parseInt(componentRequest.getParameter(PARAM_Y)), modifiers, ajaxRequestTarget);
 			if (!dragStartReturn) ajaxRequestTarget.appendJavascript("YAHOO.util.DragDropMgr.stopDrag(Servoy.DD.mouseDownEvent, false);");
 		}
 		else if (ACTION_DRAG_END.equals(action))
 		{
-			onDragEnd(id, Integer.parseInt(componentRequest.getParameter(PARAM_X)), Integer.parseInt(componentRequest.getParameter(PARAM_Y)), ajaxRequestTarget);
+			onDragEnd(id, Integer.parseInt(componentRequest.getParameter(PARAM_X)), Integer.parseInt(componentRequest.getParameter(PARAM_Y)), modifiers,
+				ajaxRequestTarget);
 		}
 		else if (ACTION_DROP_HOVER.equals(action))
 		{
-			onDropHover(id, componentRequest.getParameter(PARAM_TARGET_ID), ajaxRequestTarget);
+			onDropHover(id, componentRequest.getParameter(PARAM_TARGET_ID), modifiers, ajaxRequestTarget);
 		}
 		else if (ACTION_DROP.equals(action))
 		{
 			onDrop(id, componentRequest.getParameter(PARAM_TARGET_ID), Integer.parseInt(componentRequest.getParameter(PARAM_X)),
-				Integer.parseInt(componentRequest.getParameter(PARAM_Y)), ajaxRequestTarget);
+				Integer.parseInt(componentRequest.getParameter(PARAM_Y)), modifiers, ajaxRequestTarget);
 		}
 
 		WebEventExecutor.generateResponse(ajaxRequestTarget, componentPage);
 	}
-
 
 	/**
 	 * @see org.apache.wicket.ajax.AbstractDefaultAjaxBehavior#renderHead(org.apache.wicket.markup.html.IHeaderResponse)
@@ -354,10 +360,11 @@ public abstract class DraggableBehavior extends AbstractServoyDefaultAjaxBehavio
 	 * @param id drag component id
 	 * @param x mouse x coordinate
 	 * @param y mouse y coordinate
+	 * @param m modifiers
 	 * @param ajaxRequestTarget
 	 * @return whatever the drag can start
 	 */
-	protected abstract boolean onDragStart(String id, int x, int y, AjaxRequestTarget ajaxRequestTarget);
+	protected abstract boolean onDragStart(String id, int x, int y, int m, AjaxRequestTarget ajaxRequestTarget);
 
 	/**
 	 * Called when a drag ends.
@@ -365,9 +372,10 @@ public abstract class DraggableBehavior extends AbstractServoyDefaultAjaxBehavio
 	 * @param id target component id
 	 * @param x mouse x coordinate
 	 * @param y mouse y coordinate
+	 * @param m modifiers 
 	 * @param ajaxRequestTarget
 	 */
-	protected void onDragEnd(String id, int x, int y, AjaxRequestTarget ajaxRequestTarget)
+	protected void onDragEnd(String id, int x, int y, int m, AjaxRequestTarget ajaxRequestTarget)
 	{
 		setDragData(null, null);
 		setCurrentDragOperation(DRAGNDROP.NONE);
@@ -378,9 +386,10 @@ public abstract class DraggableBehavior extends AbstractServoyDefaultAjaxBehavio
 	 * 
 	 * @param id drag component id
 	 * @param targeid target component id
+	 * @param m modifiers 
 	 * @param ajaxRequestTarget
 	 */
-	protected abstract void onDropHover(String id, String targeid, AjaxRequestTarget ajaxRequestTarget);
+	protected abstract void onDropHover(String id, String targeid, int m, AjaxRequestTarget ajaxRequestTarget);
 
 	/**
 	 * Called on drop.
@@ -388,7 +397,8 @@ public abstract class DraggableBehavior extends AbstractServoyDefaultAjaxBehavio
 	 * @param targetid target component id
 	 * @param x mouse x coordinate
 	 * @param y mouse y coordinate
+	 * @param m modifiers 
 	 * @param ajaxRequestTarget
 	 */
-	protected abstract void onDrop(String id, String targetid, int x, int y, AjaxRequestTarget ajaxRequestTarget);
+	protected abstract void onDrop(String id, String targetid, int x, int y, int m, AjaxRequestTarget ajaxRequestTarget);
 }

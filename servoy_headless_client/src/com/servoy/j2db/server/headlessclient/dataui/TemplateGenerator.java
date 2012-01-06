@@ -391,10 +391,11 @@ public class TemplateGenerator
 					continue;//is never shown (=printing only)
 				}
 
-				if (part.getPartType() == Part.BODY && (viewType == FormController.TABLE_VIEW || viewType == FormController.LOCKED_TABLE_VIEW))
+				if (part.getPartType() == Part.BODY &&
+					(viewType == FormController.TABLE_VIEW || viewType == FormController.LOCKED_TABLE_VIEW || viewType == IForm.LIST_VIEW || viewType == FormController.LOCKED_LIST_VIEW))
 				{
 					layoutProvider.renderOpenTableViewHTML(html, css, part);
-					createCellBasedView(f, f, html, css, layoutProvider.needsHeaders(), startY, endY, bgColor, sp);//tableview == bodypart
+					createCellBasedView(f, f, html, css, layoutProvider.needsHeaders(), startY, endY, bgColor, sp, viewType);//tableview == bodypart
 					layoutProvider.renderCloseTableViewHTML(html);
 				}
 				else
@@ -477,7 +478,7 @@ public class TemplateGenerator
 	}
 
 	private static void createCellBasedView(AbstractBase obj, Form form, StringBuffer html, TextualCSS css, boolean addHeaders, int startY, int endY,
-		Color bgColor, IServiceProvider sp) throws RepositoryException
+		Color bgColor, IServiceProvider sp, int viewType) throws RepositoryException
 	{
 		try
 		{
@@ -544,9 +545,15 @@ public class TemplateGenerator
 				html.append(getCSSClassParameter("portal"));//$NON-NLS-1$ 
 				html.append("><span servoy:id='info'></span>\n<table cellpadding='0' cellspacing='0' class='portal'>\n");//$NON-NLS-1$ 
 			}
-			css.addCSSBoundsHandler(NoLocationCSSBoundsHandler.INSTANCE);
+			if (viewType == IForm.LIST_VIEW || viewType == FormController.LOCKED_LIST_VIEW)
+			{
+				css.addCSSBoundsHandler(new YOffsetCSSBoundsHandler(-startY));
+			}
+			else
+			{
+				css.addCSSBoundsHandler(NoLocationCSSBoundsHandler.INSTANCE);
+			}
 			html.append("<tr><td height='99%'><table border=0 cellpadding=0 cellspacing=0 width='100%'>\n");
-			int totalWidth = 0;
 			if (addHeaders)
 			{
 				Map<String, GraphicalComponent> labelsFor = new HashMap<String, GraphicalComponent>();
@@ -566,7 +573,6 @@ public class TemplateGenerator
 				boolean usesImageMedia = false;
 
 				boolean hasAtLeastOneLabelFor = false;
-				int totalColumnsCount = 0;
 				Iterator<IPersist> it2 = obj.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 				while (it2.hasNext())
 				{
@@ -586,7 +592,6 @@ public class TemplateGenerator
 
 						if (l.y >= startY && l.y < endY)
 						{
-							totalColumnsCount++;
 							GraphicalComponent label = labelsFor.get(((IFormElement)element).getName());
 							if (label != null) hasAtLeastOneLabelFor = true;
 						}
@@ -620,7 +625,6 @@ public class TemplateGenerator
 							html.append(getWicketIDParameter(form, element));
 
 							int w = ((IFormElement)element).getSize().width;
-							totalWidth += w;
 							w = w - 2; //minus left padding from css for th
 
 							//					html.append("height='");
@@ -824,70 +828,108 @@ public class TemplateGenerator
 			html.append("<tbody servoy:id='rowsContainerBody'>\n");
 
 			StringBuffer columns = new StringBuffer();
-			int colCount = 0;
-			Iterator<IPersist> it = obj.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 			int firstComponentHeight = -1;
-			while (it.hasNext())
+			if (viewType == IForm.LIST_VIEW || viewType == FormController.LOCKED_LIST_VIEW)
 			{
-				IPersist element = it.next();
-				if (element instanceof Field || element instanceof GraphicalComponent || element instanceof Bean)
+				Form f = (Form)obj;
+				Iterator<Part> partIte = f.getParts();
+				while (partIte.hasNext())
 				{
-					if (element instanceof GraphicalComponent && ((GraphicalComponent)element).getLabelFor() != null)
+					Part p = partIte.next();
+					if (p.getPartType() == Part.BODY)
 					{
-						continue;
+						firstComponentHeight = p.getHeight() - startY;
+						break;
 					}
+				}
+				columns.append("<td><div style=\"position: absolute; width: ").append(f.getWidth()).append("px; height: ").append(
+					firstComponentHeight).append("px;\">");
 
-					Point l = ((IFormElement)element).getLocation();
-					if (l == null)
-					{
-						continue;//unkown where to add
-					}
+				Iterator<IFormElement> it = f.getFormElementsSortedByFormIndex();
+				while (it.hasNext())
+				{
+					Point l = null;
+					IFormElement element = it.next();
+					l = element.getLocation();
+
+					if (l == null) continue;//unknown where to add
+
 					if (l.y >= startY && l.y < endY)
 					{
-						columns.append("<td ");
-						if (element instanceof ISupportName)
-						{
-							String name = ((ISupportName)element).getName();
-							if (((name != null) && (name.trim().length() > 0)) || addHeaders)
-							{
-								// this column's cells can be made invisible (and <td> tag is the one that has to change)
-								// so we will link this <td> to a wicket component
-								columns.append("servoy:id='");
-								columns.append(ComponentFactory.getWebID(form, element));
-								columns.append("_' ");
-							}
-						}
-						if (firstComponentHeight == -1) firstComponentHeight = ((IFormElement)element).getSize().height;
-						if (!addHeaders && !shouldFillAllHorizSpace)
-						{
-							columns.append("width='");
-							int w = ((IFormElement)element).getSize().width;
-							totalWidth += w;
-//							w = w - (2+2);  //minus left+rigth padding from css for th
-							columns.append(w);
-							columns.append("' ");
-						}
-						//					columns.append("valign='middle' ");
-						columns.append('>');
-						columns.append("<div class='" + TABLE_VIEW_CELL_CLASS + "'>");
-						createComponentHTML(element, form, columns, css, bgColor, startY, endY, false, sp);
+						createComponentHTML(element, f, columns, css, bgColor, startY, endY, false, sp);
+						columns.append('\n');
 						TextualStyle idBasedStyle = css.addStyle('#' + ComponentFactory.getWebID(form, element));
 						TextualStyle classBasedStyle = css.addStyle('.' + ComponentFactory.getWebID(form, element));
 						classBasedStyle.copyAllFrom(idBasedStyle);
-						if (element instanceof Field)
+					}
+				}
+
+				columns.append("</div></td>\n");
+			}
+			else
+			{
+				Iterator<IPersist> it = obj.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
+				while (it.hasNext())
+				{
+					IPersist element = it.next();
+					if (element instanceof Field || element instanceof GraphicalComponent || element instanceof Bean)
+					{
+						if (element instanceof GraphicalComponent && ((GraphicalComponent)element).getLabelFor() != null)
 						{
-							int type = ((Field)element).getDisplayType();
-							if (type == Field.PASSWORD || type == Field.TEXT_FIELD || type == Field.TYPE_AHEAD || type == Field.TEXT_AREA)
-							{
-								classBasedStyle.setProperty("float", "left");
-							}
+							continue;
 						}
-						columns.append("</div>\n");
-						columns.append("</td>\n");
-						colCount++;
+
+						Point l = ((IFormElement)element).getLocation();
+						if (l == null)
+						{
+							continue;//unkown where to add
+						}
+						if (l.y >= startY && l.y < endY)
+						{
+							columns.append("<td ");
+							if (element instanceof ISupportName)
+							{
+								String name = ((ISupportName)element).getName();
+								if (((name != null) && (name.trim().length() > 0)) || addHeaders)
+								{
+									// this column's cells can be made invisible (and <td> tag is the one that has to change)
+									// so we will link this <td> to a wicket component
+									columns.append("servoy:id='");
+									columns.append(ComponentFactory.getWebID(form, element));
+									columns.append("_' ");
+								}
+							}
+							if (firstComponentHeight == -1) firstComponentHeight = ((IFormElement)element).getSize().height;
+							if (!addHeaders && !shouldFillAllHorizSpace)
+							{
+								columns.append("width='");
+								int w = ((IFormElement)element).getSize().width;
+//								w = w - (2+2);  //minus left+rigth padding from css for th
+								columns.append(w);
+								columns.append("' ");
+							}
+							//					columns.append("valign='middle' ");
+							columns.append('>');
+							columns.append("<div class='" + TABLE_VIEW_CELL_CLASS + "'>");
+							createComponentHTML(element, form, columns, css, bgColor, startY, endY, false, sp);
+							TextualStyle idBasedStyle = css.addStyle('#' + ComponentFactory.getWebID(form, element));
+							TextualStyle classBasedStyle = css.addStyle('.' + ComponentFactory.getWebID(form, element));
+							classBasedStyle.copyAllFrom(idBasedStyle);
+							if (element instanceof Field)
+							{
+								int type = ((Field)element).getDisplayType();
+								if (type == Field.PASSWORD || type == Field.TEXT_FIELD || type == Field.TYPE_AHEAD || type == Field.TEXT_AREA)
+								{
+									classBasedStyle.setProperty("float", "left");
+								}
+							}
+							columns.append("</div>\n");
+							columns.append("</td>\n");
+						}
 					}
 				}
 			}
+
 
 			// add filler, needed for column resize.
 			// no filler when the tableview has no horizontal scrollbar.
@@ -1835,7 +1877,7 @@ public class TemplateGenerator
 	{
 		Color portalBgColor = meta.getBackground();
 		if (portalBgColor == null) portalBgColor = formPartBgColor;
-		createCellBasedView(meta, form, html, css, !meta.getMultiLine(), startY, endY, portalBgColor, sp);
+		createCellBasedView(meta, form, html, css, !meta.getMultiLine(), startY, endY, portalBgColor, sp, -1);
 	}
 
 	private static void createShapeHTML(Shape shape, Form form, StringBuffer html, TextualCSS css, int startY, int endY, boolean enableAnchoring,

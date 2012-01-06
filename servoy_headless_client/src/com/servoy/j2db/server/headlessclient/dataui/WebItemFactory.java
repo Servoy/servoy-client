@@ -234,7 +234,7 @@ public class WebItemFactory implements ItemFactory
 	{
 		int endY = meta.getLocation().y + meta.getSize().height;
 		return new WebCellBasedView(ComponentFactory.getWebID(form, meta), application, scriptable, form, meta, dataProviderLookup, el, !meta.getMultiLine(),
-			meta.getLocation().y, endY, meta.getSize().height);
+			meta.getLocation().y, endY, meta.getSize().height, -1);
 	}
 
 

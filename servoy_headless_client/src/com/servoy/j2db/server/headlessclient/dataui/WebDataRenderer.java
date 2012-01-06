@@ -637,25 +637,25 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 		DraggableBehavior dragBehavior = new DraggableBehavior()
 		{
 			@Override
-			protected void onDragEnd(String id, int x, int y, AjaxRequestTarget ajaxRequestTarget)
+			protected void onDragEnd(String id, int x, int y, int m, AjaxRequestTarget ajaxRequestTarget)
 			{
 				if (getCurrentDragOperation() != DRAGNDROP.NONE)
 				{
-					JSDNDEvent event = WebDataRenderer.this.createScriptEvent(EventType.onDragEnd, getDragComponent(), null);
+					JSDNDEvent event = WebDataRenderer.this.createScriptEvent(EventType.onDragEnd, getDragComponent(), null, m);
 					event.setData(getDragData());
 					event.setDataMimeType(getDragDataMimeType());
 					event.setDragResult(getDropResult() ? getCurrentDragOperation() : DRAGNDROP.NONE);
 					WebDataRenderer.this.onDragEnd(event);
 				}
 
-				super.onDragEnd(id, x, y, ajaxRequestTarget);
+				super.onDragEnd(id, x, y, m, ajaxRequestTarget);
 			}
 
 			@Override
-			protected boolean onDragStart(final String id, int x, int y, AjaxRequestTarget ajaxRequestTarget)
+			protected boolean onDragStart(final String id, int x, int y, int m, AjaxRequestTarget ajaxRequestTarget)
 			{
 				IComponent comp = getBindedComponentChild(id);
-				JSDNDEvent event = WebDataRenderer.this.createScriptEvent(EventType.onDrag, comp, new Point(x, y));
+				JSDNDEvent event = WebDataRenderer.this.createScriptEvent(EventType.onDrag, comp, new Point(x, y), m);
 				setDropResult(false);
 				int dragOp = WebDataRenderer.this.onDrag(event);
 				if (dragOp == DRAGNDROP.NONE) return false;
@@ -666,13 +666,13 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 			}
 
 			@Override
-			protected void onDrop(String id, final String targetid, int x, int y, AjaxRequestTarget ajaxRequestTarget)
+			protected void onDrop(String id, final String targetid, int x, int y, int m, AjaxRequestTarget ajaxRequestTarget)
 			{
 				if (getCurrentDragOperation() != DRAGNDROP.NONE)
 				{
 					IComponent comp = getBindedComponentChild(targetid);
 					WebDataRenderer renderer = WebDataRenderer.this;
-					JSDNDEvent event = renderer.createScriptEvent(EventType.onDrop, comp, new Point(x, y));
+					JSDNDEvent event = renderer.createScriptEvent(EventType.onDrop, comp, new Point(x, y), m);
 					event.setData(getDragData());
 					event.setDataMimeType(getDragDataMimeType());
 					setDropResult(renderer.onDrop(event));
@@ -698,12 +698,12 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 //			}
 
 			@Override
-			protected void onDropHover(String id, final String targetid, AjaxRequestTarget ajaxRequestTarget)
+			protected void onDropHover(String id, final String targetid, int m, AjaxRequestTarget ajaxRequestTarget)
 			{
 				if (getCurrentDragOperation() != DRAGNDROP.NONE)
 				{
 					IComponent comp = getBindedComponentChild(targetid);
-					JSDNDEvent event = WebDataRenderer.this.createScriptEvent(EventType.onDragOver, comp, null);
+					JSDNDEvent event = WebDataRenderer.this.createScriptEvent(EventType.onDragOver, comp, null, m);
 					event.setData(getDragData());
 					event.setDataMimeType(getDragDataMimeType());
 					WebDataRenderer.this.onDragOver(event);
@@ -723,7 +723,7 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 		add(dragBehavior);
 	}
 
-	private JSDNDEvent createScriptEvent(EventType type, IComponent dragSource, Point xy)
+	private JSDNDEvent createScriptEvent(EventType type, IComponent dragSource, Point xy, int modifiers)
 	{
 		JSDNDEvent jsEvent = new JSDNDEvent();
 		jsEvent.setType(type);
@@ -747,6 +747,7 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 			}
 		}
 		if (xy != null) jsEvent.setLocation(xy);
+		jsEvent.setModifiers(modifiers);
 
 		return jsEvent;
 	}

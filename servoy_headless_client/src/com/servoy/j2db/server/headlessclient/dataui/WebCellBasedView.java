@@ -82,6 +82,7 @@ import org.mozilla.javascript.Undefined;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IForm;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IView;
@@ -224,6 +225,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	private boolean isScrollMode;
 	private ScrollBehavior scrollBehavior;
 	private int maxRowsPerPage;
+
+	private int viewType;
 
 	/**
 	 * @author jcompagner
@@ -540,32 +543,36 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				{
 					public void add(IPersist element, final Component comp)
 					{
-						Component component = elementToColumnIdentifierComponent.values().iterator().next();
-						if ((component instanceof IComponent) && (comp instanceof IScriptableProvider))
-						{
-							IScriptable scriptable = ((IScriptableProvider)comp).getScriptObject();
-							if (scriptable instanceof IScriptBaseMethods)
-							{
-								IScriptBaseMethods ic = (IScriptBaseMethods)scriptable;
-								ic.js_setSize(ic.js_getWidth(), ((IComponent)component).getSize().height);
-								ic.js_setLocation(ic.js_getLocationX(), visibleRowIndex * ic.js_getHeight());
-							}
-						}
-						cellToElement.put(comp, element);
 						Component listItemChild = comp;
-						if (element instanceof ISupportName)
+						if (viewType != IForm.LIST_VIEW && viewType != FormController.LOCKED_LIST_VIEW)
 						{
-							String elementName = ((ISupportName)element).getName();
-							if ((elementName != null) && (elementName.trim().length() > 0) || WebCellBasedView.this.addHeaders)
+							Component component = elementToColumnIdentifierComponent.values().iterator().next();
+							if ((component instanceof IComponent) && (comp instanceof IScriptableProvider))
 							{
-								// this column's cells can be made invisible (and <td> tag is the one that has to change)
-								// so we will link this <td> to a wicket component
-								listItemChild = new CellContainer(comp.getId() + '_');
-								listItemChild.setOutputMarkupPlaceholderTag(true);
-								((MarkupContainer)listItemChild).add(comp);
+								IScriptable scriptable = ((IScriptableProvider)comp).getScriptObject();
+								if (scriptable instanceof IScriptBaseMethods)
+								{
+									IScriptBaseMethods ic = (IScriptBaseMethods)scriptable;
+									ic.js_setSize(ic.js_getWidth(), ((IComponent)component).getSize().height);
+									ic.js_setLocation(ic.js_getLocationX(), visibleRowIndex * ic.js_getHeight());
+								}
+							}
+
+							if (element instanceof ISupportName)
+							{
+								String elementName = ((ISupportName)element).getName();
+								if ((elementName != null) && (elementName.trim().length() > 0) || WebCellBasedView.this.addHeaders)
+								{
+									// this column's cells can be made invisible (and <td> tag is the one that has to change)
+									// so we will link this <td> to a wicket component
+									listItemChild = new CellContainer(comp.getId() + '_');
+									listItemChild.setOutputMarkupPlaceholderTag(true);
+									((MarkupContainer)listItemChild).add(comp);
+								}
 							}
 						}
 
+						cellToElement.put(comp, element);
 						listItem.add(listItemChild);
 						setUpComponent(comp, rec, compColor, compFgColor, compFont, compBorder, visibleRowIndex);
 					}
@@ -1035,7 +1042,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	}
 
 	public WebCellBasedView(final String id, final IApplication application, RuntimePortal scriptable, final Form form, final AbstractBase cellview,
-		final IDataProviderLookup dataProviderLookup, final IScriptExecuter el, boolean addHeaders, final int startY, final int endY, final int sizeHint)
+		final IDataProviderLookup dataProviderLookup, final IScriptExecuter el, boolean addHeaders, final int startY, final int endY, final int sizeHint,
+		int viewType)
 	{
 		super(id);
 		this.application = application;
@@ -1046,6 +1054,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		this.endY = endY;
 		this.formDesignHeight = form.getSize().height;
 		this.sizeHint = sizeHint;
+		this.viewType = viewType;
 
 		this.bodyWidthHint = form.getWidth();
 
@@ -1135,7 +1144,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		if (cellview instanceof BaseComponent)
 		{
 			ComponentFactory.applyBasicComponentProperties(application, this, (BaseComponent)cellview,
-				ComponentFactory.getStyleForBasicComponent(application, (BaseComponent)cellview, form));
+				ComponentFactory.getStyleForBasicComponent(application, cellview, form));
 		}
 
 		boolean sortable = true;
@@ -1939,14 +1948,18 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					initializeComponent((Component)c, view, element);
 					output.add(element, (Component)c);
 
-					// reset location.x as defined in this order, elements are ordered by location.x which is modified in drag-n-drop
-					Point loc = c.getLocation();
-					if (loc != null)
+					if (viewType != IForm.LIST_VIEW && viewType != FormController.LOCKED_LIST_VIEW)
 					{
-						c.setLocation(new Point(startX, loc.y));
+						// reset location.x as defined in this order, elements are ordered by location.x which is modified in drag-n-drop
+						Point loc = c.getLocation();
+						if (loc != null)
+						{
+							c.setLocation(new Point(startX, loc.y));
+						}
+
+						Dimension csize = c.getSize();
+						startX += (csize != null) ? csize.width : ((IFormElement)element).getSize().width;
 					}
-					Dimension csize = c.getSize();
-					startX += (csize != null) ? csize.width : ((IFormElement)element).getSize().width;
 				}
 			}
 		}
@@ -2036,6 +2049,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				return result.trim();
 			}
 		});
+
+		if (c instanceof ISupportValueList)
+		{
+			ISupportValueList idVl = (ISupportValueList)elementToColumnIdentifierComponent.get(element);
+			if (idVl != null) ((ISupportValueList)c).setValueList(idVl.getValueList());
+		}
 	}
 
 	/**
@@ -3231,25 +3250,25 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		DraggableBehavior compDragBehavior = new DraggableBehavior()
 		{
 			@Override
-			protected void onDragEnd(String id, int x, int y, AjaxRequestTarget ajaxRequestTarget)
+			protected void onDragEnd(String id, int x, int y, int m, AjaxRequestTarget ajaxRequestTarget)
 			{
 				if (getCurrentDragOperation() != DRAGNDROP.NONE)
 				{
-					JSDNDEvent event = WebCellBasedView.this.createScriptEvent(EventType.onDragEnd, getDragComponent(), null);
+					JSDNDEvent event = WebCellBasedView.this.createScriptEvent(EventType.onDragEnd, getDragComponent(), null, m);
 					event.setData(getDragData());
 					event.setDataMimeType(getDragDataMimeType());
 					event.setDragResult(getDropResult() ? getCurrentDragOperation() : DRAGNDROP.NONE);
 					WebCellBasedView.this.onDragEnd(event);
 				}
 
-				super.onDragEnd(id, x, y, ajaxRequestTarget);
+				super.onDragEnd(id, x, y, m, ajaxRequestTarget);
 			}
 
 			@Override
-			protected boolean onDragStart(final String id, int x, int y, AjaxRequestTarget ajaxRequestTarget)
+			protected boolean onDragStart(final String id, int x, int y, int m, AjaxRequestTarget ajaxRequestTarget)
 			{
 				IComponent comp = getBindedComponentChild(id);
-				JSDNDEvent event = WebCellBasedView.this.createScriptEvent(EventType.onDrag, comp, new Point(x, y));
+				JSDNDEvent event = WebCellBasedView.this.createScriptEvent(EventType.onDrag, comp, new Point(x, y), m);
 				int dragOp = WebCellBasedView.this.onDrag(event);
 				if (dragOp == DRAGNDROP.NONE) return false;
 				setCurrentDragOperation(dragOp);
@@ -3260,12 +3279,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			}
 
 			@Override
-			protected void onDrop(String id, final String targetid, int x, int y, AjaxRequestTarget ajaxRequestTarget)
+			protected void onDrop(String id, final String targetid, int x, int y, int m, AjaxRequestTarget ajaxRequestTarget)
 			{
 				if (getCurrentDragOperation() != DRAGNDROP.NONE)
 				{
 					IComponent comp = getBindedComponentChild(targetid);
-					JSDNDEvent event = WebCellBasedView.this.createScriptEvent(EventType.onDrop, comp, new Point(x, y));
+					JSDNDEvent event = WebCellBasedView.this.createScriptEvent(EventType.onDrop, comp, new Point(x, y), m);
 					event.setData(getDragData());
 					event.setDataMimeType(getDragDataMimeType());
 					setDropResult(WebCellBasedView.this.onDrop(event));
@@ -3273,12 +3292,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			}
 
 			@Override
-			protected void onDropHover(String id, final String targetid, AjaxRequestTarget ajaxRequestTarget)
+			protected void onDropHover(String id, final String targetid, int m, AjaxRequestTarget ajaxRequestTarget)
 			{
 				if (getCurrentDragOperation() != DRAGNDROP.NONE)
 				{
 					IComponent comp = getBindedComponentChild(targetid);
-					JSDNDEvent event = WebCellBasedView.this.createScriptEvent(EventType.onDragOver, comp, null);
+					JSDNDEvent event = WebCellBasedView.this.createScriptEvent(EventType.onDragOver, comp, null, m);
 					event.setData(getDragData());
 					event.setDataMimeType(getDragDataMimeType());
 					WebCellBasedView.this.onDragOver(event);
@@ -3297,7 +3316,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		add(compDragBehavior);
 	}
 
-	public JSDNDEvent createScriptEvent(EventType type, IComponent dragSource, Point xy)
+	public JSDNDEvent createScriptEvent(EventType type, IComponent dragSource, Point xy, int modifiers)
 	{
 		JSDNDEvent jsEvent = new JSDNDEvent();
 		jsEvent.setType(type);
@@ -3329,6 +3348,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 
 		if (xy != null) jsEvent.setLocation(xy);
+		jsEvent.setModifiers(modifiers);
 
 		return jsEvent;
 	}

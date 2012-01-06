@@ -568,7 +568,6 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 //		int viewType = f.getView();
 		if (viewType == IForm.LIST_VIEW || viewType == FormController.LOCKED_LIST_VIEW)
 		{
-			viewType = FormController.LOCKED_TABLE_VIEW;
 			addHeaders = false;//list views do not have headers
 		}
 
@@ -616,7 +615,8 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 				//((WebRecordView)view).add(new WebMarkupContainer());
 			}
 		}
-		else if (viewType == FormController.TABLE_VIEW || viewType == FormController.LOCKED_TABLE_VIEW)
+		else if (viewType == FormController.TABLE_VIEW || viewType == FormController.LOCKED_TABLE_VIEW || viewType == IForm.LIST_VIEW ||
+			viewType == FormController.LOCKED_LIST_VIEW)
 		{
 //			try
 //			{
@@ -664,7 +664,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 
 				RuntimePortal viewScriptable = new RuntimePortal(new ChangesRecorder(null, null), app);
 				view = new WebCellBasedView("View", app, viewScriptable, f, f, app.getFlattenedSolution().getDataproviderLookup(app.getFoundSetManager(), f),
-					fp.getScriptExecuter(), addHeaders, startY, endY, sizeHint);
+					fp.getScriptExecuter(), addHeaders, startY, endY, sizeHint, viewType);
 				viewScriptable.setComponent((WebCellBasedView)view);
 
 				dataRenderers[FormController.FORM_EDITOR] = (WebCellBasedView)view;

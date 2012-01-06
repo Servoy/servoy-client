@@ -70,10 +70,10 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 		viewType = f.getView();
 		if (viewType == IForm.LIST_VIEW || viewType == FormController.LOCKED_LIST_VIEW)
 		{
-			viewType = FormController.LOCKED_TABLE_VIEW;
 			addHeaders = false;//list views do not have headers
 		}
-		if (sp != null && sp.getFlattenedSolution().isInDesign(f) && viewType == FormController.LOCKED_TABLE_VIEW)
+		if (sp != null && sp.getFlattenedSolution().isInDesign(f) &&
+			(viewType == FormController.LOCKED_TABLE_VIEW || viewType == IForm.LIST_VIEW || viewType == FormController.LOCKED_LIST_VIEW))
 		{
 			viewType = IForm.RECORD_VIEW;
 		}

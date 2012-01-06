@@ -328,28 +328,28 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 				private int startX;
 
 				@Override
-				protected void onDragEnd(String componentId, int x, int y, AjaxRequestTarget ajaxRequestTarget)
+				protected void onDragEnd(String componentId, int x, int y, int m, AjaxRequestTarget ajaxRequestTarget)
 				{
 					view.moveColumn(SortableCellViewHeader.this, x - startX, ajaxRequestTarget);
 					labelResolver.setDropped(true);
 				}
 
 				@Override
-				protected boolean onDragStart(String componentId, int x, int y, AjaxRequestTarget ajaxRequestTarget)
+				protected boolean onDragStart(String componentId, int x, int y, int m, AjaxRequestTarget ajaxRequestTarget)
 				{
 					startX = x;
 					return true;
 				}
 
 				@Override
-				protected void onDrop(String componentId, String targetid, int x, int y, AjaxRequestTarget ajaxRequestTarget)
+				protected void onDrop(String componentId, String targetid, int x, int y, int m, AjaxRequestTarget ajaxRequestTarget)
 				{
 					// TODO Auto-generated method stub
 
 				}
 
 				@Override
-				protected void onDropHover(String componentId, String targeid, AjaxRequestTarget ajaxRequestTarget)
+				protected void onDropHover(String componentId, String targeid, int m, AjaxRequestTarget ajaxRequestTarget)
 				{
 					// TODO Auto-generated method stub
 
@@ -379,25 +379,25 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 				private int startX;
 
 				@Override
-				protected void onDragEnd(String componentId, int x, int y, AjaxRequestTarget ajaxRequestTarget)
+				protected void onDragEnd(String componentId, int x, int y, int m, AjaxRequestTarget ajaxRequestTarget)
 				{
 					view.resizeColumn(SortableCellViewHeader.this, x - startX);
 				}
 
 				@Override
-				protected boolean onDragStart(String componentId, int x, int y, AjaxRequestTarget ajaxRequestTarget)
+				protected boolean onDragStart(String componentId, int x, int y, int m, AjaxRequestTarget ajaxRequestTarget)
 				{
 					startX = x;
 					return true;
 				}
 
 				@Override
-				protected void onDrop(String componentId, String targetid, int x, int y, AjaxRequestTarget ajaxRequestTarget)
+				protected void onDrop(String componentId, String targetid, int x, int y, int m, AjaxRequestTarget ajaxRequestTarget)
 				{
 				}
 
 				@Override
-				protected void onDropHover(String componentId, String targeid, AjaxRequestTarget ajaxRequestTarget)
+				protected void onDropHover(String componentId, String targeid, int m, AjaxRequestTarget ajaxRequestTarget)
 				{
 				}
 			};

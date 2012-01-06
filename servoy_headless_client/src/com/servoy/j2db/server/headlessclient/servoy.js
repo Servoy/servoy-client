@@ -947,6 +947,7 @@ if (typeof(Servoy.DD) == "undefined")
 				{
 					var x = YAHOO.util.Event.getPageX(Servoy.DD.mouseDownEvent);
 					var y = YAHOO.util.Event.getPageY(Servoy.DD.mouseDownEvent);
+					var m = Servoy.Utils.getModifiers(Servoy.DD.mouseDownEvent);
 
 					if(this.id)
 					{
@@ -960,7 +961,7 @@ if (typeof(Servoy.DD) == "undefined")
 						}
 					}
 					
-					wicketAjaxGet(callback + '&a=aStart&xc=' + x + '&yc=' + y + '&draggableID=' + this.id);
+					wicketAjaxGet(callback + '&a=aStart&xc=' + x + '&yc=' + y + '&m=' + m + '&draggableID=' + this.id);
 					Servoy.DD.dragStarted();
 					return true;
 				}, dd, true);				
@@ -979,8 +980,9 @@ if (typeof(Servoy.DD) == "undefined")
 					Servoy.DD.dragStopped();
 					Servoy.DD.currentElement = new Array();
 					var x = YAHOO.util.Event.getPageX(e);
-					var y = YAHOO.util.Event.getPageY(e);					
-					wicketAjaxGet(callback + '&a=aEnd&xc=' + x + '&yc=' + y + '&draggableID=' + this.id);
+					var y = YAHOO.util.Event.getPageY(e);				
+					var m = Servoy.Utils.getModifiers(e);	
+					wicketAjaxGet(callback + '&a=aEnd&xc=' + x + '&yc=' + y + '&m=' + m + '&draggableID=' + this.id);
 				};
 					
 				dd.onDragEnter = function(ev, targetid) {
@@ -1003,7 +1005,8 @@ if (typeof(Servoy.DD) == "undefined")
  					if(target == Servoy.DD.currentElement[Servoy.DD.currentElement.length - 1])
  					{
  						Servoy.DD.setHoverEl(target);
-						wicketAjaxGet(Servoy.DD.dropCallback[target] + '&a=aHover&draggableID=' + this.id + '&targetID=' + target);
+ 						var m = Servoy.Utils.getModifiers(ev);
+						wicketAjaxGet(Servoy.DD.dropCallback[target] + '&a=aHover&draggableID=' + this.id + '&m=' + m + '&targetID=' + target);
 					}
 				};
 
@@ -1046,7 +1049,8 @@ if (typeof(Servoy.DD) == "undefined")
 						if(hoverTarget != null && Servoy.DD.currentElement.length > 0 && hoverTarget == Servoy.DD.currentElement[Servoy.DD.currentElement.length-1])
 						{
 							Servoy.DD.setHoverEl(hoverTarget);
-							wicketAjaxGet(Servoy.DD.dropCallback[hoverTarget] + '&a=aHover&draggableID=' + this.id + '&targetID=' + hoverTarget);
+							var m = Servoy.Utils.getModifiers(ev);
+							wicketAjaxGet(Servoy.DD.dropCallback[hoverTarget] + '&a=aHover&draggableID=' + this.id + '&m=' + m + '&targetID=' + hoverTarget);
 						}
 					}
 				};
@@ -1061,8 +1065,9 @@ if (typeof(Servoy.DD) == "undefined")
 						}
 						
 						var x = YAHOO.util.Event.getPageX(ev);
-						var y = YAHOO.util.Event.getPageY(ev);					
-						wicketAjaxGet(Servoy.DD.dropCallback[targetid] + '&a=aDrop&xc=' + x + '&yc=' + y + '&draggableID=' + this.id  + '&targetID=' + targetid);
+						var y = YAHOO.util.Event.getPageY(ev);			
+						var m = Servoy.Utils.getModifiers(ev);		
+						wicketAjaxGet(Servoy.DD.dropCallback[targetid] + '&a=aDrop&xc=' + x + '&yc=' + y + '&m=' + m + '&draggableID=' + this.id  + '&targetID=' + targetid);
 						Servoy.DD.isDragStarted = false;
 					}
 				};
