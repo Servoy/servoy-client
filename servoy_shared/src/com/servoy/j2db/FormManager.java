@@ -1210,7 +1210,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		 * Navigates to the relative index based on current position in the history.
 		 * 
 		 * @sample history.go(-3);
-		 * @param i the absolute index
+		 * @param i the relative index
 		 */
 		public void js_go(int i)
 		{
