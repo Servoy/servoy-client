@@ -130,7 +130,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 				//set all the required properties
 				obj.setPrimaryDataProviderID(primaryDataProvider[i].getDataProviderID());
 				obj.setOperator(ops[i]);
-				obj.setForeignColumnName(foreignColumns[i].getName());
+				obj.setForeignColumnName(foreignColumns[i].getDataProviderID());
 			}
 		}
 
