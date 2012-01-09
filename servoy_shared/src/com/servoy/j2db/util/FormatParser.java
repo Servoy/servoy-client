@@ -391,9 +391,8 @@ public class FormatParser
 
 		public ParsedFormat getCopy(String newUIConverterName, Map<String, String> newUIConverterProperties)
 		{
-			return new ParsedFormat(this.allUpperCase, this.allLowerCase, this.numberValidator, this.raw, this.mask, this.uiConverterName,
-				this.uiConverterName, this.maxLength, this.uiConverterName, newUIConverterName, newUIConverterProperties == null ? null
-					: Collections.unmodifiableMap(newUIConverterProperties));
+			return new ParsedFormat(this.allUpperCase, this.allLowerCase, this.numberValidator, this.raw, this.mask, null, null, this.maxLength, null,
+				newUIConverterName, newUIConverterProperties == null ? null : Collections.unmodifiableMap(newUIConverterProperties));
 		}
 	}
 }
