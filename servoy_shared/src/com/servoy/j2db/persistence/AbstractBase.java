@@ -181,6 +181,15 @@ public abstract class AbstractBase implements IPersist
 		{
 			isChanged = true;
 		}
+		if (!isOverrideElement())
+		{
+			Element element = StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(getTypeID(), propertyName);
+			if (element != null && Utils.equalObjects(val, element.getDefaultClassValue()))
+			{
+				propertiesMap.remove(propertyName);
+				return;
+			}
+		}
 		propertiesMap.put(propertyName, val);
 	}
 
