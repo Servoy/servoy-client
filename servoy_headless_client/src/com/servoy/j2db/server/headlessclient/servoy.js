@@ -2025,11 +2025,44 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 			}
 		},
 		
+		topBottomSwitchEl : null,
+		leftRightSwitchEl : null,
+
 		attachElement: function(elem)
 		{
+			if(Servoy.ClientDesign.topBottomSwitchEl && Servoy.ClientDesign.topBottomSwitchEl.offsetParent)
+			{
+				var offsetBottom = Servoy.ClientDesign.topBottomSwitchEl.offsetParent.offsetHeight - Servoy.ClientDesign.topBottomSwitchEl.offsetTop - Servoy.ClientDesign.topBottomSwitchEl.offsetHeight;
+				YAHOO.util.Dom.setStyle(Servoy.ClientDesign.topBottomSwitchEl, "top", "");
+				YAHOO.util.Dom.setStyle(Servoy.ClientDesign.topBottomSwitchEl, "bottom", offsetBottom + "px");
+			}
+			
+			if(Servoy.ClientDesign.leftRightSwitchEl && Servoy.ClientDesign.leftRightSwitchEl.offsetParent)
+			{
+				var offsetRight = Servoy.ClientDesign.leftRightSwitchEl.offsetParent.offsetWidth - Servoy.ClientDesign.leftRightSwitchEl.offsetLeft - Servoy.ClientDesign.leftRightSwitchEl.offsetWidth;
+				YAHOO.util.Dom.setStyle(Servoy.ClientDesign.leftRightSwitchEl, "left", "");
+				YAHOO.util.Dom.setStyle(Servoy.ClientDesign.leftRightSwitchEl, "right", offsetRight + "px");			
+			}
+			
 			var elementDescription = Servoy.ClientDesign.designableElementsArray[elem.id];
 			if (elementDescription)
 			{
+				var topStyle = YAHOO.util.Dom.getStyle(elem, "top");
+				var bottomStyle = YAHOO.util.Dom.getStyle(elem, "bottom");
+				var leftStyle = YAHOO.util.Dom.getStyle(elem, "left");
+				var rightStyle = YAHOO.util.Dom.getStyle(elem, "right");
+
+				if((!topStyle || topStyle.indexOf("px") == -1) && bottomStyle)
+				{
+					Servoy.ClientDesign.topBottomSwitchEl = elem;
+					YAHOO.util.Dom.setStyle(elem, "top", elem.offsetTop + "px");
+				}
+				if((!leftStyle || leftStyle.indexOf("px") == -1) && rightStyle)
+				{
+					Servoy.ClientDesign.leftRightSwitchEl = elem;
+					YAHOO.util.Dom.setStyle(elem, "left", elem.offsetLeft + "px");
+				}
+				
 				//apply YUI resize on elem
 				var resize = new YAHOO.util.Resize(elem,
 				{
@@ -2080,6 +2113,11 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 				});
 				Servoy.ClientDesign.selectedElementId = elem.id;
 				Servoy.ClientDesign.selectedResizeElement = resize;
+			}
+			else
+			{
+				Servoy.ClientDesign.topBottomSwitchEl = null;
+				Servoy.ClientDesign.leftRightSwitchEl = null;
 			}
 		},
 		
