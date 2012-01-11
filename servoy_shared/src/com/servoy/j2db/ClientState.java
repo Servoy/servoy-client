@@ -479,19 +479,28 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		return SolutionMetaData.SOLUTION;
 	}
 
-	public Object authenticate(String authenticator_solution, String method, Object[] credentials)
+	public Object authenticate(String authenticator_solution, String method, Object[] credentials) throws RepositoryException
 	{
 		String jscredentials;
+		JSONConverter jsonConverter;
 		try
 		{
-			JSONConverter jsonConverter = new JSONConverter();
+			jsonConverter = new JSONConverter();
 			jscredentials = jsonConverter.convertToJSON(credentials);
-			String jsReturn = authenticate(new Credentials(clientInfo.getClientId(), authenticator_solution, method, jscredentials));
-			return jsonConverter.convertFromJSON(jsReturn);
 		}
 		catch (Exception e)
 		{
 			Debug.error("Could not convert credentials object to json", e); //$NON-NLS-1$
+			return null;
+		}
+		String jsReturn = authenticate(new Credentials(clientInfo.getClientId(), authenticator_solution, method, jscredentials));
+		try
+		{
+			return jsonConverter.convertFromJSON(jsReturn);
+		}
+		catch (Exception e)
+		{
+			Debug.error("Could not convert authentication json result to object", e); //$NON-NLS-1$
 			return null;
 		}
 	}
@@ -585,7 +594,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 				mClientHost = getClientHost();
 				if (mClientHost != null)
 				{
-					retval = mClientHost.register(uc);
+					retval = mClientHost.register(uc, getClientInfo());
 				}
 				break;
 			}
