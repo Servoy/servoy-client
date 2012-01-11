@@ -19,7 +19,6 @@ package com.servoy.j2db;
 
 import java.util.Stack;
 
-import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.dataprocessing.DataServerProxy;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.IDataServer;
@@ -155,10 +154,5 @@ public class ClientStub implements IUserClient
 				client.activateSolutionMethod(globalMethodName, argumentsScope);
 			}
 		});
-	}
-
-	public ClientInfo getClientInfo()
-	{
-		return client.getClientInfo();
 	}
 }

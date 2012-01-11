@@ -85,6 +85,35 @@ public final class ClientInfo implements Serializable
 		initHostInfo();
 	}
 
+	/**
+	 * @param clientInfo
+	 */
+	@TerracottaAutolockWrite
+	public ClientInfo(ClientInfo clientInfo)
+	{
+		// create a copy
+		synchronized (lock)
+		{
+			clientId = clientInfo.clientId;
+			hostIdentifier = clientInfo.hostIdentifier;
+			hostName = clientInfo.hostName;
+			hostAddress = clientInfo.hostAddress;
+			hostPort = clientInfo.hostPort;
+			applicationType = clientInfo.applicationType;
+
+			specialClientIndentifier = clientInfo.specialClientIndentifier;
+
+			userUid = clientInfo.userUid;
+			userName = clientInfo.userName;
+
+			timeZone = clientInfo.timeZone;
+
+			openSolutionId = clientInfo.openSolutionId;
+			infos = new ArrayList<String>(clientInfo.infos);
+			dontBlockDuringMaintenance = clientInfo.dontBlockDuringMaintenance;
+		}
+	}
+
 	@TerracottaAutolockWrite
 	public void addInfo(String info)
 	{

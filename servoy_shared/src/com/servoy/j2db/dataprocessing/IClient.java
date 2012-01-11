@@ -49,6 +49,4 @@ public interface IClient
 	public void notifyDataChange(String server_name, String table_name, IDataSet pks, int action, Object[] insertColumnData) throws RemoteException;
 
 	public void activateSolutionMethod(String globalMethodName, StartupArgumentsScope argumentsScope) throws RemoteException;
-
-	public ClientInfo getClientInfo() throws RemoteException;
 }
