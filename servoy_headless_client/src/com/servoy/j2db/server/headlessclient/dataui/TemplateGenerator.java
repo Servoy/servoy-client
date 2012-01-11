@@ -845,8 +845,8 @@ public class TemplateGenerator
 						break;
 					}
 				}
-				columns.append("<td><div style=\"position: absolute; width: ").append(f.getWidth()).append("px; height: ").append(
-					firstComponentHeight).append("px;\">");
+				columns.append("<td><div style=\"position: absolute; width: ").append(f.getWidth()).append("px; height: ").append(firstComponentHeight).append(
+					"px;\">");
 
 				Iterator<IFormElement> it = f.getFormElementsSortedByFormIndex();
 				while (it.hasNext())
@@ -1912,6 +1912,12 @@ public class TemplateGenerator
 		if (rectshape.getLineSize() > 0)
 		{
 			styleObj.setProperty("border-style", "solid");
+			if (rectshape.getBorderType() != null)
+			{
+				Properties properties = new Properties();
+				ComponentFactoryHelper.createBorderCSSProperties(rectshape.getBorderType(), properties);
+				styleObj.setProperty("border-style", properties.getProperty("border-style"));
+			}
 			styleObj.setProperty("border-width", rectshape.getLineSize() + "px");
 			if (ins.border == null) ins.border = new Insets(rectshape.getLineSize(), rectshape.getLineSize(), rectshape.getLineSize(), rectshape.getLineSize());
 			else
@@ -1922,6 +1928,14 @@ public class TemplateGenerator
 				ins.border.left += rectshape.getLineSize();
 			}
 			styleObj.setProperty("border-color", PersistHelper.createColorString(rectshape.getForeground()));
+			if (rectshape.getRoundedRadius() > 0)
+			{
+				styleObj.setProperty("border-radius", rectshape.getRoundedRadius() + "px");
+			}
+			else if (rectshape.getShapeType() == RectShape.OVAL)
+			{
+				styleObj.setProperty("border-radius", rectshape.getSize().width + "px");
+			}
 		}
 		applyLocationAndSize(rectshape, styleObj, ins, startY, endY, form.getSize().width, enableAnchoring);
 	}
