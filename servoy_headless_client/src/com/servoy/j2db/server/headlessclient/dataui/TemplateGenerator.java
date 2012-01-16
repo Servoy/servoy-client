@@ -2093,11 +2093,11 @@ public class TemplateGenerator
 		if (label.getRotation() > 0)
 		{
 			String rotation = "rotate(" + label.getRotation() + "deg)";
-			styleObj.setProperty("transform", rotation);
 			styleObj.setProperty("-ms-transform", rotation);
 			styleObj.setProperty("-moz-transform", rotation);
 			styleObj.setProperty("-webkit-transform", rotation);
 			styleObj.setProperty("-o-transform", rotation);
+			styleObj.setProperty("transform", rotation);
 		}
 	}
 
