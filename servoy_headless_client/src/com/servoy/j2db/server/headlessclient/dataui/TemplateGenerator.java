@@ -1930,11 +1930,11 @@ public class TemplateGenerator
 			styleObj.setProperty("border-color", PersistHelper.createColorString(rectshape.getForeground()));
 			if (rectshape.getRoundedRadius() > 0)
 			{
-				styleObj.setProperty("border-radius", rectshape.getRoundedRadius() + "px");
+				styleObj.setProperty("border-radius", rectshape.getRoundedRadius() / 2 + "px");
 			}
 			else if (rectshape.getShapeType() == RectShape.OVAL)
 			{
-				styleObj.setProperty("border-radius", rectshape.getSize().width + "px");
+				styleObj.setProperty("border-radius", rectshape.getSize().width / 2 + "px");
 			}
 		}
 		applyLocationAndSize(rectshape, styleObj, ins, startY, endY, form.getSize().width, enableAnchoring);
