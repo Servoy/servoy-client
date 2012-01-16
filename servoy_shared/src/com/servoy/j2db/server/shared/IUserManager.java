@@ -36,6 +36,7 @@ public interface IUserManager extends ISolutionSecurityManager, Remote
 
 	public boolean checkIfUserIsAdministrator(String clientId, String userUid) throws RemoteException;
 
+	public void getAdministrators(String clientId) throws RemoteException;
 
 	public boolean checkIfAdministratorsAreAvailable(String clientId) throws RemoteException;
 
