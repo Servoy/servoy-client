@@ -308,7 +308,7 @@ public class StaticContentSpecLoader
 			cs.new Element(42, IRepository.FORMS, PROPERTY_BACKGROUND.getPropertyName(), IRepository.COLOR);
 			cs.new Element(43, IRepository.FORMS, PROPERTY_VIEW.getPropertyName(), IRepository.INTEGER);
 			cs.new Element(44, IRepository.FORMS, PROPERTY_PAPERPRINTSCALE.getPropertyName(), IRepository.INTEGER);
-			cs.new Element(45, IRepository.FORMS, PROPERTY_NAVIGATORID.getPropertyName(), IRepository.ELEMENTS, Integer.valueOf(Form.NAVIGATOR_NONE));
+			cs.new Element(45, IRepository.FORMS, PROPERTY_NAVIGATORID.getPropertyName(), IRepository.ELEMENTS);
 			cs.new Element(46, IRepository.TABLENODES, PROPERTY_TABLENAME.getPropertyName(), IRepository.TABLES).flagAsDeprecated();
 			cs.new Element(47, IRepository.TABLENODES, PROPERTY_SERVERNAME.getPropertyName(), IRepository.SERVERS).flagAsDeprecated();
 			cs.new Element(48, IRepository.GRAPHICALCOMPONENTS, PROPERTY_NAME.getPropertyName(), IRepository.STRING);
