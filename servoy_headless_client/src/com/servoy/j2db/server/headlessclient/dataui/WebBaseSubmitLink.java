@@ -413,7 +413,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 
 	public void setRotation(int rotation)
 	{
-//		this.rotation = rotation;
+		// not needed here
 	}
 
 	public void setFocusPainted(boolean showFocus)

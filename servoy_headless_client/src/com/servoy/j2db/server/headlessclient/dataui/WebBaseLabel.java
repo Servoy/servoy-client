@@ -360,7 +360,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 
 	public void setRotation(int rotation)
 	{
-//		this.rotation = rotation;
+		// not needed here
 	}
 
 	public void setFocusPainted(boolean showFocus)

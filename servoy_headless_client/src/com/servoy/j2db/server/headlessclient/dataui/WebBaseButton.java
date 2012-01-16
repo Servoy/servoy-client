@@ -428,7 +428,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	 */
 	public void setRotation(int rotation)
 	{
-		//this.rotation = rotation;
+		// not needed here
 	}
 
 	/**

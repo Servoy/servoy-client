@@ -2090,6 +2090,15 @@ public class TemplateGenerator
 			}
 			styleObj.setProperty("padding-bottom", bottomPadding + "px");
 		}
+		if (label.getRotation() > 0)
+		{
+			String rotation = "rotate(" + label.getRotation() + "deg)";
+			styleObj.setProperty("transform", rotation);
+			styleObj.setProperty("-ms-transform", rotation);
+			styleObj.setProperty("-moz-transform", rotation);
+			styleObj.setProperty("-webkit-transform", rotation);
+			styleObj.setProperty("-o-transform", rotation);
+		}
 	}
 
 	public static boolean isFilledText(String text)
