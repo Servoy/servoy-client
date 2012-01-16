@@ -13,16 +13,18 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
@@ -39,26 +41,31 @@ public class ServerProxy implements IServer, Serializable
 	//local cache
 	private String serverName;
 	private String databaseProductName;
-	private final Map<String, ITable> tables = new HashMap<String, ITable>();
+	// handle serialization of ConcurrentHashMap in writeObject/readObject (tables transient) because in a terracotta environment serialization of 
+	// ConcurrentHashMap is broken, See http://jira.terracotta.org/jira/browse/CDV-1377
+	private volatile transient Map<String, ITable> tables = new ConcurrentHashMap<String, ITable>();
 
 	public ServerProxy(IServer a_server)
 	{
 		server = a_server;
-//we cannot load all tables with columns from database, it to slow on big databases (1000+ tables)		
-//		try
-//		{
-//			Iterator it = server.getTableNames().iterator();
-//			while (it.hasNext())
-//			{
-//				String tname = (String) it.next();
-//				getTable(tname); //make sure it loaded, so it can be serialized to client
-//			}
-//		}
-//		catch (Exception e)
-//		{
-//			Debug.error(e);
-//		}
+		// we cannot load all tables with columns from database, it to slow on big databases (1000+ tables)		
 	}
+
+	private void writeObject(java.io.ObjectOutputStream s) throws IOException
+	{
+		s.defaultWriteObject();
+		s.writeObject(new HashMap<String, ITable>(tables));
+	}
+
+	@SuppressWarnings("unchecked")
+	private void readObject(java.io.ObjectInputStream s) throws IOException, ClassNotFoundException
+	{
+		s.defaultReadObject();
+
+		tables = new ConcurrentHashMap<String, ITable>();
+		tables.putAll((Map< ? extends String, ? extends ITable>)s.readObject());
+	}
+
 
 	public ITable getTable(String tableName) throws RepositoryException, RemoteException
 	{
@@ -70,7 +77,10 @@ public class ServerProxy implements IServer, Serializable
 			if (server != null)
 			{
 				table = server.getTable(tableName);
-				tables.put(Utils.toEnglishLocaleLowerCase(tableName), table);
+				if (table != null)
+				{
+					tables.put(Utils.toEnglishLocaleLowerCase(tableName), table);
+				}
 			}
 		}
 		return table;
@@ -148,12 +158,12 @@ public class ServerProxy implements IServer, Serializable
 		}
 		return databaseProductName;
 	}
-	
+
 	public String getQuotedIdentifier(String tableSqlName, String columnSqlName) throws RemoteException, RepositoryException
 	{
 		return server.getQuotedIdentifier(tableSqlName, columnSqlName);
 	}
-	
+
 	public int getTableType(String tableName) throws RepositoryException, RemoteException
 	{
 		ITable t = getTable(tableName);
