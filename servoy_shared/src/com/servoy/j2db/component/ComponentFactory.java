@@ -592,7 +592,7 @@ public class ComponentFactory
 		return null;
 	}
 
-	public static final String[] LOOKUP_NAMES = { "body", "button", "check", "combobox", ISupportRowStyling.CLASS_EVEN, "field", "footer", "form", "header", "label", "listbox", ISupportRowStyling.CLASS_ODD, "portal", "radio", ISupportRowStyling.CLASS_SELECTED, "tabpanel", "title_header", "title_footer" };
+	public static final String[] LOOKUP_NAMES = { "body", "button", "check", "combobox", ISupportRowStyling.CLASS_EVEN, "field", "footer", "form", "header", "label", "listbox", ISupportRowStyling.CLASS_ODD, "portal", "radio", ISupportRowStyling.CLASS_SELECTED, ISupportRowStyling.CLASS_HEADER, "tabpanel", "title_header", "title_footer" };
 
 	/**
 	 * @param bc
