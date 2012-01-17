@@ -26,27 +26,12 @@ import java.util.Date;
  */
 public interface IClientHost extends Remote
 {
-	/**
-	 * @param currentSolutionOnly
-	 * @return
-	 */
-	public int getActiveClientCount(int solution_id) throws RemoteException;
-
-	public int getClientCountForInfo(String info) throws RemoteException;
-
 	public void pushClientInfo(String clientId, ClientInfo clientInfo) throws RemoteException;
 
 	// returns generated { clientId, isLicenced }
 	public Object[] register(IUserClient c, ClientInfo clientInfo) throws RemoteException;
 
 	public void unregister(String client_id) throws RemoteException;
-
-	/**
-	 * Get the license names
-	 * 
-	 * @return
-	 */
-	public String[] getLicenseNames() throws RemoteException;
 
 	/**
 	 * Helper method
