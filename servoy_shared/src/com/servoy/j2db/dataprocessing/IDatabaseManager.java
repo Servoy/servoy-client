@@ -92,4 +92,20 @@ public interface IDatabaseManager extends ISaveConstants, ITableAndRelationProvi
 	 * @since 6.1
 	 */
 	public IFoundSet getFoundSet(IQueryBuilder query) throws ServoyException;
+
+
+	/**
+	 * Performs a sql query with a query builder object.
+	 * Will throw an exception if anything did go wrong when executing the query.
+	 *
+	 * <br>Table filters on the involved tables in the query are applied.
+	 * 
+	 * @param query IQueryBuilder query.
+	 * @param max_returned_rows The maximum number of rows returned by the query.  
+	 * 
+	 * @return The IDataSet containing the results of the query.
+	 * 
+	 * @since 6.1
+	 */
+	public IDataSet getDataSetByQuery(IQueryBuilder query, int max_returned_rows) throws ServoyException;
 }

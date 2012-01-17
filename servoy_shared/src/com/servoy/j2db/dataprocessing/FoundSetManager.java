@@ -2243,4 +2243,21 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return fs;
 	}
 
+	public IDataSet getDataSetByQuery(IQueryBuilder query, int max_returned_rows) throws ServoyException
+	{
+		if (!application.haveRepositoryAccess())
+		{
+			// no access to repository yet, have to log in first
+			return null;
+		}
+
+		QBSelect select = (QBSelect)query;
+
+		String serverName = DataSourceUtils.getDataSourceServerName(select.getDataSource());
+
+		if (serverName == null) throw new RuntimeException(new ServoyException(ServoyException.InternalCodes.SERVER_NOT_FOUND,
+			new Object[] { select.getDataSource() }));
+
+		return getDataSetByQuery(serverName, select.build(), max_returned_rows);
+	}
 }
