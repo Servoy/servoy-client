@@ -785,7 +785,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 	{
 		if (normalizedName == null)
 		{
-			normalizedName = Ident.generateNormalizedNonReservedName(plainSQLName);
+			normalizedName = Ident.generateNormalizedNonKeywordName(plainSQLName);
 		}
 		return normalizedName;
 	}

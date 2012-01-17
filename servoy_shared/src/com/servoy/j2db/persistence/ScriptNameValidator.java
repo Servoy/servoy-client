@@ -54,6 +54,10 @@ public class ScriptNameValidator implements IValidateName
 		{
 			throw new RepositoryException("there is a keyword with name " + nameToCheck); //$NON-NLS-1$
 		}
+		if (Ident.checkIfReservedOSWord(nameToCheck))
+		{
+			throw new RepositoryException(nameToCheck + " is a reserved word on some operating systems"); //$NON-NLS-1$
+		}
 		if (sqlRelated && SQLKeywords.checkIfKeyword(nameToCheck))
 		{
 			throw new RepositoryException("there is a SQL keyword with name " + nameToCheck); //$NON-NLS-1$

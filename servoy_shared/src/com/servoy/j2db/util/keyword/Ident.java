@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.util.keyword;
 
+import java.util.Arrays;
+
 import com.servoy.j2db.util.Utils;
 
 
@@ -126,18 +128,46 @@ public class Ident
 	// New
 	"_super" };
 
+	private final static String[] reserved_os_words = new String[] { // Words that cannot be used on all OS platforms
+	"aux", //
+	"com1", //
+	"com2", //
+	"com3", //
+	"com4", //
+	"com5", //
+	"com6", //
+	"com7", //
+	"com8", //
+	"com9", //
+	"con", //
+	"lpt1", //
+	"lpt2", //
+	"lpt3", //
+	"lpt4", //
+	"lpt5", //
+	"lpt6", //
+	"lpt7", //
+	"lpt8", //
+	"lpt9", //
+	"nul", //
+	"prn", //
+	};
+
 	public static boolean checkIfKeyword(String name)
+	{
+		return checkName(keywords, name);
+	}
+
+	public static boolean checkIfReservedOSWord(String name)
+	{
+		return checkName(reserved_os_words, name);
+	}
+
+	private static boolean checkName(String[] names, String name)
 	{
 		if (name == null) return false;
 		String lname = name.trim().toLowerCase();
-		for (String element : keywords)
-		{
-			if (element.equals(lname))
-			{
-				return true;
-			}
-		}
-		return false;
+		return Arrays.asList(names).indexOf(lname) >= 0;
 	}
 
 	public static String generateNormalizedName(String plainSQLName)
@@ -145,6 +175,7 @@ public class Ident
 		if (plainSQLName == null) return null;
 
 		String name = Utils.toEnglishLocaleLowerCase(plainSQLName.trim());//to lower case because the not all databases support camelcasing and jdbc drivers comeback with all to upper or lower
+
 		char[] chars = name.toCharArray();
 		boolean replaced = false;
 		for (int i = 0; i < chars.length; i++)
@@ -176,10 +207,20 @@ public class Ident
 
 	public static final String RESERVED_NAME_PREFIX = "_"; //$NON-NLS-1$
 
-	public static String generateNormalizedNonReservedName(String plainSQLName)
+	public static String generateNormalizedNonKeywordName(String plainSQLName)
 	{
 		String name = generateNormalizedName(plainSQLName);
 		if (checkIfKeyword(name))
+		{
+			name = RESERVED_NAME_PREFIX + name;
+		}
+		return name;
+	}
+
+	public static String generateNormalizedNonReservedOSName(String plainSQLName)
+	{
+		String name = generateNormalizedName(plainSQLName);
+		if (checkIfReservedOSWord(name))
 		{
 			name = RESERVED_NAME_PREFIX + name;
 		}

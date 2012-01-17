@@ -150,7 +150,7 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 	{
 		if (name == null)
 		{
-			name = Ident.generateNormalizedName(plainSQLName);
+			name = Ident.generateNormalizedNonReservedOSName(plainSQLName);
 		}
 		return name;
 	}
