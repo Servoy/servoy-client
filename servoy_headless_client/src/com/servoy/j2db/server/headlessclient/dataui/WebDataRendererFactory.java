@@ -57,6 +57,7 @@ import com.servoy.j2db.server.headlessclient.WrapperContainer;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IFieldComponent;
+import com.servoy.j2db.ui.IFormUI;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.util.IAnchorConstants;
@@ -415,16 +416,18 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 		wf.setTabSeqComponents(tabSequence);
 	}
 
-	private int goDownTabPanel(WebTabPanel wtp, int goodTabIndex)
+	private int goDownContainer(IWebFormContainer wtp, int goodTabIndex)
 	{
 		int localTabIndex = goodTabIndex;
 		wtp.setTabSequenceIndex(goodTabIndex >= 0 ? localTabIndex++ : ISupportWebTabSeq.SKIP);
-		TabIndexHelper.setUpTabIndexAttributeModifier(wtp, ISupportWebTabSeq.SKIP);
-		Iterator it = wtp.iterator();
-		while (it.hasNext())
+		TabIndexHelper.setUpTabIndexAttributeModifier((Component)wtp, ISupportWebTabSeq.SKIP);
+		IFormUI[] forms = wtp.getChildForms();
+		if (forms != null)
 		{
-			Object o = it.next();
-			if (o instanceof WebForm) localTabIndex = goDownForm((WebForm)o, goodTabIndex >= 0 ? localTabIndex : ISupportWebTabSeq.SKIP);
+			for (IFormUI form : forms)
+			{
+				if (form != null) localTabIndex = goDownForm((WebForm)form, goodTabIndex >= 0 ? localTabIndex : ISupportWebTabSeq.SKIP);
+			}
 		}
 		return localTabIndex;
 	}
@@ -437,9 +440,9 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 		while (it.hasNext())
 		{
 			Component oo = it.next();
-			if (oo instanceof WebTabPanel)
+			if (oo instanceof IWebFormContainer)
 			{
-				localTabIndex = goDownTabPanel((WebTabPanel)oo, goodTabIndex >= 0 ? localTabIndex : ISupportWebTabSeq.SKIP);
+				localTabIndex = goDownContainer((IWebFormContainer)oo, goodTabIndex >= 0 ? localTabIndex : ISupportWebTabSeq.SKIP);
 			}
 			else if (oo instanceof WebCellBasedView)
 			{
@@ -485,10 +488,9 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 			{
 				Component comp = iter.next();
 
-				if (comp instanceof WebTabPanel)
+				if (comp instanceof IWebFormContainer)
 				{
-					WebTabPanel wtp = (WebTabPanel)comp;
-					counter = goDownTabPanel(wtp, delta >= 0 ? counter : ISupportWebTabSeq.SKIP);
+					counter = goDownContainer((IWebFormContainer)comp, delta >= 0 ? counter : ISupportWebTabSeq.SKIP);
 				}
 				else if (comp instanceof WebCellBasedView)
 				{
@@ -504,7 +506,7 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 			}
 
 			MarkupContainer parent = currentForm.getParent();
-			while ((parent != null) && !(parent instanceof WebTabPanel) && !(parent instanceof WebSplitPane))
+			while ((parent != null) && !(parent instanceof IWebFormContainer))
 				parent = parent.getParent();
 			if (parent != null)
 			{

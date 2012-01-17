@@ -69,6 +69,7 @@ import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.server.headlessclient.dataui.WebTabPanel.ServoyTabIcon;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IFormLookupPanel;
+import com.servoy.j2db.ui.IFormUI;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportSecuritySettings;
@@ -402,6 +403,11 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 		return currentForm != null ? currentForm.getWebForm() : null;
 	}
 
+	public IFormUI[] getChildForms()
+	{
+		return new IFormUI[] { getCurrentForm() };
+	}
+
 	/**
 	 * @see org.apache.wicket.MarkupContainer#remove(org.apache.wicket.Component)
 	 */
@@ -416,10 +422,15 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 		else super.remove(component);
 	}
 
-	private void recomputeTabSequence()
+	public void recomputeTabSequence()
 	{
 		FormController fc = currentForm.getWebForm().getController();
 		fc.recomputeTabSequence(tabSequenceIndex);
+	}
+
+	public boolean isCurrentForm(IFormUI formUI)
+	{
+		return getCurrentForm() == formUI;
 	}
 
 	/**

@@ -61,6 +61,7 @@ import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.server.headlessclient.yui.YUILoader;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IFormLookupPanel;
+import com.servoy.j2db.ui.IFormUI;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.ISplitPane;
 import com.servoy.j2db.ui.IStylePropertyChanges;
@@ -407,6 +408,29 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 			{
 				WebTabFormLookup fl = webTabs[tabIdx].getPanel();
 				showFoundSet(fl, parentState, fl.getDefaultSort(parentData != null || fl.isReady()));
+			}
+		}
+	}
+
+	public boolean isCurrentForm(IFormUI formUI)
+	{
+		for (int tabIdx = 0; tabIdx < 2; tabIdx++)
+		{
+			if (webTabs[tabIdx] != null && webTabs[tabIdx].getPanel().getWebForm() == formUI)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public void recomputeTabSequence()
+	{
+		for (int tabIdx = 0; tabIdx < 2; tabIdx++)
+		{
+			if (webTabs[tabIdx] != null && webTabs[tabIdx].getPanel().getWebForm() != null)
+			{
+				webTabs[tabIdx].getPanel().getWebForm().getController().recomputeTabSequence(tabSequenceIndex);
 			}
 		}
 	}
@@ -760,6 +784,21 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 	public IFormLookupPanel getRightForm()
 	{
 		return webTabs[1] != null ? webTabs[1].getPanel() : null;
+	}
+
+	public IFormUI[] getChildForms()
+	{
+		IFormUI leftForm = null;
+		if (webTabs[0] != null)
+		{
+			leftForm = webTabs[0].getPanel().getWebForm();
+		}
+		IFormUI rightForm = null;
+		if (webTabs[1] != null)
+		{
+			rightForm = webTabs[1].getPanel().getWebForm();
+		}
+		return new IFormUI[] { leftForm, rightForm };
 	}
 
 	public IFormLookupPanel createFormLookupPanel(String tabname, String relationName, String formName)

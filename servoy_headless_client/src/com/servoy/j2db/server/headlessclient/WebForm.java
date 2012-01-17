@@ -142,13 +142,9 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 {
 	private static final long serialVersionUID = 1L;
 	/**
-	 * Tab sequence index space allowed for splitpanes.
+	 * Tab sequence index space allowed for containers.
 	 */
-	public static final int SEQUENCE_RANGE_SPLIT_PANE = 2000;
-	/**
-	 * Tab sequence index space allowed for tabpanels.
-	 */
-	public static final int SEQUENCE_RANGE_TAB_PANEL = 1500;
+	public static final int SEQUENCE_RANGE_CONTAINER = 2000;
 	/**
 	 * Tab sequence index space allowed for web cell based views.
 	 */
@@ -430,11 +426,10 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			int tabIndex = 1;
 			for (Component comp : tabSequence)
 			{
-				if (comp instanceof WebTabPanel)
+				if (comp instanceof IWebFormContainer)
 				{
-					WebTabPanel wtp = (WebTabPanel)comp;
-					wtp.setTabSequenceIndex(tabIndex);
-					tabIndex += SEQUENCE_RANGE_TAB_PANEL;
+					((IWebFormContainer)comp).setTabSequenceIndex(tabIndex);
+					tabIndex += SEQUENCE_RANGE_CONTAINER;
 					TabIndexHelper.setUpTabIndexAttributeModifier(comp, ISupportWebTabSeq.SKIP);
 				}
 				else if (comp instanceof WebCellBasedView)
@@ -442,13 +437,6 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 					WebCellBasedView tableView = (WebCellBasedView)comp;
 					tableView.setTabSequenceIndex(tabIndex);
 					tabIndex += SEQUENCE_RANGE_TABLE;
-					TabIndexHelper.setUpTabIndexAttributeModifier(comp, ISupportWebTabSeq.SKIP);
-				}
-				else if (comp instanceof WebSplitPane)
-				{
-					WebSplitPane wsp = (WebSplitPane)comp;
-					wsp.setTabSequenceIndex(tabIndex);
-					tabIndex += SEQUENCE_RANGE_SPLIT_PANE;
 					TabIndexHelper.setUpTabIndexAttributeModifier(comp, ISupportWebTabSeq.SKIP);
 				}
 				else
@@ -1774,10 +1762,10 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		markup = null;
 		uiRecreated = true;
 
-		WebTabPanel tabpanel = findParent(WebTabPanel.class);
-		if (tabpanel != null && tabpanel.getCurrentForm() == this)
+		IWebFormContainer webContainer = findParent(IWebFormContainer.class);
+		if (webContainer != null && webContainer.isCurrentForm(this))
 		{
-			tabpanel.recomputeTabSequence();
+			webContainer.recomputeTabSequence();
 		}
 	}
 

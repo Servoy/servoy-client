@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
+import com.servoy.j2db.ui.IFormUI;
 
 /**
  * Interface to mark the webform containers(components).
@@ -25,7 +26,13 @@ import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
  * @author lvostinar
  * @since 6.1
  */
-public interface IWebFormContainer extends IDisplayRelatedData
+public interface IWebFormContainer extends IDisplayRelatedData, ISupportWebTabSeq
 {
 	void notifyResized();
+
+	void recomputeTabSequence();
+
+	boolean isCurrentForm(IFormUI formUI);
+
+	IFormUI[] getChildForms();
 }
