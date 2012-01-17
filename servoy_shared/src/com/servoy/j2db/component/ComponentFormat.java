@@ -36,7 +36,7 @@ import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.scripting.IScriptableProvider;
-import com.servoy.j2db.ui.scripting.IRuntimeFormatComponent;
+import com.servoy.j2db.ui.scripting.IFormatScriptComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FormatParser;
 import com.servoy.j2db.util.FormatParser.ParsedFormat;
@@ -182,9 +182,9 @@ public class ComponentFormat
 
 	public static Object applyUIConverterToObject(Object component, Object value, String dataProviderID, IFoundSetManagerInternal foundsetManager)
 	{
-		if (component instanceof IScriptableProvider && ((IScriptableProvider)component).getScriptObject() instanceof IRuntimeFormatComponent)
+		if (component instanceof IScriptableProvider && ((IScriptableProvider)component).getScriptObject() instanceof IFormatScriptComponent)
 		{
-			ComponentFormat cf = ((IRuntimeFormatComponent)((IScriptableProvider)component).getScriptObject()).getComponentFormat();
+			ComponentFormat cf = ((IFormatScriptComponent)((IScriptableProvider)component).getScriptObject()).getComponentFormat();
 			if (cf != null && cf.parsedFormat.getUIConverterName() != null)
 			{
 				IUIConverter conv = foundsetManager.getUIConverterManager().getConverter(cf.parsedFormat.getUIConverterName());
@@ -208,9 +208,9 @@ public class ComponentFormat
 
 	public static Object applyUIConverterFromObject(Object component, Object obj, String dataProviderID, IFoundSetManagerInternal foundsetManager)
 	{
-		if (component instanceof IScriptableProvider && ((IScriptableProvider)component).getScriptObject() instanceof IRuntimeFormatComponent)
+		if (component instanceof IScriptableProvider && ((IScriptableProvider)component).getScriptObject() instanceof IFormatScriptComponent)
 		{
-			ComponentFormat cf = ((IRuntimeFormatComponent)((IScriptableProvider)component).getScriptObject()).getComponentFormat();
+			ComponentFormat cf = ((IFormatScriptComponent)((IScriptableProvider)component).getScriptObject()).getComponentFormat();
 			if (cf != null && cf.parsedFormat.getUIConverterName() != null)
 			{
 				IUIConverter conv = foundsetManager.getUIConverterManager().getConverter(cf.parsedFormat.getUIConverterName());

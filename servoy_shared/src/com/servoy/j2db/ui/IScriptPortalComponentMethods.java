@@ -17,94 +17,16 @@
 package com.servoy.j2db.ui;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
-
+import com.servoy.j2db.ui.runtime.IRuntimePortal;
 
 /**
+ * Scripting interface for RuntimePortal.
+ * Combines (deprecated) script methods and java api ({@link IRuntimePortal});
+ * 
  * @author jcompagner
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimePortal", extendsComponent = "RuntimeComponent")
-public interface IScriptPortalComponentMethods extends IScriptBaseMethods, IScriptScrollableMethods, IScriptReadOnlyMethods
+public interface IScriptPortalComponentMethods extends IScriptPortalComponentDeprecatedMethods, IRuntimePortal, IScriptPortalMethods
 {
-	/**
-	 * Get record index.
-	 * 
-	 * @deprecated As of release 3.0, replaced by {@link foundset#getSelectedIndex()}.
-	 */
-	@Deprecated
-	public int js_getRecordIndex();
-
-	@Deprecated
-	public void js_setRecordIndex(int i);
-
-	/**
-	 * Gets the selected record index in the current cached foundset in the specified portal.
-	 *
-	 * @sample
-	 * //gets the selected record index in the foundset
-	 * var current = %%prefix%%%%elementName%%.getSelectedIndex();
-	 * 
-	 * //sets the next record index in the foundset
-	 * %%prefix%%%%elementName%%.setSelectedIndex(current+1);
-	 * 
-	 * @return The selected index (integer).
-	 */
-	public int jsFunction_getSelectedIndex();
-
-	/**
-	 * Sets the selected record index in the current cached foundset in the specified portal.
-	 * 
-	 * @sampleas jsFunction_getSelectedIndex()
-	 * 
-	 * @param index the specified record index
-	 */
-	public void jsFunction_setSelectedIndex(int index);
-
-	/**
-	 * @deprecated As of release 5.x, replaced by {@link foundset#getSize()}.
-	 */
-	@Deprecated
-	public int js_getMaxRecordIndex();
-
-	/**
-	 * Deletes the currently selected portal row in the foundset of the specified portal.
-	 * 
-	 * @sample
-	 * %%prefix%%%%elementName%%.deleteRecord();
-	 */
-	public void js_deleteRecord();
-
-	/**
-	 * Creates a new portal row in the foundset of the specified portal. 
-	 * 
-	 * @sample
-	 * // foreign key data is only filled in for equals (=) relation items 
-	 * //adds the new record on top
-	 * %%prefix%%%%elementName%%.newRecord(true);
-	 * 
-	 * @param addOnTop optional adds the new portal record as the topmost row of the foundset, default value is true
-	 */
-	public void js_newRecord(Object[] vargs);
-
-	/**
-	 * Duplicates the currently selected portal row in the foundset of the specified portal.
-	 * 
-	 * @sample
-	 * //adds the duplicated record on top
-	 * %%prefix%%%%elementName%%.duplicateRecord(true);
-	 * 
-	 * @param addOnTop optional
-	 * adds the duplicated record as the topmost record of the foundset, default value is true
-	 */
-	public void js_duplicateRecord(Object[] vargs);
-
-	/**
-	 * Returns the sort columns names of the current portal (as comma separated string).
-	 * 
-	 * @sample
-	 * var w = %%prefix%%%%elementName%%.getSortColumns();
-	 * 
-	 * @return array with column names
-	 */
-	public String js_getSortColumns();
 }

@@ -181,7 +181,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 			@Override
 			public boolean isVisible()
 			{
-				return !WebDataImgMediaField.this.scriptable.js_isReadOnly() && WebDataImgMediaField.this.scriptable.js_isEnabled();
+				return !WebDataImgMediaField.this.scriptable.isReadOnly() && WebDataImgMediaField.this.scriptable.isEnabled();
 			}
 		};
 		upload.add(new SimpleAttributeModifier("alt", application.getI18NMessage("servoy.imageMedia.popup.menuitem.load"))); //$NON-NLS-1$//$NON-NLS-2$
@@ -253,7 +253,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 			@Override
 			public boolean isVisible()
 			{
-				return !WebDataImgMediaField.this.scriptable.js_isReadOnly() && WebDataImgMediaField.this.scriptable.js_isEnabled();
+				return !WebDataImgMediaField.this.scriptable.isReadOnly() && WebDataImgMediaField.this.scriptable.isEnabled();
 			}
 		};
 		download.add(new SimpleAttributeModifier("alt", application.getI18NMessage("servoy.imageMedia.popup.menuitem.save"))); //$NON-NLS-1$ //$NON-NLS-2$
@@ -288,7 +288,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 			@Override
 			public boolean isVisible()
 			{
-				return !WebDataImgMediaField.this.scriptable.js_isReadOnly() && WebDataImgMediaField.this.scriptable.js_isEnabled();
+				return !WebDataImgMediaField.this.scriptable.isReadOnly() && WebDataImgMediaField.this.scriptable.isEnabled();
 			}
 		};
 		remove.add(new SimpleAttributeModifier("alt", application.getI18NMessage("servoy.imageMedia.popup.menuitem.remove"))); //$NON-NLS-1$ //$NON-NLS-2$
@@ -393,7 +393,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		if (useAJAX)
 		{
-			Object oe = scriptable.js_getClientProperty("ajax.enabled");
+			Object oe = scriptable.getClientProperty("ajax.enabled");
 			if (oe != null) useAJAX = Utils.getAsBoolean(oe);
 		}
 		if (!useAJAX)
@@ -580,9 +580,8 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 		return margin;
 	}
 
-	public void requestFocus(Object[] vargs)
+	public void requestFocusToComponent()
 	{
-
 	}
 
 	public List<ILabel> getLabelsFor()

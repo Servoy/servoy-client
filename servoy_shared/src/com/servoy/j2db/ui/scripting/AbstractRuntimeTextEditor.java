@@ -27,8 +27,8 @@ import javax.swing.text.html.HTMLDocument;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IFieldComponent;
-import com.servoy.j2db.ui.IScriptTextEditorMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
+import com.servoy.j2db.ui.runtime.IRuntimeTextEditor;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -38,23 +38,23 @@ import com.servoy.j2db.util.Debug;
  * @since 6.0
  */
 public abstract class AbstractRuntimeTextEditor<C extends IFieldComponent, T extends JTextComponent> extends AbstractRuntimeTextComponent<C, T> implements
-	IScriptTextEditorMethods
+	IRuntimeTextEditor
 {
 	public AbstractRuntimeTextEditor(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
 		super(jsChangeRecorder, application);
 	}
 
-	public void js_setURL(@SuppressWarnings("unused") String url)
+	public void setURL(@SuppressWarnings("unused") String url)
 	{
 	}
 
-	public String js_getURL()
+	public String getURL()
 	{
 		return null;
 	}
 
-	public void js_setBaseURL(String url)
+	public void setBaseURL(String url)
 	{
 		if (textComponent != null)
 		{
@@ -73,7 +73,7 @@ public abstract class AbstractRuntimeTextEditor<C extends IFieldComponent, T ext
 		}
 	}
 
-	public String js_getBaseURL()
+	public String getBaseURL()
 	{
 		if (textComponent != null)
 		{
@@ -90,7 +90,7 @@ public abstract class AbstractRuntimeTextEditor<C extends IFieldComponent, T ext
 		return null;
 	}
 
-	public String js_getAsPlainText()
+	public String getAsPlainText()
 	{
 		if (textComponent != null)
 		{

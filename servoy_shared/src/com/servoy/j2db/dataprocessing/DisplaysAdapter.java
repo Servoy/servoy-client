@@ -42,7 +42,7 @@ import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IFieldComponent;
-import com.servoy.j2db.ui.scripting.IRuntimeFormatComponent;
+import com.servoy.j2db.ui.scripting.IFormatScriptComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDestroyable;
 import com.servoy.j2db.util.Pair;
@@ -227,14 +227,14 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 			// and we use the explicitly set "record" to commit the changed value;
 			// similar code exists for web client check boxes
 			if (!findMode && value == null && display instanceof INullableAware && !((INullableAware)display).getAllowNull() &&
-				display instanceof IFieldComponent && ((IFieldComponent)display).getScriptObject() instanceof IRuntimeFormatComponent &&
-				((IRuntimeFormatComponent)((IFieldComponent)display).getScriptObject()).getComponentFormat() != null &&
-				((IRuntimeFormatComponent)((IFieldComponent)display).getScriptObject()).getComponentFormat().dpType == IColumnTypes.INTEGER &&
+				display instanceof IFieldComponent && ((IFieldComponent)display).getScriptObject() instanceof IFormatScriptComponent &&
+				((IFormatScriptComponent)((IFieldComponent)display).getScriptObject()).getComponentFormat() != null &&
+				((IFormatScriptComponent)((IFieldComponent)display).getScriptObject()).getComponentFormat().dpType == IColumnTypes.INTEGER &&
 				display.getDataProviderID() != null && record != null && record.startEditing() &&
 				!(record instanceof PrototypeState && !ScopesUtils.isVariableScope(display.getDataProviderID()))) // ignore PrototypeState if not global
 			{
 				// NOTE: when a UI converter is defined, the converter should handle this
-				if (((IRuntimeFormatComponent)((IFieldComponent)display).getScriptObject()).getComponentFormat().parsedFormat.getUIConverterName() == null)
+				if (((IFormatScriptComponent)((IFieldComponent)display).getScriptObject()).getComponentFormat().parsedFormat.getUIConverterName() == null)
 				{
 					record.setValue(display.getDataProviderID(), Integer.valueOf(0));
 				}
@@ -419,11 +419,11 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 
 			if (record instanceof FindState)
 			{
-				if (display instanceof IScriptableProvider && ((IScriptableProvider)display).getScriptObject() instanceof IRuntimeFormatComponent &&
-					((IRuntimeFormatComponent)((IScriptableProvider)display).getScriptObject()).getComponentFormat() != null)
+				if (display instanceof IScriptableProvider && ((IScriptableProvider)display).getScriptObject() instanceof IFormatScriptComponent &&
+					((IFormatScriptComponent)((IScriptableProvider)display).getScriptObject()).getComponentFormat() != null)
 				{
 					((FindState)record).setFormat(dataProviderID,
-						((IRuntimeFormatComponent)((IScriptableProvider)display).getScriptObject()).getComponentFormat().parsedFormat);
+						((IFormatScriptComponent)((IScriptableProvider)display).getScriptObject()).getComponentFormat().parsedFormat);
 				}
 
 				// findstate doesn't inform others...

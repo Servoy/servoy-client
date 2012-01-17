@@ -68,7 +68,7 @@ public interface IFieldComponent extends ISupportSecuritySettings, IComponent, I
 
 	public int getAbsoluteFormLocationY();
 
-	public void requestFocus(Object[] vargs);
+	public void requestFocusToComponent();
 
 	public void setReadOnly(boolean b);
 

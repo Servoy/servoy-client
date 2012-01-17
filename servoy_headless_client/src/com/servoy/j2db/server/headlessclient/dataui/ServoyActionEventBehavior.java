@@ -26,7 +26,7 @@ import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.ui.IEventExecutor;
-import com.servoy.j2db.ui.IScriptReadOnlyMethods;
+import com.servoy.j2db.ui.runtime.IRuntimeComponentWithReadonlySupport;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -129,10 +129,10 @@ public class ServoyActionEventBehavior extends ServoyAjaxFormComponentUpdatingBe
 	{
 		if (super.isEnabled(component))
 		{
-			if (component instanceof IScriptableProvider && ((IScriptableProvider)component).getScriptObject() instanceof IScriptReadOnlyMethods)
+			if (component instanceof IScriptableProvider && ((IScriptableProvider)component).getScriptObject() instanceof IRuntimeComponentWithReadonlySupport)
 			{
-				return !((IScriptReadOnlyMethods)((IScriptableProvider)component).getScriptObject()).js_isReadOnly() &&
-					((IScriptReadOnlyMethods)((IScriptableProvider)component).getScriptObject()).js_isEnabled();
+				return !((IRuntimeComponentWithReadonlySupport)((IScriptableProvider)component).getScriptObject()).isReadOnly() &&
+					((IRuntimeComponentWithReadonlySupport)((IScriptableProvider)component).getScriptObject()).isEnabled();
 			}
 			return true;
 		}

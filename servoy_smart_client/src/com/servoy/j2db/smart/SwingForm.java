@@ -144,10 +144,10 @@ import com.servoy.j2db.smart.dataui.VisibleBean;
 import com.servoy.j2db.smart.scripting.TwoNativeJavaObject;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptReadOnlyMethods;
 import com.servoy.j2db.ui.ISplitPane;
 import com.servoy.j2db.ui.ITabPanel;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
+import com.servoy.j2db.ui.runtime.IRuntimeComponentWithReadonlySupport;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IFocusCycleRoot;
 import com.servoy.j2db.util.ISupportFocusTransfer;
@@ -562,9 +562,9 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		{
 			if (((TableView)comp).isEditable() == true) return false;
 		}
-		else if (comp instanceof IScriptableProvider && ((IScriptableProvider)comp).getScriptObject() instanceof IScriptReadOnlyMethods)
+		else if (comp instanceof IScriptableProvider && ((IScriptableProvider)comp).getScriptObject() instanceof IRuntimeComponentWithReadonlySupport)
 		{
-			return ((IScriptReadOnlyMethods)((IScriptableProvider)comp).getScriptObject()).js_isReadOnly();
+			return ((IRuntimeComponentWithReadonlySupport)((IScriptableProvider)comp).getScriptObject()).isReadOnly();
 		}
 		return false;
 	}
@@ -602,19 +602,19 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 				((TableView)comp).setEditable(true);
 			}
 		}
-		else if (comp instanceof IScriptableProvider && ((IScriptableProvider)comp).getScriptObject() instanceof IScriptReadOnlyMethods)
+		else if (comp instanceof IScriptableProvider && ((IScriptableProvider)comp).getScriptObject() instanceof IRuntimeComponentWithReadonlySupport)
 		{
 			if (b == true)
 			{
 				if (componentIsReadOnly(comp) == false)
 				{
-					((IScriptReadOnlyMethods)((IScriptableProvider)comp).getScriptObject()).js_setReadOnly(true);
+					((IRuntimeComponentWithReadonlySupport)((IScriptableProvider)comp).getScriptObject()).setReadOnly(true);
 					if (markedComponents.contains(comp) == false) markedComponents.add(comp); // pay attention; what to do if container
 				}
 			}
 			else
 			{
-				((IScriptReadOnlyMethods)((IScriptableProvider)comp).getScriptObject()).js_setReadOnly(false);
+				((IRuntimeComponentWithReadonlySupport)((IScriptableProvider)comp).getScriptObject()).setReadOnly(false);
 			}
 		}
 		else if (comp instanceof Container)
@@ -950,10 +950,10 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 				}
 				String groupName = FormElementGroup.getName((String)formController.getComponentProperty(comp, ComponentFactory.GROUPID_COMPONENT_PROPERTY));
 				if (obj instanceof IScriptableProvider) obj = ((IScriptableProvider)obj).getScriptObject();
-				IScriptBaseMethods baseMethodsObj = null;
-				if (obj instanceof IScriptBaseMethods)
+				IRuntimeComponent baseMethodsObj = null;
+				if (obj instanceof IRuntimeComponent)
 				{
-					baseMethodsObj = (IScriptBaseMethods)obj;
+					baseMethodsObj = (IRuntimeComponent)obj;
 				}
 				JavaMembers jm = ScriptObjectRegistry.getJavaMembers(obj.getClass(), ScriptableObject.getTopLevelScope(fs));
 
@@ -983,17 +983,17 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 							s = new TwoNativeJavaObject(fs, obj, s2, jm, controller);
 
 							// group properties have to be set to both
-							if (groupName != null && obj2 instanceof IScriptBaseMethods)
+							if (groupName != null && obj2 instanceof IRuntimeComponent)
 							{
 								if (baseMethodsObj == null)
 								{
-									baseMethodsObj = (IScriptBaseMethods)obj2;
+									baseMethodsObj = (IRuntimeComponent)obj2;
 								}
 								else
 								{
-									RuntimeGroup runtimeGroup = new RuntimeGroup(baseMethodsObj.js_getName());
+									RuntimeGroup runtimeGroup = new RuntimeGroup(baseMethodsObj.getName());
 									runtimeGroup.addScriptBaseMethodsObj(baseMethodsObj);
-									runtimeGroup.addScriptBaseMethodsObj((IScriptBaseMethods)obj2);
+									runtimeGroup.addScriptBaseMethodsObj((IRuntimeComponent)obj2);
 									baseMethodsObj = runtimeGroup;
 								}
 							}
@@ -2164,13 +2164,13 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		private boolean addSelectedComponent(Component component, Rectangle bounds)
 		{
 			Object clientdesign_handles = null;
-			if (component instanceof IScriptableProvider && ((IScriptableProvider)component).getScriptObject() instanceof IScriptBaseMethods)
+			if (component instanceof IScriptableProvider && ((IScriptableProvider)component).getScriptObject() instanceof IRuntimeComponent)
 			{
-				IScriptBaseMethods sbmc = (IScriptBaseMethods)((IScriptableProvider)component).getScriptObject();
-				if (sbmc.js_getName() == null) return false; //skip, elements with no name are not usable in CD
+				IRuntimeComponent sbmc = (IRuntimeComponent)((IScriptableProvider)component).getScriptObject();
+				if (sbmc.getName() == null) return false; //skip, elements with no name are not usable in CD
 
-				clientdesign_handles = sbmc.js_getClientProperty(CLIENTDESIGN.HANDLES);
-				Object clientdesign_selectable = sbmc.js_getClientProperty(CLIENTDESIGN.SELECTABLE);
+				clientdesign_handles = sbmc.getClientProperty(CLIENTDESIGN.HANDLES);
+				Object clientdesign_selectable = sbmc.getClientProperty(CLIENTDESIGN.SELECTABLE);
 				if (clientdesign_selectable != null && !Utils.getAsBoolean(clientdesign_selectable)) return false; //skip
 			}
 			Set<String> handles = null;

@@ -19,8 +19,8 @@ package com.servoy.j2db.ui.scripting;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IButton;
-import com.servoy.j2db.ui.IScriptScriptButtonMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
+import com.servoy.j2db.ui.runtime.IRuntimeButton;
 
 /**
  * Scriptable button.
@@ -28,7 +28,7 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
  * @author lvostinar
  * @since 6.0
  */
-public class RuntimeScriptButton extends AbstractRuntimeButton<IButton> implements IScriptScriptButtonMethods
+public class RuntimeScriptButton extends AbstractRuntimeButton<IButton> implements IRuntimeButton
 {
 	private String i18n;
 
@@ -37,14 +37,15 @@ public class RuntimeScriptButton extends AbstractRuntimeButton<IButton> implemen
 		super(jsChangeRecorder, application);
 	}
 
-	public String js_getText()
+	public String getText()
 	{
 		if (i18n != null) return i18n;
 		return getComponent().getText();
 	}
 
-	public void js_setText(String txt)
+	public void setText(String text)
 	{
+		String txt = text;
 		if (txt != null && txt.startsWith("i18n:")) //$NON-NLS-1$
 		{
 			i18n = txt;

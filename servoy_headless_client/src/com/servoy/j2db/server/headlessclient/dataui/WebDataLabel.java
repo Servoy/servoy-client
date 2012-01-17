@@ -34,7 +34,7 @@ import com.servoy.j2db.smart.dataui.ServoyMaskFormatter;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDisplayTagText;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeRendersupportComponent;
-import com.servoy.j2db.ui.scripting.IRuntimeFormatComponent;
+import com.servoy.j2db.ui.scripting.IFormatScriptComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ITagResolver;
@@ -78,9 +78,9 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 
 	protected ComponentFormat getComponentFormat()
 	{
-		if (getScriptObject() instanceof IRuntimeFormatComponent)
+		if (getScriptObject() instanceof IFormatScriptComponent)
 		{
-			return ((IRuntimeFormatComponent)getScriptObject()).getComponentFormat();
+			return ((IFormatScriptComponent)getScriptObject()).getComponentFormat();
 		}
 		return null;
 	}

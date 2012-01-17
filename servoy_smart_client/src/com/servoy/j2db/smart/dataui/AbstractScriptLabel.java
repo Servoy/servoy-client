@@ -24,7 +24,6 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -37,7 +36,6 @@ import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
-import java.io.ByteArrayOutputStream;
 import java.net.URL;
 import java.util.StringTokenizer;
 
@@ -68,7 +66,6 @@ import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ISkinnable;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.Utils;
-import com.servoy.j2db.util.gui.JpegEncoder;
 import com.servoy.j2db.util.gui.MyImageIcon;
 import com.servoy.j2db.util.gui.SpecialMatteBorder;
 
@@ -476,39 +473,10 @@ public abstract class AbstractScriptLabel extends JLabel implements ISkinnable, 
 		return null;
 	}
 
-	public byte[] getThumbnailJPGImage(Object[] args)
+	public byte[] getThumbnailJPGImage(int width, int height)
 	{
-		int width = -1;
-		int height = -1;
-		if (args != null && args.length == 2)
-		{
-			width = Utils.getAsInteger(args[0]);
-			height = Utils.getAsInteger(args[1]);
-		}
-		Icon icon = getIcon();
-		Image image = null;
-		if (icon instanceof MyImageIcon)
-		{
-			ImageIcon myIcon = ((MyImageIcon)icon).getScaledIcon(width, height);
-			if (myIcon != null)
-			{
-				image = myIcon.getImage();
-			}
-		}
-		else if (icon instanceof ImageIcon)
-		{
-			image = ((ImageIcon)icon).getImage();
-		}
-		if (image != null)
-		{
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			JpegEncoder encoder = new JpegEncoder(this, image, 100, baos);
-			encoder.compress();
-			return baos.toByteArray();
-		}
-		return null;
+		return AbstractScriptButton.getThumbnailJPGImage(this, width, height, getIcon());
 	}
-
 
 	public void setComponentVisible(boolean b_visible)
 	{

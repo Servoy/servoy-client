@@ -17,6 +17,7 @@
 package com.servoy.j2db.smart.dataui;
 
 
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -375,7 +376,7 @@ public abstract class AbstractScriptButton extends JButton implements ISkinnable
 
 
 	/**
-	 * @see com.servoy.j2db.ui.IScriptLabelMethods#js_setImageURL(java.lang.String)
+	 * @see com.servoy.j2db.ui.runtime.IRuntimeLabelComponent#setImageURL(java.lang.String)
 	 */
 	public void setImageURL(String text_url)
 	{
@@ -482,7 +483,7 @@ public abstract class AbstractScriptButton extends JButton implements ISkinnable
 		}
 	}
 
-	public void requestFocus(Object[] vargs)
+	public void requestFocusToComponent()
 	{
 //		if (!hasFocus()) Don't test on hasFocus (it can have focus,but other component already did requestFocus)
 		{
@@ -550,16 +551,13 @@ public abstract class AbstractScriptButton extends JButton implements ISkinnable
 		this.cachedSize = size;
 	}
 
-	public byte[] getThumbnailJPGImage(Object[] args)
+	public byte[] getThumbnailJPGImage(int width, int height)
 	{
-		int width = -1;
-		int height = -1;
-		if (args != null && args.length == 2)
-		{
-			width = Utils.getAsInteger(args[0]);
-			height = Utils.getAsInteger(args[1]);
-		}
-		Icon icon = getIcon();
+		return getThumbnailJPGImage(this, width, height, getIcon());
+	}
+
+	static byte[] getThumbnailJPGImage(Component component, int width, int height, Icon icon)
+	{
 		Image image = null;
 		if (icon instanceof MyImageIcon)
 		{
@@ -573,7 +571,7 @@ public abstract class AbstractScriptButton extends JButton implements ISkinnable
 		if (image != null)
 		{
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			JpegEncoder encoder = new JpegEncoder(this, image, 100, baos);
+			JpegEncoder encoder = new JpegEncoder(component, image, 100, baos);
 			encoder.compress();
 			return baos.toByteArray();
 		}

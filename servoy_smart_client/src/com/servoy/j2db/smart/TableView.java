@@ -138,8 +138,6 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptReadOnlyMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.ISupportEventExecutor;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
@@ -147,6 +145,8 @@ import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.ISupportSecuritySettings;
 import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.RenderEventExecutor;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
+import com.servoy.j2db.ui.runtime.IRuntimeComponentWithReadonlySupport;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnablePanel;
 import com.servoy.j2db.util.IAnchorConstants;
@@ -454,10 +454,10 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 							editor.addMouseMotionListener(dragMouseListener);
 						}
 
-						if (editor instanceof IScriptableProvider && ((IScriptableProvider)editor).getScriptObject() instanceof IScriptBaseMethods)
+						if (editor instanceof IScriptableProvider && ((IScriptableProvider)editor).getScriptObject() instanceof IRuntimeComponent)
 						{
-							((IScriptBaseMethods)((IScriptableProvider)editor).getScriptObject()).js_setLocation(l.x, l.y);
-							((IScriptBaseMethods)((IScriptableProvider)editor).getScriptObject()).js_setSize(size.width, size.height);
+							((IRuntimeComponent)((IScriptableProvider)editor).getScriptObject()).setLocation(l.x, l.y);
+							((IRuntimeComponent)((IScriptableProvider)editor).getScriptObject()).setSize(size.width, size.height);
 						}
 						else
 						{
@@ -517,10 +517,10 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 							editor.addMouseMotionListener(dragMouseListener);
 						}
 
-						if (renderer instanceof IScriptableProvider && ((IScriptableProvider)renderer).getScriptObject() instanceof IScriptBaseMethods)
+						if (renderer instanceof IScriptableProvider && ((IScriptableProvider)renderer).getScriptObject() instanceof IRuntimeComponent)
 						{
-							((IScriptBaseMethods)((IScriptableProvider)renderer).getScriptObject()).js_setLocation(l.x, l.y);
-							((IScriptBaseMethods)((IScriptableProvider)renderer).getScriptObject()).js_setSize(size.width, size.height);
+							((IRuntimeComponent)((IScriptableProvider)renderer).getScriptObject()).setLocation(l.x, l.y);
+							((IRuntimeComponent)((IScriptableProvider)renderer).getScriptObject()).setSize(size.width, size.height);
 						}
 						else
 						{
@@ -1145,9 +1145,9 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 
 		if (sizeChanged)
 		{
-			if (component instanceof IScriptableProvider && ((IScriptableProvider)component).getScriptObject() instanceof IScriptBaseMethods)
+			if (component instanceof IScriptableProvider && ((IScriptableProvider)component).getScriptObject() instanceof IRuntimeComponent)
 			{
-				((IScriptBaseMethods)((IScriptableProvider)component).getScriptObject()).js_setSize(cellRect.width, height);
+				((IRuntimeComponent)((IScriptableProvider)component).getScriptObject()).setSize(cellRect.width, height);
 			}
 			else
 			{
@@ -1156,9 +1156,9 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		}
 		if (locationChanged)
 		{
-			if (component instanceof IScriptableProvider && ((IScriptableProvider)component).getScriptObject() instanceof IScriptBaseMethods)
+			if (component instanceof IScriptableProvider && ((IScriptableProvider)component).getScriptObject() instanceof IRuntimeComponent)
 			{
-				((IScriptBaseMethods)((IScriptableProvider)component).getScriptObject()).js_setLocation(cellRect.x, y);
+				((IRuntimeComponent)((IScriptableProvider)component).getScriptObject()).setLocation(cellRect.x, y);
 			}
 			else
 			{
@@ -1733,9 +1733,9 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		{
 			for (Component element : rendererComponents)
 			{
-				if (element instanceof IScriptableProvider && ((IScriptableProvider)element).getScriptObject() instanceof IScriptReadOnlyMethods)
+				if (element instanceof IScriptableProvider && ((IScriptableProvider)element).getScriptObject() instanceof IRuntimeComponentWithReadonlySupport)
 				{
-					((IScriptReadOnlyMethods)((IScriptableProvider)element).getScriptObject()).js_setReadOnly(!editable);
+					((IRuntimeComponentWithReadonlySupport)((IScriptableProvider)element).getScriptObject()).setReadOnly(!editable);
 				}
 			}
 		}
@@ -2005,7 +2005,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 	 */
 	public String getOnRenderElementType()
 	{
-		return cellview instanceof Portal ? IScriptBaseMethods.PORTAL : IScriptBaseMethods.FORM;
+		return cellview instanceof Portal ? IRuntimeComponent.PORTAL : IRuntimeComponent.FORM;
 	}
 
 	/*

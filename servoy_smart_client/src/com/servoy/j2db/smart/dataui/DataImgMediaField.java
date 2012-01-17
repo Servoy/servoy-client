@@ -909,9 +909,8 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 		return null;
 	}
 
-	public void requestFocus(Object[] vargs)
+	public void requestFocusToComponent()
 	{
-
 	}
 
 	public List<ILabel> getLabelsFor()

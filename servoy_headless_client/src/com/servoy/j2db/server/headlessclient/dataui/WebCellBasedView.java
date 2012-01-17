@@ -140,14 +140,14 @@ import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IPortalComponent;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptReadOnlyMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.PropertyCopy;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
+import com.servoy.j2db.ui.runtime.IRuntimeComponentWithReadonlySupport;
 import com.servoy.j2db.ui.scripting.RuntimePortal;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
@@ -547,14 +547,14 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						if (viewType != IForm.LIST_VIEW && viewType != FormController.LOCKED_LIST_VIEW)
 						{
 							Component component = elementToColumnIdentifierComponent.values().iterator().next();
-							if ((component instanceof IComponent) && (comp instanceof IScriptableProvider))
+							if (component instanceof IComponent && comp instanceof IScriptableProvider)
 							{
-								IScriptable scriptable = ((IScriptableProvider)comp).getScriptObject();
-								if (scriptable instanceof IScriptBaseMethods)
+								IScriptable so = ((IScriptableProvider)comp).getScriptObject();
+								if (so instanceof IRuntimeComponent)
 								{
-									IScriptBaseMethods ic = (IScriptBaseMethods)scriptable;
-									ic.js_setSize(ic.js_getWidth(), ((IComponent)component).getSize().height);
-									ic.js_setLocation(ic.js_getLocationX(), visibleRowIndex * ic.js_getHeight());
+									IRuntimeComponent ic = (IRuntimeComponent)so;
+									ic.setSize(ic.getWidth(), ((IComponent)component).getSize().height);
+									ic.setLocation(ic.getLocationX(), visibleRowIndex * ic.getHeight());
 								}
 							}
 
@@ -636,10 +636,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			WebCellBasedView.this.applyStyleOnComponent(comp, compColor, fgColor, compFont, compBorder);
 
-			if (scriptable.js_isReadOnly() && validationEnabled && comp instanceof IScriptableProvider &&
-				((IScriptableProvider)comp).getScriptObject() instanceof IScriptReadOnlyMethods) // if in find mode, the field should not be readonly
+			if (scriptable.isReadOnly() && validationEnabled && comp instanceof IScriptableProvider &&
+				((IScriptableProvider)comp).getScriptObject() instanceof IRuntimeComponentWithReadonlySupport) // if in find mode, the field should not be readonly
 			{
-				((IScriptReadOnlyMethods)((IScriptableProvider)comp).getScriptObject()).js_setReadOnly(true);
+				((IRuntimeComponentWithReadonlySupport)((IScriptableProvider)comp).getScriptObject()).setReadOnly(true);
 			}
 
 			// if this table view is marked as read-only by the formController, mark also
@@ -1350,7 +1350,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 							}
 							else if (matchingElement instanceof BaseComponent) sortableHeader.setWidth(((BaseComponent)matchingElement).getSize().width);
 						}
-						sortableHeader.setTabIndex(tabIndex);
+						sortableHeader.setTabSequenceIndex(tabIndex);
 						sortableHeader.setScriptExecuter(el);
 						sortableHeader.setResizeClass(columnIdentifier.getId());
 						WebCellBasedView.this.registerHeader(matchingElement, headerComponent);
@@ -1445,10 +1445,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		return scriptable;
 	}
 
-	public void setTabIndex(int tabIndex)
+	public void setTabSequenceIndex(int tabIndex)
 	{
 		this.tabIndex = tabIndex;
-		((ISupportWebTabSeq)pagingNavigator).setTabIndex(tabIndex + WebForm.SEQUENCE_RANGE_TABLE - 1);
+		((ISupportWebTabSeq)pagingNavigator).setTabSequenceIndex(tabIndex + WebForm.SEQUENCE_RANGE_TABLE - 1);
 	}
 
 	private final ArrayList<String> orderedHeaderIds = new ArrayList<String>();
@@ -1726,19 +1726,19 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		for (IPersist p : elementToColumnHeader.keySet())
 		{
 			Component c = elementToColumnIdentifierComponent.get(p);
-			if (c instanceof IScriptableProvider && ((IScriptableProvider)c).getScriptObject() instanceof IScriptBaseMethods)
+			if (c instanceof IScriptableProvider && ((IScriptableProvider)c).getScriptObject() instanceof IRuntimeComponent)
 			{
-				IScriptBaseMethods ic = (IScriptBaseMethods)((IScriptableProvider)c).getScriptObject();
+				IRuntimeComponent ic = (IRuntimeComponent)((IScriptableProvider)c).getScriptObject();
 				if (elementToColumnHeader.get(p).equals(headerColumn))
 				{
-					int height = ic.js_getHeight();
+					int height = ic.getHeight();
 					Iterator<Component> alreadyAddedComponents = cellToElement.keySet().iterator();
 					if (alreadyAddedComponents.hasNext())
 					{
 						Component firstAddedComponent = alreadyAddedComponents.next();
 						if ((firstAddedComponent instanceof IComponent)) height = ((IComponent)firstAddedComponent).getSize().height;
 					}
-					ic.js_setSize(ic.js_getWidth() + x, height);
+					ic.setSize(ic.getWidth() + x, height);
 					if (ic instanceof IProviderStylePropertyChanges)
 					{
 						resizedComponent = c;
@@ -1756,10 +1756,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						cellToElementEntry = cellToElementIte.next();
 						cellComponent = cellToElementEntry.getKey();
 						if (p.equals(cellToElementEntry.getValue()) && cellComponent instanceof IScriptableProvider &&
-							((IScriptableProvider)cellComponent).getScriptObject() instanceof IScriptBaseMethods)
+							((IScriptableProvider)cellComponent).getScriptObject() instanceof IRuntimeComponent)
 						{
-							IScriptBaseMethods cellScriptComponent = (IScriptBaseMethods)((IScriptableProvider)cellComponent).getScriptObject();
-							cellScriptComponent.js_setSize(cellScriptComponent.js_getWidth() + x, cellScriptComponent.js_getHeight());
+							IRuntimeComponent cellScriptComponent = (IRuntimeComponent)((IScriptableProvider)cellComponent).getScriptObject();
+							cellScriptComponent.setSize(cellScriptComponent.getWidth() + x, cellScriptComponent.getHeight());
 							if (cellComponent instanceof IProviderStylePropertyChanges)
 							{
 								((IProviderStylePropertyChanges)cellComponent).getStylePropertyChanges().setRendered(); // avoid the tableview to render because of this change
@@ -1770,7 +1770,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 				else
 				{
-					totalWidthToStretch += ic.js_getWidth();
+					totalWidthToStretch += ic.getWidth();
 				}
 			}
 		}
@@ -3088,17 +3088,17 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		if (comp instanceof IScriptableProvider)
 		{
 			IScriptable s = ((IScriptableProvider)comp).getScriptObject();
-			if (s instanceof IScriptBaseMethods)
+			if (s instanceof IRuntimeComponent)
 			{
-				IScriptBaseMethods sbm = (IScriptBaseMethods)s;
+				IRuntimeComponent sbm = (IRuntimeComponent)s;
 				String newBgColor = bgColor != null ? bgColor.toString() : null;
-				sbm.js_setBgcolor(newBgColor);
+				sbm.setBgcolor(newBgColor);
 
 				String newFgColor = fgColor != null ? fgColor.toString() : null;
-				sbm.js_setFgcolor(newFgColor);
+				sbm.setFgcolor(newFgColor);
 
 				String newCompFont = compFont != null ? compFont.toString() : null;
-				sbm.js_setFont(newCompFont);
+				sbm.setFont(newCompFont);
 
 //				String newBorder = compBorder != null ? compBorder.toString() : null;
 //				if (newBorder != null) sbm.js_setBorder(newBorder);
@@ -3700,7 +3700,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		if (totalWidthToStretch == 0) return;
 
 		int consumedDelta = 0;
-		IScriptBaseMethods lastStretched = null;
+		IRuntimeComponent lastStretched = null;
 		for (IPersist element : elementToColumnIdentifierComponent.keySet())
 		{
 			boolean distributeToThisColumn = true;
@@ -3718,21 +3718,21 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			if (distributeToThisColumn)
 			{
 				Component c = elementToColumnIdentifierComponent.get(element);
-				if (c instanceof IScriptableProvider && ((IScriptableProvider)c).getScriptObject() instanceof IScriptBaseMethods)
+				if (c instanceof IScriptableProvider && ((IScriptableProvider)c).getScriptObject() instanceof IRuntimeComponent)
 				{
-					IScriptBaseMethods ic = (IScriptBaseMethods)((IScriptableProvider)c).getScriptObject();
-					int thisDelta = delta * ic.js_getWidth() / totalWidthToStretch;
+					IRuntimeComponent ic = (IRuntimeComponent)((IScriptableProvider)c).getScriptObject();
+					int thisDelta = delta * ic.getWidth() / totalWidthToStretch;
 					consumedDelta += thisDelta;
-					int newWidth = ic.js_getWidth() + thisDelta;
+					int newWidth = ic.getWidth() + thisDelta;
 
-					int height = ic.js_getHeight();
+					int height = ic.getHeight();
 					Iterator<Component> alreadyAddedComponents = cellToElement.keySet().iterator();
 					if (alreadyAddedComponents.hasNext())
 					{
 						Component firstAddedComponent = alreadyAddedComponents.next();
 						if ((firstAddedComponent instanceof IComponent)) height = ((IComponent)firstAddedComponent).getSize().height;
 					}
-					ic.js_setSize(newWidth, height);
+					ic.setSize(newWidth, height);
 
 					lastStretched = ic;
 				}
@@ -3741,7 +3741,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		// we can have some leftover due to rounding errors, just put it into the last stretched column.
 		if ((delta - consumedDelta != 0) && (lastStretched != null))
 		{
-			lastStretched.js_setSize(lastStretched.js_getWidth() + delta - consumedDelta, lastStretched.js_getHeight());
+			lastStretched.setSize(lastStretched.getWidth() + delta - consumedDelta, lastStretched.getHeight());
 		}
 
 		updateXLocationForColumns(getOrderedHeaders());
@@ -3759,9 +3759,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			{
 				scriptobject = ((IScriptableProvider)scriptobject).getScriptObject();
 			}
-			if (scriptobject instanceof IScriptBaseMethods)
+			if (scriptobject instanceof IRuntimeComponent)
 			{
-				int width = ((IScriptBaseMethods)scriptobject).js_getWidth();
+				int width = ((IRuntimeComponent)scriptobject).getWidth();
 				totalDefaultWidth += width;
 				if (element instanceof ISupportAnchors)
 				{
@@ -3807,7 +3807,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	 */
 	public String getOnRenderElementType()
 	{
-		return cellview instanceof Portal ? IScriptBaseMethods.PORTAL : IScriptBaseMethods.FORM;
+		return cellview instanceof Portal ? IRuntimeComponent.PORTAL : IRuntimeComponent.FORM;
 	}
 
 	/*

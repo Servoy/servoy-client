@@ -44,7 +44,7 @@ import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.ui.IComponent;
-import com.servoy.j2db.ui.scripting.IRuntimeFormatComponent;
+import com.servoy.j2db.ui.scripting.IFormatScriptComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Pair;
@@ -321,11 +321,11 @@ public abstract class RecordItemModel extends LoadableDetachableModel implements
 					}
 
 					if (ownComponentsValue && record instanceof FindState && component instanceof IScriptableProvider &&
-						((IScriptableProvider)component).getScriptObject() instanceof IRuntimeFormatComponent &&
-						((IRuntimeFormatComponent)((IScriptableProvider)component).getScriptObject()).getComponentFormat() != null)
+						((IScriptableProvider)component).getScriptObject() instanceof IFormatScriptComponent &&
+						((IFormatScriptComponent)((IScriptableProvider)component).getScriptObject()).getComponentFormat() != null)
 					{
 						((FindState)record).setFormat(dataProviderID,
-							((IRuntimeFormatComponent)((IScriptableProvider)component).getScriptObject()).getComponentFormat().parsedFormat);
+							((IFormatScriptComponent)((IScriptableProvider)component).getScriptObject()).getComponentFormat().parsedFormat);
 					}
 				}
 			}

@@ -50,6 +50,7 @@ import org.odlabs.wiquery.ui.accordion.AccordionAnimated;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IForm;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
@@ -126,7 +127,7 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 			@Override
 			public Integer getObject()
 			{
-				return new Integer(allTabs.size());
+				return Integer.valueOf(allTabs.size());
 			}
 		};
 		final boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
@@ -250,10 +251,10 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 			public void renderHead(IHeaderResponse response)
 			{
 				super.renderHead(response);
-				Integer index = Utils.getAsInteger(getTabIndex());
-				if (index != null && index > 1)// first tab will be activated by default
+				int index = getTabIndex();
+				if (index > 0) // first tab will be activated by default
 				{
-					response.renderOnDomReadyJavascript(accordion.activate(index - 1).getStatement().toString());
+					response.renderOnDomReadyJavascript(accordion.activate(index).getStatement().toString());
 				}
 				// avoid flickering, see also tabpanel
 				response.renderOnDomReadyJavascript("var accordion = document.getElementById('" + WebAccordionPanel.this.getMarkupId() +
@@ -365,7 +366,7 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 
 			if (onTabChangeMethodCmd != null && previousIndex != -1)
 			{
-				scriptExecutor.executeFunction(onTabChangeMethodCmd, Utils.arrayMerge((new Object[] { new Integer(previousIndex + 1) }), onTabChangeArgs),
+				scriptExecutor.executeFunction(onTabChangeMethodCmd, Utils.arrayMerge((new Object[] { Integer.valueOf(previousIndex + 1) }), onTabChangeArgs),
 					true, this, false, StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID.getPropertyName(), false);
 			}
 		}
@@ -375,10 +376,10 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 	{
 		if (currentForm.isReady())
 		{
-			Integer index = Utils.getAsInteger(getTabIndex());
-			if (index != null && index > 0)
+			int index = getTabIndex();
+			if (index >= 0)
 			{
-				MarkupContainer parent = (MarkupContainer)((MarkupContainer)accordion.get(0)).get(index - 1);
+				MarkupContainer parent = (MarkupContainer)((MarkupContainer)accordion.get(0)).get(index);
 				if (parent != null)
 				{
 					if (parent.get(currentForm.getWebForm().getId()) != null)
@@ -714,10 +715,10 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 	{
 	}
 
-	public boolean addTab(Object form, String tabname, String tabText, String tabtooltip, String iconURL, String fg, String bg, Object relation, int idx,
-		boolean readOnly)
+	public boolean addTab(IForm formController, String formName, String tabname, String tabText, String tabtooltip, String iconURL, String fg, String bg,
+		String relationName, RelatedFoundSet relatedFs, int idx)
 	{
-		if (form instanceof FormController)
+		if (formController != null)
 		{
 			//to make sure we don't have recursion on adding a tab, to a tabpanel, that is based 
 			//on the form that the tabpanel is placed on
@@ -725,63 +726,46 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 			if (webForm != null)
 			{
 				FormController parentFormController = webForm.getController();
-				if (parentFormController != null && parentFormController.equals(form))
+				if (parentFormController != null && parentFormController.equals(formController))
 				{
 					return false;
 				}
 			}
 		}
 
-		String fName;
-		if (form instanceof FormController)
+		WebTabFormLookup flp = (WebTabFormLookup)createFormLookupPanel(tabname, relationName, formName);
+		if (formController != null) flp.setReadOnly(formController.isReadOnly());
+		byte[] iconData = null;
+		//TODO handle icon
+
+		int count = allTabs.size();
+		int tabIndex = idx;
+		if (tabIndex == -1 || tabIndex >= count)
 		{
-			fName = ((FormController)form).getName();
+			tabIndex = count;
+			addTab(application.getI18NMessageIfPrefixed(tabText), iconData, flp, application.getI18NMessageIfPrefixed(tabtooltip));
 		}
 		else
 		{
-			fName = (String)form;
+			insertTab(application.getI18NMessageIfPrefixed(tabText), iconData, flp, application.getI18NMessageIfPrefixed(tabtooltip), tabIndex);
 		}
+		if (fg != null) setTabForegroundAt(tabIndex, PersistHelper.createColor(fg));
+		if (bg != null) setTabBackgroundAt(tabIndex, PersistHelper.createColor(bg));
 
-		if (fName != null)
+		if (relatedFs != null && currentForm == flp)
 		{
-			String relationName = relation instanceof RelatedFoundSet ? ((RelatedFoundSet)relation).getRelationName() : (String)relation;
-			RelatedFoundSet relatedFs = relation instanceof RelatedFoundSet ? (RelatedFoundSet)relation : null;
-
-			WebTabFormLookup flp = (WebTabFormLookup)createFormLookupPanel(tabname, relationName, fName);
-			if (form instanceof FormController) flp.setReadOnly(readOnly);
-			byte[] iconData = null;
-			//TODO handle icon
-
-			int count = allTabs.size();
-			int tabIndex = idx;
-			if (tabIndex == -1 || tabIndex >= count)
+			FormController fp = flp.getWebForm().getController();
+			if (fp != null && flp.getRelationName() != null && flp.getRelationName().equals(relationName))
 			{
-				tabIndex = count;
-				addTab(application.getI18NMessageIfPrefixed(tabText), iconData, flp, application.getI18NMessageIfPrefixed(tabtooltip));
+				fp.loadData(relatedFs, null);
 			}
-			else
-			{
-				insertTab(application.getI18NMessageIfPrefixed(tabText), iconData, flp, application.getI18NMessageIfPrefixed(tabtooltip), tabIndex);
-			}
-			if (fg != null) setTabForegroundAt(tabIndex, PersistHelper.createColor(fg));
-			if (bg != null) setTabBackgroundAt(tabIndex, PersistHelper.createColor(bg));
-
-			if (relatedFs != null && currentForm == flp)
-			{
-				FormController fp = flp.getWebForm().getController();
-				if (fp != null && flp.getRelationName() != null && flp.getRelationName().equals(relationName))
-				{
-					fp.loadData(relatedFs, null);
-				}
-			}
-			return true;
 		}
-		return false;
+		return true;
 	}
 
 	public int getMaxTabIndex()
 	{
-		return allTabs.size();
+		return allTabs.size() - 1;
 	}
 
 	public String getTabFormNameAt(int i)
@@ -790,22 +774,21 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 		return holder.getPanel().getFormName();
 	}
 
-	public Object getTabIndex()
+	public int getTabIndex()
 	{
 		for (int i = 0; i < allTabs.size(); i++)
 		{
 			if (currentForm == null)
 			{
 				// no current form set yet, default to first tab
-				return new Integer(1);
+				return 0;
 			}
-			WebTabHolder holder = allTabs.get(i);
-			if (holder.getPanel() == currentForm)
+			if (allTabs.get(i).getPanel() == currentForm)
 			{
-				return new Integer(i + 1);
+				return i;
 			}
 		}
-		return new Integer(-1);
+		return -1;
 	}
 
 	public String getTabNameAt(int i)
@@ -880,27 +863,20 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 		holder.setEnabled(b);
 	}
 
-	public void setTabIndex(Object arg)
+	public void setTabIndex(int index)
 	{
-		int index = Utils.getAsInteger(arg);
-		if (index >= 1 && index <= scriptable.js_getMaxTabIndex())
+		setActiveTabPanel(allTabs.get(index).getPanel());
+	}
+
+	public void setTabIndex(String name)
+	{
+		for (int i = 0; i < allTabs.size(); i++)
 		{
-			WebTabHolder holder = allTabs.get(index - 1);
-			setActiveTabPanel(holder.getPanel());
-		}
-		else
-		{
-			String tabName = "" + arg; //$NON-NLS-1$
-			if (Utils.stringIsEmpty(tabName)) return;
-			for (int i = 0; i < allTabs.size(); i++)
+			WebTabHolder holder = allTabs.get(i);
+			if (Utils.stringSafeEquals(holder.getPanel().getName(), name))
 			{
-				WebTabHolder holder = allTabs.get(i);
-				String currentName = holder.getPanel().getName();
-				if (Utils.stringSafeEquals(currentName, tabName))
-				{
-					setActiveTabPanel(holder.getPanel());
-					break;
-				}
+				setActiveTabPanel(holder.getPanel());
+				break;
 			}
 		}
 	}
@@ -1168,7 +1144,7 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 		this.onTabChangeArgs = onTabChangeArgs;
 	}
 
-	public void setTabIndex(int tabIndex)
+	public void setTabSequenceIndex(int tabIndex)
 	{
 		this.tabSequenceIndex = tabIndex;
 	}

@@ -450,9 +450,9 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 	}
 
 
-	public void requestFocus(Object[] vargs)
+	public void requestFocusToComponent()
 	{
-		field.requestFocus(vargs);
+		field.requestFocusToComponent();
 	}
 
 	public String getDataProviderID()
@@ -588,7 +588,7 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 
 	public void setFont(Font f)
 	{
-		if (f != null && field != null) field.getScriptObject().js_setFont(PersistHelper.createFontString(f));
+		if (f != null && field != null) field.getScriptObject().setFont(PersistHelper.createFontString(f));
 	}
 
 	private Color background;
@@ -613,7 +613,7 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 		this.foreground = cfg;
 		if (field != null)
 		{
-			field.getScriptObject().js_setFgcolor(PersistHelper.createColorString(cfg));
+			field.getScriptObject().setFgcolor(PersistHelper.createColorString(cfg));
 		}
 	}
 

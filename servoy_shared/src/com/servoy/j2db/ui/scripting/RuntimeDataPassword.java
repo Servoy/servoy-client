@@ -26,9 +26,9 @@ import javax.swing.border.CompoundBorder;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IFieldComponent;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptDataPasswordMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
+import com.servoy.j2db.ui.runtime.IRuntimePassword;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 
 /**
@@ -37,31 +37,31 @@ import com.servoy.j2db.util.ComponentFactoryHelper;
  * @author lvostinar
  * @since 6.0
  */
-public class RuntimeDataPassword extends AbstractRuntimeField<IFieldComponent> implements IScriptDataPasswordMethods
+public class RuntimeDataPassword extends AbstractRuntimeField<IFieldComponent> implements IRuntimePassword
 {
 	public RuntimeDataPassword(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
 		super(jsChangeRecorder, application);
 	}
 
-	public String js_getElementType()
+	public String getElementType()
 	{
-		return IScriptBaseMethods.PASSWORD;
+		return IRuntimeComponent.PASSWORD;
 	}
 
-	public boolean js_isEditable()
+	public boolean isEditable()
 	{
 		return getComponent().isEditable();
 	}
 
-	public void js_setEditable(boolean b)
+	public void setEditable(boolean b)
 	{
 		getComponent().setEditable(b);
 		getChangesRecorder().setChanged();
 	}
 
 	@Override
-	public void js_setBorder(String spec)
+	public void setBorder(String spec)
 	{
 		Border border = ComponentFactoryHelper.createBorder(spec);
 		Border oldBorder = getComponent().getBorder();

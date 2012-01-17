@@ -18,14 +18,17 @@ package com.servoy.j2db.ui;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.FormScope;
+import com.servoy.j2db.ui.runtime.IRuntimeSplitPane;
 
 /**
- * Interface to which split pane components need to conform, to expose the same script methods
+ * Scripting interface for RuntimeSplitPane.
+ * Combines (deprecated) script methods and java api ({@link IRuntimeSplitPane});
  * 
  * @author gboros
+ *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeSplitPane", extendsComponent = "RuntimeComponent")
-public interface IScriptSplitPaneMethods extends IScriptReadOnlyMethods
+public interface IScriptSplitPaneMethods extends IRuntimeSplitPane
 {
 
 	/**
@@ -92,57 +95,4 @@ public interface IScriptSplitPaneMethods extends IScriptReadOnlyMethods
 	 * @return right form of the split pane
 	 */
 	public FormScope js_getRightForm();
-
-	/**
-	 * Gets or sets divider location.
-	 * If location is less then 1 then the location will be considered at (location * 100) percent of the split pane from left,
-	 * otherwise it will represent the pixels from left.
-	 * @sample %%prefix%%%%elementName%%.dividerLocation = 0.75;
-	 */
-	public double js_getDividerLocation();
-
-	public void js_setDividerLocation(double location);
-
-	/**
-	 * Gets or sets divider size in pixels.
-	 * @sample %%prefix%%%%elementName%%.dividerSize = 10;
-	 */
-	public int js_getDividerSize();
-
-	public void js_setDividerSize(int size);
-
-	/**
-	 * Specifies how to distribute extra space when the size of the split pane changes.
-	 * A value of 0, the default, indicates the right/bottom component gets all the extra space (the left/top component acts fixed),
-	 * where as a value of 1 specifies the left/top component gets all the extra space (the right/bottom component acts fixed).
-	 * Specifically, the left/top component gets (weight * diff) extra space and the right/bottom component gets (1 - weight) * diff extra space
-	 * @sample %%prefix%%%%elementName%%.resizeWeight = 0.5;
-	 */
-	public double js_getResizeWeight();
-
-	public void js_setResizeWeight(double resizeWeight);
-
-	/**
-	 * Gets or sets if the components should continuously be redrawn as the divider changes position.
-	 * @sample %%prefix%%%%elementName%%.continuousLayout = true;
-	 */
-	public boolean js_getContinuousLayout();
-
-	public void js_setContinuousLayout(boolean b);
-
-	/**
-	 * Gets or sets right form minimum size in pixels.
-	 * @sample %%prefix%%%%elementName%%.rightFormMinSize = 100;
-	 */
-	public int js_getRightFormMinSize();
-
-	public void js_setRightFormMinSize(int minSize);
-
-	/**
-	 * Gets or sets left form minimum size in pixels.
-	 * @sample %%prefix%%%%elementName%%.leftFormMinSize = 100;
-	 */
-	public int js_getLeftFormMinSize();
-
-	public void js_setLeftFormMinSize(int minSize);
 }

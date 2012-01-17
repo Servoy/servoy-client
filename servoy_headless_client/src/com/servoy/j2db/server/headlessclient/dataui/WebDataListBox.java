@@ -211,11 +211,11 @@ public class WebDataListBox extends ListMultipleChoice implements IDisplayData, 
 		if (!isValueValid)
 		{
 			previousValidValue = oldVal;
-			requestFocus();
+			requestFocusToComponent();
 			if (tmpForeground == NO_COLOR)
 			{
-				tmpForeground = scriptable.js_getFgcolor();
-				scriptable.js_setFgcolor("red"); //$NON-NLS-1$
+				tmpForeground = scriptable.getFgcolor();
+				scriptable.setFgcolor("red"); //$NON-NLS-1$
 			}
 		}
 		else
@@ -223,7 +223,7 @@ public class WebDataListBox extends ListMultipleChoice implements IDisplayData, 
 			previousValidValue = null;
 			if (tmpForeground != NO_COLOR)
 			{
-				scriptable.js_setFgcolor(tmpForeground);
+				scriptable.setFgcolor(tmpForeground);
 				tmpForeground = NO_COLOR;
 			}
 		}
@@ -314,7 +314,7 @@ public class WebDataListBox extends ListMultipleChoice implements IDisplayData, 
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		if (useAJAX)
 		{
-			Object oe = scriptable.js_getClientProperty("ajax.enabled"); //$NON-NLS-1$
+			Object oe = scriptable.getClientProperty("ajax.enabled"); //$NON-NLS-1$
 			if (oe != null) useAJAX = Utils.getAsBoolean(oe);
 		}
 		if (!useAJAX)
@@ -499,7 +499,7 @@ public class WebDataListBox extends ListMultipleChoice implements IDisplayData, 
 	{
 		if (!isValueValid)
 		{
-			requestFocus();
+			requestFocusToComponent();
 			return false;
 		}
 		return true;
@@ -584,16 +584,7 @@ public class WebDataListBox extends ListMultipleChoice implements IDisplayData, 
 		this.vScrollPolicy = policy;
 	}
 
-	public void requestFocus(Object[] vargs)
-	{
-		if (vargs != null && vargs.length >= 1 && !Utils.getAsBoolean(vargs[0]))
-		{
-			eventExecutor.skipNextFocusGain();
-		}
-		requestFocus();
-	}
-
-	public void requestFocus()
+	public void requestFocusToComponent()
 	{
 		// TODO this doesn't work as expected right now - should request focus on one of the inner
 		// input tags - created during onComponentTagBody

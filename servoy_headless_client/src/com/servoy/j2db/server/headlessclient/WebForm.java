@@ -121,11 +121,11 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptReadOnlyMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.ITabPanel;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
+import com.servoy.j2db.ui.runtime.IRuntimeComponentWithReadonlySupport;
 import com.servoy.j2db.ui.scripting.RuntimePortal;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IAnchorConstants;
@@ -433,21 +433,21 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 				if (comp instanceof WebTabPanel)
 				{
 					WebTabPanel wtp = (WebTabPanel)comp;
-					wtp.setTabIndex(tabIndex);
+					wtp.setTabSequenceIndex(tabIndex);
 					tabIndex += SEQUENCE_RANGE_TAB_PANEL;
 					TabIndexHelper.setUpTabIndexAttributeModifier(comp, ISupportWebTabSeq.SKIP);
 				}
 				else if (comp instanceof WebCellBasedView)
 				{
 					WebCellBasedView tableView = (WebCellBasedView)comp;
-					tableView.setTabIndex(tabIndex);
+					tableView.setTabSequenceIndex(tabIndex);
 					tabIndex += SEQUENCE_RANGE_TABLE;
 					TabIndexHelper.setUpTabIndexAttributeModifier(comp, ISupportWebTabSeq.SKIP);
 				}
 				else if (comp instanceof WebSplitPane)
 				{
 					WebSplitPane wsp = (WebSplitPane)comp;
-					wsp.setTabIndex(tabIndex);
+					wsp.setTabSequenceIndex(tabIndex);
 					tabIndex += SEQUENCE_RANGE_SPLIT_PANE;
 					TabIndexHelper.setUpTabIndexAttributeModifier(comp, ISupportWebTabSeq.SKIP);
 				}
@@ -470,13 +470,13 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 					if (defaultSequence)
 					{
 						// normal focus
-						((WebCellBasedView)dr).setTabIndex(ISupportWebTabSeq.DEFAULT);
+						((WebCellBasedView)dr).setTabSequenceIndex(ISupportWebTabSeq.DEFAULT);
 						((WebCellBasedView)dr).setTabSeqComponents(null);
 					}
 					else if (!tabSequence.contains(dr))
 					{
 						// it shouldn't gain focus when tabbing ...
-						((WebCellBasedView)dr).setTabIndex(-1);
+						((WebCellBasedView)dr).setTabSequenceIndex(-1);
 						((WebCellBasedView)dr).setTabSeqComponents(null);
 					}
 				}
@@ -722,7 +722,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 	 * @author Sisu
 	 * 
 	 */
-	class WicketCompVisitorMarker implements IVisitor
+	private static class WicketCompVisitorMarker implements IVisitor<Component>
 	{
 		private final List<Component> markedList;
 		private final boolean readonlyFlag;
@@ -733,34 +733,25 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			this.readonlyFlag = readonlyFlag;
 		}
 
-		public Object component(org.apache.wicket.Component component)
+		public Object component(Component component)
 		{
-			if (((IScriptableProvider)component).getScriptObject() instanceof IScriptReadOnlyMethods)
+			if (((IScriptableProvider)component).getScriptObject() instanceof IRuntimeComponentWithReadonlySupport)
 			{
-				IScriptReadOnlyMethods scriptable = (IScriptReadOnlyMethods)((IScriptableProvider)component).getScriptObject();
-				if (scriptable.js_isReadOnly() == false && readonlyFlag == true)
+				IRuntimeComponentWithReadonlySupport scriptable = (IRuntimeComponentWithReadonlySupport)((IScriptableProvider)component).getScriptObject();
+				if (!scriptable.isReadOnly() && readonlyFlag)
 				{
-					scriptable.js_setReadOnly(readonlyFlag);
-
-					if (markedList.contains(component) == false)
+					scriptable.setReadOnly(readonlyFlag);
+					if (!markedList.contains(component))
 					{
 						markedList.add(component);
 					}
 				}
-				else if (readonlyFlag == false)
+				else if (!readonlyFlag && markedList.contains(component))
 				{
-					if (markedList.contains(component) == true)
-					{
-						scriptable.js_setReadOnly(readonlyFlag);
-					}
+					scriptable.setReadOnly(readonlyFlag);
 				}
 			}
 			return CONTINUE_TRAVERSAL;
-		}
-
-		public List<Component> getMarkedComponens()
-		{
-			return markedList;
 		}
 	}
 
@@ -772,9 +763,8 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		if (readonly != b)
 		{
 			readonly = b;
-			WicketCompVisitorMarker visitorMarker = new WicketCompVisitorMarker(markedComponents, readonly);
-			visitChildren(IScriptableProvider.class, visitorMarker);
-			if (readonly == false)
+			visitChildren(IScriptableProvider.class, new WicketCompVisitorMarker(markedComponents, readonly));
+			if (!readonly)
 			{
 				markedComponents.clear();
 			}
@@ -1158,10 +1148,10 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 								es.put(groupName, fs, group);
 								es.put(counter++, fs, group);
 							}
-							if (scriptable instanceof IScriptBaseMethods && group instanceof NativeJavaObject &&
+							if (scriptable instanceof IRuntimeComponent && group instanceof NativeJavaObject &&
 								((NativeJavaObject)group).unwrap() instanceof RuntimeGroup)
 							{
-								((RuntimeGroup)(((NativeJavaObject)group).unwrap())).addScriptBaseMethodsObj((IScriptBaseMethods)scriptable);
+								((RuntimeGroup)(((NativeJavaObject)group).unwrap())).addScriptBaseMethodsObj((IRuntimeComponent)scriptable);
 							}
 						}
 					}

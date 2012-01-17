@@ -509,23 +509,16 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 		addRolloverBehaviors();
 	}
 
-
-	public byte[] getThumbnailJPGImage(Object[] args)
+	public byte[] getThumbnailJPGImage(int width, int height)
 	{
-		return getThumbnailJPGImage(args, icon, text_url, media != null ? media.getID() : 0, (mediaOptions & 8) == 8, application);
+		return getThumbnailJPGImage(width, height, icon, text_url, media != null ? media.getID() : 0, (mediaOptions & 8) == 8, application);
 	}
 
-	public static byte[] getThumbnailJPGImage(Object[] args, MediaResource icon, String text_url, int iconId, boolean keepAspectRatio, IApplication application)
+	public static byte[] getThumbnailJPGImage(int width, int height, MediaResource icon, String text_url, int iconId, boolean keepAspectRatio,
+		IApplication application)
 	{
 		Image sourceImage = null;
 		byte[] sourceRawData = null;
-		int width = -1;
-		int height = -1;
-		if (args != null && args.length == 2)
-		{
-			width = Utils.getAsInteger(args[0]);
-			height = Utils.getAsInteger(args[1]);
-		}
 
 		if (icon != null)
 		{
@@ -917,7 +910,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		if (useAJAX)
 		{
-			Object oe = scriptable.js_getClientProperty("ajax.enabled"); //$NON-NLS-1$
+			Object oe = scriptable.getClientProperty("ajax.enabled"); //$NON-NLS-1$
 			if (oe != null) useAJAX = Utils.getAsBoolean(oe);
 		}
 

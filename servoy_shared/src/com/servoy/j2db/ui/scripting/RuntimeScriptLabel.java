@@ -37,13 +37,13 @@ public class RuntimeScriptLabel extends AbstractHTMLSubmitRuntimeLabel<ILabel> i
 		super(jsChangeRecorder, application);
 	}
 
-	public String js_getText()
+	public String getText()
 	{
 		if (i18n != null) return i18n;
 		return getComponent().getText();
 	}
 
-	public void js_setText(String txt)
+	public void setText(String txt)
 	{
 		if (txt != null && txt.startsWith("i18n:")) //$NON-NLS-1$
 		{

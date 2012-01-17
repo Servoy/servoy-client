@@ -217,7 +217,7 @@ public abstract class DefaultScope implements Scriptable
 		return array;
 	}
 
-	protected Object[] getValues()
+	public Object[] getValues()
 	{
 		return Utils.arrayJoin(allVars.values().toArray(), allIndex.values().toArray());
 	}

@@ -82,12 +82,12 @@ import com.servoy.j2db.smart.TableView;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IPortalComponent;
-import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportOnRenderWrapper;
 import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.RenderEventExecutor;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.ui.scripting.RuntimePortal;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnableScrollPanel;
@@ -1145,7 +1145,7 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 		 */
 		public String getOnRenderElementType()
 		{
-			return IScriptBaseMethods.PORTAL;
+			return IRuntimeComponent.PORTAL;
 		}
 
 		/*

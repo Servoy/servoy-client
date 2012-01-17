@@ -52,6 +52,7 @@ import org.apache.wicket.version.undo.Change;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IForm;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
@@ -70,11 +71,11 @@ import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IFormLookupPanel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
-import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportSecuritySettings;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.ITabPanel;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.ui.scripting.RuntimeTabPanel;
 import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.ITagResolver;
@@ -128,7 +129,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 			@Override
 			public Integer getObject()
 			{
-				return new Integer(allTabs.size());
+				return Integer.valueOf(allTabs.size());
 			}
 		};
 
@@ -451,7 +452,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 
 			if (onTabChangeMethodCmd != null && previousIndex != -1)
 			{
-				scriptExecutor.executeFunction(onTabChangeMethodCmd, Utils.arrayMerge((new Object[] { new Integer(previousIndex + 1) }), onTabChangeArgs),
+				scriptExecutor.executeFunction(onTabChangeMethodCmd, Utils.arrayMerge((new Object[] { Integer.valueOf(previousIndex + 1) }), onTabChangeArgs),
 					true, this, false, StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID.getPropertyName(), false);
 			}
 		}
@@ -807,10 +808,10 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 	{
 	}
 
-	public boolean addTab(Object form, String tabname, String tabText, String tabtooltip, String iconURL, String fg, String bg, Object relation, int idx,
-		boolean readOnly)
+	public boolean addTab(IForm formController, String formName, String tabname, String tabText, String tabtooltip, String iconURL, String fg, String bg,
+		String relationName, RelatedFoundSet relatedFs, int idx)
 	{
-		if (form instanceof FormController)
+		if (formController != null)
 		{
 			//to make sure we don't have recursion on adding a tab, to a tabpanel, that is based 
 			//on the form that the tabpanel is placed on
@@ -818,63 +819,46 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 			if (webForm != null)
 			{
 				FormController parentFormController = webForm.getController();
-				if (parentFormController != null && parentFormController.equals(form))
+				if (parentFormController != null && parentFormController.equals(formController))
 				{
 					return false;
 				}
 			}
 		}
 
-		String fName;
-		if (form instanceof FormController)
+		WebTabFormLookup flp = (WebTabFormLookup)createFormLookupPanel(tabname, relationName, formName);
+		if (formController != null) flp.setReadOnly(formController.isReadOnly());
+		byte[] iconData = null;
+		//TODO handle icon
+
+		int count = allTabs.size();
+		int tabIndex = idx;
+		if (tabIndex == -1 || tabIndex >= count)
 		{
-			fName = ((FormController)form).getName();
+			tabIndex = count;
+			addTab(application.getI18NMessageIfPrefixed(tabText), iconData, flp, application.getI18NMessageIfPrefixed(tabtooltip));
 		}
 		else
 		{
-			fName = (String)form;
+			insertTab(application.getI18NMessageIfPrefixed(tabText), iconData, flp, application.getI18NMessageIfPrefixed(tabtooltip), tabIndex);
 		}
+		if (fg != null) setTabForegroundAt(tabIndex, PersistHelper.createColor(fg));
+		if (bg != null) setTabBackgroundAt(tabIndex, PersistHelper.createColor(bg));
 
-		if (fName != null)
+		if (relatedFs != null && currentForm == flp)
 		{
-			String relationName = relation instanceof RelatedFoundSet ? ((RelatedFoundSet)relation).getRelationName() : (String)relation;
-			RelatedFoundSet relatedFs = relation instanceof RelatedFoundSet ? (RelatedFoundSet)relation : null;
-
-			WebTabFormLookup flp = (WebTabFormLookup)createFormLookupPanel(tabname, relationName, fName);
-			if (form instanceof FormController) flp.setReadOnly(readOnly);
-			byte[] iconData = null;
-			//TODO handle icon
-
-			int count = allTabs.size();
-			int tabIndex = idx;
-			if (tabIndex == -1 || tabIndex >= count)
+			FormController fp = flp.getWebForm().getController();
+			if (fp != null && flp.getRelationName() != null && flp.getRelationName().equals(relationName))
 			{
-				tabIndex = count;
-				addTab(application.getI18NMessageIfPrefixed(tabText), iconData, flp, application.getI18NMessageIfPrefixed(tabtooltip));
+				fp.loadData(relatedFs, null);
 			}
-			else
-			{
-				insertTab(application.getI18NMessageIfPrefixed(tabText), iconData, flp, application.getI18NMessageIfPrefixed(tabtooltip), tabIndex);
-			}
-			if (fg != null) setTabForegroundAt(tabIndex, PersistHelper.createColor(fg));
-			if (bg != null) setTabBackgroundAt(tabIndex, PersistHelper.createColor(bg));
-
-			if (relatedFs != null && currentForm == flp)
-			{
-				FormController fp = flp.getWebForm().getController();
-				if (fp != null && flp.getRelationName() != null && flp.getRelationName().equals(relationName))
-				{
-					fp.loadData(relatedFs, null);
-				}
-			}
-			return true;
 		}
-		return false;
+		return true;
 	}
 
 	public int getMaxTabIndex()
 	{
-		return allTabs.size();
+		return allTabs.size() - 1;
 	}
 
 	public String getTabFormNameAt(int i)
@@ -883,22 +867,21 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		return holder.getPanel().getFormName();
 	}
 
-	public Object getTabIndex()
+	public int getTabIndex()
 	{
 		for (int i = 0; i < allTabs.size(); i++)
 		{
 			if (currentForm == null)
 			{
 				// no current form set yet, default to first tab
-				return new Integer(1);
+				return 0;
 			}
-			WebTabHolder holder = allTabs.get(i);
-			if (holder.getPanel() == currentForm)
+			if (allTabs.get(i).getPanel() == currentForm)
 			{
-				return new Integer(i + 1);
+				return i;
 			}
 		}
-		return new Integer(-1);
+		return -1;
 	}
 
 	public String getTabNameAt(int i)
@@ -983,27 +966,20 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		holder.setEnabled(b);
 	}
 
-	public void setTabIndex(Object arg)
+	public void setTabIndex(int index)
 	{
-		int index = Utils.getAsInteger(arg);
-		if (index >= 1 && index <= scriptable.js_getMaxTabIndex())
+		setActiveTabPanel(allTabs.get(index).getPanel());
+	}
+
+	public void setTabIndex(String name)
+	{
+		for (int i = 0; i < allTabs.size(); i++)
 		{
-			WebTabHolder holder = allTabs.get(index - 1);
-			setActiveTabPanel(holder.getPanel());
-		}
-		else
-		{
-			String tabName = "" + arg; //$NON-NLS-1$
-			if (Utils.stringIsEmpty(tabName)) return;
-			for (int i = 0; i < allTabs.size(); i++)
+			WebTabHolder holder = allTabs.get(i);
+			if (Utils.stringSafeEquals(holder.getPanel().getName(), name))
 			{
-				WebTabHolder holder = allTabs.get(i);
-				String currentName = holder.getPanel().getName();
-				if (Utils.stringSafeEquals(currentName, tabName))
-				{
-					setActiveTabPanel(holder.getPanel());
-					break;
-				}
+				setActiveTabPanel(holder.getPanel());
+				break;
 			}
 		}
 	}
@@ -1271,7 +1247,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		this.onTabChangeArgs = onTabChangeArgs;
 	}
 
-	public void setTabIndex(int tabIndex)
+	public void setTabSequenceIndex(int tabIndex)
 	{
 		this.tabSequenceIndex = tabIndex;
 	}
@@ -1329,7 +1305,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 	{
 		private final WebTabHolder holder;
 
-		public ServoyTabIcon(String id, final WebTabHolder holder, final IScriptBaseMethods scriptable)
+		public ServoyTabIcon(String id, final WebTabHolder holder, final IRuntimeComponent scriptable)
 		{
 			super(id);
 			this.holder = holder;
@@ -1346,7 +1322,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 						result.append("; background-image: url(");
 						result.append(getResponse().encodeURL(urlFor(IResourceListener.INTERFACE) + "&r=" + Math.random()));
 						result.append(')');
-						if (!scriptable.js_isEnabled())
+						if (!scriptable.isEnabled())
 						{
 							result.append("; filter:alpha(opacity=50);-moz-opacity:.50;opacity:.50");
 						}

@@ -23,9 +23,9 @@ import javax.swing.JComponent;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IFieldComponent;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptMediaInputFieldMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
+import com.servoy.j2db.ui.runtime.IRuntimeImageMedia;
 
 /**
  * Scriptable media component.
@@ -33,7 +33,7 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
  * @author lvostinar
  * @since 6.0
  */
-public class RuntimeMediaField extends AbstractRuntimeField<IFieldComponent> implements IScriptMediaInputFieldMethods
+public class RuntimeMediaField extends AbstractRuntimeField<IFieldComponent> implements IRuntimeImageMedia
 {
 	private JComponent jComponent;
 
@@ -50,12 +50,12 @@ public class RuntimeMediaField extends AbstractRuntimeField<IFieldComponent> imp
 		this.jComponent = jComponent;
 	}
 
-	public String js_getElementType()
+	public String getElementType()
 	{
-		return IScriptBaseMethods.IMAGE_MEDIA;
+		return IRuntimeComponent.IMAGE_MEDIA;
 	}
 
-	public void js_setScroll(int x, int y)
+	public void setScroll(int x, int y)
 	{
 		if (jComponent != null)
 		{
@@ -63,7 +63,7 @@ public class RuntimeMediaField extends AbstractRuntimeField<IFieldComponent> imp
 		}
 	}
 
-	public int js_getScrollX()
+	public int getScrollX()
 	{
 		if (jComponent != null)
 		{
@@ -72,7 +72,7 @@ public class RuntimeMediaField extends AbstractRuntimeField<IFieldComponent> imp
 		return 0;
 	}
 
-	public int js_getScrollY()
+	public int getScrollY()
 	{
 		if (jComponent != null)
 		{
@@ -81,7 +81,7 @@ public class RuntimeMediaField extends AbstractRuntimeField<IFieldComponent> imp
 		return 0;
 	}
 
-	public boolean js_isEditable()
+	public boolean isEditable()
 	{
 		return getComponent().isEditable();
 	}

@@ -53,7 +53,7 @@ public abstract class AbstractRuntimeFormContainer<C extends IComponent, E exten
 	}
 
 	@Override
-	public void js_setToolTipText(String txt)
+	public void setToolTipText(String txt)
 	{
 		if (enclosingComponent != null)
 		{
@@ -67,17 +67,17 @@ public abstract class AbstractRuntimeFormContainer<C extends IComponent, E exten
 	}
 
 	@Override
-	public String js_getToolTipText()
+	public String getToolTipText()
 	{
 		if (enclosingComponent != null)
 		{
 			return enclosingComponent.getToolTipText();
 		}
-		return super.js_getToolTipText();
+		return super.getToolTipText();
 	}
 
 	@Override
-	public void js_setFont(String spec)
+	public void setFont(String spec)
 	{
 		if (enclosingComponent != null)
 		{
@@ -85,7 +85,7 @@ public abstract class AbstractRuntimeFormContainer<C extends IComponent, E exten
 		}
 		else
 		{
-			super.js_setFont(spec);
+			super.setFont(spec);
 		}
 	}
 
@@ -95,27 +95,27 @@ public abstract class AbstractRuntimeFormContainer<C extends IComponent, E exten
 	 * @see com.servoy.j2db.ui.scripting.AbstractRuntimeBaseComponent#js_getFont()
 	 */
 	@Override
-	public String js_getFont()
+	public String getFont()
 	{
 		if (enclosingComponent != null)
 		{
 			return PersistHelper.createFontString(enclosingComponent.getFont());
 		}
-		return super.js_getFont();
+		return super.getFont();
 	}
 
 	@Override
-	public String js_getBgcolor()
+	public String getBgcolor()
 	{
 		if (enclosingComponent != null)
 		{
 			return PersistHelper.createColorString(enclosingComponent.getBackground());
 		}
-		return super.js_getBgcolor();
+		return super.getBgcolor();
 	}
 
 	@Override
-	public void js_setBgcolor(String clr)
+	public void setBgcolor(String clr)
 	{
 		if (enclosingComponent != null)
 		{
@@ -123,22 +123,22 @@ public abstract class AbstractRuntimeFormContainer<C extends IComponent, E exten
 		}
 		else
 		{
-			super.js_setBgcolor(clr);
+			super.setBgcolor(clr);
 		}
 	}
 
 	@Override
-	public String js_getFgcolor()
+	public String getFgcolor()
 	{
 		if (enclosingComponent != null)
 		{
 			return PersistHelper.createColorString(enclosingComponent.getForeground());
 		}
-		return super.js_getFgcolor();
+		return super.getFgcolor();
 	}
 
 	@Override
-	public void js_setFgcolor(String clr)
+	public void setFgcolor(String clr)
 	{
 		if (enclosingComponent != null)
 		{
@@ -146,11 +146,11 @@ public abstract class AbstractRuntimeFormContainer<C extends IComponent, E exten
 		}
 		else
 		{
-			super.js_setFgcolor(clr);
+			super.setFgcolor(clr);
 		}
 	}
 
-	public void js_setSize(int x, int y)
+	public void setSize(int x, int y)
 	{
 		setComponentSize(x, y);
 		if (getComponent() instanceof JComponent)
@@ -161,7 +161,7 @@ public abstract class AbstractRuntimeFormContainer<C extends IComponent, E exten
 			false, SwingConstants.TOP);
 	}
 
-	public boolean js_isReadOnly()
+	public boolean isReadOnly()
 	{
 		if (enclosingComponent instanceof ISupportReadOnly)
 		{

@@ -32,7 +32,7 @@ import com.servoy.j2db.util.FormatParser;
  * @since 6.0
  */
 public abstract class AbstractRuntimeFormattedValuelistComponent<C extends IFieldComponent> extends AbstractRuntimeValuelistComponent<C> implements
-	IRuntimeFormatComponent
+	IFormatScriptComponent
 {
 	private ComponentFormat componentFormat;
 
@@ -41,18 +41,18 @@ public abstract class AbstractRuntimeFormattedValuelistComponent<C extends IFiel
 		super(jsChangeRecorder, application);
 	}
 
-	public boolean js_isEditable()
+	public boolean isEditable()
 	{
 		return getComponent().isEditable();
 	}
 
-	public void js_setEditable(boolean b)
+	public void setEditable(boolean b)
 	{
 		getComponent().setEditable(b);
 		getChangesRecorder().setChanged();
 	}
 
-	public void js_setFormat(String formatString)
+	public void setFormat(String formatString)
 	{
 		setComponentFormat(new ComponentFormat(FormatParser.parseFormatString(application.getI18NMessageIfPrefixed(formatString), componentFormat == null
 			? null : componentFormat.parsedFormat.getUIConverterName(),
@@ -61,7 +61,7 @@ public abstract class AbstractRuntimeFormattedValuelistComponent<C extends IFiel
 		getChangesRecorder().setChanged();
 	}
 
-	public String js_getFormat()
+	public String getFormat()
 	{
 		return componentFormat == null ? null : componentFormat.parsedFormat.getFormatString();
 	}

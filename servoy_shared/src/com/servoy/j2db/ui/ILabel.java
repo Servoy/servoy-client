@@ -77,7 +77,7 @@ public interface ILabel extends IStandardLabel, ISupportSecuritySettings, ISuppo
 
 	public void setRolloverImageURL(String image_url);
 
-	public byte[] getThumbnailJPGImage(Object[] args);
+	public byte[] getThumbnailJPGImage(int width, int height);
 
 	public int getAbsoluteFormLocationY();
 

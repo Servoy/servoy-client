@@ -38,8 +38,8 @@ import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.smart.dataui.DataCalendar;
 import com.servoy.j2db.smart.dataui.DataRenderer;
-import com.servoy.j2db.ui.IScriptReadOnlyMethods;
 import com.servoy.j2db.ui.ISupportRowStyling;
+import com.servoy.j2db.ui.runtime.IRuntimeComponentWithReadonlySupport;
 import com.servoy.j2db.util.IStyleRule;
 import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.editlist.EmptyEditListModel;
@@ -250,7 +250,7 @@ public class ListView extends JEditList implements IView, ISupportRowStyling
 			for (int i = 0; i < dr.getComponentCount(); i++)
 			{
 				Component c = dr.getComponent(i);
-				if (c instanceof IScriptableProvider && ((IScriptableProvider)c).getScriptObject() instanceof IScriptReadOnlyMethods) ((IScriptReadOnlyMethods)((IScriptableProvider)c).getScriptObject()).js_setReadOnly(!editable);
+				if (c instanceof IScriptableProvider && ((IScriptableProvider)c).getScriptObject() instanceof IRuntimeComponentWithReadonlySupport) ((IRuntimeComponentWithReadonlySupport)((IScriptableProvider)c).getScriptObject()).setReadOnly(!editable);
 			}
 			invalidate();
 			repaint();

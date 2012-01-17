@@ -48,6 +48,7 @@ import com.servoy.j2db.ui.scripting.RuntimeRectangle;
 import com.servoy.j2db.ui.scripting.RuntimeScriptButton;
 import com.servoy.j2db.ui.scripting.RuntimeScriptLabel;
 import com.servoy.j2db.ui.scripting.RuntimeSplitPane;
+import com.servoy.j2db.ui.scripting.RuntimeTabPanel;
 import com.servoy.j2db.ui.scripting.RuntimeTextArea;
 
 /**
@@ -91,15 +92,25 @@ public interface ItemFactory
 	IRect createRect(RuntimeRectangle scriptable, String name, int type);
 
 	/**
-	 * @param name TODO
+	 * 
+	 * @param scriptable
+	 * @param name
 	 * @param orient
-	 * @param b
+	 * @param oneTab
 	 * @return
 	 */
-	ITabPanel createTabPanel(RuntimeAccordionPanel scriptable, String name, int orient, boolean b);
+	ITabPanel createTabPanel(RuntimeTabPanel scriptable, String name, int orient, boolean oneTab);
 
 	/**
-	 * @param name TODO
+	 * @param scriptable
+	 * @param name
+	 * @return
+	 */
+	ITabPanel createAccordionPanel(RuntimeAccordionPanel scriptable, String name);
+
+	/**
+	 * @param scriptable
+	 * @param name
 	 * @param orient
 	 * @return
 	 */

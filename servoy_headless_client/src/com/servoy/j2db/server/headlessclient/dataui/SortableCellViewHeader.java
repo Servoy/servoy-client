@@ -643,7 +643,7 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 		return jsChangeRecorder;
 	}
 
-	public void setTabIndex(int tabIndex)
+	public void setTabSequenceIndex(int tabIndex)
 	{
 		TabIndexHelper.setUpTabIndexAttributeModifier(labelResolver, tabIndex);
 	}

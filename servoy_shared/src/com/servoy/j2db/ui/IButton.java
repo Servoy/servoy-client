@@ -38,5 +38,5 @@ public interface IButton extends ILabel
 
 	Insets getMargin();
 
-	public void requestFocus(Object[] vargs);
+	void requestFocusToComponent();
 }

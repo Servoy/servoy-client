@@ -43,4 +43,6 @@ public interface IEventExecutor
 	boolean getValidationEnabled();
 
 	boolean getSelectOnEnter();
+
+	void skipNextFocusGain();
 }

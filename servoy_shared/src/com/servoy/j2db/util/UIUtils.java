@@ -31,7 +31,7 @@ import javax.swing.JComponent;
 import javax.swing.UIManager;
 
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.ui.IScriptBaseMethods;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.util.gui.AppletController;
 
 public class UIUtils
@@ -64,9 +64,9 @@ public class UIUtils
 	 * @param defaultValue default value for this property.
 	 * @return the UI property with given name relevant to the given component.
 	 */
-	public static Object getUIProperty(IScriptBaseMethods component, IApplication application, String name, Object defaultValue)
+	public static Object getUIProperty(IRuntimeComponent component, IApplication application, String name, Object defaultValue)
 	{
-		Object val = component.js_getClientProperty(name);
+		Object val = component.getClientProperty(name);
 		if (val == null)
 		{
 			val = application.getUIProperty(name);

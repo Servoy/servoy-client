@@ -25,9 +25,9 @@ import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.ValueListFactory;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.ui.IFieldComponent;
-import com.servoy.j2db.ui.IScriptValuelistMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.ISupportValueList;
+import com.servoy.j2db.ui.runtime.IRuntimeValuelistComponent;
 import com.servoy.j2db.util.FormatParser.ParsedFormat;
 
 /**
@@ -36,14 +36,14 @@ import com.servoy.j2db.util.FormatParser.ParsedFormat;
  * @author lvostinar
  * @since 6.0
  */
-public abstract class AbstractRuntimeValuelistComponent<C extends IFieldComponent> extends AbstractRuntimeField<C> implements IScriptValuelistMethods
+public abstract class AbstractRuntimeValuelistComponent<C extends IFieldComponent> extends AbstractRuntimeField<C> implements IRuntimeValuelistComponent
 {
 	public AbstractRuntimeValuelistComponent(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
 		super(jsChangeRecorder, application);
 	}
 
-	public String js_getValueListName()
+	public String getValueListName()
 	{
 		if (getComponent() instanceof ISupportValueList)
 		{
@@ -56,7 +56,7 @@ public abstract class AbstractRuntimeValuelistComponent<C extends IFieldComponen
 		return null;
 	}
 
-	public void js_setValueListItems(Object value)
+	public void setValueListItems(Object value)
 	{
 		if (getComponent() instanceof ISupportValueList)
 		{

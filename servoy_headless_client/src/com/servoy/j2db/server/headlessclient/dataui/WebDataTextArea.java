@@ -188,7 +188,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		if (useAJAX)
 		{
-			Object oe = scriptable.js_getClientProperty("ajax.enabled");
+			Object oe = scriptable.getClientProperty("ajax.enabled");
 			if (oe != null) useAJAX = Utils.getAsBoolean(oe);
 		}
 
@@ -400,7 +400,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 		if (!isValueValid)
 		{
 			previousValidValue = oldVal;
-			requestFocus();
+			requestFocusToComponent();
 		}
 		else
 		{
@@ -460,7 +460,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	{
 		if (!isValueValid)
 		{
-			requestFocus();
+			requestFocusToComponent();
 			return false;
 		}
 		return true;
@@ -470,16 +470,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	/*
 	 * jsmethods---------------------------------------------------
 	 */
-	public void requestFocus(Object[] vargs)
-	{
-		if (vargs != null && vargs.length >= 1 && !Utils.getAsBoolean(vargs[0]))
-		{
-			eventExecutor.skipNextFocusGain();
-		}
-		requestFocus();
-	}
-
-	public void requestFocus()
+	public void requestFocusToComponent()
 	{
 		IMainContainer currentContainer = ((FormManager)application.getFormManager()).getCurrentContainer();
 		if (currentContainer instanceof MainPage)

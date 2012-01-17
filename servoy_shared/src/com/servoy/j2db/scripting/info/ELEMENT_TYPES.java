@@ -18,7 +18,7 @@ package com.servoy.j2db.scripting.info;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
-import com.servoy.j2db.ui.IScriptBaseMethods;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 @SuppressWarnings("nls")
@@ -35,7 +35,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a Button component
 	 * }
 	 */
-	public static final String BUTTON = IScriptBaseMethods.BUTTON;
+	public static final String BUTTON = IRuntimeComponent.BUTTON;
 
 	/**
 	 * Constant representing an element of the Calendar type.
@@ -48,7 +48,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a Calendar field
 	 * }
 	 */
-	public static final String CALENDAR = IScriptBaseMethods.CALENDAR;
+	public static final String CALENDAR = IRuntimeComponent.CALENDAR;
 
 	/**
 	 * Constant representing an element of the Check type.
@@ -61,7 +61,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a Check(box) field
 	 * }
 	 */
-	public static final String CHECK = IScriptBaseMethods.CHECK;
+	public static final String CHECK = IRuntimeComponent.CHECK;
 
 	/**
 	 * Constant representing an element of the ImageMedia type.
@@ -74,7 +74,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a Image Media field
 	 * }
 	 */
-	public static final String IMAGE_MEDIA = IScriptBaseMethods.IMAGE_MEDIA;
+	public static final String IMAGE_MEDIA = IRuntimeComponent.IMAGE_MEDIA;
 
 	/**
 	 * Constant representing an element of the Label type.
@@ -87,7 +87,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a Label component
 	 * }
 	 */
-	public static final String LABEL = IScriptBaseMethods.LABEL;
+	public static final String LABEL = IRuntimeComponent.LABEL;
 
 	/**
 	 * Constant representing an element of the Password type.
@@ -100,7 +100,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a Password component
 	 * }
 	 */
-	public static final String PASSWORD = IScriptBaseMethods.PASSWORD;
+	public static final String PASSWORD = IRuntimeComponent.PASSWORD;
 
 	/**
 	 * Constant representing an element of the Portal type.
@@ -113,7 +113,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a Portal component
 	 * }
 	 */
-	public static final String PORTAL = IScriptBaseMethods.PORTAL;
+	public static final String PORTAL = IRuntimeComponent.PORTAL;
 
 	/**
 	 * Constant representing an element of the Radios type.
@@ -126,7 +126,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a Radios field.
 	 * }
 	 */
-	public static final String RADIOS = IScriptBaseMethods.RADIOS;
+	public static final String RADIOS = IRuntimeComponent.RADIOS;
 
 	/**
 	 * Constant representing an element of the Tabpanel type.
@@ -139,7 +139,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a Tabpanel component
 	 * }
 	 */
-	public static final String TABPANEL = IScriptBaseMethods.TABPANEL;
+	public static final String TABPANEL = IRuntimeComponent.TABPANEL;
 
 	/**
 	 * Constant representing an element of the TextArea type.
@@ -152,7 +152,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a TextArea field
 	 * }
 	 */
-	public static final String TEXT_AREA = IScriptBaseMethods.TEXT_AREA;
+	public static final String TEXT_AREA = IRuntimeComponent.TEXT_AREA;
 
 	/**
 	 * Constant representing an element of the TextField type.
@@ -165,7 +165,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a text field
 	 * }
 	 */
-	public static final String TEXT_FIELD = IScriptBaseMethods.TEXT_FIELD;
+	public static final String TEXT_FIELD = IRuntimeComponent.TEXT_FIELD;
 
 	/**
 	 * Constant representing a Group of elements.
@@ -178,7 +178,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a group element
 	 * }
 	 */
-	public static final String GROUP = IScriptBaseMethods.GROUP;
+	public static final String GROUP = IRuntimeComponent.GROUP;
 
 	/**
 	 * Constant representing a combobox element.
@@ -191,7 +191,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a COMBOBOX element
 	 * }
 	 */
-	public static final String COMBOBOX = IScriptBaseMethods.COMBOBOX;
+	public static final String COMBOBOX = IRuntimeComponent.COMBOBOX;
 
 	/**
 	 * Constant representing a splitpane element.
@@ -204,7 +204,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a splitpane element
 	 * }
 	 */
-	public static final String SPLITPANE = IScriptBaseMethods.SPLITPANE;
+	public static final String SPLITPANE = IRuntimeComponent.SPLITPANE;
 
 	/**
 	 * Constant representing a accordionpanel element.
@@ -217,7 +217,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a accordion panel element
 	 * }
 	 */
-	public static final String ACCORDIONPANEL = IScriptBaseMethods.ACCORDIONPANEL;
+	public static final String ACCORDIONPANEL = IRuntimeComponent.ACCORDIONPANEL;
 
 	/**
 	 * Constant representing a rectangle element.
@@ -230,7 +230,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a rectangle element
 	 * }
 	 */
-	public static final String RECTANGLE = IScriptBaseMethods.RECTANGLE;
+	public static final String RECTANGLE = IRuntimeComponent.RECTANGLE;
 
 	/**
 	 * Constant representing a html area element.
@@ -243,7 +243,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a HTML textarea
 	 * }
 	 */
-	public static final String HTML_AREA = IScriptBaseMethods.HTML_AREA;
+	public static final String HTML_AREA = IRuntimeComponent.HTML_AREA;
 
 	/**
 	 * Constant representing a rtf area of element.
@@ -256,7 +256,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a RTF textarea.
 	 * }
 	 */
-	public static final String RTF_AREA = IScriptBaseMethods.RTF_AREA;
+	public static final String RTF_AREA = IRuntimeComponent.RTF_AREA;
 
 	/**
 	 * Constant representing a typeahead element.
@@ -269,7 +269,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a type ahead element
 	 * }
 	 */
-	public static final String TYPE_AHEAD = IScriptBaseMethods.TYPE_AHEAD;
+	public static final String TYPE_AHEAD = IRuntimeComponent.TYPE_AHEAD;
 
 	/**
 	 * Constant representing a listbox element.
@@ -282,7 +282,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a LIST_BOX element
 	 * }
 	 */
-	public static final String LIST_BOX = IScriptBaseMethods.LIST_BOX;
+	public static final String LIST_BOX = IRuntimeComponent.LIST_BOX;
 
 	/**
 	 * Constant representing a multi selection listbox element.
@@ -295,7 +295,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a MULTI_SELECTION_LIST_BOX element
 	 * }
 	 */
-	public static final String MULTI_SELECTION_LIST_BOX = IScriptBaseMethods.MULTI_SELECTION_LIST_BOX;
+	public static final String MULTI_SELECTION_LIST_BOX = IRuntimeComponent.MULTI_SELECTION_LIST_BOX;
 
 	/**
 	 * Constant representing a form element.
@@ -308,7 +308,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a type form element
 	 * }
 	 */
-	public static final String FORM = IScriptBaseMethods.FORM;
+	public static final String FORM = IRuntimeComponent.FORM;
 
 	public String getPrefix()
 	{

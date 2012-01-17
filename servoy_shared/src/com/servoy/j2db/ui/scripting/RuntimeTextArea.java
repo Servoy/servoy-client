@@ -21,9 +21,9 @@ import javax.swing.text.JTextComponent;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IFieldComponent;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptTextAreaMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
+import com.servoy.j2db.ui.runtime.IRuntimeTextArea;
 
 /**
  * Scriptable text area.
@@ -31,15 +31,15 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
  * @author lvostinar
  * @since 6.0
  */
-public class RuntimeTextArea extends AbstractRuntimeTextComponent<IFieldComponent, JTextComponent> implements IScriptTextAreaMethods
+public class RuntimeTextArea extends AbstractRuntimeTextComponent<IFieldComponent, JTextComponent> implements IRuntimeTextArea
 {
 	public RuntimeTextArea(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
 		super(jsChangeRecorder, application);
 	}
 
-	public String js_getElementType()
+	public String getElementType()
 	{
-		return IScriptBaseMethods.TEXT_AREA;
+		return IRuntimeComponent.TEXT_AREA;
 	}
 }

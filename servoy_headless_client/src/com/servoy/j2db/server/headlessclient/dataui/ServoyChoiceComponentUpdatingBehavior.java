@@ -26,7 +26,7 @@ import org.apache.wicket.util.string.AppendingStringBuffer;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.ui.IEventExecutor;
-import com.servoy.j2db.ui.IScriptReadOnlyMethods;
+import com.servoy.j2db.ui.runtime.IRuntimeComponentWithReadonlySupport;
 
 /**
  * A behavior that handles ajax value updates of Choice components
@@ -95,10 +95,10 @@ public class ServoyChoiceComponentUpdatingBehavior extends AbstractServoyDefault
 	{
 		if (super.isEnabled(component))
 		{
-			if (component instanceof IScriptableProvider && ((IScriptableProvider)component).getScriptObject() instanceof IScriptReadOnlyMethods)
+			if (component instanceof IScriptableProvider && ((IScriptableProvider)component).getScriptObject() instanceof IRuntimeComponentWithReadonlySupport)
 			{
-				return !((IScriptReadOnlyMethods)((IScriptableProvider)component).getScriptObject()).js_isReadOnly() &&
-					((IScriptReadOnlyMethods)((IScriptableProvider)component).getScriptObject()).js_isEnabled();
+				return !((IRuntimeComponentWithReadonlySupport)((IScriptableProvider)component).getScriptObject()).isReadOnly() &&
+					((IRuntimeComponentWithReadonlySupport)((IScriptableProvider)component).getScriptObject()).isEnabled();
 			}
 			return true;
 		}

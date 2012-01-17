@@ -47,10 +47,10 @@ import com.servoy.j2db.server.headlessclient.dnd.DraggableBehavior;
 import com.servoy.j2db.server.headlessclient.yui.YUILoader;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptInputMethods;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.ITabPanel;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
+import com.servoy.j2db.ui.runtime.IRuntimeInputComponent;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -117,13 +117,13 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 				Component component = markupIds.get(i);
 
 				Object clientdesign_handles = null;
-				if (component instanceof IScriptableProvider && ((IScriptableProvider)component).getScriptObject() instanceof IScriptBaseMethods)
+				if (component instanceof IScriptableProvider && ((IScriptableProvider)component).getScriptObject() instanceof IRuntimeComponent)
 				{
-					IScriptBaseMethods sbmc = (IScriptBaseMethods)((IScriptableProvider)component).getScriptObject();
-					if (sbmc.js_getName() == null) continue; //skip, elements with no name are not usable in CD
+					IRuntimeComponent sbmc = (IRuntimeComponent)((IScriptableProvider)component).getScriptObject();
+					if (sbmc.getName() == null) continue; //skip, elements with no name are not usable in CD
 
-					clientdesign_handles = sbmc.js_getClientProperty(CLIENTDESIGN.HANDLES);
-					Object clientdesign_selectable = sbmc.js_getClientProperty(CLIENTDESIGN.SELECTABLE);
+					clientdesign_handles = sbmc.getClientProperty(CLIENTDESIGN.HANDLES);
+					Object clientdesign_selectable = sbmc.getClientProperty(CLIENTDESIGN.SELECTABLE);
 					if (clientdesign_selectable != null && !Utils.getAsBoolean(clientdesign_selectable)) continue; //skip
 				}
 
@@ -134,13 +134,13 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 					if (p != null) padding = "0px " + (p.left + p.right) + "px " + (p.bottom + p.top) + "px 0px";
 				}
 				boolean editable = false;
-				if (component instanceof IScriptableProvider && ((IScriptableProvider)component).getScriptObject() instanceof IScriptInputMethods)
+				if (component instanceof IScriptableProvider && ((IScriptableProvider)component).getScriptObject() instanceof IRuntimeInputComponent)
 				{
-					editable = ((IScriptInputMethods)((IScriptableProvider)component).getScriptObject()).js_isEditable();
+					editable = ((IRuntimeInputComponent)((IScriptableProvider)component).getScriptObject()).isEditable();
 				}
 				if (webAnchorsEnabled && component instanceof IScriptableProvider &&
-					((IScriptableProvider)component).getScriptObject() instanceof IScriptBaseMethods &&
-					needsWrapperDivForAnchoring(((IScriptBaseMethods)((IScriptableProvider)component).getScriptObject()).js_getElementType(), editable))
+					((IScriptableProvider)component).getScriptObject() instanceof IRuntimeComponent &&
+					needsWrapperDivForAnchoring(((IRuntimeComponent)((IScriptableProvider)component).getScriptObject()).getElementType(), editable))
 				{
 					sb.append(component.getMarkupId() + TemplateGenerator.WRAPPER_SUFFIX);
 				}
@@ -192,10 +192,10 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 	{
 		// this needs to be in sync with TemplateGenerator.needsWrapperDivForAnchoring(Field field)
 		// and TemplateGenerator.isButton(GraphicalComponent label)
-		return IScriptBaseMethods.PASSWORD.equals(type) || IScriptBaseMethods.TEXT_AREA.equals(type) || IScriptBaseMethods.COMBOBOX.equals(type) ||
-			IScriptBaseMethods.TYPE_AHEAD.equals(type) || IScriptBaseMethods.TEXT_FIELD.equals(type) ||
-			(IScriptBaseMethods.HTML_AREA.equals(type) && editable) || (IScriptBaseMethods.LIST_BOX.equals(type)) ||
-			(IScriptBaseMethods.MULTI_SELECTION_LIST_BOX.equals(type)) || IScriptBaseMethods.BUTTON.equals(type);
+		return IRuntimeComponent.PASSWORD.equals(type) || IRuntimeComponent.TEXT_AREA.equals(type) || IRuntimeComponent.COMBOBOX.equals(type) ||
+			IRuntimeComponent.TYPE_AHEAD.equals(type) || IRuntimeComponent.TEXT_FIELD.equals(type) ||
+			(IRuntimeComponent.HTML_AREA.equals(type) && editable) || (IRuntimeComponent.LIST_BOX.equals(type)) ||
+			(IRuntimeComponent.MULTI_SELECTION_LIST_BOX.equals(type)) || IRuntimeComponent.BUTTON.equals(type);
 	}
 
 	/**
@@ -259,7 +259,7 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 								width += paddingAndBorder.left + paddingAndBorder.right;
 							}
 						}
-						if (child instanceof IScriptableProvider) ((IScriptBaseMethods)((IScriptableProvider)child).getScriptObject()).js_setSize(width, height);
+						if (child instanceof IScriptableProvider) ((IRuntimeComponent)((IScriptableProvider)child).getScriptObject()).setSize(width, height);
 						if (child instanceof IProviderStylePropertyChanges) ((IProviderStylePropertyChanges)child).getStylePropertyChanges().setRendered();
 					}
 					callback.executeOnResize(getJSEvent(EventType.onDrop, 0, new Point(x, y), new IComponent[] { (IComponent)child }));
@@ -283,7 +283,7 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 					{
 						if (x != -1 && y != -1)
 						{
-							((IScriptBaseMethods)((IScriptableProvider)child).getScriptObject()).js_setLocation(x, y);
+							((IRuntimeComponent)((IScriptableProvider)child).getScriptObject()).setLocation(x, y);
 							if (child instanceof IProviderStylePropertyChanges)
 							{
 								// test if it is wrapped

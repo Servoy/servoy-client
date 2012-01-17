@@ -22,8 +22,9 @@ import javax.swing.JComponent;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IButton;
-import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
+import com.servoy.j2db.ui.runtime.IRuntimeBaseButton;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 
 /**
  * Abstract scriptable button.
@@ -31,7 +32,7 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
  * @author lvostinar
  * @since 6.0
  */
-public abstract class AbstractRuntimeButton<C extends IButton> extends AbstractRuntimeLabel<C>
+public abstract class AbstractRuntimeButton<C extends IButton> extends AbstractRuntimeLabel<C> implements IRuntimeBaseButton
 {
 
 	public AbstractRuntimeButton(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
@@ -40,15 +41,15 @@ public abstract class AbstractRuntimeButton<C extends IButton> extends AbstractR
 	}
 
 	@Override
-	public void js_setBorder(String spec)
+	public void setBorder(String spec)
 	{
-		super.js_setBorder(spec);
+		super.setBorder(spec);
 		getChangesRecorder().setSize(getComponent().getSize().width, getComponent().getSize().height, getComponent().getBorder(), getComponent().getMargin(),
 			0, true, getComponent().getVerticalAlignment());
 	}
 
 	@Override
-	public void js_putClientProperty(Object key, Object value)
+	public void putClientProperty(Object key, Object value)
 	{
 		if (getComponent() instanceof JComponent && "contentAreaFilled".equals(key) && value instanceof Boolean) //$NON-NLS-1$
 		{
@@ -56,25 +57,35 @@ public abstract class AbstractRuntimeButton<C extends IButton> extends AbstractR
 		}
 		else
 		{
-			super.js_putClientProperty(key, value);
+			super.putClientProperty(key, value);
 		}
 
 	}
 
-	public void js_setSize(int width, int height)
+	public void setSize(int width, int height)
 	{
 		setComponentSize(width, height);
 		getChangesRecorder().setSize(width, height, getComponent().getBorder(), getComponent().getMargin(), 0, true, getComponent().getVerticalAlignment());
 	}
 
-	public void js_requestFocus(Object[] vargs)
+	public void requestFocus()
 	{
-		getComponent().requestFocus(vargs);
+		requestFocus(true);
+	}
+
+	public void requestFocus(boolean mustExecuteOnFocusGainedMethod)
+	{
+		if (!mustExecuteOnFocusGainedMethod)
+		{
+			getComponent().getEventExecutor().skipNextFocusGain();
+		}
+
+		getComponent().requestFocusToComponent();
 	}
 
 	@Override
-	public String js_getElementType()
+	public String getElementType()
 	{
-		return IScriptBaseMethods.BUTTON;
+		return IRuntimeComponent.BUTTON;
 	}
 }

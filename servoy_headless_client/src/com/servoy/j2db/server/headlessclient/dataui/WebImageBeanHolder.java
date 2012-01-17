@@ -74,7 +74,7 @@ public class WebImageBeanHolder extends WebBaseButton implements IDelegate
 			{
 				if (!WebImageBeanHolder.this.getSize().equals(WebImageBeanHolder.this.bean.getSize()))
 				{
-					WebImageBeanHolder.this.getScriptObject().js_setSize(WebImageBeanHolder.this.bean.getWidth(), WebImageBeanHolder.this.bean.getHeight());
+					WebImageBeanHolder.this.getScriptObject().setSize(WebImageBeanHolder.this.bean.getWidth(), WebImageBeanHolder.this.bean.getHeight());
 				}
 			}
 		});

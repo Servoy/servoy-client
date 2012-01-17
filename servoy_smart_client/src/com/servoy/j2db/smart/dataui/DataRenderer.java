@@ -71,11 +71,11 @@ import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
-import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowBGColorScript;
 import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.RenderEventExecutor;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnablePanel;
 import com.servoy.j2db.util.IStyleRule;
@@ -804,7 +804,7 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 	 */
 	public String getOnRenderElementType()
 	{
-		return IScriptBaseMethods.FORM;
+		return IRuntimeComponent.FORM;
 	}
 
 	/*

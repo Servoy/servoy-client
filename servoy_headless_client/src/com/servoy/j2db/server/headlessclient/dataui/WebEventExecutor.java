@@ -78,9 +78,9 @@ import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
-import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.RenderEventExecutor;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
@@ -202,9 +202,9 @@ public class WebEventExecutor extends BaseEventExecutor
 					{
 						if (super.isEnabled(comp))
 						{
-							if (comp instanceof IScriptableProvider && ((IScriptableProvider)comp).getScriptObject() instanceof IScriptBaseMethods)
+							if (comp instanceof IScriptableProvider && ((IScriptableProvider)comp).getScriptObject() instanceof IRuntimeComponent)
 							{
-								Object oe = ((IScriptBaseMethods)((IScriptableProvider)comp).getScriptObject()).js_getClientProperty("ajax.enabled");
+								Object oe = ((IRuntimeComponent)((IScriptableProvider)comp).getScriptObject()).getClientProperty("ajax.enabled");
 								if (oe != null) return Utils.getAsBoolean(oe);
 							}
 							return true;
@@ -265,9 +265,9 @@ public class WebEventExecutor extends BaseEventExecutor
 					{
 						if (super.isEnabled(comp))
 						{
-							if (comp instanceof IScriptableProvider && ((IScriptableProvider)comp).getScriptObject() instanceof IScriptBaseMethods)
+							if (comp instanceof IScriptableProvider && ((IScriptableProvider)comp).getScriptObject() instanceof IRuntimeComponent)
 							{
-								Object oe = ((IScriptBaseMethods)((IScriptableProvider)comp).getScriptObject()).js_getClientProperty("ajax.enabled");
+								Object oe = ((IRuntimeComponent)((IScriptableProvider)comp).getScriptObject()).getClientProperty("ajax.enabled");
 								if (oe != null) return Utils.getAsBoolean(oe);
 							}
 							return true;
@@ -325,9 +325,9 @@ public class WebEventExecutor extends BaseEventExecutor
 					{
 						if (super.isEnabled(comp))
 						{
-							if (comp instanceof IScriptableProvider && ((IScriptableProvider)comp).getScriptObject() instanceof IScriptBaseMethods)
+							if (comp instanceof IScriptableProvider && ((IScriptableProvider)comp).getScriptObject() instanceof IRuntimeComponent)
 							{
-								Object oe = ((IScriptBaseMethods)((IScriptableProvider)comp).getScriptObject()).js_getClientProperty("ajax.enabled"); //$NON-NLS-1$
+								Object oe = ((IRuntimeComponent)((IScriptableProvider)comp).getScriptObject()).getClientProperty("ajax.enabled"); //$NON-NLS-1$
 								if (oe != null) return Utils.getAsBoolean(oe);
 							}
 							return true;

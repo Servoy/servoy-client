@@ -175,14 +175,12 @@ public class WebDataRtfField extends WebDataLabel implements IFieldComponent
 		return Text.processTags(titleText, resolver);
 	}
 
-	public void requestFocus(Object[] vargs)
+	public void requestFocusToComponent()
 	{
-
 	}
 
 	public void setReadOnly(boolean b)
 	{
-
 	}
 
 }

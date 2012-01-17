@@ -33,10 +33,10 @@ import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.ILabel;
-import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.ISupportSecuritySettings;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.PersistHelper;
 
@@ -46,7 +46,7 @@ import com.servoy.j2db.util.PersistHelper;
  * @author lvostinar
  * @since 6.0
  */
-public abstract class AbstractRuntimeBaseComponent<C extends IComponent> implements IScriptable, IScriptBaseMethods, Wrapper
+public abstract class AbstractRuntimeBaseComponent<C extends IComponent> implements IScriptable, IRuntimeComponent, Wrapper
 {
 	private C component;
 	private final IStylePropertyChangesRecorder jsChangeRecorder;
@@ -88,55 +88,55 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 		return jsChangeRecorder;
 	}
 
-	public String js_getBgcolor()
+	public String getBgcolor()
 	{
 		return PersistHelper.createColorString(getComponent().getBackground());
 	}
 
-	public void js_setBgcolor(String clr)
+	public void setBgcolor(String clr)
 	{
 		getComponent().setBackground(PersistHelper.createColor(clr));
 		if (getComponent().isOpaque()) getChangesRecorder().setBgcolor(clr);
 	}
 
-	public String js_getFgcolor()
+	public String getFgcolor()
 	{
 		return PersistHelper.createColorString(getComponent().getForeground());
 	}
 
-	public void js_setFgcolor(String clr)
+	public void setFgcolor(String clr)
 	{
 		getComponent().setForeground(PersistHelper.createColor(clr));
 		getChangesRecorder().setFgcolor(clr);
 	}
 
-	public void js_setFont(String spec)
+	public void setFont(String spec)
 	{
 		getComponent().setFont(PersistHelper.createFont(spec));
 		getChangesRecorder().setFont(spec);
 	}
 
-	public String js_getFont()
+	public String getFont()
 	{
 		return PersistHelper.createFontString(getComponent().getFont());
 	}
 
-	public int js_getWidth()
+	public int getWidth()
 	{
 		return getComponent().getSize().width;
 	}
 
-	public int js_getHeight()
+	public int getHeight()
 	{
 		return getComponent().getSize().height;
 	}
 
-	public boolean js_isVisible()
+	public boolean isVisible()
 	{
 		return getComponent().isVisible();
 	}
 
-	public void js_setVisible(boolean b)
+	public void setVisible(boolean b)
 	{
 		if (!(getComponent() instanceof ISupportSecuritySettings) || ((ISupportSecuritySettings)getComponent()).isViewable())
 		{
@@ -145,12 +145,12 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 		}
 	}
 
-	public boolean js_isTransparent()
+	public boolean isTransparent()
 	{
 		return !getComponent().isOpaque();
 	}
 
-	public void js_setTransparent(boolean b)
+	public void setTransparent(boolean b)
 	{
 		getComponent().setOpaque(!b);
 		getChangesRecorder().setTransparent(b);
@@ -160,17 +160,17 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 		}
 	}
 
-	public void js_setEnabled(final boolean b)
+	public void setEnabled(final boolean b)
 	{
 		getComponent().setComponentEnabled(b);
 	}
 
-	public boolean js_isEnabled()
+	public boolean isEnabled()
 	{
 		return getComponent().isEnabled();
 	}
 
-	public void js_setLocation(int x, int y)
+	public void setLocation(int x, int y)
 	{
 		getComponent().setLocation(new Point(x, y));
 		getChangesRecorder().setLocation(x, y);
@@ -198,7 +198,7 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 		}
 	}
 
-	public String js_getName()
+	public String getName()
 	{
 		String jsName = getComponent().getName();
 		if (jsName != null && jsName.startsWith(ComponentFactory.WEB_ID_PREFIX)) jsName = null;
@@ -206,17 +206,17 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 	}
 
 
-	public int js_getLocationX()
+	public int getLocationX()
 	{
 		return getComponent().getLocation().x;
 	}
 
-	public int js_getLocationY()
+	public int getLocationY()
 	{
 		return getComponent().getLocation().y;
 	}
 
-	public void js_putClientProperty(Object key, Object value)
+	public void putClientProperty(Object key, Object value)
 	{
 		if (clientProperties == null)
 		{
@@ -229,7 +229,7 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 		}
 	}
 
-	public Object js_getClientProperty(Object key)
+	public Object getClientProperty(Object key)
 	{
 		if (getComponent() instanceof JComponent)
 		{
@@ -239,23 +239,23 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 		return clientProperties.get(key);
 	}
 
-	public String js_getBorder()
+	public String getBorder()
 	{
 		return ComponentFactoryHelper.createBorderString(getComponent().getBorder());
 	}
 
-	public void js_setBorder(String spec)
+	public void setBorder(String spec)
 	{
 		getComponent().setBorder(ComponentFactoryHelper.createBorder(spec));
 		getChangesRecorder().setBorder(spec);
 	}
 
-	public String js_getToolTipText()
+	public String getToolTipText()
 	{
 		return getComponent().getToolTipText();
 	}
 
-	public void js_setToolTipText(String tooltip)
+	public void setToolTipText(String tooltip)
 	{
 		getComponent().setToolTipText(tooltip);
 		getChangesRecorder().setChanged();
@@ -280,8 +280,8 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 		{
 			return "ScriptObject (component not yet set): " + getClass(); //$NON-NLS-1$
 		}
-		return js_getElementType() + "[name:" + js_getName() + ",x:" + js_getLocationX() + ",y:" + js_getLocationY() + ",width:" + js_getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + js_getHeight() + (valueString == null ? "" : (',' + valueString)) + ']'; //$NON-NLS-1$ //$NON-NLS-2$ 
+		return getElementType() + "[name:" + getName() + ",x:" + getLocationX() + ",y:" + getLocationY() + ",width:" + getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
+			",height:" + getHeight() + (valueString == null ? "" : (',' + valueString)) + ']'; //$NON-NLS-1$ //$NON-NLS-2$ 
 	}
 
 	@Override

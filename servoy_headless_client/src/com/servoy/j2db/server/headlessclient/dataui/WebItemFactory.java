@@ -35,7 +35,6 @@ import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.Portal;
-import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.ui.IButton;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IFieldComponent;
@@ -238,16 +237,14 @@ public class WebItemFactory implements ItemFactory
 	}
 
 
-	public ITabPanel createTabPanel(RuntimeAccordionPanel scriptable, String name, int orient, boolean oneTab)
+	public ITabPanel createTabPanel(RuntimeTabPanel scriptable, String name, int orient, boolean oneTab)
 	{
-		if (orient == TabPanel.ACCORDION_PANEL)
-		{
-			return new WebAccordionPanel(application, scriptable, name);
-		}
-		else
-		{
-			return new WebTabPanel(application, (RuntimeTabPanel)scriptable, name, orient, oneTab);
-		}
+		return new WebTabPanel(application, scriptable, name, orient, oneTab);
+	}
+
+	public ITabPanel createAccordionPanel(RuntimeAccordionPanel scriptable, String name)
+	{
+		return new WebAccordionPanel(application, scriptable, name);
 	}
 
 	public ISplitPane createSplitPane(RuntimeSplitPane scriptable, String name, int orient)

@@ -923,7 +923,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		return false;
 	}
 
-	public void setTabIndex(int tabIndex)
+	public void setTabSequenceIndex(int tabIndex)
 	{
 		this.tabSequenceIndex = tabIndex;
 	}

@@ -20,6 +20,7 @@ package com.servoy.j2db.ui;
 import java.util.HashMap;
 import java.util.Iterator;
 
+
 /**
  * 
  * Wrapper used for keeping original property values for renderable components
@@ -42,244 +43,166 @@ public class RenderableWrapper implements IScriptRenderMethods
 		this.renderable = renderable;
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getBgcolor()
-	 */
-	public String js_getBgcolor()
+	public String getBgcolor()
 	{
-		return renderable.js_getBgcolor();
+		return renderable.getBgcolor();
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_setBgcolor(java.lang.String)
-	 */
-	public void js_setBgcolor(String clr)
+	public void setBgcolor(String clr)
 	{
 		if (!properties.containsKey(PROPERTY.BGCOLOR))
 		{
-			properties.put(PROPERTY.BGCOLOR, renderable.js_getBgcolor());
+			properties.put(PROPERTY.BGCOLOR, renderable.getBgcolor());
 		}
-		renderable.js_setBgcolor(clr);
+		renderable.setBgcolor(clr);
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getFgcolor()
-	 */
-	public String js_getFgcolor()
+	public String getFgcolor()
 	{
-		return renderable.js_getFgcolor();
+		return renderable.getFgcolor();
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_setFgcolor(java.lang.String)
-	 */
-	public void js_setFgcolor(String clr)
+	public void setFgcolor(String clr)
 	{
 		if (!properties.containsKey(PROPERTY.FGCOLOR))
 		{
-			properties.put(PROPERTY.FGCOLOR, renderable.js_getFgcolor());
+			properties.put(PROPERTY.FGCOLOR, renderable.getFgcolor());
 		}
-		renderable.js_setFgcolor(clr);
+		renderable.setFgcolor(clr);
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_isVisible()
-	 */
-	public boolean js_isVisible()
+	public boolean isVisible()
 	{
-		return renderable.js_isVisible();
+		return renderable.isVisible();
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_setVisible(boolean)
-	 */
-	public void js_setVisible(boolean b)
+	public void setVisible(boolean b)
 	{
 		if (!properties.containsKey(PROPERTY.VISIBLE))
 		{
-			properties.put(PROPERTY.VISIBLE, Boolean.valueOf(renderable.js_isVisible()));
+			properties.put(PROPERTY.VISIBLE, Boolean.valueOf(renderable.isVisible()));
 		}
-		renderable.js_setVisible(b);
+		renderable.setVisible(b);
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_isEnabled()
-	 */
-	public boolean js_isEnabled()
+	public boolean isEnabled()
 	{
-		return renderable.js_isEnabled();
+		return renderable.isEnabled();
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_setEnabled(boolean)
-	 */
-	public void js_setEnabled(boolean b)
+	public void setEnabled(boolean b)
 	{
 		if (!properties.containsKey(PROPERTY.ENABLED))
 		{
-			properties.put(PROPERTY.ENABLED, Boolean.valueOf(renderable.js_isEnabled()));
+			properties.put(PROPERTY.ENABLED, Boolean.valueOf(renderable.isEnabled()));
 		}
-		renderable.js_setEnabled(b);
+		renderable.setEnabled(b);
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getLocationX()
-	 */
-	public int js_getLocationX()
+	public int getLocationX()
 	{
-		return renderable.js_getLocationX();
+		return renderable.getLocationX();
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getLocationY()
-	 */
-	public int js_getLocationY()
+	public int getLocationY()
 	{
-		return renderable.js_getLocationY();
+		return renderable.getLocationY();
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getAbsoluteFormLocationY()
-	 */
-	public int js_getAbsoluteFormLocationY()
+	public int getAbsoluteFormLocationY()
 	{
-		return renderable.js_getAbsoluteFormLocationY();
+		return renderable.getAbsoluteFormLocationY();
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getWidth()
-	 */
-	public int js_getWidth()
+	public int getWidth()
 	{
-		return renderable.js_getWidth();
+		return renderable.getWidth();
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getHeight()
-	 */
-	public int js_getHeight()
+	public int getHeight()
 	{
-		return renderable.js_getHeight();
+		return renderable.getHeight();
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getName()
-	 */
-	public String js_getName()
+	public String getName()
 	{
-		return renderable.js_getName();
+		return renderable.getName();
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getElementType()
-	 */
-	public String js_getElementType()
+	public String getElementType()
 	{
-		return renderable.js_getElementType();
+		return renderable.getElementType();
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_putClientProperty(java.lang.Object, java.lang.Object)
-	 */
-	public void js_putClientProperty(Object key, Object value)
+	public void putClientProperty(Object key, Object value)
 	{
-		renderable.js_putClientProperty(key, value);
+		renderable.putClientProperty(key, value);
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getClientProperty(java.lang.Object)
-	 */
-	public Object js_getClientProperty(Object key)
+	public Object getClientProperty(Object key)
 	{
-		return renderable.js_getClientProperty(key);
+		return renderable.getClientProperty(key);
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getBorder()
-	 */
-	public String js_getBorder()
+	public String getBorder()
 	{
-		return renderable.js_getBorder();
+		return renderable.getBorder();
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_setBorder(java.lang.String)
-	 */
-	public void js_setBorder(String spec)
+	public void setBorder(String spec)
 	{
 		if (!properties.containsKey(PROPERTY.BORDER))
 		{
-			properties.put(PROPERTY.BORDER, renderable.js_getBorder());
+			properties.put(PROPERTY.BORDER, renderable.getBorder());
 		}
-		renderable.js_setBorder(spec);
+		renderable.setBorder(spec);
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getToolTipText()
-	 */
-	public String js_getToolTipText()
+	public String getToolTipText()
 	{
-		return renderable.js_getToolTipText();
+		return renderable.getToolTipText();
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_setToolTipText(java.lang.String)
-	 */
-	public void js_setToolTipText(String tooltip)
+	public void setToolTipText(String tooltip)
 	{
 		if (!properties.containsKey(PROPERTY.TOOLTIP))
 		{
-			properties.put(PROPERTY.TOOLTIP, renderable.js_getToolTipText());
+			properties.put(PROPERTY.TOOLTIP, renderable.getToolTipText());
 		}
-		renderable.js_setToolTipText(tooltip);
+		renderable.setToolTipText(tooltip);
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getFont()
-	 */
-	public String js_getFont()
+	public String getFont()
 	{
-		return renderable.js_getFont();
+		return renderable.getFont();
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_setFont(java.lang.String)
-	 */
-	public void js_setFont(String spec)
+	public void setFont(String spec)
 	{
 		if (!properties.containsKey(PROPERTY.FONT))
 		{
-			properties.put(PROPERTY.FONT, renderable.js_getFont());
+			properties.put(PROPERTY.FONT, renderable.getFont());
 		}
-		renderable.js_setFont(spec);
+		renderable.setFont(spec);
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_isTransparent()
-	 */
-	public boolean js_isTransparent()
+	public boolean isTransparent()
 	{
-		return renderable.js_isTransparent();
+		return renderable.isTransparent();
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_setTransparent(boolean)
-	 */
-	public void js_setTransparent(boolean b)
+	public void setTransparent(boolean b)
 	{
 		if (!properties.containsKey(PROPERTY.TRANSPARENT))
 		{
-			properties.put(PROPERTY.TRANSPARENT, Boolean.valueOf(renderable.js_isTransparent()));
+			properties.put(PROPERTY.TRANSPARENT, Boolean.valueOf(renderable.isTransparent()));
 		}
-		renderable.js_setTransparent(b);
+		renderable.setTransparent(b);
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getDataProviderID()
-	 */
-	public String js_getDataProviderID()
+	public String getDataProviderID()
 	{
-		return renderable.js_getDataProviderID();
+		return renderable.getDataProviderID();
 	}
 
 	public void resetProperties()
@@ -290,28 +213,28 @@ public class RenderableWrapper implements IScriptRenderMethods
 			switch (propertiesIte.next())
 			{
 				case BGCOLOR :
-					renderable.js_setBgcolor((String)properties.get(PROPERTY.BGCOLOR));
+					renderable.setBgcolor((String)properties.get(PROPERTY.BGCOLOR));
 					break;
 				case BORDER :
-					renderable.js_setBorder((String)properties.get(PROPERTY.BORDER));
+					renderable.setBorder((String)properties.get(PROPERTY.BORDER));
 					break;
 				case ENABLED :
-					renderable.js_setEnabled(((Boolean)properties.get(PROPERTY.ENABLED)).booleanValue());
+					renderable.setEnabled(((Boolean)properties.get(PROPERTY.ENABLED)).booleanValue());
 					break;
 				case FGCOLOR :
-					renderable.js_setFgcolor((String)properties.get(PROPERTY.FGCOLOR));
+					renderable.setFgcolor((String)properties.get(PROPERTY.FGCOLOR));
 					break;
 				case FONT :
-					renderable.js_setFont((String)properties.get(PROPERTY.FONT));
+					renderable.setFont((String)properties.get(PROPERTY.FONT));
 					break;
 				case TOOLTIP :
-					renderable.js_setToolTipText((String)properties.get(PROPERTY.TOOLTIP));
+					renderable.setToolTipText((String)properties.get(PROPERTY.TOOLTIP));
 					break;
 				case TRANSPARENT :
-					renderable.js_setTransparent(((Boolean)properties.get(PROPERTY.TRANSPARENT)).booleanValue());
+					renderable.setTransparent(((Boolean)properties.get(PROPERTY.TRANSPARENT)).booleanValue());
 					break;
 				case VISIBLE :
-					renderable.js_setVisible(((Boolean)properties.get(PROPERTY.VISIBLE)).booleanValue());
+					renderable.setVisible(((Boolean)properties.get(PROPERTY.VISIBLE)).booleanValue());
 					break;
 			}
 		}

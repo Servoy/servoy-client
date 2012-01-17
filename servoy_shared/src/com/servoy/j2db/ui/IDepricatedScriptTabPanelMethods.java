@@ -16,15 +16,14 @@
  */
 package com.servoy.j2db.ui;
 
-import com.servoy.j2db.documentation.ServoyDocumented;
-
 
 /**
+ * Deprecated tabpanel scriptings methods.
+ * 
  * @author jcompagner
  * 
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeTabPanel", extendsComponent = "RuntimeComponent")
-public interface IDepricatedScriptTabPanelMethods extends IScriptTabPanelMethods
+public interface IDepricatedScriptTabPanelMethods
 {
 
 	/**

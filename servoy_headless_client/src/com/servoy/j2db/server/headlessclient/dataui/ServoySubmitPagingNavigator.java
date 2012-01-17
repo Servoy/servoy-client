@@ -45,7 +45,7 @@ public class ServoySubmitPagingNavigator extends PagingNavigator implements ISup
 		super(id, pageable);
 	}
 
-	public void setTabIndex(int i)
+	public void setTabSequenceIndex(int i)
 	{
 		this.tabIndex = i;
 	}

@@ -21,9 +21,9 @@ import javax.swing.JComponent;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IFieldComponent;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptListBoxMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
+import com.servoy.j2db.ui.runtime.IRuntimeListBox;
 
 /**
  * Scriptable runtime listbox component.
@@ -31,7 +31,7 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
  * @author lvostinar
  *	@since 6.1
  */
-public class RuntimeListBox extends AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent> implements IScriptListBoxMethods
+public class RuntimeListBox extends AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent> implements IRuntimeListBox
 {
 	private final boolean multiSelection;
 
@@ -41,8 +41,8 @@ public class RuntimeListBox extends AbstractRuntimeScrollableValuelistComponent<
 		this.multiSelection = multiSelection;
 	}
 
-	public String js_getElementType()
+	public String getElementType()
 	{
-		return multiSelection ? IScriptBaseMethods.MULTI_SELECTION_LIST_BOX : IScriptBaseMethods.LIST_BOX;
+		return multiSelection ? IRuntimeComponent.MULTI_SELECTION_LIST_BOX : IRuntimeComponent.LIST_BOX;
 	}
 }

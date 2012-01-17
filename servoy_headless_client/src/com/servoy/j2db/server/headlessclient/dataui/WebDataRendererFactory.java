@@ -418,7 +418,7 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 	private int goDownTabPanel(WebTabPanel wtp, int goodTabIndex)
 	{
 		int localTabIndex = goodTabIndex;
-		wtp.setTabIndex(goodTabIndex >= 0 ? localTabIndex++ : ISupportWebTabSeq.SKIP);
+		wtp.setTabSequenceIndex(goodTabIndex >= 0 ? localTabIndex++ : ISupportWebTabSeq.SKIP);
 		TabIndexHelper.setUpTabIndexAttributeModifier(wtp, ISupportWebTabSeq.SKIP);
 		Iterator it = wtp.iterator();
 		while (it.hasNext())
@@ -444,7 +444,7 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 			else if (oo instanceof WebCellBasedView)
 			{
 				WebCellBasedView tableView = (WebCellBasedView)oo;
-				tableView.setTabIndex(goodTabIndex >= 0 ? localTabIndex : ISupportWebTabSeq.SKIP);
+				tableView.setTabSequenceIndex(goodTabIndex >= 0 ? localTabIndex : ISupportWebTabSeq.SKIP);
 				localTabIndex += WebForm.SEQUENCE_RANGE_TABLE;
 				TabIndexHelper.setUpTabIndexAttributeModifier(oo, ISupportWebTabSeq.SKIP);
 			}
@@ -493,7 +493,7 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 				else if (comp instanceof WebCellBasedView)
 				{
 					WebCellBasedView tableView = (WebCellBasedView)comp;
-					tableView.setTabIndex(delta >= 0 ? counter : ISupportWebTabSeq.SKIP);
+					tableView.setTabSequenceIndex(delta >= 0 ? counter : ISupportWebTabSeq.SKIP);
 					counter += WebForm.SEQUENCE_RANGE_TABLE;
 					TabIndexHelper.setUpTabIndexAttributeModifier(comp, ISupportWebTabSeq.SKIP);
 				}

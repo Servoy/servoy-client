@@ -20,12 +20,14 @@ package com.servoy.j2db.ui.scripting;
 import javax.swing.JSplitPane;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IForm;
+import com.servoy.j2db.dataprocessing.IFoundSet;
 import com.servoy.j2db.scripting.FormScope;
-import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptSplitPaneMethods;
 import com.servoy.j2db.ui.ISplitPane;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.ISupportReadOnly;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 
 /**
  * Scriptable split pane.
@@ -40,22 +42,22 @@ public class RuntimeSplitPane extends AbstractRuntimeFormContainer<ISplitPane, J
 		super(jsChangeRecorder, application);
 	}
 
-	public String js_getElementType()
+	public String getElementType()
 	{
-		return IScriptBaseMethods.SPLITPANE;
+		return IRuntimeComponent.SPLITPANE;
 	}
 
 	@Override
-	public void js_putClientProperty(Object key, Object value)
+	public void putClientProperty(Object key, Object value)
 	{
-		super.js_putClientProperty(key, value);
+		super.putClientProperty(key, value);
 		if (enclosingComponent != null)
 		{
 			enclosingComponent.putClientProperty(key, value);
 		}
 	}
 
-	public void js_setReadOnly(boolean b)
+	public void setReadOnly(boolean b)
 	{
 		if (enclosingComponent instanceof ISupportReadOnly)
 		{
@@ -68,7 +70,7 @@ public class RuntimeSplitPane extends AbstractRuntimeFormContainer<ISplitPane, J
 		getChangesRecorder().setChanged();
 	}
 
-	public int js_getAbsoluteFormLocationY()
+	public int getAbsoluteFormLocationY()
 	{
 		return getComponent().getAbsoluteFormLocationY();
 	}
@@ -86,6 +88,21 @@ public class RuntimeSplitPane extends AbstractRuntimeFormContainer<ISplitPane, J
 	public boolean js_setLeftForm(Object form)
 	{
 		return js_setLeftForm(form, null);
+	}
+
+	public boolean setLeftForm(String formName)
+	{
+		return js_setLeftForm(formName);
+	}
+
+	public boolean setLeftForm(String formName, String relationName)
+	{
+		return js_setLeftForm(formName, relationName);
+	}
+
+	public boolean setLeftForm(String formName, IFoundSet relatedFoundSet)
+	{
+		return js_setLeftForm(formName, relatedFoundSet);
 	}
 
 	public boolean js_setRightForm(Object form, Object relation)
@@ -108,72 +125,99 @@ public class RuntimeSplitPane extends AbstractRuntimeFormContainer<ISplitPane, J
 		return getComponent().getForm(true);
 	}
 
+	public IForm getLeftForm()
+	{
+		FormScope left = js_getLeftForm();
+		return left == null ? null : left.getFormController();
+	}
+
 	public FormScope js_getRightForm()
 	{
 		return getComponent().getForm(false);
 	}
 
-	public void js_setResizeWeight(double resizeWeight)
+	public IForm getRightForm()
+	{
+		FormScope right = js_getRightForm();
+		return right == null ? null : right.getFormController();
+	}
+
+	public boolean setRightForm(String formName)
+	{
+		return js_setRightForm(formName);
+	}
+
+	public boolean setRightForm(String formName, String relationName)
+	{
+		return js_setRightForm(formName, relationName);
+	}
+
+	public boolean setRightForm(String formName, IFoundSet relatedFoundSet)
+	{
+		return js_setRightForm(formName, relatedFoundSet);
+	}
+
+	public void setResizeWeight(double resizeWeight)
 	{
 		getComponent().setResizeWeight(resizeWeight);
 		getChangesRecorder().setChanged();
 	}
 
-	public double js_getDividerLocation()
+	public double getDividerLocation()
 	{
 		return getComponent().getDividerLocation();
 	}
 
-	public void js_setDividerLocation(double location)
+	public void setDividerLocation(double location)
 	{
 		getComponent().setRuntimeDividerLocation(location);
 		getChangesRecorder().setChanged();
 	}
 
-	public int js_getDividerSize()
+	public int getDividerSize()
 	{
 		return getComponent().getDividerSize();
 	}
 
-	public void js_setDividerSize(int size)
+	public void setDividerSize(int size)
 	{
 		getComponent().setDividerSize(size);
 		getChangesRecorder().setChanged();
 	}
 
-	public double js_getResizeWeight()
+	public double getResizeWeight()
 	{
 		return getComponent().getResizeWeight();
 	}
 
-	public boolean js_getContinuousLayout()
+	public boolean getContinuousLayout()
 	{
 		return getComponent().getContinuousLayout();
 	}
 
-	public void js_setContinuousLayout(boolean b)
+	public void setContinuousLayout(boolean b)
 	{
 		getComponent().setContinuousLayout(b);
 		getChangesRecorder().setChanged();
 	}
 
-	public int js_getRightFormMinSize()
+	public int getRightFormMinSize()
 	{
 		return getComponent().getFormMinSize(false);
 	}
 
-	public void js_setRightFormMinSize(int minSize)
+	public void setRightFormMinSize(int minSize)
 	{
 		getComponent().setFormMinSize(false, minSize);
 		getChangesRecorder().setChanged();
 	}
 
-	public int js_getLeftFormMinSize()
+	public int getLeftFormMinSize()
 	{
 		return getComponent().getFormMinSize(true);
 	}
 
-	public void js_setLeftFormMinSize(int minSize)
+	public void setLeftFormMinSize(int minSize)
 	{
 		getComponent().setFormMinSize(true, minSize);
 		getChangesRecorder().setChanged();

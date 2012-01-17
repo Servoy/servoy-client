@@ -18,9 +18,9 @@
 package com.servoy.j2db.ui.scripting;
 
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.ui.IDepricatedScriptTabPanelMethods;
-import com.servoy.j2db.ui.IScriptBaseMethods;
+import com.servoy.j2db.ui.IScriptTabPanelMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.util.ITabPaneAlike;
 import com.servoy.j2db.util.PersistHelper;
 
@@ -30,7 +30,7 @@ import com.servoy.j2db.util.PersistHelper;
  * @author lvostinar
  * @since 6.0
  */
-public class RuntimeTabPanel extends RuntimeAccordionPanel implements IDepricatedScriptTabPanelMethods
+public class RuntimeTabPanel extends AbstractRuntimeTabPaneAlike implements IScriptTabPanelMethods
 {
 	public RuntimeTabPanel(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
@@ -38,9 +38,9 @@ public class RuntimeTabPanel extends RuntimeAccordionPanel implements IDepricate
 	}
 
 	@Override
-	public String js_getElementType()
+	public String getElementType()
 	{
-		return IScriptBaseMethods.TABPANEL;
+		return IRuntimeComponent.TABPANEL;
 	}
 
 	@Deprecated

@@ -30,12 +30,12 @@ import javax.swing.text.JTextComponent;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IFieldComponent;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptFieldMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.ISupportEditProvider;
 import com.servoy.j2db.ui.ISupportFormatter;
 import com.servoy.j2db.ui.ISupportInputSelection;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
+import com.servoy.j2db.ui.runtime.IRuntimeTextField;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 
@@ -45,14 +45,14 @@ import com.servoy.j2db.util.Debug;
  * @author lvostinar
  * @since 6.0
  */
-public class RuntimeDataField extends AbstractRuntimeFormattedValuelistComponent<IFieldComponent> implements IScriptFieldMethods
+public class RuntimeDataField extends AbstractRuntimeFormattedValuelistComponent<IFieldComponent> implements IRuntimeTextField
 {
 	public RuntimeDataField(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
 		super(jsChangeRecorder, application);
 	}
 
-	public int js_getCaretPosition()
+	public int getCaretPosition()
 	{
 		if (getComponent() instanceof JTextComponent)
 		{
@@ -61,7 +61,7 @@ public class RuntimeDataField extends AbstractRuntimeFormattedValuelistComponent
 		return 0;
 	}
 
-	public void js_setCaretPosition(int pos)
+	public void setCaretPosition(int pos)
 	{
 		if (getComponent() instanceof JTextComponent)
 		{
@@ -78,12 +78,12 @@ public class RuntimeDataField extends AbstractRuntimeFormattedValuelistComponent
 		}
 	}
 
-	public String js_getElementType()
+	public String getElementType()
 	{
-		return IScriptBaseMethods.TEXT_FIELD;
+		return IRuntimeComponent.TEXT_FIELD;
 	}
 
-	public String js_getSelectedText()
+	public String getSelectedText()
 	{
 		if (getComponent() instanceof JTextComponent)
 		{
@@ -92,7 +92,7 @@ public class RuntimeDataField extends AbstractRuntimeFormattedValuelistComponent
 		return null;
 	}
 
-	public void js_selectAll()
+	public void selectAll()
 	{
 		if (getComponent() instanceof JTextComponent)
 		{
@@ -104,7 +104,7 @@ public class RuntimeDataField extends AbstractRuntimeFormattedValuelistComponent
 		}
 	}
 
-	public void js_replaceSelectedText(String s)
+	public void replaceSelectedText(String s)
 	{
 		if (getComponent() instanceof JFormattedTextField)
 		{
@@ -140,7 +140,7 @@ public class RuntimeDataField extends AbstractRuntimeFormattedValuelistComponent
 	}
 
 	@Override
-	public void js_setBorder(String spec)
+	public void setBorder(String spec)
 	{
 		Border border = ComponentFactoryHelper.createBorder(spec);
 		Border oldBorder = getComponent().getBorder();

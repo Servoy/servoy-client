@@ -20,8 +20,8 @@ package com.servoy.j2db.ui.scripting;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.ui.IButton;
-import com.servoy.j2db.ui.IScriptDataButtonMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
+import com.servoy.j2db.ui.runtime.IRuntimeDataButton;
 
 /**
  * Scriptable data (can have dataprovider) button.
@@ -29,7 +29,7 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
  * @author lvostinar
  * @since 6.0
  */
-public class RuntimeDataButton extends AbstractRuntimeButton<IButton> implements IScriptDataButtonMethods
+public class RuntimeDataButton extends AbstractRuntimeButton<IButton> implements IRuntimeDataButton
 {
 	public RuntimeDataButton(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
@@ -37,7 +37,7 @@ public class RuntimeDataButton extends AbstractRuntimeButton<IButton> implements
 	}
 
 	@Override
-	public String js_getDataProviderID()
+	public String getDataProviderID()
 	{
 		return getComponent() instanceof IDisplayData ? ((IDisplayData)getComponent()).getDataProviderID() : null;
 	}

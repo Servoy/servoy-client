@@ -18,7 +18,9 @@ package com.servoy.j2db.ui;
 
 import java.awt.Color;
 
+import com.servoy.j2db.IForm;
 import com.servoy.j2db.IScriptExecuter;
+import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.scripting.IScriptableProvider;
 
 /**
@@ -50,7 +52,8 @@ public interface ITabPanel extends IComponent, IScriptableProvider
 
 	boolean removeAllTabs();
 
-	boolean addTab(Object form, String name, String text, String tooltip, String iconURL, String fg, String bg, Object relation, int index, boolean readOnly);
+	boolean addTab(IForm formController, String formName, String tabname, String tabText, String tooltip, String iconURL, String fg, String bg,
+		String relationName, RelatedFoundSet relatedFs, int tabIndex);
 
 	int getAbsoluteFormLocationY();
 
@@ -64,11 +67,13 @@ public interface ITabPanel extends IComponent, IScriptableProvider
 
 	public String getTabFormNameAt(int i);
 
-	public void setTabIndex(Object arg);
+	public void setTabIndex(int index);
+
+	public void setTabIndex(String name);
 
 	public boolean isTabEnabledAt(int index);
 
-	public Object getTabIndex();
+	public int getTabIndex();
 
 	public int getMaxTabIndex();
 

@@ -18,15 +18,16 @@
 package com.servoy.j2db.ui;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.ui.runtime.IRuntimeAccordionPanel;
 
 /**
- * Interface for scriptable methods of accordion panel component.
+ * Scripting interface for RuntimeAccordionPanel.
+ * Combines (deprecated) script methods and java api ({@link IRuntimeAccordionPanel});
  * 
  * @author lvostinar
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeAccordionPanel", extendsComponent = "RuntimeComponent")
-public interface IScriptAccordionPanelMethods extends IScriptTabPanelMethods
+public interface IScriptAccordionPanelMethods extends IRuntimeAccordionPanel, IScriptTabPaneAlikeMethods
 {
-
 }

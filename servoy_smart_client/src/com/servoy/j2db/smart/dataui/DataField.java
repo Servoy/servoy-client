@@ -1770,7 +1770,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 	//_____________________________________________________________
 
-	public void requestFocus(final Object[] vargs)
+	public void requestFocusToComponent()
 	{
 //		if (!hasFocus()) Don't test on hasFocus (it can have focus,but other component already did requestFocus)
 		{
@@ -1781,10 +1781,6 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 				{
 					public void run()
 					{
-						if (vargs != null && vargs.length >= 1 && !Utils.getAsBoolean(vargs[0]))
-						{
-							eventExecutor.skipNextFocusGain();
-						}
 						requestFocus();
 					}
 				});

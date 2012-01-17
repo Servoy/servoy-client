@@ -23,7 +23,11 @@ import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
-import com.servoy.j2db.ui.scripting.IRuntimeFormatComponent;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
+import com.servoy.j2db.ui.runtime.IRuntimeComponentWithReadonlySupport;
+import com.servoy.j2db.ui.runtime.IRuntimeLabelComponent;
+import com.servoy.j2db.ui.runtime.IRuntimeTabPaneAlike;
+import com.servoy.j2db.ui.scripting.IFormatScriptComponent;
 
 /**
  * @author jblok
@@ -118,42 +122,42 @@ public class PropertyCopy
 			IScriptable source = ((IScriptableProvider)org).getScriptObject();
 			IScriptable destination = ((IScriptableProvider)copy).getScriptObject();
 
-			if (source instanceof IRuntimeFormatComponent && destination instanceof IRuntimeFormatComponent)
+			if (source instanceof IFormatScriptComponent && destination instanceof IFormatScriptComponent)
 			{
-				((IRuntimeFormatComponent)destination).setComponentFormat(((IRuntimeFormatComponent)source).getComponentFormat());
+				((IFormatScriptComponent)destination).setComponentFormat(((IFormatScriptComponent)source).getComponentFormat());
 			}
 
 			//should we use another interface here for readonly set/get?
-			if (source instanceof IScriptReadOnlyMethods && destination instanceof IScriptReadOnlyMethods)
+			if (source instanceof IRuntimeComponentWithReadonlySupport && destination instanceof IRuntimeComponentWithReadonlySupport)
 			{
-				((IScriptReadOnlyMethods)destination).js_setReadOnly(((IScriptReadOnlyMethods)source).js_isReadOnly());
+				((IRuntimeComponentWithReadonlySupport)destination).setReadOnly(((IRuntimeComponentWithReadonlySupport)source).isReadOnly());
 			}
 
-			if (source instanceof IScriptBaseMethods && destination instanceof IScriptBaseMethods)
+			if (source instanceof IRuntimeComponent && destination instanceof IRuntimeComponent)
 			{
-				((IScriptBaseMethods)destination).js_setVisible(((IScriptBaseMethods)source).js_isVisible());
+				((IRuntimeComponent)destination).setVisible(((IRuntimeComponent)source).isVisible());
 			}
 
-			if (source instanceof IScriptLabelMethods && destination instanceof IScriptLabelMethods)
+			if (source instanceof IRuntimeLabelComponent && destination instanceof IRuntimeLabelComponent)
 			{
-				String imageURL = ((IScriptLabelMethods)source).js_getImageURL();
+				String imageURL = ((IRuntimeLabelComponent)source).getImageURL();
 				if (imageURL != null)
 				{
 					//only copy if explicitly set with a url
-					((IScriptLabelMethods)destination).js_setImageURL(imageURL);
+					((IRuntimeLabelComponent)destination).setImageURL(imageURL);
 				}
-				String rolloverImageURL = ((IScriptLabelMethods)source).js_getRolloverImageURL();
+				String rolloverImageURL = ((IRuntimeLabelComponent)source).getRolloverImageURL();
 				if (rolloverImageURL != null)
 				{
 					//only copy if explicitly set with a url
-					((IScriptLabelMethods)destination).js_setRolloverImageURL(rolloverImageURL);
+					((IRuntimeLabelComponent)destination).setRolloverImageURL(rolloverImageURL);
 				}
 			}
 
-			if (source instanceof IScriptTabPanelMethods && destination instanceof IScriptTabPanelMethods)
+			if (source instanceof IRuntimeTabPaneAlike && destination instanceof IRuntimeTabPaneAlike)
 			{
 				// keep active tab when printing
-				((IScriptTabPanelMethods)destination).js_setTabIndex(((IScriptTabPanelMethods)source).js_getTabIndex());
+				((IRuntimeTabPaneAlike)destination).setTabIndex(((IRuntimeTabPaneAlike)source).getTabIndex());
 			}
 		}
 
@@ -162,6 +166,5 @@ public class PropertyCopy
 			((IProviderStylePropertyChanges)copy).getStylePropertyChanges().setChanges(
 				((IProviderStylePropertyChanges)org).getStylePropertyChanges().getChanges());
 		}
-
 	}
 }

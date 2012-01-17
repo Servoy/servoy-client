@@ -37,7 +37,7 @@ public class RuntimeDataLabel extends AbstractHTMLSubmitRuntimeLabel<ILabel> imp
 	}
 
 	@Override
-	public String js_getDataProviderID()
+	public String getDataProviderID()
 	{
 		return getComponent() instanceof IDisplayData ? ((IDisplayData)getComponent()).getDataProviderID() : null;
 	}

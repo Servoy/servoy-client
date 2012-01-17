@@ -23,6 +23,7 @@ import com.servoy.j2db.dataprocessing.IFoundSet;
 import com.servoy.j2db.persistence.ContentSpec;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.ui.IFormUI;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.util.ServoyException;
 
 /**
@@ -214,9 +215,24 @@ public interface IForm
 
 
 	/**
+	 * Gets the read-only state of a form; also known as "editable".
+	 * Note: The field(s) in a form set as read-only can be selected and the field data can be copied to clipboard. 
+	 * 
+	 * @since 6.1
+	 */
+	public boolean isReadOnly();
+
+	/**
 	 * @return the ui component of this form.
 	 * 
 	 * @since 6.1
 	 */
 	public IFormUI getFormUI();
+
+	/**
+	 * @return the elements of this form.
+	 * 
+	 * @since 6.1
+	 */
+	public IRuntimeComponent[] getElements();
 }

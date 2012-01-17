@@ -23,10 +23,10 @@ import javax.swing.JComponent;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IFieldComponent;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptDataComboboxMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
+import com.servoy.j2db.ui.runtime.IRuntimeCombobox;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 
 /**
  * Scriptable combobox component.
@@ -34,20 +34,20 @@ import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
  * @author lvostinar
  * @since 6.0
  */
-public class RuntimeDataCombobox extends AbstractRuntimeFormattedValuelistComponent<IFieldComponent> implements IScriptDataComboboxMethods
+public class RuntimeDataCombobox extends AbstractRuntimeFormattedValuelistComponent<IFieldComponent> implements IRuntimeCombobox
 {
 	public RuntimeDataCombobox(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
 		super(jsChangeRecorder, application);
 	}
 
-	public String js_getElementType()
+	public String getElementType()
 	{
-		return IScriptBaseMethods.COMBOBOX;
+		return IRuntimeComponent.COMBOBOX;
 	}
 
 	@Override
-	public void js_setSize(int x, int y)
+	public void setSize(int x, int y)
 	{
 		if (getComponent() instanceof ISupportCachedLocationAndSize)
 		{

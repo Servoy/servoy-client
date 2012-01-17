@@ -25,8 +25,8 @@ import javax.swing.JComponent;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IFieldComponent;
-import com.servoy.j2db.ui.IScriptScrollableMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
+import com.servoy.j2db.ui.runtime.IRuntimeScrollableComponent;
 import com.servoy.j2db.util.model.ComboModelListModelWrapper;
 
 /**
@@ -36,7 +36,7 @@ import com.servoy.j2db.util.model.ComboModelListModelWrapper;
  * @since 6.0
  */
 public abstract class AbstractRuntimeScrollableValuelistComponent<C extends IFieldComponent, F extends JComponent> extends AbstractRuntimeValuelistComponent<C>
-	implements IScriptScrollableMethods
+	implements IRuntimeScrollableComponent
 {
 	protected F field;
 	protected ComboModelListModelWrapper list;
@@ -62,7 +62,7 @@ public abstract class AbstractRuntimeScrollableValuelistComponent<C extends IFie
 		this.list = list;
 	}
 
-	public void js_setScroll(int x, int y)
+	public void setScroll(int x, int y)
 	{
 		if (field != null)
 		{
@@ -70,7 +70,7 @@ public abstract class AbstractRuntimeScrollableValuelistComponent<C extends IFie
 		}
 	}
 
-	public int js_getScrollX()
+	public int getScrollX()
 	{
 		if (field != null)
 		{
@@ -79,7 +79,7 @@ public abstract class AbstractRuntimeScrollableValuelistComponent<C extends IFie
 		return 0;
 	}
 
-	public int js_getScrollY()
+	public int getScrollY()
 	{
 		if (field != null)
 		{
@@ -88,7 +88,7 @@ public abstract class AbstractRuntimeScrollableValuelistComponent<C extends IFie
 		return 0;
 	}
 
-	public Object[] js_getSelectedElements()
+	public Object[] getSelectedElements()
 	{
 		Set rows = list.getSelectedRows();
 		if (rows != null)

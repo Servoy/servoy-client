@@ -1618,14 +1618,10 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 	 * _____________________________________________________________ Methods for javascript
 	 */
 
-	public void requestFocus(Object[] vargs)
+	public void requestFocusToComponent()
 	{
 //		if (!hasFocus()) Don't test on hasFocus (it can have focus,but other component already did requestFocus)
 		{
-			if (vargs != null && vargs.length >= 1 && !Utils.getAsBoolean(vargs[0]))
-			{
-				eventExecutor.skipNextFocusGain();
-			}
 			if (isDisplayable())
 			{
 				// Must do it in a runnable or else others after a script can get focus first again..

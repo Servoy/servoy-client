@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptReadOnlyMethods;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
+import com.servoy.j2db.ui.runtime.IRuntimeComponentWithReadonlySupport;
 
 /**
  * Script object for a group of scriptables, delegates a fixed list of properties to all the enclosed scriptables.
@@ -33,13 +33,13 @@ import com.servoy.j2db.ui.IScriptReadOnlyMethods;
  * @since 5.0
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class RuntimeGroup implements IScriptReadOnlyMethods
+public class RuntimeGroup implements IRuntimeComponentWithReadonlySupport
 {
 	private static final Rectangle NO_BOUNDS = new Rectangle(0, 0, 0, 0);
 
 	private final String name;
 
-	private final List<IScriptBaseMethods> scriptBaseObjects = new ArrayList<IScriptBaseMethods>();
+	private final List<IRuntimeComponent> scriptBaseObjects = new ArrayList<IRuntimeComponent>();
 
 	/**
 	 * @param name 
@@ -50,27 +50,27 @@ public class RuntimeGroup implements IScriptReadOnlyMethods
 		this.name = name;
 	}
 
-	public String js_getElementType()
+	public String getElementType()
 	{
-		return IScriptBaseMethods.GROUP;
+		return IRuntimeComponent.GROUP;
 	}
 
-	public void addScriptBaseMethodsObj(IScriptBaseMethods baseMethodsObj)
+	public void addScriptBaseMethodsObj(IRuntimeComponent baseMethodsObj)
 	{
 		scriptBaseObjects.add(baseMethodsObj);
 	}
 
-	public String js_getName()
+	public String getName()
 	{
 		return name;
 	}
 
-	public boolean js_isVisible()
+	public boolean isVisible()
 	{
 		// if 1 element is visible, the group is visible
-		for (IScriptBaseMethods obj : scriptBaseObjects)
+		for (IRuntimeComponent obj : scriptBaseObjects)
 		{
-			if (obj.js_isVisible())
+			if (obj.isVisible())
 			{
 				return true;
 			}
@@ -79,20 +79,20 @@ public class RuntimeGroup implements IScriptReadOnlyMethods
 		return false;
 	}
 
-	public void js_setVisible(boolean b)
+	public void setVisible(boolean b)
 	{
-		for (IScriptBaseMethods obj : scriptBaseObjects)
+		for (IRuntimeComponent obj : scriptBaseObjects)
 		{
-			obj.js_setVisible(b);
+			obj.setVisible(b);
 		}
 	}
 
-	public boolean js_isEnabled()
+	public boolean isEnabled()
 	{
 		// if 1 element is enabled, the group is enabled
-		for (IScriptBaseMethods obj : scriptBaseObjects)
+		for (IRuntimeComponent obj : scriptBaseObjects)
 		{
-			if (obj.js_isEnabled())
+			if (obj.isEnabled())
 			{
 				return true;
 			}
@@ -101,19 +101,19 @@ public class RuntimeGroup implements IScriptReadOnlyMethods
 		return false;
 	}
 
-	public void js_setEnabled(boolean b)
+	public void setEnabled(boolean b)
 	{
-		for (IScriptBaseMethods obj : scriptBaseObjects)
+		for (IRuntimeComponent obj : scriptBaseObjects)
 		{
-			obj.js_setEnabled(b);
+			obj.setEnabled(b);
 		}
 	}
 
-	public String js_getBgcolor()
+	public String getBgcolor()
 	{
-		for (IScriptBaseMethods obj : scriptBaseObjects)
+		for (IRuntimeComponent obj : scriptBaseObjects)
 		{
-			String clr = obj.js_getBgcolor();
+			String clr = obj.getBgcolor();
 			if (clr != null)
 			{
 				return clr;
@@ -122,19 +122,19 @@ public class RuntimeGroup implements IScriptReadOnlyMethods
 		return null;
 	}
 
-	public void js_setBgcolor(String clr)
+	public void setBgcolor(String clr)
 	{
-		for (IScriptBaseMethods obj : scriptBaseObjects)
+		for (IRuntimeComponent obj : scriptBaseObjects)
 		{
-			obj.js_setBgcolor(clr);
+			obj.setBgcolor(clr);
 		}
 	}
 
-	public String js_getFgcolor()
+	public String getFgcolor()
 	{
-		for (IScriptBaseMethods obj : scriptBaseObjects)
+		for (IRuntimeComponent obj : scriptBaseObjects)
 		{
-			String clr = obj.js_getFgcolor();
+			String clr = obj.getFgcolor();
 			if (clr != null)
 			{
 				return clr;
@@ -143,19 +143,19 @@ public class RuntimeGroup implements IScriptReadOnlyMethods
 		return null;
 	}
 
-	public void js_setFgcolor(String clr)
+	public void setFgcolor(String clr)
 	{
-		for (IScriptBaseMethods obj : scriptBaseObjects)
+		for (IRuntimeComponent obj : scriptBaseObjects)
 		{
-			obj.js_setFgcolor(clr);
+			obj.setFgcolor(clr);
 		}
 	}
 
-	public String js_getBorder()
+	public String getBorder()
 	{
-		for (IScriptBaseMethods obj : scriptBaseObjects)
+		for (IRuntimeComponent obj : scriptBaseObjects)
 		{
-			String spec = obj.js_getBorder();
+			String spec = obj.getBorder();
 			if (spec != null)
 			{
 				return spec;
@@ -164,39 +164,39 @@ public class RuntimeGroup implements IScriptReadOnlyMethods
 		return null;
 	}
 
-	public void js_setBorder(String spec)
+	public void setBorder(String spec)
 	{
 
-		for (IScriptBaseMethods obj : scriptBaseObjects)
+		for (IRuntimeComponent obj : scriptBaseObjects)
 		{
-			obj.js_setBorder(spec);
+			obj.setBorder(spec);
 		}
 	}
 
-	public int js_getAbsoluteFormLocationY()
+	public int getAbsoluteFormLocationY()
 	{
 		int y = -1;
-		for (IScriptBaseMethods obj : scriptBaseObjects)
+		for (IRuntimeComponent obj : scriptBaseObjects)
 		{
-			y = Math.min(y == -1 ? Integer.MAX_VALUE : y, obj.js_getAbsoluteFormLocationY());
+			y = Math.min(y == -1 ? Integer.MAX_VALUE : y, obj.getAbsoluteFormLocationY());
 		}
 
 		return y;
 	}
 
-	public void js_putClientProperty(Object key, Object value)
+	public void putClientProperty(Object key, Object value)
 	{
-		for (IScriptBaseMethods obj : scriptBaseObjects)
+		for (IRuntimeComponent obj : scriptBaseObjects)
 		{
-			obj.js_putClientProperty(key, value);
+			obj.putClientProperty(key, value);
 		}
 	}
 
-	public Object js_getClientProperty(Object key)
+	public Object getClientProperty(Object key)
 	{
-		for (IScriptBaseMethods obj : scriptBaseObjects)
+		for (IRuntimeComponent obj : scriptBaseObjects)
 		{
-			Object value = obj.js_getClientProperty(key);
+			Object value = obj.getClientProperty(key);
 			if (value != null)
 			{
 				return value;
@@ -205,19 +205,19 @@ public class RuntimeGroup implements IScriptReadOnlyMethods
 		return null;
 	}
 
-	public void js_setToolTipText(String tooltip)
+	public void setToolTipText(String tooltip)
 	{
-		for (IScriptBaseMethods obj : scriptBaseObjects)
+		for (IRuntimeComponent obj : scriptBaseObjects)
 		{
-			obj.js_setToolTipText(tooltip);
+			obj.setToolTipText(tooltip);
 		}
 	}
 
-	public String js_getToolTipText()
+	public String getToolTipText()
 	{
-		for (IScriptBaseMethods obj : scriptBaseObjects)
+		for (IRuntimeComponent obj : scriptBaseObjects)
 		{
-			String tooltip = obj.js_getToolTipText();
+			String tooltip = obj.getToolTipText();
 			if (tooltip != null)
 			{
 				return tooltip;
@@ -226,19 +226,19 @@ public class RuntimeGroup implements IScriptReadOnlyMethods
 		return null;
 	}
 
-	public void js_setFont(String spec)
+	public void setFont(String spec)
 	{
-		for (IScriptBaseMethods obj : scriptBaseObjects)
+		for (IRuntimeComponent obj : scriptBaseObjects)
 		{
-			obj.js_setFont(spec);
+			obj.setFont(spec);
 		}
 	}
 
-	public String js_getFont()
+	public String getFont()
 	{
-		for (IScriptBaseMethods obj : scriptBaseObjects)
+		for (IRuntimeComponent obj : scriptBaseObjects)
 		{
-			String spec = obj.js_getFont();
+			String spec = obj.getFont();
 			if (spec != null)
 			{
 				return spec;
@@ -247,11 +247,11 @@ public class RuntimeGroup implements IScriptReadOnlyMethods
 		return null;
 	}
 
-	public boolean js_isTransparent()
+	public boolean isTransparent()
 	{
-		for (IScriptBaseMethods obj : scriptBaseObjects)
+		for (IRuntimeComponent obj : scriptBaseObjects)
 		{
-			if (!obj.js_isTransparent())
+			if (!obj.isTransparent())
 			{
 				return false;
 			}
@@ -259,20 +259,20 @@ public class RuntimeGroup implements IScriptReadOnlyMethods
 		return true;
 	}
 
-	public void js_setTransparent(boolean b)
+	public void setTransparent(boolean b)
 	{
-		for (IScriptBaseMethods obj : scriptBaseObjects)
+		for (IRuntimeComponent obj : scriptBaseObjects)
 		{
-			obj.js_setTransparent(b);
+			obj.setTransparent(b);
 		}
 	}
 
-	public boolean js_isReadOnly()
+	public boolean isReadOnly()
 	{
 
-		for (IScriptBaseMethods obj : scriptBaseObjects)
+		for (IRuntimeComponent obj : scriptBaseObjects)
 		{
-			if (obj instanceof IScriptReadOnlyMethods && !((IScriptReadOnlyMethods)obj).js_isReadOnly())
+			if (obj instanceof IRuntimeComponentWithReadonlySupport && !((IRuntimeComponentWithReadonlySupport)obj).isReadOnly())
 			{
 				return false;
 			}
@@ -280,13 +280,13 @@ public class RuntimeGroup implements IScriptReadOnlyMethods
 		return true;
 	}
 
-	public void js_setReadOnly(boolean b)
+	public void setReadOnly(boolean b)
 	{
-		for (IScriptBaseMethods obj : scriptBaseObjects)
+		for (IRuntimeComponent obj : scriptBaseObjects)
 		{
-			if (obj instanceof IScriptReadOnlyMethods)
+			if (obj instanceof IRuntimeComponentWithReadonlySupport)
 			{
-				((IScriptReadOnlyMethods)obj).js_setReadOnly(b);
+				((IRuntimeComponentWithReadonlySupport)obj).setReadOnly(b);
 			}
 		}
 	}
@@ -295,12 +295,12 @@ public class RuntimeGroup implements IScriptReadOnlyMethods
 	 * location---------------------------------------------------
 	 */
 
-	public int js_getLocationX()
+	public int getLocationX()
 	{
 		return getBounds().x;
 	}
 
-	public int js_getLocationY()
+	public int getLocationY()
 	{
 		return getBounds().y;
 	}
@@ -308,17 +308,17 @@ public class RuntimeGroup implements IScriptReadOnlyMethods
 	/*
 	 * Move contained objects relative to location change.
 	 * 
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_setLocation(int, int)
+	 * @see com.servoy.j2db.ui.runtime.IRuntimeComponent#setLocation(int, int)
 	 */
-	public void js_setLocation(int x, int y)
+	public void setLocation(int x, int y)
 	{
 		Rectangle bounds = getBounds();
 		int dx = x - bounds.x;
 		int dy = y - bounds.y;
 
-		for (IScriptBaseMethods obj : scriptBaseObjects)
+		for (IRuntimeComponent obj : scriptBaseObjects)
 		{
-			obj.js_setLocation(obj.js_getLocationX() + dx, obj.js_getLocationY() + dy);
+			obj.setLocation(obj.getLocationX() + dx, obj.getLocationY() + dy);
 		}
 	}
 
@@ -326,12 +326,12 @@ public class RuntimeGroup implements IScriptReadOnlyMethods
 	 * size---------------------------------------------------
 	 */
 
-	public int js_getWidth()
+	public int getWidth()
 	{
 		return getBounds().width;
 	}
 
-	public int js_getHeight()
+	public int getHeight()
 	{
 		return getBounds().height;
 	}
@@ -339,35 +339,35 @@ public class RuntimeGroup implements IScriptReadOnlyMethods
 	/*
 	 * Resize contained objects relative to size change.
 	 * 
-	 * @see com.servoy.j2db.ui.IScriptBaseMethods#js_setSize(int, int)
+	 * @see com.servoy.j2db.ui.runtime.IRuntimeComponent#setSize(int, int)
 	 */
-	public void js_setSize(int width, int height)
+	public void setSize(int width, int height)
 	{
 		Rectangle bounds = getBounds();
 		float scalew = ((float)width) / bounds.width;
 		float scaleh = ((float)height) / bounds.height;
 
-		for (IScriptBaseMethods obj : scriptBaseObjects)
+		for (IRuntimeComponent obj : scriptBaseObjects)
 		{
-			int x = obj.js_getLocationX();
-			int y = obj.js_getLocationY();
-			obj.js_setLocation(bounds.x + (int)Math.floor(scalew * (x - bounds.x)), bounds.y + (int)Math.floor(scaleh * (y - bounds.y)));
+			int x = obj.getLocationX();
+			int y = obj.getLocationY();
+			obj.setLocation(bounds.x + (int)Math.floor(scalew * (x - bounds.x)), bounds.y + (int)Math.floor(scaleh * (y - bounds.y)));
 
-			int w = obj.js_getWidth();
-			int h = obj.js_getHeight();
-			obj.js_setSize((int)Math.floor(scalew * w), (int)Math.floor(scaleh * h));
+			int w = obj.getWidth();
+			int h = obj.getHeight();
+			obj.setSize((int)Math.floor(scalew * w), (int)Math.floor(scaleh * h));
 		}
 	}
 
 	protected Rectangle getBounds()
 	{
 		Rectangle bounds = null;
-		for (IScriptBaseMethods obj : scriptBaseObjects)
+		for (IRuntimeComponent obj : scriptBaseObjects)
 		{
-			int x = obj.js_getLocationX();
-			int y = obj.js_getLocationY();
-			int width = obj.js_getWidth();
-			int height = obj.js_getHeight();
+			int x = obj.getLocationX();
+			int y = obj.getLocationY();
+			int width = obj.getWidth();
+			int height = obj.getHeight();
 			Rectangle rect = new Rectangle(x, y, width, height);
 			if (bounds == null)
 			{

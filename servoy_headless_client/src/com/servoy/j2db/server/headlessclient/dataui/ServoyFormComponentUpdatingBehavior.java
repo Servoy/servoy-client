@@ -25,7 +25,7 @@ import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataCalendar.DateField;
 import com.servoy.j2db.ui.IEventExecutor;
-import com.servoy.j2db.ui.IScriptReadOnlyMethods;
+import com.servoy.j2db.ui.runtime.IRuntimeComponentWithReadonlySupport;
 
 /**
  * A {@link AjaxFormComponentUpdatingBehavior} for most fields that redirects {@link #onUpdate(AjaxRequestTarget)} and {@link #onError(AjaxRequestTarget, RuntimeException)} to the {@link WebEventExecutor}
@@ -96,10 +96,10 @@ public class ServoyFormComponentUpdatingBehavior extends ServoyAjaxFormComponent
 			if (!eventExecutor.hasLeaveCmds() || component instanceof DateField || component instanceof CheckBox || component instanceof WebDataComboBox ||
 				component instanceof WebDataLookupField)
 			{
-				if (comp instanceof IScriptableProvider && ((IScriptableProvider)comp).getScriptObject() instanceof IScriptReadOnlyMethods)
+				if (comp instanceof IScriptableProvider && ((IScriptableProvider)comp).getScriptObject() instanceof IRuntimeComponentWithReadonlySupport)
 				{
-					return !((IScriptReadOnlyMethods)((IScriptableProvider)comp).getScriptObject()).js_isReadOnly() &&
-						((IScriptReadOnlyMethods)((IScriptableProvider)comp).getScriptObject()).js_isEnabled();
+					return !((IRuntimeComponentWithReadonlySupport)((IScriptableProvider)comp).getScriptObject()).isReadOnly() &&
+						((IRuntimeComponentWithReadonlySupport)((IScriptableProvider)comp).getScriptObject()).isEnabled();
 				}
 				return true;
 			}

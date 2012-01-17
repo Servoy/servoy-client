@@ -21,117 +21,119 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
  * @author gboros
- *
+ * @since 6.1
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "Renderable", publicName = "Renderable")
 public interface IScriptRenderMethods
 {
+	/**
+	 * @see IScriptRenderMethods
+	 */
 	public static final String JS_RENDERABLE = "Renderable";//$NON-NLS-1$
 
 	/**
-	 * @sameas com.servoy.j2db.ui.IScriptBaseMethods#js_getBgcolor()
+	 * @sameas com.servoy.j2db.ui.runtime.IRuntimeComponent#getBgcolor()
 	 */
-	public String js_getBgcolor();
+	public String getBgcolor();
 
-	public void js_setBgcolor(String clr);
+	public void setBgcolor(String clr);
 
 	/**
-	 * @sameas com.servoy.j2db.ui.IScriptBaseMethods#js_getFgcolor()
+	 * @sameas com.servoy.j2db.ui.runtime.IRuntimeComponent#getFgcolor()
 	 */
-	public String js_getFgcolor();
+	public String getFgcolor();
 
-	public void js_setFgcolor(String clr);
+	public void setFgcolor(String clr);
 
 	/**
-	 * @sameas com.servoy.j2db.ui.IScriptBaseMethods#js_isVisible()
+	 * @sameas com.servoy.j2db.ui.runtime.IRuntimeComponent#isVisible()
 	 */
-	public boolean js_isVisible();
+	public boolean isVisible();
 
-	public void js_setVisible(boolean b);
+	public void setVisible(boolean b);
 
 	/**
-	 * @sameas com.servoy.j2db.ui.IScriptBaseMethods#js_isEnabled()
+	 * @sameas com.servoy.j2db.ui.runtime.IRuntimeComponent#isEnabled()
 	 */
-	public boolean js_isEnabled();
+	public boolean isEnabled();
 
-	public void js_setEnabled(boolean b);
+	public void setEnabled(boolean b);
 
 	/**
-	 * @sameas com.servoy.j2db.ui.IScriptBaseMethods#js_getLocationX()
+	 * @sameas com.servoy.j2db.ui.runtime.IRuntimeComponent#getLocationX()
 	 */
-	public int js_getLocationX();
+	public int getLocationX();
 
 	/**
-	 * @sameas com.servoy.j2db.ui.IScriptBaseMethods#js_getLocationY()
+	 * @sameas com.servoy.j2db.ui.runtime.IRuntimeComponent#getLocationY()
 	 */
-	public int js_getLocationY();
+	public int getLocationY();
 
 	/**
-	 * @sameas com.servoy.j2db.ui.IScriptBaseMethods#js_getAbsoluteFormLocationY()
+	 * @sameas com.servoy.j2db.ui.runtime.IRuntimeComponent#getAbsoluteFormLocationY()
 	 */
-	public int js_getAbsoluteFormLocationY();
+	public int getAbsoluteFormLocationY();
 
 	/**
-	 * @sameas com.servoy.j2db.ui.IScriptBaseMethods#js_getWidth()
+	 * @sameas com.servoy.j2db.ui.runtime.IRuntimeComponent#getWidth()
 	 */
-	public int js_getWidth();
+	public int getWidth();
 
 	/**
-	 * @sameas com.servoy.j2db.ui.IScriptBaseMethods#js_getHeight()
+	 * @sameas com.servoy.j2db.ui.runtime.IRuntimeComponent#getHeight()
 	 */
-	public int js_getHeight();
+	public int getHeight();
 
 	/**
-	 * @sameas com.servoy.j2db.ui.IScriptBaseMethods#js_getName()
+	 * @sameas com.servoy.j2db.ui.runtime.IRuntimeComponent#getName()
 	 */
-	public String js_getName();
+	public String getName();
 
 	/**
-	 * @sameas com.servoy.j2db.ui.IScriptBaseMethods#js_getElementType()
+	 * @sameas com.servoy.j2db.ui.runtime.IRuntimeComponent#getElementType()
 	 */
-	public String js_getElementType();
+	public String getElementType();
 
 	/**
-	 * @sameas com.servoy.j2db.ui.IScriptBaseMethods#js_putClientProperty(Object, Object)
+	 * @sameas com.servoy.j2db.ui.runtime.IRuntimeComponent#putClientProperty(Object, Object)
 	 */
-	public void js_putClientProperty(Object key, Object value);
+	public void putClientProperty(Object key, Object value);
 
 	/**
-	 * @sameas com.servoy.j2db.ui.IScriptBaseMethods#js_getClientProperty(Object)
+	 * @sameas com.servoy.j2db.ui.runtime.IRuntimeComponent#getClientProperty(Object)
 	 */
-	public Object js_getClientProperty(Object key);
+	public Object getClientProperty(Object key);
 
 	/**
-	 * @sameas com.servoy.j2db.ui.IScriptBaseMethods#js_getBorder()
+	 * @sameas com.servoy.j2db.ui.runtime.IRuntimeComponent#getBorder()
 	 */
-	public String js_getBorder();
+	public String getBorder();
 
-	public void js_setBorder(String spec);
+	public void setBorder(String spec);
 
 	/**
-	 * @sameas com.servoy.j2db.ui.IScriptBaseMethods#js_getToolTipText()
+	 * @sameas com.servoy.j2db.ui.runtime.IRuntimeComponent#getToolTipText()
 	 */
-	public String js_getToolTipText();
+	public String getToolTipText();
 
-	public void js_setToolTipText(String tooltip);
+	public void setToolTipText(String tooltip);
 
 	/**
-	 * @sameas com.servoy.j2db.ui.IScriptBaseMethods#js_getFont()
+	 * @sameas com.servoy.j2db.ui.runtime.IRuntimeComponent#getFont()
 	 */
-	public String js_getFont();
+	public String getFont();
 
-	public void js_setFont(String spec);
+	public void setFont(String spec);
 
 	/**
-	 * @sameas com.servoy.j2db.ui.IScriptBaseMethods#js_isTransparent()
+	 * @sameas com.servoy.j2db.ui.runtime.IRuntimeComponent#isTransparent()
 	 */
-	public boolean js_isTransparent();
+	public boolean isTransparent();
 
-	public void js_setTransparent(boolean b);
-
+	public void setTransparent(boolean b);
 
 	/**
-	 * @sameas com.servoy.j2db.ui.IScriptDataProviderMethods#js_getDataProviderID()
+	 * @sameas com.servoy.j2db.ui.runtime.IRuntimeDataProviderComponent#getDataProviderID()
 	 */
-	public String js_getDataProviderID();
+	public String getDataProviderID();
 }

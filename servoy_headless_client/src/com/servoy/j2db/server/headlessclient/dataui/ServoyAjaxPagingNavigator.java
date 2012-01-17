@@ -50,7 +50,7 @@ public class ServoyAjaxPagingNavigator extends AjaxPagingNavigator implements IS
 		super(id, pageable);
 	}
 
-	public void setTabIndex(int i)
+	public void setTabSequenceIndex(int i)
 	{
 		this.tabIndex = i;
 	}

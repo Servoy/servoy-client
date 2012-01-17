@@ -119,7 +119,6 @@ import com.servoy.j2db.ui.IFormLookupPanel;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IPortalComponent;
 import com.servoy.j2db.ui.IRect;
-import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISplitPane;
 import com.servoy.j2db.ui.IStandardLabel;
@@ -128,12 +127,14 @@ import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.ISupportSecuritySettings;
 import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.ui.RenderEventExecutor;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.ui.scripting.AbstractHTMLSubmitRuntimeLabel;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeButton;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeLabel;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeTabPaneAlike;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeValuelistComponent;
-import com.servoy.j2db.ui.scripting.IRuntimeFormatComponent;
+import com.servoy.j2db.ui.scripting.IFormatScriptComponent;
 import com.servoy.j2db.ui.scripting.RuntimeAccordionPanel;
 import com.servoy.j2db.ui.scripting.RuntimeCheckBoxChoice;
 import com.servoy.j2db.ui.scripting.RuntimeCheckbox;
@@ -148,10 +149,10 @@ import com.servoy.j2db.ui.scripting.RuntimeHTMLArea;
 import com.servoy.j2db.ui.scripting.RuntimeListBox;
 import com.servoy.j2db.ui.scripting.RuntimeMediaField;
 import com.servoy.j2db.ui.scripting.RuntimePortal;
-import com.servoy.j2db.ui.scripting.RuntimeRTFArea;
 import com.servoy.j2db.ui.scripting.RuntimeRadioButton;
 import com.servoy.j2db.ui.scripting.RuntimeRadioChoice;
 import com.servoy.j2db.ui.scripting.RuntimeRectangle;
+import com.servoy.j2db.ui.scripting.RuntimeRtfArea;
 import com.servoy.j2db.ui.scripting.RuntimeScriptButton;
 import com.servoy.j2db.ui.scripting.RuntimeScriptLabel;
 import com.servoy.j2db.ui.scripting.RuntimeSplitPane;
@@ -767,10 +768,10 @@ public class ComponentFactory
 			String delegateStyleClassNamePropertyKey = application.getSettings().getProperty("servoy.smartclient.componentStyleClassDelegatePropertyKey");
 			if (delegateStyleClassNamePropertyKey != null && c instanceof JComponent)
 			{
-				if (c instanceof IScriptableProvider && ((IScriptableProvider)c).getScriptObject() instanceof IScriptBaseMethods)
+				if (c instanceof IScriptableProvider && ((IScriptableProvider)c).getScriptObject() instanceof IRuntimeComponent)
 				{
 					//special case since putClientProperty can delegate properties but cannot be overridden we relay on the scripting equivalent
-					((IScriptBaseMethods)((IScriptableProvider)c).getScriptObject()).js_putClientProperty(delegateStyleClassNamePropertyKey, bc.getStyleClass());
+					((IRuntimeComponent)((IScriptableProvider)c).getScriptObject()).putClientProperty(delegateStyleClassNamePropertyKey, bc.getStyleClass());
 				}
 				else
 				{
@@ -1183,8 +1184,8 @@ public class ComponentFactory
 
 			case Field.RTF_AREA :
 			{
-				RuntimeRTFArea so;
-				scriptable = so = new RuntimeRTFArea(jsChangeRecorder, application);
+				RuntimeRtfArea so;
+				scriptable = so = new RuntimeRtfArea(jsChangeRecorder, application);
 				fl = application.getItemFactory().createDataTextEditor(so, getWebID(form, field), RTF_AREA, field.getEditable());
 				so.setComponent(fl);
 				if (fl instanceof IScrollPane)
@@ -1384,9 +1385,9 @@ public class ComponentFactory
 		fl.setDataProviderID(dp == null ? field.getDataProviderID() : dp.getDataProviderID());
 		if (field.getDataProviderID() != null && dataProviderLookup != null)
 		{
-			if (scriptable instanceof IRuntimeFormatComponent)
+			if (scriptable instanceof IFormatScriptComponent)
 			{
-				((IRuntimeFormatComponent)scriptable).setComponentFormat(fieldFormat);
+				((IFormatScriptComponent)scriptable).setComponentFormat(fieldFormat);
 			}
 
 			if (dp != null)
@@ -1975,16 +1976,18 @@ public class ComponentFactory
 			UIManager.put("TabbedPane.selected", meta.getSelectedTabColor());
 		}
 		int orient = meta.getTabOrientation();
-		RuntimeAccordionPanel scriptable = null;
+		AbstractRuntimeTabPaneAlike scriptable = null;
+		ITabPanel tabs;
 		if (meta.getTabOrientation() == TabPanel.ACCORDION_PANEL)
 		{
 			scriptable = new RuntimeAccordionPanel(application.getItemFactory().createChangesRecorder(), application);
+			tabs = application.getItemFactory().createAccordionPanel((RuntimeAccordionPanel)scriptable, getWebID(form, meta));
 		}
 		else
 		{
 			scriptable = new RuntimeTabPanel(application.getItemFactory().createChangesRecorder(), application);
+			tabs = application.getItemFactory().createTabPanel((RuntimeTabPanel)scriptable, getWebID(form, meta), orient, meta.hasOneTab());
 		}
-		ITabPanel tabs = application.getItemFactory().createTabPanel(scriptable, getWebID(form, meta), orient, meta.hasOneTab());
 		scriptable.setComponent(tabs);
 		if (meta.getScrollTabs())
 		{

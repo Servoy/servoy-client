@@ -17,14 +17,17 @@
 package com.servoy.j2db.ui;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.ui.runtime.IRuntimeDataLabel;
+import com.servoy.j2db.ui.scripting.RuntimeDataLabel;
 
-/***
- * Script interface for data label
+/**
+ * Scripting interface for RuntimeDataLabel.
+ * Combines (deprecated) script methods and java api ({@link RuntimeDataLabel});
  * 
- *  @author lvostinar
+ * @author rgansevles
+ *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeDataLabel", extendsComponent = "RuntimeComponent")
-public interface IScriptDataLabelMethods extends IScriptHtmlSubmitLabelsMethods, IScriptLabelForMethods
+public interface IScriptDataLabelMethods extends IScriptDataLabelDeprecatedMethods, IRuntimeDataLabel
 {
-
 }

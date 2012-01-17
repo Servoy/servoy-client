@@ -38,6 +38,7 @@ import javax.swing.event.ListSelectionListener;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IForm;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
@@ -56,7 +57,7 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IFormLookupPanel;
 import com.servoy.j2db.ui.ISupportSecuritySettings;
 import com.servoy.j2db.ui.ITabPanel;
-import com.servoy.j2db.ui.scripting.RuntimeAccordionPanel;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeTabPaneAlike;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnablePanel;
 import com.servoy.j2db.util.IFocusCycleRoot;
@@ -96,14 +97,14 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 
 	private final List<Component> tabSeqComponentList = new ArrayList<Component>();
 	private boolean transferFocusBackwards = false;
-	private final RuntimeAccordionPanel scriptable;
+	private final AbstractRuntimeTabPaneAlike scriptable;
 
-	public SpecialTabPanel(IApplication app, RuntimeAccordionPanel scriptable, int orient, boolean oneTab)
+	public SpecialTabPanel(IApplication app, AbstractRuntimeTabPaneAlike scriptable, int orient, boolean oneTab)
 	{
 		this(app, scriptable, orient, oneTab, null);
 	}
 
-	protected SpecialTabPanel(IApplication app, RuntimeAccordionPanel scriptable, int orient, boolean oneTab, ITabPaneAlike enclosingComponent)
+	protected SpecialTabPanel(IApplication app, AbstractRuntimeTabPaneAlike scriptable, int orient, boolean oneTab, ITabPaneAlike enclosingComponent)
 	{
 		super();
 		application = app;
@@ -148,7 +149,7 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 		scriptable.setEnclosingComponent((JComponent)this.enclosingComponent);
 	}
 
-	public final RuntimeAccordionPanel getScriptObject()
+	public final AbstractRuntimeTabPaneAlike getScriptObject()
 	{
 		return scriptable;
 	}
@@ -398,7 +399,7 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 				Utils.invokeLater(application, invokeLaterRunnables2);
 				if (onTabChangeMethod != null && previousIndex != -1)
 				{
-					scriptExecutor.executeFunction(onTabChangeMethod, Utils.arrayMerge((new Object[] { new Integer(previousIndex + 1) }), onTabChangeArgs),
+					scriptExecutor.executeFunction(onTabChangeMethod, Utils.arrayMerge((new Object[] { Integer.valueOf(previousIndex + 1) }), onTabChangeArgs),
 						true, this, false, StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID.getPropertyName(), false);
 				}
 			}
@@ -407,7 +408,7 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 
 	public boolean removeAllTabs()
 	{
-		if (getMaxTabIndex() == 0) return true;
+		if (getMaxTabIndex() == -1) return true;
 
 		boolean retval = false;
 		String tmp = onTabChangeMethod;
@@ -431,13 +432,12 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 		return retval;
 	}
 
-	public boolean addTab(Object form, String name, String tabText, String tooltip, String iconURL, String fg, String bg, Object relation, int tabIndex,
-		boolean readOnly)
+	public boolean addTab(IForm formController, String formName, String tabname, String tabText, String tooltip, String iconURL, String fg, String bg,
+		String relationName, RelatedFoundSet relatedFs, int idx)
 	{
-
 		//to make sure we don't have recursion on adding a tab, to a tabpanel, that is based 
 		//on the form that the tabpanel is placed on
-		if (form instanceof FormController)
+		if (formController != null)
 		{
 			Container parent = getParent();
 			while (!(parent instanceof SwingForm) && parent != null)
@@ -447,64 +447,50 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 			if (parent != null)
 			{
 				FormController parentFormController = ((SwingForm)parent).getController();
-				if (parentFormController != null && parentFormController.equals(form))
+				if (parentFormController != null && parentFormController.equals(formController))
 				{
 					return false;
 				}
 			}
 		}
-		String fName;
-		if (form instanceof FormController)
+
+		FormLookupPanel flp = (FormLookupPanel)createFormLookupPanel(tabname, relationName, formName);
+		if (formController != null) flp.setReadOnly(formController.isReadOnly());
+		Icon icon = null;
+		if (iconURL != null && !"".equals(iconURL)) //$NON-NLS-1$
 		{
-			fName = ((FormController)form).getName();
+			try
+			{
+				URL url = new URL(iconURL);
+				icon = new ImageIcon(url);
+			}
+			catch (Exception e)
+			{
+				Debug.error(e);
+			}
+		}
+		int tabIndex = idx;
+		if (tabIndex == -1 || tabIndex >= enclosingComponent.getTabCount())
+		{
+			tabIndex = enclosingComponent.getTabCount();
+			addTab(application.getI18NMessageIfPrefixed(tabText), icon, flp, application.getI18NMessageIfPrefixed(tooltip));
 		}
 		else
 		{
-			fName = (String)form;
+			insertTab(application.getI18NMessageIfPrefixed(tabText), icon, flp, application.getI18NMessageIfPrefixed(tooltip), tabIndex);
 		}
-		if (fName != null)
+		if (fg != null) setTabForegroundAt(tabIndex, PersistHelper.createColor(fg));
+		if (bg != null) setTabBackgroundAt(tabIndex, PersistHelper.createColor(bg));
+
+		if (relatedFs != null && enclosingComponent.getSelectedComponent() == flp)
 		{
-			String relationName = relation instanceof RelatedFoundSet ? ((RelatedFoundSet)relation).getRelationName() : (String)relation;
-			RelatedFoundSet relatedFs = relation instanceof RelatedFoundSet ? (RelatedFoundSet)relation : null;
-
-			FormLookupPanel flp = (FormLookupPanel)createFormLookupPanel(name, relationName, fName);
-			if (form instanceof FormController) flp.setReadOnly(readOnly);
-			Icon icon = null;
-			if (iconURL != null && !"".equals(iconURL)) //$NON-NLS-1$
+			FormController fp = flp.getFormPanel();
+			if (fp != null && flp.getRelationName() != null && flp.getRelationName().equals(relationName))
 			{
-				try
-				{
-					URL url = new URL(iconURL);
-					icon = new ImageIcon(url);
-				}
-				catch (Exception e)
-				{
-					Debug.error(e);
-				}
+				fp.loadData(relatedFs, null);
 			}
-			if (tabIndex == -1 || tabIndex >= enclosingComponent.getTabCount())
-			{
-				tabIndex = enclosingComponent.getTabCount();
-				addTab(application.getI18NMessageIfPrefixed(tabText), icon, flp, application.getI18NMessageIfPrefixed(tooltip));
-			}
-			else
-			{
-				insertTab(application.getI18NMessageIfPrefixed(tabText), icon, flp, application.getI18NMessageIfPrefixed(tooltip), tabIndex);
-			}
-			if (fg != null) setTabForegroundAt(tabIndex, PersistHelper.createColor(fg));
-			if (bg != null) setTabBackgroundAt(tabIndex, PersistHelper.createColor(bg));
-
-			if (relatedFs != null && enclosingComponent.getSelectedComponent() == flp)
-			{
-				FormController fp = flp.getFormPanel();
-				if (fp != null && flp.getRelationName() != null && flp.getRelationName().equals(relationName))
-				{
-					fp.loadData(relatedFs, null);
-				}
-			}
-			return true;
 		}
-		return false;
+		return true;
 	}
 
 	public void setTabTextAt(int i, String text)
@@ -612,43 +598,31 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 		if (enclosingComponent instanceof JComponent) ((JComponent)enclosingComponent).setOpaque(isOpaque);
 	}
 
-
-	public void setTabIndex(Object arg)
+	public void setTabIndex(int index)
 	{
-		int index = Utils.getAsInteger(arg);
-		if (index >= 1 && index <= scriptable.js_getMaxTabIndex())
+		enclosingComponent.setSelectedIndex(index);
+	}
+
+	public void setTabIndex(String name)
+	{
+		for (int i = 0; i < enclosingComponent.getTabCount(); i++)
 		{
-			enclosingComponent.setSelectedIndex(index - 1);
-		}
-		else
-		{
-			String tabName = "" + arg; //$NON-NLS-1$
-			if (Utils.stringIsEmpty(tabName)) return;
-			for (int i = 0; i < enclosingComponent.getTabCount(); i++)
+			if (Utils.stringSafeEquals(enclosingComponent.getNameAt(i), name))
 			{
-				String currentName = enclosingComponent.getNameAt(i);
-				if (Utils.stringSafeEquals(currentName, tabName))
-				{
-					enclosingComponent.setSelectedIndex(i);
-					break;
-				}
+				enclosingComponent.setSelectedIndex(i);
+				break;
 			}
 		}
 	}
 
-	public Object getTabIndex()
+	public int getTabIndex()
 	{
-		int selectedIndex = enclosingComponent.getSelectedIndex();
-		if (selectedIndex >= 0)
-		{
-			return new Integer(selectedIndex + 1);
-		}
-		return new Integer(-1);
+		return enclosingComponent.getSelectedIndex();
 	}
 
 	public int getMaxTabIndex()
 	{
-		return enclosingComponent.getTabCount();
+		return enclosingComponent.getTabCount() - 1;
 	}
 
 	@Override

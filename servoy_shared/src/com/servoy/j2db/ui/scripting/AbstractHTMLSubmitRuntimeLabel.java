@@ -47,7 +47,7 @@ public abstract class AbstractHTMLSubmitRuntimeLabel<C extends ILabel> extends A
 	/*
 	 * size---------------------------------------------------
 	 */
-	public void js_setSize(int x, int y)
+	public void setSize(int x, int y)
 	{
 		setComponentSize(x, y);
 		Border b = getComponent().getBorder();
@@ -62,7 +62,7 @@ public abstract class AbstractHTMLSubmitRuntimeLabel<C extends ILabel> extends A
 	}
 
 	@Override
-	public void js_setBorder(String spec)
+	public void setBorder(String spec)
 	{
 		Border border = ComponentFactoryHelper.createBorder(spec);
 		Border oldBorder = getComponent().getBorder();
@@ -95,7 +95,7 @@ public abstract class AbstractHTMLSubmitRuntimeLabel<C extends ILabel> extends A
 		return getComponent().getParameterValue(param);
 	}
 
-	public String js_getLabelForElementName()
+	public String getLabelForElementName()
 	{
 		Object component = getComponent().getLabelFor();
 		if (component instanceof IFieldComponent)

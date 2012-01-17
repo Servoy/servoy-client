@@ -26,9 +26,9 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.ui.IPortalComponent;
-import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptPortalComponentMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -60,12 +60,12 @@ public class RuntimePortal extends AbstractRuntimeBaseComponent<IPortalComponent
 		this.foundset = foundset;
 	}
 
-	public String js_getElementType()
+	public String getElementType()
 	{
-		return IScriptBaseMethods.PORTAL;
+		return IRuntimeComponent.PORTAL;
 	}
 
-	public String js_getSortColumns()
+	public String getSortColumns()
 	{
 		StringBuilder sb = new StringBuilder();
 		if (foundset != null)
@@ -80,16 +80,16 @@ public class RuntimePortal extends AbstractRuntimeBaseComponent<IPortalComponent
 	}
 
 	@Override
-	public void js_putClientProperty(Object key, Object value)
+	public void putClientProperty(Object key, Object value)
 	{
-		super.js_putClientProperty(key, value);
+		super.putClientProperty(key, value);
 		if (jComponent != null)
 		{
 			jComponent.putClientProperty(key, value);
 		}
 	}
 
-	public void js_setScroll(int x, int y)
+	public void setScroll(int x, int y)
 	{
 		if (jComponent != null)
 		{
@@ -97,7 +97,7 @@ public class RuntimePortal extends AbstractRuntimeBaseComponent<IPortalComponent
 		}
 	}
 
-	public int js_getScrollX()
+	public int getScrollX()
 	{
 		if (jComponent != null)
 		{
@@ -106,7 +106,7 @@ public class RuntimePortal extends AbstractRuntimeBaseComponent<IPortalComponent
 		return 0;
 	}
 
-	public int js_getScrollY()
+	public int getScrollY()
 	{
 		if (jComponent != null)
 		{
@@ -115,13 +115,14 @@ public class RuntimePortal extends AbstractRuntimeBaseComponent<IPortalComponent
 		return 0;
 	}
 
+	@Deprecated
 	public int js_getRecordIndex()
 	{
 		if (foundset != null) return foundset.getSelectedIndex() + 1;
 		return 0;
 	}
 
-	public void js_deleteRecord()
+	public void deleteRecord()
 	{
 		if (foundset != null)
 		{
@@ -136,20 +137,27 @@ public class RuntimePortal extends AbstractRuntimeBaseComponent<IPortalComponent
 		}
 	}
 
-	public void js_setReadOnly(boolean b)
+	public void setReadOnly(boolean b)
 	{
 		getComponent().setReadOnly(b);
 		getChangesRecorder().setChanged();
 	}
 
-	public int js_getAbsoluteFormLocationY()
+	public int getAbsoluteFormLocationY()
 	{
 		return getComponent().getAbsoluteFormLocationY();
 	}
 
+	// 1-based
 	public int jsFunction_getSelectedIndex()
 	{
-		return foundset.getSelectedIndex() + 1;
+		return getSelectedIndex() + 1;
+	}
+
+	// 0-based
+	public int getSelectedIndex()
+	{
+		return foundset.getSelectedIndex();
 	}
 
 	public int js_getMaxRecordIndex()
@@ -160,33 +168,36 @@ public class RuntimePortal extends AbstractRuntimeBaseComponent<IPortalComponent
 	@Deprecated
 	public void js_setRecordIndex(int i)
 	{
-		if (i >= 1 && i <= js_getMaxRecordIndex())
+		jsFunction_setSelectedIndex(i);
+	}
+
+	// 1-based
+	public void jsFunction_setSelectedIndex(int i)
+	{
+		setSelectedIndex(i - 1);
+	}
+
+	// 0-based
+	public void setSelectedIndex(int i)
+	{
+		if (i >= 0 && i < js_getMaxRecordIndex())
 		{
-			getComponent().setRecordIndex(i - 1);
+			getComponent().setRecordIndex(i);
 		}
 	}
 
-	public void jsFunction_setSelectedIndex(int i) //Object[] args)
+	public void newRecord()
 	{
-		if (i >= 1 && i <= js_getMaxRecordIndex())
-		{
-			getComponent().setRecordIndex(i - 1);
-		}
+		newRecord(true);
 	}
 
-	public void js_newRecord(Object[] vargs)
+	public void newRecord(boolean addOnTop)
 	{
-		boolean addOnTop = true;
-		if (vargs != null && vargs.length >= 1 && vargs[0] instanceof Boolean)
-		{
-			addOnTop = ((Boolean)vargs[0]).booleanValue();
-		}
 		if (foundset != null)
 		{
 			try
 			{
-				int i = foundset.newRecord(addOnTop ? 0 : Integer.MAX_VALUE, true);
-				getComponent().setRecordIndex(i);
+				getComponent().setRecordIndex(foundset.newRecord(addOnTop ? 0 : Integer.MAX_VALUE, true));
 			}
 			catch (Exception ex)
 			{
@@ -195,19 +206,18 @@ public class RuntimePortal extends AbstractRuntimeBaseComponent<IPortalComponent
 		}
 	}
 
-	public void js_duplicateRecord(Object[] vargs)
+	public void duplicateRecord()
 	{
-		boolean addOnTop = true;
-		if (vargs != null && vargs.length >= 1 && vargs[0] instanceof Boolean)
-		{
-			addOnTop = ((Boolean)vargs[0]).booleanValue();
-		}
+		duplicateRecord(true);
+	}
+
+	public void duplicateRecord(boolean addOnTop)
+	{
 		if (foundset != null)
 		{
 			try
 			{
-				int i = foundset.duplicateRecord(foundset.getSelectedIndex(), addOnTop ? 0 : Integer.MAX_VALUE);
-				getComponent().setRecordIndex(i);
+				getComponent().setRecordIndex(foundset.duplicateRecord(foundset.getSelectedIndex(), addOnTop ? 0 : Integer.MAX_VALUE));
 			}
 			catch (Exception ex)
 			{
@@ -216,13 +226,13 @@ public class RuntimePortal extends AbstractRuntimeBaseComponent<IPortalComponent
 		}
 	}
 
-	public void js_setSize(int x, int y)
+	public void setSize(int x, int y)
 	{
 		setComponentSize(x, y);
 		getChangesRecorder().setSize(getComponent().getSize().width, getComponent().getSize().height, getComponent().getBorder(), new Insets(0, 0, 0, 0), 0);
 	}
 
-	public boolean js_isReadOnly()
+	public boolean isReadOnly()
 	{
 		return getComponent().isReadOnly();
 	}

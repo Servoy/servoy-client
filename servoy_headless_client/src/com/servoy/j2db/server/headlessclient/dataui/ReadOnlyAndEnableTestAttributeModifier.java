@@ -23,8 +23,8 @@ import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 
 import com.servoy.j2db.scripting.IScriptableProvider;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptInputMethods;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
+import com.servoy.j2db.ui.runtime.IRuntimeInputComponent;
 
 /**
  * Attribute modifier that checks if the component is enabled and editable else it will disable itself.
@@ -95,8 +95,8 @@ class ReadOnlyAndEnableTestAttributeModifier extends AbstractBehavior
 		{
 			Object scriptable = component;
 			if (component instanceof IScriptableProvider) scriptable = ((IScriptableProvider)component).getScriptObject();
-			if (scriptable instanceof IScriptBaseMethods && !((IScriptBaseMethods)scriptable).js_isEnabled()) return false;
-			if (scriptable instanceof IScriptInputMethods && !((IScriptInputMethods)scriptable).js_isEditable()) return false;
+			if (scriptable instanceof IRuntimeComponent && !((IRuntimeComponent)scriptable).isEnabled()) return false;
+			if (scriptable instanceof IRuntimeInputComponent && !((IRuntimeInputComponent)scriptable).isEditable()) return false;
 		}
 		return true;
 	}

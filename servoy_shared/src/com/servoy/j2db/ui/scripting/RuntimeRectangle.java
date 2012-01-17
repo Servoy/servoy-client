@@ -23,9 +23,9 @@ import javax.swing.JComponent;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IRect;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptRectMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
+import com.servoy.j2db.ui.runtime.IRuntimeRectangle;
 
 /**
  * Scriptable rectangle component.
@@ -33,33 +33,33 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
  * @author lvostinar
  * @since 6.0
  */
-public class RuntimeRectangle extends AbstractRuntimeBaseComponent<IRect> implements IScriptRectMethods
+public class RuntimeRectangle extends AbstractRuntimeBaseComponent<IRect> implements IRuntimeRectangle
 {
 	public RuntimeRectangle(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
 		super(jsChangeRecorder, application);
 	}
 
-	public int js_getAbsoluteFormLocationY()
+	public int getAbsoluteFormLocationY()
 	{
 		return getComponent().getAbsoluteFormLocationY();
 	}
 
-	public String js_getElementType()
+	public String getElementType()
 	{
-		return IScriptBaseMethods.RECTANGLE;
+		return IRuntimeComponent.RECTANGLE;
 	}
 
-	public void js_setSize(int x, int y)
+	public void setSize(int x, int y)
 	{
 		setComponentSize(x, y);
 		getChangesRecorder().setSize(getComponent().getSize().width, getComponent().getSize().height, getComponent().getBorder(), new Insets(0, 0, 0, 0), 0);
 	}
 
 	@Override
-	public void js_setTransparent(boolean b)
+	public void setTransparent(boolean b)
 	{
-		super.js_setTransparent(b);
+		super.setTransparent(b);
 		if (getComponent() instanceof JComponent)
 		{
 			((JComponent)getComponent()).repaint();

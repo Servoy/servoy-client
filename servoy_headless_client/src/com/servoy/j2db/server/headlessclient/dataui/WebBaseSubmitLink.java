@@ -381,7 +381,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 			@Override
 			public String getObject()
 			{
-				return scriptable.js_isEnabled() ? "" : "filter:alpha(opacity=50);-moz-opacity:.50;opacity:.50;"; //$NON-NLS-1$  //$NON-NLS-2$ 
+				return scriptable.isEnabled() ? "" : "filter:alpha(opacity=50);-moz-opacity:.50;opacity:.50;"; //$NON-NLS-1$  //$NON-NLS-2$ 
 			}
 		});
 		add(enabledStyle);
@@ -569,9 +569,9 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 		addRolloverBehaviors();
 	}
 
-	public byte[] getThumbnailJPGImage(Object[] args)
+	public byte[] getThumbnailJPGImage(int width, int height)
 	{
-		return WebBaseLabel.getThumbnailJPGImage(args, icon, text_url, media != null ? media.getID() : 0, (mediaOptions & 8) == 8, application);
+		return WebBaseLabel.getThumbnailJPGImage(width, height, icon, text_url, media != null ? media.getID() : 0, (mediaOptions & 8) == 8, application);
 	}
 
 	public void setName(String n)
@@ -842,7 +842,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		if (useAJAX)
 		{
-			Object oe = scriptable.js_getClientProperty("ajax.enabled"); //$NON-NLS-1$ 
+			Object oe = scriptable.getClientProperty("ajax.enabled"); //$NON-NLS-1$ 
 			if (oe != null) useAJAX = Utils.getAsBoolean(oe);
 		}
 
@@ -948,9 +948,8 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 		}
 	}
 
-	public void requestFocus(Object[] vargs)
+	public void requestFocusToComponent()
 	{
-
 	}
 
 	public int getDisplayedMnemonic()

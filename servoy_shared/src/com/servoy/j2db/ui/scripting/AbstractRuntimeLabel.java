@@ -22,8 +22,9 @@ import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.ui.IFormattingComponent;
 import com.servoy.j2db.ui.ILabel;
-import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
+import com.servoy.j2db.ui.runtime.IRuntimeLabelComponent;
 import com.servoy.j2db.util.FormatParser;
 
 /**
@@ -32,7 +33,8 @@ import com.servoy.j2db.util.FormatParser;
  * @author lvostinar
  * @since 6.0
  */
-public abstract class AbstractRuntimeLabel<C extends ILabel> extends AbstractRuntimeRendersupportComponent<C> implements IRuntimeFormatComponent
+public abstract class AbstractRuntimeLabel<C extends ILabel> extends AbstractRuntimeRendersupportComponent<C> implements IFormatScriptComponent,
+	IRuntimeLabelComponent
 {
 	private String i18nTT;
 
@@ -44,41 +46,46 @@ public abstract class AbstractRuntimeLabel<C extends ILabel> extends AbstractRun
 	}
 
 
-	public void js_setImageURL(String text_url)
+	public void setImageURL(String text_url)
 	{
 		getComponent().setImageURL(text_url);
 		getChangesRecorder().setChanged();
 	}
 
-	public void js_setRolloverImageURL(String imageUrl)
+	public void setRolloverImageURL(String imageUrl)
 	{
 		getComponent().setRolloverImageURL(imageUrl);
 		getChangesRecorder().setChanged();
 	}
 
-	public String js_getElementType()
+	public String getElementType()
 	{
-		return IScriptBaseMethods.LABEL;
+		return IRuntimeComponent.LABEL;
 	}
 
-	public String js_getDataProviderID()
+	public String getDataProviderID()
 	{
 		//default implementation
 		return null;
 	}
 
-	public byte[] js_getThumbnailJPGImage(Object[] args)
+	public byte[] getThumbnailJPGImage()
 	{
-		return getComponent().getThumbnailJPGImage(args);
+		return getThumbnailJPGImage(-1, -1);
 	}
 
-	public int js_getAbsoluteFormLocationY()
+	public byte[] getThumbnailJPGImage(int width, int height)
+	{
+		return getComponent().getThumbnailJPGImage(width, height);
+	}
+
+	public int getAbsoluteFormLocationY()
 	{
 		return getComponent().getAbsoluteFormLocationY();
 	}
 
 	@Override
-	public void js_setToolTipText(String text)
+	public void setToolTipText(String text)
 	{
 		String tooltip = text;
 		if (tooltip != null && tooltip.startsWith("i18n:")) //$NON-NLS-1$
@@ -90,27 +97,27 @@ public abstract class AbstractRuntimeLabel<C extends ILabel> extends AbstractRun
 		{
 			i18nTT = null;
 		}
-		super.js_setToolTipText(tooltip);
+		super.setToolTipText(tooltip);
 	}
 
 	/**
-	 * @see com.servoy.j2db.ui.IScriptLabelMethods#js_getToolTipText()
+	 * @see com.servoy.j2db.ui.runtime.IRuntimeLabelComponent#getToolTipText()
 	 */
 	@Override
-	public String js_getToolTipText()
+	public String getToolTipText()
 	{
 		if (i18nTT != null) return i18nTT;
-		return super.js_getToolTipText();
+		return super.getToolTipText();
 	}
 
-	public String js_getMnemonic()
+	public String getMnemonic()
 	{
 		int i = getComponent().getDisplayedMnemonic();
 		if (i == 0) return ""; //$NON-NLS-1$
 		return new Character((char)i).toString();
 	}
 
-	public void js_setMnemonic(String m)
+	public void setMnemonic(String m)
 	{
 		String mnemonic = application.getI18NMessageIfPrefixed(m);
 		if (mnemonic != null && mnemonic.length() > 0)
@@ -120,17 +127,17 @@ public abstract class AbstractRuntimeLabel<C extends ILabel> extends AbstractRun
 		}
 	}
 
-	public String js_getImageURL()
+	public String getImageURL()
 	{
 		return getComponent().getImageURL();
 	}
 
-	public String js_getRolloverImageURL()
+	public String getRolloverImageURL()
 	{
 		return getComponent().getRolloverImageURL();
 	}
 
-	public void js_setFormat(String formatString)
+	public void setFormat(String formatString)
 	{
 		setComponentFormat(new ComponentFormat(FormatParser.parseFormatString(application.getI18NMessageIfPrefixed(formatString), componentFormat == null
 			? null : componentFormat.parsedFormat.getUIConverterName(),
@@ -139,7 +146,7 @@ public abstract class AbstractRuntimeLabel<C extends ILabel> extends AbstractRun
 		getChangesRecorder().setChanged();
 	}
 
-	public String js_getFormat()
+	public String getFormat()
 	{
 		return componentFormat == null ? null : componentFormat.parsedFormat.getFormatString();
 	}

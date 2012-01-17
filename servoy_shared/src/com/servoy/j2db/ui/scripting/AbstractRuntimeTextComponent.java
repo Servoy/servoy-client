@@ -25,11 +25,11 @@ import javax.swing.text.JTextComponent;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IFieldComponent;
-import com.servoy.j2db.ui.IScriptScrollableMethods;
-import com.servoy.j2db.ui.IScriptTextInputMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.ISupportEditProvider;
 import com.servoy.j2db.ui.ISupportInputSelection;
+import com.servoy.j2db.ui.runtime.IRuntimeScrollableComponent;
+import com.servoy.j2db.ui.runtime.IRuntimeTextInputComponent;
 
 /**
  * Abstract scriptable text component.
@@ -38,7 +38,7 @@ import com.servoy.j2db.ui.ISupportInputSelection;
  * @since 6.0
  */
 public abstract class AbstractRuntimeTextComponent<C extends IFieldComponent, T extends JTextComponent> extends AbstractRuntimeField<C> implements
-	IScriptTextInputMethods, IScriptScrollableMethods
+	IRuntimeTextInputComponent, IRuntimeScrollableComponent
 {
 	protected T textComponent;
 
@@ -55,7 +55,7 @@ public abstract class AbstractRuntimeTextComponent<C extends IFieldComponent, T 
 		this.textComponent = textComponent;
 	}
 
-	public int js_getCaretPosition()
+	public int getCaretPosition()
 	{
 		if (textComponent != null)
 		{
@@ -64,7 +64,7 @@ public abstract class AbstractRuntimeTextComponent<C extends IFieldComponent, T 
 		return 0;
 	}
 
-	public void js_setCaretPosition(int pos)
+	public void setCaretPosition(int pos)
 	{
 		if (textComponent != null)
 		{
@@ -74,7 +74,7 @@ public abstract class AbstractRuntimeTextComponent<C extends IFieldComponent, T 
 		}
 	}
 
-	public void js_setScroll(int x, int y)
+	public void setScroll(int x, int y)
 	{
 		if (textComponent != null)
 		{
@@ -97,7 +97,7 @@ public abstract class AbstractRuntimeTextComponent<C extends IFieldComponent, T 
 		}
 	}
 
-	public int js_getScrollX()
+	public int getScrollX()
 	{
 		if (textComponent != null)
 		{
@@ -106,7 +106,7 @@ public abstract class AbstractRuntimeTextComponent<C extends IFieldComponent, T 
 		return 0;
 	}
 
-	public int js_getScrollY()
+	public int getScrollY()
 	{
 		if (textComponent != null)
 		{
@@ -116,19 +116,19 @@ public abstract class AbstractRuntimeTextComponent<C extends IFieldComponent, T 
 	}
 
 	@Deprecated
-	public boolean js_isEditable()
+	public boolean isEditable()
 	{
 		return getComponent().isEditable();
 	}
 
 	@Deprecated
-	public void js_setEditable(boolean b)
+	public void setEditable(boolean b)
 	{
 		getComponent().setEditable(b);
 		getChangesRecorder().setChanged();
 	}
 
-	public void js_selectAll()
+	public void selectAll()
 	{
 		if (textComponent != null)
 		{
@@ -140,7 +140,7 @@ public abstract class AbstractRuntimeTextComponent<C extends IFieldComponent, T 
 		}
 	}
 
-	public String js_getSelectedText()
+	public String getSelectedText()
 	{
 		if (textComponent != null)
 		{
@@ -153,7 +153,7 @@ public abstract class AbstractRuntimeTextComponent<C extends IFieldComponent, T 
 		return null;
 	}
 
-	public void js_replaceSelectedText(String s)
+	public void replaceSelectedText(String s)
 	{
 		if (textComponent != null)
 		{
@@ -168,13 +168,13 @@ public abstract class AbstractRuntimeTextComponent<C extends IFieldComponent, T 
 	}
 
 	@Override
-	public String js_getToolTipText()
+	public String getToolTipText()
 	{
 		if (textComponent != null)
 		{
 			return textComponent.getToolTipText();
 		}
-		return super.js_getToolTipText();
+		return super.getToolTipText();
 	}
 
 }

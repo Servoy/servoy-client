@@ -85,11 +85,13 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.scripting.CreationalPrototype;
+import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.IScriptSupport;
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.ITwoNativeJavaObject;
 import com.servoy.j2db.scripting.InstanceJavaMembers;
@@ -104,6 +106,7 @@ import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.ISupportSecuritySettings;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IStyleRule;
@@ -1483,7 +1486,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	private FormScope formScope;
 	private JSForm scriptableForm;// is the innerclass JSForm 
 	private FormManager fm;
-	private IFormUIInternal containerImpl = null;
+	private final IFormUIInternal containerImpl;
 	private PageFormat pageFormat = null;
 	private String namedInstance = null;
 
@@ -4703,4 +4706,28 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		return solutionCopy.getForm(form.getName()) != null;
 	}
 
+	public IRuntimeComponent[] getElements()
+	{
+		Object elementScope = formScope == null ? null : formScope.get("elements");
+		if (elementScope instanceof DefaultScope)
+		{
+			Object[] values = ((DefaultScope)elementScope).getValues();
+			List<IRuntimeComponent> elements = new ArrayList<IRuntimeComponent>(values.length);
+			for (Object value : values)
+			{
+				if (value instanceof IScriptableProvider)
+				{
+					IScriptable scriptObject = ((IScriptableProvider)value).getScriptObject();
+					if (scriptObject instanceof IRuntimeComponent)
+					{
+						elements.add((IRuntimeComponent)scriptObject);
+					}
+				}
+			}
+
+			return elements.toArray(new IRuntimeComponent[elements.size()]);
+		}
+
+		return new IRuntimeComponent[0];
+	}
 }

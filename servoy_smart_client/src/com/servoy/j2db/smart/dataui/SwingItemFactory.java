@@ -31,6 +31,7 @@ import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.Portal;
+import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.ui.DummyChangesRecorder;
 import com.servoy.j2db.ui.IButton;
 import com.servoy.j2db.ui.IComponent;
@@ -62,6 +63,7 @@ import com.servoy.j2db.ui.scripting.RuntimeRectangle;
 import com.servoy.j2db.ui.scripting.RuntimeScriptButton;
 import com.servoy.j2db.ui.scripting.RuntimeScriptLabel;
 import com.servoy.j2db.ui.scripting.RuntimeSplitPane;
+import com.servoy.j2db.ui.scripting.RuntimeTabPanel;
 import com.servoy.j2db.ui.scripting.RuntimeTextArea;
 
 /**
@@ -113,14 +115,16 @@ public class SwingItemFactory implements ItemFactory
 		return new InvisibleBean(obj);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.ItemFactory#createTabPanel(int, boolean)
-	 */
-	public ITabPanel createTabPanel(RuntimeAccordionPanel scriptable, String name, int orient, boolean oneTab)
+	public ITabPanel createTabPanel(RuntimeTabPanel scriptable, String name, int orient, boolean oneTab)
 	{
 		ITabPanel tabPanel = new SpecialTabPanel(application, scriptable, orient, oneTab);
+		tabPanel.setName(name);
+		return tabPanel;
+	}
+
+	public ITabPanel createAccordionPanel(RuntimeAccordionPanel scriptable, String name)
+	{
+		ITabPanel tabPanel = new SpecialTabPanel(application, scriptable, TabPanel.ACCORDION_PANEL, false);
 		tabPanel.setName(name);
 		return tabPanel;
 	}

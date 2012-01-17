@@ -24,9 +24,9 @@ import javax.swing.JEditorPane;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IFieldComponent;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptTextEditorMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
+import com.servoy.j2db.ui.runtime.IRuntimeHtmlArea;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -35,7 +35,7 @@ import com.servoy.j2db.util.Debug;
  * @author lvostinar
  * @since 6.0
  */
-public class RuntimeHTMLArea extends AbstractRuntimeTextEditor<IFieldComponent, JEditorPane> implements IScriptTextEditorMethods
+public class RuntimeHTMLArea extends AbstractRuntimeTextEditor<IFieldComponent, JEditorPane> implements IRuntimeHtmlArea
 {
 	public RuntimeHTMLArea(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
@@ -43,7 +43,7 @@ public class RuntimeHTMLArea extends AbstractRuntimeTextEditor<IFieldComponent, 
 	}
 
 	@Override
-	public void js_setURL(String url)
+	public void setURL(String url)
 	{
 		if (textComponent != null)
 		{
@@ -59,7 +59,7 @@ public class RuntimeHTMLArea extends AbstractRuntimeTextEditor<IFieldComponent, 
 	}
 
 	@Override
-	public String js_getURL()
+	public String getURL()
 	{
 		if (textComponent != null)
 		{
@@ -72,8 +72,8 @@ public class RuntimeHTMLArea extends AbstractRuntimeTextEditor<IFieldComponent, 
 		return null;
 	}
 
-	public String js_getElementType()
+	public String getElementType()
 	{
-		return IScriptBaseMethods.HTML_AREA;
+		return IRuntimeComponent.HTML_AREA;
 	}
 }

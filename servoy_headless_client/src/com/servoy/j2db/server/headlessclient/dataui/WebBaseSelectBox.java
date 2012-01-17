@@ -212,11 +212,11 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 		if (!isValueValid)
 		{
 			previousValidValue = oldVal;
-			requestFocus();
+			requestFocusToComponent();
 			if (tmpForeground == NO_COLOR)
 			{
-				tmpForeground = scriptable.js_getFgcolor();
-				scriptable.js_setFgcolor("red");
+				tmpForeground = scriptable.getFgcolor();
+				scriptable.setFgcolor("red");
 			}
 		}
 		else
@@ -224,7 +224,7 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 			previousValidValue = null;
 			if (tmpForeground != NO_COLOR)
 			{
-				scriptable.js_setFgcolor(tmpForeground);
+				scriptable.setFgcolor(tmpForeground);
 				tmpForeground = NO_COLOR;
 			}
 		}
@@ -330,7 +330,7 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		if (useAJAX)
 		{
-			Object oe = scriptable.js_getClientProperty("ajax.enabled");
+			Object oe = scriptable.getClientProperty("ajax.enabled");
 			if (oe != null) useAJAX = Utils.getAsBoolean(oe);
 		}
 		if (!useAJAX)
@@ -452,13 +452,13 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 	{
 		if (!isValueValid)
 		{
-			requestFocus();
+			requestFocusToComponent();
 			return false;
 		}
 		return true;
 	}
 
-	public void requestFocus()
+	public void requestFocusToComponent()
 	{
 		// is the current container always the right one...
 		IMainContainer currentContainer = ((FormManager)application.getFormManager()).getCurrentContainer();
@@ -547,15 +547,6 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 		this.onValue = vl;
 		getStylePropertyChanges().setChanged();
 
-	}
-
-	public void requestFocus(Object[] vargs)
-	{
-		if (vargs != null && vargs.length >= 1 && !Utils.getAsBoolean(vargs[0]))
-		{
-			eventExecutor.skipNextFocusGain();
-		}
-		requestFocus();
 	}
 
 	/*
@@ -828,7 +819,7 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 			{
 				if (super.isEnabled(component))
 				{
-					Object oe = WebBaseSelectBox.this.scriptable.js_getClientProperty("ajax.enabled");
+					Object oe = WebBaseSelectBox.this.scriptable.getClientProperty("ajax.enabled");
 					if (oe != null) return Utils.getAsBoolean(oe);
 					return true;
 				}

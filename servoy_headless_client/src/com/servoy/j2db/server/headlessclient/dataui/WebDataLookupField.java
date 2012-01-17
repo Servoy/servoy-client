@@ -146,7 +146,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			@Override
 			public boolean isEnabled(Component component)
 			{
-				return !getScriptObject().js_isReadOnly() && getScriptObject().js_isEnabled();
+				return !getScriptObject().isReadOnly() && getScriptObject().isEnabled();
 			}
 		});
 
@@ -338,7 +338,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 					IApplication.TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY, Boolean.TRUE)));
 				settings.setShowListOnFocusGain(Boolean.TRUE.equals(UIUtils.getUIProperty(getScriptObject(), application,
 					IApplication.TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN, Boolean.TRUE)));
-				if (!getScriptObject().js_isReadOnly() && getScriptObject().js_isEnabled())
+				if (!getScriptObject().isReadOnly() && getScriptObject().isEnabled())
 				{
 					super.renderHead(response);
 					response.renderJavascript("Wicket.AutoCompleteSettings.enterHidesWithNoSelection = true;", "AutocompleteSettingsID"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -361,7 +361,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 	public void setClientProperty(Object key, Object value)
 	{
 		if ((IApplication.TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN.equals(key) || IApplication.TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY.equals(key)) &&
-			!Utils.equalObjects(getScriptObject().js_getClientProperty(key), value))
+			!Utils.equalObjects(getScriptObject().getClientProperty(key), value))
 		{
 			getStylePropertyChanges().setChanged();
 		}

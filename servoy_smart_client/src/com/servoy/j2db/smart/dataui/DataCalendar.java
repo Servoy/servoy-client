@@ -569,11 +569,11 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 		this.cachedSize = size;
 	}
 
-	public void requestFocus(Object[] vargs)
+	public void requestFocusToComponent()
 	{
 		if (isDisplayable())
 		{
-			enclosedComponent.requestFocus(vargs);
+			enclosedComponent.requestFocusToComponent();
 		}
 		else
 		{

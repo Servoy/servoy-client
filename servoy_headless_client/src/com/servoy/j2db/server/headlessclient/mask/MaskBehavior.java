@@ -25,9 +25,9 @@ import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
 
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataField;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptInputMethods;
 import com.servoy.j2db.ui.ISupportEventExecutor;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
+import com.servoy.j2db.ui.runtime.IRuntimeInputComponent;
 
 /**
  * Behavior used in {@link WebDataField} when a masked format is used.
@@ -78,8 +78,8 @@ public class MaskBehavior extends AbstractBehavior
 	{
 		Object scriptable = component;
 		if (component instanceof IScriptableProvider) scriptable = ((IScriptableProvider)component).getScriptObject();
-		if (scriptable instanceof IScriptBaseMethods && !((IScriptBaseMethods)scriptable).js_isEnabled()) return false;
-		if (scriptable instanceof IScriptInputMethods && !((IScriptInputMethods)scriptable).js_isEditable()) return false;
+		if (scriptable instanceof IRuntimeComponent && !((IRuntimeComponent)scriptable).isEnabled()) return false;
+		if (scriptable instanceof IRuntimeInputComponent && !((IRuntimeInputComponent)scriptable).isEditable()) return false;
 		if (component instanceof ISupportEventExecutor) return ((ISupportEventExecutor)component).getEventExecutor().getValidationEnabled();
 		return true;
 	}

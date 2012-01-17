@@ -22,9 +22,9 @@ import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IFormattingComponent;
-import com.servoy.j2db.ui.IScriptBaseMethods;
-import com.servoy.j2db.ui.IScriptDataCalendarMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
+import com.servoy.j2db.ui.runtime.IRuntimeCalendar;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.util.FormatParser;
 
 /**
@@ -33,7 +33,7 @@ import com.servoy.j2db.util.FormatParser;
  * @author lvostinar
  * @since 6.0
  */
-public class RuntimeDataCalendar extends AbstractRuntimeField<IFieldComponent> implements IScriptDataCalendarMethods, IRuntimeFormatComponent
+public class RuntimeDataCalendar extends AbstractRuntimeField<IFieldComponent> implements IRuntimeCalendar, IFormatScriptComponent
 {
 	private ComponentFormat componentFormat;
 
@@ -42,23 +42,23 @@ public class RuntimeDataCalendar extends AbstractRuntimeField<IFieldComponent> i
 		super(jsChangeRecorder, application);
 	}
 
-	public String js_getElementType()
+	public String getElementType()
 	{
-		return IScriptBaseMethods.CALENDAR;
+		return IRuntimeComponent.CALENDAR;
 	}
 
-	public boolean js_isEditable()
+	public boolean isEditable()
 	{
 		return getComponent().isEditable();
 	}
 
-	public void js_setEditable(boolean b)
+	public void setEditable(boolean b)
 	{
 		getComponent().setEditable(b);
 		getChangesRecorder().setChanged();
 	}
 
-	public void js_setFormat(String formatString)
+	public void setFormat(String formatString)
 	{
 		setComponentFormat(new ComponentFormat(FormatParser.parseFormatString(application.getI18NMessageIfPrefixed(formatString), componentFormat == null
 			? null : componentFormat.parsedFormat.getUIConverterName(),
@@ -67,7 +67,7 @@ public class RuntimeDataCalendar extends AbstractRuntimeField<IFieldComponent> i
 		getChangesRecorder().setChanged();
 	}
 
-	public String js_getFormat()
+	public String getFormat()
 	{
 		return componentFormat == null ? null : componentFormat.parsedFormat.getFormatString();
 	}

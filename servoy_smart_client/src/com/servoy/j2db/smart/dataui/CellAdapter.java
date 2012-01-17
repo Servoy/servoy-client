@@ -100,12 +100,12 @@ import com.servoy.j2db.smart.J2DBClient;
 import com.servoy.j2db.smart.ListView;
 import com.servoy.j2db.smart.TableView;
 import com.servoy.j2db.ui.IComponent;
-import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.ui.scripting.IRuntimeFormatComponent;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
+import com.servoy.j2db.ui.scripting.IFormatScriptComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.IStyleRule;
@@ -869,8 +869,8 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				Record.VALIDATE_CALCS.set(Boolean.FALSE);
 				try
 				{
-					String type = (editor instanceof IScriptableProvider && ((IScriptableProvider)editor).getScriptObject() instanceof IScriptBaseMethods)
-						? ((IScriptBaseMethods)((IScriptableProvider)editor).getScriptObject()).js_getElementType() : null;
+					String type = (editor instanceof IScriptableProvider && ((IScriptableProvider)editor).getScriptObject() instanceof IRuntimeComponent)
+						? ((IRuntimeComponent)((IScriptableProvider)editor).getScriptObject()).getElementType() : null;
 					String name = (editor instanceof IDisplayData) ? ((IDisplayData)editor).getDataProviderID() : null;
 					if (isRowBGColorCalculation)
 					{
@@ -1236,11 +1236,11 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			}
 			if (currentEditingState instanceof FindState)
 			{
-				if (displayData instanceof IScriptableProvider && ((IScriptableProvider)displayData).getScriptObject() instanceof IRuntimeFormatComponent &&
-					((IRuntimeFormatComponent)((IScriptableProvider)displayData).getScriptObject()).getComponentFormat() != null)
+				if (displayData instanceof IScriptableProvider && ((IScriptableProvider)displayData).getScriptObject() instanceof IFormatScriptComponent &&
+					((IFormatScriptComponent)((IScriptableProvider)displayData).getScriptObject()).getComponentFormat() != null)
 				{
 					((FindState)currentEditingState).setFormat(dataProviderID,
-						((IRuntimeFormatComponent)((IScriptableProvider)displayData).getScriptObject()).getComponentFormat().parsedFormat);
+						((IFormatScriptComponent)((IScriptableProvider)displayData).getScriptObject()).getComponentFormat().parsedFormat);
 				}
 				currentEditingState.setValue(dataProviderID, obj);
 			}

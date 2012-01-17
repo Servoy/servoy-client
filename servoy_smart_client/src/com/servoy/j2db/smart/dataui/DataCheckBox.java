@@ -244,7 +244,7 @@ public class DataCheckBox extends JCheckBox implements IFieldComponent, IDisplay
 
 				private void handle(MouseEvent e)
 				{
-					if (scriptable.js_isEnabled())
+					if (scriptable.isEnabled())
 					{
 						eventExecutor.fireRightclickCommand(true, DataCheckBox.this, e.getModifiers(), e.getPoint());
 					}
@@ -669,14 +669,10 @@ public class DataCheckBox extends JCheckBox implements IFieldComponent, IDisplay
 		}
 	}
 
-	public void requestFocus(Object[] vargs)
+	public void requestFocusToComponent()
 	{
 //		if (!hasFocus()) Don't test on hasFocus (it can have focus,but other component already did requestFocus)
 		{
-			if (vargs != null && vargs.length >= 1 && !Utils.getAsBoolean(vargs[0]))
-			{
-				eventExecutor.skipNextFocusGain();
-			}
 			if (isDisplayable())
 			{
 				// Must do it in a runnable or else others after a script can get focus first again..

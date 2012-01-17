@@ -18,9 +18,6 @@
 package com.servoy.j2db.ui;
 
 import java.awt.Color;
-import java.awt.Font;
-
-import javax.swing.border.Border;
 
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.PersistHelper;
@@ -43,226 +40,122 @@ public class DataRendererOnRenderWrapper implements ISupportOnRenderCallback, IS
 		renderEventExecutor = new RenderEventExecutor(this);
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getBgcolor()
-	 */
-	public String js_getBgcolor()
+	public String getBgcolor()
 	{
-		return PersistHelper.createColorString(getBackground());
+		return PersistHelper.createColorString(onRenderComponent.getBackground());
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_setBgcolor(java.lang.String)
-	 */
-	public void js_setBgcolor(String clr)
+	public void setBgcolor(String clr)
 	{
-		setBackground(PersistHelper.createColor(clr));
+		onRenderComponent.setBackground(PersistHelper.createColor(clr));
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getFgcolor()
-	 */
-	public String js_getFgcolor()
+	public String getFgcolor()
 	{
 		return null;
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_setFgcolor(java.lang.String)
-	 */
-	public void js_setFgcolor(String clr)
+	public void setFgcolor(String clr)
 	{
 		// ignore
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_isVisible()
-	 */
-	public boolean js_isVisible()
-	{
-		return true;
-	}
-
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_setVisible(boolean)
-	 */
-	public void js_setVisible(boolean b)
+	public void setVisible(boolean b)
 	{
 		// ignore
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_isEnabled()
-	 */
-	public boolean js_isEnabled()
-	{
-		return true;
-	}
-
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_setEnabled(boolean)
-	 */
-	public void js_setEnabled(boolean b)
+	public void setEnabled(boolean b)
 	{
 		// ignore
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getLocationX()
-	 */
-	public int js_getLocationX()
+	public int getLocationX()
 	{
 		return 0;
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getLocationY()
-	 */
-	public int js_getLocationY()
+	public int getLocationY()
 	{
 		return 0;
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getAbsoluteFormLocationY()
-	 */
-	public int js_getAbsoluteFormLocationY()
+	public int getAbsoluteFormLocationY()
 	{
 		return 0;
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getWidth()
-	 */
-	public int js_getWidth()
+	public int getWidth()
 	{
 		return 0;
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getHeight()
-	 */
-	public int js_getHeight()
+	public int getHeight()
 	{
 		return 0;
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getName()
-	 */
-	public String js_getName()
+	public String getName()
 	{
 		return null;
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getElementType()
-	 */
-	public String js_getElementType()
+	public String getElementType()
 	{
 		return onRenderComponent.getOnRenderElementType();
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_putClientProperty(java.lang.Object, java.lang.Object)
-	 */
-	public void js_putClientProperty(Object key, Object value)
+	public void putClientProperty(Object key, Object value)
 	{
 		// ignore
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getClientProperty(java.lang.Object)
-	 */
-	public Object js_getClientProperty(Object key)
+	public Object getClientProperty(Object key)
 	{
 		return null;
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getBorder()
-	 */
-	public String js_getBorder()
+	public String getBorder()
 	{
-		return ComponentFactoryHelper.createBorderString(getBorder());
+		return ComponentFactoryHelper.createBorderString(onRenderComponent.getBorder());
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_setBorder(java.lang.String)
-	 */
-	public void js_setBorder(String spec)
+	public void setBorder(String spec)
 	{
-		setBorder(ComponentFactoryHelper.createBorder(spec));
+		onRenderComponent.setBorder(ComponentFactoryHelper.createBorder(spec));
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getToolTipText()
-	 */
-	public String js_getToolTipText()
+	public String getFont()
 	{
 		return null;
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_setToolTipText(java.lang.String)
-	 */
-	public void js_setToolTipText(String tooltip)
+	public void setFont(String spec)
 	{
 		// ignore
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getFont()
-	 */
-	public String js_getFont()
-	{
-		return null;
-	}
-
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_setFont(java.lang.String)
-	 */
-	public void js_setFont(String spec)
-	{
-		// ignore
-	}
-
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_isTransparent()
-	 */
-	public boolean js_isTransparent()
+	public boolean isTransparent()
 	{
 		return false;
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_setTransparent(boolean)
-	 */
-	public void js_setTransparent(boolean b)
+	public void setTransparent(boolean b)
 	{
 		// ignore
 
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.IScriptRenderMethods#js_getDataProviderID()
-	 */
-	public String js_getDataProviderID()
+	public String getDataProviderID()
 	{
 		return null;
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderEventExecutor()
-	 */
 	public RenderEventExecutor getRenderEventExecutor()
 	{
 		return renderEventExecutor;
 	}
 
-	/*
-	 * @see com.servoy.j2db.ui.ISupportOnRenderCallback#getRenderable()
-	 */
 	public IScriptRenderMethods getRenderable()
 	{
 		return this;
@@ -333,54 +226,6 @@ public class DataRendererOnRenderWrapper implements ISupportOnRenderCallback, IS
 	public Color getForeground()
 	{
 		return null;
-	}
-
-	/*
-	 * @see com.servoy.j2db.ui.IRenderComponent#setBackground(java.awt.Color)
-	 */
-	public void setBackground(Color background)
-	{
-		onRenderComponent.setBackground(background);
-	}
-
-	/*
-	 * @see com.servoy.j2db.ui.IRenderComponent#getBackground()
-	 */
-	public Color getBackground()
-	{
-		return onRenderComponent.getBackground();
-	}
-
-	/*
-	 * @see com.servoy.j2db.ui.IRenderComponent#setFont(java.awt.Font)
-	 */
-	public void setFont(Font font)
-	{
-		// ignore
-	}
-
-	/*
-	 * @see com.servoy.j2db.ui.IRenderComponent#getFont()
-	 */
-	public Font getFont()
-	{
-		return null;
-	}
-
-	/*
-	 * @see com.servoy.j2db.ui.IRenderComponent#setBorder(javax.swing.border.Border)
-	 */
-	public void setBorder(Border border)
-	{
-		onRenderComponent.setBorder(border);
-	}
-
-	/*
-	 * @see com.servoy.j2db.ui.IRenderComponent#getBorder()
-	 */
-	public Border getBorder()
-	{
-		return onRenderComponent.getBorder();
 	}
 
 	/*
