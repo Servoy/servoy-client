@@ -176,7 +176,12 @@ public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneab
 
 	public java.awt.Point getLocation()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_LOCATION);
+		java.awt.Point point = getTypedProperty(StaticContentSpecLoader.PROPERTY_LOCATION);
+		if (point == null)
+		{
+			point = new Point(10, 10);
+		}
+		return point;
 	}
 
 	public void setSize(java.awt.Dimension d)
