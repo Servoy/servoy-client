@@ -23,14 +23,12 @@ import javax.swing.JPanel;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IForm;
-import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
 import com.servoy.j2db.dataprocessing.IFoundSet;
 import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.ui.IScriptTabPaneAlikeMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.ISupportReadOnly;
 import com.servoy.j2db.ui.ITabPanel;
-import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.ui.runtime.IRuntimeTabPaneAlike;
 import com.servoy.j2db.util.ITabPaneAlike;
 import com.servoy.j2db.util.PersistHelper;
@@ -62,6 +60,16 @@ public abstract class AbstractRuntimeTabPaneAlike extends AbstractRuntimeFormCon
 		}
 		getChangesRecorder().setChanged();
 	}
+
+	public boolean isReadOnly()
+	{
+		if (enclosingComponent instanceof ISupportReadOnly)
+		{
+			return ((ISupportReadOnly)enclosingComponent).isReadOnly();
+		}
+		return getComponent().isReadOnly();
+	}
+
 
 	public int getAbsoluteFormLocationY()
 	{
@@ -245,11 +253,6 @@ public abstract class AbstractRuntimeTabPaneAlike extends AbstractRuntimeFormCon
 		}
 	}
 
-	public String getElementType()
-	{
-		return IRuntimeComponent.ACCORDIONPANEL;
-	}
-
 	// 1-based
 	public String js_getTabFGColorAt(int i)
 	{
@@ -290,9 +293,9 @@ public abstract class AbstractRuntimeTabPaneAlike extends AbstractRuntimeFormCon
 	// 0-based
 	public String getTabRelationNameAt(int i)
 	{
-		if (getComponent() instanceof IDisplayRelatedData && i >= 0 && i <= getMaxTabIndex())
+		if (i >= 0 && i <= getMaxTabIndex())
 		{
-			return ((IDisplayRelatedData)getComponent()).getAllRelationNames()[i];
+			return getComponent().getAllRelationNames()[i];
 		}
 		return null;
 	}

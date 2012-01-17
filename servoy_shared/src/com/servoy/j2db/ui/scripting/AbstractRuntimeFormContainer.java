@@ -23,10 +23,8 @@ import javax.swing.JComponent;
 import javax.swing.SwingConstants;
 
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.dataprocessing.IDisplay;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
-import com.servoy.j2db.ui.ISupportReadOnly;
 import com.servoy.j2db.util.PersistHelper;
 
 /**
@@ -159,14 +157,5 @@ public abstract class AbstractRuntimeFormContainer<C extends IComponent, E exten
 		}
 		getChangesRecorder().setSize(getComponent().getSize().width, getComponent().getSize().height, getComponent().getBorder(), new Insets(0, 0, 0, 0), 0,
 			false, SwingConstants.TOP);
-	}
-
-	public boolean isReadOnly()
-	{
-		if (enclosingComponent instanceof ISupportReadOnly)
-		{
-			return ((ISupportReadOnly)enclosingComponent).isReadOnly();
-		}
-		return ((IDisplay)getComponent()).isReadOnly();
 	}
 }

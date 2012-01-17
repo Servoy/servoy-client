@@ -20,6 +20,7 @@ import java.awt.Color;
 
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.IScriptExecuter;
+import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
 import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.scripting.IScriptableProvider;
 
@@ -27,7 +28,7 @@ import com.servoy.j2db.scripting.IScriptableProvider;
  * @author jcompagner
  */
 
-public interface ITabPanel extends IComponent, IScriptableProvider
+public interface ITabPanel extends IComponent, IScriptableProvider, IDisplayRelatedData
 {
 	void setTabLayoutPolicy(int scroll_tab_layout);
 

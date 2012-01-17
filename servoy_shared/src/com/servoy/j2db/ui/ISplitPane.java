@@ -17,6 +17,7 @@
 package com.servoy.j2db.ui;
 
 import com.servoy.j2db.IScriptExecuter;
+import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.IScriptableProvider;
 
@@ -25,7 +26,7 @@ import com.servoy.j2db.scripting.IScriptableProvider;
  * 
  * @author gboros
  */
-public interface ISplitPane extends IComponent, IScriptableProvider
+public interface ISplitPane extends IComponent, IScriptableProvider, IDisplayRelatedData
 {
 	IFormLookupPanel createFormLookupPanel(String name, String relationName, String formName);
 

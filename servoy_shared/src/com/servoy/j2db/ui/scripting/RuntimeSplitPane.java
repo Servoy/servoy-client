@@ -70,6 +70,16 @@ public class RuntimeSplitPane extends AbstractRuntimeFormContainer<ISplitPane, J
 		getChangesRecorder().setChanged();
 	}
 
+	public boolean isReadOnly()
+	{
+		if (enclosingComponent instanceof ISupportReadOnly)
+		{
+			return ((ISupportReadOnly)enclosingComponent).isReadOnly();
+		}
+		return getComponent().isReadOnly();
+	}
+
+
 	public int getAbsoluteFormLocationY()
 	{
 		return getComponent().getAbsoluteFormLocationY();

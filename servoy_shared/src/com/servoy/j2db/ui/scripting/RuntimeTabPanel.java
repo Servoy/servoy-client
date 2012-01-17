@@ -37,7 +37,6 @@ public class RuntimeTabPanel extends AbstractRuntimeTabPaneAlike implements IScr
 		super(jsChangeRecorder, application);
 	}
 
-	@Override
 	public String getElementType()
 	{
 		return IRuntimeComponent.TABPANEL;

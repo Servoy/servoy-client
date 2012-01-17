@@ -20,6 +20,7 @@ package com.servoy.j2db.ui.scripting;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IScriptAccordionPanelMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 
 /**
  * Scriptable accordion panel.
@@ -32,5 +33,10 @@ public class RuntimeAccordionPanel extends AbstractRuntimeTabPaneAlike implement
 	public RuntimeAccordionPanel(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
 		super(jsChangeRecorder, application);
+	}
+
+	public String getElementType()
+	{
+		return IRuntimeComponent.ACCORDIONPANEL;
 	}
 }
