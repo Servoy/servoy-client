@@ -23,6 +23,7 @@ import javax.swing.ImageIcon;
 
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.server.shared.IApplicationServerAccess;
 import com.servoy.j2db.util.IUIBlocker;
 
 /**
@@ -54,6 +55,13 @@ public interface IBasicApplication extends IUIBlocker
 	 * @return IRepository
 	 */
 	public IRepository getRepository();
+
+	/**
+	 * Get the IApplicationServerAccess for an authenticated client.
+	 * 
+	 * @return IApplicationServerAccess
+	 */
+	public IApplicationServerAccess getApplicationServerAccess();
 
 	/**
 	 * Report an error.
