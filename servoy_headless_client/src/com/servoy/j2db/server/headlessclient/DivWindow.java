@@ -72,6 +72,24 @@ public class DivWindow extends ModalWindow
 		public void onMove(AjaxRequestTarget target);
 	}
 
+	private class WindowClosedBehavior extends AbstractDefaultAjaxBehavior implements IWindowClosedBehavior
+	{
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		protected void respond(AjaxRequestTarget target)
+		{
+			respondOnWindowClosed(target);
+		}
+
+		@Override
+		public CharSequence getCallbackScript()
+		{
+			return getCallbackScript(true);
+		}
+
+	}
+
 	private class ResizeBehavior extends AbstractDefaultAjaxBehavior
 	{
 		private static final long serialVersionUID = 1L;
@@ -90,7 +108,7 @@ public class DivWindow extends ModalWindow
 		@Override
 		protected CharSequence getCallbackScript()
 		{
-			return super.getCallbackScript();
+			return getCallbackScript(true);
 		}
 
 		@Override
@@ -120,7 +138,7 @@ public class DivWindow extends ModalWindow
 		@Override
 		protected CharSequence getCallbackScript()
 		{
-			return super.getCallbackScript();
+			return getCallbackScript(true);
 		}
 
 		@Override
@@ -130,6 +148,15 @@ public class DivWindow extends ModalWindow
 				"&xLoc=' + x + '&yLoc=' + y + (initialShow ? '&is=true' : '')");
 		}
 
+	}
+
+	protected class CloseButtonBehaviorActivePage extends CloseButtonBehavior
+	{
+		@Override
+		protected CharSequence getCallbackScript(boolean onlyTargetActivePage)
+		{
+			return super.getCallbackScript(true);
+		}
 	}
 
 	private boolean modal = true;
@@ -233,6 +260,25 @@ public class DivWindow extends ModalWindow
 	{
 		moveCallback = callback;
 		return this;
+	}
+
+	/**
+	 * Override default onClose to make it only target last active page (otherwise you can get in trouble if you do something like win.close(); history.back()
+	 * - you can end up with incorrect page version and unresponsive WebClient).
+	 */
+	@Override
+	protected IWindowClosedBehavior newWindowClosedBehavior()
+	{
+		return new WindowClosedBehavior();
+	}
+
+	/**
+	 * Only target if active page.
+	 */
+	@Override
+	protected CloseButtonBehavior newCloseButtonBehavior()
+	{
+		return new CloseButtonBehaviorActivePage();
 	}
 
 	public int getX()

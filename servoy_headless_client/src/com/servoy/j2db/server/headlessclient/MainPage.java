@@ -95,6 +95,8 @@ import com.servoy.j2db.plugins.IUploadData;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.info.WEBCONSTANTS;
+import com.servoy.j2db.server.headlessclient.PageJSActionBuffer.DivDialogAction;
+import com.servoy.j2db.server.headlessclient.PageJSActionBuffer.JSChangeAction;
 import com.servoy.j2db.server.headlessclient.dataui.AbstractServoyDefaultAjaxBehavior;
 import com.servoy.j2db.server.headlessclient.dataui.FormLayoutProviderFactory;
 import com.servoy.j2db.server.headlessclient.dataui.IFormLayoutProvider;
@@ -149,7 +151,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 	private WebMarkupContainer divDialogsParent;
 	private RepeatingView divDialogRepeater;
-	private final ServoyDivDialogActionBuffer divDialogActionBuffer = new ServoyDivDialogActionBuffer();
+	private final PageJSActionBuffer jsActionBuffer = new PageJSActionBuffer();
 	private final HashMap<String, ServoyDivDialog> divDialogs = new HashMap<String, ServoyDivDialog>();
 
 	private MainPage callingContainer;
@@ -157,7 +159,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 	private boolean showingInDialog = false;
 	private boolean showingInWindow = false;
 
-	private String javaScriptChanges;
+	private boolean closingPopoup = false;
 
 	public ResourceReference serveResourceReference = new ResourceReference("resources"); //$NON-NLS-1$
 
@@ -673,7 +675,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				}
 				else
 				{
-					divDialogActionBuffer.remove(divDialog, divDialogsParent);
+					jsActionBuffer.addAction(new DivDialogAction(divDialog, DivDialogAction.OP_DIALOG_ADDED_OR_REMOVED, new Object[] { divDialogsParent }));
 				}
 				divDialog.setPageMapName(null);
 				WebEventExecutor.generateResponse(target, findPage());
@@ -737,7 +739,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		});
 		divDialogRepeater.add(divDialog);
 		divDialogsParent.setVisible(true);
-		divDialogActionBuffer.add(divDialog, divDialogsParent);
+		jsActionBuffer.addAction(new DivDialogAction(divDialog, DivDialogAction.OP_DIALOG_ADDED_OR_REMOVED, new Object[] { divDialogsParent }));
 		divDialogs.put(name, divDialog);
 		return divDialog;
 	}
@@ -878,11 +880,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			response.renderOnLoadJavascript(showUrl);
 		}
 
-		if (javaScriptChanges != null)
-		{
-			response.renderOnLoadJavascript(javaScriptChanges);
-			javaScriptChanges = null;
-		}
+		jsActionBuffer.apply(response);
 
 		response.renderJavascriptReference(servoy_js);
 		YUILoader.renderYUI(response);
@@ -1359,7 +1357,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				uploaded = true;
 				mediaUploadCallback = null;
 				callback.uploadComplete(fu);
-				divDialogActionBuffer.close(fileUploadWindow);
+				jsActionBuffer.addAction(new DivDialogAction(fileUploadWindow, DivDialogAction.OP_CLOSE));
 				triggerBrowserRequestIfNeeded();
 			}
 
@@ -1370,7 +1368,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 					mediaUploadCallback = null;
 					fileUploadWindow.setPageMapName(null);
 					fileUploadWindow.remove(fileUploadWindow.getContentId());
-					divDialogActionBuffer.close(fileUploadWindow);
+					jsActionBuffer.addAction(new DivDialogAction(fileUploadWindow, DivDialogAction.OP_CLOSE));
 					triggerBrowserRequestIfNeeded();
 				}
 			}
@@ -1385,7 +1383,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		{
 			fileUploadWindow.setTitle(title);
 		}
-		divDialogActionBuffer.show(fileUploadWindow, FILE_UPLOAD_PAGEMAP);
+		jsActionBuffer.addAction(new DivDialogAction(fileUploadWindow, DivDialogAction.OP_SHOW, new Object[] { FILE_UPLOAD_PAGEMAP }));
 		triggerBrowserRequestIfNeeded();
 	}
 
@@ -1590,7 +1588,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			mustFocusNullIfNoComponentToFocus();
 
 			windowContainer.callingContainer = this;
-			windowContainer.javaScriptChanges = null;
+			windowContainer.jsActionBuffer.clear();
 			windowContainer.showingInWindow = true;
 			windowContainer.showingInDialog = false;
 		}
@@ -1641,7 +1639,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				}
 
 				divDialog.setTitle(titleStr);
-				divDialogActionBuffer.show(divDialog, windowName);
+				jsActionBuffer.addAction(new DivDialogAction(divDialog, DivDialogAction.OP_SHOW, new Object[] { windowName }));
 				if (firstShow && !resizeable)
 				{
 					appendJavaScriptChanges(divDialog.getChangeBoundsJS(-1, -1, bounds.width, bounds.height));
@@ -1662,7 +1660,8 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		ServoyDivDialog divDialog = divDialogs.remove(popupName);
 		if (divDialog != null)
 		{
-			divDialogActionBuffer.close(divDialog);
+			closingPopoup = true;
+			jsActionBuffer.addAction(new DivDialogAction(divDialog, DivDialogAction.OP_CLOSE));
 			triggerBrowserRequestIfNeeded();
 		}
 
@@ -1841,9 +1840,9 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 	public boolean isPopupClosing()
 	{
-		if (!divDialogActionBuffer.isClosing())
+		if (!closingPopoup)
 		{
-			if (isShowingInDialog() && callingContainer != null) return callingContainer.isPopupClosing();
+			if (isShowingInDialog() && callingContainer != null) return callingContainer.closingPopoup;
 			return false;
 		}
 		return true;
@@ -1851,17 +1850,18 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 	public void renderJavascriptChanges(final AjaxRequestTarget target)
 	{
-		divDialogActionBuffer.apply(target);
-		if (javaScriptChanges != null)
+		closingPopoup = false;
+
+		if (callingContainer != null && callingContainer.closingPopoup)
 		{
-			target.appendJavascript(javaScriptChanges);
-			javaScriptChanges = null;
+			// in this case execute both this page's actions and the close action from parent main page (as it's JS will work both in parent and child)
+			jsActionBuffer.apply(target, callingContainer.jsActionBuffer, getPageMapName());
 		}
-		if (callingContainer != null && callingContainer.divDialogActionBuffer.isClosing())
+		else
 		{
-			// execute the actions regarding this dialog
-			callingContainer.divDialogActionBuffer.apply(target, getPageMapName());
+			jsActionBuffer.apply(target);
 		}
+
 	}
 
 	public static class ShowUrlInfo implements Serializable
@@ -2066,7 +2066,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			ServoyDivDialog divDialog = callingContainer.divDialogs.get(getContainerName());
 			if (divDialog != null)
 			{
-				divDialogActionBuffer.toBack(divDialog);
+				jsActionBuffer.addAction(new DivDialogAction(divDialog, DivDialogAction.OP_TO_BACK));
 				triggerBrowserRequestIfNeeded();
 			}
 		}
@@ -2083,7 +2083,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			ServoyDivDialog divDialog = callingContainer.divDialogs.get(getContainerName());
 			if (divDialog != null)
 			{
-				divDialogActionBuffer.toFront(divDialog);
+				jsActionBuffer.addAction(new DivDialogAction(divDialog, DivDialogAction.OP_TO_FRONT));
 				triggerBrowserRequestIfNeeded();
 			}
 		}
@@ -2095,8 +2095,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 	public void appendJavaScriptChanges(String script)
 	{
-		if (javaScriptChanges == null) javaScriptChanges = script;
-		else javaScriptChanges += script;
+		jsActionBuffer.addAction(new JSChangeAction(script));
 
 		triggerBrowserRequestIfNeeded();
 	}
@@ -2175,7 +2174,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				if (ok)
 				{
 					triggerScript += "triggerAjaxUpdate();}catch(ignore){}";
-					requestMP.appendJavaScriptChanges(triggerScript);
+					requestMP.jsActionBuffer.triggerAjaxUpdate(this, triggerScript);
 				}
 				else
 				{
