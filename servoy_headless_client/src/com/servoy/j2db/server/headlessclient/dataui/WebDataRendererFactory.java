@@ -415,17 +415,34 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 		wf.setTabSeqComponents(tabSequence);
 	}
 
-	private int goDownTabPanel(WebTabPanel wtp, int goodTabIndex)
+	private int goDownContainer(MarkupContainer wtp, int goodTabIndex)
 	{
 		int localTabIndex = goodTabIndex;
-		wtp.setTabIndex(goodTabIndex >= 0 ? localTabIndex++ : ISupportWebTabSeq.SKIP);
-		TabIndexHelper.setUpTabIndexAttributeModifier(wtp, ISupportWebTabSeq.SKIP);
-		Iterator it = wtp.iterator();
-		while (it.hasNext())
+		if (wtp instanceof WebTabPanel)
 		{
-			Object o = it.next();
-			if (o instanceof WebForm) localTabIndex = goDownForm((WebForm)o, goodTabIndex >= 0 ? localTabIndex : ISupportWebTabSeq.SKIP);
+			((WebTabPanel)wtp).setTabIndex(goodTabIndex >= 0 ? localTabIndex++ : ISupportWebTabSeq.SKIP);
+			TabIndexHelper.setUpTabIndexAttributeModifier(wtp, ISupportWebTabSeq.SKIP);
+			if (((WebTabPanel)wtp).getCurrentForm() != null)
+			{
+				localTabIndex = goDownForm(((WebTabPanel)wtp).getCurrentForm(), goodTabIndex >= 0 ? localTabIndex : ISupportWebTabSeq.SKIP);
+			}
 		}
+		else
+		{
+			((WebSplitPane)wtp).setTabIndex(goodTabIndex >= 0 ? localTabIndex++ : ISupportWebTabSeq.SKIP);
+			TabIndexHelper.setUpTabIndexAttributeModifier(wtp, ISupportWebTabSeq.SKIP);
+			if (((WebSplitPane)wtp).getLeftForm() != null && ((WebTabFormLookup)((WebSplitPane)wtp).getLeftForm()).getWebForm() != null)
+			{
+				localTabIndex = goDownForm(((WebTabFormLookup)((WebSplitPane)wtp).getLeftForm()).getWebForm(), goodTabIndex >= 0 ? localTabIndex
+					: ISupportWebTabSeq.SKIP);
+			}
+			if (((WebSplitPane)wtp).getRightForm() != null && ((WebTabFormLookup)((WebSplitPane)wtp).getRightForm()).getWebForm() != null)
+			{
+				localTabIndex = goDownForm(((WebTabFormLookup)((WebSplitPane)wtp).getRightForm()).getWebForm(), goodTabIndex >= 0 ? localTabIndex
+					: ISupportWebTabSeq.SKIP);
+			}
+		}
+
 		return localTabIndex;
 	}
 
@@ -437,9 +454,9 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 		while (it.hasNext())
 		{
 			Component oo = it.next();
-			if (oo instanceof WebTabPanel)
+			if (oo instanceof WebTabPanel || oo instanceof WebSplitPane)
 			{
-				localTabIndex = goDownTabPanel((WebTabPanel)oo, goodTabIndex >= 0 ? localTabIndex : ISupportWebTabSeq.SKIP);
+				localTabIndex = goDownContainer((MarkupContainer)oo, goodTabIndex >= 0 ? localTabIndex : ISupportWebTabSeq.SKIP);
 			}
 			else if (oo instanceof WebCellBasedView)
 			{
@@ -485,10 +502,9 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 			{
 				Component comp = iter.next();
 
-				if (comp instanceof WebTabPanel)
+				if (comp instanceof WebTabPanel || comp instanceof WebSplitPane)
 				{
-					WebTabPanel wtp = (WebTabPanel)comp;
-					counter = goDownTabPanel(wtp, delta >= 0 ? counter : ISupportWebTabSeq.SKIP);
+					counter = goDownContainer((MarkupContainer)comp, delta >= 0 ? counter : ISupportWebTabSeq.SKIP);
 				}
 				else if (comp instanceof WebCellBasedView)
 				{
