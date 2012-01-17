@@ -156,6 +156,15 @@ public class JSApplication implements IReturnedTypesProvider
 		}
 	}
 
+	private void checkAuthorized() throws ServoyException
+	{
+		if (application.getApplicationServerAccess() == null)
+		{
+			// no access to application yet, have to log in first
+			throw new ServoyException(ServoyException.CLIENT_NOT_AUTHORIZED);
+		}
+	}
+
 	/**
 	 * Get the names of the used client licenses (as strings in array).
 	 *
@@ -163,11 +172,12 @@ public class JSApplication implements IReturnedTypesProvider
 	 * 
 	 * @return Client licenses names
 	 */
-	public String[] js_getLicenseNames()
+	public String[] js_getLicenseNames() throws ServoyException
 	{
+		checkAuthorized();
 		try
 		{
-			return application.getClientHost().getLicenseNames();
+			return application.getApplicationServerAccess().getLicenseNames();
 		}
 		catch (Exception e)
 		{
@@ -182,7 +192,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 * @deprecated As of release 2.x, replaced by {@link #getActiveClientCount(boolean)}.
 	 */
 	@Deprecated
-	public int js_getActiveUserCount(boolean currentSolutionOnly)
+	public int js_getActiveUserCount(boolean currentSolutionOnly) throws ServoyException
 	{
 		return js_getActiveClientCount(currentSolutionOnly);
 	}
@@ -196,8 +206,9 @@ public class JSApplication implements IReturnedTypesProvider
 	 * 
 	 * @return Active user count on the server
 	 */
-	public int js_getActiveClientCount(boolean currentSolutionOnly)
+	public int js_getActiveClientCount(boolean currentSolutionOnly) throws ServoyException
 	{
+		checkAuthorized();
 		try
 		{
 			int sol_id = 0;
@@ -212,7 +223,7 @@ public class JSApplication implements IReturnedTypesProvider
 					sol_id = application.getFlattenedSolution().getMainSolutionMetaData().getRootObjectId();
 				}
 			}
-			return application.getClientHost().getActiveClientCount(sol_id);
+			return application.getApplicationServerAccess().getActiveClientCount(sol_id);
 		}
 		catch (Exception e)
 		{
@@ -347,11 +358,12 @@ public class JSApplication implements IReturnedTypesProvider
 	 * 
 	 * @return Number of clients
 	 */
-	public int js_getClientCountForInfo(String info)
+	public int js_getClientCountForInfo(String info) throws ServoyException
 	{
+		checkAuthorized();
 		try
 		{
-			return application.getClientHost().getClientCountForInfo(info);
+			return application.getApplicationServerAccess().getClientCountForInfo(info);
 		}
 		catch (Exception e)
 		{

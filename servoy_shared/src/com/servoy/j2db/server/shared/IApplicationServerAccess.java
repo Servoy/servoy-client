@@ -35,4 +35,15 @@ public interface IApplicationServerAccess extends Remote
 	public ITeamRepository getTeamRepository() throws RemoteException;
 
 	public IUserManager getUserManager(String clientId) throws RemoteException;
+
+	public int getActiveClientCount(int solution_id) throws RemoteException;
+
+	public int getClientCountForInfo(String info) throws RemoteException;
+
+	/**
+	 * Get the license names
+	 * 
+	 * @return
+	 */
+	public String[] getLicenseNames() throws RemoteException;
 }
