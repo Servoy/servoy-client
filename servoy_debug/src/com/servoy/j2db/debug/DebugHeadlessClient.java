@@ -363,64 +363,68 @@ public class DebugHeadlessClient extends SessionClient implements IDebugHeadless
 	@Override
 	public synchronized boolean setMainForm(String formName)
 	{
-		invokeAndWait(checkForChangesRunnable); // this is an ISessionBean interface method that can be called from JSP - update things before proceeding
+		invokeAndWaitIfExecutionNotLocked(checkForChangesRunnable); // this is an ISessionBean interface method that can be called from JSP - update things before proceeding
 		return super.setMainForm(formName);
 	}
 
 	@Override
 	public synchronized Object getDataProviderValue(String contextName, String dataprovider)
 	{
-		invokeAndWait(checkForChangesRunnable); // this is an ISessionBean interface method that can be called from JSP - update things before proceeding
+		invokeAndWaitIfExecutionNotLocked(checkForChangesRunnable); // this is an ISessionBean interface method that can be called from JSP - update things before proceeding
 		return super.getDataProviderValue(contextName, dataprovider);
 	}
 
 	@Override
 	public synchronized Object setDataProviderValue(String contextName, String dataprovider, Object value)
 	{
-		invokeAndWait(checkForChangesRunnable); // this is an ISessionBean interface method that can be called from JSP - update things before proceeding
+		invokeAndWaitIfExecutionNotLocked(checkForChangesRunnable); // this is an ISessionBean interface method that can be called from JSP - update things before proceeding
 		return super.setDataProviderValue(contextName, dataprovider, value);
 	}
 
 	@Override
 	public synchronized int setDataProviderValues(String contextName, HttpServletRequest request_data)
 	{
-		invokeAndWait(checkForChangesRunnable); // this is an ISessionBean interface method that can be called from JSP - update things before proceeding
+		invokeAndWaitIfExecutionNotLocked(checkForChangesRunnable); // this is an ISessionBean interface method that can be called from JSP - update things before proceeding
 		return super.setDataProviderValues(contextName, request_data);
 	}
 
 	@Override
 	public synchronized void saveData()
 	{
-		invokeAndWait(checkForChangesRunnable); // this is an ISessionBean interface method that can be called from JSP - update things before proceeding
+		invokeAndWaitIfExecutionNotLocked(checkForChangesRunnable); // this is an ISessionBean interface method that can be called from JSP - update things before proceeding
 		super.saveData();
 	}
 
 	@Override
 	public synchronized Object executeMethod(String visibleFormName, String methodName, Object[] arguments) throws Exception
 	{
-		invokeAndWait(checkForChangesRunnable); // this is an ISessionBean interface method that can be called from JSP - update things before proceeding
+		invokeAndWaitIfExecutionNotLocked(checkForChangesRunnable); // this is an ISessionBean interface method that can be called from JSP - update things before proceeding
 		return super.executeMethod(visibleFormName, methodName, arguments);
 	}
 
 	@Override
 	public synchronized String getI18NMessage(String key, Object[] args)
 	{
-		invokeAndWait(checkForChangesRunnable); // this is an ISessionBean interface method that can be called from JSP - update things before proceeding
+		invokeAndWaitIfExecutionNotLocked(checkForChangesRunnable); // this is an ISessionBean interface method that can be called from JSP - update things before proceeding
 		return super.getI18NMessage(key, args);
 	}
 
 	@Override
 	public synchronized void setLocale(Locale l)
 	{
-		invokeAndWait(checkForChangesRunnable); // this is an ISessionBean interface method that can be called from JSP - update things before proceeding
+		invokeAndWaitIfExecutionNotLocked(checkForChangesRunnable); // this is an ISessionBean interface method that can be called from JSP - update things before proceeding
 		super.setLocale(l);
 	}
 
 	@Override
 	public synchronized IDataSet getValueListItems(String contextName, String valuelistName)
 	{
-		invokeAndWait(checkForChangesRunnable); // this is an ISessionBean interface method that can be called from JSP - update things before proceeding
+		invokeAndWaitIfExecutionNotLocked(checkForChangesRunnable); // this is an ISessionBean interface method that can be called from JSP - update things before proceeding
 		return super.getValueListItems(contextName, valuelistName);
 	}
 
+	private void invokeAndWaitIfExecutionNotLocked(Runnable r)
+	{
+		if (!isExecutionLocked()) super.invokeAndWait(r);
+	}
 }
