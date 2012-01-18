@@ -544,7 +544,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		// do nothing here
 	}
 
-	public void logout(@SuppressWarnings("unused") Object[] solution_to_open_args)
+	public void logout(@SuppressWarnings("unused")
+	Object[] solution_to_open_args)
 	{
 		String userUid = null;
 		try
@@ -838,7 +839,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	{
 		try
 		{
-			return applicationServer.getRemoteService(name);
+			return applicationServer.getRemoteService(getClientID(), name);
 		}
 		catch (RemoteException e)
 		{
@@ -1294,12 +1295,14 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		J2DBGlobals.removeAllPropertyChangeListeners(modeManager);
 	}
 
-	private void writeObject(@SuppressWarnings("unused") ObjectOutputStream stream)
+	private void writeObject(@SuppressWarnings("unused")
+	ObjectOutputStream stream)
 	{
 		//serialize is not implemented
 	}
 
-	private void readObject(@SuppressWarnings("unused") ObjectInputStream stream)
+	private void readObject(@SuppressWarnings("unused")
+	ObjectInputStream stream)
 	{
 		//serialize is not implemented
 	}
@@ -1606,7 +1609,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	public abstract void releaseGUI();
 
-	public void invokeLater(Runnable r, @SuppressWarnings("unused") boolean immediate)
+	public void invokeLater(Runnable r, @SuppressWarnings("unused")
+	boolean immediate)
 	{
 		invokeLater(r);
 	}

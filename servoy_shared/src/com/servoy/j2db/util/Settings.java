@@ -46,31 +46,33 @@ import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.LAFManager;
 
 @ThreadSafe
+@SuppressWarnings("nls")
 public class Settings extends SortedProperties
 {
 	public static final long serialVersionUID = 8213681985670137977L;
 
 	public static final String FILE_NAME;
 	private static final int MAXIMIZED_INVIZIBLE_BORDER_PIXELS = 4;
-	private static final String CLIENT_LOCAL_FILE_NAME = "servoy_client.properties"; //$NON-NLS-1$
+	private static final String CLIENT_LOCAL_FILE_NAME = "servoy_client.properties";
 
 	public static final int INITIAL_CLIENT_WIDTH = 800;
 	public static final int INITIAL_CLIENT_HEIGHT = 600;
 
 	public static final String ENHANCED_SECURITY_SETTING = "servoy.application_server.enhancedSecurity";
 	public static final boolean ENHANCED_SECURITY_DEFAULT = true;
+	public static final String TRUSTED_REMOTE_PLUGINS = "servoy.application_server.trustedRemotePlugins";
 	public static final String START_AS_TEAMPROVIDER_SETTING = "servoy.application_server.startRepositoryAsTeamProvider";
 	public static final boolean START_AS_TEAMPROVIDER_DEFAULT = false;
-	public static final String START_GLOBAL_MAINTENANCE_MODE_SETTING = "servoy.application_server.global_maintenance_mode"; //$NON-NLS-1$
-	public static final String START_MAINTENANCE_MODE_SETTING = "servoy.application_server.maintenance_mode"; //$NON-NLS-1$
+	public static final String START_GLOBAL_MAINTENANCE_MODE_SETTING = "servoy.application_server.global_maintenance_mode";
+	public static final String START_MAINTENANCE_MODE_SETTING = "servoy.application_server.maintenance_mode";
 
 	private boolean loadedFromServer = false;
 	private File file;
 
 	static
 	{
-		String pFile = System.getProperty("property-file"); //$NON-NLS-1$
-		if (pFile == null) pFile = "servoy.properties"; //$NON-NLS-1$
+		String pFile = System.getProperty("property-file");
+		if (pFile == null) pFile = "servoy.properties";
 		FILE_NAME = pFile;
 	}
 
