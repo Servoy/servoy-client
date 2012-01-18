@@ -212,9 +212,10 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		}
 
 
-		if (formAnchorInfos != null && formAnchorInfos.size() != 0 &&
-			Utils.getAsBoolean(((MainPage)page).getController().getApplication().getRuntimeProperties().get("enableAnchors"))) //$NON-NLS-1$
+		if (formAnchorInfos != null && formAnchorInfos.size() != 0 && WebClientSession.get() != null &&
+			Utils.getAsBoolean(WebClientSession.get().getWebClient().getRuntimeProperties().get("enableAnchors"))) //$NON-NLS-1$
 		{
+
 			if (anchorInfoChanged)
 			{
 				response.renderJavascriptReference(anchorlayout);
