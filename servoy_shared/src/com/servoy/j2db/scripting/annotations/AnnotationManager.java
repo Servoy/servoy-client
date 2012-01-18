@@ -19,8 +19,8 @@ package com.servoy.j2db.scripting.annotations;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.servoy.j2db.util.Pair;
 
@@ -34,12 +34,11 @@ public class AnnotationManager
 {
 	private static AnnotationManager INSTANCE = new AnnotationManager();
 
-	private final Map<Pair<Method, Class< ? >>, Pair<Boolean, Annotation>> annotationCache;
+	private final Map<Pair<Method, Class< ? >>, Pair<Boolean, Annotation>> annotationCache = new ConcurrentHashMap<Pair<Method, Class< ? >>, Pair<Boolean, Annotation>>();
 
 
 	private AnnotationManager()
 	{
-		annotationCache = new HashMap<Pair<Method, Class< ? >>, Pair<Boolean, Annotation>>();
 	}
 
 	public static AnnotationManager getInstance()
