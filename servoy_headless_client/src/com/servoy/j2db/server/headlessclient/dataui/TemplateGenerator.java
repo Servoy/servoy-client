@@ -1602,6 +1602,12 @@ public class TemplateGenerator
 		styleObj = css.addStyle("textarea");
 		styleObj.setProperty("resize", "none");
 
+
+		// modal dialog
+		styleObj = css.addStyle("div.wicket-modal div.w_undecorated div.w_caption,div.wicket-modal div.w_undecorated div.w_top,div.wicket-modal div.w_undecorated div.w_bottom,div.wicket-modal div.w_undecorated div.w_topLeft,div.wicket-modal div.w_undecorated div.w_topRight,div.wicket-modal div.w_undecorated div.w_bottomRight,div.wicket-modal div.w_undecorated div.w_bottomLeft,div.wicket-modal div.w_undecorated a.w_close");
+		styleObj.setProperty("display", "none");
+
+
 		return css.toString();
 	}
 

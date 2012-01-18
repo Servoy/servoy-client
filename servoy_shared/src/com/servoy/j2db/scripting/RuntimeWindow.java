@@ -56,6 +56,8 @@ public abstract class RuntimeWindow implements IRuntimeWindow
 
 	private final JSWindow jsWindow;
 
+	private boolean undecorated = false;
+
 
 	protected RuntimeWindow(IApplication application, String windowName, int windowType, RuntimeWindow parentWindow)
 	{
@@ -104,6 +106,15 @@ public abstract class RuntimeWindow implements IRuntimeWindow
 
 	public abstract int getHeight();
 
+	public void setUndecorated(boolean undecorated)
+	{
+		this.undecorated = undecorated;
+	}
+
+	public boolean isUndecorated()
+	{
+		return undecorated;
+	}
 
 	public void setTitle(String title)
 	{

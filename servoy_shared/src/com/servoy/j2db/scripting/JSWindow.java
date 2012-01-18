@@ -231,6 +231,23 @@ public class JSWindow implements IConstantsObject
 		return impl.getHeight();
 	}
 
+	public void js_setUndecorated(boolean undecorated)
+	{
+		impl.setUndecorated(undecorated);
+	}
+
+	/**
+	 * Gets/Sets the undecorated property.
+	 * If set then this window will not have any decoration and can't be moved/resized or closed.
+	 *  
+	 * @return if this window will be undecorated
+	 */
+	public boolean js_isUndecorated()
+	{
+		return impl.isUndecorated();
+	}
+
+
 	public void js_setTitle(String title)
 	{
 		impl.setTitle(title);
