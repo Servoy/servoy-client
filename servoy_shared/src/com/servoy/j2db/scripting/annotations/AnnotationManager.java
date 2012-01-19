@@ -64,7 +64,7 @@ public class AnnotationManager
 		if (pair == null)
 		{
 			Annotation annotation = method.getAnnotation(annotationClass);
-			for (Class< ? > cls = method.getDeclaringClass(); annotation == null && cls != Object.class; cls = cls.getSuperclass())
+			for (Class< ? > cls = method.getDeclaringClass(); annotation == null && (cls != Object.class && cls != null); cls = cls.getSuperclass())
 			{
 				// check if the method is part of an interface that has the annotation
 				Class< ? >[] interfaces = cls.getInterfaces();
