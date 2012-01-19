@@ -456,7 +456,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 		if (fp != null && fp.getName().equals(formName))
 		{
 			sfd.setModal(windowModal);
-			sfd.setUndecorated(isUndecorated());
+			if (!sfd.isDisplayable()) sfd.setUndecorated(isUndecorated());
 			if (windowModal)
 			{
 				testAndSetJava6Modality(sfd);
