@@ -24,7 +24,7 @@ import javax.swing.event.SwingPropertyChangeSupport;
 
 public class J2DBGlobals
 {
-	private static final ThreadLocal<IServiceProvider> serviceproviders = new ThreadLocal<IServiceProvider>();
+	private static final ThreadLocal<IServiceProvider> serviceprovider = new ThreadLocal<IServiceProvider>();
 
 	public static final String SERVOY_APPLICATION_SERVER_DIRECTORY_KEY = "servoy_application_server.dir"; //$NON-NLS-1$
 
@@ -45,12 +45,12 @@ public class J2DBGlobals
 
 	public static void setServiceProvider(IServiceProvider provider)
 	{
-		serviceproviders.set(provider);
+		serviceprovider.set(provider);
 	}
 
 	public static IServiceProvider getServiceProvider()
 	{
-		IServiceProvider provider = serviceproviders.get();
+		IServiceProvider provider = serviceprovider.get();
 		if (provider == null)
 		{
 			return singletonServiceProvider;

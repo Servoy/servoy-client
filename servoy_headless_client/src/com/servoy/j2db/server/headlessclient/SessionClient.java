@@ -166,7 +166,7 @@ public class SessionClient extends ClientState implements ISessionClient
 		getClientInfo().setApplicationType(getApplicationType());
 		getClientInfo().setSolutionIntendedToBeLoaded(solution);
 
-		boolean reset = testThreadLocals();
+		IServiceProvider prev = testThreadLocals();
 		try
 		{
 			settings = Settings.getInstance();
@@ -211,7 +211,7 @@ public class SessionClient extends ClientState implements ISessionClient
 		}
 		finally
 		{
-			if (reset) unsetThreadLocals();
+			unsetThreadLocals(prev);
 		}
 	}
 
@@ -277,7 +277,7 @@ public class SessionClient extends ClientState implements ISessionClient
 	@Override
 	protected void loadSolution(SolutionMetaData solutionMeta) throws RepositoryException
 	{
-		boolean reset = testThreadLocals();
+		IServiceProvider prev = testThreadLocals();
 		try
 		{
 			loadSolutionsAndModules(solutionMeta);
@@ -287,7 +287,7 @@ public class SessionClient extends ClientState implements ISessionClient
 		}
 		finally
 		{
-			if (reset) unsetThreadLocals();
+			unsetThreadLocals(prev);
 		}
 
 		// Note that getSolution() may return null at this point if the security.closeSolution() or security.logout() was called in onSolutionOpen
@@ -330,7 +330,7 @@ public class SessionClient extends ClientState implements ISessionClient
 	public void shutDown(boolean force)
 	{
 		shuttingDown = true;
-		boolean reset = testThreadLocals();
+		IServiceProvider prev = testThreadLocals();
 		try
 		{
 			super.shutDown(force);
@@ -344,10 +344,7 @@ public class SessionClient extends ClientState implements ISessionClient
 		}
 		finally
 		{
-			if (reset)
-			{
-				unsetThreadLocals();
-			}
+			unsetThreadLocals(prev);
 			shuttingDown = false;
 		}
 	}
@@ -359,24 +356,38 @@ public class SessionClient extends ClientState implements ISessionClient
 	}
 
 	/**
-	 * This method the currently set service provider. Will return true if the thread locals must be reset to null.
+	 * This method sets the service provider to this if needed. Will return the previous provider that should be set back later.
 	 * 
-	 * @return true if not found and set (then it should be reset).
+	 * @return previously set service provider.
 	 */
-	protected boolean testThreadLocals()
+	protected IServiceProvider testThreadLocals()
 	{
+		if (!Application.exists())
+		{
+			Application.set(wicket_app);
+		}
+		if (!Session.exists())
+		{
+			synchronized (wicket_app)
+			{
+				if (wicket_session == null)
+				{
+					wicket_app.fakeInit();
+					wicket_session = wicket_app.newSession(new EmptyRequest(), null);
+				}
+			}
+			Session.set(wicket_session);
+		}
+
 		IServiceProvider provider = J2DBGlobals.getServiceProvider();
 		if (provider != this)
 		{
 			// if this happens it is a webclient in developer..
 			// and the provider is not set for this web client. so it must be set.
-			provider = null;
+			J2DBGlobals.setServiceProvider(this);
 		}
-		if (provider == null)
-		{
-			setThreadLocals(this);
-		}
-		return provider == null;
+
+		return provider;
 	}
 
 	/**
@@ -577,7 +588,7 @@ public class SessionClient extends ClientState implements ISessionClient
 	public synchronized Object executeMethod(String visibleFormName, String methodName, Object[] arguments) throws Exception
 	{
 		Object retval = null;
-		setThreadLocals(this);
+		IServiceProvider prev = testThreadLocals();
 		try
 		{
 			String formName = visibleFormName;
@@ -617,30 +628,9 @@ public class SessionClient extends ClientState implements ISessionClient
 		}
 		finally
 		{
-			unsetThreadLocals();
+			unsetThreadLocals(prev);
 		}
 		return retval;
-	}
-
-	private static void setThreadLocals(IServiceProvider provider)
-	{
-		if (!Application.exists())
-		{
-			Application.set(wicket_app);
-		}
-		if (!Session.exists())
-		{
-			synchronized (wicket_app)
-			{
-				if (wicket_session == null)
-				{
-					wicket_app.fakeInit();
-					wicket_session = wicket_app.newSession(new EmptyRequest(), null);
-				}
-			}
-			Session.set(wicket_session);
-		}
-		J2DBGlobals.setServiceProvider(provider);
 	}
 
 	public WebClientsApplication getFakeApplication()
@@ -656,23 +646,26 @@ public class SessionClient extends ClientState implements ISessionClient
 		return wicket_app;
 	}
 
-	protected void unsetThreadLocals()
+	protected void unsetThreadLocals(IServiceProvider prev)
 	{
-		if (Application.get() == wicket_app)
+		if (J2DBGlobals.getServiceProvider() != prev)
 		{
-			Application.unset();
+			if (Application.get() == wicket_app)
+			{
+				Application.unset();
+			}
+			if (Session.exists() && Session.get() == wicket_session)
+			{
+				Session.unset();
+			}
+			J2DBGlobals.setServiceProvider(prev);
 		}
-		if (Session.exists() && Session.get() == wicket_session)
-		{
-			Session.unset();
-		}
-		J2DBGlobals.setServiceProvider(null);
 	}
 
 	public synchronized Object getDataProviderValue(String contextName, String dataProviderID)
 	{
 		if (dataProviderID == null) return null;
-		setThreadLocals(this);
+		IServiceProvider prev = testThreadLocals();
 		try
 		{
 			Object value = null;
@@ -704,20 +697,20 @@ public class SessionClient extends ClientState implements ISessionClient
 		}
 		finally
 		{
-			unsetThreadLocals();
+			unsetThreadLocals(prev);
 		}
 	}
 
 	public synchronized void saveData()
 	{
-		setThreadLocals(this);
+		IServiceProvider prev = testThreadLocals();
 		try
 		{
 			getFoundSetManager().getEditRecordList().stopEditing(false);
 		}
 		finally
 		{
-			unsetThreadLocals();
+			unsetThreadLocals(prev);
 		}
 	}
 
@@ -790,7 +783,7 @@ public class SessionClient extends ClientState implements ISessionClient
 
 	public synchronized Object setDataProviderValue(String contextName, String dataprovider, Object value)
 	{
-		setThreadLocals(this);
+		IServiceProvider prev = testThreadLocals();
 		try
 		{
 			Pair<IRecordInternal, FormScope> p = getContext(contextName);
@@ -798,7 +791,7 @@ public class SessionClient extends ClientState implements ISessionClient
 		}
 		finally
 		{
-			unsetThreadLocals();
+			unsetThreadLocals(prev);
 		}
 	}
 
@@ -850,7 +843,7 @@ public class SessionClient extends ClientState implements ISessionClient
 				Debug.log(e);
 			}
 		}
-		setThreadLocals(this);
+		IServiceProvider prev = testThreadLocals();
 		try
 		{
 			Pair<IRecordInternal, FormScope> p = getContext(contextName);
@@ -866,13 +859,13 @@ public class SessionClient extends ClientState implements ISessionClient
 		}
 		finally
 		{
-			unsetThreadLocals();
+			unsetThreadLocals(prev);
 		}
 	}
 
 	public synchronized boolean setMainForm(String formName)
 	{
-		setThreadLocals(this);
+		IServiceProvider prev = testThreadLocals();
 		try
 		{
 			FormController fp = ((FormManager)getFormManager()).showFormInMainPanel(formName);
@@ -896,7 +889,7 @@ public class SessionClient extends ClientState implements ISessionClient
 		}
 		finally
 		{
-			unsetThreadLocals();
+			unsetThreadLocals(prev);
 		}
 		return false;
 	}
@@ -1119,7 +1112,7 @@ public class SessionClient extends ClientState implements ISessionClient
 
 	public synchronized IDataSet getValueListItems(String contextName, String valuelistName)
 	{
-		setThreadLocals(this);
+		IServiceProvider prev = testThreadLocals();
 		try
 		{
 			ValueList vl = getFlattenedSolution().getValueList(valuelistName);
@@ -1160,7 +1153,7 @@ public class SessionClient extends ClientState implements ISessionClient
 		}
 		finally
 		{
-			unsetThreadLocals();
+			unsetThreadLocals(prev);
 		}
 		return null;
 	}
@@ -1195,7 +1188,7 @@ public class SessionClient extends ClientState implements ISessionClient
 
 	public void invokeAndWait(Runnable r)
 	{
-		boolean reset = testThreadLocals();
+		IServiceProvider prev = testThreadLocals();
 		// We test here for printing, WebForm.processFppInAWTEventQueue(..) will call SwingUtilities.invokeAndWait() to print in awt thread.
 		if (!SwingUtilities.isEventDispatchThread()) executing.lock();
 		try
@@ -1205,10 +1198,7 @@ public class SessionClient extends ClientState implements ISessionClient
 		finally
 		{
 			if (!SwingUtilities.isEventDispatchThread()) executing.unlock();
-			if (reset)
-			{
-				unsetThreadLocals();
-			}
+			unsetThreadLocals(prev);
 		}
 	}
 
@@ -1254,18 +1244,20 @@ public class SessionClient extends ClientState implements ISessionClient
 				{
 					scheduledExecutorService = new ServoyScheduledExecutor(1, 4, 1)
 					{
+						private IServiceProvider prev;
+
 						@Override
 						protected void beforeExecute(Thread t, Runnable r)
 						{
 							super.beforeExecute(t, r);
-							setThreadLocals(SessionClient.this);
+							prev = testThreadLocals();
 						}
 
 						@Override
 						protected void afterExecute(Runnable r, Throwable t)
 						{
 							super.afterExecute(r, t);
-							unsetThreadLocals();
+							unsetThreadLocals(prev);
 						}
 					};
 				}

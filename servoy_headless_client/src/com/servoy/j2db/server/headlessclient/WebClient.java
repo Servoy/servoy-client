@@ -530,14 +530,14 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		if (isEventDispatchThread())
 		{
 			// we have to test for the thread locals because isEventDispatchThread can return true for 2 threads including AWT Thread
-			boolean reset = testThreadLocals();
+			IServiceProvider prev = testThreadLocals();
 			try
 			{
 				r.run();
 			}
 			finally
 			{
-				if (reset) unsetThreadLocals();
+				unsetThreadLocals(prev);
 			}
 		}
 		else
@@ -572,14 +572,14 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		if (isShutDown() || SwingUtilities.isEventDispatchThread())
 		{
 			// thread locals may not have been set when in AWT Thread
-			boolean reset = testThreadLocals();
+			IServiceProvider prev = testThreadLocals();
 			try
 			{
 				r.run();
 			}
 			finally
 			{
-				if (reset) unsetThreadLocals();
+				unsetThreadLocals(prev);
 			}
 		}
 		else
@@ -917,7 +917,8 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		}
 	}
 
-	public void onEndRequest(@SuppressWarnings("unused") WebClientSession webClientSession)
+	public void onEndRequest(@SuppressWarnings("unused")
+	WebClientSession webClientSession)
 	{
 	}
 
