@@ -66,6 +66,7 @@ import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.TabIndexHelper;
+import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IFormLookupPanel;
@@ -330,6 +331,12 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 						if (clp.isBrowserKonqueror() || clp.isBrowserSafari()) response.renderOnLoadJavascript(jsCall);
 						else response.renderOnDomReadyJavascript(jsCall);
 					}
+				}
+
+				@Override
+				public boolean isEnabled(Component component)
+				{
+					return WebClientSession.get().useAjax();
 				}
 
 			});

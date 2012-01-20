@@ -27,6 +27,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.dataprocessing.FindState;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
@@ -142,6 +143,11 @@ public class WebDataCheckBox extends WebBaseSelectBox
 		@Override
 		public boolean isEnabled()
 		{
+			IFormUIInternal< ? > formui = findParent(IFormUIInternal.class);
+			if (formui != null && formui.isDesignMode())
+			{
+				return false;
+			}
 			return WebDataCheckBox.this.isEnabled();
 		}
 

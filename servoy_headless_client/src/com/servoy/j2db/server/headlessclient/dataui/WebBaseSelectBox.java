@@ -111,7 +111,7 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 		setOutputMarkupPlaceholderTag(true);
 
 		add(selector);
-		add(new Label("text_" + id, "")
+		Label selectLabel = new Label("text_" + id, "")
 		{
 			@Override
 			protected void onComponentTag(ComponentTag tag)
@@ -135,7 +135,9 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 				}
 			}
 
-		}); //$NON-NLS-1$ //$NON-NLS-2$
+		};
+		selectLabel.setOutputMarkupId(true);
+		add(selectLabel); //$NON-NLS-1$ //$NON-NLS-2$
 		setText(Text.processTags(text, null));
 
 		selector.add(new FocusIfInvalidAttributeModifier(selector));

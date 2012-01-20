@@ -219,7 +219,7 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 					return IVisitor.CONTINUE_TRAVERSAL;
 				}
 			});
-			if (child != null && action != null)
+			if (child instanceof IComponent && action != null)
 			{
 				int height = stripUnitPart(request.getParameter(PARAM_RESIZE_HEIGHT));
 				int width = stripUnitPart(request.getParameter(PARAM_RESIZE_WIDTH));
@@ -229,7 +229,7 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 
 				if (action.equals(ACTION_SELECT))
 				{
-					Object ret = callback.executeOnSelect(getJSEvent(EventType.rightClick, 0, new Point(x, y), new IComponent[] { (IComponent)child }));
+					Object ret = callback.executeOnSelect(getJSEvent(EventType.action, 0, new Point(x, y), new IComponent[] { (IComponent)child }));
 					if (ret instanceof Boolean && !((Boolean)ret).booleanValue())
 					{
 						onSelectComponent = null;

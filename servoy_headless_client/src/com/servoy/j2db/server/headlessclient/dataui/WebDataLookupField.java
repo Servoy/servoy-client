@@ -37,6 +37,7 @@ import org.apache.wicket.protocol.http.ClientProperties;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.GlobalMethodValueList;
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
@@ -262,6 +263,11 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			@Override
 			public boolean isEnabled(Component component)
 			{
+				IFormUIInternal< ? > formui = findParent(IFormUIInternal.class);
+				if (formui != null && formui.isDesignMode())
+				{
+					return false;
+				}
 				return super.isEnabled(component) && WebClientSession.get().useAjax();
 			}
 		};
