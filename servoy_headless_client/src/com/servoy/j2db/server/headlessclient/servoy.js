@@ -2213,6 +2213,40 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 				if(lbElem && lbElem.className == 'label') elem = lbElem;
 			}
 			
+			// get enclosing div for date field
+			if(elem.id && elem.id.indexOf('datefield')>0)
+			{
+				var dateElem = elem;
+				while(dateElem && dateElem.className != 'field')
+				{
+					dateElem = dateElem.parentNode;
+				}
+				if(dateElem && dateElem.className == 'field') elem = dateElem;			
+			}
+			
+			// get enclosing div for date checkbox
+			if(elem.id && (elem.id.indexOf('check_')>-1 || elem.id.indexOf('text_')>-1))
+			{
+				var checkElem = elem;
+				while(checkElem && checkElem.className != 'check')
+				{
+					checkElem = checkElem.parentNode;
+				}
+				if(checkElem && checkElem.className == 'check') elem = checkElem;			
+			}
+			
+			// get tabpanel of form
+			if(elem.className == 'formpart')
+			{
+				var tabpanelElem = elem;
+				while(tabpanelElem && tabpanelElem.className != 'tabpanel')
+				{
+					tabpanelElem = tabpanelElem.parentNode;
+				}
+				if(tabpanelElem && tabpanelElem.className == 'tabpanel') elem = tabpanelElem;
+			}
+			
+
 			if (!elem.id)
 			{
 				elem = elem.parentNode;

@@ -2350,7 +2350,28 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			Page page = findPage();
 			if (page instanceof MainPage && ((MainPage)page).getController() != null)
 			{
-				if (Utils.getAsBoolean(((MainPage)page).getController().getApplication().getRuntimeProperties().get("enableAnchors"))) //$NON-NLS-1$
+				boolean webAnchorsEnabled = Utils.getAsBoolean(((MainPage)page).getController().getApplication().getRuntimeProperties().get("enableAnchors")); //$NON-NLS-1$
+				if (webAnchorsEnabled)
+				{
+					// test if there is a form in design
+					Object isInDesign = visitChildren(IFormUIInternal.class, new IVisitor<Component>()
+					{
+						public Object component(Component component)
+						{
+							if (((IFormUIInternal< ? >)component).isDesignMode())
+							{
+								return Boolean.TRUE;
+							}
+							return IVisitor.CONTINUE_TRAVERSAL;
+						}
+					});
+					if (isInDesign instanceof Boolean)
+					{
+						webAnchorsEnabled = !((Boolean)isInDesign).booleanValue();
+					}
+				}
+
+				if (webAnchorsEnabled)
 				{
 					jsCall += "layoutEntirePage();"; //$NON-NLS-1$
 				}

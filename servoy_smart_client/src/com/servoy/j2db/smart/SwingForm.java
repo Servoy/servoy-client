@@ -1877,7 +1877,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			}
 			if (changed)
 			{
-				Object ret = callback.executeOnSelect(getJSEvent(e, EventType.rightClick));
+				Object ret = callback.executeOnSelect(getJSEvent(e, EventType.action));
 				if (selectedComponent != null && ret instanceof Boolean && !((Boolean)ret).booleanValue())
 				{
 					selectedComponents.remove(selectedComponent);
@@ -1904,7 +1904,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 				List<JComponent> changed = calculateSelection(realViewPort, rect);
 				if (changed.size() > 0)
 				{
-					Object ret = callback.executeOnSelect(getJSEvent(e, EventType.rightClick));
+					Object ret = callback.executeOnSelect(getJSEvent(e, EventType.action));
 					if (ret instanceof Boolean && !((Boolean)ret).booleanValue())
 					{
 						Map<JComponent, int[][]> selectedComponents = selectionHandler.getSelectionForChange(this);
