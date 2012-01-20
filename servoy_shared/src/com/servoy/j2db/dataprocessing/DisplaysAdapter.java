@@ -270,7 +270,7 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 				IRecordInternal currState = state;
 				for (int i = 0; i < parts.length - 1; i++)
 				{
-					IFoundSetInternal foundset = currState.getRelatedFoundSet(parts[i], null);
+					IFoundSetInternal foundset = currState.getRelatedFoundSet(parts[i]);
 					if (foundset == null)
 					{
 						break;

@@ -462,7 +462,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			SQLSheet childSheet = getSQLGenerator().getCachedTableSQLSheet(relation.getForeignDataSource());
 			// this returns quickly if it already has a sheet for that relation, but optimize further?
 			getSQLGenerator().makeRelatedSQL(childSheet, relation);
-			return getRelatedFoundSet(new PrototypeState(getSharedFoundSet(relation.getForeignDataSource(), null)), childSheet, name, null);
+			return getRelatedFoundSet(new PrototypeState(getSharedFoundSet(relation.getForeignDataSource())), childSheet, name,
+				getDefaultPKSortColumns(relation.getForeignDataSource()));
 		}
 		return null;
 	}
@@ -1087,7 +1088,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return filters;
 	}
 
-	public IFoundSetInternal getSeparateFoundSet(IFoundSetListener l, List defaultSortColumns) throws ServoyException
+	public IFoundSetInternal getSeparateFoundSet(IFoundSetListener l, List<SortColumn> defaultSortColumns) throws ServoyException
 	{
 		if (l.getDataSource() == null)
 		{
@@ -1107,7 +1108,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return foundset;
 	}
 
-	public IFoundSetInternal getSharedFoundSet(String dataSource, List defaultSortColumns) throws ServoyException
+	public IFoundSetInternal getSharedFoundSet(String dataSource, List<SortColumn> defaultSortColumns) throws ServoyException
 	{
 		if (dataSource == null || !application.getFlattenedSolution().isMainSolutionLoaded())
 		{
@@ -1139,14 +1140,14 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return foundSet;
 	}
 
-	public IFoundSet getSharedFoundSet(String dataSource) throws ServoyException
+	public IFoundSetInternal getSharedFoundSet(String dataSource) throws ServoyException
 	{
-		return getSharedFoundSet(dataSource, null);
+		return getSharedFoundSet(dataSource, getDefaultPKSortColumns(dataSource));
 	}
 
 	public IFoundSet getNewFoundSet(String dataSource) throws ServoyException
 	{
-		return getNewFoundSet(dataSource, null, null);
+		return getNewFoundSet(dataSource, null, getDefaultPKSortColumns(dataSource));
 	}
 
 	public IFoundSetInternal getNewFoundSet(ITable table, QuerySelect pkSelect, List<SortColumn> defaultSortColumns) throws ServoyException
@@ -1154,6 +1155,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return getNewFoundSet(getDataSource(table), pkSelect, defaultSortColumns);
 	}
 
+	/**
+	 * @param defaultSortColumns: when null: use sorting defined in query
+	 */
 	public IFoundSetInternal getNewFoundSet(String dataSource, QuerySelect pkSelect, List<SortColumn> defaultSortColumns) throws ServoyException
 	{
 		if (dataSource == null)
@@ -1336,6 +1340,18 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			catch (Exception ex)
 			{
 				Debug.error(ex);
+			}
+		}
+		if (list.size() == 0)
+		{
+			// default pk sort
+			try
+			{
+				return getDefaultPKSortColumns(t.getDataSource());
+			}
+			catch (ServoyException e)
+			{
+				Debug.error(e);
 			}
 		}
 		return list;
@@ -1765,7 +1781,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			if (table != null)
 			{
 				// temp table was used before, delete all data in it
-				FoundSet foundSet = (FoundSet)getSharedFoundSet(dataSource, null);
+				FoundSet foundSet = (FoundSet)getSharedFoundSet(dataSource);
 				foundSet.removeLastFound();
 				try
 				{
@@ -2095,7 +2111,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			if (table != null)
 			{
 				// temp table was used before, delete all data in it
-				FoundSet foundSet = (FoundSet)getSharedFoundSet(dataSource, null);
+				FoundSet foundSet = (FoundSet)getSharedFoundSet(dataSource);
 				foundSet.removeLastFound();
 				try
 				{
@@ -2230,15 +2246,20 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	public IFoundSetInternal getFoundSet(String dataSource) throws ServoyException
 	{
-		IFoundSetInternal fs = getNewFoundSet(dataSource, null, null);
+		IFoundSetInternal fs = getNewFoundSet(dataSource, null, getDefaultPKSortColumns(dataSource));
 		fs.clear();//have to deliver a initialized foundset, user might call new record as next call on this one
 		return fs;
+	}
+
+	public List<SortColumn> getDefaultPKSortColumns(String dataSource) throws ServoyException
+	{
+		return getSQLGenerator().getCachedTableSQLSheet(dataSource).getDefaultPKSort();
 	}
 
 	public IFoundSet getFoundSet(IQueryBuilder query) throws ServoyException
 	{
 		QBSelect select = (QBSelect)query;
-		IFoundSet fs = getNewFoundSet(select.getDataSource(), select.getQuery(), null);
+		IFoundSet fs = getNewFoundSet(select.getDataSource(), select.getQuery(), null /* use sorting defined in query */);
 		fs.loadAllRecords();
 		return fs;
 	}

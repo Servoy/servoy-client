@@ -676,7 +676,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 						if (!ScopesUtils.isVariableScope(partName))
 						{
 							String relationName = partName;
-							if (relationName != null && !(state.isRelatedFoundSetLoaded(relationName, restName)))
+							if (relationName != null && !state.isRelatedFoundSetLoaded(relationName, restName))
 							{
 								IApplication app = dal.getApplication();
 								((IDisplayData)renderer).setValueObject(null);
@@ -684,13 +684,24 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 								if (!rowAndDataprovider.containsKey(key))
 								{
 									rowAndDataprovider.put(key, key);
+
+									List<SortColumn> defaultPKSortColumns = null;
+									try
+									{
+										defaultPKSortColumns = app.getFoundSetManager().getDefaultPKSortColumns(
+											app.getFlattenedSolution().getRelation(relationName).getForeignDataSource());
+									}
+									catch (ServoyException e)
+									{
+										Debug.error(e);
+									}
 									Runnable r = new ASynchonizedCellLoad(app, jtable, foundset, row, jtable.convertColumnIndexToModel(column), relationName,
-										null, restName);
+										defaultPKSortColumns , restName);
 									app.getScheduledExecutor().execute(r);
 								}
 								return renderer.isVisible() ? renderer : empty;
 							}
-							IFoundSetInternal rfs = state.getRelatedFoundSet(relationName, null);
+							IFoundSetInternal rfs = state.getRelatedFoundSet(relationName);
 							if (rfs != null)
 							{
 								int selected = rfs.getSelectedIndex();

@@ -195,15 +195,15 @@ public class FormPreviewPanel extends JPanel implements IPrintInfo
 			}
 //			fp.getFormModel().sort(lst);
 		}
-		List sortColumns = ((FoundSet)formData).getLastSortColumns();
+		List<SortColumn> sortColumns = ((FoundSet)formData).getLastSortColumns();
 		if (formData.getSize() != 0)
 		{
 			if (sortColumns != null)
 			{
-				Set consumed = new HashSet();
+				Set<String> consumed = new HashSet<String>();
 				for (int i = 0; i < sortColumns.size(); i++)
 				{
-					SortColumn sc = (SortColumn)sortColumns.get(i);
+					SortColumn sc = sortColumns.get(i);
 					Iterator<Part> it = part_panels.keySet().iterator();
 					while (it.hasNext())
 					{
@@ -223,7 +223,7 @@ public class FormPreviewPanel extends JPanel implements IPrintInfo
 
 						boolean match = false;
 						int inlineCount = 0;
-						List partSortColumns = new ArrayList();
+						List<SortColumn> partSortColumns = new ArrayList<SortColumn>();
 						SortColumn lastMatch = sc;
 						String groupByDataproviders = part.getGroupbyDataProviderIDs() != null ? part.getGroupbyDataProviderIDs() : "";
 						StringTokenizer tk = new StringTokenizer("" + groupByDataproviders.toLowerCase(), ", "); //$NON-NLS-1$ //$NON-NLS-2$
@@ -238,7 +238,7 @@ public class FormPreviewPanel extends JPanel implements IPrintInfo
 								partSortColumns.add(lastMatch);
 								if ((i + inlineCount + 1) < sortColumns.size())
 								{
-									lastMatch = (SortColumn)sortColumns.get(i + inlineCount + 1);
+									lastMatch = sortColumns.get(i + inlineCount + 1);
 									if (part.getPartType() == Part.LEADING_SUBSUMMARY && consumed.contains(lastMatch))
 									{
 										break;
@@ -291,7 +291,7 @@ public class FormPreviewPanel extends JPanel implements IPrintInfo
 				PartNode newNode = null;
 				if (body == null)
 				{
-					newNode = new PartNode(this, null, null, renderParent, null);//a vitual body (when no body is placed in the parts)
+					newNode = new PartNode(this, null, null, renderParent, null);//a virtual body (when no body is placed in the parts)
 				}
 				else
 				{

@@ -28,6 +28,7 @@ import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
+import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.ui.IFormLookupPanel;
@@ -159,9 +160,9 @@ public class FormLookupPanel extends EnablePanel implements IFormLookupPanel
 		return formName;
 	}
 
-	private List defaultSort = null;
+	private List<SortColumn> defaultSort = null;
 
-	public List getDefaultSort()
+	public List<SortColumn> getDefaultSort()
 	{
 		if (defaultSort == null)
 		{
@@ -177,7 +178,7 @@ public class FormLookupPanel extends EnablePanel implements IFormLookupPanel
 			catch (RepositoryException e)
 			{
 				Debug.error(e);
-				defaultSort = new ArrayList(1);
+				defaultSort = new ArrayList<SortColumn>(1);
 			}
 		}
 		return defaultSort;

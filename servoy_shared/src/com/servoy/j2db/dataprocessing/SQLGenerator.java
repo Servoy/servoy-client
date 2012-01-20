@@ -131,7 +131,7 @@ public class SQLGenerator
 		{
 			retval = AbstractBaseQuery.deepClone(oldSQLQuery);
 			retval.setGroupBy(null);
-			retval.clearSorts(); // will be generated based on foundset sorting
+			if (orderByFields != null) retval.clearSorts(); // will be generated based on foundset sorting
 			// remove all servoy conditions, except filter, search and relation
 			for (String conditionName : retval.getConditionNames())
 			{
@@ -210,24 +210,19 @@ public class SQLGenerator
 		}
 
 		//make orderby
-		List<SortColumn> orderBy;
-		if (orderByFields == null)
+		if (orderByFields != null || retval.getSorts() == null)
 		{
-			orderBy = new ArrayList<SortColumn>();
-		}
-		else
-		{
-			orderBy = orderByFields;
-		}
-		if (orderBy.size() == 0)
-		{
-			for (int i = 0; i < pkColumns.size(); i++)
+			List<SortColumn> orderBy = orderByFields == null ? new ArrayList<SortColumn>(3) : orderByFields;
+			if (orderBy.size() == 0)
 			{
-				orderBy.add(new SortColumn(pkColumns.get(i)));
+				for (int i = 0; i < pkColumns.size(); i++)
+				{
+					orderBy.add(new SortColumn(pkColumns.get(i)));
+				}
 			}
-		}
 
-		addSorts(application, retval, retval.getTable(), provider, table, orderBy, true);
+			addSorts(application, retval, retval.getTable(), provider, table, orderBy, true);
+		} // else use ordering defined in query
 
 		if (removeUnusedJoins)
 		{

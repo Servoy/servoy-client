@@ -38,6 +38,8 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 
 	public IFoundSetInternal getSharedFoundSet(String dataSource, List<SortColumn> defaultSortColumns) throws ServoyException;
 
+	public IFoundSetInternal getSharedFoundSet(String dataSource) throws ServoyException;
+
 	/**
 	 * Get a separate foundset for some Form.
 	 * 
@@ -125,5 +127,10 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 
 	public IConverterManager<IColumnConverter> getColumnConverterManager();
 
+	/**
+	 * Get the default pk sort columns for the data source.
+	 * @since 6.1
+	 */
+	public List<SortColumn> getDefaultPKSortColumns(String dataSource) throws ServoyException;
 
 }

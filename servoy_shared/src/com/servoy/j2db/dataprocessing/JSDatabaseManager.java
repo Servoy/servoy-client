@@ -64,6 +64,9 @@ import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.QueryUpdate;
+import com.servoy.j2db.querybuilder.IQueryBuilder;
+import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
+import com.servoy.j2db.querybuilder.IQueryBuilderFactory;
 import com.servoy.j2db.querybuilder.impl.QBAggregate;
 import com.servoy.j2db.querybuilder.impl.QBColumn;
 import com.servoy.j2db.querybuilder.impl.QBColumns;
@@ -368,7 +371,8 @@ public class JSDatabaseManager
 				}
 
 				Table ft = relation.getForeignTable();
-				FoundSet fs_new = (FoundSet)application.getFoundSetManager().getNewFoundSet(ft, null, null);
+				FoundSet fs_new = (FoundSet)application.getFoundSetManager().getNewFoundSet(ft, null,
+					application.getFoundSetManager().getDefaultPKSortColumns(ft.getDataSource()));
 
 				QuerySelect sql = fs_old.getPksAndRecords().getQuerySelectForModification();
 				SQLSheet sheet_new = fs_old.getSQLSheet().getRelatedSheet(relation, ((FoundSetManager)application.getFoundSetManager()).getSQLGenerator());
@@ -2628,7 +2632,7 @@ public class JSDatabaseManager
 				while (tk.hasMoreTokens())
 				{
 					String relationName = tk.nextToken();
-					IFoundSetInternal rfs = rec.getRelatedFoundSet(relationName, null);
+					IFoundSetInternal rfs = rec.getRelatedFoundSet(relationName);
 					if (rfs != null && rfs.getSize() > 0)
 					{
 						retval = true;

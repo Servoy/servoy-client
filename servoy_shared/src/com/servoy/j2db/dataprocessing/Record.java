@@ -236,7 +236,7 @@ public class Record implements Scriptable, IRecordInternal
 
 		if (parent.isValidRelation(dataProviderID))
 		{
-			return getRelatedFoundSet(dataProviderID, null);
+			return getRelatedFoundSet(dataProviderID);
 		}
 		return Scriptable.NOT_FOUND;
 	}
@@ -671,7 +671,7 @@ public class Record implements Scriptable, IRecordInternal
 
 	public IFoundSetInternal getRelatedFoundSet(String name)
 	{
-		return getRelatedFoundSet(name, null);//only used for related fields, sort is irrelevant
+		return getRelatedFoundSet(name, parent.getSQLSheet().getDefaultPKSort() );//only used for related fields, sort is irrelevant
 	}
 
 	public boolean isRelatedFoundSetLoaded(String relationName, String restName)
@@ -1010,8 +1010,7 @@ public class Record implements Scriptable, IRecordInternal
 		return row.getLastException();
 	}
 
-	public void js_setException(@SuppressWarnings("unused")
-	Exception ex)
+	public void js_setException(@SuppressWarnings("unused") Exception ex)
 	{
 		//ignore
 	}
@@ -1042,8 +1041,7 @@ public class Record implements Scriptable, IRecordInternal
 		return parent;
 	}
 
-	public void js_setFoundset(@SuppressWarnings("unused")
-	IFoundSetInternal foundset)
+	public void js_setFoundset(@SuppressWarnings("unused") IFoundSetInternal foundset)
 	{
 		//ignore
 	}

@@ -211,14 +211,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		rowManager = fsm.getRowManager(fsm.getDataSource(sheet.getTable()));
 		if (rowManager != null && !(a_parent instanceof FindState)) rowManager.register(this);
-		if (defaultSortColumns == null || defaultSortColumns.size() == 0)
-		{
-			defaultSort = sheet.getDefaultPKSort();
-		}
-		else
-		{
-			defaultSort = defaultSortColumns;
-		}
+		// null default sort columns means: use sort columns from query
+		defaultSort = defaultSortColumns;
 		lastSortColumns = defaultSort;
 
 		if (sheet.getTable() != null && pkSelect == null)
@@ -3395,7 +3389,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					if (!rel.getAllowParentDeleteWhenHavingRelatedRecords() && !rel.isExactPKRef(fsm.getApplication().getFlattenedSolution()) &&
 						!rel.isGlobal())
 					{
-						IFoundSetInternal set = state.getRelatedFoundSet(rel.getName(), null);
+						IFoundSetInternal set = state.getRelatedFoundSet(rel.getName());
 						if (set != null && set.getSize() > 0)
 						{
 							Debug.log("Delete not granted due to AllowParentDeleteWhenHavingRelatedRecords size: " + set.getSize() + " from record with PK: " + state.getPKHashKey() + " index in foundset: " + row + " blocked by relation: " + rel.getName()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -3411,7 +3405,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					Relation rel = it.next();
 					if (rel.getDeleteRelatedRecords() && !rel.isGlobal())//if completely global never delete do cascade delete
 					{
-						IFoundSetInternal set = state.getRelatedFoundSet(rel.getName(), null);
+						IFoundSetInternal set = state.getRelatedFoundSet(rel.getName());
 						if (set != null)
 						{
 							Debug.trace("******************************* delete related set size: " + set.getSize() + " from record with PK: " + state.getPKHashKey() + " index in foundset: " + row); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

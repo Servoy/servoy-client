@@ -551,7 +551,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 		if (dataSource != null)
 		{
 			// create a new foundSet for the temp table
-			IFoundSetInternal foundSet = application.getFoundSetManager().getSharedFoundSet(dataSource, null);
+			IFoundSetInternal foundSet = application.getFoundSetManager().getSharedFoundSet(dataSource);
 			foundSet.loadAllRecords();
 
 			// wrap the new foundSet to redirect all IDataSet methods to the foundSet

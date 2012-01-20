@@ -62,7 +62,7 @@ public class PrototypeState extends Record
 	 * Get related foundset, relationName may be multiple-levels deep
 	 */
 	@Override
-	public IFoundSetInternal getRelatedFoundSet(String relationName, List defaultSortColumns)
+	public IFoundSetInternal getRelatedFoundSet(String relationName, List<SortColumn> defaultSortColumns)
 	{
 		if (parent != null)
 		{
@@ -97,7 +97,7 @@ public class PrototypeState extends Record
 			String relationName = dataProviderID.substring(0, index);
 			String restName = dataProviderID.substring(index + 1);
 
-			IFoundSetInternal foundSet = getRelatedFoundSet(relationName, null);
+			IFoundSetInternal foundSet = getRelatedFoundSet(relationName);
 			if (foundSet != null)
 			{
 				//related data
@@ -126,7 +126,7 @@ public class PrototypeState extends Record
 			}
 			if (parent.isValidRelation(dataProviderID))
 			{
-				return getRelatedFoundSet(dataProviderID, null);
+				return getRelatedFoundSet(dataProviderID);
 			}
 			return Scriptable.NOT_FOUND;
 		}
@@ -145,7 +145,7 @@ public class PrototypeState extends Record
 		{
 			String relationName = dataProviderID.substring(0, index);
 			String restName = dataProviderID.substring(index + 1);
-			IFoundSetInternal foundSet = getRelatedFoundSet(relationName, null);
+			IFoundSetInternal foundSet = getRelatedFoundSet(relationName);
 			if (foundSet != null)
 			{
 				return foundSet.setDataProviderValue(restName, value);

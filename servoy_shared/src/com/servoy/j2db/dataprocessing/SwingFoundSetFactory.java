@@ -27,10 +27,10 @@ import com.servoy.j2db.util.ServoyException;
  */
 public class SwingFoundSetFactory implements IFoundSetFactory
 {
-	public IFoundSetInternal createFoundSet(IFoundSetManagerInternal fsm, SQLSheet sheet, QuerySelect pkSelect, List<SortColumn> initalSortColumns)
+	public IFoundSetInternal createFoundSet(IFoundSetManagerInternal fsm, SQLSheet sheet, QuerySelect pkSelect, List<SortColumn> defaultSortColumns)
 		throws ServoyException
 	{
-		return new SwingFoundSet(fsm, sheet, pkSelect, initalSortColumns);
+		return new SwingFoundSet(fsm, sheet, pkSelect, defaultSortColumns);
 	}
 
 	public IFoundSetInternal createRelatedFoundSet(IDataSet data, QuerySelect querySelect, IFoundSetManagerInternal fsm, IRecordInternal parent,

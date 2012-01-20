@@ -39,7 +39,7 @@ public class SwingRelatedFoundSet extends RelatedFoundSet implements ISwingFound
 	private transient TableAndListEventDelegate tableAndListEventDelegate;
 
 	public SwingRelatedFoundSet(IDataSet data, QuerySelect querySelect, IFoundSetManagerInternal app, IRecordInternal parent, String relationName,
-		SQLSheet sheet, List defaultSortColumns, QuerySelect aggregateSelect, IDataSet aggregateData) throws ServoyException
+		SQLSheet sheet, List<SortColumn> defaultSortColumns, QuerySelect aggregateSelect, IDataSet aggregateData) throws ServoyException
 	{
 		super(data, querySelect, app, parent, relationName, sheet, defaultSortColumns, aggregateSelect, aggregateData);
 		createSelectionModel();

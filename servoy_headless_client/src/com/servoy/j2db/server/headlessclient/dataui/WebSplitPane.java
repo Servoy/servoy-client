@@ -542,7 +542,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		IRecordInternal currentRecord = parentState;
 		for (int i = 0; currentRecord != null && i < parts.length - 1; i++)
 		{
-			IFoundSetInternal fs = currentRecord.getRelatedFoundSet(parts[i], null);
+			IFoundSetInternal fs = currentRecord.getRelatedFoundSet(parts[i]);
 			if (fs instanceof ISwingFoundSet)
 			{
 				related.add((ISwingFoundSet)fs);

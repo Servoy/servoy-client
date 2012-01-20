@@ -780,7 +780,7 @@ public class SessionClient extends ClientState implements ISessionClient
 					{
 						if (dataContext != null)
 						{
-							IFoundSetInternal rfs = r.getRelatedFoundSet(dataContext, null);
+							IFoundSetInternal rfs = r.getRelatedFoundSet(dataContext);
 							r = rfs.getRecord(rfs.getSelectedIndex());
 						}
 						return new Pair<IRecordInternal, FormScope>(r, fp.getFormScope());

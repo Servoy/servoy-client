@@ -155,7 +155,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 			return null;
 		}
 
-		IFoundSetInternal fs = getRelatedFoundSet(dataProviderID, null);
+		IFoundSetInternal fs = getRelatedFoundSet(dataProviderID);
 		if (fs != null)
 		{
 			return fs;
@@ -217,7 +217,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 
 	public IFoundSetInternal getRelatedFoundSet(String name)
 	{
-		return getRelatedFoundSet(name, null);//only used for related fields, sort is irrelevant
+		return getRelatedFoundSet(name, parent.getSQLSheet().getDefaultPKSort());//only used for related fields, sort is irrelevant
 	}
 
 	private boolean isEditing = false;
