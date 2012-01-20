@@ -18,3 +18,6 @@ version: 2.9.0
     background-position: 0 1px;
     left: 5px;
 }
+.yui-skin-sam .yui-editor-container{
+   border-width: 0px;
+}

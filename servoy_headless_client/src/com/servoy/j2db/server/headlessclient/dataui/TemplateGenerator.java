@@ -2256,7 +2256,27 @@ public class TemplateGenerator
 					}
 					break;
 				}
-				//$FALL-THROUGH$
+				else
+				{
+					String editorId = "editor_" + ComponentFactory.getWebID(form, field);
+					html.append("<div ");
+					html.append(getWicketIDParameter(form, field));
+					html.append(getCSSClassParameter("yui-skin-sam"));
+					html.append("><textarea id='");
+					html.append(editorId);
+					html.append("' name='");
+					html.append(editorId);
+					html.append("' ");
+					html.append(getWicketIDParameter(form, field, "editor_", ""));
+					html.append(" rows=\"20\" cols=\"75\"></textarea></div>");
+					styleObj.setProperty("padding", "0px");
+					if (styleObj.getProperty("border-width") == null)
+					{
+						// set a default border, taken from yui
+						styleObj.setProperty("border", "1px solid #808080");
+					}
+				}
+				break;
 			case Field.TEXT_AREA :
 			{
 				if (ins == null)

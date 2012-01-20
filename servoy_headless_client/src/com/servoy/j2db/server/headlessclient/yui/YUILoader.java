@@ -34,14 +34,20 @@ public class YUILoader implements Serializable
 	public static final ResourceReference CSS_FONTS = new CompressedResourceReference(YUILoader.class, "fonts-min.css"); //$NON-NLS-1$
 	public static final ResourceReference CSS_RESIZE = new CompressedResourceReference(YUILoader.class, "resize.css"); //$NON-NLS-1$
 	public static final ResourceReference CSS_MENU = new CompressedResourceReference(YUILoader.class, "menu.css"); //$NON-NLS-1$
+	public static final ResourceReference CSS_CONTAINER = new CompressedResourceReference(YUILoader.class, "container.css"); //$NON-NLS-1$
+	public static final ResourceReference CSS_EDITOR = new CompressedResourceReference(YUILoader.class, "editor.css"); //$NON-NLS-1$
+	public static final ResourceReference CSS_BUTTON = new CompressedResourceReference(YUILoader.class, "button.css"); //$NON-NLS-1$
 
 	public static final JavascriptResourceReference JS_YAHOO_DOM_EVENT = new JavascriptResourceReference(YUILoader.class, "yahoo-dom-event.js"); //$NON-NLS-1$
 	public static final JavascriptResourceReference JS_DRAGDROP = new JavascriptResourceReference(YUILoader.class, "dragdrop-min.js"); //$NON-NLS-1$
 	public static final JavascriptResourceReference JS_ELEMENT = new JavascriptResourceReference(YUILoader.class, "element-min.js"); //$NON-NLS-1$
 	public static final JavascriptResourceReference JS_MENU = new JavascriptResourceReference(YUILoader.class, "menu-min.js"); //$NON-NLS-1$
-	public static final JavascriptResourceReference JS_CONTAINER = new JavascriptResourceReference(YUILoader.class, "container_core-min.js"); //$NON-NLS-1$
+	public static final JavascriptResourceReference JS_CONTAINER_CORE = new JavascriptResourceReference(YUILoader.class, "container_core-min.js"); //$NON-NLS-1$
+	public static final JavascriptResourceReference JS_CONTAINER = new JavascriptResourceReference(YUILoader.class, "container-min.js"); //$NON-NLS-1$
 	public static final JavascriptResourceReference JS_RESIZE = new JavascriptResourceReference(YUILoader.class, "resize-min.js"); //$NON-NLS-1$
-//	private static final JavascriptResourceReference ANIMATION = new JavascriptResourceReference(DesignModeBehavior.class, "yui/animation-min.js");
+	public static final JavascriptResourceReference JS_ANIMATION = new JavascriptResourceReference(YUILoader.class, "animation-min.js");
+	public static final JavascriptResourceReference JS_BUTTON = new JavascriptResourceReference(YUILoader.class, "button-min.js");
+	public static final JavascriptResourceReference JS_EDITOR = new JavascriptResourceReference(YUILoader.class, "editor-min.js");
 
 
 	public static final JavascriptResourceReference JS_YAHOO_DEBUG = new JavascriptResourceReference(YUILoader.class, "yahoo-debug.js"); //$NON-NLS-1$
@@ -106,10 +112,20 @@ public class YUILoader implements Serializable
 		}
 	}
 
-	public static final ResourceReference HTML_SV_EDITOR = new CompressedResourceReference(YUILoader.class, "sv_editor.html");
-
 	public static void renderHTMLEdit(IHeaderResponse response)
 	{
-		//response.renderCSSReference(HTML_SV_EDITOR);
+		response.renderJavascriptReference(JS_YAHOO_DOM_EVENT);
+		response.renderJavascriptReference(JS_ANIMATION);
+		response.renderJavascriptReference(JS_ELEMENT);
+		response.renderJavascriptReference(JS_CONTAINER);
+		response.renderJavascriptReference(JS_MENU);
+		response.renderJavascriptReference(JS_BUTTON);
+		response.renderJavascriptReference(JS_EDITOR);
+
+		response.renderCSSReference(YUILoader.CSS_FONTS);
+		response.renderCSSReference(YUILoader.CSS_MENU);
+		response.renderCSSReference(YUILoader.CSS_BUTTON);
+		response.renderCSSReference(YUILoader.CSS_CONTAINER);
+		response.renderCSSReference(YUILoader.CSS_EDITOR);
 	}
 }

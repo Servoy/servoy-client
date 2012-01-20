@@ -2352,48 +2352,69 @@ if (typeof(Servoy.HTMLEdit) == "undefined")
 {
 	Servoy.HTMLEdit = 
 	{
-		attach: function (elem)
+		attach: function (wrapperId,editorId)
 		{
-			if (elem == null) return;
-			
-		    var Dom = YAHOO.util.Dom,
-		        Event = YAHOO.util.Event;
+			var Dom = YAHOO.util.Dom,
+		    Event = YAHOO.util.Event;
 		    
-		    var iframe = document.getElementById(elem.id+'_iframe')
-		    var readonly = false;
-		    var editor_url;
+		    var myConfig = {
+		    	height: '100%',
+		    	width: '100%',
+		        animate: false,
+		        dompath: true //we have to use true here
+		    };
+		
+		    var myEditor = new YAHOO.widget.Editor(editorId, myConfig);
+		    myEditor.on('toolbarLoaded', function() {
+		        var codeConfig = {
+		            type: 'push', label: 'Edit HTML Code', value: 'editcode'
+		        };
+		        this.toolbar.addButtonToGroup(codeConfig, 'insertitem');
+		        
+		        Dom.setStyle(this.toolbar._titlebar, 'display', 'none'); //hide title
+		        Dom.setStyle(this.dompath, 'display', 'none'); //now we hide
+		        this.on('editorContentLoaded', function(){
+			         document.getElementById('editor_'+wrapperId+'_editor').style.height = (document.getElementById(wrapperId).offsetHeight - document.getElementById('editor_'+wrapperId+'_toolbar').offsetHeight -5) +"px";
+			    }, this, true);
+		        
+		        this.toolbar.on('editcodeClick', function() {
+		        	// code from: http://developer.yahoo.com/yui/examples/editor/switch_editor_clean.html
+				    this.saveHTML();
+            
+            		var element = document.getElementById(wrapperId);
+            		var width = element.offsetWidth;
+            		var height = element.offsetHeight;
+            		
+		        	var fc = this.get('element').previousSibling,
+	               		 el = this.get('element');
+	
+		            Dom.setStyle(fc, 'position', 'absolute');
+		            Dom.setStyle(fc, 'top', '-9999px');
+		            Dom.setStyle(fc, 'left', '-9999px');
+		            myEditor.get('element_cont').removeClass('yui-editor-container');
+		            Dom.setStyle(el, 'visibility', 'visible');
+		            Dom.setStyle(el, 'top', '');
+            		Dom.setStyle(el, 'left', '');
+		            Dom.setStyle(el, 'width', (width-10)+'px');
+		            Dom.setStyle(el, 'height', (height-10)+'px');
+			        Dom.setStyle(el, 'border-width', '0px');	
+			        return false;
+		        }, this, true);
+		        
+		         this.on('editorWindowBlur', function(ev) {
+				    this.saveHTML();
+				    var element = this.get('element');
+				    element.onsubmit();
+		            return false;
+		        }, this, true);
+		        
+		    }, myEditor, true);
+		    var elem = myEditor.get('element');
 		    if (elem.readOnly || elem.disabled)
 		    {
-		    	readonly=true;
+		    	setTimeout(function() {myEditor.set('disabled',true);}, 1000);
 		    }
-		    if (iframe == null)
-		    {
-				iframe = document.createElement('iframe');
-				iframe.id = elem.id+'_iframe';
-				iframe.frameborder = '0';
-				iframe.scrolling = 'no'
-				editor_url = 'resources/yui/sv_editor.html';
-				if (readonly)
-					editor_url += "?readonly=true"
-				elem.parentNode.appendChild(iframe);
-			}
-			else
-			{
-				editor_url = 'resources/yui/sv_editor.html?rnd='+Math.floor(Math.random()*100000);
-				if (readonly)
-					editor_url += "&readonly=true"
-			}
-		    editor_url = editor_url + '#'+ elem.id;
-		    iframe.src = editor_url;
-            var xy = Dom.getXY(elem);
-            Dom.setXY(iframe, xy);
-            var w = Dom.getStyle(elem, 'width');
-            Dom.setStyle(iframe, 'width', w);
-            var h = Dom.getStyle(elem, 'height');
-            Dom.setStyle(iframe, 'height', h);
-
-            Dom.setStyle(iframe, 'display', 'inline');
-			Dom.setStyle(elem, 'display', 'none');
+		    myEditor.render();
 		}
 	};
 }
