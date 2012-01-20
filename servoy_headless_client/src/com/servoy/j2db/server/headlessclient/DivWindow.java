@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.server.headlessclient;
 
+import java.awt.Point;
 import java.awt.Rectangle;
 
 import org.apache.wicket.IClusterable;
@@ -160,6 +161,8 @@ public class DivWindow extends ModalWindow
 	}
 
 	private boolean modal = true;
+	private boolean storeBounds = true;
+	private Point initialLocation = null;
 	protected boolean isInsideIFrame;
 	private String jsId;
 	private ResizeCallback resizeCallback = null;
@@ -301,6 +304,16 @@ public class DivWindow extends ModalWindow
 		return bounds.height;
 	}
 
+	public void setInitialLocation(Point initialLocation)
+	{
+		this.initialLocation = initialLocation;
+	}
+
+	public Point getInitialLocation()
+	{
+		return initialLocation;
+	}
+
 	/**
 	 * @return true if it was triggered by initial show, in which case the callbacks shouldn't be called.
 	 */
@@ -343,6 +356,16 @@ public class DivWindow extends ModalWindow
 		return modal;
 	}
 
+	public boolean getStoreBounds()
+	{
+		return storeBounds;
+	}
+
+	public void setStoreBounds(boolean storeBounds)
+	{
+		this.storeBounds = storeBounds;
+	}
+
 	@Override
 	protected AppendingStringBuffer postProcessSettings(AppendingStringBuffer settings)
 	{
@@ -354,6 +377,18 @@ public class DivWindow extends ModalWindow
 
 		settings.append("settings.modal").append("=");
 		settings.append(isModal());
+		settings.append(";\n");
+
+		settings.append("settings.storeBounds").append("=");
+		settings.append(getStoreBounds());
+		settings.append(";\n");
+
+		settings.append("settings.initialX").append("=");
+		settings.append(getInitialLocation().x);
+		settings.append(";\n");
+
+		settings.append("settings.initialY").append("=");
+		settings.append(getInitialLocation().y);
 		settings.append(";\n");
 
 		settings.append("settings.jsId").append("=\"");
@@ -381,47 +416,46 @@ public class DivWindow extends ModalWindow
 		return s;
 	}
 
-	protected String getActionJavascript(String actualActionScript)
+	protected String getActionJavascript(String actualActionScript, String parameters)
 	{
 		return "var win; try { win = window.parent.Wicket.DivWindow; } catch (ignore) {}; if (typeof(win) == \"undefined\" || typeof(win.openWindows[\"" +
 			getJSId() +
-			"\"]) == \"undefined\") { try { win = window.Wicket.DivWindow; } catch (ignore) {} }; if (typeof(win) != \"undefined\") { var doAction = function(w) { w.setTimeout(function() { win" +
-			actualActionScript + "(\"" + getJSId() + "\"); }, 0);  }; try { doAction(window.parent); } catch (ignore) { doAction(window); }; }";
+			"\"]) == \"undefined\") { try { win = window.Wicket.DivWindow; } catch (ignore) {} }; if (typeof(win) != \"undefined\") { var winObj = win.openWindows[\"" +
+			getJSId() + "\"]; if (typeof(winObj) != \"undefined\") { winObj" + actualActionScript + "(\"" + parameters + "\"); } }";
 	}
 
 	@Override
 	protected String getCloseJavacript()
 	{
-		return getActionJavascript(".close");
+		return getActionJavascript(".close", "");
 	}
 
-	public String getChangeBoundsJS(int x, int y, int width, int height)
+	public void setBounds(AjaxRequestTarget target, int x, int y, int width, int height)
 	{
-		return "var win; try { win = window.parent.Wicket.DivWindow; } catch (ignore) {}; if (typeof(win) == \"undefined\" || typeof(win.openWindows[\"" +
-			getJSId() + "\"]) == \"undefined\") { try { win = window.Wicket.DivWindow; } catch (ignore) {} }; " +
-			" if (typeof(win) != \"undefined\" && typeof(win.openWindows[\"" + getJSId() + "\"]) != \"undefined\") { win.openWindows[\"" + getJSId() +
-			"\"].setPosition(" + ((x >= 0) ? ("'" + x + "px'") : "win.openWindows[\"" + getJSId() + "\"].window.style.left") + "," +
-			((y >= 0) ? ("'" + y + "px'") : "win.openWindows[\"" + getJSId() + "\"].window.style.top") + "," +
-			((width >= 0) ? ("'" + width + "px'") : "win.openWindows[\"" + getJSId() + "\"].window.style.width") + "," +
-			((height >= 0) ? ("'" + height + "px'") : "win.openWindows[\"" + getJSId() + "\"].content.style.height") + ");}";
+		target.appendJavascript(getActionJavascript(".setPosition", ((x >= 0) ? ("'" + x + "px'") : "winObj.window.style.left") + "," +
+			((y >= 0) ? ("'" + y + "px'") : "winObj.window.style.top") + "," + ((width >= 0) ? ("'" + width + "px'") : "winObj.window.style.width") + "," +
+			((height >= 0) ? ("'" + height + "px'") : "winObj.content.style.height")));
 	}
 
-	public String getSaveBoundsJS()
+	public void saveBounds(AjaxRequestTarget target)
 	{
-		return "var win; try { win = window.parent.Wicket.DivWindow; } catch (ignore) {}; if (typeof(win) == \"undefined\" || typeof(win.openWindows[\"" +
-			getJSId() + "\"]) == \"undefined\") { try { win = window.Wicket.DivWindow; } catch (ignore) {} }; " +
-			" if (typeof(win) != \"undefined\" && typeof(win.openWindows[\"" + getJSId() + "\"]) != \"undefined\") { win.openWindows[\"" + getJSId() +
-			"\"].savePosition();}";
+		target.appendJavascript(getActionJavascript(".savePosition", ""));
+	}
+
+	public static void deleteStoredBounds(AjaxRequestTarget target, String dialogName)
+	{
+		target.getHeaderResponse().renderJavascriptReference(JAVA_SCRIPT);
+		target.appendJavascript("Wicket.DivWindow.deletePosition(\"" + dialogName + "\");");
 	}
 
 	public void toFront(AjaxRequestTarget target)
 	{
-		target.appendJavascript(getActionJavascript(".toFront"));
+		target.appendJavascript(getActionJavascript(".toFront", ""));
 	}
 
 	public void toBack(AjaxRequestTarget target)
 	{
-		target.appendJavascript(getActionJavascript(".toBack"));
+		target.appendJavascript(getActionJavascript(".toBack", ""));
 	}
 
 }

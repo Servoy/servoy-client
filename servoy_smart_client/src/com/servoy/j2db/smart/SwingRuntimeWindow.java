@@ -665,7 +665,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 
 			if (oldShow)
 			{
-				if (!restoreWindowBounds())
+				if (!storeBounds || !restoreWindowBounds())
 				{
 					// quickly set the form to visible if not visible.
 					boolean visible = fp.getFormUI().isVisible();
@@ -905,6 +905,19 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 		{
 			((JDialog)wrappedWindow).setJMenuBar(wrappedWindowMenuBar);
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.scripting.RuntimeWindow#resetBounds()
+	 */
+	@Override
+	public void resetBounds()
+	{
+		Settings.getInstance().deleteBounds(windowName, application.getSolutionName());
+
+
 	}
 
 }

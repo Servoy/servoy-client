@@ -21,6 +21,7 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 
 import org.apache.wicket.Application;
+import org.apache.wicket.Page;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.protocol.http.WebRequestCycle;
 
@@ -90,13 +91,8 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 					}
 					else
 					{
-						//	if (!resizable && location != null)
-						//	{
-						//		r2.x = location.x;
-						//		r2.y = location.y;
-						//	}
 						((MainPage)parentContainer).showPopupDiv((MainPage)dialogContainer, title, r2, resizable, closeAll || !legacyV3Behavior,
-							(windowType == JSWindow.MODAL_DIALOG));
+							(windowType == JSWindow.MODAL_DIALOG), storeBounds);
 					}
 				}
 			}
@@ -303,6 +299,31 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 	protected MainPage getMainPage()
 	{
 		return (MainPage)((FormManager)application.getFormManager()).getMainContainer(windowName);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.scripting.RuntimeWindow#resetBounds()
+	 */
+	@Override
+	public void resetBounds()
+	{
+		MainPage mp = null;
+		RequestCycle rc = RequestCycle.get();
+		if (rc != null)
+		{
+			Page tmp = rc.getResponsePage();
+			if ((tmp instanceof MainPage))
+			{
+				mp = (MainPage)tmp;
+			}
+		}
+		if (mp == null) mp = (MainPage)((FormManager)application.getFormManager()).getMainContainer(null);
+		if (mp != null)
+		{
+			mp.resetBounds(windowName);
+		}
 	}
 
 }

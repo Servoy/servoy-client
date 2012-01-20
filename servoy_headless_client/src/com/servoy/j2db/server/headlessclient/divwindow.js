@@ -41,6 +41,9 @@ Wicket.Object.extendClass(Wicket.DivWindow, Wicket.Window, {
 		this.windowId = windowId;
 		this.settings = Wicket.Object.extend({
 			modal: true, /* false for non-modal window */
+			storeBounds: true, /* false if the bounds shouldn't be stored */
+			initialX: -1,
+			initialY: -1,
 			onMove: function() { }, /* called when window is moved */
 			onResize: function() { }, /* called when window is resized */
 			boundEventsDelay: 300 /* if <= 0, then all drag operations on window bounds will update imediately; if > 0 bound events will be sent after this timeout in ms  */
@@ -237,42 +240,57 @@ Wicket.Object.extendClass(Wicket.DivWindow, Wicket.Window, {
 	
 	savePositionAs: function(x, y, width, height) {
 		if (typeof(this.settings.cookieId) != "undefined" &&  this.settings.cookieId != null) {
-	
-			this.findPositionString(true);
+			if (this.settings.storeBounds) {
 			
-			if (cookie == null || cookie.length == 0)
-				cookie = "";
-			else
-				cookie = cookie + "|";
+				this.findPositionString(true);
 			
-			var cookie = this.settings.cookieId;
-			cookie += "::";
+				if (cookie == null || cookie.length == 0)
+					cookie = "";
+				else
+					cookie = cookie + "|";
 			
-			cookie += x + ",";
-			cookie += y;
-			if (this.settings.resizable) {
-				cookie += "," + width + ",";
-				cookie += height;
-			}
+				var cookie = this.settings.cookieId;
+				cookie += "::";
+			
+				cookie += x + ",";
+				cookie += y;
+				if (this.settings.resizable) {
+					cookie += "," + width + ",";
+					cookie += height;
+				}
 					
-			var rest = Wicket.Cookie.get(this.cookieKey);
-			if (rest != null) {
-				cookie += "|" + rest;
+				var rest = Wicket.Cookie.get(this.cookieKey);
+				if (rest != null) {
+					cookie += "|" + rest;
+				}
+				Wicket.Cookie.set(this.cookieKey, cookie, this.cookieExp);
+			} else {
+				this.findPositionString(true);
 			}
-			Wicket.Cookie.set(this.cookieKey, cookie, this.cookieExp);
-			
+		};
+	},
+	
+	deletePosition: function() {
+		if (typeof(this.settings.cookieId) != "undefined" &&  this.settings.cookieId != null) {
+			this.findPositionString(true);
 		};
 	},
 	
 	loadPosition: function() {
-		if (typeof(this.settings.cookieId) != "undefined" && this.settings.cookieId != null) {
+		if (this.settings.initialX != -1 && this.settings.initialY != -1) {
+			this.window.style.left = this.settings.initialX + "px";
+			this.window.style.top = this.settings.initialY + "px";
+			this.window.style.width = this.settings.width + (this.settings.resizable ? "px" : this.settings.widthUnit);;
+			this.window.style.height = this.settings.height + (this.settings.resizable ? "px" : this.settings.heightUnit);
+		}
+		if (typeof(this.settings.cookieId) != "undefined" && this.settings.cookieId != null && this.settings.storeBounds) {
 			
 			var string = this.findPositionString(false);
 			
 			if (string != null) {
 				var array = string.split("::");
 				var positions = array[1].split(",");
-				if (positions.length == 4) {					
+				if (positions.length == 4) {
 					this.window.style.left = positions[0];
 					this.window.style.top = positions[1];
 					if (this.settings.resizable) {
@@ -287,7 +305,7 @@ Wicket.Object.extendClass(Wicket.DivWindow, Wicket.Window, {
 		}
 
 		var w = window.innerWidth || document.body.offsetWidth;
-		var h = window.innerHeight || document.body.offsetHeight
+		var h = window.innerHeight || document.body.offsetHeight;
 		
 		if ( (parseInt(this.window.style.left) + parseInt(this.window.style.width)) > parseInt(w) ||
 		 (parseInt(this.window.style.top) + parseInt(this.content.style.height)) > parseInt(h) ) {
@@ -410,34 +428,10 @@ Wicket.Object.extendClass(Wicket.DivWindow.Mask, Wicket.Window.Mask, {
 Wicket.DivWindow.currentModalWindow = null;
 Wicket.DivWindow.openWindows = { }; // windowId: DivWindow object pairs
 
-Wicket.DivWindow.create = function(settings, windowId, currenWindowIsInIframe) {
-	var win = Wicket.DivWindow.get(currenWindowIsInIframe);
+Wicket.DivWindow.create = function(settings, windowId, currentWindowIsInIframe) {
+	var win = Wicket.DivWindow.get(currentWindowIsInIframe);
 	// create and return instance
 	return new win(settings, windowId);
-}
-
-Wicket.DivWindow.close = function(windowId) {
-	// this will be called in the correct window context from Java side
-	var win = Wicket.DivWindow.openWindows[windowId];
-	if (typeof(win) != "undefined" && win != null) {
-		win.close();			
-	}
-}
-
-Wicket.DivWindow.toFront = function(windowId) {
-	// this will be called in the correct window context from Java side
-	var win = Wicket.DivWindow.openWindows[windowId];
-	if (typeof(win) != "undefined" && win != null) {
-		win.toFront();			
-	}
-}
-
-Wicket.DivWindow.toBack = function(windowId) {
-	// this will be called in the correct window context from Java side
-	var win = Wicket.DivWindow.openWindows[windowId];
-	if (typeof(win) != "undefined" && win != null) {
-		win.toBack();			
-	}
 }
 
 Wicket.DivWindow.get = function(isIframe) {
@@ -455,4 +449,11 @@ Wicket.DivWindow.get = function(isIframe) {
 		win = Wicket.DivWindow;
 	}
 	return win;
+}
+
+Wicket.DivWindow.deletePosition = function(windowName) {
+	var settings = new Object();
+	settings.cookieId = windowName;
+	var win = Wicket.DivWindow.create(settings);
+	win.findPositionString(true);
 }

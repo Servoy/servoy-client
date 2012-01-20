@@ -52,6 +52,8 @@ public abstract class RuntimeWindow implements IRuntimeWindow
 	protected String title = null;
 	protected boolean showTextToolbar = false;
 
+	protected boolean storeBounds = true;
+
 	protected boolean destroyed = false;
 
 	private final JSWindow jsWindow;
@@ -91,6 +93,18 @@ public abstract class RuntimeWindow implements IRuntimeWindow
 	{
 		return resizable;
 	}
+
+	public boolean getStoreBounds()
+	{
+		return storeBounds;
+	}
+
+	public void setStoreBounds(boolean storeBounds)
+	{
+		this.storeBounds = storeBounds;
+	}
+
+	public abstract void resetBounds();
 
 	public abstract void setLocation(int x, int y);
 

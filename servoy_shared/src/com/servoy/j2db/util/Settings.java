@@ -546,6 +546,13 @@ public class Settings extends SortedProperties
 		saveLocation(component, null);
 	}
 
+	public synchronized void deleteBounds(String componentName, String solutionName)
+	{
+		remove("rect_" + (solutionName != null ? solutionName + "_" : "") + componentName + "_bounds");
+		remove("point_" + (solutionName != null ? solutionName + "_" : "") + componentName + "_location");
+		remove("window_state_" + componentName);
+	}
+
 	public synchronized void deleteAllBounds()
 	{
 		ArrayList deleteList = new ArrayList();
@@ -553,7 +560,7 @@ public class Settings extends SortedProperties
 		while (e.hasMoreElements())
 		{
 			String element = (String)e.nextElement();
-			if (element.startsWith("rect_") || element.startsWith("window_state_")) //$NON-NLS-1$ //$NON-NLS-2$
+			if (element.startsWith("rect_") || element.startsWith("window_state_") || element.startsWith("point_")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			{
 				deleteList.add(element);
 			}
@@ -565,7 +572,6 @@ public class Settings extends SortedProperties
 			remove(element);
 		}
 	}
-
 
 	@Override
 	public synchronized Object remove(Object key)

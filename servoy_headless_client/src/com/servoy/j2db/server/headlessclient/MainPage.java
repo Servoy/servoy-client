@@ -129,6 +129,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 	private static final String DIV_DIALOGS_REPEATER_PARENT_ID = "divdialogsparent";
 	private static final String FILE_UPLOAD_DIALOG_ID = "fileuploaddialog";
 	private static final String FILE_UPLOAD_PAGEMAP = "fileupload";
+	private static final String COOKIE_PREFIX = "dialog_";
 
 	private final static ResourceReference servoy_js = new JavascriptResourceReference(MainPage.class, "servoy.js"); //$NON-NLS-1$
 
@@ -633,7 +634,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 	{
 		final ServoyDivDialog divDialog = new ServoyDivDialog(divDialogRepeater.newChildId(), isShowingInDialog());
 		divDialog.setPageMapName(null);
-		divDialog.setCookieName("dialog_" + name);
+		divDialog.setCookieName(COOKIE_PREFIX + name);
 		divDialog.setModal(true);
 		divDialog.setPageCreator(new ModalWindow.PageCreator()
 		{
@@ -1565,13 +1566,15 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		}
 	}
 
-	public void showPopupDiv(MainPage dialogContainer, String titleString, Rectangle r2, boolean resizeable, boolean closeAll, boolean modal)
+	public void showPopupDiv(MainPage dialogContainer, String titleString, Rectangle r2, boolean resizeable, boolean closeAll, boolean modal,
+		boolean storeBounds)
 	{
 		// all iframe div window main pages will be shown by a browser window main page and will have it as callingContainer;
 		// this is in order to avoid situations where some main pages need to reference each other in browser JS, but some div windows in the chain between them
 		// have already been closed; so this way references to all iframe div windows will not be lost as long as the browser window that contains the iframes remains open
 		// see also triggerBrowserRequestIfNeeded() that uses these references
-		if (isShowingInDialog() && callingContainer != null) callingContainer.showPopupDiv(dialogContainer, titleString, r2, resizeable, closeAll, modal);
+		if (isShowingInDialog() && callingContainer != null) callingContainer.showPopupDiv(dialogContainer, titleString, r2, resizeable, closeAll, modal,
+			storeBounds);
 		else
 		{
 			if (useAJAX)
@@ -1584,8 +1587,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				}
 				divDialog.setPageMapName(windowName);
 				divDialog.setResizable(resizeable);
-				//	if (!resizeable) divDialog.setCookieName(null);
-				//	else divDialog.setCookieName("dialog_" + windowName);
+				divDialog.setStoreBounds(storeBounds);
 				divDialog.setUseInitialHeight(true);
 				divDialog.setModal(modal);
 				Rectangle bounds = r2;
@@ -1597,6 +1599,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 				divDialog.setInitialHeight(bounds.height);
 				divDialog.setInitialWidth(bounds.width);
+				divDialog.setInitialLocation(new Point(bounds.x, bounds.y));
 				divDialog.setCloseAll(closeAll);
 
 				FormController fp = dialogContainer.getController();
@@ -1613,10 +1616,6 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 				divDialog.setTitle(titleStr);
 				jsActionBuffer.addAction(new DivDialogAction(divDialog, DivDialogAction.OP_SHOW, new Object[] { windowName }));
-//				if (!resizeable)
-//				{
-//					appendJavaScriptChanges(divDialog.getChangeBoundsJS(bounds.x, bounds.y, bounds.width, bounds.height));
-//				}
 				triggerBrowserRequestIfNeeded();
 			}
 
@@ -1674,7 +1673,8 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			ServoyDivDialog divDialog = callingContainer.divDialogs.get(windowName);
 			if (divDialog != null)
 			{
-				appendJavaScriptChanges(divDialog.getChangeBoundsJS(x, y, width, height));
+				jsActionBuffer.addAction(new DivDialogAction(divDialog, DivDialogAction.OP_SET_BOUNDS, new Object[] { x, y, width, height }));
+				triggerBrowserRequestIfNeeded();
 			}
 		}
 	}
@@ -1700,7 +1700,8 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				ServoyDivDialog divDialog = callingContainer.divDialogs.get(getPageMapName());
 				if (divDialog != null)
 				{
-					appendJavaScriptChanges(divDialog.getSaveBoundsJS());
+					jsActionBuffer.addAction(new DivDialogAction(divDialog, DivDialogAction.OP_SAVE_BOUNDS, null));
+					triggerBrowserRequestIfNeeded();
 				}
 			}
 			callingContainer.closeChildWindow(getPageMapName());
@@ -2057,10 +2058,15 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		}
 	}
 
+	public void resetBounds(String windowName)
+	{
+		jsActionBuffer.addAction(new DivDialogAction(null, DivDialogAction.OP_RESET_BOUNDS, new Object[] { COOKIE_PREFIX + windowName }));
+		triggerBrowserRequestIfNeeded();
+	}
+
 	public void appendJavaScriptChanges(String script)
 	{
 		jsActionBuffer.addAction(new JSChangeAction(script));
-
 		triggerBrowserRequestIfNeeded();
 	}
 

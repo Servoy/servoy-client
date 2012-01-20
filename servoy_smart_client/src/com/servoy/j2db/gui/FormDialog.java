@@ -225,7 +225,6 @@ public class FormDialog extends JEscapeDialog implements FormWindow
 				setUndecorated(false);
 			}
 		}
-
 		storeBounds();
 		boolean wasVisible = isVisible();
 		setVisible(false);
@@ -279,8 +278,12 @@ public class FormDialog extends JEscapeDialog implements FormWindow
 
 	public void storeBounds()
 	{
-		if (isResizable()) Settings.getInstance().saveBounds(this, application.getSolutionName());
-		else Settings.getInstance().saveLocation(this, application.getSolutionName());
+		if (application.getRuntimeWindowManager().getWindow(this.getName()).getStoreBounds())
+		{
+			if (isResizable()) Settings.getInstance().saveBounds(this, application.getSolutionName());
+			else Settings.getInstance().saveLocation(this, application.getSolutionName());
+		}
+		else Settings.getInstance().deleteBounds(this.getName(), application.getSolutionName());
 	}
 
 	public void setPreviousMainContainer(IMainContainer previousModalContainer, IMainContainer previousMainContainer)
