@@ -882,27 +882,28 @@ function showurl(url,timeout,closeDialog)
 	var win;
 	var mywindow = window;
 
-	if(closeDialog)
+	while (typeof(mywindow.parent)!= "undefined" && mywindow != mywindow.parent)
 	{
-		while (typeof(mywindow.parent)!= "undefined" && mywindow != mywindow.parent)
-		{
-			try {		
-				win = mywindow.parent.Wicket.Window;
-			} catch (ignore) {		
-			}
-			
-			if (typeof(win) != "undefined" && typeof(win.current) != "undefined") {
+		try {		
+			win = mywindow.parent.Wicket.Window;
+		} catch (ignore) {		
+		}
+		
+		if (typeof(win) != "undefined" && typeof(win.current) != "undefined") {
+		
+			if(closeDialog)
+			{
 				// we can't call close directly, because it will delete our window,
 				// so we will schedule it as timeout for parent's window
 				window.parent.setTimeout(function() {
 					win.current.close();			
 				}, 0);
-				mywindow = mywindow.parent
 			}
-			else
-			{
-				break
-			}
+			mywindow = mywindow.parent
+		}
+		else
+		{
+			break
 		}
 	}
 
