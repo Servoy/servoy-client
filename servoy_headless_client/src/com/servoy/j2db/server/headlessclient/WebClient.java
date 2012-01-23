@@ -223,6 +223,8 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		return super.getTimeZone();
 	}
 
+	private final Map<String, String> userRequestProperties = new HashMap<String, String>();
+
 	/**
 	 * @see com.servoy.j2db.server.headlessclient.SessionClient#getUserProperty(java.lang.String)
 	 */
@@ -230,6 +232,10 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	public String getUserProperty(String name)
 	{
 		if (name == null) return null;
+		// first look if there is a property that was set in the same request.
+		String value = userRequestProperties.get(name);
+		if (value != null) return value;
+
 		String defaultUserProperty = getDefaultUserProperties().get(name);
 		if (defaultUserProperty != null) return defaultUserProperty;
 		WebRequestCycle wrc = ((WebRequestCycle)RequestCycle.get());
@@ -291,6 +297,17 @@ public class WebClient extends SessionClient implements IWebClientApplication
 			return;
 		}
 		getDefaultUserProperties().remove(name);
+
+		// first set in the the special request properties map
+		if (value == null)
+		{
+			userRequestProperties.remove(name);
+		}
+		else
+		{
+			userRequestProperties.put(name, value);
+		}
+
 		WebRequest webRequest = ((WebRequestCycle)RequestCycle.get()).getWebRequest();
 
 		// calculate the base path (servlet path)
@@ -920,6 +937,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	public void onEndRequest(@SuppressWarnings("unused")
 	WebClientSession webClientSession)
 	{
+		userRequestProperties.clear();
 	}
 
 	private void writeObject(ObjectOutputStream stream) throws IOException
