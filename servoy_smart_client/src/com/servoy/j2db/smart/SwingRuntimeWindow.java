@@ -924,8 +924,6 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 	public void resetBounds()
 	{
 		Settings.getInstance().deleteBounds(windowName, application.getSolutionName());
-
-
 	}
 
 }
