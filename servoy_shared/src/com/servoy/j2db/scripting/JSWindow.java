@@ -194,9 +194,9 @@ public class JSWindow implements IConstantsObject
 	 * 
 	 * @sampleas js_isVisible()
 	 */
-	public boolean js_getResizable()
+	public boolean js_isResizable()
 	{
-		return impl.getResizable();
+		return impl.isResizable();
 	}
 
 	public void js_setResizable(boolean resizable)
