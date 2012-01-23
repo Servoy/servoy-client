@@ -91,7 +91,7 @@ public abstract class RuntimeWindow implements IRuntimeWindow
 		this.resizable = resizable;
 	}
 
-	public boolean getResizable()
+	public boolean isResizable()
 	{
 		return resizable;
 	}

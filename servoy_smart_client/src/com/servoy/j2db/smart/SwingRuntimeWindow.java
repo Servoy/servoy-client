@@ -668,24 +668,17 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 			{
 				if (!storeBounds || !restoreWindowBounds())
 				{
-					// quickly set the form to visible if not visible.
-					boolean visible = fp.getFormUI().isVisible();
-					if (!visible)
-					{
-						((Component)fp.getFormUI()).setVisible(true);
-					}
-					// now calculate the preferred size
-					wrappedWindow.pack();
-					// if not visible before restore that state (will be set right later on)
-					if (!visible) ((Component)fp.getFormUI()).setVisible(false);
+					setDefaultSize(fp);
 
 					if (!FormManager.FULL_SCREEN.equals(initialBounds))
 					{
 						setWindowBounds(initialBounds, legacyV3Behavior);
 					}
 				}
-				else if (!getResizable())
+				else if (!resizable)
 				{
+					setDefaultSize(fp);
+
 					//if location was restored, then initial width and height need to be set  
 					if (!FormManager.FULL_SCREEN.equals(initialBounds))
 					{
@@ -750,6 +743,20 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 
 			if (findModeSet && action != null) action.setEnabled(false);
 		}
+	}
+
+	private void setDefaultSize(FormController fp)
+	{
+		// quickly set the form to visible if not visible.
+		boolean visible = fp.getFormUI().isVisible();
+		if (!visible)
+		{
+			((Component)fp.getFormUI()).setVisible(true);
+		}
+		// now calculate the preferred size
+		wrappedWindow.pack();
+		// if not visible before restore that state (will be set right later on)
+		if (!visible) ((Component)fp.getFormUI()).setVisible(false);
 	}
 
 	public void setWindowBounds(Rectangle r, boolean legacyV3Behavior)
