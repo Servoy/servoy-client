@@ -235,15 +235,14 @@ Wicket.Object.extendClass(Wicket.DivWindow, Wicket.Window, {
 		this.window.style.top = y;
 		this.window.style.width = width;
 		this.content.style.height = height;
-		savePosition(x,y,width,height);
+		savePosition(x, y, width, height);
 	},
 	
 	savePositionAs: function(x, y, width, height) {
 		if (typeof(this.settings.cookieId) != "undefined" &&  this.settings.cookieId != null) {
+			this.findPositionString(true);
+			
 			if (this.settings.storeBounds) {
-			
-				this.findPositionString(true);
-			
 				if (cookie == null || cookie.length == 0)
 					cookie = "";
 				else
@@ -264,8 +263,6 @@ Wicket.Object.extendClass(Wicket.DivWindow, Wicket.Window, {
 					cookie += "|" + rest;
 				}
 				Wicket.Cookie.set(this.cookieKey, cookie, this.cookieExp);
-			} else {
-				this.findPositionString(true);
 			}
 		};
 	},
