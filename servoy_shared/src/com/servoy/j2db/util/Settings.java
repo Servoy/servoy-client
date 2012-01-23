@@ -501,6 +501,10 @@ public class Settings extends SortedProperties
 			{
 			}
 		}
+
+		//in case of having a previously saved property 'point', delete it
+		remove("point_" + (solutionName != null ? solutionName + "_" : "") + component.getName() + "_location");
+
 		Point l = component.getLocation();
 		Debug.trace("location of " + component.getName() + " " + l); //$NON-NLS-1$ //$NON-NLS-2$
 		put("rect_" + (solutionName != null ? solutionName + "_" : "") + component.getName() + "_bounds", PersistHelper.createRectangleString(component.getBounds())); //$NON-NLS-1$ //$NON-NLS-2$
@@ -511,6 +515,67 @@ public class Settings extends SortedProperties
 		saveBounds(component, null);
 	}
 
+	public synchronized boolean loadLocation(Component component, String solutionName)
+	{
+		if (component == null || component.getName() == null) return false;
+
+		String location = getProperty("point_" + (solutionName != null ? solutionName + "_" : "") + component.getName() + "_location"); //$NON-NLS-1$ //$NON-NLS-2$
+		if (location != null)
+		{
+			Point l = PersistHelper.createPoint(location);
+
+			try
+			{
+				Rectangle r = new Rectangle(l.x, l.y, 1, 1);
+				if (UIUtils.isOnScreen(r))
+				{
+					component.setLocation(l);
+					return true;
+				} // else falls of the screens
+
+			}
+			catch (Exception e)
+			{
+				Debug.error(e);//just in case isOnScreen() its called and fails in headless env.
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Load the location from a certain component
+	 */
+	public synchronized boolean loadLocation(Component component)
+	{
+		return loadLocation(component, null);
+	}
+
+
+	public synchronized void saveLocation(Component component, String solutionName)
+	{
+		if (component == null || component.getName() == null) return;
+
+		//in case of having a previously saved property 'rect', delete it
+		remove("rect_" + (solutionName != null ? solutionName + "_" : "") + component.getName() + "_bounds");
+
+		Point l = component.getLocation();
+		Debug.trace("location of " + component.getName() + " " + l); //$NON-NLS-1$ //$NON-NLS-2$
+		put("point_" + (solutionName != null ? solutionName + "_" : "") + component.getName() + "_location", PersistHelper.createPointString(l)); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	public synchronized void saveLocation(Component component)
+	{
+		saveLocation(component, null);
+	}
+
+	public synchronized void deleteBounds(String componentName, String solutionName)
+	{
+		remove("rect_" + (solutionName != null ? solutionName + "_" : "") + componentName + "_bounds");
+		remove("point_" + (solutionName != null ? solutionName + "_" : "") + componentName + "_location");
+		remove("window_state_" + componentName);
+	}
+
 	public synchronized void deleteAllBounds()
 	{
 		ArrayList deleteList = new ArrayList();
@@ -518,7 +583,7 @@ public class Settings extends SortedProperties
 		while (e.hasMoreElements())
 		{
 			String element = (String)e.nextElement();
-			if (element.startsWith("rect_") || element.startsWith("window_state_")) //$NON-NLS-1$ //$NON-NLS-2$
+			if (element.startsWith("rect_") || element.startsWith("window_state_") || element.startsWith("point_")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			{
 				deleteList.add(element);
 			}
@@ -530,7 +595,6 @@ public class Settings extends SortedProperties
 			remove(element);
 		}
 	}
-
 
 	@Override
 	public synchronized Object remove(Object key)

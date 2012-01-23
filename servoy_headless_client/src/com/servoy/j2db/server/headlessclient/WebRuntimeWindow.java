@@ -21,6 +21,7 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 
 import org.apache.wicket.Application;
+import org.apache.wicket.Page;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.protocol.http.WebRequestCycle;
 
@@ -42,7 +43,6 @@ import com.servoy.j2db.server.headlessclient.dataui.WebDefaultRecordNavigator;
 public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 {
 	protected final IWebClientApplication application;
-	boolean firstShow = true;
 
 	public WebRuntimeWindow(IWebClientApplication application, String windowName, int windowType, RuntimeWindow parentWindow)
 	{
@@ -89,8 +89,7 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 					else
 					{
 						((MainPage)parentContainer).showPopupDiv((MainPage)dialogContainer, title, r2, resizable, closeAll || !legacyV3Behavior,
-							(windowType == JSWindow.MODAL_DIALOG), firstShow, isUndecorated());
-						firstShow = false;
+							(windowType == JSWindow.MODAL_DIALOG), isUndecorated(), storeBounds);
 					}
 				}
 			}
@@ -315,6 +314,31 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 	protected MainPage getMainPage()
 	{
 		return (MainPage)((FormManager)application.getFormManager()).getMainContainer(windowName);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.scripting.RuntimeWindow#resetBounds()
+	 */
+	@Override
+	public void resetBounds()
+	{
+		MainPage mp = null;
+		RequestCycle rc = RequestCycle.get();
+		if (rc != null)
+		{
+			Page tmp = rc.getResponsePage();
+			if ((tmp instanceof MainPage))
+			{
+				mp = (MainPage)tmp;
+			}
+		}
+		if (mp == null) mp = (MainPage)((FormManager)application.getFormManager()).getMainContainer(null);
+		if (mp != null)
+		{
+			mp.resetBounds(windowName);
+		}
 	}
 
 }

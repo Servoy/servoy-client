@@ -93,6 +93,9 @@ public class PageJSActionBuffer
 		public static final int OP_DIALOG_ADDED_OR_REMOVED = 3;
 		public static final int OP_TO_FRONT = 4;
 		public static final int OP_TO_BACK = 5;
+		public static final int OP_SET_BOUNDS = 6;
+		public static final int OP_SAVE_BOUNDS = 7;
+		public static final int OP_RESET_BOUNDS = 8;
 
 		private final ServoyDivDialog divDialog;
 		private final int operation;
@@ -112,7 +115,7 @@ public class PageJSActionBuffer
 
 		public boolean apply(AjaxRequestTarget target, String pageName)
 		{
-			if (pageName == null || pageName.equals(divDialog.getPageMapName())) // pageName != null if a dialog close is applied on the child's ajax request although it's added to the paren't action buffer
+			if (pageName == null || divDialog == null || pageName.equals(divDialog.getPageMapName())) // pageName != null if a dialog close is applied on the child's ajax request although it's added to the paren't action buffer
 			{
 				switch (operation)
 				{
@@ -144,6 +147,14 @@ public class PageJSActionBuffer
 					case DivDialogAction.OP_DIALOG_ADDED_OR_REMOVED :
 						target.addComponent((WebMarkupContainer)parameters[0]);
 						break;
+					case DivDialogAction.OP_SET_BOUNDS :
+						divDialog.setBounds(target, (Integer)(parameters[0]), (Integer)parameters[1], (Integer)parameters[2], (Integer)parameters[3]);
+						break;
+					case DivDialogAction.OP_SAVE_BOUNDS :
+						divDialog.saveBounds(target);
+						break;
+					case DivDialogAction.OP_RESET_BOUNDS :
+						DivWindow.deleteStoredBounds(target, (String)parameters[0]);
 				}
 				return true;
 			}

@@ -168,6 +168,27 @@ public class JSWindow implements IConstantsObject
 		impl.setInitialBounds(x, y, width, height);
 	}
 
+	public void js_setStoreBounds(boolean storeBounds)
+	{
+		impl.setStoreBounds(storeBounds);
+	}
+
+	/**
+	 * Gets/Sets whether or not the bounds of this window should be stored (default true).
+	 * 
+	 * @sample
+	 * var win1 = application.createWindow("Window 1", JSWindow.DIALOG, null);
+	 * win1.setInitialBounds(200, 200, 450, 350);
+	 * win1.resizable = false;
+	 * win1.storeBounds = false;
+	 * win1.title = "Window 1";
+	 * controller.show(win1);
+	 */
+	public boolean js_getStoreBounds()
+	{
+		return impl.getStoreBounds();
+	}
+
 	/**
 	 * Gets/Sets whether or not this window can be resized by the user (default true).
 	 * 
@@ -511,6 +532,23 @@ public class JSWindow implements IConstantsObject
 	public void js_setLocation(int x, int y)
 	{
 		impl.setLocation(x, y);
+	}
+
+
+	/**
+	 * Deletes the window's currently stored bounds. It will only affect the next show of the window.
+	 * 
+	 * @sample
+	 * var win1 = application.createWindow("Window 1", JSWindow.DIALOG, null);
+	 * win1.title = "Window 1";
+	 * win1.setInitialBounds(200, 200, 400, 600);
+	 * win1.storeBounds = true;
+	 * if (newSolutionVersion) win1.resetBounds();
+	 * win1.show();
+	 */
+	public void js_resetBounds()
+	{
+		impl.resetBounds();
 	}
 
 	/**

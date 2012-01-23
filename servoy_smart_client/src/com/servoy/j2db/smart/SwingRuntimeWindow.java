@@ -664,29 +664,33 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 				((JDialog)wrappedWindow).setJMenuBar(wrappedWindowMenuBar);
 			}
 
-			if ((oldShow && !restoreWindowBounds()))
+			if (oldShow)
 			{
-				// quickly set the form to visible if not visible.
-				boolean visible = fp.getFormUI().isVisible();
-				if (!visible)
+				if (!storeBounds || !restoreWindowBounds())
 				{
-					((Component)fp.getFormUI()).setVisible(true);
-				}
-				// now calculate the preferred size
-				wrappedWindow.pack();
-				// if not visible before restore that state (will be set right later on)
-				if (!visible) ((Component)fp.getFormUI()).setVisible(false);
+					// quickly set the form to visible if not visible.
+					boolean visible = fp.getFormUI().isVisible();
+					if (!visible)
+					{
+						((Component)fp.getFormUI()).setVisible(true);
+					}
+					// now calculate the preferred size
+					wrappedWindow.pack();
+					// if not visible before restore that state (will be set right later on)
+					if (!visible) ((Component)fp.getFormUI()).setVisible(false);
 
-				if (!FormManager.FULL_SCREEN.equals(initialBounds))
-				{
-					setWindowBounds(initialBounds, legacyV3Behavior);
+					if (!FormManager.FULL_SCREEN.equals(initialBounds))
+					{
+						setWindowBounds(initialBounds, legacyV3Behavior);
+					}
 				}
-			}
-			else if (!getResizable())
-			{
-				if (!FormManager.FULL_SCREEN.equals(initialBounds))
+				else if (!getResizable())
 				{
-					wrappedWindow.setBounds(getX(), getY(), initialBounds.width, initialBounds.height);
+					//if location was restored, then initial width and height need to be set  
+					if (!FormManager.FULL_SCREEN.equals(initialBounds))
+					{
+						setWindowBounds(new Rectangle(getX(), getY(), initialBounds.width, initialBounds.height), legacyV3Behavior);
+					}
 				}
 			}
 
@@ -902,6 +906,19 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 		{
 			((JDialog)wrappedWindow).setJMenuBar(wrappedWindowMenuBar);
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.scripting.RuntimeWindow#resetBounds()
+	 */
+	@Override
+	public void resetBounds()
+	{
+		Settings.getInstance().deleteBounds(windowName, application.getSolutionName());
+
+
 	}
 
 }

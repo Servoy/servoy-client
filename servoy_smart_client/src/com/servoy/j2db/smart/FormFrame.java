@@ -186,7 +186,6 @@ public class FormFrame extends JFrame implements FormWindow
 		{
 			device.setFullScreenWindow(null); // reset full-screen window when window closes
 		}
-
 		storeBounds();
 		setVisible(false);
 		IFormManager ifm = application.getFormManager();
@@ -198,15 +197,20 @@ public class FormFrame extends JFrame implements FormWindow
 
 	public boolean restoreBounds()
 	{
-		return Settings.getInstance().loadBounds(this, application.getSolutionName());
+		if (isResizable()) return Settings.getInstance().loadBounds(this, application.getSolutionName());
+		return Settings.getInstance().loadLocation(this, application.getSolutionName());
 
 	}
 
 	public void storeBounds()
 	{
-		Settings.getInstance().saveBounds(this, application.getSolutionName());
+		if (application.getRuntimeWindowManager().getWindow(this.getName()).getStoreBounds())
+		{
+			if (isResizable()) Settings.getInstance().saveBounds(this, application.getSolutionName());
+			else Settings.getInstance().saveLocation(this, application.getSolutionName());
+		}
+		else Settings.getInstance().deleteBounds(this.getName(), application.getSolutionName());
 	}
-
 
 	public void setFullScreen()
 	{
