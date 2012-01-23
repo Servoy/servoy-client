@@ -301,8 +301,8 @@ Wicket.Object.extendClass(Wicket.DivWindow, Wicket.Window, {
 			}
 		}
 
-		var w = window.innerWidth || document.body.offsetWidth;
-		var h = window.innerHeight || document.body.offsetHeight;
+		var w = window.innerWidth || Wicket.Window.getViewportWidth();
+		var h = window.innerHeight || Wicket.Window.getViewportHeight();
 		
 		if ( (parseInt(this.window.style.left) + parseInt(this.window.style.width)) > parseInt(w) ||
 		 (parseInt(this.window.style.top) + parseInt(this.content.style.height)) > parseInt(h) ) {
