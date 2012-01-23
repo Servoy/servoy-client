@@ -174,15 +174,14 @@ public class JSWindow implements IConstantsObject
 	}
 
 	/**
-	 * Tells whether or not the bounds of this window should be stored/persisted (default true).
-	 * When true, the window's bounds will be persisted when the window is closed and used next time the windows is shown instead of initialBounds.
-	 * For non resizable windows, only location is persisted when true.
-	 * 
+	 * Tells whether or not the bounds of this window should be stored/persisted (default false).
+	 * If true, the window's bounds will be stored when the window is closed. Stored bounds will be used when the window is shown again instead of initialBounds.
+	 * For non resizable windows, only location is stored/persisted.
 	 * @sample
 	 * var win1 = application.createWindow("Window 1", JSWindow.DIALOG, null);
 	 * win1.setInitialBounds(200, 200, 450, 350);
 	 * win1.resizable = false;
-	 * win1.storeBounds = false;
+	 * win1.storeBounds = true;
 	 * win1.title = "Window 1";
 	 * controller.show(win1);
 	 */

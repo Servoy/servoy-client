@@ -52,7 +52,7 @@ public abstract class RuntimeWindow implements IRuntimeWindow
 	protected String title = null;
 	protected boolean showTextToolbar = false;
 
-	protected boolean storeBounds = true;
+	protected boolean storeBounds = false;
 
 	protected boolean destroyed = false;
 
