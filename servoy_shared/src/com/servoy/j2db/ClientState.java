@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.net.URL;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.rmi.UnmarshalException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -60,6 +61,7 @@ import com.servoy.j2db.server.shared.IClientManager;
 import com.servoy.j2db.server.shared.IUserManager;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.serialize.JSONConverter;
 
@@ -544,8 +546,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		// do nothing here
 	}
 
-	public void logout(@SuppressWarnings("unused")
-	Object[] solution_to_open_args)
+	public void logout(@SuppressWarnings("unused") Object[] solution_to_open_args)
 	{
 		String userUid = null;
 		try
@@ -1295,14 +1296,12 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		J2DBGlobals.removeAllPropertyChangeListeners(modeManager);
 	}
 
-	private void writeObject(@SuppressWarnings("unused")
-	ObjectOutputStream stream)
+	private void writeObject(@SuppressWarnings("unused") ObjectOutputStream stream)
 	{
 		//serialize is not implemented
 	}
 
-	private void readObject(@SuppressWarnings("unused")
-	ObjectInputStream stream)
+	private void readObject(@SuppressWarnings("unused") ObjectInputStream stream)
 	{
 		//serialize is not implemented
 	}
@@ -1393,7 +1392,6 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 							return false;
 						}
 					}
-
 				}
 
 				if (solutionRoot.getSolution() == null)
@@ -1409,8 +1407,29 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		catch (Exception ex)
 		{
 			Debug.error(ex);
-			reportError(Messages.getString(
-				"servoy.client.error.loadingsolution", new Object[] { (solutionMetaData != null ? solutionMetaData.getName() : "<unknown>") }), ex); //$NON-NLS-1$ //$NON-NLS-2$
+			if (ex instanceof UnmarshalException && ex.getMessage().indexOf("java.io.NotSerializableException: com.servoy.j2db.server.persistence.Server") >= 0)
+			{
+				// this happens when the repository server is used in a solution while user tables in repository is disabled	
+				if (dataServer != null)
+				{
+					try
+					{
+						// log on the server
+						dataServer.logMessage("Client could not load solution " + solutionMetaData.getName() +
+							", probably because repository server is used, see admin setting " + Settings.ALLOW_CLIENT_REPOSITORY_ACCESS_SETTING);
+					}
+					catch (RemoteException e)
+					{
+						// bummer
+					}
+				}
+				reportError(Messages.getString("servoy.foundSet.error.noAccess"), ex); //$NON-NLS-1$ 
+			}
+			else
+			{
+				reportError(Messages.getString(
+					"servoy.client.error.loadingsolution", new Object[] { (solutionMetaData != null ? solutionMetaData.getName() : "<unknown>") }), ex); //$NON-NLS-1$ //$NON-NLS-2$
+			}
 			return false;
 		}
 	}
@@ -1609,8 +1628,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	public abstract void releaseGUI();
 
-	public void invokeLater(Runnable r, @SuppressWarnings("unused")
-	boolean immediate)
+	public void invokeLater(Runnable r, @SuppressWarnings("unused") boolean immediate)
 	{
 		invokeLater(r);
 	}

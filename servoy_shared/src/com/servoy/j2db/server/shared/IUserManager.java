@@ -33,12 +33,6 @@ import com.servoy.j2db.util.UUID;
  */
 public interface IUserManager extends ISolutionSecurityManager, Remote
 {
-
-	public boolean checkIfUserIsAdministrator(String clientId, String userUid) throws RemoteException;
-
-
-	public boolean checkIfAdministratorsAreAvailable(String clientId) throws RemoteException;
-
 	public String getUserUID(String clientId, String username) throws ServoyException, RemoteException;
 
 	public int getGroupId(String clientId, String adminGroup) throws ServoyException, RemoteException;
@@ -48,7 +42,6 @@ public interface IUserManager extends ISolutionSecurityManager, Remote
 	public IDataSet getUserGroups(String clientId, int userId) throws ServoyException, RemoteException;
 
 	public IDataSet getGroups(String clientId) throws ServoyException, RemoteException;
-
 
 	public String getUserUID(String clientId, int userId) throws ServoyException, RemoteException;
 

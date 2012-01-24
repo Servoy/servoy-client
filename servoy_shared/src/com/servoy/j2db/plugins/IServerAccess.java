@@ -298,4 +298,18 @@ public interface IServerAccess extends IPluginAccess
 	 * @param filename The filename to get an {@link InputStream} to, filename must start with a / 
 	 */
 	public InputStream getResourceAsStream(String filename);
+
+	/** Executes a stored procedure
+	 * @param clientId
+	 * @param serverName
+	 * @param transaction_id
+	 * @param procedureDeclaration
+	 * @param questiondata
+	 * @param inOutType
+	 * @param startRow
+	 * @param rowsToRetrieve
+	 * @return
+	 */
+	public IDataSet executeStoredProcedure(String clientId, String serverName, String transaction_id, String procedureDeclaration, Object[] args,
+		int[] inOutType, int startRow, int maxNumberOfRowsToRetrieve) throws ServoyException;
 }
