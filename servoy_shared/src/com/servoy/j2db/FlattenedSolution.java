@@ -596,15 +596,6 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 				Solution[] mods = activeSolutionHandler.loadActiveSolutions(solutionAndModuleMetaDatas.toArray(new RootObjectMetaData[solutionAndModuleMetaDatas.size()]));
 				setSolutionAndModules(mainSolutionMetaData.getName(), mods);
-				Iterator<Form> it = getForms(false);
-				while (it.hasNext())
-				{
-					Form form = it.next();
-					if (form.getExtendsID() > 0)
-					{
-						form.setExtendsForm(getForm(form.getExtendsID()));
-					}
-				}
 			}
 		}
 	}
@@ -668,6 +659,15 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			if (s.getChangeHandler() != null)
 			{
 				s.getChangeHandler().addIPersistListener(this);
+			}
+		}
+		Iterator<Form> it = getForms(false);
+		while (it.hasNext())
+		{
+			Form form = it.next();
+			if (form.getExtendsID() > 0)
+			{
+				form.setExtendsForm(getForm(form.getExtendsID()));
 			}
 		}
 	}
@@ -1968,14 +1968,12 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		Form f = form;
 		while (f != null && f.getExtendsID() > 0)
 		{
-			Form superForm = getForm(f.getExtendsID());
-			if (superForm == null || formHierarchy.contains(superForm) /* prevent cycles */)
+			f = getForm(f.getExtendsID());
+			if (f == null || formHierarchy.contains(f) /* prevent cycles */)
 			{
 				break;
 			}
-			formHierarchy.add(superForm);
-			f.setExtendsForm(superForm);
-			f = superForm;
+			formHierarchy.add(f);
 		}
 		return formHierarchy;
 	}
