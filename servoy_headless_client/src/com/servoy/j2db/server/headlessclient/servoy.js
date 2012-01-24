@@ -1748,12 +1748,12 @@ if (typeof(Servoy.Utils) == "undefined")
 		
 		getSelectedText: function(id)
 		{
-			// code for IE
 		    var textarea = document.getElementById(id);
 		    var sel = null;
+			// code for IE
 		    if (document.selection) {
 				textarea.focus();
-				sel = document.selection.createRange();
+				sel = document.selection.createRange().text;
 		    }
 		    else {
 				// code for Mozilla
