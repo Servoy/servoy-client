@@ -66,6 +66,7 @@ public interface IRepository
 
 	public static final int SYSTEM_USER_ID = 0;
 	public static final String ADMIN_GROUP = "Administrators"; //$NON-NLS-1$
+	public static final String TEAM_GROUP = "TeamUsers"; //$NON-NLS-1$
 
 	/**
 	 * Final repository object_types

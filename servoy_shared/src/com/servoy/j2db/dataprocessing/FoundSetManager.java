@@ -1378,6 +1378,12 @@ public class FoundSetManager implements IFoundSetManagerInternal
 						hasLocks = true;
 					}
 				}
+				catch (RepositoryException e)
+				{
+					// Will not happen
+					Debug.error(e);
+					return false;
+				}
 				catch (RemoteException e)
 				{
 					Debug.error(e);//TODO:put error code in app

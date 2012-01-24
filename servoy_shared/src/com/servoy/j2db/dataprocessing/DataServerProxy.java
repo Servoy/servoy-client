@@ -79,7 +79,7 @@ public class DataServerProxy implements IDataServer
 	}
 
 	public ISQLStatement createSQLStatement(int action, String serverName, String tableName, Object[] pkColumnData, String tid, String sql,
-		Object[] questiondata) throws RemoteException
+		Object[] questiondata) throws RemoteException, RepositoryException
 	{
 		return ds.createSQLStatement(action, getMappedServerName(serverName), tableName, pkColumnData, tid, sql, questiondata);
 	}
@@ -88,13 +88,6 @@ public class DataServerProxy implements IDataServer
 		ArrayList<TableFilter> filters) throws RemoteException
 	{
 		return ds.createSQLStatement(action, getMappedServerName(server_name), tableName, pkColumnData, tid, sqlUpdate, filters);
-	}
-
-	public IDataSet executeStoredProcedure(String clientId, String serverName, String transaction_id, String procedureDeclaration, Object[] args,
-		int[] inOutType, int startRow, int maxNumberOfRowsToRetrieve) throws RepositoryException, RemoteException
-	{
-		return ds.executeStoredProcedure(clientId, getMappedServerName(serverName), transaction_id, procedureDeclaration, args, inOutType, startRow,
-			maxNumberOfRowsToRetrieve);
 	}
 
 	public Blob getBlob(String clientId, String serverName, ISQLSelect blobSelect, ArrayList<TableFilter> filters, String tid) throws RepositoryException,
@@ -206,17 +199,17 @@ public class DataServerProxy implements IDataServer
 	}
 
 	public IDataSet acquireLocks(String client_id, String serverName, String table_name, Set<Object> pkhashkeys, QuerySelect lockSelect, String transaction_id,
-		ArrayList<TableFilter> filters, int chunkSize) throws RemoteException
+		ArrayList<TableFilter> filters, int chunkSize) throws RemoteException, RepositoryException
 	{
 		return ds.acquireLocks(client_id, getMappedServerName(serverName), table_name, pkhashkeys, lockSelect, transaction_id, filters, chunkSize);
 	}
 
-	public boolean releaseLocks(String client_id, String serverName, String table_name, Set<Object> pkhashkeys) throws RemoteException
+	public boolean releaseLocks(String client_id, String serverName, String table_name, Set<Object> pkhashkeys) throws RemoteException, RepositoryException
 	{
 		return ds.releaseLocks(client_id, getMappedServerName(serverName), table_name, pkhashkeys);
 	}
 
-	public void addClientAsTableUser(String client_id, String serverName, String table_name) throws RemoteException
+	public void addClientAsTableUser(String client_id, String serverName, String table_name) throws RemoteException, RepositoryException
 	{
 		ds.addClientAsTableUser(client_id, getMappedServerName(serverName), table_name);
 	}
@@ -257,7 +250,7 @@ public class DataServerProxy implements IDataServer
 			type, dataSource, getMappedServerName(targetServerName), targetTableName, targetTid);
 	}
 
-	public void dropTemporaryTable(String client_id, String serverName, String tableName) throws RemoteException
+	public void dropTemporaryTable(String client_id, String serverName, String tableName) throws RemoteException, RepositoryException
 	{
 		ds.dropTemporaryTable(client_id, getMappedServerName(serverName), tableName);
 	}

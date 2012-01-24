@@ -63,6 +63,8 @@ public class Settings extends SortedProperties
 	public static final boolean START_AS_TEAMPROVIDER_DEFAULT = true;
 	public static final String START_GLOBAL_MAINTENANCE_MODE_SETTING = "servoy.application_server.global_maintenance_mode"; //$NON-NLS-1$
 	public static final String START_MAINTENANCE_MODE_SETTING = "servoy.application_server.maintenance_mode"; //$NON-NLS-1$
+	public static final String ALLOW_CLIENT_REPOSITORY_ACCESS_SETTING = "servoy.application_server.allowClientRepositoryAccess"; //$NON-NLS-1$
+	public static final boolean ALLOW_CLIENT_REPOSITORY_ACCESS_DEFAULT = true;
 
 	private boolean loadedFromServer = false;
 	private File file;

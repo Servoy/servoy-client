@@ -83,10 +83,11 @@ public class ProfileDataServer implements IDataServer
 	 * @param chunkSize
 	 * @return
 	 * @throws RemoteException
+	 * @throws RepositoryException 
 	 * @see com.servoy.j2db.dataprocessing.ILockServer#acquireLocks(java.lang.String, java.lang.String, java.lang.String, java.util.Set, com.servoy.j2db.query.QuerySelect, java.lang.String, java.util.ArrayList, int)
 	 */
 	public IDataSet acquireLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys, QuerySelect lockSelect,
-		String transaction_id, ArrayList<TableFilter> filters, int chunkSize) throws RemoteException
+		String transaction_id, ArrayList<TableFilter> filters, int chunkSize) throws RemoteException, RepositoryException
 	{
 		long startTime = System.currentTimeMillis();
 		try
@@ -179,9 +180,10 @@ public class ProfileDataServer implements IDataServer
 	 * @param pkhashkeys
 	 * @return
 	 * @throws RemoteException
+	 * @throws RepositoryException 
 	 * @see com.servoy.j2db.dataprocessing.ILockServer#releaseLocks(java.lang.String, java.lang.String, java.lang.String, java.util.Set)
 	 */
-	public boolean releaseLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys) throws RemoteException
+	public boolean releaseLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys) throws RemoteException, RepositoryException
 	{
 		long startTime = System.currentTimeMillis();
 		try
@@ -438,10 +440,11 @@ public class ProfileDataServer implements IDataServer
 	 * @param questiondata
 	 * @return
 	 * @throws RemoteException
+	 * @throws RepositoryException 
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#createSQLStatement(int, java.lang.String, java.lang.String, java.lang.Object[], java.lang.String, java.lang.String, java.lang.Object[])
 	 */
 	public ISQLStatement createSQLStatement(int action, String server_name, String tableName, Object[] pkColumnData, String tid, String sql,
-		Object[] questiondata) throws RemoteException
+		Object[] questiondata) throws RemoteException, RepositoryException
 	{
 		long startTime = System.currentTimeMillis();
 		try
@@ -592,35 +595,6 @@ public class ProfileDataServer implements IDataServer
 	}
 
 	/**
-	 * @param clientId
-	 * @param serverName
-	 * @param transaction_id
-	 * @param procedureDeclaration
-	 * @param args
-	 * @param inOutType
-	 * @param startRow
-	 * @param maxNumberOfRowsToRetrieve
-	 * @return
-	 * @throws RepositoryException
-	 * @throws RemoteException
-	 * @see com.servoy.j2db.dataprocessing.IDataServer#executeStoredProcedure(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Object[], int[], int, int)
-	 */
-	public IDataSet executeStoredProcedure(String clientId, String serverName, String transaction_id, String procedureDeclaration, Object[] args,
-		int[] inOutType, int startRow, int maxNumberOfRowsToRetrieve) throws RepositoryException, RemoteException
-	{
-		long startTime = System.currentTimeMillis();
-		try
-		{
-			return dataserver.executeStoredProcedure(clientId, serverName, transaction_id, procedureDeclaration, args, inOutType, startRow,
-				maxNumberOfRowsToRetrieve);
-		}
-		finally
-		{
-			informListeners("ExecuteStoredProcedure", serverName, procedureDeclaration, transaction_id, startTime, args);
-		}
-	}
-
-	/**
 	 * @param serverName
 	 * @param tableName
 	 * @param columnName
@@ -710,9 +684,10 @@ public class ProfileDataServer implements IDataServer
 	 * @param serverName
 	 * @param tableName
 	 * @throws RemoteException
+	 * @throws RepositoryException 
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#dropTemporaryTable(java.lang.String, java.lang.String, java.lang.String)
 	 */
-	public void dropTemporaryTable(String client_id, String serverName, String tableName) throws RemoteException
+	public void dropTemporaryTable(String client_id, String serverName, String tableName) throws RemoteException, RepositoryException
 	{
 		long startTime = System.currentTimeMillis();
 		try
@@ -730,9 +705,10 @@ public class ProfileDataServer implements IDataServer
 	 * @param serverName
 	 * @param tableName
 	 * @throws RemoteException
+	 * @throws RepositoryException 
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#addClientAsTableUser(java.lang.String, java.lang.String, java.lang.String)
 	 */
-	public void addClientAsTableUser(String client_id, String serverName, String tableName) throws RemoteException
+	public void addClientAsTableUser(String client_id, String serverName, String tableName) throws RemoteException, RepositoryException
 	{
 		dataserver.addClientAsTableUser(client_id, serverName, tableName);
 	}
