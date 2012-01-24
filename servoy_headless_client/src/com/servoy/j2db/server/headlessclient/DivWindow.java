@@ -383,13 +383,16 @@ public class DivWindow extends ModalWindow
 		settings.append(getStoreBounds());
 		settings.append(";\n");
 
-		settings.append("settings.initialX").append("=");
-		settings.append(getInitialLocation().x);
-		settings.append(";\n");
+		if (getInitialLocation() != null)
+		{
+			settings.append("settings.initialX").append("=");
+			settings.append(getInitialLocation().x);
+			settings.append(";\n");
 
-		settings.append("settings.initialY").append("=");
-		settings.append(getInitialLocation().y);
-		settings.append(";\n");
+			settings.append("settings.initialY").append("=");
+			settings.append(getInitialLocation().y);
+			settings.append(";\n");
+		}
 
 		settings.append("settings.jsId").append("=\"");
 		settings.append(getJSId());
