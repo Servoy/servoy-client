@@ -386,6 +386,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 	@Override
 	public void onEndRequest(WebClientSession webClientSession)
 	{
+		super.onEndRequest(webClientSession);
 		removeEventDispatchThread();
 	}
 
