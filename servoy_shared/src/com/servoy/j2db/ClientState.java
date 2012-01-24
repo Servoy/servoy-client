@@ -27,6 +27,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.rmi.UnmarshalException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -64,6 +65,7 @@ import com.servoy.j2db.server.shared.IUserManager;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ITaskExecuter;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.serialize.JSONConverter;
 
@@ -1373,7 +1375,6 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 							return false;
 						}
 					}
-
 				}
 
 				if (solutionRoot.getSolution() == null)
@@ -1389,8 +1390,29 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		catch (Exception ex)
 		{
 			Debug.error(ex);
-			reportError(Messages.getString(
-				"servoy.client.error.loadingsolution", new Object[] { (solutionMetaData != null ? solutionMetaData.getName() : "<unknown>") }), ex); //$NON-NLS-1$ //$NON-NLS-2$
+			if (ex instanceof UnmarshalException && ex.getMessage().indexOf("java.io.NotSerializableException: com.servoy.j2db.server.persistence.Server") >= 0)
+			{
+				// this happens when the repository server is used in a solution while user tables in repository is disabled	
+				if (dataServer != null)
+				{
+					try
+					{
+						// log on the server
+						dataServer.logMessage("Client could not load solution " + solutionMetaData.getName() +
+							", probably because repository server is used, see admin setting " + Settings.ALLOW_CLIENT_REPOSITORY_ACCESS_SETTING);
+					}
+					catch (RemoteException e)
+					{
+						// bummer
+					}
+				}
+				reportError(Messages.getString("servoy.foundSet.error.noAccess"), ex); //$NON-NLS-1$ 
+			}
+			else
+			{
+				reportError(Messages.getString(
+					"servoy.client.error.loadingsolution", new Object[] { (solutionMetaData != null ? solutionMetaData.getName() : "<unknown>") }), ex); //$NON-NLS-1$ //$NON-NLS-2$
+			}
 			return false;
 		}
 	}

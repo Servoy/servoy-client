@@ -260,4 +260,18 @@ public interface IServerAccess extends IPluginAccess
 	 * @since 5.2
 	 */
 	public String[] getUserGroups(String userUid) throws ServoyException;
+
+	/** Executes a stored procedure
+	 * @param clientId
+	 * @param serverName
+	 * @param transaction_id
+	 * @param procedureDeclaration
+	 * @param questiondata
+	 * @param inOutType
+	 * @param startRow
+	 * @param rowsToRetrieve
+	 * @return
+	 */
+	public IDataSet executeStoredProcedure(String clientId, String serverName, String transaction_id, String procedureDeclaration, Object[] args,
+		int[] inOutType, int startRow, int maxNumberOfRowsToRetrieve) throws ServoyException;
 }

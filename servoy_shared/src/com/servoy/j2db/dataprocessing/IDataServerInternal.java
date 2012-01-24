@@ -20,7 +20,9 @@ package com.servoy.j2db.dataprocessing;
 import java.util.ArrayList;
 
 import com.servoy.j2db.persistence.IServerManagerInternal;
+import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
+import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.util.ServoyException;
 
 
@@ -36,4 +38,15 @@ public interface IDataServerInternal
 	void doI18NUpdates(String client_id, String transaction_id, Table table, BufferedDataSet resultWithColumnNames, boolean onlyInserts) throws ServoyException;
 
 	IServerManagerInternal getServerManager();
+
+	Object getNextRepositorySequence(String tableName, String columnName, int columnInfoID) throws RepositoryException;
+
+	String startRepositoryTransaction(String client_id) throws RepositoryException;
+
+	boolean endRepositoryTransactions(String client_id, String[] transaction_ids, boolean commit) throws RepositoryException;
+
+	Object[] performRepositoryUpdates(String client_id, ISQLStatement[] statements) throws ServoyException;
+
+	IDataSet performRepositoryQuery(String client_id, String tid, ISQLSelect sqlSelect, ArrayList<TableFilter> filters, boolean distinctInMemory, int startRow,
+		int rowsToRetrieve, int type) throws ServoyException;
 }

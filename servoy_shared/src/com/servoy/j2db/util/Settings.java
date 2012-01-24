@@ -55,6 +55,9 @@ public class Settings extends SortedProperties
 	public static final int INITIAL_CLIENT_WIDTH = 800;
 	public static final int INITIAL_CLIENT_HEIGHT = 600;
 
+	public static final String ALLOW_CLIENT_REPOSITORY_ACCESS_SETTING = "servoy.application_server.allowClientRepositoryAccess"; //$NON-NLS-1$
+	public static final boolean ALLOW_CLIENT_REPOSITORY_ACCESS_DEFAULT = true;
+
 	private boolean loadedFromServer = false;
 	private File file;
 
