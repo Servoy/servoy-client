@@ -1968,12 +1968,14 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		Form f = form;
 		while (f != null && f.getExtendsID() > 0)
 		{
-			f = getForm(f.getExtendsID());
-			if (f == null || formHierarchy.contains(f) /* prevent cycles */)
+			Form superForm = getForm(f.getExtendsID());
+			if (superForm == null || formHierarchy.contains(superForm) /* prevent cycles */)
 			{
 				break;
 			}
-			formHierarchy.add(f);
+			formHierarchy.add(superForm);
+			f.setExtendsForm(superForm);
+			f = superForm;
 		}
 		return formHierarchy;
 	}
