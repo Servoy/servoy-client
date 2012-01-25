@@ -23,6 +23,7 @@ import com.servoy.j2db.persistence.IServerManagerInternal;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.ISQLSelect;
+import com.servoy.j2db.server.shared.IClientManagerInternal;
 import com.servoy.j2db.util.ServoyException;
 
 
@@ -49,4 +50,6 @@ public interface IDataServerInternal
 
 	IDataSet performRepositoryQuery(String client_id, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters, boolean distinctInMemory,
 		int startRow, int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo) throws ServoyException;
+
+	public IClientManagerInternal getClientManager();
 }
