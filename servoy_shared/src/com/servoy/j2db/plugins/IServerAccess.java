@@ -308,7 +308,10 @@ public interface IServerAccess extends IPluginAccess
 	 * @param inOutType
 	 * @param startRow
 	 * @param rowsToRetrieve
-	 * @return
+	 * 
+	 * @return last resultset of procedure or result of inOutType
+	 * 
+	 * @since 6.1
 	 */
 	public IDataSet executeStoredProcedure(String clientId, String serverName, String transaction_id, String procedureDeclaration, Object[] args,
 		int[] inOutType, int startRow, int maxNumberOfRowsToRetrieve) throws ServoyException;
