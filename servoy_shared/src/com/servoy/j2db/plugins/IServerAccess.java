@@ -272,6 +272,7 @@ public interface IServerAccess extends IPluginAccess
 	 * @param rowsToRetrieve
 	 * @return
 	 */
+	@Deprecated
 	public IDataSet executeStoredProcedure(String clientId, String serverName, String transaction_id, String procedureDeclaration, Object[] args,
 		int[] inOutType, int startRow, int maxNumberOfRowsToRetrieve) throws ServoyException;
 }
