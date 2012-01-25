@@ -29,8 +29,8 @@ import org.xhtmlrenderer.css.sheet.Stylesheet;
 
 public class ServoyStyleSheet implements IStyleSheet
 {
-	private final CSSName[] BORDER_CSS = new CSSName[] { CSSName.BORDER_BOTTOM_COLOR, CSSName.BORDER_BOTTOM_SHORTHAND, CSSName.BORDER_BOTTOM_STYLE, CSSName.BORDER_BOTTOM_WIDTH, CSSName.BORDER_TOP_COLOR, CSSName.BORDER_TOP_SHORTHAND, CSSName.BORDER_TOP_STYLE, CSSName.BORDER_TOP_WIDTH, CSSName.BORDER_LEFT_COLOR, CSSName.BORDER_LEFT_SHORTHAND, CSSName.BORDER_LEFT_STYLE, CSSName.BORDER_LEFT_WIDTH, CSSName.BORDER_RIGHT_COLOR, CSSName.BORDER_RIGHT_SHORTHAND, CSSName.BORDER_RIGHT_STYLE, CSSName.BORDER_RIGHT_WIDTH, CSSName.BORDER_COLOR_SHORTHAND, CSSName.BORDER_SHORTHAND, CSSName.BORDER_TOP_SHORTHAND, CSSName.BORDER_LEFT_SHORTHAND, CSSName.BORDER_BOTTOM_SHORTHAND, CSSName.BORDER_RIGHT_SHORTHAND };
-	private final CSSName[] MARGIN_CSS = new CSSName[] { CSSName.MARGIN_BOTTOM, CSSName.MARGIN_TOP, CSSName.MARGIN_LEFT, CSSName.MARGIN_RIGHT, CSSName.MARGIN_SHORTHAND };
+	private final String[] BORDER_CSS = new String[] { CSSName.BORDER_BOTTOM_COLOR.toString(), CSSName.BORDER_BOTTOM_SHORTHAND.toString(), CSSName.BORDER_BOTTOM_STYLE.toString(), CSSName.BORDER_BOTTOM_WIDTH.toString(), CSSName.BORDER_TOP_COLOR.toString(), CSSName.BORDER_TOP_SHORTHAND.toString(), CSSName.BORDER_TOP_STYLE.toString(), CSSName.BORDER_TOP_WIDTH.toString(), CSSName.BORDER_LEFT_COLOR.toString(), CSSName.BORDER_LEFT_SHORTHAND.toString(), CSSName.BORDER_LEFT_STYLE.toString(), CSSName.BORDER_LEFT_WIDTH.toString(), CSSName.BORDER_RIGHT_COLOR.toString(), CSSName.BORDER_RIGHT_SHORTHAND.toString(), CSSName.BORDER_RIGHT_STYLE.toString(), CSSName.BORDER_RIGHT_WIDTH.toString(), CSSName.BORDER_COLOR_SHORTHAND.toString(), CSSName.BORDER_SHORTHAND.toString(), CSSName.BORDER_TOP_SHORTHAND.toString(), CSSName.BORDER_LEFT_SHORTHAND.toString(), CSSName.BORDER_BOTTOM_SHORTHAND.toString(), CSSName.BORDER_RIGHT_SHORTHAND.toString() };
+	private final String[] MARGIN_CSS = new String[] { CSSName.MARGIN_BOTTOM.toString(), CSSName.MARGIN_TOP.toString(), CSSName.MARGIN_LEFT.toString(), CSSName.MARGIN_RIGHT.toString(), CSSName.MARGIN_SHORTHAND.toString() };
 	static Attribute[] marginAttributes = new Attribute[] { CSS.Attribute.MARGIN, CSS.Attribute.MARGIN_BOTTOM, CSS.Attribute.MARGIN_LEFT, CSS.Attribute.MARGIN_RIGHT, CSS.Attribute.MARGIN_TOP };
 	public static Attribute[] fontAttributes = new Attribute[] { CSS.Attribute.FONT, CSS.Attribute.FONT_FAMILY, CSS.Attribute.FONT_SIZE, CSS.Attribute.FONT_STYLE, CSS.Attribute.FONT_VARIANT, CSS.Attribute.FONT_WEIGHT };
 	public static String[] borderAttributesExtensions = new String[] { "border-left-style", "border-right-style", "border-top-style", "border-bottom-style", "border-left-color", "border-right-color", "border-top-color", "border-bottom-color", "border-radius", "border-top-left-radius", "border-top-right-radius", "border-bottom-right-radius", "border-bottom-left-radius" };
@@ -301,11 +301,11 @@ public class ServoyStyleSheet implements IStyleSheet
 		return PersistHelper.createColor(a.getValue(CSSName.BACKGROUND_COLOR.toString()));
 	}
 
-	private boolean hasProperty(IStyleRule s, CSSName[] names)
+	private boolean hasProperty(IStyleRule s, String[] names)
 	{
-		for (CSSName name : names)
+		for (String name : names)
 		{
-			if (s.hasAttribute(name.toString())) return true;
+			if (s.hasAttribute(name)) return true;
 		}
 		return false;
 	}
