@@ -49,7 +49,7 @@ public interface IDataServerInternal
 	Object[] performRepositoryUpdates(String client_id, ISQLStatement[] statements) throws ServoyException;
 
 	IDataSet performRepositoryQuery(String client_id, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters, boolean distinctInMemory,
-		int startRow, int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo) throws ServoyException;
+		int startRow, int rowsToRetrieve, boolean createMetaInfo, int type, ITrackingSQLStatement trackingInfo) throws ServoyException;
 
-	public IClientManagerInternal getClientManager();
+	IClientManagerInternal getClientManager();
 }
