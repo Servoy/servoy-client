@@ -158,11 +158,8 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 		setValueIsAdjusting(valueIsAdjusting);
 		if (row == -1)
 		{
-			if (foundset.getSize() == 0)
-			{
-				if (foundsetIsFiringSizeChange) selectionAlreadyAdjustedBySizeChangeListeners = true;
-				clearSelection();
-			} // else do not allow empty selection on non-empty foundset
+			if (foundsetIsFiringSizeChange) selectionAlreadyAdjustedBySizeChangeListeners = true;
+			clearSelection();
 		}
 		else setSelectedRows(new int[] { row }, keepOldSelections);
 		setValueIsAdjusting(oldIsAdjusting);
