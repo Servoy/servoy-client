@@ -4440,7 +4440,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 			IFoundSetInternal fs = getFoundSet();
 			int nextIndex = fs.getSelectedIndex() + 1;
-			if (nextIndex < fs.getSize())
+			if (nextIndex >= 0 && nextIndex < fs.getSize())
 			{
 				final Component comp = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
 				fs.setSelectedIndex(nextIndex);

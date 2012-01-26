@@ -569,7 +569,7 @@ public class WebEventExecutor extends BaseEventExecutor
 								}
 							}
 						}
-						else
+						else if (index != -1 || fs.getSize() == 0)
 						{
 							fs.setSelectedIndex(index);
 						}

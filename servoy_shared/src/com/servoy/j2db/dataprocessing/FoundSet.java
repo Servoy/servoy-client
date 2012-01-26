@@ -1872,7 +1872,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		if (row == -1 && getSize() > 0)
 		{
 			// should never happen when not related to printing; when printing/closing print preview, this does happen
-			Debug.log("Flushing foundset with no selection: " + this); //$NON-NLS-1$ 
+			Debug.log("Flushing foundset with no selection (after printing?): " + this); //$NON-NLS-1$ 
 			return; // safety
 		}
 
