@@ -1987,8 +1987,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		int row = getSelectedIndex();
 		if (row == -1 && getSize() > 0)
 		{
-			// should never happen
-			Debug.log("Flushing foundset with no selection: " + this, new RuntimeException("Flushing foundset with no selection")); //$NON-NLS-1$ //$NON-NLS-2$
+			// should never happen when not related to printing; when printing/closing print preview, this does happen
+			Debug.log("Flushing foundset with no selection (after printing?): " + this); //$NON-NLS-1$ 
 			return; // safety
 		}
 

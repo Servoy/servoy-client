@@ -392,7 +392,7 @@ class FoundSetIndexModel extends Model implements IComponentAssignedModel
 				if ("currentRecordIndex".equals(component.getId()))
 				{
 					int index = Utils.getAsInteger(object);
-					if (index < 0)
+					if (index < 1)
 					{
 						index = 1;
 					}
