@@ -179,8 +179,8 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 
 		// Put CSS properties for background color and border (if any).
 		TextualStyle formStyle = css.addStyle("#" + buildFormID()); //$NON-NLS-1$ 
-		if (style.getValue(CSSName.BACKGROUND_COLOR.toString()) != null && !f.getTransparent()) formStyle.setProperty(CSSName.BACKGROUND_COLOR.toString(),
-			style.getValue(CSSName.BACKGROUND_COLOR.toString()));
+		if (style != null && style.getValue(CSSName.BACKGROUND_COLOR.toString()) != null && !f.getTransparent()) formStyle.setProperty(
+			CSSName.BACKGROUND_COLOR.toString(), style.getValue(CSSName.BACKGROUND_COLOR.toString()));
 		if (border != null)
 		{
 			String type = ComponentFactoryHelper.createBorderString(border);
