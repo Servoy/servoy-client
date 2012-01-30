@@ -1583,7 +1583,15 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	 */
 	private void initStylesAndBorder()
 	{
-		ss = ComponentFactory.getCSSStyleForForm(application, form);
+		Pair<IStyleSheet, IStyleRule> pairStyle = ComponentFactory.getCSSPairStyleForForm(application, form);
+		if (pairStyle != null)
+		{
+			ss = pairStyle.getLeft();
+		}
+		else
+		{
+			ss = null;
+		}
 		Border border = ComponentFactoryHelper.createBorder(form.getBorderType());
 		if (ss != null)
 		{
@@ -1594,7 +1602,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				String formStyleClass = form.getStyleClass();
 				lookupname += '.' + formStyleClass;
 			}
-			s = ss.getCSSRule(lookupname);
+			s = pairStyle.getRight();
 			styleOdd = ss.getCSSRule(lookupname + " " + ISupportRowStyling.CLASS_ODD); //$NON-NLS-1$
 			styleEven = ss.getCSSRule(lookupname + " " + ISupportRowStyling.CLASS_EVEN); //$NON-NLS-1$
 			styleSelected = ss.getCSSRule(lookupname + " " + ISupportRowStyling.CLASS_SELECTED); //$NON-NLS-1$
@@ -1682,18 +1690,12 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		{
 			Part part = e2.next();
 
+			Color partColor = ComponentFactory.getPartBackground(application, part, form);
 			//extract the body (bgcolor)
 			if (part.getPartType() == Part.BODY)
 			{
 				bodyPart = part;
-				bgColor = ComponentFactory.getPartBackground(application, part, form);
-				if (bgColor == null && ss != null)
-				{
-					if (s != null)
-					{
-						bgColor = ss.getBackground(s);
-					}
-				}
+				bgColor = partColor;
 			}
 
 			if (part.getPartType() == Part.BODY && v == FormController.LOCKED_TABLE_VIEW)
@@ -1716,16 +1718,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 					dr.getOnRenderComponent().getRenderEventExecutor().setRenderCallback(Integer.toString(onRenderMethodID));
 					dr.getOnRenderComponent().getRenderEventExecutor().setRenderScriptExecuter(getScriptExecuter());
 				}
-				//apply bgcolor to renderer				
-				if (bgColor != null && !form.getTransparent())
-				{
-					dr.setBackground(bgColor);
-				}
 			}
-			else if (s != null && !form.getTransparent())
-			{
-				dr.setBackground(ss.getBackground(s));
-			}
+			dr.setBackground(partColor);
 		}
 
 		tabSequence.clear();
@@ -1744,7 +1738,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				dr.getOnRenderComponent().getRenderEventExecutor().setRenderScriptExecuter(getScriptExecuter());
 			}
 			//apply bgcolor to renderer				
-			if (bgColor != null && !form.getTransparent())
+			if (bgColor != null)
 			{
 				dr.setBackground(bgColor);
 			}
@@ -3409,11 +3403,6 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			}
 		}
 		return count; // -1 when blocked
-	}
-
-	public Color getBackground()
-	{
-		return bgColor;
 	}
 
 	public int getView()

@@ -366,5 +366,6 @@ Export-Package: antlr,
  org.slf4j.impl,
  org.slf4j.spi,
  org.wicketstuff.calendar.markup.html.form,
- org.wicketstuff.calendar.util
+ org.wicketstuff.calendar.util,
+ org.xhtmlrenderer.css.constants
 Import-Package: org.w3c.dom

@@ -60,6 +60,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.text.html.CSS;
 
 import org.json.JSONException;
+import org.xhtmlrenderer.css.constants.CSSName;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormController;
@@ -410,9 +411,36 @@ public class ComponentFactory
 		return ss;
 	}
 
-	public static IStyleSheet getCSSStyleForForm(IServiceProvider sp, Form form)
+	public static Pair<IStyleSheet, IStyleRule> getCSSPairStyleForForm(IServiceProvider sp, Form form)
+	{
+		IStyleSheet styleSheet = getCSSStyleForForm(sp, form);
+		IStyleRule styleRule = getCSSRuleForForm(sp, form);
+		if (styleSheet != null && styleRule != null)
+		{
+			return new Pair<IStyleSheet, IStyleRule>(styleSheet, styleRule);
+		}
+		return null;
+	}
+
+	private static IStyleSheet getCSSStyleForForm(IServiceProvider sp, Form form)
 	{
 		return getCSSStyle(sp, getStyleForForm(sp, form));
+	}
+
+	private static IStyleRule getCSSRuleForForm(IServiceProvider sp, Form form)
+	{
+		IStyleSheet styleSheet = getCSSStyleForForm(sp, form);
+		if (styleSheet != null)
+		{
+			String lookupname = "form"; //$NON-NLS-1$
+			if (form.getStyleClass() != null && !"".equals(form.getStyleClass())) //$NON-NLS-1$
+			{
+				lookupname += "." + form.getStyleClass(); //$NON-NLS-1$
+			}
+			styleSheet.getCSSRule(lookupname);
+			return styleSheet.getCSSRule(lookupname);
+		}
+		return null;
 	}
 
 //	/**
@@ -582,11 +610,17 @@ public class ComponentFactory
 	{
 		if (part != null && form != null)
 		{
+			if (form.getTransparent()) return null;
 			if (part.getBackground() != null) return part.getBackground();
-			Pair<IStyleSheet, IStyleRule> pair = getStyleForBasicComponent(sp, part, form);
-			if (pair != null)
+			Pair<IStyleSheet, IStyleRule> partStyle = getStyleForBasicComponent(sp, part, form);
+			Pair<IStyleSheet, IStyleRule> formStyle = getCSSPairStyleForForm(sp, form);
+			if (partStyle != null && partStyle.getRight() != null && partStyle.getRight().hasAttribute(CSSName.BACKGROUND_COLOR.toString()))
 			{
-				return pair.getLeft().getBackground(pair.getRight());
+				return partStyle.getLeft().getBackground(partStyle.getRight());
+			}
+			if (formStyle != null && formStyle.getRight() != null && formStyle.getLeft() != null)
+			{
+				return formStyle.getLeft().getBackground(formStyle.getRight());
 			}
 		}
 		return null;

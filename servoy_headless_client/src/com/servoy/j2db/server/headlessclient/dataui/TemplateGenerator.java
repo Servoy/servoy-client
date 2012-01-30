@@ -2200,7 +2200,10 @@ public class TemplateGenerator
 		}
 		BorderAndPadding ins = applyBaseComponentProperties(field, form, styleObj, padding, border, sp);
 
-		IStyleSheet ss = ComponentFactory.getCSSStyleForForm(sp, form);
+
+		Pair<IStyleSheet, IStyleRule> pairStyle = ComponentFactory.getCSSPairStyleForForm(sp, form);
+		IStyleSheet ss = pairStyle != null ? pairStyle.getLeft() : null;
+
 		String cssClass = ""; // By default no css class applied.  
 		switch (field.getDisplayType())
 		{

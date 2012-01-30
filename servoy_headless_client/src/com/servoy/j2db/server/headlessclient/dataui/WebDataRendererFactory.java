@@ -30,6 +30,7 @@ import java.util.Map.Entry;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.model.AbstractReadOnlyModel;
+import org.xhtmlrenderer.css.constants.CSSName;
 
 import com.servoy.j2db.ControllerUndoManager;
 import com.servoy.j2db.IApplication;
@@ -61,8 +62,11 @@ import com.servoy.j2db.ui.IFormUI;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.util.IAnchorConstants;
+import com.servoy.j2db.util.IStyleRule;
+import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.OrientationApplier;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.TabSequenceHelper;
 import com.servoy.j2db.util.Utils;
@@ -98,9 +102,15 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 		{
 			Part part = (Part)e2.next();
 			Color bg = ComponentFactory.getPartBackground(application, part, form);
-			if (form.getTransparent()) bg = null;
+			if (bg != null)
+			{
+				Pair<IStyleSheet, IStyleRule> formStyle = ComponentFactory.getCSSPairStyleForForm(application, form);
+				if (formStyle != null && formStyle.getRight() != null && formStyle.getRight().hasAttribute(CSSName.BACKGROUND_IMAGE.toString()))
+				{
+					bg = null;
+				}
+			}
 			if (bg == null && printing) bg = Color.white;
-
 			IDataRenderer panel = (IDataRenderer)emptyDataRenderers.get(part);
 			if (panel != null)
 			{
@@ -358,10 +368,7 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 	{
 		if (dr != null)
 		{
-			if (bg != null)
-			{
-				dr.setBackground(bg);
-			}
+			dr.setBackground(bg);
 			// printing is not possible in web
 //			if (printing)
 //			{

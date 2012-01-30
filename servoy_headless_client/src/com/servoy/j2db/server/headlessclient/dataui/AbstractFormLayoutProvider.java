@@ -22,6 +22,8 @@ import java.util.Locale;
 
 import javax.swing.border.Border;
 
+import org.xhtmlrenderer.css.constants.CSSName;
+
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.IServiceProvider;
@@ -36,7 +38,9 @@ import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.IStyleRule;
 import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.OrientationApplier;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.ServoyStyleSheet;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -58,6 +62,8 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 	protected String orientation;
 	int viewType;
 	private final IServiceProvider sp;
+	private IStyleRule style = null;
+	private boolean hasImage = false;
 
 	public AbstractFormLayoutProvider(IServiceProvider sp, Solution solution, Form f, String formInstanceName)
 	{
@@ -96,24 +102,20 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 		}
 
 		// Look into styles.
-		IStyleSheet ss = ComponentFactory.getCSSStyleForForm(sp, f);
-		if (ss != null)
+		Pair<IStyleSheet, IStyleRule> pairStyle = ComponentFactory.getCSSPairStyleForForm(sp, f);
+		if (pairStyle != null)
 		{
-			String lookupname = "form"; //$NON-NLS-1$
-			if (f.getStyleClass() != null && !"".equals(f.getStyleClass())) //$NON-NLS-1$
-			{
-				lookupname += "." + f.getStyleClass(); //$NON-NLS-1$
-			}
-			IStyleRule style = ss.getCSSRule(lookupname);
-			if (style != null)
+			style = pairStyle.getRight();
+			if (pairStyle.getLeft() != null)
 			{
 				if (border == null)
 				{
-					border = ss.getBorder(style);
+					border = pairStyle.getLeft().getBorder(style);
 				}
-				if (bgColor == null)
+				// if we have a background image don't apply color for parts
+				if (bgColor == null && !style.hasAttribute(CSSName.BACKGROUND_IMAGE.toString()))
 				{
-					bgColor = ss.getBackground(style);
+					bgColor = pairStyle.getLeft().getBackground(style);
 				}
 			}
 		}
@@ -177,14 +179,32 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 
 		// Put CSS properties for background color and border (if any).
 		TextualStyle formStyle = css.addStyle("#" + buildFormID()); //$NON-NLS-1$ 
-		if (bgColor != null && !f.getTransparent()) formStyle.setProperty("background-color", PersistHelper.createColorString(bgColor)); //$NON-NLS-1$
+		if (style.getValue(CSSName.BACKGROUND_COLOR.toString()) != null && !f.getTransparent()) formStyle.setProperty(CSSName.BACKGROUND_COLOR.toString(),
+			style.getValue(CSSName.BACKGROUND_COLOR.toString()));
 		if (border != null)
 		{
 			String type = ComponentFactoryHelper.createBorderString(border);
 			ComponentFactoryHelper.createBorderCSSProperties(type, formStyle);
 		}
-
+		hasImage = addBackgroundImageAttributeIfExists(style, formStyle);
 		fillFormLayoutCSS(formStyle);
+	}
+
+	private boolean addBackgroundImageAttributeIfExists(IStyleRule styleRule, TextualStyle textStyle)
+	{
+		boolean exists = false;
+		if (styleRule != null)
+		{
+			for (String attName : ServoyStyleSheet.BACKGROUND_IMAGE_CSS)
+			{
+				if (styleRule.hasAttribute(attName))
+				{
+					textStyle.setProperty(attName, styleRule.getValue(attName));
+					exists = true;
+				}
+			}
+		}
+		return exists;
 	}
 
 	public void renderCloseFormHTML(StringBuffer html)
@@ -241,10 +261,15 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 
 	private void fillPartStyle(TextualStyle partStyle, Part part)
 	{
-		Color background = ComponentFactory.getPartBackground(sp, part, f);
-		if (background != null && !f.getTransparent())
+		addBackgroundImageAttributeIfExists(ComponentFactory.getStyleForBasicComponent(sp, part, f).getRight(), partStyle);
+
+		if (!hasImage)
 		{
-			partStyle.setProperty("background-color", PersistHelper.createColorString(background)); //$NON-NLS-1$ 
+			Color background = ComponentFactory.getPartBackground(sp, part, f);
+			if (background != null)
+			{
+				partStyle.setProperty("background-color", PersistHelper.createColorString(background)); //$NON-NLS-1$ 
+			}
 		}
 
 		if (part.getPartType() == Part.BODY)
@@ -289,10 +314,13 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 		if (defaultNavigatorShift != 0)
 		{
 			TextualStyle navigatorStyle = new TextualStyle();
-			Color background = ComponentFactory.getPartBackground(sp, bodyPart, f);
-			if (background != null && !f.getTransparent())
+			if (!hasImage)
 			{
-				navigatorStyle.setProperty("background-color", PersistHelper.createColorString(background)); //$NON-NLS-1$ 
+				Color background = ComponentFactory.getPartBackground(sp, bodyPart, f);
+				if (background != null)
+				{
+					navigatorStyle.setProperty("background-color", PersistHelper.createColorString(background)); //$NON-NLS-1$ 
+				}
 			}
 			navigatorStyle.setProperty("overflow", "auto"); //$NON-NLS-1$ //$NON-NLS-2$
 			navigatorStyle.setProperty("position", "absolute"); //$NON-NLS-1$ //$NON-NLS-2$
