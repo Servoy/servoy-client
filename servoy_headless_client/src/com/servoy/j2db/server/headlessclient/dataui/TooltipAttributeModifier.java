@@ -30,6 +30,7 @@ import org.apache.wicket.model.IComponentAssignedModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.IWrapModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.util.string.Strings;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.server.headlessclient.WebClient;
@@ -185,7 +186,7 @@ public class TooltipAttributeModifier extends AttributeModifier
 
 						if (!isHTMLText)
 						{
-							tooltip = "<html><span style='white-space:nowrap'>" + tooltip + "</span></html>";
+							tooltip = "<html><span style='white-space:nowrap'>" + Strings.escapeMarkup(tooltip, false, false) + "</span></html>";
 						}
 
 						tooltip = tooltip.replace("\\", "\\\\");
