@@ -261,7 +261,11 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 
 	private void fillPartStyle(TextualStyle partStyle, Part part)
 	{
-		addBackgroundImageAttributeIfExists(ComponentFactory.getStyleForBasicComponent(sp, part, f).getRight(), partStyle);
+		Pair<IStyleSheet, IStyleRule> pairStyle = ComponentFactory.getStyleForBasicComponent(sp, part, f);
+		if (pairStyle != null)
+		{
+			addBackgroundImageAttributeIfExists(pairStyle.getRight(), partStyle);
+		}
 
 		if (!hasImage)
 		{
