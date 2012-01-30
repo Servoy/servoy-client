@@ -602,15 +602,6 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 				Solution[] mods = activeSolutionHandler.loadActiveSolutions(solutionAndModuleMetaDatas.toArray(new RootObjectMetaData[solutionAndModuleMetaDatas.size()]));
 				setSolutionAndModules(mainSolutionMetaData.getName(), mods);
-				Iterator<Form> it = getForms(false);
-				while (it.hasNext())
-				{
-					Form form = it.next();
-					if (form.getExtendsID() > 0)
-					{
-						form.setExtendsForm(getForm(form.getExtendsID()));
-					}
-				}
 			}
 		}
 	}
@@ -674,6 +665,15 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			if (s.getChangeHandler() != null)
 			{
 				s.getChangeHandler().addIPersistListener(this);
+			}
+		}
+		Iterator<Form> it = getForms(false);
+		while (it.hasNext())
+		{
+			Form form = it.next();
+			if (form.getExtendsID() > 0)
+			{
+				form.setExtendsForm(getForm(form.getExtendsID()));
 			}
 		}
 	}
