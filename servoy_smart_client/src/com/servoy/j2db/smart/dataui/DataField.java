@@ -129,6 +129,91 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 	private final RuntimeDataField scriptable;
 
 	/**
+	 * A formatter that extends our formatter to check for the valuelist 
+	 * If the valuelist is attached then the value -> string must first get from the list (and that will then be formatter by the mask)
+	 * for string -> value what is get out of the mask will be checked if it is in the list. as a display and then the real will be given.
+	 * 
+	 */
+	private final class ValueListMaskFormatter extends ServoyMaskFormatter
+	{
+		/**
+		 * @param mask
+		 * @param displayFormatter
+		 */
+		private ValueListMaskFormatter(String mask, boolean displayFormatter) throws ParseException
+		{
+			super(mask, displayFormatter);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see com.servoy.j2db.smart.dataui.ServoyMaskFormatter#valueToString(java.lang.Object)
+		 */
+		@Override
+		public String valueToString(Object value) throws ParseException
+		{
+			if (list != null)
+			{
+				int index = list.realValueIndexOf(value);
+				if (index != -1)
+				{
+					return super.valueToString(list.getElementAt(index));
+				}
+				else
+				{
+					if (list.hasRealValues())
+					{
+						if (!eventExecutor.getValidationEnabled() && value != null)
+						{
+							return value.toString();
+						}
+						else
+						{
+							return super.valueToString(null);
+						}
+					}
+				}
+			}
+			return super.valueToString(value);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see com.servoy.j2db.smart.dataui.ServoyMaskFormatter#stringToValue(java.lang.String)
+		 */
+		@Override
+		public Object stringToValue(String value) throws ParseException
+		{
+			Object valueObject = super.stringToValue(value);
+			if (list != null)
+			{
+				int index = list.indexOf(valueObject);
+				if (index != -1)
+				{
+					return list.getRealElementAt(index);
+				}
+				else
+				{
+					if (list.hasRealValues())
+					{
+						if (!eventExecutor.getValidationEnabled())
+						{
+							return valueObject;
+						}
+						else
+						{
+							return null;
+						}
+					}
+				}
+			}
+			return valueObject;
+		}
+	}
+
+	/**
 	 * @author jcompagner
 	 */
 	public class NullNumberFormatter extends NumberFormatter
@@ -1318,8 +1403,8 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 								setFormatterFactory(new DefaultFormatterFactory(displayFormatter, displayFormatter, editFormatter)); // example: MM/dd/yyyy
 								break;
 							default :
-								displayFormatter = new ServoyMaskFormatter(displayFormat, true);
-								editFormatter = new ServoyMaskFormatter(displayFormat, false);
+								displayFormatter = new ValueListMaskFormatter(displayFormat, true);
+								editFormatter = new ValueListMaskFormatter(displayFormat, false);
 
 								if (fp.isRaw())
 								{
