@@ -35,8 +35,10 @@ public interface IRuntimeValuelistComponent
 	public String getValueListName();
 
 	/**
-	 * Sets the display/real values to the custom valuelist of the element (if element has custom valuelist). 
-	 * Should receive a dataset parameter, first column is for display values, second column (optional) is for real values.
+	 * Sets the display/real values to the custom valuelist of the element (if element has custom valuelist).
+	 * <br>This does not effect the value list with same name list on other elements or value lists at application level.
+	 * 
+	 * <br>Should receive a dataset parameter, first column is for display values, second column (optional) is for real values.
 	 *
 	 * @sample
 	 * var dataset = databaseManager.createEmptyDataSet(0,new Array('display_values','optional_real_values'));
