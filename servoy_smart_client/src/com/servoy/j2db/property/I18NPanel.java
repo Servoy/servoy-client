@@ -873,7 +873,7 @@ public class I18NPanel extends JPanel implements DocumentListener
 					{
 						QueryInsert insert = new QueryInsert(messagesTable);
 						Object messageId = null;
-						if (logIdIsServoyManaged) dataServer.getNextSequence(serverName, i18nTable.getName(), pkColumn.getName(), -1);
+						if (logIdIsServoyManaged) messageId = dataServer.getNextSequence(serverName, i18nTable.getName(), pkColumn.getName(), -1);
 						if (filterCol == null)
 						{
 							if (logIdIsServoyManaged)
