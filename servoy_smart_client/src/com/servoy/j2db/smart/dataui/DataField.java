@@ -976,8 +976,30 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 	public void setEditable(boolean b)
 	{
 		editState = b;
-		super.setEditable(b);
-		if (editProvider != null) editProvider.setEditable(b);
+		if (b != isEditable())
+		{
+			super.setEditable(b);
+			if (editProvider != null) editProvider.setEditable(b);
+
+			if (!b)
+			{
+				if (getDisplayFormatterFactory() != null)
+				{
+					if (getFormatterFactory() != disabledFormatter)
+					{
+						saveFormatter = getFormatterFactory();
+					}
+					setFormatterFactory(getDisplayFormatterFactory());
+				}
+			}
+			else
+			{
+				if (getDisplayFormatterFactory() != null && saveFormatter != null && getFormatterFactory() != saveFormatter)
+				{
+					setFormatterFactory(saveFormatter);
+				}
+			}
+		}
 	}
 
 	public void setMaxLength(int i)
@@ -1304,6 +1326,12 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 	protected String editFormat;
 	private AbstractFormatterFactory saveFormatter;
 	private final AbstractFormatterFactory disabledFormatter = new DefaultFormatterFactory(new InternationalFormatter());
+	private AbstractFormatterFactory displayFormatterFactory;
+
+	protected AbstractFormatterFactory getDisplayFormatterFactory()
+	{
+		return displayFormatterFactory;
+	}
 
 	private List<ILabel> labels;
 
@@ -1443,6 +1471,15 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 			TextFormatter display = new TextFormatter();
 			TextFormatter edit = new TextFormatter();
 			setFormatterFactory(new DefaultFormatterFactory(display, display, edit, edit));
+		}
+		if (displayFormat != null)
+		{
+			displayFormatterFactory = new DefaultFormatterFactory(getFormatterFactory().getFormatter(this));
+		}
+		if (!isEditable() && getDisplayFormatterFactory() != null)
+		{
+			saveFormatter = getFormatterFactory();
+			setFormatterFactory(getDisplayFormatterFactory());
 		}
 	}
 
@@ -1836,7 +1873,14 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 					editProvider.setAdjusting(false);
 				}
 			}
-			setFormatterFactory(saveFormatter);
+			if (!isEditable() && getDisplayFormatterFactory() != null)
+			{
+				setFormatterFactory(getDisplayFormatterFactory());
+			}
+			else
+			{
+				setFormatterFactory(saveFormatter);
+			}
 		}
 		else
 		{
@@ -1847,7 +1891,10 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 			}
 			setDocument(plainDocument);
 
-			saveFormatter = getFormatterFactory();
+			if (getFormatterFactory() != displayFormatterFactory)
+			{
+				saveFormatter = getFormatterFactory();
+			}
 			// create empty formatter
 			setFormatterFactory(disabledFormatter);
 		}

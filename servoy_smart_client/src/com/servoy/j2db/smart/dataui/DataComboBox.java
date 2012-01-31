@@ -1857,6 +1857,12 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 					// super uses scriptable
 					return "DataField for " + FormattedComboBoxEditor.this.toString(); //$NON-NLS-1$ 
 				}
+
+				@Override
+				protected AbstractFormatterFactory getDisplayFormatterFactory()
+				{
+					return null;
+				}
 			};
 			// workaround for MAC OS X default L&F - combobox behavior declared in the editor component was lost when using our
 			// custom editor (normally that behavior should be added to the new editor when it is changed...); anyway, what follows makes
