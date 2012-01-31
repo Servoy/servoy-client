@@ -88,7 +88,14 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 	{
 		this.application = app;
 		setLayout(new BorderLayout());
-		enclosedComponent = new DataField(app, scriptable);
+		enclosedComponent = new DataField(app, scriptable)
+		{
+			@Override
+			protected AbstractFormatterFactory getDisplayFormatterFactory()
+			{
+				return null;
+			}
+		};
 		enclosedComponent.setIgnoreOnRender(true);
 		enclosedComponent.setBorder(BorderFactory.createEmptyBorder());
 		enclosedComponent.setOpaque(false);
