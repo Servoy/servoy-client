@@ -70,6 +70,7 @@ import com.servoy.j2db.IMessagesCallback;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IDataSet;
+import com.servoy.j2db.dataprocessing.ISQLActionTypes;
 import com.servoy.j2db.dataprocessing.ISQLStatement;
 import com.servoy.j2db.dataprocessing.SQLStatement;
 import com.servoy.j2db.dataprocessing.ValueFactory;
@@ -813,7 +814,7 @@ public class I18NPanel extends JPanel implements DocumentListener
 							new Object[] { newKey, ValueFactory.createNullValue(Types.VARCHAR), referenceValue, filterValue });
 					}
 				}
-				statement1 = new SQLStatement(ISQLStatement.INSERT_ACTION, serverName, tableName, null, insert);
+				statement1 = new SQLStatement(ISQLActionTypes.INSERT_ACTION, serverName, tableName, null, insert);
 				if (localeValue != null && !"".equals(localeValue))
 				{
 					insert = AbstractBaseQuery.deepClone(insert);
@@ -843,7 +844,7 @@ public class I18NPanel extends JPanel implements DocumentListener
 								new Object[] { newKey, language, localeValue, filterValue });
 						}
 					}
-					statement2 = new SQLStatement(ISQLStatement.INSERT_ACTION, serverName, tableName, null, insert);
+					statement2 = new SQLStatement(ISQLActionTypes.INSERT_ACTION, serverName, tableName, null, insert);
 				}
 			}
 			else
@@ -859,7 +860,7 @@ public class I18NPanel extends JPanel implements DocumentListener
 
 				update.setPlaceholderValue(langPlaceholderKey, ValueFactory.createNullValue(Types.VARCHAR));
 				update.setPlaceholderValue(valuePlaceholderKey, referenceValue);
-				statement1 = new SQLStatement(ISQLStatement.UPDATE_ACTION, serverName, tableName, null, update);
+				statement1 = new SQLStatement(ISQLActionTypes.UPDATE_ACTION, serverName, tableName, null, update);
 
 				if (localeValue != null && !"".equals(localeValue))
 				{
@@ -869,7 +870,7 @@ public class I18NPanel extends JPanel implements DocumentListener
 					{
 						QueryInsert insert = new QueryInsert(messagesTable);
 						Object messageId = null;
-						if (logIdIsServoyManaged) dataServer.getNextSequence(serverName, i18nTable.getName(), pkColumn.getName(), -1);
+						if (logIdIsServoyManaged) messageId = dataServer.getNextSequence(serverName, i18nTable.getName(), pkColumn.getName(), -1);
 						if (filterCol == null)
 						{
 							if (logIdIsServoyManaged)
@@ -895,14 +896,14 @@ public class I18NPanel extends JPanel implements DocumentListener
 									new Object[] { newKey, language, localeValue, filterValue });
 							}
 						}
-						statement2 = new SQLStatement(ISQLStatement.INSERT_ACTION, serverName, tableName, null, insert);
+						statement2 = new SQLStatement(ISQLActionTypes.INSERT_ACTION, serverName, tableName, null, insert);
 					}
 					else
 					{
 						update = AbstractBaseQuery.deepClone(update);
 						update.setPlaceholderValue(langPlaceholderKey, language);
 						update.setPlaceholderValue(valuePlaceholderKey, localeValue);
-						statement2 = new SQLStatement(ISQLStatement.UPDATE_ACTION, serverName, tableName, null, update);
+						statement2 = new SQLStatement(ISQLActionTypes.UPDATE_ACTION, serverName, tableName, null, update);
 					}
 				}
 				else
@@ -915,7 +916,7 @@ public class I18NPanel extends JPanel implements DocumentListener
 						delete.addCondition(new CompareCondition(ISQLCondition.EQUALS_OPERATOR, filterCol, filterValue));
 					}
 
-					statement2 = new SQLStatement(ISQLStatement.DELETE_ACTION, serverName, tableName, null, delete);
+					statement2 = new SQLStatement(ISQLActionTypes.DELETE_ACTION, serverName, tableName, null, delete);
 				}
 			}
 			dataServer.performUpdates(application.getClientID(), statement2 == null ? new ISQLStatement[] { statement1 }
