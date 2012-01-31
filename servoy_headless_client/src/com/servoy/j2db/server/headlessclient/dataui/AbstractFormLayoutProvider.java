@@ -267,7 +267,8 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 			addBackgroundImageAttributeIfExists(pairStyle.getRight(), partStyle);
 		}
 
-		if (!hasImage)
+		if (!hasImage || part.getBackground() != null ||
+			(pairStyle != null && pairStyle.getRight() != null && pairStyle.getRight().hasAttribute("background-color"))) //$NON-NLS-1$
 		{
 			Color background = ComponentFactory.getPartBackground(sp, part, f);
 			if (background != null)
@@ -317,8 +318,10 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 	{
 		if (defaultNavigatorShift != 0)
 		{
+			Pair<IStyleSheet, IStyleRule> pairStyle = ComponentFactory.getStyleForBasicComponent(sp, bodyPart, f);
 			TextualStyle navigatorStyle = new TextualStyle();
-			if (!hasImage)
+			if (!hasImage || bodyPart.getBackground() != null ||
+				(pairStyle != null && pairStyle.getRight() != null && pairStyle.getRight().hasAttribute("background-color"))) //$NON-NLS-1$
 			{
 				Color background = ComponentFactory.getPartBackground(sp, bodyPart, f);
 				if (background != null)
