@@ -23,12 +23,12 @@ public interface IServerListener
 	 * 
 	 * @param s the deleted server.
 	 */
-	void serverRemoved(IServer s);
+	void serverRemoved(IServerInternal s);
 
 	/**
 	 * Called when a server was added to the server list (not necessarily created by the user).
 	 * 
 	 * @param s the added server.
 	 */
-	void serverAdded(IServer s);
+	void serverAdded(IServerInternal s);
 }

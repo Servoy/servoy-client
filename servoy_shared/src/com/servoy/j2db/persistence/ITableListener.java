@@ -29,7 +29,7 @@ public interface ITableListener
 	 * @param server server that generated this event.
 	 * @param tableNames the names of the added tables.
 	 */
-	void tablesAdded(IServer server, String tableNames[]);
+	void tablesAdded(IServerInternal server, String tableNames[]);
 
 	/**
 	 * This happens when the server no longer contains a set of tables. This can happen when user deletes tables, when a server reload is triggered and so
@@ -40,20 +40,20 @@ public interface ITableListener
 	 * @param tables the tables that disappeared.
 	 * @param deleted if this happened due to the user really deleting a table.
 	 */
-	void tablesRemoved(IServer server, Table[] tables, boolean deleted);
+	void tablesRemoved(IServerInternal server, Table[] tables, boolean deleted);
 
 	/**
 	 * This happens when the hiddenInDeveloper flag of a Table changes value.
 	 * @param server the server that contains that table.
 	 * @param table the table that has been hidden/unhidden.
 	 */
-	void hiddenTableChanged(IServer server, Table table);
+	void hiddenTableChanged(IServerInternal server, Table table);
 
 	/**
 	 * @param oldValue bit-mask showing the old state. For example (oldValue & ENABLED) == ENABLED means enabled = true.
 	 * @param newValue bit-mask showing the new state. For example (oldValue & VALID) == VALID means valid = true.
 	 */
-	void serverStateChanged(IServer server, int oldState, int newState);
+	void serverStateChanged(IServerInternal server, int oldState, int newState);
 
 	void tableInitialized(Table t);
 }
