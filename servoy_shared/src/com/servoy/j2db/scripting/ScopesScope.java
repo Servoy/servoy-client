@@ -23,7 +23,6 @@ import org.mozilla.javascript.Scriptable;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.dataprocessing.DelegateModificationSubject;
 import com.servoy.j2db.dataprocessing.IModificationSubject;
-import com.servoy.j2db.persistence.IRootObject;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
@@ -58,9 +57,9 @@ public class ScopesScope extends DefaultScope
 	{
 		removeModificationListeners();
 		allVars.clear();
-		for (Pair<String, IRootObject> scope : application.getFlattenedSolution().getScopes())
+		for (String scopeName : application.getFlattenedSolution().getScopeNames())
 		{
-			createGlobalScope(scope.getLeft());
+			createGlobalScope(scopeName);
 		}
 	}
 

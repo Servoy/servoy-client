@@ -35,7 +35,6 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IColumnTypes;
-import com.servoy.j2db.persistence.IRootObject;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Part;
@@ -53,7 +52,6 @@ import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.ImageLoader;
-import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.RoundedBorder;
@@ -1065,14 +1063,8 @@ public class JSSolutionModel
 	 */
 	public String[] js_getScopeNames()
 	{
-		Collection<Pair<String, IRootObject>> scopes = application.getFlattenedSolution().getScopes();
-		String[] scopeNames = new String[scopes.size()];
-		int i = 0;
-		for (Pair<String, IRootObject> scope : scopes)
-		{
-			scopeNames[i++] = scope.getLeft();
-		}
-		return scopeNames;
+		Collection<String> scopeNames = application.getFlattenedSolution().getScopeNames();
+		return scopeNames.toArray(new String[scopeNames.size()]);
 	}
 
 	/**

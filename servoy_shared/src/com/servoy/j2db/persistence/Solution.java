@@ -20,11 +20,15 @@ package com.servoy.j2db.persistence;
 import java.awt.Dimension;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -50,6 +54,14 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	public static final SerializableRuntimeProperty<HashMap<String, Style>> PRE_LOADED_STYLES = new SerializableRuntimeProperty<HashMap<String, Style>>()
 	{
 		private static final long serialVersionUID = 1L;
+	};
+
+	/**
+	 * Store scope names when runnning in developer based in global js file names, this includes empty scopes.
+	 * When not set (like running in appserver), fallback to scopes used in objects, this does not include empty scopes.
+	 */
+	public static final RuntimeProperty<String[]> SCOPE_NAMES = new RuntimeProperty<String[]>()
+	{
 	};
 
 	public static final long serialVersionUID = 7758101764309127685L;
@@ -919,6 +931,35 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		}
 
 		return null;
+	}
+
+	/**
+	 * Get all scope names defined in this solution, includes globals scope.
+	 */
+	public Collection<String> getScopeNames()
+	{
+		String[] runtimeScopeNames = getRuntimeProperty(Solution.SCOPE_NAMES);
+		if (runtimeScopeNames != null)
+		{
+			// set from developer based on global js file names
+			return Arrays.asList(runtimeScopeNames);
+		}
+
+		// scope names not set from developer, use scope names found in solution objects
+		Set<String> scopeNames = new HashSet<String>();
+		scopeNames.add(ScriptVariable.GLOBAL_SCOPE);
+		for (IPersist persist : getAllObjectsAsList())
+		{
+			if (persist instanceof ISupportScope)
+			{
+				String scopeName = ((ISupportScope)persist).getScopeName();
+				if (scopeName != null)
+				{
+					scopeNames.add(scopeName);
+				}
+			}
+		}
+		return scopeNames;
 	}
 
 	/**

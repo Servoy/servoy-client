@@ -932,27 +932,48 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		}
 	}
 
+
+	public Collection<String> getScopeNames()
+	{
+		return getScopesPerSolution().keySet();
+	}
+
 	public Collection<Pair<String, IRootObject>> getScopes()
+	{
+		return getScopesPerSolution().values();
+	}
+
+	private Map<String, Pair<String, IRootObject>> getScopesPerSolution()
 	{
 		Map<String, Pair<String, IRootObject>> scopes = new HashMap<String, Pair<String, IRootObject>>();
 
-		// should have at least globals scope
-		scopes.put(ScriptVariable.GLOBAL_SCOPE, new Pair<String, IRootObject>(ScriptVariable.GLOBAL_SCOPE, getSolution()));
-
-		for (IPersist persist : getAllObjectsAsList())
+		if (mainSolution != null)
 		{
-			if (persist instanceof ISupportScope)
+			for (String scopeName : mainSolution.getScopeNames())
 			{
-				String scopeName = ((ISupportScope)persist).getScopeName();
-				if (!scopes.containsKey(scopeName))
+				scopes.put(scopeName, new Pair<String, IRootObject>(scopeName, mainSolution));
+			}
+
+			if (modules != null)
+			{
+				for (Solution s : modules)
 				{
-					// TODO: check if same scope exists with different modules
-					scopes.put(scopeName, new Pair<String, IRootObject>(scopeName, persist.getRootObject()));
+					if (s != mainSolution)
+					{
+						for (String scopeName : s.getScopeNames())
+						{
+							if (!scopes.containsKey(scopeName))
+							{
+								// TODO: check if same scope exists with different modules
+								scopes.put(scopeName, new Pair<String, IRootObject>(scopeName, s));
+							}
+						}
+					}
 				}
 			}
 		}
 
-		return scopes.values();
+		return scopes;
 	}
 
 	public void addSecurityAccess(Map<Object, Integer> sp)
