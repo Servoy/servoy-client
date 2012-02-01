@@ -198,7 +198,7 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 			TableNode tablenode = fs.getSolutionCopyTableNode(dataSource);
 
 			String name = JSMethod.parseName(code);
-			ScriptCalculation scriptCalculation = tablenode.createNewScriptCalculation(new ScriptNameValidator(fs), name);
+			ScriptCalculation scriptCalculation = tablenode.createNewScriptCalculation(new ScriptNameValidator(fs), name, null);
 			scriptCalculation.setDeclaration(code);
 			scriptCalculation.setTypeAndCheck(type, application);
 			TableScope tableScope = (TableScope)application.getScriptEngine().getTableScope(scriptCalculation.getTable());
@@ -292,7 +292,7 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 			if (tablenode == null) throw new RuntimeException("Couldnt create method for datasource: " + dataSource);
 
 			String name = JSMethod.parseName(code);
-			ScriptMethod method = tablenode.createNewFoundsetMethod(new ScriptNameValidator(fs), name);
+			ScriptMethod method = tablenode.createNewFoundsetMethod(new ScriptNameValidator(fs), name, null);
 			method.setDeclaration(code);
 			((FoundSetManager)application.getFoundSetManager()).reloadFoundsetMethod(dataSource, method);
 
