@@ -532,7 +532,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		// do nothing here
 	}
 
-	public void logout(@SuppressWarnings("unused") Object[] solution_to_open_args)
+	public void logout(@SuppressWarnings("unused")
+	Object[] solution_to_open_args)
 	{
 		String userUid = null;
 		try
@@ -1374,6 +1375,15 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 						{
 							return false;
 						}
+					}
+				}
+				else if (solutionMetaData.getMustAuthenticate() && clientInfo.getUserUid() == null && solutionRoot.getSolution() != null)
+				{
+					// must login the old fashioned way
+					showDefaultLogin();
+					if (clientInfo.getUserUid() == null)
+					{
+						return false;
 					}
 				}
 
