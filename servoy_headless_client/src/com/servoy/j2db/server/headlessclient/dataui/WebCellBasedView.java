@@ -1432,7 +1432,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				@Override
 				public String getObject()
 				{
-					return "overflow-x: hidden; overflow-y: auto; position: absolute; left: 0px; bottom: 0px; border-spacing: 0px;"; //$NON-NLS-1$
+
+					return "overflow-x: hidden; overflow-y: auto; position: absolute; left: 0px; bottom: 0px; border-spacing: 0px; -webkit-overflow-scrolling: touch;"; //$NON-NLS-1$
 				}
 			}));
 
