@@ -1347,6 +1347,16 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		{
 			if (solutionMetaData != null)
 			{
+				if (!useLoginSolution && solutionMetaData.getMustAuthenticate())
+				{
+					// must login the old fashioned way
+					showDefaultLogin();
+					if (clientInfo.getUserUid() == null)
+					{
+						return false;
+					}
+				}
+
 				boolean loadLoginSolution = useLoginSolution && clientInfo.getUserUid() == null;
 				solutionRoot.setSolution(solutionMetaData, loadLoginSolution, !loadLoginSolution, getActiveSolutionHandler());// assign only here and not earlier
 
@@ -1375,15 +1385,6 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 						{
 							return false;
 						}
-					}
-				}
-				else if (solutionMetaData.getMustAuthenticate() && clientInfo.getUserUid() == null && solutionRoot.getSolution() != null)
-				{
-					// must login the old fashioned way
-					showDefaultLogin();
-					if (clientInfo.getUserUid() == null)
-					{
-						return false;
 					}
 				}
 
