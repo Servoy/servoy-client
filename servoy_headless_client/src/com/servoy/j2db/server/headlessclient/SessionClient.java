@@ -530,6 +530,7 @@ public class SessionClient extends ClientState implements ISessionClient
 		}
 		if (getClientInfo().getUserUid() == null)
 		{
+			shutDown(true);
 			throw new ApplicationException(ServoyException.INCORRECT_LOGIN);
 		}
 	}
