@@ -686,7 +686,7 @@ if (typeof(Servoy.TableView) == "undefined")
 		},
 		
 		appendRowsTimer: null,
-		useTopPlaceholder: false,
+		useTopPlaceholder: true,
 		isAppendingRows: false,
 		currentScrollTop: new Array(),
 		hasTopBuffer: new Array(),
