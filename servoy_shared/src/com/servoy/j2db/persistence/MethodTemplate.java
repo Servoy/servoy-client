@@ -166,9 +166,9 @@ public class MethodTemplate implements IMethodTemplate
 		return addTodoBlock;
 	}
 
-	public String getMethodDeclaration(CharSequence name, CharSequence methodCode)
+	public String getMethodDeclaration(CharSequence name, CharSequence methodCode, String userTemplate)
 	{
-		return getMethodDeclaration(name, methodCode, PUBLIC_TAG, null);
+		return getMethodDeclaration(name, methodCode, PUBLIC_TAG, userTemplate, null);
 	}
 
 	/**
@@ -178,7 +178,7 @@ public class MethodTemplate implements IMethodTemplate
 	 * @param tagToOutput PUBLIC_TAG/PROTECTED_TAG/PRIVATE_TAG
 	 * @return
 	 */
-	public String getMethodDeclaration(CharSequence name, CharSequence methodCode, int tagToOutput, Map<String, String> substitutions)
+	public String getMethodDeclaration(CharSequence name, CharSequence methodCode, int tagToOutput, String userTemplate, Map<String, String> substitutions)
 	{
 		StringBuilder sb = new StringBuilder();
 		if (description != null && description.length() > 0)
@@ -186,10 +186,18 @@ public class MethodTemplate implements IMethodTemplate
 			String[] lines = description.split("\n"); //$NON-NLS-1$ //$NON-NLS-2$
 			for (int i = 0; i < lines.length; i++)
 			{
-				sb.append("\n * ").append(lines[i]); //$NON-NLS-1$ //$NON-NLS-2$
+				sb.append(" * ").append(lines[i]); //$NON-NLS-1$ //$NON-NLS-2$
 				if (i == 0 && !lines[i].endsWith(".")) sb.append('.'); //$NON-NLS-1$
+				sb.append('\n');
 			}
-			sb.append('\n');
+		}
+		if (userTemplate != null && userTemplate.length() > 0)
+		{
+			if (sb.length() > 0) sb.append(" *\n"); //$NON-NLS-1$
+			for (String line : userTemplate.split("\n"))
+			{
+				sb.append(" * ").append(line).append('\n'); //$NON-NLS-1$ //$NON-NLS-2$
+			}
 		}
 		if (args != null && args.length > 0)
 		{
@@ -230,7 +238,7 @@ public class MethodTemplate implements IMethodTemplate
 		}
 		if (sb.length() > 0)
 		{
-			sb.insert(0, "/**");
+			sb.insert(0, "/**\n");
 			sb.append(" */\n"); //$NON-NLS-1$
 		}
 
@@ -320,7 +328,8 @@ public class MethodTemplate implements IMethodTemplate
 		return new MethodTemplate(template.description, template.signature, Utils.arrayMerge(template.args, formalArguments), null, true)
 		{
 			@Override
-			public String getMethodDeclaration(CharSequence name, CharSequence methodCode, int tagToOutput, Map<String, String> substitutions)
+			public String getMethodDeclaration(CharSequence name, CharSequence methodCode, int tagToOutput, String userTemplate,
+				Map<String, String> substitutions)
 			{
 				CharSequence body;
 				if (methodCode == null)
@@ -347,7 +356,7 @@ public class MethodTemplate implements IMethodTemplate
 				{
 					body = methodCode;
 				}
-				return super.getMethodDeclaration(name, body, tagToOutput, substitutions);
+				return super.getMethodDeclaration(name, body, tagToOutput, userTemplate, substitutions);
 			}
 		};
 	}

@@ -499,14 +499,15 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		return createNewTableNode(dataSource);
 	}
 
-	public ScriptCalculation createNewScriptCalculation(IValidateName validator, String dataSource, String name) throws RepositoryException
+	public ScriptCalculation createNewScriptCalculation(IValidateName validator, String dataSource, String name, String userTemplate)
+		throws RepositoryException
 	{
-		return getOrCreateTableNode(dataSource).createNewScriptCalculation(validator, name);
+		return getOrCreateTableNode(dataSource).createNewScriptCalculation(validator, name, userTemplate);
 	}
 
-	public ScriptMethod createNewFoundsetMethod(IValidateName validator, String dataSource, String name) throws RepositoryException
+	public ScriptMethod createNewFoundsetMethod(IValidateName validator, String dataSource, String name, String userTemplate) throws RepositoryException
 	{
-		return getOrCreateTableNode(dataSource).createNewFoundsetMethod(validator, name);
+		return getOrCreateTableNode(dataSource).createNewFoundsetMethod(validator, name, userTemplate);
 	}
 
 	public static List<ScriptMethod> getFoundsetMethods(Iterator<TableNode> tablenodes, boolean sort)

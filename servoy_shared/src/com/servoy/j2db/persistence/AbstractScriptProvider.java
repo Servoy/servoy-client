@@ -120,7 +120,7 @@ public abstract class AbstractScriptProvider extends AbstractBase implements ISc
 		}
 		else
 		{
-			setDeclaration(MethodTemplate.getTemplate(getClass(), null).getMethodDeclaration(name, arg));
+			setDeclaration(MethodTemplate.getTemplate(getClass(), null).getMethodDeclaration(name, arg, null));
 		}
 	}
 

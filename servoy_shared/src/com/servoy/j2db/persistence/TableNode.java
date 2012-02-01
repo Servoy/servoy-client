@@ -51,7 +51,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 		return getObjects(IRepository.SCRIPTCALCULATIONS);
 	}
 
-	public ScriptCalculation createNewScriptCalculation(IValidateName validator, String calcName) throws RepositoryException
+	public ScriptCalculation createNewScriptCalculation(IValidateName validator, String calcName, String userTemplate) throws RepositoryException
 	{
 		String name = calcName == null ? "untitled" : calcName; //$NON-NLS-1$
 
@@ -64,12 +64,12 @@ public class TableNode extends AbstractBase implements ISupportChilds
 
 		obj.setName(name);
 		MethodTemplate template = MethodTemplate.getTemplate(ScriptCalculation.class, null);
-		obj.setDeclaration(template.getMethodDeclaration(name, "\treturn 1;")); //$NON-NLS-1$
+		obj.setDeclaration(template.getMethodDeclaration(name, "\treturn 1;", userTemplate)); //$NON-NLS-1$  
 		addChild(obj);
 		return obj;
 	}
 
-	public ScriptMethod createNewFoundsetMethod(IValidateName validator, String methodName) throws RepositoryException
+	public ScriptMethod createNewFoundsetMethod(IValidateName validator, String methodName, String userTemplate) throws RepositoryException
 	{
 		String name = methodName == null ? "untitled" : methodName; //$NON-NLS-1$
 
@@ -82,7 +82,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 
 		obj.setName(name);
 		MethodTemplate template = MethodTemplate.getTemplate(ScriptMethod.class, null);
-		obj.setDeclaration(template.getMethodDeclaration(name, null));
+		obj.setDeclaration(template.getMethodDeclaration(name, null, userTemplate));
 		addChild(obj);
 		return obj;
 	}
