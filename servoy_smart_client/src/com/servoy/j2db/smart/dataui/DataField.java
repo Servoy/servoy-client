@@ -37,9 +37,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.text.DateFormat;
 import java.text.DecimalFormatSymbols;
-import java.text.Format;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -738,6 +736,60 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		}
 	}
 
+	private class EditingFixedDefaultFormatterFactory extends DefaultFormatterFactory
+	{
+		public EditingFixedDefaultFormatterFactory(JFormattedTextField.AbstractFormatter defaultFormat)
+		{
+			super(defaultFormat);
+		}
+
+		public EditingFixedDefaultFormatterFactory(JFormattedTextField.AbstractFormatter defaultFormat, JFormattedTextField.AbstractFormatter displayFormat,
+			JFormattedTextField.AbstractFormatter editFormat)
+		{
+			super(defaultFormat, displayFormat, editFormat);
+		}
+
+		public EditingFixedDefaultFormatterFactory(JFormattedTextField.AbstractFormatter defaultFormat, JFormattedTextField.AbstractFormatter displayFormat,
+			JFormattedTextField.AbstractFormatter editFormat, JFormattedTextField.AbstractFormatter nullFormat)
+		{
+			super(defaultFormat, displayFormat, editFormat, nullFormat);
+		}
+
+		@Override
+		public JFormattedTextField.AbstractFormatter getFormatter(JFormattedTextField source)
+		{
+			JFormattedTextField.AbstractFormatter format = null;
+
+			if (source == null)
+			{
+				return null;
+			}
+			Object value = source.getValue();
+
+			if (value == null)
+			{
+				format = getNullFormatter();
+			}
+			if (format == null)
+			{
+				// added isEditable check
+				if (source.hasFocus() && source.isEditable())
+				{
+					format = getEditFormatter();
+				}
+				else
+				{
+					format = getDisplayFormatter();
+				}
+				if (format == null)
+				{
+					format = getDefaultFormatter();
+				}
+			}
+			return format;
+		}
+	}
+
 	protected EventExecutor eventExecutor;
 
 	private ControllerUndoManager undoManager;
@@ -976,30 +1028,8 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 	public void setEditable(boolean b)
 	{
 		editState = b;
-		if (b != isEditable())
-		{
-			super.setEditable(b);
-			if (editProvider != null) editProvider.setEditable(b);
-
-			if (!b)
-			{
-				if (getDisplayFormatterFactory() != null)
-				{
-					if (getFormatterFactory() != disabledFormatter)
-					{
-						saveFormatter = getFormatterFactory();
-					}
-					setFormatterFactory(getDisplayFormatterFactory());
-				}
-			}
-			else
-			{
-				if (getDisplayFormatterFactory() != null && saveFormatter != null && getFormatterFactory() != saveFormatter)
-				{
-					setFormatterFactory(saveFormatter);
-				}
-			}
-		}
+		super.setEditable(b);
+		if (editProvider != null) editProvider.setEditable(b);
 	}
 
 	public void setMaxLength(int i)
@@ -1038,38 +1068,6 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 	public void setNeedEntireState(boolean b)
 	{
 		needEntireState = b;
-	}
-
-
-	/**
-	 * Returns an AbstractFormatterFactory suitable for the passed in Object type.
-	 * 
-	 * @see JFormattedTextField.getDefaultFormatterFactory(Object)
-	 */
-	protected AbstractFormatterFactory getDefaultFormatterFactory(Object type)
-	{
-		if (type instanceof DateFormat)
-		{
-			return new DefaultFormatterFactory(new DateFormatter((DateFormat)type));
-		}
-		if (type instanceof NumberFormat)
-		{
-			return new DefaultFormatterFactory(new NumberFormatter((NumberFormat)type));
-		}
-		if (type instanceof Format)
-		{
-			return new DefaultFormatterFactory(new InternationalFormatter((Format)type));
-		}
-		if (type instanceof Date)
-		{
-			return new DefaultFormatterFactory(new DateFormatter());
-		}
-		if (type instanceof Number)
-		{
-			AbstractFormatter displayFormatter = new NumberFormatter(new RoundHalfUpDecimalFormat("#.##", application.getLocale())); //$NON-NLS-1$
-			return new DefaultFormatterFactory(displayFormatter, displayFormatter, displayFormatter);
-		}
-		return new DefaultFormatterFactory(new DefaultFormatter());
 	}
 
 
@@ -1191,7 +1189,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 				// this may no longer be necessary as a FormatterFactory should always be set now
 				// when setFormat() gets called... (a null formatter factory would mean that text
 				// field commitEdit() would not work - so you cannot really use such a field for editing)
-				setFormatterFactory(new DefaultFormatterFactory(new InternationalFormatter()));
+				setFormatterFactory(new EditingFixedDefaultFormatterFactory(new InternationalFormatter()));
 			}
 			boolean enableEdits = false;
 			if (getUndoManager() != null)
@@ -1326,12 +1324,6 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 	protected String editFormat;
 	private AbstractFormatterFactory saveFormatter;
 	private final AbstractFormatterFactory disabledFormatter = new DefaultFormatterFactory(new InternationalFormatter());
-	private AbstractFormatterFactory displayFormatterFactory;
-
-	protected AbstractFormatterFactory getDisplayFormatterFactory()
-	{
-		return displayFormatterFactory;
-	}
 
 	private List<ILabel> labels;
 
@@ -1360,21 +1352,21 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 				editorDocument.setValidator("LowerCaseDocumentValidator", new LowerCaseDocumentValidator()); //$NON-NLS-1$
 				TextFormatter display = new TextFormatter();
 				TextFormatter edit = new TextFormatter();
-				setFormatterFactory(new DefaultFormatterFactory(display, display, edit, edit));
+				setFormatterFactory(new EditingFixedDefaultFormatterFactory(display, display, edit, edit));
 			}
 			else if (fp.isAllUpperCase())
 			{
 				editorDocument.setValidator("UpperCaseDocumentValidator", new UpperCaseDocumentValidator()); //$NON-NLS-1$
 				TextFormatter display = new TextFormatter();
 				TextFormatter edit = new TextFormatter();
-				setFormatterFactory(new DefaultFormatterFactory(display, display, edit, edit));
+				setFormatterFactory(new EditingFixedDefaultFormatterFactory(display, display, edit, edit));
 			}
 			else if (fp.isNumberValidator())
 			{
 				editorDocument.setValidator("NumberDocumentValidator", new NumberDocumentValidator()); //$NON-NLS-1$
 				TextFormatter display = new TextFormatter();
 				TextFormatter edit = new TextFormatter();
-				setFormatterFactory(new DefaultFormatterFactory(display, display, edit, edit));
+				setFormatterFactory(new EditingFixedDefaultFormatterFactory(display, display, edit, edit));
 			}
 			else
 			{
@@ -1402,14 +1394,14 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 								displayFormatter = new NullNumberFormatter(new RoundHalfUpDecimalFormat(displayFormat, application.getLocale()));// example: $#,###.##
 								editFormatter = new NullNumberFormatter(new RoundHalfUpDecimalFormat(editFormat, application.getLocale()), maxLength);
-								setFormatterFactory(new DefaultFormatterFactory(displayFormatter, displayFormatter, editFormatter, editFormatter));
+								setFormatterFactory(new EditingFixedDefaultFormatterFactory(displayFormatter, displayFormatter, editFormatter, editFormatter));
 								break;
 							case IColumnTypes.INTEGER :
 								if (editFormat.equals("raw") || editFormat.equals("")) editFormat = displayFormat; //$NON-NLS-1$//$NON-NLS-2$
 
 								displayFormatter = new NullNumberFormatter(new RoundHalfUpDecimalFormat(displayFormat, application.getLocale()));// example: $#,###.##
 								editFormatter = new NullNumberFormatter(new RoundHalfUpDecimalFormat(editFormat, application.getLocale()), maxLength);
-								setFormatterFactory(new DefaultFormatterFactory(displayFormatter, displayFormatter, editFormatter, editFormatter));
+								setFormatterFactory(new EditingFixedDefaultFormatterFactory(displayFormatter, displayFormatter, editFormatter, editFormatter));
 								break;
 							case IColumnTypes.DATETIME :
 								boolean mask = fp.isMask();
@@ -1428,7 +1420,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 									// date formats are default in override mode
 									setCaret(getOvertypeCaret());
 								}
-								setFormatterFactory(new DefaultFormatterFactory(displayFormatter, displayFormatter, editFormatter)); // example: MM/dd/yyyy
+								setFormatterFactory(new EditingFixedDefaultFormatterFactory(displayFormatter, displayFormatter, editFormatter)); // example: MM/dd/yyyy
 								break;
 							default :
 								displayFormatter = new ValueListMaskFormatter(displayFormat, true);
@@ -1452,7 +1444,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 										((ServoyMaskFormatter)editFormatter).setPlaceholder(editFormat);
 									}
 								}
-								setFormatterFactory(new DefaultFormatterFactory(displayFormatter, displayFormatter, editFormatter));
+								setFormatterFactory(new EditingFixedDefaultFormatterFactory(displayFormatter, displayFormatter, editFormatter));
 								// format overrules max length check
 								editorDocument.setValidator(MAX_LENGTH_VALIDATOR, new LengthDocumentValidator(0));
 								break;
@@ -1470,16 +1462,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		{
 			TextFormatter display = new TextFormatter();
 			TextFormatter edit = new TextFormatter();
-			setFormatterFactory(new DefaultFormatterFactory(display, display, edit, edit));
-		}
-		if (displayFormat != null)
-		{
-			displayFormatterFactory = new DefaultFormatterFactory(getFormatterFactory().getFormatter(this));
-		}
-		if (!isEditable() && getDisplayFormatterFactory() != null)
-		{
-			saveFormatter = getFormatterFactory();
-			setFormatterFactory(getDisplayFormatterFactory());
+			setFormatterFactory(new EditingFixedDefaultFormatterFactory(display, display, edit, edit));
 		}
 	}
 
@@ -1873,14 +1856,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 					editProvider.setAdjusting(false);
 				}
 			}
-			if (!isEditable() && getDisplayFormatterFactory() != null)
-			{
-				setFormatterFactory(getDisplayFormatterFactory());
-			}
-			else
-			{
-				setFormatterFactory(saveFormatter);
-			}
+			setFormatterFactory(saveFormatter);
 		}
 		else
 		{
@@ -1891,10 +1867,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 			}
 			setDocument(plainDocument);
 
-			if (getFormatterFactory() != displayFormatterFactory)
-			{
-				saveFormatter = getFormatterFactory();
-			}
+			saveFormatter = getFormatterFactory();
 			// create empty formatter
 			setFormatterFactory(disabledFormatter);
 		}

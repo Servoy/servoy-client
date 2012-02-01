@@ -120,12 +120,6 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 				IEventExecutor ee = DataCalendar.this.getEventExecutor();
 				if (ee != null && ee.hasRenderCallback()) DataCalendar.this.repaint();
 			}
-
-			@Override
-			protected AbstractFormatterFactory getDisplayFormatterFactory()
-			{
-				return null;
-			}
 		};
 		enclosedComponent.setIgnoreOnRender(true);
 		enclosedComponent.setBorder(BorderFactory.createEmptyBorder());
