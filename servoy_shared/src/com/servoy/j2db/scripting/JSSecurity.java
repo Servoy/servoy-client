@@ -781,7 +781,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 
 	/**
 	 * Get all the groups (returns a dataset).
-	 * first id column is depricated!, use only the group name column.
+	 * first id column is deprecated!, use only the group name column.
 	 *
 	 * @sampleas js_createUser(Object[])
 	 * @return dataset with all the groups
