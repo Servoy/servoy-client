@@ -292,7 +292,7 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 
 		if (view.getHeaderBorder() != null)
 		{
-			add(new StyleAppendingModifier(new Model<String>("padding: 0px;"))); //$NON-NLS-1$
+			add(new StyleAppendingModifier(new Model<String>("border-right: none; padding: 0px;"))); //$NON-NLS-1$
 		}
 
 		final Properties changes = changesRecorder.getChanges();
@@ -626,7 +626,7 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 			{
 				Properties properties = new Properties();
 				Insets borderIns = ComponentFactoryHelper.createBorderCSSProperties(headerBorder, properties);
-				extraWidth = borderIns.left + borderIns.right;
+				extraWidth = borderIns.left + borderIns.right - TemplateGenerator.SORTABLE_HEADER_PADDING;
 				headerPadding = 0;
 			}
 

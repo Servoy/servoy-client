@@ -114,6 +114,7 @@ import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportAnchors;
 import com.servoy.j2db.persistence.ISupportBounds;
 import com.servoy.j2db.persistence.ISupportName;
@@ -666,7 +667,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			if (compBorder != null)
 			{
-				Object elem = WebCellBasedView.this.cellToElement.get(comp);
+				IPersist elem = WebCellBasedView.this.cellToElement.get(comp);
 				Object colId = WebCellBasedView.this.elementToColumnIdentifierComponent.get(elem);
 				final int idx = WebCellBasedView.this.visibleColummIdentifierComponents.indexOf(colId);
 
@@ -675,9 +676,27 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				Border cb = ComponentFactoryHelper.createBorder((String)compBorder);
 				if (cb != null)
 				{
+					int defaultLeftPadding;
+					int defaultRightPadding;
+
+					switch (elem.getTypeID())
+					{
+						case IRepository.FIELDS :
+							defaultLeftPadding = TemplateGenerator.DEFAULT_FIELD_PADDING.left;
+							defaultRightPadding = TemplateGenerator.DEFAULT_FIELD_PADDING.right;
+							break;
+						case IRepository.GRAPHICALCOMPONENTS :
+							defaultLeftPadding = TemplateGenerator.DEFAULT_LABEL_PADDING.left;
+							defaultRightPadding = TemplateGenerator.DEFAULT_LABEL_PADDING.right;
+							break;
+						default :
+							defaultLeftPadding = 0;
+							defaultRightPadding = 0;
+					}
+
 					Insets borderInsets = cb.getBorderInsets(null);
-					borderWidth[0] = borderInsets.left;
-					borderWidth[1] = borderInsets.right;
+					borderWidth[0] = borderInsets.left + defaultLeftPadding;
+					borderWidth[1] = borderInsets.right + defaultRightPadding;
 				}
 
 				comp.add(new StyleAppendingModifier(new Model<String>()
