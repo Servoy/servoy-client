@@ -212,18 +212,8 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			{
 				try
 				{
-					boolean showOnEmptyUIProp = ((Boolean)UIUtils.getUIProperty(getScriptObject(), application, IApplication.TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY,
-						Boolean.TRUE)).booleanValue();
-
-					// focus=false,	empty=true 	(show only on entry when empty) //still not 100% - must get first time show
-					// focus=true,	empty=true 	(always just show) 
-					// focus=true,	empty=false	(don't show on empty but show for the rest, doesn't make much sense to me)
-					// focus=false,	empty=false	(never show on entry)
-					if ((input.length() > 0) || (showOnEmptyUIProp))
-					{
-						dlm.fill(parentState, getDataProviderID(), input, false);
-						return dlm.iterator();
-					}
+					dlm.fill(parentState, getDataProviderID(), input, false);
+					return dlm.iterator();
 				}
 				catch (Exception ex)
 				{
@@ -256,16 +246,10 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			@Override
 			public void renderHead(IHeaderResponse response)
 			{
-				boolean showOnEmptyUIProp = ((Boolean)UIUtils.getUIProperty(getScriptObject(), application, IApplication.TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY,
-					Boolean.TRUE)).booleanValue();
-				boolean showOnFocusUIProp = ((Boolean)UIUtils.getUIProperty(getScriptObject(), application, IApplication.TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN,
-					Boolean.TRUE)).booleanValue();
-
-				if (showOnEmptyUIProp) settings.setShowListOnFocusGain(true);
-				else settings.setShowListOnFocusGain(showOnFocusUIProp);
-
-				settings.setShowListOnEmptyInput(showOnEmptyUIProp);
-
+				settings.setShowListOnEmptyInput(Boolean.TRUE.equals(UIUtils.getUIProperty(getScriptObject(), application,
+					IApplication.TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY, Boolean.TRUE)));
+				settings.setShowListOnFocusGain(Boolean.TRUE.equals(UIUtils.getUIProperty(getScriptObject(), application,
+					IApplication.TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN, Boolean.TRUE)));
 				if (!getScriptObject().js_isReadOnly() && getScriptObject().js_isEnabled())
 				{
 					super.renderHead(response);
