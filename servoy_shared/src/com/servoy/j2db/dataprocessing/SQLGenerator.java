@@ -17,6 +17,7 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import java.lang.reflect.Array;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -72,9 +73,9 @@ import com.servoy.j2db.query.QueryUpdate;
 import com.servoy.j2db.query.SetCondition;
 import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.FormatParser.ParsedFormat;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.FormatParser.ParsedFormat;
 import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
@@ -170,8 +171,8 @@ public class SQLGenerator
 		if (omitPKs != null && omitPKs.getRowCount() != 0)
 		{
 			//omit is rebuild each time
-			retval.setCondition(CONDITION_OMIT,
-				createSetConditionFromPKs(ISQLCondition.NOT_OPERATOR, pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), pkColumns, omitPKs));
+			retval.setCondition(CONDITION_OMIT, createSetConditionFromPKs(ISQLCondition.NOT_OPERATOR,
+				pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), pkColumns, omitPKs));
 		}
 		else if (oldSQLQuery != null)
 		{
@@ -633,13 +634,13 @@ public class SQLGenerator
 				}
 
 				ISQLCondition or = null;
-				if (raw instanceof Object[])
+				if (raw.getClass().isArray())
 				{
-					int length = ((Object[])raw).length;
+					int length = Array.getLength(raw);
 					Object[] elements = new Object[length];
 					for (int e = 0; e < length; e++)
 					{
-						elements[e] = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), ((Object[])raw)[e], formatString, c.getLength(), null, false);
+						elements[e] = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), Array.get(raw, e), formatString, c.getLength(), null, false);
 					}
 					// where qCol in (e1, e2, ..., en)
 					or = new SetCondition(ISQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { qCol }, new Object[][] { elements }, true);
