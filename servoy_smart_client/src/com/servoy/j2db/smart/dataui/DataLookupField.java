@@ -210,8 +210,10 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 		{
 			boolean showOnEmptyUIProp = ((Boolean)UIUtils.getUIProperty(this, IApplication.TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY, Boolean.TRUE)).booleanValue();
 			boolean showOnFocusUIProp = ((Boolean)UIUtils.getUIProperty(this, IApplication.TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN, Boolean.TRUE)).booleanValue();
-			boolean show = (showOnEmptyUIProp && (showOnFocusUIProp || (!showOnFocusUIProp && ("".equals(getValue()))))) || //$NON-NLS-1$
-				(!showOnEmptyUIProp && showOnFocusUIProp && (getValue() != null && ((String)getValue()).length() > 0));
+			boolean valueIsEmptyOrNull = (getValue() == null || ("".equals(getValue()))); //$NON-NLS-1$
+			boolean valueIsNotEmpty = (getValue() != null && ((String)getValue()).length() > 0);
+			boolean show = (showOnEmptyUIProp && (showOnFocusUIProp || (!showOnFocusUIProp && valueIsEmptyOrNull))) ||
+				(!showOnEmptyUIProp && showOnFocusUIProp && valueIsNotEmpty);
 
 			super.processFocusEvent(e);
 			if (e.getID() == FocusEvent.FOCUS_LOST && !e.isTemporary() && popup != null)
