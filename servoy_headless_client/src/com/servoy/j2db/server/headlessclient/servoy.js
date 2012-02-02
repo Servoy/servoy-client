@@ -2392,7 +2392,6 @@ if (typeof(Servoy.HTMLEdit) == "undefined")
 		    Event = YAHOO.util.Event;
 		    
 		    var myConfig = {
-		    	height: '100%',
 		    	width: '100%',
 		        animate: false,
 		        dompath: true //we have to use true here
@@ -2408,7 +2407,7 @@ if (typeof(Servoy.HTMLEdit) == "undefined")
 		        Dom.setStyle(this.toolbar._titlebar, 'display', 'none'); //hide title
 		        Dom.setStyle(this.dompath, 'display', 'none'); //now we hide
 		        this.on('editorContentLoaded', function(){
-			         document.getElementById('editor_'+wrapperId+'_editor').style.height = (document.getElementById(wrapperId).offsetHeight - document.getElementById('editor_'+wrapperId+'_toolbar').offsetHeight -5) +"px";
+			        document.getElementById(editorId+'_editor').style.height = (document.getElementById(wrapperId).offsetHeight - document.getElementById(editorId+'_toolbar').offsetHeight -5) +"px";
 			    }, this, true);
 		        
 		        this.toolbar.on('editcodeClick', function() {
