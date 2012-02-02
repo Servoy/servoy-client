@@ -30,7 +30,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * If set on application it will affect all TYPE-AHEAD fields. If set on an element it will affect only that TYPE-AHEAD element/field (with priority over the application property).
 	 * Value can be true/false/null.
 	 * 
-	 * If set to true, the affected TYPE_AHEAD(s) will not show the pop-up when the field content is empty.
+	 * If set to true, the affected TYPE_AHEAD(s) will show the pop-up when the field content is empty.
 	 * DEFAULT: true.
 	 *
 	 * @sample
@@ -47,7 +47,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * If set on application it will affect all TYPE-AHEAD fields. If set on an element it will affect only that TYPE-AHEAD element/field (with priority over the application property).
 	 * Value can be true/false/null.
 	 * 
-	 * If set to true, the affected TYPE_AHEAD(s) will not show the pop-up when gaining focus.
+	 * If set to true, the affected TYPE_AHEAD(s) will show the pop-up when gaining focus.
 	 * DEFAULT: true.
 	 *
 	 * @sample
