@@ -214,15 +214,12 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 				{
 					boolean showOnEmptyUIProp = ((Boolean)UIUtils.getUIProperty(getScriptObject(), application, IApplication.TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY,
 						Boolean.TRUE)).booleanValue();
-					boolean showOnFocusUIProp = ((Boolean)UIUtils.getUIProperty(getScriptObject(), application,
-						IApplication.TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN, Boolean.TRUE)).booleanValue();
 
-					// focus=false,	empty=true 	(show only on entry when empty)
-					// focus=true,	empty=true 	(always just show)
+					// focus=false,	empty=true 	(show only on entry when empty) //still not 100% - must get first time show
+					// focus=true,	empty=true 	(always just show) 
 					// focus=true,	empty=false	(don't show on empty but show for the rest, doesn't make much sense to me)
 					// focus=false,	empty=false	(never show on entry)
-					if ((showOnEmptyUIProp && (showOnFocusUIProp || (!showOnFocusUIProp && getValue().length() == 0))) ||
-						(!showOnEmptyUIProp && (input.length() > 0 || getValue().length() > 0)))
+					if ((input.length() > 0) || (showOnEmptyUIProp))
 					{
 						dlm.fill(parentState, getDataProviderID(), input, false);
 						return dlm.iterator();

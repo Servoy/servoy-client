@@ -208,13 +208,19 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 		focusGainedOrValidationChange = true;
 		try
 		{
+
+			boolean showOnEmptyUIProp = ((Boolean)UIUtils.getUIProperty(this, IApplication.TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY, Boolean.TRUE)).booleanValue();
+			boolean showOnFocusUIProp = ((Boolean)UIUtils.getUIProperty(this, IApplication.TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN, Boolean.TRUE)).booleanValue();
+			boolean show = (showOnEmptyUIProp && (showOnFocusUIProp || (!showOnFocusUIProp && ((String)getValue()).length() == 0))) ||
+				(!showOnEmptyUIProp && showOnFocusUIProp && ((String)getValue()).length() > 0);
+
 			super.processFocusEvent(e);
 			if (e.getID() == FocusEvent.FOCUS_LOST && !e.isTemporary() && popup != null)
 			{
 				popup.setVisible(false);
 			}
-			else if (e.getID() == FocusEvent.FOCUS_GAINED && !e.isTemporary() && e.getOppositeComponent() != this &&
-				Boolean.TRUE.equals(UIUtils.getUIProperty(this, IApplication.TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN, Boolean.TRUE)))
+
+			else if (e.getID() == FocusEvent.FOCUS_GAINED && !e.isTemporary() && e.getOppositeComponent() != this && show)
 			{
 				// do not call fillValueList(true) directly because we need to work around this problem:
 				// Tableview, tab to a type-ahead and type a char (for example "a"). Then type-ahead cell enters edit mode,
