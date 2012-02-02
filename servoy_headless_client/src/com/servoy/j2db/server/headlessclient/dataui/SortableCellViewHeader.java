@@ -70,6 +70,7 @@ import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualSty
 import com.servoy.j2db.server.headlessclient.dnd.DraggableBehavior;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
+import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.IStyleRule;
@@ -288,6 +289,11 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 		ChangesRecorder changesRecorder = new ChangesRecorder();
 		changesRecorder.setBgcolor(view.getHeaderBgColor());
 		changesRecorder.setBorder(view.getHeaderBorder());
+
+		if (view.getHeaderBorder() != null)
+		{
+			add(new StyleAppendingModifier(new Model<String>("padding: 0px;"))); //$NON-NLS-1$
+		}
 
 		final Properties changes = changesRecorder.getChanges();
 		if (changes.size() > 0) applyStyleChanges(headerColumnTable, changes);
@@ -609,10 +615,25 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 			}
 		}
 
+		int headerPadding = TemplateGenerator.SORTABLE_HEADER_PADDING;
 		// If there is no label-for, we leave place for the default border placed at the right of headers.
-		if (view.labelsFor.size() == 0) borderWidth += TemplateGenerator.NO_LABELFOR_DEFAULT_BORDER_WIDTH;
+		if (view.labelsFor.size() == 0)
+		{
+			int extraWidth = TemplateGenerator.NO_LABELFOR_DEFAULT_BORDER_WIDTH;
 
-		final int clientWidth = width - TemplateGenerator.SORTABLE_HEADER_PADDING - borderWidth; // we have only left padding
+			String headerBorder = view.getHeaderBorder();
+			if (headerBorder != null)
+			{
+				Properties properties = new Properties();
+				Insets borderIns = ComponentFactoryHelper.createBorderCSSProperties(headerBorder, properties);
+				extraWidth = borderIns.left + borderIns.right;
+				headerPadding = 0;
+			}
+
+			borderWidth += extraWidth;
+		}
+
+		final int clientWidth = width - headerPadding - borderWidth; // we have only left padding
 		this.width = clientWidth;
 		StyleAppendingModifier styleModifier = new StyleAppendingModifier(new Model<String>()
 		{

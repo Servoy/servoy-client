@@ -612,21 +612,31 @@ if (typeof(Servoy.TableView) == "undefined")
 					
 					if(el.tagName.toLowerCase() != "td")
 					{
-						var bStyle = '';
+						var bStyleTop = '';
+						var bStyleBottom = '';
+						var bStyleLeft = '';
+						var bStyleRight = '';
+						
 						if(borderWidth != '' || borderStyle != '' || borderColor != '')
 						{
-							bStyle = borderWidth + " " + borderStyle + " " + borderColor;
+							var bordersWidth = borderWidth.split(' ');
+							var defaultBorderWidth = bordersWidth.length > 0 ? bordersWidth[0] : '' 
+							
+							bStyleTop = defaultBorderWidth + " " + borderStyle + " " + borderColor;
+							bStyleRight = (bordersWidth.length > 1 ? bordersWidth[1] : defaultBorderWidth) + " " + borderStyle + " " + borderColor							
+							bStyleBottom = (bordersWidth.length > 2 ? bordersWidth[2] : defaultBorderWidth) + " " + borderStyle + " " + borderColor;
+							bStyleLeft = (bordersWidth.length > 3 ? bordersWidth[3] : defaultBorderWidth) + " " + borderStyle + " " + borderColor;
 						}
-						el.style.borderTop = bStyle;
-						el.style.borderBottom = bStyle;
+						el.style.borderTop = bStyleTop;
+						el.style.borderBottom = bStyleBottom;
 						
 						if(Servoy.TableView.isInFirstTD(el))
 						{
-							el.style.borderLeft = bStyle;
+							el.style.borderLeft = bStyleLeft;
 						}
 						else if(Servoy.TableView.isInLastTD(el))
 						{
-							el.style.borderRight = bStyle;
+							el.style.borderRight = bStyleRight;
 						}
 					}
 				}

@@ -664,55 +664,35 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				parent.setVisible(comp.isVisible());
 			}
 
-			Properties borderProperties = new Properties();
 			if (compBorder != null)
 			{
-				ComponentFactoryHelper.createBorderCSSProperties((String)compBorder, borderProperties);
-			}
-			else
-			{
-				if (comp instanceof IComponent)
-				{
-					Border cBorder = ((IComponent)comp).getBorder();
-					if (cBorder != null)
-					{
-						ComponentFactoryHelper.createBorderCSSProperties(ComponentFactoryHelper.createBorderString(cBorder), borderProperties);
-					}
-					else
-					{
-						borderProperties.put("border-width", "");
-						borderProperties.put("border-style", "");
-						borderProperties.put("border-color", "");
-					}
-				}
-			}
-
-			if (borderProperties.size() > 0)
-			{
-				String borderWidth = getFirstToken(borderProperties.getProperty("border-width"));
-				String borderStyle = borderProperties.getProperty("border-style");
-				if (borderStyle == null) borderStyle = "";
-				String borderColor = getFirstToken(borderProperties.getProperty("border-color"));
-
-				final String borderDef = new StringBuilder(borderWidth).append(" ").append(borderStyle).append(" ").append(borderColor).toString();
-
 				Object elem = WebCellBasedView.this.cellToElement.get(comp);
 				Object colId = WebCellBasedView.this.elementToColumnIdentifierComponent.get(elem);
 				final int idx = WebCellBasedView.this.visibleColummIdentifierComponents.indexOf(colId);
+
+				final int[] borderWidth = new int[] { 0, 0 };
+
+				Border cb = ComponentFactoryHelper.createBorder((String)compBorder);
+				if (cb != null)
+				{
+					Insets borderInsets = cb.getBorderInsets(null);
+					borderWidth[0] = borderInsets.left;
+					borderWidth[1] = borderInsets.right;
+				}
 
 				comp.add(new StyleAppendingModifier(new Model<String>()
 				{
 					@Override
 					public String getObject()
 					{
-						StringBuilder style = new StringBuilder("border-top:").append(borderDef).append("; border-bottom:").append(borderDef);
-						if (idx == 0)
+						StringBuilder style = new StringBuilder();
+						if (idx > 0)
 						{
-							style.append("; border-left:").append(borderDef);
+							style.append("border-left: none; padding-left: ").append(borderWidth[0]).append("px;"); //$NON-NLS-1$ //$NON-NLS-2$
 						}
-						else if (idx == WebCellBasedView.this.visibleColummIdentifierComponents.size() - 1)
+						if (idx < WebCellBasedView.this.visibleColummIdentifierComponents.size() - 1)
 						{
-							style.append("; border-right:").append(borderDef);
+							style.append("border-right: none; padding-right: ").append(borderWidth[1]).append("px;"); //$NON-NLS-1$ //$NON-NLS-2$
 						}
 
 						return style.toString();
@@ -3101,8 +3081,13 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				String newCompFont = compFont != null ? compFont.toString() : null;
 				sbm.setFont(newCompFont);
 
-//				String newBorder = compBorder != null ? compBorder.toString() : null;
-//				if (newBorder != null) sbm.js_setBorder(newBorder);
+				String newBorder = compBorder != null ? compBorder.toString() : null;
+				if (newBorder != null)
+				{
+					sbm.setBorder(newBorder);
+					// reset size so the web size will be recalculated based on the new border
+					sbm.setSize(sbm.getWidth(), sbm.getHeight());
+				}
 			}
 		}
 	}
@@ -3482,7 +3467,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 							bstyle = borderProperties.getProperty("border-style"); //$NON-NLS-1$
 							if (bstyle == null) bstyle = ""; //$NON-NLS-1$
 							bwidth = borderProperties.getProperty("border-width"); //$NON-NLS-1$
-							bwidth = getFirstToken(bwidth);
 							bcolor = borderProperties.getProperty("border-color"); //$NON-NLS-1$
 							bcolor = getFirstToken(bcolor);
 						}
