@@ -1291,7 +1291,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	@Override
 	public String toString()
 	{
-		return scriptable.toString("value:" + getDefaultModelObjectAsString()); //$NON-NLS-1$ 
+		return scriptable.toString("value:" + getModelValue()); //$NON-NLS-1$ 
 	}
 
 	@Override
