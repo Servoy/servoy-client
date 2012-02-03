@@ -72,6 +72,7 @@ public abstract class AbstractBase implements IPersist
 	private transient Map<UUID, IPersist> allobjectsMap = null;
 
 	private Map<String, Object> propertiesMap = new HashMap<String, Object>();
+	private Map<String, Object> bufferPropertiesMap = null;
 
 	/*
 	 * Attributes, do not change default values do to repository default_textual_classvalue
@@ -128,16 +129,26 @@ public abstract class AbstractBase implements IPersist
 			}
 		}
 
+
 		// apply the new properties
 		if (newProperties != null)
 		{
-			Iterator<Entry<String, Object>> iterator = newProperties.entrySet().iterator();
-			while (iterator.hasNext())
+			try
 			{
-				Entry<String, Object> next = iterator.next();
-				setProperty(next.getKey(), next.getValue());
+				startBufferUseForProperties();
+				Iterator<Entry<String, Object>> iterator = newProperties.entrySet().iterator();
+				while (iterator.hasNext())
+				{
+					Entry<String, Object> next = iterator.next();
+					setProperty(next.getKey(), next.getValue());
+				}
+			}
+			finally
+			{
+				applyPropertiesBuffer();
 			}
 		}
+
 	}
 
 	public void setProperty(String propertyName, Object val)
@@ -181,16 +192,53 @@ public abstract class AbstractBase implements IPersist
 		{
 			isChanged = true;
 		}
-//		if (!isOverrideElement())
-//		{
-//			Element element = StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(getTypeID(), propertyName);
-//			if (element != null && Utils.equalObjects(val, element.getDefaultClassValue()))
-//			{
-//				propertiesMap.remove(propertyName);
-//				return;
-//			}
-//		}
-		propertiesMap.put(propertyName, val);
+		if (bufferPropertiesMap != null)
+		{
+			bufferPropertiesMap.put(propertyName, val);
+		}
+		else
+		{
+			if (!isOverrideElement())
+			{
+				Element element = StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(getTypeID(), propertyName);
+				if (element != null && Utils.equalObjects(val, element.getDefaultClassValue()))
+				{
+					propertiesMap.remove(propertyName);
+					return;
+				}
+			}
+
+			propertiesMap.put(propertyName, val);
+		}
+	}
+
+	public void startBufferUseForProperties()
+	{
+		if (bufferPropertiesMap == null)
+		{
+			bufferPropertiesMap = new HashMap<String, Object>();
+		}
+	}
+
+	public void applyPropertiesBuffer()
+	{
+		if (bufferPropertiesMap != null)
+		{
+			Map<String, Object> tempMap = new HashMap<String, Object>(bufferPropertiesMap);
+			bufferPropertiesMap = null;
+			// apply extendsId first
+			if (tempMap.containsKey(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()))
+			{
+				setPropertyInternal(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName(),
+					tempMap.get(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()));
+				tempMap.remove(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName());
+			}
+			for (String propertyName : tempMap.keySet())
+			{
+				setPropertyInternal(propertyName, tempMap.get(propertyName));
+			}
+
+		}
 	}
 
 	public Object getProperty(String propertyName)
