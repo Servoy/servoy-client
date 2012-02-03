@@ -230,7 +230,7 @@ public interface IForm
 	public IFormUI getFormUI();
 
 	/**
-	 * @return the elements of this form.
+	 * @return the named elements of this form.
 	 * 
 	 * @since 6.1
 	 */
