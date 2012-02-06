@@ -27,7 +27,7 @@ import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.ISupportValueList;
-import com.servoy.j2db.ui.runtime.IRuntimeValuelistComponent;
+import com.servoy.j2db.ui.runtime.HasRuntimeValuelist;
 import com.servoy.j2db.util.FormatParser.ParsedFormat;
 
 /**
@@ -36,7 +36,7 @@ import com.servoy.j2db.util.FormatParser.ParsedFormat;
  * @author lvostinar
  * @since 6.0
  */
-public abstract class AbstractRuntimeValuelistComponent<C extends IFieldComponent> extends AbstractRuntimeField<C> implements IRuntimeValuelistComponent
+public abstract class AbstractRuntimeValuelistComponent<C extends IFieldComponent> extends AbstractRuntimeField<C> implements HasRuntimeValuelist
 {
 	public AbstractRuntimeValuelistComponent(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{

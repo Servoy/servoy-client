@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2012 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -14,28 +14,38 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
+
 package com.servoy.j2db.ui.runtime;
 
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
 /**
- * Interface for components with title support
+ * Runtime property interface for transparency.
  * 
- * @author jcompagner
+ * @author rgansevles
+ *
  * @since 6.1
  */
-public interface IRuntimeTitleTextComponent
+public interface HasRuntimeTransparant
 {
 	/**
-	 * Gets or sets the title text.
-	 *
-	 * @sample var titleText = %%prefix%%%%elementName%%.titleText;
+	 * Gets or sets the transparency of an element; true - transparent; false - not transparent.
 	 * 
+	 * NOTE: transparency can be inverted using ! operator: elements.elementName.transparent = !elements.elementName.transparent;
+	 * 
+	 * NOTE: transparency will be mostly used for background color, a transparent element will receive the background of the element "beneath" it, a non transparent one will use its own background color
+	 *
+	 * @sample
+	 * //gets the transparency of the element
+	 * var currentState = %%prefix%%%%elementName%%.transparent;
+	 * 
+	 * //sets the transparency of the element
+	 * %%prefix%%%%elementName%%.transparent = !currentState;
 	 */
 	@JSGetter
-	public String getTitleText();
+	public boolean isTransparent();
 
 	@JSSetter
-	public void setTitleText(String titleText);
+	public void setTransparent(boolean b);
 }

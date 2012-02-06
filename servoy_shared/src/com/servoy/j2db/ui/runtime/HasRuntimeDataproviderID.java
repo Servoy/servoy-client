@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2012 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -14,28 +14,28 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
+
 package com.servoy.j2db.ui.runtime;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
-
 /**
- * Interface for components with label-for support
+ * Runtime property interface for dataProviderID.
  * 
  * @author rgansevles
- * 
+ *
  * @since 6.1
  */
-
-public interface IRuntimeLabelForComponent extends IRuntimeLabelComponent
+public interface HasRuntimeDataproviderID
 {
 	/**
-	 * Gets the label for property of a label. This property is used to link a label to a certain element (by default used for tableview header, form security, can be used for custom purposes ).
+	 * Get the data provider this UI element (display) is showing.
 	 *
-	 * @sample var name = %%prefix%%%%elementName%%.getLabelForElementName();
+	 * @sample
+	 * %%prefix%%%%elementName%%.getDataProviderID();
 	 * 
-	 * @return The label for property (String).
+	 * @return The data provider as String.
 	 */
 	@JSFunction
-	String getLabelForElementName();
+	public String getDataProviderID();
 }

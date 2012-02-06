@@ -20,9 +20,12 @@ import org.mozilla.javascript.annotations.JSFunction;
 
 /**
  * Interface for components with value list support
+ * 
+ * @author rgansevles
+ * 
  * @since 6.1
  */
-public interface IRuntimeValuelistComponent
+public interface HasRuntimeValuelist
 {
 	/**
 	 * Returns the current valuelist name for the specified field; returns NULL if no valuelist.

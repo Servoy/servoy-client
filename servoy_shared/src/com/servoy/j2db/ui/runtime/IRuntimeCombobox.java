@@ -25,6 +25,6 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @since 6.1
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeCombobox", extendsComponent = "RuntimeComponent")
-public interface IRuntimeCombobox extends IRuntimeFormattedFieldComponent, IRuntimeValuelistComponent
+public interface IRuntimeCombobox extends IRuntimeInputComponent, HasRuntimeFormat, HasRuntimeValuelist
 {
 }

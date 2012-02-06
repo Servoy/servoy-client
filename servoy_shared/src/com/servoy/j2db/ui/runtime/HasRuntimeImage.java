@@ -22,12 +22,13 @@ import org.mozilla.javascript.annotations.JSSetter;
 
 
 /**
- * Interface for label-like components.
+ * Runtime property interface for image support.
  * 
- * @author jcompagner
+ * @author rgansevles
+ *
  * @since 6.1
  */
-public interface IRuntimeLabelComponent extends IRuntimeDataProviderComponent, IRuntimeComponent
+public interface HasRuntimeImage
 {
 	/**
 	 * Gets/Sets the image displayed on a button or label; based on URL. 
@@ -98,44 +99,5 @@ public interface IRuntimeLabelComponent extends IRuntimeDataProviderComponent, I
 	@JSFunction
 	public byte[] getThumbnailJPGImage(int width, int height);
 
-	/**
-	 * Gets or sets the specified character(s) - typically an underlined letter- used with/without the modifier key(s) for the label, button or image. 
-	 * 
-	 * Modifiers key values: 
-	 * 1 SHIFT 
-	 * 2 CTRL 
-	 * 4 Meta/CMD (Macintosh)
-	 * 8 ALT(Windows, Unix); OPTION (Macintosh) 
-	 * 
-	 * NOTE: A mnemonic is usually a single key used with/without the CTRL, CMD, SHIFT, ALT, or OPTION key(s) to activate a menu item or command - depending, in part on whether the menmonic applies in a command line or graphic interface. For one description, you can refer to this web page: http://msdn.microsoft.com/en-us/library/bb158536.aspx or perform a search in a web browser search engine using the criteria "mnemonic".
-	 * NOTE2: Mnemonic is only supported in Smart Client.
-	 * 
-	 * @sample
-	 * //gets the mnemonic of the element
-	 * var my_mnemoic = %%prefix%%%%elementName%%.mnemonic;
-	 * 
-	 * //sets the mnemonic of the element
-	 * %%prefix%%%%elementName%%.mnemonic = 'f';
-	 */
-	@JSGetter
-	public String getMnemonic();
 
-	@JSSetter
-	public void setMnemonic(String mnemonic);
-
-	/**
-	 * Gets or sets the display formatting of a label/button that has dataProviderID; does not affect the actual value stored in the database column.
-	 *
-	 * @sample
-	 * //sets the display formatting of the label/button
-	 * %%prefix%%%%elementName%%.format = '###';
-	 * 
-	 * //gets the display formatting of the label/button
-	 * var format = %%prefix%%%%elementName%%.format;
-	 */
-	@JSGetter
-	public String getFormat();
-
-	@JSSetter
-	public void setFormat(String format);
 }

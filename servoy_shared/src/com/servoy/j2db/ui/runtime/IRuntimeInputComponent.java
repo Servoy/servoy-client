@@ -16,9 +16,6 @@
  */
 package com.servoy.j2db.ui.runtime;
 
-import org.mozilla.javascript.annotations.JSGetter;
-import org.mozilla.javascript.annotations.JSSetter;
-
 
 /**
  * Interface for components with editable support.
@@ -26,20 +23,6 @@ import org.mozilla.javascript.annotations.JSSetter;
  * @author jcompagner
  * @since 6.1
  */
-public interface IRuntimeInputComponent extends IRuntimeField, IRuntimeComponentWithReadonlySupport
+public interface IRuntimeInputComponent extends IRuntimeField, HasRuntimeReadOnly, HasRuntimeEditable
 {
-	/**
-	 * Gets or sets the editable/read-only state of a field; true - editable; false - read-only.
-	 * 
-	 * NOTE the "!" operator can be used to invert the editable state.
-	 *
-	 * @sample
-	 * var currentState = %%prefix%%%%elementName%%.editable;
-	 * %%prefix%%%%elementName%%.editable = !currentState;
-	 */
-	@JSGetter
-	public boolean isEditable();
-
-	@JSSetter
-	public void setEditable(boolean b);
 }

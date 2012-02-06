@@ -26,6 +26,6 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  *  @since 6.1
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeTextField", extendsComponent = "RuntimeComponent")
-public interface IRuntimeTextField extends IRuntimeTextInputComponent, IRuntimeFormattedFieldComponent, IRuntimeValuelistComponent
+public interface IRuntimeTextField extends IRuntimeInputComponent, HasRuntimeTextInput, HasRuntimeFormat, HasRuntimeValuelist
 {
 }

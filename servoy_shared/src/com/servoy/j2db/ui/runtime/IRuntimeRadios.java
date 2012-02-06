@@ -25,6 +25,6 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  *  @since 6.1
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeRadios", extendsComponent = "RuntimeComponent")
-public interface IRuntimeRadios extends IRuntimeBaseChecks
+public interface IRuntimeRadios extends IRuntimeBaseChecks, HasRuntimeValuelistItems
 {
 }

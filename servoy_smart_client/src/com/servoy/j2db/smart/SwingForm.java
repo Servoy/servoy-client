@@ -147,7 +147,7 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.ISplitPane;
 import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
-import com.servoy.j2db.ui.runtime.IRuntimeComponentWithReadonlySupport;
+import com.servoy.j2db.ui.runtime.HasRuntimeReadOnly;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IFocusCycleRoot;
 import com.servoy.j2db.util.ISupportFocusTransfer;
@@ -562,9 +562,9 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		{
 			if (((TableView)comp).isEditable() == true) return false;
 		}
-		else if (comp instanceof IScriptableProvider && ((IScriptableProvider)comp).getScriptObject() instanceof IRuntimeComponentWithReadonlySupport)
+		else if (comp instanceof IScriptableProvider && ((IScriptableProvider)comp).getScriptObject() instanceof HasRuntimeReadOnly)
 		{
-			return ((IRuntimeComponentWithReadonlySupport)((IScriptableProvider)comp).getScriptObject()).isReadOnly();
+			return ((HasRuntimeReadOnly)((IScriptableProvider)comp).getScriptObject()).isReadOnly();
 		}
 		return false;
 	}
@@ -602,19 +602,19 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 				((TableView)comp).setEditable(true);
 			}
 		}
-		else if (comp instanceof IScriptableProvider && ((IScriptableProvider)comp).getScriptObject() instanceof IRuntimeComponentWithReadonlySupport)
+		else if (comp instanceof IScriptableProvider && ((IScriptableProvider)comp).getScriptObject() instanceof HasRuntimeReadOnly)
 		{
 			if (b == true)
 			{
 				if (componentIsReadOnly(comp) == false)
 				{
-					((IRuntimeComponentWithReadonlySupport)((IScriptableProvider)comp).getScriptObject()).setReadOnly(true);
+					((HasRuntimeReadOnly)((IScriptableProvider)comp).getScriptObject()).setReadOnly(true);
 					if (markedComponents.contains(comp) == false) markedComponents.add(comp); // pay attention; what to do if container
 				}
 			}
 			else
 			{
-				((IRuntimeComponentWithReadonlySupport)((IScriptableProvider)comp).getScriptObject()).setReadOnly(false);
+				((HasRuntimeReadOnly)((IScriptableProvider)comp).getScriptObject()).setReadOnly(false);
 			}
 		}
 		else if (comp instanceof Container)

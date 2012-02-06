@@ -26,6 +26,6 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @since 6.1
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeTextArea", extendsComponent = "RuntimeComponent")
-public interface IRuntimeTextArea extends IRuntimeTextInputComponent, IRuntimeComponentWithReadonlySupport, IRuntimeScrollableComponent
+public interface IRuntimeTextArea extends IRuntimeInputComponent, HasRuntimeTextInput, HasRuntimeReadOnly, HasRuntimeScroll
 {
 }

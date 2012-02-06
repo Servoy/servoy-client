@@ -21,11 +21,13 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.form.CheckBox;
 
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataCalendar.DateField;
 import com.servoy.j2db.ui.IEventExecutor;
-import com.servoy.j2db.ui.runtime.IRuntimeComponentWithReadonlySupport;
+import com.servoy.j2db.ui.runtime.HasRuntimeEnabled;
+import com.servoy.j2db.ui.runtime.HasRuntimeReadOnly;
 
 /**
  * A {@link AjaxFormComponentUpdatingBehavior} for most fields that redirects {@link #onUpdate(AjaxRequestTarget)} and {@link #onError(AjaxRequestTarget, RuntimeException)} to the {@link WebEventExecutor}
@@ -96,11 +98,25 @@ public class ServoyFormComponentUpdatingBehavior extends ServoyAjaxFormComponent
 			if (!eventExecutor.hasLeaveCmds() || component instanceof DateField || component instanceof CheckBox || component instanceof WebDataComboBox ||
 				component instanceof WebDataLookupField)
 			{
-				if (comp instanceof IScriptableProvider && ((IScriptableProvider)comp).getScriptObject() instanceof IRuntimeComponentWithReadonlySupport)
+				if (comp instanceof IScriptableProvider)
 				{
-					return !((IRuntimeComponentWithReadonlySupport)((IScriptableProvider)comp).getScriptObject()).isReadOnly() &&
-						((IRuntimeComponentWithReadonlySupport)((IScriptableProvider)comp).getScriptObject()).isEnabled();
+					IScriptable scriptObject = ((IScriptableProvider)comp).getScriptObject();
+					if (scriptObject instanceof HasRuntimeReadOnly)
+					{
+						if (((HasRuntimeReadOnly)scriptObject).isReadOnly())
+						{
+							return false;
+						}
+					}
+					if (scriptObject instanceof HasRuntimeEnabled)
+					{
+						if (!((HasRuntimeEnabled)scriptObject).isEnabled())
+						{
+							return false;
+						}
+					}
 				}
+
 				return true;
 			}
 		}

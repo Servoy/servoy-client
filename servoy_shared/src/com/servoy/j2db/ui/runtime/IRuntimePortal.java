@@ -16,8 +16,6 @@
  */
 package com.servoy.j2db.ui.runtime;
 
-import org.mozilla.javascript.annotations.JSFunction;
-
 
 /**
  * Interface for RuntimePortal component.
@@ -25,96 +23,6 @@ import org.mozilla.javascript.annotations.JSFunction;
  * @author jcompagner
  * @since 6.1
  */
-public interface IRuntimePortal extends IRuntimeScrollableComponent, IRuntimeComponentWithReadonlySupport, IRuntimeComponent
+public interface IRuntimePortal extends IRuntimeComponent, HasRuntimeScroll, HasRuntimeReadOnly, HasRuntimeSelectedIndex, HasRuntimeRecords
 {
-	/**
-	 * Gets the selected record index in the current cached foundset in the specified portal.
-	 *
-	 * @sample
-	 * //gets the selected record index in the foundset
-	 * var current = %%prefix%%%%elementName%%.getSelectedIndex();
-	 * 
-	 * //sets the next record index in the foundset
-	 * %%prefix%%%%elementName%%.setSelectedIndex(current+1);
-	 * 
-	 * @return The selected index (integer).
-	 */
-	public int getSelectedIndex();
-
-	/**
-	 * Sets the selected record index in the current cached foundset in the specified portal.
-	 * 
-	 * @sampleas getSelectedIndex()
-	 * 
-	 * @param index the specified record index
-	 */
-	public void setSelectedIndex(int index);
-
-	/**
-	 * Deletes the currently selected portal row in the foundset of the specified portal.
-	 * 
-	 * @sample
-	 * %%prefix%%%%elementName%%.deleteRecord();
-	 */
-	@JSFunction
-	public void deleteRecord();
-
-	/**
-	 * Creates a new portal row in the foundset of the specified portal. 
-	 * 
-	 * @sample
-	 * // foreign key data is only filled in for equals (=) relation items 
-	 * %%prefix%%%%elementName%%.newRecord();
-	 */
-	@JSFunction
-	public void newRecord();
-
-	/**
-	 * Creates a new portal row in the foundset of the specified portal. 
-	 * 
-	 * @sample
-	 * // foreign key data is only filled in for equals (=) relation items 
-	 * //adds the new record on top
-	 * %%prefix%%%%elementName%%.newRecord(true);
-	 * 
-	 * @param addOnTop adds the new portal record as the topmost row of the foundset, default value is true
-	 */
-	@JSFunction
-	public void newRecord(boolean addOnTop);
-
-	/**
-	 * Duplicates the currently selected portal row in the foundset of the specified portal.
-	 * 
-	 * @sample
-	 * // adds the duplicated record on top
-	 * %%prefix%%%%elementName%%.duplicateRecord();
-	 * 
-	 * adds the duplicated record as the topmost record of the foundset
-	 */
-	@JSFunction
-	public void duplicateRecord();
-
-	/**
-	 * Duplicates the currently selected portal row in the foundset of the specified portal.
-	 * 
-	 * @sample
-	 * // adds the duplicated record on top
-	 * %%prefix%%%%elementName%%.duplicateRecord(true);
-	 * 
-	 * @param addOnTop add on top (default true)
-	 * adds the duplicated record to the foundset
-	 */
-	@JSFunction
-	public void duplicateRecord(boolean addOnTop);
-
-	/**
-	 * Returns the sort columns names of the current portal (as comma separated string).
-	 * 
-	 * @sample
-	 * var w = %%prefix%%%%elementName%%.getSortColumns();
-	 * 
-	 * @return array with column names
-	 */
-	@JSFunction
-	public String getSortColumns();
 }

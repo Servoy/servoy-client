@@ -148,7 +148,7 @@ import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.PropertyCopy;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
-import com.servoy.j2db.ui.runtime.IRuntimeComponentWithReadonlySupport;
+import com.servoy.j2db.ui.runtime.HasRuntimeReadOnly;
 import com.servoy.j2db.ui.scripting.RuntimePortal;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
@@ -638,9 +638,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			WebCellBasedView.this.applyStyleOnComponent(comp, compColor, fgColor, compFont, compBorder);
 
 			if (scriptable.isReadOnly() && validationEnabled && comp instanceof IScriptableProvider &&
-				((IScriptableProvider)comp).getScriptObject() instanceof IRuntimeComponentWithReadonlySupport) // if in find mode, the field should not be readonly
+				((IScriptableProvider)comp).getScriptObject() instanceof HasRuntimeReadOnly) // if in find mode, the field should not be readonly
 			{
-				((IRuntimeComponentWithReadonlySupport)((IScriptableProvider)comp).getScriptObject()).setReadOnly(true);
+				((HasRuntimeReadOnly)((IScriptableProvider)comp).getScriptObject()).setReadOnly(true);
 			}
 
 			// if this table view is marked as read-only by the formController, mark also

@@ -24,6 +24,6 @@ package com.servoy.j2db.ui.runtime;
  * @since 6.1
  */
 
-public interface IRuntimeBaseButton extends IRuntimeLabelComponent, IRuntimeFocusableComponent
+public interface IRuntimeBaseButton extends IRuntimeBaseLabel, HasRuntimeFocus
 {
 }

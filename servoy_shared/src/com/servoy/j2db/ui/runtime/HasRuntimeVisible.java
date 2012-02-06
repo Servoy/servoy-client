@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2012 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -14,34 +14,40 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
+
 package com.servoy.j2db.ui.runtime;
 
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
-
 /**
- * Interface for components with readonly support
- * @author jcompagner
+ * Runtime property interface for visibility.
+ * 
+ * @author rgansevles
+ *
  * @since 6.1
  */
-public interface IRuntimeComponentWithReadonlySupport extends IRuntimeComponent
+public interface HasRuntimeVisible
 {
 	/**
-	 * Gets or sets the editable/read-only state of a field; true - read-only; false - editable; ! - the editable/read-only state is inverted (the opposite). 
+	 * Gets or sets the visibility of an element; true - visible; false - not visible; ! - the visibility state is inverted (the opposite).
 	 * 
-	 * NOTE: A field set as read-only can be selected by clicking (or pressing the TAB key if this option is supported by the operating system) and the field data can be copied.
+	 * NOTE: The visibility of an element is not persistent; the state of visibility only applies to the current user in his/her current session.
 	 *
 	 * @sample
-	 * //gets the editable/read-only state of the field
-	 * var currentState = %%prefix%%%%elementName%%.readOnly;
+	 * //sets the element as visible
+	 * forms.company.elements.faxBtn.visible = true;
 	 * 
-	 * //sets the editable/read-only state of the field
-	 * %%prefix%%%%elementName%%.readOnly = !currentState;
+	 * //gets the visibility of the element
+	 * var currentState = forms.company.elements.faxBtn.visible;
+	 * 
+	 * //sets the element as not visible when the current state is visible
+	 * forms.company.elements.faxBtn.visible = !currentState;
 	 */
 	@JSGetter
-	public boolean isReadOnly();
+	public boolean isVisible();
 
 	@JSSetter
-	public void setReadOnly(boolean b);
+	public void setVisible(boolean b);
+
 }

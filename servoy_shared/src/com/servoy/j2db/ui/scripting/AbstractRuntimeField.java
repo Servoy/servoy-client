@@ -36,7 +36,7 @@ import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.ISupportSpecialClientProperty;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
-import com.servoy.j2db.ui.runtime.IRuntimeComponentWithReadonlySupport;
+import com.servoy.j2db.ui.runtime.HasRuntimeReadOnly;
 import com.servoy.j2db.ui.runtime.IRuntimeField;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.StringComparator;
@@ -48,7 +48,7 @@ import com.servoy.j2db.util.Utils;
  * @author lvostinar
  */
 public abstract class AbstractRuntimeField<C extends IFieldComponent> extends AbstractRuntimeRendersupportComponent<C> implements IRuntimeField,
-	IRuntimeComponentWithReadonlySupport
+	HasRuntimeReadOnly
 {
 	public AbstractRuntimeField(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{

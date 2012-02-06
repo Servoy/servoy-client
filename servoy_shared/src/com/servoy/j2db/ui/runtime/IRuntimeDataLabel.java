@@ -23,6 +23,6 @@ package com.servoy.j2db.ui.runtime;
  *  @author lvostinar
  * @since 6.1
  */
-public interface IRuntimeDataLabel extends IRuntimeLabelComponent, IRuntimeLabelForComponent
+public interface IRuntimeDataLabel extends IRuntimeBaseLabel, HasRuntimeLabelFor
 {
 }

@@ -146,7 +146,7 @@ import com.servoy.j2db.ui.ISupportSecuritySettings;
 import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
-import com.servoy.j2db.ui.runtime.IRuntimeComponentWithReadonlySupport;
+import com.servoy.j2db.ui.runtime.HasRuntimeReadOnly;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnablePanel;
 import com.servoy.j2db.util.IAnchorConstants;
@@ -1733,9 +1733,9 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		{
 			for (Component element : rendererComponents)
 			{
-				if (element instanceof IScriptableProvider && ((IScriptableProvider)element).getScriptObject() instanceof IRuntimeComponentWithReadonlySupport)
+				if (element instanceof IScriptableProvider && ((IScriptableProvider)element).getScriptObject() instanceof HasRuntimeReadOnly)
 				{
-					((IRuntimeComponentWithReadonlySupport)((IScriptableProvider)element).getScriptObject()).setReadOnly(!editable);
+					((HasRuntimeReadOnly)((IScriptableProvider)element).getScriptObject()).setReadOnly(!editable);
 				}
 			}
 		}

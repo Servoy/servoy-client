@@ -26,6 +26,6 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  *  @since 6.1
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeCheck", extendsComponent = "RuntimeComponent")
-public interface IRuntimeCheck extends IRuntimeField, IRuntimeValuelistComponent, IRuntimeComponentWithReadonlySupport
+public interface IRuntimeCheck extends IRuntimeField, HasRuntimeValuelist, HasRuntimeReadOnly
 {
 }

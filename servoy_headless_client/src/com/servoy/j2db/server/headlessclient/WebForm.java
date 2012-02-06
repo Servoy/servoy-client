@@ -125,7 +125,7 @@ import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
-import com.servoy.j2db.ui.runtime.IRuntimeComponentWithReadonlySupport;
+import com.servoy.j2db.ui.runtime.HasRuntimeReadOnly;
 import com.servoy.j2db.ui.scripting.RuntimePortal;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IAnchorConstants;
@@ -723,9 +723,9 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 
 		public Object component(Component component)
 		{
-			if (((IScriptableProvider)component).getScriptObject() instanceof IRuntimeComponentWithReadonlySupport)
+			if (((IScriptableProvider)component).getScriptObject() instanceof HasRuntimeReadOnly)
 			{
-				IRuntimeComponentWithReadonlySupport scriptable = (IRuntimeComponentWithReadonlySupport)((IScriptableProvider)component).getScriptObject();
+				HasRuntimeReadOnly scriptable = (HasRuntimeReadOnly)((IScriptableProvider)component).getScriptObject();
 				if (!scriptable.isReadOnly() && readonlyFlag)
 				{
 					scriptable.setReadOnly(readonlyFlag);

@@ -16,8 +16,6 @@
  */
 package com.servoy.j2db.ui.runtime;
 
-import org.mozilla.javascript.annotations.JSFunction;
-
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 
@@ -28,17 +26,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @since 6.1
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeImageMedia", extendsComponent = "RuntimeComponent")
-public interface IRuntimeImageMedia extends IRuntimeDataProviderComponent, IRuntimeComponentWithReadonlySupport, IRuntimeScrollableComponent,
-	IRuntimeTitleTextComponent, IRuntimeComponent
+public interface IRuntimeImageMedia extends HasRuntimeReadOnly, HasRuntimeScroll, HasRuntimeTitleText, IRuntimeComponent, HasRuntimeDataproviderID,
+	HasRuntimeEditableGet
 {
-	/**
-	 * Gets the editable/read-only state of a field; true - editable; false - read-only; ! - the editable/read-only state is inverted (the opposite).
-	 *
-	 * @sample
-	 * var currentState = %%prefix%%%%elementName%%.isEditable();
-	 * 
-	 * @return true if editable, false otherwise
-	 */
-	@JSFunction
-	public boolean isEditable();
 }

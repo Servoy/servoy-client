@@ -16,14 +16,32 @@
  */
 package com.servoy.j2db.ui.runtime;
 
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
+
 /**
- * Interface for text editor components.
+ * Interface for label-like components with text support
  * 
  * @author jcompagner
- * 
  * @since 6.1
  */
-public interface IRuntimeTextEditor extends IRuntimeInputComponent, HasRuntimeReadOnly, HasRuntimeScroll, HasRuntimeTextInput, HasRuntimeURL,
-	HasRuntimePlainText
+public interface HasRuntimeText
 {
+	/**
+	 * Gets or sets the text that is displayed on the label, button or image.
+	 * 
+	 * NOTE: The .text property applies to labels, buttons, or images ONLY.
+	 *
+	 * @sample
+	 * //gets the text of the element
+	 * var my_text = %%prefix%%%%elementName%%.text;
+	 *
+	 * //sets the text of the element
+	 * %%prefix%%%%elementName%%.text = my_text + 'is cool';
+	 */
+	@JSGetter
+	public String getText();
+
+	@JSSetter
+	public void setText(String txt);
 }

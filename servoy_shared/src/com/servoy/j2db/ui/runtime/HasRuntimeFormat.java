@@ -16,14 +16,31 @@
  */
 package com.servoy.j2db.ui.runtime;
 
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
+
+
 /**
- * Interface for text editor components.
+ * Interface for components with formatting support.
  * 
  * @author jcompagner
- * 
  * @since 6.1
  */
-public interface IRuntimeTextEditor extends IRuntimeInputComponent, HasRuntimeReadOnly, HasRuntimeScroll, HasRuntimeTextInput, HasRuntimeURL,
-	HasRuntimePlainText
+public interface HasRuntimeFormat
 {
+	/**
+	 * Gets or sets the display formatting of an element for number and text values; does not affect the actual value stored in the database column.
+	 *
+	 * @sample
+	 * //sets the display formatting of the field
+	 * %%prefix%%%%elementName%%.format = '###';
+	 * 
+	 * //gets the display formatting of the field
+	 * var format = %%prefix%%%%elementName%%.format;
+	 */
+	@JSGetter
+	public String getFormat();
+
+	@JSSetter
+	public void setFormat(String format);
 }

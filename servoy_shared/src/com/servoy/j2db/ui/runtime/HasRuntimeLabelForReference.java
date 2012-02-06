@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2012 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -14,16 +14,31 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
+
 package com.servoy.j2db.ui.runtime;
 
 /**
- * Interface for text editor components.
+ * Runtime interface for components that are referred to by label-for elements.
  * 
- * @author jcompagner
+ * @author rgansevles
  * 
+ * @see HasRuntimeLabelFor
+ *
  * @since 6.1
  */
-public interface IRuntimeTextEditor extends IRuntimeInputComponent, HasRuntimeReadOnly, HasRuntimeScroll, HasRuntimeTextInput, HasRuntimeURL,
-	HasRuntimePlainText
+public interface HasRuntimeLabelForReference
 {
+	/**
+	 * Returns an Array of label element names that has this field filled in as the labelFor.
+	 *
+	 * @sample
+	 * var array = elements.name_first.getLabelForElementNames();
+	 * for (var i = 0; i<array.length; i++)
+	 * {
+	 * 	elements[array[i]].fgcolor = "#ff00ff";
+	 * }
+	 * 
+	 * @return An array with element names.
+	 */
+	String[] getLabelForElementNames();
 }

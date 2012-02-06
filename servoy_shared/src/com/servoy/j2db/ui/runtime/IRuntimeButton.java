@@ -25,6 +25,6 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  *   @since 6.1
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeButton", extendsComponent = "RuntimeComponent")
-public interface IRuntimeButton extends IRuntimeBaseButton, IRuntimeTextLabelComponent
+public interface IRuntimeButton extends IRuntimeBaseButton, HasRuntimeText
 {
 }

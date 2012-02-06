@@ -376,7 +376,7 @@ public abstract class AbstractScriptButton extends JButton implements ISkinnable
 
 
 	/**
-	 * @see com.servoy.j2db.ui.runtime.IRuntimeLabelComponent#setImageURL(java.lang.String)
+	 * @see com.servoy.j2db.ui.runtime.IRuntimeBaseLabel#setImageURL(java.lang.String)
 	 */
 	public void setImageURL(String text_url)
 	{

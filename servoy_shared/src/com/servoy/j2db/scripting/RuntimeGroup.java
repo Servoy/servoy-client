@@ -23,7 +23,7 @@ import java.util.List;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
-import com.servoy.j2db.ui.runtime.IRuntimeComponentWithReadonlySupport;
+import com.servoy.j2db.ui.runtime.HasRuntimeReadOnly;
 
 /**
  * Script object for a group of scriptables, delegates a fixed list of properties to all the enclosed scriptables.
@@ -33,7 +33,7 @@ import com.servoy.j2db.ui.runtime.IRuntimeComponentWithReadonlySupport;
  * @since 5.0
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class RuntimeGroup implements IRuntimeComponentWithReadonlySupport
+public class RuntimeGroup implements HasRuntimeReadOnly, IRuntimeComponent
 {
 	private static final Rectangle NO_BOUNDS = new Rectangle(0, 0, 0, 0);
 
@@ -272,7 +272,7 @@ public class RuntimeGroup implements IRuntimeComponentWithReadonlySupport
 
 		for (IRuntimeComponent obj : scriptBaseObjects)
 		{
-			if (obj instanceof IRuntimeComponentWithReadonlySupport && !((IRuntimeComponentWithReadonlySupport)obj).isReadOnly())
+			if (obj instanceof HasRuntimeReadOnly && !((HasRuntimeReadOnly)obj).isReadOnly())
 			{
 				return false;
 			}
@@ -284,9 +284,9 @@ public class RuntimeGroup implements IRuntimeComponentWithReadonlySupport
 	{
 		for (IRuntimeComponent obj : scriptBaseObjects)
 		{
-			if (obj instanceof IRuntimeComponentWithReadonlySupport)
+			if (obj instanceof HasRuntimeReadOnly)
 			{
-				((IRuntimeComponentWithReadonlySupport)obj).setReadOnly(b);
+				((HasRuntimeReadOnly)obj).setReadOnly(b);
 			}
 		}
 	}

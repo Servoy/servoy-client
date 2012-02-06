@@ -16,14 +16,32 @@
  */
 package com.servoy.j2db.ui.runtime;
 
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
+
+
 /**
- * Interface for text editor components.
- * 
+ * Interface for components with readonly support
  * @author jcompagner
- * 
  * @since 6.1
  */
-public interface IRuntimeTextEditor extends IRuntimeInputComponent, HasRuntimeReadOnly, HasRuntimeScroll, HasRuntimeTextInput, HasRuntimeURL,
-	HasRuntimePlainText
+public interface HasRuntimeReadOnly
 {
+	/**
+	 * Gets or sets the editable/read-only state of a field; true - read-only; false - editable; ! - the editable/read-only state is inverted (the opposite). 
+	 * 
+	 * NOTE: A field set as read-only can be selected by clicking (or pressing the TAB key if this option is supported by the operating system) and the field data can be copied.
+	 *
+	 * @sample
+	 * //gets the editable/read-only state of the field
+	 * var currentState = %%prefix%%%%elementName%%.readOnly;
+	 * 
+	 * //sets the editable/read-only state of the field
+	 * %%prefix%%%%elementName%%.readOnly = !currentState;
+	 */
+	@JSGetter
+	public boolean isReadOnly();
+
+	@JSSetter
+	public void setReadOnly(boolean b);
 }

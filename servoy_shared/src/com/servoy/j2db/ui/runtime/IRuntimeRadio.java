@@ -26,6 +26,6 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @since 6.1
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeRadio", extendsComponent = "RuntimeComponent")
-public interface IRuntimeRadio extends IRuntimeField, IRuntimeValuelistComponent, IRuntimeComponentWithReadonlySupport
+public interface IRuntimeRadio extends IRuntimeField, HasRuntimeValuelist, HasRuntimeReadOnly
 {
 }

@@ -22,12 +22,12 @@ import org.mozilla.javascript.annotations.JSSetter;
 
 
 /**
- * Interface for components with test-input support
+ * Interface for components with text-input support
  * 
  * @author jcompagner
  * @since 6.1
  */
-public interface IRuntimeTextInputComponent extends IRuntimeInputComponent
+public interface HasRuntimeTextInput
 {
 	/**
 	 * Gets or sets the number value (position) of the text caret (text "I" bar) in a field.

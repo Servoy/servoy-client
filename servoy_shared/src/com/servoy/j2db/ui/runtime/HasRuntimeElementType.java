@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2012 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -14,16 +14,27 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
+
 package com.servoy.j2db.ui.runtime;
 
+import org.mozilla.javascript.annotations.JSFunction;
+
 /**
- * Interface for text editor components.
+ * Runtime property interface for element type.
  * 
- * @author jcompagner
- * 
+ * @author rgansevles
+ *
  * @since 6.1
  */
-public interface IRuntimeTextEditor extends IRuntimeInputComponent, HasRuntimeReadOnly, HasRuntimeScroll, HasRuntimeTextInput, HasRuntimeURL,
-	HasRuntimePlainText
+public interface HasRuntimeElementType
 {
+	/**
+	 * Returns the type of a specified element.
+	 * 
+	 * @sample var et = %%prefix%%%%elementName%%.getElementType();
+	 * 
+	 * @return The display type of the element as String.
+	 */
+	@JSFunction
+	public String getElementType();
 }

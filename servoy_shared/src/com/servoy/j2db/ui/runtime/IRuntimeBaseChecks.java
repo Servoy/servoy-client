@@ -23,15 +23,6 @@ package com.servoy.j2db.ui.runtime;
  * @author lvostinar
  * @since 6.1
  */
-public interface IRuntimeBaseChecks extends IRuntimeComponentWithReadonlySupport, IRuntimeScrollableComponent, IRuntimeField, IRuntimeValuelistComponent
+public interface IRuntimeBaseChecks extends IRuntimeField, HasRuntimeReadOnly, HasRuntimeScroll, HasRuntimeValuelist
 {
-	/**
-	 * Gets the selected values (real values from valuelist) as array.
-	 * 
-	 * @sample var values = %%prefix%%%%elementName%%.getSelectedElements();
-	 * 
-	 * @return array with selected values
-	 */
-	public Object[] getSelectedElements();
-
 }

@@ -29,9 +29,8 @@ import com.servoy.j2db.dataprocessing.IFoundSet;
  * 
  * @since 6.1
  */
-public interface IRuntimeSplitPane extends IRuntimeComponentWithReadonlySupport, IRuntimeComponent
+public interface IRuntimeSplitPane extends HasRuntimeReadOnly, IRuntimeComponent
 {
-
 	/**
 	 * Set a relationless or related form as left panel.
 	 * 

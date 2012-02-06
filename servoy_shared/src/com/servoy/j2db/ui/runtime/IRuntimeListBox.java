@@ -17,8 +17,6 @@
 
 package com.servoy.j2db.ui.runtime;
 
-import org.mozilla.javascript.annotations.JSFunction;
-
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
@@ -28,16 +26,6 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @since 6.1
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeListBox", extendsComponent = "RuntimeComponent")
-public interface IRuntimeListBox extends IRuntimeComponentWithReadonlySupport, IRuntimeScrollableComponent, IRuntimeField, IRuntimeValuelistComponent
+public interface IRuntimeListBox extends IRuntimeField, HasRuntimeReadOnly, HasRuntimeScroll, HasRuntimeValuelistItems
 {
-	/**
-	 * Gets the selected values (real values from valuelist) as array.
-	 * 
-	 * @sample var values = %%prefix%%%%elementName%%.getSelectedElements();
-	 * 
-	 * @return array with selected values
-	 */
-	@JSFunction
-	public Object[] getSelectedElements();
-
 }

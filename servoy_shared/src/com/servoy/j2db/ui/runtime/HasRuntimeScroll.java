@@ -26,7 +26,7 @@ import org.mozilla.javascript.annotations.JSFunction;
  *  @since 6.1
  *
  */
-public interface IRuntimeScrollableComponent
+public interface HasRuntimeScroll
 {
 	/**
 	 * Returns the x scroll location of specified element - only for an element where height of element is less than the height of element content.

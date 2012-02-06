@@ -22,11 +22,13 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.calldecorator.AjaxCallDecorator;
 
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.ui.IEventExecutor;
-import com.servoy.j2db.ui.runtime.IRuntimeComponentWithReadonlySupport;
+import com.servoy.j2db.ui.runtime.HasRuntimeEnabled;
+import com.servoy.j2db.ui.runtime.HasRuntimeReadOnly;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -127,16 +129,31 @@ public class ServoyActionEventBehavior extends ServoyAjaxFormComponentUpdatingBe
 	@Override
 	public boolean isEnabled(Component component)
 	{
-		if (super.isEnabled(component))
+		if (!super.isEnabled(component))
 		{
-			if (component instanceof IScriptableProvider && ((IScriptableProvider)component).getScriptObject() instanceof IRuntimeComponentWithReadonlySupport)
-			{
-				return !((IRuntimeComponentWithReadonlySupport)((IScriptableProvider)component).getScriptObject()).isReadOnly() &&
-					((IRuntimeComponentWithReadonlySupport)((IScriptableProvider)component).getScriptObject()).isEnabled();
-			}
-			return true;
+			return false;
 		}
-		return false;
+
+		if (component instanceof IScriptableProvider)
+		{
+			IScriptable scriptObject = ((IScriptableProvider)component).getScriptObject();
+			if (scriptObject instanceof HasRuntimeReadOnly)
+			{
+				if (((HasRuntimeReadOnly)scriptObject).isReadOnly())
+				{
+					return false;
+				}
+			}
+			if (scriptObject instanceof HasRuntimeEnabled)
+			{
+				if (!((HasRuntimeEnabled)scriptObject).isEnabled())
+				{
+					return false;
+				}
+			}
+		}
+
+		return true;
 	}
 
 	/**

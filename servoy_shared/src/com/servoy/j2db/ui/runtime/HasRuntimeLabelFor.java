@@ -16,14 +16,26 @@
  */
 package com.servoy.j2db.ui.runtime;
 
+import org.mozilla.javascript.annotations.JSFunction;
+
+
 /**
- * Interface for text editor components.
+ * Interface for components with label-for support
  * 
- * @author jcompagner
+ * @author rgansevles
  * 
  * @since 6.1
  */
-public interface IRuntimeTextEditor extends IRuntimeInputComponent, HasRuntimeReadOnly, HasRuntimeScroll, HasRuntimeTextInput, HasRuntimeURL,
-	HasRuntimePlainText
+
+public interface HasRuntimeLabelFor
 {
+	/**
+	 * Gets the label for property of a label. This property is used to link a label to a certain element (by default used for tableview header, form security, can be used for custom purposes ).
+	 *
+	 * @sample var name = %%prefix%%%%elementName%%.getLabelForElementName();
+	 * 
+	 * @return The label for property (String).
+	 */
+	@JSFunction
+	String getLabelForElementName();
 }

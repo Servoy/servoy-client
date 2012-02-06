@@ -16,36 +16,26 @@
  */
 package com.servoy.j2db.ui.runtime;
 
-import org.mozilla.javascript.annotations.JSFunction;
-
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
 
 /**
- * Interface for components with focus support
+ * Interface for components with title support
  * 
  * @author jcompagner
  * @since 6.1
  */
-public interface IRuntimeFocusableComponent
+public interface HasRuntimeTitleText
 {
 	/**
-	 * Request the focus in this element. (Focus is also a text cursor on text components).
+	 * Gets or sets the title text.
 	 *
-	 * @sample
-	 * //request the focus in this %%prefix%%%%elementName%% (focus is also a text cursor on text components)
-	 * %%prefix%%%%elementName%%.requestFocus();
+	 * @sample var titleText = %%prefix%%%%elementName%%.titleText;
+	 * 
 	 */
-	@JSFunction
-	void requestFocus();
+	@JSGetter
+	public String getTitleText();
 
-	/**
-	 * Request the focus in this element. (Focus is also a text cursor on text components).
-	 *
-	 * @sample
-	 * //request the focus in this %%prefix%%%%elementName%% (focus is also a text cursor on text components), skip on focus gained method call
-	 * %%prefix%%%%elementName%%.requestFocus(false);
-	 *
-	 * @param mustExecuteOnFocusGainedMethod optional If true will execute onFocusGained method, else will not; default value is true. 
-	 */
-	@JSFunction
-	void requestFocus(boolean mustExecuteOnFocusGainedMethod);
+	@JSSetter
+	public void setTitleText(String titleText);
 }

@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2012 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -14,34 +14,35 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
+
 package com.servoy.j2db.ui.runtime;
 
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
 /**
- * Interface for label-like components with tets support
+ * Runtime property interface for font.
  * 
- * @author jcompagner
+ * @author rgansevles
+ *
  * @since 6.1
  */
-public interface IRuntimeTextLabelComponent extends IRuntimeLabelComponent
+public interface HasRuntimeFont
 {
 	/**
-	 * Gets or sets the text that is displayed on the label, button or image.
+	 * Gets or sets the font name, style, and size of an element. 
 	 * 
-	 * NOTE: The .text property applies to labels, buttons, or images ONLY.
-	 *
+	 * font name - the name of the font family.
+	 * style - the type of the font. (plain = 0; bold = 1; italic = 2; bold-italic = 3).
+	 * size - the size of the font (in points).
+	 * 
 	 * @sample
-	 * //gets the text of the element
-	 * var my_text = %%prefix%%%%elementName%%.text;
+	 * %%prefix%%%%elementName%%.font = 'Tahoma,1,11';
 	 *
-	 * //sets the text of the element
-	 * %%prefix%%%%elementName%%.text = my_text + 'is cool';
 	 */
 	@JSGetter
-	public String getText();
+	public String getFont();
 
 	@JSSetter
-	public void setText(String txt);
+	public void setFont(String spec);
 }

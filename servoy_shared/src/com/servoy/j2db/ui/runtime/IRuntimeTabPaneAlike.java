@@ -28,7 +28,7 @@ import com.servoy.j2db.dataprocessing.IFoundSet;
  * @since 6.1
  */
 
-public interface IRuntimeTabPaneAlike extends IRuntimeComponentWithReadonlySupport, IRuntimeComponent
+public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeComponent
 {
 	/**
 	 * Adds a relationless or related form as a tab in a specified tabpanel.

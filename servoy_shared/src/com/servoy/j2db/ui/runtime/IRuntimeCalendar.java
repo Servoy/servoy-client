@@ -25,6 +25,6 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  *   @since 6.1
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeCalendar", extendsComponent = "RuntimeComponent")
-public interface IRuntimeCalendar extends IRuntimeFormattedFieldComponent
+public interface IRuntimeCalendar extends IRuntimeInputComponent, HasRuntimeFormat
 {
 }

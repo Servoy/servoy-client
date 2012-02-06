@@ -28,8 +28,9 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.ISupportEditProvider;
 import com.servoy.j2db.ui.ISupportInputSelection;
-import com.servoy.j2db.ui.runtime.IRuntimeScrollableComponent;
-import com.servoy.j2db.ui.runtime.IRuntimeTextInputComponent;
+import com.servoy.j2db.ui.runtime.HasRuntimeScroll;
+import com.servoy.j2db.ui.runtime.HasRuntimeTextInput;
+import com.servoy.j2db.ui.runtime.IRuntimeInputComponent;
 
 /**
  * Abstract scriptable text component.
@@ -38,7 +39,7 @@ import com.servoy.j2db.ui.runtime.IRuntimeTextInputComponent;
  * @since 6.0
  */
 public abstract class AbstractRuntimeTextComponent<C extends IFieldComponent, T extends JTextComponent> extends AbstractRuntimeField<C> implements
-	IRuntimeTextInputComponent, IRuntimeScrollableComponent
+	IRuntimeInputComponent, HasRuntimeTextInput, HasRuntimeScroll
 {
 	protected T textComponent;
 

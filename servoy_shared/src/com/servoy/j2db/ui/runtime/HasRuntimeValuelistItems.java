@@ -16,14 +16,25 @@
  */
 package com.servoy.j2db.ui.runtime;
 
+import org.mozilla.javascript.annotations.JSFunction;
+
+
 /**
- * Interface for text editor components.
+ * Interface for components with value list support with items
  * 
- * @author jcompagner
+ * @author rgansevles
  * 
  * @since 6.1
  */
-public interface IRuntimeTextEditor extends IRuntimeInputComponent, HasRuntimeReadOnly, HasRuntimeScroll, HasRuntimeTextInput, HasRuntimeURL,
-	HasRuntimePlainText
+public interface HasRuntimeValuelistItems extends HasRuntimeValuelist
 {
+	/**
+	 * Gets the selected values (real values from valuelist) as array.
+	 * 
+	 * @sample var values = %%prefix%%%%elementName%%.getSelectedElements();
+	 * 
+	 * @return array with selected values
+	 */
+	@JSFunction
+	public Object[] getSelectedElements();
 }

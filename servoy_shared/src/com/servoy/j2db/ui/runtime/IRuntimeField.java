@@ -23,19 +23,7 @@ package com.servoy.j2db.ui.runtime;
  * @author jcompagner
  * @since 6.1
  */
-public interface IRuntimeField extends IRuntimeDataProviderComponent, IRuntimeTitleTextComponent, IRuntimeFocusableComponent, IRuntimeComponent
+public interface IRuntimeField extends IRuntimeComponent, HasRuntimeTitleText, HasRuntimeFocus, HasRuntimeDataproviderID, HasRuntimeLabelForReference
 {
-	/**
-	 * Returns an Array of label element names that has this field filled in as the labelFor.
-	 *
-	 * @sample
-	 * var array = elements.name_first.getLabelForElementNames();
-	 * for (var i = 0; i<array.length; i++)
-	 * {
-	 * 	elements[array[i]].fgcolor = "#ff00ff";
-	 * }
-	 * 
-	 * @return An array with element names.
-	 */
-	String[] getLabelForElementNames();
+
 }

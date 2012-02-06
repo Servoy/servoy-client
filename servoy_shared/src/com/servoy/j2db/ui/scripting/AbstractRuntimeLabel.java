@@ -24,7 +24,7 @@ import com.servoy.j2db.ui.IFormattingComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
-import com.servoy.j2db.ui.runtime.IRuntimeLabelComponent;
+import com.servoy.j2db.ui.runtime.IRuntimeBaseLabel;
 import com.servoy.j2db.util.FormatParser;
 
 /**
@@ -34,7 +34,7 @@ import com.servoy.j2db.util.FormatParser;
  * @since 6.0
  */
 public abstract class AbstractRuntimeLabel<C extends ILabel> extends AbstractRuntimeRendersupportComponent<C> implements IFormatScriptComponent,
-	IRuntimeLabelComponent
+	IRuntimeBaseLabel
 {
 	private String i18nTT;
 
@@ -101,7 +101,7 @@ public abstract class AbstractRuntimeLabel<C extends ILabel> extends AbstractRun
 	}
 
 	/**
-	 * @see com.servoy.j2db.ui.runtime.IRuntimeLabelComponent#getToolTipText()
+	 * @see com.servoy.j2db.ui.runtime.IRuntimeBaseLabel#getToolTipText()
 	 */
 	@Override
 	public String getToolTipText()

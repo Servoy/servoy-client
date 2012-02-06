@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2012 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -14,27 +14,32 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
+
 package com.servoy.j2db.ui.runtime;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
-
 /**
- * Interface for components with dataprovider support.
+ * Interface for components with plain text support.
  * 
  * @author rgansevles
- * @since 6.1
+ * 
+ *  @since 6.1
+ *
  */
-public interface IRuntimeDataProviderComponent
+public interface HasRuntimePlainText
 {
 	/**
-	 * Get the data provider this UI element (display) is showing.
-	 *
-	 * @sample
-	 * %%prefix%%%%elementName%%.getDataProviderID();
+	 * Gets the plain text for the formatted HTML/RTF text of a specified field element with a design time display property of HTML_AREA/RTF only.
 	 * 
-	 * @return The data provider as String.
+	 * NOTE: As of Servoy 4.x (and higher) you can also get/set the relative or absolute URL for an HTML_AREA field element. For more detail, see the .URL and .baseURL field element runtime properties earlier in this section.
+	 * 
+	 * NOTE: For information about field element design time properties, see the section on Field elements in the Forms chapter of the Servoy Developer User's Guide.
+	 *
+	 * @sample var my_text = %%prefix%%%%elementName%%.getAsPlainText();
+	 * 
+	 * @return the plain text
 	 */
 	@JSFunction
-	public String getDataProviderID();
+	public String getAsPlainText();
 }

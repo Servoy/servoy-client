@@ -23,10 +23,12 @@ import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.util.string.AppendingStringBuffer;
 
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.ui.IEventExecutor;
-import com.servoy.j2db.ui.runtime.IRuntimeComponentWithReadonlySupport;
+import com.servoy.j2db.ui.runtime.HasRuntimeEnabled;
+import com.servoy.j2db.ui.runtime.HasRuntimeReadOnly;
 
 /**
  * A behavior that handles ajax value updates of Choice components
@@ -93,16 +95,31 @@ public class ServoyChoiceComponentUpdatingBehavior extends AbstractServoyDefault
 	@Override
 	public boolean isEnabled(Component component)
 	{
-		if (super.isEnabled(component))
+		if (!super.isEnabled(component))
 		{
-			if (component instanceof IScriptableProvider && ((IScriptableProvider)component).getScriptObject() instanceof IRuntimeComponentWithReadonlySupport)
-			{
-				return !((IRuntimeComponentWithReadonlySupport)((IScriptableProvider)component).getScriptObject()).isReadOnly() &&
-					((IRuntimeComponentWithReadonlySupport)((IScriptableProvider)component).getScriptObject()).isEnabled();
-			}
-			return true;
+			return false;
 		}
-		return false;
+
+		if (component instanceof IScriptableProvider)
+		{
+			IScriptable scriptObject = ((IScriptableProvider)component).getScriptObject();
+			if (scriptObject instanceof HasRuntimeReadOnly)
+			{
+				if (((HasRuntimeReadOnly)scriptObject).isReadOnly())
+				{
+					return false;
+				}
+			}
+			if (scriptObject instanceof HasRuntimeEnabled)
+			{
+				if (!((HasRuntimeEnabled)scriptObject).isEnabled())
+				{
+					return false;
+				}
+			}
+		}
+
+		return true;
 	}
 
 
