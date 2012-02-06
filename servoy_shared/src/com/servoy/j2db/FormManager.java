@@ -25,12 +25,13 @@ import java.awt.print.PrinterJob;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.swing.Action;
 
@@ -101,12 +102,12 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 
 	private final IApplication application;
 
-	protected Map<String, IMainContainer> containers; //windowname -> IMainContainer
+	protected final ConcurrentMap<String, IMainContainer> containers; //windowname -> IMainContainer
 	protected IMainContainer currentContainer;
 	protected IMainContainer mainContainer;
 
-	protected Map<String, Form> possibleForms; // formName -> Form
-	protected Map<String, FormController> createdFormControllers; // formName -> FormController
+	protected final ConcurrentMap<String, Form> possibleForms; // formName -> Form
+	protected final ConcurrentMap<String, FormController> createdFormControllers; // formName -> FormController
 	protected LinkedList<FormController> leaseHistory;
 
 	private final AppletController appletContext; //incase we use applets on form
@@ -120,13 +121,13 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 	public FormManager(IApplication app, IMainContainer mainContainer)
 	{
 		application = app;
-		containers = new HashMap<String, IMainContainer>();
+		containers = new ConcurrentHashMap<String, IMainContainer>();
 		containers.put(mainContainer.getContainerName(), mainContainer);
 		currentContainer = mainContainer;
 		this.mainContainer = mainContainer;
 		leaseHistory = new LinkedList<FormController>();
-		createdFormControllers = new HashMap<String, FormController>();
-		possibleForms = new HashMap<String, Form>();
+		createdFormControllers = new ConcurrentHashMap<String, FormController>();
+		possibleForms = new ConcurrentHashMap<String, Form>();
 		appletContext = new AppletController(app);
 	}
 
@@ -426,8 +427,8 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		currentContainer = getMainContainer(null);
 
 		leaseHistory = new LinkedList<FormController>();
-		createdFormControllers = new HashMap<String, FormController>();
-		possibleForms = new HashMap<String, Form>();
+		createdFormControllers.clear();
+		possibleForms.clear();
 	}
 
 	protected void destroyContainer(IMainContainer container)
