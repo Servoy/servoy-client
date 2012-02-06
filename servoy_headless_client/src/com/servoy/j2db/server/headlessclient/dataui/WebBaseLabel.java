@@ -30,9 +30,12 @@ import java.net.URL;
 import java.util.Locale;
 
 import javax.swing.ImageIcon;
+import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
@@ -987,19 +990,18 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	protected void instrumentAndReplaceBody(MarkupStream markupStream, ComponentTag openTag, CharSequence bodyText)
 	{
 		Insets m = null;
-		// empty border gets handled as margin
-		if (border instanceof EmptyBorder)
-		{
-			m = border.getBorderInsets(null);
-		}
 		// empty border inside compound border gets handled as margin
-		else if (border instanceof CompoundBorder)
+		if (border instanceof CompoundBorder)
 		{
 			Border inside = ((CompoundBorder)border).getInsideBorder();
 			if (inside instanceof EmptyBorder)
 			{
 				m = inside.getBorderInsets(null);
 			}
+		}
+		else if (!(border instanceof TitledBorder) && !(border instanceof BevelBorder) && !(border instanceof EtchedBorder))
+		{
+			m = border.getBorderInsets(null);
 		}
 
 		boolean hasHtml = hasHtml();
