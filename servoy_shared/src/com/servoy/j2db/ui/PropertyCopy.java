@@ -23,9 +23,9 @@ import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
-import com.servoy.j2db.ui.runtime.IRuntimeComponent;
-import com.servoy.j2db.ui.runtime.IRuntimeComponentWithReadonlySupport;
-import com.servoy.j2db.ui.runtime.IRuntimeLabelComponent;
+import com.servoy.j2db.ui.runtime.HasRuntimeImage;
+import com.servoy.j2db.ui.runtime.HasRuntimeReadOnly;
+import com.servoy.j2db.ui.runtime.HasRuntimeVisible;
 import com.servoy.j2db.ui.runtime.IRuntimeTabPaneAlike;
 import com.servoy.j2db.ui.scripting.IFormatScriptComponent;
 
@@ -127,30 +127,29 @@ public class PropertyCopy
 				((IFormatScriptComponent)destination).setComponentFormat(((IFormatScriptComponent)source).getComponentFormat());
 			}
 
-			//should we use another interface here for readonly set/get?
-			if (source instanceof IRuntimeComponentWithReadonlySupport && destination instanceof IRuntimeComponentWithReadonlySupport)
+			if (source instanceof HasRuntimeReadOnly && destination instanceof HasRuntimeReadOnly)
 			{
-				((IRuntimeComponentWithReadonlySupport)destination).setReadOnly(((IRuntimeComponentWithReadonlySupport)source).isReadOnly());
+				((HasRuntimeReadOnly)destination).setReadOnly(((HasRuntimeReadOnly)source).isReadOnly());
 			}
 
-			if (source instanceof IRuntimeComponent && destination instanceof IRuntimeComponent)
+			if (source instanceof HasRuntimeVisible && destination instanceof HasRuntimeVisible)
 			{
-				((IRuntimeComponent)destination).setVisible(((IRuntimeComponent)source).isVisible());
+				((HasRuntimeVisible)destination).setVisible(((HasRuntimeVisible)source).isVisible());
 			}
 
-			if (source instanceof IRuntimeLabelComponent && destination instanceof IRuntimeLabelComponent)
+			if (source instanceof HasRuntimeImage && destination instanceof HasRuntimeImage)
 			{
-				String imageURL = ((IRuntimeLabelComponent)source).getImageURL();
+				String imageURL = ((HasRuntimeImage)source).getImageURL();
 				if (imageURL != null)
 				{
 					//only copy if explicitly set with a url
-					((IRuntimeLabelComponent)destination).setImageURL(imageURL);
+					((HasRuntimeImage)destination).setImageURL(imageURL);
 				}
-				String rolloverImageURL = ((IRuntimeLabelComponent)source).getRolloverImageURL();
+				String rolloverImageURL = ((HasRuntimeImage)source).getRolloverImageURL();
 				if (rolloverImageURL != null)
 				{
 					//only copy if explicitly set with a url
-					((IRuntimeLabelComponent)destination).setRolloverImageURL(rolloverImageURL);
+					((HasRuntimeImage)destination).setRolloverImageURL(rolloverImageURL);
 				}
 			}
 
