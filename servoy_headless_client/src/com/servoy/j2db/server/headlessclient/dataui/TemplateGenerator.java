@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Stack;
+import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -43,6 +44,7 @@ import javax.swing.text.html.CSS.Attribute;
 
 import org.apache.wicket.Component.IVisitor;
 import org.apache.wicket.ResourceReference;
+import org.xhtmlrenderer.css.constants.CSSName;
 
 import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
@@ -1162,12 +1164,30 @@ public class TemplateGenerator
 			{
 				String name = it.next();
 				String val = getProperty(name);
-				if (pSelector != null) retval.append('\t');
-				retval.append(name);
-				retval.append(": ");
-				retval.append(val);
-				if (it.hasNext()) retval.append(';');
-				if (pSelector != null) retval.append('\n');
+				if (CSSName.BACKGROUND_IMAGE.toString().equals(name) && val != null && val.startsWith("linear-gradient"))
+				{
+					String[] colors = getGradientColors(val);
+					if (colors != null && colors.length == 2 && colors[0] != null)
+					{
+						appendValue(retval, pSelector, name,
+							"-webkit-gradient(linear, " + (val.contains("top") ? "center" : "left") + " top, " +
+								(val.contains("top") ? "center bottom" : "right top") + ", from(" + colors[0] + "), to(" + colors[1] + "))");
+						appendValue(retval, pSelector, "filter", "progid:DXImageTransform.Microsoft.gradient(startColorStr=" + colors[0] + ", EndColorStr=" +
+							colors[1] + ")");
+					}
+					for (String linearIdentifier : ServoyStyleSheet.LinearGradientsIdentifiers)
+					{
+						appendValue(retval, pSelector, name, val.replace("linear-gradient", linearIdentifier));
+					}
+				}
+				if (name.contains("radius") && name.contains("border"))
+				{
+					for (String prefix : ServoyStyleSheet.ROUNDED_RADIUS_PREFIX)
+					{
+						appendValue(retval, pSelector, prefix + name, val);
+					}
+				}
+				appendValue(retval, pSelector, name, val);
 			}
 			if (pSelector == null)
 			{
@@ -1178,6 +1198,36 @@ public class TemplateGenerator
 				retval.append("}\n\n");
 			}
 			return retval.toString();
+		}
+
+		private void appendValue(StringBuffer retval, String pSelector, String name, String value)
+		{
+			if (pSelector != null) retval.append('\t');
+			retval.append(name);
+			retval.append(": ");
+			retval.append(value);
+			retval.append(';');
+			if (pSelector != null) retval.append('\n');
+		}
+
+		private String[] getGradientColors(String cssDeclaration)
+		{
+			String[] colors = new String[2];
+			cssDeclaration = cssDeclaration.substring(cssDeclaration.indexOf('(') + 1, cssDeclaration.indexOf(')'));
+			StringTokenizer tokenizer = new StringTokenizer(cssDeclaration, ",");
+			if (tokenizer.countTokens() > 2) tokenizer.nextElement();
+			for (int i = 0; i < 2; i++)
+			{
+				if (tokenizer.hasMoreElements())
+				{
+					colors[i] = tokenizer.nextToken().trim();
+				}
+				else
+				{
+					return null;
+				}
+			}
+			return colors;
 		}
 
 		public String getOnlyProperties()

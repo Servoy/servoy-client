@@ -546,10 +546,10 @@ public class ComponentFactoryHelper
 								styles[index] = (styles[index] != null ? (styles[index] + " " + width + "px") : (width + "px")); //$NON-NLS-1$
 								index = (index + 1) % 4;
 							}
-							addRoundedBorderProperties(style, CSSName.BORDER_TOP_LEFT_RADIUS.toString(), styles[0]);
-							addRoundedBorderProperties(style, CSSName.BORDER_TOP_RIGHT_RADIUS.toString(), styles[1] != null ? styles[1] : styles[0]);
-							addRoundedBorderProperties(style, CSSName.BORDER_BOTTOM_RIGHT_RADIUS.toString(), styles[2] != null ? styles[2] : styles[0]);
-							addRoundedBorderProperties(style, CSSName.BORDER_BOTTOM_LEFT_RADIUS.toString(), styles[3] != null ? styles[3] : styles[0]);
+							style.setProperty(CSSName.BORDER_TOP_LEFT_RADIUS.toString(), styles[0]);
+							style.setProperty(CSSName.BORDER_TOP_RIGHT_RADIUS.toString(), styles[1] != null ? styles[1] : styles[0]);
+							style.setProperty(CSSName.BORDER_BOTTOM_RIGHT_RADIUS.toString(), styles[2] != null ? styles[2] : styles[0]);
+							style.setProperty(CSSName.BORDER_BOTTOM_LEFT_RADIUS.toString(), styles[3] != null ? styles[3] : styles[0]);
 						}
 						if (tk.hasMoreTokens())
 						{
@@ -587,16 +587,6 @@ public class ComponentFactoryHelper
 			{
 				return null;
 			}
-		}
-	}
-
-	private static void addRoundedBorderProperties(Properties style, String styleName, String value)
-	{
-		if (value != null)
-		{
-			style.setProperty("-webkit-" + styleName, value);
-			style.setProperty("-moz-" + styleName, value);
-			style.setProperty(styleName, value);
 		}
 	}
 }
