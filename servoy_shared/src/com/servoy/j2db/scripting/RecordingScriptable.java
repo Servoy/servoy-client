@@ -138,7 +138,7 @@ public class RecordingScriptable implements Scriptable, IDelegate<Scriptable>, W
 		{
 			if (o instanceof Function)
 			{
-				if ("databaseManager".equals(scriptableName) && "hasRecords".equals(name)) //$NON-NLS-1$ //$NON-NLS-2$
+				if (("databaseManager".equals(scriptableName) || "utils".equals(scriptableName)) && "hasRecords".equals(name)) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				{
 					// special case, databaseManager.hasRecords(record, relationName) checks existence of related foundsets 
 					return new RecordingFunction(name, (Function)o)
