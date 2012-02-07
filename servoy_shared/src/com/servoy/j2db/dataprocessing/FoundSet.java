@@ -3857,6 +3857,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		int size = getSize();
 		int indexToAdd = (idx < 0) ? 0 : (idx > size) ? size : idx;
 
+		if (changeSelection && fsm.getEditRecordList().isEditing(getRecord(getSelectedIndex())))
+		{
+			fsm.getEditRecordList().stopEditing(false, getRecord(getSelectedIndex()));
+		}
+
 		synchronized (pksAndRecords)
 		{
 			SafeArrayList<IRecordInternal> cachedRecords = null;
@@ -4455,7 +4460,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.SELECTION_MODE_CHANGE, FoundSetEvent.CHANGE_UPDATE));
 	}
 
-	protected void fireFoundSetEvent(@SuppressWarnings("unused") int firstRow, @SuppressWarnings("unused") int lastRow, int changeType)
+	protected void fireFoundSetEvent(@SuppressWarnings("unused")
+	int firstRow, @SuppressWarnings("unused")
+	int lastRow, int changeType)
 	{
 		fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.CONTENTS_CHANGED, changeType));
 	}
