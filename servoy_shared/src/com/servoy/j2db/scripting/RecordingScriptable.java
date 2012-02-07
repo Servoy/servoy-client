@@ -133,11 +133,11 @@ public class RecordingScriptable implements Scriptable, IDelegate<Scriptable>, W
 	{
 		if (o instanceof Scriptable && o != Scriptable.NOT_FOUND
 		// eval is a special case, cannot be called directly
-			&& !(o instanceof IdFunctionObject && "eval".equals(((IdFunctionObject)o).getFunctionName())) && !"Object".equals(name))
+			&& !(o instanceof IdFunctionObject && "eval".equals(((IdFunctionObject)o).getFunctionName())) && !"Object".equals(name)) //$NON-NLS-1$ //$NON-NLS-2$
 		{
 			if (o instanceof Function)
 			{
-				if ("databaseManager".equals(scriptableName) && "hasRecords".equals(name)) //$NON-NLS-1$ //$NON-NLS-2$
+				if (("databaseManager".equals(scriptableName) || "utils".equals(scriptableName)) && "hasRecords".equals(name)) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				{
 					// special case, databaseManager.hasRecords(record, relationName) checks existence of related foundsets 
 					return new RecordingFunction(name, (Function)o)
@@ -205,7 +205,7 @@ public class RecordingScriptable implements Scriptable, IDelegate<Scriptable>, W
 		return scriptable.getClassName();
 	}
 
-	public Object getDefaultValue(Class hint)
+	public Object getDefaultValue(Class< ? > hint)
 	{
 		return scriptable.getDefaultValue(hint);
 	}
