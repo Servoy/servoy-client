@@ -102,7 +102,7 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 			// in this case the selection was already changed after the actual insert took place (by other foundset listeners) - so calling this method can result in incorrect selection;
 			// so ignore, as a new selection was already decided upon for after this remove
 			selectionAlreadyAdjustedBySizeChangeListeners = true;
-			if (getSelectionMode() == SINGLE_SELECTION)
+//			if (getSelectionMode() == SINGLE_SELECTION)
 			{
 				int selectedRow = getSelectedRow();
 				if (selectedRow >= index0 && selectedRow <= index1)
@@ -116,10 +116,10 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 				}
 				super.removeIndexInterval(index0, index1);
 			}
-			else
-			{
-				super.removeIndexInterval(index0, index1);
-			}
+//			else
+//			{
+//				super.removeIndexInterval(index0, index1);
+//			}
 		}
 	}
 
