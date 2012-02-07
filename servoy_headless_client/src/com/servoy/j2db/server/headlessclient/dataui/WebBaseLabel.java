@@ -999,7 +999,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 				m = inside.getBorderInsets(null);
 			}
 		}
-		else if (!(border instanceof TitledBorder) && !(border instanceof BevelBorder) && !(border instanceof EtchedBorder))
+		else if (!(border instanceof TitledBorder) && !(border instanceof BevelBorder) && !(border instanceof EtchedBorder) && border != null)
 		{
 			m = border.getBorderInsets(null);
 		}
