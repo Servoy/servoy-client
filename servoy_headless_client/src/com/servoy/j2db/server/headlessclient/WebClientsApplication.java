@@ -17,10 +17,12 @@
 package com.servoy.j2db.server.headlessclient;
 
 
+import java.io.IOException;
 import java.util.Enumeration;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.wicket.AbstractRestartResponseException;
 import org.apache.wicket.AccessStackPageMap;
@@ -40,9 +42,11 @@ import org.apache.wicket.application.IComponentOnBeforeRenderListener;
 import org.apache.wicket.markup.html.PackageResource;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.protocol.http.AjaxEnclosureListener;
+import org.apache.wicket.protocol.http.BufferedWebResponse;
 import org.apache.wicket.protocol.http.HttpSessionStore;
 import org.apache.wicket.protocol.http.MockServletContext;
 import org.apache.wicket.protocol.http.PageExpiredException;
+import org.apache.wicket.protocol.http.RequestUtils;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebResponse;
@@ -362,6 +366,53 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 	public SharedMediaResource getSharedMediaResource()
 	{
 		return sharedMediaResource;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.wicket.protocol.http.WebApplication#newWebResponse(javax.servlet.http.HttpServletResponse)
+	 */
+	@Override
+	protected WebResponse newWebResponse(HttpServletResponse servletResponse)
+	{
+		// over ride this so that redirects are not relative but absolute
+		// Websphere doesn't work correctly with relative urls.
+		return (getRequestCycleSettings().getBufferResponse() ? new BufferedWebResponse(servletResponse)
+		{
+			private String reqUrl = null;
+
+			@Override
+			public CharSequence encodeURL(CharSequence url)
+			{
+				if (reqUrl == null) reqUrl = ((WebRequest)RequestCycle.get().getRequest()).getHttpServletRequest().getRequestURI();
+				return super.encodeURL(url);
+			}
+
+			@Override
+			protected void sendRedirect(String url) throws IOException
+			{
+				if (reqUrl != null)
+				{
+					String absUrl = RequestUtils.toAbsolutePath(reqUrl, url);
+					getHttpServletResponse().sendRedirect(absUrl);
+				}
+				else
+				{
+					super.sendRedirect(url);
+				}
+			}
+
+		} : new WebResponse(servletResponse)
+		{
+			@Override
+			protected void sendRedirect(String url) throws IOException
+			{
+				String reqUrl = ((WebRequest)RequestCycle.get().getRequest()).getHttpServletRequest().getRequestURI();
+				String absUrl = RequestUtils.toAbsolutePath(reqUrl, url);
+				getHttpServletResponse().sendRedirect(absUrl);
+			}
+		});
 	}
 
 	/**

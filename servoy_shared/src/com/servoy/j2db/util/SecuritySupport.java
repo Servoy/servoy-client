@@ -72,7 +72,16 @@ public class SecuritySupport
 
 		// set up key manager to do server authentication
 		SSLContext ctx = SSLContext.getInstance("TLS"); //$NON-NLS-1$
-		KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509"); //$NON-NLS-1$
+		KeyManagerFactory kmf = null;
+		try
+		{
+			kmf = KeyManagerFactory.getInstance("SunX509"); //$NON-NLS-1$
+		}
+		catch (Exception e)
+		{
+			Debug.log("couldn't get SunX509, now trying ibm");
+			kmf = KeyManagerFactory.getInstance("IbmX509"); //$NON-NLS-1$
+		}
 
 		initKeyStoreAndPassphrase(settings);
 
