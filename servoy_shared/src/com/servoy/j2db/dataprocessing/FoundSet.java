@@ -3437,7 +3437,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				// if not try to find the to remove state.
 				toDelete = pksAndRecords.getCachedRecords().indexOf(state);
 			}
-			pksAndRecords.getCachedRecords().remove(row);
+			pksAndRecords.getCachedRecords().remove(toDelete);
 			if (!findMode)
 			{
 				IDataSet pks = pksAndRecords.getPks();
