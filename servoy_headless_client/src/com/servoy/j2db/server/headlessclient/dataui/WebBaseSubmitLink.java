@@ -26,8 +26,12 @@ import java.awt.Rectangle;
 import java.io.IOException;
 import java.util.Locale;
 
+import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.IResourceListener;
@@ -889,13 +893,30 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 	protected void instrumentAndReplaceBody(MarkupStream markupStream, ComponentTag openTag, CharSequence bodyText)
 	{
 		Insets padding = null;
+		boolean isEmptyBorder = false;
 		if (border == null)
 		{
 			padding = margin;
 		}
+		// empty border gets handled as margin
+		else if (border instanceof EmptyBorder)
+		{
+			isEmptyBorder = true;
+			padding = border.getBorderInsets(null);
+		}
+		// empty border inside compound border gets handled as margin
 		else if (border instanceof CompoundBorder)
 		{
-			padding = ((CompoundBorder)border).getInsideBorder().getBorderInsets(null);
+			Border inside = ((CompoundBorder)border).getInsideBorder();
+			if (inside instanceof EmptyBorder)
+			{
+				isEmptyBorder = true;
+				padding = inside.getBorderInsets(null);
+			}
+		}
+		else if (!(border instanceof TitledBorder) && !(border instanceof BevelBorder) && !(border instanceof EtchedBorder))
+		{
+			padding = border.getBorderInsets(null);
 		}
 
 		boolean hasHtml = hasHtml();
@@ -908,9 +929,11 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 		{
 			designMode = true;
 		}
-		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtml, padding, cssid,
-			(char)getDisplayedMnemonic(),
-			getMarkupId() + "_img", WebBaseButton.getImageDisplayURL(this), size.height, false, designMode ? null : cursor, isAnchored())); //$NON-NLS-1$
+		replaceComponentTagBody(
+			markupStream,
+			openTag,
+			WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtml, padding, isEmptyBorder, cssid, (char)getDisplayedMnemonic(), getMarkupId() +
+				"_img", WebBaseButton.getImageDisplayURL(this), size.height, false, designMode ? null : cursor, isAnchored())); //$NON-NLS-1$
 	}
 
 	protected boolean isAnchored()

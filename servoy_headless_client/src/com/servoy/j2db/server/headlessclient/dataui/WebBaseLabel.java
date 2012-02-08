@@ -990,12 +990,20 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	protected void instrumentAndReplaceBody(MarkupStream markupStream, ComponentTag openTag, CharSequence bodyText)
 	{
 		Insets m = null;
+		boolean isEmptyBorder = false;
+		// empty border gets handled as margin
+		if (border instanceof EmptyBorder)
+		{
+			isEmptyBorder = true;
+			m = border.getBorderInsets(null);
+		}
 		// empty border inside compound border gets handled as margin
-		if (border instanceof CompoundBorder)
+		else if (border instanceof CompoundBorder)
 		{
 			Border inside = ((CompoundBorder)border).getInsideBorder();
 			if (inside instanceof EmptyBorder)
 			{
+				isEmptyBorder = true;
 				m = inside.getBorderInsets(null);
 			}
 		}
@@ -1013,10 +1021,8 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 		{
 			designMode = true;
 		}
-		replaceComponentTagBody(
-			markupStream,
-			openTag,
-			WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtml, m, cssid, (char)getDisplayedMnemonic(),
+		replaceComponentTagBody(markupStream, openTag,
+			WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtml, m, isEmptyBorder, cssid, (char)getDisplayedMnemonic(),
 				getMarkupId() + "_img", WebBaseButton.getImageDisplayURL(this), size.height, false, designMode ? null : cursor, false)); //$NON-NLS-1$
 	}
 
