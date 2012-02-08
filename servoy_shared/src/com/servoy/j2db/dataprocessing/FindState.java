@@ -635,11 +635,12 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 	 * @param relations path to this state
 	 * @param selectTable
 	 * @param provider
+	 * @param relatedSearchJoinTypeAlwaysOverride 
 	 * @return
 	 * @throws RepositoryException
 	 */
-	public List<RelatedFindState> createFindStateJoins(QuerySelect sqlSelect, List<IRelation> relations, QueryTable selectTable, IGlobalValueEntry provider)
-		throws RepositoryException
+	public List<RelatedFindState> createFindStateJoins(QuerySelect sqlSelect, List<IRelation> relations, QueryTable selectTable, IGlobalValueEntry provider,
+		boolean relatedSearchJoinTypeAlwaysOverride) throws RepositoryException
 	{
 		List<RelatedFindState> relatedFindStates = null;
 
@@ -668,7 +669,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 					FindState fs = (FindState)set.getRecord(0);
 					List<IRelation> nextRelations = new ArrayList<IRelation>(relations);
 					nextRelations.add(relation);
-					List<RelatedFindState> rfs = fs.createFindStateJoins(sqlSelect, nextRelations, foreignQTable, provider);
+					List<RelatedFindState> rfs = fs.createFindStateJoins(sqlSelect, nextRelations, foreignQTable, provider, relatedSearchJoinTypeAlwaysOverride);
 					if (rfs != null && rfs.size() > 0)
 					{
 						// changed related findstate, add self with join
@@ -685,7 +686,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 							QueryJoin join = SQLGenerator.createJoin(parent.getFoundSetManager().getApplication().getFlattenedSolution(), relation,
 								selectTable, foreignQTable, provider);
 							// override join type to left outer join, a related OR-search should not make the result set smaller
-							join.setJoinType(ISQLJoin.LEFT_OUTER_JOIN);
+							if (relatedSearchJoinTypeAlwaysOverride) join.setJoinType(ISQLJoin.LEFT_OUTER_JOIN);
 							sqlSelect.addJoin(join);
 						}
 					}
@@ -694,7 +695,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 		}
 
 		// add yourself if you have changed or one or more related states has changed
-		if (isChanged() || relatedFindStates != null && relatedFindStates.size() > 0)
+		if (isChanged() || (relatedFindStates != null && relatedFindStates.size() > 0))
 		{
 			if (relatedFindStates == null)
 			{

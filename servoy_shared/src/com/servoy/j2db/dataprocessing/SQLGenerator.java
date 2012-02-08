@@ -52,6 +52,7 @@ import com.servoy.j2db.query.ExistsCondition;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.IQuerySort;
 import com.servoy.j2db.query.ISQLCondition;
+import com.servoy.j2db.query.ISQLJoin;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.OrCondition;
 import com.servoy.j2db.query.Placeholder;
@@ -72,6 +73,7 @@ import com.servoy.j2db.query.SetCondition;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
  * This class is used to generate the (in repository stored?) SQL(Prepared)Statements and to generate te sql for the user find
@@ -98,6 +100,7 @@ public class SQLGenerator
  */
 	private final IServiceProvider application;
 	private final Map<String, SQLSheet> cachedDataSourceSQLSheets = new HashMap<String, SQLSheet>(64); // dataSource -> sqlSheet
+	private final boolean relatedSearchJoinTypeAlwaysOverride;
 
 /*
  * _____________________________________________________________ Declaration and definition of constructors
@@ -105,6 +108,8 @@ public class SQLGenerator
 	public SQLGenerator(IServiceProvider app)
 	{
 		application = app;
+		relatedSearchJoinTypeAlwaysOverride = Utils.getAsBoolean(application.getSettings().getProperty("servoy.client.relatedSearchJoinTypeAlwaysOverride",
+			"false"));
 	}
 
 /*
@@ -158,8 +163,8 @@ public class SQLGenerator
 		if (omitPKs != null && omitPKs.getRowCount() != 0)
 		{
 			//omit is rebuild each time
-			retval.setCondition(CONDITION_OMIT, createSetConditionFromPKs(ISQLCondition.NOT_OPERATOR,
-				pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), pkColumns, omitPKs));
+			retval.setCondition(CONDITION_OMIT,
+				createSetConditionFromPKs(ISQLCondition.NOT_OPERATOR, pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), pkColumns, omitPKs));
 		}
 		else if (oldSQLQuery != null)
 		{
@@ -193,6 +198,36 @@ public class SQLGenerator
 				else
 				{
 					retval.addConditionOr(CONDITION_SEARCH, moreWhere);
+				}
+
+				if (!relatedSearchJoinTypeAlwaysOverride && retval.getJoins() != null)
+				{
+					// check if the search condition has an or-condition
+					final boolean[] hasOr = { false };
+					retval.getCondition(CONDITION_SEARCH).acceptVisitor(new IVisitor()
+					{
+						public Object visit(Object o)
+						{
+							if (o instanceof OrCondition && ((OrCondition)o).getConditions().size() > 1)
+							{
+								hasOr[0] = true;
+								return new VistorResult(o, false);
+							}
+							return o;
+						}
+					});
+
+					if (hasOr[0])
+					{
+						// override join type to left outer join, a related OR-search should not make the result set smaller
+						for (ISQLJoin join : retval.getJoins())
+						{
+							if (join instanceof QueryJoin && ((QueryJoin)join).getJoinType() == ISQLJoin.INNER_JOIN)
+							{
+								((QueryJoin)join).setJoinType(ISQLJoin.LEFT_OUTER_JOIN);
+							}
+						}
+					}
 				}
 			}
 		}
@@ -506,7 +541,8 @@ public class SQLGenerator
 	{
 		ISQLCondition and = null;
 
-		List<RelatedFindState> relatedFindStates = s.createFindStateJoins(sqlSelect, Collections.<IRelation> emptyList(), sqlSelect.getTable(), provider);
+		List<RelatedFindState> relatedFindStates = s.createFindStateJoins(sqlSelect, Collections.<IRelation> emptyList(), sqlSelect.getTable(), provider,
+			relatedSearchJoinTypeAlwaysOverride);
 		for (int i = 0; relatedFindStates != null && i < relatedFindStates.size(); i++)
 		{
 			RelatedFindState rfs = relatedFindStates.get(i);
