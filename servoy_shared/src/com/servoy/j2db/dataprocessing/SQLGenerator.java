@@ -53,6 +53,7 @@ import com.servoy.j2db.query.ExistsCondition;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.IQuerySort;
 import com.servoy.j2db.query.ISQLCondition;
+import com.servoy.j2db.query.ISQLJoin;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.query.ObjectPlaceholderKey;
@@ -73,9 +74,9 @@ import com.servoy.j2db.query.QueryUpdate;
 import com.servoy.j2db.query.SetCondition;
 import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.FormatParser.ParsedFormat;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
-import com.servoy.j2db.util.FormatParser.ParsedFormat;
 import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
@@ -171,8 +172,8 @@ public class SQLGenerator
 		if (omitPKs != null && omitPKs.getRowCount() != 0)
 		{
 			//omit is rebuild each time
-			retval.setCondition(CONDITION_OMIT, createSetConditionFromPKs(ISQLCondition.NOT_OPERATOR,
-				pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), pkColumns, omitPKs));
+			retval.setCondition(CONDITION_OMIT,
+				createSetConditionFromPKs(ISQLCondition.NOT_OPERATOR, pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), pkColumns, omitPKs));
 		}
 		else if (oldSQLQuery != null)
 		{
@@ -182,18 +183,11 @@ public class SQLGenerator
 		if (findStates != null && findStates.size() != 0) //new
 		{
 			ISQLCondition moreWhere = null;
-			for (int i = 0; i < findStates.size(); i++)
+			for (IRecordInternal obj : findStates)
 			{
-				Object obj = findStates.get(i);
 				if (obj instanceof FindState)
 				{
-					FindState state = (FindState)obj;
-					ISQLCondition condition = createConditionFromFindState(state, retval, provider, pkQueryColumns);
-					if (condition == null)
-					{
-						continue; //empty foundrecordreq
-					}
-					moreWhere = OrCondition.or(moreWhere, condition);
+					moreWhere = OrCondition.or(moreWhere, createConditionFromFindState((FindState)obj, retval, provider, pkQueryColumns));
 				}
 			}
 
@@ -206,6 +200,36 @@ public class SQLGenerator
 				else
 				{
 					retval.addConditionOr(CONDITION_SEARCH, moreWhere);
+				}
+
+				if (retval.getJoins() != null)
+				{
+					// check if the search condition has an or-condition
+					final boolean[] hasOr = { false };
+					retval.getCondition(CONDITION_SEARCH).acceptVisitor(new IVisitor()
+					{
+						public Object visit(Object o)
+						{
+							if (o instanceof OrCondition && ((OrCondition)o).getConditions().size() > 1)
+							{
+								hasOr[0] = true;
+								return new VistorResult(o, false);
+							}
+							return o;
+						}
+					});
+
+					if (hasOr[0])
+					{
+						// override join type to left outer join, a related OR-search should not make the result set smaller
+						for (ISQLJoin join : retval.getJoins())
+						{
+							if (join instanceof QueryJoin && ((QueryJoin)join).getJoinType() == ISQLJoin.INNER_JOIN)
+							{
+								((QueryJoin)join).setJoinType(ISQLJoin.LEFT_OUTER_JOIN);
+							}
+						}
+					}
 				}
 			}
 		}

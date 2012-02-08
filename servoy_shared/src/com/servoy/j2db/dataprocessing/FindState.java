@@ -32,7 +32,6 @@ import com.servoy.j2db.persistence.IRelation;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
-import com.servoy.j2db.query.ISQLJoin;
 import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
@@ -666,11 +665,8 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 						}
 						if (existingJoin == null)
 						{
-							ISQLTableJoin join = SQLGenerator.createJoin(parent.getFoundSetManager().getApplication().getFlattenedSolution(), relation,
-								selectTable, foreignQTable, provider);
-							// override join type to left outer join, a related OR-search should not make the result set smaller
-							join.setJoinType(ISQLJoin.LEFT_OUTER_JOIN);
-							sqlSelect.addJoin(join);
+							sqlSelect.addJoin(SQLGenerator.createJoin(parent.getFoundSetManager().getApplication().getFlattenedSolution(), relation,
+								selectTable, foreignQTable, provider));
 						}
 					}
 				}
@@ -678,7 +674,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 		}
 
 		// add yourself if you have changed or one or more related states has changed
-		if (isChanged() || relatedFindStates != null && relatedFindStates.size() > 0)
+		if (isChanged() || (relatedFindStates != null && relatedFindStates.size() > 0))
 		{
 			if (relatedFindStates == null)
 			{
