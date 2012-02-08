@@ -696,11 +696,11 @@ if (typeof(Servoy.TableView) == "undefined")
 		},
 		
 		appendRowsTimer: null,
-		useTopPlaceholder: true,
 		isAppendingRows: false,
 		currentScrollTop: new Array(),
 		hasTopBuffer: new Array(),
 		hasBottomBuffer: new Array(),
+		keepLoadedRows : false,
 
 		appendRows: function(rowContainerBodyId, rows, newRowsCount, rowsCountToRemove, scrollDiff, hasTopBuffer, hasBottomBuffer)
 		{	
@@ -709,74 +709,60 @@ if (typeof(Servoy.TableView) == "undefined")
 			var row, rowHeight = 0;
 			if(scrollDiff > 0)
 			{
-				if(rowsCountToRemove > 0)
+				if(rowsCountToRemove > 0 && !Servoy.TableView.keepLoadedRows)
 				{
-					if(Servoy.TableView.useTopPlaceholder)
+					row = $('#' + rowContainerBodyId).children('tr:first');
+					var topPhHeight = 0;
+					if(row.attr('id') == 'topPh')
 					{
-						row = $('#' + rowContainerBodyId).children('tr:first');
-						var topPhHeight = 0;
-						if(row.attr('id') == 'topPh')
-						{
-							topPhHeight = row.height();
-							row.remove();
-						}
+						topPhHeight = row.height();
+						row.remove();
 					}
 					
 					for(var i = 0; i < rowsCountToRemove; i++)
 					{ 
 						row = $('#' + rowContainerBodyId).children('tr:first');
 						if(rowHeight == 0) rowHeight = row.height();
-						if(Servoy.TableView.useTopPlaceholder)
-						{ 
-							topPhHeight += rowHeight;
-						}
-						else
-						{
-							Servoy.TableView.currentScrollTop[rowContainerBodyId] -= rowHeight; 
-						}
+						topPhHeight += rowHeight;
 						row.remove();
 					}
 					
-					if(Servoy.TableView.useTopPlaceholder)
-					{
-						$('#' + rowContainerBodyId).prepend("<tr id='topPh' height='" + topPhHeight + "'></tr>");
-					}
+					$('#' + rowContainerBodyId).prepend("<tr id='topPh' height='" + topPhHeight + "'></tr>");
 				}
 				
 				if(newRowsCount > 0) $('#' + rowContainerBodyId).append(rows);
 			}
 			else
 			{
-				for(var i = 0; i < rowsCountToRemove; i++)
-				{ 
-					row = $('#' + rowContainerBodyId).children('tr:last');
-					row.remove();
+				row = $('#' + rowContainerBodyId).children('tr:last');
+				rowHeight = row.height();
+			
+				if(rowsCountToRemove == -1)	// remove all
+				{
+					while((row = $('#' + rowContainerBodyId).children('tr:last')).length > 0 && (row.attr('id') != 'topPh')) row.remove();
+				}
+				else
+				{
+					for(var i = 0; i < rowsCountToRemove; i++)
+					{ 
+						row = $('#' + rowContainerBodyId).children('tr:last');
+						row.remove();
+					}
 				}
 			
 				if(newRowsCount > 0)
 				{
 					var topPhHeight = 0;
-					if(Servoy.TableView.useTopPlaceholder)
-					{
-						row = $('#' + rowContainerBodyId).children('tr:first');
-						
-						if(row.attr('id') == 'topPh')
-						{
-							topPhHeight = row.height();
-							row.remove();
-						}
-					}
+
 					row = $('#' + rowContainerBodyId).children('tr:first');
-					rowHeight = row.height();
+						
+					if(row.attr('id') == 'topPh')
+					{
+						topPhHeight = row.height();
+						row.remove();
+					}
 					
-					if(Servoy.TableView.useTopPlaceholder)
-					{
-						topPhHeight -= rowHeight * newRowsCount;
-					}
-					else
-					{
-						Servoy.TableView.currentScrollTop[rowContainerBodyId] += rowHeight * newRowsCount;
-					}
+					topPhHeight -= rowHeight * newRowsCount;
 					
 					$('#' + rowContainerBodyId).prepend(rows);
 					if(topPhHeight > 0)
@@ -806,7 +792,7 @@ if (typeof(Servoy.TableView) == "undefined")
 			var rowContainerBodyEl = document.getElementById(rowContainerBodyId);
 			var scrollTop = rowContainerBodyEl.scrollTop;
 			var scrollDiff = scrollTop - Servoy.TableView.currentScrollTop[rowContainerBodyId];
-			if(scrollDiff == 0) return 0;
+			if(scrollDiff == 0 || (Servoy.TableView.keepLoadedRows && (scrollDiff < 0))) return 0;
 			Servoy.TableView.currentScrollTop[rowContainerBodyId] = scrollTop;
 			
 			var clientHeight = rowContainerBodyEl.clientHeight;
@@ -827,8 +813,12 @@ if (typeof(Servoy.TableView) == "undefined")
 				}
 				Servoy.TableView.isAppendingRows = Servoy.TableView.hasTopBuffer[rowContainerBodyId] && (scrollTop - topPhHeight < clientHeight);
 			}
-						
-			return Servoy.TableView.isAppendingRows ? scrollDiff : 0;
+			
+			// get the second row for height
+			var secondRow = $('#' + rowContainerBodyId).children('tr').eq(1);
+			var rowHeight = secondRow.height();
+
+			return Servoy.TableView.isAppendingRows ? scrollDiff / rowHeight : 0;
 		},
 		
 		isInFirstTD: function(el)

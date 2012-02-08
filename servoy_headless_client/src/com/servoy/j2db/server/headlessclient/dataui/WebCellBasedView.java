@@ -147,8 +147,8 @@ import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.PropertyCopy;
-import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.ui.runtime.HasRuntimeReadOnly;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.ui.scripting.RuntimePortal;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
@@ -3925,14 +3925,16 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			int newRowsCount = 0, rowsToRemove = 0;
 			int viewStartIdx = table.getStartIndex();
 			int viewSize = table.getViewSize();
+			int pageViewSize = 3 * maxRowsPerPage;
+
 			if (scrollDiff > 0)
 			{
 				int tableSize = table.getList().size();
 
 				if (viewStartIdx + viewSize < tableSize)
 				{
-					newRowsCount = Math.min(maxRowsPerPage, tableSize - (viewStartIdx + viewSize));
-					if (viewSize > 3 * maxRowsPerPage) rowsToRemove = maxRowsPerPage;
+					newRowsCount = Math.min(2 * maxRowsPerPage, tableSize - (viewStartIdx + viewSize));
+					if (viewSize > pageViewSize) rowsToRemove = maxRowsPerPage;
 
 					table.setStartIndex(viewStartIdx + rowsToRemove);
 					table.setViewSize(viewSize + newRowsCount - rowsToRemove);
@@ -3944,12 +3946,21 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			{
 				if (viewStartIdx > 0)
 				{
-					newRowsCount = Math.min(maxRowsPerPage, viewStartIdx);
-					if (viewSize > 3 * maxRowsPerPage) rowsToRemove = maxRowsPerPage;
+					newRowsCount = Math.min(Math.max(Math.abs(scrollDiff), maxRowsPerPage), viewStartIdx);
 
 					table.setStartIndex(viewStartIdx - newRowsCount);
-					table.setViewSize(viewSize + newRowsCount - rowsToRemove);
-					newRows = getRows(table, viewStartIdx - newRowsCount, newRowsCount);
+					if (newRowsCount > pageViewSize)
+					{
+						rowsToRemove = -1; // remove all
+						newRows = getRows(table, viewStartIdx - newRowsCount, viewSize);
+					}
+					else
+					{
+						if (viewSize > pageViewSize) rowsToRemove = maxRowsPerPage;
+						table.setViewSize(viewSize + newRowsCount - rowsToRemove);
+						newRows = getRows(table, viewStartIdx - newRowsCount, newRowsCount);
+					}
+
 					rowsBuffer = renderRows(getResponse(), newRows);
 				}
 			}
