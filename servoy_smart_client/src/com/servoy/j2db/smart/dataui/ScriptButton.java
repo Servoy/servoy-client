@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.smart.dataui;
 
+import java.awt.Graphics;
+
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.scripting.RuntimeScriptButton;
 
@@ -35,5 +37,22 @@ public class ScriptButton extends AbstractScriptButton
 	public String toString()
 	{
 		return "ScriptButton[" + getName() + ":" + getText() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	}
+
+	@Override
+	public void paint(Graphics g)
+	{
+		if (scriptable != null)
+		{
+			scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
+			if (!isVisible())
+			{
+				// it has been made invisible in on render, make it visible again
+				// so, the onRender will be called next time
+				setVisible(true);
+				return;
+			}
+		}
+		super.paint(g);
 	}
 }
