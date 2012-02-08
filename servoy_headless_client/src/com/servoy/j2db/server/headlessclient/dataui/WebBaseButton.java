@@ -897,35 +897,8 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			designMode = true;
 		}
 
-		Insets padding = null;
-		boolean isEmptyBorder = false;
-		if (border == null)
-		{
-			padding = margin;
-		}
-		// empty border gets handled as margin
-		else if (border instanceof EmptyBorder)
-		{
-			isEmptyBorder = true;
-			padding = border.getBorderInsets(null);
-		}
-		// empty border inside compound border gets handled as margin
-		else if (border instanceof CompoundBorder)
-		{
-			Border inside = ((CompoundBorder)border).getInsideBorder();
-			if (inside instanceof EmptyBorder)
-			{
-				isEmptyBorder = true;
-				padding = inside.getBorderInsets(null);
-			}
-		}
-		else if (!(border instanceof TitledBorder) && !(border instanceof BevelBorder) && !(border instanceof EtchedBorder))
-		{
-			padding = border.getBorderInsets(null);
-		}
-
 		replaceComponentTagBody(markupStream, openTag,
-			instrumentBodyText(bodyText, halign, valign, false, padding, isEmptyBorder, null, (char)getDisplayedMnemonic(), getMarkupId() + "_img", //$NON-NLS-1$
+			instrumentBodyText(bodyText, halign, valign, false, border, margin, null, (char)getDisplayedMnemonic(), getMarkupId() + "_img", //$NON-NLS-1$
 				getImageDisplayURL(this), size == null ? 0 : size.height, true, designMode ? null : cursor, false));
 	}
 
@@ -1059,9 +1032,36 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	}
 
 	@SuppressWarnings("nls")
-	protected static String instrumentBodyText(CharSequence bodyText, int halign, int valign, boolean isHtml, Insets padding, boolean isEmptyBorder,
-		String cssid, char mnemonic, String imgID, String imgURL, int height, boolean isButton, Cursor bodyCursor, boolean isAnchored)
+	protected static String instrumentBodyText(CharSequence bodyText, int halign, int valign, boolean isHtml, Border border, Insets margin, String cssid,
+		char mnemonic, String imgID, String imgURL, int height, boolean isButton, Cursor bodyCursor, boolean isAnchored)
 	{
+		Insets padding = null;
+		boolean isEmptyBorder = false;
+		if (border == null)
+		{
+			padding = margin;
+		}
+		// empty border gets handled as margin
+		else if (border instanceof EmptyBorder)
+		{
+			isEmptyBorder = true;
+			padding = border.getBorderInsets(null);
+		}
+		// empty border inside compound border gets handled as margin
+		else if (border instanceof CompoundBorder)
+		{
+			Border inside = ((CompoundBorder)border).getInsideBorder();
+			if (inside instanceof EmptyBorder)
+			{
+				isEmptyBorder = true;
+				padding = inside.getBorderInsets(null);
+			}
+		}
+		else if (!(border instanceof TitledBorder) && !(border instanceof BevelBorder) && !(border instanceof EtchedBorder))
+		{
+			padding = border.getBorderInsets(null);
+		}
+
 		// In order to vertically align the text inside the <button>, we wrap the text inside a <span>, and we absolutely
 		// position the <span> in the <button>. However, for centering vertically we drop this absolute positioning and
 		// rely on the fact that by default the <button> tag vertically centers its content.

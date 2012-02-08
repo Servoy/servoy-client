@@ -30,12 +30,8 @@ import java.net.URL;
 import java.util.Locale;
 
 import javax.swing.ImageIcon;
-import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.EtchedBorder;
-import javax.swing.border.TitledBorder;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
@@ -989,29 +985,6 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	@SuppressWarnings("nls")
 	protected void instrumentAndReplaceBody(MarkupStream markupStream, ComponentTag openTag, CharSequence bodyText)
 	{
-		Insets m = null;
-		boolean isEmptyBorder = false;
-		// empty border gets handled as margin
-		if (border instanceof EmptyBorder)
-		{
-			isEmptyBorder = true;
-			m = border.getBorderInsets(null);
-		}
-		// empty border inside compound border gets handled as margin
-		else if (border instanceof CompoundBorder)
-		{
-			Border inside = ((CompoundBorder)border).getInsideBorder();
-			if (inside instanceof EmptyBorder)
-			{
-				isEmptyBorder = true;
-				m = inside.getBorderInsets(null);
-			}
-		}
-		else if (!(border instanceof TitledBorder) && !(border instanceof BevelBorder) && !(border instanceof EtchedBorder) && border != null)
-		{
-			m = border.getBorderInsets(null);
-		}
-
 		boolean hasHtml = hasHtml();
 
 		String cssid = hasHtml ? getMarkupId() + "_lb" : null;
@@ -1022,7 +995,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 			designMode = true;
 		}
 		replaceComponentTagBody(markupStream, openTag,
-			WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtml, m, isEmptyBorder, cssid, (char)getDisplayedMnemonic(),
+			WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtml, border, null, cssid, (char)getDisplayedMnemonic(),
 				getMarkupId() + "_img", WebBaseButton.getImageDisplayURL(this), size.height, false, designMode ? null : cursor, false)); //$NON-NLS-1$
 	}
 
