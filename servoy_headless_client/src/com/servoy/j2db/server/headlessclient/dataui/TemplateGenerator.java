@@ -1842,7 +1842,7 @@ public class TemplateGenerator
 		style.setProperty("position", "relative");
 //		style.setProperty("width",t_width+"px");
 //		style.setProperty("height",t_height+"px");
-		if (tabPanel.getBorderType() == null)
+		if (tabPanel.getBorderType() != null)
 		{
 			ComponentFactoryHelper.createBorderCSSProperties(tabPanel.getBorderType(), styleObj);
 		}
@@ -1911,7 +1911,12 @@ public class TemplateGenerator
 		else
 		{
 			html.append("\t<div servoy:id='webform' ").append(style.toString());
-			html.append(getCSSClassParameter("tabcontainer webform"));
+			String cssClass = "webform";
+			if (tabPanel.getBorderType() == null && tabPanel.getTabOrientation() != TabPanel.HIDE)
+			{
+				cssClass = "tabcontainer " + cssClass;
+			}
+			html.append(getCSSClassParameter(cssClass));
 			html.append("></div>");
 
 		}
