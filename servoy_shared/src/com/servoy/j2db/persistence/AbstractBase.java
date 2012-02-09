@@ -248,7 +248,11 @@ public abstract class AbstractBase implements IPersist
 	public Object getProperty(String propertyName)
 	{
 		Object value = null;
-		if (propertiesMap.containsKey(propertyName))
+		if (bufferPropertiesMap != null && bufferPropertiesMap.containsKey(propertyName))
+		{
+			value = bufferPropertiesMap.get(propertyName);
+		}
+		else if (propertiesMap.containsKey(propertyName))
 		{
 			value = propertiesMap.get(propertyName);
 		}
