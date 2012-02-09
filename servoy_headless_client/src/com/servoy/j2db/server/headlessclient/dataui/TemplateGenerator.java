@@ -1912,7 +1912,8 @@ public class TemplateGenerator
 		{
 			html.append("\t<div servoy:id='webform' ").append(style.toString());
 			String cssClass = "webform";
-			if (tabPanel.getBorderType() == null && tabPanel.getTabOrientation() != TabPanel.HIDE)
+			if (tabPanel.getBorderType() == null &&
+				!(tabPanel.getTabOrientation() == TabPanel.HIDE || (tabPanel.getTabOrientation() == TabPanel.DEFAULT && tabPanel.hasOneTab())))
 			{
 				cssClass = "tabcontainer " + cssClass;
 			}
