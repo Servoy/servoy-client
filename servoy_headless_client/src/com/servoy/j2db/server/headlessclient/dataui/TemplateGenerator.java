@@ -53,6 +53,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IValueList;
@@ -2006,10 +2007,31 @@ public class TemplateGenerator
 		TextualStyle styleObj = css.addStyle(styleName + ComponentFactory.getWebID(form, label));
 		BorderAndPadding ins = applyBaseComponentProperties(label, form, styleObj, (Insets)DEFAULT_LABEL_PADDING.clone(), border, sp);
 		// fix the background img, see ComponentFactory.createGraphicalComponent
-		// background image through css will only be used when repeat or position are set. 
+		// background image through css will only be used when repeat or position are set (or linear gradient is used). 
 		// if both are not specified then it is used as the MEDIA of the label/button, so bck_img is removed from the css.
-		if (styleObj.getProperty(CSS.Attribute.BACKGROUND_REPEAT.toString()) == null &&
-			styleObj.getProperty(CSS.Attribute.BACKGROUND_POSITION.toString()) == null)
+		boolean keepBgImageStyle = false;
+		for (String attribute : ServoyStyleSheet.BACKGROUND_IMAGE_CSS)
+		{
+			if (attribute.equals(CSS.Attribute.BACKGROUND_IMAGE.toString()))
+			{
+				if (styleObj.getProperty(attribute) == null)
+				{
+					keepBgImageStyle = false;
+					break;
+				}
+				else if (!styleObj.getProperty(attribute).contains(MediaURLStreamHandler.MEDIA_URL_DEF))
+				{
+					keepBgImageStyle = true;
+					break;
+				}
+			}
+			else if (styleObj.getProperty(attribute) != null)
+			{
+				keepBgImageStyle = true;
+				break;
+			}
+		}
+		if (!keepBgImageStyle)
 		{
 			styleObj.remove(CSS.Attribute.BACKGROUND_IMAGE.toString());
 		}
