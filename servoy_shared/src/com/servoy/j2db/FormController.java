@@ -3733,7 +3733,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	/**
 	 * Initialize this FormController(or related classes/methods) to be used in javascript
 	 */
-	public JSForm initForJSUsage(CreationalPrototype creationalPrototype)
+	public synchronized JSForm initForJSUsage(CreationalPrototype creationalPrototype)
 	{
 		if (formScope == null)
 		{
