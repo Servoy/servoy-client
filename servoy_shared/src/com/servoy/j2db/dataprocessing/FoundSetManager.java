@@ -1628,10 +1628,11 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		if (sql == null) return false;
 
 		String lowerCaseSql = sql.trim().toLowerCase();
+		int declareIndex = lowerCaseSql.indexOf("declare"); //$NON-NLS-1$
 		int withIndex = lowerCaseSql.indexOf("with"); //$NON-NLS-1$
 		int selectIndex = lowerCaseSql.indexOf("select"); //$NON-NLS-1$
 		int callIndex = lowerCaseSql.indexOf("call"); //$NON-NLS-1$
-		return ((selectIndex != -1 && selectIndex < 4) || (callIndex != -1 && callIndex < 4) || (withIndex != -1 && withIndex < 4));
+		return ((declareIndex != -1 && declareIndex < 4) || (selectIndex != -1 && selectIndex < 4) || (callIndex != -1 && callIndex < 4) || (withIndex != -1 && withIndex < 4));
 	}
 
 	public IDataSet getDataSetByQuery(String serverName, String sql, Object[] args, int maxNumberOfRowsToRetrieve) throws ServoyException
