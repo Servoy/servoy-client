@@ -201,7 +201,7 @@ public class Record implements Scriptable, IRecordInternal
 					}
 				}
 			}
-			mustRecalc = containsCalc && row.mustRecalculate(dataProviderID, false);
+			mustRecalc = containsCalc && row.mustRecalculate(dataProviderID, true);
 			if ((containsCalc || row.containsDataprovider(dataProviderID)) && !mustRecalc)
 			{
 				return row.getValue(dataProviderID);//also stored calcs are always calculated ones(required due to use of plugin methods in calc);
@@ -1056,8 +1056,7 @@ public class Record implements Scriptable, IRecordInternal
 		return row.getLastException();
 	}
 
-	public void js_setException(@SuppressWarnings("unused")
-	Exception ex)
+	public void js_setException(@SuppressWarnings("unused") Exception ex)
 	{
 		//ignore
 	}
@@ -1075,8 +1074,7 @@ public class Record implements Scriptable, IRecordInternal
 		return parent;
 	}
 
-	public void js_setFoundset(@SuppressWarnings("unused")
-	IFoundSetInternal foundset)
+	public void js_setFoundset(@SuppressWarnings("unused") IFoundSetInternal foundset)
 	{
 		//ignore
 	}
