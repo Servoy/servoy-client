@@ -20,6 +20,10 @@ import java.awt.Color;
 
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
+import javax.swing.border.TitledBorder;
+
+import org.apache.wicket.markup.ComponentTag;
+import org.apache.wicket.markup.MarkupStream;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.RectShape;
@@ -34,6 +38,8 @@ import com.servoy.j2db.ui.scripting.RuntimeRectangle;
 public class WebRect extends WebBaseLabel implements IRect
 {
 
+	private final int shapeType;
+
 	/**
 	 * @param id
 	 */
@@ -41,6 +47,7 @@ public class WebRect extends WebBaseLabel implements IRect
 	{
 		super(application, scriptable, id);
 		((ChangesRecorder)scriptable.getChangesRecorder()).setDefaultBorderAndPadding(null, TemplateGenerator.DEFAULT_LABEL_PADDING);
+		this.shapeType = type;
 		if (type != RectShape.BORDER_PANEL)
 		{
 			setBackground(Color.white);
@@ -93,5 +100,15 @@ public class WebRect extends WebBaseLabel implements IRect
 	{
 		if (webBorder == null) webBorder = new LineBorder(Color.BLACK, 1);
 		return webBorder;
+	}
+
+	@Override
+	protected void onComponentTagBody(MarkupStream markupStream, ComponentTag openTag)
+	{
+		if (shapeType == RectShape.BORDER_PANEL && border instanceof TitledBorder)
+		{
+			instrumentAndReplaceBody(markupStream, openTag, ""); //$NON-NLS-1$
+		}
+		else super.onComponentTagBody(markupStream, openTag);
 	}
 }

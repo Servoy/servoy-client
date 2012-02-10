@@ -477,8 +477,8 @@ public class ComponentFactoryHelper
 					}
 					else if (type.equals(TITLED_BORDER))
 					{
-						style.setProperty("border-style", "groove"); //$NON-NLS-1$ //$NON-NLS-2$
-						return null;//TODO waht are the insets?
+						// ignore here
+						return null;
 					}
 					else if (type.equals(MATTE_BORDER))
 					{

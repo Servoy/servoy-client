@@ -70,6 +70,8 @@ import com.servoy.j2db.ui.scripting.AbstractRuntimeButton;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ImageLoader;
+import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -1036,7 +1038,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		char mnemonic, String imgID, String imgURL, int height, boolean isButton, Cursor bodyCursor, boolean isAnchored)
 	{
 		Insets padding = null;
-		boolean isEmptyBorder = false;
+		boolean usePadding = false;
 		if (border == null)
 		{
 			padding = margin;
@@ -1044,7 +1046,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		// empty border gets handled as margin
 		else if (border instanceof EmptyBorder)
 		{
-			isEmptyBorder = true;
+			usePadding = true;
 			padding = border.getBorderInsets(null);
 		}
 		// empty border inside compound border gets handled as margin
@@ -1053,13 +1055,22 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			Border inside = ((CompoundBorder)border).getInsideBorder();
 			if (inside instanceof EmptyBorder)
 			{
-				isEmptyBorder = true;
+				usePadding = true;
 				padding = inside.getBorderInsets(null);
 			}
 		}
-		else if (!(border instanceof TitledBorder) && !(border instanceof BevelBorder) && !(border instanceof EtchedBorder))
+		else if (!(border instanceof BevelBorder) && !(border instanceof EtchedBorder))
 		{
-			padding = border.getBorderInsets(null);
+			if (border instanceof TitledBorder)
+			{
+				usePadding = true;
+				padding = new Insets(5, 7, 5, 7); // margin + border + padding, see beneath
+				padding.top += ((TitledBorder)border).getTitleFont().getSize() + 4; // add the legend height
+			}
+			else
+			{
+				padding = border.getBorderInsets(null);
+			}
 		}
 
 		// In order to vertically align the text inside the <button>, we wrap the text inside a <span>, and we absolutely
@@ -1071,7 +1082,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		int bottom = 0;
 		int left = 0;
 		int right = 0;
-		if (padding != null && isEmptyBorder)
+		if (padding != null && usePadding)
 		{
 			top = padding.top;
 			bottom = padding.bottom;
@@ -1159,7 +1170,49 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			instrumentedBodyText = (new StringBuffer(
 				"<table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" height=\"100%\"><tr><td style=\"vertical-align:").append(sValign).append(";\">").append(instrumentedBodyText).append("</td></tr></table>")); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-
+		if (border instanceof TitledBorder)
+		{
+			String align = "left";
+			if (((TitledBorder)border).getTitleJustification() == TitledBorder.CENTER)
+			{
+				align = "center";
+			}
+			if (((TitledBorder)border).getTitleJustification() == TitledBorder.RIGHT)
+			{
+				align = "right";
+			}
+			StringBuffer fieldsetMarkup = new StringBuffer(
+				"<fieldset style='top:0px;bottom:3px;left:0px;right:0px;position:absolute;border-width:2px;margin:0px 2px;padding:3px;'><legend align='");
+			fieldsetMarkup.append(align);
+			fieldsetMarkup.append("' style='");
+			if (((TitledBorder)border).getTitleColor() != null)
+			{
+				fieldsetMarkup.append("color:");
+				fieldsetMarkup.append(PersistHelper.createColorString(((TitledBorder)border).getTitleColor()));
+				fieldsetMarkup.append(";");
+			}
+			if (((TitledBorder)border).getTitleFont() != null)
+			{
+				Pair<String, String>[] fontPropetiesPair = PersistHelper.createFontCSSProperties(PersistHelper.createFontString(((TitledBorder)border).getTitleFont()));
+				if (fontPropetiesPair != null)
+				{
+					for (Pair<String, String> element : fontPropetiesPair)
+					{
+						if (element == null) continue;
+						fieldsetMarkup.append(element.getLeft());
+						fieldsetMarkup.append(":");
+						fieldsetMarkup.append(element.getRight());
+						fieldsetMarkup.append(";");
+					}
+				}
+			}
+			fieldsetMarkup.append("'>");
+			fieldsetMarkup.append(((TitledBorder)border).getTitle());
+			fieldsetMarkup.append("</legend>");
+			fieldsetMarkup.append(instrumentedBodyText.toString());
+			fieldsetMarkup.append("</legend>");
+			instrumentedBodyText = new StringBuffer(fieldsetMarkup);
+		}
 		return instrumentedBodyText.toString();
 	}
 

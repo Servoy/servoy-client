@@ -628,7 +628,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	/*
 	 * border---------------------------------------------------
 	 */
-	private Border border;
+	protected Border border;
 
 	public void setBorder(Border border)
 	{
