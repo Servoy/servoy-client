@@ -3371,7 +3371,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			state = getRecord(row);
 		}
 
-		if (!findMode && state != null)
+		if (state != null && !(state instanceof PrototypeState) && !findMode)
 		{
 			if (!fsm.getRowManager(fsm.getDataSource(sheet.getTable())).addRowToDeleteSet(state.getPKHashKey()))
 			{
@@ -3444,8 +3444,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				executeFoundsetTrigger(new Object[] { state }, StaticContentSpecLoader.PROPERTY_ONAFTERDELETEMETHODID);
 			}
 		}
-
-		removeRecordInternalEx(state, row);
+		if (!(state instanceof PrototypeState))
+		{
+			removeRecordInternalEx(state, row);
+		}
 	}
 
 	/**
@@ -3606,15 +3608,26 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 		}
 
+		int toDelete = row;
 		synchronized (pksAndRecords)
 		{
-			pksAndRecords.getCachedRecords().remove(row);
+			if (state != null)
+			{
+				// check if the index is still the right one
+				IRecordInternal current = pksAndRecords.getCachedRecords().get(toDelete);
+				if (current != state)
+				{
+					// if not try to find the to remove state.
+					toDelete = pksAndRecords.getCachedRecords().indexOf(state);
+				}
+			}
+			pksAndRecords.getCachedRecords().remove(toDelete);
 			if (!findMode)
 			{
 				IDataSet pks = pksAndRecords.getPks();
-				if (pks != null && pks.getRowCount() > row)
+				if (pks != null && pks.getRowCount() > toDelete)
 				{
-					pks.removeRow(row);
+					pks.removeRow(toDelete);
 					int dbIndexLastPk = pksAndRecords.getDbIndexLastPk();
 					if (dbIndexLastPk > 0)
 					{
@@ -3632,7 +3645,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		if (getSize() == 0) setSelectedIndex(-1);
 
-		fireFoundSetEvent(row, row, FoundSetEvent.CHANGE_DELETE);
+		fireFoundSetEvent(toDelete, toDelete, FoundSetEvent.CHANGE_DELETE);
 
 		if (aggregateCache.size() > 0)
 		{
