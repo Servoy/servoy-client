@@ -73,6 +73,7 @@ public class JSRenderEvent implements IJavaScriptType
 
 	/**
 	 * Returns the record of the element that is being rendered.
+	 * This is null for elements of type form when they are in table view mode.
 	 *
 	 * @sample
 	 * // type the record returned from the call with JSDoc, fill in the right server/tablename
