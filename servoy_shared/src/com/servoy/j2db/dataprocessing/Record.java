@@ -27,6 +27,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.MemberBox;
@@ -141,6 +143,8 @@ public class Record implements Scriptable, IRecordInternal
 		return parent;
 	}
 
+	private final ConcurrentMap<String, Thread> calculatingThreads = new ConcurrentHashMap<String, Thread>(4);
+
 	/**
 	 * called by data adapter for a new value
 	 * 
@@ -164,32 +168,69 @@ public class Record implements Scriptable, IRecordInternal
 			return row.getLastException();
 		}
 
-		boolean containsCalc = row.containsCalculation(dataProviderID);
-		boolean mustRecalc = containsCalc && row.mustRecalculate(dataProviderID, false);
-		if ((containsCalc || row.containsDataprovider(dataProviderID)) && !mustRecalc)
+		try
 		{
-			return row.getValue(dataProviderID);//also stored calcs are always calculated ones(required due to use of plugin methods in calc);
-		}
-		if (containsCalc) //check if calculation 
-		{
-			UsedDataProviderTracker usedDataProviderTracker = new UsedDataProviderTracker(
-				getParentFoundSet().getFoundSetManager().getApplication().getFlattenedSolution());
-			Object value = parent.getCalculationValue(this, dataProviderID, null, usedDataProviderTracker);//do real calc
-			if (!(value instanceof Undefined))
+			boolean containsCalc = row.containsCalculation(dataProviderID);
+			boolean mustRecalc = containsCalc && row.mustRecalculate(dataProviderID, true);
+			if (mustRecalc)
 			{
-				value = Utils.mapToNullIfUnmanageble(value);
-
-				row.setValue(this, dataProviderID, value);
-				// Reset the mustRecalculate here so if it is an every time changing calculation it will not be calculated again and again
-				row.mustRecalculate(dataProviderID, false);
+				Thread currentThread = Thread.currentThread();
+				Thread previous = calculatingThreads.putIfAbsent(dataProviderID, currentThread);
+				if (previous != null && previous != currentThread)
+				{
+					synchronized (calculatingThreads)
+					{
+						long time = System.currentTimeMillis();
+						try
+						{
+							previous = calculatingThreads.putIfAbsent(dataProviderID, currentThread);
+							while (previous != null && previous != currentThread && System.currentTimeMillis() < (time + 5000))
+							{
+								calculatingThreads.wait(1000);
+								previous = calculatingThreads.putIfAbsent(dataProviderID, currentThread);
+							}
+						}
+						catch (InterruptedException e)
+						{
+							//ignore
+						}
+					}
+				}
 			}
+			mustRecalc = containsCalc && row.mustRecalculate(dataProviderID, true);
+			if ((containsCalc || row.containsDataprovider(dataProviderID)) && !mustRecalc)
+			{
+				return row.getValue(dataProviderID);//also stored calcs are always calculated ones(required due to use of plugin methods in calc);
+			}
+			if (containsCalc) //check if calculation 
+			{
+				UsedDataProviderTracker usedDataProviderTracker = new UsedDataProviderTracker(
+					getParentFoundSet().getFoundSetManager().getApplication().getFlattenedSolution());
+				Object value = parent.getCalculationValue(this, dataProviderID, null, usedDataProviderTracker);//do real calc
+				if (!(value instanceof Undefined))
+				{
+					value = Utils.mapToNullIfUnmanageble(value);
 
-			// re get it so that we do have the right type if the calc didn't return the type it specifies.
-			// and that a converter is also applied.
-			value = row.getValue(dataProviderID);
-			manageCalcDependency(dataProviderID, usedDataProviderTracker);
+					row.setValue(this, dataProviderID, value);
+					// Reset the mustRecalculate here so if it is an every time changing calculation it will not be calculated again and again
+					row.mustRecalculate(dataProviderID, false);
+				}
 
-			return value;
+				// re get it so that we do have the right type if the calc didn't return the type it specifies.
+				// and that a converter is also applied.
+				value = row.getValue(dataProviderID);
+				manageCalcDependency(dataProviderID, usedDataProviderTracker);
+
+				return value;
+			}
+		}
+		finally
+		{
+			calculatingThreads.remove(dataProviderID, Thread.currentThread());
+			synchronized (calculatingThreads)
+			{
+				calculatingThreads.notifyAll();
+			}
 		}
 		if (parent.containsDataProvider(dataProviderID)) //as shared (global or aggregate)
 		{
