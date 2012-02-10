@@ -1722,26 +1722,12 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		cssRef.append('/');
 		cssRef.append(formController.getName());
 		cssRef.append("_t");
-
-		if (formController.isFormModified() || (formController.getApplication().isInDeveloper() && lastModifiedTime == 0))
+		if (lastModifiedTime == 0 || isUIRecreated())
 		{
 			lastModifiedTime = System.currentTimeMillis();
 		}
-
-		if (lastModifiedTime == 0)
-		{
-			// set the time to release number, just to make sure
-			// we have new css for each release
-			cssRef.append("r");
-			cssRef.append(formController.getForm().getSolution().getReleaseNumber());
-		}
-		else
-		{
-			cssRef.append(lastModifiedTime);
-		}
-
+		cssRef.append(lastModifiedTime);
 		cssRef.append("t.css'/>\n");
-
 		headercontainer.getHeaderResponse().renderString(cssRef.toString());
 	}
 
