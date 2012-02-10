@@ -64,9 +64,6 @@ import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.QueryUpdate;
-import com.servoy.j2db.querybuilder.IQueryBuilder;
-import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
-import com.servoy.j2db.querybuilder.IQueryBuilderFactory;
 import com.servoy.j2db.querybuilder.impl.QBAggregate;
 import com.servoy.j2db.querybuilder.impl.QBColumn;
 import com.servoy.j2db.querybuilder.impl.QBColumns;
@@ -965,10 +962,11 @@ public class JSDatabaseManager
 		if (sql == null) return false;
 
 		String lowerCaseSql = sql.trim().toLowerCase();
+		int declareIndex = lowerCaseSql.indexOf("declare"); //$NON-NLS-1$
 		int withIndex = lowerCaseSql.indexOf("with"); //$NON-NLS-1$
 		int selectIndex = lowerCaseSql.indexOf("select"); //$NON-NLS-1$
 		int callIndex = lowerCaseSql.indexOf("call"); //$NON-NLS-1$
-		return ((selectIndex != -1 && selectIndex < 4) || (callIndex != -1 && callIndex < 4) || (withIndex != -1 && withIndex < 4));
+		return ((declareIndex != -1 && declareIndex < 4) || (selectIndex != -1 && selectIndex < 4) || (callIndex != -1 && callIndex < 4) || (withIndex != -1 && withIndex < 4));
 	}
 
 
