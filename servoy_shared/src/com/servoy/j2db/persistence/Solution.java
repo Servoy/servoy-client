@@ -259,7 +259,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		throws RepositoryException
 
 	{
-		return getRelations(repository, childs, basedOnTable, isPrimaryTable, sort, true);
+		return getRelations(repository, childs, basedOnTable, isPrimaryTable, sort, true, false);
 	}
 
 	/**
@@ -269,11 +269,11 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * @param basedOnTable
 	 * @param isPrimaryTable
 	 * @param sort
-	 * @param globals
+	 * @param addGlobalsWhenPrimary
 	 * @throws RepositoryException
 	 */
 	public static Iterator<Relation> getRelations(IRepository repository, List<IPersist> childs, ITable basedOnTable, boolean isPrimaryTable, boolean sort,
-		boolean globals) throws RepositoryException
+		boolean addGlobalsWhenPrimary, boolean onlyGlobalsWhenForeign) throws RepositoryException
 	{
 		Iterator<Relation> retval = getRelations(childs, false);
 
@@ -290,7 +290,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 			{
 				if (r.isGlobal())
 				{
-					if (globals) filtered.add(r);
+					if (addGlobalsWhenPrimary) filtered.add(r);
 				}
 				else if (dataSources.contains(r.getPrimaryDataSource()))
 				{
@@ -301,7 +301,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 			{
 				if (dataSources.contains(r.getForeignDataSource()))
 				{
-					filtered.add(r);
+					if (!onlyGlobalsWhenForeign || r.isGlobal()) filtered.add(r);
 				}
 			}
 		}
