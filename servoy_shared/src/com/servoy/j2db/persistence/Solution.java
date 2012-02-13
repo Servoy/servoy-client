@@ -199,8 +199,6 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	/**
 	 * Get all datasources for the table that are valid references to this table in all duplicate servers
-	 * @param solution
-	 * @param table
 	 * @throws RepositoryException
 	 */
 	public static List<String> getTableDataSources(IRepository repository, ITable table) throws RepositoryException
@@ -210,18 +208,25 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 			return null;
 		}
 
+		return getTableDataSources(repository, table.getDataSource());
+	}
+
+	private static List<String> getTableDataSources(IRepository repository, String dataSource) throws RepositoryException
+	{
+		String[] stn = DataSourceUtils.getDBServernameTablename(dataSource);
+		if (stn == null) return null;
 		List<String> dataSources = new ArrayList<String>();
 		{
 			if (repository == null)
 			{
-				dataSources.add(table.getDataSource());
+				dataSources.add(dataSource);
 			}
 			else
 			{
 				String[] serverNames;
 				try
 				{
-					serverNames = repository.getDuplicateServerNames(table.getServerName());
+					serverNames = repository.getDuplicateServerNames(stn[0]);
 				}
 				catch (RemoteException e)
 				{
@@ -230,14 +235,14 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 				if (serverNames.length == 1)
 				{
 					// no duplicates or an inmem table
-					dataSources.add(table.getDataSource());
+					dataSources.add(dataSource);
 				}
 				else
 				{
 					// db tables with duplicate servers
 					for (String serverName : serverNames)
 					{
-						dataSources.add(DataSourceUtils.createDBTableDataSource(serverName, table.getName()));
+						dataSources.add(DataSourceUtils.createDBTableDataSource(serverName, stn[1]));
 					}
 				}
 			}
@@ -611,6 +616,27 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 			}
 		}
 		return retval.iterator();
+	}
+
+	public static boolean areDataSourcesCompatible(IRepository repository, String dataSource1, String dataSource2)
+	{
+		if (Utils.stringSafeEquals(dataSource1, dataSource2)) return true;
+
+		// check other datasources of the same table
+		List<String> compatibleDataSources = null;
+		try
+		{
+			compatibleDataSources = Solution.getTableDataSources(repository, dataSource2); // null when table is null
+		}
+		catch (RepositoryException e)
+		{
+			Debug.trace(e);
+		}
+		if (compatibleDataSources != null && compatibleDataSources.contains(dataSource1))
+		{
+			return true;
+		}
+		return false;
 	}
 
 	public TableNode createNewTableNode(String dataSource) throws RepositoryException
@@ -1255,4 +1281,5 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONINITMETHODID, arg);
 	}
+
 }

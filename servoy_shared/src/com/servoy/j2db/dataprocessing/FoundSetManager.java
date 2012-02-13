@@ -1182,7 +1182,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			if (wantedGlobalRelationName != null)
 			{
 				set = getGlobalRelatedFoundSet(wantedGlobalRelationName);
-				if (set == null || !Utils.stringSafeEquals(set.getDataSource(), l.getDataSource()))
+				if (set == null || !Solution.areDataSourcesCompatible(application.getRepository(), set.getDataSource(), l.getDataSource()))
 				{
 					throw new RepositoryException("Cannot create global relation namedFoundset '" + wantedGlobalRelationName + //$NON-NLS-1$
 						"' - please check relation"); //$NON-NLS-1$

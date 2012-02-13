@@ -58,7 +58,6 @@ import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
-import com.servoy.j2db.util.Utils;
 
 /**
  * @author jcompagner
@@ -3720,30 +3719,13 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 		}
 		else
 		{
-			if (Utils.stringSafeEquals(relation.getForeignDataSource(), form.getDataSource()))
+			if (Solution.areDataSourcesCompatible(application.getRepository(), relation.getForeignDataSource(), form.getDataSource()))
 			{
 				form.setNamedFoundSet(Form.NAMED_FOUNDSET_GLOBAL_RELATION_PREFIX + relation.getName());
 			}
 			else
 			{
-				// check other datasources of the same table
-				List<String> compatibleDataSources = null;
-				try
-				{
-					compatibleDataSources = Solution.getTableDataSources(application.getRepository(), form.getTable()); // null when table is null
-				}
-				catch (RepositoryException e)
-				{
-					Debug.trace(e);
-				}
-				if (compatibleDataSources != null && compatibleDataSources.contains(relation.getForeignDataSource()))
-				{
-					form.setNamedFoundSet(Form.NAMED_FOUNDSET_GLOBAL_RELATION_PREFIX + relation.getName());
-				}
-				else
-				{
-					throw new RuntimeException("(namedFoundset) relation '" + relation.getName() + "' is incompatible with form dataSource");
-				}
+				throw new RuntimeException("(namedFoundset) relation '" + relation.getName() + "' is incompatible with form dataSource");
 			}
 		}
 	}
