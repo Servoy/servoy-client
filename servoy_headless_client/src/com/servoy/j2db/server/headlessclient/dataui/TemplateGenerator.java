@@ -2218,7 +2218,8 @@ public class TemplateGenerator
 						html.append("type='checkbox' ");
 					}
 					html.append("/>");
-					html.append("<label style='border-width: 0px; padding-top: " + (isRadio ? "0px" : "2px") + "; margin: 0px; vertical-align: middle;");
+					html.append("<label style='border-width: 0px; padding-top: " + (isRadio ? "0px" : "2px") +
+						"; padding-left: 2px; margin: 0px; vertical-align: middle;");
 					html.append("' ");
 					html.append(getWicketIDParameter(form, field, "text_", ""));
 					html.append(">");
