@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.util;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.security.Key;
@@ -27,6 +28,9 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocketFactory;
+
+import com.servoy.j2db.server.shared.ApplicationServerSingleton;
+import com.servoy.j2db.server.shared.IApplicationServerSingleton;
 
 public class SecuritySupport
 {
@@ -105,6 +109,7 @@ public class SecuritySupport
 		return null;
 	}
 
+	@SuppressWarnings("nls")
 	private static void initKeyStoreAndPassphrase(Settings settings) throws Exception
 	{
 		if (keyStore == null)
@@ -112,14 +117,32 @@ public class SecuritySupport
 			InputStream is = null;
 			try
 			{
-				passphrase = "passphrase".toCharArray(); //$NON-NLS-1$
-				String filename = settings.getProperty("SocketFactory.SSLKeystorePath", ""); //$NON-NLS-1$ //$NON-NLS-2$
+				passphrase = "passphrase".toCharArray();
+				String filename = settings.getProperty("SocketFactory.SSLKeystorePath", "");
 				if (!"".equals(filename)) //$NON-NLS-1$
 				{
 					try
 					{
-						is = new FileInputStream(filename);
-						passphrase = settings.getProperty("SocketFactory.SSLKeystorePassphrase", "").toCharArray(); //$NON-NLS-1$ //$NON-NLS-2$
+						File file = new File(filename);
+						if (!file.exists())
+						{
+							IApplicationServerSingleton appServer = ApplicationServerSingleton.get();
+							if (appServer != null && appServer.getServoyApplicationServerDirectory() != null)
+							{
+								String applicationServerDirectory = appServer.getServoyApplicationServerDirectory();
+								file = new File(applicationServerDirectory, filename);
+							}
+							if (!file.exists())
+							{
+								Debug.error("couldn't resolve the ssl keystore file " +
+									file.getAbsolutePath() +
+									", maybe the user dir (" +
+									System.getProperty("user.dir") +
+									") of the application server is incorrect, please specify the system property: servoy.application_server.dir to point to the right directory [servoy_install]/application_server");
+							}
+						}
+						is = new FileInputStream(file);
+						passphrase = settings.getProperty("SocketFactory.SSLKeystorePassphrase", "").toCharArray();
 					}
 					catch (Exception e)
 					{
@@ -128,9 +151,9 @@ public class SecuritySupport
 				}
 				if (is == null)
 				{
-					is = SecuritySupport.class.getResourceAsStream("background.gif"); //$NON-NLS-1$
+					is = SecuritySupport.class.getResourceAsStream("background.gif");
 				}
-				keyStore = KeyStore.getInstance("JKS"); //$NON-NLS-1$
+				keyStore = KeyStore.getInstance("JKS");
 				keyStore.load(is, passphrase);
 			}
 			finally
