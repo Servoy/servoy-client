@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -1363,4 +1364,17 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		}
 	}
 
+	@Override
+	protected void onComponentTagBody(MarkupStream markupStream, ComponentTag openTag)
+	{
+		if (getBorder() instanceof TitledBorder)
+		{
+			getResponse().write(WebBaseButton.getTitledBorderOpenMarkup((TitledBorder)getBorder()));
+		}
+		super.onComponentTagBody(markupStream, openTag);
+		if (getBorder() instanceof TitledBorder)
+		{
+			getResponse().write(WebBaseButton.getTitledBorderCloseMarkup());
+		}
+	}
 }

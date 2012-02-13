@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
+import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IFormUI;
 
 /**
@@ -26,7 +27,7 @@ import com.servoy.j2db.ui.IFormUI;
  * @author lvostinar
  * @since 6.1
  */
-public interface IWebFormContainer extends IDisplayRelatedData, ISupportWebTabSeq
+public interface IWebFormContainer extends IDisplayRelatedData, ISupportWebTabSeq, IComponent
 {
 	void notifyResized();
 

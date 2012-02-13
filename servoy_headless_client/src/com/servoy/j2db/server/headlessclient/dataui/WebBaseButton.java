@@ -1172,48 +1172,57 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		}
 		if (border instanceof TitledBorder)
 		{
-			String align = "left";
-			if (((TitledBorder)border).getTitleJustification() == TitledBorder.CENTER)
-			{
-				align = "center";
-			}
-			if (((TitledBorder)border).getTitleJustification() == TitledBorder.RIGHT)
-			{
-				align = "right";
-			}
-			StringBuffer fieldsetMarkup = new StringBuffer(
-				"<fieldset style='top:0px;bottom:3px;left:0px;right:0px;position:absolute;border-width:2px;margin:0px 2px;padding:3px;'><legend align='");
-			fieldsetMarkup.append(align);
-			fieldsetMarkup.append("' style='");
-			if (((TitledBorder)border).getTitleColor() != null)
-			{
-				fieldsetMarkup.append("color:");
-				fieldsetMarkup.append(PersistHelper.createColorString(((TitledBorder)border).getTitleColor()));
-				fieldsetMarkup.append(";");
-			}
-			if (((TitledBorder)border).getTitleFont() != null)
-			{
-				Pair<String, String>[] fontPropetiesPair = PersistHelper.createFontCSSProperties(PersistHelper.createFontString(((TitledBorder)border).getTitleFont()));
-				if (fontPropetiesPair != null)
-				{
-					for (Pair<String, String> element : fontPropetiesPair)
-					{
-						if (element == null) continue;
-						fieldsetMarkup.append(element.getLeft());
-						fieldsetMarkup.append(":");
-						fieldsetMarkup.append(element.getRight());
-						fieldsetMarkup.append(";");
-					}
-				}
-			}
-			fieldsetMarkup.append("'>");
-			fieldsetMarkup.append(((TitledBorder)border).getTitle());
-			fieldsetMarkup.append("</legend>");
-			fieldsetMarkup.append(instrumentedBodyText.toString());
-			fieldsetMarkup.append("</legend>");
-			instrumentedBodyText = new StringBuffer(fieldsetMarkup);
+			instrumentedBodyText = new StringBuffer(getTitledBorderOpenMarkup((TitledBorder)border) + instrumentedBodyText.toString() +
+				getTitledBorderCloseMarkup());
 		}
 		return instrumentedBodyText.toString();
+	}
+
+	public static String getTitledBorderOpenMarkup(TitledBorder titledBorder)
+	{
+		String align = "left";
+		if (titledBorder.getTitleJustification() == TitledBorder.CENTER)
+		{
+			align = "center";
+		}
+		if (titledBorder.getTitleJustification() == TitledBorder.RIGHT)
+		{
+			align = "right";
+		}
+		StringBuffer fieldsetMarkup = new StringBuffer(
+			"<fieldset style='top:0px;bottom:3px;left:0px;right:0px;position:absolute;border-width:2px;margin:0px 2px;padding:3px;'><legend align='");
+		fieldsetMarkup.append(align);
+		fieldsetMarkup.append("' style='");
+		if (titledBorder.getTitleColor() != null)
+		{
+			fieldsetMarkup.append("color:");
+			fieldsetMarkup.append(PersistHelper.createColorString(titledBorder.getTitleColor()));
+			fieldsetMarkup.append(";");
+		}
+		if (titledBorder.getTitleFont() != null)
+		{
+			Pair<String, String>[] fontPropetiesPair = PersistHelper.createFontCSSProperties(PersistHelper.createFontString(titledBorder.getTitleFont()));
+			if (fontPropetiesPair != null)
+			{
+				for (Pair<String, String> element : fontPropetiesPair)
+				{
+					if (element == null) continue;
+					fieldsetMarkup.append(element.getLeft());
+					fieldsetMarkup.append(":");
+					fieldsetMarkup.append(element.getRight());
+					fieldsetMarkup.append(";");
+				}
+			}
+		}
+		fieldsetMarkup.append("'>");
+		fieldsetMarkup.append(titledBorder.getTitle());
+		fieldsetMarkup.append("</legend>"); //$NON-NLS-1$
+		return fieldsetMarkup.toString();
+	}
+
+	public static String getTitledBorderCloseMarkup()
+	{
+		return "</fieldset>"; //$NON-NLS-1$
 	}
 
 	public static boolean isHTMLWithOnlyImg(CharSequence bodyText)

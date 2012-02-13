@@ -42,6 +42,7 @@ import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
@@ -50,6 +51,7 @@ import org.apache.wicket.RequestCycle;
 import org.apache.wicket.Session;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.behavior.IBehavior;
+import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.IMarkupCacheKeyProvider;
 import org.apache.wicket.markup.Markup;
 import org.apache.wicket.markup.MarkupStream;
@@ -105,6 +107,7 @@ import com.servoy.j2db.server.headlessclient.dataui.RecordItemModel;
 import com.servoy.j2db.server.headlessclient.dataui.StyleAppendingModifier;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.server.headlessclient.dataui.WebAccordionPanel;
+import com.servoy.j2db.server.headlessclient.dataui.WebBaseButton;
 import com.servoy.j2db.server.headlessclient.dataui.WebBeanHolder;
 import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataRenderer;
@@ -124,8 +127,8 @@ import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.ITabPanel;
-import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.ui.runtime.HasRuntimeReadOnly;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.ui.scripting.RuntimePortal;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IAnchorConstants;
@@ -198,6 +201,35 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			{
 				// jquery accordion will handle the layout styling, cannot set our style
 				return ((component.findParent(IWebFormContainer.class) != null) && !(component.findParent(IWebFormContainer.class) instanceof WebAccordionPanel));
+			}
+		});
+
+		add(new StyleAppendingModifier(new Model<String>()
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public String getObject()
+			{
+				IWebFormContainer container = findParent(IWebFormContainer.class);
+				if (container != null && container.getBorder() instanceof TitledBorder)
+				{
+					int offset = 5 + ((TitledBorder)container.getBorder()).getTitleFont().getSize() + 4;// padding/border/margin of legend
+					return "top: " + offset + "px;";
+				}
+				return ""; //$NON-NLS-1$
+			}
+		})
+		{
+			@Override
+			public boolean isEnabled(Component component)
+			{
+				IWebFormContainer container = component.findParent(IWebFormContainer.class);
+				if (container != null && container.getBorder() instanceof TitledBorder)
+				{
+					return super.isEnabled(component);
+				}
+				return false;
 			}
 		});
 
@@ -1828,5 +1860,19 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 	public void prepareForSave(boolean looseFocus)
 	{
 		// was in FormController only called for SwingForm
+	}
+
+	@Override
+	protected void onComponentTagBody(MarkupStream markupStream, ComponentTag openTag)
+	{
+		if (getBorder() instanceof TitledBorder)
+		{
+			getResponse().write(WebBaseButton.getTitledBorderOpenMarkup((TitledBorder)getBorder()));
+		}
+		super.onComponentTagBody(markupStream, openTag);
+		if (getBorder() instanceof TitledBorder)
+		{
+			getResponse().write(WebBaseButton.getTitledBorderCloseMarkup());
+		}
 	}
 }
