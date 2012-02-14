@@ -43,9 +43,11 @@ import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.FormController.JSForm;
 import com.servoy.j2db.cmd.ICmdManagerInternal;
+import com.servoy.j2db.dataprocessing.EditRecordList;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
+import com.servoy.j2db.dataprocessing.ISaveConstants;
 import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.FlattenedForm;
@@ -1000,6 +1002,17 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 			return false;
 		}
 
+		// if this controller uses a separate foundset
+		if (fp.getForm().getUseSeparateFoundSet())
+		{
+			// test if that foundset has edited records that can't be saved
+			EditRecordList editRecordList = application.getFoundSetManager().getEditRecordList();
+			if (editRecordList.stopIfEditing(fp.getFoundSet()) != ISaveConstants.STOPPED)
+			{
+				return false;
+			}
+		}
+
 		// the cached currentcontroller may not be destroyed
 		SolutionScope ss = application.getScriptEngine().getSolutionScope();
 		return ss == null || fp.initForJSUsage() != ss.get("currentcontroller", ss); //$NON-NLS-1$
@@ -1306,6 +1319,11 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 
 		/**
 		 * Removes the named form item from the history stack (and from memory) if not currently shown.
+		 * Will return false when the form can't be removed, this can happen in certain situations: 
+		 * 1> The form is visible, 
+		 * 2> The form is executing a function (is actively used),
+		 * 3> There are references to this form by a global variable/array, 
+		 * 4> If the form has a separate foundset with edited records that can't be saved (for example autosave is false)
 		 *
 		 * @sample var done = history.removeForm('mypreviousform');
 		 * 
