@@ -221,7 +221,7 @@ public class EditListUI extends BasicListUI
 				return;
 			}
 			selectedOnPress = true;
-			adjustFocusAndSelection(e);
+			adjustFocusAndSelection(e); // this might also repost the event to correct child of editor component
 		}
 
 		void adjustFocusAndSelection(final MouseEvent e)
@@ -484,11 +484,12 @@ public class EditListUI extends BasicListUI
 		{
 			if (selectedOnPress)
 			{
+				selectedOnPress = false;
 				repostEvent(e);
 			}
 			else
 			{
-				adjustFocusAndSelection(e);
+				adjustFocusAndSelection(e); // this might also repost the event to correct child of editor component
 			}
 		}
 
