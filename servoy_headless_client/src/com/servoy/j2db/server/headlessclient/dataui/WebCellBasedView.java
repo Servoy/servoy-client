@@ -37,6 +37,7 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 
 import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
@@ -1438,6 +1439,35 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			tableContainerBody.add(scrollBehavior = new ScrollBehavior("onscroll")); //$NON-NLS-1$
 		}
+
+		add(new StyleAppendingModifier(new Model<String>()
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public String getObject()
+			{
+				WebForm container = findParent(WebForm.class);
+				if (container != null && container.getBorder() instanceof TitledBorder)
+				{
+					int offset = ((TitledBorder)container.getBorder()).getTitleFont().getSize() + 4;// height of legend
+					return "top: " + offset + "px;";
+				}
+				return ""; //$NON-NLS-1$
+			}
+		})
+		{
+			@Override
+			public boolean isEnabled(Component component)
+			{
+				WebForm container = component.findParent(WebForm.class);
+				if (container != null && container.getBorder() instanceof TitledBorder)
+				{
+					return super.isEnabled(component);
+				}
+				return false;
+			}
+		});
 	}
 
 	public final RuntimePortal getScriptObject()

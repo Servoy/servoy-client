@@ -214,7 +214,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 				IWebFormContainer container = findParent(IWebFormContainer.class);
 				if (container != null && container.getBorder() instanceof TitledBorder)
 				{
-					int offset = 5 + ((TitledBorder)container.getBorder()).getTitleFont().getSize() + 4;// padding/border/margin of legend
+					int offset = ((TitledBorder)container.getBorder()).getTitleFont().getSize() + 4;// height of legend
 					return "top: " + offset + "px;";
 				}
 				return ""; //$NON-NLS-1$
@@ -233,7 +233,22 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			}
 		});
 
-		container = new WebMarkupContainer("servoywebform"); //$NON-NLS-1$
+		container = new WebMarkupContainer("servoywebform") //$NON-NLS-1$
+		{
+			@Override
+			protected void onComponentTagBody(MarkupStream markupStream, ComponentTag openTag)
+			{
+				if (getBorder() instanceof TitledBorder)
+				{
+					getResponse().write(WebBaseButton.getTitledBorderOpenMarkup((TitledBorder)getBorder()));
+				}
+				super.onComponentTagBody(markupStream, openTag);
+				if (getBorder() instanceof TitledBorder)
+				{
+					getResponse().write(WebBaseButton.getTitledBorderCloseMarkup());
+				}
+			}
+		};
 		container.add(new StyleAppendingModifier(new Model<String>()
 		{
 			private static final long serialVersionUID = 1L;
@@ -249,6 +264,28 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 				return null;
 			}
 		}));
+//		container.add(new StyleAppendingModifier(new Model<String>()
+//		{
+//			private static final long serialVersionUID = 1L;
+//
+//			@Override
+//			public String getObject()
+//			{
+//				int offset = ((TitledBorder)getBorder()).getTitleFont().getSize() + 4;//add legend height
+//				return "top: " + offset + "px;";
+//			}
+//		})
+//		{
+//			@Override
+//			public boolean isEnabled(Component component)
+//			{
+//				if (getBorder() instanceof TitledBorder)
+//				{
+//					return super.isEnabled(component);
+//				}
+//				return false;
+//			}
+//		});
 		// we need to explicitly make the form transparent, to override the
 		// white color from the default CSS (the #webform class)
 		// case 349263
@@ -1860,19 +1897,5 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 	public void prepareForSave(boolean looseFocus)
 	{
 		// was in FormController only called for SwingForm
-	}
-
-	@Override
-	protected void onComponentTagBody(MarkupStream markupStream, ComponentTag openTag)
-	{
-		if (getBorder() instanceof TitledBorder)
-		{
-			getResponse().write(WebBaseButton.getTitledBorderOpenMarkup((TitledBorder)getBorder()));
-		}
-		super.onComponentTagBody(markupStream, openTag);
-		if (getBorder() instanceof TitledBorder)
-		{
-			getResponse().write(WebBaseButton.getTitledBorderCloseMarkup());
-		}
 	}
 }

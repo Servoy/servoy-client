@@ -28,12 +28,14 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.mozilla.javascript.Undefined;
 
 import com.servoy.j2db.ControllerUndoManager;
@@ -53,6 +55,7 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.scripting.JSEvent.EventType;
+import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.server.headlessclient.dnd.DraggableBehavior;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IComponent;
@@ -112,6 +115,35 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 		setOutputMarkupPlaceholderTag(true);
 		this.formPartName = formPartName;
 		dataRendererOnRenderWrapper = new DataRendererOnRenderWrapper(this);
+		add(new StyleAppendingModifier(new Model<String>()
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public String getObject()
+			{
+				WebForm container = findParent(WebForm.class);
+				if (container != null && container.getBorder() instanceof TitledBorder)
+				{
+					int offset = ((TitledBorder)container.getBorder()).getTitleFont().getSize() + 4;// height of legend
+					return "top: " + offset + "px;";
+				}
+				return ""; //$NON-NLS-1$
+			}
+		})
+		{
+			@Override
+			public boolean isEnabled(Component component)
+			{
+				if (WebDataRenderer.this.getParent().get(0) != WebDataRenderer.this) return false;
+				WebForm container = component.findParent(WebForm.class);
+				if (container != null && container.getBorder() instanceof TitledBorder)
+				{
+					return super.isEnabled(component);
+				}
+				return false;
+			}
+		});
 	}
 
 	public void setParentView(IView parentView)
