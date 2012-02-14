@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import java.util.Iterator;
+
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -45,7 +47,7 @@ public class QBGroupBy extends QBPart implements IQueryBuilderGroupby
 	}
 
 	@JSFunction
-	public IQueryBuilderGroupby add(String columnName) throws RepositoryException
+	public QBGroupBy add(String columnName) throws RepositoryException
 	{
 		return add(getParent().getColumn(columnName));
 	}
@@ -61,4 +63,14 @@ public class QBGroupBy extends QBPart implements IQueryBuilderGroupby
 		return this;
 	}
 
+	@JSFunction
+	public QBGroupBy addPk() throws RepositoryException
+	{
+		Iterator<String> rowIdentColumnNames = getParent().getTable().getRowIdentColumnNames();
+		while (rowIdentColumnNames.hasNext())
+		{
+			add(rowIdentColumnNames.next());
+		}
+		return this;
+	}
 }

@@ -20,11 +20,11 @@ package com.servoy.j2db.querybuilder.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -32,20 +32,28 @@ import com.servoy.j2db.util.Debug;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class QBParameters extends DefaultScope
+public class QBParameters extends QBScope
 {
+	private static Map<String, NativeJavaMethod> jsFunctions = QBFactory.getJsFunctions(QBParameters.class);
+
 	private final QBSelect query;
 	private final Map<String, QBParameter> parameters = new HashMap<String, QBParameter>();
 
 	QBParameters(Scriptable scriptParent, QBSelect query)
 	{
-		super(scriptParent);
+		super(scriptParent, jsFunctions);
 		this.query = query;
 	}
 
 	@Override
 	public Object get(String name, Scriptable start)
 	{
+		Object obj = super.get(name, start);
+		if (obj != null)
+		{
+			return obj;
+		}
+
 		QBParameter param = parameters.get(name);
 		try
 		{

@@ -33,7 +33,9 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.AndCondition;
+import com.servoy.j2db.query.AndOrCondition;
 import com.servoy.j2db.query.ExistsCondition;
+import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.OrCondition;
 import com.servoy.j2db.query.Placeholder;
@@ -44,7 +46,6 @@ import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilderLogicalCondition;
-import com.servoy.j2db.querybuilder.IQueryBuilderPart;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
@@ -63,6 +64,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	private QBGroupBy groupBy;
 	protected QuerySelect query;
 	private QBLogicalCondition where;
+	private QBLogicalCondition having;
 	private QueryTable queryTable;
 
 	private QBParameters params;
@@ -103,7 +105,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	/**
 	 * @param scriptableParent
 	 */
-	void setScriptableParent(Scriptable scriptableParent)
+	public void setScriptableParent(Scriptable scriptableParent)
 	{
 		this.scriptableParent = scriptableParent;
 	}
@@ -156,6 +158,21 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 				getQuery().setCondition(QBSelect.CONDITION_WHERE, c = new AndCondition());
 			}
 			where = new QBLogicalCondition(this, this, c);
+		}
+		return where;
+	}
+
+	@JSReadonlyProperty
+	public QBLogicalCondition having() throws RepositoryException
+	{
+		if (having == null)
+		{
+			ISQLCondition c = getQuery().getHaving();
+			if (!(c instanceof AndOrCondition))
+			{
+				getQuery().setHaving(null, c = AndCondition.and(c, new AndCondition()));
+			}
+			where = new QBLogicalCondition(this, this, (AndOrCondition)c);
 		}
 		return where;
 	}
@@ -230,10 +247,14 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		return new QBCondition(this, ((QBCondition)cond).getParent(), ((QBCondition)cond).getQueryCondition().negate());
 	}
 
-	@JSFunction
-	public QBCondition exists(IQueryBuilderPart q) throws RepositoryException
+	public QBCondition js_exists(QBSelect q) throws RepositoryException
 	{
-		ISQLSelect select = ((QBSelect)q.getRoot()).build();
+		return exists(q);
+	}
+
+	public QBCondition exists(IQueryBuilder q) throws RepositoryException
+	{
+		ISQLSelect select = ((QBSelect)q).build();
 		if (select instanceof QuerySelect && ((QuerySelect)select).getColumns() == null)
 		{
 			// no columns, add 'select 1'

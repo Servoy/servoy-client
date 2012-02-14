@@ -43,6 +43,7 @@ import org.mozilla.javascript.NativeJavaArray;
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
+import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.FlattenedSolution;
@@ -1335,15 +1336,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * @return query.
 	 */
-	public QBSelect js_getQuery()
-	{
-		return getQuery();
-	}
-
+	@JSFunction
 	public QBSelect getQuery()
 	{
-		return new QBSelect(getFoundSetManager(), getFoundSetManager().getScopesScopeProvider(), getFoundSetManager().getApplication().getFlattenedSolution(),
-			getDataSource(), getPksAndRecords().getQuerySelectForModification());
+		QBSelect qbSelect = new QBSelect(getFoundSetManager(), getFoundSetManager().getScopesScopeProvider(),
+			getFoundSetManager().getApplication().getFlattenedSolution(), getDataSource(), getPksAndRecords().getQuerySelectForModification());
+		qbSelect.setScriptableParent(getFoundSetManager().getApplication().getScriptEngine().getSolutionScope());
+		return qbSelect;
 	}
 
 	public boolean loadByQuery(QuerySelect sqlSelect) throws ServoyException
@@ -4473,9 +4472,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.SELECTION_MODE_CHANGE, FoundSetEvent.CHANGE_UPDATE));
 	}
 
-	protected void fireFoundSetEvent(@SuppressWarnings("unused")
-	int firstRow, @SuppressWarnings("unused")
-	int lastRow, int changeType)
+	protected void fireFoundSetEvent(@SuppressWarnings("unused") int firstRow, @SuppressWarnings("unused") int lastRow, int changeType)
 	{
 		fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.CONTENTS_CHANGED, changeType));
 	}

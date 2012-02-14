@@ -87,6 +87,18 @@ public interface IQueryBuilder extends IQueryBuilderTableClause
 	IQueryBuilderLogicalCondition where() throws RepositoryException;
 
 	/**
+	 * Get the having-part of the query, used to add conditions.
+	 * The conditions added here are AND-ed.
+	 * <pre>
+	 * // select value from tab group by value having count(value) > 1
+	 * query.result().add(query.getColumn("value"))
+	 *    .getParent().groupBy().add("value")
+	 *    .getParent().having().add("value").count().gt(Integer.valueOf(1)));
+	 * </pre>
+	 */
+	IQueryBuilderLogicalCondition having() throws RepositoryException;
+
+	/**
 	 * Get the result part of the query, used to add result columns or values.
 	 * <pre>
 	 * query.result().add(query.getColumn("id")).add.query.getColumn("note"); // select id, note from tab
@@ -182,7 +194,7 @@ public interface IQueryBuilder extends IQueryBuilderTableClause
 	 *  query.where().add(query.exists(subQuery.where().add(subQuery.getColumn("flag").eq("T"))));
 	 * </pre>
 	 */
-	IQueryBuilderCondition exists(IQueryBuilderPart query) throws RepositoryException;
+	IQueryBuilderCondition exists(IQueryBuilder query) throws RepositoryException;
 
 
 	/**

@@ -22,7 +22,7 @@ import java.util.Map;
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
 
-import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.scripting.DefaultScope;
 
 /**
  * @author rgansevles
@@ -30,14 +30,31 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @since 6.1
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class QBColumns extends QBScope
+public class QBScope extends DefaultScope
 {
-	private static Map<String, NativeJavaMethod> jsFunctions = QBFactory.getJsFunctions(QBColumns.class);
+	private final Map<String, NativeJavaMethod> jsFunctions;
 
-	QBColumns(Scriptable scriptParent)
+	QBScope(Scriptable scriptParent, Map<String, NativeJavaMethod> jsFunctions)
 	{
-		super(scriptParent, jsFunctions);
+		super(scriptParent);
+		this.jsFunctions = jsFunctions;
 	}
 
+	@Override
+	public Object get(String name, Scriptable start)
+	{
+		NativeJavaMethod jm = jsFunctions.get(name);
+		if (jm != null)
+		{
+			return jm;
+		}
+
+		return super.get(name, start);
+	}
+
+	@Override
+	public boolean has(String name, Scriptable start)
+	{
+		return jsFunctions.containsKey(name) || super.has(name, start);
+	}
 }

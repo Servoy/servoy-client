@@ -20,6 +20,7 @@ package com.servoy.j2db.querybuilder.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
 
@@ -34,18 +35,21 @@ import com.servoy.j2db.query.QueryJoin;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.querybuilder.IQueryBuilderJoin;
 import com.servoy.j2db.querybuilder.IQueryBuilderJoins;
-import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
 
 /**
  * @author rgansevles
+ * 
+ * @since 6.1
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class QBJoins extends DefaultScope implements IQueryBuilderJoins
+public class QBJoins extends QBScope implements IQueryBuilderJoins
 {
+	private static Map<String, NativeJavaMethod> jsFunctions = QBFactory.getJsFunctions(QBJoins.class);
+
 	private final QBSelect root;
 	private final QBTableClause parent;
 
@@ -53,7 +57,7 @@ public class QBJoins extends DefaultScope implements IQueryBuilderJoins
 
 	QBJoins(QBSelect root, QBTableClause parent)
 	{
-		super(root.getScriptableParent());
+		super(root.getScriptableParent(), jsFunctions);
 		this.root = root;
 		this.parent = parent;
 	}
@@ -73,6 +77,21 @@ public class QBJoins extends DefaultScope implements IQueryBuilderJoins
 	@Override
 	public Object get(String name, Scriptable start)
 	{
+		Object obj = super.get(name, start);
+		if (obj != null)
+		{
+			return obj;
+		}
+
+		if ("parent".equals(name))
+		{
+			return getParent();
+		}
+		if ("root".equals(name))
+		{
+			return getRoot();
+		}
+
 		QBJoin join = getOrAddRelation(root.getRelation(name), name, null);
 		if (join == null)
 		{
@@ -126,6 +145,12 @@ public class QBJoins extends DefaultScope implements IQueryBuilderJoins
 	public void put(String name, Scriptable start, Object value)
 	{
 		// ignore
+	}
+
+	@Override
+	public boolean has(String name, Scriptable start)
+	{
+		return "root".equals(name) || "parent".equals(name) || super.has(name, start);
 	}
 
 	@JSFunction

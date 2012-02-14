@@ -17,13 +17,23 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.mozilla.javascript.MemberBox;
+import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.dataprocessing.IGlobalValueEntry;
 import com.servoy.j2db.persistence.IDataProviderHandler;
 import com.servoy.j2db.persistence.ITableAndRelationProvider;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.querybuilder.IQueryBuilderFactory;
+import com.servoy.j2db.scripting.annotations.AnnotationManager;
+import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author rgansevles
@@ -61,5 +71,35 @@ public class QBFactory implements IQueryBuilderFactory
 	public QBSelect createSelect(String dataSource) throws RepositoryException
 	{
 		return createSelect(dataSource, null);
+	}
+
+	public static Map<String, NativeJavaMethod> getJsFunctions(Class< ? > clazz)
+	{
+		Map<String, NativeJavaMethod> jsFunctions = new HashMap<String, NativeJavaMethod>();
+		try
+		{
+			for (Method method : clazz.getMethods())
+			{
+				if (AnnotationManager.getInstance().isAnnotationPresent(method, JSFunction.class))
+				{
+					String name = method.getName();
+					NativeJavaMethod nativeJavaMethod = jsFunctions.get(name);
+					if (nativeJavaMethod == null)
+					{
+						nativeJavaMethod = new NativeJavaMethod(method, name);
+					}
+					else
+					{
+						nativeJavaMethod = new NativeJavaMethod(Utils.arrayAdd(nativeJavaMethod.getMethods(), new MemberBox(method), true), name);
+					}
+					jsFunctions.put(name, nativeJavaMethod);
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+		}
+		return jsFunctions;
 	}
 }

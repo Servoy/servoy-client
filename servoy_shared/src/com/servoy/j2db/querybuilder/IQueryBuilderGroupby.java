@@ -35,6 +35,11 @@ public interface IQueryBuilderGroupby extends IQueryBuilderPart
 	IQueryBuilder getParent();
 
 	/**
+	 * Add the tables' primary pk columns in alphabetical order to the group by clause.
+	 */
+	IQueryBuilderGroupby addPk() throws RepositoryException;
+
+	/**
 	 * Add column name to group-by clause, column name is searched from parent query table.
 	 * <p> Same as 
 	 * <pre>
