@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.dnd;
 
+import java.awt.Event;
 import java.util.Arrays;
 
 import com.servoy.j2db.dataprocessing.Record;
@@ -32,10 +33,10 @@ import com.servoy.j2db.scripting.JSEvent.EventType;
 public class JSDNDEvent extends JSBaseEvent
 {
 	/**
-	 * Constant returned by JSEvent.getType() in a method that is attached to an onDrag event.
+	 * Constant returned by JSDNDEvent.getType() in a method that is attached to an onDrag event.
 	 *
 	 * @sample
-	 * if (event.getType() == JSEvent.ONDRAG) 
+	 * if (event.getType() == JSDNDEvent.ONDRAG) 
 	 * {
 	 * 	// its an ondrag event
 	 * 	if (event.getElementName() == 'todragelement')
@@ -45,10 +46,10 @@ public class JSDNDEvent extends JSBaseEvent
 	public static final String ONDRAG = EventType.onDrag.toString();
 
 	/**
-	 * Constant returned by JSEvent.getType() in a method that is attached to an onDrop event.
+	 * Constant returned by JSDNDEvent.getType() in a method that is attached to an onDrop event.
 	 *
 	 * @sample
-	 * if (event.getType() == JSEvent.ONDROP) 
+	 * if (event.getType() == JSDNDEvent.ONDROP) 
 	 * {
 	 * 	// its a on drop event.
 	 * 	var element = elements[event.getElementName()];
@@ -59,10 +60,10 @@ public class JSDNDEvent extends JSBaseEvent
 	public static final String ONDROP = EventType.onDrop.toString();
 
 	/**
-	 * Constant returned by JSEvent.getType() in a method that is attached to an onDragOver event.
+	 * Constant returned by JSDNDEvent.getType() in a method that is attached to an onDragOver event.
 	 *
 	 * @sample
-	 * if (event.getType() == JSEvent.ONDRAGOVER) 
+	 * if (event.getType() == JSDNDEvent.ONDRAGOVER) 
 	 * {
 	 * 	// its an on drag over event.
 	 * 	// return true if it over the right element.
@@ -72,10 +73,10 @@ public class JSDNDEvent extends JSBaseEvent
 	public static final String ONDRAGOVER = EventType.onDragOver.toString();
 
 	/**
-	 * Constant returned by JSEvent.getType() in a method that is attached to an onDragEnd event.
+	 * Constant returned by JSDNDEvent.getType() in a method that is attached to an onDragEnd event.
 	 *
 	 * @sample
-	 * if (event.getType() == JSEvent.ONDRAGEND) 
+	 * if (event.getType() == JSDNDEvent.ONDRAGEND) 
 	 * {
 	 * 	// its an on drag end event.
 	 * 	// return true if the drop has been completed successfully
@@ -83,6 +84,43 @@ public class JSDNDEvent extends JSBaseEvent
 	 * }
 	 */
 	public static final String ONDRAGEND = EventType.onDragEnd.toString();
+
+
+	/**
+	 * Constant for the SHIFT modifier that can be returned by JSDNDEvent.getModifiers();
+	 * 
+	 * @sampleas js_getModifiers()
+	 * 
+	 * @see com.servoy.j2db.scripting.JSDNDEvent#js_getModifiers()
+	 */
+	public static final int MODIFIER_SHIFT = Event.SHIFT_MASK;
+
+	/**
+	 * Constant for the CTRL modifier that can be returned by JSDNDEvent.getModifiers();
+	 * 
+	 * @sampleas js_getModifiers()
+	 * 
+	 * @see com.servoy.j2db.scripting.JSDNDEvent#js_getModifiers()
+	 */
+	public static final int MODIFIER_CTRL = Event.CTRL_MASK;
+
+	/**
+	 * Constant for the META modifier that can be returned by JSDNDEvent.getModifiers();
+	 * 
+	 * @sampleas js_getModifiers()
+	 * 
+	 * @see com.servoy.j2db.scripting.JSDNDEvent#js_getModifiers()
+	 */
+	public static final int MODIFIER_META = Event.META_MASK;
+
+	/**
+	 * Constant for the ALT modifier that can be returned by JSDNDEvent.getModifiers();
+	 * 
+	 * @sampleas js_getModifiers()
+	 * 
+	 * @see com.servoy.j2db.scripting.JSDNDEvent#js_getModifiers()
+	 */
+	public static final int MODIFIER_ALT = Event.ALT_MASK;
 
 
 	private int dragResult;
@@ -188,6 +226,41 @@ public class JSDNDEvent extends JSBaseEvent
 	public void setDataMimeType(String mimeType)
 	{
 		dataMimeType = mimeType;
+	}
+
+	/**
+	 * returns the dnd event type see the JSDNDEvents constants what it can return.
+	 *
+	 * @sample
+	 * if (event.getType() == JSDNDEvent.ONDROP) 
+	 * {
+	 * 	// it's a drop
+	 * }	
+	 * 
+	 * @return a String representing the type of this event.
+	 */
+	@Override
+	public String js_getType()
+	{
+		return type;
+	}
+
+	/**
+	 * Returns the modifiers of the event, see JSDNDEvent.MODIFIER_XXXX for the modifiers that can be returned.
+	 *
+	 * @sample
+	 * //test if the SHIFT modifier is used.
+	 * if (event.getModifiers() & JSDNDEvent.MODIFIER_SHIFT)
+	 * {
+	 * 	//do shift action
+	 * }
+	 * 
+	 * @return an int which holds the modifiers as a bitset.
+	 */
+	@Override
+	public int js_getModifiers()
+	{
+		return modifiers;
 	}
 
 	/**
