@@ -1147,12 +1147,13 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 	public FormController setNavigator(FormController c)
 	{
 		if (c == navigator) return c;
+		FormController retval = navigator;
 		if (c == null && navigator != null)
 		{
 			webForms.remove(navigator.getFormUI());
 			listview.removeAll();
 			navigator = null;
-			return null;
+			return retval;
 		}
 		else if (navigator != null)
 		{
@@ -1160,7 +1161,6 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			listview.removeAll();
 		}
 
-		FormController retval = navigator;
 		navigator = c;
 		WebForm form = (WebForm)c.getFormUI();
 		if (!webForms.contains(form))
@@ -1595,13 +1595,15 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		}
 	}
 
-	public void showPopupDiv(MainPage dialogContainer, String titleString, Rectangle r2, boolean resizeable, boolean closeAll, boolean modal, boolean undecorated, boolean storeBounds)
+	public void showPopupDiv(MainPage dialogContainer, String titleString, Rectangle r2, boolean resizeable, boolean closeAll, boolean modal,
+		boolean undecorated, boolean storeBounds)
 	{
 		// all iframe div window main pages will be shown by a browser window main page and will have it as callingContainer;
 		// this is in order to avoid situations where some main pages need to reference each other in browser JS, but some div windows in the chain between them
 		// have already been closed; so this way references to all iframe div windows will not be lost as long as the browser window that contains the iframes remains open
 		// see also triggerBrowserRequestIfNeeded() that uses these references
-		if (isShowingInDialog() && callingContainer != null) callingContainer.showPopupDiv(dialogContainer, titleString, r2, resizeable, closeAll, modal, undecorated, storeBounds);
+		if (isShowingInDialog() && callingContainer != null) callingContainer.showPopupDiv(dialogContainer, titleString, r2, resizeable, closeAll, modal,
+			undecorated, storeBounds);
 		else
 		{
 			if (useAJAX)
