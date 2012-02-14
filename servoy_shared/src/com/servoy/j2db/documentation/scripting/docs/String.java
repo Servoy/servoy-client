@@ -261,6 +261,8 @@ public class String
 	 * var s = "Have a nice day!";
 	 * application.output(s.localeCompare("Hello"));
 	 * 
+	 * @param otherString
+	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/localeCompare
 	 */
 	public Number js_localeCompare(String otherString)
