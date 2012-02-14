@@ -1981,7 +1981,10 @@ public class TemplateGenerator
 				ins.border.bottom += rectshape.getLineSize();
 				ins.border.left += rectshape.getLineSize();
 			}
-			styleObj.setProperty("border-color", PersistHelper.createColorString(rectshape.getForeground()));
+			if (rectshape.getForeground() != null)
+			{
+				styleObj.setProperty("border-color", PersistHelper.createColorString(rectshape.getForeground()));
+			}
 			if (rectshape.getRoundedRadius() > 0)
 			{
 				styleObj.setProperty("border-radius", rectshape.getRoundedRadius() / 2 + "px");
