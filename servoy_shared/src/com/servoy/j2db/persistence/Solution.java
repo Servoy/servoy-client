@@ -213,37 +213,36 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	private static List<String> getTableDataSources(IRepository repository, String dataSource) throws RepositoryException
 	{
+		if (dataSource == null) return null;
 		String[] stn = DataSourceUtils.getDBServernameTablename(dataSource);
-		if (stn == null) return null;
 		List<String> dataSources = new ArrayList<String>();
+
+		if (repository == null || stn == null) // inmem or rep == null
 		{
-			if (repository == null)
+			dataSources.add(dataSource);
+		}
+		else
+		{
+			String[] serverNames;
+			try
 			{
+				serverNames = repository.getDuplicateServerNames(stn[0]);
+			}
+			catch (RemoteException e)
+			{
+				throw new RepositoryException("Could not get relations", e); //$NON-NLS-1$
+			}
+			if (serverNames.length == 1)
+			{
+				// no duplicates or an inmem table
 				dataSources.add(dataSource);
 			}
 			else
 			{
-				String[] serverNames;
-				try
+				// db tables with duplicate servers
+				for (String serverName : serverNames)
 				{
-					serverNames = repository.getDuplicateServerNames(stn[0]);
-				}
-				catch (RemoteException e)
-				{
-					throw new RepositoryException("Could not get relations", e); //$NON-NLS-1$
-				}
-				if (serverNames.length == 1)
-				{
-					// no duplicates or an inmem table
-					dataSources.add(dataSource);
-				}
-				else
-				{
-					// db tables with duplicate servers
-					for (String serverName : serverNames)
-					{
-						dataSources.add(DataSourceUtils.createDBTableDataSource(serverName, stn[1]));
-					}
+					dataSources.add(DataSourceUtils.createDBTableDataSource(serverName, stn[1]));
 				}
 			}
 		}
