@@ -156,13 +156,15 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 	// These ivars will be made protected when their names are finalized.
 	private Color unselectedForeground;
 	private Color unselectedBackground;
-
 	private Font unselectedFont;
 
 	private Color lastEditorBgColor;
 	private Color lastEditorFgColor;
-
 	private Font lastEditorFont;
+
+	private Color componentBgColor;
+	private Color componentFgColor;
+	private Font componentFont;
 
 	private boolean adjusting = false;
 	private Object lastInvalidValue = NONE;
@@ -177,6 +179,9 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		this.renderer = renderer;
 		if (renderer != null)
 		{
+			componentBgColor = renderer.getBackground();
+			componentFgColor = renderer.getForeground();
+			componentFont = renderer.getFont();
 			renderer.addComponentListener(new ComponentListener()
 			{
 				public void componentShown(ComponentEvent e)
@@ -600,36 +605,48 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 
 			if (font != null) renderer.setFont(font);
 		}
-		else if (!(renderEventExecutor != null && renderEventExecutor.hasRenderCallback() && renderable instanceof RenderableWrapper)) // only do this if no onRender
+		else
 		{
-			// now get the editors background. if we don't do that then scripting doesn't show up
-			Color background = editor.getBackground();
-			if (background != null && !background.equals(lastEditorBgColor))
-			{
-				unselectedBackground = background;
-			}
-			Color foreground = editor.getForeground();
-			if (foreground != null && !foreground.equals(lastEditorFgColor))
-			{
-				unselectedForeground = foreground;
-			}
-			Font editorFont = editor.getFont();
-			if (editorFont != null && !editorFont.equals(lastEditorFont))
-			{
-				unselectedFont = editorFont;
-			}
+			boolean isRenderWithOnRender = renderEventExecutor != null && renderEventExecutor.hasRenderCallback() && renderable instanceof RenderableWrapper;
 
-			if (editor instanceof IDisplayData && ((IDisplayData)editor).isValueValid() || !(editor instanceof IDisplayData))
+			if (isRenderWithOnRender)
 			{
-				Color currentForeground = (fgColor != null ? fgColor : (unselectedForeground != null) ? unselectedForeground : jtable.getForeground());
-				renderer.setForeground(currentForeground);
+				((RenderableWrapper)renderable).resetProperties();
+				renderer.setBackground(componentBgColor);
+				renderer.setForeground(componentFgColor);
+				renderer.setFont(componentFont);
 			}
+			else
+			{
+				// now get the editors background. if we don't do that then scripting doesn't show up
+				Color background = editor.getBackground();
+				if (background != null && !background.equals(lastEditorBgColor))
+				{
+					unselectedBackground = background;
+				}
+				Color foreground = editor.getForeground();
+				if (foreground != null && !foreground.equals(lastEditorFgColor))
+				{
+					unselectedForeground = foreground;
+				}
+				Font editorFont = editor.getFont();
+				if (editorFont != null && !editorFont.equals(lastEditorFont))
+				{
+					unselectedFont = editorFont;
+				}
 
-			Color currentColor = (bgColor != null ? bgColor : (unselectedBackground != null) ? unselectedBackground : jtable.getBackground());
-			renderer.setBackground(currentColor);
+				if (editor instanceof IDisplayData && ((IDisplayData)editor).isValueValid() || !(editor instanceof IDisplayData))
+				{
+					Color currentForeground = (fgColor != null ? fgColor : (unselectedForeground != null) ? unselectedForeground : jtable.getForeground());
+					renderer.setForeground(currentForeground);
+				}
 
-			Font currentFont = (font != null ? font : (unselectedFont != null) ? unselectedFont : jtable.getFont());
-			renderer.setFont(currentFont);
+				Color currentColor = (bgColor != null ? bgColor : (unselectedBackground != null) ? unselectedBackground : jtable.getBackground());
+				renderer.setBackground(currentColor);
+
+				Font currentFont = (font != null ? font : (unselectedFont != null) ? unselectedFont : jtable.getFont());
+				renderer.setFont(currentFont);
+			}
 		}
 
 		if (renderer instanceof JComponent)
