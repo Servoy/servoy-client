@@ -1658,7 +1658,13 @@ public class TemplateGenerator
 		styleObj = css.addStyle("div.wicket-modal div.w_undecorated div.w_caption,div.wicket-modal div.w_undecorated div.w_top,div.wicket-modal div.w_undecorated div.w_bottom,div.wicket-modal div.w_undecorated div.w_topLeft,div.wicket-modal div.w_undecorated div.w_topRight,div.wicket-modal div.w_undecorated div.w_bottomRight,div.wicket-modal div.w_undecorated div.w_bottomLeft,div.wicket-modal div.w_undecorated a.w_close");
 		styleObj.setProperty("display", "none");
 
+		styleObj = css.addStyle("div.wicket-modal div.w_undecorated div.w_content_2");
+		styleObj.setProperty("padding", "0px");
 
+		styleObj = css.addStyle("div.wicket-modal div.w_undecorated div.w_content_3");
+		styleObj.setProperty("border-width", "0px");
+
+//		div.wicket-modal div.w_undecorated div.w_caption
 		return css.toString();
 	}
 

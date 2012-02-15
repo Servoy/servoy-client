@@ -88,8 +88,8 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 					}
 					else
 					{
-						((MainPage)parentContainer).showPopupDiv((MainPage)dialogContainer, title, r2, resizable, closeAll || !legacyV3Behavior,
-							(windowType == JSWindow.MODAL_DIALOG), isUndecorated(), storeBounds);
+						((MainPage)parentContainer).showPopupDiv((MainPage)dialogContainer, title, r2, isUndecorated() ? false : resizable, closeAll ||
+							!legacyV3Behavior, (windowType == JSWindow.MODAL_DIALOG), isUndecorated(), storeBounds);
 					}
 				}
 			}
