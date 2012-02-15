@@ -3867,7 +3867,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 
 		int size = getSize();
+
 		int indexToAdd = (idx < 0) ? 0 : (idx > size) ? size : idx;
+		if (indexToAdd == size && hadMoreRows())
+		{
+			Debug.trace("Cannot add new record to end of foundset because foundset is not fully loaded yet, adding at begin of foundset");
+			indexToAdd = 0;
+		}
 
 		if (changeSelection && fsm.getEditRecordList().isEditing(getRecord(getSelectedIndex())))
 		{
