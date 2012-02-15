@@ -106,7 +106,7 @@ public class JSONSerializerWrapper
 				@Override
 				public Object unmarshall(SerializerState state, Class clazz, Object json) throws UnmarshallException
 				{
-					if (clazz == null && defaultSerializer != null && defaultSerializer.getSerializableClasses() != null &&
+					if ((clazz == null || clazz == Object.class) && defaultSerializer != null && defaultSerializer.getSerializableClasses() != null &&
 						defaultSerializer.getSerializableClasses().length > 0 && json instanceof JSONObject && !((JSONObject)json).has("javaClass"))
 					{
 						// default serializer when there is no class hint
