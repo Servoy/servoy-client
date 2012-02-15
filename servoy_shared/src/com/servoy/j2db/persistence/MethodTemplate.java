@@ -426,7 +426,7 @@ public class MethodTemplate implements IMethodTemplate
 		boolean addTodo = Boolean.parseBoolean(root.getAttribute(ATTR_ADDTODO));
 		String typeStr = root.getAttribute(ATTR_TYPE);
 		ArgumentType type = null;
-		if (typeStr != null) type = ArgumentType.valueOf(typeStr);
+		if (typeStr != null && typeStr.length() != 0) type = ArgumentType.valueOf(typeStr);
 
 		NodeList nodes = root.getElementsByTagName(TAG_DESCRIPTION);
 		String descr = null;
