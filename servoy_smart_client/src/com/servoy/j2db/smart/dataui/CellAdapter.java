@@ -100,10 +100,12 @@ import com.servoy.j2db.smart.J2DBClient;
 import com.servoy.j2db.smart.ListView;
 import com.servoy.j2db.smart.TableView;
 import com.servoy.j2db.ui.IComponent;
+import com.servoy.j2db.ui.IScriptRenderMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.RenderEventExecutor;
+import com.servoy.j2db.ui.RenderableWrapper;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.ui.scripting.IFormatScriptComponent;
 import com.servoy.j2db.util.Debug;
@@ -550,6 +552,18 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			return empty;
 		}
 
+		RenderEventExecutor renderEventExecutor = null;
+		IScriptRenderMethods renderable = null;
+		if (renderer instanceof IScriptableProvider)
+		{
+			IScriptable scriptable = ((IScriptableProvider)renderer).getScriptObject();
+			if (scriptable instanceof ISupportOnRenderCallback)
+			{
+				renderEventExecutor = ((ISupportOnRenderCallback)scriptable).getRenderEventExecutor();
+				renderable = ((ISupportOnRenderCallback)scriptable).getRenderable();
+			}
+		}
+
 		Color bgColor = getBgColor(jtable, isSelected, row, false);
 		Color fgColor = getFgColor(jtable, isSelected, row);
 		Font font = getFont(jtable, isSelected, row);
@@ -586,7 +600,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 
 			if (font != null) renderer.setFont(font);
 		}
-		else
+		else if (!(renderEventExecutor != null && renderEventExecutor.hasRenderCallback() && renderable instanceof RenderableWrapper)) // only do this if no onRender
 		{
 			// now get the editors background. if we don't do that then scripting doesn't show up
 			Color background = editor.getBackground();
@@ -610,6 +624,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				Color currentForeground = (fgColor != null ? fgColor : (unselectedForeground != null) ? unselectedForeground : jtable.getForeground());
 				renderer.setForeground(currentForeground);
 			}
+
 			Color currentColor = (bgColor != null ? bgColor : (unselectedBackground != null) ? unselectedBackground : jtable.getBackground());
 			renderer.setBackground(currentColor);
 
@@ -623,18 +638,12 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		}
 
 		boolean printing = Utils.getAsBoolean(application.getRuntimeProperties().get("isPrinting")); //$NON-NLS-1$
-		if (renderer instanceof IScriptableProvider)
+
+		if (renderEventExecutor != null && renderEventExecutor.hasRenderCallback())
 		{
-			IScriptable scriptable = ((IScriptableProvider)renderer).getScriptObject();
-			if (scriptable instanceof ISupportOnRenderCallback)
-			{
-				RenderEventExecutor renderEventExecutor = ((ISupportOnRenderCallback)scriptable).getRenderEventExecutor();
-				if (renderEventExecutor != null && renderEventExecutor.hasRenderCallback())
-				{
-					renderEventExecutor.setRenderState(state, row, isSelected);
-				}
-			}
+			renderEventExecutor.setRenderState(state, row, isSelected);
 		}
+
 		if (renderer instanceof IDisplayRelatedData)
 		{
 			IDisplayRelatedData drd = (IDisplayRelatedData)renderer;
@@ -696,7 +705,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 										Debug.error(e);
 									}
 									Runnable r = new ASynchonizedCellLoad(app, jtable, foundset, row, jtable.convertColumnIndexToModel(column), relationName,
-										defaultPKSortColumns , restName);
+										defaultPKSortColumns, restName);
 									app.getScheduledExecutor().execute(r);
 								}
 								return renderer.isVisible() ? renderer : empty;
@@ -750,17 +759,11 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		{
 			((IServoyAwareBean)renderer).setSelectedRecord(new ServoyBeanState(state, dal.getFormScope()));
 		}
-		if (renderer instanceof IScriptableProvider && !(renderer instanceof IDisplayData) && !(renderer instanceof IDisplayRelatedData))
+
+		if (!(renderer instanceof IDisplayData) && !(renderer instanceof IDisplayRelatedData) && renderEventExecutor != null &&
+			renderEventExecutor.hasRenderCallback())
 		{
-			IScriptable scriptable = ((IScriptableProvider)renderer).getScriptObject();
-			if (scriptable instanceof ISupportOnRenderCallback)
-			{
-				RenderEventExecutor renderEventExecutor = ((ISupportOnRenderCallback)scriptable).getRenderEventExecutor();
-				if (renderEventExecutor != null && renderEventExecutor.hasRenderCallback())
-				{
-					renderEventExecutor.fireOnRender(false);
-				}
-			}
+			renderEventExecutor.fireOnRender(false);
 		}
 
 		return renderer.isVisible() ? renderer : empty;
