@@ -53,9 +53,9 @@ public class WebClientPluginAccessProvider extends ClientPluginAccessProvider im
 		return getApplication().showURL(url, target, target_options, timeout, true);
 	}
 
-	public boolean showURL(String url, String target, String target_options, int timeout, boolean closeDialogs)
+	public boolean showURL(String url, String target, String target_options, int timeout, boolean onRootFrame)
 	{
-		return getApplication().showURL(url, target, target_options, timeout, closeDialogs);
+		return getApplication().showURL(url, target, target_options, timeout, onRootFrame);
 	}
 
 	public IPageContributor getPageContributor()

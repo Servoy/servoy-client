@@ -1550,56 +1550,43 @@ function onAjaxCall()
 }
 
 var showurlCalled = false;
-function showurl(url,timeout,closeDialog, useIFrame, exit)
+function showurl(url, timeout, onRootFrame, useIFrame, exit)
 {
-	var win;
 	var mywindow = window;
 
-	if(closeDialog || useIFrame)
-	{
-		while (typeof(mywindow.parent)!= "undefined" && mywindow != mywindow.parent)
-		{
-			try {		
+	if (onRootFrame || useIFrame) {
+		var win;
+		while (typeof(mywindow.parent) != "undefined" && mywindow != mywindow.parent) {
+			try {
 				win = mywindow.parent.Wicket.Window;
-			} catch (ignore) {		
-			}
-			
-			if (typeof(win) != "undefined" && typeof(win.current) != "undefined") {
-				if (closeDialog) {
-					// we can't call close directly, because it will delete our window,
-					// so we will schedule it as timeout for parent's window
-					window.parent.setTimeout(function() {
-						win.current.close();			
-					}, 0);
-				}
+			} catch (ignore) {}
+
+			if (typeof(win) != "undefined") {
 				mywindow = mywindow.parent
-			}
-			else
-			{
+			} else {
 				break
 			}
 		}
 	}
-	
+
 	if (useIFrame) {
 		var ifrm = mywindow.frames['srv_downloadframe'];
 		if (ifrm) {
 			ifrm.location = url;
+		} else {
+			ifrm = document.createElement("IFRAME");
+			ifrm.setAttribute("src", url);
+			ifrm.setAttribute('id', 'srv_downloadframe');
+			ifrm.setAttribute('name', 'srv_downloadframe');
+			ifrm.style.width = 0 + "px";
+			ifrm.style.height = 0 + "px";
+			mywindow.document.body.appendChild(ifrm);
 		}
-		else {
-			ifrm = document.createElement("IFRAME"); 
-		   ifrm.setAttribute("src", url); 
-		   ifrm.setAttribute('id', 'srv_downloadframe');
-		   ifrm.setAttribute('name', 'srv_downloadframe');
-		   ifrm.style.width = 0+"px"; 
-		   ifrm.style.height = 0+"px"; 
-		   mywindow.document.body.appendChild(ifrm);
-		} 
 	} else {
-	  if(!showurlCalled) {
-	    showurlCalled = exit;
-	  	mywindow.setTimeout(mywindow.document.location.href=url,timeout);
-	  }
+		if (!showurlCalled) {
+			showurlCalled = exit;
+			mywindow.setTimeout("window.document.location.href='" + url + "'", timeout);
+		}
 	}
 }
 

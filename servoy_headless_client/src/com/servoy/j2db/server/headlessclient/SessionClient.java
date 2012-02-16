@@ -1687,7 +1687,7 @@ public class SessionClient extends ClientState implements ISessionClient
 		return new Dimension(-1, -1);
 	}
 
-	public boolean showURL(String url, String target, String target_options, int timeout_ms, boolean closeDialogs)
+	public boolean showURL(String url, String target, String target_options, int timeout_ms, boolean onRootFrame)
 	{
 		//ignore
 		return false;

@@ -1250,9 +1250,9 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		return Integer.toString(inputNameIds++);
 	}
 
-	public void setShowURLCMD(String url, String target, String target_options, int timeout, boolean closeDialogs)
+	public void setShowURLCMD(String url, String target, String target_options, int timeout, boolean onRootFrame)
 	{
-		showUrlInfo = new ShowUrlInfo(url, target, target_options, timeout, closeDialogs, url.equals(urlFor(serveResourceReference)) ? target == null ||
+		showUrlInfo = new ShowUrlInfo(url, target, target_options, timeout, onRootFrame, url.equals(urlFor(serveResourceReference)) ? target == null ||
 			target.equals("_self") ? true : false : false); //$NON-NLS-1$
 	}
 
@@ -1280,7 +1280,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				{
 					url = RequestUtils.toAbsolutePath(url);
 				}
-				return "showurl('" + url + "'," + showUrlInfo.timeout + "," + showUrlInfo.closeDialogs + "," + showUrlInfo.useIFrame + "," + showUrlInfo.exit +
+				return "showurl('" + url + "'," + showUrlInfo.timeout + "," + showUrlInfo.onRootFrame + "," + showUrlInfo.useIFrame + "," + showUrlInfo.exit +
 					");";
 			}
 			else if (showUrlInfo.target.equalsIgnoreCase("_top"))
@@ -1874,55 +1874,49 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		private final String target;
 		private final String target_options;
 		private final int timeout;
-		private final boolean closeDialogs;
-		private final boolean useIFrame;
+		private boolean onRootFrame;
+		private boolean useIFrame;
 		private boolean exit;
 
-		/**
-		 * @param url
-		 * @param target
-		 * @param target_options
-		 * @param timeout
-		 * @param b 
-		 */
-		public ShowUrlInfo(String url, String target, String target_options, int timeout, boolean closeDialogs, boolean useIFrame)
+		public ShowUrlInfo(String url, String target, String target_options, int timeout, boolean onRootFrame, boolean useIFrame)
 		{
-			this(url, target, target_options, timeout, closeDialogs, useIFrame, false);
+			this(url, target, target_options, timeout, onRootFrame, useIFrame, false);
 		}
 
-		public ShowUrlInfo(String url, String target, String target_options, int timeout, boolean closeDialogs, boolean useIFrame, boolean exit)
+		public ShowUrlInfo(String url, String target, String target_options, int timeout, boolean onRootFrame, boolean useIFrame, boolean exit)
 		{
 			this.url = url;
 			this.useIFrame = useIFrame;
 			this.target = target == null ? "_blank" : target; //$NON-NLS-1$
 			this.target_options = target_options;
 			this.timeout = timeout * 1000;
-			this.closeDialogs = closeDialogs;
+			this.onRootFrame = onRootFrame;
 			this.exit = exit;
 		}
 
-		/**
-		 * @return
-		 */
 		public String getUrl()
 		{
 			return url;
 		}
 
-		/**
-		 * @return
-		 */
 		public String getTarget()
 		{
 			return target;
 		}
 
-		/**
-		 * @param b
-		 */
 		public void setExit(boolean exit)
 		{
 			this.exit = exit;
+		}
+
+		public void setUseIFrame(boolean useIFrame)
+		{
+			this.useIFrame = useIFrame;
+		}
+
+		public void setOnRootFrame(boolean onRootFrame)
+		{
+			this.onRootFrame = onRootFrame;
 		}
 
 	}

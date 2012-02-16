@@ -745,11 +745,15 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		{
 			closing = true;
 
-			MainPage.ShowUrlInfo showUrlInfo = getMainPage().getShowUrlInfo();
-			boolean shownInDialog = getMainPage().isShowingInDialog();
+			MainPage mp = getMainPage();
+			MainPage.ShowUrlInfo showUrlInfo = mp.getShowUrlInfo();
+			boolean shownInDialog = mp.isShowingInDialog() || mp.isPopupClosing(); // if this page is showing in a div dialog (or is about to be closed as it was in one), the page redirect needs to happen inside root page, not in iframe
 			boolean retval = super.closeSolution(force, args);
 			if (retval)
 			{
+				// close all windows
+				getRuntimeWindowManager().closeFormInWindow(null, true);
+
 				Collection<Style> userStyles = getFlattenedSolution().flushUserStyles();
 				if (userStyles != null)
 				{
@@ -760,10 +764,11 @@ public class WebClient extends SessionClient implements IWebClientApplication
 				}
 				getRuntimeProperties().put(IServiceProvider.RT_VALUELIST_CACHE, null);
 				getRuntimeProperties().put(IServiceProvider.RT_OVERRIDESTYLE_CACHE, null);
+
+				// what page should be shown next in browser?
 				RequestCycle rc = RequestCycle.get();
 				if (rc != null)
 				{
-
 					if (showUrlInfo != null)
 					{
 						String url = "/";
@@ -774,6 +779,8 @@ public class WebClient extends SessionClient implements IWebClientApplication
 						if (rc.getRequestTarget() instanceof AjaxRequestTarget)
 						{
 							showUrlInfo.setExit(true);
+							showUrlInfo.setOnRootFrame(true);
+							showUrlInfo.setUseIFrame(false);
 							String show = MainPage.getShowUrlScript(showUrlInfo);
 							if (show != null)
 							{
@@ -793,13 +800,13 @@ public class WebClient extends SessionClient implements IWebClientApplication
 							{
 								if (shownInDialog && rc.getRequestTarget() instanceof AjaxRequestTarget)
 								{
-									CharSequence urlFor = getMainPage().urlFor(SelectSolution.class, null);
+									CharSequence urlFor = mp.urlFor(SelectSolution.class, null);
 									((AjaxRequestTarget)rc.getRequestTarget()).appendJavascript(MainPage.getShowUrlScript(new ShowUrlInfo(urlFor.toString(),
 										"_self", null, 0, true, false, true)));
 								}
 								else
 								{
-									getMainPage().setResponsePage(SelectSolution.class);
+									mp.setResponsePage(SelectSolution.class);
 								}
 							}
 							else
@@ -818,7 +825,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 								}
 								if (shownInDialog && rc.getRequestTarget() instanceof AjaxRequestTarget)
 								{
-									CharSequence urlFor = getMainPage().urlFor(SolutionLoader.class, new PageParameters(map));
+									CharSequence urlFor = mp.urlFor(SolutionLoader.class, new PageParameters(map));
 									((AjaxRequestTarget)rc.getRequestTarget()).appendJavascript(MainPage.getShowUrlScript(new ShowUrlInfo(urlFor.toString(),
 										"_self", null, 0, true, false, true)));
 								}
@@ -890,11 +897,11 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	}
 
 	@Override
-	public boolean showURL(String url, String target, String target_options, int timeout, boolean closeDialogs)
+	public boolean showURL(String url, String target, String target_options, int timeout, boolean onRootFrame)
 	{
 		if (getMainPage() != null)
 		{
-			getMainPage().setShowURLCMD(url, target, target_options, timeout, closeDialogs);
+			getMainPage().setShowURLCMD(url, target, target_options, timeout, onRootFrame);
 			return true;
 		}
 		return false;

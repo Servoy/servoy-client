@@ -66,10 +66,10 @@ public interface IWebClientPluginAccess extends IClientPluginAccess
 	 * @param target (_blank,_self, framename)
 	 * @param target_options usefull option for new window ('height=200,width=400,status=yes,toolbar=no,menubar=no,location=no')
 	 * @param timeout_ms time to act in milliseconds
-	 * @param closeDialogs whatever to close open dialogs before showing the url
+	 * @param onRootFrame whether or not the URL should be shown in the root Servoy window/iFrame in case of dialogs (iFrame)
 	 * @return true if successful
 	 */
-	public boolean showURL(String url, String target, String target_options, int timeout_ms, boolean closeDialogs);
+	public boolean showURL(String url, String target, String target_options, int timeout_ms, boolean onRootFrame);
 
 	/**
 	 * Get the page contributor
