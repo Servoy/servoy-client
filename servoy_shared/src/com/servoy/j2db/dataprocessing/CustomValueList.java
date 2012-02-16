@@ -387,6 +387,11 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 						o = Column.getAsRightType(valueType, Column.NORMAL_COLUMN, o, format == null ? null : format.getDisplayFormat(), Integer.MAX_VALUE,
 							null, true);
 					}
+					else
+					{
+						// if we have real values all display values should be strings
+						o = (o != null) ? o.toString() : null;
+					}
 					super.addElement(o);
 				}
 			}

@@ -70,6 +70,7 @@ import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.ISmartClientApplication;
+import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IValueList;
@@ -1334,7 +1335,8 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		this.dataType = dataType;
 		this.displayFormat = format;
 		this.editFormat = format;
-		if (format != null && format.length() != 0)
+		boolean emptyCustom = (list instanceof CustomValueList) && list.getSize() == 0;
+		if (format != null && format.length() != 0 && (list == null || (!list.hasRealValues() && !emptyCustom)))
 		{
 			fp = FormatParser.parseFormatString(format, null, null);
 
@@ -1459,7 +1461,6 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 			setFormatterFactory(new EditingFixedDefaultFormatterFactory(display, display, edit, edit));
 		}
 	}
-
 
 	public void setComponentVisible(boolean b_visible)
 	{
