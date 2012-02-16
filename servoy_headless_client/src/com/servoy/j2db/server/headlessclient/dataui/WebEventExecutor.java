@@ -67,6 +67,7 @@ import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.WebClientsApplication.ModifiedAccessStackPageMap;
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.server.headlessclient.WrapperContainer;
+import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView.WebCellBasedViewListViewItem;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataCalendar.DateField;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataRadioButton.MyRadioButton;
 import com.servoy.j2db.server.headlessclient.dnd.DraggableBehavior;
@@ -521,6 +522,12 @@ public class WebEventExecutor extends BaseEventExecutor
 				{
 					// the component is not part of the table view (it is on other form part), so ignore selection change
 					return true;
+				}
+
+				if (parentFormViewType == IForm.LIST_VIEW || parentFormViewType == FormController.LOCKED_LIST_VIEW)
+				{
+					WebCellBasedViewListViewItem listViewItem = component.findParent(WebCellBasedView.WebCellBasedViewListViewItem.class);
+					if (listViewItem != null) listViewItem.markSelected();
 				}
 			}
 		}

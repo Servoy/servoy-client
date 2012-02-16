@@ -848,8 +848,8 @@ public class TemplateGenerator
 						break;
 					}
 				}
-				columns.append("<td><div style=\"position: absolute; width: ").append(f.getWidth()).append("px; height: ").append(firstComponentHeight).append(
-					"px;\">");
+				columns.append("<td><div servoy:id='listViewItem' style=\"position: absolute; width: ").append(f.getWidth()).append("px; height: ").append(
+					firstComponentHeight).append("px;\">");
 
 				Iterator<IFormElement> it = f.getFormElementsSortedByFormIndex();
 				while (it.hasNext())

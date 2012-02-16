@@ -535,6 +535,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			}
 
 			final int visibleRowIndex = listItem.getIndex() % getRowsPerPage();
+			final WebMarkupContainer listItemContainer = listItem instanceof WebCellBasedViewListItem ? ((WebCellBasedViewListItem)listItem).getListContainer()
+				: listItem;
+
+
 			if (createComponents)
 			{
 				final Object compColor = color;
@@ -575,7 +579,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						}
 
 						cellToElement.put(comp, element);
-						listItem.add(listItemChild);
+						listItemContainer.add(listItemChild);
 						setUpComponent(comp, rec, compColor, compFgColor, compFont, compBorder, visibleRowIndex);
 					}
 				});
@@ -583,7 +587,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			else
 			{
 				// we only need to set up again all components in the list item (refresh them)
-				Iterator< ? extends Component> children = listItem.iterator();
+				Iterator< ? extends Component> children = listItemContainer.iterator();
 				while (children.hasNext())
 				{
 					Component child = CellContainer.getContentsForCell(children.next());
@@ -741,8 +745,95 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 	}
 
+	public class WebCellBasedViewListViewItem extends WebMarkupContainer implements IProviderStylePropertyChanges
+	{
+		private ListItem<IRecordInternal> listItem;
+
+		public WebCellBasedViewListViewItem(ListItem<IRecordInternal> listItem)
+		{
+			super("listViewItem"); //$NON-NLS-1$
+			setOutputMarkupId(true);
+			this.listItem = listItem;
+			add(new ServoyAjaxEventBehavior("onclick", "listView") //$NON-NLS-1$ //$NON-NLS-2$
+			{
+				@Override
+				protected void onEvent(AjaxRequestTarget target)
+				{
+					markSelected();
+					IFoundSetInternal modelFs = WebCellBasedViewListViewItem.this.listItem.getModelObject().getParentFoundSet();
+					int recIndex = modelFs.getRecordIndex(WebCellBasedViewListViewItem.this.listItem.getModelObject());
+					modelFs.setSelectedIndex(recIndex);
+					WebEventExecutor.generateResponse(target, getPage());
+				}
+			});
+
+			add(new StyleAppendingModifier(new Model<String>()
+			{
+				@Override
+				public String getObject()
+				{
+					boolean isSelectedEl = isSelected();
+					WebCellBasedView view = WebCellBasedViewListViewItem.this.listItem.findParent(WebCellBasedView.class);
+
+					Object color = view.getStyleAttributeForListItem(WebCellBasedViewListViewItem.this.listItem, isSelectedEl,
+						ISupportRowStyling.ATTRIBUTE.BGCOLOR);
+
+					return color != null ? "background-color: " + color : (isSelectedEl ? "border-left: 3px solid black" : "margin-left: 3px"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				}
+			}));
+		}
+
+		@Override
+		protected void onRender(MarkupStream markupStream)
+		{
+			super.onRender(markupStream);
+			changesRecorder.setRendered();
+		}
+
+		public void markSelected()
+		{
+			if (!isSelected())
+			{
+				WebCellBasedViewListView listView = WebCellBasedViewListViewItem.this.listItem.findParent(WebCellBasedViewListView.class);
+				if (listView != null)
+				{
+					WebCellBasedViewListItem listItemObj;
+					int listViewSize = listView.size();
+					for (int i = 0; i < listViewSize; i++)
+					{
+						listItemObj = (WebCellBasedViewListItem)listView.get(i);
+						if (((WebCellBasedViewListViewItem)listItemObj.getListContainer()).isSelected())
+						{
+							((WebCellBasedViewListViewItem)listItemObj.getListContainer()).getStylePropertyChanges().setChanged();
+						}
+					}
+				}
+				changesRecorder.setChanged();
+			}
+		}
+
+		public boolean isSelected()
+		{
+			IFoundSetInternal modelFs = listItem.getModelObject().getParentFoundSet();
+			int recIndex = modelFs.getRecordIndex(listItem.getModelObject());
+			return recIndex == modelFs.getSelectedIndex();
+		}
+
+		private final IStylePropertyChanges changesRecorder = new ChangesRecorder();
+
+		/*
+		 * @see com.servoy.j2db.ui.IProviderStylePropertyChanges#getStylePropertyChanges()
+		 */
+		public IStylePropertyChanges getStylePropertyChanges()
+		{
+			return changesRecorder;
+		}
+	}
+
 	private class WebCellBasedViewListItem extends ListItem<IRecordInternal>
 	{
+		private WebMarkupContainer listContainer;
+
 		public WebCellBasedViewListItem(int index, IModel<IRecordInternal> model)
 		{
 			super(index, model);
@@ -789,7 +880,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		private void updateComponentsRenderState(AjaxRequestTarget target, String bgColor, String fgColor, String compFont, String compBorder,
 			boolean isSelected, boolean ignoreStyles)
 		{
-			Iterator< ? extends Component> it = iterator();
+			Iterator< ? extends Component> it = getListContainer().iterator();
 			while (it.hasNext())
 			{
 				Component component = it.next();
@@ -834,6 +925,21 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			}
 
 			return false;
+		}
+
+		public WebMarkupContainer getListContainer()
+		{
+			if (listContainer == null)
+			{
+				if (viewType == IForm.LIST_VIEW || viewType == FormController.LOCKED_LIST_VIEW)
+				{
+					listContainer = new WebCellBasedViewListViewItem(this);
+
+					add(listContainer);
+				}
+				else listContainer = this;
+			}
+			return listContainer;
 		}
 	}
 
