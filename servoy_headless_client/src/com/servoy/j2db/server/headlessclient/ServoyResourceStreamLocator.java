@@ -84,7 +84,7 @@ public final class ServoyResourceStreamLocator implements IResourceStreamLocator
 					Debug.trace("Load failed for " + pathname + " (ignored, getting default)"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
-			else if (pathname.startsWith("com/servoy/j2db/server/headlessclient/WebForm")) //$NON-NLS-1$
+			else if (pathname.startsWith("com/servoy/j2db/server/headlessclient/WebForm_")) //$NON-NLS-1$
 			{
 				int index = pathname.indexOf("form::"); //$NON-NLS-1$
 				if (index != -1)
