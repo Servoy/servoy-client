@@ -1393,7 +1393,7 @@ function showurl(url,timeout,closeDialog, useIFrame, exit)
 	} else {
 	  if(!showurlCalled) {
 	    showurlCalled = exit;
-	  	mywindow.setTimeout(mywindow.document.location.href=url,timeout);
+		mywindow.setTimeout("window.document.location.href='" + url + "'", timeout);
 	  }
 	}
 }
