@@ -232,7 +232,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	private int viewType;
 
-	private boolean isAnchoringEnabled;
 	private boolean isLeftToRightOrientation;
 	private Dimension formBodySize;
 
@@ -527,13 +526,18 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			final IRecordInternal rec = listItem.getModelObject();
 			boolean selected = isRecordSelected(rec);
 
-			Object color = WebCellBasedView.this.getListItemBgColor(listItem, selected);
-			if (color instanceof Undefined) color = null;
-			Object fgColor = WebCellBasedView.this.getListItemFgColor(listItem, selected);
-			if (fgColor instanceof Undefined) fgColor = null;
-			Object styleFont = WebCellBasedView.this.getListItemFont(listItem, selected);
-			if (styleFont instanceof Undefined) styleFont = null;
-			Object styleBorder = WebCellBasedView.this.getListItemBorder(listItem, selected);
+			Object color = null, fgColor = null, styleFont = null, styleBorder = null;
+
+			if (viewType != IForm.LIST_VIEW && viewType != FormController.LOCKED_LIST_VIEW)
+			{
+				color = WebCellBasedView.this.getListItemBgColor(listItem, selected);
+				if (color instanceof Undefined) color = null;
+				fgColor = WebCellBasedView.this.getListItemFgColor(listItem, selected);
+				if (fgColor instanceof Undefined) fgColor = null;
+				styleFont = WebCellBasedView.this.getListItemFont(listItem, selected);
+				if (styleFont instanceof Undefined) styleFont = null;
+				styleBorder = WebCellBasedView.this.getListItemBorder(listItem, selected);
+			}
 
 			if (color == null && fgColor == null && styleFont == null && styleBorder == null)
 			{
@@ -585,7 +589,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						else
 						{
 							// if anchoring add wrapper to the listItemChild
-							if (isAnchoringEnabled &&
+							if (useAnchors &&
 								(((element instanceof Field) && WebAnchoringHelper.needsWrapperDivForAnchoring((Field)element)) || (element instanceof Bean) || ((element instanceof GraphicalComponent) && ComponentFactory.isButton((GraphicalComponent)element))))
 							{
 								listItemChild = WebAnchoringHelper.getWrapperComponent(comp, (IFormElement)element, 0, formBodySize, isLeftToRightOrientation);
@@ -1190,10 +1194,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		if (!useAJAX) bodyHeightHint = sizeHint;
 
-
-		isAnchoringEnabled = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")); //$NON-NLS-1$
 		String orientation = OrientationApplier.getHTMLContainerOrientation(application.getLocale(), application.getSolution().getTextOrientation());
-		isLeftToRightOrientation = !"rtl".equalsIgnoreCase(orientation); //$NON-NLS-1$			
+		isLeftToRightOrientation = !OrientationApplier.RTL.equalsIgnoreCase(orientation);
 
 		int tFormHeight = 0;
 		Iterator<Part> partIte = form.getParts();
@@ -3621,10 +3623,15 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					{
 						String selectedId = selectedListItem.getMarkupId();
 						boolean isSelected = Arrays.binarySearch(newSelectedIndexes, rowIdx) >= 0;
-						Object selectedColor = getListItemBgColor(selectedListItem, isSelected);
-						Object selectedFgColor = getListItemFgColor(selectedListItem, isSelected);
-						Object selectedFont = getListItemFont(selectedListItem, isSelected);
-						Object selectedBorder = getListItemBorder(selectedListItem, isSelected);
+
+						Object selectedColor = null, selectedFgColor = null, selectedFont = null, selectedBorder = null;
+						selectedColor = getListItemBgColor(selectedListItem, isSelected);
+						if (viewType != IForm.LIST_VIEW && viewType != FormController.LOCKED_LIST_VIEW)
+						{
+							selectedFgColor = getListItemFgColor(selectedListItem, isSelected);
+							selectedFont = getListItemFont(selectedListItem, isSelected);
+							selectedBorder = getListItemBorder(selectedListItem, isSelected);
+						}
 						selectedColor = (selectedColor == null ? "" : selectedColor.toString()); //$NON-NLS-1$
 						selectedFgColor = (selectedFgColor == null) ? "" : selectedFgColor.toString(); //$NON-NLS-1$
 						String fstyle = "", fweight = "", fsize = "", ffamily = ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -3675,7 +3682,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						append(ffamily).append("', '"). //$NON-NLS-1$
 						append(bstyle).append("', '"). //$NON-NLS-1$
 						append(bwidth).append("', '"). //$NON-NLS-1$
-						append(bcolor).append("');\n"); //$NON-NLS-1$
+						append(bcolor).append("', "). //$NON-NLS-1$
+						append((viewType == IForm.LIST_VIEW) || (viewType == FormController.LOCKED_LIST_VIEW)).append(");\n"); //$NON-NLS-1$
 					}
 				}
 			}
@@ -3704,14 +3712,18 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					if (selectedListItem instanceof WebCellBasedViewListItem)
 					{
 						boolean isSelected = Arrays.binarySearch(newSelectedIndexes, rowIdx) >= 0;
-						Object color = WebCellBasedView.this.getListItemBgColor(selectedListItem, isSelected);
-						String sColor = (color == null || color instanceof Undefined) ? null : color.toString();
-						Object fgColor = WebCellBasedView.this.getListItemFgColor(selectedListItem, isSelected);
-						String sFgColor = (fgColor == null || fgColor instanceof Undefined) ? null : fgColor.toString();
-						Object styleFont = WebCellBasedView.this.getListItemFont(selectedListItem, isSelected);
-						String sStyleFont = (styleFont == null || styleFont instanceof Undefined) ? null : styleFont.toString();
-						Object styleBorder = WebCellBasedView.this.getListItemBorder(selectedListItem, isSelected);
-						String sStyleBorder = (styleBorder == null || styleBorder instanceof Undefined) ? null : styleBorder.toString();
+						String sColor = null, sFgColor = null, sStyleFont = null, sStyleBorder = null;
+						if (viewType != IForm.LIST_VIEW && viewType != FormController.LOCKED_LIST_VIEW)
+						{
+							Object color = WebCellBasedView.this.getListItemBgColor(selectedListItem, isSelected);
+							sColor = (color == null || color instanceof Undefined) ? null : color.toString();
+							Object fgColor = WebCellBasedView.this.getListItemFgColor(selectedListItem, isSelected);
+							sFgColor = (fgColor == null || fgColor instanceof Undefined) ? null : fgColor.toString();
+							Object styleFont = WebCellBasedView.this.getListItemFont(selectedListItem, isSelected);
+							sStyleFont = (styleFont == null || styleFont instanceof Undefined) ? null : styleFont.toString();
+							Object styleBorder = WebCellBasedView.this.getListItemBorder(selectedListItem, isSelected);
+							sStyleBorder = (styleBorder == null || styleBorder instanceof Undefined) ? null : styleBorder.toString();
+						}
 
 						((WebCellBasedViewListItem)selectedListItem).updateComponentsRenderState(target, sColor, sFgColor, sStyleFont, sStyleBorder, isSelected);
 					}

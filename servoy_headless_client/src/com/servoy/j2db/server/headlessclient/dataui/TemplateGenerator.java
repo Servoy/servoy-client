@@ -848,7 +848,8 @@ public class TemplateGenerator
 						break;
 					}
 				}
-				columns.append("<td><div servoy:id='listViewItem' style=\"position: absolute; height: ").append(firstComponentHeight).append("px;");
+				columns.append("<td><div servoy:id='listViewItem' class=\"listViewItem\" style=\"position: absolute; height: ").append(firstComponentHeight).append(
+					"px;");
 				if (enableAnchoring)
 				{
 					columns.append(" left: 0px; right: 0px;");

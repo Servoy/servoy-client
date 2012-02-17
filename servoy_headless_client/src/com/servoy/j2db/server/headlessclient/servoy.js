@@ -593,7 +593,7 @@ if (typeof(Servoy.TableView) == "undefined")
 {
 	Servoy.TableView = 
 	{	
-		setRowStyleEl: function(el, bgcolor, fgcolor, fontStyle, fontWeight, fontSize, fontFamily, borderStyle, borderWidth, borderColor, inDepth)
+		setRowStyleEl: function(el, bgcolor, fgcolor, fontStyle, fontWeight, fontSize, fontFamily, borderStyle, borderWidth, borderColor, isListView, inDepth)
 		{
 			var elChildren = el.childNodes;
 			var elChildrenLen = elChildren.length;
@@ -601,7 +601,7 @@ if (typeof(Servoy.TableView) == "undefined")
 			if (!(el.tagName.toLowerCase() == "td" && elChildrenLen == 1 && !elChildren[0].tagName))
 			{
 				// ignore the tableview filler (last column) 
-				if(el.attributes['id'])
+				if(el.attributes['id'] && (!isListView || (el.attributes['class'] && (el.attributes['class'] == 'listViewItem'))))
 				{
 					el.style.backgroundColor = bgcolor;
 					el.style.color = fgcolor;
@@ -648,13 +648,13 @@ if (typeof(Servoy.TableView) == "undefined")
 				{
 					if(elChildren[i].tagName)
 					{	
-						Servoy.TableView.setRowStyleEl(elChildren[i], bgcolor, fgcolor, fontStyle, fontWeight, fontSize, fontFamily, borderStyle, borderWidth, borderColor, continueInDepth);
+						Servoy.TableView.setRowStyleEl(elChildren[i], bgcolor, fgcolor, fontStyle, fontWeight, fontSize, fontFamily, borderStyle, borderWidth, borderColor, isListView, continueInDepth);
 					}
 				}
 			}
 		},
 
-		setRowStyle: function(rowId, bgcolor, fgcolor, fontStyle, fontWeight, fontSize, fontFamily, borderStyle, borderWidth, borderColor)
+		setRowStyle: function(rowId, bgcolor, fgcolor, fontStyle, fontWeight, fontSize, fontFamily, borderStyle, borderWidth, borderColor, isListView)
 		{
 			var rowEl = document.getElementById(rowId);
 			if(rowEl)
@@ -666,7 +666,7 @@ if (typeof(Servoy.TableView) == "undefined")
 				{
 					if(rowChildren[i].tagName)
 					{
-						Servoy.TableView.setRowStyleEl(rowChildren[i], bgcolor, fgcolor, fontStyle, fontWeight, fontSize, fontFamily, borderStyle, borderWidth, borderColor, true);
+						Servoy.TableView.setRowStyleEl(rowChildren[i], bgcolor, fgcolor, fontStyle, fontWeight, fontSize, fontFamily, borderStyle, borderWidth, borderColor, isListView, true);
 					}
 				}				
 			}
