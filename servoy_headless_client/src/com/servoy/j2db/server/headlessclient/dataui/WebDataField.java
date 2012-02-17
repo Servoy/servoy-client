@@ -57,6 +57,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IValueList;
@@ -755,7 +756,8 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 
 		getStylePropertyChanges().setChanged();
 		converter = null;
-		if (format != null && format.length() != 0)
+		boolean emptyCustom = (list instanceof CustomValueList) && list.getSize() == 0;
+		if (format != null && format.length() != 0 && (list == null || (!list.hasRealValues() && !emptyCustom)))
 		{
 			parsedFormat.setFormat(format);
 			if (formatAttributeModifier != null) remove(formatAttributeModifier);
