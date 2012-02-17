@@ -400,7 +400,7 @@ public class TemplateGenerator
 					(viewType == FormController.TABLE_VIEW || viewType == FormController.LOCKED_TABLE_VIEW || viewType == IForm.LIST_VIEW || viewType == FormController.LOCKED_LIST_VIEW))
 				{
 					layoutProvider.renderOpenTableViewHTML(html, css, part);
-					createCellBasedView(f, f, html, css, layoutProvider.needsHeaders(), startY, endY, bgColor, sp, viewType);//tableview == bodypart
+					createCellBasedView(f, f, html, css, layoutProvider.needsHeaders(), startY, endY, bgColor, sp, viewType, enableAnchoring);//tableview == bodypart
 					layoutProvider.renderCloseTableViewHTML(html);
 				}
 				else
@@ -483,7 +483,7 @@ public class TemplateGenerator
 	}
 
 	private static void createCellBasedView(AbstractBase obj, Form form, StringBuffer html, TextualCSS css, boolean addHeaders, int startY, int endY,
-		Color bgColor, IServiceProvider sp, int viewType) throws RepositoryException
+		Color bgColor, IServiceProvider sp, int viewType, boolean enableAnchoring) throws RepositoryException
 	{
 		try
 		{
@@ -848,8 +848,16 @@ public class TemplateGenerator
 						break;
 					}
 				}
-				columns.append("<td><div servoy:id='listViewItem' style=\"position: absolute; width: ").append(f.getWidth()).append("px; height: ").append(
-					firstComponentHeight).append("px;\">");
+				columns.append("<td><div servoy:id='listViewItem' style=\"position: absolute; height: ").append(firstComponentHeight).append("px;");
+				if (enableAnchoring)
+				{
+					columns.append(" left: 0px; right: 0px;");
+				}
+				else
+				{
+					columns.append(" width: ").append(f.getWidth()).append("px;");
+				}
+				columns.append("\">");
 
 				Iterator<IFormElement> it = f.getFormElementsSortedByFormIndex();
 				while (it.hasNext())
@@ -862,7 +870,7 @@ public class TemplateGenerator
 
 					if (l.y >= startY && l.y < endY)
 					{
-						createComponentHTML(element, f, columns, css, bgColor, startY, endY, false, sp);
+						createComponentHTML(element, f, columns, css, bgColor, startY, endY, enableAnchoring, sp);
 						columns.append('\n');
 						TextualStyle idBasedStyle = css.addStyle('#' + ComponentFactory.getWebID(form, element));
 						TextualStyle classBasedStyle = css.addStyle('.' + ComponentFactory.getWebID(form, element));
@@ -1940,7 +1948,7 @@ public class TemplateGenerator
 	{
 		Color portalBgColor = meta.getBackground();
 		if (portalBgColor == null) portalBgColor = formPartBgColor;
-		createCellBasedView(meta, form, html, css, !meta.getMultiLine(), startY, endY, portalBgColor, sp, -1);
+		createCellBasedView(meta, form, html, css, !meta.getMultiLine(), startY, endY, portalBgColor, sp, -1, false);
 	}
 
 	private static void createShapeHTML(Shape shape, Form form, StringBuffer html, TextualCSS css, int startY, int endY, boolean enableAnchoring,
@@ -2238,18 +2246,10 @@ public class TemplateGenerator
 		return parsedTxt.trim();
 	}
 
-	public static boolean needsWrapperDivForAnchoring(Field field)
-	{
-		// this needs to be in sync with DesignModeBehavior.needsWrapperDivForAnchoring(String type)
-		return (field.getDisplayType() == Field.PASSWORD) || (field.getDisplayType() == Field.TEXT_AREA) || (field.getDisplayType() == Field.COMBOBOX) ||
-			(field.getDisplayType() == Field.TYPE_AHEAD) || (field.getDisplayType() == Field.TEXT_FIELD) || (field.getDisplayType() == Field.LIST_BOX) ||
-			(field.getDisplayType() == Field.MULTI_SELECTION_LIST_BOX) || (field.getDisplayType() == Field.HTML_AREA && field.getEditable());
-	}
-
 	private static void createFieldHTML(Field field, Form form, StringBuffer html, TextualCSS css, int startY, int endY, boolean enableAnchoring,
 		IServiceProvider sp)
 	{
-		boolean addWrapperDiv = enableAnchoring && needsWrapperDivForAnchoring(field);
+		boolean addWrapperDiv = enableAnchoring && WebAnchoringHelper.needsWrapperDivForAnchoring(field);
 
 		if (addWrapperDiv)
 		{

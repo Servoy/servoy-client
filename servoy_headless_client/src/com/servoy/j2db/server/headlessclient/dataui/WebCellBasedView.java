@@ -121,6 +121,7 @@ import com.servoy.j2db.persistence.ISupportBounds;
 import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.ISupportScrollbars;
 import com.servoy.j2db.persistence.ISupportTabSeq;
+import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.Relation;
@@ -157,6 +158,7 @@ import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.IStyleRule;
 import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.ISupplyFocusChildren;
+import com.servoy.j2db.util.OrientationApplier;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ScopesUtils;
@@ -229,6 +231,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	private int maxRowsPerPage;
 
 	private int viewType;
+
+	private boolean isAnchoringEnabled;
+	private boolean isLeftToRightOrientation;
+	private Dimension formBodySize;
 
 	/**
 	 * @author jcompagner
@@ -538,7 +544,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			final WebMarkupContainer listItemContainer = listItem instanceof WebCellBasedViewListItem ? ((WebCellBasedViewListItem)listItem).getListContainer()
 				: listItem;
 
-
 			if (createComponents)
 			{
 				final Object compColor = color;
@@ -575,6 +580,15 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 									listItemChild.setOutputMarkupPlaceholderTag(true);
 									((MarkupContainer)listItemChild).add(comp);
 								}
+							}
+						}
+						else
+						{
+							// if anchoring add wrapper to the listItemChild
+							if (isAnchoringEnabled &&
+								(((element instanceof Field) && WebAnchoringHelper.needsWrapperDivForAnchoring((Field)element)) || (element instanceof Bean) || ((element instanceof GraphicalComponent) && ComponentFactory.isButton((GraphicalComponent)element))))
+							{
+								listItemChild = WebAnchoringHelper.getWrapperComponent(comp, (IFormElement)element, 0, formBodySize, isLeftToRightOrientation);
 							}
 						}
 
@@ -1175,6 +1189,25 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		add(loadingInfo);
 
 		if (!useAJAX) bodyHeightHint = sizeHint;
+
+
+		isAnchoringEnabled = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")); //$NON-NLS-1$
+		String orientation = OrientationApplier.getHTMLContainerOrientation(application.getLocale(), application.getSolution().getTextOrientation());
+		isLeftToRightOrientation = !"rtl".equalsIgnoreCase(orientation); //$NON-NLS-1$			
+
+		int tFormHeight = 0;
+		Iterator<Part> partIte = form.getParts();
+		while (partIte.hasNext())
+		{
+			Part p = partIte.next();
+			if (p.getPartType() == Part.BODY)
+			{
+				tFormHeight = p.getHeight() - startY;
+				break;
+			}
+		}
+		formBodySize = new Dimension(form.getWidth(), tFormHeight);
+
 
 		ChangesRecorder jsChangeRecorder = new ChangesRecorder(null, null)
 		{
@@ -2068,11 +2101,13 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			IPersist element = elements.get(i);
 			if (element instanceof Field || element instanceof GraphicalComponent || element instanceof Bean)
 			{
-
-				if (element instanceof GraphicalComponent && ((GraphicalComponent)element).getLabelFor() != null)
+				if (viewType != IForm.LIST_VIEW && viewType != FormController.LOCKED_LIST_VIEW)
 				{
-					labelsFor.put(((GraphicalComponent)element).getLabelFor(), element);
-					continue;
+					if (element instanceof GraphicalComponent && ((GraphicalComponent)element).getLabelFor() != null)
+					{
+						labelsFor.put(((GraphicalComponent)element).getLabelFor(), element);
+						continue;
+					}
 				}
 
 				Point l = ((IFormElement)element).getLocation();
