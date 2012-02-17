@@ -174,4 +174,11 @@ public interface IQueryBuilderColumn extends IQueryBuilderPart
 	 * @see #count
 	 */
 	IQueryBuilderAggregate sum();
+
+	/**
+	 * Create upper(column) expression
+	 */
+	IQueryBuilderFunction upper();
+
+	// TODO: add other functions
 }

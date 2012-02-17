@@ -26,6 +26,7 @@ import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.query.QueryColumn;
+import com.servoy.j2db.query.QueryFunction;
 import com.servoy.j2db.query.SetCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 import com.servoy.j2db.querybuilder.IQueryBuilderPart;
@@ -192,4 +193,12 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	{
 		return new QBAggregate(getRoot(), getParent(), queryColumn, QueryAggregate.SUM);
 	}
+
+	@JSReadonlyProperty
+	public QBFunction upper()
+	{
+		return new QBFunction(getRoot(), getParent(), queryColumn, QueryFunction.UPPER);
+	}
+
+	// TODO: add more functions
 }
