@@ -83,6 +83,11 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 		return add(aggregate);
 	}
 
+	public QBResult js_add(QBFunction func) throws RepositoryException
+	{
+		return add(func);
+	}
+
 	@JSFunction
 	public QBResult addValue(Object value) throws RepositoryException
 	{
