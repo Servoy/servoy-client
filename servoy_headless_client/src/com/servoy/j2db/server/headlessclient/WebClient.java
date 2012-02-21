@@ -745,8 +745,10 @@ public class WebClient extends SessionClient implements IWebClientApplication
 				if (rc != null)
 				{
 
+					boolean showDefault = true;
 					if (showUrlInfo != null)
 					{
+						showDefault = !"_self".equals(showUrlInfo.getTarget()) && !"_top".equals(showUrlInfo.getTarget());
 						String url = "/";
 						if (showUrlInfo.getUrl() != null)
 						{
@@ -755,6 +757,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 						if (rc.getRequestTarget() instanceof AjaxRequestTarget)
 						{
 							showUrlInfo.setExit(true);
+
 							String show = MainPage.getShowUrlScript(showUrlInfo);
 							if (show != null)
 							{
@@ -766,7 +769,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 							rc.setRequestTarget(new RedirectRequestTarget(url));
 						}
 					}
-					else
+					if (showDefault)
 					{
 						if (Session.exists())
 						{
