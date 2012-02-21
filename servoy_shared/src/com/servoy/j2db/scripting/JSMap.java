@@ -27,7 +27,7 @@ import java.util.HashMap;
  * @author lvostinar
  *
  */
-public class JSMap extends HashMap<Object, Object> implements JSConvertedMap<Object, Object>
+public class JSMap<K, V> extends HashMap<K, V> implements JSConvertedMap<K, V>
 {
 	private final String constructorName;
 
