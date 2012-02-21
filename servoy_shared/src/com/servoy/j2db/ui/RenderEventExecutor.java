@@ -36,6 +36,8 @@ public class RenderEventExecutor implements IRenderEventExecutor
 	private int renderIndex;
 	private boolean renderIsSelected;
 
+	private boolean isHiddenOnRender;
+
 	public void setRenderCallback(String id)
 	{
 		renderCallback = id;
@@ -79,6 +81,8 @@ public class RenderEventExecutor implements IRenderEventExecutor
 		if (renderScriptExecuter != null && renderCallback != null)
 		{
 			isOnRenderRunningOnComponentPaint = isRunningOnComponentPaint;
+			isHiddenOnRender = false;
+			boolean isDisplayVisible = display.isVisible();
 			JSRenderEvent event = new JSRenderEvent();
 			event.setElement(display);
 			event.setHasFocus(hasFocus);
@@ -88,6 +92,12 @@ public class RenderEventExecutor implements IRenderEventExecutor
 			renderScriptExecuter.executeFunction(renderCallback, new Object[] { event }, false, display, false,
 				StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID.getPropertyName(), true);
 			isOnRenderRunningOnComponentPaint = false;
+			isHiddenOnRender = !display.isVisible() && (isDisplayVisible != display.isVisible());
 		}
+	}
+
+	public boolean isComponentHiddenOnRender()
+	{
+		return isHiddenOnRender;
 	}
 }

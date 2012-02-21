@@ -527,7 +527,8 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		boolean isVisible = false;
 		if (comp != null)
 		{
-			if (comp instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)comp).getRenderEventExecutor().hasRenderCallback())
+			if (comp instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)comp).getRenderEventExecutor().hasRenderCallback() &&
+				((ISupportOnRenderCallback)comp).getRenderEventExecutor().isComponentHiddenOnRender())
 			{
 				isVisible = true;
 			}
