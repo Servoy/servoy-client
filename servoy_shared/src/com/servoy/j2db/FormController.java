@@ -3760,8 +3760,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 				//register the place holder 'scriptableForm' in CreationalPrototype scope
 				creationalPrototype.setLocked(false);
-				creationalPrototype.put(getName(), creationalPrototype, formScope);
 				creationalPrototype.put(((Integer)creationalPrototype.get("length", creationalPrototype)).intValue(), creationalPrototype, formScope); //$NON-NLS-1$
+				creationalPrototype.put(getName(), creationalPrototype, formScope);
 				creationalPrototype.setLocked(true);
 
 				formScope.createVars();

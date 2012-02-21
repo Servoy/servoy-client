@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting;
 
 
@@ -54,6 +54,44 @@ public class CreationalPrototype extends DefaultScope implements LazyInitScope
 	{
 		super.destroy();
 		application = null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.scripting.DefaultScope#put(int, org.mozilla.javascript.Scriptable, java.lang.Object)
+	 */
+	@Override
+	public void put(int index, Scriptable start, Object value)
+	{
+		if (value instanceof FormScope)
+		{
+			// DEBUG INFO FOR GETTING DUPLICATE FORM SCOPES IN THIS SCOPE: SVY-1473
+			String name = ((FormScope)value).getFormController().getName();
+			if (super.get(name, start) != null)
+			{
+				Debug.error("form scope for " + name + " overrides anoter version in thread " + Thread.currentThread().getName(), new RuntimeException(
+					"form scope for " + name + " overrides anoter version in thread " + Thread.currentThread().getName()));
+			}
+		}
+		super.put(index, start, value);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.scripting.DefaultScope#put(java.lang.String, org.mozilla.javascript.Scriptable, java.lang.Object)
+	 */
+	@Override
+	public void put(String name, Scriptable start, Object value)
+	{
+		if (value instanceof FormScope && super.get(name, start) != null)
+		{
+			// DEBUG INFO FOR GETTING DUPLICATE FORM SCOPES IN THIS SCOPE: SVY-1473
+			Debug.error("form scope for " + name + " overrides anoter version in thread " + Thread.currentThread().getName(), new RuntimeException(
+				"form scope for " + name + " overrides anoter version in thread " + Thread.currentThread().getName()));
+		}
+		super.put(name, start, value);
 	}
 
 	/**
