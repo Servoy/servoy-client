@@ -2234,13 +2234,20 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 	}
 
+	/*
+	 * Number of updated list items from the last rendering
+	 */
+	private int nrUpdatedListItems;
+
 	/**
 	 * @see javax.swing.event.TableModelListener#tableChanged(javax.swing.event.TableModelEvent)
 	 */
 	public void tableChanged(TableModelEvent e)
 	{
-		// If it is one row change, only update/touch that row 
-		if (e.getType() == TableModelEvent.UPDATE && e.getFirstRow() == e.getLastRow())
+		// If it is one row change, only update/touch that row;
+		// If we already have more then the half of the table rows changes, just mark the whole table
+		// as changed, as it will be faster on the client the component replace
+		if (e.getType() == TableModelEvent.UPDATE && e.getFirstRow() == e.getLastRow() && (nrUpdatedListItems < table.getRowsPerPage() / 2))
 		{
 			Component component = table.get(Integer.toString(e.getFirstRow()));
 			if (component instanceof ListItem)
@@ -2253,6 +2260,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						return CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
 					}
 				});
+				nrUpdatedListItems++;
+
 				IModel<IRecordInternal> newModel = table.getListItemModel(table.getModel(), e.getFirstRow());
 				IModel oldModel = ((ListItem)component).getModel();
 				if (newModel != null && oldModel != null && newModel.getObject() != null && !newModel.getObject().equals(oldModel.getObject()))
@@ -2367,6 +2376,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		super.onRender(markupStream);
 		getStylePropertyChanges().setRendered();
 		hasOnRender = hasOnRender();
+		nrUpdatedListItems = 0;
 	}
 
 	@Override
