@@ -17,6 +17,7 @@
 package com.servoy.j2db.scripting;
 
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
@@ -61,6 +62,7 @@ public class CreationalPrototype extends DefaultScope implements LazyInitScope
 	 * 
 	 * @see com.servoy.j2db.scripting.DefaultScope#put(int, org.mozilla.javascript.Scriptable, java.lang.Object)
 	 */
+	@SuppressWarnings("nls")
 	@Override
 	public void put(int index, Scriptable start, Object value)
 	{
@@ -68,8 +70,17 @@ public class CreationalPrototype extends DefaultScope implements LazyInitScope
 		{
 			// DEBUG INFO FOR GETTING DUPLICATE FORM SCOPES IN THIS SCOPE: SVY-1473
 			String name = ((FormScope)value).getFormController().getName();
-			if (super.get(name, start) != null)
+			if (super.get(name, start) instanceof FormScope)
 			{
+				try
+				{
+					application.getDataServer().logMessage(
+						"form scope for " + name + " overrides anoter version in thread " + Thread.currentThread().getName() +
+							", see webstart log on client for more information");
+				}
+				catch (RemoteException e)
+				{
+				}
 				Debug.error("form scope for " + name + " overrides anoter version in thread " + Thread.currentThread().getName(), new RuntimeException(
 					"form scope for " + name + " overrides anoter version in thread " + Thread.currentThread().getName()));
 			}
@@ -82,11 +93,21 @@ public class CreationalPrototype extends DefaultScope implements LazyInitScope
 	 * 
 	 * @see com.servoy.j2db.scripting.DefaultScope#put(java.lang.String, org.mozilla.javascript.Scriptable, java.lang.Object)
 	 */
+	@SuppressWarnings("nls")
 	@Override
 	public void put(String name, Scriptable start, Object value)
 	{
-		if (value instanceof FormScope && super.get(name, start) != null)
+		if (value instanceof FormScope && super.get(name, start) instanceof FormScope)
 		{
+			try
+			{
+				application.getDataServer().logMessage(
+					"form scope for " + name + " overrides anoter version in thread " + Thread.currentThread().getName() +
+						", see webstart log on client for more information");
+			}
+			catch (RemoteException e)
+			{
+			}
 			// DEBUG INFO FOR GETTING DUPLICATE FORM SCOPES IN THIS SCOPE: SVY-1473
 			Debug.error("form scope for " + name + " overrides anoter version in thread " + Thread.currentThread().getName(), new RuntimeException(
 				"form scope for " + name + " overrides anoter version in thread " + Thread.currentThread().getName()));
