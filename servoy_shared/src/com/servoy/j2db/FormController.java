@@ -3790,7 +3790,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	/**
 	 * Initialize this FormController(or related classes/methods) to be used in javascript
 	 */
-	public JSForm initForJSUsage(CreationalPrototype creationalPrototype)
+	public synchronized JSForm initForJSUsage(CreationalPrototype creationalPrototype)
 	{
 		if (formScope == null)
 		{
@@ -3817,8 +3817,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 				//register the place holder 'scriptableForm' in CreationalPrototype scope
 				creationalPrototype.setLocked(false);
-				creationalPrototype.put(getName(), creationalPrototype, formScope);
 				creationalPrototype.put(((Integer)creationalPrototype.get("length", creationalPrototype)).intValue(), creationalPrototype, formScope); //$NON-NLS-1$
+				creationalPrototype.put(getName(), creationalPrototype, formScope);
 				creationalPrototype.setLocked(true);
 
 				formScope.createVars();
