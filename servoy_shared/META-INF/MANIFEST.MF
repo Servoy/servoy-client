@@ -35,7 +35,8 @@ Bundle-ClassPath: .,
  lib/l2fprod-common-outlookbar.jar,
  lib/wiquery.jar,
  lib/fs-parser.jar,
- lib/fs-commons.jar
+ lib/fs-commons.jar,
+ lib/PBKDF2.jar
 Require-Bundle: org.eclipse.dltk.javascript.rhino
 Export-Package: antlr,
  antlr.ASdebug,

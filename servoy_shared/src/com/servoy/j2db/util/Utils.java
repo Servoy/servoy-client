@@ -45,6 +45,8 @@ import java.nio.CharBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -75,6 +77,10 @@ import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.IEventDelegator;
 import com.servoy.j2db.persistence.ISupportBounds;
+
+import de.rtner.security.auth.spi.PBKDF2Engine;
+import de.rtner.security.auth.spi.PBKDF2HexFormatter;
+import de.rtner.security.auth.spi.PBKDF2Parameters;
 
 /**
  * Utility methods
@@ -1534,6 +1540,48 @@ public class Utils
 		}
 		return result;
 	}
+
+	/**
+	 * Hashes the given string with the PKCS/PBKDF2 algoritme see http://en.wikipedia.org/wiki/PBKDF2 for more information
+	 * 
+	 * @param textString The string to hash
+	 * @param iterations Number of hash iterations to be done (should be higher then 1000) 
+	 * @return the hash of the string
+	 */
+	@SuppressWarnings("nls")
+	public static String calculatePBKDF2(String textString, int iterations)
+	{
+		try
+		{
+			SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
+			byte[] salt = new byte[8];
+			sr.nextBytes(salt);
+			PBKDF2Parameters p = new PBKDF2Parameters("HmacSHA1", "ISO-8859-1", salt, iterations);
+			PBKDF2Engine e = new PBKDF2Engine(p);
+			p.setDerivedKey(e.deriveKey(textString));
+			return new PBKDF2HexFormatter().toString(p);
+		}
+		catch (NoSuchAlgorithmException e)
+		{
+			Debug.error("No SHA1 algorime found under the name SHA1PRNG", e);
+		}
+		return null;
+	}
+
+
+	public static boolean validatePBKDF2Hash(String password, String hash)
+	{
+		PBKDF2Parameters p = new PBKDF2Parameters();
+		p.setHashAlgorithm("HmacSHA1");
+		p.setHashCharset("ISO-8859-1");
+		if (new PBKDF2HexFormatter().fromString(p, hash))
+		{
+			return false;
+		}
+		PBKDF2Engine e = new PBKDF2Engine(p);
+		return e.verifyKey(password);
+	}
+
 
 	@Deprecated
 	public static String calculateMD5Hash(String input)
