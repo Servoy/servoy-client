@@ -384,7 +384,7 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 		return createNewColumn(validator, colname, type, lenght, 0);
 	}
 
-	public Column createNewColumn(IValidateName validator, String colname, int type, int lenght, int scale) throws RepositoryException
+	public Column createNewColumn(IValidateName validator, String colname, int type, int length, int scale) throws RepositoryException
 	{
 		if (columns.containsKey(Utils.toEnglishLocaleLowerCase(colname)))
 		{
@@ -392,7 +392,7 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 		}
 
 		validator.checkName(colname, 0, new ValidatorSearchContext(this, IRepository.COLUMNS), true);
-		Column c = new Column(this, colname, type, lenght, scale, false);
+		Column c = new Column(this, colname, type, length, scale, false);
 		addColumn(c);
 		fireIColumnCreated(c);
 		return c;

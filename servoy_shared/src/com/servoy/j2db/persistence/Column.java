@@ -37,6 +37,7 @@ import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.Types4;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.dataprocessing.ValueFactory.NullValue;
+import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.util.AliasKeyMap.ISupportAlias;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
@@ -75,9 +76,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 
 	private final Table table;
 	private String plainSQLName;
-	private int type;// code from java.sql.Types
-	private int length;
-	private final int scale;
+	private ColumnType columnType; // as returned by current database, columnInfo holds column type as configured by developer
 	private boolean existInDB;
 	private boolean dbPK = false;
 	private String databaseDefaultValue = null;
@@ -91,10 +90,8 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 	{
 		table = db;
 		this.plainSQLName = theSQLName;
-		this.type = type;
-		this.length = length;
-		this.scale = scale;
 		this.existInDB = existInDB;
+		updateColumnType(type, length, scale);
 	}
 
 	public String toHTML()
@@ -203,7 +200,6 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 				return atype;
 		}
 	}
-
 
 	public static Object getAsRightType(int type, int flags, Object obj, String format, int l, TimeZone timeZone, boolean throwOnFail)
 	{
@@ -450,12 +446,14 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 						str = str.substring(0, l);
 					}
 					return str;
+
 				case MEDIA :
 					if (obj instanceof byte[])
 					{
 						return obj;
 					}
 					return null;
+
 				default :
 					return obj.toString();
 			}
@@ -470,22 +468,22 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 
 	public Object getAsRightType(Object obj, String format)
 	{
-		return getAsRightType(type, getFlags(), obj, format, length, null, false);
+		return getAsRightType(getType(), getFlags(), obj, format, columnType.getLength(), null, false);
 	}
 
 	public Object getAsRightType(Object obj, String format, TimeZone timeZone)
 	{
-		return getAsRightType(type, getFlags(), obj, format, length, timeZone, false);
+		return getAsRightType(getType(), getFlags(), obj, format, columnType.getLength(), timeZone, false);
 	}
 
 	public Object getAsRightType(Object obj)
 	{
-		return getAsRightType(type, getFlags(), obj, length, false);
+		return getAsRightType(getType(), getFlags(), obj, columnType.getLength(), false);
 	}
 
 	public Object getAsRightType(Object obj, boolean throwOnFail)
 	{
-		return getAsRightType(type, getFlags(), obj, length, throwOnFail);
+		return getAsRightType(getType(), getFlags(), obj, columnType.getLength(), throwOnFail);
 	}
 
 	public boolean isAggregate()
@@ -517,7 +515,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 						case ColumnInfo.SYSTEM_VALUE_MODIFICATION_USERUID :
 							String user_uid = application.getUserUID();
 							if (user_uid == null) user_uid = ""; //$NON-NLS-1$
-							switch (mapToDefaultType(type))
+							switch (getDataProviderType())
 							{
 								case NUMBER :
 									return new Double(Utils.getAsDouble(user_uid));
@@ -567,7 +565,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 						{
 							String user_uid = application.getUserUID();
 							if (user_uid == null) user_uid = ""; //$NON-NLS-1$
-							switch (mapToDefaultType(type))
+							switch (getDataProviderType())
 							{
 								case NUMBER :
 									return new Double(Utils.getAsDouble(user_uid));
@@ -597,7 +595,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 					//$FALL-THROUGH$
 				case ColumnInfo.CUSTOM_VALUE_AUTO_ENTER :
 					String val = ci.getDefaultValue();
-					switch (mapToDefaultType(type))
+					switch (getDataProviderType())
 					{
 						case NUMBER :
 							return new Double(Utils.getAsDouble(val));
@@ -636,14 +634,23 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 		return null;
 	}
 
+
+	/**
+	 * Get the column type as defined by the db.
+	 */
+	public ColumnType getColumnType()
+	{
+		return columnType;
+	}
+
 	public int getType()
 	{
-		return type;
+		return columnType.getSqlType();
 	}
 
 	public String getTypeAsString()
 	{
-		return getDisplayTypeString(type);
+		return getDisplayTypeString(getType());
 	}
 
 /*
@@ -725,7 +732,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 
 	public int getDataProviderType()
 	{
-		return mapToDefaultType(type);
+		return mapToDefaultType(getType());
 	}
 
 
@@ -733,11 +740,6 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 	{
 		return new ColumnWrapper(this);
 	}
-
-//	public int getMaxLength()
-//	{
-//		return (mapToDefaultType(type) == TEXT ? length : -1);
-//	}
 
 	public boolean isEditable()
 	{
@@ -764,21 +766,22 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 		return table;
 	}
 
-	public void setType(int t)
-	{
-		if (!existInDB)
-		{
-			type = t;
-			if (type == TEXT) length = 50;
-		}
-	}
-
 	// Used to update database type and length after table creation to make sure
 	// they hibernate dialect's type choice matches out type.
-	public void updateTypeAndLength(int tp, int len)
+	public void updateColumnType(int type, int length, int scale)
 	{
-		this.type = tp;
-		this.length = len;
+		this.columnType = checkColumnType(ColumnType.getInstance(type, length, scale));
+	}
+
+	public static ColumnType checkColumnType(ColumnType columnType)
+	{
+		if (columnType == null)
+		{
+			return null;
+		}
+		int defType = Column.mapToDefaultType(columnType.getSqlType());
+		return ColumnType.getInstance(columnType.getSqlType(), (defType == IColumnTypes.INTEGER || defType == IColumnTypes.DATETIME) ? 0 /* length irrelevant */
+		: columnType.getLength(), defType == IColumnTypes.NUMBER ? columnType.getScale() : 0);
 	}
 
 	public String getName()
@@ -834,23 +837,12 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 
 	public int getScale()
 	{
-		return scale;
+		return columnType.getScale();
 	}
 
 	public int getLength()
 	{
-		int defType = mapToDefaultType(type);
-		if (defType == INTEGER) return 0;//irrelevant
-		if (defType == DATETIME) return 0;//irrelevant
-		return length;
-	}
-
-	public void setLenght(int i)
-	{
-		if (!existInDB)
-		{
-			length = i;
-		}
+		return columnType.getLength();
 	}
 
 	@Override
@@ -989,6 +981,19 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 	public String getDatabaseDefaultValue()
 	{
 		return columnInfo != null ? columnInfo.getDatabaseDefaultValue() : databaseDefaultValue;
+	}
+
+	/**
+	 * @return column type as configured by developer, fall back to db type when configured is not available
+	 */
+	public ColumnType getConfiguredColumnType()
+	{
+		if (columnInfo != null && columnInfo.getConfiguredColumnType() != null)
+		{
+			return columnInfo.getConfiguredColumnType();
+		}
+		// default to db-defined column type
+		return columnType;
 	}
 
 	public void setColumnInfo(ColumnInfo ci)
@@ -1217,5 +1222,46 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 	{
 		if (columnInfo != null) columnInfo.flagChanged();
 		if (table != null) table.fireIColumnChanged(this);
+	}
+
+	/**
+	 * Check if db column type is compatibe woth external column type (like from import)
+	 */
+	public static boolean isColumnInfoCompatible(ColumnType dbColumnType, ColumnType externalColumnType)
+	{
+		if (dbColumnType == null && externalColumnType == null)
+		{
+			return true;
+		}
+		if (dbColumnType == null)
+		{
+			return false;
+		}
+		if (dbColumnType.equals(externalColumnType))
+		{
+			return true;
+		}
+
+		int dbtype = mapToDefaultType(dbColumnType.getSqlType());
+		int exttype = mapToDefaultType(externalColumnType.getSqlType());
+
+		if (dbtype == exttype)
+		{
+			if (dbtype == IColumnTypes.TEXT && dbColumnType.getLength() != 0 && externalColumnType.getLength() != 0 &&
+				dbColumnType.getLength() != externalColumnType.getLength())
+			{
+				// different length
+				return false;
+			}
+			return true;
+		}
+
+		// different type
+		if (dbtype == IColumnTypes.NUMBER && exttype == IColumnTypes.INTEGER)
+		{
+			return true;
+		}
+
+		return false;
 	}
 }

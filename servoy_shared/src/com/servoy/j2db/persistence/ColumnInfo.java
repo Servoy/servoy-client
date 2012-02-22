@@ -20,6 +20,7 @@ package com.servoy.j2db.persistence;
 import java.io.Serializable;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -91,6 +92,9 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	private String validatorName = null;
 	private String defaultFormat = null;
 	private Integer containsMetaData = null;
+
+	private ColumnType configuredColumnType; // as configured by developer
+
 
 	private int flags = 0;
 
@@ -719,6 +723,26 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	}
 
 	/**
+	 * Set the column type as configured by developer
+	 */
+	public void setConfiguredColumnType(ColumnType columnType)
+	{
+		this.configuredColumnType = Column.checkColumnType(columnType);
+	}
+
+	/**
+	 * Get the column type as configured by developer.
+	 * <p>Note, do not call this method directly, use Column.getConfiguredColumnType() instead so that in case of 
+	 * old column info (with configured type not set), there will be a fallback to the db column type.
+	 * 
+	 * @see Column#getConfiguredColumnType()
+	 */
+	ColumnType getConfiguredColumnType()
+	{
+		return configuredColumnType;
+	}
+
+	/**
 	 * Turns strings with no content (blank spaces are not considered content) into null. Returns other strings unchanged.
 	 * 
 	 * @param s the string.
@@ -728,5 +752,45 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	{
 		if (s == null || s.trim().length() == 0) return null;
 		else return s;
+	}
+
+	/**
+	 * Copy column info into this column info.
+	 * 
+	 * @param sourceColumnInfo
+	 */
+	public void copyFrom(ColumnInfo sourceColumnInfo)
+	{
+		if (sourceColumnInfo == null)
+		{
+			return;
+		}
+
+		setValidatorProperties(sourceColumnInfo.getValidatorProperties());
+		setDefaultValue(sourceColumnInfo.getDefaultValue());
+		setTitleText(sourceColumnInfo.getTitleText());
+		setConverterName(sourceColumnInfo.getConverterName());
+		setConverterProperties(sourceColumnInfo.getConverterProperties());
+		setForeignType(sourceColumnInfo.getForeignType());
+		setValidatorName(sourceColumnInfo.getValidatorName());
+		setDescription(sourceColumnInfo.getDescription());
+		setDataProviderID(sourceColumnInfo.getDataProviderID());
+		setContainsMetaData(sourceColumnInfo.getContainsMetaData());
+		setLookupValue(sourceColumnInfo.getLookupValue());
+		setFlags(sourceColumnInfo.getFlags());
+		setSequenceStepSize(sourceColumnInfo.getSequenceStepSize());
+		setPostSequenceChars(sourceColumnInfo.getPostSequenceChars());
+		setPreSequenceChars(sourceColumnInfo.getPreSequenceChars());
+
+		setAutoEnterType(sourceColumnInfo.getAutoEnterType());
+		setAutoEnterSubType(sourceColumnInfo.getAutoEnterSubType());
+
+		setDatabaseSequenceName(sourceColumnInfo.getDatabaseSequenceName());
+		setConfiguredColumnType(sourceColumnInfo.getConfiguredColumnType());
+
+		// Flag that the column is changed.
+		flagChanged();
+
+		// Don't set the next sequence; it's a new sequence, so you generally want to start at the beginning.
 	}
 }

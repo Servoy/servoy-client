@@ -75,8 +75,6 @@ public interface IServerInternal
 
 	boolean checkIfTableExistsInDatabase(Connection connection, String tableName);
 
-	void duplicateColumnInfo(ColumnInfo sourceColumnInfo, ColumnInfo targetColumnInfo);
-
 	boolean updateColumnInfo(QueryColumn queryColumn) throws RepositoryException;
 
 	void updateAllColumnInfo(Table table) throws RepositoryException;

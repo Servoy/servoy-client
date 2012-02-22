@@ -19,6 +19,7 @@ package com.servoy.j2db.util.xmlxport;
 import java.io.Serializable;
 
 import com.servoy.j2db.persistence.ColumnInfo;
+import com.servoy.j2db.query.ColumnType;
 
 public final class ColumnInfoDef implements Serializable
 {
@@ -49,8 +50,7 @@ public final class ColumnInfoDef implements Serializable
 	public static final String CONTAINS_META_DATA = "containsMetaData"; //$NON-NLS-1$
 
 	public String name = null;
-	public int datatype = 0;
-	public int length = 0;
+	public ColumnType columnType = null;
 	public int flags = 0;
 	public boolean allowNull = false;
 	public int autoEnterType = ColumnInfo.NO_AUTO_ENTER;
@@ -97,6 +97,6 @@ public final class ColumnInfoDef implements Serializable
 	@Override
 	public String toString()
 	{
-		return "ColumnInfoDef[" + name + "," + datatype + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return "ColumnInfoDef[" + name + "," + columnType.getSqlType() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 }

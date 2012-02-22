@@ -48,7 +48,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -1455,7 +1454,7 @@ public class Utils
 		}
 	}
 
-	public static Connection closeConnection(Connection connection)
+	public static <T extends Connection> T closeConnection(T connection)
 	{
 		try
 		{
@@ -1474,7 +1473,7 @@ public class Utils
 		return null;
 	}
 
-	public static Statement closeStatement(Statement statement)
+	public static <T extends Statement> T closeStatement(T statement)
 	{
 		try
 		{
@@ -1490,23 +1489,7 @@ public class Utils
 		return null;
 	}
 
-	public static PreparedStatement closeStatement(PreparedStatement statement)
-	{
-		try
-		{
-			if (statement != null)
-			{
-				statement.close();
-			}
-		}
-		catch (SQLException e)
-		{
-			Debug.error(e);
-		}
-		return null;
-	}
-
-	public static ResultSet closeResultSet(ResultSet resultSet)
+	public static <T extends ResultSet> T closeResultSet(T resultSet)
 	{
 		try
 		{
