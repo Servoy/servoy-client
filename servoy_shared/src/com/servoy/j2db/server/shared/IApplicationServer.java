@@ -59,10 +59,10 @@ public interface IApplicationServer extends Remote
 	 * Retrieve an client id, if user_uid and password is correct for use in Servoy team provider.
 	 * 
 	 * @param user_uid
-	 * @param passwordMD5Hash (use Utils.calculateMD5Hash(...))
+	 * @param password 
 	 * @return the client_id or null if not ok
 	 */
-	public String getClientID(String user_uid, String passwordMD5Hash) throws RemoteException;
+	public String getClientID(String user_uid, String password) throws RemoteException;
 
 	/**
 	 * Get the update sequences of the active solutions.

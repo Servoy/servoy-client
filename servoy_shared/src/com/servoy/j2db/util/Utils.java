@@ -90,6 +90,11 @@ import de.rtner.security.auth.spi.PBKDF2Parameters;
  */
 public class Utils
 {
+	/**
+	 * The password hash prefix if it is the new PBKDF2 password or a md5 hash. 
+	 */
+	private static final String PBKDF2_PREFIX = "PBKDF2:"; //$NON-NLS-1$
+
 	// Client platforms
 	public static final int PLATFORM_OTHER = 0;
 	public static final int PLATFORM_WINDOWS = 1;
@@ -1541,6 +1546,11 @@ public class Utils
 		return result;
 	}
 
+	public static String calculateAndPrefixPBKDF2PasswordHash(String password)
+	{
+		return PBKDF2_PREFIX + calculatePBKDF2(password, 2000);
+	}
+
 	/**
 	 * Hashes the given string with the PKCS/PBKDF2 algoritme see http://en.wikipedia.org/wiki/PBKDF2 for more information
 	 * 
@@ -1568,6 +1578,15 @@ public class Utils
 		return null;
 	}
 
+
+	public static boolean validatePrefixedPBKDF2Hash(String password, String hash)
+	{
+		if (hash.startsWith(PBKDF2_PREFIX))
+		{
+			return validatePBKDF2Hash(password, hash.substring(PBKDF2_PREFIX.length()));
+		}
+		return false;
+	}
 
 	public static boolean validatePBKDF2Hash(String password, String hash)
 	{

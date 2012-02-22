@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db;
 
 import java.rmi.RemoteException;
@@ -30,11 +30,9 @@ public interface ISolutionSecurityManager
 	/**
 	 * @return user_uid
 	 */
-	public String checkPasswordForUserName(String clientId, String username, String password, boolean passwordAlreadyHashed) throws RemoteException,
-		ServoyException;
+	public String checkPasswordForUserName(String clientId, String username, String password) throws RemoteException, ServoyException;
 
-	public boolean checkPasswordForUserUID(String clientId, String userUID, String password, boolean passwordAlreadyHashed) throws RemoteException,
-		ServoyException;
+	public boolean checkPasswordForUserUID(String clientId, String userUID, String password) throws RemoteException, ServoyException;
 
 	public String[] getUserGroups(String clientId, String userUID) throws RemoteException, ServoyException;
 

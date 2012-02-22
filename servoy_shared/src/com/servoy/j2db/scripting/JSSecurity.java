@@ -514,7 +514,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 
 		try
 		{
-			return application.getUserManager().checkPasswordForUserUID(application.getClientID(), userUID.toString(), password, false);
+			return application.getUserManager().checkPasswordForUserUID(application.getClientID(), userUID.toString(), password);
 		}
 		catch (Exception e)
 		{
