@@ -179,8 +179,10 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 
 		// Put CSS properties for background color and border (if any).
 		TextualStyle formStyle = css.addStyle("#" + buildFormID()); //$NON-NLS-1$ 
-		if (style != null && style.getValue(CSSName.BACKGROUND_COLOR.toString()) != null && !f.getTransparent()) formStyle.setProperty(
-			CSSName.BACKGROUND_COLOR.toString(), style.getValue(CSSName.BACKGROUND_COLOR.toString()));
+		if (style != null && style.getValue(CSSName.BACKGROUND_COLOR.toString()) != null && !f.getTransparent())
+		{
+			formStyle.setProperty(CSSName.BACKGROUND_COLOR.toString(), style.getValues(CSSName.BACKGROUND_COLOR.toString()), true);
+		}
 		if (border != null)
 		{
 			String type = ComponentFactoryHelper.createBorderString(border);
@@ -199,7 +201,7 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 			{
 				if (styleRule.hasAttribute(attName))
 				{
-					textStyle.setProperty(attName, styleRule.getValue(attName));
+					textStyle.setProperty(attName, styleRule.getValues(attName), true);
 					exists = true;
 				}
 			}
@@ -274,6 +276,10 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 			if (background != null)
 			{
 				partStyle.setProperty("background-color", PersistHelper.createColorString(background)); //$NON-NLS-1$ 
+			}
+			else if (pairStyle != null && pairStyle.getRight() != null && pairStyle.getRight().hasAttribute("background-color"))
+			{
+				partStyle.setProperty("background-color", pairStyle.getRight().getValues("background-color"), true);
 			}
 		}
 

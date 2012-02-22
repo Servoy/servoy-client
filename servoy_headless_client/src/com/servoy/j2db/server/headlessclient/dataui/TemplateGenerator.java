@@ -1098,6 +1098,7 @@ public class TemplateGenerator
 		private String selector;
 		private final List<String> order = new ArrayList<String>();
 		private TextualCSS css;
+		private final Map<String, List<String>> stackedValues = new HashMap<String, List<String>>();
 
 		public TextualStyle()
 		{
@@ -1117,6 +1118,7 @@ public class TemplateGenerator
 			if (name == null) return null;
 			if (value == null)
 			{
+				stackedValues.remove(name);
 				return remove(name);
 			}
 			else
@@ -1134,18 +1136,33 @@ public class TemplateGenerator
 
 		public Object setProperty(String name, String value, boolean override)
 		{
+			return setProperty(name, (value != null ? new String[] { value } : null), override);
+		}
+
+		public Object setProperty(String name, String[] values, boolean override)
+		{
 			if (override)
 			{
+				stackedValues.remove(name);
 				order.remove(name);
 				order.add(name);
-				return super.put(name, value);
+				stackedValues.put(name, Arrays.asList(values));
+				return super.put(name, values[values.length - 1]);
 			}
 			else
 			{
 				if (!super.containsKey(name))
 				{
 					order.add(name);
-					return super.put(name, value);
+					List<String> valuesList = stackedValues.get(name);
+					List<String> newValues = Arrays.asList(values);
+					if (valuesList == null)
+					{
+						valuesList = new ArrayList<String>();
+						stackedValues.put(name, valuesList);
+					}
+					valuesList.addAll(newValues);
+					return super.put(name, values[values.length - 1]);
 				}
 			}
 			return null;
@@ -1173,31 +1190,48 @@ public class TemplateGenerator
 			while (it.hasNext())
 			{
 				String name = it.next();
-				String val = getProperty(name);
-				if (CSSName.BACKGROUND_IMAGE.toString().equals(name) && val != null && val.startsWith("linear-gradient"))
+				String[] cssValues = null;
+				List<String> values = stackedValues.get(name);
+				if (values != null && values.size() > 1)
 				{
-					String[] colors = getGradientColors(val);
-					if (colors != null && colors.length == 2 && colors[0] != null)
-					{
-						appendValue(retval, pSelector, name,
-							"-webkit-gradient(linear, " + (val.contains("top") ? "center" : "left") + " top, " +
-								(val.contains("top") ? "center bottom" : "right top") + ", from(" + colors[0] + "), to(" + colors[1] + "))");
-						appendValue(retval, pSelector, "filter", "progid:DXImageTransform.Microsoft.gradient(startColorStr=" + colors[0] + ", EndColorStr=" +
-							colors[1] + ")");
-					}
-					for (String linearIdentifier : ServoyStyleSheet.LinearGradientsIdentifiers)
-					{
-						appendValue(retval, pSelector, name, val.replace("linear-gradient", linearIdentifier));
-					}
+					cssValues = values.toArray(new String[values.size()]);
 				}
-				if (name.contains("radius") && name.contains("border"))
+				else
 				{
-					for (String prefix : ServoyStyleSheet.ROUNDED_RADIUS_PREFIX)
-					{
-						appendValue(retval, pSelector, prefix + name, val);
-					}
+					cssValues = new String[] { getProperty(name) };
 				}
-				appendValue(retval, pSelector, name, val);
+				for (String val : cssValues)
+				{
+					if (CSSName.BACKGROUND_IMAGE.toString().equals(name) && val != null && val.startsWith("linear-gradient"))
+					{
+						String[] colors = getGradientColors(val);
+						if (colors != null && colors.length == 2 && colors[0] != null)
+						{
+							appendValue(retval, pSelector, name,
+								"-webkit-gradient(linear, " + (val.contains("top") ? "center" : "left") + " top, " +
+									(val.contains("top") ? "center bottom" : "right top") + ", from(" + colors[0] + "), to(" + colors[1] + "))");
+							appendValue(retval, pSelector, "filter", "progid:DXImageTransform.Microsoft.gradient(startColorStr=" + colors[0] +
+								", EndColorStr=" + colors[1] + ")");
+						}
+						for (String linearIdentifier : ServoyStyleSheet.LinearGradientsIdentifiers)
+						{
+							appendValue(retval, pSelector, name, val.replace("linear-gradient", linearIdentifier));
+						}
+					}
+					if (CSSName.OPACITY.toString().equals(name))
+					{
+						float opacity = Utils.getAsFloat(val);
+						appendValue(retval, pSelector, "filter", "alpha(opacity=" + Float.valueOf(opacity * 100).intValue() + ")");
+					}
+					if (name.contains("radius") && name.contains("border"))
+					{
+						for (String prefix : ServoyStyleSheet.ROUNDED_RADIUS_PREFIX)
+						{
+							appendValue(retval, pSelector, prefix + name, val);
+						}
+					}
+					appendValue(retval, pSelector, name, val);
+				}
 			}
 			if (pSelector == null)
 			{
@@ -2968,7 +3002,7 @@ public class TemplateGenerator
 					}
 					else
 					{
-						if (val.toString() != null) styleObj.setProperty(s_attr, val.toString(), false);
+						if (val.toString() != null) styleObj.setProperty(s_attr, s.getValues(s_attr), false);
 					}
 				}
 				if (insetsBorder == null)

@@ -73,6 +73,35 @@ public class ServoyStyleRule implements IStyleRule
 		if (cssName != null && cascadedStyle.hasProperty(cssName))
 		{
 			CSSPrimitiveValue value = cascadedStyle.propertyByName(cssName).getValue();
+			return getCssValue(value);
+		}
+		return null;
+	}
+
+	public String[] getValues(String attributeName)
+	{
+		CSSName cssName = CSSName.getByPropertyName(attributeName);
+		if (cssName != null && cascadedStyle.hasProperty(cssName))
+		{
+			List values = cascadedStyle.propertiesByName(cssName);
+			if (values != null)
+			{
+				String[] cssValues = new String[values.size()];
+				for (int i = 0; i < values.size(); i++)
+				{
+					CSSPrimitiveValue value = ((PropertyDeclaration)values.get(i)).getValue();
+					cssValues[i] = getCssValue(value);
+				}
+				return cssValues;
+			}
+		}
+		return null;
+	}
+
+	private String getCssValue(CSSPrimitiveValue value)
+	{
+		if (value != null)
+		{
 			if (value instanceof PropertyValue && ((PropertyValue)value).getValues() != null && ((PropertyValue)value).getValues().size() > 0)
 			{
 				StringBuilder builder = new StringBuilder();
