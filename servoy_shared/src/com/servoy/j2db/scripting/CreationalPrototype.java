@@ -17,7 +17,6 @@
 package com.servoy.j2db.scripting;
 
 
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
@@ -78,7 +77,7 @@ public class CreationalPrototype extends DefaultScope implements LazyInitScope
 						"form scope for " + name + " overrides anoter version in thread " + Thread.currentThread().getName() +
 							", see webstart log on client for more information");
 				}
-				catch (RemoteException e)
+				catch (Exception e)
 				{
 				}
 				Debug.error("form scope for " + name + " overrides anoter version in thread " + Thread.currentThread().getName(), new RuntimeException(
@@ -105,7 +104,7 @@ public class CreationalPrototype extends DefaultScope implements LazyInitScope
 					"form scope for " + name + " overrides anoter version in thread " + Thread.currentThread().getName() +
 						", see webstart log on client for more information");
 			}
-			catch (RemoteException e)
+			catch (Exception e)
 			{
 			}
 			// DEBUG INFO FOR GETTING DUPLICATE FORM SCOPES IN THIS SCOPE: SVY-1473
