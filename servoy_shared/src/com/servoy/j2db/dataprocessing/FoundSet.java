@@ -93,6 +93,7 @@ import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.LazyCompilationScope;
 import com.servoy.j2db.scripting.TableScope;
 import com.servoy.j2db.scripting.UsedDataProviderTracker;
+import com.servoy.j2db.scripting.annotations.AnnotationManager;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SafeArrayList;
@@ -122,9 +123,17 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			Method[] methods = FoundSet.class.getMethods();
 			for (Method m : methods)
 			{
+				String name = null;
 				if (m.getName().startsWith("js_")) //$NON-NLS-1$
 				{
-					String name = m.getName().substring(3);
+					name = m.getName().substring(3);
+				}
+				else if (AnnotationManager.getInstance().isAnnotationPresent(m, JSFunction.class))
+				{
+					name = m.getName();
+				}
+				if (name != null)
+				{
 					NativeJavaMethod nativeJavaMethod = jsFunctions.get(name);
 					if (nativeJavaMethod == null)
 					{
