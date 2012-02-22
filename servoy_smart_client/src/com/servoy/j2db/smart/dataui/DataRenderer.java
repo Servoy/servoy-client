@@ -123,6 +123,13 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 			{
 				application.getFoundSetManager().getEditRecordList().stopEditing(false);
 			}
+
+			//request focus for the form panel
+			@Override
+			public void mouseClicked(MouseEvent e)
+			{
+				DataRenderer.this.requestFocus();
+			}
 		});
 		dataRendererOnRenderWrapper = new DataRendererOnRenderWrapper(this);
 	}
