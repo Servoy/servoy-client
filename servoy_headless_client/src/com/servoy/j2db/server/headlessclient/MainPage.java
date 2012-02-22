@@ -107,6 +107,7 @@ import com.servoy.j2db.server.headlessclient.dataui.StartEditOnFocusGainedEventB
 import com.servoy.j2db.server.headlessclient.dataui.StyleAppendingModifier;
 import com.servoy.j2db.server.headlessclient.dataui.StylePropertyChangeMarkupContainer;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
+import com.servoy.j2db.server.headlessclient.dataui.WebBaseSelectBox;
 import com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor;
 import com.servoy.j2db.server.headlessclient.dataui.WebSplitPane;
 import com.servoy.j2db.server.headlessclient.dataui.WebTabPanel;
@@ -1963,13 +1964,20 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 	 * Respond to focus/blur events.
 	 */
 	@SuppressWarnings("nls")
-	public void respond(AjaxRequestTarget target, String event, final String markupId)
+	public void respond(AjaxRequestTarget target, final String event, final String markupId)
 	{
 		Component component = (Component)visitChildren(IComponent.class, new IVisitor<Component>()
 		{
 			public Object component(Component c)
 			{
-				if (c.getMarkupId().equals(markupId))
+				Component targetComponent = c;
+				if (c instanceof WebBaseSelectBox && ("blur".equals(event) || "focus".equals(event)))
+				{
+					Component[] cs = ((WebBaseSelectBox)c).getFocusChildren();
+					if (cs != null && cs.length == 1) targetComponent = cs[0];
+				}
+
+				if (targetComponent.getMarkupId().equals(markupId))
 				{
 					return c;
 				}
