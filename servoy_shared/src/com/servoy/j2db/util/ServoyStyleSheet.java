@@ -56,13 +56,16 @@ public class ServoyStyleSheet implements IStyleSheet
 			}
 		};
 		CSSParser parser = new CSSParser(errorHandler);
-		try
+		if (cssContent != null)
 		{
-			styleSheet = parser.parseStylesheet(null, 0, new StringReader(cssContent));
-		}
-		catch (IOException e)
-		{
-			Debug.error(e);
+			try
+			{
+				styleSheet = parser.parseStylesheet(null, 0, new StringReader(cssContent));
+			}
+			catch (IOException e)
+			{
+				Debug.error(e);
+			}
 		}
 		ss = new FixedStyleSheet();
 		try
@@ -143,9 +146,13 @@ public class ServoyStyleSheet implements IStyleSheet
 
 	public IStyleRule getCSSRule(String selector)
 	{
-		Matcher matcher = new Matcher(new ServoyTreeResolver(), new ServoyAttributeResolver(), new ServoyStylesheetFactor(errorHandler),
-			Arrays.asList(styleSheet), null);
-		return new ServoyStyleRule(matcher.getCascadedStyle(selector, true));
+		if (styleSheet != null)
+		{
+			Matcher matcher = new Matcher(new ServoyTreeResolver(), new ServoyAttributeResolver(), new ServoyStylesheetFactor(errorHandler),
+				Arrays.asList(styleSheet), null);
+			return new ServoyStyleRule(matcher.getCascadedStyle(selector, true));
+		}
+		return null;
 	}
 
 	public Font getFont(IStyleRule a)
@@ -335,15 +342,18 @@ public class ServoyStyleSheet implements IStyleSheet
 	public List<String> getStyleNames()
 	{
 		List<String> list = new ArrayList<String>();
-		for (Object ruleset : styleSheet.getContents())
+		if (styleSheet != null)
 		{
-			if (ruleset instanceof Ruleset)
+			for (Object ruleset : styleSheet.getContents())
 			{
-				for (Object selector : ((Ruleset)ruleset).getFSSelectors())
+				if (ruleset instanceof Ruleset)
 				{
-					if (selector instanceof Selector)
+					for (Object selector : ((Ruleset)ruleset).getFSSelectors())
 					{
-						list.add(((Selector)selector).getSelectorText());
+						if (selector instanceof Selector)
+						{
+							list.add(((Selector)selector).getSelectorText());
+						}
 					}
 				}
 			}
