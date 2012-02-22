@@ -18,6 +18,9 @@ package com.servoy.j2db.persistence;
 
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.query.ColumnType;
@@ -94,6 +97,7 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	private Integer containsMetaData = null;
 
 	private ColumnType configuredColumnType; // as configured by developer
+	private List<ColumnType> compatibleColumnTypes; // compatible with configured
 
 
 	private int flags = 0;
@@ -743,6 +747,46 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	}
 
 	/**
+	 * @return the compatibleColumnTypes
+	 */
+	public List<ColumnType> getCompatibleColumnTypes()
+	{
+		return compatibleColumnTypes == null ? null : Collections.unmodifiableList(compatibleColumnTypes);
+	}
+
+	/**
+	 * Check if the column type is listed as compatible
+	 */
+	public boolean isCompatibleColumnType(ColumnType columnType)
+	{
+		return columnType != null && compatibleColumnTypes != null && compatibleColumnTypes.contains(columnType);
+	}
+
+	/**
+	 * @param compatibleColumnTypes the compatibleColumnTypes to set
+	 */
+	public void setCompatibleColumnTypes(List<ColumnType> compatibleColumnTypes)
+	{
+		this.compatibleColumnTypes = compatibleColumnTypes;
+	}
+
+
+	/**
+	 * @param columnType
+	 */
+	public void addCompatibleColumnType(ColumnType columnType)
+	{
+		if (compatibleColumnTypes == null)
+		{
+			compatibleColumnTypes = new ArrayList<ColumnType>();
+		}
+		if (!compatibleColumnTypes.contains(columnType))
+		{
+			compatibleColumnTypes.add(columnType);
+		}
+	}
+
+	/**
 	 * Turns strings with no content (blank spaces are not considered content) into null. Returns other strings unchanged.
 	 * 
 	 * @param s the string.
@@ -787,6 +831,7 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 
 		setDatabaseSequenceName(sourceColumnInfo.getDatabaseSequenceName());
 		setConfiguredColumnType(sourceColumnInfo.getConfiguredColumnType());
+		setCompatibleColumnTypes(sourceColumnInfo.getCompatibleColumnTypes());
 
 		// Flag that the column is changed.
 		flagChanged();

@@ -17,6 +17,7 @@
 package com.servoy.j2db.util.xmlxport;
 
 import java.io.Serializable;
+import java.util.List;
 
 import com.servoy.j2db.persistence.ColumnInfo;
 import com.servoy.j2db.query.ColumnType;
@@ -45,12 +46,14 @@ public final class ColumnInfoDef implements Serializable
 	public static final String ALLOW_NULL = "allowNull"; //$NON-NLS-1$
 	public static final String LENGTH = "length"; //$NON-NLS-1$
 	public static final String DATA_TYPE = "dataType"; //$NON-NLS-1$
+	public static final String COMPATIBLE_COLUMN_TYPES = "compatibleColumnTypes"; //$NON-NLS-1$
 	public static final String CREATION_ORDER_INDEX = "creationOrderIndex"; //$NON-NLS-1$
 	public static final String DATA_PROVIDER_ID = "dataProviderID"; //$NON-NLS-1$
 	public static final String CONTAINS_META_DATA = "containsMetaData"; //$NON-NLS-1$
 
 	public String name = null;
 	public ColumnType columnType = null;
+	public List<ColumnType> compatibleColumnTypes;
 	public int flags = 0;
 	public boolean allowNull = false;
 	public int autoEnterType = ColumnInfo.NO_AUTO_ENTER;

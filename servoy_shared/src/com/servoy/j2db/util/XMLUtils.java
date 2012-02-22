@@ -13,13 +13,16 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util;
 
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jabsorb.JSONSerializer;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -29,6 +32,7 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.query.ColumnType;
 
 public class XMLUtils
 {
@@ -295,4 +299,60 @@ public class XMLUtils
 		return sb.toString();
 	}
 
+	/**
+	 * Parse an array string '[[tp,len,scale], [tp,len,scale], ...]' as ColumnType list
+	 */
+	public static List<ColumnType> parseColumnTypeArray(String s)
+	{
+		if (s == null) return null;
+
+		List<ColumnType> list = null;
+		JSONSerializer serializer = new JSONSerializer();
+		try
+		{
+			serializer.registerDefaultSerializers();
+			Integer[][] array = (Integer[][])serializer.fromJSON(s);
+			if (array != null && array.length > 0)
+			{
+				list = new ArrayList<ColumnType>(array.length);
+				for (Integer[] elem : array)
+				{
+					list.add(ColumnType.getInstance(elem[0].intValue(), elem[1].intValue(), elem[2].intValue()));
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+		}
+		return list;
+	}
+
+	/**
+	 * Serialize a ColumnType list as an array string '[[tp,len,scale], [tp,len,scale], ...]'
+	 */
+	public static String serializeColumnTypeArray(List<ColumnType> columnTypes)
+	{
+		if (columnTypes == null || columnTypes.size() == 0)
+		{
+			return null;
+		}
+
+		StringBuilder sb = new StringBuilder();
+		sb.append('[');
+		for (int i = 0; i < columnTypes.size(); i++)
+		{
+			if (i > 0) sb.append(',');
+			ColumnType columnType = columnTypes.get(i);
+			sb.append('[');
+			sb.append(String.valueOf(columnType.getSqlType()));
+			sb.append(',');
+			sb.append(String.valueOf(columnType.getLength()));
+			sb.append(',');
+			sb.append(String.valueOf(columnType.getScale()));
+			sb.append(']');
+		}
+		sb.append(']');
+		return sb.toString();
+	}
 }
