@@ -120,6 +120,12 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 			{
 				application.getFoundSetManager().getEditRecordList().stopEditing(false);
 			}
+
+			@Override
+			public void mouseClicked(MouseEvent e)
+			{
+				DataRenderer.this.requestFocus();
+			}
 		});
 		dataRendererOnRenderWrapper = new DataRendererOnRenderWrapper(this);
 	}
