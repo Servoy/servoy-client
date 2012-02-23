@@ -536,7 +536,7 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 		}
 	}
 
-	protected void fireIColumnChanged(IColumn column)
+	public void fireIColumnChanged(IColumn column)
 	{
 		if (tableListeners == null) return;
 		for (int i = 0; i < tableListeners.size(); i++)
