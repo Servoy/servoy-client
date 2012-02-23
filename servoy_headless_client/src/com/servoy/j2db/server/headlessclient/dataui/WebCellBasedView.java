@@ -705,8 +705,13 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					switch (elem.getTypeID())
 					{
 						case IRepository.FIELDS :
-							defaultLeftPadding = TemplateGenerator.DEFAULT_FIELD_PADDING.left;
-							defaultRightPadding = TemplateGenerator.DEFAULT_FIELD_PADDING.right;
+							Insets fieldMargin = null;
+							if (comp instanceof IFieldComponent)
+							{
+								fieldMargin = ((IFieldComponent)comp).getMargin();
+							}
+							defaultLeftPadding = fieldMargin != null ? fieldMargin.left : TemplateGenerator.DEFAULT_FIELD_PADDING.left;
+							defaultRightPadding = fieldMargin != null ? fieldMargin.right : TemplateGenerator.DEFAULT_FIELD_PADDING.right;
 							break;
 						case IRepository.GRAPHICALCOMPONENTS :
 							defaultLeftPadding = TemplateGenerator.DEFAULT_LABEL_PADDING.left;
