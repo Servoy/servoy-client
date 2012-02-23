@@ -759,7 +759,7 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	 */
 	public boolean isCompatibleColumnType(ColumnType columnType)
 	{
-		return columnType != null && compatibleColumnTypes != null && compatibleColumnTypes.contains(columnType);
+		return columnType != null && (columnType.equals(configuredColumnType) || (compatibleColumnTypes != null && compatibleColumnTypes.contains(columnType)));
 	}
 
 	/**
