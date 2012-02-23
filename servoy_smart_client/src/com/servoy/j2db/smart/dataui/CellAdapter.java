@@ -1089,177 +1089,188 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		}
 	}
 
+	private boolean gettingEditorValue = false;
+
 	public Object getCellEditorValue()
 	{
-		// test if currentEditing state isn't deleted already
-		if (currentEditingState == null || dataProviderID == null || (currentEditingState != null && currentEditingState.getParentFoundSet() == null)) return null;
-
-		Object comp = editor;
-
-		if (comp instanceof IDisplay && ((IDisplay)comp).isReadOnly())
+		try
 		{
-			return currentEditingState.getValue(getDataProviderID());
-		}
+			// test if currentEditing state isn't deleted already
+			if (currentEditingState == null || dataProviderID == null || (currentEditingState != null && currentEditingState.getParentFoundSet() == null)) return null;
 
-		if (comp instanceof IDelegate< ? >)
-		{
-			comp = ((IDelegate< ? >)comp).getDelegate();
-		}
+			Object comp = editor;
 
-		//HACK:needed for commit value copied from other hack 'processfocus' in DataField
-		if (comp instanceof DataField && ((DataField)comp).isEditable())
-		{
-			DataField edit = (DataField)comp;
-			boolean needEntireState = edit.needEntireState();
-			try
+			if ((comp instanceof IDisplay && ((IDisplay)comp).isReadOnly()) || gettingEditorValue)
 			{
-				edit.setNeedEntireState(false);
-				int fb = edit.getFocusLostBehavior();
-				if (fb == JFormattedTextField.COMMIT || fb == JFormattedTextField.COMMIT_OR_REVERT)
-				{
-					try
-					{
-						edit.commitEdit();
-						// Give it a chance to reformat.
-						edit.setValueObject(edit.getValue());
-					}
-					catch (ParseException pe)
-					{
-						return null;
-					}
-				}
-				else if (fb == JFormattedTextField.REVERT)
-				{
-					edit.setValueObject(edit.getValue());
-				}
-			}
-			finally
-			{
-				edit.setNeedEntireState(needEntireState);
+				return currentEditingState.getValue(getDataProviderID());
 			}
 
-		}
+			gettingEditorValue = true;
 
-		Object obj = null;
-		if (editor instanceof IDisplayData)
-		{
-			IDisplayData displayData = (IDisplayData)editor;
-			obj = displayData.getValueObject();
-			// if the editor is not enable or is readonly dont try to set any value.
-			if (!displayData.isEnabled() || displayData.isReadOnly()) return obj;
-			// then make sure the current state is in edit, if not, try to start it else just return.
-			// this can happen when toggling with readonly. case 233226 or 232188 
-			if (!currentEditingState.isEditing() && !currentEditingState.startEditing()) return obj;
+			if (comp instanceof IDelegate< ? >)
+			{
+				comp = ((IDelegate< ? >)comp).getDelegate();
+			}
 
-			try
+			//HACK:needed for commit value copied from other hack 'processfocus' in DataField
+			if (comp instanceof DataField && ((DataField)comp).isEditable())
 			{
-				if (currentEditingState != null && (obj == null || "".equals(obj)) && currentEditingState.getValue(dataProviderID) == null) //$NON-NLS-1$
-				{
-					return null;
-				}
-			}
-			catch (IllegalArgumentException iae)
-			{
-				Debug.error(iae);
-			}
-			if (currentEditingState instanceof FindState)
-			{
-				((FindState)currentEditingState).setFormat(dataProviderID, displayData.getFormat());
-				currentEditingState.setValue(dataProviderID, obj);
-			}
-			else
-			{
-
-				if (!displayData.isValueValid() && Utils.equalObjects(lastInvalidValue, obj))
-				{
-					// already validated
-					return obj;
-				}
+				DataField edit = (DataField)comp;
+				boolean needEntireState = edit.needEntireState();
 				try
 				{
-					adjusting = true;
-					Object oldVal = null;
-					try
+					edit.setNeedEntireState(false);
+					int fb = edit.getFocusLostBehavior();
+					if (fb == JFormattedTextField.COMMIT || fb == JFormattedTextField.COMMIT_OR_REVERT)
 					{
-						oldVal = currentEditingState.getValue(dataProviderID);
-					}
-					catch (IllegalArgumentException iae)
-					{
-						Debug.error("Error getting the previous value", iae); //$NON-NLS-1$
-					}
-					try
-					{
-						if (oldVal == Scriptable.NOT_FOUND && dal.getFormScope().has(dataProviderID, dal.getFormScope()))
-						{
-							oldVal = dal.getFormScope().get(dataProviderID);
-							dal.getFormScope().put(dataProviderID, obj);
-							IFoundSetInternal foundset = currentEditingState.getParentFoundSet();
-							if (foundset instanceof FoundSet) ((FoundSet)foundset).fireFoundSetChanged();
-						}
-						else currentEditingState.setValue(dataProviderID, obj);
-					}
-					catch (IllegalArgumentException e)
-					{
-						Debug.trace(e);
-						displayData.setValueValid(false, oldVal);
-						application.handleException(null, new ApplicationException(ServoyException.INVALID_INPUT, e));
-
-						Object stateValue = null;
 						try
 						{
-							stateValue = dal.getValueObject(currentEditingState, dataProviderID);
+							edit.commitEdit();
+							// Give it a chance to reformat.
+							edit.setValueObject(edit.getValue());
 						}
-						catch (IllegalArgumentException iae)
+						catch (ParseException pe)
 						{
-							Debug.error(iae);
+							return null;
 						}
-						Object displayValue;
-						if (Utils.equalObjects(oldVal, stateValue))
-						{
-							// reset display to typed value
-							displayValue = obj;
-						}
-						else
-						{
-							// reset display to changed value in validator method
-							displayValue = stateValue;
-						}
-						displayData.setValueObject(displayValue);
-						return displayValue;
 					}
-
-					if (!Utils.equalObjects(oldVal, obj))
+					else if (fb == JFormattedTextField.REVERT)
 					{
-						fireModificationEvent(currentEditingState);
-						displayData.notifyLastNewValueWasChange(oldVal, obj);
-						obj = dal.getValueObject(currentEditingState, dataProviderID);
-						displayData.setValueObject(obj);// we also want to reset the value in the current display if changed by script
-					}
-					else if (!displayData.isValueValid())
-					{
-						displayData.notifyLastNewValueWasChange(null, obj);
-					}
-					else
-					{
-						displayData.setValueValid(true, null);
+						edit.setValueObject(edit.getValue());
 					}
 				}
 				finally
 				{
-					adjusting = false;
-					if (displayData.isValueValid())
-					{
-						lastInvalidValue = NONE;
-					}
-					else
-					{
-						lastInvalidValue = obj;
-					}
+					edit.setNeedEntireState(needEntireState);
 				}
+
 			}
 
+			Object obj = null;
+			if (editor instanceof IDisplayData)
+			{
+				IDisplayData displayData = (IDisplayData)editor;
+				obj = displayData.getValueObject();
+				// if the editor is not enable or is readonly dont try to set any value.
+				if (!displayData.isEnabled() || displayData.isReadOnly()) return obj;
+				// then make sure the current state is in edit, if not, try to start it else just return.
+				// this can happen when toggling with readonly. case 233226 or 232188 
+				if (!currentEditingState.isEditing() && !currentEditingState.startEditing()) return obj;
+
+				try
+				{
+					if (currentEditingState != null && (obj == null || "".equals(obj)) && currentEditingState.getValue(dataProviderID) == null) //$NON-NLS-1$
+					{
+						return null;
+					}
+				}
+				catch (IllegalArgumentException iae)
+				{
+					Debug.error(iae);
+				}
+				if (currentEditingState instanceof FindState)
+				{
+					((FindState)currentEditingState).setFormat(dataProviderID, displayData.getFormat());
+					currentEditingState.setValue(dataProviderID, obj);
+				}
+				else
+				{
+
+					if (!displayData.isValueValid() && Utils.equalObjects(lastInvalidValue, obj))
+					{
+						// already validated
+						return obj;
+					}
+					try
+					{
+						adjusting = true;
+						Object oldVal = null;
+						try
+						{
+							oldVal = currentEditingState.getValue(dataProviderID);
+						}
+						catch (IllegalArgumentException iae)
+						{
+							Debug.error("Error getting the previous value", iae); //$NON-NLS-1$
+						}
+						try
+						{
+							if (oldVal == Scriptable.NOT_FOUND && dal.getFormScope().has(dataProviderID, dal.getFormScope()))
+							{
+								oldVal = dal.getFormScope().get(dataProviderID);
+								dal.getFormScope().put(dataProviderID, obj);
+								IFoundSetInternal foundset = currentEditingState.getParentFoundSet();
+								if (foundset instanceof FoundSet) ((FoundSet)foundset).fireFoundSetChanged();
+							}
+							else currentEditingState.setValue(dataProviderID, obj);
+						}
+						catch (IllegalArgumentException e)
+						{
+							Debug.trace(e);
+							displayData.setValueValid(false, oldVal);
+							application.handleException(null, new ApplicationException(ServoyException.INVALID_INPUT, e));
+
+							Object stateValue = null;
+							try
+							{
+								stateValue = dal.getValueObject(currentEditingState, dataProviderID);
+							}
+							catch (IllegalArgumentException iae)
+							{
+								Debug.error(iae);
+							}
+							Object displayValue;
+							if (Utils.equalObjects(oldVal, stateValue))
+							{
+								// reset display to typed value
+								displayValue = obj;
+							}
+							else
+							{
+								// reset display to changed value in validator method
+								displayValue = stateValue;
+							}
+							displayData.setValueObject(displayValue);
+							return displayValue;
+						}
+
+						if (!Utils.equalObjects(oldVal, obj))
+						{
+							fireModificationEvent(currentEditingState);
+							displayData.notifyLastNewValueWasChange(oldVal, obj);
+							obj = dal.getValueObject(currentEditingState, dataProviderID);
+							displayData.setValueObject(obj);// we also want to reset the value in the current display if changed by script
+						}
+						else if (!displayData.isValueValid())
+						{
+							displayData.notifyLastNewValueWasChange(null, obj);
+						}
+						else
+						{
+							displayData.setValueValid(true, null);
+						}
+					}
+					finally
+					{
+						adjusting = false;
+						if (displayData.isValueValid())
+						{
+							lastInvalidValue = NONE;
+						}
+						else
+						{
+							lastInvalidValue = obj;
+						}
+					}
+				}
+
+			}
+			return obj;
 		}
-		return obj;
+		finally
+		{
+			gettingEditorValue = false;
+		}
 	}
 
 	/*
