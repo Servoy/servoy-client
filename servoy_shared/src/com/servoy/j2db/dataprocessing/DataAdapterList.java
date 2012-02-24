@@ -552,6 +552,10 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 		{
 			return null;
 		}
+		if (destroyed)
+		{
+			Debug.error("calling getFormScope on a destroyed DataAdapterList" + formController, new RuntimeException());
+		}
 		return formController.getFormScope();
 	}
 
@@ -681,11 +685,14 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 		return application;
 	}
 
+	private boolean destroyed = false;
+
 	/**
 	 * 
 	 */
 	public void destroy()
 	{
+		destroyed = true;
 		if (currentRecord != null)
 		{
 			// With prototype you can still get global foundsets

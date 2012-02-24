@@ -69,19 +69,19 @@ public class CreationalPrototype extends DefaultScope implements LazyInitScope
 		{
 			// DEBUG INFO FOR GETTING DUPLICATE FORM SCOPES IN THIS SCOPE: SVY-1473
 			String name = ((FormScope)value).getFormController().getName();
-			if (super.get(name, start) instanceof FormScope)
+			Object fs = super.get(name, start);
+			if (fs instanceof FormScope)
 			{
+				String msg = "By index, form scope for " + name + " overrides anoter version in thread " + Thread.currentThread().getName() + ", " +
+					(fs == value) + ", " + (((FormScope)fs).getFormController() == ((FormScope)value).getFormController());
 				try
 				{
-					application.getDataServer().logMessage(
-						"form scope for " + name + " overrides anoter version in thread " + Thread.currentThread().getName() +
-							", see webstart log on client for more information");
+					application.getDataServer().logMessage(msg + ", see webstart log on client for more information");
 				}
 				catch (Exception e)
 				{
 				}
-				Debug.error("form scope for " + name + " overrides anoter version in thread " + Thread.currentThread().getName(), new RuntimeException(
-					"form scope for " + name + " overrides anoter version in thread " + Thread.currentThread().getName()));
+				Debug.error(msg, new RuntimeException(msg));
 			}
 		}
 		super.put(index, start, value);
@@ -96,20 +96,24 @@ public class CreationalPrototype extends DefaultScope implements LazyInitScope
 	@Override
 	public void put(String name, Scriptable start, Object value)
 	{
-		if (value instanceof FormScope && super.get(name, start) instanceof FormScope)
+		if (value instanceof FormScope)
 		{
-			try
+			Object fs = super.get(name, start);
+			if (fs instanceof FormScope)
 			{
-				application.getDataServer().logMessage(
-					"form scope for " + name + " overrides anoter version in thread " + Thread.currentThread().getName() +
-						", see webstart log on client for more information");
+				String msg = "By string, form scope for " + name + " overrides anoter version in thread " + Thread.currentThread().getName() + ", " +
+					(fs == value) + ", " + (((FormScope)fs).getFormController() == ((FormScope)value).getFormController());
+
+				try
+				{
+					application.getDataServer().logMessage(msg + ", see webstart log on client for more information");
+				}
+				catch (Exception e)
+				{
+				}
+				// DEBUG INFO FOR GETTING DUPLICATE FORM SCOPES IN THIS SCOPE: SVY-1473
+				Debug.error(msg, new RuntimeException(msg));
 			}
-			catch (Exception e)
-			{
-			}
-			// DEBUG INFO FOR GETTING DUPLICATE FORM SCOPES IN THIS SCOPE: SVY-1473
-			Debug.error("form scope for " + name + " overrides anoter version in thread " + Thread.currentThread().getName(), new RuntimeException(
-				"form scope for " + name + " overrides anoter version in thread " + Thread.currentThread().getName()));
 		}
 		super.put(name, start, value);
 	}
