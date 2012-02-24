@@ -1109,7 +1109,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 	 */
 	public void contentsChanged(ListDataEvent e)
 	{
-		if (e.getIndex0() == -1 && e.getIndex1() == -1 && editProvider != null && !editProvider.isAdjusting())
+		if (!list.isValueListChanging() && e.getIndex0() == -1 && e.getIndex1() == -1 && editProvider != null && !editProvider.isAdjusting())
 		{
 			// Check if focus event is already done or not..
 			if (eventExecutor.hasEnterCmds() && eventExecutor.mustFireFocusGainedCommand())
