@@ -211,13 +211,15 @@ public class TabSequenceHelper<T>
 		}
 
 		componentsToNames.clear();
+
+		if ((lastComponentBeforeBody == null) && (tableViewToInsert != null)) componentsToNames.put(tableViewToInsert, null);
+
 		for (T o : componentGroupsByTabIndex.keySet())
 		{
 			componentsToNames.put(o, componentGroupsByTabIndex.get(o));
 			if ((tableViewToInsert != null) && (lastComponentBeforeBody != null) && (o.equals(lastComponentBeforeBody))) componentsToNames.put(
 				tableViewToInsert, null);
 		}
-		if ((lastComponentBeforeBody == null) && (tableViewToInsert != null)) componentsToNames.put(tableViewToInsert, null);
 
 		revertComponentsToNames();
 		fromNamedToRuntime();
