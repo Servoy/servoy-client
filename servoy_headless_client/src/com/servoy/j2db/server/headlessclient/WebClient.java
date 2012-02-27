@@ -770,6 +770,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 				if (rc != null)
 				{
 					boolean showDefault = true;
+					boolean urlShown = false;
 					if (showUrlInfo != null)
 					{
 						showDefault = !"_self".equals(showUrlInfo.getTarget()) && !"_top".equals(showUrlInfo.getTarget());
@@ -786,6 +787,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 							String show = MainPage.getShowUrlScript(showUrlInfo);
 							if (show != null)
 							{
+								urlShown = true;
 								((AjaxRequestTarget)rc.getRequestTarget()).appendJavascript(show);
 							}
 						}
@@ -800,7 +802,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 						{
 							if (getPreferedSolutionNameToLoadOnInit() == null)
 							{
-								if (shownInDialog && rc.getRequestTarget() instanceof AjaxRequestTarget)
+								if ((urlShown || shownInDialog) && rc.getRequestTarget() instanceof AjaxRequestTarget)
 								{
 									CharSequence urlFor = mp.urlFor(SelectSolution.class, null);
 									((AjaxRequestTarget)rc.getRequestTarget()).appendJavascript(MainPage.getShowUrlScript(new ShowUrlInfo(urlFor.toString(),
@@ -962,7 +964,8 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		}
 	}
 
-	public void onEndRequest(@SuppressWarnings("unused") WebClientSession webClientSession)
+	public void onEndRequest(@SuppressWarnings("unused")
+	WebClientSession webClientSession)
 	{
 		userRequestProperties.clear();
 	}
