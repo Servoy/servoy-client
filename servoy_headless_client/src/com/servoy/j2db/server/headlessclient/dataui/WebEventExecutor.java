@@ -609,6 +609,11 @@ public class WebEventExecutor extends BaseEventExecutor
 			// do executed the events for before generating the response.
 			WebClientSession.get().getWebClient().executeEvents();
 
+			if (WebClientSession.get().getWebClient().getSolution() == null)
+			{
+				return;
+			}
+
 			final MainPage mainPage = ((MainPage)page);
 
 			if (mainPage.getPageMap() instanceof ModifiedAccessStackPageMap)
