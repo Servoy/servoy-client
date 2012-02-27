@@ -784,11 +784,13 @@ public class WebClient extends SessionClient implements IWebClientApplication
 							showUrlInfo.setExit(true);
 							showUrlInfo.setOnRootFrame(true);
 							showUrlInfo.setUseIFrame(false);
-							String show = mp.getShowUrlScript();
+							String show = MainPage.getShowUrlScript(showUrlInfo);
 							if (show != null)
 							{
 								urlShown = true;
 								((AjaxRequestTarget)rc.getRequestTarget()).appendJavascript(show);
+								// extra call to make sure that it is removed for the next time.
+								mp.getShowUrlScript();
 							}
 						}
 						else
