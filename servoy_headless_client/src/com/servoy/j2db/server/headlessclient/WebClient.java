@@ -784,7 +784,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 							showUrlInfo.setExit(true);
 							showUrlInfo.setOnRootFrame(true);
 							showUrlInfo.setUseIFrame(false);
-							String show = MainPage.getShowUrlScript(showUrlInfo);
+							String show = mp.getShowUrlScript();
 							if (show != null)
 							{
 								urlShown = true;
@@ -827,7 +827,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 								{
 									map.put("a", getPreferedSolutionMethodArguments()[0]);
 								}
-								if (shownInDialog && rc.getRequestTarget() instanceof AjaxRequestTarget)
+								if ((urlShown || shownInDialog) && rc.getRequestTarget() instanceof AjaxRequestTarget)
 								{
 									CharSequence urlFor = mp.urlFor(SolutionLoader.class, new PageParameters(map));
 									((AjaxRequestTarget)rc.getRequestTarget()).appendJavascript(MainPage.getShowUrlScript(new ShowUrlInfo(urlFor.toString(),
