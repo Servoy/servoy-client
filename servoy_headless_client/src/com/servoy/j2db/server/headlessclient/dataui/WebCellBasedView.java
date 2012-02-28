@@ -139,7 +139,6 @@ import com.servoy.j2db.server.headlessclient.dnd.DraggableBehavior;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
-import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IPortalComponent;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
@@ -2185,12 +2184,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		else if (c instanceof IServoyAwareBean)
 		{
 			((IServoyAwareBean)c).setValidationEnabled(validationEnabled);
-		}
-
-		// in order to have selection when clicking on labels in table view
-		if (c instanceof WebBaseLabel && !((WebBaseLabel)c).getEventExecutor().hasActionCmd())
-		{
-			((WebBaseLabel)c).setActionCommand(IEventExecutor.ACTION_COMMAND_NONE, null);
 		}
 
 		Model<String> componentClassModel = new Model<String>()
