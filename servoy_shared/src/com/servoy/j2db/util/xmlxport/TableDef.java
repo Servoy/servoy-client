@@ -28,11 +28,13 @@ public class TableDef implements Serializable
 	public static final String PROP_TABLE_TYPE = "tableType"; //$NON-NLS-1$
 	public static final String PROP_COLUMNS = "columns"; //$NON-NLS-1$
 	public static final String HIDDEN_IN_DEVELOPER = "hiddenInDeveloper"; //$NON-NLS-1$
+	public static final String IS_META_DATA = "isMetaData"; //$NON-NLS-1$
 
 	public String name = null;
 	public String createScript = null;
 	public String primaryKey = null;
 	public boolean hiddenInDeveloper = false;
+	public boolean isMetaData = false;
 	public ArrayList<ColumnInfoDef> columnInfoDefSet = new ArrayList<ColumnInfoDef>(); // this should be a list, otherwise column creation order is broken
 	public int tableType = ITable.TABLE;
 
