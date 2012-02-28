@@ -1196,6 +1196,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 
 	public Object getCellEditorValue()
 	{
+		System.err.println("cell editor value");
 		try
 		{
 			// test if currentEditing state isn't deleted already
@@ -1209,7 +1210,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			}
 
 			gettingEditorValue = true;
-
+			System.err.println("cell editor value 2");
 			if (comp instanceof IDelegate< ? >)
 			{
 				comp = ((IDelegate< ? >)comp).getDelegate();
@@ -1434,6 +1435,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				CellEditorListener l = listener;
 				if (l != null)
 				{
+					// TODO this also triggers (or can trigger) a getCellEditorValue() call.. (so the vallue is set in the record, conversion/validation is called again)
 					l.editingStopped(new ChangeEvent(this));
 				}
 				return true;
