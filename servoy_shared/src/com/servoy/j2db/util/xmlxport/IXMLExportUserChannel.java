@@ -16,6 +16,9 @@
  */
 package com.servoy.j2db.util.xmlxport;
 
+import java.io.IOException;
+
+import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.InfoChannel;
 import com.servoy.j2db.util.SortedList;
 
@@ -43,4 +46,6 @@ public interface IXMLExportUserChannel extends InfoChannel
 	public String getProtectionPassword();
 
 	public boolean getExportAllTablesFromReferencedServers();
+
+	public String getTableMetaData(ITable table) throws IOException;
 }
