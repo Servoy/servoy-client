@@ -53,6 +53,10 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 	private final int tableType;
 
 	private volatile boolean hiddenInDeveloper = false;
+	/**
+	 * Flag to mark this table as meta data, meta data will be included in export files
+	 */
+	private volatile boolean isMetaData = false;
 
 	private final AliasKeyMap<String, String, Column> columns = new AliasKeyMap<String, String, Column>(new LinkedHashMap<String, Column>());
 	private final List<Column> keyColumns = new ArrayList<Column>();
@@ -213,11 +217,26 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 		hiddenInDeveloper = hidden;
 	}
 
+	/**
+	 * Flag to mark this table as meta data.
+	 */
+	public boolean isMarkedAsMetaData()
+	{
+		return isMetaData;
+	}
+
+	/**
+	 * Flag to mark this table as meta data.
+	 */
+	public void setMarkedAsMetaData(boolean isMetaData)
+	{
+		this.isMetaData = isMetaData;
+	}
+
 	public String getCatalog()
 	{
 		return catalog;
 	}
-
 
 	public String getSchema()
 	{

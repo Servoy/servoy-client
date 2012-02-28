@@ -343,16 +343,24 @@ public class XMLUtils
 		for (int i = 0; i < columnTypes.size(); i++)
 		{
 			if (i > 0) sb.append(',');
-			ColumnType columnType = columnTypes.get(i);
-			sb.append('[');
-			sb.append(String.valueOf(columnType.getSqlType()));
-			sb.append(',');
-			sb.append(String.valueOf(columnType.getLength()));
-			sb.append(',');
-			sb.append(String.valueOf(columnType.getScale()));
-			sb.append(']');
+			sb.append(serializeColumnType(columnTypes.get(i)));
 		}
 		sb.append(']');
 		return sb.toString();
+	}
+
+	public static String serializeColumnType(ColumnType columnType)
+	{
+		if (columnType == null)
+		{
+			return null;
+		}
+
+		return new StringBuilder() //
+		.append('[') //
+		/*        */.append(String.valueOf(columnType.getSqlType())) //
+		.append(',').append(String.valueOf(columnType.getLength())) //
+		.append(',').append(String.valueOf(columnType.getScale())) //
+		.append(']').toString();
 	}
 }
