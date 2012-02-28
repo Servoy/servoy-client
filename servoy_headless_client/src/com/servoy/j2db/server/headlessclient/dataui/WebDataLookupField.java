@@ -247,24 +247,25 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 						}
 						if (f.isBold()) listStyle.append("font-weight:bold; ");
 						if (f.isItalic()) listStyle.append("font-style:italic; ");
-						if (getBackground() != null)
-						{
-							bgColor = Integer.toHexString(getBackground().getRGB());
-							bgColor = "#" + bgColor.substring(2, bgColor.length());
-						}
-						if (getForeground() != null)
-						{
-							fgColor = Integer.toHexString(getForeground().getRGB());
-							fgColor = "#" + fgColor.substring(2, fgColor.length());
-						}
+
 						fSize = Integer.toString(f.getSize()) + "px";
-						Insets _padding = getPadding();
-						if (getPadding() != null) padding = "padding:" + _padding.top + "px " + _padding.right + "px " + _padding.bottom + "px " +
-							_padding.left + "px";
-						Insets _margin = getMargin();
-						if (_margin != null) margin = "margin:" + _margin.top + "px " + _margin.right + "px " + _margin.bottom + "px " + _margin.left + "px ";
 					}
 				}
+				if (getBackground() != null)
+				{
+					bgColor = Integer.toHexString(getBackground().getRGB());
+					bgColor = "#" + bgColor.substring(2, bgColor.length());
+				}
+				if (getForeground() != null)
+				{
+					fgColor = Integer.toHexString(getForeground().getRGB());
+					fgColor = "#" + fgColor.substring(2, fgColor.length());
+				}
+				Insets _padding = getPadding();
+				if (getPadding() != null) padding = "padding:" + _padding.top + "px " + _padding.right + "px " + _padding.bottom + "px " + _padding.left + "px";
+				Insets _margin = getMargin();
+				if (_margin != null) margin = "margin:" + _margin.top + "px " + _margin.right + "px " + _margin.bottom + "px " + _margin.left + "px ";
+
 				listStyle.append("font-family:" + fFamily + "; ");
 				listStyle.append("background-color: " + bgColor + "; ");
 				listStyle.append("color: " + fgColor + "; ");
