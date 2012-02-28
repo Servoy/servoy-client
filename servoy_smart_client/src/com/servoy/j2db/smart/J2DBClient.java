@@ -1447,7 +1447,23 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	{
 		try
 		{
-			// incase we use alloy
+			String allowLAFWindowDecoration = settings.getProperty("servoy.smartclient.allowLAFWindowDecoration");
+			if (allowLAFWindowDecoration != null && allowLAFWindowDecoration.equals("true"))
+			{
+				//Allow LAF's to control the JFrame and JDialog chrome
+				JFrame.setDefaultLookAndFeelDecorated(true);
+				JDialog.setDefaultLookAndFeelDecorated(true);
+
+				//Settings aboive might cause flicker while resizing, see:
+				//https://substance.dev.java.net/docs/faq.html, question 17
+				//http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5079688
+				if (Utils.getPlatform() == Utils.PLATFORM_WINDOWS && System.getProperty("sun.awt.noerasebackground") == null)
+				{
+					System.setProperty("sun.awt.noerasebackground", "true");
+				}
+			}
+
+			// in case we use alloy
 			System.setProperty("alloy.isLookAndFeelFrameDecoration", "true");
 
 			String defaultLAFClassName = UIManager.getSystemLookAndFeelClassName();
