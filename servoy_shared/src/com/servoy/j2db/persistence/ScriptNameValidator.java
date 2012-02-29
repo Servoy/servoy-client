@@ -18,6 +18,7 @@ package com.servoy.j2db.persistence;
 
 
 import java.util.Iterator;
+import java.util.List;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.util.Debug;
@@ -157,6 +158,15 @@ public class ScriptNameValidator implements IValidateName
 				if (nameToCheck.equals(sc.getName()) && sc.getID() != skip_element_id)
 				{
 					return sc;
+				}
+			}
+
+			List<ScriptMethod> foundsetMethods = solutionRoot.getFoundsetMethods(table, false);
+			for (ScriptMethod scriptMethod : foundsetMethods)
+			{
+				if (nameToCheck.equals(scriptMethod.getName()) && scriptMethod.getID() != skip_element_id)
+				{
+					return scriptMethod;
 				}
 			}
 		}
