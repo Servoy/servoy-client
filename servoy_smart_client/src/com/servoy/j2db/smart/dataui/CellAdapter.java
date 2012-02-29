@@ -453,6 +453,33 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			}
 			lastEditorFont = font;
 			editor.setFont(font);
+
+
+			Border styleBorder = getBorder(jtable, isSelected, row);
+			if (styleBorder != null && editor instanceof JComponent)
+			{
+				if (column == 0)
+				{
+					styleBorder = new ReducedBorder(styleBorder, ReducedBorder.RIGHT);
+				}
+				else if (column == jtable.getColumnCount() - 1)
+				{
+					styleBorder = new ReducedBorder(styleBorder, ReducedBorder.LEFT);
+				}
+				else
+				{
+					styleBorder = new ReducedBorder(styleBorder, ReducedBorder.LEFT | ReducedBorder.RIGHT);
+				}
+
+				// if we have margin set on the component, keep it along with the style border
+				if (noFocusBorder instanceof CompoundBorder && ((CompoundBorder)noFocusBorder).getInsideBorder() instanceof EmptyBorder)
+				{
+					styleBorder = new CompoundBorder(styleBorder, ((CompoundBorder)noFocusBorder).getInsideBorder());
+				}
+
+				((JComponent)editor).setBorder(styleBorder);
+			}
+
 		}
 
 //		try
@@ -957,7 +984,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			{
 				styleBorder = new ReducedBorder(styleBorder, ReducedBorder.LEFT | ReducedBorder.RIGHT);
 			}
-			//styleBorder = new CompoundBorder(styleBorder, noFocusBorder);
+
 		}
 		else
 		{
@@ -966,7 +993,16 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 
 		Border adjustedBorder = null;
 
-		if (!hasFocus) adjustedBorder = styleBorder;
+		if (!hasFocus)
+		{
+			// if we have margin set on the component, keep it along with the style border
+			if (styleBorder instanceof ReducedBorder && noFocusBorder instanceof CompoundBorder &&
+				((CompoundBorder)noFocusBorder).getInsideBorder() instanceof EmptyBorder)
+			{
+				styleBorder = new CompoundBorder(styleBorder, ((CompoundBorder)noFocusBorder).getInsideBorder());
+			}
+			adjustedBorder = styleBorder;
+		}
 		else
 		{
 			adjustedBorder = UIManager.getBorder("Table.focusCellHighlightBorder"); //$NON-NLS-1$
@@ -974,7 +1010,15 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			{
 				if (styleBorder instanceof ReducedBorder)
 				{
-					adjustedBorder = new CompoundBorder(styleBorder, adjustedBorder);
+					// if we have margin set on the component, keep it along with the style border
+					if (noFocusBorder instanceof CompoundBorder && ((CompoundBorder)noFocusBorder).getInsideBorder() instanceof EmptyBorder)
+					{
+						adjustedBorder = new CompoundBorder(styleBorder, new CompoundBorder(adjustedBorder, ((CompoundBorder)noFocusBorder).getInsideBorder()));
+					}
+					else
+					{
+						adjustedBorder = new CompoundBorder(styleBorder, adjustedBorder);
+					}
 				}
 				else if (styleBorder instanceof CompoundBorder)
 				{
