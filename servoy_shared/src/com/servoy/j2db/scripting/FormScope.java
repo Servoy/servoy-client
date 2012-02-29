@@ -262,7 +262,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 		Object object = super.get(name, start);
 		if ("foundset".equals(name) && (object == null || object == Scriptable.NOT_FOUND))
 		{
-			String message = Thread.currentThread().getName() + ": For form " + _fp.getName() + " the foundset was asked for but that was not set. " +
+			String message = Thread.currentThread().getName() + ": For form " + _fp + " the foundset was asked for but that was not set. " +
 				(this == _fp.getFormScope());
 			Debug.error(message, new RuntimeException());
 			try
@@ -273,6 +273,20 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 			{
 			}
 			return _fp.getFormModel();
+		}
+		if ("elements".equals(name) && (object == null || object == Scriptable.NOT_FOUND))
+		{
+			String message = Thread.currentThread().getName() + ": For form " + _fp + " the elements was asked for but that was not set. " +
+				(this == _fp.getFormScope());
+			Debug.error(message, new RuntimeException());
+			try
+			{
+				_fp.getApplication().getDataServer().logMessage(message + ", see webstart log on client for more information");
+			}
+			catch (Exception e)
+			{
+			}
+
 		}
 		return object;
 	}
