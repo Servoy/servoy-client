@@ -21,6 +21,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.DefaultFocusTraversalPolicy;
 import java.awt.Font;
 import java.net.URL;
 import java.util.ArrayList;
@@ -125,7 +126,23 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 				{
 					this.enclosingComponent.setTabPlacement(orient);
 				}
-				setFocusTraversalPolicy(ServoyFocusTraversalPolicy.defaultPolicy);
+				setFocusTraversalPolicy(new DefaultFocusTraversalPolicy()
+				{
+					@Override
+					public Component getComponentBefore(Container aContainer, Component aComponent)
+					{
+						if (!(aComponent instanceof TabbedPanel))
+						{
+							return super.getComponentBefore(aContainer, aComponent);
+						}
+						else
+						{
+							// go out of this tab panel
+							Container focusRoot = aContainer.getFocusCycleRootAncestor();
+							return ServoyFocusTraversalPolicy.datarenderPolicy.getComponentBefore(focusRoot, aContainer);
+						}
+					}
+				});
 			}
 		}
 		else this.enclosingComponent = enclosingComponent;
