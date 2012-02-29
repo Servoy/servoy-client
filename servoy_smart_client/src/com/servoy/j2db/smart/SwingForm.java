@@ -146,8 +146,8 @@ import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.ISplitPane;
 import com.servoy.j2db.ui.ITabPanel;
-import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.ui.runtime.HasRuntimeReadOnly;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IFocusCycleRoot;
 import com.servoy.j2db.util.ISupportFocusTransfer;
@@ -772,8 +772,9 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		}
 		OrientationApplier.setOrientationToAWTComponent(this, application.getLocale(), application.getSolution().getTextOrientation());
 		if ((bgColor != null) && (view instanceof ListView)) ((ListView)view).setBackground(bgColor);
-		// Apply the opacity to the newly added view (and slider if any).
-		setOpaque(isOpaque());
+		// Apply the opacity to the newly added view (and slider if any),
+		// except if it's a table view, that is always transparent
+		if (!(view instanceof TableView)) setOpaque(isOpaque());
 		return view;
 	}
 
