@@ -771,6 +771,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 	public void updateColumnType(int type, int length, int scale)
 	{
 		this.columnType = checkColumnType(ColumnType.getInstance(type, length, scale));
+		table.fireIColumnChanged(this);
 	}
 
 	public static ColumnType checkColumnType(ColumnType columnType)
