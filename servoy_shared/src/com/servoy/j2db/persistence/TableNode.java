@@ -234,6 +234,9 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templateaddtodo
 	 * @templatecode
 	 * 
+	 * var not_valid = false;
+	 * // test if it is valid.
+	 * 
 	 * // throw exception to pass info to handler, will be returned in record.exception.getValue() when record.exception is a DataException
 	 * if (not_valid) throw 'cannot insert'
 	 * 
@@ -265,6 +268,9 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templateaddtodo
 	 * @templatecode
 	 * 
+	 * var not_valid = false;
+	 * // test if it is valid.
+	 * 
 	 * // throw exception to pass info to handler, will be returned in record.exception.getValue() when record.exception is a DataException
 	 * if (not_valid) throw 'cannot update'
 	 * 
@@ -295,6 +301,9 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templateparam JSRecord<${dataSource}> record record that will be deleted
 	 * @templateaddtodo
 	 * @templatecode
+	 * 
+	 * var not_valid = false;
+	 * // test if it is valid.
 	 * 
 	 * // throw exception to pass info to handler, will be returned in record.exception.getValue() when record.exception is a DataException
 	 * if (not_valid) throw 'cannot delete'
@@ -376,6 +385,9 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templatetype Boolean
 	 * @templateaddtodo
 	 * @templatecode
+	 * 
+	 * // return true so that the record can be created
+	 * return true
 	 */
 	public int getOnCreateMethodID()
 	{
@@ -397,6 +409,9 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templatetype Boolean
 	 * @templateaddtodo
 	 * @templatecode
+	 * 
+	 * // return true so that it will go into find mode.
+	 * return true
 	 */
 	public int getOnFindMethodID()
 	{
@@ -439,6 +454,9 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templatetype Boolean
 	 * @templateaddtodo
 	 * @templatecode
+	 * 
+	 * // return true so that the search will go on.
+	 * return true
 	 */
 	public int getOnSearchMethodID()
 	{
