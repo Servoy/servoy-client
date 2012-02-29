@@ -36,7 +36,10 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
+import javax.swing.BorderFactory;
 import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -713,8 +716,13 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 							defaultRightPadding = fieldMargin != null ? fieldMargin.right : TemplateGenerator.DEFAULT_FIELD_PADDING.right;
 							break;
 						case IRepository.GRAPHICALCOMPONENTS :
-							defaultLeftPadding = TemplateGenerator.DEFAULT_LABEL_PADDING.left;
-							defaultRightPadding = TemplateGenerator.DEFAULT_LABEL_PADDING.right;
+							Insets gcMargin = null;
+							if (elem instanceof GraphicalComponent)
+							{
+								gcMargin = ((GraphicalComponent)elem).getMargin();
+							}
+							defaultLeftPadding = gcMargin != null ? gcMargin.left : TemplateGenerator.DEFAULT_LABEL_PADDING.left;
+							defaultRightPadding = gcMargin != null ? gcMargin.right : TemplateGenerator.DEFAULT_LABEL_PADDING.right;
 							break;
 						default :
 							defaultLeftPadding = 0;
@@ -3284,6 +3292,22 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				String newBorder = compBorder != null ? compBorder.toString() : null;
 				if (newBorder != null)
 				{
+					Border currentBorder = ComponentFactoryHelper.createBorder(sbm.getBorder());
+					Border marginBorder = null;
+					if (currentBorder instanceof EmptyBorder)
+					{
+						marginBorder = currentBorder;
+					}
+					else if (currentBorder instanceof CompoundBorder && ((CompoundBorder)currentBorder).getInsideBorder() instanceof EmptyBorder)
+					{
+						marginBorder = ((CompoundBorder)currentBorder).getInsideBorder();
+					}
+
+					if (marginBorder != null)
+					{
+						newBorder = ComponentFactoryHelper.createBorderString(BorderFactory.createCompoundBorder(
+							ComponentFactoryHelper.createBorder(newBorder), marginBorder));
+					}
 					sbm.setBorder(newBorder);
 					// reset size so the web size will be recalculated based on the new border
 					sbm.setSize(sbm.getWidth(), sbm.getHeight());
