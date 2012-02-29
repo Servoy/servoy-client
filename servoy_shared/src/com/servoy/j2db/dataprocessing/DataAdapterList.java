@@ -347,6 +347,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 	 */
 	public void setRecord(IRecordInternal state, boolean stopAnyEdit)
 	{
+		if (destroyed && state != null)
+		{
+			Debug.error("trying to set the record in a destroyed DataAdapterList of formcontroller: " + formController, new RuntimeException());
+			return;
+		}
 		if (undoManager != null) undoManager.setIgnoreEdits(true);
 
 		if (currentRecord != null)
@@ -554,7 +559,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 		}
 		if (destroyed)
 		{
-			Debug.error("calling getFormScope on a destroyed DataAdapterList" + formController, new RuntimeException());
+			Debug.error("calling getFormScope on a destroyed DataAdapterList, formcontroller: " + formController, new RuntimeException());
+			return null;
 		}
 		return formController.getFormScope();
 	}
@@ -692,7 +698,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 	 */
 	public void destroy()
 	{
-		destroyed = true;
 		if (currentRecord != null)
 		{
 			// With prototype you can still get global foundsets
@@ -771,6 +776,12 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 		currentRecord = null;
 		currentDisplay = null;
 		visible = false;
+		destroyed = true;
+		if (currentRecord != null)
+		{
+			Debug.error("After destroy there is still a current record in DataAdapterList of formcontroller: " + formController, new RuntimeException()); //$NON-NLS-1$
+			currentRecord.removeModificationListener(this);
+		}
 	}
 
 	public String getStringValue(String name)

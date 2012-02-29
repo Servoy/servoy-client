@@ -1804,7 +1804,6 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	{
 		try
 		{
-			destroyed = true;
 			if (this.designMode != null)
 			{
 				setDesignMode(null);
@@ -1864,6 +1863,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				scriptExecuter.destroy();
 			}
 			scriptExecuter = null;
+			destroyed = true;
 		}
 		catch (Exception e)
 		{
@@ -4123,13 +4123,13 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	//if the js init is not done , do!	
 	public synchronized JSForm initForJSUsage()
 	{
-		if (destroyed)
-		{
-			Debug.error("Calling initForJSUsage on a destroyed form: " + this, new RuntimeException());
-			return null;
-		}
 		if (formScope == null)
 		{
+			if (destroyed)
+			{
+				Debug.error("Calling initForJSUsage on a destroyed form: " + this, new RuntimeException());
+				return null;
+			}
 			Context.enter();
 			try
 			{
