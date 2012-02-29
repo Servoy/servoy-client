@@ -78,7 +78,6 @@ import com.servoy.j2db.ui.ISupportSpecialClientProperty;
 import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
-import com.servoy.j2db.ui.scripting.RuntimeDataField;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FormatParser;
 import com.servoy.j2db.util.FormatParser.ParsedFormat;
@@ -174,7 +173,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	private final AbstractRuntimeField<IFieldComponent> scriptable;
 	protected final IApplication application;
 
-	public WebDataField(IApplication application, RuntimeDataField scriptable, String id, IValueList list)
+	public WebDataField(IApplication application, AbstractRuntimeField<IFieldComponent> scriptable, String id, IValueList list)
 	{
 		this(application, scriptable, id);
 		this.list = list;

@@ -112,7 +112,7 @@ public class WebDataListBox extends ListMultipleChoice implements IDisplayData, 
 		eventExecutor = new WebEventExecutor(this, useAJAX);
 		setOutputMarkupPlaceholderTag(true);
 
-		list = new WebComboModelListModelWrapper(vl, true);
+		list = new WebComboModelListModelWrapper(vl, true, true);
 		list.setMultiValueSelect(multiSelection);
 		setChoices(list);
 

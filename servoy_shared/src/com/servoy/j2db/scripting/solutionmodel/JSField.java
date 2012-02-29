@@ -153,8 +153,8 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 * @sample
 	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
 	 * vlist.customValues = "one\ntwo\nthree\nfour";
-	 * var radio = form.newField('my_table_list', JSField.LIST_BOX, 10, 280, 100, 50);
-	 * radio.valuelist = vlist;
+	 * var list = form.newField('my_table_list', JSField.LIST_BOX, 10, 280, 100, 50);
+	 * list.valuelist = vlist;
 	 */
 	public static final int LIST_BOX = Field.LIST_BOX;
 
@@ -165,10 +165,22 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 * @sample
 	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
 	 * vlist.customValues = "one\ntwo\nthree\nfour";
-	 * var radio = form.newField('my_table_options', JSField.MULTI_SELECTION_LIST_BOX, 10, 280, 100, 50);
-	 * radio.valuelist = vlist;
+	 * var list = form.newField('my_table_options', JSField.MULTI_SELECTION_LIST_BOX, 10, 280, 100, 50);
+	 * list.valuelist = vlist;
 	 */
 	public static final int MULTI_SELECTION_LIST_BOX = Field.MULTI_SELECTION_LIST_BOX;
+
+	/**
+	 * Constant for specifying the display type of a JSField. Sets the display type of the
+	 * field to spinner. The field will show a spinner.
+	 * 
+	 * @sample
+	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
+	 * vlist.customValues = "one\ntwo\nthree\nfour";
+	 * var spinner = form.newField('my_spinner', JSField.SPINNER, 10, 460, 100, 20);
+	 * spinner.valuelist = vlist;
+	 */
+	public static final int SPINNER = Field.SPINNER;
 
 	private final IApplication application;
 

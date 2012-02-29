@@ -68,7 +68,7 @@ import com.servoy.j2db.server.headlessclient.WebClientsApplication.ModifiedAcces
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.server.headlessclient.WrapperContainer;
 import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView.WebCellBasedViewListViewItem;
-import com.servoy.j2db.server.headlessclient.dataui.WebDataCalendar.DateField;
+import com.servoy.j2db.server.headlessclient.dataui.WebDataCompositeTextField.AugmentedTextField;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataRadioButton.MyRadioButton;
 import com.servoy.j2db.server.headlessclient.dnd.DraggableBehavior;
 import com.servoy.j2db.server.headlessclient.eventthread.IEventDispatcher;
@@ -110,8 +110,8 @@ public class WebEventExecutor extends BaseEventExecutor
 			{
 				component.add(new ServoyFormComponentUpdatingBehavior("onclick", component, this, "FormUpdate")); //$NON-NLS-1$ //$NON-NLS-2$
 			}
-			else if (component instanceof WebDataLookupField || component instanceof WebDataComboBox || component instanceof DateField ||
-				component instanceof WebDataListBox) // these fields can change contents without having focus or should generate dataProvider update without loosing focus; for example calendar might modify field content without field having focus
+			else if (component instanceof WebDataLookupField || component instanceof WebDataComboBox || component instanceof AugmentedTextField ||
+				component instanceof WebDataListBox) // these fields can change contents without having focus or should generate dataProvider update without loosing focus; for example calendar&spinner might modify field content without field having focus
 			{
 				component.add(new ServoyFormComponentUpdatingBehavior("onchange", component, this, "FormUpdate")); //$NON-NLS-1$ //$NON-NLS-2$
 			}

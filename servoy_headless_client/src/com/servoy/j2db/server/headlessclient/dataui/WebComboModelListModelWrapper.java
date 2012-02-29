@@ -29,9 +29,9 @@ import com.servoy.j2db.util.model.ComboModelListModelWrapper;
 public class WebComboModelListModelWrapper extends ComboModelListModelWrapper
 {
 
-	public WebComboModelListModelWrapper(IValueList listModel, boolean shouldHideEmptyValueIfPresent)
+	public WebComboModelListModelWrapper(IValueList listModel, boolean shouldHideEmptyValueIfPresent, boolean isSeparatorAware)
 	{
-		super(listModel, shouldHideEmptyValueIfPresent);
+		super(listModel, shouldHideEmptyValueIfPresent, isSeparatorAware);
 	}
 
 	@Override

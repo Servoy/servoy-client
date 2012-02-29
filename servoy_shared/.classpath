@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry exported="true" kind="lib" path="lib/minis.jar" sourcepath="libsrc/minis-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/PBKDF2.jar" sourcepath="libsrc/PBKDF2-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/activation.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mail.jar"/>

@@ -107,7 +107,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 		eventExecutor = new WebEventExecutor(this, useAJAX);
 		setOutputMarkupPlaceholderTag(true);
 
-		list = new WebComboModelListModelWrapper(vl, true);
+		list = new WebComboModelListModelWrapper(vl, true, false);
 		list.setMultiValueSelect(true);
 		setChoices(list);
 

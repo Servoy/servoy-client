@@ -144,6 +144,7 @@ public class EditProvider implements FocusListener, PropertyChangeListener, Item
 
 	public void itemStateChanged(ItemEvent e)
 	{
+		// careful: e.getSource can be null (DataSpinner)
 		if (e.getSource() instanceof JComboBox && e.getStateChange() == ItemEvent.DESELECTED) return;
 		if (e.getSource() instanceof JCheckBox && application != null)
 		{

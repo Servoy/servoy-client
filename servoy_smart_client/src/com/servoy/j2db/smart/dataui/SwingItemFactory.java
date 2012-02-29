@@ -62,6 +62,7 @@ import com.servoy.j2db.ui.scripting.RuntimeRadioButton;
 import com.servoy.j2db.ui.scripting.RuntimeRectangle;
 import com.servoy.j2db.ui.scripting.RuntimeScriptButton;
 import com.servoy.j2db.ui.scripting.RuntimeScriptLabel;
+import com.servoy.j2db.ui.scripting.RuntimeSpinner;
 import com.servoy.j2db.ui.scripting.RuntimeSplitPane;
 import com.servoy.j2db.ui.scripting.RuntimeTabPanel;
 import com.servoy.j2db.ui.scripting.RuntimeTextArea;
@@ -389,4 +390,12 @@ public class SwingItemFactory implements ItemFactory
 		dc.setName(name);
 		return dc;
 	}
+
+	public IFieldComponent createSpinner(RuntimeSpinner scriptable, String name, IValueList list)
+	{
+		DataSpinner dc = new DataSpinner(application, scriptable, list);
+		dc.setName(name);
+		return dc;
+	}
+
 }

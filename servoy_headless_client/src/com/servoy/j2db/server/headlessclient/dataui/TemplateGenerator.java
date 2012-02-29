@@ -2518,41 +2518,8 @@ public class TemplateGenerator
 			}
 				break;
 			case Field.CALENDAR :
-			{
-				html.append("<div ");
-				html.append(getWicketIDParameter(form, field));
-				html.append(getDataProviderIDParameter(field));
-				html.append(getCSSClassParameter("field"));
-				html.append("style = 'overflow:hidden' ");
-				html.append("><table ");
-				TextualStyle inline = new TextualStyle();
-				inline.setProperty("height", "100%");
-				inline.setProperty("width", "100%");
-				inline.setProperty("margin", "0px");
-				inline.setProperty("padding", "0px");
-				inline.setProperty("border-collapse", "collapse");
-				inline.setProperty("table-layout", "fixed");
-				html.append(inline.toString());
-				html.append("><tr ");
-				inline.remove("border-collapse");
-				inline.remove("table-layout");
-				html.append(inline.toString());
-				html.append("><td ");
-				html.append(inline.toString());
-				html.append("><input type='text' servoy:id='datefield' ");
-				inline = new TextualStyle();
-				inline.setProperty("border-style", "none");
-				inline.setProperty("background-color", IStyleSheet.COLOR_TRANSPARENT);
-				inline.setProperty("height", "100%");
-				inline.setProperty("width", "100%");
-				inline.setProperty("margin", "0px");
-				inline.setProperty("padding", "0px");
-				inline.copy("font-family", styleObj);
-				inline.copy("font-size", styleObj);
-				inline.copy("color", styleObj);
-				html.append(inline.toString());
-				html.append(" /></td></tr></table></div>");
-			}
+			case Field.SPINNER :
+				createCompositeFieldHTML(html, form, field, styleObj);
 				break;
 			case Field.IMAGE_MEDIA :
 			{
@@ -2672,6 +2639,52 @@ public class TemplateGenerator
 		{
 			applyLocationAndSize(field, styleObj, ins, startY, endY, form.getSize().width, enableAnchoring);
 		}
+	}
+
+	/**
+	 * @param styleObj 
+	 * @param field 
+	 * @param form 
+	 * @param html 
+	 * 
+	 */
+	private static void createCompositeFieldHTML(StringBuffer html, Form form, Field field, TextualStyle styleObj)
+	{
+		html.append("<div ");
+		html.append(getWicketIDParameter(form, field));
+		html.append(getDataProviderIDParameter(field));
+		html.append(getCSSClassParameter("field"));
+		html.append("style = 'overflow:hidden' ");
+		html.append("><table ");
+		TextualStyle inline = new TextualStyle();
+		inline.setProperty("height", "100%");
+		inline.setProperty("width", "100%");
+		inline.setProperty("margin", "0px");
+		inline.setProperty("padding", "0px");
+		inline.setProperty("border-collapse", "collapse");
+		inline.setProperty("table-layout", "fixed");
+		html.append(inline.toString());
+		html.append("><tr ");
+		inline.remove("border-collapse");
+		inline.remove("table-layout");
+		html.append(inline.toString());
+		html.append("><td ");
+		html.append(inline.toString());
+		html.append("><input type='text' servoy:id='");
+		html.append(WebDataCompositeTextField.AUGMENTED_FIELD_ID);
+		html.append("' ");
+		inline = new TextualStyle();
+		inline.setProperty("border-style", "none");
+		inline.setProperty("background-color", IStyleSheet.COLOR_TRANSPARENT);
+		inline.setProperty("height", "100%");
+		inline.setProperty("width", "100%");
+		inline.setProperty("margin", "0px");
+		inline.setProperty("padding", "0px");
+		inline.copy("font-family", styleObj);
+		inline.copy("font-size", styleObj);
+		inline.copy("color", styleObj);
+		html.append(inline.toString());
+		html.append(" /></td></tr></table></div>");
 	}
 
 	private static void applyScrolling(TextualStyle styleObj, ISupportScrollbars field)

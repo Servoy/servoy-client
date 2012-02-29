@@ -102,7 +102,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 		eventExecutor = new WebEventExecutor(this, useAJAX);
 		setOutputMarkupPlaceholderTag(true);
 
-		list = new WebComboModelListModelWrapper(vl, true);
+		list = new WebComboModelListModelWrapper(vl, true, false);
 		setChoices(list);
 
 		setChoiceRenderer(new WebChoiceRenderer(null, list)); // null because this component does not use a converter (for date/number formats)

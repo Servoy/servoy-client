@@ -275,7 +275,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 * Constant representing a listbox element.
 	 *
 	 * @sample
-	 * //the return value for an element of the TextField type, as returned by the following code
+	 * //the return value for an element of the ListBox type, as returned by the following code
 	 * var etype = elements.elementName.getElementType();
 	 * if (etype == ELEMENT_TYPES.LIST_BOX)
 	 * {
@@ -283,6 +283,19 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 * }
 	 */
 	public static final String LIST_BOX = IRuntimeComponent.LIST_BOX;
+
+	/**
+	 * Constant representing a spinner element.
+	 *
+	 * @sample
+	 * //the return value for an element of the Spinner type, as returned by the following code
+	 * var etype = elements.elementName.getElementType();
+	 * if (etype == ELEMENT_TYPES.SPINNER)
+	 * {
+	 *      // element is a SPINNER element
+	 * }
+	 */
+	public static final String SPINNER = IRuntimeComponent.SPINNER;
 
 	/**
 	 * Constant representing a multi selection listbox element.

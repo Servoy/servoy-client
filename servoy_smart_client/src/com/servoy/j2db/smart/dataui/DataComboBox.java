@@ -130,7 +130,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 	private boolean invalid = false;
 	private Object previousValidValue;
 	private FormattedComboBoxEditor formattedComboEditor;
-	private final ComboBoxAccesibleStateHolder accesibleStateHolder;
+	private final AccessibleStateHolder accesibleStateHolder;
 	private final DocumentListener closePopupDocumentListener;
 	private int keyReleaseToBeIgnored = -1;
 	private final RuntimeDataCombobox scriptable;
@@ -147,9 +147,9 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		this.vl = vl;
 		eventExecutor = new EventExecutor(this);
 
-		list = new ComboModelListModelWrapper(vl, false);
+		list = new ComboModelListModelWrapper(vl, false, true);
 		setModel(list);
-		accesibleStateHolder = new ComboBoxAccesibleStateHolder(new ComboBoxStateApplier()
+		accesibleStateHolder = new AccessibleStateHolder(new AccessibleStateApplier()
 		{
 			public void setEditable(boolean editable)
 			{
@@ -1972,19 +1972,19 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 	}
 
 	/**
-	 * Calculates actual JComboBox editable and enabled values based on Servoy accessible, read-only, editable, and enabled values. It then sets them back (when
-	 * changed) to the JComboBox (through ComboBoxStateApplier).
+	 * Calculates actual JComboBox-like component editable and enabled values based on Servoy accessible, read-only, editable, and enabled values. It then sets them back (when
+	 * changed) to the component (through AccesibleStateApplier).
 	 */
-	private static class ComboBoxAccesibleStateHolder
+	public static class AccessibleStateHolder
 	{
 		private boolean accessible = true;
 		private boolean editable = false;
 		private boolean readOnly = false;
 		private boolean enabled = true;
 
-		private final ComboBoxStateApplier applier;
+		private final AccessibleStateApplier applier;
 
-		public ComboBoxAccesibleStateHolder(ComboBoxStateApplier applier)
+		public AccessibleStateHolder(AccessibleStateApplier applier)
 		{
 			if (applier == null) throw new NullPointerException();
 			this.applier = applier;
@@ -2035,14 +2035,15 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 	}
 
 	/**
-	 * Classes that implement this interface are supposed to apply the editable and enabled values to a combobox, with the meaning JComboBox gives to them.
+	 * Classes that implement this interface are supposed to apply the editable and enabled values to a JComboBox-like component, with the meaning that component gives to them.
 	 */
-	private static interface ComboBoxStateApplier
+	public static interface AccessibleStateApplier
 	{
-		void setEnabled(boolean comboEnabled);
+		void setEnabled(boolean enabled);
 
 		void setEditable(boolean editable);
 
 		void setLabelsEnabled(boolean labelsEnabled);
 	}
+
 }

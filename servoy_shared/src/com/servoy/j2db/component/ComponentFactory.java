@@ -156,6 +156,7 @@ import com.servoy.j2db.ui.scripting.RuntimeRectangle;
 import com.servoy.j2db.ui.scripting.RuntimeRtfArea;
 import com.servoy.j2db.ui.scripting.RuntimeScriptButton;
 import com.servoy.j2db.ui.scripting.RuntimeScriptLabel;
+import com.servoy.j2db.ui.scripting.RuntimeSpinner;
 import com.servoy.j2db.ui.scripting.RuntimeSplitPane;
 import com.servoy.j2db.ui.scripting.RuntimeTabPanel;
 import com.servoy.j2db.ui.scripting.RuntimeTextArea;
@@ -649,6 +650,9 @@ public class ComponentFactory
 				case Field.LIST_BOX :
 				case Field.MULTI_SELECTION_LIST_BOX :
 					lookupName = "listbox";
+					break;
+				case Field.SPINNER :
+					lookupName = "spinner";
 					break;
 				case Field.COMBOBOX :
 					lookupName = "combobox";
@@ -1373,6 +1377,16 @@ public class ComponentFactory
 				so.setComponent(fl);
 			}
 				break;
+
+			case Field.SPINNER :
+			{
+				RuntimeSpinner so;
+				scriptable = so = new RuntimeSpinner(jsChangeRecorder, application);
+				IValueList list = getRealValueList(application, valuelist, true, fieldFormat.dpType, fieldFormat.parsedFormat, field.getDataProviderID());
+				fl = application.getItemFactory().createSpinner(so, getWebID(form, field), list);
+				so.setComponent(fl);
+				break;
+			}
 
 			// else treat as the default case: TEXT_FIELD
 			default ://Field.TEXT_FIELD 

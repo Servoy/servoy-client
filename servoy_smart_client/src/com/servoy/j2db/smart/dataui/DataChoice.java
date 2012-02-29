@@ -77,6 +77,7 @@ import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeScrollableValuelistComponent;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeValuelistComponent;
 import com.servoy.j2db.util.EnableScrollPanel;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.ITagResolver;
@@ -95,21 +96,21 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 	ISupplyFocusChildren<Component>, ISupportCachedLocationAndSize, ISupportValueList
 {
 	private String dataProviderID;
-	private final ComboModelListModelWrapper list;
-	private final JEditList enclosedComponent;
+	protected final ComboModelListModelWrapper list;
+	protected final JEditList enclosedComponent;
 	private JComponent rendererComponent;
 	private JComponent editorComponent;
 	private String tooltip;
 	private Insets margin;
 	private int halign;
 	private final EventExecutor eventExecutor;
-	private final IApplication application;
+	protected final IApplication application;
 	private final int choiceType;
 	private MouseAdapter rightclickMouseAdapter = null;
 	private IValueList vl;
-	private final AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent> scriptable;
+	private final AbstractRuntimeValuelistComponent<IFieldComponent> scriptable;
 
-	public DataChoice(IApplication app, AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent> scriptable, IValueList vl, int choiceType)
+	public DataChoice(IApplication app, AbstractRuntimeValuelistComponent<IFieldComponent> scriptable, IValueList vl, int choiceType)
 	{
 		super();
 		setHorizontalAlignment(SwingConstants.LEFT);
@@ -120,11 +121,12 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		application = app;
 		this.vl = vl;
 		this.choiceType = choiceType;
-		list = new ComboModelListModelWrapper(vl, true);
+		list = new ComboModelListModelWrapper(vl, true, (choiceType == Field.MULTI_SELECTION_LIST_BOX || choiceType == Field.LIST_BOX));
 		enclosedComponent = new JNavigableEditList();
 		eventExecutor = new EventExecutor(this, enclosedComponent);
 		enclosedComponent.addKeyListener(eventExecutor);
 		enclosedComponent.setModel(list);
+
 		if (choiceType == Field.RADIOS)
 		{
 			enclosedComponent.setCellRenderer(new NavigableCellRenderer(new RadioCell()));
@@ -137,9 +139,40 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		}
 		else
 		{
-			enclosedComponent.setCellRenderer(new LabelCell());
-			enclosedComponent.setCellEditor(new LabelCell());
+			enclosedComponent.setCellRenderer(new LabelCell(shouldPaintSelection()));
+			enclosedComponent.setCellEditor(new LabelCell(shouldPaintSelection()));
 		}
+
+		setMultiValueSelect();
+
+		this.scriptable = scriptable;
+		if (scriptable instanceof AbstractRuntimeScrollableValuelistComponent< ? , ? >)
+		{
+			((AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent>)scriptable).setField(enclosedComponent);
+			((AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent>)scriptable).setList(list);
+		}
+
+//		enclosedComponent.setPrototypeCellValue(new Integer(0));
+
+		getViewport().setView(enclosedComponent);
+	}
+
+	protected boolean shouldPaintSelection()
+	{
+		return true;
+	}
+
+	/**
+	 * 
+	 */
+	private void configureEditorAndRenderer()
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	protected void setMultiValueSelect()
+	{
 		if (choiceType == Field.RADIOS || choiceType == Field.LIST_BOX)
 		{
 			list.setMultiValueSelect(false);
@@ -148,13 +181,6 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		{
 			list.setMultiValueSelect(true);
 		}
-		this.scriptable = scriptable;
-		scriptable.setField(enclosedComponent);
-		scriptable.setList(list);
-
-//		enclosedComponent.setPrototypeCellValue(new Integer(0));
-
-		getViewport().setView(enclosedComponent);
 	}
 
 	public final AbstractRuntimeField<IFieldComponent> getScriptObject()
@@ -559,10 +585,12 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 	public class LabelCell extends AbstractCell implements MouseListener
 	{
 		private Border marginBorder;
+		private final boolean paintSelection;
 
-		public LabelCell()
+		public LabelCell(boolean paintSelection)
 		{
 			super();
+			this.paintSelection = paintSelection;
 		}
 
 		@Override
@@ -622,7 +650,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 			if (editorComponent == null) createEditor();
 			editorComponent.setFont(editList.getFont());
 			ComboModelListModelWrapper model = (ComboModelListModelWrapper)editList.getModel();
-			if (model.isRowSelected(index))
+			if (model.isRowSelected(index) && paintSelection)
 			{
 				((JLabel)editorComponent).setBackground(editList.getSelectionBackground());
 				editorComponent.setForeground(editList.getSelectionForeground());
@@ -661,7 +689,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 				return new VariableSizeJSeparator(SwingConstants.HORIZONTAL, 15);
 			}
 			ComboModelListModelWrapper model = (ComboModelListModelWrapper)editList.getModel();
-			if (model.isRowSelected(index))
+			if (model.isRowSelected(index) && paintSelection)
 			{
 				((JLabel)rendererComponent).setBackground(editList.getSelectionBackground());
 				rendererComponent.setForeground(editList.getSelectionForeground());
@@ -807,7 +835,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 			objs[i] = list.getRealElementAt(((Integer)rows[i]).intValue());
 		}
 
-		return getScriptObject().getChoiceValue(objs, choiceType == Field.RADIOS || choiceType == Field.LIST_BOX);
+		return getScriptObject().getChoiceValue(objs, choiceType != Field.MULTI_SELECTION_LIST_BOX && choiceType != Field.CHECKS); // Field.RADIOS || choiceType == Field.LIST_BOX || choiceType == Field.SPINNER will use plain value
 	}
 
 	private Object previousValue;

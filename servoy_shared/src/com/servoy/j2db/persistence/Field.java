@@ -46,6 +46,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	public static final int TYPE_AHEAD = 10;
 	public static final int LIST_BOX = 11;
 	public static final int MULTI_SELECTION_LIST_BOX = 12;
+	public static final int SPINNER = 13;
 
 //	list (to have a jlist alike)
 //	color_picker

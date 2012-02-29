@@ -47,6 +47,7 @@ import com.servoy.j2db.ui.scripting.RuntimeRadioButton;
 import com.servoy.j2db.ui.scripting.RuntimeRectangle;
 import com.servoy.j2db.ui.scripting.RuntimeScriptButton;
 import com.servoy.j2db.ui.scripting.RuntimeScriptLabel;
+import com.servoy.j2db.ui.scripting.RuntimeSpinner;
 import com.servoy.j2db.ui.scripting.RuntimeSplitPane;
 import com.servoy.j2db.ui.scripting.RuntimeTabPanel;
 import com.servoy.j2db.ui.scripting.RuntimeTextArea;
@@ -194,6 +195,8 @@ public interface ItemFactory
 
 
 	IFieldComponent createListBox(RuntimeListBox scriptable, String name, IValueList list, boolean multiSelect);
+
+	IFieldComponent createSpinner(RuntimeSpinner scriptable, String name, IValueList list);
 
 	/**
 	 * @param name TODO

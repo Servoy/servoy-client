@@ -133,7 +133,6 @@ import com.servoy.j2db.ui.scripting.RuntimePortal;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.ISupplyFocusChildren;
-import com.servoy.j2db.util.OrientationApplier;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
@@ -628,7 +627,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			addHeaders = false;//list views do not have headers
 		}
 
-		String orientation = OrientationApplier.getHTMLContainerOrientation(app.getLocale(), app.getSolution().getTextOrientation());
+//		String orientation = OrientationApplier.getHTMLContainerOrientation(app.getLocale(), app.getSolution().getTextOrientation());
 		IDataRenderer[] dataRenderers = fp.getDataRenderers();
 		for (int i = 0; i < dataRenderers.length; i++)
 		{

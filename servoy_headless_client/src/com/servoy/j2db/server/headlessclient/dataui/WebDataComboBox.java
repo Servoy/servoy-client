@@ -120,7 +120,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 		eventExecutor = new WebEventExecutor(this, useAJAX);
 		setOutputMarkupPlaceholderTag(true);
 
-		list = new WebComboModelListModelWrapper(valueList, false)
+		list = new WebComboModelListModelWrapper(valueList, false, true)
 		{
 			private static final long serialVersionUID = 1L;
 			private boolean valueInList = true;

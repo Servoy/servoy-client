@@ -36,7 +36,8 @@ Bundle-ClassPath: .,
  lib/wiquery.jar,
  lib/fs-parser.jar,
  lib/fs-commons.jar,
- lib/PBKDF2.jar
+ lib/PBKDF2.jar,
+ lib/minis.jar
 Require-Bundle: org.eclipse.dltk.javascript.rhino
 Export-Package: antlr,
  antlr.ASdebug,
@@ -368,5 +369,6 @@ Export-Package: antlr,
  org.slf4j.spi,
  org.wicketstuff.calendar.markup.html.form,
  org.wicketstuff.calendar.util,
+ org.wicketstuff.minis.spinner,
  org.xhtmlrenderer.css.constants
 Import-Package: org.w3c.dom

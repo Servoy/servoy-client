@@ -44,20 +44,28 @@ import com.servoy.j2db.util.ScopesUtils;
  */
 public class ComboModelListModelWrapper<E> extends AbstractListModel implements ComboBoxModel, IEditListModel, List<E>, IModificationListener
 {
-	protected SeparatorProcessingValueList listModel;
+	protected IValueList listModel;
 	protected final ListModelListener listener;
-	protected Object selectedObject;
+	protected Object selectedObject; // TODO can't we just remove this and count on selectedSet? otherwise we always need to keep all selection stuff in sync
 	protected boolean valueListChanging;
 	protected boolean hideFirstValue;
-	private Object realSelectedObject;
+	private Object realSelectedObject; // TODO can't we just remove this and count on selectedSet? otherwise we always need to keep all selection stuff in sync
 	private final boolean shouldHideEmptyValueIfPresent;
 	private IRecordInternal parentState;
 	private IRecordInternal relatedRecord;
 	private String relatedFoundsetLookup;
+	protected Set<Integer> selectedSet;
 
-	public ComboModelListModelWrapper(IValueList listModel, boolean shouldHideEmptyValueIfPresent)
+	public ComboModelListModelWrapper(IValueList listModel, boolean shouldHideEmptyValueIfPresent, boolean isSeparatorAware)
 	{
-		this.listModel = new SeparatorProcessingValueList(listModel);
+		if (isSeparatorAware)
+		{
+			this.listModel = new SeparatorProcessingValueList(listModel);
+		}
+		else
+		{
+			this.listModel = listModel;
+		}
 		this.shouldHideEmptyValueIfPresent = shouldHideEmptyValueIfPresent;
 		listener = new ListModelListener();
 		listModel.addListDataListener(listener);
@@ -84,7 +92,7 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 			}
 		}
 		int prevSize = listModel != null ? listModel.getSize() : 0;
-		listModel.setWrapped(newModel);
+		if (listModel instanceof SeparatorProcessingValueList) ((SeparatorProcessingValueList)listModel).setWrapped(newModel);
 		selectedSet = newSelectedSet;
 		listModel.addListDataListener(listener);
 		this.hideFirstValue = (listModel.getAllowEmptySelection() && shouldHideEmptyValueIfPresent);
@@ -222,34 +230,34 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 		this.realSelectedObject = realSelectedObject;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.swing.ComboBoxModel#setSelectedItem(java.lang.Object)
-	 */
 	public void setSelectedItem(Object anObject)
+	{
+		setSelectedItem(anObject, false);
+	}
+
+	private void setSelectedItem(Object anObject, boolean onlyUpdateValues)
 	{
 		if ((selectedObject != null && !selectedObject.equals(anObject)) || (selectedObject == null && anObject != null))
 		{
 			selectedObject = anObject;
-			realSelectedObject = selectedObject;
-			if (selectedObject != null)
+			int index = listModel.indexOf(selectedObject);
+
+			if (onlyUpdateValues)
 			{
-				int index = listModel.indexOf(selectedObject);
-				if (index != -1)
-				{
-					realSelectedObject = listModel.getRealElementAt(index);
-				}
+				Set<Integer> srows = getSelectedRows();
+				srows.clear();
+				if (index >= 0) srows.add(Integer.valueOf(index));
 			}
-			fireContentsChanged(this, -1, -1);
+
+			realSelectedObject = selectedObject;
+			if (selectedObject != null && index != -1)
+			{
+				realSelectedObject = listModel.getRealElementAt(index);
+			}
+			if (!onlyUpdateValues) fireContentsChanged(this, -1, -1);
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.swing.ComboBoxModel#getSelectedItem()
-	 */
 	public Object getSelectedItem()
 	{
 		return selectedObject;
@@ -328,6 +336,8 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 			}
 			selectedSet.remove(i);
 		}
+		setSelectedItem(selectedSet.size() > 0 ? getElementAt(selectedSet.iterator().next().intValue()) : null, true);
+
 		// when firing tmp remove the listener from the relatedRecord
 		// so that we don't get a modification change from our own fire.
 		IRecordInternal tmp = null;
@@ -348,8 +358,6 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 		}
 	}
 
-	protected Set<Integer> selectedSet;
-
 	public boolean isRowSelected(int index)
 	{
 		if (selectedSet == null)
@@ -365,6 +373,15 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 	public void setMultiValueSelect(boolean b)
 	{
 		multiValueSelect = b;
+	}
+
+	public int getSelectedRow()
+	{
+		if (selectedSet != null && selectedSet.size() > 0)
+		{
+			return selectedSet.iterator().next().intValue();
+		}
+		return -1;
 	}
 
 	public Set<Integer> getSelectedRows()
@@ -445,9 +462,10 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 
 	public int getValueType()
 	{
-		if (listModel.getWrapped() instanceof CustomValueList)
+		IValueList list = (listModel instanceof SeparatorProcessingValueList) ? ((SeparatorProcessingValueList)listModel).getWrapped() : listModel;
+		if (list instanceof CustomValueList)
 		{
-			return ((CustomValueList)listModel.getWrapped()).getValueType();
+			return ((CustomValueList)list).getValueType();
 		}
 		return 0;
 	}
@@ -584,7 +602,7 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 	 * 
 	 * "-" is only considered a separator if present as display value in the valuelist.
 	 */
-	protected class SeparatorProcessingValueList implements IValueList
+	private static class SeparatorProcessingValueList implements IValueList
 	{
 
 		private IValueList wrapped;

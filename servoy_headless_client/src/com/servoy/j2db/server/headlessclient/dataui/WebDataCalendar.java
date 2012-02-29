@@ -16,55 +16,24 @@
  */
 package com.servoy.j2db.server.headlessclient.dataui;
 
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Insets;
-import java.awt.Point;
-import java.awt.Rectangle;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-
-import javax.swing.border.Border;
-import javax.swing.text.Document;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.Response;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.IHeaderResponse;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.AbstractTextComponent.ITextFormatProvider;
 import org.apache.wicket.util.convert.ConversionException;
 import org.apache.wicket.util.convert.IConverter;
 import org.apache.wicket.util.string.Strings;
 import org.wicketstuff.calendar.markup.html.form.DatePicker;
 
-import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.IMainContainer;
-import com.servoy.j2db.IScriptExecuter;
-import com.servoy.j2db.dataprocessing.IDisplayData;
-import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.server.headlessclient.MainPage;
-import com.servoy.j2db.ui.IEventExecutor;
-import com.servoy.j2db.ui.IFieldComponent;
-import com.servoy.j2db.ui.IFormattingComponent;
-import com.servoy.j2db.ui.ILabel;
-import com.servoy.j2db.ui.IProviderStylePropertyChanges;
-import com.servoy.j2db.ui.IStylePropertyChanges;
-import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.scripting.RuntimeDataCalendar;
 import com.servoy.j2db.ui.scripting.RuntimeDataField;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.IDelegate;
-import com.servoy.j2db.util.ISupplyFocusChildren;
-import com.servoy.j2db.util.ITagResolver;
-import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.StateFullSimpleDateFormat;
 import com.servoy.j2db.util.Utils;
 
@@ -73,35 +42,15 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jcompagner
  */
-public class WebDataCalendar extends WebMarkupContainer implements IFieldComponent, IDisplayData, IDelegate, ISupportWebBounds, IRightClickListener,
-	IProviderStylePropertyChanges, ISupplyFocusChildren<Component>, IFormattingComponent
+public class WebDataCalendar extends WebDataCompositeTextField
 {
+
 	private static final long serialVersionUID = 1L;
 
-	private final DateField field;
-	private Cursor cursor;
-	private final IApplication application;
-	private boolean readOnly = false;
-	private boolean showPicker = true;
-	private boolean editable;
-	private Insets margin;
-	private final RuntimeDataCalendar scriptable;
-
-	/**
-	 * @param id
-	 */
 	public WebDataCalendar(IApplication application, RuntimeDataCalendar scriptable, String id)
 	{
-		super(id);
-		this.application = application;
-		DatePicker settings = new DatePicker();
+		super(application, scriptable, id);
 
-		RuntimeDataField fieldScriptable = new RuntimeDataField(new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE,
-			TemplateGenerator.DEFAULT_FIELD_PADDING), application);
-		field = new DateField(application, fieldScriptable, "datefield", settings);
-		fieldScriptable.setComponent(field);
-
-		field.setIgnoreOnRender(true);
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		if (useAJAX)
 		{
@@ -132,7 +81,7 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 				@Override
 				public boolean isEnabled(Component component)
 				{
-					return isChooserEnabled();
+					return shouldShowExtraComponents();
 				}
 
 			});
@@ -170,55 +119,17 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 				@Override
 				public boolean isEnabled(Component component)
 				{
-					return WebDataCalendar.this.isEnabled() && showPicker;
+					return shouldShowExtraComponents();
 				}
 			});
 		}
-		add(field);
-		this.scriptable = scriptable;
-		// because the DataPicker behavior will add a tag to the end of the field component
-		// each time that component is rendered, we must make sure that we render the whole container;
-		// otherwise, each independent render of the field component will add one more div tag with the calendar popup image
-		// to the HTML tag of this container
-		((ChangesRecorder)scriptable.getChangesRecorder()).setAdditionalChangesRecorder(field.getStylePropertyChanges());
-		setOutputMarkupPlaceholderTag(true);
-
-		add(StyleAttributeModifierModel.INSTANCE);
-		add(TooltipAttributeModifier.INSTANCE);
 	}
 
-	public final RuntimeDataCalendar getScriptObject()
-	{
-		return scriptable;
-	}
-
-	protected boolean isChooserEnabled()
-	{
-		return isEnabled() && showPicker;
-	}
-
-	public Component[] getFocusChildren()
-	{
-		return new Component[] { field };
-	}
-
-	/**
-	 * @see org.apache.wicket.Component#getLocale()
-	 */
 	@Override
-	public Locale getLocale()
+	protected WebDataField createTextField(RuntimeDataField fieldScriptable)
 	{
-		return application.getLocale();
-	}
-
-	/**
-	 * @see wicket.MarkupContainer#onRender(wicket.markup.MarkupStream)
-	 */
-	@Override
-	protected void onRender(MarkupStream markupStream)
-	{
-		super.onRender(markupStream);
-		getStylePropertyChanges().setRendered();
+		DatePicker settings = new DatePicker();
+		return new DateField(application, fieldScriptable, settings);
 	}
 
 	@Override
@@ -233,196 +144,16 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 		super.onRemove();
 	}
 
-	public IStylePropertyChanges getStylePropertyChanges()
-	{
-		return scriptable.getChangesRecorder();
-	}
-
-	public Object getDelegate()
-	{
-		return field;
-	}
-
-	public Document getDocument()
-	{
-		return field.getDocument();
-	}
-
-	public void setMargin(Insets i)
-	{
-		this.margin = i;
-	}
-
-	public Insets getMargin()
-	{
-		return margin;
-	}
-
-	public void addScriptExecuter(IScriptExecuter el)
-	{
-		field.addScriptExecuter(el);
-	}
-
-	public IEventExecutor getEventExecutor()
-	{
-		return field.getEventExecutor();
-	}
-
-	public void setEnterCmds(String[] ids, Object[][] args)
-	{
-		field.setEnterCmds(ids, null);
-	}
-
-	public void setLeaveCmds(String[] ids, Object[][] args)
-	{
-		field.setLeaveCmds(ids, null);
-	}
-
-	public void setActionCmd(String id, Object[] args)
-	{
-		field.setActionCmd(id, args);
-	}
-
-	public void notifyLastNewValueWasChange(Object oldVal, Object newVal)
-	{
-		field.notifyLastNewValueWasChange(oldVal, newVal);
-	}
-
-	public boolean isValueValid()
-	{
-		return field.isValueValid();
-	}
-
-	public void setValueValid(boolean valid, Object oldVal)
-	{
-		field.setValueValid(valid, oldVal);
-	}
-
-	public void setChangeCmd(String id, Object[] args)
-	{
-		field.setChangeCmd(id, args);
-	}
-
-	public void setHorizontalAlignment(int a)
-	{
-		field.setHorizontalAlignment(a);
-	}
-
-	public void setMaxLength(int i)
-	{
-		field.setMaxLength(i);
-	}
-
-	public void addEditListener(IEditListener l)
-	{
-		if (field != null) field.addEditListener(l);
-	}
-
-	public void setValueObject(Object obj)
-	{
-		field.setValueObject(obj);
-	}
-
-	public Object getValueObject()
-	{
-		return field.getValue();
-	}
-
-	public boolean needEditListener()
-	{
-		return true;
-	}
-
-	public boolean needEntireState()
-	{
-		return field.needEntireState();
-	}
-
-	public void setNeedEntireState(boolean b)
-	{
-		field.setNeedEntireState(b);
-	}
-
-	protected ITagResolver resolver;
-
-	public void setTagResolver(ITagResolver resolver)
-	{
-		this.resolver = resolver;
-	}
-
-	public void setValidationEnabled(boolean b)
-	{
-		field.setValidationEnabled(b);
-		if (b)
-		{
-			if (showPicker && readOnly)
-			{
-				showPicker = false;
-				getStylePropertyChanges().setChanged();
-			}
-		}
-		else
-		{
-			if (!Boolean.TRUE.equals(application.getUIProperty(IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE)))
-			{
-				setReadOnly(false);
-			}
-		}
-	}
-
-	public boolean stopUIEditing(boolean looseFocus)
-	{
-		if (field != null) return field.stopUIEditing(looseFocus);
-		return true;
-	}
-
-	public void setSelectOnEnter(boolean b)
-	{
-		if (field != null) field.setSelectOnEnter(b);
-	}
-
-	public void setCursor(Cursor cursor)
-	{
-		this.cursor = cursor;
-	}
-
-	@Override
-	public String toString()
-	{
-		return scriptable.toString();
-	}
-
-	class DateField extends WebDataField implements ITextFormatProvider
+	class DateField extends AugmentedTextField implements ITextFormatProvider
 	{
 		private static final long serialVersionUID = 1L;
 
 		private final DatePicker settings;
 
-		/**
-		 * @param id
-		 */
-		public DateField(IApplication application, RuntimeDataField scriptable, String id, DatePicker settings)
+		public DateField(IApplication application, RuntimeDataField scriptable, DatePicker settings)
 		{
-			super(application, scriptable, id);
+			super(application, scriptable);
 			this.settings = settings;
-		}
-
-		// When the calendar field is neither editable nor read-only, we want the text field to be not editable, but
-		// we want to let the user change the date using the calendar popup.
-		// In this case we need the read only and filter backspace behaviors of the text field to work normally (they are enabled based
-		// on the "editable" member - which is set from the calendar field), but we also need the normal onChange behavior to be enabled - so as the data is updated on the server even if the text field itself is read-only.
-		// Because the onChange uses accessor methods, if we overwrite those to always return editable = true and read-only = false, we should
-		// get the expected behavior.
-		@Override
-		public boolean isReadOnly()
-		{
-			return false;
-		}
-
-		@Override
-		public boolean isEditable()
-		{
-			return true;
 		}
 
 		public DatePicker getDatePickerSettings()
@@ -438,322 +169,6 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 			return parsedFormat.getDisplayFormat() != null ? parsedFormat.getDisplayFormat() : application.getSettings().getProperty("locale.dateformat", ""); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
-		/**
-		 * @see com.servoy.j2db.server.headlessclient.dataui.WebDataField#getMarkupId()
-		 */
-		@Override
-		public String getMarkupId()
-		{
-			return WebDataCalendar.this.getMarkupId() + "datefield";
-		}
-
-	}
-
-
-	public void requestFocusToComponent()
-	{
-		field.requestFocusToComponent();
-	}
-
-	public String getDataProviderID()
-	{
-		return field.getDataProviderID();
-	}
-
-	public void setDataProviderID(String id)
-	{
-		field.setDataProviderID(id);
-	}
-
-	/*
-	 * format---------------------------------------------------
-	 */
-	public void installFormat(int type, String format)
-	{
-		if (format != null) field.installFormat(type, format);
-	}
-
-	public boolean isEditable()
-	{
-		return editable;
-	}
-
-	public void setEditable(boolean b)
-	{
-		field.setEditable(b);
-		editable = b;
-	}
-
-	public void setReadOnly(boolean b)
-	{
-		if (readOnly != b)
-		{
-			readOnly = b;
-			showPicker = !b;
-			field.setReadOnly(b);
-		}
-	}
-
-	public boolean isReadOnly()
-	{
-		return !showPicker;
-	}
-
-
-	public void setName(String n)
-	{
-		name = n;
-		field.setName(n);
-	}
-
-	private String name;
-
-	public String getName()
-	{
-		return name;
-	}
-
-
-	/*
-	 * border---------------------------------------------------
-	 */
-	private Border border;
-
-	public void setBorder(Border border)
-	{
-		this.border = border;
-	}
-
-	public Border getBorder()
-	{
-		return border;
-	}
-
-
-	/*
-	 * opaque---------------------------------------------------
-	 */
-	public void setOpaque(boolean opaque)
-	{
-		this.opaque = opaque;
-	}
-
-	private boolean opaque;
-
-	public boolean isOpaque()
-	{
-		return opaque;
-	}
-
-	/*
-	 * titleText---------------------------------------------------
-	 */
-
-	public void setTitleText(String title)
-	{
-		field.setTitleText(title);
-	}
-
-	public String getTitleText()
-	{
-		return field.getTitleText();
-	}
-
-	/*
-	 * tooltip---------------------------------------------------
-	 */
-
-	public void setToolTipText(String tip)
-	{
-		field.setToolTipText(tip);
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IComponent#getToolTipText()
-	 */
-	public String getToolTipText()
-	{
-		return field.getToolTipText();
-	}
-
-	/*
-	 * font---------------------------------------------------
-	 */
-	private Font font;
-
-	public Font getFont()
-	{
-		return font;
-	}
-
-	public void setFont(Font f)
-	{
-		if (f != null && field != null) field.getScriptObject().setFont(PersistHelper.createFontString(f));
-	}
-
-	private Color background;
-
-	public void setBackground(Color cbg)
-	{
-		this.background = cbg;
-	}
-
-	public Color getBackground()
-	{
-		return background;
-	}
-
-
-	private Color foreground;
-
-	private ArrayList<ILabel> labels;
-
-	public void setForeground(Color cfg)
-	{
-		this.foreground = cfg;
-		if (field != null)
-		{
-			field.getScriptObject().setFgcolor(PersistHelper.createColorString(cfg));
-		}
-	}
-
-	public Color getForeground()
-	{
-		return foreground;
-	}
-
-	/*
-	 * visible---------------------------------------------------
-	 */
-	public void setComponentVisible(boolean visible)
-	{
-		if (viewable || !visible)
-		{
-			setVisible(visible);
-			if (labels != null)
-			{
-				for (int i = 0; i < labels.size(); i++)
-				{
-					ILabel label = labels.get(i);
-					label.setComponentVisible(visible);
-				}
-			}
-		}
-	}
-
-	public void addLabelFor(ILabel label)
-	{
-		if (labels == null) labels = new ArrayList<ILabel>(3);
-		labels.add(label);
-	}
-
-	public List<ILabel> getLabelsFor()
-	{
-		return labels;
-	}
-
-	public void setComponentEnabled(final boolean b)
-	{
-		if (accessible || !b)
-		{
-			super.setEnabled(b);
-			field.setEnabled(b);
-			getStylePropertyChanges().setChanged();
-			if (labels != null)
-			{
-				for (int i = 0; i < labels.size(); i++)
-				{
-					ILabel label = labels.get(i);
-					label.setComponentEnabled(b);
-				}
-			}
-		}
-	}
-
-	private boolean accessible = true;
-
-	public void setAccessible(boolean b)
-	{
-		if (!b) setComponentEnabled(b);
-		accessible = b;
-	}
-
-	private boolean viewable = true;
-
-	public void setViewable(boolean b)
-	{
-		if (!b) setComponentVisible(b);
-		this.viewable = b;
-	}
-
-	public boolean isViewable()
-	{
-		return viewable;
-	}
-
-	/*
-	 * location---------------------------------------------------
-	 */
-	private Point location = new Point(0, 0);
-
-	public int getAbsoluteFormLocationY()
-	{
-		WebDataRenderer parent = findParent(WebDataRenderer.class);
-		if (parent != null)
-		{
-			return parent.getYOffset() + getLocation().y;
-		}
-		return getLocation().y;
-	}
-
-	public void setLocation(Point location)
-	{
-		this.location = location;
-	}
-
-	public Point getLocation()
-	{
-		return location;
-	}
-
-	/*
-	 * size---------------------------------------------------
-	 */
-	private Dimension size = new Dimension(0, 0);
-
-	public Dimension getSize()
-	{
-		return size;
-	}
-
-	public Rectangle getWebBounds()
-	{
-		Dimension d = ((ChangesRecorder)getStylePropertyChanges()).calculateWebSize(size.width, size.height, border, null, 0, null);
-		return new Rectangle(location, d);
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.ISupportWebBounds#getPaddingAndBorder()
-	 */
-	public Insets getPaddingAndBorder()
-	{
-		return ((ChangesRecorder)getStylePropertyChanges()).getPaddingAndBorder(size.height, border, null, 0, null);
-	}
-
-
-	public void setSize(Dimension size)
-	{
-		this.size = size;
-	}
-
-	public void setRightClickCommand(String rightClickCmd, Object[] args)
-	{
-		field.setRightClickCommand(rightClickCmd, args);
-	}
-
-	public void onRightClick()
-	{
-		field.onRightClick();
 	}
 
 	/**
@@ -816,8 +231,8 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 				sb.append(simpleFormatAsSeenByCalendarWidget);
 				sb.append("', document.getElementById('");
 				sb.append(field.getMarkupId());
-				if (field.getTextFormat().indexOf("h") == -1 && field.getTextFormat().indexOf("H") == -1) sb.append("'),false,'" + field.getMarkupId() +
-					"',true);");
+				if (((DateField)field).getTextFormat().indexOf("h") == -1 && ((DateField)field).getTextFormat().indexOf("H") == -1) sb.append("'),false,'" +
+					field.getMarkupId() + "',true);");
 				else sb.append("'),true,null,true);");
 				target.appendJavascript(sb.toString());
 			}
@@ -884,7 +299,7 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 		@Override
 		public boolean isEnabled(Component component)
 		{
-			return isChooserEnabled() && super.isEnabled(component);
+			return shouldShowExtraComponents() && super.isEnabled(component);
 		}
 
 		@Override
@@ -894,19 +309,4 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 		}
 	}
 
-	@Override
-	protected void onBeforeRender()
-	{
-		super.onBeforeRender();
-		if (scriptable != null)
-		{
-			boolean isFocused = false;
-			IMainContainer currentContainer = ((FormManager)application.getFormManager()).getCurrentContainer();
-			if (currentContainer instanceof MainPage)
-			{
-				isFocused = field.equals(((MainPage)currentContainer).getFocusedComponent());
-			}
-			scriptable.getRenderEventExecutor().fireOnRender(isFocused);
-		}
-	}
 }
