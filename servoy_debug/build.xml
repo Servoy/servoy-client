@@ -158,6 +158,8 @@
 			
 			<pathelement path="../servoy_shared/lib/PBKDF2.jar"/>
 			
+			<pathelement path="../servoy_shared/lib/minis.jar"/>
+			
 			<pathelement path="../eclipse_target/compile_target/install/plugins/org.eclipse.osgi_3.7.1.R37x_v20110808-1106.jar"/>
 			<pathelement path="../eclipse_target/ship_plugins/plugins/org.eclipse.equinox.transforms.hook_1.0.300.201106061129.jar"/>
 			<pathelement path="../servoy_smart_client/bin/"/>
