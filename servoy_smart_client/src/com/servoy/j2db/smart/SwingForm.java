@@ -72,6 +72,7 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JViewport;
 import javax.swing.KeyStroke;
@@ -1365,6 +1366,12 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 				if (lastTabPanelAlike instanceof SplitPane && SwingForm.this.getParent().equals(((SplitPane)lastTabPanelAlike).getLeftComponent()))
 				{
 					KeyboardFocusManager.getCurrentKeyboardFocusManager().focusNextComponent(((SplitPane)lastTabPanelAlike).getRightComponent());
+				}
+				else if (moveBackward && lastTabPanelAlike instanceof JTabbedPane)
+				{
+					// if it moves backwards and it is a JTabbedPane then transfer the focus
+					// to the tab itself so that the tab of the tabpanel gets the focus
+					lastTabPanelAlike.requestFocus();
 				}
 				else KeyboardFocusManager.getCurrentKeyboardFocusManager().upFocusCycle(lastTabPanelAlike);
 				solved = true;
