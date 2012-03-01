@@ -26,7 +26,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import com.servoy.j2db.dataprocessing.MetaDataUtils;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.util.AliasKeyMap;
 import com.servoy.j2db.util.DataSourceUtils;
@@ -231,11 +230,6 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 	 */
 	public void setMarkedAsMetaData(boolean isMetaData)
 	{
-		if (isMetaData && !MetaDataUtils.canBeMarkedAsMetaData(this))
-		{
-			throw new RuntimeException(
-				"table: " + getServerName() + "." + getName() + " can't be marked as a metadata table, because it doesn't have a uuid pk column and a creation and modification date columns"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		}
 		this.isMetaData = isMetaData;
 	}
 
