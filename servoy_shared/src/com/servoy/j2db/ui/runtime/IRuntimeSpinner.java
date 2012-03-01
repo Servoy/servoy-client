@@ -24,7 +24,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @author acostescu
  * @since 6.1
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeListBox", extendsComponent = "RuntimeComponent")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeSpinner", extendsComponent = "RuntimeComponent")
 public interface IRuntimeSpinner extends IRuntimeInputComponent, HasRuntimeReadOnly, HasRuntimeValuelist, HasRuntimeFormat
 {
 }
