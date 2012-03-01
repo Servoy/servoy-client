@@ -1707,14 +1707,14 @@ public class TemplateGenerator
 				Tab tab = (Tab)it.next();
 				//				applyTextProperties(tab, styleObj);
 				html.append("\t\t<div servoy:id='tablinks'");
-				html.append("><a servoy:id='tablink' href='tab1'><div servoy:id='icon'></div><span style=\"white-space: nowrap;\" servoy:id='linktext'>");
+				html.append("><a servoy:id='tablink' href='tab1' class='tablink'><div servoy:id='icon'></div><span style=\"white-space: nowrap;\" servoy:id='linktext'>");
 				html.append(getSafeText(tab.getText()));
 				html.append("</span></a></div>\n");
 			}
 			else
 			{
 				html.append("\t\t<div servoy:id='tablinks'");
-				html.append("><a servoy:id='tablink' href='tab1'><div servoy:id='icon'></div><span style=\"white-space: nowrap;\" servoy:id='linktext'>");
+				html.append("><a servoy:id='tablink' href='tab1' class='tablink'><div servoy:id='icon'></div><span style=\"white-space: nowrap;\" servoy:id='linktext'>");
 				html.append("No tabs");
 				html.append("</span></a></div>\n");
 			}

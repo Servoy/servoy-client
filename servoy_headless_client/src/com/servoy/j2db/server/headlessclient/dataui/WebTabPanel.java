@@ -32,9 +32,11 @@ import javax.swing.event.ListSelectionListener;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
+import org.apache.wicket.IRequestTarget;
 import org.apache.wicket.IResourceListener;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Page;
+import org.apache.wicket.RequestCycle;
 import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.ComponentTag;
@@ -138,8 +140,10 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 			{
 				private static final long serialVersionUID = 1L;
 
+				private String focusedItem;
+
 				@Override
-				protected void populateItem(LoopItem item)
+				protected void populateItem(final LoopItem item)
 				{
 					final WebTabHolder holder = allTabs.get(item.getIteration());
 					MarkupContainer link = null;
@@ -161,6 +165,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 								{
 									if (currentForm != null) addFormForFullAnchorRendering(currentForm.getWebForm(), (MainPage)page);
 									relinkAtTabPanel(WebTabPanel.this);
+									focusedItem = item.getId();
 									WebEventExecutor.generateResponse(target, page);
 								}
 							}
@@ -217,6 +222,17 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 						}
 
 					};
+
+					if (item.getId().equals(focusedItem))
+					{
+						IRequestTarget currentRequestTarget = RequestCycle.get().getRequestTarget();
+						if (currentRequestTarget instanceof AjaxRequestTarget)
+						{
+							((AjaxRequestTarget)currentRequestTarget).focusComponent(link);
+						}
+						focusedItem = null;
+					}
+
 					TabIndexHelper.setUpTabIndexAttributeModifier(link, tabSequenceIndex);
 
 					if (item.getIteration() == 0) link.add(new AttributeModifier("firsttab", true, new Model<Boolean>(Boolean.TRUE))); //$NON-NLS-1$
