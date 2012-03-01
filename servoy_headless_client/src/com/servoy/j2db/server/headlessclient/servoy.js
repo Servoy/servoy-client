@@ -237,6 +237,13 @@ function rearrageTabsInTabPanel(tabPanelId)
 		var markedFirstTab;
 		var formContainer;		
 		
+		var focusedTabLink;
+		var focusedElement = Wicket.Focus.getFocusedElement();
+		if(focusedElement && focusedElement.className && focusedElement.className == 'tablink')
+		{
+			focusedTabLink = focusedElement;
+		}
+		
 		for (var i=0; i < tabPanel.childNodes.length; i++)
 		{
 			var tabHolder = tabPanel.childNodes[i];
@@ -382,6 +389,19 @@ function rearrageTabsInTabPanel(tabPanelId)
 			formContainer.style.top = bottomOfLastRow + "px";
 		}
 		tabPanel.style.visibility = 'visible';
+		
+		if(focusedTabLink)
+		{
+			Wicket.Focus.lastFocusId = focusedTabLink.id;
+			if(typeof(Wicket.Focus.lastFocusId) != "undefined" && Wicket.Focus.lastFocusId != "" && Wicket.Focus.lastFocusId != null)
+			{
+				var toFocus = Wicket.$(Wicket.Focus.lastFocusId);
+				if(toFocus != null && typeof(toFocus) != "undefined")
+				{
+					toFocus.focus();
+				}
+			}
+		}
 	}
 }
 
