@@ -372,20 +372,22 @@ public class WebEventExecutor extends BaseEventExecutor
 			compHasOnRender = ee != null && ee.hasRenderCallback();
 		}
 
-		if (compHasOnRender && comp instanceof IProviderStylePropertyChanges)
+		if (type == EventType.focusGained || type == EventType.action)
 		{
-			if (type == EventType.focusGained && page instanceof MainPage)
+			((MainPage)page).setFocusedComponent(comp);
+			if (compHasOnRender && comp instanceof IProviderStylePropertyChanges)
 			{
-				((MainPage)page).setFocusedComponent(comp);
-				((IProviderStylePropertyChanges)comp).getStylePropertyChanges().setChanged();
-			}
-			else if (type == EventType.focusLost)
-			{
-				((MainPage)page).setFocusedComponent(null);
 				((IProviderStylePropertyChanges)comp).getStylePropertyChanges().setChanged();
 			}
 		}
-
+		else if (type == EventType.focusLost)
+		{
+			((MainPage)page).setFocusedComponent(null);
+			if (compHasOnRender && comp instanceof IProviderStylePropertyChanges)
+			{
+				((IProviderStylePropertyChanges)comp).getStylePropertyChanges().setChanged();
+			}
+		}
 
 		if (type == EventType.focusLost ||
 			setSelectedIndex(comp, target, convertModifiers(webModifiers), type == EventType.focusGained || type == EventType.action))
