@@ -680,6 +680,12 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 					jsActionBuffer.addAction(new DivDialogAction(divDialog, DivDialogAction.OP_DIALOG_ADDED_OR_REMOVED, new Object[] { divDialogsParent }));
 				}
 				divDialog.setPageMapName(null);
+				MainPage targetPage = ((MainPage)target.getPage());
+				Component pageFocusedComponent = targetPage.getFocusedComponent();
+				if (pageFocusedComponent != null)
+				{
+					targetPage.componentToFocus(pageFocusedComponent);
+				}
 				WebEventExecutor.generateResponse(target, findPage());
 			}
 		});

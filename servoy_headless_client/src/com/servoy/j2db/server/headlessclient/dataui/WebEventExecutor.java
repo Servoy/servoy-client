@@ -403,27 +403,28 @@ public class WebEventExecutor extends BaseEventExecutor
 	{
 		WebClientSession.get().getWebClient().executeEvents(); // process model changes from web components
 
+		RenderEventExecutor renderEventExecutor = null;
 		if (comp instanceof IScriptableProvider)
 		{
 			IScriptable s = ((IScriptableProvider)comp).getScriptObject();
 			if (s instanceof ISupportOnRenderCallback)
 			{
-				RenderEventExecutor renderEventExecutor = ((ISupportOnRenderCallback)s).getRenderEventExecutor();
-				if (renderEventExecutor.hasRenderCallback())
-				{
-					if (type == EventType.focusGained && page instanceof MainPage)
-					{
-						((MainPage)page).setFocusedComponent(comp);
-						renderEventExecutor.setRenderStateChanged();
-					}
-					else if (type == EventType.focusLost)
-					{
-						((MainPage)page).setFocusedComponent(null);
-						renderEventExecutor.setRenderStateChanged();
-					}
-				}
+				renderEventExecutor = ((ISupportOnRenderCallback)s).getRenderEventExecutor();
+				if (!renderEventExecutor.hasRenderCallback()) renderEventExecutor = null;
 			}
 		}
+
+		if (type == EventType.focusGained || type == EventType.action)
+		{
+			((MainPage)page).setFocusedComponent(comp);
+			if (renderEventExecutor != null) renderEventExecutor.setRenderStateChanged();
+		}
+		else if (type == EventType.focusLost)
+		{
+			((MainPage)page).setFocusedComponent(null);
+			if (renderEventExecutor != null) renderEventExecutor.setRenderStateChanged();
+		}
+
 
 		if (type == EventType.focusLost ||
 			setSelectedIndex(comp, target, convertModifiers(webModifiers), type == EventType.focusGained || type == EventType.action))
