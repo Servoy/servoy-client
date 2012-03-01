@@ -89,6 +89,8 @@ public class PerformanceTiming
 				return "Printing"; //$NON-NLS-1$
 			case IDataServer.USERMANAGEMENT_QUERY :
 				return "User management"; //$NON-NLS-1$
+			case IDataServer.META_DATA_QUERY :
+				return "Meta data"; //$NON-NLS-1$
 		}
 		return "Unknown"; //$NON-NLS-1$
 	}

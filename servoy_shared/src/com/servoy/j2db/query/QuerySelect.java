@@ -433,6 +433,11 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 	 */
 	public ISQLCondition getWhere()
 	{
+		return getConditionMapCondition(conditions);
+	}
+
+	static ISQLCondition getConditionMapCondition(Map<String, AndCondition> conditions)
+	{
 		if (conditions == null)
 		{
 			return null;
@@ -572,7 +577,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 	}
 
 
-	protected static HashMap<String, AndCondition> setInConditionMap(HashMap<String, AndCondition> map, String name, ISQLCondition c)
+	static HashMap<String, AndCondition> setInConditionMap(HashMap<String, AndCondition> map, String name, ISQLCondition c)
 	{
 		HashMap<String, AndCondition> retval = map;
 		if (c == null)
@@ -607,7 +612,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		return retval;
 	}
 
-	protected static HashMap<String, AndCondition> addToConditionMap(HashMap<String, AndCondition> map, String name, ISQLCondition c)
+	static HashMap<String, AndCondition> addToConditionMap(HashMap<String, AndCondition> map, String name, ISQLCondition c)
 	{
 		HashMap<String, AndCondition> retval = map;
 		if (c != null)

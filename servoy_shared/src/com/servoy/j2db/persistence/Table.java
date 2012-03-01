@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import com.servoy.j2db.dataprocessing.MetaDataUtils;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.util.AliasKeyMap;
 import com.servoy.j2db.util.DataSourceUtils;
@@ -225,31 +226,12 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 		return isMetaData;
 	}
 
-	public boolean canBeMarkedAsMetaData()
-	{
-		List<Column> rowIdentColumns = getRowIdentColumns();
-		for (Column column : rowIdentColumns)
-		{
-			if (column.getColumnInfo() == null || (column.getColumnInfo().getFlags() & Column.UUID_COLUMN) != Column.UUID_COLUMN)
-			{
-				return false;
-			}
-		}
-		Column column = getColumn("modification_date"); //$NON-NLS-1$
-		if (column == null) return false;
-		if (Column.mapToDefaultType(column.getType()) != IColumnTypes.DATETIME) return false;
-		column = getColumn("deletion_date"); //$NON-NLS-1$
-		if (column == null) return false;
-		if (Column.mapToDefaultType(column.getType()) != IColumnTypes.DATETIME) return false;
-		return true;
-	}
-
 	/**
 	 * Flag to mark this table as meta data.
 	 */
 	public void setMarkedAsMetaData(boolean isMetaData)
 	{
-		if (isMetaData && !canBeMarkedAsMetaData())
+		if (isMetaData && !MetaDataUtils.canBeMarkedAsMetaData(this))
 		{
 			throw new RuntimeException(
 				"table: " + getServerName() + "." + getName() + " can't be marked as a metadata table, because it doesn't have a uuid pk column and a creation and modification date columns"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

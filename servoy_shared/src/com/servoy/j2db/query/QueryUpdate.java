@@ -13,10 +13,11 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.query;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.servoy.j2db.util.serialize.ReplacedObject;
@@ -30,10 +31,12 @@ import com.servoy.j2db.util.visitor.IVisitor;
  */
 public class QueryUpdate extends AbstractBaseQuery implements ISQLUpdate
 {
+	private static final String ANONYMOUS = "__ANONYMOUS_CONDITION__";
+
 	private QueryTable table;
 	private List columns = new ArrayList();
 	private List values = new ArrayList();
-	private AndCondition condition;
+	private HashMap<String, AndCondition> conditions = null; // Map of AndCondition objects
 	private List joins; // joins in update statements are not supported by hibernate.
 
 
@@ -65,29 +68,22 @@ public class QueryUpdate extends AbstractBaseQuery implements ISQLUpdate
 
 	public void setCondition(ISQLCondition c)
 	{
-		if (c == null || c instanceof AndCondition)
-		{
-			condition = (AndCondition)c;
-		}
-		else
-		{
-			condition = new AndCondition();
-			condition.addCondition(c);
-		}
+		setCondition(ANONYMOUS, c);
 	}
-
 
 	public void addCondition(ISQLCondition c)
 	{
-		if (c == null)
-		{
-			return;
-		}
-		if (condition == null)
-		{
-			condition = new AndCondition();
-		}
-		condition.addCondition(c);
+		addCondition(ANONYMOUS, c);
+	}
+
+	public void setCondition(String name, ISQLCondition c)
+	{
+		conditions = QuerySelect.setInConditionMap(conditions, name, c);
+	}
+
+	public void addCondition(String name, ISQLCondition c)
+	{
+		conditions = QuerySelect.addToConditionMap(conditions, name, c);
 	}
 
 //	public void setJoins(List jns)
@@ -113,14 +109,14 @@ public class QueryUpdate extends AbstractBaseQuery implements ISQLUpdate
 //		joins.add(join);
 //	}
 
-	public AndCondition getCondition()
+	public ISQLCondition getCondition()
 	{
-		return condition;
+		return QuerySelect.getConditionMapCondition(conditions);
 	}
 
-	public AndCondition getConditionClone()
+	public ISQLCondition getConditionClone()
 	{
-		return deepClone(condition);
+		return deepClone(getCondition());
 	}
 
 //	public List getJoins()
@@ -141,11 +137,11 @@ public class QueryUpdate extends AbstractBaseQuery implements ISQLUpdate
 
 	public void acceptVisitor(IVisitor visitor)
 	{
-		table = (QueryTable)AbstractBaseQuery.acceptVisitor(table, visitor);
-		columns = (List)AbstractBaseQuery.acceptVisitor(columns, visitor);
-		values = (List)AbstractBaseQuery.acceptVisitor(values, visitor);
-		condition = (AndCondition)AbstractBaseQuery.acceptVisitor(condition, visitor);
-		joins = (List)AbstractBaseQuery.acceptVisitor(joins, visitor);
+		table = AbstractBaseQuery.acceptVisitor(table, visitor);
+		columns = AbstractBaseQuery.acceptVisitor(columns, visitor);
+		values = AbstractBaseQuery.acceptVisitor(values, visitor);
+		conditions = AbstractBaseQuery.acceptVisitor(conditions, visitor);
+		joins = AbstractBaseQuery.acceptVisitor(joins, visitor);
 	}
 
 	@Override
@@ -154,7 +150,7 @@ public class QueryUpdate extends AbstractBaseQuery implements ISQLUpdate
 		final int PRIME = 31;
 		int result = 1;
 		result = PRIME * result + ((this.columns == null) ? 0 : this.columns.hashCode());
-		result = PRIME * result + ((this.condition == null) ? 0 : this.condition.hashCode());
+		result = PRIME * result + ((this.conditions == null) ? 0 : this.conditions.hashCode());
 		result = PRIME * result + ((this.joins == null) ? 0 : this.joins.hashCode());
 		result = PRIME * result + ((this.table == null) ? 0 : this.table.hashCode());
 		result = PRIME * result + ((this.values == null) ? 0 : this.values.hashCode());
@@ -173,11 +169,11 @@ public class QueryUpdate extends AbstractBaseQuery implements ISQLUpdate
 			if (other.columns != null) return false;
 		}
 		else if (!this.columns.equals(other.columns)) return false;
-		if (this.condition == null)
+		if (this.conditions == null)
 		{
-			if (other.condition != null) return false;
+			if (other.conditions != null) return false;
 		}
-		else if (!this.condition.equals(other.condition)) return false;
+		else if (!this.conditions.equals(other.conditions)) return false;
 		if (this.joins == null)
 		{
 			if (other.joins != null) return false;
@@ -220,9 +216,9 @@ public class QueryUpdate extends AbstractBaseQuery implements ISQLUpdate
 			sb.append(AbstractBaseQuery.toString(values.get(i)));
 		}
 		sb.append(')');
-		if (condition != null)
+		if (conditions != null)
 		{
-			sb.append(" WHERE ").append(condition); //$NON-NLS-1$
+			sb.append(" WHERE ").append(getCondition()); //$NON-NLS-1$
 		}
 		for (int i = 0; joins != null && i < joins.size(); i++)
 		{
@@ -234,9 +230,10 @@ public class QueryUpdate extends AbstractBaseQuery implements ISQLUpdate
 
 	///////// serialization ////////////////
 
+	@Override
 	public Object writeReplace()
 	{
-		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { table, columns, values, condition, joins });
+		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { table, columns, values, conditions, joins });
 	}
 
 	public QueryUpdate(ReplacedObject s)
@@ -246,7 +243,7 @@ public class QueryUpdate extends AbstractBaseQuery implements ISQLUpdate
 		this.table = (QueryTable)members[i++];
 		this.columns = (List)members[i++];
 		this.values = (List)members[i++];
-		this.condition = (AndCondition)members[i++];
+		this.conditions = (HashMap<String, AndCondition>)members[i++];
 		this.joins = (List)members[i++];
 	}
 
