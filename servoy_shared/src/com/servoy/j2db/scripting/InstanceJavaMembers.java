@@ -38,6 +38,8 @@ import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.j2db.scripting.annotations.AnnotationManager;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.keyword.Ident;
 
 /**
@@ -103,6 +105,7 @@ public class InstanceJavaMembers extends JavaMembers
 	/**
 	 * @see org.mozilla.javascript.JavaMembers#makeBeanProperties(Scriptable, boolean)
 	 */
+	@SuppressWarnings("nls")
 	@Override
 	protected void makeBeanProperties(boolean isStatic)
 	{
@@ -179,7 +182,7 @@ public class InstanceJavaMembers extends JavaMembers
 			}
 			if (newName != null && newName.length() > 0 && !newName.equals(name) && !Ident.checkIfKeyword(newName))
 			{
-				copy.put(newName, copy.remove(name));
+				putNewValueMergeForDuplicates(copy, name, newName);
 			}
 		}
 
@@ -203,7 +206,7 @@ public class InstanceJavaMembers extends JavaMembers
 				String newName = name.substring(11);
 				if (!Ident.checkIfKeyword(newName))
 				{
-					copy.put(newName, copy.remove(name));
+					putNewValueMergeForDuplicates(copy, name, newName);
 				}
 			}
 			else
@@ -229,6 +232,32 @@ public class InstanceJavaMembers extends JavaMembers
 		else
 		{
 			members = copy;
+		}
+	}
+
+	/**
+	 * @param copy
+	 * @param name
+	 * @param newName
+	 */
+	@SuppressWarnings("nls")
+	private void putNewValueMergeForDuplicates(Map<String, Object> copy, String name, String newName)
+	{
+		Object oldValue = copy.put(newName, copy.remove(name));
+		if (oldValue != null)
+		{
+			Object newValue = copy.get(newName);
+			if (oldValue instanceof NativeJavaMethod && newValue instanceof NativeJavaMethod)
+			{
+				MemberBox[] oldMethods = ((NativeJavaMethod)oldValue).getMethods();
+				MemberBox[] newMethods = ((NativeJavaMethod)newValue).getMethods();
+				copy.put(newName, new NativeJavaMethod(Utils.arrayJoin(oldMethods, newMethods), newName));
+			}
+			else
+			{
+				Debug.error("illegal state new_name '" + newName + "' from old_name '" + name + "' can't be merged:  " + oldValue + ", " + newValue,
+					new RuntimeException());
+			}
 		}
 	}
 
