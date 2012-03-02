@@ -767,9 +767,8 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	 */
 	public void setCompatibleColumnTypes(List<ColumnType> compatibleColumnTypes)
 	{
-		this.compatibleColumnTypes = compatibleColumnTypes;
+		this.compatibleColumnTypes = compatibleColumnTypes == null ? null : new ArrayList<ColumnType>(compatibleColumnTypes);
 	}
-
 
 	/**
 	 * @param columnType
