@@ -61,7 +61,6 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 		return this;
 	}
 
-	@JSFunction
 	public QBResult add(String columnName) throws RepositoryException
 	{
 		return add(getParent().getColumn(columnName));

@@ -46,7 +46,6 @@ public class QBGroupBy extends QBPart implements IQueryBuilderGroupby
 		return (QBSelect)super.getParent();
 	}
 
-	@JSFunction
 	public QBGroupBy add(String columnName) throws RepositoryException
 	{
 		return add(getParent().getColumn(columnName));
