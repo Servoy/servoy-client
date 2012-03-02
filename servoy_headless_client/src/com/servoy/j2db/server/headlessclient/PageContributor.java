@@ -46,6 +46,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.server.headlessclient.dataui.AbstractServoyDefaultAjaxBehavior;
 import com.servoy.j2db.server.headlessclient.dataui.ChangesRecorder;
 import com.servoy.j2db.server.headlessclient.dataui.WebBaseLabel;
+import com.servoy.j2db.server.headlessclient.dataui.WebBaseSelectBox;
 import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataCheckBoxChoice;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataRadioChoice;
@@ -471,17 +472,24 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 			// make sense to fire on blur/focus gain.
 			if (!(c instanceof WebDataRadioChoice || c instanceof WebDataCheckBoxChoice))
 			{
+				Component focusComponent = c;
+				if (c instanceof WebBaseSelectBox)
+				{
+					Component[] cs = ((WebBaseSelectBox)c).getFocusChildren();
+					if (cs != null && cs.length == 1) focusComponent = cs[0];
+				}
+
 				// always install a focus handler when in a table view to detect change of selectedIndex and test for record validation
 				if (((IFieldComponent)c).getEventExecutor().hasEnterCmds() || c.findParent(WebCellBasedView.class) != null ||
 					((IFieldComponent)c).getEventExecutor().hasRenderCallback())
 				{
-					focusGainedFields.add(c.getMarkupId());
+					focusGainedFields.add(focusComponent.getMarkupId());
 				}
 				// Always trigger event on focus lost:
 				// 1) check for new selected index, record validation may have failed preventing a index changed
 				// 2) prevent focus gained to be called when field validation failed
 				// 3) general ondata change
-				focusLostFields.add(c.getMarkupId());
+				focusLostFields.add(focusComponent.getMarkupId());
 			}
 		}
 		else if (c instanceof WebBaseLabel)
@@ -602,5 +610,4 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 			return new DelayedDialog(type, formName, r, title, resizeble, showTextToolbar, closeAll, modal, dialogName);
 		}
 	}
-
 }
