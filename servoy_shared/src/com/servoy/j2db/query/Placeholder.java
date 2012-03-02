@@ -116,7 +116,7 @@ public class Placeholder implements IQueryElement
 	@Override
 	public String toString()
 	{
-		StringBuffer sb = new StringBuffer("${").append(key.toString()); //$NON-NLS-1$
+		StringBuffer sb = new StringBuffer("${").append(key != null ? key.toString() : null); //$NON-NLS-1$
 		if (set)
 		{
 			sb.append('=').append(AbstractBaseQuery.toString(value));
