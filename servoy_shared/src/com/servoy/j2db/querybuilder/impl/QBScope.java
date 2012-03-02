@@ -23,6 +23,7 @@ import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.scripting.DefaultScope;
+import com.servoy.j2db.scripting.IJavaScriptType;
 
 /**
  * @author rgansevles
@@ -30,7 +31,7 @@ import com.servoy.j2db.scripting.DefaultScope;
  * @since 6.1
  *
  */
-public class QBScope extends DefaultScope
+public class QBScope extends DefaultScope implements IJavaScriptType
 {
 	private final Map<String, NativeJavaMethod> jsFunctions;
 
