@@ -509,6 +509,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				{
 					fileUploadWindow.setPageMapName(null);
 					fileUploadWindow.remove(fileUploadWindow.getContentId());
+					restoreFocusedComponentInParentIfNeeded();
 					WebEventExecutor.generateResponse(target, findPage());
 				}
 			});
@@ -666,12 +667,9 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 					jsActionBuffer.addAction(new DivDialogAction(divDialog, DivDialogAction.OP_DIALOG_ADDED_OR_REMOVED, new Object[] { divDialogsParent }));
 				}
 				divDialog.setPageMapName(null);
-				MainPage targetPage = ((MainPage)target.getPage());
-				Component pageFocusedComponent = targetPage.getFocusedComponent();
-				if (pageFocusedComponent != null)
-				{
-					targetPage.componentToFocus(pageFocusedComponent);
-				}
+
+				restoreFocusedComponentInParentIfNeeded();
+
 				WebEventExecutor.generateResponse(target, findPage());
 			}
 		});
@@ -722,6 +720,17 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		jsActionBuffer.addAction(new DivDialogAction(divDialog, DivDialogAction.OP_DIALOG_ADDED_OR_REMOVED, new Object[] { divDialogsParent }));
 		divDialogs.put(name, divDialog);
 		return divDialog;
+	}
+
+	protected void restoreFocusedComponentInParentIfNeeded()
+	{
+		// if you open the dialog from a button for example, then you close it with X button (which is in the same parent main page)
+		// the button will loose focus; so the following code restores focus to the button after the window was closed
+		Component pageFocusedComponent = getFocusedComponent();
+		if (pageFocusedComponent != null && componentToFocus == null) // if componentToFocus is already set, use that rather then overriding it
+		{
+			componentToFocus(pageFocusedComponent);
+		}
 	}
 
 	private final java.util.Set<WebForm> formsForFullAnchorRendering = new HashSet<WebForm>();
@@ -1751,6 +1760,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 	{
 		Component c = componentToFocus;
 		componentToFocus = null;
+		focusedComponent = c;
 		return c;
 	}
 
