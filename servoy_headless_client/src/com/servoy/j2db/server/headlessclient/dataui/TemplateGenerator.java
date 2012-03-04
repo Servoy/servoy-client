@@ -2465,7 +2465,7 @@ public class TemplateGenerator
 					html.append(getWicketIDParameter(form, field));
 					html.append(" tabIndex=\"-1\" ");
 					html.append(">"); // 
-					html.append("<table cellspacing='0' cellpadding='0' border='0' width='100%' height='100%'><tr><td id='check_td' style='vertical-align: middle;'><input style='border-width: 0px; padding: " +
+					html.append("<table cellspacing='0' cellpadding='0' border='0' width='100%' height='100%'><tr><td id='check_td' style='vertical-align: middle;'><input onmousedown='radioCheckInputMouseDown=true' onmouseup='radioCheckInputMousedDown=false' onmouseout='radioCheckInputMouseDown=false' class='radioCheckInput' style='border-width: 0px; padding: " +
 						(isRadio ? "0px" : "3px") + "; margin: 0px; vertical-align: middle;' "); // 
 					html.append(getWicketIDParameter(form, field, "check_", ""));
 					html.append(getDataProviderIDParameter(field));

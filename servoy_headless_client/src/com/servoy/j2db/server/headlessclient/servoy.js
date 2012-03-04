@@ -406,6 +406,7 @@ function rearrageTabsInTabPanel(tabPanelId)
 }
 
 var onFocusModifiers = 0;
+var radioCheckInputMousedDown;
 function addListeners(strEvent, callbackUrl, ids, post)
 {
 	if (ids)
@@ -427,6 +428,8 @@ function addListeners(strEvent, callbackUrl, ids, post)
 					var modifiers;
 					if(strEvent == "focus")
 					{
+						if(this.className && this.className == 'radioCheckInput' && radioCheckInputMouseDown) return false;
+					
 						modifiers = onFocusModifiers;
 						onFocusModifiers = 0;
 
@@ -505,6 +508,8 @@ function addListeners(strEvent, callbackUrl, ids, post)
 					
 					if(strEvent == "focus")
 					{
+						if(this.className && this.className == 'radioCheckInput' && radioCheckInputMouseDown) return false;
+
 						modifiers = onFocusModifiers;
 						onFocusModifiers = 0;			
 
@@ -520,6 +525,7 @@ function addListeners(strEvent, callbackUrl, ids, post)
 							function() { onAjaxError(); }.bind(this),
 							function() { return Wicket.$(this.id) != null; }.bind(this)
 						);
+
 						return false;
 					}
 					else
