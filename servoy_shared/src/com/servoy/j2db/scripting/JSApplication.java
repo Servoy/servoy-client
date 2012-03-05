@@ -64,7 +64,6 @@ import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.FoundSet;
-import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.Record;
@@ -595,117 +594,115 @@ public class JSApplication implements IReturnedTypesProvider
 	 * //application.setValueListItems('my_en_types',dataset);
 	 *
 	 * @param name Name of the valuelist
-	 * @param displayValArray/dataset Display values array or DataSet  
-	 * @param realValuesArray optional Real values array
-	 * @param autoconvert(false) optional Boolean (true) if display values and return values should be converted to numbers
+	 * @param displayValues Display values array 
 	 */
-	public void js_setValueListItems(Object[] vargs)
+	public void js_setValueListItems(String name, Object[] displayValues)
 	{
-		if (vargs != null && vargs.length >= 2)
-		{
-			String name = "" + vargs[0]; //$NON-NLS-1$
-			ValueList vl = application.getFlattenedSolution().getValueList(name);
-			if (vl != null && vl.getValueListType() == ValueList.CUSTOM_VALUES)
-			{
-				// TODO should getValueListItems not specify type and format??					
-				IValueList valuelist = ComponentFactory.getRealValueList(application, vl, false, Types.OTHER, null, null);
-				if (valuelist instanceof CustomValueList)
-				{
-					if ((vargs.length == 2 && vargs[1] instanceof Object[]) || (vargs.length == 3 && vargs[1] instanceof Object[]) &&
-						vargs[2] instanceof Boolean)
-					{
-						if (vargs.length == 3 && ((Boolean)vargs[2]).booleanValue())
-						{
-							int guessedType = guessValuelistType((Object[])vargs[1]);
-							if (guessedType != Types.OTHER)
-							{
-								((CustomValueList)valuelist).setValueType(guessedType);
-							}
-						}
-						((CustomValueList)valuelist).fillWithArrayValues((Object[])vargs[1]);
-					}
-					else if ((vargs.length == 3 && vargs[1] instanceof Object[] && (vargs[2] instanceof Object[] || vargs[2] == null)) ||
-						(vargs.length == 4 && vargs[1] instanceof Object[] && vargs[2] instanceof Object[]) && vargs[3] instanceof Boolean)
-					{
-						if (vargs.length == 4 && ((Boolean)vargs[3]).booleanValue())
-						{
-							int guessedType = guessValuelistType((Object[])vargs[2]);
-							if (guessedType != Types.OTHER)
-							{
-								((CustomValueList)valuelist).setValueType(guessedType);
-							}
-						}
-						if (vargs[2] != null)
-						{
-							((CustomValueList)valuelist).fillWithArrayValues((Object[])vargs[1], (Object[])vargs[2]);
-						}
-						else
-						{
-							((CustomValueList)valuelist).fillWithArrayValues((Object[])vargs[1]);
-						}
-					}
-					else if ((vargs.length == 2 && (vargs[1] instanceof JSDataSet || vargs[1] instanceof IDataSet)) ||
-						(vargs.length == 3 && (vargs[1] instanceof JSDataSet || vargs[1] instanceof IDataSet)) && vargs[2] instanceof Boolean)
-					{
-						IDataSet set = null;
-						if (vargs[1] instanceof JSDataSet)
-						{
-							set = ((JSDataSet)vargs[1]).getDataSet();
-						}
-						else
-						{
-							set = (IDataSet)vargs[1];
-						}
-						if (set.getColumnCount() == 1)
-						{
-							Object[] displayValues = new Object[set.getRowCount()];
-							for (int i = 0; i < set.getRowCount(); i++)
-							{
-								displayValues[i] = set.getRow(i)[0];
-							}
-							if (vargs.length == 3 && ((Boolean)vargs[2]).booleanValue())
-							{
-								int guessedType = guessValuelistType(displayValues);
-								if (guessedType != Types.OTHER)
-								{
-									((CustomValueList)valuelist).setValueType(guessedType);
-								}
-							}
-							((CustomValueList)valuelist).fillWithArrayValues(displayValues);
-						}
-						else if (set.getColumnCount() >= 2)
-						{
-							Object[] displayValues = new Object[set.getRowCount()];
-							Object[] realValues = new Object[set.getRowCount()];
-							for (int i = 0; i < set.getRowCount(); i++)
-							{
-								Object[] row = set.getRow(i);
-								displayValues[i] = row[0];
-								realValues[i] = row[1];
-							}
-							if (vargs.length == 3 && ((Boolean)vargs[2]).booleanValue())
-							{
-								int guessedType = guessValuelistType(realValues);
-								if (guessedType != Types.OTHER)
-								{
-									((CustomValueList)valuelist).setValueType(guessedType);
-								}
-							}
-							((CustomValueList)valuelist).fillWithArrayValues(displayValues, realValues);
-						}
-					}
+		js_setValueListItems(name, displayValues, null, false);
+	}
 
-					FormManager fm = (FormManager)application.getFormManager();
-					Iterator<String> formNamesIte = fm.getPossibleFormNames();
-					String formName;
-					while (formNamesIte.hasNext())
+	/**
+	 * @clonedesc js_setValueListItems(String,Object[])
+	 * 
+	 * @sampleas js_setValueListItems(String,Object[])
+	 * 
+	 * @param name Name of the valuelist
+	 * @param displayValues Display values array
+	 * @param realValues Real values array
+	 */
+	public void js_setValueListItems(String name, Object[] displayValues, Object[] realValues)
+	{
+		js_setValueListItems(name, displayValues, realValues, false);
+	}
+
+	/**
+	 * @clonedesc js_setValueListItems(String,Object[])
+	 * 
+	 * @sampleas js_setValueListItems(String,Object[])
+	 * 
+	 * @param name Name of the valuelist
+	 * @param dataset Dataset with display/real values
+	 */
+	public void js_setValueListItems(String name, JSDataSet dataset)
+	{
+		js_setValueListItems(name, dataset, false);
+	}
+
+	/**
+	 * @clonedesc js_setValueListItems(String,Object[])
+	 * 
+	 * @sampleas js_setValueListItems(String,Object[])
+	 * 
+	 * @param name Name of the valuelist
+	 * @param dataset Dataset with display/real values
+	 * @param autoconvert Boolean (true) if display values and return values should be converted to numbers
+	 */
+	public void js_setValueListItems(String name, JSDataSet dataset, boolean autoconvert)
+	{
+		if (dataset != null && dataset.getDataSet() != null && dataset.getDataSet().getColumnCount() > 0)
+		{
+			Object[] displayValues = new Object[dataset.getDataSet().getRowCount()];
+			boolean hasRealValues = (dataset.getDataSet().getColumnCount() == 2);
+			Object[] realValues = null;
+			if (hasRealValues)
+			{
+				realValues = new Object[dataset.getDataSet().getRowCount()];
+			}
+			for (int i = 0; i < dataset.getDataSet().getRowCount(); i++)
+			{
+				Object[] row = dataset.getDataSet().getRow(i);
+				displayValues[i] = row[0];
+				if (hasRealValues) realValues[i] = row[1];
+			}
+			js_setValueListItems(name, displayValues, realValues, autoconvert);
+		}
+	}
+
+	/**
+	 * @clonedesc js_setValueListItems(String,Object[])
+	 * 
+	 * @sampleas js_setValueListItems(String,Object[])
+	 * 
+	 * @param name
+	 * @param displayValues Display values array
+	 * @param realValues Real values array
+	 * @param autoconvert Boolean (true) if display values and return values should be converted to numbers
+	 */
+	public void js_setValueListItems(String name, Object[] displayValues, Object[] realValues, boolean autoconvert)
+	{
+		ValueList vl = application.getFlattenedSolution().getValueList(name);
+		if (vl != null && vl.getValueListType() == ValueList.CUSTOM_VALUES)
+		{
+			// TODO should getValueListItems not specify type and format??					
+			IValueList valuelist = ComponentFactory.getRealValueList(application, vl, false, Types.OTHER, null, null);
+			if (valuelist instanceof CustomValueList)
+			{
+				int guessedType = Types.OTHER;
+				if (autoconvert && realValues != null)
+				{
+					guessedType = guessValuelistType(realValues);
+				}
+				else if (autoconvert && displayValues != null)
+				{
+					guessedType = guessValuelistType(displayValues);
+				}
+				if (guessedType != Types.OTHER)
+				{
+					((CustomValueList)valuelist).setValueType(guessedType);
+				}
+
+				((CustomValueList)valuelist).fillWithArrayValues(displayValues, realValues);
+
+				FormManager fm = (FormManager)application.getFormManager();
+				Iterator<String> formNamesIte = fm.getPossibleFormNames();
+				String formName;
+				while (formNamesIte.hasNext())
+				{
+					formName = formNamesIte.next();
+					FormController form = fm.getCachedFormController(formName);
+					if (form != null)
 					{
-						formName = formNamesIte.next();
-						FormController form = fm.getCachedFormController(formName);
-						if (form != null)
-						{
-							form.refreshView();
-						}
+						form.refreshView();
 					}
 				}
 			}
@@ -1303,19 +1300,68 @@ public class JSApplication implements IReturnedTypesProvider
 	 * //Note: specifying a solution will not work in the Developer due to debugger dependencies
 	 * //specified solution should be of compatible type with client (normal type or client specific(Smart client only/Web client only) type )
 	 * 
-	 * @param solutionToLoad optional Name of the solution to load 
-	 * @param method optional Name of the global method to call
-	 * @param argument optional Argument passed to the global method
 	 */
-	public void js_closeSolution(final Object[] solution_to_open_args)
+	public void js_closeSolution()
 	{
+		js_closeSolution(null, null, null);
+	}
+
+	/**
+	 * @clonedesc js_closeSolution()
+	 * 
+	 * @sampleas js_closeSolution()
+	 * 
+	 * @param solutionToLoad Name of the solution to load 
+	 */
+	public void js_closeSolution(String solutionToLoad)
+	{
+		js_closeSolution(solutionToLoad, null, null);
+	}
+
+	/**
+	 * @clonedesc js_closeSolution()
+	 * 
+	 * @sampleas js_closeSolution()
+	 * 
+	 * @param solutionToLoad Name of the solution to load 
+	 * @param method Name of the global method to call
+	 */
+	public void js_closeSolution(String solutionToLoad, String methodName)
+	{
+		js_closeSolution(solutionToLoad, methodName, null);
+	}
+
+	/**
+	 * @clonedesc js_closeSolution()
+	 * 
+	 * @sampleas js_closeSolution()
+	 *  
+	 * @param solutionToLoad Name of the solution to load 
+	 * @param method Name of the global method to call
+	 * @param methodArgument Argument passed to the global method
+	 */
+	public void js_closeSolution(String solutionToLoad, String methodName, Object methodArgument)
+	{
+		final List<Object> arguments = new ArrayList<Object>();
+		if (solutionToLoad != null)
+		{
+			arguments.add(solutionToLoad);
+		}
+		if (methodName != null)
+		{
+			arguments.add(methodName);
+		}
+		if (methodArgument != null)
+		{
+			arguments.add(methodArgument);
+		}
 		application.invokeAndWait(new Runnable()
 		{
 
 			public void run()
 			{
 
-				application.closeSolution(false, solution_to_open_args);
+				application.closeSolution(false, arguments.size() > 0 ? arguments.toArray() : null);
 			}
 		});
 		//application.closeSolution(false, solution_to_open_args);
@@ -1563,45 +1609,76 @@ public class JSApplication implements IReturnedTypesProvider
 	 * //3th or 4th parameter: a timeout in seconds when the url should be shown, immediantly/0 is default'
 	 *
 	 * @param url URL to show 
-	 * @param webclientTarget optional Target frame or named dialog/window
-	 * @param webclientTargetOptions/timeout optional Dialog options used when a dialog is specified / a timeout in seconds when the url should be shown
-	 * @param timeout optional A timeout in seconds when the url should be shown
 	 * 
 	 * @return Boolean (true) if URL was shown
 	 */
-	public boolean js_showURL(Object[] vargs)
+	public boolean js_showURL(String url)
 	{
-		if (vargs.length > 0 && vargs[0] != null)
-		{
-			String url = vargs[0].toString();
-			String target = "_blank"; //$NON-NLS-1$
-			if (vargs.length > 1 && vargs[1] != null)
-			{
-				target = vargs[1].toString();
-			}
+		return js_showURL(url, "_blank", null, 0); //$NON-NLS-1$
+	}
 
-			String target_options = null;
-			int timeout = 0;
-			if (vargs.length > 2)
-			{
-				if (vargs[2] instanceof String)
-				{
-					target_options = vargs[2].toString();
-				}
-				else if (vargs[2] instanceof Number)
-				{
-					timeout = ((Number)vargs[2]).intValue();
-				}
-			}
+	/**
+	 * @clonedesc js_showURL(String)
+	 * 
+	 * @sampleas js_showURL(String)
+	 *
+	 * @param url URL to show 
+	 * @param webclientTarget Target frame or named dialog/window
+	 * 
+	 * @return Boolean (true) if URL was shown
+	 */
+	public boolean js_showURL(String url, String webclientTarget)
+	{
+		return js_showURL(url, webclientTarget, null, 0);
+	}
 
-			if (vargs.length > 3 && vargs[3] instanceof Number)
-			{
-				timeout = ((Number)vargs[3]).intValue();
-			}
+	/**
+	 * @clonedesc js_showURL(String)
+	 * 
+	 * @sampleas js_showURL(String)
+	 *
+	 * @param url URL to show 
+	 * @param webclientTarget Target frame or named dialog/window
+	 * @param webclientTargetOptions Dialog options used when a dialog is specified / a timeout in seconds when the url should be shown
+	 * 
+	 * @return Boolean (true) if URL was shown
+	 */
+	public boolean js_showURL(String url, String webclientTarget, String webclientTargetOptions)
+	{
+		return js_showURL(url, webclientTarget, webclientTargetOptions, 0);
+	}
 
-			return application.showURL(url, target, target_options, timeout, true);
-		}
-		return false;
+	/**
+	 * @clonedesc js_showURL(String)
+	 * 
+	 * @sampleas js_showURL(String)
+	 *
+	 * @param url URL to show 
+	 * @param webclientTarget Target frame or named dialog/window
+	 * @param timeout A timeout in seconds when the url should be shown
+	 * 
+	 * @return Boolean (true) if URL was shown
+	 */
+	public boolean js_showURL(String url, String webclientTarget, int timeout)
+	{
+		return js_showURL(url, webclientTarget, null, timeout);
+	}
+
+	/**
+	 * @clonedesc js_showURL(String)
+	 * 
+	 * @sampleas js_showURL(String)
+	 *
+	 * @param url URL to show 
+	 * @param webclientTarget Target frame or named dialog/window
+	 * @param webclientTargetOptions Dialog options used when a dialog is specified / a timeout in seconds when the url should be shown
+	 * @param timeout A timeout in seconds when the url should be shown
+	 * 
+	 * @return Boolean (true) if URL was shown
+	 */
+	public boolean js_showURL(String url, String target, String webclientTargetOptions, int timeout)
+	{
+		return application.showURL(url, target, webclientTargetOptions, timeout, true);
 	}
 
 	/**
@@ -2445,41 +2522,61 @@ public class JSApplication implements IReturnedTypesProvider
 	}
 
 	/**
-	 * Show the calendar, returns selected date or null if canceled.
+	 * Show the calendar, returns selected date or null if canceled. Initial value and date format can be also specified.
 	 *
 	 * @sample var selectedDate = application.showCalendar();
 	 *
-	 * @param selecteddate optional Default selected date
-	 * @param dateformat optional Date format
+	 * @return Selected date or null if canceled
+	 */
+	public Date js_showCalendar()
+	{
+		return js_showCalendar(null, null);
+	}
+
+	/**
+	 * @clonedesc js_showCalendar()
+	 * 
+	 * @sampleas js_showCalendar()
+	 * 
+	 * @param selectedDate Default selected date
 	 * 
 	 * @return Selected date or null if canceled
 	 */
-	public Date js_showCalendar(Object[] args)
+	public Date js_showCalendar(Date selectedDate)
+	{
+		return js_showCalendar(selectedDate, null);
+	}
+
+	/**
+	 * @clonedesc js_showCalendar()
+	 * 
+	 * @sampleas js_showCalendar()
+	 * 
+	 * @param dateFormat Date format
+	 * 
+	 * @return Selected date or null if canceled
+	 */
+	public Date js_showCalendar(String dateFormat)
+	{
+		return js_showCalendar(null, dateFormat);
+	}
+
+	/**
+	 * @clonedesc js_showCalendar()
+	 * 
+	 * @sampleas js_showCalendar()
+	 * 
+	 * @param selectedDate Default selected date
+	 * @param dateFormat Date format
+	 * 
+	 * @return Selected date or null if canceled
+	 */
+	public Date js_showCalendar(Date selectedDate, String dateFormat)
 	{
 		if (application instanceof ISmartClientApplication)
 		{
-			String pattern = null;
-			Date date = null;
-
-			if (args != null && args.length > 0)
-			{
-				if (args[0] instanceof Date)
-				{
-					date = (Date)args[0];
-				}
-				else if (args[0] instanceof String)
-				{
-					pattern = (String)args[0];
-				}
-				if (args.length > 1 && args[1] instanceof String)
-				{
-					pattern = (String)args[1];
-				}
-			}
-			return ((ISmartClientApplication)application).showCalendar(pattern, date);
+			return ((ISmartClientApplication)application).showCalendar(dateFormat, selectedDate);
 		}
-
-
 		return null;
 	}
 
@@ -2488,36 +2585,60 @@ public class JSApplication implements IReturnedTypesProvider
 	 *
 	 * @sample var selectedColor = application.showColorChooser();
 	 *
-	 * @param colorString optional Default color
+	 * @return selected color or null if canceled
+	 */
+	public String js_showColorChooser()
+	{
+		return js_showColorChooser(null);
+	}
+
+	/**
+	 * @clonedesc js_showColorChooser()
+	 * 
+	 * @sampleas js_showColorChooser()
+	 *
+	 * @param colorString Default color
 	 * 
 	 * @return selected color or null if canceled
 	 */
-	public String js_showColorChooser(Object[] args)
+	public String js_showColorChooser(String colorString)
 	{
 		if (application instanceof ISmartClientApplication)
 		{
-			return ((ISmartClientApplication)application).showColorChooser(args == null || args.length == 0 || args[0] == null ? null : args[0].toString());
+			return ((ISmartClientApplication)application).showColorChooser(colorString);
 		}
 
 		return null;
 	}
 
 	/**
-	 * Show the font chooser dialog. Returns the selected font.
+	 * Show the font chooser dialog. Returns the selected font. Can specify a default font.
 	 *
 	 * @sample
 	 * var selectedFont = application.showFontChooser();
 	 * elements.myfield.font = selectedFont
 	 *
-	 * @param fontString optional Default font
+	 * @return selected font
+	 */
+	public String js_showFontChooser()
+	{
+		return js_showFontChooser(null);
+	}
+
+	/**
+	 * @clonedesc js_showFontChooser()
+	 * 
+	 * @sampleas js_showFontChooser()
+	 *
+	 * @param defaultFont Default font
 	 * 
 	 * @return selected font
 	 */
-	public String js_showFontChooser(Object[] args)
+	public String js_showFontChooser(String defaultFont)
 	{
 		if (application instanceof ISmartClientApplication)
 		{
-			return ((ISmartClientApplication)application).showFontChooser(args == null || args.length == 0 || args[0] == null ? null : args[0].toString());
+			return ((ISmartClientApplication)application).showFontChooser(defaultFont);
 		}
 
 		return null;
@@ -2528,18 +2649,43 @@ public class JSApplication implements IReturnedTypesProvider
 	 *
 	 * @sample application.showI18NDialog("servoy.button.close", "en");
 	 *
-	 * @param keyToSelect optional Default selected key
+	 * @return selected I18N key or null if cancel is pressed
+	 */
+	public String js_showI18NDialog()
+	{
+		return js_showI18NDialog(null, null);
+	}
+
+	/**
+	 * @clonedesc js_showI18NDialog()
+	 * 
+	 * @sampleas js_showI18NDialog() 
+	 * 
+	 * @param keyToSelect Default selected key
 	 *
-	 * @param languageToSelect optional Default selected language
+	 * @return selected I18N key or null if cancel is pressed
+	 */
+	public String js_showI18NDialog(String keyToSelect)
+	{
+		return js_showI18NDialog(keyToSelect, null);
+	}
+
+	/**
+	 * @clonedesc js_showI18NDialog()
+	 * 
+	 * @sampleas js_showI18NDialog() 
+	 * 
+	 * @param keyToSelect Default selected key
+	 *
+	 * @param languageToSelect Default selected language
 	 * 
 	 * @return selected I18N key or null if cancel is pressed
 	 */
-	public String js_showI18NDialog(Object[] vargs)
+	public String js_showI18NDialog(String keyToSelect, String languageToSelect)
 	{
 		if (application instanceof ISmartClientApplication)
 		{
-			return ((ISmartClientApplication)application).showI18NDialog((vargs == null || vargs.length == 0 || vargs[0] == null) ? null : vargs[0].toString(),
-				(vargs == null || vargs.length < 2 || vargs[1] == null) ? null : vargs[1].toString());
+			return ((ISmartClientApplication)application).showI18NDialog(keyToSelect, languageToSelect);
 		}
 		return null;
 	}
@@ -2569,19 +2715,23 @@ public class JSApplication implements IReturnedTypesProvider
 	 * @sample
 	 * application.updateUI(500);
 	 * //continue doing things
-	 *
+	 */
+	public void js_updateUI()
+	{
+		js_updateUI(100);
+
+	}
+
+	/**
+	 * @clonedesc js_updateUI()
+	 * 
+	 * @sampleas js_updateUI()
+	 * 
 	 * @param milliseconds optional  How long the update should take in milliseconds
 	 */
-	public void js_updateUI(Object[] args)
+	public void js_updateUI(int milliseconds)
 	{
-		int time = 100;
-		if (args != null && args.length > 0)
-		{
-			time = Utils.getAsInteger(args[0]);
-			if (time < 100) time = 100;
-		}
-		application.updateUI(time);
-
+		application.updateUI(milliseconds);
 	}
 
 	/**
