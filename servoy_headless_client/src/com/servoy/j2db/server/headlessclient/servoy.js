@@ -406,7 +406,7 @@ function rearrageTabsInTabPanel(tabPanelId)
 }
 
 var onFocusModifiers = 0;
-var radioCheckInputMousedDown;
+var radioCheckInputMouseDown;
 function addListeners(strEvent, callbackUrl, ids, post)
 {
 	if (ids)
