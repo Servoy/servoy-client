@@ -3450,6 +3450,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				rowManager.deleteRow(this, data, hasAccess(IRepository.TRACKING), partOfBiggerDelete);
 
 				executeFoundsetTrigger(new Object[] { state }, StaticContentSpecLoader.PROPERTY_ONAFTERDELETEMETHODID);
+				// really remove the state from the edited records, can't be saved at all anymore after delete.
+				fsm.getEditRecordList().removeEditedRecord(state);
 			}
 		}
 		if (!(state instanceof PrototypeState))
