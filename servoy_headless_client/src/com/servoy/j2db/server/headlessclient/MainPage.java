@@ -1798,7 +1798,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 	{
 		Component c = componentToFocus;
 		componentToFocus = null;
-		focusedComponent = c;
+		if (c != null) focusedComponent = c;
 		return c;
 	}
 
