@@ -3632,8 +3632,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	public void processCopyValues(int row)
 	{
 		IRecordInternal state = getRecord(row);
-		sheet.processCopyValues(state);
-		fireFoundSetEvent(row, row, FoundSetEvent.CHANGE_UPDATE);
+		if (state != null)
+		{
+			sheet.processCopyValues(state);
+			fireFoundSetEvent(row, row, FoundSetEvent.CHANGE_UPDATE);
+		}
 	}
 
 	@Deprecated
