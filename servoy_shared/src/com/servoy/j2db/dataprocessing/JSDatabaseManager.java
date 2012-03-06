@@ -157,28 +157,30 @@ public class JSDatabaseManager
 	 * }
 	 *
 	 * @param foundset The JSFoundset to get the lock for
-	 * @param record_index The record index which should be locked.
-	 * @param lock_name optional The name of the lock.
+	 * @param recordIndex The record index which should be locked.
 	 * 
 	 * @return true if the lock could be acquired.
 	 */
-	public boolean js_acquireLock(Object[] vargs) throws ServoyException
+	public boolean js_acquireLock(IFoundSetInternal foundset, int recordIndex) throws ServoyException
+	{
+		return js_acquireLock(foundset, recordIndex, null);
+	}
+
+	/**
+	 * @clonedesc js_acquireLock(IFoundSetInternal,int)
+	 * 
+	 * @sampleas js_acquireLock(IFoundSetInternal,int)
+	 * 
+	 * @param foundset The JSFoundset to get the lock for
+	 * @param recordIndex The record index which should be locked.
+	 * @param lockName The name of the lock.
+	 * 
+	 * @return true if the lock could be acquired.
+	 */
+	public boolean js_acquireLock(IFoundSetInternal foundset, int recordIndex, String lockName) throws ServoyException
 	{
 		checkAuthorized();
-		if (vargs == null || vargs.length < 2)
-		{
-			return false;
-		}
-		int n = 0;
-		Object arg = vargs[n++];
-		int index = Utils.getAsInteger(vargs[n++]);
-		String lockName = null;
-		if (vargs.length > n)
-		{
-			Object o = vargs[n++];
-			if (o != null) lockName = o.toString();
-		}
-		return ((FoundSetManager)application.getFoundSetManager()).acquireLock(arg, index - 1, lockName);
+		return ((FoundSetManager)application.getFoundSetManager()).acquireLock(foundset, recordIndex - 1, lockName);
 	}
 
 	/**
@@ -209,21 +211,32 @@ public class JSDatabaseManager
 	 * @param dataprovider A specified dataprovider column name.  
 	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "||=" (or-is-null). 
 	 * @param value The specified filter value. 
-	 * @param filter_name optional The specified name of the database table filter. 
 	 * 
 	 * @return true if the tablefilter could be applied.
 	 */
-	public boolean js_addTableFilterParam(Object[] args) throws ServoyException
+	public boolean js_addTableFilterParam(String serverName, String tableName, String dataprovider, String operator, Object value) throws ServoyException
+	{
+		return js_addTableFilterParam(serverName, tableName, dataprovider, operator, value, null);
+	}
+
+	/**
+	 * @clonedesc js_addTableFilterParam(String,String,String,String,Object)
+	 * 
+	 * @sampleas js_addTableFilterParam(String,String,String,String,Object)
+	 * 
+	 * @param serverName The name of the database server connection for the specified table name.
+	 * @param tableName The name of the specified table. 
+	 * @param dataprovider A specified dataprovider column name.  
+	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "||=" (or-is-null). 
+	 * @param value The specified filter value. 
+	 * @param filterName The specified name of the database table filter. 
+	 * 
+	 * @return true if the tablefilter could be applied.
+	 */
+	public boolean js_addTableFilterParam(String serverName, String tableName, String dataprovider, String operator, Object value, String filterName)
+		throws ServoyException
 	{
 		checkAuthorized();
-		if (args.length < 5) return false;
-		String serverName = args[0] instanceof String ? (String)args[0] : null;
-		String tableName = args[1] instanceof String ? (String)args[1] : null;
-		String dataprovider = args[2] instanceof String ? (String)args[2] : null;
-		String operator = args[3] instanceof String ? (String)args[3] : null;
-		Object value = args[4];
-		String filterName = args.length >= 6 && args[5] instanceof String ? (String)args[5] : null;
-
 		try
 		{
 			if (value instanceof Wrapper)
@@ -301,26 +314,39 @@ public class JSDatabaseManager
 	 * 	application.output('Table filter on table ' + params[i][0]+ ': '+ params[i][1]+ ' '+params[i][2]+ ' '+params[i][3] +(params[i][4] == null ? ' [no name]' : ' ['+params[i][4]+']'))
 	 * }
 	 *
-	 * @param server_name The name of the database server connection.
-	 * @param filter_name optional The filter name for which to get the array.
+	 * @param serverName The name of the database server connection.
+	 * @param filterName optional The filter name for which to get the array.
 	 * 
 	 * @return Two dimensional array.
 	 */
-	public Object[][] js_getTableFilterParams(Object[] args)
+	public Object[][] js_getTableFilterParams(String serverName, String filterName)
 	{
-		if (args == null || args.length < 1 || args[0] == null) return null;
-		String serverName = args[0].toString();
-		String filterName = args.length > 1 && args[1] != null ? args[1].toString() : null;
-
-		try
+		if (serverName != null)
 		{
-			return (((FoundSetManager)application.getFoundSetManager()).getTableFilterParams(serverName, filterName));
-		}
-		catch (Exception ex)
-		{
-			Debug.error(ex);
+			try
+			{
+				return (((FoundSetManager)application.getFoundSetManager()).getTableFilterParams(serverName, filterName));
+			}
+			catch (Exception ex)
+			{
+				Debug.error(ex);
+			}
 		}
 		return null;
+	}
+
+	/**
+	 * @clonedesc js_getTableFilterParams(String,String)
+	 * 
+	 * @sampleas js_getTableFilterParams(String,String)
+	 * 
+	 * @param serverName The name of the database server connection.
+	 * 
+	 * @return Two dimensional array.
+	 */
+	public Object[][] js_getTableFilterParams(String serverName)
+	{
+		return js_getTableFilterParams(serverName, null);
 	}
 
 	/**
@@ -431,155 +457,173 @@ public class JSDatabaseManager
 	 * // converts an string list to a dataset
 	 * //var dataset = databaseManager.convertToDataSet('4,5,6');
 	 *
-	 * @param array/ids_string/foundset The data that should go into the JSDataSet.
+	 * @param foundset The foundset to be converted.
 	 * @param array_with_dataprovider_names optional Array with column names.
 	 * 
 	 * @return JSDataSet with the data. 
 	 */
-	public JSDataSet js_convertToDataSet(Object[] args) throws RepositoryException
+	public JSDataSet js_convertToDataSet(IFoundSetInternal foundset) throws RepositoryException
 	{
-		if (args.length == 0) return null;
-		Object object = args[0];
-		if (object == null) return null;
-		if (object instanceof JSDataSet) return (JSDataSet)object;
+		return js_convertToDataSet(foundset, null);
+	}
 
+	/**
+	 * @clonedesc js_convertToDataSet(IFoundSetInternal)
+	 * 
+	 * @sampleas js_convertToDataSet(IFoundSetInternal)
+	 * 
+	 * @param foundset The foundset to be converted.
+	 * @param dataproviderNames Array with column names.
+	 * 
+	 * @return JSDataSet with the data. 
+	 */
+	public JSDataSet js_convertToDataSet(IFoundSetInternal foundset, String[] dataproviderNames) throws RepositoryException
+	{
 		String[] dpnames = { "id" }; //$NON-NLS-1$
 		ColumnType[] dptypes = { ColumnType.getInstance(IColumnTypes.INTEGER, Integer.MAX_VALUE, 0) };
 
 		List<Object[]> lst = new ArrayList<Object[]>();
 
-		if (object instanceof FoundSet)
+		FoundSet fs = (FoundSet)foundset;
+		if (fs.getTable() != null)
 		{
-			FoundSet fs = (FoundSet)object;
-			if (fs.getTable() != null)
+			if (dataproviderNames != null)
 			{
-				if (args.length > 1 && args[1] != null && args[1].getClass().isArray())
+				dpnames = dataproviderNames;
+			}
+			else
+			{
+				dpnames = fs.getSQLSheet().getPKColumnDataProvidersAsArray();
+			}
+
+			FoundSetManager fsm = (FoundSetManager)application.getFoundSetManager();
+			boolean getInOneQuery = !fs.isInFindMode() && (fs.hadMoreRows() || fs.getSize() > fsm.pkChunkSize) && !fsm.getEditRecordList().hasEditedRecords(fs);
+
+			dptypes = new ColumnType[dpnames.length];
+			Table table = fs.getSQLSheet().getTable();
+			Map<String, Column> columnMap = new HashMap<String, Column>();
+			for (int i = 0; i < dpnames.length; i++)
+			{
+				IDataProvider dp = application.getFlattenedSolution().getDataProviderForTable(table, dpnames[i]);
+
+
+				dptypes[i] = dp == null ? ColumnType.getInstance(0, 0, 0) : ColumnType.getInstance(
+					dp instanceof Column ? ((Column)dp).getType() : dp.getDataProviderType(), dp.getLength(), dp instanceof Column ? ((Column)dp).getScale()
+						: 0);
+				if (getInOneQuery)
 				{
-					Object[] odp = (Object[])args[1];
-					dpnames = new String[odp.length];
-					for (int i = 0; i < odp.length; i++)
+					// only columns and data we can get from the foundset (calculations only when stored)
+					if (dp instanceof Column)
 					{
-						dpnames[i] = String.valueOf(odp[i]);
+						columnMap.put(dpnames[i], (Column)dp);
+						// Blobs require special resultset handling
+						getInOneQuery = !SQLGenerator.isBlobColumn((Column)dp);
 					}
-				}
-				else
-				{
-					dpnames = fs.getSQLSheet().getPKColumnDataProvidersAsArray();
-				}
-
-				FoundSetManager fsm = (FoundSetManager)application.getFoundSetManager();
-				boolean getInOneQuery = !fs.isInFindMode() && (fs.hadMoreRows() || fs.getSize() > fsm.pkChunkSize) &&
-					!fsm.getEditRecordList().hasEditedRecords(fs);
-
-				dptypes = new ColumnType[dpnames.length];
-				Table table = fs.getSQLSheet().getTable();
-				Map<String, Column> columnMap = new HashMap<String, Column>();
-				for (int i = 0; i < dpnames.length; i++)
-				{
-					IDataProvider dp = application.getFlattenedSolution().getDataProviderForTable(table, dpnames[i]);
-
-
-					dptypes[i] = dp == null ? ColumnType.getInstance(0, 0, 0) : ColumnType.getInstance(
-						dp instanceof Column ? ((Column)dp).getType() : dp.getDataProviderType(), dp.getLength(),
-						dp instanceof Column ? ((Column)dp).getScale() : 0);
-					if (getInOneQuery)
+					else
 					{
-						// only columns and data we can get from the foundset (calculations only when stored)
-						if (dp instanceof Column)
-						{
-							columnMap.put(dpnames[i], (Column)dp);
-							// Blobs require special resultset handling
-							getInOneQuery = !SQLGenerator.isBlobColumn((Column)dp);
-						}
-						else
-						{
-							// aggregates, globals
-							getInOneQuery = fs.containsDataProvider(dpnames[i]);
-						}
-					}
-				}
-
-				if (getInOneQuery && columnMap.size() > 0)
-				{
-					// large foundset, query the columns in 1 go
-					QuerySelect sqlSelect = AbstractBaseQuery.deepClone(fs.getSqlSelect());
-					ArrayList<IQuerySelectValue> cols = new ArrayList<IQuerySelectValue>(columnMap.size());
-					for (String dpname : dpnames)
-					{
-						Column column = columnMap.get(dpname);
-						if (column != null)
-						{
-							cols.add(new QueryColumn(sqlSelect.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength()));
-						}
-					}
-					sqlSelect.setColumns(cols);
-					try
-					{
-						SQLSheet sheet = fs.getSQLSheet();
-						IConverterManager<IColumnConverter> columnConverterManager = ((FoundSetManager)fs.getFoundSetManager()).getColumnConverterManager();
-						SQLStatement trackingInfo = null;
-						if (fsm.getEditRecordList().hasAccess(sheet.getTable(), IRepository.TRACKING_VIEWS))
-						{
-							trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, sheet.getServerName(), sheet.getTable().getName(), null, null);
-							trackingInfo.setTrackingData(sqlSelect.getColumnNames(), new Object[][] { }, new Object[][] { }, fsm.getApplication().getUserUID(),
-								fsm.getTrackingInfo(), fsm.getApplication().getClientID());
-						}
-						IDataSet dataSet = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(),
-							fsm.getTransactionID(sheet), sqlSelect, fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), false, 0, -1,
-							IDataServer.FOUNDSET_LOAD_QUERY, trackingInfo);
-
-						lst = new ArrayList<Object[]>(dataSet.getRowCount());
-						for (int i = 0; i < dataSet.getRowCount(); i++)
-						{
-							Object[] row = new Object[dpnames.length];
-							Object[] dataseRow = dataSet.getRow(i);
-							int dr = 0;
-							for (int j = 0; j < dpnames.length; j++)
-							{
-								Column column = columnMap.get(dpnames[j]);
-								if (column == null)
-								{
-									// fs.containsDataProvider returned true for this dpname
-									row[j] = fs.getDataProviderValue(dpnames[j]);
-								}
-								else
-								{
-									row[j] = sheet.convertValueToObject(dataseRow[dr], sheet.getColumnIndex(dpnames[j]), columnConverterManager);
-									dr++;
-								}
-							}
-							lst.add(row);
-						}
-					}
-					catch (RepositoryException e)
-					{
-						throw e;
-					}
-					catch (Exception e)
-					{
-						Debug.error(e);
-						throw new RepositoryException(e.getMessage());
-					}
-				}
-				else
-				{
-					// loop over the records
-					for (int i = 0; i < fs.getSize(); i++)
-					{
-						IRecordInternal record = fs.getRecord(i);
-						Object[] pk = new Object[dpnames.length];
-						for (int j = 0; j < dpnames.length; j++)
-						{
-							pk[j] = record.getValue(dpnames[j]);
-						}
-						lst.add(pk);
+						// aggregates, globals
+						getInOneQuery = fs.containsDataProvider(dpnames[i]);
 					}
 				}
 			}
+
+			if (getInOneQuery && columnMap.size() > 0)
+			{
+				// large foundset, query the columns in 1 go
+				QuerySelect sqlSelect = AbstractBaseQuery.deepClone(fs.getSqlSelect());
+				ArrayList<IQuerySelectValue> cols = new ArrayList<IQuerySelectValue>(columnMap.size());
+				for (String dpname : dpnames)
+				{
+					Column column = columnMap.get(dpname);
+					if (column != null)
+					{
+						cols.add(new QueryColumn(sqlSelect.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength()));
+					}
+				}
+				sqlSelect.setColumns(cols);
+				try
+				{
+					SQLSheet sheet = fs.getSQLSheet();
+					IConverterManager<IColumnConverter> columnConverterManager = ((FoundSetManager)fs.getFoundSetManager()).getColumnConverterManager();
+					SQLStatement trackingInfo = null;
+					if (fsm.getEditRecordList().hasAccess(sheet.getTable(), IRepository.TRACKING_VIEWS))
+					{
+						trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, sheet.getServerName(), sheet.getTable().getName(), null, null);
+						trackingInfo.setTrackingData(sqlSelect.getColumnNames(), new Object[][] { }, new Object[][] { }, fsm.getApplication().getUserUID(),
+							fsm.getTrackingInfo(), fsm.getApplication().getClientID());
+					}
+					IDataSet dataSet = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), fsm.getTransactionID(sheet),
+						sqlSelect, fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), false, 0, -1, IDataServer.FOUNDSET_LOAD_QUERY, trackingInfo);
+
+					lst = new ArrayList<Object[]>(dataSet.getRowCount());
+					for (int i = 0; i < dataSet.getRowCount(); i++)
+					{
+						Object[] row = new Object[dpnames.length];
+						Object[] dataseRow = dataSet.getRow(i);
+						int dr = 0;
+						for (int j = 0; j < dpnames.length; j++)
+						{
+							Column column = columnMap.get(dpnames[j]);
+							if (column == null)
+							{
+								// fs.containsDataProvider returned true for this dpname
+								row[j] = fs.getDataProviderValue(dpnames[j]);
+							}
+							else
+							{
+								row[j] = sheet.convertValueToObject(dataseRow[dr], sheet.getColumnIndex(dpnames[j]), columnConverterManager);
+								dr++;
+							}
+						}
+						lst.add(row);
+					}
+				}
+				catch (RepositoryException e)
+				{
+					throw e;
+				}
+				catch (Exception e)
+				{
+					Debug.error(e);
+					throw new RepositoryException(e.getMessage());
+				}
+			}
+			else
+			{
+				// loop over the records
+				for (int i = 0; i < fs.getSize(); i++)
+				{
+					IRecordInternal record = fs.getRecord(i);
+					Object[] pk = new Object[dpnames.length];
+					for (int j = 0; j < dpnames.length; j++)
+					{
+						pk[j] = record.getValue(dpnames[j]);
+					}
+					lst.add(pk);
+				}
+			}
 		}
-		else if (object instanceof String && args.length == 1)
+		return new JSDataSet(application, new BufferedDataSet(dpnames, dptypes, lst, false));
+	}
+
+	/**
+	 * @clonedesc js_convertToDataSet(IFoundSetInternal)
+	 * 
+	 * @sampleas js_convertToDataSet(IFoundSetInternal)
+	 *  
+	 * @param ids Concatenated values to be put into dataset.
+	 *
+	 * @return JSDataSet with the data. 
+	 */
+	public JSDataSet js_convertToDataSet(String ids)
+	{
+		String[] dpnames = { "id" }; //$NON-NLS-1$
+		ColumnType[] dptypes = { ColumnType.getInstance(IColumnTypes.INTEGER, Integer.MAX_VALUE, 0) };
+
+		List<Object[]> lst = new ArrayList<Object[]>();
+		if (ids != null)
 		{
-			StringTokenizer st = new StringTokenizer(object.toString(), ",;\n\r\t "); //$NON-NLS-1$
+			StringTokenizer st = new StringTokenizer(ids, ",;\n\r\t "); //$NON-NLS-1$
 			while (st.hasMoreElements())
 			{
 				Object o = st.nextElement();
@@ -590,85 +634,107 @@ public class JSDatabaseManager
 				lst.add(new Object[] { o });
 			}
 		}
-		else
+		return new JSDataSet(application, new BufferedDataSet(dpnames, dptypes, lst, false));
+	}
+
+	/**
+	 * @clonedesc js_convertToDataSet(IFoundSetInternal)
+	 * 
+	 * @sampleas js_convertToDataSet(IFoundSetInternal)
+	 * 
+	 * @param values The values array.
+	 * @param dataproviderNames The property names array.
+	 
+	 * @return JSDataSet with the data.
+	 */
+	public JSDataSet js_convertToDataSet(Object[] values, String[] dataproviderNames)
+	{
+		String[] dpnames = { "id" }; //$NON-NLS-1$
+		ColumnType[] dptypes = { ColumnType.getInstance(IColumnTypes.INTEGER, Integer.MAX_VALUE, 0) };
+
+		List<Object[]> lst = new ArrayList<Object[]>();
+
+		Object[] array = values;
+		if (dataproviderNames != null)
 		{
-			// 2 possibilities: args is the list of values or args[0] is the list of values and args[1] is the list of dpnames
-			Object[] array;
-			if (args.length > 1 && (args[0] instanceof Object[]) && (args[1] instanceof Object[]))
+			dpnames = dataproviderNames;
+		}
+
+		Map<String, Method> getters = new HashMap<String, Method>();
+
+		for (Object o : array)
+		{
+			if (o instanceof Number || o instanceof String || o instanceof UUID || o instanceof Date)
 			{
-				array = (Object[])args[0];
-				dpnames = new String[((Object[])args[1]).length];
-				for (int i = 0; i < dpnames.length; i++)
+				if (o instanceof Double && ((Double)o).doubleValue() == ((Double)o).intValue())
 				{
-					dpnames[i] = String.valueOf(((Object[])args[1])[i]);
+					o = new Integer(((Double)o).intValue());
 				}
+				lst.add(new Object[] { o });
 			}
-			else
+			else if (o instanceof Scriptable)
 			{
-				array = args;
-			}
-
-			Map<String, Method> getters = new HashMap<String, Method>();
-
-			for (Object o : array)
-			{
-				if (o instanceof Number || o instanceof String || o instanceof UUID || o instanceof Date)
+				List<Object> row = new ArrayList<Object>();
+				for (String dpname : dpnames)
 				{
-					if (o instanceof Double && ((Double)o).doubleValue() == ((Double)o).intValue())
-					{
-						o = new Integer(((Double)o).intValue());
-					}
+					if (((Scriptable)o).has(dpname, (Scriptable)o)) row.add(((Scriptable)o).get(dpname, (Scriptable)o));
+				}
+				if (dpnames.length != row.size() || dpnames.length == 0)
+				{
+					// for backward compatibility 
 					lst.add(new Object[] { o });
 				}
-				else if (o instanceof Scriptable)
+				else
 				{
-					List<Object> row = new ArrayList<Object>();
-					for (String dpname : dpnames)
-					{
-						if (((Scriptable)o).has(dpname, (Scriptable)o)) row.add(((Scriptable)o).get(dpname, (Scriptable)o));
-					}
-					if (dpnames.length != row.size() || dpnames.length == 0)
-					{
-						// for backward compatibility 
-						lst.add(new Object[] { o });
-					}
-					else
-					{
-						lst.add(row.toArray());
-					}
+					lst.add(row.toArray());
 				}
-				else if (o != null)
+			}
+			else if (o != null)
+			{
+				//try reflection
+				List<Object> row = new ArrayList<Object>();
+				for (String dpname : dpnames)
 				{
-					//try reflection
-					List<Object> row = new ArrayList<Object>();
-					for (String dpname : dpnames)
+					Method m = getMethod(o, dpname, getters);
+					if (m != null)
 					{
-						Method m = getMethod(o, dpname, getters);
-						if (m != null)
+						try
 						{
-							try
-							{
-								row.add(m.invoke(o, (Object[])null));
-							}
-							catch (Exception e)
-							{
-								Debug.error(e);
-							}
+							row.add(m.invoke(o, (Object[])null));
+						}
+						catch (Exception e)
+						{
+							Debug.error(e);
 						}
 					}
-					if (dpnames.length != row.size() || dpnames.length == 0)
-					{
-						// for backward compatibility 
-						lst.add(new Object[] { o });
-					}
-					else
-					{
-						lst.add(row.toArray());
-					}
+				}
+				if (dpnames.length != row.size() || dpnames.length == 0)
+				{
+					// for backward compatibility 
+					lst.add(new Object[] { o });
+				}
+				else
+				{
+					lst.add(row.toArray());
 				}
 			}
 		}
+
 		return new JSDataSet(application, new BufferedDataSet(dpnames, dptypes, lst, false));
+	}
+
+	/**
+	 * @clonedesc js_convertToDataSet(IFoundSetInternal)
+	 * 
+	 * @sampleas js_convertToDataSet(IFoundSetInternal)
+	 * 
+	 * @param values The values array.
+	 
+	 * @return JSDataSet with the data.
+	 */
+	public JSDataSet js_convertToDataSet(Object[] values)
+	{
+		return js_convertToDataSet(values, null);
 	}
 
 	private Method getMethod(Object o, String pname, Map<String, Method> getters)
@@ -700,31 +766,29 @@ public class JSDatabaseManager
 	 * // gets an empty dataset with a specifed row count and column array
 	 * var dataset2 = databaseManager.createEmptyDataSet(10,new Array ('a','b','c','d'))
 	 *
-	 * @param row_count The number of rows in the DataSet object.
-	 * @param columnCount/array_with_column_names Number of columns or the column names.
+	 * @param rowCount The number of rows in the DataSet object.
+	 * @param columnCount Number of columns.
 	 * 
 	 * @return An empty JSDataSet with the initial sizes. 
 	 */
-	public JSDataSet js_createEmptyDataSet(Object[] args)
+	public JSDataSet js_createEmptyDataSet(int rowCount, int columnCount)
 	{
-		if (args != null && args.length >= 2 && args[1] != null && args[1].getClass().isArray())
-		{
-			Object[] array = (Object[])args[1];
-			String[] cols = new String[array.length];
-			for (int i = 0; i < cols.length; i++)
-			{
-				cols[i] = (array[i] != null ? array[i].toString() : null);
-			}
-			return new JSDataSet(application, Utils.getAsInteger(args[0]), cols);
-		}
-		else if (args != null && args.length >= 2 && args[1] instanceof Number)
-		{
-			return new JSDataSet(application, Utils.getAsInteger(args[0]), new String[((Number)args[1]).intValue()]);
-		}
-		else
-		{
-			return new JSDataSet(application);
-		}
+		return new JSDataSet(application, rowCount, new String[columnCount]);
+	}
+
+	/**
+	 * @clonedesc js_createEmptyDataSet(int,int)
+	 * 
+	 * @sampleas js_createEmptyDataSet(int,int)
+	 * 
+	 * @param rowCount
+	 * @param columnNames
+	 * 
+	 * @return An empty JSDataSet with the initial sizes. 
+	 */
+	public JSDataSet js_createEmptyDataSet(int rowCount, String[] columnNames)
+	{
+		return new JSDataSet(application, rowCount, columnNames);
 	}
 
 	private boolean validateQueryArguments(Object[] arguments, String sql_query)
@@ -1741,52 +1805,56 @@ public class JSDatabaseManager
 	 * 
 	 * @return the JSTable get from the input.
 	 */
-	public JSTable js_getTable(Object[] vargs) throws ServoyException
+	public JSTable js_getTable(Object source) throws ServoyException
+	{
+		String serverName = null;
+		String tableName = null;
+		if (source instanceof IFoundSetInternal)
+		{
+			IFoundSetInternal fs = (IFoundSetInternal)source;
+			if (fs.getTable() != null)
+			{
+				serverName = fs.getTable().getServerName();
+				tableName = fs.getTable().getName();
+			}
+		}
+		if (source instanceof IRecordInternal)
+		{
+			IRecordInternal rec = (IRecordInternal)source;
+			IFoundSetInternal fs = rec.getParentFoundSet();
+			if (fs != null && fs.getTable() != null)
+			{
+				serverName = fs.getTable().getServerName();
+				tableName = fs.getTable().getName();
+			}
+		}
+		if (source instanceof String)
+		{
+			String[] server_table = DataSourceUtils.getDBServernameTablename(source.toString());
+			if (server_table != null)
+			{
+				serverName = server_table[0];
+				tableName = server_table[1];
+			}
+		}
+		return js_getTable(serverName, tableName);
+	}
+
+	/**
+	 * @clonedesc js_getTable(Object)
+	 * 
+	 * @sampleas js_getTable(Object) 
+	 *  
+	 * @param serverName Server name.
+	 * @param tableName Table name.
+	
+	 * @return the JSTable get from the input.
+	 */
+	public JSTable js_getTable(String serverName, String tableName) throws ServoyException
 	{
 		checkAuthorized();
 		try
 		{
-			String serverName = null;
-			String tableName = null;
-			if (vargs.length == 1)
-			{
-				if (vargs[0] instanceof IFoundSetInternal)
-				{
-					IFoundSetInternal fs = (IFoundSetInternal)vargs[0];
-					if (fs.getTable() != null)
-					{
-						serverName = fs.getTable().getServerName();
-						tableName = fs.getTable().getName();
-					}
-				}
-				if (vargs[0] instanceof IRecordInternal)
-				{
-					IRecordInternal rec = (IRecordInternal)vargs[0];
-					IFoundSetInternal fs = rec.getParentFoundSet();
-					if (fs != null && fs.getTable() != null)
-					{
-						serverName = fs.getTable().getServerName();
-						tableName = fs.getTable().getName();
-					}
-				}
-				if (vargs[0] instanceof String)
-				{
-					String[] server_table = DataSourceUtils.getDBServernameTablename(vargs[0].toString());
-					if (server_table != null)
-					{
-						serverName = server_table[0];
-						tableName = server_table[1];
-					}
-				}
-			}
-			else if (vargs.length == 2)
-			{
-				if (vargs[0] instanceof String && vargs[1] instanceof String)
-				{
-					serverName = vargs[0].toString();
-					tableName = vargs[1].toString();
-				}
-			}
 			if (serverName != null)
 			{
 				IServer server = application.getSolution().getServer(serverName);
@@ -1825,23 +1893,20 @@ public class JSDatabaseManager
 	 * 
 	 * @sample databaseManager.mergeRecords(foundset.getRecord(1),foundset.getRecord(2));
 	 *
-	 * @param source_record The source JSRecord to copy from.
-	 * @param combined_destination_record The target/destination JSRecord to copy into.
-	 * @param columnnamesarray_to_copy optional The column names Array that should be copied.
+	 * @param sourceRecord The source JSRecord to copy from.
+	 * @param combinedDestinationRecord The target/destination JSRecord to copy into.
+	 * @param columnNames The column names array that should be copied.
 	 * 
 	 * @return true if the records could me merged.
 	 */
-	public boolean js_mergeRecords(Object[] vargs) throws ServoyException
+	public boolean js_mergeRecords(IRecordInternal sourceRecord, IRecordInternal combinedDestinationRecord, String[] columnNames) throws ServoyException
 	{
 		checkAuthorized();
-		if (vargs.length >= 2 && vargs[0] instanceof IRecordInternal && vargs[1] instanceof IRecordInternal)
+		if (sourceRecord != null && combinedDestinationRecord != null)
 		{
 			FoundSetManager fsm = (FoundSetManager)application.getFoundSetManager();
 			try
 			{
-				IRecordInternal sourceRecord = (IRecordInternal)vargs[0];
-				IRecordInternal combinedDestinationRecord = (IRecordInternal)vargs[1];
-
 				if (sourceRecord.getParentFoundSet() != combinedDestinationRecord.getParentFoundSet())
 				{
 					return false;
@@ -1925,16 +1990,14 @@ public class JSDatabaseManager
 				IFoundSetInternal sfs = sourceRecord.getParentFoundSet();
 				if (combinedDestinationRecord.startEditing())
 				{
-					if (vargs.length >= 3 && vargs[2] != null && vargs[2].getClass().isArray())
+					if (columnNames != null)
 					{
-						Object dps[] = (Object[])vargs[2];
-						for (Object element : dps)
+						for (String element : columnNames)
 						{
 							if (element == null) continue;
-							String dp = element.toString();
-							if (sfs.getSQLSheet().getColumnIndex(dp) >= 0)
+							if (sfs.getSQLSheet().getColumnIndex(element) >= 0)
 							{
-								combinedDestinationRecord.setValue(dp, sourceRecord.getValue(dp));
+								combinedDestinationRecord.setValue(element, sourceRecord.getValue(element));
 							}
 						}
 					}
@@ -1967,6 +2030,21 @@ public class JSDatabaseManager
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * @clonedesc js_mergeRecords(IRecordInternal,IRecordInternal,String[])
+	 * 
+	 * @sampleas js_mergeRecords(IRecordInternal,IRecordInternal,String[])
+	 *  
+	 * @param sourceRecord The source JSRecord to copy from.
+	 * @param combinedDestinationRecord The target/destination JSRecord to copy into.
+	 * 	 
+	 * @return true if the records could me merged.
+	 */
+	public boolean js_mergeRecords(IRecordInternal sourceRecord, IRecordInternal combinedDestinationRecord) throws ServoyException
+	{
+		return js_mergeRecords(sourceRecord, combinedDestinationRecord, null);
 	}
 
 	/**
@@ -2080,21 +2158,49 @@ public class JSDatabaseManager
 	 * //		if (recordIndex % 10 == 0) databaseManager.saveData();
 	 * // }
 	 * 
-	 * @param record/foundset optional The JSRecord to save.
-	 * 
 	 * @return true if the save was done without an error.
 	 */
-	public boolean js_saveData(Object[] vargs) throws ServoyException
+	public boolean js_saveData() throws ServoyException
 	{
 		checkAuthorized();
-		if (vargs.length >= 1 && vargs[0] instanceof IRecordInternal)
-		{
-			return application.getFoundSetManager().getEditRecordList().stopEditing(true, (IRecordInternal)vargs[0]) == ISaveConstants.STOPPED;
-		}
-		if (vargs.length >= 1 && vargs[0] instanceof IFoundSetInternal)
+		return application.getFoundSetManager().getEditRecordList().stopEditing(true) == ISaveConstants.STOPPED;
+	}
+
+	/**
+	 * @clonedesc js_saveData()
+	 * 
+	 * @sampleas js_saveData()
+	 *  
+	 * @param foundset The JSFoundset to save.
+	
+	 * @return true if the save was done without an error.
+	 */
+	public boolean js_saveData(IFoundSetInternal foundset) throws ServoyException
+	{
+		checkAuthorized();
+		if (foundset != null)
 		{
 			return application.getFoundSetManager().getEditRecordList().stopEditing(true,
-				Arrays.asList(application.getFoundSetManager().getEditRecordList().getEditedRecords((IFoundSetInternal)vargs[0]))) == ISaveConstants.STOPPED;
+				Arrays.asList(application.getFoundSetManager().getEditRecordList().getEditedRecords(foundset))) == ISaveConstants.STOPPED;
+		}
+		return application.getFoundSetManager().getEditRecordList().stopEditing(true) == ISaveConstants.STOPPED;
+	}
+
+	/**
+	 * @clonedesc js_saveData()
+	 * 
+	 * @sampleas js_saveData()
+	 *  
+	 * @param foundset The JSRecord to save.
+	
+	 * @return true if the save was done without an error.
+	 */
+	public boolean js_saveData(IRecordInternal record) throws ServoyException
+	{
+		checkAuthorized();
+		if (record != null)
+		{
+			return application.getFoundSetManager().getEditRecordList().stopEditing(true, record) == ISaveConstants.STOPPED;
 		}
 		return application.getFoundSetManager().getEditRecordList().stopEditing(true) == ISaveConstants.STOPPED;
 	}
@@ -2334,15 +2440,27 @@ public class JSDatabaseManager
 	 *
 	 * @sample var hasLocks = databaseManager.hasLocks('mylock')
 	 *
-	 * @param lock_name optional The lock name to check.
+	 * @param lockName The lock name to check.
 	 * 
 	 * @return true if the current client has locks or the lock.
 	 */
-	public boolean js_hasLocks(Object[] vargs) throws ServoyException
+	public boolean js_hasLocks(String lockName) throws ServoyException
 	{
 		checkAuthorized();
-		String lockName = (vargs != null && vargs.length > 0 && vargs[0] != null) ? vargs[0].toString() : null;
 		return ((FoundSetManager)application.getFoundSetManager()).hasLocks(lockName);
+	}
+
+	/**
+	 * @clonedesc js_hasLocks(String)
+	 * 
+	 * @sampleas js_hasLocks(String)
+	 * 
+	 * @return true if the current client has locks or the lock.
+	 */
+
+	public boolean js_hasLocks() throws ServoyException
+	{
+		return js_hasLocks(null);
 	}
 
 	/**
@@ -2351,14 +2469,26 @@ public class JSDatabaseManager
 	 *
 	 * @sample databaseManager.releaseAllLocks('mylock')
 	 *
-	 * @param lock_name optional The lock name to release.
-	 * 
 	 * @return true if all locks or the lock is released. 
 	 */
-	public boolean js_releaseAllLocks(Object[] vargs) throws ServoyException
+	public boolean js_releaseAllLocks() throws ServoyException
 	{
 		checkAuthorized();
-		String lockName = (vargs != null && vargs.length > 0 && vargs[0] != null) ? vargs[0].toString() : null;
+		return js_releaseAllLocks(null);
+	}
+
+	/**
+	 * @clonedesc js_releaseAllLocks()
+	 * 
+	 * @sampleas js_releaseAllLocks()
+	 *  
+	 * @param lockName The lock name to release.
+	 * 
+	 * @return  true if all locks or the lock is released. 
+	 */
+	public boolean js_releaseAllLocks(String lockName) throws ServoyException
+	{
+		checkAuthorized();
 		return ((FoundSetManager)application.getFoundSetManager()).releaseAllLocks(lockName);
 	}
 
@@ -2550,26 +2680,46 @@ public class JSDatabaseManager
 	 * 
 	 * @param foundset/record optional A JSFoundset or a JSRecord to rollback
 	 */
-	public void js_rollbackEditedRecords(Object[] values) throws ServoyException
+	public void js_rollbackEditedRecords() throws ServoyException
 	{
 		checkAuthorized();
-		if (values.length == 0)
-		{
-			application.getFoundSetManager().getEditRecordList().rollbackRecords();
-		}
-		else
+		application.getFoundSetManager().getEditRecordList().rollbackRecords();
+	}
+
+	/**
+	 * @clonedesc js_rollbackEditedRecords()
+	 * 
+	 * @sampleas js_rollbackEditedRecords()
+	 *  
+	 * @param foundset A JSFoundset to rollback.
+	 */
+	public void js_rollbackEditedRecords(IFoundSetInternal foundset) throws ServoyException
+	{
+		checkAuthorized();
+		if (foundset != null)
 		{
 			List<IRecordInternal> records = new ArrayList<IRecordInternal>();
-			if (values[0] instanceof IRecordInternal)
-			{
-				records.add((IRecordInternal)values[0]);
-			}
-			if (values[0] instanceof IFoundSetInternal)
-			{
-				records.addAll(Arrays.asList(application.getFoundSetManager().getEditRecordList().getEditedRecords((IFoundSetInternal)values[0])));
-				records.addAll(Arrays.asList(application.getFoundSetManager().getEditRecordList().getFailedRecords((IFoundSetInternal)values[0])));
-			}
+			records.addAll(Arrays.asList(application.getFoundSetManager().getEditRecordList().getEditedRecords(foundset)));
+			records.addAll(Arrays.asList(application.getFoundSetManager().getEditRecordList().getFailedRecords(foundset)));
 			if (records.size() > 0) application.getFoundSetManager().getEditRecordList().rollbackRecords(records);
+		}
+	}
+
+	/**
+	 * @clonedesc js_rollbackEditedRecords()
+	 * 
+	 * @sampleas js_rollbackEditedRecords()
+	 * 
+	 * @param record A JSRecord to rollback.
+	 */
+	public void js_rollbackEditedRecords(IRecordInternal record) throws ServoyException
+	{
+		checkAuthorized();
+		if (record != null)
+		{
+			List<IRecordInternal> records = new ArrayList<IRecordInternal>();
+			records.add(record);
+			application.getFoundSetManager().getEditRecordList().rollbackRecords(records);
 		}
 	}
 
@@ -2602,49 +2752,58 @@ public class JSDatabaseManager
 	 * //	//do work on deeper relatedFoundSet
 	 * //}
 	 *
-	 * @param foundset/record A JSFoundset to test or a JSRecord for which to test a relation 
+	 * @param foundset A JSFoundset to test. 
 	 * @param qualifiedRelationString optional The relationname if the first param is a JSRecord.
 	 * 
 	 * @return true if the foundset/relation has records.
 	 */
-	public boolean js_hasRecords(Object[] values)
+	public boolean js_hasRecords(IFoundSetInternal foundset)
 	{
-		return hasRecords(values);
+		if (foundset != null)
+		{
+			return foundset.getSize() > 0;
+		}
+		return false;
 	}
 
-	public static boolean hasRecords(Object[] values)
+	/**
+	 * @clonedesc js_hasRecords(IFoundSetInternal)
+	 * 
+	 * @sampleas js_hasRecords(IFoundSetInternal)
+	 * 
+	 * @param record A JSRecord to test.
+	 * @param relationString The relation name.
+	 *
+	 * @return true if the foundset/relation has records.
+	 */
+	public boolean js_hasRecords(IRecordInternal record, String relationString)
 	{
-		if (values.length == 0) return false;
+		return hasRecords(record, relationString);
+	}
 
-		if (values[0] instanceof IFoundSetInternal)
+	public static boolean hasRecords(IRecordInternal record, String relationString)
+	{
+		if (record != null)
 		{
-			return (((IFoundSetInternal)values[0]).getSize() > 0);
-		}
-		else if (values[0] instanceof IRecordInternal)
-		{
-			IRecordInternal rec = (IRecordInternal)values[0];
-			if (values.length > 1)
+			boolean retval = false;
+			String relatedFoundSets = relationString;
+			StringTokenizer tk = new StringTokenizer(relatedFoundSets, "."); //$NON-NLS-1$
+			while (tk.hasMoreTokens())
 			{
-				boolean retval = false;
-				String relatedFoundSets = String.valueOf(values[1]);
-				StringTokenizer tk = new StringTokenizer(relatedFoundSets, "."); //$NON-NLS-1$
-				while (tk.hasMoreTokens())
+				String relationName = tk.nextToken();
+				IFoundSetInternal rfs = record.getRelatedFoundSet(relationName);
+				if (rfs != null && rfs.getSize() > 0)
 				{
-					String relationName = tk.nextToken();
-					IFoundSetInternal rfs = rec.getRelatedFoundSet(relationName);
-					if (rfs != null && rfs.getSize() > 0)
-					{
-						retval = true;
-						rec = rfs.getRecord(0);
-					}
-					else
-					{
-						retval = false;
-						break;
-					}
+					retval = true;
+					record = rfs.getRecord(0);
 				}
-				return retval;
+				else
+				{
+					retval = false;
+					break;
+				}
 			}
+			return retval;
 		}
 		return false;
 	}
@@ -2660,34 +2819,30 @@ public class JSDatabaseManager
 	 * 	//do save or something else
 	 * }
 	 *
-	 * @param foundset/record The JSFoundset or JSRecord to test if it has changes.
-	 * @param foundset_index optional The record index in the foundset to test (not specified means has the foundset any changed records)
+	 * @param foundset The JSFoundset to test if it has changes.
+	 * @param foundset_index The record index in the foundset to test (not specified means has the foundset any changed records)
 	 * 
 	 * @return true if there are changes in the JSFoundset or JSRecord.
 	 */
-	public boolean js_hasRecordChanges(Object[] values)
+	public boolean js_hasRecordChanges(IFoundSetInternal foundset, int index)
 	{
-		if (values.length == 0) return false;
+		if (foundset == null) return false;
 
 		IRecordInternal rec = null;
-		if (values[0] instanceof IFoundSetInternal)
+		if (index > 0)
 		{
-			int rec_ind = 0;
-			if (values.length > 1 && (rec_ind = Utils.getAsInteger(values[1])) > 0)
+			rec = foundset.getRecord(index - 1);
+		}
+		else
+		{
+			EditRecordList el = application.getFoundSetManager().getEditRecordList();
+			el.removeUnChangedRecords(true, false);
+			// first the quick way of testing the foundset itself.
+			if (el.hasEditedRecords(foundset))
 			{
-				rec = ((IFoundSetInternal)values[0]).getRecord(rec_ind - 1);
+				return true;
 			}
-			else
-			{
-				EditRecordList el = application.getFoundSetManager().getEditRecordList();
-				el.removeUnChangedRecords(true, false);
-				IFoundSetInternal foundset = (IFoundSetInternal)values[0];
-				// first the quick way of testing the foundset itself.
-				if (el.hasEditedRecords(foundset))
-				{
-					return true;
-				}
-				// if not found then look if other foundsets had record(s) that are changed that also are in this foundset.
+			// if not found then look if other foundsets had record(s) that are changed that also are in this foundset.
 //				String ds = foundset.getDataSource();
 //				IRecordInternal[] editedRecords = el.getEditedRecords();
 //				for (IRecordInternal editedRecord : editedRecords)
@@ -2704,16 +2859,38 @@ public class JSDatabaseManager
 //						}
 //					}
 //				}
-			}
+		}
+		return js_hasRecordChanges(rec);
+	}
 
-		}
-		else if (values[0] instanceof IRecordInternal)
+	/**
+	 * @clonedesc js_hasRecordChanges(IFoundSetInternal,int)
+	 * 
+	 * @sampleas js_hasRecordChanges(IFoundSetInternal,int)
+	 *  
+	 * @param foundset The JSFoundset to test if it has changes.
+	 * 
+	 * @return true if there are changes in the JSFoundset or JSRecord.
+	 */
+	public boolean js_hasRecordChanges(IFoundSetInternal foundset)
+	{
+		return js_hasRecordChanges(foundset, -1);
+	}
+
+	/**
+	 * @clonedesc js_hasRecordChanges(IFoundSetInternal,int)
+	 * 
+	 * @sampleas js_hasRecordChanges(IFoundSetInternal,int)
+	 *  
+	 * @param record The JSRecord to test if it has changes.
+	 * 
+	 * @return true if there are changes in the JSFoundset or JSRecord.
+	 */
+	public boolean js_hasRecordChanges(IRecordInternal record)
+	{
+		if (record != null && record.getRawData() != null)
 		{
-			rec = (IRecordInternal)values[0];
-		}
-		if (rec != null && rec.getRawData() != null)
-		{
-			return rec.getRawData().isChanged();
+			return record.getRawData().isChanged();
 		}
 		return false;
 	}
@@ -2735,65 +2912,84 @@ public class JSDatabaseManager
 	 * databaseManager.saveData();
 	 * databaseManager.commitTransaction();
 	 *
-	 * @param foundset/record The JSFoundset or JSRecord to test.
-	 * @param foundset_index optional The record index in the foundset to test (not specified means has the foundset any new records)
+	 * @param foundset The JSFoundset to test.
+	 * @param index The record index in the foundset to test (not specified means has the foundset any new records)
 	 * 
 	 * @return true if the JSFoundset has new records or JSRecord is a new record.
 	 */
-	public boolean js_hasNewRecords(Object[] values)
+	public boolean js_hasNewRecords(IFoundSetInternal foundset, int index)
 	{
-		if (values.length == 0) return false;
+		if (foundset == null) return false;
 
 		IRecordInternal rec = null;
-		if (values[0] instanceof IFoundSetInternal)
+		if (index > 0)
 		{
-			int rec_ind = 0;
-			if (values.length > 1 && (rec_ind = Utils.getAsInteger(values[1])) > 0)
+			rec = foundset.getRecord(index - 1);
+		}
+		else
+		{
+			EditRecordList el = application.getFoundSetManager().getEditRecordList();
+			// fist test quickly for this foundset only.
+			IRecordInternal[] editedRecords = el.getEditedRecords(foundset);
+			for (IRecordInternal editedRecord : editedRecords)
 			{
-				rec = ((IFoundSetInternal)values[0]).getRecord(rec_ind - 1);
-			}
-			else
-			{
-				IFoundSetInternal foundset = (IFoundSetInternal)values[0];
-				EditRecordList el = application.getFoundSetManager().getEditRecordList();
-				// fist test quickly for this foundset only.
-				IRecordInternal[] editedRecords = el.getEditedRecords(foundset);
-				for (IRecordInternal editedRecord : editedRecords)
+				IRecordInternal record = editedRecord;
+				if (record.getRawData() != null && !record.existInDataSource())
 				{
-					IRecordInternal record = editedRecord;
-					if (record.getRawData() != null && !record.existInDataSource())
-					{
-						return true;
-					}
+					return true;
 				}
-				// if not found then look if other foundsets had record(s) that are new that also are in this foundset.
-				String ds = foundset.getDataSource();
-				editedRecords = el.getEditedRecords();
-				for (IRecordInternal editedRecord : editedRecords)
+			}
+			// if not found then look if other foundsets had record(s) that are new that also are in this foundset.
+			String ds = foundset.getDataSource();
+			editedRecords = el.getEditedRecords();
+			for (IRecordInternal editedRecord : editedRecords)
+			{
+				IRecordInternal record = editedRecord;
+				if (record.getRawData() != null && !record.existInDataSource())
 				{
-					IRecordInternal record = editedRecord;
-					if (record.getRawData() != null && !record.existInDataSource())
+					if (record.getParentFoundSet().getDataSource().equals(ds))
 					{
-						if (record.getParentFoundSet().getDataSource().equals(ds))
+						if (foundset.getRecord(record.getPK()) != null)
 						{
-							if (foundset.getRecord(record.getPK()) != null)
-							{
-								return true;
-							}
+							return true;
 						}
 					}
 				}
-
 			}
 
 		}
-		else if (values[0] instanceof IRecordInternal)
+
+		return js_hasNewRecords(rec);
+	}
+
+	/**
+	 * @clonedesc js_hasNewRecords(IFoundSetInternal,int)
+	 * 
+	 * @sampleas js_hasNewRecords(IFoundSetInternal,int)
+	 * 
+	 * @param foundset The JSFoundset to test.
+	 * 
+	 * @return true if the JSFoundset has new records or JSRecord is a new record.
+	 */
+	public boolean js_hasNewRecords(IFoundSetInternal foundset)
+	{
+		return js_hasNewRecords(foundset, -1);
+	}
+
+	/**
+	 * @clonedesc js_hasNewRecords(IFoundSetInternal,int)
+	 * 
+	 * @sampleas js_hasNewRecords(IFoundSetInternal,int)
+	 * 
+	 * @param record The JSRecord to test.
+	 * 
+	 * @return true if the JSFoundset has new records or JSRecord is a new record.
+	 */
+	public boolean js_hasNewRecords(IRecordInternal record)
+	{
+		if (record != null && record.getRawData() != null)
 		{
-			rec = (IRecordInternal)values[0];
-		}
-		if (rec != null && rec.getRawData() != null)
-		{
-			return !rec.existInDataSource();
+			return !record.existInDataSource();
 		}
 		return false;
 	}
@@ -2826,7 +3022,94 @@ public class JSDatabaseManager
 	@Deprecated
 	public boolean js_copyMatchingColumns(Object[] values) throws ServoyException
 	{
-		return js_copyMatchingFields(values);
+		Object src = values[0];
+		Object dest = values[1];
+		List<Object> al = new ArrayList<Object>();
+		boolean overwrite = false;
+		if (values.length > 2)
+		{
+			if (values[2] instanceof Boolean)
+			{
+				overwrite = ((Boolean)values[2]).booleanValue();
+			}
+			else if (values[2].getClass().isArray())
+			{
+				al = Arrays.asList((Object[])values[2]);
+			}
+		}
+		return copyMatchingFields(src, (IRecordInternal)dest, overwrite, al.toArray());
+	}
+
+	public boolean copyMatchingFields(Object src, IRecordInternal dest, boolean overwrite, Object[] names) throws ServoyException
+	{
+		checkAuthorized();
+		List<Object> al = new ArrayList<Object>();
+		if (names != null)
+		{
+			al = Arrays.asList(names);
+		}
+		try
+		{
+			SQLSheet destSheet = dest.getParentFoundSet().getSQLSheet();
+			Table dest_table = destSheet.getTable();
+			boolean wasEditing = dest.isEditing();
+			Map<String, Method> getters = new HashMap<String, Method>();
+
+			if (dest.startEditing())
+			{
+				Iterator<Column> it = dest_table.getColumns().iterator();
+				while (it.hasNext())
+				{
+					Column c = it.next();
+					ColumnInfo ci = c.getColumnInfo();
+					if (ci != null && ci.isExcluded())
+					{
+						continue;
+					}
+
+					if (al.contains(c.getDataProviderID()))
+					{
+						// skip, also if value in dest_rec is null
+						continue;
+					}
+
+					Object dval = dest.getValue(c.getDataProviderID());
+					if (dval == null || (!dest_table.getRowIdentColumns().contains(c) && (overwrite || (al.size() > 0 && !al.contains(c.getDataProviderID())))))
+					{
+						if (src instanceof IRecordInternal)
+						{
+							IRecordInternal src_rec = (IRecordInternal)src;
+							int index = src_rec.getParentFoundSet().getSQLSheet().getColumnIndex(c.getDataProviderID());
+							if (index != -1)
+							{
+								Object sval = src_rec.getValue(c.getDataProviderID());
+								dest.setValue(c.getDataProviderID(), sval);
+							}
+						}
+						else if (src != null)
+						{
+							Method m = getMethod(src, c.getDataProviderID(), getters);
+							if (m != null)
+							{
+								Object sval = m.invoke(src, (Object[])null);
+								dest.setValue(c.getDataProviderID(), sval);
+							}
+						}
+					}
+				}
+
+				if (!wasEditing)
+				{
+					dest.stopEditing();
+				}
+				return true;
+			}
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+		}
+		return false;
 	}
 
 	/**
@@ -2859,95 +3142,44 @@ public class JSDatabaseManager
 	 *
 	 * @param src The source record or object to be copied.
 	 * @param dest_record The destination record to copy to.
-	 * @param overwrite/array_of_names_not_overwritten optional true (default false) if everything can be overwritten or an array of names that shouldnt be overwritten.
 	 * 
-	 * @return true if no errors happend.
+	 * @return true if no errors happened.
 	 */
-	public boolean js_copyMatchingFields(Object[] values) throws ServoyException
+	public boolean js_copyMatchingFields(Object source, IRecordInternal destination) throws ServoyException
 	{
-		checkAuthorized();
-		Object src = values[0];
-		Object dest = values[1];
-		List<Object> al = new ArrayList<Object>();
-		boolean overwrite = false;
-		if (values.length > 2)
-		{
-			if (values[2] instanceof Boolean)
-			{
-				overwrite = ((Boolean)values[2]).booleanValue();
-			}
-			else if (values[2].getClass().isArray())
-			{
-				al = Arrays.asList((Object[])values[2]);
-			}
-		}
-		if (dest instanceof IRecordInternal)
-		{
-			try
-			{
-				IRecordInternal dest_rec = (IRecordInternal)dest;
-				SQLSheet destSheet = dest_rec.getParentFoundSet().getSQLSheet();
-				Table dest_table = destSheet.getTable();
-				boolean wasEditing = dest_rec.isEditing();
-				Map<String, Method> getters = new HashMap<String, Method>();
+		return js_copyMatchingFields(source, destination, false);
+	}
 
-				if (dest_rec.startEditing())
-				{
-					Iterator<Column> it = dest_table.getColumns().iterator();
-					while (it.hasNext())
-					{
-						Column c = it.next();
-						ColumnInfo ci = c.getColumnInfo();
-						if (ci != null && ci.isExcluded())
-						{
-							continue;
-						}
+	/**
+	 * @clonedesc js_copyMatchingFields(Object,IRecordInternal)
+	 * 
+	 * @sampleas js_copyMatchingFields(Object,IRecordInternal) 
+	 * 
+	 * @param source The source record or object to be copied.
+	 * @param destination The destination record to copy to.
+	 * @param overwrite Boolean values to overwrite all values.
+	 
+	 * @return true if no errors happened.
+	 */
+	public boolean js_copyMatchingFields(Object source, IRecordInternal destination, boolean overwrite) throws ServoyException
+	{
+		return copyMatchingFields(source, destination, overwrite, null);
+	}
 
-						if (al.contains(c.getDataProviderID()))
-						{
-							// skip, also if value in dest_rec is null
-							continue;
-						}
-
-						Object dval = dest_rec.getValue(c.getDataProviderID());
-						if (dval == null ||
-							(!dest_table.getRowIdentColumns().contains(c) && (overwrite || (al.size() > 0 && !al.contains(c.getDataProviderID())))))
-						{
-							if (src instanceof IRecordInternal)
-							{
-								IRecordInternal src_rec = (IRecordInternal)src;
-								int index = src_rec.getParentFoundSet().getSQLSheet().getColumnIndex(c.getDataProviderID());
-								if (index != -1)
-								{
-									Object sval = src_rec.getValue(c.getDataProviderID());
-									dest_rec.setValue(c.getDataProviderID(), sval);
-								}
-							}
-							else if (src != null)
-							{
-								Method m = getMethod(src, c.getDataProviderID(), getters);
-								if (m != null)
-								{
-									Object sval = m.invoke(src, (Object[])null);
-									dest_rec.setValue(c.getDataProviderID(), sval);
-								}
-							}
-						}
-					}
-
-					if (!wasEditing)
-					{
-						dest_rec.stopEditing();
-					}
-					return true;
-				}
-			}
-			catch (Exception e)
-			{
-				Debug.error(e);
-			}
-		}
-		return false;
+	/**
+	 * @clonedesc js_copyMatchingFields(Object,IRecordInternal)
+	 * 
+	 * @sampleas js_copyMatchingFields(Object,IRecordInternal) 
+	 * 
+	 * @param source The source record or object to be copied.
+	 * @param destination The destination record to copy to.
+	 * @param names The property names that shouldn't be overriden.
+	 
+	 * @return true if no errors happened.
+	 */
+	public boolean js_copyMatchingFields(Object source, IRecordInternal destination, String[] names) throws ServoyException
+	{
+		return copyMatchingFields(source, destination, false, names);
 	}
 
 	/**

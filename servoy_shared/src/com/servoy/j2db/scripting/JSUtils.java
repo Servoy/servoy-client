@@ -65,7 +65,11 @@ public class JSUtils
 	@Deprecated
 	public boolean js_hasChildRecords(Object foundset)
 	{
-		return js_hasRecords(new Object[] { foundset });
+		if (foundset instanceof IFoundSetInternal)
+		{
+			return js_hasRecords((IFoundSetInternal)foundset);
+		}
+		return false;
 	}
 
 	/**
@@ -84,13 +88,33 @@ public class JSUtils
 	 * //	//do work on deeper relatedFoundSet
 	 * //}
 	 *
-	 * @param foundset_or_record the foundset or record to be tested
-	 * @param qualifiedRelationString optional the qualified relation string to reach a related foundset if a record is passes as first paramter
+	 * @param foundset the foundset to be tested
+
 	 * @return true if exists 
 	 */
-	public boolean js_hasRecords(Object[] values)//needed for calcs
+
+	public boolean js_hasRecords(IFoundSetInternal foundset)//needed for calcs
 	{
-		return JSDatabaseManager.hasRecords(values);
+		if (foundset != null)
+		{
+			return foundset.getSize() > 0;
+		}
+		return false;
+	}
+
+	/**
+	 * @clonedesc js_hasRecords(IFoundSetInternal)
+	 * 
+	 * @sampleas js_hasRecords(IFoundSetInternal)
+	 * 
+	 * @param record A JSRecord to test.
+	 * @param relationString The relation name.
+	 *
+	 * @return true if the foundset/relation has records.
+	 */
+	public boolean js_hasRecords(IRecordInternal record, String relationString)
+	{
+		return JSDatabaseManager.hasRecords(record, relationString);
 	}
 
 	/**
