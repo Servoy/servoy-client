@@ -49,7 +49,7 @@ public class QBParameters extends QBScope
 	public Object get(String name, Scriptable start)
 	{
 		Object obj = super.get(name, start);
-		if (obj != null)
+		if (obj != null && obj != Scriptable.NOT_FOUND)
 		{
 			return obj;
 		}
