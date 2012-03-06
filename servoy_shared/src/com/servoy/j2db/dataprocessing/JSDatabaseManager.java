@@ -1800,37 +1800,64 @@ public class JSDatabaseManager
 	 * var columnSQLName = jscolumn.getSQLName();
 	 * var isPrimaryKey = jscolumn.isRowIdentifier();
 	 *
-	 * @param foundset/record/datasource (only db-defined)/server_name The data where the JSTable can be get from.
-	 * @param table_name optional The tablename of the first param is a servername string.
+	 * @param foundset The foundset where the JSTable can be get from.
 	 * 
 	 * @return the JSTable get from the input.
 	 */
-	public JSTable js_getTable(Object source) throws ServoyException
+	public JSTable js_getTable(IFoundSetInternal foundset) throws ServoyException
 	{
 		String serverName = null;
 		String tableName = null;
-		if (source instanceof IFoundSetInternal)
+		if (foundset != null && foundset.getTable() != null)
 		{
-			IFoundSetInternal fs = (IFoundSetInternal)source;
-			if (fs.getTable() != null)
-			{
-				serverName = fs.getTable().getServerName();
-				tableName = fs.getTable().getName();
-			}
+			serverName = foundset.getTable().getServerName();
+			tableName = foundset.getTable().getName();
 		}
-		if (source instanceof IRecordInternal)
+		return js_getTable(serverName, tableName);
+	}
+
+	/**
+	 * @clonedesc js_getTable(Object)
+	 * 
+	 * @sampleas js_getTable(Object) 
+	 *  
+	 * @param record The record where the table can be get from.
+	 * 
+	 * @return the JSTable get from the input.
+	 */
+
+	public JSTable js_getTable(IRecordInternal record) throws ServoyException
+	{
+		String serverName = null;
+		String tableName = null;
+		if (record != null)
 		{
-			IRecordInternal rec = (IRecordInternal)source;
-			IFoundSetInternal fs = rec.getParentFoundSet();
+			IFoundSetInternal fs = record.getParentFoundSet();
 			if (fs != null && fs.getTable() != null)
 			{
 				serverName = fs.getTable().getServerName();
 				tableName = fs.getTable().getName();
 			}
 		}
-		if (source instanceof String)
+		return js_getTable(serverName, tableName);
+	}
+
+	/**
+	 * @clonedesc js_getTable(Object)
+	 * 
+	 * @sampleas js_getTable(Object) 
+	 *  
+	 * @param dataSource The datasource where the table can be get from.
+	 * 
+	 * @return the JSTable get from the input.
+	 */
+	public JSTable js_getTable(String dataSource) throws ServoyException
+	{
+		String serverName = null;
+		String tableName = null;
+		if (dataSource != null)
 		{
-			String[] server_table = DataSourceUtils.getDBServernameTablename(source.toString());
+			String[] server_table = DataSourceUtils.getDBServernameTablename(dataSource);
 			if (server_table != null)
 			{
 				serverName = server_table[0];
@@ -1847,7 +1874,7 @@ public class JSDatabaseManager
 	 *  
 	 * @param serverName Server name.
 	 * @param tableName Table name.
-	
+	 * 	
 	 * @return the JSTable get from the input.
 	 */
 	public JSTable js_getTable(String serverName, String tableName) throws ServoyException
@@ -2071,7 +2098,7 @@ public class JSDatabaseManager
 		}
 		if (dataSource instanceof String)
 		{
-			JSTable jstable = js_getTable(new Object[] { dataSource.toString() });
+			JSTable jstable = js_getTable(dataSource.toString());
 			if (jstable != null)
 			{
 				table = jstable.getTable();
