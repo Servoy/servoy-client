@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.server.headlessclient.dataui;
 
+import java.text.ParseException;
 import java.util.Iterator;
 import java.util.List;
 
@@ -34,12 +35,17 @@ import org.apache.wicket.util.convert.IConverter;
 import org.apache.wicket.util.value.IValueMap;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
+import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.dataui.StripHTMLTagsConverter.StrippedText;
+import com.servoy.j2db.smart.dataui.ServoyMaskFormatter;
 import com.servoy.j2db.ui.IDisplayTagText;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeBaseComponent;
+import com.servoy.j2db.ui.scripting.IFormatScriptComponent;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Text;
@@ -151,7 +157,24 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 				if (icon != null) setIcon(null);
 				if (value instanceof String)
 				{
-					bodyText = Text.processTags((String)value, resolver);
+					ComponentFormat cf = getComponentFormat();
+					if (cf == null)
+					{
+						bodyText = Text.processTags((String)value, resolver);
+					}
+					else
+					{
+						try
+						{
+							bodyText = Text.processTags(TagResolver.formatObject(value, cf.parsedFormat, (cf.parsedFormat.getDisplayFormat() != null
+								? new ServoyMaskFormatter(cf.parsedFormat.getDisplayFormat(), true) : null)), resolver);
+						}
+						catch (ParseException e)
+						{
+							Debug.error(e);
+						}
+					}
+
 				}
 				else
 				{
@@ -165,17 +188,35 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 		}
 		else
 		{
-			if (getDefaultModelObject() instanceof byte[])
+			Object modelObject = getDefaultModelObject();
+			if (modelObject instanceof byte[])
 			{
-				setIcon((byte[])getDefaultModelObject());
-				if (model instanceof RecordItemModel)
-				{
-					((RecordItemModel)model).updateRenderedValue(this);
-				}
-				return;
+				setIcon((byte[])modelObject);
 			}
-			if (icon != null) setIcon(null);
-			bodyText = getDefaultModelObjectAsString();
+			else if (icon != null)
+			{
+				setIcon(null);
+			}
+			else
+			{
+				ComponentFormat cf = getComponentFormat();
+				if (cf == null)
+				{
+					bodyText = Text.processTags(tagText, resolver);
+				}
+				else
+				{
+					try
+					{
+						bodyText = TagResolver.formatObject(modelObject, cf.parsedFormat, (cf.parsedFormat.getDisplayFormat() != null
+							? new ServoyMaskFormatter(cf.parsedFormat.getDisplayFormat(), true) : null));
+					}
+					catch (ParseException e)
+					{
+						Debug.error(e);
+					}
+				}
+			}
 		}
 		if (HtmlUtils.startsWithHtml(bodyText))
 		{
@@ -190,6 +231,15 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 		{
 			((RecordItemModel)model).updateRenderedValue(this);
 		}
+	}
+
+	protected ComponentFormat getComponentFormat()
+	{
+		if (getScriptObject() instanceof IFormatScriptComponent)
+		{
+			return ((IFormatScriptComponent)getScriptObject()).getComponentFormat();
+		}
+		return null;
 	}
 
 	/**
