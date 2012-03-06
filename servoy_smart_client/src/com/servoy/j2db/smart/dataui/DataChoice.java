@@ -45,6 +45,7 @@ import javax.swing.JList;
 import javax.swing.JRadioButton;
 import javax.swing.JToggleButton;
 import javax.swing.ListCellRenderer;
+import javax.swing.ListModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -125,7 +126,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		enclosedComponent = new JNavigableEditList();
 		eventExecutor = new EventExecutor(this, enclosedComponent);
 		enclosedComponent.addKeyListener(eventExecutor);
-		enclosedComponent.setModel(list);
+		enclosedComponent.setModel(createJListModel(list));
 
 		if (choiceType == Field.RADIOS)
 		{
@@ -155,6 +156,21 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 //		enclosedComponent.setPrototypeCellValue(new Integer(0));
 
 		getViewport().setView(enclosedComponent);
+	}
+
+	protected ListModel createJListModel(ComboModelListModelWrapper comboModel)
+	{
+		return comboModel;
+	}
+
+	protected boolean isRowSelected(int idx)
+	{
+		return list.isRowSelected(idx);
+	}
+
+	protected void setElementAt(Object b, int idx)
+	{
+		list.setElementAt(b, idx);
 	}
 
 	protected boolean shouldPaintSelection()
@@ -431,10 +447,9 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 
 		public Component getListCellEditorComponent(JEditList editList, Object value, boolean isSelected, int index)
 		{
-			ComboModelListModelWrapper model = (ComboModelListModelWrapper)editList.getModel();
 			if (editorComponent == null) createEditor();
 			editorComponent.setFont(editList.getFont());
-			((JToggleButton)editorComponent).setSelected(model.isRowSelected(index));
+			((JToggleButton)editorComponent).setSelected(isRowSelected(index));
 			editorComponent.setForeground(editList.getForeground());
 //			editorComponent.setBackground(editList.getBackground()); 
 			if (value == null)
@@ -455,9 +470,8 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 
 		public Component getListCellRendererComponent(JList editList, Object value, int index, boolean isSelected, boolean cellHasFocus)
 		{
-			ComboModelListModelWrapper model = (ComboModelListModelWrapper)editList.getModel();
 			if (rendererComponent == null) createRenderer();
-			((JToggleButton)rendererComponent).setSelected(model.isRowSelected(index));
+			((JToggleButton)rendererComponent).setSelected(isRowSelected(index));
 			rendererComponent.setFont(editList.getFont());
 			rendererComponent.setEnabled(editList.isEnabled());
 			rendererComponent.setForeground(editList.getForeground());
@@ -649,8 +663,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 			}
 			if (editorComponent == null) createEditor();
 			editorComponent.setFont(editList.getFont());
-			ComboModelListModelWrapper model = (ComboModelListModelWrapper)editList.getModel();
-			if (model.isRowSelected(index) && paintSelection)
+			if (isRowSelected(index) && paintSelection)
 			{
 				((JLabel)editorComponent).setBackground(editList.getSelectionBackground());
 				editorComponent.setForeground(editList.getSelectionForeground());
@@ -688,8 +701,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 			{
 				return new VariableSizeJSeparator(SwingConstants.HORIZONTAL, 15);
 			}
-			ComboModelListModelWrapper model = (ComboModelListModelWrapper)editList.getModel();
-			if (model.isRowSelected(index) && paintSelection)
+			if (isRowSelected(index) && paintSelection)
 			{
 				((JLabel)rendererComponent).setBackground(editList.getSelectionBackground());
 				rendererComponent.setForeground(editList.getSelectionForeground());
@@ -743,18 +755,17 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		{
 			if (SwingUtilities.isLeftMouseButton(e))
 			{
-				ComboModelListModelWrapper model = (ComboModelListModelWrapper)enclosedComponent.getModel();
-				boolean selected = model.isRowSelected(enclosedComponent.getEditingRow());
+				boolean selected = isRowSelected(enclosedComponent.getEditingRow());
 				if (!UIUtils.isCommandKeyDown(e) && choiceType == Field.MULTI_SELECTION_LIST_BOX)
 				{
-					model.setMultiValueSelect(false);
+					list.setMultiValueSelect(false);
 				}
 				if (selected)
 				{
-					if (!UIUtils.isCommandKeyDown(e) && choiceType == Field.MULTI_SELECTION_LIST_BOX && model.getSelectedRows().size() > 1)
+					if (!UIUtils.isCommandKeyDown(e) && choiceType == Field.MULTI_SELECTION_LIST_BOX && list.getSelectedRows().size() > 1)
 					{
 						// clear the selection list
-						model.setElementAt(Boolean.FALSE, enclosedComponent.getEditingRow());
+						setElementAt(Boolean.FALSE, enclosedComponent.getEditingRow());
 					}
 					else
 					{
@@ -766,7 +777,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 					((JLabel)editorComponent).setBackground(enclosedComponent.getSelectionBackground());
 				}
 				stopCellEditing();
-				model.setMultiValueSelect(choiceType == Field.MULTI_SELECTION_LIST_BOX);
+				list.setMultiValueSelect(choiceType == Field.MULTI_SELECTION_LIST_BOX);
 			}
 		}
 
