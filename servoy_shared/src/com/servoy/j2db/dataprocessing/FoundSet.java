@@ -127,6 +127,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				{
 					name = m.getName().substring(3);
 				}
+				else if (m.getName().startsWith("jsFunction_")) //$NON-NLS-1$
+				{
+					name = m.getName().substring(11);
+				}
 				else if (AnnotationManager.getInstance().isAnnotationPresent(m, JSFunction.class))
 				{
 					name = m.getName();
