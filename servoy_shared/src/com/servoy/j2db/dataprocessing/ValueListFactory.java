@@ -61,24 +61,15 @@ public class ValueListFactory
 			{
 				set = (IDataSet)data;
 			}
-			if (set.getColumnCount() == 1)
+			if (set.getColumnCount() >= 1)
 			{
 				Object[] displayValues = new Object[set.getRowCount()];
-				for (int i = 0; i < set.getRowCount(); i++)
-				{
-					displayValues[i] = set.getRow(i)[0];
-				}
-				((CustomValueList)newVl).fillWithArrayValues(displayValues);
-			}
-			else if (set.getColumnCount() >= 2)
-			{
-				Object[] displayValues = new Object[set.getRowCount()];
-				Object[] realValues = new Object[set.getRowCount()];
+				Object[] realValues = (set.getColumnCount() >= 2 ? new Object[set.getRowCount()] : null);
 				for (int i = 0; i < set.getRowCount(); i++)
 				{
 					Object[] row = set.getRow(i);
 					displayValues[i] = row[0];
-					realValues[i] = row[1];
+					if (set.getColumnCount() >= 2) realValues[i] = row[1];
 				}
 				((CustomValueList)newVl).fillWithArrayValues(displayValues, realValues);
 			}

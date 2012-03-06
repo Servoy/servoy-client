@@ -344,11 +344,6 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 		}
 	}
 
-	public void fillWithArrayValues(Object[] dispaly_val_array)
-	{
-		fillWithArrayValuesImpl(dispaly_val_array, null);
-	}
-
 	private void fillWithArrayValuesImpl(Object[] display_val_array, List<Object> newRealValues)
 	{
 		if (display_val_array != null && display_val_array.length == 1 && display_val_array[0] != null &&
@@ -405,24 +400,27 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 
 	public void fillWithArrayValues(Object[] display_val_array, Object[] allRealValues)
 	{
-		List<Object> newRrealValues = new SafeArrayList<Object>(allRealValues.length);
-
-		//add empty row
-		if (allowEmptySelection)
+		List<Object> newRrealValues = null;
+		if (allRealValues != null)
 		{
-			newRrealValues.add(null);
-		}
+			newRrealValues = new SafeArrayList<Object>(allRealValues.length);
 
-		for (Object obj : allRealValues)
-		{
-			if (valueType != Types.OTHER && Column.mapToDefaultType(valueType) != IColumnTypes.MEDIA)
+			//add empty row
+			if (allowEmptySelection)
 			{
-				obj = Column.getAsRightType(valueType, Column.NORMAL_COLUMN, obj, format == null ? null : format.getDisplayFormat(), Integer.MAX_VALUE, null,
-					false);
+				newRrealValues.add(null);
 			}
-			newRrealValues.add(obj);
-		}
 
+			for (Object obj : allRealValues)
+			{
+				if (valueType != Types.OTHER && Column.mapToDefaultType(valueType) != IColumnTypes.MEDIA)
+				{
+					obj = Column.getAsRightType(valueType, Column.NORMAL_COLUMN, obj, format == null ? null : format.getDisplayFormat(), Integer.MAX_VALUE,
+						null, false);
+				}
+				newRrealValues.add(obj);
+			}
+		}
 		fillWithArrayValuesImpl(display_val_array, newRrealValues);
 	}
 
