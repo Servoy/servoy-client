@@ -1256,7 +1256,6 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 
 	public Object getCellEditorValue()
 	{
-		System.err.println("cell editor value");
 		try
 		{
 			// test if currentEditing state isn't deleted already
@@ -1270,7 +1269,6 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			}
 
 			gettingEditorValue = true;
-			System.err.println("cell editor value 2");
 			if (comp instanceof IDelegate< ? >)
 			{
 				comp = ((IDelegate< ? >)comp).getDelegate();
