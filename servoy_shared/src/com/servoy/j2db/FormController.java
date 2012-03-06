@@ -203,7 +203,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * Shows the form (makes the form visible), optionally showing it in the specified JSWindow.
+		 * Shows the form (makes the form visible)
 		 * This function does not affect the form foundset in any way.
 		 * @sample
 		 * // show the form in the current window/dialog
@@ -220,7 +220,6 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
 		 *
-		 * @param window optional the window in which this form should be shown. If it is unspecified the current window will be used.
 		 */
 		// Deprecated implementation:
 		// Shows the form (makes the form visible), optionally shown in the specified (modal or not) dialog.
@@ -232,10 +231,28 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		//
 		// @param dialogName optional the dialog/window name
 		// @param modal optional boolean indicating modality for dialogs; default value is false
-		public void js_show(Object[] args) throws ServoyException
+		public void js_show() throws ServoyException
+		{
+			js_show(null);
+		}
+
+		/**
+		 * @clonedesc js_show()
+		 * @sampleas js_show()
+		 * @param window the window in which this form should be shown
+		 * @throws ServoyException
+		 */
+		public void js_show(Object window) throws ServoyException
 		{
 			checkDestroyed();
-			formController.showForm(args);
+			formController.showForm(window, null);
+		}
+
+		@Deprecated
+		public void js_show(Object window, Object isModal) throws ServoyException
+		{
+			checkDestroyed();
+			formController.showForm(window, new Object[] { isModal });
 		}
 
 		/**
@@ -246,8 +263,10 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		@Deprecated
 		public void js_showRelatedRecords(Object[] args) throws ServoyException//obsolete,will not show in script editor
 		{
-			checkDestroyed();
-			formController.show(args);
+			if (args != null && args.length > 1)
+			{
+				showRecords(args[0], args[1], args.length > 2 ? new Object[] { args[2] } : null);
+			}
 		}
 
 		/**
@@ -262,13 +281,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * var w = application.getWindow("mydialog"); // use null name for main app. window
 		 * %%prefix%%controller.showRecords(foundset, w);
 		 * 
-		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
-		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
-		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(Object[])
-		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object[])
-		 * 
-		 * @param data the foundset/pkdataset/singleNumber_pk/UUIDpk to load before showing the form.
-		 * @param window optional the window in which this form should be shown.
+		 * @param foundset the foundset to load before showing the form.
 		 */
 		// Deprecated implementation:
 		// //show the form in the named modal dialog 
@@ -277,10 +290,150 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		// @param dialogName optional the dialog name
 		// @param modal optional boolean indicating modality for dialogs; default value is false
 		//
-		public void js_showRecords(Object[] args) throws ServoyException
+		public void js_showRecords(FoundSet foundset) throws ServoyException
+		{
+			showRecords(foundset, null, null);
+		}
+
+		/**
+		 * @clonedesc js_showRecords(FoundSet)
+		 * @sampleas js_showRecords(FoundSet)
+		 * 
+		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
+		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
+		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(Object[])
+		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object[])
+		 * 
+		 * @param founset the foundset to load before showing the form.
+		 * @param window the window in which this form should be shown.
+		 */
+		public void js_showRecords(FoundSet foundset, Object window) throws ServoyException
+		{
+			showRecords(foundset, window, null);
+		}
+
+		/**
+		 * @clonedesc js_showRecords(FoundSet)
+		 * @sampleas js_showRecords(FoundSet)
+		 * 
+		 * @param pkdataset the pkdataset to load before showing the form.
+		 */
+		public void js_showRecords(JSDataSet pkdataset) throws ServoyException
+		{
+			showRecords(pkdataset, null, null);
+		}
+
+		/**
+		 * @clonedesc js_showRecords(FoundSet)
+		 * @sampleas js_showRecords(FoundSet)
+		 * 
+		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
+		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
+		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(Object[])
+		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object[])
+		 *  
+		 * @param pkdataset the pkdataset to load before showing the form.
+		 * @param window the window in which this form should be shown.
+		 */
+		public void js_showRecords(JSDataSet pkdataset, Object window) throws ServoyException
+		{
+			showRecords(pkdataset, window, null);
+		}
+
+		/**
+		 * @clonedesc js_showRecords(FoundSet)
+		 * @sampleas js_showRecords(FoundSet)
+		 * 
+		 * @param singleNumber_pk the singleNumber_pk to load before showing the form.
+		 */
+		public void js_showRecords(Number singleNumber_pk) throws ServoyException
+		{
+			showRecords(singleNumber_pk, null, null);
+		}
+
+		/**
+		 * @clonedesc js_showRecords(FoundSet)
+		 * @sampleas js_showRecords(FoundSet)
+		 * 
+		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
+		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
+		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(Object[])
+		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object[])
+		 *  
+		 * @param singleNumber_pk the singleNumber_pk to load before showing the form.
+		 * @param window the window in which this form should be shown.
+		 */
+		public void js_showRecords(Number singleNumber_pk, Object window) throws ServoyException
+		{
+			showRecords(singleNumber_pk, window, null);
+		}
+
+		/**
+		 * @clonedesc js_showRecords(FoundSet)
+		 * @sampleas js_showRecords(FoundSet)
+		 * 
+		 * @param query the query to load before showing the form.
+		 */
+		public void js_showRecords(String query) throws ServoyException
+		{
+			showRecords(query, null, null);
+		}
+
+		/**
+		 * @clonedesc js_showRecords(FoundSet)
+		 * @sampleas js_showRecords(FoundSet)
+		 * 
+		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
+		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
+		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(Object[])
+		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object[])
+		 *  
+		 * @param query the query to load before showing the form.
+		 * @param window the window in which this form should be shown.
+		 */
+		public void js_showRecords(String query, Object window) throws ServoyException
+		{
+			showRecords(query, window, null);
+		}
+
+		/**
+		 * @clonedesc js_showRecords(FoundSet)
+		 * @sampleas js_showRecords(FoundSet)
+		 * 
+		 * @param UUIDpk the UUIDpk to load before showing the form.
+		 */
+		public void js_showRecords(UUID UUIDpk) throws ServoyException
+		{
+			showRecords(UUIDpk, null, null);
+		}
+
+		/**
+		 * @clonedesc js_showRecords(FoundSet)
+		 * @sampleas js_showRecords(FoundSet)
+		 * 
+		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
+		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
+		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(Object[])
+		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object[]) 
+		 * 
+		 * @param UUIDpk the UUIDpk to load before showing the form.
+		 * @param window the window in which this form should be shown.
+		 */
+		public void js_showRecords(UUID UUIDpk, Object window) throws ServoyException
+		{
+			showRecords(UUIDpk, window, null);
+		}
+
+		@Deprecated
+		public void js_showRecords(Object foundset, Object dialogName, Object modal) throws ServoyException
+		{
+			showRecords(foundset, dialogName, new Object[] { modal });
+		}
+
+		private void showRecords(Object data, Object window, Object[] windowArgs) throws ServoyException
 		{
 			checkDestroyed();
-			formController.show(args);
+			formController.show(data, window, windowArgs);
 		}
 
 		/**
@@ -377,34 +530,81 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * //-must at least select from the table used in Servoy Form
 		 * //-cannot contain 'group by', 'having' or 'union'
 		 * //-all columns must be fully qualified like 'orders.order_id'
-		 *
-		 * @param data optional the foundset/pkdataset/singlenNmber_pk/UUIDpk/queryString to load
-		 * @param queryArgumentsArray optional the arguments to replace the questions marks in the queryString 
+		 * 
 		 * @return true if successful
-		 * @see com.servoy.j2db.dataprocessing.FoundSet#js_loadRecords(Object[])
+		 * @see com.servoy.j2db.dataprocessing.FoundSet#js_loadRecords()
 		 */
-		public boolean js_loadRecords(Object[] vargs) throws ServoyException
+		public boolean js_loadRecords() throws ServoyException
 		{
 			checkDestroyed();
-			if (vargs != null && vargs.length == 1)
-			{
-				return formController.loadData(vargs[0], null);
-			}
-			else if (vargs != null && vargs.length == 2)
-			{
-				if (vargs[1] instanceof Object[])
-				{
-					return formController.loadData(vargs[0], (Object[])vargs[1]);
-				}
-				else
-				{
-					return formController.loadData(vargs[0], null);
-				}
-			}
-			else
-			{
-				return formController.loadAllRecordsImpl(false);
-			}
+			return formController.loadAllRecordsImpl(false);
+		}
+
+		/**
+		 * @clonedesc js_loadRecords()
+		 * @param foundset to load
+		 * @return true if successful
+		 */
+		public boolean js_loadRecords(FoundSet foundset)
+		{
+			checkDestroyed();
+			return formController.loadData(foundset, null);
+		}
+
+		/**
+		 * @clonedesc js_loadRecords()
+		 * @param pkdataset to load
+		 * @return true if successful
+		 */
+		public boolean js_loadRecords(JSDataSet pkdataset)
+		{
+			checkDestroyed();
+			return formController.loadData(pkdataset, null);
+		}
+
+		/**
+		 * @clonedesc js_loadRecords()
+		 * @param singlenNmber_pk to load
+		 * @return true if successful
+		 */
+		public boolean js_loadRecords(Number singlenNmber_pk)
+		{
+			checkDestroyed();
+			return formController.loadData(singlenNmber_pk, null);
+		}
+
+		/**
+		 * @clonedesc js_loadRecords()
+		 * @param UUIDpk to load
+		 * @return true if successful
+		 */
+		public boolean js_loadRecords(UUID UUIDpk)
+		{
+			checkDestroyed();
+			return formController.loadData(UUIDpk, null);
+		}
+
+		/**
+		 * @clonedesc js_loadRecords()
+		 * @param queryString to load
+		 * @return true if successful
+		 */
+		public boolean js_loadRecords(String queryString)
+		{
+			checkDestroyed();
+			return formController.loadData(queryString, null);
+		}
+
+		/**
+		 * @clonedesc js_loadRecords()
+		 * @param queryString to load
+		 * @param queryArgumentsArray the arguments to replace the questions marks in the queryString
+		 * @return true if successful
+		 */
+		public boolean js_loadRecords(String queryString, Object[] queryArgumentsArray)
+		{
+			checkDestroyed();
+			return formController.loadData(queryString, queryArgumentsArray);
 		}
 
 		/**
@@ -748,55 +948,42 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @sameas com.servoy.j2db.dataprocessing.FoundSet#js_search(Object[])
+		 * @sameas com.servoy.j2db.dataprocessing.FoundSet#js_search()
 		 * @sample
 		 * var recordCount = %%prefix%%controller.search();
 		 * //var recordCount = %%prefix%%controller.search(false,false); //to extend foundset
 		 */
-		public int js_search(Object[] vargs) throws ServoyException
+		public int js_search() throws ServoyException
+		{
+			return js_search(true, true);
+		}
+
+		/**
+		 * @sameas com.servoy.j2db.dataprocessing.FoundSet#js_search()
+		 * @sampleas js_search()
+		 */
+		public int js_search(boolean clearLastResults) throws ServoyException
+		{
+			return js_search(clearLastResults, true);
+		}
+
+		/**
+		 * @sameas com.servoy.j2db.dataprocessing.FoundSet#js_search()
+		 * @sampleas js_search()
+		 */
+		public int js_search(boolean clearLastResults, boolean reduceSearch) throws ServoyException
 		{
 			checkDestroyed();
-			boolean clearLastResults = true;
-			boolean reduceSearch = true;
-			if (vargs != null && vargs.length >= 1)
-			{
-				clearLastResults = Utils.getAsBoolean(vargs[0]);
-			}
-			if (vargs != null && vargs.length >= 2)
-			{
-				reduceSearch = Utils.getAsBoolean(vargs[1]);
-			}
 			int nfound = formController.performFindImpl(clearLastResults, reduceSearch, false);
 			return nfound < 0 ? 0/* blocked */: nfound;
 		}
 
 		/**
-		 * @deprecated  As of release 5.0, replaced by {@link #showPrintPreview(Object[])}
+		 * @deprecated  As of release 5.0, replaced by {@link #showPrintPreview()}
 		 */
 		@Deprecated
 		public void js_printPreview(Object[] vargs) //obsolete,will not show in script editor
 		{
-			js_showPrintPreview(vargs);
-		}
-
-		/**
-		 * Show this form in print preview.
-		 *
-		 * @sample
-		 * //shows this form (with foundset records) in print preview
-		 * %%prefix%%controller.showPrintPreview();
-		 * //to print preview current record only
-		 * //%%prefix%%controller.showPrintPreview(true);
-		 * //to print preview current record only with 125% zoom factor; 
-		 * //%%prefix%%controller.showPrintPreview(true, null, 125);
-		 *
-		 * @param printCurrentRecordOnly optional to print the current record only
-		 * @param printerJob optional print to plugin printer job, see pdf printer plugin for example (incase print is used from printpreview)
-		 * @param zoomFactor optional a specified number value from 10-400
-		 */
-		public void js_showPrintPreview(Object[] vargs)
-		{
-			checkDestroyed();
 			boolean printCurrentRecordOnly = false;
 			PrinterJob printerJob = null;
 			int zoomFactor = 100;
@@ -820,8 +1007,62 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 					}
 				}
 			}
-			// if null it uses the javaxp.printing PrinterJob.getPrinterJob();
-			formController.printPreview(false, printCurrentRecordOnly, zoomFactor, printerJob);
+
+			js_showPrintPreview(printCurrentRecordOnly, printerJob, zoomFactor);
+		}
+
+		/**
+		 * Show this form in print preview.
+		 *
+		 * @sample
+		 * //shows this form (with foundset records) in print preview
+		 * %%prefix%%controller.showPrintPreview();
+		 * //to print preview current record only
+		 * //%%prefix%%controller.showPrintPreview(true);
+		 * //to print preview current record only with 125% zoom factor; 
+		 * //%%prefix%%controller.showPrintPreview(true, null, 125);
+		 *
+		 */
+		public void js_showPrintPreview()
+		{
+			js_showPrintPreview(false, null, 100);
+		}
+
+		/**
+		 * @clonedesc js_showPrintPreview()
+		 * @sampleas js_showPrintPreview()
+		 * @param printCurrentRecordOnly to print the current record only
+		 */
+		public void js_showPrintPreview(boolean printCurrentRecordOnly)
+		{
+			js_showPrintPreview(printCurrentRecordOnly, null, 100);
+		}
+
+		/**
+		 * @clonedesc js_showPrintPreview()
+		 * @sampleas js_showPrintPreview()
+		 *
+		 * @param printCurrentRecordOnly to print the current record only
+		 * @param printerJob print to plugin printer job, see pdf printer plugin for example (incase print is used from printpreview)
+		 * 
+		 */
+		public void js_showPrintPreview(boolean printCurrentRecordOnly, PrinterJob printerJob)
+		{
+			js_showPrintPreview(printCurrentRecordOnly, printerJob, 100);
+		}
+
+		/**
+		 * @clonedesc js_showPrintPreview()
+		 * @sampleas js_showPrintPreview()
+		 *
+		 * @param printCurrentRecordOnly to print the current record only
+		 * @param printerJob print to plugin printer job, see pdf printer plugin for example (incase print is used from printpreview)
+		 * @param zoomFactor a specified number value from 10-400
+		 */
+		public void js_showPrintPreview(boolean printCurrentRecordOnly, PrinterJob printerJob, int zoomFactor)
+		{
+			checkDestroyed();
+			formController.printPreview(false, printCurrentRecordOnly, zoomFactor <= 0 ? 100 : zoomFactor, printerJob);
 		}
 
 		/**
@@ -833,31 +1074,43 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * //print only current record (no printerSelectDialog) to pdf plugin printer
 		 * //%%prefix%%controller.print(true,false,plugins.pdf_output.getPDFPrinter('c:/temp/out.pdf'));
 		 *
-		 * @param printCurrentRecordOnly optional to print the current record only
-		 * @param showPrinterSelectDialog optional boolean to show the printer select dialog (default printer is normally used)  
-		 * @param printerJob optional print to plugin printer job, see pdf printer plugin for example
 		 */
-		public void js_print(Object[] vargs)
+		public void js_print()
+		{
+			js_print(false, true, null);
+		}
+
+		/**
+		 * @clonedesc js_print()
+		 * @sampleas js_print()
+		 * @param printCurrentRecordOnly to print the current record only
+		 */
+		public void js_print(boolean printCurrentRecordOnly)
+		{
+			js_print(printCurrentRecordOnly, true, null);
+		}
+
+		/**
+		 * @clonedesc js_print()
+		 * @sampleas js_print()
+		 * @param printCurrentRecordOnly to print the current record only
+		 * @param showPrinterSelectDialog boolean to show the printer select dialog (default printer is normally used)  
+		 */
+		public void js_print(boolean printCurrentRecordOnly, boolean showPrinterSelectDialog)
+		{
+			js_print(printCurrentRecordOnly, showPrinterSelectDialog, null);
+		}
+
+		/**
+		 * @clonedesc js_print()
+		 * @sampleas js_print()
+		 * @param printCurrentRecordOnly to print the current record only
+		 * @param showPrinterSelectDialog boolean to show the printer select dialog (default printer is normally used)  
+		 * @param printerJob print to plugin printer job, see pdf printer plugin for example
+		 */
+		public void js_print(boolean printCurrentRecordOnly, boolean showPrinterSelectDialog, PrinterJob printerJob)
 		{
 			checkDestroyed();
-			boolean printCurrentRecordOnly = false;
-			if (vargs != null && vargs.length >= 1)
-			{
-				printCurrentRecordOnly = Utils.getAsBoolean(vargs[0]);
-			}
-			boolean showPrinterSelectDialog = true;
-			if (vargs != null && vargs.length >= 2)
-			{
-				showPrinterSelectDialog = Utils.getAsBoolean(vargs[1]);
-			}
-			//for real printing
-			PrinterJob printerJob = null;
-			if (vargs != null && vargs.length == 3 && vargs[2] instanceof PrinterJob)
-			{
-				printerJob = (PrinterJob)vargs[2];
-			}
-
-			// if null it uses the javaxp.printing PrinterJob.getPrinterJob();
 			formController.print(false, printCurrentRecordOnly, showPrinterSelectDialog, printerJob);
 		}
 
@@ -870,17 +1123,23 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * //print only current record 
 		 * //var xml = %%prefix%%controller.printXML(true);
 		 *
-		 * @param printCurrentRecordOnly optional to print the current record only
 		 * @return the XML 
 		 */
-		public String js_printXML(Object[] vargs)
+		public String js_printXML()
+		{
+			return js_printXML(false);
+		}
+
+		/**
+		 * @clonedesc js_printXML()
+		 * @sampleas js_printXML()
+		 *
+		 * @param printCurrentRecordOnly to print the current record only
+		 * @return the XML 
+		 */
+		public String js_printXML(boolean printCurrentRecordOnly)
 		{
 			checkDestroyed();
-			boolean printCurrentRecordOnly = false;
-			if (vargs != null && vargs.length >= 1)
-			{
-				printCurrentRecordOnly = Utils.getAsBoolean(vargs[0]);
-			}
 			return formController.printXML(printCurrentRecordOnly);
 		}
 
@@ -940,26 +1199,53 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * @sampleas jsFunction_setDesignMode(boolean)
 		 *
 		 * @param ondrag org.mozilla.javascript.Function onDrag method reference 
+		 */
+		public void jsFunction_setDesignMode(Function onDrag)
+		{
+			jsFunction_setDesignMode(onDrag, null, null, null);
+		}
+
+		/**
+		 * Sets this form in designmode with one or more callback methods. 
+		 *
+		 * @sampleas jsFunction_setDesignMode(boolean)
+		 *
+		 * @param ondrag org.mozilla.javascript.Function onDrag method reference 
+		 * @param ondrop org.mozilla.javascript.Function onDrop method reference 
+		 */
+		public void jsFunction_setDesignMode(Function onDrag, Function onDrop)
+		{
+			jsFunction_setDesignMode(onDrag, onDrop, null, null);
+		}
+
+		/**
+		 * Sets this form in designmode with one or more callback methods. 
+		 *
+		 * @sampleas jsFunction_setDesignMode(boolean)
+		 *
+		 * @param ondrag org.mozilla.javascript.Function onDrag method reference 
+		 * @param ondrop org.mozilla.javascript.Function onDrop method reference 
+		 * @param onselect org.mozilla.javascript.Function onSelect method reference
+		 */
+		public void jsFunction_setDesignMode(Function onDrag, Function onDrop, Function onSelect)
+		{
+			jsFunction_setDesignMode(onDrag, onDrop, onSelect, null);
+		}
+
+		/**
+		 * Sets this form in designmode with one or more callback methods. 
+		 *
+		 * @sampleas jsFunction_setDesignMode(boolean)
+		 *
+		 * @param ondrag org.mozilla.javascript.Function onDrag method reference 
 		 * @param ondrop org.mozilla.javascript.Function onDrop method reference 
 		 * @param onselect org.mozilla.javascript.Function onSelect method reference
 		 * @param onresize org.mozilla.javascript.Function onResize method reference
 		 */
-		public void jsFunction_setDesignMode(Object[] args)
+		public void jsFunction_setDesignMode(Function onDrag, Function onDrop, Function onSelect, Function onResize)
 		{
 			checkDestroyed();
-			if (args == null)
-			{
-				jsFunction_setDesignMode(false);
-			}
-			else if (args.length == 1 && args[0] instanceof Boolean)
-			{
-				boolean b = ((Boolean)args[0]).booleanValue();
-				jsFunction_setDesignMode(b);
-			}
-			else
-			{
-				formController.setDesignMode(new DesignModeCallbacks(args, formController.application));
-			}
+			formController.setDesignMode(new DesignModeCallbacks(new Function[] { onDrag, onDrop, onSelect, onResize }, formController.application));
 		}
 
 		/**
@@ -1008,29 +1294,41 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * %%prefix%%controller.newRecord();//default adds on top
 		 * //%%prefix%%controller.newRecord(false); //adds at bottom
 		 * //%%prefix%%controller.newRecord(2); //adds as second record
-		 *
-		 * @param location optional boolean true adds the new record as the topmost record, or adds at specified index 
+		 * 
 		 * @return true if succesful
 		 */
-		public boolean js_newRecord(Object[] vargs) throws ServoyException
+		public boolean js_newRecord() throws ServoyException
+		{
+			return js_newRecord(true);
+		}
+
+		/**
+		 * @clonedesc js_newRecord()
+		 * @sampleas js_newRecord()
+		 * @param location boolean true adds the new record as the topmost record
+		 * @return true if successful
+		 */
+		public boolean js_newRecord(boolean location) throws ServoyException
 		{
 			checkDestroyed();
-			int indexToAdd = 0;
-			if (vargs != null && vargs.length > 0)
-			{
-				if (vargs.length >= 1 && vargs[0] instanceof Boolean)
-				{
-					indexToAdd = (Utils.getAsBoolean(vargs[0]) ? 0 : Integer.MAX_VALUE);
-				}
-				else if (vargs.length >= 1 && vargs[0] instanceof Number)
-				{
-					indexToAdd = Utils.getAsInteger(vargs[0], true) - 1;
-				}
-			}
+			return formController.newRecordImpl(location ? 0 : Integer.MAX_VALUE);
+		}
+
+		/**
+		 * @clonedesc js_newRecord()
+		 * @sampleas js_newRecord()
+		 * @param location adds at specified index
+		 * @return true if successful
+		 */
+		public boolean js_newRecord(int location) throws ServoyException
+		{
+			checkDestroyed();
+			int indexToAdd = location - 1;
 			if (indexToAdd >= 0)
 			{
 				return formController.newRecordImpl(indexToAdd);
 			}
+
 			return false;
 		}
 
@@ -1051,25 +1349,36 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * %%prefix%%controller.duplicateRecord(); //duplicate the current record, adds on top
 		 * //%%prefix%%controller.duplicateRecord(false); //duplicate the current record, adds at bottom
 		 * //%%prefix%%controller.duplicateRecord(1,2); //duplicate the first record as second record
-		 *
-		 * @param location optional boolean true adds the new record as the topmost record, or adds at specified index 
+		 * 
 		 * @return true if succesful
 		 */
-		public boolean js_duplicateRecord(Object[] vargs) throws ServoyException
+		public boolean js_duplicateRecord() throws ServoyException
+		{
+			return js_duplicateRecord(true);
+		}
+
+		/**
+		 * @clonedesc js_duplicateRecord()
+		 * @sampleas js_duplicateRecord()
+		 * @param location boolean true adds the new record as the topmost record
+		 * @return true if successful
+		 */
+		public boolean js_duplicateRecord(boolean location) throws ServoyException
 		{
 			checkDestroyed();
-			int indexToAdd = 0;
-			if (vargs != null && vargs.length > 0)
-			{
-				if (vargs.length >= 1 && vargs[0] instanceof Boolean)
-				{
-					indexToAdd = (Utils.getAsBoolean(vargs[0]) ? 0 : Integer.MAX_VALUE);
-				}
-				else if (vargs.length >= 1 && vargs[0] instanceof Number)
-				{
-					indexToAdd = Utils.getAsInteger(vargs[0], true) - 1;
-				}
-			}
+			return formController.duplicateRecordImpl(location ? 0 : Integer.MAX_VALUE);
+		}
+
+		/**
+		 * @clonedesc js_duplicateRecord()
+		 * @sampleas js_duplicateRecord()
+		 * @param location adds at specified index
+		 * @return true if successful
+		 */
+		public boolean js_duplicateRecord(int location) throws ServoyException
+		{
+			checkDestroyed();
+			int indexToAdd = location - 1;
 			if (indexToAdd >= 0)
 			{
 				return formController.duplicateRecordImpl(indexToAdd);
@@ -1208,14 +1517,24 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * Show the sort dialog to the user a preselection sortString can be passed, to sort the form foundset.
 		 * TIP: You can use the Copy button in the developer Select Sorting Fields dialog to get the needed syntax string for the desired sort fields/order. 
 		 * 
-		 * @sample %%prefix%%controller.sortDialog('columnA desc,columnB asc');
-		 *
-		 * @param sortString optional the specified columns (and sort order) 
+		 * @sample %%prefix%%controller.sortDialog('columnA desc,columnB asc'); 
 		 */
-		public void js_sortDialog(Object[] vargs)
+		public void js_sortDialog()
 		{
 			checkDestroyed();
-			formController.showSortDialog((vargs.length > 0 && vargs[0] instanceof String) ? (String)vargs[0] : null);
+			formController.showSortDialog(null);
+		}
+
+		/**
+		 * @clonedes js_sortDialog()
+		 * @sampleas js_sortDialog()
+		 *
+		 * @param sortString the specified columns (and sort order) 
+		 */
+		public void js_sortDialog(String sortString)
+		{
+			checkDestroyed();
+			formController.showSortDialog(sortString);
 		}
 
 		/**
@@ -1225,15 +1544,23 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * @sample %%prefix%%controller.sort('columnA desc,columnB asc');
 		 *
 		 * @param sortString the specified columns (and sort order)
-		 * @param defer optional the "sortString" will be just stored, without performing a query on the database (the actual sorting will be deferred until the next data loading action).
 		 */
-		public void js_sort(Object[] vargs)
+		public void js_sort(String sortString)
+		{
+			js_sort(sortString, false);
+		}
+
+		/**
+		 * @clonedesc js_sort(String)
+		 * @sampleas js_sort(String)
+		 *
+		 * @param sortString the specified columns (and sort order)
+		 * @param defer the "sortString" will be just stored, without performing a query on the database (the actual sorting will be deferred until the next data loading action).
+		 */
+		public void js_sort(String sortString, boolean defer)
 		{
 			checkDestroyed();
-			if (vargs.length == 0) return;
-			String options = (String)vargs[0];
-			boolean defer = vargs.length < 2 ? false : Utils.getAsBoolean(vargs[1]);
-			formController.sort(options, defer);
+			formController.sort(sortString, defer);
 		}
 
 		/**
@@ -1367,20 +1694,45 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * @param rightmargin the specified right margin of the page to be printed.
 		 * @param topmargin the specified top margin of the page to be printed.
 		 * @param bottommargin the specified bottom margin of the page to be printed.
-		 * @param orientation optional the specified orientation of the page to be printed; the default is Portrait mode
-		 * @param units optional the specified units for the width and height of the page to be printed; the default is pixels
 		 */
-		public void jsFunction_setPageFormat(Object[] vargs)
+		public void jsFunction_setPageFormat(double width, double height, double leftmargin, double rightmargin, double topmargin, double bottommargin)
+		{
+			jsFunction_setPageFormat(width, height, leftmargin, rightmargin, topmargin, bottommargin, PageFormat.PORTRAIT, 2);
+		}
+
+		/**
+		 * @clonedesc jsFunction_setPageFormat(double, double, double, double, double, double)
+		 * @sampleas jsFunction_setPageFormat(double, double, double, double, double, double)
+		 * @param width the specified width of the page to be printed.
+		 * @param height the specified height of the page to be printed.
+		 * @param leftmargin the specified left margin of the page to be printed.
+		 * @param rightmargin the specified right margin of the page to be printed.
+		 * @param topmargin the specified top margin of the page to be printed.
+		 * @param bottommargin the specified bottom margin of the page to be printed. 
+		 * @param orientation the specified orientation of the page to be printed; the default is Portrait mode
+		 */
+		public void jsFunction_setPageFormat(double width, double height, double leftmargin, double rightmargin, double topmargin, double bottommargin,
+			int orientation)
+		{
+			jsFunction_setPageFormat(width, height, leftmargin, rightmargin, topmargin, bottommargin, orientation, 2);
+		}
+
+		/**
+		 * @clonedesc jsFunction_setPageFormat(double, double, double, double, double, double)
+		 * @sampleas jsFunction_setPageFormat(double, double, double, double, double, double)
+		 * @param width the specified width of the page to be printed.
+		 * @param height the specified height of the page to be printed.
+		 * @param leftmargin the specified left margin of the page to be printed.
+		 * @param rightmargin the specified right margin of the page to be printed.
+		 * @param topmargin the specified top margin of the page to be printed.
+		 * @param bottommargin the specified bottom margin of the page to be printed. 
+		 * @param orientation the specified orientation of the page to be printed; the default is Portrait mode
+		 * @param units the specified units for the width and height of the page to be printed; the default is pixels
+		 */
+		public void jsFunction_setPageFormat(double width, double height, double leftmargin, double rightmargin, double topmargin, double bottommargin,
+			int orientation, int unitCode)
 		{
 			checkDestroyed();
-			double width = vargs.length <= 0 ? 0 : Utils.getAsDouble(vargs[0]);
-			double height = vargs.length <= 1 ? 0 : Utils.getAsDouble(vargs[1]);
-			double lm = vargs.length <= 2 ? 0 : Utils.getAsDouble(vargs[2]);
-			double rm = vargs.length <= 3 ? 0 : Utils.getAsDouble(vargs[3]);
-			double tm = vargs.length <= 4 ? 0 : Utils.getAsDouble(vargs[4]);
-			double bm = vargs.length <= 5 ? 0 : Utils.getAsDouble(vargs[5]);
-			int orientation = vargs.length <= 6 ? PageFormat.PORTRAIT : Utils.getAsInteger(vargs[6]);
-			int unitCode = vargs.length <= 7 ? 2 /* pixels */: Utils.getAsInteger(vargs[7]);
 
 			// translate the unit codes defined for this method to units used in the PageFormat classes
 			int units;
@@ -1397,7 +1749,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 					break;
 			}
 
-			PageFormat pf = Utils.createPageFormat(width, height, lm, rm, tm, bm, orientation, units);
+			PageFormat pf = Utils.createPageFormat(width, height, leftmargin, rightmargin, topmargin, bottommargin, orientation, units);
 			formController.setPageFormat(pf);
 		}
 
@@ -2085,22 +2437,17 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 */
 	}
 
-	public boolean show(Object[] args) throws ServoyException
+	public boolean show(Object data, Object window, Object[] windowArgs) throws ServoyException
 	{
-		Object data = null;
-		if (args.length >= 1)
-		{
-			data = args[0];
-		}
 		boolean b = loadData(data, null); //notify visible will show the data and set selected record
 		if (!b) return false;
-		if (args.length > 1)
+		if (window != null)
 		{
-			showForm(Utils.arraySub(args, 1, args.length));
+			showForm(window, windowArgs);
 		}
 		else
 		{
-			showForm(null);
+			showForm(null, null);
 		}
 		return true;
 	}
@@ -2418,7 +2765,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		sort(sortColumns, defer);
 	}
 
-	void showForm(Object[] args) throws ServoyException
+	void showForm(Object window, Object[] windowArgs) throws ServoyException
 	{
 		if (!application.getFlattenedSolution().formCanBeInstantiated(getForm()))
 		{
@@ -2426,14 +2773,13 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			throw new ApplicationException(ServoyException.ABSTRACT_FORM);
 		}
 
-		if (args == null || args.length == 0)
+		if (window == null)
 		{
 			fm.showFormInCurrentContainer(getName());
 		}
-		else if (args.length >= 1)
+		else
 		{
-			Object name = args[0];
-			if (args[0] instanceof String)
+			if (window instanceof String)
 			{
 				Rectangle rect = new Rectangle(-1, -1, -1, -1);
 				String title = null;
@@ -2441,30 +2787,30 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				boolean showTextToolbar = false;
 				boolean modal = false;
 				boolean dialog = true;
-				if (args.length > 1)
+				if (windowArgs != null && windowArgs.length > 0)
 				{
-					if (args[1] == null)
+					if (windowArgs[0] == null)
 					{
 						dialog = false;
 					}
 					else
 					{
-						modal = Utils.getAsBoolean(args[1]);
+						modal = Utils.getAsBoolean(windowArgs[0]);
 					}
 				}
 
 				if (dialog)
 				{
-					fm.showFormInDialog(getName(), rect, title, resizeble, showTextToolbar, true, modal, (String)name);
+					fm.showFormInDialog(getName(), rect, title, resizeble, showTextToolbar, true, modal, (String)window);
 				}
 				else
 				{
-					fm.showFormInFrame(getName(), rect, title, resizeble, showTextToolbar, (String)name);
+					fm.showFormInFrame(getName(), rect, title, resizeble, showTextToolbar, (String)window);
 				}
 			}
-			else if (args[0] instanceof JSWindow)
+			else if (window instanceof JSWindow)
 			{
-				((JSWindow)args[0]).getImpl().show(getName());
+				((JSWindow)window).getImpl().show(getName());
 			}
 			else
 			{

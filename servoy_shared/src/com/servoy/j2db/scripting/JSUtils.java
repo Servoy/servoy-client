@@ -40,6 +40,7 @@ import com.servoy.j2db.dataprocessing.JSDatabaseManager;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.RoundHalfUpDecimalFormat;
 import com.servoy.j2db.util.Settings;
@@ -1076,26 +1077,38 @@ public class JSUtils
 	 * @sample var escapedText = utils.stringEscapeMarkup('<html><body>escape me</body></html>')
 	 *
 	 * @param textString the text to process
-	 * @param escapeSpaces optional boolean indicating to escape spaces
-	 * @param convertToHtmlUnicodeEscapes optional boolean indicating to use unicode escapes
 	 * @return the escaped text
 	 */
-	public String js_stringEscapeMarkup(Object[] vargs)
+	public String js_stringEscapeMarkup(String textString)
 	{
-		String val = ((vargs.length >= 1 && vargs[0] != null) ? vargs[0].toString() : null);
-		CharSequence retval = null;
-		if (vargs.length == 1)
-		{
-			retval = Utils.escapeMarkup(val);
-		}
-		else if (vargs.length == 2)
-		{
-			retval = Utils.escapeMarkup(val, Utils.getAsBoolean(vargs[1]));
-		}
-		else if (vargs.length >= 3)
-		{
-			retval = Utils.escapeMarkup(val, Utils.getAsBoolean(vargs[1]), Utils.getAsBoolean(vargs[2]));
-		}
+		return js_stringEscapeMarkup(textString, false, false);
+	}
+
+	/**
+	 * @clonedesc js_stringEscapeMarkup(String)
+	 * @sampleas js_stringEscapeMarkup(String) 
+	 *
+	 * @param textString the text to process
+	 * @param escapeSpaces boolean indicating to escape spaces
+	 * @return the escaped text
+	 */
+	public String js_stringEscapeMarkup(String textString, boolean escapeSpaces)
+	{
+		return js_stringEscapeMarkup(textString, escapeSpaces, false);
+	}
+
+	/**
+	 * @clonedesc js_stringEscapeMarkup(String)
+	 * @sampleas js_stringEscapeMarkup(String) 
+	 *
+	 * @param textString the text to process
+	 * @param escapeSpaces boolean indicating to escape spaces
+	 * @param convertToHtmlUnicodeEscapes boolean indicating to use unicode escapes
+	 * @return the escaped text
+	 */
+	public String js_stringEscapeMarkup(String textString, boolean escapeSpaces, boolean convertToHtmlUnicodeEscapes)
+	{
+		CharSequence retval = HtmlUtils.escapeMarkup(textString, escapeSpaces, convertToHtmlUnicodeEscapes);
 		return (retval != null ? retval.toString() : null);
 	}
 

@@ -22,10 +22,10 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.Messages;
@@ -211,27 +211,34 @@ public class JSI18N
 	 * var timeZoneOffset = i18n.getTimeZoneOffset('America/Los_Angeles');
 	 *
 	 * @param timezone The time zone to get the offset for.
+	 * 
+	 * @return an int representing the time zone's offset from UTC.
+	 */
+	public int js_getTimeZoneOffset(String timeZoneId)
+	{
+		TimeZone timeZone = TimeZone.getTimeZone(timeZoneId);
+		if (timeZone != null)
+		{
+			return timeZone.getOffset(System.currentTimeMillis());
+		}
+		return 0;
+	}
+
+	/**
+	 * @clonedesc js_getTimeZoneOffset(String)
+	 * @sampleas js_getTimeZoneOffset(String)
+	 * @param timezone The time zone to get the offset for.
 	 *
 	 * @param date optional The date in the time zone (default current date). Needed in case daylight saving time/GMT offset changes are used in the time zone.
 	 * 
 	 * @return an int representing the time zone's offset from UTC.
 	 */
-	public int js_getTimeZoneOffset(Object[] vargs)
+	public int js_getTimeZoneOffset(String timeZoneId, Date date)
 	{
-		if (vargs == null || vargs.length == 0 || vargs[0] == null) return 0;
-
-		String timeZoneId = vargs[0].toString();
 		TimeZone timeZone = TimeZone.getTimeZone(timeZoneId);
-		if (timeZone != null)
+		if (timeZone != null && date != null)
 		{
-			if (vargs.length > 1 && vargs[1] instanceof Date)
-			{
-				return timeZone.getOffset(((Date)vargs[1]).getTime());
-			}
-			else
-			{
-				return timeZone.getOffset(System.currentTimeMillis());
-			}
+			return timeZone.getOffset(date.getTime());
 		}
 		return 0;
 	}
