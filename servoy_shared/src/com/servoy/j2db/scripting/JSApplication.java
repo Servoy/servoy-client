@@ -608,6 +608,20 @@ public class JSApplication implements IReturnedTypesProvider
 	 * 
 	 * @param name Name of the valuelist
 	 * @param displayValues Display values array
+	 * @param autoconvert Boolean (true) if display values and return values should be converted to numbers
+	 */
+	public void js_setValueListItems(String name, Object[] displayValues, boolean autoconvert)
+	{
+		js_setValueListItems(name, displayValues, null, autoconvert);
+	}
+
+	/**
+	 * @clonedesc js_setValueListItems(String,Object[])
+	 * 
+	 * @sampleas js_setValueListItems(String,Object[])
+	 * 
+	 * @param name Name of the valuelist
+	 * @param displayValues Display values array
 	 * @param realValues Real values array
 	 */
 	public void js_setValueListItems(String name, Object[] displayValues, Object[] realValues)
