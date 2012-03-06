@@ -42,7 +42,6 @@ import org.mozilla.javascript.MemberBox;
 import org.mozilla.javascript.NativeJavaArray;
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.Wrapper;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.ApplicationException;
@@ -792,6 +791,44 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Start the database search and use the results, returns the number of records, make sure you did "find" function first.
+	 * Clear results from previous searches.
+	 *
+	 * Note: Omitted records are automatically excluded when performing a search - meaning that the foundset result by default will not include omitted records.
+	 * 
+	 * @sampleas js_loadRecords(QBSelect)
+	 *
+	 * @param clearLastResults boolean, clear previous search, default true  
+	 * 
+	 * @return the recordCount
+	 * 
+	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_find()
+	 */
+	public int js_search() throws ServoyException
+	{
+		return js_search(true, true);
+	}
+
+	/**
+	 * Start the database search and use the results, returns the number of records, make sure you did "find" function first.
+	 * Reduce results from previous searches.
+	 *
+	 * Note: Omitted records are automatically excluded when performing a search - meaning that the foundset result by default will not include omitted records.
+	 * 
+	 * @sampleas js_loadRecords(QBSelect)
+	 *
+	 * @param clearLastResults boolean, clear previous search, default true  
+	 * 
+	 * @return the recordCount
+	 * 
+	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_find()
+	 */
+	public int js_search(boolean clearLastResults) throws ServoyException
+	{
+		return js_search(clearLastResults, true);
+	}
+
+	/**
+	 * Start the database search and use the results, returns the number of records, make sure you did "find" function first.
 	 *
 	 * Note: Omitted records are automatically excluded when performing a search - meaning that the foundset result by default will not include omitted records.
 	 * 
@@ -799,27 +836,17 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * var recordCount = %%prefix%%foundset.search();
 	 * //var recordCount = %%prefix%%foundset.search(false,false); //to extend foundset
 	 *
-	 * @param clearLastResults optional boolean, clear previous search, default true  
-	 * @param reduceSearch optional boolean, reduce (true) or extend (false) previous search results, default true
+	 * @param clearLastResults boolean, clear previous search, default true  
+	 * @param reduceSearch boolean, reduce (true) or extend (false) previous search results, default true
 	 * 
 	 * @return the recordCount
 	 * 
 	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_find()
 	 */
-	public int js_search(Object[] vargs) throws ServoyException
+	public int js_search(boolean clearLastResults, boolean reduceSearch) throws ServoyException
 	{
 		if (isInFindMode())
 		{
-			boolean clearLastResults = true;
-			boolean reduceSearch = true;
-			if (vargs != null && vargs.length >= 1 && vargs[0] instanceof Boolean)
-			{
-				clearLastResults = ((Boolean)vargs[0]).booleanValue();
-			}
-			if (vargs != null && vargs.length >= 2 && vargs[1] instanceof Boolean)
-			{
-				reduceSearch = ((Boolean)vargs[1]).booleanValue();
-			}
 			int nfound = performFind(clearLastResults, reduceSearch, true);
 			return nfound < 0 ? /* blocked */0 : nfound;
 		}
@@ -951,6 +978,135 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return false;
 	}
 
+	protected boolean checkLoadRecordsAllowed(boolean allowRelated)
+	{
+		if (isInFindMode() || sheet.getTable() == null)
+		{
+			return false;
+		}
+
+		if (!allowRelated && relationName != null) // on related foundset, only allow loadRecords without arguments
+		{
+			return false;
+		}
+
+		if (isInitialized())
+		{
+			int stopped = fsm.getEditRecordList().stopIfEditing(this);
+			if (stopped != ISaveConstants.STOPPED && stopped != ISaveConstants.AUTO_SAVE_BLOCKED)
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * @clonedesc js_loadRecords(QBSelect)
+	 * @sampleas js_loadRecords(QBSelect)
+	 *
+	 * @return true if successful
+	 */
+	public boolean js_loadRecords() throws ServoyException
+	{
+		if (!checkLoadRecordsAllowed(true))
+		{
+			return false;
+		}
+		loadAllRecords();
+		return true;
+	}
+
+	/**
+	 * @clonedesc js_loadRecords(QBSelect)
+	 * @sampleas js_loadRecords(QBSelect)
+	 *
+	 * @param dataset pkdataset
+	 * @return true if successful
+	 */
+	public boolean js_loadRecords(IDataSet dataset) throws ServoyException
+	{
+		return checkLoadRecordsAllowed(false) && loadExternalPKList(dataset);
+	}
+
+	/**
+	 * @clonedesc js_loadRecords(QBSelect)
+	 * @sampleas js_loadRecords(QBSelect)
+	 *
+	 * @param foundset
+	 * @return true if successful
+	 */
+	public boolean js_loadRecords(FoundSet foundset)
+	{
+		return checkLoadRecordsAllowed(false) && copyFrom(foundset);
+	}
+
+	/**
+	 * @clonedesc js_loadRecords(QBSelect)
+	 * @sampleas js_loadRecords(QBSelect)
+	 *
+	 * @param query select statement
+	 * @param argumentsArray arguments to query
+	 * @return true if successful
+	 */
+	public boolean js_loadRecords(String query, Object[] argumentsArray) throws ServoyException
+	{
+		return checkLoadRecordsAllowed(false) && loadByQuery(query, argumentsArray);
+	}
+
+	/**
+	 * @clonedesc js_loadRecords(QBSelect)
+	 * @sampleas js_loadRecords(QBSelect)
+	 *
+	 * @param query select statement
+	 * @return true if successful
+	 */
+	public boolean js_loadRecords(String query) throws ServoyException
+	{
+		return js_loadRecords(query, null);
+	}
+
+	/**
+	 * @clonedesc js_loadRecords(QBSelect)
+	 * @sampleas js_loadRecords(QBSelect)
+	 *
+	 * @param pk single-column pk value
+	 * @return true if successful
+	 */
+	public boolean js_loadRecords(Number pk) throws ServoyException
+	{
+		return loadRecordsBySinglePK(pk);
+	}
+
+	/**
+	 * @clonedesc js_loadRecords(QBSelect)
+	 * @sampleas js_loadRecords(QBSelect)
+	 *
+	 * @param pk single-column pk value
+	 * @return true if successful
+	 */
+	public boolean js_loadRecords(UUID pk) throws ServoyException
+	{
+		return loadRecordsBySinglePK(pk);
+	}
+
+	protected boolean loadRecordsBySinglePK(Object pk) throws ServoyException
+	{
+		if (!checkLoadRecordsAllowed(false))
+		{
+			return false;
+		}
+
+		List<Column> pkColumns = sheet.getTable() == null ? null : sheet.getTable().getRowIdentColumns();
+		if (pkColumns != null && pkColumns.size() == 1)
+		{
+			return loadExternalPKList(new BufferedDataSet(new String[] { pkColumns.get(0).getName() }, Collections.singletonList(new Object[] { pk })));
+		}
+
+		return false;
+	}
+
 	/**
 	 * Load records with primary key (dataset/number/uuid) or query.
 	 *
@@ -1012,105 +1168,44 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * //-cannot contain 'group by', 'having' or 'union'
 	 * //-all columns must be fully qualified like 'orders.order_id'
 	 *
-	 * @param input optional foundset/pkdataset/single_pk/query
-	 * @param queryArgumentsArray optional used when input is a query
+	 * @param query query builder
 	 * @return true if successful
 	 */
-	public boolean js_loadRecords(Object[] vargs) throws ServoyException
+	public boolean js_loadRecords(QBSelect query) throws ServoyException
 	{
-		if (isInFindMode() || sheet.getTable() == null)
-		{
-			return false;
-		}
-
-		if (vargs == null || vargs.length == 0)
-		{
-			loadAllRecords();
-			return true;
-		}
-
-		if (relationName != null) // on related foundset, only allow loadRecords without arguments
-		{
-			return false;
-		}
-
-		if (isInitialized())
-		{
-			int stopped = fsm.getEditRecordList().stopIfEditing(this);
-			if (stopped != ISaveConstants.STOPPED && stopped != ISaveConstants.AUTO_SAVE_BLOCKED)
-			{
-				return false;
-			}
-		}
-
-		Object[] args = null;
-		Object data = vargs[0];
-		if (vargs.length >= 2)
-		{
-			if (vargs[1] instanceof Object[])
-			{
-				args = (Object[])vargs[1];
-			}
-		}
-
-		if (data instanceof Wrapper)
-		{
-			data = ((Wrapper)data).unwrap();
-		}
-
-		if (data instanceof IDataSet)
-		{
-			return loadExternalPKList((IDataSet)data);
-		}
-		if (data instanceof FoundSet)
-		{
-			return copyFrom((FoundSet)data);
-		}
-		if (data instanceof String)
-		{
-			return loadByQuery((String)data, args);
-		}
-		if (data instanceof QBSelect)
-		{
-			return loadByQuery((QBSelect)data);
-		}
-		if (data instanceof Number || data instanceof UUID)
-		{
-			List<Column> pkColumns = sheet.getTable() == null ? null : sheet.getTable().getRowIdentColumns();
-			if (pkColumns != null && pkColumns.size() == 1)
-			{
-				List<Object[]> rows = new ArrayList<Object[]>();
-				rows.add(new Object[] { data });
-				BufferedDataSet dataset = new BufferedDataSet(new String[] { pkColumns.get(0).getName() }, rows);
-				return loadExternalPKList(dataset);
-			}
-			return false;
-		}
-		loadAllRecords();
-		return true;
+		return checkLoadRecordsAllowed(false) && loadByQuery(query);
 	}
 
 	/**
-	 * Perform a relookup for the current record or the record under the given index
+	 * Perform a relookup for the record under the given index
 	 * Lookups are defined in the dataprovider (columns) auto-enter setting and are normally performed over a relation upon record creation.
 	 *
 	 * @sample %%prefix%%foundset.relookup(1);
-	 * @param index optional record index (1-based) 
+	 * @param index record index (1-based) 
 	 */
-	public void js_relookup(Object[] args)
+	public void js_relookup(int index)
 	{
-		int i;
-		if (args == null || args.length != 1)
+		if (isInitialized() && index > 0 && index <= getSize())
 		{
-			i = getSelectedIndex();
+			processCopyValues(index - 1);
 		}
-		else
+	}
+
+	/**
+	 * Perform a relookup for the current records
+	 * Lookups are defined in the dataprovider (columns) auto-enter setting and are normally performed over a relation upon record creation.
+	 *
+	 * @sample %%prefix%%foundset.relookup(1);
+	 * @param index record index (1-based) 
+	 */
+	public void js_relookup()
+	{
+		if (isInitialized())
 		{
-			i = Utils.getAsInteger(args[0], true) - 1;
-		}
-		if (isInitialized() && i >= 0 && i < getSize())
-		{
-			processCopyValues(i);
+			for (int i : getSelectedIndexes())
+			{
+				processCopyValues(i);
+			}
 		}
 	}
 
@@ -2081,38 +2176,57 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * Delete current/parameter record or the record under the given index.
-	 * If the foundset is in multiselect mode, all selected records are deleted (when no parameter is used).
+	 * Delete record with the given index.
+	 *
+	 * @sample
+	 * var success = %%prefix%%foundset.deleteRecord(4);
+	 * //can return false incase of related foundset having records and orphans records are not allowed by the relation
+	 *
+	 * @param index index of record to delete.
+	 * 
+	 * @return boolean true if record could be deleted.
+	 */
+	public boolean js_deleteRecord(int index) throws ServoyException
+	{
+		checkInitialized();
+		return deleteRecord(new int[] { index - 1 });
+	}
+
+	/**
+	 * Delete record from foundset.
+	 *
+	 * @sample
+	 * var success = %%prefix%%foundset.deleteRecord(rec);
+	 * //can return false incase of related foundset having records and orphans records are not allowed by the relation
+	 *
+	 * @param record record to delete.
+	 * 
+	 * @return boolean true if record could be deleted.
+	 */
+	public boolean js_deleteRecord(IRecord record) throws ServoyException
+	{
+		checkInitialized();
+		return deleteRecord(new int[] { getRecordIndex(record) });
+	}
+
+	/**
+	 * Delete currently selected record(s).
+	 * If the foundset is in multiselect mode, all selected records are deleted.
 	 *
 	 * @sample
 	 * var success = %%prefix%%foundset.deleteRecord();
 	 * //can return false incase of related foundset having records and orphans records are not allowed by the relation
 	 *
-	 * @param index/record optional index of record to delete or record itself.
-	 * 
 	 * @return boolean true if all records could be deleted.
 	 */
-	public boolean js_deleteRecord(Object[] args) throws Exception
+	public boolean js_deleteRecord() throws ServoyException
 	{
 		checkInitialized();
+		return deleteRecord(getSelectedIndexes());
+	}
 
-		int[] deleteRecIdx;
-		if (args == null || args.length != 1)
-		{
-			deleteRecIdx = getSelectedIndexes();
-		}
-		else
-		{
-			if (args[0] instanceof IRecord)
-			{
-				deleteRecIdx = new int[] { getRecordIndex((IRecord)args[0]) };
-			}
-			else
-			{
-				deleteRecIdx = new int[] { Utils.getAsInteger(args[0], true) - 1 };
-			}
-		}
-
+	private boolean deleteRecord(int[] deleteRecIdx) throws ServoyException
+	{
 		boolean success = true;
 		for (int i = deleteRecIdx.length - 1; i > -1; i--)
 		{
@@ -2123,7 +2237,26 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * Omit current record or the record under the given index, to be shown with loadOmittedRecords.
+	 * Omit record under the given index, to be shown with loadOmittedRecords.
+	 * If the foundset is in multiselect mode, all selected records are omitted (when no index parameter is used).
+
+	 * Note: The omitted records list is discarded when these functions are executed: loadAllRecords, loadRecords(dataset), loadRecords(sqlstring), invertRecords()
+	 *
+	 * @sampleas js_omitRecord()
+	 * 
+	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_loadOmittedRecords()
+	 * 
+	 * @param index index of record to omit.
+	 * 
+	 * @return boolean true if all records could be omitted.
+	 */
+	public boolean js_omitRecord(int index) throws ServoyException
+	{
+		return isInitialized() && omitState(new int[] { index - 1 });
+	}
+
+	/**
+	 * Omit current record, to be shown with loadOmittedRecords.
 	 * If the foundset is in multiselect mode, all selected records are omitted (when no index parameter is used).
 
 	 * Note: The omitted records list is discarded when these functions are executed: loadAllRecords, loadRecords(dataset), loadRecords(sqlstring), invertRecords()
@@ -2132,25 +2265,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 
 	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_loadOmittedRecords()
 	 * 
-	 * @param index optional index of record to omit.
-	 * 
 	 * @return boolean true if all records could be omitted.
 	 */
-	public boolean js_omitRecord(Object[] args) throws ServoyException
+	public boolean js_omitRecord() throws ServoyException
 	{
-		if (!isInitialized()) return false;
-
-		int[] omitRecIdx;
-		if (args == null || args.length != 1)
-		{
-			omitRecIdx = getSelectedIndexes();
-		}
-		else
-		{
-			omitRecIdx = new int[] { Utils.getAsInteger(args[0], true) - 1 };
-		}
-
-		return omitState(omitRecIdx);
+		return isInitialized() && omitState(getSelectedIndexes());
 	}
 
 	/**
@@ -2193,15 +2312,40 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * Sorts the foundset based on the given sort string or record comparator function.
+	 * Sorts the foundset based on the given sort string.
 	 * TIP: You can use the Copy button in the developer Select Sorting Fields dialog to get the needed syntax string for the desired sort fields/order. 
+	 * 
+	 * @sample %%prefix%%foundset.sort('columnA desc,columnB asc');
+	 *
+	 * @param sortString the specified columns (and sort order)
+	 */
+	public void js_sort(String sortString) throws ServoyException
+	{
+		js_sort(sortString, false);
+	}
+
+	/**
+	 * Sorts the foundset based on the given sort string.
+	 * TIP: You can use the Copy button in the developer Select Sorting Fields dialog to get the needed syntax string for the desired sort fields/order. 
+	 * 
+	 * @sample %%prefix%%foundset.sort('columnA desc,columnB asc');
+	 *
+	 * @param sortString the specified columns (and sort order)
+	 * @param defer boolean when true, the "sortString" will be just stored, without performing a query on the database (the actual sorting will be deferred until the next data loading action).
+	 */
+	public void js_sort(String sortString, boolean defer) throws ServoyException
+	{
+		sort(((FoundSetManager)getFoundSetManager()).getSortColumns(getTable(), sortString), defer);
+	}
+
+	/**
+	 * Sorts the foundset based on the given record comparator function.
 	 * The comparator function is called to compare
 	 * two records, that are passed as arguments, and
 	 * it will return -1/0/1 if the first record is less/equal/greater
 	 * then the second record.
 	 * 
-	 * @sample %%prefix%%foundset.sort('columnA desc,columnB asc');
-	 *
+	 * @sample
 	 * %%prefix%%foundset.sort(mySortFunction);
 	 * 
 	 * function mySortFunction(r1, r2)
@@ -2218,21 +2362,31 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *	return o;
 	 * }
 	 *
-	 * @param sortString/recordComparator the specified columns (and sort order) or record comparator function
-	 * @param defer optional boolean when true, the "sortString" will be just stored, without performing a query on the database (the actual sorting will be deferred until the next data loading action).
+	 * @param comparator record comparator function
 	 */
-	public void js_sort(Object[] vargs) throws ServoyException
+	public void js_sort(final Function comparator)
 	{
-		if (vargs.length == 0) return;
-		if (vargs[0] instanceof Function)
+		if (comparator != null)
 		{
-			sort((Function)vargs[0]);
-		}
-		else
-		{
-			String options = (String)vargs[0];
-			boolean defer = vargs.length < 2 ? false : Utils.getAsBoolean(vargs[1]);
-			sort(((FoundSetManager)getFoundSetManager()).getSortColumns(getTable(), options), defer);
+			final IExecutingEnviroment scriptEngine = fsm.getApplication().getScriptEngine();
+			final Scriptable recordComparatorScope = comparator.getParentScope();
+			sort(new Comparator<Object[]>()
+			{
+				public int compare(Object[] o1, Object[] o2)
+				{
+					try
+					{
+						Object compareResult = scriptEngine.executeFunction(comparator, recordComparatorScope, recordComparatorScope,
+							new Object[] { getRecord(o1), getRecord(o2) }, false, true);
+						return Utils.getAsInteger(compareResult, true);
+					}
+					catch (Exception ex)
+					{
+						Debug.error(ex);
+					}
+					return 0;
+				}
+			});
 		}
 	}
 
@@ -2250,7 +2404,110 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * Duplicate current record or record at index in the foundset.
+	 * Duplicate record at index in the foundset, change selection to new record.
+	 *
+	 * @sampleas js_duplicateRecord(int, int, boolean)
+	 * 
+	 * @param index index of record to duplicate; defaults to currently selected index. Ignored if first given parameter is a boolean value.
+	 * @param onTop when true the new record is added as the topmost record.
+	 *  
+	 * @return 0 if record was not created or the record index if it was created.
+	 */
+	public int js_duplicateRecord(int index, boolean onTop) throws ServoyException
+	{
+		return js_duplicateRecord(index, onTop, true);
+	}
+
+	/**
+	 * Duplicate record at index in the foundset, change selection to new record, place on top.
+	 *
+	 * @sampleas js_duplicateRecord(int, int, boolean)
+	 * 
+	 * @param index index of record to duplicate; defaults to currently selected index. Ignored if first given parameter is a boolean value.
+	 *  
+	 * @return 0 if record was not created or the record index if it was created.
+	 */
+	public int js_duplicateRecord(int index) throws ServoyException
+	{
+		return js_duplicateRecord(index, true, true);
+	}
+
+	/**
+	 * Duplicate selected record, change selection to new record.
+	 *
+	 * @sampleas js_duplicateRecord(int, int, boolean)
+	 * 
+	 * @param onTop when true the new record is added as the topmost record.
+	 *  
+	 * @return 0 if record was not created or the record index if it was created.
+	 */
+	public int js_duplicateRecord(boolean onTop) throws ServoyException
+	{
+		return js_duplicateRecord(getSelectedIndex() + 1, onTop, true);
+	}
+
+	/**
+	 * Duplicate selected record.
+	 *
+	 * @sampleas js_duplicateRecord(int, int, boolean)
+	 * 
+	 * @param onTop when true the new record is added as the topmost record.
+	 * @param changeSelection when true the selection is changed to the duplicated record.
+	 *  
+	 * @return 0 if record was not created or the record index if it was created.
+	 */
+	public int js_duplicateRecord(boolean onTop, boolean changeSelection) throws ServoyException
+	{
+		return js_duplicateRecord(getSelectedIndex() + 1, onTop, changeSelection);
+	}
+
+	/**
+	 * Duplicate current record, change selection to new record, place on top.
+	 *
+	 * @sampleas js_duplicateRecord(int, int, boolean)
+	 * 
+	 * @param index index of record to duplicate; defaults to currently selected index. Ignored if first given parameter is a boolean value.
+	 *  
+	 * @return 0 if record was not created or the record index if it was created.
+	 */
+	public int js_duplicateRecord() throws ServoyException
+	{
+		return js_duplicateRecord(getSelectedIndex() + 1, true, true);
+	}
+
+	/**
+	 * Duplicate record at index in the foundset.
+	 *
+	 * @sampleas js_duplicateRecord(int, int, boolean)
+	 * 
+	 * @param index index of record to duplicate; defaults to currently selected index. Ignored if first given parameter is a boolean value.
+	 * @param onTop when true the new record is added as the topmost record.
+	 * @param changeSelection when true the selection is changed to the duplicated record.
+	 *  
+	 * @return 0 if record was not created or the record index if it was created.
+	 */
+	public int js_duplicateRecord(int index, boolean onTop, boolean changeSelection) throws ServoyException
+	{
+		return duplicateRecord(index - 1, onTop ? 0 : Integer.MAX_VALUE, changeSelection) + 1;
+	}
+
+	/**
+	 * Duplicate record at index in the foundset, change selection to new record.
+	 *
+	 * @sampleas js_duplicateRecord(int, int, boolean)
+	 * 
+	 * @param index index of record to duplicate; defaults to currently selected index. Ignored if first given parameter is a boolean value.
+	 * @param location the new record is added at specified index
+	 *  
+	 * @return 0 if record was not created or the record index if it was created.
+	 */
+	public int js_duplicateRecord(int index, int location) throws ServoyException
+	{
+		return js_duplicateRecord(index, location, true);
+	}
+
+	/**
+	 * Duplicate record at index in the foundset.
 	 *
 	 * @sample
 	 * %%prefix%%foundset.duplicateRecord();
@@ -2259,96 +2516,88 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * //duplicates the record (record index 3), adds on top and selects the record
 	 * %%prefix%%foundset.duplicateRecord(3,true,true);
 	 * 
-	 * @param index optional index of record to duplicate; defaults to currently selected index. Ignored if first given parameter is a boolean value.
-	 * @param location optional a boolean or number when true the new record is added as the topmost record, when a number, the new record is added at specified index ; defaults to 1.
-	 * @param changeSelection optional boolean when true the selection is changed to the duplicated record; defaults to true.
+	 * @param index index of record to duplicate; defaults to currently selected index. Ignored if first given parameter is a boolean value.
+	 * @param location the new record is added at specified index
+	 * @param changeSelection when true the selection is changed to the duplicated record.
 	 *  
 	 * @return 0 if record was not created or the record index if it was created.
 	 */
-	public int js_duplicateRecord(Object[] vargs) throws ServoyException
+	public int js_duplicateRecord(int index, int location, boolean changeSelection) throws ServoyException
 	{
-		int selectedIndex = getSelectedIndex();
-		boolean changeSelection = true;
-		int indexToAdd = 0;
-		if (vargs != null)
-		{
-			switch (vargs.length)
-			{
-				case 0 : // no args
-					break;
+		return duplicateRecord(index - 1, location, changeSelection) + 1;
+	}
 
-				case 1 : // boolean (addOnTop) OR int (selectedIndex)
-					if (vargs[0] instanceof Boolean)
-					{
-						indexToAdd = (Utils.getAsBoolean(vargs[0]) ? 0 : Integer.MAX_VALUE);
-					}
-					else if (vargs[0] instanceof Number)
-					{
-						selectedIndex = Utils.getAsInteger(vargs[0], true) - 1;
-					}
-					break;
-
-				case 2 : // boolean (addOnTop) and boolean (changeSelection)
-					// OR
-					// int (selectedIndex) and boolean (addOnTop)
-					// OR
-					// int (selectedIndex) and int (indexToAdd)
-					if (vargs[0] instanceof Boolean)
-					{
-						indexToAdd = (Utils.getAsBoolean(vargs[0]) ? 0 : Integer.MAX_VALUE);
-						if (vargs[1] instanceof Boolean)
-						{
-							changeSelection = ((Boolean)vargs[1]).booleanValue();
-						}
-					}
-					else if (vargs[0] instanceof Number)
-					{
-						selectedIndex = Utils.getAsInteger(vargs[0], true) - 1;
-						if (vargs[1] instanceof Boolean)
-						{
-							indexToAdd = (Utils.getAsBoolean(vargs[1]) ? 0 : Integer.MAX_VALUE);
-						}
-						else if (vargs[1] instanceof Number)
-						{
-							indexToAdd = Utils.getAsInteger(vargs[1], true) - 1;
-						}
-					}
-					break;
-
-				default /* >= 3 */: // int (selectedIndex) and boolean (addOnTop) and boolean (changeSelection)
-					// OR
-					// int (selectedIndex) and int (indexToAdd) and boolean (changeSelection)
-					if (vargs[0] instanceof Number)
-					{
-						selectedIndex = Utils.getAsInteger(vargs[0], true) - 1;
-					}
-					if (vargs[1] instanceof Boolean)
-					{
-						indexToAdd = (Utils.getAsBoolean(vargs[1]) ? 0 : Integer.MAX_VALUE);
-					}
-					else if (vargs[1] instanceof Number)
-					{
-						indexToAdd = Utils.getAsInteger(vargs[1], true) - 1;
-					}
-					if (vargs[2] instanceof Boolean)
-					{
-						changeSelection = ((Boolean)vargs[2]).booleanValue();
-					}
-					break;
-			}
-		}
-		return duplicateRecord(selectedIndex, indexToAdd, changeSelection) + 1;
+	/**
+	 * Create a new record in the foundset and change selection to it. Returns -1 if the record can't be made.
+	 *
+	 * @sampleas js_newRecord()
+	 *
+	 * @param index the new record is added at specified index.
+	 * 
+	 * @return int index of new record.
+	 */
+	public int js_newRecord(int index) throws ServoyException
+	{
+		return js_newRecord(index, true);
 	}
 
 	/**
 	 * Create a new record in the foundset. Returns -1 if the record can't be made.
+	 *
+	 * @sampleas js_newRecord()
+	 *
+	 * @param index the new record is added at specified index.
+	 * @param changeSelection boolean when true the selection is changed to the new record.
+	 * 
+	 * @return int index of new record.
+	 */
+	public int js_newRecord(int index, boolean changeSelection) throws ServoyException
+	{
+		if (index > 0)
+		{
+			return newRecord(null, index - 1, changeSelection) + 1;//javascript index is plus one
+		}
+		return -1;
+	}
+
+	/**
+	 * Create a new record in the foundset and change selection to it. Returns -1 if the record can't be made.
+	 *
+	 * @sampleas js_newRecord()
+	 *
+	 * @param onTop when true the new record is added as the topmost record.
+	 * 
+	 * @return int index of new record.
+	 */
+	public int js_newRecord(boolean onTop) throws ServoyException
+	{
+		return js_newRecord(onTop, true);
+	}
+
+	/**
+	 * Create a new record in the foundset. Returns -1 if the record can't be made.
+	 *
+	 * @sampleas js_newRecord()
+	 *
+	 * @param onTop when true the new record is added as the topmost record.
+	 * @param changeSelection boolean when true the selection is changed to the new record.
+	 * 
+	 * @return int index of new record.
+	 */
+	public int js_newRecord(boolean onTop, boolean changeSelection) throws ServoyException
+	{
+		return newRecord(null, onTop ? 0 : Integer.MAX_VALUE, changeSelection) + 1;//javascript index is plus one
+	}
+
+	/**
+	 * Create a new record on top of the foundset and change selection to it. Returns -1 if the record can't be made.
 	 *
 	 * @sample
 	 * // foreign key data is only filled in for equals (=) relation items 
 	 * var idx = %%prefix%%foundset.newRecord(false); // add as last record
 	 * // %%prefix%%foundset.newRecord(); // adds as first record
 	 * // %%prefix%%foundset.newRecord(2); //adds as second record
-	 * if (idx >= 0) // returned index is -1 in case of failure 
+	 * if (idx >= 0) // returned index is -1 in case ls of failure 
 	 * {
 	 * 	%%prefix%%foundset.some_column = "some text";
 	 * 	application.output("added on position " + idx);
@@ -2356,37 +2605,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 	// corresponds with the size of the foundset
 	 * }
 	 *
-	 * @param location optional a boolean or number when true the new record is added as the topmost record, when a number, the new record is added at specified index ; defaults to 1.
-	 * @param changeSelection optional boolean when true the selection is changed to the new record; defaults to true.
-	 * 
 	 * @return int index of new record.
 	 */
-	public int js_newRecord(Object[] vargs) throws ServoyException
+	public int js_newRecord() throws ServoyException
 	{
-		boolean changeSelection = true;
-		int indexToAdd = 0;
-		if (vargs != null && vargs.length > 0)
-		{
-			if (vargs.length >= 1 && vargs[0] instanceof Boolean)
-			{
-				indexToAdd = (Utils.getAsBoolean(vargs[0]) ? 0 : Integer.MAX_VALUE);
-			}
-			else if (vargs.length >= 1 && vargs[0] instanceof Number)
-			{
-				indexToAdd = Utils.getAsInteger(vargs[0], true) - 1;
-			}
-
-			if (vargs.length >= 2 && vargs[1] instanceof Boolean)
-			{
-				changeSelection = ((Boolean)vargs[1]).booleanValue();
-			}
-		}
-
-		if (indexToAdd >= 0)
-		{
-			return newRecord(null, indexToAdd, changeSelection) + 1;//javascript index is plus one
-		}
-		return -1;
+		return js_newRecord(0, true);
 	}
 
 	/**
@@ -2412,13 +2635,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * @param index int index to set (1-based)
 	 */
-	public void js_setSelectedIndex(Object[] args)
+	public void js_setSelectedIndex(int index)
 	{
-		if (args == null || args.length == 0) return;
-		int i = Utils.getAsInteger(args[0]);
-		if (i >= 1 && i <= getSize())
+		if (index >= 1 && index <= getSize())
 		{
-			setSelectedIndex(i - 1);
+			setSelectedIndex(index - 1);
 		}
 	}
 
@@ -4347,32 +4568,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 	}
 
-	private void sort(final Function recordComparator)
-	{
-		if (recordComparator != null)
-		{
-			final IExecutingEnviroment scriptEngine = fsm.getApplication().getScriptEngine();
-			final Scriptable recordComparatorScope = recordComparator.getParentScope();
-			sort(new Comparator<Object[]>()
-			{
-				public int compare(Object[] o1, Object[] o2)
-				{
-					try
-					{
-						Object compareResult = scriptEngine.executeFunction(recordComparator, recordComparatorScope, recordComparatorScope,
-							new Object[] { getRecord(o1), getRecord(o2) }, false, true);
-						return Utils.getAsInteger(compareResult, true);
-					}
-					catch (Exception ex)
-					{
-						Debug.error(ex);
-					}
-					return 0;
-				}
-			});
-		}
-	}
-
 	public void sort(Comparator<Object[]> recordPKComparator)
 	{
 		if (getFoundSetManager().getEditRecordList().stopIfEditing(this) != ISaveConstants.STOPPED)
@@ -4489,7 +4684,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.SELECTION_MODE_CHANGE, FoundSetEvent.CHANGE_UPDATE));
 	}
 
-	protected void fireFoundSetEvent(@SuppressWarnings("unused") int firstRow, @SuppressWarnings("unused") int lastRow, int changeType)
+	protected void fireFoundSetEvent(@SuppressWarnings("unused")
+	int firstRow, @SuppressWarnings("unused")
+	int lastRow, int changeType)
 	{
 		fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.CONTENTS_CHANGED, changeType));
 	}
