@@ -53,7 +53,7 @@ public class DataSpinner extends DataChoice
 	{
 		super(app, scriptable, vl, Field.SPINNER);
 
-		setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		super.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener()
 		{
 			public void adjustmentValueChanged(AdjustmentEvent e)
