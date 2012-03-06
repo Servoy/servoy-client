@@ -458,7 +458,6 @@ public class JSDatabaseManager
 	 * //var dataset = databaseManager.convertToDataSet('4,5,6');
 	 *
 	 * @param foundset The foundset to be converted.
-	 * @param array_with_dataprovider_names optional Array with column names.
 	 * 
 	 * @return JSDataSet with the data. 
 	 */
@@ -479,6 +478,10 @@ public class JSDatabaseManager
 	 */
 	public JSDataSet js_convertToDataSet(IFoundSetInternal foundset, String[] dataproviderNames) throws RepositoryException
 	{
+		if (foundset == null)
+		{
+			return null;
+		}
 		String[] dpnames = { "id" }; //$NON-NLS-1$
 		ColumnType[] dptypes = { ColumnType.getInstance(IColumnTypes.INTEGER, Integer.MAX_VALUE, 0) };
 
@@ -617,22 +620,23 @@ public class JSDatabaseManager
 	 */
 	public JSDataSet js_convertToDataSet(String ids)
 	{
+		if (ids == null)
+		{
+			return null;
+		}
 		String[] dpnames = { "id" }; //$NON-NLS-1$
 		ColumnType[] dptypes = { ColumnType.getInstance(IColumnTypes.INTEGER, Integer.MAX_VALUE, 0) };
 
 		List<Object[]> lst = new ArrayList<Object[]>();
-		if (ids != null)
+		StringTokenizer st = new StringTokenizer(ids, ",;\n\r\t "); //$NON-NLS-1$
+		while (st.hasMoreElements())
 		{
-			StringTokenizer st = new StringTokenizer(ids, ",;\n\r\t "); //$NON-NLS-1$
-			while (st.hasMoreElements())
+			Object o = st.nextElement();
+			if (o instanceof Double && ((Double)o).doubleValue() == ((Double)o).intValue())
 			{
-				Object o = st.nextElement();
-				if (o instanceof Double && ((Double)o).doubleValue() == ((Double)o).intValue())
-				{
-					o = new Integer(((Double)o).intValue());
-				}
-				lst.add(new Object[] { o });
+				o = new Integer(((Double)o).intValue());
 			}
+			lst.add(new Object[] { o });
 		}
 		return new JSDataSet(application, new BufferedDataSet(dpnames, dptypes, lst, false));
 	}
@@ -649,6 +653,10 @@ public class JSDatabaseManager
 	 */
 	public JSDataSet js_convertToDataSet(Object[] values, String[] dataproviderNames)
 	{
+		if (values == null)
+		{
+			return null;
+		}
 		String[] dpnames = { "id" }; //$NON-NLS-1$
 		ColumnType[] dptypes = { ColumnType.getInstance(IColumnTypes.INTEGER, Integer.MAX_VALUE, 0) };
 
