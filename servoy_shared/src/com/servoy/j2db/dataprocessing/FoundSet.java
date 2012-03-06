@@ -2597,7 +2597,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * var idx = %%prefix%%foundset.newRecord(false); // add as last record
 	 * // %%prefix%%foundset.newRecord(); // adds as first record
 	 * // %%prefix%%foundset.newRecord(2); //adds as second record
-	 * if (idx >= 0) // returned index is -1 in case ls of failure 
+	 * if (idx >= 0) // returned index is -1 in case of failure 
 	 * {
 	 * 	%%prefix%%foundset.some_column = "some text";
 	 * 	application.output("added on position " + idx);
@@ -2622,7 +2622,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * %%prefix%%foundset.setSelectedIndex(current+1);	
 	 * @return int current index (1-based)
 	 */
-	public int js_getSelectedIndex()
+	public int jsFunction_getSelectedIndex()
 	{
 		checkSelection();
 		return getSelectedIndex() + 1;
@@ -2631,11 +2631,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * Set the current record index.
 	 *
-	 * @sampleas js_getSelectedIndex()
+	 * @sampleas jsFunction_getSelectedIndex()
 	 *
 	 * @param index int index to set (1-based)
 	 */
-	public void js_setSelectedIndex(int index)
+	public void jsFunction_setSelectedIndex(int index)
 	{
 		if (index >= 1 && index <= getSize())
 		{

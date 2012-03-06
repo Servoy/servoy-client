@@ -145,23 +145,10 @@ public class JSValueList implements IConstantsObject
 		return valuelist.getAddEmptyValue();
 	}
 
-	/**
-	 * Set the display dataproviders. There can be at most 3 of them, combined with the return dataproviders.
-	 * The values taken from these dataproviders, in order, separated by the separator, will be displayed
-	 * by the valuelist.
-	 *
-	 * @sampleas DATABASE_VALUES
-	 *
-	 * @param dataprovider1 The first display dataprovider.
-	 *
-	 * @param dataprovider2 optional The second display dataprovider.
-	 *
-	 * @param dataprovider3 optional The third display dataprovider.
-	 */
-	public void jsFunction_setDisplayDataProviderIds(Object[] ids)
+	protected void setDisplayDataProviderIds(String[] ids)
 	{
 		checkModification();
-		if (ids.length > 3) throw new IllegalArgumentException("max 3 ids allowed in the display dataproviders ids"); //$NON-NLS-1$
+		if (ids != null && ids.length > 3) throw new IllegalArgumentException("max 3 ids allowed in the display dataproviders ids"); //$NON-NLS-1$
 		clearUnusedDataProviders(valuelist.getReturnDataProviders());
 		if (ids == null || ids.length == 0)
 		{
@@ -172,7 +159,7 @@ public class JSValueList implements IConstantsObject
 			int showId = 0;
 			for (int i = 0; i < ids.length; i++)
 			{
-				String id = (String)ids[i];
+				String id = ids[i];
 				String currentId = valuelist.getDataProviderID1();
 				if (i < 1 && testId(id, currentId))
 				{
@@ -206,6 +193,58 @@ public class JSValueList implements IConstantsObject
 			}
 			valuelist.setShowDataProviders(showId);
 		}
+	}
+
+	/**
+	 * @clonedesc jsFunction_setDisplayDataProviderIds(String, String, String)
+	 * @sampleas DATABASE_VALUES
+	 *
+	 */
+	public void jsFunction_setDisplayDataProviderIds()
+	{
+		setDisplayDataProviderIds(null);
+	}
+
+	/**
+	 * @clonedesc jsFunction_setDisplayDataProviderIds(String, String, String)
+	 * @sampleas DATABASE_VALUES
+	 *
+	 * @param dataprovider1 The first display dataprovider.
+	 */
+	public void jsFunction_setDisplayDataProviderIds(String dataprovider1)
+	{
+		setDisplayDataProviderIds(new String[] { dataprovider1 });
+	}
+
+	/**
+	 * @clonedesc jsFunction_setDisplayDataProviderIds(String, String, String)
+	 * @sampleas DATABASE_VALUES
+	 *
+	 * @param dataprovider1 The first display dataprovider.
+	 *
+	 * @param dataprovider2 The second display dataprovider.
+	 */
+	public void jsFunction_setDisplayDataProviderIds(String dataprovider1, String dataprovider2)
+	{
+		setDisplayDataProviderIds(new String[] { dataprovider1, dataprovider2 });
+	}
+
+	/**
+	 * Set the display dataproviders. There can be at most 3 of them, combined with the return dataproviders.
+	 * The values taken from these dataproviders, in order, separated by the separator, will be displayed
+	 * by the valuelist.
+	 *
+	 * @sampleas DATABASE_VALUES
+	 *
+	 * @param dataprovider1 The first display dataprovider.
+	 *
+	 * @param dataprovider2 The second display dataprovider.
+	 *
+	 * @param dataprovider3 The third display dataprovider.
+	 */
+	public void jsFunction_setDisplayDataProviderIds(String dataprovider1, String dataprovider2, String dataprovider3)
+	{
+		setDisplayDataProviderIds(new String[] { dataprovider1, dataprovider2, dataprovider3 });
 	}
 
 	private void clearUnusedDataProviders(int valueToKeep)
@@ -254,23 +293,10 @@ public class JSValueList implements IConstantsObject
 		return getDataProviders(valuelist.getShowDataProviders());
 	}
 
-	/**
-	 * Set the return dataprovers. There can be at most 3 of them, combined with the display dataproviders.
-	 * The values taken from these dataproviders, in order, separated by the separator, will be returned
-	 * by the valuelist.
-	 *
-	 * @sampleas DATABASE_VALUES
-	 *
-	 * @param dataprovider1 The first return dataprovider.
-	 *
-	 * @param dataprovider2 optional The second return dataprovider. 
-	 *
-	 * @param dataprovider3 optional The third return dataprovider.
-	 */
-	public void jsFunction_setReturnDataProviderIds(Object[] ids)
+	protected void setReturnDataProviderIds(String[] ids)
 	{
 		checkModification();
-		if (ids.length > 3) throw new IllegalArgumentException("max 3 ids allowed in the display dataproviders ids"); //$NON-NLS-1$
+		if (ids != null && ids.length > 3) throw new IllegalArgumentException("max 3 ids allowed in the display dataproviders ids"); //$NON-NLS-1$
 		clearUnusedDataProviders(valuelist.getShowDataProviders());
 		if (ids == null || ids.length == 0)
 		{
@@ -281,7 +307,7 @@ public class JSValueList implements IConstantsObject
 			int returnId = 0;
 			for (int i = 0; i < ids.length; i++)
 			{
-				String id = (String)ids[i];
+				String id = ids[i];
 				String currentId = valuelist.getDataProviderID1();
 				if (i < 1 && testId(id, currentId))
 				{
@@ -317,6 +343,56 @@ public class JSValueList implements IConstantsObject
 		}
 	}
 
+	/**
+	 * @clonedesc jsFunction_setReturnDataProviderIds(String, String, String)
+	 * @sampleas DATABASE_VALUES
+	 */
+	public void jsFunction_setReturnDataProviderIds()
+	{
+		setReturnDataProviderIds(null);
+	}
+
+	/**
+	 * @clonedesc jsFunction_setReturnDataProviderIds(String, String, String)
+	 * @sampleas DATABASE_VALUES
+	 *
+	 * @param dataprovider1 The first return dataprovider.
+	 */
+	public void jsFunction_setReturnDataProviderIds(String dataprovider1)
+	{
+		setReturnDataProviderIds(new String[] { dataprovider1 });
+	}
+
+	/**
+	 * @clonedesc jsFunction_setReturnDataProviderIds(String, String, String)
+	 * @sampleas DATABASE_VALUES
+	 *
+	 * @param dataprovider1 The first return dataprovider.
+	 *
+	 * @param dataprovider2 The second return dataprovider. 
+	 */
+	public void jsFunction_setReturnDataProviderIds(String dataprovider1, String dataprovider2)
+	{
+		setReturnDataProviderIds(new String[] { dataprovider1, dataprovider2 });
+	}
+
+	/**
+	 * Set the return dataproviders. There can be at most 3 of them, combined with the display dataproviders.
+	 * The values taken from these dataproviders, in order, separated by the separator, will be returned
+	 * by the valuelist.
+	 *
+	 * @sampleas DATABASE_VALUES
+	 *
+	 * @param dataprovider1 The first return dataprovider.
+	 *
+	 * @param dataprovider2 The second return dataprovider. 
+	 *
+	 * @param dataprovider3 The third return dataprovider.
+	 */
+	public void jsFunction_setReturnDataProviderIds(String dataprovider1, String dataprovider2, String dataprovider3)
+	{
+		setReturnDataProviderIds(new String[] { dataprovider1, dataprovider2, dataprovider3 });
+	}
 
 	/**
 	 * Returns an array of the dataproviders that will be used to define the valuelist value that is saved.

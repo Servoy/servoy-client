@@ -24,7 +24,6 @@ import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.Utils;
 
 /**
  * A javascript wrapper around a {@link ITable} object.
@@ -37,6 +36,33 @@ public class JSTableObject extends JSTable
 	public JSTableObject(ITable table, IServer server)
 	{
 		super(table, server);
+	}
+
+	/**
+	 * @clonedesc js_createNewColumn(String, int, int, boolean, boolean)
+	 * @sampleas js_createNewColumn(String, int, int, boolean, boolean)
+	 *
+	 * @param columnName 
+	 * @param type 
+	 * @param length 
+	 * @param allowNull 
+	 */
+	public JSColumnObject js_createNewColumn(String columnName, int type, int length, boolean allowNull)
+	{
+		return js_createNewColumn(columnName, type, length, allowNull, false);
+	}
+
+	/**
+	 * @clonedesc js_createNewColumn(String, int, int, boolean, boolean)
+	 * @sampleas js_createNewColumn(String, int, int, boolean, boolean)
+	 *
+	 * @param columnName 
+	 * @param type 
+	 * @param length 
+	 */
+	public JSColumnObject js_createNewColumn(String columnName, int type, int length)
+	{
+		return js_createNewColumn(columnName, type, length, true, false);
 	}
 
 	/**
@@ -72,17 +98,11 @@ public class JSTableObject extends JSTable
 	 * @param columnName 
 	 * @param type 
 	 * @param length 
+	 * @param allowNull 
+	 * @param pkColumn 
 	 */
-	public JSColumnObject js_createNewColumn(Object[] args)
+	public JSColumnObject js_createNewColumn(String columnName, int type, int length, boolean allowNull, boolean pkColumn)
 	{
-		if (args.length < 3) return null;
-		String columnName = args[0].toString();
-		int type = Utils.getAsInteger(args[1]);
-		int length = Utils.getAsInteger(args[2]);
-		boolean allowNull = true;
-		boolean pkColumn = false;
-		if (args.length > 3) allowNull = Utils.getAsBoolean(args[3]);
-		if (args.length > 4) pkColumn = Utils.getAsBoolean(args[4]);
 		try
 		{
 			Column c = ((Table)getTable()).createNewColumn(DummyValidator.INSTANCE, columnName, type, length, allowNull, pkColumn);

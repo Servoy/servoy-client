@@ -568,7 +568,7 @@ public class SQLGenerator
 			new String[] { application.getI18NMessage("servoy.client.findModeHelp.generalCol1"), application.getI18NMessage("servoy.client.findModeHelp.generalCol2") }, //$NON-NLS-1$ //$NON-NLS-2$
 			data);
 		JSDataSet ds = new JSDataSet(application, set);
-		return "<html><body>" + ds.js_getAsHTML(new Object[] { Boolean.FALSE, Boolean.TRUE, Boolean.TRUE, Boolean.TRUE, Boolean.TRUE }) + "</body></html>"; //$NON-NLS-1$ //$NON-NLS-2$
+		return "<html><body>" + ds.js_getAsHTML(false, true, true, true, true) + "</body></html>"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	private static final int NULLCHECK_NONE = 0;

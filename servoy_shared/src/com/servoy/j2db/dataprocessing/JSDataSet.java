@@ -17,6 +17,8 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,12 +35,13 @@ import javax.swing.table.TableModel;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
-import org.mozilla.javascript.IdFunctionObject;
-import org.mozilla.javascript.IdScriptableObject;
+import org.mozilla.javascript.MemberBox;
 import org.mozilla.javascript.NativeJavaArray;
+import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
+import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
@@ -47,6 +50,7 @@ import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.scripting.annotations.AnnotationManager;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.IDelegate;
@@ -60,25 +64,49 @@ import com.servoy.j2db.util.Utils;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<IDataSet>
+public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Serializable
 {
 	private static final long serialVersionUID = 1L;
 
-	private static JSDataSet prototype;
-
-	private static final int /* Id_constructor = 1, */Id_toString = 2, Id_getAsHTML = 3, Id_getColumnAsArray = 4, Id_getColumnName = 5, Id_getExceptionMsg = 6,
-		Id_getMaxColumnIndex = 7, Id_getMaxRowIndex = 8, Id_getRowIndex = 9, Id_getValue = 10, Id_hadMoreData = 11, Id_setRowIndex = 12, Id_sort = 13,
-		Id_getAsText = 14, Id_getRowAsArray = 15, Id_removeRow = 16, Id_getAsTableModel = 17, Id_setValue = 18, Id_addRow = 19, Id_getException = 20,
-		Id_addHTMLProperty = 21, Id_addColumn = 22, Id_removeColumn = 23, Id_createDataSource = 24, Id_MAX = 24;
-
-
-	private static final Object DATASET_TAG = new Object();
-
+	private static Map<String, NativeJavaMethod> jsFunctions = new HashMap<String, NativeJavaMethod>();
 	static
 	{
-		prototype = new JSDataSet();
-		prototype.activatePrototypeMap(Id_MAX);
+		try
+		{
+			Method[] methods = JSDataSet.class.getMethods();
+			for (Method m : methods)
+			{
+				String name = null;
+				if (m.getName().startsWith("js_")) //$NON-NLS-1$
+				{
+					name = m.getName().substring(3);
+				}
+				else if (AnnotationManager.getInstance().isAnnotationPresent(m, JSFunction.class))
+				{
+					name = m.getName();
+				}
+				if (name != null)
+				{
+					NativeJavaMethod nativeJavaMethod = jsFunctions.get(name);
+					if (nativeJavaMethod == null)
+					{
+						nativeJavaMethod = new NativeJavaMethod(m, name);
+					}
+					else
+					{
+						nativeJavaMethod = new NativeJavaMethod(Utils.arrayAdd(nativeJavaMethod.getMethods(), new MemberBox(m), true), name);
+					}
+					jsFunctions.put(name, nativeJavaMethod);
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+		}
 	}
+
+	private static JSDataSet prototype = new JSDataSet();
 
 	private IDataSet set;
 	private ServoyException exception;
@@ -141,10 +169,10 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 		exception = e;
 	}
 
-	/*
-	 * @see org.mozilla.javascript.ScriptableObject#getPrototype()
-	 */
-	@Override
+	public void setPrototype(Scriptable prototype)
+	{
+	}
+
 	public Scriptable getPrototype()
 	{
 		if (prototype != this)
@@ -298,6 +326,34 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 	}
 
 	/**
+	 * @clonedesc js_addColumn(String, int, int)
+	 * @sampleas js_createColumn(String, int, int)
+	 *
+	 * @param name column name.
+	 * @param index column index number between 1 and getMaxColumnIndex().
+	 * 
+	 * @return true if succeeded, else false.
+	 */
+	public boolean js_addColumn(String name, int index)
+	{
+		return js_addColumn(name, index, 0);
+	}
+
+	/**
+	 * @clonedesc js_addColumn(String, int, int)
+	 * @sampleas js_createColumn(String, int, int)
+	 *
+	 * @param name column name.
+	 * 
+	 * @return true if succeeded, else false.
+	 */
+	public boolean js_addColumn(String name)
+	{
+		return js_addColumn(name, 0, 0);
+	}
+
+
+	/**
 	 * adds a column with the specified name to the dataset.
 	 *
 	 * @sample
@@ -306,29 +362,19 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 	 *
 	 * @param name column name.
 	 *
-	 * @param index optional column index number between 1 and getMaxColumnIndex().
+	 * @param index column index number between 1 and getMaxColumnIndex().
 	 *
-	 * @param type optional the type of column, see JSColumn constants.
+	 * @param type the type of column, see JSColumn constants.
 	 * 
 	 * @return true if succeeded, else false.
 	 */
-	public boolean js_addColumn(Object[] vargs)
+	public boolean js_addColumn(String name, int index, int type)
 	{
-		if (vargs.length == 0 || set == null) return false;
+		if (set == null) return false;
 
-		String columnName = ScriptRuntime.toString(vargs[0]);
-		int columnIndex = -1;
-		if (vargs.length > 1)
-		{
-			columnIndex = Utils.getAsInteger(vargs[1]) - 1;//all Javascript calls are 1 based
-		}
-		int columnType = 0;
-		if (vargs.length > 2)
-		{
-			columnType = Utils.getAsInteger(vargs[2]);
-		}
+		int columnIndex = index - 1;
 
-		boolean result = set.addColumn(columnIndex, columnName, columnType);
+		boolean result = set.addColumn(columnIndex, name, type);
 		if (result)
 		{
 			makeColumnMap();
@@ -383,12 +429,12 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 				if (row_col)
 				{
 					//row
-					if (pair.getLeft().intValue() > index) pair.setLeft(new Integer(pair.getLeft().intValue() + plus_minus));
+					if (pair.getLeft().intValue() > index) pair.setLeft(Integer.valueOf(pair.getLeft().intValue() + plus_minus));
 				}
 				else
 				{
 					//col
-					if (pair.getRight().intValue() > index) pair.setRight(new Integer(pair.getRight().intValue() + plus_minus));
+					if (pair.getRight().intValue() > index) pair.setRight(Integer.valueOf(pair.getRight().intValue() + plus_minus));
 				}
 				newhtmlAttributes.put(pair, value);//rehash
 			}
@@ -584,6 +630,89 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 	}
 
 	/**
+	 * Get the dataset as an html table, do not escape values or spaces, no multi_line_markup, do not add indentation, add column names.
+	 * 
+	 * @sampleas js_getAsHTML(boolean, boolean, boolean, boolean, boolean)
+	 *
+	 * @param escape_values if true, replaces illegal HTML characters with corresponding valid escape sequences.
+	 *
+	 * @return String html.
+	 */
+	public String js_getAsHTML()
+	{
+		return js_getAsHTML(false, false, false, false, true);
+	}
+
+	/**
+	 * Get the dataset as an html table, do not escape spaces, no multi_line_markup, do not add indentation, add column names.
+	 * 
+	 * @sampleas js_getAsHTML(boolean, boolean, boolean, boolean, boolean)
+	 *
+	 * @param escape_values if true, replaces illegal HTML characters with corresponding valid escape sequences.
+	 *
+	 * @return String html.
+	 */
+	public String js_getAsHTML(boolean escape_values)
+	{
+		return js_getAsHTML(escape_values, false, false, false, true);
+	}
+
+	/**
+	 * Get the dataset as an html table, no multi_line_markup, do not add indentation, add column names.
+	 * 
+	 * @sampleas js_getAsHTML(boolean, boolean, boolean, boolean, boolean)
+	 *
+	 * @param escape_values if true, replaces illegal HTML characters with corresponding valid escape sequences.
+	 *
+	 * @param escape_spaces if true, replaces text spaces with non-breaking space tags ( ) and tabs by four non-breaking space tags.
+	 *
+	 * @return String html.
+	 */
+	public String js_getAsHTML(boolean escape_values, boolean escape_spaces)
+	{
+		return js_getAsHTML(escape_values, escape_spaces, false, false, true);
+	}
+
+	/**
+	 * Get the dataset as an html table, do not add indentation, add column names.
+	 * 
+	 * @sampleas js_getAsHTML(boolean, boolean, boolean, boolean, boolean)
+	 *
+	 * @param escape_values if true, replaces illegal HTML characters with corresponding valid escape sequences.
+	 *
+	 * @param escape_spaces if true, replaces text spaces with non-breaking space tags ( ) and tabs by four non-breaking space tags.
+	 *
+	 * @param multi_line_markup if true, multiLineMarkup will enforce new lines that are in the text; single new lines will be replaced by <br>, multiple new lines will be replaced by <p>
+	 *
+	 * @return String html.
+	 */
+	public String js_getAsHTML(boolean escape_values, boolean escape_spaces, boolean multi_line_markup)
+	{
+		return js_getAsHTML(escape_values, escape_spaces, multi_line_markup, false, true);
+	}
+
+	/**
+	 * Get the dataset as an html table, add column names.
+	 * 
+	 * @sampleas js_getAsHTML(boolean, boolean, boolean, boolean, boolean)
+	 *
+	 * @param escape_values if true, replaces illegal HTML characters with corresponding valid escape sequences.
+	 *
+	 * @param escape_spaces if true, replaces text spaces with non-breaking space tags ( ) and tabs by four non-breaking space tags.
+	 *
+	 * @param multi_line_markup if true, multiLineMarkup will enforce new lines that are in the text; single new lines will be replaced by <br>, multiple new lines will be replaced by <p>
+	 *
+	 * @param pretty_indent if true, adds indentation for more readable HTML code.
+	 *
+	 * @return String html.
+	 */
+	public String js_getAsHTML(boolean escape_values, boolean escape_spaces, boolean multi_line_markup, boolean pretty_indent)
+	{
+		return js_getAsHTML(escape_values, escape_spaces, multi_line_markup, pretty_indent, true);
+	}
+
+
+	/**
 	 * Get the dataset as an html table.
 	 *
 	 * @sample
@@ -606,34 +735,20 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 	 *
 	 * //Note: To display an HTML_AREA field as an HTML page, add HTML tags at the beginning '<html>' and at the end '</html>'. 
 	 *
-	 * @param escape_values optional if true, replaces illegal HTML characters with corresponding valid escape sequences.
+	 * @param escape_values if true, replaces illegal HTML characters with corresponding valid escape sequences.
 	 *
-	 * @param escape_spaces optional if true, replaces text spaces with non-breaking space tags ( ) and tabs by four non-breaking space tags.
+	 * @param escape_spaces if true, replaces text spaces with non-breaking space tags ( ) and tabs by four non-breaking space tags.
 	 *
-	 * @param multi_line_markup optional if true, multiLineMarkup will enforce new lines that are in the text; single new lines will be replaced by <br>, multiple new lines will be replaced by <p>
+	 * @param multi_line_markup if true, multiLineMarkup will enforce new lines that are in the text; single new lines will be replaced by <br>, multiple new lines will be replaced by <p>
 	 *
-	 * @param pretty_indent optional if true, adds indentation for more readable HTML code.
+	 * @param pretty_indent if true, adds indentation for more readable HTML code.
 	 *
-	 * @param add_column_names optional if false, column headers will not be added to the table.
+	 * @param add_column_names if false, column headers will not be added to the table.
 	 * 
 	 * @return String html.
 	 */
-	public String js_getAsHTML(Object[] vargs)
+	public String js_getAsHTML(boolean escape_values, boolean escape_spaces, boolean multi_line_markup, boolean pretty_indent, boolean add_column_names)
 	{
-		boolean escapeValues = false;
-		boolean escapeSpaces = false;
-		boolean multiLineMarkup = false;
-		boolean prettyIndent = false;
-		boolean addColumnNames = true;
-		if (vargs != null && vargs.length > 0)
-		{
-			if (vargs.length >= 1) escapeValues = Utils.getAsBoolean(vargs[0]);
-			if (vargs.length >= 2) escapeSpaces = Utils.getAsBoolean(vargs[2]);
-			if (vargs.length >= 3) multiLineMarkup = Utils.getAsBoolean(vargs[2]);
-			if (vargs.length >= 4) prettyIndent = Utils.getAsBoolean(vargs[3]);
-			if (vargs.length >= 5) addColumnNames = Utils.getAsBoolean(vargs[4]);
-		}
-
 		StringBuilder out = new StringBuilder();
 		if (set != null)
 		{
@@ -650,9 +765,9 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 			out.append(getHTMLProperties(-2, -2));
 			out.append('>');
 			String[] columnNames = set.getColumnNames();
-			if (columnNames != null && addColumnNames)
+			if (columnNames != null && add_column_names)
 			{
-				if (prettyIndent) out.append("\n\t"); //$NON-NLS-1$
+				if (pretty_indent) out.append("\n\t"); //$NON-NLS-1$
 				out.append("<TR"); //$NON-NLS-1$
 				if (!Utils.stringIsEmpty(getHTMLProperties(-1, -1)))
 				{
@@ -662,7 +777,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 				out.append('>');
 				for (int x = 0; x < numberOfColumns; x++)
 				{
-					if (prettyIndent) out.append("\n\t\t"); //$NON-NLS-1$
+					if (pretty_indent) out.append("\n\t\t"); //$NON-NLS-1$
 					out.append("<TD"); //$NON-NLS-1$
 					if (!Utils.stringIsEmpty(getHTMLProperties(-1, x)))
 					{
@@ -671,16 +786,16 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 					}
 					out.append('>');
 					out.append("<B>"); //$NON-NLS-1$
-					if (escapeValues)
+					if (escape_values)
 					{
-						String val = HtmlUtils.escapeMarkup(columnNames[x], escapeSpaces).toString();
-						if (multiLineMarkup == false)
+						String val = HtmlUtils.escapeMarkup(columnNames[x], escape_spaces).toString();
+						if (multi_line_markup)
 						{
-							out.append(val);
+							out.append(Utils.toMultilineMarkup(val).toString());
 						}
 						else
 						{
-							out.append(Utils.toMultilineMarkup(val).toString());
+							out.append(val);
 						}
 					}
 					else
@@ -689,13 +804,13 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 					}
 					out.append("</B></TD>"); //$NON-NLS-1$
 				}
-				if (prettyIndent) out.append("\n\t"); //$NON-NLS-1$
+				if (pretty_indent) out.append("\n\t"); //$NON-NLS-1$
 				out.append("</TR>"); //$NON-NLS-1$
 			}
 			for (int j = 0; j < set.getRowCount(); j++)
 			{
 				Object[] row = set.getRow(j);
-				if (prettyIndent) out.append("\n\t"); //$NON-NLS-1$
+				if (pretty_indent) out.append("\n\t"); //$NON-NLS-1$
 				out.append("<TR"); //$NON-NLS-1$
 				if (!Utils.stringIsEmpty(getHTMLProperties(-1, -1)) || !Utils.stringIsEmpty(getHTMLProperties(j, -1)))
 				{
@@ -707,7 +822,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 
 				for (int x = 0; x < numberOfColumns; x++)
 				{
-					if (prettyIndent) out.append("\n\t\t"); //$NON-NLS-1$
+					if (pretty_indent) out.append("\n\t\t"); //$NON-NLS-1$
 					out.append("<TD"); //$NON-NLS-1$
 					if (!Utils.stringIsEmpty(getHTMLProperties(-1, x)) || !Utils.stringIsEmpty(getHTMLProperties(j, x)))
 					{
@@ -717,16 +832,16 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 					out.append(getHTMLProperties(j, x));//specific cell
 					out.append('>');
 
-					if (escapeValues)
+					if (escape_values)
 					{
-						String val = HtmlUtils.escapeMarkup("" + row[x], escapeSpaces).toString(); //$NON-NLS-1$
-						if (multiLineMarkup == false)
+						String val = HtmlUtils.escapeMarkup("" + row[x], escape_spaces).toString(); //$NON-NLS-1$
+						if (multi_line_markup)
 						{
-							out.append(val);
+							out.append(Utils.toMultilineMarkup(val).toString());
 						}
 						else
 						{
-							out.append(Utils.toMultilineMarkup(val).toString());
+							out.append(val);
 						}
 					}
 					else
@@ -735,10 +850,10 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 					}
 					out.append("</TD>"); //$NON-NLS-1$
 				}
-				if (prettyIndent) out.append("\n\t"); //$NON-NLS-1$
+				if (pretty_indent) out.append("\n\t"); //$NON-NLS-1$
 				out.append("</TR>"); //$NON-NLS-1$
 			}
-			if (prettyIndent) out.append('\n');
+			if (pretty_indent) out.append('\n');
 			out.append("</TABLE>"); //$NON-NLS-1$
 		}
 		return out.toString();
@@ -912,7 +1027,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 //				rowIdent = set.getRow(r);
 //			}
 //		}
-		Pair<Integer, Integer> key = new Pair<Integer, Integer>(new Integer(rowIdent), new Integer(c));
+		Pair<Integer, Integer> key = new Pair<Integer, Integer>(Integer.valueOf(rowIdent), Integer.valueOf(c));
 		Map<String, String> value = htmlAttributes.get(key);
 		if (value == null)
 		{
@@ -925,7 +1040,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 	private String getHTMLProperties(int rowIdent, int c)
 	{
 		StringBuilder sb = new StringBuilder();
-		Pair<Integer, Integer> key = new Pair<Integer, Integer>(new Integer(rowIdent), new Integer(c));
+		Pair<Integer, Integer> key = new Pair<Integer, Integer>(Integer.valueOf(rowIdent), Integer.valueOf(c));
 		Map<String, String> value = htmlAttributes.get(key);
 		if (value != null)
 		{
@@ -1020,21 +1135,31 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 	}
 
 	/**
-	 * Sort the dataset on the given column in ascending or descending, or
-	 * sort the dataset using a comparator function.
+	 * Sort the dataset on the given column (1-based) in ascending or descending.
 	 * 
-	 * If the first argument is a number, sort the dataset on the given column index (1-based),
-	 * using the second argument as sort order (true for ascending, false for descending)
+	 * @sample
+	 * // sort using column number
+	 * //assuming the variable dataset contains a dataset
+	 * dataset.sort(1, false)
 	 * 
-	 * If the first argument is a function, sort the dataset using the function as comparator.
+	 * @param col column number, 1-based
+	 * 
+	 * @param sort_direction boolean ascending (true) or descending (false)
+	 */
+	public void js_sort(int col, boolean sort_direction)
+	{
+		if (set != null && col > 0 && col <= set.getColumnCount())
+		{
+			set.sort(col - 1, sort_direction);
+		}
+	}
+
+	/**
+	 * Sort the dataset using the function as comparator.
 	 * The comparator function is called to compare two rows, that are passed as arguments, and
 	 * it will return -1/0/1 if the first row is less/equal/greater then the second row.
 	 *
 	 * @sample
-	 * // sort using column number
-	 * //assuming the variable dataset contains a dataset
-	 * dataset.sort(1,false)
-	 * 
 	 * //sort using comparator
 	 * dataset.sort(mySortFunction);
 	 * 
@@ -1052,40 +1177,14 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 	 *	return o;
 	 * }  
 	 * 
-	 * @param col/comparator column number, 1-based or comparator function
-	 * 
-	 * @param sort_direction optional boolean used only if the first argument is a column number 
+	 * @param comparator comparator function
 	 */
-	public void js_sort(Object[] vargs)
+	public void js_sort(final Function comparator)
 	{
-		if (vargs == null || vargs.length == 0) return;
-		if (vargs[0] instanceof Function)
-		{
-			sort((Function)vargs[0]);
-		}
-		else if (vargs.length == 2)
-		{
-			int columnIndex = (int)ScriptRuntime.toInteger(vargs[0]);
-			boolean ascending = ScriptRuntime.toBoolean(vargs[1]);
-
-			sort(columnIndex, ascending);
-		}
-	}
-
-	public void sort(int col, boolean sort_direction)
-	{
-		if (set != null && col > 0 && col <= set.getColumnCount())
-		{
-			set.sort(col - 1, sort_direction);
-		}
-	}
-
-	public void sort(final Function rowComparator)
-	{
-		if (set != null && rowComparator != null)
+		if (set != null && comparator != null)
 		{
 			final IExecutingEnviroment scriptEngine = application.getScriptEngine();
-			final Scriptable rowComparatorScope = rowComparator.getParentScope();
+			final Scriptable rowComparatorScope = comparator.getParentScope();
 			set.sort(new Comparator<Object[]>()
 			{
 				public int compare(Object[] o1, Object[] o2)
@@ -1112,7 +1211,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 								param2 = res;
 							}
 						}
-						Object compareResult = scriptEngine.executeFunction(rowComparator, rowComparatorScope, rowComparatorScope,
+						Object compareResult = scriptEngine.executeFunction(comparator, rowComparatorScope, rowComparatorScope,
 							new Object[] { param1, param2 }, false, true);
 						return Utils.getAsInteger(compareResult, true);
 					}
@@ -1125,7 +1224,6 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 			});
 		}
 	}
-
 
 	private Map<String, Integer> columnameMap;
 
@@ -1145,7 +1243,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 			Scriptable ar = ScriptRuntime.newArrayLiteral(new Object[0], null, cx, this);
 			for (int i = 0; i < row.length; i++)
 			{
-				String cname = colNamesSorted.get(new Integer(i + 1));
+				String cname = colNamesSorted.get(Integer.valueOf(i + 1));
 				ar.put("(" + (i + 1) + ") " + cname, ar, row[i]); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			return ar;
@@ -1156,19 +1254,16 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 		}
 	}
 
-	@Override
 	public Object get(String name, Scriptable start)
 	{
-		if (getPrototype() == null)
-		{
-			return super.get(name, start);
-		}
+		Object mobj = jsFunctions.get(name);
+		if (mobj != null) return mobj;
 
 		if (set != null)
 		{
 			if ("rowIndex".equals(name)) //$NON-NLS-1$
 			{
-				return new Integer(js_getRowIndex());
+				return Integer.valueOf(js_getRowIndex());
 			}
 			if (columnameMap == null)
 			{
@@ -1177,18 +1272,15 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 			Integer iindex = columnameMap.get(name);
 			if (iindex != null)
 			{
-				int index = iindex.intValue();
-				if (set != null && rowIndex > 0 && rowIndex <= set.getRowCount())
-				{
-					Object[] array = set.getRow(rowIndex - 1);
-					if (index > 0 && index <= array.length)
-					{
-						return array[index - 1];
-					}
-				}
-				else
+				if (set == null || rowIndex <= 0 || rowIndex > set.getRowCount())
 				{
 					return null;
+				}
+				Object[] array = set.getRow(rowIndex - 1);
+				int index = iindex.intValue();
+				if (index > 0 && index <= array.length)
+				{
+					return array[index - 1];
 				}
 			}
 		}
@@ -1234,7 +1326,6 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 		return Scriptable.NOT_FOUND;
 	}
 
-	@Override
 	public Object get(int index, Scriptable start)
 	{
 		if (set != null)
@@ -1278,216 +1369,6 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 		return null;
 	}
 
-	/**
-	 * @see org.mozilla.javascript.IdScriptableObject#findPrototypeId(java.lang.String)
-	 */
-	@Override
-	protected int findPrototypeId(String name)
-	{
-		if (name.equals("toString")) //$NON-NLS-1$
-		{
-			return Id_toString;
-		}
-		if (name.equals("getAsHTML")) //$NON-NLS-1$
-		{
-			return Id_getAsHTML;
-		}
-		if (name.equals("getColumnAsArray")) //$NON-NLS-1$
-		{
-			return Id_getColumnAsArray;
-		}
-		if (name.equals("getColumnName")) //$NON-NLS-1$
-		{
-			return Id_getColumnName;
-		}
-		if (name.equals("getExceptionMsg")) //$NON-NLS-1$
-		{
-			return Id_getExceptionMsg;
-		}
-		if (name.equals("getMaxColumnIndex")) //$NON-NLS-1$
-		{
-			return Id_getMaxColumnIndex;
-		}
-		if (name.equals("getMaxRowIndex")) //$NON-NLS-1$
-		{
-			return Id_getMaxRowIndex;
-		}
-		if (name.equals("getRowIndex")) //$NON-NLS-1$
-		{
-			return Id_getRowIndex;
-		}
-		if (name.equals("getValue")) //$NON-NLS-1$
-		{
-			return Id_getValue;
-		}
-		if (name.equals("hadMoreData")) //$NON-NLS-1$
-		{
-			return Id_hadMoreData;
-		}
-		if (name.equals("setRowIndex")) //$NON-NLS-1$
-		{
-			return Id_setRowIndex;
-		}
-		if (name.equals("sort")) //$NON-NLS-1$
-		{
-			return Id_sort;
-		}
-		if (name.equals("getAsText")) //$NON-NLS-1$
-		{
-			return Id_getAsText;
-		}
-		if (name.equals("getRowAsArray")) //$NON-NLS-1$
-		{
-			return Id_getRowAsArray;
-		}
-		if (name.equals("removeRow")) //$NON-NLS-1$
-		{
-			return Id_removeRow;
-		}
-		if (name.equals("getAsTableModel")) //$NON-NLS-1$
-		{
-			return Id_getAsTableModel;
-		}
-		if (name.equals("createDataSource")) //$NON-NLS-1$
-		{
-			return Id_createDataSource;
-		}
-		if (name.equals("setValue")) //$NON-NLS-1$
-		{
-			return Id_setValue;
-		}
-		if (name.equals("addRow")) //$NON-NLS-1$
-		{
-			return Id_addRow;
-		}
-		if (name.equals("addHTMLProperty")) //$NON-NLS-1$
-		{
-			return Id_addHTMLProperty;
-		}
-		if (name.equals("getException")) //$NON-NLS-1$
-		{
-			return Id_getException;
-		}
-		if (name.equals("addColumn")) //$NON-NLS-1$
-		{
-			return Id_addColumn;
-		}
-		if (name.equals("removeColumn")) //$NON-NLS-1$
-		{
-			return Id_removeColumn;
-		}
-		return 0;
-	}
-
-	/**
-	 * @see org.mozilla.javascript.IdScriptableObject#initPrototypeId(int)
-	 */
-	@Override
-	protected void initPrototypeId(int id)
-	{
-		String name;
-		int arity;
-		switch (id)
-		{
-			case Id_toString :
-				name = "toString"; //$NON-NLS-1$
-				arity = 0;
-				break;
-			case Id_getAsHTML :
-				name = "getAsHTML"; //$NON-NLS-1$
-				arity = 1;
-				break;
-			case Id_getColumnAsArray :
-				name = "getColumnAsArray"; //$NON-NLS-1$
-				arity = 1;
-				break;
-			case Id_getColumnName :
-				name = "getColumnName"; //$NON-NLS-1$
-				arity = 1;
-				break;
-			case Id_getExceptionMsg :
-				name = "getExceptionMsg"; //$NON-NLS-1$
-				arity = 0;
-				break;
-			case Id_getMaxColumnIndex :
-				name = "getMaxColumnIndex"; //$NON-NLS-1$
-				arity = 0;
-				break;
-			case Id_getMaxRowIndex :
-				name = "getMaxRowIndex"; //$NON-NLS-1$
-				arity = 0;
-				break;
-			case Id_getRowIndex :
-				name = "getRowIndex"; //$NON-NLS-1$
-				arity = 0;
-				break;
-			case Id_getValue :
-				name = "getValue"; //$NON-NLS-1$
-				arity = 2;
-				break;
-			case Id_hadMoreData :
-				name = "hadMoreData"; //$NON-NLS-1$
-				arity = 0;
-				break;
-			case Id_setRowIndex :
-				name = "setRowIndex"; //$NON-NLS-1$
-				arity = 0;
-				break;
-			case Id_sort :
-				name = "sort"; //$NON-NLS-1$
-				arity = 1;
-				break;
-			case Id_getAsText :
-				name = "getAsText"; //$NON-NLS-1$
-				arity = 4;
-				break;
-			case Id_getRowAsArray :
-				name = "getRowAsArray"; //$NON-NLS-1$
-				arity = 1;
-				break;
-			case Id_removeRow :
-				name = "removeRow"; //$NON-NLS-1$
-				arity = 1;
-				break;
-			case Id_getAsTableModel :
-				name = "getAsTableModel"; //$NON-NLS-1$
-				arity = 0;
-				break;
-			case Id_createDataSource :
-				name = "createDataSource"; //$NON-NLS-1$
-				arity = 2;
-				break;
-			case Id_setValue :
-				name = "setValue"; //$NON-NLS-1$
-				arity = 3;
-				break;
-			case Id_addRow :
-				name = "addRow"; //$NON-NLS-1$
-				arity = 2;
-				break;
-			case Id_addHTMLProperty :
-				name = "addHTMLProperty"; //$NON-NLS-1$
-				arity = 4;
-				break;
-			case Id_getException :
-				name = "getException"; //$NON-NLS-1$
-				arity = 0;
-				break;
-			case Id_addColumn :
-				name = "addColumn"; //$NON-NLS-1$
-				arity = 2;
-				break;
-			case Id_removeColumn :
-				name = "removeColumn"; //$NON-NLS-1$
-				arity = 1;
-				break;
-			default :
-				throw new IllegalArgumentException(String.valueOf(id));
-		}
-		initPrototypeMethod(DATASET_TAG, id, name, arity);
-	}
-
-
 	private void makeColumnMap()
 	{
 		if (columnameMap == null) columnameMap = new HashMap<String, Integer>();
@@ -1509,31 +1390,28 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 					{
 						name = name.toLowerCase();
 					}
-					columnameMap.put(name, new Integer(x + 1));
+					columnameMap.put(name, Integer.valueOf(x + 1));
 				}
 			}
 		}
 		else
 		{
-			columnameMap.put("error", new Integer(1)); //$NON-NLS-1$
+			columnameMap.put("error", Integer.valueOf(1)); //$NON-NLS-1$
 		}
 	}
 
-	/*
-	 * @see org.mozilla.javascript.IdScriptable#has(java.lang.String, org.mozilla.javascript.Scriptable)
-	 */
-	@Override
 	public boolean has(String name, Scriptable start)
 	{
 		if ("rowIndex".equals(name)) return true; //$NON-NLS-1$
+
 		if (columnameMap == null) makeColumnMap();
-		if (columnameMap.get(name) != null) return true;
-		return super.has(name, start);
+		return columnameMap.get(name) != null;
 	}
 
-	@Override
-	public void put(java.lang.String name, Scriptable start, java.lang.Object value)
+	public void put(String name, Scriptable start, java.lang.Object value)
 	{
+		if (jsFunctions.containsKey(name)) return;//dont allow to set  
+
 		if (value instanceof Wrapper)
 		{
 			value = ((Wrapper)value).unwrap();
@@ -1566,32 +1444,23 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 					}
 				}
 			}
-			super.put(name, start, value);
 		}
 	}
 
 
-	@Override
 	public String getClassName()
 	{
 		return "JSDataSet"; //$NON-NLS-1$
 	}
 
 
-	@Override
 	public Object[] getAllIds()
 	{
 		return getIds();
 	}
 
-	@Override
 	public Object[] getIds()
 	{
-//		if (columnameMap == null)
-//		{
-//			makeColumnMap();
-//		}
-//		return columnameMap.keySet().toArray();
 		List<String> al = new ArrayList<String>();
 		al.add("rowIndex"); //$NON-NLS-1$
 		al.add("rowColumns"); //$NON-NLS-1$
@@ -1645,131 +1514,6 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 	public IDataSet getDelegate()
 	{
 		return set;
-	}
-
-	/*
-	 * @see org.mozilla.javascript.IdScriptable#execMethod(int, org.mozilla.javascript.IdFunction, org.mozilla.javascript.Context,
-	 * org.mozilla.javascript.Scriptable, org.mozilla.javascript.Scriptable, java.lang.Object[])
-	 */
-	@Override
-	public Object execIdCall(IdFunctionObject f, Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
-	{
-		JSDataSet dataset = (JSDataSet)thisObj;
-		int methodId = f.methodId();
-		try
-		{
-			switch (methodId)
-			{
-				case Id_toString :
-					return dataset.toString();
-				case Id_setValue :
-					int rowIdx = (int)ScriptRuntime.toInteger(args[0]);
-					int columnIndex = (int)ScriptRuntime.toInteger(args[1]);
-					Object obj = (args.length >= 3 ? args[2] : null);
-					if (obj instanceof Wrapper)
-					{
-						obj = ((Wrapper)obj).unwrap();
-					}
-					dataset.js_setValue(rowIdx, columnIndex, obj);
-					return ScriptRuntime.NaNobj;
-				case Id_addHTMLProperty :
-					rowIdx = (int)ScriptRuntime.toInteger(args[0]);
-					columnIndex = (int)ScriptRuntime.toInteger(args[1]);
-					dataset.js_addHTMLProperty(rowIdx, columnIndex, ScriptRuntime.toString(args[2]), ScriptRuntime.toString(args[3]));
-					return ScriptRuntime.NaNobj;
-				case Id_getAsTableModel :
-					return cx.getWrapFactory().wrap(cx, scope, dataset.js_getAsTableModel(), null);
-				case Id_createDataSource :
-					return dataset.js_createDataSource(ScriptRuntime.toString(args[0]), args.length > 1 ? args[1] : null);
-				case Id_getAsHTML :
-					return dataset.js_getAsHTML(args);
-				case Id_getAsText :
-					return dataset.js_getAsText(ScriptRuntime.toString(args[0]), ScriptRuntime.toString(args[1]), ScriptRuntime.toString(args[2]),
-						ScriptRuntime.toBoolean(args[3]));
-				case Id_getColumnAsArray :
-					columnIndex = (int)ScriptRuntime.toInteger(args[0]);
-					return cx.getWrapFactory().wrap(cx, scope, dataset.js_getColumnAsArray(columnIndex), Object[].class);
-				case Id_getColumnName :
-					columnIndex = (int)ScriptRuntime.toInteger(args[0]);
-					return dataset.js_getColumnName(columnIndex);
-				case Id_getExceptionMsg :
-					return dataset.js_getExceptionMsg();
-				case Id_getException :
-					return dataset.js_getException();
-				case Id_getMaxColumnIndex :
-					return new Integer(dataset.js_getMaxColumnIndex());
-				case Id_getMaxRowIndex :
-					return new Integer(dataset.js_getMaxRowIndex());
-				case Id_getRowIndex :
-					return new Integer(dataset.js_getRowIndex());
-				case Id_getValue :
-					rowIdx = (int)ScriptRuntime.toInteger(args[0]);
-					columnIndex = (int)ScriptRuntime.toInteger(args[1]);
-					return cx.getWrapFactory().wrap(cx, scope, dataset.js_getValue(rowIdx, columnIndex), null);
-				case Id_hadMoreData :
-					return dataset.js_hadMoreData() ? Boolean.TRUE : Boolean.FALSE;
-				case Id_setRowIndex :
-					columnIndex = (int)ScriptRuntime.toInteger(args[0]);
-					dataset.js_setRowIndex(columnIndex);
-					return ScriptRuntime.NaNobj;
-				case Id_sort :
-					dataset.js_sort(args);
-					return ScriptRuntime.NaNobj;
-				case Id_getRowAsArray :
-					rowIdx = (int)ScriptRuntime.toInteger(args[0]);
-					return cx.getWrapFactory().wrap(cx, scope, dataset.js_getRowAsArray(rowIdx), Object[].class);
-				case Id_removeRow :
-					rowIdx = (int)ScriptRuntime.toInteger(args[0]);
-					dataset.js_removeRow(rowIdx);
-					return ScriptRuntime.NaNobj;
-				case Id_addRow :
-					Object argData = args[args.length - 1];
-					if (argData instanceof Wrapper)
-					{
-						argData = ((Wrapper)argData).unwrap();
-					}
-					if (argData instanceof Object[])
-					{
-						Object[] wrappedData = (Object[])argData;
-						Object[] unwrappedData = new Object[wrappedData.length];
-						for (int i = 0; i < wrappedData.length; i++)
-						{
-							if (wrappedData[i] instanceof Wrapper)
-							{
-								unwrappedData[i] = ((Wrapper)wrappedData[i]).unwrap();
-							}
-							else
-							{
-								unwrappedData[i] = wrappedData[i];
-							}
-						}
-						if (args.length == 1)
-						{
-							dataset.js_addRow(unwrappedData);
-						}
-						else if (args.length == 2)
-						{
-							rowIdx = (int)ScriptRuntime.toInteger(args[0]);
-							dataset.js_addRow(rowIdx, unwrappedData);
-						}
-					}
-					return ScriptRuntime.NaNobj;
-				case Id_addColumn :
-					return Boolean.valueOf(dataset.js_addColumn(args));
-				case Id_removeColumn :
-					if (args.length == 1)
-					{
-						return Boolean.valueOf(dataset.js_removeColumn((int)ScriptRuntime.toInteger(args[0])));
-					}
-					return Boolean.FALSE;
-			}
-		}
-		catch (ServoyException e)
-		{
-			Debug.error(e);
-			throw new RuntimeException(e.getMessage());
-		}
-		return super.execIdCall(f, cx, scope, thisObj, args);
 	}
 
 	private class DataModel extends AbstractTableModel
@@ -1844,11 +1588,6 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 			return foundSet;
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.lang.Object#clone()
-		 */
 		@Override
 		public FoundsetDataSet clone()
 		{
@@ -1859,15 +1598,6 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 		{
 			return dataSource;
 		}
-
-//		@Override
-//		protected void finalize() throws Throwable
-//		{
-//			// drop the temp table
-//			IServiceProvider application = foundSet.getFoundSetManager().getApplication();
-//			ITable table = foundSet.getTable();
-//			application.getDataServer().dropTemporaryTable(application.getClientID(), table.getServerName(), table.getName());
-//		}
 
 		//////// IFoundSetEventListener methods ///////////
 
@@ -1964,7 +1694,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 			if (rowCount == null)
 			{
 				// possibly expensive, so cache the value
-				rowCount = new Integer(foundSet.getFoundSetManager().getFoundSetCount(foundSet));
+				rowCount = Integer.valueOf(foundSet.getFoundSetManager().getFoundSetCount(foundSet));
 			}
 			return rowCount.intValue();
 		}
@@ -2035,5 +1765,51 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 		{
 			foundSet.sort(rowComparator);
 		}
+	}
+
+	public boolean hasInstance(Scriptable instance)
+	{
+		return false;
+	}
+
+	public void put(int index, Scriptable start, Object value)
+	{
+		// ignore
+	}
+
+	public void delete(String name)
+	{
+		// ignore
+	}
+
+	public void delete(int index)
+	{
+		// ignore
+	}
+
+	public boolean has(int index, Scriptable start)
+	{
+		return false;
+	}
+
+	private Scriptable parentScope;
+
+	public Scriptable getParentScope()
+	{
+		if (parentScope == null)
+		{
+			return application.getScriptEngine().getSolutionScope();
+		}
+		return parentScope;
+	}
+
+	public void setParentScope(Scriptable parent)
+	{
+		parentScope = parent;
+	}
+
+	public Object getDefaultValue(Class< ? > hint)
+	{
+		return toString();
 	}
 }
