@@ -2731,6 +2731,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 */
 	public void js_updateUI(int milliseconds)
 	{
+		if (milliseconds < 100) milliseconds = 100;
 		application.updateUI(milliseconds);
 	}
 
