@@ -29,4 +29,8 @@ public interface ITypedScriptObject extends IScriptObject
 	public boolean isDeprecated(String methodName, Class< ? >[] argTypes);
 
 	public String getDeprecatedText(String methodName, Class< ? >[] argTypes);
+
+	public abstract String getReturnDescription(String methodName, Class< ? >[] argTypes);
+
+	public abstract Class< ? > getReturnedType(String methodName, Class< ? >[] argTypes);
 }
