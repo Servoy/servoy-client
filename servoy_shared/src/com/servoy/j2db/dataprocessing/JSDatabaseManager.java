@@ -791,6 +791,18 @@ public class JSDatabaseManager
 		return new JSDataSet(application, rowCount, columnNames);
 	}
 
+	/**
+	 * @clonedesc js_createEmptyDataSet(int,int)
+	 * 
+	 * @sampleas js_createEmptyDataSet(int,int)
+	 * 
+	 * @return An empty JSDataSet with the initial sizes. 
+	 */
+	public JSDataSet js_createEmptyDataSet()
+	{
+		return new JSDataSet(application);
+	}
+
 	private boolean validateQueryArguments(Object[] arguments, String sql_query)
 	{
 		// TODO HOW TO HANDLE ARGS WITH NULL?? sHOULD BE CONVERTED TO NullValue?????
