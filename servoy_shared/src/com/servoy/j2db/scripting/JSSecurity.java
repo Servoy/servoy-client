@@ -940,6 +940,18 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	}
 
 	/**
+	 * @clonedesc js_logout(String,String,Object)
+	 * @sampleas js_logout(String,String,Object)
+	 * 
+	 * @param solutionToLoad the solution to load after logout
+	 * @param method the method to run in the solution to load
+	 */
+	public void js_logout(String solutionToLoad, String method)
+	{
+		js_logout(solutionToLoad, method, null);
+	}
+
+	/**
 	 * Logout the current user and close the solution, if the solution requires authentication and user is logged in.
 	 * You can redirect to another solution if needed; if you want to go to a different url, you need to call application.showURL(url) before calling security.logout() (this is only applicable for Web Client).
 	 * An alternative option to close a solution and to open another solution, while keeping the user logged in, is application.closeSolution().
