@@ -82,7 +82,7 @@
 		<delete dir="${build.result.folder}/@dot"/>
 		<mkdir dir="${build.result.folder}/@dot"/>
 		<path id="@dot.classpath">
-			<pathelement path="../eclipse_target/compile_target/install/plugins/org.eclipse.osgi_3.7.1.R37x_v20110808-1106.jar"/>
+			<pathelement path="../eclipse_target/compile_target/install/plugins/org.eclipse.osgi_3.7.2.v20120110-1415.jar"/>
 			<pathelement path="../eclipse_target/ship_plugins/plugins/org.eclipse.equinox.transforms.hook_1.0.300.201106061129.jar"/>
 			<pathelement path="../org.eclipse.dltk.javascript.rhino/bin/"/>
 			
