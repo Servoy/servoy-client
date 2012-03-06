@@ -138,7 +138,18 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	}
 
 	/**
-	 * Get the current user UID (null if not logged in), finds the userUID for given user_name if passed as parameter.
+	 * @clonedesc js_getUserUID(String)
+	 * @sampleas js_getUserUID(String)
+	 * 
+	 * @return the userUID
+	 */
+	public String js_getUserUID() throws ServoyException
+	{
+		return js_getUserUID(null);
+	}
+
+	/**
+	 * Get the current user UID (null if not logged in); finds the userUID for given user_name if passed as parameter.
 	 *
 	 * @sample
 	 * //gets the current loggedIn username
@@ -148,24 +159,23 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	 * //is the same as above 
 	 * //var my_userUID = security.getUserUID(); 
 	 *
-	 * @param username optional the username to find the userUID for
+	 * @param username the username to find the userUID for
+	 * 
 	 * @return the userUID 
 	 */
-	public String js_getUserUID(Object[] args) throws ServoyException
+	public String js_getUserUID(String username) throws ServoyException
 	{
 		checkAuthorized();
 		try
 		{
-			if (args == null || args.length != 1)
+			if (username == null || username.length() == 0)
 			{
 				// No user name specified, try logged in user.
 				return application.getUserUID();
 			}
 			else
 			{
-				// Get the user uid for the sepcified user name.
-				String userUID = normalizeUID(args[0]);
-				return application.getUserManager().getUserUID(application.getClientID(), userUID);
+				return application.getUserManager().getUserUID(application.getClientID(), username);
 			}
 		}
 		catch (Exception e)
@@ -176,12 +186,14 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	}
 
 	/**
-	 * @deprecated  As of release 3.0, replaced by {@link #getUserUID(Object[])}.
+	 * @deprecated  As of release 3.0, replaced by {@link #getUserUID(String)}.
 	 */
 	@Deprecated
 	public Object js_getUserId(Object[] args) throws ServoyException
 	{
-		return js_getUserUID(args);
+		if (args == null || args.length != 1) return js_getUserUID();
+		else if (args[0] instanceof String) return js_getUserUID((String)args[0]);
+		return null;
 	}
 
 	//group id's are meaningless pk's (not stable across repositories); don't expose
@@ -235,21 +247,33 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	}
 
 	/**
+	 * @clonedesc js_getUserName(Object)
+	 * @sampleas js_getUserName(Object)
+	 * 
+	 * @return the user name
+	 */
+	public String js_getUserName() throws ServoyException
+	{
+		return js_getUserName(null);
+	}
+
+	/**
 	 * Get the current user name (null if not logged in), finds the user name for given user UID if passed as parameter.
 	 *
 	 * @sample
 	 * //gets the current loggedIn username
 	 * var userName = security.getUserName(); 
 	 *
-	 * @param userUID optional to retrieve the name
+	 * @param userUID the user UID used to retrieve the name
+	 * 
 	 * @return the user name
 	 */
-	public String js_getUserName(Object[] args) throws ServoyException
+	public String js_getUserName(Object userUID) throws ServoyException
 	{
 		checkAuthorized();
 		try
 		{
-			if (args == null || args.length != 1)
+			if (userUID == null)
 			{
 				if (application.getClientInfo().getUserName() == null && application.getUserUID() != null)
 				{
@@ -263,9 +287,9 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 			}
 			else
 			{
-				String userUID = normalizeUID(args[0]);
+				String user_uid = normalizeUID(userUID);
 				// A user uid was specified; look up the user name.
-				return application.getUserManager().getUserName(application.getClientID(), userUID);
+				return application.getUserManager().getUserName(application.getClientID(), user_uid);
 			}
 		}
 		catch (Exception e)
@@ -548,6 +572,20 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	}
 
 	/**
+	 * @clonedesc js_createUser(String, String, Object)
+	 * @sampleas js_createUser(String, String, Object)
+	 * 
+	 * @param username the username
+	 * @param password the user password
+	 * 
+	 * @return the userUID the created userUID, will be same if provided
+	 */
+	public Object js_createUser(String username, String password) throws ServoyException
+	{
+		return js_createUser(username, password, null);
+	}
+
+	/**
 	 * Creates a new user, returns new uid (or null when group couldn't be created or user alreay exist).
 	 *
 	 * @sample
@@ -587,18 +625,13 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	 *
 	 * @param username the username
 	 * @param password the user password
-	 * @param userUID optional the userUID to use
+	 * @param userUID the user UID to use
+	 * 
 	 * @return the userUID the created userUID, will be same if provided
 	 */
-	public Object js_createUser(Object[] args) throws ServoyException
+	public Object js_createUser(String username, String password, Object userUID) throws ServoyException
 	{
 		checkAuthorized();
-		if (args == null || args.length < 2 || args[0] == null || args[1] == null) return null;
-
-		String username = args[0].toString();
-		String password = args[1].toString();
-		String a_userUID = (args.length > 2) ? args[2].toString() : null;
-
 		if (username == null || username.length() == 0 || password == null || password.length() == 0) return null;
 
 		try
@@ -606,18 +639,16 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 			// Check if the user name is free.
 			int userId = application.getUserManager().getUserIdByUserName(application.getClientID(), username);
 			if (userId != -1) return null;
-
-			String userUID = normalizeUID(a_userUID);
+			String user_uid = normalizeUID(userUID);
 
 			// If the user uid is specified, check if the UID is free.
-			if (userUID != null)
+			if (user_uid != null)
 			{
-
-				String userName = application.getUserManager().getUserName(application.getClientID(), userUID);
+				String userName = application.getUserManager().getUserName(application.getClientID(), user_uid);
 				if (userName != null) return null;
 			}
 
-			userId = application.getUserManager().createUser(application.getClientID(), username, password, userUID, false);
+			userId = application.getUserManager().createUser(application.getClientID(), username, password, user_uid, false);
 			if (userId != -1) return application.getUserManager().getUserUID(application.getClientID(), userId);
 		}
 		catch (Exception e)
@@ -630,7 +661,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	/**
 	 * Deletes an user. returns true if no error was reported.
 	 *
-	 * @sampleas js_createUser(Object[])
+	 * @sampleas js_createUser(String,String,Object)
 	 *
 	 * @param userUID The UID of the user to be deleted.
 	 * 
@@ -750,21 +781,32 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	}
 
 	/**
+	 * @clonedesc js_getUsers(String)
+	 * @sampleas js_getUsers(String)
+	 * 
+	 * @return dataset with all the users
+	 */
+	public JSDataSet js_getUsers() throws ServoyException
+	{
+		return js_getUsers(null);
+	}
+
+	/**
 	 * Get all the users in the security settings (returns a dataset).
 	 *
 	 * @sampleas js_getUserGroups(Object)
-	 * @param groupName optional the group to filter on
+	 * @param groupName the group to filter on
 	 * @return dataset with all the users
 	 */
-	public JSDataSet js_getUsers(Object[] vargs) throws ServoyException
+	public JSDataSet js_getUsers(String groupName) throws ServoyException
 	{
 		checkAuthorized();
 		try
 		{
 			IDataSet users = null;
-			if (vargs.length == 1)
+			if (groupName != null && groupName.length() > 0)
 			{
-				users = application.getUserManager().getUsersByGroup(application.getClientID(), vargs[0].toString());
+				users = application.getUserManager().getUsersByGroup(application.getClientID(), groupName);
 			}
 			else
 			{
@@ -877,6 +919,27 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	}
 
 	/**
+	 * @clonedesc js_logout(String,String,Object)
+	 * @sampleas js_logout(String,String,Object)
+	 * 
+	 */
+	public void js_logout()
+	{
+		js_logout(null, null, null);
+	}
+
+	/**
+	 * @clonedesc js_logout(String,String,Object)
+	 * @sampleas js_logout(String,String,Object)
+	 * 
+	 * @param solutionToLoad the solution to load after logout
+	 */
+	public void js_logout(String solutionToLoad)
+	{
+		js_logout(solutionToLoad, null, null);
+	}
+
+	/**
 	 * Logout the current user and close the solution, if the solution requires authentication and user is logged in.
 	 * You can redirect to another solution if needed; if you want to go to a different url, you need to call application.showURL(url) before calling security.logout() (this is only applicable for Web Client).
 	 * An alternative option to close a solution and to open another solution, while keeping the user logged in, is application.closeSolution().
@@ -890,13 +953,13 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	 * //Note: specifying a solution will not work in the Developer due to debugger dependencies
 	 * //specified solution should be of compatible type with client (normal type or client specific(Smart client only/Web client only) type )
 	 *
-	 * @param solutionToLoad optional the solution to load after logout
-	 * @param method optional the method to run in the solution to load
-	 * @param argument optional the argument to pass to the method to run
+	 * @param solutionToLoad the solution to load after logout
+	 * @param method the method to run in the solution to load
+	 * @param argument the argument to pass to the method to run
 	 */
-	public void js_logout(final Object[] solution_to_open_args)
+	public void js_logout(String solutionToLoad, String method, Object argument)
 	{
-		application.logout(solution_to_open_args);
+		application.logout(new Object[] { solutionToLoad, method, argument });
 	}
 
 	/**
