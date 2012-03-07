@@ -2613,7 +2613,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public int js_newRecord() throws ServoyException
 	{
-		return js_newRecord(0, true);
+		return js_newRecord(1, true);
 	}
 
 	/**
