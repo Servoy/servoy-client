@@ -326,8 +326,8 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	}
 
 	/**
-	 * @clonedesc js_addColumn(String, int, int)
-	 * @sampleas js_createColumn(String, int, int)
+	 * @clonedesc js_addColumn(String)
+	 * @sampleas js_addColumn(String)
 	 *
 	 * @param name column name.
 	 * @param index column index number between 1 and getMaxColumnIndex().
@@ -336,22 +336,8 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 */
 	public boolean js_addColumn(String name, int index)
 	{
-		return js_addColumn(name, index, 0);
+		return js_addColumn(name, Integer.valueOf(index), 0);
 	}
-
-	/**
-	 * @clonedesc js_addColumn(String, int, int)
-	 * @sampleas js_createColumn(String, int, int)
-	 *
-	 * @param name column name.
-	 * 
-	 * @return true if succeeded, else false.
-	 */
-	public boolean js_addColumn(String name)
-	{
-		return js_addColumn(name, 0, 0);
-	}
-
 
 	/**
 	 * adds a column with the specified name to the dataset.
@@ -361,6 +347,19 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * var success = dataset.addColumn('columnName',1);
 	 *
 	 * @param name column name.
+	 * 
+	 * @return true if succeeded, else false.
+	 */
+	public boolean js_addColumn(String name)
+	{
+		return js_addColumn(name, null, 0);
+	}
+
+	/**
+	 * @clonedesc js_addColumn(String)
+	 * @sampleas js_addColumn(String)
+	 *
+	 * @param name column name.
 	 *
 	 * @param index column index number between 1 and getMaxColumnIndex().
 	 *
@@ -368,11 +367,12 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * 
 	 * @return true if succeeded, else false.
 	 */
-	public boolean js_addColumn(String name, int index, int type)
+	public boolean js_addColumn(String name, Integer index, int type)
 	{
 		if (set == null) return false;
 
-		int columnIndex = index - 1;
+		// use Integer in stead of int to allow old vararg calls addColumn(name,null, type)
+		int columnIndex = (index == null ? 0 : index.intValue()) - 1;
 
 		boolean result = set.addColumn(columnIndex, name, type);
 		if (result)
