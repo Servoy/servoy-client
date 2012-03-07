@@ -801,8 +801,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 
 	 * @sampleas js_loadRecords(QBSelect)
 	 *
-	 * @param clearLastResults boolean, clear previous search, default true  
-	 * 
 	 * @return the recordCount
 	 * 
 	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_find()

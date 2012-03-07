@@ -959,8 +959,12 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @sameas com.servoy.j2db.dataprocessing.FoundSet#js_search()
+		 * @sameas com.servoy.j2db.dataprocessing.FoundSet#js_search(boolean)
 		 * @sampleas js_search()
+		 * 
+		 * @param clearLastResults boolean, clear previous search, default true  
+		 * 
+		 * @return the recordCount
 		 */
 		public int js_search(boolean clearLastResults) throws ServoyException
 		{
@@ -968,8 +972,13 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @sameas com.servoy.j2db.dataprocessing.FoundSet#js_search()
+		 * @sameas com.servoy.j2db.dataprocessing.FoundSet#js_search(boolean,boolean)
 		 * @sampleas js_search()
+		 * 
+		 * @param clearLastResults boolean, clear previous search, default true  
+		 * @param reduceSearch boolean, reduce (true) or extend (false) previous search results, default true
+		 * 
+		 * @return the recordCount
 		 */
 		public int js_search(boolean clearLastResults, boolean reduceSearch) throws ServoyException
 		{
