@@ -1075,14 +1075,23 @@ public class JSSolutionModel
 	 * for (var i in globalVariables)
 	 * 	application.output(globalVariables[i].name + " has the default value of " + globalVariables[i].defaultValue);
 	 * 
-	 * @param scopeName optional limit to global vars of specified scope name
-	 * 
 	 * @return an array of JSVariable type elements
 	 * 
 	 */
-	public JSVariable[] js_getGlobalVariables(Object[] args)
+	public JSVariable[] js_getGlobalVariables()
 	{
-		String scopeName = args == null || args.length == 0 && args[0] == null ? null : args[0].toString();
+		return js_getGlobalVariables(null);
+	}
+
+	/**
+	 * @clonedesc js_getGlobalVariables()
+	 * @sampleas js_getGlobalVariables()
+	 * @param scopeName optional limit to global vars of specified scope name
+	 * 
+	 * @return an array of JSVariable type elements
+	 */
+	public JSVariable[] js_getGlobalVariables(String scopeName)
+	{
 		List<JSVariable> variables = new ArrayList<JSVariable>();
 		Iterator<ScriptVariable> scriptVariables = application.getFlattenedSolution().getScriptVariables(scopeName, true);
 		while (scriptVariables.hasNext())
@@ -1200,14 +1209,22 @@ public class JSSolutionModel
 	 * for (var x in methods) 
 	 * 	application.output(methods[x].getName());
 	 * 
-	 * @param scopeName optional limit to global methods of specified scope name
-	 * 
 	 * @return an array of JSMethod type elements
 	 * 
 	 */
-	public JSMethod[] js_getGlobalMethods(Object[] args)
+	public JSMethod[] js_getGlobalMethods()
 	{
-		String scopeName = args == null || args.length == 0 && args[0] == null ? null : args[0].toString();
+		return js_getGlobalMethods(null);
+	}
+
+	/**
+	 * @clonedesc js_getGlobalMethods()
+	 * @sampleas js_getGlobalMethods()
+	 * @param scopeName limit to global methods of specified scope name
+	 * @return an array of JSMethod type elements
+	 */
+	public JSMethod[] js_getGlobalMethods(String scopeName)
+	{
 		List<JSMethod> methods = new ArrayList<JSMethod>();
 		Iterator<ScriptMethod> scriptMethods = application.getFlattenedSolution().getScriptMethods(scopeName, true);
 		while (scriptMethods.hasNext())
@@ -1396,34 +1413,39 @@ public class JSSolutionModel
 	 * 	for (var i in relations)
 	 * 		application.output(relations[i].name);
 	 *
-	 * @param primary_server_name/primary_data_source optional the specified name of the server or datasource for the specified table
-	 *
-	 * @param primary_table_name optional the specified name of the table
+	 * @param datasource the specified name of the datasource for the specified table
 	 * 
 	 * @return an array of all relations (all elements in the array are of type JSRelation)
 	 */
-	public JSRelation[] js_getRelations(Object[] args)
+
+	public JSRelation[] js_getRelations(String datasource)
+	{
+		String servername = null;
+		String tablename = null;
+		String[] names = DataSourceUtils.getDBServernameTablename(datasource);
+		if (names != null && names.length == 2)
+		{
+			servername = names[0];
+			tablename = names[1];
+		}
+
+		return js_getRelations(servername, tablename);
+	}
+
+	/**
+	 * @clonedesc js_getRelations(String)
+	 * @sampleas js_getRelations(String)
+	 * @param servername the specified name of the server for the specified table
+	 * @param tablename the specified name of the table
+	 * 
+	 * @return an array of all relations (all elements in the array are of type JSRelation)
+	 */
+	public JSRelation[] js_getRelations(String servername, String tablename)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
 
 		try
 		{
-			String servername = null;
-			String tablename = null;
-			if (args.length == 2)
-			{
-				servername = (String)args[0];
-				tablename = (String)args[1];
-			}
-			else if (args.length == 1)
-			{
-				String[] names = DataSourceUtils.getDBServernameTablename((String)args[0]);
-				if (names != null && names.length == 2)
-				{
-					servername = names[0];
-					tablename = names[1];
-				}
-			}
 			Table primaryTable = null;
 			if (servername != null && tablename != null)
 			{
@@ -1538,20 +1560,45 @@ public class JSSolutionModel
 	 * @param rightmargin the specified right margin of the page to be printed.
 	 * @param topmargin the specified top margin of the page to be printed.
 	 * @param bottommargin the specified bottom margin of the page to be printed.
-	 * @param orientation optional the specified orientation of the page to be printed; the default is Portrait mode
-	 * @param units optional the specified units for the width and height of the page to be printed; the default is pixels
 	 */
-	public String js_createPageFormat(Object[] vargs)
+
+	public String js_createPageFormat(double width, double height, double leftmargin, double rightmargin, double topmargin, double bottommargin)
 	{
-		double width = vargs.length <= 0 ? 0 : Utils.getAsDouble(vargs[0]);
-		double height = vargs.length <= 1 ? 0 : Utils.getAsDouble(vargs[1]);
-		double lm = vargs.length <= 2 ? 0 : Utils.getAsDouble(vargs[2]);
-		double rm = vargs.length <= 3 ? 0 : Utils.getAsDouble(vargs[3]);
-		double tm = vargs.length <= 4 ? 0 : Utils.getAsDouble(vargs[4]);
-		double bm = vargs.length <= 5 ? 0 : Utils.getAsDouble(vargs[5]);
-		int orientation = vargs.length <= 6 ? PageFormat.PORTRAIT : Utils.getAsInteger(vargs[6]);
-		int units = vargs.length <= 7 ? UNITS.PIXELS : Utils.getAsInteger(vargs[7]);
-		PageFormat pf = Utils.createPageFormat(width, height, lm, rm, tm, bm, orientation, units);
+		return js_createPageFormat(width, height, leftmargin, rightmargin, topmargin, bottommargin, PageFormat.PORTRAIT, UNITS.PIXELS);
+	}
+
+	/**
+	 * clonedesc js_createPageFormat(double, double, double, double, double, double)
+	 * @sampleas js_createPageFormat(double, double, double, double, double, double)
+	 * @param width the specified width of the page to be printed.
+	 * @param height the specified height of the page to be printed.
+	 * @param leftmargin the specified left margin of the page to be printed.
+	 * @param rightmargin the specified right margin of the page to be printed.
+	 * @param topmargin the specified top margin of the page to be printed.
+	 * @param bottommargin the specified bottom margin of the page to be printed.
+	 * @param orientation the specified orientation of the page to be printed; the default is Portrait mode
+	 */
+	public String js_createPageFormat(double width, double height, double leftmargin, double rightmargin, double topmargin, double bottommargin, int orientation)
+	{
+		return js_createPageFormat(width, height, leftmargin, rightmargin, topmargin, bottommargin, orientation, UNITS.PIXELS);
+	}
+
+	/**
+	 * clonedesc js_createPageFormat(double, double, double, double, double, double)
+	 * @sampleas js_createPageFormat(double, double, double, double, double, double)
+	 * @param width the specified width of the page to be printed.
+	 * @param height the specified height of the page to be printed.
+	 * @param leftmargin the specified left margin of the page to be printed.
+	 * @param rightmargin the specified right margin of the page to be printed.
+	 * @param topmargin the specified top margin of the page to be printed.
+	 * @param bottommargin the specified bottom margin of the page to be printed.
+	 * @param orientation the specified orientation of the page to be printed; the default is Portrait mode
+	 * @param units the specified units for the width and height of the page to be printed; the default is pixels
+	 */
+	public String js_createPageFormat(double width, double height, double leftmargin, double rightmargin, double topmargin, double bottommargin,
+		int orientation, int units)
+	{
+		PageFormat pf = Utils.createPageFormat(width, height, leftmargin, rightmargin, topmargin, bottommargin, orientation, units);
 		return PersistHelper.createPageFormatString(pf);
 	}
 
