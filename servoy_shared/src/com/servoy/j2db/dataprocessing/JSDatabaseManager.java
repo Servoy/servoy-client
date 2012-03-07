@@ -2238,7 +2238,7 @@ public class JSDatabaseManager
 	 * 
 	 * @sampleas js_saveData()
 	 *  
-	 * @param foundset The JSRecord to save.
+	 * @param record The JSRecord to save.
 	
 	 * @return true if the save was done without an error.
 	 */
