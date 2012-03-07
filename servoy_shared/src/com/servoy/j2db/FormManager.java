@@ -25,11 +25,13 @@ import java.awt.print.PrinterJob;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -79,6 +81,8 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 	public static final String DEFAULT_DIALOG_NAME = "dialog"; //$NON-NLS-1$
 	public static final String NO_TITLE_TEXT = "-none-"; //$NON-NLS-1$
 
+	private static final String NULL_KEY = "-NULL_KEY-"; //$NON-NLS-1$
+
 	public static final Rectangle FULL_SCREEN = new Rectangle(IApplication.FULL_SCREEN, IApplication.FULL_SCREEN, IApplication.FULL_SCREEN,
 		IApplication.FULL_SCREEN);
 
@@ -125,26 +129,41 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		application = app;
 		containers = new ConcurrentHashMap<String, IMainContainer>()
 		{
-			private final String NULL_KEY = "-NULL_KEY-"; //$NON-NLS-1$
-
 			@Override
 			public IMainContainer put(String key, IMainContainer value)
 			{
-				if (key == null) return super.put(NULL_KEY, value);
-				return super.put(key, value);
+				return super.put(key == null ? NULL_KEY : key, value);
 			}
 
-			/*
-			 * (non-Javadoc)
-			 * 
-			 * @see java.util.concurrent.ConcurrentHashMap#get(java.lang.Object)
-			 */
 			@Override
 			public IMainContainer get(Object key)
 			{
-				if (key == null) return super.get(NULL_KEY);
-				return super.get(key);
+				return super.get(key == null ? NULL_KEY : key);
 			}
+
+			@Override
+			public IMainContainer remove(Object key)
+			{
+				return super.remove(key == null ? NULL_KEY : key);
+			}
+
+			@Override
+			public boolean containsKey(Object key)
+			{
+				return super.containsKey(key == null ? NULL_KEY : key);
+			}
+
+			@Override
+			public Set<String> keySet()
+			{
+				Set<String> keyset = new HashSet<String>();
+				for (String key : super.keySet())
+				{
+					keyset.add(key == NULL_KEY ? null : key);
+				}
+				return keyset;
+			}
+
 		};
 		containers.put(mainContainer.getContainerName(), mainContainer);
 		currentContainer = mainContainer;
@@ -224,6 +243,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 	public void addForm(Form form, boolean selected)
 	{
 		Form f = possibleForms.put(form.getName(), form);
+
 		if (f != null && form != f)
 		{
 			// replace all occurrences to the previous form to this new form (newFormInstances) 
@@ -419,7 +439,6 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		}
 	}
 
-
 	private IMainContainer lastModalContainer;
 
 	//uninit
@@ -435,7 +454,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 				Map.Entry<String, IMainContainer> entry = it.next();
 				IMainContainer container = entry.getValue();
 				destroyContainer(container);
-				if (entry.getKey() != null) // remove all none null 
+				if (entry.getKey() != NULL_KEY) // remove all none null 
 				{
 					it.remove();
 				}
