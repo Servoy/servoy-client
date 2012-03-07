@@ -973,6 +973,12 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			}
 		}
 
+		if (!scopes.containsKey(ScriptVariable.GLOBAL_SCOPE))
+		{
+			// make sure there is always a globals scope
+			scopes.put(ScriptVariable.GLOBAL_SCOPE, new Pair<String, IRootObject>(ScriptVariable.GLOBAL_SCOPE, mainSolution));
+		}
+
 		return scopes;
 	}
 
