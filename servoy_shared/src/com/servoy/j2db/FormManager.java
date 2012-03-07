@@ -63,6 +63,7 @@ import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.scripting.ScopesScope;
 import com.servoy.j2db.scripting.SolutionScope;
+import com.servoy.j2db.util.AllowNullMap;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SafeArrayList;
@@ -106,7 +107,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 
 	private final IApplication application;
 
-	protected final ConcurrentMap<String, IMainContainer> containers; //windowname -> IMainContainer
+	protected final AllowNullMap<String, IMainContainer> containers; //windowname -> IMainContainer
 	protected IMainContainer currentContainer;
 	protected IMainContainer mainContainer;
 
@@ -125,29 +126,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 	public FormManager(IApplication app, IMainContainer mainContainer)
 	{
 		application = app;
-		containers = new ConcurrentHashMap<String, IMainContainer>()
-		{
-			private final String NULL_KEY = "-NULL_KEY-"; //$NON-NLS-1$
-
-			@Override
-			public IMainContainer put(String key, IMainContainer value)
-			{
-				if (key == null) return super.put(NULL_KEY, value);
-				return super.put(key, value);
-			}
-
-			/*
-			 * (non-Javadoc)
-			 * 
-			 * @see java.util.concurrent.ConcurrentHashMap#get(java.lang.Object)
-			 */
-			@Override
-			public IMainContainer get(Object key)
-			{
-				if (key == null) return super.get(NULL_KEY);
-				return super.get(key);
-			}
-		};
+		containers = new AllowNullMap<String, IMainContainer>(new ConcurrentHashMap<String, IMainContainer>());
 		containers.put(mainContainer.getContainerName(), mainContainer);
 		currentContainer = mainContainer;
 		this.mainContainer = mainContainer;
