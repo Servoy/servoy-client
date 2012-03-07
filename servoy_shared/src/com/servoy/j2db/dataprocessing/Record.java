@@ -202,7 +202,7 @@ public class Record implements Scriptable, IRecordInternal
 								for (StackTraceElement stackTraceElement : stackTrace)
 								{
 									sb.append("\n");
-									sb.append(stackTrace.toString());
+									sb.append(stackTraceElement.toString());
 								}
 								Debug.error(sb.toString(), new RuntimeException("calc timeout"));
 							}
@@ -1075,7 +1075,8 @@ public class Record implements Scriptable, IRecordInternal
 		return row.getLastException();
 	}
 
-	public void js_setException(@SuppressWarnings("unused") Exception ex)
+	public void js_setException(@SuppressWarnings("unused")
+	Exception ex)
 	{
 		//ignore
 	}
@@ -1106,7 +1107,8 @@ public class Record implements Scriptable, IRecordInternal
 		return parent;
 	}
 
-	public void js_setFoundset(@SuppressWarnings("unused") IFoundSetInternal foundset)
+	public void js_setFoundset(@SuppressWarnings("unused")
+	IFoundSetInternal foundset)
 	{
 		//ignore
 	}
