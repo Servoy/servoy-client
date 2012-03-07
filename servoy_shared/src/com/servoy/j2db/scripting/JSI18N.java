@@ -216,12 +216,7 @@ public class JSI18N
 	 */
 	public int js_getTimeZoneOffset(String timeZoneId)
 	{
-		TimeZone timeZone = TimeZone.getTimeZone(timeZoneId);
-		if (timeZone != null)
-		{
-			return timeZone.getOffset(System.currentTimeMillis());
-		}
-		return 0;
+		return js_getTimeZoneOffset(timeZoneId, null);
 	}
 
 	/**
@@ -229,16 +224,16 @@ public class JSI18N
 	 * @sampleas js_getTimeZoneOffset(String)
 	 * @param timezone The time zone to get the offset for.
 	 *
-	 * @param date optional The date in the time zone (default current date). Needed in case daylight saving time/GMT offset changes are used in the time zone.
+	 * @param date The date in the time zone (default current date). Needed in case daylight saving time/GMT offset changes are used in the time zone.
 	 * 
 	 * @return an int representing the time zone's offset from UTC.
 	 */
 	public int js_getTimeZoneOffset(String timeZoneId, Date date)
 	{
 		TimeZone timeZone = TimeZone.getTimeZone(timeZoneId);
-		if (timeZone != null && date != null)
+		if (timeZone != null)
 		{
-			return timeZone.getOffset(date.getTime());
+			return timeZone.getOffset(date != null ? date.getTime() : System.currentTimeMillis());
 		}
 		return 0;
 	}

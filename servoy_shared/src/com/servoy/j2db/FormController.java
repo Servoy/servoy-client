@@ -1739,26 +1739,26 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * @param units the specified units for the width and height of the page to be printed; the default is pixels
 		 */
 		public void jsFunction_setPageFormat(double width, double height, double leftmargin, double rightmargin, double topmargin, double bottommargin,
-			int orientation, int unitCode)
+			int orientation, int units)
 		{
 			checkDestroyed();
 
 			// translate the unit codes defined for this method to units used in the PageFormat classes
-			int units;
-			switch (unitCode)
+			int unitsType;
+			switch (units)
 			{
 				case 0 :
-					units = Size2DSyntax.MM;
+					unitsType = Size2DSyntax.MM;
 					break;
 				case 1 :
-					units = Size2DSyntax.INCH;
+					unitsType = Size2DSyntax.INCH;
 					break;
 				default : // pixels
-					units = (int)(Size2DSyntax.INCH / Utils.PPI);
+					unitsType = (int)(Size2DSyntax.INCH / Utils.PPI);
 					break;
 			}
 
-			PageFormat pf = Utils.createPageFormat(width, height, leftmargin, rightmargin, topmargin, bottommargin, orientation, units);
+			PageFormat pf = Utils.createPageFormat(width, height, leftmargin, rightmargin, topmargin, bottommargin, orientation, unitsType);
 			formController.setPageFormat(pf);
 		}
 
