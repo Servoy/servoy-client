@@ -61,6 +61,7 @@ import com.servoy.j2db.server.headlessclient.WebClientsApplication;
 import com.servoy.j2db.server.headlessclient.WebCredentials;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.server.shared.IFlattenedSolutionDebugListener;
+import com.servoy.j2db.server.shared.IUserManager;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
@@ -368,11 +369,11 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	}
 
 
-	public DebugJ2DBClient getJSUnitJ2DBClient()
+	public DebugJ2DBClient getJSUnitJ2DBClient(IUserManager userManager)
 	{
 		if (jsunitJ2DBClient == null)
 		{
-			jsunitJ2DBClient = createJSUnitClient();
+			jsunitJ2DBClient = createJSUnitClient(userManager);
 			jsunitJ2DBClient.setUnitTestMode(true);
 		}
 		return jsunitJ2DBClient;
@@ -465,7 +466,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		return client[0];
 	}
 
-	private DebugJ2DBClient createJSUnitClient()
+	private DebugJ2DBClient createJSUnitClient(final IUserManager userManager)
 	{
 		if (!ApplicationServerSingleton.waitForInstanceStarted())
 		{
@@ -522,6 +523,21 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 										// access the server directly to mark the client as local
 										ApplicationServerSingleton.get().setServerProcess(getClientID());
 										return register;
+									}
+
+
+									@Override
+									protected IUserManager createUserManager()
+									{
+										try
+										{
+											userManager.createGroup(ApplicationServerSingleton.get().getClientId(), IRepository.ADMIN_GROUP);
+										}
+										catch (Exception e)
+										{
+											Debug.error(e);
+										}
+										return userManager;
 									}
 
 									/**

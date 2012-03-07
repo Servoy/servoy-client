@@ -31,6 +31,7 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.server.headlessclient.WebCredentials;
 import com.servoy.j2db.server.shared.IDebugHeadlessClient;
+import com.servoy.j2db.server.shared.IUserManager;
 
 /**
  * Handler for debug clients 
@@ -55,7 +56,7 @@ public interface IDebugClientHandler
 
 	IDebugWebClient getDebugWebClient();
 
-	IDebugJ2DBClient getJSUnitJ2DBClient();
+	IDebugJ2DBClient getJSUnitJ2DBClient(IUserManager userManager);
 
 	void flagModelInitialised();
 
