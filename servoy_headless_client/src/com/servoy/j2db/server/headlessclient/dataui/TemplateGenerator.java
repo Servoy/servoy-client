@@ -2627,7 +2627,18 @@ public class TemplateGenerator
 			}
 				break;
 		}
-		applyTextProperties(field, styleObj);
+		if (field.getHorizontalAlignment() != -1)
+		{
+			if (field.getDisplayType() == Field.SPINNER || field.getDisplayType() == Field.CALENDAR) // all who's actual implementation is based on WebDataCompositeTextField
+			{
+				TextualStyle childTextCSS = css.addStyle('#' + ComponentFactory.getWebID(form, field) + WebDataCompositeTextField.AUGMENTED_FIELD_ID);
+				applyTextProperties(field, childTextCSS);
+			}
+			else
+			{
+				applyTextProperties(field, styleObj);
+			}
+		}
 		if (addWrapperDiv)
 		{
 			html.append("</div>");

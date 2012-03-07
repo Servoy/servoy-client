@@ -392,7 +392,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	/**
 	 * The type of display used by the field. Can be one of CALENDAR, CHECKS,
 	 * COMBOBOX, HTML_AREA, IMAGE_MEDIA, PASSWORD, RADIOS, RTF_AREA, TEXT_AREA,
-	 * TEXT_FIELD or TYPE_AHEAD.
+	 * TEXT_FIELD, TYPE_AHEAD, LIST_BOX, MULTI_SELECTION_LIST_BOX or SPINNER.
 	 */
 	public int getDisplayType()
 	{
