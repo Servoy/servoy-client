@@ -2345,13 +2345,11 @@ public class JSDatabaseManager
 	 * nextValue = databaseManager.getNextSequence(databaseManager.getDataSourceServerName(seqDataSource), databaseManager.getDataSourceTableName(seqDataSource), 'seq_table_value')
 	 * application.output(nextValue);
 	 *
-	 * @param dataSource|serverName The datasource that points to the table which has the column with the sequence,
+	 * @param dataSource The datasource that points to the table which has the column with the sequence,
 	 * 								or the name of the server where the table can be found. If the name of the server
 	 * 								is specified, then a second optional parameter specifying the name of the table
 	 * 								must be used. If the datasource is specified, then the name of the table is not needed
 	 * 								as the second argument.
-	 * @param tableName optional The name of the table that has the column with the sequence. Use this parameter
-	 * 							only if you specified the name of the server as the first parameter.
 	 * @param columnName The name of the column that has a sequence defined in its properties.
 	 * 
 	 * @return The next sequence for the column, null if there was no sequence for that column 
@@ -2369,6 +2367,21 @@ public class JSDatabaseManager
 		return null;
 	}
 
+	/**
+	 * 
+	 * @param serverName The datasource that points to the table which has the column with the sequence,
+	 * 								or the name of the server where the table can be found. If the name of the server
+	 * 								is specified, then a second optional parameter specifying the name of the table
+	 * 								must be used. If the datasource is specified, then the name of the table is not needed
+	 * 								as the second argument.
+	 * @param tableName The name of the table that has the column with the sequence. Use this parameter
+	 * 							only if you specified the name of the server as the first parameter.
+	 * @param columnName The name of the column that has a sequence defined in its properties.
+	 * 
+	 * @return The next sequence for the column, null if there was no sequence for that column 
+	 *         or if there is no column with the given name.
+	 * @deprecated Use getNextSequence(datasource,column)
+	 */
 	@Deprecated
 	public Object js_getNextSequence(String serverName, String tableName, String columnName) throws ServoyException
 	{
