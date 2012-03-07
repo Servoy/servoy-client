@@ -43,6 +43,7 @@ import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
+import com.servoy.j2db.dataprocessing.IUserClient;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
@@ -512,6 +513,15 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 									{
 										runEvents();
 										super.updateUI(time);
+									}
+
+									@Override
+									protected boolean registerClient(IUserClient uc) throws Exception
+									{
+										boolean register = super.registerClient(uc);
+										// access the server directly to mark the client as local
+										ApplicationServerSingleton.get().setServerProcess(getClientID());
+										return register;
 									}
 
 									/**
