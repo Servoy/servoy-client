@@ -242,7 +242,7 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 			selectedObject = anObject;
 			int index = listModel.indexOf(selectedObject);
 
-			if (onlyUpdateValues)
+			if (!onlyUpdateValues)
 			{
 				Set<Integer> srows = getSelectedRows();
 				srows.clear();

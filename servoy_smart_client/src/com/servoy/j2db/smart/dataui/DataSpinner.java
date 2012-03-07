@@ -19,12 +19,12 @@ package com.servoy.j2db.smart.dataui;
 
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.util.HashMap;
 
 import javax.swing.ListModel;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
@@ -47,7 +47,9 @@ import com.servoy.j2db.util.model.IEditListModel;
 public class DataSpinner extends DataChoice
 {
 
-	private boolean willEnsureSelectedIsVisible = false;
+	// while we internally modify list input element or scroll to an index, ignore adjustment listeners that are only interested in direct user actions;
+	// while list cell height changes, we must ignore generated (scroll) events - as those will probably lead to incorrect indexes as they are not a user wish to change the value
+	private boolean disableUserAdjustmentListeners = false;
 
 	public DataSpinner(IApplication app, AbstractRuntimeValuelistComponent<IFieldComponent> scriptable, IValueList vl)
 	{
@@ -58,18 +60,46 @@ public class DataSpinner extends DataChoice
 		{
 			public void adjustmentValueChanged(AdjustmentEvent e)
 			{
-				if (e.getValueIsAdjusting()) return;
-
-				int idx = enclosedComponent.locationToIndex(getViewport().getViewPosition());
+				if (disableUserAdjustmentListeners || e.getValueIsAdjusting()) return;
+//				int y = (int)(enclosedComponent.getHeight() * (((double)e.getValue()) / e.getAdjustable().getMaximum()));
+//				final int idx = enclosedComponent.locationToIndex(new Point(getViewport().getViewPosition().x, y));
+				final int idx = getVisibleIndex();
 				if (idx > 0 && !isRowSelected(idx))
 				{
-					setElementAt(Boolean.TRUE, idx);
-					if (!enclosedComponent.hasFocus()) enclosedComponent.requestFocus();
-					enclosedComponent.setSelectedIndex(idx);
+					boolean focused = enclosedComponent.hasFocus();
+					if (!focused) enclosedComponent.requestFocus();
+
+					// if you would create a new record with non-nullable dataProvider for this spinner, type something in another text field then click
+					// on an arrow of the spinner, this would determine something like spinner:commit(someValue)->currentComponentNotCommitted->currentComponentCommit->TextFieldCommit->notifyDisplayAdaptersRecordChanged->spinner:changeValueTo(null)
+					// after that the spinner:commit continued with wrong (null) value... so we will do this later to allow the currentComponent to commit it's value
+					Runnable r = new Runnable()
+					{
+						public void run()
+						{
+							setElementAt(Boolean.TRUE, idx);
+							boolean old = disableUserAdjustmentListeners;
+							try
+							{
+								enclosedComponent.setSelectedIndex(idx);
+							}
+							finally
+							{
+								disableUserAdjustmentListeners = old;
+							}
+						}
+					};
+					if (!focused)
+					{
+						application.invokeLater(r);
+					}
+					else
+					{
+						r.run();
+					}
 				}
-				else if (list.getSize() > 0)
+				else if (list.getSize() > 0 && idx == 0 && list.getSelectedRow() != -1)
 				{
-					ensureSelectedIsVisible(); // do not allow blank value as a user choice
+					ensureSelectedIsVisible(false); // do not allow blank value as a user choice
 				}
 			}
 		});
@@ -78,7 +108,7 @@ public class DataSpinner extends DataChoice
 		{
 			public void valueChanged(ListSelectionEvent e)
 			{
-				if (e.getValueIsAdjusting()) return;
+				if (disableUserAdjustmentListeners || e.getValueIsAdjusting()) return;
 
 				int idx = enclosedComponent.getSelectedIndex();
 				if (idx > 0)
@@ -88,25 +118,58 @@ public class DataSpinner extends DataChoice
 				else if (list.getSize() > 0)
 				{
 					int previousIdx = (e.getFirstIndex() == idx) ? e.getLastIndex() : e.getFirstIndex();
-					enclosedComponent.setSelectedIndex(previousIdx);
+					boolean old = disableUserAdjustmentListeners;
+					try
+					{
+						enclosedComponent.setSelectedIndex(previousIdx);
+					}
+					finally
+					{
+						disableUserAdjustmentListeners = old;
+					}
 				}
 			}
 		});
 
-		addComponentListener(new ComponentAdapter()
+		enclosedComponent.getModel().addListDataListener(new ListDataListener()
 		{
-			@Override
-			public void componentShown(ComponentEvent e)
+			public void intervalRemoved(ListDataEvent e)
 			{
-				pinCellHeight();
+				ensureSelectedIsVisible(false);
 			}
 
-			@Override
-			public void componentResized(ComponentEvent e)
+			public void intervalAdded(ListDataEvent e)
+			{
+				ensureSelectedIsVisible(false);
+			}
+
+			public void contentsChanged(ListDataEvent e)
+			{
+				ensureSelectedIsVisible(false);
+			}
+		});
+
+		// listen for view port resize; adding a component listener for this does not help
+		// because that one decouples to invokeLater(...) but when in table-view the spinner renderer/editor needs to be paint ready right away
+		getViewport().addChangeListener(new ChangeListener()
+		{
+			public void stateChanged(ChangeEvent e)
 			{
 				pinCellHeight();
 			}
 		});
+		pinCellHeight();
+	}
+
+	@Override
+	public void setValueObject(Object data)
+	{
+		super.setValueObject(data);
+	}
+
+	protected int getVisibleIndex()
+	{
+		return enclosedComponent.locationToIndex(getViewport().getViewPosition());
 	}
 
 	@Override
@@ -125,13 +188,26 @@ public class DataSpinner extends DataChoice
 	protected void setElementAt(Object b, int idx)
 	{
 		if (idx > 0) list.setElementAt(b, idx - 1);
-		else list.setSelectedItem(null);
 	}
 
-	private void pinCellHeight()
+	protected void pinCellHeight()
 	{
-		enclosedComponent.setFixedCellHeight(getViewport().getHeight() - getViewport().getInsets().top - getViewport().getInsets().bottom);
-		enclosedComponent.validate();
+		int height = getViewport().getHeight() - getViewport().getInsets().top - getViewport().getInsets().bottom;
+		if (height != 0 && enclosedComponent.getFixedCellHeight() != height)
+		{
+			boolean old = disableUserAdjustmentListeners;
+			disableUserAdjustmentListeners = true;
+			try
+			{
+				enclosedComponent.setFixedCellHeight(height);
+				validate();
+			}
+			finally
+			{
+				disableUserAdjustmentListeners = old;
+			}
+			ensureSelectedIsVisible(true); // force because even if there is only a few pixels change (table view when you use keys to navigate to a cell) that might not change the visible index, we still have to reposition to where the selected index cell y begins
+		}
 	}
 
 	@Override
@@ -146,28 +222,23 @@ public class DataSpinner extends DataChoice
 		list.setMultiValueSelect(false);
 	}
 
-	@Override
-	public void contentsChanged(ListDataEvent e)
-	{
-		super.contentsChanged(e);
-
-		ensureSelectedIsVisible();
-	}
-
-	private void ensureSelectedIsVisible()
+	protected void ensureSelectedIsVisible(boolean force)
 	{
 		// avoid doing this needlessly, currently this method gets called at least once for each list item when selection changes from outside the component
-		if (willEnsureSelectedIsVisible == false)
+		int idx = list.getSelectedRow() + 1;
+		if (force || (getVisibleIndex() != idx))
 		{
-			willEnsureSelectedIsVisible = true;
-			application.invokeLater(new Runnable()
+			boolean old = disableUserAdjustmentListeners;
+			disableUserAdjustmentListeners = true;
+			try
 			{
-				public void run()
-				{
-					willEnsureSelectedIsVisible = false;
-					enclosedComponent.ensureIndexIsVisible(list.getSelectedRow() + 1);
-				}
-			});
+				enclosedComponent.ensureIndexIsVisible(idx);
+				enclosedComponent.setSelectedIndex(idx);
+			}
+			finally
+			{
+				disableUserAdjustmentListeners = old;
+			}
 		}
 	}
 
