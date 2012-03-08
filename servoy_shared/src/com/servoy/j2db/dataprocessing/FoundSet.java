@@ -2526,7 +2526,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public int js_duplicateRecord(int index, int location, boolean changeSelection) throws ServoyException
 	{
-		return duplicateRecord(index - 1, location, changeSelection) + 1;
+		return duplicateRecord(index - 1, location - 1, changeSelection) + 1;
 	}
 
 	/**
