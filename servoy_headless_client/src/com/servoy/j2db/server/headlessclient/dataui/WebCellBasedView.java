@@ -157,6 +157,7 @@ import com.servoy.j2db.ui.scripting.RuntimePortal;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IAnchorConstants;
+import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.IStyleRule;
 import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.ISupplyFocusChildren;
@@ -2194,6 +2195,25 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			((IServoyAwareBean)c).setValidationEnabled(validationEnabled);
 		}
 
+		addClassToCellComponent(c);
+		if (c instanceof WebDataCompositeTextField) // the check could be extended against IDelegate<?>
+		{
+			Object delegate = ((WebDataCompositeTextField)c).getDelegate();
+			if (delegate instanceof Component)
+			{
+				addClassToCellComponent((Component)delegate); // make sure that this class is added accordingly in TemplateGenerator as a style selector containing relevant properties
+			}
+		}
+
+		if (c instanceof ISupportValueList)
+		{
+			ISupportValueList idVl = (ISupportValueList)elementToColumnIdentifierComponent.get(element);
+			if (idVl != null) ((ISupportValueList)c).setValueList(idVl.getValueList());
+		}
+	}
+
+	private void addClassToCellComponent(final Component c)
+	{
 		Model<String> componentClassModel = new Model<String>()
 		{
 			@Override
@@ -2232,12 +2252,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				return result.trim();
 			}
 		});
-
-		if (c instanceof ISupportValueList)
-		{
-			ISupportValueList idVl = (ISupportValueList)elementToColumnIdentifierComponent.get(element);
-			if (idVl != null) ((ISupportValueList)c).setValueList(idVl.getValueList());
-		}
 	}
 
 	/*

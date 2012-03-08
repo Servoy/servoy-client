@@ -66,7 +66,7 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 {
 	private static final long serialVersionUID = 1L;
 
-	public static final String AUGMENTED_FIELD_ID = "augmentedField"; //$NON-NLS-1$
+	public static final String AUGMENTED_FIELD_ID = "_AF"; //$NON-NLS-1$
 
 	protected final WebDataField field;
 	protected final IApplication application;
@@ -76,9 +76,6 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 	private Insets margin;
 	private final AbstractRuntimeField<IFieldComponent> scriptable;
 
-	/**
-	 * @param id
-	 */
 	public WebDataCompositeTextField(IApplication application, AbstractRuntimeField<IFieldComponent> scriptable, String id)
 	{
 		super(id);
@@ -112,7 +109,7 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 
 	protected String getTextFieldId()
 	{
-		return AUGMENTED_FIELD_ID;
+		return getId() + AUGMENTED_FIELD_ID;
 	}
 
 	public AbstractRuntimeField<IFieldComponent> getScriptObject()
@@ -130,18 +127,12 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 		return new Component[] { field };
 	}
 
-	/**
-	 * @see org.apache.wicket.Component#getLocale()
-	 */
 	@Override
 	public Locale getLocale()
 	{
 		return application.getLocale();
 	}
 
-	/**
-	 * @see wicket.MarkupContainer#onRender(wicket.markup.MarkupStream)
-	 */
 	@Override
 	protected void onRender(MarkupStream markupStream)
 	{
@@ -426,9 +417,6 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 		field.setToolTipText(tip);
 	}
 
-	/**
-	 * @see com.servoy.j2db.ui.IComponent#getToolTipText()
-	 */
 	public String getToolTipText()
 	{
 		return field.getToolTipText();
@@ -590,9 +578,6 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 		return new Rectangle(location, d);
 	}
 
-	/**
-	 * @see com.servoy.j2db.ui.ISupportWebBounds#getPaddingAndBorder()
-	 */
 	public Insets getPaddingAndBorder()
 	{
 		return ((ChangesRecorder)getStylePropertyChanges()).getPaddingAndBorder(size.height, border, null, 0, null);
@@ -639,7 +624,7 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 		}
 
 		// When the composite field is neither editable nor read-only, we want the text field to be not editable, but
-		// we want to let the user change the date using the extra components.
+		// we want to let the user change the (date) value using the extra components.
 		// In this case we need the read only and filter backspace behaviors of the text field to work normally (they are enabled based
 		// on the "editable" member - which is set from the composite field), but we also need the normal onChange behavior to be enabled - so as the data is updated on the server even if the text field itself is read-only.
 		// Because the onChange uses accessor methods, if we overwrite those to always return editable = true and read-only = false, we should
@@ -654,12 +639,6 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 		public boolean isEditable()
 		{
 			return true;
-		}
-
-		@Override
-		public String getMarkupId()
-		{
-			return WebDataCompositeTextField.this.getMarkupId() + getId();
 		}
 
 	}

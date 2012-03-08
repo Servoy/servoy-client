@@ -937,6 +937,13 @@ public class TemplateGenerator
 								{
 									classBasedStyle.setProperty("float", "left");
 								}
+								if (isCompositeTextField(type))
+								{
+									// change it from id selector to class selector for table columns
+									String s = ComponentFactory.getWebID(form, element) + WebDataCompositeTextField.AUGMENTED_FIELD_ID;
+									TextualStyle classBasedTextStyle = css.get("#" + s);
+									css.put("." + s, classBasedTextStyle);
+								}
 							}
 							columns.append("</div>\n");
 							columns.append("</td>\n");
@@ -2629,7 +2636,7 @@ public class TemplateGenerator
 		}
 		if (field.getHorizontalAlignment() != -1)
 		{
-			if (field.getDisplayType() == Field.SPINNER || field.getDisplayType() == Field.CALENDAR) // all who's actual implementation is based on WebDataCompositeTextField
+			if (isCompositeTextField(field.getDisplayType())) // all who's actual implementation is based on WebDataCompositeTextField
 			{
 				TextualStyle childTextCSS = css.addStyle('#' + ComponentFactory.getWebID(form, field) + WebDataCompositeTextField.AUGMENTED_FIELD_ID);
 				applyTextProperties(field, childTextCSS);
@@ -2650,6 +2657,11 @@ public class TemplateGenerator
 		{
 			applyLocationAndSize(field, styleObj, ins, startY, endY, form.getSize().width, enableAnchoring);
 		}
+	}
+
+	private static boolean isCompositeTextField(int type)
+	{
+		return type == Field.SPINNER || type == Field.CALENDAR;
 	}
 
 	/**
@@ -2681,9 +2693,8 @@ public class TemplateGenerator
 		html.append(inline.toString());
 		html.append("><td ");
 		html.append(inline.toString());
-		html.append("><input type='text' servoy:id='");
-		html.append(WebDataCompositeTextField.AUGMENTED_FIELD_ID);
-		html.append("' ");
+		html.append("><input type='text' ");
+		html.append(getWicketIDParameter(form, field, "", WebDataCompositeTextField.AUGMENTED_FIELD_ID));
 		inline = new TextualStyle();
 		inline.setProperty("border-style", "none");
 		inline.setProperty("background-color", IStyleSheet.COLOR_TRANSPARENT);
