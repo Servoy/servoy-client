@@ -1086,7 +1086,7 @@ public class JSSolutionModel
 	/**
 	 * @clonedesc js_getGlobalVariables()
 	 * @sampleas js_getGlobalVariables()
-	 * @param scopeName optional limit to global vars of specified scope name
+	 * @param scopeName limit to global vars of specified scope name
 	 * 
 	 * @return an array of JSVariable type elements
 	 */
