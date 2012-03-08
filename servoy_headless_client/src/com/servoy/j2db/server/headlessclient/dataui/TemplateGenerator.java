@@ -837,8 +837,7 @@ public class TemplateGenerator
 			int firstComponentHeight = -1;
 			if (viewType == IForm.LIST_VIEW || viewType == FormController.LOCKED_LIST_VIEW)
 			{
-				Form f = (Form)obj;
-				Iterator<Part> partIte = f.getParts();
+				Iterator<Part> partIte = form.getParts();
 				while (partIte.hasNext())
 				{
 					Part p = partIte.next();
@@ -856,11 +855,11 @@ public class TemplateGenerator
 				}
 				else
 				{
-					columns.append(" width: ").append(f.getWidth()).append("px;");
+					columns.append(" width: ").append(form.getWidth()).append("px;");
 				}
 				columns.append("\">");
 
-				Iterator<IFormElement> it = f.getFormElementsSortedByFormIndex();
+				Iterator<IFormElement> it = form.getFormElementsSortedByFormIndex();
 				while (it.hasNext())
 				{
 					Point l = null;
@@ -871,11 +870,8 @@ public class TemplateGenerator
 
 					if (l.y >= startY && l.y < endY)
 					{
-						createComponentHTML(element, f, columns, css, bgColor, startY, endY, enableAnchoring, sp);
+						createTableViewComponentHTMLAndStyles(element, form, columns, css, bgColor, startY, endY, enableAnchoring, sp);
 						columns.append('\n');
-						TextualStyle idBasedStyle = css.addStyle('#' + ComponentFactory.getWebID(form, element));
-						TextualStyle classBasedStyle = css.addStyle('.' + ComponentFactory.getWebID(form, element));
-						classBasedStyle.copyAllFrom(idBasedStyle);
 					}
 				}
 
@@ -926,10 +922,7 @@ public class TemplateGenerator
 							//					columns.append("valign='middle' ");
 							columns.append('>');
 							columns.append("<div class='" + TABLE_VIEW_CELL_CLASS + "'>");
-							createComponentHTML(element, form, columns, css, bgColor, startY, endY, false, sp);
-							TextualStyle idBasedStyle = css.addStyle('#' + ComponentFactory.getWebID(form, element));
-							TextualStyle classBasedStyle = css.addStyle('.' + ComponentFactory.getWebID(form, element));
-							classBasedStyle.copyAllFrom(idBasedStyle);
+							TextualStyle classBasedStyle = createTableViewComponentHTMLAndStyles(element, form, columns, css, bgColor, startY, endY, false, sp);
 							if (element instanceof Field)
 							{
 								int type = ((Field)element).getDisplayType();
@@ -937,13 +930,7 @@ public class TemplateGenerator
 								{
 									classBasedStyle.setProperty("float", "left");
 								}
-								if (isCompositeTextField(type))
-								{
-									// change it from id selector to class selector for table columns
-									String s = ComponentFactory.getWebID(form, element) + WebDataCompositeTextField.AUGMENTED_FIELD_ID;
-									TextualStyle classBasedTextStyle = css.get("#" + s);
-									css.put("." + s, classBasedTextStyle);
-								}
+
 							}
 							columns.append("</div>\n");
 							columns.append("</td>\n");
@@ -995,6 +982,23 @@ public class TemplateGenerator
 		{
 			css.removeCSSBoundsHandler();
 		}
+	}
+
+	private static TextualStyle createTableViewComponentHTMLAndStyles(IPersist element, Form form, StringBuffer columns, TextualCSS css, Color bgColor, int startY,
+		int endY, boolean enableAnchoring, IServiceProvider sp) throws RepositoryException
+	{
+		createComponentHTML(element, form, columns, css, bgColor, startY, endY, enableAnchoring, sp);
+		TextualStyle idBasedStyle = css.addStyle('#' + ComponentFactory.getWebID(form, element));
+		TextualStyle classBasedStyle = css.addStyle('.' + ComponentFactory.getWebID(form, element));
+		classBasedStyle.copyAllFrom(idBasedStyle);
+		if (element instanceof Field && isCompositeTextField(((Field)element).getDisplayType()))
+		{
+			// change it from id selector to class selector for table columns
+			String s = ComponentFactory.getWebID(form, element) + WebDataCompositeTextField.AUGMENTED_FIELD_ID;
+			TextualStyle classBasedTextStyle = css.get("#" + s);
+			css.put("." + s, classBasedTextStyle);
+		}
+		return classBasedStyle;
 	}
 
 	private static void addAttributeToStyle(TextualStyle style, String attributeKey, Object attributeValue)
