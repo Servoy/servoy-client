@@ -28,8 +28,8 @@ public abstract class ClientVersion
 	private static final int majorVersion = 6;
 	private static final int middleVersion = 1;
 	private static final int minorVersion = 0;
-	private static final int releaseNumber = 1408;
-	private static final String versionPostfix = "a9";
+	private static final int releaseNumber = 1409;
+	private static final String versionPostfix = "b1";
 	private static final String version = majorVersion + "." + middleVersion + "." + minorVersion + (versionPostfix != null ? " " + versionPostfix : "");
 
 	public static int getReleaseNumber()

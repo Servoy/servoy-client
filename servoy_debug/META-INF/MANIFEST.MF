@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Servoy Debug Plug-in
 Bundle-SymbolicName: servoy_debug
-Bundle-Version: 6.1.0.1408
+Bundle-Version: 6.1.0.1409
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-Vendor: Servoy
 Require-Bundle: servoy_headless_client,servoy_shared,servoy
