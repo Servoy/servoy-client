@@ -89,9 +89,13 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 	private static final int MAX_FORMS_LOADED;
 	static
 	{
-		// TODO web clients?? Can they also get 128 forms??
+		// TODO web clients?? Can they also get 160 forms??
 		long maxMem = Runtime.getRuntime().maxMemory();
-		if (maxMem > 200000000)
+		if (maxMem > 300000000)
+		{
+			MAX_FORMS_LOADED = 192;
+		}
+		else if (maxMem > 200000000)
 		{
 			MAX_FORMS_LOADED = 128;
 		}
@@ -936,7 +940,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 				synchronized (leaseHistory)
 				{
 					int leaseHistorySize = leaseHistory.size();
-					if (leaseHistorySize > MAX_FORMS_LOADED)
+					if (leaseHistorySize > getMaxFormsLoaded())
 					{
 						for (int i = 0; i < leaseHistorySize; i++)
 						{
@@ -952,14 +956,14 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 					leaseHistory.add(fp);
 					if (Debug.tracing())
 					{
-						Debug.trace("FormPanel '" + fp.getName() + "' created, Loaded forms: " + leaseHistory.size() + " of " + MAX_FORMS_LOADED + " (max)."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+						Debug.trace("FormPanel '" + fp.getName() + "' created, Loaded forms: " + leaseHistory.size() + " of " + getMaxFormsLoaded() + " (max)."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 					}
 				}
 				if (toBeRemoved != null)
 				{
 					if (Debug.tracing())
 					{
-						Debug.trace("FormPanel '" + toBeRemoved.getName() + "' removed because of MAX_FORMS_LOADED (" + MAX_FORMS_LOADED + //$NON-NLS-1$ //$NON-NLS-2$
+						Debug.trace("FormPanel '" + toBeRemoved.getName() + "' removed because of MAX_FORMS_LOADED (" + getMaxFormsLoaded() + //$NON-NLS-1$ //$NON-NLS-2$
 							") was passed."); //$NON-NLS-1$
 					}
 					toBeRemoved.destroy();
@@ -982,6 +986,11 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 			}
 		}
 		return fp;
+	}
+
+	protected int getMaxFormsLoaded()
+	{
+		return MAX_FORMS_LOADED;
 	}
 
 	public boolean isPossibleForm(String formName)

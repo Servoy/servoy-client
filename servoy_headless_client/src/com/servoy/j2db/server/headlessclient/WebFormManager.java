@@ -41,6 +41,7 @@ import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.server.headlessclient.dataui.WebSplitPane;
 import com.servoy.j2db.server.headlessclient.dataui.WebTabPanel;
 import com.servoy.j2db.smart.SwingForm;
+import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -50,9 +51,25 @@ import com.servoy.j2db.util.Utils;
  */
 public class WebFormManager extends FormManager
 {
+	private final int maxForms;
+
+	@SuppressWarnings("nls")
 	public WebFormManager(IApplication app, IMainContainer mainp)
 	{
 		super(app, mainp);
+		int max = Utils.getAsInteger(Settings.getInstance().getProperty("servoy.max.webforms.loaded", "128"), false);
+		maxForms = max == 0 ? 128 : max;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.FormManager#getMaxFormsLoaded()
+	 */
+	@Override
+	protected int getMaxFormsLoaded()
+	{
+		return maxForms;
 	}
 
 	@Override
