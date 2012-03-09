@@ -74,9 +74,11 @@ public interface IForm
 	 * If you call this in the webclient then the returning component will be a FormUI wicket component with the wicket:id of "webform"
 	 * So you have to add a placeholder in your bean html file like: &lt;div wicket:id="webform"&gt;&lt;/div&gt; 
 	 * 
+	 * @param visibleExternal boolean if it will be showing external or not
+	 * 
 	 * @since Servoy 2.2
 	 */
-	public Object setUsingAsExternalComponent(boolean external) throws ServoyException;
+	public Object setUsingAsExternalComponent(boolean visibleExternal) throws ServoyException;
 
 	/**
 	 * Show all records from table.

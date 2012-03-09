@@ -4802,20 +4802,28 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		return form.getServerName();
 	}
 
-	public Object setUsingAsExternalComponent(boolean external) throws ServoyException
+	public Object setUsingAsExternalComponent(boolean visibleExternal) throws ServoyException
 	{
-		initForJSUsage();
-		setView(getView());
-		executeOnLoadMethod();
+		if (visibleExternal)
+		{
+			initForJSUsage();
+			setView(getView());
+			executeOnLoadMethod();
+		}
+		else
+		{
+			// make sure that the ui will have pushed all changes
+			stopUIEditing(true);
+		}
 
 		List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-		boolean ok = notifyVisible(external, invokeLaterRunnables);
+		boolean ok = notifyVisible(visibleExternal, invokeLaterRunnables);
 		Utils.invokeLater(application, invokeLaterRunnables);
 		if (!ok)
 		{
 			//TODO cannot hide...what todo?
 		}
-		else if (external && getFormUI() instanceof JComponent)
+		else if (visibleExternal && getFormUI() instanceof JComponent)
 		{
 			// If it is a swing component, test if it has a parent.
 			JComponent formUI = (JComponent)getFormUI();
@@ -4823,11 +4831,11 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			{
 				// remove it from the parent
 				formUI.getParent().remove(formUI);
-				// and make sure it is visible when we return it. (FixedCardLayout will set it to none visible when remove)
-				formUI.setVisible(true);
 			}
 		}
-		return (external ? getFormUI() : null);
+		// and make sure it is visible when we return it. (FixedCardLayout will set it to none visible when remove)
+		getFormUI().setComponentVisible(visibleExternal);
+		return (visibleExternal ? getFormUI() : null);
 	}
 
 	public void selectNextRecord()
