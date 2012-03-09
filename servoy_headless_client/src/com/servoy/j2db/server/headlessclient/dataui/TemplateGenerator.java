@@ -984,8 +984,8 @@ public class TemplateGenerator
 		}
 	}
 
-	private static TextualStyle createTableViewComponentHTMLAndStyles(IPersist element, Form form, StringBuffer columns, TextualCSS css, Color bgColor, int startY,
-		int endY, boolean enableAnchoring, IServiceProvider sp) throws RepositoryException
+	private static TextualStyle createTableViewComponentHTMLAndStyles(IPersist element, Form form, StringBuffer columns, TextualCSS css, Color bgColor,
+		int startY, int endY, boolean enableAnchoring, IServiceProvider sp) throws RepositoryException
 	{
 		createComponentHTML(element, form, columns, css, bgColor, startY, endY, enableAnchoring, sp);
 		TextualStyle idBasedStyle = css.addStyle('#' + ComponentFactory.getWebID(form, element));
@@ -996,7 +996,7 @@ public class TemplateGenerator
 			// change it from id selector to class selector for table columns
 			String s = ComponentFactory.getWebID(form, element) + WebDataCompositeTextField.AUGMENTED_FIELD_ID;
 			TextualStyle classBasedTextStyle = css.get("#" + s);
-			css.put("." + s, classBasedTextStyle);
+			if (classBasedTextStyle != null) css.put("." + s, classBasedTextStyle);
 		}
 		return classBasedStyle;
 	}
