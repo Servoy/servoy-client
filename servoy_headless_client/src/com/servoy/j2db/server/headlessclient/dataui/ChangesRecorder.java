@@ -62,7 +62,7 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 	private static final ConcurrentMap<Integer, String> SIZE_STRINGS = new ConcurrentHashMap<Integer, String>();
 
 	private final Properties changedProperties = new Properties();
-	private String bgcolor;
+	private String bgcolor, fgcolor, font;
 	private Insets defaultBorder;
 	private Insets defaultPadding;
 	private boolean changed;
@@ -155,14 +155,18 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 	 */
 	public void setFgcolor(String clr)
 	{
-		setChanged();
-		if (clr == null)
+		if (!Utils.equalObjects(this.fgcolor, clr))
 		{
-			changedProperties.remove("color"); //$NON-NLS-1$
-		}
-		else
-		{
-			changedProperties.put("color", clr); //$NON-NLS-1$
+			setChanged();
+			this.fgcolor = clr;
+			if (clr == null)
+			{
+				changedProperties.remove("color"); //$NON-NLS-1$
+			}
+			else
+			{
+				changedProperties.put("color", clr); //$NON-NLS-1$
+			}
 		}
 	}
 
@@ -381,22 +385,26 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 	 */
 	public void setFont(String spec)
 	{
-		setChanged();
-		Pair<String, String>[] props = PersistHelper.createFontCSSProperties(spec);
-		if (props != null)
+		if (!Utils.equalObjects(this.font, spec))
 		{
-			for (Pair<String, String> element : props)
+			setChanged();
+			this.font = spec;
+			Pair<String, String>[] props = PersistHelper.createFontCSSProperties(spec);
+			if (props != null)
 			{
-				if (element == null) continue;
-				changedProperties.put(element.getLeft(), element.getRight());
+				for (Pair<String, String> element : props)
+				{
+					if (element == null) continue;
+					changedProperties.put(element.getLeft(), element.getRight());
+				}
 			}
-		}
-		else
-		{
-			changedProperties.remove("font-family"); //$NON-NLS-1$
-			changedProperties.remove("font-size"); //$NON-NLS-1$
-			changedProperties.remove("font-style"); //$NON-NLS-1$
-			changedProperties.remove("font-weight"); //$NON-NLS-1$
+			else
+			{
+				changedProperties.remove("font-family"); //$NON-NLS-1$
+				changedProperties.remove("font-size"); //$NON-NLS-1$
+				changedProperties.remove("font-style"); //$NON-NLS-1$
+				changedProperties.remove("font-weight"); //$NON-NLS-1$
+			}
 		}
 	}
 

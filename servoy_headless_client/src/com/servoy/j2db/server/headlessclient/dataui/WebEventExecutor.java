@@ -524,6 +524,8 @@ public class WebEventExecutor extends BaseEventExecutor
 					// the component is not part of the table view (it is on other form part), so ignore selection change
 					return true;
 				}
+				else tableView.setSelectionMadeByCellAction();
+
 
 				if (parentFormViewType == IForm.LIST_VIEW || parentFormViewType == FormController.LOCKED_LIST_VIEW)
 				{
@@ -771,6 +773,7 @@ public class WebEventExecutor extends BaseEventExecutor
 				{
 					rowSelectionScript = wcbv.getRowSelectionScript();
 					wcbv.updateRowComponentsRenderState(target);
+					wcbv.clearSelectionByCellActionFlag();
 					if (rowSelectionScript != null) target.appendJavascript(rowSelectionScript);
 					columnResizeScript = wcbv.getColumnResizeScript();
 					if (columnResizeScript != null) target.appendJavascript(columnResizeScript);

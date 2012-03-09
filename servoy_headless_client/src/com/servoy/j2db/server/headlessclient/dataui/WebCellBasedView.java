@@ -157,7 +157,6 @@ import com.servoy.j2db.ui.scripting.RuntimePortal;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IAnchorConstants;
-import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.IStyleRule;
 import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.ISupplyFocusChildren;
@@ -793,6 +792,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					markSelected();
 					IFoundSetInternal modelFs = WebCellBasedViewListViewItem.this.listItem.getModelObject().getParentFoundSet();
 					int recIndex = modelFs.getRecordIndex(WebCellBasedViewListViewItem.this.listItem.getModelObject());
+					WebCellBasedView.this.setSelectionMadeByCellAction();
 					modelFs.setSelectedIndex(recIndex);
 					WebEventExecutor.generateResponse(target, getPage());
 				}
@@ -2397,6 +2397,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		getStylePropertyChanges().setRendered();
 		hasOnRender = hasOnRender();
 		nrUpdatedListItems = 0;
+		clearSelectionByCellActionFlag();
 	}
 
 	@Override
@@ -2629,22 +2630,49 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 	}
 
+	private boolean isSelectionByCellAction;
+
+	public void setSelectionMadeByCellAction()
+	{
+		isSelectionByCellAction = true;
+	}
+
+	public void clearSelectionByCellActionFlag()
+	{
+		isSelectionByCellAction = false;
+	}
+
+	public boolean isSelectionByCellAction()
+	{
+		return isSelectionByCellAction;
+	}
+
 	public void valueChanged(ListSelectionEvent e)
 	{
-		//test if selection did move to another page
-		if (currentData != null && !e.getValueIsAdjusting() && !isScrollMode())
+		if (currentData != null && !e.getValueIsAdjusting())
 		{
-			int newSelectedIndex = currentData.getSelectedIndex();
-			int newPageIndex = newSelectedIndex / table.getRowsPerPage();
-			if (table.getCurrentPage() != newPageIndex)
+			boolean isTableChanged = false;
+			if (!isSelectionByCellAction())
 			{
-				// try to lock the page of this cellbasedview, so that concurrent rendering can't or won't happen.
-				MainPage mp = table.findParent(MainPage.class);
-				if (mp != null) mp.touch();
-				table.setCurrentPage(newPageIndex);
-				// if table row selection color must work then this must be outside this if. 
-				getStylePropertyChanges().setChanged();
+				isTableChanged = true;
 			}
+
+			if (!isScrollMode()) //test if selection did move to another page
+			{
+				int newSelectedIndex = currentData.getSelectedIndex();
+				int newPageIndex = newSelectedIndex / table.getRowsPerPage();
+				if (table.getCurrentPage() != newPageIndex)
+				{
+					// try to lock the page of this cellbasedview, so that concurrent rendering can't or won't happen.
+					MainPage mp = table.findParent(MainPage.class);
+					if (mp != null) mp.touch();
+					table.setCurrentPage(newPageIndex);
+					// if table row selection color must work then this must be outside this if.
+					isTableChanged = true;
+				}
+			}
+
+			if (isTableChanged) getStylePropertyChanges().setChanged();
 		}
 	}
 
